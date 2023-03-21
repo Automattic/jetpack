@@ -80,22 +80,32 @@ class Update_Cloud_CSS implements Contracts\Endpoint {
 				continue;
 			}
 
-			// Collate URL errors.
-			$urls   = empty( $data['urls'] ) || ! is_array( $data['urls'] ) ? array() : $data['urls'];
-			$errors = array_map(
-				function ( $url ) use ( $urls ) {
-					return array_merge( array( 'url' => $url ), $urls[ $url ] );
-				},
-				array_keys( $data['urls'] )
-			);
+			// Failures must have an array of urls.
+			if ( empty( $data['urls'] ) || ! is_array( $data['urls'] ) ) {
+				return new \WP_Error( 'invalid_data', __( 'Invalid request; missing urls element', 'jetpack-boost' ) );
+			}
 
-			$state->set_provider_errors( $provider_key, $errors );
+			$state->set_provider_errors( $provider_key, $this->flatten_url_errors( $data['urls'] ) );
 		}
 
 		// Save the state changes.
 		$state->save();
 
 		return $api_successful;
+	}
+
+	/**
+	 * Errors arrive from Shield in an associative array with the URL as the key.
+	 * This function flattens the array into a list of assoc arrays with the URL in each member.
+	 */
+	private function flatten_url_errors( $errors ) {
+		$flat_errors = array();
+
+		foreach ( $errors as $url => $error ) {
+			$flat_errors [] = array_merge( array( 'url' => $url ), $error );
+		}
+
+		return $flat_errors;
 	}
 
 	public function permissions() {
