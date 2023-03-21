@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.1] - 2023-03-20
+### Changed
+- Product Interstitial: Use browser history to go back, in case they're coming from somewhere outside of the app. [#29138]
+- Updated My Jetpack wpwrap color to --jp-white-off [#29568]
+- Updated package dependencies. [#29471]
+
 ## [2.8.0] - 2023-03-13
 ### Added
 - Add Zendesk chat module to My Jetpack page [#28712]
@@ -766,6 +772,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[2.8.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.8.0...2.8.1
 [2.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.13...2.8.0
 [2.7.13]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.12...2.7.13
 [2.7.12]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.11...2.7.12
