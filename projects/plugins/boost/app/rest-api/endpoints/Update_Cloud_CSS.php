@@ -102,7 +102,7 @@ class Update_Cloud_CSS implements Contracts\Endpoint {
 		$flat_errors = array();
 
 		foreach ( $errors as $url => $error ) {
-			$flat_errors [] = array_merge( array( 'url' => $url ), $error );
+			$flat_errors[] = array_merge( array( 'url' => $url ), $error );
 		}
 
 		return $flat_errors;
