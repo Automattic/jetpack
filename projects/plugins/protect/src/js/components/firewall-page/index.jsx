@@ -65,7 +65,7 @@ const FirewallPage = () => {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: `${ ADMIN_URL }#/firewall`,
 	} );
-	const { recordEventHandler, recordEventAsync } = useAnalyticsTracks();
+	const { recordEventHandler, recordEvent } = useAnalyticsTracks();
 
 	const canToggleAutomaticRules = isEnabled && ( hasRequiredPlan || automaticRulesAvailable );
 
@@ -224,7 +224,7 @@ const FirewallPage = () => {
 								/* dummy arg to avoid bad minification */ 0
 						  ),
 				} );
-				recordEventAsync(
+				recordEvent(
 					newValue
 						? 'jetpack_protect_automatic_rules_enabled'
 						: 'jetpack_protect_automatic_rules_disabled'
@@ -245,7 +245,7 @@ const FirewallPage = () => {
 		formState,
 		toggleAutomaticRules,
 		setNotice,
-		recordEventAsync,
+		recordEvent,
 		upgradeIsSeen,
 		setWafUpgradeIsSeen,
 		handleApiError,
@@ -278,7 +278,7 @@ const FirewallPage = () => {
 								/* dummy arg to avoid bad minification */ 0
 						  ),
 				} );
-				recordEventAsync(
+				recordEvent(
 					newValue
 						? 'jetpack_protect_brute_force_protection_enabled'
 						: 'jetpack_protect_brute_force_protection_disabled'
@@ -286,7 +286,7 @@ const FirewallPage = () => {
 			} )
 			.catch( handleApiError )
 			.finally( () => setFormIsSubmitting( false ) );
-	}, [ formState, toggleBruteForceProtection, handleApiError, setNotice, recordEventAsync ] );
+	}, [ formState, toggleBruteForceProtection, handleApiError, setNotice, recordEvent ] );
 
 	/**
 	 * Handle Manual Rules Change
@@ -312,7 +312,7 @@ const FirewallPage = () => {
 								/* dummy arg to avoid bad minification */ 0
 						  ),
 				} );
-				recordEventAsync(
+				recordEvent(
 					newManualRulesStatus
 						? 'jetpack_protect_manual_rules_enabled'
 						: 'jetpack_protect_manual_rules_disabled'
@@ -320,7 +320,7 @@ const FirewallPage = () => {
 			} )
 			.catch( handleApiError )
 			.finally( () => setFormIsSubmitting( false ) );
-	}, [ formState, toggleManualRules, handleApiError, setNotice, recordEventAsync ] );
+	}, [ formState, toggleManualRules, handleApiError, setNotice, recordEvent ] );
 
 	/**
 	 * Handle Show Manual Rules Click
