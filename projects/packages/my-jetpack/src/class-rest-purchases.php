@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Client as Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 
 /**
  * Registers the REST routes for Purchases.
@@ -24,6 +25,15 @@ class REST_Purchases {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_site_current_purchases',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
+		register_rest_route(
+			'my-jetpack/v1',
+			'/refresh-plan-data',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::refresh_plan_data',
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
@@ -70,7 +80,18 @@ class REST_Purchases {
 		if ( is_wp_error( $response ) || empty( $response['body'] ) || 200 !== $response_code ) {
 			return new \WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ? $response_code : 400 ) );
 		}
+		Current_Plan::refresh_from_wpcom();
 
 		return rest_ensure_response( $body, 200 );
+	}
+
+	/**
+	 * Endpoint to refresh plan data.
+	 */
+	public static function refresh_plan_data() {
+		Current_Plan::refresh_from_wpcom();
+
+		$response = array();
+		return rest_ensure_response( $response, 200 );
 	}
 }
