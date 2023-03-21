@@ -12,16 +12,19 @@ export const name = 'launchpad-save-modal';
 
 export const settings = {
 	render: function LaunchpadSaveModal() {
-		const { isSavingSite, isSavingPost, isPublishingPost, isCurrentPostPublished } = useSelect(
-			selector => ( {
-				isSavingSite: selector( editorStore ).isSavingNonPostEntityChanges(),
-				isSavingPost: selector( editorStore ).isSavingPost(),
-				isPublishingPost: selector( editorStore ).isPublishingPost(),
-				isCurrentPostPublished: selector( editorStore ).isCurrentPostPublished(),
-			} )
-		);
-
-		const { link: postLink } = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
+		const {
+			isSavingSite,
+			isSavingPost,
+			isPublishingPost,
+			isCurrentPostPublished,
+			postLink,
+		} = useSelect( selector => ( {
+			isSavingSite: selector( editorStore ).isSavingNonPostEntityChanges(),
+			isSavingPost: selector( editorStore ).isSavingPost(),
+			isPublishingPost: selector( editorStore ).isPublishingPost(),
+			isCurrentPostPublished: selector( editorStore ).isCurrentPostPublished(),
+			postLink: selector( editorStore ).getPermalink(),
+		} ) );
 
 		const prevIsSavingSite = usePrevious( isSavingSite );
 		const prevIsSavingPost = usePrevious( isSavingPost );
