@@ -68,12 +68,18 @@ Also, if it's bigger than one hour, the hour input will be rendered into the Tim
 
 ### decimalPlaces
 
-- type: `1` | `2` | `3`
+- type: 1 | 2 | 3
 - optional
 
 The decimalPlaces property is used to add fractions of a second.
 This property allows the user to specify the number of digits to be displayed after the seconds separator,
 thus allowing for a customizable level of precision.
+
+<Canvas withSource="open">
+  <Story id="packages-videopress-timestamp-control--decimal-places" />
+</Canvas>
+
+The example above shows how to configure three decimal places. The max value is five seconds (5000).
 
 ### fineAdjustment
 

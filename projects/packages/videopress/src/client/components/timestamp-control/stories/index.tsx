@@ -56,3 +56,16 @@ _default.args = {
 };
 
 _default.storyName = 'Timestamp Control';
+
+// decimalPlaces story
+const decimalPlacesStoryTemplate: ComponentStory< typeof TimestampControl > = args => {
+	const [ time, setTime ] = useState( args.value );
+	return <TimestampControl { ...args } value={ time } onChange={ setTime } />;
+};
+
+export const decimalPlaces = decimalPlacesStoryTemplate.bind( {} );
+decimalPlaces.args = {
+	value: 3500, // 3.5 seconds
+	max: 1000 * 5, // five seconds
+	decimalPlaces: 2,
+};
