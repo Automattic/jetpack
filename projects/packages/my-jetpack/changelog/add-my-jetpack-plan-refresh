@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added endpoint to refresh plan data and refresh local plan data cache on plan refresh.
