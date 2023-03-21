@@ -1,7 +1,6 @@
-import { ExternalLink } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
+import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 import attributes from './attributes';
 import edit from './edit';
 import icon from './icon';
@@ -17,18 +16,12 @@ export const title = __( 'Writing Prompt', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,
-	description: (
-		<Fragment>
-			<p>{ __( 'Answer a new and inspiring writing prompt each day.', 'jetpack' ) }</p>
-			{ /* @TODO add link */ }
-			<ExternalLink href="#">{ __( 'Learn more.', 'jetpack' ) }</ExternalLink>
-		</Fragment>
-	),
+	description: __( 'Answer a new and inspiring writing prompt each day.', 'jetpack' ),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: getCategoryWithFallbacks( 'text' ),
 	keywords: [
 		_x( 'writing', 'block search term', 'jetpack' ),
 		_x( 'blogging', 'block search term', 'jetpack' ),

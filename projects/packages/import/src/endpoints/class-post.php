@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Import\Endpoints;
 
+use Automattic\Jetpack\Sync\Settings;
+
 if ( ! function_exists( 'post_exists' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/post.php';
 }
@@ -38,6 +40,7 @@ class Post extends \WP_REST_Posts_Controller {
 
 		// @see add_post_meta
 		$this->import_id_meta_type = $post_type;
+		add_action( "rest_insert_{$post_type}", array( $this, 'process_post_meta' ), 10, 3 );
 	}
 
 	/**
@@ -138,4 +141,63 @@ class Post extends \WP_REST_Posts_Controller {
 			return array();
 		}
 	}
+
+	/**
+	 * Processes the metadata of a WordPress post when creating or updating it.
+	 *
+	 * @param \WP_Post $post An object representing the post being created or updated.
+	 * @param mixed    $request An object containing the metadata being added to the post.
+	 * @param bool     $creating A flag indicating whether the post is being created or updated.
+	 * @return void
+	 */
+	public function process_post_meta( \WP_Post $post, $request, $creating ) {
+		$metas = $request->get_param( 'meta' );
+
+		if ( empty( $metas ) ) {
+			return;
+		}
+
+		$meta_keys_array = $this->filter_post_meta_keys( $metas );
+		// Adding it to the whitelist
+		Settings::update_settings( array( 'post_meta_whitelist' => $meta_keys_array ) );
+
+		if ( is_array( $metas ) ) {
+			foreach ( $metas as $meta_key => $meta_value ) {
+
+				$meta_value = maybe_unserialize( $meta_value );
+				if ( ! $creating && $meta_key === '_edit_last' ) {
+					update_post_meta( $post->ID, $meta_key, $meta_value );
+				} else {
+					// Add the meta data to the post
+					add_post_meta( $post->ID, $meta_key, $meta_value );
+				}
+
+				do_action( 'import_post_meta', $post->ID, $meta_key, $meta_value );
+			}
+		}
+	}
+
+	/**
+	 * Filters an array of post meta keys.
+	 *
+	 * @param array $metas An array of metas to filter.
+	 * @return array The filtered array of meta keys.
+	 */
+	private function filter_post_meta_keys( $metas ) {
+		// Define an array of keys to exclude from the filtered array
+		$excluded_keys = array();
+		// Convert array of keys to a plain array of key strings
+		$meta_keys = array_unique( array_values( array_keys( $metas ) ) );
+		// // Filter the array by removing the excluded keys and any keys that include '_oembed'
+		$filtered_keys = array_filter(
+			$meta_keys,
+			function ( $key ) use ( $excluded_keys ) {
+				// We also don't want to include any oembed post meta because it gets created after a post created
+				return ! in_array( $key, $excluded_keys, true ) && strpos( $key, '_oembed' ) === false;
+			}
+		);
+		// Return the filtered array
+		return $filtered_keys;
+	}
+
 }
