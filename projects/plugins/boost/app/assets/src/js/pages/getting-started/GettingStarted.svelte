@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { derived, get, writable } from 'svelte/store';
-	import { Snackbar } from '@wordpress/components';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
+	import Snackbar from '../../elements/Snackbar.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
 	import Header from '../../sections/Header.svelte';
 	import config, { markGetStartedComplete } from '../../stores/config';
@@ -18,33 +17,16 @@
 
 	let initiatingFreePlan = false;
 	let initiatingPaidPlan = false;
-	const dismissedSnackbar = writable( false );
-
-	const snackbarMessage = derived(
-		[ connection, dismissedSnackbar ],
-		( [ $connection, $dismissedSnackbar ] ) => {
-			if ( ! $dismissedSnackbar && ! $connection.connected && $connection.error?.message ) {
-				return $connection.error.message;
-			}
-
-			return null;
-		}
-	);
 
 	const ensureConnection = async () => {
-		let connectionStore;
-		connection.subscribe( value => {
-			connectionStore = value;
-		} );
-
-		if ( connectionStore.connected ) {
+		if ( $connection.connected ) {
 			return;
 		}
 
 		await connection.initialize();
 
-		if ( ! connectionStore.connected ) {
-			throw connectionStore.error;
+		if ( ! $connection.connected ) {
+			throw $connection.error;
 		}
 	};
 
@@ -63,8 +45,6 @@
 					// Need to await in this case because the generation request needs to go after the backend has enabled the module.
 					await updateModuleState( 'critical-css', true );
 					navigate( '/' );
-				} catch ( e ) {
-					dismissedSnackbar.set( false );
 				} finally {
 					initiatingFreePlan = false;
 				}
@@ -82,7 +62,7 @@
 					await ensureConnection();
 
 					// Check if the site is already on a premium plan and go directly to settings if so.
-					if ( get( config ).isPremium ) {
+					if ( $config.isPremium ) {
 						// Allow opening the boost settings page.
 						markGetStartedComplete();
 
@@ -91,8 +71,6 @@
 					}
 
 					window.location.href = getUpgradeURL();
-				} catch ( e ) {
-					dismissedSnackbar.set( false );
 				} finally {
 					initiatingPaidPlan = false;
 				}
@@ -109,6 +87,11 @@
 			navigate( '/', { replace: true } );
 		}
 	} );
+
+	let snackbarMessage = '';
+	$: if ( $connection.connected && $connection.error?.message ) {
+		snackbarMessage = $connection.error.message;
+	}
 </script>
 
 <div id="jb-settings" class="jb-settings jb-settings--main">
@@ -128,12 +111,8 @@
 						chosenFreePlan={initiatingFreePlan}
 						chosenPaidPlan={initiatingPaidPlan}
 					/>
-					{#if $snackbarMessage}
-						<ReactComponent
-							this={Snackbar}
-							children={$snackbarMessage}
-							onDismiss={() => dismissedSnackbar.set( true )}
-						/>
+					{#if snackbarMessage !== ''}
+						<Snackbar message={snackbarMessage} />
 					{/if}
 				</div>
 			</div>
