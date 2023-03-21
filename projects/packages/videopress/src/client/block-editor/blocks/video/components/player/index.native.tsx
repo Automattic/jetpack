@@ -10,7 +10,7 @@ import { View, Text } from 'react-native';
 /**
  * Internal dependencies
  */
-import style from '../../style.scss';
+import style from './style.scss';
 /**
  * Types
  */
@@ -39,9 +39,9 @@ export default function Player( {
 	}
 
 	return (
-		<View style={ { ...style[ 'wp-block-jetpack-videopress__video-player' ], ...loadingStyle } }>
+		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
 			{ ! isSelected && (
-				<View style={ style[ 'wp-block-jetpack-videopress__video-player-overlay' ] } />
+				<View style={ style[ 'videopress-player__overlay' ] } />
 			) }
 
 			{ ! isRequestingEmbedPreview && <SandBox html={ html } /> }
