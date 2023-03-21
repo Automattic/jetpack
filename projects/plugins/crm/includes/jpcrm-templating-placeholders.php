@@ -696,7 +696,7 @@ class jpcrm_templating_placeholders {
 
 				'invoice-label-to' => array(
 
-					'description' 		=> __( 'Label for name of customer receiving invoice', 'zero-bs-crm' ),
+					'description'     => __( 'Label for name of contact receiving invoice', 'zero-bs-crm' ),
 					'origin' 			=> __( 'Invoice Builder', 'zero-bs-crm' ),
 					'expected_format' 	=> 'str',
 					'available_in'	 	=> array(),
