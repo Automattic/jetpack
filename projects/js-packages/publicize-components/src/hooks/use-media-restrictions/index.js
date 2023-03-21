@@ -32,7 +32,7 @@ const getVideoLimits = enabledConnections =>
 				? RESTRICTIONS[ connection.service_name ].video
 				: DEFAULT_RESTRICTIONS.video
 		)
-		.reduce( reduceVideoLimits );
+		.reduce( reduceVideoLimits, [] );
 
 /**
  * Returns the currently allowed media types

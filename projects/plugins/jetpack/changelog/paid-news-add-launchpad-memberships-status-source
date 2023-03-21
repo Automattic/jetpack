@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Add the launchpad source to memberships status endpoint.

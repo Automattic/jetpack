@@ -389,7 +389,6 @@ class Grunion_Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-		self::enqueue_contact_forms_style_script();
 		self::register_contact_form_blocks();
 	}
 
@@ -530,6 +529,8 @@ class Grunion_Contact_Form_Plugin {
 				esc_html__( 'Submit a form.', 'jetpack' )
 			);
 		}
+
+		self::enqueue_contact_forms_style_script();
 
 		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
@@ -1807,11 +1808,12 @@ class Grunion_Contact_Form_Plugin {
 		sort( $field_names, SORT_NUMERIC );
 
 		$well_known_column_names = $this->get_well_known_column_names();
+		$result                  = array();
+
 		/**
 		 * Loop through every post, which is essentially CSV row.
 		 */
 		foreach ( $posts_data as $post_id => $single_post_data ) {
-
 			/**
 			 * Go through all the possible fields and check if the field is available
 			 * in the current post.
@@ -1824,10 +1826,18 @@ class Grunion_Contact_Form_Plugin {
 					? $well_known_column_names[ $single_field_name ]
 					: $single_field_name;
 
-					/**
-				 * Remove the numeral prefix 1_, 2_, etc, only for export results
+				/**
+				 * Remove the numeral prefix -3_, 1_, 2_, etc, only for export results.
+				 * Prefixes can be both positive and negative numeral values, functional to the SORT_NUMERIC above.
+				 * TODO: to return fieldnames based on field label, we need to work both field names and post data:
+				 * unique -> sort -> unique/rename
+				 * $renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
 				 */
-				$renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
+
+				if ( ! isset( $result[ $renamed_field ] ) ) {
+					$result[ $renamed_field ] = array();
+				}
+
 				if (
 					isset( $single_post_data[ $single_field_name ] )
 					&& ! empty( $single_post_data[ $single_field_name ] )
@@ -2016,7 +2026,7 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * @return null|void
 	 */
-	private function record_tracks_event( $event_name, $event_props ) {
+	public function record_tracks_event( $event_name, $event_props ) {
 		/*
 		 * Event details.
 		 */
@@ -3286,8 +3296,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				if ( ! empty( $matches[0] ) ) {
 					$options = array();
 					foreach ( $matches[0] as $shortcode ) {
-						$attr      = shortcode_parse_atts( $shortcode );
-						$options[] = $attr['label'];
+						$attr = shortcode_parse_atts( $shortcode );
+						if ( ! empty( $attr['label'] ) ) {
+							$options[] = $attr['label'];
+						}
 					}
 
 					$attributes['options'] = $options;

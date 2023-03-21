@@ -2,6 +2,39 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.0-a.5 - 2023-03-15
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Changelog edits. [#29445]
+- Updated package dependencies.
+
+## 12.0-a.3 - 2023-03-13
+### Enhancements
+- Newsletter: improve UI around newsletter visibility and add a help link in the post editor sidebar. [#29042]
+- Forms: redesign the Multiple Choice and Single Choice fields [#29290]
+
+### Improved compatibility
+- General: indicate full compatibility with the latest version of WordPress, 6.2. [#29341]
+
+### Bug fixes
+- Blogging Prompts: avoid PHP notices with non-existing REST query paarameters. [#29393]
+- Subscribe Block: don't show "Include social followers in count" when "Show subscribers count" is off, or Publicize is disabled. [#28944]
+- Slideshow Block: make slideshow block's play and pause icons visible. [#29330]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Stats: Add image to upgrade nudge in new stats view [#29273]
+- Dashboard: post-purchase recommendations for customizing search now points to the search customizer instead of Jetpack Cloud [#29375]
+- Add additonal valid parameter to membership status endpoint for paid newsletters [#29351]
+- AI block: Use chatGPT API endpoint [#29332]
+- Added tracking of Jetpack Forms exports to CSV files. [#29102]
+- Adding better error handling to Writing Prompt block [#29348]
+- Better handling for loading state and empty results [#29387]
+- Fix writing prompt post meta not saving when post immediately published [#29349]
+- Move action bar components out of inbox [#29360]
+- Move BulkActionsMenu component inside Inbox, too tailored to be reused [#29386]
+- Readme fixup. [#29364]
+- Updated package dependencies. [#29434]
+- Writing Prompt block: prevent multiple requests when fetching prompt or tags [#29373]
+
 ## 12.0-a.1 - 2023-03-08
 ### Enhancements
 - Admin: fix submenu positioning in admin menu. [#28355]
@@ -26,6 +59,12 @@
 - Updated package dependencies. [#29216]
 - VideoPress: pick and convert core/video VideoPress instances also from inner blocks [#29339]
 - Writing prompts: marks prompt as answered when using a writing prompt block [#29214]
+
+## 11.9.1 - 2023-03-14
+### Bug fixes
+- Forms: fix fatal error on sites using old AMP versions [#29444]
+- Forms: fix issue with exported form data column and fields being incorrect [#29448]
+- Sharing: ensure the sharing icons can appear when using a CDN to serve static assets on your site. [#29441]
 
 ## [11.9] - 2023-03-07
 ### Enhancements

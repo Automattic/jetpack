@@ -19,7 +19,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.1",
+		"automattic/wordbless": "0.4.2",
 		"yoast/phpunit-polyfills": "1.0.4",
 		"brain/monkey": "2.6.1"
 	},
@@ -78,6 +78,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ1_8_1_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_socialⓥ1_9_0_alpha"
 	}
 }
