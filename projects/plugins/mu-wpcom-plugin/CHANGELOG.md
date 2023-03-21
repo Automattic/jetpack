@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Internal updates.
 
-## 1.0.11-beta - 2023-03-20
 
 ## 1.0.10 - 2023-03-13
 ### Added
