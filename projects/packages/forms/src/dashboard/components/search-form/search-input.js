@@ -4,53 +4,25 @@
 import { SearchIcon } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, closeSmall } from '@wordpress/icons';
 import classnames from 'classnames';
+import { noop } from 'lodash';
+
 /**
  * Internal dependencies
  */
 import './style.scss';
 
-const InputWrapper = ( {
+const Input = ( {
 	className,
 	disabled = false,
-	loading = false,
-	icon = null,
 	endAdornment = null,
-	onChange,
-	onEnter,
+	icon = null,
+	loading = false,
 	...inputProps
 } ) => {
-	const handleChangeEvent = useCallback(
-		e => {
-			if ( onChange != null ) {
-				onChange( e.currentTarget.value );
-			}
-		},
-		[ onChange ]
-	);
-
-	const handleKeyUpEvent = useCallback(
-		e => {
-			if ( onEnter != null && [ 'Enter', 'NumpadEnter' ].includes( e.code ) ) {
-				onEnter( e.currentTarget.value );
-			}
-		},
-		[ onEnter ]
-	);
-
-	const baseProps = {
-		className: classnames( 'input', {
-			'with-icon': icon != null,
-		} ),
-		onChange: handleChangeEvent,
-		onKeyUp: handleKeyUpEvent,
-		disabled: disabled,
-		[ 'aria-disabled' ]: disabled,
-	};
-
 	return (
 		<div
 			className={ classnames( className, 'input-wrapper', {
@@ -58,7 +30,7 @@ const InputWrapper = ( {
 			} ) }
 		>
 			<>
-				{ loading || icon ? (
+				{ ( loading || icon ) && (
 					<div
 						className={ classnames( 'icon-wrapper', {
 							loader: loading,
@@ -66,59 +38,65 @@ const InputWrapper = ( {
 					>
 						{ loading ? <Spinner /> : icon }
 					</div>
-				) : null }
-				<input { ...inputProps } { ...baseProps } value={ inputProps.value } />
+				) }
+				<input
+					aria-disabled={ disabled }
+					className={ classnames( 'input', {
+						'with-icon': icon !== null,
+					} ) }
+					disabled={ disabled }
+					type="text"
+					{ ...inputProps }
+				/>
 				{ endAdornment }
 			</>
 		</div>
 	);
 };
 
-export const Input = ( { name, className, ...wrapperProps } ) => {
-	return <InputWrapper className={ className } { ...wrapperProps } />;
-};
-
-export const SearchInput = ( {
+const SearchInput = ( {
+	initialValue,
+	loading,
 	placeholder = __( 'Search responses', 'jetpack-forms' ),
-	onSearch,
+	onSearch = noop,
 	wait = 500,
 	...componentProps
 } ) => {
+	const [ searchText, setSearchText ] = useState( initialValue );
 	const debouncedOnChange = useDebounce( onSearch, wait );
 
-	const { onEnter, onChange } = componentProps;
-
-	const onEnterHandler = useCallback(
-		value => {
-			onEnter && onEnter( value );
-			onSearch( value );
+	const onChangeHandler = useCallback(
+		event => {
+			setSearchText( event.target.value );
+			debouncedOnChange( event.target.value );
 		},
-		[ onEnter, onSearch ]
+		[ debouncedOnChange ]
 	);
 
-	const onChangeHandler = useCallback(
-		value => {
-			onChange && onChange( value );
-			debouncedOnChange( value );
+	const onKeyUpHandler = useCallback(
+		event => {
+			if ( [ 'Enter', 'NumpadEnter' ].includes( event.code ) ) {
+				onSearch( event.currentTarget.value );
+			}
 		},
-		[ onChange, debouncedOnChange ]
+		[ onSearch ]
 	);
 
 	const clearInput = useCallback( () => {
-		onChange && onChange( '' );
+		setSearchText( '' );
 		onSearch( '' );
-	}, [ onChange, onSearch ] );
+	}, [ onSearch ] );
 
 	return (
 		<Input
 			{ ...componentProps }
 			icon={ <SearchIcon size={ 24 } /> }
 			placeholder={ placeholder }
-			type="text"
-			onEnter={ onEnterHandler }
 			onChange={ onChangeHandler }
+			onKeyUp={ onKeyUpHandler }
+			value={ searchText }
 			endAdornment={
-				<div className={ classnames( 'icon-wrapper', { hidden: ! componentProps.value } ) }>
+				<div className={ classnames( 'icon-wrapper', { hidden: ! searchText } ) }>
 					<Icon
 						icon={ closeSmall }
 						onClick={ clearInput }
@@ -130,4 +108,4 @@ export const SearchInput = ( {
 	);
 };
 
-export default Input;
+export default SearchInput;
