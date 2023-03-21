@@ -67,6 +67,7 @@ class Main {
 		$routes = array(
 			'categories' => new Endpoints\Category(),
 			'comments'   => new Endpoints\Comment(),
+			'custom-css' => new Endpoints\Custom_CSS(),
 			'media'      => new Endpoints\Attachment(),
 			'menu-items' => new Endpoints\Menu_Item(),
 			'menus'      => new Endpoints\Menu(),
