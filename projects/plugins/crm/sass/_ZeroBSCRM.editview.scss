@@ -200,6 +200,13 @@
 	}
 }
 
+.jpcrm-action-box-bottom-buttons {
+	display: flex;
+}
+
+.jpcrm-action-box-button {
+	flex: 1;
+}
 
 // e.g. can't load cos of perms
 #zbs-obj-edit-precheck-fail {

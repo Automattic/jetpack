@@ -1360,9 +1360,10 @@ class zeroBS__Metabox_QuoteTags extends zeroBS__Metabox_Tags{
                     <div class="clear"></div>
 
 
-                    <div class="zbs-quote-actions-bottom zbs-objedit-actions-bottom">
-
-                        <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Update","zero-bs-crm"); ?> <?php esc_html_e("Quote","zero-bs-crm"); ?></button>
+						<div class="zbs-quote-actions-bottom zbs-objedit-actions-bottom jpcrm-action-box-bottom-buttons">
+								<div class="jpcrm-action-box-button">
+									<button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Quote', 'zero-bs-crm' ); ?></button>
+								</div>
 
                         <?php
 
@@ -1370,7 +1371,8 @@ class zeroBS__Metabox_QuoteTags extends zeroBS__Metabox_Tags{
 
                          // for now just check if can modify, later better, granular perms.
                          if ( zeroBSCRM_permsQuotes() ) { 
-                        ?><div id="zbs-quote-actions-delete" class="zbs-objedit-actions-delete">
+							?>
+								<div id="zbs-quote-actions-delete" class="zbs-objedit-actions-delete jpcrm-action-box-button">
                              <a class="submitdelete deletion" href="<?php echo jpcrm_esc_link( 'delete', $quoteID, 'quote' ); ?>"><?php esc_html_e('Delete Permanently', "zero-bs-crm"); ?></a>
                         </div>
                         <?php } // can delete  ?>
