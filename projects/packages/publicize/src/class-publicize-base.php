@@ -1094,8 +1094,10 @@ abstract class Publicize_Base {
 									'type' => 'string',
 								),
 								'image_id'    => array(
-									'type'    => 'number',
-									'default' => 0,
+									'type' => 'number',
+								),
+								'template'    => array(
+									'type' => 'string',
 								),
 							),
 						),
