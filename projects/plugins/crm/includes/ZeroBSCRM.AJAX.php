@@ -2018,8 +2018,8 @@ function zbs_lead_form_capture() {
 									'objtype'   => ZBS_TYPE_CONTACT,
 									'objid'     => $cID,
 									'type'      => zeroBSCRM_permifyLogType( 'Form Filled' ),
-									'shortdesc' => __( 'Customer added via Form Submit', 'zero-bs-crm' ),
-									'longdesc'  => '<blockquote>' . __( 'Customer added via Form Submit', 'zero-bs-crm' ) . '</blockquote>',
+									'shortdesc' => __( 'Contact added via Form Submit', 'zero-bs-crm' ),
+									'longdesc'  => '<blockquote>' . __( 'Contact added via Form Submit', 'zero-bs-crm' ) . '</blockquote>',
 
 								),
 							)
