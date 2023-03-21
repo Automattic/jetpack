@@ -4,14 +4,16 @@ import { z } from 'zod';
 export const client = initializeClient( 'jetpack_boost_ds' );
 
 /**
- * Zod JSON Object type
- * From https://github.com/colinhacks/zod#json-type
- * Taken from the repository when zod was v3.20.6
+ * Definition for JSON types:
+ * - JSONValue can be any value compatible with JSON; an object (containing JSONValues), array, string, number, boolean, or null
+ * - JSONObject is an object containing JSONValues
+ * - JSONSchema is a zod schema that can be used to validate JSONValues
  */
 const literalSchema = z.union( [ z.string(), z.number(), z.boolean(), z.null() ] );
 type Literal = z.infer< typeof literalSchema >;
-export type JSONObject = Literal | { [ key: string ]: JSONObject } | JSONObject[];
-export const JSONSchema: z.ZodType< JSONObject > = z.lazy( () =>
+export type JSONValue = Literal | JSONObject | JSONValue[];
+export type JSONObject = { [ key: string ]: JSONValue };
+export const JSONSchema: z.ZodType< JSONValue > = z.lazy( () =>
 	z.union( [ literalSchema, z.array( JSONSchema ), z.record( JSONSchema ) ] )
 );
 
