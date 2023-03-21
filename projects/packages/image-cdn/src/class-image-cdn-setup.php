@@ -25,11 +25,7 @@ class Image_CDN_Setup {
 			'dns-prefetch'
 		);
 
-		require_once __DIR__ . '/compatibility/jetpack.php';
 		require_once __DIR__ . '/functions.photon.php';
-		require_once __DIR__ . '/class-image-cdn.php';
-		require_once __DIR__ . '/class-image-cdn-image.php';
-		require_once __DIR__ . '/class-image-cdn-image-sizes.php';
 
 		Image_CDN::instance();
 	}
