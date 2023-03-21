@@ -48,9 +48,9 @@ The CRM for small businesses. Manage leads, invoicing, billing, email marketing,
 
 <ul>
     <li>An invoice plugin for WordPress. (It's also an invoice plugin for WooCommerce.)</i>
-    <li>A client manager for WordPress. With a Client Portal for customers to view quotes, invoices, transactions, and files.</i>
+    <li>A client manager for WordPress. With a Client Portal for contacts to view quotes, invoices, transactions, and files.</i>
     <li>A lead generation tool for WordPress.</i>
-    <li>A plugin to make quotes and customer proposals right in WordPress.</i>
+    <li>A plugin to make quotes and contact proposals right in WordPress.</i>
     <li>A billing System for WordPress. Jetpack CRM can be connected to Stripe and PayPal via extensions and work as a payment gateway.</i>
     <li>A plugin to manage your business transactions and payments in WordPress.</i>
     <i>You can use it as a CRM for WooCommerce, tracking orders and automatically syncing payment transactions.</i>
@@ -69,7 +69,7 @@ The Jetpack CRM plugin installs in seconds, (with a super-quick welcome wizard t
 3. Add your first contact (lead or customer)
 </blockquote>
 
-Easy CRM's get used. Easy CRM's make your customer data work for you. We aim to make this easy, so you can get on with running your business.
+Easy CRM's get used. Easy CRM's make your contact data work for you. We aim to make this easy, so you can get on with running your business.
 
 Need a helping hand? No worries. Just <a href="https://kb.jetpackcrm.com/submit-a-ticket">ask here</a>.
 
@@ -77,7 +77,7 @@ Need a helping hand? No worries. Just <a href="https://kb.jetpackcrm.com/submit-
 
 ## 💸 Manage your business effectively
 
-<p>Keep your business information in order. Make proposals and send them to your customers as quotes. Make and send invoices to your clients and get paid through the client portal.</p>
+<p>Keep your business information in order. Make proposals and send them to your contacts as quotes. Make and send invoices to your clients and get paid through the client portal.</p>
 
 <p>Our billing system will allow you to track transactions and payments that your clients make for your products and services, (simple, effective accounting).</p>
 
@@ -145,8 +145,8 @@ We've added so much value to our new v4.0 that it's hard to give you a list of a
     * **[Contact Management](https://jetpackcrm.com/feature/contacts/)**: Add and manage Leads, Customers, or other Contacts
     * **[Quote Builder](https://jetpackcrm.com/feature/quotes/)**: Write & Deliver stunning online proposals to clients
     * **[Invoice Builder](https://jetpackcrm.com/feature/invoices/)**: Easily and quickly bill clients and get paid with online billing
-    * **[Transaction Manager](https://jetpackcrm.com/feature/transactions/)**: Log payments and refunds against customers
-    * **[Client Portal](https://jetpackcrm.com/feature/client-portal/)**: Allow customers to view proposals, invoices, and files on your website
+    * **[Transaction Manager](https://jetpackcrm.com/feature/transactions/)**: Log payments and refunds against contacts
+    * **[Client Portal](https://jetpackcrm.com/feature/client-portal/)**: Allow contacts to view proposals, invoices, and files on your website
     * **[Front-end Forms](https://jetpackcrm.com/feature/forms/)**: Collect leads from your posts, pages, or widgets, straight into your CRM
     * **[Task Scheduler](https://jetpackcrm.com/feature/tasks/)**: Schedule and manage a calendar against contacts and companies
     * **[Segments](https://jetpackcrm.com/feature/segments/)**: Create dynamic segments which allow you to group contacts based on data in your CRM
@@ -204,21 +204,21 @@ We've added so much value to our new v4.0 that it's hard to give you a list of a
     * Consistent development and improvements
 
 * 🏷️ **[White-Label CRM](https://jetpackcrm.com/reseller/)**
-    * [Rebranding Engine](https://jetpackcrm.com/feature/rebrandr/): Brand your CRM with your company name or a customers (and logo!)
+    * [Rebranding Engine](https://jetpackcrm.com/feature/rebrandr/): Brand your CRM with your company name or a contacts (and logo!)
     * [WordPress Override mode](https://jetpackcrm.com/feature/wordpress-override-mode/)
     * Fully takeover WordPress and make Jetpack CRM a standalone CRM (optional)
     * Branded login and disabled front-end make this resellable too!
     * Select the menu style you like: Slimline, CRM only, or Full
 
 * 🧾 **CRM Audit system**
-    * Automatically log customer events like "new invoice" or "filled out web form"
-    * Keep a track of customer calls or meetings
-    * See all customer activity at-a-glance from the customer record, (useful for accounting)
+    * Automatically log contacts events like "new invoice" or "filled out web form"
+    * Keep a track of contacts calls or meetings
+    * See all contacts activity at-a-glance from the contacts record, (useful for accounting)
     * **NEW:** [Automations](https://jetpackcrm.com/product/automations/) extension provides automatic actions on events!
 
 * ➕ **Too much more to mention here...**
     * [PDF Invoicing](https://jetpackcrm.com/feature/invoices/), billing statements and more client tools
-    * Invoice builder with line items, hourly or item rates, email invoices and get paid via customer portal!
+    * Invoice builder with line items, hourly or item rates, email invoices and get paid via client portal!
     * Tax Table management - assign multiple local/national taxes to Invoices or Transactions
     * Quote Templates allow you to prepare proposal templates ahead of time
     * Lead generation via a range of form support, including Contact form 7, Gravity forms, Jetpack Forms, and our own CRM forms module
@@ -294,7 +294,7 @@ For more documentation, please see the CRM knowledge base: [https://kb.jetpackcr
 
 == Frequently Asked Questions ==
 
-= Is there any limits to customer or invoice counts in Jetpack CRM? =
+= Is there any limits to contact or invoice counts in Jetpack CRM? =
 
 There are absolutely no limits in Jetpack CRM, apart from the usual ones applied by your host (database size etc.), you can create as many clients or invoices as you'd like!
 
@@ -316,19 +316,19 @@ You can see all of the CRM power-ups here: https://jetpackcrm.com/extensions/
 
 = Is there a contact search feature on Jetpack CRM? =
 
-Yes, Jetpack CRM comes with a search feature that allows you to run a customer search, contact search, and then act on it, letting you easily manage customers. There’s also search for transactions, quotes, invoices, companys, lead forms, and tasks.
+Yes, Jetpack CRM comes with a search feature that allows you to run a customer search, contact search, and then act on it, letting you easily manage contacts. There’s also search for transactions, quotes, invoices, companys, lead forms, and tasks.
 
 = Why host your own CRM in WordPress? =
 
-Data privacy, control, extensibility. GDPR compliance. You're probably already paying for hosting too, so you'll save there. SaaS has its place, but there's so much value in hosting your own (e.g. for GDPR rules you need to know where your customer data is kept)!
+Data privacy, control, extensibility. GDPR compliance. You're probably already paying for hosting too, so you'll save there. SaaS has its place, but there's so much value in hosting your own (e.g. for GDPR rules you need to know where your contacts data is kept)!
 
-= How do I get my existing customers into Jetpack CRM? =
+= How do I get my existing contacts into Jetpack CRM? = 
 
-The free core is fully integrated with WooCommerce using the built-in WooSync module. It also has a basic CSV Importer which works well and allows you to import contacts and import customer data. You can also use our paid extensions for additional features: CSV Importer Pro, PayPal Sync, or Stripe Sync - these automatically pull up all your customer data (including transactions) and then keep it up to date for you!
+The free core is fully integrated with WooCommerce using the built-in WooSync module. It also has a basic CSV Importer which works well and allows you to import contacts and import customer data. You can also use our paid extensions for additional features: CSV Importer Pro, PayPal Sync, or Stripe Sync - these automatically pull up all your contact data (including transactions) and then keep it up to date for you!
 
 = If I’ve been using another CRM, can I import all my data into Jetpack CRM? =
 
-Most CRM providers allow you to export customer data in CSV format, which can then be used to upload into Jetpack CRM. The CSV Importer Pro extension can then be used to import contacts and customer data. CRM is a very broad landscape, so each CRM may have different ways of storing data. See our [CRM Knowledgebase](https://kb.jetpackcrm.com) for more information, or ask in the forums!
+Most CRM providers allow you to export your contact data in CSV format, which can then be used to upload into Jetpack CRM. The CSV Importer Pro extension can then be used to import contacts and customer data. CRM is a very broad landscape, so each CRM may have different ways of storing data. See our [CRM Knowledgebase](https://kb.jetpackcrm.com) for more information, or ask in the forums!
 
 = Do you have a B2B mode? =
 
