@@ -173,7 +173,7 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	public function __construct() {
-		add_action( 'wp', array( $this, 'init' ) );
+		add_action( 'init', array( $this, 'init' ) );
 		add_action( 'rest_api_init', array( $this, 'init' ) );
 		add_action( 'widgets_init', array( $this, 'widget_callback' ) );
 
@@ -206,6 +206,10 @@ class WordAds {
 		if ( $this->params->options['wordads_ccpa_enabled'] ) {
 			WordAds_California_Privacy::init();
 		}
+
+		// Include Sponsored Post.
+		require_once WORDADS_ROOT . '/php/class-wordads-sponsored-post.php';
+		WordAds_Sponsored_Post::init();
 
 		if ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
 
