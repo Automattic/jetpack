@@ -268,7 +268,7 @@ function zeroBS_integrations_addOrUpdateCustomer($externalSource='',$externalID=
 					case 'notifyexit':
 
 						#} Notify + exit
-						echo esc_html( 'Customer Add/Update Issue: A customer already exists with the email "'.$customerFields['zbsc_email'].'" (ID: '.$potentialCustomerIDfromEmail.'), user could not be processed!' );
+						echo esc_html( 'Contact Add/Update Issue: A contact already exists with the email "' . $customerFields['zbsc_email'] . '" (ID: ' . $potentialCustomerIDfromEmail . '), user could not be processed!' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 						exit();
 
 						break;
