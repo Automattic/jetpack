@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Tracking pixel: allow filtering the attributes used in the script  tag.

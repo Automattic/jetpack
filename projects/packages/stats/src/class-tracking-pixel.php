@@ -111,6 +111,58 @@ class Tracking_Pixel {
 	}
 
 	/**
+	 * Get the list of attributes to add to the Stats script tag.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string string of attributes to add to the script tag.
+	 */
+	public static function get_script_attributes() {
+		/**
+		 * Allow adding extra attributes to the stats footer script tag.
+		 *
+		 * @module stats
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $script_attributes Array of attributes to add to the script tag. Default to 'defer' only.
+		 */
+		$script_attributes = (array) apply_filters(
+			'jetpack_stats_footer_script_attributes',
+			array( 'defer' => true )
+		);
+
+		/*
+		 * Create an escaped string of attributes to add to the script tag,
+		 * like 'defer', 'async',
+		 * or anything passed to the filter above.
+		 */
+		$script_attributes = implode(
+			' ',
+			array_map(
+				function ( $key, $value ) {
+					/*
+					* For boolean attributes, we either only display the key (e.g. "defer")
+					* or not display anything (e.g. we do not want to display "async=false").
+					*/
+					if ( is_bool( $value ) ) {
+						if ( true === $value ) {
+							return esc_attr( $key );
+						}
+						return; // Skip if the value is false.
+					}
+
+					return esc_attr( $key ) . "='" . esc_attr( $value ) . "'";
+				},
+				array_keys( $script_attributes ),
+				$script_attributes
+			)
+		);
+
+		return $script_attributes;
+	}
+
+	/**
 	 * Gets the stats footer
 	 *
 	 * @access private
@@ -118,12 +170,14 @@ class Tracking_Pixel {
 	 * @return string Returns the footer to add for the Stats tracker in a non AMP scenario.
 	 */
 	private static function get_footer( $data ) {
+		$script_attributes = self::get_script_attributes();
+
 		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 		// When there is a way to use defer with enqueue, we can move to it and inline the custom data.
 		$script           = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
 		$data_stats_array = self::stats_array_to_string( $data );
 		$stats_footer     = <<<END
-	<script src='{$script}' defer></script>
+	<script src='{$script}' {$script_attributes}></script>
 	<script>
 		_stq = window._stq || [];
 		_stq.push([ 'view', {{$data_stats_array}} ]);
