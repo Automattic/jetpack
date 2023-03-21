@@ -69,7 +69,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
-		$this->add_inbox_menu();
+
+		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
+			$this->add_inbox_menu();
+		}
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -310,6 +313,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @param string $plan The current WPCOM plan of the blog.
 	 */
 	public function add_upgrades_menu( $plan = null ) {
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			return;
+		}
 		$products = Jetpack_Plan::get();
 		if ( array_key_exists( 'product_name_short', $products ) ) {
 			$plan = $products['product_name_short'];
