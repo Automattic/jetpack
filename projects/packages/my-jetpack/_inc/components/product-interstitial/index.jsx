@@ -23,12 +23,14 @@ import videoPressImage from './videopress.png';
  * @param {string} props.slug                    - Product slug
  * @param {string} props.bundle                  - Bundle including this product
  * @param {object} props.children                - Product additional content
+ * @param {string} props.existingLicenseKeyUrl 	 - URL to enter an existing license key (e.g. Akismet)
  * @param {boolean} props.installsPlugin         - Whether the interstitial button installs a plugin*
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
 	bundle,
+	existingLicenseKeyUrl = null,
 	installsPlugin = false,
 	slug,
 	supportingInfo,
@@ -168,7 +170,14 @@ export default function ProductInterstitial( {
  * @returns {object} AntiSpamInterstitial react component.
  */
 export function AntiSpamInterstitial() {
-	return <ProductInterstitial slug="anti-spam" installsPlugin={ true } bundle="security" />;
+	return (
+		<ProductInterstitial
+			slug="anti-spam"
+			installsPlugin={ true }
+			bundle="security"
+			existingLicenseKeyUrl="admin.php?page=akismet-key-config"
+		/>
+	);
 }
 
 /**

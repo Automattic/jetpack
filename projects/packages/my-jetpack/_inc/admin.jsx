@@ -48,7 +48,7 @@ const MyJetpack = () => (
 			<Routes>
 				<Route path="/" element={ <MyJetpackScreen /> } />
 				<Route path="/connection" element={ <ConnectionScreen /> } />
-				<Route path="/add-anti-spam" element={ <AntiSpamInterstitial /> } />
+				<Route path="/add-akismet" element={ <AntiSpamInterstitial /> } />
 				<Route path="/add-backup" element={ <BackupInterstitial /> } />
 				<Route path="/add-boost" element={ <BoostInterstitial /> } />
 				<Route path="/add-crm" element={ <CRMInterstitial /> } />
