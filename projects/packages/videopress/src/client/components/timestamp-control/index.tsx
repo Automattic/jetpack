@@ -9,7 +9,6 @@ import {
 	useBaseControlProps,
 } from '@wordpress/components';
 import { useCallback, useRef } from '@wordpress/element';
-import classnames from 'classnames';
 /**
  * Internal dependencies
  */
@@ -123,11 +122,7 @@ export const TimestampInput = ( {
 	};
 
 	return (
-		<div
-			className={ classnames( styles[ 'timestamp-input-wrapper' ], {
-				[ styles[ 'has-hours' ] ]: biggerThanOneHour || ! autoHideTimeInput,
-			} ) }
-		>
+		<div className={ styles[ 'timestamp-input-wrapper' ] }>
 			{ ( biggerThanOneHour || ! autoHideTimeInput ) && (
 				<>
 					<NumberControl
