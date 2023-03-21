@@ -3,12 +3,13 @@
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
-use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS;
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\Generator;
-use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
+use Automattic\Jetpack_Boost\Modules\Modules;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS_Followup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Generator;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
@@ -19,7 +20,7 @@ class Critical_CSS_Start implements Endpoint {
 	}
 
 	public function is_cloud_css() {
-		$optimizations = ( new Optimizations() )->get_status();
+		$optimizations = ( new Modules() )->get_status();
 		return isset( $optimizations['cloud-css'] ) && $optimizations['cloud-css'];
 	}
 
@@ -43,6 +44,7 @@ class Critical_CSS_Start implements Endpoint {
 			// of the CSS and return the URL to the CSS file.
 			$cloud_css = new Cloud_CSS();
 			$cloud_css->regenerate_cloud_css();
+			Cloud_CSS_Followup::schedule();
 		} else {
 			$generator = new Generator();
 			$data      = array_merge( $data, $generator->get_generation_metadata() );

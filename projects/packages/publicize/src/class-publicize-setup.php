@@ -87,4 +87,18 @@ class Publicize_Setup {
 		$share_limits = new Share_Limits( $connections, $shares_remaining, ! $current_screen->is_block_editor() );
 		$share_limits->enforce_share_limits();
 	}
+
+	/**
+	 * Initialise social image generator.
+	 */
+	public static function init_social_image_generator() {
+		global $publicize;
+
+		if ( ! $publicize->is_social_image_generator_enabled( self::get_blog_id() ) ) {
+			return;
+		}
+
+		$sig = new Social_Image_Generator\Setup();
+		$sig->init();
+	}
 }
