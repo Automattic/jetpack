@@ -1,0 +1,4 @@
+Significance: minor
+Type: compat
+
+Connection: switch the "plugin activated" banner to the common connection flow.

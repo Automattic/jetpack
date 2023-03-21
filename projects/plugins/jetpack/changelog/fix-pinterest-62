@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Pinterest Block: ensure the block does not trigger errors when using WordPress 6.2.

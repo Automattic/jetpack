@@ -532,8 +532,8 @@ export default function VideoPressEdit( {
 			</InspectorControls>
 
 			{ /*
-			 * __experimentalGroup is a temporary prop to allow us to group the color panel,
-			 * and it will be replaced with the `group` prop once it's stabilized.
+			 * __experimentalGroup is a temporary prop to allow us to group the color panel, and it
+			 * will be replaced with the `group` prop once WP 6.2 becomes the minimum required version.
 			 * @see https://github.com/WordPress/gutenberg/pull/47105/files#diff-f1d682ce5edd25698e5f189ac8267ab659d6a786260478307dc1352589419309
 			 */ }
 			<InspectorControls __experimentalGroup="color">

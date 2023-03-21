@@ -23,7 +23,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	category: 'jetpack',
+	category: 'grow',
 	keywords: [
 		'cookie',
 		'consent',
