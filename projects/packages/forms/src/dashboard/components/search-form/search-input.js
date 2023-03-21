@@ -91,6 +91,7 @@ const SearchInput = ( {
 		<Input
 			{ ...componentProps }
 			icon={ <SearchIcon size={ 24 } /> }
+			loading={ loading }
 			placeholder={ placeholder }
 			onChange={ onChangeHandler }
 			onKeyUp={ onKeyUpHandler }
