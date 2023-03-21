@@ -18,12 +18,14 @@ export const settings = {
 			isPublishingPost,
 			isCurrentPostPublished,
 			postLink,
+			postType,
 		} = useSelect( selector => ( {
 			isSavingSite: selector( editorStore ).isSavingNonPostEntityChanges(),
 			isSavingPost: selector( editorStore ).isSavingPost(),
 			isPublishingPost: selector( editorStore ).isPublishingPost(),
 			isCurrentPostPublished: selector( editorStore ).isCurrentPostPublished(),
 			postLink: selector( editorStore ).getPermalink(),
+			postType: selector( editorStore ).getCurrentPostType(),
 		} ) );
 
 		const prevIsSavingSite = usePrevious( isSavingSite );
@@ -71,7 +73,7 @@ export const settings = {
 			};
 
 			if ( siteIntentOption === 'newsletter' ) {
-				if ( isInsidePostEditor ) {
+				if ( postType === 'post' ) {
 					modalContent.title = __( 'Your first post is published!', 'jetpack' );
 					modalContent.body = __(
 						'Congratulations! You did it. View your post to see how it will look on your site.',
@@ -80,7 +82,7 @@ export const settings = {
 					modalContent.actionButtonHref = postLink;
 					modalContent.actionButtonTracksEvent = 'jetpack_launchpad_save_modal_view_post';
 					modalContent.actionButtonText = __( 'View Post', 'jetpack' );
-				} else if ( isInsideSiteEditor ) {
+				} else {
 					modalContent.body = __(
 						'You are one step away from bringing your site to life. Check out the next steps that will help you to setup your newsletter.',
 						'jetpack'
