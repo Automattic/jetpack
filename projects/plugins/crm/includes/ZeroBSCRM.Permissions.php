@@ -164,7 +164,7 @@
 		    #} Jetpack Customer Manager
 			$result = add_role(
 				'zerobs_customermgr',
-				__( 'Jetpack CRM Customer Manager', 'zero-bs-crm' ),
+				__( 'Jetpack CRM Contact Manager', 'zero-bs-crm' ),
 
 				array(
 
@@ -389,7 +389,7 @@
 		    #} Jetpack Customer
 			$result = add_role(
 				'zerobs_customer',
-				__( 'Jetpack CRM Customer', 'zero-bs-crm' ),
+				__( 'Jetpack CRM Contact', 'zero-bs-crm' ),
 
 				array(
 

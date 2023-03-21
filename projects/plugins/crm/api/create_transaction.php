@@ -57,7 +57,7 @@ if ( empty( $customer ) ) {
 
 				// } New User from API
 				$newUserAPISourceShort = __( 'Created from API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-				$newUserAPISourceLong  = __( 'API Action fired to create customer (New Transaction)', 'zero-bs-crm' );
+				$newUserAPISourceLong  = __( 'API Action fired to create contact (New Transaction)', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				// } Here we catch "HTTP_USER_AGENT": "Zapier" ;)
 	if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && $_SERVER['HTTP_USER_AGENT'] == 'Zapier' ) {
@@ -67,7 +67,7 @@ if ( empty( $customer ) ) {
 
 		// } New User from trans
 		$newUserAPISourceShort = __( 'Created by Zapier (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-		$newUserAPISourceLong  = __( 'Zapier fired an API Action to create this customer (New Transaction)', 'zero-bs-crm' );
+		$newUserAPISourceLong  = __( 'Zapier fired an API Action to create this contact (New Transaction)', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	}
 
