@@ -3,6 +3,7 @@
 .jetpack-blogging-prompt {
 	border: 1px solid $gray-300;
 	border-radius: 2px;
+	box-sizing: border-box;
 	padding: 24px;
 
 	&__label {

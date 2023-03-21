@@ -26,6 +26,9 @@ add_filter( 'rest_api_allowed_public_metadata', 'jetpack_blogging_prompts_add_me
 /**
  * Sets up a new post as an answer to a blogging prompt.
  *
+ * When we know a user is explicitly answering a prompt, pre-populate the post meta to mark the post as a prompt response,
+ * in case they decide to remove the block from the post content, preventing they meta from being added later.
+ *
  * Called on `wp_insert_post` hook.
  *
  * @param int $post_id ID of post being inserted.
@@ -39,7 +42,10 @@ function jetpack_setup_blogging_prompt_response( $post_id ) {
 		return;
 	}
 
-	if ( jetpack_is_valid_blogging_prompt( $prompt_id ) ) {
+	// Make sure the prompt exists.
+	$prompt = jetpack_get_blogging_prompt_by_id( $prompt_id );
+
+	if ( $prompt ) {
 		update_post_meta( $post_id, '_jetpack_blogging_prompt_key', $prompt_id );
 		wp_add_post_tags( $post_id, array( 'dailyprompt', "dailyprompt-$prompt_id" ) );
 	}
@@ -96,6 +102,29 @@ add_action( 'wp_after_insert_post', 'jetpack_mark_if_post_answers_blogging_promp
 /**
  * Utility functions.
  */
+
+/**
+ * Retrieve a blogging prompt by prompt ID.
+ *
+ * @param int $prompt_id ID of the prompt fetch.
+ * @return stdClass|null Prompt object or null.
+ */
+function jetpack_get_blogging_prompt_by_id( $prompt_id ) {
+	$locale = get_locale();
+	$route  = sprintf( '/wpcom/v3/blogging-prompts/%d', $prompt_id );
+
+	$request = new WP_REST_Request( 'GET', $route );
+	$request->set_param( '_locale', $locale );
+	$response = rest_do_request( $request );
+
+	if ( $response->is_error() || WP_Http::OK !== $response->get_status() ) {
+		return null;
+	}
+
+	$prompt = $response->get_data();
+
+	return $prompt;
+}
 
 /**
  * Retrieve daily blogging prompts from the wpcom API and cache them.
@@ -228,29 +257,4 @@ function jetpack_is_new_post_screen() {
  */
 function jetpack_is_potential_blogging_site() {
 	return jetpack_has_write_intent() || jetpack_has_posts_page() || jetpack_has_or_will_publish_posts();
-}
-
-/**
- * Checks if the given prompt id is included in today's blogging prompts.
- *
- * Would be best to use the API to check if the prompt id is valid for any day,
- * but for now we're only using one prompt per day.
- *
- * @param int $prompt_id id of blogging prompt.
- * @return bool
- */
-function jetpack_is_valid_blogging_prompt( $prompt_id ) {
-	$daily_prompts = jetpack_get_daily_blogging_prompts();
-
-	if ( ! $daily_prompts ) {
-		return false;
-	}
-
-	foreach ( $daily_prompts as $prompt ) {
-		if ( $prompt->id === $prompt_id ) {
-			return true;
-		}
-	}
-
-	return false;
 }
