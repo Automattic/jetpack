@@ -19,25 +19,6 @@ class Settings {
 	const OPTION_NAME = 'jetpack_social_image_generator_settings';
 
 	/**
-	 * A whitelist of valid settings.
-	 *
-	 * @var array
-	 */
-	const VALID_SETTINGS = array(
-		'enabled',
-		'defaults',
-	);
-
-	/**
-	 * A whitelist of valid defaults.
-	 *
-	 * @var array
-	 */
-	const VALID_DEFAULTS = array(
-		'template',
-	);
-
-	/**
 	 * A list of all available templates.
 	 *
 	 * @var array
@@ -74,41 +55,6 @@ class Settings {
 	}
 
 	/**
-	 * Validate an array of defaults and make sure all settings are allowed.
-	 *
-	 * @param array $defaults Array of defaults to validate.
-	 * @return array Array of validated defaults.
-	 */
-	private function validate_defaults( $defaults ) {
-		if ( ! is_array( $defaults ) ) {
-			return array();
-		}
-
-		// Strip out any keys that are not allowed.
-		$defaults = array_filter(
-			$defaults,
-			function ( $key ) {
-				return in_array( $key, self::VALID_DEFAULTS, true );
-			},
-			ARRAY_FILTER_USE_KEY
-		);
-
-		// Sanitize the values for each key.
-		$values = array_map(
-			function ( $key, $value ) {
-				switch ( $key ) {
-					case 'template':
-						return in_array( $value, self::TEMPLATES, true ) ? $value : $this->get_default_template();
-				}
-			},
-			array_keys( $defaults ),
-			$defaults
-		);
-
-		return array_combine( array_keys( $defaults ), $values );
-	}
-
-	/**
 	 * Update a SIG setting.
 	 *
 	 * @param string $key The key to update.
@@ -116,19 +62,6 @@ class Settings {
 	 * @return bool True if the value was updated, false otherwise.
 	 */
 	private function update_setting( $key, $value ) {
-		if ( ! in_array( $key, self::VALID_SETTINGS, true ) ) {
-			return false;
-		}
-
-		switch ( $key ) {
-			case 'enabled':
-				$value = (bool) $value;
-				break;
-			case 'defaults':
-				$value = self::validate_defaults( $value );
-				break;
-		}
-
 		$settings = array_replace_recursive( self::get_settings(), array( $key => $value ) );
 
 		return update_option( self::OPTION_NAME, $settings );
@@ -158,7 +91,7 @@ class Settings {
 	 *
 	 * @return array
 	 */
-	private function get_defaults() {
+	public function get_defaults() {
 		return isset( $this->settings['defaults'] ) ? $this->settings['defaults'] : array();
 	}
 

@@ -12,7 +12,7 @@ use WP_REST_Controller;
 use WP_REST_Server;
 
 /**
- * Defines our endponts.
+ * Defines our endpoints.
  */
 class REST_Settings_Controller extends WP_REST_Controller {
 	/**
@@ -46,10 +46,21 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	 *
 	 * @return WP_REST_Response
 	 */
-	public static function get_settings() {
-		$settings = new Settings();
+	public function get_settings() {
+		$settings   = new Settings();
+		$response   = array();
+		$schema     = $this->get_item_schema();
+		$properties = array_keys( $schema['properties'] );
 
-		return rest_ensure_response( $settings->get_settings() );
+		if ( in_array( 'enabled', $properties, true ) ) {
+			$response['enabled'] = $settings->is_enabled();
+		}
+
+		if ( in_array( 'defaults', $properties, true ) ) {
+			$response['defaults'] = $settings->get_defaults();
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
