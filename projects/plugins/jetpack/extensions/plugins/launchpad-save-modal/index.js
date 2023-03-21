@@ -23,7 +23,7 @@ export const settings = {
 			isSavingPost: selector( editorStore ).isSavingPost(),
 			isPublishingPost: selector( editorStore ).isPublishingPost(),
 			isCurrentPostPublished: selector( editorStore ).isCurrentPostPublished(),
-			postLink: selector( 'core/editor' ).getCurrentPost(),
+			postLink: selector( editorStore ).getPermalink(),
 		} ) );
 
 		const prevIsSavingSite = usePrevious( isSavingSite );
@@ -72,7 +72,7 @@ export const settings = {
 
 			if ( siteIntentOption === 'newsletter' ) {
 				if ( isInsidePostEditor ) {
-					modalContent.title = `first post nl ${ postLink }`;
+					modalContent.title = `first post nl2 ${ postLink }`;
 					modalContent.body = __(
 						'Congratulations! You did it. View your post to see how it will look on your site.',
 						'jetpack'
