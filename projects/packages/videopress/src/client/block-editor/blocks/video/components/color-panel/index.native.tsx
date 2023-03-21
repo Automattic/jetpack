@@ -63,6 +63,11 @@ export default function ColorPanel( { attributes, setAttributes }: VideoControlP
 					label={ __( 'Dynamic Color', 'jetpack-videopress-pkg' ) }
 					onPress={ openSubSheet }
 					leftAlign
+					value={
+						useAverageColor
+							? __( 'On', 'jetpack-videopress-pkg' )
+							: __( 'Off', 'jetpack-videopress-pkg' )
+					}
 				>
 					<Icon icon={ chevronRight }></Icon>
 				</BottomSheet.Cell>
