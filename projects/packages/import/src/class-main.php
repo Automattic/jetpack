@@ -20,7 +20,7 @@ class Main {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.2.0';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * A list of all the routes.
@@ -68,6 +68,8 @@ class Main {
 			'categories' => new Endpoints\Category(),
 			'comments'   => new Endpoints\Comment(),
 			'media'      => new Endpoints\Attachment(),
+			'menu-items' => new Endpoints\Menu_Item(),
+			'menus'      => new Endpoints\Menu(),
 			'pages'      => new Endpoints\Page(),
 			'posts'      => new Endpoints\Post(),
 			'tags'       => new Endpoints\Tag(),

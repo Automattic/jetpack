@@ -9,15 +9,6 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamComment
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamName
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamTag
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingReturn
-// phpcs:disable Generic.Commenting.DocComment.MissingShort
-// phpcs:disable Squiz.Commenting.FunctionComment.Missing
-// phpcs:disable Squiz.Commenting.ClassComment.Missing
-// phpcs:disable Squiz.Commenting.FileComment.Missing
-
 use Automattic\Jetpack\WP_JS_Data_Sync\Endpoints\Endpoint;
 use Automattic\Jetpack\WP_JS_Data_Sync\Storage_Drivers\Storage_Driver;
 use Automattic\Jetpack\WP_JS_Data_Sync\Storage_Drivers\WP_Option_Storage;
