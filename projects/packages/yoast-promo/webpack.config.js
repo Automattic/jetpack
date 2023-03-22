@@ -7,7 +7,12 @@ module.exports = [
 		entry: {
 			editor: './src/js/editor.js',
 		},
-		externals: jetpackWebpackConfig.externals,
+		externals: {
+			...jetpackWebpackConfig.externals,
+			jetpackConfig: JSON.stringify( {
+				consumer_slug: 'jetpack-yoast-promo',
+			} ),
+		},
 		mode: jetpackWebpackConfig.mode,
 		node: false,
 		module: {
