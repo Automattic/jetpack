@@ -26,9 +26,16 @@ final class Critical_CSS_State_Handler extends Data_Sync_Entry_Handler {
 							'status'        => Schema::enum( array( 'success', 'pending', 'error', 'validation-error' ) ),
 						)
 					)
-				),
+				)->nullable(),
 				'created'   => Schema::as_float()->nullable(),
 				'updated'   => Schema::as_float()->nullable(),
+			)
+		)->fallback(
+			array(
+				'status'    => 'not_generated',
+				'providers' => array(),
+				'created'   => null,
+				'updated'   => null,
 			)
 		);
 	}

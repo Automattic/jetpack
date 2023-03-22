@@ -2,8 +2,10 @@
  * WordPress dependencies
  */
 import { InspectorControls, store as blockEditorStore } from '@wordpress/block-editor';
+import { PanelBody } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
  */
@@ -13,6 +15,7 @@ import { View } from 'react-native';
  * Internal dependencies
  */
 import DetailsPanel from './components/details-panel';
+import PlaybackPanel from './components/playback-panel';
 import VideoPressUploader from './components/videopress-uploader/index.native';
 import style from './style.scss';
 
@@ -75,6 +78,9 @@ export default function VideoPressEdit( {
 			{ isSelected && (
 				<InspectorControls>
 					<DetailsPanel { ...{ attributes, setAttributes } } />
+					<PanelBody title={ __( 'More', 'jetpack-videopress-pkg' ) }>
+						<PlaybackPanel { ...{ attributes, setAttributes } } />
+					</PanelBody>
 				</InspectorControls>
 			) }
 			<View style={ style[ 'wp-block-jetpack-videopress__video-player' ] } />

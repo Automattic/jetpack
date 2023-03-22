@@ -20,7 +20,7 @@ class Main {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.3.0-alpha';
+	const PACKAGE_VERSION = '0.4.0-alpha';
 
 	/**
 	 * A list of all the routes.
@@ -67,6 +67,7 @@ class Main {
 		$routes = array(
 			'categories' => new Endpoints\Category(),
 			'comments'   => new Endpoints\Comment(),
+			'custom-css' => new Endpoints\Custom_CSS(),
 			'media'      => new Endpoints\Attachment(),
 			'menu-items' => new Endpoints\Menu_Item(),
 			'menus'      => new Endpoints\Menu(),

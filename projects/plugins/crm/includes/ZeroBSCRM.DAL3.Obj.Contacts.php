@@ -1629,7 +1629,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                     case 'customer':
 
                                         // hack - adapted from DAL1 (probs can be slicker)
-                                        $wheres['quickfiltercustomer'] = array('zbsc_status','LIKE','%s','Customer');
+										$wheres['quickfiltercustomer'] = array( 'zbsc_status', 'LIKE', '%s', 'Customer' );
 
                                         break;
 

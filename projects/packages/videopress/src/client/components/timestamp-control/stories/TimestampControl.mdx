@@ -26,6 +26,10 @@ The timestamp value in milliseconds
 
 - type `boolean`
 
+<Canvas withSource="false">
+  <Story id="packages-videopress-timestamp-control--disabled" />
+</Canvas>
+
 ### label
 
 - type `ReactNode`
@@ -65,6 +69,21 @@ Time, in milliseconds, that the `onDebounceChange` function will be debounced.
 
 Maximum time value, in milliseconds, expected by the component.
 Also, if it's bigger than one hour, the hour input will be rendered into the Timestamp Input component.
+
+### decimalPlaces
+
+- type: 1 | 2 | 3
+- optional
+
+The decimalPlaces property is used to add fractions of a second.
+This property allows the user to specify the number of digits to be displayed after the seconds separator,
+thus allowing for a customizable level of precision.
+
+<Canvas withSource="open">
+  <Story id="packages-videopress-timestamp-control--decimal-places" />
+</Canvas>
+
+The example above shows how to configure two decimal places for the control. The max value is five seconds (5000).
 
 ### fineAdjustment
 

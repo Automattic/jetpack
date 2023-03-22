@@ -19,18 +19,14 @@
 	display: flex;
 	align-items: center;
 	border-color: #949494;
+	background-color: #fff;
     border-style: solid;
 	justify-content: space-around;
     border-width: 1px;
-	max-width: 58px;
 	padding: 0px;
 
-	&.has-hours {
-		max-width: 83px;
-	}
-
 	.timestamp-control-input {
-		width: 24px;
+		padding: 0 1px;
 		margin-bottom: 0;
 		&:last-child{
 			margin-bottom: 0;
@@ -47,4 +43,16 @@
 			border-style: none !important;
 		}
 	}
+
+	&.is-disabled {
+		background-color: #f0f0f0;
+
+		.timestamp-control-divider {
+			color: #949494;
+		}
+	}
+}
+
+.timestamp-control-divider {
+	font-weight: 900;
 }
