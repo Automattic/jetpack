@@ -345,7 +345,7 @@ export default function PosterPanel( {
 						atTime={ posterSource?.atTime }
 						onVideoFrameSelect={ timestamp => {
 							setAttributes( {
-								posterSource: { type: 'frame', atTime: timestamp },
+								posterSource: { ...attributes.posterSource, type: 'frame', atTime: timestamp },
 								poster: '',
 							} );
 						} }
