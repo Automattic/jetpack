@@ -56,7 +56,8 @@
 		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
 		"recipe",
-		"videopress/video-chapters"
+		"videopress/video-chapters",
+		"yoast-promo"
 	],
 	"experimental": [ "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],
 	"no-post-editor": [
