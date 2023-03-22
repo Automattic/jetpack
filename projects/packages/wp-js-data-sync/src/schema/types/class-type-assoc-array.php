@@ -22,7 +22,14 @@ class Type_Assoc_Array implements Schema_Type {
 		foreach ( $this->sub_schema as $key => $validator ) {
 			if ( ! isset( $data[ $key ] ) ) {
 				if ( $validator instanceof Decorate_With_Default ) {
-					$parsed[ $key ] = $validator->parse( null );
+					$value = $validator->parse( null );
+
+					// @TODO Document this behavior.
+					// At the moment, values that are null are dropped from assoc arrays.
+					// to match the Zod behavior.
+					if ( $value !== null ) {
+						$parsed[ $key ] = $value;
+					}
 				} else {
 					$message = "Expected key '$key' in associative array";
 					throw new \Error( $message );
