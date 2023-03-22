@@ -60,13 +60,13 @@ export default function ColorPanel( { attributes, setAttributes }: VideoControlP
 		<BottomSheet.SubSheet
 			navigationButton={
 				<BottomSheet.Cell
-					label={ __( 'Dynamic Color', 'jetpack-videopress-pkg' ) }
+					label={ __( 'Playback Bar Color', 'jetpack-videopress-pkg' ) }
 					onPress={ openSubSheet }
 					leftAlign
 					value={
 						useAverageColor
-							? __( 'On', 'jetpack-videopress-pkg' )
-							: __( 'Off', 'jetpack-videopress-pkg' )
+							? __( 'Dynamic', 'jetpack-videopress-pkg' )
+							: __( 'Manual', 'jetpack-videopress-pkg' )
 					}
 				>
 					<Icon icon={ chevronRight }></Icon>
@@ -78,7 +78,7 @@ export default function ColorPanel( { attributes, setAttributes }: VideoControlP
 				<BottomSheet.NavBar>
 					<BottomSheet.NavBar.BackButton onPress={ goBack } />
 					<BottomSheet.NavBar.Heading>
-						{ __( 'Dynamic Color', 'jetpack-videopress-pkg' ) }
+						{ __( 'Playback Bar Color', 'jetpack-videopress-pkg' ) }
 					</BottomSheet.NavBar.Heading>
 				</BottomSheet.NavBar>
 				<PanelBody>
