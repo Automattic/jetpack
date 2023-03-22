@@ -23,6 +23,12 @@
 	},
 	"dependencies": {
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@wordpress/components": "23.5.0",
+		"@wordpress/data": "8.5.0",
+		"@wordpress/edit-post": "7.5.0",
+		"@wordpress/i18n": "4.28.0",
+		"@wordpress/plugins": "5.5.0",
+		"gridicons": "3.4.1",
 		"react": "18.2.0",
 		"react-dom": "18.2.0"
 	},

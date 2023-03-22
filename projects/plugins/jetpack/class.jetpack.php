@@ -847,6 +847,7 @@ class Jetpack {
 				'stats',
 				'stats_admin',
 				'import',
+				'yoast_promo',
 			)
 			as $feature
 		) {
