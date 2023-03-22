@@ -294,6 +294,8 @@ function VideoFramePicker( {
 			</div>
 
 			<TimestampControl
+				label={ __( 'Video frame', 'jetpack-videopress-pkg' ) }
+				help={ __( 'Select the frame you want to use as poster image', 'jetpack-videopress-pkg' ) }
 				disabled={ isRequestingEmbedPreview }
 				max={ duration }
 				value={ timestamp }
