@@ -20,7 +20,7 @@ const VIDEOPRESS_ALLOWED_LISTENING_EVENTS = [
 ] as const;
 
 type PlayerBrigeEventProps = {
-	event: typeof VIDEOPRESS_ALLOWED_LISTENING_EVENTS[ number ];
+	event: ( typeof VIDEOPRESS_ALLOWED_LISTENING_EVENTS )[ number ];
 	id: VideoGUID;
 	origin: Origin;
 };
