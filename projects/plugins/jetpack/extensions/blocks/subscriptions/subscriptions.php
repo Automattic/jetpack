@@ -87,6 +87,9 @@ function register_block() {
 
 	// Gate the excerpt for a post
 	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
+
+	// Disable reblogs
+	add_filter( 'option_disabled_reblogs', '__return_true' );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
