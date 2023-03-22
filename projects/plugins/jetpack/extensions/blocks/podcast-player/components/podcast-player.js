@@ -7,6 +7,7 @@ import classnames from 'classnames';
 import AudioPlayer from '../../../shared/components/audio-player';
 import { STATE_ERROR, STATE_PAUSED, STORE_ID } from '../../../store/media-source/constants';
 import { getColorsObject } from '../utils';
+import AdminControls from './admin-controls';
 import Header from './header';
 import Playlist from './playlist';
 import withErrorBoundary from './with-error-boundary';
@@ -245,14 +246,15 @@ export class PodcastPlayer extends Component {
 
 	render() {
 		const {
-			playerId,
-			title,
-			link,
-			cover,
-			tracks,
 			attributes,
+			canUserRefreshPodcast,
+			cover,
 			currentTime,
+			link,
+			playerId,
 			playerState,
+			title,
+			tracks,
 		} = this.props;
 		const {
 			itemsToShow,
@@ -268,6 +270,7 @@ export class PodcastPlayer extends Component {
 			showCoverArt,
 			showEpisodeTitle,
 			showEpisodeDescription,
+			url,
 		} = attributes;
 		const { currentTrack } = this.state;
 
@@ -339,6 +342,8 @@ export class PodcastPlayer extends Component {
 						onTimeChange={ this.handleTimeChange }
 						onMetadataLoaded={ this.updateMediaData }
 					/>
+
+					<AdminControls canUserRefreshPodcast={ canUserRefreshPodcast } url={ url } />
 				</Header>
 
 				{ tracksToDisplay.length > 1 && (

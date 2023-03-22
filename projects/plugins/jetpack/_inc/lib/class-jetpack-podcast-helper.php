@@ -91,15 +91,21 @@ class Jetpack_Podcast_Helper {
 	public function get_player_data( $args = array() ) {
 		$guids           = isset( $args['guids'] ) && $args['guids'] ? $args['guids'] : array();
 		$episode_options = isset( $args['episode-options'] ) && $args['episode-options'];
+		$force_refresh   = isset( $args['force-refresh'] ) && $args['force-refresh'];
 
 		// Try loading data from the cache.
 		$transient_key = 'jetpack_podcast_' . md5( $this->feed . implode( ',', $guids ) . "-$episode_options" );
-		$player_data   = get_transient( $transient_key );
+
+		if ( $force_refresh ) {
+			$player_data = false;
+		} else {
+			$player_data = get_transient( $transient_key );
+		}
 
 		// Fetch data if we don't have any cached.
 		if ( false === $player_data || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
 			// Load feed.
-			$rss = $this->load_feed();
+			$rss = $this->load_feed( $force_refresh );
 
 			if ( is_wp_error( $rss ) ) {
 				return $rss;

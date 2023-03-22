@@ -151,12 +151,16 @@ function render_player( $player_data, $attributes ) {
 	$instance_id             = wp_unique_id( 'jetpack-podcast-player-block-' . get_the_ID() . '-' );
 	$player_data['playerId'] = $instance_id;
 
+	$can_user_refresh_podcast = ! empty( get_current_user_id() ) && current_user_can( 'edit_post', get_the_ID() );
+
 	// Generate object to be used as props for PodcastPlayer.
 	$player_props = array_merge(
 		// Add all attributes.
 		array( 'attributes' => $attributes ),
 		// Add all player data.
-		$player_data
+		$player_data,
+		// Add flag for whether the current user can refresh the podcast
+		array( 'canUserRefreshPodcast' => $can_user_refresh_podcast )
 	);
 
 	$primary_colors    = get_colors( 'primary', $attributes, 'color' );
