@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2023-03-20
+### Added
+- VideoPress: add async helper fn to request video poster [#29494]
+- VideoPress: add disabled and autoHideTimeInput props to TimestampControl component [#29449]
+- VideoPress: add helper function to request update the VideoPress video poster [#29487]
+- VideoPress: add label and help properties support for the TimestampControl component [#29454]
+- VideoPress block: Adds basic upload functionality to native version. [#29461]
+
+### Changed
+- Consolidate VideoPreview type [#29447]
+- General: update deprecated core prop [#29463]
+- Replace placeholder with loading placeholder component from js-packages [#29271]
+- Updated package dependencies. [#29471]
+- Updated package dependencies. [#29480]
+- VideoPress: delay Done button activation to mitigate the chance of a race condition when saving the post too fast. [#29493]
+- VideoPress: get rid of script const / component prop [#29466]
+- VideoPress: Update comment on deprecated prop to mark it for later change [#29541]
+- VideoPress block: Add details panel to native block's settings. [#29283]
+- VideoPress block: Handle failed uploads. [#29511]
+
+### Removed
+- VideoPress: Remove storage meter for atomic sites [#29446]
+
+### Fixed
+- VideoPress: Add check to remove tracks from previous video after replacement on block [#29488]
+- VideoPress: Fix video details form change detection [#29519]
+- VideoPress: Fix video library displaying arbitrary video in first page [#29523]
+- VideoPress block: Only open upload options automatically when the block is inserted from the block inserter menu. [#29515]
+
 ## [0.12.1] - 2023-03-13
 ### Added
 - VideoPress: Add download button to video details page [#29403]
@@ -780,6 +809,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.13.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.12.1...v0.13.0
 [0.12.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.12.0...v0.12.1
 [0.12.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.10.12...v0.11.0

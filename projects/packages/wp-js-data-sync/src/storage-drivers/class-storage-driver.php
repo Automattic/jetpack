@@ -7,15 +7,6 @@
  * @package automattic/jetpack-wp-js-data-sync
  */
 
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamComment
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamName
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingParamTag
-// phpcs:disable Squiz.Commenting.FunctionComment.MissingReturn
-// phpcs:disable Generic.Commenting.DocComment.MissingShort
-// phpcs:disable Squiz.Commenting.FunctionComment.Missing
-// phpcs:disable Squiz.Commenting.ClassComment.Missing
-// phpcs:disable Squiz.Commenting.FileComment.Missing
-
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Storage_Drivers;
 
 interface Storage_Driver {
