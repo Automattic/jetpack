@@ -42,7 +42,7 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Settings Endpoint
+	 * GET `/jetpack/v4/social-image-generator/settings`
 	 *
 	 * @return WP_REST_Response
 	 */
@@ -64,7 +64,7 @@ class REST_Settings_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Update Settings Endpoint
+	 * POST `/jetpack/v4/social-image-generator/settings`
 	 *
 	 * @param WP_REST_Request $request The API request.
 	 *
