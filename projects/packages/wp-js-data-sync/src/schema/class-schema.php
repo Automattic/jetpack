@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Array;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Any_JSON;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Assoc_Array;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Boolean;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types\Type_Enum;
@@ -64,7 +64,7 @@ class Schema {
 	}
 
 	public static function as_array( $sub_schema = null ) {
-		return new Validation_Rule( new Type_Array( $sub_schema ) );
+		return new Validation_Rule( new Type_Any_JSON( $sub_schema ) );
 	}
 
 	public static function as_assoc_array( $sub_schema = null ) {
@@ -85,6 +85,10 @@ class Schema {
 
 	public static function enum( $allowed_values ) {
 		return new Validation_Rule( new Type_Enum( $allowed_values ) );
+	}
+
+	public static function _any_json_data() {
+	    return new Validation_Rule( new Type_Any_JSON() );
 	}
 
 }
