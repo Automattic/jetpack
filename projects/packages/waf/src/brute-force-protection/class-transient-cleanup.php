@@ -29,7 +29,7 @@ class Brute_Force_Protection_Transient_Cleanup {
 			"SELECT REPLACE(option_name, '_transient_timeout_jpp_', '') AS transient_name FROM {$wpdb->options} WHERE option_name LIKE '\_transient\_timeout\_jpp\__%%' AND option_value < %d",
 			$older_than_time
 		);
-		$transients    = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is prepared above.
+		$transients    = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB -- $sql is prepared above.
 		$options_names = array();
 		foreach ( $transients as $transient ) {
 			$options_names[] = '_transient_jpp_' . $transient;
@@ -37,7 +37,7 @@ class Brute_Force_Protection_Transient_Cleanup {
 		}
 		if ( $options_names ) {
 			$option_names_string = implode( ', ', array_fill( 0, count( $options_names ), '%s' ) );
-			$result              = $wpdb->query(
+			$result              = $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 				$wpdb->prepare(
 					"DELETE FROM {$wpdb->options} WHERE option_name IN ($option_names_string)", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- the placeholders are set above.
 					$options_names

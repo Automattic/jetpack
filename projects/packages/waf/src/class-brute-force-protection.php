@@ -422,7 +422,7 @@ class Brute_Force_Protection {
 			$request['multisite'] = get_blog_count();
 			if ( ! $request['multisite'] ) {
 				global $wpdb;
-				$request['multisite'] = $wpdb->get_var( "SELECT COUNT(blog_id) as c FROM $wpdb->blogs WHERE spam = '0' AND deleted = '0' and archived = '0'" );
+				$request['multisite'] = $wpdb->get_var( "SELECT COUNT(blog_id) as c FROM $wpdb->blogs WHERE spam = '0' AND deleted = '0' and archived = '0'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			}
 		}
 
