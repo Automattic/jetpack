@@ -101,45 +101,6 @@ class REST_Controller {
 				),
 			)
 		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/publicize/generate-preview-token',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'generate_preview_token' ),
-				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
-				'args'                => array(
-					'text'      => array(
-						'description'       => __( 'The text to be used to generate the image.', 'jetpack-publicize-pkg' ),
-						'type'              => 'string',
-						'required'          => true,
-						'validate_callback' => function ( $param ) {
-							return is_string( $param );
-						},
-						'sanitize_callback' => 'sanitize_textarea_field',
-					),
-					'image_url' => array(
-						'description'       => __( 'The URL of the background image to use when generating the social image.', 'jetpack-publicize-pkg' ),
-						'type'              => 'string',
-						'required'          => false,
-						'validate_callback' => function ( $param ) {
-							return is_string( $param );
-						},
-						'sanitize_callback' => 'sanitize_text_field',
-					),
-					'template'  => array(
-						'description'       => __( 'Array of external connection IDs to skip sharing.', 'jetpack-publicize-pkg' ),
-						'type'              => 'array',
-						'required'          => false,
-						'validate_callback' => function ( $param ) {
-							return in_array( $param, array( 'highway', 'dois', 'fullscreen', 'edge' ), true );
-						},
-						'sanitize_callback' => 'sanitize_text_field',
-					),
-				),
-			)
-		);
 	}
 
 	/**
@@ -233,20 +194,6 @@ class REST_Controller {
 		);
 
 		return rest_ensure_response( $this->make_proper_response( $response ) );
-	}
-
-	/**
-	 * Passes the request parameters to the WPCOM endpoint to generate a preview image token.
-	 *
-	 * @param WP_Request $request The request object, which includes the parameters.
-	 * @return array|WP_Error The token or an error.
-	 */
-	public function generate_preview_token( $request ) {
-		$text      = $request->get_param( 'text' );
-		$image_url = $request->get_param( 'image_url' );
-		$template  = $request->get_param( 'template' );
-
-		return Social_Image_Generator\fetch_token( $text, $image_url, $template );
 	}
 
 	/**
