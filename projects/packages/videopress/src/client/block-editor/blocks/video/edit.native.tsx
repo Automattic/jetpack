@@ -41,6 +41,7 @@ import type { VideoBlockAttributes } from './types';
  * @param {Function} props.setAttributes - Function to set block attributes.
  * @param {boolean} props.isSelected	 - Whether block is selected.
  * @param {Function} props.onFocus       - Callback to notify when block should gain focus.
+ * @param {Function} props.insertBlockAfter - Function to insert a new block after the current block.
  * @returns {React.ReactNode}            - React component.
  */
 export default function VideoPressEdit( {
@@ -49,6 +50,7 @@ export default function VideoPressEdit( {
 	setAttributes,
 	isSelected,
 	onFocus,
+	insertBlockAfter,
 } ): React.ReactNode {
 	const {
 		autoplay,
@@ -211,6 +213,8 @@ export default function VideoPressEdit( {
 				html={ preview.html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
 				isSelected={ isSelected }
+				clientId={ clientId }
+				insertBlockAfter={ insertBlockAfter }
 			/>
 		</View>
 	);

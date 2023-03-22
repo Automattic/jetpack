@@ -14,9 +14,7 @@ import style from './style.scss';
 /**
  * Types
  */
-import type { PlayerProps } from './types';
-
-type NativePlayerProps = Pick< PlayerProps, 'html' | 'isRequestingEmbedPreview' | 'isSelected' >;
+import type { NativePlayerProps } from './types';
 
 /**
  * VideoPlayer react component
