@@ -26,8 +26,4 @@
 
 	<rule ref="PEAR.Functions.ValidDefaultValue.NotAtEnd" />
 
-	<rule ref="SQUIZ">
-        <exclude name="Squiz.Commenting.InlineComment.WrongStyle" />
-    </rule>
-
 </ruleset>

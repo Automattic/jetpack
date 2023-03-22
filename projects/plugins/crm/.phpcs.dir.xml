@@ -59,4 +59,8 @@
 			<property name="customAutoEscapedFunctions" type="array" value="jpcrm_esc_link"/>
 		</properties>
 	</rule>
+
+	<rule ref="Squiz">
+  		<exclude name="Squiz.Commenting.InlineComment.WrongStyle"/>
+ 	</rule>
 </ruleset>
