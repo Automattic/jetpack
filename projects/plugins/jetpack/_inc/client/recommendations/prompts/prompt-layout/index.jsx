@@ -45,16 +45,8 @@ const SideContent = ( { isLoading, illustration, illustrationClassName, sidebarC
 };
 
 const PromptLayoutComponent = props => {
-	const {
-		answer,
-		description,
-		illustration,
-		progressBar,
-		question,
-		content,
-		isNew,
-		sidebarCard,
-	} = props;
+	const { answer, description, illustration, progressBar, question, content, isNew, sidebarCard } =
+		props;
 
 	return (
 		<div

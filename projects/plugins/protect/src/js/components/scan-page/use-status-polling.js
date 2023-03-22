@@ -13,9 +13,8 @@ import { STORE_ID } from '../../state/store';
 const useStatusPolling = () => {
 	const { recordEvent } = useAnalyticsTracks();
 	const status = useSelect( select => select( STORE_ID ).getStatus() );
-	const { setStatus, setStatusProgress, setStatusIsFetching, setScanIsUnavailable } = useDispatch(
-		STORE_ID
-	);
+	const { setStatus, setStatusProgress, setStatusIsFetching, setScanIsUnavailable } =
+		useDispatch( STORE_ID );
 	useEffect( () => {
 		let pollTimeout;
 		const pollDuration = 10000;
