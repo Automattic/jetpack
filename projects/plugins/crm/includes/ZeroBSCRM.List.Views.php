@@ -65,7 +65,7 @@ function zeroBSCRM_render_customerslist_page(){
                 'notcontactsdeleted' => __('Your contact(s) could not be deleted.',"zero-bs-crm"),
 
                 // bulk actions - add/remove tags
-                'notags' => __('You do not have any tags, do you want to',"zero-bs-crm").' <a target="_blank" href="'.jpcrm_esc_link('tags',-1,'zerobs_customer',false,'contact').'">'.__('Add a tag',"zero-bs-crm").'</a>',                
+								'notags' => wp_kses( sprintf( __( 'You do not have any contact tags. Do you want to <a target="_blank" href="%s">add a tag</a>?', 'zero-bs-crm' ), jpcrm_esc_link( 'tags', -1, 'zerobs_customer', false, 'contact' ) ), $zbs->acceptable_restricted_html ),
                 
                 // bulk actions - merge 2 records
                 'areyousurethesemerge' => __('Are you sure you want to merge these two contacts into one record? There is no way to undo this action.',"zero-bs-crm").'<br />',
@@ -126,7 +126,7 @@ function zeroBSCRM_render_companyslist_page(){
                 'notcompanysdeleted' => __('Your company(s) could not be deleted.',"zero-bs-crm"),
 
                 // bulk actions - add/remove tags
-                'notags' => __('You do not have any tags, do you want to',"zero-bs-crm").' <a target="_blank" href="'.jpcrm_esc_link('tags',-1,'zerobs_company',false,'company').'">'.__('Add a tag',"zero-bs-crm").'</a>',
+								'notags' => wp_kses( sprintf( __( 'You do not have any company tags. Do you want to <a target="_blank" href="%s">add a tag</a>?', 'zero-bs-crm' ), jpcrm_esc_link( 'tags', -1, 'zerobs_company', false, 'company' ) ), $zbs->acceptable_restricted_html ),
 
             ),
             'bulkActions'   => array('delete','addtag','removetag','export'),
@@ -147,54 +147,47 @@ function zeroBSCRM_render_companyslist_page(){
 /* ================================================================================
 =============================== QUOTES ========================================= */
 
-function zeroBSCRM_render_quoteslist_page(){
+function zeroBSCRM_render_quoteslist_page() {
 
-    $list = new zeroBSCRM_list(array(
+	global $zbs;
+	$list = new zeroBSCRM_list(
+		array(
 
-            'objType'       => 'quote',
-            'singular'      => __('Quote',"zero-bs-crm"),
-            'plural'        => __('Quotes',"zero-bs-crm"),
-            'tag'           => '',
-            'postType'      => 'zerobs_quote',
-            'postPage'      => 'manage-quotes',
-            'langLabels'    => array(
+			'objType'    => 'quote',
+			'singular'   => esc_html__( 'Quote', 'zero-bs-crm' ),
+			'plural'     => esc_html__( 'Quotes', 'zero-bs-crm' ),
+			'tag'        => '',
+			'postType'   => 'zerobs_quote',
+			'postPage'   => 'manage-quotes',
+			'langLabels' => array(
 
-                // bulk action labels
-                'markaccepted' => __('Mark Accepted',"zero-bs-crm"),
-                'markunaccepted' => __('Unmark Accepted',"zero-bs-crm"),
-                'delete' => __('Delete Quote(s)',"zero-bs-crm"),
-                'export' => __('Export Quote(s)',"zero-bs-crm"),
+				'markaccepted'             => esc_html__( 'Mark< Accepted', 'zero-bs-crm' ),
+				'markunaccepted'           => esc_html__( 'Unmark Accepted', 'zero-bs-crm' ),
+				'delete'                   => esc_html__( 'Delete Quote(s)', 'zero-bs-crm' ),
+				'export'                   => esc_html__( 'Export Quote(s)', 'zero-bs-crm' ),
+				'andthese'                 => esc_html__( 'Shall I also delete the associated Invoices, Quotes, Transactions, and Tasks?', 'zero-bs-crm' ),
+				'quotesdeleted'            => esc_html__( 'Your quote(s) have been deleted.', 'zero-bs-crm' ),
+				'notquotesdeleted'         => esc_html__( 'Your quote(s) could not be deleted.', 'zero-bs-crm' ),
+				'acceptareyousurequotes'   => esc_html__( 'Are you sure you want to mark these quotes as accepted?', 'zero-bs-crm' ),
+				'acceptdeleted'            => esc_html__( 'Quote(s) Accepted', 'zero-bs-crm' ),
+				'acceptquotesdeleted'      => esc_html__( 'Your quote(s) have been marked accepted.', 'zero-bs-crm' ),
+				'acceptnotdeleted'         => esc_html__( 'Could not mark accepted!', 'zero-bs-crm' ),
+				'acceptnotquotesdeleted'   => esc_html__( 'Your quote(s) could not be marked accepted.', 'zero-bs-crm' ),
+				'unacceptareyousurethese'  => esc_html__( 'Are you sure you want to mark these quotes as unaccepted?', 'zero-bs-crm' ),
+				'unacceptdeleted'          => esc_html__( 'Quote(s) Unaccepted', 'zero-bs-crm' ),
+				'unacceptquotesdeleted'    => esc_html__( 'Your quote(s) have been marked unaccepted.', 'zero-bs-crm' ),
+				'unacceptnotdeleted'       => esc_html__( 'Could not mark unaccepted!', 'zero-bs-crm' ),
+				'unacceptnotquotesdeleted' => esc_html__( 'Your quote(s) could not be marked unaccepted.', 'zero-bs-crm' ),
+				'notags'                   => wp_kses( sprintf( __( 'You do not have any quote tags. Do you want to <a target="_blank" href="%s">add a tag</a>?', 'zero-bs-crm' ), jpcrm_esc_link( 'tags', -1, 'zerobs_quote', false, 'quote' ) ), $zbs->acceptable_restricted_html ),
 
+			),
+			'bulkActions' => array( 'markaccepted', 'markunaccepted', 'addtag', 'removetag', 'delete', 'export' ),
+			// default 'sortables'     => array('id'),
+			// default 'unsortables'   => array('tagged','latestlog','editlink','phonelink')
+		)
+	);
 
-                // bulk actions - quote deleting
-				'andthese'                 => __( 'Shall I also delete the associated Invoices, Quotes, Transactions, and Tasks?', 'zero-bs-crm' ),
-                'quotesdeleted' => __('Your quote(s) have been deleted.',"zero-bs-crm"),
-                'notquotesdeleted' => __('Your quote(s) could not be deleted.',"zero-bs-crm"),
-
-                // bulk actions - quote accepting
-                'acceptareyousurequotes' => __('Are you sure you want to mark these quotes as accepted?',"zero-bs-crm"),
-                'acceptdeleted' => __('Quote(s) Accepted',"zero-bs-crm"),
-                'acceptquotesdeleted' => __('Your quote(s) have been marked accepted.',"zero-bs-crm"),
-                'acceptnotdeleted' => __('Could not mark accepted!',"zero-bs-crm"),
-                'acceptnotquotesdeleted' => __('Your quote(s) could not be marked accepted.',"zero-bs-crm"),
-
-                // bulk actions - quote un accepting
-                'unacceptareyousurethese' => __('Are you sure you want to mark these quotes as unaccepted?',"zero-bs-crm"),
-                'unacceptdeleted' => __('Quote(s) Unaccepted',"zero-bs-crm"),
-                'unacceptquotesdeleted' => __('Your quote(s) have been marked unaccepted.',"zero-bs-crm"),
-                'unacceptnotdeleted' => __('Could not mark unaccepted!',"zero-bs-crm"),
-                'unacceptnotquotesdeleted' => __('Your quote(s) could not be marked unaccepted.',"zero-bs-crm"),
-
-                // bulk actions - add/remove tags
-                'notags' => __('You do not have any tags, do you want to',"zero-bs-crm").' <a target="_blank" href="'.jpcrm_esc_link('tags',-1,'zerobs_quote',false,'quote').'">'.__('Add a tag',"zero-bs-crm").'</a>',
-
-            ),
-            'bulkActions'   => array('markaccepted','markunaccepted','addtag','removetag','delete','export'),
-            //default 'sortables'     => array('id'),
-            //default 'unsortables'   => array('tagged','latestlog','editlink','phonelink')
-    ));
-
-    $list->drawListView();
+	$list->drawListView();
 
 }
 
@@ -275,7 +268,7 @@ function zeroBSCRM_render_invoiceslist_page() {
 					'statusoverdue'            => __( 'Overdue', 'zero-bs-crm' ),
 					'statusdeleted'            => __( 'Deleted', 'zero-bs-crm' ),
 					// bulk actions - add/remove tags
-					'notags'                   => __( 'You do not have any tags, do you want to', 'zero-bs-crm' ) . ' <a target="_blank" href="' . jpcrm_esc_link( 'tags', -1, 'zerobs_invoice', false, 'invoice' ) . '">' . __( 'Add a tag', 'zero-bs-crm' ) . '</a>',
+					'notags'                   => wp_kses( sprintf( __( 'You do not have any invoice tags. Do you want to <a target="_blank" href="%s">add a tag</a>?', 'zero-bs-crm' ), jpcrm_esc_link( 'tags', -1, 'zerobs_invoice', false, 'invoice' ) ), $zbs->acceptable_restricted_html ),
 				),
 			'bulkActions' => array( 'changestatus', 'addtag', 'removetag', 'delete', 'export' ),
 			'extraBoxes'  => $upsell_box_html,
@@ -296,6 +289,7 @@ function zeroBSCRM_render_invoiceslist_page() {
 
 function zeroBSCRM_render_transactionslist_page(){
 
+		global $zbs;
     $list = new zeroBSCRM_list(array(
 
             'objType'       => 'transaction',
@@ -311,7 +305,7 @@ function zeroBSCRM_render_transactionslist_page(){
                 'export' => __('Export Transaction(s)',"zero-bs-crm"),
 
                 // bulk actions - add/remove tags
-                'notags' => __('You do not have any tags, do you want to',"zero-bs-crm").' <a target="_blank" href="'.jpcrm_esc_link('tags',-1,'zerobs_transaction',false,'transaction').'">'.__('Add a tag',"zero-bs-crm").'</a>',                
+								'notags'  => wp_kses( sprintf( __( 'You do not have any transaction tags. Do you want to <a target="_blank" href="%s">add a tag</a>?', 'zero-bs-crm' ), jpcrm_esc_link( 'tags', -1, 'zerobs_transaction', false, 'transaction' ) ), $zbs->acceptable_restricted_html ),
                
                 // statuses
                 'trans_status_cancelled' => __('Cancelled',"zero-bs-crm"),
