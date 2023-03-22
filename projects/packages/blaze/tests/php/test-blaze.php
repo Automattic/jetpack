@@ -30,8 +30,6 @@ class Test_Blaze extends BaseTestCase {
 
 	/**
 	 * Set up before each test.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->admin_id = wp_insert_user(
