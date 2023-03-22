@@ -47,6 +47,10 @@ export const getAllowedMediaTypes = enabledConnections => {
 			: DEFAULT_RESTRICTIONS.allowedMediaTypes
 	);
 
+	if ( enabledConnections.length === 0 ) {
+		return DEFAULT_RESTRICTIONS.allowedMediaTypes;
+	}
+
 	if ( typeArrays.length === 0 ) {
 		return [];
 	}
