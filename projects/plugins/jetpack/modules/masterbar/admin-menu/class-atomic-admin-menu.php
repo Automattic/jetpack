@@ -373,6 +373,16 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds Tools menu entries.
+	 */
+	public function add_tools_menu() {
+		parent::add_tools_menu();
+		if ( apply_filters( 'jetpack_show_wpcom_site_logs_menu', false ) ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Site Logs', 'jetpack' ), __( 'Site Logs', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-logs/' . $this->domain, null, 7 );
+		}
+	}
+
+	/**
 	 * Override the global submenu_file for theme-install.php page so the WP Admin menu item gets highlighted correctly.
 	 *
 	 * @param string $submenu_file The current pages $submenu_file global variable value.
