@@ -27,6 +27,8 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 		setImageType,
 		imageId,
 		setImageId,
+		template,
+		setTemplate,
 	} = useImageGeneratorConfig();
 
 	const [ mediaDetails ] = useMediaDetails( imageId );
@@ -101,9 +103,8 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 					<ImageOptions />
 					<hr />
 					<TemplatePicker
-						// TODO: add functionality
-						onSelect={ template => console.log( 'selected ' + template ) } // eslint-disable-line
-						value={ 'highway' }
+						onSelect={ setTemplate }
+						value={ template }
 						render={ renderTemplatePicker }
 					/>
 				</>
