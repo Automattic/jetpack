@@ -91,9 +91,9 @@
 					overflow: hidden;
 				}
 
-				h3 {
-					font-size: 1em;
-					margin: 0 0 .5em 0 !important;
+				.stats-section-inner > h3.heading {
+					font-size: 1.25em;
+					margin: 0 0 .5em 0;
 				}
 				p {
 					margin: 0 0 .25em;
@@ -104,9 +104,14 @@
 					}
 
 					a {
+						color: var(--jp-black);
 						display: block;
+						text-decoration: none;
 						&.button {
 							display: inline;
+						}
+						&:active, &:focus, &:hover {
+							text-decoration: underline;
 						}
 					}
 				}
