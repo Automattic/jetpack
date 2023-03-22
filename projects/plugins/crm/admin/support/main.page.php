@@ -148,7 +148,7 @@ if ( $has_license ) {
 				<?php echo wp_kses_post( sprintf( __( '<a href="%s" target="_blank">Go to your Jetpack CRM account</a>', 'zero-bs-crm' ), esc_url( $zbs->urls['account'] ) ) ); ?>
 			</span>
 		<?php else : ?>
-			<span class="label label-danger"><?php echo esc_html__( 'NO VALID', 'zero-bs-crm' ); ?></span> 
+			<span class="label label-danger"><?php echo esc_html__( 'NOT VALID', 'zero-bs-crm' ); ?></span> 
 			<span class="invalid-license">
 				<?php echo esc_html__( 'Your license key is either invalid, expired, or not assigned to this site.', 'zero-bs-crm' ); ?>
 				<?php // translators: %s: URL to license keys page. ?>
