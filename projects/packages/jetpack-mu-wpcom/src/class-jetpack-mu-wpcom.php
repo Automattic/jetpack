@@ -34,6 +34,9 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
 
+		// Site Logs menu item.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_site_logs' ) );
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -84,5 +87,12 @@ class Jetpack_Mu_Wpcom {
 		foreach ( array_filter( $plugins, 'is_file' ) as $plugin ) {
 			require_once $plugin;
 		}
+	}
+
+	/**
+	 * Load the Site Logs feature.
+	 */
+	public static function load_site_logs() {
+		require_once __DIR__ . '/features/site-logs/site-logs.php';
 	}
 }
