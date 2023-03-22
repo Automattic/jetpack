@@ -17,8 +17,8 @@ import { View } from 'react-native';
 import { getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
 import DetailsPanel from './components/details-panel';
-import Player from './components/player';
 import PlaybackPanel from './components/playback-panel';
+import Player from './components/player';
 import VideoPressUploader from './components/videopress-uploader/index.native';
 import style from './style.scss';
 

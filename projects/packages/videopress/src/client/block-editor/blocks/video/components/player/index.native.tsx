@@ -40,7 +40,7 @@ export default function Player( {
 
 	return (
 		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
-			{ ! isSelected && ( <View style={ style[ 'videopress-player__overlay' ] } /> ) }
+			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
 
 			{ ! isRequestingEmbedPreview && <SandBox html={ html } /> }
 			{ ! html && <Text>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text> }
