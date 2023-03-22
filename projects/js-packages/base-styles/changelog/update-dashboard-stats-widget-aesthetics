@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Modularized root variable declaration out of main style file
