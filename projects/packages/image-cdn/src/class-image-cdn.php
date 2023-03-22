@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Image_CDN;
 
-use Automattic\Jetpack\Assets;
-
 /**
  * Class Image_CDN
  */
@@ -1250,8 +1248,7 @@ class Image_CDN {
 		}
 		wp_enqueue_script(
 			'jetpack-photon',
-			Assets::get_file_url_for_environment(
-				'js/photon.min.js',
+			plugins_url(
 				'js/photon.js',
 				__FILE__
 			),
