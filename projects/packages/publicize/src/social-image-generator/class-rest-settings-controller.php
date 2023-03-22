@@ -81,7 +81,7 @@ class REST_Settings_Controller extends WP_REST_Controller {
 			$settings->set_default_template( $request['defaults']['template'] );
 		}
 
-		return rest_ensure_response( $settings->get_settings() );
+		return rest_ensure_response( $this->get_settings() );
 	}
 
 	/**

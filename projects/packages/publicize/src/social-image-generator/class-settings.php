@@ -44,7 +44,7 @@ class Settings {
 	 *
 	 * @return array
 	 */
-	public function get_settings() {
+	private function get_settings() {
 		$settings = get_option( self::OPTION_NAME );
 
 		if ( empty( $settings ) || ! is_array( $settings ) ) {
@@ -62,7 +62,8 @@ class Settings {
 	 * @return bool True if the value was updated, false otherwise.
 	 */
 	private function update_setting( $key, $value ) {
-		$settings = array_replace_recursive( self::get_settings(), array( $key => $value ) );
+		$settings       = array_replace_recursive( $this->get_settings(), array( $key => $value ) );
+		$this->settings = $settings;
 
 		return update_option( self::OPTION_NAME, $settings );
 	}
