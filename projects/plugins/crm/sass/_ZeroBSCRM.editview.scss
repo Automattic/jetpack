@@ -202,10 +202,12 @@
 
 .jpcrm-action-box-bottom-buttons {
 	display: flex;
+	flex-wrap: wrap;
 }
 
 .jpcrm-action-box-button {
 	flex: 1;
+	min-width: 130px;
 }
 
 // e.g. can't load cos of perms
