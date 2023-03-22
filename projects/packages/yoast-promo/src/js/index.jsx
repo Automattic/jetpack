@@ -5,12 +5,15 @@ import { __ } from '@wordpress/i18n';
 import Gridicon from 'gridicons';
 import { useState } from 'react';
 import { JetpackYoastLogos } from './JetpackYoastLogos';
+import { createStore } from './utils';
 
 const PLUGIN_SLUG_YOAST_FREE = 'wordpress-seo/wp-seo';
 const PLUGIN_SLUG_YOAST_PREMIUM = 'wordpress-seo-premium/wp-seo-premium';
 
+const dismissedStore = createStore( 'jetpack-yoast-promo-dismissed' );
+
 export const YoastPromo = () => {
-	const [ isDismissed, setIsDismissed ] = useState( false );
+	const [ isDismissed, setIsDismissed ] = useState( () => dismissedStore.get() === 'true' );
 	const { isYoastFreeActive, isYoastPremiumActive } = useSelect( select => {
 		const { getPlugin } = select( 'core' );
 
@@ -25,7 +28,10 @@ export const YoastPromo = () => {
 		};
 	} );
 
-	const handleDismiss = () => setIsDismissed( true );
+	const handleDismiss = () => {
+		setIsDismissed( true );
+		dismissedStore.set( 'true' );
+	};
 
 	const getContent = () => {
 		if ( ! isYoastFreeActive && ! isYoastPremiumActive ) {
@@ -67,7 +73,7 @@ export const YoastPromoContentFree = () => (
 			) }
 		</PanelRow>
 		<PanelRow>
-			<ExternalLink className="is-bold">
+			<ExternalLink className="is-bold" href="https://yoa.st/yoast-jetpack-boost">
 				{ __( 'Get Yoast SEO', 'jetpack-yoast-promo' ) }&nbsp;
 			</ExternalLink>
 		</PanelRow>
@@ -89,7 +95,7 @@ const YoastPromoContentPremium = () => (
 			) }
 		</PanelRow>
 		<PanelRow>
-			<ExternalLink className="is-bold">
+			<ExternalLink className="is-bold" href="https://yoa.st/yoast-upgrade-jetpack-boost">
 				{ __( 'Get Yoast SEO Premium', 'jetpack-yoast-promo' ) }&nbsp;
 			</ExternalLink>
 		</PanelRow>
