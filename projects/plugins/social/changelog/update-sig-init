@@ -1,4 +1,5 @@
-Significance: minor
+Significance: patch
 Type: changed
+Comment: Updated composer.lock.
 
-Moved SIG initilization to the admin_init hooks and updated the check to find out whether SIG is enabled to use the current plans package and added code to refresh plan data on every jetpack heartbeat."
+

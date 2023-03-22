@@ -1,4 +1,5 @@
-Significance: minor
-Type: enhancement
+Significance: patch
+Type: other
+Comment: Updated composer.lock.
 
-Added logic to refresh plan data every 24 hours and updated SIG initilization logic.
+
