@@ -61,9 +61,9 @@ type TimeDataProps = {
  * @returns {TimeDataProps}                   The time data.
  */
 function getTimeDataByValue( value: number, decimalPlaces: DecimalPlacesProp ): TimeDataProps {
-	const valueIsNaN = isNaN( value );
+	const valueIsNaN = Number.isNaN( value );
 
-	// Compute decimal part based on tyhe decimalPlaces.
+	// Compute decimal part based on the decimalPlaces.
 	const decimal =
 		valueIsNaN || typeof decimalPlaces === 'undefined'
 			? 0
