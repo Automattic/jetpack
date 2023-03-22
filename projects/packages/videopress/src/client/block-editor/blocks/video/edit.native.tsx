@@ -14,8 +14,12 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
+<<<<<<< HEAD
 import { getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
+=======
+import ColorPanel from './components/color-panel';
+>>>>>>> trunk
 import DetailsPanel from './components/details-panel';
 import PlaybackPanel from './components/playback-panel';
 import Player from './components/player';
@@ -101,6 +105,7 @@ export default function VideoPressEdit( {
 					<DetailsPanel { ...{ attributes, setAttributes } } />
 					<PanelBody title={ __( 'More', 'jetpack-videopress-pkg' ) }>
 						<PlaybackPanel { ...{ attributes, setAttributes } } />
+						<ColorPanel { ...{ attributes, setAttributes } } />
 					</PanelBody>
 				</InspectorControls>
 			) }
