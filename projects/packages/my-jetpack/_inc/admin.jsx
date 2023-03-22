@@ -23,6 +23,7 @@ import {
 	SearchInterstitial,
 	VideoPressInterstitial,
 } from './components/product-interstitial';
+import RedeemTokenScreen from './components/redeem-token-screen';
 import { initStore } from './state/store';
 import './style.module.scss';
 
@@ -60,6 +61,7 @@ const MyJetpack = () => (
 				{ window?.myJetpackInitialState?.loadAddLicenseScreen && (
 					<Route path="/add-license" element={ <AddLicenseScreen /> } />
 				) }
+				<Route path="/redeem-token" element={ <RedeemTokenScreen /> } />
 			</Routes>
 		</HashRouter>
 	</ThemeProvider>

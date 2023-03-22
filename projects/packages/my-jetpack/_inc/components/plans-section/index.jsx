@@ -123,6 +123,16 @@ function PlanSectionFooter( { purchases } ) {
 					</Button>
 				</li>
 			) }
+			{ /* TODO: Remove after testing ticket */ }
+			<li className={ styles[ 'actions-list-item' ] }>
+				<Button
+					href={ '/wp-admin/admin.php?page=my-jetpack#/redeem-token' }
+					weight="regular"
+					variant="link"
+				>
+					Redeem token
+				</Button>
+			</li>
 		</ul>
 	);
 }
