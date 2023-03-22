@@ -2274,6 +2274,49 @@ importers:
 
   projects/packages/wp-js-data-sync: {}
 
+  projects/packages/yoast-promo:
+    dependencies:
+      '@automattic/jetpack-shared-extension-utils':
+        specifier: workspace:*
+        version: link:../../js-packages/shared-extension-utils
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      '@babel/core':
+        specifier: 7.20.12
+        version: 7.20.12
+      '@babel/preset-env':
+        specifier: 7.20.2
+        version: 7.20.2(@babel/core@7.20.12)
+      '@babel/register':
+        specifier: 7.18.9
+        version: 7.18.9(@babel/core@7.20.12)
+      '@babel/runtime':
+        specifier: 7.20.13
+        version: 7.20.13
+      '@wordpress/browserslist-config':
+        specifier: 5.11.0
+        version: 5.11.0
+      sass:
+        specifier: 1.54.4
+        version: 1.54.4
+      sass-loader:
+        specifier: 12.4.0
+        version: 12.4.0(sass@1.54.4)(webpack@5.76.0)
+      webpack:
+        specifier: 5.76.0
+        version: 5.76.0(webpack-cli@4.9.1)
+      webpack-cli:
+        specifier: 4.9.1
+        version: 4.9.1(webpack@5.76.0)
+
   projects/plugins/boost:
     dependencies:
       '@automattic/format-currency':
