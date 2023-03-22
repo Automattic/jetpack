@@ -114,11 +114,11 @@ if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && $_SERVER['HTTP_USER_AGENT'] == 'Zap
 	// } Just means this was probs fired by ZAP APP
 	// } So pretty up msgs :)
 	$existingUserAPISourceShort = __( 'Updated by Zapier (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-	$existingUserAPISourceLong  = __( 'Zapier fired an API Action to update this customer', 'zero-bs-crm' );
+	$existingUserAPISourceLong  = __( 'Zapier fired an API Action to update this contact', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	// } New User from api
 	$newUserAPISourceShort = __( 'Created by Zapier (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-	$newUserAPISourceLong  = __( 'Zapier fired an API Action to create this customer', 'zero-bs-crm' );
+	$newUserAPISourceLong  = __( 'Zapier fired an API Action to create this contact', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 }
 

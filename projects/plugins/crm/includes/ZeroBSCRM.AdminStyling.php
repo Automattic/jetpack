@@ -65,17 +65,33 @@ function zeroBSCRM_improvedPostMsgsCustomers( $messages ) {
 
 	$messages['post'] = array(
 		0  => '', // Unused. Messages start at index 1.
-		1  => sprintf( __( 'Customer updated. <a href="%s">Back to Customers</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' ) ), // get_permalink($post_ID) ) ),
-		2  => __( 'Customer updated.', 'zero-bs-crm' ),
-		3  => __( 'Customer field deleted.', 'zero-bs-crm' ),
-		4  => __( 'Customer updated.', 'zero-bs-crm' ),
+		1  => sprintf(
+			/* Translators: %s: link to the main Contacts page */
+			__( 'Contact updated. <a href="%s">Back to Contacts</a>', 'zero-bs-crm' ),
+			esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' )
+		),
+		2  => __( 'Contact updated.', 'zero-bs-crm' ),
+		3  => __( 'Contact field deleted.', 'zero-bs-crm' ),
+		4  => __( 'Contact updated.', 'zero-bs-crm' ),
 		/* translators: %s: date and time of the revision */
-		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Customer restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) sanitize_text_field( $_GET['revision'] ), false ) ) : false,
-		6  => sprintf( __( 'Customer added. <a href="%s">Back to Customers</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' ) ), // get_permalink($post_ID) ) ),//esc_url( get_permalink($post_ID) ) ),
-		7  => __( 'Customer saved.', 'zero-bs-crm' ),
-		8  => sprintf( __( 'Customer submitted. <a target="_blank" href="%s">Back to Customers</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' ) ), // esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
-		9  => '', // sprintf( ), //get_permalink($post_ID) ) ),//esc_url( get_permalink($post_ID) ) ),
-		10 => sprintf( __( 'Customer draft updated. <a target="_blank" href="%s">Back to Customers</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' ) ), // get_permalink($post_ID) ) ),//esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
+		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Contact restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) sanitize_text_field( $_GET['revision'] ), false ) ) : false, // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		6  => sprintf(
+			/* Translators: %s: link to the main Contacts page */
+			__( 'Contact added. <a href="%s">Back to Contacts</a>', 'zero-bs-crm' ),
+			esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' )
+		),
+		7  => __( 'Contact saved.', 'zero-bs-crm' ),
+		8  => sprintf(
+			/* Translators: %s: link to the main Contacts page */
+			__( 'Contact submitted. <a target="_blank" href="%s">Back to Contacts</a>', 'zero-bs-crm' ),
+			esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' )
+		),
+		9  => '',
+		10 => sprintf(
+			/* Translators: %s: link to the main Contacts page */
+			__( 'Contact draft updated. <a target="_blank" href="%s">Back to Contacts</a>', 'zero-bs-crm' ),
+			esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' )
+		),
 	);
 
 	return $messages;
