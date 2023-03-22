@@ -175,7 +175,7 @@ function zeroBSCRM_update_edit_form() {
 
 /*
 ======================================================
-	/ Edit Post Messages (i.e. "Post Updated => Event Updated")
+	/ Edit Post Messages (i.e. "Post Updated => Task Updated")
 	/ See: http://ryanwelcher.com/2014/10/change-wordpress-post-updated-messages/
 	====================================================== */
 
@@ -193,7 +193,7 @@ function zeroBSCRM_post_updated_messages( $messages ) {
 		3  => __( 'Custom field deleted.', 'zero-bs-crm' ),
 		4  => __( 'Task updated.', 'zero-bs-crm' ),
 		/* translators: %s: date and time of the revision */
-		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Event restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) sanitize_text_field( $_GET['revision'] ), false ) ) : false,
+		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Task restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) sanitize_text_field( $_GET['revision'] ), false ) ) : false, // phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		6  => __( 'Task saved.', 'zero-bs-crm' ),
 		7  => __( 'Task saved.', 'zero-bs-crm' ),
 		8  => __( 'Task submitted.', 'zero-bs-crm' ),
@@ -375,7 +375,7 @@ function zeroBSCRM_caps_to_nicename( $caps = '' ) {
 			break;
 
 		case 'zerobs_customermgr':
-			$nicename = __( 'Manage Customers Only', 'zero-bs-crm' );
+			$nicename = __( 'Manage Contacts Only', 'zero-bs-crm' );
 			break;
 
 		case 'zerobs_invoicemgr':
@@ -1381,16 +1381,16 @@ function zeroBSCRM_html_home2() {
 		<div id="action-buttons" class='block'>
 		<h6>
 		<?php
-		esc_html_e( 'Jetpack CRM makes it easy for you to manage your customers using WordPress. To get started, ', 'zero-bs-crm' );
+		esc_html_e( 'Jetpack CRM makes it easy for you to manage your contacts using WordPress. To get started, ', 'zero-bs-crm' );
 		echo '<a href="https://jetpackcrm.com/learn/" target="_blank">';
 		esc_html_e( 'watch the video tutorial', 'zero-bs-crm' );
 		echo '</a> ';
-		esc_html_e( 'or read our guide on how create your first customer', 'zero-bs-crm' );
+		esc_html_e( 'or read our guide on how create your first contact', 'zero-bs-crm' );
 		?>
 		:</h6>
 		<div class='zbs-button-wrap'>
 			<div class="left">
-			<a href="<?php echo esc_url( $add_new_customer_link ); ?>" class='add-first-customer btn btn-cta'><?php esc_html_e( 'Add Your First Customer', 'zero-bs-crm' ); ?></a>
+			<a href="<?php echo esc_url( $add_new_customer_link ); ?>" class='add-first-customer btn btn-cta'><?php esc_html_e( 'Add Your First Contact', 'zero-bs-crm' ); ?></a>
 			</div>
 			<div class="right">
 			<a href="<?php echo esc_url( $zbs->urls['kbfirstcontact'] ); ?>" target="_blank" class='read-full-guide btn btn-hta'><?php esc_html_e( 'Read the full guide', 'zero-bs-crm' ); ?></a>
@@ -1426,7 +1426,7 @@ function zeroBSCRM_html_home2() {
 
 		<div class="block">
 				<h1><?php esc_html_e( 'Jetpack CRM Features and Extensions', 'zero-bs-crm' ); ?></h1>
-				<h6><?php esc_html_e( 'Made for you, from the ground up. Jetpack CRM is both easy-to-use, and extremely flexible. Whatever your business, Jetpack CRM is the no-nonsense way of keeping a customer database', 'zero-bs-crm' ); ?></h6>
+				<h6><?php esc_html_e( 'Made for you, from the ground up. Jetpack CRM is both easy-to-use, and extremely flexible. Whatever your business, Jetpack CRM is the no-nonsense way of keeping a contact database', 'zero-bs-crm' ); ?></h6>
 			</div>
 
 
@@ -1477,7 +1477,7 @@ function zeroBSCRM_html_home2() {
 					<div class="feature-block last">
 						<img alt="<?php esc_attr_e( 'Send SMS', 'zero-bs-crm' ); ?>" src="<?php echo esc_url( plugins_url( '/i/sms.png', ZBS_ROOTFILE ) ); ?>">
 						<h5><?php esc_html_e( 'Send SMS', 'zero-bs-crm' ); ?><span class='pro'>Entrepreneur</span></h5>
-						<p><?php esc_html_e( 'Want to get in front of your customers, wherever they are? Send SMS messages to your contacts from their CRM record.', 'zero-bs-crm' ); ?></p>
+						<p><?php esc_html_e( 'Want to get in front of your contacts, wherever they are? Send SMS messages to your contacts from their CRM record.', 'zero-bs-crm' ); ?></p>
 					</div>
 
 					<div class="feature-block first">
@@ -2546,7 +2546,7 @@ function zeroBSCRM_html_deletion() {
 
 		// } Fill out
 		$delType = __( 'Task', 'zero-bs-crm' );
-		$delStr  = 'Event ID: ' . $delID;
+		$delStr  = 'Task ID: ' . $delID; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	}
 

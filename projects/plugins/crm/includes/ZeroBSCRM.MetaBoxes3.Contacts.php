@@ -271,7 +271,7 @@
                     # ... further hacked
 
                     if ($zbsShowID == "1" && isset($contact['id']) && !empty($contact['id'])) { ?>
-                    <tr class="wh-large"><th><label><?php esc_html_e('Customer',"zero-bs-crm");?> ID:</label></th>
+							<tr class="wh-large"><th><label><?php esc_html_e( 'Contact ID', 'zero-bs-crm' ); ?>:</label></th>
                     <td class="zbs-field-id">
                         #<?php if (isset($contact['id'])) echo esc_html( $contact['id'] ); ?>
                     </td></tr>
@@ -1716,7 +1716,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
                     } else {
 
                         // explainer - rarely shown
-                        echo '<p style="font-size: 0.9em;margin-top: 0.5em;">' . esc_html__( 'The WordPress user has a role other than CRM Customer. They will need to reset their password via the WP login page.', 'zero-bs-crm' ) . '</p>';
+						echo '<p style="font-size: 0.9em;margin-top: 0.5em;">' . esc_html__( 'The WordPress user has a role other than CRM Contact. They will need to reset their password via the WP login page.', 'zero-bs-crm' ) . '</p>';
 
                     }
 

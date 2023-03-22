@@ -49,7 +49,7 @@ $autoLoggers = array(
 	),
 	array(
 		'fieldname' => 'autolog_event_new',
-		'title'     => 'Event Creation',
+		'title'     => 'Task Creation',
 	),
 	array(
 		'fieldname' => 'autolog_clientportal_new',
@@ -332,7 +332,7 @@ if ( ! $confirmAct ) {
 
 
 				<tr>
-					<td class="wfieldname"><label for="wpzbscrm_showaddress"><?php esc_html_e( 'Show Customer Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Untick to hide the address fields (useful for online business)', 'zero-bs-crm' ); ?></td>
+					<td class="wfieldname"><label for="wpzbscrm_showaddress"><?php esc_html_e( 'Show Contact Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Untick to hide the address fields (useful for online business)', 'zero-bs-crm' ); ?></td>
 					<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_showaddress" id="wpzbscrm_showaddress" value="1"
 					<?php
 					if ( isset( $settings['showaddress'] ) && $settings['showaddress'] == '1' ) {
@@ -342,7 +342,7 @@ if ( ! $confirmAct ) {
 				</tr>
 
 				<tr>
-					<td class="wfieldname"><label for="wpzbscrm_secondaddress"><?php esc_html_e( 'Second Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Allow editing of a "second address" against a customer', 'zero-bs-crm' ); ?></td>
+					<td class="wfieldname"><label for="wpzbscrm_secondaddress"><?php esc_html_e( 'Second Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Allow editing of a "second address" against a contact', 'zero-bs-crm' ); ?></td>
 					<td style="width:540px">
 						<input type="checkbox" class="winput form-control" name="wpzbscrm_secondaddress" id="wpzbscrm_secondaddress" value="1"
 						<?php
@@ -606,7 +606,7 @@ if ( ! $confirmAct ) {
 
 
 			<tr>
-				<td class="wfieldname"><label><?php esc_html_e( 'Accepted Upload File Types', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'This setting specifies which file types are acceptable for uploading against customers, quotes, or invoices.', 'zero-bs-crm' ); ?></td>
+				<td class="wfieldname"><label><?php esc_html_e( 'Accepted Upload File Types', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'This setting specifies which file types are acceptable for uploading against contacts, quotes, or invoices.', 'zero-bs-crm' ); ?></td>
 				<td style="width:540px">
 					<?php foreach ( $zbs->acceptable_mime_types as $filetype => $mimedeet ) { ?>
 						<input type="checkbox" class="winput form-control" name="<?php echo esc_attr( 'wpzbscrm_ft_' . $filetype ); ?>" id="<?php echo esc_attr( 'wpzbscrm_ft_' . $filetype ); ?>" value="1"
