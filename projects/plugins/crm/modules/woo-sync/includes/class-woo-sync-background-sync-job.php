@@ -1611,14 +1611,23 @@ class Woo_Sync_Background_Sync_Job {
 
 			// Retrieve order-used tax rates
 			$tax_items_labels = array();
-			$shipping_tax_label = '';
-			foreach ( $order->get_items('tax') as $tax_item ) {
-			   
-			    $tax_items_labels[$tax_item->get_rate_id()] = $tax_item->get_label();
-			    if ( ! empty($tax_item->get_shipping_tax_total() ) ){
-			        $shipping_tax_label = $tax_item->get_label();
-			    }
 
+			foreach ( $order->get_items('tax') as $tax_item ) {
+				$rate_id                      = $tax_item->get_rate_id();
+				$tax_items_labels[ $rate_id ] = $tax_item->get_label();
+
+				if ( isset( $tax_items_labels[ $rate_id ] ) && ! empty( $tax_item->get_shipping_tax_total() ) ) {
+
+					$tax_label = $tax_items_labels[ $rate_id ];
+
+					foreach ( $tax_rates_table as $tax_rate_id => $tax_rate_detail ) {
+						// Translators: %s = tax rate name
+						if ( sprintf( __( '%s (From WooCommerce)', 'zero-bs-crm' ), $tax_label ) === $tax_rate_detail['name'] ) {
+							$shipping_tax_id = $tax_rate_id;
+							break;
+						}
+					}
+				}
 			}
 
 			// cycle through order items to create crm line items
@@ -1681,10 +1690,8 @@ class Woo_Sync_Background_Sync_Job {
 				);
 
 				// add taxes, where present
-				if ( is_array( $item_tax_rate_ids ) && count( $item_tax_rate_ids ) > 0 ){
-					
+				if ( is_array( $item_tax_rate_ids ) && count( $item_tax_rate_ids ) > 0 ) {
 					$new_line_item['taxes'] = implode( ',', $item_tax_rate_ids );
-
 				}
 				// Add order item line
 				$data['lineitems'][] = $new_line_item;
@@ -1914,6 +1921,7 @@ class Woo_Sync_Background_Sync_Job {
 				'discount'             => $order_data['discount_total'],
 				'discount_type'        => 'm',
 				'shipping'             => $order_data['shipping_total'],
+				'shipping_taxes'       => $shipping_tax_id,
 				'shipping_tax'         => $order_data['shipping_tax'],
 				'tax'                  => $order_data['total_tax'],
 				'ref'                  => $item_title,
