@@ -338,34 +338,32 @@ export default function PosterPanel( {
 				onChange={ setPickFromFrame }
 			/>
 
-			<div
-				className={ classnames( 'poster-panel__frame-wrapper', { 'is-active': pickFromFrame } ) }
-			>
-				<VideoFramePicker
-					guid={ attributes?.guid }
-					atTime={ posterSource?.atTime }
-					onVideoFrameSelect={ timestamp => {
-						setAttributes( {
-							posterSource: { type: 'frame', atTime: timestamp },
-							poster: '',
-						} );
-					} }
-				/>
-			</div>
+			{ pickFromFrame ? (
+				<div className="poster-panel__frame-wrapper">
+					<VideoFramePicker
+						guid={ attributes?.guid }
+						atTime={ posterSource?.atTime }
+						onVideoFrameSelect={ timestamp => {
+							setAttributes( {
+								posterSource: { type: 'frame', atTime: timestamp },
+								poster: '',
+							} );
+						} }
+					/>
+				</div>
+			) : (
+				<div className="poster-panel__image-wrapper">
+					<PosterDropdown attributes={ attributes } setAttributes={ setAttributes } />
 
-			<div
-				className={ classnames( 'poster-panel__image-wrapper', { 'is-active': ! pickFromFrame } ) }
-			>
-				<PosterDropdown attributes={ attributes } setAttributes={ setAttributes } />
+					<VideoPosterCard poster={ poster } className="poster-panel-card" />
 
-				<VideoPosterCard poster={ poster } className="poster-panel-card" />
-
-				{ poster && (
-					<MenuItem onClick={ onRemovePoster } icon={ linkOff } isDestructive variant="tertiary">
-						{ __( 'Remove and use default', 'jetpack-videopress-pkg' ) }
-					</MenuItem>
-				) }
-			</div>
+					{ poster && (
+						<MenuItem onClick={ onRemovePoster } icon={ linkOff } isDestructive variant="tertiary">
+							{ __( 'Remove and use default', 'jetpack-videopress-pkg' ) }
+						</MenuItem>
+					) }
+				</div>
+			) }
 		</PanelBody>
 	);
 }

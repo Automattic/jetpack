@@ -50,15 +50,6 @@ body.modal-open .poster-panel__dropdown {
 	padding-right: $grid-unit-20;
 }
 
-.poster-panel__frame-wrapper,
-.poster-panel__image-wrapper {
-	display: none;
-
-	&.is-active {
-		display: block;
-	}
-}
-
 .poster-panel__frame-picker__sandbox-wrapper {
 	margin-bottom: 8px;
 	aspect-ratio: 16 / 9;
