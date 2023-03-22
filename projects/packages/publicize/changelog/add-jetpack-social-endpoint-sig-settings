@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add new endpoint to Social Image Generator to get and update SIG-specific options
