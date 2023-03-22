@@ -19,7 +19,7 @@ export type VideoBlockColorAttributesProps = {
 type BlockSupportAlignProp = 'left' | 'center' | 'right' | 'wide' | 'full' | undefined;
 
 export type PosterSourceProps = {
-	type: 'media-library' | 'frame';
+	type: 'media-library' | 'video-frame';
 	atTime?: number;
 	src?: string;
 	id?: number;

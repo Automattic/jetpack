@@ -11,7 +11,7 @@ import {
 	ToggleControl,
 	SandBox,
 } from '@wordpress/components';
-import { useRef, useEffect, useState } from '@wordpress/element';
+import { useRef, useEffect, useState, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { linkOff, image as imageIcon } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -74,16 +74,22 @@ export function PosterDropdown( {
 	const videoPosterDescription = `video-block__poster-image-description-${ clientId }`;
 
 	const { poster } = attributes;
-	const onSelectPoster = ( image: AdminAjaxQueryAttachmentsResponseItemProps ) => {
-		setAttributes( {
-			poster: image.url,
-			posterSource: {
-				type: 'media-library',
-				id: image.id,
-				url: image.url,
-			},
-		} );
-	};
+	const onSelectPoster = useCallback(
+		( image: AdminAjaxQueryAttachmentsResponseItemProps ) => {
+			setAttributes( {
+				poster: image.url,
+
+				// Extend the posterSource object to include the media library id and url.
+				posterSource: {
+					...attributes.posterSource,
+					type: 'media-library',
+					id: image.id,
+					url: image.url,
+				},
+			} );
+		},
+		[ attributes ]
+	);
 
 	const selectPosterLabel = __( 'Select Poster Image', 'jetpack-videopress-pkg' );
 	const replacePosterLabel = __( 'Replace Poster Image', 'jetpack-videopress-pkg' );
@@ -325,17 +331,36 @@ export default function PosterPanel( {
 	setAttributes,
 }: PosterPanelProps ): React.ReactElement {
 	const { poster, posterSource } = attributes;
-	const [ pickFromFrame, setPickFromFrame ] = useState( attributes?.posterSource.type === 'frame' );
+	const [ pickFromFrame, setPickFromFrame ] = useState(
+		attributes?.posterSource.type === 'video-frame'
+	);
 	const onRemovePoster = () => {
-		setAttributes( { poster: '' } );
+		setAttributes( { poster: '', posterSource: { ...attributes.posterSource, url: '' } } );
 	};
+
+	const switchPosterSource = useCallback(
+		( shouldPickFromFrame: boolean ) => {
+			setPickFromFrame( shouldPickFromFrame );
+			setAttributes( {
+				// Extend the posterSource attr with the new type.
+				posterSource: {
+					...attributes.posterSource,
+					type: shouldPickFromFrame ? 'video-frame' : 'media-library',
+				},
+
+				// Clean the poster URL when it should be picked from the video frame.
+				poster: shouldPickFromFrame ? '' : attributes.posterSource.url,
+			} );
+		},
+		[ attributes ]
+	);
 
 	return (
 		<PanelBody title={ __( 'Poster', 'jetpack-videopress-pkg' ) } className="poster-panel">
 			<ToggleControl
 				label={ __( 'Pick from video frame', 'jetpack-videopress-pkg' ) }
 				checked={ pickFromFrame }
-				onChange={ setPickFromFrame }
+				onChange={ switchPosterSource }
 			/>
 
 			{ pickFromFrame ? (
@@ -345,7 +370,11 @@ export default function PosterPanel( {
 						atTime={ posterSource?.atTime }
 						onVideoFrameSelect={ timestamp => {
 							setAttributes( {
-								posterSource: { ...attributes.posterSource, type: 'frame', atTime: timestamp },
+								posterSource: {
+									...attributes.posterSource,
+									type: 'video-frame',
+									atTime: timestamp,
+								},
 								poster: '',
 							} );
 						} }
