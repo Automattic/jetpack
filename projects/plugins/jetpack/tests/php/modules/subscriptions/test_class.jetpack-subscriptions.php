@@ -352,6 +352,13 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_comments_are_displaying_on_not_accessible_pages() {
+		add_filter(
+			'jetpack_active_modules',
+			function ( $active ) {
+				return array_merge( $active, array( 'subscriptions' ) );
+			}
+		);
+
 		$post_id = $this->setup_jetpack_paid_newsletters();
 		register_subscription_block();
 
