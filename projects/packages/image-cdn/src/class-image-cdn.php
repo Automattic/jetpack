@@ -64,13 +64,9 @@ class Image_CDN {
 	 * The basic functions are found in ./functions.photon.php.
 	 *
 	 * @uses add_action, add_filter
-	 * @return null
+	 * @return void
 	 */
 	private function setup() {
-		if ( ! function_exists( 'jetpack_image_cdn_url' ) ) {
-			return;
-		}
-
 		// Images in post content and galleries.
 		add_filter( 'the_content', array( __CLASS__, 'filter_the_content' ), 999999 );
 		add_filter( 'get_post_galleries', array( __CLASS__, 'filter_the_galleries' ), 999999 );
@@ -191,7 +187,7 @@ class Image_CDN {
 			$parts     = explode( '?', $url );
 			$arguments = isset( $parts[1] ) ? $parts[1] : array();
 
-			$sizes[ $size ] = jetpack_image_cdn_url( $url, wp_parse_args( $arguments ) );
+			$sizes[ $size ] = Image_CDN_Core::cdn_url( $url, wp_parse_args( $arguments ) );
 		}
 
 		return $sizes;
@@ -313,7 +309,7 @@ class Image_CDN {
 		$images = self::parse_images_from_html( $content );
 
 		if ( ! empty( $images ) ) {
-			$content_width = get_jetpack_image_cdn_content_width();
+			$content_width = Image_CDN_Core::get_jetpack_content_width();
 
 			$image_sizes = self::image_sizes();
 
@@ -525,7 +521,7 @@ class Image_CDN {
 					 */
 					$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height', 'width_orig', 'height_orig', 'transform', 'transform_orig' ) );
 
-					$photon_url = jetpack_image_cdn_url( $src, $args );
+					$photon_url = Image_CDN_Core::cdn_url( $src, $args );
 
 					// Modify image tag if Photon function provides a URL
 					// Ensure changes are only applied to the current image by copying and modifying the matched tag, then replacing the entire tag with our modified version.
@@ -534,7 +530,7 @@ class Image_CDN {
 
 						// If present, replace the link href with a Photoned URL for the full-size image.
 						if ( ! empty( $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) ) {
-							$new_tag = preg_replace( '#(href=["|\'])' . preg_quote( $images['link_url'][ $index ], '#' ) . '(["|\'])#i', '\1' . jetpack_image_cdn_url( $images['link_url'][ $index ] ) . '\2', $new_tag, 1 );
+							$new_tag = preg_replace( '#(href=["|\'])' . preg_quote( $images['link_url'][ $index ], '#' ) . '(["|\'])#i', '\1' . Image_CDN_Core::cdn_url( $images['link_url'][ $index ] ) . '\2', $new_tag, 1 );
 						}
 
 						// Supplant the original source value with our Photon URL.
@@ -543,7 +539,7 @@ class Image_CDN {
 
 						// If Lazy Load is in use, pass placeholder image through Photon.
 						if ( isset( $placeholder_src ) && self::validate_image_url( $placeholder_src ) ) {
-							$placeholder_src = jetpack_image_cdn_url( $placeholder_src );
+							$placeholder_src = Image_CDN_Core::cdn_url( $placeholder_src );
 
 							if ( $placeholder_src !== $placeholder_src_orig ) {
 								$new_tag = str_replace( $placeholder_src_orig, esc_url( $placeholder_src ), $new_tag );
@@ -593,7 +589,7 @@ class Image_CDN {
 						$content = str_replace( $tag, $new_tag, $content );
 					}
 				} elseif ( preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src ) && ! empty( $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) ) {
-					$new_tag = preg_replace( '#(href=["|\'])' . preg_quote( $images['link_url'][ $index ], '#' ) . '(["|\'])#i', '\1' . jetpack_image_cdn_url( $images['link_url'][ $index ] ) . '\2', $tag, 1 );
+					$new_tag = preg_replace( '#(href=["|\'])' . preg_quote( $images['link_url'][ $index ], '#' ) . '(["|\'])#i', '\1' . Image_CDN_Core::cdn_url( $images['link_url'][ $index ] ) . '\2', $tag, 1 );
 
 					$content = str_replace( $tag, $new_tag, $content );
 				}
@@ -634,7 +630,7 @@ class Image_CDN {
 	 */
 	public static function filter_the_image_widget( $instance ) {
 		if ( ! $instance['attachment_id'] && $instance['url'] ) {
-			jetpack_image_cdn_url(
+			Image_CDN_Core::cdn_url(
 				$instance['url'],
 				array(
 					'w' => $instance['width'],
@@ -806,7 +802,7 @@ class Image_CDN {
 
 				// Generate Photon URL.
 				$image = array(
-					jetpack_image_cdn_url( $image_url, $photon_args ),
+					Image_CDN_Core::cdn_url( $image_url, $photon_args ),
 					$has_size_meta ? $image_args['width'] : false,
 					$has_size_meta ? $image_args['height'] : false,
 					$intermediate,
@@ -865,7 +861,7 @@ class Image_CDN {
 
 				// Generate Photon URL.
 				$image = array(
-					jetpack_image_cdn_url( $image_url, $photon_args ),
+					Image_CDN_Core::cdn_url( $image_url, $photon_args ),
 					$has_size_meta ? $width : false,
 					$has_size_meta ? $height : false,
 					$intermediate,
@@ -928,7 +924,7 @@ class Image_CDN {
 				}
 			}
 
-			$sources[ $i ]['url'] = jetpack_image_cdn_url( $url, $args );
+			$sources[ $i ]['url'] = Image_CDN_Core::cdn_url( $url, $args );
 		}
 
 		/**
@@ -971,7 +967,7 @@ class Image_CDN {
 
 			if ( abs( $constrained_size[0] - $expected_size[0] ) <= 1 && abs( $constrained_size[1] - $expected_size[1] ) <= 1 ) {
 				$crop = 'soft';
-				$base = get_jetpack_image_cdn_content_width() ? get_jetpack_image_cdn_content_width() : 1000; // Provide a default width if none set by the theme.
+				$base = Image_CDN_Core::get_jetpack_content_width() ? Image_CDN_Core::get_jetpack_content_width() : 1000; // Provide a default width if none set by the theme.
 			} else {
 				$crop = 'hard';
 				$base = $reqwidth;
@@ -1002,7 +998,7 @@ class Image_CDN {
 				}
 
 				$newsources[ $newwidth ] = array(
-					'url'        => jetpack_image_cdn_url( $url, $args ),
+					'url'        => Image_CDN_Core::cdn_url( $url, $args ),
 					'descriptor' => 'w',
 					'value'      => $newwidth,
 				);
@@ -1029,7 +1025,7 @@ class Image_CDN {
 		if ( ! doing_filter( 'the_content' ) ) {
 			return $sizes;
 		}
-		$content_width = get_jetpack_image_cdn_content_width();
+		$content_width = Image_CDN_Core::get_jetpack_content_width();
 		if ( ! $content_width ) {
 			$content_width = 1000;
 		}
@@ -1225,11 +1221,11 @@ class Image_CDN {
 		if ( is_array( $tags['og:image'] ) ) {
 			$images = array();
 			foreach ( $tags['og:image'] as $image ) {
-				$images[] = jetpack_image_cdn_url( $image, $photon_args );
+				$images[] = Image_CDN_Core::cdn_url( $image, $photon_args );
 			}
 			$tags['og:image'] = $images;
 		} else {
-			$tags['og:image'] = jetpack_image_cdn_url( $tags['og:image'], $photon_args );
+			$tags['og:image'] = Image_CDN_Core::cdn_url( $tags['og:image'], $photon_args );
 		}
 
 		return $tags;

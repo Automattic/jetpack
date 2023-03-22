@@ -25,8 +25,6 @@ class Image_CDN_Setup {
 			'dns-prefetch'
 		);
 
-		require_once __DIR__ . '/functions.photon.php';
-
 		Image_CDN::instance();
 	}
 }
