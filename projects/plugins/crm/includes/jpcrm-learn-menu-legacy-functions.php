@@ -347,6 +347,37 @@ function jpcrm_quotelist_learn_menu(){
 
 }
 
+/**
+ * Output the back to list button on Quote Edit and Add New pages
+ */
+function jpcrm_quoteedit_list_menu() {
+
+	global $zbs;
+
+	$title = __( 'New Quote', 'zero-bs-crm' );
+	$zbsid = -1;
+
+	if ( isset( $_GET['zbsid'] ) && ! empty( $_GET['zbsid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$title = __( 'Edit Quote', 'zero-bs-crm' );
+		$zbsid = (int) sanitize_text_field( wp_unslash( $_GET['zbsid'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	$filter_str = '<div class="ui items right floated" style="margin:0">' . zeroBSCRM_getObjNav( $zbsid, 'edit', ZBS_TYPE_QUOTE ) . '</div>';
+
+	// output
+	$zbs->learn_menu->render_generic_learn_menu(
+		$title,
+		'',
+		$filter_str,
+		true,
+		$title,
+		'',
+		'',
+		'',
+		'',
+		''
+	);
+}
 
 function jpcrm_translist_learn_menu(){
 

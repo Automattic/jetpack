@@ -1027,9 +1027,7 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 			// contact nav
 			$navigation = $zbs->DAL->contacts->getContactPrevNext( $id );
 
-			$html = '<span class="ui navigation-quick-links">';
-
-			$html .= '<a style="margin-right:6px;" href="' . jpcrm_esc_link( $zbs->slugs["managecontacts"] ) . '" class="ui button mini was-inverted basic" id="back-to-list">' . esc_html( __( 'Back to List', 'zero-bs-crm' ) ) . '</a>';
+			$html = zeroBSRM_print_backtolist_html( $zbs->slugs['managecontacts'] );
 
 			// PREV
 			if ( $navigation && $navigationMode === 1 ) {
@@ -1061,8 +1059,7 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 			// company nav
 			$navigation = $zbs->DAL->companies->getCompanyPrevNext( $id );
 
-			$html = '<span class="ui navigation-quick-links">';
-			$html .= '<a style="margin-right:6px;" href="' . jpcrm_esc_link( $zbs->slugs["managecompanies"] ) . '" class="ui button mini was-inverted basic" id="back-to-list">' .  esc_html( __( 'Back to List', 'zero-bs-crm' ) ) . '</a>';
+			$html = zeroBSRM_print_backtolist_html( $zbs->slugs['managecompanies'] );
 
 			// PREV
 			if ( $navigation && $navigationMode === 1 ) {
@@ -1086,11 +1083,33 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 			$html .= '</span>';
 
 			break;
+
+		case ZBS_TYPE_QUOTE:
+			$html = zeroBSRM_print_backtolist_html( $zbs->slugs['managequotes'] );
+
+			$html .= '</span>';
+
+			break;
 	}
 
 	return $html;
 
 }
+
+/**
+ * Helper function to print the 'back to list' navigation button.
+ *
+ * @param string $slug - The slug for the page.
+ * @return string $html - The HTML string.
+ */
+function zeroBSRM_print_backtolist_html( $slug ) {
+	$html = '<span class="ui navigation-quick-links">';
+
+	$html .= '<a style="margin-right:6px;" href="' . jpcrm_esc_link( $slug ) . '" class="ui button mini was-inverted basic" id="back-to-list">' . esc_html( __( 'Back to List', 'zero-bs-crm' ) ) . '</a>';
+
+	return $html;
+}
+
 /* ======================================================
   /	Object Nav
    ====================================================== */
