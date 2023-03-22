@@ -19,13 +19,6 @@ class Settings {
 	const OPTION_NAME = 'jetpack_social_image_generator_settings';
 
 	/**
-	 * A list of all available templates.
-	 *
-	 * @var array
-	 */
-	const TEMPLATES = array( 'dois', 'edge', 'fullscreen', 'highway' );
-
-	/**
 	 * Array with SIG's settings.
 	 *
 	 * @var array $settings
@@ -93,7 +86,13 @@ class Settings {
 	 * @return array
 	 */
 	public function get_defaults() {
-		return isset( $this->settings['defaults'] ) ? $this->settings['defaults'] : array();
+		if ( isset( $this->settings['defaults'] ) ) {
+			return $this->settings['defaults'];
+		}
+
+		return array(
+			'template' => Templates::DEFAULT_TEMPLATE,
+		);
 	}
 
 	/**
@@ -104,7 +103,7 @@ class Settings {
 	public function get_default_template() {
 		$defaults = $this->get_defaults();
 
-		return isset( $defaults['template'] ) ? $defaults['template'] : '';
+		return isset( $defaults['template'] ) ? $defaults['template'] : Templates::DEFAULT_TEMPLATE;
 	}
 
 	/**

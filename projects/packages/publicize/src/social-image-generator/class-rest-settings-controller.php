@@ -124,7 +124,7 @@ class REST_Settings_Controller extends WP_REST_Controller {
 					'properties'  => array(
 						'template' => array(
 							'type' => 'string',
-							'enum' => Settings::TEMPLATES,
+							'enum' => Templates::TEMPLATES,
 						),
 					),
 				),
