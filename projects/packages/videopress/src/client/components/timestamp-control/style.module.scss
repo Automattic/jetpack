@@ -4,6 +4,15 @@
 	gap: 8px;
 	margin-bottom: 8px;
 
+	&.small {
+		flex-direction: column;
+		align-items: inherit;
+
+		.timestamp-input-wrapper {
+			max-width: unset;
+		}
+	}
+
 	.timestamp-range-control,
 	.timestamp-range-control:last-child {
 		margin-bottom: 0;
@@ -19,15 +28,17 @@
 	display: flex;
 	align-items: center;
 	border-color: #949494;
-	background-color: #fff;
-    border-style: solid;
+	background-color: var( --jp-white );
+	border-style: solid;
 	justify-content: space-around;
-    border-width: 1px;
+	border-width: 1px;
 	padding: 0px;
+	max-width: calc( var( --spacing-base ) * 30 ); // 240px
 
 	.timestamp-control-input {
 		padding: 0 1px;
 		margin-bottom: 0;
+
 		&:last-child{
 			margin-bottom: 0;
 		}
@@ -39,6 +50,7 @@
 			padding-right: 0 !important;
 			text-align: center;
 		}
+
 		.components-input-control__backdrop {
 			border-style: none !important;
 		}
