@@ -50,20 +50,6 @@ export async function playerBridgeHandler(
 	const { data = { event: null } } = event || {};
 	const { event: eventName } = data;
 
-	// Propagate only allowed events.
-	if ( VIDEOPRESS_ALLOWED_LISTENING_EVENTS.includes( eventName ) ) {
-		// Propagate only allowed origins.
-		const allowed_origins: Array< Origin > = [
-			'https://videopress.com',
-			'https://video.wordpress.com',
-		];
-
-		if ( -1 !== allowed_origins.indexOf( event.origin as Origin ) ) {
-			// debug( 'broadcast %o event: %o', eventName, data );
-			// window.top.postMessage( event.data, '*' );
-		}
-	}
-
 	if ( VIDEOPRESS_ALLOWED_EMITTING_EVENTS.includes( eventName ) ) {
 		const videoPressIFrame = document.querySelector( 'iframe' );
 		const videoPressWindow = videoPressIFrame?.contentWindow;
