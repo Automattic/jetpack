@@ -103,9 +103,8 @@ export default function Edit( { attributes: { state }, setAttributes, clientId }
 	 * isWaitingForAI: if OpenAI request is in progress.
 	 * isReadyToRetry: if the block is in an error state and can be retried.
 	 */
-	const { isError, isTriggered, isDoneLoading, isWaitingForAI, isReadyToRetry } = deriveStates(
-		state
-	);
+	const { isError, isTriggered, isDoneLoading, isWaitingForAI, isReadyToRetry } =
+		deriveStates( state );
 
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
