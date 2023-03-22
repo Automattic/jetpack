@@ -13,7 +13,7 @@ class Type_Array implements Schema_Type {
 
 	public function parse( $data ) {
 		if ( ! is_array( $data ) ) {
-			$message = "Expected an associative array, received '" . gettype( $data ) . "'";
+			$message = "Expected an array, received '" . gettype( $data ) . "'";
 			throw new \Error( $message );
 		}
 

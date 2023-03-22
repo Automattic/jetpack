@@ -124,15 +124,13 @@ class Post extends \WP_REST_Posts_Controller {
 			return $ret;
 		}
 
+		$taxonomy_name = $taxonomy === 'tags' ? 'post_tag' : 'category';
+
 		// Extract the terms by ID.
-		$ids = get_terms(
-			array(
-				'fields'     => 'ids',
-				'hide_empty' => false,
-				'slug'       => $ret,
-				'taxonomy'   => $taxonomy === 'tags' ? 'post_tag' : 'category',
-			)
-		);
+		$ids = $this->get_term_ids_from_slugs( $ret, $taxonomy_name );
+
+		// Create missing terms and add their IDs to the $ids array.
+		$ids = $this->create_missing_terms( $ret, $ids, $taxonomy_name );
 
 		if ( is_array( $ids ) ) {
 			return $ids;
@@ -198,6 +196,62 @@ class Post extends \WP_REST_Posts_Controller {
 		);
 		// Return the filtered array
 		return $filtered_keys;
+	}
+
+	/**
+	 * Get term IDs from slugs.
+	 *
+	 * @param array  $term_slugs      Array of term slugs.
+	 * @param string $taxonomy_name   Taxonomy name.
+	 *
+	 * @return array                  Array of term IDs.
+	 */
+	protected function get_term_ids_from_slugs( $term_slugs, $taxonomy_name ) {
+		return get_terms(
+			array(
+				'fields'     => 'ids',
+				'hide_empty' => false,
+				'slug'       => $term_slugs,
+				'taxonomy'   => $taxonomy_name,
+			)
+		);
+	}
+
+	/**
+	 * Create any missing terms in the given taxonomy.
+	 *
+	 * @param array  $term_slugs   The slugs of the terms to check for.
+	 * @param array  $existing_ids The IDs of any terms that already exist.
+	 * @param string $taxonomy_name The name of the taxonomy.
+	 *
+	 * @return array The IDs of any terms that are now in the taxonomy.
+	 */
+	protected function create_missing_terms( $term_slugs, $existing_ids, $taxonomy_name ) {
+		$ids = $existing_ids;
+
+		foreach ( $term_slugs as $term_slug ) {
+			if ( ! term_exists( $term_slug, $taxonomy_name ) ) {
+				$term_name = $this->slug_to_readable_name( $term_slug );
+				$new_term  = wp_insert_term( $term_name, $taxonomy_name, array( 'slug' => $term_slug ) );
+				if ( ! is_wp_error( $new_term ) && isset( $new_term['term_id'] ) ) {
+					$ids[] = $new_term['term_id'];
+				}
+			}
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * Convert a slug to a readable name.
+	 *
+	 * @param string $slug Slug to convert.
+	 * @return string Converted name.
+	 */
+	protected function slug_to_readable_name( $slug ) {
+		$name = str_replace( array( '-', '_' ), ' ', $slug );
+		$name = ucwords( $name );
+		return $name;
 	}
 
 }
