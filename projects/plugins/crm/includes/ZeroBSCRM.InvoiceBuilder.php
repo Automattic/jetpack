@@ -970,32 +970,25 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 
              
 
-        // == Build biz info table.
-
-        $bizInfoTable = '';
-
-        //the business info from the settings
-        $zbs_biz_name =  zeroBSCRM_getSetting('businessname');
-        $zbs_biz_yourname =  zeroBSCRM_getSetting('businessyourname');
-
-        $zbs_biz_extra =  zeroBSCRM_getSetting('businessextra');
-
-        $zbs_biz_youremail =  zeroBSCRM_getSetting('businessyouremail');
-        $zbs_biz_yoururl =  zeroBSCRM_getSetting('businessyoururl');
-        $zbs_settings_slug = admin_url("admin.php?page=" . $zbs->slugs['settings']) . "&tab=invbuilder";
-        
-        // generate a templated biz info table
-        $bizInfoTable = zeroBSCRM_invoicing_generateInvPart_bizTable(array(
-
-                'zbs_biz_name' => $zbs_biz_name,
-                'zbs_biz_yourname' => $zbs_biz_yourname,
-                'zbs_biz_extra' => $zbs_biz_extra,
-                'zbs_biz_youremail' => $zbs_biz_youremail,
-                'zbs_biz_yoururl' => $zbs_biz_yoururl,
-
-                'template' => $template
-
-            ));
+			// == Build biz info table.
+			$bizInfoTable      = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$zbs_biz_name      = zeroBSCRM_getSetting( 'businessname' );
+			$zbs_biz_yourname  = zeroBSCRM_getSetting( 'businessyourname' );
+			$zbs_biz_tel       = zeroBSCRM_getSetting( 'businesstel' );
+			$zbs_biz_extra     = zeroBSCRM_getSetting( 'businessextra' );
+			$zbs_biz_youremail = zeroBSCRM_getSetting( 'businessyouremail' );
+			$zbs_biz_yoururl   = zeroBSCRM_getSetting( 'businessyoururl' );
+			$bizInfoTable      = zeroBSCRM_invoicing_generateInvPart_bizTable( //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				array(
+					'zbs_biz_name'      => $zbs_biz_name,
+					'zbs_biz_yourname'  => $zbs_biz_yourname,
+					'zbs_biz_extra'     => $zbs_biz_extra,
+					'zbs_biz_youremail' => $zbs_biz_youremail,
+					'zbs_biz_yoururl'   => $zbs_biz_yoururl,
+					'zbs_biz_tel'       => $zbs_biz_tel,
+					'template'          => $template,
+				)
+			);
 
         // generate a templated customer info table
         $invoice_customer_info_table_html = zeroBSCRM_invoicing_generateInvPart_custTable($invTo,$template);
@@ -1260,7 +1253,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 
 // Used to generate specific part of invoice pdf: Biz table (Pay To)
 function zeroBSCRM_invoicing_generateInvPart_bizTable($args=array()){
-
+	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
     #} =========== LOAD ARGS ==============
     $defaultArgs = array(
 
@@ -1269,45 +1262,41 @@ function zeroBSCRM_invoicing_generateInvPart_bizTable($args=array()){
         'zbs_biz_extra' => '',
         'zbs_biz_youremail' => '',
         'zbs_biz_yoururl' => '',
+		'zbs_biz_tel'       => '',
 
-        'template' => 'pdf' // this'll choose between the html output variants below, e.g. pdf, portal, notification
+		'template'          => 'pdf', // this'll choose between the html output variants below, e.g. pdf, portal, notification
 
     ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
     #} =========== / LOAD ARGS =============
+	$biz_info_table = '';
 
-    $bizInfoTable = '';
+	switch ( $template ) {
+		case 'pdf':
+		case 'notification':
+			$biz_info_table  = '<div class="zbs-line-info zbs-line-info-title">' . $zbs_biz_name . '</div>';
+			$biz_info_table .= '<div class="zbs-line-info">' . $zbs_biz_yourname . '</div>';
+			$biz_info_table .= '<div class="zbs-line-info">' . nl2br( $zbs_biz_extra ) . '</div>';
+			$biz_info_table .= $zbs_biz_tel !== '' ? '<div class="zbs-line-info">' . $zbs_biz_tel . '</div>' : '';
+			$biz_info_table .= '<div class="zbs-line-info">' . $zbs_biz_youremail . '</div>';
+			$biz_info_table .= '<div class="zbs-line-info">' . $zbs_biz_yoururl . '</div>';
+			break;
 
-        switch ($template){
-
-            case 'pdf':
-            case 'notification':
-
-                $bizInfoTable = '<div class="zbs-line-info zbs-line-info-title">'.$zbs_biz_name.'</div>';
-                $bizInfoTable .= '<div class="zbs-line-info">'.$zbs_biz_yourname.'</div>';
-                $bizInfoTable .= '<div class="zbs-line-info">'.nl2br($zbs_biz_extra).'</div>';
-                $bizInfoTable .= '<div class="zbs-line-info">'.$zbs_biz_youremail.'</div>';
-                $bizInfoTable .= '<div class="zbs-line-info">'.$zbs_biz_yoururl.'</div>'; 
-
-            break;
-
-            case 'portal':
-    
-                $bizInfoTable = '<div class="pay-to">';
-                    $bizInfoTable .= '<div class="zbs-portal-label">' . __('Pay To', 'zero-bs-crm') . '</div>';
-                    $bizInfoTable .= '<div class="zbs-portal-biz">';
-                        $bizInfoTable .= '<div class="pay-to-name">'.$zbs_biz_name.'</div>';
-                        $bizInfoTable .= '<div>'.$zbs_biz_yourname.'</div>';
-                        $bizInfoTable .= '<div>'.nl2br($zbs_biz_extra).'</div>';
-                        $bizInfoTable .= '<div>'.$zbs_biz_youremail.'</div>';
-                        $bizInfoTable .= '<div>'.$zbs_biz_yoururl.'</div>';
-                    $bizInfoTable .= '</div>';
-                $bizInfoTable .= '</div>';
-
-            break;
-
-        }
-
-    return $bizInfoTable;
+		case 'portal':
+			$biz_info_table  = '<div class="pay-to">';
+			$biz_info_table .= '<div class="zbs-portal-label">' . __( 'Pay To', 'zero-bs-crm' ) . '</div>';
+			$biz_info_table .= '<div class="zbs-portal-biz">';
+			$biz_info_table .= '<div class="pay-to-name">' . $zbs_biz_name . '</div>';
+			$biz_info_table .= '<div>' . $zbs_biz_yourname . '</div>';
+			$biz_info_table .= '<div>' . nl2br( $zbs_biz_extra ) . '</div>';
+			$biz_info_table .= $zbs_biz_tel !== '' ? '<div class="zbs-line-info">' . $zbs_biz_tel . '</div>' : '';
+			$biz_info_table .= '<div>' . $zbs_biz_youremail . '</div>';
+			$biz_info_table .= '<div>' . $zbs_biz_yoururl . '</div>';
+			$biz_info_table .= '</div>';
+			$biz_info_table .= '</div>';
+			break;
+	}
+	// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+	return $biz_info_table;
 }
 // Used to generate specific part of invoice pdf: (Customer table)
 function zeroBSCRM_invoicing_generateInvPart_custTable($invTo=array(),$template='pdf'){

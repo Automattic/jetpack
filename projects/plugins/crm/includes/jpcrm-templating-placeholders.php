@@ -1535,6 +1535,7 @@ class jpcrm_templating_placeholders {
 		$biz_your_email = zeroBSCRM_getSetting( 'businessyouremail' );
 		$biz_your_url   = zeroBSCRM_getSetting( 'businessyoururl' );
 		$biz_extra      = zeroBSCRM_getSetting( 'businessextra' );
+		$biz_tel        = zeroBSCRM_getSetting( 'businesstel' );
 		$biz_info       = zeroBSCRM_invoicing_generateInvPart_bizTable(
 			array(
 				'zbs_biz_name'      => $biz_name,
@@ -1542,6 +1543,7 @@ class jpcrm_templating_placeholders {
 				'zbs_biz_extra'     => $biz_extra,
 				'zbs_biz_youremail' => $biz_your_email,
 				'zbs_biz_yoururl'   => $biz_your_url,
+				'zbs_biz_tel'       => $biz_tel,
 				'template'          => 'pdf',
 			)
 		);
