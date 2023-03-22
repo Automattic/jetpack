@@ -27,17 +27,29 @@ svg.spinner {
     color: var( --jp-black );
 }
 
-.manual-rules-notice {
+.firewall-subheading {
     display: flex;
     justify-content: flex-start;
+    flex-wrap: wrap;
     align-items: center;
-    margin-bottom: calc( var( --spacing-base ) * 4 ); // 32px
 
-    > .icon-popover {
-        display: flex;
-        margin-left: calc( var( --spacing-base ) * .5 ); // 4px
-        fill: var( --jp-gray-20 );
+    .brute-force-protection-subheading {
+        margin-right: calc( var( --spacing-base ) / 2 ); // 4px
     }
+
+    &__content {
+        display: flex;
+    
+        > .icon-popover {
+            display: flex;
+            margin-left: calc( var( --spacing-base ) / 2 ); // 4px
+            fill: var( --jp-gray-20 );
+        }
+    }
+}
+
+.upgrade-button {
+    margin-top: calc( var( --spacing-base ) * 4 ); // 32px
 }
 
 .firewall-header {
