@@ -127,7 +127,7 @@ const ConnectedPricingTable = ( { onScanAdd } ) => {
 					/>
 					<PricingTableItem
 						isIncluded={ true }
-						label={ <strong>{ __( 'Automatic rules enabled', 'jetpack-protect' ) }</strong> }
+						label={ <strong>{ __( 'Automatic protection and rule updates', 'jetpack-protect' ) }</strong> }
 					/>
 					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ true } />
@@ -164,7 +164,7 @@ const ConnectedPricingTable = ( { onScanAdd } ) => {
 					/>
 					<PricingTableItem
 						isIncluded={ true }
-						label={ __( 'Manual rules enabled', 'jetpack-protect' ) }
+						label={ __( 'Manual rules only', 'jetpack-protect' ) }
 					/>
 					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ true } />
