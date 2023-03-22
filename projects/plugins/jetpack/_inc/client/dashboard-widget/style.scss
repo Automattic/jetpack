@@ -1,10 +1,12 @@
+@import '@automattic/jetpack-base-styles/root-variables';
+
 @mixin widget-card-background-container() {
-	background: #F9F9F6;
+	background: var(--jp-white-off);
 	padding: 1.5em 1em;
 }
 
 @mixin widget-card() {
-	background: #ffffff;
+	background: var(--jp-white);
 	border-radius: 5px;
 	box-shadow: 0 4px 40px 0 rgba(0,0,0,.04);
 	padding: 1em 1.5em 1em 1.5em;
@@ -141,9 +143,9 @@
 
 			// Use emerald button style.
 			.wp-core-ui & .button-primary {
-				background: #000;
-				border-color: #000;
-				color: #FFF;
+				background: var(--jp-black);
+				border-color: var(--jp-black);
+				color: var(--jp-white);
 			}
 		}
 	}
@@ -176,7 +178,7 @@
 	}
 
 	.wpcom-connect {
-		background: #f6f7f7;
+		background: var(--jp-gray-0);
 		text-align: center;
 
 		.jp-emblem {
@@ -261,7 +263,7 @@
 	}
 
 	footer {
-		background: #F9F9F6;
+		background: var(--jp-white-off);
 		overflow: hidden;
 
 		.blocked-container {
