@@ -42,6 +42,14 @@
 			border-style: none !important;
 		}
 	}
+
+	&.is-disabled {
+		background-color: #f0f0f0;
+
+		.timestamp-control-divider {
+			color: #949494;
+		}
+	}
 }
 
 .timestamp-control-divider {
