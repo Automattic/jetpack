@@ -138,7 +138,7 @@ class Current_Plan {
 	 */
 	public static function init() {
 		if ( ! static::$is_hook_initialized ) {
-			add_action( 'jetpack_heartbeat', array( static::class, 'refresh_plan_data' ) );
+			add_action( 'jetpack_heartbeat', array( static::class, 'refresh_from_wpcom' ) );
 			static::$is_hook_initialized = true;
 		}
 	}
@@ -228,6 +228,7 @@ class Current_Plan {
 	 */
 	public static function refresh_from_wpcom() {
 		// Make the API request.
+
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', Jetpack_Options::get_option( 'id' ) ) . '?force=wpcom', '1.1' );
 		return self::update_from_sites_response( $response );
 	}
@@ -379,12 +380,5 @@ class Current_Plan {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Refreshess the plan data.
-	 */
-	public static function refresh_plan_data() {
-		self::refresh_from_wpcom();
 	}
 }
