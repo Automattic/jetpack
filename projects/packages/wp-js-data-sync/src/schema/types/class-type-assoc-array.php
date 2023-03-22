@@ -30,7 +30,6 @@ class Type_Assoc_Array implements Schema_Type {
 			} else {
 				$parsed[ $key ] = $validator->parse( $data[ $key ] );
 			}
-			$parsed[ $key ] = $validator->parse( $data[ $key ] );
 		}
 
 		return $parsed;
