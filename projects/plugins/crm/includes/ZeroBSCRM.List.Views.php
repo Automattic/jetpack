@@ -161,7 +161,7 @@ function zeroBSCRM_render_quoteslist_page() {
 			'postPage'   => 'manage-quotes',
 			'langLabels' => array(
 
-				'markaccepted'             => esc_html__( 'Mark< Accepted', 'zero-bs-crm' ),
+				'markaccepted'             => esc_html__( 'Mark Accepted', 'zero-bs-crm' ),
 				'markunaccepted'           => esc_html__( 'Unmark Accepted', 'zero-bs-crm' ),
 				'delete'                   => esc_html__( 'Delete Quote(s)', 'zero-bs-crm' ),
 				'export'                   => esc_html__( 'Export Quote(s)', 'zero-bs-crm' ),
