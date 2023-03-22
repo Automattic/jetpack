@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Type;
 
 class Type_Assoc_Array implements Schema_Type {
@@ -20,8 +21,14 @@ class Type_Assoc_Array implements Schema_Type {
 		$parsed = array();
 		foreach ( $this->sub_schema as $key => $validator ) {
 			if ( ! isset( $data[ $key ] ) ) {
-				$message = "Expected key '$key' in associative array";
-				throw new \Error( $message );
+				if ( $validator instanceof Decorate_With_Default ) {
+					$parsed[ $key ] = $validator->parse( null );
+				} else {
+					$message = "Expected key '$key' in associative array";
+					throw new \Error( $message );
+				}
+			} else {
+				$parsed[ $key ] = $validator->parse( $data[ $key ] );
 			}
 			$parsed[ $key ] = $validator->parse( $data[ $key ] );
 		}
