@@ -332,7 +332,7 @@ export default function PosterPanel( {
 }: PosterPanelProps ): React.ReactElement {
 	const { poster, posterSource } = attributes;
 	const [ pickFromFrame, setPickFromFrame ] = useState(
-		attributes?.posterSource.type === 'video-frame'
+		attributes?.posterSource?.type === 'video-frame'
 	);
 	const onRemovePoster = () => {
 		setAttributes( { poster: '', posterSource: { ...attributes.posterSource, url: '' } } );
@@ -349,7 +349,7 @@ export default function PosterPanel( {
 				},
 
 				// Clean the poster URL when it should be picked from the video frame.
-				poster: shouldPickFromFrame ? '' : attributes.posterSource.url,
+				poster: shouldPickFromFrame ? '' : attributes.posterSource.url || '',
 			} );
 		},
 		[ attributes ]

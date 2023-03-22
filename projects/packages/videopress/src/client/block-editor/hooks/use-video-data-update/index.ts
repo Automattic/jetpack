@@ -342,14 +342,14 @@ export function useSyncMedia(
 		// Check whether it should update video Poster
 		if (
 			attributes.posterSource &&
-			attributes.posterSource.type === 'video-frame' &&
+			attributes?.posterSource?.type === 'video-frame' &&
 			attributes.posterSource.atTime !== prevPosterSource?.current?.atTime
 		) {
 			debug(
 				'%o Video frame poster updated %o => %o',
 				attributes.guid,
-				prevPosterSource.current.atTime,
-				attributes.posterSource.atTime
+				prevPosterSource?.current?.atTime,
+				attributes.posterSource?.atTime
 			);
 
 			requestUpdatePosterByVideoFrame( attributes?.guid, attributes.posterSource.atTime ).then(
