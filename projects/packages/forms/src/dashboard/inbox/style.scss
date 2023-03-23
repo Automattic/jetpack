@@ -31,6 +31,14 @@ $action-bar-height: 72px;
 }
 
 .jp-forms__inbox-tabs {
+	.jp-forms__inbox.is-response-view & .components-tab-panel__tabs {
+		display: none;
+
+		@media (min-width: 1025px) {
+			display: flex;
+		}
+	}
+
 	.components-tab-panel__tabs {
 		background-color: #f9f9f9;
 		margin: 0 0 16px;
@@ -38,6 +46,10 @@ $action-bar-height: 72px;
 		position: sticky;
 		top: var(--wp-admin--admin-bar--height);
 		z-index: 1;
+
+		@media (max-width: 600px) {
+			top: 0;
+		}
 	}
 }
 
@@ -292,6 +304,9 @@ $action-bar-height: 72px;
 	top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height});
 	z-index: 1;
 
+	@media (max-width: 600px) {
+		top: $tabs-height;
+	}
 
 	.jp-forms__inbox.is-response-view & {
 		display: none;
