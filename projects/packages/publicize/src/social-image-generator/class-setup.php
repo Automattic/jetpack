@@ -64,7 +64,7 @@ class Setup {
 			return;
 		}
 
-		if ( ! $publicize->is_social_image_generator_enabled() ) {
+		if ( ! $publicize->is_social_image_generator_enabled( \Automattic\Jetpack\Publicize\Publicize_Setup::get_blog_id() ) ) {
 			return;
 		}
 
