@@ -47,25 +47,6 @@
 	&:first-child {
 		padding: 0 20px;
 	}
-
-	.jp-forms__table-item:hover &,
-	.jp-forms__table-item.is-active & {
-		background-color: var(--color-neutral-0);
-	}
-
-	.jp-forms__table-item.is-selected & {
-		background-color: var(--color-highlight-0);
-	}
-
-	.jp-forms__table-item.is-selected:hover &,
-	.jp-forms__table-item.is-selected.is-active & {
-		background-color: var(--color-highlight-5);
-	}
-
-	.jp-forms__table-header &,
-	.jp-forms__table-header:hover & {
-		background-color: transparent;
-	}
 }
 
 input[type="checkbox"].jp-forms__table-checkbox {
