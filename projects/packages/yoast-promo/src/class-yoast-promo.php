@@ -34,6 +34,16 @@ class Yoast_Promo {
 	 * @return void
 	 */
 	public static function init() {
+		/*
+		 * Do not do anything if promotions are disabled on the site.
+		 */
+		if (
+			/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
+			! apply_filters( 'jetpack_show_promotions', true )
+		) {
+			return;
+		}
+
 		// In the post editor, add a pre-publish panel to promote Yoast
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 	}
