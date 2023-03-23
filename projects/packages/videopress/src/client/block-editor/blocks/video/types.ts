@@ -96,7 +96,9 @@ export type VideoControlProps = {
 	privateEnabledForSite?: boolean;
 };
 
-export type PosterPanelProps = VideoControlProps;
+export type PosterPanelProps = VideoControlProps & {
+	isGeneratingPoster: boolean;
+};
 
 export type VideoEditProps = VideoControlProps;
 

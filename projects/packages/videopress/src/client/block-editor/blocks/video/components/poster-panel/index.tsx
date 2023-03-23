@@ -181,6 +181,7 @@ const getIframeWindowFromRef = ( iFrameRef ): Window | null => {
 type PosterFramePickerProps = {
 	guid: VideoGUID;
 	atTime: number;
+	isGeneratingPoster?: boolean;
 	onVideoFrameSelect: ( timestamp: number ) => void;
 };
 
@@ -192,6 +193,7 @@ type PosterFramePickerProps = {
  */
 function VideoFramePicker( {
 	guid,
+	isGeneratingPoster,
 	atTime = 0.1,
 	onVideoFrameSelect,
 }: PosterFramePickerProps ): React.ReactElement {
@@ -297,7 +299,7 @@ function VideoFramePicker( {
 			<TimestampControl
 				label={ __( 'Video frame', 'jetpack-videopress-pkg' ) }
 				help={ __( 'Select the frame you want to use as poster image', 'jetpack-videopress-pkg' ) }
-				disabled={ isRequestingEmbedPreview }
+				disabled={ isRequestingEmbedPreview || isGeneratingPoster }
 				max={ duration }
 				value={ timestamp }
 				wait={ 250 }
@@ -324,6 +326,7 @@ function VideoFramePicker( {
 export default function PosterPanel( {
 	attributes,
 	setAttributes,
+	isGeneratingPoster,
 }: PosterPanelProps ): React.ReactElement {
 	const { poster, posterSource } = attributes;
 	const [ pickFromFrame, setPickFromFrame ] = useState(
@@ -362,6 +365,7 @@ export default function PosterPanel( {
 				className={ classnames( 'poster-panel__frame-wrapper', { 'is-selected': pickFromFrame } ) }
 			>
 				<VideoFramePicker
+					isGeneratingPoster={ isGeneratingPoster }
 					guid={ attributes?.guid }
 					atTime={ posterSource?.atTime }
 					onVideoFrameSelect={ timestamp => {

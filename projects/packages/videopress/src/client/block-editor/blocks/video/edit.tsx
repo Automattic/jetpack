@@ -151,6 +151,7 @@ export default function VideoPressEdit( {
 		isRequestingVideoData,
 		error: syncError,
 		isOverwriteChapterAllowed,
+		isGeneratingPoster,
 	} = useSyncMedia( attributes, setAttributes );
 
 	const { filename, private_enabled_for_site: privateEnabledForSite } = videoData;
@@ -524,6 +525,7 @@ export default function VideoPressEdit( {
 					clientId={ clientId }
 					attributes={ attributes }
 					setAttributes={ setAttributes }
+					isGeneratingPoster={ isGeneratingPoster }
 				/>
 
 				<PrivacyAndRatingPanel
