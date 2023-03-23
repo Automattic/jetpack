@@ -3,14 +3,11 @@
 	display: flex;
 	align-items: center;
 	gap: 8px;
+	margin-bottom: 8px;
+	flex-wrap: wrap;
 
-	&.small {
-		flex-direction: column;
-		align-items: inherit;
-
-		.timestamp-input-wrapper {
-			max-width: unset;
-		}
+	.timestamp-range-control {
+		min-width: 270px;
 	}
 
 	.timestamp-range-control,
@@ -28,11 +25,7 @@
 	display: flex;
 	align-items: center;
 	border-color: #949494;
-<<<<<<< HEAD
 	background-color: #fff;
-=======
-	background-color: var( --jp-white );
->>>>>>> c7af7b5308 ([not verified] fix timestamp input width and mobile UI)
 	border-style: solid;
 	justify-content: space-around;
 	border-width: 1px;

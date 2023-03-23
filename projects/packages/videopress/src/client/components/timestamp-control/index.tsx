@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { useBreakpointMatch } from '@automattic/jetpack-components';
 import {
 	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
 	__experimentalNumberControl as NumberControl,
@@ -238,8 +237,6 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 		decimalPlaces,
 	} = props;
 
-	const [ isSm ] = useBreakpointMatch( 'sm' );
-
 	const debounceTimer = useRef< NodeJS.Timeout >();
 
 	const { baseControlProps } = useBaseControlProps?.( props ) || {};
@@ -256,11 +253,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 
 	return (
 		<BaseControl { ...baseControlProps }>
-			<div
-				className={ classNames( styles[ 'timestamp-control__controls-wrapper' ], {
-					[ styles.small ]: isSm,
-				} ) }
-			>
+			<div className={ styles[ 'timestamp-control__controls-wrapper' ] }>
 				<TimestampInput
 					disabled={ disabled }
 					max={ max }
