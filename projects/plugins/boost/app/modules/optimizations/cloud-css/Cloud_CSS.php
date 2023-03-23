@@ -40,6 +40,7 @@ class Cloud_CSS implements Pluggable, Has_Endpoints {
 		add_action( 'wp', array( $this, 'display_critical_css' ) );
 		add_action( 'save_post', array( $this, 'handle_save_post' ), 10, 2 );
 		add_filter( 'jetpack_boost_total_problem_count', array( $this, 'update_total_problem_count' ) );
+		add_filter( 'critical_css_invalidated', array( $this, 'handle_critical_css_invalidated' ) );
 
 		Critical_CSS_Invalidator::init();
 		Cloud_CSS_Followup::init();
@@ -130,6 +131,8 @@ class Cloud_CSS implements Pluggable, Has_Endpoints {
 	}
 
 	public function regenerate_cloud_css() {
+		error_log( 'regen' );
+
 		$result = $this->generate_cloud_css( $this->get_existing_sources() );
 		if ( is_wp_error( $result ) ) {
 			$state = new Critical_CSS_State();
@@ -137,6 +140,15 @@ class Cloud_CSS implements Pluggable, Has_Endpoints {
 		}
 		return $result;
 	}
+
+	/**
+	 * Called when stored Critical CSS has been invalidated. Triggers a new Cloud CSS request.
+	 */
+	public function handle_critical_css_invalidated() {
+		$this->regenerate_cloud_css();
+		Cloud_CSS_Followup::schedule();
+	}
+
 	public function get_existing_sources() {
 		$state = new Critical_CSS_State();
 		$data  = $state->get();
