@@ -301,7 +301,7 @@ function VideoFramePicker( {
 			</div>
 
 			{ isGeneratingPoster && (
-				<Notice status="warning" className="poster-panel__notice" isDismissible={ false }>
+				<Notice status="info" className="poster-panel__notice" isDismissible={ false }>
 					{ __(
 						'Generating video poster image. It may take a few seconds.',
 						'jetpack-videopress-pkg'
