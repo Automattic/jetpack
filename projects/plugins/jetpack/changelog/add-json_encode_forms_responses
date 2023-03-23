@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Jetpack Forms: json_encode form responses instead of using print_r.
