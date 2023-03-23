@@ -37,11 +37,14 @@
 	justify-content: space-around;
 	border-width: 1px;
 	padding: 0px;
-	max-width: calc( var( --spacing-base ) * 30 ); // 240px
 
 	.timestamp-control-input {
 		padding: 0 1px;
 		margin-bottom: 0;
+
+		input {
+			max-width: var( --input-width );
+		}
 
 		&:last-child{
 			margin-bottom: 0;
