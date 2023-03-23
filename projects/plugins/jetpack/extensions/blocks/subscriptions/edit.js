@@ -69,9 +69,8 @@ export function SubscriptionEdit( props ) {
 		fontSize,
 		hasNewsletterPlans,
 	} = props;
-	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } = useModuleStatus(
-		name
-	);
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( name );
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
 		setAttributes( validatedAttributes );
@@ -315,11 +314,12 @@ export function SubscriptionEdit( props ) {
 	);
 }
 
-const withThemeProvider = WrappedComponent => props => (
-	<ThemeProvider>
-		<WrappedComponent { ...props } />
-	</ThemeProvider>
-);
+const withThemeProvider = WrappedComponent => props =>
+	(
+		<ThemeProvider>
+			<WrappedComponent { ...props } />
+		</ThemeProvider>
+	);
 
 export default compose( [
 	withSelect( select => {
