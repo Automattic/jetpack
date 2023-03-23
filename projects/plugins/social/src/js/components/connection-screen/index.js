@@ -17,16 +17,12 @@ const ConnectionScreen = () => {
 		};
 	} );
 
-	const {
-		userIsConnecting,
-		siteIsRegistering,
-		handleRegisterSite,
-		registrationError,
-	} = useConnection( {
-		from: 'jetpack-social',
-		redirectUri: 'admin.php?page=jetpack-social',
-		...connectProps,
-	} );
+	const { userIsConnecting, siteIsRegistering, handleRegisterSite, registrationError } =
+		useConnection( {
+			from: 'jetpack-social',
+			redirectUri: 'admin.php?page=jetpack-social',
+			...connectProps,
+		} );
 
 	const buttonText = __( 'Get Started', 'jetpack-social' );
 

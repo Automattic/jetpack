@@ -44,8 +44,8 @@ function jetpack_boost_ds_set( $option, $value ) {
 	return $option->set( $value );
 }
 
-function jetpack_boost_ds_delete( $option ) {
-	$option = jetpack_boost_ds( $option );
+function jetpack_boost_ds_delete( $option_name ) {
+	$option = jetpack_boost_ds( $option_name );
 	if ( ! $option ) {
 		return null;
 	}
