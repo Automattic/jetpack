@@ -16,19 +16,27 @@ const dismissedStore = createStore( 'jetpack-yoast-promo-dismissed' );
 
 export const YoastPromo = () => {
 	const [ isDismissed, setIsDismissed ] = useState( () => dismissedStore.get() === 'true' );
-	const { isYoastFreeActive, isYoastPremiumActive } = useSelect( select => {
-		const { getPlugin } = select( 'core' );
+	const { isYoastFreeActive, isYoastPremiumActive } =
+		useSelect(
+			select => {
+				if ( isDismissed ) {
+					return null;
+				}
 
-		const isPluginActive = slug => {
-			const plugin = getPlugin( slug );
-			return plugin && 'active' === plugin.status;
-		};
+				const { getPlugin } = select( 'core' );
 
-		return {
-			isYoastFreeActive: isPluginActive( PLUGIN_SLUG_YOAST_FREE ),
-			isYoastPremiumActive: isPluginActive( PLUGIN_SLUG_YOAST_PREMIUM ),
-		};
-	} );
+				const isPluginActive = slug => {
+					const plugin = getPlugin( slug );
+					return plugin && 'active' === plugin.status;
+				};
+
+				return {
+					isYoastFreeActive: isPluginActive( PLUGIN_SLUG_YOAST_FREE ),
+					isYoastPremiumActive: isPluginActive( PLUGIN_SLUG_YOAST_PREMIUM ),
+				};
+			},
+			[ isDismissed ]
+		) || {};
 
 	const handleDismiss = () => {
 		setIsDismissed( true );
