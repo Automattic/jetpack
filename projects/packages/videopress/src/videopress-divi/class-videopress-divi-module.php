@@ -70,13 +70,15 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 	/**
 	 * Render.
 	 *
+	 * Note: while phpcs complains about unused vars in the method signature, they SHOULD be there. We override an existing method.
+	 *
 	 * @param array       $attrs       The attributes.
 	 * @param string|null $content     The content.
 	 * @param string|null $render_slug The render slug.
 	 *
 	 * @return string
 	 */
-	public function render( $attrs, $content = null, $render_slug = null ) {
+	public function render( $attrs, $content = null, $render_slug = null ) { // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$matches = array();
 
 		if ( ! preg_match( self::VIDEOPRESS_REGEX, $this->props['guid'], $matches ) ) {
