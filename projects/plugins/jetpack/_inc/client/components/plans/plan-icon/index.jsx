@@ -46,6 +46,7 @@ import {
 	PLAN_JETPACK_COMPLETE_MONTHLY,
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_VIDEOPRESS_MONTHLY,
+	PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME,
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
@@ -112,7 +113,10 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_SECURITY_T1_MONTHLY ]: '/plans/jetpack-security.svg',
 	[ PLAN_JETPACK_SECURITY_T2_YEARLY ]: '/plans/jetpack-security.svg',
 	[ PLAN_JETPACK_SECURITY_T2_MONTHLY ]: '/plans/jetpack-security.svg',
-	[ PLAN_JETPACK_COMPLETE ]: '/plans/jetpack-complete.svg',
+	// @todo Kallehauge - Revert Jetpack Complete when we have a real Golden Token.
+	//[ PLAN_JETPACK_COMPLETE ]: '/plans/jetpack-complete.svg',
+	[ PLAN_JETPACK_COMPLETE ]: '/plans/jetpack-golden-token.svg',
+
 	[ PLAN_JETPACK_COMPLETE_MONTHLY ]: '/plans/jetpack-complete.svg',
 	[ PLAN_JETPACK_VIDEOPRESS ]: '/products/product-jetpack-videopress.svg',
 	[ PLAN_JETPACK_VIDEOPRESS_MONTHLY ]: '/products/product-jetpack-videopress.svg',
@@ -120,6 +124,8 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_SOCIAL_BASIC_MONTHLY ]: '/products/product-jetpack-social.svg',
 	[ PLAN_JETPACK_SOCIAL_ADVANCED ]: '/products/product-jetpack-social.svg',
 	[ PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY ]: '/products/product-jetpack-social.svg',
+	[ PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME ]: '/plans/jetpack-golden-token.svg',
+
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
 	[ PLAN_JETPACK_BACKUP_DAILY ]: '/products/product-jetpack-backup.svg',

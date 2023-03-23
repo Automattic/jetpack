@@ -19,10 +19,23 @@ class ProductExpiration extends React.PureComponent {
 	};
 
 	render() {
-		const { expiryDate, purchaseDate, isRefundable, dateFormat } = this.props;
+		const { expiryDate, purchaseDate, isRefundable, dateFormat, isGift } = this.props;
 
 		// Return null if we don't have any dates.
 		if ( ! expiryDate && ! purchaseDate ) {
+			return null;
+		}
+
+		if ( isGift ) {
+			const giftedDateObj = new Date( purchaseDate );
+			if ( giftedDateObj.toString() !== 'Invalid Date' ) {
+				return sprintf(
+					/* translators: placeholder is a date. */
+					__( 'Gifted on %s.', 'jetpack' ),
+					dateI18n( dateFormat, giftedDateObj )
+				);
+			}
+
 			return null;
 		}
 
