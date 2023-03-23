@@ -201,13 +201,13 @@ function jpcrm_footer_credit_thanks( $content ) {
 		return $content;
 	}
 
-	// WLREMOVE
+	##WLREMOVE
 	global $zbs;
 	$showpoweredby_admin = $zbs->settings->get( 'showpoweredby_admin' ) === 1 ? true : false;
 	if ( $showpoweredby_admin ) {
 		return '<span id="footer-thankyou">' . sprintf( __( 'Thank you for using <a href="%s">Jetpack CRM</a>.', 'zero-bs-crm' ), $zbs->urls['home'] ) . '</span>';
 	}
-	// /WLREMOVE
+	##/WLREMOVE
 
 	// return blank if disabled or white label
 	return '';
@@ -221,13 +221,13 @@ function jpcrm_footer_credit_version( $content ) {
 		return $content;
 	}
 
-	// WLREMOVE
+	##WLREMOVE
 	global $zbs;
 	$showpoweredby_admin = $zbs->settings->get( 'showpoweredby_admin' ) === 1 ? true : false;
 	if ( $showpoweredby_admin ) {
 		return sprintf( 'Jetpack CRM v%s', $zbs->version );
 	}
-	// /WLREMOVE
+	##/WLREMOVE
 
 	// return blank if disabled or white label
 	return '';
@@ -416,7 +416,7 @@ function zeroBSCRM_CustomisedLogin_logo_url_title() {
 }
 add_filter( 'login_headertext', 'zeroBSCRM_CustomisedLogin_logo_url_title' );
 
-// WLREMOVE
+##WLREMOVE
 // add powered by Jetpack CRM to WP login footer if "override all" mode and public credits are enabled
 function jpcrm_wplogin_footer() {
 
@@ -429,7 +429,7 @@ function jpcrm_wplogin_footer() {
 	}
 }
 add_action( 'login_footer', 'jpcrm_wplogin_footer' );
-// /WLREMOVE
+##/WLREMOVE
 
 // } For (if shown mobile) - restrict things shown
 add_action( 'admin_bar_menu', 'remove_wp_items', 100 );

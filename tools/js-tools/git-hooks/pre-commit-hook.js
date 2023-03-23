@@ -97,17 +97,9 @@ function phpcsFilesToFilter( file ) {
  * @returns {boolean} If the file matches the requirelist.
  */
 function filterJsFiles( file ) {
-	return [
-		'.js',
-		'.json',
-		'.json5',
-		'.jsx',
-		'.cjs',
-		'.mjs',
-		'.ts',
-		'.tsx',
-		'.svelte',
-	].some( extension => file.endsWith( extension ) );
+	return [ '.js', '.json', '.json5', '.jsx', '.cjs', '.mjs', '.ts', '.tsx', '.svelte' ].some(
+		extension => file.endsWith( extension )
+	);
 }
 
 /**
