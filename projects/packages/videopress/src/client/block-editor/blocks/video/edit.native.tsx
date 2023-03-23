@@ -6,8 +6,9 @@ import {
 	InspectorControls,
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import { PanelBody } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -75,6 +76,7 @@ export default function VideoPressEdit( {
 		select => select( blockEditorStore ).wasBlockJustInserted( clientId, 'inserter_menu' ),
 		[ clientId ]
 	);
+	const { replaceBlock } = useDispatch( blockEditorStore );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
@@ -95,6 +97,19 @@ export default function VideoPressEdit( {
 	const handleDoneUpload = useCallback(
 		newVideoData => {
 			setIsUploadingFile( false );
+			if ( isReplacingFile.isReplacing ) {
+				const newBlockAttributes = {
+					...attributes,
+					...newVideoData,
+				};
+
+				// Delete attributes that are not needed.
+				delete newBlockAttributes.poster;
+
+				setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
+				replaceBlock( clientId, createBlock( 'videopress/video', newBlockAttributes ) );
+				return;
+			}
 			setAttributes( { id: newVideoData.id, guid: newVideoData.guid } );
 		},
 		[ setIsUploadingFile, setAttributes ]
