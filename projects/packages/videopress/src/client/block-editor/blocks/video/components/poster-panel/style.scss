@@ -57,7 +57,7 @@ body.modal-open .poster-panel__dropdown {
 	opacity: 0.1;
 	transition: opacity 1s ease-in-out;
 
-	&.is-seeking-start-position {
+	&.has-been-positioned {
 		opacity: 1;
 	}
 }

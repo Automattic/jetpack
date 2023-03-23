@@ -196,7 +196,7 @@ function VideoFramePicker( {
 }: PosterFramePickerProps ): React.ReactElement {
 	const [ timestamp, setTimestamp ] = useState( atTime );
 	const [ duration, setDuration ] = useState( 0 );
-	const [ isSeekingStartPosition, setIsSeekingStartPosition ] = useState( false );
+	const [ isSeekingStartPosition, setIsSeekingStartPosition ] = useState( true );
 	const playerWrapperRef = useRef< HTMLDivElement >( null );
 
 	const url = getVideoPressUrl( guid, {
@@ -209,6 +209,8 @@ function VideoFramePicker( {
 	const { preview = { html: null }, isRequestingEmbedPreview } = usePreview( url );
 	const { html } = preview;
 
+	const playerState = useRef< 'not-rendered' | 'loaded' | 'has-auto-played' >( 'not-rendered' );
+
 	/**
 	 * Handler function to deal with the communication
 	 * between the iframe, which contains the video,
@@ -217,7 +219,7 @@ function VideoFramePicker( {
 	 * @param {MessageEvent} event - Message event
 	 */
 	function listenEventsHandler( event: MessageEvent ) {
-		const { data: eventData = {} } = event;
+		const { data: eventData = {}, source } = event;
 		const { event: eventName } = event?.data || {};
 
 		// Set the video duration for the TimestampControl component.
@@ -225,6 +227,21 @@ function VideoFramePicker( {
 			if ( eventData?.durationMs ) {
 				setDuration( eventData.durationMs );
 			}
+		}
+
+		// Hack 2/2: Pause the video right after it has been auto-loaded.
+		if ( eventName === 'videopress_playing' && playerState.current === 'loaded' ) {
+			// Here we consider the video as ready to be controlled.
+			playerState.current = 'has-auto-played';
+
+			// Pause and playback the video to ensure the video is at the desired time.
+			source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
+			source.postMessage(
+				{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
+				{ targetOrigin: '*' }
+			);
+
+			setIsSeekingStartPosition( false );
 		}
 
 		/*
@@ -238,30 +255,7 @@ function VideoFramePicker( {
 		 * @see https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Feature-Policy
 		 */
 		if ( eventName === 'videopress_loading_state' && eventData.state === 'loaded' ) {
-			setTimeout( () => {
-				setIsSeekingStartPosition( true );
-				const sandboxIFrameWindow = getIframeWindowFromRef( playerWrapperRef );
-
-				// Rewind the video 1 second before the desired time.
-				sandboxIFrameWindow.postMessage(
-					{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 - 1 },
-					{ targetOrigin: '*' }
-				);
-
-				setTimeout( () => {
-					// Stop the video after playing for 1 second.
-					sandboxIFrameWindow.postMessage(
-						{ event: 'videopress_action_pause' },
-						{ targetOrigin: '*' }
-					);
-
-					// Ensure to set the video at the desired time.
-					sandboxIFrameWindow.postMessage(
-						{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
-						{ targetOrigin: '*' }
-					);
-				}, 1000 );
-			}, 100 ); // Wait 100ms because of a race condition.
+			playerState.current = 'loaded';
 		}
 	}
 
@@ -293,7 +287,7 @@ function VideoFramePicker( {
 			<div
 				ref={ playerWrapperRef }
 				className={ classnames( 'poster-panel__frame-picker__sandbox-wrapper', {
-					'is-seeking-start-position': isSeekingStartPosition,
+					'has-been-positioned': ! isSeekingStartPosition,
 				} ) }
 			>
 				<SandBox html={ html } scripts={ sandboxScripts } />
