@@ -205,12 +205,7 @@ $action-bar-height: 72px;
 		box-sizing: border-box;
 		content: "";
 		display: flex;
-		padding-top: 32px;
-	}
-
-	&.has-email::before {
-		margin-bottom: 62px;
-		padding-top: 70px;
+		padding-top: 24px;
 	}
 }
 
@@ -219,7 +214,7 @@ $action-bar-height: 72px;
 	border: 3px solid #fff;
 	border-radius: 50%;
 	box-sizing: border-box;
-	display: flex;
+	display: none; //Hidden for now
 	height: 74px;
 	filter: drop-shadow(0px 4px 44px rgba(0, 0, 0, 0.25));
 	overflow: hidden;
@@ -231,9 +226,10 @@ $action-bar-height: 72px;
 }
 
 .jp-forms__inbox-response-title {
-	font-size: 36px;
+	font-size: 24px;
 	font-weight: bold;
-	margin: 0;
+	line-height: normal;
+	margin: 24px 0 0;
 	padding: 0 32px;
 
 	&.is-email {
@@ -246,10 +242,9 @@ $action-bar-height: 72px;
 
 .jp-forms__inbox-response-subtitle {
 	color: #646970;
-	font-size: 24px;
-	font-weight: bold;
-	margin: 0;
-	margin-top: 8px;
+	font-size: 16px;
+	font-weight: 500;
+	margin: 4px 0 0;
 	overflow: hidden;
 	padding: 0 32px;
 	text-overflow: ellipsis;
@@ -258,17 +253,22 @@ $action-bar-height: 72px;
 
 .jp-forms__inbox-response-meta {
 	color: #646970;
-	display: flex;
+	display: table;
 	flex-direction: column;
-	font-size: 16px;
-	line-height: 24px;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 20px;
 	row-gap: 4px;
-	padding: 32px;
-	font-weight: 300;
+	padding: 16px 32px;
 }
 
+.jp-forms__inbox-response-meta-label {
+	display: table-row;
+}
+
+.jp-forms__inbox-response-meta-key,
 .jp-forms__inbox-response-meta-value {
-	font-weight: 700;
+	display: table-cell;
 }
 
 .jp-forms__inbox-response-separator {
@@ -281,16 +281,12 @@ $action-bar-height: 72px;
 	font-size: 16px;
 	flex-direction: column;
 	line-height: 24px;
-	padding: 32px;
+	padding: 16px 32px;
+	row-gap: 24px;
 }
 
 .jp-forms__inbox-response-data-label {
 	font-weight: 600;
-	margin-top: 24px;
-
-	&:first-child {
-		margin-top: 0;
-	}
 }
 
 // ACTIONS ROW

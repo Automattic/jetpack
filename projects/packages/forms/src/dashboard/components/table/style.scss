@@ -24,6 +24,7 @@
 }
 
 .jp-forms__table-cell {
+	border-bottom: 1px solid #dcdcde;
 	box-sizing: border-box;
 	display: table-cell;
 	font-size: 16px;
@@ -38,6 +39,10 @@
 	// Max-width is required on all columns for text-overflow: ellipsis; to work on any.
 	// Hence setting this here to a conservatively high number.
 	max-width: 600px;
+
+	.jp-forms__table :last-child & {
+		border-bottom: unset;
+	}
 
 	&:first-child {
 		padding: 0 20px;
