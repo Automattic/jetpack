@@ -127,8 +127,11 @@ function GoldenToken( { redeemClick, hasGoldenToken } ) {
 					</div>
 				</div>
 
-				{ /*TODO: onCLick*/ }
-				<Button variant="primary" weight="regular">
+				<Button
+					variant="primary"
+					weight="regular"
+					href={ window?.myJetpackInitialState?.myJetpackUrl }
+				>
 					{ __( 'Explore your new powers', 'jetpack-my-jetpack' ) }
 				</Button>
 			</div>
