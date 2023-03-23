@@ -53,6 +53,7 @@ body.modal-open .poster-panel__dropdown {
 .poster-panel__frame-picker__sandbox-wrapper {
 	margin-bottom: 8px;
 	position: relative;
+	background-color: #fAfAfA;
 
 	.components-spinner {
 		background-color: transparent;
@@ -67,7 +68,6 @@ body.modal-open .poster-panel__dropdown {
 
 	.components-sandbox {
 		opacity: 0.1;
-		background-color: #fAfAfA;
 		transition: opacity 300ms ease-in-out;
 		transition-delay: 50ms;
 	}
