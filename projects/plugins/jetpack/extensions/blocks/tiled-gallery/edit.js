@@ -196,14 +196,8 @@ class TiledGalleryEdit extends Component {
 
 	render() {
 		const { selectedImage } = this.state;
-		const {
-			attributes,
-			isSelected,
-			className,
-			noticeOperations,
-			noticeUI,
-			setAttributes,
-		} = this.props;
+		const { attributes, isSelected, className, noticeOperations, noticeUI, setAttributes } =
+			this.props;
 		const {
 			align,
 			columns = defaultColumnsNumber( attributes ),

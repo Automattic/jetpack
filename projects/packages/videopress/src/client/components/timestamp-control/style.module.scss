@@ -19,6 +19,7 @@
 	display: flex;
 	align-items: center;
 	border-color: #949494;
+	background-color: #fff;
     border-style: solid;
 	justify-content: space-around;
     border-width: 1px;
@@ -42,4 +43,16 @@
 			border-style: none !important;
 		}
 	}
+
+	&.is-disabled {
+		background-color: #f0f0f0;
+
+		.timestamp-control-divider {
+			color: #949494;
+		}
+	}
+}
+
+.timestamp-control-divider {
+	font-weight: 900;
 }
