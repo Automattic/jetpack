@@ -1713,6 +1713,7 @@ class Woo_Sync_Background_Sync_Job {
 								'currency' => $order_currency,
 								'quantity' => 1,
 								'price'    => $fee->get_amount( false ),
+								'fee'      => $fee->get_amount( false ),
 								'total'    => $fee->get_amount( false ),
 								'title'    => esc_html__( 'Fee', 'zero-bs-crm' ),
 								'desc'     => $fee->get_name(),
