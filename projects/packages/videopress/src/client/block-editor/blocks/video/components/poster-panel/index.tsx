@@ -238,7 +238,6 @@ function VideoFramePicker( {
 		if ( eventName === 'videopress_playing' && playerState.current === 'loaded' ) {
 			// Here we consider the video as ready to be controlled.
 			playerState.current = 'has-auto-played';
-			setPlayerIsReady( true );
 
 			// Pause and playback the video to ensure the video is at the desired time.
 			source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
@@ -246,6 +245,8 @@ function VideoFramePicker( {
 				{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
 				{ targetOrigin: '*' }
 			);
+
+			setPlayerIsReady( true );
 		}
 
 		/*
