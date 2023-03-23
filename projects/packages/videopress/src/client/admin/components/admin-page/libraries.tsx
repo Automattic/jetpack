@@ -31,7 +31,7 @@ const LibraryType = {
 	Grid: 'grid',
 } as const;
 
-type LibraryType = typeof LibraryType[ keyof typeof LibraryType ];
+type LibraryType = ( typeof LibraryType )[ keyof typeof LibraryType ];
 
 const VideoLibraryWrapper = ( {
 	children,

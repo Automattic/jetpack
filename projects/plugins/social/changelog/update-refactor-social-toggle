@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Refactored the ToggleSection component to decouple it from other logic

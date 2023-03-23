@@ -137,9 +137,9 @@ function jpcrm_render_emailbox() {
 
 			if ( count( $email_hist ) == 0 ) {
 				echo "<div class='no-emails'><i class='ui icon exclamation'></i><br/>" . esc_html__( 'No emails of this type', 'zero-bs-crm' );
-				// WLREMOVE
+				##WLREMOVE
 				echo "<br><a href='https://jetpackcrm.com/feature/emails/#inbox' target='_blank'>" . esc_html__( 'Learn More', 'zero-bs-crm' ) . '</a>';
-				// /WLREMOVE
+				##/WLREMOVE
 				echo '</div>';
 			}
 
