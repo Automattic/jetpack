@@ -67,6 +67,16 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/responses',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'update_responses' ),
+				'permission_callback' => array( $this, 'get_responses_permission_check' ),
+			)
+		);
 	}
 
 	/**
@@ -177,6 +187,130 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	}
 
 	/**
+	 * Handles bulk actions for Jetpack Forms responses.
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_REST_Response A response object..
+	 */
+	public function update_responses( $request ) {
+		$content_type = $request->get_header( 'Content-Type' );
+
+		// Match 'action' directive inside Content-Type header value
+		preg_match( '/\;\s*bulk_action=([a-z_]*)/i', $content_type, $matches );
+		$bulk_action = isset( $matches[1] ) ? $matches[1] : null;
+		$post_ids    = $request->get_param( 'post_ids' );
+
+		if ( $bulk_action && ! is_array( $post_ids ) ) {
+			return new $this->error_response( __( 'Bad request', 'jetpack-forms' ), 400 );
+		}
+
+		switch ( $bulk_action ) {
+			case 'mark_as_spam':
+				foreach ( $post_ids as $post_id ) {
+					$post              = get_post( $post_id );
+					$post->post_status = 'spam';
+					$status            = wp_insert_post( $post );
+
+					if ( ! $status || is_wp_error( $status ) ) {
+						return $this->error_response(
+							sprintf(
+								/* translators: %s: Post ID */
+								__( 'Failed to mark post as spam. Post ID: %d.', 'jetpack-forms' ),
+								$post_id
+							),
+							500
+						);
+					}
+
+					/** This action is documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
+					do_action(
+						'contact_form_akismet',
+						'spam',
+						get_post_meta( $post_id, '_feedback_akismet_values', true )
+					);
+				}
+
+				return new \WP_REST_Response( '', 200 );
+			case 'unmark_as_spam':
+				foreach ( $post_ids as $post_id ) {
+					$post              = get_post( $post_id );
+					$post->post_status = 'publish';
+					$status            = wp_insert_post( $post );
+
+					if ( ! $status || is_wp_error( $status ) ) {
+						return $this->error_response(
+							sprintf(
+								/* translators: %s: Post ID */
+								__( 'Failed to mark post as not-spam. Post ID: %d.', 'jetpack-forms' ),
+								$post_id
+							),
+							500
+						);
+					}
+
+					/** This action is documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
+					do_action(
+						'contact_form_akismet',
+						'ham',
+						get_post_meta( $post_id, '_feedback_akismet_values', true )
+					);
+
+					// Resend the original email
+				}
+				return new \WP_REST_Response( '', 200 );
+
+			case 'trash':
+				foreach ( $post_ids as $post_id ) {
+					if ( ! wp_trash_post( $post_id ) ) {
+						return $this->error_response(
+							sprintf(
+								/* translators: %s: Post ID */
+								__( 'Failed to move post to trash. Post ID: %d.', 'jetpack-forms' ),
+								$post_id
+							),
+							500
+						);
+					}
+				}
+				return new \WP_REST_Response( '', 200 );
+
+			case 'untrash':
+				foreach ( $post_ids as $post_id ) {
+					if ( ! wp_untrash_post( $post_id ) ) {
+						return $this->error_response(
+							sprintf(
+								/* translators: %s: Post ID */
+								__( 'Failed to remove post from trash. Post ID: %d.', 'jetpack-forms' ),
+								$post_id
+							),
+							500
+						);
+					}
+				}
+				return new \WP_REST_Response( '', 200 );
+
+			case 'delete':
+				foreach ( $post_ids as $post_id ) {
+					if ( ! wp_delete_post( $post_id ) ) {
+						return $this->error_response(
+							sprintf(
+								/* translators: %s: Post ID */
+								__( 'Failed to delete post. Post ID: %d.', 'jetpack-forms' ),
+								$post_id
+							),
+							500
+						);
+					}
+				}
+				return new WP_REST_Response( '', 200 );
+
+			default:
+				return $this->error_response( __( 'Bad request', 'jetpack-forms' ), 400 );
+		}
+	}
+
+	/**
 	 * Verifies that the current user has the requird capability for viewing form responses.
 	 *
 	 * @return true|WP_Error Returns true if the user has the required capability, else a WP_Error object.
@@ -196,6 +330,17 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Returns a \WP_REST_Response containing the given error message and code.
+	 *
+	 * @param  string $message Error message.
+	 * @param  int    $code    Error code.
+	 * @return \WP_REST_Response
+	 */
+	private function error_response( $message, $code ) {
+		return new \WP_REST_Response( array( 'error' => $message ), $code );
 	}
 }
 
