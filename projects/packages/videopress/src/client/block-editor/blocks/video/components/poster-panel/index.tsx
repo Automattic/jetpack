@@ -11,6 +11,7 @@ import {
 	ToggleControl,
 	SandBox,
 	Spinner,
+	Notice,
 } from '@wordpress/components';
 import { useRef, useEffect, useState, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -295,6 +296,15 @@ function VideoFramePicker( {
 				{ ! playerIsReady && <Spinner /> }
 				<SandBox html={ html } scripts={ sandboxScripts } />
 			</div>
+
+			{ isGeneratingPoster && (
+				<Notice status="warning" className="poster-panel__notice" isDismissible={ false }>
+					{ __(
+						'Generating video poster image. It may take a few seconds.',
+						'jetpack-videopress-pkg'
+					) }
+				</Notice>
+			) }
 
 			<TimestampControl
 				label={ __( 'Video frame', 'jetpack-videopress-pkg' ) }
