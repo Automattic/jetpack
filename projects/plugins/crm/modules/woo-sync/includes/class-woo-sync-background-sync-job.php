@@ -1930,7 +1930,7 @@ class Woo_Sync_Background_Sync_Job {
 				'shipping'             => $order_data['shipping_total'],
 				'shipping_taxes'       => $shipping_tax_id,
 				'shipping_tax'         => $order_data['shipping_tax'],
-				'tax'                  => $order_data['total_tax'],
+				'tax'                  => $order_data['total_tax'] - $order_data['discount_tax'],
 				'ref'                  => $item_title,
 				'hours_or_quantity'    => 1,
 				'lineitems'            => $data['lineitems'],
