@@ -197,6 +197,7 @@ function VideoFramePicker( {
 }: PosterFramePickerProps ): React.ReactElement {
 	const [ timestamp, setTimestamp ] = useState( atTime );
 	const [ duration, setDuration ] = useState( 0 );
+	const [ playerIsReady, setPlayerIsReady ] = useState( false );
 	const playerWrapperRef = useRef< HTMLDivElement >( null );
 
 	const url = getVideoPressUrl( guid, {
@@ -233,6 +234,7 @@ function VideoFramePicker( {
 		if ( eventName === 'videopress_playing' && playerState.current === 'loaded' ) {
 			// Here we consider the video as ready to be controlled.
 			playerState.current = 'has-auto-played';
+			setPlayerIsReady( true );
 
 			// Pause and playback the video to ensure the video is at the desired time.
 			source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
@@ -280,7 +282,6 @@ function VideoFramePicker( {
 		};
 	}, [ playerWrapperRef, isRequestingEmbedPreview, html ] );
 
-	const playerIsReady = playerState.current === 'has-auto-played';
 	return (
 		<div className="poster-panel__frame-picker">
 			<div
