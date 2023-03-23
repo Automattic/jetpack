@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooSync: the fee field from WooCommerce order is not added to the invoice
