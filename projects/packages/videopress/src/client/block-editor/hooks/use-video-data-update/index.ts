@@ -194,6 +194,7 @@ export function useSyncMedia(
 	} );
 
 	const [ isOverwriteChapterAllowed, setIsOverwriteChapterAllowed ] = useState( false );
+	const [ isGeneratingPoster, setIsGeneratingPoster ] = useState( false );
 
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
@@ -339,7 +340,7 @@ export function useSyncMedia(
 			return;
 		}
 
-		// Check whether it should update video Poster
+		// Check whether it should update video frame Poster
 		if (
 			attributes.posterSource &&
 			attributes?.posterSource?.type === 'video-frame' &&
@@ -351,6 +352,8 @@ export function useSyncMedia(
 				prevPosterSource?.current?.atTime,
 				attributes.posterSource?.atTime
 			);
+
+			setIsGeneratingPoster( true );
 
 			requestUpdatePosterByVideoFrame( attributes?.guid, attributes.posterSource.atTime ).then(
 				updateResp => {
@@ -383,9 +386,12 @@ export function useSyncMedia(
 								return;
 							}
 
+							// Poster image has been generated.
 							if ( getResp?.data?.poster !== attributes.poster ) {
 								clearInterval( framePosterUpdateTimerId.current );
 
+								setIsGeneratingPoster( false );
+								// Update the player.
 								const videoPressUrl = getVideoPressUrl( attributes.guid, attributes );
 								invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 							}
@@ -523,5 +529,6 @@ export function useSyncMedia(
 		isRequestingVideoData,
 		error,
 		isOverwriteChapterAllowed,
+		isGeneratingPoster,
 	};
 }
