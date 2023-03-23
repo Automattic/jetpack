@@ -104,25 +104,21 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 	 */
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-	const {
-		run: mainCheckoutRedirect,
-		hasCheckoutStarted: hasMainCheckoutStarted,
-	} = useProductCheckoutWorkflow( {
-		productSlug: wpcomProductSlug,
-		redirectUrl: myJetpackUrl,
-		siteSuffix,
-		from: 'my-jetpack',
-	} );
+	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
+		useProductCheckoutWorkflow( {
+			productSlug: wpcomProductSlug,
+			redirectUrl: myJetpackUrl,
+			siteSuffix,
+			from: 'my-jetpack',
+		} );
 
-	const {
-		run: trialCheckoutRedirect,
-		hasCheckoutStarted: hasTrialCheckoutStarted,
-	} = useProductCheckoutWorkflow( {
-		productSlug: wpcomFreeProductSlug,
-		redirectUrl: myJetpackUrl,
-		siteSuffix,
-		from: 'my-jetpack',
-	} );
+	const { run: trialCheckoutRedirect, hasCheckoutStarted: hasTrialCheckoutStarted } =
+		useProductCheckoutWorkflow( {
+			productSlug: wpcomFreeProductSlug,
+			redirectUrl: myJetpackUrl,
+			siteSuffix,
+			from: 'my-jetpack',
+		} );
 
 	// Suppported products icons.
 	const icons = isBundle

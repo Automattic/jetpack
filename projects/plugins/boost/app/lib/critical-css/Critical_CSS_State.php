@@ -53,9 +53,13 @@ class Critical_CSS_State {
 	 * @return bool|WP_Error True on success, WP_Error on failure.
 	 */
 	private function update_provider_state( $provider_key, $state ) {
+		if ( empty( $this->state['providers'] ) ) {
+			return new \WP_Error( 'invalid_provider_key', 'No providers exist' );
+		}
+
 		$provider_index = array_search( $provider_key, array_column( $this->state['providers'], 'key' ), true );
 		if ( $provider_index === false ) {
-			return WP_Error( 'invalid_provider_key', 'Invalid provider key' );
+			return new \WP_Error( 'invalid_provider_key', 'Invalid provider key' );
 		}
 
 		$this->state['providers'][ $provider_index ] = array_merge(
@@ -105,6 +109,10 @@ class Critical_CSS_State {
 	 * a provider's state is updated.
 	 */
 	private function maybe_set_generated() {
+		if ( empty( $this->state['providers'] ) ) {
+			return;
+		}
+
 		$provider_states = array_column( $this->state['providers'], 'status' );
 		$is_done         = ! in_array( self::GENERATION_STATES['pending'], $provider_states, true );
 
