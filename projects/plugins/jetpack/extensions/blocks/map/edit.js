@@ -214,13 +214,8 @@ class MapEdit extends Component {
 			mapHeight,
 			showFullscreenButton,
 		} = attributes;
-		const {
-			addPointVisibility,
-			apiKey,
-			apiKeyControl,
-			apiState,
-			apiRequestOutstanding,
-		} = this.state;
+		const { addPointVisibility, apiKey, apiKeyControl, apiState, apiRequestOutstanding } =
+			this.state;
 		const inspectorControls = (
 			<>
 				<BlockControls>
