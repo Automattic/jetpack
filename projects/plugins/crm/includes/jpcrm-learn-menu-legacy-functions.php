@@ -354,12 +354,19 @@ function jpcrm_quoteedit_list_menu() {
 
 	global $zbs;
 
-	$title = __( 'New Quote', 'zero-bs-crm' );
-	$zbsid = -1;
+	$title   = __( 'New Quote', 'zero-bs-crm' );
+	$zbsid   = -1;
+	$content = $zbs->learn_menu->get_content_body( 'quotenew' );
+	$links   = $zbs->learn_menu->get_content_urls( 'quotenew' );
+	$add_new = '<div id="zbs-quote-learn-nav"></div>';
 
 	if ( isset( $_GET['zbsid'] ) && ! empty( $_GET['zbsid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$title = __( 'Edit Quote', 'zero-bs-crm' );
-		$zbsid = (int) sanitize_text_field( wp_unslash( $_GET['zbsid'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$title   = __( 'Edit Quote', 'zero-bs-crm' );
+		$zbsid   = (int) sanitize_text_field( wp_unslash( $_GET['zbsid'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$content = $zbs->learn_menu->get_content_body( 'quoteedit' );
+		$links   = $zbs->learn_menu->get_content_urls( 'quoteedit' );
+		$add_new = '<div id="zbs-quote-learn-nav"></div>  <a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_QUOTE, false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
+
 	}
 
 	$filter_str = '<div class="ui items right floated" style="margin:0">' . zeroBSCRM_getObjNav( $zbsid, 'edit', ZBS_TYPE_QUOTE ) . '</div>';
@@ -367,14 +374,14 @@ function jpcrm_quoteedit_list_menu() {
 	// output
 	$zbs->learn_menu->render_generic_learn_menu(
 		$title,
-		'',
+		$add_new,
 		$filter_str,
 		true,
 		$title,
-		'',
-		'',
-		'',
-		'',
+		$content,
+		$links['learn'],
+		$links['img'],
+		$links['vid'],
 		''
 	);
 }
