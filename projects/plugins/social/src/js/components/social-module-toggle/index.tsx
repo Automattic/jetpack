@@ -8,12 +8,7 @@ import ToggleSection from '../toggle-section';
 import { SocialStoreSelectors } from '../types/types';
 import styles from './styles.module.scss';
 
-/**
- * This component is used in the Social admin panel to toggle the Publicize module.
- *
- * @returns {React.Component} The SocialModuleToggle component.
- */
-export default function SocialModuleToggle(): JSX.Element {
+const SocialModuleToggle: React.FC = () => {
 	const { connectionsAdminUrl, isModuleEnabled, isUpdating } = useSelect( select => {
 		const store = select( STORE_ID ) as SocialStoreSelectors;
 		return {
@@ -66,4 +61,6 @@ export default function SocialModuleToggle(): JSX.Element {
 			) }
 		</ToggleSection>
 	);
-}
+};
+
+export default SocialModuleToggle;
