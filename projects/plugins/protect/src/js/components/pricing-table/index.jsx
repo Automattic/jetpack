@@ -127,7 +127,9 @@ const ConnectedPricingTable = ( { onScanAdd } ) => {
 					/>
 					<PricingTableItem
 						isIncluded={ true }
-						label={ <strong>{ __( 'Automatic protection and rule updates', 'jetpack-protect' ) }</strong> }
+						label={
+							<strong>{ __( 'Automatic protection and rule updates', 'jetpack-protect' ) }</strong>
+						}
 					/>
 					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ true } />
