@@ -52,12 +52,31 @@ body.modal-open .poster-panel__dropdown {
 
 .poster-panel__frame-picker__sandbox-wrapper {
 	margin-bottom: 8px;
-	aspect-ratio: 16 / 9;
-	background-color: #fAfAfA;
-	opacity: 0.1;
-	transition: opacity 1s ease-in-out;
+	position: relative;
 
-	&.has-been-positioned {
+	.components-spinner {
+		background-color: transparent;
+		margin: 0;
+		width: 32px;
+		height: 32px;
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+
+	.components-sandbox {
+		opacity: 0.1;
+		background-color: #fAfAfA;
+		transition: opacity 300ms ease-in-out;
+		transition-delay: 50ms;
+	}
+
+	&:not(.is-player-ready) {
+		aspect-ratio: 16 / 9;
+	}
+
+	&.is-player-ready .components-sandbox {
 		opacity: 1;
 	}
 }

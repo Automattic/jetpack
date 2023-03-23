@@ -10,6 +10,7 @@ import {
 	Button,
 	ToggleControl,
 	SandBox,
+	Spinner,
 } from '@wordpress/components';
 import { useRef, useEffect, useState, useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -196,7 +197,6 @@ function VideoFramePicker( {
 }: PosterFramePickerProps ): React.ReactElement {
 	const [ timestamp, setTimestamp ] = useState( atTime );
 	const [ duration, setDuration ] = useState( 0 );
-	const [ isSeekingStartPosition, setIsSeekingStartPosition ] = useState( true );
 	const playerWrapperRef = useRef< HTMLDivElement >( null );
 
 	const url = getVideoPressUrl( guid, {
@@ -240,8 +240,6 @@ function VideoFramePicker( {
 				{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
 				{ targetOrigin: '*' }
 			);
-
-			setIsSeekingStartPosition( false );
 		}
 
 		/*
@@ -282,14 +280,16 @@ function VideoFramePicker( {
 		};
 	}, [ playerWrapperRef, isRequestingEmbedPreview, html ] );
 
+	const playerIsReady = playerState.current === 'has-auto-played';
 	return (
 		<div className="poster-panel__frame-picker">
 			<div
 				ref={ playerWrapperRef }
 				className={ classnames( 'poster-panel__frame-picker__sandbox-wrapper', {
-					'has-been-positioned': ! isSeekingStartPosition,
+					'is-player-ready': playerIsReady,
 				} ) }
 			>
+				{ ! playerIsReady && <Spinner /> }
 				<SandBox html={ html } scripts={ sandboxScripts } />
 			</div>
 
