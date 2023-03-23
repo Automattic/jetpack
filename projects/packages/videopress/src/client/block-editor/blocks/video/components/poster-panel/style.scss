@@ -62,11 +62,11 @@ body.modal-open .poster-panel__dropdown {
 	background-color: #fAfAfA;
 
 	.components-spinner {
-		background-color: transparent;
 		margin: 0;
 		width: 32px;
 		height: 32px;
 		position: absolute;
+		z-index: 100;
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
@@ -84,6 +84,10 @@ body.modal-open .poster-panel__dropdown {
 
 	&.is-player-ready .components-sandbox {
 		opacity: 1;
+	}
+
+	&.is-generating-poster .components-sandbox {
+		opacity: 0.5;
 	}
 }
 

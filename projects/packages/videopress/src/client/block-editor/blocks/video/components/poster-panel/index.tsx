@@ -291,9 +291,10 @@ function VideoFramePicker( {
 				ref={ playerWrapperRef }
 				className={ classnames( 'poster-panel__frame-picker__sandbox-wrapper', {
 					'is-player-ready': playerIsReady,
+					'is-generating-poster': isGeneratingPoster,
 				} ) }
 			>
-				{ ! playerIsReady && <Spinner /> }
+				{ ( ! playerIsReady || isGeneratingPoster ) && <Spinner /> }
 				<SandBox html={ html } scripts={ sandboxScripts } />
 			</div>
 
