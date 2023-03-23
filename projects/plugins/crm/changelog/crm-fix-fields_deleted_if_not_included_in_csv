@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Importing contacts using CSV files no longer erases fields that are missing
