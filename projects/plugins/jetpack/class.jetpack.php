@@ -847,7 +847,6 @@ class Jetpack {
 				'stats',
 				'stats_admin',
 				'import',
-				'yoast_promo',
 			)
 			as $feature
 		) {
@@ -884,6 +883,16 @@ class Jetpack {
 		$modules = new Automattic\Jetpack\Modules();
 		if ( $modules->is_active( 'publicize' ) && $this->connection_manager->has_connected_user() ) {
 			$config->ensure( 'publicize' );
+		}
+
+		/*
+		 * Enable the Yoast Promo panel
+		 * if we're not in offline mode, and if promotions aren't disabled.
+		 */
+		if (
+			! ( new Status() )->is_offline_mode()
+		) {
+			$config->ensure( 'yoast_promo' );
 		}
 
 		/*
