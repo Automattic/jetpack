@@ -3,22 +3,21 @@
 .jetpack-blogging-prompt {
 	border: 1px solid $gray-300;
 	border-radius: 2px;
+	box-sizing: border-box;
 	padding: 24px;
 
 	&__label {
+		background: no-repeat url('./icon.svg');
+		background-position: -5px center;
+		background-size: 24px 24px;
 		font-size: 14px;
 		margin-bottom: $grid-unit-20;
-
-		svg {
-			height: $icon-size;
-			width: $icon-size;
-			margin-right: 6px;
-			vertical-align: bottom;
-		}
+		padding-left: 22px;
 	}
 
-	&__prompt {
+	&__text {
 		font-size: 24px;
+		margin-bottom: $grid-unit-20;
 	}
 
 	&__answers-link {
@@ -29,7 +28,6 @@
 
 	&__answers {
 		font-size: 16px;
-		margin-top: $grid-unit-20;
 	}
 
 	&__answers-gravatar {
@@ -39,6 +37,10 @@
 		vertical-align: middle;
 		width: 24px;
 
+		&:first-child {
+			margin-left: -2px;
+		}
+
 		&:not(:first-child) {
 			margin-left: -15px;
 		}
@@ -46,5 +48,31 @@
 
 	&__spinner {
 		text-align: center;
+	}
+
+	&.is-style-quote {
+		border: none;
+		border-left: 4px solid $gray-800;
+		margin-bottom: $grid-unit-20;
+		padding: 0 24px;
+	}
+
+	@media only email {
+		&__label {
+			background: none;
+			padding-left: 0;
+		}
+
+		&__answers {
+			margin-bottom: 0;
+		}
+
+		&__answers-gravatar {
+			margin-bottom: 0;
+
+			&:not(:first-child) {
+				margin-left: 0;
+			}
+		}
 	}
 }

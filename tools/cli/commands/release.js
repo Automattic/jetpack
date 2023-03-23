@@ -152,6 +152,7 @@ export async function scriptRouter( argv ) {
 			break;
 		case 'amend':
 			await checkBranchValid( argv );
+			// @todo Stop assuming `composer install` has been done so vendor/bin/changelogger already exists.
 			argv.script = `vendor/bin/changelogger`;
 			argv.scriptArgs = [ `write`, `--amend` ];
 			argv.addPrNum && argv.scriptArgs.push( '--add-pr-num' );
@@ -164,7 +165,8 @@ export async function scriptRouter( argv ) {
 			argv = await promptForVersion( argv );
 			argv.script = 'tools/project-version.sh';
 			argv.scriptArgs = [ '-Cu', argv.version, argv.project ];
-			argv.next = `Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
+			argv.next =
+				`Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
 				 - The main php file
 				 - package.json
 				 - composer.json (the autoloader-suffix filed)

@@ -389,7 +389,6 @@ class Grunion_Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-		self::enqueue_contact_forms_style_script();
 		self::register_contact_form_blocks();
 	}
 
@@ -530,6 +529,8 @@ class Grunion_Contact_Form_Plugin {
 				esc_html__( 'Submit a form.', 'jetpack' )
 			);
 		}
+
+		self::enqueue_contact_forms_style_script();
 
 		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
@@ -1807,11 +1808,12 @@ class Grunion_Contact_Form_Plugin {
 		sort( $field_names, SORT_NUMERIC );
 
 		$well_known_column_names = $this->get_well_known_column_names();
+		$result                  = array();
+
 		/**
 		 * Loop through every post, which is essentially CSV row.
 		 */
 		foreach ( $posts_data as $post_id => $single_post_data ) {
-
 			/**
 			 * Go through all the possible fields and check if the field is available
 			 * in the current post.
@@ -1824,10 +1826,18 @@ class Grunion_Contact_Form_Plugin {
 					? $well_known_column_names[ $single_field_name ]
 					: $single_field_name;
 
-					/**
-				 * Remove the numeral prefix 1_, 2_, etc, only for export results
+				/**
+				 * Remove the numeral prefix -3_, 1_, 2_, etc, only for export results.
+				 * Prefixes can be both positive and negative numeral values, functional to the SORT_NUMERIC above.
+				 * TODO: to return fieldnames based on field label, we need to work both field names and post data:
+				 * unique -> sort -> unique/rename
+				 * $renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
 				 */
-				$renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
+
+				if ( ! isset( $result[ $renamed_field ] ) ) {
+					$result[ $renamed_field ] = array();
+				}
+
 				if (
 					isset( $single_post_data[ $single_field_name ] )
 					&& ! empty( $single_post_data[ $single_field_name ] )
@@ -2016,7 +2026,7 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * @return null|void
 	 */
-	private function record_tracks_event( $event_name, $event_props ) {
+	public function record_tracks_event( $event_name, $event_props ) {
 		/*
 		 * Event details.
 		 */
@@ -2787,7 +2797,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 		if ( isset( $GLOBALS['grunion_block_template_part_id'] ) ) {
 			self::style_on();
-			$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
+			if ( is_array( $attributes ) ) {
+				$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
+			}
 		}
 		// Create a new Grunion_Contact_Form object (this class)
 		$form = new Grunion_Contact_Form( $attributes, $content );
@@ -3286,8 +3298,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				if ( ! empty( $matches[0] ) ) {
 					$options = array();
 					foreach ( $matches[0] as $shortcode ) {
-						$attr      = shortcode_parse_atts( $shortcode );
-						$options[] = $attr['label'];
+						$attr = shortcode_parse_atts( $shortcode );
+						if ( ! empty( $attr['label'] ) ) {
+							$options[] = $attr['label'];
+						}
 					}
 
 					$attributes['options'] = $options;
@@ -5308,67 +5322,19 @@ function grunion_delete_old_spam() {
 /**
  * Send an event to Tracks on form submission.
  *
- * @param int   $post_id - the post_id for the CPT that is created.
- * @param array $all_values - fields from the default contact form.
- * @param array $extra_values - extra fields added to from the contact form.
+ * @param int $post_id - the post_id for the CPT that is created.
  *
  * @return null|void
  */
-function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, $extra_values ) {
-	/*
-	 * Event details.
-	 */
-	$event_user  = wp_get_current_user();
-	$event_name  = 'contact_form_block_message_sent';
-	$event_props = array(
-		'entry_permalink' => esc_url( $all_values['entry_permalink'] ),
-		'feedback_id'     => esc_attr( $all_values['feedback_id'] ),
-	);
-
-	// old deprecated attribute that should been removed in May 2020.
-	if (
-		! isset( $extra_values['is_block'] )
-		|| ! $extra_values['is_block']
-	) {
-		$event_props['is_block'] = false;
-	} else {
-		$event_props['is_block'] = true;
-	}
-
+function jetpack_tracks_record_grunion_pre_message_sent( $post_id ) {
 	$post = get_post( $post_id );
 	if ( $post ) {
-		$event_props['post_w'] = gmdate( 'Y-W', strtotime( $post->post_date_gmt ) );
-		$event_props['post_m'] = gmdate( 'Y-m', strtotime( $post->post_date_gmt ) );
+		$extra = gmdate( 'Y-W', strtotime( $post->post_date_gmt ) );
 	} else {
-		$event_props['no_post'] = 1;
+		$extra = 'no-post';
 	}
 
-	/*
-	 * Record event.
-	 * We use different libs on wpcom and Jetpack.
-	 */
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$event_name             = 'wpcom_' . $event_name;
-		$event_props['blog_id'] = get_current_blog_id();
-		// If the form was sent by a logged out visitor, record event with blog owner.
-		if ( empty( $event_user->ID ) ) {
-			$event_user_id = wpcom_get_blog_owner( $event_props['blog_id'] );
-			$event_user    = get_userdata( $event_user_id );
-		}
-
-		require_lib( 'tracks/client' );
-		tracks_record_event( $event_user, $event_name, $event_props );
-	} else {
-		// If the form was sent by a logged out visitor, record event with Jetpack master user.
-		if ( empty( $event_user->ID ) ) {
-			$master_user_id = Jetpack_Options::get_option( 'master_user' );
-			if ( ! empty( $master_user_id ) ) {
-				$event_user = get_userdata( $master_user_id );
-			}
-		}
-
-		$tracking = new \Automattic\Jetpack\Tracking();
-		$tracking->record_user_event( $event_name, $event_props, $event_user );
-	}
+	/** This action is documented in modules/widgets/social-media-icons.php */
+	do_action( 'jetpack_bump_stats_extras', 'jetpack_forms_message_sent', $extra );
 }
-add_action( 'grunion_pre_message_sent', 'jetpack_tracks_record_grunion_pre_message_sent', 12, 3 );
+add_action( 'grunion_pre_message_sent', 'jetpack_tracks_record_grunion_pre_message_sent', 12 );

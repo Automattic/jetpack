@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CRM: fix some export cases by adding a check for the segment index.

@@ -32,9 +32,8 @@ class QueryRecommendationsProductSuggestions extends Component {
 export default connect(
 	state => {
 		return {
-			isFetchingRecommendationsProductSuggestions: isFetchingRecommendationsProductSuggestions(
-				state
-			),
+			isFetchingRecommendationsProductSuggestions:
+				isFetchingRecommendationsProductSuggestions( state ),
 			isOfflineMode: isOfflineMode( state ),
 		};
 	},

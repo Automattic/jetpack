@@ -193,4 +193,5 @@ function jetpack_boost_uninstall() {
  * Previous version compatibility files
  */
 require_once __DIR__ . '/compatibility/boost-1.3.1.php';
+require_once __DIR__ . '/compatibility/boost-1.8.0.php';
 require_once __DIR__ . '/wp-js-data-sync.php';

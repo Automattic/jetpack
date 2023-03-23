@@ -242,7 +242,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 		if ( isset( $GLOBALS['grunion_block_template_part_id'] ) ) {
 			self::style_on();
-			$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
+			if ( is_array( $attributes ) ) {
+				$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
+			}
 		}
 		// Create a new Grunion_Contact_Form object (this class)
 		$form = new Contact_Form( $attributes, $content );
@@ -741,8 +743,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 				if ( ! empty( $matches[0] ) ) {
 					$options = array();
 					foreach ( $matches[0] as $shortcode ) {
-						$attr      = shortcode_parse_atts( $shortcode );
-						$options[] = $attr['label'];
+						$attr = shortcode_parse_atts( $shortcode );
+						if ( ! empty( $attr['label'] ) ) {
+							$options[] = $attr['label'];
+						}
 					}
 
 					$attributes['options'] = $options;
