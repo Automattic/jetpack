@@ -873,8 +873,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'wpcom_staging_blog_ids':
 					$options[ $key ] = $site->get_wpcom_staging_blog_ids();
 					break;
-				case 'has_promote_widget':
-					$options[ $key ] = apply_filters( 'dsp_promote_posts_enabled', false, $site->blog_id );
+				case 'can_blaze':
+					$options[ $key ] = $site->can_blaze();
 					break;
 			}
 		}
