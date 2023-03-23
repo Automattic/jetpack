@@ -11,6 +11,7 @@
  * @package automattic/jetpack
  **/
 
+use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -1499,5 +1500,14 @@ abstract class SAL_Site {
 	 */
 	public function get_wpcom_staging_blog_ids() {
 		return get_option( 'wpcom_staging_blog_ids', array() );
+	}
+
+	/**
+	 * Get the site's Blaze eligibility status.
+	 *
+	 * @return bool
+	 */
+	public function can_blaze() {
+		return (bool) Blaze::site_supports_blaze( $this->blog_id );
 	}
 }
