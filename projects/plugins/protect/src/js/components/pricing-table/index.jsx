@@ -162,11 +162,11 @@ const ConnectedPricingTable = ( { onScanAdd } ) => {
 						isIncluded={ true }
 						label={ __( 'Check items against database', 'jetpack-protect' ) }
 					/>
+					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem
 						isIncluded={ true }
 						label={ __( 'Manual rules only', 'jetpack-protect' ) }
 					/>
-					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ false } />
 					<PricingTableItem isIncluded={ false } />
