@@ -1064,6 +1064,7 @@ abstract class Publicize_Base {
 			'default'       => array(
 				'image_generator_settings' => array(
 					'template' => Social_Image_Generator\Templates::DEFAULT_TEMPLATE,
+					'enabled'  => true,
 				),
 			),
 			'show_in_rest'  => array(
@@ -1131,6 +1132,25 @@ abstract class Publicize_Base {
 			register_meta( 'post', $this->POST_DONE . 'all', $already_shared_flag_args );
 			register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
 		}
+
+		add_filter(
+			'default_post_metadata',
+			function ( $value, $object_id, $meta_key ) {
+				if ( $meta_key === '_wpas_options' ) {
+					$post = get_post( $object_id );
+					if (
+						! empty( $post->post_status ) &&
+						'auto-draft' !== $post->post_status &&
+						! empty( $value[0]['image_generator_settings']['enabled'] )
+					) {
+						$value[0]['image_generator_settings']['enabled'] = false;
+					}
+				}
+				return $value;
+			},
+			20,
+			3
+		);
 	}
 
 	/**
