@@ -1630,6 +1630,8 @@ class Woo_Sync_Background_Sync_Job {
 				}
 			}
 
+			$order_data['subtotal'] = 0.0;
+
 			// cycle through order items to create crm line items
 			foreach ( $order_items as $item_key => $item ) {
 
@@ -1649,6 +1651,8 @@ class Woo_Sync_Background_Sync_Job {
 
 				// catch cases where quantity is 0; see gh-2190
 				$price = empty( $item_data['quantity'] ) ? 0 : $item_data['subtotal'] / $item_data['quantity'];
+
+				$order_data['subtotal'] += $price;
 
 				// translate Woo taxes to CRM taxes
 				$item_woo_taxes = $item->get_taxes();
@@ -1715,6 +1719,8 @@ class Woo_Sync_Background_Sync_Job {
 								'tax'      => $fee->get_total_tax(),
 								'shipping' => 0.0,
 							);
+
+							$order_data['subtotal'] += $new_line_item['price'];
 
 							// Check for tax applied
 							if ( is_array( $item_tax_rate_ids ) && count( $item_tax_rate_ids ) > 0 ) {
@@ -1917,6 +1923,7 @@ class Woo_Sync_Background_Sync_Job {
 				'currency'             => $order_currency,
 				'date'                 => $invoice_creation_date_uts,
 				'due_date'             => $invoice_creation_date_uts,
+				'net'                  => $order_data['subtotal'],
 				'total'                => $order_data['total'],
 				'discount'             => $order_data['discount_total'],
 				'discount_type'        => 'm',
