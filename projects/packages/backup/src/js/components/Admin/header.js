@@ -22,7 +22,6 @@ const Header = () => {
 
 const useShowActivateLicenseLink = () => {
 	const isFullyConnected = useIsFullyConnected();
-
 	const { capabilities, capabilitiesError, capabilitiesLoaded, hasBackupPlan } = useCapabilities();
 
 	return useMemo( () => {
@@ -36,11 +35,7 @@ const useShowActivateLicenseLink = () => {
 		// This Boolean expression mirrors the logic found
 		// in the LoadedState component, in ./index.js,
 		// because these conditions are what triggers the pricing page to be displayed.
-		const shouldShow = isFullyConnected && noBackupCapabilities;
-
-		if ( ! shouldShow ) {
-			return null;
-		}
+		return isFullyConnected && noBackupCapabilities;
 	}, [ isFullyConnected, hasBackupPlan, capabilitiesLoaded, capabilitiesError, capabilities ] );
 };
 
