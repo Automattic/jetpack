@@ -10,12 +10,12 @@ import { useSelect } from '@wordpress/data';
 import React from 'react';
 import { STORE_ID } from '../../store';
 import PricingPage from '../pricing-page';
+import SocialModuleToggle from '../social-module-toggle';
 import SupportSection from '../support-section';
 import ConnectionScreen from './../connection-screen';
 import Header from './../header';
 import InfoSection from './../info-section';
 import Logo from './../logo';
-import ToggleSection from './../toggle-section';
 import './styles.module.scss';
 
 const Admin = () => {
@@ -64,7 +64,7 @@ const Admin = () => {
 						<Header />
 					</AdminSectionHero>
 					<AdminSection>
-						<ToggleSection />
+						<SocialModuleToggle />
 					</AdminSection>
 					<AdminSectionHero>
 						<InfoSection />

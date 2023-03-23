@@ -696,7 +696,7 @@ class jpcrm_templating_placeholders {
 
 				'invoice-label-to' => array(
 
-					'description' 		=> __( 'Label for name of customer receiving invoice', 'zero-bs-crm' ),
+					'description'     => __( 'Label for name of contact receiving invoice', 'zero-bs-crm' ),
 					'origin' 			=> __( 'Invoice Builder', 'zero-bs-crm' ),
 					'expected_format' 	=> 'str',
 					'available_in'	 	=> array(),
@@ -1124,7 +1124,15 @@ class jpcrm_templating_placeholders {
 					// deal with exclusions
 					if ( !in_array( $field_index, $excluded_slugs ) ) {
 
-						$new_key =  str_replace( '_', '-', $object_type_key . '-' . $field_index );
+						// catching legacy secondary address contact field issues
+						$secondary_address_array = array( 'secaddr1', 'secaddr2', 'seccity', 'seccounty', 'secpostcode', 'seccountry' );
+						if ( 'contact' === $object_type_key && in_array( $field_index, $secondary_address_array, true ) ) {
+							$field_index = str_replace( 'sec', 'secaddr_', $field_index );
+							$new_key     = $object_type_key . '-' . $field_index;
+						} else {
+							$new_key = str_replace( '_', '-', $object_type_key . '-' . $field_index );
+						}
+
 						$expected_format = '';
 
 						// add if not present

@@ -355,7 +355,7 @@
 
             ?><div class="zbs-generic-save-wrap">
 
-                    <div class="ui medium dividing header"><i class="save icon"></i> <?php esc_html_e('Event Actions','zero-bs-crm'); ?></div>
+				<div class="ui medium dividing header"><i class="save icon"></i> <?php esc_html_e( 'Task Actions', 'zero-bs-crm' ); ?></div>
 
             <?php
 
@@ -402,7 +402,7 @@
 
                     <div class="zbs-event-actions-bottom zbs-objedit-actions-bottom">
 
-                        <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Update","zero-bs-crm"); ?> <?php esc_html_e("Event","zero-bs-crm"); ?></button>
+							<button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Task', 'zero-bs-crm' ); ?></button>
 
                         <?php
 
@@ -425,7 +425,7 @@
 
                     // NEW Event ?>
 
-                    <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Save","zero-bs-crm"); ?> <?php esc_html_e("Event","zero-bs-crm"); ?></button>
+						<button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Task', 'zero-bs-crm' ); ?></button>
 
                  <?php
 
