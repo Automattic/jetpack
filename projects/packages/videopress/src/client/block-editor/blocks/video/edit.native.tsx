@@ -128,7 +128,7 @@ export default function VideoPressEdit( {
 
 	const onReplaceSelectFromLibrary = useCallback(
 		media => {
-			const { id, url, title, description, metadata } = media;
+			const { id, title, description, metadata } = media;
 
 			const videoPressGuid = metadata?.videopressGUID;
 			if ( ! videoPressGuid ) {
@@ -137,7 +137,6 @@ export default function VideoPressEdit( {
 			setAttributes( {
 				guid: videoPressGuid,
 				id,
-				src: url,
 				title,
 				description,
 			} );
