@@ -43,7 +43,8 @@ p {
 */
 .modal {
 	border-radius: var(--modal-radius);
-	box-shadow: 0px 12px 16px -0.5px rgba(0, 0, 0, 0.15);
+	background: var(--white);
+	box-shadow: 0 12px 16px -0.5px rgba(0, 0, 0, 0.15);
 	height: 700px;
 	margin: 0 auto;
 	max-width: 414px;
