@@ -9,10 +9,10 @@
 namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Server;
-
 /**
  * Handles the REST routes for Form Responses, aka Feedback.
  */
@@ -98,7 +98,38 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			$args['s'] = $request['search'];
 		}
 
-		$query = new \WP_Query( $args );
+		$query = array(
+			'inbox' => new \WP_Query(
+				array_merge(
+					$args,
+					array( 'post_status' => array( 'draft', 'publish' ) )
+				)
+			),
+			'spam'  => new \WP_Query(
+				array_merge(
+					$args,
+					array( 'post_status' => array( 'spam' ) )
+				)
+			),
+			'trash' => new \WP_Query(
+				array_merge(
+					$args,
+					array( 'post_status' => array( 'trash' ) )
+				)
+			),
+		);
+
+		$current_query = 'inbox';
+		if ( isset( $request['status'] ) && in_array( $request['status'], array( 'spam', 'trash' ), true ) ) {
+			$current_query = $request['status'];
+		}
+
+		$source_ids = Contact_Form_Plugin::get_all_parent_post_ids(
+			array_diff_key(
+				$args,
+				array( 'post_parent' => '' )
+			)
+		);
 
 		$responses = array_map(
 			function ( $response ) {
@@ -128,13 +159,19 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 					),
 				);
 			},
-			$query->posts
+			$query[ $current_query ]->posts
 		);
 
 		return rest_ensure_response(
 			array(
-				'responses' => $responses,
-				'total'     => $query->found_posts,
+				'responses'  => $responses,
+				'totals'     => array_map(
+					function ( $subquery ) {
+						return $subquery->found_posts;
+					},
+					$query
+				),
+				'source_ids' => $source_ids,
 			)
 		);
 	}

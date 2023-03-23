@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Use Contact_Form_Plugin::init instead of requiring the old module file

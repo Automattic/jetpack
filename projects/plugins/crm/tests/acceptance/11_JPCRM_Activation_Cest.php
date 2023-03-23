@@ -24,7 +24,7 @@ class JPCRM_Activation_Cest {
 		// The plugin is activated, now we can see the JPCRM set up page
 		$I->see( 'Essential Details' );
 		$I->see( 'Essentials' );
-		$I->see( 'Your Customers' );
+		$I->see( 'Your Contacts' );
 		$I->see( 'Which Extensions?' );
 		$I->see( 'Finish' );
 	}

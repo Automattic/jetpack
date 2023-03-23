@@ -35,10 +35,7 @@ export default function RecordMeter( {
 					<h2>
 						{
 							/* translators: 'Your search index' is a breakdown of the site's indexed post type content,
-					such as the number of indexed posts, pages etc. */ __(
-								'Your search index',
-								'jetpack-search-pkg'
-							)
+					such as the number of indexed posts, pages etc. */ __( 'Your search index', 'jetpack-search-pkg' )
 						}
 					</h2>
 					<div>

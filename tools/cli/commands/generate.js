@@ -204,14 +204,12 @@ export function getQuestions( type ) {
 				//
 				// But everyone else wants to make an arbitrary recommendation anyway, so 🤷.
 				{
-					name:
-						'WordPress-style ("recommended"): Like 1.2, with each non-bugfix release always incrementing by 0.1.',
+					name: 'WordPress-style ("recommended"): Like 1.2, with each non-bugfix release always incrementing by 0.1.',
 					checked: true,
 					value: 'wordpress',
 				},
 				{
-					name:
-						'Semver: Like 1.2.3, with the next version depending on what kinds of changes are included.',
+					name: 'Semver: Like 1.2.3, with the next version depending on what kinds of changes are included.',
 					checked: true,
 					value: 'semver',
 				},

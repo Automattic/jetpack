@@ -87,20 +87,11 @@ Default.args = {
 };
 
 export const BreakpointMatch = () => {
-	const [
-		isSm,
-		isGtSm,
-		isMd,
-		isLtOrMd,
-		isLtMd,
-		isGtOrMd,
-		isGtMd,
-		isLessThanLg,
-		isLg,
-	] = useBreakpointMatch(
-		[ 'sm', 'sm', 'md', 'md', 'md', 'md', 'md', 'lg', 'lg' ],
-		[ null, '>', null, '<=', '<', '>=', '>', '<', null ]
-	);
+	const [ isSm, isGtSm, isMd, isLtOrMd, isLtMd, isGtOrMd, isGtMd, isLessThanLg, isLg ] =
+		useBreakpointMatch(
+			[ 'sm', 'sm', 'md', 'md', 'md', 'md', 'md', 'lg', 'lg' ],
+			[ null, '>', null, '<=', '<', '>=', '>', '<', null ]
+		);
 
 	return (
 		<Container>
