@@ -4,7 +4,8 @@ import React, { Component } from 'react';
 // Internal Dependencies
 import './style.css';
 
-const REGEX = /^(?:https?:\/\/)?((?:video|video\.word)press\.com\/(?:v|embed)\/)?(?<guid>[a-zA-Z\d]{7,})(?:.*)?/;
+const REGEX =
+	/^(?:https?:\/\/)?((?:video|video\.word)press\.com\/(?:v|embed)\/)?(?<guid>[a-zA-Z\d]{7,})(?:.*)?/;
 
 class VideoPress extends Component {
 	static slug = 'vidi_videopress';
