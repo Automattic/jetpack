@@ -851,7 +851,6 @@ class Learn_Menu {
 				'img'             => 'learn-new-quote.png',
 				'video'           => false,
 				'content'         => '<p>' . __( 'Add a new Quote here. When creating a Quote you fill in the key details such as contact name and quote value, you can then choose which template it should populate.', 'zero-bs-crm' ) . '</p><p>' . __( 'Templates automatically fill in the contact fields and save you time if you issue similar quotes regularly.', 'zero-bs-crm' ) . '</p>',
-				'add_new'         => '<div id="zbs-quote-learn-nav"></div>',
 				'output_function' => 'jpcrm_quoteedit_list_menu',
 			),
 			'quoteedit' => array(
@@ -860,7 +859,6 @@ class Learn_Menu {
 				'img'             => 'learn-new-quote.png',
 				'video'           => false,
 				'content'         => '<p>' . __( 'When creating a Quote you fill in the key details such as contact name and quote value, you can then choose which template it should populate.', 'zero-bs-crm' ) . '</p><p>' . __( 'Templates automatically fill in the contact fields and save you time if you issue similar quotes regularly.', 'zero-bs-crm' ) . '</p>',
-				'add_new'         => '<div id="zbs-quote-learn-nav"></div>  <a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_QUOTE, false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>',
 				'output_function' => 'jpcrm_quoteedit_list_menu',
 			),
 			'quotetags' => array(
