@@ -50,9 +50,8 @@ class Publicize_Setup {
 
 		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
 
-		add_action( 'admin_init', array( static::class, 'init_social_image_generator' ) );
-
 		Current_Plan::init();
+		self::init_social_image_generator();
 	}
 
 	/**
@@ -101,12 +100,6 @@ class Publicize_Setup {
 	 * Initialise social image generator.
 	 */
 	public static function init_social_image_generator() {
-		global $publicize;
-
-		if ( ! $publicize->is_social_image_generator_enabled() ) {
-			return;
-		}
-
 		$sig = new Social_Image_Generator\Setup();
 		$sig->init();
 	}

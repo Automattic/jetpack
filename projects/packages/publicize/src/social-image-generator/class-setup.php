@@ -52,6 +52,12 @@ class Setup {
 	 * @param \WP_Post $post Post that's being updated.
 	 */
 	public function set_meta( $post_id, $post ) {
+		global $publicize;
+
+		if ( ! $publicize->is_social_image_generator_enabled() ) {
+			return;
+		}
+
 		if ( wp_is_post_autosave( $post ) || $post->post_status === 'auto-draft' ) {
 			return;
 		}
