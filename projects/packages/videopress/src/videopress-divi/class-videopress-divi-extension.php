@@ -92,7 +92,7 @@ class VideoPress_Divi_Extension extends DiviExtension {
 	 *
 	 * @Override
 	 */
-	protected function _initialize() {
+	protected function _initialize() { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
 		DiviExtensions::add( $this );
 
 		$this->_set_debug_mode();
