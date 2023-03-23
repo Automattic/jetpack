@@ -131,8 +131,6 @@ class Cloud_CSS implements Pluggable, Has_Endpoints {
 	}
 
 	public function regenerate_cloud_css() {
-		error_log( 'regen' );
-
 		$result = $this->generate_cloud_css( $this->get_existing_sources() );
 		if ( is_wp_error( $result ) ) {
 			$state = new Critical_CSS_State();
