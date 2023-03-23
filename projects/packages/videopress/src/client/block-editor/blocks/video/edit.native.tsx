@@ -149,13 +149,16 @@ export default function VideoPressEdit( {
 		[ setAttributes ]
 	);
 
-	const onReplaceSelectURL = useCallback( videoSource => {
-		const { guid: guidFromSource, url: srcFromSource } = buildVideoPressURL( videoSource );
-		if ( ! guidFromSource ) {
-			return;
-		}
-		setAttributes( { guid: guidFromSource, src: srcFromSource } );
-	}, [] );
+	const onReplaceSelectURL = useCallback(
+		videoSource => {
+			const { guid: guidFromSource, url: srcFromSource } = buildVideoPressURL( videoSource );
+			if ( ! guidFromSource ) {
+				return;
+			}
+			setAttributes( { guid: guidFromSource, src: srcFromSource } );
+		},
+		[ setAttributes ]
+	);
 
 	if ( isUploadingFile ) {
 		return (
