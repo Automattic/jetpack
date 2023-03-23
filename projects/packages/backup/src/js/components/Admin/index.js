@@ -42,8 +42,8 @@ const Admin = () => {
 
 	return (
 		<AdminPage
-			showHeader={ isFullyConnected }
-			showFooter={ isFullyConnected }
+			showHeader
+			showFooter
 			moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
 			header={ <Header /> }
 		>
