@@ -96,17 +96,17 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 			esc_html( $guid )
 		);
 
-		$iframe_src = sprintf(
+		$iframe_src    = sprintf(
 			'https://videopress.com/embed/%s?autoPlay=0&permalink=0&loop=0&embedder=divi-builder',
 			esc_attr( $guid )
 		);
-
 		$format_string = '<div class="vidi-videopress-wrapper"><iframe title="' .
 			esc_attr( $iframe_title ) .
 			'" src="' .
 			$iframe_src .
 			'" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>' .
-			'<script src="https://en.wordpress.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js?m=1658739239"></script></div>'; // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+			// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+			'<script src="https://en.wordpress.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js?m=1658739239"></script></div>';
 
 		return $format_string;
 	}
