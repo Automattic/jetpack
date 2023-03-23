@@ -5,7 +5,7 @@ import {
 	SelectControl,
 	Button,
 } from '@wordpress/components';
-import { useCallback, useEffect, Fragment } from '@wordpress/element';
+import { useCallback, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
 import useMediaDetails from '../../../hooks/use-media-details';
@@ -31,10 +31,6 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 		template,
 		setTemplate,
 	} = useImageGeneratorConfig();
-
-	useEffect( () => {
-		setIsEnabled( isEnabled );
-	}, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const [ mediaDetails ] = useMediaDetails( imageId );
 
