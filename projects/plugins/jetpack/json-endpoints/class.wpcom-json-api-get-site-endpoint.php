@@ -200,7 +200,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'launchpad_checklist_tasks_statuses',
 		'wpcom_production_blog_id',
 		'wpcom_staging_blog_ids',
-		'has_promote_widget',
+		'can_blaze',
 	);
 
 	/**
