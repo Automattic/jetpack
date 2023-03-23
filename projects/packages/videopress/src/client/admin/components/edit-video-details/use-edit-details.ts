@@ -44,13 +44,9 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 		return ! ( isEmpty( formDataField ) && isEmpty( videoField ) ) && isDifferent;
 	};
 
-	const metaChanged = [
-		'title',
-		'description',
-		'rating',
-		'allowDownload',
-		'displayEmbed',
-	].some( field => hasFieldChanged( field ) );
+	const metaChanged = [ 'title', 'description', 'rating', 'allowDownload', 'displayEmbed' ].some(
+		field => hasFieldChanged( field )
+	);
 
 	const hasPrivacySettingChanged = () => {
 		const formDataPrivacySetting = formData?.privacySetting;
@@ -118,10 +114,13 @@ export default () => {
 
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
-	const { data: video, isFetching, processing, isDeleting, updateVideoPrivacy } = useVideo(
-		Number( videoId ),
-		true
-	);
+	const {
+		data: video,
+		isFetching,
+		processing,
+		isDeleting,
+		updateVideoPrivacy,
+	} = useVideo( Number( videoId ), true );
 
 	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
 

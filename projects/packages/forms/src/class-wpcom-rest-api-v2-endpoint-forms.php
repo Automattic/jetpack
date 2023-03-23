@@ -9,10 +9,10 @@
 namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use WP_Error;
 use WP_REST_Controller;
 use WP_REST_Server;
-
 /**
  * Handles the REST routes for Form Responses, aka Feedback.
  */
@@ -124,6 +124,13 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			$current_query = $request['status'];
 		}
 
+		$source_ids = Contact_Form_Plugin::get_all_parent_post_ids(
+			array_diff_key(
+				$args,
+				array( 'post_parent' => '' )
+			)
+		);
+
 		$responses = array_map(
 			function ( $response ) {
 				$data = \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::parse_fields_from_content( $response->ID );
@@ -157,13 +164,14 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 
 		return rest_ensure_response(
 			array(
-				'responses' => $responses,
-				'totals'    => array_map(
+				'responses'  => $responses,
+				'totals'     => array_map(
 					function ( $subquery ) {
 						return $subquery->found_posts;
 					},
 					$query
 				),
+				'source_ids' => $source_ids,
 			)
 		);
 	}
