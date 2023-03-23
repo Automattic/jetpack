@@ -60,9 +60,8 @@ Placeholder.args = {
 	thumbnail: 'none',
 };
 
-const VideoThumbnailDropdownTemplate: ComponentStory<
-	typeof VideoThumbnailDropdown
-> = VideoThumbnailDropdown;
+const VideoThumbnailDropdownTemplate: ComponentStory< typeof VideoThumbnailDropdown > =
+	VideoThumbnailDropdown;
 
 export const VideoDropdown = VideoThumbnailDropdownTemplate.bind( {} );
 VideoDropdown.args = {

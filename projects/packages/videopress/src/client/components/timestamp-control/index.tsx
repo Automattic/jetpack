@@ -116,9 +116,12 @@ export const TimestampInput = ( {
 		time.value = { ...getTimeDataByValue( value, decimalPlaces ), [ unit ]: newValue };
 
 		// Call onChange callback.
+		const decimalValue = time.value.decimal
+			? time.value.decimal * Number( `1e${ 3 - decimalPlaces }` )
+			: 0;
+
 		onChange?.(
-			( time.value.hh * 3600 + time.value.mm * 60 + time.value.ss ) * 1000 +
-				time.value.decimal * Number( `1e${ 3 - decimalPlaces }` )
+			( time.value.hh * 3600 + time.value.mm * 60 + time.value.ss ) * 1000 + decimalValue
 		);
 	};
 
