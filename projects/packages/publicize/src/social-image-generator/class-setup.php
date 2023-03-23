@@ -24,6 +24,22 @@ class Setup {
 	}
 
 	/**
+	 * Get the parameters for the token body.
+	 *
+	 * @param string $text Text to use in the generated image.
+	 * @param string $image_url Image to use in the generated image.
+	 * @param string $template Template to use in the generated image.
+	 * @return array
+	 */
+	public function get_token_body( $text, $image_url, $template ) {
+		return array(
+			'text'      => $text,
+			'image_url' => $image_url,
+			'template'  => $template,
+		);
+	}
+
+	/**
 	 * Get a token from WPCOM to generate the social image for the post, and save it locally.
 	 *
 	 * @param int $post_id Post ID.
@@ -35,10 +51,7 @@ class Setup {
 			return;
 		}
 
-		$body = array(
-			'text'      => $post_settings->get_custom_text(),
-			'image_url' => $post_settings->get_image_url(),
-		);
+		$body = $this->get_token_body( $post_settings->get_custom_text(), $post_settings->get_image_url(), $post_settings->get_template() );
 
 		$rest_controller = new REST_Controller();
 		$response        = Client::wpcom_json_api_request_as_blog(
