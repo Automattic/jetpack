@@ -36,7 +36,7 @@ final class Critical_CSS_State_Handler extends Data_Sync_Entry_Handler {
 										'meta'    => Schema::_any_json_data()->nullable(),
 									)
 								)->fallback( array() )
-							),
+							)->nullable(),
 						)
 					)
 				)->nullable(),
