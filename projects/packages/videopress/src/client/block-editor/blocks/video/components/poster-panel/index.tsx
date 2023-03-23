@@ -125,6 +125,7 @@ export function PosterDropdown( {
 					style={ {
 						backgroundImage: poster ? `url(${ poster })` : undefined,
 						height: posterPlaceholderHeight,
+						minHeight: posterPlaceholderHeight,
 					} }
 					className={ `poster-panel__button ${ poster ? 'has-poster' : '' }` }
 					variant="secondary"
