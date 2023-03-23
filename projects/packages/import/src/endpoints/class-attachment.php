@@ -96,6 +96,19 @@ class Attachment extends \WP_REST_Attachments_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
+		$file_info     = $this->get_file_info( $request );
+		$attachment_id = $this->get_attachment_id_by_filename_and_mime_type( $file_info['filename'], $file_info['mime_type'] );
+		if ( $attachment_id ) {
+			return new \WP_Error(
+				'attachment_exists',
+				__( 'The attachment already exists.', 'jetpack-import' ),
+				array(
+					'status'        => 400,
+					'attachment_id' => $attachment_id,
+				)
+			);
+		}
+
 		$this->set_upload_dir( $request );
 		return parent::create_item( $request );
 	}
@@ -176,4 +189,55 @@ class Attachment extends \WP_REST_Attachments_Controller {
 			}
 		);
 	}
+
+	/**
+	 * Retrieve the filename and MIME type from the request headers.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return array An associative array containing the filename and MIME type.
+	 */
+	protected function get_file_info( $request ) {
+		// Get the filename from the Content-Disposition header.
+		$filename_header = $request->get_header( 'content_disposition' );
+		$filename        = self::get_filename_from_disposition( (array) $filename_header );
+
+		// Get the MIME type from the Content-Type header.
+		$mime_type = $request->get_header( 'content_type' );
+
+		return array(
+			'filename'  => $filename,
+			'mime_type' => $mime_type,
+		);
+	}
+
+	/**
+	 * Retrieves the attachment ID for a file with a given filename and MIME type.
+	 *
+	 * @param string $filename The name of the file to search for.
+	 * @param string $mime_type The MIME type of the file to search for.
+	 * @return int|false The ID of the attachment, or false if it doesn't exist.
+	 */
+	protected function get_attachment_id_by_filename_and_mime_type( $filename, $mime_type ) {
+		if ( ! $filename || ! $mime_type ) {
+			return false;
+		}
+		$args = array(
+			'post_type'      => 'attachment',
+			'post_mime_type' => $mime_type,
+			'meta_query'     => array(
+				array(
+					'key'     => '_wp_attached_file',
+					'value'   => preg_quote( $filename, '/' ),
+					'compare' => 'REGEXP',
+				),
+			),
+			'fields'         => 'ids',
+		);
+
+		$attachments = \get_posts( $args );
+
+		return ! empty( $attachments ) ? $attachments[0] : false;
+	}
+
 }
