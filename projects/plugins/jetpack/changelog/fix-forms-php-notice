@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: avoid PHP notices when using a form with a dropdown field

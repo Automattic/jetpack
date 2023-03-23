@@ -8,9 +8,7 @@ async function refresh(): Promise< void > {
 	const configuration = await api.get( '/configuration' );
 
 	update( store => {
-		// @REFACTORING: To get past compile errors.
-		// eslint-disable-next-line @typescript-eslint/ban-types
-		return { ...store, ...( configuration as {} ) };
+		return { ...store, ...configuration };
 	} );
 }
 
