@@ -88,8 +88,8 @@ class Schema {
 		return new Validation_Rule( new Type_Enum( $allowed_values ) );
 	}
 
-	public static function _any_json_data() {
-	    return new Validation_Rule( new Type_Any_JSON() );
+	public static function any_json_data() {
+		return new Validation_Rule( new Type_Any_JSON() );
 	}
 
 }
