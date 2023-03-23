@@ -1,10 +1,11 @@
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getSiteFragment, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { PanelRow, ExternalLink, Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Gridicon from 'gridicons';
-import { useState } from 'react';
 import { JetpackYoastLogos } from './JetpackYoastLogos';
 import { createStore } from './utils';
 
@@ -15,18 +16,15 @@ const dismissedStore = createStore( 'jetpack-yoast-promo-dismissed' );
 
 export const YoastPromo = () => {
 	const [ isDismissed, setIsDismissed ] = useState( () => dismissedStore.get() === 'true' );
-	const { hostname, isYoastFreeActive, isYoastPremiumActive } = useSelect( select => {
-		const { getPlugin, getSite } = select( 'core' );
+	const { isYoastFreeActive, isYoastPremiumActive } = useSelect( select => {
+		const { getPlugin } = select( 'core' );
 
 		const isPluginActive = slug => {
 			const plugin = getPlugin( slug );
 			return plugin && 'active' === plugin.status;
 		};
 
-		const url = new URL( getSite()?.url ?? window.location.href );
-
 		return {
-			hostname: url.hostname,
 			isYoastFreeActive: isPluginActive( PLUGIN_SLUG_YOAST_FREE ),
 			isYoastPremiumActive: isPluginActive( PLUGIN_SLUG_YOAST_PREMIUM ),
 		};
@@ -62,11 +60,11 @@ export const YoastPromo = () => {
 					<Gridicon icon="cross" />
 				</Button>
 			</PanelRow>
-			<Content domain={ hostname } />
+			<Content />
 		</PluginPrePublishPanel>
 	);
 };
-export const YoastPromoContentFree = ( { domain } ) => (
+export const YoastPromoContentFree = () => (
 	<>
 		<PanelRow className="is-bold">
 			{ __( 'Boost your organic traffic with Jetpack and Yoast SEO', 'jetpack-yoast-promo' ) }
@@ -80,7 +78,9 @@ export const YoastPromoContentFree = ( { domain } ) => (
 		<PanelRow>
 			<ExternalLink
 				className="is-bold"
-				href={ `https://yoa.st/yoast-jetpack-boost?domain=${ domain }` }
+				href={ getRedirectUrl( 'jetpack-boost-yoast-free', {
+					query: `domain=${ getSiteFragment() }`,
+				} ) }
 			>
 				{ __( 'Get Yoast SEO', 'jetpack-yoast-promo' ) }&nbsp;
 			</ExternalLink>
@@ -88,7 +88,7 @@ export const YoastPromoContentFree = ( { domain } ) => (
 	</>
 );
 
-const YoastPromoContentPremium = ( { domain } ) => (
+const YoastPromoContentPremium = () => (
 	<>
 		<PanelRow className="is-bold">
 			{ __(
@@ -105,7 +105,9 @@ const YoastPromoContentPremium = ( { domain } ) => (
 		<PanelRow>
 			<ExternalLink
 				className="is-bold"
-				href={ `https://yoa.st/yoast-upgrade-jetpack-boost?domain=${ domain }` }
+				href={ getRedirectUrl( 'jetpack-boost-yoast-upgrade', {
+					query: `domain=${ getSiteFragment() }`,
+				} ) }
 			>
 				{ __( 'Get Yoast SEO Premium', 'jetpack-yoast-promo' ) }&nbsp;
 			</ExternalLink>

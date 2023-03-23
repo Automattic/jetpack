@@ -22,10 +22,12 @@
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@wordpress/components": "23.5.0",
 		"@wordpress/data": "8.5.0",
 		"@wordpress/edit-post": "7.5.0",
+		"@wordpress/element": "5.5.0",
 		"@wordpress/i18n": "4.28.0",
 		"@wordpress/plugins": "5.5.0",
 		"gridicons": "3.4.1",
