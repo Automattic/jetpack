@@ -18,7 +18,7 @@ class Setup {
 		// Be wary of any code that you add to this file, since this function is called on plugin load.
 		// We're using the `wp_after_insert_post` hook because we need access to the updated post meta. By using the default priority
 		// of 10 we make sure that our code runs before Sync processes the post.
-		add_action( 'wp_after_insert_post', array( $this, 'set_meta' ), 10, 2 );
+		add_action( 'wp_after_insert_post', array( $this, 'generate_token_on_save' ), 10, 2 );
 	}
 
 	/**
@@ -47,12 +47,12 @@ class Setup {
 	}
 
 	/**
-	 * Explicitly enable or disable SIG for a post. If it's enabled, also generate a token.
+	 * Trigger token generation for a post if SIG is enabled.
 	 *
 	 * @param int      $post_id Post ID.
 	 * @param \WP_Post $post Post that's being updated.
 	 */
-	public function set_meta( $post_id, $post ) {
+	public function generate_token_on_save( $post_id, $post ) {
 		global $publicize;
 
 		if ( ! $publicize->has_social_image_generator_feature() ) {
@@ -67,16 +67,11 @@ class Setup {
 			return;
 		}
 
-		$post_settings = new Post_Settings( $post_id );
-		$settings      = $post_settings->get_settings();
+		$settings = new Post_Settings( $post_id );
 
-		// If SIG has explicitly been disabled for this post, we don't need to do anything else.
-		if ( isset( $settings['enabled'] ) && $settings['enabled'] === false ) {
+		if ( ! $settings->is_enabled() ) {
 			return;
 		}
-
-		// If we're here, it's safe to assume SIG should be enabled.
-		$post_settings->update_setting( 'enabled', true );
 
 		$this->generate_token( $post_id );
 	}
