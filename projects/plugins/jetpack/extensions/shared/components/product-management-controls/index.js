@@ -28,9 +28,8 @@ export default function ProductManagementControls( {
 	);
 	const { connectUrl, isApiConnected, isSelectedProductInvalid, shouldUpgrade } = useSelect(
 		select => {
-			const { getConnectUrl, getShouldUpgrade, isApiStateConnected, isInvalidProduct } = select(
-				membershipProductsStore
-			);
+			const { getConnectUrl, getShouldUpgrade, isApiStateConnected, isInvalidProduct } =
+				select( membershipProductsStore );
 			return {
 				connectUrl: getConnectUrl(),
 				isApiConnected: isApiStateConnected(),
