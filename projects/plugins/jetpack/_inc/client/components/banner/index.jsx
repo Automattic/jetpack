@@ -32,6 +32,7 @@ export class Banner extends Component {
 		icon: PropTypes.string,
 		iconAlt: PropTypes.string,
 		iconSrc: PropTypes.string,
+		iconRaw: PropTypes.string,
 		list: PropTypes.arrayOf( PropTypes.string ),
 		onClick: PropTypes.func,
 		path: PropTypes.string,
@@ -83,7 +84,15 @@ export class Banner extends Component {
 	};
 
 	getIcon() {
-		const { icon, iconAlt, iconSrc, plan } = this.props;
+		const { icon, iconAlt, iconSrc, iconRaw, plan } = this.props;
+
+		if ( iconRaw ) {
+			return (
+				<div className="dops-banner__icon-plan">
+					<img src={ iconRaw } alt={ iconAlt } />
+				</div>
+			);
+		}
 
 		if ( plan && ( ! icon || ! iconSrc ) ) {
 			return (

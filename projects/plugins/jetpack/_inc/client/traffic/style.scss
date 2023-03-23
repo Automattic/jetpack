@@ -201,6 +201,17 @@
 	}
 }
 
+.jp-seo-yoast-promo-banner {
+	// Overwrites of dops-banner styles for purposes of Yoast ad
+	border-left-color: #A3286A !important;
+
+	.dops-banner__icon-plan {
+		& > img {
+			height: 32px;
+		}
+	}
+}
+
 
 #jp-settings-site-stats .jp-foldable-settings-standalone .jp-form-settings-group .jp-support-info {
 	top: 1em;

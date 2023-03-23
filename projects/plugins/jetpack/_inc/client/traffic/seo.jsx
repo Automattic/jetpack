@@ -15,6 +15,7 @@ import { connect } from 'react-redux';
 import SocialLogo from 'social-logos';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
+import { YoastPromoBanner } from './seo/yoast-promo-banner';
 
 export const conflictingSeoPluginsList = [
 	{
@@ -313,6 +314,7 @@ export const SEO = withModuleSettingsFormHelpers(
 								</FoldableCard>
 							</div>
 						) }
+					<YoastPromoBanner />
 				</SettingsCard>
 			);
 		}
