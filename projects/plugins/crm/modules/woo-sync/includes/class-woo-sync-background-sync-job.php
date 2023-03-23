@@ -943,9 +943,10 @@ class Woo_Sync_Background_Sync_Job {
 
 			// add/update invoice
 			$invoice_id = $zbs->DAL->invoices->addUpdateInvoice( array(
-				'id'        => $invoice_id,
-				'data'      => $crm_object_data['invoice'],
-				'extraMeta' => ( isset( $crm_object_data['invoice']['extra_meta'] ) ? $crm_object_data['invoice']['extra_meta'] : -1 ),
+				'id'               => $invoice_id,
+				'data'             => $crm_object_data['invoice'],
+				'extraMeta'        => ( isset( $crm_object_data['invoice']['extra_meta'] ) ? $crm_object_data['invoice']['extra_meta'] : -1 ),
+				'calculate_totals' => true,
 			) );
 
 			// link the transaction to the invoice
