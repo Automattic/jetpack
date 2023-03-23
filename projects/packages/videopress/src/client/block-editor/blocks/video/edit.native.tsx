@@ -1,7 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { InspectorControls, store as blockEditorStore } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	InspectorControls,
+	store as blockEditorStore,
+} from '@wordpress/block-editor';
 import { PanelBody } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -14,14 +18,16 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
-import { getVideoPressUrl } from '../../../lib/url';
+import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
 import PlaybackPanel from './components/playback-panel';
 import Player from './components/player';
+import ReplaceControl from './components/replace-control/index.native';
 import VideoPressUploader from './components/videopress-uploader/index.native';
 import style from './style.scss';
+import type { VideoBlockAttributes } from './types';
 
 /**
  * VideoPress block Edit react components
@@ -56,6 +62,15 @@ export default function VideoPressEdit( {
 	} = attributes;
 
 	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
+	const [ fileToUpload, setFileToUpload ] = useState( null );
+	const [ isReplacingFile, setIsReplacingFile ] = useState< {
+		isReplacing: boolean;
+		prevAttrs: VideoBlockAttributes;
+	} >( {
+		isReplacing: false,
+		prevAttrs: {},
+	} );
+
 	const wasBlockJustInserted = useSelect(
 		select => select( blockEditorStore ).wasBlockJustInserted( clientId, 'inserter_menu' ),
 		[ clientId ]
@@ -76,6 +91,7 @@ export default function VideoPressEdit( {
 
 	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
 
+	// Handlers of `VideoPressUploader`
 	const handleDoneUpload = useCallback(
 		newVideoData => {
 			setIsUploadingFile( false );
@@ -84,10 +100,49 @@ export default function VideoPressEdit( {
 		[ setIsUploadingFile, setAttributes ]
 	);
 
+
+	// Handlers of `ReplaceControl`
+	const onReplaceUploadStart = useCallback(
+		media => {
+			setIsReplacingFile( { isReplacing: true, prevAttrs: attributes } );
+			setIsUploadingFile( true );
+			setFileToUpload( media );
+		},
+		[ setIsReplacingFile, setIsUploadingFile, setFileToUpload ]
+	);
+
+	const onReplaceSelectFromLibrary = useCallback(
+		media => {
+			const { id, url, title, description, metadata } = media;
+
+			const videoPressGuid = metadata?.videopressGUID;
+			if ( ! videoPressGuid ) {
+				return;
+			}
+			setAttributes( {
+				guid: videoPressGuid,
+				id,
+				src: url,
+				title,
+				description,
+			} );
+		},
+		[ setAttributes ]
+	);
+
+	const onReplaceSelectURL = useCallback( videoSource => {
+		const { guid: guidFromSource, url: srcFromSource } = buildVideoPressURL( videoSource );
+		if ( ! guidFromSource ) {
+			return;
+		}
+		setAttributes( { guid: guidFromSource, src: srcFromSource } );
+	}, [] );
+
 	if ( isUploadingFile ) {
 		return (
 			<VideoPressUploader
 				autoOpenMediaUpload={ isSelected && wasBlockJustInserted }
+				fileToUpload={ fileToUpload }
 				handleDoneUpload={ handleDoneUpload }
 				isInteractionDisabled={ ! isSelected }
 				onFocus={ onFocus }
@@ -97,6 +152,14 @@ export default function VideoPressEdit( {
 
 	return (
 		<View style={ style[ 'wp-block-jetpack-videopress__container' ] }>
+			<BlockControls>
+				<ReplaceControl
+					onUploadFileStart={ onReplaceUploadStart }
+					onSelectVideoFromLibrary={ onReplaceSelectFromLibrary }
+					onSelectURL={ onReplaceSelectURL }
+				/>
+			</BlockControls>
+
 			{ isSelected && (
 				<InspectorControls>
 					<DetailsPanel { ...{ attributes, setAttributes } } />
@@ -106,6 +169,7 @@ export default function VideoPressEdit( {
 					</PanelBody>
 				</InspectorControls>
 			) }
+
 			<Player
 				html={ preview.html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
