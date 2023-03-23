@@ -1,4 +1,12 @@
-:root {
+$tablet-width: 760px;
+
+@mixin tablet {
+	@media (min-width: #{$tablet-width}) {
+		@content;
+	}
+}
+
+.container {
 	--modal-padding-large: 32px;
 	--modal-padding: 24px;
 	--modal-padding-small: 16px;
@@ -13,34 +21,26 @@
 	--white: #FFFFFF;
 	--gray:  #C3C4C7;
 	--gray-0:#F6F7F7;
-}
 
-$tablet-width: 760px;
-
-@mixin tablet {
-	@media (min-width: #{$tablet-width}) {
-		@content;
+	* {
+		box-sizing: border-box;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
 	}
 }
 
-* {
-	box-sizing: border-box;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
-}
-
-h2 {
+.headline {
 	margin-bottom: 8px;
 	font-weight: 500;
 	line-height: 110%;
 }
 
-p {
+.paragraph {
 	line-height: 140%;
 }
 
 /*
-  Modal Container
-*/
+ * Modal Container
+ */
 .modal {
 	border-radius: var(--modal-radius);
 	background: var(--white);
@@ -54,7 +54,7 @@ p {
 	width: 90%;
 	will-change: height;
 
-	#jetpack-logo {
+	.jetpack-logo {
 		display: none;
 	}
 
@@ -71,7 +71,7 @@ p {
 		position: relative;
 		width: 95%;
 
-		#jetpack-logo {
+		.jetpack-logo {
 			display: block;
 			left: 64px;
 			position: absolute;
@@ -93,7 +93,7 @@ p {
 			height: 740px;
 			transition-delay: 0;
 
-			#jetpack-logo {
+			.jetpack-logo {
 				path, clipPath {
 					transition: 2s fill ease .5s;
 					fill: #fff;
@@ -109,8 +109,8 @@ p {
 }
 
 /*
-  Video wrap
-*/
+ * Video wrap
+ */
 @keyframes videoMove {
 	20%  { transform: translateY(0)   scale(1); }
 	65%  { transform: translateY(16%) scale(1.4); }
@@ -207,8 +207,8 @@ p {
 }
 
 /*
-  Content wrap
-*/
+ * Content wrap
+ */
 .content-wrap {
 	padding: var(--modal-padding);
 
@@ -271,8 +271,8 @@ p {
 }
 
 /*
-  Powers wrap
-*/
+ * Powers wrap
+ */
 .powers-wrap {
 	background: var(--white);
 	left: 0;
@@ -339,8 +339,8 @@ p {
 }
 
 /*
-  Powers-wrap product cards
-*/
+ * Powers-wrap product cards
+ */
 .jetpack-products {
 	display: flex;
 	flex-direction: column;
