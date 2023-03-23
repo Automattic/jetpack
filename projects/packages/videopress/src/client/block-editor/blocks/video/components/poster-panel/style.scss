@@ -61,3 +61,14 @@ body.modal-open .poster-panel__dropdown {
 		opacity: 1;
 	}
 }
+
+.poster-panel__image-wrapper,
+.poster-panel__frame-wrapper {
+	opacity: 0;
+	display: none;
+
+	&.is-selected {
+		opacity: 1;
+		display: block;
+	}
+}
