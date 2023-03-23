@@ -61,7 +61,7 @@ export const YoastPromo = () => {
 	}
 
 	return (
-		<PluginPrePublishPanel className="container">
+		<PluginPrePublishPanel className="jetpack-yoast-promo__container">
 			<PanelRow className="header">
 				<JetpackYoastLogos />
 				<Button className="button-close" onClick={ handleDismiss }>
@@ -85,12 +85,12 @@ export const YoastPromoContentFree = () => (
 		</PanelRow>
 		<PanelRow>
 			<ExternalLink
-				className="is-bold"
+				className="is-bold jetpack-yoast-promo__external-link"
 				href={ getRedirectUrl( 'jetpack-boost-yoast-free', {
 					query: `domain=${ getSiteFragment() }`,
 				} ) }
 			>
-				{ __( 'Get Yoast SEO', 'jetpack-yoast-promo' ) }&nbsp;
+				{ __( 'Get Yoast SEO', 'jetpack-yoast-promo' ) }
 			</ExternalLink>
 		</PanelRow>
 	</>
@@ -112,12 +112,12 @@ const YoastPromoContentPremium = () => (
 		</PanelRow>
 		<PanelRow>
 			<ExternalLink
-				className="is-bold"
+				className="is-bold jetpack-yoast-promo__external-link"
 				href={ getRedirectUrl( 'jetpack-boost-yoast-upgrade', {
 					query: `domain=${ getSiteFragment() }`,
 				} ) }
 			>
-				{ __( 'Get Yoast SEO Premium', 'jetpack-yoast-promo' ) }&nbsp;
+				{ __( 'Get Yoast SEO Premium', 'jetpack-yoast-promo' ) }
 			</ExternalLink>
 		</PanelRow>
 	</>
