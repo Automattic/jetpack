@@ -9,6 +9,7 @@ import {
 	useBaseControlProps,
 } from '@wordpress/components';
 import { useCallback, useRef } from '@wordpress/element';
+import classNames from 'classnames';
 /**
  * Internal dependencies
  */
@@ -60,9 +61,9 @@ type TimeDataProps = {
  * @returns {TimeDataProps}                   The time data.
  */
 function getTimeDataByValue( value: number, decimalPlaces: DecimalPlacesProp ): TimeDataProps {
-	const valueIsNaN = isNaN( value );
+	const valueIsNaN = Number.isNaN( value );
 
-	// Compute decimal part based on tyhe decimalPlaces.
+	// Compute decimal part based on the decimalPlaces.
 	const decimal =
 		valueIsNaN || typeof decimalPlaces === 'undefined'
 			? 0
@@ -115,14 +116,21 @@ export const TimestampInput = ( {
 		time.value = { ...getTimeDataByValue( value, decimalPlaces ), [ unit ]: newValue };
 
 		// Call onChange callback.
+		const decimalValue = time.value.decimal
+			? time.value.decimal * Number( `1e${ 3 - decimalPlaces }` )
+			: 0;
+
 		onChange?.(
-			( time.value.hh * 3600 + time.value.mm * 60 + time.value.ss ) * 1000 +
-				time.value.decimal * Number( `1e${ 3 - decimalPlaces }` )
+			( time.value.hh * 3600 + time.value.mm * 60 + time.value.ss ) * 1000 + decimalValue
 		);
 	};
 
 	return (
-		<div className={ styles[ 'timestamp-input-wrapper' ] }>
+		<div
+			className={ classNames( styles[ 'timestamp-input-wrapper' ], {
+				[ styles[ 'is-disabled' ] ]: disabled,
+			} ) }
+		>
 			{ ( biggerThanOneHour || ! autoHideTimeInput ) && (
 				<>
 					<NumberControl
