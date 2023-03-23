@@ -75,8 +75,9 @@ class Yoast_Promo {
 			self::$script_path,
 			__FILE__,
 			array(
-				'enqueue'   => true,
-				'in_footer' => true,
+				'enqueue'    => true,
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-yoast-promo',
 			)
 		);
 	}
