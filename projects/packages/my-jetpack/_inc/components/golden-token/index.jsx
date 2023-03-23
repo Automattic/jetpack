@@ -30,7 +30,7 @@ function GoldenToken( { redeemClick, hasGoldenToken } ) {
 				{ /* eslint-disable-next-line jsx-a11y/media-has-caption */ }
 				<video
 					id="golden-token-video"
-					src="https://dev.keoshi.com/jetpack/golden-token/jetpack-golden-token-01.mp4"
+					src="https://videos.files.wordpress.com/oSlNIBQO/jetpack-golden-token.mp4"
 				></video>
 			</div>
 
@@ -140,8 +140,11 @@ GoldenToken.defaultProps = {
 	redeemClick: () => {
 		const jpModal = document.getElementById( 'modal' );
 		const jpVideo = document.getElementById( 'golden-token-video' );
-		jpModal.classList.add( 'animating' );
-		jpVideo.play();
+		// Delay for the feeling.
+		setTimeout( function () {
+			jpModal.classList.add( 'animating' );
+			jpVideo.play();
+		}, 500 );
 	},
 	hasGoldenToken: PropTypes.bool.isRequired,
 };
