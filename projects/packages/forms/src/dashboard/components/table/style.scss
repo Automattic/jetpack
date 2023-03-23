@@ -34,10 +34,11 @@
 	text-align: left;
 	transition: background-color .1s ease-out, opacity .1s ease-out;
 	vertical-align: middle;
+	max-width: 0;
 
-	// Max-width is required on all columns for text-overflow: ellipsis; to work on any.
-	// Hence setting this here to a conservatively high number.
-	max-width: 600px;
+	@media (max-width: 600px) {
+		padding: 8px;
+	}
 
 	&:first-child {
 		padding: 0 20px;
