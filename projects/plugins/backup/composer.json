@@ -49,7 +49,10 @@
 		"changelogger": {
 			"versioning": "wordpress"
 		},
-		"release-branch-prefix": "jetpack",
+		"release-branch-prefix": [
+			"backup",
+			"monthly"
+		],
 		"wp-plugin-slug": "jetpack-backup",
 		"wp-svn-autopublish": true
 	}
