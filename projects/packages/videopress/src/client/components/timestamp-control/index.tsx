@@ -239,7 +239,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 
 	const debounceTimer = useRef< NodeJS.Timeout >();
 
-	const { baseControlProps } = useBaseControlProps( props );
+	const { baseControlProps } = useBaseControlProps?.( props ) || {};
 
 	const onChangeHandler = useCallback(
 		( newValue: number ) => {
