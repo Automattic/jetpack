@@ -2495,7 +2495,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/yoast-promo",
-                "reference": "0f3490046a7dff56fac273f0dbf931f735c3df69"
+                "reference": "879e7e24015c633df4e5a050108d31bb6e634b28"
+            },
+            "require": {
+                "automattic/jetpack-status": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",

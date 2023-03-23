@@ -35,11 +35,13 @@ class Yoast_Promo {
 	 */
 	public static function init() {
 		/*
-		 * Do not do anything if promotions are disabled on the site.
+		 * Do not do anything if promotions are disabled on the site,
+		 * or if the site is in offline mode.
 		 */
 		if (
 			/** This filter is documented in _inc/lib/admin-pages/class.jetpack-react-page.php */
 			! apply_filters( 'jetpack_show_promotions', true )
+			|| ( new Status() )->is_offline_mode()
 		) {
 			return;
 		}
