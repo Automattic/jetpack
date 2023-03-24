@@ -66,7 +66,8 @@ function Price( { value, currency, isOld } ) {
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, supportingInfo } ) => {
-	const { fileSystemWriteAccess, siteSuffix, myJetpackUrl } = window?.myJetpackInitialState ?? {};
+	const { adminUrl, fileSystemWriteAccess, siteSuffix, myJetpackUrl, plugins } =
+		window?.myJetpackInitialState ?? {};
 
 	const { detail, isFetching } = useProduct( slug );
 	const {
@@ -104,10 +105,15 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 	 */
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
+	const isJetpackPluginActive = plugins[ 'jetpack/jetpack.php' ]?.active ?? false;
+	const checkoutRedirectUrl = isJetpackPluginActive
+		? adminUrl + 'admin.php?page=jetpack#/recommendations'
+		: myJetpackUrl;
+
 	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
 		useProductCheckoutWorkflow( {
 			productSlug: wpcomProductSlug,
-			redirectUrl: myJetpackUrl,
+			redirectUrl: checkoutRedirectUrl,
 			siteSuffix,
 			from: 'my-jetpack',
 		} );
