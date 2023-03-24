@@ -69,7 +69,7 @@ trait Import {
 		// Add the import unique ID to the schema.
 		$schema['properties'][ $this->import_id_field_name ] = array(
 			'description' => __( 'Jetpack Import unique identifier for the term.', 'jetpack-import' ),
-			'type'        => 'integer',
+			'type'        => 'string',
 			'context'     => array( 'view', 'embed', 'edit' ),
 			'required'    => $required,
 		);
@@ -128,18 +128,21 @@ trait Import {
 	 * Get the import DB query. This is used to get the items with a specific
 	 * meta key that have been imported.
 	 *
-	 * @param int $parent_import_id The parent import ID.
+	 * @param int  $parent_import_id The parent import ID.
+	 * @param bool $check_exact Whether to search for exact import_id or not.
 	 * @return array The query.
 	 */
-	protected function get_import_db_query( $parent_import_id ) {
+	protected function get_import_db_query( $parent_import_id, $check_exact = false ) {
+		$value = $check_exact ? $parent_import_id : '%-' . $parent_import_id;
 		// Get the only one item with the parent import ID.
 		return array(
 			'number'     => 1,
 			'fields'     => 'ids',
 			'meta_query' => array(
 				array(
-					'key'   => $this->import_id_field_name,
-					'value' => $parent_import_id,
+					'key'     => $this->import_id_field_name,
+					'value'   => $value,
+					'compare' => $check_exact ? '=' : 'LIKE',
 				),
 			),
 		);
