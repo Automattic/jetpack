@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Post_Settings;
+use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
 use WorDBless\BaseTestCase;
 
 /**
@@ -164,6 +165,23 @@ class Post_Settings_Test extends BaseTestCase {
 		);
 		$settings = new Post_Settings( $this->post_id );
 		$this->assertNull( $settings->get_image_url() );
+	}
+
+	/**
+	 * Test that it returns correct template for generated image.
+	 */
+	public function test_correctly_returns_template_for_generated_image() {
+		$this->update_image_generator_settings( array( 'template' => 'example' ) );
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertEquals( 'example', $settings->get_template() );
+	}
+
+	/**
+	 * Test that text for generated image defaults to default template if not set.
+	 */
+	public function test_text_for_generated_image_defaults_to_default_template() {
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertEquals( Templates::DEFAULT_TEMPLATE, $settings->get_template() );
 	}
 
 	/**

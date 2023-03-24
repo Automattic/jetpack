@@ -9,7 +9,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	exit;
 }
 
-// WLREMOVE
+##WLREMOVE
 
 global $zbs;
 
@@ -127,4 +127,4 @@ $learn_from_mike_videos = array(
 <script>var jpcrm_show_first_use_dash = true;</script>
 <?php
 
-// /WLREMOVE
+##/WLREMOVE
