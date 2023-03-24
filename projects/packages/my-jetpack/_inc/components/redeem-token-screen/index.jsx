@@ -28,15 +28,13 @@ export default function RedeemTokenScreen() {
 		[ recordEvent ]
 	);
 
-	const purchases = usePurchases();
-	// Any purchase with the partner_slug of 'goldenticket' is considered a golden token.
-	const goldenToken = purchases.filter( golden => golden.partner_slug === 'goldenticket' );
-	const hasGoldenToken = goldenToken.length > 0;
+	const { isFetchingPurchases, purchases } = usePurchases();
 	const { userConnectionData } = useConnection();
 
 	return (
 		<GoldenTokenModal
-			hasGoldenToken={ hasGoldenToken }
+			purchases={ purchases }
+			fetchingPurchases={ isFetchingPurchases }
 			userConnectionData={ userConnectionData }
 			onClickGoBack={ onClickGoBack }
 		/>

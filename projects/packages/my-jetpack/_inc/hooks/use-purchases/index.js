@@ -7,5 +7,8 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} site purchases data
  */
 export default function usePurchases() {
-	return useSelect( select => select( STORE_ID ).getPurchases() );
+	return {
+		purchases: useSelect( select => select( STORE_ID ).getPurchases() ),
+		isFetchingPurchases: useSelect( select => select( STORE_ID ).isRequestingPurchases() ),
+	};
 }

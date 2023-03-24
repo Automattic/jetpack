@@ -12,14 +12,25 @@ import styles from './styles.module.scss';
  *
  * @param {object} props - Component props.
  * @param {Function} props.redeemClick - Callback function to handle redeem click.
- * @param {boolean} props.hasGoldenToken - Whether the user has a golden token.
  * @param {object} props.userConnectionData - Connected user data.
  * @param {Function} props.onClickGoBack - Callback function to handle go back click.
+ * @param {Array} props.purchases - Array of Object of purchases.
+ * @param {boolean} props.fetchingPurchases - Are purchases being fetched.
  * @returns {React.Component} - GoldenToken component.
  */
-function GoldenTokenModal( { redeemClick, hasGoldenToken, userConnectionData, onClickGoBack } ) {
+function GoldenTokenModal( {
+	redeemClick,
+	userConnectionData,
+	onClickGoBack,
+	fetchingPurchases,
+	purchases,
+} ) {
 	const [ hasAnimated, setIsAnimating ] = useState( false );
 	const videoRef = useRef( null );
+
+	// Any purchase with the partner_slug of 'goldenticket' is considered a golden token.
+	const goldenToken = purchases.filter( golden => golden.partner_slug === 'goldenticket' );
+	const hasGoldenToken = goldenToken.length > 0;
 
 	const redeemClickHandler = useCallback(
 		e => {
@@ -34,10 +45,6 @@ function GoldenTokenModal( { redeemClick, hasGoldenToken, userConnectionData, on
 		hasAnimated && videoRef.current.play();
 	}, [ hasAnimated ] );
 
-	if ( ! hasGoldenToken ) {
-		return <div>No token. Try harder.</div>;
-	}
-
 	const modalClassName = classNames( styles.modal, {
 		[ styles.animating ]: hasAnimated,
 	} );
@@ -50,98 +57,114 @@ function GoldenTokenModal( { redeemClick, hasGoldenToken, userConnectionData, on
 
 	return (
 		<Modal className={ modalClassName } onRequestClose={ onClickGoBack } isDismissible={ false }>
-			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col>
-					<JetpackLogo className={ styles[ 'jetpack-logo' ] } />
-					<div className={ styles[ 'video-wrap' ] } onClick={ maybeReanimate } role="presentation">
-						{ /* eslint-disable-next-line jsx-a11y/media-has-caption */ }
-						<video
-							ref={ videoRef }
-							src="https://videos.files.wordpress.com/oSlNIBQO/jetpack-golden-token.mp4"
-						/>
-					</div>
-
-					<div className={ styles[ 'content-wrap' ] }>
-						<div className={ styles[ 'content-wrap-text' ] }>
-							<p className={ styles[ 'hi-user' ] }>Hey, { wpcomUserName }</p>
-							<h2 className={ styles.headline }>
-								{ __( 'Your exclusive Jetpack Experience awaits.', 'jetpack-my-jetpack' ) }
-							</h2>
-							<p>
-								{ __(
-									'You have been gifted a Jetpack Gold Token. This unlocks a lifetime of Jetpack powers for your website.',
-									'jetpack-my-jetpack'
-								) }
-							</p>
-						</div>
-						<Button
-							variant="primary"
-							weight="regular"
-							onClick={ redeemClickHandler }
-							className={ styles.button }
+			{ fetchingPurchases && <>{ __( 'Checking gold status…', 'jetpack-my-jetpack' ) }</> }
+			{ ! fetchingPurchases && hasGoldenToken && (
+				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
+					<Col>
+						<JetpackLogo className={ styles[ 'jetpack-logo' ] } />
+						<div
+							className={ styles[ 'video-wrap' ] }
+							onClick={ maybeReanimate }
+							role="presentation"
 						>
-							{ __( 'Redeem your token', 'jetpack-my-jetpack' ) }
-						</Button>
-					</div>
-
-					<div className={ `${ styles[ 'powers-wrap' ] } ${ styles[ 'content-wrap' ] }` }>
-						<div className={ styles[ 'content-wrap-text' ] }>
-							<h2 className={ styles.headline }>
-								{ __( 'Super powers are ready!', 'jetpack-my-jetpack' ) }
-							</h2>
-							<p className={ styles.paragraph }>
-								{ __(
-									'Your Jetpack Gold Token provides a lifetime license for this website and includes the following products:',
-									'jetpack-my-jetpack'
-								) }
-							</p>
+							{ /* eslint-disable-next-line jsx-a11y/media-has-caption */ }
+							<video
+								ref={ videoRef }
+								src="https://videos.files.wordpress.com/oSlNIBQO/jetpack-golden-token.mp4"
+							/>
 						</div>
 
-						<div className={ styles[ 'jetpack-products' ] }>
-							<div>
-								<JetpackBackupLogo />
-
-								<h3>{ __( 'VaultPress Backup', 'jetpack-my-jetpack' ) }</h3>
+						<div className={ styles[ 'content-wrap' ] }>
+							<div className={ styles[ 'content-wrap-text' ] }>
+								<p className={ styles[ 'hi-user' ] }>Hey, { wpcomUserName }</p>
+								<h2 className={ styles.headline }>
+									{ __( 'Your exclusive Jetpack Experience awaits.', 'jetpack-my-jetpack' ) }
+								</h2>
 								<p>
 									{ __(
-										'Save every change and get back online quickly with one‑click restores.',
+										'You have been gifted a Jetpack Gold Token. This unlocks a lifetime of Jetpack powers for your website.',
 										'jetpack-my-jetpack'
 									) }
 								</p>
 							</div>
-							<div>
-								<JetpackScanLogo />
+							<Button
+								variant="primary"
+								weight="regular"
+								onClick={ redeemClickHandler }
+								className={ styles.button }
+							>
+								{ __( 'Redeem your token', 'jetpack-my-jetpack' ) }
+							</Button>
+						</div>
 
-								<h3>{ __( 'Scan', 'jetpack-my-jetpack' ) }</h3>
-								<p>
+						<div className={ `${ styles[ 'powers-wrap' ] } ${ styles[ 'content-wrap' ] }` }>
+							<div className={ styles[ 'content-wrap-text' ] }>
+								<h2 className={ styles.headline }>
+									{ __( 'Super powers are ready!', 'jetpack-my-jetpack' ) }
+								</h2>
+								<p className={ styles.paragraph }>
 									{ __(
-										'Automated scanning and one‑click fixes to keep your site ahead of security threats.',
+										'Your Jetpack Gold Token provides a lifetime license for this website and includes the following products:',
 										'jetpack-my-jetpack'
 									) }
 								</p>
 							</div>
-						</div>
 
-						<Button
-							variant="primary"
-							weight="regular"
-							onClick={ redeemClickHandler }
-							href={ window?.myJetpackInitialState?.myJetpackUrl }
-							className={ styles.button }
-						>
-							{ __( 'Explore your new powers', 'jetpack-my-jetpack' ) }
-						</Button>
-					</div>
-				</Col>
-			</Container>
+							<div className={ styles[ 'jetpack-products' ] }>
+								<div>
+									<JetpackBackupLogo />
+
+									<h3>{ __( 'VaultPress Backup', 'jetpack-my-jetpack' ) }</h3>
+									<p>
+										{ __(
+											'Save every change and get back online quickly with one‑click restores.',
+											'jetpack-my-jetpack'
+										) }
+									</p>
+								</div>
+								<div>
+									<JetpackScanLogo />
+
+									<h3>{ __( 'Scan', 'jetpack-my-jetpack' ) }</h3>
+									<p>
+										{ __(
+											'Automated scanning and one‑click fixes to keep your site ahead of security threats.',
+											'jetpack-my-jetpack'
+										) }
+									</p>
+								</div>
+							</div>
+
+							<Button
+								variant="primary"
+								weight="regular"
+								onClick={ redeemClickHandler }
+								href={ window?.myJetpackInitialState?.myJetpackUrl }
+								className={ styles.button }
+							>
+								{ __( 'Explore your new powers', 'jetpack-my-jetpack' ) }
+							</Button>
+						</div>
+					</Col>
+				</Container>
+			) }
+			{ /* TODO: fetchingPurchases is always false if loading the page directly, so this shows for a very brief moment. */ }
+			{ ! fetchingPurchases && ! hasGoldenToken && (
+				<div> { __( 'Sorry, no token…', 'jetpack-my-jetpack' ) } </div>
+			) }
 		</Modal>
 	);
 }
 
+GoldenTokenModal.defaultProps = {
+	fetchingPurchases: true,
+};
+
 GoldenTokenModal.propTypes = {
 	redeemClick: PropTypes.func,
+	fetchingPurchases: PropTypes.bool,
+	purchases: PropTypes.array,
 	userConnectionData: PropTypes.object.isRequired,
-	hasGoldenToken: PropTypes.bool,
 	onClickGoBack: PropTypes.func.isRequired,
 };
 
