@@ -1,3 +1,4 @@
+import { TermsOfService } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import JetpackProductCard from 'components/jetpack-product-card';
@@ -91,6 +92,7 @@ const renderProduct = ( product, offers, priority, hasRelatedPlan ) => {
 				__( 'Add %s', 'jetpack' ),
 				product.title
 			) }
+			withTOS={ ! hasRelatedPlan }
 		/>
 	);
 };
@@ -111,12 +113,21 @@ const ProductDescription = props => {
 		'jp-product-description--split': !! relatedPlan,
 	} );
 
+	const secondaryProduct =
+		!! relatedPlan && renderProduct( relatedPlan, offers, 'secondary', !! relatedPlan );
+
 	return (
 		<>
 			<div className={ classes }>
 				{ renderProduct( product, offers, 'primary', !! relatedPlan ) }
-				{ !! relatedPlan && renderProduct( relatedPlan, offers, 'secondary', !! relatedPlan ) }
+				{ secondaryProduct }
 			</div>
+
+			{ !! secondaryProduct && (
+				<div className="jp-product-description__tos-container">
+					<TermsOfService multipleButtons />
+				</div>
+			) }
 
 			<div className="jp-product-description__introductory-pricing">
 				{ __( 'Special introductory pricing, all renewals are at full price.', 'jetpack' ) }

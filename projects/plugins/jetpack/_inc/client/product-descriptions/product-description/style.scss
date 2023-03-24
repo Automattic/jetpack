@@ -40,3 +40,13 @@
 .jp-product-description .jp-product-card__icon .vertical {
 	height: 150%;
 }
+
+.jp-product-description__tos-container {
+	text-align: center;
+	margin-bottom: 26px;
+
+	@include breakpoint( '>660px' ) {
+		text-align: right;
+	}
+}
+
