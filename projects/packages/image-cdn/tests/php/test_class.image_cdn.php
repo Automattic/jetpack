@@ -1,14 +1,15 @@
 <?php // phpcs:ignore WordPress.Files.FileName
-/**
- * Tests for Jetpack's Photon class.
- *
- * @package automattic/jetpack
- */
+
+use Automattic\Jetpack\Image_CDN\Image_CDN;
+
+if ( ! defined( 'WP_TESTS_DOMAIN' ) ) {
+	define( 'WP_TESTS_DOMAIN', 'example.org' );
+}
 
 /**
- * Class WP_Test_Jetpack_Photon
+ * Class WP_Test_Image_CDN
  */
-class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
+class WP_Test_Image_CDN extends Jetpack_Attachment_Test_Case {
 
 	/**
 	 * Test image.
@@ -61,12 +62,12 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		global $content_width;
 		$this->protected_globals['content_width'] = $content_width;
 
-		// Setup the Photon filters.
+		// Setup the Image CDN filters.
 		// WP_UnitTestCase resets the action/filter state after every test:
 		// https://core.trac.wordpress.org/browser/trunk/tests/phpunit/includes/testcase.php?rev=43005#L273
-		// So we need to set these Photon filters for each test.
+		// So we need to set these Image CDN filters for each test.
 		// see ::tear_down() ...
-		Jetpack_Photon::instance();
+		Image_CDN::instance();
 	}
 
 	/**
@@ -79,18 +80,18 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		$wp_the_query  = new WP_Query();
 
 		// ... see ::set_up()
-		// Unfortunately Jetpack_Photon::instance() won't run Jetpack_Photon->setup()
-		// each time Jetpack_Photon::instance() is called, since it's gated by a
+		// Unfortunately Image_CDN::instance() won't run Image_CDN->setup()
+		// each time Image_CDN::instance() is called, since it's gated by a
 		// static variable.
 		// l337 h4X0Ring required:
-		$instance = new ReflectionProperty( 'Jetpack_Photon', 'instance' );
+		$instance = new ReflectionProperty( 'Image_CDN', 'instance' );
 		$instance->setAccessible( true );
 		$instance->setValue( null );
 
 		/**
 		 * Reset the `image_sizes` property, as it persists between class instantiations, since it's static.
 		 */
-		$instance = new ReflectionProperty( 'Jetpack_Photon', 'image_sizes' );
+		$instance = new ReflectionProperty( 'Image_CDN', 'image_sizes' );
 		$instance->setAccessible( true );
 		$instance->setValue( null );
 
@@ -120,9 +121,9 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 */
 	protected function helper_get_image( $size = 'large', $meta = true ) {
 		if ( 'large' === $size ) { // 1600x1200
-			$filename = __DIR__ . '/modules/photon/sample-content/test-image-large.png';
+			$filename = __DIR__ . '/sample-content/test-image-large.png';
 		} elseif ( 'medium' === $size ) { // 1024x768
-			$filename = __DIR__ . '/modules/photon/sample-content/test-image-medium.png';
+			$filename = __DIR__ . '/sample-content/test-image-medium.png';
 		}
 		// Add sizes that exist before uploading the file.
 		add_image_size( 'jetpack_soft_defined', 700, 500, false ); // Intentionally not a 1.33333 ratio.
@@ -169,40 +170,40 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	}
 
 	/**
-	 * Tests that Photon creates a Photon instance.
+	 * Tests that Image CDN creates an Image CDN instance.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::instance
+	 * @covers Image_CDN::instance
 	 * @since 3.2
 	 */
-	public function test_photon_instance() {
-		$this->assertInstanceOf( 'Jetpack_Photon', Jetpack_Photon::instance() );
+	public function test_image_cdn_instance() {
+		$this->assertInstanceOf( 'Automattic\Jetpack\Image_CDN\Image_CDN', Image_CDN::instance() );
 	}
 
 	/**
-	 * Tests that Photon creates a singleton.
+	 * Tests that Image_CDN creates a singleton.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::instance
+	 * @covers Image_CDN::instance
 	 * @since 3.2
 	 */
-	public function test_photon_instance_singleton() {
-		$photon = Jetpack_Photon::instance();
+	public function test_image_cdn_instance_singleton() {
+		$image_cdn = Image_CDN::instance();
 
-		$this->assertEquals( $photon, Jetpack_Photon::instance() );
+		$this->assertEquals( $image_cdn, Image_CDN::instance() );
 	}
 
 	/**
-	 * Tests Photon's HTML parsing when there is nothing to parse.
+	 * Tests Image CDN's HTML parsing when there is nothing to parse.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::parse_images_from_html
+	 * @covers Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
-	public function test_photon_parse_images_from_html_empty() {
+	public function test_image_cdn_parse_images_from_html_empty() {
 		$content = '';
 
-		$this->assertEmpty( Jetpack_Photon::parse_images_from_html( $content ) );
+		$this->assertEmpty( Image_CDN::parse_images_from_html( $content ) );
 	}
 
 	/**
@@ -214,8 +215,8 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 *
 	 * @param string $filename File name for sample content.
 	 */
-	private function get_photon_sample_content( $filename ) {
-		$full_filename = __DIR__ . '/modules/photon/sample-content/' . $filename;
+	private function get_image_cdn_sample_content( $filename ) {
+		$full_filename = __DIR__ . '/sample-content/' . $filename;
 
 		// Local files only.
 		$file_contents = file_get_contents( $full_filename );
@@ -227,205 +228,205 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::parse_images_from_html
+	 * @covers Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
-	public function test_photon_parse_images_from_html_a_tags_without_images() {
-		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'a-tags-without-images.html' );
+	public function test_image_cdn_parse_images_from_html_a_tags_without_images() {
+		list( $sample_html, $expected ) = $this->get_image_cdn_sample_content( 'a-tags-without-images.html' );
 
-		$this->assertEquals( $expected, print_r( Jetpack_Photon::parse_images_from_html( $sample_html ), true ) );
+		$this->assertEquals( $expected, print_r( Image_CDN::parse_images_from_html( $sample_html ), true ) );
 	}
 
 	/**
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author biskobe
-	 * @covers Jetpack_Photon::filter_the_content
+	 * @covers Image_CDN::filter_the_content
 	 * @since 3.2
 	 */
-	public function test_photon_parse_images_from_html_a_tags_with_hash_in_href() {
-		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'a-tags-with-hash-href.html' );
+	public function test_image_cdn_parse_images_from_html_a_tags_with_hash_in_href() {
+		list( $sample_html, $expected ) = $this->get_image_cdn_sample_content( 'a-tags-with-hash-href.html' );
 
 		// Make sure we're not going to get any weird modifications due to auto-detected widths/heights and other props.
 		$args_reset_callback = function () {
 			return array();
 		};
-		add_filter( 'jetpack_photon_post_image_args', $args_reset_callback, 10, 0 );
+		add_filter( 'Image_CDN_post_image_args', $args_reset_callback, 10, 0 );
 
-		$this->assertEquals( trim( $expected ), trim( Jetpack_Photon::instance()->filter_the_content( $sample_html ) ) );
+		$this->assertEquals( trim( $expected ), trim( Image_CDN::instance()->filter_the_content( $sample_html ) ) );
 
-		remove_filter( 'jetpack_photon_post_image_args', $args_reset_callback );
+		remove_filter( 'Image_CDN_post_image_args', $args_reset_callback );
 	}
 
 	/**
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::parse_images_from_html
+	 * @covers Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
-	public function test_photon_parse_images_from_html_empty_a_tag() {
-		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'empty-a-tag.html' );
+	public function test_image_cdn_parse_images_from_html_empty_a_tag() {
+		list( $sample_html, $expected ) = $this->get_image_cdn_sample_content( 'empty-a-tag.html' );
 
-		$this->assertEquals( $expected, print_r( Jetpack_Photon::parse_images_from_html( $sample_html ), true ) );
+		$this->assertEquals( $expected, print_r( Image_CDN::parse_images_from_html( $sample_html ), true ) );
 	}
 
 	/**
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::parse_images_from_html
+	 * @covers Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
-	public function test_photon_parse_images_from_html_extra_attributes() {
-		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'extra-attributes.html' );
+	public function test_image_cdn_parse_images_from_html_extra_attributes() {
+		list( $sample_html, $expected ) = $this->get_image_cdn_sample_content( 'extra-attributes.html' );
 
-		$this->assertEquals( $expected, print_r( Jetpack_Photon::parse_images_from_html( $sample_html ), true ) );
+		$this->assertEquals( $expected, print_r( Image_CDN::parse_images_from_html( $sample_html ), true ) );
 	}
 
 	/**
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::parse_images_from_html
+	 * @covers Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
-	public function test_photon_parse_images_from_html_minimum_multiple_with_links() {
-		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'minimum-multiple-with-links.html' );
+	public function test_image_cdn_parse_images_from_html_minimum_multiple_with_links() {
+		list( $sample_html, $expected ) = $this->get_image_cdn_sample_content( 'minimum-multiple-with-links.html' );
 
-		$this->assertEquals( $expected, print_r( Jetpack_Photon::parse_images_from_html( $sample_html ), true ) );
+		$this->assertEquals( $expected, print_r( Image_CDN::parse_images_from_html( $sample_html ), true ) );
 	}
 
 	/**
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::parse_images_from_html
+	 * @covers Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
-	public function test_photon_parse_images_from_html_minimum_multiple() {
-		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'minimum-multiple.html' );
+	public function test_image_cdn_parse_images_from_html_minimum_multiple() {
+		list( $sample_html, $expected ) = $this->get_image_cdn_sample_content( 'minimum-multiple.html' );
 
-		$this->assertEquals( $expected, print_r( Jetpack_Photon::parse_images_from_html( $sample_html ), true ) );
+		$this->assertEquals( $expected, print_r( Image_CDN::parse_images_from_html( $sample_html ), true ) );
 	}
 
 	/**
 	 * Tests Photon's HTML parsing.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::parse_images_from_html
+	 * @covers Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
-	public function test_photon_parse_images_from_html_minimum() {
-		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'minimum.html' );
+	public function test_image_cdn_parse_images_from_html_minimum() {
+		list( $sample_html, $expected ) = $this->get_image_cdn_sample_content( 'minimum.html' );
 
-		$this->assertEquals( $expected, print_r( Jetpack_Photon::parse_images_from_html( $sample_html ), true ) );
+		$this->assertEquals( $expected, print_r( Image_CDN::parse_images_from_html( $sample_html ), true ) );
 	}
 
 	/**
 	 * Tests that Photon will parse a multiline html snippet.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::parse_images_from_html
+	 * @covers Image_CDN::parse_images_from_html
 	 * @since 3.2
 	 */
-	public function test_photon_parse_images_from_html_multiline() {
-		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'multiline.html' );
+	public function test_image_cdn_parse_images_from_html_multiline() {
+		list( $sample_html, $expected ) = $this->get_image_cdn_sample_content( 'multiline.html' );
 
-		$this->assertEquals( $expected, print_r( Jetpack_Photon::parse_images_from_html( $sample_html ), true ) );
+		$this->assertEquals( $expected, print_r( Image_CDN::parse_images_from_html( $sample_html ), true ) );
 	}
 
 	/**
 	 * Tests Photon's parse of the src attribute.
 	 *
 	 * @author ccprog
-	 * @covers Jetpack_Photon::parse_images_from_html
+	 * @covers Image_CDN::parse_images_from_html
 	 */
-	public function test_photon_parse_images_from_html_src_attribute() {
-		list( $sample_html, $expected ) = $this->get_photon_sample_content( 'src-attribute.html' );
+	public function test_image_cdn_parse_images_from_html_src_attribute() {
+		list( $sample_html, $expected ) = $this->get_image_cdn_sample_content( 'src-attribute.html' );
 
-		$this->assertEquals( $expected, print_r( Jetpack_Photon::parse_images_from_html( $sample_html ), true ) );
+		$this->assertEquals( $expected, print_r( Image_CDN::parse_images_from_html( $sample_html ), true ) );
 	}
 
 	/**
 	 * Tests Photon will parse the dimensions from a filename when there is no value.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::parse_dimensions_from_filename
+	 * @covers Image_CDN::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
-	public function test_photon_parse_dimensions_from_filename_no_dimensions() {
+	public function test_image_cdn_parse_dimensions_from_filename_no_dimensions() {
 		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here.jpg';
 
-		$this->assertEquals( array( false, false ), Jetpack_Photon::parse_dimensions_from_filename( $image_url ) );
+		$this->assertEquals( array( false, false ), Image_CDN::parse_dimensions_from_filename( $image_url ) );
 	}
 
 	/**
 	 * Tests Photon will parse the dimensions from a filename for an invalid value.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::parse_dimensions_from_filename
+	 * @covers Image_CDN::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
-	public function test_photon_parse_dimensions_from_filename_no_dimensions_letter() {
+	public function test_image_cdn_parse_dimensions_from_filename_no_dimensions_letter() {
 		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here-2xM.jpg';
 
-		$this->assertEquals( array( false, false ), Jetpack_Photon::parse_dimensions_from_filename( $image_url ) );
+		$this->assertEquals( array( false, false ), Image_CDN::parse_dimensions_from_filename( $image_url ) );
 	}
 
 	/**
 	 * Tests Photon will parse the dimensions from a filename for an invalid value.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::parse_dimensions_from_filename
+	 * @covers Image_CDN::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
-	public function test_photon_parse_dimensions_from_filename_invalid_dimensions() {
+	public function test_image_cdn_parse_dimensions_from_filename_invalid_dimensions() {
 		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here-0x4.jpg';
 
-		$this->assertEquals( array( false, false ), Jetpack_Photon::parse_dimensions_from_filename( $image_url ) );
+		$this->assertEquals( array( false, false ), Image_CDN::parse_dimensions_from_filename( $image_url ) );
 	}
 
 	/**
 	 * Tests Photon will parse the dimensions from a filename for a small value.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::parse_dimensions_from_filename
+	 * @covers Image_CDN::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
-	public function test_photon_parse_dimensions_from_filename_valid_dimensions() {
+	public function test_image_cdn_parse_dimensions_from_filename_valid_dimensions() {
 		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here-148x148.jpg';
 
-		$this->assertEquals( array( 148, 148 ), Jetpack_Photon::parse_dimensions_from_filename( $image_url ) );
+		$this->assertEquals( array( 148, 148 ), Image_CDN::parse_dimensions_from_filename( $image_url ) );
 	}
 
 	/**
 	 * Tests Photon will parse the dimensions from a filename for a large value.
 	 *
 	 * @author scotchfield
-	 * @covers Jetpack_Photon::parse_dimensions_from_filename
+	 * @covers Image_CDN::parse_dimensions_from_filename
 	 * @since 3.2
 	 */
-	public function test_photon_parse_dimensions_from_filename_valid_large_dimensions() {
+	public function test_image_cdn_parse_dimensions_from_filename_valid_large_dimensions() {
 		$image_url = 'http://' . WP_TESTS_DOMAIN . '/no-dimensions-here-123456789x123456789.jpg';
 
-		$this->assertEquals( array( 123456789, 123456789 ), Jetpack_Photon::parse_dimensions_from_filename( $image_url ) );
+		$this->assertEquals( array( 123456789, 123456789 ), Image_CDN::parse_dimensions_from_filename( $image_url ) );
 	}
 
 	/**
 	 * Tests Photon image_downsize filter will return accurate size for a full-size image.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_full_size_dimensions() {
+	public function test_image_cdn_return_full_size_dimensions() {
 		$test_image = $this->helper_get_image();
 
 		// Should be the same as the original image. No crop.
 		$this->assertEquals(
 			'fit=1600%2C1200',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'full' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'full' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -436,10 +437,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for a known size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_large_size_dimensions() {
+	public function test_image_cdn_return_large_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -448,7 +449,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Using the default "Large" size with a soft crop.
 		$this->assertEquals(
 			'fit=1024%2C768',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'large' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'large' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -459,9 +460,9 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for a known size.
 	 *
 	 * @author emilyatmobtown
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 */
-	public function test_photon_return_medium_large_size_dimensions() {
+	public function test_image_cdn_return_medium_large_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -470,7 +471,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Using the default "Large" size with a soft crop.
 		$this->assertEquals(
 			'fit=768%2C576',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'medium_large' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'medium_large' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -481,10 +482,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for a known size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_jetpack_soft_defined_size_dimensions() {
+	public function test_image_cdn_return_jetpack_soft_defined_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -493,7 +494,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Using a custom size, declared before the file was uploaded (thus exists per WP), soft crop defined height and width.
 		$this->assertEquals(
 			'fit=667%2C500',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_defined' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_defined' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -504,10 +505,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for a known size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_jetpack_soft_undefined_size_dimensions() {
+	public function test_image_cdn_return_jetpack_soft_undefined_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -516,7 +517,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Using a custom size, declared before the file was uploaded (thus exists per WP), soft crop defined 700 width, any height.
 		$this->assertEquals(
 			'fit=700%2C525',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -527,10 +528,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for an known size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_jetpack_soft_undefined_zero_size_dimensions() {
+	public function test_image_cdn_return_jetpack_soft_undefined_zero_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -539,7 +540,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Using a custom size, declared before the file was uploaded (thus exists per WP), soft crop defined 700 width, any height.
 		$this->assertEquals(
 			'fit=700%2C525',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined_zero' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined_zero' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -550,10 +551,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for a known size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_jetpack_hard_defined_size_dimensions() {
+	public function test_image_cdn_return_jetpack_hard_defined_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -562,7 +563,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Using a custom size, declared before the file was uploaded (thus exists per WP), hard crop defined height and width.
 		$this->assertEquals(
 			'resize=700%2C500',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_defined' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_defined' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -573,10 +574,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_jetpack_hard_undefined_size_dimensions() {
+	public function test_image_cdn_return_jetpack_hard_undefined_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -585,7 +586,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Using a custom size, declared before the file was uploaded (thus exists per WP), hard crop defined 700 width.
 		$this->assertEquals(
 			'resize=700%2C1200',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -596,10 +597,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for a known size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_jetpack_hard_undefined_zero_size_dimensions() {
+	public function test_image_cdn_return_jetpack_hard_undefined_zero_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -608,7 +609,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Using a custom size, declared before the file was uploaded (thus exists per WP), hard crop defined 700 width, any height.
 		$this->assertEquals(
 			'resize=700%2C525',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined_zero' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined_zero' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -619,10 +620,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_jetpack_soft_defined_after_upload_size_dimensions() {
+	public function test_image_cdn_return_jetpack_soft_defined_after_upload_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -632,7 +633,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// relying solely on Photon), soft crop defined height and width.
 		$this->assertEquals(
 			'fit=667%2C500',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_defined_after_upload' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_defined_after_upload' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -643,10 +644,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_jetpack_soft_undefined_after_upload_size_dimensions() {
+	public function test_image_cdn_return_jetpack_soft_undefined_after_upload_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -656,7 +657,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// relying solely on Photon), soft crop defined 700 width, any height.
 		$this->assertEquals(
 			'fit=700%2C525',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined_after_upload' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined_after_upload' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -667,10 +668,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_jetpack_soft_undefined_zero_after_upload_size_dimensions() {
+	public function test_image_cdn_return_jetpack_soft_undefined_zero_after_upload_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -680,7 +681,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// relying solely on Photon), soft crop defined 700 width, any height.
 		$this->assertEquals(
 			'fit=700%2C525',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined_zero_after_upload' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined_zero_after_upload' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -691,10 +692,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_jetpack_hard_defined_after_upload_size_dimensions() {
+	public function test_image_cdn_return_jetpack_hard_defined_after_upload_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -704,7 +705,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// (thus unknown per WP, relying solely on Photon), hard crop defined height and width.
 		$this->assertEquals(
 			'resize=700%2C500',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_defined_after_upload' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_defined_after_upload' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -715,10 +716,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_jetpack_hard_undefined_after_upload_size_dimensions() {
+	public function test_image_cdn_return_jetpack_hard_undefined_after_upload_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -728,7 +729,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// (thus unknown per WP, relying solely on Photon), hard crop defined 700 width.
 		$this->assertEquals(
 			'resize=700%2C1200',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined_after_upload' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined_after_upload' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -739,10 +740,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize filter will return accurate size for an unknown-when-uploading size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_jetpack_hard_undefined_zero_after_upload_size_dimensions() {
+	public function test_image_cdn_return_jetpack_hard_undefined_zero_after_upload_size_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -752,7 +753,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// (thus unknown per WP, relying solely on Photon), hard crop defined 700 width.
 		$this->assertEquals(
 			'resize=700%2C525',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined_zero_after_upload' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined_zero_after_upload' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -763,10 +764,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon image_downsize will return a custom-size image.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.8.2
 	 */
-	public function test_photon_return_custom_size_array_dimensions() {
+	public function test_image_cdn_return_custom_size_array_dimensions() {
 		global $content_width;
 		$content_width = 0;
 
@@ -775,7 +776,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Declaring the size array directly, unknown size of 400 by 400. Scaled, it should be 400 by 300.
 		$this->assertEquals(
 			'fit=400%2C300',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, array( 400, 400 ) ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, array( 400, 400 ) ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -786,10 +787,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests that Photon will not return an image larger than the original via image_downsize.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
-	public function test_photon_return_custom_size_array_dimensions_larger_than_original() {
+	public function test_image_cdn_return_custom_size_array_dimensions_larger_than_original() {
 		global $content_width;
 		$content_width = 0;
 
@@ -798,7 +799,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Declaring the size array directly, unknown size of 1200 by 1200. Should return original.
 		$this->assertEquals(
 			'fit=1024%2C768',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, array( 1200, 1200 ) ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, array( 1200, 1200 ) ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -809,10 +810,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests image_downsize filter for a defined size with no meta.
 	 *
 	 * @author dereksmart
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
-	public function test_photon_return_jetpack_soft_defined_size_dimensions_no_meta() {
+	public function test_image_cdn_return_jetpack_soft_defined_size_dimensions_no_meta() {
 		global $content_width;
 		$content_width = 0;
 
@@ -821,7 +822,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Using a custom size, declared before the file was uploaded (thus exists per WP), soft crop defined height and width.
 		$this->assertEquals(
 			'fit=700%2C500',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_defined' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_defined' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -832,10 +833,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests image_downsize filter for a soft crop for an existing oversized image size.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
-	public function test_photon_return_jetpack_soft_oversized() {
+	public function test_image_cdn_return_jetpack_soft_oversized() {
 		global $content_width;
 		$content_width = 0;
 
@@ -845,7 +846,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// (thus unknown per WP, relying solely on Photon), hard crop defined 700 width.
 		$this->assertEquals(
 			'fit=1600%2C1200',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_oversized' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_oversized' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -856,10 +857,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests image_downsize filter for a soft crop for an undefined size.
 	 *
 	 * @author dereksmart
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
-	public function test_photon_return_jetpack_soft_undefined_size_dimensions_no_meta() {
+	public function test_image_cdn_return_jetpack_soft_undefined_size_dimensions_no_meta() {
 		global $content_width;
 		$content_width = 0;
 
@@ -868,7 +869,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Using a custom size, declared before the file was uploaded (thus exists per WP), soft crop defined 700 width, any height.
 		$this->assertEquals(
 			'fit=700%2C99999',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_undefined' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -879,10 +880,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests image_downsize filter for a soft crop after upload.
 	 *
 	 * @author kraftbj
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
-	public function test_photon_return_jetpack_soft_oversized_after_upload() {
+	public function test_image_cdn_return_jetpack_soft_oversized_after_upload() {
 		global $content_width;
 		$content_width = 0;
 
@@ -892,7 +893,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// (thus unknown per WP, relying solely on Photon), hard crop defined 700 width.
 		$this->assertEquals(
 			'fit=1600%2C1200',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_oversized_after_upload' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_soft_oversized_after_upload' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -903,10 +904,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon's image_downsize on a known image size.
 	 *
 	 * @author dereksmart
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
-	public function test_photon_return_jetpack_hard_defined_size_dimensions_no_meta() {
+	public function test_image_cdn_return_jetpack_hard_defined_size_dimensions_no_meta() {
 		global $content_width;
 		$content_width = 0;
 
@@ -915,7 +916,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Using a custom size, declared before the file was uploaded (thus exists per WP), hard crop defined height and width.
 		$this->assertEquals(
 			'resize=700%2C500',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_defined' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_defined' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -926,10 +927,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon's image_downsize filter with an undefined size.
 	 *
 	 * @author dereksmart
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
-	public function test_photon_return_jetpack_hard_undefined_size_dimensions_no_meta() {
+	public function test_image_cdn_return_jetpack_hard_undefined_size_dimensions_no_meta() {
 		global $content_width;
 		$content_width = 0;
 
@@ -938,7 +939,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Using a custom size, declared before the file was uploaded (thus exists per WP), hard crop defined 700 width.
 		$this->assertEquals(
 			'resize=700%2C99999',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined' ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, 'jetpack_hard_undefined' ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -949,10 +950,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests image_downsize filter when there is no meta information available.
 	 *
 	 * @author dereksmart
-	 * @covers Jetpack_Photon::filter_image_downsize
+	 * @covers Image_CDN::filter_image_downsize
 	 * @since 3.9.0
 	 */
-	public function test_photon_return_custom_size_array_dimensions_no_meta() {
+	public function test_image_cdn_return_custom_size_array_dimensions_no_meta() {
 		global $content_width;
 		$content_width = 0;
 
@@ -961,7 +962,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		// Declaring the size array directly, unknown size of 400 by 400. Scaled, it should be 400 by 300.
 		$this->assertEquals(
 			'fit=400%2C400',
-			$this->helper_get_query( Jetpack_Photon::instance()->filter_image_downsize( false, $test_image, array( 400, 400 ) ) )
+			$this->helper_get_query( Image_CDN::instance()->filter_image_downsize( false, $test_image, array( 400, 400 ) ) )
 		);
 
 		wp_delete_attachment( $test_image );
@@ -972,12 +973,12 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon's filtering of the_content when both height/width are known.
 	 *
 	 * @author ebinnion
-	 * @covers Jetpack_Photon::filter_the_content
+	 * @covers Image_CDN::filter_the_content
 	 * @since 5.6.0
 	 */
-	public function test_photon_filter_the_content_does_not_remove_width_height_when_both_known() {
-		list( $sample_html ) = $this->get_photon_sample_content( 'a-tags-without-images.html' );
-		$filtered_content    = Jetpack_Photon::filter_the_content( $sample_html );
+	public function test_image_cdn_filter_the_content_does_not_remove_width_height_when_both_known() {
+		list( $sample_html ) = $this->get_image_cdn_sample_content( 'a-tags-without-images.html' );
+		$filtered_content    = Image_CDN::filter_the_content( $sample_html );
 		$first_line          = strtok( $filtered_content, "\n" ); // Should contain an image tag on the first line.
 		$attributes          = wp_kses_hair( $first_line, wp_allowed_protocols() );
 
@@ -993,12 +994,12 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Test Photon's filtering of the_content when either width/height is not known.
 	 *
 	 * @author ebinnion
-	 * @covers Jetpack_Photon::filter_the_content
+	 * @covers Image_CDN::filter_the_content
 	 * @since 5.6.0
 	 */
-	public function test_photon_filter_the_content_does_not_have_width_height_when_at_least_one_not_known() {
+	public function test_image_cdn_filter_the_content_does_not_have_width_height_when_at_least_one_not_known() {
 		$sample_html      = '<img class="aligncenter  wp-image-6372" title="Tube Bomber salmon dry fly" alt="Tube Bomber salmon dry fly" src="http://www.fishmadman.com/pages/wp-content/uploads/2012/02/Rav-fra-2004-2009-11-1024x611.jpg" width="631" />';
-		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$filtered_content = Image_CDN::filter_the_content( $sample_html );
 		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
 
 		$this->assertArrayNotHasKey( 'width', $attributes );
@@ -1010,7 +1011,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests Photon's filtering of the_content with filtered args.
 	 *
 	 * @author ebinnion
-	 * @covers Jetpack_Photon::filter_the_content
+	 * @covers Image_CDN::filter_the_content
 	 * @dataProvider photon_attributes_when_filtered_data_provider
 	 * @since 5.6.0
 	 *
@@ -1019,12 +1020,12 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * @param int      $width Image width in pixels.
 	 * @param int      $height Image height in pixels.
 	 */
-	public function test_photon_filter_the_content_width_height_attributes_when_image_args_filtered( $filter_callback, $has_attributes, $width, $height ) {
-		list( $sample_html ) = $this->get_photon_sample_content( 'a-tags-without-images.html' );
+	public function test_image_cdn_filter_the_content_width_height_attributes_when_image_args_filtered( $filter_callback, $has_attributes, $width, $height ) {
+		list( $sample_html ) = $this->get_image_cdn_sample_content( 'a-tags-without-images.html' );
 
-		add_filter( 'jetpack_photon_post_image_args', $filter_callback, 10, 2 );
-		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
-		remove_filter( 'jetpack_photon_post_image_args', $filter_callback, 10, 2 );
+		add_filter( 'Image_CDN_post_image_args', $filter_callback, 10, 2 );
+		$filtered_content = Image_CDN::filter_the_content( $sample_html );
+		remove_filter( 'Image_CDN_post_image_args', $filter_callback, 10, 2 );
 
 		$first_line = strtok( $filtered_content, "\n" ); // Should contain an image tag on the first line.
 		$attributes = wp_kses_hair( $first_line, wp_allowed_protocols() );
@@ -1046,12 +1047,12 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Checks that Photon ignores data-width and data-height attributes when parsing the attributes.
 	 *
 	 * @author mmtr
-	 * @covers Jetpack_Photon::filter_the_content
+	 * @covers Image_CDN::filter_the_content
 	 * @since 8.0.0
 	 */
-	public function test_photon_filter_the_content_ignores_data_width_and_data_height_attributes() {
+	public function test_image_cdn_filter_the_content_ignores_data_width_and_data_height_attributes() {
 		$sample_html      = '<img src="http://example.com/test.png" class="test" data-width="100" data-height="200" />';
-		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$filtered_content = Image_CDN::filter_the_content( $sample_html );
 		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
 		$query_str        = (string) wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
 		parse_str( $query_str, $query_params );
@@ -1063,12 +1064,12 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Checks that Photon parses correctly the width and height attributes when they are not preceded by a space.
 	 *
 	 * @author mmtr
-	 * @covers Jetpack_Photon::filter_the_content
+	 * @covers Image_CDN::filter_the_content
 	 * @since 8.0.0
 	 */
-	public function test_photon_filter_the_content_parses_width_height_when_no_spaces_between_attributes() {
+	public function test_image_cdn_filter_the_content_parses_width_height_when_no_spaces_between_attributes() {
 		$sample_html      = '<img src="http://example.com/test.png" class="test"width="100"height="200" />';
-		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$filtered_content = Image_CDN::filter_the_content( $sample_html );
 		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
 		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
 		parse_str( $query_str, $query_params );
@@ -1147,11 +1148,11 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	/**
 	 * Tests that Photon ignores percentage dimensions. It should fall back to e.g. a "size-foo" class.
 	 *
-	 * @covers Jetpack_Photon::filter_the_content
+	 * @covers Image_CDN::filter_the_content
 	 */
-	public function test_photon_filter_the_content_percentage_width_and_height() {
+	public function test_image_cdn_filter_the_content_percentage_width_and_height() {
 		$sample_html      = '<img src="http://example.com/test.png" class="test size-large" width="45%" height="55%" />';
-		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$filtered_content = Image_CDN::filter_the_content( $sample_html );
 		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
 		$query_str        = wp_parse_url( $attributes['src']['value'], PHP_URL_QUERY );
 		parse_str( $query_str, $query_params );
@@ -1169,16 +1170,16 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests that Photon will filter for an AMP response.
 	 *
 	 * @author westonruter
-	 * @covers Jetpack_Photon::filter_the_content
+	 * @covers Image_CDN::filter_the_content
 	 * @dataProvider photon_attributes_when_amp_response
 	 * @since 7.6.0
 	 *
 	 * @param string $sample_html Sample HTML.
 	 * @param string $photon_src  Photon URL suffix (after the subdomain).
 	 */
-	public function test_photon_filter_the_content_for_amp_responses( $sample_html, $photon_src ) {
+	public function test_image_cdn_filter_the_content_for_amp_responses( $sample_html, $photon_src ) {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$filtered_content = Image_CDN::filter_the_content( $sample_html );
 		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
 		$this->assertStringEndsWith( $photon_src, html_entity_decode( $attributes['src']['value'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) );
 		$this->assertArrayHasKey( 'width', $attributes );
@@ -1208,11 +1209,11 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * Tests that Photon will filter for AMP stories.
 	 *
 	 * @author westonruter
-	 * @covers Jetpack_Photon::filter_the_content
-	 * @covers Jetpack_AMP_Support::filter_photon_post_image_args_for_stories
+	 * @covers Image_CDN::filter_the_content
+	 * @covers Jetpack_AMP_Support::filter_image_cdn_post_image_args_for_stories
 	 * @since 7.6.0
 	 */
-	public function test_photon_filter_the_content_for_amp_story() {
+	public function test_image_cdn_filter_the_content_for_amp_story() {
 		$post_type = 'amp_story';
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		register_post_type( $post_type, array( 'public' => true ) );
@@ -1245,7 +1246,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 *
 	 * @group rest-api
 	 */
-	public function test_photon_cdn_in_rest_response_with_view_context() {
+	public function test_image_cdn_cdn_in_rest_response_with_view_context() {
 		$test_image = $this->helper_get_image();
 
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
@@ -1269,7 +1270,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 *
 	 * @group rest-api
 	 */
-	public function test_photon_cdn_in_rest_response_with_view_context_from_editor() {
+	public function test_image_cdn_cdn_in_rest_response_with_view_context_from_editor() {
 		$test_image = $this->helper_get_image();
 
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
@@ -1310,7 +1311,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 *
 	 * @group rest-api
 	 */
-	public function test_photon_cdn_in_rest_response_with_edit_context() {
+	public function test_image_cdn_cdn_in_rest_response_with_edit_context() {
 		$test_image = $this->helper_get_image();
 
 		$admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
@@ -1355,11 +1356,11 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 	 * @author kraftbj
 	 * @requires PHPUnit 7.5
-	 * @covers Jetpack_Photon::should_rest_photon_image_downsize_insert_attachment
+	 * @covers Image_CDN::should_rest_image_cdn_image_downsize_insert_attachment
 	 * @group rest-api
 	 */
-	public function test_photon_cdn_in_rest_response_with_created_item() {
-		$filename = __DIR__ . '/modules/photon/sample-content/test-image-large.png';
+	public function test_image_cdn_cdn_in_rest_response_with_created_item() {
+		$filename = __DIR__ . '/sample-content/test-image-large.png';
 
 		wp_set_current_user( self::$author_id );
 
@@ -1391,10 +1392,10 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 *
 	 * @author ebinnion
 	 * @requires PHPUnit 7.5
-	 * @covers Jetpack_Photon::should_rest_photon_image_downsize_insert_attachment
+	 * @covers Image_CDN::should_rest_image_cdn_image_downsize_insert_attachment
 	 * @group rest-api
 	 */
-	public function test_photon_cdn_in_rest_response_external_media() {
+	public function test_image_cdn_cdn_in_rest_response_external_media() {
 		wp_set_current_user( self::$author_id );
 
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/external-media/copy/pexels' );
@@ -1433,7 +1434,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		unlink( $filename );
 
 		// Copy our test image over where the file is expected.
-		copy( __DIR__ . '/modules/photon/sample-content/test-image-large.png', $filename );
+		copy( __DIR__ . '/sample-content/test-image-large.png', $filename );
 
 		// This is just a mocked response with a 200 code.
 		return array(
@@ -1451,20 +1452,20 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	/**
 	 * Tests that Photon will not strip the dimensions from an external URL.
 	 *
-	 * @covers Jetpack_Photon::strip_image_dimensions_maybe
+	 * @covers Image_CDN::strip_image_dimensions_maybe
 	 */
-	public function test_photon_strip_image_dimensions_maybe_ignores_external_files() {
+	public function test_image_cdn_strip_image_dimensions_maybe_ignores_external_files() {
 		$ext_domain = 'https://some.domain/wp-content/uploads/2019/1/test-image-300x300.jpg';
 
-		$this->assertEquals( $ext_domain, Jetpack_Photon::strip_image_dimensions_maybe( $ext_domain ) );
+		$this->assertEquals( $ext_domain, Image_CDN::strip_image_dimensions_maybe( $ext_domain ) );
 	}
 
 	/**
 	 * Tests Photon stripping the image dimensions from filename.
 	 *
-	 * @covers Jetpack_Photon::strip_image_dimensions_maybe
+	 * @covers Image_CDN::strip_image_dimensions_maybe
 	 */
-	public function test_photon_strip_image_dimensions_maybe_strips_resized_string() {
+	public function test_image_cdn_strip_image_dimensions_maybe_strips_resized_string() {
 		$orig_filename = '2004-07-22-DSC_0007.jpg';
 		$filename      = '2004-07-22-DSC_0007-150x150.jpg';
 		$filepath      = DIR_TESTDATA . '/images/' . $orig_filename;
@@ -1480,7 +1481,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 
 		$expected = wp_get_attachment_url( $id );
 
-		$this->assertEquals( $expected, Jetpack_Photon::strip_image_dimensions_maybe( $url ) );
+		$this->assertEquals( $expected, Image_CDN::strip_image_dimensions_maybe( $url ) );
 
 		wp_delete_attachment( $id );
 	}
@@ -1492,21 +1493,21 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 	 * @param bool   $expected If is valid Photon-able URL.
 	 *
 	 * @author kraftbj
-	 * @covers       Jetpack_Photon::validate_image_url
-	 * @dataProvider get_test_photon_validate_image_url_file_types_data_provider
+	 * @covers       Image_CDN::validate_image_url
+	 * @dataProvider get_test_image_cdn_validate_image_url_file_types_data_provider
 	 * @since 10.0.0
 	 */
-	public function test_photon_validate_image_url_file_types( $url, $expected ) {
-		$testable                    = new ReflectionClass( Jetpack_Photon::class );
+	public function test_image_cdn_validate_image_url_file_types( $url, $expected ) {
+		$testable                    = new ReflectionClass( Image_CDN::class );
 		$testable_validate_image_url = $testable->getMethod( 'validate_image_url' );
 		$testable_validate_image_url->setAccessible( true );
 		$this->assertEquals( $expected, $testable_validate_image_url->invoke( null, $url ) );
 	}
 
 	/**
-	 * Possible values for test_photon_validate_image_url_file_types.
+	 * Possible values for test_image_cdn_validate_image_url_file_types.
 	 */
-	public function get_test_photon_validate_image_url_file_types_data_provider() {
+	public function get_test_image_cdn_validate_image_url_file_types_data_provider() {
 		return array(
 			'gif'     => array( 'http://example.com/example-150x150.gif', true ),
 			'jpg'     => array( 'http://example.com/example-150x150.jpg', true ),

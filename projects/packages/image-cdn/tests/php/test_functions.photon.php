@@ -1,6 +1,8 @@
 <?php
 
-class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
+use WorDBless\BaseTestCase;
+
+class WP_Test_Jetpack_Photon_Functions extends BaseTestCase {
 
 	private $custom_photon_domain;
 
