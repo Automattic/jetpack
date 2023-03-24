@@ -1618,7 +1618,7 @@ abstract class Publicize_Base {
 	 * @param int $blog_id The blog ID for the current blog.
 	 * @return bool
 	 */
-	public function is_social_image_generator_enabled( $blog_id = null ) {
+	public function is_social_image_generator_enabled( $blog_id = null ) { //phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return Current_Plan::supports( 'social-image-generator' );
 	}
 
