@@ -17,10 +17,10 @@ import type { VideoControlProps } from '../../types';
 import type React from 'react';
 
 /**
- * Sidebar Control component.
+ * React component that renders the main privacy and ratings panel.
  *
  * @param {VideoControlProps} props - Component props.
- * @returns {React.ReactElement}    Component template
+ * @returns {React.ReactElement}    - Panel to contain privacy and ratings settings.
  */
 export default function PrivacyAndRatingPanel( {
 	attributes,

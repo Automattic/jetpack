@@ -23,10 +23,10 @@ import type { VideoControlProps } from '../../types';
 import type React from 'react';
 
 /**
- * React component that renders the settings within the Privacy and Ratings panel.
+ * React component that renders the settings within the privacy and ratings panel.
  *
  * @param {VideoControlProps} props - Component props.
- * @returns {React.ReactElement}    - Privacy and Rattings settings.
+ * @returns {React.ReactElement}    - Settings to change video's privacy and ratings.
  */
 export default function PrivacyAndRatingSettings( {
 	attributes,
