@@ -80,7 +80,7 @@ const Header = () => {
 							<ContextualUpgradeTrigger
 								className={ styles.cut }
 								description={ __(
-									'Keep sharing all your posts to social media',
+									'Unlock unlimited shares and advanced posting options',
 									'jetpack-social'
 								) }
 								cta={ __( 'Get a Jetpack Social Plan', 'jetpack-social' ) }
@@ -88,6 +88,7 @@ const Header = () => {
 									site: siteSuffix,
 									query: 'redirect_to=' + window.location.href,
 								} ) }
+								tooltipText={ __( 'Share as a post for more engagement', 'jetpack-social' ) }
 							/>
 						</>
 					) : (
