@@ -24,13 +24,13 @@ import TimestampControl from '../../../../../components/timestamp-control';
 import { getVideoPressUrl } from '../../../../../lib/url';
 import { usePreview } from '../../../../hooks/use-preview';
 import { VIDEO_POSTER_ALLOWED_MEDIA_TYPES } from '../../constants';
-import { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import { VideoPosterCard } from '../poster-image-block-control';
 import './style.scss';
 /**
  * Types
  */
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
+import type { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import type React from 'react';
 
 /*
