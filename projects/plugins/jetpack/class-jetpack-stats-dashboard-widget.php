@@ -52,10 +52,10 @@ class Jetpack_Stats_Dashboard_Widget {
 			return;
 		}
 
-		// TODO: Migrate this head function into this class.
-		add_action( 'admin_head', 'stats_dashboard_head' );
-
 		if ( Jetpack::is_connection_ready() ) {
+			// TODO: Migrate this head function into this class.
+			add_action( 'admin_head', 'stats_dashboard_head' );
+
 			$widget_title = sprintf(
 				__( 'Jetpack Stats', 'jetpack' )
 			);
