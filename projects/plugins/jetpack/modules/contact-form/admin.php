@@ -335,6 +335,7 @@ function grunion_manage_post_column_response( $post ) {
 	}
 
 	if ( empty( $response_fields ) ) {
+		$chunks = explode( "\nArray", $content );
 		if ( $chunks[1] ) {
 			// re-construct the array string
 			$array = 'Array' . $chunks[1];
