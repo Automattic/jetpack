@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed accept quote in Client Portal button not working for PHP versions 8.1 and up.

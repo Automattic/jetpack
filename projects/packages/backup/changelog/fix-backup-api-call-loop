@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Backup: validate if storage details has loaded before attempting to fetch it again.
