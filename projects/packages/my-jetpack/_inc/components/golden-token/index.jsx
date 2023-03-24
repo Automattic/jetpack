@@ -60,7 +60,12 @@ function GoldenToken( { redeemClick, hasGoldenToken } ) {
 						) }
 					</p>
 				</div>
-				<Button variant="primary" weight="regular" onClick={ redeemClickHandler }>
+				<Button
+					variant="primary"
+					weight="regular"
+					onClick={ redeemClickHandler }
+					className={ styles.button }
+				>
 					{ __( 'Redeem your token', 'jetpack-my-jetpack' ) }
 				</Button>
 			</div>
@@ -107,6 +112,7 @@ function GoldenToken( { redeemClick, hasGoldenToken } ) {
 					variant="primary"
 					weight="regular"
 					href={ window?.myJetpackInitialState?.myJetpackUrl }
+					className={ styles.button }
 				>
 					{ __( 'Explore your new powers', 'jetpack-my-jetpack' ) }
 				</Button>
