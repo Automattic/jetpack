@@ -67,6 +67,11 @@ function register_block() {
 		)
 	);
 
+	// Disable reblogs for blog
+	if ( ! get_option( 'disabled_reblogs' ) ) {
+		update_option( 'disabled_reblogs', 1 );
+	}
+
 	// This ensures Jetpack will sync this post meta to WPCOM.
 	add_filter(
 		'jetpack_sync_post_meta_whitelist',
