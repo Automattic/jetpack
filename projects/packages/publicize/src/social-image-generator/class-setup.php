@@ -55,7 +55,7 @@ class Setup {
 	public function set_meta( $post_id, $post ) {
 		global $publicize;
 
-		if ( ! $publicize->is_social_image_generator_enabled() ) {
+		if ( ! $publicize->has_social_image_generator_feature() ) {
 			return;
 		}
 
