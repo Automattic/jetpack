@@ -78,11 +78,11 @@ function GoldenTokenModal( {
 							<div className={ styles[ 'content-wrap-text' ] }>
 								<p className={ styles[ 'hi-user' ] }>Hey, { wpcomUserName }</p>
 								<h2 className={ styles.headline }>
-									{ __( 'Your exclusive Jetpack Experience awaits.', 'jetpack-my-jetpack' ) }
+									{ __( 'You have been gifted a Jetpack Gold Token.', 'jetpack-my-jetpack' ) }
 								</h2>
 								<p>
 									{ __(
-										'You have been gifted a Jetpack Gold Token. This unlocks a lifetime of Jetpack powers for your website.',
+										'This unlocks a lifetime of Jetpack powers for your website. Your exclusive Jetpack Experience awaits.',
 										'jetpack-my-jetpack'
 									) }
 								</p>
