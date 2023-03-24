@@ -123,19 +123,6 @@ function PlanSectionFooter( { purchases } ) {
 					</Button>
 				</li>
 			) }
-			{ /* TODO: Update to better - https://github.com/Automattic/jetpack/issues/29655. */ }
-			{ /* TODO: Update the check for golden coupon actual plan. */ }
-			{ purchases.filter( golden => golden.partner_slug === 'goldenticket' ).length > 0 && (
-				<li className={ styles[ 'actions-list-item' ] }>
-					<Button
-						href={ '/wp-admin/admin.php?page=my-jetpack#/redeem-token' }
-						weight="regular"
-						variant="link"
-					>
-						{ __( 'Redeem token', 'jetpack-my-jetpack' ) }
-					</Button>
-				</li>
-			) }
 		</ul>
 	);
 }
