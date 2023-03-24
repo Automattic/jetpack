@@ -441,13 +441,13 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Check if the Newsletter feature should be enabled
+	 * Determine if Paid Newsletters is correctly configured for a site
 	 *
 	 * @since $$next_version$$
 	 *
 	 * @return bool
 	 */
-	public static function is_newsletter_enabled() {
+	public static function is_newsletter_configured() {
 		require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
 
 		// Jetpack has not yet been configured
@@ -715,7 +715,16 @@ class Jetpack_Gutenberg {
 				 *
 				 * @param bool false Enable the Paid Newsletters feature in the block editor context.
 				 */
-				'is_newsletter_feature_enabled' => self::is_newsletter_enabled(),
+				'is_newsletter_feature_enabled' => apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false ),
+				/**
+				 * Determine if the Paid Newsletter is correctly configured
+				 *
+				 * @since $$next_version$$
+				 *
+				 * @param bool false Determine if the Paid Newsletter is correctly configured
+				 */
+
+				'is_newsletter_configured'      => self::is_newsletter_configured(),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
