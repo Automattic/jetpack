@@ -15,6 +15,7 @@ class Setup {
 	 * Initialise SIG-related functionality.
 	 */
 	public function init() {
+		// Be wary of any code that you add to this file, since this function is called on plugin load.
 		// We're using the `wp_after_insert_post` hook because we need access to the updated post meta. By using the default priority
 		// of 10 we make sure that our code runs before Sync processes the post.
 		add_action( 'wp_after_insert_post', array( $this, 'set_meta' ), 10, 2 );
@@ -52,6 +53,12 @@ class Setup {
 	 * @param \WP_Post $post Post that's being updated.
 	 */
 	public function set_meta( $post_id, $post ) {
+		global $publicize;
+
+		if ( ! $publicize->has_social_image_generator_feature() ) {
+			return;
+		}
+
 		if ( wp_is_post_autosave( $post ) || $post->post_status === 'auto-draft' ) {
 			return;
 		}
