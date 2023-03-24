@@ -428,7 +428,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			}
 		}
 
-		return new WP_REST_Response( array(), 200 );
+		return new \WP_REST_Response( array(), 200 );
 	}
 
 	/**
