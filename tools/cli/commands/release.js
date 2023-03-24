@@ -165,7 +165,8 @@ export async function scriptRouter( argv ) {
 			argv = await promptForVersion( argv );
 			argv.script = 'tools/project-version.sh';
 			argv.scriptArgs = [ '-Cu', argv.version, argv.project ];
-			argv.next = `Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
+			argv.next =
+				`Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
 				 - The main php file
 				 - package.json
 				 - composer.json (the autoloader-suffix filed)

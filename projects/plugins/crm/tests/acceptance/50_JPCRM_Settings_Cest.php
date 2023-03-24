@@ -37,7 +37,7 @@ class JPCRM_Settings_Cest {
 
 		$I->see( 'Menu Layout', 'label' );
 		$I->see( 'Show Prefix', 'label' );
-		$I->see( 'Show Customer Address Fields', 'label' );
+		$I->see( 'Show Contact Address Fields', 'label' );
 		$I->see( 'Second Address Fields', 'label' );
 		$I->see( 'Second Address Label', 'label' );
 		$I->see( 'Use "Countries" in Address Fields', 'label' );

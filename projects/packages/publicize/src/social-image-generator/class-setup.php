@@ -7,9 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Publicize\REST_Controller;
-
 /**
  * Class for setting up Social Image Generator-related functionality.
  */
@@ -35,23 +32,11 @@ class Setup {
 			return;
 		}
 
-		$body = array(
-			'text'      => $post_settings->get_custom_text(),
-			'image_url' => $post_settings->get_image_url(),
+		$token = fetch_token(
+			$post_settings->get_custom_text(),
+			$post_settings->get_image_url(),
+			$post_settings->get_template()
 		);
-
-		$rest_controller = new REST_Controller();
-		$response        = Client::wpcom_json_api_request_as_blog(
-			sprintf( 'sites/%d/jetpack-social/generate-image-token', absint( \Jetpack_Options::get_option( 'id' ) ) ),
-			'2',
-			array(
-				'headers' => array( 'content-type' => 'application/json' ),
-				'method'  => 'POST',
-			),
-			wp_json_encode( array_filter( $body ) ),
-			'wpcom'
-		);
-		$token           = $rest_controller->make_proper_response( $response );
 
 		if ( is_wp_error( $token ) ) {
 			return;

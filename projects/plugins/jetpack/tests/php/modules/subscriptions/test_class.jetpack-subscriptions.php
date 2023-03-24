@@ -352,6 +352,14 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_comments_are_displaying_on_not_accessible_pages() {
+		$enable_subscriptions_callback = function ( $active ) {
+				return array_merge( $active, array( 'subscriptions' ) );
+		};
+		add_filter(
+			'jetpack_active_modules',
+			$enable_subscriptions_callback
+		);
+
 		$post_id = $this->setup_jetpack_paid_newsletters();
 		register_subscription_block();
 
@@ -365,6 +373,10 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 
 		$this->assertFalse( $subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level ) );
 		$this->assertFalse( apply_filters( 'comments_open', true, $post_id ) );
+		remove_filter(
+			'jetpack_active_modules',
+			$enable_subscriptions_callback
+		);
 	}
 
 	/**

@@ -311,6 +311,7 @@ function jetpack_photon_banned_domains( $skip, $image_url ) {
 		'/\.cdninstagram\.com$/',
 		'/^(commons|upload)\.wikimedia\.org$/',
 		'/\.wikipedia\.org$/',
+		'/^live\.staticflickr\.com$/',
 	);
 
 	$host = wp_parse_url( $image_url, PHP_URL_HOST );

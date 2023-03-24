@@ -32,13 +32,15 @@ const JetpackFieldControls = ( {
 	setAttributes,
 	width,
 } ) => {
-	const setNumberAttribute = ( key, parse = parseInt ) => value => {
-		const parsedValue = parse( value, 10 );
+	const setNumberAttribute =
+		( key, parse = parseInt ) =>
+		value => {
+			const parsedValue = parse( value, 10 );
 
-		setAttributes( {
-			[ key ]: ! isNaN( parsedValue ) ? parsedValue : '',
-		} );
-	};
+			setAttributes( {
+				[ key ]: ! isNaN( parsedValue ) ? parsedValue : '',
+			} );
+		};
 
 	const colorSettings = [
 		{

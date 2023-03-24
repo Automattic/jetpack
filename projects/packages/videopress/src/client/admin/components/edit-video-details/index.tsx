@@ -340,7 +340,7 @@ const EditVideoDetails = () => {
 										prefix={
 											// Casting for unknown since allowing only a string is a mistake
 											// at WP Components
-											( (
+											(
 												<div className={ styles[ 'privacy-icon' ] }>
 													<Icon
 														icon={
@@ -353,7 +353,7 @@ const EditVideoDetails = () => {
 														}
 													/>
 												</div>
-											 ) as unknown ) as string
+											 ) as unknown as string
 										}
 										options={ [
 											{

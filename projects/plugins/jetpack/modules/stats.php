@@ -1227,7 +1227,7 @@ function stats_jetpack_dashboard_widget() {
 		<span class="screen-reader-text"><?php esc_html_e( 'Configure', 'jetpack' ); ?></span>
 		<span class="toggle-indicator" aria-hidden="true"></span>
 	</button>
-	<div id="dashboard_stats">
+	<div id="dashboard_stats" class="is-loading">
 		<div class="inside">
 			<div style="height: 250px;"></div>
 		</div>
@@ -1266,12 +1266,10 @@ jQuery( function($) {
 
 	dashStats
 		.not( '.dashboard-widget-control' )
-		.load( 'admin.php?page=stats&noheader&dashboard&' + args );
-
-	jQuery( window ).one( 'resize', function() {
-		jQuery( '#stat-chart' ).css( 'width', 'auto' );
-	} );
-
+		.load( 'admin.php?page=stats&noheader&dashboard&' + args, function() {
+			jQuery( '#dashboard_stats' ).removeClass( 'is-loading' );
+			jQuery( '#stat-chart' ).css( 'width', 'auto' );
+		} );
 
 	// Widget settings toggle container.
 	var toggle = $( '.js-toggle-stats_dashboard_widget_control' );
@@ -1350,7 +1348,7 @@ function stats_dashboard_widget_content() {
 
 	$csv_end_date = current_time( 'Y-m-d' );
 	$csv_args     = array(
-		'top'    => "&limit=8&end=$csv_end_date",
+		'top'    => "&limit=6&end=$csv_end_date",
 		'search' => "&limit=5&end=$csv_end_date",
 	);
 
@@ -1377,80 +1375,68 @@ function stats_dashboard_widget_content() {
 
 	?>
 <div id="stats-info">
-	<div id="top-posts" class='stats-section'>
-		<div class="stats-section-inner">
-		<h3 class="heading"><?php esc_html_e( 'Top Posts', 'jetpack' ); ?></h3>
-		<?php
-		if ( empty( $top_posts ) ) {
-			?>
-			<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+	<div id="stats-info-container">
+		<div class="stats-info-header">
+			<h2><?php esc_html_e( 'Highlights', 'jetpack' ); ?></h2>
+			<div class="stats-info-header-right">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=stats' ) ); ?>" class="button button-primary">
+					<?php esc_html_e( 'View detailed stats', 'jetpack' ); ?>
+				</a>
+			</div>
+		</div>
+		<div id="top-posts" class="stats-section">
+			<div class="stats-section-inner">
+			<h3 class="heading"><?php esc_html_e( 'Top Posts', 'jetpack' ); ?></h3>
 			<?php
-		} else {
-			foreach ( $top_posts as $post ) {
-				if ( ! get_post( $post['post_id'] ) ) {
-					continue;
+			if ( empty( $top_posts ) ) {
+				?>
+				<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+				<?php
+			} else {
+				foreach ( $top_posts as $post ) {
+					if ( ! get_post( $post['post_id'] ) ) {
+						continue;
+					}
+					?>
+					<p>
+					<?php
+					printf(
+						esc_html(
+							/* Translators: Stats dashboard widget Post list with view count: "Post Title 1 View (or Views if plural)". */
+							_n( '%1$s %2$s View', '%1$s %2$s Views', $post['views'], 'jetpack' )
+						),
+						'<a href="' . esc_url( get_permalink( $post['post_id'] ) ) . '">' . esc_html( get_the_title( $post['post_id'] ) ) . '</a>',
+						esc_html( number_format_i18n( $post['views'] ) )
+					);
+					?>
+				</p>
+					<?php
 				}
-				?>
-				<p>
-				<?php
-				printf(
-					esc_html(
-						/* Translators: Stats dashboard widget Post list with view count: "Post Title 1 View (or Views if plural)". */
-						_n( '%1$s %2$s View', '%1$s %2$s Views', $post['views'], 'jetpack' )
-					),
-					'<a href="' . esc_url( get_permalink( $post['post_id'] ) ) . '">' . esc_html( get_the_title( $post['post_id'] ) ) . '</a>',
-					esc_html( number_format_i18n( $post['views'] ) )
-				);
-				?>
-			</p>
-				<?php
 			}
-		}
-		?>
-		</div>
-	</div>
-	<div id="top-search" class='stats-section'>
-		<div class="stats-section-inner">
-		<h3 class="heading"><?php esc_html_e( 'Top Searches', 'jetpack' ); ?></h3>
-		<?php
-		if ( empty( $searches ) ) {
 			?>
-			<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+			</div>
+		</div>
+		<div id="top-search" class="stats-section">
+			<div class="stats-section-inner">
+			<h3 class="heading"><?php esc_html_e( 'Top Searches', 'jetpack' ); ?></h3>
 			<?php
-		} else {
-			foreach ( $searches as $search_term_item ) {
-				printf(
-					'<p>%s</p>',
-					esc_html( $search_term_item )
-				);
+			if ( empty( $searches ) ) {
+				?>
+				<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+				<?php
+			} else {
+				foreach ( $searches as $search_term_item ) {
+					printf(
+						'<p>%s</p>',
+						esc_html( $search_term_item )
+					);
+				}
 			}
-		}
-		?>
+			?>
+			</div>
 		</div>
 	</div>
 </div>
-<div class="clear"></div>
-<div class="stats-view-all">
-	<?php
-	$new_stats_enabled = Stats_Options::get_option( 'enable_odyssey_stats' );
-	if ( ! $new_stats_enabled ) {
-		$stats_day_url = Redirect::get_url( 'calypso-stats-day' );
-		printf(
-			'<a class="button" target="_blank" rel="noopener noreferrer" href="%1$s">%2$s</a>',
-			esc_url( $stats_day_url ),
-			esc_html__( 'View all stats', 'jetpack' )
-		);
-	} else {
-		printf(
-			'<a class="button" href="%1$s">%2$s</a>',
-			esc_url( menu_page_url( 'stats', false ) ),
-			esc_html__( 'View all stats', 'jetpack' )
-		);
-
-	}
-	?>
-</div>
-<div class="clear"></div>
 	<?php
 	exit;
 }

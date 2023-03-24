@@ -93,9 +93,9 @@ class Dashboard_View_Switch {
 			}
 
 			.toplevel_page_jetpack-forms :not(#screen-meta-links) > #jetpack-forms__view-link-wrap {
-				position: fixed;
+				position: absolute;
 				right: 32px;
-				top: var(--wp-admin--admin-bar--height);
+				top: 0;
 				z-index: 179;
 			}
 
@@ -153,6 +153,10 @@ class Dashboard_View_Switch {
 			@media screen and (max-width: 600px) {
 				.screen-options-tab__dropdown {
 					top: 93px;
+				}
+
+				.toplevel_page_jetpack-forms :not(#screen-meta-links) > #jetpack-forms__view-link-wrap {
+					top: var(--wp-admin--admin-bar--height);
 				}
 			}
 

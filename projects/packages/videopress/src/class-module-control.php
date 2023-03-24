@@ -20,8 +20,9 @@ class Module_Control {
 	public static function init() {
 		add_filter( 'jetpack_get_available_standalone_modules', array( __CLASS__, 'add_videopress_to_array' ), 10, 1 );
 		if ( Status::is_standalone_plugin_active() ) {
-			// If the stand-alone plugin is active, videopress module will always be considered active.
+			// If the stand-alone plugin is active, videopress module will always be considered active; same for the stats module
 			add_filter( 'jetpack_active_modules', array( __CLASS__, 'add_videopress_to_array' ), 10, 2 );
+			add_filter( 'jetpack_active_modules', array( __CLASS__, 'add_stats_to_array' ), 10, 2 );
 		}
 	}
 
@@ -33,5 +34,15 @@ class Module_Control {
 	 */
 	public static function add_videopress_to_array( $modules ) {
 		return array_merge( array( 'videopress' ), $modules );
+	}
+
+	/**
+	 * Adds stats to the list of available/active modules
+	 *
+	 * @param array $modules Array with modules slugs.
+	 * @return array
+	 */
+	public static function add_stats_to_array( $modules ) {
+		return array_merge( array( 'stats' ), $modules );
 	}
 }

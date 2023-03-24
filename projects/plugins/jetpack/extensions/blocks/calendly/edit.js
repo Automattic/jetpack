@@ -16,15 +16,8 @@ import { getAttributesFromEmbedCode } from './utils';
 import { CALENDLY_EXAMPLE_URL, innerButtonBlock } from './';
 
 export function CalendlyEdit( props ) {
-	const {
-		attributes,
-		className,
-		clientId,
-		name,
-		noticeOperations,
-		noticeUI,
-		setAttributes,
-	} = props;
+	const { attributes, className, clientId, name, noticeOperations, noticeUI, setAttributes } =
+		props;
 	const defaultClassName = getBlockDefaultClassName( name );
 	const validatedAttributes = getValidatedAttributes( attributeDetails, attributes );
 
@@ -32,14 +25,8 @@ export function CalendlyEdit( props ) {
 		setAttributes( validatedAttributes );
 	}
 
-	const {
-		backgroundColor,
-		hideEventTypeDetails,
-		primaryColor,
-		textColor,
-		style,
-		url,
-	} = validatedAttributes;
+	const { backgroundColor, hideEventTypeDetails, primaryColor, textColor, style, url } =
+		validatedAttributes;
 	const [ embedCode, setEmbedCode ] = useState( url );
 	const [ isEditingUrl, setIsEditingUrl ] = useState( false );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
