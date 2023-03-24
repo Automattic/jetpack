@@ -208,9 +208,9 @@ function zeroBSCRM_render_invoiceslist_page() { // phpcs:ignore WordPress.Naming
 			$upsell_box_html  = '<!-- Inv PRO box --><div class="">';
 			$upsell_box_html .= '<h4>Invoicing Pro:</h4>';
 
-			$up_title  = __( 'Supercharged Invoicing', 'zero-bs-crm' );
-			$up_desc   = __( 'Get more out of invoicing, like accepting online payments!:', 'zero-bs-crm' );
-			$up_button = __( 'Get Invoicing Pro', 'zero-bs-crm' );
+			$up_title  = esc_html__( 'Supercharged Invoicing', 'zero-bs-crm' );
+			$up_desc   = esc_html__( 'Get more out of invoicing, like accepting online payments!', 'zero-bs-crm' );
+			$up_button = esc_html__( 'Get Invoicing Pro', 'zero-bs-crm' );
 			$up_target = $zbs->urls['invpro'];
 
 			$upsell_box_html .= zeroBSCRM_UI2_squareFeedbackUpsell( $up_title, $up_desc, $up_button, $up_target );
@@ -219,9 +219,9 @@ function zeroBSCRM_render_invoiceslist_page() { // phpcs:ignore WordPress.Naming
 			$upsell_box_html  = '<!-- Inv PRO box --><div class="">';
 			$upsell_box_html .= '<h4>Invoicing Pro:</h4>';
 
-			$up_title  = __( 'Supercharged Invoicing', 'zero-bs-crm' );
-			$up_desc   = __( 'You have Invoicing Pro available because you are using a bundle. Please download and install from your account:', 'zero-bs-crm' );
-			$up_button = __( 'Your Account', 'zero-bs-crm' );
+			$up_title  = esc_html__( 'Supercharged Invoicing', 'zero-bs-crm' );
+			$up_desc   = esc_html__( 'You have Invoicing Pro available because you are using a bundle. Please download and install from your account:', 'zero-bs-crm' );
+			$up_button = esc_html__( 'Your Account', 'zero-bs-crm' );
 			$up_target = $zbs->urls['account'];
 
 			$upsell_box_html .= zeroBSCRM_UI2_squareFeedbackUpsell( $up_title, $up_desc, $up_button, $up_target );
@@ -232,32 +232,32 @@ function zeroBSCRM_render_invoiceslist_page() { // phpcs:ignore WordPress.Naming
 	$list = new zeroBSCRM_list(
 		array(
 			'objType'     => 'invoice',
-			'singular'    => __( 'Invoice', 'zero-bs-crm' ),
-			'plural'      => __( 'Invoices', 'zero-bs-crm' ),
+			'singular'    => esc_html__( 'Invoice', 'zero-bs-crm' ),
+			'plural'      => esc_html__( 'Invoices', 'zero-bs-crm' ),
 			'tag'         => '',
 			'postType'    => 'zerobs_invoice',
 			'postPage'    => 'manage-invoices',
 			'langLabels'  =>
 				array(
 					// bulk action labels
-					'delete'                   => __( 'Delete Invoice(s)', 'zero-bs-crm' ),
-					'export'                   => __( 'Export Invoice(s)', 'zero-bs-crm' ),
+					'delete'                   => esc_html__( 'Delete Invoice(s)', 'zero-bs-crm' ),
+					'export'                   => esc_html__( 'Export Invoice(s)', 'zero-bs-crm' ),
 
 					// bulk actions - invoice deleting
-					'invoicesdeleted'          => __( 'Your invoice(s) have been deleted.', 'zero-bs-crm' ),
-					'notinvoicesdeleted'       => __( 'Your invoice(s) could not be deleted.', 'zero-bs-crm' ),
+					'invoicesdeleted'          => esc_html__( 'Your invoice(s) have been deleted.', 'zero-bs-crm' ),
+					'notinvoicesdeleted'       => esc_html__( 'Your invoice(s) could not be deleted.', 'zero-bs-crm' ),
 
 					// bulk actions - invoice status update
-					'statusareyousurethese'    => __( 'Are you sure you want to change the status on marked invoice(s)?', 'zero-bs-crm' ),
-					'statusupdated'            => __( 'Invoice(s) Updated', 'zero-bs-crm' ),
-					'statusinvoicesupdated'    => __( 'Your invoice(s) have been updated.', 'zero-bs-crm' ),
-					'statusnotupdated'         => __( 'Could not update invoice!', 'zero-bs-crm' ),
-					'statusnotinvoicesupdated' => __( 'Your invoice(s) could not be updated', 'zero-bs-crm' ),
-					'statusdraft'              => __( 'Draft', 'zero-bs-crm' ),
-					'statusunpaid'             => __( 'Unpaid', 'zero-bs-crm' ),
-					'statuspaid'               => __( 'Paid', 'zero-bs-crm' ),
-					'statusoverdue'            => __( 'Overdue', 'zero-bs-crm' ),
-					'statusdeleted'            => __( 'Deleted', 'zero-bs-crm' ),
+					'statusareyousurethese'    => esc_html__( 'Are you sure you want to change the status on marked invoice(s)?', 'zero-bs-crm' ),
+					'statusupdated'            => esc_html__( 'Invoice(s) Updated', 'zero-bs-crm' ),
+					'statusinvoicesupdated'    => esc_html__( 'Your invoice(s) have been updated.', 'zero-bs-crm' ),
+					'statusnotupdated'         => esc_html__( 'Could not update invoice!', 'zero-bs-crm' ),
+					'statusnotinvoicesupdated' => esc_html__( 'Your invoice(s) could not be updated', 'zero-bs-crm' ),
+					'statusdraft'              => esc_html__( 'Draft', 'zero-bs-crm' ),
+					'statusunpaid'             => esc_html__( 'Unpaid', 'zero-bs-crm' ),
+					'statuspaid'               => esc_html__( 'Paid', 'zero-bs-crm' ),
+					'statusoverdue'            => esc_html__( 'Overdue', 'zero-bs-crm' ),
+					'statusdeleted'            => esc_html__( 'Deleted', 'zero-bs-crm' ),
 
 					// bulk actions - add/remove tags
 					/* translators: placeholder is a link to add a new object tag */
@@ -358,17 +358,17 @@ function zeroBSCRM_render_formslist_page() { // phpcs:ignore WordPress.NamingCon
 			'postPage'    => 'manage-forms',
 			'langLabels'  => array(
 
-				'naked'           => __( 'Naked', 'zero-bs-crm' ),
-				'cgrab'           => __( 'Content Grab', 'zero-bs-crm' ),
-				'simple'          => __( 'Simple', 'zero-bs-crm' ),
+				'naked'           => esc_html__( 'Naked', 'zero-bs-crm' ),
+				'cgrab'           => esc_html__( 'Content Grab', 'zero-bs-crm' ),
+				'simple'          => esc_html__( 'Simple', 'zero-bs-crm' ),
 
 				// bulk action labels
-				'delete'          => __( 'Delete Form(s)', 'zero-bs-crm' ),
-				'export'          => __( 'Export Form(s)', 'zero-bs-crm' ),
+				'delete'          => esc_html__( 'Delete Form(s)', 'zero-bs-crm' ),
+				'export'          => esc_html__( 'Export Form(s)', 'zero-bs-crm' ),
 
 				// bulk actions - deleting
-				'formsdeleted'    => __( 'Your form(s) have been deleted.', 'zero-bs-crm' ),
-				'notformsdeleted' => __( 'Your form(s) could not be deleted.', 'zero-bs-crm' ),
+				'formsdeleted'    => esc_html__( 'Your form(s) have been deleted.', 'zero-bs-crm' ),
+				'notformsdeleted' => esc_html__( 'Your form(s) could not be deleted.', 'zero-bs-crm' ),
 
 			),
 			'bulkActions' => array( 'delete' ),
@@ -404,9 +404,9 @@ function zeroBSCRM_render_segmentslist_page() { // phpcs:ignore WordPress.Naming
 		$upsell_box_html  = '<div class="">';
 		$upsell_box_html .= '<h4>' . esc_html__( 'Using Segments?', 'zero-bs-crm' ) . ':</h4>';
 
-		$up_title  = __( 'Segment like a PRO', 'zero-bs-crm' );
-		$up_desc   = __( 'Did you know that we\'ve made segments more advanced?', 'zero-bs-crm' );
-		$up_button = __( 'See Advanced Segments', 'zero-bs-crm' );
+		$up_title  = esc_html__( 'Segment like a PRO', 'zero-bs-crm' );
+		$up_desc   = esc_html__( 'Did you know that we\'ve made segments more advanced?', 'zero-bs-crm' );
+		$up_button = esc_html__( 'See Advanced Segments', 'zero-bs-crm' );
 		$up_target = $zbs->urls['advancedsegments'];
 
 		$upsell_box_html .= zeroBSCRM_UI2_squareFeedbackUpsell( $up_title, $up_desc, $up_button, $up_target );
