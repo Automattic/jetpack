@@ -232,7 +232,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 				}
 
 				return new \WP_REST_Response( '', 200 );
-			case 'unmark_as_spam':
+			case 'mark_as_not_spam':
 				foreach ( $post_ids as $post_id ) {
 					$post              = get_post( $post_id );
 					$post->post_status = 'publish';
