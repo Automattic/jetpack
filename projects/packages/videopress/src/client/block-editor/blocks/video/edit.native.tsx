@@ -20,6 +20,7 @@ import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
 import PlaybackPanel from './components/playback-panel';
 import Player from './components/player';
+import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
 import VideoPressUploader from './components/videopress-uploader/index.native';
 import style from './style.scss';
 
@@ -111,6 +112,7 @@ export default function VideoPressEdit( {
 					<PanelBody title={ __( 'More', 'jetpack-videopress-pkg' ) }>
 						<PlaybackPanel { ...{ attributes, setAttributes } } />
 						<ColorPanel { ...{ attributes, setAttributes } } />
+						<PrivacyAndRatingPanel { ...{ attributes, setAttributes } } />
 					</PanelBody>
 				</InspectorControls>
 			) }
