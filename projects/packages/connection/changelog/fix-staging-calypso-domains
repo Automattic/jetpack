@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix redirect allow-list for Calypso domain names.
