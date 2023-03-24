@@ -133,13 +133,8 @@ export const settings = {
 			}
 		}, [ isCurrentPostPublished ] );
 
-		const {
-			title,
-			body,
-			actionButtonHref,
-			actionButtonTracksEvent,
-			actionButtonText,
-		} = getModalContent();
+		const { title, body, actionButtonHref, actionButtonTracksEvent, actionButtonText } =
+			getModalContent();
 
 		const showModal =
 			( ( isInsidePostEditor && isCurrentPostPublished ) || isInsideSiteEditor ) &&
