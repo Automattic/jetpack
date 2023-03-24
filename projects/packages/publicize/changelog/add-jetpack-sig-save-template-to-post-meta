@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Use TemplatePicker to save selected template and send it to our token generation endpoint

@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Type;
 
 class Type_Assoc_Array implements Schema_Type {
@@ -20,10 +21,22 @@ class Type_Assoc_Array implements Schema_Type {
 		$parsed = array();
 		foreach ( $this->sub_schema as $key => $validator ) {
 			if ( ! isset( $data[ $key ] ) ) {
-				$message = "Expected key '$key' in associative array";
-				throw new \Error( $message );
+				if ( $validator instanceof Decorate_With_Default ) {
+					$value = $validator->parse( null );
+
+					// @TODO Document this behavior.
+					// At the moment, values that are null are dropped from assoc arrays.
+					// to match the Zod behavior.
+					if ( $value !== null ) {
+						$parsed[ $key ] = $value;
+					}
+				} else {
+					$message = "Expected key '$key' in associative array";
+					throw new \Error( $message );
+				}
+			} else {
+				$parsed[ $key ] = $validator->parse( $data[ $key ] );
 			}
-			$parsed[ $key ] = $validator->parse( $data[ $key ] );
 		}
 
 		return $parsed;

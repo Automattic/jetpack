@@ -138,7 +138,7 @@ function zeroBSCRM_CSVImporterLitepages_header( $subpage = '' ) {
 				</p>
 
 				<?php
-				// WLREMOVE
+				##WLREMOVE
 				if ( ! empty( $zbs->urls['extcsvimporterpro'] ) ) {
 					?>
 
@@ -148,16 +148,16 @@ function zeroBSCRM_CSVImporterLitepages_header( $subpage = '' ) {
 
 					<?php
 				}
-				// /WLREMOVE
+				##/WLREMOVE
 				?>
 
 				<br/>
 				<?php
-				// WLREMOVE
+				##WLREMOVE
 				?>
 				<a href="<?php echo esc_url( $zbs->urls['kbcsvformat'] ); ?>" target="_blank" class="ui button orange"><?php esc_html_e( 'Learn More', 'zero-bs-crm' ); ?></a>
 				<?php
-				// /WLREMOVE
+				##/WLREMOVE
 				?>
 				</div>
 				<div class="video">
@@ -831,7 +831,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 			<?php
 
 			// } Lite upsell (remove from rebrander) but also make it translation OK.
-			// WLREMOVE
+			##WLREMOVE
 
 				// WH added: Is now polite to License-key based settings like 'entrepreneur' doesn't try and upsell
 				// this might be a bit easy to "hack out" hmmmm
@@ -861,7 +861,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 					</div>
 					<?php
 			}
-			// /WLREMOVE
+			##/WLREMOVE
 
 			break;
 

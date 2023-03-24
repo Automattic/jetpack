@@ -1061,7 +1061,11 @@ abstract class Publicize_Base {
 			'type'          => 'object',
 			'description'   => __( 'Post options related to Jetpack Social.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
-			'default'       => array(),
+			'default'       => array(
+				'image_generator_settings' => array(
+					'template' => Social_Image_Generator\Templates::DEFAULT_TEMPLATE,
+				),
+			),
 			'show_in_rest'  => array(
 				'name'   => 'jetpack_social_options',
 				'schema' => array(
@@ -1094,8 +1098,10 @@ abstract class Publicize_Base {
 									'type' => 'string',
 								),
 								'image_id'    => array(
-									'type'    => 'number',
-									'default' => 0,
+									'type' => 'number',
+								),
+								'template'    => array(
+									'type' => 'string',
 								),
 							),
 						),

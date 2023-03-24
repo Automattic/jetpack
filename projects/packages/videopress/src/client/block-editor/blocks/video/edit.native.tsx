@@ -85,6 +85,13 @@ export default function VideoPressEdit( {
 		[ setIsUploadingFile, setAttributes ]
 	);
 
+	const onStartUpload = useCallback(
+		media => {
+			setAttributes( { id: media.id } );
+		},
+		[ setAttributes ]
+	);
+
 	if ( isUploadingFile ) {
 		return (
 			<VideoPressUploader
@@ -92,6 +99,7 @@ export default function VideoPressEdit( {
 				handleDoneUpload={ handleDoneUpload }
 				isInteractionDisabled={ ! isSelected }
 				onFocus={ onFocus }
+				onStartUpload={ onStartUpload }
 			/>
 		);
 	}

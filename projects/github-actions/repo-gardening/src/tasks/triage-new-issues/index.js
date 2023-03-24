@@ -67,7 +67,8 @@ function findPlatforms( body ) {
  */
 function findPriority( body ) {
 	// Look for priority indicators in body.
-	const priorityRegex = /###\sImpact\n\n(?<impact>.*)\n\n###\sAvailable\sworkarounds\?\n\n(?<blocking>.*)\n/gm;
+	const priorityRegex =
+		/###\sImpact\n\n(?<impact>.*)\n\n###\sAvailable\sworkarounds\?\n\n(?<blocking>.*)\n/gm;
 	let match;
 	while ( ( match = priorityRegex.exec( body ) ) ) {
 		const [ , impact = '', blocking = '' ] = match;

@@ -116,9 +116,12 @@ export const TimestampInput = ( {
 		time.value = { ...getTimeDataByValue( value, decimalPlaces ), [ unit ]: newValue };
 
 		// Call onChange callback.
+		const decimalValue = time.value.decimal
+			? time.value.decimal * Number( `1e${ 3 - decimalPlaces }` )
+			: 0;
+
 		onChange?.(
-			( time.value.hh * 3600 + time.value.mm * 60 + time.value.ss ) * 1000 +
-				time.value.decimal * Number( `1e${ 3 - decimalPlaces }` )
+			( time.value.hh * 3600 + time.value.mm * 60 + time.value.ss ) * 1000 + decimalValue
 		);
 	};
 
@@ -194,6 +197,7 @@ export const TimestampInput = ( {
 					<TimeDivider char="." />
 					<NumberControl
 						className={ styles[ 'timestamp-control-input' ] }
+						style={ { '--input-width': `${ 12 * decimalPlaces }px` } }
 						disabled={ disabled }
 						min={ 0 }
 						max={ Number( '9'.repeat( decimalPlaces ) ) }
@@ -235,7 +239,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 
 	const debounceTimer = useRef< NodeJS.Timeout >();
 
-	const { baseControlProps } = useBaseControlProps( props );
+	const { baseControlProps } = useBaseControlProps?.( props ) || {};
 
 	const onChangeHandler = useCallback(
 		( newValue: number ) => {

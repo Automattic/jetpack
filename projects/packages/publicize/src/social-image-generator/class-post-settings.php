@@ -141,6 +141,19 @@ class Post_Settings {
 	}
 
 	/**
+	 * Get the template to use for the generated image.
+	 *
+	 * @return string
+	 */
+	public function get_template() {
+		if ( ! empty( $this->settings['template'] ) ) {
+			return $this->settings['template'];
+		}
+
+		return Templates::DEFAULT_TEMPLATE;
+	}
+
+	/**
 	 * Get an image token.
 	 *
 	 * @return string

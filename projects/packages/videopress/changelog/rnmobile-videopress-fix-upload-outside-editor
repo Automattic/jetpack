@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress block: Fix for the case when video upload finishes outside the editor (iOS only).
