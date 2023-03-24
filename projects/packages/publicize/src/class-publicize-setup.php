@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Current_Plan;
-
 /**
  * The class to configure and initialize the publicize package.
  */
@@ -50,7 +48,6 @@ class Publicize_Setup {
 
 		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
 
-		Current_Plan::init();
 		( new Social_Image_Generator\Setup() )->init();
 	}
 
