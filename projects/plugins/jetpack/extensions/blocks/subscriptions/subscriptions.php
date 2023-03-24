@@ -58,8 +58,14 @@ function register_block() {
 		return;
 	}
 
-	if ( ! Jetpack_Gutenberg::is_newsletter_enabled() ) {
-		return; // Stop here if the Newsletter feature is not enabled.
+	/**
+	 * Do not proceed if the newsletter feature is not enabled
+	 */
+	if (
+		/** This filter is documented in class.jetpack-gutenberg.php */
+		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+	) {
+		return;
 	}
 
 	register_post_meta(
