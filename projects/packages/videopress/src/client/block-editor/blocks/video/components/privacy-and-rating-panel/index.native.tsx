@@ -55,7 +55,18 @@ export default function PrivacyAndRatingPanel( {
 		public: _x( 'Site Default (Public)', 'VideoPress privacy setting', 'jetpack-videopress-pkg' ),
 	};
 
-	const defaultPrivacyLabel = privateEnabledForSite ? privacyLabels.private : privacyLabels.public;
+	const privacyOptionSiteDefault = {
+		value: String( VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_SITE_DEFAULT ) ),
+		label: privateEnabledForSite ? privacyLabels.private : privacyLabels.public,
+	};
+	const privacyOptionPublic = {
+		value: String( VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PUBLIC ) ),
+		label: _x( 'Public', 'VideoPress privacy setting', 'jetpack-videopress-pkg' ),
+	};
+	const privacyOptionPrivate = {
+		value: String( VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PRIVATE ) ),
+		label: _x( 'Private', 'VideoPress privacy setting', 'jetpack-videopress-pkg' ),
+	};
 
 	return (
 		<BottomSheet.SubSheet
@@ -118,8 +129,8 @@ export default function PrivacyAndRatingPanel( {
 							} = {};
 
 							// Anticipate the isPrivate attribute.
-							if ( value !== '2' ) {
-								attrsToUpdate.isPrivate = value === '1';
+							if ( value !== privacyOptionSiteDefault.value ) {
+								attrsToUpdate.isPrivate = value === privacyOptionPrivate.value;
 							} else {
 								attrsToUpdate.isPrivate = privateEnabledForSite;
 							}
@@ -128,20 +139,7 @@ export default function PrivacyAndRatingPanel( {
 							setAttributes( attrsToUpdate );
 						} }
 						value={ String( privacySetting ) }
-						options={ [
-							{
-								value: String( VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_SITE_DEFAULT ) ),
-								label: defaultPrivacyLabel,
-							},
-							{
-								value: String( VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PUBLIC ) ),
-								label: _x( 'Public', 'VideoPress privacy setting', 'jetpack-videopress-pkg' ),
-							},
-							{
-								value: String( VIDEO_PRIVACY_LEVELS.indexOf( VIDEO_PRIVACY_LEVEL_PRIVATE ) ),
-								label: _x( 'Private', 'VideoPress privacy setting', 'jetpack-videopress-pkg' ),
-							},
-						] }
+						options={ [ privacyOptionSiteDefault, privacyOptionPublic, privacyOptionPrivate ] }
 					/>
 
 					<ToggleControl
