@@ -5,10 +5,10 @@ import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { find, includes, map } from 'lodash';
+import DropdownFilter from '../components/dropdown-filter';
 import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
 import { STORE_NAME } from '../state';
-import BulkActionsMenu from './bulk-actions-menu';
 import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
@@ -141,7 +141,29 @@ const Inbox = () => {
 								initialValue={ searchQuery }
 								loading={ loading }
 							/>
-							<BulkActionsMenu />
+							<DropdownFilter
+								options={ [
+									{
+										label: __( 'All dates', 'jetpack-forms' ),
+										value: null,
+									},
+									{ value: 12, label: 'December 2023' },
+									{ value: 1, label: 'January 2023' },
+									{ value: 2, label: 'February 2023' },
+									{ value: 3, label: 'March 2023' },
+								] }
+							/>
+							<DropdownFilter
+								options={ [
+									{
+										label: __( 'All sources', 'jetpack-forms' ),
+										value: null,
+									},
+									{ value: 1, label: 'Division Meetup' },
+									{ value: 2, label: 'RSVP Form' },
+									{ value: 3, label: 'Contact Form' },
+								] }
+							/>
 						</div>
 						<div className="jp-forms__inbox-content">
 							<div className="jp-forms__inbox-content-column">
