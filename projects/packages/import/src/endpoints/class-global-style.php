@@ -31,7 +31,7 @@ class Global_Style extends \WP_REST_Posts_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
-		parent::__construct( 'global_style' );
+		parent::__construct( 'wp_global_styles' );
 
 		$this->rest_base = 'global-styles';
 	}
