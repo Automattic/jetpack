@@ -37,7 +37,7 @@
 		"platform": {
 			"php": "7.3"
 		},
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_6_0",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_6_1_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
@@ -71,7 +71,6 @@
 		},
 		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-crm",
-		"dev-releases": true,
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-crm/compare/v${old}...v${new}"
 		},
