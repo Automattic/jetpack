@@ -200,27 +200,30 @@
 
                     }
 					// Quote status.
-				?>
+				if ( $quoteID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					?>
+				
 					<tr class="wh-large"><th><label for="quote_status"><?php esc_html_e( 'Status', 'zero-bs-crm' ); ?>:</label></th>
 						<td>
 							<div class="zbs-prominent">
 
 							<select id="quote_status" name="quote_status">
 							<?php
-						foreach ( $acceptable_quote_statuses as $status_opt => $status_str ) {
-							$sel = '';
-							if ( $status_str === $status ) {
-								$sel = ' selected="selected"';
+							foreach ( $acceptable_quote_statuses as $status_opt => $status_str ) {
+								$sel = '';
+								if ( $status_str === $status ) {
+									$sel = ' selected="selected"';
+								}
+								/* Translators:  %s is the Quote status. */
+								echo '<option value="' . esc_attr( $status_opt ) . '"' . esc_attr( $sel ) . '>' . esc_html( sprintf( __( '%s', 'zero-bs-crm' ), $status_str ) ) . '</option>'; // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings
 							}
-							/* Translators:  %s is the Quote status. */
-							echo '<option value="' . esc_attr( $status_opt ) . '"' . esc_attr( $sel ) . '>' . esc_html( sprintf( __( '%s', 'zero-bs-crm' ), $status_str ) ) . '</option>'; // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings
-						}
-						?>
+							?>
 							</select>
 							
 						</div>
 						</td></tr>
 						<?php
+				} // end if
 
                     #} ALSO customer assigning is seperate:
                     ?><tr class="wh-large"><th><label><?php esc_html_e('Contact',"zero-bs-crm");?>:</label></th>
