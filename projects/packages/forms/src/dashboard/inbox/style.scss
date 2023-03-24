@@ -106,7 +106,7 @@ $action-bar-height: 72px;
 		display: flex;
 	}
 
-	@media (min-width: 481px) and (max-width: 1025px) {
+	@media (min-width: 481px) and (max-width: 1024px) {
 		padding-left: 64px;
 		padding-right: 64px;
 	}
@@ -148,12 +148,6 @@ $action-bar-height: 72px;
 		border-radius: 0;
 	}
 
-	@media (max-width: 660px) {
-		.jp-forms__table-cell.is-source {
-			display: none;
-		}
-	}
-
 	@media (max-width: 1024px) {
 		.jp-forms__table-item.is-active {
 			background-color: #fff;
@@ -175,17 +169,33 @@ $action-bar-height: 72px;
 		text-overflow: ellipsis;
 	}
 
-	.jp-forms__table-cell.is-source {
-		@media (min-width: 1025px) and (max-width: 1440px) {
-			max-width: 130px;
-		}
-
-		max-width: 350px;
+	.jp-forms__table-cell.is-name {
+		min-width: 160px;
+		width: 45%;
 	}
 
-	.jp-forms__table-cell.is-name {
-		max-width: 100px;
-		width: 100%;
+	.jp-forms__table-cell.is-date {
+		min-width: 110px;
+		width: 27.5%;
+	}
+
+	.jp-forms__table-cell.is-source {
+		min-width: 100px;
+		width: 27.5%;
+	}
+
+	@media (max-width: 660px) {
+		.jp-forms__table-cell.is-name {
+			width: 60%;
+		}
+
+		.jp-forms__table-cell.is-date {
+			width: 40%;
+		}
+
+		.jp-forms__table-cell.is-source {
+			display: none;
+		}
 	}
 }
 
@@ -205,12 +215,7 @@ $action-bar-height: 72px;
 		box-sizing: border-box;
 		content: "";
 		display: flex;
-		padding-top: 32px;
-	}
-
-	&.has-email::before {
-		margin-bottom: 62px;
-		padding-top: 70px;
+		padding-top: 24px;
 	}
 }
 
@@ -219,7 +224,7 @@ $action-bar-height: 72px;
 	border: 3px solid #fff;
 	border-radius: 50%;
 	box-sizing: border-box;
-	display: flex;
+	display: none; //Hidden for now
 	height: 74px;
 	filter: drop-shadow(0px 4px 44px rgba(0, 0, 0, 0.25));
 	overflow: hidden;
@@ -231,9 +236,10 @@ $action-bar-height: 72px;
 }
 
 .jp-forms__inbox-response-title {
-	font-size: 36px;
+	font-size: 24px;
 	font-weight: bold;
-	margin: 0;
+	line-height: normal;
+	margin: 24px 0 0;
 	padding: 0 32px;
 
 	&.is-email {
@@ -246,10 +252,9 @@ $action-bar-height: 72px;
 
 .jp-forms__inbox-response-subtitle {
 	color: #646970;
-	font-size: 24px;
-	font-weight: bold;
-	margin: 0;
-	margin-top: 8px;
+	font-size: 16px;
+	font-weight: 500;
+	margin: 4px 0 0;
 	overflow: hidden;
 	padding: 0 32px;
 	text-overflow: ellipsis;
@@ -258,17 +263,22 @@ $action-bar-height: 72px;
 
 .jp-forms__inbox-response-meta {
 	color: #646970;
-	display: flex;
+	display: table;
 	flex-direction: column;
-	font-size: 16px;
-	line-height: 24px;
+	font-size: 12px;
+	font-weight: 400;
+	line-height: 20px;
 	row-gap: 4px;
-	padding: 32px;
-	font-weight: 300;
+	padding: 16px 32px 24px;
 }
 
+.jp-forms__inbox-response-meta-label {
+	display: table-row;
+}
+
+.jp-forms__inbox-response-meta-key,
 .jp-forms__inbox-response-meta-value {
-	font-weight: 700;
+	display: table-cell;
 }
 
 .jp-forms__inbox-response-separator {
@@ -281,16 +291,12 @@ $action-bar-height: 72px;
 	font-size: 16px;
 	flex-direction: column;
 	line-height: 24px;
-	padding: 32px;
+	padding: 24px 32px;
+	row-gap: 24px;
 }
 
 .jp-forms__inbox-response-data-label {
 	font-weight: 600;
-	margin-top: 24px;
-
-	&:first-child {
-		margin-top: 0;
-	}
 }
 
 // ACTIONS ROW
