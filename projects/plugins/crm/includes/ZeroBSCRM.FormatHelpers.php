@@ -1086,6 +1086,20 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 			$html .= '</span>';
 
 			break;
+
+		case ZBS_TYPE_INVOICE:
+			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['manageinvoices'] );
+
+			$html .= '</span>';
+
+			break;
+
+		case ZBS_TYPE_TRANSACTION:
+			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managetransactions'] );
+
+			$html .= '</span>';
+
+			break;
 	}
 
 	return $html;
