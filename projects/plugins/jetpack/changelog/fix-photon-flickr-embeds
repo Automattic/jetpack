@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Image CDN: do not process Flickr-hosted images with Jetpack's Image CDN.

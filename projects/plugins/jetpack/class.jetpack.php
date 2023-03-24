@@ -886,6 +886,16 @@ class Jetpack {
 		}
 
 		/*
+		 * Enable the Yoast Promo panel
+		 * if we're not in offline mode, and if promotions aren't disabled.
+		 */
+		if (
+			! ( new Status() )->is_offline_mode()
+		) {
+			$config->ensure( 'yoast_promo' );
+		}
+
+		/*
 		 * Load things that should only be in Network Admin.
 		 *
 		 * For now blow away everything else until a more full

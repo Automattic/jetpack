@@ -42,12 +42,14 @@ const startScanOptimistically = () => {
 	return { type: START_SCAN_OPTIMISTICALLY };
 };
 
-const refreshPlan = () => ( { dispatch } ) => {
-	apiFetch( {
-		path: 'jetpack-protect/v1/check-plan',
-		method: 'GET',
-	} ).then( hasRequiredPlan => dispatch( setHasRequiredPlan( hasRequiredPlan ) ) );
-};
+const refreshPlan =
+	() =>
+	( { dispatch } ) => {
+		apiFetch( {
+			path: 'jetpack-protect/v1/check-plan',
+			method: 'GET',
+		} ).then( hasRequiredPlan => dispatch( setHasRequiredPlan( hasRequiredPlan ) ) );
+	};
 
 /**
  * Fetch Status
@@ -67,24 +69,26 @@ const fetchStatus = hardRefresh =>
  * @param {boolean} hardRefresh - Clears the status cache before fetching, when enabled.
  * @returns {Promise} - Promise which resolves when the status is refreshed from an API fetch.
  */
-const refreshStatus = ( hardRefresh = false ) => async ( { dispatch } ) => {
-	dispatch( setStatusIsFetching( true ) );
-	return await new Promise( ( resolve, reject ) => {
-		return fetchStatus( hardRefresh )
-			.then( checkStatus )
-			.then( status => {
-				dispatch( setScanIsUnavailable( 'unavailable' === status.status ) );
-				dispatch( setStatus( camelize( status ) ) );
-				resolve( status );
-			} )
-			.catch( error => {
-				reject( error );
-			} )
-			.finally( () => {
-				dispatch( setStatusIsFetching( false ) );
-			} );
-	} );
-};
+const refreshStatus =
+	( hardRefresh = false ) =>
+	async ( { dispatch } ) => {
+		dispatch( setStatusIsFetching( true ) );
+		return await new Promise( ( resolve, reject ) => {
+			return fetchStatus( hardRefresh )
+				.then( checkStatus )
+				.then( status => {
+					dispatch( setScanIsUnavailable( 'unavailable' === status.status ) );
+					dispatch( setStatus( camelize( status ) ) );
+					resolve( status );
+				} )
+				.catch( error => {
+					reject( error );
+				} )
+				.finally( () => {
+					dispatch( setStatusIsFetching( false ) );
+				} );
+		} );
+	};
 
 /**
  * Check Status
@@ -116,25 +120,27 @@ const checkStatus = ( currentStatus, attempts = 0 ) => {
  *
  * @returns {Promise} - Promise which resolves when the status is refreshed from an API fetch.
  */
-const checkCredentials = () => async ( { dispatch } ) => {
-	return await new Promise( ( resolve, reject ) => {
-		dispatch( setCredentialsIsFetching( true ) );
-		return apiFetch( {
-			path: 'jetpack-protect/v1/check-credentials',
-			method: 'POST',
-		} )
-			.then( credentials => {
-				dispatch( setCredentials( credentials ) );
-				resolve( credentials );
+const checkCredentials =
+	() =>
+	async ( { dispatch } ) => {
+		return await new Promise( ( resolve, reject ) => {
+			dispatch( setCredentialsIsFetching( true ) );
+			return apiFetch( {
+				path: 'jetpack-protect/v1/check-credentials',
+				method: 'POST',
 			} )
-			.catch( error => {
-				reject( error );
-			} )
-			.finally( () => {
-				dispatch( setCredentialsIsFetching( false ) );
-			} );
-	} );
-};
+				.then( credentials => {
+					dispatch( setCredentials( credentials ) );
+					resolve( credentials );
+				} )
+				.catch( error => {
+					reject( error );
+				} )
+				.finally( () => {
+					dispatch( setCredentialsIsFetching( false ) );
+				} );
+		} );
+	};
 
 const setCredentialsIsFetching = isFetching => {
 	return { type: SET_CREDENTIALS_STATE_IS_FETCHING, isFetching };
@@ -180,168 +186,176 @@ const setThreatsAreFixing = threatIds => {
 	return { type: SET_THREATS_ARE_FIXING, threatIds };
 };
 
-const ignoreThreat = ( threatId, callback = () => {} ) => async ( { dispatch } ) => {
-	dispatch( setThreatIsUpdating( threatId, true ) );
-	return await new Promise( () => {
-		return apiFetch( {
-			path: `jetpack-protect/v1/ignore-threat?threat_id=${ threatId }`,
-			method: 'POST',
-		} )
-			.then( () => {
-				return dispatch( refreshStatus() );
-			} )
-			.then( () => {
-				return dispatch(
-					setNotice( { type: 'success', message: __( 'Threat ignored', 'jetpack-protect' ) } )
-				);
-			} )
-			.catch( () => {
-				return dispatch(
-					setNotice( {
-						type: 'error',
-						message: __( 'An error ocurred ignoring the threat.', 'jetpack-protect' ),
-					} )
-				);
-			} )
-			.finally( () => {
-				dispatch( setThreatIsUpdating( threatId, false ) );
-				callback();
-			} );
-	} );
-};
-
-const getFixThreatsStatus = threatIds => async ( { dispatch } ) => {
-	const path = threatIds.reduce( ( carryPath, threatId ) => {
-		return `${ carryPath }threat_ids[]=${ threatId }&`;
-	}, 'jetpack-protect/v1/fix-threats-status?' );
-
-	dispatch( setThreatsAreFixing( threatIds ) );
-
-	return await apiFetch( {
-		path,
-		method: 'GET',
-	} )
-		.then( async response => {
-			const threatArray = Object.values( response.threats );
-			const inProgressThreats = threatArray.filter( threat => 'in_progress' === threat.status );
-
-			if ( inProgressThreats.length > 0 ) {
-				// fix still in progress - try again in another second
-				return await new Promise( () => {
-					setTimeout( () => {
-						dispatch( getFixThreatsStatus( threatIds ) );
-					}, 1000 );
-				} );
-			}
-
-			// throw an error if not all threats were fixed
-			const fixedThreats = threatArray.filter( threat => threat.status === 'fixed' );
-			if ( ! fixedThreats.length === threatIds.length ) {
-				throw 'Not all threats could be fixed.';
-			}
-		} )
-		.then( () => {
-			// threats fixed - refresh the status
-			dispatch( refreshStatus() );
-			dispatch(
-				setNotice( {
-					type: 'success',
-					message: sprintf(
-						// translators: placeholder is the number amount of fixed threats.
-						_n(
-							'%s threat was fixed successfully',
-							'%s threats were fixed successfully',
-							threatIds.length,
-							'jetpack-protect'
-						),
-						threatIds.length
-					),
-				} )
-			);
-		} )
-		.catch( () => {
-			dispatch(
-				setNotice( {
-					type: 'error',
-					message: __(
-						'Not all threats could be fixed. Please contact our support.',
-						'jetpack-protect'
-					),
-				} )
-			);
-		} )
-		.finally( () => {
-			dispatch( setThreatsAreFixing( [] ) );
-		} );
-};
-
-const fixThreats = ( threatIds, callback = () => {} ) => async ( { dispatch } ) => {
-	threatIds.forEach( threatId => {
+const ignoreThreat =
+	( threatId, callback = () => {} ) =>
+	async ( { dispatch } ) => {
 		dispatch( setThreatIsUpdating( threatId, true ) );
-	} );
-	return await new Promise( () => {
-		return apiFetch( {
-			path: `jetpack-protect/v1/fix-threats?threat_ids=${ threatIds }`,
-			method: 'POST',
-			data: { threatIds },
+		return await new Promise( () => {
+			return apiFetch( {
+				path: `jetpack-protect/v1/ignore-threat?threat_id=${ threatId }`,
+				method: 'POST',
+			} )
+				.then( () => {
+					return dispatch( refreshStatus() );
+				} )
+				.then( () => {
+					return dispatch(
+						setNotice( { type: 'success', message: __( 'Threat ignored', 'jetpack-protect' ) } )
+					);
+				} )
+				.catch( () => {
+					return dispatch(
+						setNotice( {
+							type: 'error',
+							message: __( 'An error ocurred ignoring the threat.', 'jetpack-protect' ),
+						} )
+					);
+				} )
+				.finally( () => {
+					dispatch( setThreatIsUpdating( threatId, false ) );
+					callback();
+				} );
+		} );
+	};
+
+const getFixThreatsStatus =
+	threatIds =>
+	async ( { dispatch } ) => {
+		const path = threatIds.reduce( ( carryPath, threatId ) => {
+			return `${ carryPath }threat_ids[]=${ threatId }&`;
+		}, 'jetpack-protect/v1/fix-threats-status?' );
+
+		dispatch( setThreatsAreFixing( threatIds ) );
+
+		return await apiFetch( {
+			path,
+			method: 'GET',
 		} )
+			.then( async response => {
+				const threatArray = Object.values( response.threats );
+				const inProgressThreats = threatArray.filter( threat => 'in_progress' === threat.status );
+
+				if ( inProgressThreats.length > 0 ) {
+					// fix still in progress - try again in another second
+					return await new Promise( () => {
+						setTimeout( () => {
+							dispatch( getFixThreatsStatus( threatIds ) );
+						}, 1000 );
+					} );
+				}
+
+				// throw an error if not all threats were fixed
+				const fixedThreats = threatArray.filter( threat => threat.status === 'fixed' );
+				if ( ! fixedThreats.length === threatIds.length ) {
+					throw 'Not all threats could be fixed.';
+				}
+			} )
 			.then( () => {
-				return dispatch(
+				// threats fixed - refresh the status
+				dispatch( refreshStatus() );
+				dispatch(
 					setNotice( {
 						type: 'success',
+						message: sprintf(
+							// translators: placeholder is the number amount of fixed threats.
+							_n(
+								'%s threat was fixed successfully',
+								'%s threats were fixed successfully',
+								threatIds.length,
+								'jetpack-protect'
+							),
+							threatIds.length
+						),
+					} )
+				);
+			} )
+			.catch( () => {
+				dispatch(
+					setNotice( {
+						type: 'error',
 						message: __(
-							"We're hard at work fixing this threat in the background. Please check back shortly.",
+							'Not all threats could be fixed. Please contact our support.',
 							'jetpack-protect'
 						),
 					} )
 				);
 			} )
-			.then( () => {
-				// wait one second, then start checking if the threats have been fixed
-				setTimeout( () => dispatch( getFixThreatsStatus( threatIds ) ), 1000 );
-			} )
-			.catch( () => {
-				return dispatch(
-					setNotice( {
-						type: 'error',
-						message: __( 'Error fixing threats. Please contact support.', 'jetpack-protect' ),
-					} )
-				);
-			} )
 			.finally( () => {
-				threatIds.forEach( threatId => {
-					dispatch( setThreatIsUpdating( threatId, false ) );
-				} );
-				callback();
+				dispatch( setThreatsAreFixing( [] ) );
 			} );
-	} );
-};
+	};
 
-const scan = ( callback = () => {} ) => async ( { dispatch } ) => {
-	dispatch( setScanIsEnqueuing( true ) );
-	return await new Promise( () => {
-		return apiFetch( {
-			path: `jetpack-protect/v1/scan`,
-			method: 'POST',
-		} )
-			.then( () => {
-				dispatch( startScanOptimistically() );
-				setTimeout( () => dispatch( refreshStatus( true ) ), 5000 );
+const fixThreats =
+	( threatIds, callback = () => {} ) =>
+	async ( { dispatch } ) => {
+		threatIds.forEach( threatId => {
+			dispatch( setThreatIsUpdating( threatId, true ) );
+		} );
+		return await new Promise( () => {
+			return apiFetch( {
+				path: `jetpack-protect/v1/fix-threats?threat_ids=${ threatIds }`,
+				method: 'POST',
+				data: { threatIds },
 			} )
-			.catch( () => {
-				return dispatch(
-					setNotice( {
-						type: 'error',
-						message: __( 'An error ocurred enqueuing the scan', 'jetpack-protect' ),
-					} )
-				);
+				.then( () => {
+					return dispatch(
+						setNotice( {
+							type: 'success',
+							message: __(
+								"We're hard at work fixing this threat in the background. Please check back shortly.",
+								'jetpack-protect'
+							),
+						} )
+					);
+				} )
+				.then( () => {
+					// wait one second, then start checking if the threats have been fixed
+					setTimeout( () => dispatch( getFixThreatsStatus( threatIds ) ), 1000 );
+				} )
+				.catch( () => {
+					return dispatch(
+						setNotice( {
+							type: 'error',
+							message: __( 'Error fixing threats. Please contact support.', 'jetpack-protect' ),
+						} )
+					);
+				} )
+				.finally( () => {
+					threatIds.forEach( threatId => {
+						dispatch( setThreatIsUpdating( threatId, false ) );
+					} );
+					callback();
+				} );
+		} );
+	};
+
+const scan =
+	( callback = () => {} ) =>
+	async ( { dispatch } ) => {
+		dispatch( setScanIsEnqueuing( true ) );
+		return await new Promise( () => {
+			return apiFetch( {
+				path: `jetpack-protect/v1/scan`,
+				method: 'POST',
 			} )
-			.finally( () => {
-				dispatch( setScanIsEnqueuing( false ) );
-				callback();
-			} );
-	} );
-};
+				.then( () => {
+					dispatch( startScanOptimistically() );
+					setTimeout( () => dispatch( refreshStatus( true ) ), 5000 );
+				} )
+				.catch( () => {
+					return dispatch(
+						setNotice( {
+							type: 'error',
+							message: __( 'An error ocurred enqueuing the scan', 'jetpack-protect' ),
+						} )
+					);
+				} )
+				.finally( () => {
+					dispatch( setScanIsEnqueuing( false ) );
+					callback();
+				} );
+		} );
+	};
 
 /**
  * Set Modal

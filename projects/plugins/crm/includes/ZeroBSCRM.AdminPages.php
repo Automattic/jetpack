@@ -794,13 +794,13 @@ function zeroBSCRM_pages_admin_system_emails() {
 		<div class="ui segment">
 			<p class='lead'>
 			<?php
-			// WLREMOVE
+			##WLREMOVE
 			?>
 			<?php _e( 'It is strongly recommended to leave this template unchanged for maximum device support. If you still wish to modify it, you can copy the <code>emails/default-email.html</code> file from the <code>/templates</code> directory of your CRM plugin into a <code>/jetpack-crm</code> directory in your theme, and then edit the file.' ); ?>
 			<?php _e( 'You can modify this template by copying the /templates directory from your CRM plugin into your theme directory, then editing the file <code>emails/default-email.html</code>, though it is recommended to leave this template in tact for maximum device support.' ); ?>          
 			<br /><a href="<?php echo esc_url( $zbs->urls['kbtemplatefiles'] ); ?>" target="_blank" class="ui basic blue small button"><?php esc_html_e( 'Read more about templating', 'zero-bs-crm' ); ?></a>
 			<?php
-			// /WLREMOVE
+			##/WLREMOVE
 			?>
 			</p>
 			<div class="ui segment">
@@ -1561,7 +1561,7 @@ function zeroBSCRM_html_home2() {
 
 			<?php
 		}
-		// WLREMOVE
+		##WLREMOVE
 		else {
 
 			// bundle owners:
@@ -1586,7 +1586,7 @@ function zeroBSCRM_html_home2() {
 
 		}
 
-		// /WLREMOVE
+		##/WLREMOVE
 		?>
 
 	</div><!-- / zbs-welcome -->
@@ -1741,11 +1741,11 @@ function zeroBSCRM_html_datatools() {
 				}
 
 				if ( $zbsDataToolsInstalled == 0 ) {
-					// WLREMOVE
+					##WLREMOVE
 					?>
 					<?php esc_html_e( 'You do not have any Pro Data Tools installed as of yet', 'zero-bs-crm' ); ?>! <a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank"><?php esc_html_e( 'Get some now', 'zero-bs-crm' ); ?></a>
 					<?php
-					// /WLREMOVE
+					##/WLREMOVE
 				}
 
 				?>
@@ -1843,18 +1843,18 @@ function zeroBSCRM_html_installextensionshelper() {
 			</style>
 			<div class="ui segment zbs-admin-segment-center" style="margin-right:15px;">
 	<?php
-			// WLREMOVE
+			##WLREMOVE
 			zeroBSCRM_extension_installer_promo();
-			// /WLREMOVE
+			##/WLREMOVE
 	?>
 			<h2><?php esc_html_e( 'Installing Extensions for Jetpack CRM', 'zero-bs-crm' ); ?></h2>
 			<p class="intro"><?php echo wp_kses( sprintf( __( 'To control which modules are active, please go the <a href="%s">Core Module page</a>.', 'zero-bs-crm' ), esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['modules'] ) ) ), $zbs->acceptable_restricted_html ); ?></p>
 			<p class="intro"><?php echo wp_kses( sprintf( __( 'To install premium extensions, purchased in a bundle or individually please go to <a href="%s">Plugins</a> and add your new extensions there.', 'zero-bs-crm' ), esc_url( admin_url( 'plugins.php' ) ) ), $zbs->acceptable_restricted_html ); ?></p>
 			<p class="intro-buttons">
 			<a href="<?php echo esc_url( admin_url( 'plugins.php' ) ); ?>" class="ui button primary"><i class="fa fa-plug" aria-hidden="true"></i> <?php esc_html_e( 'Upload Purchased Extensions', 'zero-bs-crm' ); ?></a>
-			<?php // WLREMOVE ?>
+			<?php ##WLREMOVE ?>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['extensions'] ) ); ?>" class="ui button green"><i class="fa fa-search" aria-hidden="true"></i> <?php esc_html_e( 'Browse Extensions', 'zero-bs-crm' ); ?></a>
-			<?php // /WLREMOVE ?>
+			<?php ##/WLREMOVE ?>
 			</p>
 	</div>
 	
@@ -1996,7 +1996,7 @@ function zeroBSCRM_html_extensions() {
 	// get the products, from our sites JSON custom REST endpoint - that way only need to manage there and not remember to update all the time
 	// each product has our extkey so can do the same as the built in array here ;) #progress #woop-da-woop
 	if ( isset( $_GET['extension_id'] ) && ! empty( $_GET['extension_id'] ) ) {
-		// WLREMOVE
+		##WLREMOVE
 			echo '<div class="zbs-page-wrap thinner" id="error-stuff">';
 			$id      = (int) sanitize_text_field( $_GET['extension_id'] );
 			$request = wp_safe_remote_get( 'https://jetpackcrm.com/wp-json/zbsextensions/v1/extensions/' . $id );
@@ -2114,10 +2114,10 @@ function zeroBSCRM_html_extensions() {
 			echo '</div>';
 			// id="single-ext-desc"
 
-		// /WLREMOVE
+		##/WLREMOVE
 	} else {
 
-		// WLREMOVE
+		##WLREMOVE
 			$showLinkButton = true;
 
 			// get the JSON response from woocommerce REST endpoint.
@@ -2321,7 +2321,7 @@ function zeroBSCRM_html_extensions() {
 			echo '</div>';
 			echo '</div>';  // end page wrap.
 
-			// /WLREMOVE
+			##/WLREMOVE
 
 	}
 
