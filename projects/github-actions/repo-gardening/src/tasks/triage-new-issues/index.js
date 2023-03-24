@@ -1,5 +1,7 @@
+const { getInput } = require( '@actions/core' );
 const debug = require( '../../utils/debug' );
 const getLabels = require( '../../utils/get-labels' );
+const sendSlackMessage = require( '../../utils/send-slack-message' );
 
 /* global GitHub, WebhookPayloadIssue */
 
@@ -94,6 +96,46 @@ function findPriority( body ) {
 }
 
 /**
+ * Build an object containing the slack message and its formatting to send to Slack.
+ *
+ * @param {WebhookPayloadIssue} payload - Issue event payload.
+ * @param {string}              channel - Slack channel ID.
+ * @param {string}              message - Basic message (without the formatting).
+ * @returns {object} Object containing the slack message and its formatting.
+ */
+function formatSlackMessage( payload, channel, message ) {
+	const { issue } = payload;
+	const { html_url, title } = issue;
+
+	return {
+		channel,
+		blocks: [
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: message,
+				},
+			},
+			{
+				type: 'divider',
+			},
+			{
+				type: 'section',
+				text: {
+					type: 'mrkdwn',
+					text: `<${ html_url }|${ title }>`,
+				},
+			},
+		],
+		text: `${ message } -- <${ html_url }|${ title }>`, // Fallback text for display in notifications.
+		mrkdwn: true, // Formatting of the fallback text.
+		unfurl_links: false,
+		unfurl_media: false,
+	};
+}
+
+/**
  * Add labels to newly opened issues.
  *
  * @param {WebhookPayloadIssue} payload - Issue event payload.
@@ -148,6 +190,24 @@ async function triageNewIssues( payload, octokit ) {
 			issue_number: number,
 			labels: [ `[Pri] ${ priority }` ],
 		} );
+	} else if ( priority === null && ! hasPriorityLabel ) {
+		// No priority found, and no priority label.
+		// Let's notify the team so they can prioritize the issue appropriately.
+		// So far only enabled in the Calypso repo.
+		if ( 'Automattic/wp-calypso' !== repository.full_name ) {
+			return;
+		}
+
+		// No Slack tokens, we won't be able to escalate. Bail.
+		const slackToken = getInput( 'slack_token' );
+		const channel = getInput( 'slack_quality_channel' );
+		if ( ! slackToken || ! channel ) {
+			return null;
+		}
+
+		const message = '@kitkat-team New bug missing priority. Please do a priority assessment.';
+		const slackMessageFormat = formatSlackMessage( payload, channel, message );
+		await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 	}
 }
 
