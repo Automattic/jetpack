@@ -1012,13 +1012,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "447d789e17524ee826c91a106f1faa52f85213a0"
+                "reference": "543edc4fdf4a8cffbfa8c1a4f15328491d594888"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-autoloader": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-plans": "0.3.x-dev",
                 "automattic/jetpack-redirect": "@dev"
             },
             "require-dev": {
