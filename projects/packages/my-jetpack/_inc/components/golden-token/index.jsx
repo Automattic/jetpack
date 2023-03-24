@@ -1,7 +1,8 @@
 import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { JetpackBackupLogo, JetpackLogo, JetpackScanLogo } from './logos';
 import styles from './styles.module.scss';
 
@@ -14,20 +15,37 @@ import styles from './styles.module.scss';
  * @returns {React.Component} - GoldenToken component.
  */
 function GoldenToken( { redeemClick, hasGoldenToken } ) {
+	const [ isAnimating, setIsAnimating ] = useState( false );
+	const videoRef = useRef( null );
+
+	const redeemClickHandler = useCallback(
+		e => {
+			redeemClick?.( e );
+
+			setIsAnimating( true );
+			videoRef.current.play();
+		},
+		[ redeemClick, videoRef ]
+	);
+
 	if ( ! hasGoldenToken ) {
 		return <div>No token. Try harder.</div>;
 	}
 
+	const modalClassName = classNames( styles.modal, {
+		[ styles.animating ]: isAnimating,
+	} );
+
 	return (
 		<div className={ styles.container }>
-			<div id="js-golden-token-modal" className={ `${ styles.modal }` }>
+			<div className={ modalClassName }>
 				<JetpackLogo className={ styles[ 'jetpack-logo' ] } />
 				<div className={ styles[ 'video-wrap' ] }>
 					{ /* eslint-disable-next-line jsx-a11y/media-has-caption */ }
 					<video
-						id="js-golden-token-video"
+						ref={ videoRef }
 						src="https://videos.files.wordpress.com/oSlNIBQO/jetpack-golden-token.mp4"
-					></video>
+					/>
 				</div>
 
 				<div className={ styles[ 'content-wrap' ] }>
@@ -43,7 +61,7 @@ function GoldenToken( { redeemClick, hasGoldenToken } ) {
 							) }
 						</p>
 					</div>
-					<Button variant="primary" weight="regular" onClick={ redeemClick }>
+					<Button variant="primary" weight="regular" onClick={ redeemClickHandler }>
 						{ __( 'Redeem your token', 'jetpack-my-jetpack' ) }
 					</Button>
 				</div>
@@ -99,16 +117,8 @@ function GoldenToken( { redeemClick, hasGoldenToken } ) {
 	);
 }
 
-GoldenToken.defaultProps = {
-	redeemClick: () => {
-		const jpModal = document.getElementById( 'js-golden-token-modal' );
-		const jpVideo = document.getElementById( 'js-golden-token-video' );
-		// Delay for the feeling.
-		setTimeout( function () {
-			jpModal.classList.add( styles.animating );
-			jpVideo.play();
-		}, 500 );
-	},
+GoldenToken.propTypes = {
+	redeemClick: PropTypes.func,
 	hasGoldenToken: PropTypes.bool.isRequired,
 };
 
