@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback, useRef, useState } from 'react';
 import styles from './styles.module.scss';
+import './styles.scss';
 
 /**
  * Component that displays a golden token experience.
@@ -58,7 +59,12 @@ function GoldenTokenModal( {
 		userConnectionData?.currentUser?.username;
 
 	return (
-		<Modal className={ modalClassName } onRequestClose={ onModalClose } isDismissible={ false }>
+		<Modal
+			className={ modalClassName }
+			onRequestClose={ onModalClose }
+			isDismissible={ false }
+			__experimentalHideHeader={ true }
+		>
 			{ fetchingPurchases && <>{ __( 'Checking gold status…', 'jetpack-my-jetpack' ) }</> }
 			{ ! fetchingPurchases && hasGoldenToken && (
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>

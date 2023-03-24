@@ -28,7 +28,7 @@ $tablet-width: 760px;
 	border-radius: var(--modal-radius);
 	background: var(--white);
 	box-shadow: 0 12px 16px -0.5px rgba(0, 0, 0, 0.15);
-	height: 700px;
+	height: inherit;
 	margin: 3rem auto;
 	max-width: 414px;
 	overflow: hidden;
@@ -51,9 +51,24 @@ $tablet-width: 760px;
 	}
 
 	&.animating {
-		height: 600px;
+		height: 618px;
 		transition-delay: 2.15s;
+
+		h2 {
+			margin-top: 0;
+		}
 	}
+}
+
+.button {
+	align-self: flex-start;
+	width: 100%;
+	/*
+	* We have to use !important to add additional styling compared to the Jetpack
+	* button component.
+	*/
+	padding: 8px var(--modal-padding-small) !important;
+	margin-top: var(--gap) !important;
 }
 
 .headline {
@@ -118,6 +133,7 @@ $tablet-width: 760px;
 }
 
 .video-wrap {
+	border-radius: var(--button-radius);
 	display: flex;
 	height: 50%;
 	justify-content: center;
