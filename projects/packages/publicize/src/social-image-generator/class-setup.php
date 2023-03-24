@@ -53,6 +53,10 @@ class Setup {
 	 * @param \WP_Post $post    Post that's being updated.
 	 */
 	public function generate_token_on_save( $post_id, $post ) {
+		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
+			return;
+		}
+
 		// If we're not using the block editor for this post, do not continue.
 		if ( ! use_block_editor_for_post( $post ) ) {
 			return;
