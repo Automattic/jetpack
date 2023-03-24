@@ -20,11 +20,14 @@ const Table = ( { className, columns, defaultSelected, items, onSelectionChange 
 	const selectAll = useCallback( () => {
 		if ( difference( map( items, 'id' ), selected ).length === 0 ) {
 			setSelected( [] );
+			onSelectionChange( [] );
 			return;
 		}
 
-		setSelected( map( items, 'id' ) );
-	}, [ items, selected ] );
+		const newState = map( items, 'id' );
+		setSelected( newState );
+		onSelectionChange( newState );
+	}, [ items, selected, onSelectionChange ] );
 
 	const classes = classnames( 'jp-forms__table', className );
 	const checkboxClasses = classnames( 'jp-forms__table-checkbox', {

@@ -22,6 +22,7 @@ const COLUMNS = [
 const InboxList = ( {
 	currentPage,
 	currentResponseId,
+	onSelectionChange = noop,
 	pages,
 	responses,
 	setCurrentPage,
@@ -63,7 +64,7 @@ const InboxList = ( {
 				className="jp-forms__inbox-list"
 				columns={ COLUMNS }
 				items={ tableItems }
-				onSelectionChange={ noop }
+				onSelectionChange={ onSelectionChange }
 			/>
 
 			<PageNavigation

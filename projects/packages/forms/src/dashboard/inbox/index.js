@@ -36,6 +36,7 @@ const TABS = [
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
 	const [ view, setView ] = useState( 'list' );
+	const [ isBulkActionsVisible, setBulkActionsVisible ] = useState( false );
 
 	const { fetchResponses, setCurrentPage, setSearchQuery, setStatusQuery } =
 		useDispatch( STORE_NAME );
@@ -76,6 +77,10 @@ const Inbox = () => {
 		setView( 'list' );
 	}, [] );
 
+	const onInboxSelectionChange = useCallback( selection => {
+		setBulkActionsVisible( !! selection.length );
+	}, [] );
+
 	const classes = classnames( 'jp-forms__inbox', {
 		'is-response-view': view === 'response',
 	} );
@@ -102,12 +107,14 @@ const Inbox = () => {
 				{ () => (
 					<>
 						<div className="jp-forms__inbox-actions">
-							<SearchForm
-								onSearch={ setSearchQuery }
-								initialValue={ query.search }
-								loading={ loading }
-							/>
-							<BulkActionsMenu />
+							{ ! isBulkActionsVisible && (
+								<SearchForm
+									onSearch={ setSearchQuery }
+									initialValue={ query.search }
+									loading={ loading }
+								/>
+							) }
+							{ isBulkActionsVisible && <BulkActionsMenu /> }
 						</div>
 						<div className="jp-forms__inbox-content">
 							<div className="jp-forms__inbox-content-column">
@@ -119,6 +126,7 @@ const Inbox = () => {
 									currentPage={ currentPage }
 									setCurrentPage={ setCurrentPage }
 									pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
+									onSelectionChange={ onInboxSelectionChange }
 								/>
 							</div>
 
