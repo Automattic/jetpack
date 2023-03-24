@@ -387,7 +387,11 @@ export default function PosterPanel( {
 	}
 
 	return (
-		<PanelBody title={ __( 'Poster', 'jetpack-videopress-pkg' ) } className="poster-panel">
+		<PanelBody
+			title={ __( 'Poster', 'jetpack-videopress-pkg' ) }
+			className="poster-panel"
+			initialOpen={ false }
+		>
 			<ToggleControl
 				label={ __( 'Pick from video frame', 'jetpack-videopress-pkg' ) }
 				checked={ pickFromFrame }
