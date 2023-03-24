@@ -9,6 +9,7 @@ import {
 	Text,
 	H3,
 	Alert,
+	TermsOfService,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { ExternalLink } from '@wordpress/components';
@@ -64,6 +65,7 @@ function Price( { value, currency, isOld } ) {
  * @param {string} props.className               - A className to be concat with default ones
  * @param {boolean} props.preferProductName      - Use product name instead of title
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
+ * @param {boolean} props.withTOS                - Flag to determine if we need to render Term of Service text.
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( {
@@ -73,6 +75,7 @@ const ProductDetailCard = ( {
 	className,
 	preferProductName,
 	supportingInfo,
+	withTOS,
 } ) => {
 	const { fileSystemWriteAccess, siteSuffix, myJetpackUrl } = window?.myJetpackInitialState ?? {};
 
@@ -208,7 +211,18 @@ const ProductDetailCard = ( {
 
 	// If we prefer the product name, use that everywhere instead of the title
 	const productMoniker = name && preferProductName ? name : title;
-
+	const ctaLabel =
+		! isBundle && hasRequiredPlan
+			? sprintf(
+					/* translators: placeholder is product name. */
+					__( 'Install %s', 'jetpack-my-jetpack' ),
+					productMoniker
+			  )
+			: sprintf(
+					/* translators: placeholder is product name. */
+					__( 'Get %s', 'jetpack-my-jetpack' ),
+					productMoniker
+			  );
 	return (
 		<div
 			className={ classnames( styles.card, className, {
@@ -271,6 +285,12 @@ const ProductDetailCard = ( {
 					</Alert>
 				) }
 
+				{ withTOS && (
+					<div className={ styles[ 'tos-container' ] }>
+						<TermsOfService agreeButtonLabel={ ctaLabel } />
+					</div>
+				) }
+
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Text
 						component={ ProductDetailButton }
@@ -281,13 +301,7 @@ const ProductDetailCard = ( {
 						className={ styles[ 'checkout-button' ] }
 						variant="body"
 					>
-						{ ( isBundle || ! hasRequiredPlan ) &&
-							/* translators: placeholder is product name. */
-							sprintf( __( 'Get %s', 'jetpack-my-jetpack' ), productMoniker ) }
-						{ ! isBundle &&
-							hasRequiredPlan &&
-							/* translators: placeholder is product name. */
-							sprintf( __( 'Install %s', 'jetpack-my-jetpack' ), productMoniker ) }
+						{ ctaLabel }
 					</Text>
 				) }
 
