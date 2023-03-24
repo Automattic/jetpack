@@ -50,9 +50,9 @@ export const isVideoFramePosterEnabled = () =>
 // Global scripts array to be run in the Sandbox context.
 const sandboxScripts = [];
 
-// Populate scripts array with videopresAjaxURLBlob blobal var.
+// Populate scripts array with videopressAjaxURLBlob blobal var.
 if ( window.videopressAjax ) {
-	const videopresAjaxURLBlob = new Blob(
+	const videopressAjaxURLBlob = new Blob(
 		[
 			`var videopressAjax = ${ JSON.stringify( {
 				...window.videopressAjax,
@@ -66,7 +66,7 @@ if ( window.videopressAjax ) {
 
 	// Token bridge script
 	sandboxScripts.push(
-		URL.createObjectURL( videopresAjaxURLBlob ),
+		URL.createObjectURL( videopressAjaxURLBlob ),
 		window.videopressAjax.bridgeUrl
 	);
 }
