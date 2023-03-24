@@ -359,7 +359,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			Contact_Form::wp_mail( $to, $subject, $message, $headers );
 		}
 
-		return new \WP_REST_Response( '', 200 );
+		return new \WP_REST_Response( array(), 200 );
 	}
 
 	/**
@@ -382,7 +382,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			}
 		}
 
-		return new \WP_REST_Response( '', 200 );
+		return new \WP_REST_Response( array(), 200 );
 	}
 
 	/**
