@@ -51,7 +51,7 @@ class Publicize_Setup {
 		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
 
 		Current_Plan::init();
-		self::init_social_image_generator();
+		( new Social_Image_Generator\Setup() )->init();
 	}
 
 	/**
@@ -94,13 +94,5 @@ class Publicize_Setup {
 
 		$share_limits = new Share_Limits( $connections, $shares_remaining, ! $current_screen->is_block_editor() );
 		$share_limits->enforce_share_limits();
-	}
-
-	/**
-	 * Initialise social image generator.
-	 */
-	public static function init_social_image_generator() {
-		$sig = new Social_Image_Generator\Setup();
-		$sig->init();
 	}
 }
