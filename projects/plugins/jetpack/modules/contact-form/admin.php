@@ -327,9 +327,11 @@ function grunion_manage_post_column_response( $post ) {
 
 	$response_fields = array();
 
-	if ( is_array( $chunks ) ) {
-		$rearray         = json_decode( $chunks[1], true );
-		$response_fields = is_array( $rearray ) ? $rearray : array();
+	if ( is_array( $chunks ) && isset( $chunks[1] ) ) {
+		$rearray = json_decode( $chunks[1], true );
+		if ( is_array( $rearray ) && isset( $rearray['feedback_id'] ) ) {
+			$response_fields = $rearray;
+		}
 	}
 
 	if ( empty( $response_fields ) ) {
