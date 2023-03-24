@@ -1563,12 +1563,12 @@ define( 'SETTING_SECOND_ADDRESS_ALWAYS_SHOW', 1 );
 define( 'SETTING_SECOND_ADDRESS_ALLOW_CHANGE_VISIBILITY', 2 );
 
 /**
- * This function returns the correct value for the second address visibility
- * based on two distinct settings keys. We are using two different settings keys
- * because the option to allow changing the visibility was added later, and we
- * want to keep backwards compatibility. After all uses of the second address
- * visibility are dealt with (e.g. in the Client Portal), a migration
- * can be written to use only one setting key.
+ * Get secondary address admin visibility.
+ *
+ * We are using two different settings keys because the option to allow changing
+ * the visibility was added later, and we want to keep backwards compatibility.
+ * After all uses of the second address visibility are dealt with (e.g. in the
+ * Client Portal), a migration can be written to use only one setting key.
  *
  * @param array $settings The settings array.
  * @return int The value for the visibility of the second address fields.
