@@ -6,7 +6,6 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { isURL, getProtocol } from '@wordpress/url';
 /**
  * Internal dependencies
  */

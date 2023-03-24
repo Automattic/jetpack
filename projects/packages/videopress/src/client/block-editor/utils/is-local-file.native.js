@@ -5,6 +5,7 @@ import { isURL, getProtocol } from '@wordpress/url';
 
 /**
  * Determines if a URL points to a local file.
+ *
  * @param {string} url 	- URL to check.
  * @returns {boolean} 	- True if the URL points to a local file.
  */

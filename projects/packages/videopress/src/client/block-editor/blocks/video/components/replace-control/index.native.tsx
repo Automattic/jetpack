@@ -6,7 +6,6 @@ import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { replace } from '@wordpress/icons';
-import { isURL, getProtocol } from '@wordpress/url';
 /**
  * Internal dependencies
  */
