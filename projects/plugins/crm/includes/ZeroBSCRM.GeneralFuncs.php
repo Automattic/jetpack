@@ -1609,5 +1609,6 @@ function jpcrm_convert_legacy_object_key( $field_key ) {
 		case 'secpostcode':
 			return 'secaddr_postcode';
 	}
+
 	return $field_key;
 }
