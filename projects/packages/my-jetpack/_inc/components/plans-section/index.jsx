@@ -128,7 +128,7 @@ function PlanSectionFooter( { purchases } ) {
 			{ purchases.filter( golden => golden.partner_slug === 'goldenticket' ).length > 0 && (
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Button
-						href={ '/wp-admin/admin.php?page=my-jetpack#/redeem-token' }
+						href={ `${ window?.myJetpackInitialState?.myJetpackUrl }#/redeem-token` }
 						weight="regular"
 						variant="link"
 					>
