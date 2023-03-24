@@ -47,7 +47,8 @@ class Type_Array_Test extends TestCase {
 			3,
 			array( 'four', 'five', 'six' ),
 		);
-		$this->expectException( \Error::class );
+
+		$this->expectExceptionMessage( "Expected an array, received 'integer'" );
 		$nested_schema->parse( $invalid_nested_array );
 	}
 

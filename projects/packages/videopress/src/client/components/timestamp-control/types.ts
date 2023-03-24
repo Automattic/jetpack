@@ -1,3 +1,8 @@
+/*
+ * Types
+ */
+import type { ReactNode } from 'react';
+
 export type DecimalPlacesProp = 1 | 2 | 3;
 
 export type TimestampInputProps = {
@@ -11,6 +16,8 @@ export type TimestampInputProps = {
 };
 
 export type TimestampControlProps = TimestampInputProps & {
+	label?: ReactNode;
+	help?: ReactNode;
 	wait?: number;
 	onDebounceChange?: ( ms: number ) => void;
 };

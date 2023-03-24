@@ -56,8 +56,7 @@ describe( 'buildVideoPressURL', () => {
 			'https://videos.files.wordpress.com/xyrdcYF4/screen-recording-2023-01-13-at-08.21.53-1.mov'
 		);
 		expect( result ).toStrictEqual( {
-			url:
-				'https://videos.files.wordpress.com/xyrdcYF4/screen-recording-2023-01-13-at-08.21.53-1.mov',
+			url: 'https://videos.files.wordpress.com/xyrdcYF4/screen-recording-2023-01-13-at-08.21.53-1.mov',
 			guid: 'xyrdcYF4',
 		} );
 	} );

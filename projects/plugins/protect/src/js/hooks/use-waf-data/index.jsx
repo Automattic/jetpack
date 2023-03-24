@@ -9,13 +9,8 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} WAF data and methods for interacting with it.
  */
 const useWafData = () => {
-	const {
-		setWafConfig,
-		setWafStats,
-		setWafIsEnabled,
-		setWafIsUpdating,
-		setWafIsToggling,
-	} = useDispatch( STORE_ID );
+	const { setWafConfig, setWafStats, setWafIsEnabled, setWafIsUpdating, setWafIsToggling } =
+		useDispatch( STORE_ID );
 	const waf = useSelect( select => select( STORE_ID ).getWaf() );
 
 	/**

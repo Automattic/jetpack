@@ -108,7 +108,7 @@ function jpcrm_render_system_assistant_page() {
 
 		$job_list = apply_filters( 'jpcrm_system_assistant_jobs', $job_list );
 
-		// WLREMOVE
+		##WLREMOVE
 		$job_list['add_extension'] = array(
 
 			'title'           => __( 'Get Tooled Up', 'zero-bs-crm' ),
@@ -120,7 +120,7 @@ function jpcrm_render_system_assistant_page() {
 			'state'           => count( zeroBSCRM_activeInstalledProExt() ) > 0,
 
 		);
-		// /WLREMOVE
+		##/WLREMOVE
 
 		// updates?
 		$has_update = false;
