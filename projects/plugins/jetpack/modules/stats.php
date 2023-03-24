@@ -1470,50 +1470,46 @@ function stats_print_wp_remote_error( $get, $url ) {
 	Jetpack::state( $state_name, $error );
 	if ( $error !== $previous_error ) {
 		?>
-	<div class="wrap">
-	<p><?php esc_html_e( 'We were unable to get your stats just now. Please reload this page to try again.', 'jetpack' ); ?></p>
-	</div>
+			<div class="wrap">
+				<p><?php esc_html_e( 'We were unable to get your stats just now. Please reload this page to try again.', 'jetpack' ); ?></p>
+			</div>
 		<?php
 		return;
 	}
 	?>
 	<div class="wrap">
 	<p>
-	<?php
-		printf(
-			/* translators: placeholder is an a href for a support site. */
-			esc_html__( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please contact %1$s. In your report, please include the information below.', 'jetpack' ),
-			sprintf(
-				'<a href="https://support.wordpress.com/contact/?jetpack=needs-service">%s</a>',
-				esc_html__( 'Jetpack Support', 'jetpack' )
-			)
-		);
-	?>
-		</p>
-	<pre>
-	User Agent: "<?php echo isset( $_SERVER['HTTP_USER_AGENT'] ) ? esc_html( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
-	Page URL: "http<?php echo ( is_ssl() ? 's' : '' ) . '://' . esc_html( ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
-	API URL: "<?php echo esc_url( $url ); ?>"
-	<?php
-	if ( is_wp_error( $get ) ) {
-		foreach ( $get->get_error_codes() as $code ) {
-			foreach ( $get->get_error_messages( $code ) as $message ) {
-				?>
-				<?php print esc_html( $code ) . ': "' . esc_html( $message ) . '"'; ?>
-
-				<?php
-			}
-		}
-	} else {
-		$get_code       = wp_remote_retrieve_response_code( $get );
-		$content_length = strlen( wp_remote_retrieve_body( $get ) );
-		?>
-Response code: "<?php print esc_html( $get_code ); ?>"
-Content length: "<?php print esc_html( $content_length ); ?>"
-
 		<?php
-	}
-	?>
+			printf(
+				/* translators: placeholder is an a href for a support site. */
+				esc_html__( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please contact %1$s. In your report, please include the information below.', 'jetpack' ),
+				sprintf(
+					'<a href="https://support.wordpress.com/contact/?jetpack=needs-service">%s</a>',
+					esc_html__( 'Jetpack Support', 'jetpack' )
+				)
+			);
+		?>
+	</p>
+	<pre class="stats-widget-error">
+		User Agent: "<?php echo isset( $_SERVER['HTTP_USER_AGENT'] ) ? esc_html( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
+		Page URL: "http<?php echo ( is_ssl() ? 's' : '' ) . '://' . esc_html( ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
+		API URL: "<?php echo esc_url( $url ); ?>"
+		<?php
+		if ( is_wp_error( $get ) ) {
+			foreach ( $get->get_error_codes() as $code ) {
+				foreach ( $get->get_error_messages( $code ) as $message ) {
+					print esc_html( $code ) . ': "' . esc_html( $message ) . '"';
+				}
+			}
+		} else {
+			$get_code       = wp_remote_retrieve_response_code( $get );
+			$content_length = strlen( wp_remote_retrieve_body( $get ) );
+			?>
+				Response code: "<?php print esc_html( $get_code ); ?>"
+				Content length: "<?php print esc_html( $content_length ); ?>"
+			<?php
+		}
+		?>
 	</pre>
 	</div>
 	<?php
