@@ -49,33 +49,37 @@ class Waf_Initializer {
 	}
 
 	/**
-	 * On module activation set up waf mode
+	 * Activate the WAF on module activation.
 	 *
-	 * @return bool|WP_Error True of the WAF activation was successful, WP_Error otherwise.
+	 * @return bool|WP_Error True if the WAF activation is successful, WP_Error otherwise.
 	 */
 	public static function on_activation() {
 		update_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
 		add_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
 
-		$waf_activated = Waf_Runner::activate();
-		if ( is_wp_error( $waf_activated ) ) {
-			return $waf_activated;
-		}
-
 		try {
+			Waf_Runner::activate();
 			( new Waf_Standalone_Bootstrap() )->generate();
-		} catch ( \Exception $e ) {
-			return new WP_Error( 'waf_activation_failed', $e->getMessage() );
+		} catch ( Waf_Exception $e ) {
+			return $e->get_wp_error();
 		}
 
 		return true;
 	}
 
 	/**
-	 * On module deactivation, unset waf mode
+	 * Deactivate the WAF on module deactivation.
+	 *
+	 * @return bool|WP_Error True if the WAF deactivation is successful, WP_Error otherwise.
 	 */
 	public static function on_deactivation() {
-		Waf_Runner::deactivate();
+		try {
+			Waf_Runner::deactivate();
+		} catch ( Waf_Exception $e ) {
+			return $e->get_wp_error();
+		}
+
+		return true;
 	}
 
 	/**
@@ -131,23 +135,22 @@ class Waf_Initializer {
 			if ( ! method_exists( Waf_Constants::class, 'define_mode' ) ) {
 				try {
 					( new Waf_Standalone_Bootstrap() )->generate();
-				} catch ( \Exception $e ) {
-					return new WP_Error( 'waf_update_failed', $e->getMessage() );
+				} catch ( Waf_Exception $e ) {
+					return $e->get_wp_error();
 				}
-				return true;
 			}
 
 			Waf_Constants::define_mode();
 			if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {
-				return new WP_Error( 'waf_update_failed', 'Invalid firewall mode.' );
+				return new WP_Error( 'waf_mode_invalid', 'Invalid firewall mode.' );
 			}
 
 			try {
 				Waf_Rules_Manager::generate_ip_rules();
 				Waf_Rules_Manager::generate_rules();
 				( new Waf_Standalone_Bootstrap() )->generate();
-			} catch ( \Exception $e ) {
-				return new WP_Error( 'waf_update_failed', $e->getMessage() );
+			} catch ( Waf_Exception $e ) {
+				return $e->get_wp_error();
 			}
 		}
 

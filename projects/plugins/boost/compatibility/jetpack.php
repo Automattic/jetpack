@@ -46,8 +46,8 @@ function lazy_images_override_status() {
 	return (string) \Jetpack::is_module_active( 'lazy-images' );
 }
 
-add_filter( 'default_option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\lazy_images_override_status' );
-add_filter( 'option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\lazy_images_override_status' );
+add_filter( 'default_option_jetpack_boost_ds_module_status_lazy_images', __NAMESPACE__ . '\lazy_images_override_status' );
+add_filter( 'option_jetpack_boost_ds_module_status_lazy_images', __NAMESPACE__ . '\lazy_images_override_status' );
 
 /**
  * Forward all lazy image settings changes to Jetpack
@@ -63,8 +63,8 @@ function lazy_images_sync_status( $_unused, $new_value ) {
 	return $new_value;
 }
 
-add_action( 'add_option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\lazy_images_sync_status', 10, 2 );
-add_action( 'update_option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\lazy_images_sync_status', 10, 2 );
+add_action( 'add_option_jetpack_boost_ds_module_status_lazy_images', __NAMESPACE__ . '\lazy_images_sync_status', 10, 2 );
+add_action( 'update_optionjetpack_boost_ds_module_status_lazy_images', __NAMESPACE__ . '\lazy_images_sync_status', 10, 2 );
 
 /**
  * The compatibility layer uses Jetpack as the single source of truth for lazy images.
@@ -75,7 +75,7 @@ add_action( 'update_option_jetpack_boost_status_lazy-images', __NAMESPACE__ . '\
  * And make sure that Jetpack Boost is in sync.
  */
 function lazy_images_sync_with_jetpack() {
-	update_option( 'jetpack_boost_status_lazy-images', \Jetpack::is_module_active( 'lazy-images' ) );
+	update_option( 'jetpack_boost_ds_module_status_lazy_images', \Jetpack::is_module_active( 'lazy-images' ) );
 }
 
 add_action( 'jetpack_deactivate_module_lazy-images', __NAMESPACE__ . '\lazy_images_sync_with_jetpack', 10, 2 );

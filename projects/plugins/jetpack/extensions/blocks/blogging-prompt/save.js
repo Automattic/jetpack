@@ -1,28 +1,30 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import { __ } from '@wordpress/i18n';
-import icon from './icon';
 
-function BloggingPromptsSave( { attributes } ) {
-	const { gravatars, prompt, promptId, showLabel, showResponses } = attributes;
-	const blockProps = useBlockProps.save( { className: 'jetpack-blogging-prompts' } );
+function BloggingPromptSave( { attributes } ) {
+	const {
+		answersLink,
+		answersLinkText,
+		gravatars,
+		promptId,
+		promptLabel,
+		promptText,
+		showLabel,
+		showResponses,
+	} = attributes;
+	const blockProps = useBlockProps.save( { className: 'jetpack-blogging-prompt' } );
 
 	return (
 		<div { ...blockProps }>
-			{ showLabel && (
-				<div className="jetpack-blogging-prompts__label">
-					{ icon }
-					{ __( 'Daily writing prompt', 'jetpack' ) }
-				</div>
-			) }
-			<div className="jetpack-blogging-prompts__prompt">{ prompt }</div>
-			{ showResponses && (
-				<div className="jetpack-blogging-prompts__answers">
+			{ showLabel && <div className="jetpack-blogging-prompt__label">{ promptLabel }</div> }
+			<div className="jetpack-blogging-prompt__text">{ promptText }</div>
+			{ showResponses && promptId && (
+				<div className="jetpack-blogging-prompt__answers">
 					{ gravatars.map( ( { url } ) => {
 						return (
 							url && (
 								// eslint-disable-next-line jsx-a11y/alt-text
 								<img
-									className="jetpack-blogging-prompts__answers-gravatar"
+									className="jetpack-blogging-prompt__answers-gravatar"
 									// Gravatar are decorative, here.
 									aria-hidden="true"
 									src={ url }
@@ -32,10 +34,12 @@ function BloggingPromptsSave( { attributes } ) {
 						);
 					} ) }
 					<a
-						className="jetpack-blogging-prompts__answers-link"
-						href={ `https://wordpress.com/tag/dailyprompt-${ promptId }` }
+						className="jetpack-blogging-prompt__answers-link"
+						href={ answersLink }
+						target="_blank"
+						rel="external noreferrer noopener"
 					>
-						{ __( 'View all responses', 'jetpack' ) }
+						{ answersLinkText }
 					</a>
 				</div>
 			) }
@@ -43,4 +47,4 @@ function BloggingPromptsSave( { attributes } ) {
 	);
 }
 
-export default BloggingPromptsSave;
+export default BloggingPromptSave;

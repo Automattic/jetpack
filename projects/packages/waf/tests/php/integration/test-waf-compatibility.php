@@ -16,8 +16,6 @@ final class WafCompatibilityTest extends WorDBless\BaseTestCase {
 
 	/**
 	 * Test setup.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		// Add the WAF module to the available modules.

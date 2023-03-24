@@ -204,14 +204,12 @@ export function getQuestions( type ) {
 				//
 				// But everyone else wants to make an arbitrary recommendation anyway, so 🤷.
 				{
-					name:
-						'WordPress-style ("recommended"): Like 1.2, with each non-bugfix release always incrementing by 0.1.',
+					name: 'WordPress-style ("recommended"): Like 1.2, with each non-bugfix release always incrementing by 0.1.',
 					checked: true,
 					value: 'wordpress',
 				},
 				{
-					name:
-						'Semver: Like 1.2.3, with the next version depending on what kinds of changes are included.',
+					name: 'Semver: Like 1.2.3, with the next version depending on what kinds of changes are included.',
 					checked: true,
 					value: 'semver',
 				},
@@ -747,7 +745,7 @@ function createReadMeTxt( answers ) {
 		'Tags: jetpack, stuff\n' +
 		'Requires at least: 6.0\n' +
 		'Requires PHP: 5.6\n' +
-		'Tested up to: 6.1\n' +
+		'Tested up to: 6.2\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-identity-crisis",
-	"version": "0.8.39-alpha",
+	"version": "0.8.40",
 	"description": "Jetpack Identity Crisis",
 	"main": "_inc/admin.jsx",
 	"repository": {
@@ -35,7 +35,7 @@
 		"react-dom": "18.2.0",
 		"sass": "1.43.3",
 		"sass-loader": "12.4.0",
-		"webpack": "5.72.1",
+		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1"
 	},
 	"engines": {

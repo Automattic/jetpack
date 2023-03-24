@@ -147,6 +147,13 @@ describe( 'useMediaRestrictions hook', () => {
 		);
 	} );
 
+	test( 'Returns default media types for empty connections', () => {
+		const defaultMediaTypes = getAllowedMediaTypes( [] );
+		expect( defaultMediaTypes.sort() ).toStrictEqual(
+			ALLOWED_MEDIA_TYPES_ALL.concat( [ 'video/mov' ] ).sort()
+		);
+	} );
+
 	describe( 'Validation tests', () => {
 		test( 'Too big/small media results in file size error', () => {
 			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
@@ -196,6 +203,16 @@ describe( 'useMediaRestrictions hook', () => {
 			);
 
 			expect( validationErrors.every( error => error === null ) ).toBe( true );
+		} );
+
+		test( 'No error with empty connections', () => {
+			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+				initialProps: [],
+			} );
+
+			expect( () => {
+				expect( result.current ).toBeDefined();
+			} ).not.toThrow( TypeError );
 		} );
 	} );
 } );

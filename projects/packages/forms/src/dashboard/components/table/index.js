@@ -1,6 +1,6 @@
 import { useCallback, useState } from '@wordpress/element';
 import classnames from 'classnames';
-import { difference, includes, kebabCase, last, map, without } from 'lodash';
+import { difference, includes, kebabCase, map, without } from 'lodash';
 import TableItem from './item';
 
 import './style.scss';
@@ -13,7 +13,7 @@ const Table = ( { className, columns, defaultSelected, items, onSelectionChange 
 			const newState = includes( selected, id ) ? without( selected, id ) : [ ...selected, id ];
 
 			setSelected( newState );
-			onSelectionChange( last( newState ) );
+			onSelectionChange( newState );
 		},
 		[ selected, onSelectionChange ]
 	);

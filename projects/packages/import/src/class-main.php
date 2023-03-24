@@ -20,7 +20,7 @@ class Main {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0';
+	const PACKAGE_VERSION = '0.4.0-alpha';
 
 	/**
 	 * A list of all the routes.
@@ -65,11 +65,16 @@ class Main {
 		Rest_Authentication::init();
 
 		$routes = array(
-			'categories' => new Endpoints\Category(),
-			'comments'   => new Endpoints\Comment(),
-			'pages'      => new Endpoints\Page(),
-			'posts'      => new Endpoints\Post(),
-			'tags'       => new Endpoints\Tag(),
+			'categories'    => new Endpoints\Category(),
+			'comments'      => new Endpoints\Comment(),
+			'custom-css'    => new Endpoints\Custom_CSS(),
+			'global-styles' => new Endpoints\Global_Style(),
+			'media'         => new Endpoints\Attachment(),
+			'menu-items'    => new Endpoints\Menu_Item(),
+			'menus'         => new Endpoints\Menu(),
+			'pages'         => new Endpoints\Page(),
+			'posts'         => new Endpoints\Post(),
+			'tags'          => new Endpoints\Tag(),
 		);
 
 		/**

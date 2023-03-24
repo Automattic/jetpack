@@ -141,3 +141,19 @@ export function buildVideoPressURL(
 export const removeFileNameExtension = ( name: string ) => {
 	return name.replace( /\.[^/.]+$/, '' );
 };
+
+/**
+ * Return the VideoPress video URL
+ * based on the privacy of the video.
+ *
+ * @param {VideoGUID} guid    - The VideoPress GUID.
+ * @param {boolean} isPrivate - Whether the video is private or not.
+ * @returns {string}            VideoPress URL.
+ */
+export function getVideoUrlBasedOnPrivacy( guid: VideoGUID, isPrivate: boolean ) {
+	if ( isPrivate ) {
+		return `https://video.wordpress.com/v/${ guid }`;
+	}
+
+	return `https://videopress.com/v/${ guid }`;
+}

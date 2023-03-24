@@ -22,7 +22,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	/ Breaking Checks
 	====================================================== */
 
-	// WLREMOVE
+	##WLREMOVE
 
 	global $zbs;
 
@@ -86,7 +86,7 @@ $settings      = $zbs->settings->getAll();
 		</div>
 		<div class="stepwizard-step">
 			<a href="#step-2" class="btn btn-default btn-circle">2</a>
-			<p><?php esc_html_e( 'Your Customers', 'zero-bs-crm' ); ?></p>
+			<p><?php esc_html_e( 'Your Contacts', 'zero-bs-crm' ); ?></p>
 		</div>
 		<div class="stepwizard-step">
 			<a href="#step-3" class="btn btn-default btn-circle">3</a>
@@ -293,13 +293,13 @@ $settings      = $zbs->settings->getAll();
 			<div class="col-md-12">
 
 				<!-- ingest -->
-				<h3 id="zbs-lead-header"><span class="zbs-nob2b-show"><?php esc_html_e( 'Getting Customers into your CRM', 'zero-bs-crm' ); ?></span><span class="zbs-b2b-show"><?php esc_html_e( 'Getting Contacts into your CRM', 'zero-bs-crm' ); ?></span></h3>
+				<h3 id="zbs-lead-header"><span class="zbs-nob2b-show"><?php esc_html_e( 'Getting Contacts into your CRM', 'zero-bs-crm' ); ?></span><span class="zbs-b2b-show"><?php esc_html_e( 'Getting Contacts into your CRM', 'zero-bs-crm' ); ?></span></h3>
 
 				<p class="lead zbs-freelancer-lead">
-					<?php echo wp_kses( __( "<strong>Freelancing is hard enough without having to manage a customer list as well!</strong><br />We feel your pain.<br /><br />To make life easier we've built extensions which automatically pulls through all of your customers who've ever paid you into your CRM. If you're using PayPal or Stripe for payments, this is a HUGE timesaver.", 'zero-bs-crm' ), $zbs->acceptable_restricted_html ); ?>
+					<?php echo wp_kses( __( "<strong>Freelancing is hard enough without having to manage a contact list as well!</strong><br />We feel your pain.<br /><br />To make life easier we've built extensions which automatically pulls through all of your contacts who've ever paid you into your CRM. If you're using PayPal or Stripe for payments, this is a HUGE timesaver.", 'zero-bs-crm' ), $zbs->acceptable_restricted_html ); ?>
 				</p>
 				<p class="lead zbs-smallbiz-lead">
-					<?php echo wp_kses( __( "<strong>Running a small business is hard work...</strong><br />It's busy. Time passes and you forget to add a customer detail... <em>Then when you need it, it's not there!</em>. We've run businesses for years, <strong>we feel your pain</strong>.<br /><br />To make life easier we've built a few extensions which take a lot of the pain out of this. PayPal Connect &amp; WooSync automatically pull through all customers into your CRM. If you're using PayPal for payments, or WooCommerce for sales, this is a HUGE timesaver.", 'zero-bs-crm' ), $zbs->acceptable_restricted_html ); ?>
+					<?php echo wp_kses( __( "<strong>Running a small business is hard work...</strong><br />It's busy. Time passes and you forget to add a contact detail... <em>Then when you need it, it's not there!</em>. We've run businesses for years, <strong>we feel your pain</strong>.<br /><br />To make life easier we've built a few extensions which take a lot of the pain out of this. PayPal Connect &amp; WooSync automatically pull through all customers into your CRM. If you're using PayPal for payments, or WooCommerce for sales, this is a HUGE timesaver.", 'zero-bs-crm' ), $zbs->acceptable_restricted_html ); ?>
 				</p>
 				<p class="lead zbs-ecomm-lead">
 					<?php echo wp_kses( __( "<strong>Running an ecommerce business is hard work...</strong><br />We feel your pain.<br /><br />To make life easier we've built extensions which take a lot of the pain out of this. PayPal Connect &amp; WooSync automatically pull through all customers and transactions, and then it keeps their details up to date. If you're using PayPal for payments, or WooCommerce for sales, this is a HUGE timesaver.", 'zero-bs-crm' ), $zbs->acceptable_restricted_html ); ?>
@@ -500,4 +500,4 @@ $settings      = $zbs->settings->getAll();
 	</div>
 </div>
 </div>			
-</body></html><?php // /WLREMOVE ?>
+</body></html><?php ##/WLREMOVE ?>

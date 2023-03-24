@@ -291,10 +291,10 @@ class Learn_Menu {
 		}
 
 		// Forms
-		if ( zeroBSCRM_is_form_new_page() ){
-			$slug = 'editform';
-		} elseif ( zeroBSCRM_is_form_edit_page() ){
+		if ( zeroBSCRM_is_form_new_page() ) {
 			$slug = 'formnew';
+		} elseif ( zeroBSCRM_is_form_edit_page() ) {
+			$slug = 'editform';
 		}
 
 		// profile page
@@ -699,7 +699,7 @@ class Learn_Menu {
 				'url'             => 'https://jetpackcrm.com/feature/dashboard/',
 				'img'             => 'learn-dashboard.png',
 				'video'           => false,
-				'content'         => "<p>" . __( "This your CRM dashboard. It shows you at a glance some key data from your CRM activity.", 'zero-bs-crm' ) . "</p><p>" . __( "<b>Sales Funnel</b> shows how effective you are at converting leads to customers.", 'zero-bs-crm' ) . "</p><p>" . __( "<b>Revenue Chart</b> shows you the overview of your transactions for the past few months.", 'zero-bs-crm' ) . "</p>",
+				'content'         => '<p>' . __( 'This your CRM dashboard. It shows you at a glance some key data from your CRM activity.', 'zero-bs-crm' ) . '</p><p>' . __( '<b>Sales Funnel</b> shows how effective you are at converting leads to customers.', 'zero-bs-crm' ) . '</p><p>' . __( '<b>Revenue Chart</b> shows you the overview of your transactions for the past few months.', 'zero-bs-crm' ) . '</p>',
 				'output_function' => 'jpcrm_dashboard_learn_menu',
 			),
 			'managecontacts' => array(
@@ -850,7 +850,7 @@ class Learn_Menu {
 				'url'     => 'https://jetpackcrm.com/feature/quotes/',
 				'img'     => 'learn-new-quote.png',
 				'video'   => false,
-				'content' => "<p>" . __( "Add a new Quote here. When creating a Quote you fill in the key details such as customer name and quote value,you can then choose which template it should populate.", 'zero-bs-crm' ) . "</p><p>" . __( "Templates automatically fill in the customer fields and save you time if you issue similar quotes regularly.", 'zero-bs-crm' ) . "</p>",
+				'content' => '<p>' . __( 'Add a new Quote here. When creating a Quote you fill in the key details such as contact name and quote value, you can then choose which template it should populate.', 'zero-bs-crm' ) . '</p><p>' . __( 'Templates automatically fill in the contact fields and save you time if you issue similar quotes regularly.', 'zero-bs-crm' ) . '</p>',
 				'add_new' => '<div id="zbs-quote-learn-nav"></div>'
 			),
 			'quoteedit' => array(
@@ -858,7 +858,7 @@ class Learn_Menu {
 				'url'     => 'https://jetpackcrm.com/feature/quotes/',
 				'img'     => 'learn-new-quote.png',
 				'video'   => false,
-				'content' => "<p>" . __( "When creating a Quote you fill in the key details such as customer name and quote value,you can then choose which template it should populate.", 'zero-bs-crm' ) . "</p><p>" . __( "Templates automatically fill in the customer fields and save you time if you issue similar quotes regularly.", 'zero-bs-crm' ) . "</p>",
+				'content' => '<p>' . __( 'When creating a Quote you fill in the key details such as contact name and quote value, you can then choose which template it should populate.', 'zero-bs-crm' ) . '</p><p>' . __( 'Templates automatically fill in the contact fields and save you time if you issue similar quotes regularly.', 'zero-bs-crm' ) . '</p>',
 				'add_new' => '<div id="zbs-quote-learn-nav"></div>  <a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_QUOTE, false ) . '" class="button ui blue tiny zbs-add-new">' . __('Add New',"zero-bs-crm") . '</a>'
 			),
 			'quotetags' => array(
@@ -906,7 +906,7 @@ class Learn_Menu {
 				'url'     => 'https://jetpackcrm.com/feature/quotes/',
 				'img'     => 'learn-quote-template.png',
 				'video'   => false,
-				'content' => "<p>" . __( "Quote Templates save you time. You can enter placeholders so that when you generate a new Quote using the template the customer fields are automatically populated.", 'zero-bs-crm' ) . "</p>",
+				'content' => '<p>' . __( 'Quote Templates save you time. You can enter placeholders so that when you generate a new Quote using the template the contact fields are automatically populated.', 'zero-bs-crm' ) . '</p>',
 				'add_new' => ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_quo_template',false)  . '#free-extensions-tour" class="button ui blue tiny zbs-add-new" id="add-template">' . __('Add Template',"zero-bs-crm") . '</a>'
 			),
 			'quotetemplatenew' => array(

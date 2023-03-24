@@ -1,5 +1,6 @@
-import { useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { noop } from 'lodash';
 import PageNavigation from '../components/page-navigation';
 import Table from '../components/table';
 
@@ -18,21 +19,56 @@ const COLUMNS = [
 	},
 ];
 
-const InboxList = ( { responses, onSelectionChange } ) => {
-	const [ currentPage, setCurrentPage ] = useState( 1 );
+const InboxList = ( {
+	currentPage,
+	currentResponseId,
+	pages,
+	responses,
+	setCurrentPage,
+	setCurrentResponseId,
+	loading,
+} ) => {
+	const tableItems = useMemo(
+		() =>
+			responses.map( response => ( {
+				...response,
+				onClick: () => setCurrentResponseId( response.id ),
+				isActive: response.id === currentResponseId,
+			} ) ),
+		[ currentResponseId, responses, setCurrentResponseId ]
+	);
+
+	if ( loading ) {
+		return (
+			<Table
+				className="jp-forms__inbox-list"
+				columns={ [ { key: 'empty', label: __( 'Loading…', 'jetpack-forms' ) } ] }
+				items={ [] }
+			/>
+		);
+	}
+	if ( responses.length === 0 ) {
+		return (
+			<Table
+				className="jp-forms__inbox-list"
+				columns={ [ { key: 'empty', label: __( 'No results found', 'jetpack-forms' ) } ] }
+				items={ [] }
+			/>
+		);
+	}
 
 	return (
 		<>
 			<Table
 				className="jp-forms__inbox-list"
 				columns={ COLUMNS }
-				items={ responses }
-				onSelectionChange={ onSelectionChange }
+				items={ tableItems }
+				onSelectionChange={ noop }
 			/>
 
 			<PageNavigation
 				currentPage={ currentPage }
-				pages={ 10 }
+				pages={ pages }
 				onSelectPage={ setCurrentPage }
 				expandedRange={ 2 }
 			/>

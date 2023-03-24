@@ -56,6 +56,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	label = null,
 	tooltipInfo,
 	tooltipTitle,
+	tooltipClassName = '',
 } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 	const item = useContext( PricingTableContext )[ index ];
@@ -86,7 +87,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 				<IconTooltip
 					title={ tooltipTitle ? tooltipTitle : defaultTooltipTitle }
 					iconClassName={ styles[ 'popover-icon' ] }
-					className={ styles.popover }
+					className={ classnames( styles.popover, tooltipClassName ) }
 					placement={ 'bottom-end' }
 					iconSize={ 14 }
 					offset={ 4 }

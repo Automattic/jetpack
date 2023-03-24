@@ -21,7 +21,7 @@ import { withDispatch, withSelect } from '@wordpress/data';
 import { Fragment, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { filter, get, map } from 'lodash';
+import { filter, get, isArray, map } from 'lodash';
 import { childBlocks } from './child-blocks';
 import InspectorHint from './components/inspector-hint';
 import CRMIntegrationSettings from './components/jetpack-crm-integration/jetpack-crm-integration-settings';
@@ -31,10 +31,19 @@ import NewsletterIntegrationSettings from './components/jetpack-newsletter-integ
 import SalesforceLeadFormSettings, {
 	salesforceLeadFormVariation,
 } from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
+import { withStyleVariables } from './util/with-style-variables';
 import defaultVariations from './variations';
 
+const validFields = filter( childBlocks, ( { settings } ) => {
+	return (
+		! settings.parent ||
+		settings.parent === 'jetpack/contact-form' ||
+		( isArray( settings.parent ) && settings.parent.includes( 'jetpack/contact-form' ) )
+	);
+} );
+
 const ALLOWED_BLOCKS = [
-	...map( childBlocks, block => `jetpack/${ block.name }` ),
+	...map( validFields, block => `jetpack/${ block.name }` ),
 	'core/audio',
 	'core/columns',
 	'core/group',
@@ -69,6 +78,7 @@ export function JetpackContactFormEdit( {
 	variations,
 	defaultVariation,
 	canUserInstallPlugins,
+	style,
 } ) {
 	const {
 		to,
@@ -87,9 +97,10 @@ export function JetpackContactFormEdit( {
 	const formClassnames = classnames( className, 'jetpack-contact-form', {
 		'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
 	} );
-	const isSalesForceExtensionEnabled = !! window?.Jetpack_Editor_Initial_State?.available_blocks[
-		'contact-form/salesforce-lead-form'
-	];
+	const isSalesForceExtensionEnabled =
+		!! window?.Jetpack_Editor_Initial_State?.available_blocks[
+			'contact-form/salesforce-lead-form'
+		];
 
 	if ( isSalesForceExtensionEnabled ) {
 		variations = [ ...variations, salesforceLeadFormVariation ];
@@ -289,7 +300,7 @@ export function JetpackContactFormEdit( {
 				) }
 			</InspectorControls>
 
-			<div className={ formClassnames }>
+			<div className={ formClassnames } style={ style }>
 				<InnerBlocks allowedBlocks={ ALLOWED_BLOCKS } templateInsertUpdatesSelection={ false } />
 			</div>
 		</>
@@ -332,5 +343,6 @@ export default compose( [
 		const { replaceInnerBlocks, selectBlock } = dispatch( 'core/block-editor' );
 		return { replaceInnerBlocks, selectBlock };
 	} ),
+	withStyleVariables,
 	withInstanceId,
 ] )( JetpackContactFormEdit );

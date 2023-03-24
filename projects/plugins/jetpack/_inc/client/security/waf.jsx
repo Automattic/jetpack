@@ -2,9 +2,11 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import Button from 'components/button';
 import FoldableCard from 'components/foldable-card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel } from 'components/forms';
+import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -21,12 +23,8 @@ import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
 import { ModuleToggle } from '../components/module-toggle';
 import Textarea from '../components/textarea';
-import {
-	getAutomaticRulesAvailable,
-	getWafBootstrapPath,
-	isFetchingWafSettings,
-} from '../state/waf/reducer';
-
+import { updateWafSettings } from '../state/waf/actions';
+import { getWafSettings, isFetchingWafSettings, isUpdatingWafSettings } from '../state/waf/reducer';
 export const Waf = class extends Component {
 	/**
 	 * Get options for initial state.
@@ -34,54 +32,144 @@ export const Waf = class extends Component {
 	 * @returns {object}
 	 */
 	state = {
-		jetpack_waf_automatic_rules: this.props.getOptionValue( 'jetpack_waf_automatic_rules' ),
-		jetpack_waf_ip_list: this.props.getOptionValue( 'jetpack_waf_ip_list' ),
-		jetpack_waf_ip_allow_list: this.props.getOptionValue( 'jetpack_waf_ip_allow_list' ),
-		jetpack_waf_ip_block_list: this.props.getOptionValue( 'jetpack_waf_ip_block_list' ),
-		jetpack_waf_share_data: this.props.getOptionValue( 'jetpack_waf_share_data' ),
+		automaticRulesEnabled: this.props.settings?.automaticRulesEnabled,
+		manualRulesEnabled: this.props.settings?.manualRulesEnabled,
+		ipBlockList: this.props.settings?.ipBlockList,
+		ipAllowList: this.props.settings?.ipAllowList,
+		shareData: this.props.settings?.shareData,
 	};
 
-	handleAutomaticRulesToggleChange = () => {
-		this.updateOptions( 'jetpack_waf_automatic_rules' );
+	/**
+	 * Keep the form values in sync with updates to the settings prop.
+	 *
+	 * @param {object} prevProps - Next render props.
+	 */
+	componentDidUpdate = prevProps => {
+		if ( this.props.settings !== prevProps.settings ) {
+			this.setState( {
+				automaticRulesEnabled: this.props.settings?.automaticRulesEnabled,
+				manualRulesEnabled: this.props.settings?.manualRulesEnabled,
+				ipBlockList: this.props.settings?.ipBlockList,
+				ipAllowList: this.props.settings?.ipAllowList,
+				shareData: this.props.settings?.shareData,
+			} );
+		}
 	};
 
-	handleIpListToggleChange = () => {
-		this.updateOptions( 'jetpack_waf_ip_list' );
+	/**
+	 * Get a custom error message based on the error code.
+	 *
+	 * @param {object} error - Error object.
+	 * @returns {string|boolean} Custom error message or false if no custom message exists.
+	 */
+	getCustomErrorMessage = error => {
+		switch ( error.code ) {
+			case 'file_system_error':
+				return __( 'A filesystem error occurred.', 'jetpack' );
+			case 'rules_api_error':
+				return __( 'An error occurred retrieving the latest automatic firewall rules.', 'jetpack' );
+			default:
+				return false;
+		}
 	};
 
-	handleShareDataToggleChange = () => {
-		this.updateOptions( 'jetpack_waf_share_data' );
+	/**
+	 * Handle settings updates.
+	 *
+	 * @returns {void}
+	 */
+	onSubmit = () => {
+		this.props.removeNotice( 'module-setting-update' );
+		this.props.removeNotice( 'module-setting-update-success' );
+
+		this.props.createNotice( 'is-info', __( 'Updating settings…', 'jetpack' ), {
+			id: 'module-setting-update',
+		} );
+
+		this.props
+			.updateWafSettings( this.state )
+			.then( () => {
+				this.props.removeNotice( 'module-setting-update' );
+				this.props.createNotice( 'is-success', __( 'Updated Settings.', 'jetpack' ), {
+					id: 'module-setting-update-success',
+				} );
+			} )
+			.catch( error => {
+				this.props.removeNotice( 'module-setting-update' );
+				this.props.createNotice(
+					'is-error',
+					sprintf(
+						/* translators: placeholder is an error code or an error message. */
+						__( 'Error updating settings. %s', 'jetpack' ),
+						this.getCustomErrorMessage( error.response ) || error.message || error.code
+					),
+					{
+						id: 'module-setting-update',
+					}
+				);
+			} );
 	};
 
+	/**
+	 * Toggle automatic rules.
+	 */
+	toggleAutomaticRules = () => {
+		this.setState(
+			{
+				...this.state,
+				automaticRulesEnabled: ! this.state.automaticRulesEnabled,
+			},
+			this.onSubmit
+		);
+	};
+
+	/**
+	 * Toggle manual rules.
+	 */
+	toggleManualRules = () => {
+		this.setState(
+			{ ...this.state, manualRulesEnabled: ! this.state.manualRulesEnabled },
+			this.onSubmit
+		);
+	};
+
+	/**
+	 * Handle IP list change.
+	 *
+	 * @param {Event} event - The event object.
+	 */
 	handleIpListChange = event => {
 		const {
 			target: { name, value },
 		} = event;
 
 		this.setState( {
+			...this.state,
 			[ name ]: value,
 		} );
-
-		this.props.onOptionChange( event );
 	};
 
 	/**
-	 * Update state so toggles are updated.
-	 *
-	 * @param {string} optionName - The slug of the option to update
+	 * Toggle share data.
 	 */
-	updateOptions = optionName => {
+	toggleShareData = () => {
 		this.setState(
 			{
-				[ optionName ]: ! this.state[ optionName ],
+				...this.state,
+				shareData: ! this.state.shareData,
 			},
-			this.props.updateFormStateModuleOption( 'waf', optionName )
+			this.onSubmit
 		);
 	};
 
 	render() {
-		const isWafActive = this.props.getOptionValue( 'waf' ),
-			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
+		const isWafActive = this.props.getOptionValue( 'waf' );
+		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'waf' );
+		const baseInputDisabledCase =
+			! isWafActive ||
+			unavailableInOfflineMode ||
+			this.props.isFetchingWafSettings ||
+			this.props.isSavingAnyOption( [ 'waf' ] );
 
 		const moduleHeader = (
 			<div className="waf__header">
@@ -101,17 +189,17 @@ export const Waf = class extends Component {
 			<div className="waf__settings__toggle-setting">
 				<CompactFormToggle
 					checked={
-						this.props.hasScan || this.props.automaticRulesAvailable
-							? this.state.jetpack_waf_automatic_rules
+						this.props.hasScan || this.props.settings?.automaticRulesAvailable
+							? this.state.automaticRulesEnabled
 							: false
 					}
 					disabled={
-						! isWafActive ||
-						( ! this.props.hasScan && ! this.props.automaticRulesAvailable ) ||
-						unavailableInOfflineMode ||
-						this.props.isSavingAnyOption( [ 'waf', 'jetpack_waf_automatic_rules' ] )
+						baseInputDisabledCase ||
+						( ! this.props.hasScan && ! this.props.settings?.automaticRulesAvailable ) ||
+						( this.props.isUpdatingWafSettings &&
+							this.state.automaticRulesEnabled !== this.props.settings?.automaticRulesEnabled )
 					}
-					onChange={ this.handleAutomaticRulesToggleChange }
+					onChange={ this.toggleAutomaticRules }
 				>
 					<span className="jp-form-toggle-explanation">
 						{ __(
@@ -126,60 +214,82 @@ export const Waf = class extends Component {
 		const ipListSettings = (
 			<div className="waf__settings__toggle-setting">
 				<CompactFormToggle
-					checked={ this.state.jetpack_waf_ip_list }
+					checked={ this.state.manualRulesEnabled }
 					disabled={
-						! isWafActive ||
-						unavailableInOfflineMode ||
-						this.props.isSavingAnyOption( [ 'waf', 'jetpack_waf_ip_list' ] )
+						baseInputDisabledCase ||
+						( this.props.isUpdatingWafSettings &&
+							this.state.manualRulesEnabled !== this.props.settings?.manualRulesEnabled )
 					}
-					onChange={ this.handleIpListToggleChange }
+					onChange={ this.toggleManualRules }
 				>
 					<span className="jp-form-toggle-explanation">
 						{ __( 'Allow / Block list - Block or allow a specific request IP', 'jetpack' ) }
 					</span>
 				</CompactFormToggle>
 
-				{ this.state.jetpack_waf_ip_list && (
+				{ this.state.manualRulesEnabled && (
 					<>
 						<div className="waf__settings__ips">
 							<FormLabel>{ __( 'Blocked IP addresses', 'jetpack' ) }</FormLabel>
 							<Textarea
 								disabled={
-									! isWafActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [
-										'waf',
-										'jetpack_waf_ip_list',
-										'jetpack_waf_ip_block_list',
-									] )
+									baseInputDisabledCase ||
+									( this.props.isUpdatingWafSettings &&
+										this.state.ipBlockList !== this.props.settings?.ipBlockList )
 								}
-								name="jetpack_waf_ip_block_list"
+								name="ipBlockList"
 								placeholder={ sprintf(
 									/* translators: Placeholder is a list of example IP addresses. */
 									__( 'Example: %s', 'jetpack' ),
 									'\n12.12.12.1\n12.12.12.2'
 								) }
-								value={ this.state.jetpack_waf_ip_block_list }
+								value={ this.state.ipBlockList }
 								onChange={ this.handleIpListChange }
 							/>
+							<Button
+								primary
+								compact
+								type="button"
+								className="waf__settings__ips__save-button"
+								disabled={
+									baseInputDisabledCase ||
+									this.state.ipBlockList === this.props.settings?.ipBlockList ||
+									( this.props.isUpdatingWafSettings &&
+										this.state.ipBlockList !== this.props.settings?.ipBlockList )
+								}
+								onClick={ this.onSubmit }
+							>
+								{ __( 'Save block list', 'jetpack' ) }
+							</Button>
 						</div>
 						<div className="waf__settings__ips">
 							<FormLabel>{ __( 'Always allowed IP addresses', 'jetpack' ) }</FormLabel>
 							<Textarea
 								disabled={
-									! isWafActive ||
-									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [
-										'waf',
-										'jetpack_waf_ip_list',
-										'jetpack_waf_ip_allow_list',
-									] )
+									baseInputDisabledCase ||
+									( this.props.isUpdatingWafSettings &&
+										this.state.ipAllowList !== this.props.settings?.ipAllowList )
 								}
-								name="jetpack_waf_ip_allow_list"
+								name="ipAllowList"
 								placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
-								value={ this.state.jetpack_waf_ip_allow_list }
+								value={ this.state.ipAllowList }
 								onChange={ this.handleIpListChange }
 							/>
+							<Button
+								primary
+								compact
+								type="button"
+								className="waf__settings__ips__save-button"
+								disabled={
+									baseInputDisabledCase ||
+									this.state.ipAllowList === this.props.settings?.ipAllowList ||
+									( this.props.isUpdatingWafSettings &&
+										this.state.ipAllowList !== this.props.settings?.ipAllowList )
+								}
+								onClick={ this.onSubmit }
+							>
+								{ __( 'Save allow list', 'jetpack' ) }
+							</Button>
 						</div>
 					</>
 				) }
@@ -189,13 +299,13 @@ export const Waf = class extends Component {
 		const shareDataSettings = (
 			<div className="waf__settings__toggle-setting">
 				<CompactFormToggle
-					checked={ this.state.jetpack_waf_share_data }
+					checked={ this.state.shareData }
 					disabled={
-						! isWafActive ||
-						unavailableInOfflineMode ||
-						this.props.isSavingAnyOption( [ 'waf', 'jetpack_waf_share_data' ] )
+						baseInputDisabledCase ||
+						( this.props.isUpdatingWafSettings &&
+							this.state.shareData !== this.props.settings?.shareData )
 					}
-					onChange={ this.handleShareDataToggleChange }
+					onChange={ this.toggleShareData }
 				>
 					<span className="jp-form-toggle-explanation">
 						{ __( 'Share data with Jetpack', 'jetpack' ) }
@@ -244,7 +354,7 @@ export const Waf = class extends Component {
 										'To ensure the firewall can best protect your site, please update: <code>auto_prepend_file</code> PHP directive to point to <code>%s</code> Typically this is set either in an .htaccess file or in the global PHP configuration; contact your host for further assistance.',
 										'jetpack'
 									),
-									this.props.bootstrapPath
+									this.props.settings?.bootstrapPath
 								),
 								{
 									code: <code />,
@@ -267,7 +377,7 @@ export const Waf = class extends Component {
 				callToAction={ __( 'Upgrade', 'jetpack' ) }
 				title={
 					<>
-						{ ! this.props.automaticRulesAvailable
+						{ ! this.props.settings?.automaticRulesAvailable
 							? __( 'Upgrade to enable automatic rules', 'jetpack' )
 							: __(
 									'Upgrade to keep your site secure with up-to-date firewall rules',
@@ -279,7 +389,7 @@ export const Waf = class extends Component {
 							screenReaderText={ __( 'Learn more', 'jetpack' ) }
 							className="waf__settings__upgrade-popover"
 						>
-							{ ! this.props.automaticRulesAvailable
+							{ ! this.props.settings?.automaticRulesAvailable
 								? __(
 										'The free version of the firewall only allows for use of manual rules.',
 										'jetpack'
@@ -304,10 +414,8 @@ export const Waf = class extends Component {
 				{ ...this.props }
 				header={ moduleHeader }
 				module="waf"
-				saveDisabled={ this.props.isSavingAnyOption( [
-					'jetpack_waf_ip_allow_list',
-					'jetpack_waf_ip_block_list',
-				] ) }
+				onSubmit={ this.onSubmit }
+				hideButton={ true }
 			>
 				{ isWafActive && <QueryWafSettings /> }
 				<SettingsGroup
@@ -330,7 +438,7 @@ export const Waf = class extends Component {
 						</span>
 					</ModuleToggle>
 
-					{ isWafActive && (
+					{ isWafActive && ! this.props.isFetchingWafSettings && (
 						<FormFieldset className="waf__settings">
 							{ automaticRulesSettings }
 							{ ipListSettings }
@@ -339,21 +447,30 @@ export const Waf = class extends Component {
 					) }
 				</SettingsGroup>
 				{ isWafActive && this.props.bootstrapPath && bootstrapInstructions }
-				{ ! this.props.hasScan && ! this.props.isFetchingWafSettings && upgradeBanner }
+				{ ! this.props.hasScan && ! this.props.isFetchingSettings && upgradeBanner }
 			</SettingsCard>
 		);
 	}
 };
 
-export default connect( state => {
-	const sitePlan = getSitePlan( state );
+export default connect(
+	state => {
+		const sitePlan = getSitePlan( state );
 
-	return {
-		hasScan: siteHasFeature( state, 'scan' ),
-		bootstrapPath: getWafBootstrapPath( state ),
-		automaticRulesAvailable: getAutomaticRulesAvailable( state ),
-		isFetchingWafSettings: isFetchingWafSettings( state ),
-		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
-		sitePlan,
-	};
-} )( withModuleSettingsFormHelpers( Waf ) );
+		return {
+			hasScan: siteHasFeature( state, 'scan' ),
+			isFetchingSettings: isFetchingWafSettings( state ),
+			isUpdatingWafSettings: isUpdatingWafSettings( state ),
+			settings: getWafSettings( state ),
+			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
+			sitePlan,
+		};
+	},
+	dispatch => {
+		return {
+			updateWafSettings: newSettings => dispatch( updateWafSettings( newSettings ) ),
+			createNotice: ( type, message, props ) => dispatch( createNotice( type, message, props ) ),
+			removeNotice: notice => dispatch( removeNotice( notice ) ),
+		};
+	}
+)( withModuleSettingsFormHelpers( Waf ) );

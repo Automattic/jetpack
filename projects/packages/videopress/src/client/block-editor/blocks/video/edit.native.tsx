@@ -1,7 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { MediaPlaceholder } from '@wordpress/block-editor';
+import { InspectorControls, store as blockEditorStore } from '@wordpress/block-editor';
+import { PanelBody } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { useState, useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
  */
@@ -10,8 +14,13 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
-import { VideoPressIcon as icon } from './components/icons';
-import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from './constants';
+import { getVideoPressUrl } from '../../../lib/url';
+import { usePreview } from '../../hooks/use-preview';
+import ColorPanel from './components/color-panel';
+import DetailsPanel from './components/details-panel';
+import PlaybackPanel from './components/playback-panel';
+import Player from './components/player';
+import VideoPressUploader from './components/videopress-uploader/index.native';
 import style from './style.scss';
 
 /**
@@ -19,41 +28,97 @@ import style from './style.scss';
  *
  * @param {object} props                 - Component props.
  * @param {object} props.attributes      - Block attributes.
+ * @param {object} props.clientId        - Block client Id.
  * @param {Function} props.setAttributes - Function to set block attributes.
+ * @param {boolean} props.isSelected	 - Whether block is selected.
+ * @param {Function} props.onFocus       - Callback to notify when block should gain focus.
  * @returns {React.ReactNode}            - React component.
  */
-export default function VideoPressEdit( { attributes, setAttributes } ): React.ReactNode {
-	/**
-	 * TODO: The current components are intended to act as placeholders while block is in development.
-	 * They should eventually be edited or replaced to support VideoPress.
-	 */
+export default function VideoPressEdit( {
+	attributes,
+	clientId,
+	setAttributes,
+	isSelected,
+	onFocus,
+} ): React.ReactNode {
+	const {
+		autoplay,
+		controls,
+		guid,
+		loop,
+		muted,
+		playsinline,
+		poster,
+		preload,
+		seekbarColor,
+		seekbarLoadingColor,
+		seekbarPlayedColor,
+	} = attributes;
 
-	/**
-	 * Function to set attributes upon media upload
-	 *
-	 * @param {object} attributes     - Attributes associated with uploaded video.
-	 * @param {string} attributes.id  - Unique ID associated with video.
-	 * @param {string} attributes.url - URL associated with video.
-	 */
-	function onSelectMediaUploadOption( { id, url } ) {
-		setAttributes( { id, src: url } );
-	}
+	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
+	const wasBlockJustInserted = useSelect(
+		select => select( blockEditorStore ).wasBlockJustInserted( clientId, 'inserter_menu' ),
+		[ clientId ]
+	);
 
-	if ( ! attributes.id ) {
+	const videoPressUrl = getVideoPressUrl( guid, {
+		autoplay,
+		controls,
+		loop,
+		muted,
+		playsinline,
+		preload,
+		seekbarColor,
+		seekbarLoadingColor,
+		seekbarPlayedColor,
+		poster,
+	} );
+
+	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
+
+	const handleDoneUpload = useCallback(
+		newVideoData => {
+			setIsUploadingFile( false );
+			setAttributes( { id: newVideoData.id, guid: newVideoData.guid } );
+		},
+		[ setIsUploadingFile, setAttributes ]
+	);
+
+	const onStartUpload = useCallback(
+		media => {
+			setAttributes( { id: media.id } );
+		},
+		[ setAttributes ]
+	);
+
+	if ( isUploadingFile ) {
 		return (
-			<View style={ { flex: 1 } }>
-				<MediaPlaceholder
-					allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
-					onSelect={ onSelectMediaUploadOption }
-					icon={ icon }
-				/>
-			</View>
+			<VideoPressUploader
+				autoOpenMediaUpload={ isSelected && wasBlockJustInserted }
+				handleDoneUpload={ handleDoneUpload }
+				isInteractionDisabled={ ! isSelected }
+				onFocus={ onFocus }
+				onStartUpload={ onStartUpload }
+			/>
 		);
 	}
 
 	return (
 		<View style={ style[ 'wp-block-jetpack-videopress__container' ] }>
-			<View style={ style[ 'wp-block-jetpack-videopress__video-player' ] } />
+			{ isSelected && (
+				<InspectorControls>
+					<DetailsPanel { ...{ attributes, setAttributes } } />
+					<PanelBody title={ __( 'More', 'jetpack-videopress-pkg' ) }>
+						<PlaybackPanel { ...{ attributes, setAttributes } } />
+						<ColorPanel { ...{ attributes, setAttributes } } />
+					</PanelBody>
+				</InspectorControls>
+			) }
+			<Player
+				html={ preview.html }
+				isRequestingEmbedPreview={ isRequestingEmbedPreview }
+				isSelected={ isSelected }
+			/>
 		</View>
 	);
 }

@@ -1,10 +1,16 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 // eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
 import { __experimentalInspectorPopoverHeader as InspectorPopoverHeader } from '@wordpress/block-editor';
-import { Button, PanelRow, Dropdown, VisuallyHidden, Flex, FlexBlock } from '@wordpress/components';
+import { Flex, FlexBlock, Button, PanelRow, Dropdown, VisuallyHidden } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
+import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck } from '@wordpress/editor';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import InspectorNotice from '../../shared/components/inspector-notice';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
+
+import './settings.scss';
 
 export const accessOptions = {
 	everybody: {
@@ -20,6 +26,22 @@ export const accessOptions = {
 		info: __( 'Visible to everyone that purchases a paid plan on your site.', 'jetpack' ),
 	},
 };
+
+export function MisconfigurationWarning( { accessLevel } ) {
+	return (
+		<div className="jetpack-subscribe-notice-misconfiguration warning">
+			{ sprintf(
+				/* translators: %1$s: visibility label for the newsletter, %2$s: label for setting "everybody". this is a warning in the newsletter when posts have a private or password-protected visibility */
+				__(
+					'Private or password-protected posts cannot be assigned a newsletter setting of "%1$s". Please update the setting to "%2$s", or update the post visibility setting.',
+					'jetpack'
+				),
+				accessOptions[ accessLevel ].label,
+				accessOptions.everybody.label
+			) }
+		</div>
+	);
+}
 
 function NewsletterAccessChoices( { accessLevel, onChange } ) {
 	const instanceId = useInstanceId( NewsletterAccessChoices );
@@ -66,54 +88,105 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 	}
 	const accessLabel = accessOptions[ accessLevel ]?.label;
 
+	// Can be “private”, “password”, or “public”.
+	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
+	const postVisibilityIsPublic = postVisibility === 'public';
+
+	const showVisibilityRestrictedMessage = ! postVisibilityIsPublic && accessLevel === 'everybody';
+	const showMisconfigurationMessage = ! postVisibilityIsPublic && accessLevel !== 'everybody';
+
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => (
 				<PanelRow className="edit-post-post-visibility">
-					<Flex direction={ withModal ? 'row' : 'column' }>
-						{
+					<Flex direction={ 'column' }>
+						{ canEdit && withModal && showVisibilityRestrictedMessage && (
 							<FlexBlock>
-								<span>{ __( 'Access', 'jetpack' ) }</span>
-							</FlexBlock>
-						}
-						{ ! canEdit && <span>{ accessLabel }</span> }
-						{ withModal && canEdit && (
-							<FlexBlock>
-								<Dropdown
-									placement="bottom-end"
-									contentClassName="edit-post-post-visibility__dialog"
-									focusOnMount
-									renderToggle={ ( { isOpen, onToggle } ) => (
-										<Button
-											isTertiary
-											onClick={ onToggle }
-											aria-expanded={ isOpen }
-											aria-label={ sprintf(
-												// translators: %s: Current newsletter post access.
-												__( 'Select audience: %s', 'jetpack' ),
-												accessLabel
-											) }
-										>
-											{ accessLabel }
-										</Button>
-									) }
-									renderContent={ ( { onClose } ) => (
-										<div className="editor-post-visibility">
-											<InspectorPopoverHeader
-												title={ __( 'Audience', 'jetpack' ) }
-												help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
-												onClose={ onClose }
-											/>
-											<NewsletterAccessChoices onChange={ setPostMeta } />
-										</div>
-									) }
-								/>
+								<InspectorNotice spanClass={ 'jetpack-subscribe-notice-visibility' }>
+									{
+										/* translators: this is a warning in the newsletter when posts have a private or password-protected visibility */
+										__(
+											'Private or password-protected posts cannot be assigned as Subscribers-only.',
+											'jetpack'
+										)
+									}
+								</InspectorNotice>
 							</FlexBlock>
 						) }
 
-						{ ! withModal && canEdit && (
+						{ canEdit &&
+							withModal /* to prevent displaying in pre-publish panel */ &&
+							showMisconfigurationMessage && (
+								<FlexBlock>
+									<MisconfigurationWarning accessLevel={ accessLevel } />
+								</FlexBlock>
+							) }
+
+						<Flex direction={ withModal ? 'row' : 'column' }>
 							<FlexBlock>
-								<NewsletterAccessChoices accessLevel={ accessLevel } onChange={ setPostMeta } />
+								<span>{ __( 'Access', 'jetpack' ) }</span>
+							</FlexBlock>
+							{ ( ! canEdit || showVisibilityRestrictedMessage ) && <span>{ accessLabel }</span> }
+							{ ! showVisibilityRestrictedMessage && withModal && canEdit && (
+								<FlexBlock>
+									<Dropdown
+										placement="bottom-end"
+										contentClassName="edit-post-post-visibility__dialog"
+										focusOnMount
+										renderToggle={ ( { isOpen, onToggle } ) => (
+											<Button
+												variant="tertiary"
+												onClick={ onToggle }
+												aria-expanded={ isOpen }
+												aria-label={ sprintf(
+													// translators: %s: Current newsletter post access.
+													__( 'Select audience: %s', 'jetpack' ),
+													accessLabel
+												) }
+											>
+												{ accessLabel }
+											</Button>
+										) }
+										renderContent={ ( { onClose } ) => (
+											<div className="editor-post-visibility">
+												<InspectorPopoverHeader
+													title={ __( 'Audience', 'jetpack' ) }
+													help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
+													onClose={ onClose }
+												/>
+												<NewsletterAccessChoices
+													accessLevel={ accessLevel }
+													onChange={ setPostMeta }
+												/>
+											</div>
+										) }
+									/>
+								</FlexBlock>
+							) }
+
+							{ ! showVisibilityRestrictedMessage && ! withModal && canEdit && (
+								<FlexBlock>
+									<NewsletterAccessChoices accessLevel={ accessLevel } onChange={ setPostMeta } />
+								</FlexBlock>
+							) }
+						</Flex>
+						{ withModal && (
+							<FlexBlock>
+								<small spanClass={ 'jetpack-subscribe-info' }>
+									{ createInterpolateElement(
+										/* translators: basic information about the newsletter visibility */
+										__( 'Restrict your post to subscribers. <a>Learn more</a>.', 'jetpack' ),
+										{
+											a: (
+												<a
+													href={ getRedirectUrl( 'paid-newsletter-info', {
+														anchor: 'memberships-and-subscriptions',
+													} ) }
+												/>
+											),
+										}
+									) }
+								</small>
 							</FlexBlock>
 						) }
 					</Flex>

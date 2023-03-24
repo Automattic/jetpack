@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-PHP notice when a WooCommerce order is in a Draft status

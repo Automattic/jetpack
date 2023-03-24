@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update auto-labeling rules for Boost features and rename "Feature" to "Pluggable"

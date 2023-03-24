@@ -2,7 +2,7 @@
 /**
  * Cookie-consent Block.
  *
- * @since $$next-version$$
+ * @since 12.0
  *
  * @package automattic/jetpack
  */
@@ -20,7 +20,7 @@ const COOKIE_NAME  = 'eucookielaw';
  * Should the block be registered?
  * In wp-admin, we only want to show the block in the site editor.
  *
- * @since $$next-version$$
+ * @since 12.0
  *
  * @return bool
  */

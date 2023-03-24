@@ -10,6 +10,7 @@ import {
 	Col,
 	useBreakpointMatch,
 	JetpackVideoPressLogo,
+	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
 import { SelectControl, RadioControl, CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -44,7 +45,6 @@ import { usePermission } from '../../hooks/use-permission';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
 import { useVideosQuery } from '../../hooks/use-videos';
 import Input from '../input';
-import Placeholder from '../placeholder';
 import VideoDetails from '../video-details';
 import VideoDetailsActions from '../video-details-actions';
 import VideoThumbnail from '../video-thumbnail';
@@ -58,13 +58,13 @@ const noop = () => {
 
 const Header = ( {
 	saveDisabled = true,
-	busy = false,
+	disabled = false,
 	onSaveChanges,
 	onDelete,
 	videoId,
 }: {
 	saveDisabled?: boolean;
-	busy?: boolean;
+	disabled?: boolean;
 	onSaveChanges: () => void;
 	onDelete: () => void;
 	videoId: string | number;
@@ -83,10 +83,14 @@ const Header = ( {
 					<Text>{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Text>
 				</div>
 				<div className={ styles.buttons }>
-					<Button disabled={ saveDisabled || busy } onClick={ onSaveChanges } isLoading={ busy }>
+					<Button
+						disabled={ saveDisabled || disabled }
+						onClick={ onSaveChanges }
+						isLoading={ disabled }
+					>
 						{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
 					</Button>
-					<VideoDetailsActions videoId={ videoId } disabled={ busy } onDelete={ onDelete } />
+					<VideoDetailsActions videoId={ videoId } disabled={ disabled } onDelete={ onDelete } />
 				</div>
 			</div>
 		</div>
@@ -112,20 +116,22 @@ const Infos = ( {
 	onChangeTitle,
 	description,
 	onChangeDescription,
-	loading,
+	loading = false,
+	disabled = false,
 }: {
 	title: string;
 	onChangeTitle: ( value: string ) => void;
 	description: string;
 	onChangeDescription: ( value: string ) => void;
 	loading: boolean;
+	disabled: boolean;
 } ) => {
 	const { hasIncompleteChapters } = useChaptersLiveParsing( description );
 
 	return (
 		<>
 			{ loading ? (
-				<Placeholder height={ 88 } />
+				<LoadingPlaceholder height={ 88 } />
 			) : (
 				<Input
 					value={ title }
@@ -133,11 +139,12 @@ const Infos = ( {
 					name="title"
 					onChange={ onChangeTitle }
 					onEnter={ noop }
+					disabled={ disabled }
 					size="large"
 				/>
 			) }
 			{ loading ? (
-				<Placeholder height={ 133 } className={ styles.input } />
+				<LoadingPlaceholder height={ 133 } className={ styles.input } />
 			) : (
 				<>
 					<Input
@@ -147,6 +154,7 @@ const Infos = ( {
 						name="description"
 						onChange={ onChangeDescription }
 						onEnter={ noop }
+						disabled={ disabled }
 						type="textarea"
 						size="large"
 						rows={ 8 }
@@ -184,6 +192,7 @@ const EditVideoDetails = () => {
 		privacySetting,
 		allowDownload,
 		displayEmbed,
+		isPrivate,
 		// Playback Token
 		isFetchingPlaybackToken,
 		// Page State/Actions
@@ -232,11 +241,11 @@ const EditVideoDetails = () => {
 	const { page } = useVideosQuery();
 
 	useEffect( () => {
-		if ( updated === true || deleted === true ) {
+		if ( deleted === true ) {
 			const to = page > 1 ? `/?page=${ page }` : '/';
 			history.push( to );
 		}
-	}, [ updated, deleted ] );
+	}, [ deleted ] );
 
 	if ( ! canPerformAction ) {
 		history.push( '/' );
@@ -251,7 +260,7 @@ const EditVideoDetails = () => {
 	}
 
 	const isFetchingData = isFetching || isFetchingPlaybackToken;
-	const isBusy = isFetchingData || isDeleting || updating;
+	const isBusy = isDeleting || updating;
 
 	const shortcode = `[videopress ${ guid }${ width ? ` w=${ width }` : '' }${
 		height ? ` h=${ height }` : ''
@@ -280,7 +289,7 @@ const EditVideoDetails = () => {
 							onSaveChanges={ handleSaveChanges }
 							onDelete={ handleDelete }
 							saveDisabled={ ! hasChanges }
-							busy={ isBusy }
+							disabled={ isBusy || isFetchingData }
 							videoId={ id }
 						/>
 					</>
@@ -294,94 +303,113 @@ const EditVideoDetails = () => {
 								onChangeTitle={ setTitle }
 								description={ description ?? '' }
 								onChangeDescription={ setDescription }
-								loading={ isBusy }
+								loading={ isFetchingData }
+								disabled={ isBusy }
 							/>
 						</Col>
 						<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
 							<VideoThumbnail
-								thumbnail={ isBusy ? <Placeholder height={ 200 } /> : thumbnail }
+								thumbnail={ thumbnail }
+								loading={ isFetchingData }
+								processing={ processing }
 								deleting={ isDeleting }
+								updating={ updating }
 								duration={ duration }
 								editable
-								processing={ processing }
-								loading={ isFetchingData }
 								onSelectFromVideo={ handleOpenSelectFrame }
 								onUploadImage={ selectPosterImageFromLibrary }
 							/>
 							<VideoDetails
 								filename={ filename ?? '' }
 								uploadDate={ uploadDate ?? '' }
-								src={ url ?? '' }
 								shortcode={ shortcode ?? '' }
-								loading={ isBusy }
+								loading={ isFetchingData }
+								guid={ guid }
+								isPrivate={ isPrivate }
 							/>
 							<div className={ styles[ 'side-fields' ] }>
-								<SelectControl
-									className={ styles.field }
-									value={ privacySetting }
-									label={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
-									onChange={ value => setPrivacySetting( value ) }
-									disabled={ isBusy }
-									prefix={
-										// Casting for unknown since allowing only a string is a mistake
-										// at WP Components
-										( (
-											<div className={ styles[ 'privacy-icon' ] }>
-												<Icon
-													icon={
-														( privacySetting === VIDEO_PRIVACY_LEVEL_PUBLIC &&
-															publicPrivacyIcon ) ||
-														( privacySetting === VIDEO_PRIVACY_LEVEL_PRIVATE &&
-															privatePrivacyIcon ) ||
-														( privacySetting === VIDEO_PRIVACY_LEVEL_SITE_DEFAULT &&
-															siteDefaultPrivacyIcon )
-													}
-												/>
-											</div>
-										 ) as unknown ) as string
-									}
-									options={ [
-										{
-											label: __( 'Site default', 'jetpack-videopress-pkg' ),
-											value: VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
-										},
-										{
-											label: __( 'Public', 'jetpack-videopress-pkg' ),
-											value: VIDEO_PRIVACY_LEVEL_PUBLIC,
-										},
-										{
-											label: __( 'Private', 'jetpack-videopress-pkg' ),
-											value: VIDEO_PRIVACY_LEVEL_PRIVATE,
-										},
-									] }
-								/>
-								<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
-									{ __( 'Share', 'jetpack-videopress-pkg' ) }
-								</Text>
-								<CheckboxControl
-									checked={ displayEmbed }
-									disabled={ isBusy }
-									label={ __(
-										'Display share menu and allow viewers to copy a link or embed this video',
-										'jetpack-videopress-pkg'
-									) }
-									onChange={ value => setDisplayEmbed( value ? 1 : 0 ) }
-								/>
-								<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
-									{ __( 'Download', 'jetpack-videopress-pkg' ) }
-								</Text>
-								<CheckboxControl
-									checked={ allowDownload }
-									disabled={ isBusy }
-									label={ __(
-										'Display download option and allow viewers to download this video',
-										'jetpack-videopress-pkg'
-									) }
-									onChange={ value => setAllowDownload( value ? 1 : 0 ) }
-								/>
-								{ isBusy ? (
+								{ isFetchingData ? (
+									<LoadingPlaceholder height={ 40 } className={ classnames( styles.field ) } />
+								) : (
+									<SelectControl
+										className={ styles.field }
+										value={ privacySetting }
+										label={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
+										onChange={ value => setPrivacySetting( value ) }
+										disabled={ isBusy }
+										prefix={
+											// Casting for unknown since allowing only a string is a mistake
+											// at WP Components
+											(
+												<div className={ styles[ 'privacy-icon' ] }>
+													<Icon
+														icon={
+															( privacySetting === VIDEO_PRIVACY_LEVEL_PUBLIC &&
+																publicPrivacyIcon ) ||
+															( privacySetting === VIDEO_PRIVACY_LEVEL_PRIVATE &&
+																privatePrivacyIcon ) ||
+															( privacySetting === VIDEO_PRIVACY_LEVEL_SITE_DEFAULT &&
+																siteDefaultPrivacyIcon )
+														}
+													/>
+												</div>
+											 ) as unknown as string
+										}
+										options={ [
+											{
+												label: __( 'Site default', 'jetpack-videopress-pkg' ),
+												value: VIDEO_PRIVACY_LEVEL_SITE_DEFAULT,
+											},
+											{
+												label: __( 'Public', 'jetpack-videopress-pkg' ),
+												value: VIDEO_PRIVACY_LEVEL_PUBLIC,
+											},
+											{
+												label: __( 'Private', 'jetpack-videopress-pkg' ),
+												value: VIDEO_PRIVACY_LEVEL_PRIVATE,
+											},
+										] }
+									/>
+								) }
+								{ isFetchingData ? (
+									<LoadingPlaceholder height={ 40 } className={ classnames( styles.field ) } />
+								) : (
+									<>
+										<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
+											{ __( 'Share', 'jetpack-videopress-pkg' ) }
+										</Text>
+										<CheckboxControl
+											checked={ displayEmbed }
+											disabled={ isBusy }
+											label={ __(
+												'Display share menu and allow viewers to copy a link or embed this video',
+												'jetpack-videopress-pkg'
+											) }
+											onChange={ value => setDisplayEmbed( value ? 1 : 0 ) }
+										/>
+									</>
+								) }
+								{ isFetchingData ? (
+									<LoadingPlaceholder height={ 40 } className={ classnames( styles.field ) } />
+								) : (
+									<>
+										<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
+											{ __( 'Download', 'jetpack-videopress-pkg' ) }
+										</Text>
+										<CheckboxControl
+											checked={ allowDownload }
+											disabled={ isBusy }
+											label={ __(
+												'Display download option and allow viewers to download this video',
+												'jetpack-videopress-pkg'
+											) }
+											onChange={ value => setAllowDownload( value ? 1 : 0 ) }
+										/>
+									</>
+								) }
+								{ isBusy || isFetchingData ? (
 									// RadioControl does not support disabled state
-									<Placeholder height={ 40 } className={ classnames( styles.field ) } />
+									<LoadingPlaceholder height={ 40 } className={ classnames( styles.field ) } />
 								) : (
 									<RadioControl
 										className={ classnames( styles.field, styles.rating ) }

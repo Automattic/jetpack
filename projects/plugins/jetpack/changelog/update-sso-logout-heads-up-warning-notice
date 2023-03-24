@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-SSO: Add message to logout notice when SSO is enabled that gives a heads up to also log out of wpcom if they are on a shared computer.

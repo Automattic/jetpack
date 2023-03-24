@@ -69,6 +69,11 @@ export type VideoThumbnailProps = VideoThumbnailDropdownProps & {
 	deleting?: boolean;
 
 	/**
+	 * True when in updating mode.
+	 */
+	updating?: boolean;
+
+	/**
 	 * The video upload progress from 0 to 1.
 	 */
 	uploadProgress?: number;

@@ -18,6 +18,13 @@ class Comment extends \WP_REST_Comments_Controller {
 	use Import;
 
 	/**
+	 * Whether the controller supports batching.
+	 *
+	 * @var array
+	 */
+	protected $allow_batch = array( 'v1' => true );
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {

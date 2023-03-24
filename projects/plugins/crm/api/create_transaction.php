@@ -57,7 +57,7 @@ if ( empty( $customer ) ) {
 
 				// } New User from API
 				$newUserAPISourceShort = __( 'Created from API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-				$newUserAPISourceLong  = __( 'API Action fired to create customer (New Transaction)', 'zero-bs-crm' );
+				$newUserAPISourceLong  = __( 'API Action fired to create contact (New Transaction)', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	$external_api_name = jpcrm_api_process_external_api_name();
 	if ( $external_api_name !== false ) {

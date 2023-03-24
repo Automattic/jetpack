@@ -1,8 +1,19 @@
 export default {
+	answersLink: {
+		type: 'string',
+		source: 'attribute',
+		attribute: 'href',
+		selector: '.jetpack-blogging-prompt__answers-link',
+	},
+	answersLinkText: {
+		type: 'string',
+		source: 'html',
+		selector: '.jetpack-blogging-prompt__answers-link',
+	},
 	gravatars: {
 		type: 'array',
 		source: 'query',
-		selector: '.jetpack-blogging-prompts__answers-gravatar',
+		selector: '.jetpack-blogging-prompt__answers-gravatar',
 		query: {
 			url: {
 				type: 'string',
@@ -11,10 +22,19 @@ export default {
 			},
 		},
 	},
-	prompt: {
-		type: 'text',
+	promptLabel: {
+		type: 'string',
 		source: 'html',
-		selector: '.jetpack-blogging-prompts__prompt',
+		selector: '.jetpack-blogging-prompt__label',
+	},
+	promptText: {
+		type: 'string',
+		source: 'html',
+		selector: '.jetpack-blogging-prompt__text',
+	},
+	promptFetched: {
+		type: 'boolean',
+		default: false,
 	},
 	promptId: {
 		type: 'number',
@@ -26,5 +46,9 @@ export default {
 	showLabel: {
 		type: 'boolean',
 		default: true,
+	},
+	tagsAdded: {
+		type: 'boolean',
+		default: false,
 	},
 };

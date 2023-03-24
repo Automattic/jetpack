@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '5.5.1';
+	public $version = '5.6.0';
 
 	/**
 	 * WordPress version tested with.
@@ -550,6 +550,18 @@ final class ZeroBSCRM {
 			// } Initialisation
 			$this->init_hooks();
 
+			/**
+			 * Feature flag to hide the new onboarding wizard page.
+			 *
+			 * @ignore
+			 * @since TBD
+			 *
+			 * @param bool Determine if we should initialize the new OBW logic.
+			 */
+			if ( apply_filters( 'jetpack_crm_feature_flag_onboarding_wizard_v2', false ) ) {
+				Automattic\Jetpack_CRM\Onboarding_Wizard\Bootstrap::get_instance();
+			}
+
 			// } Post Init hook
 			do_action( 'zerobscrm_loaded' );
 
@@ -563,10 +575,10 @@ final class ZeroBSCRM {
 			// build message
 			$message_html = '<p>' . sprintf( __( 'This version of CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use CRM you will need to install version 4 of CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>';
 
-			// WLREMOVE
+			##WLREMOVE
 			$message_html  = '<p>' . sprintf( __( 'This version of Jetpack CRM (%1$s) requires an upgraded database (3.0). Your database is using an older version than this (%2$s). To use Jetpack CRM you will need to install version 4 of Jetpack CRM and run the database upgrade.', 'zero-bs-crm' ), $this->version, $this->dal_version ) . '</p>';
 			$message_html .= '<p><a href="' . esc_url( $this->urls['kb-pre-v5-migration-todo'] ) . '" target="_blank" class="button">' . __( 'Read the guide on migrating', 'zero-bs-crm' ) . '<a></p>';
-			// /WLREMOVE
+			##/WLREMOVE
 
 			$this->add_wp_admin_notice(
 				'',
@@ -639,10 +651,10 @@ final class ZeroBSCRM {
 					// show warning notice
 					$message_html = '<p>' . sprintf( __( 'Your CRM extension %1$s (v%2$s) is not compatible with this version of CRM. You will need to run a database upgrade to use this extension. For now this extension has been deactivated.', 'zero-bs-crm' ), $extension_name, $extension_info['ver'] ) . '</p>';
 
-					// WLREMOVE
+					##WLREMOVE
 					$message_html  = '<p>' . sprintf( __( 'Your Jetpack CRM extension %1$s (v%2$s) is not compatible with this version of Jetpack CRM. You will need to run a database upgrade to be able to use this extension. For now this extension has been deactivated.', 'zero-bs-crm' ), $extension_name, $extension_info['ver'] ) . '</p>';
 					$message_html .= '<p><a href="' . esc_url( $this->urls['kb-pre-v5-migration-todo'] ) . '" target="_blank" class="button">' . __( 'Read the guide on migrating', 'zero-bs-crm' ) . '<a></p>';
-					// /WLREMOVE
+					##/WLREMOVE
 
 					$this->add_wp_admin_notice(
 						'',
@@ -881,9 +893,9 @@ final class ZeroBSCRM {
 		$this->urls['pricing']           = 'https://jetpackcrm.com/pricing/';
 		$this->urls['usagetrackinginfo'] = 'https://jetpackcrm.com/usage-tracking/';
 
-		// WLREMOVE
+		##WLREMOVE
 		$this->urls['betafeedbackemail'] = 'hello@jetpackcrm.com'; // SPECIFICALLY ONLY USED FOR FEEDBACK ON BETA RELEASES, DO NOT USE ELSEWHERE
-		// /WLREMOVE
+		##/WLREMOVE
 
 		$this->urls['docs']              = 'https://kb.jetpackcrm.com/';
 		$this->urls['productsdatatools'] = 'https://jetpackcrm.com/data-tools/';
@@ -993,9 +1005,9 @@ final class ZeroBSCRM {
 		// Page slugs
 		$this->slugs['home'] = 'zerobscrm-settings';
 
-		// WLREMOVE
+		##WLREMOVE
 		$this->slugs['home'] = 'zerobscrm-plugin';
-		// /WLREMOVE
+		##/WLREMOVE
 		$this->slugs['dash']         = 'zerobscrm-dash';
 		$this->slugs['settings']     = 'zerobscrm-plugin-settings';
 		$this->slugs['logout']       = 'zerobscrm-logout';
@@ -1530,12 +1542,12 @@ final class ZeroBSCRM {
 			'docs' => '<a href="' . esc_url( $zbs->urls['docs'] ) . '" aria-label="' . esc_attr__( 'Jetpack CRM knowledgebase', 'zero-bs-crm' ) . '" target="_blank">' . esc_html__( 'Docs', 'zero-bs-crm' ) . '</a>',
 		);
 
-		// WLREMOVE
+		##WLREMOVE
 		$license_key_array = zeroBSCRM_getSetting( 'license_key' );
 		if ( is_array( $license_key_array ) && ! empty( $license_key_array['key'] ) ) {
 			$row_meta['account'] = '<a href="' . esc_url( $zbs->urls['account'] ) . '" aria-label="' . esc_attr__( 'Your account', 'zero-bs-crm' ) . '" target="_blank">' . esc_html__( 'Your account', 'zero-bs-crm' ) . '</a>';
 		}
-		// /WLREMOVE
+		##/WLREMOVE
 
 		return array_merge( $links_array, $row_meta );
 	}
@@ -2134,7 +2146,7 @@ final class ZeroBSCRM {
 
 		// if($this->pre_deactivation_check_exts_deactivated()){
 
-			// WLREMOVE
+			##WLREMOVE
 
 			// Remove roles :)
 			zeroBSCRM_clearUserRoles();
@@ -2172,7 +2184,7 @@ final class ZeroBSCRM {
 				}
 			}
 		}
-			// /WLREMOVE
+			##/WLREMOVE
 
 		// } //end of check if there are extensions active
 	}
@@ -2257,7 +2269,7 @@ final class ZeroBSCRM {
 			return;
 		}
 
-		// WLREMOVE
+		##WLREMOVE
 		// Bail if already completed wizard
 		// $run_count increments each time the wizard is loaded
 		// always run if forced
@@ -2267,7 +2279,7 @@ final class ZeroBSCRM {
 			require_once ZEROBSCRM_PATH . 'admin/activation/welcome-to-jpcrm.php';
 			exit();
 		}
-		// /WLREMOVE
+		##/WLREMOVE
 	}
 
 	/**
@@ -2661,7 +2673,7 @@ final class ZeroBSCRM {
 							break;
 
 						case 'event':
-							$objType = __( 'Event', 'zero-bs-crm' );
+							$objType = __( 'Task', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							break;
 
 						case 'form':

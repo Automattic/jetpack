@@ -1,21 +1,81 @@
 import apiFetch from '@wordpress/api-fetch';
 import { InspectorControls, useBlockProps } from '@wordpress/block-editor';
-import { PanelBody, Spinner, ToggleControl, withNotices } from '@wordpress/components';
-import { useEffect, useState } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { Button, PanelBody, Spinner, ToggleControl, withNotices } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
+import { useEffect, useRef } from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 import './editor.scss';
-import icon from './icon';
+import { usePromptTags } from './use-prompt-tags';
 
-function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
-	const [ isLoading, setLoading ] = useState( true );
-	const { gravatars, prompt, promptId, showLabel, showResponses } = attributes;
-	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompts' } );
+function BloggingPromptEdit( { attributes, noticeOperations, noticeUI, setAttributes } ) {
+	// Use the ref to keep track of starting to fetch the prompt, so we don't make duplicate requests.
+	const fetchingPromptRef = useRef( false );
+	const {
+		answersLink,
+		answersLinkText,
+		gravatars,
+		// Use the attribute the track when we've finished fetching the prompt.
+		promptFetched,
+		promptId,
+		promptLabel,
+		promptText,
+		showLabel,
+		showResponses,
+		tagsAdded,
+	} = attributes;
+	const blockProps = useBlockProps( { className: 'jetpack-blogging-prompt' } );
 
+	const setTagsAdded = state => setAttributes( { tagsAdded: state } );
+
+	// Add the prompt tags to the post, if they haven't already been added.
+	usePromptTags( promptId, tagsAdded, setTagsAdded );
+
+	const siteLanguage = useSelect( select => {
+		const { getEntityRecord, hasFinishedResolution } = select( 'core' );
+		const language = getEntityRecord( 'root', 'site' )?.language || 'en_US';
+		const hasFinishedResolving = hasFinishedResolution( 'getEntityRecord', [ 'root', 'site' ] );
+		return hasFinishedResolving ? language : null;
+	}, [] );
+
+	// Fetch the prompt by id, if present, otherwise the get the prompt for today.
 	useEffect( () => {
-		// If not initially rendering the block, don't fetch new data.
-		if ( ! isLoading ) {
+		// Only fetch the prompt one time when the block is inserted, after we know the site language.
+		if ( ! siteLanguage || fetchingPromptRef.current || promptFetched ) {
 			return;
 		}
+
+		const retryPrompt = () => {
+			setAttributes( { promptFetched: false, promptId: null, tagsAdded: false } );
+			fetchingPromptRef.current = false;
+			noticeOperations.removeAllNotices();
+		};
+
+		const errorMessage = message => (
+			<>
+				{ sprintf(
+					/* translators: %s is the error message. */
+					__( 'Error while fetching prompt: %s', 'jetpack' ),
+					message
+				) }{ ' ' }
+				<Button variant="link" onClick={ retryPrompt }>
+					{ __( 'Retry', 'jetpack' ) }
+				</Button>
+			</>
+		);
+
+		const notFoundMessage = pId => (
+			<>
+				{ sprintf(
+					/* translators: %d is the prompt id. */
+					__( 'Prompt with id %d not found.', 'jetpack' ),
+					pId
+				) }{ ' ' }
+				<Button variant="link" onClick={ retryPrompt }>
+					{ __( 'Reset prompt', 'jetpack' ) }
+				</Button>
+			</>
+		);
 
 		let path = '/wpcom/v3/blogging-prompts';
 
@@ -31,23 +91,40 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 			path += `?after=--${ month }-${ day }&order=desc`;
 		}
 
+		path = addQueryArgs( path, { _locale: siteLanguage } );
+
+		fetchingPromptRef.current = true;
 		apiFetch( { path } )
 			.then( prompts => {
 				const promptData = promptId ? prompts : prompts[ 0 ];
 
-				setLoading( false );
 				setAttributes( {
+					answersLink: promptData.answered_link,
+					answersLinkText: promptData.answered_link_text,
 					gravatars: promptData.answered_users_sample.map( ( { avatar } ) => ( { url: avatar } ) ),
-					prompt: promptData.text,
+					promptFetched: true,
+					promptLabel: promptData.label,
+					promptText: promptData.text,
 					promptId: promptData.id,
 				} );
 			} )
 			.catch( error => {
-				setLoading( false );
+				setAttributes( { promptFetched: true } );
+				const message =
+					error.code === 'rest_post_invalid_id' && promptId
+						? notFoundMessage( promptId )
+						: errorMessage( error.message );
 				noticeOperations.removeAllNotices();
-				noticeOperations.createErrorNotice( error.message );
+				noticeOperations.createErrorNotice( message );
 			} );
-	}, [ isLoading, noticeOperations, promptId, setAttributes, setLoading ] );
+	}, [
+		fetchingPromptRef,
+		noticeOperations,
+		promptFetched,
+		promptId,
+		setAttributes,
+		siteLanguage,
+	] );
 
 	const onShowLabelChange = newValue => {
 		setAttributes( { showLabel: newValue } );
@@ -78,24 +155,19 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 
 	const renderPrompt = () => (
 		<>
-			{ showLabel && (
-				<div className="jetpack-blogging-prompts__label">
-					{ icon }
-					{ __( 'Daily writing prompt', 'jetpack' ) }
-				</div>
-			) }
+			{ showLabel && <div className="jetpack-blogging-prompt__label">{ promptLabel }</div> }
 
-			<div className="jetpack-blogging-prompts__prompt">{ prompt }</div>
+			<div className="jetpack-blogging-prompt__text">{ promptText }</div>
 
-			{ showResponses && (
-				<div className="jetpack-blogging-prompts__answers">
+			{ showResponses && promptId && (
+				<div className="jetpack-blogging-prompt__answers">
 					{ gravatars &&
 						gravatars.slice( 0, 3 ).map( ( { url } ) => {
 							return (
 								url && (
 									// eslint-disable-next-line jsx-a11y/alt-text
 									<img
-										className="jetpack-blogging-prompts__answers-gravatar"
+										className="jetpack-blogging-prompt__answers-gravatar"
 										// Gravatar are decorative, here.
 										src={ url }
 										key={ url }
@@ -105,12 +177,12 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 						} ) }
 
 					<a
-						className="jetpack-blogging-prompts__answers-link"
-						href={ `https://wordpress.com/tag/dailyprompt-${ promptId }` }
+						className="jetpack-blogging-prompt__answers-link"
+						href={ answersLink }
 						target="_blank"
-						rel="noreferrer"
+						rel="external noreferrer noopener"
 					>
-						{ __( 'View all responses', 'jetpack' ) }
+						{ answersLinkText }
 					</a>
 				</div>
 			) }
@@ -122,8 +194,8 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 			{ noticeUI }
 			{ renderControls() }
 
-			{ isLoading ? (
-				<div className="jetpack-blogging-prompts__spinner">
+			{ ! promptFetched ? (
+				<div className="jetpack-blogging-prompt__spinner">
 					<Spinner />
 				</div>
 			) : (
@@ -133,4 +205,4 @@ function BloggingPromptsBetaEdit( { attributes, noticeOperations, noticeUI, setA
 	);
 }
 
-export default withNotices( BloggingPromptsBetaEdit );
+export default withNotices( BloggingPromptEdit );

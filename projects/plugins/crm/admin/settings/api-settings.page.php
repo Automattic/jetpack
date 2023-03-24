@@ -92,12 +92,12 @@ if ( $api_key == '' ) {
 	}
 		echo '</td></tr>';
 
-		// WLREMOVE
+		##WLREMOVE
 	?>
 		<tr><td colspan=2><a href="<?php echo esc_url( $zbs->urls['apidocs'] ); ?>" target="_blank" class="ui right floated tiny button"><?php esc_html_e( 'API Docs', 'zero-bs-crm' ); ?></a></td></tr>
 		<?php
 
-		// /WLREMOVE
+		##/WLREMOVE
 
 		echo '</tbody>';
 		echo '</table>';

@@ -763,27 +763,41 @@ function stats_print_odyssey_nudge( $html ) {
 	$redirect_url = admin_url( 'admin.php?page=stats&enable_new_stats=1' );
 	?>
 	<style>
-		.stats-odyssey-nudge {
+		.stats-odyssey-notice {
 			display: flex;
-			align-items: flex-start;
 			font-size: var( --font-body );
 
 			border: 1px solid var( --jp-gray-5 );
-			border-radius: 4px;
-			border-color: var( --jp-black );
+			border-left-color: var( --jp-black );
 			border-left-width: 6px;
-			padding: 24px 31px 27px 18px;
+			border-radius: 4px;
 
 			margin-top: 24px;
+			background: white;
+			position: relative;
 		}
-		.stats-odyssey-nudge--content {
-			flex-grow: 1;
+		.stats-odyssey-notice--content {
+			padding: 24px 0 24px 30px;
+			font-size: 2em;
+			width: 100%;
 		}
-		.stats-odyssey-nudge--title {
-			font-weight: 600;
+		.stats-odyssey-notice--content-header {
+			font-size: 24px;
+			line-height: 32px;
+			margin: 0;
 			margin-bottom: 8px;
 		}
-		.stats-odyssey-nudge--close-button {
+		.stats-odyssey-notice--content-text {
+			font-size: 16px;
+			margin: 0;
+		}
+		.stats-odyssey-notice--image-container {
+			background-image: url("/wp-content/plugins/jetpack/images/odyssey-upgrade/background.png"), url("/wp-content/plugins/jetpack/images/odyssey-upgrade/gradient.png");
+			background-size: cover;
+			padding-right: 28px;
+			width: 100%;
+		}
+		.stats-odyssey-notice--close-button {
 			position: absolute;
 			top: 1rem;
 			right: 1rem;
@@ -791,12 +805,12 @@ function stats_print_odyssey_nudge( $html ) {
 			border: none;
 			cursor: pointer;
 		}
-		.stats-odyssey-nudge--action-bar {
+		.stats-odyssey-notice--action-bar {
 			display: flex;
 			align-items: center;
-			margin-top: 20px;
+			margin-top: 24px;
 		}
-		.stats-odyssey-nudge--primary-button {
+		.stats-odyssey-notice--primary-button {
 			margin-right: 18px;
 			padding-left: 20px;
 			padding-right: 20px;
@@ -804,7 +818,7 @@ function stats_print_odyssey_nudge( $html ) {
 			border-color: black;
 			background-color: black;
 		}
-		.stats-odyssey-nudge--primary-button:hover {
+		.stats-odyssey-notice--primary-button:hover {
 			border-color: #3c434a;
 			background-color: #3c434a;
 		}
@@ -825,6 +839,7 @@ function stats_print_odyssey_nudge( $html ) {
 		}
 		.is-secondary-link {
 			color: black;
+			font-size: var( --font-body );
 		}
 		.is-secondary-link:hover {
 			color: black;
@@ -833,18 +848,19 @@ function stats_print_odyssey_nudge( $html ) {
 			display: none;
 		}
 	</style>
-	<div id="stats-odyssey-nudge-main" class="stats-odyssey-nudge dops-card">
-		<div class="stats-odyssey-nudge--content">
-			<div class="stats-odyssey-nudge--title"><?php esc_html_e( 'Explore the new Jetpack Stats', 'jetpack' ); ?></div>
-			<?php esc_html_e( "We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.", 'jetpack' ); ?>
-			<div class="stats-odyssey-nudge--action-bar">
-				<button class="dops-button stats-odyssey-nudge--primary-button">
+	<div id="stats-odyssey-nudge-main" class="stats-odyssey-notice">
+		<div class="stats-odyssey-notice--content">
+			<h2 class="stats-odyssey-notice--content-header"><?php esc_html_e( 'Explore the new Jetpack Stats', 'jetpack' ); ?></h2>
+			<p class="stats-odyssey-notice--content-text"><?php esc_html_e( "We've added new stats and insights in a more modern and mobile friendly experience to help you grow your site.", 'jetpack' ); ?></p>
+			<div class="stats-odyssey-notice--action-bar">
+				<button class="dops-button stats-odyssey-notice--primary-button">
 					<a class="is-primary-link" href="<?php echo esc_url( $redirect_url ); ?>"><?php esc_html_e( 'Switch to new Stats', 'jetpack' ); ?></a>
 				</button>
 				<a class="is-secondary-link" href="<?php echo esc_url( $learn_url ); ?>" rel="noopener noreferrer" target="_blank"><?php esc_html_e( 'Learn about Stats', 'jetpack' ); ?> <svg xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg></a>
 			</div>
 		</div>
-		<button class="stats-odyssey-nudge--close-button" onclick="stats_odyssey_dismiss_nudge()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg></button>
+		<div class="stats-odyssey-notice--image-container"></div>
+		<button class="stats-odyssey-notice--close-button" onclick="stats_odyssey_dismiss_nudge()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M13 11.8l6.1-6.3-1-1-6.1 6.2-6.1-6.2-1 1 6.1 6.3-6.5 6.7 1 1 6.5-6.6 6.5 6.6 1-1z"></path></svg></button>
 	</div>
 	<?php
 }
@@ -1211,7 +1227,7 @@ function stats_jetpack_dashboard_widget() {
 		<span class="screen-reader-text"><?php esc_html_e( 'Configure', 'jetpack' ); ?></span>
 		<span class="toggle-indicator" aria-hidden="true"></span>
 	</button>
-	<div id="dashboard_stats">
+	<div id="dashboard_stats" class="is-loading">
 		<div class="inside">
 			<div style="height: 250px;"></div>
 		</div>
@@ -1250,12 +1266,10 @@ jQuery( function($) {
 
 	dashStats
 		.not( '.dashboard-widget-control' )
-		.load( 'admin.php?page=stats&noheader&dashboard&' + args );
-
-	jQuery( window ).one( 'resize', function() {
-		jQuery( '#stat-chart' ).css( 'width', 'auto' );
-	} );
-
+		.load( 'admin.php?page=stats&noheader&dashboard&' + args, function() {
+			jQuery( '#dashboard_stats' ).removeClass( 'is-loading' );
+			jQuery( '#stat-chart' ).css( 'width', 'auto' );
+		} );
 
 	// Widget settings toggle container.
 	var toggle = $( '.js-toggle-stats_dashboard_widget_control' );
@@ -1334,7 +1348,7 @@ function stats_dashboard_widget_content() {
 
 	$csv_end_date = current_time( 'Y-m-d' );
 	$csv_args     = array(
-		'top'    => "&limit=8&end=$csv_end_date",
+		'top'    => "&limit=6&end=$csv_end_date",
 		'search' => "&limit=5&end=$csv_end_date",
 	);
 
@@ -1361,80 +1375,68 @@ function stats_dashboard_widget_content() {
 
 	?>
 <div id="stats-info">
-	<div id="top-posts" class='stats-section'>
-		<div class="stats-section-inner">
-		<h3 class="heading"><?php esc_html_e( 'Top Posts', 'jetpack' ); ?></h3>
-		<?php
-		if ( empty( $top_posts ) ) {
-			?>
-			<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+	<div id="stats-info-container">
+		<div class="stats-info-header">
+			<h2><?php esc_html_e( 'Highlights', 'jetpack' ); ?></h2>
+			<div class="stats-info-header-right">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=stats' ) ); ?>" class="button button-primary">
+					<?php esc_html_e( 'View detailed stats', 'jetpack' ); ?>
+				</a>
+			</div>
+		</div>
+		<div id="top-posts" class="stats-section">
+			<div class="stats-section-inner">
+			<h3 class="heading"><?php esc_html_e( 'Top Posts', 'jetpack' ); ?></h3>
 			<?php
-		} else {
-			foreach ( $top_posts as $post ) {
-				if ( ! get_post( $post['post_id'] ) ) {
-					continue;
+			if ( empty( $top_posts ) ) {
+				?>
+				<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+				<?php
+			} else {
+				foreach ( $top_posts as $post ) {
+					if ( ! get_post( $post['post_id'] ) ) {
+						continue;
+					}
+					?>
+					<p>
+					<?php
+					printf(
+						esc_html(
+							/* Translators: Stats dashboard widget Post list with view count: "Post Title 1 View (or Views if plural)". */
+							_n( '%1$s %2$s View', '%1$s %2$s Views', $post['views'], 'jetpack' )
+						),
+						'<a href="' . esc_url( get_permalink( $post['post_id'] ) ) . '">' . esc_html( get_the_title( $post['post_id'] ) ) . '</a>',
+						esc_html( number_format_i18n( $post['views'] ) )
+					);
+					?>
+				</p>
+					<?php
 				}
-				?>
-				<p>
-				<?php
-				printf(
-					esc_html(
-						/* Translators: Stats dashboard widget Post list with view count: "Post Title 1 View (or Views if plural)". */
-						_n( '%1$s %2$s View', '%1$s %2$s Views', $post['views'], 'jetpack' )
-					),
-					'<a href="' . esc_url( get_permalink( $post['post_id'] ) ) . '">' . esc_html( get_the_title( $post['post_id'] ) ) . '</a>',
-					esc_html( number_format_i18n( $post['views'] ) )
-				);
-				?>
-			</p>
-				<?php
 			}
-		}
-		?>
-		</div>
-	</div>
-	<div id="top-search" class='stats-section'>
-		<div class="stats-section-inner">
-		<h3 class="heading"><?php esc_html_e( 'Top Searches', 'jetpack' ); ?></h3>
-		<?php
-		if ( empty( $searches ) ) {
 			?>
-			<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+			</div>
+		</div>
+		<div id="top-search" class="stats-section">
+			<div class="stats-section-inner">
+			<h3 class="heading"><?php esc_html_e( 'Top Searches', 'jetpack' ); ?></h3>
 			<?php
-		} else {
-			foreach ( $searches as $search_term_item ) {
-				printf(
-					'<p>%s</p>',
-					esc_html( $search_term_item )
-				);
+			if ( empty( $searches ) ) {
+				?>
+				<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+				<?php
+			} else {
+				foreach ( $searches as $search_term_item ) {
+					printf(
+						'<p>%s</p>',
+						esc_html( $search_term_item )
+					);
+				}
 			}
-		}
-		?>
+			?>
+			</div>
 		</div>
 	</div>
 </div>
-<div class="clear"></div>
-<div class="stats-view-all">
-	<?php
-	$new_stats_enabled = Stats_Options::get_option( 'enable_odyssey_stats' );
-	if ( ! $new_stats_enabled ) {
-		$stats_day_url = Redirect::get_url( 'calypso-stats-day' );
-		printf(
-			'<a class="button" target="_blank" rel="noopener noreferrer" href="%1$s">%2$s</a>',
-			esc_url( $stats_day_url ),
-			esc_html__( 'View all stats', 'jetpack' )
-		);
-	} else {
-		printf(
-			'<a class="button" href="%1$s">%2$s</a>',
-			esc_url( menu_page_url( 'stats', false ) ),
-			esc_html__( 'View all stats', 'jetpack' )
-		);
-
-	}
-	?>
-</div>
-<div class="clear"></div>
 	<?php
 	exit;
 }
@@ -1749,7 +1751,7 @@ function jetpack_stats_post_table( $columns ) {
 }
 
 /**
- * Set content for cell with link to an entry's stats in WordPress.com.
+ * Set content for cell with link to an entry's stats in Odyssey Stats.
  *
  * @param string $column  The name of the column to display.
  * @param int    $post_id The current post ID.
@@ -1766,16 +1768,19 @@ function jetpack_stats_post_table_cell( $column, $post_id ) {
 				esc_html__( 'No stats', 'jetpack' )
 			);
 		} else {
-			$stats_post_url = Redirect::get_url(
+			$stats_post_url = ! ( new Host() )->is_woa_site() && Stats_Options::get_option( 'enable_odyssey_stats' )
+			? admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, Jetpack_Options::get_option( 'id', 0 ) ) )
+			: Redirect::get_url(
 				'calypso-stats-post',
 				array(
 					'path' => $post_id,
 				)
 			);
+
 			printf(
 				'<a href="%s" title="%s" class="dashicons dashicons-chart-bar" target="_blank"></a>',
 				esc_url( $stats_post_url ),
-				esc_html__( 'View stats for this post at WordPress.com', 'jetpack' )
+				esc_html__( 'View stats for this post', 'jetpack' )
 			);
 		}
 	}

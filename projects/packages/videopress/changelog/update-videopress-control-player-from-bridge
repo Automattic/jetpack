@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: trigger video events to client via player-bridge

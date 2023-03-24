@@ -123,11 +123,11 @@ if ( is_array( $tags ) && count( $tags ) > 0 ) {
 			// } DEFAULTS
 				// } Existing user updated by API
 				$existingUserAPISourceShort = __( 'Updated by API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-				$existingUserAPISourceLong  = __( 'API Action fired to update customer', 'zero-bs-crm' );
+				$existingUserAPISourceLong  = __( 'API Action fired to update contact', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				// } New User from API
 				$newUserAPISourceShort = __( 'Created from API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-				$newUserAPISourceLong  = __( 'API Action fired to create customer', 'zero-bs-crm' );
+				$newUserAPISourceLong  = __( 'API Action fired to create contact', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 $external_api_name = jpcrm_api_process_external_api_name();
 if ( $external_api_name !== false ) {
@@ -138,7 +138,7 @@ if ( $external_api_name !== false ) {
 	);
 	$existingUserAPISourceLong = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		// Translators: %s is a dynamic service name invoking the API.
-		__( '%s fired an API Action to update this customer', 'zero-bs-crm' ),
+		__( '%s fired an API Action to update this contact', 'zero-bs-crm' ),
 		$external_api_name
 	);
 	$newUserAPISourceShort = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -148,7 +148,7 @@ if ( $external_api_name !== false ) {
 	);
 	$newUserAPISourceLong = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		// Translators: %s is a dynamic service name invoking the API.
-		__( '%s fired an API Action to create this customer', 'zero-bs-crm' ),
+		__( '%s fired an API Action to create this contact', 'zero-bs-crm' ),
 		$external_api_name
 	);
 }

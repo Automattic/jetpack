@@ -29,9 +29,8 @@ export default function MediaSection() {
 
 	const [ mediaDetails ] = useMediaDetails( attachedMedia[ 0 ]?.id );
 
-	const { maxImageSize, getValidationError, allowedMediaTypes } = useMediaRestrictions(
-		enabledConnections
-	);
+	const { maxImageSize, getValidationError, allowedMediaTypes } =
+		useMediaRestrictions( enabledConnections );
 
 	const validationErrorMessages = {
 		[ FILE_TYPE_ERROR ]: __(

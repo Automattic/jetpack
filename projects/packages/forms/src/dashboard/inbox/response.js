@@ -1,5 +1,4 @@
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { Fragment } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { map } from 'lodash';
@@ -29,11 +28,15 @@ const InboxResponse = ( { loading, response } ) => {
 			</div>
 
 			<h3 className={ titleClasses }>{ getDisplayName( response ) }</h3>
-			<p className="jp-forms__inbox-response-subtitle">{ response.author_email }</p>
+			{ response.author_email && (
+				<p className="jp-forms__inbox-response-subtitle">{ response.author_email }</p>
+			) }
 
 			<div className="jp-forms__inbox-response-meta">
 				<div className="jp-forms__inbox-response-meta-label">
-					{ __( 'Added on', 'jetpack-forms' ) }&nbsp;
+					<span className="jp-forms__inbox-response-meta-key">
+						{ __( 'Date:', 'jetpack-forms' ) }&nbsp;
+					</span>
 					<span className="jp-forms__inbox-response-meta-value">
 						{ sprintf(
 							/* Translators: %1$s is the date, %2$s is the time. */
@@ -44,11 +47,15 @@ const InboxResponse = ( { loading, response } ) => {
 					</span>
 				</div>
 				<div className="jp-forms__inbox-response-meta-label">
-					{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
+					<span className="jp-forms__inbox-response-meta-key">
+						{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
+					</span>
 					<span className="jp-forms__inbox-response-meta-value">{ getPath( response ) }</span>
 				</div>
 				<div className="jp-forms__inbox-response-meta-label">
-					{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;
+					<span className="jp-forms__inbox-response-meta-key	">
+						{ __( 'IP address:', 'jetpack-forms' ) }&nbsp;
+					</span>
 					<span className="jp-forms__inbox-response-meta-value">{ response.ip }</span>
 				</div>
 			</div>
@@ -58,10 +65,10 @@ const InboxResponse = ( { loading, response } ) => {
 			<div className="jp-forms__inbox-response-data">
 				{ map( response.fields, ( value, key ) => {
 					return (
-						<Fragment key={ key }>
-							<div className="jp-forms__inbox-response-data-label">{ formatFieldName( key ) }</div>
+						<div key={ key } className="jp-forms__inbox-response-item">
+							<div className="jp-forms__inbox-response-data-label">{ formatFieldName( key ) }:</div>
 							<div className="jp-forms__inbox-response-data-value">{ value }</div>
-						</Fragment>
+						</div>
 					);
 				} ) }
 			</div>
