@@ -114,7 +114,6 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_SECURITY_T2_YEARLY ]: '/plans/jetpack-security.svg',
 	[ PLAN_JETPACK_SECURITY_T2_MONTHLY ]: '/plans/jetpack-security.svg',
 	[ PLAN_JETPACK_COMPLETE ]: '/plans/jetpack-complete.svg',
-
 	[ PLAN_JETPACK_COMPLETE_MONTHLY ]: '/plans/jetpack-complete.svg',
 	[ PLAN_JETPACK_VIDEOPRESS ]: '/products/product-jetpack-videopress.svg',
 	[ PLAN_JETPACK_VIDEOPRESS_MONTHLY ]: '/products/product-jetpack-videopress.svg',
