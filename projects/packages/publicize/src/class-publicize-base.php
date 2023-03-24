@@ -1615,10 +1615,9 @@ abstract class Publicize_Base {
 	/**
 	 * Check if the social image generator is enabled.
 	 *
-	 * @param int $blog_id The blog ID for the current blog.
 	 * @return bool
 	 */
-	public function has_social_image_generator_feature( $blog_id = null ) {
+	public function has_social_image_generator_feature() {
 		return Current_Plan::supports( 'social-image-generator' );
 	}
 
