@@ -11,6 +11,7 @@ import { PanelBody } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 /**
  * External dependencies
  */
@@ -77,6 +78,7 @@ export default function VideoPressEdit( {
 		[ clientId ]
 	);
 	const { replaceBlock } = useDispatch( blockEditorStore );
+	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
@@ -160,6 +162,7 @@ export default function VideoPressEdit( {
 		videoSource => {
 			const { guid: guidFromSource, url: srcFromSource } = buildVideoPressURL( videoSource );
 			if ( ! guidFromSource ) {
+				createErrorNotice( __( 'Invalid VideoPress URL', 'jetpack-videopress-pkg' ) );
 				return;
 			}
 			setAttributes( { guid: guidFromSource, src: srcFromSource } );
