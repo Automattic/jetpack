@@ -1555,9 +1555,11 @@ function jpcrm_youtube_url_to_video_id( $video_url ) {
    / YouTube Helpers
 ====================================================== */
 
-// These constants were created to simplify the process when this page gets
-// moved to a React-based approach. It was a choice to not refactor any further
-// than this.
+/*
+ * These constants were created to simplify the process when this page gets
+ * moved to a React-based approach. It was a choice to not refactor any
+ * further than this.
+*/
 define( 'SETTING_SECOND_ADDRESS_ALWAYS_HIDE', 0 );
 define( 'SETTING_SECOND_ADDRESS_ALWAYS_SHOW', 1 );
 define( 'SETTING_SECOND_ADDRESS_ALLOW_CHANGE_VISIBILITY', 2 );
