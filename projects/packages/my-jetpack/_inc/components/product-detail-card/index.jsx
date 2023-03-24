@@ -120,7 +120,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 	const { run: trialCheckoutRedirect, hasCheckoutStarted: hasTrialCheckoutStarted } =
 		useProductCheckoutWorkflow( {
 			productSlug: wpcomFreeProductSlug,
-			redirectUrl: checkoutRedirectUrl,
+			redirectUrl: myJetpackUrl,
 			siteSuffix,
 			from: 'my-jetpack',
 		} );
