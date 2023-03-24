@@ -443,7 +443,7 @@
                             if (isset($fieldV[0])){
                                 if ($zbsFieldGroup == 'Second Address') {
 												$fieldV[1]                      = str_replace( ' (' . $second_address_label . ')', '', $fieldV[1] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-												$second_address_field_key       = jpcrm_compatibility_get_correct_object_key( $fieldK ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+												$second_address_field_key       = jpcrm_convert_legacy_object_key( $fieldK ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 												$is_second_address_fields_empty = isset( $zbsCustomer[ $second_address_field_key ] ) && $zbsCustomer[ $second_address_field_key ] !== '' // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 													? false
 													: $is_second_address_fields_empty;

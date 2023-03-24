@@ -1594,7 +1594,7 @@ function jpcrm_settings_get_second_address_visibility( $settings ) {
  * @param string $field_key The field key.
  * @return string The modified field key if it needs to be changed, otherwise returns the same $field_key.
  */
-function jpcrm_compatibility_get_correct_object_key( $field_key ) {
+function jpcrm_convert_legacy_object_key( $field_key ) {
 	switch ( $field_key ) {
 		case 'secaddr1':
 			return 'secaddr_addr1';
