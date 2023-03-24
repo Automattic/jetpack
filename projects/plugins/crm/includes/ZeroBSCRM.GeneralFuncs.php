@@ -1586,7 +1586,8 @@ function jpcrm_settings_get_second_address_visibility( $settings ) {
 }
 
 /**
- * This function returns the correct key for a field.
+ * Convert legacy DAL property name to most recent version.
+ *
  * We have to use this because some fields changed their keys (i.e. second
  * address field) and their usage was not correctly changed/migrated.
  * This is used for backwards compatibility only.
