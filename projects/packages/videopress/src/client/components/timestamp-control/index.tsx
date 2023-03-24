@@ -239,6 +239,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 
 	const debounceTimer = useRef< NodeJS.Timeout >();
 
+	// Check and add a fallback for the `useBaseControlProps` hook.
 	const { baseControlProps } = useBaseControlProps?.( props ) || {};
 
 	const onChangeHandler = useCallback(
@@ -254,14 +255,16 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 	return (
 		<BaseControl { ...baseControlProps }>
 			<div className={ styles[ 'timestamp-control__controls-wrapper' ] }>
-				<TimestampInput
-					disabled={ disabled }
-					max={ max }
-					value={ value }
-					onChange={ onChangeHandler }
-					autoHideTimeInput={ autoHideTimeInput }
-					decimalPlaces={ decimalPlaces }
-				/>
+				{ NumberControl && (
+					<TimestampInput
+						disabled={ disabled }
+						max={ max }
+						value={ value }
+						onChange={ onChangeHandler }
+						autoHideTimeInput={ autoHideTimeInput }
+						decimalPlaces={ decimalPlaces }
+					/>
+				) }
 
 				<RangeControl
 					disabled={ disabled }
