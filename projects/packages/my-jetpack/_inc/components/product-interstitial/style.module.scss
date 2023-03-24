@@ -31,3 +31,11 @@
 		font-size: var(--font-body-small);
 	}
 }
+
+.tos-container {
+	text-align: center;
+
+	@media ( min-width: 600px ) {
+		text-align: right;
+	}
+}

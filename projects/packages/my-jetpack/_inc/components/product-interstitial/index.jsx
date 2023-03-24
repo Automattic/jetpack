@@ -1,4 +1,11 @@
-import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
+import {
+	AdminPage,
+	Button,
+	Col,
+	Container,
+	Text,
+	TermsOfService,
+} from '@automattic/jetpack-components';
 import { select } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -164,6 +171,11 @@ export default function ProductInterstitial( {
 							) }
 						</Col>
 					</Container>
+				</Col>
+				<Col>
+					<div className={ styles[ 'tos-container' ] }>
+						<TermsOfService multipleButtons />
+					</div>
 				</Col>
 			</Container>
 		</AdminPage>
