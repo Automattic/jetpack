@@ -13,7 +13,7 @@ import styles from './styles.module.scss';
  * @param {object} props - Component props.
  * @param {Function} props.redeemClick - Callback function to handle redeem click.
  * @param {object} props.userConnectionData - Connected user data.
- * @param {Function} props.onClickGoBack - Callback function to handle go back click.
+ * @param {Function} props.onModalClose - Callback function to handle module closure.
  * @param {Array} props.purchases - Array of Object of purchases.
  * @param {boolean} props.fetchingPurchases - Are purchases being fetched.
  * @returns {React.Component} - GoldenToken component.
@@ -21,7 +21,7 @@ import styles from './styles.module.scss';
 function GoldenTokenModal( {
 	redeemClick,
 	userConnectionData,
-	onClickGoBack,
+	onModalClose,
 	fetchingPurchases,
 	purchases,
 } ) {
@@ -56,7 +56,7 @@ function GoldenTokenModal( {
 		userConnectionData?.currentUser?.username;
 
 	return (
-		<Modal className={ modalClassName } onRequestClose={ onClickGoBack } isDismissible={ false }>
+		<Modal className={ modalClassName } onRequestClose={ onModalClose } isDismissible={ false }>
 			{ fetchingPurchases && <>{ __( 'Checking gold status…', 'jetpack-my-jetpack' ) }</> }
 			{ ! fetchingPurchases && hasGoldenToken && (
 				<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -167,7 +167,7 @@ GoldenTokenModal.propTypes = {
 	fetchingPurchases: PropTypes.bool,
 	purchases: PropTypes.array,
 	userConnectionData: PropTypes.object.isRequired,
-	onClickGoBack: PropTypes.func.isRequired,
+	onModalClose: PropTypes.func.isRequired,
 };
 
 export default GoldenTokenModal;

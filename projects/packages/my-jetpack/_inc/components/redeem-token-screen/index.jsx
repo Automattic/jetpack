@@ -12,7 +12,7 @@ import GoldenTokenModal from '../golden-token';
 export default function RedeemTokenScreen() {
 	const { recordEvent } = useAnalytics();
 
-	const onClickGoBack = useCallback(
+	const onModalClose = useCallback(
 		event => {
 			recordEvent( 'jetpack_myjetpack_redeem_token_back_link_click' );
 			if ( document.referrer.includes( window.location.host ) ) {
@@ -36,7 +36,7 @@ export default function RedeemTokenScreen() {
 			purchases={ purchases }
 			fetchingPurchases={ isFetchingPurchases }
 			userConnectionData={ userConnectionData }
-			onClickGoBack={ onClickGoBack }
+			onModalClose={ onModalClose }
 		/>
 	);
 }
