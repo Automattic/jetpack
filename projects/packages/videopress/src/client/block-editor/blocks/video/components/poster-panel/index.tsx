@@ -33,6 +33,20 @@ import './style.scss';
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
 import type React from 'react';
 
+/*
+ * Check whether video frame poster extension is enabled.
+ * `v6-video-frame-poster` is a temporary extension handled by the Jetpack plugin.
+ * It will be used to hide the Video frame poster feature until it's ready.
+ */
+declare global {
+	interface Window {
+		Jetpack_Editor_Initial_State: { available_blocks: [ 'v6-video-frame-poster' ] };
+	}
+}
+
+export const isVideoFramePosterEnabled = () =>
+	!! window?.Jetpack_Editor_Initial_State?.available_blocks?.[ 'v6-video-frame-poster' ];
+
 // Global scripts array to be run in the Sandbox context.
 const sandboxScripts = [];
 
@@ -356,6 +370,21 @@ export default function PosterPanel( {
 		},
 		[ attributes ]
 	);
+
+	if ( ! isVideoFramePosterEnabled() ) {
+		return (
+			<PanelBody title={ __( 'Poster', 'jetpack-videopress-pkg' ) } className="poster-panel">
+				<PosterDropdown attributes={ attributes } setAttributes={ setAttributes } />
+				<VideoPosterCard poster={ poster } className="poster-panel-card" />
+
+				{ poster && (
+					<MenuItem onClick={ onRemovePoster } icon={ linkOff } isDestructive variant="tertiary">
+						{ __( 'Remove and use default', 'jetpack-videopress-pkg' ) }
+					</MenuItem>
+				) }
+			</PanelBody>
+		);
+	}
 
 	return (
 		<PanelBody title={ __( 'Poster', 'jetpack-videopress-pkg' ) } className="poster-panel">
