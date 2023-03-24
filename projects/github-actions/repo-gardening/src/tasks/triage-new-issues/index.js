@@ -6,6 +6,22 @@ const sendSlackMessage = require( '../../utils/send-slack-message' );
 /* global GitHub, WebhookPayloadIssue */
 
 /**
+ * Check for a label showing that the Quality team was already notified.
+ *
+ * @param {GitHub} octokit - Initialized Octokit REST client.
+ * @param {string} owner   - Repository owner.
+ * @param {string} repo    - Repository name.
+ * @param {string} number  - Issue number.
+ * @returns {Promise<boolean>} Promise resolving to boolean.
+ */
+async function hasKitkatSignalLabel( octokit, owner, repo, number ) {
+	const labels = await getLabels( octokit, owner, repo, number );
+
+	// Does the list of labels includes the "[Pri] TBD" label?
+	return labels.includes( '[Pri] TBD' );
+}
+
+/**
  * Check for Priority label on an issue
  *
  * @param {GitHub} octokit - Initialized Octokit REST client.
@@ -16,8 +32,8 @@ const sendSlackMessage = require( '../../utils/send-slack-message' );
  */
 async function hasPriorityLabels( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
-	// We're only interested in priority labels.
-	return !! labels.find( label => label.match( /^\[Pri\].*$/ ) );
+	// We're only interested in priority labels, but not if the label is [Pri] TBD.
+	return !! labels.find( label => label.match( /^(?!\[Pri\] TBD)\[Pri\].*$/ ) );
 }
 
 /**
@@ -204,6 +220,19 @@ async function triageNewIssues( payload, octokit ) {
 		if ( ! slackToken || ! channel ) {
 			return null;
 		}
+
+		// Check if Kitkat input was already requested for that issue.
+		const hasBeenRequested = await hasKitkatSignalLabel( octokit, ownerLogin, name, number );
+		if ( hasBeenRequested ) {
+			debug(
+				`triage-new-issues: Kitkat input was already requested for issue #${ number }. Aborting.`
+			);
+			return;
+		}
+
+		debug(
+			`triage-new-issues: #${ number } doesn't have a Priority set. Sending in Slack message to the Kitkat team.`
+		);
 
 		const message = '@kitkat-team New bug missing priority. Please do a priority assessment.';
 		const slackMessageFormat = formatSlackMessage( payload, channel, message );
