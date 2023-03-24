@@ -29,7 +29,7 @@ $tablet-width: 760px;
 	background: var(--white);
 	box-shadow: 0 12px 16px -0.5px rgba(0, 0, 0, 0.15);
 	height: 700px;
-	margin: 0 auto;
+	margin: 3rem auto;
 	max-width: 414px;
 	overflow: hidden;
 	position: relative;
@@ -69,9 +69,9 @@ $tablet-width: 760px;
 @include tablet {
 	.modal {
 		height: 740px;
-		max-width: 1080px;
+		max-width: 1360px;
 		position: relative;
-		width: 100%;
+		width: 95%;
 
 		.jetpack-logo {
 			display: block;
@@ -213,13 +213,13 @@ $tablet-width: 760px;
 	padding: var(--modal-padding);
 
 	h2 {
-		// https://clamp.font-size.app/?config=eyJyb290IjoiMTYiLCJtaW5XaWR0aCI6Ijc2MHB4IiwibWF4V2lkdGgiOiIxMDgwcHgiLCJtaW5Gb250U2l6ZSI6IjI0cHgiLCJtYXhGb250U2l6ZSI6IjQ2cHgifQ%3D%3D
-		font-size: clamp(1.5rem, -1.7656rem + 6.875vw, 2.875rem);
+		// https://clamp.font-size.app/?config=eyJyb290IjoiMTYiLCJtaW5XaWR0aCI6Ijc2MHB4IiwibWF4V2lkdGgiOiIxNDQwcHgiLCJtaW5Gb250U2l6ZSI6IjI0cHgiLCJtYXhGb250U2l6ZSI6IjU2cHgifQ%3D%3D
+		font-size: clamp(1.5rem, -0.7353rem + 4.7059vw, 3.5rem);
 	}
 
 	p {
 		// https://clamp.font-size.app/?config=eyJyb290IjoiMTYiLCJtaW5XaWR0aCI6IjQxNHB4IiwibWF4V2lkdGgiOiIxNDQwcHgiLCJtaW5Gb250U2l6ZSI6IjE2cHgiLCJtYXhGb250U2l6ZSI6IjI4cHgifQ%3D%3D
-		font-size: clamp(1rem, 0.5338rem + 1.8018vw, 1.45rem);
+		font-size: clamp(1rem, 0.6974rem + 1.1696vw, 1.75rem);
 	}
 
 	p.hi-user {
