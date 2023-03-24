@@ -251,9 +251,9 @@ if ( count( $zbsSMTPAccs ) <= 0 ) {
 				<div class="ui very padded segment borderless">
 					<p>
 						<?php esc_html_e( 'Enter your "Send From" details below. For best brand impact we recommend using a same-domain email address, although any email you have SMTP details for will work.', 'zero-bs-crm' ); ?>
-						<?php // WLREMOVE ?>
+						<?php ##WLREMOVE ?>
 						<a href="<?php echo esc_url( $zbs->urls['kbsmtpsetup'] ); ?>"><?php esc_html_e( 'See the Guide', 'zero-bs-crm' ); ?></a>
-						<?php // /WLREMOVE ?>
+						<?php ##/WLREMOVE ?>
 					</p>
 				</div>
 
@@ -287,9 +287,9 @@ if ( count( $zbsSMTPAccs ) <= 0 ) {
 				<div class="ui very padded segment borderless">
 					<p>
 						<?php esc_html_e( 'The CRM can send out emails via your default server settings, API, or via an SMTP server (mail server). If you would like to reliably send emails from a custom domain, we recommend using SMTP or an API connection.', 'zero-bs-crm' ); ?>
-						<?php // WLREMOVE ?>
+						<?php ##WLREMOVE ?>
 						<a href="<?php echo esc_url( $zbs->urls['kbsmtpsetup'] ); ?>"><?php esc_html_e( 'See the Guide', 'zero-bs-crm' ); ?></a>
-						<?php // /WLREMOVE ?>
+						<?php ##/WLREMOVE ?>
 					</p>
 				</div>
 

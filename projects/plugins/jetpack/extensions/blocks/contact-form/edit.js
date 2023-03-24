@@ -97,9 +97,10 @@ export function JetpackContactFormEdit( {
 	const formClassnames = classnames( className, 'jetpack-contact-form', {
 		'is-placeholder': ! hasInnerBlocks && registerBlockVariation,
 	} );
-	const isSalesForceExtensionEnabled = !! window?.Jetpack_Editor_Initial_State?.available_blocks[
-		'contact-form/salesforce-lead-form'
-	];
+	const isSalesForceExtensionEnabled =
+		!! window?.Jetpack_Editor_Initial_State?.available_blocks[
+			'contact-form/salesforce-lead-form'
+		];
 
 	if ( isSalesForceExtensionEnabled ) {
 		variations = [ ...variations, salesforceLeadFormVariation ];
