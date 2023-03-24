@@ -156,10 +156,6 @@ function GoldenTokenModal( {
 	);
 }
 
-GoldenTokenModal.defaultProps = {
-	fetchingPurchases: true,
-};
-
 GoldenTokenModal.propTypes = {
 	redeemClick: PropTypes.func,
 	fetchingPurchases: PropTypes.bool,
