@@ -12,9 +12,10 @@ import styles from './styles.module.scss';
  * @param {object} props - Component props.
  * @param {Function} props.redeemClick - Callback function to handle redeem click.
  * @param {boolean} props.hasGoldenToken - Whether the user has a golden token.
+ * @param {object} props.userConnectionData - Connected user data.
  * @returns {React.Component} - GoldenToken component.
  */
-function GoldenToken( { redeemClick, hasGoldenToken } ) {
+function GoldenToken( { redeemClick, hasGoldenToken, userConnectionData } ) {
 	const [ isAnimating, setIsAnimating ] = useState( false );
 	const videoRef = useRef( null );
 
@@ -36,6 +37,12 @@ function GoldenToken( { redeemClick, hasGoldenToken } ) {
 		[ styles.animating ]: isAnimating,
 	} );
 
+	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.
+	const wpcomUserName =
+		userConnectionData?.currentUser?.wpcomUser?.display_name ||
+		userConnectionData?.currentUser?.wpcomUser?.login ||
+		userConnectionData?.currentUser?.username;
+
 	return (
 		<div className={ modalClassName }>
 			<JetpackLogo className={ styles[ 'jetpack-logo' ] } />
@@ -49,7 +56,7 @@ function GoldenToken( { redeemClick, hasGoldenToken } ) {
 
 			<div className={ styles[ 'content-wrap' ] }>
 				<div className={ styles[ 'content-wrap-text' ] }>
-					<p className={ styles[ 'hi-user' ] }>Hey, Jetpack Friend</p>
+					<p className={ styles[ 'hi-user' ] }>Hey, { wpcomUserName }</p>
 					<h2 className={ styles.headline }>
 						{ __( 'Your exclusive Jetpack Experience awaits.', 'jetpack-my-jetpack' ) }
 					</h2>
@@ -123,7 +130,8 @@ function GoldenToken( { redeemClick, hasGoldenToken } ) {
 
 GoldenToken.propTypes = {
 	redeemClick: PropTypes.func,
-	hasGoldenToken: PropTypes.bool.isRequired,
+	userConnectionData: PropTypes.object.isRequired,
+	hasGoldenToken: PropTypes.bool,
 };
 
 export default GoldenToken;

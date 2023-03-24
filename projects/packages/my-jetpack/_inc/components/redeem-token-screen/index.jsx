@@ -1,5 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import { AdminPage, Container, Col } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import usePurchases from '../../hooks/use-purchases';
@@ -37,6 +38,7 @@ export default function RedeemTokenScreen() {
 	// Any purchase with the partner_slug of 'goldenticket' is considered a golden token.
 	const goldenToken = purchases.filter( golden => golden.partner_slug === 'goldenticket' );
 	const hasGoldenToken = goldenToken.length > 0;
+	const { userConnectionData } = useConnection();
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
@@ -45,7 +47,10 @@ export default function RedeemTokenScreen() {
 					<GoBackLink onClick={ onClickGoBack } />
 				</Col>
 				<Col>
-					<GoldenToken hasGoldenToken={ hasGoldenToken } />
+					<GoldenToken
+						hasGoldenToken={ hasGoldenToken }
+						userConnectionData={ userConnectionData }
+					/>
 				</Col>
 			</Container>
 		</AdminPage>
