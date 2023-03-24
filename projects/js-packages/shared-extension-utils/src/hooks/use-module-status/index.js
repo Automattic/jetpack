@@ -105,12 +105,10 @@ const useModuleStatus = name => {
 		[ name, isModuleActive ]
 	);
 
-	return useMemo( () => ( { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } ), [
-		isLoadingModules,
-		isChangingStatus,
-		isModuleActive,
-		changeStatus,
-	] );
+	return useMemo(
+		() => ( { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } ),
+		[ isLoadingModules, isChangingStatus, isModuleActive, changeStatus ]
+	);
 };
 
 export default useModuleStatus;
