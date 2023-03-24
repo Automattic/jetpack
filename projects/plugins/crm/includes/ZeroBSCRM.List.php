@@ -1103,8 +1103,9 @@ class zeroBSCRM_list{
 			$jpcrm_listview_lang_labels = array(
 
 				'go_button'          => esc_html__( 'Go', 'zero-bs-crm' ),
+				/* translators: Placeholder is the number of selected rows. */
 				'rows_selected_x'    => esc_html__( 'Bulk actions (%s rows selected)', 'zero-bs-crm' ),
-				'rows_selected_1'    => esc_html__( 'Bulk actions (1 row selected)', 'zero-bs-crm'),
+				'rows_selected_1'    => esc_html__( 'Bulk actions (1 row selected)', 'zero-bs-crm' ),
 				'rows_selected_0'    => esc_html__( 'Bulk actions (no rows selected)', 'zero-bs-crm' ),
 				'zbs_edit'           => esc_html__( 'Edit', 'zero-bs-crm' ),
 				'today'              => esc_html__( 'Today', 'zero-bs-crm' ),
@@ -1121,9 +1122,9 @@ class zeroBSCRM_list{
 			);
 
 			// add any object-specific language labels
-			if ( count( $this->langLabels ) > 0 ) {
+			if ( count( $this->langLabels ) > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-				$jpcrm_listview_lang_labels = array_merge( $jpcrm_listview_lang_labels, $this->langLabels );
+				$jpcrm_listview_lang_labels = array_merge( $jpcrm_listview_lang_labels, $this->langLabels ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 			}
 			?>
