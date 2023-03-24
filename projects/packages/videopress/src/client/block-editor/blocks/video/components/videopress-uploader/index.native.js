@@ -25,6 +25,7 @@ const VideoPressUploader = ( {
 	isReplacing,
 	onFocus,
 	onReplaceCancel,
+	onStartUpload,
 } ) => {
 	const [ uploadFile, setFile ] = useState( null );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
@@ -33,6 +34,7 @@ const VideoPressUploader = ( {
 	const startUpload = file => {
 		setFile( file );
 		setIsUploadingInProgress( true );
+		onStartUpload( file );
 	};
 
 	// Start the upload process when a file to upload is set.

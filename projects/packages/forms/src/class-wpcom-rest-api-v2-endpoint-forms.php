@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use WP_Error;
 use WP_REST_Controller;
@@ -65,6 +66,16 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 						'required' => false,
 					),
 				),
+			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/responses',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'update_responses' ),
+				'permission_callback' => array( $this, 'get_responses_permission_check' ),
 			)
 		);
 	}
@@ -177,6 +188,46 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	}
 
 	/**
+	 * Handles bulk actions for Jetpack Forms responses.
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_REST_Response A response object..
+	 */
+	public function update_responses( $request ) {
+		$content_type = $request->get_header( 'Content-Type' );
+
+		// Match 'action' directive inside Content-Type header value
+		preg_match( '/\;\s*bulk_action=([a-z_]*)/i', $content_type, $matches );
+		$bulk_action = isset( $matches[1] ) ? $matches[1] : null;
+		$post_ids    = $request->get_param( 'post_ids' );
+
+		if ( $bulk_action && ! is_array( $post_ids ) ) {
+			return new $this->error_response( __( 'Bad request', 'jetpack-forms' ), 400 );
+		}
+
+		switch ( $bulk_action ) {
+			case 'mark_as_spam':
+				return $this->bulk_action_mark_as_spam( $post_ids );
+
+			case 'mark_as_not_spam':
+				return $this->bulk_action_mark_as_not_spam( $post_ids );
+
+			case 'trash':
+				return $this->bulk_action_trash( $post_ids );
+
+			case 'untrash':
+				return $this->bulk_action_untrash( $post_ids );
+
+			case 'delete':
+				return $this->bulk_action_delete_forever( $post_ids );
+
+			default:
+				return $this->error_response( __( 'Bad request', 'jetpack-forms' ), 400 );
+		}
+	}
+
+	/**
 	 * Verifies that the current user has the requird capability for viewing form responses.
 	 *
 	 * @return true|WP_Error Returns true if the user has the required capability, else a WP_Error object.
@@ -196,6 +247,199 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Marks all feedback posts matchin the given IDs as spam.
+	 *
+	 * @param  array $post_ids Array of post IDs.
+	 * @return WP_REST_Response
+	 */
+	private function bulk_action_mark_as_spam( $post_ids ) {
+		foreach ( $post_ids as $post_id ) {
+			$post              = get_post( $post_id );
+			$post->post_status = 'spam';
+			$status            = wp_insert_post( $post );
+
+			if ( ! $status || is_wp_error( $status ) ) {
+				return $this->error_response(
+					sprintf(
+						/* translators: %s: Post ID */
+						__( 'Failed to mark post as spam. Post ID: %d.', 'jetpack-forms' ),
+						$post_id
+					),
+					500
+				);
+			}
+
+			/** This action is documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
+			do_action(
+				'contact_form_akismet',
+				'spam',
+				get_post_meta( $post_id, '_feedback_akismet_values', true )
+			);
+		}
+
+		return new \WP_REST_Response( array(), 200 );
+	}
+
+	/**
+	 * Marks all feedback posts matchin the given IDs as not spam.
+	 *
+	 * @param  array $post_ids Array of post IDs.
+	 * @return WP_REST_Response
+	 */
+	private function bulk_action_mark_as_not_spam( $post_ids ) {
+		foreach ( $post_ids as $post_id ) {
+			$post              = get_post( $post_id );
+			$post->post_status = 'publish';
+			$status            = wp_insert_post( $post );
+
+			if ( ! $status || is_wp_error( $status ) ) {
+				return $this->error_response(
+					sprintf(
+						/* translators: %s: Post ID */
+						__( 'Failed to mark post as not-spam. Post ID: %d.', 'jetpack-forms' ),
+						$post_id
+					),
+					500
+				);
+			}
+
+			/** This action is documented in \Automattic\Jetpack\Forms\ContactForm\Admin */
+			do_action(
+				'contact_form_akismet',
+				'ham',
+				get_post_meta( $post_id, '_feedback_akismet_values', true )
+			);
+
+			// Maybe resend the original email
+			$email          = get_post_meta( $post_id, '_feedback_email', true );
+			$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
+
+			if ( empty( $email ) || empty( $content_fields ) ) {
+				continue;
+			}
+
+			$blog_url             = wp_parse_url( site_url() );
+			$headers              = isset( $email['headers'] ) ? $email['headers'] : false;
+			$to                   = isset( $email['to'] ) ? $email['to'] : false;
+			$comment_author_email = isset( $content_fields['_feedback_author_email'] ) ? $content_fields['_feedback_author_email'] : false;
+			$message              = isset( $email['message'] ) ? $email['message'] : false;
+			$reply_to_addr        = false;
+
+			if ( ! $headers ) {
+				$headers = 'From: "' . $content_fields['_feedback_author'] . '" <wordpress@' . $blog_url['host'] . ">\r\n";
+
+				if ( ! empty( $comment_author_email ) ) {
+					$reply_to_addr = $comment_author_email;
+				} elseif ( is_array( $to ) ) {
+					$reply_to_addr = $to[0];
+				}
+
+				if ( $reply_to_addr ) {
+					$headers .= 'Reply-To: "' . $content_fields['_feedback_author'] . '" <' . $reply_to_addr . ">\r\n";
+				}
+
+				$headers .= 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . '"';
+			}
+
+			/**
+			 * Filters the subject of the email sent after a contact form submission.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 3.0.0
+			 *
+			 * @param string $content_fields['_feedback_subject'] Feedback's subject line.
+			 * @param array $content_fields['_feedback_all_fields'] Feedback's data from old fields.
+			 */
+			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'], $content_fields['_feedback_all_fields'] );
+
+			Contact_Form::wp_mail( $to, $subject, $message, $headers );
+		}
+
+		return new \WP_REST_Response( array(), 200 );
+	}
+
+	/**
+	 * Moves all feedback posts matchin the given IDs to trash.
+	 *
+	 * @param  array $post_ids Array of post IDs.
+	 * @return WP_REST_Response
+	 */
+	private function bulk_action_trash( $post_ids ) {
+		foreach ( $post_ids as $post_id ) {
+			if ( ! wp_trash_post( $post_id ) ) {
+				return $this->error_response(
+					sprintf(
+						/* translators: %s: Post ID */
+						__( 'Failed to move post to trash. Post ID: %d.', 'jetpack-forms' ),
+						$post_id
+					),
+					500
+				);
+			}
+		}
+
+		return new \WP_REST_Response( array(), 200 );
+	}
+
+	/**
+	 * Removes all feedback posts matchin the given IDs from trash.
+	 *
+	 * @param  array $post_ids Array of post IDs.
+	 * @return WP_REST_Response
+	 */
+	private function bulk_action_untrash( $post_ids ) {
+		foreach ( $post_ids as $post_id ) {
+			if ( ! wp_untrash_post( $post_id ) ) {
+				return $this->error_response(
+					sprintf(
+						/* translators: %s: Post ID */
+						__( 'Failed to remove post from trash. Post ID: %d.', 'jetpack-forms' ),
+						$post_id
+					),
+					500
+				);
+			}
+		}
+
+		return new \WP_REST_Response( array(), 200 );
+	}
+
+	/**
+	 * Deletes all feedback posts matchin the given IDs.
+	 *
+	 * @param  array $post_ids Array of post IDs.
+	 * @return WP_REST_Response
+	 */
+	private function bulk_action_delete_forever( $post_ids ) {
+		foreach ( $post_ids as $post_id ) {
+			if ( ! wp_delete_post( $post_id ) ) {
+				return $this->error_response(
+					sprintf(
+						/* translators: %s: Post ID */
+						__( 'Failed to delete post. Post ID: %d.', 'jetpack-forms' ),
+						$post_id
+					),
+					500
+				);
+			}
+		}
+
+		return new \WP_REST_Response( array(), 200 );
+	}
+
+	/**
+	 * Returns a \WP_REST_Response containing the given error message and code.
+	 *
+	 * @param  string $message Error message.
+	 * @param  int    $code    Error code.
+	 * @return \WP_REST_Response
+	 */
+	private function error_response( $message, $code ) {
+		return new \WP_REST_Response( array( 'error' => $message ), $code );
 	}
 }
 

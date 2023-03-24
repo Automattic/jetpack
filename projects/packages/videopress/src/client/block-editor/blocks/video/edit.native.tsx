@@ -94,6 +94,13 @@ export default function VideoPressEdit( {
 	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
 
 	// Handlers of `VideoPressUploader`
+	const onStartUpload = useCallback(
+		media => {
+			setAttributes( { id: media.id } );
+		},
+		[ setAttributes ]
+	);
+
 	const handleDoneUpload = useCallback(
 		newVideoData => {
 			setIsUploadingFile( false );
@@ -170,6 +177,7 @@ export default function VideoPressEdit( {
 				isReplacing={ isReplacingFile?.isReplacing }
 				onFocus={ onFocus }
 				onReplaceCancel={ cancelReplacingVideoFile }
+				onStartUpload={ onStartUpload }
 			/>
 		);
 	}
