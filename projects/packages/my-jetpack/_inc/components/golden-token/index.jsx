@@ -1,6 +1,6 @@
 import { Button, Col, Container } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback, useRef, useState } from 'react';
@@ -76,7 +76,13 @@ function GoldenTokenModal( {
 
 						<div className={ styles[ 'content-wrap' ] }>
 							<div className={ styles[ 'content-wrap-text' ] }>
-								<p className={ styles[ 'hi-user' ] }>Hey, { wpcomUserName }</p>
+								<p className={ styles[ 'hi-user' ] }>
+									{ sprintf(
+										/* Translators: %s is the user's display name. */
+										__( 'Hey, %s', 'jetpack-my-jetpack' ),
+										wpcomUserName
+									) }
+								</p>
 								<h2 className={ styles.headline }>
 									{ __( 'You have been gifted a Jetpack Gold Token.', 'jetpack-my-jetpack' ) }
 								</h2>
