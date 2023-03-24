@@ -388,7 +388,7 @@ export default function PosterPanel( {
 
 	return (
 		<PanelBody
-			title={ __( 'Poster', 'jetpack-videopress-pkg' ) }
+			title={ __( 'Poster and preview', 'jetpack-videopress-pkg' ) }
 			className="poster-panel"
 			initialOpen={ false }
 		>
