@@ -1,10 +1,9 @@
-import { Button, Col, Container } from '@automattic/jetpack-components';
+import { getIconBySlug, JetpackLogo, Button, Col, Container } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback, useRef, useState } from 'react';
-import { JetpackBackupLogo, JetpackLogo, JetpackScanLogo } from './logos';
 import styles from './styles.module.scss';
 
 /**
@@ -27,6 +26,9 @@ function GoldenTokenModal( {
 } ) {
 	const [ hasAnimated, setIsAnimating ] = useState( false );
 	const videoRef = useRef( null );
+
+	const ScanIcon = getIconBySlug( 'scan' );
+	const VaultPressBackupIcon = getIconBySlug( 'backup' );
 
 	// Any purchase with the partner_slug of 'goldenticket' is considered a golden token.
 	const goldenToken = purchases.filter( golden => golden.partner_slug === 'goldenticket' );
@@ -118,7 +120,7 @@ function GoldenTokenModal( {
 
 							<div className={ styles[ 'jetpack-products' ] }>
 								<div>
-									<JetpackBackupLogo />
+									<VaultPressBackupIcon />
 
 									<h3>{ __( 'VaultPress Backup', 'jetpack-my-jetpack' ) }</h3>
 									<p>
@@ -129,7 +131,7 @@ function GoldenTokenModal( {
 									</p>
 								</div>
 								<div>
-									<JetpackScanLogo />
+									<ScanIcon />
 
 									<h3>{ __( 'Scan', 'jetpack-my-jetpack' ) }</h3>
 									<p>
