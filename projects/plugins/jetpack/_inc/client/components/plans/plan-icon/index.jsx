@@ -113,9 +113,7 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_SECURITY_T1_MONTHLY ]: '/plans/jetpack-security.svg',
 	[ PLAN_JETPACK_SECURITY_T2_YEARLY ]: '/plans/jetpack-security.svg',
 	[ PLAN_JETPACK_SECURITY_T2_MONTHLY ]: '/plans/jetpack-security.svg',
-	// @todo Kallehauge - Revert Jetpack Complete when we have a real Golden Token.
-	//[ PLAN_JETPACK_COMPLETE ]: '/plans/jetpack-complete.svg',
-	[ PLAN_JETPACK_COMPLETE ]: '/plans/jetpack-golden-token.svg',
+	[ PLAN_JETPACK_COMPLETE ]: '/plans/jetpack-complete.svg',
 
 	[ PLAN_JETPACK_COMPLETE_MONTHLY ]: '/plans/jetpack-complete.svg',
 	[ PLAN_JETPACK_VIDEOPRESS ]: '/products/product-jetpack-videopress.svg',

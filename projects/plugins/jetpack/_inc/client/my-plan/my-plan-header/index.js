@@ -194,8 +194,7 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Security', 'jetpack' ),
 				};
 
-			// @todo Kallehauge - Rename to "is-complete-plan" when we have a real Golden Token.
-			case 'is-complete-plan22222222222':
+			case 'is-complete-plan':
 				return {
 					...productProps,
 					details: [ activation, expiration ],
@@ -395,8 +394,6 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Boost', 'jetpack' ),
 				};
 
-			// @todo Kallehauge - Remove Complete when we have a real Golden Token.
-			case 'is-complete-plan':
 			case 'is-jetpack-golden-token-plan':
 				return {
 					...productProps,

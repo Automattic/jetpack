@@ -1919,6 +1919,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_data = self::site_data();
 
 		if ( ! is_wp_error( $site_data ) ) {
+
+			// @todo Kallehauge - Revert Jetpack Complete when we have a real Golden Token.
+			if ( ! empty( $site_data->plan ) && $site_data->plan->product_slug === 'jetpack_complete' ) {
+				$site_data->plan->product_id         = 2900;
+				$site_data->plan->product_name       = 'Jetpack Golden Token';
+				$site_data->plan->product_slug       = 'jetpack_golden_token_lifetime';
+				$site_data->plan->product_name_short = 'Golden Token';
+			}
+			// @todo Kallehauge - Revert Jetpack Complete when we have a real Golden Token.
+
 			/**
 			 * Fires when the site data was successfully returned from the /sites/%d wpcom endpoint.
 			 *

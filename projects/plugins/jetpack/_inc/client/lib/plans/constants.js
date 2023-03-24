@@ -628,10 +628,7 @@ export function getMonthlyPlanByYearly( plan ) {
  * @returns {boolean} True if the plan or product is a special gifted offering, false otherwise.
  */
 export function containsGiftedPlanOrProduct( planOrProductSlug ) {
-	// @todo Kallehauge - Remove Jetpack Complete when we have a real Golden Token.
-	return [ PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME, PLAN_JETPACK_COMPLETE ].includes(
-		planOrProductSlug
-	);
+	return [ PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME ].includes( planOrProductSlug );
 }
 
 /**
