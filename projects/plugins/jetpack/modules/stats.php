@@ -1751,7 +1751,7 @@ function jetpack_stats_post_table( $columns ) {
 }
 
 /**
- * Set content for cell with link to an entry's stats in WordPress.com.
+ * Set content for cell with link to an entry's stats in Odyssey Stats.
  *
  * @param string $column  The name of the column to display.
  * @param int    $post_id The current post ID.
@@ -1768,16 +1768,19 @@ function jetpack_stats_post_table_cell( $column, $post_id ) {
 				esc_html__( 'No stats', 'jetpack' )
 			);
 		} else {
-			$stats_post_url = Redirect::get_url(
+			$stats_post_url = ! ( new Host() )->is_woa_site() && Stats_Options::get_option( 'enable_odyssey_stats' )
+			? admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, Jetpack_Options::get_option( 'id', 0 ) ) )
+			: Redirect::get_url(
 				'calypso-stats-post',
 				array(
 					'path' => $post_id,
 				)
 			);
+
 			printf(
 				'<a href="%s" title="%s" class="dashicons dashicons-chart-bar" target="_blank"></a>',
 				esc_url( $stats_post_url ),
-				esc_html__( 'View stats for this post at WordPress.com', 'jetpack' )
+				esc_html__( 'View stats for this post', 'jetpack' )
 			);
 		}
 	}
