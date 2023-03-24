@@ -343,7 +343,7 @@ if ( ! $confirmAct ) {
 				</tr>
 
 				<tr>
-					<td class="wfieldname"><label for="wpzbscrm_secondaddress"><?php esc_html_e( 'Second Address Fields Visibility', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Choose "second address" visibility. They can be hidden, visible, or the user may have the option to toggle it.', 'zero-bs-crm' ); ?></td>
+					<td class="wfieldname"><label for="wpzbscrm_secondaddress"><?php esc_html_e( 'Second Address Fields Visibility', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Choose "second address" visibility in the contact edit page. It can be hidden, visible, or there will be an option to toggle it.', 'zero-bs-crm' ); ?></td>
 					<td style="width:540px">
 						<select class="winput" name="wpzbscrm_secondaddress" id="wpzbscrm_secondaddress">
 							<option value="<?php echo esc_attr( SETTING_SECOND_ADDRESS_ALWAYS_HIDE ); ?>"
