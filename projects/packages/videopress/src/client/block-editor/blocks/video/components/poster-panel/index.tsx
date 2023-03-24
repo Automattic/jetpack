@@ -386,12 +386,12 @@ export default function PosterPanel( {
 		);
 	}
 
+	const panelTitle = isVideoFramePosterEnabled()
+		? __( 'Poster and preview', 'jetpack-videopress-pkg' )
+		: __( 'Poster', 'jetpack-videopress-pkg' );
+
 	return (
-		<PanelBody
-			title={ __( 'Poster and preview', 'jetpack-videopress-pkg' ) }
-			className="poster-panel"
-			initialOpen={ false }
-		>
+		<PanelBody title={ panelTitle } className="poster-panel" initialOpen={ false }>
 			<ToggleControl
 				label={ __( 'Pick from video frame', 'jetpack-videopress-pkg' ) }
 				checked={ pickFromFrame }
