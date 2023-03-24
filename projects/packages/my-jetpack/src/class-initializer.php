@@ -168,6 +168,7 @@ class Initializer {
 				'fileSystemWriteAccess' => self::has_file_system_write_access(),
 				'loadAddLicenseScreen'  => self::is_licensing_ui_enabled(),
 				'adminUrl'              => esc_url( admin_url() ),
+				'isJetpackPluginActive' => Plugins_Installer::is_plugin_active( Plugins_Installer::get_plugin_id_by_slug( 'jetpack' ) ),
 			)
 		);
 

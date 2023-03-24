@@ -66,7 +66,7 @@ function Price( { value, currency, isOld } ) {
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, supportingInfo } ) => {
-	const { adminUrl, fileSystemWriteAccess, siteSuffix, myJetpackUrl, plugins } =
+	const { adminUrl, fileSystemWriteAccess, siteSuffix, myJetpackUrl, isJetpackPluginActive } =
 		window?.myJetpackInitialState ?? {};
 
 	const { detail, isFetching } = useProduct( slug );
@@ -105,7 +105,6 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 	 */
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-	const isJetpackPluginActive = plugins[ 'jetpack/jetpack.php' ]?.active ?? false;
 	const checkoutRedirectUrl = isJetpackPluginActive
 		? adminUrl + 'admin.php?page=jetpack#/recommendations'
 		: myJetpackUrl;
