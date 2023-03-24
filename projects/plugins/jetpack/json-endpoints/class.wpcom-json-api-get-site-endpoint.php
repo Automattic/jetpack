@@ -200,6 +200,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'launchpad_checklist_tasks_statuses',
 		'wpcom_production_blog_id',
 		'wpcom_staging_blog_ids',
+		'can_blaze',
 	);
 
 	/**
@@ -871,6 +872,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'wpcom_staging_blog_ids':
 					$options[ $key ] = $site->get_wpcom_staging_blog_ids();
+					break;
+				case 'can_blaze':
+					$options[ $key ] = $site->can_blaze();
 					break;
 			}
 		}
