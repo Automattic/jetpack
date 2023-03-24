@@ -99,7 +99,7 @@ export default function VideoPressEdit( {
 	// Handlers of `VideoPressUploader`
 	const onStartUpload = useCallback(
 		media => {
-			setAttributes( { id: media.id } );
+			setAttributes( { id: media.id, src: media.url } );
 		},
 		[ setAttributes ]
 	);
@@ -115,12 +115,13 @@ export default function VideoPressEdit( {
 
 				// Delete attributes that are not needed.
 				delete newBlockAttributes.poster;
+				delete newBlockAttributes.src;
 
 				setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
 				replaceBlock( clientId, createBlock( 'videopress/video', newBlockAttributes ) );
 				return;
 			}
-			setAttributes( { id: newVideoData.id, guid: newVideoData.guid } );
+			setAttributes( { id: newVideoData.id, guid: newVideoData.guid, src: undefined } );
 		},
 		[ setIsUploadingFile, setAttributes ]
 	);
@@ -136,6 +137,7 @@ export default function VideoPressEdit( {
 		media => {
 			setIsReplacingFile( { isReplacing: true, prevAttrs: attributes } );
 			setIsUploadingFile( true );
+			setAttributes( { guid: null } );
 			setFileToUpload( media );
 		},
 		[ setIsReplacingFile, setIsUploadingFile, setFileToUpload ]
