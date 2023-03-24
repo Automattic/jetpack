@@ -413,7 +413,11 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			}
 		}
 
-		return false;
+		return new WP_Error(
+			'rest_cannot_read_prompts',
+			__( 'Sorry, you are not allowed to access blogging prompts on this site.', 'jetpack' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 
 	/**

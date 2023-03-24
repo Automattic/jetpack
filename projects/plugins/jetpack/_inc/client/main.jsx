@@ -385,6 +385,8 @@ class Main extends React.Component {
 		}
 
 		if ( this.isMainConnectScreen() ) {
+			const searchParams = new URLSearchParams( location.search.split( '?' )[ 1 ] );
+
 			return (
 				<ConnectScreen
 					apiNonce={ this.props.apiNonce }
@@ -394,6 +396,7 @@ class Main extends React.Component {
 					assetBaseUrl={ this.props.pluginBaseUrl }
 					autoTrigger={ this.shouldAutoTriggerConnection() }
 					redirectUri="admin.php?page=jetpack"
+					from={ searchParams && searchParams.get( 'from' ) }
 				>
 					<p>
 						{ __(

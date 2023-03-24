@@ -16,9 +16,8 @@ const ALLOWED_BLOCKS = [ 'jetpack/recurring-payments' ];
 function PaymentButtonsEdit( { clientId, attributes } ) {
 	const { layout, fontSize } = attributes;
 	const { connectUrl, isApiConnected, shouldUpgrade, upgradeUrl } = useSelect( select => {
-		const { getConnectUrl, getShouldUpgrade, getUpgradeUrl, isApiStateConnected } = select(
-			membershipProductsStore
-		);
+		const { getConnectUrl, getShouldUpgrade, getUpgradeUrl, isApiStateConnected } =
+			select( membershipProductsStore );
 		return {
 			connectUrl: getConnectUrl(),
 			isApiConnected: isApiStateConnected(),

@@ -148,15 +148,19 @@ export default function Player( {
 	}, [] );
 
 	// Listen to the `message` event.
+	const sandboxIframeElement: HTMLIFrameElement = videoWrapperRef?.current?.querySelector(
+		'iframe.components-sandbox'
+	);
 	useEffect( () => {
-		if ( ! window ) {
+		if ( ! sandboxIframeElement?.contentWindow ) {
 			return;
 		}
 
-		window.addEventListener( 'message', onVideoLoadingStateHandler );
+		const iFrameContentWindow = sandboxIframeElement.contentWindow;
+		iFrameContentWindow.addEventListener( 'message', onVideoLoadingStateHandler );
 
-		return () => window?.removeEventListener( 'message', onVideoLoadingStateHandler );
-	}, [ onVideoLoadingStateHandler ] );
+		return () => iFrameContentWindow?.removeEventListener( 'message', onVideoLoadingStateHandler );
+	}, [ onVideoLoadingStateHandler, sandboxIframeElement ] );
 
 	useEffect( () => {
 		if ( isRequestingEmbedPreview ) {

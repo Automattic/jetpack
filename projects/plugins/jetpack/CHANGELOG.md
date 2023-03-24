@@ -2,6 +2,36 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.0-a.7 - 2023-03-20
+### Enhancements
+- Added updateWafSettings method. [#29299]
+- Add the launchpad source to memberships status endpoint. [#29468]
+- Improve gating logic for paid-newsletter [#29262]
+- Jetpack: Move VideoPress video block to production (videopress/video extension) [#29459]
+- Move cookie-consent block from beta to production [#29462]
+- Notifications: remove all library dependencies. [#29510]
+- Sites API: add was_ecommerce_trial flag to data returned for site details [#29423]
+- Writing prompts: move block to experimental and use for answering external prompts [#29433]
+
+### Improved compatibility
+- Connection: switch the "plugin activated" banner to the common connection flow. [#29526]
+- Pinterest Block: ensure the block does not trigger errors when using WordPress 6.2. [#29505]
+
+### Bug fixes
+- Blocks: avoid warnings in the block editor because of invalid categories for some blocks. [#29513]
+- Fix preload behavior when none is chosen [#29563]
+- Forms: avoid PHP notices when using a form with a dropdown field [#29512]
+- Stats Widget: minor cleanup of Akismet section [#29347]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adds the `is_wpcom_staging_site` attribute in a few more contexts [#29453]
+- Blocks: update deprecated block editor selector [#29420]
+- Blocks: update deprecated component prop. [#29463]
+- Jetpack Forms: Add tracking of Google Sheets exports [#29225]
+- Send individual plugin upgrade buttons to My Jetpack insterstitial [#29138]
+- Small change to unreleased block [#29501]
+- Updated package dependencies. [#29471]
+
 ## 12.0-a.5 - 2023-03-15
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Changelog edits. [#29445]

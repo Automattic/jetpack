@@ -15,7 +15,7 @@ import { JSONObject } from './data-sync-client';
  */
 export type ErrorSet = {
 	type: Critical_CSS_Error_Type; // Type of errors in this set.
-	firstMeta: { [ key: string ]: JSONObject }; // Meta from the first error, for convenience.
+	firstMeta: JSONObject; // Meta from the first error, for convenience.
 	byUrl: {
 		[ url: string ]: CriticalCssErrorDetails; // Each error keyed by URL.
 	};

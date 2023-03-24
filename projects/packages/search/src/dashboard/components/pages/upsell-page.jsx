@@ -51,31 +51,27 @@ export default function UpsellPage( { isLoading = false } ) {
 		[ fetchSearchPlanInfo ]
 	);
 
-	const {
-		run: sendToCartPaid,
-		hasCheckoutStarted: hasCheckoutStartedPaid,
-	} = useProductCheckoutWorkflow( {
-		productSlug: 'jetpack_search',
-		adminUrl,
-		redirectUri: 'admin.php?page=jetpack-search&just_upgraded=1',
-		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
-		from: 'jetpack-search',
-		siteSuffix: domain,
-		isWpcom,
-	} );
+	const { run: sendToCartPaid, hasCheckoutStarted: hasCheckoutStartedPaid } =
+		useProductCheckoutWorkflow( {
+			productSlug: 'jetpack_search',
+			adminUrl,
+			redirectUri: 'admin.php?page=jetpack-search&just_upgraded=1',
+			siteProductAvailabilityHandler: checkSiteHasSearchProduct,
+			from: 'jetpack-search',
+			siteSuffix: domain,
+			isWpcom,
+		} );
 
-	const {
-		run: sendToCartFree,
-		hasCheckoutStarted: hasCheckoutStartedFree,
-	} = useProductCheckoutWorkflow( {
-		productSlug: 'jetpack_search_free',
-		adminUrl,
-		redirectUri: 'admin.php?page=jetpack-search',
-		siteProductAvailabilityHandler: checkSiteHasSearchProduct,
-		from: 'jetpack-search',
-		siteSuffix: domain,
-		isWpcom,
-	} );
+	const { run: sendToCartFree, hasCheckoutStarted: hasCheckoutStartedFree } =
+		useProductCheckoutWorkflow( {
+			productSlug: 'jetpack_search_free',
+			adminUrl,
+			redirectUri: 'admin.php?page=jetpack-search',
+			siteProductAvailabilityHandler: checkSiteHasSearchProduct,
+			from: 'jetpack-search',
+			siteSuffix: domain,
+			isWpcom,
+		} );
 
 	const isPageLoading = useSelect(
 		select =>

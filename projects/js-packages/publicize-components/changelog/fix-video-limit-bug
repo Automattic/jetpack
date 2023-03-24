@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed a bug where reduce would show an error because of empty array

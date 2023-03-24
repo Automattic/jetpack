@@ -41,7 +41,7 @@ function zeroBSCRM_CustomerTypeList( $jsCallbackFuncStr = '', $inputDefaultValue
 		$ret .= '<div class="zbstypeaheadwrap ' . $extraClasses . '">';
 
 		// } Build input
-		$ret .= '<input class="zbstypeahead" type="text" value="' . esc_attr( $inputDefaultValue ) . '" placeholder="' . __( 'Customer name or email...', 'zero-bs-crm' ) . '" data-zbsopencallback="' . $jsCallbackFuncStr . '" data-zbschangecallback="' . $jsChangeCallbackFuncStr . '" autocomplete="zbscon-' . time() . '-typeahead" data-autokey="cotypelist">';
+		$ret .= '<input class="zbstypeahead" type="text" value="' . esc_attr( $inputDefaultValue ) . '" placeholder="' . __( 'Contact name or email...', 'zero-bs-crm' ) . '" data-zbsopencallback="' . $jsCallbackFuncStr . '" data-zbschangecallback="' . $jsChangeCallbackFuncStr . '" autocomplete="zbscon-' . time() . '-typeahead" data-autokey="cotypelist">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// } close wrap
 		$ret .= '</div>';

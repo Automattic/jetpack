@@ -234,15 +234,8 @@ export default function withMedia() {
 			};
 
 			render() {
-				const {
-					account,
-					isAuthenticated,
-					isCopying,
-					isLoading,
-					media,
-					nextHandle,
-					path,
-				} = this.state;
+				const { account, isAuthenticated, isCopying, isLoading, media, nextHandle, path } =
+					this.state;
 				const { allowedTypes, multiple = false, noticeUI, onClose } = this.props;
 
 				const title = isCopying

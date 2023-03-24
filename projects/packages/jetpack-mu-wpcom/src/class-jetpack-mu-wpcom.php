@@ -14,7 +14,7 @@ namespace Automattic\Jetpack;
  */
 class Jetpack_Mu_Wpcom {
 
-	const PACKAGE_VERSION = '1.1.3-alpha';
+	const PACKAGE_VERSION = '1.1.3';
 	const PKG_DIR         = __DIR__ . '/../';
 
 	/**
