@@ -1,8 +1,8 @@
 .timestamp-control__controls-wrapper {
+	--input-width: 24px;
 	display: flex;
 	align-items: center;
 	gap: 8px;
-	margin-bottom: 8px;
 
 	.timestamp-range-control,
 	.timestamp-range-control:last-child {
@@ -20,25 +20,49 @@
 	align-items: center;
 	border-color: #949494;
 	background-color: #fff;
-    border-style: solid;
+	border-style: solid;
 	justify-content: space-around;
-    border-width: 1px;
+	border-width: 1px;
 	padding: 0px;
 
 	.timestamp-control-input {
 		padding: 0 1px;
 		margin-bottom: 0;
+
+		input {
+			max-width: var( --input-width );
+		}
+
 		&:last-child{
 			margin-bottom: 0;
 		}
 	}
 
 	:global {
+		.components-input-control:last-child {
+			margin-bottom: 0;
+		}
+
 		.components-input-control__input {
 			padding-left: 0 !important;
 			padding-right: 0 !important;
 			text-align: center;
+
+			/*
+			 * Remove arrows from the number input
+			 * backward compatibility for Firefox, Safari, and Chrome
+			 */
+			 &::-webkit-outer-spin-button,
+			 &::-webkit-inner-spin-button {
+				 -webkit-appearance: none;
+			 }
+ 
+			 &[type=number] {
+				 appearance: textfield;
+				 -moz-appearance: textfield;
+			 }
 		}
+
 		.components-input-control__backdrop {
 			border-style: none !important;
 		}

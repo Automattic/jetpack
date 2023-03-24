@@ -22,7 +22,15 @@
 		"watch": "pnpm run build && pnpm webpack watch"
 	},
 	"dependencies": {
+		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
+		"@wordpress/components": "23.5.0",
+		"@wordpress/data": "8.5.0",
+		"@wordpress/edit-post": "7.5.0",
+		"@wordpress/element": "5.5.0",
+		"@wordpress/i18n": "4.28.0",
+		"@wordpress/plugins": "5.5.0",
+		"gridicons": "3.4.1",
 		"react": "18.2.0",
 		"react-dom": "18.2.0"
 	},
@@ -38,6 +46,9 @@
 		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1"
 	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	],
 	"engines": {
 		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"

@@ -1,5 +1,3 @@
-import { JetpackFooter } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import JetpackFormsLogo from '../logo';
 
@@ -18,11 +16,6 @@ const Layout = ( { children, className, title, subtitle } ) => {
 			</div>
 
 			{ children }
-
-			<JetpackFooter
-				className="jp-forms__layout-footer"
-				moduleName={ __( 'Jetpack Forms', 'jetpack-forms' ) }
-			/>
 		</div>
 	);
 };

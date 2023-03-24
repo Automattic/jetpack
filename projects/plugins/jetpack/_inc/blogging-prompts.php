@@ -110,6 +110,9 @@ add_action( 'wp_after_insert_post', 'jetpack_mark_if_post_answers_blogging_promp
  * @return stdClass|null Prompt object or null.
  */
 function jetpack_get_blogging_prompt_by_id( $prompt_id ) {
+	// Ensure the REST API endpoint we need is loaded.
+	require_once __DIR__ . '/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v3-endpoint-blogging-prompts.php';
+
 	$locale = get_locale();
 	$route  = sprintf( '/wpcom/v3/blogging-prompts/%d', $prompt_id );
 

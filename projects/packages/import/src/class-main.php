@@ -65,15 +65,16 @@ class Main {
 		Rest_Authentication::init();
 
 		$routes = array(
-			'categories' => new Endpoints\Category(),
-			'comments'   => new Endpoints\Comment(),
-			'custom-css' => new Endpoints\Custom_CSS(),
-			'media'      => new Endpoints\Attachment(),
-			'menu-items' => new Endpoints\Menu_Item(),
-			'menus'      => new Endpoints\Menu(),
-			'pages'      => new Endpoints\Page(),
-			'posts'      => new Endpoints\Post(),
-			'tags'       => new Endpoints\Tag(),
+			'categories'    => new Endpoints\Category(),
+			'comments'      => new Endpoints\Comment(),
+			'custom-css'    => new Endpoints\Custom_CSS(),
+			'global-styles' => new Endpoints\Global_Style(),
+			'media'         => new Endpoints\Attachment(),
+			'menu-items'    => new Endpoints\Menu_Item(),
+			'menus'         => new Endpoints\Menu(),
+			'pages'         => new Endpoints\Page(),
+			'posts'         => new Endpoints\Post(),
+			'tags'          => new Endpoints\Tag(),
 		);
 
 		/**
