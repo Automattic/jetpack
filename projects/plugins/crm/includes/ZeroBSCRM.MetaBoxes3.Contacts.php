@@ -319,25 +319,29 @@
                                          !isset($fieldV['area']) && $zbsFieldGroup != ''
                                     )
                                 ){
-
-                                    #} Special cases... gross
-                                    $zbsCloseTable = true; if ($zbsFieldGroup == 'Main Address') $zbsCloseTable = false;
-
-                                    #} Close it
+												$zbsCloseTable = true; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+												if ( $zbsFieldGroup === 'Main Address' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Generic.WhiteSpace.ScopeIndent.IncorrectExact
+													$zbsCloseTable = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+													if ( zeroBSCRM_getSetting( 'secondaddresstoggle' ) === 1 ) { // phpcs:ignore Generic.WhiteSpace.ScopeIndent.IncorrectExact
+														echo sprintf(
+															'<tr class="wh-large"><th colspan="2"><div id="jpcrm-second-address-toggle-btn"><i class="plus circle icon"></i>%s</div>&nbsp;</th></tr>',
+															esc_html__( 'Add Second Address', 'zero-bs-crm' )
+														);
+													} // phpcs:ignore Generic.WhiteSpace.ScopeIndent.IncorrectExact
+												} // phpcs:ignore Generic.WhiteSpace.ScopeIndent.IncorrectExact
                                     echo '</table></div>';
 						if ( $zbsCloseTable ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							echo '</td></tr>';
-
 							if ( zeroBSCRM_getSetting( 'secondaddresstoggle' ) === 1 && $is_second_address_fields_empty ) {
 								?>
 								<script>
-									document.getElementById("wptbpMetaBoxGroup-second_address").style.display = "none";
-									document.getElementById("jpcrm-second-address-toggle-btn").style.display  = "inline-block";
-									document.getElementById("jpcrm-second-address-label").addEventListener("click", function () {
-										document.getElementById("wptbpMetaBoxGroup-second_address").style.display = "block";
+									document.getElementsByClassName("zbs-fieldgroup-second_address")[0].style.visibility = "hidden";
+									document.getElementById("jpcrm-second-address-toggle-btn").style.visibility      = "visible";
+									document.getElementById("jpcrm-second-address-toggle-btn").addEventListener( "click", function () {
+										document.getElementsByClassName("zbs-fieldgroup-second_address")[0].style.visibility = "visible";
 										// Since we are not allowing toggle from visible to invisible (WooCommerce does like that) we
 										// are just hiding the button after showing the second address fields.
-										document.getElementById("jpcrm-second-address-toggle-btn").style.display  = "none";
+										document.getElementById("jpcrm-second-address-toggle-btn").style.visibility  = "hidden";
 									});
 								</script>
 								<?php
@@ -393,23 +397,11 @@
 							}
 
                                     if( $fieldV['area'] == 'Second Address' ) {
-													$second_address_toggle_btn_html = zeroBSCRM_getSetting( 'secondaddresstoggle' ) === 1
-														? '<i id="jpcrm-second-address-toggle-btn" class="fa fa-pencil">'
-														: '';
 													echo sprintf(
-														'<div class="zbs-field-group zbs-fieldgroup-%s %s"><label class="jpcrm-address-label" id="jpcrm-second-address-label">%s%s</label>',
+														'<div class="zbs-field-group zbs-fieldgroup-%s %s"><label class="jpcrm-address-label" id="jpcrm-second-address-label">%s</label>',
 														esc_attr( $fieldGroupLabel ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 														esc_attr( $zbsGroupClass ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-														esc_html( $second_address_label ),
-														wp_kses(
-															$second_address_toggle_btn_html,
-															array(
-																'i' => array(
-																	'class' => true,
-																	'id' => true,
-																),
-															)
-														)
+														esc_html( $second_address_label )
 													);
 							} else {
 													echo sprintf(

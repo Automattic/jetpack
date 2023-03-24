@@ -117,12 +117,9 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
 }
 
 #jpcrm-second-address-toggle-btn {
-	margin-left: 20px;
-	display: none;
-}
-
-.jpcrm-address-label:hover #jpcrm-second-address-toggle-btn {
-	color: black;
+	visibility: hidden;
+	color: #238bd0;
+	cursor: pointer;
 }
 
 // Media queries for customer page (second addr only for now)
