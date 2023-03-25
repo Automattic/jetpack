@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback, useRef, useState } from 'react';
 import styles from './styles.module.scss';
-import './styles.scss';
 
 /**
  * Component that displays a golden token experience.

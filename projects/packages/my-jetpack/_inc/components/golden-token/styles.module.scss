@@ -15,7 +15,7 @@ $tablet-width: 760px;
 	border-radius: var(--jp-modal-radius);
 	background: var(--jp-white);
 	box-shadow: 0 12px 16px -0.5px rgba(0, 0, 0, 0.15);
-	height: inherit;
+	height: max-content;
 	margin: 3rem auto;
 	max-width: 414px;
 	overflow: hidden;
@@ -23,6 +23,11 @@ $tablet-width: 760px;
 	transition: 0.25s height cubic-bezier(0.59,0.37,0.18,1.19) 0;
 	width: 90%;
 	will-change: height;
+
+	// Hacky override for to target core's modal component .components-modal__content.
+	& > div:first-child {
+		padding: 0;
+	}
 
 	* {
 		box-sizing: border-box;
@@ -38,7 +43,7 @@ $tablet-width: 760px;
 	}
 
 	&.animating {
-		height: 618px;
+		height: 614px;
 		transition-delay: 2.15s;
 
 		h2 {
