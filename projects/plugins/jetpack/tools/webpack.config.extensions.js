@@ -156,6 +156,14 @@ const sharedWebpackConfig = {
 				],
 			} ),
 
+			// Allow importing .svg files as React components by appending `?component` to the import, e.g. `import Logo from './logo.svg?component';`
+			{
+				test: /\.svg$/i,
+				issuer: /\.[jt]sx?$/,
+				resourceQuery: /component/,
+				use: [ '@svgr/webpack' ],
+			},
+
 			// Handle images.
 			jetpackWebpackConfig.FileRule(),
 		],

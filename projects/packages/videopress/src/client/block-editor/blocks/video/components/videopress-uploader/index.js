@@ -87,7 +87,11 @@ const VideoPressUploader = ( {
 	}, [] );
 
 	// Get file upload handlers, data, and error.
-	const { uploadHandler, resumeHandler, error: uploadingError } = useResumableUploader( {
+	const {
+		uploadHandler,
+		resumeHandler,
+		error: uploadingError,
+	} = useResumableUploader( {
 		onError: setUploadErrorData,
 		onProgress: setUploadingProgress,
 		onSuccess: setUploadedVideoData,

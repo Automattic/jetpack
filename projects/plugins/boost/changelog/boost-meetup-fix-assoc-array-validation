@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack Boost: Fix assoc_array schema validation

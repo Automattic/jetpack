@@ -147,6 +147,13 @@ describe( 'useMediaRestrictions hook', () => {
 		);
 	} );
 
+	test( 'Returns default media types for empty connections', () => {
+		const defaultMediaTypes = getAllowedMediaTypes( [] );
+		expect( defaultMediaTypes.sort() ).toStrictEqual(
+			ALLOWED_MEDIA_TYPES_ALL.concat( [ 'video/mov' ] ).sort()
+		);
+	} );
+
 	describe( 'Validation tests', () => {
 		test( 'Too big/small media results in file size error', () => {
 			const { result } = renderHook( connections => useMediaRestrictions( connections ), {

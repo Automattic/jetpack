@@ -1,4 +1,5 @@
 import { Gridicon } from '@automattic/jetpack-components';
+import { TabPanel } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -14,31 +15,48 @@ import './style.scss';
 
 const RESPONSES_FETCH_LIMIT = 10;
 
+const TABS = [
+	{
+		name: 'inbox',
+		title: 'Inbox',
+		className: 'jp-forms__inbox-tab-item',
+	},
+	{
+		name: 'spam',
+		title: 'Spam',
+		className: 'jp-forms__inbox-tab-item',
+	},
+	{
+		name: 'trash',
+		title: 'Trash',
+		className: 'jp-forms__inbox-tab-item',
+	},
+];
+
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
 	const [ view, setView ] = useState( 'list' );
 
-	const { invalidateResolution, setSearchQuery } = useDispatch( STORE_NAME );
-
-	const searchQuery = useSelect( select => select( STORE_NAME ).getSearchQuery() );
-
-	const [ currentPage, setCurrentPage ] = useState( 1 );
-
-	const [ loading, responses, total ] = useSelect(
-		select => {
-			const stateSelector = select( STORE_NAME );
-			return [
-				stateSelector.isFetchingResponses(),
-				stateSelector.getResponses(
-					searchQuery,
-					RESPONSES_FETCH_LIMIT,
-					( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
-				),
-				stateSelector.getTotalResponses(),
-			];
-		},
-		[ searchQuery, currentPage ]
+	const { fetchResponses, setCurrentPage, setSearchQuery, setStatusQuery } =
+		useDispatch( STORE_NAME );
+	const [ currentPage, loading, responses, query, total ] = useSelect(
+		select => [
+			select( STORE_NAME ).getCurrentPage(),
+			select( STORE_NAME ).isFetchingResponses(),
+			select( STORE_NAME ).getResponses(),
+			select( STORE_NAME ).getResponsesQuery(),
+			select( STORE_NAME ).getTotalResponses(),
+		],
+		[]
 	);
+
+	useEffect( () => {
+		fetchResponses( {
+			limit: RESPONSES_FETCH_LIMIT,
+			offset: ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
+			...query,
+		} );
+	}, [ currentPage, fetchResponses, query ] );
 
 	useEffect( () => {
 		if ( responses.length === 0 || includes( map( responses, 'id' ), currentResponseId ) ) {
@@ -47,27 +65,6 @@ const Inbox = () => {
 
 		setCurrentResponseId( responses[ 0 ].id );
 	}, [ responses, currentResponseId ] );
-
-	const handleSearch = useCallback(
-		searchTerm => {
-			invalidateResolution( 'getResponses', [ searchTerm, RESPONSES_FETCH_LIMIT, 0 ] );
-			setCurrentPage( 1 );
-			setSearchQuery( searchTerm );
-		},
-		[ setSearchQuery, setCurrentPage, invalidateResolution ]
-	);
-
-	const handlePageChange = useCallback(
-		page => {
-			invalidateResolution( 'getResponses', [
-				searchQuery,
-				RESPONSES_FETCH_LIMIT,
-				( page - 1 ) * RESPONSES_FETCH_LIMIT,
-			] );
-			setCurrentPage( page );
-		},
-		[ searchQuery, setCurrentPage, invalidateResolution ]
-	);
 
 	const selectResponse = useCallback( id => {
 		setCurrentResponseId( id );
@@ -96,31 +93,45 @@ const Inbox = () => {
 
 	return (
 		<Layout title={ title } className={ classes }>
-			<div className="jp-forms__inbox-actions">
-				<SearchForm onSearch={ handleSearch } initialValue={ searchQuery } loading={ loading } />
-				<BulkActionsMenu />
-			</div>
+			<TabPanel
+				className="jp-forms__inbox-tabs"
+				activeClass="active-tab"
+				onSelect={ setStatusQuery }
+				tabs={ TABS }
+			>
+				{ () => (
+					<>
+						<div className="jp-forms__inbox-actions">
+							<SearchForm
+								onSearch={ setSearchQuery }
+								initialValue={ query.search }
+								loading={ loading }
+							/>
+							<BulkActionsMenu />
+						</div>
+						<div className="jp-forms__inbox-content">
+							<div className="jp-forms__inbox-content-column">
+								<InboxList
+									currentResponseId={ currentResponseId }
+									loading={ loading }
+									setCurrentResponseId={ selectResponse }
+									responses={ responses }
+									currentPage={ currentPage }
+									setCurrentPage={ setCurrentPage }
+									pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
+								/>
+							</div>
 
-			<div className="jp-forms__inbox-content">
-				<div className="jp-forms__inbox-content-column">
-					<InboxList
-						currentResponseId={ currentResponseId }
-						loading={ loading }
-						setCurrentResponseId={ selectResponse }
-						responses={ responses }
-						currentPage={ currentPage }
-						setCurrentPage={ handlePageChange }
-						pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
-					/>
-				</div>
-
-				<div className="jp-forms__inbox-content-column">
-					<InboxResponse
-						isLoading={ loading }
-						response={ find( responses, { id: currentResponseId } ) }
-					/>
-				</div>
-			</div>
+							<div className="jp-forms__inbox-content-column">
+								<InboxResponse
+									isLoading={ loading }
+									response={ find( responses, { id: currentResponseId } ) }
+								/>
+							</div>
+						</div>
+					</>
+				) }
+			</TabPanel>
 		</Layout>
 	);
 };
