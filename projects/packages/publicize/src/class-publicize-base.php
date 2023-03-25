@@ -1137,7 +1137,7 @@ abstract class Publicize_Base {
 			'default_post_metadata',
 			array( $this, 'enable_social_image_generator_for_post' ),
 			20,
-			3
+			4
 		);
 	}
 
@@ -1148,19 +1148,24 @@ abstract class Publicize_Base {
 	 * @param array  $value     The default values for the metadata.
 	 * @param int    $object_id The post ID.
 	 * @param string $meta_key  The key of the metadata. In this case we're looking for POST_JETPACK_SOCIAL_OPTIONS.
+	 * @param bool   $single    Whether the meta is expected to be a single value or an array.
 	 * @return array The modified defaults.
 	 */
-	public function enable_social_image_generator_for_post( $value, $object_id, $meta_key ) {
-		if ( self::POST_JETPACK_SOCIAL_OPTIONS === $meta_key ) {
-			$post = get_post( $object_id );
-			if (
-			! empty( $post->post_status ) &&
-				'auto-draft' !== $post->post_status &&
-				! empty( $value[0]['image_generator_settings']['enabled'] )
-			) {
-				$value[0]['image_generator_settings']['enabled'] = false;
-			}
+	public function enable_social_image_generator_for_post( $value, $object_id, $meta_key, $single ) {
+		if ( self::POST_JETPACK_SOCIAL_OPTIONS !== $meta_key ) {
+			return $value;
 		}
+		$post = get_post( $object_id );
+		if ( empty( $post->post_status ) ||
+			'auto-draft' === $post->post_status
+		) {
+			return $value;
+		}
+		if ( $single ) {
+			$value['image_generator_settings']['enabled'] = false;
+			return $value;
+		}
+		$value[0]['image_generator_settings']['enabled'] = false;
 		return $value;
 	}
 

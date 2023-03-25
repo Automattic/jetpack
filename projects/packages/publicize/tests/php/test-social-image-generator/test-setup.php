@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Current_Plan;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -30,11 +29,16 @@ class Setup_Test extends BaseTestCase {
 	 * Setting up the test.
 	 */
 	public function set_up() {
+		global $publicize;
+		$publicize = $this->getMockBuilder( Publicize::class )
+			->disableOriginalConstructor()
+			->setMethods( array( 'has_social_image_generator_feature' ) )
+			->getMock();
+		$publicize->method( 'has_social_image_generator_feature' )->willReturn( true );
+		$publicize->register_post_meta();
+
 		$this->sig = new Social_Image_Generator\Setup();
 		$this->sig->init();
-		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array( 'social-image-generator' );
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -99,15 +103,29 @@ class Setup_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that SIG gets enabled by default.
+	 * Test that SIG gets enabled by default on new posts.
 	 */
-	public function test_sig_gets_enabled_by_default_when_a_post_gets_saved() {
-		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
-		$post_id = $this->create_post();
-		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+	public function test_sig_gets_enabled_by_default_on_a_new_post() {
+		$this->markTestSkipped( 'Skipping until we support default metadata in WorDBless' );
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Testing',
+				'post_content' => '',
+				'post_status'  => 'auto-draft',
+			)
+		);
 
 		$settings = new Social_Image_Generator\Post_Settings( $post_id );
 		$this->assertTrue( $settings->is_enabled() );
+	}
+	/**
+	 * Test that SIG is disabled by default on existing posts.
+	 */
+	public function test_sig_gets_disabled_by_default_on_existing_posts() {
+		$post_id = $this->create_post();
+
+		$settings = new Social_Image_Generator\Post_Settings( $post_id );
+		$this->assertFalse( $settings->is_enabled() );
 	}
 
 	/**

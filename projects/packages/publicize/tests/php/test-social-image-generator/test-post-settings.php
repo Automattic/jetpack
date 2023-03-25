@@ -33,6 +33,9 @@ class Post_Settings_Test extends BaseTestCase {
 	 * Initialize tests
 	 */
 	public function set_up() {
+		$publicize = $this->getMockBuilder( Publicize::class )->disableOriginalConstructor()->setMethods( null )->getMock();
+		$publicize->register_post_meta();
+
 		$this->post_id       = wp_insert_post(
 			array(
 				'post_title'   => 'hello',
@@ -57,6 +60,7 @@ class Post_Settings_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->update_image_generator_settings( array() );
+		parent::tear_down();
 	}
 
 	/**
