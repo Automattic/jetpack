@@ -10,6 +10,7 @@ import {
 	Col,
 	useBreakpointMatch,
 	JetpackVideoPressLogo,
+	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
 import { SelectControl, RadioControl, CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -44,7 +45,6 @@ import { usePermission } from '../../hooks/use-permission';
 import useUnloadPrevent from '../../hooks/use-unload-prevent';
 import { useVideosQuery } from '../../hooks/use-videos';
 import Input from '../input';
-import Placeholder from '../placeholder';
 import VideoDetails from '../video-details';
 import VideoDetailsActions from '../video-details-actions';
 import VideoThumbnail from '../video-thumbnail';
@@ -131,7 +131,7 @@ const Infos = ( {
 	return (
 		<>
 			{ loading ? (
-				<Placeholder height={ 88 } />
+				<LoadingPlaceholder height={ 88 } />
 			) : (
 				<Input
 					value={ title }
@@ -144,7 +144,7 @@ const Infos = ( {
 				/>
 			) }
 			{ loading ? (
-				<Placeholder height={ 133 } className={ styles.input } />
+				<LoadingPlaceholder height={ 133 } className={ styles.input } />
 			) : (
 				<>
 					<Input
@@ -329,7 +329,7 @@ const EditVideoDetails = () => {
 							/>
 							<div className={ styles[ 'side-fields' ] }>
 								{ isFetchingData ? (
-									<Placeholder height={ 40 } className={ classnames( styles.field ) } />
+									<LoadingPlaceholder height={ 40 } className={ classnames( styles.field ) } />
 								) : (
 									<SelectControl
 										className={ styles.field }
@@ -340,7 +340,7 @@ const EditVideoDetails = () => {
 										prefix={
 											// Casting for unknown since allowing only a string is a mistake
 											// at WP Components
-											( (
+											(
 												<div className={ styles[ 'privacy-icon' ] }>
 													<Icon
 														icon={
@@ -353,7 +353,7 @@ const EditVideoDetails = () => {
 														}
 													/>
 												</div>
-											 ) as unknown ) as string
+											 ) as unknown as string
 										}
 										options={ [
 											{
@@ -372,7 +372,7 @@ const EditVideoDetails = () => {
 									/>
 								) }
 								{ isFetchingData ? (
-									<Placeholder height={ 40 } className={ classnames( styles.field ) } />
+									<LoadingPlaceholder height={ 40 } className={ classnames( styles.field ) } />
 								) : (
 									<>
 										<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
@@ -390,7 +390,7 @@ const EditVideoDetails = () => {
 									</>
 								) }
 								{ isFetchingData ? (
-									<Placeholder height={ 40 } className={ classnames( styles.field ) } />
+									<LoadingPlaceholder height={ 40 } className={ classnames( styles.field ) } />
 								) : (
 									<>
 										<Text className={ classnames( styles.field, styles.checkboxTitle ) }>
@@ -409,7 +409,7 @@ const EditVideoDetails = () => {
 								) }
 								{ isBusy || isFetchingData ? (
 									// RadioControl does not support disabled state
-									<Placeholder height={ 40 } className={ classnames( styles.field ) } />
+									<LoadingPlaceholder height={ 40 } className={ classnames( styles.field ) } />
 								) : (
 									<RadioControl
 										className={ classnames( styles.field, styles.rating ) }

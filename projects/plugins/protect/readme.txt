@@ -4,7 +4,7 @@ Tags: jetpack, protect, security, malware, scan
 Requires at least: 6.0
 Requires PHP: 5.6
 Tested up to: 6.2
-Stable tag: 1.2.0
+Stable tag: 1.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -150,16 +150,20 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 4. The Jetpack Firewall is a web application firewall (known as WAF) designed to protect your WordPress site from malicious requests.
 
 == Changelog ==
-### 1.3.0-beta - 2023-01-25
+### 1.3.0 - 2023-03-13
 #### Added
 - Add ability to toggle automatic and manual firewall rules independently.
 - Add improved messaging for currently enabled firewall features.
 - Disable Jetpack Firewall on unsupported environments.
+- Add link to pricing page for getting started with an existing plan or license key.
 
 #### Changed
 - Updated package dependencies.
+- Update to React 18.
+- Use `flex-start`/`flex-end` instead of `start`/`end` for better browser compatibility.
 
 #### Fixed
-- Assorted fixes for minor bugs and grammar.
-- Updated composer.lock
-
+- Fix connection button loading indicators.
+- Fix Protect status report caching.
+- Remove unnecessary full path from example in UI.
+- Other assorted fixes for minor bugs and grammar.

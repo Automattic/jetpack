@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Waf\Waf_Rules_Manager;
+use WP_Error;
 
 /**
  * Shared Functions class.

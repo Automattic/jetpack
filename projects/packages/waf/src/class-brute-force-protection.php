@@ -7,11 +7,14 @@
 
 namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
-use Jetpack;
-use Jetpack_Client_Server;
+use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Waf\Waf_Constants;
 use Jetpack_IXR_Client;
+use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -118,8 +121,6 @@ class Brute_Force_Protection {
 	 * Registers actions
 	 */
 	private function __construct() {
-		add_action( 'jetpack_activate_module_protect', array( $this, 'on_activation' ) );
-		add_action( 'jetpack_deactivate_module_protect', array( $this, 'on_deactivation' ) );
 		add_action( 'jetpack_modules_loaded', array( $this, 'modules_loaded' ) );
 		add_action( 'login_form', array( $this, 'check_use_math' ), 0 );
 		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
@@ -144,6 +145,23 @@ class Brute_Force_Protection {
 	}
 
 	/**
+	 * Run brute force protection.
+	 *
+	 * @return void
+	 */
+	public static function initialize() {
+		$brute_force_protection_is_enabled = self::is_enabled();
+		if ( $brute_force_protection_is_enabled && ( new Connection_Manager() )->is_connected() ) {
+			global $pagenow;
+			$brute_force_protection = self::instance();
+
+			if ( isset( $pagenow ) && 'wp-login.php' === $pagenow ) {
+				$brute_force_protection->check_login_ability();
+			}
+		}
+	}
+
+	/**
 	 * On module activation, try to get an api key
 	 */
 	public function on_activation() {
@@ -154,7 +172,7 @@ class Brute_Force_Protection {
 		update_site_option( 'jetpack_protect_activating', 'activating' );
 
 		// Get BruteProtect's counter number.
-		self::protect_call( 'check_key' );
+		$this->protect_call( 'check_key' );
 	}
 
 	/**
@@ -164,6 +182,33 @@ class Brute_Force_Protection {
 		if ( is_multisite() && is_main_site() ) {
 			update_site_option( 'jetpack_protect_active', 0 );
 		}
+	}
+
+	/**
+	 * Determines if the brute force protection module is enabled on the site.
+	 *
+	 * @return bool
+	 */
+	public static function is_enabled() {
+		return ( new Modules() )->is_active( 'protect' );
+	}
+
+	/**
+	 * Enables the brute force protection module.
+	 *
+	 * @return bool
+	 */
+	public static function enable() {
+		return ( new Modules() )->activate( 'protect', false, false );
+	}
+
+	/**
+	 * Disables the brute force protection module.
+	 *
+	 * @return bool
+	 */
+	public static function disable() {
+		return ( new Modules() )->deactivate( 'protect' );
 	}
 
 	/**
@@ -301,6 +346,55 @@ class Brute_Force_Protection {
 	}
 
 	/**
+	 * Gets all plugins currently active in values, regardless of whether they're
+	 * traditionally activated or network activated.
+	 *
+	 * Forked from Jetpack::get_active_plugins from the Jetpack plugin.
+	 *
+	 * @return string[]
+	 */
+	public static function get_active_plugins() {
+		$active_plugins = (array) get_option( 'active_plugins', array() );
+
+		if ( is_multisite() ) {
+			// Due to legacy code, active_sitewide_plugins stores them in the keys,
+			// whereas active_plugins stores them in the values.
+			$network_plugins = array_keys( get_site_option( 'active_sitewide_plugins', array() ) );
+			if ( $network_plugins ) {
+				$active_plugins = array_merge( $active_plugins, $network_plugins );
+			}
+		}
+
+		sort( $active_plugins );
+
+		return array_unique( $active_plugins );
+	}
+
+	/**
+	 * Deactivate a plugin.
+	 *
+	 * @param string $probable_file  Expected plugin file.
+	 * @param string $probable_title Expected plugin title.
+	 *
+	 * @return void
+	 */
+	public static function deactivate_plugin( $probable_file, $probable_title ) {
+		include_once ABSPATH . 'wp-admin/includes/plugin.php';
+		if ( is_plugin_active( $probable_file ) ) {
+			deactivate_plugins( $probable_file );
+		} else {
+			// If the plugin is not in the usual place, try looking through all active plugins.
+			$active_plugins = get_option( 'active_plugins' );
+			foreach ( $active_plugins as $plugin ) {
+				$data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
+				if ( $data['Name'] === $probable_title ) {
+					deactivate_plugins( $plugin );
+				}
+			}
+		}
+	}
+
+	/**
 	 * Request an api key from wordpress.com
 	 *
 	 * @return bool | string
@@ -328,7 +422,7 @@ class Brute_Force_Protection {
 			$request['multisite'] = get_blog_count();
 			if ( ! $request['multisite'] ) {
 				global $wpdb;
-				$request['multisite'] = $wpdb->get_var( "SELECT COUNT(blog_id) as c FROM $wpdb->blogs WHERE spam = '0' AND deleted = '0' and archived = '0'" );
+				$request['multisite'] = $wpdb->get_var( "SELECT COUNT(blog_id) as c FROM $wpdb->blogs WHERE spam = '0' AND deleted = '0' and archived = '0'" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			}
 		}
 
@@ -363,11 +457,11 @@ class Brute_Force_Protection {
 		}
 
 		// Key generation successful!
-		$active_plugins = Jetpack::get_active_plugins();
+		$active_plugins = self::get_active_plugins();
 
 		// We only want to deactivate BruteProtect if we successfully get a key.
 		if ( in_array( 'bruteprotect/bruteprotect.php', $active_plugins, true ) ) {
-			Jetpack_Client_Server::deactivate_plugin( 'bruteprotect/bruteprotect.php', 'BruteProtect' );
+			self::deactivate_plugin( 'bruteprotect/bruteprotect.php', 'BruteProtect' );
 		}
 
 		$key = $response['data'];
@@ -426,7 +520,7 @@ class Brute_Force_Protection {
 	 * Set up the Brute Force Protection configuration page
 	 */
 	public function modules_loaded() {
-		Jetpack::enable_module_configurable( __FILE__ );
+		add_filter( 'jetpack_module_configurable_protect', '__return_true' );
 	}
 
 	/**
@@ -621,10 +715,10 @@ class Brute_Force_Protection {
 		$ip = IP_Utils::get_ip();
 
 		// Server is misconfigured and we can't get an IP.
-		if ( ! $ip && class_exists( 'Jetpack' ) ) {
-			Jetpack::deactivate_module( 'protect' );
+		if ( ! $ip ) {
+			self::disable();
 			ob_start();
-			Jetpack::state( 'message', 'protect_misconfigured_ip' );
+			( new CookieState() )->state( 'message', 'protect_misconfigured_ip' );
 			ob_end_clean();
 			return true;
 		}
@@ -798,10 +892,10 @@ class Brute_Force_Protection {
 	public function get_main_blog_jetpack_id() {
 		if ( ! is_main_site() ) {
 			switch_to_blog( $this->get_main_blog_id() );
-			$id = Jetpack::get_option( 'id', false );
+			$id = Jetpack_Options::get_option( 'id', false );
 			restore_current_blog();
 		} else {
-			$id = Jetpack::get_option( 'id' );
+			$id = Jetpack_Options::get_option( 'id' );
 		}
 
 		return $id;
@@ -846,16 +940,21 @@ class Brute_Force_Protection {
 
 		$api_key = $this->maybe_get_protect_key();
 
-		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' );
+		$user_agent = "WordPress/{$wp_version}";
 
 		$request['action']            = $action;
 		$request['ip']                = IP_Utils::get_ip();
 		$request['host']              = $this->get_local_host();
 		$request['headers']           = wp_json_encode( $this->get_headers() );
-		$request['jetpack_version']   = constant( 'JETPACK__VERSION' );
+		$request['jetpack_version']   = null;
 		$request['wordpress_version'] = (string) $wp_version;
 		$request['api_key']           = $api_key;
 		$request['multisite']         = '0';
+
+		if ( defined( 'JETPACK__VERSION' ) ) {
+			$request['jetpack_version'] = constant( 'JETPACK__VERSION' );
+			$user_agent                .= ' | Jetpack/' . constant( 'JETPACK__VERSION' );
+		}
 
 		if ( is_multisite() ) {
 			$request['multisite'] = get_blog_count();
@@ -878,6 +977,8 @@ class Brute_Force_Protection {
 			'httpversion' => '1.0',
 			'timeout'     => absint( $timeout ),
 		);
+
+		Waf_Constants::define_brute_force_api_host();
 
 		$response_json           = wp_remote_post( JETPACK_PROTECT__API_HOST, $args );
 		$this->last_response_raw = $response_json;

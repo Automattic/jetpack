@@ -66,12 +66,12 @@ class Dashboard {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				'dependencies' => array( 'wp-api-fetch' ), // this here just for testing, remove when done (apiFetch will be on build)
+				'dependencies' => array( 'wp-api-fetch' ),
 			)
 		);
 
 		$api_root = defined( 'IS_WPCOM' ) && IS_WPCOM
-			? sprintf( '/wpcom/v2/sites/%s/', esc_url_raw( rest_url() ) ) // should we include full URL here (public-api.wordpress.com)?
+			? sprintf( '/wpcom/v2/sites/%s/', esc_url_raw( rest_url() ) )
 			: '/wp-json/wpcom/v2/';
 
 		wp_add_inline_script(

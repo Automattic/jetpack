@@ -4,6 +4,7 @@
 *.DS_Store
 **/.DS_Store
 /.DS_STORE
+/build/
 /node_modules/
 /vendor/
 codeception.yml

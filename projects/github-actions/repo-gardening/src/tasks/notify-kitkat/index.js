@@ -36,7 +36,7 @@ async function hasBlockerPrioLabel( octokit, owner, repo, number ) {
 }
 
 /**
- * Check for a Kitkat Input Requested label on an issue.
+ * Check for a label showing that it was already escalated.
  *
  * @param {GitHub} octokit - Initialized Octokit REST client.
  * @param {string} owner   - Repository owner.
@@ -46,8 +46,11 @@ async function hasBlockerPrioLabel( octokit, owner, repo, number ) {
  */
 async function hasKitkatSignalLabel( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
-	// We're only interested in the Escalated to Kitkat label.
-	return labels.includes( '[Status] Escalated to Kitkat' );
+
+	// Does the list of labels includes the "[Status] Escalated" or "[Status] Escalated to Kitkat" label?
+	return (
+		labels.includes( '[Status] Escalated' ) || labels.includes( '[Status] Escalated to Kitkat' )
+	);
 }
 
 /**
@@ -79,28 +82,7 @@ function formatSlackMessage( payload, channel, message ) {
 				type: 'section',
 				text: {
 					type: 'mrkdwn',
-					text: `@kitkat-team please mark this message as :done: once the issue has been triaged. Thank you!`,
-				},
-			},
-			{
-				type: 'divider',
-			},
-			{
-				type: 'section',
-				text: {
-					type: 'mrkdwn',
 					text: `<${ html_url }|${ title }>`,
-				},
-				accessory: {
-					type: 'button',
-					text: {
-						type: 'plain_text',
-						text: 'View',
-						emoji: true,
-					},
-					value: 'click_review',
-					url: `${ html_url }`,
-					action_id: 'button-action',
 				},
 			},
 		],
@@ -156,7 +138,7 @@ async function notifyKitKat( payload, octokit ) {
 		debug(
 			`notify-kitkat: Found a [Pri] High label on issue #${ number }. Sending in Slack message.`
 		);
-		const message = `:bug-police: New High priority bug! Please take a moment to triage this bug.`;
+		const message = `New high priority bug! Please check the priority.`;
 		const slackMessageFormat = formatSlackMessage( payload, channel, message );
 		await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 	}
@@ -167,7 +149,7 @@ async function notifyKitKat( payload, octokit ) {
 		debug(
 			`notify-kitkat: Found a [Pri] BLOCKER label on issue #${ number }. Sending in Slack message.`
 		);
-		const message = `:bug-police: New Blocker bug!  Please take a moment to triage this bug.`;
+		const message = `New blocker bug!  Please check the priority.`;
 		const slackMessageFormat = formatSlackMessage( payload, channel, message );
 		await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
 	}
@@ -178,7 +160,7 @@ async function notifyKitKat( payload, octokit ) {
 			owner: ownerLogin,
 			repo,
 			issue_number: number,
-			labels: [ '[Status] Escalated to Kitkat' ],
+			labels: [ '[Status] Escalated' ],
 		} );
 	}
 }

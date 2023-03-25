@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix tests calling `parent::setUp()` from `set_up()`, which will crash with latest WorDBless that picks up yoast-polyfill's TestCase class that calls `set_up()` from `setUp()`.
-
-

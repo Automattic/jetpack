@@ -16,16 +16,6 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	/**
-	 * Tries to connect Jetpack Boost to WordPress.com, and waits for the connection API call to complete.
-	 */
-	async connect() {
-		const button = await this.page.locator( '.jb-connection button' );
-		await button.click();
-		await this.waitForApiResponse( 'connection' );
-		await this.waitForElementToBeDetached( '.jb-connection button' );
-	}
-
-	/**
 	 * Select the free plan from getting started page.
 	 */
 	async chooseFreePlan() {

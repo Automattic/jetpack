@@ -126,6 +126,8 @@ function arrangeTracksAttributes(
 	const tracks = [];
 	let tracksOufOfSync = false;
 
+	// Checks if every video track is in sync with the block
+	// attributes, to add tracks to the block attributes if needed
 	Object.keys( videoData.tracks ).forEach( kind => {
 		for ( const srcLang in videoData.tracks[ kind ] ) {
 			const track = videoData.tracks[ kind ][ srcLang ];
@@ -146,6 +148,23 @@ function arrangeTracksAttributes(
 				srcLang,
 				label: track.label,
 			} );
+		}
+	} );
+
+	/*
+	 * Checks if every block attributes track is in sync with the media
+	 * item, to remove tracks from the block attributes if needed
+	 */
+	attributes.tracks.forEach( blockTrack => {
+		const trackInMedia = videoData.tracks[ blockTrack.kind ]?.[ blockTrack.srcLang ];
+		const trackExistsInMedia =
+			trackInMedia &&
+			trackInMedia.src === blockTrack.src &&
+			trackInMedia.label === blockTrack.label;
+
+		if ( ! trackExistsInMedia ) {
+			debug( 'Block track %o is out of sync and will be removed', blockTrack.src );
+			tracksOufOfSync = true;
 		}
 	} );
 

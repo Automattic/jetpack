@@ -90,6 +90,17 @@ class Attachment extends \WP_REST_Attachments_Controller {
 	}
 
 	/**
+	 * Create a single attachment.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, WP_Error object on failure.
+	 */
+	public function create_item( $request ) {
+		$this->set_upload_dir( $request );
+		return parent::create_item( $request );
+	}
+
+	/**
 	 * Updates a single attachment.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
@@ -110,12 +121,21 @@ class Attachment extends \WP_REST_Attachments_Controller {
 	 * @return array Modified Schema array.
 	 */
 	public function add_additional_fields_schema( $schema ) {
+
+		// Validate the upload_date, used for placing the uploaded file in the correct upload directory.
+		$schema['properties']['upload_date'] = array(
+			'description' => __( 'The date for the upload directory of the attachment.', 'jetpack-import' ),
+			'type'        => array( 'string', 'null' ),
+			'pattern'     => '^\d{4}\/\d{2}$',
+			'required'    => false,
+		);
+
 		// The unique identifier is only required for PUT requests.
 		return $this->add_unique_identifier_to_schema( $schema, isset( $_SERVER['REQUEST_METHOD'] ) && $_SERVER['REQUEST_METHOD'] === 'PUT' );
 	}
 
 	/**
-	 * Performs post processing on an attachment.
+	 * Performs post-processing on an attachment.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, WP_Error object on failure.
@@ -127,5 +147,33 @@ class Attachment extends \WP_REST_Attachments_Controller {
 		$request['context'] = 'edit';
 
 		return $this->prepare_item_for_response( \get_post( $request['id'] ), $request );
+	}
+
+	/**
+	 * Add a filter that rewrites the upload path.
+	 *
+	 * @param \WP_REST_Request $request Full details about the request.
+	 *
+	 * @return void
+	 * @throws \Exception If the date is invalid.
+	 */
+	protected function set_upload_dir( $request ) {
+
+		if ( ! $request->get_param( 'upload_date' ) ) {
+			return;
+		}
+
+		add_filter(
+			'upload_dir',
+			static function ( $data ) use ( $request ) {
+				$date              = $request->get_param( 'upload_date' );
+				$fields_to_rewrite = array( 'path', 'url', 'subdir' );
+				foreach ( $fields_to_rewrite as $field ) {
+					$data[ $field ] = preg_replace( '/\d{4}\/\d{2}$/', $date, $data[ $field ] );
+				}
+
+				return $data;
+			}
+		);
 	}
 }

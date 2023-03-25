@@ -4,7 +4,7 @@ namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
-use Jetpack;
+use Jetpack_Options;
 use WP_Error;
 
 /**
@@ -112,7 +112,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	 * @return string
 	 */
 	public static function get_help_url() {
-		return Redirect::get_url( 'jetpack-support-security-features', array( 'anchor' => 'unblock' ) );
+		return Redirect::get_url( 'jetpack-support-protect', array( 'anchor' => 'troubleshooting' ) );
 	}
 
 	/**
@@ -253,7 +253,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 	 */
 	public function is_valid_protect_recovery_key( $key, $user_id ) {
 
-		$path     = sprintf( '/sites/%d/protect/recovery/confirm', Jetpack::get_option( 'id' ) );
+		$path     = sprintf( '/sites/%d/protect/recovery/confirm', Jetpack_Options::get_option( 'id' ) );
 		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
 			'1.1',
@@ -347,7 +347,7 @@ class Brute_Force_Protection_Blocked_Login_Page {
 			return new WP_Error( 'invalid_user', __( "Oops, we couldn't find a user with that email. Please try again!", 'jetpack-waf' ) );
 		}
 		$this->email_address = $email;
-		$path                = sprintf( '/sites/%d/protect/recovery/request', Jetpack::get_option( 'id' ) );
+		$path                = sprintf( '/sites/%d/protect/recovery/request', Jetpack_Options::get_option( 'id' ) );
 
 		$response = Client::wpcom_json_api_request_as_blog(
 			$path,

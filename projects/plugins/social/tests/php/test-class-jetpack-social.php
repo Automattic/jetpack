@@ -14,8 +14,6 @@ use WorDBless\BaseTestCase;
 class Jetpack_Social_Test extends BaseTestCase {
 	/**
 	 * Initialize tests
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->social = new Jetpack_Social();

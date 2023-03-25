@@ -76,6 +76,8 @@
 				{/if}
 
 				<slot name="notice" />
+
+				<slot name="cta" />
 			</div>
 		</div>
 	</div>

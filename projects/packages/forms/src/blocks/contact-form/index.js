@@ -76,7 +76,30 @@ export const settings = {
 			</div>
 		);
 	},
-	example: {},
+	example: {
+		innerBlocks: [
+			{
+				name: 'jetpack/field-name',
+				attributes: { required: true, label: __( 'Name', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/field-email',
+				attributes: { required: true, label: __( 'Email', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/field-textarea',
+				attributes: { label: __( 'Message', 'jetpack-forms' ) },
+			},
+			{
+				name: 'jetpack/button',
+				attributes: {
+					text: __( 'Contact Us', 'jetpack-forms' ),
+					element: 'button',
+					lock: { remove: true },
+				},
+			},
+		],
+	},
 	styles: [
 		{ name: 'default', label: 'Default', isDefault: true },
 		{ name: 'animated', label: 'Animated' },

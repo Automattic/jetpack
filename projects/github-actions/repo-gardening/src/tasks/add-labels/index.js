@@ -204,7 +204,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 
 		// Boost Critical CSS.
 		const boostModules = file.match(
-			/^projects\/plugins\/boost\/app\/features\/(?<boostModule>[^/]*)\//
+			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?<boostModule>[^/]*)\//
 		);
 		const boostModuleName = boostModules && boostModules.groups.boostModule;
 		if ( boostModuleName ) {

@@ -1,6 +1,69 @@
-.jp-forms__search-form {
-	input.components-input-control__input {
-		// hateful important: couldn't override input's style
-		height: 36px !important;
+.jp-forms__actions-search {
+	display: flex;
+	flex-direction: row;
+
+	.input-wrapper {
+		min-height: var( --jp-forms-input-wrapper-height );
+		padding: var( --jp-forms-spacing-base );
+		border: 1px solid var( --jp-forms-border-color );
+		border-radius: var( --jp-forms-border-radius );
+		background-color: var( --jp-forms-white );
+		display: flex;
+		align-items: center;
+		font-size: var( --font-body-small );
+		box-sizing: border-box;
+		height: var( --jp-forms-input-wrapper-height );
+		width: 350px;
+
+		&:focus-within {
+			box-shadow: 0 0 0 1px var( --jp-black ) inset;
+		}
+
+		&.disabled {
+			border-color: var( --jp-gray-10 );
+			background-color: var( --jp-gray );
+			color: var( --jp-gray-20 );
+		}
+
+		.input {
+			font-size: unset;
+			font-family: unset;
+			width: 100%;
+			border: 0;
+			outline: none;
+			background-color: transparent;
+			box-shadow: none;
+			padding: 0;
+
+			&:focus {
+				box-shadow: none;
+				outline: none;
+			}
+
+			&.with-icon {
+				margin-left: var( --jp-forms-spacing-base );
+			}
+		}
+
+		.icon-wrapper {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 24px;
+			width: 24px;
+			flex-shrink: 0;
+
+			&.hidden {
+				visibility: hidden;
+			}
+		}
+
+		.clear-icon {
+			cursor: pointer;
+		}
+
+		.loader svg {
+			margin: 0;
+		}
 	}
 }

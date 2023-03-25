@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Compatibility\Amp;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Critical_CSS\CriticalCSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\CriticalCSS;
 
 /**
  * Class AMP.

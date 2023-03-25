@@ -89,11 +89,20 @@ export default function ProductInterstitial( {
 		[ navigateToMyJetpackOverviewPage, activate, bundle, slug ]
 	);
 
-	const onClickGoBack = useCallback( () => {
-		if ( slug ) {
-			recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
-		}
-	}, [ recordEvent, slug ] );
+	const onClickGoBack = useCallback(
+		event => {
+			if ( slug ) {
+				recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
+			}
+
+			if ( document.referrer.includes( window.location.host ) ) {
+				// Prevent default here to minimize page change within the My Jetpack app.
+				event.preventDefault();
+				history.back();
+			}
+		},
+		[ recordEvent, slug ]
+	);
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>

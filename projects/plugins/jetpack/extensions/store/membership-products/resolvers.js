@@ -93,34 +93,36 @@ const setDefaultProductIfNeeded = ( selectedProductId, setSelectedProductId, sel
 	}
 };
 
-export const getProducts = (
-	productType = PRODUCT_TYPE_PAYMENT_PLAN,
-	selectedProductId = 0,
-	setSelectedProductId = () => {}
-) => async ( { dispatch, registry, select } ) => {
-	await executionLock.blockExecution( EXECUTION_KEY );
-	if ( hydratedFromAPI ) {
-		setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
-		return;
-	}
-
-	const lock = executionLock.acquire( EXECUTION_KEY );
-	try {
-		const response = await fetchMemberships();
-		mapAPIResponseToMembershipProductsStoreData( response, registry, dispatch );
-
-		if ( shouldCreateDefaultProduct( response ) ) {
-			// Is ready to use and has no product set up yet. Let's create one!
-			await createDefaultProduct( productType, setSelectedProductId, dispatch );
+export const getProducts =
+	(
+		productType = PRODUCT_TYPE_PAYMENT_PLAN,
+		selectedProductId = 0,
+		setSelectedProductId = () => {}
+	) =>
+	async ( { dispatch, registry, select } ) => {
+		await executionLock.blockExecution( EXECUTION_KEY );
+		if ( hydratedFromAPI ) {
+			setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
+			return;
 		}
 
-		setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
+		const lock = executionLock.acquire( EXECUTION_KEY );
+		try {
+			const response = await fetchMemberships();
+			mapAPIResponseToMembershipProductsStoreData( response, registry, dispatch );
 
-		hydratedFromAPI = true;
-	} catch ( error ) {
-		dispatch( setConnectUrl( null ) );
-		dispatch( setApiState( API_STATE_NOTCONNECTED ) );
-		onError( error.message, registry );
-	}
-	executionLock.release( lock );
-};
+			if ( shouldCreateDefaultProduct( response ) ) {
+				// Is ready to use and has no product set up yet. Let's create one!
+				await createDefaultProduct( productType, setSelectedProductId, dispatch );
+			}
+
+			setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
+
+			hydratedFromAPI = true;
+		} catch ( error ) {
+			dispatch( setConnectUrl( null ) );
+			dispatch( setApiState( API_STATE_NOTCONNECTED ) );
+			onError( error.message, registry );
+		}
+		executionLock.release( lock );
+	};

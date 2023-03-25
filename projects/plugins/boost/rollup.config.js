@@ -66,7 +66,7 @@ if ( ! production ) {
 	} );
 }
 
-const GUIDE_PATH = `app/features/image-guide`;
+const GUIDE_PATH = `app/modules/image-guide`;
 
 export default [
 	/**

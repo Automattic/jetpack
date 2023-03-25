@@ -124,9 +124,9 @@ class JPCRM_Acceptance extends WPBrowser {
 		// Last copied 4.0.8
 		// Begin copy from Core.php
 
-		// WLREMOVE
+		##WLREMOVE
 		$this->slugs['home'] = 'zerobscrm-plugin';
-		// /WLREMOVE
+		##/WLREMOVE
 		$this->slugs['dash']     = 'zerobscrm-dash';
 		$this->slugs['settings'] = 'zerobscrm-plugin-settings';
 		// $this->slugs['logout']          = "zerobscrm-logout";         // <<< 403 Forbidden

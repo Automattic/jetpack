@@ -37,13 +37,14 @@
 		"platform": {
 			"php": "7.3"
 		},
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_5_4_a_2",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_6_1_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		}
 	},
 	"require": {
+		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/woocommerce": "^3.0",
 		"dompdf/dompdf": "2.0.3",
@@ -58,6 +59,11 @@
 			}
 		}
 	],
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
 	"minimum-stability": "dev",
 	"extra": {
 		"autotagger": {
@@ -65,7 +71,6 @@
 		},
 		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-crm",
-		"dev-releases": true,
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-crm/compare/v${old}...v${new}"
 		},

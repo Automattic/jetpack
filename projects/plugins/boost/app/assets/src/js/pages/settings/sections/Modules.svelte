@@ -7,6 +7,7 @@
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
+	import ImageSizeAnalysisView from '../../../modules/image-size-analysis/ModuleView.svelte';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
 	import {
 		criticalCssState,
@@ -21,6 +22,7 @@
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
+	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
 	import ResizingUnavailable from '../elements/ResizingUnavailable.svelte';
 	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
 
@@ -49,28 +51,41 @@
 </script>
 
 <div class="jb-container--narrow">
-	{#if ! cloudCssAvailable}
-		<PremiumCTA />
-	{/if}
-
 	<Module
-		slug={'critical-css'}
+		slug="critical-css"
 		on:enabled={resume}
 		on:mountEnabled={resume}
 		on:disabled={() => ( alreadyResumed = false )}
 	>
 		<h3 slot="title">
-			{__( 'Optimize CSS Loading', 'jetpack-boost' )}
+			{__( 'Optimize Critical CSS Loading (manual)', 'jetpack-boost' )}
 		</h3>
-		<p slot="description">
-			<TemplatedString
-				template={__(
-					`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
-					'jetpack-boost'
-				)}
-				vars={externalLinkTemplateVar( criticalCssLink )}
-			/>
-		</p>
+
+		<div slot="description">
+			<p>
+				<TemplatedString
+					template={__(
+						`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
+						'jetpack-boost'
+					)}
+					vars={externalLinkTemplateVar( criticalCssLink )}
+				/>
+			</p>
+
+			<p>
+				<TemplatedString
+					template={__(
+						`<b>You should regenerate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+						'jetpack-boost'
+					)}
+					vars={{
+						b: [ 'strong', {}, '' ],
+					}}
+				/>
+
+				<PremiumTooltip />
+			</p>
+		</div>
 
 		<div slot="meta">
 			<CriticalCssMeta />
@@ -82,10 +97,16 @@
 				show={$suggestRegenerate && $criticalCssState.status !== 'pending'}
 			/>
 		</div>
+
+		<div slot="cta">
+			{#if ! cloudCssAvailable}
+				<PremiumCTA />
+			{/if}
+		</div>
 	</Module>
 
 	<Module
-		slug={'cloud-css'}
+		slug="cloud-css"
 		on:enabled={regenerateCriticalCss}
 		on:disabled={stopPollingCloudCssStatus}
 		on:mountEnabled={startPollingCloudStatus}
@@ -94,21 +115,36 @@
 			{__( 'Automatically Optimize CSS Loading', 'jetpack-boost' )}
 			<span class="jb-badge">Upgraded</span>
 		</h3>
-		<p slot="description">
-			<TemplatedString
-				template={__(
-					`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>critical CSS</link> which now generates automatically.`,
-					'jetpack-boost'
-				)}
-				vars={externalLinkTemplateVar( criticalCssLink )}
-			/>
-		</p>
+		<div slot="description">
+			<p>
+				<TemplatedString
+					template={__(
+						`Move important styling information to the start of the page, which helps pages display your content sooner, so your users don’t have to wait for the entire page to load. Commonly referred to as <link>Critical CSS</link>.`,
+						'jetpack-boost'
+					)}
+					vars={externalLinkTemplateVar( criticalCssLink )}
+				/>
+			</p>
+
+			<p>
+				<TemplatedString
+					template={__(
+						`<b>Boost will automatically generate your Critical CSS</b> whenever you make changes to the HTML or CSS structure of your site.`,
+						'jetpack-boost'
+					)}
+					vars={{
+						b: [ 'strong', {}, '' ],
+					}}
+				/>
+			</p>
+		</div>
+
 		<div slot="meta" class="jb-feature-toggle__meta">
 			<CloudCssMeta />
 		</div>
 	</Module>
 
-	<Module slug={'render-blocking-js'}>
+	<Module slug="render-blocking-js">
 		<h3 slot="title">
 			{__( 'Defer Non-Essential JavaScript', 'jetpack-boost' )}
 		</h3>
@@ -123,7 +159,7 @@
 		</p>
 	</Module>
 
-	<Module slug={'lazy-images'}>
+	<Module slug="lazy-images">
 		<h3 slot="title">{__( 'Lazy Image Loading', 'jetpack-boost' )}</h3>
 		<p slot="description">
 			<TemplatedString
@@ -137,7 +173,7 @@
 	</Module>
 
 	<div class="settings">
-		<Module slug={'image-guide'}>
+		<Module slug="image-guide">
 			<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 			<p slot="description">
 				{__(
@@ -152,7 +188,7 @@
 		</Module>
 	</div>
 
-	<Module slug={'minify'}>
+	<Module slug="minify">
 		<h3 slot="title">{__( 'Minify', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 		<p slot="description">
 			<TemplatedString
@@ -163,6 +199,21 @@
 				vars={externalLinkTemplateVar( minifyCssLink )}
 			/>
 		</p>
+	</Module>
+
+	<Module slug="image-size-analysis">
+		<h3 slot="title">
+			{__( 'Image Size Analysis', 'jetpack-boost' )}<span class="beta">Beta</span>
+		</h3>
+		<p slot="description">
+			{__(
+				`This tool will search your site for images that are too large and have an impact your visitors experience, page loading times, and search rankings. Once finished, it will give you a report of all improperly sized images with suggestions on how to fix them.`,
+				'jetpack-boost'
+			)}
+		</p>
+		<svelte:fragment slot="meta">
+			<ImageSizeAnalysisView />
+		</svelte:fragment>
 	</Module>
 
 	<SuperCacheInfo />

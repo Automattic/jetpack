@@ -30,8 +30,6 @@ class Test_Blaze extends BaseTestCase {
 
 	/**
 	 * Set up before each test.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->admin_id = wp_insert_user(
@@ -56,8 +54,6 @@ class Test_Blaze extends BaseTestCase {
 
 	/**
 	 * Tear down after each test.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		wp_dequeue_script( Blaze::SCRIPT_HANDLE );
