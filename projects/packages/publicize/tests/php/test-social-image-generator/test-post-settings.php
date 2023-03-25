@@ -60,7 +60,6 @@ class Post_Settings_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->update_image_generator_settings( array() );
-		parent::tear_down();
 	}
 
 	/**
