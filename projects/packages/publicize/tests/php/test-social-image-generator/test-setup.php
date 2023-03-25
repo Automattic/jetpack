@@ -106,7 +106,7 @@ class Setup_Test extends BaseTestCase {
 	 * Test that SIG gets enabled by default on new posts.
 	 */
 	public function test_sig_gets_enabled_by_default_on_a_new_post() {
-		$this->markTestSkipped( 'Skipping until we support default metadata in WorDBless' );
+		$this->markTestSkipped( 'Skipping until we support default metadata in WorDBless - see https://github.com/Automattic/wordbless/pull/65' );
 		$post_id = wp_insert_post(
 			array(
 				'post_title'   => 'Testing',
