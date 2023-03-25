@@ -25,6 +25,7 @@
 		"@automattic/format-currency": "1.0.1",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
+		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-licensing": "workspace:*",

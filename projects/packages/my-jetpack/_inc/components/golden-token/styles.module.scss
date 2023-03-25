@@ -1,3 +1,5 @@
+@import '@automattic/jetpack-base-styles/style';
+
 $tablet-width: 760px;
 
 @mixin tablet {
@@ -10,23 +12,8 @@ $tablet-width: 760px;
  * Modal Container
  */
 .modal {
-	--modal-padding-large: 32px;
-	--modal-padding: 24px;
-	--modal-padding-small: 16px;
-	--modal-radius: 8px;
-
-	--button-padding: 8px;
-	--button-radius: 4px;
-
-	--gap: 16px;
-
-	--black: #000000;
-	--white: #FFFFFF;
-	--gray:  #C3C4C7;
-	--gray-0:#F6F7F7;
-
-	border-radius: var(--modal-radius);
-	background: var(--white);
+	border-radius: var(--jp-modal-radius);
+	background: var(--jp-white);
 	box-shadow: 0 12px 16px -0.5px rgba(0, 0, 0, 0.15);
 	height: inherit;
 	margin: 3rem auto;
@@ -43,7 +30,7 @@ $tablet-width: 760px;
 	}
 
 	p {
-		color: var(--black);
+		color: var(--jp-black);
 	}
 
 	.jetpack-logo {
@@ -67,8 +54,8 @@ $tablet-width: 760px;
 	* We have to use !important to add additional styling compared to the Jetpack
 	* button component.
 	*/
-	padding: 8px var(--modal-padding-small) !important;
-	margin-top: var(--gap) !important;
+	padding: 8px var(--jp-modal-padding-small) !important;
+	margin-top: var(--jp-gap) !important;
 }
 
 .headline {
@@ -133,7 +120,7 @@ $tablet-width: 760px;
 }
 
 .video-wrap {
-	border-radius: var(--button-radius);
+	border-radius: var(--jp-button-radius);
 	display: flex;
 	height: 50%;
 	justify-content: center;
@@ -226,7 +213,7 @@ $tablet-width: 760px;
  * Content wrap
  */
 .content-wrap {
-	padding: var(--modal-padding);
+	padding: var(--jp-modal-padding);
 
 	h2 {
 		// https://clamp.font-size.app/?config=eyJyb290IjoiMTYiLCJtaW5XaWR0aCI6Ijc2MHB4IiwibWF4V2lkdGgiOiIxNDQwcHgiLCJtaW5Gb250U2l6ZSI6IjI0cHgiLCJtYXhGb250U2l6ZSI6IjU2cHgifQ%3D%3D
@@ -252,7 +239,7 @@ $tablet-width: 760px;
 		flex-direction: column;
 		gap: 64px;
 		left: 64px;
-		padding: 0 var(--modal-padding) 0 0;
+		padding: 0 var(--jp-modal-padding) 0 0;
 		position: absolute;
 		width: 55%;
 
@@ -279,7 +266,7 @@ $tablet-width: 760px;
 			 * We have to use !important to add additional styling compared to the Jetpack
 			 * button component.
 			 */
-			padding: 16px var(--modal-padding-large) !important;
+			padding: 16px var(--jp-modal-padding-large) !important;
 		}
 
 		.animating & {
@@ -294,7 +281,7 @@ $tablet-width: 760px;
  * Powers wrap
  */
 .powers-wrap {
-	background: var(--white);
+	background: var(--jp-white);
 	left: 0;
 	opacity: 0;
 	position: absolute;
@@ -332,7 +319,7 @@ $tablet-width: 760px;
 		}
 
 		.button {
-			margin-right: var(--modal-padding-large);
+			margin-right: var(--jp-modal-padding-large);
 		}
 
 		.animating & {
@@ -364,16 +351,16 @@ $tablet-width: 760px;
 .jetpack-products {
 	display: flex;
 	flex-direction: column;
-	gap: var(--gap);
-	background: var(--gray-0);
+	gap: var(--jp-gap);
+	background: var(--jp-gray-0);
 
 	div {
-		border-radius: var(--button-radius);
-		border: 1px solid var(--gray);
-		background-color: var(--white);
+		border-radius: var(--jp-button-radius);
+		border: 1px solid var(--jp-gray-10);
+		background-color: var(--jp-white);
 		box-shadow: 0px 0px 40px 0px rgba(0, 0, 0, 0.08);
 		flex: 1;
-		padding: var(--modal-padding);
+		padding: var(--jp-modal-padding);
 	}
 
 	h3 {
@@ -390,7 +377,7 @@ $tablet-width: 760px;
 @include tablet {
 	.jetpack-products {
 		flex-direction: row;
-		padding: var(--modal-padding-large);
+		padding: var(--jp-modal-padding-large);
 
 		div {
 			border: none;
@@ -402,7 +389,7 @@ $tablet-width: 760px;
 		}
 
 		svg {
-			margin-bottom: var(--modal-padding-small);
+			margin-bottom: var(--jp-modal-padding-small);
 		}
 	}
 }
@@ -410,7 +397,7 @@ $tablet-width: 760px;
 @container (max-width: 600px) {
 	.jetpack-products {
 		div {
-			padding: var(--modal-padding-small);
+			padding: var(--jp-modal-padding-small);
 		}
 	}
 }
