@@ -49,14 +49,14 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 					?>
 					</strong></p>
 					<?php
-					echo '<textarea name="global-whitelist" style="width: 100%;" rows="8">'; // echo to avoid tabs displayed in textarea. See https://github.com/Automattic/jetpack/pull/21151/files#r713922521.
+					echo '<textarea name="global-allow-list" style="width: 100%;" rows="8">'; // echo to avoid tabs displayed in textarea. See https://github.com/Automattic/jetpack/pull/21151/files#r713922521.
 
 					foreach ( $data['jetpack_protect_whitelist']['global'] as $ip ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 						echo esc_html( $ip ) . "\n";
 					}
 					?>
 					</textarea> <br />
-					<label for="global-whitelist">
+					<label for="global-allow-list">
 						<?php esc_html_e( 'IPv4 and IPv6 are acceptable. Enter multiple IPs on separate lines.', 'jetpack' ); ?>
 						<br />
 						<?php esc_html_e( 'To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', 'jetpack' ); ?>

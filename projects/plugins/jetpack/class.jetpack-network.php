@@ -610,7 +610,7 @@ class Jetpack_Network {
 		}
 
 		// Try to save the Protect allow list before anything else, since that action can result in errors.
-		$allow_list = isset( $_POST['global-whitelist'] ) ? filter_var( wp_unslash( $_POST['global-whitelist'] ) ) : '';
+		$allow_list = isset( $_POST['global-allow-list'] ) ? filter_var( wp_unslash( $_POST['global-allow-list'] ) ) : '';
 		$allow_list = str_replace( ' ', '', $allow_list );
 		$allow_list = explode( PHP_EOL, $allow_list );
 		$result     = Brute_Force_Protection_Shared_Functions::save_allow_list( $allow_list, true );
