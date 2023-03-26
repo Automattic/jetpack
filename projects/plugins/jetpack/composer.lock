@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "995595368021b9c25c1a1a698dde4e89",
+    "content-hash": "3efc194cb82cd74060cd433792873524",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -634,7 +634,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "d90086a6709e7995e301be3d8bc80d31ea3e0fbb"
+                "reference": "c891bd1b0cef4000c9721c6982df5040da83d54e"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev"
@@ -648,7 +648,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.14.x-dev"
+                    "dev-trunk": "1.15.x-dev"
                 }
             },
             "autoload": {
@@ -1807,13 +1807,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "447d789e17524ee826c91a106f1faa52f85213a0"
+                "reference": "6ee4f16f41b6bf2945e82caf9ca9ff890aba8255"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-autoloader": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-redirect": "@dev"
             },
             "require-dev": {
@@ -2485,6 +2486,63 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Earn income by allowing Jetpack to display high quality ads.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-yoast-promo",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/yoast-promo",
+                "reference": "0f3490046a7dff56fac273f0dbf931f735c3df69"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-yoast-promo",
+                "changelogger": {
+                    "link-template": "https://github.com/automattic/jetpack-yoast-promo/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-yoast-promo",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-yoast-promo.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Components used to promote Yoast as part of our collaboration",
             "transport-options": {
                 "relative": true
             }
@@ -5375,6 +5433,7 @@
         "automattic/jetpack-videopress": 20,
         "automattic/jetpack-waf": 20,
         "automattic/jetpack-wordads": 20,
+        "automattic/jetpack-yoast-promo": 20,
         "automattic/jetpack-changelogger": 20
     },
     "prefer-stable": true,
