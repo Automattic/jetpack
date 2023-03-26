@@ -94,7 +94,7 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 */
-	public function get_deployment_logs( $request ) {
+	public function get_deployment_logs( $request ) { // phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 		$last_deployment = get_option( self::$deployment_status_option, array() );
 
 		if ( ! isset( $last_deployment['log_post_id'] ) ) {
@@ -126,7 +126,7 @@ class GitHub_Hosting_Webhook_Response extends WP_REST_Controller {
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 */
-	public function get_deployment_status( $request ) {
+	public function get_deployment_status( $request ) { //phpcs:ignore Generic.CodeAnalysis.UnusedFunctionParameter
 		return get_option( self::$deployment_status_option, null );
 	}
 
