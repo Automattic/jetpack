@@ -87,23 +87,6 @@ class Jetpack_Core_API_Site_Endpoint {
 			return self::get_failed_fetch_error();
 		}
 
-		// @todo Kallehauge - Revert Jetpack Complete when we have a real Golden Token.
-		// Note: Move "wp_remote_retrieve_body()" back to "rest_ensure_response".
-		$data = wp_remote_retrieve_body( $response );
-		if ( ! empty( $data ) ) {
-			$data = json_decode( $data, true );
-			foreach ( $data as $key => $purchase ) {
-				if ( $purchase['product_slug'] !== 'jetpack_complete' ) {
-					continue;
-				}
-
-				$data[ $key ]['product_id']   = '2900';
-				$data[ $key ]['product_name'] = 'Jetpack Golden Token';
-				$data[ $key ]['product_slug'] = 'jetpack_golden_token_lifetime';
-			}
-		}
-		// @todo Kallehauge - Revert Jetpack Complete when we have a real Golden Token.
-
 		return rest_ensure_response(
 			array(
 				'code'    => 'success',
