@@ -609,11 +609,11 @@ class Jetpack_Network {
 			exit();
 		}
 
-		// Try to save the Protect whitelist before anything else, since that action can result in errors.
-		$whitelist = isset( $_POST['global-whitelist'] ) ? filter_var( wp_unslash( $_POST['global-whitelist'] ) ) : '';
-		$whitelist = str_replace( ' ', '', $whitelist );
-		$whitelist = explode( PHP_EOL, $whitelist );
-		$result    = Brute_Force_Protection_Shared_Functions::save_whitelist( $whitelist, true );
+		// Try to save the Protect allow list before anything else, since that action can result in errors.
+		$allow_list = isset( $_POST['global-allow-list'] ) ? filter_var( wp_unslash( $_POST['global-allow-list'] ) ) : '';
+		$allow_list = str_replace( ' ', '', $allow_list );
+		$allow_list = explode( PHP_EOL, $allow_list );
+		$result     = Brute_Force_Protection_Shared_Functions::save_allow_list( $allow_list, true );
 		if ( is_wp_error( $result ) ) {
 			wp_safe_redirect(
 				add_query_arg(
@@ -692,7 +692,7 @@ class Jetpack_Network {
 		$data = array(
 			'modules'                   => $modules,
 			'options'                   => $options,
-			'jetpack_protect_whitelist' => Brute_Force_Protection_Shared_Functions::format_whitelist(),
+			'jetpack_protect_whitelist' => Brute_Force_Protection_Shared_Functions::format_allow_list(),
 		);
 
 		Jetpack::init()->load_view( 'admin/network-settings.php', $data );

@@ -18,17 +18,27 @@ class Brute_Force_Protection_Shared_Functions {
 	/**
 	 * Returns an array of IP objects that will never be blocked by the Brute force protection feature
 	 *
-	 * The array is segmented into a local whitelist which applies only to the current site
-	 * and a global whitelist which, for multisite installs, applies to the entire networko
+	 * @deprecated $$next-version$$ Use format_allow_list()
+	 */
+	public static function format_whitelist() {
+		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::format_allow_list' );
+		return self::format_allow_list();
+	}
+
+	/**
+	 * Returns an array of IP objects that will never be blocked by the Brute force protection feature
+	 *
+	 * The array is segmented into a local allow list which applies only to the current site
+	 * and a global allow list which, for multisite installs, applies to the entire networko
 	 *
 	 * @return array
 	 */
-	public static function format_whitelist() {
-		$local_whitelist = self::get_local_whitelist();
-		$formatted       = array(
+	public static function format_allow_list() {
+		$local_allow_list = self::get_local_allow_list();
+		$formatted        = array(
 			'local' => array(),
 		);
-		foreach ( $local_whitelist as $item ) {
+		foreach ( $local_allow_list as $item ) {
 			if ( $item->range ) {
 				$formatted['local'][] = $item->range_low . ' - ' . $item->range_high;
 			} else {
@@ -37,12 +47,12 @@ class Brute_Force_Protection_Shared_Functions {
 		}
 		if ( is_multisite() && current_user_can( 'manage_network' ) ) {
 			$formatted['global'] = array();
-			$global_whitelist    = self::get_global_whitelist();
-			if ( false === $global_whitelist ) {
-				// If the global whitelist has never been set, check for a legacy option set prior to 3.6.
-				$global_whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
+			$global_allow_list   = self::get_global_allow_list();
+			if ( false === $global_allow_list ) {
+				// If the global allow list has never been set, check for a legacy option set prior to 3.6.
+				$global_allow_list = get_site_option( 'jetpack_protect_whitelist', array() );
 			}
-			foreach ( $global_whitelist as $item ) {
+			foreach ( $global_allow_list as $item ) {
 				if ( $item->range ) {
 					$formatted['global'][] = $item->range_low . ' - ' . $item->range_high;
 				} else {
@@ -54,52 +64,72 @@ class Brute_Force_Protection_Shared_Functions {
 	}
 
 	/**
-	 * Gets the local Brute force protection whitelist
+	 * Gets the local Brute force protection allow list.
 	 *
-	 * The 'local' part of the whitelist only really applies to multisite installs,
-	 * which can have a network wide whitelist, as well as a local list that applies
-	 * only to the current site. On single site installs, there will only be a local
-	 * whitelist.
-	 *
-	 * @return array A list of IP Address objects or an empty array
+	 * @deprecated $$next-version$$ Use get_local_allow_list()
 	 */
 	public static function get_local_whitelist() {
-		$whitelist = get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME );
-		if ( false === $whitelist ) {
-			// The local whitelist has never been set.
-			if ( is_multisite() ) {
-				// On a multisite, we can check for a legacy site_option that existed prior to v 3.6, or default to an empty array.
-				$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
-			} else {
-				// On a single site, we can just use an empty array.
-				$whitelist = array();
-			}
-		} else {
-			$whitelist = IP_Utils::get_ip_addresses_from_string( $whitelist );
-			$whitelist = array_map(
-				function ( $ip_address ) {
-					return self::create_ip_object( $ip_address );
-				},
-				$whitelist
-			);
-		}
-		return $whitelist;
+		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::get_local_allow_list' );
+		return self::get_local_allow_list();
 	}
 
 	/**
-	 * Get the global, network-wide whitelist
+	 * Gets the local Brute force protection allow list.
+	 *
+	 * The 'local' part of the allow list only really applies to multisite installs,
+	 * which can have a network wide allow list, as well as a local list that applies
+	 * only to the current site. On single site installs, there will only be a local
+	 * allow list.
+	 *
+	 * @return array A list of IP Address objects or an empty array
+	 */
+	public static function get_local_allow_list() {
+		$allow_list = get_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME );
+		if ( false === $allow_list ) {
+			// The local allow list has never been set.
+			if ( is_multisite() ) {
+				// On a multisite, we can check for a legacy site_option that existed prior to v 3.6, or default to an empty array.
+				$allow_list = get_site_option( 'jetpack_protect_whitelist', array() );
+			} else {
+				// On a single site, we can just use an empty array.
+				$allow_list = array();
+			}
+		} else {
+			$allow_list = IP_Utils::get_ip_addresses_from_string( $allow_list );
+			$allow_list = array_map(
+				function ( $ip_address ) {
+					return self::create_ip_object( $ip_address );
+				},
+				$allow_list
+			);
+		}
+		return $allow_list;
+	}
+
+	/**
+	 * Get the global, network-wide allow list.
+	 *
+	 * @deprecated $$next-version$$ Use get_global_allow_list()
+	 */
+	public static function get_global_whitelist() {
+		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::get_global_allow_list' );
+		return self::get_global_allow_list();
+	}
+
+	/**
+	 * Get the global, network-wide allow list.
 	 *
 	 * It will revert to the legacy site_option if jetpack_protect_global_whitelist has never been set.
 	 *
 	 * @return array
 	 */
-	public static function get_global_whitelist() {
-		$whitelist = get_site_option( 'jetpack_protect_global_whitelist' );
-		if ( false === $whitelist ) {
-			// The global whitelist has never been set. Check for legacy site_option, or default to an empty array.
-			$whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
+	public static function get_global_allow_list() {
+		$allow_list = get_site_option( 'jetpack_protect_global_whitelist' );
+		if ( false === $allow_list ) {
+			// The global allow list has never been set. Check for legacy site_option, or default to an empty array.
+			$allow_list = get_site_option( 'jetpack_protect_whitelist', array() );
 		}
-		return $whitelist;
+		return $allow_list;
 	}
 
 	/**
@@ -126,27 +156,40 @@ class Brute_Force_Protection_Shared_Functions {
 	}
 
 	/**
-	 * Save Whitelist.
+	 * Save IP allow list.
+	 *
+	 * @deprecated $$next-version$$ Use save_allow_list()
+	 *
+	 * @param mixed $allow_list IP allow list.
+	 * @param bool  $global (default: false) Global.
+	 */
+	public static function save_whitelist( $allow_list, $global = false ) {
+		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::save_allow_list' );
+		return self::save_allow_list( $allow_list, $global );
+	}
+
+	/**
+	 * Save IP allow list.
 	 *
 	 * @access public
-	 * @param mixed $whitelist Whitelist.
+	 * @param mixed $allow_list IP allow list.
 	 * @param bool  $global (default: false) Global.
 	 * @return Bool.
 	 */
-	public static function save_whitelist( $whitelist, $global = false ) {
-		$whitelist_error = false;
-		$new_items       = array();
-		if ( ! is_array( $whitelist ) ) {
+	public static function save_allow_list( $allow_list, $global = false ) {
+		$allow_list_error = false;
+		$new_items        = array();
+		if ( ! is_array( $allow_list ) ) {
 			return new WP_Error( 'invalid_parameters', __( 'Expecting an array', 'jetpack-waf' ) );
 		}
 		if ( $global && ! is_multisite() ) {
 			return new WP_Error( 'invalid_parameters', __( 'Cannot use global flag on non-multisites', 'jetpack-waf' ) );
 		}
 		if ( $global && ! current_user_can( 'manage_network' ) ) {
-			return new WP_Error( 'permission_denied', __( 'Only super admins can edit the global whitelist', 'jetpack-waf' ) );
+			return new WP_Error( 'permission_denied', __( 'Only super admins can edit the global allow list', 'jetpack-waf' ) );
 		}
 		// Validate each item.
-		foreach ( $whitelist as $item ) {
+		foreach ( $allow_list as $item ) {
 			$item = trim( $item );
 			if ( empty( $item ) ) {
 				continue;
@@ -154,31 +197,31 @@ class Brute_Force_Protection_Shared_Functions {
 			$new_item = self::create_ip_object( $item );
 			if ( $new_item->range ) {
 				if ( ! filter_var( $new_item->range_low, FILTER_VALIDATE_IP ) || ! filter_var( $new_item->range_high, FILTER_VALIDATE_IP ) ) {
-					$whitelist_error = true;
+					$allow_list_error = true;
 					break;
 				}
 				if ( ! IP_Utils::convert_ip_address( $new_item->range_low ) || ! IP_Utils::convert_ip_address( $new_item->range_high ) ) {
-					$whitelist_error = true;
+					$allow_list_error = true;
 					break;
 				}
 			} else {
 				if ( ! filter_var( $new_item->ip_address, FILTER_VALIDATE_IP ) ) {
-					$whitelist_error = true;
+					$allow_list_error = true;
 					break;
 				}
 				if ( ! IP_Utils::convert_ip_address( $new_item->ip_address ) ) {
-					$whitelist_error = true;
+					$allow_list_error = true;
 					break;
 				}
 			}
 			$new_items[] = $new_item;
 		} // End item loop.
-		if ( ! empty( $whitelist_error ) ) {
+		if ( ! empty( $allow_list_error ) ) {
 			return new WP_Error( 'invalid_ip', __( 'One of your IP addresses was not valid.', 'jetpack-waf' ) );
 		}
 		if ( $global ) {
 			update_site_option( 'jetpack_protect_global_whitelist', $new_items );
-			// Once a user has saved their global whitelist, we can permanently remove the legacy option.
+			// Once a user has saved their global allow list, we can permanently remove the legacy option.
 			delete_site_option( 'jetpack_protect_whitelist' );
 		} else {
 			$new_items = array_map(
