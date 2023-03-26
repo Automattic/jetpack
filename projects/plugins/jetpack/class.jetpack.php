@@ -3337,6 +3337,11 @@ p {
 		add_filter( 'manage_users_columns', array( $this, 'jetpack_icon_user_connected' ) );
 		add_action( 'manage_users_custom_column', array( $this, 'jetpack_show_user_connected_icon' ), 10, 3 );
 		add_action( 'admin_print_styles', array( $this, 'jetpack_user_col_style' ) );
+		add_action( 'admin_notices', array( $this, 'maybe_show_golden_token' ) );
+	}
+
+	public function maybe_show_golden_token() {
+		$this->load_view( 'golden-token/golden-token-modal.php' );
 	}
 
 	/**
