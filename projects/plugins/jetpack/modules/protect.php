@@ -614,7 +614,8 @@ class Jetpack_Protect_Module {
 		 *
 		 * @since 4.4.0
 		 *
-		 * @param bool false Should we allow all logins for the current ip? Default: false
+		 * @param bool false    Should we allow all logins for the current ip? Default: false
+		 * @param string $ip    IP address we are validating.
 		 */
 		if ( apply_filters( 'jpp_allow_login', false, $ip ) ) {
 			return true;
