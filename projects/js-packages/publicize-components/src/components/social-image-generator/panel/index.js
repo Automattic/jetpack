@@ -91,7 +91,9 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 			/>
 			{ isEnabled && (
 				<>
+					<hr />
 					<GeneratedImagePreview />
+					<hr />
 					<TextControl
 						value={ customText || '' }
 						onChange={ setCustomText }

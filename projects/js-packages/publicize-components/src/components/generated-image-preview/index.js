@@ -1,8 +1,9 @@
 import { getRedirectUrl, ThemeProvider } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
-import { Spinner } from '@wordpress/components';
+import { Spinner, BaseControl } from '@wordpress/components';
 import { select, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
+import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
@@ -28,7 +29,7 @@ export default function GeneratedImagePreview() {
 		featuredImage: _select( editorStore ).getEditedPostAttribute( 'featured_media' ),
 	} ) );
 
-	const imageTitle = useMemo( () => customText || title || 'Your Title', [ customText, title ] );
+	const imageTitle = useMemo( () => customText || title || ' ', [ customText, title ] );
 	const imageTitleRef = useRef( imageTitle );
 	const getImageUrl = useCallback( () => {
 		if ( imageType === 'featured' ) {
@@ -87,17 +88,19 @@ export default function GeneratedImagePreview() {
 
 	return (
 		<ThemeProvider>
-			<div className={ styles.container }>
-				<img
-					className={ classNames( {
-						[ styles.hidden ]: isLoading,
-					} ) }
-					src={ generatedImageUrl }
-					alt="Generated preview"
-					onLoad={ onImageLoad }
-				></img>
-				{ isLoading && <Spinner data-testid="spinner" /> }
-			</div>
+			<BaseControl label={ __( 'Preview', 'jetpack' ) }>
+				<div className={ styles.container }>
+					<img
+						className={ classNames( {
+							[ styles.hidden ]: isLoading,
+						} ) }
+						src={ generatedImageUrl }
+						alt="Generated preview"
+						onLoad={ onImageLoad }
+					></img>
+					{ isLoading && <Spinner data-testid="spinner" /> }
+				</div>
+			</BaseControl>
 		</ThemeProvider>
 	);
 }
