@@ -38,11 +38,11 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * @param Object $factory Testing factory.
 	 */
 	public static function setup_author() {
-		if( ! empty( self::$author_id ) ) {
+		if ( ! empty( self::$author_id ) ) {
 			return;
 		}
 
-		self::$author_id = wp_create_user( 'author', 'author');
+		self::$author_id = wp_create_user( 'author', 'author' );
 		// make the user an author.
 		$user = new WP_User( self::$author_id );
 		$user->set_role( 'author' );
@@ -64,9 +64,12 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 
 		self::setup_author();
 
-		add_filter( 'jetpack_content_width', function() {
-			return 1024;
-		} );
+		add_filter(
+			'jetpack_content_width',
+			function () {
+				return 1024;
+			}
+		);
 
 		// Preserving global variables.
 		global $content_width;
@@ -1417,7 +1420,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * @covers Image_CDN::should_rest_image_cdn_image_downsize_insert_attachment
 	 * @group rest-api
 	 */
-	public function test_image_cdn_cdn_in_rest_response_external_media() {
+	public function test_image_cdn_in_rest_response_external_media() {
 		$this->markTestSkipped( 'Skipping the test as the endpoint is currently missing' );
 		wp_set_current_user( self::$author_id );
 
