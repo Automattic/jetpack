@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-General: remove deprecated core function in favor of direct WP Query.

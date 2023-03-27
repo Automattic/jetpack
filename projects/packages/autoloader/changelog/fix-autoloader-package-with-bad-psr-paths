@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Don't error when processing packages specifying missing PSR paths.
