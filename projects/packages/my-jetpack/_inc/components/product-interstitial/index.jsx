@@ -1,4 +1,4 @@
-import { Container, Col, AdminPage, Text } from '@automattic/jetpack-components';
+import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
 import { select } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -115,14 +115,15 @@ export default function ProductInterstitial( {
 					<Text variant="body-small">
 						{ createInterpolateElement(
 							__(
-								'Already have an existing plan or license key? <a>Click here to get started</a>',
+								'Already have an existing plan or license key? <a>Get started</a>.',
 								'jetpack-my-jetpack'
 							),
 							{
 								a: (
-									<a
+									<Button
 										className={ styles[ 'product-interstitial__license-activation-link' ] }
-										href="admin.php?page=my-jetpack#/add-license"
+										href={ existingLicenseKeyUrl || 'admin.php?page=my-jetpack#/add-license' }
+										variant="link"
 									/>
 								),
 							}
