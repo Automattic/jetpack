@@ -5,7 +5,7 @@ use \WorDBless\BaseTestCase;
 /**
  * Class with methods common to tests involving attachments.
  */
-class Jetpack_Attachment_Test_Case extends BaseTestCase {
+class Image_CDN_Attachment_Test_Case extends BaseTestCase {
 
 	public function set_up() {
 		parent::set_up();

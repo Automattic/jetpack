@@ -9,7 +9,7 @@ if ( ! defined( 'WP_TESTS_DOMAIN' ) ) {
 /**
  * Class WP_Test_Image_CDN
  */
-class WP_Test_Image_CDN extends Jetpack_Attachment_Test_Case {
+class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 
 	/**
 	 * Test image.
@@ -1311,11 +1311,14 @@ class WP_Test_Image_CDN extends Jetpack_Attachment_Test_Case {
 	 *
 	 * @group rest-api
 	 */
-	public function test_image_cdn_cdn_in_rest_response_with_edit_context() {
+	public function test_image_cdn_in_rest_response_with_edit_context() {
 		$test_image = $this->helper_get_image();
 
-		$admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
-		wp_set_current_user( $admin );
+		$user = wp_create_user( 'testuser', 'testpass' );
+		// Make the user an admin
+		$user = new WP_User( $user );
+		$user->set_role( 'administrator' );
+		wp_set_current_user( $user->ID );
 
 		$request = new WP_REST_Request( 'GET', sprintf( '/wp/v2/media/%d', $test_image ) );
 		$request->set_query_params( array( 'context' => 'edit' ) );
