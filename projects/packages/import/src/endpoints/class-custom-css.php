@@ -36,19 +36,6 @@ class Custom_CSS extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Registers the routes for the objects of the controller.
-	 *
-	 * @see WP_REST_Posts_Controller::register_rest_route()
-	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			'/' . $this->rest_base,
-			$this->get_route_options()
-		);
-	}
-
-	/**
 	 * Update the custom CSS post.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
