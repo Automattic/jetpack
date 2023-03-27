@@ -4,7 +4,7 @@ import { Spinner } from '@wordpress/components';
 import { select, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import styles from './styles.module.scss';
 
@@ -28,22 +28,24 @@ export default function GeneratedImagePreview() {
 		featuredImage: _select( editorStore ).getEditedPostAttribute( 'featured_media' ),
 	} ) );
 
-	const currentTitle = useRef( title );
-	const currentCustomText = useRef( customText );
+	const imageTitle = useMemo( () => customText || title || 'Your Title', [ customText, title ] );
+	const imageTitleRef = useRef( imageTitle );
+	const getImageUrl = useCallback( () => {
+		if ( imageType === 'featured' ) {
+			return getMediaSourceUrl( getMedia( featuredImage ) );
+		}
+		if ( imageType === 'custom' ) {
+			return getMediaSourceUrl( getMedia( imageId ) );
+		}
 
-	const getImageUrl = useCallback(
-		type => {
-			if ( type === 'featured' ) {
-				return getMediaSourceUrl( getMedia( featuredImage ) );
-			}
-			if ( type === 'custom' ) {
-				return getMediaSourceUrl( getMedia( imageId ) );
-			}
+		return null;
+	}, [ featuredImage, getMedia, imageId, imageType ] );
 
-			return null;
-		},
-		[ featuredImage, getMedia, imageId ]
-	);
+	const generatedImageUrlRef = useRef( generatedImageUrl );
+
+	useEffect( () => {
+		generatedImageUrlRef.current = generatedImageUrl;
+	} );
 
 	useEffect( () => {
 		const handler = setTimeout(
@@ -54,39 +56,30 @@ export default function GeneratedImagePreview() {
 					path: '/jetpack/v4/social-image-generator/generate-preview-token',
 					method: 'POST',
 					data: {
-						text: customText || title || 'Your Title',
-						image_url: getImageUrl( imageType ),
+						text: imageTitle,
+						image_url: getImageUrl(),
 						template,
 					},
 				} );
 
 				const url = getRedirectUrl( 'sigenerate', { query: `t=${ sig_token }` } );
-				if ( generatedImageUrl === url ) {
+				// If the URL turns out to be the same, we set the loading state to false,
+				// as the <img> onLoad event will not fire if the src is the same.
+				if ( url === generatedImageUrlRef.current ) {
 					setIsLoading( false );
 					return;
 				}
 				setGeneratedImageUrl( url );
 			},
 			// We only want to debounce on string changes.
-			currentTitle.current === title && currentCustomText.current === customText ? 0 : 1500
+			imageTitle === imageTitleRef.current ? 0 : 1500
 		);
 
 		return () => {
 			clearTimeout( handler );
-			currentTitle.current = title;
-			currentCustomText.current = customText;
+			imageTitleRef.current = imageTitle;
 		};
-	}, [
-		title,
-		featuredImage,
-		customText,
-		imageType,
-		imageId,
-		getMedia,
-		template,
-		getImageUrl,
-		generatedImageUrl,
-	] );
+	}, [ imageTitle, template, getImageUrl ] );
 
 	const onImageLoad = useCallback( () => {
 		setIsLoading( false );
