@@ -53,10 +53,9 @@ class Jetpack_Stats_Dashboard_Widget {
 		}
 
 		if ( Jetpack::is_connection_ready() ) {
-			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
-		}
+			// TODO: Migrate this head function into this class.
+			add_action( 'admin_head', 'stats_dashboard_head' );
 
-		if ( has_action( 'jetpack_dashboard_widget' ) ) {
 			$widget_title = sprintf(
 				__( 'Jetpack Stats', 'jetpack' )
 			);
@@ -64,7 +63,7 @@ class Jetpack_Stats_Dashboard_Widget {
 			wp_add_dashboard_widget(
 				'jetpack_summary_widget',
 				$widget_title,
-				array( __CLASS__, 'dashboard_widget' )
+				array( __CLASS__, 'render_widget' )
 			);
 			wp_enqueue_style(
 				'jetpack-dashboard-widget',
@@ -80,22 +79,26 @@ class Jetpack_Stats_Dashboard_Widget {
 	}
 
 	/**
-	 * Fires dashboard widget action.
-	 * Both the footer from this file and the stats graph from modules/stats.php hook into this action.
+	 * Renders the widget and fires a dashboard widget action.
 	 */
-	public static function dashboard_widget() {
+	public static function render_widget() {
+		stats_jetpack_dashboard_widget();
+
 		/**
-		 * Fires when the dashboard is loaded.
+		 * Fires when the dashboard is loaded, but no longer used anywhere in the Jetpack plugin.
+		 * The action is still available for backward compatibility.
 		 *
 		 * @since 3.4.0
 		 */
 		do_action( 'jetpack_dashboard_widget' );
+
+		self::render_footer();
 	}
 
 	/**
 	 * Load the widget footer showing brute force protection and Akismet stats.
 	 */
-	public static function dashboard_widget_footer() {
+	public static function render_footer() {
 		?>
 		<footer>
 		<div class="blocked-container">
