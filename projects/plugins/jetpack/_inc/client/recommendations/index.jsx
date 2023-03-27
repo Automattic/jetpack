@@ -21,6 +21,7 @@ import {
 	isRecommendationsConditionalLoaded,
 	updateRecommendationsOnboardingData as updateRecommendationsOnboardingDataAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
+	stepToRoute,
 } from 'state/recommendations';
 import { isFetchingSiteData } from 'state/site';
 import QuerySiteProducts from '../components/data/query-site-products';
@@ -138,6 +139,9 @@ const RecommendationsComponent = props => {
 			break;
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__SCAN:
 			redirectPath = '/welcome-scan';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN:
+			redirectPath = '/welcome-golden-token';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.SERVER_CREDENTIALS:
 			redirectPath = '/server-credentials';
@@ -261,6 +265,11 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/welcome-scan">
 						<ResourcePrompt stepSlug="welcome__scan" />
+					</Route>
+					<Route
+						path={ stepToRoute[ RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN ].substring( 1 ) }
+					>
+						<ResourcePrompt stepSlug={ RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN } />
 					</Route>
 					<Route path="/recommendations/backup-activated">
 						<ResourcePrompt stepSlug="backup-activated" />

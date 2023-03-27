@@ -8,6 +8,7 @@ import {
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
 } from 'lib/plans/constants';
+import { RECOMMENDATION_WIZARD_STEP } from 'recommendations/constants';
 import {
 	getSiteAdminUrl,
 	getSiteRawUrl,
@@ -484,6 +485,18 @@ export const getStepContent = ( state, stepSlug ) => {
 				),
 				ctaText: __( 'View Security Dashboard', 'jetpack' ),
 				ctaLink: getJetpackCloudUrl( state, 'scan' ),
+				illustration: 'assistant-backup-welcome',
+				skipText: __( 'Next', 'jetpack' ),
+			};
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN:
+			return {
+				question: __( 'You have been gifted a Jetpack Gold Token.', 'jetpack' ),
+				description: __(
+					'You have been gifted a Jetpack Gold Token. This unlocks a lifetime of Jetpack VaultPress Backup and Jetpack Scan for your website.',
+					'jetpack'
+				),
+				ctaText: __( 'Explore your new powers', 'jetpack' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=my-jetpack#',
 				illustration: 'assistant-backup-welcome',
 				skipText: __( 'Next', 'jetpack' ),
 			};
