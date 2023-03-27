@@ -444,7 +444,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 				'_inc/build/widgets/gallery/js/gallery.min.js',
 				'modules/widgets/gallery/js/gallery.js'
 			),
-			array(),
+			array( 'jquery' ),
 			JETPACK__VERSION,
 			false
 		);
@@ -468,6 +468,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 					'modules/widgets/gallery/js/admin.js'
 				),
 				array(
+					'jquery',
 					'media-models',
 					'media-views',
 				),

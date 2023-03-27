@@ -15,7 +15,7 @@ import SupportSection from '../support-section';
 import ConnectionScreen from './../connection-screen';
 import Header from './../header';
 import InfoSection from './../info-section';
-import Logo from './../logo';
+import AdminPageHeader from './header';
 import './styles.module.scss';
 
 const Admin = () => {
@@ -49,7 +49,7 @@ const Admin = () => {
 	}
 
 	return (
-		<AdminPage moduleName={ moduleName } header={ <Logo /> }>
+		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
 			{ isShareLimitEnabled && ! hasPaidPlan && showPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>

@@ -37,6 +37,6 @@ add_action(
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
-		\Jetpack_Gutenberg::set_availability_for_plan( 'v6-video-frame-poster' );
+		\Jetpack_Gutenberg::set_extension_available( 'v6-video-frame-poster' );
 	}
 );

@@ -1103,6 +1103,9 @@ abstract class Publicize_Base {
 								'template'    => array(
 									'type' => 'string',
 								),
+								'token'       => array(
+									'type' => 'string',
+								),
 							),
 						),
 					),
@@ -1615,17 +1618,10 @@ abstract class Publicize_Base {
 	/**
 	 * Check if the social image generator is enabled.
 	 *
-	 * @param int $blog_id The blog ID for the current blog.
 	 * @return bool
 	 */
-	public function is_social_image_generator_enabled( $blog_id ) {
-		$data = $this->get_api_data( $blog_id );
-
-		if ( empty( $data ) ) {
-			return false;
-		}
-
-		return ! empty( $data['is_social_image_generator_enabled'] );
+	public function has_social_image_generator_feature() {
+		return Current_Plan::supports( 'social-image-generator' );
 	}
 
 	/**
