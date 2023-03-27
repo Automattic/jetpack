@@ -83,6 +83,10 @@
 		"poster": {
 			"type": "string"
 		},
+		"posterSource": {
+			"type": "object",
+			"default": {}
+		},
 		"videoRatio": {
 			"type": "number"
 		},
