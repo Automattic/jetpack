@@ -33,7 +33,7 @@ import { VideoDataProps } from '../use-video-data/types';
 /**
  * Types
  */
-import type { UseSyncMediaProps, ArrangeTracksAttributesProps } from './types';
+import type { UseSyncMedia, ArrangeTracksAttributesProps } from './types';
 import type { UploadTrackDataProps } from '../../../lib/video-tracks/types';
 
 const debug = debugFactory( 'videopress:video:use-sync-media' );
@@ -177,12 +177,12 @@ function arrangeTracksAttributes(
  *
  * @param {object} attributes      - Block attributes.
  * @param {Function} setAttributes - Block attributes setter.
- * @returns {UseSyncMediaProps}      Hook API object.
+ * @returns {UseSyncMedia}      Hook API object.
  */
 export function useSyncMedia(
 	attributes: VideoBlockAttributes,
 	setAttributes: VideoBlockSetAttributesProps
-): UseSyncMediaProps {
+): UseSyncMedia {
 	const { id, guid, isPrivate } = attributes;
 	const { videoData, isRequestingVideoData } = useVideoData( {
 		id,
