@@ -33,23 +33,27 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	protected static $author_id;
 
 	/**
-	 * Special setups.
+	 * Create an author-level user.
 	 *
 	 * @param Object $factory Testing factory.
 	 */
-	public static function wpSetUpBeforeClass( $factory ) {
-		self::$author_id = $factory->user->create(
-			array(
-				'role' => 'author',
-			)
-		);
+	public static function setup_author() {
+		if( ! empty( self::$author_id ) ) {
+			return;
+		}
+
+		self::$author_id = wp_create_user( 'author', 'author');
+		// make the user an author.
+		$user = new WP_User( self::$author_id );
+		$user->set_role( 'author' );
 	}
 
 	/**
 	 * Clean up the special sauce.
 	 */
-	public static function wpTearDownAfterClass() {
-		self::delete_user( self::$author_id );
+	public static function delete_author() {
+		wp_delete_user( self::$author_id );
+		self::$author_id = null;
 	}
 
 	/**
@@ -57,6 +61,12 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 */
 	public function set_up() {
 		parent::set_up();
+
+		self::setup_author();
+
+		add_filter( 'jetpack_content_width', function() {
+			return 1024;
+		} );
 
 		// Preserving global variables.
 		global $content_width;
@@ -94,6 +104,8 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 		$instance = new ReflectionProperty( Image_CDN::class, 'image_sizes' );
 		$instance->setAccessible( true );
 		$instance->setValue( null );
+
+		self::delete_author();
 
 		parent::tear_down();
 	}
@@ -250,11 +262,11 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 		$args_reset_callback = function () {
 			return array();
 		};
-		add_filter( 'Image_CDN_post_image_args', $args_reset_callback, 10, 0 );
+		add_filter( 'jetpack_photon_post_image_args', $args_reset_callback, 10, 0 );
 
 		$this->assertEquals( trim( $expected ), trim( Image_CDN::instance()->filter_the_content( $sample_html ) ) );
 
-		remove_filter( 'Image_CDN_post_image_args', $args_reset_callback );
+		remove_filter( 'jetpack_photon_post_image_args', $args_reset_callback );
 	}
 
 	/**
@@ -1022,9 +1034,9 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	public function test_image_cdn_filter_the_content_width_height_attributes_when_image_args_filtered( $filter_callback, $has_attributes, $width, $height ) {
 		list( $sample_html ) = $this->get_image_cdn_sample_content( 'a-tags-without-images.html' );
 
-		add_filter( 'Image_CDN_post_image_args', $filter_callback, 10, 2 );
+		add_filter( 'jetpack_photon_post_image_args', $filter_callback, 10, 2 );
 		$filtered_content = Image_CDN::filter_the_content( $sample_html );
-		remove_filter( 'Image_CDN_post_image_args', $filter_callback, 10, 2 );
+		remove_filter( 'jetpack_photon_post_image_args', $filter_callback, 10, 2 );
 
 		$first_line = strtok( $filtered_content, "\n" ); // Should contain an image tag on the first line.
 		$attributes = wp_kses_hair( $first_line, wp_allowed_protocols() );
@@ -1159,10 +1171,10 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 		$this->assertArrayHasKey( 'width', $attributes );
 		$this->assertSame( '1024', $attributes['width']['value'] );
 		$this->assertArrayHasKey( 'height', $attributes );
-		$this->assertSame( '1024', $attributes['height']['value'] );
+		$this->assertSame( '768', $attributes['height']['value'] );
 
 		$this->assertArrayHasKey( 'fit', $query_params );
-		$this->assertEquals( '1024,1024', $query_params['fit'] );
+		$this->assertEquals( '1024,768', $query_params['fit'] );
 	}
 
 	/**
@@ -1406,6 +1418,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * @group rest-api
 	 */
 	public function test_image_cdn_cdn_in_rest_response_external_media() {
+		$this->markTestSkipped( 'Skipping the test as the endpoint is currently missing' );
 		wp_set_current_user( self::$author_id );
 
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/external-media/copy/pexels' );

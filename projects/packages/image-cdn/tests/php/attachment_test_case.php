@@ -25,6 +25,29 @@ class Image_CDN_Attachment_Test_Case extends BaseTestCase {
 				return $url;
 			}
 		);
+
+		// Update option values for image sizes
+		update_option( 'large_size_w', 1024 );
+		update_option( 'large_size_h', 768 );
+		update_option( 'medium_large_size_w', 768 );
+		update_option( 'medium_large_size_h', 576 );
+
+		add_filter(
+			'upload_dir',
+			function ( $upload_dir ) {
+				$site_url = 'http://example.org';
+
+				if ( ! preg_match( '/^http(s)?:\/\//i', $upload_dir['url'] ) ) {
+					$upload_dir['url'] = $site_url . $upload_dir['url'];
+				}
+
+				if ( ! preg_match( '/^http(s)?:\/\//i', $upload_dir['baseurl'] ) ) {
+					$upload_dir['baseurl'] = $site_url . $upload_dir['baseurl'];
+				}
+
+				return $upload_dir;
+			}
+		);
 	}
 
 	/**
