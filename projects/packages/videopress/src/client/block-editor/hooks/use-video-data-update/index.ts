@@ -6,7 +6,7 @@ import { usePrevious } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useState, useCallback } from '@wordpress/element';
+import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
@@ -303,7 +303,38 @@ export function useSyncMedia(
 	const updateMediaHandler = useMediaDataUpdate( id );
 
 	// Detect when the post has been just saved.
-	const postHasBeenJustSaved = wasSaving && ! isSaving;
+	const postHasBeenJustSaved = !! ( wasSaving && ! isSaving );
+
+	/*
+	 * Store and compare the block attributes
+	 * in order to detect changes on them.
+	 */
+	const prevAttributes = useRef< VideoBlockAttributes >();
+	useEffect( () => {
+		if ( ! postHasBeenJustSaved || ! prevAttributes.current ) {
+			// store the very first attributes
+			if ( ! prevAttributes.current ) {
+				prevAttributes.current = attributes;
+			}
+			return;
+		}
+
+		// Check whether a video poster image needs to be generated.
+		if (
+			attributes?.posterData?.type === 'video-frame' &&
+			attributes?.posterData?.atTime !== prevAttributes.current?.posterData?.atTime
+		) {
+			debug(
+				'(*) %o Poster image needs to be generated %s => %s',
+				attributes?.guid,
+				prevAttributes.current?.posterData?.atTime,
+				attributes?.posterData?.atTime
+			);
+
+			// Update the prev/current attributes.
+			prevAttributes.current = attributes;
+		}
+	}, [ postHasBeenJustSaved ] );
 
 	/*
 	 * Block attributes => Media data (sync)
