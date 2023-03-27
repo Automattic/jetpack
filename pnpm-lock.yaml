@@ -693,6 +693,9 @@ importers:
       '@wordpress/icons':
         specifier: 9.19.0
         version: 9.19.0
+      '@wordpress/notices':
+        specifier: 3.28.0
+        version: 3.28.0(react@18.2.0)
       classnames:
         specifier: 2.3.1
         version: 2.3.1
