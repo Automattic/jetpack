@@ -1408,7 +1408,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "d8bfc30fbd87ba4b6ba30c604bc551ea88f9234f"
+                "reference": "54b9109d3dd39eb6bfd59613703bdf92e943ddf7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1435,7 +1435,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.8.x-dev"
+                    "dev-trunk": "2.9.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -2488,63 +2488,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Earn income by allowing Jetpack to display high quality ads.",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-yoast-promo",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/yoast-promo",
-                "reference": "0f3490046a7dff56fac273f0dbf931f735c3df69"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.0.4"
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "mirror-repo": "Automattic/jetpack-yoast-promo",
-                "changelogger": {
-                    "link-template": "https://github.com/automattic/jetpack-yoast-promo/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
-                },
-                "textdomain": "jetpack-yoast-promo",
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-yoast-promo.php"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "build-production": [
-                    "pnpm run build-production"
-                ],
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Components used to promote Yoast as part of our collaboration",
             "transport-options": {
                 "relative": true
             }
@@ -5436,7 +5379,6 @@
         "automattic/jetpack-videopress": 20,
         "automattic/jetpack-waf": 20,
         "automattic/jetpack-wordads": 20,
-        "automattic/jetpack-yoast-promo": 20,
         "automattic/jetpack-changelogger": 20
     },
     "prefer-stable": true,
