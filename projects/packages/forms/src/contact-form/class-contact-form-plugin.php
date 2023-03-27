@@ -1984,25 +1984,36 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Returns an array of parent post IDs for the user.
+	 * The parent posts are those posts where forms have been published.
+	 *
+	 * @param array $query_args A WP_Query compatible array of query args.
+	 *
+	 * @return array The array of post IDs
+	 */
+	public static function get_all_parent_post_ids( $query_args = array() ) {
+		$default_query_args = array(
+			'fields'           => 'id=>parent',
+			'posts_per_page'   => 100000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+			'post_type'        => 'feedback',
+			'post_status'      => 'publish',
+			'suppress_filters' => false,
+		);
+		$args               = array_merge( $default_query_args, $query_args );
+		// Get the feedbacks' parents' post IDs
+		$feedbacks = get_posts( $args );
+		return array_values( array_unique( array_values( $feedbacks ) ) );
+	}
+
+	/**
 	 * Returns a string of HTML <option> items from an array of posts
 	 *
 	 * @param int $selected_id Currently selected post ID.
 	 * @return string a string of HTML <option> items
 	 */
 	protected static function get_feedbacks_as_options( $selected_id = 0 ) {
-		$options = '';
-
-		// Get the feedbacks' parents' post IDs
-		$feedbacks  = get_posts(
-			array(
-				'fields'           => 'id=>parent',
-				'posts_per_page'   => 100000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
-				'post_type'        => 'feedback',
-				'post_status'      => 'publish',
-				'suppress_filters' => false,
-			)
-		);
-		$parent_ids = array_unique( array_values( $feedbacks ) );
+		$options    = '';
+		$parent_ids = self::get_all_parent_post_ids();
 
 		// creates the string of <option> elements
 		foreach ( $parent_ids as $parent_id ) {
@@ -2070,17 +2081,26 @@ class Contact_Form_Plugin {
 		$lines        = array();
 
 		if ( count( $content ) > 1 ) {
-			$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
-			$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
+			$content = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
+			if ( strpos( $content, 'JSON_DATA' ) !== false ) {
+				$chunks     = explode( "\nJSON_DATA", $content );
+				$all_values = json_decode( $chunks[1], true );
+				if ( is_array( $all_values ) ) {
+					$fields_array = array_keys( $all_values );
+				}
+				$lines = array_filter( explode( "\n", $chunks[0] ) );
+			} else {
+				$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 
-			// TODO: some explanation on this regex could help
-			preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
+				// TODO: some explanation on this regex could help
+				preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
 
-			if ( count( $matches ) > 1 ) {
-				$all_values = array_combine( array_map( 'trim', $matches[1] ), array_map( 'trim', $matches[2] ) );
+				if ( count( $matches ) > 1 ) {
+					$all_values = array_combine( array_map( 'trim', $matches[1] ), array_map( 'trim', $matches[2] ) );
+				}
+
+				$lines = array_filter( explode( "\n", $content ) );
 			}
-
-			$lines = array_filter( explode( "\n", $content ) );
 		}
 
 		$var_map = array(

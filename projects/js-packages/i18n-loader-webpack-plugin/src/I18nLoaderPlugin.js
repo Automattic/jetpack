@@ -89,9 +89,8 @@ class I18nLoaderPlugin {
 		};
 
 		if ( options.ignoreModules ) {
-			const filters = ( Array.isArray( options.ignoreModules )
-				? options.ignoreModules
-				: [ options.ignoreModules ]
+			const filters = (
+				Array.isArray( options.ignoreModules ) ? options.ignoreModules : [ options.ignoreModules ]
 			).map( filter => {
 				if ( typeof filter === 'string' ) {
 					return request => request === filter;

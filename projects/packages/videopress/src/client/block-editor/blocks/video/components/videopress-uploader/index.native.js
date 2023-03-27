@@ -22,6 +22,7 @@ const VideoPressUploader = ( {
 	handleDoneUpload,
 	isInteractionDisabled,
 	onFocus,
+	onStartUpload,
 } ) => {
 	const [ uploadFile, setFile ] = useState( null );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
@@ -49,11 +50,12 @@ const VideoPressUploader = ( {
 			if ( isUploadingFile ) {
 				setFile( media );
 				setIsUploadingInProgress( true );
+				onStartUpload( media );
 				return;
 			}
 
 			// Insert media library VideoPress attachment.
-			const videoPressGuid = media?.videopressGUID;
+			const videoPressGuid = media?.metadata?.videopressGUID;
 			if ( videoPressGuid ) {
 				onSelectURL( videoPressGuid, media?.id );
 				return;

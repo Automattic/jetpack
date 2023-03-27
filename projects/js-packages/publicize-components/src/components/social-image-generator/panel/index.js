@@ -1,10 +1,17 @@
-import { PanelBody, ToggleControl, TextControl, SelectControl } from '@wordpress/components';
+import {
+	PanelBody,
+	ToggleControl,
+	TextControl,
+	SelectControl,
+	Button,
+} from '@wordpress/components';
 import { useCallback, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
 import useMediaDetails from '../../../hooks/use-media-details';
 import GeneratedImagePreview from '../../generated-image-preview';
 import MediaPicker from '../../media-picker';
+import TemplatePicker from '../template-picker';
 
 const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
 const ADD_MEDIA_LABEL = __( 'Choose Image', 'jetpack' );
@@ -21,6 +28,8 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 		setImageType,
 		imageId,
 		setImageId,
+		template,
+		setTemplate,
 	} = useImageGeneratorConfig();
 
 	const [ mediaDetails ] = useMediaDetails( imageId );
@@ -30,6 +39,15 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 			setImageId( media?.id );
 		},
 		[ setImageId ]
+	);
+
+	const renderTemplatePicker = useCallback(
+		( { open } ) => (
+			<Button variant="primary" onClick={ open }>
+				{ __( 'Change Template', 'jetpack' ) }
+			</Button>
+		),
+		[]
 	);
 
 	const ImageOptions = () => {
@@ -85,6 +103,12 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 					/>
 					<hr />
 					<ImageOptions />
+					<hr />
+					<TemplatePicker
+						onSelect={ setTemplate }
+						value={ template }
+						render={ renderTemplatePicker }
+					/>
 				</>
 			) }
 		</PanelWrapper>

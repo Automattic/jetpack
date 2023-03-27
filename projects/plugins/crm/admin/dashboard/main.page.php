@@ -71,7 +71,7 @@ function jpcrm_render_dashboard_page() {
 
 
 <div class='zbs-dash-header'>
-	<?php // WLREMOVE ?>
+	<?php ##WLREMOVE ?>
 	<div class="ui message compact" style="
 	max-width: 400px;
 	float: right;
@@ -80,7 +80,7 @@ function jpcrm_render_dashboard_page() {
 	<div class="header">
 	</div>
 	</div>
-	<?php // /WLREMOVE ?>
+	<?php ##/WLREMOVE ?>
 
 
 </div>
@@ -408,9 +408,9 @@ if (jQuery('#bar-chart').length){
 			?>
 		<div class='ui message blue' style="text-align:center;margin-bottom:50px;">
 				<?php esc_html_e( 'You do not have any contacts. Make sure you have contacts in each stage of your funnel.', 'zero-bs-crm' ); ?> 
-				<?php // WLREMOVE ?><br/><br/>
+				<?php ##WLREMOVE ?><br/><br/>
 			<a class="button ui blue" href="<?php echo esc_url( $zbs->urls['kbcrmdashboard'] ); ?>"><?php esc_html_e( 'Read Guide', 'zero-bs-crm' ); ?></a>
-				<?php // /WLREMOVE ?>
+				<?php ##/WLREMOVE ?>
 		</div>
 		<?php } else { ?>
 		<div id="funnel-container"></div>
@@ -444,13 +444,13 @@ if (jQuery('#bar-chart').length){
 		<div class="panel-heading" style="text-align:center">
 		<?php $currencyChar = zeroBSCRM_getCurrencyChr(); ?>
 		<h4 class="panel-title text-muted font-light"><?php esc_html_e( 'Revenue Chart', 'zero-bs-crm' ); ?> (<?php echo esc_html( $currencyChar ); ?>)</h4>
-		<?php // WLREMOVE ?>
+		<?php ##WLREMOVE ?>
 		<?php if ( ! zeroBSCRM_isExtensionInstalled( 'salesdash' ) ) { ?>
 			<span class='upsell'><a href="<?php echo esc_url( $zbs->urls['salesdash'] ); ?>" target="_blank"><?php esc_html_e( 'Want More?', 'zero-bs-crm' ); ?></a></span>
 		<?php } else { ?>
 			<span class='upsell'><a href="<?php echo jpcrm_esc_link( $zbs->slugs['salesdash'] ); ?>"><?php esc_html_e( 'Sales Dashboard', 'zero-bs-crm' ); ?></a></span>
 		<?php } ?>
-		<?php // /WLREMOVE ?>
+		<?php ##/WLREMOVE ?>
 		</div>
 
 
@@ -459,9 +459,9 @@ if (jQuery('#bar-chart').length){
 			?>
 		<div class='ui message blue' style="text-align:center;margin-bottom:80px;margin-top:50px;">
 				<?php esc_html_e( 'You do not have any transactions that match your chosen settings. You need transactions for your revenue chart to show. If you have transactions check your settings and then transaction statuses to include.', 'zero-bs-crm' ); ?> 
-				<?php // WLREMOVE ?><br/><br/>
+				<?php ##WLREMOVE ?><br/><br/>
 			<a class="button ui blue" href="<?php echo esc_url( $zbs->urls['kbrevoverview'] ); ?>"><?php esc_html_e( 'Read Guide', 'zero-bs-crm' ); ?></a>
-				<?php // /WLREMOVE ?>
+				<?php ##/WLREMOVE ?>
 		</div>
 		<?php } else { ?>
 		<canvas id="bar-chart" width="800" height="403"></canvas>

@@ -161,33 +161,12 @@ class Jetpack_Stats_Dashboard_Widget {
 			</div>
 		</div>
 		<div class="footer-links">
-			<?php
-				$jetpack_logo = new Jetpack_Logo();
-				echo $jetpack_logo->get_jp_emblem( true );// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-			if ( Jetpack::is_module_active( 'stats' ) ) :
-				?>
-				<span>
-					<?php
-					if ( current_user_can( 'jetpack_manage_modules' ) ) :
-						$i18n_headers = jetpack_get_module_i18n( 'stats' );
-						?>
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $i18n_headers['name'] ) ) ); ?>"
-					>
-						<?php
-						esc_html_e( 'Configure Jetpack Stats', 'jetpack' );
-						?>
-				</a>
-				|
-						<?php
-						endif;
-					?>
-				<a href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-wordpress-com-stats' ) ); ?>" target="_blank"><?php esc_html_e( 'Learn more', 'jetpack' ); ?></a>
-				</span>
+			<a href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-wordpress-com-stats' ) ); ?>" target="_blank">
 				<?php
-			endif;
-			?>
-
+					$jetpack_logo = new Jetpack_Logo();
+					echo $jetpack_logo->get_jp_emblem( true );// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				?>
+			</a>
 		</div>
 		</footer>
 
