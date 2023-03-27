@@ -24,7 +24,7 @@
 - Blocks: update deprecated block editor selector. [#29420]
 - Blocks: update deprecated component prop. [#29463]
 - Firewall: add updateWafSettings method. [#29299]
-- Jetpack Forms: Add tracking of Google Sheets exports. [#29225]
+- Jetpack Forms: add tracking of Google Sheets exports. [#29225]
 - Paid newsletters: Add the launchpad source to memberships status endpoint. [#29468]
 - Send individual plugin upgrade buttons to My Jetpack insterstitial [#29138]
 - Sites API: add was_ecommerce_trial flag to data returned for site details. [#29423]
