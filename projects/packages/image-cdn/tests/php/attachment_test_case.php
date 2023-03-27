@@ -7,6 +7,22 @@ use \WorDBless\BaseTestCase;
  */
 class Jetpack_Attachment_Test_Case extends BaseTestCase {
 
+	public function set_up() {
+		parent::set_up();
+
+		// Force an absolute URL for attachment URLs during testing
+		add_filter(
+			'wp_get_attachment_url',
+			function ( $url ) {
+				$site_url = 'http://example.org';
+				if ( ! empty( $url ) && ! preg_match( '/^http(s)?:\/\//i', $url ) ) {
+					return $site_url . $url;
+				}
+				return $url;
+			}
+		);
+	}
+
 	/**
 	 * A helper to create an upload object. This method was copied verbatim from WP Core's
 	 * WP_UnitTest_Factory_For_Attachment class. When Jetpack is no longer tested on Core
