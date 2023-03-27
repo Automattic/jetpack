@@ -223,21 +223,21 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v1.1.2",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "c85f93e9b1dee015a33515bdcc1a8ea51cf985f7"
+                "reference": "60432a180224b3871ea41c878e37557c4f79b067"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/c85f93e9b1dee015a33515bdcc1a8ea51cf985f7",
-                "reference": "c85f93e9b1dee015a33515bdcc1a8ea51cf985f7",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/60432a180224b3871ea41c878e37557c4f79b067",
+                "reference": "60432a180224b3871ea41c878e37557c4f79b067",
                 "shasum": ""
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.3.2",
-                "automattic/wordbless": "0.4.1",
+                "automattic/wordbless": "0.4.2",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "jetpack-library",
@@ -248,7 +248,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "1.1.x-dev"
+                    "dev-trunk": "1.2.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -266,9 +266,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v1.1.2"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v1.2.0"
             },
-            "time": "2023-03-10T19:33:53+00:00"
+            "time": "2023-03-27T20:39:35+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
