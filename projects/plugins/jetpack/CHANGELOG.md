@@ -4,7 +4,7 @@
 
 ## 12.0-a.7 - 2023-03-20
 ### Enhancements
-- Blocks: the cookie consent is now available to general audience. [#29462]
+- Blocks: the cookie consent block is now available to general audience. [#29462]
 - Blocks: the VideoPress block is now available to general audience. [#29459]
 - Blocks: the writing prompts is now available to general audiences. [#29433]
 - Notifications: remove all library dependencies for improved performance and lower footprint. [#29510]
