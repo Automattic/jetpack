@@ -23,17 +23,22 @@ const Admin = () => {
 	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 
-	const { showPricingPage, hasPaidPlan, isShareLimitEnabled, pluginVersion } = useSelect(
-		select => {
-			const store = select( STORE_ID );
-			return {
-				showPricingPage: store.showPricingPage(),
-				hasPaidPlan: store.hasPaidPlan(),
-				isShareLimitEnabled: store.isShareLimitEnabled(),
-				pluginVersion: store.getPluginVersion(),
-			};
-		}
-	);
+	const {
+		showPricingPage,
+		hasPaidPlan,
+		isShareLimitEnabled,
+		pluginVersion,
+		isSocialImageGeneratorAvailable,
+	} = useSelect( select => {
+		const store = select( STORE_ID );
+		return {
+			showPricingPage: store.showPricingPage(),
+			hasPaidPlan: store.hasPaidPlan(),
+			isShareLimitEnabled: store.isShareLimitEnabled(),
+			pluginVersion: store.getPluginVersion(),
+			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
+		};
+	} );
 
 	const moduleName = `Jetpack Social ${ pluginVersion }`;
 
@@ -66,7 +71,7 @@ const Admin = () => {
 					</AdminSectionHero>
 					<AdminSection>
 						<SocialModuleToggle />
-						<SocialImageGeneratorToggle />
+						{ isSocialImageGeneratorAvailable && <SocialImageGeneratorToggle /> }
 					</AdminSection>
 					<AdminSectionHero>
 						<InfoSection />
