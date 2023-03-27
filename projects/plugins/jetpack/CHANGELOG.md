@@ -8,7 +8,7 @@
 - Blocks: the VideoPress block is now available to general audience. [#29459]
 - Blocks: the writing prompts is now available to general audiences. [#29433]
 - Notifications: remove all library dependencies for improved performance and lower footprint. [#29510]
-- Paid newsletter block: Improve logic for showing the UI based on site configuration. [#29262]
+- Paid newsletter block: improve logic for showing the UI based on site configuration. [#29262]
 
 ### Improved compatibility
 - Blocks: ensure the Pinterest block does not trigger errors when using WordPress 6.2. [#29505]
