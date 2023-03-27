@@ -768,11 +768,6 @@ class WPCOM_Features {
 		self::SITE_PREVIEW_LINKS             => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
-		self::SOCIAL_IMAGE_GENERATOR         => array(
-			self::JETPACK_SOCIAL_ADVANCED_PLANS,
-			self::JETPACK_COMPLETE_PLANS,
-			self::BUNDLE_ENTERPRISE,
-		),
 		self::SOCIAL_PREVIEWS                => array(
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
