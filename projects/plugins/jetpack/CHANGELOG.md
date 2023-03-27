@@ -6,7 +6,7 @@
 ### Enhancements
 - Blocks: the cookie consent block is now available to general audience. [#29462]
 - Blocks: the VideoPress block is now available to general audience. [#29459]
-- Blocks: the writing prompts is now available to general audiences. [#29433]
+- Blocks: the writing prompts block is now available to general audience. [#29433]
 - Notifications: remove all library dependencies for improved performance and lower footprint. [#29510]
 - Paid newsletter block: improve logic for showing the UI based on site configuration. [#29262]
 
