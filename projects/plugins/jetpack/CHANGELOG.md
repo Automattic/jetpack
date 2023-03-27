@@ -23,7 +23,7 @@
 - Adds the `is_wpcom_staging_site` attribute in a few more contexts. [#29453]
 - Blocks: update deprecated block editor selector. [#29420]
 - Blocks: update deprecated component prop. [#29463]
-- Firewall: Added updateWafSettings method. [#29299]
+- Firewall: add updateWafSettings method. [#29299]
 - Jetpack Forms: Add tracking of Google Sheets exports. [#29225]
 - Paid newsletters: Add the launchpad source to memberships status endpoint. [#29468]
 - Send individual plugin upgrade buttons to My Jetpack insterstitial [#29138]
