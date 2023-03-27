@@ -69,21 +69,16 @@
 .jb-settings-header {
 	display: flex;
 	justify-content: space-between;
-	height: 120px;
 	align-items: center;
+	height: 120px;
 	position: relative;
 
 	&__logo {
-		display: flex;
-		height: 27px;
+		max-width: 240px;
+		max-height: 42px;
 
 		svg {
-			width: 100%;
 			height: auto;
-		}
-
-		@include breakpoint(md) {
-			height: 32px;
 		}
 	}
 }
