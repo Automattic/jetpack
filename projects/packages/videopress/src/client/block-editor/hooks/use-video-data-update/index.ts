@@ -302,6 +302,9 @@ export function useSyncMedia(
 
 	const updateMediaHandler = useMediaDataUpdate( id );
 
+	// Detect when the post has been just saved.
+	const postHasBeenJustSaved = wasSaving && ! isSaving;
+
 	/*
 	 * Block attributes => Media data (sync)
 	 *
@@ -311,11 +314,11 @@ export function useSyncMedia(
 	 * (via the VideoPress API) when the post saves.
 	 */
 	useEffect( () => {
-		if ( ! isSaving || wasSaving ) {
+		if ( ! postHasBeenJustSaved ) {
 			return;
 		}
 
-		debug( '%o Saving post action detected', attributes?.guid );
+		debug( '%o Post has been just save. Syncing...', attributes?.guid );
 
 		if ( ! attributes?.id ) {
 			debug( '%o No media ID found. Impossible to sync. Bail early', attributes?.guid );
@@ -434,8 +437,7 @@ export function useSyncMedia(
 				setError( updateMediaError );
 			} );
 	}, [
-		isSaving,
-		wasSaving,
+		postHasBeenJustSaved,
 		updateMediaHandler,
 		updateInitialState,
 		attributes,
