@@ -4,32 +4,32 @@
 
 ## 12.0-a.7 - 2023-03-20
 ### Enhancements
-- Added updateWafSettings method. [#29299]
-- Add the launchpad source to memberships status endpoint. [#29468]
-- Improve gating logic for paid-newsletter [#29262]
-- Jetpack: Move VideoPress video block to production (videopress/video extension) [#29459]
-- Move cookie-consent block from beta to production [#29462]
-- Notifications: remove all library dependencies. [#29510]
-- Sites API: add was_ecommerce_trial flag to data returned for site details [#29423]
-- Writing prompts: move block to experimental and use for answering external prompts [#29433]
+- Blocks: the cookie consent is now available to general audience. [#29462]
+- Blocks: the VideoPress block is now available to general audience. [#29459]
+- Blocks: the writing prompts is now available to general audiences. [#29433]
+- Notifications: remove all library dependencies for improved performance and lower footprint. [#29510]
+- Paid newsletter block: Improve logic for showing the UI based on site configuration. [#29262]
 
 ### Improved compatibility
-- Connection: switch the "plugin activated" banner to the common connection flow. [#29526]
-- Pinterest Block: ensure the block does not trigger errors when using WordPress 6.2. [#29505]
+- Blocks: ensure the Pinterest block does not trigger errors when using WordPress 6.2. [#29505]
+- Connection: improve the connection flow that happens after plugin activation. [#29526]
 
 ### Bug fixes
 - Blocks: avoid warnings in the block editor because of invalid categories for some blocks. [#29513]
-- Fix preload behavior when none is chosen [#29563]
-- Forms: avoid PHP notices when using a form with a dropdown field [#29512]
-- Stats Widget: minor cleanup of Akismet section [#29347]
+- Blocks: Fix the VideoPress preload behavior when "none" is chosen. [#29563]
+- Forms: avoid PHP notices when using a form with a dropdown field. [#29512]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Adds the `is_wpcom_staging_site` attribute in a few more contexts [#29453]
-- Blocks: update deprecated block editor selector [#29420]
+- Adds the `is_wpcom_staging_site` attribute in a few more contexts. [#29453]
+- Blocks: update deprecated block editor selector. [#29420]
 - Blocks: update deprecated component prop. [#29463]
-- Jetpack Forms: Add tracking of Google Sheets exports [#29225]
+- Firewall: Added updateWafSettings method. [#29299]
+- Jetpack Forms: Add tracking of Google Sheets exports. [#29225]
+- Paid newsletters: Add the launchpad source to memberships status endpoint. [#29468]
 - Send individual plugin upgrade buttons to My Jetpack insterstitial [#29138]
-- Small change to unreleased block [#29501]
+- Sites API: add was_ecommerce_trial flag to data returned for site details. [#29423]
+- Small change to unreleased block. [#29501]
+- Stats Widget: minor cleanup of Akismet section. [#29347]
 - Updated package dependencies. [#29471]
 
 ## 12.0-a.5 - 2023-03-15
