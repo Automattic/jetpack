@@ -623,7 +623,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'welcome__search':
 		case 'welcome__scan':
 		case 'welcome__backup':
-		case RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN:
+		case 'welcome__golden_token':
 			return true;
 		case 'antispam-activated':
 		case 'videopress-activated':

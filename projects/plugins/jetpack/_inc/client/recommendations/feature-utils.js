@@ -8,7 +8,6 @@ import {
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
 } from 'lib/plans/constants';
-import { RECOMMENDATION_WIZARD_STEP } from 'recommendations/constants';
 import {
 	getSiteAdminUrl,
 	getSiteRawUrl,
@@ -488,7 +487,7 @@ export const getStepContent = ( state, stepSlug ) => {
 				illustration: 'assistant-backup-welcome',
 				skipText: __( 'Next', 'jetpack' ),
 			};
-		case RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN:
+		case 'welcome__golden_token':
 			return {
 				question: __( 'Congratulations, you have been gifted a Jetpack Gold Token!', 'jetpack' ),
 				description: __(
