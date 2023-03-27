@@ -21,7 +21,6 @@ import {
 	isRecommendationsConditionalLoaded,
 	updateRecommendationsOnboardingData as updateRecommendationsOnboardingDataAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
-	stepToRoute,
 } from 'state/recommendations';
 import { isFetchingSiteData } from 'state/site';
 import QuerySiteProducts from '../components/data/query-site-products';
@@ -266,10 +265,8 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/welcome-scan">
 						<ResourcePrompt stepSlug="welcome__scan" />
 					</Route>
-					<Route
-						path={ stepToRoute[ RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN ].substring( 1 ) }
-					>
-						<ResourcePrompt stepSlug={ RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN } />
+					<Route path="/recommendations/welcome-golden-token">
+						<ResourcePrompt stepSlug="welcome__golden_token" />
 					</Route>
 					<Route path="/recommendations/backup-activated">
 						<ResourcePrompt stepSlug="backup-activated" />

@@ -31,7 +31,6 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { withRouter, Prompt } from 'react-router-dom';
 import { Recommendations } from 'recommendations';
-import { RECOMMENDATION_WIZARD_STEP } from 'recommendations/constants';
 import SearchableSettings from 'settings/index.jsx';
 import {
 	getSiteConnectionStatus,
@@ -74,7 +73,6 @@ import {
 	updateUserLicensesCounts as updateUserLicensesCountsAction,
 } from 'state/licensing';
 import { fetchModules as fetchModulesAction } from 'state/modules';
-import { stepToRoute } from 'state/recommendations';
 import { getRewindStatus } from 'state/rewind';
 import { getSearchTerm } from 'state/search';
 import {
@@ -520,9 +518,7 @@ class Main extends React.Component {
 			case '/recommendations/welcome-videopress':
 			case '/recommendations/welcome-search':
 			case '/recommendations/welcome-scan':
-			// We remove the first character because the recommendations definition
-			// starts with a hash, but the route definition doesn't.
-			case stepToRoute[ RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN ].substring( 1 ):
+			case '/recommendations/welcome-golden-token':
 			case '/recommendations/backup-activated':
 			case '/recommendations/scan-activated':
 			case '/recommendations/antispam-activated':

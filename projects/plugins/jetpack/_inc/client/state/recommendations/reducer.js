@@ -396,11 +396,10 @@ const stepToNextStepByPath = {
 			'site-accelerator': 'summary',
 		},
 		[ ONBOARDING_JETPACK_GOLDEN_TOKEN ]: {
-			[ RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN ]:
-				RECOMMENDATION_WIZARD_STEP.BACKUP_ACTIVATED,
-			[ RECOMMENDATION_WIZARD_STEP.BACKUP_ACTIVATED ]: RECOMMENDATION_WIZARD_STEP.SCAN_ACTIVATED,
-			[ RECOMMENDATION_WIZARD_STEP.SCAN_ACTIVATED ]: RECOMMENDATION_WIZARD_STEP.SERVER_CREDENTIALS,
-			[ RECOMMENDATION_WIZARD_STEP.SERVER_CREDENTIALS ]: RECOMMENDATION_WIZARD_STEP.SUMMARY,
+			welcome__golden_token: 'backup-activated',
+			'backup-activated': 'scan-activated',
+			'scan-activated': 'server-credentials',
+			'server-credentials': 'summary',
 		},
 	},
 };
@@ -432,7 +431,7 @@ export const stepToRoute = {
 	welcome__videopress: '#/recommendations/welcome-videopress',
 	welcome__search: '#/recommendations/welcome-search',
 	welcome__scan: '#/recommendations/welcome-scan',
-	[ RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN ]: '#/recommendations/welcome-golden-token',
+	welcome__golden_token: '#/recommendations/welcome-golden-token',
 	'backup-activated': '#/recommendations/backup-activated',
 	'scan-activated': '#/recommendations/scan-activated',
 	'antispam-activated': '#/recommendations/antispam-activated',
