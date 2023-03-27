@@ -84,14 +84,14 @@ class WP_Test_Image_CDN extends Jetpack_Attachment_Test_Case {
 		// each time Image_CDN::instance() is called, since it's gated by a
 		// static variable.
 		// l337 h4X0Ring required:
-		$instance = new ReflectionProperty( 'Image_CDN', 'instance' );
+		$instance = new ReflectionProperty( Image_CDN::class, 'instance' );
 		$instance->setAccessible( true );
 		$instance->setValue( null );
 
 		/**
 		 * Reset the `image_sizes` property, as it persists between class instantiations, since it's static.
 		 */
-		$instance = new ReflectionProperty( 'Image_CDN', 'image_sizes' );
+		$instance = new ReflectionProperty( Image_CDN::class, 'image_sizes' );
 		$instance->setAccessible( true );
 		$instance->setValue( null );
 

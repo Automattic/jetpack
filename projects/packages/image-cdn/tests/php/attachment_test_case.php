@@ -1,11 +1,11 @@
 <?php // phpcs:ignore WordPress.Files.FileName
 
-use PHPUnit\Framework\TestCase;
+use \WorDBless\BaseTestCase;
 
 /**
  * Class with methods common to tests involving attachments.
  */
-class Jetpack_Attachment_Test_Case extends TestCase {
+class Jetpack_Attachment_Test_Case extends BaseTestCase {
 
 	/**
 	 * A helper to create an upload object. This method was copied verbatim from WP Core's
