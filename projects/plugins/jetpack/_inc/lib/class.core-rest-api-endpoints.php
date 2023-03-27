@@ -1919,6 +1919,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_data = self::site_data();
 
 		if ( ! is_wp_error( $site_data ) ) {
+
 			/**
 			 * Fires when the site data was successfully returned from the /sites/%d wpcom endpoint.
 			 *
