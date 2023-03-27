@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.9.0-beta - 2023-03-27
+### Added
+- (Backup, Boost, Search, Social) Add links on upgrade pages to activate a license key, if you already have one. [#29443]
+- Added option for CUT component to have a tooltip [#29609]
+- Added SIG image to the post media array if it's enabled [#29093]
+
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.2. [#29341]
+- Refactored the ToggleSection component to decouple it from other logic [#29619]
+- Updated package dependencies. [#29216, #29289, #29297, #29434, #29471, #29480]
+
 ## 1.8.0 - 2023-03-07
 ### Added
 - Add Social Image Generator editor panel to post sidebar [#28737]
