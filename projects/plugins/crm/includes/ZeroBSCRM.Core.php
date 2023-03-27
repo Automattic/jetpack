@@ -1320,12 +1320,6 @@ final class ZeroBSCRM {
 			// if we need CLI stuff
 		}
 
-		// Where the request specifies HTTP_USER_AGENT of Zapier, we're likely dealing with a Zap
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && $_SERVER['HTTP_USER_AGENT'] == 'Zapier' ) {
-			require_once JPCRM_MODULES_PATH . 'zapier/class-jpcrm-zapier.php';
-			$this->zapier = new \Automattic\JetpackCRM\JPCRM_Zapier();
-		}
-
 		// ====================================================================
 		// ==================== General Perf Testing ==========================
 		if ( defined( 'ZBSPERFTEST' ) ) {

@@ -518,6 +518,7 @@ class Main extends React.Component {
 			case '/recommendations/welcome-videopress':
 			case '/recommendations/welcome-search':
 			case '/recommendations/welcome-scan':
+			case '/recommendations/welcome-golden-token':
 			case '/recommendations/backup-activated':
 			case '/recommendations/scan-activated':
 			case '/recommendations/antispam-activated':
