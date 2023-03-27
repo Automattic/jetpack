@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use WorDBless\BaseTestCase;
 
 class WP_Test_Jetpack_Photon_Functions extends BaseTestCase {
@@ -30,34 +31,34 @@ class WP_Test_Jetpack_Photon_Functions extends BaseTestCase {
 
 	/**
 	 * @author kraftbj
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since 3.9.2
 	 */
 	public function test_photonizing_https_image_adds_ssl_query_arg() {
-		$url = jetpack_photon_url( 'https://example.com/images/photon.jpg' );
+		$url = Image_CDN_Core::cdn_url( 'https://example.com/images/photon.jpg' );
 		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $args );
 		$this->assertSame( '1', $args['ssl'], 'HTTPS image sources should have a ?ssl=1 query string.' );
 	}
 
 	/**
 	 * @author kraftbj
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  3.9.2
 	 */
 	public function test_photonizing_http_image_no_ssl_query_arg() {
-		$url = jetpack_photon_url( 'http://example.com/images/photon.jpg' );
+		$url = Image_CDN_Core::cdn_url( 'http://example.com/images/photon.jpg' );
 		parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $args );
 		$this->assertArrayNotHasKey( 'ssl', $args, 'HTTP image source should not have an ssl query string.' );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
 	public function test_photon_url_no_filter_http() {
-		$url        = jetpack_photon_url( 'http://example.com/img.jpg' );
+		$url        = Image_CDN_Core::cdn_url( 'http://example.com/img.jpg' );
 		$parsed_url = wp_parse_url( $url );
 
 		$this->assertEquals( 'https', $parsed_url['scheme'] );
@@ -67,12 +68,12 @@ class WP_Test_Jetpack_Photon_Functions extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
 	public function test_photon_url_no_filter_http_to_http() {
-		$url        = jetpack_photon_url( 'http://example.com/img.jpg', array(), 'http' );
+		$url        = Image_CDN_Core::cdn_url( 'http://example.com/img.jpg', array(), 'http' );
 		$parsed_url = wp_parse_url( $url );
 
 		$this->assertEquals( 'http', $parsed_url['scheme'] );
@@ -82,250 +83,250 @@ class WP_Test_Jetpack_Photon_Functions extends BaseTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
 	public function test_photon_url_no_filter_photonized_https() {
-		$url = jetpack_photon_url( 'https://i0.wp.com/example.com/img.jpg' );
+		$url = Image_CDN_Core::cdn_url( 'https://i0.wp.com/example.com/img.jpg' );
 
 		$this->assertEquals( 'https://i0.wp.com/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
 	public function test_photon_url_no_filter_photonized_http() {
-		$url = jetpack_photon_url( 'http://i0.wp.com/example.com/img.jpg' );
+		$url = Image_CDN_Core::cdn_url( 'http://i0.wp.com/example.com/img.jpg' );
 
 		$this->assertEquals( 'http://i0.wp.com/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_no_filter
 	 */
 	public function test_photon_url_no_filter_photonized_https_to_http() {
-		$url = jetpack_photon_url( 'https://i0.wp.com/example.com/img.jpg', array(), 'http' );
+		$url = Image_CDN_Core::cdn_url( 'https://i0.wp.com/example.com/img.jpg', array(), 'http' );
 
 		$this->assertEquals( 'http://i0.wp.com/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_http() {
 		$this->apply_custom_domain( 'http://photon.test' );
-		$url = jetpack_photon_url( 'http://example.com/img.jpg' );
+		$url = Image_CDN_Core::cdn_url( 'http://example.com/img.jpg' );
 
 		$this->assertEquals( 'http://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_http_to_http() {
 		$this->apply_custom_domain( 'http://photon.test' );
-		$url = jetpack_photon_url( 'http://example.com/img.jpg', array(), 'http' );
+		$url = Image_CDN_Core::cdn_url( 'http://example.com/img.jpg', array(), 'http' );
 
 		$this->assertEquals( 'http://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_photonized_http() {
 		$this->apply_custom_domain( 'http://photon.test' );
-		$url = jetpack_photon_url( 'http://photon.test/example.com/img.jpg' );
+		$url = Image_CDN_Core::cdn_url( 'http://photon.test/example.com/img.jpg' );
 
 		$this->assertEquals( 'http://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_photonized_https() {
 		$this->apply_custom_domain( 'http://photon.test' );
-		$url = jetpack_photon_url( 'https://photon.test/example.com/img.jpg' );
+		$url = Image_CDN_Core::cdn_url( 'https://photon.test/example.com/img.jpg' );
 
 		$this->assertEquals( 'https://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_http
 	 */
 	public function test_photon_url_filter_http_photonized_http_to_https() {
 		$this->apply_custom_domain( 'http://photon.test' );
-		$url = jetpack_photon_url( 'http://photon.test/example.com/img.jpg', array(), 'https' );
+		$url = Image_CDN_Core::cdn_url( 'http://photon.test/example.com/img.jpg', array(), 'https' );
 
 		$this->assertEquals( 'https://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_http() {
 		$this->apply_custom_domain( '//photon.test' );
-		$url = jetpack_photon_url( 'http://example.com/img.jpg' );
+		$url = Image_CDN_Core::cdn_url( 'http://example.com/img.jpg' );
 
 		$this->assertEquals( '//photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_http_to_http() {
 		$this->apply_custom_domain( '//photon.test' );
-		$url = jetpack_photon_url( 'http://example.com/img.jpg', array(), 'http' );
+		$url = Image_CDN_Core::cdn_url( 'http://example.com/img.jpg', array(), 'http' );
 
 		$this->assertEquals( 'http://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_photonized_http() {
 		$this->apply_custom_domain( '//photon.test' );
-		$url = jetpack_photon_url( 'http://photon.test/example.com/img.jpg' );
+		$url = Image_CDN_Core::cdn_url( 'http://photon.test/example.com/img.jpg' );
 
 		$this->assertEquals( 'http://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_photonized_https() {
 		$this->apply_custom_domain( '//photon.test' );
-		$url = jetpack_photon_url( 'https://photon.test/example.com/img.jpg' );
+		$url = Image_CDN_Core::cdn_url( 'https://photon.test/example.com/img.jpg' );
 
 		$this->assertEquals( 'https://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url
+	 * @covers ::Image_CDN_Core::cdn_url
 	 * @since  4.5.0
 	 * @group  jetpack_photon_filter_network_path
 	 */
 	public function test_photon_url_filter_network_path_photonized_to_https() {
 		$this->apply_custom_domain( '//photon.test' );
-		$url = jetpack_photon_url( '//photon.test/example.com/img.jpg', array(), 'https' );
+		$url = Image_CDN_Core::cdn_url( '//photon.test/example.com/img.jpg', array(), 'https' );
 
 		$this->assertEquals( 'https://photon.test/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url_scheme
+	 * @covers ::Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
-	 * @group  jetpack_photon_url_scheme
+	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_valid_url_null_scheme() {
-		$url = jetpack_photon_url_scheme( 'https://i0.wp.com/example.com/img.jpg', null );
+		$url = Image_CDN_Core::cdn_url_scheme( 'https://i0.wp.com/example.com/img.jpg', null );
 
 		$this->assertEquals( 'https://i0.wp.com/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url_scheme
+	 * @covers ::Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
-	 * @group  jetpack_photon_url_scheme
+	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_valid_url_invalid_scheme() {
-		$url = jetpack_photon_url_scheme( 'https://i0.wp.com/example.com/img.jpg', 'ftp' );
+		$url = Image_CDN_Core::cdn_url_scheme( 'https://i0.wp.com/example.com/img.jpg', 'ftp' );
 
 		$this->assertEquals( 'https://i0.wp.com/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url_scheme
+	 * @covers ::Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
-	 * @group  jetpack_photon_url_scheme
+	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_valid_url_valid_scheme() {
-		$url = jetpack_photon_url_scheme( 'https://i0.wp.com/example.com/img.jpg', 'http' );
+		$url = Image_CDN_Core::cdn_url_scheme( 'https://i0.wp.com/example.com/img.jpg', 'http' );
 
 		$this->assertEquals( 'http://i0.wp.com/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url_scheme
+	 * @covers ::Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
-	 * @group  jetpack_photon_url_scheme
+	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_valid_url_network_path_scheme() {
-		$url = jetpack_photon_url_scheme( 'https://i0.wp.com/example.com/img.jpg', 'network_path' );
+		$url = Image_CDN_Core::cdn_url_scheme( 'https://i0.wp.com/example.com/img.jpg', 'network_path' );
 
 		$this->assertEquals( '//i0.wp.com/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url_scheme
+	 * @covers ::Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
-	 * @group  jetpack_photon_url_scheme
+	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_invalid_url_null_scheme() {
-		$url = jetpack_photon_url_scheme( 'ftp://i0.wp.com/example.com/img.jpg', null );
+		$url = Image_CDN_Core::cdn_url_scheme( 'ftp://i0.wp.com/example.com/img.jpg', null );
 
 		$this->assertEquals( 'http://i0.wp.com/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url_scheme
+	 * @covers ::Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
-	 * @group  jetpack_photon_url_scheme
+	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_invalid_url_invalid_scheme() {
-		$url = jetpack_photon_url_scheme( 'ftp://i0.wp.com/example.com/img.jpg', 'ftp' );
+		$url = Image_CDN_Core::cdn_url_scheme( 'ftp://i0.wp.com/example.com/img.jpg', 'ftp' );
 
 		$this->assertEquals( 'http://i0.wp.com/example.com/img.jpg', $url );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers ::jetpack_photon_url_scheme
+	 * @covers ::Image_CDN_Core::cdn_url_scheme
 	 * @since  4.5.0
-	 * @group  jetpack_photon_url_scheme
+	 * @group  Image_CDN_Core::cdn_url_scheme
 	 */
 	public function test_photon_url_scheme_invalid_url_valid_scheme() {
-		$url = jetpack_photon_url_scheme( 'ftp://i0.wp.com/example.com/img.jpg', 'https' );
+		$url = Image_CDN_Core::cdn_url_scheme( 'ftp://i0.wp.com/example.com/img.jpg', 'https' );
 
 		$this->assertEquals( 'https://i0.wp.com/example.com/img.jpg', $url );
 	}
@@ -334,16 +335,16 @@ class WP_Test_Jetpack_Photon_Functions extends BaseTestCase {
 	 * Testing the filter allowing to skip Photon for specific domains.
 	 *
 	 * @author aduth
-	 * @covers ::jetpack_photon_banned_domains
+	 * @covers ::Image_CDN_Core::banned_domains
 	 * @since  5.0.0
-	 * @group  jetpack_photon_banned_domains
+	 * @group  Image_CDN_Core::banned_domains
 	 * @dataProvider get_photon_domains
 	 *
 	 * @param bool   $skip If the image should be skipped by Photon.
 	 * @param string $image_url URL of the image.
 	 */
 	public function test_photon_banned_domains( $skip, $image_url ) {
-		$this->assertEquals( $skip, jetpack_photon_banned_domains( false, $image_url ) );
+		$this->assertEquals( $skip, Image_CDN_Core::banned_domains( false, $image_url ) );
 	}
 
 	/**
@@ -354,7 +355,7 @@ class WP_Test_Jetpack_Photon_Functions extends BaseTestCase {
 	 * @since  9.5.0
 	 */
 	public function test_photonizing_wordpress_url() {
-		$url = jetpack_photon_url( 'https://jetpack.files.wordpress.com/abcd1234/poster_image.jpg', array( 'w' => 500 ) );
+		$url = Image_CDN_Core::cdn_url( 'https://jetpack.files.wordpress.com/abcd1234/poster_image.jpg', array( 'w' => 500 ) );
 		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $args );
 		$this->assertSame( '500', $args['w'], 'WordPress.com image source should have given params applied.' );
 		$this->assertArrayNotHasKey( 'ssl', $args, 'WordPress.com image source should not have an ssl query string.' );
@@ -369,7 +370,7 @@ class WP_Test_Jetpack_Photon_Functions extends BaseTestCase {
 	 * @since  9.5.0
 	 */
 	public function test_photonizing_videopress_url() {
-		$url = jetpack_photon_url( 'https://videos.files.wordpress.com/abcd1234/poster_image.jpg', array( 'w' => 500 ) );
+		$url = Image_CDN_Core::cdn_url( 'https://videos.files.wordpress.com/abcd1234/poster_image.jpg', array( 'w' => 500 ) );
 		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $args );
 		$this->assertSame( '500', $args['w'], 'VideoPress poster image source should have given params applied.' );
 		$this->assertArrayNotHasKey( 'ssl', $args, 'VideoPress poster image source should not have an ssl query string.' );

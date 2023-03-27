@@ -145,7 +145,6 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 		add_image_size( 'jetpack_hard_undefined_after_upload', 700, 99999, true );
 		add_image_size( 'jetpack_hard_undefined_zero_after_upload', 700, 0, true );
 		add_image_size( 'jetpack_soft_oversized_after_upload', 2000, 2000, false );
-
 		return $test_image;
 	}
 
