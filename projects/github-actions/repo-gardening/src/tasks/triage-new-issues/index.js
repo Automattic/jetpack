@@ -218,6 +218,9 @@ async function triageNewIssues( payload, octokit ) {
 		const slackToken = getInput( 'slack_token' );
 		const channel = getInput( 'slack_quality_channel' );
 		if ( ! slackToken || ! channel ) {
+			debug(
+				`triage-new-issues: No Slack token or channel found. Not sending any Slack notification for #${ number }.`
+			);
 			return null;
 		}
 
