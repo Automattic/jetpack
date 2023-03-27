@@ -1177,6 +1177,10 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * @param string $photon_src  Photon URL suffix (after the subdomain).
 	 */
 	public function test_image_cdn_filter_the_content_for_amp_responses( $sample_html, $photon_src ) {
+		if ( ! class_exists( 'Jetpack_AMP_Support' ) ) {
+			$this->markTestSkipped( 'Jetpack_AMP_Support class not found' );
+		}
+
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		$filtered_content = Image_CDN::filter_the_content( $sample_html );
 		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
@@ -1211,8 +1215,12 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * @covers Image_CDN::filter_the_content
 	 * @covers Jetpack_AMP_Support::filter_image_cdn_post_image_args_for_stories
 	 * @since 7.6.0
+	 * @todo Move to Jetpack
 	 */
 	public function test_image_cdn_filter_the_content_for_amp_story() {
+		if ( ! class_exists( 'Jetpack_AMP_Support' ) ) {
+			$this->markTestSkipped( 'Jetpack_AMP_Support class not found' );
+		}
 		$post_type = 'amp_story';
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		register_post_type( $post_type, array( 'public' => true ) );
@@ -1468,9 +1476,9 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 	 * @covers Image_CDN::strip_image_dimensions_maybe
 	 */
 	public function test_image_cdn_strip_image_dimensions_maybe_strips_resized_string() {
-		$orig_filename = '2004-07-22-DSC_0007.jpg';
-		$filename      = '2004-07-22-DSC_0007-150x150.jpg';
-		$filepath      = DIR_TESTDATA . '/images/' . $orig_filename;
+		$orig_filename = 'test-image-large.png';
+		$filename      = 'test-image-large-150x150.png';
+		$filepath      = DIR_TESTDATA . '/' . $orig_filename;
 		// Local file. Okay to file_get_contents.
 		$contents = file_get_contents( $filepath );
 

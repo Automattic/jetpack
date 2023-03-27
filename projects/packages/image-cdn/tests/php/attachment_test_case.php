@@ -10,6 +10,10 @@ class Image_CDN_Attachment_Test_Case extends BaseTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		if ( ! defined( 'DIR_TESTDATA' ) ) {
+			define( 'DIR_TESTDATA', __DIR__ . '/sample-content' );
+		}
+
 		// Force an absolute URL for attachment URLs during testing
 		add_filter(
 			'wp_get_attachment_url',
@@ -68,4 +72,35 @@ class Image_CDN_Attachment_Test_Case extends BaseTestCase {
 		return $id;
 	}
 
+	protected function _make_attachment( $upload, $parent_post_id = 0 ) {
+		$type = '';
+		if ( ! empty( $upload['type'] ) ) {
+			$type = $upload['type'];
+		} else {
+			$mime = wp_check_filetype( $upload['file'] );
+			if ( $mime ) {
+				$type = $mime['type'];
+			}
+		}
+
+		$attachment = array(
+			'post_title'     => basename( $upload['file'] ),
+			'post_content'   => '',
+			'post_type'      => 'attachment',
+			'post_parent'    => $parent_post_id,
+			'post_mime_type' => $type,
+			'guid'           => $upload['url'],
+		);
+
+		// Save the attachment
+		$id = wp_insert_attachment( $attachment, $upload['file'], $parent_post_id );
+
+		// Generate attachment metadata
+		$metadata = wp_generate_attachment_metadata( $id, $upload['file'] );
+
+		// Update the attachment metadata
+		wp_update_attachment_metadata( $id, $metadata );
+
+		return $id;
+	}
 }
