@@ -95,9 +95,9 @@ export function PosterDropdown( {
 			setAttributes( {
 				poster: image.url,
 
-				// Extend the posterSource object to include the media library id and url.
-				posterSource: {
-					...attributes.posterSource,
+				// Extend the posterData object to include the media library id and url.
+				posterData: {
+					...attributes.posterData,
 					type: 'media-library',
 					id: image.id,
 					url: image.url,
@@ -346,26 +346,26 @@ export default function PosterPanel( {
 	setAttributes,
 	isGeneratingPoster,
 }: PosterPanelProps ): React.ReactElement {
-	const { poster, posterSource } = attributes;
+	const { poster, posterData } = attributes;
 	const [ pickFromFrame, setPickFromFrame ] = useState(
-		attributes?.posterSource?.type === 'video-frame'
+		attributes?.posterData?.type === 'video-frame'
 	);
 	const onRemovePoster = () => {
-		setAttributes( { poster: '', posterSource: { ...attributes.posterSource, url: '' } } );
+		setAttributes( { poster: '', posterData: { ...attributes.posterData, url: '' } } );
 	};
 
 	const switchPosterSource = useCallback(
 		( shouldPickFromFrame: boolean ) => {
 			setPickFromFrame( shouldPickFromFrame );
 			setAttributes( {
-				// Extend the posterSource attr with the new type.
-				posterSource: {
-					...attributes.posterSource,
+				// Extend the posterData attr with the new type.
+				posterData: {
+					...attributes.posterData,
 					type: shouldPickFromFrame ? 'video-frame' : 'media-library',
 				},
 
 				// Clean the poster URL when it should be picked from the video frame.
-				poster: shouldPickFromFrame ? '' : attributes.posterSource.url || '',
+				poster: shouldPickFromFrame ? '' : attributes.posterData.url || '',
 			} );
 		},
 		[ attributes ]
@@ -400,11 +400,11 @@ export default function PosterPanel( {
 				<VideoFramePicker
 					isGeneratingPoster={ isGeneratingPoster }
 					guid={ attributes?.guid }
-					atTime={ posterSource?.atTime }
+					atTime={ posterData?.atTime }
 					onVideoFrameSelect={ timestamp => {
 						setAttributes( {
-							posterSource: {
-								...attributes.posterSource,
+							posterData: {
+								...attributes.posterData,
 								type: 'video-frame',
 								atTime: timestamp,
 							},

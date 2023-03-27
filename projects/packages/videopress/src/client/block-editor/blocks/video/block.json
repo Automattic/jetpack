@@ -83,7 +83,7 @@
 		"poster": {
 			"type": "string"
 		},
-		"posterSource": {
+		"posterData": {
 			"type": "object",
 			"default": {}
 		},

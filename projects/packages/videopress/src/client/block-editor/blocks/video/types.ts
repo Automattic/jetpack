@@ -36,7 +36,7 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 	description?: string;
 
 	poster?: string;
-	posterSource?: PosterSourceProps;
+	posterData?: PosterSourceProps;
 	videoRatio?: number;
 	tracks?: Array< TrackProps >;
 
