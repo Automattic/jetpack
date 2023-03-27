@@ -27,66 +27,16 @@ const UpgradePrompt = () => {
 	const { recordEventHandler } = useAnalyticsTracks();
 	const getScan = recordEventHandler( 'jetpack_protect_waf_header_get_scan_link_click', run );
 
-	const [ showPopover, setShowPopover ] = useState( false );
-
-	const handleEnter = useCallback( () => {
-		setShowPopover( true );
-	}, [] );
-
-	const handleOut = useCallback( () => {
-		setShowPopover( false );
-	}, [] );
-
 	return (
-		<>
-			<div className={ styles[ 'manual-rules-notice' ] }>
-				<Text weight={ 600 }>
-					{ ! automaticRulesAvailable
-						? __( 'Only manual rules will be applied', 'jetpack-protect' )
-						: __(
-								'Your site is not receiving the latest updates to automatic rules.',
-								'jetpack-protect',
-								/* dummy arg to avoid bad minification */ 0
-						  ) }
-				</Text>
-				<div
-					className={ styles[ 'icon-popover' ] }
-					onMouseLeave={ handleOut }
-					onMouseEnter={ handleEnter }
-					onClick={ handleEnter }
-					onFocus={ handleEnter }
-					onBlur={ handleOut }
-					role="presentation"
-				>
-					<Icon icon={ help } />
-					{ showPopover && (
-						<Popover noArrow={ false } offset={ 5 }>
-							<Text className={ styles[ 'popover-text' ] } variant={ 'body-small' }>
-								{ ! automaticRulesAvailable
-									? __(
-											'The free version of the firewall only allows for use of manual rules.',
-											'jetpack-protect'
-									  )
-									: __(
-											'The free version of the firewall does not receive updates to automatic firewall rules.',
-											'jetpack-protect',
-											/* dummy arg to avoid bad minification */ 0
-									  ) }
-							</Text>
-						</Popover>
-					) }
-				</div>
-			</div>
-			<Button onClick={ getScan }>
-				{ ! automaticRulesAvailable
-					? __( 'Upgrade to enable automatic rules', 'jetpack-protect' )
-					: __(
-							'Upgrade to update automatic rules',
-							'jetpack-protect',
-							/* dummy arg to avoid bad minification */ 0
-					  ) }
-			</Button>
-		</>
+		<Button className={ styles[ 'upgrade-button' ] } onClick={ getScan }>
+			{ ! automaticRulesAvailable
+				? __( 'Upgrade to enable automatic rules', 'jetpack-protect' )
+				: __(
+						'Upgrade to update automatic rules',
+						'jetpack-protect',
+						/* dummy arg to avoid bad minification */ 0
+				  ) }
+		</Button>
 	);
 };
 
@@ -231,7 +181,6 @@ const FirewallHeader = ( {
 								hasRequiredPlan={ hasRequiredPlan }
 								automaticRulesAvailable={ automaticRulesAvailable }
 							/>
-							{ ! hasRequiredPlan && <UpgradePrompt /> }
 						</>
 					) }
 					{ 'off' === status && (
@@ -255,7 +204,6 @@ const FirewallHeader = ( {
 								hasRequiredPlan={ hasRequiredPlan }
 								automaticRulesAvailable={ automaticRulesAvailable }
 							/>
-							{ ! hasRequiredPlan && <UpgradePrompt /> }
 						</>
 					) }
 					{ 'loading' === status && (

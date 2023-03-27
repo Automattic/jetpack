@@ -48,6 +48,10 @@ svg.spinner {
     }
 }
 
+.upgrade-button {
+    margin-top: calc( var( --spacing-base ) * 4 ); // 32px
+}
+
 .firewall-header {
     display: flex;
     flex-wrap: wrap;
