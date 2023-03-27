@@ -490,15 +490,18 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN:
 			return {
-				question: __( 'You have been gifted a Jetpack Gold Token.', 'jetpack' ),
+				question: __( 'Congratulations, you have been gifted a Jetpack Gold Token!', 'jetpack' ),
 				description: __(
-					'You have been gifted a Jetpack Gold Token. This unlocks a lifetime of Jetpack VaultPress Backup and Jetpack Scan for your website.',
+					'Congratulations, your Jetpack Gold Token provides a lifetime license for this website and includes the following products:',
 					'jetpack'
 				),
-				ctaText: __( 'Explore your new powers', 'jetpack' ),
-				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=my-jetpack#',
-				illustration: 'assistant-backup-welcome',
-				skipText: __( 'Next', 'jetpack' ),
+				descriptionList: [
+					__( 'Jetpack VaultPress Backup', 'jetpack' ),
+					__( 'Jetpack Scan', 'jetpack' ),
+				],
+				ctaText: __( 'Setup your new powers', 'jetpack' ),
+				hasNoAction: true,
+				illustration: 'assistant-golden-token-welcome',
 			};
 		case 'backup-activated':
 			return {
