@@ -144,7 +144,6 @@
 	"projects/plugins/crm/includes/ZeroBSCRM.List.CompletedEvents.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.List.Events.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.List.QuoteTemplate.php",
-	"projects/plugins/crm/includes/ZeroBSCRM.List.Views.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.List.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.Mail.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.MailTracking.php",
