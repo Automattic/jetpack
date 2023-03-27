@@ -250,7 +250,7 @@ class Current_Plan {
 
 		// get available features if Jetpack is active.
 		if ( class_exists( 'Jetpack' ) ) {
-			foreach ( \Jetpack::get_available_modules() as $module_slug ) {
+			foreach ( ( new Modules() )->get_available_modules() as $module_slug ) {
 				$module = \Jetpack::get_module( $module_slug );
 				if ( ! isset( $module ) || ! is_array( $module ) ) {
 					continue;

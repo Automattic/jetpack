@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fatal on WPCOM where Jetpack::get_available_modules is not available
