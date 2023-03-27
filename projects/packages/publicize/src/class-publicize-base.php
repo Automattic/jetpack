@@ -1103,6 +1103,9 @@ abstract class Publicize_Base {
 								'template'    => array(
 									'type' => 'string',
 								),
+								'token'       => array(
+									'type' => 'string',
+								),
 							),
 						),
 					),
