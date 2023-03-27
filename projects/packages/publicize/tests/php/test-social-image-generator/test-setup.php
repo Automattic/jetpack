@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Current_Plan;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
