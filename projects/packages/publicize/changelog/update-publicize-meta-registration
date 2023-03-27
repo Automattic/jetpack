@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Changed the post meta registration, to only register meta required for available features.

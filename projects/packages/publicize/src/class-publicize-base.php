@@ -1057,63 +1057,69 @@ abstract class Publicize_Base {
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
 		);
 
-		$jetpack_social_options_args = array(
+		$sig_enabled                 = $this->has_social_image_generator_feature();
+		$enhanced_publishing_enabled = $this->has_enhanced_publishing_feature();
+		$jetpack_social_options_args = $enhanced_publishing_enabled || $sig_enabled ? array(
 			'type'          => 'object',
 			'description'   => __( 'Post options related to Jetpack Social.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
-			'default'       => array(
-				'image_generator_settings' => array(
-					'template' => ( new Social_Image_Generator\Settings() )->get_default_template(),
-					'enabled'  => false,
-				),
-			),
 			'show_in_rest'  => array(
 				'name'   => 'jetpack_social_options',
 				'schema' => array(
 					'type'       => 'object',
-					'properties' => array(
-						'attached_media'           => array(
-							'type'  => 'array',
-							'items' => array(
-								'type'       => 'object',
-								'properties' => array(
-									'id'  => array(
-										'type' => 'number',
-									),
-									'url' => array(
-										'type' => 'string',
-									),
-								),
-							),
-						),
-						'image_generator_settings' => array(
-							'type'       => 'object',
-							'properties' => array(
-								'enabled'     => array(
-									'type' => 'boolean',
-								),
-								'custom_text' => array(
-									'type' => 'string',
-								),
-								'image_type'  => array(
-									'type' => 'string',
-								),
-								'image_id'    => array(
-									'type' => 'number',
-								),
-								'template'    => array(
-									'type' => 'string',
-								),
-								'token'       => array(
-									'type' => 'string',
-								),
-							),
-						),
-					),
+					'properties' => array(),
 				),
 			),
 			'auth_callback' => array( $this, 'message_meta_auth_callback' ),
-		);
+		) : null;
+		if ( $jetpack_social_options_args ) {
+			if ( $sig_enabled ) {
+				$jetpack_social_options_args['default'] = array(
+					'image_generator_settings' => array(
+						array(
+							'template' => ( new Social_Image_Generator\Settings() )->get_default_template(),
+							'enabled'  => false,
+						),
+					),
+				);
+				$jetpack_social_options_args['show_in_rest']['schema']['properties']['image_generator_settings'] = array(
+					'type'       => 'object',
+					'properties' => array(
+						'enabled'     => array(
+							'type' => 'boolean',
+						),
+						'custom_text' => array(
+							'type' => 'string',
+						),
+						'image_type'  => array(
+							'type' => 'string',
+						),
+						'image_id'    => array(
+							'type' => 'number',
+						),
+						'template'    => array(
+							'type' => 'string',
+						),
+					),
+				);
+			}
+			if ( $enhanced_publishing_enabled ) {
+				$jetpack_social_options_args['show_in_rest']['schema']['properties']['attached_media'] = array(
+					'type'  => 'array',
+					'items' => array(
+						'type'       => 'object',
+						'properties' => array(
+							'id'  => array(
+								'type' => 'number',
+							),
+							'url' => array(
+								'type' => 'string',
+							),
+						),
+					),
+				);
+			}
+		}
 
 		foreach ( get_post_types() as $post_type ) {
 			if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
@@ -1130,7 +1136,9 @@ abstract class Publicize_Base {
 			register_meta( 'post', $this->POST_TWEETSTORM, $tweetstorm_args );
 			register_meta( 'post', self::POST_PUBLICIZE_FEATURE_ENABLED, $publicize_feature_enable_args );
 			register_meta( 'post', $this->POST_DONE . 'all', $already_shared_flag_args );
-			register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
+			if ( $jetpack_social_options_args ) {
+				register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
+			}
 		}
 	}
 
@@ -1623,6 +1631,15 @@ abstract class Publicize_Base {
 	 */
 	public function has_social_image_generator_feature() {
 		return Current_Plan::supports( 'social-image-generator' );
+	}
+
+	/**
+	 * Check if the enhanced publishing feature is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_enhanced_publishing_feature() {
+		return Current_Plan::supports( 'social-enhanced-publishing' );
 	}
 
 	/**
