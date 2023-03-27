@@ -99,12 +99,18 @@ class Attachment extends \WP_REST_Attachments_Controller {
 		$file_info  = $this->get_file_info( $request );
 		$attachment = $this->get_attachment_by_file_info( $file_info );
 		if ( $attachment ) {
+			$response = $this->prepare_attachment_for_response( $attachment, $request );
+
+			if ( \is_wp_error( $response ) ) {
+				return $response;
+			}
+
 			return new \WP_Error(
 				'attachment_exists',
 				__( 'The attachment already exists.', 'jetpack-import' ),
 				array(
 					'status'        => 409,
-					'attachment'    => $this->prepare_attachment_for_response( $attachment, $request ),
+					'attachment'    => $response,
 					'attachment_id' => $attachment->ID,
 				)
 			);
@@ -295,7 +301,7 @@ class Attachment extends \WP_REST_Attachments_Controller {
 		$response = $this->prepare_item_for_response( $attachment, $request );
 
 		// Check if there was an error preparing the data
-		if ( is_wp_error( $response ) ) {
+		if ( \is_wp_error( $response ) ) {
 			return $response;
 		}
 
