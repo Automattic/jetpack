@@ -133,7 +133,7 @@ function PlanSectionFooter( { purchases } ) {
  * @returns {object} PlansSection React component.
  */
 export default function PlansSection() {
-	const purchases = usePurchases();
+	const { purchases } = usePurchases();
 
 	return (
 		<div className={ styles.container }>

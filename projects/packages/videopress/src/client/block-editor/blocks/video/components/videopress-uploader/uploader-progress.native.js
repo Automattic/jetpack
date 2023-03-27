@@ -4,7 +4,7 @@
 import { MediaUploadProgress, VIDEO_ASPECT_RATIO } from '@wordpress/block-editor';
 import { Icon } from '@wordpress/components';
 import { usePreferredColorSchemeStyle } from '@wordpress/compose';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useState, Platform } from '@wordpress/element';
 import {
 	requestImageFailedRetryDialog,
 	requestImageUploadCancelDialog,
@@ -55,7 +55,16 @@ const UploaderProgress = ( { file, onDone, onReset, isInteractionDisabled } ) =>
 	const onUploadSuccess = useCallback(
 		payload => {
 			const { metadata, mediaServerId } = payload;
-			onDone( { id: mediaServerId, guid: metadata?.videopressGUID } );
+			// The metadata object has a different structure on each platform.
+			// - On iOS, we get all the VideoPress metadata properties.
+			// Reference: https://github.com/wordpress-mobile/WordPress-iOS/blob/157aee0f9d2e9429e50a863ca6d7ecefbafe5be9/WordPress/Classes/ViewRelated/Gutenberg/GutenbergMediaInserterHelper.swift#L268-L276
+			// - While on Android, we only get the VideoPress GUID.
+			// Reference: https://github.com/wordpress-mobile/WordPress-Android/blob/80f608f2d3a8afb36fe5a7795d172bf66e6ccd4e/libs/editor/src/main/java/org/wordpress/android/editor/gutenberg/GutenbergEditorFragment.java#L1262-L1273
+			const guid = Platform.select( {
+				android: metadata?.videopressGUID,
+				ios: metadata?.id,
+			} );
+			onDone( { id: mediaServerId, guid } );
 		},
 		[ onDone ]
 	);

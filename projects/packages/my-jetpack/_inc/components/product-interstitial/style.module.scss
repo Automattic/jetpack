@@ -16,3 +16,14 @@
 		width: 100%;
 	}
 }
+
+.product-interstitial__header {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: calc(var(--horizontal-spacing) * 2);
+}
+
+.product-interstitial__license-activation-link {
+	white-space: nowrap;
+}

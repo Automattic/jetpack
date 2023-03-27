@@ -152,14 +152,8 @@ function AmazonEdit( {
 	);
 
 	const blockPreview = () => {
-		const {
-			title,
-			detailPageUrl,
-			listPrice,
-			imageUrlMedium,
-			imageWidthMedium,
-			imageHeightMedium,
-		} = data.products.filter( productDataItem => productDataItem.asin === asin )[ 0 ];
+		const { title, detailPageUrl, listPrice, imageUrlMedium, imageWidthMedium, imageHeightMedium } =
+			data.products.filter( productDataItem => productDataItem.asin === asin )[ 0 ];
 
 		// TODO - we should be able to get this from API in a neater way once we have access
 		const seller = 'TODO';

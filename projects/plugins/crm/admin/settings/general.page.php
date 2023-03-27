@@ -49,7 +49,7 @@ $autoLoggers = array(
 	),
 	array(
 		'fieldname' => 'autolog_event_new',
-		'title'     => 'Event Creation',
+		'title'     => 'Task Creation',
 	),
 	array(
 		'fieldname' => 'autolog_clientportal_new',
@@ -298,9 +298,9 @@ if ( ! $confirmAct ) {
 					<div>
 						<?php esc_html_e( 'Are you looking for your other WordPress menu items? (e.g.', 'zero-bs-crm' ); ?> <a href="<?php echo esc_url( admin_url( 'plugins.php' ) ); ?>"><?php esc_html_e( 'Plugins', 'zero-bs-crm' ); ?></a>, <?php esc_html_e( 'or', 'zero-bs-crm' ); ?> <a href="<?php echo esc_url( admin_url( 'users.php' ) ); ?>"><?php esc_html_e( 'Users', 'zero-bs-crm' ); ?></a>)?<br />
 						<?php esc_html_e( "If you can't see these, (and you want to), select 'Slimline' or 'Full' from the above menu, then make sure 'Override WordPress (For All WP Users):' is disabled below", 'zero-bs-crm' ); ?> (<a href="#override-allusers"><?php esc_html_e( 'here', 'zero-bs-crm' ); ?></a>).<br />
-						<?php // WLREMOVE ?>
+						<?php ##WLREMOVE ?>
 						<a href="<?php echo esc_url( $zbs->urls['kbshowwpmenus'] ); ?>" target="_blank"><?php esc_html_e( 'View Guide', 'zero-bs-crm' ); ?></a>
-						<?php // /WLREMOVE ?>
+						<?php ##/WLREMOVE ?>
 					</div>
 				</td>
 			</tr>
@@ -333,7 +333,7 @@ if ( ! $confirmAct ) {
 
 
 				<tr>
-					<td class="wfieldname"><label for="wpzbscrm_showaddress"><?php esc_html_e( 'Show Customer Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Untick to hide the address fields (useful for online business)', 'zero-bs-crm' ); ?></td>
+					<td class="wfieldname"><label for="wpzbscrm_showaddress"><?php esc_html_e( 'Show Contact Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Untick to hide the address fields (useful for online business)', 'zero-bs-crm' ); ?></td>
 					<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_showaddress" id="wpzbscrm_showaddress" value="1"
 					<?php
 					if ( isset( $settings['showaddress'] ) && $settings['showaddress'] == '1' ) {
@@ -570,7 +570,7 @@ if ( ! $confirmAct ) {
 				</td>
 			</tr>
 
-			<?php // WLREMOVE ?>
+			<?php ##WLREMOVE ?>
 			<tr>
 				<td class="wfieldname"><label for="wpzbscrm_shareessentials"><?php esc_html_e( 'Usage Tracking', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Share CRM usage with us. No contact or sensitive CRM data is shared.', 'zero-bs-crm' ); ?>
 				<a href="<?php echo esc_url( $zbs->urls['usageinfo'] ); ?>" target="_blank"><?php esc_html_e( 'Learn More', 'zero-bs-crm' ); ?>.</a>
@@ -602,7 +602,7 @@ if ( ! $confirmAct ) {
 					<input type="checkbox" class="winput form-control" name="jpcrm_showpoweredby_admin" id="jpcrm_showpoweredby_admin" value="1"<?php echo isset( $settings['showpoweredby_admin'] ) && $settings['showpoweredby_admin'] === 0 ? '' : ' checked="checked"'; ?> />
 				</td>
 			</tr>
-			<?php // /WLREMOVE ?>
+			<?php ##/WLREMOVE ?>
 
 			</tbody>
 
@@ -622,7 +622,7 @@ if ( ! $confirmAct ) {
 
 
 			<tr>
-				<td class="wfieldname"><label><?php esc_html_e( 'Accepted Upload File Types', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'This setting specifies which file types are acceptable for uploading against customers, quotes, or invoices.', 'zero-bs-crm' ); ?></td>
+				<td class="wfieldname"><label><?php esc_html_e( 'Accepted Upload File Types', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'This setting specifies which file types are acceptable for uploading against contacts, quotes, or invoices.', 'zero-bs-crm' ); ?></td>
 				<td style="width:540px">
 					<?php foreach ( $zbs->acceptable_mime_types as $filetype => $mimedeet ) { ?>
 						<input type="checkbox" class="winput form-control" name="<?php echo esc_attr( 'wpzbscrm_ft_' . $filetype ); ?>" id="<?php echo esc_attr( 'wpzbscrm_ft_' . $filetype ); ?>" value="1"

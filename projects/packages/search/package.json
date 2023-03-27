@@ -1,6 +1,6 @@
 {
 	"name": "jetpack-search",
-	"version": "0.34.0-alpha",
+	"version": "0.34.1-alpha",
 	"description": "Package for Jetpack Search products",
 	"main": "main.js",
 	"directories": {
@@ -92,7 +92,7 @@
 		"postcss": "8.4.21",
 		"postcss-custom-properties": "12.1.7",
 		"postcss-loader": "6.2.0",
-		"prettier": "npm:wp-prettier@2.0.5",
+		"prettier": "npm:wp-prettier@2.8.5",
 		"sass": "1.43.3",
 		"sass-loader": "12.4.0",
 		"size-limit": "6.0.4",

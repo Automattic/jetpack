@@ -14,9 +14,9 @@ import type React from 'react';
 // Global scripts array to be run in the Sandbox context.
 const sandboxScripts = [];
 
-// Populate scripts array with videopresAjaxURLBlob blobal var.
+// Populate scripts array with videopressAjaxURLBlob blobal var.
 if ( window.videopressAjax ) {
-	const videopresAjaxURLBlob = new Blob(
+	const videopressAjaxURLBlob = new Blob(
 		[
 			`var videopressAjax = ${ JSON.stringify( {
 				...window.videopressAjax,
@@ -29,7 +29,7 @@ if ( window.videopressAjax ) {
 	);
 
 	sandboxScripts.push(
-		URL.createObjectURL( videopresAjaxURLBlob ),
+		URL.createObjectURL( videopressAjaxURLBlob ),
 		window.videopressAjax.bridgeUrl
 	);
 }
@@ -148,15 +148,19 @@ export default function Player( {
 	}, [] );
 
 	// Listen to the `message` event.
+	const sandboxIframeElement: HTMLIFrameElement = videoWrapperRef?.current?.querySelector(
+		'iframe.components-sandbox'
+	);
 	useEffect( () => {
-		if ( ! window ) {
+		if ( ! sandboxIframeElement?.contentWindow ) {
 			return;
 		}
 
-		window.addEventListener( 'message', onVideoLoadingStateHandler );
+		const iFrameContentWindow = sandboxIframeElement.contentWindow;
+		iFrameContentWindow.addEventListener( 'message', onVideoLoadingStateHandler );
 
-		return () => window?.removeEventListener( 'message', onVideoLoadingStateHandler );
-	}, [ onVideoLoadingStateHandler ] );
+		return () => iFrameContentWindow?.removeEventListener( 'message', onVideoLoadingStateHandler );
+	}, [ onVideoLoadingStateHandler, sandboxIframeElement ] );
 
 	useEffect( () => {
 		if ( isRequestingEmbedPreview ) {
