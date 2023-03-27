@@ -4,6 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback, useRef, useState } from 'react';
+import { includesLifetimePurchase } from '../../utils/is-lifetime-purchase';
 import styles from './styles.module.scss';
 
 /**
@@ -29,10 +30,7 @@ function GoldenTokenModal( {
 
 	const ScanIcon = getIconBySlug( 'scan' );
 	const VaultPressBackupIcon = getIconBySlug( 'backup' );
-
-	// Any purchase with the partner_slug of 'goldenticket' is considered a golden token.
-	const goldenToken = purchases.filter( golden => golden.partner_slug === 'goldenticket' );
-	const hasGoldenToken = goldenToken.length > 0;
+	const hasGoldenToken = includesLifetimePurchase( purchases );
 
 	const redeemClickHandler = useCallback(
 		e => {
