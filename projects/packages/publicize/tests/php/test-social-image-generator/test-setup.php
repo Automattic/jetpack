@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -31,6 +32,9 @@ class Setup_Test extends BaseTestCase {
 	public function set_up() {
 		$this->sig = new Social_Image_Generator\Setup();
 		$this->sig->init();
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array( 'social-image-generator' );
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );

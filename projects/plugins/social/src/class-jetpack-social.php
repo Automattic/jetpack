@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
@@ -94,6 +95,8 @@ class Jetpack_Social {
 		// Activate the module as the plugin is activated
 		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
 		add_action( 'activated_plugin', array( $this, 'redirect_after_activation' ) );
+
+		add_action( 'jetpack_heartbeat', array( $this, 'refresh_plan_data' ) );
 
 		add_action(
 			'plugins_loaded',
@@ -181,6 +184,13 @@ class Jetpack_Social {
 	 */
 	public function render_initial_state() {
 		return 'var jetpackSocialInitialState=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->initial_state() ) ) . '"));';
+	}
+
+	/**
+	 * Refresh plan data.
+	 */
+	public function refresh_plan_data() {
+		Current_Plan::refresh_from_wpcom();
 	}
 
 	/**
@@ -307,7 +317,7 @@ class Jetpack_Social {
 					),
 					'hasPaidPlan'                   => $publicize->has_paid_plan(),
 					'isEnhancedPublishingEnabled'   => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
-					'isSocialImageGeneratorEnabled' => $publicize->is_social_image_generator_enabled( Jetpack_Options::get_option( 'id' ) ),
+					'isSocialImageGeneratorEnabled' => $publicize->has_social_image_generator_feature(),
 				),
 			)
 		);
