@@ -1064,7 +1064,7 @@ abstract class Publicize_Base {
 			'default'       => array(
 				'image_generator_settings' => array(
 					'template' => Social_Image_Generator\Templates::DEFAULT_TEMPLATE,
-					'enabled'  => true,
+					'enabled'  => false,
 				),
 			),
 			'show_in_rest'  => array(
@@ -1157,15 +1157,15 @@ abstract class Publicize_Base {
 		}
 		$post = get_post( $object_id );
 		if ( empty( $post->post_status ) ||
-			'auto-draft' === $post->post_status
+			'auto-draft' !== $post->post_status
 		) {
 			return $value;
 		}
 		if ( $single ) {
-			$value['image_generator_settings']['enabled'] = false;
+			$value['image_generator_settings']['enabled'] = true;
 			return $value;
 		}
-		$value[0]['image_generator_settings']['enabled'] = false;
+		$value[0]['image_generator_settings']['enabled'] = true;
 		return $value;
 	}
 
