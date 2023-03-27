@@ -28,17 +28,16 @@ if ( ! class_exists( 'WP_List_Table' ) ) {
 
 class zeroBSCRM_Events_List_Complete extends WP_List_Table {
 
-    /** Class constructor */
-    public function __construct() {
-
-        parent::__construct( array(
-            'singular' => __( 'Event', 'zero-bs-crm' ), //singular name of the listed records
-            'plural'   => __( 'Events', 'zero-bs-crm' ), //plural name of the listed records
-            'ajax'     => false //does this table support ajax?
-        ) );
-
-    }
-
+	/** Class constructor */
+	public function __construct() {
+		parent::__construct(
+			array(
+				'singular' => __( 'Task', 'zero-bs-crm' ),
+				'plural'   => __( 'Tasks', 'zero-bs-crm' ),
+				'ajax'     => false,
+			)
+		);
+	}
 
     /**
      * Retrieve bookings data from the database
@@ -335,7 +334,7 @@ function zeroBSCRM_render_eventslistcomplete_page(){
 
     $option = 'per_page';
     $args   = array(
-        'label'   => 'Completed Events',
+		'label'   => 'Completed Tasks',
         'default' => 10,
         'option'  => 'events_per_page'
     );

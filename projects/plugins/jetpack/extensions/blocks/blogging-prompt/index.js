@@ -3,7 +3,10 @@ import { getIconColor } from '../../shared/block-icons';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 import attributes from './attributes';
 import edit from './edit';
-import icon from './icon';
+import avatar1 from './example-avatars/avatar1.jpg';
+import avatar2 from './example-avatars/avatar2.jpg';
+import avatar3 from './example-avatars/avatar3.jpg';
+import Icon from './icon.svg?component';
 import save from './save';
 
 /**
@@ -18,7 +21,7 @@ export const settings = {
 	title,
 	description: __( 'Answer a new and inspiring writing prompt each day.', 'jetpack' ),
 	icon: {
-		src: icon,
+		src: Icon,
 		foreground: getIconColor(),
 	},
 	category: getCategoryWithFallbacks( 'text' ),
@@ -51,9 +54,22 @@ export const settings = {
 	edit,
 	save,
 	attributes,
+	styles: [
+		{ name: 'block', label: __( 'Block', 'jetpack' ), isDefault: true },
+		{ name: 'quote', label: __( 'Quote', 'jetpack' ) },
+	],
 	example: {
 		attributes: {
-			// @TODO: Add default values for block attributes, for generating the block preview.
+			answersLink: 'https://wordpress.com/tag/dailyprompt',
+			answersLinkText: __( 'View all responses', 'jetpack' ),
+			gravatars: [ { url: avatar1 }, { url: avatar2 }, { url: avatar3 } ],
+			promptLabel: __( 'Daily writing prompt', 'jetpack' ),
+			promptText: __( "What's your favorite place to visit?", 'jetpack' ),
+			promptFetched: true,
+			promptId: 1234,
+			showResponses: true,
+			showLabel: true,
+			tagsAdded: true,
 		},
 	},
 };

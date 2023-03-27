@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added SIG image to the post media array if it's enabled

@@ -30,9 +30,8 @@ filterButton.args = {
 	onClick: action( 'onClick' ),
 };
 
-const CheckboxCheckmarkButtonTemplate: ComponentStory<
-	typeof CheckboxCheckmark
-> = CheckboxCheckmark;
+const CheckboxCheckmarkButtonTemplate: ComponentStory< typeof CheckboxCheckmark > =
+	CheckboxCheckmark;
 export const checkboxCheckmark = CheckboxCheckmarkButtonTemplate.bind( {} );
 checkboxCheckmark.args = {
 	label: 'Is it checked?',

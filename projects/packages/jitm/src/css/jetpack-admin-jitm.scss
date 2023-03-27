@@ -7,7 +7,7 @@
 @import '../../plugins/jetpack/_inc/client/scss/calypso-colors';
 
 @mixin clear-fix {
-	&:after {
+	&::after {
 		content: ".";
 		display: block;
 		height: 0;
@@ -85,7 +85,7 @@ $jp-gray-20:             #a7aaad;
 		cursor: default;
 	}
 	&.is-compact {
-		padding: 12px;
+		height: 32px;
 		font-size: 14px;
 		line-height: 1;
 		white-space: nowrap;
@@ -117,7 +117,8 @@ $jp-gray-20:             #a7aaad;
 	clear: both;
 	position: relative;
 	margin: rem( 48px ) rem( 20px ) 0 auto;
-	padding: 16px ;
+	padding: rem( 16px );
+	padding-left: rem( 20px );
 	box-sizing: border-box;
 	background-color: $white;
 	background-image: url( "../images/background.png" );
@@ -128,11 +129,6 @@ $jp-gray-20:             #a7aaad;
 	box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.16);
 
 	@include clear-fix;
-
-	@include breakpoint( ">480px" ) {
-		margin-bottom: rem( 16px );
-		padding: rem( 24px );
-	}
 
 	// Compact Card
 	&.is-compact {
@@ -235,7 +231,8 @@ $jp-gray-20:             #a7aaad;
 	}
 
 	@include breakpoint( ">480px" ) {
-		padding: rem( 12px ) rem( 16px );
+		padding: rem( 16px );
+		padding-left: rem( 20px );
 
 		&.is-dismissible {
 			padding-right: rem( 16px );
@@ -246,7 +243,12 @@ $jp-gray-20:             #a7aaad;
 .jitm-banner__buttons_container {
 	display: flex;
 	height: 50%;
-	margin: auto 16px auto;
+	margin: auto rem( 16px ) auto 0;
+	gap: rem( 16px );
+
+	@include breakpoint( ">480px" ) {
+		margin-left: rem( 16px );
+	}
 }
 
 .jitm-banner__icons {
@@ -302,7 +304,7 @@ $jp-gray-20:             #a7aaad;
 		top: rem( 2px );
 
 		@include breakpoint( "<480px" ) {
-			margin-bottom: rem( 12px );
+			margin-bottom: rem( 16px );
 		}
 
 		svg {
@@ -313,17 +315,13 @@ $jp-gray-20:             #a7aaad;
 
 		.jitm-jp-logo {
 			height: inherit;
-			width: rem( 42px );
+			width: rem( 40px );
 			fill: inherit;
 		}
 	}
 
 	@include breakpoint( ">480px" ) {
 		align-items: center;
-	}
-
-	@include breakpoint( "<960px" ) {
-		margin-bottom: 10px;
 	}
 }
 
@@ -365,14 +363,15 @@ $jp-gray-20:             #a7aaad;
 	}
 
 	.jitm-banner__title {
-		font-size: 16px;
+		font-size: rem( 15px );
 		font-weight: 700;
+		line-height: 136%;
 	}
 
 	.jitm-banner__description {
-		font-size: rem( 14px );
-		line-height: 1.4;
-		margin-top: rem( 6px );
+		font-size: rem( 13px );
+		line-height: 150%;
+		margin-top: rem( 2px );
 	}
 
 	.banner__list {
@@ -394,9 +393,7 @@ $jp-gray-20:             #a7aaad;
 .jitm-banner__action {
 	align-self: center;
 	font-size: rem( 12px );
-	margin: rem( 8px ) 0 0;
 	text-align: left;
-	width: 100%;
 
 	.jitm-banner__prices {
 		display: flex;
@@ -421,7 +418,6 @@ $jp-gray-20:             #a7aaad;
 	}
 
 	@include breakpoint( ">480px" ) {
-		margin: 0 rem( 4px ) 0 rem( 8px );
 		text-align: center;
 		width: auto;
 
@@ -443,10 +439,10 @@ $jp-gray-20:             #a7aaad;
 	margin-top: auto;
 	margin-bottom: auto;
 
-	&:before {
+	&::before {
 		color: darken($gray, 20%);
-		font: 400 16px/1 dashicons;
-		content: '\f158';
+		font: 400 20px/1 dashicons;
+		content: '\f335';
 	}
 
 	@include breakpoint( ">660px" ) {

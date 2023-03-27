@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Blocks: avoid warnings in the block editor because of invalid categories for some blocks.

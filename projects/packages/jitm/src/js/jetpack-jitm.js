@@ -1,3 +1,5 @@
+import jQuery from 'jquery';
+
 import '../css/jetpack-admin-jitm.scss';
 
 jQuery( document ).ready( function ( $ ) {
