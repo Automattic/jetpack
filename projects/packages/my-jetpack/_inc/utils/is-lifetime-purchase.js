@@ -2,15 +2,16 @@
  * Check if a purchase is considered "Lifetime".
  *
  * @param {object} purchase - A WPCOM purchase object.
+ * @param {string} purchase.partner_slug - A partner that issued the purchase.
  * @returns {boolean} Returns true if a purchase is considered a lifetime purchase.
  */
-export function isLifetimePurchase( purchase ) {
-	if ( typeof purchase !== 'object' || ! purchase.hasOwnProperty( 'partner_slug' ) ) {
+export function isLifetimePurchase( { partner_slug } ) {
+	if ( ! partner_slug ) {
 		return false;
 	}
 
 	// Any purchase with the partner_slug of 'goldenticket' is considered a golden token.
-	return purchase.partner_slug === 'goldenticket';
+	return partner_slug === 'goldenticket';
 }
 
 /**
