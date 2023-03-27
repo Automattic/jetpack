@@ -16,7 +16,7 @@
 
 ### Bug fixes
 - Blocks: avoid warnings in the block editor because of invalid categories for some blocks. [#29513]
-- Blocks: Fix the VideoPress preload behavior when "none" is chosen. [#29563]
+- Blocks: fix the VideoPress preload behavior when "none" is chosen. [#29563]
 - Forms: avoid PHP notices when using a form with a dropdown field. [#29512]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
