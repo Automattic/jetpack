@@ -83,7 +83,6 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 
 	return (
 		<PanelWrapper { ...wrapperProps }>
-			<GeneratedImagePreview />
 			<ToggleControl
 				label={ __( 'Enable Social Image', 'jetpack' ) }
 				help={ ! isEnabled ? __( 'Social Image is disabled for this post.', 'jetpack' ) : '' }
@@ -92,6 +91,7 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 			/>
 			{ isEnabled && (
 				<>
+					<GeneratedImagePreview />
 					<TextControl
 						value={ customText || '' }
 						onChange={ setCustomText }
