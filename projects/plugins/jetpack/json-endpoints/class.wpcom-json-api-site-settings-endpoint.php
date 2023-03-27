@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
+
 new WPCOM_JSON_API_Site_Settings_Endpoint(
 	array(
 		'description'      => 'Get detailed settings information about a site.',
@@ -55,7 +57,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_relatedposts_show_date'          => '(bool) Show date in related posts?',
 			'jetpack_relatedposts_show_headline'      => '(bool) Show headline in related posts?',
 			'jetpack_relatedposts_show_thumbnails'    => '(bool) Show thumbnails in related posts?',
-			'jetpack_protect_whitelist'               => '(array) List of IP addresses to whitelist',
+			'jetpack_protect_whitelist'               => '(array) List of IP addresses to always allow',
 			'instant_search_enabled'                  => '(bool) Enable the new Jetpack Instant Search interface',
 			'jetpack_search_enabled'                  => '(bool) Enable Jetpack Search',
 			'jetpack_search_supported'                => '(bool) Jetpack Search is supported',
@@ -493,9 +495,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$response[ $key ]['sharing_open_links']   = (string) $sharing['open_links'];
 					}
 
-					if ( function_exists( 'jetpack_protect_format_whitelist' ) ) {
-						$response[ $key ]['jetpack_protect_whitelist'] = jetpack_protect_format_whitelist();
-					}
+					$response[ $key ]['jetpack_protect_whitelist'] = Brute_Force_Protection_Shared_Functions::format_allow_list();
 
 					if ( ! current_user_can( 'edit_posts' ) ) {
 						unset( $response[ $key ] );
@@ -628,12 +628,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'jetpack_protect_whitelist':
-					if ( function_exists( 'jetpack_protect_save_whitelist' ) ) {
-						$result = jetpack_protect_save_whitelist( $value );
+					if ( class_exists( 'Brute_Force_Protection_Shared_Functions' ) ) {
+						$result = Brute_Force_Protection_Shared_Functions::save_allow_list( $value );
 						if ( is_wp_error( $result ) ) {
 							return $result;
 						}
-						$updated[ $key ] = jetpack_protect_format_whitelist();
+						$updated[ $key ] = Brute_Force_Protection_Shared_Functions::format_allow_list();
 					}
 					break;
 				case 'jetpack_sync_non_public_post_stati':

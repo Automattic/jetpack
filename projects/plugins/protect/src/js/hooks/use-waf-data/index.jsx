@@ -87,6 +87,19 @@ const useWafData = () => {
 	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.jetpackWafIpList ] );
 
 	/**
+	 * Toggle Brute Force Protection
+	 *
+	 * Flips the switch on the WAF brute force protection feature, and then refreshes the data.
+	 */
+	const toggleBruteForceProtection = useCallback( () => {
+		setWafIsUpdating( true );
+		return ensureModuleIsEnabled()
+			.then( () => API.updateWaf( { brute_force_protection: ! waf.config.bruteForceProtection } ) )
+			.then( refreshWaf )
+			.finally( () => setWafIsUpdating( false ) );
+	}, [ ensureModuleIsEnabled, refreshWaf, setWafIsUpdating, waf.config.bruteForceProtection ] );
+
+	/**
 	 * Toggle Share Data
 	 *
 	 * Flips the switch on the share data option, and then refreshes the data.
@@ -128,6 +141,7 @@ const useWafData = () => {
 		toggleWaf,
 		toggleAutomaticRules,
 		toggleManualRules,
+		toggleBruteForceProtection,
 		toggleShareData,
 		updateConfig,
 	};

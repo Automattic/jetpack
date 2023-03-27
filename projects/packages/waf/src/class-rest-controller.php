@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 use WP_Error;
 use WP_REST_Server;
 
@@ -113,6 +114,27 @@ class REST_Controller {
 		// Share Data
 		if ( isset( $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ) ) {
 			update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, (bool) $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] );
+		}
+
+		// Brute Force Protection
+		if ( isset( $request['brute_force_protection'] ) ) {
+			$enable_brute_force             = (bool) $request['brute_force_protection'];
+			$brute_force_protection_toggled =
+				$enable_brute_force
+					? Brute_Force_Protection::enable()
+					: Brute_Force_Protection::disable();
+
+			if ( ! $brute_force_protection_toggled ) {
+				return new WP_Error(
+					$enable_brute_force
+						? 'brute_force_protection_activation_failed'
+						: 'brute_force_protection_deactivation_failed',
+					$enable_brute_force
+						? __( 'Brute force protection could not be activated.', 'jetpack-waf' )
+						: __( 'Brute force protection could not be deactivated.', 'jetpack-waf' ),
+					array( 'status' => 500 )
+				);
+			}
 		}
 
 		try {

@@ -1,22 +1,26 @@
 <?php // phpcs:ignore - WordPress.Files.FileName.InvalidClassFileName
 
+namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
+
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Redirect;
+use Jetpack_Options;
+use WP_Error;
 
 /**
- * Class Jetpack_Protect_Blocked_Login_Page
+ * Class Brute_Force_Protection_Blocked_Login_Page
  *
  * Instanciated on the wp-login page when Jetpack modules are loaded and $pagenow
  * is available, or during the login_head hook.
  *
- * Class will only be instanciated if Protect has detected a hard blocked IP address.
+ * Class will only be instanciated if Brute Force Protection has detected a hard blocked IP address.
  */
-class Jetpack_Protect_Blocked_Login_Page {
+class Brute_Force_Protection_Blocked_Login_Page {
 
 	/**
 	 * Instance of the class.
 	 *
-	 * @var Jetpack_Protect_Blocked_Login_Page
+	 * @var Brute_Force_Protection_Blocked_Login_Page
 	 */
 	private static $instance = null;
 
@@ -49,14 +53,10 @@ class Jetpack_Protect_Blocked_Login_Page {
 	public $email_address;
 
 	/**
-	 * URL to support page
+	 * Status code for too many requests.
 	 *
-	 * @deprecated 8.5.0 Use Jetpack_Protect_Blocked_Login_Page::get_help_url()
-	 * @see Jetpack_Protect_Blocked_Login_Page::get_help_url()
-	 *
-	 * @var string string $HELP_URL
+	 * @var int
 	 */
-	const HELP_URL                           = 'https://jetpack.com/support/security-features/#unblock';
 	const HTTP_STATUS_CODE_TOO_MANY_REQUESTS = 429;
 
 	/**
@@ -67,8 +67,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 * @return object
 	 */
 	public static function instance( $ip_address ) {
-		if ( ! is_a( self::$instance, 'Jetpack_Protect_Blocked_Login_Page' ) ) {
-			self::$instance = new Jetpack_Protect_Blocked_Login_Page( $ip_address );
+		if ( ! is_a( self::$instance, 'Brute_Force_Protection_Blocked_Login_Page' ) ) {
+			self::$instance = new Brute_Force_Protection_Blocked_Login_Page( $ip_address );
 		}
 
 		return self::$instance;
@@ -80,6 +80,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 * @param string $ip_address - the IP address.
 	 */
 	public function __construct( $ip_address ) {
+
 		/**
 		 * Filter controls if an email recovery form is shown to blocked IPs.
 		 *
@@ -111,7 +112,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 * @return string
 	 */
 	public static function get_help_url() {
-		return Redirect::get_url( 'jetpack-support-security-features', array( 'anchor' => 'unblock' ) );
+		return Redirect::get_url( 'jetpack-support-protect', array( 'anchor' => 'troubleshooting' ) );
 	}
 
 	/**
@@ -213,7 +214,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 */
 	public function check_valid_blocked_user( $user ) {
 		if ( $this->valid_blocked_user_id && $this->valid_blocked_user_id != $user->ID ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-			return new WP_Error( 'invalid_recovery_token', __( 'The recovery token is not valid for this user.', 'jetpack' ) );
+			return new WP_Error( 'invalid_recovery_token', __( 'The recovery token is not valid for this user.', 'jetpack-waf' ) );
 		}
 
 		return $user;
@@ -252,7 +253,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 */
 	public function is_valid_protect_recovery_key( $key, $user_id ) {
 
-		$path     = sprintf( '/sites/%d/protect/recovery/confirm', Jetpack::get_option( 'id' ) );
+		$path     = sprintf( '/sites/%d/protect/recovery/confirm', Jetpack_Options::get_option( 'id' ) );
 		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
 			'1.1',
@@ -286,7 +287,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		}
 
 		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) && ! empty( $_GET['user_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes, just throws invalid token error.
-			$error = new WP_Error( 'invalid_token', __( "Oops, we couldn't validate the recovery token.", 'jetpack' ) );
+			$error = new WP_Error( 'invalid_token', __( "Oops, we couldn't validate the recovery token.", 'jetpack-waf' ) );
 			$this->protect_die( $error );
 
 			return;
@@ -303,7 +304,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		}
 
 		if ( isset( $_GET['loggedout'] ) && 'true' === $_GET['loggedout'] ) {
-			$this->protect_die( __( 'You successfully logged out.', 'jetpack' ) );
+			$this->protect_die( __( 'You successfully logged out.', 'jetpack-waf' ) );
 		}
 
 		$this->render_recovery_form();
@@ -338,15 +339,15 @@ class Jetpack_Protect_Blocked_Login_Page {
 	public function send_recovery_email() {
 		$email = isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- only triggered after bypass-protect nonce check is done, and sanitization is checked on the next line.
 		if ( sanitize_email( $email ) !== $email || ! is_email( $email ) ) {
-			return new WP_Error( 'invalid_email', __( "Oops, looks like that's not the right email address. Please try again!", 'jetpack' ) );
+			return new WP_Error( 'invalid_email', __( "Oops, looks like that's not the right email address. Please try again!", 'jetpack-waf' ) );
 		}
 		$user = get_user_by( 'email', trim( $email ) );
 
 		if ( ! $user ) {
-			return new WP_Error( 'invalid_user', __( "Oops, we couldn't find a user with that email. Please try again!", 'jetpack' ) );
+			return new WP_Error( 'invalid_user', __( "Oops, we couldn't find a user with that email. Please try again!", 'jetpack-waf' ) );
 		}
 		$this->email_address = $email;
-		$path                = sprintf( '/sites/%d/protect/recovery/request', Jetpack::get_option( 'id' ) );
+		$path                = sprintf( '/sites/%d/protect/recovery/request', Jetpack_Options::get_option( 'id' ) );
 
 		$response = Client::wpcom_json_api_request_as_blog(
 			$path,
@@ -365,9 +366,9 @@ class Jetpack_Protect_Blocked_Login_Page {
 
 		if ( self::HTTP_STATUS_CODE_TOO_MANY_REQUESTS === $code ) {
 			// translators: email address the recovery instructions were sent to.
-			return new WP_Error( 'email_already_sent', sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack' ), $this->email_address ) );
+			return new WP_Error( 'email_already_sent', sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack-waf' ), $this->email_address ) );
 		} elseif ( is_wp_error( $result ) || empty( $result ) || isset( $result->error ) ) {
-			return new WP_Error( 'email_send_error', __( 'Oops, we were unable to send a recovery email. Try again.', 'jetpack' ) );
+			return new WP_Error( 'email_send_error', __( 'Oops, we were unable to send a recovery email. Try again.', 'jetpack-waf' ) );
 		}
 
 		return true;
@@ -383,7 +384,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 */
 	public function protect_die( $content, $title = null, $back_link = false, $recovery_form = false ) {
 		if ( empty( $title ) ) {
-			$title = __( 'Jetpack has locked your site\'s login page.', 'jetpack' );
+			$title = __( 'Jetpack has locked your site\'s login page.', 'jetpack-waf' );
 		}
 		if ( is_wp_error( $content ) ) {
 			$svg     = '<svg class="gridicon gridicons-notice" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
@@ -411,7 +412,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	 */
 	public function render_recovery_success() {
 		// translators: the email address the recovery email was sent to.
-		$this->protect_die( sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack' ), $this->email_address ) );
+		$this->protect_die( sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack-waf' ), $this->email_address ) );
 	}
 
 	/**
@@ -422,7 +423,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$ip   = str_replace( 'http://', '', esc_url( 'http://' . $this->ip_address ) );
 		return sprintf(
 			// translators: the IP address that was flagged.
-			__( '<p>Your IP address <code>%2$s</code> has been flagged for potential security violations. You can unlock your login by sending yourself a special link via email. <a href="%3$s">Learn More</a></p>', 'jetpack' ), // phpcs:ignore WordPress.WP.I18n.NoHtmlWrappedStrings
+			__( '<p>Your IP address <code>%2$s</code> has been flagged for potential security violations. You can unlock your login by sending yourself a special link via email. <a href="%3$s">Learn More</a></p>', 'jetpack-waf' ), // phpcs:ignore WordPress.WP.I18n.NoHtmlWrappedStrings
 			$icon,
 			$ip,
 			esc_url( self::get_help_url() )
@@ -437,10 +438,10 @@ class Jetpack_Protect_Blocked_Login_Page {
 		<div>
 			<form method="post" action="?jetpack-protect-recovery=true">
 				<?php wp_nonce_field( 'bypass-protect' ); ?> 
-				<p><label for="email"><?php esc_html_e( 'Your email', 'jetpack' ); ?><br/></label>
+				<p><label for="email"><?php esc_html_e( 'Your email', 'jetpack-waf' ); ?><br/></label>
 					<input type="email" name="email" class="text-input"/>
 					<input type="submit" class="button"
-						value="<?php esc_attr_e( 'Send email', 'jetpack' ); ?>"/>
+						value="<?php esc_attr_e( 'Send email', 'jetpack-waf' ); ?>"/>
 				</p>
 			</form>
 		</div>
@@ -744,7 +745,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 				<?php
 				printf(
 					/* translators: %s is HTML markup, for a back icon. */
-					__( '%s Back', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					__( '%s Back', 'jetpack-waf' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 					$back_button_icon // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
 				?>
@@ -757,7 +758,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 						<?php
 						printf(
 							/* translators: %s is HTML markup, for a help icon. */
-							__( '%s Get help unlocking your site', 'jetpack' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							__( '%s Get help unlocking your site', 'jetpack-waf' ), // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							$help_icon // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 						);
 						?>

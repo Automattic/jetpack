@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Use jetpack-ip package IP class methods over shared functions in a PHP file.

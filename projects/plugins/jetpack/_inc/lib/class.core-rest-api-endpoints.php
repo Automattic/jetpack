@@ -14,6 +14,7 @@ use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Status\Visitor;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 use Automattic\Jetpack\Waf\Waf_Compatibility;
 
 /**
@@ -2431,7 +2432,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'protect',
 			),
 			'jetpack_protect_global_whitelist'     => array(
-				'description'       => esc_html__( 'Protect global whitelist', 'jetpack' ),
+				'description'       => esc_html__( 'Protect global IP allow list', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_string',
@@ -3571,11 +3572,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'protect':
 				// Protect.
-				$options['jetpack_protect_key']['current_value'] = get_site_option( 'jetpack_protect_key', false );
-				if ( ! function_exists( 'jetpack_protect_format_whitelist' ) ) {
-					include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
-				}
-				$options['jetpack_protect_global_whitelist']['current_value'] = jetpack_protect_format_whitelist();
+				$options['jetpack_protect_key']['current_value']              = get_site_option( 'jetpack_protect_key', false );
+				$options['jetpack_protect_global_whitelist']['current_value'] = Brute_Force_Protection_Shared_Functions::format_allow_list();
 				break;
 
 			case 'related-posts':
