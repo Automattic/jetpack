@@ -1,5 +1,6 @@
-import { Container, Col, AdminPage } from '@automattic/jetpack-components';
+import { Container, Col, AdminPage, Text } from '@automattic/jetpack-components';
 import { select } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
@@ -107,8 +108,24 @@ export default function ProductInterstitial( {
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col>
+				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } />
+					<Text variant="body-small">
+						{ createInterpolateElement(
+							__(
+								'Already have an existing plan or license key? <a>Click here to get started</a>',
+								'jetpack-my-jetpack'
+							),
+							{
+								a: (
+									<a
+										className={ styles[ 'product-interstitial__license-activation-link' ] }
+										href="admin.php?page=my-jetpack#/add-license"
+									/>
+								),
+							}
+						) }
+					</Text>
 				</Col>
 				<Col>
 					<Container

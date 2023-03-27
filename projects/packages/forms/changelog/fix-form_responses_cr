@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Jetpack Forms: display carriage returns in responses in the Feedback->Form Responses page.

@@ -487,6 +487,21 @@ export const getStepContent = ( state, stepSlug ) => {
 				illustration: 'assistant-backup-welcome',
 				skipText: __( 'Next', 'jetpack' ),
 			};
+		case 'welcome__golden_token':
+			return {
+				question: __( 'Congratulations, you have been gifted a Jetpack Gold Token!', 'jetpack' ),
+				description: __(
+					'Congratulations, your Jetpack Gold Token provides a lifetime license for this website and includes the following products:',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Jetpack VaultPress Backup', 'jetpack' ),
+					__( 'Jetpack Scan', 'jetpack' ),
+				],
+				ctaText: __( 'Setup your new powers', 'jetpack' ),
+				hasNoAction: true,
+				illustration: 'assistant-golden-token-welcome',
+			};
 		case 'backup-activated':
 			return {
 				question: __( 'Site backups are live', 'jetpack' ),

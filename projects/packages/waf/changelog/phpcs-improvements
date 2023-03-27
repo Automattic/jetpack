@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Removed files from phpcs exclude list, no functional changes.
+
+
