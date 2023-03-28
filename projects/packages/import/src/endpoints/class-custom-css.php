@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Import\Endpoints;
 
+require_once ABSPATH . 'wp-includes/theme.php';
+
 /**
  * Class Custom_CSS
  */
@@ -53,10 +55,6 @@ class Custom_CSS extends \WP_REST_Posts_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
-		if ( ! function_exists( 'wp_update_custom_css_post' ) ) {
-			require_once ABSPATH . 'wp-includes/theme.php';
-		}
-
 		$args = array(
 			'stylesheet' => $request['title'],
 		);

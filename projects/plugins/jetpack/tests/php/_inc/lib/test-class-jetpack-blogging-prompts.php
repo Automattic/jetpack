@@ -15,7 +15,7 @@ class WP_Test_Jetpack_Blogging_Prompts extends WP_UnitTestCase {
 	public function test_adds_post_meta_and_tags_when_answering_prompt() {
 		$prompt_id = 1234;
 
-		\Patchwork\redefine( 'jetpack_get_blogging_prompt_by_id', \Patchwork\always( array( 'id' => $prompt_id ) ) );
+		$handle = \Patchwork\redefine( 'jetpack_get_blogging_prompt_by_id', \Patchwork\always( array( 'id' => $prompt_id ) ) );
 
 		// Simulate the editor screen to create a new post() .
 		set_current_screen( 'post-new' );
@@ -36,13 +36,13 @@ class WP_Test_Jetpack_Blogging_Prompts extends WP_UnitTestCase {
 		$this->assertContains( 'dailyprompt', $post_tags );
 		$this->assertContains( "dailyprompt-{$prompt_id}", $post_tags );
 
-		\Patchwork\restoreAll();
+		\Patchwork\restore( $handle );
 	}
 
 	public function test_dont_add_post_meta_or_tags_when_answering_invalid_prompt() {
 		$prompt_id = 999;
 
-		\Patchwork\redefine( 'jetpack_get_blogging_prompt_by_id', \Patchwork\always( null ) );
+		$handle = \Patchwork\redefine( 'jetpack_get_blogging_prompt_by_id', \Patchwork\always( null ) );
 
 		// Simulate the editor screen to create a new post() .
 		set_current_screen( 'post-new' );
@@ -62,7 +62,7 @@ class WP_Test_Jetpack_Blogging_Prompts extends WP_UnitTestCase {
 		$this->assertSame( '', $prompt_meta );
 		$this->assertEmpty( $post_tags );
 
-		\Patchwork\restoreAll();
+		\Patchwork\restore( $handle );
 	}
 
 	public function test_mark_post_as_prompt_answer_when_it_has_block_and_tags() {

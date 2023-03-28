@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.30.2 - 2023-03-23
+### Changed
+- Updated package dependencies.
+
 ## 0.30.1 - 2023-03-20
 ### Changed
 - RNA: tweak secondary button styling [#29475]

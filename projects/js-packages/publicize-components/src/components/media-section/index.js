@@ -54,7 +54,7 @@ export default function MediaSection() {
 
 	useEffect( () => {
 		// Removes selected media if connection change results in invalid image
-		if ( ! mediaDetails.metaData ) {
+		if ( ! mediaDetails.metaData || ! attachedMedia.length ) {
 			return;
 		}
 
@@ -63,7 +63,7 @@ export default function MediaSection() {
 			setValidationError( error );
 			updateAttachedMedia( [] );
 		}
-	}, [ updateAttachedMedia, getValidationError, mediaDetails ] );
+	}, [ attachedMedia, updateAttachedMedia, getValidationError, mediaDetails ] );
 
 	const onChange = useCallback(
 		media => {

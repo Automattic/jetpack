@@ -306,10 +306,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Default metadata should be saved.
 		$submission = $feedback[0];
 
-		$this->assertStringContainsString( '[1_Name] =&gt; John Doe', $submission->post_content, 'Post content did not contain the name label and/or value' );
-		$this->assertStringContainsString( '[2_Dropdown] =&gt; First option', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
-		$this->assertStringContainsString( '[3_Radio] =&gt; Second option', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
-		$this->assertStringContainsString( '[4_Text] =&gt; Texty text', $submission->post_content, 'Post content did not contain the text field label and/or value' );
+		$this->assertStringContainsString( '"1_Name":"John Doe"', $submission->post_content, 'Post content did not contain the name label and/or value' );
+		$this->assertStringContainsString( '"2_Dropdown":"First option"', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
+		$this->assertStringContainsString( '"3_Radio":"Second option"', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
+		$this->assertStringContainsString( '"4_Text":"Texty text"', $submission->post_content, 'Post content did not contain the text field label and/or value' );
 	}
 
 	/**
