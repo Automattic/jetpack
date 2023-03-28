@@ -18,7 +18,7 @@ class Setup {
 		// Be wary of any code that you add to this file, since this function is called on plugin load.
 		// We're using the `wp_after_insert_post` hook because we need access to the updated post meta. By using the default priority
 		// of 10 we make sure that our code runs before Sync processes the post.
-		add_action( 'wp_after_insert_post', array( $this, 'generate_token_on_save' ), 10, 4 );
+		add_action( 'wp_after_insert_post', array( $this, 'generate_token_on_save' ), 10, 3 );
 	}
 
 	/**
@@ -50,9 +50,8 @@ class Setup {
 	 * @param int      $post_id     Post ID.
 	 * @param \WP_Post $post        The post object being saved.
 	 * @param bool     $update      Whether this is an update to a post.
-	 * @param \WP_Post $post_before The previous post object.
 	 */
-	public function generate_token_on_save( $post_id, $post, $update, $post_before ) {
+	public function generate_token_on_save( $post_id, $post, $update ) {
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			return;
 		}
@@ -72,6 +71,16 @@ class Setup {
 			return;
 		}
 
+		$post_settings = new Post_Settings( $post_id );
+		if (
+			! $update &&
+			'auto-draft' === $post->post_status &&
+			empty( $post_settings->get_settings( true ) )
+		) {
+			$post_settings->update_setting( 'enabled', true );
+			return;
+		}
+
 		if ( wp_is_post_autosave( $post ) || $post->post_status === 'auto-draft' ) {
 			return;
 		}
@@ -80,17 +89,6 @@ class Setup {
 			return;
 		}
 
-		$post_settings = new Post_Settings( $post_id );
-		if (
-			$update &&
-			! empty( $post_before->post_status ) &&
-			'auto-draft' === $post_before->post_status &&
-			! empty( $post->post_status ) &&
-			'auto-draft' !== $post->post_status &&
-			empty( $post_settings->get_settings( true ) )
-		) {
-			$post_settings->update_setting( 'enabled', true );
-		}
 		$this->generate_token( $post_settings );
 	}
 }
