@@ -7,9 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Publicize\REST_Controller;
-
 /**
  * Class for setting up Social Image Generator-related functionality.
  */
@@ -18,40 +15,33 @@ class Setup {
 	 * Initialise SIG-related functionality.
 	 */
 	public function init() {
+		if ( ! ( new Settings() )->is_available() ) {
+			return;
+		}
+
+		// Be wary of any code that you add to this file, since this function is called on plugin load.
 		// We're using the `wp_after_insert_post` hook because we need access to the updated post meta. By using the default priority
 		// of 10 we make sure that our code runs before Sync processes the post.
-		add_action( 'wp_after_insert_post', array( $this, 'set_meta' ), 10, 2 );
+		add_action( 'wp_after_insert_post', array( $this, 'generate_token_on_save' ), 10, 3 );
+		add_action( 'rest_api_init', array( new REST_Settings_Controller(), 'register_routes' ) );
+		add_action( 'rest_api_init', array( new REST_Token_Controller(), 'register_routes' ) );
 	}
 
 	/**
 	 * Get a token from WPCOM to generate the social image for the post, and save it locally.
 	 *
-	 * @param int $post_id Post ID.
+	 * @param Post_Settings $post_settings A Post_Settings object that can be used to save the generated token.
 	 */
-	public function generate_token( $post_id ) {
-		$post_settings = new Post_Settings( $post_id );
-
+	public function generate_token( $post_settings ) {
 		if ( ! $post_settings->is_enabled() ) {
 			return;
 		}
 
-		$body = array(
-			'text'      => $post_settings->get_custom_text(),
-			'image_url' => $post_settings->get_image_url(),
+		$token = fetch_token(
+			$post_settings->get_custom_text(),
+			$post_settings->get_image_url(),
+			$post_settings->get_template()
 		);
-
-		$rest_controller = new REST_Controller();
-		$response        = Client::wpcom_json_api_request_as_blog(
-			sprintf( 'sites/%d/jetpack-social/generate-image-token', absint( \Jetpack_Options::get_option( 'id' ) ) ),
-			'2',
-			array(
-				'headers' => array( 'content-type' => 'application/json' ),
-				'method'  => 'POST',
-			),
-			wp_json_encode( array_filter( $body ) ),
-			'wpcom'
-		);
-		$token           = $rest_controller->make_proper_response( $response );
 
 		if ( is_wp_error( $token ) ) {
 			return;
@@ -61,31 +51,54 @@ class Setup {
 	}
 
 	/**
-	 * Explicitly enable or disable SIG for a post. If it's enabled, also generate a token.
+	 * Trigger token generation for a post if SIG is enabled.
 	 *
-	 * @param int      $post_id Post ID.
-	 * @param \WP_Post $post Post that's being updated.
+	 * @param int      $post_id     Post ID.
+	 * @param \WP_Post $post        The post object being saved.
+	 * @param bool     $update      Whether this is an update to a post.
 	 */
-	public function set_meta( $post_id, $post ) {
-		if ( wp_is_post_autosave( $post ) || $post->post_status === 'auto-draft' ) {
+	public function generate_token_on_save( $post_id, $post, $update ) {
+		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
 			return;
 		}
 
-		if ( wp_is_post_revision( $post_id ) ) {
+		// If we're not using the block editor for this post, do not continue.
+		if ( ! use_block_editor_for_post( $post ) ) {
+			return;
+		}
+
+		global $publicize;
+
+		if ( ! $publicize->post_type_is_publicizeable( $post->post_type ) ) {
+			return;
+		}
+
+		if ( ! $publicize->has_social_image_generator_feature() ) {
+			return;
+		}
+
+		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
+		if ( ! ( new Settings() )->is_enabled() ) {
 			return;
 		}
 
 		$post_settings = new Post_Settings( $post_id );
-		$settings      = $post_settings->get_settings();
-
-		// If SIG has explicitly been disabled for this post, we don't need to do anything else.
-		if ( isset( $settings['enabled'] ) && $settings['enabled'] === false ) {
+		if (
+			! $update &&
+			'auto-draft' === $post->post_status &&
+			empty( $post_settings->get_settings( true ) )
+		) {
+			$post_settings->update_setting( 'enabled', true );
 			return;
 		}
 
-		// If we're here, it's safe to assume SIG should be enabled.
-		$post_settings->update_setting( 'enabled', true );
+		if ( $post->post_status === 'auto-draft' ) {
+			return;
+		}
 
-		$this->generate_token( $post_id );
+		$this->generate_token( $post_settings );
 	}
 }

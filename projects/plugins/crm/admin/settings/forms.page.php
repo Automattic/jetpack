@@ -48,9 +48,9 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
 <p id="sbDesc"><?php esc_html_e( 'Here you can modify the settings for the built-in CRM forms.', 'zero-bs-crm' ); ?>
 
-<?php // WLREMOVE ?>
+<?php ##WLREMOVE ?>
 <?php echo wp_kses( sprintf( __( 'Want to use third-party forms like Contact Form 7 or Gravity Forms? Check out our <a href="%s" target="_blank">Form Extensions</a>!', 'zero-bs-crm' ), $zbs->urls['products'] ), $zbs->acceptable_restricted_html ); ?></a>
-<?php // /WLREMOVE ?>
+<?php ##/WLREMOVE ?>
 </p>
 
 <?php

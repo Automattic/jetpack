@@ -10,7 +10,7 @@ const ActionsMenu = () => {
 			text={ __( 'Bulk actions', 'jetpack-forms' ) }
 			icon={ chevronDown }
 			popoverProps={ { placement: 'bottom-end' } }
-			toggleProps={ { variant: 'primary', iconPosition: 'right' } }
+			toggleProps={ { variant: 'secondary', iconPosition: 'right' } }
 		>
 			{ ( { onClose } ) => (
 				<MenuGroup>

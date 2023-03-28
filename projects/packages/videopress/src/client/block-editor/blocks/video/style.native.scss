@@ -1,13 +1,5 @@
 .wp-block-jetpack-videopress__container {
 	width: 100%;
 	height: 100%;
-	background-color: #000;
 	flex: 1;
-}
-
-.wp-block-jetpack-videopress__video-player {
-	width: 100%;
-	// TODO: Temporarily setting height to 250px so placeholder is visible.
-	// This should eventually be changed.
-	height: 250px;
 }

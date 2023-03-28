@@ -124,7 +124,7 @@ $fieldHideOverrides = $zbs->settings->get( 'fieldhides' );
 
 ?>
 
-<p id="sbDesc"><?php esc_html_e( 'Using this page you can modify the order of the fields associated with Customers, Companies, Quotes', 'zero-bs-crm' ); ?></p>
+<p id="sbDesc"><?php esc_html_e( 'Using this page you can modify the order of the fields associated with Contacts, Companies, Quotes', 'zero-bs-crm' ); ?></p>
 
 <?php
 if ( isset( $sbupdated ) ) {

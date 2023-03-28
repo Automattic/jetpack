@@ -49,6 +49,10 @@ export const conflictingSeoPluginsList = [
 		name: 'SEOKEY Pro',
 		slug: 'seo-key-pro/seo-key.php',
 	},
+	{
+		name: 'The SEO Framework',
+		slug: 'autodescription/autodescription.php',
+	},
 ];
 
 export const SEO = withModuleSettingsFormHelpers(

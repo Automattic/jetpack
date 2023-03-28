@@ -41,8 +41,9 @@ _default.args = {
 	label: 'Video frame',
 	help: 'Use the control to set timestamp of the video frame.',
 	max: 3600 * 1000 * 2, // 2 hours
-	value: 236 * 1000, // 3:56
+	value: 236 * 1000 + 125, // 3:56.125
 	wait: 100,
+	decimalPlaces: undefined,
 	fineAdjustment: 50,
 	disabled: false,
 	autoHideTimeInput: true,
@@ -55,3 +56,29 @@ _default.args = {
 };
 
 _default.storyName = 'Timestamp Control';
+
+// decimalPlaces story
+const decimalPlacesStoryTemplate: ComponentStory< typeof TimestampControl > = args => {
+	const [ time, setTime ] = useState( args.value );
+	return <TimestampControl { ...args } value={ time } onChange={ setTime } />;
+};
+
+export const decimalPlaces = decimalPlacesStoryTemplate.bind( {} );
+decimalPlaces.args = {
+	value: 3500, // 3.5 seconds
+	max: 1000 * 5, // five seconds
+	decimalPlaces: 2,
+};
+
+// disabled story
+const disabledStoryTemplate: ComponentStory< typeof TimestampControl > = args => {
+	const [ time, setTime ] = useState( args.value );
+	return <TimestampControl { ...args } value={ time } onChange={ setTime } />;
+};
+
+export const disabled = disabledStoryTemplate.bind( {} );
+disabled.args = {
+	max: 3600 * 1000 * 2, // 2 hours
+	value: 3600 * 1000 + 15 * 60 * 1000 + 43 * 1000, // 1.5 hours
+	disabled: true,
+};

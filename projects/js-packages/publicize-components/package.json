@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-publicize-components",
-	"version": "0.17.2-alpha",
+	"version": "0.19.0-alpha",
 	"description": "A library of JS components required by the Publicize editor plugin",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/publicize-components/#readme",
 	"bugs": {
@@ -35,6 +35,7 @@
 		"@wordpress/hooks": "3.28.0",
 		"@wordpress/i18n": "4.28.0",
 		"@wordpress/icons": "9.19.0",
+		"@wordpress/notices": "3.28.0",
 		"classnames": "2.3.1",
 		"lodash": "4.17.21",
 		"prop-types": "15.8.1",

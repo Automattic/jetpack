@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+JITM: Fix button overflow when text length is too big

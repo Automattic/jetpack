@@ -2,6 +2,36 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.0-a.7 - 2023-03-20
+### Enhancements
+- Blocks: the cookie consent block is now available to general audience. [#29462]
+- Blocks: the VideoPress block is now available to general audience. [#29459]
+- Blocks: the writing prompts block is now available to general audience. [#29433]
+- Notifications: remove all library dependencies for improved performance and lower footprint. [#29510]
+- Paid newsletter block: improve logic for showing the UI based on site configuration. [#29262]
+
+### Improved compatibility
+- Blocks: ensure the Pinterest block does not trigger errors when using WordPress 6.2. [#29505]
+- Connection: improve the connection flow that happens after plugin activation. [#29526]
+
+### Bug fixes
+- Blocks: avoid warnings in the block editor because of invalid categories for some blocks. [#29513]
+- Blocks: fix the VideoPress preload behavior when "none" is chosen. [#29563]
+- Forms: avoid PHP notices when using a form with a dropdown field. [#29512]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adds the `is_wpcom_staging_site` attribute in a few more contexts. [#29453]
+- Blocks: update deprecated block editor selector. [#29420]
+- Blocks: update deprecated component prop. [#29463]
+- Firewall: add updateWafSettings method. [#29299]
+- Jetpack Forms: add tracking of Google Sheets exports. [#29225]
+- Paid newsletters: add the launchpad source to memberships status endpoint. [#29468]
+- Send individual plugin upgrade buttons to My Jetpack insterstitial [#29138]
+- Sites API: add was_ecommerce_trial flag to data returned for site details. [#29423]
+- Small change to unreleased block. [#29501]
+- Stats Widget: minor cleanup of Akismet section. [#29347]
+- Updated package dependencies. [#29471]
+
 ## 12.0-a.5 - 2023-03-15
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Changelog edits. [#29445]

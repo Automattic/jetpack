@@ -16,7 +16,7 @@ Blocks, usually core blocks, extended by Jetpack plugin.
 Located in the `./extended-blocks` folder.
 
 ### Plugins
-Core Editor [plugins](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-plugins/), 
+Core Editor [plugins](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-plugins/),
 registered by Jetpack to extend the application UI via [Slot&Fill](https://developer.wordpress.org/block-editor/reference-guides/slotfills/) components.
 
 ## Extension Structure
@@ -341,7 +341,7 @@ See [Publicize](blocks/publicize/index.js) and [Shortlinks](blocks/shortlinks/in
 
 ### i18n
 
-`@wordpress/i18n` doesn't support React elements in strings, but you can use `createInterpolateElement` from `@wordpress/element`. 
+`@wordpress/i18n` doesn't support React elements in strings, but you can use `createInterpolateElement` from `@wordpress/element`.
 
 ### Colors
 
@@ -354,6 +354,25 @@ The build pipeline also supports [Color studio](https://github.com/Automattic/co
 ### Icons
 
 Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Gutenberg. Don't rely on icons used in WordPress core to avoid visual mixing up with core blocks.
+
+### SVG files
+
+When an svg (or other asset) file is imported into js, by default webpack transforms the import into a url for the file. If you would like to import an svg file as a React component (using the [svgr library](https://react-svgr.com/)), append `?component` to the import source. This is particularly useful for [block icons](https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/#icon-optional), which need to be either svg markup or a React component.
+
+```js
+// index.js for a block
+import { getIconColor } from '../../shared/block-icons';
+import Icon from './icon.svg?component';
+
+export const settings = {
+	...
+	icon: {
+		src: Icon,
+		foreground: getIconColor(),
+	},
+	...
+};
+```
 
 ## Native support
 

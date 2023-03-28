@@ -1061,7 +1061,12 @@ abstract class Publicize_Base {
 			'type'          => 'object',
 			'description'   => __( 'Post options related to Jetpack Social.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
-			'default'       => array(),
+			'default'       => array(
+				'image_generator_settings' => array(
+					'template' => ( new Social_Image_Generator\Settings() )->get_default_template(),
+					'enabled'  => false,
+				),
+			),
 			'show_in_rest'  => array(
 				'name'   => 'jetpack_social_options',
 				'schema' => array(
@@ -1094,8 +1099,13 @@ abstract class Publicize_Base {
 									'type' => 'string',
 								),
 								'image_id'    => array(
-									'type'    => 'number',
-									'default' => 0,
+									'type' => 'number',
+								),
+								'template'    => array(
+									'type' => 'string',
+								),
+								'token'       => array(
+									'type' => 'string',
 								),
 							),
 						),
@@ -1609,17 +1619,10 @@ abstract class Publicize_Base {
 	/**
 	 * Check if the social image generator is enabled.
 	 *
-	 * @param int $blog_id The blog ID for the current blog.
 	 * @return bool
 	 */
-	public function is_social_image_generator_enabled( $blog_id ) {
-		$data = $this->get_api_data( $blog_id );
-
-		if ( empty( $data ) ) {
-			return false;
-		}
-
-		return ! empty( $data['is_social_image_generator_enabled'] );
+	public function has_social_image_generator_feature() {
+		return Current_Plan::supports( 'social-image-generator' );
 	}
 
 	/**
