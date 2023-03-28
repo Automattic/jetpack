@@ -31,14 +31,14 @@ export default function GeneratedImagePreview() {
 
 	const imageUrl = useSelect( select => {
 		const getMedia = select( 'core' ).getMedia;
-		if ( imageType === 'none' ) {
+		if (
+			imageType === 'none' ||
+			( imageType === 'custom' && ! imageId ) ||
+			( ( imageType ?? 'featured' === 'featured' ) && ! featuredImage )
+		) {
 			return null;
 		}
-		if ( imageType === 'custom' ) {
-			return getMediaSourceUrl( getMedia( imageId ) );
-		}
-		// We default to the Featured image
-		const media = getMedia( featuredImage );
+		const media = getMedia( imageType === 'custom' ? imageId : featuredImage );
 		if ( ! media ) {
 			return FEATURED_IMAGE_STILL_LOADING;
 		}
