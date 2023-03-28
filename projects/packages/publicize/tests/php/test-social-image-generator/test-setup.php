@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Publicize;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Current_Plan;
 use Jetpack_Options;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -29,16 +30,10 @@ class Setup_Test extends BaseTestCase {
 	 * Setting up the test.
 	 */
 	public function set_up() {
-		global $publicize;
-		// Enable the feature
-		$publicize = $this->getMockBuilder( Publicize::class )
-			->disableOriginalConstructor()
-			->setMethods( array( 'has_social_image_generator_feature' ) )
-			->getMock();
-		$publicize->method( 'has_social_image_generator_feature' )->willReturn( true );
-		$publicize->register_post_meta();
-
-		( new Social_Image_Generator\Settings() )->set_enabled( true );
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array( 'social-image-generator' );
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+		add_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
 		$this->sig = new Social_Image_Generator\Setup();
 		$this->sig->init();
 		// Mock site connection.
@@ -51,10 +46,23 @@ class Setup_Test extends BaseTestCase {
 	 * Returning the environment into its initial state.
 	 */
 	public function tear_down() {
+		remove_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 		unset( $_SERVER['REQUEST_METHOD'] );
-		$_GET = array();
+		$_GET                       = array();
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array();
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+	}
+
+	/**
+	 * Mock Publicize being active.
+	 *
+	 * @return array
+	 */
+	public function mock_publicize_being_active() {
+		return array( 'publicize' );
 	}
 
 	/**
