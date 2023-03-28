@@ -1,10 +1,13 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
-if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
+namespace Automattic\Jetpack\Waf\Brute_Force_Protection;
+
+if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
+
 	/**
 	 * The math captcha fallback if we can't talk to the Protect API
 	 */
-	class Jetpack_Protect_Math_Authenticate {
+	class Brute_Force_Protection_Math_Authenticate {
 
 		/**
 		 * If the class is loaded.
@@ -47,8 +50,8 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		 */
 		public static function math_authenticate() {
 			if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
-				$jetpack_protect = Jetpack_Protect_Module::instance();
-				$transient       = $jetpack_protect->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
+				$brute_force_protection = Brute_Force_Protection::instance();
+				$transient              = $brute_force_protection->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
 
 				if ( ! $transient || $transient < 1 ) {
 					self::generate_math_page();
@@ -71,7 +74,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 					wp_kses(
 						__(
 							'<strong>You failed to correctly answer the math problem.</strong> This is used to combat spam when Jetpack’s Brute Force Attack Protection API is unavailable. Please use your browser’s back button to return to the login form, press the "refresh" button to generate a new math problem, and try to log in again.',
-							'jetpack'
+							'jetpack-waf'
 						),
 						array( 'strong' => array() )
 					),
@@ -91,15 +94,15 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		public static function generate_math_page( $error = false ) {
 			ob_start();
 			?>
-			<h2><?php esc_html_e( 'Please solve this math problem to prove that you are not a bot. Once you solve it, you will need to log in again.', 'jetpack' ); ?></h2>
+			<h2><?php esc_html_e( 'Please solve this math problem to prove that you are not a bot. Once you solve it, you will need to log in again.', 'jetpack-waf' ); ?></h2>
 			<?php if ( $error ) : ?>
-				<h3><?php esc_html_e( 'Your answer was incorrect, please try again.', 'jetpack' ); ?></h3>
+				<h3><?php esc_html_e( 'Your answer was incorrect, please try again.', 'jetpack-waf' ); ?></h3>
 			<?php endif ?>
 
 			<form action="<?php echo esc_url( wp_login_url() ); ?>" method="post" accept-charset="utf-8">
 				<?php self::math_form(); ?>
 				<input type="hidden" name="jetpack_protect_process_math_form" value="1" id="jetpack_protect_process_math_form" />
-				<p><input type="submit" value="<?php esc_attr_e( 'Continue &rarr;', 'jetpack' ); ?>"></p>
+				<p><input type="submit" value="<?php esc_attr_e( 'Continue &rarr;', 'jetpack-waf' ); ?>"></p>
 			</form>
 			<?php
 			$mathpage = ob_get_contents();
@@ -128,8 +131,8 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			} else {
 				$temp_pass = substr( hash_hmac( 'sha1', wp_rand( 1, 100000000 ), get_site_option( 'jetpack_protect_key' ) ), 5, 25 );
 
-				$jetpack_protect = Jetpack_Protect_Module::instance();
-				$jetpack_protect->set_transient( 'jpp_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
+				$brute_force_protection = Brute_Force_Protection::instance();
+				$brute_force_protection->set_transient( 'jpp_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
 				setcookie( 'jpp_math_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
 				remove_action( 'login_form', array( $this, 'math_form' ) );
 				return true;
@@ -144,8 +147,8 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 		public static function math_form() {
 			// Check if jpp_math_pass cookie is set and it matches valid transient.
 			if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
-				$jetpack_protect = Jetpack_Protect_Module::instance();
-				$transient       = $jetpack_protect->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
+				$brute_force_protection = Brute_Force_Protection::instance();
+				$transient              = $brute_force_protection->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
 
 				if ( $transient && $transient > 0 ) {
 					return '';
@@ -162,7 +165,7 @@ if ( ! class_exists( 'Jetpack_Protect_Math_Authenticate' ) ) {
 			?>
 			<div style="margin: 5px 0 20px;">
 				<p style="font-size: 14px;">
-					<?php esc_html_e( 'Prove your humanity', 'jetpack' ); ?>
+					<?php esc_html_e( 'Prove your humanity', 'jetpack-waf' ); ?>
 				</p>
 				<br/>
 				<label for="jetpack_protect_answer" style="vertical-align:super;">

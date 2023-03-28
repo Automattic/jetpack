@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Move the brute force protection module into the package.
