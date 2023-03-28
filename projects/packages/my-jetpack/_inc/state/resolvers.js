@@ -6,6 +6,7 @@ import {
 	REST_API_SITE_PRODUCTS_ENDPOINT,
 	PRODUCTS_THAT_NEEDS_INITIAL_FETCH,
 } from './constants';
+import resolveProductStatsRequest from './stats-resolvers';
 
 const myJetpackResolvers = {
 	getProduct: {
@@ -89,6 +90,38 @@ const myJetpackResolvers = {
 		},
 };
 
+const getProductStats = {
+	isFulfilled: ( state, productId ) => {
+		return state.stats?.items?.hasOwnProperty( productId ) || false;
+	},
+	fulfill:
+		productId =>
+		async ( { dispatch } ) => {
+			try {
+				dispatch.setIsFetchingProductStats( productId, true );
+
+				/**
+				 * Delegate the resolution to a product-specific resolver.
+				 */
+				const response = await resolveProductStatsRequest( productId );
+
+				dispatch.setProductStats( productId, response );
+				dispatch.setIsFetchingProductStats( productId, false );
+
+				return Promise.resolve();
+			} catch ( error ) {
+				dispatch.setIsFetchingProductStats( productId, false );
+
+				// Pick error from the response body.
+				if ( error?.code && error?.message ) {
+					return Promise.reject( error );
+				}
+				throw new Error( error );
+			}
+		},
+};
+
 export default {
 	...myJetpackResolvers,
+	getProductStats,
 };
