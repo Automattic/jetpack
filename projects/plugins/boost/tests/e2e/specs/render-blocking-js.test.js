@@ -2,6 +2,7 @@ import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
+import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
 
 const testPostTitle = 'Hello World with JavaScript';
 
@@ -10,6 +11,10 @@ test.describe( 'Render Blocking JS module', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
+
+		// Protect can interfere with the login flow. So we are disabling it
+		await prerequisitesBuilder( page ).withInactiveModules( [ 'protect' ] ).build();
+
 		await boostPrerequisitesBuilder( page ).withTestContent( [ testPostTitle ] ).build();
 	} );
 
