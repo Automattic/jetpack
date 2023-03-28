@@ -29,6 +29,7 @@
 		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-google-fonts-provider": "@dev",
 		"automattic/jetpack-identity-crisis": "@dev",
+		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-import": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-lazy-images": "@dev",
@@ -49,7 +50,6 @@
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
 		"automattic/jetpack-wordads": "@dev",
-		"automattic/jetpack-yoast-promo": "@dev",
 		"nojimage/twitter-text-php": "3.1.2"
 	},
 	"require-dev": {

@@ -390,11 +390,18 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 * @return array|WP_Error|WP_REST_Response
 	 */
 	public function delete_connection( WP_REST_Request $request ) {
+		global $wp_version;
+
 		$service    = rawurlencode( $request->get_param( 'service' ) );
 		$wpcom_path = sprintf( '/meta/external-media/connection/%s', $service );
 
+		// Remove this check once WordPress 6.2 is the minimum supported version.
+		$delete_request = version_compare( $wp_version, '6.2-alpha', '<' )
+			? Requests::DELETE
+			: \WpOrg\Requests\Requests::DELETE;
+
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$internal_request = new WP_REST_Request( Requests::DELETE, '/' . $this->namespace . $wpcom_path );
+			$internal_request = new WP_REST_Request( $delete_request, '/' . $this->namespace . $wpcom_path );
 			$internal_request->set_query_params( $request->get_params() );
 
 			return rest_do_request( $internal_request );
@@ -404,7 +411,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 			$wpcom_path,
 			'2',
 			array(
-				'method' => Requests::DELETE,
+				'method' => $delete_request,
 			)
 		);
 

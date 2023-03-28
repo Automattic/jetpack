@@ -56,8 +56,6 @@ function stats_load() {
 
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
-	add_action( 'admin_init', 'stats_merged_widget_admin_init' );
-
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
 	// Add an icon to see stats in WordPress.com for a particular post.
@@ -71,29 +69,6 @@ function stats_load() {
 
 	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
 	add_action( 'updating_jetpack_version', array( 'Jetpack_Stats_Upgrade_Nudges', 'unset_nudges_setting' ) );
-}
-
-/**
- * Delay conditional for current_user_can to after init.
- *
- * @access public
- * @return void
- */
-function stats_merged_widget_admin_init() {
-	if ( current_user_can( 'view_stats' ) ) {
-		add_action( 'load-index.php', 'stats_enqueue_dashboard_head' );
-		add_action( 'jetpack_dashboard_widget', 'stats_jetpack_dashboard_widget' );
-	}
-}
-
-/**
- * Enqueue Stats Dashboard
- *
- * @access public
- * @return void
- */
-function stats_enqueue_dashboard_head() {
-	add_action( 'admin_head', 'stats_dashboard_head' );
 }
 
 /**
@@ -1103,6 +1078,8 @@ function stats_get_blog() {
 /**
  * Stats Dashboard Widget Options.
  *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
  * @access public
  * @return array
  */
@@ -1125,16 +1102,19 @@ function stats_dashboard_widget_options() {
 		}
 	}
 
-		return array_merge( $defaults, $options );
+	return array_merge( $defaults, $options );
 }
 
 /**
  * Stats Dashboard Widget Control.
  *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
  * @access public
  * @return void
  */
 function stats_dashboard_widget_control() {
+	stats_dashboard_widget_controls_handle_submission();
 	$periods   = array(
 		'1'  => __( 'day', 'jetpack' ),
 		'7'  => __( 'week', 'jetpack' ),
@@ -1147,26 +1127,54 @@ function stats_dashboard_widget_control() {
 		'90'  => __( 'the past quarter', 'jetpack' ),
 		'365' => __( 'the past year', 'jetpack' ),
 	);
-	$defaults  = array(
+	stats_dashboard_widget_controls_html( $intervals, $periods, stats_dashboard_widget_options() );
+}
+
+/**
+ * Handle widget controls form submission.
+ *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
+ * @access public
+ * @return void
+ */
+function stats_dashboard_widget_controls_handle_submission() {
+	$options  = stats_dashboard_widget_options();
+	$defaults = array(
 		'top'    => 1,
 		'search' => 7,
 	);
 
-	$options = stats_dashboard_widget_options();
-
-	if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'post' === strtolower( filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) && isset( $_POST['stats_id'] ) && 'dashboard_stats' === $_POST['stats_id'] ) { // phpcs:ignore WordPress.Security.NonceVerification
-		if ( isset( $periods[ $_POST['chart'] ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-			$options['chart'] = filter_var( wp_unslash( $_POST['chart'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
-		}
-		foreach ( array( 'top', 'search' ) as $key ) {
-			if ( isset( $intervals[ $_POST[ $key ] ] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
-				$options[ $key ] = filter_var( wp_unslash( $_POST[ $key ] ) ); // phpcs:ignore WordPress.Security.NonceVerification
-			} else {
-				$options[ $key ] = $defaults[ $key ];
+	// Check if the correct form was submitted.
+	if ( isset( $_POST['stats_id'] ) && 'dashboard_stats' === $_POST['stats_id'] ) {
+		// Perform nonce verification.
+		if (
+			isset( $_POST['dashboard-widget-nonce'] ) &&
+			wp_verify_nonce( filter_var( wp_unslash( $_POST['dashboard-widget-nonce'] ) ), 'edit-dashboard-widget_dashboard_stats' )
+		) {
+			// Update options.
+			$options['chart'] = isset( $_POST['chart'] ) ? (int) $_POST['chart'] : 1;
+			foreach ( array( 'top', 'search' ) as $key ) {
+				$options[ $key ] = isset( $_POST[ $key ] ) ? (int) $_POST[ $key ] : $defaults[ $key ];
 			}
+			update_option( 'stats_dashboard_widget', $options );
 		}
-		update_option( 'stats_dashboard_widget', $options );
 	}
+}
+
+/**
+ * Output HTML for widget controls.
+ *
+ * @param array $intervals Array of intervals.
+ * @param array $periods Array of periods.
+ * @param array $options Array of options.
+ *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
+ * @access public
+ * @return void
+ */
+function stats_dashboard_widget_controls_html( $intervals, $periods, $options ) {
 	?>
 	<p>
 	<label for="chart"><?php esc_html_e( 'Chart stats by', 'jetpack' ); ?></label>
@@ -1212,6 +1220,8 @@ function stats_dashboard_widget_control() {
 /**
  * Jetpack Stats Dashboard Widget.
  *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
  * @access public
  * @return void
  */
@@ -1237,6 +1247,8 @@ function stats_jetpack_dashboard_widget() {
 
 /**
  * JavaScript and CSS for dashboard widget.
+ *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
  *
  * @access public
  * @return void
@@ -1292,6 +1304,8 @@ jQuery( function($) {
 
 /**
  * Stats Dashboard Widget Content.
+ *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
  *
  * @access public
  * @return void
@@ -1456,50 +1470,46 @@ function stats_print_wp_remote_error( $get, $url ) {
 	Jetpack::state( $state_name, $error );
 	if ( $error !== $previous_error ) {
 		?>
-	<div class="wrap">
-	<p><?php esc_html_e( 'We were unable to get your stats just now. Please reload this page to try again.', 'jetpack' ); ?></p>
-	</div>
+			<div class="wrap">
+				<p><?php esc_html_e( 'We were unable to get your stats just now. Please reload this page to try again.', 'jetpack' ); ?></p>
+			</div>
 		<?php
 		return;
 	}
 	?>
 	<div class="wrap">
 	<p>
-	<?php
-		printf(
-			/* translators: placeholder is an a href for a support site. */
-			esc_html__( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please contact %1$s. In your report, please include the information below.', 'jetpack' ),
-			sprintf(
-				'<a href="https://support.wordpress.com/contact/?jetpack=needs-service">%s</a>',
-				esc_html__( 'Jetpack Support', 'jetpack' )
-			)
-		);
-	?>
-		</p>
-	<pre>
-	User Agent: "<?php echo isset( $_SERVER['HTTP_USER_AGENT'] ) ? esc_html( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
-	Page URL: "http<?php echo ( is_ssl() ? 's' : '' ) . '://' . esc_html( ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
-	API URL: "<?php echo esc_url( $url ); ?>"
-	<?php
-	if ( is_wp_error( $get ) ) {
-		foreach ( $get->get_error_codes() as $code ) {
-			foreach ( $get->get_error_messages( $code ) as $message ) {
-				?>
-				<?php print esc_html( $code ) . ': "' . esc_html( $message ) . '"'; ?>
-
-				<?php
-			}
-		}
-	} else {
-		$get_code       = wp_remote_retrieve_response_code( $get );
-		$content_length = strlen( wp_remote_retrieve_body( $get ) );
-		?>
-Response code: "<?php print esc_html( $get_code ); ?>"
-Content length: "<?php print esc_html( $content_length ); ?>"
-
 		<?php
-	}
-	?>
+			printf(
+				/* translators: placeholder is an a href for a support site. */
+				esc_html__( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please contact %1$s. In your report, please include the information below.', 'jetpack' ),
+				sprintf(
+					'<a href="https://support.wordpress.com/contact/?jetpack=needs-service">%s</a>',
+					esc_html__( 'Jetpack Support', 'jetpack' )
+				)
+			);
+		?>
+	</p>
+	<pre class="stats-widget-error">
+		User Agent: "<?php echo isset( $_SERVER['HTTP_USER_AGENT'] ) ? esc_html( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
+		Page URL: "http<?php echo ( is_ssl() ? 's' : '' ) . '://' . esc_html( ( isset( $_SERVER['HTTP_HOST'] ) ? wp_unslash( $_SERVER['HTTP_HOST'] ) : '' ) . ( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '' ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized ?>"
+		API URL: "<?php echo esc_url( $url ); ?>"
+		<?php
+		if ( is_wp_error( $get ) ) {
+			foreach ( $get->get_error_codes() as $code ) {
+				foreach ( $get->get_error_messages( $code ) as $message ) {
+					print esc_html( $code ) . ': "' . esc_html( $message ) . '"';
+				}
+			}
+		} else {
+			$get_code       = wp_remote_retrieve_response_code( $get );
+			$content_length = strlen( wp_remote_retrieve_body( $get ) );
+			?>
+				Response code: "<?php print esc_html( $get_code ); ?>"
+				Content length: "<?php print esc_html( $content_length ); ?>"
+			<?php
+		}
+		?>
 	</pre>
 	</div>
 	<?php

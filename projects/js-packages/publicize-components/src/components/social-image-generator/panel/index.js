@@ -9,6 +9,7 @@ import { useCallback, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
 import useMediaDetails from '../../../hooks/use-media-details';
+import GeneratedImagePreview from '../../generated-image-preview';
 import MediaPicker from '../../media-picker';
 import TemplatePicker from '../template-picker';
 
@@ -90,6 +91,9 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 			/>
 			{ isEnabled && (
 				<>
+					<hr />
+					<GeneratedImagePreview />
+					<hr />
 					<TextControl
 						value={ customText || '' }
 						onChange={ setCustomText }

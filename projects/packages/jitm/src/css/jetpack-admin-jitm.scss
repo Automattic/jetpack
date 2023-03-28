@@ -58,6 +58,7 @@ $jp-gray-20:             #a7aaad;
 	border-color: black;
 	background: $white;
 	color: black;
+	width: 100%;
 
 	// Primary buttons
 	&.is-primary {
@@ -245,6 +246,7 @@ $jp-gray-20:             #a7aaad;
 	height: 50%;
 	margin: auto rem( 16px ) auto 0;
 	gap: rem( 16px );
+	overflow: hidden;
 
 	@include breakpoint( ">480px" ) {
 		margin-left: rem( 16px );
@@ -330,6 +332,7 @@ $jp-gray-20:             #a7aaad;
 	display: flex;
 	flex-grow: 1;
 	flex-wrap: wrap;
+	flex-shrink: 100000;
 
 	@include breakpoint( "<480px" ) {
 		margin-right: 0;
@@ -394,6 +397,7 @@ $jp-gray-20:             #a7aaad;
 	align-self: center;
 	font-size: rem( 12px );
 	text-align: left;
+	overflow: hidden;
 
 	.jitm-banner__prices {
 		display: flex;

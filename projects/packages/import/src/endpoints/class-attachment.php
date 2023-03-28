@@ -96,6 +96,26 @@ class Attachment extends \WP_REST_Attachments_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
+		$file_info  = $this->get_file_info( $request );
+		$attachment = $this->get_attachment_by_file_info( $file_info );
+		if ( $attachment ) {
+			$response = $this->prepare_attachment_for_response( $attachment, $request );
+
+			if ( \is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			return new \WP_Error(
+				'attachment_exists',
+				__( 'The attachment already exists.', 'jetpack-import' ),
+				array(
+					'status'        => 409,
+					'attachment'    => $response,
+					'attachment_id' => $attachment->ID,
+				)
+			);
+		}
+
 		$this->set_upload_dir( $request );
 		return parent::create_item( $request );
 	}
@@ -176,4 +196,116 @@ class Attachment extends \WP_REST_Attachments_Controller {
 			}
 		);
 	}
+
+	/**
+	 * Prepares a single attachment for create or update. This function overrides the parent function
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return stdClass|WP_Error Post object.
+	 */
+	protected function prepare_item_for_database( $request ) {
+		$prepared_attachment = parent::prepare_item_for_database( $request );
+		// date_gmt is equal to the date by default, so we need to override it.
+		if ( $request->get_param( 'date_gmt' ) ) {
+			$prepared_attachment->post_date_gmt = $request->get_param( 'date_gmt' );
+		}
+		return $prepared_attachment;
+	}
+
+	/**
+	 * Retrieve the filename and MIME type from the request headers.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 *
+	 * @return array An associative array containing the filename and MIME type.
+	 */
+	protected function get_file_info( $request ) {
+		// Get the filename from the Content-Disposition header.
+		$filename_header = $request->get_header( 'content_disposition' );
+		$filename        = self::get_filename_from_disposition( (array) $filename_header );
+		$post_date_gmt   = $request->get_param( 'date_gmt' );
+
+		// Get the MIME type from the Content-Type header.
+		$mime_type = $request->get_header( 'content_type' );
+
+		return array(
+			'filename'      => $filename,
+			'mime_type'     => $mime_type,
+			'post_date_gmt' => $post_date_gmt,
+		);
+	}
+
+	/**
+	 * Retrieve attachment metadata by file information.
+	 *
+	 * This function retrieves attachment metadata for a given file based on its filename, MIME type, and creation date.
+	 *
+	 * @param array $fileinfo An associative array containing information about the file. The array must contain the following keys:
+	 *   - 'filename': The name of the file.
+	 *   - 'mime_type': The MIME type of the file (e.g. 'image/jpeg').
+	 *   - 'date': The creation date of the file (e.g. '2022-01-01 12:00:00').
+	 *
+	 * @return mixed An associative array containing metadata for the attachment, or false if no attachment was found.
+	 */
+	protected function get_attachment_by_file_info( $fileinfo ) {
+		// Make sure all required variables are set and not empty
+		if ( empty( $fileinfo['filename'] ) || empty( $fileinfo['mime_type'] ) || empty( $fileinfo['post_date_gmt'] ) ) {
+			return false;
+		}
+
+		$filename      = $fileinfo['filename'];
+		$mime_type     = $fileinfo['mime_type'];
+		$post_date_gmt = $fileinfo['post_date_gmt'];
+
+		$args = array(
+			'post_type'      => 'attachment',
+			'post_mime_type' => $mime_type,
+			'date_query'     => array(
+				array(
+					'after'     => $post_date_gmt,
+					'before'    => $post_date_gmt,
+					'inclusive' => true,
+					'column'    => 'post_date_gmt',
+				),
+			),
+			'meta_query'     => array(
+				array(
+					'key'     => '_wp_attached_file',
+					'value'   => preg_quote( $filename, '/' ),
+					'compare' => 'REGEXP',
+				),
+			),
+			'posts_per_page' => 1,
+		);
+
+		$attachments = \get_posts( $args );
+
+		if ( ! empty( $attachments ) ) {
+			// Return the first attachment data found
+			return $attachments[0];
+		}
+
+		return false;
+	}
+
+	/**
+	 * Prepares an attachment object for REST API response and returns the resulting data as an array.
+	 *
+	 * @param object $attachment The attachment object to be prepared for response.
+	 * @param object $request The REST API request object.
+	 *
+	 * @return array|WP_Error The prepared data as an array, or a WP_Error object if there was an error preparing the data.
+	 */
+	private function prepare_attachment_for_response( $attachment, $request ) {
+		// Prepare attachment data for response
+		$response = $this->prepare_item_for_response( $attachment, $request );
+
+		// Check if there was an error preparing the data
+		if ( \is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		return (array) $response->get_data();
+	}
+
 }
