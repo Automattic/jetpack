@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+OAuth: dependencies are now downloaded to wp-content/jpcrm-storage/packages

@@ -231,16 +231,21 @@ class Jetpack_Social {
 			$state = array_merge(
 				$state,
 				array(
-					'jetpackSettings' => array(
+					'jetpackSettings'              => array(
 						'publicize_active'  => self::is_publicize_active(),
 						'show_pricing_page' => self::should_show_pricing_page(),
 						'showNudge'         => ! $publicize->has_paid_plan( true ),
 					),
-					'connectionData'  => array(
+					'connectionData'               => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 						'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 					),
-					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'sharesData'                   => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'socialImageGeneratorSettings' => array(
+						'available'       => $publicize->has_social_image_generator_feature(),
+						'enabled'         => ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->is_enabled(),
+						'defaultTemplate' => ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->get_default_template(),
+					),
 				)
 			);
 		}
@@ -318,7 +323,7 @@ class Jetpack_Social {
 					),
 					'hasPaidPlan'                   => $publicize->has_paid_plan(),
 					'isEnhancedPublishingEnabled'   => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
-					'isSocialImageGeneratorEnabled' => $publicize->has_social_image_generator_feature(),
+					'isSocialImageGeneratorEnabled' => $publicize->has_social_image_generator_feature() && ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->is_enabled(),
 				),
 			)
 		);

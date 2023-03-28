@@ -30,6 +30,7 @@ class Setup_Test extends BaseTestCase {
 	 */
 	public function set_up() {
 		global $publicize;
+		// Enable the feature
 		$publicize = $this->getMockBuilder( Publicize::class )
 			->disableOriginalConstructor()
 			->setMethods( array( 'has_social_image_generator_feature' ) )
@@ -37,6 +38,7 @@ class Setup_Test extends BaseTestCase {
 		$publicize->method( 'has_social_image_generator_feature' )->willReturn( true );
 		$publicize->register_post_meta();
 
+		( new Social_Image_Generator\Settings() )->set_enabled( true );
 		$this->sig = new Social_Image_Generator\Setup();
 		$this->sig->init();
 		// Mock site connection.
@@ -106,7 +108,6 @@ class Setup_Test extends BaseTestCase {
 	 * Test that SIG gets enabled by default on new posts.
 	 */
 	public function test_sig_gets_enabled_by_default_on_a_new_post() {
-		$this->markTestSkipped( 'Skipping until we support default metadata in WorDBless - see https://github.com/Automattic/wordbless/pull/65' );
 		$post_id = wp_insert_post(
 			array(
 				'post_title'   => 'Testing',
