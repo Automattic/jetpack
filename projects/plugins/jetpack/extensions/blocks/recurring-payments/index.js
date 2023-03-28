@@ -1,7 +1,5 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { createBlock } from '@wordpress/blocks';
-import { Path, Rect, SVG, G, ExternalLink } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
+import { Path, Rect, SVG, G } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import { isPriceValid } from '../../shared/currencies';
@@ -22,11 +20,6 @@ export const icon = (
 	</SVG>
 );
 
-const supportLink =
-	isSimpleSite() || isAtomicSite()
-		? 'https://wordpress.com/support/video-tutorials-add-payments-features-to-your-site-with-our-guides/#how-to-use-the-payments-block-video'
-		: 'https://jetpack.com/support/jetpack-blocks/payments-block/';
-
 export const settings = {
 	apiVersion: 2,
 	title,
@@ -34,12 +27,7 @@ export const settings = {
 		src: icon,
 		foreground: getIconColor(),
 	},
-	description: (
-		<Fragment>
-			<p>{ __( 'Button allowing you to sell products and subscriptions.', 'jetpack' ) }</p>
-			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
-		</Fragment>
-	),
+	description: __( 'Button allowing you to sell products and subscriptions.', 'jetpack' ),
 	category: 'earn',
 	keywords: [
 		_x( 'buy', 'block search term', 'jetpack' ),

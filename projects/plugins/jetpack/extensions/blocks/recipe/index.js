@@ -1,5 +1,3 @@
-import { ExternalLink } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import { name as detailsName, settings as detailsSettings } from './details/';
@@ -19,16 +17,9 @@ export const name = 'recipe';
 export const title = __( 'Recipe', 'jetpack' );
 export const settings = {
 	title,
-	description: (
-		<Fragment>
-			<p>
-				{ __(
-					'Add images, ingredients and cooking steps to display an easy to read recipe.',
-					'jetpack'
-				) }
-			</p>
-			<ExternalLink href="#">{ __( 'Learn more about Recipe', 'jetpack' ) }</ExternalLink>
-		</Fragment>
+	description: __(
+		'Add images, ingredients and cooking steps to display an easy to read recipe.',
+		'jetpack'
 	),
 	icon: {
 		src: icon,

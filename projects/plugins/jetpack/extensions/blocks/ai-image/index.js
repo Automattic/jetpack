@@ -1,6 +1,3 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
@@ -16,24 +13,9 @@ export const title = __( 'AI Image (Experimental)', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,
-	description: (
-		<Fragment>
-			<p>
-				{ __(
-					'Automatically generate an illustration for your post, powered by AI magic.',
-					'jetpack'
-				) }
-			</p>
-			<p>
-				{ __(
-					'We are experimenting with this feature and can tweak or remove it at any point.',
-					'jetpack'
-				) }
-			</p>
-			<ExternalLink href={ getRedirectUrl( 'jetpack_ai_feedback' ) }>
-				{ __( 'Share your feedback.', 'jetpack' ) }
-			</ExternalLink>
-		</Fragment>
+	description: __(
+		'Automatically generate an illustration for your post, powered by AI magic. We are experimenting with this feature and can tweak or remove it at any point.',
+		'jetpack'
 	),
 	icon: {
 		src: 'superhero',

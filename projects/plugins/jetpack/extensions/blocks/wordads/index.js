@@ -1,5 +1,4 @@
-import { ExternalLink, Path, SVG } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
+import { Path, SVG } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import { DEFAULT_FORMAT } from './constants';
@@ -20,16 +19,7 @@ export const icon = (
 
 export const settings = {
 	title,
-
-	description: (
-		<Fragment>
-			<p>{ __( 'Earn income by adding high quality ads to your post', 'jetpack' ) }</p>
-			<ExternalLink href="https://wordads.co/">
-				{ __( 'Learn all about WordAds', 'jetpack' ) }
-			</ExternalLink>
-		</Fragment>
-	),
-
+	description: __( 'Earn income by adding high quality ads to your post', 'jetpack' ),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),

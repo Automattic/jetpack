@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Blocks: avoid using complex block descriptions to avoid notices with WordPress 6.2.

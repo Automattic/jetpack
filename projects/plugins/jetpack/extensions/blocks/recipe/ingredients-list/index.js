@@ -1,4 +1,3 @@
-import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
 import icon from '../icon';
@@ -12,11 +11,7 @@ export const name = 'recipe-ingredients-list';
 export const title = __( 'Recipe Ingredients List', 'jetpack' );
 export const settings = {
 	title,
-	description: (
-		<Fragment>
-			<p>{ __( 'Recipe ingredient list', 'jetpack' ) }</p>
-		</Fragment>
-	),
+	description: __( 'Recipe ingredient list', 'jetpack' ),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),

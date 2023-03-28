@@ -1,6 +1,4 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-import { ExternalLink, Path, SVG } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
+import { Path, SVG } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../../../shared/block-icons';
 import { DEFAULT_CURRENCY } from '../../constants';
@@ -14,29 +12,12 @@ export const icon = (
 	</SVG>
 );
 
-const supportLink =
-	isSimpleSite() || isAtomicSite()
-		? 'https://wordpress.com/support/pay-with-paypal/'
-		: 'https://jetpack.com/support/jetpack-blocks/pay-with-paypal/';
-
 const settings = {
 	title: __( 'Pay with PayPal', 'jetpack' ),
-
-	description: (
-		<Fragment>
-			<p>
-				{ __(
-					'Lets you add credit and debit card payment buttons with minimal setup.',
-					'jetpack'
-				) }
-			</p>
-			<p>
-				{ __( 'Good for collecting donations or payments for products and services.', 'jetpack' ) }
-			</p>
-			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
-		</Fragment>
+	description: __(
+		'Lets you add credit and debit card payment buttons with minimal setup. Good for collecting donations or payments for products and services.',
+		'jetpack'
 	),
-
 	icon: {
 		src: icon,
 		foreground: getIconColor(),

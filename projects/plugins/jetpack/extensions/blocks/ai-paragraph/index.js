@@ -1,8 +1,6 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useBlockProps } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { ExternalLink } from '@wordpress/components';
-import { Fragment, RawHTML } from '@wordpress/element';
+import { RawHTML } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
@@ -18,24 +16,9 @@ export const title = __( 'AI Paragraph (Experimental)', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,
-	description: (
-		<Fragment>
-			<p>
-				{ __(
-					'Automatically generate new paragraphs using your existing content, powered by AI magic.',
-					'jetpack'
-				) }
-			</p>
-			<p>
-				{ __(
-					'We are experimenting with this feature and can tweak or remove it at any point.',
-					'jetpack'
-				) }
-			</p>
-			<ExternalLink href={ getRedirectUrl( 'jetpack_ai_feedback' ) }>
-				{ __( 'Share your feedback.', 'jetpack' ) }
-			</ExternalLink>
-		</Fragment>
+	description: __(
+		'Automatically generate new paragraphs using your existing content, powered by AI magic. We are experimenting with this feature and can tweak or remove it at any point.',
+		'jetpack'
 	),
 	icon: {
 		src: 'superhero',

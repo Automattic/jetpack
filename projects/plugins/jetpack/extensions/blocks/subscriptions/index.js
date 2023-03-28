@@ -1,6 +1,5 @@
 import { createBlock } from '@wordpress/blocks';
-import { ExternalLink, Path, SVG } from '@wordpress/components';
-import { createInterpolateElement } from '@wordpress/element';
+import { Path, SVG } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
@@ -21,19 +20,9 @@ export const icon = (
 );
 export const settings = {
 	title: __( 'Subscribe', 'jetpack' ),
-	description: (
-		<>
-			<p>{ __( "Let readers subscribe to this blog's posts as a newsletter.", 'jetpack' ) }</p>
-			<p>
-				{ createInterpolateElement(
-					__(
-						'Subscribers can read the posts in their email inbox or <ExternalLink>the Reader app</ExternalLink>.',
-						'jetpack'
-					),
-					{ ExternalLink: <ExternalLink href={ 'https://wordpress.com/read' } /> }
-				) }
-			</p>
-		</>
+	description: __(
+		'Let readers subscribe to this blog’s posts as a newsletter. Subscribers can read the posts in their email inbox or the WordPress.com Reader app.',
+		'jetpack'
 	),
 	icon: {
 		src: icon,

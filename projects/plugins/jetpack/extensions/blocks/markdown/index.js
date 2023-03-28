@@ -1,6 +1,4 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-import { ExternalLink, Path, Rect, SVG } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
+import { Path, Rect, SVG } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
@@ -33,31 +31,16 @@ const icon = (
 	</SVG>
 );
 
-const supportLink =
-	isSimpleSite() || isAtomicSite()
-		? 'https://en.support.wordpress.com/markdown-quick-reference/'
-		: 'https://jetpack.com/support/jetpack-blocks/markdown-block/';
-
 export const settings = {
 	title: __( 'Markdown', 'jetpack' ),
-
-	description: (
-		<Fragment>
-			<p>
-				{ __(
-					'Use regular characters and punctuation to style text, links, and lists.',
-					'jetpack'
-				) }
-			</p>
-			<ExternalLink href={ supportLink }>{ __( 'Support reference', 'jetpack' ) }</ExternalLink>
-		</Fragment>
+	description: __(
+		'Use regular characters and punctuation to style text, links, and lists.',
+		'jetpack'
 	),
-
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
 	},
-
 	category: getCategoryWithFallbacks( 'text', 'formatting' ),
 	keywords: [
 		_x( 'formatting', 'block search term', 'jetpack' ),
