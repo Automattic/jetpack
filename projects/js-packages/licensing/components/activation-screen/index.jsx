@@ -7,6 +7,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
 import ActivationScreenSuccessInfo from '../activation-screen-success-info';
+import GoldenTokenModal from '../golden-token-modal';
 import lockImage from '../jetpack-license-activation-with-lock.png';
 import successImage from '../jetpack-license-activation-with-success.png';
 
@@ -154,6 +155,14 @@ const ActivationScreen = props => {
 			<ActivationScreenIllustration imageUrl={ lockImage } showSupportLink />
 		</div>
 	);
+
+	const renderGoldenTokenModal = () => {
+		return <GoldenTokenModal tokenRedeemed={ true } />;
+	};
+
+	if ( null !== activatedProduct && license.startsWith( 'jetpack-golden-token' ) ) {
+		return renderGoldenTokenModal();
+	}
 
 	return null !== activatedProduct ? renderActivationSuccess() : renderActivationControl();
 };

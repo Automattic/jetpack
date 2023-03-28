@@ -6,6 +6,18 @@ import PropTypes from 'prop-types';
 import React, { useCallback, useRef, useState, useEffect } from 'react';
 import styles from './styles.module.scss';
 
+const onModalCloseDefault = event => {
+	if ( document.referrer.includes( window.location.host ) ) {
+		// Prevent default here to minimize page change within the My Jetpack app.
+		event.preventDefault();
+		history.back();
+	} else {
+		// If noreferrer, redirect to the My Jetpack dashboard.
+		event.preventDefault();
+		window.location.href = window?.myJetpackInitialState?.myJetpackUrl;
+	}
+};
+
 /**
  * Component that displays a golden token experience.
  *
@@ -75,22 +87,22 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 								<p className={ styles[ 'hi-user' ] }>
 									{ sprintf(
 										/* Translators: %s is the user's display name. */
-										__( 'Hey, %s', 'jetpack-my-jetpack' ),
+										__( 'Hey, %s', 'jetpack' ),
 										displayName
 									) }
 								</p>
 								<h2 className={ styles.headline }>
-									{ __( 'You have been gifted a Jetpack Gold Token.', 'jetpack-my-jetpack' ) }
+									{ __( 'You have been gifted a Jetpack Gold Token.', 'jetpack' ) }
 								</h2>
 								<p>
 									{ ! tokenRedeemed
 										? __(
 												'This unlocks a lifetime of Jetpack powers for your website. Your exclusive Jetpack Experience awaits.',
-												'jetpack-my-jetpack'
+												'jetpack'
 										  )
 										: __(
 												'This unlocked a lifetime of Jetpack powers for your website. Your exclusive Jetpack Experience is already active.',
-												'jetpack-my-jetpack'
+												'jetpack'
 										  ) }
 								</p>
 							</div>
@@ -101,20 +113,20 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 								className={ styles.button }
 							>
 								{ tokenRedeemed
-									? __( 'Awesome!', 'jetpack-my-jetpack' )
-									: __( 'Redeem your token', 'jetpack-my-jetpack' ) }
+									? __( 'Awesome!', 'jetpack' )
+									: __( 'Redeem your token', 'jetpack' ) }
 							</Button>
 						</div>
 
 						<div className={ `${ styles[ 'powers-wrap' ] } ${ styles[ 'content-wrap' ] }` }>
 							<div className={ styles[ 'content-wrap-text' ] }>
 								<h2 className={ styles.headline }>
-									{ __( 'Super powers are ready!', 'jetpack-my-jetpack' ) }
+									{ __( 'Super powers are ready!', 'jetpack' ) }
 								</h2>
 								<p className={ styles.paragraph }>
 									{ __(
 										'Your Jetpack Gold Token provides a lifetime license for this website and includes the following products:',
-										'jetpack-my-jetpack'
+										'jetpack'
 									) }
 								</p>
 							</div>
@@ -123,22 +135,22 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 								<div>
 									<VaultPressBackupIcon />
 
-									<h3>{ __( 'VaultPress Backup', 'jetpack-my-jetpack' ) }</h3>
+									<h3>{ __( 'VaultPress Backup', 'jetpack' ) }</h3>
 									<p>
 										{ __(
 											'Save every change and get back online quickly with one‑click restores.',
-											'jetpack-my-jetpack'
+											'jetpack'
 										) }
 									</p>
 								</div>
 								<div>
 									<ScanIcon />
 
-									<h3>{ __( 'Scan', 'jetpack-my-jetpack' ) }</h3>
+									<h3>{ __( 'Scan', 'jetpack' ) }</h3>
 									<p>
 										{ __(
 											'Automated scanning and one‑click fixes to keep your site ahead of security threats.',
-											'jetpack-my-jetpack'
+											'jetpack'
 										) }
 									</p>
 								</div>
@@ -151,7 +163,7 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 								href={ window?.myJetpackInitialState?.myJetpackUrl }
 								className={ styles.button }
 							>
-								{ __( 'Explore your new powers', 'jetpack-my-jetpack' ) }
+								{ __( 'Explore your new powers', 'jetpack' ) }
 							</Button>
 						</div>
 					</Col>
@@ -163,13 +175,14 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 
 GoldenTokenModal.defaultProps = {
 	tokenRedeemed: false,
+	onModalClose: onModalCloseDefault,
 };
 
 GoldenTokenModal.propTypes = {
 	redeemClick: PropTypes.func,
 	tokenRedeemed: PropTypes.bool,
 	displayName: PropTypes.string,
-	onModalClose: PropTypes.func.isRequired,
+	onModalClose: PropTypes.func,
 };
 
 export default GoldenTokenModal;
