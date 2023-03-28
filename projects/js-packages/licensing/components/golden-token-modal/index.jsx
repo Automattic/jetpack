@@ -1,6 +1,6 @@
 import { getIconBySlug, JetpackLogo, Button, Col, Container } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback, useRef, useState, useEffect } from 'react';
@@ -148,7 +148,7 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 								<div>
 									<ScanIcon />
 
-									<h3>{ __( 'Scan', 'jetpack' ) }</h3>
+									<h3>{ _x( 'Scan', 'Plugin name (noun).', 'jetpack' ) }</h3>
 									<p>
 										{ __(
 											'Automated scanning and one‑click fixes to keep your site ahead of security threats.',
