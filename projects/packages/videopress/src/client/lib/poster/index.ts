@@ -59,9 +59,8 @@ export async function pollGeneratingPosterImage(
 	guid: VideoGUID,
 	{ wait = 3000, attemps = 10, initialWait = true } = {}
 ): Promise< boolean > {
-	const pause = new Promise( resolve => setTimeout( resolve, wait ) );
 	if ( initialWait ) {
-		await pause;
+		await new Promise( resolve => setTimeout( resolve, wait ) );
 	}
 
 	while ( ! ( await hasVideoPosterGenerated( guid ) ) ) {
@@ -69,7 +68,7 @@ export async function pollGeneratingPosterImage(
 			throw new Error( 'Poster generation timed out' );
 		}
 
-		await pause;
+		await new Promise( resolve => setTimeout( resolve, wait ) );
 	}
 
 	return true;
