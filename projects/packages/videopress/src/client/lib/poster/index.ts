@@ -38,3 +38,8 @@ export const requestVideoPoster = function (
 		method: 'GET',
 	} );
 };
+
+export const hasVideoPosterGenerated = async function ( guid: VideoGUID ): Promise< boolean > {
+	const videoPosterData = await requestVideoPoster( guid );
+	return videoPosterData.data.state === 'complete';
+};

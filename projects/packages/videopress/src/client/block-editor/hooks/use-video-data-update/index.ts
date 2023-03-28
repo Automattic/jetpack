@@ -307,10 +307,13 @@ export function useSyncMedia(
 	const postHasBeenJustSaved = !! ( wasSaving && ! isSaving );
 
 	/*
+	 * Video frame poster: Block attributes => Frame poster generation
+	 *
 	 * Store and compare the block attributes
 	 * in order to detect changes on them.
 	 */
 	const prevAttributes = useRef< VideoBlockAttributes >();
+	const [ , setIsGeneratingPosterImage ] = useState( false );
 	useEffect( () => {
 		if ( ! postHasBeenJustSaved || ! prevAttributes.current ) {
 			// store the very first attributes
@@ -340,6 +343,7 @@ export function useSyncMedia(
 			 * @todo: error handling and udpate generation state
 			 */
 			requestUpdatePosterByVideoFrame( attributes?.guid, attributes.posterData.atTime );
+			setIsGeneratingPosterImage( true );
 		}
 	}, [ postHasBeenJustSaved ] );
 
