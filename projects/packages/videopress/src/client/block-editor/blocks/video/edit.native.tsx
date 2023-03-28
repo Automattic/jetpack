@@ -9,7 +9,7 @@ import {
 import { createBlock } from '@wordpress/blocks';
 import { PanelBody } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { useEffect, useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
@@ -20,6 +20,7 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
+import getMediaToken from '../../../lib/get-media-token/index.native';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
 import ColorPanel from './components/color-panel';
@@ -73,6 +74,21 @@ export default function VideoPressEdit( {
 		isReplacing: false,
 		prevAttrs: {},
 	} );
+	const [ , setToken ] = useState< string >();
+
+	// Fetch token for a VideoPress GUID
+	useEffect( () => {
+		if ( guid ) {
+			getMediaToken( 'playback', { guid } )
+				.then( tokenData => {
+					setToken( tokenData.token );
+				} )
+				.catch( error => {
+					// eslint-disable-next-line no-console
+					console.error( "Can't obtain the token:", error );
+				} );
+		}
+	}, [ guid ] );
 
 	const wasBlockJustInserted = useSelect(
 		select => select( blockEditorStore ).wasBlockJustInserted( clientId, 'inserter_menu' ),
