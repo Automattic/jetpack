@@ -2,7 +2,7 @@ import { WPComV2VideopressPostMetaEndpointBodyProps } from '../../../types';
 import { TrackProps } from '../../blocks/video/types';
 import { VideoDataProps } from '../use-video-data/types';
 
-export type UseSyncMediaProps = {
+export type UseSyncMedia = {
 	forceInitialState: ( data: WPComV2VideopressPostMetaEndpointBodyProps ) => void;
 	videoData: VideoDataProps;
 	isRequestingVideoData: boolean;
