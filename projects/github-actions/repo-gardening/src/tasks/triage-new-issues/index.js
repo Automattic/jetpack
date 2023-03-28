@@ -240,6 +240,16 @@ async function triageNewIssues( payload, octokit ) {
 		const message = '@kitkat-team New bug missing priority. Please do a priority assessment.';
 		const slackMessageFormat = formatSlackMessage( payload, channel, message );
 		await sendSlackMessage( message, channel, slackToken, payload, slackMessageFormat );
+
+		debug(
+			`triage-new-issues: Adding a label to issue #${ number } to show that Kitkat was warned.`
+		);
+		await octokit.rest.issues.addLabels( {
+			owner: ownerLogin,
+			repo: name,
+			issue_number: number,
+			labels: [ '[Pri] TBD' ],
+		} );
 	}
 }
 
