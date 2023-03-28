@@ -32,3 +32,11 @@ add_action(
 		}
 	}
 );
+
+// Register the `v6-video-frame-poster` extension.
+add_action(
+	'jetpack_register_gutenberg_extensions',
+	function () {
+		\Jetpack_Gutenberg::set_extension_available( 'v6-video-frame-poster' );
+	}
+);

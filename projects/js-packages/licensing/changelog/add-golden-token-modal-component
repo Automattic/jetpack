@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Adds GoldenTokenModal component for successful token redemptions. Also adds classnames as a dependency
