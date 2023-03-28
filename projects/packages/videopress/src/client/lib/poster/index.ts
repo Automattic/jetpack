@@ -53,7 +53,7 @@ export const hasVideoPosterGenerated = async function ( guid: VideoGUID ): Promi
  * @param {number} options.wait         - The time to wait between polls, in milliseconds.
  * @param {number} options.attemps      - The number of times to poll before giving up.
  * @param {boolean} options.initialWait - Whether to wait before the first poll.
- * @returns {Promise<boolean>}          - Whether the poster image has been generated.
+ * @returns {Promise<boolean>}            Whether the poster image has been generated.
  */
 export async function pollGeneratingPosterImage(
 	guid: VideoGUID,

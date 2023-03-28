@@ -358,6 +358,10 @@ export function useSyncMedia(
 			if ( await pollGeneratingPosterImage( attributes?.guid ) ) {
 				debug( '(*) %o Poster image has been generated', attributes?.guid );
 				setIsGeneratingPoster( false );
+
+				// Refresh player to get the new poster image.
+				const videoPressUrl = getVideoPressUrl( attributes.guid, attributes );
+				invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 			}
 		} )();
 	}, [ isGeneratingPoster ] );
