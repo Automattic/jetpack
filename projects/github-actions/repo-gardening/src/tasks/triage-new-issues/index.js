@@ -33,7 +33,7 @@ async function hasKitkatSignalLabel( octokit, owner, repo, number ) {
 async function hasPriorityLabels( octokit, owner, repo, number ) {
 	const labels = await getLabels( octokit, owner, repo, number );
 	// We're only interested in priority labels, but not if the label is [Pri] TBD.
-	return !! labels.find( label => label.match( /^(?!\[Pri\] TBD)\[Pri\].*$/ ) );
+	return !! labels.find( label => label !== '[Pri] TBD' && label.match( /^\[Pri\].*$/ ) );
 }
 
 /**
