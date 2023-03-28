@@ -1,4 +1,5 @@
 Significance: patch
 Type: changed
 
-Updated add-anti-spam path to add-akismet to match product key
+* Updated add-anti-spam path to add-akismet
+* Updated product interstitial component to accept an existingLicenseKeyUrl
