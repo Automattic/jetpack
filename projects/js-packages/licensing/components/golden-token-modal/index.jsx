@@ -97,15 +97,16 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 									{ __( 'You have been gifted a Jetpack Gold Token.', 'jetpack' ) }
 								</h2>
 								<p>
-									{ ! tokenRedeemed
-										? __(
-												'This unlocks a lifetime of Jetpack powers for your website. Your exclusive Jetpack Experience awaits.',
-												'jetpack'
-										  )
-										: __(
-												'This unlocked a lifetime of Jetpack powers for your website. Your exclusive Jetpack Experience is already active.',
-												'jetpack'
-										  ) }
+									{ tokenRedeemed &&
+										__(
+											'This unlocked a lifetime of Jetpack powers for your website. Your exclusive Jetpack Experience is already active.',
+											'jetpack'
+										) }
+									{ ! tokenRedeemed &&
+										__(
+											'This unlocks a lifetime of Jetpack powers for your website. Your exclusive Jetpack Experience awaits.',
+											'jetpack'
+										) }
 								</p>
 							</div>
 							<Button
@@ -114,9 +115,8 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 								onClick={ redeemClickHandler }
 								className={ styles.button }
 							>
-								{ tokenRedeemed
-									? __( 'Awesome!', 'jetpack' )
-									: __( 'Redeem your token', 'jetpack' ) }
+								{ tokenRedeemed && __( 'Awesome!', 'jetpack' ) }
+								{ ! tokenRedeemed && __( 'Redeem your token', 'jetpack' ) }
 							</Button>
 						</div>
 
