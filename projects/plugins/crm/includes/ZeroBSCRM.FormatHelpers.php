@@ -1170,7 +1170,7 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
   Email History
    ====================================================== */
 
-function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid,Squiz.Commenting.FunctionComment.Missing
+function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid,Squiz.Commenting.FunctionComment.Missing,Squiz.Commenting.FunctionComment.WrongStyle
 
 	global $zbs;
 
