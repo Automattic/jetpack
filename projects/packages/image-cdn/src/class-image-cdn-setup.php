@@ -12,8 +12,6 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 class Image_CDN_Setup {
 
-	const PACKAGE_VERSION = '1.0.0-alpha';
-
 	/**
 	 * Initialize Image CDN.
 	 */
