@@ -29,7 +29,6 @@
 		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-google-fonts-provider": "@dev",
 		"automattic/jetpack-identity-crisis": "@dev",
-		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-import": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-lazy-images": "@dev",
