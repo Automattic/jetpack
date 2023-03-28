@@ -41,7 +41,6 @@ class Comment extends \WP_REST_Comments_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or error object on failure.
 	 */
 	public function create_item( $request ) {
-		error_log( print_r( $request, true ) );
 		// Resolve comment post ID.
 		if ( ! empty( $request['post'] ) ) {
 			$posts = \get_posts( $this->get_import_db_query( $request['post'] ) );
