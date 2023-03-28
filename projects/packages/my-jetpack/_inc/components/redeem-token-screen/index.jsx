@@ -1,6 +1,8 @@
 import { useConnection } from '@automattic/jetpack-connection';
+import { __ } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import usePurchases from '../../hooks/use-purchases';
+import { includesLifetimePurchase } from '../../utils/is-lifetime-purchase';
 import GoldenTokenModal from '../golden-token';
 
 /**
@@ -21,15 +23,26 @@ export default function RedeemTokenScreen() {
 		}
 	}, [] );
 
-	const { isFetchingPurchases, purchases } = usePurchases();
 	const { userConnectionData } = useConnection();
+	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.
+	const displayName =
+		userConnectionData?.currentUser?.wpcomUser?.display_name ||
+		userConnectionData?.currentUser?.wpcomUser?.login ||
+		userConnectionData?.currentUser?.username;
+	const { isFetchingPurchases, purchases } = usePurchases();
+	const tokenRedeemed = includesLifetimePurchase( purchases );
+
+	if ( isFetchingPurchases ) {
+		return <>{ __( 'Checking gold status…', 'jetpack-my-jetpack' ) }</>;
+	}
 
 	return (
-		<GoldenTokenModal
-			purchases={ purchases }
-			fetchingPurchases={ isFetchingPurchases }
-			userConnectionData={ userConnectionData }
-			onModalClose={ onModalClose }
-		/>
+		<>
+			<GoldenTokenModal
+				tokenRedeemed={ tokenRedeemed }
+				displayName={ displayName }
+				onModalClose={ onModalClose }
+			/>
+		</>
 	);
 }
