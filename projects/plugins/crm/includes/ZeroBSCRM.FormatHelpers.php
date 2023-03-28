@@ -1234,9 +1234,12 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 			}
 		} elseif ( $em_hist->zbsmail_sender_wpid === '-11' ) {
 			// quote proposal accepted (sent to admin...)
-			$user_id_obj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
+			$user_obj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
+			if ( ! $user_obj ) {
+				continue;
+			}
 
-			$email_details_html .= esc_html( $user_id_obj->data->display_name );
+			$email_details_html .= esc_html( $user_obj->data->display_name );
 			$email_details_html .= jpcrm_get_avatar( $em_hist->zbsmail_target_objid, 20 );
 		} elseif ( $em_hist->zbsmail_sender_wpid === '-12' ) {
 			// quote proposal accepted (sent to admin...) -12 is the you have a new quote...
@@ -1253,9 +1256,12 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 			}
 		} elseif ( $em_hist->zbsmail_sender_wpid === '-13' ) {
 			// -13 is the event notification (sent to the OWNER of the event) so a WP user (not ZBS contact)...
-			$user_id_obj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
+			$user_obj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
+			if ( ! $user_obj ) {
+				continue;
+			}
 
-			$email_details_html .= esc_html( $user_id_obj->data->display_name );
+			$email_details_html .= esc_html( $user_obj->data->display_name );
 			$email_details_html .= jpcrm_get_avatar( $em_hist->zbsmail_target_objid, 20 );
 		} else {
 			$customer = zeroBS_getCustomerMeta( $em_hist->zbsmail_target_objid );
@@ -1271,11 +1277,13 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 				$email_details_html .= '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['fname'] . ' ' . $customer['lname'] ) . '</a>';
 			}
 
-			$user_id_obj = get_user_by( 'ID', $em_hist->zbsmail_sender_wpid );
-			if ( gettype( $user_id_obj ) === 'object' ) {
-				$email_details_html .= esc_html( __( ' by ', 'zero-bs-crm' ) . $user_id_obj->data->display_name );
-				$email_details_html .= jpcrm_get_avatar( $em_hist->zbsmail_sender_wpid, 20 );
+			$user_obj = get_user_by( 'ID', $em_hist->zbsmail_sender_wpid );
+			if ( ! $user_obj ) {
+				continue;
 			}
+
+			$email_details_html .= esc_html( __( ' by ', 'zero-bs-crm' ) . $user_obj->data->display_name );
+			$email_details_html .= jpcrm_get_avatar( $em_hist->zbsmail_sender_wpid, 20 );
 		}
 		$unixts = gmdate( 'U', $em_hist->zbsmail_created );
 		$diff   = human_time_diff( $unixts, time() );
