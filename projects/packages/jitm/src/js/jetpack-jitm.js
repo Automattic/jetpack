@@ -84,7 +84,7 @@ jQuery( document ).ready( function ( $ ) {
 				}
 
 				var ajaxAction = envelope.CTA.ajax_action;
-				var externalLink = envelope.CTA.newWindow && !ajaxAction;
+				var externalLink = envelope.CTA.newWindow && ! ajaxAction;
 
 				html += '<div class="jitm-banner__action">';
 				html +=
@@ -106,7 +106,7 @@ jQuery( document ).ready( function ( $ ) {
 					( ajaxAction ? 'data-ajax-action="' + ajaxAction + '"' : '' ) +
 					'>' +
 					envelope.CTA.message +
-					(externalLink ? EXTERNAL_LINK_ICON : '')
+					( externalLink ? EXTERNAL_LINK_ICON : '' )
 					'</a>';
 				html += '</div>';
 			}
