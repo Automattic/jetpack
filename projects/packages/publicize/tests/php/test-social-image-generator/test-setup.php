@@ -30,6 +30,8 @@ class Setup_Test extends BaseTestCase {
 	 * Setting up the test.
 	 */
 	public function set_up() {
+		// Enable the feature
+		( new Social_Image_Generator\Settings() )->set_enabled( true );
 		$this->sig = new Social_Image_Generator\Setup();
 		$this->sig->init();
 		$plan                       = Current_Plan::PLAN_DATA['free'];
@@ -99,9 +101,22 @@ class Setup_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that SIG gets enabled by default.
+	 * Test that SIG does not get enabled by default if the feature is not active.
 	 */
-	public function test_sig_gets_enabled_by_default_when_a_post_gets_saved() {
+	public function test_sig_does_not_get_enabled_by_default_when_a_post_gets_saved() {
+		( new Social_Image_Generator\Settings() )->set_enabled( false );
+		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+		$post_id = $this->create_post();
+		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
+
+		$settings = new Social_Image_Generator\Post_Settings( $post_id );
+		$this->assertFalse( $settings->is_enabled() );
+	}
+
+	/**
+	 * Test that SIG gets enabled by default when the feature is active.
+	 */
+	public function test_sig_gets_enabled_by_default_when_a_post_gets_saved_and_the_feature_is_active() {
 		add_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 		$post_id = $this->create_post();
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );

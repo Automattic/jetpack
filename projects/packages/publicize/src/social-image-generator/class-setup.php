@@ -53,6 +53,10 @@ class Setup {
 	 * @param \WP_Post $post Post that's being updated.
 	 */
 	public function set_meta( $post_id, $post ) {
+		if ( ! ( new Settings() )->is_enabled() ) {
+			return;
+		}
+
 		global $publicize;
 
 		if ( ! $publicize->has_social_image_generator_feature() ) {

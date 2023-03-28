@@ -1063,7 +1063,7 @@ abstract class Publicize_Base {
 			'single'        => true,
 			'default'       => array(
 				'image_generator_settings' => array(
-					'template' => Social_Image_Generator\Templates::DEFAULT_TEMPLATE,
+					'template' => ( new Social_Image_Generator\Settings() )->get_default_template(),
 				),
 			),
 			'show_in_rest'  => array(
