@@ -62,14 +62,23 @@ function Price( { value, currency, isOld } ) {
  * @param {Function} props.onClick               - Callback for Call To Action button click
  * @param {Function} props.trackButtonClick      - Function to call for tracking clicks on Call To Action button
  * @param {string} props.className               - A className to be concat with default ones
+ * @param {boolean} props.preferProductName		 - Use product name instead of title
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
  * @returns {object}                               ProductDetailCard react component.
  */
-const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, supportingInfo } ) => {
+const ProductDetailCard = ( {
+	slug,
+	onClick,
+	trackButtonClick,
+	className,
+	preferProductName,
+	supportingInfo,
+} ) => {
 	const { fileSystemWriteAccess, siteSuffix, myJetpackUrl } = window?.myJetpackInitialState ?? {};
 
 	const { detail, isFetching } = useProduct( slug );
 	const {
+		name,
 		title,
 		longDescription,
 		features,
@@ -214,7 +223,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 				{ isBundle && <div className={ styles[ 'product-bundle-icons' ] }>{ icons }</div> }
 				<ProductIcon slug={ slug } />
 
-				<H3>{ title }</H3>
+				<H3>{ name && preferProductName ? name : title }</H3>
 				<Text mb={ 3 }>{ longDescription }</Text>
 
 				<ul className={ styles.features }>

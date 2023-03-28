@@ -26,6 +26,7 @@ import videoPressImage from './videopress.png';
  * @param {string} props.existingLicenseKeyUrl 	 - URL to enter an existing license key (e.g. Akismet)
  * @param {boolean} props.installsPlugin         - Whether the interstitial button installs a plugin*
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
+ * @param {boolean} props.preferProductName		 - Use product name instead of title
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -34,6 +35,7 @@ export default function ProductInterstitial( {
 	installsPlugin = false,
 	slug,
 	supportingInfo,
+	preferProductName = false,
 	children = null,
 } ) {
 	const { activate, detail } = useProduct( slug );
@@ -144,6 +146,7 @@ export default function ProductInterstitial( {
 								onClick={ installsPlugin ? clickHandler : undefined }
 								className={ isUpgradableByBundle ? styles.container : null }
 								supportingInfo={ supportingInfo }
+								preferProductName={ preferProductName }
 							/>
 						</Col>
 						<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
@@ -177,6 +180,7 @@ export function AntiSpamInterstitial() {
 			installsPlugin={ true }
 			bundle="security"
 			existingLicenseKeyUrl="admin.php?page=akismet-key-config"
+			preferProductName={ true }
 		/>
 	);
 }
