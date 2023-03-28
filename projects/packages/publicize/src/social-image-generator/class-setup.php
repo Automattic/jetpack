@@ -81,6 +81,10 @@ class Setup {
 			return;
 		}
 
+		if ( ! ( new Settings() )->is_enabled() ) {
+			return;
+		}
+
 		$post_settings = new Post_Settings( $post_id );
 		if (
 			! $update &&
