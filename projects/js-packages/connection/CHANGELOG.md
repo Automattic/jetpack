@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.26.0 - 2023-03-28
+### Added
+- Clarified when license activation fails that a user connection is required, added a link to complete the connection, and added functionality to redirect back to license activation when the connection is done. [#29443]
+
 ## 0.25.5 - 2023-03-23
 ### Changed
 - Updated package dependencies.

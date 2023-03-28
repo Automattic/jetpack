@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.23.0] - 2023-03-28
+### Added
+- Add new endpoint to Social Image Generator to get and update SIG-specific options [#29624]
+- Social: Added an endpoint to generate a token for use as the preview of the social image. [#29596]
+
+### Changed
+- Jetpack Social: Enable Social Image Generator by default when it's available. [#29742]
+- Moved SIG initilization to the admin_init hooks and updated the check to find out whether SIG is enabled to use the current plans package and added code to refresh plan data on every jetpack heartbeat." [#29529]
+- Updated package dependencies. [#29529]
+- Use picked default template for Social Image Generator [#29722]
+- Use TemplatePicker to save selected template and send it to our token generation endpoint [#29590]
+
 ## [0.22.0] - 2023-03-20
 ### Added
 - Added SIG image to the post media array if it's enabled [#29093]
@@ -253,6 +265,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.23.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.20.1...v0.21.0
 [0.20.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.20.0...v0.20.1

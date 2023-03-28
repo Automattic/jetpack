@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2023-03-28
+### Added
+- Added SIG image preview component [#29559]
+- Added toggle to Social admin page to enable or disable Social Image Generator as well as an option to pick a default template [#29722]
+
+### Changed
+- Use TemplatePicker to save selected template and send it to our token generation endpoint [#29590]
+
+### Fixed
+- Fixed infinite loop with media section [#29729]
+- Fixed the bug where the attache media doesn't show up after post publish. [#29613]
+
 ## [0.18.0] - 2023-03-20
 ### Added
 - Add Template Picker component to Jetpack Social [#29504]
@@ -227,6 +239,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.19.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.17.1...v0.18.0
 [0.17.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.17.0...v0.17.1
 [0.17.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.16.1...v0.17.0
