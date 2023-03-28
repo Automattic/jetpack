@@ -26,7 +26,7 @@ import videoPressImage from './videopress.png';
  * @param {string} props.existingLicenseKeyUrl 	 - URL to enter an existing license key (e.g. Akismet)
  * @param {boolean} props.installsPlugin         - Whether the interstitial button installs a plugin*
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
- * @param {boolean} props.preferProductName		 - Use product name instead of title
+ * @param {boolean} props.preferProductName      - Use product name instead of title
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {

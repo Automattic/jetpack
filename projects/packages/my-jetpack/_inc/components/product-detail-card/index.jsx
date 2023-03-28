@@ -62,7 +62,7 @@ function Price( { value, currency, isOld } ) {
  * @param {Function} props.onClick               - Callback for Call To Action button click
  * @param {Function} props.trackButtonClick      - Function to call for tracking clicks on Call To Action button
  * @param {string} props.className               - A className to be concat with default ones
- * @param {boolean} props.preferProductName		 - Use product name instead of title
+ * @param {boolean} props.preferProductName      - Use product name instead of title
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
  * @returns {object}                               ProductDetailCard react component.
  */
