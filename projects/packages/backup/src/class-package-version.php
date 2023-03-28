@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Backup;
  */
 class Package_Version {
 
-	const PACKAGE_VERSION = '1.12.8-alpha';
+	const PACKAGE_VERSION = '1.12.8';
 
 	const PACKAGE_SLUG = 'backup';
 
