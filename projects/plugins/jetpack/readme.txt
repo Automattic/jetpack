@@ -244,7 +244,56 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 12.0-a.5 - 2023-03-15
+### 12.0-beta - 2023-03-28
+#### Enhancements
+- Added can_blaze property to /sites/{siteId} endpoint (inside options attribute)
+- Add yoast promo in seo settings banner
+- Admin: fix submenu positioning in admin menu.
+- Blocks (beta): add a new beta Cookie Consent block to display a GDPR-compliant cookie consent widget on your site for your visitors.
+- Blocks: the cookie consent block is now available to general audience.
+- Blocks: the VideoPress block is now available to general audience.
+- Blocks: the writing prompts block is now available to general audience.
+- Forms: redesign the Multiple Choice and Single Choice fields
+- Initialize yoast promo package in jetpack plugin
+- Jetpack: enable the video frame poster extension without concerning the site plan
+- Jetpack: register v6-video-frame-poster beta extension
+- Jetpack Forms: display carriage returns in responses in the Feedback->Form Responses page.
+- Newsletter: improve UI around newsletter visibility and add a help link in the post editor sidebar.
+- Notifications: remove all library dependencies for improved performance and lower footprint.
+- Paid newsletter block: improve logic for showing the UI based on site configuration.
+- Prevent SIG from running when it is disabled
+- refactor redirect url
+- Remove account connection requirement to use the brute force protection feature.
+- Share IP allow list between the Jetpack Firewall and Brute Force Protection modules.
+- SSO: add message to logout notice when SSO is enabled that gives a heads up to also log out of WordPress.com if they are on a shared computer.
+- Stats: change Calypso Stats to Odyssey Stats
+- Stats: updates the layout of the loading and some sections on the Stats page.
+- Subscriptions: Makes the Subscribe Block available, even when the Subscriptions module is off, so Subscriptions can be easily enabled.
+- Updated visuals for the wp-admin dashboard Stats widget
+- update modal content for newsletter flow
+- WordPress.com Toolbar: gate Site Logs menu item behind constant
+
+#### Improved compatibility
+- Blocks: avoid conflicts with Better Click To Tweet plugin.
+- Blocks: ensure the Pinterest block does not trigger errors when using WordPress 6.2.
+- Connection: improve the connection flow that happens after plugin activation.
+- General: indicate full compatibility with the latest version of WordPress, 6.2.
+- Image CDN: do not process Flickr-hosted images with Jetpack's Image CDN.
+- SEO Tools: add message to settings screen when The SEO Framework plugin is active.
+- WordPress 6.2 compatibility: ensure that the block editor's External Media functionality and Jetpack's Twitter features in the block editor stay compatible with the upcoming version of WordPress.
+
+#### Bug fixes
+- Blocks: avoid warnings in the block editor because of invalid categories for some blocks.
+- Blocks: fix the VideoPress preload behavior when "none" is chosen.
+- Blogging Prompts: avoid PHP notices with non-existing REST query paarameters.
+- Consolidate stats widget code while enforcing nonce on form submission
+- Forms: avoid PHP notices when using a form with a dropdown field.
+- Jetpack Forms: fix a PHP warning on Feedback->Response Forms when looking at old responses.
+- Slideshow Block: make slideshow block's play and pause icons visible.
+- Subscribe Block: don't show "Include social followers in count" when "Show subscribers count" is off, or Publicize is disabled.
+- Subscriptions: ensure the block's settings are displayed properly, even when using a block theme.
+- Use Contact_Form_Plugin::init instead of requiring the old module file
+
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)
