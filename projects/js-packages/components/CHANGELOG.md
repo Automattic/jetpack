@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.31.0 - 2023-03-27
+### Added
+- Added option for CUT component to have a tooltip [#29609]
+
 ## 0.30.2 - 2023-03-23
 ### Changed
 - Updated package dependencies.
