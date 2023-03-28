@@ -206,6 +206,9 @@ const ProductDetailCard = ( {
 		);
 	}
 
+	// If we prefer the product name, use that everywhere instead of the title
+	const productMoniker = name && preferProductName ? name : title;
+
 	return (
 		<div
 			className={ classnames( styles.card, className, {
@@ -223,7 +226,7 @@ const ProductDetailCard = ( {
 				{ isBundle && <div className={ styles[ 'product-bundle-icons' ] }>{ icons }</div> }
 				<ProductIcon slug={ slug } />
 
-				<H3>{ name && preferProductName ? name : title }</H3>
+				<H3>{ productMoniker }</H3>
 				<Text mb={ 3 }>{ longDescription }</Text>
 
 				<ul className={ styles.features }>
@@ -258,7 +261,7 @@ const ProductDetailCard = ( {
 									"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
 									'jetpack-my-jetpack'
 								),
-								title
+								productMoniker
 							) }
 							&nbsp;
 							<ExternalLink href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
@@ -280,7 +283,7 @@ const ProductDetailCard = ( {
 					>
 						{
 							/* translators: placeholder is product name. */
-							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
+							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), productMoniker )
 						}
 					</Text>
 				) }
