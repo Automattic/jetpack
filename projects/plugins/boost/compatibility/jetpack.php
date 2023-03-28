@@ -62,5 +62,10 @@ function jetpack_photon_compat() {
 	}
 }
 
-// This compatibility file loads on plugins loaded. So, this is the right time to disable photon.
+/*
+ * Remove the hooks that Jetpack uses to load photon and pretend that the module is already loaded.
+ *
+ * Jetpack hooks the filters as it loads. We run the compatibility file on `plugins_loaded` action.
+ * So, by the time this file is loaded, Jetpack has already hooked the filters. And we can remove them.
+ */
 jetpack_photon_compat();
