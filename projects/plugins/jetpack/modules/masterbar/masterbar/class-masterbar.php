@@ -502,6 +502,8 @@ class Masterbar {
 	 * @param WP_Admin_Bar $wp_admin_bar Admin Bar instance.
 	 */
 	public function add_notifications( $wp_admin_bar ) {
+		$third_party_cookie_check_iframe = '<span style="display:none;"><iframe class="jetpack-notes-cookie-check" src="https://widgets.wp.com/3rd-party-cookie-check/index.html"></iframe></span>';
+
 		$wp_admin_bar->add_node(
 			array(
 				'id'     => 'notes',
@@ -517,7 +519,8 @@ class Masterbar {
 								'<span class="wpnt-notes-panel-link">' .
 								'</span>' .
 								'</div>' .
-								'</div>',
+								'</div>' .
+								$third_party_cookie_check_iframe,
 					'class' => 'menupop mb-trackable',
 				),
 				'parent' => 'top-secondary',
