@@ -1360,9 +1360,10 @@ class zeroBS__Metabox_QuoteTags extends zeroBS__Metabox_Tags{
                 //if (isset($post->post_status) && $post->post_status != "auto-draft"){
 			if ( $quoteID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				?>
-                    <div class="zbs-quote-actions-bottom zbs-objedit-actions-bottom">
-
-                        <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Update","zero-bs-crm"); ?> <?php esc_html_e("Quote","zero-bs-crm"); ?></button>
+						<div class="zbs-quote-actions-bottom zbs-objedit-actions-bottom jpcrm-action-box-bottom-buttons">
+								<div class="jpcrm-action-box-button">
+									<button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Quote', 'zero-bs-crm' ); ?></button>
+								</div>
 
                         <?php
 
