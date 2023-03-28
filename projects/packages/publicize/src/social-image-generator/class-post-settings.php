@@ -40,10 +40,13 @@ class Post_Settings {
 	/**
 	 * Get the SIG settings.
 	 *
+	 * @param bool $raw Whether to get the raw settings, skipping the defaults.
 	 * @return array
 	 */
-	public function get_settings() {
-		$social_options = get_post_meta( $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
+	public function get_settings( $raw = false ) {
+		$social_options = $raw
+			? get_metadata_raw( 'post', $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true )
+			: get_post_meta( $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
 
 		if ( ! is_array( $social_options ) || empty( $social_options['image_generator_settings'] ) ) {
 			return array();
