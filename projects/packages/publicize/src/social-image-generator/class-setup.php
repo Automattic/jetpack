@@ -71,6 +71,10 @@ class Setup {
 			return;
 		}
 
+		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
 		$post_settings = new Post_Settings( $post_id );
 		if (
 			! $update &&
@@ -81,11 +85,7 @@ class Setup {
 			return;
 		}
 
-		if ( wp_is_post_autosave( $post ) || $post->post_status === 'auto-draft' ) {
-			return;
-		}
-
-		if ( wp_is_post_revision( $post_id ) ) {
+		if ( $post->post_status === 'auto-draft' ) {
 			return;
 		}
 
