@@ -12,7 +12,7 @@ import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
 
-const RESPONSES_FETCH_LIMIT = 20;
+const RESPONSES_FETCH_LIMIT = 10;
 
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
@@ -96,8 +96,8 @@ const Inbox = () => {
 
 	return (
 		<Layout title={ title } className={ classes }>
-			<div className="jp-forms__actions">
-				<SearchForm onSearch={ handleSearch } initialValue={ searchQuery } />
+			<div className="jp-forms__inbox-actions">
+				<SearchForm onSearch={ handleSearch } initialValue={ searchQuery } loading={ loading } />
 				<BulkActionsMenu />
 			</div>
 

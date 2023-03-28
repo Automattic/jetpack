@@ -1984,25 +1984,36 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Returns an array of parent post IDs for the user.
+	 * The parent posts are those posts where forms have been published.
+	 *
+	 * @param array $query_args A WP_Query compatible array of query args.
+	 *
+	 * @return array The array of post IDs
+	 */
+	public static function get_all_parent_post_ids( $query_args = array() ) {
+		$default_query_args = array(
+			'fields'           => 'id=>parent',
+			'posts_per_page'   => 100000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+			'post_type'        => 'feedback',
+			'post_status'      => 'publish',
+			'suppress_filters' => false,
+		);
+		$args               = array_merge( $default_query_args, $query_args );
+		// Get the feedbacks' parents' post IDs
+		$feedbacks = get_posts( $args );
+		return array_values( array_unique( array_values( $feedbacks ) ) );
+	}
+
+	/**
 	 * Returns a string of HTML <option> items from an array of posts
 	 *
 	 * @param int $selected_id Currently selected post ID.
 	 * @return string a string of HTML <option> items
 	 */
 	protected static function get_feedbacks_as_options( $selected_id = 0 ) {
-		$options = '';
-
-		// Get the feedbacks' parents' post IDs
-		$feedbacks  = get_posts(
-			array(
-				'fields'           => 'id=>parent',
-				'posts_per_page'   => 100000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
-				'post_type'        => 'feedback',
-				'post_status'      => 'publish',
-				'suppress_filters' => false,
-			)
-		);
-		$parent_ids = array_unique( array_values( $feedbacks ) );
+		$options    = '';
+		$parent_ids = self::get_all_parent_post_ids();
 
 		// creates the string of <option> elements
 		foreach ( $parent_ids as $parent_id ) {

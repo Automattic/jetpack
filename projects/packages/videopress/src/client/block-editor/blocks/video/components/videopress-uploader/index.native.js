@@ -53,7 +53,7 @@ const VideoPressUploader = ( {
 			}
 
 			// Insert media library VideoPress attachment.
-			const videoPressGuid = media?.videopressGUID;
+			const videoPressGuid = media?.metadata?.videopressGUID;
 			if ( videoPressGuid ) {
 				onSelectURL( videoPressGuid, media?.id );
 				return;

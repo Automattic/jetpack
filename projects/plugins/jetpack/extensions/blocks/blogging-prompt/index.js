@@ -1,10 +1,11 @@
-import { ExternalLink } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import getCategoryWithFallbacks from '../../shared/get-category-with-fallbacks';
 import attributes from './attributes';
 import edit from './edit';
+import avatar1 from './example-avatars/avatar1.jpg';
+import avatar2 from './example-avatars/avatar2.jpg';
+import avatar3 from './example-avatars/avatar3.jpg';
 import icon from './icon';
 import save from './save';
 
@@ -18,13 +19,7 @@ export const title = __( 'Writing Prompt', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,
-	description: (
-		<Fragment>
-			<p>{ __( 'Answer a new and inspiring writing prompt each day.', 'jetpack' ) }</p>
-			{ /* @TODO add link */ }
-			<ExternalLink href="#">{ __( 'Learn more.', 'jetpack' ) }</ExternalLink>
-		</Fragment>
-	),
+	description: __( 'Answer a new and inspiring writing prompt each day.', 'jetpack' ),
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
@@ -59,9 +54,22 @@ export const settings = {
 	edit,
 	save,
 	attributes,
+	styles: [
+		{ name: 'block', label: __( 'Block', 'jetpack' ), isDefault: true },
+		{ name: 'quote', label: __( 'Quote', 'jetpack' ) },
+	],
 	example: {
 		attributes: {
-			// @TODO: Add default values for block attributes, for generating the block preview.
+			answersLink: 'https://wordpress.com/tag/dailyprompt',
+			answersLinkText: __( 'View all responses', 'jetpack' ),
+			gravatars: [ { url: avatar1 }, { url: avatar2 }, { url: avatar3 } ],
+			promptLabel: __( 'Daily writing prompt', 'jetpack' ),
+			promptText: __( "What's your favorite place to visit?", 'jetpack' ),
+			promptFetched: true,
+			promptId: 1234,
+			showResponses: true,
+			showLabel: true,
+			tagsAdded: true,
 		},
 	},
 };

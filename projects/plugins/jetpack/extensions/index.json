@@ -1,5 +1,6 @@
 {
 	"production": [
+		"blogging-prompt",
 		"business-hours",
 		"button",
 		"calendly",
@@ -49,7 +50,6 @@
 	],
 	"beta": [
 		"amazon",
-		"blogging-prompt",
 		"conversation",
 		"dialogue",
 		"google-docs-embed",
@@ -58,13 +58,7 @@
 		"recipe",
 		"videopress/video-chapters"
 	],
-	"experimental": [
-		"ai-image",
-		"ai-paragraph",
-		"anchor-fm",
-		"blogging-prompts",
-		"premium-content"
-	],
+	"experimental": [ "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",

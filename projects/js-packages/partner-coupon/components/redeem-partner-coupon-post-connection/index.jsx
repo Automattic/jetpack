@@ -40,14 +40,8 @@ function dismiss() {
 }
 
 const RedeemPartnerCouponPostConnection = props => {
-	const {
-		connectionStatus,
-		partnerCoupon,
-		assetBaseUrl,
-		siteRawUrl,
-		tracksUserData,
-		analytics,
-	} = props;
+	const { connectionStatus, partnerCoupon, assetBaseUrl, siteRawUrl, tracksUserData, analytics } =
+		props;
 	const [ dismissed, setDismissed ] = useState( isDismissed() );
 
 	const onClick = usePartnerCouponRedemption(

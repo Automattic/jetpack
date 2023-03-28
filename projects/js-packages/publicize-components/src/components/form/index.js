@@ -41,12 +41,8 @@ export default function PublicizeForm( {
 	connectionsAdminUrl,
 	adminUrl,
 } ) {
-	const {
-		connections,
-		toggleById,
-		hasConnections,
-		enabledConnections,
-	} = useSocialMediaConnections();
+	const { connections, toggleById, hasConnections, enabledConnections } =
+		useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;

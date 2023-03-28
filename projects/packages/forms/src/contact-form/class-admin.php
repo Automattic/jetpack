@@ -1043,7 +1043,9 @@ class Admin {
 			wp_die( esc_html__( 'You are not allowed to manage this item.', 'jetpack-forms' ) );
 		}
 
-		require_once __DIR__ . '/grunion-contact-form.php';
+		// init will construct/get the instance and make sure all the filters and actions
+		// are in place for this process to go through
+		Contact_Form_Plugin::init();
 
 		$current_menu = '';
 		if ( isset( $_POST['sub_menu'] ) && preg_match( '|post_type=feedback|', sanitize_text_field( wp_unslash( $_POST['sub_menu'] ) ) ) ) {

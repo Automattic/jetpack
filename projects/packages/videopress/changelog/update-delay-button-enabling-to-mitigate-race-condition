@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-VideoPress: delay Done button activation to mitigate the chance of a race condition when saving the post too fast.

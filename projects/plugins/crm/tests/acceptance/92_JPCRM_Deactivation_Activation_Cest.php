@@ -35,7 +35,7 @@ class JPCRM_Deactivation_Activation_Cest {
 		$I->gotoAdminPage( 'dashboard', '&jpcrm_force_wizard=1' );
 		$I->see( 'Essential Details' );
 		$I->see( 'Essentials' );
-		$I->see( 'Your Customers' );
+		$I->see( 'Your Contacts' );
 		$I->see( 'Which Extensions?' );
 	}
 

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+CRM: change customer references to contact in all but Woo and commerce contexts

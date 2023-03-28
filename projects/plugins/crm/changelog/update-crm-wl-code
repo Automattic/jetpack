@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+CRM: fix changed White Label comments back to how they were to prevent release issues.

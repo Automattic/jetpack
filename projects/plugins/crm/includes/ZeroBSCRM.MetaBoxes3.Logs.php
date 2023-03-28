@@ -66,7 +66,7 @@
                     'updated'=> array("locked" => true,"label" => __("Updated","zero-bs-crm"), "ico" => "fa-pencil-square-o"),
                     'quote_created'=> array("locked" => true,"label" => __("Quote Created","zero-bs-crm"), "ico" => "fa-plus-circle"),                    
                     'invoice_created'=> array("locked" => true,"label" => __("Invoice Created","zero-bs-crm"), "ico" => "fa-plus-circle"),
-                    'event_created'=> array("locked" => true,"label" => __("Event Created","zero-bs-crm"), "ico" => "fa-calendar"),
+			'event_created' => array('locked' => true, 'label' => __( 'Task Created', 'zero-bs-crm' ), 'ico' => 'fa-calendar' ), // phpcs:ignore WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound, WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
                     'task_created'=> array("locked" => true,"label" => __("Task Created","zero-bs-crm"), "ico" => "fa-calendar"),
                     'transaction_created'=> array("locked" => true,"label" => __("Transaction Created","zero-bs-crm"), "ico" => "fa-credit-card"),
                     'transaction_updated'=> array("locked" => true,"label" => __("Transaction Updated","zero-bs-crm"), "ico" => "fa-credit-card"),

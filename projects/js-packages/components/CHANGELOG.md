@@ -2,6 +2,11 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.30.1 - 2023-03-20
+### Changed
+- RNA: tweak secondary button styling [#29475]
+- Updated package dependencies. [#29471]
+
 ## 0.30.0 - 2023-03-13
 ### Added
 - Add Zendesk chat module to My Jetpack page [#28712]

@@ -5,7 +5,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Registry;
 use Automattic\Jetpack_Boost\Data_Sync\Cloud_CSS_Sync;
-use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Sync;
+use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_State_Handler;
 use Automattic\Jetpack_Boost\Lib\Status;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
@@ -44,8 +44,8 @@ function jetpack_boost_ds_set( $option, $value ) {
 	return $option->set( $value );
 }
 
-function jetpack_boost_ds_delete( $option ) {
-	$option = jetpack_boost_ds( $option );
+function jetpack_boost_ds_delete( $option_name ) {
+	$option = jetpack_boost_ds( $option_name );
 	if ( ! $option ) {
 		return null;
 	}
@@ -66,7 +66,7 @@ add_action(
 /**
  * Register Data Sync Stores
  */
-jetpack_boost_register_option( 'critical_css_state', Critical_CSS_Sync::class );
+jetpack_boost_register_option( 'critical_css_state', Critical_CSS_State_Handler::class );
 jetpack_boost_register_option( 'cloud_critical_css_state', Cloud_CSS_Sync::class );
 jetpack_boost_register_option( 'critical_css_suggest_regenerate', Boolean_Entry::class );
 
