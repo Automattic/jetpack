@@ -24,6 +24,7 @@ const Admin = () => {
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
 
 	const {
+		isModuleEnabled,
 		showPricingPage,
 		hasPaidPlan,
 		isShareLimitEnabled,
@@ -32,6 +33,7 @@ const Admin = () => {
 	} = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
+			isModuleEnabled: store.isModuleEnabled(),
 			showPricingPage: store.showPricingPage(),
 			hasPaidPlan: store.hasPaidPlan(),
 			isShareLimitEnabled: store.isShareLimitEnabled(),
@@ -71,7 +73,7 @@ const Admin = () => {
 					</AdminSectionHero>
 					<AdminSection>
 						<SocialModuleToggle />
-						{ isSocialImageGeneratorAvailable && <SocialImageGeneratorToggle /> }
+						{ isModuleEnabled && isSocialImageGeneratorAvailable && <SocialImageGeneratorToggle /> }
 					</AdminSection>
 					<AdminSectionHero>
 						<InfoSection />

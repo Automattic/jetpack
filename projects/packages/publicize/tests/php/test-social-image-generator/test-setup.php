@@ -30,13 +30,12 @@ class Setup_Test extends BaseTestCase {
 	 * Setting up the test.
 	 */
 	public function set_up() {
-		// Enable the feature
-		( new Social_Image_Generator\Settings() )->set_enabled( true );
-		$this->sig = new Social_Image_Generator\Setup();
-		$this->sig->init();
 		$plan                       = Current_Plan::PLAN_DATA['free'];
 		$plan['features']['active'] = array( 'social-image-generator' );
 		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+		add_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
+		$this->sig = new Social_Image_Generator\Setup();
+		$this->sig->init();
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -47,10 +46,23 @@ class Setup_Test extends BaseTestCase {
 	 * Returning the environment into its initial state.
 	 */
 	public function tear_down() {
+		remove_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 		unset( $_SERVER['REQUEST_METHOD'] );
-		$_GET = array();
+		$_GET                       = array();
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array();
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+	}
+
+	/**
+	 * Mock Publicize being active.
+	 *
+	 * @return array
+	 */
+	public function mock_publicize_being_active() {
+		return array( 'publicize' );
 	}
 
 	/**

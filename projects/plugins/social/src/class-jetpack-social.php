@@ -228,6 +228,8 @@ class Jetpack_Social {
 		);
 
 		if ( $this->is_connected() ) {
+			$sig_settings = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
+
 			$state = array_merge(
 				$state,
 				array(
@@ -242,9 +244,9 @@ class Jetpack_Social {
 					),
 					'sharesData'                   => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
 					'socialImageGeneratorSettings' => array(
-						'available'       => $publicize->has_social_image_generator_feature(),
-						'enabled'         => ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->is_enabled(),
-						'defaultTemplate' => ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->get_default_template(),
+						'available'       => $sig_settings->is_available(),
+						'enabled'         => $sig_settings->is_enabled(),
+						'defaultTemplate' => $sig_settings->get_default_template(),
 					),
 				)
 			);
@@ -323,7 +325,7 @@ class Jetpack_Social {
 					),
 					'hasPaidPlan'                   => $publicize->has_paid_plan(),
 					'isEnhancedPublishingEnabled'   => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
-					'isSocialImageGeneratorEnabled' => $publicize->has_social_image_generator_feature() && ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->is_enabled(),
+					'isSocialImageGeneratorEnabled' => ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->is_enabled(),
 				),
 			)
 		);
