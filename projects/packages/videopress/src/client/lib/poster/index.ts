@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Types
@@ -20,13 +21,25 @@ export const requestUpdatePosterByVideoFrame = function (
 	guid: VideoGUID,
 	atTime: number
 ): Promise< WPComV2VideopressPostPosterProps > {
+	const requestBody = {
+		at_time: atTime,
+		is_millisec: true,
+	};
+
+	if ( isSimpleSite() ) {
+		return apiFetch( {
+			path: `/videos/${ guid }/poster`,
+			apiNamespace: 'rest/v1.1',
+			method: 'POST',
+			global: true,
+			data: requestBody,
+		} );
+	}
+
 	return apiFetch( {
 		path: `/wpcom/v2/videopress/${ guid }/poster`,
 		method: 'POST',
-		data: {
-			at_time: atTime,
-			is_millisec: true,
-		},
+		data: requestBody,
 	} );
 };
 
