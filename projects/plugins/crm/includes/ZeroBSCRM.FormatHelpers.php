@@ -1170,105 +1170,106 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
   Email History
    ====================================================== */
 
-function zeroBSCRM_outputEmailHistory($userID = -1){
+function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid,Squiz.Commenting.FunctionComment.Missing
 
 	global $zbs;
 
-	//get the last 50 (can add pagination later...)
-    $email_hist = zeroBSCRM_get_email_history(0,50, $userID); 
-    ?>
-    <style>
-    	.zbs-email-sending-record {
-    		margin-bottom:0.8em;
-    	}
-    	.zbs-email-sending-record .avatar{
-    		margin-left: 5px;
-    		border-radius: 50%;
-    	}
-    	.zbs-email-detail {
-		    width: 80%;
-		    display: inline-block;
-    	}
+	// get the last 50 (can add pagination later...)
+	$email_hist = zeroBSCRM_get_email_history( 0, 50, $user_id );
+	?>
+	<style>
+		.zbs-email-sending-record {
+			margin-bottom:0.8em;
+		}
+		.zbs-email-sending-record .avatar{
+			margin-left: 5px;
+			border-radius: 50%;
+		}
+		.zbs-email-detail {
+			width: 80%;
+			display: inline-block;
+		}
 	</style>
-    <?php
+	<?php
 
-    if(count($email_hist) == 0){
-    	echo "<div class='ui message'><i class='icon envelope outline'></i>" . esc_html( __('No Recent Emails','zero-bs-crm') ) . "</div>";
-    }
-    
-    foreach($email_hist as $em_hist){
+	if ( count( $email_hist ) === 0 ) {
+		echo '<div class="ui message"><i class="icon envelope outline"></i>' . esc_html( __( 'No Recent Emails', 'zero-bs-crm' ) ) . '</div>';
+	}
 
-        $email_subject = zeroBSCRM_mailTemplate_getSubject($em_hist->zbsmail_type);
-        $emoji = '🤖';
-        if($email_subject ==''){
-          //then this is a custom email
-          $email_subject = $em_hist->zbsmail_subject;
-          $emoji ='😀';
-        }
-        // if still empty
-        if (empty($email_subject)) $email_subject = __('Untitled','zero-bs-crm');
-        echo "<div class='zbs-email-sending-record'>";
-		echo "<span class='label blue ui tiny hist-label' style='float:left'> " . esc_html( __('sent','zero-bs-crm') ) . ' </span>';
-		echo '<div class="zbs-email-detail">'. esc_html( $emoji );
-		echo " <strong>" . esc_html( $email_subject ) . "</strong><br />";
-		echo "<span class='sent-to'>" . esc_html( __(" sent to ", 'zero-bs-crm') ) . "</span>";
+	foreach ( $email_hist as $em_hist ) {
+
+		$email_subject = zeroBSCRM_mailTemplate_getSubject( $em_hist->zbsmail_type );
+		$emoji         = '🤖';
+
+		if ( $email_subject === '' ) {
+			// then this is a custom email
+			$email_subject = $em_hist->zbsmail_subject;
+			$emoji         = '😀';
+		}
+
+		// if still empty
+		if ( empty( $email_subject ) ) {
+			$email_subject = esc_html__( 'Untitled', 'zero-bs-crm' );
+		}
+		echo '<div class="zbs-email-sending-record">';
+		echo '<span class="label blue ui tiny hist-label" style="float:left"> ' . esc_html( __( 'sent', 'zero-bs-crm' ) ) . ' </span>';
+		echo '<div class="zbs-email-detail">' . esc_html( $emoji );
+		echo ' <strong>' . esc_html( $email_subject ) . '</strong><br />';
+		echo '<span class="sent-to">' . esc_html( __( ' sent to ', 'zero-bs-crm' ) ) . '</span>';
+
 		// -10 are the system emails sent to CUSTOMERS
-		if($em_hist->zbsmail_sender_wpid == -10){
-			$customer = zeroBS_getCustomerMeta($em_hist->zbsmail_target_objid);
-			$link = admin_url('admin.php?page='.$zbs->slugs['addedit'].'&action=view&zbsid=' .$em_hist->zbsmail_target_objid);
-			if($customer['fname'] == '' && $customer['lname'] == ''){
-				echo "<a href='".esc_url( $link )."'>" . esc_html( $customer['email'] ) . "</a>";
-			}else{ 
-				echo "<a href='".esc_url( $link )."'>" . esc_html( $customer['fname'] . ' ' . $customer['lname'] ) . "</a>";
+		if ( $em_hist->zbsmail_sender_wpid === '-10' ) {
+			$customer = zeroBS_getCustomerMeta( $em_hist->zbsmail_target_objid );
+			$link     = admin_url( 'admin.php?page=' . $zbs->slugs['addedit'] . '&action=view&zbsid=' . $em_hist->zbsmail_target_objid );
+			if ( $customer['fname'] === '' && $customer['lname'] === '' ) {
+				echo '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['email'] ) . '</a>';
+			} else {
+				echo '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['fname'] . ' ' . $customer['lname'] ) . '</a>';
 			}
-		}else if($em_hist->zbsmail_sender_wpid == -11){
-			//quote proposal accepted (sent to admin...)
-			$userIDobj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
-			echo esc_html( $userIDobj->data->display_name );
-			echo jpcrm_get_avatar( $em_hist->zbsmail_target_objid, 20 ); 
-		
-		}else if($em_hist->zbsmail_sender_wpid == -12){
-			//quote proposal accepted (sent to admin...) -12 is the you have a new quote...
-			$customer = zeroBS_getCustomerMeta($em_hist->zbsmail_target_objid);
-			$link = admin_url('admin.php?page='.$zbs->slugs['addedit'].'&action=view&zbsid=' .$em_hist->zbsmail_target_objid);
-			if($customer['fname'] == '' && $customer['lname'] == ''){
-				echo "<a href='".esc_url( $link )."'>" . esc_html( $customer['email'] ) . "</a>";
-			}else{ 
-				echo "<a href='".esc_url( $link )."'>" . esc_html( $customer['fname'] . ' ' . $customer['lname'] ) . "</a>";
+		} elseif ( $em_hist->zbsmail_sender_wpid === '-11' ) {
+			// quote proposal accepted (sent to admin...)
+			$user_id_obj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
+			echo esc_html( $user_id_obj->data->display_name );
+			echo jpcrm_get_avatar( $em_hist->zbsmail_target_objid, 20 );
+		} elseif ( $em_hist->zbsmail_sender_wpid === '-12' ) {
+			// quote proposal accepted (sent to admin...) -12 is the you have a new quote...
+			$customer = zeroBS_getCustomerMeta( $em_hist->zbsmail_target_objid );
+			$link     = admin_url( 'admin.php?page=' . $zbs->slugs['addedit'] . '&action=view&zbsid=' . $em_hist->zbsmail_target_objid );
+			if ( $customer['fname'] === '' && $customer['lname'] === '' ) {
+				echo '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['email'] ) . '</a>';
+			} else {
+				echo '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['fname'] . ' ' . $customer['lname'] ) . '</a>';
 			}
-		}else if($em_hist->zbsmail_sender_wpid == -13){
-			//-13 is the event notification (sent to the OWNER of the event) so a WP user (not ZBS contact)...
-			$userIDobj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
-			echo esc_html( $userIDobj->data->display_name );
-			echo jpcrm_get_avatar( $em_hist->zbsmail_target_objid, 20 ); 
-		}else{
-			$customer = zeroBS_getCustomerMeta($em_hist->zbsmail_target_objid);
+		} elseif ( $em_hist->zbsmail_sender_wpid === '-13' ) {
+			// -13 is the event notification (sent to the OWNER of the event) so a WP user (not ZBS contact)...
+			$user_id_obj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
+			echo esc_html( $user_id_obj->data->display_name );
+			echo jpcrm_get_avatar( $em_hist->zbsmail_target_objid, 20 );
+		} else {
+			$customer = zeroBS_getCustomerMeta( $em_hist->zbsmail_target_objid );
 
-			//zbs_prettyprint($customer);
-
-			//then it is a CRM team member [team member is quote accept]....
-			$link = admin_url('admin.php?page='.$zbs->slugs['addedit'].'&action=view&zbsid=' .$em_hist->zbsmail_target_objid);
-			if($customer['fname'] == '' && $customer['lname'] == ''){
-				echo "<a href='".esc_url( $link )."'>" . esc_html( $customer['email'] ) . "</a>";
-			}else{ 
-				echo "<a href='".esc_url( $link )."'>" . esc_html( $customer['fname'] . " " . $customer['lname'] ) . "</a>";
+			// then it is a CRM team member [team member is quote accept]....
+			$link = admin_url( 'admin.php?page=' . $zbs->slugs['addedit'] . '&action=view&zbsid=' . $em_hist->zbsmail_target_objid );
+			if ( $customer['fname'] === '' && $customer['lname'] === '' ) {
+				echo '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['email'] ) . '</a>';
+			} else {
+				echo '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['fname'] . ' ' . $customer['lname'] ) . '</a>';
 			}
 
-			$userIDobj = get_user_by( 'ID', $em_hist->zbsmail_sender_wpid );
-			if (gettype($userIDobj) == 'object'){
-				echo esc_html( __(' by ','zero-bs-crm') . $userIDobj->data->display_name );
-				echo jpcrm_get_avatar( $em_hist->zbsmail_sender_wpid, 20 ); 
+			$user_id_obj = get_user_by( 'ID', $em_hist->zbsmail_sender_wpid );
+			if ( gettype( $user_id_obj ) === 'object' ) {
+				echo esc_html( __( ' by ', 'zero-bs-crm' ) . $user_id_obj->data->display_name );
+				echo jpcrm_get_avatar( $em_hist->zbsmail_sender_wpid, 20 );
 			}
-
 		}
-		$unixts =  date('U', $em_hist->zbsmail_created);
-		$diff   = human_time_diff($unixts, time());
-		echo "<time>". esc_html( $diff . __(' ago', 'zero-bs-crm') ) . "</time>";
-		if($em_hist->zbsmail_opened == 1){
-			echo "<span class='ui green basic label mini' style='margin-left:7px;'><i class='icon check'></i> ". esc_html( __('opened','zero-bs-crm') ) ."</span>";
+		$unixts = gmdate( 'U', $em_hist->zbsmail_created );
+		$diff   = human_time_diff( $unixts, time() );
+		echo '<time>' . esc_html( $diff . __( ' ago', 'zero-bs-crm' ) ) . '</time>';
+		if ( $em_hist->zbsmail_opened === '1' ) {
+			echo '<span class="ui green basic label mini" style="margin-left:7px;"><i class="icon check"></i> ' . esc_html( __( 'opened', 'zero-bs-crm' ) ) . '</span>';
 		}
-        echo "</div></div>";
-    }
+		echo '</div></div>';
+	}
 }
 
 /* ======================================================
