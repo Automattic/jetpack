@@ -1222,7 +1222,11 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 		// -10 are the system emails sent to CUSTOMERS
 		if ( $em_hist->zbsmail_sender_wpid === '-10' ) {
 			$customer = zeroBS_getCustomerMeta( $em_hist->zbsmail_target_objid );
-			$link     = admin_url( 'admin.php?page=' . $zbs->slugs['addedit'] . '&action=view&zbsid=' . $em_hist->zbsmail_target_objid );
+			if ( ! $customer ) {
+				continue;
+			}
+
+			$link = admin_url( 'admin.php?page=' . $zbs->slugs['addedit'] . '&action=view&zbsid=' . $em_hist->zbsmail_target_objid );
 			if ( $customer['fname'] === '' && $customer['lname'] === '' ) {
 				$email_details_html .= '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['email'] ) . '</a>';
 			} else {
@@ -1237,7 +1241,11 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 		} elseif ( $em_hist->zbsmail_sender_wpid === '-12' ) {
 			// quote proposal accepted (sent to admin...) -12 is the you have a new quote...
 			$customer = zeroBS_getCustomerMeta( $em_hist->zbsmail_target_objid );
-			$link     = admin_url( 'admin.php?page=' . $zbs->slugs['addedit'] . '&action=view&zbsid=' . $em_hist->zbsmail_target_objid );
+			if ( ! $customer ) {
+				continue;
+			}
+
+			$link = admin_url( 'admin.php?page=' . $zbs->slugs['addedit'] . '&action=view&zbsid=' . $em_hist->zbsmail_target_objid );
 			if ( $customer['fname'] === '' && $customer['lname'] === '' ) {
 				$email_details_html .= '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['email'] ) . '</a>';
 			} else {
@@ -1251,6 +1259,9 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 			$email_details_html .= jpcrm_get_avatar( $em_hist->zbsmail_target_objid, 20 );
 		} else {
 			$customer = zeroBS_getCustomerMeta( $em_hist->zbsmail_target_objid );
+			if ( ! $customer ) {
+				continue;
+			}
 
 			// then it is a CRM team member [team member is quote accept]....
 			$link = admin_url( 'admin.php?page=' . $zbs->slugs['addedit'] . '&action=view&zbsid=' . $em_hist->zbsmail_target_objid );
