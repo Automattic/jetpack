@@ -179,7 +179,7 @@ function jetpack_register_migration_post_type() {
 /**
  * Checks whether the Post DB threat currently exists on the site.
  *
- * @since 12.0
+ * @since $$next-version$$
  *
  * @param string $option_name  Option name.
  *

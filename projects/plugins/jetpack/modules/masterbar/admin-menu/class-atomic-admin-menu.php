@@ -384,7 +384,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 * @use add_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_true' );
 		 * @module masterbar
 		 *
-		 * @since 12.0
+		 * @since $$next-version$$
 		 *
 		 * @param bool $show_wpcom_site_logs_menu Load the WordPress.com Site Logs submenu item. Default to false.
 		 */
