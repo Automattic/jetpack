@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 
 use Automattic\Jetpack\Image_CDN\Image_CDN;
 
@@ -6,9 +6,6 @@ if ( ! defined( 'WP_TESTS_DOMAIN' ) ) {
 	define( 'WP_TESTS_DOMAIN', 'example.org' );
 }
 
-/**
- * Class WP_Test_Image_CDN
- */
 class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 
 	/**
@@ -34,8 +31,6 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 
 	/**
 	 * Create an author-level user.
-	 *
-	 * @param Object $factory Testing factory.
 	 */
 	public static function setup_author() {
 		if ( ! empty( self::$author_id ) ) {
@@ -1502,7 +1497,7 @@ class WP_Test_Image_CDN extends Image_CDN_Attachment_Test_Case {
 
 		$upload_dir = wp_get_upload_dir();
 
-		$id  = $this->_make_attachment( $upload );
+		$id  = $this->make_attachment( $upload );
 		$url = $upload_dir['url'] . '/' . $filename;
 
 		$expected = wp_get_attachment_url( $id );

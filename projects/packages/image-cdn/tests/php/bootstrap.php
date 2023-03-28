@@ -18,4 +18,4 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 /**
  * Load helper base class
  */
-require_once __DIR__ . '/attachment_test_case.php';
+require_once __DIR__ . '/class-image-cdn-attachment-test-case.php';

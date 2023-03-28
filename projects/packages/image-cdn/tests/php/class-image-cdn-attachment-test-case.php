@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName
+<?php
 
 use \WorDBless\BaseTestCase;
 
@@ -95,7 +95,7 @@ class Image_CDN_Attachment_Test_Case extends BaseTestCase {
 		return $id;
 	}
 
-	protected function _make_attachment( $upload, $parent_post_id = 0 ) {
+	protected function make_attachment( $upload, $parent_post_id = 0 ) {
 		$type = '';
 		if ( ! empty( $upload['type'] ) ) {
 			$type = $upload['type'];

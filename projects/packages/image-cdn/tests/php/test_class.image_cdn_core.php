@@ -3,7 +3,7 @@
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use WorDBless\BaseTestCase;
 
-class WP_Test_Jetpack_Photon_Functions extends BaseTestCase {
+class WP_Test_Image_CDN_Core extends BaseTestCase {
 
 	private $custom_photon_domain;
 
