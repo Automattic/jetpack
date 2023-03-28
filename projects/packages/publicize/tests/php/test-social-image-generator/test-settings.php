@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Settings;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
 use WorDBless\BaseTestCase;
@@ -24,24 +25,53 @@ class Settings_Test extends BaseTestCase {
 
 	/**
 	 * Initialize tests
+	 *
+	 * @before
 	 */
 	public function set_up() {
+		global $publicize_ui;
+		if ( ! isset( $publicize_ui ) ) {
+			$publicize_ui = new Publicize_UI();
+		}
+		global $publicize;
+
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array( 'social-image-generator' );
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
 		$this->settings = new Settings();
+	}
+
+	/**
+	 * Tear down
+	 *
+	 * @after
+	 */
+	public function tear_down() {
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array();
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+	}
+
+	/**
+	 * Test that SIG is available based on the plan check.
+	 */
+	public function test_correctly_returns_available_status() {
+		$this->assertTrue( $this->settings->is_available() );
 	}
 
 	/**
 	 * Test that it correctly returns enabled or disabled.
 	 */
 	public function test_correctly_returns_enabled_status() {
-		$this->assertFalse( $this->settings->is_enabled() );
+		$this->assertTrue( $this->settings->is_enabled() );
 	}
 
 	/**
 	 * Test that it correctly updates the enabled status.
 	 */
 	public function test_correctly_updates_enabled_status() {
-		$this->settings->set_enabled( true );
-		$this->assertTrue( $this->settings->is_enabled() );
+		$this->settings->set_enabled( false );
+		$this->assertFalse( $this->settings->is_enabled() );
 	}
 
 	/**

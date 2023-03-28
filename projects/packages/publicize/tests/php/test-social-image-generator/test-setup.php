@@ -30,13 +30,11 @@ class Setup_Test extends BaseTestCase {
 	 * Setting up the test.
 	 */
 	public function set_up() {
-		// Enable the feature
-		( new Social_Image_Generator\Settings() )->set_enabled( true );
-		$this->sig = new Social_Image_Generator\Setup();
-		$this->sig->init();
 		$plan                       = Current_Plan::PLAN_DATA['free'];
 		$plan['features']['active'] = array( 'social-image-generator' );
 		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+		$this->sig = new Social_Image_Generator\Setup();
+		$this->sig->init();
 		// Mock site connection.
 		( new Tokens() )->update_blog_token( 'test.test' );
 		Jetpack_Options::update_option( 'id', 123 );
@@ -50,7 +48,10 @@ class Setup_Test extends BaseTestCase {
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 		unset( $_SERVER['REQUEST_METHOD'] );
-		$_GET = array();
+		$_GET                       = array();
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array();
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
 	}
 
 	/**

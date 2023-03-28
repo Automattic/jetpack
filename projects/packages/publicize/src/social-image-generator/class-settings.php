@@ -26,13 +26,6 @@ class Settings {
 	public $settings;
 
 	/**
-	 * True if the SIG feature is available.
-	 *
-	 * @var bool $available;
-	 */
-	public $available;
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -74,21 +67,13 @@ class Settings {
 	 * @return bool True if SIG is available, false otherwise.
 	 */
 	public function is_available() {
-		if ( isset( $this->available ) ) {
-			return $this->available;
-		}
-
 		global $publicize;
 
 		if ( ! $publicize ) {
-			$this->available = false;
-
-			return $this->available;
+			return false;
 		}
 
-		$this->available = $publicize->has_social_image_generator_feature();
-
-		return $this->available;
+		return $publicize->has_social_image_generator_feature();
 	}
 
 	/**
