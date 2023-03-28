@@ -33,7 +33,6 @@ class Settings_Test extends BaseTestCase {
 		if ( ! isset( $publicize_ui ) ) {
 			$publicize_ui = new Publicize_UI();
 		}
-		global $publicize;
 
 		$plan                       = Current_Plan::PLAN_DATA['free'];
 		$plan['features']['active'] = array( 'social-image-generator' );
