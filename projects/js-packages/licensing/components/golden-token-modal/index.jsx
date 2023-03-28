@@ -84,13 +84,15 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 
 						<div className={ styles[ 'content-wrap' ] }>
 							<div className={ styles[ 'content-wrap-text' ] }>
-								<p className={ styles[ 'hi-user' ] }>
-									{ sprintf(
-										/* Translators: %s is the user's display name. */
-										__( 'Hey, %s', 'jetpack' ),
-										displayName
-									) }
-								</p>
+								{ displayName.length > 0 && (
+									<p className={ styles[ 'hi-user' ] }>
+										{ sprintf(
+											/* Translators: %s is the user's display name. */
+											__( 'Hey, %s', 'jetpack' ),
+											displayName
+										) }
+									</p>
+								) }
 								<h2 className={ styles.headline }>
 									{ __( 'You have been gifted a Jetpack Gold Token.', 'jetpack' ) }
 								</h2>

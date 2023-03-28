@@ -51,6 +51,7 @@ const parseAttachLicensesResult = result => {
  * @param {string?} props.startingLicense -- pre-fill the license value
  * @param {string} props.siteAdminUrl -- URL of the Jetpack Site Admin
  * @param {string} props.currentRecommendationsStep -- The current recommendation step.
+ * @param {string} props.currentUser -- Current wpcom user info.
  * @returns {React.Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
@@ -62,6 +63,7 @@ const ActivationScreen = props => {
 		siteAdminUrl,
 		siteRawUrl,
 		startingLicense,
+		displayName = '',
 	} = props;
 
 	const [ license, setLicense ] = useState( startingLicense ?? '' );
@@ -157,7 +159,7 @@ const ActivationScreen = props => {
 	);
 
 	const renderGoldenTokenModal = () => {
-		return <GoldenTokenModal tokenRedeemed={ true } />;
+		return <GoldenTokenModal tokenRedeemed={ true } displayName={ displayName } />;
 	};
 
 	if ( null !== activatedProduct && license.startsWith( 'jetpack-golden-token' ) ) {
@@ -175,6 +177,7 @@ ActivationScreen.propTypes = {
 	siteAdminUrl: PropTypes.string.isRequired,
 	siteRawUrl: PropTypes.string.isRequired,
 	startingLicense: PropTypes.string,
+	displayName: PropTypes.string,
 };
 
 export default ActivationScreen;
