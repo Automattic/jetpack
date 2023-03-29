@@ -462,19 +462,10 @@ export default function PosterPanel( {
 	const onPreviewOnHoverChange = useCallback(
 		( shouldPreviewOnHover: boolean ) => {
 			setPreviewOnHover( shouldPreviewOnHover );
-			let data = {};
-
-			if ( ! shouldPreviewOnHover ) {
-				data = {
-					previewAtTime: null,
-					previewLoopDuration: null,
-				};
-			}
 
 			setAttributes( {
 				posterData: {
 					...attributes.posterData,
-					...data,
 					previewOnHover: shouldPreviewOnHover,
 				},
 			} );
