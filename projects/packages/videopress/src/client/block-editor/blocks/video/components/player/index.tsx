@@ -157,7 +157,8 @@ export default function Player( {
 		return () => iFrameContentWindow?.removeEventListener( 'message', videoPlayerEventsHandler );
 	}, [ videoWrapperRef, isRequestingEmbedPreview ] );
 
-	const { atTime, previewOnHover, previewAtTime, type } = attributes.posterData;
+	const { atTime, previewOnHover, previewAtTime, previewLoopDuration, type } =
+		attributes.posterData;
 
 	let timeToSetPlayerPosition = undefined;
 	if ( type === 'video-frame' ) {
@@ -172,6 +173,11 @@ export default function Player( {
 
 	usePlayerReady( videoWrapperRef, isRequestingEmbedPreview, {
 		atTime: timeToSetPlayerPosition,
+		wrapperElement: mainWrapperRef?.current,
+		previewOnHover: {
+			atTime: previewAtTime,
+			duration: previewLoopDuration,
+		},
 	} );
 
 	useEffect( () => {
