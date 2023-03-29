@@ -212,7 +212,23 @@ export const getIframeWindowFromRef = (
 };
 
 type UsePlayerReadyOptions = {
+	/*
+	 * The time to initially set the player to.
+	 */
 	atTime: number;
+
+	/*
+	 * DOM player wrapper element.
+	 */
+	wrapperElement: HTMLDivElement | null;
+
+	/*
+	 * PreviewOnHover feature options.
+	 */
+	previewOnHover: {
+		atTime: number;
+		duration: number;
+	};
 };
 
 <<<<<<< HEAD
@@ -230,11 +246,6 @@ type UsePLayerReadyReturn = {
 /**
  * Custom hook to set the player ready to use:
  *
- * - Detect the "videopress_loading_state" state.
- * - Detect the first time it was played.
- * - Stop right after it was played
- * - Set the player position to the desired time
- *
  * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - useRef of the sandbox wrapper.
  * @param {boolean} isRequestingEmbedPreview                   - Whether the preview is being requested.
  * @param {UsePlayerReadyOptions} options                      - Options object.
@@ -243,7 +254,7 @@ type UsePLayerReadyReturn = {
 export const usePlayerReady = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >,
 	isRequestingEmbedPreview: boolean,
-	{ atTime }: UsePlayerReadyOptions
+	{ atTime, wrapperElement, previewOnHover }: UsePlayerReadyOptions
 ): UsePLayerReadyReturn => {
 	const [ playerIsReady, setPlayerIsReady ] = useState( false );
 <<<<<<< HEAD
@@ -255,8 +266,14 @@ export const usePlayerReady = (
 >>>>>>> 077bfb4010 ([not verified] tidy videoPlayerEventsHandler fn)
 
 	/**
-	 * Handler function that listent the events
+	 * Handler function that listen the events
 	 * emited by the player client.
+	 *
+	 * - Initial player state:
+	 * - - Detect the "videopress_loading_state" state.
+	 * - - Detect the first time the player plays.
+	 * - - Stop right after it plays.
+	 * - - Set the player position at the desired time.
 	 *
 	 * @param {MessageEvent} event - Message event
 	 */
@@ -308,6 +325,40 @@ export const usePlayerReady = (
 			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
 		};
 	}, [ iFrameRef, isRequestingEmbedPreview ] );
+
+	const playVideo = useCallback( () => {
+		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
+		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
+			return;
+		}
+
+		sandboxIFrameWindow.postMessage( { event: 'videopress_action_play' }, '*' );
+	}, [ iFrameRef, playerIsReady ] );
+
+	const stopVideo = useCallback( () => {
+		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
+		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
+			return;
+		}
+
+		sandboxIFrameWindow.postMessage( { event: 'videopress_action_pause' }, '*' );
+	}, [ iFrameRef, playerIsReady ] );
+
+	// PreviewOnHover feature.
+	useEffect( () => {
+		if ( ! wrapperElement || ! previewOnHover ) {
+			return;
+		}
+
+		wrapperElement.addEventListener( 'mouseenter', playVideo );
+		wrapperElement.addEventListener( 'mouseleave', stopVideo );
+
+		return () => {
+			// Remove the listener when the component is unmounted.
+			wrapperElement.removeEventListener( 'mouseenter', playVideo );
+			wrapperElement.removeEventListener( 'mouseleave', stopVideo );
+		};
+	}, [ previewOnHover, wrapperElement, playerIsReady ] );
 
 	return {
 		playerIsReady,
