@@ -18,6 +18,7 @@ import style from './style.scss';
  */
 import type { NativePlayerProps } from './types';
 
+
 /**
  * VideoPlayer react component
  *
@@ -61,7 +62,7 @@ export default function Player( {
 	if ( ! html || isRequestingEmbedPreview ) {
 		loadingStyle.height = 250;
 	}
-
+	console.log( 'html', html );
 	return (
 		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
 			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
@@ -69,7 +70,7 @@ export default function Player( {
 			{ ! isRequestingEmbedPreview && <SandBox html={ html } /> }
 			{ ! html && <Text>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text> }
 
-			{ isSelected && ! html && (
+			{ isSelected && html && (
 				<BlockCaption
 					clientId={ clientId }
 					onFocus={ onFocusCaption }
