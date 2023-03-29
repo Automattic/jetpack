@@ -130,6 +130,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.10.1]: https://github.com/automattic/jetpack-forms/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/automattic/jetpack-forms/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/automattic/jetpack-forms/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/automattic/jetpack-forms/compare/v0.7.0...v0.8.0
