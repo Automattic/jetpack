@@ -49,8 +49,8 @@ class Image_CDN {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$instance, 'Automattic\Jetpack\Image_CDN' ) ) {
-			self::$instance = new Image_CDN();
+		if ( ! is_a( self::$instance, self::class ) ) {
+			self::$instance = new self();
 			self::$instance->setup();
 		}
 
