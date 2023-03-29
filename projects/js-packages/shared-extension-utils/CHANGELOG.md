@@ -189,6 +189,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.10.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.10.0...0.10.1
 [0.10.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.9.2...0.10.0
 [0.9.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.9.0...0.9.1
