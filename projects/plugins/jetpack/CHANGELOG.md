@@ -39,7 +39,7 @@
 - Jetpack Protect: update documentation for filter. [#29731]
 - Jetpack Redirect: Refactor redirect URL to use a dynamic path variable. [#29422]
 - Jetpack Social: Enable Social Image Generator by default when it is available. [#29742]
-- Launchpad: Update modal content for newsletter flow. [#29484]
+- Launchpad: update modal content for newsletter flow. [#29484]
 - Masterbar: remove Upgrades and Inbox menus for staging sites [#29355]
 - SEO: add Yoast promo in SEO settings banner. [#29643]
 - Stats: change Calypso Stats to Odyssey Stats. [#29679]
