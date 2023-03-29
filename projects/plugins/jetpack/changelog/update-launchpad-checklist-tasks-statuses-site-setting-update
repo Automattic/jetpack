@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Update site settings logic to allow modification of launchpad_checklist_tasks_statuses site option
