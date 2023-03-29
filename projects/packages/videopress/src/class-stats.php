@@ -61,13 +61,13 @@ class Stats {
 	}
 
 	/**
-	 * Returns the showcase stats for VideoPress.
+	 * Returns the featured stats for VideoPress.
 	 *
 	 * @return array|WP_Error a list of stats, or WP_Error on failure.
 	 */
-	public static function get_showcase_stats() {
-		$error_code    = 'videopress_showcase_stats_error';
-		$error_message = __( 'Could not fetch showcase stats from the service', 'jetpack-videopress-pkg' );
+	public static function get_featured_stats() {
+		$error_code    = 'videopress_featured_stats_error';
+		$error_message = __( 'Could not fetch featured stats from the service', 'jetpack-videopress-pkg' );
 
 		$data = ( new WPCOM_Stats() )->get_video_plays(
 			array(
@@ -92,16 +92,16 @@ class Stats {
 		$dates = $data['days'];
 
 		// Organize the data into the planned stats
-		return self::prepare_showcase_stats( $dates );
+		return self::prepare_featured_stats( $dates );
 	}
 
 	/**
-	 * Prepares the showcase stats for VideoPress.
+	 * Prepares the featured stats for VideoPress.
 	 *
 	 * @param array $dates The list of dates returned by the API.
 	 * @return array a list of stats.
 	 */
-	public static function prepare_showcase_stats( $dates ) {
+	public static function prepare_featured_stats( $dates ) {
 		/**
 		 * Ensure the sorting of the dates, recent ones first.
 		 * This way, the first 7 positions are from the last 7 days,
@@ -110,7 +110,7 @@ class Stats {
 		krsort( $dates );
 
 		// template for the response
-		$showcase_stats = array(
+		$featured_stats = array(
 			'label' => __( 'last 7 days', 'jetpack-videopress-pkg' ),
 			'data'  => array(
 				'views'       => array(
@@ -136,22 +136,22 @@ class Stats {
 			if ( $counter < 7 ) {
 
 				// the first 7 elements are for the current period
-				$showcase_stats['data']['views']['current']       += $date_totals['views'];
-				$showcase_stats['data']['impressions']['current'] += $date_totals['impressions'];
-				$showcase_stats['data']['watch_time']['current']  += $date_totals['watch_time'];
+				$featured_stats['data']['views']['current']       += $date_totals['views'];
+				$featured_stats['data']['impressions']['current'] += $date_totals['impressions'];
+				$featured_stats['data']['watch_time']['current']  += $date_totals['watch_time'];
 
 			} else {
 
 				// the next 7 elements are for the previous period
-				$showcase_stats['data']['views']['previous']       += $date_totals['views'];
-				$showcase_stats['data']['impressions']['previous'] += $date_totals['impressions'];
-				$showcase_stats['data']['watch_time']['previous']  += $date_totals['watch_time'];
+				$featured_stats['data']['views']['previous']       += $date_totals['views'];
+				$featured_stats['data']['impressions']['previous'] += $date_totals['impressions'];
+				$featured_stats['data']['watch_time']['previous']  += $date_totals['watch_time'];
 
 			}
 
 			++$counter;
 		}
 
-		return $showcase_stats;
+		return $featured_stats;
 	}
 }
