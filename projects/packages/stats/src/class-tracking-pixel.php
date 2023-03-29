@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats;
 
+use Automattic\Jetpack\Assets;
 use Jetpack_Options;
 use WP_Post;
 
@@ -64,131 +65,40 @@ class Tracking_Pixel {
 	}
 
 	/**
-	 * Stats Footer.
+	 * Enqueue the Stats pixel.
 	 *
-	 * @access public
 	 * @return void
 	 */
-	public static function add_to_footer() {
-		$data   = self::build_view_data();
-		$footer = self::get_footer_to_add( $data );
-		print $footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	/**
-	 * Gets the footer to add for the Stats tracker.
-	 *
-	 * @access public
-	 * @param array $data Array of data for the JS stats tracker.
-	 * @return string Returns the footer to add for the Stats tracker.
-	 */
-	public static function get_footer_to_add( $data ) {
+	public static function enqueue_stats_script() {
+		$data = self::build_view_data();
 		if ( self::is_amp_request() ) {
-			/**
-			 * Filter the parameters added to the AMP pixel tracking code.
-			 *
-			 * @module stats
-			 *
-			 * @since-jetpack 10.9
-			 *
-			 * @param array $data Array of options about the site and page you're on.
-			 */
-			$data = (array) apply_filters( 'jetpack_stats_footer_amp_data', $data );
-			return self::get_amp_footer( $data );
-		} else {
-			/**
-			 * Filter the parameters added to the JavaScript stats tracking code.
-			 *
-			 * @module stats
-			 *
-			 * @since-jetpack 10.9
-			 *
-			 * @param array $data Array of options about the site and page you're on.
-			 */
-			$data = (array) apply_filters( 'jetpack_stats_footer_js_data', $data );
-			return self::get_footer( $data );
+			return;
 		}
-	}
 
-	/**
-	 * Get the list of attributes to add to the Stats script tag.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return string string of attributes to add to the script tag.
-	 */
-	public static function get_script_attributes() {
-		/**
-		 * Allow adding extra attributes to the stats footer script tag.
-		 *
-		 * @module stats
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param array $script_attributes Array of attributes to add to the script tag. Default to 'defer' only.
-		 */
-		$script_attributes = (array) apply_filters(
-			'jetpack_stats_footer_script_attributes',
-			array( 'defer' => true )
+		wp_enqueue_script(
+			'jetpack-stats',
+			'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js',
+			array(),
+			null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- The version is set in the URL.
+			true
 		);
 
-		/*
-		 * Create an escaped string of attributes to add to the script tag,
-		 * like 'defer', 'async',
-		 * or anything passed to the filter above.
-		 *
-		 * For boolean attributes, we either only display the key (e.g. "defer")
-		 * or not display anything (e.g. we do not want to display "async=false").
-		 */
-		$atts_to_add = array();
-		foreach ( $script_attributes as $key => $value ) {
-			if ( is_bool( $value ) ) {
-				if ( $value ) {
-					$atts_to_add[] = esc_attr( $key );
-				}
-			} else {
-				$atts_to_add[] = esc_attr( $key ) . "='" . esc_attr( $value ) . "'";
-			}
-		}
-		$script_attributes = implode( ' ', $atts_to_add );
+		Assets::add_async_script( 'jetpack-stats' );
 
-		return $script_attributes;
-	}
-
-	/**
-	 * Gets the stats footer
-	 *
-	 * @access private
-	 * @param array $data Array of data for the JS stats tracker.
-	 * @return string Returns the footer to add for the Stats tracker in a non AMP scenario.
-	 */
-	private static function get_footer( $data ) {
-		$script_attributes = self::get_script_attributes();
-
-		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		// When there is a way to use defer with enqueue, we can move to it and inline the custom data.
-		$script           = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
 		$data_stats_array = self::stats_array_to_string( $data );
-		$stats_footer     = <<<END
-	<script src='{$script}' {$script_attributes}></script>
-	<script>
-		_stq = window._stq || [];
-		_stq.push([ 'view', {{$data_stats_array}} ]);
-		_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);
-	</script>
-END;
-		// phpcs:enable
-		return $stats_footer;
-	}
-
-	/**
-	 * Render the stats footer. Kept for backward compatibility
-	 *
-	 * @access public
-	 * @param array $data Array of data for the JS stats tracker.
-	 */
-	public static function render_footer( $data ) {
-		print self::get_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		$triggers         = sprintf(
+			'_stq = window._stq || [];
+_stq.push([ "view", {%1$s} ]);
+_stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
+			$data_stats_array,
+			$data['blog'],
+			$data['post']
+		);
+		wp_add_inline_script(
+			'jetpack-stats',
+			$triggers,
+			'after'
+		);
 	}
 
 	/**
@@ -208,13 +118,70 @@ END;
 	}
 
 	/**
+	 * Build an AMP pixel.
+	 *
+	 * @return void
+	 */
+	public static function add_amp_pixel() {
+		$data = self::build_view_data();
+		if ( self::is_amp_request() ) {
+			return;
+		}
+
+		$pixel = self::get_amp_footer( $data );
+		echo $pixel; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * Stats Footer.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public static function add_to_footer() {
+		_deprecated_function( __METHOD__, '$$next-version$$' );
+	}
+
+	/**
+	 * Gets the footer to add for the Stats tracker.
+	 *
+	 * @access public
+	 * @param array $data Array of data for the JS stats tracker.
+	 * @return void
+	 */
+	public static function get_footer_to_add( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, '$$next-version$$' );
+	}
+
+	/**
+	 * Gets the stats footer
+	 *
+	 * @access private
+	 * @param array $data Array of data for the JS stats tracker.
+	 * @return void
+	 */
+	private static function get_footer( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, '$$next-version$$' );
+	}
+
+	/**
+	 * Render the stats footer. Kept for backward compatibility
+	 *
+	 * @access public
+	 * @param array $data Array of data for the JS stats tracker.
+	 */
+	public static function render_footer( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, '$$next-version$$' );
+	}
+
+	/**
 	 * Render the stats footer for AMP output.
 	 *
 	 * @access public
 	 * @param array $data Array of data for the AMP pixel tracker.
 	 */
-	public static function render_amp_footer( $data ) {
-		print self::get_amp_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	public static function render_amp_footer( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 	}
 
 	/**
