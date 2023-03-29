@@ -246,10 +246,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 12.0-beta - 2023-03-28
 #### Enhancements
-- Jetpack Forms: display carriage returns in user response text to properly display multiline text.
-- Jetpack Protect: remove account connection requirement to use the brute force protection feature.
-- Jetpack Protect: share IP allow list between the Jetpack Firewall and Brute Force Protection modules.
-- Jetpack Social: add a toggle to enable image generator and choose a default template.
+- Forms: display carriage returns in user response text to properly display multiline text.
+- Protect: remove account connection requirement to use the brute force protection feature.
+- Protect: share IP allow list between the Jetpack Firewall and Brute Force Protection modules.
 - Subscriptions: make the Subscribe Block available, even when the Subscriptions module is off, so Subscriptions can be easily enabled.
 - Stats: update visuals for the wp-admin dashboard Stats widget.
 
@@ -260,7 +259,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - WordPress 6.2 compatibility: ensure that the block editor's External Media functionality and Jetpack's Twitter features in the block editor stays compatible with the upcoming version of WordPress.
 
 #### Bug fixes
-- Jetpack Forms: fix a PHP warning on Feedback->Response Forms when looking at old responses.
+- Forms: fix a PHP warning on Feedback->Response Forms when looking at old responses.
 - Subscriptions: ensure the block's settings are displayed properly, even when using a block theme.
 
 --------
