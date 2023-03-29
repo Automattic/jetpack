@@ -25,7 +25,7 @@ import classnames from 'classnames';
 import TimestampControl from '../../../../../components/timestamp-control';
 import { getVideoPressUrl } from '../../../../../lib/url';
 import { usePreview } from '../../../../hooks/use-preview';
-import { useVideoPlayer } from '../../../../hooks/use-video-player';
+import useVideoPlayer from '../../../../hooks/use-video-player';
 import { VIDEO_POSTER_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { VideoPosterCard } from '../poster-image-block-control';
 import './style.scss';

@@ -1,12 +1,15 @@
 /**
  * External dependencies
  */
+import debugFactory from 'debug';
 import { useEffect, useRef, useState, useCallback } from 'react';
 /**
  * Types
  */
 import type { PlayerStateProp, UseVideoPlayerOptions, UseVideoPlayer } from './types';
 import type React from 'react';
+
+const debug = debugFactory( 'videopress:use-video-player' );
 
 /**
  * Return the (content) Window object of the iframe,
@@ -32,7 +35,7 @@ export const getIframeWindowFromRef = (
  * @param {UseVideoPlayerOptions} options                      - Options object.
  * @returns {UseVideoPlayer}                                     playerIsReady and playerState
  */
-export const useVideoPlayer = (
+const useVideoPlayer = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >,
 	isRequestingEmbedPreview: boolean,
 	{ atTime, wrapperElement, previewOnHover }: UseVideoPlayerOptions
@@ -58,18 +61,21 @@ export const useVideoPlayer = (
 
 		// Detect when the video has been loaded.
 		if ( eventName === 'videopress_loading_state' && eventData.state === 'loaded' ) {
+			debug( 'state: loaded' );
 			playerState.current = 'loaded';
 		}
 
 		// Detect when the video has been played for the first time.
 		if ( eventName === 'videopress_playing' && playerState.current === 'loaded' ) {
 			playerState.current = 'first-play';
+			debug( 'state: first-play detected' );
 
 			// Pause and move the video at the desired time.
 			source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
 
 			// Set position at time if it was provided.
 			if ( typeof atTime !== 'undefined' ) {
+				debug( 'set position at time %o ', atTime );
 				source.postMessage(
 					{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
 					{ targetOrigin: '*' }
@@ -140,3 +146,5 @@ export const useVideoPlayer = (
 		playerState: playerState.current,
 	};
 };
+
+export default useVideoPlayer;

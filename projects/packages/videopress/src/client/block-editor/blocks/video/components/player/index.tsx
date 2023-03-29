@@ -5,10 +5,10 @@ import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getIframeWindowFromRef, useVideoPlayer } from '../poster-panel';
 /**
  * Types
  */
+import useVideoPlayer, { getIframeWindowFromRef } from '../../../../hooks/use-video-player';
 import type { PlayerProps } from './types';
 import type React from 'react';
 
