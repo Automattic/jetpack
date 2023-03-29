@@ -25,6 +25,7 @@ import classnames from 'classnames';
 import TimestampControl from '../../../../../components/timestamp-control';
 import { getVideoPressUrl } from '../../../../../lib/url';
 import { usePreview } from '../../../../hooks/use-preview';
+import { useVideoPlayer } from '../../../../hooks/use-video-player';
 import { VIDEO_POSTER_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { VideoPosterCard } from '../poster-image-block-control';
 import './style.scss';
@@ -211,161 +212,6 @@ export const getIframeWindowFromRef = (
 	return iFrame?.contentWindow;
 };
 
-type UseVideoPlayerOptions = {
-	/*
-	 * The time to initially set the player to.
-	 */
-	atTime: number;
-
-	/*
-	 * DOM player wrapper element.
-	 */
-	wrapperElement: HTMLDivElement | null;
-
-	/*
-	 * PreviewOnHover feature options.
-	 */
-	previewOnHover: {
-		atTime: number;
-		duration: number;
-	};
-};
-
-<<<<<<< HEAD
-type UsePLayerReadyReturn = {
-	playerIsReady: boolean;
-	playerState: 'not-rendered' | 'loaded' | 'first-play';
-=======
-type PlayerStateProp = 'not-rendered' | 'loaded' | 'first-play' | 'ready';
-type UseVideoPlayer = {
-	playerIsReady: boolean;
-	playerState: PlayerStateProp;
->>>>>>> 077bfb4010 ([not verified] tidy videoPlayerEventsHandler fn)
-};
-
-/**
- * Custom hook to set the player ready to use:
- *
- * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - useRef of the sandbox wrapper.
- * @param {boolean} isRequestingEmbedPreview                   - Whether the preview is being requested.
- * @param {UseVideoPlayerOptions} options                      - Options object.
- * @returns {UseVideoPlayer}                               playerIsReady and playerState
- */
-export const useVideoPlayer = (
-	iFrameRef: React.MutableRefObject< HTMLDivElement >,
-	isRequestingEmbedPreview: boolean,
-	{ atTime, wrapperElement, previewOnHover }: UseVideoPlayerOptions
-): UseVideoPlayer => {
-	const [ playerIsReady, setPlayerIsReady ] = useState( false );
-<<<<<<< HEAD
-	const playerState = useRef< 'not-rendered' | 'loaded' | 'first-play' | 'ready' >(
-		'not-rendered'
-	);
-=======
-	const playerState = useRef< PlayerStateProp >( 'not-rendered' );
->>>>>>> 077bfb4010 ([not verified] tidy videoPlayerEventsHandler fn)
-
-	/**
-	 * Handler function that listen the events
-	 * emited by the player client.
-	 *
-	 * - Initial player state:
-	 * - - Detect the "videopress_loading_state" state.
-	 * - - Detect the first time the player plays.
-	 * - - Stop right after it plays.
-	 * - - Set the player position at the desired time.
-	 *
-	 * @param {MessageEvent} event - Message event
-	 */
-	function listenEventsHandler( event: MessageEvent ) {
-		const { data: eventData = {}, source } = event;
-		const { event: eventName } = event?.data || {};
-
-		// Detect when the video has been loaded.
-		if ( eventName === 'videopress_loading_state' && eventData.state === 'loaded' ) {
-			playerState.current = 'loaded';
-		}
-
-		// Detect when the video has been played for the first time.
-		if ( eventName === 'videopress_playing' && playerState.current === 'loaded' ) {
-			playerState.current = 'first-play';
-
-			// Pause and move the video at the desired time.
-			source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
-
-			// Set position at time if it was provided.
-			if ( typeof atTime !== 'undefined' ) {
-				source.postMessage(
-					{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
-					{ targetOrigin: '*' }
-				);
-			}
-
-			// Here we consider the video as ready to be controlled.
-			setPlayerIsReady( true );
-			playerState.current = 'ready';
-		}
-	}
-
-	// Listen player events.
-	useEffect( () => {
-		if ( isRequestingEmbedPreview ) {
-			return;
-		}
-
-		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
-		if ( ! sandboxIFrameWindow ) {
-			return;
-		}
-
-		sandboxIFrameWindow.addEventListener( 'message', listenEventsHandler );
-
-		return () => {
-			// Remove the listener when the component is unmounted.
-			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
-		};
-	}, [ iFrameRef, isRequestingEmbedPreview ] );
-
-	const playVideo = useCallback( () => {
-		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
-		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
-			return;
-		}
-
-		sandboxIFrameWindow.postMessage( { event: 'videopress_action_play' }, '*' );
-	}, [ iFrameRef, playerIsReady ] );
-
-	const stopVideo = useCallback( () => {
-		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
-		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
-			return;
-		}
-
-		sandboxIFrameWindow.postMessage( { event: 'videopress_action_pause' }, '*' );
-	}, [ iFrameRef, playerIsReady ] );
-
-	// PreviewOnHover feature.
-	useEffect( () => {
-		if ( ! wrapperElement || ! previewOnHover ) {
-			return;
-		}
-
-		wrapperElement.addEventListener( 'mouseenter', playVideo );
-		wrapperElement.addEventListener( 'mouseleave', stopVideo );
-
-		return () => {
-			// Remove the listener when the component is unmounted.
-			wrapperElement.removeEventListener( 'mouseenter', playVideo );
-			wrapperElement.removeEventListener( 'mouseleave', stopVideo );
-		};
-	}, [ previewOnHover, wrapperElement, playerIsReady ] );
-
-	return {
-		playerIsReady,
-		playerState: playerState.current,
-	};
-};
-
 type PosterFramePickerProps = {
 	guid: VideoGUID;
 	atTime: number;
@@ -418,7 +264,7 @@ function VideoFramePicker( {
 		}
 	}
 
-	const { playerIsReady } = usePlayerReady( playerWrapperRef, isRequestingEmbedPreview, {
+	const { playerIsReady } = useVideoPlayer( playerWrapperRef, isRequestingEmbedPreview, {
 		atTime,
 	} );
 
