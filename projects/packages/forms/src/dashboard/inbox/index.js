@@ -117,7 +117,7 @@ const Inbox = () => {
 							/>
 							<BulkActionsMenu />
 
-							<button className="button button-primary" onClick={ toggleExportModal }>
+							<button className="button button-primary export-button" onClick={ toggleExportModal }>
 								{ __( 'Export', 'jetpack-forms' ) }
 							</button>
 						</div>
