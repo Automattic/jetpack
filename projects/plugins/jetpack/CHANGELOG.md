@@ -38,7 +38,7 @@
 - Jetpack Protect: move the brute force protection transient cleanup and shared functions to dedicated namespaced classes. [#28401]
 - Jetpack Protect: update documentation for filter. [#29731]
 - Jetpack Redirect: Refactor redirect URL to use a dynamic path variable. [#29422]
-- Jetpack Social: Enable Social Image Generator by default when it is available. [#29742]
+- Jetpack Social: enable Social Image Generator by default when it is available. [#29742]
 - Launchpad: update modal content for newsletter flow. [#29484]
 - Masterbar: remove Upgrades and Inbox menus for staging sites [#29355]
 - SEO: add Yoast promo in SEO settings banner. [#29643]
