@@ -44,7 +44,7 @@ class Image_CDN_Core {
 	 * @see https://developer.wordpress.com/docs/photon/
 	 *
 	 * @param string       $image_url URL to the publicly accessible image you want to manipulate.
-	 * @param array|string $args An array of arguments, i.e. array( 'w' => '300', 'resize' => array( 123, 456 ) ), or in string form (w=123&h=456).
+	 * @param array|string $args An array of arguments, e.g. array( 'w' => '300', 'resize' => array( 123, 456 ) ), or in string form (w=123&h=456).
 	 * @param string|null  $scheme URL protocol.
 	 * @return string The raw final URL. You should run this through esc_url() before displaying it.
 	 */
