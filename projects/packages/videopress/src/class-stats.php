@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Stats\WPCOM_Stats;
 use WP_Error;
 
 /**
@@ -68,30 +69,17 @@ class Stats {
 		$error_code    = 'videopress_showcase_stats_error';
 		$error_message = __( 'Could not fetch showcase stats from the service', 'jetpack-videopress-pkg' );
 
-		$blog_id = VideoPressToken::blog_id();
-
-		$path = sprintf(
-			'sites/%d/stats/video-plays?period=day&num=14&complete_stats=true',
-			$blog_id
+		$data = ( new WPCOM_Stats() )->get_video_plays(
+			array(
+				'period'         => 'day',
+				'num'            => 14,
+				'complete_stats' => true,
+			)
 		);
 
-		$response = Client::wpcom_json_api_request_as_blog( $path, '1.1', array(), null, 'rest' );
-
-		if ( is_wp_error( $response ) ) {
-			return $response;
+		if ( is_wp_error( $data ) ) {
+			return $data;
 		}
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-		if ( 200 !== $response_code ) {
-			return new WP_Error(
-				$error_code,
-				$error_message,
-				array( 'status' => $response_code )
-			);
-		}
-
-		$body = wp_remote_retrieve_body( $response );
-		$data = json_decode( $body, true );
 
 		if ( ! $data ) {
 			return new WP_Error(
