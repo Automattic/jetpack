@@ -35,6 +35,7 @@ The CLI commands can be run from anywhere, and the changes will be made in which
 * `install` - Install project dependencies.
 * `watch` - Watch a specific project.
 * `rsync` - rsync projects/plugins to external destinations.
+* `feedback` - Send public or private feedback to the Jetpack team.
 
 ## Examples
 
@@ -95,6 +96,10 @@ Maybe you'd prefer to develop against a live site instead of Docker. Or maybe yo
 - Rsync the Jetpack plugin to server destination: `jetpack rsync jetpack user@your.server.example.com:/home/path/to/wp-content/plugins`
 
 [the Jetpack monorepo]: https://github.com/Automattic/jetpack
+
+**Feedback**: Send feedback to the Jetpack team.
+
+This commmand offers you options to send us feedback about your experience contributin code to the Jetpack monorepo.
 
 **Draft**: Enable or disable "draft mode" for the repo.
 

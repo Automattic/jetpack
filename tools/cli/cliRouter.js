@@ -7,6 +7,7 @@ import { cliDefine } from './commands/cli.js';
 import * as dependenciesCommand from './commands/dependencies.js';
 import { dockerDefine } from './commands/docker.js';
 import { draftDefine } from './commands/draft.js';
+import { feedbackDefine } from './commands/feedback.js';
 import { generateDefine } from './commands/generate.js';
 import * as installCommand from './commands/install.js';
 import { releaseDefine } from './commands/release.js';
@@ -38,6 +39,7 @@ export async function cli() {
 	argv.command( dependenciesCommand );
 	argv = dockerDefine( argv );
 	argv = draftDefine( argv );
+	argv = feedbackDefine( argv );
 	argv = generateDefine( argv );
 	argv.command( installCommand );
 	argv = releaseDefine( argv );
