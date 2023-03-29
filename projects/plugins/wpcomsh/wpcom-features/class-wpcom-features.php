@@ -799,7 +799,7 @@ class WPCOM_Features {
 			self::JETPACK_ALL_SITES,
 		),
 		self::STAGING_SITES                    => array(
-			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 		),
 
 		/*
