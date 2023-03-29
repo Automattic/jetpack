@@ -1,19 +1,12 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 import { JetpackBoostPage } from '../lib/pages/index.js';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
 
 let jetpackBoostPage;
 
 test.describe( 'Speed Score feature', () => {
 	test.beforeAll( async ( { browser } ) => {
 		const page = await browser.newPage();
-
-		// Protect can interfere with the login flow. So we are disabling it
-		await prerequisitesBuilder( page )
-			.withInactiveModules( [ 'protect' ] )
-			.withLoggedIn( true )
-			.build();
 
 		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).build();
 	} );

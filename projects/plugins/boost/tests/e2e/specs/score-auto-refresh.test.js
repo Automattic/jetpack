@@ -2,7 +2,6 @@ import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
 import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
 import { JetpackBoostPage } from '../lib/pages/index.js';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
 
 test.describe( 'Auto refresh of speed scores', () => {
 	let page;
@@ -10,12 +9,6 @@ test.describe( 'Auto refresh of speed scores', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
-
-		// Protect can interfere with the login flow. So we are disabling it
-		await prerequisitesBuilder( page )
-			.withInactiveModules( [ 'protect' ] )
-			.withLoggedIn( true )
-			.build();
 
 		await boostPrerequisitesBuilder( page )
 			.withConnection( true )
