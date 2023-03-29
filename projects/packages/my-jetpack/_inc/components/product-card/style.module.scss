@@ -33,12 +33,22 @@
 	}
 }
 
-.name {
+.title {
 	width: 100%;
 	display: flex;
+	gap: var(--spacing-base);
 	align-items: center;
 	justify-content: space-between;
 	margin-bottom: calc( var(--spacing-base) * 3 ); // 24px
+}
+
+.name {
+	display: flex;
+	height: 100%;
+	gap: var(--spacing-base);
+	flex-shrink: 1;
+	align-items: center;
+	flex-wrap: wrap-reverse;
 }
 
 .description {

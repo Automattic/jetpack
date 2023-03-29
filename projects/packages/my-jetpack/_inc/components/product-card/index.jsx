@@ -1,5 +1,6 @@
-import { Text } from '@automattic/jetpack-components';
+import { Button, Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Icon, moreVertical } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
@@ -113,9 +114,12 @@ const ProductCard = props => {
 
 	return (
 		<CardWrapper className={ containerClassName }>
-			<div className={ styles.name }>
-				<Text variant="title-medium">{ name }</Text>
-				{ icon }
+			<div className={ styles.title }>
+				<div className={ styles.name }>
+					<Text variant="title-medium">{ name }</Text>
+					{ icon }
+				</div>
+				<Button icon={ <Icon icon={ moreVertical } /> } variant="tertiary" size="small" />
 			</div>
 			{
 				// If is not active, no reason to use children
