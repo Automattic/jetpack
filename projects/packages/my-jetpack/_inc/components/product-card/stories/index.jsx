@@ -52,5 +52,5 @@ Absent.args = {
 export const WithChildren = Template.bind( {} );
 WithChildren.args = {
 	...DefaultArgs,
-	children: <div>Testando</div>,
+	children: <div>Card Children</div>,
 };
