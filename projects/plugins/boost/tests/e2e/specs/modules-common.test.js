@@ -19,7 +19,10 @@ test.describe.serial( 'Modules', () => {
 		page = await browser.newPage( playwrightConfig.use );
 
 		// Protect can interfere with the login flow. So we are disabling it
-		await prerequisitesBuilder( page ).withInactiveModules( [ 'protect' ] ).build();
+		await prerequisitesBuilder( page )
+			.withLoggedIn( true )
+			.withInactiveModules( [ 'protect' ] )
+			.build();
 
 		await boostPrerequisitesBuilder( page )
 			.withConnection( true )

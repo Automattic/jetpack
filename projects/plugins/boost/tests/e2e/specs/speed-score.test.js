@@ -10,7 +10,10 @@ test.describe( 'Speed Score feature', () => {
 		const page = await browser.newPage();
 
 		// Protect can interfere with the login flow. So we are disabling it
-		await prerequisitesBuilder( page ).withInactiveModules( [ 'protect' ] ).build();
+		await prerequisitesBuilder( page )
+			.withInactiveModules( [ 'protect' ] )
+			.withLoggedIn( true )
+			.build();
 
 		await boostPrerequisitesBuilder( page ).withSpeedScoreMocked( false ).build();
 	} );
