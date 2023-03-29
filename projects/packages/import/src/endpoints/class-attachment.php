@@ -141,7 +141,6 @@ class Attachment extends \WP_REST_Attachments_Controller {
 	 * @return array Modified Schema array.
 	 */
 	public function add_additional_fields_schema( $schema ) {
-
 		// Validate the upload_date, used for placing the uploaded file in the correct upload directory.
 		$schema['properties']['upload_date'] = array(
 			'description' => __( 'The date for the upload directory of the attachment.', 'jetpack-import' ),

@@ -3,6 +3,8 @@
  */
 import { MediaUploadCheck, MediaUpload } from '@wordpress/block-editor';
 import {
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalNumberControl as NumberControl,
 	MenuItem,
 	PanelBody,
 	NavigableMenu,
@@ -32,6 +34,9 @@ import './style.scss';
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
 import type { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import type React from 'react';
+
+const MAX_LOOP_DURATION = 20 * 1000;
+const DEFAULT_LOOP_DURATION = 10 * 1000;
 
 /*
  * Check whether video frame poster extension is enabled.
@@ -335,6 +340,75 @@ function VideoFramePicker( {
 	);
 }
 
+type VideoHoverPreviewControlProps = {
+	previewOnHover?: boolean;
+	previewAtTime?: number;
+	loopDuration?: number;
+	videoDuration: number;
+	onPreviewOnHoverChange: ( previewOnHover: boolean ) => void;
+	onAtTimeChange: ( timestamp: number ) => void;
+	onLoopDurationChange: ( duration: number ) => void;
+};
+
+/**
+ * React component to select the video preview options when the user hovers the video
+ *
+ * @param {VideoHoverPreviewControlProps} props - Component properties
+ * @returns { React.ReactElement}                 React component
+ */
+function VideoHoverPreviewControl( {
+	previewOnHover = false,
+	previewAtTime = 0,
+	loopDuration = DEFAULT_LOOP_DURATION,
+	videoDuration,
+	onPreviewOnHoverChange,
+	onAtTimeChange,
+	onLoopDurationChange,
+}: VideoHoverPreviewControlProps ): React.ReactElement {
+	const [ maxStartingPoint, setMaxStartingPoint ] = useState( videoDuration - loopDuration );
+
+	useEffect( () => {
+		setMaxStartingPoint( videoDuration - loopDuration );
+	}, [ videoDuration, loopDuration ] );
+
+	return (
+		<>
+			<ToggleControl
+				className="poster-panel__preview-toggle"
+				label={ __( 'Video preview on hover', 'jetpack-videopress-pkg' ) }
+				checked={ previewOnHover }
+				onChange={ onPreviewOnHoverChange }
+			/>
+
+			{ previewOnHover && (
+				<>
+					<TimestampControl
+						label={ __( 'Starting point', 'jetpack-videopress-pkg' ) }
+						max={ maxStartingPoint }
+						value={ previewAtTime }
+						onChange={ onAtTimeChange }
+					/>
+
+					<NumberControl
+						className="poster-panel__loop-duration"
+						min={ 0 }
+						max={ MAX_LOOP_DURATION }
+						step={ 1 }
+						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
+						spinControls="none"
+						placeholder="00"
+						suffix={ __( 'sec', 'jetpack-videopress-pkg' ) }
+						value={ loopDuration / 1000 }
+						onChange={ duration => {
+							onLoopDurationChange( Math.max( Math.min( MAX_LOOP_DURATION, duration * 1000 ), 0 ) );
+						} }
+					/>
+				</>
+			) }
+		</>
+	);
+}
+
 /**
  * Sidebar Control component.
  *
@@ -347,9 +421,22 @@ export default function PosterPanel( {
 	isGeneratingPoster,
 }: PosterPanelProps ): React.ReactElement {
 	const { poster, posterData } = attributes;
+
 	const [ pickFromFrame, setPickFromFrame ] = useState(
 		attributes?.posterData?.type === 'video-frame'
 	);
+	const [ previewOnHover, setPreviewOnHover ] = useState(
+		attributes?.posterData?.previewOnHover || false
+	);
+	const [ previewAtTime, setPreviewAtTime ] = useState(
+		attributes?.posterData?.previewAtTime || posterData?.atTime || 0
+	);
+	const [ previewLoopDuration, setPreviewLoopDuration ] = useState(
+		attributes?.posterData?.previewLoopDuration || DEFAULT_LOOP_DURATION
+	);
+
+	const videoDuration = 720000; // TODO: get the video duration from the block attributes
+
 	const onRemovePoster = () => {
 		setAttributes( { poster: '', posterData: { ...attributes.posterData, url: '' } } );
 	};
@@ -366,6 +453,55 @@ export default function PosterPanel( {
 
 				// Clean the poster URL when it should be picked from the video frame.
 				poster: shouldPickFromFrame ? '' : attributes.posterData.url || '',
+			} );
+		},
+		[ attributes ]
+	);
+
+	const onPreviewOnHoverChange = useCallback(
+		( shouldPreviewOnHover: boolean ) => {
+			setPreviewOnHover( shouldPreviewOnHover );
+
+			setAttributes( {
+				posterData: {
+					...attributes.posterData,
+					previewOnHover: shouldPreviewOnHover,
+				},
+			} );
+		},
+		[ attributes ]
+	);
+
+	const onAtTimeChange = useCallback(
+		( atTime: number ) => {
+			setPreviewAtTime( atTime );
+			setAttributes( {
+				posterData: {
+					...attributes.posterData,
+					previewAtTime: atTime,
+				},
+			} );
+		},
+		[ attributes ]
+	);
+
+	const onLoopDurationChange = useCallback(
+		( loopDuration: number ) => {
+			setPreviewLoopDuration( loopDuration );
+			let previewStart = previewAtTime;
+
+			// Adjust the starting point if the loop duration is too long
+			if ( previewAtTime + loopDuration > videoDuration ) {
+				previewStart = videoDuration - loopDuration;
+				setPreviewAtTime( previewStart );
+			}
+
+			setAttributes( {
+				posterData: {
+					...attributes.posterData,
+					previewLoopDuration: loopDuration,
+					previewAtTime: previewStart,
+				},
 			} );
 		},
 		[ attributes ]
@@ -433,6 +569,16 @@ export default function PosterPanel( {
 					</MenuItem>
 				) }
 			</div>
+
+			<VideoHoverPreviewControl
+				previewOnHover={ previewOnHover }
+				previewAtTime={ previewAtTime }
+				loopDuration={ previewLoopDuration }
+				videoDuration={ videoDuration }
+				onPreviewOnHoverChange={ onPreviewOnHoverChange }
+				onAtTimeChange={ onAtTimeChange }
+				onLoopDurationChange={ onLoopDurationChange }
+			/>
 		</PanelBody>
 	);
 }

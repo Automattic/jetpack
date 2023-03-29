@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Added can_blaze property to /sites/{siteId} endpoint (inside options attribute)
