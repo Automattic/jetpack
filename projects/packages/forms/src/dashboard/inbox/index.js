@@ -9,6 +9,7 @@ import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
 import { STORE_NAME } from '../state';
 import BulkActionsMenu from './bulk-actions-menu';
+import ExportModal from './export-modal';
 import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
@@ -35,6 +36,7 @@ const TABS = [
 
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
+	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ view, setView ] = useState( 'list' );
 
 	const { fetchResponses, setCurrentPage, setSearchQuery, setStatusQuery } =
@@ -76,6 +78,11 @@ const Inbox = () => {
 		setView( 'list' );
 	}, [] );
 
+	const toggleExportModal = useCallback(
+		() => setShowExportModal( ! showExportModal ),
+		[ showExportModal, setShowExportModal ]
+	);
+
 	const classes = classnames( 'jp-forms__inbox', {
 		'is-response-view': view === 'response',
 	} );
@@ -108,6 +115,10 @@ const Inbox = () => {
 								loading={ loading }
 							/>
 							<BulkActionsMenu />
+
+							<button className="button button-primary" onClick={ toggleExportModal }>
+								{ __( 'Export', 'jetpack-forms' ) }
+							</button>
 						</div>
 						<div className="jp-forms__inbox-content">
 							<div className="jp-forms__inbox-content-column">
@@ -132,6 +143,8 @@ const Inbox = () => {
 					</>
 				) }
 			</TabPanel>
+
+			<ExportModal isVisible={ showExportModal } onClose={ toggleExportModal } />
 		</Layout>
 	);
 };
