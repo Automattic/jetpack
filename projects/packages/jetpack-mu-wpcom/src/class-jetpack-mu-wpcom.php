@@ -14,7 +14,7 @@ namespace Automattic\Jetpack;
  */
 class Jetpack_Mu_Wpcom {
 
-	const PACKAGE_VERSION = '1.1.3';
+	const PACKAGE_VERSION = '1.2.0';
 	const PKG_DIR         = __DIR__ . '/../';
 
 	/**
@@ -33,6 +33,9 @@ class Jetpack_Mu_Wpcom {
 		// Coming Soon feature.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
+
+		// Unified navigation fix for changes in WordPress 6.2.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -84,5 +87,14 @@ class Jetpack_Mu_Wpcom {
 		foreach ( array_filter( $plugins, 'is_file' ) as $plugin ) {
 			require_once $plugin;
 		}
+	}
+
+	/**
+	 * Unbinds focusout event handler on #wp-admin-bar-menu-toggle introduced in WordPress 6.2.
+	 *
+	 * The focusout event handler is preventing the unified navigation from being closed on mobile.
+	 */
+	public static function unbind_focusout_on_wp_admin_bar_menu_toggle() {
+		wp_add_inline_script( 'common', '(function($){ $(document).on("wp-responsive-activate", function(){ $(".is-nav-unification #wp-admin-bar-menu-toggle, .is-nav-unification #adminmenumain").off("focusout"); } ); }(jQuery) );' );
 	}
 }

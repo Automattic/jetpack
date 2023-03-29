@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "3efc194cb82cd74060cd433792873524",
+    "content-hash": "8d6d68c052559199f21a9bf5566609d7",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1065,7 +1065,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/import",
-                "reference": "21c5792f80ae54269626a078d6f871d3ef4666d9"
+                "reference": "2fefcd133c364aa4e721a9a43edd0fc3a6419190"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev"
@@ -1083,7 +1083,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.4.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "textdomain": "jetpack-import",
                 "version-constants": {
@@ -1408,7 +1408,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "d8bfc30fbd87ba4b6ba30c604bc551ea88f9234f"
+                "reference": "54b9109d3dd39eb6bfd59613703bdf92e943ddf7"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1435,7 +1435,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.8.x-dev"
+                    "dev-trunk": "2.9.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1807,13 +1807,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "447d789e17524ee826c91a106f1faa52f85213a0"
+                "reference": "836777e48af2b3ea7c3e85e2f273707a4958ee98"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-autoloader": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-redirect": "@dev"
             },
             "require-dev": {
@@ -1830,7 +1831,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.23.x-dev"
+                    "dev-trunk": "0.24.x-dev"
                 }
             },
             "autoload": {
@@ -2170,13 +2171,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "f6102cda899d35efbf6968177b500ccc4c24d7c6"
+                "reference": "054c1389884f529e74928bd589c7efb0d59e99f8"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-ip": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
@@ -2218,12 +2220,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "f909e0af647b5e08203392b25aa9baaa0fa99c26"
+                "reference": "4280d94fac2900a3f49bda47828413eb2b8182a1"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-identity-crisis": "@dev",
+                "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-password-checker": "@dev",
                 "automattic/jetpack-roles": "@dev",
                 "automattic/jetpack-status": "@dev"
@@ -2356,7 +2359,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "c93147d884aff0f808231bf84618ecbdfbb153e8"
+                "reference": "39b64d3946721ef9ad2055f86466c5e2f660375d"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2379,7 +2382,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.10.x-dev"
+                    "dev-trunk": "0.11.x-dev"
                 }
             },
             "autoload": {
@@ -2485,63 +2488,6 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Earn income by allowing Jetpack to display high quality ads.",
-            "transport-options": {
-                "relative": true
-            }
-        },
-        {
-            "name": "automattic/jetpack-yoast-promo",
-            "version": "dev-trunk",
-            "dist": {
-                "type": "path",
-                "url": "../../packages/yoast-promo",
-                "reference": "0f3490046a7dff56fac273f0dbf931f735c3df69"
-            },
-            "require-dev": {
-                "automattic/jetpack-changelogger": "@dev",
-                "yoast/phpunit-polyfills": "1.0.4"
-            },
-            "type": "jetpack-library",
-            "extra": {
-                "mirror-repo": "Automattic/jetpack-yoast-promo",
-                "changelogger": {
-                    "link-template": "https://github.com/automattic/jetpack-yoast-promo/compare/v${old}...v${new}"
-                },
-                "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
-                },
-                "textdomain": "jetpack-yoast-promo",
-                "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-yoast-promo.php"
-                }
-            },
-            "autoload": {
-                "classmap": [
-                    "src/"
-                ]
-            },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-php": [
-                    "@composer phpunit"
-                ],
-                "build-production": [
-                    "pnpm run build-production"
-                ],
-                "build-development": [
-                    "pnpm run build"
-                ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
-                ]
-            },
-            "license": [
-                "GPL-2.0-or-later"
-            ],
-            "description": "Components used to promote Yoast as part of our collaboration",
             "transport-options": {
                 "relative": true
             }
@@ -5412,6 +5358,7 @@
         "automattic/jetpack-forms": 20,
         "automattic/jetpack-google-fonts-provider": 20,
         "automattic/jetpack-identity-crisis": 20,
+        "automattic/jetpack-ip": 20,
         "automattic/jetpack-import": 20,
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-lazy-images": 20,
@@ -5432,7 +5379,6 @@
         "automattic/jetpack-videopress": 20,
         "automattic/jetpack-waf": 20,
         "automattic/jetpack-wordads": 20,
-        "automattic/jetpack-yoast-promo": 20,
         "automattic/jetpack-changelogger": 20
     },
     "prefer-stable": true,

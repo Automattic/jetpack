@@ -3,7 +3,7 @@
  */
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { isURL, getProtocol } from '@wordpress/url';
@@ -19,13 +19,32 @@ import './style.scss';
 
 const VideoPressUploader = ( {
 	autoOpenMediaUpload,
+	fileToUpload,
 	handleDoneUpload,
 	isInteractionDisabled,
+	isReplacing,
 	onFocus,
+	onReplaceCancel,
+	onStartUpload,
 } ) => {
 	const [ uploadFile, setFile ] = useState( null );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const { createErrorNotice } = useDispatch( noticesStore );
+
+	const startUpload = file => {
+		setFile( file );
+		setIsUploadingInProgress( true );
+		onStartUpload( file );
+	};
+
+	// Start the upload process when a file to upload is set.
+	useEffect( () => {
+		if ( ! fileToUpload ) {
+			return;
+		}
+
+		startUpload( fileToUpload );
+	}, [ fileToUpload ] );
 
 	const onSelectURL = useCallback(
 		( videoSource, id ) => {
@@ -47,8 +66,7 @@ const VideoPressUploader = ( {
 
 			// Upload local file.
 			if ( isUploadingFile ) {
-				setFile( media );
-				setIsUploadingInProgress( true );
+				startUpload( media );
 				return;
 			}
 
@@ -66,6 +84,9 @@ const VideoPressUploader = ( {
 
 	const onResetUpload = useCallback( () => {
 		setIsUploadingInProgress( false );
+		if ( isReplacing ) {
+			onReplaceCancel();
+		}
 	}, [] );
 
 	if ( isUploadingInProgress ) {

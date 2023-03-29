@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2023-03-27
+### Added
+- useModuleStatus: Add new hook to enable or disable Jetpack modules. [#29044]
+
 ## [0.9.2] - 2023-03-23
 ### Changed
 - Updated package dependencies.
@@ -181,6 +185,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[0.10.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.9.2...0.10.0
 [0.9.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.9.1...0.9.2
 [0.9.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.9.0...0.9.1
 [0.9.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.8.4...0.9.0

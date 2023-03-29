@@ -35,19 +35,6 @@ class Comment extends \WP_REST_Comments_Controller {
 	}
 
 	/**
-	 * Registers the routes for the objects of the controller.
-	 *
-	 * @see WP_REST_Comments_Controller::register_rest_route()
-	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			$this->rest_base,
-			$this->get_route_options()
-		);
-	}
-
-	/**
 	 * Creates a comment.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.

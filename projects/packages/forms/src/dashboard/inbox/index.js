@@ -13,7 +13,7 @@ import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
 
-const RESPONSES_FETCH_LIMIT = 10;
+const RESPONSES_FETCH_LIMIT = 50;
 
 const TABS = [
 	{
@@ -36,30 +36,27 @@ const TABS = [
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
 	const [ view, setView ] = useState( 'list' );
-	const [ responseStatus, setResponseStatus ] = useState( 'inbox' );
 
-	const { invalidateResolution, setSearchQuery } = useDispatch( STORE_NAME );
-
-	const searchQuery = useSelect( select => select( STORE_NAME ).getSearchQuery() );
-
-	const [ currentPage, setCurrentPage ] = useState( 1 );
-
-	const [ loading, responses, total ] = useSelect(
-		select => {
-			const stateSelector = select( STORE_NAME );
-			return [
-				stateSelector.isFetchingResponses(),
-				stateSelector.getResponses(
-					searchQuery,
-					responseStatus,
-					RESPONSES_FETCH_LIMIT,
-					( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
-				),
-				stateSelector.getTotalResponses(),
-			];
-		},
-		[ searchQuery, responseStatus, currentPage ]
+	const { fetchResponses, setCurrentPage, setSearchQuery, setStatusQuery } =
+		useDispatch( STORE_NAME );
+	const [ currentPage, loading, responses, query, total ] = useSelect(
+		select => [
+			select( STORE_NAME ).getCurrentPage(),
+			select( STORE_NAME ).isFetchingResponses(),
+			select( STORE_NAME ).getResponses(),
+			select( STORE_NAME ).getResponsesQuery(),
+			select( STORE_NAME ).getTotalResponses(),
+		],
+		[]
 	);
+
+	useEffect( () => {
+		fetchResponses( {
+			limit: RESPONSES_FETCH_LIMIT,
+			offset: ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
+			...query,
+		} );
+	}, [ currentPage, fetchResponses, query ] );
 
 	useEffect( () => {
 		if ( responses.length === 0 || includes( map( responses, 'id' ), currentResponseId ) ) {
@@ -69,33 +66,6 @@ const Inbox = () => {
 		setCurrentResponseId( responses[ 0 ].id );
 	}, [ responses, currentResponseId ] );
 
-	const handleSearch = useCallback(
-		searchTerm => {
-			invalidateResolution( 'getResponses', [
-				searchTerm,
-				responseStatus,
-				RESPONSES_FETCH_LIMIT,
-				0,
-			] );
-			setCurrentPage( 1 );
-			setSearchQuery( searchTerm );
-		},
-		[ setSearchQuery, setCurrentPage, responseStatus, invalidateResolution ]
-	);
-
-	const handlePageChange = useCallback(
-		page => {
-			invalidateResolution( 'getResponses', [
-				searchQuery,
-				responseStatus,
-				RESPONSES_FETCH_LIMIT,
-				( page - 1 ) * RESPONSES_FETCH_LIMIT,
-			] );
-			setCurrentPage( page );
-		},
-		[ searchQuery, responseStatus, setCurrentPage, invalidateResolution ]
-	);
-
 	const selectResponse = useCallback( id => {
 		setCurrentResponseId( id );
 		setView( 'response' );
@@ -104,10 +74,6 @@ const Inbox = () => {
 	const handleGoBack = useCallback( event => {
 		event.preventDefault();
 		setView( 'list' );
-	}, [] );
-
-	const handleTabChange = useCallback( tabName => {
-		setResponseStatus( tabName );
 	}, [] );
 
 	const classes = classnames( 'jp-forms__inbox', {
@@ -130,15 +96,15 @@ const Inbox = () => {
 			<TabPanel
 				className="jp-forms__inbox-tabs"
 				activeClass="active-tab"
-				onSelect={ handleTabChange }
+				onSelect={ setStatusQuery }
 				tabs={ TABS }
 			>
 				{ () => (
 					<>
 						<div className="jp-forms__inbox-actions">
 							<SearchForm
-								onSearch={ handleSearch }
-								initialValue={ searchQuery }
+								onSearch={ setSearchQuery }
+								initialValue={ query.search }
 								loading={ loading }
 							/>
 							<DropdownFilter
@@ -173,7 +139,7 @@ const Inbox = () => {
 									setCurrentResponseId={ selectResponse }
 									responses={ responses }
 									currentPage={ currentPage }
-									setCurrentPage={ handlePageChange }
+									setCurrentPage={ setCurrentPage }
 									pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
 								/>
 							</div>
