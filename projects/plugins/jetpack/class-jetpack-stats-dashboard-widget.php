@@ -12,6 +12,9 @@ use Automattic\Jetpack\Status;
 
 /**
  * Class that adds the Jetpack stats widget to the WordPress admin dashboard.
+ *
+ * Note that this widget renders whether or not the stats module is active because it currently
+ * displays information about Akismet and Protect.
  */
 class Jetpack_Stats_Dashboard_Widget {
 
@@ -53,8 +56,7 @@ class Jetpack_Stats_Dashboard_Widget {
 		}
 
 		if ( Jetpack::is_connection_ready() ) {
-			// TODO: Migrate this head function into this class.
-			add_action( 'admin_head', 'stats_dashboard_head' );
+			add_action( 'admin_head', array( static::class, 'admin_head' ) );
 
 			$widget_title = sprintf(
 				__( 'Jetpack Stats', 'jetpack' )
@@ -79,10 +81,68 @@ class Jetpack_Stats_Dashboard_Widget {
 	}
 
 	/**
+	 * JavaScript and CSS for dashboard widget.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public static function admin_head() {
+		?>
+			<script type="text/javascript">
+				/* <![CDATA[ */
+				jQuery( function($) {
+					var dashStats = jQuery( '#dashboard_stats div.inside' );
+
+					if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
+						return;
+					}
+
+					if ( ! dashStats.length ) {
+						dashStats = jQuery( '#dashboard_stats div.dashboard-widget-content' );
+						var h = parseInt( dashStats.parent().height() ) - parseInt( dashStats.prev().height() );
+						var args = 'width=' + dashStats.width() + '&height=' + h.toString();
+					} else {
+						if ( jQuery('#dashboard_stats' ).hasClass('postbox') ) {
+							var args = 'width=' + ( dashStats.prev().width() * 2 ).toString();
+						} else {
+							var args = 'width=' + ( dashStats.width() * 2 ).toString();
+						}
+					}
+
+					dashStats
+						.not( '.dashboard-widget-control' )
+						.load( 'admin.php?page=stats&noheader&dashboard&' + args, function() {
+							jQuery( '#dashboard_stats' ).removeClass( 'is-loading' );
+							jQuery( '#stat-chart' ).css( 'width', 'auto' );
+						} );
+
+					// Widget settings toggle container.
+					var toggle = $( '.js-toggle-stats_dashboard_widget_control' );
+
+					// Move the toggle in the widget header.
+					toggle.appendTo( '#jetpack_summary_widget .handle-actions' );
+
+					// Toggle settings when clicking on it.
+					toggle.show().click( function( e ) {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+						$( this ).parent().toggleClass( 'controlVisible' );
+						$( '#stats_dashboard_widget_control' ).slideToggle();
+					} );
+				} );
+				/* ]]> */
+			</script>
+		<?php
+	}
+
+	/**
 	 * Renders the widget and fires a dashboard widget action.
 	 */
 	public static function render_widget() {
-		stats_jetpack_dashboard_widget();
+		// This function won't exist if the stats module is disabled.
+		if ( function_exists( 'stats_jetpack_dashboard_widget' ) ) {
+			stats_jetpack_dashboard_widget();
+		}
 
 		/**
 		 * Fires when the dashboard is loaded, but no longer used anywhere in the Jetpack plugin.
