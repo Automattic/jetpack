@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored the ToggleSection component to decouple it from other logic. [#29619]
 - Updated package dependencies. [#29216, #29289, #29297, #29434, #29471, #29480]
 
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Updated composer.lock. [#29762]
+
 ## 1.8.0 - 2023-03-07
 ### Added
 - Add Social Image Generator editor panel to post sidebar [#28737]

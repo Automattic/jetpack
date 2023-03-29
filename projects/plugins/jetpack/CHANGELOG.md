@@ -47,6 +47,7 @@
 - Move the brute force protection transient cleanup and shared functions to dedicated namespaced classes. [#28401]
 - Protect: update documentation for filter. [#29731]
 - Remove Upgrades and Inbox menus for staging sites [#29355]
+- Updated composer.lock. [#29762]
 
 ## 12.0-a.7 - 2023-03-20
 ### Enhancements
