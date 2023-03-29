@@ -642,9 +642,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					if ( ! is_array( $launchpad_checklist_tasks_statuses_option ) ) {
 						$launchpad_checklist_tasks_statuses_updated_option = $sanitized_value;
-					} else {
-						$launchpad_checklist_tasks_statuses_updated_option = array_merge( $launchpad_checklist_tasks_statuses_option, $sanitized_value );
 					}
+					$launchpad_checklist_tasks_statuses_updated_option = array_merge( $launchpad_checklist_tasks_statuses_option, $sanitized_value );
 
 					if ( update_option( $key, $launchpad_checklist_tasks_statuses_updated_option ) ) {
 						$updated[ $key ] = $launchpad_checklist_tasks_statuses_updated_option;
