@@ -10,6 +10,7 @@ test.afterAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );
 	await prerequisitesBuilder( page )
 		.withInactiveModules( [ 'protect' ] ) // Protect can interfere with the login flow.
+		.withLoggedIn( true )
 		.withActivePlugins( [ 'boost' ] )
 		.build();
 	await boostPrerequisitesBuilder( page ).withConnection( true ).build();
