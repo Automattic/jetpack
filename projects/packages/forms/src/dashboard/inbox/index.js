@@ -39,14 +39,15 @@ const Inbox = () => {
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ view, setView ] = useState( 'list' );
 
-	const { fetchResponses, setCurrentPage, setSearchQuery, setStatusQuery } =
+	const { fetchResponses, setCurrentPage, setSearchQuery, setStatusQuery, selectResponses } =
 		useDispatch( STORE_NAME );
-	const [ currentPage, loading, responses, query, total ] = useSelect(
+	const [ currentPage, loading, query, responses, selectedIds, total ] = useSelect(
 		select => [
 			select( STORE_NAME ).getCurrentPage(),
 			select( STORE_NAME ).isFetchingResponses(),
-			select( STORE_NAME ).getResponses(),
 			select( STORE_NAME ).getResponsesQuery(),
+			select( STORE_NAME ).getResponses(),
+			select( STORE_NAME ).getSelectedResponseIds(),
 			select( STORE_NAME ).getTotalResponses(),
 		],
 		[]
@@ -130,6 +131,8 @@ const Inbox = () => {
 									currentPage={ currentPage }
 									setCurrentPage={ setCurrentPage }
 									pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
+									selectedResponses={ selectedIds }
+									setSelectedResponses={ selectResponses }
 								/>
 							</div>
 
