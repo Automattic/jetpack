@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Import\Endpoints;
 
+require_once ABSPATH . 'wp-includes/theme.php';
+
 /**
  * Class Custom_CSS
  */
@@ -34,29 +36,12 @@ class Custom_CSS extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Registers the routes for the objects of the controller.
-	 *
-	 * @see WP_REST_Posts_Controller::register_rest_route()
-	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			'/' . $this->rest_base,
-			$this->get_route_options()
-		);
-	}
-
-	/**
 	 * Update the custom CSS post.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
-		if ( ! function_exists( 'wp_update_custom_css_post' ) ) {
-			require_once ABSPATH . 'wp-includes/theme.php';
-		}
-
 		$args = array(
 			'stylesheet' => $request['title'],
 		);

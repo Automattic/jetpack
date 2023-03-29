@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { derived, get, writable } from 'svelte/store';
 	import { Snackbar } from '@wordpress/components';
+	import ActivateLicense from '../../elements/ActivateLicense.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import { BoostPricingTable } from '../../react-components/BoostPricingTable';
 	import Header from '../../sections/Header.svelte';
@@ -112,8 +113,10 @@
 </script>
 
 <div id="jb-settings" class="jb-settings jb-settings--main">
-	<div class="jb-container">
+	<div class="jb-container jb-get-started-header">
 		<Header />
+
+		<ActivateLicense />
 	</div>
 
 	{#if pricing.yearly}

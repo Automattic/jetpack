@@ -1,5 +1,6 @@
 import { setJetpackSettings } from './actions/jetpack-settings';
-import { fetchJetpackSettings } from './controls';
+import { setSocialImageGeneratorSettings } from './actions/social-image-generator-settings';
+import { fetchJetpackSettings, fetchSocialImageGeneratorSettings } from './controls';
 
 /**
  * Yield actions to get the Jetpack settings.
@@ -19,4 +20,22 @@ export function* getJetpackSettings() {
 	}
 }
 
-export default { getJetpackSettings };
+/**
+ * Yield actions to get the Social Image Generator settings.
+ *
+ * @yields {object} - an action object.
+ * @returns {object} - an action object.
+ */
+export function* getSocialImageGeneratorSettings() {
+	try {
+		const settings = yield fetchSocialImageGeneratorSettings();
+		if ( settings ) {
+			return setSocialImageGeneratorSettings( settings );
+		}
+	} catch ( e ) {
+		// TODO: Add proper error handling here
+		console.log( e ); // eslint-disable-line no-console
+	}
+}
+
+export default { getJetpackSettings, getSocialImageGeneratorSettings };
