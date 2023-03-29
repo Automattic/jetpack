@@ -230,8 +230,8 @@ type UsePLayerReadyReturn = {
  *
  * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - useRef of the sandbox wrapper.
  * @param {boolean} isRequestingEmbedPreview                   - Whether the preview is being requested.
- * @param {UsePlayerReadyOptions} options					   - Options object.
- * @returns {UsePLayerReadyReturn} 							     playerIsReady and playerState
+ * @param {UsePlayerReadyOptions} options                      - Options object.
+ * @returns {UsePLayerReadyReturn}                               playerIsReady and playerState
  */
 const usePlayerReady = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >,
@@ -258,11 +258,11 @@ const usePlayerReady = (
 			playerState.current = 'loaded';
 		}
 
-		// Hack 2/2: Pause the video right after it has been auto-loaded.
+		// Detect when the video has been played for the first time.
 		if ( eventName === 'videopress_playing' && playerState.current === 'loaded' ) {
 			playerState.current = 'first-play';
 
-			// Pause and playback the video to ensure the video is at the desired time.
+			// Pause and move the video at the desired time.
 			source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
 			source.postMessage(
 				{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
