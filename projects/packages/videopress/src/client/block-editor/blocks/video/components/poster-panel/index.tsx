@@ -240,7 +240,7 @@ type UsePLayerReadyReturn = {
  * @param {UsePlayerReadyOptions} options                      - Options object.
  * @returns {UsePLayerReadyReturn}                               playerIsReady and playerState
  */
-const usePlayerReady = (
+export const usePlayerReady = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >,
 	isRequestingEmbedPreview: boolean,
 	{ atTime }: UsePlayerReadyOptions
@@ -275,10 +275,14 @@ const usePlayerReady = (
 
 			// Pause and move the video at the desired time.
 			source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
-			source.postMessage(
-				{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
-				{ targetOrigin: '*' }
-			);
+
+			// Set position at time if it was provided.
+			if ( typeof atTime !== 'undefined' ) {
+				source.postMessage(
+					{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
+					{ targetOrigin: '*' }
+				);
+			}
 
 			// Here we consider the video as ready to be controlled.
 			setPlayerIsReady( true );
