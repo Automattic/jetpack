@@ -101,3 +101,17 @@ body.modal-open .poster-panel__dropdown {
 		display: block;
 	}
 }
+
+.poster-panel__preview-toggle {
+	margin-top: 24px;
+}
+
+.poster-panel__loop-duration {
+	.components-input-control__container {
+		max-width: 60px;
+	}
+
+	.components-input-control__suffix {
+		margin-right: 8px;
+	}
+}
