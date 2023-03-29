@@ -54,7 +54,7 @@ class Image_CDN_Image_Sizes {
 	 */
 	protected function generate_sizes() {
 
-		// There is no need to generate the sizes a new for every single image.
+		// There is no need to generate the sizes anew for every single image.
 		if ( null !== self::$sizes ) {
 			return self::$sizes;
 		}
