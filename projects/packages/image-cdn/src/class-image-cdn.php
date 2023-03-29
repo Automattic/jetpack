@@ -303,7 +303,7 @@ class Image_CDN {
 	 *
 	 * @param string $content The content.
 	 *
-	 * @uses self::validate_image_url, apply_filters, jetpack_photon_url, esc_url
+	 * @uses self::validate_image_url, apply_filters, Image_CDN_Core::cdn_url, esc_url
 	 * @filter the_content
 	 *
 	 * @return string
@@ -887,8 +887,8 @@ class Image_CDN {
 	 * @param array $image_meta The image meta.
 	 * @param int   $attachment_id Attachment ID.
 	 *
-	 * @uses self::validate_image_url, jetpack_photon_url, Jetpack_Photon::parse_from_filename
-	 * @uses Jetpack_Photon::strip_image_dimensions_maybe, Jetpack::get_content_width
+	 * @uses self::validate_image_url, Image_CDN_Core::cdn_url
+	 * @uses Image_CDN::strip_image_dimensions_maybe, Image_CDN_Core::get_jetpack_content_width
 	 *
 	 * @return array An array of Photon image urls and widths.
 	 */
@@ -1209,7 +1209,7 @@ class Image_CDN {
 	 *
 	 * @param array $tags Open graph tags.
 	 * @param array $parameters Image parameters.
-	 * @uses jetpack_photon_url
+	 * @uses Image_CDN_Core::jetpack_photon_url
 	 * @return array Open graph tags.
 	 */
 	public function filter_open_graph_tags( $tags, $parameters ) {
@@ -1268,7 +1268,7 @@ class Image_CDN {
 	 * To determine if we're using the wp/v2/media endpoint, we hook onto the `rest_request_before_callbacks` filter and
 	 * if determined we are using it in the edit context, we'll false out the `jetpack_photon_override_image_downsize` filter.
 	 *
-	 * @see Jetpack_Photon::filter_image_downsize()
+	 * @see Image_CDN::filter_image_downsize()
 	 *
 	 * @param null|\WP_Error   $response REST API response.
 	 * @param array            $endpoint_data Endpoint data. Not used, but part of the filter.
