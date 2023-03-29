@@ -66,12 +66,14 @@ const InboxList = ( {
 				onSelectionChange={ noop }
 			/>
 
-			<PageNavigation
-				currentPage={ currentPage }
-				pages={ pages }
-				onSelectPage={ setCurrentPage }
-				expandedRange={ 2 }
-			/>
+			{ pages > 1 && (
+				<PageNavigation
+					currentPage={ currentPage }
+					pages={ pages }
+					onSelectPage={ setCurrentPage }
+					expandedRange={ 2 }
+				/>
+			) }
 		</>
 	);
 };
