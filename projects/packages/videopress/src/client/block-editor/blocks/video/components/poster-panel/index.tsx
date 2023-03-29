@@ -195,8 +195,20 @@ export function PosterDropdown( {
 	);
 }
 
-const getIframeWindowFromRef = ( iFrameRef ): Window | null => {
-	return iFrameRef?.current?.querySelector( '.components-sandbox' )?.contentWindow;
+/**
+ * Return the (content) Window object of the iframe,
+ * given the iframe's ref.
+ *
+ * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - iframe ref
+ * @returns {Window | null}	                                     Window object of the iframe
+ */
+export const getIframeWindowFromRef = (
+	iFrameRef: React.MutableRefObject< HTMLDivElement >
+): Window | null => {
+	const iFrame: HTMLIFrameElement = iFrameRef?.current?.querySelector(
+		'iframe.components-sandbox'
+	);
+	return iFrame?.contentWindow;
 };
 
 type PosterFramePickerProps = {
