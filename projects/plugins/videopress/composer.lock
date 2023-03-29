@@ -1154,7 +1154,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "43bb197f177b7d4f2fad5eacba92b0545c83009b"
+                "reference": "f6feacd16949fdadd2edee685ef7d1fc34a4410f"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1174,7 +1174,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "textdomain": "jetpack-stats"
             },
