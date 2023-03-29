@@ -28,12 +28,28 @@ class VideoPress_Rest_Api_V1_Stats {
 	 * @return void
 	 */
 	public static function register_rest_endpoints() {
+		/**
+		 * Basic stats.
+		 */
 		register_rest_route(
 			'videopress/v1',
 			'stats',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => static::class . '::get_stats',
+				'permission_callback' => static::class . '::permissions_callback',
+			)
+		);
+
+		/**
+		 * Stats to be showcased by My Jetpack.
+		 */
+		register_rest_route(
+			'videopress/v1',
+			'stats/my-jetpack',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => static::class . '::get_my_jetpack_stats',
 				'permission_callback' => static::class . '::permissions_callback',
 			)
 		);
@@ -70,5 +86,15 @@ class VideoPress_Rest_Api_V1_Stats {
 		);
 
 		return rest_ensure_response( $data );
+	}
+
+	/**
+	 * Provides the stats that will be showcased by My Jetpack.
+	 *
+	 * @return WP_Rest_Response - The response object.
+	 */
+	public static function get_my_jetpack_stats() {
+		$showcase_stats = Stats::get_showcase_stats();
+		return rest_ensure_response( $showcase_stats );
 	}
 }
