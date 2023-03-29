@@ -69,7 +69,7 @@ export default function Player( {
 			{ ! isRequestingEmbedPreview && <SandBox html={ html } /> }
 			{ ! html && <Text>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text> }
 
-			{ isSelected && (
+			{ isSelected && ! html && (
 				<BlockCaption
 					clientId={ clientId }
 					onFocus={ onFocusCaption }
