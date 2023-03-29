@@ -308,6 +308,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[2.11.18]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.17...v2.11.18
 [2.11.17]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.16...v2.11.17
 [2.11.16]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.15...v2.11.16
 [2.11.15]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.14...v2.11.15
