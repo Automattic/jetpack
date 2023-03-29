@@ -24,6 +24,9 @@ export type PosterDataProps = {
 	src?: string;
 	id?: number;
 	url?: string;
+	previewOnHover?: boolean;
+	previewAtTime?: number;
+	previewLoopDuration?: number;
 };
 
 export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
