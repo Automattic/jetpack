@@ -107,6 +107,12 @@ $jp-gray-20:             #a7aaad;
 		.gridicons-plus-small + .gridicon {
 			margin-left: -4px;
 		}
+
+		// Properly align icon with the button text
+		.gridicons-external-link {
+			margin: -3px 0 -3px 2px;
+			fill: $white;
+		}
 	}
 	&.hidden {
 		display: none;
