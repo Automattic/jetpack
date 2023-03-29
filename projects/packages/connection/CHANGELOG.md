@@ -782,6 +782,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.51.4]: https://github.com/Automattic/jetpack-connection/compare/v1.51.3...v1.51.4
 [1.51.3]: https://github.com/Automattic/jetpack-connection/compare/v1.51.2...v1.51.3
 [1.51.2]: https://github.com/Automattic/jetpack-connection/compare/v1.51.1...v1.51.2
 [1.51.1]: https://github.com/Automattic/jetpack-connection/compare/v1.51.0...v1.51.1
