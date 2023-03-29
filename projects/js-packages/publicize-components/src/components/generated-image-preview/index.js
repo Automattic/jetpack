@@ -9,9 +9,24 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import styles from './styles.module.scss';
 
-const FEATURED_IMAGE_STILL_LOADING = 'featured-image-still-loading';
+export const FEATURED_IMAGE_STILL_LOADING = 'featured-image-still-loading';
 const getMediaSourceUrl = media => {
 	return media?.media_details?.sizes?.large?.source_url || media?.source_url;
+};
+
+export const calculateImageUrl = ( imageType, customImageId, featuredImageId, getMedia ) => {
+	if (
+		imageType === 'none' ||
+		( imageType === 'custom' && ! customImageId ) ||
+		( ( imageType ?? 'featured' ) === 'featured' && ! featuredImageId )
+	) {
+		return null;
+	}
+	const media = getMedia( imageType === 'custom' ? customImageId : featuredImageId );
+	if ( ! media ) {
+		return FEATURED_IMAGE_STILL_LOADING;
+	}
+	return getMediaSourceUrl( media );
 };
 
 /**
@@ -24,25 +39,12 @@ export default function GeneratedImagePreview() {
 	const [ isLoading, setIsLoading ] = useState( true );
 
 	const { customText, imageType, imageId, template } = useImageGeneratorConfig();
-	const { title, featuredImage } = useSelect( select => ( {
-		title: select( editorStore ).getEditedPostAttribute( 'title' ),
-		featuredImage: select( editorStore ).getEditedPostAttribute( 'featured_media' ),
-	} ) );
-
-	const imageUrl = useSelect( select => {
-		const getMedia = select( 'core' ).getMedia;
-		if (
-			imageType === 'none' ||
-			( imageType === 'custom' && ! imageId ) ||
-			( ( imageType ?? 'featured' === 'featured' ) && ! featuredImage )
-		) {
-			return null;
-		}
-		const media = getMedia( imageType === 'custom' ? imageId : featuredImage );
-		if ( ! media ) {
-			return FEATURED_IMAGE_STILL_LOADING;
-		}
-		return getMediaSourceUrl( media );
+	const { title, imageUrl } = useSelect( select => {
+		const featuredImage = select( editorStore ).getEditedPostAttribute( 'featured_media' );
+		return {
+			title: select( editorStore ).getEditedPostAttribute( 'title' ),
+			imageUrl: calculateImageUrl( imageType, imageId, featuredImage, select( 'core' ).getMedia ),
+		};
 	} );
 
 	const imageTitle = useMemo( () => customText || title || ' ', [ customText, title ] );
