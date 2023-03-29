@@ -13,7 +13,10 @@ test.describe( 'Render Blocking JS module', () => {
 		page = await browser.newPage( playwrightConfig.use );
 
 		// Protect can interfere with the login flow. So we are disabling it
-		await prerequisitesBuilder( page ).withInactiveModules( [ 'protect' ] ).build();
+		await prerequisitesBuilder( page )
+			.withInactiveModules( [ 'protect' ] )
+			.withLoggedIn( true )
+			.build();
 
 		await boostPrerequisitesBuilder( page ).withTestContent( [ testPostTitle ] ).build();
 	} );
