@@ -952,7 +952,7 @@ class Image_CDN {
 		if (
 			/** Short-circuit via jetpack_photon_srcset_multipliers filter. */
 			is_array( $multipliers )
-			/** This filter is already documented in class.photon.php */
+			/** This filter is already documented in class-image-cdn.php */
 			&& ! apply_filters( 'jetpack_photon_skip_image', false, $url, null )
 			/** Verify basic meta is intact. */
 			&& isset( $image_meta['width'] ) && isset( $image_meta['height'] ) && isset( $image_meta['file'] )
