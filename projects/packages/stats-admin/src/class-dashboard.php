@@ -209,7 +209,7 @@ class Dashboard {
 	/**
 	 * Return the config for the app.
 	 */
-	protected function config_data() {
+	public function config_data() {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$empty_object = json_decode( '{}' );
 		return array(
