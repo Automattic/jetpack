@@ -1,6 +1,6 @@
 <?php
 /**
- * Pages REST route
+ * Templates REST route
  *
  * @package automattic/jetpack-import
  */
@@ -8,31 +8,36 @@
 namespace Automattic\Jetpack\Import\Endpoints;
 
 /**
- * Class Page
+ * Class Template
  */
-class Page extends Post {
+class Template extends \WP_REST_Templates_Controller {
+
+	/**
+	 * The Import ID add a new item to the schema.
+	 */
+	use Import;
+
+	/**
+	 * Whether the controller supports batching.
+	 *
+	 * @var array
+	 */
+	protected $allow_batch = array( 'v1' => true );
 
 	/**
 	 * Constructor.
 	 */
 	public function __construct() {
-		parent::__construct( 'page' );
+		parent::__construct( 'wp_template' );
 	}
 
 	/**
-	 * Creates a single page.
+	 * Update the template post.
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
-		if ( ! empty( $request['parent'] ) ) {
-			$pages = \get_pages( $this->get_import_db_query( $request['parent'] ) );
-
-			// Overwrite the page parent page ID.
-			$request['parent'] = is_array( $pages ) && count( $pages ) ? $pages[0]->ID : 0;
-		}
-
 		$response = parent::create_item( $request );
 
 		return $this->add_import_id_metadata( $request, $response );
