@@ -958,7 +958,7 @@ class Image_CDN {
 			&& isset( $image_meta['width'] ) && isset( $image_meta['height'] ) && isset( $image_meta['file'] )
 			/** Verify we have the requested width/height. */
 			&& isset( $size_array[0] ) && isset( $size_array[1] )
-			) {
+		) {
 
 			$fullwidth  = $image_meta['width'];
 			$fullheight = $image_meta['height'];
