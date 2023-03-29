@@ -21,3 +21,5 @@ export const getTotalResponses = state => state.total;
 export const getCurrentPage = state => state.currentPage;
 
 export const getResponsesQuery = state => state.query;
+
+export const getSelectedResponseIds = state => state.currentSelection;

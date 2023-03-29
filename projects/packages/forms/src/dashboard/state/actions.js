@@ -11,6 +11,7 @@ import {
 	RESPONSES_QUERY_RESET,
 	RESPONSES_QUERY_SEARCH_UPDATE,
 	RESPONSES_QUERY_STATUS_UPDATE,
+	RESPONSES_SELECTION_SET,
 } from './action-types';
 
 /**
@@ -92,4 +93,15 @@ export const setSearchQuery = search => ( {
 export const setStatusQuery = status => ( {
 	type: RESPONSES_QUERY_STATUS_UPDATE,
 	status,
+} );
+
+/**
+ * Updates the currently selected responses.
+ *
+ * @param  {Array} selectedResponses - Selected responses.
+ * @returns {object}                   Action object.
+ */
+export const selectResponses = selectedResponses => ( {
+	type: RESPONSES_SELECTION_SET,
+	selectedResponses,
 } );
