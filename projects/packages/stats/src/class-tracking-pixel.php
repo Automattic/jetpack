@@ -83,6 +83,7 @@ class Tracking_Pixel {
 			true
 		);
 
+		// Make sure the script loads asynchronously (add a defer attribute).
 		Assets::add_async_script( 'jetpack-stats' );
 
 		$data_stats_array = self::stats_array_to_string( $data );
