@@ -24,7 +24,7 @@
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Add Golden Ticket plan support for the My Plan page. [#29673]
 - Blaze: added can_blaze property to application API for enhanced admin user exprience. [#29614]
-- Change default entries per page on responses inbox. [#29406]
+- Forms: change default entries per page on responses inbox. [#29406]
 - Editor: add a promotional banner into a pre-publication block. [#29641]
 - General: do not load the Yoast banner. [#29725]
 - General: remove a deprecated Core function in favor of direct WP Query. [#29460]
