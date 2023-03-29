@@ -215,9 +215,16 @@ type UsePlayerReadyOptions = {
 	atTime: number;
 };
 
+<<<<<<< HEAD
 type UsePLayerReadyReturn = {
 	playerIsReady: boolean;
 	playerState: 'not-rendered' | 'loaded' | 'first-play';
+=======
+type PlayerStateProp = 'not-rendered' | 'loaded' | 'first-play' | 'ready';
+type UsePLayerReadyReturn = {
+	playerIsReady: boolean;
+	playerState: PlayerStateProp;
+>>>>>>> 077bfb4010 ([not verified] tidy videoPlayerEventsHandler fn)
 };
 
 /**
@@ -239,9 +246,13 @@ const usePlayerReady = (
 	{ atTime }: UsePlayerReadyOptions
 ): UsePLayerReadyReturn => {
 	const [ playerIsReady, setPlayerIsReady ] = useState( false );
+<<<<<<< HEAD
 	const playerState = useRef< 'not-rendered' | 'loaded' | 'first-play' | 'ready' >(
 		'not-rendered'
 	);
+=======
+	const playerState = useRef< PlayerStateProp >( 'not-rendered' );
+>>>>>>> 077bfb4010 ([not verified] tidy videoPlayerEventsHandler fn)
 
 	/**
 	 * Handler function that listent the events

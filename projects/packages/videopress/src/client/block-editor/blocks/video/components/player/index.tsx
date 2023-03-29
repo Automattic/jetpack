@@ -5,6 +5,7 @@ import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getIframeWindowFromRef } from '../poster-panel';
 /**
  * Types
  */
@@ -137,29 +138,24 @@ export default function Player( {
 	 * provided by the videopress player through the bridge.
 	 */
 	const videoPlayerEventsHandler = useCallback( ( ev: MessageEvent ) => {
-		const eventName = ev?.data?.event;
-		if ( ! eventName || eventName !== 'videopress_loading_state' ) {
-			return;
+		const { data: eventData } = ev || {};
+		const { event: eventName } = eventData;
+		if ( eventName === 'videopress_loading_state' ) {
+			setIsVideoPlayerLoaded( eventData?.state === 'loaded' );
 		}
-
-		const playerLoadingState = ev?.data?.state;
-		setIsVideoPlayerLoaded( playerLoadingState === 'loaded' );
 	}, [] );
 
-	// Listen to the `message` event.
-	const sandboxIframeElement: HTMLIFrameElement = videoWrapperRef?.current?.querySelector(
-		'iframe.components-sandbox'
-	);
 	useEffect( () => {
-		if ( ! sandboxIframeElement?.contentWindow ) {
+		const iFrameContentWindow = getIframeWindowFromRef( videoWrapperRef );
+		if ( ! iFrameContentWindow || isRequestingEmbedPreview ) {
 			return;
 		}
 
-		const iFrameContentWindow = sandboxIframeElement.contentWindow;
+		// Listen to the `message` event.
 		iFrameContentWindow.addEventListener( 'message', videoPlayerEventsHandler );
 
 		return () => iFrameContentWindow?.removeEventListener( 'message', videoPlayerEventsHandler );
-	}, [ videoPlayerEventsHandler, sandboxIframeElement ] );
+	}, [ videoWrapperRef, isRequestingEmbedPreview ] );
 
 	useEffect( () => {
 		if ( isRequestingEmbedPreview ) {
