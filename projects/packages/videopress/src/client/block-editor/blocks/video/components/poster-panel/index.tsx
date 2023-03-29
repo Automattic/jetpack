@@ -35,9 +35,8 @@ import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../
 import type { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import type React from 'react';
 
-// Loop duration constants, in seconds
-const MAX_LOOP_DURATION = 20;
-const DEFAULT_LOOP_DURATION = 10;
+const MAX_LOOP_DURATION = 20 * 1000;
+const DEFAULT_LOOP_DURATION = 10 * 1000;
 
 /*
  * Check whether video frame poster extension is enabled.
@@ -366,10 +365,10 @@ function VideoHoverPreviewControl( {
 	onAtTimeChange,
 	onLoopDurationChange,
 }: VideoHoverPreviewControlProps ): React.ReactElement {
-	const [ maxStartingPoint, setMaxStartingPoint ] = useState( videoDuration - loopDuration * 1000 );
+	const [ maxStartingPoint, setMaxStartingPoint ] = useState( videoDuration - loopDuration );
 
 	useEffect( () => {
-		setMaxStartingPoint( videoDuration - loopDuration * 1000 );
+		setMaxStartingPoint( videoDuration - loopDuration );
 	}, [ videoDuration, loopDuration ] );
 
 	return (
@@ -399,9 +398,9 @@ function VideoHoverPreviewControl( {
 						spinControls="none"
 						placeholder="00"
 						suffix={ __( 'sec', 'jetpack-videopress-pkg' ) }
-						value={ loopDuration }
+						value={ loopDuration / 1000 }
 						onChange={ duration => {
-							onLoopDurationChange( Math.max( Math.min( MAX_LOOP_DURATION, duration ), 0 ) );
+							onLoopDurationChange( Math.max( Math.min( MAX_LOOP_DURATION, duration * 1000 ), 0 ) );
 						} }
 					/>
 				</>
@@ -492,8 +491,8 @@ export default function PosterPanel( {
 			let previewStart = previewAtTime;
 
 			// Adjust the starting point if the loop duration is too long
-			if ( previewAtTime + loopDuration * 1000 > videoDuration ) {
-				previewStart = videoDuration - loopDuration * 1000;
+			if ( previewAtTime + loopDuration > videoDuration ) {
+				previewStart = videoDuration - loopDuration;
 				setPreviewAtTime( previewStart );
 			}
 
