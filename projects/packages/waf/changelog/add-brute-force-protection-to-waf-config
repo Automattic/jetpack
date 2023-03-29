@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added brute force protection to the WAF configuration REST API endpoints
