@@ -1227,7 +1227,7 @@ function stats_dashboard_widget_controls_html( $intervals, $periods, $options ) 
  */
 function stats_jetpack_dashboard_widget() {
 	?>
-	<form id="stats_dashboard_widget_control" action="<?php echo esc_url( admin_url() ); ?>" method="post">
+	<!-- <form id="stats_dashboard_widget_control" action="<?php echo esc_url( admin_url() ); ?>" method="post">
 		<?php stats_dashboard_widget_control(); ?>
 		<?php wp_nonce_field( 'edit-dashboard-widget_dashboard_stats', 'dashboard-widget-nonce' ); ?>
 		<input type="hidden" name="stats_id" value="dashboard_stats" />
@@ -1236,7 +1236,7 @@ function stats_jetpack_dashboard_widget() {
 	<button type="button" class="handlediv js-toggle-stats_dashboard_widget_control" aria-expanded="true">
 		<span class="screen-reader-text"><?php esc_html_e( 'Configure', 'jetpack' ); ?></span>
 		<span class="toggle-indicator" aria-hidden="true"></span>
-	</button>
+	</button> -->
 	<div id="dashboard_stats" class="is-loading">
 		<div class="inside">
 			<div style="height: 250px;"></div>
@@ -1246,6 +1246,67 @@ function stats_jetpack_dashboard_widget() {
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * JavaScript and CSS for dashboard widget.
+ *
+ * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
+ *
+ * @access public
+ * @return void
+ */
+function stats_dashboard_head() {
+	return;
+	?>
+<script type="text/javascript">
+/* <![CDATA[ */
+jQuery( function($) {
+	var dashStats = jQuery( '#dashboard_stats div.inside' );
+
+	if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
+		return;
+	}
+
+	if ( ! dashStats.length ) {
+		dashStats = jQuery( '#dashboard_stats div.dashboard-widget-content' );
+		var h = parseInt( dashStats.parent().height() ) - parseInt( dashStats.prev().height() );
+		var args = 'width=' + dashStats.width() + '&height=' + h.toString();
+	} else {
+		if ( jQuery('#dashboard_stats' ).hasClass('postbox') ) {
+			var args = 'width=' + ( dashStats.prev().width() * 2 ).toString();
+		} else {
+			var args = 'width=' + ( dashStats.width() * 2 ).toString();
+		}
+	}
+
+	dashStats
+		.not( '.dashboard-widget-control' )
+		.load( 'admin.php?page=stats&noheader&dashboard&' + args, function() {
+			jQuery( '#dashboard_stats' ).removeClass( 'is-loading' );
+			jQuery( '#stat-chart' ).css( 'width', 'auto' );
+		} );
+
+	// Widget settings toggle container.
+	var toggle = $( '.js-toggle-stats_dashboard_widget_control' );
+
+	// Move the toggle in the widget header.
+	toggle.appendTo( '#jetpack_summary_widget .handle-actions' );
+
+	// Toggle settings when clicking on it.
+	toggle.show().click( function( e ) {
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		$( this ).parent().toggleClass( 'controlVisible' );
+		$( '#stats_dashboard_widget_control' ).slideToggle();
+	} );
+} );
+/* ]]> */
+</script>
+	<?php
+}
+
+/**
+>>>>>>> 7209e858cf ([not verified] stats widget)
  * Stats Dashboard Widget Content.
  *
  * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
