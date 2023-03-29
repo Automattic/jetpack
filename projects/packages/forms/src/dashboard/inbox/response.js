@@ -2,7 +2,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { map } from 'lodash';
+import { isEmpty, map } from 'lodash';
 import { formatFieldName, getDisplayName, getPath } from './util';
 
 const InboxResponse = ( { loading, response } ) => {
@@ -77,7 +77,9 @@ const InboxResponse = ( { loading, response } ) => {
 					return (
 						<div key={ key } className="jp-forms__inbox-response-item">
 							<div className="jp-forms__inbox-response-data-label">{ formatFieldName( key ) }:</div>
-							<div className="jp-forms__inbox-response-data-value">{ value }</div>
+							<div className="jp-forms__inbox-response-data-value">
+								{ isEmpty( value ) ? '-' : value }
+							</div>
 						</div>
 					);
 				} ) }
