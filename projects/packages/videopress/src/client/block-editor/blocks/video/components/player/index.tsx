@@ -5,7 +5,7 @@ import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getIframeWindowFromRef, usePlayerReady } from '../poster-panel';
+import { getIframeWindowFromRef, useVideoPlayer } from '../poster-panel';
 /**
  * Types
  */
@@ -171,7 +171,7 @@ export default function Player( {
 		timeToSetPlayerPosition = atTime;
 	}
 
-	usePlayerReady( videoWrapperRef, isRequestingEmbedPreview, {
+	useVideoPlayer( videoWrapperRef, isRequestingEmbedPreview, {
 		atTime: timeToSetPlayerPosition,
 		wrapperElement: mainWrapperRef?.current,
 		previewOnHover: {

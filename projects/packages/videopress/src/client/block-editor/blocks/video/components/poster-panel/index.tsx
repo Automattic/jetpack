@@ -211,7 +211,7 @@ export const getIframeWindowFromRef = (
 	return iFrame?.contentWindow;
 };
 
-type UsePlayerReadyOptions = {
+type UseVideoPlayerOptions = {
 	/*
 	 * The time to initially set the player to.
 	 */
@@ -237,7 +237,7 @@ type UsePLayerReadyReturn = {
 	playerState: 'not-rendered' | 'loaded' | 'first-play';
 =======
 type PlayerStateProp = 'not-rendered' | 'loaded' | 'first-play' | 'ready';
-type UsePLayerReadyReturn = {
+type UseVideoPlayer = {
 	playerIsReady: boolean;
 	playerState: PlayerStateProp;
 >>>>>>> 077bfb4010 ([not verified] tidy videoPlayerEventsHandler fn)
@@ -248,14 +248,14 @@ type UsePLayerReadyReturn = {
  *
  * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - useRef of the sandbox wrapper.
  * @param {boolean} isRequestingEmbedPreview                   - Whether the preview is being requested.
- * @param {UsePlayerReadyOptions} options                      - Options object.
- * @returns {UsePLayerReadyReturn}                               playerIsReady and playerState
+ * @param {UseVideoPlayerOptions} options                      - Options object.
+ * @returns {UseVideoPlayer}                               playerIsReady and playerState
  */
-export const usePlayerReady = (
+export const useVideoPlayer = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >,
 	isRequestingEmbedPreview: boolean,
-	{ atTime, wrapperElement, previewOnHover }: UsePlayerReadyOptions
-): UsePLayerReadyReturn => {
+	{ atTime, wrapperElement, previewOnHover }: UseVideoPlayerOptions
+): UseVideoPlayer => {
 	const [ playerIsReady, setPlayerIsReady ] = useState( false );
 <<<<<<< HEAD
 	const playerState = useRef< 'not-rendered' | 'loaded' | 'first-play' | 'ready' >(
