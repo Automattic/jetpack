@@ -18,7 +18,6 @@ import style from './style.scss';
  */
 import type { NativePlayerProps } from './types';
 
-
 /**
  * VideoPlayer react component
  *
@@ -45,6 +44,10 @@ export default function Player( {
 		}
 	}, [ isCaptionSelected ] );
 
+	const onCaptionBlur = useCallback( () => {
+		setIsCaptionSelected( false );
+	}, [] );
+
 	const accessibilityLabelCreator = useCallback( caption => {
 		if ( caption ) {
 			return sprintf(
@@ -62,7 +65,7 @@ export default function Player( {
 	if ( ! html || isRequestingEmbedPreview ) {
 		loadingStyle.height = 250;
 	}
-	console.log( 'html', html );
+
 	return (
 		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
 			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
@@ -70,10 +73,11 @@ export default function Player( {
 			{ ! isRequestingEmbedPreview && <SandBox html={ html } /> }
 			{ ! html && <Text>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text> }
 
-			{ isSelected && html && (
+			{ html && (
 				<BlockCaption
 					clientId={ clientId }
 					onFocus={ onFocusCaption }
+					onBlur={ onCaptionBlur }
 					isSelected={ isCaptionSelected }
 					insertBlocksAfter={ insertBlocksAfter }
 					accessibilityLabelCreator={ accessibilityLabelCreator }
