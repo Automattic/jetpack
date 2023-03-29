@@ -10,7 +10,6 @@ test.describe( 'Render Blocking JS module', () => {
 
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
-
 		await boostPrerequisitesBuilder( page ).withTestContent( [ testPostTitle ] ).build();
 	} );
 

@@ -8,6 +8,7 @@ import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
 
 test.afterAll( async ( { browser } ) => {
 	const page = await browser.newPage( playwrightConfig.use );
+
 	await prerequisitesBuilder( page ).withActivePlugins( [ 'boost' ] ).build();
 	await boostPrerequisitesBuilder( page ).withConnection( true ).build();
 	await page.close();
