@@ -15,9 +15,9 @@ BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 # Instructions
 function usage {
 	cat <<-EOH
-		usage: $0 [options] <plugin> <version>
+		usage: $0 [options] <plugin> [<version>] [<plugin> [<version>] ...]
 
-		Conduct a full release of a specified plugin through release branch creation. Just the plugin name is fine, such as 'jetpack' or 'backup.' The version is optional, and if not specified, will be set to the next stable version.
+		Conduct a full release of specified plugins through release branch creation. Just the plugin name is fine, such as 'jetpack' or 'backup.' The version is optional, and if not specified, will be set to the next stable version.
 
 		Options:
 			-h Show this help message.
@@ -33,7 +33,7 @@ if ! command -v gh &> /dev/null; then
 		brew install gh
 	else
 		die "Please install the GitHub CLI before proceeding"
-	fi 
+	fi
 fi
 
 GH_VER="$( gh --version | grep -E -o -m1 '[0-9]+\.[0-9]+\.[0-9]+' )"
@@ -69,7 +69,7 @@ while [[ $# -gt 0 ]]; do
 	else
 		die "Script must be passed in <project> [version] format. Got $1"
 	fi
-	
+
 	if [[ "$2" =~ ^[0-9]+(\.[0-9]+)+(-.*)?$ ]]; then
 		PROJECTS["$PLUGIN"]=$2
 		SHIFT="2"
@@ -91,11 +91,13 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 	SLUG="${PLUGIN#projects/}" # DWIM
 	SLUG="${SLUG%/}" # Sanitize
 	SLUG="plugins/$SLUG"
-	if [[ -e "$BASE/projects/$SLUG/composer.json" ]]; then
+	if [[ ! -e "$BASE/projects/$SLUG/composer.json" ]]; then
+		die "$SLUG isn't a valid project!"
+	elif ! jq -e '.extra["release-branch-prefix"]' "$BASE/projects/$SLUG/composer.json" &>/dev/null; then
+		die "$SLUG has no release branch prefix!"
+	else
 		PROJECTS["$SLUG"]="${PROJECTS[$PLUGIN]}"
 		unset "PROJECTS[$PLUGIN]"
-	else 
-		die "$SLUG isn't a valid project!"
 	fi
 done
 
@@ -134,34 +136,15 @@ done
 
 proceed_p "" "Proceed releasing above projects?"
 
-
-# Get the release branches for the projects.
-declare -A PREFIXES
-
-# If we're releasing Jetpack, we need to set that prefix first.
-if [[ -v PROJECTS["plugins/jetpack"] ]]; then
-	PREFIXES["$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/plugins/jetpack/composer.json)"]=$(jq -r '.version' "$BASE"/projects/plugins/jetpack/composer.json)
+# Figure out which release branch prefixes to use.
+PREFIXDATA=$(jq -n 'reduce inputs as $in ({}; .[ $in.extra["release-branch-prefix"] | if . == null then empty elif type == "array" then .[] else . end ] += [ input_filename | capture( "projects/plugins/(?<p>[^/]+)/composer\\.json$" ).p ] ) | to_entries | sort_by( ( .value | -length ), .key ) | from_entries' "$BASE"/projects/plugins/*/composer.json)
+TMP=$(jq -rn --argjson d "$PREFIXDATA" '$d | reduce to_entries[] as $p ({ s: ( $ARGS.positional | map( sub( "^plugins/"; "" ) ) ), o: []}; if $p.value - .s == [] then .o += [ $p.key ] | .s -= $p.value else . end) | .o[]' --args "${!PROJECTS[@]}")
+mapfile -t PREFIXES <<<"$TMP"
+[[ ${#PREFIXES[@]} -eq 0 ]] && die "Could not determine prefixes for projects ${!PROJECTS[*]}"
+if [[ ${#PREFIXES[@]} -gt 1 ]]; then
+	yellow "The specified set of plugins will require multiple release branches: ${PREFIXES[*]}"
+	proceed_p ""
 fi
-
-for SLUG in "${!PROJECTS[@]}"; do
-	PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' "$BASE"/projects/"$SLUG"/composer.json)
-	if [[ -n "$PREFIX" && ! -v PREFIXES["$PREFIX"] ]]; then
-		PREFIXES["$PREFIX"]=${PROJECTS[$SLUG]}
-	elif [[ -z "$PREFIX" ]]; then
-		die "No release branch prefix found for $SLUG, aborting."
-	fi
-done
-
-# Check if release branches already exist.
-RELEASE_BRANCH=
-for PREFIX in "${!PREFIXES[@]}"; do
-	RELEASE_BRANCH="$PREFIX/branch-${PREFIXES[$PREFIX]%%-*}"
-	REMOTE_BRANCH="$(git ls-remote origin "$RELEASE_BRANCH")"
-	if [[ -n "$REMOTE_BRANCH" ]]; then
-		proceed_p "Existing release branch $RELEASE_BRANCH found." "Delete it before continuing?"
-		git push origin --delete "$RELEASE_BRANCH"
-	fi
-done
 
 # Make sure we're standing on trunk and working directory is clean
 CURRENT_BRANCH="$( git rev-parse --abbrev-ref HEAD )"
@@ -192,7 +175,7 @@ for PLUGIN in "${!PROJECTS[@]}"; do
 
 	# Add the PR numbers to the changelog.
 	ARGS=('-p')
-	
+
 	# Add alpha and beta flags.
 	VERSION="${PROJECTS[$PLUGIN]}"
 	case $VERSION in
@@ -238,7 +221,7 @@ done
 
 if [[ -z "$BUILDID" ]]; then
 	die "Build ID not found. Check GitHub actions to see if build on prerelease branch is running, then continue with manual steps."
-fi 
+fi
 
 yellow "Build ID found, waiting for build to complete and push to mirror repos."
 if ! gh run watch "${BUILDID[0]}" --exit-status; then
@@ -247,12 +230,17 @@ fi
 
 yellow "Build is complete."
 # Run tools/create-release-branch.sh to create a release branch for each project.
-for PREFIX in "${!PREFIXES[@]}"; do
+for PREFIX in "${PREFIXES[@]}"; do
 	git checkout prerelease
-	VERSION="${PREFIXES[$PREFIX]}"
-	PROJECT="$PREFIX"
-	yellow "Creating release branch for $PROJECT $VERSION"
-	tools/create-release-branch.sh "$PROJECT" "$VERSION"
+	PROJECT=$(jq -r --arg prefix "$PREFIX" '.[$prefix] | if length == 1 then "plugins/\(first)" else empty end' <<<"$PREFIXDATA")
+	if [[ -n "$PROJECT" && -n "${PROJECTS[$PROJECT]}" ]]; then
+		VERSION="${PROJECTS[$PROJECT]}"
+		yellow "Creating release branch for $PROJECT $VERSION"
+		tools/create-release-branch.sh "$PROJECT" "$VERSION"
+	else
+		yellow "Creating release branch for $PREFIX"
+		tools/create-release-branch.sh "$PREFIX"
+	fi
 done
 
 yellow "Release branches created!"
