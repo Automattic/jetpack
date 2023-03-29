@@ -903,7 +903,7 @@ class Image_CDN {
 				continue;
 			}
 
-			/** This filter is already documented in class.photon.php */
+			/** This filter is already documented in class-image-cdn.php */
 			if ( apply_filters( 'jetpack_photon_skip_image', false, $source['url'], $source ) ) {
 				continue;
 			}
