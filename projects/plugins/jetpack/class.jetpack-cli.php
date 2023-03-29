@@ -9,12 +9,14 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Actions;
 use Automattic\Jetpack\Sync\Listener;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Queue;
 use Automattic\Jetpack\Sync\Settings;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 if ( ! class_exists( 'WP_CLI_Command' ) ) {
 	return;
@@ -658,15 +660,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$current_allow = get_site_option( 'jetpack_protect_whitelist', array() ); // @todo Update the option name.
 
 				// Build array of IPs that are already on the allowed list.
-				// Re-build manually instead of using jetpack_protect_format_whitelist() so we can easily get
-				// low & high range params for jetpack_protect_ip_address_is_in_range().
+				// Re-build manually instead of using jetpack_protect_format_allow_list() so we can easily get
+				// low & high range params for IP_Utils::ip_address_is_in_range().
 				foreach ( $current_allow as $allowed ) {
 
 					// IP ranges.
 					if ( $allowed->range ) {
 
 						// Is it already on the allowed list?
-						if ( jetpack_protect_ip_address_is_in_range( $new_ip, $allowed->range_low, $allowed->range_high ) ) {
+						if ( IP_Utils::ip_address_is_in_range( $new_ip, $allowed->range_low, $allowed->range_high ) ) {
 							/* translators: %s is an IP address */
 							WP_CLI::error( sprintf( __( '%s is already on the always allow list.', 'jetpack' ), $new_ip ) );
 							break;
@@ -708,7 +710,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				if ( isset( $args[1] ) && 'clear' === $args[1] ) {
 					if ( ! empty( $allow ) ) {
 						$allow = array();
-						jetpack_protect_save_whitelist( $allow ); // @todo Need to update function name in the Protect module.
+						Brute_Force_Protection_Shared_Functions::save_allow_list( $allow ); // @todo Need to update function name in the Protect module.
 						WP_CLI::success( __( 'Cleared all IPs from the always allow list.', 'jetpack' ) );
 					} else {
 						WP_CLI::line( __( 'Always allow list is empty.', 'jetpack' ) );
@@ -720,7 +722,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				array_push( $allow, $new_ip );
 
 				// Save allow list if there are no errors.
-				$result = jetpack_protect_save_whitelist( $allow ); // @todo Need to update function name in the Protect module.
+				$result = Brute_Force_Protection_Shared_Functions::save_allow_list( $allow ); // @todo Need to update function name in the Protect module.
 				if ( is_wp_error( $result ) ) {
 					WP_CLI::error( $result );
 				}

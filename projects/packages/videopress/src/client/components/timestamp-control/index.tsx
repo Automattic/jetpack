@@ -197,6 +197,7 @@ export const TimestampInput = ( {
 					<TimeDivider char="." />
 					<NumberControl
 						className={ styles[ 'timestamp-control-input' ] }
+						style={ { '--input-width': `${ 12 * decimalPlaces }px` } }
 						disabled={ disabled }
 						min={ 0 }
 						max={ Number( '9'.repeat( decimalPlaces ) ) }
@@ -238,7 +239,8 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 
 	const debounceTimer = useRef< NodeJS.Timeout >();
 
-	const { baseControlProps } = useBaseControlProps( props );
+	// Check and add a fallback for the `useBaseControlProps` hook.
+	const { baseControlProps } = useBaseControlProps?.( props ) || {};
 
 	const onChangeHandler = useCallback(
 		( newValue: number ) => {
@@ -253,14 +255,16 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 	return (
 		<BaseControl { ...baseControlProps }>
 			<div className={ styles[ 'timestamp-control__controls-wrapper' ] }>
-				<TimestampInput
-					disabled={ disabled }
-					max={ max }
-					value={ value }
-					onChange={ onChangeHandler }
-					autoHideTimeInput={ autoHideTimeInput }
-					decimalPlaces={ decimalPlaces }
-				/>
+				{ NumberControl && (
+					<TimestampInput
+						disabled={ disabled }
+						max={ max }
+						value={ value }
+						onChange={ onChangeHandler }
+						autoHideTimeInput={ autoHideTimeInput }
+						decimalPlaces={ decimalPlaces }
+					/>
+				) }
 
 				<RangeControl
 					disabled={ disabled }
