@@ -31,13 +31,13 @@ export const getIframeWindowFromRef = (
  * Custom hook to set the player ready to use:
  *
  * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - useRef of the sandbox wrapper.
- * @param {boolean} isRequestingEmbedPreview                   - Whether the preview is being requested.
+ * @param {boolean} isRequestingPreview                        - Whether the preview is being requested.
  * @param {UseVideoPlayerOptions} options                      - Options object.
  * @returns {UseVideoPlayer}                                     playerIsReady and playerState
  */
 const useVideoPlayer = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >,
-	isRequestingEmbedPreview: boolean,
+	isRequestingPreview: boolean,
 	{ atTime, wrapperElement, previewOnHover }: UseVideoPlayerOptions
 ): UseVideoPlayer => {
 	const [ playerIsReady, setPlayerIsReady ] = useState( false );
@@ -90,7 +90,7 @@ const useVideoPlayer = (
 
 	// Listen player events.
 	useEffect( () => {
-		if ( isRequestingEmbedPreview ) {
+		if ( isRequestingPreview ) {
 			return;
 		}
 
@@ -105,7 +105,7 @@ const useVideoPlayer = (
 			// Remove the listener when the component is unmounted.
 			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
 		};
-	}, [ iFrameRef, isRequestingEmbedPreview ] );
+	}, [ iFrameRef, isRequestingPreview ] );
 
 	const playVideo = useCallback( () => {
 		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );

@@ -4,12 +4,18 @@ React custom hook to listen and control the video player through events provided
 
 ```jsx
 function myVideoComponent( { id, guid } ) {
+	const iframeRef = useRef();
 	const { playerIsReady } = useVideoPlayer( iframeRef, isRequestingPreview );
 
-	if ( isRequestingVideoData ) {
-		return null;
-	}
-
-	return <p>Video title: { videoData.title }</p>;
+	return (
+		<div ref={ iframeRef }>
+			<SandBox />
+		</div>
+	);
 }
 ```
+
+## API
+
+### useVideoPlayer( iframeRef, isRequestingPreview, options )
+
