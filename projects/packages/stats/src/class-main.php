@@ -142,6 +142,7 @@ class Main {
 
 		add_action( 'wp_enqueue_scripts', array( 'Automattic\Jetpack\Stats\Tracking_Pixel', 'enqueue_stats_script' ), 101 );
 		add_action( 'wp_footer', array( 'Automattic\Jetpack\Stats\Tracking_Pixel', 'add_amp_pixel' ), 101 );
+		add_action( 'web_stories_print_analytics', array( 'Automattic\Jetpack\Stats\Tracking_Pixel', 'add_amp_pixel' ), 101 );
 	}
 
 	/**
