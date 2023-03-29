@@ -1,6 +1,5 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
 
@@ -15,7 +14,6 @@ test.describe( 'Lazy Images module', () => {
 	} );
 
 	test.afterAll( async () => {
-		await prerequisitesBuilder( page ).withLoggedIn( true ).build();
 		await page.close();
 	} );
 
