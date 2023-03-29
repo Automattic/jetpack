@@ -1,6 +1,6 @@
 <?php
 /**
- * Menus REST route
+ * Blocks REST route
  *
  * @package automattic/jetpack-import
  */
@@ -8,9 +8,9 @@
 namespace Automattic\Jetpack\Import\Endpoints;
 
 /**
- * Class Menu
+ * Class Block
  */
-class Menu extends \WP_REST_Menus_Controller {
+class Block extends \WP_REST_Blocks_Controller {
 
 	/**
 	 * The Import ID add a new item to the schema.
@@ -18,7 +18,7 @@ class Menu extends \WP_REST_Menus_Controller {
 	use Import;
 
 	/**
-	 * Whether the controller supports batching. Default true.
+	 * Whether the controller supports batching.
 	 *
 	 * @var array
 	 */
@@ -28,9 +28,6 @@ class Menu extends \WP_REST_Menus_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
-		parent::__construct( 'nav_menu' );
-
-		// @see add_term_meta
-		$this->import_id_meta_type = 'term';
+		parent::__construct( 'wp_block' );
 	}
 }
