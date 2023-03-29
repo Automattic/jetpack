@@ -195,8 +195,109 @@ export function PosterDropdown( {
 	);
 }
 
-const getIframeWindowFromRef = ( iFrameRef ): Window | null => {
-	return iFrameRef?.current?.querySelector( '.components-sandbox' )?.contentWindow;
+/**
+ * Return the (content) Window object of the iframe,
+ * given the iframe's ref.
+ *
+ * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - iframe ref
+ * @returns {Window | null}	                                     Window object of the iframe
+ */
+export const getIframeWindowFromRef = (
+	iFrameRef: React.MutableRefObject< HTMLDivElement >
+): Window | null => {
+	const iFrame: HTMLIFrameElement = iFrameRef?.current?.querySelector(
+		'iframe.components-sandbox'
+	);
+	return iFrame?.contentWindow;
+};
+
+type UsePlayerReadyOptions = {
+	atTime: number;
+};
+
+type UsePLayerReadyReturn = {
+	playerIsReady: boolean;
+	playerState: 'not-rendered' | 'loaded' | 'first-play';
+};
+
+/**
+ * Custom hook to set the player ready to use:
+ *
+ * - Detect the "videopress_loading_state" state.
+ * - Detect the first time it was played.
+ * - Stop right after it was played
+ * - Set the player position to the desired time
+ *
+ * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - useRef of the sandbox wrapper.
+ * @param {boolean} isRequestingEmbedPreview                   - Whether the preview is being requested.
+ * @param {UsePlayerReadyOptions} options                      - Options object.
+ * @returns {UsePLayerReadyReturn}                               playerIsReady and playerState
+ */
+const usePlayerReady = (
+	iFrameRef: React.MutableRefObject< HTMLDivElement >,
+	isRequestingEmbedPreview: boolean,
+	{ atTime }: UsePlayerReadyOptions
+): UsePLayerReadyReturn => {
+	const [ playerIsReady, setPlayerIsReady ] = useState( false );
+	const playerState = useRef< 'not-rendered' | 'loaded' | 'first-play' | 'ready' >(
+		'not-rendered'
+	);
+
+	/**
+	 * Handler function that listent the events
+	 * emited by the player client.
+	 *
+	 * @param {MessageEvent} event - Message event
+	 */
+	function listenEventsHandler( event: MessageEvent ) {
+		const { data: eventData = {}, source } = event;
+		const { event: eventName } = event?.data || {};
+
+		// Detect when the video has been loaded.
+		if ( eventName === 'videopress_loading_state' && eventData.state === 'loaded' ) {
+			playerState.current = 'loaded';
+		}
+
+		// Detect when the video has been played for the first time.
+		if ( eventName === 'videopress_playing' && playerState.current === 'loaded' ) {
+			playerState.current = 'first-play';
+
+			// Pause and move the video at the desired time.
+			source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
+			source.postMessage(
+				{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
+				{ targetOrigin: '*' }
+			);
+
+			// Here we consider the video as ready to be controlled.
+			setPlayerIsReady( true );
+			playerState.current = 'ready';
+		}
+	}
+
+	// Listen player events.
+	useEffect( () => {
+		if ( isRequestingEmbedPreview ) {
+			return;
+		}
+
+		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
+		if ( ! sandboxIFrameWindow ) {
+			return;
+		}
+
+		sandboxIFrameWindow.addEventListener( 'message', listenEventsHandler );
+
+		return () => {
+			// Remove the listener when the component is unmounted.
+			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
+		};
+	}, [ iFrameRef, isRequestingEmbedPreview ] );
+
+	return {
+		playerIsReady,
+		playerState: playerState.current,
+	};
 };
 
 type PosterFramePickerProps = {
@@ -220,7 +321,6 @@ function VideoFramePicker( {
 }: PosterFramePickerProps ): React.ReactElement {
 	const [ timestamp, setTimestamp ] = useState( atTime );
 	const [ duration, setDuration ] = useState( 0 );
-	const [ playerIsReady, setPlayerIsReady ] = useState( false );
 	const playerWrapperRef = useRef< HTMLDivElement >( null );
 
 	const url = getVideoPressUrl( guid, {
@@ -233,8 +333,6 @@ function VideoFramePicker( {
 	const { preview = { html: null }, isRequestingEmbedPreview } = usePreview( url );
 	const { html } = preview;
 
-	const playerState = useRef< 'not-rendered' | 'loaded' | 'has-auto-played' >( 'not-rendered' );
-
 	/**
 	 * Handler function to deal with the communication
 	 * between the iframe, which contains the video,
@@ -243,7 +341,7 @@ function VideoFramePicker( {
 	 * @param {MessageEvent} event - Message event
 	 */
 	function listenEventsHandler( event: MessageEvent ) {
-		const { data: eventData = {}, source } = event;
+		const { data: eventData = {} } = event;
 		const { event: eventName } = event?.data || {};
 
 		// Pick and store the video duration in a local state.
@@ -252,27 +350,11 @@ function VideoFramePicker( {
 				setDuration( eventData.durationMs );
 			}
 		}
-
-		// Detect when the video has been loaded.
-		if ( eventName === 'videopress_loading_state' && eventData.state === 'loaded' ) {
-			playerState.current = 'loaded';
-		}
-
-		// Hack 2/2: Pause the video right after it has been auto-loaded.
-		if ( eventName === 'videopress_playing' && playerState.current === 'loaded' ) {
-			playerState.current = 'has-auto-played';
-
-			// Pause and playback the video to ensure the video is at the desired time.
-			source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
-			source.postMessage(
-				{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
-				{ targetOrigin: '*' }
-			);
-
-			// Here we consider the video as ready to be controlled.
-			setPlayerIsReady( true );
-		}
 	}
+
+	const { playerIsReady } = usePlayerReady( playerWrapperRef, isRequestingEmbedPreview, {
+		atTime,
+	} );
 
 	// Listen player events.
 	useEffect( () => {
