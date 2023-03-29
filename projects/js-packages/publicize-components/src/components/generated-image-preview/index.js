@@ -106,7 +106,7 @@ export default function GeneratedImagePreview() {
 							[ styles.hidden ]: isLoading,
 						} ) }
 						src={ generatedImageUrl }
-						alt="Generated preview"
+						alt={ __( 'Generated preview', 'jetpack' ) }
 						onLoad={ onImageLoad }
 					></img>
 					{ isLoading && <Spinner data-testid="spinner" /> }
