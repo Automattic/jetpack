@@ -5,7 +5,7 @@ import { RichText } from '@wordpress/block-editor';
 import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getIframeWindowFromRef } from '../poster-panel';
+import { getIframeWindowFromRef, usePlayerReady } from '../poster-panel';
 /**
  * Types
  */
@@ -156,6 +156,23 @@ export default function Player( {
 
 		return () => iFrameContentWindow?.removeEventListener( 'message', videoPlayerEventsHandler );
 	}, [ videoWrapperRef, isRequestingEmbedPreview ] );
+
+	const { atTime, previewOnHover, previewAtTime, type } = attributes.posterData;
+
+	let timeToSetPlayerPosition = undefined;
+	if ( type === 'video-frame' ) {
+		if ( previewOnHover ) {
+			timeToSetPlayerPosition = previewAtTime;
+		} else {
+			timeToSetPlayerPosition = atTime;
+		}
+	} else {
+		timeToSetPlayerPosition = atTime;
+	}
+
+	usePlayerReady( videoWrapperRef, isRequestingEmbedPreview, {
+		atTime: timeToSetPlayerPosition,
+	} );
 
 	useEffect( () => {
 		if ( isRequestingEmbedPreview ) {
