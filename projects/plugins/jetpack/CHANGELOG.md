@@ -47,7 +47,7 @@
 - Updated composer.lock. [#29762]
 - VideoPress: enable the video frame poster extension for all site plans. [#29692]
 - VideoPress: register the v6-video-frame-poster beta extension. [#29678]
-- WordPress.com Toolbar: Gate Site Logs menu item behind constant [#29606]
+- WordPress.com Toolbar: gate Site Logs menu item behind constant [#29606]
 
 ## 12.0-a.7 - 2023-03-20
 ### Enhancements
