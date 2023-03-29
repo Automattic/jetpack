@@ -376,6 +376,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.12.9]: https://github.com/Automattic/jetpack-backup/compare/v1.12.8...v1.12.9
 [1.12.8]: https://github.com/Automattic/jetpack-backup/compare/v1.12.7...v1.12.8
 [1.12.7]: https://github.com/Automattic/jetpack-backup/compare/v1.12.6...v1.12.7
 [1.12.6]: https://github.com/Automattic/jetpack-backup/compare/v1.12.5...v1.12.6
