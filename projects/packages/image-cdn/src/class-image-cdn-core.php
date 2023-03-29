@@ -376,8 +376,8 @@ class Image_CDN_Core {
 	 */
 	public static function get_jetpack_content_width() {
 		$content_width = ( isset( $GLOBALS['content_width'] ) && is_numeric( $GLOBALS['content_width'] ) )
-		? $GLOBALS['content_width']
-		: false;
+			? $GLOBALS['content_width']
+			: false;
 		/**
 		 * Filter the Content Width value.
 		 *
