@@ -118,6 +118,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'posts_per_rss'                           => '(int) Number of posts to show in the RSS feed',
 			'rss_use_excerpt'                         => '(bool) Whether the RSS feed will use post excerpts',
 			'launchpad_screen'                        => '(string) Whether or not launchpad is presented and what size it will be',
+			'launchpad_checklist_tasks_statuses'      => '(array) Array of launchpad checklist tasks completion status',
 		),
 
 		'response_format'     => array(
@@ -440,6 +441,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
+						'launchpad_checklist_tasks_statuses' => (array) get_option( 'launchpad_checklist_tasks_statuses' ),
 						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
@@ -625,6 +627,27 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						if ( update_option( $key, $value ) ) {
 							$updated[ $key ] = $value;
 						}
+					}
+					break;
+				case 'launchpad_checklist_tasks_statuses':
+					$launchpad_checklist_tasks_statuses_option = get_option( 'launchpad_checklist_tasks_statuses' );
+
+					$sanitized_value = array_filter(
+						(array) $value,
+						function ( $array_value ) {
+							return is_bool( $array_value );
+						},
+						ARRAY_FILTER_USE_BOTH
+					);
+
+					if ( ! is_array( $launchpad_checklist_tasks_statuses_option ) ) {
+						$launchpad_checklist_tasks_statuses_updated_option = $sanitized_value;
+					} else {
+						$launchpad_checklist_tasks_statuses_updated_option = array_merge( $launchpad_checklist_tasks_statuses_option, $sanitized_value );
+					}
+
+					if ( update_option( $key, $launchpad_checklist_tasks_statuses_updated_option ) ) {
+						$updated[ $key ] = $launchpad_checklist_tasks_statuses_updated_option;
 					}
 					break;
 				case 'jetpack_protect_whitelist':
