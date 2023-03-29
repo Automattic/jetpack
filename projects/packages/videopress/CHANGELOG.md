@@ -5,12 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.13.2] - 2023-03-28
+## [0.13.3] - 2023-03-28
+### Added
+- VideoPress: generate video image when selecting poster from frame [#29738]
+
+## [0.13.2] - 2023-03-27
 ### Added
 - Add basic native supported player [#29478]
 - VideoPress: Added Stats module to the list of enabled modules for the standalone VP plugin. [#29668]
 - VideoPress: add frame selector to Poster panel [#29688]
-- VideoPress: generate video image when selecting poster from frame [#29738]
 - VideoPress: store poster data into video block attribute [#29718]
 - VideoPress block: Add Privacy and Rating panel to native block's settings. [#29477]
 - VideoPress block: Add replace functionality for the native version of the block. [#29662]

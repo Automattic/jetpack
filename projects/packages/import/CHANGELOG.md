@@ -5,12 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.0] - 2023-03-28
+## [0.5.0] - 2023-03-28
+### Added
+- Prevent media duplication when it's already existed [#29646]
+
+## [0.4.0] - 2023-03-27
 ### Added
 - Added global style import. [#29622]
 - Added import of custom CSS [#29595]
 - Adding functionality to create term on the fly [#29581]
-- Prevent media duplication when it's already existed [#29646]
 
 ### Changed
 - Updated package version [#29457]
