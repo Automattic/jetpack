@@ -12,6 +12,9 @@ use Automattic\Jetpack\Status;
 
 /**
  * Class that adds the Jetpack stats widget to the WordPress admin dashboard.
+ *
+ * Note that this widget renders whether or not the stats module is active because it currently
+ * displays information about Akismet and Protect.
  */
 class Jetpack_Stats_Dashboard_Widget {
 
