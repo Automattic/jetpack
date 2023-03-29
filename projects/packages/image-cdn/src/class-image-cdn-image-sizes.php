@@ -113,7 +113,7 @@ class Image_CDN_Image_Sizes {
 		// Remove filter preventing the creation of advanced sizes.
 		remove_filter(
 			'intermediate_image_sizes_advanced',
-			array( 'Jetpack_Photon', 'filter_photon_noresize_intermediate_sizes' )
+			array( Image_CDN::class, 'filter_photon_noresize_intermediate_sizes' )
 		);
 
 		/** This filter is documented in wp-admin/includes/image.php */
@@ -122,7 +122,7 @@ class Image_CDN_Image_Sizes {
 		// Re-add the filter removed above.
 		add_filter(
 			'intermediate_image_sizes_advanced',
-			array( 'Jetpack_Photon', 'filter_photon_noresize_intermediate_sizes' )
+			array( Image_CDN::class, 'filter_photon_noresize_intermediate_sizes' )
 		);
 
 		return (array) $sizes;
