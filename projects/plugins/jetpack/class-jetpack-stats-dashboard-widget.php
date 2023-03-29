@@ -136,7 +136,10 @@ class Jetpack_Stats_Dashboard_Widget {
 	 * Renders the widget and fires a dashboard widget action.
 	 */
 	public static function render_widget() {
-		stats_jetpack_dashboard_widget();
+		// This function won't exist if the stats module is disabled.
+		if ( function_exists( 'stats_jetpack_dashboard_widget' ) ) {
+			stats_jetpack_dashboard_widget();
+		}
 
 		/**
 		 * Fires when the dashboard is loaded, but no longer used anywhere in the Jetpack plugin.
