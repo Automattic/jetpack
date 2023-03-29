@@ -174,10 +174,12 @@ export default function Player( {
 	useVideoPlayer( videoWrapperRef, isRequestingEmbedPreview, {
 		atTime: timeToSetPlayerPosition,
 		wrapperElement: mainWrapperRef?.current,
-		previewOnHover: {
-			atTime: previewAtTime,
-			duration: previewLoopDuration,
-		},
+		previewOnHover: previewOnHover
+			? {
+					atTime: previewAtTime,
+					duration: previewLoopDuration,
+			  }
+			: undefined,
 	} );
 
 	useEffect( () => {
