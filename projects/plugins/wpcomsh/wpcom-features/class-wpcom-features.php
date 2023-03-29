@@ -107,14 +107,22 @@ class WPCOM_Features {
 	private const JETPACK_BACKUP_T0_MONTHLY                   = 'jetpack_backup_t0_monthly'; // 2121
 	private const JETPACK_SEARCH_FREE                         = 'jetpack_search_free'; // 2130
 	private const JETPACK_BACKUP_ONE_TIME                     = 'jetpack_backup_one_time'; // 2201
-	private const AKISMET_PLUS_MONTHLY                        = 'ak_plus_monthly'; // 2301
-	private const AKISMET_PLUS_YEARLY                         = 'ak_plus_yearly'; // 2302
-	private const AKISMET_ENTERPRISE_MONTHLY                  = 'ak_ent_monthly'; // 2303
-	private const AKISMET_ENTERPRISE_YEARLY                   = 'ak_ent_yearly'; // 2304
-	private const AKISMET_ENTERPRISE_350K_MONTHLY             = 'ak_ep350k_monthly'; // 2305
-	private const AKISMET_ENTERPRISE_350K_YEARLY              = 'ak_ep350k_yearly'; // 2306
-	private const AKISMET_ENTERPRISE_2M_MONTHLY               = 'ak_ep2m_monthly'; // 2307
-	private const AKISMET_ENTERPRISE_2M_YEARLY                = 'ak_ep2m_yearly'; // 2308
+	private const AKISMET_PLUS_YEARLY                         = 'ak_plus_yearly_1'; // 2311
+	private const AKISMET_PLUS_MONTHLY                        = 'ak_plus_monthly_1'; // 2312
+	private const AKISMET_PLUS_20K_YEARLY                     = 'ak_plus_yearly_2'; // 2313
+	private const AKISMET_PLUS_20K_MONTHLY                    = 'ak_plus_monthly_2'; // 2314
+	private const AKISMET_PLUS_30K_YEARLY                     = 'ak_plus_yearly_3'; // 2315
+	private const AKISMET_PLUS_30K_MONTHLY                    = 'ak_plus_monthly_3'; // 2316
+	private const AKISMET_PLUS_40K_YEARLY                     = 'ak_plus_yearly_4'; // 2317
+	private const AKISMET_PLUS_40K_MONTHLY                    = 'ak_plus_monthly_4'; // 2318
+	private const AKISMET_ENTERPRISE_YEARLY                   = 'ak_ent_yearly_1'; // 2319
+	private const AKISMET_ENTERPRISE_MONTHLY                  = 'ak_ent_monthly_1'; // 2320
+	private const AKISMET_ENTERPRISE_350K_YEARLY              = 'ak_ep350k_yearly_1'; // 2321
+	private const AKISMET_ENTERPRISE_350K_MONTHLY             = 'ak_ep350k_monthly_1'; // 2322
+	private const AKISMET_ENTERPRISE_2M_YEARLY                = 'ak_ep2m_yearly_1'; // 2323
+	private const AKISMET_ENTERPRISE_2M_MONTHLY               = 'ak_ep2m_monthly_1'; // 2324
+	private const AKISMET_ENTERPRISE_GT2M_YEARLY              = 'ak_epgt2m_yearly_1'; // 2325
+	private const AKISMET_ENTERPRISE_GT2M_MONTHLY             = 'ak_epgt2m_monthly_1'; // 2326
 	private const JETPACK_BOOST                               = 'jetpack_boost_yearly'; // 2401
 	private const JETPACK_BOOST_MONTHLY                       = 'jetpack_boost_monthly'; // 2400
 	private const JETPACK_SOCIAL_BASIC_MONTHLY_LEGACY         = 'jetpack_social_monthly'; // 2500
@@ -774,7 +782,7 @@ class WPCOM_Features {
 			self::JETPACK_ALL_SITES,
 		),
 		self::STAGING_SITES                  => array(
-			self::WPCOM_BUSINESS_PLANS,
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 
 		/*
