@@ -136,28 +136,21 @@ class Tracking_Pixel {
 		 * Create an escaped string of attributes to add to the script tag,
 		 * like 'defer', 'async',
 		 * or anything passed to the filter above.
+		 *
+		 * For boolean attributes, we either only display the key (e.g. "defer")
+		 * or not display anything (e.g. we do not want to display "async=false").
 		 */
-		$script_attributes = implode(
-			' ',
-			array_map(
-				function ( $key, $value ) {
-					/*
-					* For boolean attributes, we either only display the key (e.g. "defer")
-					* or not display anything (e.g. we do not want to display "async=false").
-					*/
-					if ( is_bool( $value ) ) {
-						if ( true === $value ) {
-							return esc_attr( $key );
-						}
-						return; // Skip if the value is false.
-					}
-
-					return esc_attr( $key ) . "='" . esc_attr( $value ) . "'";
-				},
-				array_keys( $script_attributes ),
-				$script_attributes
-			)
-		);
+		$atts_to_add = array();
+		foreach ( $script_attributes as $key => $value ) {
+			if ( is_bool( $value ) ) {
+				if ( $value ) {
+					$atts_to_add[] = esc_attr( $key );
+				}
+			} else {
+				$atts_to_add[] = esc_attr( $key ) . "='" . esc_attr( $value ) . "'";
+			}
+		}
+		$script_attributes = implode( ' ', $atts_to_add );
 
 		return $script_attributes;
 	}
