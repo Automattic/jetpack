@@ -40,7 +40,6 @@ class Post extends \WP_REST_Posts_Controller {
 
 		// @see add_post_meta
 		$this->import_id_meta_type = $post_type;
-		add_action( "rest_insert_{$post_type}", array( $this, 'process_post_meta' ), 10, 3 );
 	}
 
 	/**
@@ -107,6 +106,11 @@ class Post extends \WP_REST_Posts_Controller {
 
 		$response = parent::create_item( $request );
 
+		// Process post metadata.
+		if ( ! is_wp_error( $response ) && isset( $response->data ) && isset( $response->data['id'] ) ) {
+			$this->process_post_meta( $response->data['id'], $request );
+		}
+
 		return $this->add_import_id_metadata( $request, $response );
 	}
 
@@ -141,14 +145,13 @@ class Post extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Processes the metadata of a WordPress post when creating or updating it.
+	 * Processes the metadata of a WordPress post when creating it.
 	 *
-	 * @param \WP_Post $post An object representing the post being created or updated.
-	 * @param mixed    $request An object containing the metadata being added to the post.
-	 * @param bool     $creating A flag indicating whether the post is being created or updated.
+	 * @param int   $post_id The post ID.
+	 * @param mixed $request An object containing the metadata being added to the post.
 	 * @return void
 	 */
-	public function process_post_meta( \WP_Post $post, $request, $creating ) {
+	public function process_post_meta( $post_id, $request ) {
 		$metas = $request->get_param( 'meta' );
 
 		if ( empty( $metas ) ) {
@@ -163,14 +166,14 @@ class Post extends \WP_REST_Posts_Controller {
 			foreach ( $metas as $meta_key => $meta_value ) {
 
 				$meta_value = maybe_unserialize( $meta_value );
-				if ( ! $creating && $meta_key === '_edit_last' ) {
-					update_post_meta( $post->ID, $meta_key, $meta_value );
+				if ( $meta_key === '_edit_last' ) {
+					update_post_meta( $post_id, $meta_key, $meta_value );
 				} else {
 					// Add the meta data to the post
-					add_post_meta( $post->ID, $meta_key, $meta_value );
+					add_post_meta( $post_id, $meta_key, $meta_value );
 				}
 
-				do_action( 'import_post_meta', $post->ID, $meta_key, $meta_value );
+				do_action( 'import_post_meta', $post_id, $meta_key, $meta_value );
 			}
 		}
 	}
