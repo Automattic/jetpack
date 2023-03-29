@@ -236,10 +236,10 @@ function VideoFramePicker( {
 	const playerWrapperRef = useRef< HTMLDivElement >( null );
 
 	const url = getVideoPressUrl( guid, {
-		autoplay: true, // Hack 1/2: Set autoplay true to be able to control the video.
+		autoplay: true, // Set `autoplay` and `muted` true to be able to control the video.
+		muted: true,
 		controls: false,
 		loop: false,
-		muted: true,
 	} );
 
 	const { preview = { html: null }, isRequestingEmbedPreview } = usePreview( url );
