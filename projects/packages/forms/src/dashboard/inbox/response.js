@@ -38,7 +38,7 @@ const InboxResponse = ( { loading, response } ) => {
 			</div>
 
 			<h3 className={ titleClasses }>{ getDisplayName( response ) }</h3>
-			{ response.author_email && (
+			{ response.author_email && getDisplayName( response ) !== response.author_email && (
 				<p className="jp-forms__inbox-response-subtitle">{ response.author_email }</p>
 			) }
 
