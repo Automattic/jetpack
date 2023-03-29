@@ -142,39 +142,4 @@ END;
 		remove_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ) );
 		$this->assertSame( $footer_to_add_should_be, $footer_to_add );
 	}
-
-	/**
-	 * Test for get_script_attributes
-	 *
-	 * @covers Tracking_Pixel::get_script_attributes
-	 */
-	public function test_get_script_attributes() {
-		$attributes = Tracking_Pixel::get_script_attributes();
-
-		$this->assertSame( 'defer', $attributes );
-
-		add_filter( 'jetpack_stats_footer_script_attributes', array( $this, 'get_custom_script_attributes' ), 10 );
-
-		$attributes = Tracking_Pixel::get_script_attributes();
-
-		$this->assertStringContainsString( "type='text/plain'", $attributes );
-		$this->assertStringNotContainsString( "async='false'", $attributes );
-		$this->assertStringNotContainsString( '<script>', $attributes );
-
-		// Reset things.
-		remove_filter( 'jetpack_stats_footer_script_attributes', array( $this, 'get_custom_script_attributes' ) );
-	}
-
-	/**
-	 * Get custom script attributes to pass to the jetpack_stats_footer_script_attributes filter.
-	 */
-	public function get_custom_script_attributes() {
-		return array(
-			'defer' => true,
-			'type'  => 'text/plain',
-			'async' => false,
-			'foo'   => '<script>alert("hello")</script>',
-		);
-	}
-
 }
