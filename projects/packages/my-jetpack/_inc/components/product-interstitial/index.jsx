@@ -176,12 +176,16 @@ export default function ProductInterstitial( {
  * @returns {object} AntiSpamInterstitial react component.
  */
 export function AntiSpamInterstitial() {
+	const slug = 'anti-spam';
+	const { detail } = useProduct( slug );
+	const { isPluginActive } = detail;
+
 	return (
 		<ProductInterstitial
-			slug="anti-spam"
+			slug={ slug }
 			installsPlugin={ true }
 			bundle="security"
-			existingLicenseKeyUrl={ null }
+			existingLicenseKeyUrl={ isPluginActive ? 'admin.php?page=akismet-key-config' : null }
 			preferProductName={ true }
 		/>
 	);
