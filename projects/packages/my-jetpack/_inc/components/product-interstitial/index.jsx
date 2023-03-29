@@ -31,7 +31,7 @@ import videoPressImage from './videopress.png';
  */
 export default function ProductInterstitial( {
 	bundle,
-	existingLicenseKeyUrl = null,
+	existingLicenseKeyUrl = 'admin.php?page=my-jetpack#/add-license',
 	installsPlugin = false,
 	slug,
 	supportingInfo,
@@ -114,23 +114,25 @@ export default function ProductInterstitial( {
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } />
-					<Text variant="body-small">
-						{ createInterpolateElement(
-							__(
-								'Already have an existing plan or license key? <a>Get started</a>.',
-								'jetpack-my-jetpack'
-							),
-							{
-								a: (
-									<Button
-										className={ styles[ 'product-interstitial__license-activation-link' ] }
-										href={ existingLicenseKeyUrl || 'admin.php?page=my-jetpack#/add-license' }
-										variant="link"
-									/>
+					{ existingLicenseKeyUrl && (
+						<Text variant="body-small">
+							{ createInterpolateElement(
+								__(
+									'Already have an existing plan or license key? <a>Get started</a>.',
+									'jetpack-my-jetpack'
 								),
-							}
-						) }
-					</Text>
+								{
+									a: (
+										<Button
+											className={ styles[ 'product-interstitial__license-activation-link' ] }
+											href={ existingLicenseKeyUrl }
+											variant="link"
+										/>
+									),
+								}
+							) }
+						</Text>
+					) }
 				</Col>
 				<Col>
 					<Container
@@ -179,7 +181,7 @@ export function AntiSpamInterstitial() {
 			slug="anti-spam"
 			installsPlugin={ true }
 			bundle="security"
-			existingLicenseKeyUrl="admin.php?page=akismet-key-config"
+			existingLicenseKeyUrl={ null }
 			preferProductName={ true }
 		/>
 	);
