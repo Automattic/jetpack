@@ -143,42 +143,6 @@ function stats_build_view_data() {
 }
 
 /**
- * Stats Footer.
- *
- * @deprecated 11.5
- * @access public
- * @return void
- */
-function stats_footer() {
-	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::add_to_footer' );
-	Stats_Tracking_Pixel::add_to_footer();
-}
-
-/**
- * Render the stats footer
- *
- * @deprecated 11.5
- *
- * @param array $data Array of data for the JS stats tracker.
- */
-function stats_render_footer( $data ) {
-	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_footer' );
-	Stats_Tracking_Pixel::render_footer( $data );
-}
-
-/**
- * Render the stats footer for AMP output.
- *
- * @deprecated 11.5
- *
- * @param array $data Array of data for the AMP pixel tracker.
- */
-function stats_render_amp_footer( $data ) {
-	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_amp_footer' );
-	Stats_Tracking_Pixel::render_amp_footer( $data );
-}
-
-/**
  * Stats Get Options.
  *
  * @deprecated 11.5
