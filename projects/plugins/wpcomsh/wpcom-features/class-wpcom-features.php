@@ -803,6 +803,15 @@ class WPCOM_Features {
 			self::JETPACK_COMPLETE_PLANS,
 			self::BUNDLE_ENTERPRISE,
 		),
+		self::SOCIAL_IMAGE_GENERATOR         => array(
+			array(
+				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
+				'before' => '1900-01-01',
+				self::JETPACK_SOCIAL_ADVANCED_PLANS,
+				self::JETPACK_COMPLETE_PLANS,
+				self::BUNDLE_ENTERPRISE,
+			),
+		),
 
 		self::SPACE                          => array(
 			self::WPCOM_ALL_SITES,
