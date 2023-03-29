@@ -35,7 +35,7 @@ import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../
 import type { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import type React from 'react';
 
-const MAX_LOOP_DURATION = 20 * 1000;
+const MAX_LOOP_DURATION = 30 * 1000;
 const DEFAULT_LOOP_DURATION = 10 * 1000;
 
 /*
@@ -385,6 +385,7 @@ function VideoHoverPreviewControl( {
 					<TimestampControl
 						label={ __( 'Starting point', 'jetpack-videopress-pkg' ) }
 						max={ maxStartingPoint }
+						decimalPlaces={ 2 }
 						value={ previewAtTime }
 						onChange={ onAtTimeChange }
 					/>
@@ -392,7 +393,7 @@ function VideoHoverPreviewControl( {
 					<NumberControl
 						className="poster-panel__loop-duration"
 						min={ 0 }
-						max={ MAX_LOOP_DURATION }
+						max={ Math.min( MAX_LOOP_DURATION, videoDuration ) / 1000 }
 						step={ 1 }
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
 						spinControls="none"
@@ -435,7 +436,7 @@ export default function PosterPanel( {
 		attributes?.posterData?.previewLoopDuration || DEFAULT_LOOP_DURATION
 	);
 
-	const videoDuration = 720000; // TODO: get the video duration from the block attributes
+	const videoDuration = attributes?.duration;
 
 	const onRemovePoster = () => {
 		setAttributes( { poster: '', posterData: { ...attributes.posterData, url: '' } } );
