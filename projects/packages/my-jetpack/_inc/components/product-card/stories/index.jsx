@@ -48,3 +48,9 @@ Absent.args = {
 	...DefaultArgs,
 	status: PRODUCT_STATUSES.ABSENT,
 };
+
+export const WithChildren = Template.bind( {} );
+WithChildren.args = {
+	...DefaultArgs,
+	children: <div>Testando</div>,
+};

@@ -27,6 +27,7 @@ const ProductCard = props => {
 		onManage,
 		isFetching,
 		slug,
+		children,
 	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
@@ -101,12 +102,14 @@ const ProductCard = props => {
 	}, [ slug, onFixConnection, recordEvent ] );
 
 	const CardWrapper = isAbsent
-		? ( { children, ...cardProps } ) => (
+		? ( { children: wrapperChildren, ...cardProps } ) => (
 				<a { ...cardProps } href="#" onClick={ addHandler }>
-					{ children }
+					{ wrapperChildren }
 				</a>
 		  )
-		: ( { children, ...cardProps } ) => <div { ...cardProps }>{ children }</div>;
+		: ( { children: wrapperChildren, ...cardProps } ) => (
+				<div { ...cardProps }>{ wrapperChildren }</div>
+		  );
 
 	return (
 		<CardWrapper className={ containerClassName }>
@@ -114,28 +117,40 @@ const ProductCard = props => {
 				<Text variant="title-medium">{ name }</Text>
 				{ icon }
 			</div>
-			<Text variant="body-small" className={ styles.description }>
-				{ description }
-			</Text>
-			<div className={ styles.actions }>
-				<ActionButton
-					{ ...props }
-					onActivate={ activateHandler }
-					onFixConnection={ fixConnectionHandler }
-					onManage={ manageHandler }
-					className={ styles.button }
-				/>
-				{ ! isAbsent && (
-					<Text variant="label" className={ statusClassName }>
-						{ flagLabel }
-					</Text>
-				) }
-			</div>
+			{
+				// If is not active, no reason to use children
+				// Since we want user to take action if isn't active
+				isActive && children ? (
+					children
+				) : (
+					<>
+						{ isAbsent ? (
+							<Text variant="body-small" className={ styles.description }>
+								{ description }
+							</Text>
+						) : (
+							<Text variant="label" className={ statusClassName }>
+								{ flagLabel }
+							</Text>
+						) }
+						<div className={ styles.actions }>
+							<ActionButton
+								{ ...props }
+								onActivate={ activateHandler }
+								onFixConnection={ fixConnectionHandler }
+								onManage={ manageHandler }
+								className={ styles.button }
+							/>
+						</div>
+					</>
+				)
+			}
 		</CardWrapper>
 	);
 };
 
 ProductCard.propTypes = {
+	children: PropTypes.node,
 	name: PropTypes.string.isRequired,
 	description: PropTypes.string.isRequired,
 	icon: PropTypes.element,
