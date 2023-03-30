@@ -116,6 +116,14 @@ class Image_CDN_Image_Sizes {
 			array( Image_CDN::class, 'filter_photon_noresize_intermediate_sizes' )
 		);
 
+		// Compatibility fix: Ensure that Jetpack's inbuilt Photon does not get in the way.
+		// No need to re-enable this filter if present, as its functionality will be handled
+		// by the Image_CDN filter added below.
+		remove_filter(
+			'intermediate_image_sizes_advanced',
+			array( 'Jetpack_Photon', 'filter_photon_noresize_intermediate_sizes' )
+		);
+
 		/** This filter is documented in wp-admin/includes/image.php */
 		$sizes = apply_filters( 'intermediate_image_sizes_advanced', self::$sizes, $this->data );
 
