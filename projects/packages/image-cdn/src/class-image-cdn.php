@@ -41,7 +41,7 @@ class Image_CDN {
 	 *
 	 * @var array Image sizes.
 	 */
-	protected static $image_sizes = null;
+	private static $image_sizes = null;
 
 	/**
 	 * Singleton implementation
