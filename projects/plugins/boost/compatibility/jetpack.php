@@ -40,32 +40,3 @@ function exclude_jetpack_likes_scripts_defer( $exclusions ) {
 }
 
 add_filter( 'jetpack_boost_render_blocking_js_exclude_handles', __NAMESPACE__ . '\exclude_jetpack_likes_scripts_defer', 10, 1 );
-
-/**
- * Disable the unpackaged photon version living in Jetpack.
- *
- * We added image CDN on boost by copying the photon functionality in Jetpack to a new package in monorepo.
- * At the time of writing, Jetpack still has the photon functionality in the Jetpack plugin. To avoid double
- * activation, we need to disable the photon functionality in Jetpack. If boost is installed, Image CDN should
- * be served instead.
- */
-function jetpack_photon_compat() {
-	remove_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
-	remove_filter( 'jetpack_photon_pre_args', 'jetpack_photon_parse_wpcom_query_args', 10, 2 );
-	remove_filter( 'jetpack_photon_skip_for_url', 'jetpack_photon_banned_domains', 9, 2 );
-	remove_filter( 'widget_text', 'jetpack_photon_support_text_widgets' );
-
-	// If photon is active, fake loading the module in Jetpack itself. This will prevent jetpack from loading
-	// the photon module, and we will use the image CDN package instead.
-	if ( \Jetpack::is_module_active( 'photon' ) ) {
-		do_action( 'jetpack_module_loaded_photon' );
-	}
-}
-
-/*
- * Remove the hooks that Jetpack uses to load photon and pretend that the module is already loaded.
- *
- * Jetpack hooks the filters as it loads. We run the compatibility file on `plugins_loaded` action.
- * So, by the time this file is loaded, Jetpack has already hooked the filters. And we can remove them.
- */
-jetpack_photon_compat();

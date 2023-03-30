@@ -117,7 +117,7 @@ class Jetpack_Boost {
 		Deactivation_Handler::init( $this->plugin_name, __DIR__ . '/admin/deactivation-dialog.php' );
 
 		// Register the core Image CDN hooks.
-		Image_CDN_Core::setup_hooks();
+		Image_CDN_Core::setup();
 	}
 
 	/**
