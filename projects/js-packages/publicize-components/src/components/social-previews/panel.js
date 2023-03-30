@@ -8,6 +8,7 @@ import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { AVAILABLE_SERVICES } from './constants';
+
 import './panel.scss';
 
 const SocialPreviewsPanel = ( { openModal } ) => (
