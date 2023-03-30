@@ -65,13 +65,35 @@ class Tracking_Pixel {
 	}
 
 	/**
+	 * Build the Stats tracking details.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @access public
+	 * @param array $data Array of data for the AMP pixel tracker.
+	 * @return string
+	 */
+	public static function build_stats_details( $data ) {
+		$data_stats_array = self::stats_array_to_string( $data );
+
+		return sprintf(
+			'_stq = window._stq || [];
+_stq.push([ "view", {%1$s} ]);
+_stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
+			$data_stats_array,
+			$data['blog'],
+			$data['post']
+		);
+	}
+
+	/**
 	 * Enqueue the Stats pixel.
 	 * Do not use this function directly, it is hooked into `wp_enqueue_scripts`.
 	 *
+	 * @access public
 	 * @return void
 	 */
 	public static function enqueue_stats_script() {
-		$data = self::build_view_data();
 		if ( self::is_amp_request() ) {
 			return;
 		}
@@ -87,15 +109,8 @@ class Tracking_Pixel {
 		// Make sure the script loads asynchronously (add a defer attribute).
 		Assets::add_async_script( 'jetpack-stats' );
 
-		$data_stats_array = self::stats_array_to_string( $data );
-		$triggers         = sprintf(
-			'_stq = window._stq || [];
-_stq.push([ "view", {%1$s} ]);
-_stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
-			$data_stats_array,
-			$data['blog'],
-			$data['post']
-		);
+		$data     = self::build_view_data();
+		$triggers = self::build_stats_details( $data );
 		wp_add_inline_script(
 			'jetpack-stats',
 			$triggers,
@@ -106,11 +121,11 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	/**
 	 * Gets the stats footer for AMP output.
 	 *
-	 * @access private
+	 * @access public
 	 * @param array $data Array of data for the AMP pixel tracker.
 	 * @return string Returns the footer to add for the Stats tracker in an AMP scenario.
 	 */
-	private static function get_amp_footer( $data ) {
+	public static function get_amp_footer( $data ) {
 		$data['host'] = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : ''; // input var ok.
 		$data['rand'] = 'RANDOM'; // AMP placeholder.
 		$data['ref']  = 'DOCUMENT_REFERRER'; // AMP placeholder.
@@ -123,6 +138,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 * Build an AMP pixel.
 	 * Do not use this function directly, it is hooked into `wp_footer`.
 	 *
+	 * @access public
 	 * @return void
 	 */
 	public static function add_amp_pixel() {
