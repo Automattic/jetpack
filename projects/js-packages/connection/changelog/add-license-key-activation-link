@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Clarified when license activation fails that a user connection is required, added a link to complete the connection, and added functionality to redirect back to license activation when the connection is done.

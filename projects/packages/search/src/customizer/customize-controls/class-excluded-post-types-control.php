@@ -36,7 +36,7 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 			__FILE__,
 			array(
 				'css_path'     => 'class-excluded-post-types-control.css',
-				'dependencies' => array( 'customize-controls' ),
+				'dependencies' => array( 'jquery', 'customize-controls' ),
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-search-pkg',
 			)

@@ -33,6 +33,10 @@
 		}
 	}
 
+	pre.stats-widget-error {
+		overflow: scroll;
+	}
+
 	/* Widget settings */
 	.js-toggle-stats_dashboard_widget_control .toggle-indicator:before {
 		content: "\f111";

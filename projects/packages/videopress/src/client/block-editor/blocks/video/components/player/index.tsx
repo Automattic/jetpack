@@ -133,11 +133,10 @@ export default function Player( {
 	}, [ html ] );
 
 	/*
-	 * Callback state handler for the video player
-	 * tied to the `message` event,
+	 * Function handler that listen to the `message` event
 	 * provided by the videopress player through the bridge.
 	 */
-	const onVideoLoadingStateHandler = useCallback( ev => {
+	const videoPlayerEventsHandler = useCallback( ( ev: MessageEvent ) => {
 		const eventName = ev?.data?.event;
 		if ( ! eventName || eventName !== 'videopress_loading_state' ) {
 			return;
@@ -157,10 +156,10 @@ export default function Player( {
 		}
 
 		const iFrameContentWindow = sandboxIframeElement.contentWindow;
-		iFrameContentWindow.addEventListener( 'message', onVideoLoadingStateHandler );
+		iFrameContentWindow.addEventListener( 'message', videoPlayerEventsHandler );
 
-		return () => iFrameContentWindow?.removeEventListener( 'message', onVideoLoadingStateHandler );
-	}, [ onVideoLoadingStateHandler, sandboxIframeElement ] );
+		return () => iFrameContentWindow?.removeEventListener( 'message', videoPlayerEventsHandler );
+	}, [ videoPlayerEventsHandler, sandboxIframeElement ] );
 
 	useEffect( () => {
 		if ( isRequestingEmbedPreview ) {

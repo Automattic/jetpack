@@ -1,4 +1,5 @@
 import { _n } from '@wordpress/i18n';
+import jQuery from 'jquery';
 
 const { ajaxUrl, connectionsUrl } = window.jetpackSocialClassicEditorConnections;
 

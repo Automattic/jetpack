@@ -59,6 +59,19 @@ trait Import {
 	}
 
 	/**
+	 * Registers the routes for the objects of the controller.
+	 *
+	 * @see WP_REST_Controller::register_rest_route()
+	 */
+	public function register_routes() {
+		register_rest_route(
+			self::$rest_namespace,
+			'/' . $this->rest_base,
+			$this->get_route_options()
+		);
+	}
+
+	/**
 	 * Adds the unique identifier to the schema array.
 	 *
 	 * @param array $schema Schema array.
