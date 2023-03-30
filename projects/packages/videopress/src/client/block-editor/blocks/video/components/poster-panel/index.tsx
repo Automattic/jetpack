@@ -417,18 +417,10 @@ export default function PosterPanel( {
 }: PosterPanelProps ): React.ReactElement {
 	const { poster, posterData } = attributes;
 
-	const [ pickFromFrame, setPickFromFrame ] = useState(
-		attributes?.posterData?.type === 'video-frame'
-	);
-	const [ previewOnHover, setPreviewOnHover ] = useState(
-		attributes?.posterData?.previewOnHover || false
-	);
-	const [ previewAtTime, setPreviewAtTime ] = useState(
-		attributes?.posterData?.previewAtTime || posterData?.atTime || 0
-	);
-	const [ previewLoopDuration, setPreviewLoopDuration ] = useState(
-		attributes?.posterData?.previewLoopDuration || DEFAULT_LOOP_DURATION
-	);
+	const pickPosterFromFrame = attributes?.posterData?.type === 'video-frame';
+	const previewOnHover = attributes?.posterData?.previewOnHover || false;
+	const previewAtTime = attributes?.posterData?.previewAtTime || posterData?.atTime || 0;
+	const previewLoopDuration = attributes?.posterData?.previewLoopDuration || DEFAULT_LOOP_DURATION;
 
 	const videoDuration = attributes?.duration;
 
@@ -438,7 +430,6 @@ export default function PosterPanel( {
 
 	const switchPosterSource = useCallback(
 		( shouldPickFromFrame: boolean ) => {
-			setPickFromFrame( shouldPickFromFrame );
 			setAttributes( {
 				// Extend the posterData attr with the new type.
 				posterData: {
@@ -455,8 +446,6 @@ export default function PosterPanel( {
 
 	const onPreviewOnHoverChange = useCallback(
 		( shouldPreviewOnHover: boolean ) => {
-			setPreviewOnHover( shouldPreviewOnHover );
-
 			setAttributes( {
 				posterData: {
 					...attributes.posterData,
@@ -469,7 +458,6 @@ export default function PosterPanel( {
 
 	const onAtTimeChange = useCallback(
 		( atTime: number ) => {
-			setPreviewAtTime( atTime );
 			setAttributes( {
 				posterData: {
 					...attributes.posterData,
@@ -482,13 +470,11 @@ export default function PosterPanel( {
 
 	const onLoopDurationChange = useCallback(
 		( loopDuration: number ) => {
-			setPreviewLoopDuration( loopDuration );
 			let previewStart = previewAtTime;
 
 			// Adjust the starting point if the loop duration is too long
 			if ( previewAtTime + loopDuration > videoDuration ) {
 				previewStart = videoDuration - loopDuration;
-				setPreviewAtTime( previewStart );
 			}
 
 			setAttributes( {
@@ -525,12 +511,14 @@ export default function PosterPanel( {
 		<PanelBody title={ panelTitle } className="poster-panel" initialOpen={ false }>
 			<ToggleControl
 				label={ __( 'Pick from video frame', 'jetpack-videopress-pkg' ) }
-				checked={ pickFromFrame }
+				checked={ pickPosterFromFrame }
 				onChange={ switchPosterSource }
 			/>
 
 			<div
-				className={ classnames( 'poster-panel__frame-wrapper', { 'is-selected': pickFromFrame } ) }
+				className={ classnames( 'poster-panel__frame-wrapper', {
+					'is-selected': pickPosterFromFrame,
+				} ) }
 			>
 				<VideoFramePicker
 					isGeneratingPoster={ isGeneratingPoster }
@@ -551,7 +539,7 @@ export default function PosterPanel( {
 
 			<div
 				className={ classnames( 'poster-panel__image-wrapper', {
-					'is-selected': ! pickFromFrame,
+					'is-selected': ! pickPosterFromFrame,
 				} ) }
 			>
 				<PosterDropdown attributes={ attributes } setAttributes={ setAttributes } />
