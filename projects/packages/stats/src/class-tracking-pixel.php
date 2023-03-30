@@ -120,6 +120,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 
 	/**
 	 * Build an AMP pixel.
+	 * Do not use this function directly, it is hooked into `wp_footer`.
 	 *
 	 * @return void
 	 */
