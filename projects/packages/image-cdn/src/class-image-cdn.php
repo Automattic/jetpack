@@ -349,7 +349,7 @@ final class Image_CDN {
 
 				// Support Automattic's Lazy Load plugin.
 				// Can't modify $tag yet as we need unadulterated version later.
-				if ( preg_match( '#data-lazy-src=["|\'](.+?)["|\']#i', $images['img_tag'][ $index ], $lazy_load_src ) ) {
+				if ( preg_match( '#data-lazy-src=["\'](.+?)["\']#i', $images['img_tag'][ $index ], $lazy_load_src ) ) {
 					$placeholder_src_orig = $src;
 					$placeholder_src      = $placeholder_src_orig;
 					$src_orig             = $lazy_load_src[1];
