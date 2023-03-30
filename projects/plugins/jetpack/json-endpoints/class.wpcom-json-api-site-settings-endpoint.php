@@ -631,8 +631,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'launchpad_checklist_tasks_statuses':
 					$launchpad_checklist_tasks_statuses_option = get_option( 'launchpad_checklist_tasks_statuses' );
-
-					$sanitized_value = array_filter(
+					$filtered_input_array                      = array_filter(
 						(array) $value,
 						function ( $array_value ) {
 							return is_bool( $array_value );
@@ -641,12 +640,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					);
 
 					if ( ! is_array( $launchpad_checklist_tasks_statuses_option ) ) {
-						$launchpad_checklist_tasks_statuses_updated_option = $sanitized_value;
+						$launchpad_checklist_tasks_statuses_option = array();
 					}
-					$launchpad_checklist_tasks_statuses_updated_option = array_merge( $launchpad_checklist_tasks_statuses_option, $sanitized_value );
+					$launchpad_checklist_tasks_statuses_option = array_merge( $launchpad_checklist_tasks_statuses_option, $filtered_input_array );
 
-					if ( update_option( $key, $launchpad_checklist_tasks_statuses_updated_option ) ) {
-						$updated[ $key ] = $launchpad_checklist_tasks_statuses_updated_option;
+					if ( update_option( $key, $launchpad_checklist_tasks_statuses_option ) ) {
+						$updated[ $key ] = $launchpad_checklist_tasks_statuses_option;
 					}
 					break;
 				case 'jetpack_protect_whitelist':
