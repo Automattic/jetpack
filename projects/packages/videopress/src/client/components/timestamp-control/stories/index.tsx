@@ -1,6 +1,8 @@
 /**
  * Internal dependencies
  */
+import { RangeControl } from '@wordpress/components';
+import { useState } from 'react';
 import TimestampControl from '..';
 import Doc from './TimestampControl.mdx';
 /**
@@ -56,4 +58,29 @@ disabled.args = {
 	max: 3600 * 1000 * 2, // 2 hours
 	value: 3600 * 1000 + 15 * 60 * 1000 + 43 * 1000, // 1.5 hours
 	disabled: true,
+};
+
+const ChangingValueTemplate: ComponentStory< typeof TimestampControl > = args => {
+	const [ value, setValue ] = useState( args.value );
+
+	return (
+		<>
+			<TimestampControl { ...args } value={ value } onDebounceChange={ setValue } />
+			<br />
+			<RangeControl
+				value={ value }
+				onChange={ setValue }
+				max={ args.max }
+				help="Change the value of the <TimestampControl /> above component from here."
+			/>
+		</>
+	);
+};
+
+export const changingValueExternally = ChangingValueTemplate.bind( {} );
+changingValueExternally.args = {
+	value: 3500, // 3.5 seconds
+	max: 1000 * 5, // five seconds
+	decimalPlaces: 2,
+	wait: 100,
 };

@@ -8,7 +8,7 @@ import {
 	BaseControl,
 	useBaseControlProps,
 } from '@wordpress/components';
-import { useCallback, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import classNames from 'classnames';
 /**
  * Internal dependencies
@@ -239,6 +239,10 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 
 	const debounceTimer = useRef< NodeJS.Timeout >();
 	const [ controledValue, setControledValue ] = useState( value );
+
+	useEffect( () => {
+		setControledValue( value );
+	}, [ value ] );
 
 	// Check and add a fallback for the `useBaseControlProps` hook.
 	const { baseControlProps } = useBaseControlProps?.( props ) || {};

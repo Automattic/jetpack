@@ -99,3 +99,15 @@ Time, in milliseconds, for every step of the Range control.
 
 A boolean property that controls whether the component should automatically
 hide the hours, and minutes inputs that are not needed based on the `max` value.
+
+## Delegate the control value
+
+By default, the component will handle its value internally through a local state. The `value` property will define its initial value.
+However, updating the `value` property is possible if you need it. The component will follow the new value provided.
+
+In the example below, it's possible to update the Timestamp value internally, but also it's doable by using the additional range control.
+
+The story 
+<Canvas>
+  <Story id="packages-videopress-timestamp-control--changing-value-externally" />
+</Canvas>
