@@ -424,8 +424,8 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 							// } Cycle through each field and display a mapping option
 							// } Using first line of import
-							$firstLine      = $file_details['csv_data'][0];
-							$firstLineParts = explode( ',', $firstLine );
+							$first_line       = $file_details['csv_data'][0];
+							$first_line_parts = str_getcsv( $first_line );
 
 							// } Retrieve possible map fields from fields model
 							$possibleFields = array();
@@ -443,7 +443,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 							// } Loop
 							$indx = 1;
-						foreach ( $firstLineParts as $userField ) {
+						foreach ( $first_line_parts as $userField ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							// } Clean user field - ""
 							if ( substr( $userField, 0, 1 ) == '"' && substr( $userField, -1 ) == '"' ) {
@@ -521,8 +521,8 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 						// Cycle through each field
 						// Using first line of import
-						$firstLine      = $file_details['csv_data'][0];
-						$firstLineParts = explode( ',', $firstLine );
+						$first_line       = $file_details['csv_data'][0];
+						$first_line_parts = str_getcsv( $first_line );
 
 						foreach ( $file_details['field_map'] as $fieldID => $fieldTarget ) {
 
@@ -536,8 +536,8 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 							}
 
 							$fromStr = '';
-							if ( isset( $firstLineParts[ $fieldID - 1 ] ) ) {
-								$fromStr = $firstLineParts[ $fieldID - 1 ];
+							if ( isset( $first_line_parts[ $fieldID - 1 ] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+								$fromStr = $first_line_parts[ $fieldID - 1 ]; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							}
 
 							// Clean user field - ""
@@ -629,7 +629,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 							} else {
 
 								// } split
-								$lineParts = explode( ',', $line );
+								$lineParts = str_getcsv( $line ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								// debug echo '<pre>'; print_r(array($lineParts,$fieldMap)); echo '</pre>';
 
 								// } build arr
