@@ -505,7 +505,7 @@ export default function PosterPanel( {
 }: PosterPanelProps ): React.ReactElement {
 	const { poster, posterData } = attributes;
 
-	const pickFromFrame = attributes?.posterData?.type === 'video-frame';
+	const pickPosterFromFrame = attributes?.posterData?.type === 'video-frame';
 	const previewOnHover = attributes?.posterData?.previewOnHover || false;
 	const previewAtTime = attributes?.posterData?.previewAtTime || posterData?.atTime || 0;
 	const previewLoopDuration = attributes?.posterData?.previewLoopDuration || DEFAULT_LOOP_DURATION;
@@ -599,12 +599,14 @@ export default function PosterPanel( {
 		<PanelBody title={ panelTitle } className="poster-panel" initialOpen={ false }>
 			<ToggleControl
 				label={ __( 'Pick from video frame', 'jetpack-videopress-pkg' ) }
-				checked={ pickFromFrame }
+				checked={ pickPosterFromFrame }
 				onChange={ switchPosterSource }
 			/>
 
 			<div
-				className={ classnames( 'poster-panel__frame-wrapper', { 'is-selected': pickFromFrame } ) }
+				className={ classnames( 'poster-panel__frame-wrapper', {
+					'is-selected': pickPosterFromFrame,
+				} ) }
 			>
 				<VideoFramePicker
 					isGeneratingPoster={ isGeneratingPoster }
@@ -625,7 +627,7 @@ export default function PosterPanel( {
 
 			<div
 				className={ classnames( 'poster-panel__image-wrapper', {
-					'is-selected': ! pickFromFrame,
+					'is-selected': ! pickPosterFromFrame,
 				} ) }
 			>
 				<PosterDropdown attributes={ attributes } setAttributes={ setAttributes } />
