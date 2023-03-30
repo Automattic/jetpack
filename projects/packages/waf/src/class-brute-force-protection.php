@@ -151,8 +151,8 @@ class Brute_Force_Protection {
 	 */
 	public static function initialize() {
 
-		// Older versions of Jetpack might have the older pre-package implementation of this feature, let's try to detect it and return early so both don't run.
-		if ( class_exists( 'Jetpack_Protect_Module' ) ) {
+		// Let's try to detect older versions of Jetpack that don't use this package for the Brute Force protection feature and return early so we don't run twice.
+		if ( defined( 'JETPACK__VERSION' ) && version_compare( JETPACK__VERSION, '12', '<' ) ) {
 			return;
 		}
 
