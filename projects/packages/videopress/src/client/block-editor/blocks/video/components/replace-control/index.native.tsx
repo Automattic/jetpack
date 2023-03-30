@@ -6,10 +6,10 @@ import { ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { replace } from '@wordpress/icons';
-import { isURL, getProtocol } from '@wordpress/url';
 /**
  * Internal dependencies
  */
+import isLocalFile from '../../../../utils/is-local-file.native';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 
 import './style.scss';
@@ -34,12 +34,7 @@ const ReplaceControl = ( {
 	 */
 	const selectMediaHandler = useCallback(
 		media => {
-			if (
-				media?.url &&
-				isURL( media?.url ) &&
-				getProtocol( media?.url ) === 'file:' &&
-				media?.type
-			) {
+			if ( isLocalFile( media?.url ) && media?.type ) {
 				onUploadFileStart( media );
 				return;
 			}
