@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { pick } from 'lodash';
+import { isNil, omitBy, pick } from 'lodash';
 
 /**
  * Fetches responses from backend (API)
@@ -13,7 +13,7 @@ import { pick } from 'lodash';
  */
 export const fetchResponses = query => {
 	const queryString = new URLSearchParams(
-		pick( query, [ 'limit', 'offset', 'search', 'status', 'parent_id', 'month' ] )
+		pick( omitBy( query, isNil ), [ 'limit', 'offset', 'search', 'status', 'parent_id', 'month' ] )
 	).toString();
 
 	return apiFetch( { path: `/wpcom/v2/forms/responses?${ queryString }` } );
