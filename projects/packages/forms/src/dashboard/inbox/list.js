@@ -1,3 +1,4 @@
+import { Button } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { noop } from 'lodash';
@@ -16,6 +17,11 @@ const COLUMNS = [
 	{
 		key: 'source',
 		label: __( 'Source', 'jetpack-forms' ),
+		component: Button,
+		getProps: item => ( {
+			href: item.entry_permalink,
+			variant: 'link',
+		} ),
 	},
 ];
 
@@ -66,12 +72,14 @@ const InboxList = ( {
 				onSelectionChange={ noop }
 			/>
 
-			<PageNavigation
-				currentPage={ currentPage }
-				pages={ pages }
-				onSelectPage={ setCurrentPage }
-				expandedRange={ 2 }
-			/>
+			{ pages > 1 && (
+				<PageNavigation
+					currentPage={ currentPage }
+					pages={ pages }
+					onSelectPage={ setCurrentPage }
+					expandedRange={ 2 }
+				/>
+			) }
 		</>
 	);
 };

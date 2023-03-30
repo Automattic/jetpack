@@ -26,4 +26,8 @@
 
 .product-interstitial__license-activation-link {
 	white-space: nowrap;
+
+	& > span {
+		font-size: var(--font-body-small);
+	}
 }
