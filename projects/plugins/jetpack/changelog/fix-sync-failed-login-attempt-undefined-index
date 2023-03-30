@@ -1,0 +1,5 @@
+Significance: patch
+Type: bugfix
+Comment: Bug fix: reintroduce and deprecate a class to keep methods available
+
+
