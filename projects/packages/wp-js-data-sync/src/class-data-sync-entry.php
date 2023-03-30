@@ -76,6 +76,8 @@ class Data_Sync_Entry {
 			if ( $set ) {
 				do_action( 'jetpack_ds_set', $this->namespace, $this->key, $value );
 			}
+
+			return $set;
 		}
 
 		return false;
