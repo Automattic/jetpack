@@ -24,6 +24,7 @@
 }
 
 .jp-forms__table-cell {
+	border-bottom: 1px solid #dcdcde;
 	box-sizing: border-box;
 	display: table-cell;
 	font-size: 16px;
@@ -34,32 +35,24 @@
 	text-align: left;
 	transition: background-color .1s ease-out, opacity .1s ease-out;
 	vertical-align: middle;
+	max-width: 0;
 
-	// Max-width is required on all columns for text-overflow: ellipsis; to work on any.
-	// Hence setting this here to a conservatively high number.
-	max-width: 600px;
+	@media (max-width: 600px) {
+		padding: 8px;
+	}
+
+	.jp-forms__table :last-child & {
+		border-bottom: unset;
+	}
 
 	&:first-child {
+		min-width: 62px;
 		padding: 0 20px;
 	}
 
-	.jp-forms__table-item:hover &,
-	.jp-forms__table-item.is-active & {
-		background-color: var(--color-neutral-0);
-	}
-
-	.jp-forms__table-item.is-selected & {
-		background-color: var(--color-highlight-0);
-	}
-
-	.jp-forms__table-item.is-selected:hover &,
-	.jp-forms__table-item.is-selected.is-active & {
-		background-color: var(--color-highlight-5);
-	}
-
-	.jp-forms__table-header &,
-	.jp-forms__table-header:hover & {
-		background-color: transparent;
+	.components-button.is-link {
+		font-size: inherit;
+		color: inherit;
 	}
 }
 

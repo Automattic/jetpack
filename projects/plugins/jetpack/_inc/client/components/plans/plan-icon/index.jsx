@@ -46,6 +46,7 @@ import {
 	PLAN_JETPACK_COMPLETE_MONTHLY,
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_VIDEOPRESS_MONTHLY,
+	PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME,
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
@@ -120,6 +121,8 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_SOCIAL_BASIC_MONTHLY ]: '/products/product-jetpack-social.svg',
 	[ PLAN_JETPACK_SOCIAL_ADVANCED ]: '/products/product-jetpack-social.svg',
 	[ PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY ]: '/products/product-jetpack-social.svg',
+	[ PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME ]: '/plans/jetpack-golden-token.svg',
+
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
 	[ PLAN_JETPACK_BACKUP_DAILY ]: '/products/product-jetpack-backup.svg',

@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Waf;
 
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 use WP_Error;
 
 /**
@@ -46,6 +47,9 @@ class Waf_Initializer {
 
 		// Run the WAF
 		Waf_Runner::initialize();
+
+		// Run brute force protection
+		Brute_Force_Protection::initialize();
 	}
 
 	/**
@@ -64,6 +68,9 @@ class Waf_Initializer {
 			return $e->get_wp_error();
 		}
 
+		$brute_force_protection = Brute_Force_Protection::instance();
+		$brute_force_protection->on_activation();
+
 		return true;
 	}
 
@@ -78,6 +85,9 @@ class Waf_Initializer {
 		} catch ( Waf_Exception $e ) {
 			return $e->get_wp_error();
 		}
+
+		$brute_force_protection = Brute_Force_Protection::instance();
+		$brute_force_protection->on_deactivation();
 
 		return true;
 	}
@@ -139,6 +149,8 @@ class Waf_Initializer {
 					return $e->get_wp_error();
 				}
 			}
+
+			Waf_Compatibility::run_compatibility_migrations();
 
 			Waf_Constants::define_mode();
 			if ( ! Waf_Runner::is_allowed_mode( JETPACK_WAF_MODE ) ) {

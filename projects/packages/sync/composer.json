@@ -8,6 +8,7 @@
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-password-checker": "@dev",
+		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},

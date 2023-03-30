@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import Button from 'components/button';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
@@ -115,7 +115,7 @@ class DashSearch extends Component {
 						callToAction={
 							isSearchNewPricingLaunched202208()
 								? __( 'Start for free', 'jetpack' )
-								: __( 'Upgrade', 'jetpack' )
+								: _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' )
 						}
 						title={ SEARCH_DESCRIPTION }
 						disableHref="false"
