@@ -53,7 +53,6 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 				className="jetpack-social-previews__modal-previews"
 				tabs={ tabs }
 				initialTabName={ isTweetStorm ? 'twitter' : null }
-				orientation="vertical"
 			>
 				{ tab => (
 					<div>
