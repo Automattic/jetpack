@@ -1,10 +1,13 @@
+import apiFetch from '@wordpress/api-fetch';
+import { REST_API_VIDEOPRESS_FEATURED_STATS } from '../constants';
+
 /**
- * Fetches the stats for VideoPress and transform it to an usable format.
+ * Fetches the stats for VideoPress.
  *
  * @returns {object} the stats for VideoPress
  */
 const videoPressStatsResolver = async () => {
-	return { views: 123 };
+	return apiFetch( { path: REST_API_VIDEOPRESS_FEATURED_STATS } );
 };
 
 export default videoPressStatsResolver;
