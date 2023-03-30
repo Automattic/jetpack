@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Disregard post_status when calculating available filters for form responses.
