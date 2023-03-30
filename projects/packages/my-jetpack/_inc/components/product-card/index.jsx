@@ -1,6 +1,7 @@
 import { Button, Text } from '@automattic/jetpack-components';
+import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, moreVertical } from '@wordpress/icons';
+import { arrowUp, external, moreVertical } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
@@ -15,6 +16,49 @@ const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ERROR ]: __( 'Error', 'jetpack-my-jetpack' ),
 };
+
+/* eslint-disable react/jsx-no-bind */
+const Menu = () => {
+	return (
+		<Dropdown
+			placement="bottom right"
+			className={ styles.dropdown }
+			popoverProps={ { noArrow: false } }
+			renderToggle={ ( { isOpen, onToggle } ) => (
+				<Button
+					variant="tertiary"
+					size="small"
+					icon={ moreVertical }
+					onClick={ onToggle }
+					aria-expanded={ isOpen }
+				/>
+			) }
+			renderContent={ ( { onClose } ) => (
+				<div style={ { minWidth: 224 } }>
+					<Button
+						weight="regular"
+						fullWidth
+						variant="tertiary"
+						icon={ arrowUp }
+						onClick={ onClose }
+					>
+						{ __( 'Upload', 'jetpack-my-jetpack' ) }
+					</Button>
+					<Button
+						weight="regular"
+						fullWidth
+						variant="tertiary"
+						icon={ external }
+						onClick={ onClose }
+					>
+						{ __( 'Manage', 'jetpack-my-jetpack' ) }
+					</Button>
+				</div>
+			) }
+		/>
+	);
+};
+/* eslint-enable react/jsx-no-bind */
 
 const ProductCard = props => {
 	const {
@@ -119,7 +163,7 @@ const ProductCard = props => {
 					<Text variant="title-medium">{ name }</Text>
 					{ icon }
 				</div>
-				<Button icon={ <Icon icon={ moreVertical } /> } variant="tertiary" size="small" />
+				<Menu />
 			</div>
 			{
 				// If is not active, no reason to use children
