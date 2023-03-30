@@ -37,19 +37,6 @@ class Global_Style extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Registers the routes for the objects of the controller.
-	 *
-	 * @see WP_REST_Posts_Controller::register_rest_route()
-	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			'/' . $this->rest_base,
-			$this->get_route_options()
-		);
-	}
-
-	/**
 	 * Adds the schema from additional fields to a schema array.
 	 *
 	 * The type of object is inferred from the passed schema.

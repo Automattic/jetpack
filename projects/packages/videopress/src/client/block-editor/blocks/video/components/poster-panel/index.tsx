@@ -3,6 +3,8 @@
  */
 import { MediaUploadCheck, MediaUpload } from '@wordpress/block-editor';
 import {
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalNumberControl as NumberControl,
 	MenuItem,
 	PanelBody,
 	NavigableMenu,
@@ -23,6 +25,7 @@ import classnames from 'classnames';
 import TimestampControl from '../../../../../components/timestamp-control';
 import { getVideoPressUrl } from '../../../../../lib/url';
 import { usePreview } from '../../../../hooks/use-preview';
+import useVideoPlayer from '../../../../hooks/use-video-player';
 import { VIDEO_POSTER_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { VideoPosterCard } from '../poster-image-block-control';
 import './style.scss';
@@ -32,6 +35,9 @@ import './style.scss';
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
 import type { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import type React from 'react';
+
+const MAX_LOOP_DURATION = 30 * 1000;
+const DEFAULT_LOOP_DURATION = 10 * 1000;
 
 /*
  * Check whether video frame poster extension is enabled.
@@ -50,9 +56,9 @@ export const isVideoFramePosterEnabled = () =>
 // Global scripts array to be run in the Sandbox context.
 const sandboxScripts = [];
 
-// Populate scripts array with videopresAjaxURLBlob blobal var.
+// Populate scripts array with videopressAjaxURLBlob blobal var.
 if ( window.videopressAjax ) {
-	const videopresAjaxURLBlob = new Blob(
+	const videopressAjaxURLBlob = new Blob(
 		[
 			`var videopressAjax = ${ JSON.stringify( {
 				...window.videopressAjax,
@@ -66,7 +72,7 @@ if ( window.videopressAjax ) {
 
 	// Token bridge script
 	sandboxScripts.push(
-		URL.createObjectURL( videopresAjaxURLBlob ),
+		URL.createObjectURL( videopressAjaxURLBlob ),
 		window.videopressAjax.bridgeUrl
 	);
 }
@@ -95,9 +101,9 @@ export function PosterDropdown( {
 			setAttributes( {
 				poster: image.url,
 
-				// Extend the posterSource object to include the media library id and url.
-				posterSource: {
-					...attributes.posterSource,
+				// Extend the posterData object to include the media library id and url.
+				posterData: {
+					...attributes.posterData,
 					type: 'media-library',
 					id: image.id,
 					url: image.url,
@@ -190,8 +196,20 @@ export function PosterDropdown( {
 	);
 }
 
-const getIframeWindowFromRef = ( iFrameRef ): Window | null => {
-	return iFrameRef?.current?.querySelector( '.components-sandbox' )?.contentWindow;
+/**
+ * Return the (content) Window object of the iframe,
+ * given the iframe's ref.
+ *
+ * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - iframe ref
+ * @returns {Window | null}	                                     Window object of the iframe
+ */
+export const getIframeWindowFromRef = (
+	iFrameRef: React.MutableRefObject< HTMLDivElement >
+): Window | null => {
+	const iFrame: HTMLIFrameElement = iFrameRef?.current?.querySelector(
+		'iframe.components-sandbox'
+	);
+	return iFrame?.contentWindow;
 };
 
 type PosterFramePickerProps = {
@@ -215,20 +233,17 @@ function VideoFramePicker( {
 }: PosterFramePickerProps ): React.ReactElement {
 	const [ timestamp, setTimestamp ] = useState( atTime );
 	const [ duration, setDuration ] = useState( 0 );
-	const [ playerIsReady, setPlayerIsReady ] = useState( false );
 	const playerWrapperRef = useRef< HTMLDivElement >( null );
 
 	const url = getVideoPressUrl( guid, {
-		autoplay: true, // Hack 1/2: Set autoplay true to be able to control the video.
+		autoplay: true, // Set `autoplay` and `muted` true to be able to control the video.
+		muted: true,
 		controls: false,
 		loop: false,
-		muted: true,
 	} );
 
 	const { preview = { html: null }, isRequestingEmbedPreview } = usePreview( url );
 	const { html } = preview;
-
-	const playerState = useRef< 'not-rendered' | 'loaded' | 'has-auto-played' >( 'not-rendered' );
 
 	/**
 	 * Handler function to deal with the communication
@@ -238,7 +253,7 @@ function VideoFramePicker( {
 	 * @param {MessageEvent} event - Message event
 	 */
 	function listenEventsHandler( event: MessageEvent ) {
-		const { data: eventData = {}, source } = event;
+		const { data: eventData = {} } = event;
 		const { event: eventName } = event?.data || {};
 
 		// Pick and store the video duration in a local state.
@@ -247,27 +262,11 @@ function VideoFramePicker( {
 				setDuration( eventData.durationMs );
 			}
 		}
-
-		// Detect when the video has been loaded.
-		if ( eventName === 'videopress_loading_state' && eventData.state === 'loaded' ) {
-			playerState.current = 'loaded';
-		}
-
-		// Hack 2/2: Pause the video right after it has been auto-loaded.
-		if ( eventName === 'videopress_playing' && playerState.current === 'loaded' ) {
-			playerState.current = 'has-auto-played';
-
-			// Pause and playback the video to ensure the video is at the desired time.
-			source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
-			source.postMessage(
-				{ event: 'videopress_action_set_currenttime', currentTime: atTime / 1000 },
-				{ targetOrigin: '*' }
-			);
-
-			// Here we consider the video as ready to be controlled.
-			setPlayerIsReady( true );
-		}
 	}
+
+	const { playerIsReady } = useVideoPlayer( playerWrapperRef, isRequestingEmbedPreview, {
+		atTime,
+	} );
 
 	// Listen player events.
 	useEffect( () => {
@@ -335,6 +334,76 @@ function VideoFramePicker( {
 	);
 }
 
+type VideoHoverPreviewControlProps = {
+	previewOnHover?: boolean;
+	previewAtTime?: number;
+	loopDuration?: number;
+	videoDuration: number;
+	onPreviewOnHoverChange: ( previewOnHover: boolean ) => void;
+	onAtTimeChange: ( timestamp: number ) => void;
+	onLoopDurationChange: ( duration: number ) => void;
+};
+
+/**
+ * React component to select the video preview options when the user hovers the video
+ *
+ * @param {VideoHoverPreviewControlProps} props - Component properties
+ * @returns { React.ReactElement}                 React component
+ */
+function VideoHoverPreviewControl( {
+	previewOnHover = false,
+	previewAtTime = 0,
+	loopDuration = DEFAULT_LOOP_DURATION,
+	videoDuration,
+	onPreviewOnHoverChange,
+	onAtTimeChange,
+	onLoopDurationChange,
+}: VideoHoverPreviewControlProps ): React.ReactElement {
+	const [ maxStartingPoint, setMaxStartingPoint ] = useState( videoDuration - loopDuration );
+
+	useEffect( () => {
+		setMaxStartingPoint( videoDuration - loopDuration );
+	}, [ videoDuration, loopDuration ] );
+
+	return (
+		<>
+			<ToggleControl
+				className="poster-panel__preview-toggle"
+				label={ __( 'Video preview on hover', 'jetpack-videopress-pkg' ) }
+				checked={ previewOnHover }
+				onChange={ onPreviewOnHoverChange }
+			/>
+
+			{ previewOnHover && (
+				<>
+					<TimestampControl
+						label={ __( 'Starting point', 'jetpack-videopress-pkg' ) }
+						max={ maxStartingPoint }
+						decimalPlaces={ 2 }
+						value={ previewAtTime }
+						onChange={ onAtTimeChange }
+					/>
+
+					<NumberControl
+						className="poster-panel__loop-duration"
+						min={ 0 }
+						max={ Math.min( MAX_LOOP_DURATION, videoDuration ) / 1000 }
+						step={ 1 }
+						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
+						spinControls="none"
+						placeholder="00"
+						suffix={ __( 'sec', 'jetpack-videopress-pkg' ) }
+						value={ loopDuration / 1000 }
+						onChange={ duration => {
+							onLoopDurationChange( Math.max( Math.min( MAX_LOOP_DURATION, duration * 1000 ), 0 ) );
+						} }
+					/>
+				</>
+			) }
+		</>
+	);
+}
+
 /**
  * Sidebar Control component.
  *
@@ -346,26 +415,74 @@ export default function PosterPanel( {
 	setAttributes,
 	isGeneratingPoster,
 }: PosterPanelProps ): React.ReactElement {
-	const { poster, posterSource } = attributes;
-	const [ pickFromFrame, setPickFromFrame ] = useState(
-		attributes?.posterSource?.type === 'video-frame'
-	);
+	const { poster, posterData } = attributes;
+
+	const pickPosterFromFrame = attributes?.posterData?.type === 'video-frame';
+	const previewOnHover = attributes?.posterData?.previewOnHover || false;
+	const previewAtTime = attributes?.posterData?.previewAtTime || posterData?.atTime || 0;
+	const previewLoopDuration = attributes?.posterData?.previewLoopDuration || DEFAULT_LOOP_DURATION;
+
+	const videoDuration = attributes?.duration;
+
 	const onRemovePoster = () => {
-		setAttributes( { poster: '', posterSource: { ...attributes.posterSource, url: '' } } );
+		setAttributes( { poster: '', posterData: { ...attributes.posterData, url: '' } } );
 	};
 
 	const switchPosterSource = useCallback(
 		( shouldPickFromFrame: boolean ) => {
-			setPickFromFrame( shouldPickFromFrame );
 			setAttributes( {
-				// Extend the posterSource attr with the new type.
-				posterSource: {
-					...attributes.posterSource,
+				// Extend the posterData attr with the new type.
+				posterData: {
+					...attributes.posterData,
 					type: shouldPickFromFrame ? 'video-frame' : 'media-library',
 				},
 
 				// Clean the poster URL when it should be picked from the video frame.
-				poster: shouldPickFromFrame ? '' : attributes.posterSource.url || '',
+				poster: shouldPickFromFrame ? '' : attributes.posterData.url || '',
+			} );
+		},
+		[ attributes ]
+	);
+
+	const onPreviewOnHoverChange = useCallback(
+		( shouldPreviewOnHover: boolean ) => {
+			setAttributes( {
+				posterData: {
+					...attributes.posterData,
+					previewOnHover: shouldPreviewOnHover,
+				},
+			} );
+		},
+		[ attributes ]
+	);
+
+	const onAtTimeChange = useCallback(
+		( atTime: number ) => {
+			setAttributes( {
+				posterData: {
+					...attributes.posterData,
+					previewAtTime: atTime,
+				},
+			} );
+		},
+		[ attributes ]
+	);
+
+	const onLoopDurationChange = useCallback(
+		( loopDuration: number ) => {
+			let previewStart = previewAtTime;
+
+			// Adjust the starting point if the loop duration is too long
+			if ( previewAtTime + loopDuration > videoDuration ) {
+				previewStart = videoDuration - loopDuration;
+			}
+
+			setAttributes( {
+				posterData: {
+					...attributes.posterData,
+					previewLoopDuration: loopDuration,
+					previewAtTime: previewStart,
+				},
 			} );
 		},
 		[ attributes ]
@@ -386,25 +503,31 @@ export default function PosterPanel( {
 		);
 	}
 
+	const panelTitle = isVideoFramePosterEnabled()
+		? __( 'Poster and preview', 'jetpack-videopress-pkg' )
+		: __( 'Poster', 'jetpack-videopress-pkg' );
+
 	return (
-		<PanelBody title={ __( 'Poster', 'jetpack-videopress-pkg' ) } className="poster-panel">
+		<PanelBody title={ panelTitle } className="poster-panel" initialOpen={ false }>
 			<ToggleControl
 				label={ __( 'Pick from video frame', 'jetpack-videopress-pkg' ) }
-				checked={ pickFromFrame }
+				checked={ pickPosterFromFrame }
 				onChange={ switchPosterSource }
 			/>
 
 			<div
-				className={ classnames( 'poster-panel__frame-wrapper', { 'is-selected': pickFromFrame } ) }
+				className={ classnames( 'poster-panel__frame-wrapper', {
+					'is-selected': pickPosterFromFrame,
+				} ) }
 			>
 				<VideoFramePicker
 					isGeneratingPoster={ isGeneratingPoster }
 					guid={ attributes?.guid }
-					atTime={ posterSource?.atTime }
+					atTime={ posterData?.atTime }
 					onVideoFrameSelect={ timestamp => {
 						setAttributes( {
-							posterSource: {
-								...attributes.posterSource,
+							posterData: {
+								...attributes.posterData,
 								type: 'video-frame',
 								atTime: timestamp,
 							},
@@ -416,7 +539,7 @@ export default function PosterPanel( {
 
 			<div
 				className={ classnames( 'poster-panel__image-wrapper', {
-					'is-selected': ! pickFromFrame,
+					'is-selected': ! pickPosterFromFrame,
 				} ) }
 			>
 				<PosterDropdown attributes={ attributes } setAttributes={ setAttributes } />
@@ -429,6 +552,16 @@ export default function PosterPanel( {
 					</MenuItem>
 				) }
 			</div>
+
+			<VideoHoverPreviewControl
+				previewOnHover={ previewOnHover }
+				previewAtTime={ previewAtTime }
+				loopDuration={ previewLoopDuration }
+				videoDuration={ videoDuration }
+				onPreviewOnHoverChange={ onPreviewOnHoverChange }
+				onAtTimeChange={ onAtTimeChange }
+				onLoopDurationChange={ onLoopDurationChange }
+			/>
 		</PanelBody>
 	);
 }

@@ -538,6 +538,9 @@ importers:
       '@wordpress/icons':
         specifier: 9.19.0
         version: 9.19.0
+      classnames:
+        specifier: 2.3.1
+        version: 2.3.1
       prop-types:
         specifier: 15.7.2
         version: 15.7.2
@@ -693,6 +696,9 @@ importers:
       '@wordpress/icons':
         specifier: 9.19.0
         version: 9.19.0
+      '@wordpress/notices':
+        specifier: 3.28.0
+        version: 3.28.0(react@18.2.0)
       classnames:
         specifier: 2.3.1
         version: 2.3.1
@@ -1567,6 +1573,8 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.76.0)
 
+  projects/packages/image-cdn: {}
+
   projects/packages/import: {}
 
   projects/packages/jetpack-mu-wpcom: {}
@@ -1624,6 +1632,9 @@ importers:
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../../js-packages/api
+      '@automattic/jetpack-base-styles':
+        specifier: workspace:*
+        version: link:../../js-packages/base-styles
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
@@ -1642,6 +1653,9 @@ importers:
       '@wordpress/data':
         specifier: 8.5.0
         version: 8.5.0(react@18.2.0)
+      '@wordpress/date':
+        specifier: 4.28.0
+        version: 4.28.0
       '@wordpress/element':
         specifier: 5.5.0
         version: 5.5.0

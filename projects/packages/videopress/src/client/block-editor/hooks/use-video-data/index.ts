@@ -58,6 +58,7 @@ export default function useVideoData( {
 				const filename = response.original?.split( '/' )?.at( -1 );
 
 				setVideoData( {
+					duration: response.duration,
 					allow_download: response.allow_download,
 					post_id: response.post_id,
 					guid: response.guid,

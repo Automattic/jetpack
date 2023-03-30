@@ -13,7 +13,7 @@ import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
 
-const RESPONSES_FETCH_LIMIT = 10;
+const RESPONSES_FETCH_LIMIT = 50;
 
 const TABS = [
 	{
@@ -36,6 +36,7 @@ const TABS = [
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
 	const [ view, setView ] = useState( 'list' );
+	const [ selectedResponses, setSelectedResponses ] = useState( [] );
 
 	const { fetchResponses, setCurrentPage, setSearchQuery, setStatusQuery } =
 		useDispatch( STORE_NAME );
@@ -76,6 +77,8 @@ const Inbox = () => {
 		setView( 'list' );
 	}, [] );
 
+	const showBulkActionsMenu = !! selectedResponses.length && ! loading;
+
 	const classes = classnames( 'jp-forms__inbox', {
 		'is-response-view': view === 'response',
 	} );
@@ -102,23 +105,33 @@ const Inbox = () => {
 				{ () => (
 					<>
 						<div className="jp-forms__inbox-actions">
-							<SearchForm
-								onSearch={ setSearchQuery }
-								initialValue={ query.search }
-								loading={ loading }
-							/>
-							<BulkActionsMenu />
+							{ ! showBulkActionsMenu && (
+								<SearchForm
+									onSearch={ setSearchQuery }
+									initialValue={ query.search }
+									loading={ loading }
+								/>
+							) }
+							{ showBulkActionsMenu && (
+								<BulkActionsMenu
+									currentView={ query.status }
+									selectedResponses={ selectedResponses }
+									setSelectedResponses={ setSelectedResponses }
+								/>
+							) }
 						</div>
 						<div className="jp-forms__inbox-content">
 							<div className="jp-forms__inbox-content-column">
 								<InboxList
+									currentPage={ currentPage }
 									currentResponseId={ currentResponseId }
 									loading={ loading }
-									setCurrentResponseId={ selectResponse }
-									responses={ responses }
-									currentPage={ currentPage }
-									setCurrentPage={ setCurrentPage }
 									pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
+									responses={ responses }
+									selectedResponses={ selectedResponses }
+									setCurrentPage={ setCurrentPage }
+									setCurrentResponseId={ selectResponse }
+									setSelectedResponses={ setSelectedResponses }
 								/>
 							</div>
 

@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2023-03-28
+### Added
+- Added brute force protection to the WAF configuration REST API endpoints [#28401]
+- Move the brute force protection module into the package. [#28401]
+
+### Changed
+- Change "whitelist" to "allow list". [#28401]
+- Move the brute force protection transient cleanup and shared functions to dedicated namespaced classes. [#28401]
+- Use WAF IP allow list option in brute force protection feature. [#28401]
+
 ## [0.10.2] - 2023-03-20
 ### Changed
 - Updated package dependencies. [#29480]
@@ -167,6 +177,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.11.0]: https://github.com/Automattic/jetpack-waf/compare/v0.10.2...v0.11.0
 [0.10.2]: https://github.com/Automattic/jetpack-waf/compare/v0.10.1...v0.10.2
 [0.10.1]: https://github.com/Automattic/jetpack-waf/compare/v0.10.0...v0.10.1
 [0.10.0]: https://github.com/Automattic/jetpack-waf/compare/v0.9.3...v0.10.0
