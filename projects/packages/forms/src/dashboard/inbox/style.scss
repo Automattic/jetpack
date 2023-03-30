@@ -162,7 +162,7 @@ $action-bar-height: 72px;
 
 	@media (min-width: 1025px) {
 		display: flex;
-		min-height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 20px));
+		min-height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px));
 	}
 
 	.jp-forms__table-cell {
@@ -209,7 +209,7 @@ $action-bar-height: 72px;
 	position: relative;
 
 	@media (min-width: 1025px) {
-		height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 20px));
+		height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px));
 		overflow-y: auto;
 		position: sticky;
 		top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height});

@@ -1,7 +1,7 @@
 import { Gridicon } from '@automattic/jetpack-components';
 import { TabPanel } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { find, includes, map } from 'lodash';
@@ -13,8 +13,9 @@ import BulkActionsMenu from './bulk-actions-menu';
 import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
+import { getMonthName } from './util';
 
-const RESPONSES_FETCH_LIMIT = 50;
+const RESPONSES_FETCH_LIMIT = 5;
 
 const TABS = [
 	{
@@ -39,11 +40,19 @@ const Inbox = () => {
 	const [ view, setView ] = useState( 'list' );
 	const [ selectedResponses, setSelectedResponses ] = useState( [] );
 
-	const { fetchResponses, setCurrentPage, setSearchQuery, setStatusQuery } =
-		useDispatch( STORE_NAME );
-	const [ currentPage, loading, responses, query, total ] = useSelect(
+	const {
+		fetchResponses,
+		setCurrentPage,
+		setMonthQuery,
+		setSearchQuery,
+		setSourceQuery,
+		setStatusQuery,
+	} = useDispatch( STORE_NAME );
+	const [ currentPage, monthFilter, sourceFilter, loading, responses, query, total ] = useSelect(
 		select => [
 			select( STORE_NAME ).getCurrentPage(),
+			select( STORE_NAME ).getMonthFilter(),
+			select( STORE_NAME ).getSourceFilter(),
 			select( STORE_NAME ).isFetchingResponses(),
 			select( STORE_NAME ).getResponses(),
 			select( STORE_NAME ).getResponsesQuery(),
@@ -77,6 +86,36 @@ const Inbox = () => {
 		event.preventDefault();
 		setView( 'list' );
 	}, [] );
+
+	const monthList = useMemo( () => {
+		const list = map( monthFilter, item => ( {
+			label: `${ getMonthName( item.month ) } ${ item.year }`,
+			value: `${ item.year }${ String( item.month ).padStart( 2, '0' ) }`,
+		} ) );
+
+		return [
+			{
+				label: __( 'All dates', 'jetpack-forms' ),
+				value: null,
+			},
+			...list,
+		];
+	}, [ monthFilter ] );
+
+	const sourceList = useMemo( () => {
+		const list = map( sourceFilter, item => ( {
+			label: item.title,
+			value: item.id,
+		} ) );
+
+		return [
+			{
+				label: __( 'All sources', 'jetpack-forms' ),
+				value: null,
+			},
+			...list,
+		];
+	}, [ sourceFilter ] );
 
 	const showBulkActionsMenu = !! selectedResponses.length && ! loading;
 
@@ -113,29 +152,8 @@ const Inbox = () => {
 										initialValue={ query.search }
 										loading={ loading }
 									/>
-									<DropdownFilter
-										options={ [
-											{
-												label: __( 'All dates', 'jetpack-forms' ),
-												value: null,
-											},
-											{ value: 12, label: 'December 2023' },
-											{ value: 1, label: 'January 2023' },
-											{ value: 2, label: 'February 2023' },
-											{ value: 3, label: 'March 2023' },
-										] }
-									/>
-									<DropdownFilter
-										options={ [
-											{
-												label: __( 'All sources', 'jetpack-forms' ),
-												value: null,
-											},
-											{ value: 1, label: 'Division Meetup' },
-											{ value: 2, label: 'RSVP Form' },
-											{ value: 3, label: 'Contact Form' },
-										] }
-									/>
+									<DropdownFilter options={ monthList } onFilter={ setMonthQuery } />
+									<DropdownFilter options={ sourceList } onFilter={ setSourceQuery } />
 								</>
 							) }
 							{ showBulkActionsMenu && (

@@ -13,7 +13,7 @@ import { pick } from 'lodash';
  */
 export const fetchResponses = query => {
 	const queryString = new URLSearchParams(
-		pick( query, [ 'limit', 'offset', 'search', 'status' ] )
+		pick( query, [ 'limit', 'offset', 'search', 'status', 'parent_id', 'month' ] )
 	).toString();
 
 	return apiFetch( { path: `/wpcom/v2/forms/responses?${ queryString }` } );
