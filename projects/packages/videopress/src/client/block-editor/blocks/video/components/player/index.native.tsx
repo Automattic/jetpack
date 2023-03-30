@@ -1,10 +1,8 @@
 /**
  * WordPress dependencies
  */
-import { BlockCaption } from '@wordpress/block-editor';
 import { SandBox } from '@wordpress/components';
-import { useState, useCallback } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
  */
@@ -25,45 +23,13 @@ import type { NativePlayerProps } from './types';
  * @param {string} props.html - HTML markup for the player.
  * @param {boolean} props.isRequestingEmbedPreview - Whether the preview is being requested.
  * @param {boolean} props.isSelected - Whether the block is selected.
- * @param {string} props.clientId - Block client Id.
- * @param {Function} props.insertBlocksAfter - Function to insert a new block after the current block.
- * @param {Function} props.setShowReplaceControl - Function to set the visibility of the replace control component.
  * @returns {object} - React component.
  */
 export default function Player( {
 	html,
 	isRequestingEmbedPreview,
 	isSelected,
-	clientId,
-	insertBlocksAfter,
-	setShowReplaceControl,
 }: NativePlayerProps ) {
-	const [ isCaptionSelected, setIsCaptionSelected ] = useState( false );
-
-	const onFocusCaption = useCallback( () => {
-		if ( ! isCaptionSelected ) {
-			setIsCaptionSelected( true );
-			setShowReplaceControl( false );
-		}
-	}, [ isCaptionSelected, setShowReplaceControl ] );
-
-	const onBlurCaption = useCallback( () => {
-		setIsCaptionSelected( false );
-		setShowReplaceControl( true );
-	}, [ setShowReplaceControl ] );
-
-	const accessibilityLabelCreator = useCallback( caption => {
-		if ( caption ) {
-			return sprintf(
-				/* translators: accessibility text. %s: Video caption. */
-				__( 'Video caption. %s', 'jetpack-videopress-pkg' ),
-				caption
-			);
-		}
-		/* translators: accessibility text. Empty Video caption. */
-		return __( 'Video caption. Empty', 'jetpack-videopress-pkg' );
-	}, [] );
-
 	// Set up style for when the player is loading.
 	const loadingStyle: { height?: number } = {};
 	if ( ! html || isRequestingEmbedPreview ) {
@@ -75,15 +41,6 @@ export default function Player( {
 			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
 			{ ! isRequestingEmbedPreview && <SandBox html={ html } /> }
 			{ ! html && <Text>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text> }
-			<BlockCaption
-				clientId={ clientId }
-				onFocus={ onFocusCaption }
-				onBlur={ onBlurCaption }
-				isSelected={ isCaptionSelected }
-				insertBlocksAfter={ insertBlocksAfter }
-				accessibilityLabelCreator={ accessibilityLabelCreator }
-				accessible
-			/>
 		</View>
 	);
 }

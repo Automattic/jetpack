@@ -3,6 +3,7 @@
  */
 import {
 	BlockControls,
+	BlockCaption,
 	InspectorControls,
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
@@ -10,7 +11,7 @@ import { createBlock } from '@wordpress/blocks';
 import { PanelBody } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * External dependencies
@@ -175,6 +176,26 @@ export default function VideoPressEdit( {
 		[ setAttributes ]
 	);
 
+	const accessibilityLabelCreator = useCallback( caption => {
+		if ( caption ) {
+			return sprintf(
+				/* translators: accessibility text. %s: Video caption. */
+				__( 'Video caption. %s', 'jetpack-videopress-pkg' ),
+				caption
+			);
+		}
+		/* translators: accessibility text. Empty Video caption. */
+		return __( 'Video caption. Empty', 'jetpack-videopress-pkg' );
+	}, [] );
+
+	const onCaptionFocus = useCallback( () => {
+		setShowReplaceControl( false );
+	}, [ setShowReplaceControl ] );
+
+	const onCaptionBlur = useCallback( () => {
+		setShowReplaceControl( true );
+	}, [ setShowReplaceControl ] );
+
 	if ( isUploadingFile ) {
 		return (
 			<VideoPressUploader
@@ -220,6 +241,15 @@ export default function VideoPressEdit( {
 				clientId={ clientId }
 				insertBlocksAfter={ insertBlocksAfter }
 				setShowReplaceControl={ setShowReplaceControl }
+			/>
+
+			<BlockCaption
+				clientId={ clientId }
+				insertBlocksAfter={ insertBlocksAfter }
+				accessibilityLabelCreator={ accessibilityLabelCreator }
+				accessible
+				onFocus={ onCaptionFocus }
+				onBlur={ onCaptionBlur }
 			/>
 		</View>
 	);
