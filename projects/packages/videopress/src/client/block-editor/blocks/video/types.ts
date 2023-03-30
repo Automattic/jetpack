@@ -70,6 +70,8 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 
 	// CSS classes
 	className?: string;
+
+	isExample?: boolean;
 };
 
 export type VideoBlockEditProps = {
