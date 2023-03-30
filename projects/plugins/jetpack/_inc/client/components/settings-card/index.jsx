@@ -239,7 +239,7 @@ export const SettingsCard = props => {
 						callToAction={
 							isSearchNewPricingLaunched202208()
 								? __( 'Start for free', 'jetpack' )
-								: __( 'Upgrade', 'jetpack' )
+								: _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' )
 						}
 						title={ __(
 							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.',

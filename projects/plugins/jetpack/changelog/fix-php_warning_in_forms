@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Jetpack Forms: fix a PHP warning on Feedback->Response Forms when looking at old responses.

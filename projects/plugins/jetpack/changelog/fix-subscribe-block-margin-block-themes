@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Subscriptions: ensure the block's settings are displayed properly, even when using a block theme.
