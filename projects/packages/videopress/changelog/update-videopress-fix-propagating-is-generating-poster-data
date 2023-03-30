@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: fixed issuen when propagating "is-generating-poster" state to Poster panel
