@@ -815,22 +815,6 @@ class Jetpack_SSO {
 			$user_found_with = 'external_user_id';
 			$user            = get_user_by( 'id', (int) $user_data->external_user_id );
 			if ( $user ) {
-				$expected_id = get_user_meta( $user->ID, 'wpcom_user_id', true );
-				if ( $expected_id && $expected_id != $user_data->ID ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison, Universal.Operators.StrictComparisons.LooseNotEqual
-					$error = new WP_Error( 'expected_wpcom_user', __( 'Something got a little mixed up and an unexpected WordPress.com user logged in.', 'jetpack' ) );
-
-					$tracking->record_user_event(
-						'sso_login_failed',
-						array(
-							'error_message' => 'error_unexpected_wpcom_user',
-						)
-					);
-
-					/** This filter is documented in core/src/wp-includes/pluggable.php */
-					do_action( 'wp_login_failed', $user_data->login, $error );
-					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'error_invalid_response_data' ) ); // @todo Need to have a better notice. This is only for the sake of testing the validation.
-					return;
-				}
 				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
 			}
 		}
