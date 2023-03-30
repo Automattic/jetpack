@@ -5,4 +5,5 @@
 /js/
 /modules/
 gulpfile.esm.js
+jest.config.js
 webpack.config.js

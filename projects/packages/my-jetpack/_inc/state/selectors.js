@@ -55,7 +55,7 @@ const productSelectors = {
 
 const purchasesSelectors = {
 	getPurchases: state => state.purchases?.items || [],
-	isRequestingPurchases: state => state.isRequestingPurchases || false,
+	isRequestingPurchases: state => state.purchases?.isFetching || false,
 };
 
 const availableLicensesSelectors = {

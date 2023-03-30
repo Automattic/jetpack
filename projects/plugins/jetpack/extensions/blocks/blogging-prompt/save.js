@@ -1,20 +1,22 @@
 import { useBlockProps } from '@wordpress/block-editor';
-import { __ } from '@wordpress/i18n';
-import icon from './icon';
 
 function BloggingPromptSave( { attributes } ) {
-	const { gravatars, prompt, promptId, showLabel, showResponses } = attributes;
+	const {
+		answersLink,
+		answersLinkText,
+		gravatars,
+		promptId,
+		promptLabel,
+		promptText,
+		showLabel,
+		showResponses,
+	} = attributes;
 	const blockProps = useBlockProps.save( { className: 'jetpack-blogging-prompt' } );
 
 	return (
 		<div { ...blockProps }>
-			{ showLabel && (
-				<div className="jetpack-blogging-prompt__label">
-					{ icon }
-					{ __( 'Daily writing prompt', 'jetpack' ) }
-				</div>
-			) }
-			<div className="jetpack-blogging-prompt__prompt">{ prompt }</div>
+			{ showLabel && <div className="jetpack-blogging-prompt__label">{ promptLabel }</div> }
+			<div className="jetpack-blogging-prompt__text">{ promptText }</div>
 			{ showResponses && promptId && (
 				<div className="jetpack-blogging-prompt__answers">
 					{ gravatars.map( ( { url } ) => {
@@ -33,11 +35,11 @@ function BloggingPromptSave( { attributes } ) {
 					} ) }
 					<a
 						className="jetpack-blogging-prompt__answers-link"
-						href={ `https://wordpress.com/tag/dailyprompt-${ promptId }` }
+						href={ answersLink }
 						target="_blank"
 						rel="external noreferrer noopener"
 					>
-						{ __( 'View all responses', 'jetpack' ) }
+						{ answersLinkText }
 					</a>
 				</div>
 			) }

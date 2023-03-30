@@ -6738,7 +6738,7 @@ endif;
 		);
 
 		$products['akismet'] = array(
-			'title'             => __( 'Jetpack Anti-Spam', 'jetpack' ),
+			'title'             => __( 'Akismet Anti-Spam', 'jetpack' ),
 			'slug'              => 'jetpack_anti_spam',
 			'description'       => __( 'Save time and get better responses by automatically blocking spam from your comments and forms.', 'jetpack' ),
 			'show_promotion'    => true,
@@ -6746,7 +6746,6 @@ endif;
 			'included_in_plans' => array( 'security' ),
 			'features'          => array(
 				_x( 'Comment and form spam protection', 'Anti-Spam Product Feature', 'jetpack' ),
-				_x( 'Powered by Akismet', 'Anti-Spam Product Feature', 'jetpack' ),
 				_x( 'Block spam without CAPTCHAs', 'Anti-Spam Product Feature', 'jetpack' ),
 				_x( 'Advanced stats', 'Anti-Spam Product Feature', 'jetpack' ),
 			),

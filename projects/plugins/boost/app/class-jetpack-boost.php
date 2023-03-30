@@ -12,6 +12,7 @@
 
 namespace Automattic\Jetpack_Boost;
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
@@ -113,6 +114,9 @@ class Jetpack_Boost {
 		My_Jetpack_Initializer::init();
 
 		Deactivation_Handler::init( $this->plugin_name, __DIR__ . '/admin/deactivation-dialog.php' );
+
+		// Register the core Image CDN hooks.
+		Image_CDN_Core::setup();
 	}
 
 	/**

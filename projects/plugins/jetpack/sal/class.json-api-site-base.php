@@ -11,6 +11,7 @@
  * @package automattic/jetpack
  **/
 
+use Automattic\Jetpack\Blaze;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -496,6 +497,18 @@ abstract class SAL_Site {
 	 * @return bool - False for Jetpack-connected sites.
 	 */
 	public function is_wpcom_store() {
+		return false;
+	}
+
+	/**
+	 * Indicate whether this site was ever an eCommerce trial.
+	 *
+	 * @return bool
+	 */
+	public function was_ecommerce_trial() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'had-ecommerce-trial' );
+		}
 		return false;
 	}
 
@@ -1487,5 +1500,14 @@ abstract class SAL_Site {
 	 */
 	public function get_wpcom_staging_blog_ids() {
 		return get_option( 'wpcom_staging_blog_ids', array() );
+	}
+
+	/**
+	 * Get the site's Blaze eligibility status.
+	 *
+	 * @return bool
+	 */
+	public function can_blaze() {
+		return (bool) Blaze::site_supports_blaze( $this->blog_id );
 	}
 }

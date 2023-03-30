@@ -351,7 +351,7 @@ class Jetpack_Likes {
 					'_inc/build/likes/post-count-jetpack.min.js',
 					'modules/likes/post-count-jetpack.js'
 				),
-				array( 'likes-post-count' ),
+				array( 'jquery', 'likes-post-count' ),
 				JETPACK__VERSION,
 				$in_footer = false
 			);
