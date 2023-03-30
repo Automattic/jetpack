@@ -93,8 +93,12 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			'post_status' => array( 'publish', 'draft' ),
 		);
 
-		if ( isset( $request['form_id'] ) ) {
-			$args['post_parent'] = $request['form_id'];
+		if ( isset( $request['parent_id'] ) ) {
+			$args['post_parent'] = $request['parent_id'];
+		}
+
+		if ( isset( $request['month'] ) ) {
+			$args['m'] = $request['month'];
 		}
 
 		if ( isset( $request['limit'] ) ) {
