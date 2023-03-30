@@ -815,6 +815,31 @@ class Jetpack_SSO {
 			$user_found_with = 'external_user_id';
 			$user            = get_user_by( 'id', (int) $user_data->external_user_id );
 			if ( $user ) {
+				$user_token_valid = false;
+
+				if ( $user_data->user_token_key ) {
+					$local_token = ( new Connection_Manager( 'jetpack' ) )->get_tokens()->get_access_token( $user->ID );
+					if ( $local_token && $local_token->secret ) {
+						list( $local_token_key, $local_token_secret ) = explode( '.', $local_token->secret );
+						$user_token_valid                             = $local_token_key && $local_token_secret
+							&& $user_data->user_token_key === hash_hmac( 'sha1', $local_token_key, $local_token_secret );
+					}
+				}
+
+				if ( ! $user_token_valid ) {
+					$error = new WP_Error( 'expected_wpcom_user', __( 'Something got a little mixed up and an unexpected WordPress.com user logged in.', 'jetpack' ) );
+
+					$tracking->record_user_event(
+						'sso_login_failed',
+						array( 'error_message' => 'invalid_user_token' )
+					);
+
+					/** This filter is documented in core/src/wp-includes/pluggable.php */
+					do_action( 'wp_login_failed', $user_data->login, $error );
+					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'error_invalid_response_data' ) ); // @todo Need to have a better notice. This is only for the sake of testing the validation.
+					return;
+				}
+
 				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
 			}
 		}

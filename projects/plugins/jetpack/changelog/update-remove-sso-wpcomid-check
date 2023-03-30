@@ -1,4 +1,4 @@
 Significance: minor
 Type: other
 
-SSO: Remove 'wpcom_user_id' user metadata verification.
+SSO: Replace 'wpcom_user_id' user metadata check with user token verification.
