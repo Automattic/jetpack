@@ -150,6 +150,12 @@ class Brute_Force_Protection {
 	 * @return void
 	 */
 	public static function initialize() {
+
+		// Older versions of Jetpack might have the older pre-package implementation of this feature, let's try to detect it and return early so both don't run.
+		if ( class_exists( 'Jetpack_Protect_Module' ) ) {
+			return;
+		}
+
 		$brute_force_protection_is_enabled = self::is_enabled();
 		if ( $brute_force_protection_is_enabled && ( new Connection_Manager() )->is_connected() ) {
 			global $pagenow;
