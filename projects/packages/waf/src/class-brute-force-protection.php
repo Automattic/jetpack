@@ -12,6 +12,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Waf\Waf_Compatibility;
 use Automattic\Jetpack\Waf\Waf_Constants;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
@@ -151,8 +152,9 @@ class Brute_Force_Protection {
 	 */
 	public static function initialize() {
 
-		// Let's try to detect older versions of Jetpack that don't use this package for the Brute Force protection feature and return early so we don't run twice.
-		if ( defined( 'JETPACK__VERSION' ) && version_compare( JETPACK__VERSION, '12', '<' ) ) {
+		// Older versions of Jetpack initialize brute force protection directly in the plugin.
+		// Return early to avoid running it twice.
+		if ( Waf_Compatibility::is_brute_force_running_in_jetpack() ) {
 			return;
 		}
 
