@@ -61,7 +61,7 @@ class VideoPress_Rest_Api_V1_Stats {
 	 * @return boolean
 	 */
 	public static function permissions_callback() {
-		return current_user_can( 'read' ); // TODO: confirm this
+		return current_user_can( 'manage_options' );
 	}
 
 	/**
