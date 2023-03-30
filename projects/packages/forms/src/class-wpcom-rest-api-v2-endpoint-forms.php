@@ -223,7 +223,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			}
 		}
 
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$months = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month
