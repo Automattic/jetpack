@@ -1,4 +1,4 @@
-## Jetpack 11.9
+## Jetpack 12.0
 
 ### Before you start:
 
@@ -29,13 +29,6 @@ No new features were added, so the only thing to test here is that they work as 
 - Submit a multi-line message through a form
 - Look at Feedback->Form Responses and make sure the message is not showing up as a single line.
 
-### Golden ticket
-
-- Go to the golden-token MC tool https://mc.a8c.com/jetpack/golden-token/
-- Generate a new license key and assign it to your test site using URL or the Blog ID
-- Go to /wp-admin/admin.php?page=jetpack#/my-plan
-- Verify that the Jetpack Golden Token plan appears
-
 ### WordPress 6.2 compatibility
 
 This version of Jetpack included several small fixes to ensure it’s compatible with the latest WordPress. Most test sites are already set to use the WordPress 6.2 RC version. However, if you are using Jurassic Ninja, Atomic, or your standalone site, you may need to install the WordPress beta tester plugin, or you have set it up to use the appropriate version in some other way (through the Pressable dashboard). Also, by the time you try testing, the WP 6.2 may already be published.
@@ -58,14 +51,6 @@ This version of Jetpack included several small fixes to ensure it’s compatible
 - Install the WordPress Beta tester and switch to WP's Bleeding edge option.
 - Update to WP 6.2 latest Beta in Dashboard > Updates
 - Go to Posts > Add New and repeat your test. The Pinterest block should still trigger no fatal error.
-
-### Mobile navigation
-
-**Use a WoA site.**
-
-- Open the wp-admin of the site on mobile (or simulate the mobile in your desktop browser)
-- Click the WordPress logo in the left-hand top corner to open the unified navigation
-- Click the WordPress logo again, and make sure the navigation closes.
 
 ### And More!
 
