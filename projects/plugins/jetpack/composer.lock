@@ -875,7 +875,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "3b301252c8d5343fb9d16d8722a3841b7b9bbd66"
+                "reference": "8adb00a3928ac63e599c34b11794b16049dfd48d"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -897,7 +897,7 @@
                     "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.10.x-dev"
+                    "dev-trunk": "0.11.x-dev"
                 },
                 "textdomain": "jetpack-forms",
                 "version-constants": {
@@ -1065,7 +1065,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/import",
-                "reference": "2fefcd133c364aa4e721a9a43edd0fc3a6419190"
+                "reference": "c6a022c7d03a3642508e930891bfdd3bbfdb8df6"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev"
@@ -1083,7 +1083,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "textdomain": "jetpack-import",
                 "version-constants": {
@@ -1408,7 +1408,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "54b9109d3dd39eb6bfd59613703bdf92e943ddf7"
+                "reference": "5a2b5091724708902ba182b6178c6c9b293acb3b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1435,7 +1435,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.9.x-dev"
+                    "dev-trunk": "2.10.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"

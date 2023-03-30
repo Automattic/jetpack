@@ -9,6 +9,7 @@ import DropdownFilter from '../components/dropdown-filter';
 import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
 import { STORE_NAME } from '../state';
+import BulkActionsMenu from './bulk-actions-menu';
 import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
@@ -36,6 +37,7 @@ const TABS = [
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
 	const [ view, setView ] = useState( 'list' );
+	const [ selectedResponses, setSelectedResponses ] = useState( [] );
 
 	const { fetchResponses, setCurrentPage, setSearchQuery, setStatusQuery } =
 		useDispatch( STORE_NAME );
@@ -76,6 +78,8 @@ const Inbox = () => {
 		setView( 'list' );
 	}, [] );
 
+	const showBulkActionsMenu = !! selectedResponses.length && ! loading;
+
 	const classes = classnames( 'jp-forms__inbox', {
 		'is-response-view': view === 'response',
 	} );
@@ -102,45 +106,58 @@ const Inbox = () => {
 				{ () => (
 					<>
 						<div className="jp-forms__inbox-actions">
-							<SearchForm
-								onSearch={ setSearchQuery }
-								initialValue={ query.search }
-								loading={ loading }
-							/>
-							<DropdownFilter
-								options={ [
-									{
-										label: __( 'All dates', 'jetpack-forms' ),
-										value: null,
-									},
-									{ value: 12, label: 'December 2023' },
-									{ value: 1, label: 'January 2023' },
-									{ value: 2, label: 'February 2023' },
-									{ value: 3, label: 'March 2023' },
-								] }
-							/>
-							<DropdownFilter
-								options={ [
-									{
-										label: __( 'All sources', 'jetpack-forms' ),
-										value: null,
-									},
-									{ value: 1, label: 'Division Meetup' },
-									{ value: 2, label: 'RSVP Form' },
-									{ value: 3, label: 'Contact Form' },
-								] }
-							/>
+							{ ! showBulkActionsMenu && (
+								<>
+									<SearchForm
+										onSearch={ setSearchQuery }
+										initialValue={ query.search }
+										loading={ loading }
+									/>
+									<DropdownFilter
+										options={ [
+											{
+												label: __( 'All dates', 'jetpack-forms' ),
+												value: null,
+											},
+											{ value: 12, label: 'December 2023' },
+											{ value: 1, label: 'January 2023' },
+											{ value: 2, label: 'February 2023' },
+											{ value: 3, label: 'March 2023' },
+										] }
+									/>
+									<DropdownFilter
+										options={ [
+											{
+												label: __( 'All sources', 'jetpack-forms' ),
+												value: null,
+											},
+											{ value: 1, label: 'Division Meetup' },
+											{ value: 2, label: 'RSVP Form' },
+											{ value: 3, label: 'Contact Form' },
+										] }
+									/>
+								</>
+							) }
+							{ showBulkActionsMenu && (
+								<BulkActionsMenu
+									currentView={ query.status }
+									selectedResponses={ selectedResponses }
+									setSelectedResponses={ setSelectedResponses }
+								/>
+							) }
 						</div>
 						<div className="jp-forms__inbox-content">
 							<div className="jp-forms__inbox-content-column">
 								<InboxList
+									currentPage={ currentPage }
 									currentResponseId={ currentResponseId }
 									loading={ loading }
-									setCurrentResponseId={ selectResponse }
-									responses={ responses }
-									currentPage={ currentPage }
-									setCurrentPage={ setCurrentPage }
 									pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
+									responses={ responses }
+									selectedResponses={ selectedResponses }
+									setCurrentPage={ setCurrentPage }
+									setCurrentResponseId={ selectResponse }
+									setSelectedResponses={ setSelectedResponses }
 								/>
 							</div>
 

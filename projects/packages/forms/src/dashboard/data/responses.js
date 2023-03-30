@@ -18,3 +18,21 @@ export const fetchResponses = query => {
 
 	return apiFetch( { path: `/wpcom/v2/forms/responses?${ queryString }` } );
 };
+
+/**
+ * Updates posts status
+ *
+ * @param {Array}  responseIdList - The list of responses to be updated.
+ * @param {string} action  - The action to be executed.
+ * @returns {Promise} Request promise.
+ */
+export const updateResponseStatus = ( responseIdList, action ) => {
+	return apiFetch( {
+		path: `/wpcom/v2/forms/responses`,
+		method: 'POST',
+		headers: {
+			'Content-Type': `application/json;bulk_action=${ action }`,
+		},
+		body: JSON.stringify( { post_ids: responseIdList } ),
+	} );
+};

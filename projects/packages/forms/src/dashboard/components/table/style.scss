@@ -56,6 +56,11 @@
 		align-items: center;
 		justify-content: center;
 	}
+
+	.components-button.is-link {
+		font-size: inherit;
+		color: inherit;
+	}
 }
 
 input[type="checkbox"].jp-forms__table-checkbox {

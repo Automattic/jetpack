@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Subscriptions: Makes the Subscribe Block available, even when the Subscriptions module is off, so Subscriptions can be easily enabled.

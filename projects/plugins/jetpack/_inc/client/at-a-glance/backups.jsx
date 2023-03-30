@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
@@ -139,7 +139,7 @@ class DashBackups extends Component {
 				<>
 					<BackupUpgrade />
 					<JetpackBanner
-						callToAction={ __( 'Upgrade', 'jetpack' ) }
+						callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 						title={ __(
 							'Never worry about losing your site – automatic backups keep your content safe.',
 							'jetpack'

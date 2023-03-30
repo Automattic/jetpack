@@ -1,7 +1,5 @@
 import { test, expect } from 'jetpack-e2e-commons/fixtures/base-test.js';
 import { boostPrerequisitesBuilder } from '../lib/env/prerequisites.js';
-import { execWpCommand } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
-import { prerequisitesBuilder } from 'jetpack-e2e-commons/env/prerequisites.js';
 import { PostFrontendPage } from 'jetpack-e2e-commons/pages/index.js';
 import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
 
@@ -13,11 +11,9 @@ test.describe( 'Lazy Images module', () => {
 	test.beforeAll( async ( { browser } ) => {
 		page = await browser.newPage( playwrightConfig.use );
 		await boostPrerequisitesBuilder( page ).withTestContent( [ testPostTitle ] ).build();
-		await execWpCommand( 'user session destroy wordpress --all' );
 	} );
 
 	test.afterAll( async () => {
-		await prerequisitesBuilder( page ).withLoggedIn( true ).build();
 		await page.close();
 	} );
 
