@@ -359,18 +359,8 @@ function VideoHoverPreviewControl( {
 	onPreviewAtTimeChange,
 	onLoopDurationChange,
 }: VideoHoverPreviewControlProps ): React.ReactElement {
-	const [ maxStartingPoint, setMaxStartingPoint ] = useState( videoDuration - loopDuration );
-	const [ maxLoopDuration, setMaxLoopDuration ] = useState(
-		Math.min( MAX_LOOP_DURATION, videoDuration )
-	);
-
-	useEffect( () => {
-		setMaxStartingPoint( videoDuration - loopDuration );
-	}, [ videoDuration, loopDuration ] );
-
-	useEffect( () => {
-		setMaxLoopDuration( Math.min( MAX_LOOP_DURATION, videoDuration ) );
-	}, [ videoDuration ] );
+	const maxLoopDuration = Math.min( MAX_LOOP_DURATION, videoDuration );
+	const maxStartingPoint = videoDuration - loopDuration;
 
 	return (
 		<>
