@@ -263,7 +263,7 @@ final class Image_CDN {
 	public static function parse_images_from_html( $content ) {
 		$images = array();
 
-		if ( preg_match_all( '#(?:<a[^>]+?href=["|\'](?P<link_url>[^\s]+?)["|\'][^>]*?>\s*)?(?P<img_tag><(?:img|amp-img|amp-anim)[^>]*?\s+?src=["|\'](?P<img_url>[^\s]+?)["|\'].*?>){1}(?:\s*</a>)?#is', $content, $images ) ) {
+		if ( preg_match_all( '#(?:<a[^>]*?\s+?href=["\'](?P<link_url>[^\s]+?)["\'][^>]*?>\s*)?(?P<img_tag><(?:img|amp-img|amp-anim)[^>]*?\s+?src=["\'](?P<img_url>[^\s]+?)["\'].*?>){1}(?:\s*</a>)?#is', $content, $images ) ) {
 			foreach ( $images as $key => $unused ) {
 				// Simplify the output as much as possible, mostly for confirming test results.
 				if ( is_numeric( $key ) && $key > 0 ) {
