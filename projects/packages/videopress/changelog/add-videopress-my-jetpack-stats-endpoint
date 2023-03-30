@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Added stats endpoint to fetch the data to be featured on the My Jetpack screen.

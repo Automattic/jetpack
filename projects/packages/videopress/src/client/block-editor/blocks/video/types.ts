@@ -66,6 +66,8 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 
 	isPrivate?: boolean;
 
+	duration?: number;
+
 	// CSS classes
 	className?: string;
 };

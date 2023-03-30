@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats Widget: Fix incorrect invocation of module-restricted functions
