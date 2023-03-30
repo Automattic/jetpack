@@ -3,8 +3,6 @@
  */
 import { MediaUploadCheck, MediaUpload } from '@wordpress/block-editor';
 import {
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalNumberControl as NumberControl,
 	MenuItem,
 	PanelBody,
 	NavigableMenu,
@@ -320,6 +318,8 @@ function VideoFramePicker( {
 				max={ duration }
 				value={ timestamp }
 				wait={ 250 }
+				fineAdjustment={ 1 }
+				decimalPlaces={ 2 }
 				onChange={ setTimestamp }
 				onDebounceChange={ iframeTimePosition => {
 					const sandboxIFrameWindow = getIframeWindowFromRef( playerWrapperRef );
@@ -340,7 +340,7 @@ type VideoHoverPreviewControlProps = {
 	loopDuration?: number;
 	videoDuration: number;
 	onPreviewOnHoverChange: ( previewOnHover: boolean ) => void;
-	onAtTimeChange: ( timestamp: number ) => void;
+	onPreviewAtTimeChange: ( timestamp: number ) => void;
 	onLoopDurationChange: ( duration: number ) => void;
 };
 
@@ -356,14 +356,21 @@ function VideoHoverPreviewControl( {
 	loopDuration = DEFAULT_LOOP_DURATION,
 	videoDuration,
 	onPreviewOnHoverChange,
-	onAtTimeChange,
+	onPreviewAtTimeChange,
 	onLoopDurationChange,
 }: VideoHoverPreviewControlProps ): React.ReactElement {
 	const [ maxStartingPoint, setMaxStartingPoint ] = useState( videoDuration - loopDuration );
+	const [ maxLoopDuration, setMaxLoopDuration ] = useState(
+		Math.min( MAX_LOOP_DURATION, videoDuration )
+	);
 
 	useEffect( () => {
 		setMaxStartingPoint( videoDuration - loopDuration );
 	}, [ videoDuration, loopDuration ] );
+
+	useEffect( () => {
+		setMaxLoopDuration( Math.min( MAX_LOOP_DURATION, videoDuration ) );
+	}, [ videoDuration ] );
 
 	return (
 		<>
@@ -379,23 +386,22 @@ function VideoHoverPreviewControl( {
 					<TimestampControl
 						label={ __( 'Starting point', 'jetpack-videopress-pkg' ) }
 						max={ maxStartingPoint }
+						fineAdjustment={ 1 }
 						decimalPlaces={ 2 }
 						value={ previewAtTime }
-						onChange={ onAtTimeChange }
+						onChange={ atTime => {
+							onPreviewAtTimeChange( Math.max( Math.min( maxStartingPoint, atTime ), 0 ) );
+						} }
 					/>
 
-					<NumberControl
-						className="poster-panel__loop-duration"
-						min={ 0 }
-						max={ Math.min( MAX_LOOP_DURATION, videoDuration ) / 1000 }
-						step={ 1 }
+					<TimestampControl
+						max={ maxLoopDuration }
+						fineAdjustment={ 1 }
+						decimalPlaces={ 2 }
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
-						spinControls="none"
-						placeholder="00"
-						suffix={ __( 'sec', 'jetpack-videopress-pkg' ) }
-						value={ loopDuration / 1000 }
+						value={ loopDuration }
 						onChange={ duration => {
-							onLoopDurationChange( Math.max( Math.min( MAX_LOOP_DURATION, duration * 1000 ), 0 ) );
+							onLoopDurationChange( Math.max( Math.min( MAX_LOOP_DURATION, duration ), 0 ) );
 						} }
 					/>
 				</>
@@ -417,10 +423,10 @@ export default function PosterPanel( {
 }: PosterPanelProps ): React.ReactElement {
 	const { poster, posterData } = attributes;
 
-	const pickPosterFromFrame = attributes?.posterData?.type === 'video-frame';
-	const previewOnHover = attributes?.posterData?.previewOnHover || false;
-	const previewAtTime = attributes?.posterData?.previewAtTime || posterData?.atTime || 0;
-	const previewLoopDuration = attributes?.posterData?.previewLoopDuration || DEFAULT_LOOP_DURATION;
+	const pickPosterFromFrame = posterData?.type === 'video-frame';
+	const previewOnHover = posterData?.previewOnHover || false;
+	const previewAtTime = posterData?.previewAtTime ?? posterData?.atTime ?? 0;
+	const previewLoopDuration = posterData?.previewLoopDuration ?? DEFAULT_LOOP_DURATION;
 
 	const videoDuration = attributes?.duration;
 
@@ -456,7 +462,7 @@ export default function PosterPanel( {
 		[ attributes ]
 	);
 
-	const onAtTimeChange = useCallback(
+	const onPreviewAtTimeChange = useCallback(
 		( atTime: number ) => {
 			setAttributes( {
 				posterData: {
@@ -559,7 +565,7 @@ export default function PosterPanel( {
 				loopDuration={ previewLoopDuration }
 				videoDuration={ videoDuration }
 				onPreviewOnHoverChange={ onPreviewOnHoverChange }
-				onAtTimeChange={ onAtTimeChange }
+				onPreviewAtTimeChange={ onPreviewAtTimeChange }
 				onLoopDurationChange={ onLoopDurationChange }
 			/>
 		</PanelBody>
