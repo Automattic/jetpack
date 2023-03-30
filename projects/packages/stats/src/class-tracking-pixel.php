@@ -137,6 +137,8 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	/**
 	 * Stats Footer.
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @access public
 	 * @return void
 	 */
@@ -146,6 +148,8 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 
 	/**
 	 * Gets the footer to add for the Stats tracker.
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @access public
 	 * @param array $data Array of data for the JS stats tracker.
@@ -158,6 +162,8 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	/**
 	 * Render the stats footer. Kept for backward compatibility
 	 *
+	 * @deprecated $$next-version$$
+	 *
 	 * @access public
 	 * @param array $data Array of data for the JS stats tracker.
 	 */
@@ -167,6 +173,8 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 
 	/**
 	 * Render the stats footer for AMP output.
+	 *
+	 * @deprecated $$next-version$$
 	 *
 	 * @access public
 	 * @param array $data Array of data for the AMP pixel tracker.
