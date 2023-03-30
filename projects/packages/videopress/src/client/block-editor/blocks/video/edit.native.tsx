@@ -51,7 +51,6 @@ export default function VideoPressEdit( {
 	onFocus,
 } ): React.ReactNode {
 	const {
-		autoplay,
 		controls,
 		guid,
 		loop,
@@ -82,7 +81,7 @@ export default function VideoPressEdit( {
 	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay,
+		autoplay: false,
 		controls,
 		loop,
 		muted,
