@@ -338,9 +338,10 @@ function VideoHoverPreviewControl( {
 						fineAdjustment={ 1 }
 						decimalPlaces={ 2 }
 						value={ previewAtTime }
-						onChange={ atTime => {
+						onDebounceChange={ atTime => {
 							onPreviewAtTimeChange( Math.max( Math.min( maxStartingPoint, atTime ), 0 ) );
 						} }
+						wait={ 100 }
 					/>
 
 					<TimestampControl
@@ -349,9 +350,10 @@ function VideoHoverPreviewControl( {
 						decimalPlaces={ 2 }
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
 						value={ loopDuration }
-						onChange={ duration => {
+						onDebounceChange={ duration => {
 							onLoopDurationChange( Math.max( Math.min( MAX_LOOP_DURATION, duration ), 0 ) );
 						} }
+						wait={ 100 }
 					/>
 				</>
 			) }
