@@ -69,11 +69,11 @@ class Tracking_Pixel {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @access public
+	 * @access private
 	 * @param array $data Array of data for the AMP pixel tracker.
 	 * @return string
 	 */
-	public static function build_stats_details( $data ) {
+	private static function build_stats_details( $data ) {
 		$data_stats_array = self::stats_array_to_string( $data );
 
 		return sprintf(

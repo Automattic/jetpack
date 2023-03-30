@@ -110,14 +110,18 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 	 */
 	public function test_get_footer_to_add_applies_filter() {
 		add_filter( 'stats_array', array( $this, 'stats_array_filter_replace_srv' ), 10, 2 );
-		$data                   = array(
+		$data = array(
 			'v'    => 'ext',
 			'blog' => 1234,
 			'post' => 0,
 			'tz'   => false,
 			'srv'  => 'example.org',
 		);
-		$pixel_details          = Tracking_Pixel::build_stats_details( $data );
+
+		$method = new \ReflectionMethod( 'Automattic\Jetpack\Stats\Tracking_Pixel', 'build_stats_details' );
+		$method->setAccessible( true );
+		$pixel_details = $method->invoke( new Tracking_Pixel(), $data );
+
 		$expected_pixel_details = "_stq = window._stq || [];
 _stq.push([ \"view\", {v:'ext',blog:'1234',post:'0',tz:'',srv:'replaced.com'} ]);
 _stq.push([ \"clickTrackerInit\", \"1234\", \"0\" ]);";
