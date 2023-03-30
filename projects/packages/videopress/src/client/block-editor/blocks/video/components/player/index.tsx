@@ -172,7 +172,7 @@ export default function Player( {
 	}
 
 	useVideoPlayer( videoWrapperRef, isRequestingEmbedPreview, {
-		atTime: timeToSetPlayerPosition,
+		initialTimePosition: timeToSetPlayerPosition,
 		wrapperElement: mainWrapperRef?.current,
 		previewOnHover: previewOnHover
 			? {

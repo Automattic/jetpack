@@ -9,7 +9,7 @@ export type UseVideoPlayerOptions = {
 	/*
 	 * The time to initially set the player to.
 	 */
-	atTime: number;
+	initialTimePosition: number;
 
 	/*
 	 * DOM player wrapper element.
