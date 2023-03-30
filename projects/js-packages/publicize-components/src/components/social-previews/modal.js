@@ -39,8 +39,8 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 	return (
 		<Modal
 			onRequestClose={ onClose }
-			title={ __( 'Social Previews', 'jetpack' ) }
 			className="jetpack-social-previews__modal"
+			__experimentalHideHeader
 		>
 			<TabPanel
 				className="jetpack-social-previews__modal-previews"
