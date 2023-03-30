@@ -373,7 +373,7 @@ final class Image_CDN {
 						$width = false === strpos( $width_string[1], '%' ) ? $width_string[1] : false;
 					}
 
-					if ( preg_match( '#[\s|"|\']height=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $height_string ) ) {
+					if ( preg_match( '#[\s"\']height=["\']?([\d%]+)["\']?#i', $images['img_tag'][ $index ], $height_string ) ) {
 						$height = false === strpos( $height_string[1], '%' ) ? $height_string[1] : false;
 					}
 
