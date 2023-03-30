@@ -13,7 +13,7 @@ import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
 
-const RESPONSES_FETCH_LIMIT = 10;
+const RESPONSES_FETCH_LIMIT = 50;
 
 const TABS = [
 	{

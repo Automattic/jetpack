@@ -45,8 +45,7 @@ class Protect extends Module {
 	 * @param array $failed_attempt Failed attempt data.
 	 */
 	public function maybe_log_failed_login_attempt( $failed_attempt ) {
-		$protect = \Jetpack_Protect_Module::instance();
-		if ( $protect->has_login_ability() && ! Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) ) {
+		if ( $failed_attempt['has_login_ability'] && ! Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) ) {
 			do_action( 'jetpack_valid_failed_login_attempt', $failed_attempt );
 		}
 	}

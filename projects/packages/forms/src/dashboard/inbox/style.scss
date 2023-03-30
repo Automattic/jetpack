@@ -252,6 +252,7 @@ $action-bar-height: 72px;
 
 .jp-forms__inbox-response-subtitle {
 	color: #646970;
+	flex-shrink: 0;
 	font-size: 16px;
 	font-weight: 500;
 	margin: 4px 0 0;
@@ -297,6 +298,10 @@ $action-bar-height: 72px;
 
 .jp-forms__inbox-response-data-label {
 	font-weight: 600;
+}
+
+.jp-forms__inbox-response-data-value {
+	white-space: pre-wrap;
 }
 
 // ACTIONS ROW

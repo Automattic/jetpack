@@ -23,8 +23,16 @@ import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import InfoPopover from '../components/info-popover';
 import { ModuleToggle } from '../components/module-toggle';
 import Textarea from '../components/textarea';
-import { updateWafSettings } from '../state/waf/actions';
-import { getWafSettings, isFetchingWafSettings, isUpdatingWafSettings } from '../state/waf/reducer';
+import { getSetting } from '../state/settings/reducer';
+import { updateWafSettings, updateWafIpAllowList } from '../state/waf/actions';
+import {
+	getAutomaticRulesAvailable,
+	getWafSettings,
+	getWafIpAllowListInputState,
+	isFetchingWafSettings,
+	isUpdatingWafSettings,
+} from '../state/waf/reducer';
+
 export const Waf = class extends Component {
 	/**
 	 * Get options for initial state.
@@ -45,13 +53,23 @@ export const Waf = class extends Component {
 	 * @param {object} prevProps - Next render props.
 	 */
 	componentDidUpdate = prevProps => {
+		// Sync the form values with the settings prop.
 		if ( this.props.settings !== prevProps.settings ) {
 			this.setState( {
+				...this.state,
 				automaticRulesEnabled: this.props.settings?.automaticRulesEnabled,
 				manualRulesEnabled: this.props.settings?.manualRulesEnabled,
 				ipBlockList: this.props.settings?.ipBlockList,
 				ipAllowList: this.props.settings?.ipAllowList,
 				shareData: this.props.settings?.shareData,
+			} );
+		}
+
+		// Sync the allow list value with the value in redux.
+		if ( prevProps.allowListInputState !== this.props.allowListInputState ) {
+			this.setState( {
+				...this.state,
+				ipAllowList: this.props.allowListInputState,
 			} );
 		}
 	};
@@ -134,19 +152,21 @@ export const Waf = class extends Component {
 	};
 
 	/**
-	 * Handle IP list change.
+	 * Handle IP block list change.
 	 *
 	 * @param {Event} event - The event object.
 	 */
-	handleIpListChange = event => {
-		const {
-			target: { name, value },
-		} = event;
+	handleIpBlockListChange = event => {
+		this.setState( { ...this.state, ipBlockList: event?.target?.value } );
+	};
 
-		this.setState( {
-			...this.state,
-			[ name ]: value,
-		} );
+	/**
+	 * Handle IP allow list change.
+	 *
+	 * @param {Event} event - = The event object.
+	 */
+	handleIpAllowListChange = event => {
+		this.props.updateWafIpAllowList( event.target.value );
 	};
 
 	/**
@@ -244,7 +264,7 @@ export const Waf = class extends Component {
 									'\n12.12.12.1\n12.12.12.2'
 								) }
 								value={ this.state.ipBlockList }
-								onChange={ this.handleIpListChange }
+								onChange={ this.handleIpBlockListChange }
 							/>
 							<Button
 								primary
@@ -272,8 +292,8 @@ export const Waf = class extends Component {
 								}
 								name="ipAllowList"
 								placeholder={ __( 'Example:', 'jetpack' ) + '\n12.12.12.1\n12.12.12.2' }
-								value={ this.state.ipAllowList }
-								onChange={ this.handleIpListChange }
+								value={ this.props.allowListInputState }
+								onChange={ this.handleIpAllowListChange }
 							/>
 							<Button
 								primary
@@ -374,7 +394,7 @@ export const Waf = class extends Component {
 
 		const upgradeBanner = (
 			<JetpackBanner
-				callToAction={ __( 'Upgrade', 'jetpack' ) }
+				callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 				title={
 					<>
 						{ ! this.props.settings?.automaticRulesAvailable
@@ -456,8 +476,14 @@ export const Waf = class extends Component {
 export default connect(
 	state => {
 		const sitePlan = getSitePlan( state );
+		const allowListInputState = getWafIpAllowListInputState( state );
 
 		return {
+			automaticRulesAvailable: getAutomaticRulesAvailable( state ),
+			allowListInputState:
+				allowListInputState !== null
+					? allowListInputState
+					: getSetting( state, 'jetpack_waf_ip_allow_list' ),
 			hasScan: siteHasFeature( state, 'scan' ),
 			isFetchingSettings: isFetchingWafSettings( state ),
 			isUpdatingWafSettings: isUpdatingWafSettings( state ),
@@ -468,6 +494,7 @@ export default connect(
 	},
 	dispatch => {
 		return {
+			updateWafIpAllowList: allowList => dispatch( updateWafIpAllowList( allowList ) ),
 			updateWafSettings: newSettings => dispatch( updateWafSettings( newSettings ) ),
 			createNotice: ( type, message, props ) => dispatch( createNotice( type, message, props ) ),
 			removeNotice: notice => dispatch( removeNotice( notice ) ),
