@@ -1,19 +1,11 @@
-import { Text, Button } from '@automattic/jetpack-components';
-import { __, sprintf } from '@wordpress/i18n';
+import { Text } from '@automattic/jetpack-components';
+import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import ActionButton, { PRODUCT_STATUSES } from './action-buton';
 import styles from './style.module.scss';
-
-export const PRODUCT_STATUSES = {
-	ACTIVE: 'active',
-	INACTIVE: 'inactive',
-	ERROR: 'error',
-	ABSENT: 'plugin_absent',
-	NEEDS_PURCHASE: 'needs_purchase',
-	NEEDS_PURCHASE_OR_FREE: 'needs_purchase_or_free',
-};
 
 const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.ACTIVE ]: __( 'Active', 'jetpack-my-jetpack' ),
@@ -21,92 +13,6 @@ const PRODUCT_STATUSES_LABELS = {
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE ]: __( 'Inactive', 'jetpack-my-jetpack' ),
 	[ PRODUCT_STATUSES.ERROR ]: __( 'Error', 'jetpack-my-jetpack' ),
-};
-
-const ActionButton = ( {
-	status,
-	admin,
-	name,
-	onActivate,
-	onManage,
-	onFixConnection,
-	isFetching,
-	className,
-	onAdd,
-} ) => {
-	if ( ! admin ) {
-		return (
-			<Button { ...buttonState } size="small" variant="link" weight="regular">
-				{
-					/* translators: placeholder is product name. */
-					sprintf( __( 'Learn about %s', 'jetpack-my-jetpack' ), name )
-				}
-			</Button>
-		);
-	}
-
-	const buttonState = {
-		variant: ! isFetching ? 'primary' : undefined,
-		disabled: isFetching,
-		className,
-	};
-
-	switch ( status ) {
-		case PRODUCT_STATUSES.ABSENT:
-			return (
-				<Button { ...buttonState } size="small" variant="link" weight="regular">
-					{
-						/* translators: placeholder is product name. */
-						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
-					}
-				</Button>
-			);
-		case PRODUCT_STATUSES.NEEDS_PURCHASE:
-			return (
-				<Button { ...buttonState } size="small" weight="regular" onClick={ onAdd }>
-					{ __( 'Purchase', 'jetpack-my-jetpack' ) }
-				</Button>
-			);
-		case PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE:
-			return (
-				<Button { ...buttonState } size="small" weight="regular" onClick={ onAdd }>
-					{ __( 'Start for free', 'jetpack-my-jetpack' ) }
-				</Button>
-			);
-		case PRODUCT_STATUSES.ACTIVE:
-			return (
-				<Button
-					{ ...buttonState }
-					size="small"
-					weight="regular"
-					variant="secondary"
-					onClick={ onManage }
-				>
-					{ __( 'Manage', 'jetpack-my-jetpack' ) }
-				</Button>
-			);
-		case PRODUCT_STATUSES.ERROR:
-			return (
-				<Button { ...buttonState } size="small" weight="regular" onClick={ onFixConnection }>
-					{ __( 'Fix connection', 'jetpack-my-jetpack' ) }
-				</Button>
-			);
-		case PRODUCT_STATUSES.INACTIVE:
-			return (
-				<Button
-					{ ...buttonState }
-					size="small"
-					weight="regular"
-					variant="secondary"
-					onClick={ onActivate }
-				>
-					{ __( 'Activate', 'jetpack-my-jetpack' ) }
-				</Button>
-			);
-
-		default:
-			return null;
-	}
 };
 
 const ProductCard = props => {
@@ -121,6 +27,7 @@ const ProductCard = props => {
 		onManage,
 		isFetching,
 		slug,
+		children,
 	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
@@ -195,12 +102,14 @@ const ProductCard = props => {
 	}, [ slug, onFixConnection, recordEvent ] );
 
 	const CardWrapper = isAbsent
-		? ( { children, ...cardProps } ) => (
+		? ( { children: wrapperChildren, ...cardProps } ) => (
 				<a { ...cardProps } href="#" onClick={ addHandler }>
-					{ children }
+					{ wrapperChildren }
 				</a>
 		  )
-		: ( { children, ...cardProps } ) => <div { ...cardProps }>{ children }</div>;
+		: ( { children: wrapperChildren, ...cardProps } ) => (
+				<div { ...cardProps }>{ wrapperChildren }</div>
+		  );
 
 	return (
 		<CardWrapper className={ containerClassName }>
@@ -208,28 +117,40 @@ const ProductCard = props => {
 				<Text variant="title-medium">{ name }</Text>
 				{ icon }
 			</div>
-			<Text variant="body-small" className={ styles.description }>
-				{ description }
-			</Text>
-			<div className={ styles.actions }>
-				<ActionButton
-					{ ...props }
-					onActivate={ activateHandler }
-					onFixConnection={ fixConnectionHandler }
-					onManage={ manageHandler }
-					className={ styles.button }
-				/>
-				{ ! isAbsent && (
-					<Text variant="label" className={ statusClassName }>
-						{ flagLabel }
-					</Text>
-				) }
-			</div>
+			{
+				// If is not active, no reason to use children
+				// Since we want user to take action if isn't active
+				isActive && children ? (
+					children
+				) : (
+					<>
+						{ isAbsent ? (
+							<Text variant="body-small" className={ styles.description }>
+								{ description }
+							</Text>
+						) : (
+							<Text variant="label" className={ statusClassName }>
+								{ flagLabel }
+							</Text>
+						) }
+						<div className={ styles.actions }>
+							<ActionButton
+								{ ...props }
+								onActivate={ activateHandler }
+								onFixConnection={ fixConnectionHandler }
+								onManage={ manageHandler }
+								className={ styles.button }
+							/>
+						</div>
+					</>
+				)
+			}
 		</CardWrapper>
 	);
 };
 
 ProductCard.propTypes = {
+	children: PropTypes.node,
 	name: PropTypes.string.isRequired,
 	description: PropTypes.string.isRequired,
 	icon: PropTypes.element,
@@ -259,4 +180,5 @@ ProductCard.defaultProps = {
 	onAdd: () => {},
 };
 
+export { PRODUCT_STATUSES };
 export default ProductCard;

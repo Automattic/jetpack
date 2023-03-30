@@ -363,7 +363,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 		$additional_classes = $subitem ? 'jp-stats-report-upgrade-subitem' : '';
 		$button_class       = $subitem ? 'is-secondary' : 'is-primary';
 		$icon_url           = plugins_url( '', JETPACK__PLUGIN_FILE ) . '/images/products/' . $icon;
-		$button_label       = $button_label === null ? __( 'Upgrade', 'jetpack' ) : $button_label;
+		$button_label       = $button_label === null ? _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) : $button_label;
 		$view_event         = "stats_nudges_view_$tracks_id";
 		$click_event        = "stats_nudges_click_$tracks_id";
 		$learn_more_event   = "stats_nudges_learn_more_$tracks_id";

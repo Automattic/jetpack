@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: replace local state by using block attributes for the PreviewOnHover feature
