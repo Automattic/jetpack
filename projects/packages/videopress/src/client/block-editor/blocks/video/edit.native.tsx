@@ -76,6 +76,8 @@ export default function VideoPressEdit( {
 		prevAttrs: {},
 	} );
 
+	const [ showReplaceControl, setShowReplaceControl ] = useState( true );
+
 	const wasBlockJustInserted = useSelect(
 		select => select( blockEditorStore ).wasBlockJustInserted( clientId, 'inserter_menu' ),
 		[ clientId ]
@@ -191,11 +193,13 @@ export default function VideoPressEdit( {
 	return (
 		<View style={ style[ 'wp-block-jetpack-videopress__container' ] }>
 			<BlockControls>
-				<ReplaceControl
-					onUploadFileStart={ onReplaceUploadStart }
-					onSelectVideoFromLibrary={ onReplaceSelectFromLibrary }
-					onSelectURL={ onReplaceSelectURL }
-				/>
+				{ showReplaceControl && (
+					<ReplaceControl
+						onUploadFileStart={ onReplaceUploadStart }
+						onSelectVideoFromLibrary={ onReplaceSelectFromLibrary }
+						onSelectURL={ onReplaceSelectURL }
+					/>
+				) }
 			</BlockControls>
 
 			{ isSelected && (
@@ -215,6 +219,7 @@ export default function VideoPressEdit( {
 				isSelected={ isSelected }
 				clientId={ clientId }
 				insertBlocksAfter={ insertBlocksAfter }
+				setShowReplaceControl={ setShowReplaceControl }
 			/>
 		</View>
 	);

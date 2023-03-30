@@ -9,4 +9,5 @@ export type NativePlayerProps = {
 	isSelected: boolean;
 	clientId: string;
 	insertBlocksAfter: ( blocks: BlockInstance[] ) => void;
+	setShowReplaceControl: ( show: boolean ) => void;
 };

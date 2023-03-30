@@ -27,7 +27,8 @@ import type { NativePlayerProps } from './types';
  * @param {boolean} props.isSelected - Whether the block is selected.
  * @param {string} props.clientId - Block client Id.
  * @param {Function} props.insertBlocksAfter - Function to insert a new block after the current block.
- * @returns {object}                     - React component.
+ * @param {Function} props.setShowReplaceControl - Function to set the visibility of the replace control component.
+ * @returns {object} - React component.
  */
 export default function Player( {
 	html,
@@ -35,18 +36,21 @@ export default function Player( {
 	isSelected,
 	clientId,
 	insertBlocksAfter,
+	setShowReplaceControl,
 }: NativePlayerProps ) {
 	const [ isCaptionSelected, setIsCaptionSelected ] = useState( false );
 
 	const onFocusCaption = useCallback( () => {
 		if ( ! isCaptionSelected ) {
 			setIsCaptionSelected( true );
+			setShowReplaceControl( false );
 		}
-	}, [ isCaptionSelected ] );
+	}, [ isCaptionSelected, setShowReplaceControl ] );
 
-	const onCaptionBlur = useCallback( () => {
+	const onBlurCaption = useCallback( () => {
 		setIsCaptionSelected( false );
-	}, [] );
+		setShowReplaceControl( true );
+	}, [ setShowReplaceControl ] );
 
 	const accessibilityLabelCreator = useCallback( caption => {
 		if ( caption ) {
@@ -69,21 +73,17 @@ export default function Player( {
 	return (
 		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
 			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
-
 			{ ! isRequestingEmbedPreview && <SandBox html={ html } /> }
 			{ ! html && <Text>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text> }
-
-			{ html && (
-				<BlockCaption
-					clientId={ clientId }
-					onFocus={ onFocusCaption }
-					onBlur={ onCaptionBlur }
-					isSelected={ isCaptionSelected }
-					insertBlocksAfter={ insertBlocksAfter }
-					accessibilityLabelCreator={ accessibilityLabelCreator }
-					accessible
-				/>
-			) }
+			<BlockCaption
+				clientId={ clientId }
+				onFocus={ onFocusCaption }
+				onBlur={ onBlurCaption }
+				isSelected={ isCaptionSelected }
+				insertBlocksAfter={ insertBlocksAfter }
+				accessibilityLabelCreator={ accessibilityLabelCreator }
+				accessible
+			/>
 		</View>
 	);
 }
