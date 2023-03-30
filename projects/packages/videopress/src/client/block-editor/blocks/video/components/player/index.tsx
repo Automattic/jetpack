@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Types
  */
+import useVideoPlayer, { getIframeWindowFromRef } from '../../../../hooks/use-video-player';
 import type { PlayerProps } from './types';
 import type React from 'react';
 
@@ -137,29 +138,49 @@ export default function Player( {
 	 * provided by the videopress player through the bridge.
 	 */
 	const videoPlayerEventsHandler = useCallback( ( ev: MessageEvent ) => {
-		const eventName = ev?.data?.event;
-		if ( ! eventName || eventName !== 'videopress_loading_state' ) {
-			return;
+		const { data: eventData } = ev || {};
+		const { event: eventName } = eventData;
+		if ( eventName === 'videopress_loading_state' ) {
+			setIsVideoPlayerLoaded( eventData?.state === 'loaded' );
 		}
-
-		const playerLoadingState = ev?.data?.state;
-		setIsVideoPlayerLoaded( playerLoadingState === 'loaded' );
 	}, [] );
 
-	// Listen to the `message` event.
-	const sandboxIframeElement: HTMLIFrameElement = videoWrapperRef?.current?.querySelector(
-		'iframe.components-sandbox'
-	);
 	useEffect( () => {
-		if ( ! sandboxIframeElement?.contentWindow ) {
+		const iFrameContentWindow = getIframeWindowFromRef( videoWrapperRef );
+		if ( ! iFrameContentWindow || isRequestingEmbedPreview ) {
 			return;
 		}
 
-		const iFrameContentWindow = sandboxIframeElement.contentWindow;
+		// Listen to the `message` event.
 		iFrameContentWindow.addEventListener( 'message', videoPlayerEventsHandler );
 
 		return () => iFrameContentWindow?.removeEventListener( 'message', videoPlayerEventsHandler );
-	}, [ videoPlayerEventsHandler, sandboxIframeElement ] );
+	}, [ videoWrapperRef, isRequestingEmbedPreview ] );
+
+	const { atTime, previewOnHover, previewAtTime, previewLoopDuration, type } =
+		attributes.posterData;
+
+	let timeToSetPlayerPosition;
+	if ( type === 'video-frame' ) {
+		if ( previewOnHover ) {
+			timeToSetPlayerPosition = previewAtTime;
+		} else {
+			timeToSetPlayerPosition = atTime;
+		}
+	} else {
+		timeToSetPlayerPosition = atTime;
+	}
+
+	useVideoPlayer( videoWrapperRef, isRequestingEmbedPreview, {
+		atTime: timeToSetPlayerPosition,
+		wrapperElement: mainWrapperRef?.current,
+		previewOnHover: previewOnHover
+			? {
+					atTime: previewAtTime,
+					duration: previewLoopDuration,
+			  }
+			: undefined,
+	} );
 
 	useEffect( () => {
 		if ( isRequestingEmbedPreview ) {
