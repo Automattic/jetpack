@@ -1,0 +1,7 @@
+Significance: minor
+Type: changed
+
+* Updated add-anti-spam path to add-akismet to match the product key
+* Updated product interstitial component to accept an existingLicenseKeyUrl
+* Updated product interstitial component to display a product name instead of a title where preferProductName is set
+* Make is_plugin_active available from the API

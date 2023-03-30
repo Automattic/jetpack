@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Feedback responses endpoint now allows filtering by post status and returns all totals.

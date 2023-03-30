@@ -1064,6 +1064,7 @@ abstract class Publicize_Base {
 			'default'       => array(
 				'image_generator_settings' => array(
 					'template' => ( new Social_Image_Generator\Settings() )->get_default_template(),
+					'enabled'  => false,
 				),
 			),
 			'show_in_rest'  => array(

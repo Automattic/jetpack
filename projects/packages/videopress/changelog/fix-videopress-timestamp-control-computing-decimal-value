@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-VideoPress: fix computing decimal part in the TimestampControl component
