@@ -116,6 +116,7 @@ export default function VideoPressEdit( {
 		guid,
 		cacheHtml,
 		poster,
+		posterData,
 		align,
 		videoRatio,
 		tracks,
@@ -125,10 +126,10 @@ export default function VideoPressEdit( {
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay,
+		autoplay: autoplay || posterData.previewOnHover, // enabled when `previewOnHover` is enabled.
 		controls,
 		loop,
-		muted,
+		muted: muted || posterData.previewOnHover, // enabled when `previewOnHover` is enabled.
 		playsinline,
 		preload,
 		seekbarColor,
