@@ -19,9 +19,21 @@
 	display: flex;
 	flex-direction: column;
 	max-width: 680px;
-	padding: 0 33px;
+	padding: 24px 48px 0;
 	position: absolute;
 	width: 100%;
+}
+
+.jp-forms__export-modal-close-button {
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+	height: 24px;
+	padding: 3px;
+	position: absolute;
+	right: 8px;
+	top: 8px;
+	width: 24px;
 }
 
 .jp-forms__export-modal-header {
@@ -60,7 +72,7 @@
 	box-sizing: border-box;
 	display: flex;
 	justify-content: space-between;
-	padding: 16px;
+	padding: 48px 16px 24px;
 }
 
 .jp-forms__export-modal-footer-column {

@@ -1,4 +1,4 @@
-import { JetpackFooter } from '@automattic/jetpack-components';
+import { Gridicon, JetpackFooter } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -57,6 +57,10 @@ const ExportModal = ( { isVisible, onClose } ) => {
 	return (
 		<div ref={ backdrop } className="jp-forms__export-modal">
 			<div className="jp-forms__export-modal-wrapper">
+				<button className="jp-forms__export-modal-close-button" onClick={ onClose }>
+					<Gridicon icon="cross" size={ 18 } />
+				</button>
+
 				<div className="jp-forms__export-modal-header">
 					<h1 className="jp-forms__export-modal-header-title">
 						{ __( 'Export your Form Responses', 'jetpack-forms' ) }

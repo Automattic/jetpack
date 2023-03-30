@@ -68,6 +68,7 @@ const GoogleDriveExport = ( { onExport } ) => {
 				<div className="jp-forms__export-modal-card-body-description">
 					<div>
 						{ __( 'Export your data into a Google Sheets file.', 'jetpack-forms' ) }
+						&nbsp;
 						<a
 							href={ config( 'gdriveConnectSupportURL' ) }
 							title={ __( 'Connect to Google Drive', 'jetpack-forms' ) }
@@ -87,7 +88,7 @@ const GoogleDriveExport = ( { onExport } ) => {
 							className="button button-primary export-button export-gdrive"
 							onClick={ exportToGoogleDrive }
 						>
-							{ __( 'Export to Google Drive', 'jetpack-forms' ) }
+							{ __( 'Export', 'jetpack-forms' ) }
 						</button>
 					) }
 
