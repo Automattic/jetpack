@@ -8,7 +8,7 @@ import {
 	BaseControl,
 	useBaseControlProps,
 } from '@wordpress/components';
-import { useCallback, useRef } from '@wordpress/element';
+import { useCallback, useRef, useState } from '@wordpress/element';
 import classNames from 'classnames';
 /**
  * Internal dependencies
@@ -238,6 +238,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 	} = props;
 
 	const debounceTimer = useRef< NodeJS.Timeout >();
+	const [ controledValue, setControledValue ] = useState( value );
 
 	// Check and add a fallback for the `useBaseControlProps` hook.
 	const { baseControlProps } = useBaseControlProps?.( props ) || {};
@@ -246,6 +247,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 		( newValue: number ) => {
 			clearTimeout( debounceTimer?.current );
 
+			setControledValue( newValue );
 			onChange?.( newValue );
 			debounceTimer.current = setTimeout( onDebounceChange?.bind( null, newValue ), wait );
 		},
@@ -259,7 +261,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 					<TimestampInput
 						disabled={ disabled }
 						max={ max }
-						value={ value }
+						value={ controledValue }
 						onChange={ onChangeHandler }
 						autoHideTimeInput={ autoHideTimeInput }
 						decimalPlaces={ decimalPlaces }
@@ -271,8 +273,8 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 					className={ styles[ 'timestamp-range-control' ] }
 					min={ 0 }
 					step={ fineAdjustment }
-					initialPosition={ value }
-					value={ value }
+					initialPosition={ controledValue }
+					value={ controledValue }
 					max={ max }
 					showTooltip={ false }
 					withInputField={ false }
