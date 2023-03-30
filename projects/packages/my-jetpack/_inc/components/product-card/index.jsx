@@ -21,9 +21,8 @@ const PRODUCT_STATUSES_LABELS = {
 const Menu = () => {
 	return (
 		<Dropdown
-			placement="bottom right"
 			className={ styles.dropdown }
-			popoverProps={ { noArrow: false } }
+			popoverProps={ { noArrow: false, placement: 'bottom-end' } }
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<Button
 					variant="tertiary"
@@ -34,7 +33,7 @@ const Menu = () => {
 				/>
 			) }
 			renderContent={ ( { onClose } ) => (
-				<div style={ { minWidth: 224 } }>
+				<>
 					<Button
 						weight="regular"
 						fullWidth
@@ -53,7 +52,7 @@ const Menu = () => {
 					>
 						{ __( 'Manage', 'jetpack-my-jetpack' ) }
 					</Button>
-				</div>
+				</>
 			) }
 		/>
 	);
