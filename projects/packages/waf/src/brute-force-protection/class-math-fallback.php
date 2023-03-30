@@ -50,8 +50,7 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 		 */
 		public static function math_authenticate() {
 			if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
-				$brute_force_protection = Brute_Force_Protection::instance();
-				$transient              = $brute_force_protection->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
+				$transient = Brute_Force_Protection::get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
 
 				if ( ! $transient || $transient < 1 ) {
 					self::generate_math_page();
@@ -131,8 +130,7 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 			} else {
 				$temp_pass = substr( hash_hmac( 'sha1', wp_rand( 1, 100000000 ), get_site_option( 'jetpack_protect_key' ) ), 5, 25 );
 
-				$brute_force_protection = Brute_Force_Protection::instance();
-				$brute_force_protection->set_transient( 'jpp_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
+				Brute_Force_Protection::set_transient( 'jpp_math_pass_' . $temp_pass, 3, DAY_IN_SECONDS );
 				setcookie( 'jpp_math_pass', $temp_pass, time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
 				remove_action( 'login_form', array( $this, 'math_form' ) );
 				return true;
@@ -147,8 +145,7 @@ if ( ! class_exists( 'Brute_Force_Protection_Math_Authenticate' ) ) {
 		public static function math_form() {
 			// Check if jpp_math_pass cookie is set and it matches valid transient.
 			if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
-				$brute_force_protection = Brute_Force_Protection::instance();
-				$transient              = $brute_force_protection->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
+				$transient = Brute_Force_Protection::get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
 
 				if ( $transient && $transient > 0 ) {
 					return '';

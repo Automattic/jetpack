@@ -68,8 +68,7 @@ class Waf_Initializer {
 			return $e->get_wp_error();
 		}
 
-		$brute_force_protection = Brute_Force_Protection::instance();
-		$brute_force_protection->on_activation();
+		Brute_Force_Protection::on_activation();
 
 		return true;
 	}
@@ -86,8 +85,7 @@ class Waf_Initializer {
 			return $e->get_wp_error();
 		}
 
-		$brute_force_protection = Brute_Force_Protection::instance();
-		$brute_force_protection->on_deactivation();
+		Brute_Force_Protection::on_deactivation();
 
 		return true;
 	}
