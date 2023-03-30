@@ -22,15 +22,19 @@ const ContextualUpgradeTrigger: React.FC< CutBaseProps > = ( {
 	return (
 		<div className={ classnames( styles.cut, className ) }>
 			<div>
-				<Text className={ styles.description }>{ description }</Text>
-				{ tooltipText && (
-					<IconTooltip className={ styles.iconContainer } iconSize={ 16 } offset={ 4 }>
-						<Text variant="body-small">{ tooltipText }</Text>
-					</IconTooltip>
-				) }
-				<Tag { ...tagProps }>
-					<Text className={ styles.cta }>{ cta }</Text>
-				</Tag>
+				<div>
+					<Text className={ styles.description }>{ description }</Text>
+					{ tooltipText && (
+						<IconTooltip className={ styles.iconContainer } iconSize={ 16 } offset={ 4 }>
+							<Text variant="body-small">{ tooltipText }</Text>
+						</IconTooltip>
+					) }
+				</div>
+				<div>
+					<Tag { ...tagProps }>
+						<Text className={ styles.cta }>{ cta }</Text>
+					</Tag>
+				</div>
 			</div>
 			<Icon icon={ arrowRight } className={ styles.icon } size={ 30 } />
 		</div>
