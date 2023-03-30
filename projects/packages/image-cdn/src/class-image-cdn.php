@@ -354,7 +354,7 @@ final class Image_CDN {
 					$placeholder_src      = $placeholder_src_orig;
 					$src_orig             = $lazy_load_src[1];
 					$src                  = $src_orig;
-				} elseif ( preg_match( '#data-lazy-original=["|\'](.+?)["|\']#i', $images['img_tag'][ $index ], $lazy_load_src ) ) {
+				} elseif ( preg_match( '#data-lazy-original=["\'](.+?)["\']#i', $images['img_tag'][ $index ], $lazy_load_src ) ) {
 					$placeholder_src_orig = $src;
 					$placeholder_src      = $placeholder_src_orig;
 					$src_orig             = $lazy_load_src[1];
