@@ -238,9 +238,6 @@ export default function VideoPressEdit( {
 				html={ preview.html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
 				isSelected={ isSelected }
-				clientId={ clientId }
-				insertBlocksAfter={ insertBlocksAfter }
-				setShowReplaceControl={ setShowReplaceControl }
 			/>
 
 			<BlockCaption
