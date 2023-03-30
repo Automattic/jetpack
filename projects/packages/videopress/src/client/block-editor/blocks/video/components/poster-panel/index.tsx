@@ -506,20 +506,9 @@ export default function PosterPanel( {
 	const { poster, posterData } = attributes;
 
 	const pickFromFrame = attributes?.posterData?.type === 'video-frame';
-	const [ , setPickFromFrame ] = useState();
-
 	const previewOnHover = attributes?.posterData?.previewOnHover || false;
-	const [ , setPreviewOnHover ] = useState( attributes?.posterData?.previewOnHover || false );
-
 	const previewAtTime = attributes?.posterData?.previewAtTime || posterData?.atTime || 0;
-	const [ , setPreviewAtTime ] = useState(
-		attributes?.posterData?.previewAtTime || posterData?.atTime || 0
-	);
-
 	const previewLoopDuration = attributes?.posterData?.previewLoopDuration || DEFAULT_LOOP_DURATION;
-	const [ , setPreviewLoopDuration ] = useState(
-		attributes?.posterData?.previewLoopDuration || DEFAULT_LOOP_DURATION
-	);
 
 	const videoDuration = attributes?.duration;
 
@@ -529,7 +518,6 @@ export default function PosterPanel( {
 
 	const switchPosterSource = useCallback(
 		( shouldPickFromFrame: boolean ) => {
-			setPickFromFrame( shouldPickFromFrame );
 			setAttributes( {
 				// Extend the posterData attr with the new type.
 				posterData: {
@@ -546,8 +534,6 @@ export default function PosterPanel( {
 
 	const onPreviewOnHoverChange = useCallback(
 		( shouldPreviewOnHover: boolean ) => {
-			setPreviewOnHover( shouldPreviewOnHover );
-
 			setAttributes( {
 				posterData: {
 					...attributes.posterData,
@@ -560,7 +546,6 @@ export default function PosterPanel( {
 
 	const onAtTimeChange = useCallback(
 		( atTime: number ) => {
-			setPreviewAtTime( atTime );
 			setAttributes( {
 				posterData: {
 					...attributes.posterData,
@@ -573,13 +558,11 @@ export default function PosterPanel( {
 
 	const onLoopDurationChange = useCallback(
 		( loopDuration: number ) => {
-			setPreviewLoopDuration( loopDuration );
 			let previewStart = previewAtTime;
 
 			// Adjust the starting point if the loop duration is too long
 			if ( previewAtTime + loopDuration > videoDuration ) {
 				previewStart = videoDuration - loopDuration;
-				setPreviewAtTime( previewStart );
 			}
 
 			setAttributes( {
