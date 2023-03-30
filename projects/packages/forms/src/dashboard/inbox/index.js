@@ -15,7 +15,7 @@ import InboxResponse from './response';
 import './style.scss';
 import { getMonthName } from './util';
 
-const RESPONSES_FETCH_LIMIT = 5;
+const RESPONSES_FETCH_LIMIT = 50;
 
 const TABS = [
 	{
@@ -152,8 +152,16 @@ const Inbox = () => {
 										initialValue={ query.search }
 										loading={ loading }
 									/>
-									<DropdownFilter options={ monthList } onFilter={ setMonthQuery } />
-									<DropdownFilter options={ sourceList } onFilter={ setSourceQuery } />
+									<DropdownFilter
+										options={ monthList }
+										onChange={ setMonthQuery }
+										value={ query.month }
+									/>
+									<DropdownFilter
+										options={ sourceList }
+										onChange={ setSourceQuery }
+										value={ query.parent_id }
+									/>
 								</>
 							) }
 							{ showBulkActionsMenu && (

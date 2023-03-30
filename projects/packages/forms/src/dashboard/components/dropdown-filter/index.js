@@ -1,19 +1,24 @@
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { chevronDown } from '@wordpress/icons';
-import { first, map, noop } from 'lodash';
+import { find, first, isNil, map, noop } from 'lodash';
 
-const DropdownFilter = ( { options = [], onFilter = noop } ) => {
-	const firstOption = first( options );
-	const [ dropdownLabel, setDropdownLabel ] = useState( firstOption?.label || '' );
+const DropdownFilter = ( { options = [], onChange = noop, value } ) => {
+	const dropdownLabel = useMemo( () => {
+		if ( isNil( value ) ) {
+			const firstOption = first( options );
+			return firstOption?.label || '';
+		}
+
+		return find( options, o => o.value === value )?.label || '';
+	}, [ options, value ] );
 
 	const onFilterHandler = useCallback(
 		( data, onClose ) => () => {
-			onFilter( data.value );
-			setDropdownLabel( data.label );
+			onChange( data.value );
 			onClose();
 		},
-		[ onFilter ]
+		[ onChange ]
 	);
 
 	return (
