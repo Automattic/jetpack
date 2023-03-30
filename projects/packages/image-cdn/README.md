@@ -4,11 +4,12 @@ Serve images through Jetpack's powerful CDN
 
 ## How to install image-cdn
 
-### Installation From Git Repo
+1. Run: `Automattic\Jetpack\Image_CDN\Image_CDN_Core::setup()`. You can just load it without a hook. Make sure to definitely load it before `plugins_loaded` priority 10. This should be ran regardless of if you want image-cdn to be active or not. It provides some core functionality and compatibility layer for the photon module in Jetpack.
+
+2. When you want to activate image-cdn in images and start replacing image URLs, run `Automattic\Jetpack\Image_CDN\Image_CDN_Setup::load()`.
 
 ## Contribute
-
-## Get Help
+https://github.com/Automattic/jetpack
 
 ## Security
 
