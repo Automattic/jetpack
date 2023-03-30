@@ -12,45 +12,42 @@ No new features were added, so the only thing to test here is that they work as 
 
 **VideoPress** - add a block and try adding and playing a video.
 
-**Cookie consent block** - Make sure you are using a block theme. Go to the site editor and try adding a Cookie consent block.
+**Cookie Consent block** - make sure you are using a block-based theme such as "Twenty Twenty-Three". Go to the site editor and try adding a Cookie consent block.
 
-**Writing prompt block** - Create a new post and add a Writing prompt block to it. Save or publish the post and check if appropriate tags, such as dailyprompt, dailyprompt-1810 are added.
+**Writing Prompt block** - create a new post and add a Writing Prompt block to it. Save or publish the post and check if appropriate tags, such as 'dailyprompt' and 'dailyprompt-1810' are added.
 
 ### The Form block
 
 **Multiple Choice and Single Choice** fields had some design updates. To test it:
 
-- Create a post and a Form block.
+- Create a post and add a Form block.
 - Include a Multiple Choice and a Single Choice field.
 - Check if they work as expected.
 - Publish the post and check if it looks as expected on the frontend.
 - Multiline feedback message support:
-- Create and publish a post that includes a contact form
-- Submit a multi-line message through a form
+- Create and publish a post that includes a contact form.
+- Submit a multi-line message through a form.
 - Look at Feedback->Form Responses and make sure the message is not showing up as a single line.
 
 ### WordPress 6.2 compatibility
 
-This version of Jetpack included several small fixes to ensure it’s compatible with the latest WordPress. WordPress 6.2 is already available to users, so make sure you update your site to the latest version.
+This version of Jetpack included several small fixes to ensure compatibility with the latest WordPress. WordPress 6.2 is now available to all users, so make sure you update your site to the latest version.
 
 ### Things to check:
 
 #### Twitter block
 
 - Create a new post and add a Twitter block.
-- paste a Twitter URL for a thread (tweetstorm).
+- Paste a Twitter URL for a thread (tweetstorm).
 - Click on Unroll.
 - Change Publicize options to publish a thread instead of a single tweet.
-- Watch the separators added to the post content.
+- Observe separators being added to the post content.
 - Click on the "Social Previews" section at the bottom of the sidebar.
-- You should see previews under some of the tweets, and you should not see any notices in your logs.
+- You should see previews under some of the tweets, and you should not see any notices in your error logs.
 
 ### Pinterest block
 
-- Go to Posts > Add New and add a Pinterest block. When adding a Pinterest URL, no Fatal error should appear in your logs.
-- Install the WordPress Beta tester and switch to WP's Bleeding edge option.
-- Update to WP 6.2 latest Beta in Dashboard > Updates
-- Go to Posts > Add New and repeat your test. The Pinterest block should still trigger no fatal error.
+- Create a new post and add a Pinterest block. When adding a Pinterest URL, no errors should appear in your logs.
 
 ### And More!
 
