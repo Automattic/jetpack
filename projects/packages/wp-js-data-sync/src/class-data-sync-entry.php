@@ -71,7 +71,6 @@ class Data_Sync_Entry {
 			// 3. Sanitize and store the value
 			$sanitized_value = $this->entry->sanitize( $value );
 
-			do_action( 'jetpack_ds_before_set', $this->namespace, $this->key, $value );
 			$set = $this->storage->set( $this->key, $sanitized_value );
 			if ( $set ) {
 				do_action( 'jetpack_ds_set', $this->namespace, $this->key, $value );
