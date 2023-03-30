@@ -200,7 +200,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	}
 
 	/**
-	 * Render the stats footer. Kept for backward compatibility
+	 * Render the stats footer. Kept for backward compatibility on legacy AMF views.
 	 *
 	 * @deprecated $$next-version$$
 	 *
@@ -212,15 +212,13 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	}
 
 	/**
-	 * Render the stats footer for AMP output.
-	 *
-	 * @deprecated $$next-version$$
+	 * Render the stats footer for AMP output. Kept for backward compatibility.
 	 *
 	 * @access public
 	 * @param array $data Array of data for the AMP pixel tracker.
 	 */
-	public static function render_amp_footer( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+	public static function render_amp_footer( $data ) {
+		print self::get_amp_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	}
 
 	/**
