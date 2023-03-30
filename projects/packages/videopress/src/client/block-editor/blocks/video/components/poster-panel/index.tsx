@@ -505,16 +505,19 @@ export default function PosterPanel( {
 }: PosterPanelProps ): React.ReactElement {
 	const { poster, posterData } = attributes;
 
-	const [ pickFromFrame, setPickFromFrame ] = useState(
-		attributes?.posterData?.type === 'video-frame'
-	);
-	const [ previewOnHover, setPreviewOnHover ] = useState(
-		attributes?.posterData?.previewOnHover || false
-	);
-	const [ previewAtTime, setPreviewAtTime ] = useState(
+	const pickFromFrame = attributes?.posterData?.type === 'video-frame';
+	const [ , setPickFromFrame ] = useState();
+
+	const previewOnHover = attributes?.posterData?.previewOnHover || false;
+	const [ , setPreviewOnHover ] = useState( attributes?.posterData?.previewOnHover || false );
+
+	const previewAtTime = attributes?.posterData?.previewAtTime || posterData?.atTime || 0;
+	const [ , setPreviewAtTime ] = useState(
 		attributes?.posterData?.previewAtTime || posterData?.atTime || 0
 	);
-	const [ previewLoopDuration, setPreviewLoopDuration ] = useState(
+
+	const previewLoopDuration = attributes?.posterData?.previewLoopDuration || DEFAULT_LOOP_DURATION;
+	const [ , setPreviewLoopDuration ] = useState(
 		attributes?.posterData?.previewLoopDuration || DEFAULT_LOOP_DURATION
 	);
 
