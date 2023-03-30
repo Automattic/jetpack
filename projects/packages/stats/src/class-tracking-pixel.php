@@ -125,7 +125,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 */
 	public static function add_amp_pixel() {
 		$data = self::build_view_data();
-		if ( self::is_amp_request() ) {
+		if ( ! self::is_amp_request() ) {
 			return;
 		}
 
