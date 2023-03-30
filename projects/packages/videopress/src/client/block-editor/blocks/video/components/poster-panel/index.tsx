@@ -265,7 +265,7 @@ function VideoFramePicker( {
 	}
 
 	const { playerIsReady } = useVideoPlayer( playerWrapperRef, isRequestingEmbedPreview, {
-		atTime,
+		initialTimePosition: atTime,
 	} );
 
 	// Listen player events.
