@@ -338,7 +338,7 @@
                                     <p><?php esc_html_e('Create additional quote templates',"zero-bs-crm"); ?> <a href="<?php echo jpcrm_esc_link( $zbs->slugs['quote-templates'] ); ?>"><?php esc_html_e('here',"zero-bs-crm");?></a></p>
                                     <button type="button" id="zbsQuoteBuilderStep2" class="button button-primary button-large xl"<?php if (!isset($quoteContactID) || empty($quoteContactID)){ echo ' disabled="disabled"'; } ?>><?php esc_html_e('Use Quote Builder',"zero-bs-crm");?></button>
                                     <?php if (!isset($quoteContactID) || empty($quoteContactID)){ ?>
-                                    <p id="zbsQuoteBuilderStep2info">(<?php esc_html_e("You'll need to assign this Quote to a customer to use this","zero-bs-crm");?>);</p>
+									<p id="zbsQuoteBuilderStep2info">(<?php esc_html_e( "You'll need to assign this Quote to a contact to use this", 'zero-bs-crm' ); ?>);</p>
                                     <?php } ?>
 
                                 </div>
@@ -724,7 +724,7 @@
 
                                 <!-- infoz -->
                                 <h3><?php esc_html_e("Publish this Quote","zero-bs-crm");?></h3>
-                                <p><?php esc_html_e("When you've finished writing your Quote, save it here before sending on to your customer","zero-bs-crm");?>:</p>
+								<p><?php esc_html_e( "When you've finished writing your Quote, save it here before sending on to your contact", 'zero-bs-crm' ); ?>:</p>
 
                                 <button type="button" id="zbsQuoteBuilderStep3" class="button button-primary button-large xl"><?php esc_html_e("Save Quote","zero-bs-crm");?></button>
 
@@ -764,12 +764,12 @@
 
                                     <!-- infoz -->
                                     <h3><?php esc_html_e("Email or Share","zero-bs-crm");?></h3>
-                                    <p><?php esc_html_e("Great! Your Quote has been published. You can now email it to your customer, or share the link directly","zero-bs-crm");?>:</p>
+									<p><?php esc_html_e( 'Great! Your Quote has been published. You can now email it to your contact, or share the link directly', 'zero-bs-crm' ); ?>:</p>
 
                                     <?php do_action('zbs_quote_actions'); ?>
 
                                     <div class="zbsEmailOrShare">
-                                        <h4><?php esc_html_e("Email to Customer","zero-bs-crm");?>:</h4>
+										<h4><?php esc_html_e( 'Email to Contact', 'zero-bs-crm' ); ?>:</h4>
                                         <!-- todo -->                                    
                                         <p><input type="text" class="form-control" id="zbsQuoteBuilderEmailTo" value="<?php echo esc_attr( $contactEmail ); ?>" placeholder="<?php esc_attr_e('e.g. customer@yahoo.com','zero-bs-crm'); ?>" data-quoteid="<?php echo esc_attr( $quoteID ); ?>" /></p>
                                         <p><button type="button" id="zbsQuoteBuilderSendNotification" class="button button-primary button-large"><?php esc_html_e("Send Quote","zero-bs-crm");?></button></p>

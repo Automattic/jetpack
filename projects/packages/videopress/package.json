@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-videopress",
-	"version": "0.12.1-alpha",
+	"version": "0.13.4-alpha",
 	"description": "VideoPress package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/videopress/#readme",
 	"bugs": {
@@ -51,7 +51,7 @@
 		"sass": "1.54.2",
 		"sass-loader": "12.4.0",
 		"typescript": "4.8.2",
-		"webpack": "5.72.1",
+		"webpack": "5.76.0",
 		"webpack-cli": "4.9.1"
 	},
 	"engines": {

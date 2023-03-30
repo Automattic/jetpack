@@ -8,7 +8,6 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Licensing;
-use Automattic\Jetpack\Redirect;
 
 /**
  * Jetpack connection banner.
@@ -240,8 +239,6 @@ class Jetpack_Connection_Banner {
 			JETPACK__VERSION
 		);
 
-		$jetpack_api_url = wp_parse_url( Jetpack::connection()->api_url( '' ) );
-
 		$tracking = new Automattic\Jetpack\Tracking();
 		$identity = $tracking->tracks_get_identity( get_current_user_id() );
 
@@ -249,15 +246,8 @@ class Jetpack_Connection_Banner {
 			'jetpack-connect-button',
 			'jpConnect',
 			array(
-				'apiBaseUrl'            => esc_url_raw( rest_url( 'jetpack/v4' ) ),
-				'registrationNonce'     => wp_create_nonce( 'jetpack-registration-nonce' ),
-				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
-				'apiSiteDataNonce'      => wp_create_nonce( 'wp_rest' ),
 				'buttonTextRegistering' => __( 'Loading...', 'jetpack' ),
-				'jetpackApiDomain'      => $jetpack_api_url['scheme'] . '://' . $jetpack_api_url['host'],
-				'connectInPlaceUrl'     => Jetpack::admin_url( 'page=jetpack#/setup' ),
-				'dashboardUrl'          => Jetpack::admin_url( 'page=jetpack#/dashboard' ),
-				'plansPromptUrl'        => Redirect::get_url( 'jetpack-connect-plans' ),
+				'connectUrl'            => Jetpack::admin_url( 'page=jetpack#/setup' ),
 				'identity'              => $identity,
 				'preFetchScript'        => plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ) . '?ver=' . JETPACK__VERSION,
 			)

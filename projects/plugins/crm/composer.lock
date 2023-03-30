@@ -4,8 +4,70 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e4211adecf939624fad89bc9151c2017",
+    "content-hash": "12727c9fc9c563b001577d1577726de1",
     "packages": [
+        {
+            "name": "automattic/jetpack-assets",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/assets",
+                "reference": "14557ec7fcb46db1af2b0a11f3bd422e546e4799"
+            },
+            "require": {
+                "automattic/jetpack-constants": "@dev"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "brain/monkey": "2.6.1",
+                "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-assets",
+                "textdomain": "jetpack-assets",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "1.17.x-dev"
+                }
+            },
+            "autoload": {
+                "files": [
+                    "actions.php"
+                ],
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Asset management utilities for Jetpack ecosystem packages",
+            "transport-options": {
+                "relative": true
+            }
+        },
         {
             "name": "automattic/jetpack-autoloader",
             "version": "dev-trunk",
@@ -103,6 +165,51 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-constants",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/constants",
+                "reference": "f1541ff1d4b84a403937905e480c22711e082518"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "brain/monkey": "2.6.1",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-constants",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-constants/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "1.6.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A wrapper for defining constants in a more testable way.",
             "transport-options": {
                 "relative": true
             }
@@ -1889,12 +1996,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "3b6d4456a83833041dd130f594a6ac9e8de296c1"
+                "reference": "fe7b8ad5d2dd99abb89b2c5a094a2aac10119997"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/3b6d4456a83833041dd130f594a6ac9e8de296c1",
-                "reference": "3b6d4456a83833041dd130f594a6ac9e8de296c1",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/fe7b8ad5d2dd99abb89b2c5a094a2aac10119997",
+                "reference": "fe7b8ad5d2dd99abb89b2c5a094a2aac10119997",
                 "shasum": ""
             },
             "require": {
@@ -1950,6 +2057,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
+                "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
                 "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2"
             },
             "funding": [
@@ -1958,7 +2066,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2023-03-10T06:06:16+00:00"
+            "time": "2023-03-14T13:35:01+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -2207,12 +2315,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "cc53c31867b58def42ae38839b34365ca61659d6"
+                "reference": "f1060f8cdbe103c331ed646c406bca4c342615aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/cc53c31867b58def42ae38839b34365ca61659d6",
-                "reference": "cc53c31867b58def42ae38839b34365ca61659d6",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/f1060f8cdbe103c331ed646c406bca4c342615aa",
+                "reference": "f1060f8cdbe103c331ed646c406bca4c342615aa",
                 "shasum": ""
             },
             "require": {
@@ -2285,6 +2393,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
+                "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
                 "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6"
             },
             "funding": [
@@ -2301,7 +2410,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-03-10T06:04:16+00:00"
+            "time": "2023-03-15T15:41:16+00:00"
         },
         {
             "name": "psr/container",
@@ -3653,12 +3762,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "bbfc3e4f30e24c15246c73c4c397b0a0b161427c"
+                "reference": "7ec6e8b49aa2be157b783eb793c979f8cdaa69d7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/bbfc3e4f30e24c15246c73c4c397b0a0b161427c",
-                "reference": "bbfc3e4f30e24c15246c73c4c397b0a0b161427c",
+                "url": "https://api.github.com/repos/symfony/console/zipball/7ec6e8b49aa2be157b783eb793c979f8cdaa69d7",
+                "reference": "7ec6e8b49aa2be157b783eb793c979f8cdaa69d7",
                 "shasum": ""
             },
             "require": {
@@ -3723,7 +3832,7 @@
             "homepage": "https://symfony.com",
             "keywords": [
                 "cli",
-                "command line",
+                "command-line",
                 "console",
                 "terminal"
             ],
@@ -3744,7 +3853,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-03-06T21:29:33+00:00"
+            "time": "2023-03-14T14:59:20+00:00"
         },
         {
             "name": "symfony/css-selector",
@@ -5094,6 +5203,7 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
+        "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-changelogger": 20

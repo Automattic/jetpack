@@ -135,7 +135,7 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 										focusOnMount
 										renderToggle={ ( { isOpen, onToggle } ) => (
 											<Button
-												isTertiary
+												variant="tertiary"
 												onClick={ onToggle }
 												aria-expanded={ isOpen }
 												aria-label={ sprintf(

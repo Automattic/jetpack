@@ -426,9 +426,8 @@ function addVideoPressCoreVideoTransform( settings, name ) {
 	}
 
 	const isVideoPressVideoBlockRegistered = getBlockType( 'videopress/video' );
-	const { available: isVideoPressVideoBlockAvailable } = getJetpackExtensionAvailability(
-		'videopress/video'
-	);
+	const { available: isVideoPressVideoBlockAvailable } =
+		getJetpackExtensionAvailability( 'videopress/video' );
 
 	// If videopress/video block is not registered or not available, do not extend transforms.
 	if ( ! isVideoPressVideoBlockRegistered || ! isVideoPressVideoBlockAvailable ) {
@@ -556,9 +555,8 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 
 		const isVideoPressVideoBlockRegistered = getBlockType( 'videopress/video' );
 
-		const { available: isVideoPressVideoBlockAvailable } = getJetpackExtensionAvailability(
-			'videopress/video'
-		);
+		const { available: isVideoPressVideoBlockAvailable } =
+			getJetpackExtensionAvailability( 'videopress/video' );
 
 		const isCoreVideoBlock = name === 'core/video';
 

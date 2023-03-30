@@ -8,12 +8,13 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-redirect": "@dev"
+		"automattic/jetpack-redirect": "@dev",
+		"automattic/jetpack-plans": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.1"
+		"automattic/wordbless": "0.4.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -58,7 +59,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.21.x-dev"
+			"dev-trunk": "0.24.x-dev"
 		}
 	},
 	"config": {

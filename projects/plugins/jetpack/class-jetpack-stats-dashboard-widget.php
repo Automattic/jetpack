@@ -12,6 +12,9 @@ use Automattic\Jetpack\Status;
 
 /**
  * Class that adds the Jetpack stats widget to the WordPress admin dashboard.
+ *
+ * Note that this widget renders whether or not the stats module is active because it currently
+ * displays information about Akismet and Protect.
  */
 class Jetpack_Stats_Dashboard_Widget {
 
@@ -53,10 +56,8 @@ class Jetpack_Stats_Dashboard_Widget {
 		}
 
 		if ( Jetpack::is_connection_ready() ) {
-			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
-		}
+			add_action( 'admin_head', array( static::class, 'admin_head' ) );
 
-		if ( has_action( 'jetpack_dashboard_widget' ) ) {
 			$widget_title = sprintf(
 				__( 'Jetpack Stats', 'jetpack' )
 			);
@@ -64,7 +65,7 @@ class Jetpack_Stats_Dashboard_Widget {
 			wp_add_dashboard_widget(
 				'jetpack_summary_widget',
 				$widget_title,
-				array( __CLASS__, 'dashboard_widget' )
+				array( __CLASS__, 'render_widget' )
 			);
 			wp_enqueue_style(
 				'jetpack-dashboard-widget',
@@ -80,22 +81,84 @@ class Jetpack_Stats_Dashboard_Widget {
 	}
 
 	/**
-	 * Fires dashboard widget action.
-	 * Both the footer from this file and the stats graph from modules/stats.php hook into this action.
+	 * JavaScript and CSS for dashboard widget.
+	 *
+	 * @access public
+	 * @return void
 	 */
-	public static function dashboard_widget() {
+	public static function admin_head() {
+		?>
+			<script type="text/javascript">
+				/* <![CDATA[ */
+				jQuery( function($) {
+					var dashStats = jQuery( '#dashboard_stats div.inside' );
+
+					if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
+						return;
+					}
+
+					if ( ! dashStats.length ) {
+						dashStats = jQuery( '#dashboard_stats div.dashboard-widget-content' );
+						var h = parseInt( dashStats.parent().height() ) - parseInt( dashStats.prev().height() );
+						var args = 'width=' + dashStats.width() + '&height=' + h.toString();
+					} else {
+						if ( jQuery('#dashboard_stats' ).hasClass('postbox') ) {
+							var args = 'width=' + ( dashStats.prev().width() * 2 ).toString();
+						} else {
+							var args = 'width=' + ( dashStats.width() * 2 ).toString();
+						}
+					}
+
+					dashStats
+						.not( '.dashboard-widget-control' )
+						.load( 'admin.php?page=stats&noheader&dashboard&' + args, function() {
+							jQuery( '#dashboard_stats' ).removeClass( 'is-loading' );
+							jQuery( '#stat-chart' ).css( 'width', 'auto' );
+						} );
+
+					// Widget settings toggle container.
+					var toggle = $( '.js-toggle-stats_dashboard_widget_control' );
+
+					// Move the toggle in the widget header.
+					toggle.appendTo( '#jetpack_summary_widget .handle-actions' );
+
+					// Toggle settings when clicking on it.
+					toggle.show().click( function( e ) {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+						$( this ).parent().toggleClass( 'controlVisible' );
+						$( '#stats_dashboard_widget_control' ).slideToggle();
+					} );
+				} );
+				/* ]]> */
+			</script>
+		<?php
+	}
+
+	/**
+	 * Renders the widget and fires a dashboard widget action.
+	 */
+	public static function render_widget() {
+		// This function won't exist if the stats module is disabled.
+		if ( function_exists( 'stats_jetpack_dashboard_widget' ) ) {
+			stats_jetpack_dashboard_widget();
+		}
+
 		/**
-		 * Fires when the dashboard is loaded.
+		 * Fires when the dashboard is loaded, but no longer used anywhere in the Jetpack plugin.
+		 * The action is still available for backward compatibility.
 		 *
 		 * @since 3.4.0
 		 */
 		do_action( 'jetpack_dashboard_widget' );
+
+		self::render_footer();
 	}
 
 	/**
-	 * Load the widget footer showing Akismet stats.
+	 * Load the widget footer showing brute force protection and Akismet stats.
 	 */
-	public static function dashboard_widget_footer() {
+	public static function render_footer() {
 		?>
 		<footer>
 		<div class="blocked-container">
@@ -135,7 +198,7 @@ class Jetpack_Stats_Dashboard_Widget {
 					<p class="blocked-count">
 						<?php echo esc_html( number_format_i18n( get_option( 'akismet_spam_count', 0 ) ) ); ?>
 					</p>
-					<p><?php echo esc_html_x( 'Blocked spam comments.', '{#} Spam comments blocked by Akismet -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
+					<p><?php echo esc_html_x( 'Blocked spam comments', '{#} Spam comments blocked by Akismet -- number is on a prior line, text is a caption.', 'jetpack' ); ?></p>
 				<?php elseif ( current_user_can( 'activate_plugins' ) && ! is_wp_error( validate_plugin( 'akismet/akismet.php' ) ) ) : ?>
 					<a href="
 					<?php
@@ -161,33 +224,12 @@ class Jetpack_Stats_Dashboard_Widget {
 			</div>
 		</div>
 		<div class="footer-links">
-			<?php
-				$jetpack_logo = new Jetpack_Logo();
-				echo $jetpack_logo->get_jp_emblem( true );// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-
-			if ( Jetpack::is_module_active( 'stats' ) ) :
-				?>
-				<span>
-					<?php
-					if ( current_user_can( 'jetpack_manage_modules' ) ) :
-						$i18n_headers = jetpack_get_module_i18n( 'stats' );
-						?>
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $i18n_headers['name'] ) ) ); ?>"
-					>
-						<?php
-						esc_html_e( 'Configure Jetpack Stats', 'jetpack' );
-						?>
-				</a>
-				|
-						<?php
-						endif;
-					?>
-				<a href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-wordpress-com-stats' ) ); ?>" target="_blank"><?php esc_html_e( 'Learn more', 'jetpack' ); ?></a>
-				</span>
+			<a href="<?php echo esc_url( Redirect::get_url( 'jetpack-support-wordpress-com-stats' ) ); ?>" target="_blank">
 				<?php
-			endif;
-			?>
-
+					$jetpack_logo = new Jetpack_Logo();
+					echo $jetpack_logo->get_jp_emblem( true );// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				?>
+			</a>
 		</div>
 		</footer>
 

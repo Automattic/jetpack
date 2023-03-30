@@ -262,7 +262,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$is_offline_mode     = $status->is_offline_mode();
 		$site_suffix         = $status->get_site_suffix();
 		$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
-		$script_dependencies = array( 'wp-polyfill' );
+		$script_dependencies = array( 'jquery', 'wp-polyfill' );
 		$version             = JETPACK__VERSION;
 		if ( file_exists( $script_deps_path ) ) {
 			$asset_manifest      = include $script_deps_path;

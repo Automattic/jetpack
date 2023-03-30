@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ce6c5021e96ea4086f38a3747dfcecaa",
+    "content-hash": "5f45f1d813655fecb28d1401a0898108",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -274,7 +274,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "d90086a6709e7995e301be3d8bc80d31ea3e0fbb"
+                "reference": "c891bd1b0cef4000c9721c6982df5040da83d54e"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev"
@@ -288,7 +288,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.14.x-dev"
+                    "dev-trunk": "1.15.x-dev"
                 }
             },
             "autoload": {
@@ -461,6 +461,71 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A way to detect device types based on User-Agent header.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-image-cdn",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/image-cdn",
+                "reference": "fce330f03dae2631b7935852b88755d7d75e31fa"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-status": "@dev"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-image-cdn",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-image-cdn/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-image-cdn",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-image-cdn.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Serve images through Jetpack's powerful CDN",
             "transport-options": {
                 "relative": true
             }
@@ -701,7 +766,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "d8bfc30fbd87ba4b6ba30c604bc551ea88f9234f"
+                "reference": "5a2b5091724708902ba182b6178c6c9b293acb3b"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -728,7 +793,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.8.x-dev"
+                    "dev-trunk": "2.10.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1043,13 +1108,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "f6102cda899d35efbf6968177b500ccc4c24d7c6"
+                "reference": "054c1389884f529e74928bd589c7efb0d59e99f8"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-ip": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
@@ -1380,21 +1446,22 @@
         },
         {
             "name": "automattic/wordbless",
-            "version": "0.4.1",
+            "version": "0.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wordbless.git",
-                "reference": "8cd8d874d42a2faf01a979ba36924fe60d1ba399"
+                "reference": "a1fe6376b81e6d037190aa1a5dc684d51eb674cd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wordbless/zipball/8cd8d874d42a2faf01a979ba36924fe60d1ba399",
-                "reference": "8cd8d874d42a2faf01a979ba36924fe60d1ba399",
+                "url": "https://api.github.com/repos/Automattic/wordbless/zipball/a1fe6376b81e6d037190aa1a5dc684d51eb674cd",
+                "reference": "a1fe6376b81e6d037190aa1a5dc684d51eb674cd",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.6.20",
-                "roots/wordpress": "^6.0.2"
+                "roots/wordpress": "^6.0.2",
+                "yoast/phpunit-polyfills": "^1.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^5.7 || ^6.5 || ^7.5 || ^9.5"
@@ -1418,9 +1485,9 @@
             "description": "WorDBless allows you to use WordPress core functions in your PHPUnit tests without having to set up a database and the whole WordPress environment",
             "support": {
                 "issues": "https://github.com/Automattic/wordbless/issues",
-                "source": "https://github.com/Automattic/wordbless/tree/0.4.1"
+                "source": "https://github.com/Automattic/wordbless/tree/0.4.2"
             },
-            "time": "2022-10-03T13:15:30+00:00"
+            "time": "2023-03-15T12:16:20+00:00"
         },
         {
             "name": "brain/monkey",
@@ -4362,6 +4429,7 @@
         "automattic/jetpack-admin-ui": 20,
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
+        "automattic/jetpack-image-cdn": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,

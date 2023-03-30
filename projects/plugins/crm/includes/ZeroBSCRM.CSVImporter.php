@@ -138,7 +138,7 @@ function zeroBSCRM_CSVImporterLitepages_header( $subpage = '' ) {
 				</p>
 
 				<?php
-				// WLREMOVE
+				##WLREMOVE
 				if ( ! empty( $zbs->urls['extcsvimporterpro'] ) ) {
 					?>
 
@@ -148,16 +148,16 @@ function zeroBSCRM_CSVImporterLitepages_header( $subpage = '' ) {
 
 					<?php
 				}
-				// /WLREMOVE
+				##/WLREMOVE
 				?>
 
 				<br/>
 				<?php
-				// WLREMOVE
+				##WLREMOVE
 				?>
 				<a href="<?php echo esc_url( $zbs->urls['kbcsvformat'] ); ?>" target="_blank" class="ui button orange"><?php esc_html_e( 'Learn More', 'zero-bs-crm' ); ?></a>
 				<?php
-				// /WLREMOVE
+				##/WLREMOVE
 				?>
 				</div>
 				<div class="video">
@@ -311,7 +311,7 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 		if ( $mapped_field_count === 0 ) {
 			// delete the file
 			unlink( $file_path );
-			throw new Exception( __( 'No fields were mapped. You cannot import customers without at least one field mapped to a customer attribute.', 'zero-bs-crm' ) );
+			throw new Exception( __( 'No fields were mapped. You cannot import contacts without at least one field mapped to a contact attribute.', 'zero-bs-crm' ) );
 		}
 	}
 
@@ -400,7 +400,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 			?>
 			<div class="zbscrm-csvimport-wrap">
-				<h2><?php esc_html_e( 'Map Columns from your CSV to Customer Fields', 'zero-bs-crm' ); ?></h2>
+				<h2><?php esc_html_e( 'Map Columns from your CSV to Contact Fields', 'zero-bs-crm' ); ?></h2>
 				<?php
 				if ( isset( $stageError ) && ! empty( $stageError ) ) {
 					zeroBSCRM_html_msg( -1, $stageError ); }
@@ -493,19 +493,23 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 			// Stolen from plugin-install.php?tab=upload
 			?>
 			<div class="zbscrm-csvimport-wrap">
-				<h2>Complete Customer Import</h2>
+				<h2>Complete Contact Import</h2>
 				<?php
 				if ( isset( $stageError ) && ! empty( $stageError ) ) {
 					zeroBSCRM_html_msg( -1, $stageError ); }
 				?>
 				<div class="zbscrm-confirmimport-csv">
 					<p class="zbscrm-csv-help"><?php __( 'Ready to run the import.<br />Please confirm the following is correct <i>before</i> continuing.', 'zero-bs-crm' ); ?><br /></p>
-					<div style=""><?php echo zeroBSCRM_html_msg( 1, __( 'Note: There is no easy way to "undo" a CSV import. To remove any customers that have been added you will need to manually remove them.', 'zero-bs-crm' ) ); ?>
+					<div style="">
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						echo zeroBSCRM_html_msg( 1, __( 'Note: There is no easy way to "undo" a CSV import. To remove any contacts that have been added you will need to manually remove them.', 'zero-bs-crm' ) );
+						?>
 					<form method="post" enctype="multipart/form-data" class="zbscrm-csv-import-form">
 						<input type="hidden" id="zbscrmcsvimpstage" name="zbscrmcsvimpstage" value="3" />
 						<input type="hidden" id="zbscrmcsvimpf" name="zbscrmcsvimpf" value="<?php echo esc_attr( $file_details['public_name'] ); ?>" />
 						<?php wp_nonce_field( 'zbscrm_csv_import', 'zbscrmcsvimportnonce' ); ?>
-						<h3>Import <?php echo esc_html( zeroBSCRM_prettifyLongInts( $file_details['num_lines'] ) ); ?> Customers</h3>
+						<h3>Import <?php echo esc_html( zeroBSCRM_prettifyLongInts( $file_details['num_lines'] ) ); ?> Contacts</h3>
 						<hr />
 						<?php if ( $file_details['ignore_first_line'] ) { ?>
 							<p style="font-size:16px;text-align:center;">Ignore first line of CSV <i class="fa fa-check"></i></p>
@@ -693,7 +697,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 										if ( isset( $settings['defaultcustomerstatus'] ) && ! empty( $settings['defaultcustomerstatus'] ) ) {
 											$status_override_value = $settings['defaultcustomerstatus'];
 										} else {
-											$status_override_value = 'Customer';
+											$status_override_value = 'Contact';
 										}
 									}
 
@@ -777,7 +781,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 							// any of these?
 						if ( count( $existingOverwrites ) > 0 ) {
 
-							echo '<div class="zbscrm-import-log-line"><strong>' . esc_html__( 'The following customers were already in your Jetpack CRM, and were updated:', 'zero-bs-crm' ) . '</strong></div>';
+							echo '<div class="zbscrm-import-log-line"><strong>' . esc_html__( 'The following contacts were already in your Jetpack CRM, and were updated:', 'zero-bs-crm' ) . '</strong></div>';
 
 							foreach ( $existingOverwrites as $l ) {
 
@@ -806,13 +810,13 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 			// } Stolen from plugin-install.php?tab=upload
 			?>
 			<div class="zbscrm-csvimport-wrap">
-				<h2><?php esc_html_e( 'Import Customers from a CSV File', 'zero-bs-crm' ); ?></h2>
+				<h2><?php esc_html_e( 'Import Contacts from a CSV File', 'zero-bs-crm' ); ?></h2>
 				<?php
 				if ( isset( $stageError ) && ! empty( $stageError ) ) {
 					zeroBSCRM_html_msg( -1, $stageError ); }
 				?>
 				<div class="zbscrm-upload-csv">
-					<p class="zbscrm-csv-import-help"><?php esc_html_e( 'If you have a CSV file of customers that you would like to import into Jetpack CRM, you can start the import wizard by uploading your .CSV file here.', 'zero-bs-crm' ); ?></p>
+					<p class="zbscrm-csv-import-help"><?php esc_html_e( 'If you have a CSV file of contacts that you would like to import into Jetpack CRM, you can start the import wizard by uploading your .CSV file here.', 'zero-bs-crm' ); ?></p>
 					<form method="post" enctype="multipart/form-data" class="zbscrm-csv-import-form">
 						<input type="hidden" id="zbscrmcsvimpstage" name="zbscrmcsvimpstage" value="1" />
 						<?php wp_nonce_field( 'zbscrm_csv_import', 'zbscrmcsvimportnonce' ); ?>
@@ -827,7 +831,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 			<?php
 
 			// } Lite upsell (remove from rebrander) but also make it translation OK.
-			// WLREMOVE
+			##WLREMOVE
 
 				// WH added: Is now polite to License-key based settings like 'entrepreneur' doesn't try and upsell
 				// this might be a bit easy to "hack out" hmmmm
@@ -857,7 +861,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 					</div>
 					<?php
 			}
-			// /WLREMOVE
+			##/WLREMOVE
 
 			break;
 

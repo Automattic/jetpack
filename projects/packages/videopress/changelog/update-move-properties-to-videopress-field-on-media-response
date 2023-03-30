@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-VideoPress: Move is_private and private_enabled_for_site fields to the jetpack_videopress property on the media endpoint response.

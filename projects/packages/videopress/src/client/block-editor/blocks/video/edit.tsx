@@ -151,6 +151,7 @@ export default function VideoPressEdit( {
 		isRequestingVideoData,
 		error: syncError,
 		isOverwriteChapterAllowed,
+		isGeneratingPoster,
 	} = useSyncMedia( attributes, setAttributes );
 
 	const { filename, private_enabled_for_site: privateEnabledForSite } = videoData;
@@ -159,7 +160,7 @@ export default function VideoPressEdit( {
 	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
 
 	// Pick video properties from preview.
-	const { html: previewHtml, scripts, width: previewWidth, height: previewHeight } = preview;
+	const { html: previewHtml, width: previewWidth, height: previewHeight } = preview;
 
 	/*
 	 * Store the preview markup and video thumbnail image
@@ -524,6 +525,7 @@ export default function VideoPressEdit( {
 					clientId={ clientId }
 					attributes={ attributes }
 					setAttributes={ setAttributes }
+					isGeneratingPoster={ isGeneratingPoster }
 				/>
 
 				<PrivacyAndRatingPanel
@@ -532,8 +534,8 @@ export default function VideoPressEdit( {
 			</InspectorControls>
 
 			{ /*
-			 * __experimentalGroup is a temporary prop to allow us to group the color panel,
-			 * and it will be replaced with the `group` prop once it's stabilized.
+			 * __experimentalGroup is a temporary prop to allow us to group the color panel, and it
+			 * will be replaced with the `group` prop once WP 6.2 becomes the minimum required version.
 			 * @see https://github.com/WordPress/gutenberg/pull/47105/files#diff-f1d682ce5edd25698e5f189ac8267ab659d6a786260478307dc1352589419309
 			 */ }
 			<InspectorControls __experimentalGroup="color">
@@ -560,7 +562,6 @@ export default function VideoPressEdit( {
 				showCaption={ showCaption }
 				html={ html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
-				scripts={ scripts }
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				isSelected={ isSelected }

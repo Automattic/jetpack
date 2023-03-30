@@ -8,15 +8,16 @@ import { __ } from '@wordpress/i18n';
 /**
  * Types
  */
+import useVideoPlayer, { getIframeWindowFromRef } from '../../../../hooks/use-video-player';
 import type { PlayerProps } from './types';
 import type React from 'react';
 
 // Global scripts array to be run in the Sandbox context.
-const globalScripts = [];
+const sandboxScripts = [];
 
-// Populate scripts array with videopresAjaxURLBlob blobal var.
+// Populate scripts array with videopressAjaxURLBlob blobal var.
 if ( window.videopressAjax ) {
-	const videopresAjaxURLBlob = new Blob(
+	const videopressAjaxURLBlob = new Blob(
 		[
 			`var videopressAjax = ${ JSON.stringify( {
 				...window.videopressAjax,
@@ -28,14 +29,14 @@ if ( window.videopressAjax ) {
 		}
 	);
 
-	globalScripts.push(
-		URL.createObjectURL( videopresAjaxURLBlob ),
+	sandboxScripts.push(
+		URL.createObjectURL( videopressAjaxURLBlob ),
 		window.videopressAjax.bridgeUrl
 	);
 }
 
 if ( window?.videoPressEditorState?.playerBridgeUrl ) {
-	globalScripts.push( window.videoPressEditorState.playerBridgeUrl );
+	sandboxScripts.push( window.videoPressEditorState.playerBridgeUrl );
 }
 
 /**
@@ -50,7 +51,6 @@ export default function Player( {
 	isSelected,
 	attributes,
 	setAttributes,
-	scripts = [],
 	preview,
 	isRequestingEmbedPreview,
 }: PlayerProps ): React.ReactElement {
@@ -134,30 +134,53 @@ export default function Player( {
 	}, [ html ] );
 
 	/*
-	 * Callback state handler for the video player
-	 * tied to the `message` event,
+	 * Function handler that listen to the `message` event
 	 * provided by the videopress player through the bridge.
 	 */
-	const onVideoLoadingStateHandler = useCallback( ev => {
-		const eventName = ev?.data?.event;
-		if ( ! eventName || eventName !== 'videopress_loading_state' ) {
-			return;
+	const videoPlayerEventsHandler = useCallback( ( ev: MessageEvent ) => {
+		const { data: eventData } = ev || {};
+		const { event: eventName } = eventData;
+		if ( eventName === 'videopress_loading_state' ) {
+			setIsVideoPlayerLoaded( eventData?.state === 'loaded' );
 		}
-
-		const playerLoadingState = ev?.data?.state;
-		setIsVideoPlayerLoaded( playerLoadingState === 'loaded' );
 	}, [] );
 
-	// Listen to the `message` event.
 	useEffect( () => {
-		if ( ! window ) {
+		const iFrameContentWindow = getIframeWindowFromRef( videoWrapperRef );
+		if ( ! iFrameContentWindow || isRequestingEmbedPreview ) {
 			return;
 		}
 
-		window.addEventListener( 'message', onVideoLoadingStateHandler );
+		// Listen to the `message` event.
+		iFrameContentWindow.addEventListener( 'message', videoPlayerEventsHandler );
 
-		return () => window?.removeEventListener( 'message', onVideoLoadingStateHandler );
-	}, [ onVideoLoadingStateHandler ] );
+		return () => iFrameContentWindow?.removeEventListener( 'message', videoPlayerEventsHandler );
+	}, [ videoWrapperRef, isRequestingEmbedPreview ] );
+
+	const { atTime, previewOnHover, previewAtTime, previewLoopDuration, type } =
+		attributes.posterData;
+
+	let timeToSetPlayerPosition;
+	if ( type === 'video-frame' ) {
+		if ( previewOnHover ) {
+			timeToSetPlayerPosition = previewAtTime;
+		} else {
+			timeToSetPlayerPosition = atTime;
+		}
+	} else {
+		timeToSetPlayerPosition = atTime;
+	}
+
+	useVideoPlayer( videoWrapperRef, isRequestingEmbedPreview, {
+		atTime: timeToSetPlayerPosition,
+		wrapperElement: mainWrapperRef?.current,
+		previewOnHover: previewOnHover
+			? {
+					atTime: previewAtTime,
+					duration: previewLoopDuration,
+			  }
+			: undefined,
+	} );
 
 	useEffect( () => {
 		if ( isRequestingEmbedPreview ) {
@@ -227,9 +250,7 @@ export default function Player( {
 					style={ wrapperElementStyle }
 				>
 					<>
-						{ ! isRequestingEmbedPreview && (
-							<SandBox html={ html } scripts={ [ ...globalScripts, ...scripts ] } />
-						) }
+						{ ! isRequestingEmbedPreview && <SandBox html={ html } scripts={ sandboxScripts } /> }
 
 						{ ! isVideoPlayerLoaded && (
 							<div className="jetpack-videopress-player__loading">

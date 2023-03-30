@@ -17,6 +17,7 @@
 		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-connection": "@dev",
@@ -31,7 +32,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.1",
+		"automattic/wordbless": "0.4.2",
 		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.0.4"
 	},
