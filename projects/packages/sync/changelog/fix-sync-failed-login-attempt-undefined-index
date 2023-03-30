@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Sync: fix undefined index php warning.
+
+
