@@ -5,9 +5,8 @@
 	display: flex;
 
 	> div {
-	margin: 0;
+		margin: 0;
 	}
-
 
 	.jetpack-instant-search__search-filter-list-input {
 		display: none;
@@ -19,7 +18,7 @@
 	}
 
 	.jetpack-instant-search__search-filter-group-item {
-		&:has(:checked) {
+		&:has( :checked ) {
 			border-bottom: 3px solid var( --color-primary );
 		}
 	}
