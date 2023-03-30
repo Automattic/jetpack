@@ -31,7 +31,7 @@ No new features were added, so the only thing to test here is that they work as 
 
 ### WordPress 6.2 compatibility
 
-This version of Jetpack included several small fixes to ensure it’s compatible with the latest WordPress. Most test sites are already set to use the WordPress 6.2 RC version. However, if you are using Jurassic Ninja, Atomic, or your standalone site, you may need to install the WordPress beta tester plugin, or you have set it up to use the appropriate version in some other way (through the Pressable dashboard). Also, by the time you try testing, the WP 6.2 may already be published.
+This version of Jetpack included several small fixes to ensure it’s compatible with the latest WordPress. WordPress 6.2 is already available to users, so make sure you update your site to the latest version.
 
 ### Things to check:
 
@@ -54,6 +54,6 @@ This version of Jetpack included several small fixes to ensure it’s compatible
 
 ### And More!
 
-You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/jetpack/branch-11.9/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
+You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/jetpack/branch-12.0/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
 
 **Thank you for all your help!**
