@@ -878,9 +878,6 @@ final class Image_CDN {
 	/**
 	 * Filters an array of image `srcset` values, replacing each URL with its Photon equivalent.
 	 *
-	 * @since 3.8.0
-	 * @since 4.0.4 Added automatically additional sizes beyond declared image sizes.
-	 *
 	 * @param array $sources An array of image urls and widths.
 	 * @param array $size_array The size array for srcset.
 	 * @param array $image_src The image srcs.
@@ -1017,8 +1014,6 @@ final class Image_CDN {
 	/**
 	 * Filters an array of image `sizes` values, using $content_width instead of image's full size.
 	 *
-	 * @since 4.0.4
-	 * @since 4.1.0 Returns early for images not within the_content.
 	 * @param array $sizes An array of media query breakpoints.
 	 * @param array $size  Width and height of the image.
 	 * @uses Jetpack::get_content_width
@@ -1322,8 +1317,6 @@ final class Image_CDN {
 
 	/**
 	 * Brings in should_rest_photon_image_downsize for the rest_after_insert_attachment hook.
-	 *
-	 * @since 8.7.0
 	 *
 	 * @param \WP_Post         $attachment Inserted or updated attachment object.
 	 * @param \WP_REST_Request $request    Request object.
