@@ -66,6 +66,7 @@ class Tracking_Pixel {
 
 	/**
 	 * Enqueue the Stats pixel.
+	 * Do not use this function directly, it is hooked into `wp_enqueue_scripts`.
 	 *
 	 * @return void
 	 */
