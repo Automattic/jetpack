@@ -574,13 +574,13 @@ final class Image_CDN {
 
 							$resize_args = array_map( 'trim', explode( ',', $resize_args ) );
 
-							// (?<=\s)         - Ensure width or height attribute is preceded by a space
-							// (width=["|\']?) - Matches, and captures, width=, width=", or width='
-							// [\d%]+          - Matches 1 or more digits or percent signs
-							// (["|\']?)       - Matches, and captures, ", ', or empty string
-							// \s              - Ensures there's a space after the attribute
-							$new_tag = preg_replace( '#(?<=\s)(width=["|\']?)[\d%]+(["|\']?)\s?#i', sprintf( '${1}%d${2} ', $resize_args[0] ), $new_tag );
-							$new_tag = preg_replace( '#(?<=\s)(height=["|\']?)[\d%]+(["|\']?)\s?#i', sprintf( '${1}%d${2} ', $resize_args[1] ), $new_tag );
+							// (?<=\s)        - Ensure width or height attribute is preceded by a space
+							// (width=["\']?) - Matches, and captures, width=, width=", or width='
+							// [\d%]+         - Matches 1 or more digits or percent signs
+							// (["\']?)       - Matches, and captures, ", ', or empty string
+							// \s             - Ensures there's a space after the attribute
+							$new_tag = preg_replace( '#(?<=\s)(width=["\']?)[\d%]+(["\']?)\s?#i', sprintf( '${1}%d${2} ', $resize_args[0] ), $new_tag );
+							$new_tag = preg_replace( '#(?<=\s)(height=["\']?)[\d%]+(["\']?)\s?#i', sprintf( '${1}%d${2} ', $resize_args[1] ), $new_tag );
 						}
 
 						// Tag an image for dimension checking.
