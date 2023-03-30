@@ -133,11 +133,11 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	/**
 	 * Gets the stats footer for AMP output.
 	 *
-	 * @access public
+	 * @access private
 	 * @param array $data Array of data for the AMP pixel tracker.
 	 * @return string Returns the footer to add for the Stats tracker in an AMP scenario.
 	 */
-	public static function get_amp_footer( $data ) {
+	private static function get_amp_footer( $data ) {
 		/**
 		 * Filter the parameters added to the AMP pixel tracking code.
 		 *

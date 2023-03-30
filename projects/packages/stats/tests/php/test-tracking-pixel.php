@@ -81,8 +81,14 @@ class Test_Tracking_Pixel extends StatsBaseTestCase {
 			'srv'  => 'example.org',
 		);
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
-		$amp_footer_data = Tracking_Pixel::get_amp_footer( $data );
+
+		$method = new \ReflectionMethod( 'Automattic\Jetpack\Stats\Tracking_Pixel', 'get_amp_footer' );
+		$method->setAccessible( true );
+
+		$amp_footer_data = $method->invoke( new Tracking_Pixel(), $data );
+
 		remove_filter( 'jetpack_is_amp_request', '__return_true' );
+
 		$footer_to_add_should_be = '<amp-pixel src="https://pixel.wp.com/g.gif?v=ext&#038;blog=1234&#038;post=0&#038;tz&#038;srv=example.org&#038;host=127.0.0.1&#038;rand=RANDOM&#038;ref=DOCUMENT_REFERRER"></amp-pixel>';
 		$this->assertSame( $footer_to_add_should_be, $amp_footer_data );
 	}
