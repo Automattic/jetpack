@@ -33,7 +33,7 @@ const requestMediaToken = function (
 			return reject( 'Invalid scope' );
 		}
 
-		const fetchParams: { path: string; body: any } = { path: '', body: {} };
+		const fetchParams: { path: string; body: object } = { path: '', body: {} };
 
 		switch ( scope ) {
 			case 'upload':
