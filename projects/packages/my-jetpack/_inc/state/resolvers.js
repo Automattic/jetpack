@@ -110,6 +110,8 @@ const getProductStats = {
 
 				return Promise.resolve();
 			} catch ( error ) {
+				// Set it to null so the requester can know the stats are not available
+				dispatch.setProductStats( productId, null );
 				dispatch.setIsFetchingProductStats( productId, false );
 
 				// Pick error from the response body.
