@@ -70,7 +70,7 @@ const useVideoPlayer = (
 			playerState.current = 'first-play';
 			debug( 'state: first-play detected' );
 
-			// Pause and move the video at the desired time.
+			// Pause the video only if the autoplay is disabled.
 			if ( autoplay ) {
 				debug( 'autoplay enabled. Do not pause' );
 			} else {

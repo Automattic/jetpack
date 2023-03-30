@@ -160,7 +160,7 @@ export default function Player( {
 	const { atTime, previewOnHover, previewAtTime, previewLoopDuration, type } =
 		attributes.posterData;
 
-	let timeToSetPlayerPosition;
+	let timeToSetPlayerPosition = undefined;
 	if ( type === 'video-frame' ) {
 		if ( previewOnHover ) {
 			timeToSetPlayerPosition = previewAtTime;
@@ -173,6 +173,7 @@ export default function Player( {
 
 	useVideoPlayer( videoWrapperRef, isRequestingEmbedPreview, {
 		initialTimePosition: timeToSetPlayerPosition,
+		autoplay: attributes.autoplay,
 		wrapperElement: mainWrapperRef?.current,
 		previewOnHover: previewOnHover
 			? {
