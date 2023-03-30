@@ -602,7 +602,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 			?>
 			<div class="zbscrm-csvimport-wrap">
-				<h2><?php esc_html_e( 'Running Import...', 'zero-bs-crm' ); ?></h2>
+				<h2 id="jpcrm_final_step_heading"><?php esc_html_e( 'Running Import...', 'zero-bs-crm' ); ?></h2>
 				<?php
 				if ( isset( $stageError ) && ! empty( $stageError ) ) {
 					zeroBSCRM_html_msg( -1, $stageError ); }
@@ -800,6 +800,10 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 					</div>
 				</div>
 			</div>
+			<script>
+				// this is a quick hack until the importer rewrite
+				document.getElementById('jpcrm_final_step_heading').innerHTML = '<?php esc_html_e( 'Import complete!', 'zero-bs-crm' ); ?>';
+			</script>
 			<?php
 
 			break;
