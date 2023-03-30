@@ -558,7 +558,7 @@ final class Image_CDN {
 						//
 						// If we are transforming the image via one of those methods, let's update the width and height attributes.
 						if ( empty( $args['resize'] ) && empty( $args['fit'] ) && empty( $args['lb'] ) ) {
-							$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
+							$new_tag = preg_replace( '#(?<=\s)(width|height)=["\']?[\d%]+["\']?\s?#i', '', $new_tag );
 						} else {
 							$resize_args = isset( $args['resize'] ) ? $args['resize'] : false;
 							if ( false === $resize_args ) {
