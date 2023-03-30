@@ -392,7 +392,7 @@ final class Image_CDN {
 
 					// WP Attachment ID, if uploaded to this site.
 					if (
-						preg_match( '#class=["|\']?[^"\']*wp-image-([\d]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $attachment_id ) &&
+						preg_match( '#class=["\']?[^"\']*wp-image-([\d]+)[^"\']*["\']?#i', $images['img_tag'][ $index ], $attachment_id ) &&
 						0 === strpos( $src, $upload_dir['baseurl'] ) &&
 						/**
 						 * Filter whether an image using an attachment ID in its class has to be uploaded to the local site to go through Photon.
