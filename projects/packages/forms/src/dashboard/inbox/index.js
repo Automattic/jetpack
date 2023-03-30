@@ -112,13 +112,6 @@ const Inbox = () => {
 				{ () => (
 					<>
 						<div className="jp-forms__inbox-actions">
-							<SearchForm
-								onSearch={ setSearchQuery }
-								initialValue={ query.search }
-								loading={ loading }
-							/>
-							<BulkActionsMenu />
-
 							{ ! showBulkActionsMenu && (
 								<SearchForm
 									onSearch={ setSearchQuery }
