@@ -378,7 +378,7 @@ final class Image_CDN {
 					}
 
 					// Detect WP registered image size from HTML class.
-					if ( preg_match( '#class=["|\']?[^"\']*size-([^"\'\s]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $size ) ) {
+					if ( preg_match( '#class=["\']?[^"\']*size-([^"\'\s]+)[^"\']*["\']?#i', $images['img_tag'][ $index ], $size ) ) {
 						$size = array_pop( $size );
 
 						if ( false === $width && false === $height && 'full' !== $size && array_key_exists( $size, $image_sizes ) ) {
