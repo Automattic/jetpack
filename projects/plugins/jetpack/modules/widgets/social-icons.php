@@ -80,7 +80,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		wp_enqueue_script(
 			'jetpack-widget-social-icons-script',
 			plugins_url( 'social-icons/social-icons-admin.js', __FILE__ ),
-			array( 'jquery-ui-sortable' ),
+			array( 'jquery', 'jquery-ui-sortable' ),
 			'20170506',
 			true
 		);

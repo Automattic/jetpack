@@ -14,7 +14,7 @@ import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
 
-const RESPONSES_FETCH_LIMIT = 10;
+const RESPONSES_FETCH_LIMIT = 50;
 
 const TABS = [
 	{
@@ -41,7 +41,7 @@ const Inbox = () => {
 
 	const { fetchResponses, setCurrentPage, setSearchQuery, setStatusQuery, selectResponses } =
 		useDispatch( STORE_NAME );
-	const [ currentPage, loading, query, responses, selectedIds, total ] = useSelect(
+	const [ currentPage, loading, query, responses, selectedResponses, total ] = useSelect(
 		select => [
 			select( STORE_NAME ).getCurrentPage(),
 			select( STORE_NAME ).isFetchingResponses(),
@@ -84,6 +84,8 @@ const Inbox = () => {
 		[ showExportModal, setShowExportModal ]
 	);
 
+	const showBulkActionsMenu = !! selectedResponses.length && ! loading;
+
 	const classes = classnames( 'jp-forms__inbox', {
 		'is-response-view': view === 'response',
 	} );
@@ -117,6 +119,21 @@ const Inbox = () => {
 							/>
 							<BulkActionsMenu />
 
+							{ ! showBulkActionsMenu && (
+								<SearchForm
+									onSearch={ setSearchQuery }
+									initialValue={ query.search }
+									loading={ loading }
+								/>
+							) }
+							{ showBulkActionsMenu && (
+								<BulkActionsMenu
+									currentView={ query.status }
+									selectedResponses={ selectedResponses }
+									setSelectedResponses={ selectResponses }
+								/>
+							) }
+
 							<button className="button button-primary export-button" onClick={ toggleExportModal }>
 								{ __( 'Export', 'jetpack-forms' ) }
 							</button>
@@ -124,14 +141,14 @@ const Inbox = () => {
 						<div className="jp-forms__inbox-content">
 							<div className="jp-forms__inbox-content-column">
 								<InboxList
+									currentPage={ currentPage }
 									currentResponseId={ currentResponseId }
 									loading={ loading }
-									setCurrentResponseId={ selectResponse }
-									responses={ responses }
-									currentPage={ currentPage }
-									setCurrentPage={ setCurrentPage }
 									pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
-									selectedResponses={ selectedIds }
+									responses={ responses }
+									selectedResponses={ selectedResponses }
+									setCurrentPage={ setCurrentPage }
+									setCurrentResponseId={ selectResponse }
 									setSelectedResponses={ selectResponses }
 								/>
 							</div>

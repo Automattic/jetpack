@@ -135,7 +135,7 @@ function jetpack_debugger_enqueue_site_health_scripts( $hook ) {
 		wp_enqueue_script(
 			'jetpack_debug_site_health_script',
 			plugins_url( 'jetpack-debugger-site-health.js', __FILE__ ),
-			array( 'jquery-ui-progressbar' ),
+			array( 'jquery', 'jquery-ui-progressbar' ),
 			JETPACK__VERSION,
 			false
 		);

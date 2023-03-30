@@ -10,6 +10,7 @@ import {
 	RESPONSES_FETCH,
 	RESPONSES_FETCH_FAIL,
 	RESPONSES_FETCH_RECEIVE,
+	RESPONSES_LOADING_SET,
 	RESPONSES_QUERY_RESET,
 	RESPONSES_QUERY_SEARCH_UPDATE,
 	RESPONSES_QUERY_STATUS_UPDATE,
@@ -23,6 +24,10 @@ const loading = ( state = false, action ) => {
 
 	if ( action.type === RESPONSES_FETCH_RECEIVE || action.type === RESPONSES_FETCH_FAIL ) {
 		return false;
+	}
+
+	if ( action.type === RESPONSES_LOADING_SET ) {
+		return action.loading;
 	}
 
 	return state;

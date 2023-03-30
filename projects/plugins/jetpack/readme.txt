@@ -244,7 +244,24 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 12.0-a.5 - 2023-03-15
+### 12.0-beta - 2023-03-28
+#### Enhancements
+- Forms: display carriage returns in user response text to properly display multiline text.
+- Protect: remove account connection requirement to use the brute force protection feature.
+- Protect: share IP allow list between the Jetpack Firewall and Brute Force Protection modules.
+- Subscriptions: make the Subscribe Block available, even when the Subscriptions module is off, so Subscriptions can be easily enabled.
+- Stats: update visuals for the wp-admin dashboard Stats widget.
+
+#### Improved compatibility
+- Blocks: avoid conflicts with Better Click To Tweet plugin.
+- Image CDN: do not process Flickr-hosted images with Jetpack's Image CDN.
+- SEO Tools: add message to settings screen when The SEO Framework plugin is active.
+- WordPress 6.2 compatibility: ensure that the block editor's External Media functionality and Jetpack's Twitter features in the block editor stays compatible with the upcoming version of WordPress.
+
+#### Bug fixes
+- Forms: fix a PHP warning on Feedback->Response Forms when looking at old responses.
+- Subscriptions: ensure the block's settings are displayed properly, even when using a block theme.
+
 --------
 
 [See the previous changelogs here](https://github.com/Automattic/jetpack/blob/trunk/projects/plugins/jetpack/CHANGELOG.md#changelog)

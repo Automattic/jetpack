@@ -1,6 +1,6 @@
 import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormLegend, FormFieldset } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
@@ -136,7 +136,7 @@ class Media extends React.Component {
 				{ shouldDisplayBanner && (
 					<JetpackBanner
 						className="media__videopress-upgrade"
-						callToAction={ __( 'Upgrade', 'jetpack' ) }
+						callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 						title={ bannerText }
 						eventFeature="videopress"
 						icon="video"

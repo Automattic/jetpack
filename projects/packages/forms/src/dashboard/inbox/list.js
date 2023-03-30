@@ -1,3 +1,4 @@
+import { Button } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PageNavigation from '../components/page-navigation';
@@ -15,6 +16,11 @@ const COLUMNS = [
 	{
 		key: 'source',
 		label: __( 'Source', 'jetpack-forms' ),
+		component: Button,
+		getProps: item => ( {
+			href: item.entry_permalink,
+			variant: 'link',
+		} ),
 	},
 ];
 
@@ -23,9 +29,10 @@ const InboxList = ( {
 	currentResponseId,
 	pages,
 	responses,
-	setSelectedResponses,
+	selectedResponses,
 	setCurrentPage,
 	setCurrentResponseId,
+	setSelectedResponses,
 	loading,
 } ) => {
 	const tableItems = useMemo(
@@ -63,15 +70,18 @@ const InboxList = ( {
 				className="jp-forms__inbox-list"
 				columns={ COLUMNS }
 				items={ tableItems }
-				onSelectionChange={ setSelectedResponses }
+				selectedResponses={ selectedResponses }
+				setSelectedResponses={ setSelectedResponses }
 			/>
 
-			<PageNavigation
-				currentPage={ currentPage }
-				pages={ pages }
-				onSelectPage={ setCurrentPage }
-				expandedRange={ 2 }
-			/>
+			{ pages > 1 && (
+				<PageNavigation
+					currentPage={ currentPage }
+					pages={ pages }
+					onSelectPage={ setCurrentPage }
+					expandedRange={ 2 }
+				/>
+			) }
 		</>
 	);
 };

@@ -8,6 +8,7 @@ import {
 	RESPONSES_FETCH,
 	RESPONSES_FETCH_FAIL,
 	RESPONSES_FETCH_RECEIVE,
+	RESPONSES_LOADING_SET,
 	RESPONSES_QUERY_RESET,
 	RESPONSES_QUERY_SEARCH_UPDATE,
 	RESPONSES_QUERY_STATUS_UPDATE,
@@ -104,4 +105,15 @@ export const setStatusQuery = status => ( {
 export const selectResponses = selectedResponses => ( {
 	type: RESPONSES_SELECTION_SET,
 	selectedResponses,
+} );
+
+/**
+ * Set the application loading state.
+ *
+ * @param {boolean} loading - The loading state.
+ * @returns {object} Action object.
+ */
+export const setLoading = loading => ( {
+	type: RESPONSES_LOADING_SET,
+	loading,
 } );

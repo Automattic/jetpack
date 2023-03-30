@@ -22,6 +22,7 @@ import NonAdminView from 'components/non-admin-view';
 import ReconnectModal from 'components/reconnect-modal';
 import SupportCard from 'components/support-card';
 import Tracker from 'components/tracker';
+import jQuery from 'jquery';
 import analytics from 'lib/analytics';
 import MyPlan from 'my-plan/index.jsx';
 import ProductDescriptions from 'product-descriptions';
@@ -517,6 +518,7 @@ class Main extends React.Component {
 			case '/recommendations/welcome-videopress':
 			case '/recommendations/welcome-search':
 			case '/recommendations/welcome-scan':
+			case '/recommendations/welcome-golden-token':
 			case '/recommendations/backup-activated':
 			case '/recommendations/scan-activated':
 			case '/recommendations/antispam-activated':

@@ -252,6 +252,7 @@ $action-bar-height: 72px;
 
 .jp-forms__inbox-response-subtitle {
 	color: #646970;
+	flex-shrink: 0;
 	font-size: 16px;
 	font-weight: 500;
 	margin: 4px 0 0;
@@ -299,6 +300,10 @@ $action-bar-height: 72px;
 	font-weight: 600;
 }
 
+.jp-forms__inbox-response-data-value {
+	white-space: pre-wrap;
+}
+
 // ACTIONS ROW
 .jp-forms__inbox-actions {
 	background: white;
@@ -322,7 +327,7 @@ $action-bar-height: 72px;
 		}
 	}
 
-	.components-button.components-dropdown-menu__toggle {
+	.components-button {
 		border-radius: var( --jp-forms-border-radius );
 		height: var( --jp-forms-input-wrapper-height );
 		letter-spacing: -0.02em;

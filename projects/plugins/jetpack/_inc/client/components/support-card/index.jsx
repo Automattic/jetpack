@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -120,7 +120,7 @@ class SupportCard extends React.Component {
 					<JetpackBanner
 						title={ __( 'Get a faster resolution to your support questions.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_PRIORITY_SUPPORT_JETPACK ) }
-						callToAction={ __( 'Upgrade', 'jetpack' ) }
+						callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 						onClick={ this.trackBannerClick }
 						href={ this.props.supportUpgradeUrl }
 					/>
