@@ -13,6 +13,11 @@ use Automattic\Jetpack\Assets;
 class WordAds_Sponsored_Post {
 
 	/**
+	 * The Sponsored Post ID.
+	 */
+	const POST_ID = -99;
+
+	/**
 	 * Initializes scripts and hooks.
 	 */
 	public static function init() {
@@ -61,11 +66,11 @@ class WordAds_Sponsored_Post {
 		}
 
 		$dummy                 = new stdClass();
-		$dummy->ID             = -99;
+		$dummy->ID             = self::POST_ID;
 		$dummy->post_title     = '{{sp_link_text}}';
 		$dummy->post_content   = '{{sp_post_thumbnail}}{{sp_post_content}}{{sp_cta}}';
 		$dummy->post_excerpt   = $dummy->post_content;
-		$dummy->post_date      = current_time( 'mysql' );    // If you don't add a post_date then WordPress fills
+		$dummy->post_date      = current_time( 'mysql' );    // If you don't add a post_date then WordPress fills.
 		$dummy->post_date_gmt  = current_time( 'mysql', 1 ); // it automatically with the current date and time.
 		$dummy->post_author    = '{{sp_post_author}}';
 		$dummy->filter         = 'raw';
@@ -87,7 +92,7 @@ class WordAds_Sponsored_Post {
 	 * @return string The overridden post link.
 	 */
 	public static function override_post_link( $permalink, $post ) {
-		if ( -99 === $post->ID ) {
+		if ( self::POST_ID === $post->ID ) {
 			$permalink = '{{sp_permalink}}';
 		}
 
@@ -104,7 +109,7 @@ class WordAds_Sponsored_Post {
 	 * @return string[] Array of class names.
 	 */
 	public static function add_post_class( $classes, $class, $post_id ) {
-		if ( -99 === $post_id ) {
+		if ( self::POST_ID === $post_id ) {
 			$classes[] = 'wa-sponsored-post';
 		}
 
@@ -120,7 +125,7 @@ class WordAds_Sponsored_Post {
 	 * @return string The edit link.
 	 */
 	public static function remove_edit_post_link( $link, $post_id ) {
-		if ( -99 === $post_id ) {
+		if ( self::POST_ID === $post_id ) {
 			$link = '';
 		}
 
@@ -144,7 +149,7 @@ class WordAds_Sponsored_Post {
 		);
 
 		// Found a matching URL.
-		if ( in_array( $original_url, $good_urls ) ) {
+		if ( in_array( $original_url, $good_urls, true ) ) {
 			return $original_url;
 		}
 

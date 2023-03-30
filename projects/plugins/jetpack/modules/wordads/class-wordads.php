@@ -109,6 +109,13 @@ class WordAds {
 	public static $solo_unit_css = 'float:left;margin-right:5px;margin-top:0px;';
 
 	/**
+	 * Indicates whether the class initialized or not.
+	 *
+	 * @var bool
+	 */
+	private static $initialized = false;
+
+	/**
 	 * Checks for AMP support and returns true iff active & AMP request
 	 *
 	 * @return boolean True if supported AMP request
@@ -174,6 +181,10 @@ class WordAds {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
+
+		// AMP compatibility.
+		add_action( 'wp', array( $this, 'init' ) );
+
 		add_action( 'rest_api_init', array( $this, 'init' ) );
 		add_action( 'widgets_init', array( $this, 'widget_callback' ) );
 
@@ -183,11 +194,17 @@ class WordAds {
 	}
 
 	/**
-	 * Code to run on WordPress 'init' hook
+	 * Code to run on WordPress 'init' and 'wp' hook.
 	 *
 	 * @since 4.5.0
 	 */
 	public function init() {
+		if ( self::$initialized ) {
+			return;
+		}
+
+		self::$initialized = true;
+
 		require_once WORDADS_ROOT . '/php/class-wordads-params.php';
 		$this->params = new WordAds_Params();
 

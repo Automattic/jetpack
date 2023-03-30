@@ -1,12 +1,4 @@
 ( function () {
-	/*
-		TODO:
-		- Follow best practice, is the using of this context right? Should we compatible with old browsers? Eg. using XHR instead of Promise
-		- Add the Observer to track the impressions consuming the impressionPixelTrackerUrl property
-		- Consume the geolocation
-		- Handle the GDPR and US privacy
-	 */
-
 	// Class that represents a sponsored post.
 	var SponsoredPost = function ( obj ) {
 		// Keeping the same names used in the template.
@@ -63,7 +55,7 @@
 			if ( ! root ) {
 				throw new Error( 'no valid slots for content' );
 			}
-			// this.hookEvents( root );
+			this.hookEvents( root );
 		};
 
 		this.insertMarkup = function ( markup, selector ) {
@@ -93,30 +85,7 @@
 			// Show a click pointer over the whole element.
 			var wholeAd = rootEl;
 			wholeAd.style.cursor = 'pointer';
-
-			var aboutClick = rootEl.querySelector( '.native-about-click' );
-			aboutClick.style.cursor = 'auto';
-
-			var aboutContent = rootEl.querySelector( '.native-about-content' );
-
-			window.addEventListener( 'click', this.hideElement.bind( aboutContent ) );
-			aboutClick.addEventListener( 'click', this.toggleElementVisibility.bind( aboutContent ) );
-			aboutContent.addEventListener( 'click', this.stopElementClickPropagation );
 			wholeAd.addEventListener( 'click', this.fireLinkTrackers.bind( this ) );
-		};
-
-		this.toggleElementVisibility = function ( event ) {
-			event.preventDefault();
-			event.stopPropagation();
-			this.style.display = this.style.display === 'block' ? 'none' : 'block';
-		};
-
-		this.stopElementClickPropagation = function ( event ) {
-			event.stopPropagation();
-		};
-
-		this.hideElement = function () {
-			this.style.display = 'none';
 		};
 
 		this.fireLinkTrackers = function () {
@@ -147,7 +116,7 @@
 			headers.append( 'Content-Type', 'application/json' );
 
 			const body = JSON.stringify( {
-				timestamp: 1678382138192512,
+				timestamp: Date.now(),
 				networkId: 3905,
 				siteId: 474853,
 				pageId: 1572546,
@@ -156,17 +125,9 @@
 					{
 						formatId: 117652,
 						tagId: 'sas_117652',
-						target: 'foo=bar',
 						isLazy: false,
 					},
 				],
-				geolocation: {
-					latitude: -22.8305,
-					longitude: -43.2192,
-				},
-				gdpr: false,
-				gdpr_consent: 'TODO',
-				us_privacy: 'TODO',
 			} );
 
 			var requestOptions = {
