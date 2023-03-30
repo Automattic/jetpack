@@ -369,7 +369,7 @@ final class Image_CDN {
 
 					// First, check the image tag. Note we only check for pixel sizes now; HTML4 percentages have never been correctly
 					// supported, so we stopped pretending to support them in JP 9.1.0.
-					if ( preg_match( '#[\s|"|\']width=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $width_string ) ) {
+					if ( preg_match( '#[\s"\']width=["\']?([\d%]+)["\']?#i', $images['img_tag'][ $index ], $width_string ) ) {
 						$width = false === strpos( $width_string[1], '%' ) ? $width_string[1] : false;
 					}
 
