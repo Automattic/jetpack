@@ -156,17 +156,6 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	}
 
 	/**
-	 * Gets the stats footer
-	 *
-	 * @access private
-	 * @param array $data Array of data for the JS stats tracker.
-	 * @return void
-	 */
-	private static function get_footer( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$' );
-	}
-
-	/**
 	 * Render the stats footer. Kept for backward compatibility
 	 *
 	 * @access public
