@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Consolidate stats widget code while enforcing nonce on form submission

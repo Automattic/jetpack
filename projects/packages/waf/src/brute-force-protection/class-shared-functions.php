@@ -18,10 +18,10 @@ class Brute_Force_Protection_Shared_Functions {
 	/**
 	 * Returns an array of IP objects that will never be blocked by the Brute force protection feature
 	 *
-	 * @deprecated $$next-version$$ Use format_allow_list()
+	 * @deprecated 0.11.0 Use format_allow_list()
 	 */
 	public static function format_whitelist() {
-		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::format_allow_list' );
+		_deprecated_function( __METHOD__, 'waf-0.11.0', __CLASS__ . '::format_allow_list' );
 		return self::format_allow_list();
 	}
 
@@ -66,10 +66,10 @@ class Brute_Force_Protection_Shared_Functions {
 	/**
 	 * Gets the local Brute force protection allow list.
 	 *
-	 * @deprecated $$next-version$$ Use get_local_allow_list()
+	 * @deprecated 0.11.0 Use get_local_allow_list()
 	 */
 	public static function get_local_whitelist() {
-		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::get_local_allow_list' );
+		_deprecated_function( __METHOD__, 'waf-0.11.0', __CLASS__ . '::get_local_allow_list' );
 		return self::get_local_allow_list();
 	}
 
@@ -109,10 +109,10 @@ class Brute_Force_Protection_Shared_Functions {
 	/**
 	 * Get the global, network-wide allow list.
 	 *
-	 * @deprecated $$next-version$$ Use get_global_allow_list()
+	 * @deprecated 0.11.0 Use get_global_allow_list()
 	 */
 	public static function get_global_whitelist() {
-		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::get_global_allow_list' );
+		_deprecated_function( __METHOD__, 'waf-0.11.0', __CLASS__ . '::get_global_allow_list' );
 		return self::get_global_allow_list();
 	}
 
@@ -158,13 +158,13 @@ class Brute_Force_Protection_Shared_Functions {
 	/**
 	 * Save IP allow list.
 	 *
-	 * @deprecated $$next-version$$ Use save_allow_list()
+	 * @deprecated 0.11.0 Use save_allow_list()
 	 *
 	 * @param mixed $allow_list IP allow list.
 	 * @param bool  $global (default: false) Global.
 	 */
 	public static function save_whitelist( $allow_list, $global = false ) {
-		_deprecated_function( __METHOD__, 'waf-$$next-version$$', __CLASS__ . '::save_allow_list' );
+		_deprecated_function( __METHOD__, 'waf-0.11.0', __CLASS__ . '::save_allow_list' );
 		return self::save_allow_list( $allow_list, $global );
 	}
 

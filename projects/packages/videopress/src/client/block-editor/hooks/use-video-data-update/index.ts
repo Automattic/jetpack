@@ -78,6 +78,7 @@ const videoFieldsToUpdate = [
 	'allow_download',
 	'display_embed',
 	'is_private',
+	'duration',
 ];
 
 /*

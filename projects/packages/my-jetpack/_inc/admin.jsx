@@ -4,7 +4,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import * as WPElement from '@wordpress/element';
 import React, { useEffect } from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -48,7 +48,9 @@ const MyJetpack = () => (
 			<Routes>
 				<Route path="/" element={ <MyJetpackScreen /> } />
 				<Route path="/connection" element={ <ConnectionScreen /> } />
-				<Route path="/add-anti-spam" element={ <AntiSpamInterstitial /> } />
+				<Route path="/add-akismet" element={ <AntiSpamInterstitial /> } />
+				{ /* Redirect the old route for Anti Spam */ }
+				<Route path="/add-anti-spam" element={ <Navigate replace to="/add-akismet" /> } />
 				<Route path="/add-backup" element={ <BackupInterstitial /> } />
 				<Route path="/add-boost" element={ <BoostInterstitial /> } />
 				<Route path="/add-crm" element={ <CRMInterstitial /> } />
