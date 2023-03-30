@@ -109,7 +109,19 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 		// Make sure the script loads asynchronously (add a defer attribute).
 		Assets::add_async_script( 'jetpack-stats' );
 
-		$data     = self::build_view_data();
+		$data = self::build_view_data();
+
+		/**
+		 * Filter the parameters added to the JavaScript stats tracking code.
+		 *
+		 * @module stats
+		 *
+		 * @since-jetpack 10.9
+		 *
+		 * @param array $data Array of options about the site and page you're on.
+		 */
+		$data = (array) apply_filters( 'jetpack_stats_footer_js_data', $data );
+
 		$triggers = self::build_stats_details( $data );
 		wp_add_inline_script(
 			'jetpack-stats',
@@ -126,6 +138,17 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	 * @return string Returns the footer to add for the Stats tracker in an AMP scenario.
 	 */
 	public static function get_amp_footer( $data ) {
+		/**
+		 * Filter the parameters added to the AMP pixel tracking code.
+		 *
+		 * @module stats
+		 *
+		 * @since-jetpack 10.9
+		 *
+		 * @param array $data Array of options about the site and page you're on.
+		 */
+		$data = (array) apply_filters( 'jetpack_stats_footer_amp_data', $data );
+
 		$data['host'] = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : ''; // input var ok.
 		$data['rand'] = 'RANDOM'; // AMP placeholder.
 		$data['ref']  = 'DOCUMENT_REFERRER'; // AMP placeholder.
