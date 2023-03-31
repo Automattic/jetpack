@@ -216,7 +216,7 @@
 		</svelte:fragment>
 	</Module>
 
-	<Module slug="image-cdn">
+	<Module slug="image_cdn">
 		<h3 slot="title">{__( 'Image CDN', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 		<p slot="description">
 			{__( `Delivers images from Jetpack's image CDN.`, 'jetpack-boost' )}
