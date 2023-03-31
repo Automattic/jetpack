@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: store poster panel data in a local state
