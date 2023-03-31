@@ -122,6 +122,12 @@ class Brute_Force_Protection {
 	 * Registers actions
 	 */
 	private function __construct() {
+		// Older versions of Jetpack initialize brute force protection directly in the plugin.
+		// Return early to avoid running it twice.
+		if ( Waf_Compatibility::is_brute_force_running_in_jetpack() ) {
+			return;
+		}
+
 		add_action( 'jetpack_modules_loaded', array( $this, 'modules_loaded' ) );
 		add_action( 'login_form', array( $this, 'check_use_math' ), 0 );
 		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
@@ -151,7 +157,6 @@ class Brute_Force_Protection {
 	 * @return void
 	 */
 	public static function initialize() {
-
 		// Older versions of Jetpack initialize brute force protection directly in the plugin.
 		// Return early to avoid running it twice.
 		if ( Waf_Compatibility::is_brute_force_running_in_jetpack() ) {
