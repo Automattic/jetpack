@@ -31,7 +31,7 @@ import './style.scss';
  * Types
  */
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
-import type { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
+import type { PosterDataProps, PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import type React from 'react';
 
 const MAX_LOOP_DURATION = 30 * 1000;
@@ -94,22 +94,19 @@ export function PosterDropdown( {
 	const videoPosterDescription = `video-block__poster-image-description-${ clientId }`;
 
 	const { poster } = attributes;
-	const onSelectPoster = useCallback(
-		( image: AdminAjaxQueryAttachmentsResponseItemProps ) => {
-			setAttributes( {
-				poster: image.url,
+	const onSelectPoster = useCallback( ( image: AdminAjaxQueryAttachmentsResponseItemProps ) => {
+		setAttributes( {
+			poster: image.url,
 
-				// Extend the posterData object to include the media library id and url.
-				posterData: {
-					...attributes.posterData,
-					type: 'media-library',
-					id: image.id,
-					url: image.url,
-				},
-			} );
-		},
-		[ attributes ]
-	);
+			// Extend the posterData object to include the media library id and url.
+			posterData: {
+				...attributes.posterData,
+				type: 'media-library',
+				id: image.id,
+				url: image.url,
+			},
+		} );
+	}, [] );
 
 	const selectPosterLabel = __( 'Select Poster Image', 'jetpack-videopress-pkg' );
 	const replacePosterLabel = __( 'Replace Poster Image', 'jetpack-videopress-pkg' );
@@ -350,9 +347,7 @@ function VideoHoverPreviewControl( {
 						decimalPlaces={ 2 }
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
 						value={ loopDuration }
-						onDebounceChange={ duration => {
-							onLoopDurationChange( Math.max( Math.min( MAX_LOOP_DURATION, duration ), 0 ) );
-						} }
+						onDebounceChange={ onLoopDurationChange }
 						wait={ 100 }
 					/>
 				</>
@@ -372,78 +367,82 @@ export default function PosterPanel( {
 	setAttributes,
 	isGeneratingPoster,
 }: PosterPanelProps ): React.ReactElement {
-	const { poster, posterData } = attributes;
+	const { poster } = attributes;
+	const [ localData, setLocalData ] = useState< PosterDataProps >( attributes.posterData );
 
-	const pickPosterFromFrame = posterData?.type === 'video-frame';
-	const previewOnHover = posterData?.previewOnHover || false;
-	const previewAtTime = posterData?.previewAtTime ?? posterData?.atTime ?? 0;
-	const previewLoopDuration = posterData?.previewLoopDuration ?? DEFAULT_LOOP_DURATION;
+	const pickPosterFromFrame = localData?.type === 'video-frame';
+	const previewOnHover = localData?.previewOnHover || false;
+	const previewAtTime = localData?.previewAtTime ?? localData?.atTime ?? 0;
+	const previewLoopDuration = localData?.previewLoopDuration ?? DEFAULT_LOOP_DURATION;
 
 	const videoDuration = attributes?.duration;
 
-	const onRemovePoster = () => {
-		setAttributes( { poster: '', posterData: { ...attributes.posterData, url: '' } } );
-	};
+	const removePoster = useCallback( () => {
+		setLocalData( state => ( { ...state, url: '' } ) );
+		setAttributes( { poster: '', posterData: { ...localData, url: '' } } );
+	}, [] );
 
-	const switchPosterSource = useCallback(
-		( shouldPickFromFrame: boolean ) => {
-			setAttributes( {
-				// Extend the posterData attr with the new type.
-				posterData: {
-					...attributes.posterData,
-					type: shouldPickFromFrame ? 'video-frame' : 'media-library',
-				},
+	const switchPosterSource = useCallback( ( shouldPickFromFrame: boolean ) => {
+		const type = shouldPickFromFrame ? 'video-frame' : 'media-library';
+		setLocalData( state => ( { ...state, type } ) );
 
-				// Clean the poster URL when it should be picked from the video frame.
-				poster: shouldPickFromFrame ? '' : attributes.posterData.url || '',
-			} );
-		},
-		[ attributes ]
-	);
+		setAttributes( {
+			// Extend the localData attr with the new type.
+			posterData: { ...localData, type },
 
-	const onPreviewOnHoverChange = useCallback(
-		( shouldPreviewOnHover: boolean ) => {
-			setAttributes( {
-				posterData: {
-					...attributes.posterData,
-					previewOnHover: shouldPreviewOnHover,
-				},
-			} );
-		},
-		[ attributes ]
-	);
+			// Clean the poster URL when it should be picked from the video frame.
+			poster: shouldPickFromFrame ? '' : localData.url || '',
+		} );
+	}, [] );
 
-	const onPreviewAtTimeChange = useCallback(
-		( atTime: number ) => {
-			setAttributes( {
-				posterData: {
-					...attributes.posterData,
-					previewAtTime: atTime,
-				},
-			} );
-		},
-		[ attributes ]
-	);
+	const selectVideoFrame = useCallback( ( timestamp: number ) => {
+		setLocalData( state => ( { ...state, atTime: timestamp } ) );
+		setAttributes( {
+			posterData: {
+				...localData,
+				atTime: timestamp,
+			},
+			poster: '',
+		} );
+	}, [] );
 
-	const onLoopDurationChange = useCallback(
-		( loopDuration: number ) => {
-			let previewStart = previewAtTime;
+	const setPreviewOnHover = useCallback( ( shouldPreviewOnHover: boolean ) => {
+		setLocalData( state => ( { ...state, previewOnHover: shouldPreviewOnHover } ) );
+		setAttributes( {
+			posterData: {
+				...localData,
+				previewOnHover: shouldPreviewOnHover,
+			},
+		} );
+	}, [] );
 
-			// Adjust the starting point if the loop duration is too long
-			if ( previewAtTime + loopDuration > videoDuration ) {
-				previewStart = videoDuration - loopDuration;
-			}
+	const setPreviewAtTimestampValue = useCallback( ( atTime: number ) => {
+		setLocalData( state => ( { ...state, previewAtTime: atTime } ) );
+		setAttributes( {
+			posterData: {
+				...localData,
+				previewAtTime: atTime,
+			},
+		} );
+	}, [] );
 
-			setAttributes( {
-				posterData: {
-					...attributes.posterData,
-					previewLoopDuration: loopDuration,
-					previewAtTime: previewStart,
-				},
-			} );
-		},
-		[ attributes ]
-	);
+	const setPreviewOnHoverDuration = useCallback( ( loopDuration: number ) => {
+		setLocalData( state => ( { ...state, previewLoopDuration: loopDuration } ) );
+		let previewStart = previewAtTime;
+
+		// Adjust the starting point if the loop duration is too long
+		if ( previewAtTime + loopDuration > videoDuration ) {
+			previewStart = videoDuration - loopDuration;
+		}
+
+		setAttributes( {
+			posterData: {
+				...localData,
+				previewLoopDuration: loopDuration,
+				previewAtTime: previewStart,
+			},
+		} );
+	}, [] );
 
 	if ( ! isVideoFramePosterEnabled() ) {
 		return (
@@ -452,7 +451,7 @@ export default function PosterPanel( {
 				<VideoPosterCard poster={ poster } className="poster-panel-card" />
 
 				{ poster && (
-					<MenuItem onClick={ onRemovePoster } icon={ linkOff } isDestructive variant="tertiary">
+					<MenuItem onClick={ removePoster } icon={ linkOff } isDestructive variant="tertiary">
 						{ __( 'Remove and use default', 'jetpack-videopress-pkg' ) }
 					</MenuItem>
 				) }
@@ -480,18 +479,9 @@ export default function PosterPanel( {
 				<VideoFramePicker
 					isGeneratingPoster={ isGeneratingPoster }
 					guid={ attributes?.guid }
-					atTime={ posterData?.atTime }
+					atTime={ localData?.atTime }
+					onVideoFrameSelect={ selectVideoFrame }
 					duration={ videoDuration }
-					onVideoFrameSelect={ timestamp => {
-						setAttributes( {
-							posterData: {
-								...attributes.posterData,
-								type: 'video-frame',
-								atTime: timestamp,
-							},
-							poster: '',
-						} );
-					} }
 				/>
 			</div>
 
@@ -505,7 +495,7 @@ export default function PosterPanel( {
 				<VideoPosterCard poster={ poster } className="poster-panel-card" />
 
 				{ poster && (
-					<MenuItem onClick={ onRemovePoster } icon={ linkOff } isDestructive variant="tertiary">
+					<MenuItem onClick={ removePoster } icon={ linkOff } isDestructive variant="tertiary">
 						{ __( 'Remove and use default', 'jetpack-videopress-pkg' ) }
 					</MenuItem>
 				) }
@@ -516,9 +506,9 @@ export default function PosterPanel( {
 				previewAtTime={ previewAtTime }
 				loopDuration={ previewLoopDuration }
 				videoDuration={ videoDuration }
-				onPreviewOnHoverChange={ onPreviewOnHoverChange }
-				onPreviewAtTimeChange={ onPreviewAtTimeChange }
-				onLoopDurationChange={ onLoopDurationChange }
+				onPreviewOnHoverChange={ setPreviewOnHover }
+				onPreviewAtTimeChange={ setPreviewAtTimestampValue }
+				onLoopDurationChange={ setPreviewOnHoverDuration }
 			/>
 		</PanelBody>
 	);
