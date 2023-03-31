@@ -9,7 +9,7 @@ import {
 import { createBlock } from '@wordpress/blocks';
 import { PanelBody } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useCallback } from '@wordpress/element';
+import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
@@ -22,6 +22,7 @@ import { View } from 'react-native';
  */
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
+import isLocalFile from '../../utils/is-local-file.native';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
 import PlaybackPanel from './components/playback-panel';
@@ -51,7 +52,6 @@ export default function VideoPressEdit( {
 	onFocus,
 } ): React.ReactNode {
 	const {
-		autoplay,
 		controls,
 		guid,
 		loop,
@@ -82,7 +82,7 @@ export default function VideoPressEdit( {
 	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay,
+		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
 		controls,
 		loop,
 		muted,
@@ -96,10 +96,21 @@ export default function VideoPressEdit( {
 
 	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
 
+	// Display upload progress in case the editor is closed and re-opened
+	// while the upload is in progress.
+	useEffect( () => {
+		const { id, src } = attributes;
+		const isUploadInProgress = !! id && ! guid && isLocalFile( src );
+		if ( isUploadInProgress ) {
+			setIsUploadingFile( true );
+			setFileToUpload( { id, url: src } );
+		}
+	}, [] );
+
 	// Handlers of `VideoPressUploader`
 	const onStartUpload = useCallback(
 		media => {
-			setAttributes( { id: media.id } );
+			setAttributes( { id: media.id, src: media.url } );
 		},
 		[ setAttributes ]
 	);
@@ -115,12 +126,13 @@ export default function VideoPressEdit( {
 
 				// Delete attributes that are not needed.
 				delete newBlockAttributes.poster;
+				delete newBlockAttributes.src;
 
 				setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
 				replaceBlock( clientId, createBlock( 'videopress/video', newBlockAttributes ) );
 				return;
 			}
-			setAttributes( { id: newVideoData.id, guid: newVideoData.guid } );
+			setAttributes( { id: newVideoData.id, guid: newVideoData.guid, src: undefined } );
 		},
 		[ setIsUploadingFile, setAttributes ]
 	);
@@ -136,6 +148,7 @@ export default function VideoPressEdit( {
 		media => {
 			setIsReplacingFile( { isReplacing: true, prevAttrs: attributes } );
 			setIsUploadingFile( true );
+			setAttributes( { guid: null } );
 			setFileToUpload( media );
 		},
 		[ setIsReplacingFile, setIsUploadingFile, setFileToUpload ]

@@ -49,6 +49,11 @@
 		min-width: 62px;
 		padding: 0 20px;
 	}
+
+	.components-button.is-link {
+		font-size: inherit;
+		color: inherit;
+	}
 }
 
 input[type="checkbox"].jp-forms__table-checkbox {

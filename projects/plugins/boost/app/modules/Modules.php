@@ -9,6 +9,7 @@ use Automattic\Jetpack_Boost\Features\Image_Size_Analysis\Image_Size_Analysis;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Image_CDN;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lazy_Images\Lazy_Images;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
@@ -33,6 +34,7 @@ class Modules implements Has_Setup {
 		Minify::class,
 		Render_Blocking_JS::class,
 		Image_Guide::class,
+		Image_CDN::class,
 	);
 
 	/**
