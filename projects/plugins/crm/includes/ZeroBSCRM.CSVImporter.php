@@ -670,7 +670,8 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 								if ( count( $customerFields ) > 0 ) {
 
 									// } Try and find a unique id for this user
-									$userUniqueID = md5( $line . '#' . $file_details['public_name'] );
+									// adjusted for backward-compatibility, but this should be rewritten
+									$userUniqueID = md5( implode( ',', $lineParts ) . '#' . $file_details['public_name'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 										// } 1st use email if there
 									if ( isset( $customerFields['zbsc_email'] ) && ! empty( $customerFields['zbsc_email'] ) ) {
