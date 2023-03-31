@@ -306,8 +306,12 @@ class Jetpack {
 	/**
 	 * Plugins for which we turn off our Facebook OG Tags implementation.
 	 *
-	 * Note: All in One SEO Pack, All in one SEO Pack Pro, WordPress SEO by Yoast, and WordPress SEO Premium by Yoast automatically deactivate
-	 * Jetpack's Open Graph tags via filter when their Social Meta modules are active.
+	 * Note: the following plugins automatically deactivate Jetpack's Open
+	 * Graph tags via filter when their Social Meta modules are active:
+	 *
+	 * - All in One SEO Pack, All in one SEO Pack Pro
+	 * - WordPress SEO by Yoast, WordPress SEO Premium by Yoast
+	 * - SEOPress, SEOPress Pro
 	 *
 	 * Plugin authors: If you'd like to prevent Jetpack's Open Graph tag generation in your plugin, you can do so via this filter:
 	 * add_filter( 'jetpack_enable_open_graph', '__return_false' );
