@@ -325,18 +325,21 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 		throw new Exception( __( 'There was an error processing your CSV file. Please try again.', 'zero-bs-crm' ) );
 	}
 
-	// Get CSV data
-	$csv_data = file_get_contents( $file_path );
+	$csv_data = array();
+
+	$file = fopen( $file_path, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+	while ( ! feof( $file ) ) {
+		$csv_data[] = fgetcsv( $file );
+	}
+
+	fclose( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
 	// no lines or empty first line
 	if ( empty( $csv_data ) ) {
 		// delete the file
-		unlink( $file_path );
+		unlink( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		throw new Exception( __( 'We did not find any usable lines in the provided file. If you are having continued problems please contact support.', 'zero-bs-crm' ) );
 	}
-
-	$csv_data = strip_tags( $csv_data );
-	$csv_data = preg_split( "/\\r\\n|\\r|\\n/", $csv_data );
 
 	// Count lines
 	$num_lines         = count( $csv_data );
@@ -424,8 +427,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 							// } Cycle through each field and display a mapping option
 							// } Using first line of import
-							$first_line       = $file_details['csv_data'][0];
-							$first_line_parts = str_getcsv( $first_line );
+							$first_line_parts = $file_details['csv_data'][0];
 
 							// } Retrieve possible map fields from fields model
 							$possibleFields = array();
@@ -521,8 +523,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 						// Cycle through each field
 						// Using first line of import
-						$first_line       = $file_details['csv_data'][0];
-						$first_line_parts = str_getcsv( $first_line );
+						$first_line_parts = $file_details['csv_data'][0];
 
 						foreach ( $file_details['field_map'] as $fieldID => $fieldTarget ) {
 
@@ -619,7 +620,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						$linesAdded         = 0;
 						$existingOverwrites = array();
 						$brStrs             = array( '<br>', '<BR>', '<br />', '<BR />', '<br/>', '<BR/>' );
-						foreach ( $file_details['csv_data'] as $line ) {
+						foreach ( $file_details['csv_data'] as $lineParts ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							// } Check line
 							if ( $lineIndx === 0 && $file_details['ignore_first_line'] ) {
@@ -627,10 +628,6 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 								echo '<div class="zbscrm-import-log-line">' . esc_html__( 'Skipping header row...', 'zero-bs-crm' ) . '<i class="fa fa-check"></i></div>';
 
 							} else {
-
-								// } split
-								$lineParts = str_getcsv( $line ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-								// debug echo '<pre>'; print_r(array($lineParts,$fieldMap)); echo '</pre>';
 
 								// } build arr
 								$customerFields = array();
