@@ -121,7 +121,7 @@ const useVideoPlayer = (
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_play' }, '*' );
 	}, [ iFrameRef, playerIsReady ] );
 
-	const stop = useCallback( () => {
+	const pause = useCallback( () => {
 		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
@@ -138,17 +138,19 @@ const useVideoPlayer = (
 		}
 
 		wrapperElement.addEventListener( 'mouseenter', play );
-		wrapperElement.addEventListener( 'mouseleave', stop );
+		wrapperElement.addEventListener( 'mouseleave', pause );
 
 		return () => {
 			// Remove the listener when the component is unmounted.
 			wrapperElement.removeEventListener( 'mouseenter', play );
-			wrapperElement.removeEventListener( 'mouseleave', stop );
+			wrapperElement.removeEventListener( 'mouseleave', pause );
 		};
 	}, [ isPreviewOnHoverEnabled, wrapperElement, playerIsReady ] );
 
 	return {
 		playerIsReady,
+		play,
+		pause,
 	};
 };
 
