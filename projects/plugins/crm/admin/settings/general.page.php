@@ -346,7 +346,7 @@ if ( ! $confirmAct ) {
 					<td style="width:540px">
 						<input type="checkbox" class="winput form-control" name="wpzbscrm_secondaddress" id="wpzbscrm_secondaddress" value="1"
 						<?php
-						if ( isset( $settings['secondaddress'] ) && $settings['secondaddress'] === '1' ) {
+						if ( isset( $settings['secondaddress'] ) && $settings['secondaddress'] === 1 ) {
 							echo ' checked="checked"';}
 						?>
 						/>
