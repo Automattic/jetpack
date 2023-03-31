@@ -47,6 +47,8 @@ function register_block() {
 		return;
 	}
 
+	notify_betacache_that_content_changed();
+
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
@@ -80,3 +82,14 @@ function load_assets( $attr, $content ) {
 	);
 }
 
+/**
+ * Since the cookie consent is part of the cached response HTML, it can still render even when the cookie is set (when it shouldn't).
+ * Because, by default, the cache doesn't vary around the cookie's value.
+ * This let's the cache know that the content has changed to return fresh content.
+ */
+function notify_betacache_that_content_changed() {
+	if ( function_exists( 'vary_cache_on_function' ) ) {
+		// Cast the cookie down to a boolean, to avoid arbitrary code execution.
+		vary_cache_on_function( 'return isset( $_COOKIE[ "' . COOKIE_NAME . '" ] );' );
+	}
+}
