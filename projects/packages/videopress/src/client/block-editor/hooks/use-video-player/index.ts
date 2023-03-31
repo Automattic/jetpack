@@ -131,8 +131,9 @@ const useVideoPlayer = (
 	}, [ iFrameRef, playerIsReady ] );
 
 	// PreviewOnHover feature.
+	const isPreviewOnHoverEnabled = !! previewOnHover;
 	useEffect( () => {
-		if ( ! wrapperElement || ! previewOnHover ) {
+		if ( ! wrapperElement || ! isPreviewOnHoverEnabled ) {
 			return;
 		}
 
@@ -144,7 +145,7 @@ const useVideoPlayer = (
 			wrapperElement.removeEventListener( 'mouseenter', playVideo );
 			wrapperElement.removeEventListener( 'mouseleave', stopVideo );
 		};
-	}, [ previewOnHover, wrapperElement, playerIsReady ] );
+	}, [ isPreviewOnHoverEnabled, wrapperElement, playerIsReady ] );
 
 	return {
 		playerIsReady,
