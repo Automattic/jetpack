@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Types
  */
+import useVideoPlayer, { getIframeWindowFromRef } from '../../../../hooks/use-video-player';
 import type { PlayerProps } from './types';
 import type React from 'react';
 
@@ -133,34 +134,54 @@ export default function Player( {
 	}, [ html ] );
 
 	/*
-	 * Callback state handler for the video player
-	 * tied to the `message` event,
+	 * Function handler that listen to the `message` event
 	 * provided by the videopress player through the bridge.
 	 */
-	const onVideoLoadingStateHandler = useCallback( ev => {
-		const eventName = ev?.data?.event;
-		if ( ! eventName || eventName !== 'videopress_loading_state' ) {
-			return;
+	const videoPlayerEventsHandler = useCallback( ( ev: MessageEvent ) => {
+		const { data: eventData } = ev || {};
+		const { event: eventName } = eventData;
+		if ( eventName === 'videopress_loading_state' ) {
+			setIsVideoPlayerLoaded( eventData?.state === 'loaded' );
 		}
-
-		const playerLoadingState = ev?.data?.state;
-		setIsVideoPlayerLoaded( playerLoadingState === 'loaded' );
 	}, [] );
 
-	// Listen to the `message` event.
-	const sandboxIframeElement: HTMLIFrameElement = videoWrapperRef?.current?.querySelector(
-		'iframe.components-sandbox'
-	);
 	useEffect( () => {
-		if ( ! sandboxIframeElement?.contentWindow ) {
+		const iFrameContentWindow = getIframeWindowFromRef( videoWrapperRef );
+		if ( ! iFrameContentWindow || isRequestingEmbedPreview ) {
 			return;
 		}
 
-		const iFrameContentWindow = sandboxIframeElement.contentWindow;
-		iFrameContentWindow.addEventListener( 'message', onVideoLoadingStateHandler );
+		// Listen to the `message` event.
+		iFrameContentWindow.addEventListener( 'message', videoPlayerEventsHandler );
 
-		return () => iFrameContentWindow?.removeEventListener( 'message', onVideoLoadingStateHandler );
-	}, [ onVideoLoadingStateHandler, sandboxIframeElement ] );
+		return () => iFrameContentWindow?.removeEventListener( 'message', videoPlayerEventsHandler );
+	}, [ videoWrapperRef, isRequestingEmbedPreview ] );
+
+	const { atTime, previewOnHover, previewAtTime, previewLoopDuration, type } =
+		attributes.posterData;
+
+	let timeToSetPlayerPosition = undefined;
+	if ( type === 'video-frame' ) {
+		if ( previewOnHover ) {
+			timeToSetPlayerPosition = previewAtTime;
+		} else {
+			timeToSetPlayerPosition = atTime;
+		}
+	} else {
+		timeToSetPlayerPosition = atTime;
+	}
+
+	useVideoPlayer( videoWrapperRef, isRequestingEmbedPreview, {
+		initialTimePosition: timeToSetPlayerPosition,
+		autoplay: attributes.autoplay,
+		wrapperElement: mainWrapperRef?.current,
+		previewOnHover: previewOnHover
+			? {
+					atTime: previewAtTime,
+					duration: previewLoopDuration,
+			  }
+			: undefined,
+	} );
 
 	useEffect( () => {
 		if ( isRequestingEmbedPreview ) {

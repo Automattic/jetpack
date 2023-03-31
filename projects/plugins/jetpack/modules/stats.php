@@ -143,42 +143,6 @@ function stats_build_view_data() {
 }
 
 /**
- * Stats Footer.
- *
- * @deprecated 11.5
- * @access public
- * @return void
- */
-function stats_footer() {
-	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::add_to_footer' );
-	Stats_Tracking_Pixel::add_to_footer();
-}
-
-/**
- * Render the stats footer
- *
- * @deprecated 11.5
- *
- * @param array $data Array of data for the JS stats tracker.
- */
-function stats_render_footer( $data ) {
-	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_footer' );
-	Stats_Tracking_Pixel::render_footer( $data );
-}
-
-/**
- * Render the stats footer for AMP output.
- *
- * @deprecated 11.5
- *
- * @param array $data Array of data for the AMP pixel tracker.
- */
-function stats_render_amp_footer( $data ) {
-	_deprecated_function( __METHOD__, 'jetpack-11.5', 'Automattic\Jetpack\Stats\Tracking_Pixel::render_amp_footer' );
-	Stats_Tracking_Pixel::render_amp_footer( $data );
-}
-
-/**
  * Stats Get Options.
  *
  * @deprecated 11.5
@@ -1242,63 +1206,6 @@ function stats_jetpack_dashboard_widget() {
 			<div style="height: 250px;"></div>
 		</div>
 	</div>
-	<?php
-}
-
-/**
- * JavaScript and CSS for dashboard widget.
- *
- * TODO: This should be moved into class-jetpack-stats-dashboard-widget.php.
- *
- * @access public
- * @return void
- */
-function stats_dashboard_head() {
-	?>
-<script type="text/javascript">
-/* <![CDATA[ */
-jQuery( function($) {
-	var dashStats = jQuery( '#dashboard_stats div.inside' );
-
-	if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
-		return;
-	}
-
-	if ( ! dashStats.length ) {
-		dashStats = jQuery( '#dashboard_stats div.dashboard-widget-content' );
-		var h = parseInt( dashStats.parent().height() ) - parseInt( dashStats.prev().height() );
-		var args = 'width=' + dashStats.width() + '&height=' + h.toString();
-	} else {
-		if ( jQuery('#dashboard_stats' ).hasClass('postbox') ) {
-			var args = 'width=' + ( dashStats.prev().width() * 2 ).toString();
-		} else {
-			var args = 'width=' + ( dashStats.width() * 2 ).toString();
-		}
-	}
-
-	dashStats
-		.not( '.dashboard-widget-control' )
-		.load( 'admin.php?page=stats&noheader&dashboard&' + args, function() {
-			jQuery( '#dashboard_stats' ).removeClass( 'is-loading' );
-			jQuery( '#stat-chart' ).css( 'width', 'auto' );
-		} );
-
-	// Widget settings toggle container.
-	var toggle = $( '.js-toggle-stats_dashboard_widget_control' );
-
-	// Move the toggle in the widget header.
-	toggle.appendTo( '#jetpack_summary_widget .handle-actions' );
-
-	// Toggle settings when clicking on it.
-	toggle.show().click( function( e ) {
-		e.preventDefault();
-		e.stopImmediatePropagation();
-		$( this ).parent().toggleClass( 'controlVisible' );
-		$( '#stats_dashboard_widget_control' ).slideToggle();
-	} );
-} );
-/* ]]> */
-</script>
 	<?php
 }
 
