@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Stats_Admin;
 use Automattic\Jetpack\Assets;
 
 /**
- * Class Odyssey_Initial_State
+ * Class Odyssey_Config_Data
  *
  * @package automattic/jetpack-stats-admin
  */
@@ -30,12 +30,13 @@ class CDN_Assets {
 	 *
 	 * @param string $asset_handle The handle of the asset.
 	 * @param string $asset_name The name of the asset.
+	 * @param array  $config_data The config data.
 	 */
-	public function load_admin_scripts( $asset_handle, $asset_name = 'build.min' ) {
+	public function load_admin_scripts( $asset_handle, $asset_name = 'build.min', $config_data = null ) {
 		if ( file_exists( __DIR__ . "/../dist/{$asset_name}.js" ) ) {
 			// Load local assets for the convinience of development.
 			Assets::register_script(
-				$asset_handle, // 'jp-stats-dashboard',
+				$asset_handle,
 				"../dist/{$asset_name}.js",
 				__FILE__,
 				array(
@@ -48,17 +49,27 @@ class CDN_Assets {
 			// In production, we load the assets from our CDN.
 			$css_url    = $asset_name . ( is_rtl() ? '.rtl' : '' ) . '.css';
 			$css_handle = $asset_handle . '-style';
-			wp_register_script( $asset_handle, sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build.min.js' ), self::JS_DEPENDENCIES, $this->get_cdn_asset_cache_buster(), true );
+			wp_register_script( $asset_handle, sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, "{$asset_name}.js" ), self::JS_DEPENDENCIES, $this->get_cdn_asset_cache_buster(), true );
 			wp_register_style( $css_handle, sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, $css_url ), array(), $this->get_cdn_asset_cache_buster() );
 			wp_enqueue_script( $asset_handle );
 			wp_enqueue_style( $css_handle );
 		}
 
+		$config_data = $config_data === null ? ( new Odyssey_Config_Data() )->get_data() : $config_data;
 		wp_add_inline_script(
 			$asset_handle,
-			( new Odyssey_Initial_State() )->get_config_data_js(),
+			$this->get_config_data_js( $config_data ),
 			'before'
 		);
+	}
+
+	/**
+	 * Returns the config data for the JS app.
+	 *
+	 * @param array $config_data The config data.
+	 */
+	protected function get_config_data_js( $config_data ) {
+		return 'window.configData = ' . wp_json_encode( $config_data ) . ';';
 	}
 
 	/**

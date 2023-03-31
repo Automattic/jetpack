@@ -9,6 +9,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats_Admin\CDN_Assets;
+use Automattic\Jetpack\Stats_Admin\Odyssey_Config_Data;
 use Automattic\Jetpack\Status;
 
 /**
@@ -86,7 +87,9 @@ class Jetpack_Stats_Dashboard_Widget {
 					$widget_title,
 					array( __CLASS__, 'render_odyssey_widget' )
 				);
-				( new CDN_Assets() )->load_admin_scripts( 'jetpack_stats_widget', 'widget-loader.min' );
+				$config_data = ( new Odyssey_Config_Data() )->get_data();
+				unset( $config_data['intial_state']['currentUser'] );
+				( new CDN_Assets() )->load_admin_scripts( 'jetpack_stats_widget', 'widget-loader.min', $config_data );
 			}
 		}
 	}

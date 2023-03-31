@@ -11,24 +11,16 @@ use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 
 /**
- * Class Odyssey_Initial_State
+ * Class Odyssey_Config_Data
  *
  * @package automattic/jetpack-stats-admin
  */
-class Odyssey_Initial_State {
-	/**
-	 * Set configData to window.configData.
-	 */
-	public function get_config_data_js() {
-		return 'window.configData = ' . wp_json_encode(
-			$this->config_data()
-		) . ';';
-	}
+class Odyssey_Config_Data {
 
 	/**
 	 * Return the config for the app.
 	 */
-	public function config_data() {
+	public function get_data() {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$empty_object = json_decode( '{}' );
 		return array(
