@@ -9,7 +9,6 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats_Admin\CDN_Assets;
-use Automattic\Jetpack\Stats_Admin\Odyssey_Initial_State;
 use Automattic\Jetpack\Status;
 
 /**
@@ -87,23 +86,7 @@ class Jetpack_Stats_Dashboard_Widget {
 					$widget_title,
 					array( __CLASS__, 'render_odyssey_widget' )
 				);
-				Assets::register_script(
-					'jetpack-stats-widget-admin',
-					'jetpack_vendor/automattic/jetpack-stats-admin/dist/widget.min.js',
-					__FILE__,
-					array(
-						'in_footer'    => true,
-						'dependencies' => CDN_Assets::JS_DEPENDENCIES,
-					)
-				);
-
-				wp_add_inline_script(
-					'jetpack-stats-widget-admin',
-					( new Odyssey_Initial_State() )->get_config_data_js(),
-					'before'
-				);
-
-				Assets::enqueue_script( 'jetpack-stats-widget-admin' );
+				( new CDN_Assets() )->load_admin_scripts( 'jetpack_stats_widget', 'widget-loader.min' );
 			}
 		}
 	}
