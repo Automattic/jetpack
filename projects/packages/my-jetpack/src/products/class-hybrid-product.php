@@ -13,12 +13,6 @@ use WP_Error;
 
 /**
  *
- * DEPRECATED: This class is deprecated and will be removed in a future version.
- *
- * All product classes have been moved out of the hybrid class concept
- *
- * @deprecated 2.7.2
- *
  * Class responsible for handling the hybrid products
  *
  * Hybrid products are those that may work both as a stand-alone plugin or with the Jetpack plugin.
@@ -28,6 +22,13 @@ use WP_Error;
  * But if Jetpack plugin is not active, then it will prompt to install and activate its stand-alone plugin.
  */
 abstract class Hybrid_Product extends Product {
+
+	/**
+	 * The Jetpack module name
+	 *
+	 * @var string
+	 */
+	public static $module_name;
 
 	/**
 	 * Checks whether the Product is active
