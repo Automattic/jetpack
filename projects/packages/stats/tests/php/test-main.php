@@ -210,7 +210,7 @@ class Test_Main extends StatsBaseTestCase {
 	public function test_template_redirect_adds_wp_footer_hook() {
 		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		Stats::template_redirect();
-		$has_action = has_action( 'wp_footer', array( 'Automattic\Jetpack\Stats\Tracking_Pixel', 'add_amp_pixel' ) );
+		$has_action = has_action( 'wp_footer', array( Tracking_Pixel::class, 'add_amp_pixel' ) );
 		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		$this->assertSame( 101, $has_action );
 	}
@@ -221,7 +221,7 @@ class Test_Main extends StatsBaseTestCase {
 	public function test_template_redirect_adds_web_stories_print_analytics_hook() {
 		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		Stats::template_redirect();
-		$has_action = has_action( 'web_stories_print_analytics', array( 'Automattic\Jetpack\Stats\Tracking_Pixel', 'add_amp_pixel' ) );
+		$has_action = has_action( 'web_stories_print_analytics', array( Tracking_Pixel::class, 'add_amp_pixel' ) );
 		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		$this->assertSame( 101, $has_action );
 	}
@@ -232,7 +232,7 @@ class Test_Main extends StatsBaseTestCase {
 	public function test_template_redirect_adds_wp_enqueue_scripts_hook() {
 		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		Stats::template_redirect();
-		$has_action = has_action( 'wp_enqueue_scripts', array( 'Automattic\Jetpack\Stats\Tracking_Pixel', 'enqueue_stats_script' ) );
+		$has_action = has_action( 'wp_enqueue_scripts', array( Tracking_Pixel::class, 'enqueue_stats_script' ) );
 		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		$this->assertSame( 101, $has_action );
 	}
