@@ -65,13 +65,20 @@ const ChangingValueTemplate: ComponentStory< typeof TimestampControl > = args =>
 
 	return (
 		<>
-			<TimestampControl { ...args } value={ value } onDebounceChange={ setValue } />
+			<TimestampControl
+				{ ...args }
+				label="TimestampControl component"
+				help="The value is handled internally by the component."
+				value={ value }
+				onDebounceChange={ setValue }
+			/>
 			<br />
 			<RangeControl
+				label="RangeControl component"
+				help="The value is handled externally, and passed to the <TimestampControl /> above component."
 				value={ value }
 				onChange={ setValue }
 				max={ args.max }
-				help="Change the value of the <TimestampControl /> above component from here."
 			/>
 		</>
 	);
