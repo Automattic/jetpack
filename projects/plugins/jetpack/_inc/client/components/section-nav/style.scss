@@ -294,6 +294,10 @@
 	}
 
 	.is-external & {
+		svg {
+			color: currentColor;
+		}
+
 		&:after {
 			// @include noticon('\f442');
 			font-size: 18px;
@@ -362,22 +366,16 @@
 	line-height: 1.6;
 	text-align: center;
 
-	&.count-0 {
+	&.is-hidden {
 		display: none;
 	}
 }
 
 .dops-section-nav-tab__text {
-	display: block;
-	flex: 1 0 auto;
-	width: 0;
 	color: inherit;
-
-	@include breakpoint( ">480px" ) {
-		display: inline;
-		flex: none;
-		width: auto;
-	}
+	display: inline;
+	flex: none;
+	width: auto;
 }
 
 // -------- Nav Tabs - dropdowns --------

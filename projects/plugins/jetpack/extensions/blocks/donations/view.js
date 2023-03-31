@@ -1,6 +1,5 @@
 import formatCurrency from '@automattic/format-currency';
 import domReady from '@wordpress/dom-ready';
-import { ENTER } from '@wordpress/keycodes';
 import { addQueryArgs, removeQueryArgs } from '@wordpress/url';
 import { minimumTransactionAmountForCurrency, parseAmount } from '../../shared/currencies';
 import { initializeMembershipButtons } from '../../shared/memberships';
@@ -159,7 +158,7 @@ class JetpackDonations {
 
 		// Prevent new lines.
 		input.addEventListener( 'keydown', event => {
-			if ( event.keyCode === ENTER ) {
+			if ( event.key === 'Enter' ) {
 				event.preventDefault();
 			}
 		} );

@@ -33,6 +33,20 @@ class ManagerTest extends TestCase {
 	 */
 	protected $user_id;
 
+	/**
+	 * Connection manager mock object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Manager
+	 */
+	protected $manager;
+
+	/**
+	 * Tokens mock object.
+	 *
+	 * @var \Automattic\Jetpack\Connection\Tokens
+	 */
+	protected $tokens;
+
 	const DEFAULT_TEST_CAPS = array( 'default_test_caps' );
 
 	/**

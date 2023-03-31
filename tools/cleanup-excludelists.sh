@@ -10,7 +10,7 @@ TEMP=$(mktemp "${TMPDIR%/}/cleanup-excludelists-XXXXXXXX")
 if [[ ! -e "$TEMP" ]]; then
 	exit 1
 fi
-trap "rm \"$TEMP\"" EXIT
+trap 'rm "$TEMP"' EXIT
 
 : > "$TEMP"
 pnpm run lint-file --max-warnings=0 --format=json --output-file="$TEMP" $(for f in $(jq -r '.[]' tools/eslint-excludelist.json); do [[ -e "$f" ]] && echo $f; done) || true

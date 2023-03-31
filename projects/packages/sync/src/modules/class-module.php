@@ -270,7 +270,7 @@ abstract class Module {
 			$listener->bulk_enqueue_full_sync_actions( $action_name, $chunked_ids_with_previous_end );
 
 			$chunk_count += count( $chunked_ids );
-			$page++;
+			++$page;
 			// The $ids are ordered in descending order.
 			$previous_interval_end = end( $ids );
 		}

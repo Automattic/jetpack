@@ -1,7 +1,7 @@
 import child_process from 'child_process';
 import path from 'path';
 import chalk from 'chalk';
-import execa from 'execa';
+import { execa } from 'execa';
 import inquirer from 'inquirer';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';

@@ -34,7 +34,7 @@ WordPress, being a part of the Docker environment, gets installed into the direc
 
 Documentation that's applicable to the monorepo as a whole lives in `docs/`.
 
-All GitHub Actions configuration for the monorepo, including CI, lives in `.github`. We should strive to make things here generic rather than specifc to any one project.
+All GitHub Actions configuration for the monorepo, including CI, lives in `.github`. We should strive to make things here generic rather than specific to any one project.
 
 * Actual actions live in `.github/actions/`. If it doesn't have an `action.yml` file, it shouldn't be in there.
 * Pattern matchers (not associated with an action) go in `.github/matchers/`.
@@ -117,8 +117,6 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.repositories`: If you include a repository entry referencing monorepo packages, it must have `.options.monorepo` set to true. This allows the build tooling to recognize and remove it.
 * `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. See [Building](#building) for details.
 * `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. See [Building](#building) for details.
-* `.scripts.test-coverage`: If the package contains any tests, this must run the necessary commands to generate a coverage report. See [Code coverage](#code-coverage) for details.
-  * `.scripts.skip-test-coverage`: Run before `.scripts.test-coverage` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
 * `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
   * `.scripts.skip-test-js`: Run before `.scripts.test-js` in CI. If it exits with code 3, the test run will be skipped.
@@ -156,7 +154,7 @@ The Jetpack Monorepo includes GitHub actions to build all projects, and optional
 A project must define `.scripts.build-development` and/or `.scripts.build-production` in `composer.json` to specify the commands needed to build.
 The build commands should assume that `pnpm install` and `composer install` have already been run, and _must not_ run them again.
 
-* If you're building JavaScript bundles with Webpack and [@automattic/jetpack-webpack-config](../projects/js-packages/webpack-config/README.md), note that your build-production command should set `NODE_ENV=production` and `BABEL_ENV=production`.
+* If you're building JavaScript bundles with Webpack and [@automattic/jetpack-webpack-config](../projects/js-packages/webpack-config/README.md) (more information on setup [in the README.md](../projects/js-packages/webpack-config/README.md)), note that your build-production command should set `NODE_ENV=production` and `BABEL_ENV=production`.
 * If you run into problems with Composer not recognizing the local git branch as being the right version, try setting `COMPOSER_ROOT_VERSION=dev-trunk` in the environment.
 * When building for the mirror repos, note that `COMPOSER_MIRROR_PATH_REPOS=1` will be set in the environment and the list of repositories in `composer.json` may be altered.
   This is not normally done in development environments, even with `jetpack build --production`.
@@ -180,7 +178,7 @@ All test commands must return a shell failure status when tests fail and a succe
 
 If your project has multiple logical groups of tests, feel free to make use of GitHub Actions's [grouping commands](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#grouping-log-lines).
 
-The following environment variables are avaliable for all tests:
+The following environment variables are available for all tests:
 
 - `ARTIFACTS_DIR`: If your tests generate any artifacts that might be useful for debugging, you may place them in the directory specified by this variable and they will be uploaded to GitHub after the test run. There's no need to be concerned about collisions with other projects' artifacts, a separate directory is used per project.
 - `MONOREPO_BASE`: Path to the monorepo. Useful if you're using things in `tools/` from plugin tests.
@@ -247,16 +245,6 @@ JavaScript tests should use `jest`, not `mocha`/`chai`/`sinon`. For React testin
 **This is not implemented yet!**
 
 If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
-
-### Code coverage
-
-If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output. The CI environment will run `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-coverage`.
-
-Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
-
-For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. "$(command -v phpunit)" --coverage-clover "$COVERAGE_DIR/clover.xml"`.
-
-There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
 
 ## Mirror repositories
 

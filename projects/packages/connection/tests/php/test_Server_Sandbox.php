@@ -18,8 +18,6 @@ class Test_Server_Sandbox extends BaseTestCase {
 
 	/**
 	 * Set up.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		Monkey\setUp();
@@ -27,8 +25,6 @@ class Test_Server_Sandbox extends BaseTestCase {
 
 	/**
 	 * Tear down.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Monkey\tearDown();

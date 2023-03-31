@@ -86,7 +86,7 @@ function render_block( $attributes, $content ) {
  */
 function render_stripe_nudge() {
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		\jetpack_require_lib( 'memberships' );
+		\require_lib( 'memberships' );
 		$blog_id  = get_current_blog_id();
 		$settings = (array) \get_memberships_settings_for_site( $blog_id );
 

@@ -9,6 +9,9 @@ import { REST_API_SITE_PRODUCTS_ENDPOINT } from './constants';
 const SET_PURCHASES_IS_FETCHING = 'SET_PURCHASES_IS_FETCHING';
 const FETCH_PURCHASES = 'FETCH_PURCHASES';
 const SET_PURCHASES = 'SET_PURCHASES';
+const SET_AVAILABLE_LICENSES_IS_FETCHING = 'SET_AVAILABLE_LICENSES_IS_FETCHING';
+const FETCH_AVAILABLE_LICENSES = 'FETCH_AVAILABLE_LICENSES';
+const SET_AVAILABLE_LICENSES = 'SET_AVAILABLE_LICENSES';
 const SET_IS_FETCHING_PRODUCT = 'SET_IS_FETCHING_PRODUCT';
 const SET_PRODUCT = 'SET_PRODUCT';
 const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
@@ -17,6 +20,9 @@ const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
 
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
 const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
+
+const SET_PRODUCT_STATS = 'SET_PRODUCT_STATS';
+const SET_IS_FETCHING_PRODUCT_STATS = 'SET_IS_FETCHING_PRODUCT_STATS';
 
 const setPurchasesIsFetching = isFetching => {
 	return { type: SET_PURCHASES_IS_FETCHING, isFetching };
@@ -28,6 +34,18 @@ const fetchPurchases = () => {
 
 const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
+};
+
+const setAvailableLicensesIsFetching = isFetching => {
+	return { type: SET_AVAILABLE_LICENSES_IS_FETCHING, isFetching };
+};
+
+const fetchAvailableLicenses = () => {
+	return { type: FETCH_AVAILABLE_LICENSES };
+};
+
+const setAvailableLicenses = availableLicenses => {
+	return { type: SET_AVAILABLE_LICENSES, availableLicenses };
 };
 
 const setProduct = product => ( { type: SET_PRODUCT, product } );
@@ -134,6 +152,14 @@ const activateProduct = productId => async store => {
 	return await requestProductStatus( productId, { activate: true }, store );
 };
 
+const setProductStats = ( productId, stats ) => {
+	return { type: SET_PRODUCT_STATS, productId, stats };
+};
+
+const setIsFetchingProductStats = ( productId, isFetching ) => {
+	return { type: SET_IS_FETCHING_PRODUCT_STATS, productId, isFetching };
+};
+
 const productActions = {
 	setProduct,
 	activateProduct,
@@ -151,6 +177,11 @@ const actions = {
 	setPurchasesIsFetching,
 	fetchPurchases,
 	setPurchases,
+	setAvailableLicensesIsFetching,
+	fetchAvailableLicenses,
+	setAvailableLicenses,
+	setProductStats,
+	setIsFetchingProductStats,
 	...noticeActions,
 	...productActions,
 };
@@ -159,6 +190,9 @@ export {
 	SET_PURCHASES_IS_FETCHING,
 	FETCH_PURCHASES,
 	SET_PURCHASES,
+	SET_AVAILABLE_LICENSES_IS_FETCHING,
+	FETCH_AVAILABLE_LICENSES,
+	SET_AVAILABLE_LICENSES,
 	SET_PRODUCT,
 	SET_PRODUCT_REQUEST_ERROR,
 	ACTIVATE_PRODUCT,
@@ -166,5 +200,7 @@ export {
 	SET_PRODUCT_STATUS,
 	SET_GLOBAL_NOTICE,
 	CLEAN_GLOBAL_NOTICE,
+	SET_PRODUCT_STATS,
+	SET_IS_FETCHING_PRODUCT_STATS,
 	actions as default,
 };

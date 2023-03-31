@@ -11,6 +11,13 @@ import editorAssets from './block-editor-assets.json';
 import InfoWindow from './info-window/';
 import MapMarker from './map-marker/';
 import { mapboxMapFormatter } from './mapbox-map-formatter/';
+import {
+	fitMapToBounds,
+	getMapBounds,
+	googlePoint2Mapbox,
+	resizeMapContainer,
+} from './mapbox-utils';
+
 export class Map extends Component {
 	// Lifecycle
 	constructor() {
@@ -199,17 +206,8 @@ export class Map extends Component {
 		const { mapHeight } = this.props;
 		const { map } = this.state;
 		const mapEl = this.mapRef.current;
-		if ( mapHeight ) {
-			mapEl.style.height = mapHeight + 'px';
-		} else {
-			const blockWidth = mapEl.offsetWidth;
-			const maxHeight =
-				window.location.search.indexOf( 'map-block-counter' ) > -1
-					? window.innerHeight
-					: window.innerHeight * 0.8;
-			const blockHeight = Math.min( blockWidth * ( 3 / 4 ), maxHeight );
-			mapEl.style.height = blockHeight + 'px';
-		}
+
+		resizeMapContainer( mapEl, mapHeight );
 		map.resize();
 		this.setBoundsByMarkers();
 	};
@@ -240,22 +238,13 @@ export class Map extends Component {
 		if ( activeMarker ) {
 			return;
 		}
-		const bounds = new mapboxgl.LngLatBounds();
-		points.forEach( point => {
-			bounds.extend( [ point.coordinates.longitude, point.coordinates.latitude ] );
-		} );
+
+		const bounds = getMapBounds( mapboxgl, points );
 		onSetMapCenter( bounds.getCenter() );
 
 		// If there are multiple points, zoom is determined by the area they cover, and zoom control is removed.
 		if ( points.length > 1 ) {
-			map.fitBounds( bounds, {
-				padding: {
-					top: 80,
-					bottom: 80,
-					left: 40,
-					right: 40,
-				},
-			} );
+			fitMapToBounds( map, bounds );
 			this.setState( { boundsSetProgrammatically: true } );
 			try {
 				map.removeControl( zoomControl );
@@ -330,7 +319,7 @@ export class Map extends Component {
 			map = new mapboxgl.Map( {
 				container: this.mapRef.current,
 				style: this.getMapStyle(),
-				center: this.googlePoint2Mapbox( mapCenter ),
+				center: googlePoint2Mapbox( mapCenter ),
 				zoom: parseInt( zoom, 10 ),
 				pitchWithRotate: false,
 				attributionControl: false,
@@ -384,14 +373,6 @@ export class Map extends Component {
 			window.addEventListener( 'resize', this.debouncedSizeMap );
 		} );
 	}
-	googlePoint2Mapbox = google_point =>
-		google_point.hasOwnProperty( 'lat' ) && google_point.hasOwnProperty( 'lng' )
-			? google_point // Already a valid Mapbox point.
-			: {
-					// Legacy point, supported here to avoid block deprecation.
-					lat: google_point.latitude || 0,
-					lng: google_point.longitude || 0,
-			  };
 }
 
 Map.defaultProps = {

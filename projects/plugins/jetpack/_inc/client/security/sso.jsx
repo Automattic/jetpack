@@ -17,10 +17,15 @@ export const SSO = withModuleSettingsFormHelpers(
 		 * @returns {{jetpack_sso_match_by_email: *, jetpack_sso_require_two_step: *}}
 		 */
 		state = {
-			jetpack_sso_match_by_email: this.props.getOptionValue( 'jetpack_sso_match_by_email', 'sso' ),
+			jetpack_sso_match_by_email: this.props.getOptionValue(
+				'jetpack_sso_match_by_email',
+				'sso',
+				false
+			),
 			jetpack_sso_require_two_step: this.props.getOptionValue(
 				'jetpack_sso_require_two_step',
-				'sso'
+				'sso',
+				false
 			),
 		};
 
@@ -88,7 +93,7 @@ export const SSO = withModuleSettingsFormHelpers(
 						</ModuleToggle>
 						<FormFieldset>
 							<CompactFormToggle
-								checked={ this.state.jetpack_sso_match_by_email }
+								checked={ isSSOActive && this.state.jetpack_sso_match_by_email }
 								disabled={
 									! isSSOActive ||
 									unavailableInOfflineMode ||
@@ -101,7 +106,7 @@ export const SSO = withModuleSettingsFormHelpers(
 								</span>
 							</CompactFormToggle>
 							<CompactFormToggle
-								checked={ this.state.jetpack_sso_require_two_step }
+								checked={ isSSOActive && this.state.jetpack_sso_require_two_step }
 								disabled={
 									! isSSOActive ||
 									unavailableInOfflineMode ||

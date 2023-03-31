@@ -45,6 +45,7 @@ new WPCOM_JSON_API_List_Posts_v1_1_Endpoint(
 			'term'            => '(object:string) Specify comma-separated term slugs to search within, indexed by taxonomy slug.',
 			'type'            => "(string) Specify the post type. Defaults to 'post', use 'any' to query for both posts and pages. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 			'parent_id'       => '(int) Returns only posts which are children of the specified post. Applies only to hierarchical post types.',
+			'include'         => '(array:int|int) Includes the specified post ID(s) in the response',
 			'exclude'         => '(array:int|int) Excludes the specified post ID(s) from the response',
 			'exclude_tree'    => '(int) Excludes the specified post and all of its descendants from the response. Applies only to hierarchical post types.',
 			'status'          => '(string) Comma-separated list of statuses for which to query, including any of: "publish", "private", "draft", "pending", "future", and "trash", or simply "any". Defaults to "publish"',
@@ -197,13 +198,11 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 				);
 			}
 			$args['type'] = $allowed_types;
-		} else {
-			if ( ! $site->current_user_can_access_post_type( $args['type'], $args['context'] ) ) {
-				return array(
-					'found' => 0,
-					'posts' => array(),
-				);
-			}
+		} elseif ( ! $site->current_user_can_access_post_type( $args['type'], $args['context'] ) ) {
+			return array(
+				'found' => 0,
+				'posts' => array(),
+			);
 		}
 
 		$query = array(
@@ -220,6 +219,10 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 
 		if ( ! is_user_logged_in() ) {
 			$query['has_password'] = false;
+		}
+
+		if ( isset( $args['include'] ) ) {
+			$query['post__in'] = is_array( $args['include'] ) ? $args['include'] : array( (int) $args['include'] );
 		}
 
 		if ( isset( $args['meta_key'] ) ) {
@@ -253,7 +256,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		} elseif ( 'require' === $args['sticky'] ) {
 			$sticky = get_option( 'sticky_posts' );
 			if ( is_array( $sticky ) && ! empty( $sticky ) ) {
-				$query['post__in'] = $sticky;
+				$query['post__in'] = isset( $args['include'] ) ? array_merge( $query['post__in'], $sticky ) : $sticky;
 			} else {
 				// no sticky posts exist.
 				return array(
@@ -413,7 +416,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 						if ( $the_post && ! is_wp_error( $the_post ) ) {
 							$posts[] = $the_post;
 						} else {
-							$excluded_count++;
+							++$excluded_count;
 						}
 					}
 

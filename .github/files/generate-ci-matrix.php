@@ -24,28 +24,31 @@ foreach ( file( '.github/versions.sh' ) as $line ) {
 // Default matrix variables. See inline for docs.
 $default_matrix_vars = array(
 	// {string} Name for the job. Required, and must be unique.
-	'name'         => null,
+	'name'                => null,
 
 	// {string} Composer script for the job. Required.
-	'script'       => null,
+	'script'              => null,
 
 	// {string} PHP version to use.
-	'php'          => $versions['PHP_VERSION'],
+	'php'                 => $versions['PHP_VERSION'],
 
 	// {string} Node version to use.
-	'node'         => $versions['NODE_VERSION'],
+	'node'                => $versions['NODE_VERSION'],
 
 	// {string} WordPress version to check out: 'latest', 'previous', 'trunk', or 'none'.
-	'wp'           => 'none',
+	'wp'                  => 'none',
 
-	// {bool} Whether the check is experimental, i.e. it won't make the workflow fail.
-	'experimental' => false,
+	// {bool} Whether the check is experimental, i.e. it won't make the workflow fail. Don't set this when the job is required!
+	'experimental'        => false,
+
+	// {bool} Whether to force package tests to run. Normally they only run when 'wp' is 'latest' or 'none'.
+	'force-package-tests' => false,
 
 	// {int} Job timeout in minutes.
-	'timeout'      => 10,
+	'timeout'             => 10,
 
 	// {string} A valid artifact name for any generated artifacts. If not given, will be derived from the name.
-	'artifact'     => null,
+	'artifact'            => null,
 );
 
 // Matrix definitions. Each will be combined with `$default_matrix_vars` later in processing.
@@ -61,18 +64,24 @@ foreach ( array( '5.6', '7.0', '7.2', '7.3', '7.4', '8.0' ) as $php ) {
 		'timeout' => 20, // 2022-01-25: 5.6 tests have started timing out at 15 minutes. Previously: Successful runs seem to take ~8 minutes for PHP 5.6 and for the 7.4 trunk run, ~5.5-6 for 7.x and 8.0.
 	);
 }
-// Uncomment this once WP trunk finally works with 8.1. Then merge into the above once WP latest does and we've cleaned up any problems in our own code.
-// phpcs:ignore Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.BlockComment.NoEmptyLineBefore
-/*
+// Merge this into the above once we decide PHP 8.1 is stable and WP latest works with 8.1.
 $matrix[] = array(
-	'name'         => 'PHP tests: PHP 8.1 WP trunk',
-	'script'       => 'test-php',
-	'php'          => '8.1',
-	'wp'           => 'trunk',
-	'timeout'      => 15,
-	'experimental' => true,
+	'name'                => 'PHP tests: PHP 8.1 WP trunk',
+	'script'              => 'test-php',
+	'php'                 => '8.1',
+	'wp'                  => 'trunk',
+	'timeout'             => 20, // 2022-12-19: The WorDBless WP version bump adds up to ~30s extra per project using it, which adds up.
+	'force-package-tests' => true,
 );
-*/
+// Merge this into the above once we decide PHP 8.2 is stable and WP latest works with 8.2.
+$matrix[] = array(
+	'name'                => 'PHP tests: PHP 8.2 WP trunk',
+	'script'              => 'test-php',
+	'php'                 => '8.2',
+	'wp'                  => 'trunk',
+	'timeout'             => 20, // 2022-12-19: The WorDBless WP version bump adds up to ~30s extra per project using it, which adds up.
+	'force-package-tests' => true,
+);
 foreach ( array( 'previous', 'trunk' ) as $wp ) {
 	$matrix[] = array(
 		'name'    => "PHP tests: PHP {$versions['PHP_VERSION']} WP $wp",
@@ -88,14 +97,6 @@ $matrix[] = array(
 	'name'    => 'JS tests',
 	'script'  => 'test-js',
 	'timeout' => 15, // 2021-01-18: Successful runs seem to take ~5 minutes.
-);
-
-// Add Coverage tests.
-$matrix[] = array(
-	'name'    => 'Code coverage',
-	'script'  => 'test-coverage',
-	'wp'      => 'latest',
-	'timeout' => 30, // 2021-01-18: Successful runs seem to take ~20 minutes
 );
 
 // END matrix definitions.

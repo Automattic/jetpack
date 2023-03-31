@@ -8,7 +8,7 @@ After discussion and analysis (p9dueE-2MY-p2) we decided to go with pnpm as the 
 Several reasons:
 
 * More sensible structure to `node_modules/` than the hoisting done by npm and yarn.
-  * More strict about undeclared dependencies without having to complately switch to something like Plug'n'Play.
+  * More strict about undeclared dependencies without having to completely switch to something like Plug'n'Play.
 * Mature workspace features.
 * Better performance in typical configurations with our repo.
 * Lack of desire to be a testbed for new proposals like Plug'n'Play or Zero Installs.

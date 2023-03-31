@@ -4,14 +4,9 @@
 ############################################
 
 # Packages
-/projects/packages/search @Automattic/jetpack-search
 /projects/packages/search/src/wpes @Automattic/prometheus
 
 # Plugins
-/projects/plugins/search @Automattic/jetpack-search
-
-# Other bits of the Codebase
-/projects/plugins/jetpack/_inc/lib/debugger/ @kraftbj
 
 # Functionality that is important to our partners
 /projects/plugins/jetpack/class.jetpack-cli.php @automattic/jetpack-infinity

@@ -1,6 +1,6 @@
 <?php
 
-require_jetpack_file( 'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 
 /**
  * Class WP_Test_Jetpack_WPCOM_Block_Editor.

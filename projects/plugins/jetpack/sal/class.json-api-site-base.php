@@ -10,6 +10,9 @@
  *
  * @package automattic/jetpack
  **/
+
+use Automattic\Jetpack\Blaze;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 require_once __DIR__ . '/class.json-api-date.php';
@@ -457,12 +460,33 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Get details used to render a thumbnail of the site. P2020 themed sites only.
+	 *
+	 * @return ?array
+	 */
+	public function get_p2_thumbnail_elements() {
+		return null;
+	}
+
+	/**
 	 * Detect whether a site is a WordPress.com on Atomic site.
 	 *
 	 * @return bool
 	 */
 	public function is_wpcom_atomic() {
 		return ( new Host() )->is_woa_site();
+	}
+
+	/**
+	 * Detect whether a site is WordPress.com Staging Site.
+	 *
+	 * @return bool
+	 */
+	public function is_wpcom_staging_site() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'staging_site' );
+		}
+		return false;
 	}
 
 	/**
@@ -473,6 +497,18 @@ abstract class SAL_Site {
 	 * @return bool - False for Jetpack-connected sites.
 	 */
 	public function is_wpcom_store() {
+		return false;
+	}
+
+	/**
+	 * Indicate whether this site was ever an eCommerce trial.
+	 *
+	 * @return bool
+	 */
+	public function was_ecommerce_trial() {
+		if ( function_exists( 'has_blog_sticker' ) ) {
+			return has_blog_sticker( 'had-ecommerce-trial' );
+		}
 		return false;
 	}
 
@@ -708,7 +744,7 @@ abstract class SAL_Site {
 		}
 
 		if (
-			-1 == get_option( 'blog_public' ) && // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual -- Could be a string or int.
+			( new Status() )->is_private_site() &&
 			/**
 			 * Filter access to a specific post.
 			 *
@@ -1354,6 +1390,17 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Whether a site has a 'site_source_slug' option set - only applicable on WordPress.com
+	 *
+	 * @see /wpcom-json-endpoints/class.wpcom-json-api-new-site-endpoint.php for more on the option.
+	 *
+	 * @return bool
+	 */
+	public function get_site_source_slug() {
+			return get_option( 'site_source_slug' );
+	}
+
+	/**
 	 * Return any selected features (used to help recommend plans)
 	 *
 	 * @return string
@@ -1388,6 +1435,9 @@ abstract class SAL_Site {
 	public function is_difm_lite_in_progress() {
 		if ( function_exists( 'has_blog_sticker' ) ) {
 			return has_blog_sticker( 'difm-lite-in-progress' );
+		} elseif ( function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			// For atomic sites
+			return wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' );
 		}
 		return false;
 	}
@@ -1409,5 +1459,55 @@ abstract class SAL_Site {
 	public function get_site_intent() {
 		return get_option( 'site_intent', '' );
 	}
-}
 
+	/**
+	 * Get site option to determine if and how to display launchpad onboarding
+	 *
+	 * @return string
+	 */
+	public function get_launchpad_screen() {
+		return get_option( 'launchpad_screen' );
+	}
+
+	/**
+	 * Get site option for completed launchpad checklist tasks
+	 *
+	 * @return string
+	 */
+	public function get_launchpad_checklist_tasks_statuses() {
+		$launchpad_checklist_tasks_statuses_option = get_option( 'launchpad_checklist_tasks_statuses' );
+
+		if ( is_array( $launchpad_checklist_tasks_statuses_option ) ) {
+			return $launchpad_checklist_tasks_statuses_option;
+		}
+
+		return array();
+	}
+
+	/**
+	 * Get site option for the production blog id (if is a WP.com Staging Site).
+	 *
+	 * @return string
+	 */
+	public function get_wpcom_production_blog_id() {
+		return get_option( 'wpcom_production_blog_id', '' );
+	}
+
+	/**
+	 * Get site option for the staging blog ids (if it has them)
+	 *
+	 * @return string
+	 */
+	public function get_wpcom_staging_blog_ids() {
+		return get_option( 'wpcom_staging_blog_ids', array() );
+	}
+
+	/**
+	 * Get the site's Blaze eligibility status.
+	 *
+	 * @return bool
+	 */
+	public function can_blaze() {
+		return (bool) Blaze::site_supports_blaze( $this->blog_id );
+	}
+}

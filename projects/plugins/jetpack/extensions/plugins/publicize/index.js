@@ -9,28 +9,40 @@
  */
 
 import { JetpackLogo } from '@automattic/jetpack-components';
-import { TwitterThreadListener } from '@automattic/jetpack-publicize-components';
+import {
+	TwitterThreadListener,
+	PublicizePanel,
+	useSocialMediaConnections,
+	usePublicizeConfig,
+	SocialImageGeneratorPanel,
+} from '@automattic/jetpack-publicize-components';
 import { PluginPrePublishPanel } from '@wordpress/edit-post';
 import { PostTypeSupportCheck } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import JetpackPluginSidebar from '../../shared/jetpack-plugin-sidebar';
-import PublicizePanel from './components/panel';
+import UpsellNotice from './components/upsell';
 
 import './editor.scss';
 
 export const name = 'publicize';
 
-export const settings = {
-	render: () => (
+const PublicizeSettings = () => {
+	const { hasEnabledConnections } = useSocialMediaConnections();
+	const { isSocialImageGeneratorEnabled } = usePublicizeConfig();
+
+	return (
 		<PostTypeSupportCheck supportKeys="publicize">
 			<TwitterThreadListener />
 
 			<JetpackPluginSidebar>
-				<PublicizePanel />
+				<PublicizePanel enableTweetStorm={ true }>
+					<UpsellNotice />
+				</PublicizePanel>
+				{ isSocialImageGeneratorEnabled && <SocialImageGeneratorPanel /> }
 			</JetpackPluginSidebar>
 
 			<PluginPrePublishPanel
-				initialOpen
+				initialOpen={ hasEnabledConnections }
 				id="publicize-title"
 				title={
 					<span id="publicize-defaults" key="publicize-title-span">
@@ -39,8 +51,24 @@ export const settings = {
 				}
 				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
-				<PublicizePanel prePublish={ true } />
+				<PublicizePanel prePublish={ true } enableTweetStorm={ true }>
+					<UpsellNotice />
+				</PublicizePanel>
 			</PluginPrePublishPanel>
+
+			{ isSocialImageGeneratorEnabled && (
+				<PluginPrePublishPanel
+					initialOpen
+					title={ __( 'Social Image Generator', 'jetpack' ) }
+					icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+				>
+					<SocialImageGeneratorPanel prePublish={ true } />
+				</PluginPrePublishPanel>
+			) }
 		</PostTypeSupportCheck>
-	),
+	);
+};
+
+export const settings = {
+	render: PublicizeSettings,
 };

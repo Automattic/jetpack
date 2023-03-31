@@ -1,40 +1,56 @@
-## Jetpack 11.4
+## Jetpack 12.0
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### Jetpack Recommendations Assistant
+### Blocks
 
-There have been updates for the Jetpack Recommendations Assistant. In particular, there is a recommendation for agency managed sites [#26302], and mobile app store links are now shown based on device type [#26093].
+Some blocks were moved from beta status to production and are now available to all users.
+No new features were added, so the only thing to test here is that they work as expected and show up without the beta blocks being enabled:
 
-**To test the agency specific recommendation, try:**
+**VideoPress** - add a block and try adding and playing a video.
 
-- With the Jetpack Beta Tester [plugin](https://jetpack.com/download-jetpack-beta/) activated, and the 11.4-beta branch active, on the main dashboard page `/wp-admin/admin.php?page=jetpack#/dashboard` there is an option in the footer to "Reset Options (dev only)" which can be used to reset the recommendation steps if they have already been completed.
-- Navigate to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`
-- Select "This is my personal site".
-- Then select "Continue", it should skip straight to the Downtime Monitoring recommendation.
-- Navigate back to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type`
-- This time, select the "I build or manage this site for a client" option.
-- Select "Continue" and this time you should get the new agencies recommendation.
-- On the agency screen, test that the "Learn More" and "Get Jetpack for Agencies" links work.
-- Click "Not now" on the agency screen recommendation and you should be directed to the next recommendation. Continue selecting "Not now" until you reach the summary page.
-- Click the "Sign Up" external link next to the Jetpack for Agencies recommendation and make sure it opens (no need to fill out): https://cloud.jetpack.com/agency/signup
-- Navigate back to `/wp-admin/admin.php?page=jetpack#/recommendations/site-type` and select both "I build or manage this site for a client" and "This is an e-commerce site" and click on Continue.
-- You should see the Agencies recommendation first, select "Not now".
-- Next you should see the WooCommerce recommendation.
-- That is all for testing these updated recommendations.
+**Cookie Consent block** - make sure you are using a block-based theme such as "Twenty Twenty-Three". Go to the site editor and try adding a Cookie consent block.
 
-**And to test the mobile app links:**
+**Writing Prompt block** - create a new post and add a Writing Prompt block to it. Save or publish the post and check if appropriate tags, such as 'dailyprompt' and 'dailyprompt-1810' are added.
 
-- Navigate to `/wp-admin/admin.php?page=jetpack#/recommendations/summary`
-- On a desktop or laptop computer, a QR code for the Jetpack mobile app will be displayed next to the `jetpack.com/mobile` URL.
-- When visiting the same recommendations page on a mobile device, the respective app store button should be shown for well known devices and mobile operating systems.
-- If you don't have a mobile device to test with, you might try using Chrome to simulate the user agent:
-  - Open the Chrome Dev Tools
-  - Click the vertical menu option > More tools > Network conditions
-  - In the Network conditions tab, uncheck the "Use browser default" for the user agent, and select an iOS or Android one for testing.
-  - When refreshing the recommendations page you should see the expected mobile app store button.
+### The Form block
+
+**Multiple Choice and Single Choice** fields had some design updates. To test it:
+
+- Create a post and add a Form block.
+- Include a Multiple Choice and a Single Choice field.
+- Check if they work as expected.
+- Publish the post and check if it looks as expected on the frontend.
+- Multiline feedback message support:
+- Create and publish a post that includes a contact form.
+- Submit a multi-line message through a form.
+- Look at Feedback->Form Responses and make sure the message is not showing up as a single line.
+
+### WordPress 6.2 compatibility
+
+This version of Jetpack included several small fixes to ensure compatibility with the latest WordPress. WordPress 6.2 is now available to all users, so make sure you update your site to the latest version.
+
+### Things to check:
+
+#### Twitter block
+
+- Create a new post and add a Twitter block.
+- Paste a Twitter URL for a thread (tweetstorm).
+- Click on Unroll.
+- Change Publicize options to publish a thread instead of a single tweet.
+- Observe separators being added to the post content.
+- Click on the "Social Previews" section at the bottom of the sidebar.
+- You should see previews under some of the tweets, and you should not see any notices in your error logs.
+
+### Pinterest block
+
+- Create a new post and add a Pinterest block. When adding a Pinterest URL, no errors should appear in your logs.
+
+### And More!
+
+You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/jetpack/branch-12.0/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
 
 **Thank you for all your help!**

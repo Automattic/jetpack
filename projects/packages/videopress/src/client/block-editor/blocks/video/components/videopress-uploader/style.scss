@@ -9,14 +9,14 @@
 	align-items: center;
 	justify-content: space-between;
 	border-top: 1px solid $gray-200;
-	padding: 1em;
-	margin: 0 -1em -1em;
-	min-height: 27px;
+	padding-top: 8px;
+	gap: 16px;
 
 	&__file-info {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
+		flex-grow: 2;
 		gap: 10px;
 	}
 
@@ -53,7 +53,7 @@
 
 .uploading-editor {
 	width: 100%;
-	margin-bottom: 20px;
+	margin-bottom: 8px;
 
 	.components-base-control__label {
 		font-weight: 600;
@@ -61,6 +61,7 @@
 
 	&__title {
 		margin-bottom: 15px;
+		width: 100%;
 	}
 
 	&__upload-link {
@@ -111,5 +112,29 @@
 		margin: -65px 0 0 -65px;
 		opacity: 1;
 		transition: opacity 0.3s ease-out;
+	}
+}
+
+// Notices and errors
+
+.wp-block-videopress-video .components-notice {
+	padding-left: 15px;
+
+	.components-notice__content {
+		margin-top: 4px;
+		margin-bottom: 4px;
+		line-height: 1.8;
+
+	}
+
+	&.is-error {
+		background-color: $gray-100;
+		border-left-color: $alert-red;
+		border-radius: 2px;
+		position: relative;
+	}
+
+	&.is-dismissible {
+		padding-right: 12px;
 	}
 }

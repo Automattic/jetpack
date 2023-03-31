@@ -1,7 +1,7 @@
 <!--
 	This component shows a prompt to refresh the Page Speed scores or contact support if a score has persistently dropped.
 -->
-<script>
+<script lang="ts">
 	/**
 	 * WordPress dependencies
 	 */
@@ -21,7 +21,6 @@
 		await makeAdminAjaxRequest( {
 			action: 'set_show_score_prompt',
 			value: false,
-			// eslint-disable-next-line camelcase
 			nonce: Jetpack_Boost.showScorePromptNonce,
 		} );
 

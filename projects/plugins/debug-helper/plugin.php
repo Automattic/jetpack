@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Debug Tools
  * Description: Give me a Jetpack connection, and I'll break it every way possible.
  * Author: Automattic - Jetpack Crew
- * Version: 1.5.0-alpha
+ * Version: 1.6.0-alpha
  * Text Domain: jetpack
  *
  * @package automattic/jetpack-debug-helper.
@@ -33,7 +33,7 @@ define( 'JETPACK_DEBUG_HELPER_BASE_PLUGIN_FILE', __FILE__ );
  * The plugin version.
  * Increase that if you do any edits to ensure refreshing the cached assets.
  */
-define( 'JETPACK_DEBUG_HELPER_VERSION', '1.5.0-alpha' );
+define( 'JETPACK_DEBUG_HELPER_VERSION', '1.6.0-alpha' );
 
 /**
  * Include file names from the modules directory here.
@@ -87,6 +87,16 @@ $jetpack_dev_debug_modules = array(
 	'scan-helper'        => array(
 		'file'        => 'class-scan-helper.php',
 		'name'        => 'Jetpack Scan Helper',
+		'description' => '',
+	),
+	'waf-helper'         => array(
+		'file'        => 'class-waf-helper.php',
+		'name'        => 'Jetpack Firewall Helper',
+		'description' => '',
+	),
+	'cookie-state'       => array(
+		'file'        => 'class-cookie-state.php',
+		'name'        => 'Cookie State Faker',
 		'description' => '',
 	),
 );

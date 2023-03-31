@@ -60,7 +60,7 @@ class VideoPress_Player {
 			self::$shown[ $guid ] = 0;
 		}
 
-		self::$shown[ $guid ]++;
+		++self::$shown[ $guid ];
 
 		$this->video_container_id = 'v-' . $guid . '-' . self::$shown[ $guid ];
 		$this->video_id           = $this->video_container_id . '-video';
@@ -332,7 +332,7 @@ class VideoPress_Player {
 		if ( isset( $this->options['autoplay'] ) && $this->options['autoplay'] === true ) {
 			$html .= ' autoplay="true"';
 		} else {
-			$html .= ' preload="metadata"';
+			$html .= ' preload="' . $this->options['preloadContent'] . '"';
 		}
 		if ( isset( $this->video->text_direction ) ) {
 			$html .= ' dir="' . esc_attr( $this->video->text_direction ) . '"';
@@ -678,6 +678,10 @@ class VideoPress_Player {
 						$videopress_options[ $option ] = $value;
 					}
 					break;
+				case 'preloadContent':
+					if ( $value ) {
+						$videopress_options['preloadContent'] = $value;
+					}
 			}
 		}
 
@@ -692,6 +696,7 @@ class VideoPress_Player {
 				}
 			}
 
+			$cover  = $videopress_options['cover'] ? ' data-resize-to-parent="true"' : '';
 			$js_url = 'https://s0.wp.com/wp-content/plugins/video/assets/js/next/videopress-iframe.js';
 			// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 			return "<iframe title='" . __( 'VideoPress Video Player', 'jetpack' )
@@ -699,7 +704,9 @@ class VideoPress_Player {
 				. "' width='" . esc_attr( $videopress_options['width'] )
 				. "' height='" . esc_attr( $videopress_options['height'] )
 				. "' src='" . esc_attr( $iframe_url )
-				. "' frameborder='0' allowfullscreen allow='clipboard-write'></iframe>"
+				. "' frameborder='0' allowfullscreen"
+				. $cover
+				. " allow='clipboard-write'></iframe>"
 				. "<script src='" . esc_attr( $js_url ) . "'></script>";
 
 		} else {

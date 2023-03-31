@@ -11,7 +11,6 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Device_Detection;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Sync\Functions;
@@ -22,6 +21,8 @@ use Automattic\Jetpack\Sync\Functions;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+require_once __DIR__ . '/functions.is-mobile.php';
 
 /**
  * Hook into Core's _deprecated_function
@@ -176,6 +177,37 @@ function jetpack_register_migration_post_type() {
 }
 
 /**
+ * Checks whether the Post DB threat currently exists on the site.
+ *
+ * @since 12.0
+ *
+ * @param string $option_name  Option name.
+ *
+ * @return WP_Post|bool
+ */
+function jetpack_migration_post_exists( $option_name ) {
+	$query = new WP_Query(
+		array(
+			'post_type'              => 'jetpack_migration',
+			'title'                  => $option_name,
+			'post_status'            => 'all',
+			'posts_per_page'         => 1,
+			'no_found_rows'          => true,
+			'ignore_sticky_posts'    => true,
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false,
+			'orderby'                => 'post_date ID',
+			'order'                  => 'ASC',
+		)
+	);
+	if ( ! empty( $query->post ) ) {
+		return $query->post;
+	}
+
+	return false;
+}
+
+/**
  * Stores migration data in the database.
  *
  * @since 5.2
@@ -195,10 +227,9 @@ function jetpack_store_migration_data( $option_name, $option_value ) {
 		'post_date'             => gmdate( 'Y-m-d H:i:s', time() ),
 	);
 
-	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
-
-	if ( null !== $post ) {
-		$insert['ID'] = $post->ID;
+	$migration_post = jetpack_migration_post_exists( $option_name );
+	if ( $migration_post ) {
+		$insert['ID'] = $migration_post->ID;
 	}
 
 	return wp_insert_post( $insert, true );
@@ -214,7 +245,7 @@ function jetpack_store_migration_data( $option_name, $option_value ) {
  * @return mixed|null
  */
 function jetpack_get_migration_data( $option_name ) {
-	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
+	$post = jetpack_migration_post_exists( $option_name );
 
 	return null !== $post ? maybe_unserialize( $post->post_content_filtered ) : null;
 }
@@ -397,64 +428,6 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
 }
 
 /**
- * Determine if the current User Agent matches the passed $kind
- *
- * @param string $kind Category of mobile device to check for.
- *                         Either: any, dumb, smart.
- * @param bool   $return_matched_agent Boolean indicating if the UA should be returned.
- *
- * @return bool|string Boolean indicating if current UA matches $kind. If
- *                              $return_matched_agent is true, returns the UA string
- */
-function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
-
-	/**
-	 * Filter the value of jetpack_is_mobile before it is calculated.
-	 *
-	 * Passing a truthy value to the filter will short-circuit determining the
-	 * mobile type, returning the passed value instead.
-	 *
-	 * @since  4.2.0
-	 *
-	 * @param bool|string $matches Boolean if current UA matches $kind or not. If
-	 *                             $return_matched_agent is true, should return the UA string
-	 * @param string      $kind Category of mobile device being checked
-	 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
-	 */
-	$pre = apply_filters( 'pre_jetpack_is_mobile', null, $kind, $return_matched_agent );
-	if ( $pre ) {
-		return $pre;
-	}
-
-	$return      = false;
-	$device_info = Device_Detection::get_info();
-
-	if ( 'any' === $kind ) {
-		$return = $device_info['is_phone'];
-	} elseif ( 'smart' === $kind ) {
-		$return = $device_info['is_smartphone'];
-	} elseif ( 'dumb' === $kind ) {
-		$return = $device_info['is_phone'] && ! $device_info['is_smartphone'];
-	}
-
-	if ( $return_matched_agent && true === $return ) {
-		$return = $device_info['is_phone_matched_ua'];
-	}
-
-	/**
-	 * Filter the value of jetpack_is_mobile
-	 *
-	 * @since  4.2.0
-	 *
-	 * @param bool|string $matches Boolean if current UA matches $kind or not. If
-	 *                             $return_matched_agent is true, should return the UA string
-	 * @param string      $kind Category of mobile device being checked
-	 * @param bool        $return_matched_agent Boolean indicating if the UA should be returned
-	 */
-	return apply_filters( 'jetpack_is_mobile', $return, $kind, $return_matched_agent );
-}
-
-/**
  * Determine whether the current request is for accessing the frontend.
  *
  * @return bool True if it's a frontend request, false otherwise.
@@ -484,4 +457,39 @@ function jetpack_is_frontend() {
 	 * @param bool $is_frontend Whether the current request is for accessing the frontend.
 	 */
 	return (bool) apply_filters( 'jetpack_is_frontend', $is_frontend );
+}
+
+/**
+ * Build a list of Mastodon instance hosts.
+ * That list can be extended via a filter.
+ *
+ * @since 11.8
+ *
+ * @return array
+ */
+function jetpack_mastodon_get_instance_list() {
+	$mastodon_instance_list = array(
+		// Regex pattern to match any .tld for the mastodon host name.
+		'#https?:\/\/(www\.)?mastodon\.(\w+)(\.\w+)?#',
+		// Regex pattern to match any .tld for the mstdn host name.
+		'#https?:\/\/(www\.)?mstdn\.(\w+)(\.\w+)?#',
+		'counter.social',
+		'fosstodon.org',
+		'gc2.jp',
+		'hachyderm.io',
+		'infosec.exchange',
+		'mas.to',
+		'pawoo.net',
+	);
+
+	/**
+	 * Filter the list of Mastodon instances.
+	 *
+	 * @since 11.8
+	 *
+	 * @module widgets, theme-tools
+	 *
+	 * @param array $mastodon_instance_list Array of Mastodon instances.
+	 */
+	return (array) apply_filters( 'jetpack_mastodon_instance_list', $mastodon_instance_list );
 }

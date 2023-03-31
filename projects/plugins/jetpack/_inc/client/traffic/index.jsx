@@ -73,7 +73,7 @@ export class Traffic extends React.Component {
 						this.props.searchTerm
 							? __( 'Traffic', 'jetpack' )
 							: __(
-									'Maximize your site’s visibility in search engines and view traffic stats in real time.',
+									'Maximize your site’s visibility in search engines and view traffic patterns in real time.',
 									'jetpack'
 							  )
 					}
@@ -110,6 +110,7 @@ export class Traffic extends React.Component {
 						} ) }
 					/>
 				) }
+				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundAnalytics && (
 					<GoogleAnalytics
 						{ ...commonProps }
@@ -119,7 +120,6 @@ export class Traffic extends React.Component {
 						} ) }
 					/>
 				) }
-				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
 				{ foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ foundVerification && <VerificationServices { ...commonProps } /> }

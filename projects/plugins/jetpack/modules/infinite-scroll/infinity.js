@@ -360,7 +360,7 @@
 
 		// Allow refreshes to occur again if an error is triggered.
 		xhr.onerror = function () {
-			if ( self.click_handle ) {
+			if ( self.click_handle && loader.parentNode ) {
 				loader.parentNode.removeChild( loader );
 			}
 
@@ -374,14 +374,14 @@
 				responseCheck = 'undefined' !== typeof response.html;
 
 			if ( ! response || ! httpCheck || ! responseCheck ) {
-				if ( self.click_handle ) {
+				if ( self.click_handle && loader.parentNode ) {
 					loader.parentNode.removeChild( loader );
 				}
 				return;
 			}
 
 			// On success, let's hide the loader circle.
-			if ( self.click_handle ) {
+			if ( self.click_handle && loader.parentNode ) {
 				loader.parentNode.removeChild( loader );
 			}
 
@@ -714,7 +714,7 @@
 		self.body.removeEventListener( 'is.post-load', self.checkViewportOnLoadBound );
 
 		// Load more posts if space permits, otherwise stop checking for a full viewport.
-		if ( wrapperMeasurements.bottom < windowHeight ) {
+		if ( wrapperMeasurements.bottom !== 0 && wrapperMeasurements.bottom < windowHeight ) {
 			self.ready = true;
 			self.refresh();
 		}

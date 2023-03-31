@@ -11,7 +11,7 @@ const { apiRoot, apiNonce } = window?.JP_CONNECTION_INITIAL_STATE
  * Restore connection hook.
  * It will initiate an API request attempting to restore the connection, or reconnect if it cannot be restored.
  *
- * @returns {Object} - The hook data.
+ * @returns {object} - The hook data.
  */
 export default function useRestoreConnection() {
 	const [ isRestoringConnection, setIsRestoringConnection ] = useState( false );
@@ -25,7 +25,7 @@ export default function useRestoreConnection() {
 	 * Initiate connection restore.
 	 *
 	 * @param {boolean} autoReconnectUser - If user connection needs to be reestablished, automatically initiate the flow.
-	 * @returns {Promise<Object>} - The API request promise.
+	 * @returns {Promise<object>} - The API request promise.
 	 */
 	const restoreConnection = ( autoReconnectUser = true ) => {
 		setIsRestoringConnection( true );

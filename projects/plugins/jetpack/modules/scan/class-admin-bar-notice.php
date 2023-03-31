@@ -80,6 +80,12 @@ class Admin_Bar_Notice {
 			return false;
 		}
 
+		// Check if Protect is active.
+		// It has its own notice in the admin bar.
+		if ( class_exists( 'Jetpack_Protect' ) ) {
+			return false;
+		}
+
 		// Only show the notice to admins.
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return false;

@@ -14,6 +14,23 @@
 	padding: 0;
 }
 
+.jp-at-a-glance__stats-card {
+	.jp-link-button {
+		background: $white;
+		border: none;
+		padding: 2px 0;
+	}
+}
+
+.dops-banner__content {
+	.jp-link-button {
+		background: $white;
+		border: none;
+		font-size: 0.75rem;
+		padding: 1px 0;
+	}
+}
+
 .jp-at-a-glance__stats-empty {
 	text-align: center;
 	margin-bottom: 0;
@@ -200,7 +217,7 @@
 	}
 
 	.jp-at-a-glance__stats-ctas-wpcom-stats {
-		margin-right: rem( 8px );
+		margin-left: 16px;
 	}
 
 	.dops-button {

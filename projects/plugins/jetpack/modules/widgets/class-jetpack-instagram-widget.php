@@ -316,29 +316,26 @@ class Jetpack_Instagram_Widget extends WP_Widget {
 				),
 				esc_url( add_query_arg( 'instagram_widget_id', $this->number, admin_url( 'widgets.php' ) ) )
 			) . '</em></p>';
+		} elseif ( ! is_array( $images ) ) {
+			echo '<p>' . esc_html__( 'There was an error retrieving images from Instagram. An attempt will be remade in a few minutes.', 'jetpack' ) . '</p>';
+		} elseif ( ! $images ) {
+			echo '<p>' . esc_html__( 'No Instagram images were found.', 'jetpack' ) . '</p>';
 		} else {
-			if ( ! is_array( $images ) ) {
-				echo '<p>' . esc_html__( 'There was an error retrieving images from Instagram. An attempt will be remade in a few minutes.', 'jetpack' ) . '</p>';
-			} elseif ( ! $images ) {
-				echo '<p>' . esc_html__( 'No Instagram images were found.', 'jetpack' ) . '</p>';
-			} else {
-
-				echo '<div class="' . esc_attr( 'wpcom-instagram-images wpcom-instagram-columns-' . (int) $instance['columns'] ) . '">' . "\n";
-				foreach ( $images as $image ) {
-					/**
-					 * Filter how Instagram image links open in the Instagram widget.
-					 *
-					 * @module widgets
-					 *
-					 * @since 8.8.0
-					 *
-					 * @param string $target Target attribute.
-					 */
-					$image_target = apply_filters( 'wpcom_instagram_widget_target', '_self' );
-					echo '<a href="' . esc_url( $image['link'] ) . '" target="' . esc_attr( $image_target ) . '"><div class="sq-bg-image" style="background-image: url(' . esc_url( set_url_scheme( $image['url'] ) ) . ')"><span class="screen-reader-text">' . esc_attr( $image['title'] ) . '</span></div></a>' . "\n";
-				}
-				echo "</div>\n";
+			echo '<div class="' . esc_attr( 'wpcom-instagram-images wpcom-instagram-columns-' . (int) $instance['columns'] ) . '">' . "\n";
+			foreach ( $images as $image ) {
+				/**
+				 * Filter how Instagram image links open in the Instagram widget.
+				 *
+				 * @module widgets
+				 *
+				 * @since 8.8.0
+				 *
+				 * @param string $target Target attribute.
+				 */
+				$image_target = apply_filters( 'wpcom_instagram_widget_target', '_self' );
+				echo '<a href="' . esc_url( $image['link'] ) . '" target="' . esc_attr( $image_target ) . '"><div class="sq-bg-image" style="background-image: url(' . esc_url( set_url_scheme( $image['url'] ) ) . ')"><span class="screen-reader-text">' . esc_attr( $image['title'] ) . '</span></div></a>' . "\n";
 			}
+			echo "</div>\n";
 		}
 
 		echo $args['after_widget']; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped

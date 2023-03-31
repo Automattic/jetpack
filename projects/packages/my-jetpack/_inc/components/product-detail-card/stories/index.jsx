@@ -1,13 +1,11 @@
 /* eslint-disable react/react-in-jsx-scope */
 import React from 'react';
-import withMock from 'storybook-addon-mock';
 import ProductDetailCard from '../index.jsx';
 import { getAllMockData } from './utils.js';
 
 export default {
 	title: 'Packages/My Jetpack/Product Detail Card',
 	component: ProductDetailCard,
-	decorators: [ withMock ],
 	parameters: {
 		layout: 'centered',
 	},

@@ -19,8 +19,8 @@
 
 	.wp-block-jetpack-subscriptions__form-container {
 		display: flex;
-		flex-direction: column;	
-	}	
+		flex-direction: column;
+	}
 
 	.wp-block-jetpack-subscriptions__form,
 	form {
@@ -33,7 +33,13 @@
 		button {
 			line-height: 1.3;
 			box-sizing: border-box;
-			white-space: nowrap;
+			/*
+			 * These next two rules override the default styles for RichText component
+			 * which is used for the button label coming from
+			 * https://github.com/WordPress/gutenberg/blob/b9232527214cd3d523badc4a66b529b7efe615ca/packages/rich-text/src/component/use-default-style.js.
+			 */
+			white-space: nowrap !important;
+			min-width: auto !important;
 		}
 
 		input[type="email"]::placeholder {
@@ -65,7 +71,7 @@
 		}
 	}
 
-	&.wp-block-jetpack-subscriptions__show-subs {		
+	&.wp-block-jetpack-subscriptions__show-subs {
 		.wp-block-jetpack-subscriptions__subscount {
 			margin: 8px 0;
 			font-size: 16px;

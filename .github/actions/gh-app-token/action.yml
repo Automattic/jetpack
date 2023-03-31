@@ -1,0 +1,50 @@
+name: "Get GitHub App access token"
+description: "Gets an access token for a GitHub App"
+inputs:
+  app_id:
+    description: "App ID (not the client ID)."
+  private_key:
+    description: "App private key."
+  repo:
+    description: "Repository, if not the current one."
+    default: ${{ github.repository }}
+outputs:
+  token:
+    description: "Access token."
+    value: ${{ steps.run.outputs.token }}
+runs:
+  using: composite
+  steps:
+    - id: run
+      shell: bash
+      env:
+        ID: ${{ inputs.app_id }}
+        KEY: ${{ inputs.private_key }}
+        REPO: ${{ inputs.repo }}
+      run: |
+        HEADER=$( jq -cjn '{ alg: "RS256" }' | base64 -w 0 | tr -d $'=\n' | tr /+ _- )
+        PAYLOAD=$( jq -cjn --arg id "$ID"  '{ iat: ( now | floor ), exp: ( now + 600 | floor ), "iss": ( $id | tonumber ) }' | base64 | tr -d $'=\n' | tr /+ _- )
+        SIGNATURE=$( printf "%s.%s" "$HEADER" "$PAYLOAD" | openssl dgst -sha256 -sign /dev/fd/3 -binary 3<<<"$KEY" | base64 | tr -d $'=\n' | tr /+ _- )
+        JWT_TOKEN=$HEADER.$PAYLOAD.$SIGNATURE
+
+        echo "::add-mask::$JWT_TOKEN"
+
+        JSON=$( curl -v -L --header "Authorization: Bearer $JWT_TOKEN" --url "https://api.github.com/repos/$REPO/installation" ) || { echo "::error::Failed to query installation from GitHub"; echo "$JSON"; exit 1; }
+        INSTALLATION_ID=$( jq -r '.id // ""' <<<"$JSON" )
+        if [[ -z "$INSTALLATION_ID" ]]; then
+            echo "::error::Failed to query installation from GitHub: $(jq -r '.message // "Unknown error"' <<<"$JSON")"
+            echo "$JSON"
+            exit 1
+        fi
+        echo "Installation ID: $INSTALLATION_ID"
+
+        JSON=$( curl -v -L --header "Authorization: Bearer $JWT_TOKEN" --url "https://api.github.com/app/installations/$INSTALLATION_ID/access_tokens" --data '{}' ) || { echo "::error::Failed to create installation access token"; echo "$JSON"; exit 1; }
+        INSTALLATION_TOKEN=$( jq -r '.token // ""' <<<"$JSON" )
+        if [[ -z "$INSTALLATION_TOKEN" ]]; then
+            echo "::error::Failed to create installation access token: $(jq -r '.message // "Unknown error"' <<<"$JSON")"
+            echo "$JSON"
+            exit 1
+        fi
+
+        echo "::add-mask::$INSTALLATION_TOKEN"
+        echo "token=$INSTALLATION_TOKEN" >> "$GITHUB_OUTPUT"

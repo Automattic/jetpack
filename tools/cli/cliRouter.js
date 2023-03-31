@@ -10,6 +10,7 @@ import { draftDefine } from './commands/draft.js';
 import { generateDefine } from './commands/generate.js';
 import * as installCommand from './commands/install.js';
 import { releaseDefine } from './commands/release.js';
+import { rsyncDefine } from './commands/rsync.js';
 import { testDefine } from './commands/test.js';
 import { watchDefine } from './commands/watch.js';
 
@@ -40,6 +41,7 @@ export async function cli() {
 	argv = generateDefine( argv );
 	argv.command( installCommand );
 	argv = releaseDefine( argv );
+	argv = rsyncDefine( argv );
 	argv = testDefine( argv );
 	argv = watchDefine( argv );
 

@@ -14,25 +14,32 @@ const descriptions = {
 		'jetpack-social'
 	),
 	published: __( 'Posts can only be shared as they are first published.', 'jetpack-social' ),
+	reshare: __(
+		'Share this post on all your enabled social media accounts by clicking on the share post button.',
+		'jetpack-social'
+	),
 };
 
 const getDescription = ( {
-	isPostPublished,
 	isPublicizeEnabled,
 	hasConnections,
 	hasEnabledConnections,
+	hidePublicizeFeature,
+	isPostPublished,
 } ) => {
+	if ( hidePublicizeFeature ) {
+		return descriptions.published;
+	}
 	if ( ! hasConnections ) {
 		return descriptions.start;
 	}
-	if ( isPostPublished ) {
-		return descriptions.published;
+	if ( ! isPublicizeEnabled || ! hasEnabledConnections ) {
+		return descriptions.disabled;
 	}
-	if ( isPublicizeEnabled && hasEnabledConnections ) {
+	if ( isPublicizeEnabled && hasEnabledConnections && ! isPostPublished ) {
 		return descriptions.enabled;
 	}
-
-	return descriptions.disabled;
+	return descriptions.reshare;
 };
 
 /**
@@ -40,7 +47,7 @@ const getDescription = ( {
  * the Publicize publishing panel.
  *
  * @param {object} props                        - The component properties.
- * @param {boolean} props.isPostPublished       - Whether the post has been published.
+ * @param {boolean} props.hidePublicizeFeature  - Whether the publicize feature is available or not.
  * @param {boolean} props.isPublicizeEnabled    - Whether the main publicize toggle is enabled.
  * @param {boolean} props.hasConnections        - Whether we have any Publicize connections.
  * @param {boolean} props.hasEnabledConnections - Whether any connections are enabled.

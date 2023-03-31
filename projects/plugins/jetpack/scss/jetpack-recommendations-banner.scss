@@ -75,7 +75,7 @@
 	color: var( --jp-gray-100 );
 
 	font-size: 1rem;
-	
+
 	@media (min-width: $jp-banner-md-breakpoint) {
 		max-width: 600px;
 	}
@@ -100,15 +100,10 @@
 }
 
 .jp-recommendations-banner__checkboxes {
-	display: grid;
-	gap: 1rem;
-	grid-template-rows: auto auto;
-	grid-template-columns: auto auto;
+	display: flex;
+	flex-direction: column;
 
-	@include breakpoint( '<480px' ) {
-		grid-template-rows: auto auto auto auto;
-		grid-template-columns: auto;
-	}
+	text-align: left;
 }
 
 .jp-recommendations-answer__checkbox-label {
@@ -119,6 +114,7 @@
 	border-radius: 2px;
 	cursor: pointer;
 	background: $studio-white;
+	margin-bottom: 1rem;
 
 	&.checked {
 		background: $studio-gray-0;
@@ -223,7 +219,7 @@
 	@include breakpoint( "<480px" ) {
 		margin-top: 0;
 	}
-	
+
 	&:hover,
 	&:active {
 		color: $studio-gray-100;

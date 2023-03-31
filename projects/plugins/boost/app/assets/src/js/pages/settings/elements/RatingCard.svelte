@@ -1,7 +1,7 @@
 <!--
 	This component shows a prompt to rate Boost if scores improved after enabling a feature.
 -->
-<script>
+<script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { __, sprintf } from '@wordpress/i18n';
 	import CloseButton from '../../../elements/CloseButton.svelte';
@@ -17,7 +17,6 @@
 		await makeAdminAjaxRequest( {
 			action: 'set_show_rating_prompt',
 			value: false,
-			// eslint-disable-next-line camelcase
 			nonce: Jetpack_Boost.showRatingPromptNonce,
 		} );
 

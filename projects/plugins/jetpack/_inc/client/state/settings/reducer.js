@@ -100,10 +100,15 @@ export function getSettings( state ) {
  * @param  {Object} state      Global state tree
  * @param  {String} key        Name of setting or module option to return.
  * @param  {String} moduleName If present, it will check if the module is active before returning it.
+ * @param  {boolean} ignoreDisabledModules - Whether to ignore settings for disabled modules.
  * @return {undefined|*}       Settings value or undefined if a module was specified and it wasn't active.
  */
-export function getSetting( state, key, moduleName = '' ) {
-	if ( '' !== moduleName && ! get( state.jetpack.settings.items, moduleName, false ) ) {
+export function getSetting( state, key, moduleName = '', ignoreDisabledModules = true ) {
+	if (
+		ignoreDisabledModules &&
+		'' !== moduleName &&
+		! get( state.jetpack.settings.items, moduleName, false )
+	) {
 		return undefined;
 	}
 	return get( state.jetpack.settings.items, key, undefined );
@@ -177,15 +182,6 @@ export function toggleSetting( state, name ) {
  */
 export function areThereUnsavedSettings( state ) {
 	return get( state.jetpack.settings, 'unsavedSettingsFlag', false );
-}
-
-/**
- * Returns true if apps card has been dismissed.
- * @param  {Object}  state Global state tree
- * @return {Boolean}  Whether the card has been dismissed
- */
-export function appsCardDismissed( state ) {
-	return get( state.jetpack.settings.items, 'dismiss_dash_app_card', false );
 }
 
 /**

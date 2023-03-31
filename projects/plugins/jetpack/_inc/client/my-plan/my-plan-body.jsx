@@ -478,7 +478,7 @@ class MyPlanBody extends React.Component {
 											src={ imagePath + '/jetpack-google-analytics.svg' }
 											className="jp-landing__plan-features-icon"
 											alt={ __(
-												'Site stats showing an evolution in traffic and engagement',
+												'Charts depicting an evolution in traffic and engagement',
 												'jetpack'
 											) }
 										/>
@@ -514,45 +514,46 @@ class MyPlanBody extends React.Component {
 								</div>
 							) }
 
-						{ isPlanPremiumOrBetter && 'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
-							<div className="jp-landing__plan-features-card">
-								<div className="jp-landing__plan-features-img">
-									<img
-										src={ imagePath + '/jetpack-marketing.svg' }
-										className="jp-landing__plan-features-icon"
-										alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
-									/>
-								</div>
-								<div className="jp-landing__plan-features-text">
-									<h3 className="jp-landing__plan-features-title">
-										{ __( 'Marketing automation', 'jetpack' ) }
-									</h3>
-									<p>
-										{ __(
-											'Schedule unlimited tweets, Facebook posts, and other social posts in advance.',
-											'jetpack'
+						{ isPlanPremiumOrBetter &&
+							'inactive' !== this.props.getModuleOverride( 'publicize' ) && (
+								<div className="jp-landing__plan-features-card">
+									<div className="jp-landing__plan-features-img">
+										<img
+											src={ imagePath + '/jetpack-marketing.svg' }
+											className="jp-landing__plan-features-icon"
+											alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
+										/>
+									</div>
+									<div className="jp-landing__plan-features-text">
+										<h3 className="jp-landing__plan-features-title">
+											{ __( 'Marketing automation', 'jetpack' ) }
+										</h3>
+										<p>
+											{ __(
+												'Schedule unlimited tweets, Facebook posts, and other social posts in advance.',
+												'jetpack'
+											) }
+										</p>
+										{ this.props.isModuleActivated( 'publicize' ) ? (
+											<Button
+												onClick={ this.handleButtonClickForTracking( 'schedule_posts' ) }
+												href={ getRedirectUrl( 'calypso-edit-posts', {
+													site: this.props.siteRawUrl,
+												} ) }
+											>
+												{ __( 'Schedule posts', 'jetpack' ) }
+											</Button>
+										) : (
+											<Button
+												onClick={ this.activatePublicize }
+												disabled={ this.props.isActivatingModule( 'publicize' ) }
+											>
+												{ __( 'Activate Jetpack Social', 'jetpack' ) }
+											</Button>
 										) }
-									</p>
-									{ this.props.isModuleActivated( 'publicize' ) ? (
-										<Button
-											onClick={ this.handleButtonClickForTracking( 'schedule_posts' ) }
-											href={ getRedirectUrl( 'calypso-edit-posts', {
-												site: this.props.siteRawUrl,
-											} ) }
-										>
-											{ __( 'Schedule posts', 'jetpack' ) }
-										</Button>
-									) : (
-										<Button
-											onClick={ this.activatePublicize }
-											disabled={ this.props.isActivatingModule( 'publicize' ) }
-										>
-											{ __( 'Activate Jetpack Social', 'jetpack' ) }
-										</Button>
-									) }
+									</div>
 								</div>
-							</div>
-						) }
+							) }
 					</div>
 				);
 				break;
@@ -562,6 +563,8 @@ class MyPlanBody extends React.Component {
 			case 'is-backup-t1-plan':
 			case 'is-backup-t2-plan':
 			case 'is-search-plan':
+			case 'is-jetpack-golden-token-plan':
+			case 'is-free-search-plan':
 			case 'offline':
 			// DEPRECATED: Daily and Real-time variations will soon be retired.
 			// Remove after all customers are migrated to new products.
@@ -660,7 +663,7 @@ class MyPlanBody extends React.Component {
 									src={ imagePath + '/jetpack-performance-icon.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __(
-										'Site stats showing an evolution in traffic and engagement',
+										'Jetpack Stats showing an evolution in traffic and engagement',
 										'jetpack'
 									) }
 								/>

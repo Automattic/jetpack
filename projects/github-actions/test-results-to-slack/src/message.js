@@ -73,7 +73,26 @@ async function createMessage( isFailure ) {
 		const commitUrl = `${ serverUrl }/${ repository }/commit/${ sha }`;
 
 		contextElements.push( getTextContextElement( `Last commit: ${ sha.substring( 0, 8 ) }` ) );
-		buttons.push( lastRunButtonBlock, getButton( `Commit ${ sha.substring( 0, 8 ) }`, commitUrl ) );
+		buttons.push( getButton( `Commit ${ sha.substring( 0, 8 ) }`, commitUrl ) );
+	}
+
+	if ( eventName === 'repository_dispatch' ) {
+		target = `for event _*${ payload.action }*_`;
+
+		if ( payload.client_payload?.sha ) {
+			const upstreamSha = payload.client_payload.sha;
+			msgId = `repository_dispatch-${ upstreamSha }`;
+			contextElements.push(
+				getTextContextElement( `Last commit: ${ upstreamSha.substring( 0, 8 ) }` )
+			);
+
+			if ( payload.client_payload?.repository ) {
+				const commitUrl = `${ serverUrl }/${ payload.client_payload.repository }/commit/${ upstreamSha }`;
+				buttons.push( getButton( `Commit ${ upstreamSha.substring( 0, 8 ) }`, commitUrl ) );
+			}
+		} else {
+			msgId = `repository_dispatch-${ Date.now() }`;
+		}
 	}
 
 	contextElements.push( lastRunBlock );

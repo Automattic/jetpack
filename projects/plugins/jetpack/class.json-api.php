@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Status;
+
 if ( ! defined( 'WPCOM_JSON_API__DEBUG' ) ) {
 	define( 'WPCOM_JSON_API__DEBUG', false );
 }
@@ -29,6 +31,13 @@ class WPCOM_JSON_API {
 	 * @var WPCOM_JSON_API_Endpoint[]
 	 */
 	public $endpoints = array();
+
+	/**
+	 * Endpoint being processed.
+	 *
+	 * @var WPCOM_JSON_API_Endpoint
+	 */
+	public $endpoint = null;
 
 	/**
 	 * Token details.
@@ -419,17 +428,15 @@ class WPCOM_JSON_API {
 			} else {
 				$help_content_type = 'html';
 			}
+		} elseif ( in_array( $this->method, $allowed_methods, true ) ) {
+			// Only serve requested method.
+			$methods                     = array( $this->method );
+			$find_all_matching_endpoints = false;
 		} else {
-			if ( in_array( $this->method, $allowed_methods, true ) ) {
-				// Only serve requested method.
-				$methods                     = array( $this->method );
-				$find_all_matching_endpoints = false;
-			} else {
-				// We don't allow this requested method - find matching endpoints and send 405.
-				$methods                     = $allowed_methods;
-				$find_all_matching_endpoints = true;
-				$four_oh_five                = true;
-			}
+			// We don't allow this requested method - find matching endpoints and send 405.
+			$methods                     = $allowed_methods;
+			$find_all_matching_endpoints = true;
+			$four_oh_five                = true;
 		}
 
 		// Find which endpoint to serve.
@@ -900,7 +907,7 @@ class WPCOM_JSON_API {
 		 * 1. In case of user based authentication, we need to check if the logged-in user has the 'read' capability.
 		 * 2. In case of site based authentication, make sure the endpoint accepts it.
 		 */
-		if ( -1 === (int) get_option( 'blog_public' ) &&
+		if ( ( new Status() )->is_private_site() &&
 			! current_user_can( 'read' ) &&
 			! $this->endpoint->accepts_site_based_authentication()
 		) {
@@ -1129,10 +1136,8 @@ class WPCOM_JSON_API {
 			if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
 				return;
 			}
-		} else {
-			if ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
-				return;
-			}
+		} elseif ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
+			return;
 		}
 
 		$this->trapped_error = array(

@@ -1,4 +1,5 @@
 import { numberFormat } from '@automattic/jetpack-components';
+import { usePublicizeConfig } from '@automattic/jetpack-publicize-components';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	ContrastChecker,
@@ -26,6 +27,8 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
+import PaidPlanPanel from './paid-plan';
+import { isNewsletterFeatureEnabled } from './utils';
 
 export default function SubscriptionControls( {
 	buttonBackgroundColor,
@@ -38,6 +41,7 @@ export default function SubscriptionControls( {
 	fallbackButtonBackgroundColor,
 	fallbackTextColor,
 	fontSize,
+	includeSocialFollowers,
 	isGradientAvailable,
 	padding,
 	setAttributes,
@@ -51,9 +55,12 @@ export default function SubscriptionControls( {
 	buttonWidth,
 	successMessage,
 } ) {
+	const { isPublicizeEnabled } = usePublicizeConfig();
+
 	return (
 		<>
-			{ subscriberCount > 1 && (
+			{ isNewsletterFeatureEnabled() && <PaidPlanPanel /> }
+			{ subscriberCount > 0 && (
 				<InspectorNotice>
 					{ createInterpolateElement(
 						sprintf(
@@ -66,7 +73,7 @@ export default function SubscriptionControls( {
 							),
 							numberFormat( subscriberCount )
 						),
-						{ span: <span style={ { textDecoration: 'underline' } } /> }
+						{ span: <span style={ { fontWeight: 'bold' } } /> }
 					) }
 				</InspectorNotice>
 			) }
@@ -158,6 +165,8 @@ export default function SubscriptionControls( {
 							customFontSize: newFontSize,
 						} );
 					} }
+					// This is changing in the future, and we need to do this to silence the deprecation warning.
+					__nextHasNoMarginBottom={ true }
 				/>
 			</PanelBody>
 			<PanelBody
@@ -234,6 +243,17 @@ export default function SubscriptionControls( {
 						}
 					} }
 				/>
+				{ showSubscribersTotal && isPublicizeEnabled ? (
+					<ToggleControl
+						disabled={ ! showSubscribersTotal }
+						label={ __( 'Include social followers in count', 'jetpack' ) }
+						checked={ includeSocialFollowers }
+						onChange={ () => {
+							setAttributes( { includeSocialFollowers: ! includeSocialFollowers } );
+						} }
+					/>
+				) : null }
+
 				<ToggleControl
 					label={ __( 'Place button on new line', 'jetpack' ) }
 					checked={ buttonOnNewLine }

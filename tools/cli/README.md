@@ -34,6 +34,7 @@ The CLI commands can be run from anywhere, and the changes will be made in which
 * `generate` - Create a new project in the monorepo.
 * `install` - Install project dependencies.
 * `watch` - Watch a specific project.
+* `rsync` - rsync projects/plugins to external destinations.
 
 ## Examples
 
@@ -86,6 +87,12 @@ Lets you install project dependencies by selecting a project from a list, or pro
 Watch a monorepo project, which will rebuild the project as changes are made so you don’t need to keep building.
 
 - Watch the Jetpack plugin: `jetpack watch plugins/jetpack`
+
+**Rsync**: rsync projects/plugins to external destinations.
+
+Maybe you'd prefer to develop against a live site instead of Docker. Or maybe you want to quickly push the plugin you're building to a live JN site without waiting for the builds. This rsync wrapper knows which files to send and not send. 
+
+- Rsync the Jetpack plugin to server destination: `jetpack rsync jetpack user@your.server.example.com:/home/path/to/wp-content/plugins`
 
 [the Jetpack monorepo]: https://github.com/Automattic/jetpack
 

@@ -209,6 +209,11 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				$input['status'] = 'publish';
 			}
 
+			// default to post.
+			if ( empty( $input['type'] ) ) {
+				$input['type'] = 'post';
+			}
+
 			if ( 'revision' === $input['type'] ) {
 				if ( ! isset( $input['parent'] ) ) {
 					return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
@@ -217,11 +222,6 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				$input['slug']   = $input['parent'] . '-autosave-v1';
 			} elseif ( ! isset( $input['title'] ) && ! isset( $input['content'] ) && ! isset( $input['excerpt'] ) ) {
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
-			}
-
-			// default to post.
-			if ( empty( $input['type'] ) ) {
-				$input['type'] = 'post';
 			}
 
 			$post_type = get_post_type_object( $input['type'] );
@@ -246,10 +246,8 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 						return new WP_Error( 'unauthorized', 'User cannot publish posts', 403 );
 					}
 				}
-			} else {
-				if ( ! current_user_can( $post_type->cap->edit_posts ) ) {
-					return new WP_Error( 'unauthorized', 'User cannot edit posts', 403 );
-				}
+			} elseif ( ! current_user_can( $post_type->cap->edit_posts ) ) {
+				return new WP_Error( 'unauthorized', 'User cannot edit posts', 403 );
 			}
 		} else {
 			$input = $this->input( false );
@@ -267,12 +265,13 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				$input['status'] = 'publish';
 			}
 
-			$post       = get_post( $post_id );
-			$_post_type = ( ! empty( $input['type'] ) ) ? $input['type'] : $post->post_type;
-			$post_type  = get_post_type_object( $_post_type );
+			$post = get_post( $post_id );
 			if ( ! $post || is_wp_error( $post ) ) {
 				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 			}
+
+			$_post_type = ( ! empty( $input['type'] ) ) ? $input['type'] : $post->post_type;
+			$post_type  = get_post_type_object( $_post_type );
 
 			if ( ! current_user_can( 'edit_post', $post->ID ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
@@ -644,28 +643,22 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				} else {
 					delete_post_meta( $post_id, 'switch_like_status' );
 				}
+			} elseif ( $likes ) {
+				update_post_meta( $post_id, 'switch_like_status', 1 );
 			} else {
-				if ( $likes ) {
-					update_post_meta( $post_id, 'switch_like_status', 1 );
+				delete_post_meta( $post_id, 'switch_like_status' );
+			}
+		} elseif ( isset( $likes ) ) {
+			if ( $sitewide_likes_enabled ) {
+				if ( false === $likes ) {
+					update_post_meta( $post_id, 'switch_like_status', 0 );
 				} else {
 					delete_post_meta( $post_id, 'switch_like_status' );
 				}
-			}
-		} else {
-			if ( isset( $likes ) ) {
-				if ( $sitewide_likes_enabled ) {
-					if ( false === $likes ) {
-						update_post_meta( $post_id, 'switch_like_status', 0 );
-					} else {
-						delete_post_meta( $post_id, 'switch_like_status' );
-					}
-				} else {
-					if ( true === $likes ) {
-						update_post_meta( $post_id, 'switch_like_status', 1 );
-					} else {
-						delete_post_meta( $post_id, 'switch_like_status' );
-					}
-				}
+			} elseif ( true === $likes ) {
+				update_post_meta( $post_id, 'switch_like_status', 1 );
+			} else {
+				delete_post_meta( $post_id, 'switch_like_status' );
 			}
 		}
 
@@ -675,12 +668,10 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			if ( false === $sharing_enabled ) {
 				update_post_meta( $post_id, 'sharing_disabled', 1 );
 			}
-		} else {
-			if ( isset( $sharing ) && true === $sharing ) {
-				delete_post_meta( $post_id, 'sharing_disabled' );
-			} elseif ( isset( $sharing ) && false == $sharing ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-				update_post_meta( $post_id, 'sharing_disabled', 1 );
-			}
+		} elseif ( isset( $sharing ) && true === $sharing ) {
+			delete_post_meta( $post_id, 'sharing_disabled' );
+		} elseif ( isset( $sharing ) && false == $sharing ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			update_post_meta( $post_id, 'sharing_disabled', 1 );
 		}
 
 		if ( isset( $sticky ) ) {
@@ -806,7 +797,10 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 				$meta = (object) $meta;
 
-				if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY === $meta->key && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+				if (
+					in_array( $meta->key, Jetpack_SEO_Posts::POST_META_KEYS_ARRAY, true ) &&
+					! Jetpack_SEO_Utils::is_enabled_jetpack_seo()
+				) {
 					return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
 				}
 
@@ -837,7 +831,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				$unslashed_meta_key           = wp_unslash( $meta->key ); // should match what the final key will be.
 				$meta->key                    = wp_slash( $meta->key );
 				$unslashed_existing_meta_key  = isset( $existing_meta_item->meta_key ) ? wp_unslash( $existing_meta_item->meta_key ) : '';
-				$existing_meta_item->meta_key = wp_slash( $existing_meta_item->meta_key );
+				$existing_meta_item->meta_key = isset( $existing_meta_item->meta_key ) ? wp_slash( $existing_meta_item->meta_key ) : '';
 
 				// make sure that the meta id passed matches the existing meta key.
 				if ( ! empty( $meta->id ) && ! empty( $meta->key ) ) {

@@ -1,6 +1,6 @@
 <?php
 
-require_jetpack_file( 'modules/shortcodes/slideshow.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/slideshow.php';
 
 class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 

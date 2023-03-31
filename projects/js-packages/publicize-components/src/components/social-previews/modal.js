@@ -69,9 +69,8 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 export default withSelect( select => {
 	const { getMedia, getUser } = select( 'core' );
 	const { getCurrentPost, getEditedPostAttribute } = select( 'core/editor' );
-	const { getTweetTemplate, getTweetStorm, getShareMessage, isTweetStorm } = select(
-		'jetpack/publicize'
-	);
+	const { getTweetTemplate, getTweetStorm, getShareMessage, isTweetStorm } =
+		select( 'jetpack/publicize' );
 
 	const featuredImageId = getEditedPostAttribute( 'featured_media' );
 	const authorId = getEditedPostAttribute( 'author' );
@@ -79,7 +78,8 @@ export default withSelect( select => {
 
 	const postData = {
 		post: getCurrentPost(),
-		title: getEditedPostAttribute( 'title' ),
+		title:
+			getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title || getEditedPostAttribute( 'title' ),
 		description:
 			getEditedPostAttribute( 'meta' )?.advanced_seo_description ||
 			getEditedPostAttribute( 'excerpt' ) ||

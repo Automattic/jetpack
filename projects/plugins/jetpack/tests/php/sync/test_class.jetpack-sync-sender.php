@@ -184,7 +184,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$characters        = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		$characters_length = strlen( $characters );
 		$random_string     = '';
-		for ( $i = 0; $i < 2000; $i ++ ) {
+		for ( $i = 0; $i < 2000; $i++ ) {
 			$random_string .= $characters[ rand( 0, $characters_length - 1 ) ];
 		}
 
@@ -335,6 +335,17 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$next_sync_time = $this->sender->get_next_sync_time( 'sync' );
 		$this->assertTrue( $next_sync_time > time() + 5 );
 		$this->assertTrue( $next_sync_time < time() + 15 );
+	}
+
+	public function test_expires_next_sync_time_if_more_than_one_hour() {
+		$one_hour_from_now = time() + HOUR_IN_SECONDS;
+		$this->sender->set_next_sync_time( $one_hour_from_now, 'sync' );
+
+		self::factory()->post->create();
+		$this->sender->do_sync();
+
+		$next_sync_time = $this->sender->get_next_sync_time( 'sync' );
+		$this->assertNotSame( $next_sync_time, $one_hour_from_now );
 	}
 
 	public function serverReceiveWithTrailingError( $data, $codec, $sent_timestamp ) {
@@ -521,7 +532,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		// False or WP_Error is expected.
 		$this->assertNotTrue( $result );
-
 	}
 
 	/**

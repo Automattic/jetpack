@@ -8,6 +8,9 @@ import { getSiteTitle } from 'state/initial-state';
 import {
 	getDataByKey,
 	getNextRoute,
+	getStep,
+	isUpdatingRecommendationsStep,
+	addViewedRecommendation as addViewedRecommendationAction,
 	saveRecommendationsData as saveRecommendationsDataAction,
 	updateRecommendationsStep as updateRecommendationsStepAction,
 	isProductSuggestionsAvailable,
@@ -24,13 +27,20 @@ const SiteTypeQuestionComponent = props => {
 		nextRoute,
 		saveRecommendationsData,
 		siteTitle,
+		stateStepSlug,
+		updatingStep,
+		addViewedRecommendation,
 		updateRecommendationsStep,
 		canShowProductSuggestions,
 	} = props;
 
 	useEffect( () => {
-		updateRecommendationsStep( 'site-type-question' );
-	}, [ updateRecommendationsStep ] );
+		if ( 'site-type-question' !== stateStepSlug ) {
+			updateRecommendationsStep( 'site-type-question' );
+		} else if ( 'site-type-question' === stateStepSlug && ! updatingStep ) {
+			addViewedRecommendation( 'site-type-question' );
+		}
+	}, [ stateStepSlug, updatingStep, updateRecommendationsStep, addViewedRecommendation ] );
 
 	const onContinueClick = useCallback( () => {
 		saveRecommendationsData();
@@ -58,7 +68,7 @@ const SiteTypeQuestionComponent = props => {
 				/>
 				<CheckboxAnswer
 					answerKey={ 'site-type-personal' }
-					title={ __( 'This is my personal site', 'jetpack' ) }
+					title={ __( 'This is a personal site', 'jetpack' ) }
 					info={ __(
 						'You built this site yourself, nice work! Personal sites include things like blogs, resume sites, wedding sites, and hobby sites.',
 						'jetpack'
@@ -105,10 +115,13 @@ export const SiteTypeQuestion = connect(
 			builder: getDataByKey( state, 'site-type-agency' ),
 			store: getDataByKey( state, 'site-type-store' ),
 		},
+		stateStepSlug: getStep( state ),
+		updatingStep: isUpdatingRecommendationsStep( state ),
 		canShowProductSuggestions: isProductSuggestionsAvailable( state ),
 	} ),
 	dispatch => ( {
 		updateRecommendationsStep: step => dispatch( updateRecommendationsStepAction( step ) ),
+		addViewedRecommendation: stepSlug => dispatch( addViewedRecommendationAction( stepSlug ) ),
 		saveRecommendationsData: () => dispatch( saveRecommendationsDataAction() ),
 	} )
 )( SiteTypeQuestionComponent );

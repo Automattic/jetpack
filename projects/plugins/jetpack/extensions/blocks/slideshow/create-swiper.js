@@ -1,5 +1,3 @@
-import { mapValues, merge } from 'lodash';
-
 import './style.scss';
 
 export default async function createSwiper(
@@ -28,17 +26,18 @@ export default async function createSwiper(
 		setWrapperSize: true,
 		threshold: 5, // This value helps avoid clicks being treated as swipe actions.
 		touchStartPreventDefault: false,
-		on: mapValues(
-			callbacks,
-			callback =>
+		on: Object.fromEntries(
+			Object.entries( callbacks || {} ).map( ( [ key, callback ] ) => [
+				key,
 				function () {
 					callback( this );
-				}
+				},
+			] )
 		),
 	};
 	const [ { default: Swiper } ] = await Promise.all( [
 		import( /* webpackChunkName: "swiper" */ 'swiper/swiper-bundle.js' ),
 		import( /* webpackChunkName: "swiper" */ 'swiper/swiper-bundle.css' ),
 	] );
-	return new Swiper( container, merge( {}, defaultParams, params ) );
+	return new Swiper( container, { ...defaultParams, ...params } );
 }

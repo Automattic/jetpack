@@ -1,0 +1,32 @@
+/*!
+ * Jetpack CRM
+ * http://jetpackcrm.com
+ */
+#jpcrm-resources-page #jpcrm-resources-page-bundle-block {
+  margin: 1.5em;
+  padding: 0;
+  text-align: center;
+}
+#jpcrm-resources-page #jpcrm-resources-page-bundle-block img {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px 0 #d4d4d5, 0 0 0 1px #d4d4d5;
+}
+#jpcrm-resources-page #jpcrm-resources-page-bundle-block a:focus {
+  color: transparent;
+  box-shadow: none;
+  outline: 0;
+}
+#jpcrm-resources-page #jpcrm-resources-page-cards {
+  margin: 1.5em;
+}
+#jpcrm-resources-page #jpcrm-resources-page-cards #jpcrm-resources-page-share-icons {
+  text-align: center;
+  font-size: 1.1em;
+  color: #079e08;
+  font-weight: 800;
+}
+#jpcrm-resources-page #jpcrm-resources-page-cards #jpcrm-resources-page-share-icons i {
+  font-size: 1.2em;
+}

@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Stats;
 
+use Jetpack_Options;
+
 /**
  * Class to test the XMLRPC_Provider class.
  *
@@ -16,7 +18,7 @@ class Test_XMLRPC_Provider extends StatsBaseTestCase {
 	/**
 	 * An instance of XMLRPC_Provider class.
 	 *
-	 * @var XMLRPC_Provider
+	 * @var Automattic\Jetpack\Stats\XMLRPC_Provider
 	 */
 	protected $xmlrpc_instance;
 
@@ -57,8 +59,27 @@ class Test_XMLRPC_Provider extends StatsBaseTestCase {
 	/**
 	 * Test XMLRPC_Provider::xmlrpc_methods.
 	 */
-	public function test_xmlrpc_methods() {
+	public function test_xmlrpc_methods_will_not_add_get_blog_without_connection() {
+		Jetpack_Options::delete_option( 'blog_token' );
 		$xmlrpc_methods = $this->xmlrpc_instance->xmlrpc_methods( array() );
+		$this->assertArrayNotHasKey( 'jetpack.getBlog', $xmlrpc_methods );
+	}
+
+	/**
+	 * Test XMLRPC_Provider::xmlrpc_methods.
+	 */
+	public function test_xmlrpc_methods_will_not_add_get_blog_without_active_stats_module() {
+		$xmlrpc_methods = $this->xmlrpc_instance->xmlrpc_methods( array() );
+		$this->assertArrayNotHasKey( 'jetpack.getBlog', $xmlrpc_methods );
+	}
+
+	/**
+	 * Test XMLRPC_Provider::xmlrpc_methods.
+	 */
+	public function test_xmlrpc_methods_with_active_stats_module() {
+		add_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
+		$xmlrpc_methods = $this->xmlrpc_instance->xmlrpc_methods( array() );
+		remove_filter( 'jetpack_active_modules', array( __CLASS__, 'filter_jetpack_active_modules_add_stats' ), 10, 2 );
 		$this->assertArrayHasKey( 'jetpack.getBlog', $xmlrpc_methods );
 	}
 
@@ -71,23 +92,28 @@ class Test_XMLRPC_Provider extends StatsBaseTestCase {
 		$stats_blog = $this->xmlrpc_instance->get_blog();
 
 		$expected_stats_blog = array(
-			'admin_bar'           => true,
-			'count_roles'         => array(),
-			'do_not_track'        => true,
-			'version'             => self::DEFAULT_STATS_VERSION,
-			'host'                => 'example.org',
-			'path'                => '/',
-			'blogname'            => false,
-			'blogdescription'     => '&lt;p&gt;Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.&lt;/p&gt;',
-			'siteurl'             => 'http://example.org',
-			'gmt_offset'          => false,
-			'timezone_string'     => false,
-			'stats_version'       => self::DEFAULT_STATS_VERSION,
-			'stats_api'           => 'jetpack',
-			'page_on_front'       => false,
-			'permalink_structure' => false,
-			'category_base'       => false,
-			'tag_base'            => false,
+			'admin_bar'                => true,
+			'count_roles'              => array(),
+			'do_not_track'             => true,
+			'version'                  => Main::STATS_VERSION,
+			'collapse_nudges'          => false,
+			'enable_odyssey_stats'     => true,
+			'odyssey_stats_changed_at' => 0,
+			'notices'                  => array(),
+			'views'                    => 0,
+			'host'                     => 'example.org',
+			'path'                     => '/',
+			'blogname'                 => false,
+			'blogdescription'          => '&lt;p&gt;Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.&lt;/p&gt;',
+			'siteurl'                  => 'http://example.org',
+			'gmt_offset'               => false,
+			'timezone_string'          => false,
+			'stats_version'            => Main::STATS_VERSION,
+			'stats_api'                => 'jetpack',
+			'page_on_front'            => false,
+			'permalink_structure'      => false,
+			'category_base'            => false,
+			'tag_base'                 => false,
 		);
 
 		$this->assertSame( $expected_stats_blog, $stats_blog );

@@ -1,0 +1,242 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V2.2
+ *
+ * Copyright 2017, ZeroBSCRM.com
+ *
+ * Date: 29/07/2017
+ */
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V2.52+
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 27/02/18
+ */
+#zerobs-customer-actions-box #zbs-contact-edit-avatar {
+  text-align: center !important;
+  margin-bottom: 1em;
+}
+#zerobs-customer-actions-box #zbs-contact-edit-avatar .ui.circular.segment h2 img {
+  border-radius: 50% !important;
+}
+#zerobs-customer-actions-box #zbs-contact-edit-avatar .ui.segment h2 img.zbs-gravatar {
+  border-radius: none !important;
+}
+#zerobs-customer-actions-box #zbs-contact-edit-avatar .ui.segment {
+  margin-left: auto;
+  margin-right: auto;
+  display: inline-block;
+}
+#zerobs-customer-actions-box #zbs-contact-edit-avatar .ui.segment i.icon, #zerobs-customer-actions-box #zbs-contact-edit-avatar .ui.segment img {
+  margin-top: 0 !important;
+  margin-right: 0 !important;
+  width: auto;
+  max-width: 100px;
+}
+#zerobs-customer-actions-box #zbs-contact-edit-avatar .ui.segment h2.header {
+  margin-bottom: 0 !important;
+}
+#zerobs-customer-actions-box #zbs-contact-edit-avatar .ui.segment button.ui.circular {
+  position: absolute;
+  top: 0;
+  right: -0.5em;
+  display: inline-block;
+  background: #FFF !important;
+}
+#zerobs-customer-actions-box .action-wrap {
+  display: block;
+  position: relative;
+  text-align: center;
+}
+#zerobs-customer-actions-box .action-button {
+  cursor: pointer;
+  display: inline-block;
+  min-height: 1em;
+  outline: none;
+  border: none;
+  vertical-align: baseline;
+  color: rgba(0, 0, 0, 0.6);
+  font-family: "Lato", "Helvetica Neue", Arial, Helvetica, sans-serif;
+  margin: 0em 0.25em 0em 0em;
+  padding: 0.78571429em 1.5em 0.78571429em;
+  text-transform: none;
+  text-shadow: none;
+  font-weight: bold;
+  line-height: 1em;
+  font-style: normal;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 0.28571429rem;
+  box-shadow: 0px 0px 0px 1px transparent inset, 0px 0em 0px 0px rgba(34, 36, 38, 0.15) inset;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+  will-change: "";
+  -webkit-tap-highlight-color: transparent;
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.6) !important;
+  font-weight: normal;
+  border-radius: 0.28571429rem;
+  text-transform: none;
+  text-shadow: none !important;
+  box-shadow: 0px 0px 0px 1px rgba(34, 36, 38, 0.15) inset;
+  box-shadow: 0px 0px 0px 1px #21BA45 inset !important;
+  color: #21BA45 !important;
+  background: #FFF !important;
+}
+
+.zbs-edit-tags-box-wrap #zbs-tags-wrap {
+  margin-top: 1em;
+}
+.zbs-edit-tags-box-wrap #zbs-tags-wrap .ui.label {
+  margin-bottom: 0.4em;
+}
+.zbs-edit-tags-box-wrap #zbs-tags-suggestions-wrap h4, .zbs-edit-tags-box-wrap #zbs-tags-suggestions-wrap .zbs-tags-suggestions-title {
+  margin-top: 1em;
+  margin-bottom: 0.4em;
+}
+.zbs-edit-tags-box-wrap #zbs-tags-suggestions-wrap .ui.label {
+  margin-bottom: 0.4em;
+}
+.zbs-edit-tags-box-wrap #zbs-tags-suggestions-wrap .zbsTagSuggestion:hover {
+  cursor: pointer;
+  color: #000 !important;
+}
+.zbs-edit-tags-box-wrap #zbs-tags-suggestions-wrap #zbs-tag-suggestions-show-more:hover,
+.zbs-edit-tags-box-wrap #zbs-tags-suggestions-wrap #zbs-tag-suggestions-show-less:hover {
+  cursor: pointer;
+  color: #2284d1 !important;
+}
+.zbs-edit-tags-box-wrap #zbs-tags-suggestions-wrap #zbs-tag-suggestions-more-wrap {
+  display: none;
+}
+
+#zbs-edit-notification-wrap {
+  margin: 2em;
+  margin-top: 1em;
+  margin-bottom: 0;
+}
+
+#zbs-edit-warnings-wrap .ui.message {
+  max-width: 80%;
+  margin-bottom: 5em;
+  margin-top: 4em;
+  margin-left: auto;
+  margin-right: Auto;
+}
+
+.zbs-generic-save-wrap {
+  text-align: center;
+}
+.zbs-generic-save-wrap .ui.header {
+  margin-top: 0 !important;
+}
+
+.zbs-objedit-actions-bottom {
+  margin-top: 1em;
+}
+.zbs-objedit-actions-bottom .zbs-objedit-actions-delete {
+  margin-top: 0.6em;
+}
+
+#zbs-obj-edit-precheck-fail {
+  padding-top: 5em;
+}
+
+@media (min-width: 1500px) {
+  .zbs-hide,
+tr.zbs-field-group-tr .zbs-field-group.zbs-hide {
+    display: none !important;
+  }
+}
+table#zbs-tag-manager td, table#zbs-tag-manager td .label, #zbs-tags-wrap span, .zbsTagSuggestion, .zbs-view-tags a.button {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.0
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 10/03/18
+ */
+.post-type-zerobs_customer .zbs-hide-add {
+  display: none;
+}
+
+.zbs-social-acc {
+  margin-bottom: 0.5em;
+  margin-top: 1em;
+}
+.zbs-social-acc i.fa {
+  margin: 0.5em 0.5em 0.5em 0.3em;
+  font-size: 1.5em;
+  min-width: 1em;
+}
+.zbs-social-acc .zbs-social-acc-input {
+  font-size: 15px !important;
+  line-height: 17px !important;
+  height: 36px !important;
+  max-width: 100%;
+  width: 75%;
+}
+
+.zbs-aka-alias .ui.label {
+  font-size: 14px;
+  margin-bottom: 0.4em;
+  clear: both;
+  width: 100%;
+  text-align: left;
+  line-height: 20px;
+}
+.zbs-aka-alias button.ui.mini {
+  display: none;
+}
+
+.zbs-aka-alias.hovering button.ui.mini.zbs-aka-alias-remove {
+  display: inline-block !important;
+  float: right;
+  margin-right: 0;
+  height: 20px;
+  line-height: 6px;
+}
+
+#zbs-aka-alias-input-wrap {
+  text-align: center;
+}
+
+.zbs-aka-alias-input {
+  font-size: 15px !important;
+  line-height: 17px !important;
+  height: 36px !important;
+  max-width: 100%;
+  width: 100%;
+  margin-bottom: 0.4em;
+}
+
+.zbs-customerportal-activeuser, .zbs-customerportal-activeuser-actions {
+  text-align: center;
+  margin-bottom: 1em;
+  margin-top: 1em;
+}
+
+.zbs-customerportal-activeuser-actions button.ui {
+  margin-top: 0.5em;
+}
+
+.zbs-customer-vital-label {
+  width: 160px;
+  text-align: right;
+}
+
+.zbsFileLine {
+  min-width: 358px;
+}

@@ -8,7 +8,7 @@
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Dashboard_Customizations\WPCOM_User_Profile_Fields_Revert;
 
-require_jetpack_file( 'modules/masterbar/profile-edit/class-wpcom-user-profile-fields-revert.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/profile-edit/class-wpcom-user-profile-fields-revert.php';
 
 /**
  * Class Test_WPCOM_User_Profile_Fields_Revert

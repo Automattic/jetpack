@@ -1,13 +1,11 @@
 /* eslint-disable react/react-in-jsx-scope */
 import React from 'react';
-import withMock from 'storybook-addon-mock';
 import ConnectedProductOffer from '../index.jsx';
 import { getAllMockData, getProductSlugs } from './utils.js';
 
 export default {
 	title: 'Packages/My Jetpack/Connected Product Offer',
 	component: ConnectedProductOffer,
-	decorators: [ withMock ],
 	parameters: {
 		layout: 'centered',
 	},

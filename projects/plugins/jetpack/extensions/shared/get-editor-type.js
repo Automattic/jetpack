@@ -8,6 +8,8 @@ export const NAVIGATION_EDITOR = 'navigation';
 export const UNKNOWN_EDITOR = 'unknown';
 
 export const getEditorType = () => {
+	// Beware when using this method to figure out if we are in the site editor.
+	// See this issue for more information: https://github.com/WordPress/gutenberg/issues/46616#issuecomment-1355301090
 	if ( select( 'core/edit-site' ) ) {
 		return SITE_EDITOR;
 	}

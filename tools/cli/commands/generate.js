@@ -160,7 +160,7 @@ export function getQuestions( type ) {
 		{
 			type: 'checkbox',
 			name: 'buildScripts',
-			message: 'Does your project require build steps?',
+			message: 'Select production and/or development build steps to generate:',
 			choices: [
 				{
 					name: 'Production Build Step',
@@ -177,23 +177,49 @@ export function getQuestions( type ) {
 		{
 			type: 'confirm',
 			name: 'wordbless',
-			message: 'Will you need WorDBless for integration testing?',
+			message: 'Do you plan to use WordPress core functions in your PHPUnit tests?',
 			default: false,
 		},
 		{
 			type: 'confirm',
 			name: 'mirrorrepo',
-			message: 'Will this project require a mirror repo?',
+			message: 'Does this project need to be deployed publicly? (Create a mirror repo?)',
 		},
 	];
 	const packageQuestions = [];
 	const jsPackageQuestions = [];
 	const pluginQuestions = [
 		{
+			type: 'list',
+			name: 'versioningMethod',
+			message: 'How do you want versioning to work for your plugin?',
+			choices: [
+				// Note: There's no actual reason for recommending either option. Neither method is
+				// objectively better. We're not going to actually have consistency, tooling is
+				// already pretty simple in this respect (and without mandatory consistency it can't
+				// be simplified anyway), cognitive load would need research to determine the extent
+				// to which it's an issue, and WordPress core explicitly doesn't take a side on it.
+				// It comes down to which way the developers actually working on the plugin think
+				// about versioning for it.
+				//
+				// But everyone else wants to make an arbitrary recommendation anyway, so 🤷.
+				{
+					name: 'WordPress-style ("recommended"): Like 1.2, with each non-bugfix release always incrementing by 0.1.',
+					checked: true,
+					value: 'wordpress',
+				},
+				{
+					name: 'Semver: Like 1.2.3, with the next version depending on what kinds of changes are included.',
+					checked: true,
+					value: 'semver',
+				},
+			],
+		},
+		{
 			type: 'input',
 			name: 'version',
 			message: "What is the plugin's starting version?:",
-			default: '0.1.0-alpha',
+			default: answers => ( answers.versioningMethod === 'semver' ? '0.1.0-alpha' : '0.0-alpha' ),
 		},
 		{
 			type: 'list',
@@ -243,6 +269,8 @@ export async function generateProject(
 		fileURLToPath( new URL( './', import.meta.url ) ),
 		`../../../projects/${ type }/${ answers.name }`
 	);
+	answers.project = project;
+	answers.projDir = projDir;
 
 	if ( 'plugin' === answers.type && 'starter' === answers.pluginTemplate ) {
 		return generatePluginFromStarter( projDir, answers );
@@ -267,6 +295,12 @@ export async function generateProject(
 
 	switch ( answers.type ) {
 		case 'package':
+			await renameClassFile( projDir, answers.name );
+			await searchReplaceInFolder(
+				projDir,
+				'Package_Name',
+				transformToReadableName( answers.name )
+			);
 			break;
 		case 'js-package':
 			break;
@@ -350,6 +384,13 @@ async function generatePluginFromStarter( projDir, answers ) {
 		path.join( projDir, 'src/class-jetpack-starter-plugin.php' ),
 		path.join( projDir, 'src/class-jetpack-' + answers.name + '.php' )
 	);
+
+	// Update composer.json.
+	const composerJson = readComposerJson( answers.project );
+	composerJson.extra ||= {};
+	composerJson.extra.changelogger ||= {};
+	composerJson.extra.changelogger.versioning = answers.versioningMethod;
+	writeComposerJson( answers.project, composerJson, answers.projDir );
 }
 
 /**
@@ -442,8 +483,6 @@ function createPackageJson( packageJson, answers ) {
 		};
 		packageJson.scripts = {
 			test: 'jest tests',
-			'test-coverage':
-				'jest tests --coverage --collectCoverageFrom=\'src/**/*.js\' --coverageDirectory="$COVERAGE_DIR" --coverageReporters=clover',
 		};
 
 		// Extract the version of jest currently in use for the dependency.
@@ -487,9 +526,12 @@ async function createComposerJson( composerJson, answers ) {
 			"echo 'Add your build step to composer.json, please!'";
 	}
 	if ( answers.wordbless ) {
-		composerJson.scripts[ 'post-update-cmd' ] =
-			"php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\"";
+		composerJson.scripts[ 'post-install-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
+		composerJson.scripts[ 'post-update-cmd' ] = 'WorDBless\\Composer\\InstallDropin::copy';
 		composerJson[ 'require-dev' ][ 'automattic/wordbless' ] = 'dev-master';
+		composerJson.config = composerJson.config || {};
+		composerJson.config[ 'allow-plugins' ] = composerJson.config[ 'allow-plugins' ] || {};
+		composerJson.config[ 'allow-plugins' ][ 'roots/wordpress-core-installer' ] = true;
 	}
 
 	try {
@@ -510,25 +552,37 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
 			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
 			composerJson.extra.textdomain = name;
+			composerJson.extra[ 'version-constants' ] = {
+				'::PACKAGE_VERSION': `src/class-${ answers.name }.php`,
+			};
 			composerJson.type = 'jetpack-library';
-			composerJson[ 'require-dev' ][ 'automattic/jetpack-changelogger' ] =
-				'^' +
-				composerJson[ 'require-dev' ][ 'automattic/jetpack-changelogger' ].replace(
-					/\.x-dev$/,
-					''
-				);
 			break;
 		case 'plugin':
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'release-branch-prefix' ] = answers.name;
 			composerJson.type = 'wordpress-plugin';
+			composerJson.extra.changelogger ||= {};
+			composerJson.extra.changelogger.versioning = answers.versioningMethod;
 			break;
 		case 'js-package':
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
-				'test-coverage': [ 'pnpm run test-coverage' ],
 			};
 	}
+}
+
+/**
+ * Renames the class-example.php file to use the new project name.
+ *
+ * @param {string} projDir - the new project directory.
+ * @param {string} name - the name of the new project.
+ */
+async function renameClassFile( projDir, name ) {
+	fs.rename( `${ projDir }/src/class-example.php`, `${ projDir }/src/class-${ name }.php`, err => {
+		if ( err ) {
+			console.log( err );
+		}
+	} );
 }
 
 /**
@@ -689,9 +743,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 5.9\n' +
+		'Requires at least: 6.0\n' +
 		'Requires PHP: 5.6\n' +
-		'Tested up to: 6.0\n' +
+		'Tested up to: 6.2\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +
@@ -706,7 +760,7 @@ function createReadMeTxt( answers ) {
  *
  * @param {string} dir - file path we're writing to.
  * @param {string} answers - the answers to fill in the skeleton.
- * @returns {string} yamlFile - the YAML file we've created.
+ * @returns {string|null} yamlFile - the YAML file we've created.
  */
 function createYaml( dir, answers ) {
 	try {
@@ -716,6 +770,7 @@ function createYaml( dir, answers ) {
 		return yamlFile;
 	} catch ( err ) {
 		console.error( chalk.red( `Couldn't create the YAML file.` ), err );
+		return null;
 	}
 }
 

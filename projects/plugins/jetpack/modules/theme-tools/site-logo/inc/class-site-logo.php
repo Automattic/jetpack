@@ -184,7 +184,7 @@ class Site_Logo {
 			wp_enqueue_script(
 				'site-logo-header-text',
 				plugins_url( '../js/site-logo-header-text.js', __FILE__ ),
-				array( 'media-views' ),
+				array( 'jquery', 'media-views' ),
 				JETPACK__VERSION,
 				true
 			);
@@ -400,6 +400,8 @@ class Site_Logo {
 		return ob_get_clean();
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
 
 /**
  * Allow themes and plugins to access Site_Logo methods and properties.

@@ -37,8 +37,13 @@ svn up trunk
 echo '::endgroup::'
 
 echo "::group::Checking out SVN tags (shallowly)"
-svn up tags --depth=empty
+svn up tags --depth=immediates
 echo '::endgroup::'
+
+if [[ -e "tags/$TAG" ]]; then
+	echo "::error::Tag $TAG already exists in SVN. Aborting."
+	exit 1
+fi
 
 echo "::group::Deleting everything in trunk except for .svn directories"
 find trunk ! \( -path '*/.svn/*' -o -path "*/.svn" \) \( ! -type d -o -empty \) -delete
@@ -68,7 +73,11 @@ echo '::endgroup::'
 CHECK="$(svn diff trunk/readme.txt | grep '^[+-]Stable tag:' || true)"
 if [[ -n "$CHECK" ]]; then
 	LINE="$(grep --line-number --max-count=1 '^Stable tag:' trunk/readme.txt)"
-	if [[ -n "$LINE" ]]; then
+	if grep -q '^+' <<<"$CHECK" && ! grep -q '^-' <<<"$CHECK"; then
+		# On the initial commit, it seems there's no way to specify not to immediately have that commit served as the stable version.
+		# So just print a notice pointing that out in case anyone is looking and leave it as-is.
+		echo "::notice::This appears to be the initial release of the plugin, which will unavoidably set the stable tag to the version being released now."
+	elif [[ -n "$LINE" ]]; then
 		echo "::warning::Stable tag must be updated manually! Update would change it, attempting to undo the change.%0A%0A${CHECK/$'\n'/%0A}"
 		nl=$'\n'
 		patch -R trunk/readme.txt <<<"@@ -${LINE%%:*},1 +${LINE%%:*},1 @@$nl$CHECK"

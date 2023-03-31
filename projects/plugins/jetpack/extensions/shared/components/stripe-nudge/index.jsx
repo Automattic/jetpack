@@ -1,7 +1,7 @@
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import GridiconStar from 'gridicons/dist/star';
-import analytics from '../../../../_inc/client/lib/analytics';
 import { store as membershipProductsStore } from '../../../store/membership-products';
 import BlockNudge from '../block-nudge';
 
@@ -10,9 +10,10 @@ import './style.scss';
 export const StripeNudge = ( { blockName } ) => {
 	const store = select( membershipProductsStore );
 	const stripeConnectUrl = store.getConnectUrl();
+	const { tracks } = useAnalytics();
 
 	const recordTracksEvent = () =>
-		analytics.tracks.recordEvent( 'jetpack_editor_block_stripe_connect_click', {
+		tracks.recordEvent( 'jetpack_editor_block_stripe_connect_click', {
 			block: blockName,
 		} );
 

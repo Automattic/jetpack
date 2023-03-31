@@ -117,6 +117,7 @@ class Requirement {
 	 * @param {object} config - Object config
 	 * @param {string[]|string} config.paths - Paths this requirement applies to. Either an array of picomatch globs, or the string "unmatched".
 	 * @param {Array} config.teams - Team reviews requirements.
+	 * @param {boolean} config.consume - Whether matched paths should be ignored by later rules.
 	 */
 	constructor( config ) {
 		this.name = config.name || 'Unnamed requirement';
@@ -163,14 +164,19 @@ class Requirement {
 		}
 
 		this.reviewerFilter = buildReviewerFilter( config, { 'any-of': config.teams }, '  ' );
+		this.consume = !! config.consume;
 	}
 
+	// eslint-disable-next-line jsdoc/require-returns, jsdoc/require-returns-check -- Doesn't support documentation of object structure.
 	/**
 	 * Test whether this requirement applies to the passed paths.
 	 *
 	 * @param {string[]} paths - Paths to test against.
-	 * @param {string[]} matchedPaths - Paths that have already been matched. Will be modified if true is returned.
-	 * @returns {boolean} Whether the requirement applies.
+	 * @param {string[]} matchedPaths - Paths that have already been matched.
+	 * @returns {object} _ Results object.
+	 * @returns {boolean} _.applies Whether the requirement applies.
+	 * @returns {string[]} _.matchedPaths New value for `matchedPaths`.
+	 * @returns {string[]} _.paths New value for `paths`.
 	 */
 	appliesToPaths( paths, matchedPaths ) {
 		let matches;
@@ -183,14 +189,24 @@ class Requirement {
 			}
 		}
 
-		if ( matches.length !== 0 ) {
+		const ret = {
+			applies: matches.length !== 0,
+			matchedPaths,
+			paths,
+		};
+
+		if ( ret.applies ) {
 			core.info( 'Matches the following files:' );
 			matches.forEach( m => core.info( `   - ${ m }` ) );
-			matchedPaths.push( ...matches.filter( p => ! matchedPaths.includes( p ) ) );
-			matchedPaths.sort();
+			ret.matchedPaths = [ ...new Set( [ ...matchedPaths, ...matches ] ) ].sort();
+
+			if ( this.consume ) {
+				core.info( 'Consuming matched files!' );
+				ret.paths = ret.paths.filter( p => ! matches.includes( p ) );
+			}
 		}
 
-		return matches.length !== 0;
+		return ret;
 	}
 
 	/**

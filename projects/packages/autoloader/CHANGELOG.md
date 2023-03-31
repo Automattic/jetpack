@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.11.18] - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## [2.11.17] - 2023-03-27
+### Fixed
+- Don't error when processing packages specifying missing PSR paths. [#29669]
+
+## [2.11.16] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [2.11.15] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## [2.11.14] - 2022-12-19
+### Changed
+- Use `Composer\ClassMapGenerator\ClassMapGenerator` when available (i.e. with composer 2.4). [#27812]
+
+### Fixed
+- Declare fields for PHP 8.2 compatibility. [#27949]
+
+## [2.11.13] - 2022-12-02
+### Changed
+- Updated package dependencies. [#27688]
+
+## [2.11.12] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## [2.11.11] - 2022-10-25
+### Changed
+- Sort data in generated `vendor/composer/jetpack_autoload_classmap.php` to avoid spurious diffs. [#26929]
+
+## [2.11.10] - 2022-10-05
+
+- Tests: Clear `COMPOSER_AUTH` environment variable when running Composer for tests. [#26404]
+
 ## [2.11.9] - 2022-09-27
 ### Fixed
 - Tests: Clear `COMPOSER_AUTH` environment variable when running Composer for tests. [#26404]
@@ -269,6 +308,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[2.11.18]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.17...v2.11.18
+[2.11.17]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.16...v2.11.17
+[2.11.16]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.15...v2.11.16
+[2.11.15]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.14...v2.11.15
+[2.11.14]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.13...v2.11.14
+[2.11.13]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.12...v2.11.13
+[2.11.12]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.11...v2.11.12
+[2.11.11]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.10...v2.11.11
+[2.11.10]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.9...v2.11.10
 [2.11.9]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.8...v2.11.9
 [2.11.8]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.7...v2.11.8
 [2.11.7]: https://github.com/Automattic/jetpack-autoloader/compare/v2.11.6...v2.11.7

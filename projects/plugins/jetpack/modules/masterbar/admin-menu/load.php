@@ -46,6 +46,16 @@ function should_customize_nav( $admin_menu_class ) {
 function get_admin_menu_class() {
 	// WordPress.com Atomic sites.
 	if ( ( new Host() )->is_woa_site() ) {
+
+		// DIFM Lite In Progress Atomic Sites. Uses the same menu used for domain-only sites.
+		// Ignore this check if we are in a support session.
+		$is_difm_lite_in_progress = wpcomsh_is_site_sticker_active( 'difm-lite-in-progress' );
+		$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
+		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
+			require_once __DIR__ . '/class-domain-only-admin-menu.php';
+			return Domain_Only_Admin_Menu::class;
+		}
+
 		require_once __DIR__ . '/class-atomic-admin-menu.php';
 		return Atomic_Admin_Menu::class;
 	}

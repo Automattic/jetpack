@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 1.9.1-alpha
+ * Version: 1.10.0-alpha
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -29,6 +29,8 @@
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+define( 'WPSC_VERSION', '1.9.1-alpha' );
+
 require_once( __DIR__. '/inc/delete-cache-button.php');
 require_once( __DIR__. '/inc/preload-notification.php');
 
@@ -44,16 +46,25 @@ if ( ! defined( 'PHP_VERSION_ID' ) ) {
 }
 
 function wpsc_init() {
-	global $wp_cache_config_file, $wp_cache_config_file_sample, $wpsc_advanced_cache_dist_filename, $wp_cache_check_wp_config, $wpsc_advanced_cache_filename;
+	global $wp_cache_config_file, $wp_cache_config_file_sample, $wpsc_advanced_cache_dist_filename, $wp_cache_check_wp_config, $wpsc_advanced_cache_filename, $wpsc_promo_links;
 
-  if ( !defined( 'WPCACHECONFIGPATH' ) ) {
-    define( 'WPCACHECONFIGPATH', WP_CONTENT_DIR );
-  }
+	if ( ! defined( 'WPCACHECONFIGPATH' ) ) {
+		define( 'WPCACHECONFIGPATH', WP_CONTENT_DIR );
+	}
 
 	$wp_cache_config_file = WPCACHECONFIGPATH . '/wp-cache-config.php';
 
+	// Centralise the promotional links to other products
+	$wpsc_promo_links = array(
+		'boost'       => 'https://jetpack.com/boost/?utm_source=wporg&utm_medium=plugin&utm_campaign=wp-super-cache&utm_id=wp-super-cache',
+		'photon'      => 'https://jetpack.com/features/design/content-delivery-network/?utm_source=wporg&utm_medium=plugin&utm_campaign=wp-super-cache&utm_id=wp-super-cache',
+		'videopress'  => 'https://jetpack.com/videopress/?utm_source=wporg&utm_medium=plugin&utm_campaign=wp-super-cache&utm_id=wp-super-cache',
+		'crowdsignal' => 'https://crowdsignal.com/?utm_source=wporg&utm_medium=plugin&utm_campaign=wp-super-cache&utm_id=wp-super-cache',
+		'jetpack'     => 'https://jetpack.com/?utm_source=wporg&utm_medium=plugin&utm_campaign=wp-super-cache&utm_id=wp-super-cache',
+	);
+
 	if ( !defined( 'WPCACHEHOME' ) ) {
-		define( 'WPCACHEHOME', dirname( __FILE__ ) . '/' );
+		define( 'WPCACHEHOME', __DIR__ . '/' );
 		$wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
 		$wpsc_advanced_cache_dist_filename = WPCACHEHOME . 'advanced-cache.php';
 	} elseif ( realpath( WPCACHEHOME ) != realpath( __DIR__ ) ) {
@@ -131,7 +142,7 @@ function get_wpcachehome() {
 
 	if ( ! defined( 'WPCACHEHOME' ) ) {
 		if ( is_file( __DIR__ . '/wp-cache-config-sample.php' ) ) {
-			define( 'WPCACHEHOME', trailingslashit( dirname( __FILE__ ) ) );
+			define( 'WPCACHEHOME', trailingslashit( __DIR__ ) );
 		} elseif ( is_file( __DIR__ . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
 			define( 'WPCACHEHOME', __DIR__ . '/wp-super-cache/' );
 		} else {
@@ -198,6 +209,7 @@ function wpsupercache_deactivate() {
 	wp_clear_scheduled_hook( 'wp_cache_gc_watcher' );
 	wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = false;', $wp_cache_config_file);
 	wp_cache_disable_plugin( false ); // don't delete configuration file
+	delete_user_option( get_current_user_id(), 'wpsc_dismissed_boost_banner' );
 }
 register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
 
@@ -248,6 +260,147 @@ function wp_cache_network_pages() {
 	add_submenu_page( 'settings.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
 }
 add_action( 'network_admin_menu', 'wp_cache_network_pages' );
+
+/**
+ * Load JavaScript on admin pages.
+ */
+function wp_super_cache_admin_enqueue_scripts( $hook ) {
+	if ( 'settings_page_wpsupercache' !== $hook ) {
+		return;
+	}
+
+	wp_enqueue_script(
+		'wp-super-cache-admin',
+		trailingslashit( plugin_dir_url( __FILE__ ) ) . 'js/admin.js',
+		array( 'jquery' ),
+		WPSC_VERSION,
+		false
+	);
+
+	wp_localize_script(
+		'wp-super-cache-admin',
+		'wpscAdmin',
+		array(
+			'boostDismissNonce'  => wp_create_nonce( 'wpsc_dismiss_boost_banner' ),
+			'boostInstallNonce'  => wp_create_nonce( 'updates' ),
+			'boostActivateNonce' => wp_create_nonce( 'activate-boost' ),
+		)
+	);
+}
+add_action( 'admin_enqueue_scripts', 'wp_super_cache_admin_enqueue_scripts' );
+
+/**
+ * Use the standard WordPress plugin installation ajax handler.
+ */
+add_action( 'wp_ajax_wpsc_install_plugin', 'wp_ajax_install_plugin' );
+
+/**
+ * Check if Jetpack Boost has been installed.
+ */
+function wpsc_is_boost_installed() {
+	$plugins = array_keys( get_plugins() );
+
+	foreach ( $plugins as $plugin ) {
+		if ( false !== strpos( $plugin, 'jetpack-boost.php' ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/**
+ * Check if Jetpack Boost is active.
+ */
+function wpsc_is_boost_active() {
+	return class_exists( '\Automattic\Jetpack_Boost\Jetpack_Boost' );
+}
+
+/**
+ * Admin ajax action: hide the Boost Banner.
+ */
+function wpsc_hide_boost_banner() {
+	check_ajax_referer( 'wpsc_dismiss_boost_banner', 'nonce' );
+	update_user_option( get_current_user_id(), 'wpsc_dismissed_boost_banner', '1' );
+
+	wp_die();
+}
+add_action( 'wp_ajax_wpsc-hide-boost-banner', 'wpsc_hide_boost_banner' );
+
+/**
+ * Admin ajax action: activate Jetpack Boost.
+ */
+function wpsc_ajax_activate_boost() {
+	check_ajax_referer( 'activate-boost' );
+
+	$result = activate_plugin( 'jetpack-boost/jetpack-boost.php' );
+	if ( is_wp_error( $result ) ) {
+		wp_send_json_error( $result->get_error_message() );
+	}
+
+	wp_send_json_success();
+}
+add_action( 'wp_ajax_wpsc_activate_boost', 'wpsc_ajax_activate_boost' );
+
+/**
+ * Show a Jetpack Boost installation banner (unless dismissed or installed)
+ */
+function wpsc_jetpack_boost_install_banner() {
+	// Don't show the banner if Boost is installed, or the banner has been dismissed.
+	$is_dismissed = '1' === get_user_option( 'wpsc_dismissed_boost_banner' );
+	if ( wpsc_is_boost_active() || $is_dismissed ) {
+		return;
+	}
+
+	$install_url  = wp_nonce_url( admin_url( 'update.php?action=install-plugin&plugin=jetpack-boost' ), 'install-plugin_jetpack-boost' );
+	$activate_url = admin_url( 'plugins.php' );
+	$is_installed = wpsc_is_boost_installed();
+	$button_url   = $is_installed ? $activate_url : $install_url;
+	$button_label = $is_installed ? __( 'Activate Jetpack Boost', 'wp-super-cache' ) : __( 'Install Jetpack Boost', 'wp-super-cache' );
+	$button_id    = $is_installed ? 'wpsc-activate-boost-button' : 'wpsc-install-boost-button';
+
+	?>
+		<div class="wpsc-boost-banner">
+			<div class="wpsc-boost-banner-inner">
+				<div class="wpsc-boost-banner-content">
+					<img style="width:176px" src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-logo.svg' ); ?>" height="32" />
+
+					<h3>
+						<?php esc_html_e( 'Find out how much Super Cache speeds up your site', 'wp-super-cache' ); ?>
+					</h3>
+
+					<p id="wpsc-install-invitation">
+						<?php
+							esc_html_e(
+								'Caching is a great start, but there is more to maximize your site speed. Find out how much your cache speeds up your site and make it blazing fast with Jetpack Boost, the easiest WordPress speed optimization plugin developed by Super Cache engineers.',
+								'wp-super-cache'
+							);
+						?>
+					</p>
+
+					<div id="wpsc-boost-banner-error" style="display:none; color:red; margin-bottom: 20px;"></div>
+
+					<a href="<?php echo esc_url( $button_url ); ?>" class="button button-primary wpsc-install-action-button" id="<?php echo esc_attr( $button_id ); ?>">
+						<div class="spinner" style="display:none; margin-top: 8px"></div>
+						<label><?php echo esc_html( $button_label ); ?></label>
+					</a>
+				</div>
+
+				<div class="wpsc-boost-banner-image-container">
+					<img
+						src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?>"
+						title="<?php esc_attr_e( 'Check how your web site performance scores for desktop and mobile.', 'wp-super-cache' ); ?>"
+						alt="<?php esc_attr_e( 'An image showing a web site with a photo of a time-lapsed watch face. In the foreground is a graph showing a speed score for mobile and desktop in yellow and green with an overall score of B', 'wp-super-cache' ); ?>"
+						srcset="<?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance.png' ); ?> 650w <?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/boost-performance-2x.png' ); ?> 1306w"
+						sizes="(max-width: 782px) 654px, 1306px"
+					>
+				</div>
+			</div>
+
+			<span class="wpsc-boost-dismiss dashicons dashicons-dismiss"></span>
+		</div>
+	<?php
+}
 
 function wp_cache_manager_error_checks() {
 	global $wp_cache_debug, $wp_cache_cron_check, $cache_enabled, $super_cache_enabled, $wp_cache_config_file, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes, $wp_cache_mobile_browsers, $wp_cache_mobile_enabled, $wp_cache_mod_rewrite;
@@ -330,7 +483,7 @@ function wp_cache_manager_error_checks() {
 	if ( false == function_exists( 'wpsc_deep_replace' ) ) {
 		$msg = __( 'Warning! You must set WP_CACHE and WPCACHEHOME in your wp-config.php for this plugin to work correctly:' ) . '<br />';
 		$msg .= "<code>define( 'WP_CACHE', true );</code><br />";
-		$msg .= "<code>define( 'WPCACHEHOME', '" . dirname( __FILE__ ) . "/' );</code><br />";
+		$msg .= "<code>define( 'WPCACHEHOME', '" . __DIR__ . "/' );</code><br />";
 		wp_die( $msg );
 	}
 
@@ -496,7 +649,6 @@ function wp_cache_manager_error_checks() {
 	}
 
 	return true;
-
 }
 add_filter( 'wp_super_cache_error_checking', 'wp_cache_manager_error_checks' );
 
@@ -719,31 +871,19 @@ function wp_cache_manager_updates() {
 			}
 			if ( 1 == ini_get( 'zlib.output_compression' ) || "on" == strtolower( ini_get( 'zlib.output_compression' ) ) ) {
 				echo '<div class="notice notice-error">' . __( "<strong>Warning!</strong> You attempted to enable compression but <code>zlib.output_compression</code> is enabled. See #21 in the Troubleshooting section of the readme file.", 'wp-super-cache' ) . '</div>';
-			} else {
-				if ( $new_cache_compression != $cache_compression ) {
-					$cache_compression = $new_cache_compression;
-					wp_cache_replace_line('^ *\$cache_compression', "\$cache_compression = " . $cache_compression . ";", $wp_cache_config_file);
-					if ( function_exists( 'prune_super_cache' ) )
-						prune_super_cache( $cache_path, true );
-					delete_option( 'super_cache_meta' );
+			} elseif ( $new_cache_compression !== (int) $cache_compression ) {
+				$cache_compression = $new_cache_compression;
+				wp_cache_replace_line( '^ *\$cache_compression', "\$cache_compression = $cache_compression;", $wp_cache_config_file );
+				if ( function_exists( 'prune_super_cache' ) ) {
+					prune_super_cache( $cache_path, true );
 				}
+				delete_option( 'super_cache_meta' );
 			}
 		}
 	}
 }
 if ( isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] == 'wpsupercache' )
 	add_action( 'admin_init', 'wp_cache_manager_updates' );
-
-
-add_action( 'wp_ajax_wpsc-hide-survey', 'wpsc_hide_survey' );
-function wpsc_hide_survey(){
-	//nonce it
-	check_ajax_referer( 'wpsc-2022-survey', 'security' );
-	//update it
-	update_option('wpsc_2022-survey', 0, false);
-	wp_die();
-}
-
 
 function wp_cache_manager() {
 	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled;
@@ -752,6 +892,7 @@ function wp_cache_manager() {
 	global $wp_super_cache_front_page_check, $wp_cache_refresh_single_only, $wp_cache_mobile_prefixes;
 	global $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks, $wp_cache_disable_utf8, $wp_cache_mfunc_enabled;
 	global $wp_super_cache_comments, $wp_cache_home_path, $wpsc_save_headers, $is_nginx;
+	global $wpsc_promo_links;
 
 	if ( !wpsupercache_site_admin() )
 		return false;
@@ -932,126 +1073,82 @@ table.wpsc-settings-table {
 
 	?>
 	<style>
-		.feedback-notice{
-			background:white;
-			border: 1px solid #DCDCDE;
-			border-radius: 4px;
-			position:relative;
-			height: 86px;
-			width: calc(100% - 310px);
+		.wpsc-boost-banner {
+			margin: 2px 1.25rem 1.25rem 0;
+			box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.03), 0px 1px 2px rgba(0, 0, 0, 0.03);
+			border: 1px solid #d5d5d5;
+			position: relative;
 		}
-		.feedback-notice .content{
-			margin-top:5px;
-			position: absolute;
-			width:65%;
-			padding-right:5%;
-			height: 42px;
-			left: 65px;
-			top: calc(50% - 65px/2);
-			font-size: 14px;
+
+		.wpsc-boost-banner-inner {
+			display: flex;
+			grid-template-columns: minmax(auto, 750px) 500px;
+			justify-content: space-between;
+			min-height: 300px;
+			background: #fff;
+			overflow: hidden;
 		}
-		.megaphone{
-			position:absolute;
-			width: 24px;
-			height: 24px;
-			left: 21px;
-			top: calc(50% - 24px/2);
+
+		.wpsc-boost-banner-content {
+			display: inline-flex;
+			flex-direction: column;
+			padding: 2rem 3rem 2rem 2rem;
+			text-align: left;
 		}
-		.survey-title b{
-			font-size:14px;
+
+		.wpsc-boost-banner-image-container {
+			position: relative;
+			background-image: url( <?php echo esc_url( plugin_dir_url( __FILE__ ) . '/assets/jetpack-colors.svg' ); ?> );
+			background-size: cover;
+			max-width: 40%;
+			overflow: hidden;
 		}
-		.survey-cta{
-			position: absolute;
-			width: 140px;
-			height: 40px;
-			right: 64px;
-			top: calc(50% - 40px/2);
-			background: #FFFFFF;
-			border: 1px solid #000000;
-			border-radius: 4px;
-			line-height:40px;
-			text-align:center;
-			font-style: normal;
-			font-weight: 600;
+
+		.wpsc-boost-banner-image-container img {
+			position: relative;
+			left: 50%;
+			top: 50%;
+			transform: translate(-50%, -50%);
+			width: 100%;
+		}
+
+		.wpsc-boost-banner p {
 			font-size: 16px;
-			letter-spacing: -0.01em;
+			line-height: 1.5;
+			margin: 1rem 0 2rem;
 		}
-		.survey-cta a{
-			color:#000000 !important;
-			text-decoration:none !important;
-		}
-		.close{
+
+		.wpsc-boost-banner .wpsc-boost-dismiss {
 			position: absolute;
-			width: 24px;
-			height: 24px;
-			right: 20px;
-			top: calc(50% - 24px/2);
+			top: 10px;
+			right: 10px;
+			color: black;
 			cursor:pointer;
+		}
+
+		.wpsc-boost-banner .button-primary {
+			background: black;
+			border-color: black;
+			color: #fff;
+			width: fit-content;
+			padding: 0.4rem 1rem;
+			font-size: 16px;
+		}
+
+		.wpsc-boost-banner .button-primary:hover {
+			background-color: #333;
+		}
+
+		.wpsc-boost-banner .button-primary:visited {
+			background-color: black;
+			border-color: black;
 		}
 	</style>
 
-	<?php
-		$survey_nonce = wp_create_nonce( "wpsc-2022-survey" );
-		$call_out_box = "0px";
-		$showing_2022_survey = get_option('wpsc_2022-survey', true);
-		//to handle the way the yellow box is output in the UI in a table cell.
-	if ( $showing_2022_survey && $curr_tab !== 'contents' ) {
-		$call_out_box = '-90px';
-	}
-	?>
-	
-	<script>
-
-		function dismissNotice(){
-			// hide the notice here sometimes it can be a little slow if waiting for 
-			// the success response.
-			jQuery('#wp-super-cache-2022-survey').fadeOut('slow');
-			document.getElementById('wpsc-callout').style.marginTop = "0px";
-			jQuery.ajax({
-				type: "post",
-				dataType: "json",
-				url: ajaxurl,
-				data: {
-					action: 'wpsc-hide-survey',
-					security: '<?php echo $survey_nonce; ?>',
-				}
-			});
-		}
-	
-	</script>
-
-	<?php 
-	//only show the notification if not dismissed.
-	if($showing_2022_survey){
-		?>
-		<div class="feedback-notice" id="wp-super-cache-2022-survey">
-			<div class="megaphone">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-				<path d="M5 10H5.07846L5.15522 9.98376L18.0785 7.25H19.25V15.25H18.0785L5.15522 12.5162L5.07846 12.5H5H4.75V10H5Z" stroke="#1E1E1E" stroke-width="1.5"/>
-				<path fill-rule="evenodd" clip-rule="evenodd" d="M9.92831 16.2481C8.73996 15.8848 8.07114 14.6269 8.43446 13.4386L7 13C6.39448 14.9806 7.50918 17.077 9.48975 17.6825C11.4703 18.2881 13.5668 17.1734 14.1723 15.1928L12.7378 14.7542C12.3745 15.9426 11.1166 16.6114 9.92831 16.2481Z" fill="#1E1E1E"/>
-				</svg>
-			</div>
-			<div class="content">
-				<div style="survey-title">
-					<b><?php _e("WP Super Cache Survey", "wp-super-cache"); ?></b>
-				</div>
-				<?php
-					_e("We’d love to hear your thoughts about what should make it into WP Super Cache in the future. Please take our quick survey to help us improve!", "wp-super-cache"); 
-				?>
-			</div>
-			<div class="survey-cta">
-				<a href="https://docs.google.com/forms/d/e/1FAIpQLScOnrNs4_g-vOqzpPRghfK4WPFGGrBWqn9J5ZX8OYwyxa_QKg/viewform" target="_blank"><?php _e("Take Survey", "wp-super-cache"); ?></a>
-			</div>
-			<div class="close" onclick="dismissNotice()">
-				<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-				<path d="M5.40456 5L19 19M5 19L18.5954 5" stroke="#1E1E1E" stroke-width="1.5"/>
-				</svg>
-			</div>
-		</div>
-	<?php } ?>
-
 	<table class="wpsc-settings-table"><td valign="top">
+
 	<?php
+	wpsc_jetpack_boost_install_banner();
 
 	switch ( $curr_tab ) {
 		case 'cdn':
@@ -1173,14 +1270,14 @@ table.wpsc-settings-table {
 
 	</fieldset>
 	</td><td valign='top' style='width: 300px'>
-	<div id="wpsc-callout" style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 3px 15px;margin-top:<?php echo $call_out_box;?>;'>
+	<div id="wpsc-callout" style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 3px 15px'>
 	<h4><?php _e( 'Other Site Tools', 'wp-super-cache' ); ?></h4>
 	<ul style="list-style: square; margin-left: 2em;">
 
-	<li><a href="https://jetpack.com/redirect/?source=wp-super-cache-boost"><?php _e( 'Boost your page speed scores', 'wp-super-cache' ); ?></a></li>
-	<li><a href="https://jetpack.com/redirect/?source=jitm-wpsc-generic"><?php _e( 'Speed up images and photos (free)', 'wp-super-cache' ); ?></a></li>
-	<li><a href="https://jetpack.com/redirect/?source=jitm-wpsc-premium"><?php _e( 'Fast video hosting (paid)', 'wp-super-cache' ); ?></a></li>
-	<li><a href="https://crowdsignal.com/pricing/?ad=wpsc"><?php _e( 'Add Surveys and Polls to your site', 'wp-super-cache' ); ?></a></li>
+	<li><a href="<?php echo esc_url( $wpsc_promo_links['boost'] ); ?>"><?php esc_html_e( 'Boost your page speed scores', 'wp-super-cache' ); ?></a></li>
+	<li><a href="<?php echo esc_url( $wpsc_promo_links['photon'] ); ?>"><?php esc_html_e( 'Speed up images and photos (free)', 'wp-super-cache' ); ?></a></li>
+	<li><a href="<?php echo esc_url( $wpsc_promo_links['videopress'] ); ?>"><?php esc_html_e( 'Fast video hosting (paid)', 'wp-super-cache' ); ?></a></li>
+	<li><a href="<?php echo esc_url( $wpsc_promo_links['crowdsignal'] ); ?>"><?php esc_html_e( 'Add Surveys and Polls to your site', 'wp-super-cache' ); ?></a></li>
 	</ul>
 	<h4><?php _e( 'Need Help?', 'wp-super-cache' ); ?></h4>
 	<ol>
@@ -1281,7 +1378,6 @@ function wpsc_restore_settings() {
 		'restore',
 		compact( 'admin_url' )
 	);
-
 }
 
 function comment_form_lockdown_message() {
@@ -1395,7 +1491,6 @@ function wpsc_lockdown() {
 		'lockdown',
 		compact( 'cached_direct_pages', 'cache_enabled', 'super_cache_enabled', 'admin_url', 'wp_lock_down' )
 	);
-
 }
 
 function RecursiveFolderDelete ( $folderPath ) { // from http://www.php.net/manual/en/function.rmdir.php
@@ -1494,7 +1589,6 @@ function wp_cache_time_update() {
 			wp_schedule_event( strtotime( $cache_scheduled_time ), $cache_schedule_interval, 'wp_cache_gc' );
 		}
 	}
-
 }
 
 function wp_cache_sanitize_value($text, & $array) {
@@ -1534,7 +1628,6 @@ function wpsc_edit_rejected_ua() {
 		'rejected_user_agents',
 		compact( 'cache_rejected_user_agent', 'admin_url' )
 	);
-
 }
 
 function wp_cache_update_rejected_pages() {
@@ -1599,7 +1692,6 @@ function wp_cache_update_rejected_strings() {
 		$text = wp_cache_sanitize_value( str_replace( '\\\\', '\\', $_REQUEST['wp_rejected_uri'] ), $cache_rejected_uri );
 		wp_cache_replace_line('^ *\$cache_rejected_uri', "\$cache_rejected_uri = $text;", $wp_cache_config_file);
 	}
-
 }
 
 function wp_cache_update_accepted_strings() {
@@ -2055,10 +2147,10 @@ function wp_cache_verify_config_file() {
 			return false;
 		}
 		copy($wp_cache_config_file_sample, $wp_cache_config_file);
-		$dir = str_replace( str_replace( '\\', '/', WP_CONTENT_DIR ), '', str_replace( '\\', '/', dirname(__FILE__) ) );
-		if( is_file( dirname(__FILE__) . '/wp-cache-config-sample.php' ) ) {
+		$dir = str_replace( str_replace( '\\', '/', WP_CONTENT_DIR ), '', str_replace( '\\', '/', __DIR__ ) );
+		if ( is_file( __DIR__ . '/wp-cache-config-sample.php' ) ) {
 			wp_cache_replace_line('define\(\ \'WPCACHEHOME', "\tdefine( 'WPCACHEHOME', WP_CONTENT_DIR . \"{$dir}/\" );", $wp_cache_config_file);
-		} elseif( is_file( dirname(__FILE__) . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
+		} elseif ( is_file( __DIR__ . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
 			wp_cache_replace_line('define\(\ \'WPCACHEHOME', "\tdefine( 'WPCACHEHOME', WP_CONTENT_DIR . \"{$dir}/wp-super-cache/\" );", $wp_cache_config_file);
 		}
 		$new = true;
@@ -2086,7 +2178,7 @@ function wp_cache_create_advanced_cache() {
 		die('Cannot locate wp-config.php');
 	}
 
-	$line = 'define( \'WPCACHEHOME\', \'' . dirname( __FILE__ ) . '/\' );';
+	$line = 'define( \'WPCACHEHOME\', \'' . __DIR__ . '/\' );';
 
 	if ( ! apply_filters( 'wpsc_enable_wp_config_edit', true ) ) {
 		echo '<div class="notice notice-error"><h4>' . __( 'Warning', 'wp-super-cache' ) . "! " . sprintf( __( 'Not allowed to edit %s per configuration.', 'wp-super-cache' ), $global_config_file ) . "</h4></div>";
@@ -2366,9 +2458,9 @@ function wp_cache_files() {
 				}
 
 				if ( $cache_max_time > 0 && $age > $cache_max_time ) {
-					$expired++;
+						++$expired;
 				} else {
-					$count++;
+						++$count;
 				}
 				$wp_cache_fsize += $fsize;
 			}
@@ -2437,7 +2529,7 @@ function wp_cache_files() {
 							$bg = $flip ? 'style="background: #EAEAEA;"' : '';
 							echo "<tr $bg><td>$c</td><td> <a href='http://{$directory}'>{$directory}</a></td><td>{$d[ 'files' ]}</td><td>{$age}</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletesupercache', 'uri' => base64_encode( $directory ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
 							$flip = !$flip;
-							$c++;
+							++$c;
 						}
 						echo "</table>";
 					}
@@ -2512,49 +2604,53 @@ function wpsc_dirsize($directory, $sizes) {
 			}
 			closedir($dh);
 		}
-	} else {
-		if ( is_file( $directory ) && strpos( $directory, 'meta-' . $file_prefix ) === false ) {
-			if ( strpos( $directory, '/' . $file_prefix ) !== false ) {
-				$cache_type = 'wpcache';
+	} elseif ( is_file( $directory ) && strpos( $directory, 'meta-' . $file_prefix ) === false ) {
+		if ( strpos( $directory, '/' . $file_prefix ) !== false ) {
+			$cache_type = 'wpcache';
+		} else {
+			$cache_type = 'supercache';
+		}
+		$keep_fresh = false;
+		if ( $cache_type === 'supercache' && $wp_cache_preload_on ) {
+			$keep_fresh = true;
+		}
+		$filem = filemtime( $directory );
+		if ( ! $keep_fresh && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
+			$cache_status = 'expired';
+		} else {
+			$cache_status = 'cached';
+		}
+		$sizes[ $cache_type ][ $cache_status ] += 1;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Presumably the caller should handle it if necessary.
+		if ( $valid_nonce && isset( $_GET['listfiles'] ) ) {
+			$dir = str_replace( $cache_path . 'supercache/', '', dirname( $directory ) );
+			$age = $now - $filem;
+			if ( ! isset( $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ] ) ) {
+				$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ]['lower_age'] = $age;
+				$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ]['files']     = 1;
 			} else {
-				$cache_type = 'supercache';
-			}
-			$keep_fresh = false;
-			if ( $cache_type == 'supercache' && $wp_cache_preload_on )
-				$keep_fresh = true;
-			$filem = filemtime( $directory );
-			if ( $keep_fresh == false && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
-				$cache_status = 'expired';
-			} else {
-				$cache_status = 'cached';
-			}
-			$sizes[ $cache_type ][ $cache_status ]+=1;
-			if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) ) {
-				$dir = str_replace( $cache_path . 'supercache/' , '', dirname( $directory ) );
-				$age = $now - $filem;
-				if ( false == isset( $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ] ) ) {
-					$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'lower_age' ] = $age;
-					$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'files' ] = 1;
-				} else {
-					$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'files' ] += 1;
-					if ( $age <= $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'lower_age' ] ) {
+				$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ]['files'] += 1;
+				if ( $age <= $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ]['lower_age'] ) {
 
-						if ( $age < $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'lower_age' ] && !isset( $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'upper_age' ] ) )
-							$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'upper_age' ] = $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'lower_age' ];
-
-						$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'lower_age' ] = $age;
-
-					} elseif ( !isset( $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'upper_age' ] ) || $age > $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'upper_age' ] ) {
-
-						$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'upper_age' ] = $age;
-
+					if ( $age < $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ]['lower_age'] && ! isset( $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ]['upper_age'] ) ) {
+						$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ]['upper_age'] = $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ]['lower_age'];
 					}
+
+					$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ]['lower_age'] = $age;
+
+				} elseif ( ! isset( $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ]['upper_age'] ) || $age > $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ]['upper_age'] ) {
+
+					$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ]['upper_age'] = $age;
+
 				}
 			}
-			if ( ! isset( $sizes[ 'fsize' ] ) )
-				$sizes[ $cache_type ][ 'fsize' ] = @filesize( $directory );
-			else
-				$sizes[ $cache_type ][ 'fsize' ] += @filesize( $directory );
+		}
+		if ( ! isset( $sizes['fsize'] ) ) {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$sizes[ $cache_type ]['fsize'] = @filesize( $directory );
+		} else {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			$sizes[ $cache_type ]['fsize'] += @filesize( $directory );
 		}
 	}
 	return $sizes;
@@ -2585,7 +2681,6 @@ function wp_cache_clean_cache( $file_prefix, $all = false ) {
 
 	wp_cache_clean_legacy_files( $blog_cache_dir, $file_prefix );
 	wp_cache_clean_legacy_files( $cache_path, $file_prefix );
-
 }
 
 function wpsc_delete_post_cache( $id ) {
@@ -2981,35 +3076,79 @@ function wpsc_get_htaccess_info() {
 	$gziprules =  "<IfModule mod_mime.c>\n  <FilesMatch \"\\.html\\.gz\$\">\n    ForceType text/html\n    FileETag None\n  </FilesMatch>\n  AddEncoding gzip .gz\n  AddType text/html .gz\n</IfModule>\n";
 	$gziprules .= "<IfModule mod_deflate.c>\n  SetEnvIfNoCase Request_URI \.gz$ no-gzip\n</IfModule>\n";
 
-	$vary_header = $cache_control_header = '';
+	// Default headers.
+	$headers = array(
+		'Vary'          => 'Accept-Encoding, Cookie',
+		'Cache-Control' => 'max-age=3, must-revalidate',
+	);
 
-	if ( defined( 'WPSC_VARY_HEADER' ) ) {
-		if ( WPSC_VARY_HEADER != '' ) {
-			$vary_header = WPSC_VARY_HEADER;
-		}
-	} else {
-		$vary_header = 'Accept-Encoding, Cookie';
+	// Allow users to override the Vary header with WPSC_VARY_HEADER.
+	if ( defined( 'WPSC_VARY_HEADER' ) && ! empty( WPSC_VARY_HEADER ) ) {
+		$headers['Vary'] = WPSC_VARY_HEADER;
 	}
-	if ( defined( 'WPSC_CACHE_CONTROL_HEADER' ) ) {
-		if ( WPSC_CACHE_CONTROL_HEADER != '' ) {
-			$cache_control_header = WPSC_CACHE_CONTROL_HEADER;
-		}
-	} else {
-		$cache_control_header = 'max-age=3, must-revalidate';
+
+	// Allow users to override Cache-control header with WPSC_CACHE_CONTROL_HEADER
+	if ( defined( 'WPSC_CACHE_CONTROL_HEADER' ) && ! empty( WPSC_CACHE_CONTROL_HEADER ) ) {
+		$headers['Cache-Control'] = WPSC_CACHE_CONTROL_HEADER;
 	}
-	$headers_text = "";
-	if ( $vary_header != '' ) {
-		$headers_text .= "  Header set Vary '$vary_header'\n";
-	}
-	if ( $cache_control_header != '' ) {
-		$headers_text .= "  Header set Cache-Control '$cache_control_header'\n";
-	}
+
+	// Allow overriding headers with a filter.
+	$headers = apply_filters( 'wpsc_htaccess_mod_headers', $headers );
+
+	// Combine headers into a block of text.
+	$headers_text = join(
+		"\n",
+		array_map(
+			function ( $key, $value ) {
+				return "  Header set $key '" . addcslashes( $value, "'" ) . "'";
+			},
+			array_keys( $headers ),
+			array_values( $headers )
+		)
+	);
+
+	// Pack headers into gziprules (for historic reasons) - TODO refactor the values
+	// returned to better reflect the blocks being written.
 	if ( $headers_text != '' ) {
-		$gziprules .= "<IfModule mod_headers.c>\n$headers_text</IfModule>\n";
+		$gziprules .= "<IfModule mod_headers.c>\n$headers_text\n</IfModule>\n";
 	}
-	$gziprules .= "<IfModule mod_expires.c>\n  ExpiresActive On\n  ExpiresByType text/html A3\n</IfModule>\n";
+
+	// Deafult mod_expires rules.
+	$expires_rules = array(
+		'ExpiresActive On',
+		'ExpiresByType text/html A3',
+	);
+
+	// Allow overriding mod_expires rules with a filter.
+	$expires_rules = apply_filters( 'wpsc_htaccess_mod_expires', $expires_rules );
+
+	$gziprules .= "<IfModule mod_expires.c>\n";
+	$gziprules .= join(
+		"\n",
+		array_map(
+			function ( $line ) {
+				return "  $line";
+			},
+			$expires_rules
+		)
+	);
+	$gziprules .= "\n</IfModule>\n";
+
 	$gziprules .= "Options -Indexes\n";
-	return array( "document_root" => $document_root, "apache_root" => $apache_root, "home_path" => $home_path, "home_root" => $home_root, "home_root_lc" => $home_root_lc, "inst_root" => $inst_root, "wprules" => $wprules, "scrules" => $scrules, "condition_rules" => $condition_rules, "rules" => $rules, "gziprules" => $gziprules );
+
+	return array(
+		'document_root'   => $document_root,
+		'apache_root'     => $apache_root,
+		'home_path'       => $home_path,
+		'home_root'       => $home_root,
+		'home_root_lc'    => $home_root_lc,
+		'inst_root'       => $inst_root,
+		'wprules'         => $wprules,
+		'scrules'         => $scrules,
+		'condition_rules' => $condition_rules,
+		'rules'           => $rules,
+		'gziprules'       => $gziprules,
+	);
 }
 
 function clear_post_supercache( $post_id ) {
@@ -3188,7 +3327,7 @@ function wp_cron_preload_cache() {
 			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
 			wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
 			sleep( 1 );
-			$count++;
+			++$count;
 		}
 		if ( $wp_cache_preload_email_me && ( $wp_cache_preload_email_volume == 'medium' || $wp_cache_preload_email_volume == 'many' ) )
 			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] %2$d posts refreshed', 'wp-super-cache' ), home_url(), ($c+100) ), __( "Refreshed the following posts:", 'wp-super-cache' ) . "\n$msg" );
@@ -3447,25 +3586,19 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 			$min_refresh_interval = 30;
 		}
 	}
+
+	// Set to true if the preload interval is changed, and a reschedule is required.
+	$force_preload_reschedule = false;
+
 	if ( isset( $_POST[ 'wp_cache_preload_interval' ] ) && ( $_POST[ 'wp_cache_preload_interval' ] == 0 || $_POST[ 'wp_cache_preload_interval' ] >= $min_refresh_interval ) ) {
-		// if preload interval changes than unschedule any preload jobs and schedule any new one.
 		$_POST[ 'wp_cache_preload_interval' ] = (int)$_POST[ 'wp_cache_preload_interval' ];
 		if ( $wp_cache_preload_interval != $_POST[ 'wp_cache_preload_interval' ] ) {
-			$next_preload = wp_next_scheduled( 'wp_cache_full_preload_hook' );
-			if ( $next_preload ) {
-				update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
-				add_option( 'preload_cache_stop', 1 );
-				wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
-				if ( $wp_cache_preload_interval == 0 ) {
-					$return[] = "<p><strong>" . __( 'Scheduled preloading of cache cancelled.', 'wp-super-cache' ) . "</strong></p>";
-				}
-				if ( $_POST[ 'wp_cache_preload_interval' ] != 0 )
-					wp_schedule_single_event( time() + ( $_POST[ 'wp_cache_preload_interval' ] * 60 ), 'wp_cache_full_preload_hook' );
-			}
+			$force_preload_reschedule = true;
 		}
 
-		$wp_cache_preload_interval = (int)$_POST[ 'wp_cache_preload_interval' ];
-		wp_cache_setting( "wp_cache_preload_interval", $wp_cache_preload_interval );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing
+		$wp_cache_preload_interval = (int) $_POST['wp_cache_preload_interval'];
+		wp_cache_setting( 'wp_cache_preload_interval', $wp_cache_preload_interval );
 	}
 
 	if ( $_POST[ 'wp_cache_preload_posts' ] == 'all' ) {
@@ -3500,6 +3633,33 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 		$wp_cache_preload_on = 0;
 	}
 	wp_cache_setting( 'wp_cache_preload_on', $wp_cache_preload_on );
+
+	// Ensure that preload settings are applied to scheduled cron.
+	$next_preload    = wp_next_scheduled( 'wp_cache_full_preload_hook' );
+	$should_schedule = ( $wp_cache_preload_on === 1 && $wp_cache_preload_interval > 0 );
+
+	// If forcing a reschedule, or preload is disabled, clear the next scheduled event.
+	if ( $next_preload && ( ! $should_schedule || $force_preload_reschedule ) ) {
+		wp_cache_debug( 'Clearing old preload event' );
+		update_option(
+			'preload_cache_counter',
+			array(
+				'c' => 0,
+				't' => time(),
+			)
+		);
+
+		add_option( 'preload_cache_stop', 1 );
+		wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
+
+		$next_preload = 0;
+	}
+
+	// Ensure a preload is scheduled if it should be.
+	if ( ! $next_preload && $should_schedule ) {
+		wp_cache_debug( 'Scheduling new preload event' );
+		wp_schedule_single_event( time() + ( $wp_cache_preload_interval * 60 ), 'wp_cache_full_preload_hook' );
+	}
 
 	return $return;
 }
@@ -3544,7 +3704,6 @@ function wpsc_set_default_gc( $force = false ) {
 	}
 
 	return true;
-
 }
 
 function add_mod_rewrite_rules() {

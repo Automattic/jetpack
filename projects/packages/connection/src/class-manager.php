@@ -15,6 +15,7 @@ use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
 use Jetpack_IXR_Client;
+use Jetpack_Options;
 use WP_Error;
 use WP_User;
 
@@ -43,6 +44,20 @@ class Manager {
 	 * @var Plugin
 	 */
 	private $plugin = null;
+
+	/**
+	 * Error handler object.
+	 *
+	 * @var Error_Handler
+	 */
+	public $error_handler = null;
+
+	/**
+	 * Jetpack_XMLRPC_Server object
+	 *
+	 * @var Jetpack_XMLRPC_Server
+	 */
+	public $xmlrpc_server = null;
 
 	/**
 	 * Holds extra parameters that will be sent along in the register request body.
@@ -116,6 +131,9 @@ class Manager {
 		if ( defined( 'JETPACK__SANDBOX_DOMAIN' ) && JETPACK__SANDBOX_DOMAIN ) {
 			( new Server_Sandbox() )->init();
 		}
+
+		// Initialize connection notices.
+		new Connection_Notice();
 	}
 
 	/**
@@ -831,7 +849,12 @@ class Manager {
 	 * @return Boolean Whether the disconnection of the user was successful.
 	 */
 	public function disconnect_user( $user_id = null, $can_overwrite_primary_user = false, $force_disconnect_locally = false ) {
-		$user_id = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
+		$user_id         = empty( $user_id ) ? get_current_user_id() : (int) $user_id;
+		$is_primary_user = Jetpack_Options::get_option( 'master_user' ) === $user_id;
+
+		if ( $is_primary_user && ! $can_overwrite_primary_user ) {
+			return false;
+		}
 
 		// Attempt to disconnect the user from WordPress.com.
 		$is_disconnected_from_wpcom = $this->unlink_user_from_wpcom( $user_id );
@@ -839,7 +862,7 @@ class Manager {
 		$is_disconnected_locally = false;
 		if ( $is_disconnected_from_wpcom || $force_disconnect_locally ) {
 			// Disconnect the user locally.
-			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id, $can_overwrite_primary_user );
+			$is_disconnected_locally = $this->get_tokens()->disconnect_user( $user_id );
 
 			if ( $is_disconnected_locally ) {
 				// Delete cached connected user data.
@@ -855,6 +878,10 @@ class Manager {
 				 * @param int $user_id The current user's ID.
 				 */
 				do_action( 'jetpack_unlinked_user', $user_id );
+
+				if ( $is_primary_user ) {
+					Jetpack_Options::delete_option( 'master_user' );
+				}
 			}
 		}
 
@@ -864,15 +891,13 @@ class Manager {
 	/**
 	 * Request to wpcom for a user to be unlinked from their WordPress.com account
 	 *
-	 * @access public
+	 * @param int $user_id The user identifier.
 	 *
-	 * @param Integer $user_id the user identifier.
-	 *
-	 * @return Boolean Whether the disconnection of the user was successful.
+	 * @return bool Whether the disconnection of the user was successful.
 	 */
 	public function unlink_user_from_wpcom( $user_id ) {
 		// Attempt to disconnect the user from WordPress.com.
-		$xml = new Jetpack_IXR_Client( compact( 'user_id' ) );
+		$xml = new Jetpack_IXR_Client();
 
 		$xml->query( 'jetpack.unlink_user', $user_id );
 		if ( $xml->isError() ) {
@@ -892,7 +917,8 @@ class Manager {
 	 * @return true|WP_Error True if owner successfully changed, WP_Error otherwise.
 	 */
 	public function update_connection_owner( $new_owner_id ) {
-		if ( ! user_can( $new_owner_id, 'administrator' ) ) {
+		$roles = new Roles();
+		if ( ! user_can( $new_owner_id, $roles->translate_role_to_cap( 'administrator' ) ) ) {
 			return new WP_Error(
 				'new_owner_not_admin',
 				__( 'New owner is not admin', 'jetpack-connection' ),
@@ -1756,7 +1782,6 @@ class Manager {
 	 * Should be changed to protected.
 	 */
 	public function handle_authorization() {
-
 	}
 
 	/**
@@ -1849,7 +1874,7 @@ class Manager {
 				'user_email'            => $user->user_email,
 				'user_login'            => $user->user_login,
 				'is_active'             => $this->has_connected_owner(), // TODO Deprecate this.
-				'jp_version'            => Constants::get_constant( 'JETPACK__VERSION' ),
+				'jp_version'            => (string) Constants::get_constant( 'JETPACK__VERSION' ),
 				'auth_type'             => $auth_type,
 				'secret'                => $secrets['secret_1'],
 				'blogname'              => get_option( 'blogname' ),
@@ -2416,6 +2441,8 @@ class Manager {
 			return new WP_Error( 'jetpack_secret', '', $code );
 		}
 
+		Error_Handler::get_instance()->delete_all_errors();
+
 		return $this->get_tokens()->update_blog_token( (string) $json->jetpack_secret );
 	}
 
@@ -2463,5 +2490,23 @@ class Manager {
 			}
 		}
 		return $stats;
+	}
+
+	/**
+	 * Get the WPCOM or self-hosted site ID.
+	 *
+	 * @return int|WP_Error
+	 */
+	public static function get_site_id() {
+		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+		$site_id  = $is_wpcom ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
+		if ( ! $site_id ) {
+			return new \WP_Error(
+				'unavailable_site_id',
+				__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack-connection' ),
+				403
+			);
+		}
+		return (int) $site_id;
 	}
 }

@@ -10,11 +10,12 @@
 	background: none;
 	width: 100%;
 	position: relative;
+	color: var(--jp-gray-80);
 
 	button,
 	a {
 		all: unset;
-		color: var( --jp-black );
+		color: var(--jp-gray-80);
 		cursor: pointer;
 
 		&::after {
@@ -42,13 +43,33 @@
 			text-decoration-thickness: 2px;
 		}
 	}
+
+	// Overwrite styles in Text component
+	.cta {
+		font-weight: bold;
+	}
 }
 
 .cta {
-	font-weight: 600;
+	font-weight: bold;
 }
 
 .icon {
 	fill: var( --jp-green-40 );
 	transition: transform 0.1s ease-out;
+}
+
+.iconContainer {
+	margin: 0 0 0 calc( var( --spacing-base ) / 3);
+	display: inline;
+	vertical-align: middle;
+	
+	svg {
+		z-index: 10;
+		position: relative;
+	}
+}
+
+.description {
+	display: inline;
 }

@@ -17,7 +17,7 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	 */
 	public function __construct() {
 		if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
-			jetpack_require_lib( 'class-jetpack-podcast-helper' );
+			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
 		}
 
 		$this->namespace = 'wpcom/v2';

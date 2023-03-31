@@ -54,15 +54,20 @@ function buildInitialState() {
 describe( 'Recommendations – Site Type', () => {
 	const DUMMY_ACTION = { type: 'dummy' };
 	let updateRecommendationsStepStub;
+	let addViewedRecommendationStub;
 
 	beforeAll( () => {
 		updateRecommendationsStepStub = jest
 			.spyOn( recommendationsActions, 'updateRecommendationsStep' )
 			.mockReturnValue( DUMMY_ACTION );
+		addViewedRecommendationStub = jest
+			.spyOn( recommendationsActions, 'addViewedRecommendation' )
+			.mockReturnValue( DUMMY_ACTION );
 	} );
 
 	afterAll( () => {
 		updateRecommendationsStepStub.mockRestore();
+		addViewedRecommendationStub.mockRestore();
 	} );
 
 	it( 'shows the Site Type Question component', () => {
@@ -72,7 +77,7 @@ describe( 'Recommendations – Site Type', () => {
 		expect( screen.getByText( 'Tell us more about Test Site?' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'I build or manage this site for a client' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'This is an e-commerce site' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'This is my personal site' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'This is a personal site' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows questions with the right default initial state', () => {
@@ -81,7 +86,7 @@ describe( 'Recommendations – Site Type', () => {
 		} );
 		expect( screen.getByLabelText( 'I build or manage this site for a client' ) ).toBeChecked();
 		expect( screen.getByLabelText( 'This is an e-commerce site' ) ).toBeChecked();
-		expect( screen.getByLabelText( 'This is my personal site' ) ).not.toBeChecked();
+		expect( screen.getByLabelText( 'This is a personal site' ) ).not.toBeChecked();
 	} );
 
 	it( 'updates the state of a question when an answer is clicked', async () => {
@@ -95,7 +100,7 @@ describe( 'Recommendations – Site Type', () => {
 			initialState: buildInitialState(),
 		} );
 
-		const personalCheckbox = screen.getByLabelText( 'This is my personal site' );
+		const personalCheckbox = screen.getByLabelText( 'This is a personal site' );
 		expect( personalCheckbox.checked ).toBe( false );
 
 		await user.click( personalCheckbox );
@@ -145,7 +150,9 @@ describe( 'Recommendations – Site Type', () => {
 		} );
 
 		const continueLink = screen.getByRole( 'link', { name: /continue/i } );
-		expect( recordEventStub ).not.toHaveBeenCalled();
+		expect( recordEventStub ).not.toHaveBeenCalledWith(
+			'jetpack_recommendations_site_type_answered'
+		);
 		await user.click( continueLink );
 		expect( recordEventStub ).toHaveBeenCalledWith( 'jetpack_recommendations_site_type_answered', {
 			personal: false,

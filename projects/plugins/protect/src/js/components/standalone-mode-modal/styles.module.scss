@@ -1,0 +1,8 @@
+.mark {
+    background-color: var( --jp-gray-5 );
+}
+
+.list {
+    list-style-type: disc;
+    padding-left: calc( var( --spacing-base ) * 2.5 );
+}

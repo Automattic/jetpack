@@ -1,16 +1,14 @@
 <?php
-
-use Automattic\Jetpack\Sync\Defaults;
-
 /**
  * Testing CRUD on Meta
  */
 
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Posts;
 use Automattic\Jetpack\Sync\Settings;
 
-require_jetpack_file( 'modules/contact-form/grunion-contact-form.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
 
 class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;

@@ -40,7 +40,7 @@ function get_woocommerce_page_ids() {
 	if ( ! function_exists( 'wc_get_page_id' ) ) {
 		return array();
 	}
-	$page_slugs = array( 'myaccount', 'edit_address', 'shop', 'cart', 'checkout', 'pay', 'view_order', 'terms' );
+	$page_slugs = array( 'myaccount', 'shop', 'cart', 'checkout', 'view_order', 'terms' );
 	$ids        = array_map( 'wc_get_page_id', $page_slugs );
 	$ids        = array_filter(
 		$ids,

@@ -48,6 +48,10 @@ Default.args = {
 	onSelectFromVideo: action( 'onSelectFromVideo' ),
 	onUploadImage: action( 'onUploadImage' ),
 	editable: true,
+	loading: false,
+	uploading: false,
+	processing: false,
+	uploadProgress: 0.5,
 };
 
 export const Placeholder = VideoThumbnailTemplate.bind( {} );
@@ -56,9 +60,8 @@ Placeholder.args = {
 	thumbnail: 'none',
 };
 
-const VideoThumbnailDropdownTemplate: ComponentStory<
-	typeof VideoThumbnailDropdown
-> = VideoThumbnailDropdown;
+const VideoThumbnailDropdownTemplate: ComponentStory< typeof VideoThumbnailDropdown > =
+	VideoThumbnailDropdown;
 
 export const VideoDropdown = VideoThumbnailDropdownTemplate.bind( {} );
 VideoDropdown.args = {

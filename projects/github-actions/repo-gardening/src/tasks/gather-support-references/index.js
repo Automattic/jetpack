@@ -10,7 +10,7 @@ const sendSlackMessage = require( '../../utils/send-slack-message' );
  * Search for a previous comment from this task in our issue.
  *
  * @param {Array} issueComments - Array of all comments on that issue.
- * @returns {Promise<Object>} Promise resolving to an object of information about our comment.
+ * @returns {Promise<object>} Promise resolving to an object of information about our comment.
  */
 async function getListComment( issueComments ) {
 	let commentInfo = {};
@@ -129,13 +129,13 @@ ${ issueReferences
  * @param {WebhookPayloadIssue} payload - Issue event payload.
  * @param {string}              channel - Slack channel ID.
  * @param {string}              message - Basic message (without the formatting).
- * @returns {Object} Object containing the slack message and its formatting.
+ * @returns {object} Object containing the slack message and its formatting.
  */
 function formatSlackMessage( payload, channel, message ) {
 	const { issue, repository } = payload;
 	const { html_url, title } = issue;
 
-	let dris = '@bug_herders';
+	let dris = '@kitkat-team';
 	switch ( repository.full_name ) {
 		case 'Automattic/jetpack':
 			dris = '@jpop-da';
@@ -154,17 +154,7 @@ function formatSlackMessage( payload, channel, message ) {
 				type: 'section',
 				text: {
 					type: 'mrkdwn',
-					text: message,
-				},
-			},
-			{
-				type: 'divider',
-			},
-			{
-				type: 'section',
-				text: {
-					type: 'mrkdwn',
-					text: `${ dris } Could you take a look at it, re-prioritize and escalate if you think that's necessary, and mark this message as :done: once you've done so? Thank you!`,
+					text: `${ dris } ${ message }`,
 				},
 			},
 			{
@@ -176,20 +166,9 @@ function formatSlackMessage( payload, channel, message ) {
 					type: 'mrkdwn',
 					text: `<${ html_url }|${ title }>`,
 				},
-				accessory: {
-					type: 'button',
-					text: {
-						type: 'plain_text',
-						text: 'View',
-						emoji: true,
-					},
-					value: 'click_review',
-					url: `${ html_url }`,
-					action_id: 'button-action',
-				},
 			},
 		],
-		text: `${ message } -- <${ html_url }|${ title }>`, // Fallback text for display in notifications.
+		text: `${ dris } ${ message } -- <${ html_url }|${ title }>`, // Fallback text for display in notifications.
 		mrkdwn: true, // Formatting of the fallback text.
 		unfurl_links: false,
 		unfurl_media: false,

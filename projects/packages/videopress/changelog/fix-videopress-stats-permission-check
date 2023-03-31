@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: Fix the permission check for the VideoPress stats APIs, to check for manage_options capability.

@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 use WP_Error;
 use WP_REST_Server;
 
@@ -17,6 +18,8 @@ use WP_REST_Server;
 class REST_Controller {
 	/**
 	 * Register REST API endpoints.
+	 *
+	 * @return void
 	 */
 	public static function register_rest_routes() {
 		register_rest_route(
@@ -25,6 +28,16 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::waf',
+				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
+			)
+		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/waf',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_waf',
 				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
 			)
 		);
@@ -41,57 +54,96 @@ class REST_Controller {
 	}
 
 	/**
-	 * Get Bootstrap File Path
-	 *
-	 * @return string The path to the Jetpack Firewall's bootstrap.php file.
-	 */
-	private static function get_bootstrap_file_path() {
-		$bootstrap = new Waf_Standalone_Bootstrap();
-		return $bootstrap->get_bootstrap_file_path();
-	}
-
-	/**
-	 * Has Rules Access
-	 *
-	 * @return bool True when the current site has access to latest firewall rules.
-	 */
-	private static function has_rules_access() {
-		// any site with Jetpack Scan can download new WAF rules
-		return \Jetpack_Plan::supports( 'scan' );
-	}
-
-	/**
 	 * Update rules endpoint
+	 *
+	 * @return WP_REST_Response|WP_Error
 	 */
 	public static function update_rules() {
-		$success = true;
-		$message = 'Rules updated succesfully';
-
 		try {
-			Waf_Runner::generate_rules();
-		} catch ( \Exception $e ) {
-			$success = false;
-			$message = $e->getMessage();
+			Waf_Rules_Manager::generate_automatic_rules();
+			Waf_Rules_Manager::generate_rules();
+		} catch ( Waf_Exception $e ) {
+			return $e->get_wp_error();
 		}
 
 		return rest_ensure_response(
 			array(
-				'success' => $success,
-				'message' => $message,
+				'success' => true,
+				'message' => __( 'Rules updated succesfully', 'jetpack-waf' ),
 			)
 		);
 	}
 
 	/**
 	 * WAF Endpoint
+	 *
+	 * @return WP_REST_Response
 	 */
 	public static function waf() {
-		return rest_ensure_response(
-			array(
-				'bootstrapPath'  => self::get_bootstrap_file_path(),
-				'hasRulesAccess' => self::has_rules_access(),
-			)
-		);
+		return rest_ensure_response( Waf_Runner::get_config() );
+	}
+
+	/**
+	 * Update WAF Endpoint
+	 *
+	 * @param WP_REST_Request $request The API request.
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function update_waf( $request ) {
+		// Automatic Rules Enabled
+		if ( isset( $request[ Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME ] ) ) {
+			update_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME ) );
+		}
+
+		// IP Lists Enabled
+		if ( isset( $request[ Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME ] ) ) {
+			update_option( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME, (bool) $request->get_param( Waf_Rules_Manager::IP_LISTS_ENABLED_OPTION_NAME ) );
+		}
+
+		// IP Block List
+		if ( isset( $request[ Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ] ) ) {
+			update_option( Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME, $request[ Waf_Rules_Manager::IP_BLOCK_LIST_OPTION_NAME ] );
+		}
+
+		// IP Allow List
+		if ( isset( $request[ Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ] ) ) {
+			update_option( Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME, $request[ Waf_Rules_Manager::IP_ALLOW_LIST_OPTION_NAME ] );
+		}
+
+		// Share Data
+		if ( isset( $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] ) ) {
+			update_option( Waf_Runner::SHARE_DATA_OPTION_NAME, (bool) $request[ Waf_Runner::SHARE_DATA_OPTION_NAME ] );
+		}
+
+		// Brute Force Protection
+		if ( isset( $request['brute_force_protection'] ) ) {
+			$enable_brute_force             = (bool) $request['brute_force_protection'];
+			$brute_force_protection_toggled =
+				$enable_brute_force
+					? Brute_Force_Protection::enable()
+					: Brute_Force_Protection::disable();
+
+			if ( ! $brute_force_protection_toggled ) {
+				return new WP_Error(
+					$enable_brute_force
+						? 'brute_force_protection_activation_failed'
+						: 'brute_force_protection_deactivation_failed',
+					$enable_brute_force
+						? __( 'Brute force protection could not be activated.', 'jetpack-waf' )
+						: __( 'Brute force protection could not be deactivated.', 'jetpack-waf' ),
+					array( 'status' => 500 )
+				);
+			}
+		}
+
+		try {
+			Waf_Runner::update_waf();
+		} catch ( Waf_Exception $e ) {
+			return $e->get_wp_error();
+		}
+
+		return self::waf();
 	}
 
 	/**
@@ -100,12 +152,12 @@ class REST_Controller {
 	 * @return bool|WP_Error True if user can view the Jetpack admin page.
 	 */
 	public static function waf_permissions_callback() {
-		if ( current_user_can( 'jetpack_manage_modules' ) ) {
+		if ( current_user_can( 'manage_options' ) ) {
 			return true;
 		}
 
 		return new WP_Error(
-			'invalid_user_permission_manage_modules',
+			'invalid_user_permission_manage_options',
 			REST_Connector::get_user_permissions_error_msg(),
 			array( 'status' => rest_authorization_required_code() )
 		);

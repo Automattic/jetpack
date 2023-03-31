@@ -8,8 +8,8 @@
 use Automattic\Jetpack\Dashboard_Customizations\Jetpack_Admin_Menu;
 use Automattic\Jetpack\Status;
 
-require_jetpack_file( 'modules/masterbar/admin-menu/class-jetpack-admin-menu.php' );
-require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-menu/class-jetpack-admin-menu.php';
+require_once JETPACK__PLUGIN_DIR . 'tests/php/modules/masterbar/data/admin-menu.php';
 
 /**
  * Class Test_Jetpack_Admin_Menu.
@@ -110,11 +110,17 @@ class Test_Jetpack_Admin_Menu extends WP_UnitTestCase {
 	public function test_add_tools_menu() {
 		global $submenu;
 
+		// Enable blaze
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
 		static::$admin_menu->add_tools_menu();
 
 		// Check Import/Export menu always links to WP Admin.
 		$this->assertSame( 'export.php', array_pop( $submenu['tools.php'] )[2] );
 		$this->assertSame( 'import.php', array_pop( $submenu['tools.php'] )[2] );
+
+		$this->assertSame( 'https://wordpress.com/earn/' . static::$domain, array_pop( $submenu['tools.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/marketing/tools/' . static::$domain, array_pop( $submenu['tools.php'] )[2] );
+		$this->assertSame( 'https://wordpress.com/advertising/' . static::$domain, array_pop( $submenu['tools.php'] )[2] );
 	}
 
 	/**

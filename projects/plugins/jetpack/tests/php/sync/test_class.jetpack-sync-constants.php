@@ -9,7 +9,7 @@ use Automattic\Jetpack\Sync\Modules\Constants;
  */
 class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
-	protected $constants_module;
+	protected $constant_module;
 
 	/**
 	 * Set up.

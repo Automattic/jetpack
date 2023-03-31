@@ -5,14 +5,16 @@ import {
 	Container,
 	Col,
 	Text,
+	ZendeskChat,
+	useBreakpointMatch,
 } from '@automattic/jetpack-components';
-import { Notice } from '@wordpress/components';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
+import { Icon, Notice, Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, warning, info } from '@wordpress/icons';
+import { info } from '@wordpress/icons';
 import React, { useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useGlobalNotice from '../../hooks/use-notice';
 import ConnectionsSection from '../connections-section';
 import PlansSection from '../plans-section';
@@ -20,19 +22,47 @@ import ProductCardsSection from '../product-cards-section';
 import styles from './styles.module.scss';
 
 const GlobalNotice = ( { message, options, clean } ) => {
+	const [ isBiggerThanMedium ] = useBreakpointMatch( [ 'md' ], [ '>' ] );
+
 	/*
 	 * Map Notice statuses with Icons.
 	 * `success`, `info`, `warning`, `error`
 	 */
 	const iconMap = {
-		error: warning,
+		error: (
+			<SVG
+				className={ styles.nofill }
+				width="24"
+				height="24"
+				viewBox="0 0 24 24"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<Path
+					d="M11.7815 4.93772C11.8767 4.76626 12.1233 4.76626 12.2185 4.93772L20.519 19.8786C20.6116 20.0452 20.4911 20.25 20.3005 20.25H3.69951C3.50889 20.25 3.3884 20.0452 3.48098 19.8786L11.7815 4.93772Z"
+					stroke="#D63638"
+					strokeWidth="1.5"
+				/>
+				<Path d="M13 10H11V15H13V10Z" fill="#D63638" />
+				<Path d="M13 16H11V18H13V16Z" fill="#D63638" />
+			</SVG>
+		),
 		info,
 	};
 
 	return (
-		<Notice isDismissible={ false } { ...options } onRemove={ clean } className={ styles.notice }>
-			{ iconMap?.[ options.status ] && <Icon icon={ iconMap[ options.status ] } /> }
-			<div className={ styles.message }>{ message }</div>
+		<Notice
+			isDismissible={ false }
+			{ ...options }
+			onRemove={ clean }
+			className={
+				styles.notice + ( isBiggerThanMedium ? ' ' + styles[ 'bigger-than-medium' ] : '' )
+			}
+		>
+			<div className={ styles.message }>
+				{ iconMap?.[ options.status ] && <Icon icon={ iconMap[ options.status ] } /> }
+				{ message }
+			</div>
 		</Notice>
 	);
 };
@@ -45,19 +75,13 @@ const GlobalNotice = ( { message, options, clean } ) => {
 export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	const { message, options, clean } = useGlobalNotice();
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const { recordEvent } = useAnalytics();
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_page_view' );
 	}, [ recordEvent ] );
-
-	// No render when site is not connected.
-	const { isSiteConnected } = useMyJetpackConnection();
-
-	if ( ! isSiteConnected ) {
-		return null;
-	}
 
 	return (
 		<AdminPage>
@@ -73,6 +97,11 @@ export default function MyJetpackScreen() {
 							{ __( 'Manage your Jetpack products', 'jetpack-my-jetpack' ) }
 						</Text>
 					</Col>
+					{ hasConnectionError && (
+						<Col>
+							<ConnectionError />
+						</Col>
+					) }
 					{ message && (
 						<Col>
 							<GlobalNotice message={ message } options={ options } clean={ clean } />
@@ -94,6 +123,7 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 			</AdminSection>
+			<ZendeskChat />
 		</AdminPage>
 	);
 }

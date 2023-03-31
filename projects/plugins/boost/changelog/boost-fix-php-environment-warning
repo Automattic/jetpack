@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed Undefined array key "post" warning

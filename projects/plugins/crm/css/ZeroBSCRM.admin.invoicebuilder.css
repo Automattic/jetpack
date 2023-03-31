@@ -1,0 +1,1066 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.0
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 02/06/16
+ */
+.post-type-zerobs_invoice .clear,
+#zerobs-invoice-edit-box .clear {
+  clear: both;
+}
+.post-type-zerobs_invoice .zbs-inv-no,
+#zerobs-invoice-edit-box .zbs-inv-no {
+  width: 80%;
+  float: left;
+  font-size: 18px;
+}
+.post-type-zerobs_invoice .zbs-inv-ref,
+#zerobs-invoice-edit-box .zbs-inv-ref {
+  font-size: 22px;
+  color: #15b717;
+}
+.post-type-zerobs_invoice #zbs_invoice,
+#zerobs-invoice-edit-box #zbs_invoice {
+  min-height: 500px;
+}
+.post-type-zerobs_invoice .twitter-typeahead,
+#zerobs-invoice-edit-box .twitter-typeahead {
+  width: 100%;
+}
+.post-type-zerobs_invoice .zbs-add-new-js-assign-to,
+#zerobs-invoice-edit-box .zbs-add-new-js-assign-to {
+  padding: 10px;
+  background: #f1f1f1;
+  font-weight: 900;
+}
+.post-type-zerobs_invoice .zbs-add-new-js-assign-to a,
+#zerobs-invoice-edit-box .zbs-add-new-js-assign-to a {
+  color: #4699d5;
+}
+.post-type-zerobs_invoice #billing-to,
+#zerobs-invoice-edit-box #billing-to {
+  width: 90% !important;
+}
+.post-type-zerobs_invoice #billing-to .inv-to-form,
+#zerobs-invoice-edit-box #billing-to .inv-to-form {
+  float: left;
+  font-weight: 900;
+  margin-top: 5px;
+  margin-right: 10px;
+  margin-bottom: 4px;
+}
+.post-type-zerobs_invoice #billing-to .inv-to-input,
+#zerobs-invoice-edit-box #billing-to .inv-to-input {
+  float: left;
+  width: 100%;
+  margin-bottom: 20px;
+  margin-left: 5%;
+}
+.post-type-zerobs_invoice #billing-to .edit-c,
+#zerobs-invoice-edit-box #billing-to .edit-c {
+  float: left;
+  font-size: 12px;
+  margin-bottom: 16px;
+  display: none;
+}
+.post-type-zerobs_invoice #billing-to .wh-large select, .post-type-zerobs_invoice #billing-to .wh-large input, .post-type-zerobs_invoice #billing-to input.typeahead,
+#zerobs-invoice-edit-box #billing-to .wh-large select,
+#zerobs-invoice-edit-box #billing-to .wh-large input,
+#zerobs-invoice-edit-box #billing-to input.typeahead {
+  max-width: 100%;
+}
+.post-type-zerobs_invoice #zbs-add-new-row,
+#zerobs-invoice-edit-box #zbs-add-new-row {
+  padding: 8px;
+  background: #f5f5f5;
+  color: #238bd0;
+  cursor: pointer;
+  text-align: center;
+  border: 1px solid #ddd;
+}
+.post-type-zerobs_invoice .tax-select,
+#zerobs-invoice-edit-box .tax-select {
+  height: 35px;
+}
+.post-type-zerobs_invoice .row-amount,
+#zerobs-invoice-edit-box .row-amount {
+  line-height: 35px;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper, .post-type-zerobs_invoice #zbs-invoice-partial-payments,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments {
+  margin-top: 5px !important;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .due-row, .post-type-zerobs_invoice #zbs-invoice-partial-payments .due-row,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .due-row,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .due-row {
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row, .post-type-zerobs_invoice .invoice-grand-total-wrapper .due-row, .post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row-tab, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row, .post-type-zerobs_invoice #zbs-invoice-partial-payments .due-row, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row-tab,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .due-row,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row-tab,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .due-row,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row-tab {
+  padding: 15px;
+  border-top: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  overflow-x: auto;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row .zlabel, .post-type-zerobs_invoice .invoice-grand-total-wrapper .due-row .zlabel, .post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row-tab .zlabel, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row .zlabel, .post-type-zerobs_invoice #zbs-invoice-partial-payments .due-row .zlabel, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row-tab .zlabel,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row .zlabel,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .due-row .zlabel,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row-tab .zlabel,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row .zlabel,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .due-row .zlabel,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row-tab .zlabel {
+  font-weight: 900;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row .third, .post-type-zerobs_invoice .invoice-grand-total-wrapper .due-row .third, .post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row-tab .third, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row .third, .post-type-zerobs_invoice #zbs-invoice-partial-payments .due-row .third, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row-tab .third,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row .third,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .due-row .third,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row-tab .third,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row .third,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .due-row .third,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row-tab .third {
+  float: left;
+  width: 32%;
+  margin-right: 1%;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row .invoice-discount-total, .post-type-zerobs_invoice .invoice-grand-total-wrapper .due-row .invoice-discount-total, .post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row-tab .invoice-discount-total, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row .invoice-discount-total, .post-type-zerobs_invoice #zbs-invoice-partial-payments .due-row .invoice-discount-total, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row-tab .invoice-discount-total,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row .invoice-discount-total,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .due-row .invoice-discount-total,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row-tab .invoice-discount-total,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row .invoice-discount-total,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .due-row .invoice-discount-total,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row-tab .invoice-discount-total {
+  margin-top: -6px;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row #invoice_discount_total, .post-type-zerobs_invoice .invoice-grand-total-wrapper .due-row #invoice_discount_total, .post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row-tab #invoice_discount_total, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row #invoice_discount_total, .post-type-zerobs_invoice #zbs-invoice-partial-payments .due-row #invoice_discount_total, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row-tab #invoice_discount_total,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row #invoice_discount_total,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .due-row #invoice_discount_total,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row-tab #invoice_discount_total,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row #invoice_discount_total,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .due-row #invoice_discount_total,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row-tab #invoice_discount_total {
+  float: left;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row .half, .post-type-zerobs_invoice .invoice-grand-total-wrapper .due-row .half, .post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row-tab .half, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row .half, .post-type-zerobs_invoice #zbs-invoice-partial-payments .due-row .half, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row-tab .half,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row .half,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .due-row .half,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row-tab .half,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row .half,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .due-row .half,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row-tab .half {
+  width: 50%;
+  float: left;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row .one-four, .post-type-zerobs_invoice .invoice-grand-total-wrapper .due-row .one-four, .post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row-tab .one-four, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row .one-four, .post-type-zerobs_invoice #zbs-invoice-partial-payments .due-row .one-four, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row-tab .one-four,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row .one-four,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .due-row .one-four,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row-tab .one-four,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row .one-four,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .due-row .one-four,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row-tab .one-four {
+  width: 25%;
+  float: left;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row .two-four, .post-type-zerobs_invoice .invoice-grand-total-wrapper .due-row .two-four, .post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row-tab .two-four, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row .two-four, .post-type-zerobs_invoice #zbs-invoice-partial-payments .due-row .two-four, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row-tab .two-four,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row .two-four,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .due-row .two-four,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row-tab .two-four,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row .two-four,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .due-row .two-four,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row-tab .two-four {
+  width: 50%;
+  float: left;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row .ri, .post-type-zerobs_invoice .invoice-grand-total-wrapper .due-row .ri, .post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row-tab .ri, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row .ri, .post-type-zerobs_invoice #zbs-invoice-partial-payments .due-row .ri, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row-tab .ri,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row .ri,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .due-row .ri,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row-tab .ri,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row .ri,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .due-row .ri,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row-tab .ri {
+  text-align: right;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row .half::after, .post-type-zerobs_invoice .invoice-grand-total-wrapper .due-row .half::after, .post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row-tab .half::after, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row .half::after, .post-type-zerobs_invoice #zbs-invoice-partial-payments .due-row .half::after, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row-tab .half::after,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row .half::after,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .due-row .half::after,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row-tab .half::after,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row .half::after,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .due-row .half::after,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row-tab .half::after {
+  clear: both;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .partial-row-tab, .post-type-zerobs_invoice #zbs-invoice-partial-payments .partial-row-tab,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .partial-row-tab,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .partial-row-tab {
+  font-weight: 900;
+  padding-bottom: 13px !important;
+  background: #f5f5f5;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .inv-amount, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .inv-amount,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .inv-amount,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .inv-amount {
+  background: #f5f5f5;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .grand-total, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .grand-total,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .grand-total,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .grand-total {
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .topmm5, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .topmm5,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .topmm5,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .topmm5 {
+  margin-top: -5px;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .topmm10, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .topmm10,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .topmm10,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .topmm10 {
+  margin-top: -10px;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .zbs-heavy, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .zbs-heavy,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .zbs-heavy,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .zbs-heavy {
+  font-weight: 900;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .pbot30, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .pbot30,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .pbot30,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .pbot30 {
+  padding-bottom: 30px;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .total-row, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .total-row,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .total-row,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .total-row {
+  padding: 15px;
+  border-top: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  padding-bottom: 30px;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .total-row .zlabel, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .total-row .zlabel,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .total-row .zlabel,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .total-row .zlabel {
+  font-weight: 900;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .total-row .third, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .total-row .third,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .total-row .third,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .total-row .third {
+  float: left;
+  width: 32%;
+  margin-right: 1%;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .total-row .invoice-discount-total, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .total-row .invoice-discount-total,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .total-row .invoice-discount-total,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .total-row .invoice-discount-total {
+  margin-top: -6px;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .total-row #invoice_discount_total, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .total-row #invoice_discount_total,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .total-row #invoice_discount_total,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .total-row #invoice_discount_total {
+  float: left;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .total-row .half, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .total-row .half,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .total-row .half,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .total-row .half {
+  width: 50%;
+  float: left;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .total-row .one-four, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .total-row .one-four,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .total-row .one-four,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .total-row .one-four {
+  width: 25%;
+  float: left;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .total-row .two-four, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .total-row .two-four,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .total-row .two-four,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .total-row .two-four {
+  width: 50%;
+  float: left;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .total-row .ri, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .total-row .ri,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .total-row .ri,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .total-row .ri {
+  text-align: right;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper .inv-totals .total-row .half::after, .post-type-zerobs_invoice #zbs-invoice-partial-payments .inv-totals .total-row .half::after,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper .inv-totals .total-row .half::after,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments .inv-totals .total-row .half::after {
+  clear: both;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper #tax-total-block .total-row, .post-type-zerobs_invoice #zbs-invoice-partial-payments #tax-total-block .total-row,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper #tax-total-block .total-row,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments #tax-total-block .total-row {
+  padding-bottom: 30px;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper #tax-total-block .total-row .zlabel, .post-type-zerobs_invoice #zbs-invoice-partial-payments #tax-total-block .total-row .zlabel,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper #tax-total-block .total-row .zlabel,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments #tax-total-block .total-row .zlabel {
+  font-weight: 900;
+}
+.post-type-zerobs_invoice .invoice-grand-total-wrapper #tax-total-block .total-row .ri, .post-type-zerobs_invoice #zbs-invoice-partial-payments #tax-total-block .total-row .ri,
+#zerobs-invoice-edit-box .invoice-grand-total-wrapper #tax-total-block .total-row .ri,
+#zerobs-invoice-edit-box #zbs-invoice-partial-payments #tax-total-block .total-row .ri {
+  text-align: right;
+}
+.post-type-zerobs_invoice .zbs-invoice-row,
+#zerobs-invoice-edit-box .zbs-invoice-row {
+  padding: 5px;
+  border: 2px solid #ddd;
+  margin-top: 10px;
+}
+.post-type-zerobs_invoice .zbs-invoice-row .remove-row,
+#zerobs-invoice-edit-box .zbs-invoice-row .remove-row {
+  font-size: 15px;
+  margin-top: 10px;
+  color: #238bd0;
+}
+.post-type-zerobs_invoice .zbs-invoice-row .third,
+#zerobs-invoice-edit-box .zbs-invoice-row .third {
+  width: 200px !important;
+}
+.post-type-zerobs_invoice .sug-wrap,
+#zerobs-invoice-edit-box .sug-wrap {
+  font-size: 15px;
+}
+.post-type-zerobs_invoice .sug-wrap .ico,
+#zerobs-invoice-edit-box .sug-wrap .ico {
+  width: 20px;
+  float: left;
+  margin-top: 5px;
+}
+.post-type-zerobs_invoice .sug-wrap .inner,
+#zerobs-invoice-edit-box .sug-wrap .inner {
+  float: left;
+  margin-left: 10px;
+}
+.post-type-zerobs_invoice .sug-wrap .inner .name,
+#zerobs-invoice-edit-box .sug-wrap .inner .name {
+  font-weight: 900;
+}
+.post-type-zerobs_invoice .sug-wrap .inner .email,
+#zerobs-invoice-edit-box .sug-wrap .inner .email {
+  font-size: 13px;
+  font-weight: 300;
+  margin-top: -9px;
+}
+.post-type-zerobs_invoice .sug-wrap .inner::after,
+#zerobs-invoice-edit-box .sug-wrap .inner::after {
+  clear: both;
+}
+.post-type-zerobs_invoice .sug-wrap:hover,
+#zerobs-invoice-edit-box .sug-wrap:hover {
+  background: #f1f1f1;
+  color: #4699d5;
+}
+.post-type-zerobs_invoice .mark-as-paid,
+#zerobs-invoice-edit-box .mark-as-paid {
+  margin-left: 10px;
+  background-color: green;
+  text-transform: uppercase;
+  color: white;
+  padding: 7px;
+  font-weight: 900;
+  font-size: 25px;
+  text-transform: uppercase;
+  font-weight: 900;
+  cursor: pointer;
+}
+.post-type-zerobs_invoice .hide,
+#zerobs-invoice-edit-box .hide {
+  display: none;
+}
+.post-type-zerobs_invoice #zbs_invoice_preview,
+#zerobs-invoice-edit-box #zbs_invoice_preview {
+  text-decoration: none;
+}
+.post-type-zerobs_invoice #zbs_top_wrapper,
+#zerobs-invoice-edit-box #zbs_top_wrapper {
+  position: relative;
+}
+.post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper,
+#zerobs-invoice-edit-box #zbs_top_wrapper .zbs-invoice-topper {
+  width: 50%;
+  float: right;
+}
+.post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper input, .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper select,
+#zerobs-invoice-edit-box #zbs_top_wrapper .zbs-invoice-topper input,
+#zerobs-invoice-edit-box #zbs_top_wrapper .zbs-invoice-topper select {
+  width: 100%;
+  float: left;
+}
+.post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper th,
+#zerobs-invoice-edit-box #zbs_top_wrapper .zbs-invoice-topper th {
+  vertical-align: middle;
+  text-align: right;
+}
+.post-type-zerobs_invoice #zbs_invoice_send_test2:focus,
+#zerobs-invoice-edit-box #zbs_invoice_send_test2:focus {
+  outline: 0 !important;
+}
+.post-type-zerobs_invoice #billing-to,
+#zerobs-invoice-edit-box #billing-to {
+  width: 50%;
+  float: left;
+}
+.post-type-zerobs_invoice #billing-to th,
+#zerobs-invoice-edit-box #billing-to th {
+  vertical-align: middle;
+  font-size: 18px;
+  font-weight: 100;
+}
+.post-type-zerobs_invoice #assign-to,
+#zerobs-invoice-edit-box #assign-to {
+  width: 50%;
+  float: right;
+}
+.post-type-zerobs_invoice #assign-to .zbs-controls,
+#zerobs-invoice-edit-box #assign-to .zbs-controls {
+  float: left;
+}
+.post-type-zerobs_invoice #assign-to select,
+#zerobs-invoice-edit-box #assign-to select {
+  width: 90%;
+}
+.post-type-zerobs_invoice #assign-to th,
+#zerobs-invoice-edit-box #assign-to th {
+  vertical-align: middle;
+  font-size: 18px;
+  font-weight: 100;
+}
+.post-type-zerobs_invoice #zbs_invoice_alerts,
+#zerobs-invoice-edit-box #zbs_invoice_alerts {
+  position: absolute;
+  margin-top: -64px;
+  width: 100%;
+  margin-left: -13px;
+}
+.post-type-zerobs_invoice #zbs_invoice_alerts #zbs_success,
+#zerobs-invoice-edit-box #zbs_invoice_alerts #zbs_success {
+  display: none;
+  background: green;
+  padding: 10px;
+  color: white;
+  font-weight: 100;
+  font-size: 14px;
+}
+.post-type-zerobs_invoice #zbs_invoice_alerts #zbs_success .fa,
+#zerobs-invoice-edit-box #zbs_invoice_alerts #zbs_success .fa {
+  color: #00a700;
+  font-size: 20px;
+  margin-right: 10px;
+}
+.post-type-zerobs_invoice #zbs_invoice_test_alerts,
+#zerobs-invoice-edit-box #zbs_invoice_test_alerts {
+  position: relative;
+  width: 99%;
+  margin-bottom: 20px;
+  margin-top: 15px;
+}
+.post-type-zerobs_invoice #zbs_invoice_test_alerts #zbs_success, .post-type-zerobs_invoice #zbs_invoice_test_alerts #zbs_test_success,
+#zerobs-invoice-edit-box #zbs_invoice_test_alerts #zbs_success,
+#zerobs-invoice-edit-box #zbs_invoice_test_alerts #zbs_test_success {
+  display: none;
+  background: green;
+  padding: 10px;
+  color: white;
+  font-weight: 100;
+  font-size: 14px;
+}
+.post-type-zerobs_invoice #zbs_invoice_test_alerts #zbs_success .fa, .post-type-zerobs_invoice #zbs_invoice_test_alerts #zbs_test_success .fa,
+#zerobs-invoice-edit-box #zbs_invoice_test_alerts #zbs_success .fa,
+#zerobs-invoice-edit-box #zbs_invoice_test_alerts #zbs_test_success .fa {
+  color: #00a700;
+  font-size: 20px;
+  margin-right: 10px;
+}
+.post-type-zerobs_invoice .business-info-toggle, .post-type-zerobs_invoice .billing-to-title,
+#zerobs-invoice-edit-box .business-info-toggle,
+#zerobs-invoice-edit-box .billing-to-title {
+  font-size: 20px;
+  font-weight: 100;
+}
+.post-type-zerobs_invoice .business-info-toggle .fa, .post-type-zerobs_invoice .billing-to-title .fa,
+#zerobs-invoice-edit-box .business-info-toggle .fa,
+#zerobs-invoice-edit-box .billing-to-title .fa {
+  color: #428bca;
+  margin-right: 10px;
+  font-size: 20px;
+  font-weight: 100;
+}
+.post-type-zerobs_invoice #zbs-business-info-wrapper,
+#zerobs-invoice-edit-box #zbs-business-info-wrapper {
+  /* WH removed, seems to look better without ? */
+  margin-bottom: 1em;
+}
+.post-type-zerobs_invoice #zbs-business-info-wrapper .business-info-toggle,
+#zerobs-invoice-edit-box #zbs-business-info-wrapper .business-info-toggle {
+  cursor: pointer;
+}
+.post-type-zerobs_invoice #zbs-business-info-wrapper .business-info,
+#zerobs-invoice-edit-box #zbs-business-info-wrapper .business-info {
+  display: none;
+}
+.post-type-zerobs_invoice #zbs-business-info-wrapper .business-info .zbs-table,
+#zerobs-invoice-edit-box #zbs-business-info-wrapper .business-info .zbs-table {
+  margin-top: 9px;
+  font-size: 14px;
+  font-weight: 100;
+  margin-left: 33px;
+}
+.post-type-zerobs_invoice #zbs-business-info-wrapper .business-info .zbs-table .top-pad td,
+#zerobs-invoice-edit-box #zbs-business-info-wrapper .business-info .zbs-table .top-pad td {
+  padding-top: 20px;
+}
+.post-type-zerobs_invoice #zbs-business-info-wrapper .business-info .zbs-table td,
+#zerobs-invoice-edit-box #zbs-business-info-wrapper .business-info .zbs-table td {
+  border: 0px;
+  padding: 0px;
+}
+.post-type-zerobs_invoice #zbs-business-info-wrapper .business-info .edit-or-add,
+#zerobs-invoice-edit-box #zbs-business-info-wrapper .business-info .edit-or-add {
+  font-weight: 100;
+  margin-left: 33px;
+}
+.post-type-zerobs_invoice #zbs-invoice-customiser,
+#zerobs-invoice-edit-box #zbs-invoice-customiser {
+  padding: 15px 10px 15px 10px;
+  background: #f5f5f5;
+  margin-left: -12px;
+  margin-right: -12px;
+  margin-top: -6px;
+  border-bottom: 1px solid #eee;
+}
+.post-type-zerobs_invoice #zbs-invoice-customiser .header,
+#zerobs-invoice-edit-box #zbs-invoice-customiser .header {
+  float: left;
+  font-size: 18px;
+  line-height: 34px;
+  margin-right: 10px;
+  font-weight: 100;
+}
+.post-type-zerobs_invoice .top-row .row-amount,
+#zerobs-invoice-edit-box .top-row .row-amount {
+  padding-top: 12px;
+}
+.post-type-zerobs_invoice #partials,
+#zerobs-invoice-edit-box #partials {
+  margin-top: 20px;
+}
+.post-type-zerobs_invoice #invoice_totals, .post-type-zerobs_invoice #partials,
+#zerobs-invoice-edit-box #invoice_totals,
+#zerobs-invoice-edit-box #partials {
+  width: 100%;
+  border-top: 2px solid #ccc;
+  border-right: 2px solid #ccc;
+}
+.post-type-zerobs_invoice #invoice_totals .zbs_grand_total .bord-l, .post-type-zerobs_invoice #partials .zbs_grand_total .bord-l,
+#zerobs-invoice-edit-box #invoice_totals .zbs_grand_total .bord-l,
+#zerobs-invoice-edit-box #partials .zbs_grand_total .bord-l {
+  border-left: 2px solid #ccc;
+}
+.post-type-zerobs_invoice #invoice_totals .zbs_grand_total .bord, .post-type-zerobs_invoice #partials .zbs_grand_total .bord,
+#zerobs-invoice-edit-box #invoice_totals .zbs_grand_total .bord,
+#zerobs-invoice-edit-box #partials .zbs_grand_total .bord {
+  background: #f5f5f5;
+  color: black;
+  font-weight: 800;
+  border-bottom: 2px solid #ccc;
+}
+.post-type-zerobs_invoice #invoice_totals .tax_total, .post-type-zerobs_invoice #partials .tax_total,
+#zerobs-invoice-edit-box #invoice_totals .tax_total,
+#zerobs-invoice-edit-box #partials .tax_total {
+  display: none;
+}
+.post-type-zerobs_invoice #invoice_totals ._1, .post-type-zerobs_invoice #partials ._1,
+#zerobs-invoice-edit-box #invoice_totals ._1,
+#zerobs-invoice-edit-box #partials ._1 {
+  display: block;
+}
+.post-type-zerobs_invoice #invoice_totals tr, .post-type-zerobs_invoice #partials tr,
+#zerobs-invoice-edit-box #invoice_totals tr,
+#zerobs-invoice-edit-box #partials tr {
+  height: 35px;
+}
+.post-type-zerobs_invoice #invoice_totals .hide, .post-type-zerobs_invoice #partials .hide,
+#zerobs-invoice-edit-box #invoice_totals .hide,
+#zerobs-invoice-edit-box #partials .hide {
+  display: none;
+}
+.post-type-zerobs_invoice #invoice_totals .bord input, .post-type-zerobs_invoice #partials .bord input,
+#zerobs-invoice-edit-box #invoice_totals .bord input,
+#zerobs-invoice-edit-box #partials .bord input {
+  text-align: right;
+  float: right;
+  box-shadow: none;
+}
+.post-type-zerobs_invoice #invoice_totals .bord-l, .post-type-zerobs_invoice #partials .bord-l,
+#zerobs-invoice-edit-box #invoice_totals .bord-l,
+#zerobs-invoice-edit-box #partials .bord-l {
+  text-align: right;
+}
+.post-type-zerobs_invoice #invoice_totals td.bord, .post-type-zerobs_invoice #partials td.bord,
+#zerobs-invoice-edit-box #invoice_totals td.bord,
+#zerobs-invoice-edit-box #partials td.bord {
+  padding: 5px;
+  border: 1px solid #ccc;
+}
+.post-type-zerobs_invoice #invoice_totals .row-amount, .post-type-zerobs_invoice #partials .row-amount,
+#zerobs-invoice-edit-box #invoice_totals .row-amount,
+#zerobs-invoice-edit-box #partials .row-amount {
+  background: #f5f5f5;
+  color: black;
+  font-weight: 400;
+  height: 20px;
+  text-align: right;
+  border-right: 2px solid #ccc !important;
+}
+.post-type-zerobs_invoice #invoice_totals .bord-l, .post-type-zerobs_invoice #partials .bord-l,
+#zerobs-invoice-edit-box #invoice_totals .bord-l,
+#zerobs-invoice-edit-box #partials .bord-l {
+  border-left: 2px solid #ccc !important;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .first,
+#zerobs-invoice-edit-box #zbs-invoice-items .first {
+  width: 60%;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .second, .post-type-zerobs_invoice #zbs-invoice-items .third, .post-type-zerobs_invoice #zbs-invoice-items .forth, .post-type-zerobs_invoice #zbs-invoice-items .fifth,
+#zerobs-invoice-edit-box #zbs-invoice-items .second,
+#zerobs-invoice-edit-box #zbs-invoice-items .third,
+#zerobs-invoice-edit-box #zbs-invoice-items .forth,
+#zerobs-invoice-edit-box #zbs-invoice-items .fifth {
+  width: 10%;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .zbs-item-block,
+#zerobs-invoice-edit-box #zbs-invoice-items .zbs-item-block {
+  position: relative;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .zbs-item-block tr,
+#zerobs-invoice-edit-box #zbs-invoice-items .zbs-item-block tr {
+  width: 90%;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .zbs-item-block textarea,
+#zerobs-invoice-edit-box #zbs-invoice-items .zbs-item-block textarea {
+  width: 100%;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .zbs-item-block row-amount,
+#zerobs-invoice-edit-box #zbs-invoice-items .zbs-item-block row-amount {
+  padding-top: 12px;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .zbs-item-block .tapad,
+#zerobs-invoice-edit-box #zbs-invoice-items .zbs-item-block .tapad {
+  padding: 0px 0px 0px 10px;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .zbs-item-block input[type=number],
+#zerobs-invoice-edit-box #zbs-invoice-items .zbs-item-block input[type=number] {
+  height: 36px;
+  line-height: 1;
+  box-shadow: none;
+  text-align: center;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .row-amount,
+#zerobs-invoice-edit-box #zbs-invoice-items .row-amount {
+  background: #f5f5f5;
+  color: black;
+  font-weight: 800;
+  text-align: right;
+  height: 35px;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .zbs-row-actions,
+#zerobs-invoice-edit-box #zbs-invoice-items .zbs-row-actions {
+  cursor: pointer;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .padding,
+#zerobs-invoice-edit-box #zbs-invoice-items .padding {
+  height: 15px;
+}
+.post-type-zerobs_invoice #zbs-invoice-items #tblock1 .remove-row,
+#zerobs-invoice-edit-box #zbs-invoice-items #tblock1 .remove-row {
+  display: none;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .zbs-item-name,
+#zerobs-invoice-edit-box #zbs-invoice-items .zbs-item-name {
+  width: 100%;
+  height: 28px;
+  border: 0px;
+  box-shadow: none;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .top-row, .post-type-zerobs_invoice #zbs-invoice-items .bottom-row,
+#zerobs-invoice-edit-box #zbs-invoice-items .top-row,
+#zerobs-invoice-edit-box #zbs-invoice-items .bottom-row {
+  border-left: 2px solid #ccc;
+  border-right: 2px solid #ccc;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .bottom-row, .post-type-zerobs_invoice #zbs-invoice-items .row-amount,
+#zerobs-invoice-edit-box #zbs-invoice-items .bottom-row,
+#zerobs-invoice-edit-box #zbs-invoice-items .row-amount {
+  border-bottom: 2px solid #ccc;
+  border-right: 2px solid #ccc;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .selected .top-row, .post-type-zerobs_invoice #zbs-invoice-items .selected .bottom-row,
+#zerobs-invoice-edit-box #zbs-invoice-items .selected .top-row,
+#zerobs-invoice-edit-box #zbs-invoice-items .selected .bottom-row {
+  border-left: 4px solid #428bca;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .top-row td,
+#zerobs-invoice-edit-box #zbs-invoice-items .top-row td {
+  border-bottom: 1px dashed #ddd !important;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .table > tbody > tr > td, .post-type-zerobs_invoice #zbs-invoice-items .table > tbody > tr > th, .post-type-zerobs_invoice #zbs-invoice-items .table > tfoot > tr > td, .post-type-zerobs_invoice #zbs-invoice-items .table > tfoot > tr > th, .post-type-zerobs_invoice #zbs-invoice-items .table > thead > tr > td, .post-type-zerobs_invoice #zbs-invoice-items .table > thead > tr > th,
+#zerobs-invoice-edit-box #zbs-invoice-items .table > tbody > tr > td,
+#zerobs-invoice-edit-box #zbs-invoice-items .table > tbody > tr > th,
+#zerobs-invoice-edit-box #zbs-invoice-items .table > tfoot > tr > td,
+#zerobs-invoice-edit-box #zbs-invoice-items .table > tfoot > tr > th,
+#zerobs-invoice-edit-box #zbs-invoice-items .table > thead > tr > td,
+#zerobs-invoice-edit-box #zbs-invoice-items .table > thead > tr > th {
+  border-top: 0px solid white !important;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .add-row,
+#zerobs-invoice-edit-box #zbs-invoice-items .add-row {
+  border-left: 0px solid white;
+}
+.post-type-zerobs_invoice #zbs-invoice-items .zbs-row-actions,
+#zerobs-invoice-edit-box #zbs-invoice-items .zbs-row-actions {
+  border: 1px solid #ccc;
+  color: #999;
+  font-size: 13px;
+  font-weight: 100;
+  text-align: center;
+}
+.post-type-zerobs_invoice #zbs_invoice_actions,
+#zerobs-invoice-edit-box #zbs_invoice_actions {
+  padding: 15px 10px 15px 10px;
+  background: #f5f5f5;
+  margin-left: -12px;
+  margin-right: -12px;
+  margin-top: -6px;
+  border-bottom: 1px solid #eee;
+  text-align: right;
+  height: 65px;
+}
+.post-type-zerobs_invoice #zbs_invoice_actions .zbs-invoice-status,
+#zerobs-invoice-edit-box #zbs_invoice_actions .zbs-invoice-status {
+  margin-top: -2px;
+  float: left;
+  padding: 10px;
+}
+.post-type-zerobs_invoice #zbs_invoice_actions .zbs-invoice-status .draft,
+#zerobs-invoice-edit-box #zbs_invoice_actions .zbs-invoice-status .draft {
+  background-color: #ddd;
+  text-transform: uppercase;
+  color: white;
+  padding: 7px;
+  font-weight: 900;
+  font-size: 25px;
+}
+.post-type-zerobs_invoice #zbs_invoice_actions .zbs-invoice-status .unpaid,
+#zerobs-invoice-edit-box #zbs_invoice_actions .zbs-invoice-status .unpaid {
+  background-color: #ffd800;
+  text-transform: uppercase;
+  color: white;
+  padding: 7px;
+  font-weight: 900;
+  font-size: 25px;
+}
+.post-type-zerobs_invoice #zbs_invoice_actions .zbs-invoice-status .paid,
+#zerobs-invoice-edit-box #zbs_invoice_actions .zbs-invoice-status .paid {
+  background-color: green;
+  text-transform: uppercase;
+  color: white;
+  padding: 7px;
+  font-weight: 900;
+  font-size: 25px;
+}
+.post-type-zerobs_invoice #zbs_invoice_actions .zbs-invoice-status .overdue,
+#zerobs-invoice-edit-box #zbs_invoice_actions .zbs-invoice-status .overdue {
+  background-color: red;
+  text-transform: uppercase;
+  color: white;
+  padding: 7px;
+  font-weight: 900;
+  font-size: 25px;
+}
+.post-type-zerobs_invoice #zbs_invoice_actions button,
+#zerobs-invoice-edit-box #zbs_invoice_actions button {
+  margin-right: 2px;
+}
+.post-type-zerobs_invoice #zbs_invoice_actions .btn-primary,
+#zerobs-invoice-edit-box #zbs_invoice_actions .btn-primary {
+  color: #fff;
+  background-color: #428bca;
+  border-color: #428bca;
+  border: 1px solid #428bca;
+  border-width: 0px;
+  font-size: 15px;
+  padding: 7px;
+  font-weight: 300;
+  border-radius: 4px;
+}
+.post-type-zerobs_invoice #zbs_invoice_actions .btn-secondary,
+#zerobs-invoice-edit-box #zbs_invoice_actions .btn-secondary {
+  background: #ddd;
+  border-color: #ddd;
+  border: 1px solid #ddd;
+  border-width: 0px;
+  font-size: 15px;
+  padding: 7px;
+  font-weight: 300;
+  border-radius: 4px;
+}
+.post-type-zerobs_invoice #zbs_invoice_logos,
+#zerobs-invoice-edit-box #zbs_invoice_logos {
+  float: left;
+  width: 30%;
+}
+.post-type-zerobs_invoice #zbs_invoice_logos .hide,
+#zerobs-invoice-edit-box #zbs_invoice_logos .hide {
+  display: none !important;
+}
+.post-type-zerobs_invoice #zbs_invoice_logos .show,
+#zerobs-invoice-edit-box #zbs_invoice_logos .show {
+  display: block !important;
+}
+.post-type-zerobs_invoice #publish,
+#zerobs-invoice-edit-box #publish {
+  display: none;
+}
+.post-type-zerobs_invoice #submitdiv span,
+#zerobs-invoice-edit-box #submitdiv span {
+  display: none;
+}
+.post-type-zerobs_invoice #submitdiv .handlediv,
+#zerobs-invoice-edit-box #submitdiv .handlediv {
+  display: none;
+  border-bottom: 0px solid white;
+}
+.post-type-zerobs_invoice #postbox-container-1,
+#zerobs-invoice-edit-box #postbox-container-1 {
+  margin-top: 20px;
+}
+.post-type-zerobs_invoice .zbs-memo-box,
+#zerobs-invoice-edit-box .zbs-memo-box {
+  width: 50%;
+  display: none;
+}
+.post-type-zerobs_invoice .zbs-plus,
+#zerobs-invoice-edit-box .zbs-plus {
+  font-size: 21px;
+  font-weight: 100;
+  color: #428bca;
+}
+.post-type-zerobs_invoice .zbs-memo-ta,
+#zerobs-invoice-edit-box .zbs-memo-ta {
+  width: 40%;
+}
+.post-type-zerobs_invoice .zbs-memo-hide,
+#zerobs-invoice-edit-box .zbs-memo-hide {
+  font-size: 12px;
+  font-weight: 100;
+  color: #428bca;
+  cursor: pointer;
+}
+.post-type-zerobs_invoice .zbs-memo-hide:hover,
+#zerobs-invoice-edit-box .zbs-memo-hide:hover {
+  text-decoration: underline;
+}
+.post-type-zerobs_invoice .zbs-add-memo-trigger,
+#zerobs-invoice-edit-box .zbs-add-memo-trigger {
+  cursor: pointer;
+}
+.post-type-zerobs_invoice .zbs-italic,
+#zerobs-invoice-edit-box .zbs-italic {
+  font-style: italic;
+  font-weight: 100;
+}
+.post-type-zerobs_invoice .zbs-file-types,
+#zerobs-invoice-edit-box .zbs-file-types {
+  text-transform: uppercase;
+  font-weight: 900;
+}
+.post-type-zerobs_invoice .wh-logo-set,
+#zerobs-invoice-edit-box .wh-logo-set {
+  width: 100%;
+  position: relative;
+  display: none;
+}
+.post-type-zerobs_invoice .wh-logo-set .zbs-remove, .post-type-zerobs_invoice .wh-logo-set .zbs-update,
+#zerobs-invoice-edit-box .wh-logo-set .zbs-remove,
+#zerobs-invoice-edit-box .wh-logo-set .zbs-update {
+  cursor: pointer;
+}
+.post-type-zerobs_invoice .wh-logo-set img,
+#zerobs-invoice-edit-box .wh-logo-set img {
+  max-width: 80%;
+}
+.post-type-zerobs_invoice .wh-logo-set .zbs-logo-options,
+#zerobs-invoice-edit-box .wh-logo-set .zbs-logo-options {
+  display: none;
+  position: absolute;
+  top: 0.5em;
+  left: 0.5em;
+  font-size: 14px;
+}
+.post-type-zerobs_invoice .wh-logo-set .zbs-logo-options span,
+#zerobs-invoice-edit-box .wh-logo-set .zbs-logo-options span {
+  background: #FFF;
+  border-radius: 2px;
+  margin: 3px;
+  padding: 2px 4px;
+}
+.post-type-zerobs_invoice .wh-logo-set,
+#zerobs-invoice-edit-box .wh-logo-set {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 12px;
+}
+.post-type-zerobs_invoice .wh-logo-set:hover .zbs-logo-options,
+#zerobs-invoice-edit-box .wh-logo-set:hover .zbs-logo-options {
+  display: block;
+}
+.post-type-zerobs_invoice .wh-logo,
+#zerobs-invoice-edit-box .wh-logo {
+  margin-top: 20px;
+  padding: 30px;
+  width: 100%;
+  background: aliceblue;
+  margin-bottom: 20px;
+  border-radius: 11px;
+  border: 1px solid #428bca;
+  cursor: pointer;
+}
+.post-type-zerobs_invoice .wh-logo .fa,
+#zerobs-invoice-edit-box .wh-logo .fa {
+  color: #428bca;
+  margin-right: 5px;
+  font-size: 40px;
+  font-weight: 100;
+}
+.post-type-zerobs_invoice .wh-logo .wh-logo-text,
+#zerobs-invoice-edit-box .wh-logo .wh-logo-text {
+  font-weight: 300;
+  color: #428bca;
+  font-size: 18px;
+  margin-left: 20px;
+  position: absolute;
+  top: 63px;
+}
+
+#zbsInvoiceActionBlocker {
+  position: absolute;
+  top: 11px;
+  right: 85px;
+  width: 200px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.74);
+  text-align: center;
+  line-height: 31px;
+}
+
+.wh-metatab {
+  margin-bottom: 10px !important;
+}
+.wh-metatab .wh-large label {
+  font-size: 18px;
+  font-weight: 100;
+}
+
+#zbswhPDFNotice {
+  position: absolute;
+  top: -23px;
+  right: 160px;
+  text-align: right;
+  width: 200px;
+  background: #FFF;
+  padding: 10px;
+  border: 1px solid #428bca;
+  z-index: 10000;
+  border-radius: 5px;
+}
+#zbswhPDFNotice .zbsCloseThisAndLog {
+  position: absolute;
+  top: 0;
+  left: 5px;
+  font-size: 16px;
+}
+#zbswhPDFNotice .zbsCloseThisAndLog:hover {
+  cursor: pointer;
+  color: green;
+}
+
+.zbs-invoice-actions-bottom {
+  border-top: 1px solid #ddd;
+  background: #f5f5f5;
+  margin-top: 20px;
+  padding: 2px;
+  margin-left: -12px;
+  margin-right: -12px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-bottom: -12px;
+  padding-bottom: 12px;
+  padding-top: 10px;
+}
+
+.zbs-actions-side {
+  margin-top: 15px;
+}
+
+.zbs-what {
+  font-size: 15px;
+  line-height: 26px;
+}
+
+#zbs-send-test {
+  width: 60%;
+  margin-left: 20%;
+  margin-top: 100px;
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 6px;
+}
+
+#zbs-modal-invoice-test {
+  margin-top: 10px;
+  margin-bottom: 13px;
+}
+
+.postbox table.form-table {
+  margin-bottom: 22px !important;
+}
+
+.zbs-invoice-email-modal-field {
+  display: block;
+  margin-top: 0.7em;
+}
+.zbs-invoice-email-modal-field #zbs_invoice_email_modal_toemail {
+  display: inline-block;
+  margin-left: 0.7em;
+  width: 250px;
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+}
+.zbs-invoice-email-modal-field input[type=checkbox] {
+  margin-right: 0.7em;
+  vertical-align: middle;
+  line-height: 1em;
+}
+.zbs-invoice-email-modal-field label {
+  margin-bottom: 0;
+}

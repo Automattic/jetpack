@@ -14,6 +14,7 @@ Here is the current list of tasks handled by this action:
 - WordPress.com Commit Reminder (`wpcomCommitReminder`): Posts a comment on merged PRs to remind Automatticians to commit the matching WordPress.com change.
 - Notify Design (`notifyDesign`): Sends a Slack Notification to the Design team to request feedback, based on labels applied to a PR.
 - Notify Editorial (`notifyEditorial`): Sends a Slack Notification to the Editorial team to request feedback, based on labels applied to a PR.
+- Notify Kitkat (`notifyKitKat`): Sends a Slack Notification to the Kitkat team to warn them of high or Blocker issues (based on labels assigned to the issues).
 - Flag OSS (`flagOss`): flags entries by external contributors, adds an "OSS Citizen" label to the PR, and sends a Slack message.
 - Triage New Issues (`triageNewIssues`): Adds labels to new issues based on issue content.
 - Gather support references (`gatherSupportReferences`): Adds a new comment with a list of all support references on the issue, and escalates that issue via a Slack message if needed.

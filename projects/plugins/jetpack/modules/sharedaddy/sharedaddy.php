@@ -408,7 +408,6 @@ function sharing_recaptcha_secret_key() {
 	}
 
 	return RECAPTCHA_SECRET_KEY;
-
 }
 
 /**

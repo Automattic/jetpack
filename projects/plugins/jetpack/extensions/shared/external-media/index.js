@@ -1,6 +1,6 @@
+import { isCurrentUserConnected } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockEditContext } from '@wordpress/block-editor';
 import { addFilter } from '@wordpress/hooks';
-import isCurrentUserConnected from '../is-current-user-connected';
 import MediaButton from './media-button';
 import { mediaSources } from './sources';
 import './editor.scss';
@@ -31,6 +31,7 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 			'jetpack/slideshow',
 			'jetpack/story',
 			'jetpack/tiled-gallery',
+			'videopress/video',
 		];
 
 		return allowedBlocks.indexOf( name ) > -1 && render.toString().indexOf( 'coblocks' ) === -1;

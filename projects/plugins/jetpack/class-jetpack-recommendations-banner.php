@@ -129,10 +129,10 @@ class Jetpack_Recommendations_Banner {
 			$tracking_answers['personal'] = $value;
 		}
 
-		if ( isset( $_REQUEST['agency'] ) && is_string( $_REQUEST['agency'] ) ) {
-			$value                      = 'true' === $_REQUEST['agency'] ? true : false;
-			$data['site-type-agency']   = $value;
-			$tracking_answers['agency'] = $value;
+		if ( isset( $_REQUEST['builder'] ) && is_string( $_REQUEST['builder'] ) ) {
+			$value                       = 'true' === $_REQUEST['builder'] ? true : false;
+			$data['site-type-agency']    = $value;
+			$tracking_answers['builder'] = $value;
 		}
 
 		if ( isset( $_REQUEST['store'] ) && is_string( $_REQUEST['store'] ) ) {
@@ -208,19 +208,18 @@ class Jetpack_Recommendations_Banner {
 				<h1 class="jp-recommendations-banner__question">
 					<?php
 					/* translators: placeholder is the name of the website */
-					echo sprintf( esc_html__( 'What type of site is %s?', 'jetpack' ), esc_html( $site_name ) );
+					echo sprintf( esc_html__( 'Tell us more about %s?', 'jetpack' ), esc_html( $site_name ) );
 					?>
 				</h1>
 				<p class="jp-recommendations-banner__description">
-					<?php esc_html_e( 'This assistant will help you get the most from Jetpack. Tell us more about your goals and we’ll recommend relevant features to help you succeed.', 'jetpack' ); ?>
+					<?php esc_html_e( 'To help you get the most from Jetpack, tell us about your site. Check all that apply:', 'jetpack' ); ?>
 				</p>
 				<div class="jp-recommendations-banner__answer">
 					<form id="jp-recommendations-banner__form" class="jp-recommendations-banner__form">
 						<div class="jp-recommendations-banner__checkboxes">
-							<?php $this->render_checkbox( 'personal', __( 'Personal', 'jetpack' ) ); ?>
-							<?php $this->render_checkbox( 'business', __( 'Business', 'jetpack' ) ); ?>
-							<?php $this->render_checkbox( 'store', __( 'Store', 'jetpack' ) ); ?>
-							<?php $this->render_checkbox( 'other', __( 'Other', 'jetpack' ) ); ?>
+							<?php $this->render_checkbox( 'builder', __( 'I build or manage this site for a client', 'jetpack' ) ); ?>
+							<?php $this->render_checkbox( 'store', __( 'This is an e-commerce store', 'jetpack' ) ); ?>
+							<?php $this->render_checkbox( 'personal', __( 'This is a personal site', 'jetpack' ) ); ?>
 						</div>
 					</form>
 					<a id="jp-recommendations-banner__continue-button" class="jp-banner-cta-button">

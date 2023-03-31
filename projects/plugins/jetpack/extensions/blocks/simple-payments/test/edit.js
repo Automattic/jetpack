@@ -8,14 +8,11 @@ import { SimplePaymentsEdit } from '../edit';
 register( blockEditorStore );
 
 const setAttributes = jest.fn();
+const intlNumberFormatSpy = jest.spyOn( Intl, 'NumberFormat' );
 beforeEach( () => {
-	jest
-		.spyOn( Intl, 'NumberFormat' )
-		.mockImplementation()
+	intlNumberFormatSpy
+		.mockReset()
 		.mockImplementation( () => ( { format: value => `A$${ value.toString() }.00` } ) );
-} );
-afterEach( () => {
-	jest.resetAllMocks();
 } );
 
 const props = {

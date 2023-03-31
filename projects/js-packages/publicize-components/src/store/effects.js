@@ -43,6 +43,7 @@ export async function refreshConnectionTestResults() {
 				done,
 				enabled,
 				toggleable,
+				is_healthy: freshConnection.test_success,
 			};
 
 			connections.push( connection );
@@ -124,7 +125,7 @@ export const computeTweetBlocks = ( blocks = [] ) => {
  * @returns {object} Refresh tweets results action.
  */
 async function __refreshTweets() {
-	const topBlocks = select( 'core/editor' ).getBlocks();
+	const topBlocks = select( 'core/block-editor' ).getBlocks();
 
 	const tweetBlocks = computeTweetBlocks( topBlocks );
 

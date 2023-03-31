@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'trunk'
+      - 'prerelease'
       # The `**/*/` works around the fact that GitHub considers a leading `**/` as meaning "zero or more path components" where we want "one or more".
       - '**/*/branch-**'
   pull_request:
@@ -18,7 +19,7 @@ jobs:
   build:
     name: Build all projects
     runs-on: ubuntu-latest
-    timeout-minutes: 20  # 2022-02-10: We've gotten the build down to ~9-15 minutes now! p9dueE-4dJ-p2
+    timeout-minutes: 25  # 2023-01-30: Build times have crept back up to ~15–20+ minutes as we've added more projects, bump to 25.
     env:
       # Hard-code a specific directory to avoid paths in vendor/composer/installed.json changing every build.
       BUILD_BASE: /tmp/jetpack-build
@@ -26,6 +27,7 @@ jobs:
       TEST_COMMENT_INDICATOR: "<!-- wpcom-reminder-comment -->"
     outputs:
       any_plugins: ${{ steps.plugins.outputs.any }}
+      changed_projects: ${{ steps.changed.outputs.projects }}
 
     steps:
       - uses: actions/checkout@v3
@@ -48,7 +50,7 @@ jobs:
         id: changed
         run: |
           CHANGED="$(EXTRA=build .github/files/list-changed-projects.sh)"
-          echo "::set-output name=projects::${CHANGED}"
+          echo "projects=${CHANGED}" >> "$GITHUB_OUTPUT"
 
       - name: Check if a WordPress.com test reminder comment is needed.
         id: check-test-reminder-comment
@@ -57,11 +59,10 @@ jobs:
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
         with:
-          result-encoding: string
           script: |
             const checkTestReminderComment = require('.github/files/build-reminder-comment/check-test-reminder-comment.js')
-            const commentId = await checkTestReminderComment( github, context, core );
-            return commentId;
+            const data = await checkTestReminderComment( github, context, core );
+            return data;
 
       - name: Build changed projects
         id: build
@@ -78,7 +79,7 @@ jobs:
           fi
 
       - name: Filter mirror list for release branch
-        if: contains( github.ref, '/branch-' )
+        if: github.ref == 'refs/heads/prerelease' || contains( github.ref, '/branch-' )
         run: .github/files/filter-mirrors-for-release-branch.sh
 
       - name: Determine plugins to publish
@@ -91,10 +92,10 @@ jobs:
           done > "$BUILD_BASE/plugins.tsv"
           if [[ -s "$BUILD_BASE/plugins.tsv" ]]; then
             cat "$BUILD_BASE/plugins.tsv"
-            echo "::set-output name=any::true"
+            echo "any=true" >> "$GITHUB_OUTPUT"
           else
             echo "No plugins were built"
-            echo "::set-output name=any::false"
+            echo "any=false" >> "$GITHUB_OUTPUT"
           fi
 
       # GitHub's artifact stuff doesn't preserve permissions or file case. Sigh.
@@ -114,71 +115,31 @@ jobs:
       - name: Update reminder with testing instructions
         id: update-reminder-comment
         uses: actions/github-script@v6
-        if: ${{ github.event_name == 'pull_request' && steps.check-test-reminder-comment.outputs.result != 0 && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
-          COMMENT_ID: ${{ steps.check-test-reminder-comment.outputs.result }}
+          DATA: ${{ steps.check-test-reminder-comment.outputs.result }}
         with:
           script: |
-            const { BRANCH_NAME, COMMENT_ID, TEST_COMMENT_INDICATOR } = process.env;
+            const { BRANCH_NAME, TEST_COMMENT_INDICATOR } = process.env;
+            const data = JSON.parse( process.env.DATA );
+            const commands = data.projects.reduce( ( acc, cur ) => {
+              return acc += `
+              \`\`\`
+              bin/jetpack-downloader test ${ cur } ${ BRANCH_NAME }
+              \`\`\`
+              `;
+            }, '' );
             const commentBody = `${ TEST_COMMENT_INDICATOR }
-            Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run \`bin/jetpack-downloader test jetpack ${ BRANCH_NAME }\` to get started. More details: p9dueE-5Nn-p2`;
+            Are you an Automattician? You can now test your Pull Request on WordPress.com. On your sandbox, run
+            ${ commands }
+            to get started. More details: p9dueE-5Nn-p2`;
             await github.rest.issues.updateComment( {
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: commentBody,
-              comment_id: +COMMENT_ID,
+              comment_id: +data.commentId,
             } );
-
-  upgrade_test:
-    name: Test plugin upgrades
-    runs-on: ubuntu-latest
-    needs: build
-    if: needs.build.outputs.any_plugins == 'true'
-    timeout-minutes: 10  # 2022-03-04: Successful runs seem to take about 3 minutes, but give some extra time for the downloads.
-    services:
-      db:
-        image: mariadb:latest
-        env:
-          MARIADB_ROOT_PASSWORD: wordpress
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=5
-    container:
-      image: ghcr.io/automattic/jetpack-wordpress-dev:latest
-      env:
-        WP_DOMAIN: localhost
-        WP_ADMIN_USER: wordpress
-        WP_ADMIN_EMAIL: wordpress@example.com
-        WP_ADMIN_PASSWORD: wordpress
-        WP_TITLE: Hello World
-        MYSQL_HOST: db:3306
-        MYSQL_DATABASE: wordpress
-        MYSQL_USER: root
-        MYSQL_PASSWORD: wordpress
-        HOST_PORT: 80
-      ports:
-        - 80:80
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          path: monorepo
-
-      - name: Download build artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: jetpack-build
-      - name: Extract build archive
-        run: tar --xz -xvvf build.tar.xz
-
-      - name: Setup WordPress
-        run: monorepo/.github/files/test-plugin-update/setup.sh
-
-      - name: Prepare plugin zips
-        run: monorepo/.github/files/test-plugin-update/prepare-zips.sh
-
-      - name: Test upgrades
-        run: monorepo/.github/files/test-plugin-update/test.sh
 
   jetpack_beta:
     name: Create artifact for Jetpack Beta plugin
@@ -196,17 +157,19 @@ jobs:
         with:
           name: jetpack-build
       - name: Extract build archive
-        run: tar --xz -xvvf build.tar.xz
+        run: tar --xz -xvvf build.tar.xz build
 
       - name: Prepare plugin zips
         id: prepare
+        env:
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           mkdir work
           mkdir zips
 
           # Current version must compare greather than any previously used current version for this PR.
           # Assume GH run IDs are monotonic.
-          VERSUFFIX="${GITHUB_RUN_ID}-g$(cd monorepo && git rev-parse --short HEAD)"
+          VERSUFFIX="${GITHUB_RUN_ID}-g${SHA:0:8}"
 
           # Plugin data is passed as a JSON object.
           PLUGIN_DATA="{}"
@@ -257,7 +220,7 @@ jobs:
           if [[ "$PLUGIN_DATA" == "{}" ]]; then
             echo "No plugins were built"
           fi
-          echo "::set-output name=plugin-data::$PLUGIN_DATA"
+          echo "plugin-data=$PLUGIN_DATA" >> "$GITHUB_OUTPUT"
 
       - name: Create plugins artifact
         uses: actions/upload-artifact@v3
@@ -274,13 +237,38 @@ jobs:
           SECRET: ${{ secrets.JPBETA_SECRET }}
           PLUGIN_DATA: ${{ steps.prepare.outputs.plugin-data }}
           PR: ${{ github.event.number }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           curl -v --fail -L \
-            --url "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$GITHUB_SHA" \
+            --url "https://betadownload.jetpack.me/gh-action.php?run_id=$GITHUB_RUN_ID&pr=$PR&commit=$SHA" \
             --form-string "repo=$GITHUB_REPOSITORY" \
             --form-string "branch=${GITHUB_REF#refs/heads/}" \
             --form-string "plugins=$PLUGIN_DATA" \
             --form-string "secret=$SECRET"
+
+  teamcity_trigger:
+    name: "Trigger TeamCity build"
+    runs-on: ubuntu-latest
+    needs: build
+    if: ${{ fromJSON(needs.build.outputs.changed_projects)['plugins/jetpack'] == true }}
+
+    steps:
+      - name: Trigger TeamCity build
+        env:
+          SECRET: ${{ secrets.JETPACK__GITHUB_TEAMCITY_TOKEN }}
+          URL: ${{ secrets.TEAMCITY_TRIGGER_ENDPOINT }}
+          PR: ${{ github.event_name == 'push' && github.ref_name || github.event.number }}
+          SHA: ${{ github.event_name == 'push' && github.sha || github.event.pull_request.head.sha }}
+        run: |
+          response=$(curl --fail -L \
+            --url "$URL" \
+            --form-string "pr-number=$PR" \
+            --form-string "sha=$SHA" \
+            --form-string "secret=$SECRET")
+
+          echo "The TeamCity build has been triggered. Details: /viewQueued.html?itemId=$response"
+          echo
+          echo "If you would like to restart the tests, please re-run this job."
 
   update_mirrors:
     name: Push to mirror repos
@@ -302,7 +290,7 @@ jobs:
           name: jetpack-build
         timeout-minutes: 2  # 2022-03-15: Successful runs normally take a few seconds, but on occasion they've been taking 60+ recently.
       - name: Extract build archive
-        run: tar --xz -xvvf build.tar.xz
+        run: tar --xz -xvvf build.tar.xz build
         timeout-minutes: 1  # 2021-01-18: Successful runs seem to take a few seconds
 
       - name: Wait for prior instances of the workflow to finish

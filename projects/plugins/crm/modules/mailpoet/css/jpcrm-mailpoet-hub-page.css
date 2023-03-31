@@ -1,0 +1,109 @@
+/*!
+ * Jetpack CRM Extension: MailPoet
+ * https://jetpackcrm.com
+ */
+#jpcrm-mailpoet-hub-page {
+  margin-top: 4em;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-logo {
+  text-align: center;
+  margin: 1.5em auto;
+  display: table;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-logo img {
+  vertical-align: middle;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-logo #jpcrm-mailpoet-jpcrm-logo {
+  max-width: 250px;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-logo #jpcrm-mailpoet-mailpoet-logo {
+  max-width: 158px;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-logo i {
+  vertical-align: middle;
+  display: table-cell;
+  padding: 0px 1em;
+  font-size: 1.5em;
+  color: #069e08;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-messages {
+  max-width: 800px;
+  margin: auto;
+  margin-bottom: 1em;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body {
+  max-width: 800px;
+  margin: auto;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body .jpcrm-mailpoet-settings-button {
+  font-size: 1.3em;
+  margin-right: 0.5em;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body .jpcrm-mailpoet-stats-header {
+  font-size: 1.3em;
+  margin: 0.5em 1em;
+  display: flex;
+  align-items: center;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body .jpcrm-mailpoet-stats-header span {
+  color: #8594a2;
+  margin-right: 5px;
+  margin-left: 5px;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body .jpcrm-mailpoet-stats-header i {
+  margin-left: 0.5em;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body .jpcrm-mailpoet-stats-header .jpcrm-mailpoet-stats-url {
+  line-height: 0.8em;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body h2.ui.header {
+  margin: 1em;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body .jpcrm-mailpoet-recap {
+  margin: 0;
+  color: #aca0a0;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body #jpcrm-mailpoet-stats {
+  position: relative;
+  margin: 5px;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body #jpcrm-mailpoet-stats-nothing-yet {
+  display: table;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body #jpcrm-mailpoet-stats-nothing-yet div {
+  display: table-cell;
+  vertical-align: middle;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body #jpcrm-mailpoet-stats-nothing-yet div div {
+  display: block;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body #jpcrm-mailpoet-stats-nothing-yet div p {
+  color: #FFF;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-page-body #jpcrm-mailpoet-debug-output {
+  background: #f1e9e9;
+  color: #000;
+  line-height: 2em;
+  overflow-x: scroll;
+  padding: 0.5em 1em;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-quiet-restart-link {
+  margin-top: 1.2em;
+  text-align: center;
+  opacity: 0.6;
+}
+#jpcrm-mailpoet-hub-page #jpcrm-mailpoet-quiet-restart-link a {
+  text-decoration: underline;
+}
+#jpcrm-mailpoet-hub-page .status.green {
+  color: #069e08 !important;
+}
+#jpcrm-mailpoet-hub-page .status.orange {
+  color: #f2711c !important;
+}
+#jpcrm-mailpoet-hub-page .status.red {
+  color: #db2828 !important;
+}
+#jpcrm-mailpoet-hub-page .jpcrm-clickable:hover {
+  cursor: pointer;
+}

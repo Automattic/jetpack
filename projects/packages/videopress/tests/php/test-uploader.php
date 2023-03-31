@@ -21,6 +21,13 @@ use WP_Error;
 class Test_Uploader extends BaseTestCase {
 
 	/**
+	 * Attachment ID.
+	 *
+	 * @var int
+	 */
+	protected $valid_attachment_id;
+
+	/**
 	 * Creates a new upload
 	 *
 	 * @param string  $file Path to a file.
@@ -64,11 +71,8 @@ class Test_Uploader extends BaseTestCase {
 
 	/**
 	 * Set up before each test
-	 *
-	 * @before
 	 */
 	protected function set_up() {
-		parent::setUp();
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		$user_id = wp_insert_user(
 			array(
@@ -88,13 +92,10 @@ class Test_Uploader extends BaseTestCase {
 		( new Tokens() )->update_user_token( $user_id, sprintf( '%s.%s.%d', 'key', 'private', $user_id ), false );
 
 		$this->valid_attachment_id = $this->create_upload_object( __DIR__ . '/assets/sample-video.mp4', 'video/mp4' );
-
 	}
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		wp_set_current_user( 0 );

@@ -1,9 +1,12 @@
 {
 	"production": [
+		"blogging-prompt",
 		"business-hours",
 		"button",
 		"calendly",
+		"cookie-consent",
 		"contact-form",
+		"contact-form/salesforce-lead-form",
 		"contact-info",
 		"donations",
 		"eventbrite",
@@ -41,16 +44,22 @@
 		"wordads",
 		"payments-intro",
 		"post-publish-qr-post-panel",
-		"payment-buttons"
+		"payment-buttons",
+		"site-editor-snackbars",
+		"videopress/video"
 	],
 	"beta": [
 		"amazon",
+		"conversation",
+		"dialogue",
 		"google-docs-embed",
+		"launchpad-save-modal",
+		"post-publish-promote-post-panel",
 		"recipe",
-		"videopress/video",
+		"v6-video-frame-poster",
 		"videopress/video-chapters"
 	],
-	"experimental": [ "anchor-fm", "premium-content", "conversation", "dialogue" ],
+	"experimental": [ "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",

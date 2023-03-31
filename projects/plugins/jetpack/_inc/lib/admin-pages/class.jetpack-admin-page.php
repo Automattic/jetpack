@@ -135,7 +135,6 @@ abstract class Jetpack_Admin_Page {
 		if ( ( 'index.php' === $pagenow || 'plugins.php' === $pagenow ) ) {
 			add_action( 'admin_enqueue_scripts', array( 'Jetpack_Connection_Banner', 'enqueue_connect_button_scripts' ) );
 		}
-
 	}
 
 	/**

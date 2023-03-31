@@ -72,7 +72,7 @@ class Jetpack_Components {
 	 */
 	public static function render_upgrade_nudge( $props ) {
 		$plan_slug = $props['plan'];
-		jetpack_require_lib( 'plans' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/plans.php';
 		$plan = Jetpack_Plans::get_plan( $plan_slug );
 
 		if ( ! $plan ) {
@@ -106,7 +106,7 @@ class Jetpack_Components {
 			? add_query_arg(
 				'redirect_to',
 				$redirect_to,
-				"https://wordpress.com/checkout/${site_slug}/${plan_path_slug}"
+				"https://wordpress.com/checkout/{$site_slug}/{$plan_path_slug}"
 			) : '';
 
 		return self::render_component(

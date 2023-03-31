@@ -56,6 +56,8 @@
 				.dash-security-bundle--content-info-features-single-feature {
 					display: flex;
 					flex-direction: row;
+					column-gap: 0.25rem;
+					align-items: center;
 		
 					img {
 						width: 24px;

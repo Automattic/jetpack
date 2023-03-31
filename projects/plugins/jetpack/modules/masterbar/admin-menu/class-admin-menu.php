@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/class-base-admin-menu.php';
@@ -72,6 +73,20 @@ class Admin_Menu extends Base_Admin_Menu {
 		}
 
 		return parent::get_preferred_view( $screen, $fallback_global_preference );
+	}
+
+	/**
+	 * Point the Site Editor's `< Dashboard` link to wpcom home.
+	 *
+	 * Although this isn't strictly an admin menu item, it belongs here because it's part of
+	 * changing wp-admin links to their wp.com equivalents.
+	 *
+	 * @param  array $settings Editor settings.
+	 * @return array           Updated Editor settings.
+	 */
+	public function site_editor_dashboard_link( $settings ) {
+		$settings['__experimentalDashboardLink'] = 'https://wordpress.com/home/' . $this->domain;
+		return $settings;
 	}
 
 	/**
@@ -361,6 +376,21 @@ class Admin_Menu extends Base_Admin_Menu {
 			$submenus_to_update['options-writing.php'] = 'https://wordpress.com/settings/writing/' . $this->domain;
 		}
 
+		if (
+			/**
+			 * Filter to enable the modernized Reading Settings in Calypso UI.
+			 *
+			 * @since 11.8
+			 * @module masterbar
+			 *
+			 * @param bool false Should the modernized Reading Settings be enabled? Default to false.
+			 */
+			apply_filters( 'calypso_use_modernized_reading_settings', false )
+			&& self::DEFAULT_VIEW === $this->get_preferred_view( 'options-reading.php' )
+		) {
+			$submenus_to_update['options-reading.php'] = 'https://wordpress.com/settings/reading/' . $this->domain;
+		}
+
 		if ( self::DEFAULT_VIEW === $this->get_preferred_view( 'options-discussion.php' ) ) {
 			$submenus_to_update['options-discussion.php'] = 'https://wordpress.com/settings/discussion/' . $this->domain;
 		}
@@ -376,9 +406,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function add_jetpack_menu() {
 		$this->add_admin_menu_separator( 50, 'manage_options' );
 
-		// TODO: Replace with proper SVG data url.
-		$icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 40 40' %3E%3Cpath fill='%23a0a5aa' d='M20 0c11.046 0 20 8.954 20 20s-8.954 20-20 20S0 31.046 0 20 8.954 0 20 0zm11 17H21v19l10-19zM19 4L9 23h10V4z'/%3E%3C/svg%3E";
-
+		$icon            = ( new Logo() )->get_base64_logo();
 		$is_menu_updated = $this->update_menu( 'jetpack', null, null, null, $icon, 51 );
 		if ( ! $is_menu_updated ) {
 			add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'jetpack', null, $icon, 51 );
@@ -416,10 +444,6 @@ class Admin_Menu extends Base_Admin_Menu {
 			'site-editor.php'     => 'https://wordpress.com/site-editor/' . $this->domain,
 		);
 		$this->update_submenus( 'themes.php', $submenus_to_update );
-		// Gutenberg 11.9 adds an redundant site editor entry point that requires some calypso work
-		// before it can be exposed.  Note, there are also already discussions to remove this excess
-		// item in Gutenberg.
-		$this->hide_submenu_page( 'themes.php', 'gutenberg-edit-site&styles=open' );
 	}
 
 	/**

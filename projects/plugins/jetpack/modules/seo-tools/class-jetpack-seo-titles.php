@@ -78,7 +78,7 @@ class Jetpack_SEO_Titles {
 	 *
 	 * @param string $default_title Default title for current page.
 	 *
-	 * @return string Custom title with replaced tokens or default title.
+	 * @return string A custom per-post title, custom title structure with replaced tokens, or default title.
 	 */
 	public static function get_custom_title( $default_title = '' ) {
 		// Don't filter title for unsupported themes.
@@ -93,14 +93,25 @@ class Jetpack_SEO_Titles {
 			return $default_title;
 		}
 
+		if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+			return $default_title;
+		}
+
+		// If it's a singular -- page or post -- check for a meta title override.
+		if ( 'pages' === $page_type || 'posts' === $page_type ) {
+			$post = get_post();
+			if ( $post instanceof WP_Post ) {
+				$custom_title = get_post_meta( $post->ID, Jetpack_SEO_Posts::HTML_TITLE_META_KEY, true );
+				if ( ! empty( trim( $custom_title ) ) ) {
+					return esc_html( $custom_title );
+				}
+			}
+		}
+
 		$title_formats = self::get_custom_title_formats();
 
 		// Keep default title if user has not defined custom title for this page type.
 		if ( empty( $title_formats[ $page_type ] ) ) {
-			return $default_title;
-		}
-
-		if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
 			return $default_title;
 		}
 

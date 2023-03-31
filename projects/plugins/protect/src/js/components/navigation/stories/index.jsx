@@ -25,7 +25,7 @@ export const Default = () => {
 		<Navigation selected={ selected } onSelect={ setSelectedItem }>
 			<NavigationItem
 				id="all"
-				label={ __( 'All vulnerabilities', 'jetpack-protect' ) }
+				label={ __( 'All threats', 'jetpack-protect' ) }
 				icon={ warning }
 				badge={ 10 }
 			/>

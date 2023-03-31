@@ -138,6 +138,8 @@ class Connection {
 
 		if ( ! is_wp_error( $result ) ) {
 			Analytics::record_user_event( 'connect_site' );
+
+			Premium_Features::clear_cache();
 		}
 
 		return $result;
@@ -195,6 +197,9 @@ class Connection {
 
 		$response = $this->register();
 
+		// Clear premium features cache to force a refresh.
+		Premium_Features::clear_cache();
+
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
@@ -221,10 +226,13 @@ class Connection {
 	public function get_connection_api_response() {
 		$force_connected = apply_filters( 'jetpack_boost_connection_bypass', false );
 
-		return array(
-			'connected'   => $force_connected || $this->is_connected(),
-			'wpcomBlogId' => ( $force_connected || $this->is_connected() ) ? self::wpcom_blog_id() : null,
+		$response = array(
+			'connected'     => $force_connected || $this->is_connected(),
+			'wpcomBlogId'   => ( $force_connected || $this->is_connected() ) ? self::wpcom_blog_id() : null,
+			'userConnected' => $this->manager->is_user_connected(),
 		);
+
+		return $response;
 	}
 
 	/**

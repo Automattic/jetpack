@@ -179,7 +179,7 @@ function jetpack_instagram_get_allowed_parameters( $url, $atts = array() ) {
 	$params = shortcode_atts(
 		array(
 			'url'         => $url,
-			'width'       => isset( $content_width ) ? $content_width : $max_width,
+			'width'       => ( is_numeric( $content_width ) && $content_width > 0 ) ? $content_width : $max_width,
 			'height'      => '',
 			'hidecaption' => false,
 		),

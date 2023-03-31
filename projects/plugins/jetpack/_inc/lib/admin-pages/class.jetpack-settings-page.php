@@ -31,7 +31,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	 */
 	public function get_page_hook() {
 		return add_submenu_page(
-			null,
+			'',
 			__( 'Jetpack Settings', 'jetpack' ),
 			__( 'Settings', 'jetpack' ),
 			'jetpack_manage_modules',
@@ -108,7 +108,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 								<?php $list_table->search_box( __( 'Search', 'jetpack' ), 'srch-term' ); ?>
 								<p><?php esc_html_e( 'View:', 'jetpack' ); ?></p>
 								<div class="button-group filter-active">
-									<button type="button" class="button 
+									<button type="button" class="button
 									<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
 									if ( empty( $_GET['activated'] ) ) {
 										echo 'active';
@@ -116,14 +116,14 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 									?>
 										">
 									<?php esc_html_e( 'All', 'jetpack' ); ?></button>
-									<button type="button" class="button 
+									<button type="button" class="button
 									<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
 									if ( ! empty( $_GET['activated'] ) && 'true' === $_GET['activated'] ) {
 										echo 'active';
 									}
 									?>
 									" data-filter-by="activated" data-filter-value="true"><?php esc_html_e( 'Active', 'jetpack' ); ?></button>
-									<button type="button" class="button 
+									<button type="button" class="button
 									<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
 									if ( ! empty( $_GET['activated'] ) && 'false' === $_GET['activated'] ) {
 										echo 'active';
@@ -133,21 +133,21 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 								</div>
 								<p><?php esc_html_e( 'Sort by:', 'jetpack' ); ?></p>
 								<div class="button-group sort">
-									<button type="button" class="button 
+									<button type="button" class="button
 									<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
 									if ( empty( $_GET['sort_by'] ) ) {
 										echo 'active';
 									}
 									?>
 									" data-sort-by="name"><?php esc_html_e( 'Alphabetical', 'jetpack' ); ?></button>
-									<button type="button" class="button 
+									<button type="button" class="button
 									<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
 									if ( ! empty( $_GET['sort_by'] ) && 'introduced' === $_GET['sort_by'] ) {
 										echo 'active';
 									}
 									?>
 									" data-sort-by="introduced" data-sort-order="reverse"><?php esc_html_e( 'Newest', 'jetpack' ); ?></button>
-									<button type="button" class="button 
+									<button type="button" class="button
 									<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
 									if ( ! empty( $_GET['sort_by'] ) && 'sort' === $_GET['sort_by'] ) {
 										echo 'active';

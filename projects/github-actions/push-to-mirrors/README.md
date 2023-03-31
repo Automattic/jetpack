@@ -23,7 +23,7 @@ jobs:
         run: ...
 
       - name: Push changed projects
-        uses: Automattic/action-push-to-mirrors@v1
+        uses: Automattic/action-push-to-mirrors@v2
         with:
           token: ${{ secrets.API_TOKEN_GITHUB }}
           username: buildbot
@@ -35,7 +35,7 @@ jobs:
 This action is intended to be triggered by a `push` event.
 
 ```yaml
-- uses: Automattic/action-push-to-mirrors@v1
+- uses: Automattic/action-push-to-mirrors@v2
   with:
     # Commit message to use. If omitted, git will be run in the specified
     # `source-directory` to fetch the message used for the commit.

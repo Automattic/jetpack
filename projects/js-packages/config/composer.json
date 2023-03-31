@@ -5,7 +5,7 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "3.2.x-dev"
+		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -15,9 +15,6 @@
 	"scripts": {
 		"test-js": [
 			"pnpm run test"
-		],
-		"test-coverage": [
-			"pnpm run test-coverage"
 		]
 	},
 	"repositories": [

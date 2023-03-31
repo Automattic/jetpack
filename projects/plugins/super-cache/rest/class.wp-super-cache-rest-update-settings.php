@@ -1,6 +1,6 @@
 <?php
 
-require_once( dirname( __FILE__ ) . '/class.wp-super-cache-settings-map.php' );
+require_once __DIR__ . '/class.wp-super-cache-settings-map.php';
 
 class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 
@@ -132,7 +132,6 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 		}
 
 		wp_cache_setting( $global_name, (int)$value );
-
 	}
 
 	/**
@@ -612,7 +611,6 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			}
 		}
 		wpsc_set_default_gc( true );
-
 	}
 
 	/**

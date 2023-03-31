@@ -38,8 +38,7 @@ if ( ! class_exists( 'Jetpack_SSO_Helpers' ) ) :
 		 * @return bool
 		 */
 		public static function match_by_email() {
-			$match_by_email = ( 1 === (int) get_option( 'jetpack_sso_match_by_email', true ) ) ? true : false;
-			$match_by_email = defined( 'WPCC_MATCH_BY_EMAIL' ) ? WPCC_MATCH_BY_EMAIL : $match_by_email;
+			$match_by_email = defined( 'WPCC_MATCH_BY_EMAIL' ) ? WPCC_MATCH_BY_EMAIL : (bool) get_option( 'jetpack_sso_match_by_email', false );
 
 			/**
 			 * Link the local account to an account on WordPress.com using the same email address.

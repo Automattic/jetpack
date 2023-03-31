@@ -8,6 +8,7 @@ import {
 	getRedirectUrl,
 	getUserLocale,
 } from '@automattic/jetpack-components';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, postList } from '@wordpress/icons';
@@ -25,6 +26,7 @@ const Header = () => {
 		postsCount,
 		isShareLimitEnabled,
 		hasPaidPlan,
+		siteSuffix,
 	} = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
@@ -35,8 +37,10 @@ const Header = () => {
 			postsCount: select( STORE_ID ).getPostsCount(),
 			isShareLimitEnabled: select( STORE_ID ).isShareLimitEnabled(),
 			hasPaidPlan: select( STORE_ID ).hasPaidPlan(),
+			siteSuffix: select( STORE_ID ).getSiteSuffix(),
 		};
 	} );
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	const formatter = Intl.NumberFormat( getUserLocale(), {
 		notation: 'compact',
@@ -46,6 +50,11 @@ const Header = () => {
 	return (
 		<>
 			<Container horizontalSpacing={ 0 }>
+				{ hasConnectionError && (
+					<Col className={ styles[ 'connection-error-col' ] }>
+						<ConnectionError />
+					</Col>
+				) }
 				<Col>
 					<div id="jp-admin-notices" className="jetpack-social-jitm-card" />
 				</Col>
@@ -71,11 +80,15 @@ const Header = () => {
 							<ContextualUpgradeTrigger
 								className={ styles.cut }
 								description={ __(
-									'Keep sharing all your posts to social media',
+									'Unlock unlimited shares and advanced posting options',
 									'jetpack-social'
 								) }
 								cta={ __( 'Get a Jetpack Social Plan', 'jetpack-social' ) }
-								href={ getRedirectUrl( 'jetpack-social-admin-page-upsell' ) }
+								href={ getRedirectUrl( 'jetpack-social-basic-plan-plugin-admin-page', {
+									site: siteSuffix,
+									query: 'redirect_to=' + window.location.href,
+								} ) }
+								tooltipText={ __( 'Share as a post for more engagement', 'jetpack-social' ) }
 							/>
 						</>
 					) : (
@@ -83,7 +96,7 @@ const Header = () => {
 							stats={ [
 								{
 									icon: <SocialIcon />,
-									label: __( 'Total shares this month', 'jetpack-social' ),
+									label: __( 'Total shares past 30 days', 'jetpack-social' ),
 									loading: null === sharesCount,
 									value: formatter.format( sharesCount ),
 								},

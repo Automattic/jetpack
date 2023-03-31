@@ -1,0 +1,210 @@
+/*!
+ * Jetpack CRM
+ * http://zerobscrm.com
+ */
+#learn-pop {
+
+  //padding: 34px;
+
+  background: #FFFFFF;
+  box-shadow: 0px 4px 44px rgba(0, 0, 0, 0.35);
+  border-radius: 8px;
+  padding: 10px 12px;
+
+  // close button // taken from _JetpackCRM.admin.modals.scss .jpcrm-modal-close
+  .jpcrm-learn-popup-close {
+
+    // top top (esp noticable on mobile)
+    z-index: 100000;
+
+    width: 24px;
+    height: 24px;
+    // modal close icon
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAKcSURBVHgB7ZgxjhoxFIY9IAGigK0QEgJNmZLtUrIdZXKC7B4hJwjbpUubLqRMleQEpEu65QizICRKQhUhAXk/8kNmMpP12I/VSutPQho/xvb/+9kzYysVCAQCgcBzodvtfur1eu/UmUDb6KNInbLtjWg4iqJruhw0m83fxC8liB6YEfXRbzQa8Xq9/m5Tr2RzUxzHF2jYCH2gDt8oIXRbIy6jL/RpUzdSlqDB3W43oUvTyPVsNvusPNDix0ZoWiqVrpIkWdnUtzYAtIk7XBphZxMZ4hMtPrFswm4KHVunUUEHuDTCY5fpJCEeFMoAQ5mI9XSKObbdbi8Xi8XUpn6n0+mXy+U7I+QkHhTKwLE3Ip0JEjSBsIfqavETszlX8cApA0xGJlaUiau8TBji+QnjJR54GQC2Js4hHngbAFkmNpvN5XK5TFBot9txpVLBnBcVD0QMgAwTCZnAOlEk/iQuJR6IGQDaxMlI819clhQPRA0A8tDXmUh/Cqy0eKtHrS1Oj9H/AYH7/f4mHUdMWjwQz4BesCcvOc1hTfDClkLUQIZ4/iA7rglpE2IGskaeps3rQydR9NW4VdSEyBrIEX8zn8+/4ZdaE4d7UUcJYL0jy+OCqNfrP9W/4sdcpt3VlHZZ95SJV1yN3soDKn/5QygPvAxAPAnDyL/gWFo8k2GiXa1Wh74mnA0Y4s0v0Lck/mNeHZjAfpouhzrkbcLJQI74W9qZvX+oLg4DyAQeHgMd8jLhZKDVamHOp8WPbOuTiR9pE7Va7SXFC29NCxvQxytDI1RIPJNhIi5ynMIUMmCcDTFO4pm0iaJnQsDlYIvxEs/4mrAycC7xjI8JqzcxNXhvFEXFM7rN25w+/aFznBF+6sw8Vj+BQCAQCDwJ/gLKn3smB8hfvQAAAABJRU5ErkJggg==);
+    background-size: 24px;
+
+    position: absolute;
+    top: 10px;
+    right: 10px;
+
+  }
+  .jpcrm-learn-popup-close:hover {
+    cursor: pointer;
+  }
+
+  // workaround for our dashboard workaround ¯\_(ツ)_/¯
+  .jpcrm-learn-container.ui.grid {  
+    padding-right: 0 !important;
+  }
+
+  // inner container
+  .jpcrm-learn-container {
+
+    // inner container -> left hand content div
+    .jpcrm-learn-content {
+
+        //margin-right: 311px;
+        padding: 34px;
+
+        h3.learn-h3 {
+
+          font-size: 24px;
+          line-height: 24px;
+          margin: 0;
+          padding: 0;
+          margin-bottom: 24px;
+
+        }
+
+        .content {
+
+          p {
+
+            font-size: 14px;
+            line-height: 24px;
+
+          }
+
+          a.learn-more-link {
+
+            // taken from _JetpackCRM.admin.modals.scss .jpcrm-modal-learn-footer-actions a
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: #000;
+            text-decoration: underline;
+
+          }
+
+        }
+
+      } // /.jpcrm-learn-content
+
+      // inner container -> right hand sidebar div
+      .jpcrm-learn-sidebar {
+
+        //position: absolute;
+        //max-width: 311px;
+        //top: 0;
+        //right: 0;
+        padding: 61px;
+        background: #f0f2eb; // Jetpack Green/JP Green 0
+        border-radius: 0 8px 8px 0;
+
+
+        .sidebar-content {
+
+          width: 100%;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          .jpcrm-learn-popup-video {
+
+            img.jpcrm-video-thumbnail {
+
+              max-width: 160px;
+              max-height: 90px;
+              margin-bottom: 14px;
+
+            }
+
+            a {
+
+              font-size: 14px;
+              font-weight: 700;
+              line-height: 20px;
+              color: #000000;
+
+            }
+
+            .jpcrm-learn-popup-video-cta {
+
+                margin-top: 52px;
+                font-size: 12px;
+                font-weight: 400;
+                line-height: 14px;
+
+
+                a {
+
+                  display: flex;
+                  align-items: center;
+                  text-decoration: underline;
+                  color: #000000;
+
+                  img {
+                    
+                    margin-right: 8px;
+
+                  }
+
+                }
+
+            }
+
+          }
+          
+
+          // COPY TO BELOW
+
+          .jpcrm-learn-popup-image {
+
+            img.jpcrm-learn-image {
+
+              max-width: 160px;
+              max-height: 90px;
+              margin-bottom: 14px;
+
+            }
+
+            a {
+
+              font-size: 14px;
+              font-weight: 700;
+              line-height: 20px;
+              color: #000000;
+
+            }
+
+            .jpcrm-learn-popup-image-cta {
+
+                margin-top: 52px;
+                font-size: 12px;
+                font-weight: 400;
+                line-height: 14px;
+
+
+                a {
+
+                  display: flex;
+                  align-items: center;
+                  text-decoration: underline;
+                  color: #000000;
+
+                  // external link img
+                  .jpcrm-learn-popup-external-link{
+                    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAAPFBMVEVHcEwgICAgICAgICAgICAgICAdHR0gICAeHh4eHh4eHh4eHh4fHx8eHh4fHx8fHx8eHh4fHx8eHh4eHh5RbYuhAAAAE3RSTlMAECAwQFBgcICQn6CvsL/P39/v/NsjgAAAAMVJREFUeNrtlNkOgyAQRXGctmAXwfn/fy0uhaQXHNImTR+8D8SM5wCijjnyddh7STm3CJHbE9iu4TaB0/I21YjmsZ8Wob68zdXEoxDnn9y2JeDDAwSOVdqukacrCFbE1XlTFGydVwTkzV3kpAuZN/GhWREyrwvIm8sw9IqQ+RwUkN8XkG8XunHl27fU3d55/Vh/JxAzKQLeO4RPBVcT3CJgH5uo8t78/LtBgoh3thA3f+j7nRrDxd4eanh48djui2Fz5O/yBKbPGFFy+BxMAAAAAElFTkSuQmCC);
+                    margin-right: 8px;
+                    width: 24px;
+                    height: 24px;
+                    background-size: 24px;
+                  }
+
+                }
+
+            }
+
+          }
+
+
+        }
+
+      } // .jpcrm-learn-sidebar
+
+
+    } // /.jpcrm-learn-container
+
+
+}

@@ -35,8 +35,6 @@
 	font-weight: 500;
 	font-size: rem( 32px );
 	display: inline-block;
-	border: 1px solid $light-gray-700;
-	border-radius: 4px;
 	padding: 0 4px;
 	min-width: 36px;
 	text-align: center;
@@ -74,6 +72,13 @@
 
 	&.jp-dash-item__connect {
 		margin-top: 20px;
+	}
+
+	.jp-link-button {
+		background: $white;
+		border: none;
+		padding: 2px 0;
+		font-style: italic;
 	}
 }
 

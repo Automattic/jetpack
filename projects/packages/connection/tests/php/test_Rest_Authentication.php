@@ -15,6 +15,20 @@ use PHPUnit\Framework\TestCase;
 class REST_Authentication_Test extends TestCase {
 
 	/**
+	 * Rest_Authentication instance.
+	 *
+	 * @var Rest_Authentication
+	 */
+	protected $rest_authentication;
+
+	/**
+	 * Connection manager mock object.
+	 *
+	 * @var Manager
+	 */
+	protected $manager;
+
+	/**
 	 * Setting up the test.
 	 *
 	 * @before

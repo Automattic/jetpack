@@ -18,12 +18,12 @@ const ATTRIBUTE_REGEX = /\s+(\w+)=(["'])(.*?)\2/gi;
  * to an embed URL.
  *
  * @param   {string} shareableUrl - The Google Calendar shareable URL
- * @returns {string} The embed URL or undefined if the conversion fails
+ * @returns {string|undefined} The embed URL or undefined if the conversion fails
  */
 export function convertShareableUrl( shareableUrl ) {
 	const parsedUrl = SHAREABLE_REGEX.exec( shareableUrl );
 	if ( ! parsedUrl ) {
-		return;
+		return undefined;
 	}
 	return (
 		'https://calendar.google.com/calendar/embed?src=' + encodeURIComponent( atob( parsedUrl[ 1 ] ) )
@@ -34,25 +34,25 @@ export function convertShareableUrl( shareableUrl ) {
  * Given an <iframe> that matches IFRAME_REGEX, extract the url, width, and height.
  *
  * @param   {string} html - The HTML to extract from.
- * @returns {Object} An object containing the url, width, and height.
+ * @returns {object|undefined} An object containing the url, width, and height.
  */
 export function extractAttributesFromIframe( html ) {
 	const data = IFRAME_REGEX.exec( html );
 
 	if ( ! data ) {
-		return;
+		return undefined;
 	}
 
 	const attributes = {};
 
 	data.forEach( ( match, index ) => {
 		if ( 0 === index ) {
-			return;
+			return undefined;
 		}
 
 		if ( URL_REGEX.test( match ) ) {
 			attributes.url = match;
-			return;
+			return undefined;
 		}
 
 		let attr_match;
@@ -73,7 +73,7 @@ export function extractAttributesFromIframe( html ) {
  * potentially width and height data if the embed code is an iframe.
  *
  * @param   {string} embedString - Embed string to parse.
- * @returns {Object} An object containing URL data.
+ * @returns {object} An object containing URL data.
  */
 export function parseEmbed( embedString ) {
 	if ( IFRAME_REGEX.test( embedString ) ) {

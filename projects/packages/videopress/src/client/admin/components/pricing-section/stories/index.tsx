@@ -8,6 +8,8 @@ import PricingSection from '..';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 window.jetpackVideoPressInitialState = {
+	allowedVideoExtensions: {},
+	adminUri: 'admin-uri',
 	apiNonce: 'nonce',
 	apiRoot: 'https://api-root.com',
 	registrationNonce: 'registration-nonce',
@@ -18,7 +20,7 @@ window.jetpackVideoPressInitialState = {
 	},
 	adminUrl: 'https://admin-url.com',
 	siteSuffix: 'site-suffix',
-	productData: {
+	siteProductData: {
 		slug: 'videopress',
 		plugin_slug: 'jetpack-videopress',
 		name: 'VideoPress',
@@ -28,7 +30,7 @@ window.jetpackVideoPressInitialState = {
 		features: [
 			'1TB of storage',
 			'Built into WordPress editor',
-			'Ad-free and brandable player',
+			'Ad-free and customizable player',
 			'Unlimited users',
 		],
 		status: 'error',
@@ -48,6 +50,7 @@ window.jetpackVideoPressInitialState = {
 		manage_url: 'http://localhost/wp-admin/admin.php?page=jetpack-videopress',
 		post_activation_url: '',
 	},
+	contentNonce: 'content-nonce',
 };
 
 export default {

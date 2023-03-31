@@ -62,7 +62,6 @@ class REST_Endpoints {
 				),
 			)
 		);
-
 	}
 
 	/**

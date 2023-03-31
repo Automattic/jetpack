@@ -143,7 +143,7 @@
 			return;
 		}
 
-		currentMenuItem.focus();
+		currentMenuItem.focus( { preventScroll: true } );
 	}
 
 	if ( document.readyState === 'loading' ) {

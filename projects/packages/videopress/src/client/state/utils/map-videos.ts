@@ -11,7 +11,6 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		id,
 		jetpack_videopress: jetpackVideoPress,
 		jetpack_videopress_guid: guid,
-		slug: filename,
 	} = video;
 
 	const { videopress: videoPressMediaDetails, width, height } = mediaDetails;
@@ -22,7 +21,10 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		caption,
 		rating,
 		allow_download: allowDownload,
+		display_embed: displayEmbed,
 		privacy_setting: privacySetting,
+		needs_playback_token: needsPlaybackToken,
+		is_private: isPrivate,
 	} = jetpackVideoPress;
 
 	const {
@@ -30,7 +32,6 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		poster,
 		upload_date: uploadDate,
 		duration,
-		is_private: isPrivate,
 		file_url_base: fileURLBase,
 		finished,
 		files = {
@@ -38,7 +39,7 @@ export const mapVideoFromWPV2MediaEndpoint = (
 				original_img: '',
 			},
 		},
-	} = videoPressMediaDetails;
+	} = videoPressMediaDetails || {};
 
 	const { dvd } = files;
 
@@ -47,6 +48,8 @@ export const mapVideoFromWPV2MediaEndpoint = (
 	 * Issue: https://github.com/Automattic/jetpack/issues/26319
 	 */
 	const thumbnail = dvd?.original_img ? `${ fileURLBase.https }${ dvd.original_img }` : undefined;
+
+	const filename = url?.split( '/' ).slice( -1 )[ 0 ];
 
 	return {
 		id,
@@ -60,12 +63,14 @@ export const mapVideoFromWPV2MediaEndpoint = (
 		isPrivate,
 		posterImage: poster,
 		allowDownload,
+		displayEmbed,
 		rating,
 		privacySetting,
+		needsPlaybackToken,
+		width,
+		height,
 		poster: {
 			src: poster,
-			width,
-			height,
 		},
 		thumbnail,
 		finished,
@@ -76,5 +81,39 @@ export const mapVideoFromWPV2MediaEndpoint = (
 export const mapVideosFromWPV2MediaEndpoint = (
 	videos: OriginalVideoPressVideo[]
 ): VideoPressVideo[] => {
-	return videos.map( mapVideoFromWPV2MediaEndpoint );
+	return videos?.map?.( mapVideoFromWPV2MediaEndpoint );
+};
+
+export const mapLocalVideoFromWPV2MediaEndpoint = (
+	video: OriginalVideoPressVideo
+): VideoPressVideo => {
+	const {
+		media_details: mediaDetails,
+		id,
+		jetpack_videopress: jetpackVideoPress,
+		source_url: url,
+		date: uploadDate,
+	} = video;
+
+	const { width, height, length: duration } = mediaDetails;
+
+	const { title, description, caption } = jetpackVideoPress;
+
+	return {
+		id,
+		title,
+		description,
+		caption,
+		width,
+		height,
+		url,
+		uploadDate,
+		duration,
+	};
+};
+
+export const mapLocalVideosFromWPV2MediaEndpoint = (
+	videos: OriginalVideoPressVideo[]
+): VideoPressVideo[] => {
+	return videos.map( mapLocalVideoFromWPV2MediaEndpoint );
 };

@@ -5,6 +5,90 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.36] - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## [0.2.36] - 2023-03-27
+### Changed
+- Updated package dependencies. [#29632]
+
+## [0.2.35] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## [0.2.34] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## [0.2.33] - 2023-02-28
+### Changed
+- Updated package dependencies.
+
+## [0.2.32] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [0.2.31] - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## [0.2.30] - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682]
+
+## [0.2.29] - 2023-01-26
+### Changed
+- Minor internal updates.
+
+## [0.2.28] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## [0.2.27] - 2022-12-19
+### Changed
+- Updated package dependencies. [#27887, #27916]
+
+## [0.2.26] - 2022-12-06
+### Changed
+- Updated package dependencies. [#27688, #27696, #27697]
+
+## [0.2.25] - 2022-11-28
+### Changed
+- Updated package dependencies. [#26069]
+
+## [0.2.24] - 2022-11-14
+### Changed
+- Updated package dependencies. [#27289]
+
+## [0.2.23] - 2022-11-07
+### Changed
+- Updated package dependencies. [#27278]
+
+## [0.2.22] - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## [0.2.21] - 2022-10-25
+### Changed
+- Updated package dependencies. [#26705]
+
+## [0.2.20] - 2022-10-17
+### Changed
+- Updated package dependencies. [#26851]
+
+## [0.2.19] - 2022-10-13
+### Changed
+- Updated package dependencies. [#26790]
+
+## [0.2.18] - 2022-10-11
+### Changed
+- Updated package dependencies. [#26640]
+
+## [0.2.17] - 2022-10-05
+### Changed
+- Updated package dependencies. [#26457]
+
 ## [0.2.16] - 2022-09-27
 ### Changed
 - Updated package dependencies.
@@ -97,6 +181,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
 - Updated package dependencies.
 
+[0.2.36]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.35...v0.2.36
+[0.2.35]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.34...v0.2.35
+[0.2.34]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.33...v0.2.34
+[0.2.33]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.32...v0.2.33
+[0.2.32]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.31...v0.2.32
+[0.2.31]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.30...v0.2.31
+[0.2.30]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.29...v0.2.30
+[0.2.29]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.28...v0.2.29
+[0.2.28]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.27...v0.2.28
+[0.2.27]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.26...v0.2.27
+[0.2.26]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.25...v0.2.26
+[0.2.25]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.24...v0.2.25
+[0.2.24]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.23...v0.2.24
+[0.2.23]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.22...v0.2.23
+[0.2.22]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.21...v0.2.22
+[0.2.21]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.20...v0.2.21
+[0.2.20]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.19...v0.2.20
+[0.2.19]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.18...v0.2.19
+[0.2.18]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.17...v0.2.18
+[0.2.17]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.16...v0.2.17
 [0.2.16]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.15...v0.2.16
 [0.2.15]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.14...v0.2.15
 [0.2.14]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.13...v0.2.14

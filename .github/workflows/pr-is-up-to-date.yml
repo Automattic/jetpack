@@ -48,9 +48,9 @@ jobs:
             mapfile -t TAGS <<<"$TMP"
             TAGS+=( pr-update-to )
           fi
-          echo "::set-output name=pr-tags::${TAGS[*]}"
-          echo "::set-output name=push-tag::$TAG"
-          echo "::set-output name=push-paths::$PATHS"
+          echo "pr-tags=${TAGS[*]}" >> "$GITHUB_OUTPUT"
+          echo "push-tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "push-paths=$PATHS" >> "$GITHUB_OUTPUT"
 
       - name: Check PR or tag push
         if: github.event_name != 'push' || github.ref != 'refs/heads/trunk'

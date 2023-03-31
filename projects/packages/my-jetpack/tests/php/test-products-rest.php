@@ -96,7 +96,6 @@ class Test_Products_Rest extends TestCase {
 				'role'       => 'editor',
 			)
 		);
-
 	}
 
 	/**
@@ -125,7 +124,6 @@ class Test_Products_Rest extends TestCase {
 
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
-
 	}
 
 	/**
@@ -134,9 +132,9 @@ class Test_Products_Rest extends TestCase {
 	public function test_get_products() {
 		$products = Products::get_products();
 
-		$this->request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
+		$request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
@@ -149,9 +147,9 @@ class Test_Products_Rest extends TestCase {
 	public function test_get_products_with_editor() {
 		wp_set_current_user( self::$secondary_user_id );
 
-		$this->request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
+		$request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 403, $response->get_status() );
 	}
@@ -162,9 +160,9 @@ class Test_Products_Rest extends TestCase {
 	public function test_get_products_not_logged() {
 		wp_set_current_user( 0 );
 
-		$this->request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
+		$request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 401, $response->get_status() );
 	}
@@ -175,9 +173,9 @@ class Test_Products_Rest extends TestCase {
 	public function test_get_product() {
 		$product = Products::get_product( 'boost' );
 
-		$this->request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products/boost' );
+		$request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products/boost' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
@@ -188,9 +186,9 @@ class Test_Products_Rest extends TestCase {
 	 * Test GET invalid product
 	 */
 	public function test_get_invalid_product() {
-		$this->request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products/invalid' );
+		$request = new WP_REST_Request( 'GET', '/my-jetpack/v1/site/products/invalid' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 400, $response->get_status() );
 	}
@@ -203,9 +201,9 @@ class Test_Products_Rest extends TestCase {
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 
 		// Activate.
-		$this->request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/boost' );
+		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/boost' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
@@ -222,9 +220,9 @@ class Test_Products_Rest extends TestCase {
 		$this->assertTrue( is_plugin_active( $this->boost_mock_filename ) );
 
 		// Deactivate.
-		$this->request = new WP_REST_Request( 'DELETE', '/my-jetpack/v1/site/products/boost' );
+		$request = new WP_REST_Request( 'DELETE', '/my-jetpack/v1/site/products/boost' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		$this->assertEquals( 200, $response->get_status() );
@@ -242,9 +240,9 @@ class Test_Products_Rest extends TestCase {
 		$this->assertFalse( is_plugin_active( $this->boost_mock_filename ) );
 
 		// Activate.
-		$this->request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/boost' );
+		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/boost' );
 
-		$response = $this->server->dispatch( $this->request );
+		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
 		$this->assertEquals( 400, $response->get_status() );

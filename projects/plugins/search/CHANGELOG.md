@@ -5,6 +5,60 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2023-03-08
+### Changed
+- Remove `ci.targets` from package.json. Better scoping of e2e tests. [#28913]
+- Update playwright dependency. [#28094]
+- Updated package dependencies.
+
+## [1.4.0] - 2022-12-12
+### Added
+- Search: port Search plugin 1.3.1 changelog and plugin description [#27399]
+
+### Changed
+- My Jetpack: Requires connection only if needed [#27615]
+- My Jetpack: Show My Jetpack even if site is disconnected [#26967]
+- Updated package dependencies. [#26069]
+
+### Fixed
+- Search: Fixed E2E testing failures after adding a checkmark icon for resolved topics [#27586]
+- Search: fixed search E2E failure after the new pricing update [#27430]
+
+## [1.3.1] - 2022-11-13
+### Fixed
+- Fixed readme and descriptions for Free tier support and new pricing [#27341]
+
+## [1.3.0] - 2022-11-10
+### Added
+- Enable stats tracking upon establishing a site connection. [#26697]
+- Search: add post type breakdown endpoint. [#26463]
+- Search Dashboard: Add support link for plan limits. [#26694]
+- Search Dashboard: Add support for conditional CUTs. [#26656]
+- Search: enable new pricing if pricing_version is set to 202208 from API. [#26900]
+- Search: add blog ID filtering and `blogIdFilteringLabels` option. [#27120]
+
+### Changed
+- Compatibility: WordPress 6.1 compatibility. [#27084]
+- Ported back 1.2.0 release changelog. [#26079]
+- Search: now support 38 languages. [#27025]
+- Introduce PricingTable to update Upsell page. [#26408]
+- Updated package dependencies. [#27283]
+- Search: always add Search Dashboard page even when submenu is hidden. [#26807]
+- Hide Jetpack logo toggle, enforce display for free plans. [#26951]
+- Search: add purchase tracking. [#26981]
+
+### Fixed
+- Fixes the issue where search results are not loaded in customizer. [#26212]
+- Fix error message styling in Instant Search overlay. [#26339]
+- Search: wpcom sites should not be considered as connected. [#26835]
+- Search: hide meters etc for Classic Search. [#27073]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adds ability to autotag, autorelease and autopublish releases. [#26156]
+- E2E tests: use CI build artifacts in e2e tests. [#26278]
+- Search: start v1.3.0-alpha release cycle. [#25854]
+- E2E tests: removed deprecated Slack notification code. [#26215]
+
 ## [1.2.0] - 2022-09-05
 ### Added
 - Instant Search: add author filtering support.
@@ -67,5 +121,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [1.1.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.0.0...1.1.0-beta
 [1.2.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.1.0...1.2.0-beta
+[1.4.1]: https://github.com/Automattic/jetpack-search-plugin/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/Automattic/jetpack-search-plugin/compare/1.3.1...1.4.0
+[1.3.1]: https://github.com/Automattic/jetpack-search-plugin/compare/1.3.0...1.3.1
+[1.3.0]: https://github.com/Automattic/jetpack-search-plugin/compare/1.2.0...1.3.0
 [1.2.0]: https://github.com/Automattic/jetpack-search-plugin/compare/1.2.0-beta...1.2.0
 [1.1.0]: https://github.com/Automattic/jetpack-search-plugin/compare/1.1.0-beta...1.1.0

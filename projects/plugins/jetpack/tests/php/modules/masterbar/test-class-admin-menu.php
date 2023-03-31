@@ -9,8 +9,8 @@ use Automattic\Jetpack\Dashboard_Customizations\Admin_Menu;
 use Automattic\Jetpack\Dashboard_Customizations\Base_Admin_Menu;
 use Automattic\Jetpack\Status;
 
-require_jetpack_file( 'modules/masterbar/admin-menu/class-admin-menu.php' );
-require_jetpack_file( 'tests/php/modules/masterbar/data/admin-menu.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-menu/class-admin-menu.php';
+require_once JETPACK__PLUGIN_DIR . 'tests/php/modules/masterbar/data/admin-menu.php';
 
 /**
  * Class Test_Admin_Menu
@@ -514,7 +514,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	/**
 	 * Tests test_add_woocommerce_installation_menu
 	 *
-	 * @covers ::test_add_woocommerce_installation_menu
+	 * @covers ::add_woocommerce_installation_menu
 	 */
 	public function test_add_woocommerce_installation_menu() {
 		global $menu;

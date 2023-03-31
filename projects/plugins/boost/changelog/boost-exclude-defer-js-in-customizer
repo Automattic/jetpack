@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Turn off Deferred JS in the customizer preview, fixing compatibility with some page builders

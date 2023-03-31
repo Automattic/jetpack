@@ -167,7 +167,7 @@ class Jetpack_Sitemap_Librarian {
 		$any_left = true;
 
 		while ( true === $any_left ) {
-			$position++;
+			++$position;
 			$name     = jp_sitemap_filename( $type, $position );
 			$any_left = $this->delete_sitemap_data( $name, $type );
 		}

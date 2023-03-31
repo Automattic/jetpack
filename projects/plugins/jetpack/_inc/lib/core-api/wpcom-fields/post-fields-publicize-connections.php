@@ -23,7 +23,10 @@
  *   meta: { # Not defined in this file. Handled in modules/publicize/publicize.php via `register_meta()`
  *     jetpack_publicize_feature_enabled: (boolean) Is this publicize feature enabled?
  *     jetpack_publicize_message: (string) The message to use instead of the post's title when sharing.
- *   }
+ *     jetpack_social_options: {
+ *       attached_media: (array) List of media that will be attached to the social media post.
+ *       image_generator_settings: (array) List of settings related to the generated image.
+ *     }
  *   ...
  * }
  *
@@ -145,12 +148,6 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 					'context'     => array( 'edit' ),
 					'readonly'    => true,
 				),
-				'is_healthy'      => array(
-					'description' => __( 'Whether the connection is healthy or broken', 'jetpack' ),
-					'type'        => 'boolean',
-					'context'     => array( 'edit' ),
-					'readonly'    => true,
-				),
 			),
 		);
 	}
@@ -194,7 +191,6 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 	 */
 	public function get_permission_check( $post_array, $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return $this->permission_check( isset( $post_array['id'] ) ? $post_array['id'] : 0 );
-
 	}
 
 	/**

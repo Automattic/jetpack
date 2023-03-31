@@ -10,15 +10,14 @@ import {
 	H3,
 	Alert,
 } from '@automattic/jetpack-components';
+import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, plus } from '@wordpress/icons';
 import classnames from 'classnames';
 import React, { useCallback } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
-import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import { useProduct } from '../../hooks/use-product';
-import getProductCheckoutUrl from '../../utils/get-product-checkout-url';
 import ProductDetailButton from '../product-detail-button';
 import styles from './style.module.scss';
 
@@ -63,13 +62,23 @@ function Price( { value, currency, isOld } ) {
  * @param {Function} props.onClick               - Callback for Call To Action button click
  * @param {Function} props.trackButtonClick      - Function to call for tracking clicks on Call To Action button
  * @param {string} props.className               - A className to be concat with default ones
+ * @param {boolean} props.preferProductName      - Use product name instead of title
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
  * @returns {object}                               ProductDetailCard react component.
  */
-const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, supportingInfo } ) => {
-	const fileSystemWriteAccess = window?.myJetpackInitialState?.fileSystemWriteAccess;
+const ProductDetailCard = ( {
+	slug,
+	onClick,
+	trackButtonClick,
+	className,
+	preferProductName,
+	supportingInfo,
+} ) => {
+	const { fileSystemWriteAccess, siteSuffix, myJetpackUrl } = window?.myJetpackInitialState ?? {};
+
 	const { detail, isFetching } = useProduct( slug );
 	const {
+		name,
 		title,
 		longDescription,
 		features,
@@ -86,12 +95,14 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 
 	const {
 		isFree,
+		trialAvailable,
 		fullPricePerMonth: price,
 		currencyCode,
 		discountPricePerMonth: discountPrice,
 		wpcomProductSlug,
+		wpcomFreeProductSlug,
+		introductoryOffer,
 	} = pricingForUi;
-	const { isUserConnected } = useMyJetpackConnection();
 
 	const { recordEvent } = useAnalytics();
 
@@ -102,10 +113,21 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 	 */
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-	const addProductUrl =
-		needsPurchase && wpcomProductSlug
-			? getProductCheckoutUrl( wpcomProductSlug, isUserConnected ) // @ToDo: Remove this when we have a new product structure.
-			: null;
+	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
+		useProductCheckoutWorkflow( {
+			productSlug: wpcomProductSlug,
+			redirectUrl: myJetpackUrl,
+			siteSuffix,
+			from: 'my-jetpack',
+		} );
+
+	const { run: trialCheckoutRedirect, hasCheckoutStarted: hasTrialCheckoutStarted } =
+		useProductCheckoutWorkflow( {
+			productSlug: wpcomFreeProductSlug,
+			redirectUrl: myJetpackUrl,
+			siteSuffix,
+			from: 'my-jetpack',
+		} );
 
 	// Suppported products icons.
 	const icons = isBundle
@@ -129,12 +151,28 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 				} )
 		: null;
 
+	const priceDescription =
+		introductoryOffer?.intervalUnit === 'month' && introductoryOffer?.intervalCount === 1
+			? sprintf(
+					// translators: %s is the monthly price for a product
+					__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-my-jetpack' ),
+					price
+			  )
+			: __(
+					'/month, paid yearly',
+					'jetpack-my-jetpack',
+					/* dummy arg to avoid bad minification */ 0
+			  );
+
 	const clickHandler = useCallback( () => {
 		trackButtonClick();
-		if ( onClick ) {
-			onClick();
-		}
-	}, [ onClick, trackButtonClick ] );
+		onClick?.( mainCheckoutRedirect );
+	}, [ onClick, trackButtonClick, mainCheckoutRedirect ] );
+
+	const trialClickHandler = useCallback( () => {
+		trackButtonClick( wpcomFreeProductSlug );
+		onClick?.( trialCheckoutRedirect );
+	}, [ onClick, trackButtonClick, trialCheckoutRedirect, wpcomFreeProductSlug ] );
 
 	const disclaimerClickHandler = useCallback(
 		id => {
@@ -158,7 +196,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 	function ProductIcon( { slug: iconSlug } ) {
 		const ProIcon = getIconBySlug( iconSlug );
 		if ( ! ProIcon ) {
-			return () => null;
+			return null;
 		}
 
 		return (
@@ -167,6 +205,9 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 			</div>
 		);
 	}
+
+	// If we prefer the product name, use that everywhere instead of the title
+	const productMoniker = name && preferProductName ? name : title;
 
 	return (
 		<div
@@ -185,7 +226,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 				{ isBundle && <div className={ styles[ 'product-bundle-icons' ] }>{ icons }</div> }
 				<ProductIcon slug={ slug } />
 
-				<H3>{ title }</H3>
+				<H3>{ productMoniker }</H3>
 				<Text mb={ 3 }>{ longDescription }</Text>
 
 				<ul className={ styles.features }>
@@ -200,12 +241,12 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 				{ needsPurchase && (
 					<>
 						<div className={ styles[ 'price-container' ] }>
-							<Price value={ price } currency={ currencyCode } isOld={ true } />
+							{ discountPrice < price && (
+								<Price value={ price } currency={ currencyCode } isOld={ true } />
+							) }
 							<Price value={ discountPrice } currency={ currencyCode } isOld={ false } />
 						</div>
-						<Text className={ styles[ 'price-description' ] }>
-							{ __( '/month, paid yearly', 'jetpack-my-jetpack' ) }
-						</Text>
+						<Text className={ styles[ 'price-description' ] }>{ priceDescription }</Text>
 					</>
 				) }
 
@@ -220,7 +261,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 									"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
 									'jetpack-my-jetpack'
 								),
-								title
+								productMoniker
 							) }
 							&nbsp;
 							<ExternalLink href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
@@ -234,17 +275,30 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 					<Text
 						component={ ProductDetailButton }
 						onClick={ clickHandler }
-						isLoading={ isFetching }
+						isLoading={ isFetching || hasMainCheckoutStarted }
 						disabled={ cantInstallPlugin }
 						isPrimary={ ! isBundle }
-						href={ onClick ? undefined : addProductUrl }
 						className={ styles[ 'checkout-button' ] }
 						variant="body"
 					>
 						{
 							/* translators: placeholder is product name. */
-							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
+							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), productMoniker )
 						}
+					</Text>
+				) }
+
+				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && trialAvailable && (
+					<Text
+						component={ ProductDetailButton }
+						onClick={ trialClickHandler }
+						isLoading={ isFetching || hasTrialCheckoutStarted }
+						disabled={ cantInstallPlugin }
+						isPrimary={ false }
+						className={ [ styles[ 'checkout-button' ], styles[ 'free-product-checkout-button' ] ] }
+						variant="body"
+					>
+						{ __( 'Start for free', 'jetpack-my-jetpack' ) }
 					</Text>
 				) }
 

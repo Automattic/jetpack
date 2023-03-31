@@ -204,7 +204,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 
 		// Boost Critical CSS.
 		const boostModules = file.match(
-			/^projects\/plugins\/boost\/app\/modules\/(?<boostModule>[^/]*)\//
+			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?<boostModule>[^/]*)\//
 		);
 		const boostModuleName = boostModules && boostModules.groups.boostModule;
 		if ( boostModuleName ) {
@@ -223,6 +223,11 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		const e2e = file.match( /\/tests\/e2e\/|^tools\/e2e-commons\// );
 		if ( e2e ) {
 			keywords.add( 'E2E Tests' );
+		}
+
+		const anyTestFile = file.match( /\/tests\// );
+		if ( anyTestFile ) {
+			keywords.add( '[Status] Needs Test Review' );
 		}
 
 		// Add '[Status] In Progress' for draft PRs

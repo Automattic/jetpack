@@ -72,7 +72,7 @@ function googleapps_embed_to_shortcode( $content ) {
 		foreach ( $matches as $match ) {
 			$params = $match[1] . $match[5];
 			if ( in_array( $reg, array( 'regexp_ent', 'regexp_ent_squot' ), true ) ) {
-				$params = html_entity_decode( $params );
+				$params = html_entity_decode( $params, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 			}
 
 			$params = wp_kses_hair( $params, array( 'http' ) );
@@ -156,11 +156,11 @@ function googleapps_shortcode( $atts ) {
 		$atts
 	);
 
-	if ( isset( $content_width ) && is_numeric( $attr['width'] ) && $attr['width'] > $content_width ) {
+	if ( is_numeric( $content_width ) && $content_width > 0 && is_numeric( $attr['width'] ) && $attr['width'] > $content_width ) {
 		$attr['width'] = $content_width;
 	}
 
-	if ( isset( $content_width ) && '560' === $attr['height'] ) {
+	if ( is_numeric( $content_width ) && $content_width > 0 && '560' === $attr['height'] ) {
 		$attr['height'] = floor( $content_width * 3 / 4 );
 	}
 
@@ -171,7 +171,7 @@ function googleapps_shortcode( $atts ) {
 	if ( $attr['src'] && preg_match( '!https?://(docs|drive|spreadsheets\d*|calendar|www)*\.google\.com/([-\w\./]+)\?([^"]+)!', $attr['src'], $matches ) ) {
 		$attr['domain'] = $matches[1];
 		$attr['dir']    = $matches[2];
-		parse_str( htmlspecialchars_decode( $matches[3] ), $query_ar );
+		parse_str( htmlspecialchars_decode( $matches[3], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), $query_ar );
 		$query_ar['chrome']   = 'false';
 		$query_ar['embedded'] = 'true';
 		$attr['query']        = http_build_query( $query_ar );

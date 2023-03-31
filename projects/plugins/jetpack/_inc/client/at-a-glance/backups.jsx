@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
@@ -18,7 +18,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getVaultPressData } from 'state/at-a-glance';
 import { hasConnectedOwner, isOfflineMode, connectUser } from 'state/connection';
-import { getPartnerCoupon, showBackups } from 'state/initial-state';
+import { isWoASite, getPartnerCoupon, showBackups } from 'state/initial-state';
 import { siteHasFeature, isFetchingSiteData } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import BackupGettingStarted from './backup-getting-started';
@@ -32,7 +32,7 @@ import BackupUpgrade from './backup-upgrade';
  */
 const renderCard = props => (
 	<DashItem
-		label={ __( 'Backup', 'jetpack' ) }
+		label={ __( 'VaultPress Backup', 'jetpack' ) }
 		module={ props.feature || 'backups' }
 		support={ {
 			text: __(
@@ -64,6 +64,7 @@ class DashBackups extends Component {
 		hasRealTimeBackups: PropTypes.bool.isRequired,
 		isOfflineMode: PropTypes.bool.isRequired,
 		isVaultPressInstalled: PropTypes.bool.isRequired,
+		isWoA: PropTypes.bool.isRequired,
 		upgradeUrl: PropTypes.string.isRequired,
 		hasConnectedOwner: PropTypes.bool.isRequired,
 	};
@@ -74,6 +75,7 @@ class DashBackups extends Component {
 		vaultPressData: '',
 		isOfflineMode: false,
 		isVaultPressInstalled: false,
+		isWoA: false,
 		rewindStatus: '',
 		trackUpgradeButtonView: noop,
 	};
@@ -137,7 +139,7 @@ class DashBackups extends Component {
 				<>
 					<BackupUpgrade />
 					<JetpackBanner
-						callToAction={ __( 'Upgrade', 'jetpack' ) }
+						callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 						title={ __(
 							'Never worry about losing your site – automatic backups keep your content safe.',
 							'jetpack'
@@ -239,7 +241,7 @@ class DashBackups extends Component {
 	}
 
 	getRewindContent() {
-		const { hasRealTimeBackups, rewindStatus, siteRawUrl } = this.props;
+		const { hasRealTimeBackups, isWoA, rewindStatus, siteRawUrl } = this.props;
 		const buildAction = ( url, message, trackingName ) => (
 			<Card
 				compact
@@ -312,9 +314,15 @@ class DashBackups extends Component {
 						<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom">
 							<div className="jp-dash-item__action-links">
 								<a
-									href={ getRedirectUrl( 'my-jetpack-manage-backup', {
-										site: siteRawUrl,
-									} ) }
+									href={
+										isWoA
+											? getRedirectUrl( 'calypso-backups', {
+													site: siteRawUrl,
+											  } )
+											: getRedirectUrl( 'my-jetpack-manage-backup', {
+													site: siteRawUrl,
+											  } )
+									}
 									target="_blank"
 									rel="noopener noreferrer"
 									onClick={ this.trackBackupsClick( 'backups-link' ) }
@@ -423,6 +431,7 @@ export default connect(
 			hasBackups: siteHasFeature( state, 'backups' ),
 			hasRealTimeBackups: siteHasFeature( state, 'real-time-backups' ),
 			partnerCoupon: getPartnerCoupon( state ),
+			isWoA: isWoASite( state ),
 		};
 	},
 	dispatch => ( {

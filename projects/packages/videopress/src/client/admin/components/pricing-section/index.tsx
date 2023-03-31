@@ -8,43 +8,62 @@ import {
 	PricingTableHeader,
 	PricingTableItem,
 	ProductPrice,
-	getRedirectUrl,
 } from '@automattic/jetpack-components';
-import { useConnection } from '@automattic/jetpack-connection';
-import { __ } from '@wordpress/i18n';
+import { useConnection, useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { __, sprintf } from '@wordpress/i18n';
 import { useState } from 'react';
 /**
  * Internal dependencies
  */
 import { usePlan } from '../../hooks/use-plan';
 
-const PricingPage = () => {
-	const { siteSuffix, adminUri } = window.jetpackVideoPressInitialState;
-	const { product } = usePlan();
-	const { pricingForUi } = product;
-	const { handleRegisterSite, userIsConnecting } = useConnection( { redirectUri: adminUri } );
-	const [ isConnecting, setIsConnection ] = useState( false );
+const PricingPage = ( { onRedirecting } ) => {
+	const { siteSuffix, adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
+	const { siteProduct, productPrice } = usePlan();
+	const { yearly: yearlyPrice } = productPrice;
 
-	const pricingItems = product.features.map( feature => ( { name: feature } ) );
+	const { handleRegisterSite, userIsConnecting } = useConnection( {
+		redirectUri: adminUri,
+		from: 'jetpack-videopress',
+		registrationNonce,
+	} );
+	const [ isConnecting, setIsConnecting ] = useState( false );
+
+	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+		siteSuffix,
+		productSlug: yearlyPrice?.slug,
+		redirectUrl: adminUri,
+	} );
+
+	const pricingItems = siteProduct.features.map( feature => ( { name: feature } ) );
 
 	return (
-		<PricingTable title={ product.description } items={ pricingItems }>
+		<PricingTable title={ siteProduct.description } items={ pricingItems }>
 			<PricingTableColumn primary>
 				<PricingTableHeader>
 					<ProductPrice
-						price={ pricingForUi.fullPrice }
-						offPrice={ pricingForUi.discountPrice }
-						promoLabel={ __( '50% off', 'jetpack-videopress-pkg' ) }
-						leyend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }
-						currency={ pricingForUi.currencyCode }
+						offPrice={ yearlyPrice?.discount ? yearlyPrice.salePriceByMonth : null }
+						price={ yearlyPrice.priceByMonth }
+						promoLabel={
+							yearlyPrice?.discount
+								? sprintf(
+										/* translators: placeholder is the number of videos */
+										__( '%1$s%% off', 'jetpack-videopress-pkg' ),
+										yearlyPrice.discount
+								  )
+								: null
+						}
+						legend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }
+						currency={ yearlyPrice.currency }
 					/>
 					<Button
-						href={ getRedirectUrl( 'videopress-upgrade', {
-							site: siteSuffix,
-							query: 'redirect_to=' + window.location.href,
-						} ) }
+						onClick={ () => {
+							onRedirecting?.();
+							run();
+						} }
+						isLoading={ hasCheckoutStarted }
 						fullWidth
-						disabled={ isConnecting }
+						disabled={ isConnecting || hasCheckoutStarted || userIsConnecting }
 					>
 						{ __( 'Get VideoPress', 'jetpack-videopress-pkg' ) }
 					</Button>
@@ -56,16 +75,17 @@ const PricingPage = () => {
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
-					<ProductPrice price={ 0 } leyend="" currency="USD" hidePriceFraction />
+					<ProductPrice price={ 0 } legend="" currency={ yearlyPrice.currency } hidePriceFraction />
 					<Button
 						fullWidth
 						variant="secondary"
 						onClick={ () => {
-							setIsConnection( true );
+							setIsConnecting( true );
 							handleRegisterSite();
+							onRedirecting?.();
 						} }
 						isLoading={ userIsConnecting || isConnecting }
-						disabled={ userIsConnecting || isConnecting }
+						disabled={ userIsConnecting || isConnecting || hasCheckoutStarted }
 					>
 						{ __( 'Start for free', 'jetpack-videopress-pkg' ) }
 					</Button>

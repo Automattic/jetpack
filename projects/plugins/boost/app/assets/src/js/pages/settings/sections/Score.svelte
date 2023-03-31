@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { derived, writable } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
 	import {
@@ -6,19 +6,21 @@
 		requestSpeedScores,
 		didScoresChange,
 		scoreChangeModal,
+		ScoreChangeMessage,
 	} from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
-	import { criticalCssStatus, isGenerating } from '../../../stores/critical-css-status';
+	import { criticalCssState, isGenerating } from '../../../stores/critical-css-state';
 	import { modules } from '../../../stores/modules';
 	import ComputerIcon from '../../../svg/computer.svg';
 	import MobileIcon from '../../../svg/mobile.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
+	import { recordBoostEvent } from '../../../utils/analytics';
+	import { castToString } from '../../../utils/cast-to-string';
 	import debounce from '../../../utils/debounce';
 	import PopOut from '../elements/PopOut.svelte';
 	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
 
-	// eslint-disable-next-line camelcase
 	const siteIsOnline = Jetpack_Boost.site.online;
 
 	let loadError;
@@ -51,14 +53,18 @@
 	 * @type {Readable<string>}
 	 */
 	const scoreConfigString = derived(
-		[ modules, criticalCssStatus ],
-		( [ $modules, $criticalCssStatus ] ) =>
-			JSON.stringify( {
-				modules: $modules,
+		[ modules, criticalCssState ],
+		( [ $modules, $criticalCssState ] ) => {
+			const scoreModules = Object.assign( {}, $modules );
+			delete scoreModules[ 'image-guide' ];
+
+			return JSON.stringify( {
+				modules: scoreModules,
 				criticalCss: {
-					created: $criticalCssStatus.created,
+					created: $criticalCssState.created,
 				},
-			} )
+			} );
+		}
 	);
 
 	/**
@@ -82,6 +88,9 @@
 			showPrevScores = didScoresChange( $scores ) && ! $scores.isStale;
 			currentScoreConfigString = $scoreConfigString;
 		} catch ( err ) {
+			recordBoostEvent( 'speed_score_request_error', {
+				error_message: castToString( err.message ),
+			} );
 			// eslint-disable-next-line no-console
 			console.log( err );
 			loadError = err;
@@ -112,18 +121,20 @@
 		}
 	}, 2000 );
 
-	$: showModal = ! $isLoading && ! $scores.isStale && scoreChangeModal( $scores );
+	let modalData: ScoreChangeMessage | null = null;
+	$: modalData = ! $isLoading && ! $scores.isStale && scoreChangeModal( $scores );
 
 	$: if ( $needsRefresh ) {
 		debouncedRefreshScore( true );
 	}
 
 	function dismissModal() {
-		showModal = false;
+		modalData = null;
 	}
 </script>
 
 <div class="jb-container">
+	<div id="jp-admin-notices" class="jetpack-boost-jitm-card" />
 	<div class="jb-site-score" class:loading={$isLoading}>
 		{#if siteIsOnline}
 			<div class="jb-site-score__top">
@@ -204,13 +215,13 @@
 	</div>
 </div>
 
-{#if showModal}
+{#if modalData}
 	<PopOut
-		id={showModal.id}
-		title={showModal.title}
+		id={modalData.id}
+		title={modalData.title}
 		on:dismiss={() => dismissModal()}
-		message={showModal.message}
-		ctaLink={showModal.ctaLink}
-		cta={showModal.cta}
+		message={modalData.message}
+		ctaLink={modalData.ctaLink}
+		cta={modalData.cta}
 	/>
 {/if}

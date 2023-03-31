@@ -9,13 +9,14 @@
 namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
+use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
+use Automattic\Jetpack_Boost\Modules\Modules;
 
 class Admin {
 
@@ -45,7 +46,7 @@ class Admin {
 	 */
 	private $config;
 
-	public function __construct( Optimizations $modules ) {
+	public function __construct( Modules $modules ) {
 		$this->modules     = $modules;
 		$this->speed_score = new Speed_Score( $modules );
 		Environment_Change_Detector::init();
@@ -56,18 +57,27 @@ class Admin {
 
 		add_action( 'init', array( new Analytics(), 'init' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_BOOST_PLUGIN_BASE, array( $this, 'plugin_page_settings_link' ) );
+		add_action( 'admin_menu', array( $this, 'handle_admin_menu' ) );
+
+		// Set up Super Cache info system if WP Super Cache available.
+		Super_Cache_Info::init();
+	}
+
+	public function handle_admin_menu() {
+		$total_problems = apply_filters( 'jetpack_boost_total_problem_count', 0 );
+		$menu_label     = _x( 'Boost', 'The Jetpack Boost product name, without the Jetpack prefix', 'jetpack-boost' );
+		if ( $total_problems ) {
+			$menu_label .= sprintf( ' <span class="update-plugins">%d</span>', $total_problems );
+		}
 
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'Jetpack Boost - Settings', 'jetpack-boost' ),
-			'Boost',
+			$menu_label,
 			'manage_options',
 			JETPACK_BOOST_SLUG,
 			array( $this, 'render_settings' )
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
-
-		// Admin Notices
-		Regenerate_Admin_Notice::init();
 	}
 
 	/**

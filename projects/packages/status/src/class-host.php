@@ -59,6 +59,26 @@ class Host {
 	}
 
 	/**
+	 * Determine if this is a Simple platform site.
+	 *
+	 * @return bool
+	 */
+	public function is_wpcom_simple() {
+		return Constants::is_defined( 'IS_WPCOM' ) && true === Constants::get_constant( 'IS_WPCOM' );
+	}
+
+	/**
+	 * Determine if this is a WordPress.com site.
+	 *
+	 * Includes both Simple and WoA platforms.
+	 *
+	 * @return bool
+	 */
+	public function is_wpcom_platform() {
+		return $this->is_wpcom_simple() || $this->is_woa_site();
+	}
+
+	/**
 	 * Add all wordpress.com environments to the safe redirect allowed list.
 	 *
 	 * To be used with a filter of allowed domains for a redirect.

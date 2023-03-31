@@ -132,7 +132,7 @@ function wpcom_shortcodereverse_getty( $content ) {
 			} else {
 				$params = $match[5];
 				if ( 'regexp_ent' === $reg ) {
-					$params = html_entity_decode( $params );
+					$params = html_entity_decode( $params, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 				}
 				$params = wp_kses_hair( $params, array( 'http' ) );
 

@@ -5,6 +5,58 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.17.34] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## [1.17.33] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## [1.17.32] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [1.17.31] - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## [1.17.30] - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## [1.17.29] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## [1.17.28] - 2022-12-02
+### Changed
+- Updated package dependencies.
+
+## [1.17.27] - 2022-11-28
+### Changed
+- Updated package dependencies. [#27576]
+
+## [1.17.26] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## [1.17.25] - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## [1.17.24] - 2022-11-01
+### Changed
+- Updated package dependencies.
+
+## [1.17.23] - 2022-10-13
+### Changed
+- Updated package dependencies. [#26791]
+
+## [1.17.22] - 2022-10-05
+### Changed
+- Updated package dependencies. [#26568]
+
 ## [1.17.21] - 2022-08-25
 ### Changed
 - Updated package dependencies. [#25814]
@@ -260,6 +312,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[1.17.34]: https://github.com/Automattic/jetpack-assets/compare/v1.17.33...v1.17.34
+[1.17.33]: https://github.com/Automattic/jetpack-assets/compare/v1.17.32...v1.17.33
+[1.17.32]: https://github.com/Automattic/jetpack-assets/compare/v1.17.31...v1.17.32
+[1.17.31]: https://github.com/Automattic/jetpack-assets/compare/v1.17.30...v1.17.31
+[1.17.30]: https://github.com/Automattic/jetpack-assets/compare/v1.17.29...v1.17.30
+[1.17.29]: https://github.com/Automattic/jetpack-assets/compare/v1.17.28...v1.17.29
+[1.17.28]: https://github.com/Automattic/jetpack-assets/compare/v1.17.27...v1.17.28
+[1.17.27]: https://github.com/Automattic/jetpack-assets/compare/v1.17.26...v1.17.27
+[1.17.26]: https://github.com/Automattic/jetpack-assets/compare/v1.17.25...v1.17.26
+[1.17.25]: https://github.com/Automattic/jetpack-assets/compare/v1.17.24...v1.17.25
+[1.17.24]: https://github.com/Automattic/jetpack-assets/compare/v1.17.23...v1.17.24
+[1.17.23]: https://github.com/Automattic/jetpack-assets/compare/v1.17.22...v1.17.23
+[1.17.22]: https://github.com/Automattic/jetpack-assets/compare/v1.17.21...v1.17.22
 [1.17.21]: https://github.com/Automattic/jetpack-assets/compare/v1.17.20...v1.17.21
 [1.17.20]: https://github.com/Automattic/jetpack-assets/compare/v1.17.19...v1.17.20
 [1.17.19]: https://github.com/Automattic/jetpack-assets/compare/v1.17.18...v1.17.19

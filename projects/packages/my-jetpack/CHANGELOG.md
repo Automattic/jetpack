@@ -5,6 +5,182 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.1] - 2023-03-28
+### Changed
+- Move GoldenTokenModal component to licensing package. [#29748]
+
+## [2.9.0] - 2023-03-27
+### Added
+- Adds new route for Golden Token. Also the experience of redeeming one [#29644]
+- Clarified when license activation fails that a user connection is required, added a link to complete the connection, and added functionality to redirect back to license activation when the connection is done. [#29443]
+
+## [2.8.1] - 2023-03-20
+### Changed
+- Product Interstitial: Use browser history to go back, in case they're coming from somewhere outside of the app. [#29138]
+- Updated My Jetpack wpwrap color to --jp-white-off [#29568]
+- Updated package dependencies. [#29471]
+
+## [2.8.0] - 2023-03-13
+### Added
+- Add Zendesk chat module to My Jetpack page [#28712]
+
+## [2.7.13] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## [2.7.12] - 2023-02-28
+### Changed
+- Update billing language [#29126]
+
+## [2.7.11] - 2023-02-20
+### Fixed
+- My Jetpack: Fix button to add bundle in product interstitial component [#28984]
+
+## [2.7.10] - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## [2.7.9] - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682, #28700]
+
+## [2.7.8] - 2023-02-06
+### Changed
+- Updated package dependencies.
+
+## [2.7.7] - 2023-01-26
+### Changed
+- Use `flex-start` instead of `start` for better browser compatibility. [#28530]
+
+## [2.7.6] - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## [2.7.5] - 2023-01-23
+### Fixed
+- Components: Fix usage of box-sizing across the elements [#28489]
+- Fixes the price display for products with intro offers for the first month. [#28424]
+
+## [2.7.4] - 2023-01-16
+### Changed
+- Updated package dependencies. [#28303]
+
+## [2.7.3] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## [2.7.2] - 2023-01-02
+### Added
+- My Jetpack: Move VideoPress from Hybrid [#28097]
+
+### Changed
+- My Jetpack: Move Search out of hybrid and deprecate Hybrid_Product class [#28113]
+
+## [2.7.1] - 2022-12-27
+### Changed
+- Fix layout visual issues [#28055]
+- My Jetpack: Move Backup out of hybrid product [#28022]
+- My Jetpack: Move Social out of hybrid product [#28074]
+
+## [2.7.0] - 2022-12-19
+### Added
+- Implement detached licenses redux store. [#27609]
+
+### Changed
+- Updated package dependencies. [#27916]
+
+### Fixed
+- Add translation context to Security product name. [#27920]
+
+## [2.6.1] - 2022-12-12
+### Changed
+- Updated package dependencies. [#27888]
+
+## [2.6.0] - 2022-12-05
+### Changed
+- Improve design of the error notice. [#27340]
+- Updated package dependencies. [#27340]
+
+## [2.5.2] - 2022-12-02
+### Changed
+- My Jetpack: Requires connection only if needed [#27615]
+- Updated package dependencies. [#27697]
+
+## [2.5.1] - 2022-11-30
+
+## [2.5.0] - 2022-11-28
+### Changed
+- My Jetpack: rename Backup and Anti-Spam to new product names [#27377]
+- Show My Jetpack even if site is disconnected [#26967]
+- Updated package dependencies. [#27576]
+
+## [2.4.1] - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## [2.4.0] - 2022-11-17
+### Added
+- Added Jetpack Protect to My Jetpack. [#26069]
+
+### Changed
+- Updated package dependencies. [#26736]
+
+## [2.3.5] - 2022-11-10
+### Changed
+- Updated package dependencies. [#27319]
+
+## [2.3.4] - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## [2.3.3] - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## [2.3.2] - 2022-10-25
+### Changed
+- Updated package dependencies. [#26705]
+
+## [2.3.1] - 2022-10-25
+### Added
+- Add a flag to indicate if the pricing is introductory with product price [#26982]
+- My Jetpack: Support trial [#27033]
+
+### Changed
+- Search: now support 38 languages [#27025]
+
+### Fixed
+- Don't show old price when it's the same as new one [#27015]
+- Search: check if free plan and new pricing is active using wpcom API [#27016]
+
+## [2.3.0] - 2022-10-19
+### Added
+- Added support for free product and added free product for Search [#26808]
+
+### Changed
+- Updated package dependencies. [#26883]
+
+## [2.2.3] - 2022-10-17
+### Changed
+- Updated package dependencies. [#26851]
+
+## [2.2.2] - 2022-10-13
+### Changed
+- Updated package dependencies. [#26790]
+
+## [2.2.1] - 2022-10-11
+### Changed
+- Updated package dependencies. [#25973]
+
+## [2.2.0] - 2022-10-05
+### Added
+- Integrate the new connection error message React component into My Jetpack. [#26485]
+- Search: add post type breakdown endpoint [#26463]
+- Trigger restore connection flow. [#26489]
+
+### Changed
+- Updated package dependencies. [#26457]
+
 ## [2.1.1] - 2022-09-27
 ### Changed
 - Updated package dependencies.
@@ -605,6 +781,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[2.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.9.0...2.9.1
+[2.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.8.1...2.9.0
+[2.8.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.8.0...2.8.1
+[2.8.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.13...2.8.0
+[2.7.13]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.12...2.7.13
+[2.7.12]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.11...2.7.12
+[2.7.11]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.10...2.7.11
+[2.7.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.9...2.7.10
+[2.7.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.8...2.7.9
+[2.7.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.7...2.7.8
+[2.7.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.6...2.7.7
+[2.7.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.5...2.7.6
+[2.7.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.4...2.7.5
+[2.7.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.3...2.7.4
+[2.7.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.2...2.7.3
+[2.7.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.1...2.7.2
+[2.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.7.0...2.7.1
+[2.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.6.1...2.7.0
+[2.6.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.6.0...2.6.1
+[2.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.5.2...2.6.0
+[2.5.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.5.1...2.5.2
+[2.5.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.5.0...2.5.1
+[2.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.4.1...2.5.0
+[2.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.4.0...2.4.1
+[2.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.3.5...2.4.0
+[2.3.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.3.4...2.3.5
+[2.3.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.3.3...2.3.4
+[2.3.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.3.2...2.3.3
+[2.3.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.3.1...2.3.2
+[2.3.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.3.0...2.3.1
+[2.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.2.3...2.3.0
+[2.2.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.2.2...2.2.3
+[2.2.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.2.1...2.2.2
+[2.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.2.0...2.2.1
+[2.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.1.1...2.2.0
 [2.1.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.0.5...2.1.0
 [2.0.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.0.4...2.0.5

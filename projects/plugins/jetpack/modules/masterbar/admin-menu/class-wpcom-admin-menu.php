@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Blaze;
+use Automattic\Jetpack\Status;
 use JITM;
 
 require_once __DIR__ . '/class-admin-menu.php';
@@ -33,6 +35,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		add_action( 'wp_ajax_upsell_nudge_jitm', array( $this, 'wp_ajax_upsell_nudge_jitm' ) );
 		add_action( 'admin_init', array( $this, 'sync_sidebar_collapsed_state' ) );
 		add_action( 'admin_menu', array( $this, 'remove_submenus' ), 140 ); // After hookpress hook at 130.
+		add_filter( 'block_editor_settings_all', array( $this, 'site_editor_dashboard_link' ) );
 	}
 
 	/**
@@ -144,17 +147,19 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	 * Adds site card component.
 	 */
 	public function add_site_card_menu() {
-		$default        = 'data:image/svg+xml,' . rawurlencode( '<svg class="gridicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Globe</title><rect fill-opacity="0" x="0" width="24" height="24"/><g><path fill="#fff" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18l2-2 1-1v-2h-2v-1l-1-1H9v3l2 2v1.93c-3.94-.494-7-3.858-7-7.93l1 1h2v-2h2l3-3V6h-2L9 5v-.41C9.927 4.21 10.94 4 12 4s2.073.212 3 .59V6l-1 1v2l1 1 3.13-3.13c.752.897 1.304 1.964 1.606 3.13H18l-2 2v2l1 1h2l.286.286C18.03 18.06 15.24 20 12 20z"/></g></svg>' );
-		$icon           = get_site_icon_url( 32, $default );
-		$blog_name      = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
-		$is_coming_soon = ( wpcom_is_coming_soon() && is_private_blog() ) || (bool) get_option( 'wpcom_public_coming_soon' );
+		$default         = plugins_url( 'globe-icon.svg', __FILE__ );
+		$icon            = get_site_icon_url( 32, $default );
+		$blog_name       = get_option( 'blogname' ) !== '' ? get_option( 'blogname' ) : $this->domain;
+		$status          = new Status();
+		$is_private_site = $status->is_private_site();
+		$is_coming_soon  = $status->is_coming_soon();
 
 		if ( $default === $icon && blavatar_exists( $this->domain ) ) {
 			$icon = blavatar_url( $this->domain, 'img', 32 );
 		}
 
 		$badge = '';
-		if ( is_private_blog() || $is_coming_soon ) {
+		if ( $is_private_site || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
 				$is_coming_soon ? esc_html__( 'Coming Soon', 'jetpack' ) : esc_html__( 'Private', 'jetpack' )
@@ -345,7 +350,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	public function add_options_menu() {
 		parent::add_options_menu();
 
-		if ( apply_filters( 'dsp_promote_posts_enabled', false, get_current_user_id() ) ) {
+		if ( Blaze::should_initialize() ) {
 			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
 		}
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 10 );

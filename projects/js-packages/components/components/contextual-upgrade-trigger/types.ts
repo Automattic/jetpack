@@ -3,5 +3,7 @@ export type CutBaseProps = {
 	cta: string;
 	className?: string;
 	href?: string;
+	openInNewTab?: boolean;
 	onClick?: () => void;
+	tooltipText?: string;
 };

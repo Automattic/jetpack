@@ -1,0 +1,132 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V2.22
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 26/11/2017
+ */
+.zbs-page-wrap {
+  padding-right: 1em !important;
+}
+
+.zbs-explainer-ico {
+  margin-top: 1em;
+  margin-bottom: 1em;
+}
+.zbs-explainer-ico i.fa {
+  font-size: 40px;
+}
+
+#zbs-portal-users-statuses .zbs-status input {
+  margin-top: -5px;
+  margin-right: 6px;
+}
+#poststuff.zbs-settings-page {
+  padding-top: 0;
+  min-width: auto !important;
+}
+
+#zbs-settings-menu .branding.item {
+  text-align: center;
+  line-height: 20px;
+  font-size: 1.2em;
+  font-weight: 800;
+}
+#zbs-settings-menu .branding.item img {
+  max-width: 30px !important;
+  background: #000;
+  display: inline-block !important;
+  margin-left: -0.5em !important;
+  float: left;
+}
+
+#zbs-settings-menu .item a.item.zbs-settings-head {
+  margin-bottom: -1em;
+  padding: 0;
+}
+
+#zbs-settings-menu.ui.vertical.menu .item a.item.zbs-settings-head.active.item {
+  color: #2185D0 !important;
+  background: rgba(0, 0, 0, 0);
+}
+
+.zbs-settings-custom-fields .zbscrm-cf-fieldtype-label {
+  margin-right: 0.7em;
+}
+.zbs-settings-custom-fields .zbscrm-cf-settings-wrap {
+  padding: 0.7em;
+}
+.zbs-settings-custom-fields .zbs-generic-hide {
+  display: none;
+}
+.zbs-settings-custom-fields .zbs-cf-type-autonumber-wrap .ui.labeled.input {
+  max-width: 200px;
+  clear: both;
+}
+.zbs-settings-custom-fields .zbs-cf-type-autonumber-input-wrap {
+  margin-bottom: 0.5em;
+}
+.zbs-settings-custom-fields .zbs-cf-type-autonumber-input-wrap .ui.label {
+  min-width: 120px;
+  text-align: right;
+}
+.zbs-settings-custom-fields .ui.labeled.input > .label:not(.corner) {
+  padding-top: 0.6em !important;
+}
+
+.zbs-license-full-info {
+  display: none;
+}
+
+#zbs-migration-blocker {
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 10000;
+  background-color: #FFF;
+  margin-top: 0.5em;
+  opacity: 0.92;
+  border-radius: 0.2em;
+}
+
+#zbs-migration-settings-notice {
+  z-index: 10001;
+  position: absolute;
+  top: 7em;
+  left: 0;
+  width: 100%;
+  text-align: center;
+}
+#zbs-migration-settings-notice .ui.message {
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.zbs-taxtable-line td:first-child {
+  width: 60%;
+  max-width: 400px;
+}
+
+#reftype-autonumber-block {
+  display: none;
+}
+#reftype-autonumber-block td {
+  padding-left: 10px;
+}
+
+#reftype-autonumber-block.reftype-set {
+  display: block;
+}
+
+#reftype-manual-block {
+  max-width: 200px;
+  display: none;
+}
+
+#reftype-manual-block.reftype-set {
+  display: block;
+}

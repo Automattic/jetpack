@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-jetpack_require_lib( 'admin-pages/class-jetpack-redux-state-helper' );
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php';
 
 /**
  * Class for testing the Jetpack_Redux_State_Helper class.

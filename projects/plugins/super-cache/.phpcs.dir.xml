@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<ruleset>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="wp-super-cache" />
+			</property>
+		</properties>
+	</rule>
+	<rule ref="Jetpack.Functions.I18n">
+		<properties>
+			<property name="text_domain" value="wp-super-cache" />
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.Utils.I18nTextDomainFixer">
+		<properties>
+			<property name="old_text_domain" type="array" />
+			<property name="new_text_domain" value="wp-super-cache" />
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
+		<severity>0</severity>
+	</rule>
+
+	<rule ref="Squiz.Commenting.FileComment.Missing">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.ClassComment.Missing">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.Missing">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.MissingParamComment">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Generic.Commenting.DocComment.MissingShort">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.VariableComment.Missing">
+		<severity>0</severity>
+	</rule>
+
+	<rule ref="VariableAnalysis.CodeAnalysis.VariableAnalysis">
+		<properties>
+			<property name="ignoreUnusedRegexp" value="/^_/"/>
+		</properties>
+	</rule>
+
+</ruleset>
+
+
+
+
+

@@ -134,7 +134,6 @@ class WP_Test_Jetpack_Gutenberg extends WP_UnitTestCase {
 		Jetpack_Gutenberg::set_extension_available( 'jetpack/parsnip' );
 		$availability = Jetpack_Gutenberg::get_availability();
 		$this->assertArrayNotHasKey( 'parsnip', $availability, 'parsnip is available!' );
-
 	}
 
 	public function test_plugin_is_not_available_when_not_registered_returns_missing_module() {

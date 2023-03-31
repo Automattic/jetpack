@@ -36,18 +36,17 @@
 		"test-encrypt-config": "openssl enc -md sha1 -aes-256-cbc -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc"
 	},
 	"devDependencies": {
-		"@playwright/test": "1.26.0",
+		"@playwright/test": "1.29.1",
 		"allure-playwright": "2.0.0-beta.19",
 		"config": "3.3.7",
-		"jetpack-e2e-commons": "*"
+		"jetpack-e2e-commons": "workspace:*"
 	},
 	"engines": {
-		"node": "^16.13.2",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"browserslist": [],
 	"ci": {
-		"targets": [],
 		"pluginSlug": "jetpack",
 		"mirrorName": "jetpack-production"
 	}

@@ -1,4 +1,5 @@
 import IconTooltip from '../index';
+import './style.scss';
 import type { Placement } from '../types';
 
 const AVAILABLE_PLACEMENTS: Placement[] = [
@@ -51,6 +52,23 @@ const Template = args => (
 	</div>
 );
 
+const WrapperAnchorTemplate = args => (
+	<div style={ { position: 'absolute', height: '1000px', left: '300px', top: '300px' } }>
+		<div className="tooltip-wrapper">
+			<div className="tooltip-wrapper-anchor">
+				<IconTooltip { ...args }>
+					<>
+						<div>Thank you for upgrading! Now your visitors can search up to 500 records.</div>
+						<div className="tooltip-actions">
+							<span>1 of 2</span>
+						</div>
+					</>
+				</IconTooltip>
+			</div>
+		</div>
+	</div>
+);
+
 // Export Default story
 export const _default = Template.bind( {} );
 
@@ -63,4 +81,12 @@ HasContent.args = {
 			<br></br>Break Line!
 		</div>
 	),
+};
+
+export const WrapperAnchor = WrapperAnchorTemplate.bind( {} );
+WrapperAnchor.args = {
+	popoverAnchorStyle: 'wrapper',
+	title: 'Site records increased',
+	placement: 'top',
+	forceShow: true,
 };

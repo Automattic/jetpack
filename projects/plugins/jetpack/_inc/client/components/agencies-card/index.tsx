@@ -45,6 +45,10 @@ const AgenciesCard: FC< Props > = ( {
 		[ path, isUserLinked, isOwner ]
 	);
 
+	const handleClick = useCallback( () => {
+		trackEvent( 'learn-more-click' );
+	}, [ trackEvent ] );
+
 	const handleDismiss = useCallback( () => {
 		dismiss();
 		trackEvent( 'learn-more-dismiss' );
@@ -66,22 +70,21 @@ const AgenciesCard: FC< Props > = ( {
 				</Button>
 				<div className="jp-agencies-card__contact">
 					<h3 className="jp-agencies-card__header">
-						{ __( "Manage your clients' sites with ease", 'jetpack' ) }
+						{ __( 'Manage your clients’ sites with ease', 'jetpack' ) }
 					</h3>
 					<p className="jp-agencies-card__description">
 						{ sprintf(
 							/* translators: %s is the percentage discount the users get in the agencies portal */
 							__(
-								`Manage your clients' sites with ease and get a %s discount with the Jetpack licensing platform.`,
+								'Manage your clients’ sites with ease and get a %s discount with the Jetpack licensing platform.',
 								'jetpack'
 							),
 							`${ discountPercentage }%`
 						) }
 					</p>
 					<p className="jp-agencies-card__link-button">
-						<Button>
+						<Button onClick={ handleClick }>
 							<ExternalLink
-								onClick={ trackEvent( 'learn-more-click' ) }
 								href={ getRedirectUrl( 'jitm-jetpack_agencies_ad' ) }
 								target="_blank"
 								rel="noreferrer"

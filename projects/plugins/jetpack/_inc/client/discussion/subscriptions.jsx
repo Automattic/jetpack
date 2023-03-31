@@ -74,7 +74,7 @@ class SubscriptionsComponent extends React.Component {
 						site: this.props.siteRawUrl,
 					} ) }
 				>
-					{ __( 'View your Email Followers', 'jetpack' ) }
+					{ __( 'View your Email Subscribers', 'jetpack' ) }
 				</Card>
 			);
 		};

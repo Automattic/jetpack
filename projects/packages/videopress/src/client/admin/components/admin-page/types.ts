@@ -1,11 +1,16 @@
-import { productOriginalProps } from '../../hooks/use-plan/types';
-import { VideoPressVideo } from '../../types';
+import {
+	productOriginalProps,
+	productPriceOriginalProps,
+	siteProductOriginalProps,
+} from '../../hooks/use-plan/types';
+import { LocalVideo, MetadataVideo, VideoPressVideo } from '../../types';
 
 declare global {
 	interface Window {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		__REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any;
-		jetpackVideoPressInitialState: {
+		jetpackVideoPressInitialState?: {
+			allowedVideoExtensions: Record< string, string >;
 			apiNonce: string;
 			apiRoot: string;
 			registrationNonce: string;
@@ -14,17 +19,34 @@ declare global {
 				isVideoPress1TBSupported: boolean;
 				isVideoPressUnlimitedSupported: boolean;
 			};
-			productData: productOriginalProps;
+			siteProductData: siteProductOriginalProps;
+			productData?: productOriginalProps;
+			productPrice?: productPriceOriginalProps;
 			adminUrl: string;
 			adminUri: string;
 			siteSuffix: string;
+			contentNonce: string;
+			initialState: {
+				videos?: {
+					isFetching?: boolean;
+				};
+			};
 		};
 	}
 }
 
 export type VideoLibraryProps = {
-	videos: Array< VideoPressVideo >;
+	videos: Array< VideoPressVideo & MetadataVideo >;
 	totalVideos?: number;
+	loading?: boolean;
+};
+
+export type LocalLibraryProps = {
+	videos: Array< LocalVideo >;
+	totalVideos?: number;
+	loading?: boolean;
+	uploading?: boolean;
+	onUploadClick?: ( video: LocalVideo ) => void;
 };
 
 export interface ConnectionStore {

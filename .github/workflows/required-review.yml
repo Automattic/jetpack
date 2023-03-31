@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Check for required review approval
-        uses: automattic/action-required-review@v2
+        uses: automattic/action-required-review@v3
         with:
           token: ${{ secrets.API_TOKEN_GITHUB }}
           requirements-file: .github/files/required-review.yaml

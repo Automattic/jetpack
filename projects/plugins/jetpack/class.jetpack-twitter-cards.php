@@ -134,12 +134,8 @@ class Jetpack_Twitter_Cards {
 
 		// Only proceed with media analysis if a featured image has not superseded it already.
 		if ( empty( $og_tags['twitter:image'] ) && empty( $og_tags['twitter:image:src'] ) ) {
-			if ( ! class_exists( 'Jetpack_Media_Summary' ) && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				include WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php';
-			}
-
 			if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
-				jetpack_require_lib( 'class.media-summary' );
+				require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.media-summary.php';
 			}
 
 			// Test again, class should already be auto-loaded in Jetpack.

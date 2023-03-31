@@ -21,6 +21,7 @@ class Customizer {
 	public function __construct() {
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'customize_controls_enqueue_scripts' ) );
+		$this->plan = new Plan();
 	}
 
 	/**
@@ -231,7 +232,7 @@ class Customizer {
 			)
 		);
 
-		$id = $setting_prefix . 'show_powered_by';
+		$id = $setting_prefix . 'show_post_date';
 		$wp_customize->add_setting(
 			$id,
 			array(
@@ -247,9 +248,32 @@ class Customizer {
 			array(
 				'type'    => 'checkbox',
 				'section' => $section_id,
-				'label'   => __( 'Display "Powered by Jetpack"', 'jetpack-search-pkg' ),
+				'label'   => __( 'Show post date', 'jetpack-search-pkg' ),
 			)
 		);
+
+		$id = $setting_prefix . 'show_powered_by';
+		$wp_customize->add_setting(
+			$id,
+			array(
+				'default'              => '1',
+				'sanitize_callback'    => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value' ),
+				'sanitize_js_callback' => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value_for_js' ),
+				'transport'            => 'postMessage',
+				'type'                 => 'option',
+			)
+		);
+
+		if ( ! $this->plan->is_free_plan() ) {
+			$wp_customize->add_control(
+				$id,
+				array(
+					'type'    => 'checkbox',
+					'section' => $section_id,
+					'label'   => __( 'Display "Powered by Jetpack"', 'jetpack-search-pkg' ),
+				)
+			);
+		}
 	}
 
 	/**

@@ -7,13 +7,13 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
+use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
  * Class responsible for handling the Social product
  */
-class Social extends Hybrid_Product {
+class Social extends Product {
 
 	/**
 	 * The product slug
@@ -126,9 +126,7 @@ class Social extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_manage_url() {
-		if ( static::is_jetpack_plugin_active() ) {
-			return admin_url( 'admin.php?page=jetpack#/settings?term=publicize' );
-		} elseif ( static::is_plugin_active() ) {
+		if ( static::is_plugin_active() ) {
 			return admin_url( 'admin.php?page=jetpack-social' );
 		}
 	}

@@ -2,6 +2,59 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.15.3 - 2023-03-20
+- Minor internal updates.
+## 0.15.2 - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## 0.15.1 - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## 0.15.0 - 2023-02-15
+### Added
+- Added fetchMigrationStatus get method [#28807]
+
+### Changed
+- Update to React 18. [#28710]
+
+## 0.14.9 - 2023-01-25
+### Changed
+- Change the web application firewall to run automatic and manual rules independently. [#27726]
+
+## 0.14.8 - 2022-12-02
+### Changed
+- Updated package dependencies. [#27696]
+
+## 0.14.7 - 2022-11-28
+### Changed
+- Updated package dependencies. [#27576]
+
+## 0.14.6 - 2022-11-22
+### Changed
+- Updated package dependencies. [#27043]
+
+## 0.14.5 - 2022-11-08
+### Changed
+- Updated package dependencies. [#27289]
+
+## 0.14.4 - 2022-11-01
+### Changed
+- Updated package dependencies. [#27196]
+
+## 0.14.3 - 2022-10-13
+### Changed
+- Updated package dependencies. [#26791]
+
+## 0.14.2 - 2022-10-11
+### Fixed
+- Fix Jetpack Search dashboard for WPCOM simple sites by allowing using different API root for search endpoints. [#26713]
+
+## 0.14.1 - 2022-10-05
+### Changed
+- Updated package dependencies. [#26568]
+
 ## 0.14.0 - 2022-09-27
 ### Removed
 - Mobile Login Email: Remove unused code [#26311]

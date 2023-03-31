@@ -44,6 +44,7 @@ export default function ButtonSave( { attributes, blockName, uniqueId } ) {
 		'no-border-radius': 0 === borderRadius,
 		'has-custom-width': !! width,
 		[ `has-${ fontSize }-font-size` ]: !! fontSize,
+		'has-custom-font-size': !! fontSize,
 	} );
 
 	const buttonStyle = {

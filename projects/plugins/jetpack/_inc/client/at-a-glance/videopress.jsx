@@ -1,7 +1,8 @@
 import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
+import Button from 'components/button';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import { getJetpackProductUpsellByFeature, FEATURE_VIDEOPRESS } from 'lib/plans/constants';
@@ -102,7 +103,7 @@ class DashVideoPress extends Component {
 							{ shouldDisplayBanner && (
 								<JetpackBanner
 									className="media__videopress-upgrade"
-									callToAction={ __( 'Upgrade', 'jetpack' ) }
+									callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 									title={ bannerText }
 									disableHref="false"
 									eventFeature="videopress"
@@ -151,11 +152,11 @@ class DashVideoPress extends Component {
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
-									'<a>Activate</a> to engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. Try it for free.',
+									'<Button>Activate</Button> to engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. Try it for free.',
 									'jetpack'
 								),
 								{
-									a: <a href="javascript:void(0)" onClick={ this.activateVideoPress } />,
+									Button: <Button className="jp-link-button" onClick={ this.activateVideoPress } />,
 								}
 						  ) }
 				</p>

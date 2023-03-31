@@ -1,13 +1,20 @@
-import { Text, Container, getRedirectUrl } from '@automattic/jetpack-components';
+import {
+	Text,
+	Container,
+	getRedirectUrl,
+	useBreakpointMatch,
+} from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, lifesaver } from '@wordpress/icons';
+import classNames from 'classnames';
 import { STORE_ID } from '../../store';
 import IconText from '../icon-text';
 import styles from './styles.module.scss';
 
 const SupportSection = () => {
+	const [ isAtLeastMedium ] = useBreakpointMatch( 'md', '>=' );
 	const hasPaidPlan = useSelect( select => select( STORE_ID ).hasPaidPlan() );
 
 	if ( ! hasPaidPlan ) {
@@ -15,9 +22,15 @@ const SupportSection = () => {
 	}
 
 	return (
-		<Container horizontalSpacing={ 7 } horizontalGap={ 3 }>
+		<Container
+			horizontalSpacing={ 7 }
+			horizontalGap={ 3 }
+			className={ classNames( {
+				[ styles[ 'is-viewport-medium' ] ]: isAtLeastMedium,
+			} ) }
+		>
 			<IconText
-				icon={ <Icon icon={ lifesaver } size={ 30 }></Icon> }
+				icon={ <Icon icon={ lifesaver } size={ 30 } className={ styles.icon }></Icon> }
 				title={ __( 'World-class support', 'jetpack-social' ) }
 			>
 				<Text>

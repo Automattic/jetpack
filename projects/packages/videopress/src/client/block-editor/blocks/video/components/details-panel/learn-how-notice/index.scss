@@ -1,0 +1,19 @@
+@import '@automattic/jetpack-base-styles/style';
+
+.learn-how-modal {
+	.learn-how-modal__heading {
+		margin: 16px 0;
+		font-weight: 600;
+	}
+
+	p {
+		margin: 0;
+		line-height: 1,8em;
+	}
+
+	.learn-how-modal__buttons {
+		display: flex;
+    	justify-content: flex-end;
+		margin-top: 32px;
+	}
+}

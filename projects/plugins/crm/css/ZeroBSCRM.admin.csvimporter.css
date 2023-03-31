@@ -1,0 +1,194 @@
+/*!
+ * Jetpack CRM Extension:
+ * ~ Extension Name
+ * http://jetpackcrm.com
+ * V1.0
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 29/05/16
+ */
+.zbs-upgrade-label {
+  background: green;
+  color: #FFF;
+  padding: 4px 8px;
+  border-radius: 3px;
+}
+
+.zbscrm-lite-notice {
+  width: 40%;
+  min-width: 400px;
+  max-width: 700px;
+  background: #FFF;
+  border: 1px solid #CCC;
+  padding: 10px 30px;
+  border-radius: 3px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 60px;
+  text-align: center;
+}
+.zbscrm-lite-notice h2 {
+  font-size: 20px;
+}
+.zbscrm-lite-notice p {
+  font-size: 18px;
+}
+
+.zbscrm-csvimport-wrap h2 {
+  text-align: center;
+  font-size: 20px;
+}
+.zbscrm-csvimport-wrap .zbscrm-upload-csv {
+  box-sizing: border-box;
+  display: block;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+  top: 10px;
+}
+.zbscrm-csvimport-wrap .zbscrm-upload-csv .zbscrm-csv-import-help {
+  color: #555d66;
+  font-size: 18px;
+  font-style: normal;
+  margin: 0;
+  padding: 40px 0 0;
+  text-align: center;
+}
+.zbscrm-csvimport-wrap .zbscrm-upload-csv .zbscrm-csv-import-form {
+  background: #fafafa;
+  border: 1px solid #e5e5e5;
+  padding: 30px;
+  margin: 30px auto;
+  max-width: 380px;
+}
+.zbscrm-csvimport-wrap .zbscrm-upload-csv .zbscrm-csv-import-form .csv-import__start-btn {
+  text-align: center;
+  margin-top: 20px;
+}
+.zbscrm-csvimport-wrap .zbscrm-csv-map .zbscrm-csv-map-help {
+  color: #555d66;
+  font-size: 18px;
+  font-style: normal;
+  margin: 0;
+  padding: 40px 0 0;
+  text-align: center;
+}
+.zbscrm-csvimport-wrap .zbscrm-csv-map .zbscrm-csv-map-form .zbscrm-csv-map-ignorefirst {
+  max-width: 500px;
+  padding: 7px 10px;
+  margin: 10px;
+  border: 1px solid #E0DEE6;
+  border-radius: 5px;
+  background: #FFF;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: left;
+}
+.zbscrm-csvimport-wrap .zbscrm-csv-map .zbscrm-csv-map-form .zbscrm-csv-map-ignorefirst label {
+  margin-left: 20px;
+}
+.zbscrm-csvimport-wrap .zbscrm-csv-map .zbscrm-csv-map-form .zbscrm-csv-map-field {
+  max-width: 500px;
+  padding: 7px 10px;
+  margin: 10px;
+  border: 1px solid #E0DEE6;
+  border-radius: 5px;
+  background: #FFF;
+  margin-left: auto;
+  margin-right: auto;
+}
+.zbscrm-csvimport-wrap .zbscrm-csv-map .zbscrm-csv-map-form .zbscrm-csv-map-field span {
+  padding: 0px 9px 0 0;
+  color: #C1C0C0;
+  font-size: 16px;
+  line-height: 34px;
+  height: 34px;
+}
+.zbscrm-csvimport-wrap .zbscrm-csv-map .zbscrm-csv-map-form .zbscrm-csv-map-field span.to {
+  padding: 0px 21px 0 0;
+}
+.zbscrm-csvimport-wrap .zbscrm-csv-map .zbscrm-csv-map-form .zbscrm-csv-map-field .zbscrm-csv-map-user-field {
+  color: #555d66;
+  font-size: 16px;
+  font-style: normal;
+  margin-bottom: 10px;
+  display: inline-block;
+}
+.zbscrm-csvimport-wrap .zbscrm-csv-map .zbscrm-csv-map-form .zbscrm-csv-map-field .zbscrm-csv-map-zbs-field {
+  line-height: 34px;
+  height: 34px;
+}
+.zbscrm-csvimport-wrap .zbscrm-csv-map .zbscrm-csv-map-form .zbscrm-csv-map-field .zbscrm-csv-map-zbs-field select {
+  color: #555d66;
+  font-size: 16px;
+  font-style: normal;
+  margin-bottom: 10px;
+  line-height: 34px;
+  height: 34px;
+  display: inline-block;
+}
+.zbscrm-csvimport-wrap .zbscrm-confirmimport-csv .zbscrm-csv-help {
+  color: #555d66;
+  font-size: 18px;
+  font-style: normal;
+  margin: 0;
+  padding: 40px 0 0;
+  text-align: center;
+}
+.zbscrm-csvimport-wrap .zbscrm-confirmimport-csv .zbscrm-csv-import-form {
+  width: 440px;
+  padding: 7px 10px;
+  margin: 10px;
+  border: 1px solid #E0DEE6;
+  border-radius: 5px;
+  background: #FFF;
+  margin-left: auto;
+  margin-right: auto;
+}
+.zbscrm-csvimport-wrap .zbscrm-confirmimport-csv .zbscrm-csv-import-form .zbscrm-impcsv-map .zbscrm-impcsv-from {
+  width: 30%;
+  height: 20px;
+  line-height: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: inline-block;
+  font-weight: 800;
+  text-align: right;
+  color: #555d66;
+}
+.zbscrm-csvimport-wrap .zbscrm-confirmimport-csv .zbscrm-csv-import-form .zbscrm-impcsv-map .zbscrm-impcsv-to {
+  width: 30%;
+  height: 20px;
+  line-height: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: inline-block;
+  font-weight: normal;
+  text-align: left;
+  color: #555d66;
+}
+.zbscrm-csvimport-wrap .zbscrm-confirmimport-csv .zbscrm-csv-import-form .zbscrm-impcsv-map .zbscrm-impcsv-arrow {
+  width: 30%;
+  height: 20px;
+  line-height: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: inline-block;
+  font-weight: 800;
+  text-align: center;
+  color: #CCC;
+}
+.zbscrm-csvimport-wrap .zbscrm-final-stage .zbscrm-import-log {
+  width: 600px;
+  padding: 7px 10px;
+  margin: 10px;
+  border: 1px solid #E0DEE6;
+  border-radius: 5px;
+  background: #FFF;
+}
+.zbscrm-csvimport-wrap .zbscrm-final-stage .zbscrm-import-log .zbscrm-import-log-line i.fa, .zbscrm-csvimport-wrap .zbscrm-final-stage .zbscrm-import-log .zbscrm-import-log-line span {
+  color: green;
+}

@@ -5,7 +5,7 @@
  * @package automattic/jetpack
  */
 
-require_jetpack_file( 'modules/masterbar/admin-menu/class-base-admin-menu.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-menu/class-base-admin-menu.php';
 
 use \Automattic\Jetpack\Dashboard_Customizations\Base_Admin_Menu;
 

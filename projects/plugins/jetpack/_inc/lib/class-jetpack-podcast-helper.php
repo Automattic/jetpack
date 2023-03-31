@@ -390,7 +390,7 @@ class Jetpack_Podcast_Helper {
 	 */
 	public static function set_podcast_locator( &$feed ) {
 		if ( ! class_exists( 'Jetpack_Podcast_Feed_Locator' ) ) {
-			jetpack_require_lib( 'class-jetpack-podcast-feed-locator' );
+			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-feed-locator.php';
 		}
 
 		$feed->set_locator_class( 'Jetpack_Podcast_Feed_Locator' );

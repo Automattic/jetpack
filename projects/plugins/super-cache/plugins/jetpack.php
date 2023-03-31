@@ -1,5 +1,14 @@
 <?php
 
+if ( ! class_exists( 'Automattic\Jetpack\Device_Detection' ) ) {
+	// Manually load Device_Detection before autoload is initialized.
+	if ( defined( 'WPCACHEHOME' ) ) {
+		if ( file_exists( WPCACHEHOME . '/vendor/automattic/jetpack-device-detection/src/class-device-detection.php' ) ) {
+			require_once WPCACHEHOME . '/vendor/automattic/jetpack-device-detection/src/class-device-detection.php';
+		}
+	}
+}
+
 function wp_super_cache_jetpack_admin() {
 	global $cache_jetpack, $wp_cache_config_file, $valid_nonce;
 
@@ -52,18 +61,6 @@ function wp_super_cache_jetpack_admin() {
 add_cacheaction( 'cache_admin_page', 'wp_super_cache_jetpack_admin' );
 
 function wp_super_cache_jetpack_cookie_check( $cache_key ) {
-	if ( false === function_exists( 'jetpack_is_mobile' ) ) {
-
-		if ( file_exists( dirname( WPCACHEHOME ) . '/jetpack-dev/class.jetpack-user-agent.php' ) ) {
-			wp_cache_debug( "wp_super_cache_jetpack_cookie_check: jetpack dev detected. Returning 'normal' to avoid loading Jetpack." );
-			return 'normal';
-		} elseif ( file_exists( dirname( WPCACHEHOME ) . '/jetpack/class.jetpack-user-agent.php' ) ) {
-			include_once dirname( WPCACHEHOME ) . '/jetpack/class.jetpack-user-agent.php';
-		} else {
-			wp_cache_debug( 'wp_super_cache_jetpack_cookie_check: jetpack UA file not found.' );
-		}
-	}
-
 	if ( isset ( $_COOKIE['akm_mobile'] ) ) {
 		if ( $_COOKIE['akm_mobile'] == 'true' ) {
 			return 'mobile';
@@ -72,12 +69,12 @@ function wp_super_cache_jetpack_cookie_check( $cache_key ) {
 		}
 	}
 
-	if ( function_exists( 'jetpack_is_mobile' ) ) {
-		if ( jetpack_is_mobile() ) {
-			return 'mobile';
-		} else {
-			return 'normal';
-		}
+	if ( ! class_exists( 'Automattic\Jetpack\Device_Detection' ) ) {
+		return 'normal';
+	}
+
+	if ( \Automattic\Jetpack\Device_Detection::is_phone() ) {
+		return 'mobile';
 	} else {
 		return 'normal';
 	}

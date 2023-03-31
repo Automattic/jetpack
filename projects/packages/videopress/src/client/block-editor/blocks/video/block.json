@@ -8,11 +8,22 @@
 	"icon": "smiley",
 	"description": "Embed a video from your media library or upload a new one with VideoPress.",
 	"supports": {
-		"align": true
+		"align": true,
+		"anchor": true,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
 	},
 	"attributes": {
 		"autoplay": {
 			"type": "boolean"
+		},
+		"title": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
 		},
 		"caption": {
 			"type": "string",
@@ -72,13 +83,49 @@
 		"poster": {
 			"type": "string"
 		},
+		"posterData": {
+			"type": "object",
+			"default": {}
+		},
 		"videoRatio": {
+			"type": "number"
+		},
+		"tracks": {
+			"type": "array",
+			"items": {
+				"type": "object"
+			},
+			"default": []
+		},
+		"privacySetting": {
+			"type": "number",
+			"default": 1
+		},
+		"allowDownload": {
+			"type": "boolean",
+			"default": true
+		},
+		"displayEmbed": {
+			"type": "boolean",
+			"default": true
+		},
+		"rating": {
+			"type": "string"
+		},
+		"isPrivate": {
+			"type": "boolean"
+		},
+		"isExample": {
+			"type": "boolean",
+			"default": false
+		},
+		"duration": {
 			"type": "number"
 		}
 	},
 	"textdomain": "jetpack-videopress",
-	"editorScript": "file:../../../../../build/block-editor/index.js",
-	"editorStyle": "file:../../../../../build/block-editor/index.css",
-	"style": "file:../../../../../build/block-editor/style-index.css",
-	"viewScript": "file:../../../../../build/block-editor/view.js"
+	"editorScript": "jetpack-videopress-video-block",
+	"editorStyle": "jetpack-videopress-video-block",
+	"style": "file:style-index.css",
+	"viewScript": "jetpack-videopress-video-block-view"
 }

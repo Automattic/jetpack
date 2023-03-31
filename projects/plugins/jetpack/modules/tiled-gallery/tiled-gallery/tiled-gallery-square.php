@@ -50,8 +50,8 @@ class Jetpack_Tiled_Gallery_Layout_Square extends Jetpack_Tiled_Gallery_Layout {
 			$item = new Jetpack_Tiled_Gallery_Square_Item( $image, $this->needs_attachment_link, $this->grayscale );
 
 			$row->images[] = $item;
-			$c ++;
-			$items_in_row++;
+			++$c;
+			++$items_in_row;
 
 			if ( $images_per_row === $items_in_row || $remainder + 1 === $c ) {
 				$rows[]       = $row;
