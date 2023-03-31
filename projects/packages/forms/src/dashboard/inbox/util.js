@@ -10,15 +10,6 @@ export const getDisplayName = response => {
 	return response.ip;
 };
 
-export const getMonthName = monthNumber => {
-	const date = new Date();
-	date.setMonth( monthNumber - 1 );
-
-	return date.toLocaleString( 'en-US', {
-		month: 'long',
-	} );
-};
-
 export const getPath = response => {
 	const url = new URL( response.entry_permalink );
 

@@ -1,6 +1,7 @@
 import { Gridicon } from '@automattic/jetpack-components';
 import { TabPanel } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { dateI18n } from '@wordpress/date';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
@@ -13,7 +14,6 @@ import BulkActionsMenu from './bulk-actions-menu';
 import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
-import { getMonthName } from './util';
 
 const RESPONSES_FETCH_LIMIT = 50;
 
@@ -88,10 +88,16 @@ const Inbox = () => {
 	}, [] );
 
 	const monthList = useMemo( () => {
-		const list = map( monthFilter, item => ( {
-			label: `${ getMonthName( item.month ) } ${ item.year }`,
-			value: `${ item.year }${ String( item.month ).padStart( 2, '0' ) }`,
-		} ) );
+		const list = map( monthFilter, item => {
+			const date = new Date();
+			date.setDate( 1 );
+			date.setMonth( item.month - 1 );
+
+			return {
+				label: `${ dateI18n( 'F', date ) } ${ item.year }`,
+				value: `${ item.year }${ String( item.month ).padStart( 2, '0' ) }`,
+			};
+		} );
 
 		return [
 			{
