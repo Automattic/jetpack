@@ -322,7 +322,7 @@
 												$zbsCloseTable = true; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 												if ( $zbsFieldGroup === 'Main Address' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Generic.WhiteSpace.ScopeIndent.IncorrectExact
 													$zbsCloseTable = false; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-													if ( zeroBSCRM_getSetting( 'secondaddresstoggle' ) === 1 ) { // phpcs:ignore Generic.WhiteSpace.ScopeIndent.IncorrectExact
+													if ( zeroBSCRM_getSetting( 'secondaddress' ) === 1 ) { // phpcs:ignore Generic.WhiteSpace.ScopeIndent.IncorrectExact
 														echo sprintf(
 															'<tr class="wh-large"><th colspan="2"><div id="jpcrm-second-address-toggle-btn"><i class="plus circle icon"></i>%s</div>&nbsp;</th></tr>',
 															esc_html__( 'Add Second Address', 'zero-bs-crm' )
@@ -332,7 +332,7 @@
                                     echo '</table></div>';
 						if ( $zbsCloseTable ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							echo '</td></tr>';
-							if ( zeroBSCRM_getSetting( 'secondaddresstoggle' ) === 1 && $is_second_address_fields_empty ) {
+							if ( zeroBSCRM_getSetting( 'secondaddress' ) === 1 && $is_second_address_fields_empty ) {
 								?>
 								<script>
 									document.getElementsByClassName("zbs-fieldgroup-second_address")[0].style.visibility = "hidden";
