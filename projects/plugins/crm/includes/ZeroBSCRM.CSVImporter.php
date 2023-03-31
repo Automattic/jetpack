@@ -478,7 +478,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						?>
 							<hr />
 						<div style="text-align:center">
-							<button type="submit" name="csv-map-submit" id="csv-map-submit" class="button button-primary button-large" type="submit"><?php esc_html_e( 'Continue', 'zero-bs-crm' ); ?></button>	
+							<button type="submit" name="csv-map-submit" id="csv-map-submit" class="ui button button-primary button-large green" type="submit"><?php esc_html_e( 'Continue', 'zero-bs-crm' ); ?></button>	
 						</div>
 					</form>
 				</div>
@@ -587,7 +587,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						?>
 						<hr />
 						<div style="text-align:center">
-							<button type="submit" name="csv-map-submit" id="csv-map-submit" class="button button-primary button-large" type="submit"><?php esc_html_e( 'Run Import', 'zero-bs-crm' ); ?></button>	
+							<button type="submit" name="csv-map-submit" id="csv-map-submit" class="ui button button-primary button-large green" type="submit"><?php esc_html_e( 'Run Import', 'zero-bs-crm' ); ?></button>	
 						</div>
 					</form>
 				</div>
@@ -796,7 +796,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 						?>
 						<hr />
-						<button type="button" class="button button-primary button-large" onclick="javascript:window.location='admin.php?page=<?php echo esc_attr( $zbs->slugs['managecontacts'] ); ?>';"><?php esc_html_e( 'Finish', 'zero-bs-crm' ); ?></button>
+						<a href="<?php echo jpcrm_esc_link( $zbs->slugs['managecontacts'] ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" target="_blank" class="ui button green"><?php esc_html_e( 'Finish', 'zero-bs-crm' ); ?></a>
 					</div>
 				</div>
 			</div>
