@@ -2,7 +2,6 @@ export type PlayerStateProp = 'not-rendered' | 'loaded' | 'first-play' | 'ready'
 
 export type UseVideoPlayer = {
 	playerIsReady: boolean;
-	playerState: PlayerStateProp;
 };
 
 export type UseVideoPlayerOptions = {

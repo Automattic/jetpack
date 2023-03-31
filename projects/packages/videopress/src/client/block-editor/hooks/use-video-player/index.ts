@@ -149,7 +149,6 @@ const useVideoPlayer = (
 
 	return {
 		playerIsReady,
-		playerState: playerState.current,
 	};
 };
 
