@@ -94,22 +94,19 @@ export function PosterDropdown( {
 	const videoPosterDescription = `video-block__poster-image-description-${ clientId }`;
 
 	const { poster } = attributes;
-	const onSelectPoster = useCallback(
-		( image: AdminAjaxQueryAttachmentsResponseItemProps ) => {
-			setAttributes( {
-				poster: image.url,
+	const onSelectPoster = ( image: AdminAjaxQueryAttachmentsResponseItemProps ) => {
+		setAttributes( {
+			poster: image.url,
 
-				// Extend the posterData object to include the media library id and url.
-				posterData: {
-					...attributes.posterData,
-					type: 'media-library',
-					id: image.id,
-					url: image.url,
-				},
-			} );
-		},
-		[ attributes.posterData ]
-	);
+			// Extend the posterData object to include the media library id and url.
+			posterData: {
+				...attributes.posterData,
+				type: 'media-library',
+				id: image.id,
+				url: image.url,
+			},
+		} );
+	};
 
 	const selectPosterLabel = __( 'Select Poster Image', 'jetpack-videopress-pkg' );
 	const replacePosterLabel = __( 'Replace Poster Image', 'jetpack-videopress-pkg' );
@@ -318,7 +315,19 @@ function VideoHoverPreviewControl( {
 	onPreviewAtTimeChange,
 	onLoopDurationChange,
 }: VideoHoverPreviewControlProps ): React.ReactElement {
+	/*
+	 * maxLoopDuration is the maximum duration of the loop,
+	 * which is the minimum between the video duration and the MAX_LOOP_DURATION constant.
+	 */
 	const maxLoopDuration = Math.min( MAX_LOOP_DURATION, videoDuration );
+
+	/*
+	 * maxStartingPoint is the maximum starting point of the loop,
+	 * which is the difference between the video duration and the maxLoopDuration.
+	 * This is the maximum value that the starting point can have.
+	 * For example, if the video duration is 10 seconds and the maxLoopDuration is 3 seconds,
+	 * the maxStartingPoint will be 7 seconds.
+	 */
 	const maxStartingPoint = videoDuration - loopDuration;
 
 	return (
@@ -338,9 +347,7 @@ function VideoHoverPreviewControl( {
 						fineAdjustment={ 1 }
 						decimalPlaces={ 2 }
 						value={ previewAtTime }
-						onDebounceChange={ atTime => {
-							onPreviewAtTimeChange( Math.max( Math.min( maxStartingPoint, atTime ), 0 ) );
-						} }
+						onDebounceChange={ onPreviewAtTimeChange }
 						wait={ 100 }
 					/>
 
@@ -371,96 +378,52 @@ export default function PosterPanel( {
 	isGeneratingPoster,
 }: PosterPanelProps ): React.ReactElement {
 	const { poster } = attributes;
+
 	const [ localData, setLocalData ] = useState< PosterDataProps >( attributes.posterData );
+	const updatePosterData = ( prop: string, value ) => {
+		setLocalData( state => {
+			const newState = { ...state, [ prop ]: value };
+			setAttributes( { posterData: newState } );
+			return newState;
+		} );
+	};
 
 	const pickPosterFromFrame = localData?.type === 'video-frame';
 	const previewOnHover = localData?.previewOnHover || false;
 	const previewAtTime = localData?.previewAtTime ?? localData?.atTime ?? 0;
 	const previewLoopDuration = localData?.previewLoopDuration ?? DEFAULT_LOOP_DURATION;
-
 	const videoDuration = attributes?.duration;
 
-	const removePoster = useCallback( () => {
-		setLocalData( state => ( { ...state, url: '' } ) );
-		setAttributes( { poster: '', posterData: { ...localData, url: '' } } );
-	}, [ attributes.posterData ] );
+	const removePoster = () => {
+		updatePosterData( 'url', '' );
+		setAttributes( { poster: '' } );
+	};
 
-	const switchPosterSource = useCallback(
-		( shouldPickFromFrame: boolean ) => {
-			const type = shouldPickFromFrame ? 'video-frame' : 'media-library';
-			setLocalData( state => ( { ...state, type } ) );
+	const switchPosterSource = useCallback( ( shouldPickFromFrame: boolean ) => {
+		const type = shouldPickFromFrame ? 'video-frame' : 'media-library';
+		updatePosterData( 'type', type );
 
-			setAttributes( {
-				// Extend the localData attr with the new type.
-				posterData: { ...localData, type },
+		setAttributes( {
+			// Clean the poster URL when it should be picked from the video frame.
+			poster: shouldPickFromFrame ? '' : localData.url || '',
+		} );
+	}, [] );
 
-				// Clean the poster URL when it should be picked from the video frame.
-				poster: shouldPickFromFrame ? '' : localData.url || '',
-			} );
-		},
-		[ attributes.posterData ]
-	);
+	const selectVideoFrame = useCallback( ( timestamp: number ) => {
+		updatePosterData( 'atTime', timestamp );
+	}, [] );
 
-	const selectVideoFrame = useCallback(
-		( timestamp: number ) => {
-			setLocalData( state => ( { ...state, atTime: timestamp } ) );
-			setAttributes( {
-				posterData: {
-					...localData,
-					atTime: timestamp,
-				},
-				poster: '',
-			} );
-		},
-		[ attributes.posterData ]
-	);
+	const setPreviewOnHover = useCallback( ( shouldPreviewOnHover: boolean ) => {
+		updatePosterData( 'previewOnHover', shouldPreviewOnHover );
+	}, [] );
 
-	const setPreviewOnHover = useCallback(
-		( shouldPreviewOnHover: boolean ) => {
-			setLocalData( state => ( { ...state, previewOnHover: shouldPreviewOnHover } ) );
-			setAttributes( {
-				posterData: {
-					...localData,
-					previewOnHover: shouldPreviewOnHover,
-				},
-			} );
-		},
-		[ attributes.posterData ]
-	);
+	const setPreviewAtTimestampValue = useCallback( ( atTime: number ) => {
+		updatePosterData( 'previewAtTime', atTime );
+	}, [] );
 
-	const setPreviewAtTimestampValue = useCallback(
-		( atTime: number ) => {
-			setLocalData( state => ( { ...state, previewAtTime: atTime } ) );
-			setAttributes( {
-				posterData: {
-					...localData,
-					previewAtTime: atTime,
-				},
-			} );
-		},
-		[ attributes.posterData ]
-	);
-
-	const setPreviewOnHoverDuration = useCallback(
-		( loopDuration: number ) => {
-			setLocalData( state => ( { ...state, previewLoopDuration: loopDuration } ) );
-			let previewStart = previewAtTime;
-
-			// Adjust the starting point if the loop duration is too long
-			if ( previewAtTime + loopDuration > videoDuration ) {
-				previewStart = videoDuration - loopDuration;
-			}
-
-			setAttributes( {
-				posterData: {
-					...localData,
-					previewLoopDuration: loopDuration,
-					previewAtTime: previewStart,
-				},
-			} );
-		},
-		[ attributes.posterData ]
-	);
+	const setPreviewOnHoverDuration = useCallback( ( loopDuration: number ) => {
+		updatePosterData( 'previewLoopDuration', loopDuration );
+	}, [] );
 
 	if ( ! isVideoFramePosterEnabled() ) {
 		return (
