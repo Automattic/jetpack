@@ -1,6 +1,8 @@
+import restApi from '@automattic/jetpack-api';
 import { getIconBySlug, JetpackLogo, Button, Col, Container } from '@automattic/jetpack-components';
 import { Modal } from '@wordpress/components';
 import { __, _x, sprintf } from '@wordpress/i18n';
+import { Icon, warning } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback, useRef, useState, useEffect } from 'react';
@@ -30,6 +32,7 @@ const onModalCloseDefault = event => {
  */
 function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeemed } ) {
 	const [ hasAnimated, setIsAnimating ] = useState( false );
+	const [ redeemError, setRedeemError ] = useState( false );
 	const videoRef = useRef( null );
 
 	useEffect( () => {
@@ -41,14 +44,10 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 	const ScanIcon = getIconBySlug( 'scan' );
 	const VaultPressBackupIcon = getIconBySlug( 'backup' );
 
-	const redeemClickHandler = useCallback(
-		e => {
-			redeemClick?.( e );
-			setIsAnimating( true );
-			videoRef.current.play();
-		},
-		[ videoRef, redeemClick ]
-	);
+	const onRedemptionSuccess = useCallback( () => {
+		setIsAnimating( true );
+		videoRef.current.play();
+	}, [ videoRef ] );
 
 	const maybeReanimate = useCallback( () => {
 		hasAnimated && videoRef.current.play();
@@ -57,6 +56,27 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 	const modalClassName = classNames( styles.modal, {
 		[ styles.animating ]: hasAnimated,
 	} );
+
+	const redeemToken = useCallback( () => {
+		// returning our promise chain makes testing a bit easier ( see ./test/components.jsx - "should render an error from API" )
+		return restApi
+			.activateAvailableGoldenTokens()
+			.then( result => {
+				// eslint-disable-next-line
+				console.log( result );
+				onRedemptionSuccess();
+			} )
+			.catch( error => {
+				setRedeemError( error.message );
+			} );
+	}, [ onRedemptionSuccess ] );
+
+	const redeemClickHandler = useCallback(
+		e => {
+			redeemClick?.( e ) || redeemToken?.();
+		},
+		[ redeemClick, redeemToken ]
+	);
 
 	return (
 		<div>
@@ -118,6 +138,12 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 								{ tokenRedeemed && __( 'Awesome!', 'jetpack' ) }
 								{ ! tokenRedeemed && __( 'Redeem your token', 'jetpack' ) }
 							</Button>
+							{ redeemError && (
+								<div className="jp-license-activation-screen-controls--license-field-error">
+									<Icon icon={ warning } />
+									<span>{ redeemError }</span>
+								</div>
+							) }
 						</div>
 
 						<div className={ `${ styles[ 'powers-wrap' ] } ${ styles[ 'content-wrap' ] }` }>

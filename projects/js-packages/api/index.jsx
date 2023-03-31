@@ -454,6 +454,16 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
+		getAvailableGoldenTokens: () =>
+			getRequest( `${ apiRoot }jetpack/v4/licensing/golden-token/get`, getParams )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
+		activateAvailableGoldenTokens: () =>
+			postRequest( `${ apiRoot }jetpack/v4/licensing/golden-token/activate`, postParams, '' )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
+
 		updateLicensingActivationNoticeDismiss: lastDetachedCount =>
 			postRequest( `${ apiRoot }jetpack/v4/licensing/user/activation-notice-dismiss`, postParams, {
 				body: JSON.stringify( { last_detached_count: lastDetachedCount } ),

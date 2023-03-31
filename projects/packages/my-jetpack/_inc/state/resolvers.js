@@ -88,6 +88,24 @@ const myJetpackResolvers = {
 				dispatch.setAvailableLicensesIsFetching( false );
 			}
 		},
+
+	getAvailableGoldenTokens:
+		() =>
+		async ( { dispatch } ) => {
+			dispatch.setAvailableGoldenTokensIsFetching( true );
+
+			try {
+				const { apiRoot, apiNonce } = window?.myJetpackRest || {};
+				restApi.setApiRoot( apiRoot );
+				restApi.setApiNonce( apiNonce );
+				const result = await restApi.getAvailableGoldenTokens();
+				dispatch.setAvailableGoldenTokens( result );
+			} catch ( error ) {
+				dispatch.setAvailableGoldenTokens( [] );
+			} finally {
+				dispatch.setAvailableGoldenTokensIsFetching( false );
+			}
+		},
 };
 
 const getProductStats = {

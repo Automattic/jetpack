@@ -165,6 +165,76 @@ class Endpoints {
 				),
 			)
 		);
+
+		/**
+		 * Gets pending activations of a partner.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/licensing/golden-token/get',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_available_golden_token',
+				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
+			)
+		);
+
+		/**
+		 * Activates a golden token.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'/licensing/golden-token/activate',
+			array(
+				'methods'             => \WP_REST_Server::CREATABLE,
+				'callback'            => __CLASS__ . '::activate_golden_token',
+				'permission_callback' => __CLASS__ . '::user_licensing_permission_check',
+			)
+		);
+	}
+
+	/**
+	 * Get pending activations of a partner.
+	 */
+	public static function get_available_golden_token() {
+		$blog_id       = Jetpack_Options::get_option( 'id' );
+		$wpcom_request = Client::wpcom_json_api_request_as_user( "/sites/{$blog_id}/jetpack-golden-token/get" );
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+		} else {
+			return new WP_Error(
+				'failed_to_fetch_tokens',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack-licensing' ),
+				array( 'status' => $response_code )
+			);
+		}
+	}
+
+	/**
+	 * Get pending activations of a partner.
+	 */
+	public static function activate_golden_token() {
+		$blog_id       = Jetpack_Options::get_option( 'id' );
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			"/sites/{$blog_id}/jetpack-golden-token/activate",
+			'v2',
+			array(
+				'method' => 'POST',
+			),
+			null,
+			'wpcom'
+		);
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+		} else {
+			return new WP_Error(
+				'failed_to_activate_token',
+				esc_html__( 'Unable to activate the golden token.', 'jetpack-licensing' ),
+				array( 'status' => $response_code )
+			);
+		}
 	}
 
 	/**

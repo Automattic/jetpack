@@ -12,6 +12,9 @@ const SET_PURCHASES = 'SET_PURCHASES';
 const SET_AVAILABLE_LICENSES_IS_FETCHING = 'SET_AVAILABLE_LICENSES_IS_FETCHING';
 const FETCH_AVAILABLE_LICENSES = 'FETCH_AVAILABLE_LICENSES';
 const SET_AVAILABLE_LICENSES = 'SET_AVAILABLE_LICENSES';
+const SET_AVAILABLE_GOLDEN_TOKENS_IS_FETCHING = 'SET_AVAILABLE_GOLDEN_TOKENS_IS_FETCHING';
+const FETCH_AVAILABLE_GOLDEN_TOKENS = 'FETCH_AVAILABLE_GOLDEN_TOKENS';
+const SET_AVAILABLE_GOLDEN_TOKENS = 'SET_AVAILABLE_GOLDEN_TOKENS';
 const SET_IS_FETCHING_PRODUCT = 'SET_IS_FETCHING_PRODUCT';
 const SET_PRODUCT = 'SET_PRODUCT';
 const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
@@ -46,6 +49,18 @@ const fetchAvailableLicenses = () => {
 
 const setAvailableLicenses = availableLicenses => {
 	return { type: SET_AVAILABLE_LICENSES, availableLicenses };
+};
+
+const fetchAvailableGoldenTokens = () => {
+	return { type: FETCH_AVAILABLE_GOLDEN_TOKENS };
+};
+
+const setAvailableGoldenTokens = availableGoldenTokens => {
+	return { type: SET_AVAILABLE_GOLDEN_TOKENS, availableGoldenTokens };
+};
+
+const setAvailableGoldenTokensIsFetching = isFetching => {
+	return { type: SET_AVAILABLE_GOLDEN_TOKENS_IS_FETCHING, isFetching };
 };
 
 const setProduct = product => ( { type: SET_PRODUCT, product } );
@@ -180,6 +195,9 @@ const actions = {
 	setAvailableLicensesIsFetching,
 	fetchAvailableLicenses,
 	setAvailableLicenses,
+	fetchAvailableGoldenTokens,
+	setAvailableGoldenTokens,
+	setAvailableGoldenTokensIsFetching,
 	setProductStats,
 	setIsFetchingProductStats,
 	...noticeActions,
@@ -193,6 +211,9 @@ export {
 	SET_AVAILABLE_LICENSES_IS_FETCHING,
 	FETCH_AVAILABLE_LICENSES,
 	SET_AVAILABLE_LICENSES,
+	SET_AVAILABLE_GOLDEN_TOKENS_IS_FETCHING,
+	FETCH_AVAILABLE_GOLDEN_TOKENS,
+	SET_AVAILABLE_GOLDEN_TOKENS,
 	SET_PRODUCT,
 	SET_PRODUCT_REQUEST_ERROR,
 	ACTIVATE_PRODUCT,

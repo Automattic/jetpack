@@ -63,6 +63,11 @@ const availableLicensesSelectors = {
 	isFetchingAvailableLicenses: state => state.availableLicenses?.isFetching || false,
 };
 
+const availableGoldenTokens = {
+	getAvailableGoldenTokens: state => state.availableGoldenTokens?.items || [],
+	isFetchingAvailableGoldenTokens: state => state.availableGoldenTokens?.isFetching || false,
+};
+
 const pluginSelectors = {
 	hasStandalonePluginInstalled: state =>
 		Object.values( state.plugins ).filter(
@@ -99,6 +104,7 @@ const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
 	...availableLicensesSelectors,
+	...availableGoldenTokens,
 	...noticeSelectors,
 	...pluginSelectors,
 	...productStatsSelectors,

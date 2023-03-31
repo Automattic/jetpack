@@ -4,6 +4,8 @@ import {
 	SET_PURCHASES_IS_FETCHING,
 	SET_AVAILABLE_LICENSES,
 	SET_AVAILABLE_LICENSES_IS_FETCHING,
+	SET_AVAILABLE_GOLDEN_TOKENS,
+	SET_AVAILABLE_GOLDEN_TOKENS_IS_FETCHING,
 	SET_PRODUCT,
 	SET_PRODUCT_STATUS,
 	SET_IS_FETCHING_PRODUCT,
@@ -111,6 +113,25 @@ const availableLicenses = ( state = {}, action ) => {
 	}
 };
 
+const availableGoldenTokens = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_AVAILABLE_GOLDEN_TOKENS_IS_FETCHING:
+			return {
+				...state,
+				isFetching: action.isFetching,
+			};
+
+		case SET_AVAILABLE_GOLDEN_TOKENS:
+			return {
+				...state,
+				items: action?.availableGoldenTokens || [],
+			};
+
+		default:
+			return state;
+	}
+};
+
 const notices = ( state = { global: {} }, action ) => {
 	switch ( action.type ) {
 		case SET_GLOBAL_NOTICE: {
@@ -173,6 +194,7 @@ const reducers = combineReducers( {
 	products,
 	purchases,
 	availableLicenses,
+	availableGoldenTokens,
 	notices,
 	plugins,
 	stats,
