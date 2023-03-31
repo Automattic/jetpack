@@ -65,7 +65,6 @@ function Price( { value, currency, isOld } ) {
  * @param {string} props.className               - A className to be concat with default ones
  * @param {boolean} props.preferProductName      - Use product name instead of title
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
- * @param {boolean} props.withTOS                - Flag to determine if we need to render Term of Service text.
  * @returns {object}                               ProductDetailCard react component.
  */
 const ProductDetailCard = ( {
@@ -75,7 +74,6 @@ const ProductDetailCard = ( {
 	className,
 	preferProductName,
 	supportingInfo,
-	withTOS,
 } ) => {
 	const { fileSystemWriteAccess, siteSuffix, myJetpackUrl } = window?.myJetpackInitialState ?? {};
 
@@ -209,6 +207,8 @@ const ProductDetailCard = ( {
 		);
 	}
 
+	const hasTrialButton = ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && trialAvailable;
+
 	// If we prefer the product name, use that everywhere instead of the title
 	const productMoniker = name && preferProductName ? name : title;
 	const ctaLabel =
@@ -285,11 +285,19 @@ const ProductDetailCard = ( {
 					</Alert>
 				) }
 
-				{ withTOS && (
-					<div className={ styles[ 'tos-container' ] }>
-						<TermsOfService agreeButtonLabel={ ctaLabel } />
-					</div>
-				) }
+				<div className={ styles[ 'tos-container' ] }>
+					<TermsOfService
+						agreeButtonLabel={
+							hasTrialButton
+								? sprintf(
+										/* translators: placeholder is product name. */
+										__( 'Add %s or Start for free', 'jetpack-my-jetpack' ),
+										productMoniker
+								  )
+								: ctaLabel
+						}
+					/>
+				</div>
 
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Text

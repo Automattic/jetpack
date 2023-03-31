@@ -27,7 +27,6 @@ const JetpackProductCard = props => {
 		checkoutUrl,
 		priority,
 		illustrationPath,
-		withTOS,
 	} = props;
 
 	const hasMedia = !! illustrationPath;
@@ -97,7 +96,7 @@ const JetpackProductCard = props => {
 					/>
 				</div>
 
-				{ withTOS && <TermsOfService agreeButtonLabel={ checkoutText } /> }
+				<TermsOfService agreeButtonLabel={ checkoutText } />
 
 				<Button className={ buttonClasses } href={ checkoutUrl } onClick={ onClick }>
 					{ checkoutText }

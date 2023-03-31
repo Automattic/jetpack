@@ -1,11 +1,4 @@
-import {
-	AdminPage,
-	Button,
-	Col,
-	Container,
-	Text,
-	TermsOfService,
-} from '@automattic/jetpack-components';
+import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
 import { select } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -34,7 +27,6 @@ import videoPressImage from './videopress.png';
  * @param {boolean} props.installsPlugin         - Whether the interstitial button installs a plugin*
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
  * @param {boolean} props.preferProductName      - Use product name instead of title
- * @param {boolean} props.withMultipleCTAs       - Wether the interstitial has multiple CTAs button
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
@@ -45,7 +37,6 @@ export default function ProductInterstitial( {
 	supportingInfo,
 	preferProductName = false,
 	children = null,
-	withMultipleCTAs,
 } ) {
 	const { activate, detail } = useProduct( slug );
 	const { isUpgradableByBundle } = detail;
@@ -158,7 +149,6 @@ export default function ProductInterstitial( {
 								className={ isUpgradableByBundle ? styles.container : null }
 								supportingInfo={ supportingInfo }
 								preferProductName={ preferProductName }
-								withTOS={ ! withMultipleCTAs } // Display TOS if we only have 1 CTA
 							/>
 						</Col>
 						<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
@@ -174,13 +164,6 @@ export default function ProductInterstitial( {
 							) }
 						</Col>
 					</Container>
-				</Col>
-				<Col>
-					{ withMultipleCTAs && (
-						<div className={ styles[ 'tos-container' ] }>
-							<TermsOfService multipleButtons />
-						</div>
-					) }
 				</Col>
 			</Container>
 		</AdminPage>
@@ -204,7 +187,6 @@ export function AntiSpamInterstitial() {
 			bundle="security"
 			existingLicenseKeyUrl={ isPluginActive ? 'admin.php?page=akismet-key-config' : null }
 			preferProductName={ true }
-			withMultipleCTAs={ true }
 		/>
 	);
 }
@@ -215,14 +197,7 @@ export function AntiSpamInterstitial() {
  * @returns {object} BackupInterstitial react component.
  */
 export function BackupInterstitial() {
-	return (
-		<ProductInterstitial
-			slug="backup"
-			installsPlugin={ true }
-			bundle="security"
-			withMultipleCTAs={ true }
-		/>
-	);
+	return <ProductInterstitial slug="backup" installsPlugin={ true } bundle="security" />;
 }
 
 /**
@@ -270,14 +245,7 @@ export function ExtrasInterstitial() {
  * @returns {object} ProtectInterstitial react component.
  */
 export function ProtectInterstitial() {
-	return (
-		<ProductInterstitial
-			slug="protect"
-			installsPlugin={ true }
-			bundle="security"
-			withMultipleCTAs={ true }
-		/>
-	);
+	return <ProductInterstitial slug="protect" installsPlugin={ true } bundle="security" />;
 }
 
 /**
@@ -286,14 +254,7 @@ export function ProtectInterstitial() {
  * @returns {object} ScanInterstitial react component.
  */
 export function ScanInterstitial() {
-	return (
-		<ProductInterstitial
-			slug="scan"
-			installsPlugin={ true }
-			bundle="security"
-			withMultipleCTAs={ true }
-		/>
-	);
+	return <ProductInterstitial slug="scan" installsPlugin={ true } bundle="security" />;
 }
 
 /**
@@ -328,7 +289,6 @@ export function SearchInterstitial() {
 					'jetpack-my-jetpack'
 				)
 			}
-			withMultipleCTAs={ true }
 		>
 			<img src={ searchImage } alt="Search" />
 		</ProductInterstitial>
