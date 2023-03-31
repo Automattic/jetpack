@@ -18,7 +18,21 @@ const PRODUCT_STATUSES_LABELS = {
 };
 
 /* eslint-disable react/jsx-no-bind */
-const Menu = ( { items = [], onManage } ) => {
+const Menu = ( {
+	items = [],
+	status,
+	onManage,
+	onAdd,
+	onActivate,
+	hasStandalonePlugin,
+	isStandaloneInstalled,
+	isStandaloneActive,
+} ) => {
+	// Only show standalone related option if plugin is not installed
+	// or isn't active
+	const showStandaloneOption =
+		hasStandalonePlugin && ( ! isStandaloneInstalled || ! isStandaloneActive );
+
 	return (
 		<Dropdown
 			className={ styles.dropdown }
@@ -48,31 +62,53 @@ const Menu = ( { items = [], onManage } ) => {
 							{ item?.label }
 						</Button>
 					) ) }
-					<Button
-						weight="regular"
-						fullWidth
-						variant="tertiary"
-						icon={ external }
-						onClick={ () => {
-							onClose();
-							onManage?.();
-						} }
-					>
-						{ __( 'Manage', 'jetpack-my-jetpack' ) }
-					</Button>
-					<hr />
-					<Button
-						weight="regular"
-						fullWidth
-						variant="tertiary"
-						icon={ arrowDown }
-						onClick={ () => {
-							onClose();
-							onManage?.();
-						} }
-					>
-						{ __( 'Install VideoPress plugin', 'jetpack-my-jetpack' ) }
-					</Button>
+					{ status === PRODUCT_STATUSES.ACTIVE && (
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							icon={ external }
+							onClick={ () => {
+								onClose();
+								onManage?.();
+							} }
+						>
+							{ __( 'Manage', 'jetpack-my-jetpack' ) }
+						</Button>
+					) }
+					{ showStandaloneOption && (
+						<>
+							<hr />
+							{ ! isStandaloneInstalled && (
+								<Button
+									weight="regular"
+									fullWidth
+									variant="tertiary"
+									icon={ arrowDown }
+									onClick={ () => {
+										onClose();
+										onAdd?.();
+									} }
+								>
+									{ __( 'Install plugin', 'jetpack-my-jetpack' ) }
+								</Button>
+							) }
+							{ ! isStandaloneActive && isStandaloneInstalled && (
+								<Button
+									weight="regular"
+									fullWidth
+									variant="tertiary"
+									icon={ external }
+									onClick={ () => {
+										onClose();
+										onActivate?.();
+									} }
+								>
+									{ __( 'Activate plugin', 'jetpack-my-jetpack' ) }
+								</Button>
+							) }
+						</>
+					) }
 				</>
 			) }
 		/>
@@ -95,6 +131,9 @@ const ProductCard = props => {
 		children,
 		showMenu = false,
 		menuItems = [],
+		hasStandalonePlugin = false,
+		isStandaloneInstalled = false,
+		isStandaloneActive = false,
 	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
@@ -107,7 +146,12 @@ const ProductCard = props => {
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 
 	// If status isn't active, we show only one action through the button
-	const menuIsActive = showMenu && isActive;
+	const menuIsActive =
+		showMenu &&
+		( ! isAbsent || // No menu if absent
+			isActive || // Show manage option
+			menuItems?.length > 0 || // Show parent options
+			( hasStandalonePlugin && ( ! isStandaloneActive || ! isStandaloneInstalled ) ) ); // Show install | activate options
 
 	const containerClassName = classNames( styles.container, {
 		[ styles.plugin_absent ]: isAbsent,
@@ -189,7 +233,20 @@ const ProductCard = props => {
 					<Text variant="title-medium">{ name }</Text>
 					{ menuIsActive && icon }
 				</div>
-				{ menuIsActive ? <Menu items={ menuItems } onManage={ onManage } /> : icon }
+				{ menuIsActive ? (
+					<Menu
+						status={ status }
+						items={ menuItems }
+						onManage={ onManage }
+						onAdd={ onAdd }
+						onActivate={ onActivate }
+						hasStandalonePlugin={ hasStandalonePlugin }
+						isStandaloneActive={ isStandaloneActive }
+						isStandaloneInstalled={ isStandaloneInstalled }
+					/>
+				) : (
+					icon
+				) }
 			</div>
 			{
 				// If is not active, no reason to use children
@@ -207,17 +264,15 @@ const ProductCard = props => {
 								{ flagLabel }
 							</Text>
 						) }
-						{ ! menuIsActive && (
-							<div className={ styles.actions }>
-								<ActionButton
-									{ ...props }
-									onActivate={ activateHandler }
-									onFixConnection={ fixConnectionHandler }
-									onManage={ manageHandler }
-									className={ styles.button }
-								/>
-							</div>
-						) }
+						<div className={ styles.actions }>
+							<ActionButton
+								{ ...props }
+								onActivate={ activateHandler }
+								onFixConnection={ fixConnectionHandler }
+								onManage={ manageHandler }
+								className={ styles.button }
+							/>
+						</div>
 					</>
 				)
 			}
