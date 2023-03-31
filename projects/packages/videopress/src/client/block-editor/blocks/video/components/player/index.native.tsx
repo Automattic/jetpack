@@ -14,7 +14,7 @@ import style from './style.scss';
 /**
  * Types
  */
-import type { NativePlayerProps } from './types';
+import type { PlayerProps } from './types';
 
 /**
  * VideoPlayer react component
@@ -25,11 +25,7 @@ import type { NativePlayerProps } from './types';
  * @param {boolean} props.isSelected - Whether the block is selected.
  * @returns {object} - React component.
  */
-export default function Player( {
-	html,
-	isRequestingEmbedPreview,
-	isSelected,
-}: NativePlayerProps ) {
+export default function Player( { html, isRequestingEmbedPreview, isSelected }: PlayerProps ) {
 	// Set up style for when the player is loading.
 	const loadingStyle: { height?: number } = {};
 	if ( ! html || isRequestingEmbedPreview ) {
