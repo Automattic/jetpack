@@ -1,12 +1,31 @@
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { trash, inbox, moreHorizontal } from '@wordpress/icons';
+import { updateResponseStatus } from '../data/responses';
 import { STORE_NAME } from '../state';
-import { TABS } from './constants';
+import { ACTIONS, TABS } from './constants';
 
-const SingleActionsMenu = () => {
-	const currentTab = useSelect( select => select( STORE_NAME ).getResponsesQuery().status, [] );
+const SingleActionsMenu = ( { id } ) => {
+	const { fetchResponses, setLoading } = useDispatch( STORE_NAME );
+	const query = useSelect( select => select( STORE_NAME ).getResponsesQuery(), [] );
+	const currentTab = query.status;
+
+	const deleteLabel =
+		currentTab !== TABS.trash
+			? __( 'Delete', 'jetpack-forms' )
+			: __( 'Delete permanently', 'jetpack-forms' );
+	const deleteAction = currentTab !== TABS.trash ? ACTIONS.moveToTrash : ACTIONS.delete;
+
+	const onActionHandler = action => async () => {
+		try {
+			setLoading( true );
+			await updateResponseStatus( [ id ], action );
+			fetchResponses( query );
+		} catch {
+			//TODO: Implement error handling
+		}
+	};
 
 	return (
 		<DropdownMenu
@@ -15,17 +34,21 @@ const SingleActionsMenu = () => {
 				position: 'bottom left',
 			} }
 		>
-			{ ( { onClose } ) => (
+			{ () => (
 				<MenuGroup>
 					{ currentTab === TABS.spam && (
-						<MenuItem onClick={ onClose } iconPosition="left" icon={ inbox }>
+						<MenuItem
+							onClick={ onActionHandler( ACTIONS.markAsNotSpam ) }
+							iconPosition="left"
+							icon={ inbox }
+						>
 							{ __( 'Remove from spam', 'jetpack-forms' ) }
 						</MenuItem>
 					) }
 
-					{ currentTab !== TABS.spam && (
+					{ currentTab === TABS.inbox && (
 						<MenuItem
-							onClick={ onClose }
+							onClick={ onActionHandler( ACTIONS.markAsSpam ) }
 							iconPosition="left"
 							icon={
 								<svg
@@ -50,22 +73,24 @@ const SingleActionsMenu = () => {
 					) }
 
 					{ currentTab === TABS.trash && (
-						<MenuItem onClick={ onClose } iconPosition="left" icon={ inbox }>
+						<MenuItem
+							onClick={ onActionHandler( ACTIONS.removeFromTrash ) }
+							iconPosition="left"
+							icon={ inbox }
+						>
 							{ __( 'Remove from trash', 'jetpack-forms' ) }
 						</MenuItem>
 					) }
 
-					{ currentTab !== TABS.trash && (
-						<MenuItem
-							onClick={ onClose }
-							iconPosition="left"
-							icon={ trash }
-							variant="tertiary"
-							isDestructive
-						>
-							{ __( 'Delete', 'jetpack-forms' ) }
-						</MenuItem>
-					) }
+					<MenuItem
+						onClick={ onActionHandler( deleteAction ) }
+						iconPosition="left"
+						icon={ trash }
+						variant="tertiary"
+						isDestructive
+					>
+						{ deleteLabel }
+					</MenuItem>
 				</MenuGroup>
 			) }
 		</DropdownMenu>
