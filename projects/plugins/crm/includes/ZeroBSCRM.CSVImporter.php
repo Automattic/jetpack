@@ -654,18 +654,11 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 										$cleanUserField = trim( $cleanUserField );
 
-										// } Clean user field - ""
-										if ( substr( $cleanUserField, 0, 1 ) == '"' && substr( $cleanUserField, -1 ) == '"' ) {
-											$cleanUserField = substr( $cleanUserField, 1, strlen( $cleanUserField ) - 2 );
-										}
-										// } Clean user field - ''
-										if ( substr( $cleanUserField, 0, 1 ) == "'" && substr( $cleanUserField, -1 ) == "'" ) {
-											$cleanUserField = substr( $cleanUserField, 1, strlen( $cleanUserField ) - 2 );
-										}
-
 										if ( $cleanUserField == 'NULL' ) {
 											$cleanUserField = '';
 										}
+
+										$cleanUserField = sanitize_text_field( $cleanUserField ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 										// } set customer fields
 										$customerFields[ 'zbsc_' . $fieldTarget ] = $cleanUserField;
