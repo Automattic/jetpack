@@ -1,7 +1,7 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { external, moreVertical } from '@wordpress/icons';
+import { arrowDown, external, moreVertical } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
@@ -60,6 +60,19 @@ const Menu = ( { items = [], onManage } ) => {
 					>
 						{ __( 'Manage', 'jetpack-my-jetpack' ) }
 					</Button>
+					<hr />
+					<Button
+						weight="regular"
+						fullWidth
+						variant="tertiary"
+						icon={ arrowDown }
+						onClick={ () => {
+							onClose();
+							onManage?.();
+						} }
+					>
+						{ __( 'Install VideoPress plugin', 'jetpack-my-jetpack' ) }
+					</Button>
 				</>
 			) }
 		/>
@@ -86,7 +99,8 @@ const ProductCard = props => {
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
-	const isAbsent = status === PRODUCT_STATUSES.ABSENT;
+	const isAbsent =
+		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
 	const isPurchaseRequired =
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE ||
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;

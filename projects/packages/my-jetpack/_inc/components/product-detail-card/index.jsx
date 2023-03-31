@@ -209,6 +209,11 @@ const ProductDetailCard = ( {
 	// If we prefer the product name, use that everywhere instead of the title
 	const productMoniker = name && preferProductName ? name : title;
 
+	/* translators: placeholder is product name. */
+	const getLabel = sprintf( __( 'Get %s', 'jetpack-my-jetpack' ), name );
+	/* translators: placeholder is product name. */
+	const installLabel = sprintf( __( 'Install %s', 'jetpack-my-jetpack' ), name );
+
 	return (
 		<div
 			className={ classnames( styles.card, className, {
@@ -281,10 +286,7 @@ const ProductDetailCard = ( {
 						className={ styles[ 'checkout-button' ] }
 						variant="body"
 					>
-						{
-							/* translators: placeholder is product name. */
-							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), productMoniker )
-						}
+						{ hasRequiredPlan && ! isBundle ? installLabel : getLabel }
 					</Text>
 				) }
 

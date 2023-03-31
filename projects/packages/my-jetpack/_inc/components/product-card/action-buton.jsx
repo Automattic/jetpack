@@ -7,6 +7,7 @@ export const PRODUCT_STATUSES = {
 	INACTIVE: 'inactive',
 	ERROR: 'error',
 	ABSENT: 'plugin_absent',
+	ABSENT_WITH_PLAN: 'plugin_absent_with_plan',
 	NEEDS_PURCHASE: 'needs_purchase',
 	NEEDS_PURCHASE_OR_FREE: 'needs_purchase_or_free',
 };
@@ -33,6 +34,11 @@ const ActionButton = ( {
 		);
 	}
 
+	/* translators: placeholder is product name. */
+	const getLabel = sprintf( __( 'Get %s', 'jetpack-my-jetpack' ), name );
+	/* translators: placeholder is product name. */
+	const installLabel = sprintf( __( 'Install %s', 'jetpack-my-jetpack' ), name );
+
 	const buttonState = {
 		variant: ! isFetching ? 'primary' : undefined,
 		disabled: isFetching,
@@ -40,13 +46,11 @@ const ActionButton = ( {
 	};
 
 	switch ( status ) {
+		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
 		case PRODUCT_STATUSES.ABSENT:
 			return (
 				<Button { ...buttonState } size="small" variant="link" weight="regular">
-					{
-						/* translators: placeholder is product name. */
-						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
-					}
+					{ PRODUCT_STATUSES.ABSENT_WITH_PLAN === status ? installLabel : getLabel }
 				</Button>
 			);
 		case PRODUCT_STATUSES.NEEDS_PURCHASE:
