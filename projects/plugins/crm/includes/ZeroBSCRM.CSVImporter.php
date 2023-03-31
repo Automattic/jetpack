@@ -796,7 +796,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 						?>
 						<hr />
-						<a href="<?php echo jpcrm_esc_link( $zbs->slugs['managecontacts'] ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" target="_blank" class="ui button green"><?php esc_html_e( 'Finish', 'zero-bs-crm' ); ?></a>
+						<a href="<?php echo jpcrm_esc_link( $zbs->slugs['managecontacts'] ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" class="ui button green"><?php esc_html_e( 'Finish', 'zero-bs-crm' ); ?></a>
 					</div>
 				</div>
 			</div>
