@@ -40,7 +40,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'update_settings' ),
+					'callback'            => array( $this, 'update_site_options' ),
 					'permission_callback' => array( $this, 'can_read' ),
 					'request_format'      => array(
 						'launchpad_checklist_tasks_statuses'      => '(array) Array of launchpad checklist tasks completion status',
@@ -78,9 +78,9 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	 *
 	 * @param array $request The unsanitized request values.
 	 *
-	 * @return array Associative array with updated site settings
+	 * @return array Associative array with updated site options
 	 */
-	public function update_settings( $request ) {
+	public function update_site_options( $request ) {
 		$updated = array();
 		$input   = $request->get_json_params();
 
