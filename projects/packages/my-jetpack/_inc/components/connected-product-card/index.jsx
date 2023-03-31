@@ -6,7 +6,7 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
 import ProductCard from '../product-card';
 
-const ConnectedProductCard = ( { admin, slug, children } ) => {
+const ConnectedProductCard = ( { admin, slug, children, showMenu, menuItems } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 	const { detail, status, activate, deactivate, isFetching } = useProduct( slug );
 	const { name, description, manageUrl, requiresUserConnection } = detail;
@@ -56,6 +56,8 @@ const ConnectedProductCard = ( { admin, slug, children } ) => {
 			onAdd={ navigateToAddProductPage }
 			onManage={ onManage }
 			onFixConnection={ navigateToConnectionPage }
+			showMenu={ showMenu }
+			menuItems={ menuItems }
 		>
 			{ children }
 		</ProductCard>
@@ -66,6 +68,8 @@ ConnectedProductCard.propTypes = {
 	children: PropTypes.node,
 	admin: PropTypes.bool.isRequired,
 	slug: PropTypes.string.isRequired,
+	showMenu: PropTypes.bool,
+	menuItems: PropTypes.array,
 };
 
 export default ConnectedProductCard;
