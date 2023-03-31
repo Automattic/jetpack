@@ -5,13 +5,17 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	padding: 40px 60px;
+	padding: 0;
 	position: fixed;
 	top: 0;
 	left: 0;
 	bottom: 0;
 	right: 0;
 	z-index: 9999;
+
+	@media (min-width: 601px) {
+		padding: 40px 60px;
+	}
 }
 
 .jp-forms__export-modal-wrapper {
@@ -20,8 +24,7 @@
 	flex-direction: column;
 	max-width: 680px;
 	padding: 24px 48px 0;
-	position: absolute;
-	width: 100%;
+	position: relative;
 }
 
 .jp-forms__export-modal-close-button {
