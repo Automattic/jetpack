@@ -86,7 +86,7 @@ class DashAkismet extends Component {
 	};
 
 	getContent() {
-		const akismetData = this.props.akismetData;
+		const { akismetData, siteAdminUrl } = this.props;
 		const labelName = __( 'Akismet Anti-spam', 'jetpack' );
 
 		const support = {
@@ -99,12 +99,28 @@ class DashAkismet extends Component {
 		};
 
 		const getAkismetUpgradeBanner = () => {
-			const description = createInterpolateElement(
-				__( 'Already have a key? <Button>Activate Akismet Anti-spam</Button>', 'jetpack' ),
-				{
-					Button: <Button className="jp-link-button" onClick={ this.onActivateClick } />,
-				}
-			);
+			let description;
+
+			if ( 'not_active' === akismetData ) {
+				description = createInterpolateElement(
+					__( 'Already have a key? <Button>Activate Akismet Anti-spam</Button>.', 'jetpack' ),
+					{
+						Button: <Button className="jp-link-button" onClick={ this.onActivateClick } />,
+					}
+				);
+			} else if ( 'invalid_key' === akismetData ) {
+				description = createInterpolateElement(
+					__( 'Already have a key? <Button>Get started</Button>.', 'jetpack' ),
+					{
+						Button: (
+							<Button
+								className="jp-link-button"
+								href={ siteAdminUrl + 'admin.php?page=akismet-key-config' }
+							/>
+						),
+					}
+				);
+			}
 
 			return (
 				<JetpackBanner
