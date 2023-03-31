@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Settings;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
 use WorDBless\BaseTestCase;
@@ -32,15 +31,15 @@ class Settings_Test extends BaseTestCase {
 	 * @before
 	 */
 	public function set_up() {
-		add_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
-		global $publicize_ui;
-		if ( ! isset( $publicize_ui ) ) {
-			$publicize_ui = new Publicize_UI();
-		}
+		global $publicize;
 
-		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array( 'social-image-generator' );
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+		$publicize = $this->getMockBuilder( Publicize::class )
+			->setMethods( array( 'has_social_image_generator_feature', 'refresh_connections' ) )
+			->getMock();
+		$publicize->method( 'has_social_image_generator_feature' )
+			->willReturn( true );
+		add_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
+
 		$this->settings = new Settings();
 	}
 
@@ -51,9 +50,6 @@ class Settings_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
-		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array();
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();

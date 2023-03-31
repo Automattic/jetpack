@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack\Publicize;
 
-use Automattic\Jetpack\Current_Plan;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -43,9 +42,14 @@ class REST_Settings_Controller_Test extends BaseTestCase {
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();
 
-		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array( 'social-image-generator' );
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+		global $publicize;
+
+		$publicize = $this->getMockBuilder( Publicize::class )
+			->setMethods( array( 'has_social_image_generator_feature', 'refresh_connections' ) )
+			->getMock();
+		$publicize->method( 'has_social_image_generator_feature' )
+			->willReturn( true );
+
 		add_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
 
 		global $wp_rest_server;
@@ -81,10 +85,6 @@ class REST_Settings_Controller_Test extends BaseTestCase {
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();
-
-		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array();
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
 	}
 
 	/**

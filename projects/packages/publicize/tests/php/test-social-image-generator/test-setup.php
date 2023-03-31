@@ -29,9 +29,14 @@ class Setup_Test extends BaseTestCase {
 	 * Setting up the test.
 	 */
 	public function set_up() {
-		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array( 'social-image-generator' );
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+		global $publicize;
+
+		$publicize = $this->getMockBuilder( Publicize::class )
+			->setMethods( array( 'has_social_image_generator_feature', 'refresh_connections' ) )
+			->getMock();
+		$publicize->method( 'has_social_image_generator_feature' )
+			->willReturn( true );
+
 		add_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
 		$this->sig = new Social_Image_Generator\Setup();
 		$this->sig->init();
@@ -49,10 +54,7 @@ class Setup_Test extends BaseTestCase {
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
 		unset( $_SERVER['REQUEST_METHOD'] );
-		$_GET                       = array();
-		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array();
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+		$_GET = array();
 	}
 
 	/**
