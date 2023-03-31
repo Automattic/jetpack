@@ -13,7 +13,13 @@ import {
 	Spinner,
 	Notice,
 } from '@wordpress/components';
-import { useRef, useEffect, useState, useCallback } from '@wordpress/element';
+import {
+	useRef,
+	useEffect,
+	useState,
+	useCallback,
+	createInterpolateElement,
+} from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { linkOff, image as imageIcon } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -34,6 +40,7 @@ import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../
 import type { PosterDataProps, PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import type React from 'react';
 
+const MIN_LOOP_DURATION = 3 * 1000;
 const MAX_LOOP_DURATION = 30 * 1000;
 const DEFAULT_LOOP_DURATION = 10 * 1000;
 
@@ -315,20 +322,18 @@ function VideoHoverPreviewControl( {
 	onPreviewAtTimeChange,
 	onLoopDurationChange,
 }: VideoHoverPreviewControlProps ): React.ReactElement {
-	/*
-	 * maxLoopDuration is the maximum duration of the loop,
-	 * which is the minimum between the video duration and the MAX_LOOP_DURATION constant.
-	 */
-	const maxLoopDuration = Math.min( MAX_LOOP_DURATION, videoDuration );
-
-	/*
-	 * maxStartingPoint is the maximum starting point of the loop,
-	 * which is the difference between the video duration and the maxLoopDuration.
-	 * This is the maximum value that the starting point can have.
-	 * For example, if the video duration is 10 seconds and the maxLoopDuration is 3 seconds,
-	 * the maxStartingPoint will be 7 seconds.
-	 */
-	const maxStartingPoint = videoDuration - loopDuration;
+	const maxStartingPoint = Math.min( videoDuration, videoDuration - MIN_LOOP_DURATION );
+	const maxLoopDuration = Math.min( MAX_LOOP_DURATION, videoDuration - previewAtTime );
+	const loopDurationHelp = createInterpolateElement(
+		sprintf(
+			/* translators: placeholder is the maxium lapse duration for the previewOnHover */
+			__( 'Maximum lapse duration <em>%s</em>s.', 'jetpack-videopress-pkg' ),
+			( ( maxLoopDuration / 10 ) | 0 ) / 100
+		),
+		{
+			em: <em />,
+		}
+	);
 
 	return (
 		<>
@@ -359,6 +364,7 @@ function VideoHoverPreviewControl( {
 						value={ loopDuration }
 						onDebounceChange={ onLoopDurationChange }
 						wait={ 100 }
+						help={ loopDurationHelp }
 					/>
 				</>
 			) }
