@@ -119,6 +119,13 @@ class Dashboard {
 	 * Initialize the admin resources.
 	 */
 	public function admin_init() {
-		add_action( 'admin_enqueue_scripts', array( new CDN_Assets(), 'load_admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+	}
+
+	/**
+	 * Load the admin scripts.
+	 */
+	public function load_admin_scripts() {
+		( new CDN_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'build.min' );
 	}
 }

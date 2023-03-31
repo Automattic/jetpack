@@ -32,7 +32,7 @@ class CDN_Assets {
 	 * @param string $asset_name The name of the asset.
 	 * @param array  $config_data The config data.
 	 */
-	public function load_admin_scripts( $asset_handle, $asset_name = 'build.min', $config_data = null ) {
+	public function load_admin_scripts( $asset_handle, $asset_name, $config_data = null ) {
 		if ( file_exists( __DIR__ . "/../dist/{$asset_name}.js" ) ) {
 			// Load local assets for the convinience of development.
 			Assets::register_script(
