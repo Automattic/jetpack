@@ -33,30 +33,30 @@ class Test_Plan extends Stats_Test_Case {
 	 * Test remote cache buster.
 	 */
 	public function test_get_cdn_asset_cache_buster() {
-		$dashboard                  = new Dashboard();
-		$get_cdn_asset_cache_buster = new \ReflectionMethod( $dashboard, 'get_cdn_asset_cache_buster' );
+		$cdn_assets                 = new CDN_Assets();
+		$get_cdn_asset_cache_buster = new \ReflectionMethod( $cdn_assets, 'get_cdn_asset_cache_buster' );
 		$get_cdn_asset_cache_buster->setAccessible( true );
-		$this->assertEquals( 'calypso-4917-8664-g72a154d63a', $get_cdn_asset_cache_buster->invoke( $dashboard ) );
+		$this->assertEquals( 'calypso-4917-8664-g72a154d63a', $get_cdn_asset_cache_buster->invoke( $cdn_assets ) );
 	}
 
 	/**
 	 * Test configData set to JS.
 	 */
 	public function test_render_config_data() {
-		$dashboard   = new Dashboard();
-		$config_data = new \ReflectionMethod( $dashboard, 'get_config_data_js' );
+		$cdn_assets  = new CDN_Assets();
+		$config_data = new \ReflectionMethod( $cdn_assets, 'get_config_data_js' );
 		$config_data->setAccessible( true );
-		$this->assertTrue( strpos( $config_data->invoke( $dashboard ), 'window.configData' ) === 0 );
+		$this->assertTrue( strpos( $config_data->invoke( $cdn_assets, array() ), 'window.configData' ) === 0 );
 	}
 
 	/**
 	 * Test config_data has all necessary keys.
 	 */
 	public function test_config_data() {
-		$dashboard   = new Dashboard();
-		$config_data = new \ReflectionMethod( $dashboard, 'config_data' );
+		$odyssey_config = new Odyssey_Config_Data();
+		$config_data    = new \ReflectionMethod( $odyssey_config, 'get_data' );
 		$config_data->setAccessible( true );
-		$data = $config_data->invoke( $dashboard );
+		$data = $config_data->invoke( $odyssey_config );
 		$this->assertArrayHasKey( 'admin_page_base', $data );
 		$this->assertArrayHasKey( 'api_root', $data );
 		$this->assertArrayHasKey( 'blog_id', $data );
