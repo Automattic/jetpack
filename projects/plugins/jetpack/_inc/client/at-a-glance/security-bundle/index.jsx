@@ -114,7 +114,7 @@ class DashSecurityBundle extends Component {
 							compact
 							primary
 						>
-							{ __( 'Upgrade', 'jetpack' ) }
+							{ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 						</Button>
 					</div>
 				</div>

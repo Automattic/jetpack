@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sync: Lowered priority to sync so that the hook is run at the end.

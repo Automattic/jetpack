@@ -55,7 +55,7 @@ const productSelectors = {
 
 const purchasesSelectors = {
 	getPurchases: state => state.purchases?.items || [],
-	isRequestingPurchases: state => state.isRequestingPurchases || false,
+	isRequestingPurchases: state => state.purchases?.isFetching || false,
 };
 
 const availableLicensesSelectors = {
@@ -82,12 +82,26 @@ const noticeSelectors = {
 	getGlobalNotice: state => state.notices?.global,
 };
 
+const getProductStats = ( state, productId ) => {
+	return state.stats?.items?.[ productId ] || null;
+};
+
+const isFetchingProductStats = ( state, productId ) => {
+	return state.stats?.isFetching?.[ productId ] || false;
+};
+
+const productStatsSelectors = {
+	getProductStats,
+	isFetchingProductStats,
+};
+
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
 	...availableLicensesSelectors,
 	...noticeSelectors,
 	...pluginSelectors,
+	...productStatsSelectors,
 };
 
 export default selectors;

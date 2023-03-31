@@ -8,7 +8,7 @@ import {
 	BaseControl,
 	useBaseControlProps,
 } from '@wordpress/components';
-import { useCallback, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import classNames from 'classnames';
 /**
  * Internal dependencies
@@ -197,6 +197,7 @@ export const TimestampInput = ( {
 					<TimeDivider char="." />
 					<NumberControl
 						className={ styles[ 'timestamp-control-input' ] }
+						style={ { '--input-width': `${ 12 * decimalPlaces }px` } }
 						disabled={ disabled }
 						min={ 0 }
 						max={ Number( '9'.repeat( decimalPlaces ) ) }
@@ -237,13 +238,20 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 	} = props;
 
 	const debounceTimer = useRef< NodeJS.Timeout >();
+	const [ controledValue, setControledValue ] = useState( value );
 
-	const { baseControlProps } = useBaseControlProps( props );
+	useEffect( () => {
+		setControledValue( value );
+	}, [ value ] );
+
+	// Check and add a fallback for the `useBaseControlProps` hook.
+	const { baseControlProps } = useBaseControlProps?.( props ) || {};
 
 	const onChangeHandler = useCallback(
 		( newValue: number ) => {
 			clearTimeout( debounceTimer?.current );
 
+			setControledValue( newValue );
 			onChange?.( newValue );
 			debounceTimer.current = setTimeout( onDebounceChange?.bind( null, newValue ), wait );
 		},
@@ -253,22 +261,24 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 	return (
 		<BaseControl { ...baseControlProps }>
 			<div className={ styles[ 'timestamp-control__controls-wrapper' ] }>
-				<TimestampInput
-					disabled={ disabled }
-					max={ max }
-					value={ value }
-					onChange={ onChangeHandler }
-					autoHideTimeInput={ autoHideTimeInput }
-					decimalPlaces={ decimalPlaces }
-				/>
+				{ NumberControl && (
+					<TimestampInput
+						disabled={ disabled }
+						max={ max }
+						value={ controledValue }
+						onChange={ onChangeHandler }
+						autoHideTimeInput={ autoHideTimeInput }
+						decimalPlaces={ decimalPlaces }
+					/>
+				) }
 
 				<RangeControl
 					disabled={ disabled }
 					className={ styles[ 'timestamp-range-control' ] }
 					min={ 0 }
 					step={ fineAdjustment }
-					initialPosition={ value }
-					value={ value }
+					initialPosition={ controledValue }
+					value={ controledValue }
 					max={ max }
 					showTooltip={ false }
 					withInputField={ false }
