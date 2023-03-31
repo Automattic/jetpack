@@ -109,13 +109,6 @@ class WordAds {
 	public static $solo_unit_css = 'float:left;margin-right:5px;margin-top:0px;';
 
 	/**
-	 * Indicates whether the class initialized or not.
-	 *
-	 * @var bool
-	 */
-	private static $initialized = false;
-
-	/**
 	 * Checks for AMP support and returns true iff active & AMP request
 	 *
 	 * @return boolean True if supported AMP request
@@ -180,31 +173,18 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	public function __construct() {
+		// Initialize.
 		add_action( 'init', array( $this, 'init' ) );
-
-		// AMP compatibility.
-		add_action( 'wp', array( $this, 'init' ) );
-
 		add_action( 'rest_api_init', array( $this, 'init' ) );
 		add_action( 'widgets_init', array( $this, 'widget_callback' ) );
-
-		if ( is_admin() ) {
-			WordAds_California_Privacy::init_ajax_actions();
-		}
 	}
 
 	/**
-	 * Code to run on WordPress 'init' and 'wp' hook.
+	 * Code to run on WordPress 'init' hook.
 	 *
 	 * @since 4.5.0
 	 */
 	public function init() {
-		if ( self::$initialized ) {
-			return;
-		}
-
-		self::$initialized = true;
-
 		require_once WORDADS_ROOT . '/php/class-wordads-params.php';
 		$this->params = new WordAds_Params();
 
@@ -213,20 +193,25 @@ class WordAds {
 		}
 
 		if ( is_admin() ) {
+			// Add AJAX actions required for CCPA.
+			WordAds_California_Privacy::init_ajax_actions();
+
+			// Add additional admin features.
 			require_once WORDADS_ROOT . '/php/class-wordads-admin.php';
 			return;
 		}
 
-		$this->insert_adcode();
+		// Queue ads to run. AMP compatibility: Usage of is_amp_endpoint() needs to happen after parse_query.
+		add_action( 'wp', array( $this, 'insert_adcode' ) );
+
+		// Include Sponsored Post.
+		require_once WORDADS_ROOT . '/php/class-wordads-sponsored-post.php';
+		WordAds_Sponsored_Post::init();
 
 		// Include California Privacy Act related features if enabled.
 		if ( $this->params->options['wordads_ccpa_enabled'] ) {
 			WordAds_California_Privacy::init();
 		}
-
-		// Include Sponsored Post.
-		require_once WORDADS_ROOT . '/php/class-wordads-sponsored-post.php';
-		WordAds_Sponsored_Post::init();
 
 		if ( isset( $_SERVER['REQUEST_URI'] ) && '/ads.txt' === $_SERVER['REQUEST_URI'] ) {
 
@@ -272,7 +257,7 @@ class WordAds {
 	 *
 	 * @since 4.5.0
 	 */
-	private function insert_adcode() {
+	public function insert_adcode() {
 		add_filter( 'wp_resource_hints', array( $this, 'resource_hints' ), 10, 2 );
 		add_action( 'wp_head', array( $this, 'insert_head_meta' ), 20 );
 		add_action( 'wp_head', array( $this, 'insert_head_iponweb' ), 30 );

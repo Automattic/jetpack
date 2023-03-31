@@ -70,8 +70,8 @@ class WordAds_Sponsored_Post {
 		$dummy->post_title     = '{{sp_link_text}}';
 		$dummy->post_content   = '{{sp_post_thumbnail}}{{sp_post_content}}{{sp_cta}}';
 		$dummy->post_excerpt   = $dummy->post_content;
-		$dummy->post_date      = current_time( 'mysql' );    // If you don't add a post_date then WordPress fills.
-		$dummy->post_date_gmt  = current_time( 'mysql', 1 ); // it automatically with the current date and time.
+		$dummy->post_date      = current_time( 'mysql' ); // If you don't add a post_date then WordPress fills it automatically with the current date + time.
+		$dummy->post_date_gmt  = current_time( 'mysql', 1 );
 		$dummy->post_author    = '{{sp_post_author}}';
 		$dummy->filter         = 'raw';
 		$dummy->comment_status = 'closed'; // Prevent commenting.
