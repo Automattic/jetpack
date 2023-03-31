@@ -61,6 +61,11 @@ class WordAds_Sponsored_Post {
 	 */
 	public static function inject_sponsored_post( $posts, $wp_query ) {
 
+		// No support for AMP.
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+			return $posts;
+		}
+
 		if ( ! ( is_front_page() && $wp_query->is_main_query() ) ) {
 			return $posts;
 		}
