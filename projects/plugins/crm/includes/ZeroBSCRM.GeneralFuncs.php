@@ -1554,3 +1554,32 @@ function jpcrm_youtube_url_to_video_id( $video_url ) {
 /* ======================================================
    / YouTube Helpers
 ====================================================== */
+
+/**
+ * Convert legacy DAL property name to most recent version.
+ *
+ * We have to use this because some fields changed their keys (i.e. second
+ * address field) and their usage was not correctly changed/migrated.
+ * This is used for backwards compatibility only.
+ *
+ * @param string $field_key The field key.
+ * @return string The modified field key if it needs to be changed, otherwise returns the same $field_key.
+ */
+function jpcrm_convert_legacy_object_key( $field_key ) {
+	switch ( $field_key ) {
+		case 'secaddr1':
+			return 'secaddr_addr1';
+		case 'secaddr2':
+			return 'secaddr_addr2';
+		case 'seccity':
+			return 'secaddr_city';
+		case 'seccounty':
+			return 'secaddr_county';
+		case 'seccountry':
+			return 'secaddr_country';
+		case 'secpostcode':
+			return 'secaddr_postcode';
+	}
+
+	return $field_key;
+}
