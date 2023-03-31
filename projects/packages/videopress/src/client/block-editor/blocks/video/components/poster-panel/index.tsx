@@ -94,19 +94,22 @@ export function PosterDropdown( {
 	const videoPosterDescription = `video-block__poster-image-description-${ clientId }`;
 
 	const { poster } = attributes;
-	const onSelectPoster = useCallback( ( image: AdminAjaxQueryAttachmentsResponseItemProps ) => {
-		setAttributes( {
-			poster: image.url,
+	const onSelectPoster = useCallback(
+		( image: AdminAjaxQueryAttachmentsResponseItemProps ) => {
+			setAttributes( {
+				poster: image.url,
 
-			// Extend the posterData object to include the media library id and url.
-			posterData: {
-				...attributes.posterData,
-				type: 'media-library',
-				id: image.id,
-				url: image.url,
-			},
-		} );
-	}, [] );
+				// Extend the posterData object to include the media library id and url.
+				posterData: {
+					...attributes.posterData,
+					type: 'media-library',
+					id: image.id,
+					url: image.url,
+				},
+			} );
+		},
+		[ attributes.posterData ]
+	);
 
 	const selectPosterLabel = __( 'Select Poster Image', 'jetpack-videopress-pkg' );
 	const replacePosterLabel = __( 'Replace Poster Image', 'jetpack-videopress-pkg' );
@@ -380,69 +383,84 @@ export default function PosterPanel( {
 	const removePoster = useCallback( () => {
 		setLocalData( state => ( { ...state, url: '' } ) );
 		setAttributes( { poster: '', posterData: { ...localData, url: '' } } );
-	}, [] );
+	}, [ attributes.posterData ] );
 
-	const switchPosterSource = useCallback( ( shouldPickFromFrame: boolean ) => {
-		const type = shouldPickFromFrame ? 'video-frame' : 'media-library';
-		setLocalData( state => ( { ...state, type } ) );
+	const switchPosterSource = useCallback(
+		( shouldPickFromFrame: boolean ) => {
+			const type = shouldPickFromFrame ? 'video-frame' : 'media-library';
+			setLocalData( state => ( { ...state, type } ) );
 
-		setAttributes( {
-			// Extend the localData attr with the new type.
-			posterData: { ...localData, type },
+			setAttributes( {
+				// Extend the localData attr with the new type.
+				posterData: { ...localData, type },
 
-			// Clean the poster URL when it should be picked from the video frame.
-			poster: shouldPickFromFrame ? '' : localData.url || '',
-		} );
-	}, [] );
+				// Clean the poster URL when it should be picked from the video frame.
+				poster: shouldPickFromFrame ? '' : localData.url || '',
+			} );
+		},
+		[ attributes.posterData ]
+	);
 
-	const selectVideoFrame = useCallback( ( timestamp: number ) => {
-		setLocalData( state => ( { ...state, atTime: timestamp } ) );
-		setAttributes( {
-			posterData: {
-				...localData,
-				atTime: timestamp,
-			},
-			poster: '',
-		} );
-	}, [] );
+	const selectVideoFrame = useCallback(
+		( timestamp: number ) => {
+			setLocalData( state => ( { ...state, atTime: timestamp } ) );
+			setAttributes( {
+				posterData: {
+					...localData,
+					atTime: timestamp,
+				},
+				poster: '',
+			} );
+		},
+		[ attributes.posterData ]
+	);
 
-	const setPreviewOnHover = useCallback( ( shouldPreviewOnHover: boolean ) => {
-		setLocalData( state => ( { ...state, previewOnHover: shouldPreviewOnHover } ) );
-		setAttributes( {
-			posterData: {
-				...localData,
-				previewOnHover: shouldPreviewOnHover,
-			},
-		} );
-	}, [] );
+	const setPreviewOnHover = useCallback(
+		( shouldPreviewOnHover: boolean ) => {
+			setLocalData( state => ( { ...state, previewOnHover: shouldPreviewOnHover } ) );
+			setAttributes( {
+				posterData: {
+					...localData,
+					previewOnHover: shouldPreviewOnHover,
+				},
+			} );
+		},
+		[ attributes.posterData ]
+	);
 
-	const setPreviewAtTimestampValue = useCallback( ( atTime: number ) => {
-		setLocalData( state => ( { ...state, previewAtTime: atTime } ) );
-		setAttributes( {
-			posterData: {
-				...localData,
-				previewAtTime: atTime,
-			},
-		} );
-	}, [] );
+	const setPreviewAtTimestampValue = useCallback(
+		( atTime: number ) => {
+			setLocalData( state => ( { ...state, previewAtTime: atTime } ) );
+			setAttributes( {
+				posterData: {
+					...localData,
+					previewAtTime: atTime,
+				},
+			} );
+		},
+		[ attributes.posterData ]
+	);
 
-	const setPreviewOnHoverDuration = useCallback( ( loopDuration: number ) => {
-		setLocalData( state => ( { ...state, previewLoopDuration: loopDuration } ) );
-		let previewStart = previewAtTime;
+	const setPreviewOnHoverDuration = useCallback(
+		( loopDuration: number ) => {
+			setLocalData( state => ( { ...state, previewLoopDuration: loopDuration } ) );
+			let previewStart = previewAtTime;
 
-		// Adjust the starting point if the loop duration is too long
-		if ( previewAtTime + loopDuration > videoDuration ) {
-			previewStart = videoDuration - loopDuration;
-		}
+			// Adjust the starting point if the loop duration is too long
+			if ( previewAtTime + loopDuration > videoDuration ) {
+				previewStart = videoDuration - loopDuration;
+			}
 
-		setAttributes( {
-			posterData: {
-				...localData,
-				previewLoopDuration: loopDuration,
-				previewAtTime: previewStart,
-			},
-		} );
-	}, [] );
+			setAttributes( {
+				posterData: {
+					...localData,
+					previewLoopDuration: loopDuration,
+					previewAtTime: previewStart,
+				},
+			} );
+		},
+		[ attributes.posterData ]
+	);
 
 	if ( ! isVideoFramePosterEnabled() ) {
 		return (
