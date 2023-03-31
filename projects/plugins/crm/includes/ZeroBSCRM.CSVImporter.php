@@ -796,7 +796,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 						?>
 						<hr />
-						<button type="button" class="button button-primary button-large" onclick="javascript:window.location='admin.php?page=<?php echo esc_attr( $zbs->slugs['datatools'] ); ?>';"><?php esc_html_e( 'Finish', 'zero-bs-crm' ); ?></button>
+						<button type="button" class="button button-primary button-large" onclick="javascript:window.location='admin.php?page=<?php echo esc_attr( $zbs->slugs['managecontacts'] ); ?>';"><?php esc_html_e( 'Finish', 'zero-bs-crm' ); ?></button>
 					</div>
 				</div>
 			</div>
