@@ -5,10 +5,11 @@
  */
 
 import { SocialServiceIcon } from '@automattic/jetpack-components';
-import { Modal, TabPanel } from '@wordpress/components';
+import { Modal, TabPanel, Button } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { close } from '@wordpress/icons';
 import { AVAILABLE_SERVICES } from './constants';
 import { getMediaSourceUrl } from './utils';
 import './modal.scss';
@@ -39,14 +40,19 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 	return (
 		<Modal
 			onRequestClose={ onClose }
-			title={ __( 'Social Previews', 'jetpack' ) }
 			className="jetpack-social-previews__modal"
+			__experimentalHideHeader
 		>
+			<Button
+				className="jetpack-social-previews__modal--close-btn"
+				onClick={ onClose }
+				icon={ close }
+				label={ __( 'Close', 'jetpack' ) }
+			/>
 			<TabPanel
 				className="jetpack-social-previews__modal-previews"
 				tabs={ tabs }
 				initialTabName={ isTweetStorm ? 'twitter' : null }
-				orientation="vertical"
 			>
 				{ tab => (
 					<div>
