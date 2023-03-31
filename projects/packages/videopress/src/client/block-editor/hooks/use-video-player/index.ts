@@ -112,7 +112,7 @@ const useVideoPlayer = (
 		};
 	}, [ iFrameRef, isRequestingPreview ] );
 
-	const playVideo = useCallback( () => {
+	const play = useCallback( () => {
 		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
@@ -121,7 +121,7 @@ const useVideoPlayer = (
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_play' }, '*' );
 	}, [ iFrameRef, playerIsReady ] );
 
-	const stopVideo = useCallback( () => {
+	const stop = useCallback( () => {
 		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
@@ -137,13 +137,13 @@ const useVideoPlayer = (
 			return;
 		}
 
-		wrapperElement.addEventListener( 'mouseenter', playVideo );
-		wrapperElement.addEventListener( 'mouseleave', stopVideo );
+		wrapperElement.addEventListener( 'mouseenter', play );
+		wrapperElement.addEventListener( 'mouseleave', stop );
 
 		return () => {
 			// Remove the listener when the component is unmounted.
-			wrapperElement.removeEventListener( 'mouseenter', playVideo );
-			wrapperElement.removeEventListener( 'mouseleave', stopVideo );
+			wrapperElement.removeEventListener( 'mouseenter', play );
+			wrapperElement.removeEventListener( 'mouseleave', stop );
 		};
 	}, [ isPreviewOnHoverEnabled, wrapperElement, playerIsReady ] );
 
