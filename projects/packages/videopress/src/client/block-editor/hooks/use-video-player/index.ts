@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { usePrevious } from '@wordpress/compose';
 import debugFactory from 'debug';
 import { useEffect, useRef, useState, useCallback } from 'react';
 /**
@@ -93,6 +94,11 @@ const useVideoPlayer = (
 		}
 	}
 
+	// PreviewOnHover feature.
+	const isPreviewOnHoverEnabled = !! previewOnHover;
+	const wasPreviewOnHoverEnabled = usePrevious( isPreviewOnHoverEnabled );
+	const wasPreviewOnHoverJustEnabled = isPreviewOnHoverEnabled && ! wasPreviewOnHoverEnabled;
+
 	// Listen player events.
 	useEffect( () => {
 		if ( isRequestingPreview ) {
@@ -104,13 +110,14 @@ const useVideoPlayer = (
 			return;
 		}
 
+		debug( 'player is ready to listen events' );
 		sandboxIFrameWindow.addEventListener( 'message', listenEventsHandler );
 
 		return () => {
 			// Remove the listener when the component is unmounted.
 			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
 		};
-	}, [ iFrameRef, isRequestingPreview ] );
+	}, [ iFrameRef, isRequestingPreview, wasPreviewOnHoverJustEnabled ] );
 
 	const play = useCallback( () => {
 		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
@@ -130,8 +137,6 @@ const useVideoPlayer = (
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_pause' }, '*' );
 	}, [ iFrameRef, playerIsReady ] );
 
-	// PreviewOnHover feature.
-	const isPreviewOnHoverEnabled = !! previewOnHover;
 	useEffect( () => {
 		if ( ! wrapperElement || ! isPreviewOnHoverEnabled ) {
 			return;
