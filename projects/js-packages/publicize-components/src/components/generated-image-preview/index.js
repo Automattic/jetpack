@@ -1,7 +1,7 @@
 import { getRedirectUrl, ThemeProvider } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { Spinner, BaseControl } from '@wordpress/components';
-import { select, useSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
@@ -9,8 +9,24 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import styles from './styles.module.scss';
 
+export const FEATURED_IMAGE_STILL_LOADING = 'featured-image-still-loading';
 const getMediaSourceUrl = media => {
 	return media?.media_details?.sizes?.large?.source_url || media?.source_url;
+};
+
+export const calculateImageUrl = ( imageType, customImageId, featuredImageId, getMedia ) => {
+	if (
+		imageType === 'none' ||
+		( imageType === 'custom' && ! customImageId ) ||
+		( ( imageType ?? 'featured' ) === 'featured' && ! featuredImageId )
+	) {
+		return null;
+	}
+	const media = getMedia( imageType === 'custom' ? customImageId : featuredImageId );
+	if ( ! media ) {
+		return FEATURED_IMAGE_STILL_LOADING;
+	}
+	return getMediaSourceUrl( media );
 };
 
 /**
@@ -23,24 +39,16 @@ export default function GeneratedImagePreview() {
 	const [ isLoading, setIsLoading ] = useState( true );
 
 	const { customText, imageType, imageId, template } = useImageGeneratorConfig();
-	const { getMedia } = select( 'core' );
-	const { title, featuredImage } = useSelect( _select => ( {
-		title: _select( editorStore ).getEditedPostAttribute( 'title' ),
-		featuredImage: _select( editorStore ).getEditedPostAttribute( 'featured_media' ),
-	} ) );
+	const { title, imageUrl } = useSelect( select => {
+		const featuredImage = select( editorStore ).getEditedPostAttribute( 'featured_media' );
+		return {
+			title: select( editorStore ).getEditedPostAttribute( 'title' ),
+			imageUrl: calculateImageUrl( imageType, imageId, featuredImage, select( 'core' ).getMedia ),
+		};
+	} );
 
 	const imageTitle = useMemo( () => customText || title || ' ', [ customText, title ] );
 	const imageTitleRef = useRef( imageTitle );
-	const getImageUrl = useCallback( () => {
-		if ( imageType === 'featured' ) {
-			return getMediaSourceUrl( getMedia( featuredImage ) );
-		}
-		if ( imageType === 'custom' ) {
-			return getMediaSourceUrl( getMedia( imageId ) );
-		}
-
-		return null;
-	}, [ featuredImage, getMedia, imageId, imageType ] );
 
 	const generatedImageUrlRef = useRef( generatedImageUrl );
 
@@ -53,16 +61,19 @@ export default function GeneratedImagePreview() {
 			async () => {
 				setIsLoading( true );
 
+				if ( imageUrl === FEATURED_IMAGE_STILL_LOADING ) {
+					return;
+				}
+
 				const sig_token = await apiFetch( {
 					path: '/jetpack/v4/social-image-generator/generate-preview-token',
 					method: 'POST',
 					data: {
 						text: imageTitle,
-						image_url: getImageUrl(),
+						image_url: imageUrl,
 						template,
 					},
 				} );
-
 				const url = getRedirectUrl( 'sigenerate', { query: `t=${ sig_token }` } );
 				// If the URL turns out to be the same, we set the loading state to false,
 				// as the <img> onLoad event will not fire if the src is the same.
@@ -80,7 +91,7 @@ export default function GeneratedImagePreview() {
 			clearTimeout( handler );
 			imageTitleRef.current = imageTitle;
 		};
-	}, [ imageTitle, template, getImageUrl ] );
+	}, [ imageTitle, template, imageUrl ] );
 
 	const onImageLoad = useCallback( () => {
 		setIsLoading( false );
@@ -95,7 +106,7 @@ export default function GeneratedImagePreview() {
 							[ styles.hidden ]: isLoading,
 						} ) }
 						src={ generatedImageUrl }
-						alt="Generated preview"
+						alt={ __( 'Generated preview', 'jetpack' ) }
 						onLoad={ onImageLoad }
 					></img>
 					{ isLoading && <Spinner data-testid="spinner" /> }

@@ -24,6 +24,9 @@ export type PosterDataProps = {
 	src?: string;
 	id?: number;
 	url?: string;
+	previewOnHover?: boolean;
+	previewAtTime?: number;
+	previewLoopDuration?: number;
 };
 
 export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
@@ -63,8 +66,19 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 
 	isPrivate?: boolean;
 
+	duration?: number;
+
 	// CSS classes
 	className?: string;
+
+	isExample?: boolean;
+};
+
+export type VideoBlockEditProps = {
+	attributes: VideoBlockAttributes;
+	setAttributes: VideoBlockSetAttributesProps;
+	isSelected: boolean;
+	clientId: string;
 };
 
 export type CoreEmbedBlockAttributes = {

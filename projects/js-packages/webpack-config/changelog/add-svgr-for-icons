@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Adds compatibility with @svgr/webpack library for loading svg files as react components

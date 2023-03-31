@@ -118,6 +118,9 @@
 		"isExample": {
 			"type": "boolean",
 			"default": false
+		},
+		"duration": {
+			"type": "number"
 		}
 	},
 	"textdomain": "jetpack-videopress",
