@@ -361,7 +361,7 @@ function VideoHoverPreviewControl( {
 						fineAdjustment={ 1 }
 						decimalPlaces={ 2 }
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
-						value={ loopDuration }
+						value={ Math.min( loopDuration, maxLoopDuration ) }
 						onDebounceChange={ onLoopDurationChange }
 						wait={ 100 }
 						help={ loopDurationHelp }
