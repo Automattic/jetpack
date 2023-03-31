@@ -1143,43 +1143,6 @@ abstract class Publicize_Base {
 				register_meta( 'post', self::POST_JETPACK_SOCIAL_OPTIONS, $jetpack_social_options_args );
 			}
 		}
-
-		if ( $jetpack_social_options_args ) {
-			add_filter(
-				'default_post_metadata',
-				array( $this, 'enable_social_image_generator_for_post' ),
-				20,
-				4
-			);
-		}
-	}
-
-	/**
-	 * Enables Social Image Generator for a post based on its post status.
-	 * Existing posts shouldn't have it enabled.
-	 *
-	 * @param array  $value     The default values for the metadata.
-	 * @param int    $object_id The post ID.
-	 * @param string $meta_key  The key of the metadata. In this case we're looking for POST_JETPACK_SOCIAL_OPTIONS.
-	 * @param bool   $single    Whether the meta is expected to be a single value or an array.
-	 * @return array The modified defaults.
-	 */
-	public function enable_social_image_generator_for_post( $value, $object_id, $meta_key, $single ) {
-		if ( self::POST_JETPACK_SOCIAL_OPTIONS !== $meta_key ) {
-			return $value;
-		}
-		$post = get_post( $object_id );
-		if ( empty( $post->post_status ) ||
-			'auto-draft' !== $post->post_status
-		) {
-			return $value;
-		}
-		if ( $single ) {
-			$value['image_generator_settings']['enabled'] = true;
-			return $value;
-		}
-		$value[0]['image_generator_settings']['enabled'] = true;
-		return $value;
 	}
 
 	/**
