@@ -90,9 +90,8 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 		$updatedSettings['showaddress'] = 1;
 	}
 	$updatedSettings['secondaddress'] = 0;
-	if ( isset( $_POST['wpzbscrm_secondaddress'] ) ) {
-		$updatedSettings['secondaddress']       = (int) $_POST['wpzbscrm_secondaddress'] === SETTING_SECOND_ADDRESS_ALWAYS_HIDE ? 0 : 1; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$updatedSettings['secondaddresstoggle'] = (int) $_POST['wpzbscrm_secondaddress'] === SETTING_SECOND_ADDRESS_ALLOW_CHANGE_VISIBILITY ? 1 : 0; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	if ( isset( $_POST['wpzbscrm_secondaddress'] ) && ! empty( $_POST['wpzbscrm_secondaddress'] ) ) {
+		$updatedSettings['secondaddress'] = 1; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
 	$updatedSettings['secondaddresslabel'] = __( 'Second Address', 'zero-bs-crm' );
 	if ( isset( $_POST['wpzbscrm_secondaddresslabel'] ) && ! empty( $_POST['wpzbscrm_secondaddresslabel'] ) ) {
@@ -298,9 +297,9 @@ if ( ! $confirmAct ) {
 					<div>
 						<?php esc_html_e( 'Are you looking for your other WordPress menu items? (e.g.', 'zero-bs-crm' ); ?> <a href="<?php echo esc_url( admin_url( 'plugins.php' ) ); ?>"><?php esc_html_e( 'Plugins', 'zero-bs-crm' ); ?></a>, <?php esc_html_e( 'or', 'zero-bs-crm' ); ?> <a href="<?php echo esc_url( admin_url( 'users.php' ) ); ?>"><?php esc_html_e( 'Users', 'zero-bs-crm' ); ?></a>)?<br />
 						<?php esc_html_e( "If you can't see these, (and you want to), select 'Slimline' or 'Full' from the above menu, then make sure 'Override WordPress (For All WP Users):' is disabled below", 'zero-bs-crm' ); ?> (<a href="#override-allusers"><?php esc_html_e( 'here', 'zero-bs-crm' ); ?></a>).<br />
-						<?php ##WLREMOVE ?>
+						<?php // WLREMOVE ?>
 						<a href="<?php echo esc_url( $zbs->urls['kbshowwpmenus'] ); ?>" target="_blank"><?php esc_html_e( 'View Guide', 'zero-bs-crm' ); ?></a>
-						<?php ##/WLREMOVE ?>
+						<?php // /WLREMOVE ?>
 					</div>
 				</td>
 			</tr>
@@ -333,7 +332,7 @@ if ( ! $confirmAct ) {
 
 
 				<tr>
-					<td class="wfieldname"><label for="wpzbscrm_showaddress"><?php esc_html_e( 'Show Contact Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Untick to hide the address fields (useful for online business)', 'zero-bs-crm' ); ?></td>
+					<td class="wfieldname"><label for="wpzbscrm_showaddress"><?php esc_html_e( 'Show Customer Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Untick to hide the address fields (useful for online business)', 'zero-bs-crm' ); ?></td>
 					<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_showaddress" id="wpzbscrm_showaddress" value="1"
 					<?php
 					if ( isset( $settings['showaddress'] ) && $settings['showaddress'] == '1' ) {
@@ -343,29 +342,14 @@ if ( ! $confirmAct ) {
 				</tr>
 
 				<tr>
-					<td class="wfieldname"><label for="wpzbscrm_secondaddress"><?php esc_html_e( 'Second Address Fields Visibility', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Choose "second address" visibility in the contact edit page. It can be hidden, visible, or there will be an option to toggle it.', 'zero-bs-crm' ); ?></td>
+					<td class="wfieldname"><label for="wpzbscrm_secondaddress"><?php esc_html_e( 'Second Address Fields', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Allow editing of a "second address" against a customer', 'zero-bs-crm' ); ?></td>
 					<td style="width:540px">
-						<select class="winput" name="wpzbscrm_secondaddress" id="wpzbscrm_secondaddress">
-							<option value="<?php echo esc_attr( SETTING_SECOND_ADDRESS_ALWAYS_HIDE ); ?>"
-							<?php
-							$jpcrm_setting_second_address_visibility = jpcrm_settings_get_second_address_visibility( $settings );
-							if ( $jpcrm_setting_second_address_visibility === SETTING_SECOND_ADDRESS_ALWAYS_HIDE ) {
-								echo ' selected="selected"';}
-							?>
-							><?php esc_html_e( 'Always Hide', 'zero-bs-crm' ); ?></option>
-							<option value="<?php echo esc_attr( SETTING_SECOND_ADDRESS_ALWAYS_SHOW ); ?>"
-							<?php
-							if ( $jpcrm_setting_second_address_visibility === SETTING_SECOND_ADDRESS_ALWAYS_SHOW ) {
-								echo ' selected="selected"';}
-							?>
-							><?php esc_html_e( 'Always Show', 'zero-bs-crm' ); ?></option>
-							<option value="<?php echo esc_attr( SETTING_SECOND_ADDRESS_ALLOW_CHANGE_VISIBILITY ); ?>"
-							<?php
-							if ( $jpcrm_setting_second_address_visibility === SETTING_SECOND_ADDRESS_ALLOW_CHANGE_VISIBILITY ) {
-								echo ' selected="selected"';}
-							?>
-							><?php esc_html_e( 'Manually Toggle', 'zero-bs-crm' ); ?></option>
-						</select>
+						<input type="checkbox" class="winput form-control" name="wpzbscrm_secondaddress" id="wpzbscrm_secondaddress" value="1"
+						<?php
+						if ( isset( $settings['secondaddress'] ) && $settings['secondaddress'] === '1' ) {
+							echo ' checked="checked"';}
+						?>
+						/>
 				</tr>
 				<tr>
 					<td class="wfieldname"><label for="pzbscrm_secondaddresslabel"><?php esc_html_e( 'Second Address Label', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Edit what text is displayed (defaults to Second Address)', 'zero-bs-crm' ); ?></td>
@@ -570,7 +554,7 @@ if ( ! $confirmAct ) {
 				</td>
 			</tr>
 
-			<?php ##WLREMOVE ?>
+			<?php // WLREMOVE ?>
 			<tr>
 				<td class="wfieldname"><label for="wpzbscrm_shareessentials"><?php esc_html_e( 'Usage Tracking', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Share CRM usage with us. No contact or sensitive CRM data is shared.', 'zero-bs-crm' ); ?>
 				<a href="<?php echo esc_url( $zbs->urls['usageinfo'] ); ?>" target="_blank"><?php esc_html_e( 'Learn More', 'zero-bs-crm' ); ?>.</a>
@@ -602,7 +586,7 @@ if ( ! $confirmAct ) {
 					<input type="checkbox" class="winput form-control" name="jpcrm_showpoweredby_admin" id="jpcrm_showpoweredby_admin" value="1"<?php echo isset( $settings['showpoweredby_admin'] ) && $settings['showpoweredby_admin'] === 0 ? '' : ' checked="checked"'; ?> />
 				</td>
 			</tr>
-			<?php ##/WLREMOVE ?>
+			<?php // /WLREMOVE ?>
 
 			</tbody>
 
@@ -622,7 +606,7 @@ if ( ! $confirmAct ) {
 
 
 			<tr>
-				<td class="wfieldname"><label><?php esc_html_e( 'Accepted Upload File Types', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'This setting specifies which file types are acceptable for uploading against contacts, quotes, or invoices.', 'zero-bs-crm' ); ?></td>
+				<td class="wfieldname"><label><?php esc_html_e( 'Accepted Upload File Types', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'This setting specifies which file types are acceptable for uploading against customers, quotes, or invoices.', 'zero-bs-crm' ); ?></td>
 				<td style="width:540px">
 					<?php foreach ( $zbs->acceptable_mime_types as $filetype => $mimedeet ) { ?>
 						<input type="checkbox" class="winput form-control" name="<?php echo esc_attr( 'wpzbscrm_ft_' . $filetype ); ?>" id="<?php echo esc_attr( 'wpzbscrm_ft_' . $filetype ); ?>" value="1"
