@@ -52,7 +52,6 @@ export default function VideoPressEdit( {
 	onFocus,
 } ): React.ReactNode {
 	const {
-		autoplay,
 		controls,
 		guid,
 		loop,
@@ -83,7 +82,7 @@ export default function VideoPressEdit( {
 	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay,
+		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
 		controls,
 		loop,
 		muted,
