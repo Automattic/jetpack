@@ -607,8 +607,13 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 				if ( isset( $stageError ) && ! empty( $stageError ) ) {
 					zeroBSCRM_html_msg( -1, $stageError ); }
 				?>
-				<div class="zbscrm-final-stage">
-					<div class="zbscrm-import-log">
+				<div class="zbscrm-final-stage" style="text-align: center;">
+					<p>New contacts added: <span id="jpcrm_new_contact_count">0</span></p>
+					<p>Existing contacts updated: <span id="jpcrm_update_contact_count">0</span></p>
+					<button id="jpcrm_toggle_log_button" class="ui button grey"><?php esc_html_e( 'Toggle log', 'zero-bs-crm' ); ?></button>
+					<a id="jpcrm_import_finish_button" href="<?php echo jpcrm_esc_link( $zbs->slugs['managecontacts'] ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" class="ui button green hidden"><?php esc_html_e( 'Finish', 'zero-bs-crm' ); ?></a>
+				</div>
+					<div id="jpcrm_import_log_div" class="zbscrm-import-log hidden">
 						<div class="zbscrm-import-log-line"><?php esc_html_e( 'Loading CSV File...', 'zero-bs-crm' ); ?> <i class="fa fa-check"></i></div>
 						<div class="zbscrm-import-log-line"><?php esc_html_e( 'Parsing rows...', 'zero-bs-crm' ); ?> <i class="fa fa-check"></i></div>
 						<div class="zbscrm-import-log-line"><?php echo esc_html( sprintf( __( 'Beginning Import of %s rows...', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $file_details['num_lines'] ) ) ); ?></div>
@@ -796,13 +801,20 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 						?>
 						<hr />
-						<a href="<?php echo jpcrm_esc_link( $zbs->slugs['managecontacts'] ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" class="ui button green"><?php esc_html_e( 'Finish', 'zero-bs-crm' ); ?></a>
 					</div>
-				</div>
 			</div>
 			<script>
-				// this is a quick hack until the importer rewrite
+				// these are some quick hacks for better usability until the importer rewrite
+
+				function jpcrm_toggle_csv_log() {
+					document.getElementById('jpcrm_import_log_div').classList.toggle('hidden');
+				}
+
+				document.getElementById('jpcrm_toggle_log_button').addEventListener('click',jpcrm_toggle_csv_log);
 				document.getElementById('jpcrm_final_step_heading').innerHTML = '<?php esc_html_e( 'Import complete!', 'zero-bs-crm' ); ?>';
+				document.getElementById('jpcrm_new_contact_count').innerHTML = <?php echo esc_html( $linesAdded ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>;
+				document.getElementById('jpcrm_update_contact_count').innerHTML = <?php echo esc_html( count( $existingOverwrites ) ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>;
+				document.getElementById('jpcrm_import_finish_button').classList.remove('hidden');
 			</script>
 			<?php
 
