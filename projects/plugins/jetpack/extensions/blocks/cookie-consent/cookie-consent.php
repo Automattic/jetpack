@@ -47,7 +47,7 @@ function register_block() {
 		return;
 	}
 
-	notify_betacache_that_content_changed();
+	notify_batcache_that_content_changed();
 
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
@@ -87,7 +87,7 @@ function load_assets( $attr, $content ) {
  * Because, by default, the cache doesn't vary around the cookie's value.
  * This let's the cache know that the content has changed to return fresh content.
  */
-function notify_betacache_that_content_changed() {
+function notify_batcache_that_content_changed() {
 	if ( function_exists( 'vary_cache_on_function' ) ) {
 		// Cast the cookie down to a boolean, to avoid arbitrary code execution.
 		vary_cache_on_function( 'return isset( $_COOKIE[ "' . COOKIE_NAME . '" ] );' );
