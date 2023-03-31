@@ -255,7 +255,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 			onChange?.( newValue );
 			debounceTimer.current = setTimeout( onDebounceChange?.bind( null, newValue ), wait );
 		},
-		[ onChange ]
+		[ onDebounceChange ]
 	);
 
 	return (
