@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed a php warning for a non-set array property.
+
+
