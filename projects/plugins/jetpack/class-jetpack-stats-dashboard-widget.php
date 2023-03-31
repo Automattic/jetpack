@@ -8,7 +8,7 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Redirect;
-use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
+use Automattic\Jetpack\Stats_Admin\CDN_Assets;
 use Automattic\Jetpack\Stats_Admin\Odyssey_Initial_State;
 use Automattic\Jetpack\Status;
 
@@ -64,13 +64,13 @@ class Jetpack_Stats_Dashboard_Widget {
 				__( 'Jetpack Stats', 'jetpack' )
 			);
 
-			wp_add_dashboard_widget(
-				'jetpack_summary_widget',
-				$widget_title,
-				array( __CLASS__, 'render_widget' )
-			);
-
-			if ( isset( $_GET['odyssey_widget'] ) ) {
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended
+			if ( ! isset( $_GET['odyssey_widget'] ) ) {
+				wp_add_dashboard_widget(
+					'jetpack_summary_widget',
+					$widget_title,
+					array( __CLASS__, 'render_widget' )
+				);
 				wp_enqueue_style(
 					'jetpack-dashboard-widget',
 					Assets::get_file_url_for_environment(
@@ -81,15 +81,19 @@ class Jetpack_Stats_Dashboard_Widget {
 					JETPACK__VERSION
 				);
 				wp_style_add_data( 'jetpack-dashboard-widget', 'rtl', 'replace' );
-
 			} else {
+				wp_add_dashboard_widget(
+					'jetpack_summary_widget',
+					$widget_title,
+					array( __CLASS__, 'render_odyssey_widget' )
+				);
 				Assets::register_script(
 					'jetpack-stats-widget-admin',
 					'jetpack_vendor/automattic/jetpack-stats-admin/dist/widget.min.js',
 					__FILE__,
 					array(
 						'in_footer'    => true,
-						'dependencies' => Automattic\Jetpack\Stats_Admin\Dashboard::JS_DEPENDENCIES,
+						'dependencies' => CDN_Assets::JS_DEPENDENCIES,
 					)
 				);
 
@@ -176,7 +180,35 @@ class Jetpack_Stats_Dashboard_Widget {
 		 */
 		do_action( 'jetpack_dashboard_widget' );
 
-		// self::render_footer();
+		self::render_footer();
+	}
+
+	/**
+	 * Renders the widget and fires a dashboard widget action.
+	 */
+	public static function render_odyssey_widget() {
+		?>
+		<div id="dashboard_stats" class="jp-stats-widget" style="min-height: 400px;">
+			<div class="hide-if-js"><?php esc_html_e( 'Your Jetpack Stats widget requires JavaScript to function properly.', 'jetpack' ); ?></div>
+			<div class="hide-if-no-js" style="height: 100%">
+				<img
+					class="jp-stats-dashboard-loading-spinner"
+					width="32"
+					height="32"
+					style="position: absolute; left: 50%; top: 50%;"
+					alt=<?php echo esc_attr( __( 'Loading', 'jetpack' ) ); ?>
+					src="//en.wordpress.com/i/loading/loading-64.gif"
+				/>
+			</div>
+		</div>
+		<?php
+		/**
+		 * Fires when the dashboard is loaded, but no longer used anywhere in the Jetpack plugin.
+		 * The action is still available for backward compatibility.
+		 *
+		 * @since 3.4.0
+		 */
+		do_action( 'jetpack_dashboard_widget' );
 	}
 
 	/**
