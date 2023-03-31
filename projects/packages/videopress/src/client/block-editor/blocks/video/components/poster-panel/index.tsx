@@ -213,6 +213,7 @@ export const getIframeWindowFromRef = (
 type PosterFramePickerProps = {
 	guid: VideoGUID;
 	atTime: number;
+	duration: number;
 	isGeneratingPoster?: boolean;
 	onVideoFrameSelect: ( timestamp: number ) => void;
 };
@@ -228,9 +229,9 @@ function VideoFramePicker( {
 	isGeneratingPoster,
 	atTime = 0.1,
 	onVideoFrameSelect,
+	duration,
 }: PosterFramePickerProps ): React.ReactElement {
 	const [ timestamp, setTimestamp ] = useState( atTime );
-	const [ duration, setDuration ] = useState( 0 );
 	const playerWrapperRef = useRef< HTMLDivElement >( null );
 
 	const url = getVideoPressUrl( guid, {
@@ -243,51 +244,9 @@ function VideoFramePicker( {
 	const { preview = { html: null }, isRequestingEmbedPreview } = usePreview( url );
 	const { html } = preview;
 
-	/**
-	 * Handler function to deal with the communication
-	 * between the iframe, which contains the video,
-	 * and the parent window (block editor).
-	 *
-	 * @param {MessageEvent} event - Message event
-	 */
-	function listenEventsHandler( event: MessageEvent ) {
-		const { data: eventData = {} } = event;
-		const { event: eventName } = event?.data || {};
-
-		// Pick and store the video duration in a local state.
-		if ( eventName === 'videopress_durationchange' ) {
-			if ( eventData?.durationMs ) {
-				setDuration( eventData.durationMs );
-			}
-		}
-	}
-
 	const { playerIsReady } = useVideoPlayer( playerWrapperRef, isRequestingEmbedPreview, {
 		initialTimePosition: atTime,
 	} );
-
-	// Listen player events.
-	useEffect( () => {
-		if ( isRequestingEmbedPreview ) {
-			return;
-		}
-
-		if ( ! html ) {
-			return;
-		}
-
-		const sandboxIFrameWindow = getIframeWindowFromRef( playerWrapperRef );
-		if ( ! sandboxIFrameWindow ) {
-			return;
-		}
-
-		sandboxIFrameWindow.addEventListener( 'message', listenEventsHandler );
-
-		return () => {
-			// Remove the listener when the component is unmounted.
-			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
-		};
-	}, [ playerWrapperRef, isRequestingEmbedPreview, html ] );
 
 	return (
 		<div className="poster-panel__frame-picker">
@@ -520,6 +479,7 @@ export default function PosterPanel( {
 					isGeneratingPoster={ isGeneratingPoster }
 					guid={ attributes?.guid }
 					atTime={ posterData?.atTime }
+					duration={ videoDuration }
 					onVideoFrameSelect={ timestamp => {
 						setAttributes( {
 							posterData: {
