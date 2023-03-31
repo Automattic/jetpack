@@ -36,14 +36,14 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_data' ),
-					'permission_callback' => array( $this, 'can_read' ),
+					'permission_callback' => array( $this, 'can_access' ),
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_site_options' ),
-					'permission_callback' => array( $this, 'can_read' ),
+					'permission_callback' => array( $this, 'can_access' ),
 					'request_format'      => array(
-						'launchpad_checklist_tasks_statuses'      => '(array) Array of launchpad checklist tasks completion status',
+						'checklist_statuses' => '(array) Array of launchpad checklist tasks completion status',
 					),
 				),
 			)
@@ -55,7 +55,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	 *
 	 * @return boolean
 	 */
-	public function can_read() {
+	public function can_access() {
 		return current_user_can( 'manage_options' );
 	}
 
@@ -90,15 +90,14 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			}
 
 			switch ( $key ) {
-				case 'launchpad_checklist_tasks_statuses':
+				case 'checklist_statuses':
 					$launchpad_checklist_tasks_statuses_option = get_option( 'launchpad_checklist_tasks_statuses' );
 
 					$filtered_input_array = array_filter(
 						(array) $value,
 						function ( $array_value ) {
 							return is_bool( $array_value );
-						},
-						ARRAY_FILTER_USE_BOTH
+						}
 					);
 
 					if ( ! is_array( $launchpad_checklist_tasks_statuses_option ) ) {
@@ -106,7 +105,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					}
 					$launchpad_checklist_tasks_statuses_option = array_merge( $launchpad_checklist_tasks_statuses_option, $filtered_input_array );
 
-					if ( update_option( $key, $launchpad_checklist_tasks_statuses_option ) ) {
+					if ( update_option( 'launchpad_checklist_tasks_statuses', $launchpad_checklist_tasks_statuses_option ) ) {
 						$updated[ $key ] = $filtered_input_array;
 					}
 					break;
