@@ -425,9 +425,14 @@ function render_block( $attributes ) {
  * @return string the actual post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
  */
 function get_post_access_level() {
+	if ( ! is_singular() ) {
+		// There is no "actual" current post.
+		return null;
+	}
+
 	$post_id = get_the_ID();
 	if ( ! $post_id ) {
-		return 'everybody';
+		return null;
 	}
 	$meta = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 	if ( empty( $meta ) ) {
