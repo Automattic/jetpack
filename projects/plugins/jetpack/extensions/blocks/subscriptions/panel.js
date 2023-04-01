@@ -120,12 +120,9 @@ export default function SubscribePanels() {
 
 	// In the paid-subscriber only, we send to a restricted number of subscribers
 	const subscribersCount =
-		accessOptions[ accessLevel ] === accessOptions.paid_subscribers
-			? paidSubscribers
-			: emailSubscribers;
+		accessOptions[ accessLevel ] === 'paid_subscribers' ? paidSubscribers : emailSubscribers;
 	// We send to the social followers only when it is "everybody"
-	const followersCount =
-		accessOptions[ accessLevel ] === accessOptions.everybody ? socialFollowers : 0;
+	const followersCount = accessOptions[ accessLevel ] === 'everybody' ? socialFollowers : 0;
 	const paidSubscribersCount = paidSubscribers;
 
 	// Subscriptions will not be triggered for a post that was already published in the past and the email was sent.
