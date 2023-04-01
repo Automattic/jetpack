@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Current_Plan;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -42,6 +43,11 @@ class REST_Settings_Controller_Test extends BaseTestCase {
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();
 
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array( 'social-image-generator' );
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+		add_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
+
 		global $wp_rest_server;
 
 		$wp_rest_server = new WP_REST_Server();
@@ -70,9 +76,24 @@ class REST_Settings_Controller_Test extends BaseTestCase {
 	public function tear_down() {
 		wp_set_current_user( 0 );
 
+		remove_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
+
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();
+
+		$plan                       = Current_Plan::PLAN_DATA['free'];
+		$plan['features']['active'] = array();
+		update_option( Current_Plan::PLAN_OPTION, $plan, true );
+	}
+
+	/**
+	 * Mock Publicize being active.
+	 *
+	 * @return array
+	 */
+	public function mock_publicize_being_active() {
+		return array( 'publicize' );
 	}
 
 	/**
@@ -81,8 +102,8 @@ class REST_Settings_Controller_Test extends BaseTestCase {
 	public function test_get_settings_without_proper_permission() {
 		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/social-image-generator/settings' );
 		$response = $this->server->dispatch( $request );
-		$this->assertequals( 401, $response->get_status() );
-		$this->assertequals( 'rest_forbidden_context', $response->get_data()['code'] );
+		$this->assertEquals( 401, $response->get_status() );
+		$this->assertEquals( 'rest_forbidden_context', $response->get_data()['code'] );
 	}
 
 	/**

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: pick duration from block attribute instead of listening player client

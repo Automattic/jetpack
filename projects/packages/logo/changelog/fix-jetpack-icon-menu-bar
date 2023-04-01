@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add new method to get a base64 encoded SVG of the Jetpack logo.

@@ -63,7 +63,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "08e4add23362f34887f31d913b5c93bb6c97fa7e"
+                "reference": "b99461ddaf9f8b86a38f9013b980f7b47f1bdb75"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -77,7 +77,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-logo/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.5.x-dev"
+                    "dev-trunk": "1.6.x-dev"
                 }
             },
             "autoload": {

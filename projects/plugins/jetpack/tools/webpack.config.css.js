@@ -170,7 +170,6 @@ for ( const name of [
 	'modules/custom-css/csstidy/cssparsed',
 	'modules/custom-css/custom-css/css/codemirror',
 	'modules/post-by-email/post-by-email',
-	'modules/protect/protect-dashboard-widget',
 	'modules/sharedaddy/admin-sharing',
 	'modules/videopress/videopress-admin',
 	'modules/videopress/css/editor',

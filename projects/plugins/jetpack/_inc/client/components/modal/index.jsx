@@ -4,6 +4,7 @@
 
 import classNames from 'classnames';
 import { createFocusTrap } from 'focus-trap';
+import jQuery from 'jquery';
 import { assign, omit } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';

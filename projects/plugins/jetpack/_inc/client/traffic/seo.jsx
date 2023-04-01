@@ -13,10 +13,8 @@ import SettingsGroup from 'components/settings-group';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import SocialLogo from 'social-logos';
-import { arePromotionsActive } from 'state/initial-state';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
 import CustomSeoTitles from './seo/custom-seo-titles.jsx';
-import YoastPromoBanner from './seo/yoast-promo-banner';
 
 export const conflictingSeoPluginsList = [
 	{
@@ -50,6 +48,10 @@ export const conflictingSeoPluginsList = [
 	{
 		name: 'SEOKEY Pro',
 		slug: 'seo-key-pro/seo-key.php',
+	},
+	{
+		name: 'The SEO Framework',
+		slug: 'autodescription/autodescription.php',
 	},
 ];
 
@@ -315,7 +317,6 @@ export const SEO = withModuleSettingsFormHelpers(
 								</FoldableCard>
 							</div>
 						) }
-					{ this.props.arePromotionsActive && <YoastPromoBanner /> }
 				</SettingsCard>
 			);
 		}
@@ -325,7 +326,6 @@ export const SEO = withModuleSettingsFormHelpers(
 export default connect( state => {
 	return {
 		siteData: state.jetpack.siteData.data,
-		arePromotionsActive: arePromotionsActive( state ),
 		state,
 	};
 } )( SEO );

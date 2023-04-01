@@ -108,7 +108,7 @@ class DashAkismet extends Component {
 
 			return (
 				<JetpackBanner
-					callToAction={ __( 'Upgrade', 'jetpack' ) }
+					callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 					title={ __( 'Automatically clear spam from comments and forms.', 'jetpack' ) }
 					description={ description }
 					disableHref="false"
