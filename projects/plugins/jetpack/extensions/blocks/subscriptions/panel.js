@@ -74,7 +74,6 @@ export default function SubscribePanels() {
 	const { tracks } = useAnalytics();
 	const { isModuleActive, changeStatus, isLoadingModules, isChangingStatus } =
 		useModuleStatus( name );
-	const [ subscriberCount, setSubscriberCount ] = useState( null );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
