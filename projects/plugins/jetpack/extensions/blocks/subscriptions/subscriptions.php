@@ -427,12 +427,12 @@ function render_block( $attributes ) {
 function get_post_access_level() {
 	if ( ! is_singular() ) {
 		// There is no "actual" current post.
-		return null;
+		return 'everybody';
 	}
 
 	$post_id = get_the_ID();
 	if ( ! $post_id ) {
-		return null;
+		return 'everybody';
 	}
 	$meta = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 	if ( empty( $meta ) ) {
