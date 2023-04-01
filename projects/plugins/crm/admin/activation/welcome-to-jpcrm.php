@@ -22,7 +22,7 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 	/ Breaking Checks
 	====================================================== */
 
-	// WLREMOVE
+	##WLREMOVE
 
 	global $zbs;
 
@@ -500,4 +500,4 @@ $settings      = $zbs->settings->getAll();
 	</div>
 </div>
 </div>			
-</body></html><?php // /WLREMOVE ?>
+</body></html><?php ##/WLREMOVE ?>

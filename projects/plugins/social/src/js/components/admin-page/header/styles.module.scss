@@ -1,0 +1,10 @@
+.header {
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: calc(var(--horizontal-spacing) * 3);
+
+	.logo {
+		flex-shrink: 0;
+	}
+}

@@ -12,6 +12,7 @@ export type UseVideoDataArgumentsProps = {
 };
 
 export type VideoDataProps = {
+	duration?: number;
 	allow_download?: boolean;
 	description?: string;
 	display_embed?: boolean;

@@ -9,6 +9,7 @@ import { useCallback, Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import useImageGeneratorConfig from '../../../hooks/use-image-generator-config';
 import useMediaDetails from '../../../hooks/use-media-details';
+import GeneratedImagePreview from '../../generated-image-preview';
 import MediaPicker from '../../media-picker';
 import TemplatePicker from '../template-picker';
 
@@ -27,6 +28,8 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 		setImageType,
 		imageId,
 		setImageId,
+		template,
+		setTemplate,
 	} = useImageGeneratorConfig();
 
 	const [ mediaDetails ] = useMediaDetails( imageId );
@@ -88,6 +91,9 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 			/>
 			{ isEnabled && (
 				<>
+					<hr />
+					<GeneratedImagePreview />
+					<hr />
 					<TextControl
 						value={ customText || '' }
 						onChange={ setCustomText }
@@ -101,9 +107,8 @@ const SocialImageGeneratorPanel = ( { prePublish = false } ) => {
 					<ImageOptions />
 					<hr />
 					<TemplatePicker
-						// TODO: add functionality
-						onSelect={ template => console.log( 'selected ' + template ) } // eslint-disable-line
-						value={ 'highway' }
+						onSelect={ setTemplate }
+						value={ template }
 						render={ renderTemplatePicker }
 					/>
 				</>

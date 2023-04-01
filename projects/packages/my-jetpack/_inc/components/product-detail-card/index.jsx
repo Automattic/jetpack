@@ -62,14 +62,23 @@ function Price( { value, currency, isOld } ) {
  * @param {Function} props.onClick               - Callback for Call To Action button click
  * @param {Function} props.trackButtonClick      - Function to call for tracking clicks on Call To Action button
  * @param {string} props.className               - A className to be concat with default ones
+ * @param {boolean} props.preferProductName      - Use product name instead of title
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
  * @returns {object}                               ProductDetailCard react component.
  */
-const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, supportingInfo } ) => {
+const ProductDetailCard = ( {
+	slug,
+	onClick,
+	trackButtonClick,
+	className,
+	preferProductName,
+	supportingInfo,
+} ) => {
 	const { fileSystemWriteAccess, siteSuffix, myJetpackUrl } = window?.myJetpackInitialState ?? {};
 
 	const { detail, isFetching } = useProduct( slug );
 	const {
+		name,
 		title,
 		longDescription,
 		features,
@@ -104,25 +113,21 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 	 */
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-	const {
-		run: mainCheckoutRedirect,
-		hasCheckoutStarted: hasMainCheckoutStarted,
-	} = useProductCheckoutWorkflow( {
-		productSlug: wpcomProductSlug,
-		redirectUrl: myJetpackUrl,
-		siteSuffix,
-		from: 'my-jetpack',
-	} );
+	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
+		useProductCheckoutWorkflow( {
+			productSlug: wpcomProductSlug,
+			redirectUrl: myJetpackUrl,
+			siteSuffix,
+			from: 'my-jetpack',
+		} );
 
-	const {
-		run: trialCheckoutRedirect,
-		hasCheckoutStarted: hasTrialCheckoutStarted,
-	} = useProductCheckoutWorkflow( {
-		productSlug: wpcomFreeProductSlug,
-		redirectUrl: myJetpackUrl,
-		siteSuffix,
-		from: 'my-jetpack',
-	} );
+	const { run: trialCheckoutRedirect, hasCheckoutStarted: hasTrialCheckoutStarted } =
+		useProductCheckoutWorkflow( {
+			productSlug: wpcomFreeProductSlug,
+			redirectUrl: myJetpackUrl,
+			siteSuffix,
+			from: 'my-jetpack',
+		} );
 
 	// Suppported products icons.
 	const icons = isBundle
@@ -201,6 +206,9 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 		);
 	}
 
+	// If we prefer the product name, use that everywhere instead of the title
+	const productMoniker = name && preferProductName ? name : title;
+
 	return (
 		<div
 			className={ classnames( styles.card, className, {
@@ -218,7 +226,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 				{ isBundle && <div className={ styles[ 'product-bundle-icons' ] }>{ icons }</div> }
 				<ProductIcon slug={ slug } />
 
-				<H3>{ title }</H3>
+				<H3>{ productMoniker }</H3>
 				<Text mb={ 3 }>{ longDescription }</Text>
 
 				<ul className={ styles.features }>
@@ -253,7 +261,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 									"Due to your server settings, we can't automatically install the plugin for you. Please manually install the %s plugin.",
 									'jetpack-my-jetpack'
 								),
-								title
+								productMoniker
 							) }
 							&nbsp;
 							<ExternalLink href={ `https://wordpress.org/plugins/${ pluginSlug }` }>
@@ -275,7 +283,7 @@ const ProductDetailCard = ( { slug, onClick, trackButtonClick, className, suppor
 					>
 						{
 							/* translators: placeholder is product name. */
-							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), title )
+							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), productMoniker )
 						}
 					</Text>
 				) }

@@ -40,20 +40,6 @@ class Post extends \WP_REST_Posts_Controller {
 
 		// @see add_post_meta
 		$this->import_id_meta_type = $post_type;
-		add_action( "rest_insert_{$post_type}", array( $this, 'process_post_meta' ), 10, 3 );
-	}
-
-	/**
-	 * Registers the routes for the objects of the controller.
-	 *
-	 * @see WP_REST_Posts_Controller::register_rest_route()
-	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			'/' . $this->rest_base,
-			$this->get_route_options()
-		);
 	}
 
 	/**
@@ -107,6 +93,11 @@ class Post extends \WP_REST_Posts_Controller {
 
 		$response = parent::create_item( $request );
 
+		// Process post metadata.
+		if ( ! is_wp_error( $response ) && isset( $response->data ) && isset( $response->data['id'] ) ) {
+			$this->process_post_meta( $response->data['id'], $request );
+		}
+
 		return $this->add_import_id_metadata( $request, $response );
 	}
 
@@ -124,15 +115,13 @@ class Post extends \WP_REST_Posts_Controller {
 			return $ret;
 		}
 
+		$taxonomy_name = $taxonomy === 'tags' ? 'post_tag' : 'category';
+
 		// Extract the terms by ID.
-		$ids = get_terms(
-			array(
-				'fields'     => 'ids',
-				'hide_empty' => false,
-				'slug'       => $ret,
-				'taxonomy'   => $taxonomy === 'tags' ? 'post_tag' : 'category',
-			)
-		);
+		$ids = $this->get_term_ids_from_slugs( $ret, $taxonomy_name );
+
+		// Create missing terms and add their IDs to the $ids array.
+		$ids = $this->create_missing_terms( $ret, $ids, $taxonomy_name );
 
 		if ( is_array( $ids ) ) {
 			return $ids;
@@ -143,14 +132,13 @@ class Post extends \WP_REST_Posts_Controller {
 	}
 
 	/**
-	 * Processes the metadata of a WordPress post when creating or updating it.
+	 * Processes the metadata of a WordPress post when creating it.
 	 *
-	 * @param \WP_Post $post An object representing the post being created or updated.
-	 * @param mixed    $request An object containing the metadata being added to the post.
-	 * @param bool     $creating A flag indicating whether the post is being created or updated.
+	 * @param int   $post_id The post ID.
+	 * @param mixed $request An object containing the metadata being added to the post.
 	 * @return void
 	 */
-	public function process_post_meta( \WP_Post $post, $request, $creating ) {
+	public function process_post_meta( $post_id, $request ) {
 		$metas = $request->get_param( 'meta' );
 
 		if ( empty( $metas ) ) {
@@ -165,14 +153,14 @@ class Post extends \WP_REST_Posts_Controller {
 			foreach ( $metas as $meta_key => $meta_value ) {
 
 				$meta_value = maybe_unserialize( $meta_value );
-				if ( ! $creating && $meta_key === '_edit_last' ) {
-					update_post_meta( $post->ID, $meta_key, $meta_value );
+				if ( $meta_key === '_edit_last' ) {
+					update_post_meta( $post_id, $meta_key, $meta_value );
 				} else {
 					// Add the meta data to the post
-					add_post_meta( $post->ID, $meta_key, $meta_value );
+					add_post_meta( $post_id, $meta_key, $meta_value );
 				}
 
-				do_action( 'import_post_meta', $post->ID, $meta_key, $meta_value );
+				do_action( 'import_post_meta', $post_id, $meta_key, $meta_value );
 			}
 		}
 	}
@@ -198,6 +186,62 @@ class Post extends \WP_REST_Posts_Controller {
 		);
 		// Return the filtered array
 		return $filtered_keys;
+	}
+
+	/**
+	 * Get term IDs from slugs.
+	 *
+	 * @param array  $term_slugs      Array of term slugs.
+	 * @param string $taxonomy_name   Taxonomy name.
+	 *
+	 * @return array                  Array of term IDs.
+	 */
+	protected function get_term_ids_from_slugs( $term_slugs, $taxonomy_name ) {
+		return get_terms(
+			array(
+				'fields'     => 'ids',
+				'hide_empty' => false,
+				'slug'       => $term_slugs,
+				'taxonomy'   => $taxonomy_name,
+			)
+		);
+	}
+
+	/**
+	 * Create any missing terms in the given taxonomy.
+	 *
+	 * @param array  $term_slugs   The slugs of the terms to check for.
+	 * @param array  $existing_ids The IDs of any terms that already exist.
+	 * @param string $taxonomy_name The name of the taxonomy.
+	 *
+	 * @return array The IDs of any terms that are now in the taxonomy.
+	 */
+	protected function create_missing_terms( $term_slugs, $existing_ids, $taxonomy_name ) {
+		$ids = $existing_ids;
+
+		foreach ( $term_slugs as $term_slug ) {
+			if ( ! term_exists( $term_slug, $taxonomy_name ) ) {
+				$term_name = $this->slug_to_readable_name( $term_slug );
+				$new_term  = wp_insert_term( $term_name, $taxonomy_name, array( 'slug' => $term_slug ) );
+				if ( ! is_wp_error( $new_term ) && isset( $new_term['term_id'] ) ) {
+					$ids[] = $new_term['term_id'];
+				}
+			}
+		}
+
+		return $ids;
+	}
+
+	/**
+	 * Convert a slug to a readable name.
+	 *
+	 * @param string $slug Slug to convert.
+	 * @return string Converted name.
+	 */
+	protected function slug_to_readable_name( $slug ) {
+		$name = str_replace( array( '-', '_' ), ' ', $slug );
+		$name = ucwords( $name );
+		return $name;
 	}
 
 }

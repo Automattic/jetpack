@@ -26,6 +26,10 @@ The timestamp value in milliseconds
 
 - type `boolean`
 
+<Canvas withSource="false">
+  <Story id="packages-videopress-timestamp-control--disabled" />
+</Canvas>
+
 ### label
 
 - type `ReactNode`
@@ -66,6 +70,21 @@ Time, in milliseconds, that the `onDebounceChange` function will be debounced.
 Maximum time value, in milliseconds, expected by the component.
 Also, if it's bigger than one hour, the hour input will be rendered into the Timestamp Input component.
 
+### decimalPlaces
+
+- type: 1 | 2 | 3
+- optional
+
+The decimalPlaces property is used to add fractions of a second.
+This property allows the user to specify the number of digits to be displayed after the seconds separator,
+thus allowing for a customizable level of precision.
+
+<Canvas withSource="open">
+  <Story id="packages-videopress-timestamp-control--decimal-places" />
+</Canvas>
+
+The example above shows how to configure two decimal places for the control. The max value is five seconds (5000).
+
 ### fineAdjustment
 
 - type: `number`
@@ -78,5 +97,19 @@ Time, in milliseconds, for every step of the Range control.
 - type: `boolean`
 - default: `True`
 
-A boolean property that controls whether the component should automatically
-hide the hours, and minutes inputs that are not needed based on the `max` value.
+## Handling the value property
+
+By default, the component will handle its value internally through a local state.
+The `value` property will define its initial value.
+It simplifies its usage since consumers 
+won't be concerned about storing and propagating the updated value.
+
+However, updating the `value` property externally is possible if you need it.
+The TimestampControl component will follow the new value provided.
+
+In the example below, it's possible to update the Timestamp value internally,
+but also it's doable by using the additional range control.
+
+<Canvas>
+  <Story id="packages-videopress-timestamp-control--changing-value-externally" />
+</Canvas>

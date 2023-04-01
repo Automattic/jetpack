@@ -548,7 +548,7 @@ class The_Neverending_Home_Page {
 				'_inc/build/infinite-scroll/infinity-customizer.min.js',
 				'modules/infinite-scroll/infinity-customizer.js'
 			),
-			array( 'customize-base' ),
+			array( 'jquery', 'customize-base' ),
 			JETPACK__VERSION . '-is5.0.0', // Added for ability to cachebust on WP.com.
 			true
 		);

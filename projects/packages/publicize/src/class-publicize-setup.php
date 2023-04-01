@@ -40,10 +40,10 @@ class Publicize_Setup {
 		// Adding on a higher priority to make sure we're the first field registered.
 		// The priority parameter can be removed once we deprecate WPCOM_REST_API_V2_Post_Publicize_Connections_Field
 		add_action( 'rest_api_init', array( new Connections_Post_Field(), 'register_fields' ), 5 );
-
 		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
-
 		add_action( 'current_screen', array( static::class, 'init_sharing_limits' ) );
+
+		( new Social_Image_Generator\Setup() )->init();
 	}
 
 	/**
@@ -86,19 +86,5 @@ class Publicize_Setup {
 
 		$share_limits = new Share_Limits( $connections, $shares_remaining, ! $current_screen->is_block_editor() );
 		$share_limits->enforce_share_limits();
-	}
-
-	/**
-	 * Initialise social image generator.
-	 */
-	public static function init_social_image_generator() {
-		global $publicize;
-
-		if ( ! $publicize->is_social_image_generator_enabled( self::get_blog_id() ) ) {
-			return;
-		}
-
-		$sig = new Social_Image_Generator\Setup();
-		$sig->init();
 	}
 }

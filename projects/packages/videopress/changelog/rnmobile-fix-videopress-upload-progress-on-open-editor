@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress block: Address the case of closing/re-opening post with an ongoing video upload.

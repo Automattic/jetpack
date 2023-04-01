@@ -1,5 +1,11 @@
 import { JetpackLogo, numberFormat } from '@automattic/jetpack-components';
-import { isComingSoon, isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
+import {
+	isComingSoon,
+	isPrivateSite,
+	useModuleStatus,
+	useAnalytics,
+} from '@automattic/jetpack-shared-extension-utils';
+import { Button, ExternalLink, Flex, FlexItem } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import {
@@ -16,6 +22,26 @@ import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions, MisconfigurationWarning } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
+import { name } from './';
+
+const SubscriptionsPanelPlaceholder = ( { children } ) => {
+	return (
+		<Flex align="center" gap={ 4 } direction="column" style={ { alignItems: 'center' } }>
+			<FlexItem>
+				{ __(
+					"In order to share your posts with your subscribers, you'll need to activate the Subscriptions feature.",
+					'jetpack'
+				) }
+			</FlexItem>
+			<FlexItem>{ children }</FlexItem>
+			<FlexItem>
+				<ExternalLink href="https://jetpack.com/support/subscriptions/">
+					{ __( 'Learn more about the Subscriptions feature.', 'jetpack' ) }
+				</ExternalLink>
+			</FlexItem>
+		</Flex>
+	);
+};
 
 function AccessLevelSelectorPanel( {
 	setPostMeta,
@@ -45,6 +71,10 @@ export default function SubscribePanels() {
 	const [ emailSubscribers, setEmailSubscribers ] = useState( null );
 	const [ paidSubscribers, setPaidSubscribers ] = useState( null );
 	const [ socialFollowers, setSocialFollowers ] = useState( null );
+	const { tracks } = useAnalytics();
+	const { isModuleActive, changeStatus, isLoadingModules, isChangingStatus } =
+		useModuleStatus( name );
+	const [ subscriberCount, setSubscriberCount ] = useState( null );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
@@ -52,12 +82,15 @@ export default function SubscribePanels() {
 		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? Object.keys( accessOptions )[ 0 ];
 
 	useEffect( () => {
+		if ( ! isModuleActive ) {
+			return;
+		}
 		getSubscriberCounts( counts => {
 			setEmailSubscribers( counts.email_subscribers );
 			setSocialFollowers( counts.social_followers );
 			setPaidSubscribers( counts.paid_subscribers );
 		} );
-	}, [] );
+	}, [ isModuleActive ] );
 
 	// Can be “private”, “password”, or “public”.
 	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
@@ -76,6 +109,10 @@ export default function SubscribePanels() {
 		return null;
 	}
 
+	const enableSubscriptionsModule = () => {
+		tracks.recordEvent( 'jetpack_editor_subscriptions_enable' );
+		return changeStatus( true );
+	};
 	// Subscriptions are only available for posts. Additionally, we will allow access level selector for pages.
 	// TODO: Make it available for pages later.
 	if ( postType !== 'post' ) {
@@ -111,12 +148,13 @@ export default function SubscribePanels() {
 	if (
 		( ! Number.isFinite( emailSubscribers ) || emailSubscribers <= 0 ) &&
 		( ! Number.isFinite( paidSubscribers ) || paidSubscribers <= 0 ) &&
-		( ! Number.isFinite( socialFollowers ) || socialFollowers <= 0 )
+		( ! Number.isFinite( socialFollowers ) || socialFollowers <= 0 ) &&
+		isModuleActive
 	) {
 		return null;
 	}
 
-	const showNotices = Number.isFinite( subscribersCount ) && subscribersCount > 0;
+	const showNotices = Number.isFinite( subscribersCount ) && subscribersCount > 0 && isModuleActive;
 	return (
 		<>
 			<AccessLevelSelectorPanel
@@ -191,6 +229,24 @@ export default function SubscribePanels() {
 						subscribersCount={ subscribersCount }
 						paidSubscribersCount={ paidSubscribersCount }
 					/>
+				) }
+				{ ! isModuleActive && ! isLoadingModules && (
+					<SubscriptionsPanelPlaceholder>
+						<Button
+							disabled={ isModuleActive || isChangingStatus }
+							isBusy={ isChangingStatus }
+							onClick={ enableSubscriptionsModule }
+							variant="secondary"
+						>
+							{ isChangingStatus
+								? __( 'Activating Subscriptions', 'jetpack' )
+								: __(
+										'Activate Subscriptions',
+										'jetpack',
+										/* dummy arg to avoid bad minification */ 0
+								  ) }
+						</Button>
+					</SubscriptionsPanelPlaceholder>
 				) }
 			</PluginPrePublishPanel>
 			<PluginPostPublishPanel className="jetpack-subscribe-post-publish-panel" initialOpen>
