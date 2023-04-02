@@ -30,18 +30,18 @@ export const accessOptions = {
 	},
 };
 
-function getReachForAccessLevel( key, subscribersCount, paidSubscribersCount, followersCount ) {
-	if ( subscribersCount === null || paidSubscribersCount === null || followersCount === null ) {
+function getReachForAccessLevel( key, emailSubscribers, paidSubscribers, socialFollowers ) {
+	if ( emailSubscribers === null || paidSubscribers === null || socialFollowers === null ) {
 		return '';
 	}
 
 	switch ( accessOptions[ key ] ) {
 		case accessOptions.everybody:
-			return '(' + ( subscribersCount + followersCount ) + '+)';
+			return '(' + ( emailSubscribers + socialFollowers ) + '+)';
 		case accessOptions.subscribers:
-			return '(' + subscribersCount + ')';
+			return '(' + emailSubscribers + ')';
 		case accessOptions.paid_subscribers:
-			return '(' + paidSubscribersCount + ')';
+			return '(' + paidSubscribers + ')';
 		default:
 	}
 }
@@ -65,9 +65,9 @@ export function MisconfigurationWarning( { accessLevel } ) {
 function NewsletterAccessChoices( {
 	accessLevel,
 	onChange,
-	subscribersCount,
-	paidSubscribersCount,
-	followersCount,
+	socialFollowers,
+	emailSubscribers,
+	paidSubscribers,
 } ) {
 	const instanceId = useInstanceId( NewsletterAccessChoices );
 	return (
@@ -94,12 +94,7 @@ function NewsletterAccessChoices( {
 						className="editor-post-visibility__label"
 					>
 						{ accessOptions[ key ].label }{ ' ' }
-						{ getReachForAccessLevel(
-							key,
-							subscribersCount,
-							paidSubscribersCount,
-							followersCount
-						) }
+						{ getReachForAccessLevel( key, emailSubscribers, paidSubscribers, socialFollowers ) }
 					</label>
 					<p
 						id={ `editor-post-${ key }-${ instanceId }-description` }
@@ -116,9 +111,9 @@ function NewsletterAccessChoices( {
 export function NewsletterAccess( {
 	accessLevel,
 	setPostMeta,
-	subscribersCount,
-	paidSubscribersCount,
-	followersCount,
+	socialFollowers,
+	emailSubscribers,
+	paidSubscribers,
 	withModal = true,
 } ) {
 	if ( ! accessLevel || ! Object.keys( accessOptions ).includes( accessLevel ) ) {
@@ -196,9 +191,9 @@ export function NewsletterAccess( {
 												/>
 												<NewsletterAccessChoices
 													accessLevel={ accessLevel }
-													followersCount={ followersCount }
-													subscribersCount={ subscribersCount }
-													paidSubscribersCount={ paidSubscribersCount }
+													socialFollowers={ socialFollowers }
+													emailSubscribers={ emailSubscribers }
+													paidSubscribers={ paidSubscribers }
 													onChange={ setPostMeta }
 												/>
 											</div>
@@ -211,9 +206,9 @@ export function NewsletterAccess( {
 								<FlexBlock>
 									<NewsletterAccessChoices
 										accessLevel={ accessLevel }
-										followersCount={ followersCount }
-										subscribersCount={ subscribersCount }
-										paidSubscribersCount={ paidSubscribersCount }
+										socialFollowers={ socialFollowers }
+										emailSubscribers={ emailSubscribers }
+										paidSubscribers={ paidSubscribers }
 										onChange={ setPostMeta }
 									/>
 								</FlexBlock>

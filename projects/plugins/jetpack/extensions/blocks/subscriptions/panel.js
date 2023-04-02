@@ -46,9 +46,9 @@ const SubscriptionsPanelPlaceholder = ( { children } ) => {
 function AccessLevelSelectorPanel( {
 	setPostMeta,
 	accessLevel,
-	followersCount,
-	subscribersCount,
-	paidSubscribersCount,
+	socialFollowers,
+	emailSubscribers,
+	paidSubscribers,
 } ) {
 	if ( ! isNewsletterFeatureEnabled() ) {
 		return null;
@@ -59,9 +59,9 @@ function AccessLevelSelectorPanel( {
 			<NewsletterAccess
 				setPostMeta={ setPostMeta }
 				accessLevel={ accessLevel }
-				followersCount={ followersCount }
-				subscribersCount={ subscribersCount }
-				paidSubscribersCount={ paidSubscribersCount }
+				socialFollowers={ socialFollowers }
+				emailSubscribers={ emailSubscribers }
+				paidSubscribers={ paidSubscribers }
 			/>
 		</PluginDocumentSettingPanel>
 	);
@@ -134,9 +134,9 @@ export default function SubscribePanels() {
 			<AccessLevelSelectorPanel
 				setPostMeta={ setPostMeta }
 				accessLevel={ accessLevel }
-				followersCount={ followersCount }
-				subscribersCount={ subscribersCount }
-				paidSubscribersCount={ paidSubscribersCount }
+				socialFollowers={ socialFollowers }
+				emailSubscribers={ emailSubscribers }
+				paidSubscribers={ paidSubscribers }
 			/>
 		);
 	}
@@ -157,9 +157,9 @@ export default function SubscribePanels() {
 			<AccessLevelSelectorPanel
 				setPostMeta={ setPostMeta }
 				accessLevel={ accessLevel }
-				followersCount={ followersCount }
-				subscribersCount={ subscribersCount }
-				paidSubscribersCount={ paidSubscribersCount }
+				socialFollowers={ socialFollowers }
+				emailSubscribers={ emailSubscribers }
+				paidSubscribers={ paidSubscribers }
 			/>
 			<PluginPrePublishPanel
 				className="jetpack-subscribe-pre-publish-panel"
