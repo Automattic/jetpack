@@ -124,7 +124,6 @@ export default function SubscribePanels() {
 		accessLevel === accessOptions.paid_subscribers.string ? paidSubscribers : emailSubscribers;
 	// We send to the social followers only when it is "everybody"
 	const followersCount = accessLevel === accessOptions.everybody.string ? socialFollowers : 0;
-	const paidSubscribersCount = paidSubscribers;
 
 	// Subscriptions will not be triggered for a post that was already published in the past and the email was sent.
 	// We still need to render the access level selector, as historical posts need a way to edit their access level for people visiting them on the web.
@@ -222,9 +221,9 @@ export default function SubscribePanels() {
 						setPostMeta={ setPostMeta }
 						accessLevel={ accessLevel }
 						withModal={ false }
-						followersCount={ followersCount }
-						subscribersCount={ subscribersCount }
-						paidSubscribersCount={ paidSubscribersCount }
+						socialFollowers={ socialFollowers }
+						emailSubscribers={ emailSubscribers }
+						paidSubscribers={ paidSubscribers }
 					/>
 				) }
 				{ ! isModuleActive && ! isLoadingModules && (
