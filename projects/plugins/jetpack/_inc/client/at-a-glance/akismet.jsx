@@ -110,14 +110,9 @@ class DashAkismet extends Component {
 				);
 			} else if ( 'invalid_key' === akismetData ) {
 				description = createInterpolateElement(
-					__( 'Already have an API key? <Button>Get started</Button>.', 'jetpack' ),
+					__( 'Already have an API key? <a>Get started</a>.', 'jetpack' ),
 					{
-						Button: (
-							<Button
-								className="jp-link-button"
-								href={ siteAdminUrl + 'admin.php?page=akismet-key-config' }
-							/>
-						),
+						a: <a href={ siteAdminUrl + 'admin.php?page=akismet-key-config' } />,
 					}
 				);
 			}
