@@ -14,14 +14,17 @@ import './settings.scss';
 
 export const accessOptions = {
 	everybody: {
+		string: 'everybody',
 		label: __( 'Everybody', 'jetpack' ),
 		info: __( 'Visible to everyone.', 'jetpack' ),
 	},
 	subscribers: {
+		string: 'subscribers',
 		label: __( 'All subscribers', 'jetpack' ),
 		info: __( 'Visible to everyone that subscribes to your site.', 'jetpack' ),
 	},
 	paid_subscribers: {
+		string: 'paid_subscribers',
 		label: __( 'Paid subscribers', 'jetpack' ),
 		info: __( 'Visible to everyone that purchases a paid plan on your site.', 'jetpack' ),
 	},
@@ -127,8 +130,10 @@ export function NewsletterAccess( {
 	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
 	const postVisibilityIsPublic = postVisibility === 'public';
 
-	const showVisibilityRestrictedMessage = ! postVisibilityIsPublic && accessLevel === 'everybody';
-	const showMisconfigurationMessage = ! postVisibilityIsPublic && accessLevel !== 'everybody';
+	const showVisibilityRestrictedMessage =
+		! postVisibilityIsPublic && accessLevel === accessOptions.everybody.string;
+	const showMisconfigurationMessage =
+		! postVisibilityIsPublic && accessLevel !== accessOptions.everybody.string;
 
 	return (
 		<PostVisibilityCheck

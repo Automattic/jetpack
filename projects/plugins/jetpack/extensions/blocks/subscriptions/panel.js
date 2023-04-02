@@ -93,7 +93,8 @@ export default function SubscribePanels() {
 
 	// Can be “private”, “password”, or “public”.
 	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
-	const showMisconfigurationMessage = postVisibility !== 'public' && accessLevel !== 'everybody';
+	const showMisconfigurationMessage =
+		postVisibility !== 'public' && accessLevel !== accessOptions.everybody.string;
 
 	// Only show this for posts for now (subscriptions are only available on posts).
 	const postWasEverPublished = useSelect(
@@ -120,9 +121,9 @@ export default function SubscribePanels() {
 
 	// In the paid-subscriber only, we send to a restricted number of subscribers
 	const subscribersCount =
-		accessOptions[ accessLevel ] === 'paid_subscribers' ? paidSubscribers : emailSubscribers;
+		accessLevel === accessOptions.paid_subscribers.string ? paidSubscribers : emailSubscribers;
 	// We send to the social followers only when it is "everybody"
-	const followersCount = accessOptions[ accessLevel ] === 'everybody' ? socialFollowers : 0;
+	const followersCount = accessLevel === accessOptions.everybody.string ? socialFollowers : 0;
 	const paidSubscribersCount = paidSubscribers;
 
 	// Subscriptions will not be triggered for a post that was already published in the past and the email was sent.
