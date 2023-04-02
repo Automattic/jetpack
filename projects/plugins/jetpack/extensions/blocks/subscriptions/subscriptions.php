@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
@@ -702,7 +703,9 @@ function maybe_get_locked_content( $the_content ) {
 	if ( Jetpack_Memberships::user_can_view_post() ) {
 		return $the_content;
 	}
-	return get_locked_content_placeholder_text();
+
+	$newsletter_access_level = Jetpack_Memberships::get_newsletter_access_level();
+	return get_locked_content_placeholder_text( $newsletter_access_level );
 }
 
 /**
@@ -743,13 +746,21 @@ function maybe_gate_existing_comments( $comment ) {
 /**
  * Placeholder text for non-subscribers
  *
+ * @param string $newsletter_access_level The newsletter access level.
  * @return string
  */
-function get_locked_content_placeholder_text() {
+function get_locked_content_placeholder_text( $newsletter_access_level ) {
+	$access_level = $newsletter_access_level === Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ? 'paid subscribers' : 'subscribers';
+
 	return do_blocks(
 		'<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}},"border":{"width":"1px","radius":"4px"}},"borderColor":"primary","layout":{"type":"constrained","contentSize":"400px"}} -->
 			<div class="wp-block-group has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center","style":{"typography":{"fontSize":"24px"},"spacing":{"margin":{"bottom":"var:preset|spacing|60"}}}} -->
-			<h2 class="wp-block-heading has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60);font-size:24px">' . esc_html__( 'This post is for paid subscribers', 'jetpack' ) . '</h2>
+			<h2 class="wp-block-heading has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60);font-size:24px">' .
+
+			/* translators: Newsletter access level */
+			sprintf( esc_html__( 'This post is for %s', 'jetpack' ), $access_level )
+
+			. '</h2>
 			<!-- /wp:heading -->
 
 			<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->
