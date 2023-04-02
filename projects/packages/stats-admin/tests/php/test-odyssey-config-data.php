@@ -18,6 +18,15 @@ class Test_Odyssey_Config_Data extends Stats_Test_Case {
 	}
 
 	/**
+	 * Test configData set to JS.
+	 */
+	public function test_render_config_data_with_param() {
+		$config_data = new Odyssey_Config_Data();
+		$this->assertTrue( strpos( $config_data->get_js_config_data( array( 'testtesttest' ) ), 'window.configData' ) === 0 );
+		$this->assertTrue( strpos( $config_data->get_js_config_data( array( 'testtesttest' ) ), 'testtesttest' ) > 0 );
+	}
+
+	/**
 	 * Test config_data has all necessary keys.
 	 */
 	public function test_config_data() {
