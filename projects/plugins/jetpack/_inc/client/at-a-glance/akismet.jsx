@@ -103,14 +103,14 @@ class DashAkismet extends Component {
 
 			if ( 'not_active' === akismetData ) {
 				description = createInterpolateElement(
-					__( 'Already have a key? <Button>Activate Akismet Anti-spam</Button>.', 'jetpack' ),
+					__( 'Already have an API key? <Button>Activate Akismet Anti-spam</Button>.', 'jetpack' ),
 					{
 						Button: <Button className="jp-link-button" onClick={ this.onActivateClick } />,
 					}
 				);
 			} else if ( 'invalid_key' === akismetData ) {
 				description = createInterpolateElement(
-					__( 'Already have a key? <Button>Get started</Button>.', 'jetpack' ),
+					__( 'Already have an API key? <Button>Get started</Button>.', 'jetpack' ),
 					{
 						Button: (
 							<Button
