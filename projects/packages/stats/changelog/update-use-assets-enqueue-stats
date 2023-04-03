@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Use core WordPress methods to add the Tracking pixel to the page, instead of printing the tracking pixel directly.

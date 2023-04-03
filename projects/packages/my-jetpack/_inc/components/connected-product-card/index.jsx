@@ -6,7 +6,7 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
 import ProductCard from '../product-card';
 
-const ConnectedProductCard = ( { admin, slug } ) => {
+const ConnectedProductCard = ( { admin, slug, children } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 	const { detail, status, activate, deactivate, isFetching } = useProduct( slug );
 	const { name, description, manageUrl, requiresUserConnection } = detail;
@@ -56,11 +56,14 @@ const ConnectedProductCard = ( { admin, slug } ) => {
 			onAdd={ navigateToAddProductPage }
 			onManage={ onManage }
 			onFixConnection={ navigateToConnectionPage }
-		/>
+		>
+			{ children }
+		</ProductCard>
 	);
 };
 
 ConnectedProductCard.propTypes = {
+	children: PropTypes.node,
 	admin: PropTypes.bool.isRequired,
 	slug: PropTypes.string.isRequired,
 };

@@ -10,6 +10,8 @@ import {
 	SET_PRODUCT_REQUEST_ERROR,
 	SET_GLOBAL_NOTICE,
 	CLEAN_GLOBAL_NOTICE,
+	SET_PRODUCT_STATS,
+	SET_IS_FETCHING_PRODUCT_STATS,
 } from './actions';
 
 const products = ( state = {}, action ) => {
@@ -138,12 +140,42 @@ const plugins = ( state = {} ) => {
 	return state;
 };
 
+const stats = ( state = {}, action ) => {
+	switch ( action.type ) {
+		case SET_IS_FETCHING_PRODUCT_STATS: {
+			const { productId, isFetching } = action;
+			return {
+				...state,
+				isFetching: {
+					...state.isFetching,
+					[ productId ]: isFetching,
+				},
+			};
+		}
+
+		case SET_PRODUCT_STATS: {
+			const { productId, stats: productStats } = action;
+			return {
+				...state,
+				items: {
+					...state.items,
+					[ productId ]: productStats,
+				},
+			};
+		}
+
+		default:
+			return state;
+	}
+};
+
 const reducers = combineReducers( {
 	products,
 	purchases,
 	availableLicenses,
 	notices,
 	plugins,
+	stats,
 } );
 
 export default reducers;
