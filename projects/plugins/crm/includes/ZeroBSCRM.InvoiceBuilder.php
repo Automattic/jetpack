@@ -867,35 +867,33 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	// switch for Company if set...
 	if ( $zbsCompanyID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-		$invTo = zeroBS_getCompany( $zbsCompanyID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		if ( is_array( $invTo ) && ( isset( $invTo['name'] ) || isset( $invTo['coname'] ) ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$inv_to = zeroBS_getCompany( $zbsCompanyID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( is_array( $inv_to ) && ( isset( $inv_to['name'] ) || isset( $inv_to['coname'] ) ) ) {
 
-			if ( isset( $invTo['name'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				$invTo['fname'] = $invTo['name']; // DAL3
+			if ( isset( $inv_to['name'] ) ) {
+				$inv_to['fname'] = $inv_to['name']; // DAL3
 			}
-			if ( isset( $invTo['coname'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				$invTo['fname'] = $invTo['coname']; // DAL2
+			if ( isset( $inv_to['coname'] ) ) {
+				$inv_to['fname'] = $inv_to['coname']; // DAL2
 			}
-			$invTo['lname'] = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$inv_to['lname'] = '';
 
 		} else {
 
-			$invTo = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$inv_to = array(
 				'fname' => '',
 				'lname' => '',
 			);
 		}
 
 		// object type flag used downstream, I wonder if we should put these in at the DAL level..
-		$invTo['objtype'] = ZBS_TYPE_COMPANY; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$inv_to['objtype'] = ZBS_TYPE_COMPANY;
 	} else {
 
-		$invTo = $zbs->DAL->contacts->getContact( $zbsCustomerID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$inv_to = $zbs->DAL->contacts->getContact( $zbsCustomerID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 		// object type flag used downstream, I wonder if we should put these in at the DAL level..
-		$invTo['objtype'] = ZBS_TYPE_CONTACT; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$inv_to['objtype'] = ZBS_TYPE_CONTACT;
 	}
 
 	// is this stored same format?
@@ -993,7 +991,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	);
 
 	// generate a templated customer info table
-	$invoice_customer_info_table_html = zeroBSCRM_invoicing_generateInvPart_custTable( $invTo, $template ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$invoice_customer_info_table_html = zeroBSCRM_invoicing_generateInvPart_custTable( $inv_to, $template );
 
 	// == Lineitem table > Column headers
 	// generate a templated customer info table
@@ -1266,8 +1264,8 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		$html,
 		$replacements,
 		array(
-			ZBS_TYPE_INVOICE  => $invoice,
-			$invTo['objtype'] => $invTo, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			ZBS_TYPE_INVOICE   => $invoice,
+			$inv_to['objtype'] => $inv_to,
 		)
 	);
 
