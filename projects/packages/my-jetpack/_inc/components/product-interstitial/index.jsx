@@ -71,7 +71,7 @@ export default function ProductInterstitial( {
 				const isFree = selectedProductDetail?.pricingForUi?.isFree;
 				const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-				if ( selectedProductDetail.isBundle ) {
+				if ( selectedProductDetail?.isBundle ) {
 					// Get straight to the checkout page.
 					checkout?.();
 					return;
