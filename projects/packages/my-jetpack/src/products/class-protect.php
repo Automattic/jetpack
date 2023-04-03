@@ -121,7 +121,7 @@ class Protect extends Product {
 	 * Return product bundles list
 	 * that supports the product.
 	 *
-	 * @return boolean|array Products bundle list.
+	 * @return array Products bundle list.
 	 */
 	public static function is_upgradable_by_bundle() {
 		return array( 'security' );
