@@ -73,4 +73,4 @@ VideoHoverPreviewControlStory.args = {
 	videoDuration: 80000, // 80 seconds
 };
 
-VideoHoverPreviewControlTemplate.storyName = 'VideoHoverPreviewControl';
+VideoHoverPreviewControlStory.storyName = 'VideoHoverPreviewControl';
