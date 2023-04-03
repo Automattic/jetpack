@@ -4,10 +4,8 @@
  * Shows individual previews in modal window.
  */
 
-import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { Modal, TabPanel, Button } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
-import { Fragment } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { AVAILABLE_SERVICES } from './constants';
@@ -24,19 +22,6 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 	isTweetStorm,
 	tweets,
 } ) {
-	// Inject the service icon into the title
-	const tabs = AVAILABLE_SERVICES.map( service => {
-		return {
-			...service,
-			title: (
-				<Fragment>
-					<SocialServiceIcon serviceName={ service.icon } />
-					{ service.title }
-				</Fragment>
-			),
-		};
-	} );
-
 	return (
 		<Modal
 			onRequestClose={ onClose }
@@ -51,7 +36,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 			/>
 			<TabPanel
 				className="jetpack-social-previews__modal-previews"
-				tabs={ tabs }
+				tabs={ AVAILABLE_SERVICES }
 				initialTabName={ isTweetStorm ? 'twitter' : null }
 			>
 				{ tab => (
