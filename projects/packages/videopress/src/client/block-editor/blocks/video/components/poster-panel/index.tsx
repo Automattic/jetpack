@@ -40,6 +40,7 @@ import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../
 import type { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import type React from 'react';
 
+const MIN_LOOP_DURATION = 3 * 1000;
 const MAX_LOOP_DURATION = 30 * 1000;
 const DEFAULT_LOOP_DURATION = 10 * 1000;
 
@@ -324,8 +325,11 @@ export function VideoHoverPreviewControl( {
 	onPreviewAtTimeChange,
 	onLoopDurationChange,
 }: VideoHoverPreviewControlProps ): React.ReactElement {
-	const maxLoopDuration = Math.min( MAX_LOOP_DURATION, videoDuration );
-	const maxStartingPoint = videoDuration - loopDuration;
+	const maxStartingPoint = videoDuration - MIN_LOOP_DURATION;
+
+	const [ maxLoopDuration, setMaxLoopDuration ] = useState(
+		Math.min( MAX_LOOP_DURATION, videoDuration - previewAtTime )
+	);
 
 	const loopDurationHelp = createInterpolateElement(
 		sprintf(
@@ -355,7 +359,10 @@ export function VideoHoverPreviewControl( {
 						fineAdjustment={ 1 }
 						decimalPlaces={ 2 }
 						value={ previewAtTime }
-						onDebounceChange={ onPreviewAtTimeChange }
+						onDebounceChange={ timestamp => {
+							onPreviewAtTimeChange( timestamp );
+							setMaxLoopDuration( Math.min( MAX_LOOP_DURATION, videoDuration - timestamp ) );
+						} }
 						wait={ 100 }
 					/>
 

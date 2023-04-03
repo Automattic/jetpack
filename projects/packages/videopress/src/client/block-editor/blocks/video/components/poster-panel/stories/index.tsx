@@ -68,7 +68,7 @@ VideoHoverPreviewControlStory.args = {
 	previewOnHover: false,
 	previewAtTime: 0,
 	loopDuration: 2300,
-	videoDuration: 780000,
+	videoDuration: 80000, // 80 seconds
 	onPreviewOnHoverChange: () => ( {} ),
 	onPreviewAtTimeChange: () => ( {} ),
 	onLoopDurationChange: () => ( {} ),
