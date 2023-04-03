@@ -443,9 +443,9 @@ class Jetpack_Gutenberg {
 	/**
 	 * Determine if Paid Newsletters is correctly configured for a site
 	 *
-	 * @since $$next_version$$
+	 * @since 12.0
 	 *
-	 * @return bool
+	 * @return bool Determine if the Paid Newsletter is correctly configured
 	 */
 	public static function is_newsletter_configured() {
 		require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
@@ -465,6 +465,7 @@ class Jetpack_Gutenberg {
 			return false;
 		}
 
+		/** This filter is already documented in class.jetpack-gutenberg.php */
 		return apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false );
 	}
 
@@ -708,22 +709,18 @@ class Jetpack_Gutenberg {
 				'is_private_site'               => $status->is_private_site(),
 				'is_coming_soon'                => $status->is_coming_soon(),
 				'is_offline_mode'               => $status->is_offline_mode(),
-				/**
-				 * Enable the Paid Newsletters feature in the block editor context.
-				 *
-				 * @since $$next_version$$
-				 *
-				 * @param bool false Enable the Paid Newsletters feature in the block editor context.
-				 */
-				'is_newsletter_feature_enabled' => ( apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false ) && class_exists( '\Jetpack_Memberships' ) ),
-				/**
-				 * Determine if the Paid Newsletter is correctly configured
-				 *
-				 * @since $$next_version$$
-				 *
-				 * @param bool false Determine if the Paid Newsletter is correctly configured
-				 */
-
+				'is_newsletter_feature_enabled' => (
+					/**
+					 * Enable the Paid Newsletters feature in the block editor context.
+					 *
+					 * @module subscriptions
+					 * @since 11.8
+					 *
+					 * @param bool false Enable the Paid Newsletters feature in the block editor context.
+					 */
+					apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+					&& class_exists( '\Jetpack_Memberships' )
+				),
 				'is_newsletter_configured'      => self::is_newsletter_configured(),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
