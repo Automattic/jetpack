@@ -924,13 +924,13 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	}
 
 	if ( $logo_url != '' && isset( $invoice['logo_url'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-		$logo_class   = 'show';
-		$logo_url     = $invoice['logo_url'];
-		$bizInfoClass = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$logo_class     = 'show';
+		$logo_url       = $invoice['logo_url'];
+		$biz_info_class = '';
 	} else {
-		$logo_class   = '';
-		$logo_url     = '';
-		$bizInfoClass = 'biz-up'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$logo_class     = '';
+		$logo_url       = '';
+		$biz_info_class = 'biz-up';
 	}
 
 	// Invoice Number or Reference
@@ -1223,7 +1223,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		'invoice-ref-styles'          => $invRefStyles, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-due-date'            => $dueDateStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-custom-fields'       => $invoice_custom_fields_html,
-		'invoice-biz-class'           => $bizInfoClass, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-biz-class'           => $biz_info_class,
 		'invoice-customer-info'       => $invoice_customer_info_table_html,
 		'invoice-html-status'         => $topStatus, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-table-headers'       => $tableHeaders, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
