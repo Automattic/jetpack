@@ -910,7 +910,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 
 	// Globals
 	$invsettings = $zbs->settings->getAll();
-	$cssURL      = ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.invoicepreview' . wp_scripts_get_suffix() . '.css'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$css_url     = ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.invoicepreview' . wp_scripts_get_suffix() . '.css';
 	$ref_label   = $zbs->settings->get( 'reflabel' );
 
 	$logoURL = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -1213,7 +1213,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 
 		// invoice specific
 		'invoice-title'               => __( 'Invoice', 'zero-bs-crm' ),
-		'css'                         => $cssURL, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'css'                         => $css_url,
 		'logo-class'                  => $logoClass, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'logo-url'                    => esc_url( $logoURL ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-number'              => $invNoStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
