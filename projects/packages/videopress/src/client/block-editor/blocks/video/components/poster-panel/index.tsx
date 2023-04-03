@@ -342,6 +342,8 @@ export function VideoHoverPreviewControl( {
 		}
 	);
 
+	const noLoopDurationRange = maxLoopDuration <= MIN_LOOP_DURATION;
+
 	return (
 		<>
 			<ToggleControl
@@ -375,6 +377,7 @@ export function VideoHoverPreviewControl( {
 						onDebounceChange={ onLoopDurationChange }
 						wait={ 100 }
 						help={ loopDurationHelp }
+						disabled={ noLoopDurationRange }
 					/>
 				</>
 			) }
