@@ -1261,53 +1261,49 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 // Used to generate specific part of invoice pdf: Biz table (Pay To)
 function zeroBSCRM_invoicing_generateInvPart_bizTable($args=array()){
 
-    #} =========== LOAD ARGS ==============
-    $defaultArgs = array(
+	#} =========== LOAD ARGS ==============
+	$defaultArgs = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-        'zbs_biz_name' => '',
-        'zbs_biz_yourname' => '',
-        'zbs_biz_extra' => '',
-        'zbs_biz_youremail' => '',
-        'zbs_biz_yoururl' => '',
+		'zbs_biz_name'      => '',
+		'zbs_biz_yourname'  => '',
+		'zbs_biz_extra'     => '',
+		'zbs_biz_youremail' => '',
+		'zbs_biz_yoururl'   => '',
 
-        'template' => 'pdf' // this'll choose between the html output variants below, e.g. pdf, portal, notification
+		'template'          => 'pdf', // this'll choose between the html output variants below, e.g. pdf, portal, notification
 
     ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
-    #} =========== / LOAD ARGS =============
+	#} =========== / LOAD ARGS =============
 
-    $bizInfoTable = '';
+	$biz_info_table = '';
 
-        switch ($template){
+	switch ( $template ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-            case 'pdf':
-            case 'notification':
+		case 'pdf':
+		case 'notification':
+			$biz_info_table  = '<div class="zbs-line-info zbs-line-info-title">' . esc_html( $zbs_biz_name ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $zbs_biz_yourname ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div class="zbs-line-info">' . nl2br( esc_html( $zbs_biz_extra ) ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $zbs_biz_youremail ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $zbs_biz_yoururl ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			break;
 
-                $bizInfoTable = '<div class="zbs-line-info zbs-line-info-title">'.$zbs_biz_name.'</div>';
-                $bizInfoTable .= '<div class="zbs-line-info">'.$zbs_biz_yourname.'</div>';
-                $bizInfoTable .= '<div class="zbs-line-info">'.nl2br($zbs_biz_extra).'</div>';
-                $bizInfoTable .= '<div class="zbs-line-info">'.$zbs_biz_youremail.'</div>';
-                $bizInfoTable .= '<div class="zbs-line-info">'.$zbs_biz_yoururl.'</div>'; 
+		case 'portal':
+			$biz_info_table  = '<div class="pay-to">';
+			$biz_info_table .= '<div class="zbs-portal-label">' . esc_html__( 'Pay To', 'zero-bs-crm' ) . '</div>';
+			$biz_info_table .= '<div class="zbs-portal-biz">';
+			$biz_info_table .= '<div class="pay-to-name">' . esc_html( $zbs_biz_name ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div>' . esc_html( $zbs_biz_yourname ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div>' . nl2br( esc_html( $zbs_biz_extra ) ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div>' . esc_html( $zbs_biz_youremail ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div>' . esc_html( $zbs_biz_yoururl ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '</div>';
+			$biz_info_table .= '</div>';
+			break;
 
-            break;
+	}
 
-            case 'portal':
-    
-                $bizInfoTable = '<div class="pay-to">';
-                    $bizInfoTable .= '<div class="zbs-portal-label">' . __('Pay To', 'zero-bs-crm') . '</div>';
-                    $bizInfoTable .= '<div class="zbs-portal-biz">';
-                        $bizInfoTable .= '<div class="pay-to-name">'.$zbs_biz_name.'</div>';
-                        $bizInfoTable .= '<div>'.$zbs_biz_yourname.'</div>';
-                        $bizInfoTable .= '<div>'.nl2br($zbs_biz_extra).'</div>';
-                        $bizInfoTable .= '<div>'.$zbs_biz_youremail.'</div>';
-                        $bizInfoTable .= '<div>'.$zbs_biz_yoururl.'</div>';
-                    $bizInfoTable .= '</div>';
-                $bizInfoTable .= '</div>';
-
-            break;
-
-        }
-
-    return $bizInfoTable;
+	return $biz_info_table;
 }
 // Used to generate specific part of invoice pdf: (Customer table)
 function zeroBSCRM_invoicing_generateInvPart_custTable($invTo=array(),$template='pdf'){
