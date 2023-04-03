@@ -327,7 +327,7 @@ class Jetpack_Social {
 						'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
 					),
 					'hasPaidPlan'                     => $publicize->has_paid_plan(),
-					'isEnhancedPublishingEnabled'     => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
+					'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 					'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
 					'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 				),
