@@ -93,7 +93,7 @@ const useVideoPlayer = (
 			playerState.current = 'ready';
 		}
 
-		if ( eventName === 'videopress_timeupdate' ) {
+		if ( eventName === 'videopress_timeupdate' && previewOnHover ) {
 			const currentTime = eventData.currentTimeMs;
 			const startLimit = previewOnHover.atTime;
 			const endLimit = previewOnHover.atTime + previewOnHover.duration;
@@ -132,7 +132,7 @@ const useVideoPlayer = (
 			// Remove the listener when the component is unmounted.
 			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
 		};
-	}, [ iFrameRef, isRequestingPreview, wasPreviewOnHoverJustEnabled ] );
+	}, [ iFrameRef, isRequestingPreview, wasPreviewOnHoverJustEnabled, previewOnHover ] );
 
 	const play = useCallback( () => {
 		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
