@@ -10,3 +10,14 @@
 	width: 100%;
 	z-index: 1;
 }
+
+.videopress-player--loading {
+	display: flex;
+	justify-content: center;
+	height: 100%;
+	width: 100%;
+}
+
+.videopress-player--loading-text {
+	text-align: center;
+}
