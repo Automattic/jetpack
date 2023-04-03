@@ -226,6 +226,8 @@ export function NewsletterAccess( {
 													href={ getRedirectUrl( 'paid-newsletter-info', {
 														anchor: 'memberships-and-subscriptions',
 													} ) }
+													rel="noopener noreferrer"
+													target="_blank"
 												/>
 											),
 										}
