@@ -935,9 +935,8 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 
 	// Invoice Number or Reference
 	// Reference, falling back to ID
-	$inv_id_styles = '';
-	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	$invRefStyles = 'display:none;'; // none initially
+	$inv_id_styles  = '';
+	$inv_ref_styles = 'display:none;'; // none initially
 
 	// ID
 	$thisInvReference = $invoice['id']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -959,8 +958,8 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		}
 
 		// and we don't show ID, do show ref label:
-		$inv_id_styles = 'display:none;';
-		$invRefStyles  = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$inv_id_styles  = 'display:none;';
+		$inv_ref_styles = '';
 
 	}
 
@@ -1220,7 +1219,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		'invoice-date'                => $invDateStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-id-styles'           => $inv_id_styles,
 		'invoice-ref'                 => $invNoStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		'invoice-ref-styles'          => $invRefStyles, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-ref-styles'          => $inv_ref_styles,
 		'invoice-due-date'            => $dueDateStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-custom-fields'       => $invoice_custom_fields_html,
 		'invoice-biz-class'           => $biz_info_class,
