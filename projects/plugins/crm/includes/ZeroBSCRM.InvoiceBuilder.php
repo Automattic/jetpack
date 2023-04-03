@@ -788,13 +788,13 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	);
 
 	// retrieve
-	$zbsCustomerID = -1; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$zbs_customer_id = -1;
 	if ( is_array( $invoice ) && isset( $invoice['contact'] ) && is_array( $invoice['contact'] ) && count( $invoice['contact'] ) > 0 ) {
-		$zbsCustomerID = $invoice['contact'][0]['id']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$zbs_customer_id = $invoice['contact'][0]['id'];
 	}
-	$zbsCompanyID = -1; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$zbs_company_id = -1;
 	if ( is_array( $invoice ) && isset( $invoice['company'] ) && is_array( $invoice['company'] ) && count( $invoice['company'] ) > 0 ) {
-		$zbsCompanyID = $invoice['company'][0]['id']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$zbs_company_id = $invoice['company'][0]['id'];
 	}
 
 	// date
@@ -865,9 +865,9 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	}
 
 	// switch for Company if set...
-	if ( $zbsCompanyID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	if ( $zbs_company_id > 0 ) {
 
-		$inv_to = zeroBS_getCompany( $zbsCompanyID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$inv_to = zeroBS_getCompany( $zbs_company_id );
 		if ( is_array( $inv_to ) && ( isset( $inv_to['name'] ) || isset( $inv_to['coname'] ) ) ) {
 
 			if ( isset( $inv_to['name'] ) ) {
@@ -890,7 +890,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		$inv_to['objtype'] = ZBS_TYPE_COMPANY;
 	} else {
 
-		$inv_to = $zbs->DAL->contacts->getContact( $zbsCustomerID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$inv_to = $zbs->DAL->contacts->getContact( $zbs_customer_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 		// object type flag used downstream, I wonder if we should put these in at the DAL level..
 		$inv_to['objtype'] = ZBS_TYPE_CONTACT;
