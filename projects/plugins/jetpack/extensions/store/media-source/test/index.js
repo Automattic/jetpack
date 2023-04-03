@@ -7,6 +7,22 @@ const STORE_ID = 'jetpack/media-source';
 
 const store = registerStore( STORE_ID, storeDefinition );
 
+// Infrastructure to clean up the media sources after each test.
+//  - Use a special function to register sources so they can be removed.
+//  - Reset the default to null after each test too.
+let mediaSourcesToCleanUp = [];
+const registerMediaSourceForTest = ( id, mediaSourceState ) => {
+	store.dispatch( actions.registerMediaSource( id, mediaSourceState ) );
+	mediaSourcesToCleanUp.push( id );
+};
+afterEach( () => {
+	for ( const id of mediaSourcesToCleanUp ) {
+		store.dispatch( actions.unregisterMediaSource( id ) );
+	}
+	mediaSourcesToCleanUp = [];
+	store.dispatch( actions.setDefaultMediaSource( null ) );
+} );
+
 describe( 'save', () => {
 	test( 'Initial State', () => {
 		const got = store.getState();
@@ -15,7 +31,7 @@ describe( 'save', () => {
 	} );
 
 	test( 'Add a player with default properties', () => {
-		store.dispatch( actions.registerMediaSource( 100, {} ) );
+		registerMediaSourceForTest( 100, {} );
 		const got = store.getState();
 		const want = {
 			default: null,
@@ -27,7 +43,7 @@ describe( 'save', () => {
 	} );
 
 	test( 'Add a player with one overriden property', () => {
-		store.dispatch( actions.registerMediaSource( 100, { status: 'playing' } ) );
+		registerMediaSourceForTest( 100, { status: 'playing' } );
 		const got = store.getState();
 		const want = {
 			default: null,
@@ -39,12 +55,12 @@ describe( 'save', () => {
 	} );
 
 	test( 'Add two sources, then update the first one', () => {
-		store.dispatch( actions.registerMediaSource( 100, { status: 'playing' } ) );
+		registerMediaSourceForTest( 100, { status: 'playing' } );
 		const stateAfterOneAction = store.getState();
 		const frozenStateAfterOneAction = JSON.parse( JSON.stringify( stateAfterOneAction ) );
 
-		store.dispatch( actions.registerMediaSource( 200, { status: 'stopped', position: 2 } ) );
-		store.dispatch( actions.registerMediaSource( 100, { status: 'stopped', position: 1 } ) );
+		registerMediaSourceForTest( 200, { status: 'stopped', position: 2 } );
+		registerMediaSourceForTest( 100, { status: 'stopped', position: 1 } );
 		const got = store.getState();
 		const want = {
 			default: null,
@@ -58,11 +74,11 @@ describe( 'save', () => {
 	} );
 
 	test( 'Add two sources, then delete one', () => {
-		store.dispatch( actions.registerMediaSource( 100, { status: 'playing' } ) );
+		registerMediaSourceForTest( 100, { status: 'playing' } );
 		const stateAfterOneAction = store.getState();
 		const frozenStateAfterOneAction = JSON.parse( JSON.stringify( stateAfterOneAction ) );
 
-		store.dispatch( actions.registerMediaSource( 200, { status: 'stopped' } ) );
+		registerMediaSourceForTest( 200, { status: 'stopped' } );
 		store.dispatch( actions.unregisterMediaSource( 100 ) );
 		const got = store.getState();
 		const want = {
@@ -98,7 +114,7 @@ describe( 'save', () => {
 
 	test( 'Error', () => {
 		// Create sources
-		store.dispatch( actions.registerMediaSource( 100, {} ) );
+		registerMediaSourceForTest( 100, {} );
 
 		let got = store.getState();
 		let want = {
@@ -123,7 +139,7 @@ describe( 'save', () => {
 
 	test( 'Set Time', () => {
 		// Create sources
-		store.dispatch( actions.registerMediaSource( 100, {} ) );
+		registerMediaSourceForTest( 100, {} );
 		const stateAfterOneAction = store.getState();
 		const frozenStateAfterOneAction = JSON.parse( JSON.stringify( stateAfterOneAction ) );
 
@@ -160,7 +176,7 @@ describe( 'save', () => {
 
 	test( 'Play, Pause, Toggle', () => {
 		// Create sources
-		store.dispatch( actions.registerMediaSource( 100, {} ) );
+		registerMediaSourceForTest( 100, {} );
 		const stateAfterOneAction = store.getState();
 		const frozenStateAfterOneAction = JSON.parse( JSON.stringify( stateAfterOneAction ) );
 
@@ -221,7 +237,7 @@ describe( 'save', () => {
 
 	test( 'Toggle a player with no state', () => {
 		// Create sources
-		store.dispatch( actions.registerMediaSource( 100, {} ) );
+		registerMediaSourceForTest( 100, {} );
 		const stateAfterOneAction = store.getState();
 		const frozenStateAfterOneAction = JSON.parse( JSON.stringify( stateAfterOneAction ) );
 
