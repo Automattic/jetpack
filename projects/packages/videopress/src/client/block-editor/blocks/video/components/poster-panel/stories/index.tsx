@@ -30,7 +30,13 @@ const DefaultTemplate = args => {
 		setAttributes( { ...attributes, ...newAttributes } );
 	};
 
-	return <PosterPanel attributes={ attributes } setAttributes={ setAttributesHandler } />;
+	return (
+		<PosterPanel
+			attributes={ attributes }
+			setAttributes={ setAttributesHandler }
+			isGeneratingPoster={ false }
+		/>
+	);
 };
 
 export const _default = DefaultTemplate.bind( {} );
