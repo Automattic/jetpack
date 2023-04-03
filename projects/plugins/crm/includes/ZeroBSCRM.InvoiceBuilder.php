@@ -939,22 +939,22 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	$inv_ref_styles = 'display:none;'; // none initially
 
 	// ID
-	$thisInvReference = $invoice['id']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$this_inv_reference = $invoice['id'];
 
 	// ID - Portal
 	if ( $template === 'portal' ) {
-		$thisInvReference = __( 'Invoice #', 'zero-bs-crm' ) . ' ' . $thisInvReference; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$this_inv_reference = __( 'Invoice #', 'zero-bs-crm' ) . ' ' . $this_inv_reference;
 	}
 
 	// Reference
 	if ( isset( $invoice['id_override'] ) && ! empty( $invoice['id_override'] ) ) {
 
 		// Ref
-		$thisInvReference = $invoice['id_override']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$this_inv_reference = $invoice['id_override'];
 
 		// Ref - Portal
 		if ( $template === 'portal' ) {
-			$thisInvReference = $ref_label . ' ' . $thisInvReference; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$this_inv_reference = $ref_label . ' ' . $this_inv_reference;
 		}
 
 		// and we don't show ID, do show ref label:
@@ -964,11 +964,11 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	}
 
 	// replacement str
-	$invNoStr = $thisInvReference; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$inv_no_str = $this_inv_reference;
 
 	// Portal
 	if ( $template === 'portal' ) {
-		$invNoStr = '<div class="zbs-normal">' . esc_html( $thisInvReference ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$inv_no_str = '<div class="zbs-normal">' . esc_html( $this_inv_reference ) . '</div>';
 	}
 
 	// == Build biz info table.
@@ -1189,7 +1189,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 
 	$payDetails  = '<div class="deets"><h2>' . esc_html__( 'Payment Details', 'zero-bs-crm' ) . '</h2>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$payDetails .= '<div class="deets-line"><span class="deets-content">' . nl2br( esc_html( $payment_info_text ) ) . '</span></div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	$payDetails .= '<div class="deets-line"><span class="deets-title">' . esc_html__( 'Payment Reference:', 'zero-bs-crm' ) . '</span> <span>' . esc_html( $invNoStr ) . '</span></div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$payDetails .= '<div class="deets-line"><span class="deets-title">' . esc_html__( 'Payment Reference:', 'zero-bs-crm' ) . '</span> <span>' . esc_html( $inv_no_str ) . '</span></div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$payDetails .= '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 
@@ -1215,10 +1215,10 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		'css'                         => $css_url,
 		'logo-class'                  => $logo_class,
 		'logo-url'                    => esc_url( $logo_url ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		'invoice-number'              => $invNoStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-number'              => $inv_no_str,
 		'invoice-date'                => $invDateStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-id-styles'           => $inv_id_styles,
-		'invoice-ref'                 => $invNoStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-ref'                 => $inv_no_str,
 		'invoice-ref-styles'          => $inv_ref_styles,
 		'invoice-due-date'            => $dueDateStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-custom-fields'       => $invoice_custom_fields_html,
