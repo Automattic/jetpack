@@ -53,6 +53,10 @@ function show_logged_in_banner() {
 	$my_home_url      = 'https://wordpress.com/home/' . $blog_domain;
 	$change_theme_url = 'https://wordpress.com/themes/' . $blog_domain;
 
+	$is_launchpad_enabled = get_option( 'launchpad_screen' ) === 'full';
+	$site_intent          = get_option( 'site_intent' );
+	$launchpad_url        = 'https://wordpress.com/setup/' . $site_intent . '/launchpad?siteSlug=' . $blog_domain;
+
 	$is_coming_soon_mode         = site_is_coming_soon() || site_is_public_coming_soon();
 	$is_launched_and_coming_soon = $is_site_launched && $is_coming_soon_mode;
 
@@ -139,11 +143,11 @@ function show_logged_in_banner() {
 		<div class="launch-banner" id="launch-banner">
 			<div class="launch-banner-content">
 				<div class="launch-banner-section my-home-button">
-					<a href="<?php echo esc_url( $my_home_url ); ?>">
+					<a href="<?php echo $is_launchpad_enabled ? esc_url( $launchpad_url ) : esc_url( $my_home_url ); ?>">
 						<svg class="icon icon-home" width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
 							<path d="M6.5 2L1.5 7L6.5 12" stroke-width="1.5" stroke-linecap="square"/>
 						</svg>
-						<span class="is-desktop"><?php esc_html_e( 'My Home' ); ?></span>
+						<span class="is-desktop"><?php $is_launchpad_enabled ? esc_html_e( 'Next steps' ) : esc_html_e( 'My Home' ); ?></span>
 					</a>
 				</div>
 				<div class="launch-banner-section bar-controls">
