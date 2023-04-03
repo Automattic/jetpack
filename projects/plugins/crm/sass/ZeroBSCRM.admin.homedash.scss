@@ -452,6 +452,11 @@ background:white;
   }
 }
 
+/* match padding of other rows on page */
+#crm_summary_numbers_container {
+  padding: 0 1rem;
+}
+
 #crm_summary_numbers {
   font-family: "Lato", "Helvetica Neue", Arial, Helvetica, sans-serif;
   .range_total {
