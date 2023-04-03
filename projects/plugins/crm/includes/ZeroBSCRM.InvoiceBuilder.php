@@ -825,28 +825,28 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	if ( $template === 'portal' ) {
 
 		// portal version: Includes status label and amount (shown at top of portal invoice)
-		$topStatus  = '<div class="zbs-portal-label">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$topStatus .= esc_html( $zbs_stat ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$topStatus .= '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$top_status  = '<div class="zbs-portal-label">';
+		$top_status .= esc_html( $zbs_stat );
+		$top_status .= '</div>';
 		// WH added quickly to get around fact this is sometimes empty, please tidy when you address currency formatting :)
 		$inv_g_total = '';
 		if ( isset( $invoice['total'] ) ) {
 			$inv_g_total = zeroBSCRM_formatCurrency( $invoice['total'] );
 		}
-		$topStatus .= '<h1 class="zbs-portal-value">' . esc_html( $inv_g_total ) . '</h1>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$top_status .= '<h1 class="zbs-portal-value">' . esc_html( $inv_g_total ) . '</h1>';
 		if ( $zbs_stat === __( 'Paid', 'zero-bs-crm' ) ) {
-			$topStatus .= '<div class="zbs-invoice-paid"><i class="fa fa-check"></i>' . esc_html__( 'Paid', 'zero-bs-crm' ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$top_status .= '<div class="zbs-invoice-paid"><i class="fa fa-check"></i>' . esc_html__( 'Paid', 'zero-bs-crm' ) . '</div>';
 		}
 	} elseif ( $template === 'pdf' ) {
 
 		// pdf status
 		if ( $zbs_stat === __( 'Paid', 'zero-bs-crm' ) ) {
 
-			$topStatus = '<div class="jpcrm-invoice-status jpcrm-invoice-paid">' . esc_html__( 'Paid', 'zero-bs-crm' ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$top_status = '<div class="jpcrm-invoice-status jpcrm-invoice-paid">' . esc_html__( 'Paid', 'zero-bs-crm' ) . '</div>';
 
 		} else {
 
-			$topStatus = '<div class="jpcrm-invoice-status">' . esc_html( $zbs_stat ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$top_status = '<div class="jpcrm-invoice-status">' . esc_html( $zbs_stat ) . '</div>';
 
 		}
 	}
@@ -1220,7 +1220,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		'invoice-custom-fields'       => $invoice_custom_fields_html,
 		'invoice-biz-class'           => $biz_info_class,
 		'invoice-customer-info'       => $invoice_customer_info_table_html,
-		'invoice-html-status'         => $topStatus, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-html-status'         => $top_status,
 		'invoice-table-headers'       => $tableHeaders, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-line-items'          => $lineItems, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-totals-table'        => $totalsTable, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
