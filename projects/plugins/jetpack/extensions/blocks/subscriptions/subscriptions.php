@@ -755,7 +755,7 @@ function maybe_gate_existing_comments( $comment ) {
  * @return string
  */
 function get_locked_content_placeholder_text( $newsletter_access_level ) {
-	$access_level = $newsletter_access_level === Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ? 'paid subscribers' : 'subscribers';
+	$access_level = $newsletter_access_level === Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ? __( 'paid subscribers', 'jetpack' ) : __( 'subscribers', 'jetpack' );
 
 	return do_blocks(
 		'<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}},"border":{"width":"1px","radius":"4px"}},"borderColor":"primary","layout":{"type":"constrained","contentSize":"400px"}} -->
