@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -47,7 +47,20 @@ _default.args = {
 };
 
 const VideoHoverPreviewControlTemplate = args => {
-	return <VideoHoverPreviewControl { ...args } />;
+	const [ , setPreviewAt ] = useState( args.previewAtTime );
+	const [ , setLoopDuraton ] = useState( args.loopDuration );
+	const setPreviewAtHandler = newPreviewAt => {
+		setPreviewAt( newPreviewAt );
+		console.log( { newPreviewAt } ); // eslint-disable-line no-console
+	};
+
+	return (
+		<VideoHoverPreviewControl
+			{ ...args }
+			onPreviewAtTimeChange={ setPreviewAtHandler }
+			onLoopDurationChange={ setLoopDuraton }
+		/>
+	);
 };
 
 export const VideoHoverPreviewControlStory = VideoHoverPreviewControlTemplate.bind( {} );

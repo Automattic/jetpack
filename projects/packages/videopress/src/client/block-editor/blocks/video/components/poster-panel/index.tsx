@@ -13,7 +13,13 @@ import {
 	Spinner,
 	Notice,
 } from '@wordpress/components';
-import { useRef, useEffect, useState, useCallback } from '@wordpress/element';
+import {
+	useRef,
+	useEffect,
+	useState,
+	useCallback,
+	createInterpolateElement,
+} from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { linkOff, image as imageIcon } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -321,6 +327,17 @@ export function VideoHoverPreviewControl( {
 	const maxLoopDuration = Math.min( MAX_LOOP_DURATION, videoDuration );
 	const maxStartingPoint = videoDuration - loopDuration;
 
+	const loopDurationHelp = createInterpolateElement(
+		sprintf(
+			/* translators: placeholder is the maximum lapse duration for the previewOnHover */
+			__( 'Minimum value: 3s. Maximum value: <em>%s</em>s.', 'jetpack-videopress-pkg' ),
+			( ( maxLoopDuration / 10 ) | 0 ) / 100
+		),
+		{
+			em: <em />,
+		}
+	);
+
 	return (
 		<>
 			<ToggleControl
@@ -354,6 +371,7 @@ export function VideoHoverPreviewControl( {
 							onLoopDurationChange( Math.max( Math.min( MAX_LOOP_DURATION, duration ), 0 ) );
 						} }
 						wait={ 100 }
+						help={ loopDurationHelp }
 					/>
 				</>
 			) }
