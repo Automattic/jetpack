@@ -756,506 +756,527 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3($contactID=-1,$return=true
 // $template is crucial. pdf | portal | notification *currently v3.0
 function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$html=''){
 
-    global $zbs;
-
-    // load templating
-    $placeholder_templating = $zbs->get_templating();
-
-    // need this.
-    if ($invoiceID <= 0 || $html == '') return '';
-
-    // for v3.0 WH split out the data-retrieval from scattering amongst this func, unified here:
-    // translated the below cpt way into dal / v3.0:
-
-    // ================== DATA RETRIEVAL ===================================
-
-    $invoice = $zbs->DAL->invoices->getInvoice($invoiceID,array(
-
-        // we want all this:
-        'withLineItems'     => true,
-        'withCustomFields'  => true,
-        'withTransactions'  => true, // gets trans associated with inv as well
-        'withAssigned'      => true, // return ['contact'] & ['company'] objs if has link
-        'withTags'          => true,
-        'withOwner'         => true,
-        'withTotals'        => true
-
-    ));
-
-    #} retrieve
-    $zbsCustomerID = -1; if (is_array($invoice) && isset($invoice['contact']) && is_array($invoice['contact']) && count($invoice['contact']) > 0) $zbsCustomerID = $invoice['contact'][0]['id'];
-    $zbsCompanyID = -1;  if (is_array($invoice) && isset($invoice['company']) && is_array($invoice['company']) && count($invoice['company']) > 0) $zbsCompanyID = $invoice['company'][0]['id'];                
-
-    // date
-        // can use this: (04/16/2019)
-        //$invDateStr = $invoice['date_date'];
-        // or this (for WP format):
-        $invDateStr = jpcrm_uts_to_date_str( $invoice['date'] );
-    
-
-    // due
-    if ($invoice['due_date'] <= 0){
-        
-        //no due date;
-        $dueDateStr = __("No due date", "zero-bs-crm");
-
-    } else {
-
-        // can use this: (04/16/2019)
-        //$dueDateStr = $invoice['due_date_date'];
-        // or this (for WP format):
-        $dueDateStr = jpcrm_uts_to_date_str( $invoice['due_date'] );
-    }
-
-    // Custom fields
-    $invoice_custom_fields_html = jpcrm_invoicing_generate_invoice_custom_fields_lines( $invoice, $template );
-
-    // status
-    if (!isset($invoice['status'])) 
-        $zbs_stat = __('Draft','zero-bs-crm');
-    else
-        $zbs_stat = $invoice['status'];     
-
-    // status html:
-    if ( $template == 'portal' ){
-
-        // portal version: Includes status label and amount (shown at top of portal invoice)
-        $topStatus = '<div class="zbs-portal-label">';
-        $topStatus .= $zbs_stat;
-        $topStatus .= '</div>';
-        // WH added quickly to get around fact this is sometimes empty, please tidy when you address currency formatting :)
-        $invGTotal = ''; if (isset($invoice["total"])) $invGTotal = zeroBSCRM_formatCurrency($invoice["total"]);
-        $topStatus .= '<h1 class="zbs-portal-value">' . $invGTotal . '</h1>';
-        if ($zbs_stat == __('Paid','zero-bs-crm')){
-            $topStatus .= '<div class="zbs-invoice-paid"><i class="fa fa-check"></i>' . esc_html__("Paid",'zero-bs-crm') . '</div>';
-        }
-
-    } elseif ( $template == 'pdf' ){
-
-        // pdf status
-        if ( $zbs_stat == __( 'Paid', 'zero-bs-crm' ) ){
-            
-            $topStatus = '<div class="jpcrm-invoice-status jpcrm-invoice-paid">' . esc_html__( 'Paid', 'zero-bs-crm' ) . '</div>';
-
-        } else {
-
-            $topStatus = '<div class="jpcrm-invoice-status">' . esc_html( $zbs_stat ) . '</div>';
-
-        }
-    }
-
-    // inv lines
-    $invlines = $invoice['lineitems'];
-
-    #} SET all new invoices to unpaid
-    if (
-        #} Not set, but inv exists
-        (isset($invoice) && is_array($invoice) && (!isset($invoice['status']) || empty($invoice['status']))) ||
-        #} No inv exists
-        (!isset($invoice) || !is_array($invoice))
-        ) $invoice['status'] = __('Draft','zero-bs-crm');   //moved to draft. Unpaid will be set once the invoice has been sent. 
-
-
-    // switch for Company if set...
-    // v3.0 changes this if(isset($invoice['add_com_con']) && $invoice['add_com_con'] == 'com'){
-    if ($zbsCompanyID > 0){
-
-        $invTo = zeroBS_getCompany($zbsCompanyID);
-        if (is_array($invTo) && (isset($invTo['name']) || isset($invTo['coname']))){
-
-            if (isset($invTo['name']))      $invTo['fname'] = $invTo['name']; // DAL3
-            if (isset($invTo['coname']))    $invTo['fname'] = $invTo['coname']; // DAL2
-            $invTo['lname'] = '';
-
-        } else {
-
-            $invTo = array('fname' => '', 'lname' => '');
-        }
-
-        // object type flag used downstream, I wonder if we should put these in at the DAL level..
-        $invTo['objtype'] = ZBS_TYPE_COMPANY;
-
-    } else {
-
-        $invTo = $zbs->DAL->contacts->getContact($zbsCustomerID);
-
-        // object type flag used downstream, I wonder if we should put these in at the DAL level..
-        $invTo['objtype'] = ZBS_TYPE_CONTACT;
-
-    }
-
-    // is this stored same format?
-    $zbsInvoiceHorQ = $invoice['hours_or_quantity'];
-
-    // partials = transactions associated in v3.0 model
-    $partials = $invoice['transactions'];
-
-    // ================= / DATA RETRIEVAL ===================================
-
-
-
-    // ================= CONTENT BUILDING ===================================
-
-    #} Globals
-    $currencyChar = zeroBSCRM_getCurrencyChr();
-    global $zbs; $invsettings = $zbs->settings->getAll();
-    $b2b = zeroBSCRM_getSetting('companylevelcustomers');
-    $allowInvNoChange = zeroBSCRM_getSetting('invallowoverride');
-    global $zbsCustomerInvoiceFields, $zbs;
-    $fields = $zbsCustomerInvoiceFields;
-    $cssURL = ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.invoicepreview'.wp_scripts_get_suffix().'.css';
-    $ref_label = $zbs->settings->get('reflabel');
-
-    #} Mikes previous invoice.php worked into vars:
-
-        //default logo?
-        $logoURL = '';
-        if (isset($invoice['logo_url'])){
-            
-            if (isset($invoice['logo_url'])) $logoURL = $invoice['logo_url'];
-
-        }else{
-
-            //check for default
-            if(isset($invsettings['invoicelogourl']) && $invsettings['invoicelogourl'] != ''){
-                $logoURL = $invsettings['invoicelogourl'];
-            }
-
-        }
-
-
-        if($logoURL != '' && isset($invoice['logo_url'])){
-            $logoClass = 'show';
-            #not used? $logo_s = 'hide';
-            $logoURL = $invoice['logo_url'];
-            $bizInfoClass = '';
-        }else{
-            $logoClass = '';
-            #not used? $logo_s = '';
-            $logoURL = '';
-            $bizInfoClass = 'biz-up';
-        }
-
-
-        // Invoice Number or Reference     
-        // Reference, falling back to ID   
-        $invIDStyles = ''; $invRefStyles = 'display:none;'; // none initially
-
-            // ID
-            $thisInvReference = $invoice['id']; 
-
-            // ID - Portal
-            if ($template == 'portal') $thisInvReference = __('Invoice #','zero-bs-crm').' '.$thisInvReference;
-            
-            // Reference
-            if (isset($invoice['id_override']) && !empty($invoice['id_override'])) {
-                
-                // Ref
-                $thisInvReference = $invoice['id_override'];
-
-                // Ref - Portal
-                if ($template == 'portal') $thisInvReference = $ref_label . ' ' . $thisInvReference;
-                
-                // and we don't show ID, do show ref label:
-                $invIDStyles = 'display:none;'; $invRefStyles = '';
-
-            }
-
-            // replacement str
-            $invNoStr = $thisInvReference;
-
-            // Portal
-            if ($template == 'portal') $invNoStr = '<div class="zbs-normal">'.$thisInvReference.'</div>';
-            
-
-             
-
-        // == Build biz info table.
-
-        $bizInfoTable = '';
-
-        //the business info from the settings
-        $zbs_biz_name =  zeroBSCRM_getSetting('businessname');
-        $zbs_biz_yourname =  zeroBSCRM_getSetting('businessyourname');
-
-        $zbs_biz_extra =  zeroBSCRM_getSetting('businessextra');
-
-        $zbs_biz_youremail =  zeroBSCRM_getSetting('businessyouremail');
-        $zbs_biz_yoururl =  zeroBSCRM_getSetting('businessyoururl');
-        $zbs_settings_slug = admin_url("admin.php?page=" . $zbs->slugs['settings']) . "&tab=invbuilder";
-        
-        // generate a templated biz info table
-        $bizInfoTable = zeroBSCRM_invoicing_generateInvPart_bizTable(array(
-
-                'zbs_biz_name' => $zbs_biz_name,
-                'zbs_biz_yourname' => $zbs_biz_yourname,
-                'zbs_biz_extra' => $zbs_biz_extra,
-                'zbs_biz_youremail' => $zbs_biz_youremail,
-                'zbs_biz_yoururl' => $zbs_biz_yoururl,
-
-                'template' => $template
-
-            ));
-
-        // generate a templated customer info table
-        $invoice_customer_info_table_html = zeroBSCRM_invoicing_generateInvPart_custTable($invTo,$template);
-
-
-        // == Lineitem table > Column headers
-        // generate a templated customer info table
-        $tableHeaders = zeroBSCRM_invoicing_generateInvPart_tableHeaders($zbsInvoiceHorQ,$template);
-     
-        // == Lineitem table > Line items            
-        // generate a templated lineitems
-        $lineItems = zeroBSCRM_invoicing_generateInvPart_lineitems($invlines,$template);
-
-
-        // == Lineitem table > Totals
-        // due to withTotals parameter on get above, we now don't need ot calc anything here, just expose
-        $totalsTable = '';
-
-            $totalsTable .= '<table id="invoice_totals" class="table-totals zebra" style="width: 100%;"><tbody>';
-                if($invsettings['invtax'] != 0 || $invsettings['invpandp'] != 0 || $invsettings['invdis'] != 0 ){
-                    $totalsTable .= '<tr class="total-top">';
-                        $totalsTable .= '<td  class="bord bord-l" style="text-align:right; width: 80%; text-transform: uppercase;">'.__("Subtotal","zero-bs-crm").'</td>';
-                        $totalsTable .= '<td class="bord row-amount" class="bord" style="text-align:right; "><span class="zbs-totals">';
-                            if(isset($invoice["net"]) && !empty($invoice["net"])){ $totalsTable .= zeroBSCRM_formatCurrency($invoice["net"]); }else{ $totalsTable .= zeroBSCRM_formatCurrency(0); } 
-                        $totalsTable .= '</span></td>';
-                    $totalsTable .= '</tr>';
-                }
-
-
-                // discount
-                if (isset($invoice["discount"]) && !empty($invoice["discount"])) {
-
-                    if ($invsettings['invdis'] == 1 && isset($invoice['totals']) && is_array($invoice['totals']) && isset($invoice['totals']['discount'])){
-                        $invoice_percent = '';
-                        if ( $invoice['discount_type'] == '%' && $invoice['discount'] != 0 ) {
-                            $invoice_percent = (float)$invoice['discount'] . '% ';
-                        }
-                        $totalsTable .= '<tr class="discount">
-                            <td class="bord bord-l" style="text-align:right; text-transform: uppercase;">'.$invoice_percent.__("Discount","zero-bs-crm").'</td>
-                            <td class="bord row-amount" id="zbs_discount_combi" style="text-align:right"><span class="zbs-totals">';
-
-                                $totalsTable .= '-'.zeroBSCRM_formatCurrency($invoice['totals']['discount']);
-
-                            $totalsTable .= '</td>';
-                        $totalsTable .= '</tr>';
-                    }
-                }
-
-                // shipping
-                if ($invsettings['invpandp'] == 1){ 
-                    $totalsTable .= '<tr class="postage_and_pack">
-                    <td class="bord bord-l" style="text-align:right; text-transform: uppercase;">'.__("Postage and packaging","zero-bs-crm").'</td>
-                    <td class="bord row-amount" id="pandptotal" style="text-align:right;"><span class="zbs-totals">';
-                            if(isset($invoice["shipping"]) && !empty($invoice["shipping"])){ $totalsTable .= zeroBSCRM_formatCurrency($invoice["shipping"]); }else{ $totalsTable .= zeroBSCRM_formatCurrency(0); }
-                        $totalsTable .= '</td>';
-                    $totalsTable .= '</tr>';
-                }
-
-
-                // tax
-                if ($invsettings['invtax'] == 1){
-                            
-                            // this output's tax in 1 number
-                            //if(isset($invoice["tax"]) && !empty($invoice["tax"])){ $totalsTable .= zeroBSCRM_formatCurrency($invoice["tax"]); }else{ $totalsTable .= zeroBSCRM_formatCurrency(0); }
-                            // ... but local taxes need splitting, so recalc & display by lineitems.
-                            $taxLines = false; if (isset($invoice['totals']) && is_array($invoice['totals']) && isset($invoice['totals']['taxes'])){
-
-                                // now calc'd in DAL
-                                $taxLines = $invoice['totals']['taxes'];
-
-                            }
-
-                            if (isset($taxLines) && is_array($taxLines) && count($taxLines) > 0) {
-
-                                foreach ($taxLines as $tax){
-
-                                    $taxName = __("Tax","zero-bs-crm");
-                                    if (isset($tax['name'])) $taxName = $tax['name'];
-
-                                    $totalsTable .= '<tr class="ttclass">
-                                        <td class="bord bord-l" style="text-align:right">'.$taxName.'</td>
-                                        <td class="bord bord-l row-amount zbs-tax-total-span" style="text-align:right"><span class="zbs-totals">';
-                                        if(isset($tax["value"]) && !empty($tax["value"])){ $totalsTable .= zeroBSCRM_formatCurrency($tax["value"]); }else{ $totalsTable .= zeroBSCRM_formatCurrency(0); }
-                                        $totalsTable .= '</td>';
-                                    $totalsTable .= '</tr>';
-
-                                }
-
-                            } else {
-
-                                // simple fallback
-                                $totalsTable .= '<tr class="ttclass">
-                                    <td class="bord bord-l" style="text-align:right">'.__("Tax","zero-bs-crm").'</td>
-                                    <td class="bord bord-l row-amount zbs-tax-total-span" style="text-align:right"><span class="zbs-totals">';
-                                    if(isset($invoice["tax"]) && !empty($invoice["tax"])){ $totalsTable .= zeroBSCRM_formatCurrency($invoice["tax"]); }else{ $totalsTable .= zeroBSCRM_formatCurrency(0); }
-                                    $totalsTable .= '</td>';
-                                $totalsTable .= '</tr>';
-                            }
-
-                } 
-
-                $totalsTable .= '<tr class="zbs_grand_total" style="line-height:30px;">
-                <td class="bord-l"  style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-total">'.__("Total","zero-bs-crm").'</span></td>
-                <td class="row-amount" style="text-align:right; font-weight:bold; border: 3px double #111!important; "><span class="zbs-total">';
-                        if(isset($invoice["total"]) && !empty($invoice["total"])){ $totalsTable .= zeroBSCRM_formatCurrency($invoice["total"]); }else{ $totalsTable .= zeroBSCRM_formatCurrency(0); } 
-                    $totalsTable .= '</span></td>';
-                $totalsTable .= '</tr>';
-
-            $totalsTable .= '</table>';
-
-            // == Partials (Transactions against Invs)
-            $partialsTable = '';
-
-                if ($invoice["total"] == 0){
-                   $partialsTable .= '<table id="partials" class="hide table-totals zebra">';
-                } else {
-                    $partialsTable .= '<table id="partials" class="table-totals zebra">';
-                }
-
-                $balance = $invoice["total"];
-
-                if (is_array($partials) && count($partials) > 0){
-
-                    // header
-                    $partialsTable .= '<tr><td colspan="2" style="text-align:center;font-weight:bold;  border-radius: 0px;"><span class="zbs-total">'.__('Payments','zero-bs-crm').'</span></td></tr>';
-
-                    $subtotalhide = '';
-                    foreach ($partials as $partial){ 
-
-                        // ignore if status_bool (non-completed status)
-                        $partial['status_bool'] = (int)$partial['status_bool'];
-                        if (isset($partial) && $partial['status_bool'] == 1){
-
-                            // v3.0+ has + or - partials. Account for that:
-                            if ($partial['type_accounting'] == 'credit')
-                                // credit note, or refund
-                                $balance = $balance + $partial['total'];                
-                            else
-                                // assume debit
-                                $balance = $balance - $partial['total'];                
-
-                            $partialsTable .= '<tr class="total-top '.$subtotalhide.'">';
-                                $partialsTable .= '<td class="bord bord-l" style="text-align:right">'.__("Payment","zero-bs-crm").'<br/>('.$partial['ref'].')</td>';
-                                $partialsTable .= '<td class="bord row-amount"><span class="zbs-partial-value">';
-                                    if(!empty($partial['total'])){ $partialsTable .=  zeroBSCRM_formatCurrency($partial['total']); }else{ $partialsTable .=  zeroBSCRM_formatCurrency(0); }
-                                $partialsTable .= '</span></td>';
-                            $partialsTable .= '</tr>';
-
-                        }
-                
-                    } 
-                }
-
-                if($balance == $invoice["total"])
-                    $balance_hide = 'hide';
-                else
-                    $balance_hide = '';
-
-                $partialsTable .= '<tr class="zbs_grand_total'.$balance_hide.'">';
-                    $partialsTable .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">'.__("Amount due","zero-bs-crm").'</td>';
-                    $partialsTable .= '<td class="bord row-amount"><span class="zbs-subtotal-value">'.zeroBSCRM_formatCurrency($balance).'</span></td>';
-                $partialsTable .= '</tr>';
-                $partialsTable .= '</table>';
-
-            
-            // generate a templated paybutton (depends on template :))
-            $potentialPayButton = zeroBSCRM_invoicing_generateInvPart_payButton($invoiceID,$zbs_stat,$template);
-
-            // == Payment terms, thanks etc. will only replace when present in template, so safe to generically check
-            $payThanks = '';
-            if ($zbs_stat == __('Paid','zero-bs-crm')) {
-                $payThanks = '<div class="deets"><h3>' . __("Thank You", "zero-bs-crm") . '</h3>';
-                    $payThanks .= '<div>'. nl2br(zeroBSCRM_getSetting('paythanks')) . '</div>';
-                $payThanks .= '</div>';
-            }
-            $payDeets = zeroBSCRM_getSetting('paymentinfo');            
-            $payDetails = '<div class="deets"><h2>' . __("Payment Details", "zero-bs-crm") . '</h2>';
-                    $payDetails .= '<div class="deets-line"><span class="deets-content">'.nl2br($payDeets).'</span></div>';
-                    $payDetails .= '<div class="deets-line"><span class="deets-title">' . __('Payment Reference:', "zero-bs-crm") . '</span> <span>' . $invNoStr . '</span></div>';
-                $payDetails .= '</div>';
-
-
-    #} == Template -> HTML build
-
-            // powered by
-            $powered_by = zeroBSCRM_mailTemplate_poweredByHTML();
-
-            $view_in_portal_link = '';
-            $view_in_portal_button = '';
-
-            // got portal?
-            if (zeroBSCRM_isExtensionInstalled('portal')){
-              $view_in_portal_link = zeroBSCRM_portal_linkObj($invoiceID,ZBS_TYPE_INVOICE); //zeroBS_portal_link('invoices',$invoiceID);
-              $view_in_portal_button = '<div style="text-align:center;margin:1em;margin-top:2em">'.zeroBSCRM_mailTemplate_emailSafeButton($view_in_portal_link,__('View Invoice','zero-bs-crm')).'</div>';
-            }
-
-            // build replacements array
-            $replacements = array(
-
-                // invoice specific
-                'invoice-title'                 => __('Invoice','zero-bs-crm'),
-                'css'                           => $cssURL,
-                'logo-class'                    => $logoClass,
-                'logo-url'                      => esc_url( $logoURL ),
-                'invoice-number'                => $invNoStr,
-                'invoice-date'                  => $invDateStr,
-                'invoice-id-styles'             => $invIDStyles,
-                'invoice-ref'                   => $invNoStr,
-                'invoice-ref-styles'            => $invRefStyles,
-                'invoice-due-date'              => $dueDateStr,
-                'invoice-custom-fields'         => $invoice_custom_fields_html,
-                'invoice-biz-class'             => $bizInfoClass,
-                'invoice-customer-info'         => $invoice_customer_info_table_html,
-                'invoice-html-status'           => $topStatus,
-                'invoice-table-headers'         => $tableHeaders,
-                'invoice-line-items'            => $lineItems,
-                'invoice-totals-table'          => $totalsTable,
-                'invoice-partials-table'        => $partialsTable,
-                'invoice-pay-button'            => $potentialPayButton,
-                'pre-invoice-payment-details'   => '',
-                'invoice-payment-details'       => $payDetails,
-                'invoice-pay-thanks'            => $payThanks,
-
-                // client portal
-                'portal-view-button'            => $view_in_portal_button,
-                'portal-link'                   => $view_in_portal_link,
-
-                // language
-                'invoice-label-inv-number'      => __( 'Invoice number', 'zero-bs-crm' ) . ':',
-                'invoice-label-inv-date'        => __( 'Invoice date', 'zero-bs-crm' ) . ':',
-                'invoice-label-inv-ref'         => $zbs->settings->get('reflabel'),
-                'invoice-label-status'          => __( 'Status:', 'zero-bs-crm' ),
-                'invoice-label-from'            => __( 'From', 'zero-bs-crm' ) . ':',
-                'invoice-label-to'              => __( 'To', 'zero-bs-crm' ) . ':',
-                'invoice-label-due-date'        => __( 'Due date', 'zero-bs-crm' ) . ':',
-                'invoice-pay-terms'             => __( 'Payment terms', 'zero-bs-crm' ) . ': ' . __( 'Due', 'zero-bs-crm' ) . ' ',
-
-                // global
-                'biz-info'                      => $bizInfoTable,
-                'powered-by'                    => $powered_by,
-
-            );
-
-            // Switch. If partials, put the payment deets on the left next to the partials,
-            // rather than in it's own line:
-            if ( !empty( $partialsTable )){
-
-                // partials, split to two columns
-                $replacements['pre-invoice-payment-details'] = $payDetails;
-                $replacements['invoice-payment-details'] = ''; 
-
-            }
-
-            // replace vars
-            $html = $placeholder_templating->replace_placeholders( array( 'invoice', 'global', 'contact', 'company' ), $html, $replacements, array( ZBS_TYPE_INVOICE => $invoice, $invTo['objtype'] => $invTo ) );
-
-    // ================= / CONTENT BUILDING =================================
-
-    return $html;
-
+	global $zbs;
+
+	// load templating
+	$placeholder_templating = $zbs->get_templating();
+
+	// need this.
+	if ( $invoiceID <= 0 || $html == '' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,Universal.Operators.StrictComparisons.LooseEqual
+		return '';
+	}
+
+	// for v3.0 WH split out the data-retrieval from scattering amongst this func, unified here:
+	// translated the below cpt way into dal / v3.0:
+
+	// ================== DATA RETRIEVAL ===================================
+
+	$invoice = $zbs->DAL->invoices->getInvoice( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$invoiceID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		array(
+
+			// we want all this:
+			'withLineItems'    => true,
+			'withCustomFields' => true,
+			'withTransactions' => true, // gets trans associated with inv as well
+			'withAssigned'     => true, // return arrays of assigned contact and companies objects
+			'withTags'         => true,
+			'withOwner'        => true,
+			'withTotals'       => true,
+
+		)
+	);
+
+	// retrieve
+	$zbsCustomerID = -1; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	if ( is_array( $invoice ) && isset( $invoice['contact'] ) && is_array( $invoice['contact'] ) && count( $invoice['contact'] ) > 0 ) {
+		$zbsCustomerID = $invoice['contact'][0]['id']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+	$zbsCompanyID = -1; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	if ( is_array( $invoice ) && isset( $invoice['company'] ) && is_array( $invoice['company'] ) && count( $invoice['company'] ) > 0 ) {
+		$zbsCompanyID = $invoice['company'][0]['id']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+
+	// date
+	$invDateStr = jpcrm_uts_to_date_str( $invoice['date'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	// due
+	if ( $invoice['due_date'] <= 0 ) {
+
+		//no due date
+		$dueDateStr = __( 'No due date', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	} else {
+
+		$dueDateStr = jpcrm_uts_to_date_str( $invoice['due_date'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+
+	// Custom fields
+	$invoice_custom_fields_html = jpcrm_invoicing_generate_invoice_custom_fields_lines( $invoice, $template );
+
+	// status
+	if ( ! isset( $invoice['status'] ) ) {
+		$zbs_stat = __( 'Draft', 'zero-bs-crm' );
+	} else {
+		$zbs_stat = $invoice['status'];
+	}
+
+	// status html:
+	if ( $template === 'portal' ) {
+
+		// portal version: Includes status label and amount (shown at top of portal invoice)
+		$topStatus  = '<div class="zbs-portal-label">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$topStatus .= esc_html( $zbs_stat ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$topStatus .= '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// WH added quickly to get around fact this is sometimes empty, please tidy when you address currency formatting :)
+		$inv_g_total = '';
+		if ( isset( $invoice['total'] ) ) {
+			$inv_g_total = zeroBSCRM_formatCurrency( $invoice['total'] );
+		}
+		$topStatus .= '<h1 class="zbs-portal-value">' . esc_html( $inv_g_total ) . '</h1>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( $zbs_stat === __( 'Paid', 'zero-bs-crm' ) ) {
+			$topStatus .= '<div class="zbs-invoice-paid"><i class="fa fa-check"></i>' . esc_html__( 'Paid', 'zero-bs-crm' ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		}
+	} elseif ( $template === 'pdf' ) {
+
+		// pdf status
+		if ( $zbs_stat === __( 'Paid', 'zero-bs-crm' ) ) {
+
+			$topStatus = '<div class="jpcrm-invoice-status jpcrm-invoice-paid">' . esc_html__( 'Paid', 'zero-bs-crm' ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		} else {
+
+			$topStatus = '<div class="jpcrm-invoice-status">' . esc_html( $zbs_stat ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		}
+	}
+
+	// inv lines
+	$invlines = $invoice['lineitems'];
+
+	// SET all new invoices to unpaid
+	if (
+		// Not set, but inv exists
+		( isset( $invoice ) && is_array( $invoice ) && ( ! isset( $invoice['status'] ) || empty( $invoice['status'] ) ) ) ||
+		// No inv exists
+		( ! isset( $invoice ) || ! is_array( $invoice ) )
+	) {
+		$invoice['status'] = __( 'Draft', 'zero-bs-crm' ); //moved to draft. Unpaid will be set once the invoice has been sent.
+	}
+
+	// switch for Company if set...
+	if ( $zbsCompanyID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		$invTo = zeroBS_getCompany( $zbsCompanyID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( is_array( $invTo ) && ( isset( $invTo['name'] ) || isset( $invTo['coname'] ) ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+			if ( isset( $invTo['name'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$invTo['fname'] = $invTo['name']; // DAL3
+			}
+			if ( isset( $invTo['coname'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$invTo['fname'] = $invTo['coname']; // DAL2
+			}
+			$invTo['lname'] = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		} else {
+
+			$invTo = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				'fname' => '',
+				'lname' => '',
+			);
+		}
+
+		// object type flag used downstream, I wonder if we should put these in at the DAL level..
+		$invTo['objtype'] = ZBS_TYPE_COMPANY; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	} else {
+
+		$invTo = $zbs->DAL->contacts->getContact( $zbsCustomerID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+		// object type flag used downstream, I wonder if we should put these in at the DAL level..
+		$invTo['objtype'] = ZBS_TYPE_CONTACT; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+
+	// is this stored same format?
+	$zbsInvoiceHorQ = $invoice['hours_or_quantity']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	// partials = transactions associated in v3.0 model
+	$partials = $invoice['transactions'];
+
+	// ================= / DATA RETRIEVAL ===================================
+
+	// ================= CONTENT BUILDING ===================================
+
+	// Globals
+	$invsettings = $zbs->settings->getAll();
+	$cssURL      = ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.invoicepreview' . wp_scripts_get_suffix() . '.css'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$ref_label   = $zbs->settings->get( 'reflabel' );
+
+	$logoURL = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	if ( isset( $invoice['logo_url'] ) ) {
+
+		if ( isset( $invoice['logo_url'] ) ) {
+			$logoURL = $invoice['logo_url']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		}
+	} elseif ( isset( $invsettings['invoicelogourl'] ) && $invsettings['invoicelogourl'] != '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+		$logoURL = $invsettings['invoicelogourl']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+
+	if ( $logoURL != '' && isset( $invoice['logo_url'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,Universal.Operators.StrictComparisons.LooseNotEqual
+		$logoClass    = 'show'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$logoURL      = $invoice['logo_url']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$bizInfoClass = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	} else {
+		$logoClass    = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$logoURL      = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$bizInfoClass = 'biz-up'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+
+	// Invoice Number or Reference
+	// Reference, falling back to ID
+	$invIDStyles = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$invRefStyles = 'display:none;'; // none initially
+
+	// ID
+	$thisInvReference = $invoice['id']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	// ID - Portal
+	if ( $template === 'portal' ) {
+		$thisInvReference = __( 'Invoice #', 'zero-bs-crm' ) . ' ' . $thisInvReference; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+
+	// Reference
+	if ( isset( $invoice['id_override'] ) && ! empty( $invoice['id_override'] ) ) {
+
+		// Ref
+		$thisInvReference = $invoice['id_override']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		// Ref - Portal
+		if ( $template === 'portal' ) {
+			$thisInvReference = $ref_label . ' ' . $thisInvReference; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		}
+
+		// and we don't show ID, do show ref label:
+		$invIDStyles  = 'display:none;'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$invRefStyles = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	}
+
+	// replacement str
+	$invNoStr = $thisInvReference; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	// Portal
+	if ( $template === 'portal' ) {
+		$invNoStr = '<div class="zbs-normal">' . esc_html( $thisInvReference ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+
+	// == Build biz info table.
+
+	//the business info from the settings
+	$zbs_biz_name      = zeroBSCRM_getSetting( 'businessname' );
+	$zbs_biz_yourname  = zeroBSCRM_getSetting( 'businessyourname' );
+	$zbs_biz_extra     = zeroBSCRM_getSetting( 'businessextra' );
+	$zbs_biz_youremail = zeroBSCRM_getSetting( 'businessyouremail' );
+	$zbs_biz_yoururl   = zeroBSCRM_getSetting( 'businessyoururl' );
+
+	// generate a templated biz info table
+	$bizInfoTable = zeroBSCRM_invoicing_generateInvPart_bizTable( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		array(
+			'zbs_biz_name'      => $zbs_biz_name,
+			'zbs_biz_yourname'  => $zbs_biz_yourname,
+			'zbs_biz_extra'     => $zbs_biz_extra,
+			'zbs_biz_youremail' => $zbs_biz_youremail,
+			'zbs_biz_yoururl'   => $zbs_biz_yoururl,
+			'template'          => $template,
+		)
+	);
+
+	// generate a templated customer info table
+	$invoice_customer_info_table_html = zeroBSCRM_invoicing_generateInvPart_custTable( $invTo, $template ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	// == Lineitem table > Column headers
+	// generate a templated customer info table
+	$tableHeaders = zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbsInvoiceHorQ, $template ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	// == Lineitem table > Line items
+	// generate a templated lineitems
+	$lineItems = zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines, $template ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	// == Lineitem table > Totals
+	// due to withTotals parameter on get above, we now don't need ot calc anything here, just expose
+	$totalsTable = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	$totalsTable .= '<table id="invoice_totals" class="table-totals zebra" style="width: 100%;"><tbody>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	if ( $invsettings['invtax'] != 0 || $invsettings['invpandp'] != 0 || $invsettings['invdis'] != 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,Universal.Operators.StrictComparisons.LooseNotEqual
+		$totalsTable .= '<tr class="total-top">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$totalsTable .= '<td  class="bord bord-l" style="text-align:right; width: 80%; text-transform: uppercase;">' . esc_html__( 'Subtotal', 'zero-bs-crm' ) . '</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$totalsTable .= '<td class="bord row-amount" class="bord" style="text-align:right; "><span class="zbs-totals">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		if ( isset( $invoice['net'] ) && ! empty( $invoice['net'] ) ) {
+			$totalsTable .= esc_html( zeroBSCRM_formatCurrency( $invoice['net'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		} else {
+			$totalsTable .= esc_html( zeroBSCRM_formatCurrency( 0 ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		}
+		$totalsTable .= '</span></td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$totalsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+
+	// discount
+	if ( isset( $invoice['discount'] ) && ! empty( $invoice['discount'] ) ) {
+
+		if ( $invsettings['invdis'] == 1 && isset( $invoice['totals'] ) && is_array( $invoice['totals'] ) && isset( $invoice['totals']['discount'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			$invoice_percent = '';
+			if ( $invoice['discount_type'] == '%' && $invoice['discount'] != 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,Universal.Operators.StrictComparisons.LooseNotEqual
+				$invoice_percent = (float) $invoice['discount'] . '% ';
+			}
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$totalsTable .= '<tr class="discount">
+				<td class="bord bord-l" style="text-align:right; text-transform: uppercase;">' . esc_html( $invoice_percent . __( 'Discount', 'zero-bs-crm' ) ) . '</td>
+				<td class="bord row-amount" id="zbs_discount_combi" style="text-align:right"><span class="zbs-totals">';
+
+			$totalsTable .= '-' . esc_html( zeroBSCRM_formatCurrency( $invoice['totals']['discount'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+			$totalsTable .= '</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$totalsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		}
+	}
+
+	// shipping
+	if ( $invsettings['invpandp'] == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$totalsTable .= '<tr class="postage_and_pack">
+			<td class="bord bord-l" style="text-align:right; text-transform: uppercase;">' . esc_html__( 'Postage and packaging', 'zero-bs-crm' ) . '</td>
+			<td class="bord row-amount" id="pandptotal" style="text-align:right;"><span class="zbs-totals">';
+		if ( isset( $invoice['shipping'] ) && ! empty( $invoice['shipping'] ) ) {
+			$totalsTable .= esc_html( zeroBSCRM_formatCurrency( $invoice['shipping'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		} else {
+			$totalsTable .= esc_html( zeroBSCRM_formatCurrency( 0 ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		}
+		$totalsTable .= '</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$totalsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+
+	// tax
+	if ( $invsettings['invtax'] == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+
+		$tax_lines = false;
+		if ( isset( $invoice['totals'] ) && is_array( $invoice['totals'] ) && isset( $invoice['totals']['taxes'] ) ) {
+			// now calc'd in DAL
+			$tax_lines = $invoice['totals']['taxes'];
+		}
+
+		if ( isset( $tax_lines ) && is_array( $tax_lines ) && count( $tax_lines ) > 0 ) {
+
+			foreach ( $tax_lines as $tax ) {
+
+				$tax_name = __( 'Tax', 'zero-bs-crm' );
+				if ( isset( $tax['name'] ) ) {
+					$tax_name = $tax['name'];
+				}
+
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$totalsTable .= '<tr class="ttclass">
+					<td class="bord bord-l" style="text-align:right">' . esc_html( $tax_name ) . '</td>
+					<td class="bord bord-l row-amount zbs-tax-total-span" style="text-align:right"><span class="zbs-totals">';
+				if ( isset( $tax['value'] ) && ! empty( $tax['value'] ) ) {
+					$totalsTable .= esc_html( zeroBSCRM_formatCurrency( $tax['value'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				} else {
+					$totalsTable .= esc_html( zeroBSCRM_formatCurrency( 0 ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				}
+				$totalsTable .= '</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$totalsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			}
+		} else {
+
+			// simple fallback
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$totalsTable .= '<tr class="ttclass">
+				<td class="bord bord-l" style="text-align:right">' . esc_html__( 'Tax', 'zero-bs-crm' ) . '</td>
+				<td class="bord bord-l row-amount zbs-tax-total-span" style="text-align:right"><span class="zbs-totals">';
+			if ( isset( $invoice['tax'] ) && ! empty( $invoice['tax'] ) ) {
+				$totalsTable .= esc_html( zeroBSCRM_formatCurrency( $invoice['tax'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			} else {
+				$totalsTable .= esc_html( zeroBSCRM_formatCurrency( 0 ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			}
+			$totalsTable .= '</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$totalsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		}
+	}
+
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$totalsTable .= '<tr class="zbs_grand_total" style="line-height:30px;">
+		<td class="bord-l"  style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-total">' . __( 'Total', 'zero-bs-crm' ) . '</span></td>
+		<td class="row-amount" style="text-align:right; font-weight:bold; border: 3px double #111!important; "><span class="zbs-total">';
+	if ( isset( $invoice['total'] ) && ! empty( $invoice['total'] ) ) {
+		$totalsTable .= esc_html( zeroBSCRM_formatCurrency( $invoice['total'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	} else {
+		$totalsTable .= esc_html( zeroBSCRM_formatCurrency( 0 ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+	$totalsTable .= '</span></td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$totalsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	$totalsTable .= '</table>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	// == Partials (Transactions against Invs)
+	$partialsTable = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	if ( $invoice['total'] == 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		$partialsTable .= '<table id="partials" class="hide table-totals zebra">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	} else {
+		$partialsTable .= '<table id="partials" class="table-totals zebra">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+
+	$balance = $invoice['total'];
+
+	if ( is_array( $partials ) && count( $partials ) > 0 ) {
+
+		// header
+		$partialsTable .= '<tr><td colspan="2" style="text-align:center;font-weight:bold;  border-radius: 0px;"><span class="zbs-total">' . esc_html__( 'Payments', 'zero-bs-crm' ) . '</span></td></tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		foreach ( $partials as $partial ) {
+
+			// ignore if status_bool (non-completed status)
+			$partial['status_bool'] = (int) $partial['status_bool'];
+			if ( isset( $partial ) && $partial['status_bool'] == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+
+				// v3.0+ has + or - partials. Account for that:
+				if ( $partial['type_accounting'] === 'credit' ) {
+					// credit note, or refund
+					$balance = $balance + $partial['total'];
+				} else {
+					// assume debit
+					$balance = $balance - $partial['total'];
+				}
+
+				$partialsTable .= '<tr class="total-top">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$partialsTable .= '<td class="bord bord-l" style="text-align:right">' . esc_html__( 'Payment', 'zero-bs-crm' ) . '<br/>(' . esc_html( $partial['ref'] ) . ')</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$partialsTable .= '<td class="bord row-amount"><span class="zbs-partial-value">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				if ( ! empty( $partial['total'] ) ) {
+					$partialsTable .= esc_html( zeroBSCRM_formatCurrency( $partial['total'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				} else {
+					$partialsTable .= esc_html( zeroBSCRM_formatCurrency( 0 ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				}
+				$partialsTable .= '</span></td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$partialsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			}
+		}
+	}
+
+	if ( $balance == $invoice['total'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		$balance_hide = 'hide';
+	} else {
+		$balance_hide = '';
+	}
+
+	$partialsTable .= '<tr class="zbs_grand_total' . $balance_hide . '">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$partialsTable .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$partialsTable .= '<td class="bord row-amount"><span class="zbs-subtotal-value">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</span></td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$partialsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$partialsTable .= '</table>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+
+	// generate a templated paybutton (depends on template :))
+	$potentialPayButton = zeroBSCRM_invoicing_generateInvPart_payButton( $invoiceID, $zbs_stat, $template ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	// == Payment terms, thanks etc. will only replace when present in template, so safe to generically check
+	$payThanks = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	if ( $zbs_stat === __( 'Paid', 'zero-bs-crm' ) ) {
+		$payThanks  = '<div class="deets"><h3>' . esc_html__( 'Thank You', 'zero-bs-crm' ) . '</h3>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$payThanks .= '<div>' . nl2br( esc_html( zeroBSCRM_getSetting( 'paythanks' ) ) ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$payThanks .= '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+	$payment_info_text = zeroBSCRM_getSetting( 'paymentinfo' );
+
+	$payDetails  = '<div class="deets"><h2>' . esc_html__( 'Payment Details', 'zero-bs-crm' ) . '</h2>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$payDetails .= '<div class="deets-line"><span class="deets-content">' . nl2br( esc_html( $payment_info_text ) ) . '</span></div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$payDetails .= '<div class="deets-line"><span class="deets-title">' . esc_html__( 'Payment Reference:', 'zero-bs-crm' ) . '</span> <span>' . esc_html( $invNoStr ) . '</span></div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$payDetails .= '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+
+	// == Template -> HTML build
+
+	// powered by
+	$powered_by = zeroBSCRM_mailTemplate_poweredByHTML();
+
+	$view_in_portal_link   = '';
+	$view_in_portal_button = '';
+
+	// got portal?
+	if ( zeroBSCRM_isExtensionInstalled( 'portal' ) ) {
+		$view_in_portal_link   = zeroBSCRM_portal_linkObj( $invoiceID, ZBS_TYPE_INVOICE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$view_in_portal_button = '<div style="text-align:center;margin:1em;margin-top:2em">' . zeroBSCRM_mailTemplate_emailSafeButton( $view_in_portal_link, esc_html__( 'View Invoice', 'zero-bs-crm' ) ) . '</div>';
+	}
+
+	// build replacements array
+	$replacements = array(
+
+		// invoice specific
+		'invoice-title'               => __( 'Invoice', 'zero-bs-crm' ),
+		'css'                         => $cssURL, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'logo-class'                  => $logoClass, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'logo-url'                    => esc_url( $logoURL ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-number'              => $invNoStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-date'                => $invDateStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-id-styles'           => $invIDStyles, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-ref'                 => $invNoStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-ref-styles'          => $invRefStyles, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-due-date'            => $dueDateStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-custom-fields'       => $invoice_custom_fields_html,
+		'invoice-biz-class'           => $bizInfoClass, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-customer-info'       => $invoice_customer_info_table_html,
+		'invoice-html-status'         => $topStatus, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-table-headers'       => $tableHeaders, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-line-items'          => $lineItems, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-totals-table'        => $totalsTable, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-partials-table'      => $partialsTable, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-pay-button'          => $potentialPayButton, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'pre-invoice-payment-details' => '',
+		'invoice-payment-details'     => $payDetails, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-pay-thanks'          => $payThanks, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		// client portal
+		'portal-view-button'          => $view_in_portal_button,
+		'portal-link'                 => $view_in_portal_link,
+
+		// language
+		'invoice-label-inv-number'    => __( 'Invoice number', 'zero-bs-crm' ) . ':',
+		'invoice-label-inv-date'      => __( 'Invoice date', 'zero-bs-crm' ) . ':',
+		'invoice-label-inv-ref'       => $zbs->settings->get( 'reflabel' ),
+		'invoice-label-status'        => __( 'Status:', 'zero-bs-crm' ),
+		'invoice-label-from'          => __( 'From', 'zero-bs-crm' ) . ':',
+		'invoice-label-to'            => __( 'To', 'zero-bs-crm' ) . ':',
+		'invoice-label-due-date'      => __( 'Due date', 'zero-bs-crm' ) . ':',
+		'invoice-pay-terms'           => __( 'Payment terms', 'zero-bs-crm' ) . ': ' . __( 'Due', 'zero-bs-crm' ) . ' ',
+
+		// global
+		'biz-info'                    => $bizInfoTable, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'powered-by'                  => $powered_by,
+
+	);
+
+	// Switch. If partials, put the payment deets on the left next to the partials,
+	// rather than in it's own line:
+	if ( ! empty( $partialsTable ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// partials, split to two columns
+		$replacements['pre-invoice-payment-details'] = $payDetails; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$replacements['invoice-payment-details']     = '';
+	}
+
+	// replace vars
+	$html = $placeholder_templating->replace_placeholders(
+		array( 'invoice', 'global', 'contact', 'company' ),
+		$html,
+		$replacements,
+		array(
+			ZBS_TYPE_INVOICE  => $invoice,
+			$invTo['objtype'] => $invTo, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		)
+	);
+
+	// ================= / CONTENT BUILDING =================================
+
+	return $html;
 }
 
 // Used to generate specific part of invoice pdf: Biz table (Pay To)
