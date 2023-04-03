@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Fix fatal error with Token_Subscription_Service
