@@ -80,7 +80,7 @@ class Post extends \WP_REST_Posts_Controller {
 				'post_exists',
 				__( 'Cannot create existing post.', 'jetpack-import' ),
 				array(
-					'status'  => 400,
+					'status'  => 409,
 					'post_id' => $post_id,
 				)
 			);
@@ -243,5 +243,4 @@ class Post extends \WP_REST_Posts_Controller {
 		$name = ucwords( $name );
 		return $name;
 	}
-
 }
