@@ -92,6 +92,21 @@ const useVideoPlayer = (
 			setPlayerIsReady( true );
 			playerState.current = 'ready';
 		}
+
+		if ( eventName === 'videopress_timeupdate' ) {
+			const currentTime = eventData.currentTimeMs;
+			const startLimit = previewOnHover.atTime;
+			const endLimit = previewOnHover.atTime + previewOnHover.duration;
+			if (
+				currentTime < startLimit || // Before the start limit.
+				currentTime > endLimit // After the end limit.
+			) {
+				source.postMessage(
+					{ event: 'videopress_action_set_currenttime', currentTime: startLimit / 1000 },
+					{ targetOrigin: '*' }
+				);
+			}
+		}
 	}
 
 	// PreviewOnHover feature.
