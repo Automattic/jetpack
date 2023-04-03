@@ -39,7 +39,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-logo/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.5.x-dev"
+			"dev-trunk": "1.6.x-dev"
 		}
 	}
 }

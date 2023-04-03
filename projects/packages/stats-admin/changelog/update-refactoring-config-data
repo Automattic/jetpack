@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats Admin: refactoring config data code to Odyssey_Config_Data

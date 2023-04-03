@@ -12,10 +12,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "0fc44e6ac6bf9398add8198935f7a293323ed723"
+                "reference": "03e0443edb2c08e38b85028b65f8b6be18af1489"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-logo": "@dev",
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
