@@ -71,10 +71,10 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/responses',
+			$this->rest_base . '/responses/bulk_actions',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'update_responses' ),
+				'callback'            => array( $this, 'bulk_actions' ),
 				'permission_callback' => array( $this, 'get_responses_permission_check' ),
 			)
 		);
@@ -251,19 +251,15 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	 *
 	 * @return WP_REST_Response A response object..
 	 */
-	public function update_responses( $request ) {
-		$content_type = $request->get_header( 'Content-Type' );
+	public function bulk_actions( $request ) {
+		$action   = $request->get_param( 'action' );
+		$post_ids = $request->get_param( 'post_ids' );
 
-		// Match 'action' directive inside Content-Type header value
-		preg_match( '/\;\s*bulk_action=([a-z_]*)/i', $content_type, $matches );
-		$bulk_action = isset( $matches[1] ) ? $matches[1] : null;
-		$post_ids    = $request->get_param( 'post_ids' );
-
-		if ( $bulk_action && ! is_array( $post_ids ) ) {
+		if ( $action && ! is_array( $post_ids ) ) {
 			return new $this->error_response( __( 'Bad request', 'jetpack-forms' ), 400 );
 		}
 
-		switch ( $bulk_action ) {
+		switch ( $action ) {
 			case 'mark_as_spam':
 				return $this->bulk_action_mark_as_spam( $post_ids );
 
