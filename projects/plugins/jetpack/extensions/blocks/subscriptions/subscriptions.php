@@ -762,7 +762,7 @@ function get_locked_content_placeholder_text( $newsletter_access_level ) {
 			<div class="wp-block-group has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center","style":{"typography":{"fontSize":"24px"},"spacing":{"margin":{"bottom":"var:preset|spacing|60"}}}} -->
 			<h2 class="wp-block-heading has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60);font-size:24px">' .
 
-			/* translators: Newsletter access level */
+			/* translators: Newsletter access. Possible values are "paid newsletters" and "subscribers" */
 			sprintf( esc_html__( 'This post is for %s', 'jetpack' ), $access_level )
 
 			. '</h2>
