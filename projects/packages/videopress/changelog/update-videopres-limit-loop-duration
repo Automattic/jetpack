@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: handle limit-loop duration of the previewOn based on starting point
