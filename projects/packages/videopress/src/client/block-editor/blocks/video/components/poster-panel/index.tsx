@@ -330,7 +330,7 @@ export function VideoHoverPreviewControl( {
 	const loopDurationHelp = createInterpolateElement(
 		sprintf(
 			/* translators: placeholder is the maximum lapse duration for the previewOnHover */
-			__( 'Minimum value: 3s. Maximum value: <em>%s</em>s.', 'jetpack-videopress-pkg' ),
+			__( 'Minimum value: <em>3s</em>. Maximum value: <em>%s</em>s.', 'jetpack-videopress-pkg' ),
 			( ( maxLoopDuration / 10 ) | 0 ) / 100
 		),
 		{
@@ -355,9 +355,7 @@ export function VideoHoverPreviewControl( {
 						fineAdjustment={ 1 }
 						decimalPlaces={ 2 }
 						value={ previewAtTime }
-						onDebounceChange={ atTime => {
-							onPreviewAtTimeChange( Math.max( Math.min( maxStartingPoint, atTime ), 0 ) );
-						} }
+						onDebounceChange={ onPreviewAtTimeChange }
 						wait={ 100 }
 					/>
 
@@ -367,9 +365,7 @@ export function VideoHoverPreviewControl( {
 						decimalPlaces={ 2 }
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
 						value={ loopDuration }
-						onDebounceChange={ duration => {
-							onLoopDurationChange( Math.max( Math.min( MAX_LOOP_DURATION, duration ), 0 ) );
-						} }
+						onDebounceChange={ onLoopDurationChange }
 						wait={ 100 }
 						help={ loopDurationHelp }
 					/>
