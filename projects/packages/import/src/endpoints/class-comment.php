@@ -62,6 +62,8 @@ class Comment extends \WP_REST_Comments_Controller {
 		/**
 		 * Core comment creation function doesn't return the duplicated comment ID.
 		 * Add a filter to get the ID.
+		 *
+		 * phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		 */
 		$get_id_func = function ( $dupe_id, $commentdata ) use ( &$duplicated_id ) {
 			if ( $dupe_id !== null ) {
