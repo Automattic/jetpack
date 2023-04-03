@@ -1305,65 +1305,87 @@ function zeroBSCRM_invoicing_generateInvPart_bizTable($args=array()){
 
 	return $biz_info_table;
 }
-// Used to generate specific part of invoice pdf: (Customer table)
-function zeroBSCRM_invoicing_generateInvPart_custTable($invTo=array(),$template='pdf'){
+/** // phpcs:ignore Squiz.Commenting.FunctionComment.MissingParamTag,Generic.Commenting.DocComment.MissingShort
+ * Used to generate specific part of invoice pdf: (Customer table)
+ **/
+function zeroBSCRM_invoicing_generateInvPart_custTable( $inv_to = array(), $template = 'pdf' ) {
 
-    $invoice_customer_info_table_html = '<div class="customer-info-wrapped">';
+	$invoice_customer_info_table_html = '<div class="customer-info-wrapped">';
 
-        switch ($template){
+	switch ( $template ) {
+		case 'pdf':
+		case 'notification':
+			if ( isset( $inv_to['fname'] ) && isset( $inv_to['fname'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info zbs-line-info-title">' . esc_html( $inv_to['fname'] ) . ' ' . esc_html( $inv_to['lname'] ) . '</div>';
+			}
+			if ( isset( $inv_to['addr1'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $inv_to['addr1'] ) . '</div>';
+			}
+			if ( isset( $inv_to['addr2'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $inv_to['addr2'] ) . '</div>';
+			}
+			if ( isset( $inv_to['city'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $inv_to['city'] ) . '</div>';
+			}
+			if ( isset( $inv_to['county'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $inv_to['county'] ) . '</div>';
+			}
+			if ( isset( $inv_to['postcode'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $inv_to['postcode'] ) . '</div>';
+			}
+			if ( isset( $inv_to['country'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $inv_to['country'] ) . '</div>';
+			}
 
-            case 'pdf':
-            case 'notification':
+			// Append custom fields if specified in settings
+			$invoice_customer_info_table_html .= jpcrm_invoicing_generate_customer_custom_fields_lines( $inv_to, $template );
 
-                if (isset($invTo['fname']) && isset($invTo['fname'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info zbs-line-info-title">'.$invTo['fname'].' ' .$invTo['lname'] . '</div>';
-                if (isset($invTo['addr1'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$invTo['addr1'].'</div>';
-                if (isset($invTo['addr2'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$invTo['addr2'].'</div>';
-                if (isset($invTo['city'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$invTo['city'].'</div>';
-                if (isset($invTo['county'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$invTo['county'].'</div>';
-                if (isset($invTo['postcode'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$invTo['postcode'].'</div>';
-                if (isset($invTo['country'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$invTo['country'].'</div>';
+			// the abilty to add in extra info to the customer info area.
+			$extra_cust_info = '';
+			$extra_cust_info = apply_filters( 'zbs_invoice_customer_info_line', $extra_cust_info );
 
-                // Append custom fields if specified in settings
-                $invoice_customer_info_table_html .= jpcrm_invoicing_generate_customer_custom_fields_lines( $invTo, $template );
+			$invoice_customer_info_table_html .= $extra_cust_info;
+			break;
 
-                // the abilty to add in extra info to the customer info area.
-                $extraCustInfo = '';
-                $extraCustInfo = apply_filters('zbs_invoice_customer_info_line', $extraCustInfo);
-                $invoice_customer_info_table_html .= $extraCustInfo;
+		case 'portal':
+			$invoice_customer_info_table_html .= '<div class="pay-to">';
+			$invoice_customer_info_table_html .= '<div class="zbs-portal-label">' . esc_html__( 'Invoice To', 'zero-bs-crm' ) . '</div><div style="margin-top:18px;">&nbsp;</div>';
+			$invoice_customer_info_table_html .= '<div class="zbs-portal-biz">';
+			if ( isset( $inv_to['fname'] ) && isset( $inv_to['fname'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="pay-to-name">' . esc_html( $inv_to['fname'] ) . ' ' . esc_html( $inv_to['lname'] ) . '</div>';
+			}
+			if ( isset( $inv_to['addr1'] ) ) {
+				$invoice_customer_info_table_html .= '<div>' . esc_html( $inv_to['addr1'] ) . '</div>';
+			}
+			if ( isset( $inv_to['addr2'] ) ) {
+				$invoice_customer_info_table_html .= '<div>' . esc_html( $inv_to['addr2'] ) . '</div>';
+			}
+			if ( isset( $inv_to['city'] ) ) {
+				$invoice_customer_info_table_html .= '<div>' . esc_html( $inv_to['city'] ) . '</div>';
+			}
+			if ( isset( $inv_to['postcode'] ) ) {
+				$invoice_customer_info_table_html .= '<div>' . esc_html( $inv_to['postcode'] ) . '</div>';
+			}
 
-            break;
+			// Append custom fields if specified in settings
+			$invoice_customer_info_table_html .= jpcrm_invoicing_generate_customer_custom_fields_lines( $inv_to, $template );
 
-            case 'portal':
-                
-                $invoice_customer_info_table_html .= '<div class="pay-to">';
-                    $invoice_customer_info_table_html .= '<div class="zbs-portal-label">' . __('Invoice To', 'zero-bs-crm') . '</div><div style="margin-top:18px;">&nbsp;</div>';
-                    $invoice_customer_info_table_html .= '<div class="zbs-portal-biz">';
-                        if (isset($invTo['fname']) && isset($invTo['fname'])) $invoice_customer_info_table_html .= '<div class="pay-to-name">'.$invTo['fname'].' ' .$invTo['lname'] . '</div>';
-                        if (isset($invTo['addr1'])) $invoice_customer_info_table_html .= '<div>'.$invTo['addr1'].'</div>';
-                        if (isset($invTo['addr2'])) $invoice_customer_info_table_html .= '<div>'.$invTo['addr2'].'</div>';
-                        if (isset($invTo['city'])) $invoice_customer_info_table_html .= '<div>'.$invTo['city'].'</div>';
-                        if (isset($invTo['postcode'])) $invoice_customer_info_table_html .= '<div>'.$invTo['postcode'].'</div>';
+			// the abilty to add in extra info to the customer info area.
+			$extra_cust_info = apply_filters( 'zbs_invoice_customer_info_line', '' );
 
-                        // Append custom fields if specified in settings
-                        $invoice_customer_info_table_html .= jpcrm_invoicing_generate_customer_custom_fields_lines( $invTo, $template );
+			$invoice_customer_info_table_html .= $extra_cust_info;
+			$invoice_customer_info_table_html .= '</div>';
+			$invoice_customer_info_table_html .= '</div>';
+			break;
 
-                        // the abilty to add in extra info to the customer info area.
-                        $extraCustInfo = apply_filters('zbs_invoice_customer_info_line', '');
-                        $invoice_customer_info_table_html .= $extraCustInfo;
+	}
 
-                    $invoice_customer_info_table_html .= '</div>';
-                $invoice_customer_info_table_html .= '</div>';
+		$invoice_customer_info_table_html .= '</div>';
 
-            break;
+		//filter the whole thing if you really want to modify it
+		$invoice_customer_info_table_html = apply_filters( 'zbs_invoice_customer_info_table', $invoice_customer_info_table_html );
 
-        }
-
-    $invoice_customer_info_table_html .= '</div>';
-
-    //filter the whole thing if you really want to modify it
-    $invoice_customer_info_table_html = apply_filters('zbs_invoice_customer_info_table', $invoice_customer_info_table_html);
-
-    return $invoice_customer_info_table_html;
+		return $invoice_customer_info_table_html;
 }
 
 
