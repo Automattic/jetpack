@@ -1175,14 +1175,14 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	$partials_table .= '</table>';
 
 	// generate a templated paybutton (depends on template :))
-	$potentialPayButton = zeroBSCRM_invoicing_generateInvPart_payButton( $invoiceID, $zbs_stat, $template ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$potential_pay_button = zeroBSCRM_invoicing_generateInvPart_payButton( $invoiceID, $zbs_stat, $template ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	// == Payment terms, thanks etc. will only replace when present in template, so safe to generically check
-	$payThanks = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$pay_thanks = '';
 	if ( $zbs_stat === __( 'Paid', 'zero-bs-crm' ) ) {
-		$payThanks  = '<div class="deets"><h3>' . esc_html__( 'Thank You', 'zero-bs-crm' ) . '</h3>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$payThanks .= '<div>' . nl2br( esc_html( zeroBSCRM_getSetting( 'paythanks' ) ) ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$payThanks .= '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$pay_thanks  = '<div class="deets"><h3>' . esc_html__( 'Thank You', 'zero-bs-crm' ) . '</h3>';
+		$pay_thanks .= '<div>' . nl2br( esc_html( zeroBSCRM_getSetting( 'paythanks' ) ) ) . '</div>';
+		$pay_thanks .= '</div>';
 	}
 	$payment_info_text = zeroBSCRM_getSetting( 'paymentinfo' );
 
@@ -1227,10 +1227,10 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		'invoice-line-items'          => $lineItems, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-totals-table'        => $totalsTable, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-partials-table'      => $partials_table,
-		'invoice-pay-button'          => $potentialPayButton, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-pay-button'          => $potential_pay_button,
 		'pre-invoice-payment-details' => '',
 		'invoice-payment-details'     => $pay_details,
-		'invoice-pay-thanks'          => $payThanks, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-pay-thanks'          => $pay_thanks,
 
 		// client portal
 		'portal-view-button'          => $view_in_portal_button,
