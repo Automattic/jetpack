@@ -111,7 +111,7 @@ export type VideoControlProps = {
 };
 
 export type PosterPanelProps = VideoControlProps & {
-	isGeneratingPoster: boolean;
+	isGeneratingPoster?: boolean;
 };
 
 export type VideoEditProps = VideoControlProps;

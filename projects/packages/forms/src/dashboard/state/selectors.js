@@ -22,4 +22,8 @@ export const getCurrentPage = state => state.currentPage;
 
 export const getResponsesQuery = state => state.query;
 
+export const getMonthFilter = state => state.filters.month || [];
+
+export const getSourceFilter = state => state.filters.source || [];
+
 export const getSelectedResponseIds = state => state.currentSelection;

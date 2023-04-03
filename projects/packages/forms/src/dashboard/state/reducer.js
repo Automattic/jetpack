@@ -11,11 +11,21 @@ import {
 	RESPONSES_FETCH_FAIL,
 	RESPONSES_FETCH_RECEIVE,
 	RESPONSES_LOADING_SET,
+	RESPONSES_QUERY_MONTH_UPDATE,
 	RESPONSES_QUERY_RESET,
 	RESPONSES_QUERY_SEARCH_UPDATE,
+	RESPONSES_QUERY_SOURCE_UPDATE,
 	RESPONSES_QUERY_STATUS_UPDATE,
 	RESPONSES_SELECTION_SET,
 } from './action-types';
+
+const filters = ( state = {}, action ) => {
+	if ( action.type === RESPONSES_FETCH_RECEIVE ) {
+		return action.filters;
+	}
+
+	return state;
+};
 
 const loading = ( state = false, action ) => {
 	if ( action.type === RESPONSES_FETCH ) {
@@ -92,6 +102,20 @@ const query = ( state = {}, action ) => {
 		};
 	}
 
+	if ( action.type === RESPONSES_QUERY_MONTH_UPDATE ) {
+		return {
+			...state,
+			month: action.month,
+		};
+	}
+
+	if ( action.type === RESPONSES_QUERY_SOURCE_UPDATE ) {
+		return {
+			...state,
+			parent_id: action.source,
+		};
+	}
+
 	return state;
 };
 
@@ -110,6 +134,7 @@ const currentSelection = ( state = [], action ) => {
 export default combineReducers( {
 	currentPage,
 	currentSelection,
+	filters,
 	loading,
 	query,
 	responses,

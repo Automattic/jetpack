@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { useState } from 'react';
 /**
  * Internal dependencies
  */
-import PosterPanel from '..';
+import PosterPanel, { VideoHoverPreviewControl } from '..';
 import Doc from './PosterPanel.mdx';
 
 export default {
@@ -30,7 +30,13 @@ const DefaultTemplate = args => {
 		setAttributes( { ...attributes, ...newAttributes } );
 	};
 
-	return <PosterPanel attributes={ attributes } setAttributes={ setAttributesHandler } />;
+	return (
+		<PosterPanel
+			attributes={ attributes }
+			setAttributes={ setAttributesHandler }
+			isGeneratingPoster={ false }
+		/>
+	);
 };
 
 export const _default = DefaultTemplate.bind( {} );
@@ -39,3 +45,32 @@ _default.args = {
 	videoRatio: 60,
 	guid: 'ezoR6kzb',
 };
+
+const VideoHoverPreviewControlTemplate = args => {
+	const [ previewOnHover, setPreviewOnHover ] = useState( true );
+	const [ , setPreviewAt ] = useState( args.previewAtTime );
+	const [ , setLoopDuraton ] = useState( args.loopDuration );
+	const setPreviewAtHandler = newPreviewAt => {
+		setPreviewAt( newPreviewAt );
+		console.log( { newPreviewAt } ); // eslint-disable-line no-console
+	};
+
+	return (
+		<VideoHoverPreviewControl
+			{ ...args }
+			previewOnHover={ previewOnHover }
+			onPreviewAtTimeChange={ setPreviewAtHandler }
+			onLoopDurationChange={ setLoopDuraton }
+			onPreviewOnHoverChange={ setPreviewOnHover }
+		/>
+	);
+};
+
+export const VideoHoverPreviewControlStory = VideoHoverPreviewControlTemplate.bind( {} );
+VideoHoverPreviewControlStory.args = {
+	previewAtTime: 0,
+	loopDuration: 2300,
+	videoDuration: 80000, // 80 seconds
+};
+
+VideoHoverPreviewControlStory.storyName = 'VideoHoverPreviewControl';

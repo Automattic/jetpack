@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Methods used to retrieve tracking pixels are now deprecated. No replacement needed, we now hook / enqueue the tracking pixels using core WP methods.

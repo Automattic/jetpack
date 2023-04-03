@@ -13,7 +13,13 @@ import {
 	Spinner,
 	Notice,
 } from '@wordpress/components';
-import { useRef, useEffect, useState, useCallback } from '@wordpress/element';
+import {
+	useRef,
+	useEffect,
+	useState,
+	useCallback,
+	createInterpolateElement,
+} from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { linkOff, image as imageIcon } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -34,6 +40,7 @@ import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../
 import type { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import type React from 'react';
 
+const MIN_LOOP_DURATION = 3 * 1000;
 const MAX_LOOP_DURATION = 30 * 1000;
 const DEFAULT_LOOP_DURATION = 10 * 1000;
 
@@ -213,6 +220,7 @@ export const getIframeWindowFromRef = (
 type PosterFramePickerProps = {
 	guid: VideoGUID;
 	atTime: number;
+	duration: number;
 	isGeneratingPoster?: boolean;
 	onVideoFrameSelect: ( timestamp: number ) => void;
 };
@@ -228,9 +236,9 @@ function VideoFramePicker( {
 	isGeneratingPoster,
 	atTime = 0.1,
 	onVideoFrameSelect,
+	duration,
 }: PosterFramePickerProps ): React.ReactElement {
 	const [ timestamp, setTimestamp ] = useState( atTime );
-	const [ duration, setDuration ] = useState( 0 );
 	const playerWrapperRef = useRef< HTMLDivElement >( null );
 
 	const url = getVideoPressUrl( guid, {
@@ -243,51 +251,9 @@ function VideoFramePicker( {
 	const { preview = { html: null }, isRequestingEmbedPreview } = usePreview( url );
 	const { html } = preview;
 
-	/**
-	 * Handler function to deal with the communication
-	 * between the iframe, which contains the video,
-	 * and the parent window (block editor).
-	 *
-	 * @param {MessageEvent} event - Message event
-	 */
-	function listenEventsHandler( event: MessageEvent ) {
-		const { data: eventData = {} } = event;
-		const { event: eventName } = event?.data || {};
-
-		// Pick and store the video duration in a local state.
-		if ( eventName === 'videopress_durationchange' ) {
-			if ( eventData?.durationMs ) {
-				setDuration( eventData.durationMs );
-			}
-		}
-	}
-
 	const { playerIsReady } = useVideoPlayer( playerWrapperRef, isRequestingEmbedPreview, {
 		initialTimePosition: atTime,
 	} );
-
-	// Listen player events.
-	useEffect( () => {
-		if ( isRequestingEmbedPreview ) {
-			return;
-		}
-
-		if ( ! html ) {
-			return;
-		}
-
-		const sandboxIFrameWindow = getIframeWindowFromRef( playerWrapperRef );
-		if ( ! sandboxIFrameWindow ) {
-			return;
-		}
-
-		sandboxIFrameWindow.addEventListener( 'message', listenEventsHandler );
-
-		return () => {
-			// Remove the listener when the component is unmounted.
-			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
-		};
-	}, [ playerWrapperRef, isRequestingEmbedPreview, html ] );
 
 	return (
 		<div className="poster-panel__frame-picker">
@@ -350,7 +316,7 @@ type VideoHoverPreviewControlProps = {
  * @param {VideoHoverPreviewControlProps} props - Component properties
  * @returns { React.ReactElement}                 React component
  */
-function VideoHoverPreviewControl( {
+export function VideoHoverPreviewControl( {
 	previewOnHover = false,
 	previewAtTime = 0,
 	loopDuration = DEFAULT_LOOP_DURATION,
@@ -359,8 +325,24 @@ function VideoHoverPreviewControl( {
 	onPreviewAtTimeChange,
 	onLoopDurationChange,
 }: VideoHoverPreviewControlProps ): React.ReactElement {
-	const maxLoopDuration = Math.min( MAX_LOOP_DURATION, videoDuration );
-	const maxStartingPoint = videoDuration - loopDuration;
+	const maxStartingPoint = videoDuration - MIN_LOOP_DURATION;
+
+	const [ maxLoopDuration, setMaxLoopDuration ] = useState(
+		Math.min( MAX_LOOP_DURATION, videoDuration - previewAtTime )
+	);
+
+	const loopDurationHelp = createInterpolateElement(
+		sprintf(
+			/* translators: placeholder is the maximum lapse duration for the previewOnHover */
+			__( 'Minimum value: <em>3s</em>. Maximum value: <em>%s</em>s.', 'jetpack-videopress-pkg' ),
+			( ( maxLoopDuration / 10 ) | 0 ) / 100
+		),
+		{
+			em: <em />,
+		}
+	);
+
+	const noLoopDurationRange = maxLoopDuration <= MIN_LOOP_DURATION;
 
 	return (
 		<>
@@ -379,9 +361,11 @@ function VideoHoverPreviewControl( {
 						fineAdjustment={ 1 }
 						decimalPlaces={ 2 }
 						value={ previewAtTime }
-						onChange={ atTime => {
-							onPreviewAtTimeChange( Math.max( Math.min( maxStartingPoint, atTime ), 0 ) );
+						onDebounceChange={ timestamp => {
+							onPreviewAtTimeChange( timestamp );
+							setMaxLoopDuration( Math.min( MAX_LOOP_DURATION, videoDuration - timestamp ) );
 						} }
+						wait={ 100 }
 					/>
 
 					<TimestampControl
@@ -390,9 +374,10 @@ function VideoHoverPreviewControl( {
 						decimalPlaces={ 2 }
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
 						value={ loopDuration }
-						onChange={ duration => {
-							onLoopDurationChange( Math.max( Math.min( MAX_LOOP_DURATION, duration ), 0 ) );
-						} }
+						onDebounceChange={ onLoopDurationChange }
+						wait={ 100 }
+						help={ loopDurationHelp }
+						disabled={ noLoopDurationRange }
 					/>
 				</>
 			) }
@@ -520,6 +505,7 @@ export default function PosterPanel( {
 					isGeneratingPoster={ isGeneratingPoster }
 					guid={ attributes?.guid }
 					atTime={ posterData?.atTime }
+					duration={ videoDuration }
 					onVideoFrameSelect={ timestamp => {
 						setAttributes( {
 							posterData: {

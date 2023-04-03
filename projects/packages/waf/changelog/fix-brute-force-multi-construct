@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix: prevent brute force protection hooks from being registered twice.
+
+
