@@ -309,7 +309,7 @@ type VideoHoverPreviewControlProps = {
  * @param {VideoHoverPreviewControlProps} props - Component properties
  * @returns { React.ReactElement}                 React component
  */
-function VideoHoverPreviewControl( {
+export function VideoHoverPreviewControl( {
 	previewOnHover = false,
 	previewAtTime = 0,
 	loopDuration = DEFAULT_LOOP_DURATION,

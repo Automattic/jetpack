@@ -5,7 +5,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
-import PosterPanel from '..';
+import PosterPanel, { VideoHoverPreviewControl } from '..';
 import Doc from './PosterPanel.mdx';
 
 export default {
@@ -45,3 +45,20 @@ _default.args = {
 	videoRatio: 60,
 	guid: 'ezoR6kzb',
 };
+
+const VideoHoverPreviewControlTemplate = args => {
+	return <VideoHoverPreviewControl { ...args } />;
+};
+
+export const VideoHoverPreviewControlStory = VideoHoverPreviewControlTemplate.bind( {} );
+VideoHoverPreviewControlStory.args = {
+	previewOnHover: false,
+	previewAtTime: 0,
+	loopDuration: 2300,
+	videoDuration: 780000,
+	onPreviewOnHoverChange: () => ( {} ),
+	onPreviewAtTimeChange: () => ( {} ),
+	onLoopDurationChange: () => ( {} ),
+};
+
+VideoHoverPreviewControlTemplate.storyName = 'VideoHoverPreviewControl';
