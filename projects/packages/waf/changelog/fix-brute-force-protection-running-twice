@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Return early if we detect the older BFP implementation from the main plugin
