@@ -924,11 +924,11 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	}
 
 	if ( $logo_url != '' && isset( $invoice['logo_url'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-		$logoClass    = 'show'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$logo_class   = 'show';
 		$logo_url     = $invoice['logo_url'];
 		$bizInfoClass = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	} else {
-		$logoClass    = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$logo_class   = '';
 		$logo_url     = '';
 		$bizInfoClass = 'biz-up'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
@@ -1214,7 +1214,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		// invoice specific
 		'invoice-title'               => __( 'Invoice', 'zero-bs-crm' ),
 		'css'                         => $css_url,
-		'logo-class'                  => $logoClass, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'logo-class'                  => $logo_class,
 		'logo-url'                    => esc_url( $logo_url ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-number'              => $invNoStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-date'                => $invDateStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
