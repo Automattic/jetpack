@@ -1118,12 +1118,12 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	$totalsTable .= '</table>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	// == Partials (Transactions against Invs)
-	$partialsTable = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$partials_table = '';
 
 	if ( $invoice['total'] == 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-		$partialsTable .= '<table id="partials" class="hide table-totals zebra">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$partials_table .= '<table id="partials" class="hide table-totals zebra">';
 	} else {
-		$partialsTable .= '<table id="partials" class="table-totals zebra">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$partials_table .= '<table id="partials" class="table-totals zebra">';
 	}
 
 	$balance = $invoice['total'];
@@ -1131,7 +1131,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	if ( is_array( $partials ) && count( $partials ) > 0 ) {
 
 		// header
-		$partialsTable .= '<tr><td colspan="2" style="text-align:center;font-weight:bold;  border-radius: 0px;"><span class="zbs-total">' . esc_html__( 'Payments', 'zero-bs-crm' ) . '</span></td></tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$partials_table .= '<tr><td colspan="2" style="text-align:center;font-weight:bold;  border-radius: 0px;"><span class="zbs-total">' . esc_html__( 'Payments', 'zero-bs-crm' ) . '</span></td></tr>';
 
 		foreach ( $partials as $partial ) {
 
@@ -1148,16 +1148,16 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 					$balance = $balance - $partial['total'];
 				}
 
-				$partialsTable .= '<tr class="total-top">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				$partialsTable .= '<td class="bord bord-l" style="text-align:right">' . esc_html__( 'Payment', 'zero-bs-crm' ) . '<br/>(' . esc_html( $partial['ref'] ) . ')</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				$partialsTable .= '<td class="bord row-amount"><span class="zbs-partial-value">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$partials_table .= '<tr class="total-top">';
+				$partials_table .= '<td class="bord bord-l" style="text-align:right">' . esc_html__( 'Payment', 'zero-bs-crm' ) . '<br/>(' . esc_html( $partial['ref'] ) . ')</td>';
+				$partials_table .= '<td class="bord row-amount"><span class="zbs-partial-value">';
 				if ( ! empty( $partial['total'] ) ) {
-					$partialsTable .= esc_html( zeroBSCRM_formatCurrency( $partial['total'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$partials_table .= esc_html( zeroBSCRM_formatCurrency( $partial['total'] ) );
 				} else {
-					$partialsTable .= esc_html( zeroBSCRM_formatCurrency( 0 ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$partials_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 				}
-				$partialsTable .= '</span></td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				$partialsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$partials_table .= '</span></td>';
+				$partials_table .= '</tr>';
 			}
 		}
 	}
@@ -1168,12 +1168,11 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		$balance_hide = '';
 	}
 
-	$partialsTable .= '<tr class="zbs_grand_total' . $balance_hide . '">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	$partialsTable .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	$partialsTable .= '<td class="bord row-amount"><span class="zbs-subtotal-value">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</span></td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	$partialsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	$partialsTable .= '</table>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
+	$partials_table .= '<tr class="zbs_grand_total' . $balance_hide . '">';
+	$partials_table .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</td>';
+	$partials_table .= '<td class="bord row-amount"><span class="zbs-subtotal-value">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</span></td>';
+	$partials_table .= '</tr>';
+	$partials_table .= '</table>';
 
 	// generate a templated paybutton (depends on template :))
 	$potentialPayButton = zeroBSCRM_invoicing_generateInvPart_payButton( $invoiceID, $zbs_stat, $template ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -1227,7 +1226,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		'invoice-table-headers'       => $tableHeaders, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-line-items'          => $lineItems, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-totals-table'        => $totalsTable, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		'invoice-partials-table'      => $partialsTable, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-partials-table'      => $partials_table,
 		'invoice-pay-button'          => $potentialPayButton, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'pre-invoice-payment-details' => '',
 		'invoice-payment-details'     => $pay_details,
@@ -1255,7 +1254,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 
 	// Switch. If partials, put the payment deets on the left next to the partials,
 	// rather than in it's own line:
-	if ( ! empty( $partialsTable ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	if ( ! empty( $partials_table ) ) {
 		// partials, split to two columns
 		$replacements['pre-invoice-payment-details'] = $pay_details;
 		$replacements['invoice-payment-details']     = '';
