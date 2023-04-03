@@ -47,6 +47,7 @@ _default.args = {
 };
 
 const VideoHoverPreviewControlTemplate = args => {
+	const [ previewOnHover, setPreviewOnHover ] = useState( true );
 	const [ , setPreviewAt ] = useState( args.previewAtTime );
 	const [ , setLoopDuraton ] = useState( args.loopDuration );
 	const setPreviewAtHandler = newPreviewAt => {
@@ -57,21 +58,19 @@ const VideoHoverPreviewControlTemplate = args => {
 	return (
 		<VideoHoverPreviewControl
 			{ ...args }
+			previewOnHover={ previewOnHover }
 			onPreviewAtTimeChange={ setPreviewAtHandler }
 			onLoopDurationChange={ setLoopDuraton }
+			onPreviewOnHoverChange={ setPreviewOnHover }
 		/>
 	);
 };
 
 export const VideoHoverPreviewControlStory = VideoHoverPreviewControlTemplate.bind( {} );
 VideoHoverPreviewControlStory.args = {
-	previewOnHover: false,
 	previewAtTime: 0,
 	loopDuration: 2300,
 	videoDuration: 80000, // 80 seconds
-	onPreviewOnHoverChange: () => ( {} ),
-	onPreviewAtTimeChange: () => ( {} ),
-	onLoopDurationChange: () => ( {} ),
 };
 
 VideoHoverPreviewControlTemplate.storyName = 'VideoHoverPreviewControl';
