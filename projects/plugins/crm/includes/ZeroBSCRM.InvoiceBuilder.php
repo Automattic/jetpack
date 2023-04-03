@@ -935,7 +935,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 
 	// Invoice Number or Reference
 	// Reference, falling back to ID
-	$invIDStyles = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$inv_id_styles = '';
 	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$invRefStyles = 'display:none;'; // none initially
 
@@ -959,8 +959,8 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		}
 
 		// and we don't show ID, do show ref label:
-		$invIDStyles  = 'display:none;'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$invRefStyles = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$inv_id_styles = 'display:none;';
+		$invRefStyles  = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 	}
 
@@ -1218,7 +1218,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		'logo-url'                    => esc_url( $logo_url ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-number'              => $invNoStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-date'                => $invDateStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		'invoice-id-styles'           => $invIDStyles, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-id-styles'           => $inv_id_styles,
 		'invoice-ref'                 => $invNoStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-ref-styles'          => $invRefStyles, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-due-date'            => $dueDateStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
