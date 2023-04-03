@@ -956,8 +956,8 @@ importers:
         specifier: 4.14.0
         version: 4.14.0(postcss@8.4.21)
       autoprefixer:
-        specifier: 10.4.12
-        version: 10.4.12(postcss@8.4.21)
+        specifier: 10.4.14
+        version: 10.4.14(postcss@8.4.21)
       babel-loader:
         specifier: 9.1.2
         version: 9.1.2(@babel/core@7.20.12)(webpack@5.76.0)
@@ -1495,8 +1495,8 @@ importers:
         specifier: 4.30.0
         version: 4.30.0
       autoprefixer:
-        specifier: 10.4.12
-        version: 10.4.12(postcss@8.4.21)
+        specifier: 10.4.14
+        version: 10.4.14(postcss@8.4.21)
       concurrently:
         specifier: 7.6.0
         version: 7.6.0
@@ -1929,8 +1929,8 @@ importers:
         specifier: 4.13.0
         version: 4.13.0(webpack@5.76.0)
       autoprefixer:
-        specifier: 10.4.12
-        version: 10.4.12(postcss@8.4.21)
+        specifier: 10.4.14
+        version: 10.4.14(postcss@8.4.21)
       babel-jest:
         specifier: 29.4.3
         version: 29.4.3(@babel/core@7.20.12)
@@ -2117,8 +2117,8 @@ importers:
         specifier: 5.13.0
         version: 5.13.0
       autoprefixer:
-        specifier: 10.4.12
-        version: 10.4.12(postcss@8.4.21)
+        specifier: 10.4.14
+        version: 10.4.14(postcss@8.4.21)
       copy-webpack-plugin:
         specifier: 11.0.0
         version: 11.0.0(webpack@5.76.0)
@@ -2935,8 +2935,8 @@ importers:
         specifier: 2.30.0
         version: 2.30.0
       autoprefixer:
-        specifier: 10.4.12
-        version: 10.4.12(postcss@8.4.21)
+        specifier: 10.4.14
+        version: 10.4.14(postcss@8.4.21)
       babel-jest:
         specifier: 29.4.3
         version: 29.4.3(@babel/core@7.20.12)
@@ -3293,8 +3293,8 @@ importers:
         specifier: 5.13.0
         version: 5.13.0
       autoprefixer:
-        specifier: 10.4.12
-        version: 10.4.12(postcss@8.4.21)
+        specifier: 10.4.14
+        version: 10.4.14(postcss@8.4.21)
       babel-jest:
         specifier: 29.4.3
         version: 29.4.3(@babel/core@7.20.12)
@@ -11454,7 +11454,7 @@ packages:
       postcss: ^8.0.0
     dependencies:
       '@wordpress/base-styles': 4.21.0
-      autoprefixer: 10.4.12(postcss@8.4.21)
+      autoprefixer: 10.4.14(postcss@8.4.21)
       postcss: 8.4.21
     dev: true
 
@@ -12329,15 +12329,15 @@ packages:
     hasBin: true
     dev: true
 
-  /autoprefixer@10.4.12(postcss@8.4.21):
-    resolution: {integrity: sha512-WrCGV9/b97Pa+jtwf5UGaRjgQIg7OK3D06GnoYoZNcG1Xb8Gt3EfuKjlhh9i/VtT16g6PYjZ69jdJ2g8FxSC4Q==}
+  /autoprefixer@10.4.14(postcss@8.4.21):
+    resolution: {integrity: sha512-FQzyfOsTlwVzjHxKEqRIAdJx9niO6VCBCoEwax/VLSoQF29ggECcPuBqUMZ+u8jCZOPSy8b8/8KnuFbp0SaFZQ==}
     engines: {node: ^10 || ^12 || >=14}
     hasBin: true
     peerDependencies:
       postcss: ^8.1.0
     dependencies:
       browserslist: 4.21.5
-      caniuse-lite: 1.0.30001451
+      caniuse-lite: 1.0.30001473
       fraction.js: 4.2.0
       normalize-range: 0.1.2
       picocolors: 1.0.0
@@ -12815,7 +12815,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001451
+      caniuse-lite: 1.0.30001473
       electron-to-chromium: 1.4.295
       escalade: 3.1.1
       node-releases: 2.0.10
@@ -12826,7 +12826,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      caniuse-lite: 1.0.30001451
+      caniuse-lite: 1.0.30001473
       electron-to-chromium: 1.4.295
       node-releases: 2.0.10
       update-browserslist-db: 1.0.10(browserslist@4.21.5)
@@ -12981,12 +12981,12 @@ packages:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
     dependencies:
       browserslist: 4.20.4
-      caniuse-lite: 1.0.30001451
+      caniuse-lite: 1.0.30001473
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
 
-  /caniuse-lite@1.0.30001451:
-    resolution: {integrity: sha512-XY7UbUpGRatZzoRft//5xOa69/1iGJRBlrieH6QYrkKLIFn3m7OVEJ81dSrKoy2BnKsdbX5cLrOispZNYo9v2w==}
+  /caniuse-lite@1.0.30001473:
+    resolution: {integrity: sha512-ewDad7+D2vlyy+E4UJuVfiBsU69IL+8oVmTuZnH5Q6CIUbxNfI50uVpRHbUPDD6SUaN2o0Lh4DhTrvLG/Tn1yg==}
 
   /capital-case@1.0.4:
     resolution: {integrity: sha512-ds37W8CytHgwnhGGTi88pcPyR15qoNkOpYwmMMfnWqqWgESapLqvDx6huFjQ5vqWSn2Z06173XNA7LtMOeUh1A==}

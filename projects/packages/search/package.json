@@ -83,7 +83,7 @@
 		"@wordpress/babel-plugin-import-jsx-pragma": "4.13.0",
 		"@wordpress/browserslist-config": "5.13.0",
 		"@wordpress/dependency-extraction-webpack-plugin": "4.13.0",
-		"autoprefixer": "10.4.12",
+		"autoprefixer": "10.4.14",
 		"babel-jest": "29.4.3",
 		"concurrently": "7.6.0",
 		"core-js": "3.23.5",
