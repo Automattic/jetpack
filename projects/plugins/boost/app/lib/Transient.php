@@ -92,6 +92,7 @@ class Transient {
 		 */
 		$prefix_search_pattern = $wpdb->esc_like( $option_prefix ) . '%';
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$option_names = $wpdb->get_col(
 			$wpdb->prepare(
 				"

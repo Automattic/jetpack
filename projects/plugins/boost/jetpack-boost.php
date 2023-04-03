@@ -113,7 +113,7 @@ if ( is_readable( $boost_packages_path ) ) {
 	return;
 }
 
-require plugin_dir_path( __FILE__ ) . 'app/class-jetpack-boost.php';
+require plugin_dir_path( __FILE__ ) . 'app/Jetpack_Boost.php';
 
 /**
  * Begins execution of the plugin.

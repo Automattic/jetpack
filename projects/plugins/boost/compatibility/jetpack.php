@@ -7,7 +7,7 @@
 
 namespace Automattic\Jetpack_Boost\Compatibility\Jetpack;
 
-require_once __DIR__ . '/lib/class-sync-jetpack-module-status.php';
+require_once __DIR__ . '/lib/Sync_Jetpack_Module_Status.php';
 
 ( new Sync_Jetpack_Module_Status( 'lazy-images', 'lazy-images' ) )->init();
 ( new Sync_Jetpack_Module_Status( 'image-cdn', 'photon' ) )->init();

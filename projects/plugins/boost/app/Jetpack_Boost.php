@@ -213,6 +213,7 @@ class Jetpack_Boost {
 		$this->deactivate();
 
 		// Delete all Jetpack Boost options.
+		 // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$wpdb->query(
 			"
 			DELETE
