@@ -1187,11 +1187,10 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	}
 	$payment_info_text = zeroBSCRM_getSetting( 'paymentinfo' );
 
-	$payDetails  = '<div class="deets"><h2>' . esc_html__( 'Payment Details', 'zero-bs-crm' ) . '</h2>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	$payDetails .= '<div class="deets-line"><span class="deets-content">' . nl2br( esc_html( $payment_info_text ) ) . '</span></div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	$payDetails .= '<div class="deets-line"><span class="deets-title">' . esc_html__( 'Payment Reference:', 'zero-bs-crm' ) . '</span> <span>' . esc_html( $inv_no_str ) . '</span></div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	$payDetails .= '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
+	$pay_details  = '<div class="deets"><h2>' . esc_html__( 'Payment Details', 'zero-bs-crm' ) . '</h2>';
+	$pay_details .= '<div class="deets-line"><span class="deets-content">' . nl2br( esc_html( $payment_info_text ) ) . '</span></div>';
+	$pay_details .= '<div class="deets-line"><span class="deets-title">' . esc_html__( 'Payment Reference:', 'zero-bs-crm' ) . '</span> <span>' . esc_html( $inv_no_str ) . '</span></div>';
+	$pay_details .= '</div>';
 
 	// == Template -> HTML build
 
@@ -1231,7 +1230,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		'invoice-partials-table'      => $partialsTable, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-pay-button'          => $potentialPayButton, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'pre-invoice-payment-details' => '',
-		'invoice-payment-details'     => $payDetails, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-payment-details'     => $pay_details,
 		'invoice-pay-thanks'          => $payThanks, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// client portal
@@ -1258,7 +1257,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	// rather than in it's own line:
 	if ( ! empty( $partialsTable ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		// partials, split to two columns
-		$replacements['pre-invoice-payment-details'] = $payDetails; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$replacements['pre-invoice-payment-details'] = $pay_details;
 		$replacements['invoice-payment-details']     = '';
 	}
 
