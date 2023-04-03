@@ -96,8 +96,7 @@ class Data_Sync {
 				'nonce' => wp_create_nonce( 'wp_rest' ),
 			),
 		);
-		foreach ( $this->registry->all() as $entry ) {
-			$key          = $entry->key();
+		foreach ( $this->registry->all() as $key => $entry ) {
 			$data[ $key ] = array(
 				'value' => $entry->get(),
 				'nonce' => $this->registry->get_endpoint( $key )->create_nonce(),

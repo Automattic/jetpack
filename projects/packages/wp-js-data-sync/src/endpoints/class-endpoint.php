@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Endpoints;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Can_Delete;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Can_Set;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Can_Update;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 
 class Endpoint {
 
@@ -32,15 +35,36 @@ class Endpoint {
 	private $nonce;
 
 	/**
-	 * @param string          $namespace - The namespace for the REST API endpoint.
-	 * @param string          $route     - The route for the REST API endpoint.
-	 * @param Data_Sync_Entry $entry     The data sync entry to register the endpoint for.
+	 * @var string[] - Available HTTP Methods for this instance.
 	 */
-	public function __construct( $namespace, $route, $entry ) {
+	private $methods = array( 'GET' => 'handle_get' );
+
+	/**
+	 * @param string                                          $namespace - The namespace for the REST API endpoint.
+	 * @param string                                          $route     - The route for the REST API endpoint.
+	 * @param Data_Sync_Entry & Can_Set|Can_Update|Can_Delete $entry     The data sync entry to register the endpoint for.
+	 */
+	public function __construct( $namespace, $key, $entry ) {
 		$this->entry          = $entry;
 		$this->rest_namespace = $namespace;
-		$this->route          = $route;
-		$this->nonce          = new Authenticated_Nonce( "{$namespace}_{$entry->key()}" );
+		$this->route          = $key;
+		$this->nonce          = new Authenticated_Nonce( "{$namespace}_{$key}" );
+
+		if ( $entry instanceof Can_Set ) {
+			$this->methods['PUT'] = 'handle_put';
+			// Even though technically incorrect, at the moment we're using POST as patch
+			// so for backwards compatibility, I'm adding this here
+			// @TODO: Before merge, create an issue:
+			$this->methods['POST'] = 'handle_put';
+		}
+
+		if ( $entry instanceof Can_Update ) {
+			$this->methods['PATCH'] = 'handle_patch';
+		}
+
+		if ( $entry instanceof Can_Delete ) {
+			$this->methods['DELETE'] = 'handle_delete';
+		}
 	}
 
 	public function register_rest_route() {
@@ -61,19 +85,17 @@ class Endpoint {
 	 * @param \WP_REST_Request $request - The request object.
 	 */
 	public function handler( $request ) {
-		$methods = array(
-			'GET'    => 'handle_get',
-			'POST'   => 'handle_post',
-			'DELETE' => 'handle_delete',
-		);
-
-		if ( ! isset( $methods[ $request->get_method() ] ) ) {
+		$http_method = $request->get_method();
+		if ( ! isset( $this->methods[ $http_method ] ) ) {
 			return new \WP_Error( 'invalid_method', 'Invalid method.', array( 'status' => 400 ) );
 		}
 
-		$method = $methods[ $request->get_method() ];
+		$method_name = $this->methods[ $http_method ];
+		if ( ! method_exists( $this, $method_name ) ) {
+			return new \WP_Error( 'invalid_method', 'Method missing.', array( 'status' => 500 ) );
+		}
 
-		return rest_ensure_response( $this->$method( $request ) );
+		return rest_ensure_response( $this->$method_name( $request ) );
 	}
 
 	/**
@@ -83,10 +105,14 @@ class Endpoint {
 	 */
 	// phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function handle_get( $request ) {
-		return array(
-			'status' => 'success',
-			'JSON'   => $this->entry->get(),
-		);
+		try {
+			return array(
+				'status' => 'success',
+				'JSON'   => $this->entry->get(),
+			);
+		} catch ( \Error $e ) {
+			return new \WP_Error( 500, $e->getMessage(), array( 'status' => 500 ) );
+		}
 	}
 
 	/**
@@ -94,32 +120,43 @@ class Endpoint {
 	 *
 	 * @return mixed|\WP_Error
 	 */
-	public function handle_post( $request ) {
-
+	public function handle_put( $request ) {
 		$input = $request->get_json_params();
-		$this->entry->set( $input['JSON'] );
-
-		if ( $this->entry->has_errors() ) {
-			return new \WP_Error( 400, $this->entry->get_errors(), array( 'status' => 400 ) );
+		try {
+			$this->entry->set( $input['JSON'] );
+			return array(
+				'status' => 'success',
+				'JSON'   => $this->entry->get(),
+			);
+		} catch ( \Error $e ) {
+			return new \WP_Error( 500, $e->getMessage(), array( 'status' => 500 ) );
 		}
-
-		return array(
-			'status' => 'success',
-			'JSON'   => $this->entry->get(),
-		);
 	}
 
-	public function handle_delete() {
-		$this->entry->delete();
-
-		if ( $this->entry->has_errors() ) {
-			return new \WP_Error( 400, $this->entry->get_errors(), array( 'status' => 400 ) );
+	public function handle_patch( $request ) {
+		$input = $request->get_json_params();
+		try {
+			$this->entry->update( $input['JSON'] );
+			return array(
+				'status' => 'success',
+				'JSON'   => $this->entry->get(),
+			);
+		} catch ( \Error $e ) {
+			return new \WP_Error( 500, $e->getMessage(), array( 'status' => 500 ) );
 		}
 
-		return array(
-			'status' => 'success',
-			'JSON'   => $this->entry->get(),
-		);
+	}
+
+	public function handle_delete( $request ) {
+		try {
+			$this->entry->delete();
+			return array(
+				'status' => 'success',
+				'JSON'   => $this->entry->get(),
+			);
+		} catch ( \Error $e ) {
+			return new \WP_Error( 500, $e->getMessage(), array( 'status' => 500 ) );
+		}
 	}
 
 	/**
