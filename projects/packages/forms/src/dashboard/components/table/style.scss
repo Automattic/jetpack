@@ -45,9 +45,16 @@
 		border-bottom: unset;
 	}
 
-	&:first-child {
+	&.is-select {
 		min-width: 62px;
 		padding: 0 20px;
+	}
+
+	&.is-empty {
+		max-width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 	}
 
 	.components-button.is-link {
