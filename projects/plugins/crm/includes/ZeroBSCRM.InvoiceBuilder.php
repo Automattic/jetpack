@@ -913,23 +913,23 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	$css_url     = ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.invoicepreview' . wp_scripts_get_suffix() . '.css';
 	$ref_label   = $zbs->settings->get( 'reflabel' );
 
-	$logoURL = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$logo_url = '';
 	if ( isset( $invoice['logo_url'] ) ) {
 
 		if ( isset( $invoice['logo_url'] ) ) {
-			$logoURL = $invoice['logo_url']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$logo_url = $invoice['logo_url'];
 		}
 	} elseif ( isset( $invsettings['invoicelogourl'] ) && $invsettings['invoicelogourl'] != '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
-		$logoURL = $invsettings['invoicelogourl']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$logo_url = $invsettings['invoicelogourl'];
 	}
 
-	if ( $logoURL != '' && isset( $invoice['logo_url'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,Universal.Operators.StrictComparisons.LooseNotEqual
+	if ( $logo_url != '' && isset( $invoice['logo_url'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
 		$logoClass    = 'show'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$logoURL      = $invoice['logo_url']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$logo_url     = $invoice['logo_url'];
 		$bizInfoClass = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	} else {
 		$logoClass    = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$logoURL      = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$logo_url     = '';
 		$bizInfoClass = 'biz-up'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
 
@@ -1215,7 +1215,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		'invoice-title'               => __( 'Invoice', 'zero-bs-crm' ),
 		'css'                         => $css_url,
 		'logo-class'                  => $logoClass, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		'logo-url'                    => esc_url( $logoURL ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'logo-url'                    => esc_url( $logo_url ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-number'              => $invNoStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-date'                => $invDateStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-id-styles'           => $invIDStyles, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
