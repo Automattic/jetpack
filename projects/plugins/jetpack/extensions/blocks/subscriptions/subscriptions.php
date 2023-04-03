@@ -436,16 +436,16 @@ function render_block( $attributes ) {
 function get_post_access_level() {
 	if ( ! is_singular() ) {
 		// There is no "actual" current post.
-		return 'everybody';
+		return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 	}
 
 	$post_id = get_the_ID();
 	if ( ! $post_id ) {
-		return 'everybody';
+		return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 	}
 	$meta = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 	if ( empty( $meta ) ) {
-		$meta = 'everybody';
+		$meta = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 	}
 	return $meta;
 }
