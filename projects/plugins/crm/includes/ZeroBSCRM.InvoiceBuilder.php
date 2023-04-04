@@ -798,17 +798,17 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	}
 
 	// date
-	$invDateStr = jpcrm_uts_to_date_str( $invoice['date'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$inv_date_str = jpcrm_uts_to_date_str( $invoice['date'] );
 
 	// due
 	if ( $invoice['due_date'] <= 0 ) {
 
 		//no due date
-		$dueDateStr = __( 'No due date', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$due_date_str = __( 'No due date', 'zero-bs-crm' );
 
 	} else {
 
-		$dueDateStr = jpcrm_uts_to_date_str( $invoice['due_date'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$due_date_str = jpcrm_uts_to_date_str( $invoice['due_date'] );
 	}
 
 	// Custom fields
@@ -979,7 +979,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	$zbs_biz_yoururl   = zeroBSCRM_getSetting( 'businessyoururl' );
 
 	// generate a templated biz info table
-	$bizInfoTable = zeroBSCRM_invoicing_generateInvPart_bizTable( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$biz_info_table = zeroBSCRM_invoicing_generateInvPart_bizTable(
 		array(
 			'zbs_biz_name'      => $zbs_biz_name,
 			'zbs_biz_yourname'  => $zbs_biz_yourname,
@@ -1210,13 +1210,13 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		'invoice-title'               => __( 'Invoice', 'zero-bs-crm' ),
 		'css'                         => $css_url,
 		'logo-class'                  => $logo_class,
-		'logo-url'                    => esc_url( $logo_url ), // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'logo-url'                    => esc_url( $logo_url ),
 		'invoice-number'              => $inv_no_str,
-		'invoice-date'                => $invDateStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-date'                => $inv_date_str,
 		'invoice-id-styles'           => $inv_id_styles,
 		'invoice-ref'                 => $inv_no_str,
 		'invoice-ref-styles'          => $inv_ref_styles,
-		'invoice-due-date'            => $dueDateStr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-due-date'            => $due_date_str,
 		'invoice-custom-fields'       => $invoice_custom_fields_html,
 		'invoice-biz-class'           => $biz_info_class,
 		'invoice-customer-info'       => $invoice_customer_info_table_html,
@@ -1245,7 +1245,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		'invoice-pay-terms'           => __( 'Payment terms', 'zero-bs-crm' ) . ': ' . __( 'Due', 'zero-bs-crm' ) . ' ',
 
 		// global
-		'biz-info'                    => $bizInfoTable, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'biz-info'                    => $biz_info_table,
 		'powered-by'                  => $powered_by,
 
 	);
