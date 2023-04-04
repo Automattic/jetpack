@@ -101,12 +101,11 @@ class Registry {
 
 		$key = $this->sanitize_key( $key );
 
-		$this->entries[ $key ] = $entry;
-
+		$this->entries[ $key ]   = $entry;
 		$endpoint                = new Endpoint( $this->get_namespace_http(), $this->sanitize_url_key( $key ), $entry );
 		$this->endpoints[ $key ] = $endpoint;
 
-		add_action( 'rest_api_init', array( $endpoint, 'register_rest_route' ) );
+		add_action( 'rest_api_init', array( $endpoint, 'register_rest_routes' ) );
 
 		return $entry;
 	}

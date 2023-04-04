@@ -2,7 +2,11 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-final class Data_Sync_Option {
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Delete;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
+
+final class Data_Sync_Option implements Entry_Can_Get, Entry_Can_Set, Entry_Can_Delete {
 
 	private $key;
 

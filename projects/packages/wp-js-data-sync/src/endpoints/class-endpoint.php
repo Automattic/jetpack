@@ -22,9 +22,9 @@ class Endpoint {
 	private $rest_namespace;
 
 	/**
-	 * @var string $route - The route for the REST API endpoint.
+	 * @var string $route_base - The route for the REST API endpoint.
 	 */
-	private $route;
+	private $route_base;
 
 	/**
 	 * @var Authenticated_Nonce $nonce - The nonce for the REST API endpoint.
@@ -39,34 +39,89 @@ class Endpoint {
 	public function __construct( $namespace, $key, $entry ) {
 		$this->entry          = $entry;
 		$this->rest_namespace = $namespace;
-		$this->route          = $key;
+		$this->route_base     = $key;
 		$this->nonce          = new Authenticated_Nonce( "{$namespace}_{$key}" );
-
-		$method_map              = array(
-			'GET'    => 'get',
-			'PUT'    => 'set',
-			'POST'   => 'set',
-			'PATCH'  => 'merge',
-			'DELETE' => 'delete',
-		);
-		$this->available_methods = array();
-		foreach ( $method_map as $http_method => $method_name ) {
-			if ( method_exists( $entry, $method_name ) ) {
-				$this->available_methods[ $http_method ] = $method_name;
-			}
-		}
 	}
 
-	public function register_rest_route() {
+	public function register_rest_routes() {
+
 		register_rest_route(
 			$this->rest_namespace,
-			$this->route,
+			$this->route_base,
 			array(
-				'methods'             => array_keys( $this->available_methods ),
-				'callback'            => array( $this, 'handler' ),
+				'methods'             => \WP_REST_Server::ALLMETHODS,
+				'callback'            => array( $this, 'handle_get' ),
 				'permission_callback' => array( $this, 'permissions' ),
 			)
 		);
+
+		if ( $this->entry->can( 'set' ) ) {
+			register_rest_route(
+				$this->rest_namespace,
+				$this->route_base . '/set',
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'handle_set' ),
+					'permission_callback' => array( $this, 'permissions' ),
+				)
+			);
+		}
+
+		if ( $this->entry->can( 'merge' ) ) {
+			register_rest_route(
+				$this->rest_namespace,
+				$this->route_base . '/merge',
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'handle_merge' ),
+					'permission_callback' => array( $this, 'permissions' ),
+				)
+			);
+		}
+
+		if ( $this->entry->can( 'delete' ) ) {
+			register_rest_route(
+				$this->rest_namespace,
+				$this->route_base . '/delete',
+				array(
+					'methods'             => 'POST, DELETE',
+					'callback'            => array( $this, 'handle_delete' ),
+					'permission_callback' => array( $this, 'permissions' ),
+				)
+			);
+		}
+	}
+
+	/*
+	 * Handle GET Requests on /wp-json/<namespace>/<route>
+	 * @param \WP_REST_Request $request - The request object.
+	 */
+	public function handle_get( $request ) {
+		return $this->handler( $request, 'get' );
+	}
+
+	/*
+	 * Handle POST, PUT, PATCH Requests on /wp-json/<namespace>/<route>/set
+	 * @param \WP_REST_Request $request - The request object.
+	 */
+	public function handle_set( $request ) {
+		return $this->handler( $request, 'set' );
+	}
+
+	/*
+	 * Handle POST, PUT, PATCH Requests on /wp-json/<namespace>/<route>/merge
+	 * @param \WP_REST_Request $request - The request object.
+	 */
+	public function handle_merge( $request ) {
+		return $this->handler( $request, 'merge' );
+	}
+
+	/*
+	 * Handle POST, DELETE Requests on /wp-json/<namespace>/<route>/delete
+	 * @param \WP_REST_Request $request - The request object.
+	 */
+	public function handle_delete( $request ) {
+		return $this->handler( $request, 'delete' );
 	}
 
 	/**
@@ -74,17 +129,21 @@ class Endpoint {
 	 *
 	 * @param \WP_REST_Request $request - The request object.
 	 */
-	public function handler( $request ) {
-		$http_method = $request->get_method();
+	private function handler( $request, $entry_method = 'get' ) {
+		$available_methods = array( 'get', 'set', 'merge', 'delete' );
+		if ( ! in_array( $entry_method, $available_methods, true ) ) {
+			// Set status 400 because an unsupported method was used.
+			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method.', array( 'status' => 400 ) ) );
+		}
 
-		if ( ! isset( $this->available_methods[ $http_method ] ) ) {
-			return new \WP_Error( 'invalid_method', 'Invalid method.', array( 'status' => 400 ) );
+		if ( ! $this->entry->can( $entry_method ) ) {
+			// Set Status 500 because the method is valid but is missing in Data_Sync_Entry.
+			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method. ' . $entry_method, array( 'status' => 500 ) ) );
 		}
 
 		try {
-			$method_name = $this->available_methods[ $http_method ];
-			$params      = $request->get_json_params();
-			$result      = $this->entry->$method_name( $params['JSON'] );
+			$params = $request->get_json_params();
+			$result = $this->entry->$entry_method( $params['JSON'] );
 			return rest_ensure_response(
 				array(
 					'status' => 'success',

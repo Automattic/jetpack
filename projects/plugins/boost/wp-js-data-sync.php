@@ -5,7 +5,6 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Option;
 use Automattic\Jetpack\WP_JS_Data_Sync\Registry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Validation_Rule;
 use Automattic\Jetpack_Boost\Lib\Status;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
@@ -13,14 +12,16 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 }
 /**
  * Functions to make it easier to interface with Async Option:
+ *
+ * @throws Exception
  */
-function jetpack_boost_register_option( $name, $schema, $entry = null ) {
+function jetpack_boost_register_option( $key, $schema, $entry = null ) {
 	if ( ! $entry ) {
-		$option = new Data_Sync_Option( JETPACK_BOOST_DATASYNC_NAMESPACE, $name, $schema );
+		$option = new Data_Sync_Option( JETPACK_BOOST_DATASYNC_NAMESPACE, $key );
 		$entry  = new Data_Sync_Entry( $option, $schema );
 	}
 	return Registry::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-	               ->register( $name, $entry );
+					->register( $key, $entry );
 }
 
 /**
@@ -61,7 +62,7 @@ function jetpack_boost_ds_delete( $option_name ) {
  */
 add_action(
 	'admin_init',
-	function() {
+	function () {
 		$options = Data_Sync::setup( JETPACK_BOOST_DATASYNC_NAMESPACE, 'jetpack-boost-admin' );
 		add_action( 'jetpack_page_jetpack-boost', array( $options, '_print_options_script_tag' ) );
 	}
