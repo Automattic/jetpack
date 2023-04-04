@@ -31,25 +31,17 @@ function previewOnHoverEffect(): void {
 		}
 
 		// Get the data container element.
-		const dataContainer: HTMLScriptElement = videoPlayerElement.querySelector(
-			'script[type="application/json"]'
-		);
+		const dataContainer = videoPlayerElement.querySelector( 'span.videopress-poh' );
 
 		/*
 		 * Try to pick the POH data from the data container element.
 		 * If it fails, log the error and return.
 		 */
-		let previewOnHoverData: {
-			previewAtTime: number;
-			previewLoopDuration: number;
+		const previewOnHoverData = {
+			previewAtTime: dataContainer.querySelector( 'span.videopress-poh__sp' )?.textContent,
+			previewLoopDuration: dataContainer.querySelector( 'span.videopress-poh__duration' )
+				?.textContent,
 		};
-
-		try {
-			previewOnHoverData = JSON.parse( dataContainer.text );
-		} catch ( error ) {
-			console.error( error ); // eslint-disable-line no-console
-			return;
-		}
 
 		// Clean the data container element. It isn't needed anymore.
 		dataContainer.remove();
