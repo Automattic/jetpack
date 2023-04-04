@@ -41,13 +41,23 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 		guid,
 		maxWidth,
 		poster,
+		posterData,
 	} = attributes;
+
+	const { previewOnHover, previewAtTime, previewLoopDuration } = posterData ?? {};
 
 	const blockProps = useBlockProps.save( {
 		className: classnames( 'wp-block-jetpack-videopress', 'jetpack-videopress-player', {
 			[ `align${ align }` ]: align,
 		} ),
 	} );
+
+	if ( previewOnHover && [ previewAtTime, previewLoopDuration ].every( value => value != null ) ) {
+		blockProps[ 'data-preview-on-hover' ] = JSON.stringify( {
+			previewAtTime,
+			previewLoopDuration,
+		} );
+	}
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,

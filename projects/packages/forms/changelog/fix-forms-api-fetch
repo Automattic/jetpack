@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Made feedback bulk actions more explicit and easier to work with.
