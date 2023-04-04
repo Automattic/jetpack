@@ -152,7 +152,6 @@ const Inbox = () => {
 			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 			<a className="back-button" onClick={ handleGoBack }>
 				<Icon icon={ arrowLeft } />
-				{ /*<Gridicon icon="arrow-left" />*/ }
 				{ __( 'View all responses', 'jetpack-forms' ) }
 			</a>
 		</>
