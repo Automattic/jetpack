@@ -790,28 +790,8 @@ class zeroBS__Metabox_InvoiceTags extends zeroBS__Metabox_Tags{
             // localise ID & content
             $invoiceID = -1; if (is_array($invoice) && isset($invoice['id'])) $invoiceID = (int)$invoice['id'];
             
-                #} if a saved post...
-                //if (isset($post->post_status) && $post->post_status != "auto-draft"){
                 if ($invoiceID > 0){ // existing
 
-                    $potentialStatuses = zeroBSCRM_getInvoicesStatuses();
-                    //print_r($potentialStatuses); exit();
-
-                    // status
-                    $zbs_stat = __('Draft','zero-bs-crm'); $sel='';
-                    if (is_array($invoice) && isset($invoice['status'])) $zbs_stat = $invoice['status'];
-
-
-                    /* grid doesn't work great for long-named:
-
-                    <div class="ui grid">
-                        <div class="six wide column">
-                        </div>
-                        <div class="ten wide column">
-                        </div>
-                    </div>
-
-                    */
                     ?>
 
                     <?php do_action('zbs_invpro_itemlink'); ?>
