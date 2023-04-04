@@ -2,8 +2,8 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Contracts;
 
-interface Can_Update {
+interface Entry_Can_Get {
 
-	public function update( $value );
+	public function get();
 
 }

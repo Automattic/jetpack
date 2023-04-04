@@ -9,7 +9,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Endpoints\Endpoint;
 
 class Registry {
@@ -97,19 +97,9 @@ class Registry {
 	 * @return Data_Sync_Entry
 	 * @throws \Exception If the option name is invalid.
 	 */
-	public function register( $key, $schema, $entry_class = null ) {
+	public function register( $key, $entry ) {
 
 		$key = $this->sanitize_key( $key );
-
-		if( ! $entry_class ) {
-			$entry_class = Data_Sync_Option::class;
-		}
-
-		/**
-		 * Set up storage driver that adheres to `Storage_Driver` contract.
-		 * The default driver is WP_Option_Storage that stores values in WordPress options.
-		 */
-		$entry = new $entry_class( $this->namespace, $key, $schema );
 
 		$this->entries[ $key ] = $entry;
 
@@ -124,7 +114,7 @@ class Registry {
 	/**
 	 * Get all registered entries.
 	 *
-	 * @return Data_Sync_Entry[]
+	 * @return Entry_Can_Get[]
 	 */
 	public function all() {
 		return $this->entries;

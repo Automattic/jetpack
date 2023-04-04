@@ -1,7 +1,8 @@
 <?php
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Option;
 use Automattic\Jetpack\WP_JS_Data_Sync\Registry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Validation_Rule;
@@ -13,9 +14,13 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 /**
  * Functions to make it easier to interface with Async Option:
  */
-function jetpack_boost_register_option( $name, $schema, $entry_class = null ) {
+function jetpack_boost_register_option( $name, $schema, $entry = null ) {
+	if ( ! $entry ) {
+		$option = new Data_Sync_Option( JETPACK_BOOST_DATASYNC_NAMESPACE, $name, $schema );
+		$entry  = new Data_Sync_Entry( $option, $schema );
+	}
 	return Registry::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-	               ->register( $name, $schema, $entry_class );
+	               ->register( $name, $entry );
 }
 
 /**
@@ -24,7 +29,7 @@ function jetpack_boost_register_option( $name, $schema, $entry_class = null ) {
  * @return Data_Sync_Entry
  */
 function jetpack_boost_ds( $name ) {
-	return Registry::get_instance( 'jetpack_boost_ds' )->get_entry( $name );
+	return Registry::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )->get_entry( $name );
 }
 
 function jetpack_boost_ds_get( $option ) {
