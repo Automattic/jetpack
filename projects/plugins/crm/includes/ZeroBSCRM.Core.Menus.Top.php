@@ -571,7 +571,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 					$transactions_menu = apply_filters( 'zbs-transactions-menu', $transactions_menu ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 					if ( count( $transactions_menu ) > 0 ) {
 						foreach ( $transactions_menu as $menu_item ) {
-							if ( preg_match( '/\bimport\b/i', $menu_item ) ) {
+							if ( preg_match( '/\bpage\=zerobscrm\-csvimporter\-app\b/i', $menu_item ) ) {
 								echo wp_kses( $menu_item, $zbs->acceptable_html );
 								$transactions_menu = array_diff( $transactions_menu, array( $menu_item ) );
 							}
