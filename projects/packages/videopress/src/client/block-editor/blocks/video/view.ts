@@ -74,13 +74,8 @@ function previewOnHoverEffect(): void {
 			} );
 		} );
 
-		videoPlayerElement.addEventListener( 'mouseenter', function () {
-			iframeApi.controls.play();
-		} );
-
-		videoPlayerElement.addEventListener( 'mouseleave', function () {
-			iframeApi.controls.pause();
-		} );
+		videoPlayerElement.addEventListener( 'mouseenter', iframeApi.controls.play );
+		videoPlayerElement.addEventListener( 'mouseleave', iframeApi.controls.pause );
 	} );
 }
 
