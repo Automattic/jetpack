@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Retry video data fetch if data is not fully available yet
