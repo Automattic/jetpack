@@ -164,12 +164,6 @@ $action-bar-height: 72px;
 	display: table;
 	min-height: unset;
 
-	@media (max-width: 480px) {
-		border-left-width: 0;
-		border-right-width: 0;
-		border-radius: 0;
-	}
-
 	@media (max-width: 1024px) {
 		.jp-forms__table-item.is-active {
 			background-color: #fff;
@@ -245,6 +239,10 @@ $action-bar-height: 72px;
 		}
 
 		.jp-forms__table-cell.is-source {
+			display: none;
+		}
+
+		.jp-forms__table-cell.is-actions {
 			display: none;
 		}
 	}
