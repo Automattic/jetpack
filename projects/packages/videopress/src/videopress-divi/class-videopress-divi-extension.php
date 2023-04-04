@@ -116,9 +116,10 @@ class VideoPress_Divi_Extension extends DiviExtension {
 			'../../build/divi-editor/index.js',
 			__FILE__,
 			array(
-				'in_footer'  => true,
-				'css_path'   => '../../build/divi-editor/index.css',
-				'textdomain' => 'jetpack-videopress-pkg',
+				'in_footer'    => true,
+				'css_path'     => '../../build/divi-editor/index.css',
+				'textdomain'   => 'jetpack-videopress-pkg',
+				'dependencies' => array( 'jquery' ),
 			)
 		);
 
