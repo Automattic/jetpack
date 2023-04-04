@@ -813,17 +813,6 @@ class zeroBS__Metabox_InvoiceTags extends zeroBS__Metabox_Tags{
 
                     */
                     ?>
-                    <div>
-                        <label for="invoice_status"><?php esc_html_e('Status',"zero-bs-crm"); ?>: </label>
-                        <select id="invoice_status" name="invoice_status">
-                                <?php foreach($potentialStatuses as $z){
-                                    if($z == $zbs_stat){$sel = ' selected'; }else{ $sel = '';}
-                                    echo '<option value="'. esc_attr( $z ) .'"'. esc_attr( $sel ) .'>'. esc_html__($z,"zero-bs-crm").'</option>';
-                                } ?>
-                        </select>
-                    </div>
-
-                    <div class="clear"></div>
 
                     <?php do_action('zbs_invpro_itemlink'); ?>
 
