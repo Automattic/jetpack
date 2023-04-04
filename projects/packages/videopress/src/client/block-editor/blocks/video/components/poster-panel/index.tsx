@@ -325,6 +325,7 @@ export function VideoHoverPreviewControl( {
 	onPreviewAtTimeChange,
 	onLoopDurationChange,
 }: VideoHoverPreviewControlProps ): React.ReactElement {
+	const disabled = ! videoDuration;
 	const maxStartingPoint = videoDuration - MIN_LOOP_DURATION;
 
 	const [ maxLoopDuration, setMaxLoopDuration ] = useState(
@@ -351,6 +352,7 @@ export function VideoHoverPreviewControl( {
 				label={ __( 'Video preview on hover', 'jetpack-videopress-pkg' ) }
 				checked={ previewOnHover }
 				onChange={ onPreviewOnHoverChange }
+				disabled={ ! previewOnHover && disabled }
 			/>
 
 			{ previewOnHover && (
@@ -366,6 +368,7 @@ export function VideoHoverPreviewControl( {
 							setMaxLoopDuration( Math.min( MAX_LOOP_DURATION, videoDuration - timestamp ) );
 						} }
 						wait={ 100 }
+						disabled={ disabled }
 					/>
 
 					<TimestampControl
@@ -377,7 +380,7 @@ export function VideoHoverPreviewControl( {
 						onDebounceChange={ onLoopDurationChange }
 						wait={ 100 }
 						help={ loopDurationHelp }
-						disabled={ noLoopDurationRange }
+						disabled={ disabled || noLoopDurationRange }
 					/>
 				</>
 			) }
