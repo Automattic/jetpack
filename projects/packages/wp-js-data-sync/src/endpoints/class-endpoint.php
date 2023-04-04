@@ -49,7 +49,7 @@ class Endpoint {
 			$this->rest_namespace,
 			$this->route_base,
 			array(
-				'methods'             => \WP_REST_Server::ALLMETHODS,
+				'methods'             => 'GET, POST',
 				'callback'            => array( $this, 'handle_get' ),
 				'permission_callback' => array( $this, 'permissions' ),
 			)
