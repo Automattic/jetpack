@@ -142,7 +142,7 @@ function zeroBSCRM_CSVImporterLitepages_header( $subpage = '' ) {
 				if ( ! empty( $zbs->urls['extcsvimporterpro'] ) ) {
 					?>
 
-						<p><?php esc_html_e( 'Want to import companies as well as keep a record of your imports.', 'zero-bs-crm' ); ?>
+						<p><?php esc_html_e( 'Want to import companies as well as keep a record of your imports?', 'zero-bs-crm' ); ?>
 						<a href="<?php echo esc_url( $zbs->urls['extcsvimporterpro'] ); ?>" target="_blank">
 						<?php esc_html_e( 'CSV importer PRO is the perfect tool.', 'zero-bs-crm' ); ?></a></p>
 
@@ -400,13 +400,13 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 			?>
 			<div class="zbscrm-csvimport-wrap">
-				<h2><?php esc_html_e( 'Map Columns from your CSV to Contact Fields', 'zero-bs-crm' ); ?></h2>
+				<h2><?php esc_html_e( 'Map columns from your CSV to contact fields', 'zero-bs-crm' ); ?></h2>
 				<?php
 				if ( isset( $stageError ) && ! empty( $stageError ) ) {
 					zeroBSCRM_html_msg( -1, $stageError ); }
 				?>
 				<div class="zbscrm-csv-map">
-					<p class="zbscrm-csv-map-help"><?php esc_html_e( 'Your CSV File has been successfully uploaded. Before we can complete your import, you\'ll need to specify which field in your CSV file matches which field in your CRM.<br />You can do so by using the drop down options below:', 'zero-bs-crm' ); ?></p>
+					<p class="zbscrm-csv-map-help"><?php esc_html_e( 'Your CSV file has been successfully uploaded. Please map your CSV columns to their corresponding CRM fields with the drop down options below.', 'zero-bs-crm' ); ?></p>
 					<form method="post" class="zbscrm-csv-map-form">
 						<input type="hidden" id="zbscrmcsvimpstage" name="zbscrmcsvimpstage" value="2" />
 						<input type="hidden" id="zbscrmcsvimpf" name="zbscrmcsvimpf" value="<?php echo esc_attr( $file_details['public_name'] ); ?>" />
@@ -415,7 +415,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						<hr />
 						<div class="zbscrm-csv-map-ignorefirst">
 							<input type="checkbox" id="zbscrmcsvimpignorefirst" name="zbscrmcsvimpignorefirst" value="1" />
-							<label for="zbscrmcsvimpignorefirst" ><?php echo esc_html__( 'Ignore first line of CSV file when running import.', 'zero-bs-crm' ) . '<br />' . esc_html__( 'Use this if you have a "header line" in your CSV file.)', 'zero-bs-crm' ); ?></label>
+							<label for="zbscrmcsvimpignorefirst" ><?php echo esc_html__( 'Ignore first line of CSV file when running import.', 'zero-bs-crm' ) . '<br />' . esc_html__( 'Use this if you have a "header line" in your CSV file.', 'zero-bs-crm' ); ?></label>
 						</div>
 						<hr />
 
@@ -478,7 +478,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						?>
 							<hr />
 						<div style="text-align:center">
-							<button type="submit" name="csv-map-submit" id="csv-map-submit" class="button button-primary button-large" type="submit"><?php esc_html_e( 'Continue', 'zero-bs-crm' ); ?></button>	
+							<button type="submit" name="csv-map-submit" id="csv-map-submit" class="ui button button-primary button-large green" type="submit"><?php esc_html_e( 'Continue', 'zero-bs-crm' ); ?></button>	
 						</div>
 					</form>
 				</div>
@@ -493,17 +493,16 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 			// Stolen from plugin-install.php?tab=upload
 			?>
 			<div class="zbscrm-csvimport-wrap">
-				<h2>Complete Contact Import</h2>
+				<h2>Verify field mapping</h2>
 				<?php
 				if ( isset( $stageError ) && ! empty( $stageError ) ) {
 					zeroBSCRM_html_msg( -1, $stageError ); }
 				?>
 				<div class="zbscrm-confirmimport-csv">
-					<p class="zbscrm-csv-help"><?php __( 'Ready to run the import.<br />Please confirm the following is correct <i>before</i> continuing.', 'zero-bs-crm' ); ?><br /></p>
-					<div style="">
+					<div>
 						<?php
 						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						echo zeroBSCRM_html_msg( 1, __( 'Note: There is no easy way to "undo" a CSV import. To remove any contacts that have been added you will need to manually remove them.', 'zero-bs-crm' ) );
+						echo zeroBSCRM_html_msg( 1, esc_html__( 'Note: There is no automatic way to undo a CSV import. To remove any contacts that have been added you will need to manually remove them.', 'zero-bs-crm' ) );
 						?>
 					<form method="post" enctype="multipart/form-data" class="zbscrm-csv-import-form">
 						<input type="hidden" id="zbscrmcsvimpstage" name="zbscrmcsvimpstage" value="3" />
@@ -587,7 +586,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						?>
 						<hr />
 						<div style="text-align:center">
-							<button type="submit" name="csv-map-submit" id="csv-map-submit" class="button button-primary button-large" type="submit"><?php esc_html_e( 'Run Import', 'zero-bs-crm' ); ?></button>	
+							<button type="submit" name="csv-map-submit" id="csv-map-submit" class="ui button button-primary button-large green" type="submit"><?php esc_html_e( 'Run import', 'zero-bs-crm' ); ?></button>	
 						</div>
 					</form>
 				</div>
@@ -602,13 +601,18 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 			?>
 			<div class="zbscrm-csvimport-wrap">
-				<h2><?php esc_html_e( 'Running Import...', 'zero-bs-crm' ); ?></h2>
+				<h2 id="jpcrm_final_step_heading"><?php esc_html_e( 'Running import...', 'zero-bs-crm' ); ?></h2>
 				<?php
 				if ( isset( $stageError ) && ! empty( $stageError ) ) {
 					zeroBSCRM_html_msg( -1, $stageError ); }
 				?>
-				<div class="zbscrm-final-stage">
-					<div class="zbscrm-import-log">
+				<div class="zbscrm-final-stage" style="text-align: center;">
+					<p>New contacts added: <span id="jpcrm_new_contact_count">0</span></p>
+					<p>Existing contacts updated: <span id="jpcrm_update_contact_count">0</span></p>
+					<button id="jpcrm_toggle_log_button" class="ui button grey"><?php esc_html_e( 'Toggle log', 'zero-bs-crm' ); ?></button>
+					<a id="jpcrm_import_finish_button" href="<?php echo jpcrm_esc_link( $zbs->slugs['managecontacts'] ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" class="ui button green hidden"><?php esc_html_e( 'Finish', 'zero-bs-crm' ); ?></a>
+				</div>
+					<div id="jpcrm_import_log_div" class="zbscrm-import-log hidden">
 						<div class="zbscrm-import-log-line"><?php esc_html_e( 'Loading CSV File...', 'zero-bs-crm' ); ?> <i class="fa fa-check"></i></div>
 						<div class="zbscrm-import-log-line"><?php esc_html_e( 'Parsing rows...', 'zero-bs-crm' ); ?> <i class="fa fa-check"></i></div>
 						<div class="zbscrm-import-log-line"><?php echo esc_html( sprintf( __( 'Beginning Import of %s rows...', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $file_details['num_lines'] ) ) ); ?></div>
@@ -796,10 +800,21 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 						?>
 						<hr />
-						<button type="button" class="button button-primary button-large" onclick="javascript:window.location='admin.php?page=<?php echo esc_attr( $zbs->slugs['datatools'] ); ?>';"><?php esc_html_e( 'Finish', 'zero-bs-crm' ); ?></button>
 					</div>
-				</div>
 			</div>
+			<script>
+				// these are some quick hacks for better usability until the importer rewrite
+
+				function jpcrm_toggle_csv_log() {
+					document.getElementById('jpcrm_import_log_div').classList.toggle('hidden');
+				}
+
+				document.getElementById('jpcrm_toggle_log_button').addEventListener('click',jpcrm_toggle_csv_log);
+				document.getElementById('jpcrm_final_step_heading').innerHTML = '<?php esc_html_e( 'Import complete!', 'zero-bs-crm' ); ?>';
+				document.getElementById('jpcrm_new_contact_count').innerHTML = <?php echo esc_html( $linesAdded ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>;
+				document.getElementById('jpcrm_update_contact_count').innerHTML = <?php echo esc_html( count( $existingOverwrites ) ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>;
+				document.getElementById('jpcrm_import_finish_button').classList.remove('hidden');
+			</script>
 			<?php
 
 			break;
@@ -810,7 +825,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 			// } Stolen from plugin-install.php?tab=upload
 			?>
 			<div class="zbscrm-csvimport-wrap">
-				<h2><?php esc_html_e( 'Import Contacts from a CSV File', 'zero-bs-crm' ); ?></h2>
+				<h2><?php esc_html_e( 'Import contacts from a CSV file', 'zero-bs-crm' ); ?></h2>
 				<?php
 				if ( isset( $stageError ) && ! empty( $stageError ) ) {
 					zeroBSCRM_html_msg( -1, $stageError ); }
@@ -823,7 +838,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						<label class="screen-reader-text" for="zbscrmcsvfile"><?php esc_html_e( '.CSV file', 'zero-bs-crm' ); ?></label>
 						<input type="file" id="zbscrmcsvfile" name="zbscrmcsvfile">
 						<div class="csv-import__start-btn">
-							<input type="submit" name="csv-file-submit" id="csv-file-submit" class="ui button green" value="<?php esc_attr_e( 'Start CSV Import Now', 'zero-bs-crm' ); ?>">
+							<input type="submit" name="csv-file-submit" id="csv-file-submit" class="ui button green" value="<?php esc_attr_e( 'Upload CSV file', 'zero-bs-crm' ); ?>">
 						</div>
 					</form>
 				</div>
