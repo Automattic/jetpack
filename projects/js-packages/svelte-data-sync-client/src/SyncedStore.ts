@@ -36,7 +36,7 @@ export class SyncedStore< T > {
 				// This intentionally prevents the store from waiting for the request to complete.
 				// This is because we want the store to update immediately,
 				// and then the request to happen in the background.
-				this.abortableSynchronize( prevValue, value );
+				this.abortableSynchronize( structuredClone( prevValue ), value );
 				return value;
 			} );
 		};
@@ -48,8 +48,9 @@ export class SyncedStore< T > {
 				// the updateCallback function may mutate the value
 				// And debouncedSynchronize may fail an object comparison
 				// because of it.
+				const prevValueClone = structuredClone( prevValue );
 				const value = svelteStoreUpdate( prevValue );
-				this.abortableSynchronize( prevValue, value );
+				this.abortableSynchronize( prevValueClone, value );
 				return value;
 			} );
 		};
@@ -83,7 +84,7 @@ export class SyncedStore< T > {
 		}
 
 		try {
-			const result = await this.syncAction( value, prevValue, this.abortController.signal );
+			const result = await this.syncAction( prevValue, value, this.abortController.signal );
 
 			// Success is only when the updateCallback result matches the value.
 			if ( this.equals( result, value ) ) {
