@@ -17,7 +17,7 @@ export class SyncedStore< T > {
 	private store: SyncedWritable< T >;
 	private errorStore: Writable< SyncedStoreError< T >[] >;
 	private pending: Pending;
-	private updateCallback?: SyncedStoreCallback< T >;
+	private syncAction?: SyncedStoreCallback< T >;
 	private abortController: AbortController;
 
 	constructor( initialValue?: T ) {
@@ -42,13 +42,13 @@ export class SyncedStore< T > {
 		};
 
 		type SvelteUpdater = typeof store.update;
-		const update: SvelteUpdater = updateCallback => {
+		const update: SvelteUpdater = svelteStoreUpdate => {
 			store.update( prevValue => {
 				// Structured Clone is necessary because
 				// the updateCallback function may mutate the value
 				// And debouncedSynchronize may fail an object comparison
 				// because of it.
-				const value = updateCallback( prevValue );
+				const value = svelteStoreUpdate( prevValue );
 				this.abortableSynchronize( prevValue, value );
 				return value;
 			} );
@@ -70,20 +70,20 @@ export class SyncedStore< T > {
 	 * A callback that will synchronize the store in some way.
 	 * By default, this is set to endpoint.SET in the client initializer
 	 */
-	private setCallback( callback: SyncedStoreCallback< T > ) {
-		this.updateCallback = callback;
+	private setSyncAction( callback: SyncedStoreCallback< T > ) {
+		this.syncAction = callback;
 	}
 
 	/**
 	 * Attempt to synchronize the store with the API.
 	 */
-	private async synchronize( value: T ): Promise< T | ApiError > {
-		if ( ! this.updateCallback ) {
+	private async synchronize( prevValue: T, value: T ): Promise< T | ApiError > {
+		if ( ! this.syncAction ) {
 			return value;
 		}
 
 		try {
-			const result = await this.updateCallback( value, this.abortController.signal );
+			const result = await this.syncAction( value, prevValue, this.abortController.signal );
 
 			// Success is only when the updateCallback result matches the value.
 			if ( this.equals( result, value ) ) {
@@ -118,7 +118,7 @@ export class SyncedStore< T > {
 		if ( signal.aborted ) {
 			return;
 		}
-		const result = await this.synchronize( value );
+		const result = await this.synchronize( prevValue, value );
 		if ( signal.aborted ) {
 			return;
 		}
@@ -181,7 +181,7 @@ export class SyncedStore< T > {
 			errors: {
 				subscribe: this.errorStore.subscribe,
 			},
-			setCallback: this.setCallback.bind( this ),
+			setSyncAction: this.setSyncAction.bind( this ),
 		};
 	}
 }

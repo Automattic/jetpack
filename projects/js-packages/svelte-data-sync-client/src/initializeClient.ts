@@ -120,7 +120,7 @@ export function initializeClient( namespace: string ) {
 		 * For example,
 		 * ```js
 		 *	const client = initializeClient( 'jetpack_favorites' );
-		 *	client.setCallback( 'status', ( value ) => {
+		 *	client.setSyncAction( 'status', ( value ) => {
 		 *		client.status.endpoint.SET( value.replace("a", "b") );
 		 *	} );
 		 */
@@ -130,7 +130,9 @@ export function initializeClient( namespace: string ) {
 		// Only expose selected public methods:
 		const store = syncedStore.getPublicInterface();
 
-		store.setCallback( endpoint.SET );
+		store.setSyncAction( ( prevValue, newValue, abortController ) =>
+			endpoint.SET( newValue, abortController )
+		);
 
 		const client = {
 			endpoint,
