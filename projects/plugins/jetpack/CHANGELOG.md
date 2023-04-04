@@ -2,13 +2,13 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.0-beta - 2023-03-28
+## [12.0] - 2023-04-04
 ### Enhancements
 - Forms: display carriage returns in user response text to properly display multiline text. [#29698]
 - Protect: remove account connection requirement to use the brute force protection feature. [#28401]
 - Protect: share IP allow list between the Jetpack Firewall and Brute Force Protection modules. [#28401]
-- Subscriptions: make the Subscribe Block available, even when the Subscriptions module is off, so Subscriptions can be easily enabled. [#29044]
 - Stats: update visuals for the wp-admin dashboard Stats widget. [#29600]
+- Subscriptions: make the Subscribe Block available, even when the Subscriptions module is off, so Subscriptions can be easily enabled. [#29044]
 
 ### Improved compatibility
 - Blocks: avoid conflicts with Better Click To Tweet plugin. [#29681]
@@ -17,15 +17,16 @@
 - WordPress 6.2 compatibility: ensure that the block editor's External Media functionality and Jetpack's Twitter features in the block editor stays compatible with the upcoming version of WordPress. [#29542]
 
 ### Bug fixes
+- Dashboard: avoid errors in the Recommendations dashboard. [#29798]
 - Forms: fix a PHP warning on Feedback->Response Forms when looking at old responses. [#29699]
+- Stats Widget: Fix incorrect invocation of module-restricted functions [#29783]
 - Subscriptions: ensure the block's settings are displayed properly, even when using a block theme. [#29631]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Add Golden Ticket plan support for the My Plan page. [#29673]
+- Amended the to-test.md file for non-a11n testers. [#29814]
 - Blaze: add can_blaze property to application API for enhanced admin user exprience. [#29614]
 - Editor: add a promotional banner into a pre-publication block. [#29641]
-- General: do not load the Yoast banner. [#29725]
-- General: remove a deprecated Core function in favor of direct WP Query. [#29460]
 - Forms: add a check for array on $attributes before trying to set an item on it. [#29557]
 - Forms: add all source post IDs on forms/responses endpoint. [#29428]
 - Forms: add search input and styles. [#29397]
@@ -33,18 +34,21 @@
 - Forms: change default entries per page on responses inbox. [#29406]
 - Forms: json_encode form responses instead of using print_r. [#29664]
 - Forms: use Contact_Form_Plugin::init instead of requiring the old module file. [#29648]
+- General: do not load the Yoast banner. [#29725]
+- General: remove a deprecated Core function in favor of direct WP Query. [#29460]
+- Launchpad: update modal content for newsletter flow. [#29484]
+- Masterbar: remove Upgrades and Inbox menus for staging sites [#29355]
 - Protect: move the brute force protection logic into the WAF package. [#28401]
 - Protect: move the brute force protection transient cleanup and shared functions to dedicated namespaced classes. [#28401]
 - Protect: update documentation for filter. [#29731]
 - Redirect: refactor redirect URL to use a dynamic path variable. [#29422]
+- SEO: add Yoast promo in SEO settings banner. [#29643]
 - Social: add a toggle to enable image generator and choose a default template. [#29722]
 - Social: enable Social Image Generator by default when it is available. [#29742]
-- Launchpad: update modal content for newsletter flow. [#29484]
-- Masterbar: remove Upgrades and Inbox menus for staging sites [#29355]
-- SEO: add Yoast promo in SEO settings banner. [#29643]
 - Stats: change Calypso Stats to Odyssey Stats. [#29679]
 - Stats: consolidate stats widget code and improve form submission handling. [#29524]
 - Updated composer.lock. [#29762]
+- Updated the changelog and readme.txt [#29784]
 - VideoPress: enable the video frame poster extension for all site plans. [#29692]
 - VideoPress: register the v6-video-frame-poster beta extension. [#29678]
 - WordPress.com Toolbar: gate Site Logs menu item behind constant [#29606]
@@ -7955,6 +7959,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[12.0]: https://wp.me/p1moTy-RGw
 [11.6]: https://wp.me/p1moTy-PLI
 [11.9]: https://wp.me/p1moTy-RdX
 [11.8]: https://wp.me/p1moTy-QEM
