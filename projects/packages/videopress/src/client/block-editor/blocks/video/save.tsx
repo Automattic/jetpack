@@ -52,18 +52,11 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 		} ),
 	} );
 
-	if ( previewOnHover && [ previewAtTime, previewLoopDuration ].every( value => value != null ) ) {
-		blockProps[ 'data-preview-on-hover' ] = JSON.stringify( {
-			previewAtTime,
-			previewLoopDuration,
-		} );
-	}
-
 	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay,
+		autoplay: autoplay || posterData.previewOnHover, // enabled when `previewOnHover` is enabled.
 		controls,
 		loop,
-		muted,
+		muted: muted || posterData.previewOnHover, // enabled when `previewOnHover` is enabled.
 		playsinline,
 		preload,
 		seekbarColor,
@@ -83,9 +76,20 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 	return (
 		<figure { ...blockProps } style={ style }>
 			{ videoPressUrl && (
-				<div className="jetpack-videopress-player__wrapper">
-					{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
-				</div>
+				<>
+					{ previewOnHover && (
+						<span
+							style={ { display: 'none', visibility: 'hidden', position: 'absolute' } }
+							className="videopress-poh"
+						>
+							<span className="videopress-poh__sp">{ previewAtTime }</span>
+							<span className="videopress-poh__duration">{ previewLoopDuration }</span>
+						</span>
+					) }
+					<div className="jetpack-videopress-player__wrapper">
+						{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
+					</div>
+				</>
 			) }
 
 			{ ! RichText.isEmpty( caption ) && (
