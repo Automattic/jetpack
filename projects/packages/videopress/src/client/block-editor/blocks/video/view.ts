@@ -51,8 +51,36 @@ function previewOnHoverEffect(): void {
 
 		// Clean the data container element. It isn't needed anymore.
 		dataContainer.remove();
+		if ( ! window?.VideoPressIframeApi ) {
+			return;
+		}
 
-		console.log( 'previewOnHoverData: ', previewOnHoverData ); // eslint-disable-line no-console
+		const iframeApi = window.VideoPressIframeApi( iFrame, () => {
+			iframeApi.status.onPlayerStatusChanged( ( oldStatus, newStatus ) => {
+				if ( oldStatus === 'ready' && newStatus === 'playing' ) {
+					iframeApi.controls.pause();
+					iframeApi.controls.seek( previewOnHoverData.previewAtTime );
+				}
+			} );
+
+			iframeApi.status.onTimeUpdate( playbackTime => {
+				const playback = playbackTime * 1000;
+				const start = previewOnHoverData.previewAtTime;
+				const end = start + previewOnHoverData.previewLoopDuration;
+
+				if ( playback < start || playback > end ) {
+					iframeApi.controls.seek( start );
+				}
+			} );
+		} );
+
+		videoPlayerElement.addEventListener( 'mouseenter', function () {
+			iframeApi.controls.play();
+		} );
+
+		videoPlayerElement.addEventListener( 'mouseleave', function () {
+			iframeApi.controls.pause();
+		} );
 	} );
 }
 
