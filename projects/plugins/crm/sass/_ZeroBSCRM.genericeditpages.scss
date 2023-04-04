@@ -69,7 +69,7 @@ span.wh-info {
 .widetext {
   width:100%;
 }
-.jpcrm-date, .zbs-date {
+.zbs-date {
       width: 132px;
 }
 .zbs-tel {
@@ -186,11 +186,10 @@ textarea.form-control{
 
 
 // date fields
-.form-control.jpcrm-date, .form-control.zbs-date {
+.form-control.zbs-date {
     display: inline-block;
     width: auto;
 }
-
 
 
 // id fields + autonumbers
