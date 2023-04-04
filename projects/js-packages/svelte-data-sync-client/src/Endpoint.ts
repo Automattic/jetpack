@@ -24,7 +24,7 @@ export class API_Endpoint< T extends RequestParams > {
 	private async validatedRequest(
 		method: RequestMethods = 'GET',
 		path = '',
-		params?: T | Partial< T >,
+		params?: T,
 		abortSignal?: AbortSignal
 	): Promise< T > {
 		const data = await this.api.request(
@@ -54,7 +54,7 @@ export class API_Endpoint< T extends RequestParams > {
 		return await this.validatedRequest( 'POST', '/set', params, abortSignal );
 	};
 
-	public MERGE = async ( params: Partial< T >, abortSignal?: AbortSignal ): Promise< T > => {
+	public MERGE = async ( params: T, abortSignal?: AbortSignal ): Promise< T > => {
 		return await this.validatedRequest( 'POST', '/merge', params, abortSignal );
 	};
 
