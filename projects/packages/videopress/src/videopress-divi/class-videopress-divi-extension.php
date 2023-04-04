@@ -22,7 +22,7 @@ class VideoPress_Divi_Extension extends DiviExtension {
 	/**
 	 * The gettext domain for the extension's translations.
 	 *
-	 * @since 1.0.0
+	 * @since $$next-version$$
 	 *
 	 * @var string
 	 */
@@ -31,7 +31,7 @@ class VideoPress_Divi_Extension extends DiviExtension {
 	/**
 	 * The extension's WP Plugin name.
 	 *
-	 * @since 1.0.0
+	 * @since $$next-version$$
 	 *
 	 * @var string
 	 */
@@ -40,7 +40,7 @@ class VideoPress_Divi_Extension extends DiviExtension {
 	/**
 	 * The extension's version
 	 *
-	 * @since 1.0.0
+	 * @since $$next-version$$
 	 *
 	 * @var string
 	 */
@@ -49,7 +49,7 @@ class VideoPress_Divi_Extension extends DiviExtension {
 	/**
 	 * The VideoPress_Divi_Module.
 	 *
-	 * @since 1.0.0
+	 * @since $$next-version$$
 	 *
 	 * @var VideoPress_Divi_Module
 	 */
