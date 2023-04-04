@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 12.0 - 2023-04-04
+## [12.0] - 2023-04-04
 ### Enhancements
 - Forms: display carriage returns in user response text to properly display multiline text. [#29698]
 - Protect: remove account connection requirement to use the brute force protection feature. [#28401]
@@ -7959,6 +7959,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
+[12.0]: https://wp.me/p1moTy-RGw
 [11.6]: https://wp.me/p1moTy-PLI
 [11.9]: https://wp.me/p1moTy-RdX
 [11.8]: https://wp.me/p1moTy-QEM
