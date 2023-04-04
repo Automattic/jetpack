@@ -185,8 +185,7 @@ $action-bar-height: 88px;
 		white-space: nowrap;
 	}
 
-	.jp-forms__table-cell.is-name,
-	.jp-forms__table-cell.is-source {
+	.jp-forms__table-cell.is-name {
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
@@ -204,6 +203,14 @@ $action-bar-height: 88px;
 	.jp-forms__table-cell.is-source {
 		min-width: 100px;
 		width: 27.5%;
+
+		.is-link {
+			display: inline-block;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			width: 100%;
+		}
 	}
 
 	.jp-forms__table-cell.is-actions {
