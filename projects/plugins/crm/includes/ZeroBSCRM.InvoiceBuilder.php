@@ -465,278 +465,277 @@ function zeroBSCRM_invoicing_generateStatementHTML( $contact_id = -1, $return = 
 }
 
 // 3.0+ (could now run off contact or company, but that's not written in yet)
-function zeroBSCRM_invoicing_generateStatementHTML_v3($contactID=-1,$return=true,$templatedHTML=''){
-
-    if ($contactID > 0 && $templatedHTML !== ''){
-
-        global $zbs,$wpdb;
-
-        #} Globals
-        $bizName = zeroBSCRM_getSetting('businessname');
-        $bizContactName =  zeroBSCRM_getSetting('businessyourname');
-        $bizContactEmail =  zeroBSCRM_getSetting('businessyouremail');
-        $bizURL =  zeroBSCRM_getSetting('businessyoururl');
-        $bizExtra = zeroBSCRM_getSetting('businessextra');
-        $bizTel = zeroBSCRM_getSetting('businesstel');
-        $statementExtra = zeroBSCRM_getSetting('statementextra');
-        $logoURL = zeroBSCRM_getSetting('invoicelogourl');
-
-        // invoices          
-        $invoices = $zbs->DAL->invoices->getInvoices(array(
-
-            'assignedContact'   => $contactID, // assigned to contact id (int)
-            'assignedCompany'   => false, // assigned to company id (int)
-
-            // returns
-            'withLineItems'     => true,
-            'withCustomFields'  => true,
-            'withTransactions'  => true, // partials
-            'withTags'          => false,
-
-            // sort
-            'sortByField'   => 'ID',
-            'sortOrder'     => 'ASC',
-
-        ));
-
-        // statement table wrapper
-        $statementTable = '<table id="zbs-statement-table" border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;background-color:#FFF;width:100%;">';
-
-            // logo header
-            if (!empty($logoURL)) $statementTable .= '<tr><td colspan="3" style="text-align:right"><img src="'.$logoURL.'" alt="'.$bizName.'" style="max-width:200px;max-height:140px" /></td></tr>';
-
-
-            // title
-            $statementTable .= '<tr><td colspan="3"><h2 class="zbs-statement">'.__('STATEMENT','zero-bs-crm').'</h2></td></tr>';
-
-
-            // address | dates | biz deets line
-            $statementTable .= '<tr>';
-
-                // contact address
-
-                    // get co addr
-                    $coAddr = '';
-                        // v3.0
-                        $contactDetails = $zbs->DAL->contacts->getContact($contactID,array(
-                            'withCustomFields'  => true,
-                            // anything else?
-                            'withQuotes'        => false,
-                            'withInvoices'      => false,
-                            'withTransactions'  => false,
-                            'withLogs'          => false,
-                            'withLastLog'       => false,
-                            'withTags'          => false,
-                            'withCompanies'     => false,
-                            'withOwner'         => false,
-                            'withValues'        => false
-                        ));
-                    if (is_array($contactDetails) && isset($contactDetails['fname'])){
-                        $invoice_customer_info_table_html = '<div class="zbs-line-info zbs-line-info-title">'.$contactDetails['fname'].' ' .$contactDetails['lname'] . '</div>';
-                        if (isset($contactDetails['addr1']) && !empty($contactDetails['addr1'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$contactDetails['addr1'].'</div>';
-                        if (isset($contactDetails['addr2']) && !empty($contactDetails['addr2'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$contactDetails['addr2'].'</div>';
-                        if (isset($contactDetails['city']) && !empty($contactDetails['city'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$contactDetails['city'].'</div>';
-                        if (isset($contactDetails['county']) && !empty($contactDetails['county'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$contactDetails['county'].'</div>';
-                        if (isset($contactDetails['postcode']) && !empty($contactDetails['postcode'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$contactDetails['postcode'].'</div>';
-                    }
-
-                    // add
-                    $statementTable .= '<td><div style="text-align:left">'.$invoice_customer_info_table_html.'</div></td>';
-
-                // Dates
-                $statementTable .= '<td>';
-                    $statementTable .= '<div class="zbs-statement-date"><strong>'.__('Statement Date','zero-bs-crm').'</strong><br />'.zeroBSCRM_locale_utsToDate(time()).'</div>';
-                    // VAT NUMBER? Not req. in quote of 23/10/2018 $statementTable .= '<div class=""><strong>'.__('Statement Date','zero-bs-crm').'<strong><br />'.zeroBSCRM_locale_utsToDate(time()).'</div>';
-                $statementTable .= '</td>';
+// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return = true, $templated_html = '' ) {
+
+	if ( $contact_id > 0 && $templated_html !== '' ) {
+
+		global $zbs;
+
+		// Globals
+		$biz_name          = zeroBSCRM_getSetting( 'businessname' );
+		$biz_contact_name  = zeroBSCRM_getSetting( 'businessyourname' );
+		$biz_contact_email = zeroBSCRM_getSetting( 'businessyouremail' );
+		$biz_url           = zeroBSCRM_getSetting( 'businessyoururl' );
+		$biz_extra         = zeroBSCRM_getSetting( 'businessextra' );
+		$biz_tel           = zeroBSCRM_getSetting( 'businesstel' );
+		$statement_extra   = zeroBSCRM_getSetting( 'statementextra' );
+		$logo_url          = zeroBSCRM_getSetting( 'invoicelogourl' );
+
+		// invoices
+		$invoices = $zbs->DAL->invoices->getInvoices( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+
+				'assignedContact'  => $contact_id, // assigned to contact id (int)
+				'assignedCompany'  => false, // assigned to company id (int)
+
+				// returns
+				'withLineItems'    => true,
+				'withCustomFields' => true,
+				'withTransactions' => true, // partials
+				'withTags'         => false,
+
+				// sort
+				'sortByField'      => 'ID',
+				'sortOrder'        => 'ASC',
+
+			)
+		);
+
+		// statement table wrapper
+		$statement_table = '<table id="zbs-statement-table" border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;background-color:#FFF;width:100%;">';
+
+		// logo header
+		if ( ! empty( $logo_url ) ) {
+			$statement_table .= '<tr><td colspan="3" style="text-align:right"><img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $biz_name ) . '" style="max-width:200px;max-height:140px" /></td></tr>';
+		}
+
+		// title
+		$statement_table .= '<tr><td colspan="3"><h2 class="zbs-statement">' . esc_html__( 'STATEMENT', 'zero-bs-crm' ) . '</h2></td></tr>';
+
+		// address | dates | biz deets line
+		$statement_table .= '<tr>';
+
+		// contact address
+
+		// v3.0
+		$contact_details = $zbs->DAL->contacts->getContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$contact_id,
+			array(
+				'withCustomFields' => true,
+				'withQuotes'       => false,
+				'withInvoices'     => false,
+				'withTransactions' => false,
+				'withLogs'         => false,
+				'withLastLog'      => false,
+				'withTags'         => false,
+				'withCompanies'    => false,
+				'withOwner'        => false,
+				'withValues'       => false,
+			)
+		);
+		if ( is_array( $contact_details ) && isset( $contact_details['fname'] ) ) {
+			$invoice_customer_info_table_html = '<div class="zbs-line-info zbs-line-info-title">' . esc_html( $contact_details['fname'] ) . ' ' . esc_html( $contact_details['lname'] ) . '</div>';
+			if ( isset( $contact_details['addr1'] ) && ! empty( $contact_details['addr1'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['addr1'] ) . '</div>';
+			}
+			if ( isset( $contact_details['addr2'] ) && ! empty( $contact_details['addr2'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['addr2'] ) . '</div>';
+			}
+			if ( isset( $contact_details['city'] ) && ! empty( $contact_details['city'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['city'] ) . '</div>';
+			}
+			if ( isset( $contact_details['county'] ) && ! empty( $contact_details['county'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['county'] ) . '</div>';
+			}
+			if ( isset( $contact_details['postcode'] ) && ! empty( $contact_details['postcode'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['postcode'] ) . '</div>';
+			}
+		}
+
+		// add
+		$statement_table .= '<td><div style="text-align:left">' . $invoice_customer_info_table_html . '</div></td>';
+
+		// Dates
+		$statement_table .= '<td>';
+		$statement_table .= '<div class="zbs-statement-date"><strong>' . esc_html__( 'Statement Date', 'zero-bs-crm' ) . '</strong><br />' . esc_html( zeroBSCRM_locale_utsToDate( time() ) ) . '</div>';
+		$statement_table .= '</td>';
+
+		// Biz deets
+
+		// get biz deets
+		$biz_info_table = '<div class="zbs-line-info zbs-line-info-title">' . esc_html( $biz_name ) . '</div>';
+		if ( ! empty( $biz_contact_name ) ) {
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $biz_contact_name ) . '</div>';
+		}
+		if ( ! empty( $biz_extra ) ) {
+			$biz_info_table .= '<div class="zbs-line-info">' . nl2br( esc_html( $biz_extra ) ) . '</div>';
+		}
+		if ( ! empty( $biz_contact_email ) ) {
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $biz_contact_email ) . '</div>';
+		}
+		if ( ! empty( $biz_url ) ) {
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $biz_url ) . '</div>';
+		}
+		if ( ! empty( $biz_tel ) ) {
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $biz_tel ) . '</div>';
+		}
+
+		// add
+		$statement_table .= '<td><div class="zbs-biz-info">' . $biz_info_table . '</div></td>';
 
-                // Biz deets
+		$statement_table .= '</tr>';
 
-                    // get biz deets
-                    $bizInfoTable = '<div class="zbs-line-info zbs-line-info-title">'.$bizName.'</div>';
-                    if (!empty($bizContactName)) $bizInfoTable .= '<div class="zbs-line-info">'.$bizContactName.'</div>';
-                    if (!empty($bizExtra)) $bizInfoTable .= '<div class="zbs-line-info">'.zeroBSCRM_textExpose(nl2br($bizExtra)).'</div>';
-                    if (!empty($bizContactEmail)) $bizInfoTable .= '<div class="zbs-line-info">'.$bizContactEmail.'</div>';
-                    if (!empty($bizURL)) $bizInfoTable .= '<div class="zbs-line-info">'.$bizURL.'</div>';
-                    if (!empty($bizTel)) $bizInfoTable .= '<div class="zbs-line-info">'.$bizTel.'</div>';
-
-                    // add
-                    $statementTable .= '<td><div class="zbs-biz-info">'.$bizInfoTable.'</div></td>';
+		// STATEMENT table
+
+		// start
+		$s_table = '<table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;background-color:#FFF;width:100%">';
+
+		// header
+		$s_table .= '<tr><th cellpadding="0" cellspacing="0" >' . esc_html__( 'Date', 'zero-bs-crm' ) . '</th>';
+		$s_table .= '<th cellpadding="0" cellspacing="0" >' . esc_html( $zbs->settings->get( 'reflabel' ) ) . '</th>';
+		$s_table .= '<th cellpadding="0" cellspacing="0" >' . esc_html__( 'Due date', 'zero-bs-crm' ) . '</th>';
+		$s_table .= '<th class="zbs-accountant-td" style="text-align:right">' . esc_html__( 'Amount', 'zero-bs-crm' ) . '</th>';
+		$s_table .= '<th class="zbs-accountant-td" style="text-align:right">' . esc_html__( 'Payments', 'zero-bs-crm' ) . '</th>';
+		$s_table .= '<th class="zbs-accountant-td" style="text-align:right">' . esc_html__( 'Balance', 'zero-bs-crm' ) . '</th></tr>';
+
+		// should be all of em so can do 'outstanding balance' from this
+		$balance_due = 0.00;
+
+		// rows. (all invs for this contact)
+		if ( is_array( $invoices ) && count( $invoices ) > 0 ) {
+
+			foreach ( $invoices as $invoice ) {
+
+				// number
+				$invoice_reference = $invoice['id'];
+				if ( isset( $invoice['id_override'] ) && ! empty( $invoice['id_override'] ) ) {
+					$invoice_reference = $invoice['id_override'];
+				}
+
+				// date
+				$invoice_date = $invoice['date_date'];
+
+				// due
+				if ( $invoice['due_date'] <= 0 ) {
+
+					//no due date;
+					$due_date_str = __( 'No due date', 'zero-bs-crm' );
 
-            $statementTable .= '</tr>';
+				} else {
 
-        // STATEMENT table
+					$due_date_str = $invoice['due_date_date'];
 
-            // start
-            $sTable = '<table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;background-color:#FFF;width:100%">';
+					// is it due?
+					if ( zeroBSCRM_invoiceBuilder_isInvoiceDue( $invoice ) ) {
+						$due_date_str .= ' [' . esc_html__( 'Due', 'zero-bs-crm' ) . ']';
+					}
+				}
 
-                // header
-                $sTable .= '<tr><th cellpadding="0" cellspacing="0" >'.__('Date','zero-bs-crm').'</th>';
-                $sTable .= '<th cellpadding="0" cellspacing="0" >' . $zbs->settings->get('reflabel') . '</th>';
-                $sTable .= '<th cellpadding="0" cellspacing="0" >'.__('Due date','zero-bs-crm').'</th>';
-                $sTable .= '<th class="zbs-accountant-td" style="text-align:right">'.__('Amount','zero-bs-crm').'</th>';
-                $sTable .= '<th class="zbs-accountant-td" style="text-align:right">'.__('Payments','zero-bs-crm').'</th>';
-                $sTable .= '<th class="zbs-accountant-td" style="text-align:right">'.__('Balance','zero-bs-crm').'</th></tr>';
+				// partials = transactions associated in v3.0 model
+				$partials = $invoice['transactions'];
 
-                // should be all of em so can do 'outstanding balance' from this
-                $balanceDue = 0.00;
+				// ================= / DATA RETRIEVAL ===================================
 
-                // rows. (all invs for this contact)
-                if (is_array($invoices) && count($invoices) > 0){
+				// total etc.
+				$total    = 0.00;
+				$payments = 0.00;
+				$balance  = 0.00;
+				if ( isset( $invoice['total'] ) && $invoice['total'] > 0 ) {
+					$total   = $invoice['total'];
+					$balance = $total;
+				}
 
-                    foreach ($invoices as $invoice){
+				// 2 ways here - if marked 'paid', then assume balance
+				// ... if not, then trans allocation check
+				if ( isset( $invoice['status'] ) && $invoice['status'] === __( 'Paid', 'zero-bs-crm' ) ) {
 
-                            // number
-                            $invoiceReference = $invoice['id'];
-                            if (isset($invoice['id_override']) && !empty($invoice['id_override'])) {
-                                $invoiceReference = $invoice['id_override'];
-                            }
+					// assume fully paid
+					$balance  = 0.00;
+					$payments = $total;
 
-                            // date
-                            $invoiceDate = $invoice['date_date'];
+				} elseif ( is_array( $partials ) ) {
 
-                            // due
-                            if ($invoice['due_date'] <= 0){
-                                
-                                //no due date;
-                                $dueDateStr = __("No due date", "zero-bs-crm");
+					foreach ( $partials as $partial ) {
 
-                            } else {
+						// ignore if status_bool (non-completed status)
+						$partial['status_bool'] = (int) $partial['status_bool'];
+						if ( isset( $partial ) && $partial['status_bool'] == 1 && isset( $partial['total'] ) && $partial['total'] > 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 
-                                $dueDateStr = $invoice['due_date_date'];
+							// v3.0+ has + or - partials. Account for that:
+							if ( $partial['type_accounting'] === 'credit' ) {
 
-                                // is it due?
-                                if (zeroBSCRM_invoiceBuilder_isInvoiceDue($invoice)) $dueDateStr .= ' ['.__('Due','zero-bs-crm').']';
-                            
-                            }
+								// credit note, or refund
+								$balance = $balance + $partial['total'];
+								// add to payments
+								$payments += $partial['total'];
 
-                            // status
-                            if (!isset($invoice['status'])) 
-                                $zbs_stat = __('Draft','zero-bs-crm');
-                            else
-                                $zbs_stat = $invoice['status'];     
+							} else {
 
-                            // inv lines
-                            $invlines = $invoice['lineitems'];
+								// assume debit
+								$balance = $balance - $partial['total'];
 
-                            // is this stored same format?
-                            $zbsInvoiceHorQ = $invoice['hours_or_quantity'];
+								// add to payments
+								$payments += $partial['total'];
+							}
+						}
+					} // /foreach
 
-                            // partials = transactions associated in v3.0 model
-                            $partials = $invoice['transactions'];
+				} // if is array
 
-                            // ================= / DATA RETRIEVAL ===================================
+				// now we add any outstanding bal to the total bal for table
+				if ( $balance > 0 ) {
+					$balance_due += $balance;
+				}
 
+				// output
+				$s_table .= '<tr><td>' . esc_html( $invoice_date ) . '</td>';
+				$s_table .= '<td>' . esc_html( $invoice_reference ) . '</td>';
+				$s_table .= '<td>' . esc_html( $due_date_str ) . '</td>';
+				$s_table .= '<td class="zbs-accountant-td">' . esc_html( zeroBSCRM_formatCurrency( $total ) ) . '</td>';
+				$s_table .= '<td class="zbs-accountant-td">' . esc_html( zeroBSCRM_formatCurrency( $payments ) ) . '</td>';
+				$s_table .= '<td class="zbs-accountant-td">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</td></tr>';
+			}
+		} else {
 
-                        // total etc.
-                        $total = 0.00; $payments = 0.00; $balance = 0.00;
-                        if (isset($invoice['total']) && $invoice['total'] > 0) {
-                            $total = $invoice['total'];
-                            $balance = $total;
-                        }
+			// No invoices?
+			$s_table .= '<tr><td colspan="6" style="text-align:center;font-size:14px;font-weight:bold;padding:2em">' . esc_html__( 'No Activity', 'zero-bs-crm' ) . '</td></tr>';
+		}
 
-                        // 2 ways here - if marked 'paid', then assume balance
-                        // ... if not, then trans allocation check
-                        if (isset($invoice['status']) && $invoice['status'] == __('Paid','zero-bs-crm')) {
+		// footer
+		$s_table .= '<tr class="zbs-statement-footer"><td colspan="6">' . esc_html__( 'BALANCE DUE', 'zero-bs-crm' ) . ' ' . esc_html( zeroBSCRM_formatCurrency( $balance_due ) ) . '</td></tr>';
 
-                            // assume fully paid
-                            $balance = 0.00;
-                            $payments = $total;
+		// close table
+		$s_table .= '</table>';
 
-                        } else {
+		// add
+		$statement_table .= '<tr><td colspan="3">' . $s_table . '</td></tr>';
 
-                            // cycle through partial trans + calc
-                            if (is_array($partials)){
+		// Extra Info
+		$statement_table .= '<tr><td colspan="3" style="text-align:left;padding: 30px;">' . nl2br( esc_html( $statement_extra ) ) . '</td></tr>';
 
-                                foreach ($partials as $partial){ 
+		// close table
+		$statement_table .= '</table>';
 
-                                    // ignore if status_bool (non-completed status)
-                                    $partial['status_bool'] = (int)$partial['status_bool'];
-                                    if (isset($partial) && $partial['status_bool'] == 1 && isset($partial['total']) && $partial['total'] > 0){
+		// load templating
+		$placeholder_templating = $zbs->get_templating();
 
-                                        // v3.0+ has + or - partials. Account for that:
-                                        if ($partial['type_accounting'] == 'credit'){
-                                            
-                                            // credit note, or refund
-                                            $balance = $balance + $partial['total'];
-                                            // add to payments
-                                            $payments += $partial['total'];  
+		// main content build
+		$html = $placeholder_templating->replace_single_placeholder( 'invoice-statement-html', $statement_table, $templated_html );
 
-                                        } else {
+		// return
+		if ( ! $return ) {
 
-                                            // assume debit
-                                            $balance = $balance - $partial['total']; 
+			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			exit();
 
-                                            // add to payments
-                                            $payments += $partial['total'];
-                                        }
-                                
-                                    }
+		}
 
-                                } // /foreach 
+		return $html;
 
-                            } // if is array
+	} // /if anything
 
-                        }
-
-                        // now we add any outstanding bal to the total bal for table
-                        if ($balance > 0) $balanceDue += $balance;
-
-
-                        // output
-                        $sTable .= '<tr><td>'.$invoiceDate.'</td>';
-                        $sTable .= '<td>'.$invoiceReference.'</td>';
-                        $sTable .= '<td>'.$dueDateStr.'</td>';
-                        $sTable .= '<td class="zbs-accountant-td">'.zeroBSCRM_formatCurrency($total).'</td>';
-                        $sTable .= '<td class="zbs-accountant-td">'.zeroBSCRM_formatCurrency($payments).'</td>';
-                        $sTable .= '<td class="zbs-accountant-td">'.zeroBSCRM_formatCurrency($balance).'</td></tr>';
-
-
-                    }
-                
-                } else {
-
-                    // No invoices?           
-                    $sTable .= '<tr><td colspan="6" style="text-align:center;font-size:14px;font-weight:bold;padding:2em">'.__('No Activity','zero-bs-crm').'</td></tr>';
-
-                }
-
-
-                // footer                  
-                $sTable .= '<tr class="zbs-statement-footer"><td colspan="6">'.__('BALANCE DUE','zero-bs-crm').' '.zeroBSCRM_formatCurrency($balanceDue).'</td></tr>';
-
-
-            // close table
-            $sTable .= '</table>';
-
-            // add
-            $statementTable .= '<tr><td colspan="3">'.$sTable.'</td></tr>';
-
-
-        // Extra Info
-        $statementTable .= '<tr><td colspan="3" style="text-align:left;padding: 30px;">'.zeroBSCRM_textExpose(nl2br($statementExtra)).'</td></tr>';
-
-        // close table
-        $statementTable .= '</table>';
-
-        // load templating
-        $placeholder_templating = $zbs->get_templating();
-
-        // main content build
-        $html = $placeholder_templating->replace_single_placeholder( 'invoice-statement-html', $statementTable, $templatedHTML );
-
-        // return
-        if ( !$return ){
-            
-            echo $html; 
-            exit(); 
-            
-        }
-
-        return $html;
-
-    } // /if anything
-
-    return false;
+	return false;
 }
 
 // phpcs:ignore Squiz.Commenting.FunctionComment.MissingParamTag,Generic.Commenting.DocComment.MissingShort
