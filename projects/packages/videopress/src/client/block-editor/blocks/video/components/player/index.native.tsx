@@ -2,6 +2,7 @@
  * WordPress dependencies
  */
 import { SandBox, DEFAULT_SANDBOX_SCRIPTS } from '@wordpress/components';
+import { useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
@@ -10,6 +11,7 @@ import { View, Text } from 'react-native';
 /**
  * Internal dependencies
  */
+import getMediaToken from '../../../../../lib/get-media-token/index.native';
 import style from './style.scss';
 /**
  * Types
@@ -98,18 +100,46 @@ export default function Player( {
 	isRequestingEmbedPreview,
 	isSelected,
 }: NativePlayerProps ) {
+	const sandboxRef = useRef();
+
 	// Set up style for when the player is loading.
 	const loadingStyle: { height?: number } = {};
 	if ( ! html || isRequestingEmbedPreview ) {
 		loadingStyle.height = 250;
 	}
 
+	const onJSPostMessage = useCallback( data => {
+		const { action, guid, requestId } = data;
+		if ( action !== 'videopress_token_request' ) {
+			return;
+		}
+
+		getMediaToken( 'playback', { guid } )
+			.then( tokenData => {
+				sandboxRef.current?.injectJavaScript( `window.postMessage({
+					event: 'videopress_token_received',
+					guid: '${ guid }',
+					token: '${ tokenData.token }',
+					requestId: '${ requestId }',
+				}, '*');` );
+			} )
+			.catch( error => {
+				// eslint-disable-next-line no-console
+				console.error( "Can't obtain the token:", error );
+			} );
+	}, [] );
+
 	return (
 		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
 			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
 
 			{ ! isRequestingEmbedPreview && (
-				<SandBox html={ html } scripts={ [ respondTokenRequestsJS, ...DEFAULT_SANDBOX_SCRIPTS ] } />
+				<SandBox
+					ref={ sandboxRef }
+					html={ html }
+					scripts={ [ respondTokenRequestsJS, ...DEFAULT_SANDBOX_SCRIPTS ] }
+					onPostMessage={ onJSPostMessage }
+				/>
 			) }
 			{ ! html && <Text>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text> }
 		</View>
