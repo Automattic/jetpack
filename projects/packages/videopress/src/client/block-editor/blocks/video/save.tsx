@@ -52,8 +52,6 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 		} ),
 	} );
 
-	const previewAtTimeJSON = previewOnHover ? { previewAtTime, previewLoopDuration } : null;
-
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
 		controls,
@@ -80,7 +78,13 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 			{ videoPressUrl && (
 				<>
 					{ previewOnHover && (
-						<script type="application/json">{ JSON.stringify( previewAtTimeJSON ) }</script>
+						<span
+							style={ { display: 'none', visibility: 'hidden', position: 'absolute' } }
+							className="videopress-poh"
+						>
+							<span className="videopress-poh__sp">{ previewAtTime }</span>
+							<span className="videopress-poh__duration">{ previewLoopDuration }</span>
+						</span>
 					) }
 					<div className="jetpack-videopress-player__wrapper">
 						{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
