@@ -53,10 +53,10 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 	} );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay,
+		autoplay: autoplay || posterData.previewOnHover, // enabled when `previewOnHover` is enabled.
 		controls,
 		loop,
-		muted,
+		muted: muted || posterData.previewOnHover, // enabled when `previewOnHover` is enabled.
 		playsinline,
 		preload,
 		seekbarColor,
