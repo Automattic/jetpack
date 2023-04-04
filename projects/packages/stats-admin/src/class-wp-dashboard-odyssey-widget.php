@@ -26,7 +26,7 @@ class WP_Dashboard_Odyssey_Widget {
 					class="jp-stats-widget-loading-spinner"
 					width="32"
 					height="32"
-					style="position: absolute; left: 50%; top: 50%;"
+					style="position: absolute; left: calc(50% - 28px); top: calc(50% - 36px);"
 					alt=<?php echo esc_attr( __( 'Loading', 'jetpack-stats-admin' ) ); ?>
 					src="//en.wordpress.com/i/loading/loading-64.gif"
 				/>
