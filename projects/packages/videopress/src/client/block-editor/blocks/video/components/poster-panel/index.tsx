@@ -332,6 +332,12 @@ export function VideoHoverPreviewControl( {
 		Math.min( MAX_LOOP_DURATION, videoDuration - previewAtTime )
 	);
 
+	useEffect( () => {
+		if ( loopDuration > maxLoopDuration ) {
+			onLoopDurationChange( maxLoopDuration );
+		}
+	}, [ maxLoopDuration ] );
+
 	const loopDurationHelp = createInterpolateElement(
 		sprintf(
 			/* translators: placeholder is the maximum lapse duration for the previewOnHover */
@@ -373,6 +379,7 @@ export function VideoHoverPreviewControl( {
 
 					<TimestampControl
 						max={ maxLoopDuration }
+						min={ MIN_LOOP_DURATION }
 						fineAdjustment={ 1 }
 						decimalPlaces={ 2 }
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
