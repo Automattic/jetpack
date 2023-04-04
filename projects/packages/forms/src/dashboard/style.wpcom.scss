@@ -1,0 +1,125 @@
+/* Style overrides for WP.com */
+
+body.toplevel_page_jetpack-forms.jetpack-connected {
+	--jp-forms-input-wrapper-height: 48px;
+
+	background-color: #fdfdfd;
+
+	&.wp-core-ui .button {
+		font-size: 14px;
+		padding: 0 calc( var( --jp-forms-spacing-base ) * 2 );
+
+		&.button-primary {
+			background-color: #3057DC;
+			border: 0;
+		}
+	}
+
+	.jp-forms__logo {
+		display: none;
+	}
+
+	.jp-forms__layout-header,
+	.jp-forms__inbox-tabs .components-tab-panel__tabs {
+		background-color: #fff;
+	}
+
+	.jp-forms__layout-title {
+		color: #101517;
+		font-family: 'Recoleta';
+		font-weight: 400;
+		font-size: 20px;
+		line-height: 26px;
+	}
+
+	.jp-forms__inbox-tab-item {
+		color: #50575E;
+		font-size: 14px;
+		margin-right: 16px;
+		padding-left: 0;
+		padding-right: 0;
+
+		&.active-tab {
+			border-color: #101517;
+			color: #101517;
+			font-weight: normal;
+		}
+	}
+
+	.jp-forms__actions-search .input-wrapper {
+		font-size: 14px;
+
+		svg {
+			fill: #8c8f94;
+		}
+	}
+
+	.jp-forms__inbox-actions {
+		--jp-forms-border-color: #c3c4c7;
+
+		background: #fdfdfd;
+		padding-top: 48px;
+
+		.components-button {
+			font-size: 14px;
+			padding: var(--jp-forms-spacing-base ) calc( var( --jp-forms-spacing-base ) * 2 );
+
+			svg {
+				fill: #8c8f94;
+			}
+		}
+	}
+
+	.jp-forms__inbox-list {
+		background-color: #fff;
+	}
+
+	.jp-forms__table-header {
+		background-color: #fdfdfd;
+		color: #50575E;
+		font-weight: 600;
+	}
+
+	.jp-forms__table-item {
+		background-color: #fff;
+		color: #2C3338;
+
+		&.is-active {
+			background-color: #f6f7f7;
+		}
+	}
+
+	.jp-forms__inbox-response{
+		background-color: #fff;
+
+		&::before {
+			background: #3057dc;
+			padding-top: 16px;
+		}
+	}
+
+	.jp-forms__inbox-response-title {
+		color: #000;
+		font-family: 'Recoleta';
+		font-weight: 400;
+		font-size: 32px;
+		line-height: 40px;
+	}
+
+	.jp-forms__inbox-response-subtitle {
+		color: #2C3338;
+	}
+
+	.jp-forms__inbox-response-meta {
+		font-size: 12px;
+		line-height: 20px;
+	}
+
+	.jp-forms__inbox-response-meta-value {
+		font-weight: bold;
+	}
+
+	.jp-forms__inbox-response-data {
+		color: #2c3338;
+	}
+}

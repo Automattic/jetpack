@@ -82,6 +82,21 @@ class Dashboard {
 			'window.jetpackFormsData = ' . wp_json_encode( array( 'apiRoot' => $api_root ) ) . ';',
 			'before'
 		);
+
+		// See pdG1ka-46-p2 for more details.
+		if ( function_exists( 'wpcom_site_has_feature' ) ) {
+			Assets::register_script(
+				'jp-forms-dashboard-wpcom',
+				'../../dist/dashboard/jetpack-forms-dashboard.wpcom.js',
+				__FILE__,
+				array(
+					'in_footer'    => true,
+					'textdomain'   => 'jetpack-forms',
+					'enqueue'      => true,
+					'dependencies' => array( 'jp-forms-dashboard' ),
+				)
+			);
+		}
 	}
 
 	/**
