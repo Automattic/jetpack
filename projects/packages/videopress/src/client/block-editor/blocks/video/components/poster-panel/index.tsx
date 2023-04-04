@@ -37,7 +37,7 @@ import './style.scss';
  * Types
  */
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
-import type { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
+import type { PosterDataProps, PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import type React from 'react';
 
 const MIN_LOOP_DURATION = 3 * 1000;
@@ -430,11 +430,22 @@ export default function PosterPanel( {
 
 	const onPreviewOnHoverChange = useCallback(
 		( shouldPreviewOnHover: boolean ) => {
+			let newPosterData: PosterDataProps = {
+				...attributes.posterData,
+				previewOnHover: shouldPreviewOnHover,
+			};
+
+			// Add default values for the preview options on activation
+			if ( shouldPreviewOnHover ) {
+				newPosterData = {
+					previewAtTime,
+					previewLoopDuration,
+					...newPosterData,
+				};
+			}
+
 			setAttributes( {
-				posterData: {
-					...attributes.posterData,
-					previewOnHover: shouldPreviewOnHover,
-				},
+				posterData: newPosterData,
 			} );
 		},
 		[ attributes ]
