@@ -62,19 +62,9 @@ class Odyssey_Assets {
 
 		wp_add_inline_script(
 			$asset_handle,
-			$this->get_config_data_js( $options['config_variable_name'], $options['config_data'] ),
+			( new Odyssey_Config_Data() )->get_js_config_data( $options['config_variable_name'], $options['config_data'] ),
 			'before'
 		);
-	}
-
-	/**
-	 * Returns the config data for the JS app.
-	 *
-	 * @param string $config_variable_name The config variable name.
-	 * @param array  $config_data The config data.
-	 */
-	protected function get_config_data_js( $config_variable_name, $config_data ) {
-		return "window.{$config_variable_name} = " . wp_json_encode( $config_data ) . ';';
 	}
 
 	/**
