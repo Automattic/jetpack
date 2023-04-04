@@ -23,7 +23,7 @@ import debugFactory from 'debug';
 import { isStandaloneActive, isVideoPressActive } from '../../../lib/connection';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
-import { useSyncMedia } from '../../hooks/use-video-data-update';
+import { useSyncMedia } from '../../hooks/use-sync-media';
 import ConnectBanner from './components/banner/connect-banner';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
