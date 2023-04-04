@@ -61,7 +61,7 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 				'label'           => esc_html__( 'URL or Video ID', 'jetpack-videopress-pkg' ),
 				'type'            => 'text',
 				'option_category' => 'basic_option',
-				'description'     => esc_html__( 'Paste a URL or Video ID', 'jetpack-videopress-pkg' ),
+				'description'     => esc_html__( 'Paste a VideoPress URL or Video ID', 'jetpack-videopress-pkg' ),
 				'toggle_slug'     => 'main_content',
 			),
 		);
