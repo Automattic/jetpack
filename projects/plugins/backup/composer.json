@@ -5,10 +5,10 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-autoloader": "^2.11.18",
-		"automattic/jetpack-backup": "^1.12.9",
+		"automattic/jetpack-backup": "^1.12.10",
 		"automattic/jetpack-composer-plugin": "^1.1.10",
 		"automattic/jetpack-plugins-installer": "^0.2.3",
-		"automattic/jetpack-my-jetpack": "^2.9.1"
+		"automattic/jetpack-my-jetpack": "^2.9.2"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
