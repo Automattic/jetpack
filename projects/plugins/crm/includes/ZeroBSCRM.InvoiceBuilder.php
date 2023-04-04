@@ -999,24 +999,24 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 
 	// == Lineitem table > Line items
 	// generate a templated lineitems
-	$lineItems = zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines, $template ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$line_items = zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines, $template );
 
 	// == Lineitem table > Totals
 	// due to withTotals parameter on get above, we now don't need ot calc anything here, just expose
-	$totalsTable = ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$totals_table = '';
 
-	$totalsTable .= '<table id="invoice_totals" class="table-totals zebra" style="width: 100%;"><tbody>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	if ( $invsettings['invtax'] != 0 || $invsettings['invpandp'] != 0 || $invsettings['invdis'] != 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,Universal.Operators.StrictComparisons.LooseNotEqual
-		$totalsTable .= '<tr class="total-top">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$totalsTable .= '<td  class="bord bord-l" style="text-align:right; width: 80%; text-transform: uppercase;">' . esc_html__( 'Subtotal', 'zero-bs-crm' ) . '</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$totalsTable .= '<td class="bord row-amount" class="bord" style="text-align:right; "><span class="zbs-totals">'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$totals_table .= '<table id="invoice_totals" class="table-totals zebra" style="width: 100%;"><tbody>';
+	if ( $invsettings['invtax'] != 0 || $invsettings['invpandp'] != 0 || $invsettings['invdis'] != 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+		$totals_table .= '<tr class="total-top">';
+		$totals_table .= '<td  class="bord bord-l" style="text-align:right; width: 80%; text-transform: uppercase;">' . esc_html__( 'Subtotal', 'zero-bs-crm' ) . '</td>';
+		$totals_table .= '<td class="bord row-amount" class="bord" style="text-align:right; "><span class="zbs-totals">';
 		if ( isset( $invoice['net'] ) && ! empty( $invoice['net'] ) ) {
-			$totalsTable .= esc_html( zeroBSCRM_formatCurrency( $invoice['net'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['net'] ) );
 		} else {
-			$totalsTable .= esc_html( zeroBSCRM_formatCurrency( 0 ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 		}
-		$totalsTable .= '</span></td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$totalsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$totals_table .= '</span></td>';
+		$totals_table .= '</tr>';
 	}
 
 	// discount
@@ -1027,31 +1027,29 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 			if ( $invoice['discount_type'] == '%' && $invoice['discount'] != 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,Universal.Operators.StrictComparisons.LooseNotEqual
 				$invoice_percent = (float) $invoice['discount'] . '% ';
 			}
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			$totalsTable .= '<tr class="discount">
+			$totals_table .= '<tr class="discount">
 				<td class="bord bord-l" style="text-align:right; text-transform: uppercase;">' . esc_html( $invoice_percent . __( 'Discount', 'zero-bs-crm' ) ) . '</td>
 				<td class="bord row-amount" id="zbs_discount_combi" style="text-align:right"><span class="zbs-totals">';
 
-			$totalsTable .= '-' . esc_html( zeroBSCRM_formatCurrency( $invoice['totals']['discount'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$totals_table .= '-' . esc_html( zeroBSCRM_formatCurrency( $invoice['totals']['discount'] ) );
 
-			$totalsTable .= '</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			$totalsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$totals_table .= '</td>';
+			$totals_table .= '</tr>';
 		}
 	}
 
 	// shipping
 	if ( $invsettings['invpandp'] == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
-		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$totalsTable .= '<tr class="postage_and_pack">
+		$totals_table .= '<tr class="postage_and_pack">
 			<td class="bord bord-l" style="text-align:right; text-transform: uppercase;">' . esc_html__( 'Postage and packaging', 'zero-bs-crm' ) . '</td>
 			<td class="bord row-amount" id="pandptotal" style="text-align:right;"><span class="zbs-totals">';
 		if ( isset( $invoice['shipping'] ) && ! empty( $invoice['shipping'] ) ) {
-			$totalsTable .= esc_html( zeroBSCRM_formatCurrency( $invoice['shipping'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['shipping'] ) );
 		} else {
-			$totalsTable .= esc_html( zeroBSCRM_formatCurrency( 0 ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 		}
-		$totalsTable .= '</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		$totalsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$totals_table .= '</td>';
+		$totals_table .= '</tr>';
 	}
 
 	// tax
@@ -1072,48 +1070,45 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 					$tax_name = $tax['name'];
 				}
 
-				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				$totalsTable .= '<tr class="ttclass">
+				$totals_table .= '<tr class="ttclass">
 					<td class="bord bord-l" style="text-align:right">' . esc_html( $tax_name ) . '</td>
 					<td class="bord bord-l row-amount zbs-tax-total-span" style="text-align:right"><span class="zbs-totals">';
 				if ( isset( $tax['value'] ) && ! empty( $tax['value'] ) ) {
-					$totalsTable .= esc_html( zeroBSCRM_formatCurrency( $tax['value'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$totals_table .= esc_html( zeroBSCRM_formatCurrency( $tax['value'] ) );
 				} else {
-					$totalsTable .= esc_html( zeroBSCRM_formatCurrency( 0 ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 				}
-				$totalsTable .= '</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-				$totalsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$totals_table .= '</td>';
+				$totals_table .= '</tr>';
 			}
 		} else {
 
 			// simple fallback
-			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			$totalsTable .= '<tr class="ttclass">
+			$totals_table .= '<tr class="ttclass">
 				<td class="bord bord-l" style="text-align:right">' . esc_html__( 'Tax', 'zero-bs-crm' ) . '</td>
 				<td class="bord bord-l row-amount zbs-tax-total-span" style="text-align:right"><span class="zbs-totals">';
 			if ( isset( $invoice['tax'] ) && ! empty( $invoice['tax'] ) ) {
-				$totalsTable .= esc_html( zeroBSCRM_formatCurrency( $invoice['tax'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['tax'] ) );
 			} else {
-				$totalsTable .= esc_html( zeroBSCRM_formatCurrency( 0 ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 			}
-			$totalsTable .= '</td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			$totalsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$totals_table .= '</td>';
+			$totals_table .= '</tr>';
 		}
 	}
 
-	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	$totalsTable .= '<tr class="zbs_grand_total" style="line-height:30px;">
+	$totals_table .= '<tr class="zbs_grand_total" style="line-height:30px;">
 		<td class="bord-l"  style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-total">' . __( 'Total', 'zero-bs-crm' ) . '</span></td>
 		<td class="row-amount" style="text-align:right; font-weight:bold; border: 3px double #111!important; "><span class="zbs-total">';
 	if ( isset( $invoice['total'] ) && ! empty( $invoice['total'] ) ) {
-		$totalsTable .= esc_html( zeroBSCRM_formatCurrency( $invoice['total'] ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['total'] ) );
 	} else {
-		$totalsTable .= esc_html( zeroBSCRM_formatCurrency( 0 ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
 	}
-	$totalsTable .= '</span></td>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-	$totalsTable .= '</tr>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$totals_table .= '</span></td>';
+	$totals_table .= '</tr>';
 
-	$totalsTable .= '</table>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$totals_table .= '</table>';
 
 	// == Partials (Transactions against Invs)
 	$partials_table = '';
@@ -1222,8 +1217,8 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		'invoice-customer-info'       => $invoice_customer_info_table_html,
 		'invoice-html-status'         => $top_status,
 		'invoice-table-headers'       => $table_headers,
-		'invoice-line-items'          => $lineItems, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		'invoice-totals-table'        => $totalsTable, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-line-items'          => $line_items,
+		'invoice-totals-table'        => $totals_table,
 		'invoice-partials-table'      => $partials_table,
 		'invoice-pay-button'          => $potential_pay_button,
 		'pre-invoice-payment-details' => '',
