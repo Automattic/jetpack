@@ -432,42 +432,36 @@ function zeroBSCRM_invoicing_generateStatementPDF( $contactID = -1, $returnPDF =
     ZBS Invoicing - STATEMENT HTML GENERATOR
    ====================================================== */
 
-#} Generates the HTML of an invoice based on the template in templates/invoices/statement-pdf.html
-#} if $return, it'll return, otherwise it'll echo + exit
-function zeroBSCRM_invoicing_generateStatementHTML($contactID=-1,$return=true){
+// phpcs:ignore Squiz.Commenting.FunctionComment.MissingParamTag
+/**
+ * Generates the HTML of an invoice based on the template in templates/invoices/statement-pdf.html
+ * if $return, it'll return, otherwise it'll echo + exit
+ **/
+function zeroBSCRM_invoicing_generateStatementHTML( $contact_id = -1, $return = true ) {
 
-    global $zbs;
+	if ( ! empty( $contact_id ) && $contact_id > 0 ) {
 
-    if (!empty($contactID) && $contactID > 0){
+		// Discern template and retrieve
+		$global_statement_pdf_template = zeroBSCRM_getSetting( 'statement_pdf_template' );
+		if ( ! empty( $global_statement_pdf_template ) ) {
+			$templated_html = jpcrm_retrieve_template( $global_statement_pdf_template, false );
+		}
 
-        // Discern template and retrieve    
-        $global_statement_pdf_template = zeroBSCRM_getSetting( 'statement_pdf_template' );
-        if ( !empty( $global_statement_pdf_template ) ){
-            $templatedHTML = jpcrm_retrieve_template( $global_statement_pdf_template, false );
-        }
+		// fallback to default template
+		if ( ! isset( $templated_html ) || empty( $templated_html ) ) {
+			// template failed as setting potentially holds out of date (removed) template
+			// so use the default
+			$templated_html = jpcrm_retrieve_template( 'invoices/statement-pdf.html', false );
+		}
 
-        // fallback to default template
-        if ( !isset( $templatedHTML ) || empty( $templatedHTML ) ){
+		// Act
+		if ( ! empty( $templated_html ) ) {
+			return zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id, $return, $templated_html );
+		}
+	}
 
-            // template failed as setting potentially holds out of date (removed) template
-            // so use the default
-            $templatedHTML = jpcrm_retrieve_template( 'invoices/statement-pdf.html', false );
-
-        }
-
-        #} Act
-        if (!empty($templatedHTML)){
-
-            global $zbs;
-
-            return zeroBSCRM_invoicing_generateStatementHTML_v3($contactID,$return,$templatedHTML);
-
-        }
-
-    } 
-
-    #} Empty inv id
-    return false;
+	// Empty inv id
+	return false;
 }
 
 // 3.0+ (could now run off contact or company, but that's not written in yet)
