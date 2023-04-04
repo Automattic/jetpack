@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Fix an issue where Subscribe block on homepage would return as paid if the first blog post was a paid blog (because it is looping)
