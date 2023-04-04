@@ -11,40 +11,38 @@ import { createBlock } from '@wordpress/blocks';
 import { PanelBody } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * External dependencies
  */
-import React from 'react';
 import { View } from 'react-native';
 /**
  * Internal dependencies
  */
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
-import isLocalFile from '../../utils/is-local-file.native';
+import isLocalFile from '../../utils/is-local-file';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
 import PlaybackPanel from './components/playback-panel';
 import Player from './components/player';
 import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
-import ReplaceControl from './components/replace-control/index.native';
-import VideoPressUploader from './components/videopress-uploader/index.native';
+import ReplaceControl from './components/replace-control';
+import VideoPressUploader from './components/videopress-uploader';
 import style from './style.scss';
-import type { VideoBlockAttributes } from './types';
 
 /**
  * VideoPress block Edit react components
  *
- * @param {object} props                 - Component props.
- * @param {object} props.attributes      - Block attributes.
- * @param {object} props.clientId        - Block client Id.
+ * @param {object} props - Component props.
+ * @param {object} props.attributes - Block attributes.
+ * @param {object} props.clientId - Block client Id.
  * @param {Function} props.setAttributes - Function to set block attributes.
- * @param {boolean} props.isSelected	 - Whether block is selected.
- * @param {Function} props.onFocus       - Callback to notify when block should gain focus.
+ * @param {boolean} props.isSelected - Whether block is selected.
+ * @param {Function} props.onFocus - Callback to notify when block should gain focus.
  * @param {Function} props.insertBlocksAfter - Function to insert a new block after the current block.
- * @returns {React.ReactNode}            - React component.
+ * @returns {import('react').ReactNode} - React component.
  */
 export default function VideoPressEdit( {
 	attributes,
@@ -53,7 +51,7 @@ export default function VideoPressEdit( {
 	isSelected,
 	onFocus,
 	insertBlocksAfter,
-} ): React.ReactNode {
+} ) {
 	const {
 		controls,
 		guid,
@@ -69,10 +67,7 @@ export default function VideoPressEdit( {
 
 	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
 	const [ fileToUpload, setFileToUpload ] = useState( null );
-	const [ isReplacingFile, setIsReplacingFile ] = useState< {
-		isReplacing: boolean;
-		prevAttrs: VideoBlockAttributes;
-	} >( {
+	const [ isReplacingFile, setIsReplacingFile ] = useState( {
 		isReplacing: false,
 		prevAttrs: {},
 	} );
