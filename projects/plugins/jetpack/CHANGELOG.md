@@ -2,6 +2,25 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.1-a.1 - 2023-04-04
+### Enhancements
+- Admin menu: use the latest version of the Jetpack logo. [#29418]
+- Display the correct gated text for newsletters when Stripe is disconnected [#29880]
+- Display the correct newsletter locked content text for paid newsletters [#29860]
+
+### Bug fixes
+- Dashboard: improve upgrade description for users with Akismet already installed and active [#29827]
+- Fix an issue where Subscribe block on homepage would return as paid if the first blog post was a paid blog (because it is looping) [#29860]
+- Fix fatal error with Token_Subscription_Service [#29885]
+- Properly gate the Newsletter feature based on newsletter configuration on the site [#29860]
+- Return fresh HTML when the users revists after accepting cookies [#29831]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Page: simplify Akismet logic to fix display issue. [#29866]
+- Akismet: use product interstitial for upgrades [#29598]
+- Stats: remove deprecated Stats functions. [#29780]
+- Updated package dependencies. [#29565, #29854, #29856, #29857]
+
 ## [12.0] - 2023-04-04
 ### Enhancements
 - Forms: display carriage returns in user response text to properly display multiline text. [#29698]
@@ -7959,8 +7978,8 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 
 - Initial release
 
-[12.0]: https://wp.me/p1moTy-RGw
 [11.6]: https://wp.me/p1moTy-PLI
+[12.0]: https://wp.me/p1moTy-RGw
 [11.9]: https://wp.me/p1moTy-RdX
 [11.8]: https://wp.me/p1moTy-QEM
 [11.7]: https://wp.me/p1moTy-Q9t
