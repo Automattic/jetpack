@@ -1,9 +1,16 @@
 /* Style overrides for WP.com */
 
-body.toplevel_page_jetpack-forms.jetpack-connected {
+body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 	--jp-forms-input-wrapper-height: 48px;
 
 	background-color: #fdfdfd;
+
+	#screen-meta-links {
+		background-color: #fff;
+		display: flex;
+		justify-content: flex-end;
+		width: 100%;
+	}
 
 	&.wp-core-ui .button {
 		font-size: 14px;
