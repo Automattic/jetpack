@@ -52,12 +52,7 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 		} ),
 	} );
 
-	if ( previewOnHover && [ previewAtTime, previewLoopDuration ].every( value => value != null ) ) {
-		blockProps[ 'data-preview-on-hover' ] = JSON.stringify( {
-			previewAtTime,
-			previewLoopDuration,
-		} );
-	}
+	const previewAtTimeJSON = previewOnHover ? { previewAtTime, previewLoopDuration } : null;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay,
@@ -83,9 +78,14 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 	return (
 		<figure { ...blockProps } style={ style }>
 			{ videoPressUrl && (
-				<div className="jetpack-videopress-player__wrapper">
-					{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
-				</div>
+				<>
+					{ previewOnHover && (
+						<script type="application/json">{ JSON.stringify( previewAtTimeJSON ) }</script>
+					) }
+					<div className="jetpack-videopress-player__wrapper">
+						{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
+					</div>
+				</>
 			) }
 
 			{ ! RichText.isEmpty( caption ) && (
