@@ -91,19 +91,16 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.8.0 - 2023-03-07
+### 1.9.0 - 2023-04-04
 #### Added
-- Add Social Image Generator editor panel to post sidebar
-- Add Social Image Generator feature flag to Jetpack Social
+- (Backup, Boost, Search, Social) Add links on upgrade pages to activate a license key, if you already have one.
+- Added option for CUT component to have a tooltip.
+- Added SIG image to the post media array if it's enabled.
+- Added toggle to Social admin page to enable or disable Social Image Generator as well as an option to pick a default template.
 
 #### Changed
-- Changed remaining shares phrasing
-- Remove `ci.targets` from package.json. Better scoping of e2e tests.
-- Update billing language
-- Updated package dependencies.
-- Update to React 18.
-
-#### Fixed
-- Revise Jetpack connection agreement text to comply with our User Agreement
-- Use External Link icons for external links
+- General: indicate full compatibility with the latest version of WordPress, 6.2.
+- Jetpack Social: Enable Social Image Generator by default when it's available.
+- Refactored the ToggleSection component to decouple it from other logic.
+- Updated package dependencies. [#29216, #29289, #29297, #29434, #29471, #29480]
 
