@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats Admin: moved Odyssey assets loading to separate class
