@@ -1,7 +1,7 @@
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { updateResponseStatus } from '../data/responses';
+import { doBulkAction } from '../data/responses';
 import { STORE_NAME } from '../state';
 import { ACTIONS, TABS } from './constants';
 
@@ -12,7 +12,7 @@ const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } )
 	const onActionHandler = action => async () => {
 		try {
 			setLoading( true );
-			await updateResponseStatus( selectedResponses, action );
+			await doBulkAction( selectedResponses, action );
 			fetchResponses( query );
 			setSelectedResponses( [] );
 		} catch {

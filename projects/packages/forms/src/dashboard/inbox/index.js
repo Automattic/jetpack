@@ -11,6 +11,7 @@ import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
 import { STORE_NAME } from '../state';
 import BulkActionsMenu from './bulk-actions-menu';
+import ExportModal from './export-modal';
 import InboxList from './list';
 import InboxResponse from './response';
 import './style.scss';
@@ -37,8 +38,8 @@ const TABS = [
 
 const Inbox = () => {
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
+	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ view, setView ] = useState( 'list' );
-	const [ selectedResponses, setSelectedResponses ] = useState( [] );
 
 	const {
 		fetchResponses,
@@ -47,15 +48,26 @@ const Inbox = () => {
 		setSearchQuery,
 		setSourceQuery,
 		setStatusQuery,
+		selectResponses,
 	} = useDispatch( STORE_NAME );
-	const [ currentPage, monthFilter, sourceFilter, loading, responses, query, total ] = useSelect(
+	const [
+		currentPage,
+		monthFilter,
+		sourceFilter,
+		loading,
+		query,
+		responses,
+		selectedResponses,
+		total,
+	] = useSelect(
 		select => [
 			select( STORE_NAME ).getCurrentPage(),
 			select( STORE_NAME ).getMonthFilter(),
 			select( STORE_NAME ).getSourceFilter(),
 			select( STORE_NAME ).isFetchingResponses(),
-			select( STORE_NAME ).getResponses(),
 			select( STORE_NAME ).getResponsesQuery(),
+			select( STORE_NAME ).getResponses(),
+			select( STORE_NAME ).getSelectedResponseIds(),
 			select( STORE_NAME ).getTotalResponses(),
 		],
 		[]
@@ -86,6 +98,11 @@ const Inbox = () => {
 		event.preventDefault();
 		setView( 'list' );
 	}, [] );
+
+	const toggleExportModal = useCallback(
+		() => setShowExportModal( ! showExportModal ),
+		[ showExportModal, setShowExportModal ]
+	);
 
 	const monthList = useMemo( () => {
 		const list = map( monthFilter, item => {
@@ -174,9 +191,13 @@ const Inbox = () => {
 								<BulkActionsMenu
 									currentView={ query.status }
 									selectedResponses={ selectedResponses }
-									setSelectedResponses={ setSelectedResponses }
+									setSelectedResponses={ selectResponses }
 								/>
 							) }
+
+							<button className="button button-primary export-button" onClick={ toggleExportModal }>
+								{ __( 'Export', 'jetpack-forms' ) }
+							</button>
 						</div>
 						<div className="jp-forms__inbox-content">
 							<div className="jp-forms__inbox-content-column">
@@ -189,7 +210,7 @@ const Inbox = () => {
 									selectedResponses={ selectedResponses }
 									setCurrentPage={ setCurrentPage }
 									setCurrentResponseId={ selectResponse }
-									setSelectedResponses={ setSelectedResponses }
+									setSelectedResponses={ selectResponses }
 								/>
 							</div>
 
@@ -203,6 +224,8 @@ const Inbox = () => {
 					</>
 				) }
 			</TabPanel>
+
+			<ExportModal isVisible={ showExportModal } onClose={ toggleExportModal } />
 		</Layout>
 	);
 };
