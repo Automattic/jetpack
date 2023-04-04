@@ -187,12 +187,12 @@ export default function VideoPressEdit( {
 	const accessibilityLabelCreator = useCallback( caption => {
 		if ( caption ) {
 			return sprintf(
-				/* translators: accessibility text. %s: Video caption. */
+				/* translators: accessibility text. %s: video caption. */
 				__( 'Video caption. %s', 'jetpack-videopress-pkg' ),
 				caption
 			);
 		}
-		/* translators: accessibility text. Empty Video caption. */
+		/* translators: accessibility text. Empty video caption. */
 		return __( 'Video caption. Empty', 'jetpack-videopress-pkg' );
 	}, [] );
 
