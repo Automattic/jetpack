@@ -897,7 +897,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	}
 
 	// is this stored same format?
-	$zbsInvoiceHorQ = $invoice['hours_or_quantity']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$zbs_invoice_hours_or_quantity = $invoice['hours_or_quantity'];
 
 	// partials = transactions associated in v3.0 model
 	$partials = $invoice['transactions'];
@@ -995,7 +995,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 
 	// == Lineitem table > Column headers
 	// generate a templated customer info table
-	$tableHeaders = zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbsInvoiceHorQ, $template ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$table_headers = zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbs_invoice_hours_or_quantity, $template );
 
 	// == Lineitem table > Line items
 	// generate a templated lineitems
@@ -1221,7 +1221,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 		'invoice-biz-class'           => $biz_info_class,
 		'invoice-customer-info'       => $invoice_customer_info_table_html,
 		'invoice-html-status'         => $top_status,
-		'invoice-table-headers'       => $tableHeaders, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'invoice-table-headers'       => $table_headers,
 		'invoice-line-items'          => $lineItems, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-totals-table'        => $totalsTable, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		'invoice-partials-table'      => $partials_table,
