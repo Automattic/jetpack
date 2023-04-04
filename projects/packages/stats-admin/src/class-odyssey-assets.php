@@ -62,7 +62,7 @@ class Odyssey_Assets {
 
 		wp_add_inline_script(
 			$asset_handle,
-			$this->get_config_data_js( $options['config_data'], $options['config_variable_name'] ),
+			$this->get_config_data_js( $options['config_variable_name'], $options['config_data'] ),
 			'before'
 		);
 	}
