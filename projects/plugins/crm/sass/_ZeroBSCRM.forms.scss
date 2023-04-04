@@ -181,3 +181,45 @@ tr.zbs-field-group-tr label.zbs-field-group-label {
   display: inline-block;
   text-align: center;
 }
+
+.jpcrm-form-grid {
+	display: grid;
+	gap: 1rem;
+	padding: 1rem;
+	overflow: auto;
+}
+
+.jpcrm-form-label {
+	display: block;
+}
+
+.jpcrm-form-input, .jpcrm-form-select {
+	width: 100%;
+	max-width: unset !important;
+}
+
+.jpcrm-form-input-group {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+@media (min-width: 768px) {
+	.jpcrm-form-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.jpcrm-form-group-span-2 {
+		grid-column: span 2;
+	}
+}
+
+@media (max-width: 767px) {
+	.jpcrm-form-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.jpcrm-empty-form-group {
+		display: none;
+	}
+}
