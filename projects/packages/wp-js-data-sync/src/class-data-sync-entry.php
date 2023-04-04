@@ -48,9 +48,9 @@ class Data_Sync_Entry {
 		return $this->get();
 	}
 
-	public function merge( $value ) {
+	public function merge( $partial_value ) {
 		if ( $this->can( 'merge' ) ) {
-			$updated_value = $this->entry->merge( $value );
+			$updated_value = $this->entry->merge( $this->entry->get(), $partial_value );
 			$this->set( $updated_value );
 		}
 		return $this->get();
