@@ -67,6 +67,9 @@ class Category extends \WP_REST_Terms_Controller {
 
 		$response = parent::create_item( $request );
 
+		// Ensure that the HTTP status is a valid one.
+		$response = $this->ensure_http_status( $response, 'term_exists', 409 );
+
 		return $this->add_import_id_metadata( $request, $response );
 	}
 }
