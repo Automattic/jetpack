@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.1] - 2023-04-03
+### Fixed
+- Return early if we detect the older BFP implementation from the main plugin [#29794]
+
 ## [0.11.0] - 2023-03-28
 ### Added
 - Added brute force protection to the WAF configuration REST API endpoints [#28401]
@@ -177,6 +181,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.11.1]: https://github.com/Automattic/jetpack-waf/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/Automattic/jetpack-waf/compare/v0.10.2...v0.11.0
 [0.10.2]: https://github.com/Automattic/jetpack-waf/compare/v0.10.1...v0.10.2
 [0.10.1]: https://github.com/Automattic/jetpack-waf/compare/v0.10.0...v0.10.1
