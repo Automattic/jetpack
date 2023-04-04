@@ -745,16 +745,19 @@ function zeroBSCRM_invoicing_generateStatementHTML_v3($contactID=-1,$return=true
     return false;
 }
 
-
-// Generate an invoice as html (where the actual holder-html is passed)
-// ... this is a refactor of what was being replicated 3 places 
-// ... 1) Invoice PDF Gen (zeroBSCRM_invoice_generateInvoiceHTML)
-// ... 2) Invoice Portal Gen (zeroBSCRM_invoice_generatePortalInvoiceHTML)
-// ... 3) Invoice email notification Gen (zeroBSCRM_invoice_generateNotificationHTML in mail-templating.php)
-// ... now the generic element of the above are all wired through here :) 
-// Note:
-// $template is crucial. pdf | portal | notification *currently v3.0
-function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$html=''){
+// phpcs:ignore Squiz.Commenting.FunctionComment.MissingParamTag,Generic.Commenting.DocComment.MissingShort
+/**
+ *
+ * Generate an invoice as html (where the actual holder-html is passed)
+ * ... this is a refactor of what was being replicated 3 places
+ * ... 1) Invoice PDF Gen (zeroBSCRM_invoice_generateInvoiceHTML)
+ * ... 2) Invoice Portal Gen (zeroBSCRM_invoice_generatePortalInvoiceHTML)
+ * ... 3) Invoice email notification Gen (zeroBSCRM_invoice_generateNotificationHTML in mail-templating.php)
+ * ... now the generic element of the above are all wired through here :)
+ * Note:
+ * $template is crucial. pdf | portal | notification *currently v3.0
+ **/
+function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 'pdf', $html = '' ) {
 
 	global $zbs;
 
@@ -762,7 +765,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	$placeholder_templating = $zbs->get_templating();
 
 	// need this.
-	if ( $invoiceID <= 0 || $html == '' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,Universal.Operators.StrictComparisons.LooseEqual
+	if ( $invoice_id <= 0 || $html == '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 		return '';
 	}
 
@@ -772,7 +775,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	// ================== DATA RETRIEVAL ===================================
 
 	$invoice = $zbs->DAL->invoices->getInvoice( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$invoiceID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$invoice_id,
 		array(
 
 			// we want all this:
@@ -1168,7 +1171,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 	$partials_table .= '</table>';
 
 	// generate a templated paybutton (depends on template :))
-	$potential_pay_button = zeroBSCRM_invoicing_generateInvPart_payButton( $invoiceID, $zbs_stat, $template ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$potential_pay_button = zeroBSCRM_invoicing_generateInvPart_payButton( $invoice_id, $zbs_stat, $template );
 
 	// == Payment terms, thanks etc. will only replace when present in template, so safe to generically check
 	$pay_thanks = '';
@@ -1194,7 +1197,7 @@ function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$
 
 	// got portal?
 	if ( zeroBSCRM_isExtensionInstalled( 'portal' ) ) {
-		$view_in_portal_link   = zeroBSCRM_portal_linkObj( $invoiceID, ZBS_TYPE_INVOICE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$view_in_portal_link   = zeroBSCRM_portal_linkObj( $invoice_id, ZBS_TYPE_INVOICE );
 		$view_in_portal_button = '<div style="text-align:center;margin:1em;margin-top:2em">' . zeroBSCRM_mailTemplate_emailSafeButton( $view_in_portal_link, esc_html__( 'View Invoice', 'zero-bs-crm' ) ) . '</div>';
 	}
 
