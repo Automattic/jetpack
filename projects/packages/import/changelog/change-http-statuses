@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Align all HTTP codes to a standard 409.

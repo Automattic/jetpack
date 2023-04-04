@@ -217,7 +217,7 @@ class Waf_Compatibility {
 	/**
 	 * Check if the brute force protection code is being run by an older version of Jetpack (< 12.0).
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.1
 	 *
 	 * @return bool
 	 */

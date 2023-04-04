@@ -13,7 +13,13 @@ import {
 	Spinner,
 	Notice,
 } from '@wordpress/components';
-import { useRef, useEffect, useState, useCallback } from '@wordpress/element';
+import {
+	useRef,
+	useEffect,
+	useState,
+	useCallback,
+	createInterpolateElement,
+} from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { linkOff, image as imageIcon } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -34,6 +40,7 @@ import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../
 import type { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import type React from 'react';
 
+const MIN_LOOP_DURATION = 3 * 1000;
 const MAX_LOOP_DURATION = 30 * 1000;
 const DEFAULT_LOOP_DURATION = 10 * 1000;
 
@@ -309,7 +316,7 @@ type VideoHoverPreviewControlProps = {
  * @param {VideoHoverPreviewControlProps} props - Component properties
  * @returns { React.ReactElement}                 React component
  */
-function VideoHoverPreviewControl( {
+export function VideoHoverPreviewControl( {
 	previewOnHover = false,
 	previewAtTime = 0,
 	loopDuration = DEFAULT_LOOP_DURATION,
@@ -318,8 +325,24 @@ function VideoHoverPreviewControl( {
 	onPreviewAtTimeChange,
 	onLoopDurationChange,
 }: VideoHoverPreviewControlProps ): React.ReactElement {
-	const maxLoopDuration = Math.min( MAX_LOOP_DURATION, videoDuration );
-	const maxStartingPoint = videoDuration - loopDuration;
+	const maxStartingPoint = videoDuration - MIN_LOOP_DURATION;
+
+	const [ maxLoopDuration, setMaxLoopDuration ] = useState(
+		Math.min( MAX_LOOP_DURATION, videoDuration - previewAtTime )
+	);
+
+	const loopDurationHelp = createInterpolateElement(
+		sprintf(
+			/* translators: placeholder is the maximum lapse duration for the previewOnHover */
+			__( 'Minimum value: <em>3s</em>. Maximum value: <em>%s</em>s.', 'jetpack-videopress-pkg' ),
+			( ( maxLoopDuration / 10 ) | 0 ) / 100
+		),
+		{
+			em: <em />,
+		}
+	);
+
+	const noLoopDurationRange = maxLoopDuration <= MIN_LOOP_DURATION;
 
 	return (
 		<>
@@ -338,8 +361,9 @@ function VideoHoverPreviewControl( {
 						fineAdjustment={ 1 }
 						decimalPlaces={ 2 }
 						value={ previewAtTime }
-						onDebounceChange={ atTime => {
-							onPreviewAtTimeChange( Math.max( Math.min( maxStartingPoint, atTime ), 0 ) );
+						onDebounceChange={ timestamp => {
+							onPreviewAtTimeChange( timestamp );
+							setMaxLoopDuration( Math.min( MAX_LOOP_DURATION, videoDuration - timestamp ) );
 						} }
 						wait={ 100 }
 					/>
@@ -350,10 +374,10 @@ function VideoHoverPreviewControl( {
 						decimalPlaces={ 2 }
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
 						value={ loopDuration }
-						onDebounceChange={ duration => {
-							onLoopDurationChange( Math.max( Math.min( MAX_LOOP_DURATION, duration ), 0 ) );
-						} }
+						onDebounceChange={ onLoopDurationChange }
 						wait={ 100 }
+						help={ loopDurationHelp }
+						disabled={ noLoopDurationRange }
 					/>
 				</>
 			) }
