@@ -88,7 +88,7 @@ class Odyssey_Assets {
 
 		$build_meta = json_decode( wp_remote_retrieve_body( $response ), true );
 		if ( ! empty( $build_meta['cache_buster'] ) ) {
-			// Cache the cache buster for a day.
+			// Cache the cache buster for 15 mins.
 			set_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY, $build_meta['cache_buster'], 15 * MINUTE_IN_SECONDS );
 			return $build_meta['cache_buster'];
 		}
