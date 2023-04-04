@@ -680,26 +680,6 @@ if ( ! $confirmAct ) {
 
 	</form>
 
-
-	<table class="table table-bordered table-striped wtab" style="margin-top:40px;">
-
-		<thead>
-		<tr>
-			<th class="wmid"><?php esc_html_e( 'Jetpack CRM Plugin: Extra Tools', 'zero-bs-crm' ); ?></th>
-		</tr>
-		</thead>
-
-		<tbody>
-		<tr>
-			<td>
-				<p style="padding: 10px;text-align:center;">
-					<button type="button" class="ui primary button" onclick="javascript:window.location='?page=<?php echo esc_attr( $zbs->slugs['settings'] ); ?>&resetsettings=1';"><?php esc_html_e( 'Restore default settings', 'zero-bs-crm' ); ?></button>
-				</p>
-			</td>
-		</tr>
-		</tbody>
-	</table>
-
 	<script type="text/javascript">
 
 		jQuery(function(){
