@@ -68,7 +68,7 @@ export class SyncedStore< T > {
 
 	/**
 	 * A callback that will synchronize the store in some way.
-	 * By default, this is set to endpoint.POST in the client initializer
+	 * By default, this is set to endpoint.SET in the client initializer
 	 */
 	private setCallback( callback: SyncedStoreCallback< T > ) {
 		this.updateCallback = callback;

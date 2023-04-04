@@ -121,7 +121,7 @@ export function initializeClient( namespace: string ) {
 		 * ```js
 		 *	const client = initializeClient( 'jetpack_favorites' );
 		 *	client.setCallback( 'status', ( value ) => {
-		 *		client.endpoint.status.POST( value.replace("a", "b") );
+		 *		client.status.endpoint.SET( value.replace("a", "b") );
 		 *	} );
 		 */
 		endpoint.nonce = nonce;
@@ -130,7 +130,7 @@ export function initializeClient( namespace: string ) {
 		// Only expose selected public methods:
 		const store = syncedStore.getPublicInterface();
 
-		store.setCallback( endpoint.POST );
+		store.setCallback( endpoint.SET );
 
 		const client = {
 			endpoint,

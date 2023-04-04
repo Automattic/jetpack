@@ -21,12 +21,19 @@ export class API_Endpoint< T extends RequestParams > {
 		this.endpoint = this.name.replaceAll( '_', '-' );
 	}
 
-	public async validatedRequest(
+	private async validatedRequest(
 		method: RequestMethods = 'GET',
-		params?: T,
+		path = '',
+		params?: T | Partial< T >,
 		abortSignal?: AbortSignal
 	): Promise< T > {
-		const data = await this.api.request( this.endpoint, method, this.nonce, params, abortSignal );
+		const data = await this.api.request(
+			this.endpoint + path,
+			method,
+			this.nonce,
+			params,
+			abortSignal
+		);
 		const parsed = this.schema.parse( data );
 		return parsed;
 	}
@@ -40,14 +47,18 @@ export class API_Endpoint< T extends RequestParams > {
 	 * without losing the `this` context.
 	 */
 	public GET = async ( abortSignal?: AbortSignal ): Promise< T > => {
-		return await this.validatedRequest( 'GET', undefined, abortSignal );
+		return await this.validatedRequest( 'GET', '', undefined, abortSignal );
 	};
 
-	public POST = async ( params: T, abortSignal?: AbortSignal ): Promise< T > => {
-		return await this.validatedRequest( 'POST', params, abortSignal );
+	public SET = async ( params: T, abortSignal?: AbortSignal ): Promise< T > => {
+		return await this.validatedRequest( 'POST', '/set', params, abortSignal );
+	};
+
+	public MERGE = async ( params: Partial< T >, abortSignal?: AbortSignal ): Promise< T > => {
+		return await this.validatedRequest( 'POST', '/merge', params, abortSignal );
 	};
 
 	public DELETE = async ( abortSignal?: AbortSignal ) => {
-		return await this.validatedRequest( 'DELETE', undefined, abortSignal );
+		return await this.validatedRequest( 'POST', 'delete', undefined, abortSignal );
 	};
 }

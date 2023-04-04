@@ -37,11 +37,11 @@ export class API {
 	 * ```
 	 * This would make a request to: http://localhost/wp-json/jetpack-favorites/posts
 	 */
-	public async request(
+	public async request< T >(
 		partialPathname: string,
 		method: RequestMethods = 'GET',
 		endpointNonce: string,
-		params?: RequestParams,
+		params?: RequestParams< T >,
 		abortSignal?: AbortSignal
 	) {
 		if ( ! this.isInitialized() ) {
