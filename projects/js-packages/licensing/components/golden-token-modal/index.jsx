@@ -188,7 +188,7 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 								variant="primary"
 								weight="regular"
 								onClick={ redeemClickHandler }
-								href={ window?.myJetpackInitialState?.myJetpackUrl }
+								href={ '/wp-admin/admin.php?page=jetpack#/recommendations/welcome-golden-token' }
 								className={ styles.button }
 							>
 								{ __( 'Explore your new powers', 'jetpack' ) }
