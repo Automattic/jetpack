@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "45b1709af1d0c1a383c01d0338759465",
+    "content-hash": "3d48e1c04801cfd350bb9d9ac1de409e",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -2090,20 +2090,20 @@
         },
         {
             "name": "automattic/jetpack-waf",
-            "version": "v0.11.0",
+            "version": "v0.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-waf.git",
-                "reference": "33e93681df7e429fad8dc27d523f8b8ad13fb697"
+                "reference": "60142dd51f1bd2592ae2fefb3477f5c63a6a0501"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-waf/zipball/33e93681df7e429fad8dc27d523f8b8ad13fb697",
-                "reference": "33e93681df7e429fad8dc27d523f8b8ad13fb697",
+                "url": "https://api.github.com/repos/Automattic/jetpack-waf/zipball/60142dd51f1bd2592ae2fefb3477f5c63a6a0501",
+                "reference": "60142dd51f1bd2592ae2fefb3477f5c63a6a0501",
                 "shasum": ""
             },
             "require": {
-                "automattic/jetpack-connection": "^1.51.3",
+                "automattic/jetpack-connection": "^1.51.5",
                 "automattic/jetpack-constants": "^1.6.21",
                 "automattic/jetpack-ip": "^0.1.1",
                 "automattic/jetpack-status": "^1.16.3",
@@ -2140,9 +2140,9 @@
             ],
             "description": "Tools to assist with the Jetpack Web Application Firewall",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-waf/tree/v0.11.0"
+                "source": "https://github.com/Automattic/jetpack-waf/tree/v0.11.1"
             },
-            "time": "2023-03-28T18:48:25+00:00"
+            "time": "2023-04-04T17:22:27+00:00"
         },
         {
             "name": "automattic/jetpack-wordads",
