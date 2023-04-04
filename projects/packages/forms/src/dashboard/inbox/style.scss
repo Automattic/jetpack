@@ -382,6 +382,13 @@ $action-bar-height: 72px;
 			}
 		}
 	}
+
+	.button-primary.export-button {
+		background-color: #000;
+		border-color: #000;
+		color: #fff;
+		margin-left: auto;
+	}
 }
 
 
