@@ -32,15 +32,21 @@ function previewOnHoverEffect(): void {
 
 		// Get the data container element.
 		const dataContainer = videoPlayerElement.querySelector( 'span.videopress-poh' );
+		if ( ! dataContainer ) {
+			return;
+		}
 
 		/*
 		 * Try to pick the POH data from the data container element.
 		 * If it fails, log the error and return.
 		 */
 		const previewOnHoverData = {
-			previewAtTime: dataContainer.querySelector( 'span.videopress-poh__sp' )?.textContent,
-			previewLoopDuration: dataContainer.querySelector( 'span.videopress-poh__duration' )
-				?.textContent,
+			previewAtTime: Number(
+				dataContainer.querySelector( 'span.videopress-poh__sp' )?.textContent
+			),
+			previewLoopDuration: Number(
+				dataContainer.querySelector( 'span.videopress-poh__duration' )?.textContent
+			),
 		};
 
 		// Clean the data container element. It isn't needed anymore.
