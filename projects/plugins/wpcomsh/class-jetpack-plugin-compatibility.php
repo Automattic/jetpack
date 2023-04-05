@@ -78,6 +78,7 @@ class Jetpack_Plugin_Compatibility {
 		'sg-cachepress/sg-cachepress.php'                  => '"sg-cachepress" has been deactivated, WordPress.com automatically handles caching for your site.',
 		'wp-optimizer/wp-optizer.php'                      => '"wp-optimizer" has been deactivated, "performance" related plugins may break your site or cause issues and are not supported on WordPress.com.', // p9F6qB-66o-p2
 		'redis-cache/redis-cache.php'                      => '"redis-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'performance-lab/load.php'                         => '"performance-lab" has been deactivated, WordPress.com automatically handles caching and database optimization for your site.',
 
 		// SQL heavy.
 		'another-wordpress-classifieds-plugin/awpcp.php'   => '"another-wordpress-classifieds-plugin" has been deactivated, it is known to cause severe database performance issues and is not supported.',
