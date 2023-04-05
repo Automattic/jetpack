@@ -60,6 +60,14 @@ disabled.args = {
 	disabled: true,
 };
 
+export const withMarks = Template.bind( {} );
+withMarks.args = {
+	value: 3500, // 3.5 seconds
+	max: 1000 * 5, // five seconds
+	decimalPlaces: 2,
+	marksEvery: 1000,
+};
+
 const ChangingValueTemplate: ComponentStory< typeof TimestampControl > = args => {
 	const [ value, setValue ] = useState( args.value );
 
