@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: set video player position according to "starting point" and "duration"
