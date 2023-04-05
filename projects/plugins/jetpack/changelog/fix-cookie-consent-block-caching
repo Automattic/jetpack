@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Return fresh HTML when the users revists after accepting cookies
