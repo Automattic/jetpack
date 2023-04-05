@@ -31,6 +31,11 @@ $highlight-color: #3858e9;
 	flex-direction: column;
 	height: 100%;
 
+	.components-tab-panel__tabs-item:focus-visible:before {
+		box-shadow: none;
+		outline: none;
+	}
+
 	.components-tab-panel__tabs {
 		display: flex;
 		flex-direction: row;
@@ -91,10 +96,6 @@ $highlight-color: #3858e9;
 
 			.components-button {
 				font-size: 13px;
-
-				> svg {
-					margin-right: 8px;
-				}
 			}
 		}
 
