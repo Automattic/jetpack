@@ -63,23 +63,41 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-class Data_Sync {
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+
+final class Data_Sync {
 
 	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
 	 * @var Registry
 	 */
-	protected $registry;
+	private $registry;
 
 	/**
 	 * @var string Script Handle name to pass the variables to.
 	 */
-	protected $script_handle;
+	private $script_handle;
 
-	public function __construct( $script_handle, Registry $registry ) {
-		$this->script_handle = $script_handle;
-		$this->registry      = $registry;
+	/**
+	 * The Registry class is a singleton.
+	 *
+	 * @var Data_Sync[]
+	 */
+	private static $instance = array();
+
+	public function __construct( $namespace ) {
+		$this->namespace = $namespace;
+		$this->registry  = new Registry( $namespace );
+	}
+
+	public static function get_instance( $namespace ) {
+		if ( ! isset( self::$instance[ $namespace ] ) ) {
+			self::$instance[ $namespace ] = new self( $namespace );
+		}
+
+		return self::$instance[ $namespace ];
 	}
 
 	/**
@@ -96,35 +114,20 @@ class Data_Sync {
 				'nonce' => wp_create_nonce( 'wp_rest' ),
 			),
 		);
-		foreach ( $this->registry->all() as $entry ) {
-			$key          = $entry->key();
+		foreach ( $this->registry->all() as $key => $entry ) {
 			$data[ $key ] = array(
 				'value' => $entry->get(),
 				'nonce' => $this->registry->get_endpoint( $key )->create_nonce(),
 			);
 		}
 
-		wp_localize_script( $this->script_handle, $this->registry->get_namespace(), $data );
-	}
-
-	/**
-	 * Tell WordPress to print script tags in the specified plugin page
-	 *
-	 * @param string $plugin_page The slug name of the plugin page.
-	 * @param string $parent_page The slug name for the parent menu (or the file name of a standard
-	 *                            WordPress admin page).
-	 *
-	 * @return void
-	 */
-	public function add_to_plugin_page( $plugin_page, $parent_page ) {
-		$plugin_page_hook = get_plugin_page_hook( $plugin_page, $parent_page );
-		add_action( $plugin_page_hook, array( $this, '_print_options_script_tag' ) );
+		wp_localize_script( $this->script_handle, $this->namespace, $data );
 	}
 
 	/**
 	 * Create a new instance of the Data_Sync class.
 	 *
-	 * @param $registry_name string - Each registry should have a unique name, typically plugin name, like `jetpack_boost`
+	 * @param $namespace     string - Each registry should have a unique name, typically plugin name, like `jetpack_boost`
 	 * @param $script_handle string - The script handle name to pass the variables to, typically the same as the plugin name,
 	 *                       but with a dash instead of underscore, like `jetpack-boost`
 	 * @param $plugin_page   string   - The slug name of the plugin page. If null, it will be assumed to be the same as the
@@ -134,27 +137,31 @@ class Data_Sync {
 	 *
 	 * @return Data_Sync - A new instance of the Data_Sync class.
 	 */
-	public static function setup( $registry_name, $script_handle, $plugin_page = null, $parent_page = 'admin' ) {
+	public function attach_to_plugin( $script_handle, $plugin_page_hook ) {
+		$this->script_handle = $script_handle;
+		add_action( $plugin_page_hook, array( $this, '_print_options_script_tag' ) );
+	}
 
-		$registry = Registry::get_instance( $registry_name );
+	public function get_registry() {
+		return $this->registry;
+	}
 
-		/**
-		 * The plugin page slug can be anything, but makes setup easier to read by making assumptions.
-		 * This assumes that the plugin page string is going to match the registry namespace,
-		 * formatted as a http parameter. (kebab case)
-		 *
-		 * Example:
-		 * Registry with namespace:  `jetpack_boost` should be
-		 * automatically attached to `admin.php?page=jetpack-boost`
-		 */
-		if ( $plugin_page === null ) {
-			$plugin_page = $registry->get_namespace_http();
+	/**
+	 * Register a new entry.
+	 * If the entry is not an instance of Entry_Can_Get, a new Data_Sync_Option will be created.
+	 *
+	 * @param $key    string - The key to register the entry under.
+	 * @param $schema Schema - The schema to use for the entry.
+	 * @param $entry  Entry_Can_Get - The entry to register. If null, a new Data_Sync_Option will be created.
+	 *
+	 * @return void
+	 */
+	public function register( $key, $schema, $entry = null ) {
+		if ( ! $entry instanceof Entry_Can_Get ) {
+			$option_key = $this->namespace . '_' . $key;
+			$entry      = new Data_Sync_Option( $option_key );
 		}
-
-		$instance = new self( $script_handle, $registry );
-		$instance->add_to_plugin_page( $plugin_page, $parent_page );
-
-		return $instance;
+		$this->registry->register( $key, new Data_Sync_Entry( $entry, $schema ) );
 	}
 
 }
