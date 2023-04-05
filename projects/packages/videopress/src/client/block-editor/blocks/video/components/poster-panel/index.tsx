@@ -37,7 +37,7 @@ import './style.scss';
  * Types
  */
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
-import type { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
+import type { PosterDataProps, PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import type React from 'react';
 
 const MIN_LOOP_DURATION = 3 * 1000;
@@ -365,7 +365,14 @@ export function VideoHoverPreviewControl( {
 						value={ previewAtTime }
 						onDebounceChange={ timestamp => {
 							onPreviewAtTimeChange( timestamp );
-							setMaxLoopDuration( Math.min( MAX_LOOP_DURATION, videoDuration - timestamp ) );
+
+							const max = Math.min( MAX_LOOP_DURATION, videoDuration - timestamp );
+							setMaxLoopDuration( max );
+
+							// Adjust loop duration if it's needed
+							if ( loopDuration > max ) {
+								onLoopDurationChange( max );
+							}
 						} }
 						wait={ 100 }
 						disabled={ disabled }
@@ -373,6 +380,7 @@ export function VideoHoverPreviewControl( {
 
 					<TimestampControl
 						max={ maxLoopDuration }
+						min={ MIN_LOOP_DURATION }
 						fineAdjustment={ 1 }
 						decimalPlaces={ 2 }
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
@@ -430,11 +438,22 @@ export default function PosterPanel( {
 
 	const onPreviewOnHoverChange = useCallback(
 		( shouldPreviewOnHover: boolean ) => {
+			let newPosterData: PosterDataProps = {
+				...attributes.posterData,
+				previewOnHover: shouldPreviewOnHover,
+			};
+
+			// Add default values for the preview options on activation
+			if ( shouldPreviewOnHover ) {
+				newPosterData = {
+					previewAtTime,
+					previewLoopDuration,
+					...newPosterData,
+				};
+			}
+
 			setAttributes( {
-				posterData: {
-					...attributes.posterData,
-					previewOnHover: shouldPreviewOnHover,
-				},
+				posterData: newPosterData,
 			} );
 		},
 		[ attributes ]
