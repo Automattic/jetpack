@@ -1,6 +1,5 @@
 <?php
 
-use Automattic\Jetpack\VideoPress\Data;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Option;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
@@ -74,7 +73,6 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$parsed = $true->parse( 1 );
 		$this->assertSame( true, $parsed );
 
-
 		// Values shouldn't fallback if they're falsy
 		$parsed = $true->parse( false );
 		$this->assertSame( false, $parsed );
@@ -135,7 +133,6 @@ class Test_Integration_Fallback_Values extends TestCase {
 		// because the fallback is not set.
 		$entry->delete();
 		$this->assertSame( false, $entry->get() );
-
 	}
 
 	public function test_nested_fallbacks() {
@@ -147,10 +144,10 @@ class Test_Integration_Fallback_Values extends TestCase {
 		);
 
 		$schema = Schema::as_assoc_array(
-			[
+			array(
 				'one'          => Schema::as_number()->fallback( 1 ),
 				'array_of_two' => Schema::as_array( Schema::as_number() )->fallback( array( 2 ) ),
-			]
+			)
 		);
 
 		$valid_array = array(
@@ -181,7 +178,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		try {
 			$schema->parse( null );
 			// If the exception is not thrown, fail the test
-			$this->fail('Expected \Error exception was not thrown');
+			$this->fail( 'Expected \Error exception was not thrown' );
 		} catch ( \Error $e ) {
 			// If the exception is thrown, assert that it's the expected exception
 			$this->assertInstanceOf( \Error::class, $e );
@@ -214,6 +211,5 @@ class Test_Integration_Fallback_Values extends TestCase {
 
 		$incorrect_schema = Schema::as_string()->fallback( $schema_fallback );
 		$this->assertSame( $schema_fallback, $incorrect_schema->parse( null ) );
-
 	}
 }

@@ -64,6 +64,7 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 
 final class Data_Sync {
 
@@ -145,6 +146,16 @@ final class Data_Sync {
 		return $this->registry;
 	}
 
+	/**
+	 * Register a new entry.
+	 * If the entry is not an instance of Entry_Can_Get, a new Data_Sync_Option will be created.
+	 *
+	 * @param $key    string - The key to register the entry under.
+	 * @param $schema Schema - The schema to use for the entry.
+	 * @param $entry  Entry_Can_Get - The entry to register. If null, a new Data_Sync_Option will be created.
+	 *
+	 * @return void
+	 */
 	public function register( $key, $schema, $entry = null ) {
 		if ( ! $entry instanceof Entry_Can_Get ) {
 			$option_key = $this->namespace . '_' . $key;
