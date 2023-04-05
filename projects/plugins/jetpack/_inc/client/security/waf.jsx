@@ -394,7 +394,7 @@ export const Waf = class extends Component {
 
 		const upgradeBanner = (
 			<JetpackBanner
-				callToAction={ __( 'Upgrade', 'jetpack' ) }
+				callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 				title={
 					<>
 						{ ! this.props.settings?.automaticRulesAvailable

@@ -802,7 +802,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 				?>
 					<?php ##/WLREMOVE ?>
 					
-					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['feedback'] ) ); ?>"><i class="idea icon" aria-hidden="true"></i> <?php esc_html_e( 'Give Feedback', 'zero-bs-crm' ); ?></a>
+					<a class="item" href="<?php echo esc_url( $zbs->urls['rateuswporg'] ); ?>"><i class="star icon" aria-hidden="true"></i> <?php esc_html_e( 'Leave a review', 'zero-bs-crm' ); ?></a>
 					
 					<?php
 					// welcome tour and crm resources page for admins :)

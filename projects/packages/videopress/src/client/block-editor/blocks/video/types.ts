@@ -1,5 +1,36 @@
 import { trackKindOptionProps } from '../../../lib/video-tracks/types';
 
+type playerStatuses = 'ready' | 'playing' | 'paused' | 'ended' | 'stalled';
+declare global {
+	interface Window {
+		VideoPressIframeApi: (
+			iframe: HTMLIFrameElement,
+			callback: () => void
+		) => {
+			info: {
+				guid: () => Promise< string >;
+				title: () => Promise< string >;
+				duration: () => Promise< number >;
+				poster: () => Promise< string >;
+				privacy: () => Promise< number >;
+				onInfoUpdated: ( fn: () => void ) => void;
+			};
+			status: {
+				onPlayerStatusChanged: (
+					fn: ( oldStatus: playerStatuses, newStatus: playerStatuses ) => void
+				) => void;
+				onPlaybackTimeUpdated: ( fn: ( playbackTime: number ) => void ) => void;
+				onTimeUpdate: ( fn: ( playbackTime: number ) => void ) => void;
+			};
+			controls: {
+				play: () => void;
+				pause: () => void;
+				seek: ( time: number ) => void;
+			};
+		};
+	}
+}
+
 export type VideoId = number;
 export type VideoGUID = string;
 
@@ -66,8 +97,19 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 
 	isPrivate?: boolean;
 
+	duration?: number;
+
 	// CSS classes
 	className?: string;
+
+	isExample?: boolean;
+};
+
+export type VideoBlockEditProps = {
+	attributes: VideoBlockAttributes;
+	setAttributes: VideoBlockSetAttributesProps;
+	isSelected: boolean;
+	clientId: string;
 };
 
 export type CoreEmbedBlockAttributes = {
@@ -100,7 +142,7 @@ export type VideoControlProps = {
 };
 
 export type PosterPanelProps = VideoControlProps & {
-	isGeneratingPoster: boolean;
+	isGeneratingPoster?: boolean;
 };
 
 export type VideoEditProps = VideoControlProps;

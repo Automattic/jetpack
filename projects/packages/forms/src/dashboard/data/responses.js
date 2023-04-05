@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { pick } from 'lodash';
+import { isNil, omitBy, pick } from 'lodash';
 
 /**
  * Fetches responses from backend (API)
@@ -13,8 +13,26 @@ import { pick } from 'lodash';
  */
 export const fetchResponses = query => {
 	const queryString = new URLSearchParams(
-		pick( query, [ 'limit', 'offset', 'search', 'status' ] )
+		pick( omitBy( query, isNil ), [ 'limit', 'offset', 'search', 'status', 'parent_id', 'month' ] )
 	).toString();
 
 	return apiFetch( { path: `/wpcom/v2/forms/responses?${ queryString }` } );
+};
+
+/**
+ * Performs a bulk action on responses.
+ *
+ * @param {Array} responseIds - The list of responses to be updated.
+ * @param {string} action  - The action to be executed.
+ * @returns {Promise} Request promise.
+ */
+export const doBulkAction = ( responseIds, action ) => {
+	return apiFetch( {
+		path: `/wpcom/v2/forms/responses/bulk_actions`,
+		method: 'POST',
+		data: {
+			action,
+			post_ids: responseIds,
+		},
+	} );
 };

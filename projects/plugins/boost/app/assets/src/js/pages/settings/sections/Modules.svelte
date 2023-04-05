@@ -216,6 +216,13 @@
 		</svelte:fragment>
 	</Module>
 
+	<Module slug="image-cdn">
+		<h3 slot="title">{__( 'Image CDN', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
+		<p slot="description">
+			{__( `Delivers images from Jetpack's image CDN.`, 'jetpack-boost' )}
+		</p>
+	</Module>
+
 	<SuperCacheInfo />
 </div>
 

@@ -1,46 +1,46 @@
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import classnames from 'classnames';
 import { difference, includes, kebabCase, map, without } from 'lodash';
 import TableItem from './item';
 
 import './style.scss';
 
-const Table = ( { className, columns, defaultSelected, items, onSelectionChange } ) => {
-	const [ selected, setSelected ] = useState( defaultSelected || [] );
-
+const Table = ( { className, columns, items, selectedResponses = [], setSelectedResponses } ) => {
 	const toggleSelected = useCallback(
 		id => {
-			const newState = includes( selected, id ) ? without( selected, id ) : [ ...selected, id ];
+			const newState = includes( selectedResponses, id )
+				? without( selectedResponses, id )
+				: [ ...selectedResponses, id ];
 
-			setSelected( newState );
-			onSelectionChange( newState );
+			setSelectedResponses( newState );
 		},
-		[ selected, onSelectionChange ]
+		[ selectedResponses, setSelectedResponses ]
 	);
 	const selectAll = useCallback( () => {
-		if ( difference( map( items, 'id' ), selected ).length === 0 ) {
-			setSelected( [] );
+		if ( difference( map( items, 'id' ), selectedResponses ).length === 0 ) {
+			setSelectedResponses( [] );
 			return;
 		}
 
-		setSelected( map( items, 'id' ) );
-	}, [ items, selected ] );
+		const newState = map( items, 'id' );
+		setSelectedResponses( newState );
+	}, [ items, selectedResponses, setSelectedResponses ] );
 
 	const classes = classnames( 'jp-forms__table', className );
 	const checkboxClasses = classnames( 'jp-forms__table-checkbox', {
-		'is-intermediate': selected.length !== 0 && selected.length !== items.length,
+		'is-intermediate': selectedResponses.length !== 0 && selectedResponses.length !== items.length,
 	} );
 
 	return (
 		<div className={ classes }>
 			<div className="jp-forms__table-header">
-				{ !! onSelectionChange && (
+				{ !! setSelectedResponses && (
 					<div className="jp-forms__table-cell is-select">
 						<input
 							className={ checkboxClasses }
 							onChange={ selectAll }
 							type="checkbox"
-							checked={ difference( map( items, 'id' ), selected ).length === 0 }
+							checked={ difference( map( items, 'id' ), selectedResponses ).length === 0 }
 						/>
 					</div>
 				) }
@@ -61,8 +61,8 @@ const Table = ( { className, columns, defaultSelected, items, onSelectionChange 
 					key={ `table-row-${ item.id }` }
 					columns={ columns }
 					item={ item }
-					isSelected={ includes( selected, item.id ) }
-					onSelectChange={ onSelectionChange && toggleSelected }
+					isSelected={ includes( selectedResponses, item.id ) }
+					onSelectChange={ setSelectedResponses && toggleSelected }
 				/>
 			) ) }
 		</div>
