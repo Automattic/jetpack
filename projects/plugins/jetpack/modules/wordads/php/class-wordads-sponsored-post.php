@@ -44,11 +44,7 @@ class WordAds_Sponsored_Post {
 			false
 		);
 
-		$js_settings = array(
-			'url' => esc_url_raw( 'https://public-api.wordpress.com/wpcom/v2/sponsored/post/' ),
-		);
-
-		wp_localize_script( 'wordads_sponsored', 'wa_sponsored_post', $js_settings );
+		wp_localize_script( 'wordads_sponsored', 'wa_sponsored_post', array() );
 	}
 
 	/**
