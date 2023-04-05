@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Add empty native version of `PosterPanel` component.
