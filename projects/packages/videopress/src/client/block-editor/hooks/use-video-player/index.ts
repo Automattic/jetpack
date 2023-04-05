@@ -167,6 +167,23 @@ const useVideoPlayer = (
 		};
 	}, [ isPreviewOnHoverEnabled, wrapperElement, playerIsReady ] );
 
+	// Move the video to the "Starting point" when it changes.
+	useEffect( () => {
+		if ( ! playerIsReady || ! previewOnHover ) {
+			return;
+		}
+
+		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
+		if ( ! sandboxIFrameWindow ) {
+			return;
+		}
+
+		sandboxIFrameWindow.postMessage(
+			{ event: 'videopress_action_set_currenttime', currentTime: previewOnHover.atTime / 1000 },
+			{ targetOrigin: '*' }
+		);
+	}, [ previewOnHover, playerIsReady ] );
+
 	return {
 		playerIsReady,
 		play,
