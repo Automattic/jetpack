@@ -537,7 +537,7 @@ function generateInvoiceStatusHtml( res ) {
 	for ( const statusItem of allStatuses ) {
 		html += '<option value=' + statusItem[0];
 		if ( currentStatus === statusItem[0] ) {
-			html += ' selected="selected"';
+			html += ' selected';
 		}
 		html += '>' + zbscrm_JS_invoice_lang( statusItem[1] ) + '</option>';
 	}
