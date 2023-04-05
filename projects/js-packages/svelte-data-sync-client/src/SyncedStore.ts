@@ -1,4 +1,3 @@
-import deepEqual from 'deep-equal';
 import { Writable, writable } from 'svelte/store';
 import { ApiError } from './ApiError';
 import {
@@ -84,12 +83,7 @@ export class SyncedStore< T > {
 		}
 
 		try {
-			const result = await this.syncAction( prevValue, value, this.abortController.signal );
-
-			// Success is only when the updateCallback result matches the value.
-			if ( this.equals( result, value ) ) {
-				return result ? result : value;
-			}
+			return await this.syncAction( prevValue, value, this.abortController.signal );
 		} catch ( error ) {
 			if ( error instanceof ApiError || error.name === 'ApiError' ) {
 				return error as ApiError;
@@ -98,8 +92,6 @@ export class SyncedStore< T > {
 			// Rethrow the error if it's not an ApiError.
 			throw error;
 		}
-
-		return new ApiError( 'SyncedStore::synchronize', 'failed_to_sync', 'Failed to sync' );
 	}
 
 	/**
@@ -158,14 +150,6 @@ export class SyncedStore< T > {
 			stop: () => set( false ),
 			start: () => set( true ),
 		};
-	}
-
-	private equals( a: unknown, b: unknown ) {
-		if ( typeof a === 'object' && typeof b === 'object' ) {
-			return deepEqual( a, b );
-		}
-
-		return a === b;
 	}
 
 	/**

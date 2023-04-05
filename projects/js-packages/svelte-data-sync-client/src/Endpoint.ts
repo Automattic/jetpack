@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { API, RequestMethods, RequestParams } from './API';
+import { ApiError } from './ApiError';
 
 /**
  * Every SyncedStore option has its own API Endpoint.
@@ -34,8 +35,16 @@ export class API_Endpoint< T extends RequestParams > {
 			params,
 			abortSignal
 		);
-		const parsed = this.schema.parse( data );
-		return parsed;
+		try {
+			const parsed = this.schema.parse( data );
+			return parsed;
+		} catch ( error ) {
+			const url = `${ this.endpoint }/${ path }`;
+			// Log Zod validation errors to the console.
+			// eslint-disable-next-line no-console
+			console.error( error );
+			throw new ApiError( url, 'schema_error', 'Schema validation failed' );
+		}
 	}
 
 	/**
