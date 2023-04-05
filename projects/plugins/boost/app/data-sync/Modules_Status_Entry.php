@@ -51,12 +51,7 @@ class Modules_Status_Entry implements Entry_Can_Get, Entry_Can_Merge {
 		 *
 		 * So, we are stripping the availability property from the value before saving it.
 		 */
-		$value = array_map(
-			function ( $module ) {
-				return $module['active'];
-			},
-			$value
-		);
+		$value = wp_list_pluck( $value, 'active' );
 
 		update_option( $this->option_key, $value );
 	}

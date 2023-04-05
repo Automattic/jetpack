@@ -14,7 +14,9 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blo
 
 class Modules_Index {
 	/**
-	 * @var Module[] - Associative array of all Jetpack Boost modules currently available.
+	 * @var Module[] - Associative array of all Jetpack Boost modules.
+	 *
+	 * Example: [ 'critical_css' => Module, 'lazy_images' => Module ]
 	 */
 	protected $modules = array();
 
