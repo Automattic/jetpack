@@ -27,10 +27,10 @@
 	border-bottom: 1px solid #dcdcde;
 	box-sizing: border-box;
 	display: table-cell;
-	font-size: 16px;
-	height: 64px;
+	font-size: var(--jp-forms-font-size-regular);;
+	height: 52px;
 	margin: 0;
-	padding: 16px;
+	padding: 0 16px;
 	position: relative;
 	text-align: left;
 	transition: background-color .1s ease-out, opacity .1s ease-out;
@@ -71,7 +71,7 @@ input[type="checkbox"].jp-forms__table-checkbox {
 	box-shadow: none;
 	box-sizing: border-box;
 	cursor: pointer;
-	font-size: 16px;
+	font-size: var(--jp-forms-font-size-regular);;
 	line-height: 20px;
 	margin: 0;
 	outline: 0;
@@ -85,7 +85,7 @@ input[type="checkbox"].jp-forms__table-checkbox {
 		color: #000;
 		content: '\00a0';
 		display: inline-block;
-		font-size: 16px;
+		font-size: var(--jp-forms-font-size-regular);;
 		font-weight: bold;
 		height: 20px;
 		line-height: 20px;
