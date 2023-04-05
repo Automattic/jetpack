@@ -107,7 +107,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 		);
 
 		// Make sure the script loads asynchronously (add a defer attribute).
-		Assets::add_async_script( 'jetpack-stats' );
+		Assets::instance()->add_async_script( 'jetpack-stats' );
 
 		$data = self::build_view_data();
 
