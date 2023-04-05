@@ -108,8 +108,8 @@ class SearchResults extends Component {
 				);
 			}
 			return sprintf(
-				/* translators: %1$s: number of results */
-				_n( 'Found %1$s result', 'Found %1$s results', total, 'jetpack-search-pkg' ),
+				/* translators: %s: number of results. */
+				_n( 'Found %s result', 'Found %s results', total, 'jetpack-search-pkg' ),
 				num
 			);
 		}

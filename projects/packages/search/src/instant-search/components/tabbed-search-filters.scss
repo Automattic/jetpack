@@ -8,17 +8,15 @@
 		margin: 0;
 	}
 
-	.jetpack-instant-search__search-filter-list-input {
-		display: none;
-	}
-
 	.jetpack-instant-search__search-filter-list-label {
 		padding: 10px 20px;
 		margin: 0;
 	}
 
-	.jetpack-instant-search__search-filter-group-item {
-		&:has( :checked ) {
+	.jetpack-instant-search__search-filter-list-input {
+		display: none;
+
+		&:checked + .jetpack-instant-search__search-filter-list-label {
 			border-bottom: 3px solid var( --color-primary );
 		}
 	}
