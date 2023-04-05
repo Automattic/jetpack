@@ -67,7 +67,7 @@ class Tracking_Pixel {
 	/**
 	 * Build the Stats tracking details.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.6.0
 	 *
 	 * @access private
 	 * @param array $data Array of data for the AMP pixel tracker.
@@ -107,7 +107,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 		);
 
 		// Make sure the script loads asynchronously (add a defer attribute).
-		Assets::add_async_script( 'jetpack-stats' );
+		Assets::instance()->add_async_script( 'jetpack-stats' );
 
 		$data = self::build_view_data();
 
@@ -177,38 +177,38 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 	/**
 	 * Stats Footer.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.6.0
 	 *
 	 * @access public
 	 * @return void
 	 */
 	public static function add_to_footer() {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '0.6.0' );
 	}
 
 	/**
 	 * Gets the footer to add for the Stats tracker.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.6.0
 	 *
 	 * @access public
 	 * @param array $data Array of data for the JS stats tracker.
 	 * @return void
 	 */
 	public static function get_footer_to_add( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '0.6.0' );
 	}
 
 	/**
 	 * Render the stats footer. Kept for backward compatibility on legacy AMF views.
 	 *
-	 * @deprecated $$next-version$$
+	 * @deprecated 0.6.0
 	 *
 	 * @access public
 	 * @param array $data Array of data for the JS stats tracker.
 	 */
 	public static function render_footer( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '0.6.0' );
 	}
 
 	/**

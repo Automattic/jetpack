@@ -58,9 +58,18 @@ type TimeDataProps = {
  *
  * @param {number} value                    - The value to be converted.
  * @param {DecimalPlacesProp} decimalPlaces - The number of decimal places to be used.
+ * @param {number} max                      - The maximum value.
  * @returns {TimeDataProps}                   The time data.
  */
-function getTimeDataByValue( value: number, decimalPlaces: DecimalPlacesProp ): TimeDataProps {
+function getTimeDataByValue(
+	value: number,
+	decimalPlaces: DecimalPlacesProp,
+	max: number
+): TimeDataProps {
+	if ( value > max ) {
+		value = max;
+	}
+
 	const valueIsNaN = Number.isNaN( value );
 
 	// Compute decimal part based on the decimalPlaces.
@@ -86,7 +95,7 @@ export const TimestampInput = ( {
 	decimalPlaces,
 }: TimestampInputProps ): React.ReactElement => {
 	const time = {
-		value: getTimeDataByValue( value, decimalPlaces ),
+		value: getTimeDataByValue( value, decimalPlaces, max ),
 	};
 
 	// Check whether it should add hours input.
@@ -113,7 +122,7 @@ export const TimestampInput = ( {
 		}
 
 		// Update time object data.
-		time.value = { ...getTimeDataByValue( value, decimalPlaces ), [ unit ]: newValue };
+		time.value = { ...getTimeDataByValue( value, decimalPlaces, max ), [ unit ]: newValue };
 
 		// Call onChange callback.
 		const decimalValue = time.value.decimal
@@ -227,7 +236,8 @@ export const TimestampInput = ( {
 export const TimestampControl = ( props: TimestampControlProps ): React.ReactElement => {
 	const {
 		disabled = false,
-		max,
+		min = 0,
+		max = Number.MAX_SAFE_INTEGER,
 		value,
 		onChange,
 		onDebounceChange,
@@ -251,11 +261,19 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 		( newValue: number ) => {
 			clearTimeout( debounceTimer?.current );
 
+			if ( newValue > max ) {
+				newValue = max;
+			}
+
+			if ( newValue < min ) {
+				newValue = min;
+			}
+
 			setControledValue( newValue );
 			onChange?.( newValue );
 			debounceTimer.current = setTimeout( onDebounceChange?.bind( null, newValue ), wait );
 		},
-		[ onChange ]
+		[ onDebounceChange, onChange, max, min, wait ]
 	);
 
 	return (
@@ -275,7 +293,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 				<RangeControl
 					disabled={ disabled }
 					className={ styles[ 'timestamp-range-control' ] }
-					min={ 0 }
+					min={ min }
 					step={ fineAdjustment }
 					initialPosition={ controledValue }
 					value={ controledValue }

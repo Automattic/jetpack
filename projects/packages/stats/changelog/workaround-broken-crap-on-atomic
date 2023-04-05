@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Change a method call to avoid fatals when broken plugins on a few Atomic sites force the use of an outdated version of the Assets package.
+
+

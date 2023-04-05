@@ -120,8 +120,8 @@ export function initializeClient( namespace: string ) {
 		 * For example,
 		 * ```js
 		 *	const client = initializeClient( 'jetpack_favorites' );
-		 *	client.setSyncAction( 'status', ( value ) => {
-		 *		client.status.endpoint.SET( value.replace("a", "b") );
+		 *	client.setSyncAction( ( preValue, value, abortSignal ) => {
+		 *		return client.status.endpoint.SET( value, abortSignal );
 		 *	} );
 		 */
 		endpoint.nonce = nonce;

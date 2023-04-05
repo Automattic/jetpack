@@ -2,14 +2,24 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry_Adapter;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Delete;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Validation_Rule;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Type;
 
-class Data_Sync_Entry {
+final class Data_Sync_Entry implements Data_Sync_Entry_Adapter {
+
+	/**
+	 * @var (Entry_Can_Get & (Entry_Can_Set | Entry_Can_Merge | Entry_Can_Delete)) - The data sync entry.
+	 */
 	private $entry;
+
+	/**
+	 * @var Schema_Type $schema - The schema for the data sync entry.
+	 */
 	private $schema;
 
 	/**
@@ -37,6 +47,11 @@ class Data_Sync_Entry {
 	}
 
 	public function get() {
+		if ( $this->schema instanceof Decorate_With_Default ) {
+			$default = $this->schema->get_default_value();
+			$value   = $this->entry->get( $default );
+			return $this->schema->parse( $value );
+		}
 		return $this->schema->parse( $this->entry->get() );
 	}
 

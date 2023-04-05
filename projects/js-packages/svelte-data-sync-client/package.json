@@ -42,8 +42,5 @@
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	},
 	"main": "./build/index.js",
-	"types": "./build/index.d.ts",
-	"dependencies": {
-		"deep-equal": "2.2.0"
-	}
+	"types": "./build/index.d.ts"
 }
