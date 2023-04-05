@@ -20,8 +20,7 @@ class Modules_Status_Entry implements Entry_Can_Get, Entry_Can_Merge {
 	}
 
 	public function get() {
-		$option_value      = get_option( $this->option_key );
-		$available_modules = ( new Modules_Index() )->available_modules();
+		$option_value = get_option( $this->option_key );
 
 		/*
 		 * Module statuses are stored as a boolean record of whether the module is active.
@@ -32,6 +31,7 @@ class Modules_Status_Entry implements Entry_Can_Get, Entry_Can_Merge {
 		 *
 		 * So, we are adding the availability property to the value.
 		 */
+		$available_modules = ( new Modules_Index() )->available_modules();
 		foreach ( $option_value as $module_slug => $status ) {
 			$option_value[ $module_slug ] = array(
 				'active'    => $status,
@@ -62,12 +62,6 @@ class Modules_Status_Entry implements Entry_Can_Get, Entry_Can_Merge {
 	}
 
 	public function merge( $value, $partial_value ) {
-		foreach ( $partial_value as $module => $module_state ) {
-			if ( isset( $value[ $module ] ) ) {
-				$value[ $module ]['active'] = $module_state['active'];
-			}
-		}
-		// @TODO Update mapped modules.
-		return $value;
+		return array_merge( $value, $partial_value );
 	}
 }
