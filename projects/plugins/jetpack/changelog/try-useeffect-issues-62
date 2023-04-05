@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Dashboard: avoid errors in the Recommendations dashboard.

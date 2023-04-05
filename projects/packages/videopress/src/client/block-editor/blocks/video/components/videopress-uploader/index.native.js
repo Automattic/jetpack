@@ -6,11 +6,11 @@ import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { isURL, getProtocol } from '@wordpress/url';
 /**
  * Internal dependencies
  */
 import { buildVideoPressURL } from '../../../../../lib/url';
+import isLocalFile from '../../../../utils/is-local-file.native';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { title } from '../../index';
 import { VideoPressIcon } from '../icons';
@@ -61,8 +61,7 @@ const VideoPressUploader = ( {
 
 	const onSelectVideo = useCallback(
 		media => {
-			const isUploadingFile =
-				media?.url && isURL( media?.url ) && getProtocol( media?.url ) === 'file:' && media?.type;
+			const isUploadingFile = isLocalFile( media?.url ) && media?.type;
 
 			// Upload local file.
 			if ( isUploadingFile ) {

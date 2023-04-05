@@ -70,6 +70,15 @@ export type VideoBlockAttributes = VideoBlockColorAttributesProps & {
 
 	// CSS classes
 	className?: string;
+
+	isExample?: boolean;
+};
+
+export type VideoBlockEditProps = {
+	attributes: VideoBlockAttributes;
+	setAttributes: VideoBlockSetAttributesProps;
+	isSelected: boolean;
+	clientId: string;
 };
 
 export type CoreEmbedBlockAttributes = {

@@ -21,6 +21,9 @@ const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
 const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
 
+const SET_PRODUCT_STATS = 'SET_PRODUCT_STATS';
+const SET_IS_FETCHING_PRODUCT_STATS = 'SET_IS_FETCHING_PRODUCT_STATS';
+
 const setPurchasesIsFetching = isFetching => {
 	return { type: SET_PURCHASES_IS_FETCHING, isFetching };
 };
@@ -149,6 +152,14 @@ const activateProduct = productId => async store => {
 	return await requestProductStatus( productId, { activate: true }, store );
 };
 
+const setProductStats = ( productId, stats ) => {
+	return { type: SET_PRODUCT_STATS, productId, stats };
+};
+
+const setIsFetchingProductStats = ( productId, isFetching ) => {
+	return { type: SET_IS_FETCHING_PRODUCT_STATS, productId, isFetching };
+};
+
 const productActions = {
 	setProduct,
 	activateProduct,
@@ -169,6 +180,8 @@ const actions = {
 	setAvailableLicensesIsFetching,
 	fetchAvailableLicenses,
 	setAvailableLicenses,
+	setProductStats,
+	setIsFetchingProductStats,
 	...noticeActions,
 	...productActions,
 };
@@ -187,5 +200,7 @@ export {
 	SET_PRODUCT_STATUS,
 	SET_GLOBAL_NOTICE,
 	CLEAN_GLOBAL_NOTICE,
+	SET_PRODUCT_STATS,
+	SET_IS_FETCHING_PRODUCT_STATS,
 	actions as default,
 };

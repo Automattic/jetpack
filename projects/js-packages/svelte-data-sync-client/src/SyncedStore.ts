@@ -17,7 +17,7 @@ export class SyncedStore< T > {
 	private store: SyncedWritable< T >;
 	private errorStore: Writable< SyncedStoreError< T >[] >;
 	private pending: Pending;
-	private updateCallback?: SyncedStoreCallback< T >;
+	private syncAction?: SyncedStoreCallback< T >;
 	private abortController: AbortController;
 
 	constructor( initialValue?: T ) {
@@ -39,13 +39,13 @@ export class SyncedStore< T > {
 				// This intentionally prevents the store from waiting for the request to complete.
 				// This is because we want the store to update immediately,
 				// and then the request to happen in the background.
-				this.abortableSynchronize( prevValue, value );
+				this.abortableSynchronize( structuredClone( prevValue ), value );
 				return value;
 			} );
 		};
 
 		type SvelteUpdater = typeof store.update;
-		const update: SvelteUpdater = updateCallback => {
+		const update: SvelteUpdater = svelteStoreUpdate => {
 			store.update( prevValue => {
 				// Reset old errors
 				this.errorStore.set( [] );
@@ -54,8 +54,9 @@ export class SyncedStore< T > {
 				// the updateCallback function may mutate the value
 				// And debouncedSynchronize may fail an object comparison
 				// because of it.
-				const value = updateCallback( prevValue );
-				this.abortableSynchronize( prevValue, value );
+				const prevValueClone = structuredClone( prevValue );
+				const value = svelteStoreUpdate( prevValue );
+				this.abortableSynchronize( prevValueClone, value );
 				return value;
 			} );
 		};
@@ -74,22 +75,22 @@ export class SyncedStore< T > {
 
 	/**
 	 * A callback that will synchronize the store in some way.
-	 * By default, this is set to endpoint.POST in the client initializer
+	 * By default, this is set to endpoint.SET in the client initializer
 	 */
-	private setCallback( callback: SyncedStoreCallback< T > ) {
-		this.updateCallback = callback;
+	private setSyncAction( callback: SyncedStoreCallback< T > ) {
+		this.syncAction = callback;
 	}
 
 	/**
 	 * Attempt to synchronize the store with the API.
 	 */
-	private async synchronize( value: T ): Promise< T | ApiError > {
-		if ( ! this.updateCallback ) {
+	private async synchronize( prevValue: T, value: T ): Promise< T | ApiError > {
+		if ( ! this.syncAction ) {
 			return value;
 		}
 
 		try {
-			const result = await this.updateCallback( value, this.abortController.signal );
+			const result = await this.syncAction( prevValue, value, this.abortController.signal );
 
 			// Success is only when the updateCallback result matches the value.
 			if ( this.equals( result, value ) ) {
@@ -125,7 +126,7 @@ export class SyncedStore< T > {
 			return;
 		}
 		this.pending.start();
-		const result = await this.synchronize( value );
+		const result = await this.synchronize( prevValue, value );
 		this.pending.stop();
 		if ( signal.aborted ) {
 			return;
@@ -189,7 +190,7 @@ export class SyncedStore< T > {
 			errors: {
 				subscribe: this.errorStore.subscribe,
 			},
-			setCallback: this.setCallback.bind( this ),
+			setSyncAction: this.setSyncAction.bind( this ),
 		};
 	}
 }

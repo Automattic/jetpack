@@ -56,7 +56,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.17.x-dev"
+			"dev-trunk": "1.18.x-dev"
 		}
 	}
 }

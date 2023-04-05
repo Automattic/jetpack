@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.2.17';
+	const PACKAGE_VERSION = '0.2.18-alpha';
 
 	/**
 	 * Whether this class has been initialized
@@ -66,20 +66,6 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Enqueue styles for the top level menu
-	 *
-	 * @return void
-	 */
-	public static function enqueue_style() {
-		wp_enqueue_style(
-			'jetpack-admin-ui',
-			plugin_dir_url( __FILE__ ) . 'css/jetpack-icon.css',
-			array(),
-			self::PACKAGE_VERSION
-		);
-	}
-
-	/**
 	 * Callback to the admin_menu hook that will register the enqueued menu items
 	 *
 	 * @return void
@@ -87,16 +73,18 @@ class Admin_Menu {
 	public static function admin_menu_hook_callback() {
 		$can_see_toplevel_menu  = true;
 		$jetpack_plugin_present = class_exists( 'Jetpack_React_Page' );
+		$icon                   = class_exists( '\Automattic\Jetpack\Assets\Logo' )
+			? ( new \Automattic\Jetpack\Assets\Logo() )->get_base64_logo()
+			: 'dashicons-admin-plugins';
 
 		if ( ! $jetpack_plugin_present ) {
-			add_action( 'admin_print_scripts', array( __CLASS__, 'enqueue_style' ) );
 			add_menu_page(
 				'Jetpack',
 				'Jetpack',
 				'read',
 				'jetpack',
 				'__return_null',
-				'div',
+				$icon,
 				3
 			);
 
