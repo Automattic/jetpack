@@ -332,12 +332,6 @@ export function VideoHoverPreviewControl( {
 		Math.min( MAX_LOOP_DURATION, videoDuration - previewAtTime )
 	);
 
-	useEffect( () => {
-		if ( loopDuration > maxLoopDuration ) {
-			onLoopDurationChange( maxLoopDuration );
-		}
-	}, [ maxLoopDuration ] );
-
 	const loopDurationHelp = createInterpolateElement(
 		sprintf(
 			/* translators: placeholder is the maximum lapse duration for the previewOnHover */
@@ -371,7 +365,14 @@ export function VideoHoverPreviewControl( {
 						value={ previewAtTime }
 						onDebounceChange={ timestamp => {
 							onPreviewAtTimeChange( timestamp );
-							setMaxLoopDuration( Math.min( MAX_LOOP_DURATION, videoDuration - timestamp ) );
+
+							const max = Math.min( MAX_LOOP_DURATION, videoDuration - timestamp );
+							setMaxLoopDuration( max );
+
+							// Adjust loop duration if it's needed
+							if ( loopDuration > max ) {
+								onLoopDurationChange( max );
+							}
 						} }
 						wait={ 100 }
 						disabled={ disabled }
