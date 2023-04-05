@@ -31,9 +31,6 @@ export class SyncedStore< T > {
 		// Send the store value to the API
 		const set = value => {
 			store.update( prevValue => {
-				// Reset old errors
-				this.errorStore.set( [] );
-
 				// Synchronize is an async function, but is called without await here.
 				// This intentionally prevents the store from waiting for the request to complete.
 				// This is because we want the store to update immediately,
@@ -46,9 +43,6 @@ export class SyncedStore< T > {
 		type SvelteUpdater = typeof store.update;
 		const update: SvelteUpdater = svelteStoreUpdate => {
 			store.update( prevValue => {
-				// Reset old errors
-				this.errorStore.set( [] );
-
 				// Structured Clone is necessary because
 				// the updateCallback function may mutate the value
 				// And debouncedSynchronize may fail an object comparison
