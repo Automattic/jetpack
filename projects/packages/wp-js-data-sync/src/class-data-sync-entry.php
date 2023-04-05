@@ -1,97 +1,82 @@
 <?php
-/**
- * Data_Sync_Entries manage the data of a single entry.
- * Each entry has:
- *      - a key
- *      - a storage driver
- *      - handler that deals with data validation, sanitization.
- *
- * This class pulls all those together and provides a simple interface to get/set/delete data.
- *
- * @package automattic/jetpack-wp-js-data-sync
- */
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Storage_Drivers\Storage_Driver;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry_Adapter;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Delete;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Type;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Validation_Rule;
 
-class Data_Sync_Entry {
-
-	/**
-	 * @var string
-	 */
-	private $key;
-
-	/**
-	 * @var Storage_Driver
-	 */
-	protected $storage;
+final class Data_Sync_Entry implements Data_Sync_Entry_Adapter {
 
 	/**
-	 * @var Data_Sync_Entry_Handler
+	 * @var (Entry_Can_Get & (Entry_Can_Set | Entry_Can_Merge | Entry_Can_Delete)) - The data sync entry.
 	 */
-	protected $entry;
+	private $entry;
 
 	/**
-	 * @param $namespace string
-	 * @param $key       string
-	 * @param $entry     Data_Sync_Entry_Handler
-	 * @param $storage   Storage_Driver
+	 * @var Schema_Type $schema - The schema for the data sync entry.
 	 */
-	public function __construct( $namespace, $key, $entry, $storage ) {
-		$this->key     = $key;
-		$this->entry   = $entry;
-		$this->storage = $storage;
+	private $schema;
+
+	/**
+	 * @param $entry  (Entry_Can_Get & (Entry_Can_Set | Entry_Can_Merge | Entry_Can_Delete)) - The data sync entry.
+	 * @param $schema Validation_Rule - The schema for the data sync entry.
+	 */
+	public function __construct( $entry, $schema ) {
+		$this->entry  = $entry;
+		$this->schema = $schema;
 	}
 
-	public function get() {
-		// Run `transform` on the value before returning it.
-		return $this->entry->transform(
-			$this->storage->get( $this->key, $this->entry->get_default_value() )
+	public function can( $method ) {
+		$interface_map = array(
+			'get'    => Entry_Can_Get::class,
+			'set'    => Entry_Can_Set::class,
+			'merge'  => Entry_Can_Merge::class,
+			'delete' => Entry_Can_Delete::class,
 		);
-	}
 
-	public function set( $input ) {
-
-		// 1. Parse the input
-		$value = $this->entry->parse( $input );
-
-		// 2. Validate the input
-		if ( true !== $this->entry->validate( $value ) ) {
-			return $this->entry->get_errors();
-		}
-
-		if ( ! empty( $this->storage ) ) {
-			// 3. Sanitize and store the value
-			$sanitized_value = $this->entry->sanitize( $value );
-			return $this->storage->set( $this->key, $sanitized_value );
+		if ( isset( $interface_map[ $method ] ) ) {
+			return $this->entry instanceof $interface_map[ $method ] && method_exists( $this->entry, $method );
 		}
 
 		return false;
 	}
 
-	public function raw_get() {
-		return $this->storage->get( $this->key );
+	public function get() {
+		if ( $this->schema instanceof Decorate_With_Default ) {
+			$default = $this->schema->get_default_value();
+			$value   = $this->entry->get( $default );
+			return $this->schema->parse( $value );
+		}
+		return $this->schema->parse( $this->entry->get() );
 	}
 
-	public function raw_set( $value ) {
-		return $this->storage->set( $this->key, $value );
+	public function set( $value ) {
+		if ( $this->can( 'set' ) ) {
+			$parsed_value = $this->schema->parse( $value );
+			$this->entry->set( $parsed_value );
+		}
+		return $this->get();
+	}
+
+	public function merge( $partial_value ) {
+		if ( $this->can( 'merge' ) ) {
+			$updated_value = $this->entry->merge( $this->entry->get(), $partial_value );
+			$this->set( $updated_value );
+		}
+		return $this->get();
 	}
 
 	public function delete() {
-		return $this->storage->delete( $this->key );
-	}
-
-	public function key() {
-		return $this->key;
-	}
-
-	public function has_errors() {
-		return $this->entry->has_errors();
-	}
-
-	public function get_errors() {
-		return $this->entry->get_errors();
+		if ( $this->can( 'delete' ) ) {
+			$this->entry->delete();
+		}
+		return $this->get();
 	}
 
 }
