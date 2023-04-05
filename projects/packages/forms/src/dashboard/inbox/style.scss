@@ -129,6 +129,22 @@ $action-bar-height: 88px;
 		}
 	}
 
+	.jp-forms__inbox-sticky-sentinel {
+		background: transparent;
+		width: 1px;
+		height: 1px;
+		position: absolute;
+		top: 0;
+	}
+
+	.jp-forms__inbox-sticky-mark {
+		border-bottom: 1px solid #dcdcde;
+		box-shadow: 0 1px 5px 0 rgb(0 0 0 / 30%);
+		position: sticky;
+		top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height});
+		width: 100%;
+	}
+
 	.jp-forms__page-navigation {
 		margin: 16px 0 0;
 	}
