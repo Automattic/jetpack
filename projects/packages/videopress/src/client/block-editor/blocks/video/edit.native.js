@@ -72,7 +72,7 @@ export default function VideoPressEdit( {
 		isReplacing: false,
 		prevAttrs: {},
 	} );
-	const [ , setToken ] = useState< string >();
+	const [ , setToken ] = useState();
 
 	// Fetch token for a VideoPress GUID
 	useEffect( () => {
