@@ -1,10 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
-// this is necessary because block editor store becomes unregistered during jest initialization
-import { store as blockEditorStore, __experimentalUseGradient } from '@wordpress/block-editor'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
-import { register } from '@wordpress/data';
+import { __experimentalUseGradient } from '@wordpress/block-editor'; // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 import { ButtonEdit } from '../edit';
-
-register( blockEditorStore );
 
 const defaultAttributes = {
 	borderRadius: 15,

@@ -71,10 +71,10 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/responses',
+			$this->rest_base . '/responses/bulk_actions',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'update_responses' ),
+				'callback'            => array( $this, 'bulk_actions' ),
 				'permission_callback' => array( $this, 'get_responses_permission_check' ),
 			)
 		);
@@ -93,8 +93,12 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			'post_status' => array( 'publish', 'draft' ),
 		);
 
-		if ( isset( $request['form_id'] ) ) {
-			$args['post_parent'] = $request['form_id'];
+		if ( isset( $request['parent_id'] ) ) {
+			$args['post_parent'] = $request['parent_id'];
+		}
+
+		if ( isset( $request['month'] ) ) {
+			$args['m'] = $request['month'];
 		}
 
 		if ( isset( $request['limit'] ) ) {
@@ -108,6 +112,11 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 		if ( isset( $request['search'] ) ) {
 			$args['s'] = $request['search'];
 		}
+
+		$filter_args = array_merge(
+			$args,
+			array( 'post_status' => array( 'draft', 'publish', 'spam', 'trash' ) )
+		);
 
 		$query = array(
 			'inbox' => new \WP_Query(
@@ -136,10 +145,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 		}
 
 		$source_ids = Contact_Form_Plugin::get_all_parent_post_ids(
-			array_diff_key(
-				$args,
-				array( 'post_parent' => '' )
-			)
+			array_diff_key( $filter_args, array( 'post_parent' => '' ) )
 		);
 
 		$responses = array_map(
@@ -175,15 +181,66 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 
 		return rest_ensure_response(
 			array(
-				'responses'  => $responses,
-				'totals'     => array_map(
+				'responses'         => $responses,
+				'totals'            => array_map(
 					function ( $subquery ) {
 						return $subquery->found_posts;
 					},
 					$query
 				),
-				'source_ids' => $source_ids,
+				'filters_available' => array(
+					'month'  => $this->get_months_filter_for_query( $filter_args ),
+					'source' => array_map(
+						function ( $post_id ) {
+							return array(
+								'id'    => $post_id,
+								'title' => get_the_title( $post_id ),
+								'url'   => get_permalink( $post_id ),
+							);
+						},
+						$source_ids
+					),
+				),
 			)
+		);
+	}
+
+	/**
+	 * Returns a list of months which can be used to filter the given query.
+	 *
+	 * @param array $query Query.
+	 *
+	 * @return array List of months.
+	 */
+	private function get_months_filter_for_query( $query ) {
+		global $wpdb;
+
+		$filters = '';
+
+		if ( isset( $query['post_parent'] ) ) {
+			$filters = $wpdb->prepare( 'AND post_parent = %d ', $query['post_parent'] );
+		}
+
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$months = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT DISTINCT YEAR( post_date ) AS year, MONTH( post_date ) AS month
+				FROM $wpdb->posts
+				WHERE post_type = 'feedback'
+				$filters
+				ORDER BY post_date DESC"
+			)
+		);
+		// phpcs:enable
+
+		return array_map(
+			function ( $row ) {
+				return array(
+					'month' => intval( $row->month ),
+					'year'  => intval( $row->year ),
+				);
+			},
+			$months
 		);
 	}
 
@@ -194,19 +251,15 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	 *
 	 * @return WP_REST_Response A response object..
 	 */
-	public function update_responses( $request ) {
-		$content_type = $request->get_header( 'Content-Type' );
+	public function bulk_actions( $request ) {
+		$action   = $request->get_param( 'action' );
+		$post_ids = $request->get_param( 'post_ids' );
 
-		// Match 'action' directive inside Content-Type header value
-		preg_match( '/\;\s*bulk_action=([a-z_]*)/i', $content_type, $matches );
-		$bulk_action = isset( $matches[1] ) ? $matches[1] : null;
-		$post_ids    = $request->get_param( 'post_ids' );
-
-		if ( $bulk_action && ! is_array( $post_ids ) ) {
+		if ( $action && ! is_array( $post_ids ) ) {
 			return new $this->error_response( __( 'Bad request', 'jetpack-forms' ), 400 );
 		}
 
-		switch ( $bulk_action ) {
+		switch ( $action ) {
 			case 'mark_as_spam':
 				return $this->bulk_action_mark_as_spam( $post_ids );
 

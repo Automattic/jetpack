@@ -237,7 +237,8 @@ const ConnectedFirewallHeader = () => {
 		isToggling,
 	} = useWafData();
 	const { hasRequiredPlan } = useProtectData();
-	const currentStatus = jetpackWafAutomaticRules || jetpackWafIpList ? 'on' : 'off';
+	const currentStatus =
+		jetpackWafAutomaticRules || jetpackWafIpList || bruteForceProtection ? 'on' : 'off';
 
 	return (
 		<FirewallHeader

@@ -5,6 +5,41 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.5] - 2023-04-04
+### Added
+- Add video caption to native player [#29765]
+- VideoPress: Added stats endpoint to fetch the data to be featured on the My Jetpack screen. [#29785]
+- VideoPress: Add video duration to block attributes [#29788]
+- VideoPress: Add video preview on hover options to poster and preview panel [#29781]
+- VideoPress: Persist hover preview values on markup for video block [#29883]
+- VideoPress: play/pause video when previewOnHover is enabled [#29790]
+- VideoPress: replace local state by using block attributes for the PreviewOnHover feature [#29807]
+- VideoPress: support autoplay playback option when previewOnHover is enabled [#29816]
+
+### Changed
+- Updated package dependencies. [#29854, #29857]
+- VideoPress: avoid using local state to deal with previewOnHover data [#29821]
+- VideoPress: Change hover preview loop duration component to Timestamp control and fix default values [#29819]
+- VideoPress: extract, create and expose usePlayerReady() hook [#29777]
+- VideoPress: Fix the permission check for the VideoPress stats APIs, to check for manage_options capability. [#29820]
+- VideoPress: handle limit-loop duration of the previewOn based on starting point [#29876]
+- VideoPress: handle max value of the TimestampControl component [#29852]
+- VideoPress: pause player when previewOnHover enables [#29843]
+- VideoPress: pick duration from block attribute instead of listening player client [#29830]
+- VideoPress: playback video into the boundaries defined the previewOnHover [#29892]
+- VideoPress: store and control TimestampControl value externally [#29828]
+- VideoPress block: Refactor useSyncMedia hook [#29898]
+
+### Fixed
+- Disable autoplay in the native editor [#29823]
+- VideoPress: fix debounced callback TimestampControl issue [#29850]
+- VideoPress: Retry video data fetch if data is not fully available yet [#29907]
+- VideoPress block: Address the case of closing/re-opening post with an ongoing video upload. [#29690]
+
+## [0.13.4] - 2023-04-03
+### Changed
+- Internal updates.
+
 ## [0.13.3] - 2023-03-29
 ### Added
 - VideoPress: generate video image when selecting poster from frame [#29738]
@@ -850,6 +885,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.13.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.4...v0.13.5
+[0.13.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.3...v0.13.4
 [0.13.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.2...v0.13.3
 [0.13.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.1...v0.13.2
 [0.13.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.0...v0.13.1
