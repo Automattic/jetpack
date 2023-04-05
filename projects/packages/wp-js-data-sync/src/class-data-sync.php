@@ -63,7 +63,7 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry_Adapter;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 
 final class Data_Sync {
 
@@ -146,7 +146,7 @@ final class Data_Sync {
 	}
 
 	public function register( $key, $schema, $entry = null ) {
-		if ( ! $entry instanceof Data_Sync_Entry_Adapter ) {
+		if ( ! $entry instanceof Entry_Can_Get ) {
 			$option_key = $this->namespace . '_' . $key;
 			$entry      = new Data_Sync_Option( $option_key );
 		}
