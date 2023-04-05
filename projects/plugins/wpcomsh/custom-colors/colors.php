@@ -225,7 +225,11 @@ class Colors_Manager_Common {
 
 		// In an Ajax call from the Customizer, we might be previewing a separate theme.
 		// Detect that and use it if it's there.
+
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+			if ( ! isset( $_SERVER['HTTP_REFERER'] ) ) {
+				return $theme;
+			}
 			$parsed_url = parse_url( $_SERVER['HTTP_REFERER'] );
 			if ( $parsed_url && ! isset( $parsed_url['query'] ) ) {
 				return $theme;
