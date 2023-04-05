@@ -1,5 +1,7 @@
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
+import { config } from '../../';
 
 const CSVExport = ( { onExport } ) => {
 	const downloadCSV = useCallback( () => {
@@ -19,6 +21,10 @@ const CSVExport = ( { onExport } ) => {
 			window.URL.revokeObjectURL( a.href );
 		} );
 	}, [ onExport ] );
+
+	const buttonClasses = classnames( 'button', 'export-button', 'export-csv', {
+		'button-primary': ! config( 'isWpcom' ),
+	} );
 
 	return (
 		<div className="jp-forms__export-modal-card">
@@ -46,10 +52,7 @@ const CSVExport = ( { onExport } ) => {
 					{ __( 'Download your form response data as a CSV file.', 'jetpack-forms' ) }
 				</div>
 				<div className="jp-forms__export-modal-card-body-cta">
-					<button
-						className="button button-primary export-button export-csv"
-						onClick={ downloadCSV }
-					>
+					<button className={ buttonClasses } onClick={ downloadCSV }>
 						{ __( 'Download', 'jetpack-forms' ) }
 					</button>
 				</div>

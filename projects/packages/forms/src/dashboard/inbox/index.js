@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { find, includes, map } from 'lodash';
+import { config } from '../';
 import DropdownFilter from '../components/dropdown-filter';
 import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
@@ -148,7 +149,16 @@ const Inbox = () => {
 
 	const title = (
 		<>
-			<span className="title">{ __( 'Responses', 'jetpack-forms' ) }</span>
+			<span className="title">
+				{ config( 'isWpcom' )
+					? __( 'Jetpack Forms', 'jetpack-forms' )
+					: __( 'Responses', 'jetpack-forms' ) }
+			</span>
+			{ config( 'isWpcom' ) && (
+				<span className="subtitle">
+					{ __( 'Collect and manage responses from your audience.', 'jetpack-forms' ) }
+				</span>
+			) }
 			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 			<a className="back-button" onClick={ handleGoBack }>
 				<Gridicon icon="arrow-left" />

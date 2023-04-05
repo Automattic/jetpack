@@ -142,6 +142,7 @@ class Dashboard {
 			'gdriveConnection'        => $jetpack_connected && Google_Drive::has_valid_connection( $user_id ),
 			'gdriveConnectURL'        => esc_url( Redirect::get_url( 'jetpack-forms-responses-connect' ) ),
 			'gdriveConnectSupportURL' => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
+			'isWpcom'                 => function_exists( 'wpcom_site_has_feature' ),
 		);
 		?>
 		<div id="jp-forms-dashboard" style="min-height: calc(100vh - 100px);" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>
