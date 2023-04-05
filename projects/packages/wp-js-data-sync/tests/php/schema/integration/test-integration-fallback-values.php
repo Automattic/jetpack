@@ -170,6 +170,12 @@ class Test_Integration_Fallback_Values extends TestCase {
 		// Passing an empty array also works
 		$this->assertSame( $schema_fallback, $schema->parse( array() ) );
 
+		// Passing a partial array also works
+		$partial_array = array(
+			'one' => 100,
+		);
+		$this->assertSame( array_merge( $schema_fallback, $partial_array ), $schema->parse( $partial_array ) );
+
 		// But passing a non-array value will not work
 		// Because the parent schema has no fallback, this will fail.
 		try {
