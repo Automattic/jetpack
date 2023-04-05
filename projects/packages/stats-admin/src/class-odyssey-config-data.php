@@ -20,10 +20,11 @@ class Odyssey_Config_Data {
 	/**
 	 * Set configData to window.configData.
 	 *
-	 * @param array $config_data The config data.
+	 * @param string $config_variable_name The config variable name.
+	 * @param array  $config_data The config data.
 	 */
-	public function get_js_config_data( $config_data = null ) {
-		return 'window.configData = ' . wp_json_encode(
+	public function get_js_config_data( $config_variable_name = 'configData', $config_data = null ) {
+		return "window.{$config_variable_name} = " . wp_json_encode(
 			$config_data === null ? $this->get_data() : $config_data
 		) . ';';
 	}

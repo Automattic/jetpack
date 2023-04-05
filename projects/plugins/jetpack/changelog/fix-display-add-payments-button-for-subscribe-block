@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Properly gate the Newsletter feature based on newsletter configuration on the site
