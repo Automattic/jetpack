@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { derived, writable } from 'svelte/store';
+	import { derived, get, writable } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
 	import {
 		getScoreLetter,
@@ -10,7 +10,7 @@
 	} from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import { criticalCssState, isGenerating } from '../../../stores/critical-css-state';
-	import { moduleStates } from '../../../stores/modules';
+	import { modulesState, modulesStateClient } from '../../../stores/modules';
 	import ComputerIcon from '../../../svg/computer.svg';
 	import MobileIcon from '../../../svg/mobile.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
@@ -43,41 +43,30 @@
 	/**
 	 * Derived datastore which makes it easy to check if module states are currently in sync with server.
 	 */
-	const modulesInSync = derived(
-		Object.values( moduleStates ).map( module => module.pending ),
-		( [ ...$moduleStates ] ) => {
-			return $moduleStates.every( moduleIsPending => ! moduleIsPending );
-		}
-	);
+	$: modulesInSync = get( modulesStateClient.pending );
 
-	const scoreModules = Object.assign( {}, moduleStates );
+	const scoreModules = Object.assign( {}, $modulesState );
 	delete scoreModules.image_guide;
 	delete scoreModules.image_size_analysis;
 
-	const storesArray = Object.values( scoreModules ).map( module => module.store );
 	/**
 	 * String representation of the current state that may impact the score.
 	 *
 	 * @type {Readable<string>}
 	 */
-	const scoreConfigString = derived(
-		[ criticalCssState, ...storesArray ],
-		( [ $criticalCssState, ...$modules ] ) => {
-			return JSON.stringify( {
-				modules: $modules,
-				criticalCss: {
-					created: $criticalCssState.created,
-				},
-			} );
-		}
-	);
+	$: scoreConfigString = JSON.stringify( {
+		modules: Object.values( scoreModules ).map( module => module.active ),
+		criticalCss: {
+			created: $criticalCssState.created,
+		},
+	} );
 
 	/**
 	 * The configuration that led to latest speed score.
 	 *
 	 * @type {Readable<string>}
 	 */
-	let currentScoreConfigString = $scoreConfigString;
+	let currentScoreConfigString = scoreConfigString;
 
 	async function refreshScore( force = false ) {
 		if ( ! siteIsOnline ) {
@@ -91,7 +80,7 @@
 			scores.set( await requestSpeedScores( force ) );
 			scoreLetter = getScoreLetter( $scores.current.mobile, $scores.current.desktop );
 			showPrevScores = didScoresChange( $scores ) && ! $scores.isStale;
-			currentScoreConfigString = $scoreConfigString;
+			currentScoreConfigString = scoreConfigString;
 		} catch ( err ) {
 			recordBoostEvent( 'speed_score_request_error', {
 				error_message: castToString( err.message ),
@@ -109,13 +98,13 @@
 	 * A store that checks if the speed score needs a refresh.
 	 */
 	const needsRefresh = derived(
-		[ isGenerating, modulesInSync, scoreConfigString, scores ],
+		[ isGenerating, scores ],
 		// eslint-disable-next-line no-shadow
-		( [ $isGenerating, $modulesInSync, $scoreConfigString, $scores ] ) => {
+		( [ $isGenerating, $scores ] ) => {
 			return (
 				! $isGenerating &&
-				$modulesInSync &&
-				( $scoreConfigString !== currentScoreConfigString || $scores.isStale )
+				modulesInSync &&
+				( scoreConfigString !== currentScoreConfigString || $scores.isStale )
 			);
 		}
 	);

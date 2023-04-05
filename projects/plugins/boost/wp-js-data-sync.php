@@ -5,7 +5,8 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Option;
 use Automattic\Jetpack\WP_JS_Data_Sync\Registry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack_Boost\Lib\Status;
+use Automattic\Jetpack_Boost\Data_Sync\Modules_Status_Entry;
+use Automattic\Jetpack_Boost\Modules\Modules_Index;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
@@ -21,13 +22,6 @@ function jetpack_boost_register_option( $key, $schema, $entry = null ) {
 	}
 	return Registry::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
 					->register( $key, new Data_Sync_Entry( $entry, $schema ) );
-}
-/**
- * Functions to make it easier to interface with Data Sync based config:
- */
-function jetpack_boost_register_read_only( $name, $source ) {
-	return Registry::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-					->register( $name, Read_Only_Entry_Handler::class, $source );
 }
 
 /**
@@ -134,11 +128,34 @@ $critical_css_state_schema = Schema::as_assoc_array(
 jetpack_boost_register_option( 'critical_css_state', $critical_css_state_schema );
 jetpack_boost_register_option( 'critical_css_suggest_regenerate', Schema::as_boolean()->fallback( false ) );
 
-/**
- * Register module status options for each feature.
- */
-foreach ( Automattic\Jetpack_Boost\Modules\Modules_Index::MODULES as $feature_class ) {
-	jetpack_boost_register_option( ( new Status( $feature_class::get_slug() ) )->get_ds_entry_name(), Schema::as_boolean()->fallback( false ) );
-}
+$modules_state_schema = Schema::as_assoc_array(
+	array_reduce(
+		Modules_Index::MODULES,
+		function ( $result, $module_class ) {
+			$result[ $module_class::get_slug() ] = Schema::as_assoc_array(
+				array(
+					'active'    => Schema::as_boolean()->fallback( false ),
+					'available' => Schema::as_boolean()->nullable(),
+				)
+			);
+			return $result;
+		},
+		array()
+	)
+)
+->fallback(
+	array_reduce(
+		Modules_Index::MODULES,
+		function ( $result, $module_class ) {
+			$result[ $module_class::get_slug() ] = array(
+				'active'    => false,
+				'available' => null,
+			);
+			return $result;
+		},
+		array()
+	)
+);
 
-jetpack_boost_register_read_only( 'available_modules', Available_Modules::class );
+$entry = new Modules_Status_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE, 'modules_state' );
+jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );

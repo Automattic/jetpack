@@ -44,7 +44,6 @@ class Data_Sync_Entry {
 		if ( $this->can( 'set' ) ) {
 			$parsed_value = $this->schema->parse( $value );
 			$this->entry->set( $parsed_value );
-			// do_action( 'jetpack_ds_set', $this->namespace, $this->key, $value );
 		}
 		return $this->get();
 	}

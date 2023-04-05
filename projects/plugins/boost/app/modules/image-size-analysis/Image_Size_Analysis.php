@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Features\Image_Size_Analysis;
+namespace Automattic\Jetpack_Boost\Modules\Image_Size_Analysis;
 
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
 

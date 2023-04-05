@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
-use Automattic\Jetpack_Boost\Modules\Modules;
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Current_User_Admin;
 
@@ -14,7 +14,7 @@ class Optimizations_Status implements Endpoint {
 
 	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	public function response( $request ) {
-		$optimizations = ( new Modules() )->get_status();
+		$optimizations = ( new Modules_Setup() )->get_status();
 		return rest_ensure_response( $optimizations );
 	}
 

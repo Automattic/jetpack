@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Features\Image_Guide;
+namespace Automattic\Jetpack_Boost\Modules\Image_Guide;
 
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Contracts\Pluggable;

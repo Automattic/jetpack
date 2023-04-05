@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
-use Automattic\Jetpack_Boost\Modules\Modules;
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 class Status {
@@ -21,11 +21,6 @@ class Status {
 	 */
 	protected $status_sync_map;
 
-	/**
-	 * @var Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry $ds
-	 */
-	protected $ds;
-
 	public function __construct( $slug ) {
 		$this->slug = $slug;
 
@@ -34,27 +29,11 @@ class Status {
 				Critical_CSS::get_slug(),
 			),
 		);
-
-		$this->ds = jetpack_boost_ds( $this->get_ds_entry_name() );
-	}
-
-	public function get_ds_entry_name() {
-		return 'module_status_' . $this->slug;
 	}
 
 	public function is_enabled() {
-		return $this->ds->get();
-	}
-
-	/**
-	 * Update the status of the module manually.
-	 *
-	 * For backward compatibility, this method is used to update the status of the module.
-	 *
-	 * @param bool $new_status
-	 */
-	public function update( $new_status ) {
-		$this->ds->set( $new_status );
+		$modules_state = jetpack_boost_ds_get( 'modules_state' );
+		return $modules_state[ $this->slug ]['active'];
 	}
 
 	/**
@@ -80,7 +59,7 @@ class Status {
 			return;
 		}
 
-		$modules_instance = Setup::get_instance_of( Modules::class );
+		$modules_instance = Setup::get_instance_of( Modules_Setup::class );
 
 		// The moduleInstance will be there. But check just in case.
 		if ( $modules_instance !== null ) {
