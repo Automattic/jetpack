@@ -13,6 +13,7 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
+import { formatTime } from '../../utils/time';
 import styles from './style.module.scss';
 /**
  * Types
@@ -306,7 +307,9 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 					initialPosition={ controledValue }
 					value={ controledValue }
 					max={ max }
-					showTooltip={ false }
+					renderTooltipContent={ ( time: number ) => {
+						return formatTime( time );
+					} }
 					withInputField={ false }
 					onChange={ onChangeHandler }
 					marks={ marksEvery ? marks : undefined }
