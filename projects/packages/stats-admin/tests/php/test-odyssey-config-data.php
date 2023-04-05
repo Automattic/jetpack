@@ -22,8 +22,8 @@ class Test_Odyssey_Config_Data extends Stats_Test_Case {
 	 */
 	public function test_render_config_data_with_param() {
 		$config_data = new Odyssey_Config_Data();
-		$this->assertTrue( strpos( $config_data->get_js_config_data( array( 'testtesttest' ) ), 'window.configData' ) === 0 );
-		$this->assertTrue( strpos( $config_data->get_js_config_data( array( 'testtesttest' ) ), 'testtesttest' ) > 0 );
+		$this->assertTrue( strpos( $config_data->get_js_config_data( 'configData', array( 'testtesttest' ) ), 'window.configData' ) === 0 );
+		$this->assertTrue( strpos( $config_data->get_js_config_data( 'configData', array( 'testtesttest' ) ), 'testtesttest' ) > 0 );
 	}
 
 	/**
