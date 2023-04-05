@@ -2,8 +2,6 @@
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
-use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Option;
-use Automattic\Jetpack\WP_JS_Data_Sync\Registry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Lib\Status;
 
@@ -11,62 +9,61 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
 }
 /**
- * Functions to make it easier to interface with Async Option:
+ * Make it easier to register a Jetpack Boost Data-Sync option.
  *
- * @throws Exception
+ * @param $key    string - The key for this option.
+ * @param $schema Schema - The schema for this option.
+ * @param $entry  Data_Sync_Entry_Adapter|null - The entry handler for this option.
  */
 function jetpack_boost_register_option( $key, $schema, $entry = null ) {
-	if ( ! $entry ) {
-		$option_key = JETPACK_BOOST_DATASYNC_NAMESPACE . '_' . $key;
-		$entry = new Data_Sync_Option( $option_key );
-	}
-	return Registry::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-					->register( $key, new Data_Sync_Entry( $entry, $schema ) );
+	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
+			->register( $key, $schema, $entry );
 }
 
 /**
- * @param $name
+ * @param $key
  *
  * @return Data_Sync_Entry
  */
-function jetpack_boost_ds( $name ) {
-	return Registry::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )->get_entry( $name );
+function jetpack_boost_ds_entry( $key ) {
+	return Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
+			->get_registry()
+			->get_entry( $key );
 }
 
-function jetpack_boost_ds_get( $option ) {
-	$option = jetpack_boost_ds( $option );
-	if ( ! $option ) {
+function jetpack_boost_ds_get( $key ) {
+	$entry = jetpack_boost_ds_entry( $key );
+	if ( ! $entry ) {
 		return null;
 	}
-	return $option->get();
+	return $entry->get();
 }
 
-function jetpack_boost_ds_set( $option, $value ) {
-	$option = jetpack_boost_ds( $option );
-	if ( ! $option ) {
+function jetpack_boost_ds_set( $key, $value ) {
+	$entry = jetpack_boost_ds_entry( $key );
+	if ( ! $entry ) {
 		return null;
 	}
-	return $option->set( $value );
+	return $entry->set( $value );
 }
 
-function jetpack_boost_ds_delete( $option_name ) {
-	$option = jetpack_boost_ds( $option_name );
-	if ( ! $option ) {
+function jetpack_boost_ds_delete( $key ) {
+	$entry = jetpack_boost_ds_entry( $key );
+	if ( ! $entry ) {
 		return null;
 	}
-	return $option->delete();
+	return $entry->delete();
 }
 
 /**
  * Ensure that Async Options are passed to the relevant scripts.
  */
-add_action(
-	'admin_init',
-	function () {
-		$options = Data_Sync::setup( JETPACK_BOOST_DATASYNC_NAMESPACE, 'jetpack-boost-admin' );
-		add_action( 'jetpack_page_jetpack-boost', array( $options, '_print_options_script_tag' ) );
-	}
-);
+function jetpack_boost_initialize_datasync() {
+	$data_sync = Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE );
+	$data_sync->attach_to_plugin( 'jetpack-boost-admin', 'jetpack_page_jetpack-boost' );
+}
+
+add_action( 'admin_init', 'jetpack_boost_initialize_datasync' );
 
 $critical_css_state_schema = Schema::as_assoc_array(
 	array(

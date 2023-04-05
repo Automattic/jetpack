@@ -16,13 +16,6 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Endpoints\Endpoint;
 class Registry {
 
 	/**
-	 * The Registry class is a singleton.
-	 *
-	 * @var Registry[]
-	 */
-	private static $instance = array();
-
-	/**
 	 * Registry instances are namespaced to allow for multiple registries.
 	 *
 	 * @var string
@@ -49,16 +42,8 @@ class Registry {
 	 *
 	 * @param $namespace string The namespace for this registry instance.
 	 */
-	private function __construct( $namespace ) {
+	public function __construct( $namespace ) {
 		$this->namespace = $namespace;
-	}
-
-	public static function get_instance( $namespace ) {
-		if ( ! isset( static::$instance[ $namespace ] ) ) {
-			static::$instance[ $namespace ] = new static( $namespace );
-		}
-
-		return static::$instance[ $namespace ];
 	}
 
 	/**
@@ -69,11 +54,14 @@ class Registry {
 	 * @return string
 	 * @throws \Exception In debug mode, if the key is invalid.
 	 */
-	public function sanitize_key( $key ) {
+	private function sanitize_key( $key ) {
 		$sanitized_key = sanitize_key( $key );
 		$sanitized_key = str_replace( '-', '_', $sanitized_key );
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && $sanitized_key !== $key ) {
-			throw new \Exception( "Invalid key '$key'. Keys should only include alphanumeric characters and underscores." );
+			// If the key is invalid,
+			// Log an error during development
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_
+			error_log( "Invalid key '$key'. Keys should only include alphanumeric characters and underscores." );
 		}
 		return $sanitized_key;
 	}
@@ -85,7 +73,7 @@ class Registry {
 	 *
 	 * @return string
 	 */
-	public function sanitize_url_key( $key ) {
+	private function sanitize_url_key( $key ) {
 		return str_replace( '_', '-', sanitize_key( $key ) );
 	}
 
@@ -96,7 +84,6 @@ class Registry {
 	 * @param $entry      Data_Sync_Entry_Adapter
 	 *
 	 * @return Data_Sync_Entry_Adapter
-	 * @throws \Exception If the option name is invalid.
 	 */
 	public function register( $key, $entry ) {
 
