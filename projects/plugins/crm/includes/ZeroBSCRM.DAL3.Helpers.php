@@ -303,11 +303,10 @@ function zeroBS_getCustomerIcoHTML($cID=-1,$additionalClasses=''){
 
 	$thumbHTML = '<i class="fa fa-user" aria-hidden="true"></i>';
 
-	global $zbs; $thumbURL = $zbs->DAL->contacts->getContactAvatarURL($cID);
-	if (!empty($thumbURL)) {
-
-		$thumbHTML = '<img src="'.$thumb_url.'" alt="" />';
-
+	global $zbs;
+	$thumb_url = $zbs->DAL->contacts->getContactAvatarURL( $cID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	if ( ! empty( $thumb_url ) ) {
+		$thumbHTML = '<img src="' . $thumb_url . '" alt="" />'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	}
 
 	return '<div class="zbs-co-img '.$additionalClasses.'">'.$thumbHTML.'</div>';
