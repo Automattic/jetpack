@@ -75,9 +75,8 @@ class Assets {
 	 *
 	 * @param string $script_handle Script handle.
 	 */
-	public static function add_async_script( $script_handle ) {
-		$assets_instance                         = self::instance();
-		$assets_instance->defer_script_handles[] = $script_handle;
+	public function add_async_script( $script_handle ) {
+		$this->defer_script_handles[] = $script_handle;
 	}
 
 	/**
