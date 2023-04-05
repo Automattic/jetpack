@@ -372,8 +372,7 @@ export function VideoHoverPreviewControl( {
 					<TimestampControl
 						label={ __( 'Starting point', 'jetpack-videopress-pkg' ) }
 						max={ maxStartingPoint }
-						fineAdjustment={ 1 }
-						decimalPlaces={ 2 }
+						fineAdjustment={ 100 }
 						value={ previewAtTime }
 						onDebounceChange={ timestamp => {
 							onPreviewAtTimeChange( timestamp );
@@ -394,8 +393,7 @@ export function VideoHoverPreviewControl( {
 					<TimestampControl
 						max={ maxLoopDuration }
 						min={ MIN_LOOP_DURATION }
-						fineAdjustment={ 1 }
-						decimalPlaces={ 2 }
+						fineAdjustment={ 100 }
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
 						value={ loopDuration }
 						onDebounceChange={ onLoopDurationChange }
