@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { usePrevious } from '@wordpress/compose';
 import debugFactory from 'debug';
 import { useEffect, useRef, useState, useCallback } from 'react';
 /**
@@ -91,7 +92,27 @@ const useVideoPlayer = (
 			setPlayerIsReady( true );
 			playerState.current = 'ready';
 		}
+
+		if ( eventName === 'videopress_timeupdate' && previewOnHover ) {
+			const currentTime = eventData.currentTimeMs;
+			const startLimit = previewOnHover.atTime;
+			const endLimit = previewOnHover.atTime + previewOnHover.duration;
+			if (
+				currentTime < startLimit || // Before the start limit.
+				currentTime > endLimit // After the end limit.
+			) {
+				source.postMessage(
+					{ event: 'videopress_action_set_currenttime', currentTime: startLimit / 1000 },
+					{ targetOrigin: '*' }
+				);
+			}
+		}
 	}
+
+	// PreviewOnHover feature.
+	const isPreviewOnHoverEnabled = !! previewOnHover;
+	const wasPreviewOnHoverEnabled = usePrevious( isPreviewOnHoverEnabled );
+	const wasPreviewOnHoverJustEnabled = isPreviewOnHoverEnabled && ! wasPreviewOnHoverEnabled;
 
 	// Listen player events.
 	useEffect( () => {
@@ -104,15 +125,16 @@ const useVideoPlayer = (
 			return;
 		}
 
+		debug( 'player is ready to listen events' );
 		sandboxIFrameWindow.addEventListener( 'message', listenEventsHandler );
 
 		return () => {
 			// Remove the listener when the component is unmounted.
 			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
 		};
-	}, [ iFrameRef, isRequestingPreview ] );
+	}, [ iFrameRef, isRequestingPreview, wasPreviewOnHoverJustEnabled, previewOnHover ] );
 
-	const playVideo = useCallback( () => {
+	const play = useCallback( () => {
 		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
@@ -121,7 +143,7 @@ const useVideoPlayer = (
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_play' }, '*' );
 	}, [ iFrameRef, playerIsReady ] );
 
-	const stopVideo = useCallback( () => {
+	const pause = useCallback( () => {
 		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
@@ -130,25 +152,25 @@ const useVideoPlayer = (
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_pause' }, '*' );
 	}, [ iFrameRef, playerIsReady ] );
 
-	// PreviewOnHover feature.
 	useEffect( () => {
-		if ( ! wrapperElement || ! previewOnHover ) {
+		if ( ! wrapperElement || ! isPreviewOnHoverEnabled ) {
 			return;
 		}
 
-		wrapperElement.addEventListener( 'mouseenter', playVideo );
-		wrapperElement.addEventListener( 'mouseleave', stopVideo );
+		wrapperElement.addEventListener( 'mouseenter', play );
+		wrapperElement.addEventListener( 'mouseleave', pause );
 
 		return () => {
 			// Remove the listener when the component is unmounted.
-			wrapperElement.removeEventListener( 'mouseenter', playVideo );
-			wrapperElement.removeEventListener( 'mouseleave', stopVideo );
+			wrapperElement.removeEventListener( 'mouseenter', play );
+			wrapperElement.removeEventListener( 'mouseleave', pause );
 		};
-	}, [ previewOnHover, wrapperElement, playerIsReady ] );
+	}, [ isPreviewOnHoverEnabled, wrapperElement, playerIsReady ] );
 
 	return {
 		playerIsReady,
-		playerState: playerState.current,
+		play,
+		pause,
 	};
 };
 

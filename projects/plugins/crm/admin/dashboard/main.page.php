@@ -164,7 +164,9 @@ function jpcrm_render_dashboard_page() {
 </div>
 
 <!-- loads summary boxes -->
+<div id="crm_summary_numbers_container">
 <div id="crm_summary_numbers" class="ui cards grid"></div>
+</div>
 
 <!--- the contacts over time comes in next - PHP below is for the funnel -->
 <div class="ui grid narrow">

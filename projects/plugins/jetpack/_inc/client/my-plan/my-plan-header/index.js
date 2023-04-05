@@ -399,7 +399,7 @@ class MyPlanHeader extends React.Component {
 					...productProps,
 					details: [ activation, expiration ],
 					tagLine: __(
-						'You have been gifted a Jetpack Gold Token. This unlocks a lifetime of Jetpack VaultPress Backup and Jetpack Scan for your website.',
+						'You have been gifted a Jetpack Golden Token. This unlocks a lifetime of Jetpack VaultPress Backup and Jetpack Scan for your website.',
 						'jetpack'
 					),
 					title: __( 'Jetpack Golden Token', 'jetpack' ),
