@@ -454,7 +454,7 @@ export default function PosterPanel( {
 
 			setAttributes( {
 				posterData: newPosterData,
-				controls: ! shouldPreviewOnHover,
+				controls: shouldPreviewOnHover ? false : attributes.controls,
 			} );
 		},
 		[ attributes ]
