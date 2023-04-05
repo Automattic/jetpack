@@ -55,7 +55,7 @@ class Odyssey_Config_Data {
 			'features'                       => array(),
 			// Intended for apps that do not use redux.
 			'gmt_offset'                     => $this->get_gmt_offset(),
-			// TODO: check wether this works with Pressable.
+			// TODO: check whether this works with Pressable.
 			'odyssey_stats_base_url'         => admin_url( 'admin.php?page=stats' ),
 			'intial_state'                   => array(
 				'currentUser' => array(
