@@ -386,7 +386,7 @@ export function VideoHoverPreviewControl( {
 								onLoopDurationChange( max );
 							}
 						} }
-						wait={ 100 }
+						wait={ 300 }
 						disabled={ disabled }
 						help={ startingPointHelp }
 					/>
@@ -399,7 +399,7 @@ export function VideoHoverPreviewControl( {
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
 						value={ loopDuration }
 						onDebounceChange={ onLoopDurationChange }
-						wait={ 100 }
+						wait={ 300 }
 						help={ loopDurationHelp }
 						disabled={ disabled || noLoopDurationRange }
 					/>
