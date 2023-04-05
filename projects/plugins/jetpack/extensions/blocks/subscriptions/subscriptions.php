@@ -756,7 +756,16 @@ function maybe_gate_existing_comments( $comment ) {
  * @return string
  */
 function get_locked_content_placeholder_text( $newsletter_access_level ) {
-	$access_level = $newsletter_access_level === 'paid_subscribers' ? __( 'paid subscribers', 'jetpack' ) : __( 'subscribers', 'jetpack' );
+	// Default to subscribers
+	$access_level = __( 'subscribers', 'jetpack' );
+
+	// Only display this text when Stripe is connected and the post is marked for paid subscribers
+	if (
+		$newsletter_access_level === 'paid_subscribers'
+		&& ! empty( \Jetpack_Memberships::get_connected_account_id() )
+	) {
+		$access_level = __( 'paid subscribers', 'jetpack' );
+	}
 
 	return do_blocks(
 		'<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}},"border":{"width":"1px","radius":"4px"}},"borderColor":"primary","layout":{"type":"constrained","contentSize":"400px"}} -->
