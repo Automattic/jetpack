@@ -14,7 +14,12 @@ final class Data_Sync_Option implements Entry_Can_Get, Entry_Can_Set, Entry_Can_
 		$this->option_key = $option_key;
 	}
 
-	public function get() {
+	public function get( $fallback_value = false ) {
+		// WordPress looks at argument count to figure out if a fallback value was used.
+		// Only provide the fallback value if it's not the default ( false ).
+		if ( $fallback_value !== false ) {
+			return get_option( $this->option_key, $fallback_value );
+		}
 		return get_option( $this->option_key );
 	}
 
