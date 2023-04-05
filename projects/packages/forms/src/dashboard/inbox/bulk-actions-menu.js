@@ -1,22 +1,9 @@
 import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { updateResponseStatus } from '../data/responses';
+import { doBulkAction } from '../data/responses';
 import { STORE_NAME } from '../state';
-
-const ACTIONS = {
-	moveToTrash: 'trash',
-	removeFromTrash: 'untrash',
-	markAsSpam: 'mark_as_spam',
-	markAsNotSpam: 'mark_as_not_spam',
-	spamCheck: 'spam_check',
-};
-
-const VIEWS = {
-	inbox: 'inbox',
-	spam: 'spam',
-	trash: 'trash',
-};
+import { ACTIONS, TABS } from './constants';
 
 const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } ) => {
 	const { fetchResponses, setLoading } = useDispatch( STORE_NAME );
@@ -25,7 +12,7 @@ const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } )
 	const onActionHandler = action => async () => {
 		try {
 			setLoading( true );
-			await updateResponseStatus( selectedResponses, action );
+			await doBulkAction( selectedResponses, action );
 			fetchResponses( query );
 			setSelectedResponses( [] );
 		} catch {
@@ -35,25 +22,25 @@ const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } )
 
 	return (
 		<>
-			{ currentView !== VIEWS.trash && (
+			{ currentView !== TABS.trash && (
 				<Button onClick={ onActionHandler( ACTIONS.moveToTrash ) } variant="secondary">
 					{ __( 'Move to trash', 'jetpack-forms' ) }
 				</Button>
 			) }
 
-			{ currentView === VIEWS.trash && (
+			{ currentView === TABS.trash && (
 				<Button onClick={ onActionHandler( ACTIONS.removeFromTrash ) } variant="secondary">
 					{ __( 'Remove from trash', 'jetpack-forms' ) }
 				</Button>
 			) }
 
-			{ currentView !== VIEWS.spam && (
+			{ currentView !== TABS.spam && (
 				<Button onClick={ onActionHandler( ACTIONS.markAsSpam ) } variant="secondary">
 					{ __( 'Mark as spam', 'jetpack-forms' ) }
 				</Button>
 			) }
 
-			{ currentView === VIEWS.spam && (
+			{ currentView === TABS.spam && (
 				<Button onClick={ onActionHandler( ACTIONS.markAsNotSpam ) } variant="secondary">
 					{ __( 'Remove from spam', 'jetpack-forms' ) }
 				</Button>

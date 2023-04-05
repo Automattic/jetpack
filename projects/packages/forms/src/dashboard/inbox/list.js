@@ -3,6 +3,7 @@ import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PageNavigation from '../components/page-navigation';
 import Table from '../components/table';
+import SingleActionsMenu from './single-actions-menu';
 
 const COLUMNS = [
 	{
@@ -21,6 +22,10 @@ const COLUMNS = [
 			href: item.entry_permalink,
 			variant: 'link',
 		} ),
+	},
+	{
+		key: 'actions',
+		component: SingleActionsMenu,
 	},
 ];
 
