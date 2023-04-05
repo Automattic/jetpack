@@ -16,6 +16,7 @@ import React, { useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
+import useUserConfig from '../../hooks/use-user-config';
 import ConnectionsSection from '../connections-section';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
@@ -76,6 +77,7 @@ export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
+	const { userConfig } = useUserConfig();
 
 	const { recordEvent } = useAnalytics();
 
@@ -123,7 +125,8 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 			</AdminSection>
-			<ZendeskChat />
+
+			{ userConfig && <ZendeskChat /> }
 		</AdminPage>
 	);
 }

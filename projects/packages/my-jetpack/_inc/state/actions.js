@@ -17,6 +17,8 @@ const SET_PRODUCT = 'SET_PRODUCT';
 const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
 const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
+const SET_USER_CONFIG_IS_FETCHING = 'SET_USER_CONFIG_IS_FETCHING';
+const SET_USER_CONFIG = 'SET_USER_CONFIG';
 
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
 const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
@@ -28,12 +30,20 @@ const setPurchasesIsFetching = isFetching => {
 	return { type: SET_PURCHASES_IS_FETCHING, isFetching };
 };
 
+const setUserConfigIsFetching = isFetching => {
+	return { type: SET_USER_CONFIG_IS_FETCHING, isFetching };
+};
+
 const fetchPurchases = () => {
 	return { type: FETCH_PURCHASES };
 };
 
 const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
+};
+
+const setUserConfig = userConfig => {
+	return { type: SET_USER_CONFIG, userConfig };
 };
 
 const setAvailableLicensesIsFetching = isFetching => {
@@ -233,8 +243,10 @@ const noticeActions = {
 
 const actions = {
 	setPurchasesIsFetching,
+	setUserConfigIsFetching,
 	fetchPurchases,
 	setPurchases,
+	setUserConfig,
 	setAvailableLicensesIsFetching,
 	fetchAvailableLicenses,
 	setAvailableLicenses,

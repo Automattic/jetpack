@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import {
 	REST_API_SITE_PURCHASES_ENDPOINT,
 	REST_API_SITE_PRODUCTS_ENDPOINT,
+	REST_API_USER_CONFIG_ENDPOINT,
 	PRODUCTS_THAT_NEEDS_INITIAL_FETCH,
 } from './constants';
 import resolveProductStatsRequest from './stats-resolvers';
@@ -61,6 +62,28 @@ const myJetpackResolvers = {
 							status: 'error',
 						}
 					);
+			}
+		},
+
+	getUserConfig:
+		() =>
+		async ( { dispatch } ) => {
+			dispatch.setUserConfigIsFetching( true );
+
+			try {
+				dispatch.setUserConfig( await apiFetch( { path: REST_API_USER_CONFIG_ENDPOINT } ) );
+				dispatch.setPurchasesIsFetching( false );
+			} catch ( error ) {
+				dispatch.setUserConfigIsFetching( false );
+				dispatch.setGlobalNotice(
+					__(
+						'There was an error fetching your user configuration. Check your site connectivity and try again.',
+						'jetpack-my-jetpack'
+					),
+					{
+						status: 'error',
+					}
+				);
 			}
 		},
 

@@ -221,6 +221,7 @@ class Initializer {
 	public static function register_rest_endpoints() {
 		new REST_Products();
 		new REST_Purchases();
+		new REST_User_Config();
 
 		register_rest_route(
 			'my-jetpack/v1',
