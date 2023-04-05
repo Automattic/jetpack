@@ -60,7 +60,7 @@ class Registry {
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && $sanitized_key !== $key ) {
 			// If the key is invalid,
 			// Log an error during development
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( "Invalid key '$key'. Keys should only include alphanumeric characters and underscores." );
 		}
 		return $sanitized_key;
