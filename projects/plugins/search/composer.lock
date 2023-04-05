@@ -1174,10 +1174,9 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "9f4692f96639eda2306b2c1f140350e907290176"
+                "reference": "f6feacd16949fdadd2edee685ef7d1fc34a4410f"
             },
             "require": {
-                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-status": "@dev"
