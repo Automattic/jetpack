@@ -10,6 +10,7 @@ import { getVideoPressUrl } from '../../../lib/url';
 /**
  * Types
  */
+import { isVideoFramePosterEnabled } from './components/poster-panel';
 import type { VideoBlockAttributes } from './types';
 import type React from 'react';
 
@@ -52,18 +53,16 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 		} ),
 	} );
 
-	if ( previewOnHover && [ previewAtTime, previewLoopDuration ].every( value => value != null ) ) {
-		blockProps[ 'data-preview-on-hover' ] = JSON.stringify( {
-			previewAtTime,
-			previewLoopDuration,
-		} );
-	}
+	const isPreviewOnHoverEnabled = isVideoFramePosterEnabled();
+
+	const autoplayArg = ! isPreviewOnHoverEnabled ? autoplay : autoplay || posterData.previewOnHover;
+	const mutedArg = ! isPreviewOnHoverEnabled ? muted : muted || posterData.previewOnHover;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay,
+		autoplay: autoplayArg,
 		controls,
 		loop,
-		muted,
+		muted: mutedArg,
 		playsinline,
 		preload,
 		seekbarColor,
@@ -80,12 +79,39 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 		style.margin = 'auto';
 	}
 
+	if ( ! isVideoFramePosterEnabled() ) {
+		return (
+			<figure { ...blockProps } style={ style }>
+				{ videoPressUrl && (
+					<div className="jetpack-videopress-player__wrapper">
+						{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
+					</div>
+				) }
+
+				{ ! RichText.isEmpty( caption ) && (
+					<RichText.Content tagName="figcaption" value={ caption } />
+				) }
+			</figure>
+		);
+	}
+
 	return (
 		<figure { ...blockProps } style={ style }>
 			{ videoPressUrl && (
-				<div className="jetpack-videopress-player__wrapper">
-					{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
-				</div>
+				<>
+					{ previewOnHover && (
+						<span
+							style={ { display: 'none', visibility: 'hidden', position: 'absolute' } }
+							className="videopress-poh"
+						>
+							<span className="videopress-poh__sp">{ previewAtTime }</span>
+							<span className="videopress-poh__duration">{ previewLoopDuration }</span>
+						</span>
+					) }
+					<div className="jetpack-videopress-player__wrapper">
+						{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
+					</div>
+				</>
 			) }
 
 			{ ! RichText.isEmpty( caption ) && (

@@ -228,6 +228,14 @@ class Initializer {
 			)
 		);
 
+		wp_enqueue_script(
+			self::JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER . '-iframe-api',
+			'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress-iframe-api.js',
+			array(),
+			gmdate( 'YW' ),
+			false
+		);
+
 		// Register VideoPress video block.
 		register_block_type( $videopress_video_metadata_file );
 	}

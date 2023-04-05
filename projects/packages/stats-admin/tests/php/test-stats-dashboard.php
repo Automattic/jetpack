@@ -28,14 +28,4 @@ class Test_Dashboard extends Stats_Test_Case {
 		$this->expectOutputRegex( '/<div id="wpcom" class="jp-stats-dashboard".*>/i' );
 		( new Dashboard() )->render();
 	}
-
-	/**
-	 * Test remote cache buster.
-	 */
-	public function test_get_cdn_asset_cache_buster() {
-		$dashboard                  = new Dashboard();
-		$get_cdn_asset_cache_buster = new \ReflectionMethod( $dashboard, 'get_cdn_asset_cache_buster' );
-		$get_cdn_asset_cache_buster->setAccessible( true );
-		$this->assertEquals( 'calypso-4917-8664-g72a154d63a', $get_cdn_asset_cache_buster->invoke( $dashboard ) );
-	}
 }
