@@ -571,8 +571,10 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 						$transactions_menu = array();
 						$transactions_menu = apply_filters( 'zbs-transactions-menu', $transactions_menu ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 						$import_menu_item  = preg_grep( '/\bpage\=zerobscrm\-csvimporter\-app\b/i', $transactions_menu );
-						echo wp_kses( $import_menu_item[0], $zbs->acceptable_html );
-						$transactions_menu = array_diff( $transactions_menu, $import_menu_item );
+						if ( count( $import_menu_item ) > 0 ) {
+							echo wp_kses( $import_menu_item[0], $zbs->acceptable_html );
+							$transactions_menu = array_diff( $transactions_menu, $import_menu_item );
+						}
 						?>
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['export-tools'] ) ); ?>&zbstype=transaction"><i class="icon cloud download"></i> <?php esc_html_e( 'Export', 'zero-bs-crm' ); ?></a>
 					<?php } ?>
