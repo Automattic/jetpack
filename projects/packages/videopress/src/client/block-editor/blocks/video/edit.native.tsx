@@ -23,6 +23,7 @@ import { View } from 'react-native';
 import getMediaToken from '../../../lib/get-media-token/index.native';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
+import addTokenIntoIframeSource from '../../utils/add-token-iframe-source';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
 import PlaybackPanel from './components/playback-panel';
@@ -74,7 +75,7 @@ export default function VideoPressEdit( {
 		isReplacing: false,
 		prevAttrs: {},
 	} );
-	const [ , setToken ] = useState< string >();
+	const [ token, setToken ] = useState< string >();
 
 	// Fetch token for a VideoPress GUID
 	useEffect( () => {
@@ -111,6 +112,7 @@ export default function VideoPressEdit( {
 	} );
 
 	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
+	const previewHTML = addTokenIntoIframeSource( preview?.html, token );
 
 	// Handlers of `VideoPressUploader`
 	const onStartUpload = useCallback(
@@ -224,7 +226,7 @@ export default function VideoPressEdit( {
 			) }
 
 			<Player
-				html={ preview.html }
+				html={ previewHTML }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
 				isSelected={ isSelected }
 			/>
