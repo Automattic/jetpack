@@ -400,6 +400,7 @@ export function VideoHoverPreviewControl( {
 						wait={ 100 }
 						help={ loopDurationHelp }
 						disabled={ disabled || noLoopDurationRange }
+						marksEvery={ 5000 }
 					/>
 				</>
 			) }
