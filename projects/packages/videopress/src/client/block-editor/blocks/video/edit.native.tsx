@@ -80,14 +80,9 @@ export default function VideoPressEdit( {
 	// Fetch token for a VideoPress GUID
 	useEffect( () => {
 		if ( guid ) {
-			getMediaToken( 'playback', { guid } )
-				.then( tokenData => {
-					setToken( tokenData.token );
-				} )
-				.catch( error => {
-					// eslint-disable-next-line no-console
-					console.error( "Can't obtain the token:", error );
-				} );
+			getMediaToken( 'playback', { guid } ).then( tokenData => {
+				setToken( tokenData.token );
+			} );
 		}
 	}, [ guid ] );
 

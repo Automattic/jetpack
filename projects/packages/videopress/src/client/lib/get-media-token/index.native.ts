@@ -52,14 +52,15 @@ const requestMediaToken = function (
 			path: fetchParams.path,
 			method: 'POST',
 			body: fetchParams.body,
-		} )
-			.then( response => {
-				resolve( { token: response.metadata_token } );
-			} )
-			.catch( error => {
-				console.warn( 'Token is not achievable', error ); // eslint-disable-line no-console
+		} ).then( response => {
+			const { metadata_token } = response;
+			if ( ! metadata_token ) {
+				console.warn( 'Token is not achievable' ); // eslint-disable-line no-console
 				resolve( { token: null } );
-			} );
+				return;
+			}
+			resolve( { token: metadata_token } );
+		} );
 	} );
 };
 
