@@ -8,14 +8,10 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 
 final class Data_Sync_Option implements Entry_Can_Get, Entry_Can_Set, Entry_Can_Delete {
 
-	private $key;
-
 	private $option_key;
 
-	public function __construct( $namespace, $key ) {
-		$this->namespace  = $namespace;
-		$this->key        = $key;
-		$this->option_key = $this->namespace . '_' . $this->key;
+	public function __construct( $option_key ) {
+		$this->option_key = $option_key;
 	}
 
 	public function get() {

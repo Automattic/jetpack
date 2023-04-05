@@ -17,7 +17,8 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
  */
 function jetpack_boost_register_option( $key, $schema, $entry = null ) {
 	if ( ! $entry ) {
-		$entry = new Data_Sync_Option( JETPACK_BOOST_DATASYNC_NAMESPACE, $key );
+		$option_key = JETPACK_BOOST_DATASYNC_NAMESPACE . '_' . $key;
+		$entry = new Data_Sync_Option( $option_key );
 	}
 	return Registry::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
 					->register( $key, new Data_Sync_Entry( $entry, $schema ) );
