@@ -261,7 +261,6 @@ class Initializer {
 		register_block_type(
 			$videopress_video_metadata_file,
 			array(
-				'api_version'     => 2,
 				'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
 			)
 		);
