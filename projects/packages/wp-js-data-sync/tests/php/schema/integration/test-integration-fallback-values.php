@@ -61,8 +61,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 	 * This makes it challenging to use a fallback value of `true`.
 	 */
 	public function test_boolean_fallback() {
-		$true  = Schema::as_boolean()->fallback( true );
-		$false = Schema::as_boolean()->fallback( false );
+		$true = Schema::as_boolean()->fallback( true );
 
 		$parsed = $true->parse( true );
 		$this->assertSame( true, $parsed );
