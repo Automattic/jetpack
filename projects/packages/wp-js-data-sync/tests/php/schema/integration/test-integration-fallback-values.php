@@ -96,7 +96,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$this->assertSame( false, get_option( $key ) );
 
 		$schema = Schema::as_boolean()->fallback( true );
-		$entry = new Data_Sync_Entry( new Data_Sync_Option( $key ), $schema );
+		$entry  = new Data_Sync_Entry( new Data_Sync_Option( $key ), $schema );
 
 		// Test with a valid value
 		$this->assertSame( true, $entry->set( true ) );
@@ -120,7 +120,7 @@ class Test_Integration_Fallback_Values extends TestCase {
 		$this->assertSame( false, get_option( $key ) );
 
 		$schema = Schema::as_boolean();
-		$entry = new Data_Sync_Entry( new Data_Sync_Option( $key ), $schema );
+		$entry  = new Data_Sync_Entry( new Data_Sync_Option( $key ), $schema );
 
 		// Test with a valid values
 		$this->assertSame( true, $entry->set( true ) );
@@ -135,6 +135,79 @@ class Test_Integration_Fallback_Values extends TestCase {
 		// because the fallback is not set.
 		$entry->delete();
 		$this->assertSame( false, $entry->get() );
+
+	}
+
+	public function test_nested_fallbacks() {
+
+		// This is what the full fallback array should look like
+		$schema_fallback = array(
+			'one'          => 1,
+			'array_of_two' => array( 2 ),
+		);
+
+		$schema = Schema::as_assoc_array(
+			[
+				'one'          => Schema::as_number()->fallback( 1 ),
+				'array_of_two' => Schema::as_array( Schema::as_number() )->fallback( array( 2 ) ),
+			]
+		);
+
+		$valid_array = array(
+			'one'          => 100,
+			'array_of_two' => array( 200 ),
+		);
+
+		$this->assertSame( $valid_array, $schema->parse( $valid_array ) );
+
+		// If the values are empty, fallback is going to work
+		$invalid_array = array(
+			'one'          => null,
+			'array_of_two' => null,
+		);
+		$this->assertSame( $schema_fallback, $schema->parse( $invalid_array ) );
+
+		// Passing an empty array also works
+		$this->assertSame( $schema_fallback, $schema->parse( array() ) );
+
+		// But passing a non-array value will not work
+		// Because the parent schema has no fallback, this will fail.
+		try {
+			$schema->parse( null );
+			// If the exception is not thrown, fail the test
+			$this->fail('Expected \Error exception was not thrown');
+		} catch ( \Error $e ) {
+			// If the exception is thrown, assert that it's the expected exception
+			$this->assertInstanceOf( \Error::class, $e );
+		}
+
+		// -------
+		// -------
+		// ------- This should be improved -------
+		// -------
+		// -------
+
+		// So if the parent schema has no specific fallback defined,
+		// it will fall back to an empty array
+		$schema_with_parent_fallback = $schema->fallback( array() )->parse( null );
+		$this->assertSame( array(), $schema_with_parent_fallback );
+
+		// So right now, to fallback to a full-value when the parent schema parsing fails
+		// you have to do this:
+		$schema_with_top_level_defaults = $schema->fallback( $schema_fallback )->parse( null );
+		$this->assertSame( $schema_fallback, $schema_with_top_level_defaults );
+
+		// -------
+		// -------
+		// ------- Incorrect Tests Below -------
+		// -------
+		// -------
+		// @TODO: This should actually fail, but it works right now.
+		$partial_schema = Schema::as_array( Schema::as_string() )->fallback( $schema_fallback );
+		$this->assertSame( $schema_fallback, $partial_schema->parse( null ) );
+
+		$incorrect_schema = Schema::as_string()->fallback( $schema_fallback );
+		$this->assertSame( $schema_fallback, $incorrect_schema->parse( null ) );
 
 	}
 }
