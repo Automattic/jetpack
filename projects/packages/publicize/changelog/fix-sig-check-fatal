@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reinstated is_social_image_generator_enabled for backwards compatibility
