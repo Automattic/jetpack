@@ -25,7 +25,7 @@ test.describe( 'Critical CSS module', () => {
 	// which is an onerous task in a test.
 
 	test( 'No Critical CSS meta information should show on the admin when the module is inactive', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical-css' ] ).build();
+		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical_css' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect(
 			await jetpackBoostPage.isTheCriticalCssMetaInformationVisible(),
@@ -34,7 +34,7 @@ test.describe( 'Critical CSS module', () => {
 	} );
 
 	test( 'No Critical CSS should be available on the frontend when the module is inactive', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical-css' ] ).build();
+		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical_css' ] ).build();
 		await PostFrontendPage.visit( page );
 		expect(
 			await page.locator( '#jetpack-boost-critical-css' ).count( {
@@ -45,7 +45,7 @@ test.describe( 'Critical CSS module', () => {
 	} );
 
 	test( 'Critical CSS should be generated when the module is active', async () => {
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
+		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect(
 			await jetpackBoostPage.waitForCriticalCssGenerationProgressUIVisibility(),
@@ -58,8 +58,8 @@ test.describe( 'Critical CSS module', () => {
 	} );
 
 	test( 'Critical CSS meta information should show on the admin when the module is re-activated', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical-css' ] ).build();
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
+		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'critical_css' ] ).build();
+		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		expect(
 			await jetpackBoostPage.waitForCriticalCssMetaInfoVisibility(),
@@ -74,7 +74,7 @@ test.describe( 'Critical CSS module', () => {
 	} );
 
 	test( 'Critical CSS Admin message should show when the theme is changed', async () => {
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
+		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
 		await DashboardPage.visit( page );
 		await ( await Sidebar.init( page ) ).selectThemes();
 		const themesPage = await ThemesPage.init( page );
@@ -99,7 +99,7 @@ test.describe( 'Critical CSS module', () => {
 	test( 'Critical CSS should be generated with an error (advanced recommendations)', async () => {
 		await boostPrerequisitesBuilder( page )
 			.withCleanEnv( true )
-			.withActiveModules( [ 'critical-css' ] )
+			.withActiveModules( [ 'critical_css' ] )
 			.build();
 
 		// Purposely fail some page requests so Critical CSS will be generated with an error, and we can
@@ -128,7 +128,7 @@ test.describe( 'Critical CSS module', () => {
 	} );
 
 	test( 'User can access the Critical advanced recommendations and go back to settings page', async () => {
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical-css' ] ).build();
+		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'critical_css' ] ).build();
 
 		const jetpackBoostPage = await JetpackBoostPage.visit( page );
 		await jetpackBoostPage.navigateToCriticalCSSAdvancedRecommendations();

@@ -2,6 +2,7 @@
 
 namespace Automattic\Jetpack_Boost\Lib;
 
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 
@@ -31,41 +32,25 @@ class Status {
 		);
 	}
 
-	public function get_ds_entry_name() {
-		return 'module_status_' . str_replace( '-', '_', $this->slug );
+	public function update( $new_status ) {
+		$entry                          = jetpack_boost_ds_get( 'modules_state' );
+		$entry[ $this->slug ]['active'] = $new_status;
+		jetpack_boost_ds_set( 'modules_state', $entry );
 	}
 
 	public function is_enabled() {
-		return jetpack_boost_ds_get( $this->get_ds_entry_name() );
+		$modules_state = jetpack_boost_ds_get( 'modules_state' );
+		return $modules_state[ $this->slug ]['active'];
 	}
 
-	public function update( $new_status ) {
-		/**
-		 * Fires before attempting to update the status of a module.
-		 *
-		 * @param string $slug Slug of the module.
-		 * @param bool $new_status New status of the module.
-		 */
-		do_action( 'jetpack_boost_before_module_status_update', $this->slug, (bool) $new_status );
-
-		if ( jetpack_boost_ds_set( $this->get_ds_entry_name(), $new_status ) ) {
-			$this->update_mapped_modules( $new_status );
-
-			// Only record analytics event if the config update succeeds.
-			$this->track_module_status( (bool) $new_status );
-
-			/**
-			 * Fires when a module is enabled or disabled.
-			 *
-			 * @param string $module The module slug.
-			 * @param bool   $status The new status.
-			 * @since 1.5.2
-			 */
-			do_action( 'jetpack_boost_module_status_updated', $this->slug, (bool) $new_status );
-
-			return true;
-		}
-		return false;
+	/**
+	 * Called when the module is toggled.
+	 *
+	 * Called by Modules and triggered by the `jetpack_ds_set` action.
+	 */
+	public function on_update( $new_status ) {
+		$this->update_mapped_modules( $new_status );
+		$this->track_module_status( (bool) $new_status );
 	}
 
 	/**
@@ -81,8 +66,22 @@ class Status {
 			return;
 		}
 
+		$modules_instance = Setup::get_instance_of( Modules_Setup::class );
+
+		// The moduleInstance will be there. But check just in case.
+		if ( $modules_instance !== null ) {
+			// Remove the action temporarily to avoid infinite loop.
+			remove_action( 'jetpack_boost_module_status_updated', array( $modules_instance, 'on_module_status_update' ) );
+		}
+
 		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module ) {
-			jetpack_boost_ds_set( 'module_status_' . $mapped_module, $new_status );
+			$mapped_status = new Status( $mapped_module );
+			$mapped_status->update( $new_status );
+		}
+
+		// The moduleInstance will be there. But check just in case.
+		if ( $modules_instance !== null ) {
+			add_action( 'jetpack_boost_module_status_updated', array( $modules_instance, 'on_module_status_update' ), 10, 2 );
 		}
 	}
 
