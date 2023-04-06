@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Do not attempt to load non minified files since they are not shipped with the package anymore.

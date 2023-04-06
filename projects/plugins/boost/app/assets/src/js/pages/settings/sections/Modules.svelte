@@ -219,7 +219,10 @@
 	<Module slug="image-cdn">
 		<h3 slot="title">{__( 'Image CDN', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 		<p slot="description">
-			{__( `Delivers images from Jetpack's image CDN.`, 'jetpack-boost' )}
+			{__(
+				`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.`,
+				'jetpack-boost'
+			)}
 		</p>
 	</Module>
 
