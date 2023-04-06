@@ -245,6 +245,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 		fineAdjustment = 50,
 		autoHideTimeInput = true,
 		decimalPlaces,
+		marksEvery,
 	} = props;
 
 	const debounceTimer = useRef< NodeJS.Timeout >();
@@ -276,6 +277,13 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 		[ onDebounceChange, onChange, max, min, wait ]
 	);
 
+	const marks: Array< { value: number; label: string } > = [];
+	if ( marksEvery ) {
+		for ( let i = min; i <= max; i += marksEvery ) {
+			marks.push( { value: i, label: null } );
+		}
+	}
+
 	return (
 		<BaseControl { ...baseControlProps }>
 			<div className={ styles[ 'timestamp-control__controls-wrapper' ] }>
@@ -301,6 +309,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 					showTooltip={ false }
 					withInputField={ false }
 					onChange={ onChangeHandler }
+					marks={ marksEvery ? marks : undefined }
 				/>
 			</div>
 		</BaseControl>

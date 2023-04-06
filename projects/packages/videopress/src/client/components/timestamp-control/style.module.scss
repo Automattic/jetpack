@@ -9,10 +9,23 @@
 		margin-bottom: 0;
 		flex-grow: 2;
 
-		:global .components-base-control__field {
-			margin-bottom: 0;
+		:global {
+			.components-base-control__field {
+				margin-bottom: 0;
+			}
+
+			.components-range-control__wrapper {
+				margin-bottom: 0;
+			}
 		}
-	} 
+
+	}
+	
+	:global {
+		.components-range-control__marks {
+			top: 13px;
+		}
+	}
 }
 
 .timestamp-input-wrapper {
