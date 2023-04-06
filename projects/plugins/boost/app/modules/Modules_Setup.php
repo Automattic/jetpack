@@ -70,25 +70,18 @@ class Modules_Setup implements Has_Setup {
 	 */
 	public function setup() {
 		add_action( 'plugins_loaded', array( $this, 'init_modules' ) );
-		add_action( 'jetpack_ds_set', array( $this, 'on_ds_set' ), 10, 3 );
+		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_update' ), 10, 2 );
 	}
 
 	/**
-	 * Handle module status changes when the DS is set.
+	 * Handle module status changes.
 	 *
-	 * @param string $namespace The namespace of the DS.
-	 * @param string $key The name of the DS entry
-	 * @param mixed $value The value of the DS entry
+	 * @param string $module_slug The module slug.
+	 * @param bool   $is_activated The new status.
 	 */
-	public function on_ds_set( $namespace, $key, $value ) {
-		$pattern_matches = array();
-		if ( $namespace === JETPACK_BOOST_DATASYNC_NAMESPACE && preg_match( '/\Amodule_status_([a-z_]+)\z/', $key, $pattern_matches ) ) {
-			$module_slug = $pattern_matches[1];
-			if ( isset( $this->available_modules[ $module_slug ] ) ) {
-				$status = new Status( $module_slug );
-				$status->on_update( $value );
-			}
-		}
+	public function on_module_status_update( $module_slug, $is_activated ) {
+		$status = new Status( $module_slug );
+		$status->on_update( $is_activated );
 	}
 
 }

@@ -33,7 +33,18 @@ class Modules_Status_Entry implements Entry_Can_Get, Entry_Can_Merge {
 	public function set( $value ) {
 		foreach ( $value as $module_slug => $module_state ) {
 			$option_name = $this->get_module_option_name( $module_slug );
-			update_option( $option_name, $module_state['active'] );
+			$updated     = update_option( $option_name, $module_state['active'] );
+
+			if ( $updated ) {
+				/**
+				 * Fires when a module is enabled or disabled.
+				 *
+				 * @param string $module The module slug.
+				 * @param bool   $status The new status.
+				 * @since 1.5.2
+				 */
+				do_action( 'jetpack_boost_module_status_updated', $module_slug, $module_state['active'] );
+			}
 		}
 	}
 

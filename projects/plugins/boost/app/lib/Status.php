@@ -5,6 +5,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
+
 class Status {
 
 	/**
@@ -64,16 +65,18 @@ class Status {
 		// The moduleInstance will be there. But check just in case.
 		if ( $modules_instance !== null ) {
 			// Remove the action temporarily to avoid infinite loop.
-			remove_action( 'jetpack_ds_set', array( $modules_instance, 'on_ds_set' ) );
+			remove_action( 'jetpack_boost_module_status_updated', array( $modules_instance, 'on_module_status_update' ) );
 		}
 
 		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module ) {
-			jetpack_boost_ds_set( 'module_status_' . $mapped_module, $new_status );
+			$entry                             = jetpack_boost_ds_get( 'modules_state' );
+			$entry[ $mapped_module ]['active'] = $new_status;
+			jetpack_boost_ds_set( 'modules_state', $entry );
 		}
 
 		// The moduleInstance will be there. But check just in case.
 		if ( $modules_instance !== null ) {
-			add_action( 'jetpack_ds_set', array( $modules_instance, 'on_ds_set' ), 10, 3 );
+			add_action( 'jetpack_boost_module_status_updated', array( $modules_instance, 'on_module_status_update' ), 10, 2 );
 		}
 	}
 
