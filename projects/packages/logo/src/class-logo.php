@@ -80,7 +80,7 @@ class Logo {
 	/**
 	 * Return array containing the Jetpack logo and text
 	 *
-	 * @since $$next-version$$ - Added $color parameter.
+	 * @since 1.6.0 - Added $color parameter.
 	 *
 	 * @param string $color The color of the logo.
 	 *
@@ -103,7 +103,7 @@ class Logo {
 	 * Return a base64 encoded SVG of the Jetpack logo.
 	 * Can be used as a data URI to use the logo inline in CSS.
 	 *
-	 * @since $$next-version$$
+	 * @since 1.6.0
 	 *
 	 * @param string $color The color of the logo.
 	 *

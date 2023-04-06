@@ -236,7 +236,8 @@ export const TimestampInput = ( {
 export const TimestampControl = ( props: TimestampControlProps ): React.ReactElement => {
 	const {
 		disabled = false,
-		max,
+		min = 0,
+		max = Number.MAX_SAFE_INTEGER,
 		value,
 		onChange,
 		onDebounceChange,
@@ -264,11 +265,15 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 				newValue = max;
 			}
 
+			if ( newValue < min ) {
+				newValue = min;
+			}
+
 			setControledValue( newValue );
 			onChange?.( newValue );
 			debounceTimer.current = setTimeout( onDebounceChange?.bind( null, newValue ), wait );
 		},
-		[ onDebounceChange, onChange, max, wait ]
+		[ onDebounceChange, onChange, max, min, wait ]
 	);
 
 	return (
@@ -288,7 +293,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 				<RangeControl
 					disabled={ disabled }
 					className={ styles[ 'timestamp-range-control' ] }
-					min={ 0 }
+					min={ min }
 					step={ fineAdjustment }
 					initialPosition={ controledValue }
 					value={ controledValue }

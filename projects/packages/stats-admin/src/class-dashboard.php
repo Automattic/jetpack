@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 
 /**
@@ -17,16 +16,6 @@ use Automattic\Jetpack\Stats\Options as Stats_Options;
  * @package jetpack-stats-admin
  */
 class Dashboard {
-	// This is a fixed list @see https://github.com/Automattic/wp-calypso/pull/71442/
-	const JS_DEPENDENCIES                 = array( 'lodash', 'react', 'react-dom', 'wp-api-fetch', 'wp-components', 'wp-compose', 'wp-element', 'wp-html-entities', 'wp-i18n', 'wp-is-shallow-equal', 'wp-polyfill', 'wp-primitives', 'wp-url', 'wp-warning', 'moment' );
-	const ODYSSEY_CDN_URL                 = 'https://widgets.wp.com/odyssey-stats/%s/%s';
-	const OPT_OUT_NEW_STATS_FEATURE_CLASS = 'opt-out-new-stats';
-	/**
-	 * We bump the asset version when the Jetpack back end is not compatible anymore.
-	 */
-	const ODYSSEY_STATS_VERSION                = 'v1';
-	const ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY = 'odyssey_stats_admin_asset_cache_buster';
-
 	/**
 	 * Whether the class has been initialized
 	 *
@@ -134,64 +123,9 @@ class Dashboard {
 	}
 
 	/**
-	 * Enqueue admin scripts.
+	 * Load the admin scripts.
 	 */
 	public function load_admin_scripts() {
-		if ( file_exists( __DIR__ . '/../dist/build.min.js' ) ) {
-			// Load local assets for the convinience of development.
-			Assets::register_script(
-				'jp-stats-dashboard',
-				'../dist/build.min.js',
-				__FILE__,
-				array(
-					'in_footer'  => true,
-					'textdomain' => 'jetpack-stats-admin',
-				)
-			);
-			Assets::enqueue_script( 'jp-stats-dashboard' );
-		} else {
-			// In production, we load the assets from our CDN.
-			$css_url = 'build.min' . ( is_rtl() ? '.rtl' : '' ) . '.css';
-			wp_register_script( 'jp-stats-dashboard', sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build.min.js' ), self::JS_DEPENDENCIES, $this->get_cdn_asset_cache_buster(), true );
-			wp_register_style( 'jp-stats-dashboard-style', sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, $css_url ), array(), $this->get_cdn_asset_cache_buster() );
-			wp_enqueue_script( 'jp-stats-dashboard' );
-			wp_enqueue_style( 'jp-stats-dashboard-style' );
-		}
-
-		wp_add_inline_script(
-			'jp-stats-dashboard',
-			( new Odyssey_Config_Data() )->get_js_config_data(),
-			'before'
-		);
-	}
-
-	/**
-	 * Returns cache buster string for assets.
-	 * Development mode doesn't need this, as it's handled by `Assets` class.
-	 */
-	protected function get_cdn_asset_cache_buster() {
-		// Use cached cache buster in production.
-		$remote_asset_version = get_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
-		if ( ! empty( $remote_asset_version ) ) {
-			return $remote_asset_version;
-		}
-
-		// If no cached cache buster, we fetch it from CDN and set to transient.
-		$response = wp_remote_get( sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build_meta.json' ), array( 'timeout' => 5 ) );
-
-		if ( is_wp_error( $response ) ) {
-			// fallback to the package version.
-			return Main::VERSION;
-		}
-
-		$build_meta = json_decode( wp_remote_retrieve_body( $response ), true );
-		if ( ! empty( $build_meta['cache_buster'] ) ) {
-			// Cache the cache buster for a day.
-			set_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY, $build_meta['cache_buster'], 15 * MINUTE_IN_SECONDS );
-			return $build_meta['cache_buster'];
-		}
-
-		// fallback to the package version.
-		return Main::VERSION;
+		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'build.min' );
 	}
 }

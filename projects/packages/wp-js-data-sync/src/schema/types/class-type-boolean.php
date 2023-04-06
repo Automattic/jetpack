@@ -10,7 +10,15 @@ class Type_Boolean implements Schema_Type {
 			return $value;
 		}
 
-		$loose_values = array( 'true', '1', 'false', '0', 0, 1 );
+		$loose_values = array(
+			// Numbers used as booleans
+			'1',
+			'0',
+			1,
+			0,
+			// WordPress can return empty string for false.
+			'',
+		);
 		if ( ! in_array( $value, $loose_values, true ) ) {
 			throw new \Error( 'Invalid boolean value' );
 		}

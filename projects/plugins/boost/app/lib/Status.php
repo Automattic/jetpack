@@ -21,11 +21,6 @@ class Status {
 	 */
 	protected $status_sync_map;
 
-	/**
-	 * @var Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry $ds
-	 */
-	protected $ds;
-
 	public function __construct( $slug ) {
 		$this->slug = $slug;
 
@@ -34,8 +29,6 @@ class Status {
 				Critical_CSS::get_slug(),
 			),
 		);
-
-		$this->ds = jetpack_boost_ds( $this->get_ds_entry_name() );
 	}
 
 	public function get_ds_entry_name() {
@@ -43,7 +36,7 @@ class Status {
 	}
 
 	public function is_enabled() {
-		return $this->ds->get();
+		return jetpack_boost_ds_get( $this->get_ds_entry_name() );
 	}
 
 	public function update( $new_status ) {
@@ -55,7 +48,7 @@ class Status {
 		 */
 		do_action( 'jetpack_boost_before_module_status_update', $this->slug, (bool) $new_status );
 
-		if ( $this->ds->set( $new_status ) ) {
+		if ( jetpack_boost_ds_set( $this->get_ds_entry_name(), $new_status ) ) {
 			$this->update_mapped_modules( $new_status );
 
 			// Only record analytics event if the config update succeeds.
