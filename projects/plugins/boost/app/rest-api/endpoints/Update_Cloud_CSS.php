@@ -8,7 +8,7 @@ namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
-use Automattic\Jetpack_Boost\REST_API\Contracts;
+use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Signed_With_Blog_Token;
 use WP_REST_Server;
 
@@ -34,7 +34,7 @@ use WP_REST_Server;
  * - meta: Object - JSON string compatible object containing extra metadata for consumption in the UI.
  */
 
-class Update_Cloud_CSS implements Contracts\Endpoint {
+class Update_Cloud_CSS implements Endpoint {
 
 	public function name() {
 		return 'cloud-css/update';

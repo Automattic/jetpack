@@ -39,22 +39,28 @@ while read -r GIT_SLUG; do
 	CLONE_DIR="${BUILD_BASE}/${GIT_SLUG}"
 	cd "${CLONE_DIR}"
 
-	PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' composer.json)
+	PREFIXES=$(jq -r '.extra["release-branch-prefix"] // "" | if type == "array" then .[] else . end' composer.json)
 	if [[ "$BRANCH" == "prerelease" ]]; then
-		if [[ -n "$PREFIX" ]]; then
+		if [[ -n "$PREFIXES" ]]; then
 			echo "Not mirroring prerelease branch to $GIT_SLUG: an .extra.release-branch-prefix is declared in composer.json"
 		else
 			echo "Mirroring prerelease branch to $GIT_SLUG: no .extra.release-branch-prefix is declared in composer.json"
 			echo "$GIT_SLUG" >&4
 		fi
 	else
-		if [[ -z "$PREFIX" ]]; then
+		if [[ -z "$PREFIXES" ]]; then
 			echo "Not mirroring release branch $BRANCH to $GIT_SLUG: no .extra.release-branch-prefix is declared in composer.json"
-		elif [[ "${BRANCH%%/branch-*}" != "$PREFIX" ]]; then
-			echo "Not mirroring release branch $BRANCH to $GIT_SLUG: branch prefix \`${BRANCH%%/branch-*}\` != declared prefix \`$PREFIX\`"
 		else
-			echo "Mirroring release branch $BRANCH to $GIT_SLUG: branch prefix \`${BRANCH%%/branch-*}\` == declared prefix \`$PREFIX\`"
-			echo "$GIT_SLUG" >&4
+			OK=false
+			while IFS= read -r P; do
+				[[ "${BRANCH%%/branch-*}" == "$P" ]] && OK=true
+			done <<<"$PREFIXES"
+			if $OK; then
+				echo "Mirroring release branch $BRANCH to $GIT_SLUG: branch prefix \`${BRANCH%%/branch-*}\` == some declared prefix \`${PREFIXES//$'\n'/'` `'}\`"
+				echo "$GIT_SLUG" >&4
+			else
+				echo "Not mirroring release branch $BRANCH to $GIT_SLUG: branch prefix \`${BRANCH%%/branch-*}\` != any declared prefix \`${PREFIXES//$'\n'/'` `'}\`"
+			fi
 		fi
 	fi
 done < "$BUILD_BASE/mirrors.txt.orig" 4> "$BUILD_BASE/mirrors.txt"

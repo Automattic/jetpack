@@ -24,7 +24,7 @@
 	}
 
 	onMount( async () => {
-		if ( isModuleActive ) {
+		if ( isModuleAvailable && isModuleActive ) {
 			dispatch( 'mountEnabled' );
 		}
 	} );
