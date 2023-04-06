@@ -13,6 +13,7 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
+import { formatTime } from '../../utils/time';
 import styles from './style.module.scss';
 /**
  * Types
@@ -246,6 +247,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 		autoHideTimeInput = true,
 		decimalPlaces,
 		marksEvery,
+		renderTooltip,
 	} = props;
 
 	const debounceTimer = useRef< NodeJS.Timeout >();
@@ -284,6 +286,10 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 		}
 	}
 
+	// Provides a default function to render the tooltip content.
+	const renderTooltipHandler =
+		typeof renderTooltip === 'function' ? renderTooltip : ( time: number ) => formatTime( time );
+
 	return (
 		<BaseControl { ...baseControlProps }>
 			<div className={ styles[ 'timestamp-control__controls-wrapper' ] }>
@@ -306,10 +312,11 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 					initialPosition={ controledValue }
 					value={ controledValue }
 					max={ max }
-					showTooltip={ false }
 					withInputField={ false }
 					onChange={ onChangeHandler }
 					marks={ marksEvery ? marks : undefined }
+					renderTooltipContent={ renderTooltipHandler }
+					{ ...( renderTooltip === false ? { showTooltip: false } : {} ) }
 				/>
 			</div>
 		</BaseControl>
