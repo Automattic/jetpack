@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats;
 
+use Automattic\Jetpack\Assets;
 use Jetpack_Options;
 use WP_Post;
 
@@ -64,84 +65,69 @@ class Tracking_Pixel {
 	}
 
 	/**
-	 * Stats Footer.
+	 * Build the Stats tracking details.
+	 *
+	 * @since 0.6.0
+	 *
+	 * @access private
+	 * @param array $data Array of data for the AMP pixel tracker.
+	 * @return string
+	 */
+	private static function build_stats_details( $data ) {
+		$data_stats_array = self::stats_array_to_string( $data );
+
+		return sprintf(
+			'_stq = window._stq || [];
+_stq.push([ "view", {%1$s} ]);
+_stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
+			$data_stats_array,
+			$data['blog'],
+			$data['post']
+		);
+	}
+
+	/**
+	 * Enqueue the Stats pixel.
+	 * Do not use this function directly, it is hooked into `wp_enqueue_scripts`.
 	 *
 	 * @access public
 	 * @return void
 	 */
-	public static function add_to_footer() {
-		$data   = self::build_view_data();
-		$footer = self::get_footer_to_add( $data );
-		print $footer; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-	}
-
-	/**
-	 * Gets the footer to add for the Stats tracker.
-	 *
-	 * @access public
-	 * @param array $data Array of data for the JS stats tracker.
-	 * @return string Returns the footer to add for the Stats tracker.
-	 */
-	public static function get_footer_to_add( $data ) {
+	public static function enqueue_stats_script() {
 		if ( self::is_amp_request() ) {
-			/**
-			 * Filter the parameters added to the AMP pixel tracking code.
-			 *
-			 * @module stats
-			 *
-			 * @since-jetpack 10.9
-			 *
-			 * @param array $data Array of options about the site and page you're on.
-			 */
-			$data = (array) apply_filters( 'jetpack_stats_footer_amp_data', $data );
-			return self::get_amp_footer( $data );
-		} else {
-			/**
-			 * Filter the parameters added to the JavaScript stats tracking code.
-			 *
-			 * @module stats
-			 *
-			 * @since-jetpack 10.9
-			 *
-			 * @param array $data Array of options about the site and page you're on.
-			 */
-			$data = (array) apply_filters( 'jetpack_stats_footer_js_data', $data );
-			return self::get_footer( $data );
+			return;
 		}
-	}
 
-	/**
-	 * Gets the stats footer
-	 *
-	 * @access private
-	 * @param array $data Array of data for the JS stats tracker.
-	 * @return string Returns the footer to add for the Stats tracker in a non AMP scenario.
-	 */
-	private static function get_footer( $data ) {
-		// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
-		// When there is a way to use defer with enqueue, we can move to it and inline the custom data.
-		$script           = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
-		$data_stats_array = self::stats_array_to_string( $data );
-		$stats_footer     = <<<END
-	<script src='{$script}' defer></script>
-	<script>
-		_stq = window._stq || [];
-		_stq.push([ 'view', {{$data_stats_array}} ]);
-		_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);
-	</script>
-END;
-		// phpcs:enable
-		return $stats_footer;
-	}
+		wp_enqueue_script(
+			'jetpack-stats',
+			'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js',
+			array(),
+			null, // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- The version is set in the URL.
+			true
+		);
 
-	/**
-	 * Render the stats footer. Kept for backward compatibility
-	 *
-	 * @access public
-	 * @param array $data Array of data for the JS stats tracker.
-	 */
-	public static function render_footer( $data ) {
-		print self::get_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// Make sure the script loads asynchronously (add a defer attribute).
+		Assets::instance()->add_async_script( 'jetpack-stats' );
+
+		$data = self::build_view_data();
+
+		/**
+		 * Filter the parameters added to the JavaScript stats tracking code.
+		 *
+		 * @module stats
+		 *
+		 * @since-jetpack 10.9
+		 *
+		 * @param array $data Array of options about the site and page you're on.
+		 */
+		$data = (array) apply_filters( 'jetpack_stats_footer_js_data', $data );
+
+		$triggers = self::build_stats_details( $data );
+		wp_add_inline_script(
+			'jetpack-stats',
+			$triggers,
+			'after'
+		);
 	}
 
 	/**
@@ -152,6 +138,17 @@ END;
 	 * @return string Returns the footer to add for the Stats tracker in an AMP scenario.
 	 */
 	private static function get_amp_footer( $data ) {
+		/**
+		 * Filter the parameters added to the AMP pixel tracking code.
+		 *
+		 * @module stats
+		 *
+		 * @since-jetpack 10.9
+		 *
+		 * @param array $data Array of options about the site and page you're on.
+		 */
+		$data = (array) apply_filters( 'jetpack_stats_footer_amp_data', $data );
+
 		$data['host'] = isset( $_SERVER['HTTP_HOST'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ) ) : ''; // input var ok.
 		$data['rand'] = 'RANDOM'; // AMP placeholder.
 		$data['ref']  = 'DOCUMENT_REFERRER'; // AMP placeholder.
@@ -161,7 +158,61 @@ END;
 	}
 
 	/**
-	 * Render the stats footer for AMP output.
+	 * Build an AMP pixel.
+	 * Do not use this function directly, it is hooked into `wp_footer`.
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public static function add_amp_pixel() {
+		$data = self::build_view_data();
+		if ( ! self::is_amp_request() ) {
+			return;
+		}
+
+		$pixel = self::get_amp_footer( $data );
+		echo $pixel; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
+
+	/**
+	 * Stats Footer.
+	 *
+	 * @deprecated 0.6.0
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public static function add_to_footer() {
+		_deprecated_function( __METHOD__, '0.6.0' );
+	}
+
+	/**
+	 * Gets the footer to add for the Stats tracker.
+	 *
+	 * @deprecated 0.6.0
+	 *
+	 * @access public
+	 * @param array $data Array of data for the JS stats tracker.
+	 * @return void
+	 */
+	public static function get_footer_to_add( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, '0.6.0' );
+	}
+
+	/**
+	 * Render the stats footer. Kept for backward compatibility on legacy AMF views.
+	 *
+	 * @deprecated 0.6.0
+	 *
+	 * @access public
+	 * @param array $data Array of data for the JS stats tracker.
+	 */
+	public static function render_footer( $data ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		_deprecated_function( __METHOD__, '0.6.0' );
+	}
+
+	/**
+	 * Render the stats footer for AMP output. Kept for backward compatibility.
 	 *
 	 * @access public
 	 * @param array $data Array of data for the AMP pixel tracker.

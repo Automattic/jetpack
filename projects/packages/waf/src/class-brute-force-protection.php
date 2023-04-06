@@ -122,6 +122,12 @@ class Brute_Force_Protection {
 	 * Registers actions
 	 */
 	private function __construct() {
+		// Older versions of Jetpack initialize brute force protection directly in the plugin.
+		// Return early to avoid running it twice.
+		if ( Waf_Compatibility::is_brute_force_running_in_jetpack() ) {
+			return;
+		}
+
 		add_action( 'jetpack_modules_loaded', array( $this, 'modules_loaded' ) );
 		add_action( 'login_form', array( $this, 'check_use_math' ), 0 );
 		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
@@ -151,7 +157,6 @@ class Brute_Force_Protection {
 	 * @return void
 	 */
 	public static function initialize() {
-
 		// Older versions of Jetpack initialize brute force protection directly in the plugin.
 		// Return early to avoid running it twice.
 		if ( Waf_Compatibility::is_brute_force_running_in_jetpack() ) {
@@ -498,16 +503,9 @@ class Brute_Force_Protection {
 		 * @param array Information about failed login attempt
 		 *   [
 		 *     'login'             => (string) Username or email used in failed login attempt
-		 *     'has_login_ability' => (bool) Whether the user has the ability to login based on their IP address
 		 *   ]
 		 */
-		do_action(
-			'jpp_log_failed_attempt',
-			array(
-				'login'             => $login_user,
-				'has_login_ability' => $this->has_login_ability(),
-			)
-		);
+		do_action( 'jpp_log_failed_attempt', array( 'login' => $login_user ) );
 
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 

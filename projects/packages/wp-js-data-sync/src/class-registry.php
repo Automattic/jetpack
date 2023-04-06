@@ -9,18 +9,11 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry_Adapter;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Endpoints\Endpoint;
-use Automattic\Jetpack\WP_JS_Data_Sync\Storage_Drivers\Storage_Driver;
-use Automattic\Jetpack\WP_JS_Data_Sync\Storage_Drivers\WP_Option_Storage;
 
 class Registry {
-
-	/**
-	 * The Registry class is a singleton.
-	 *
-	 * @var Registry[]
-	 */
-	private static $instance = array();
 
 	/**
 	 * Registry instances are namespaced to allow for multiple registries.
@@ -49,16 +42,8 @@ class Registry {
 	 *
 	 * @param $namespace string The namespace for this registry instance.
 	 */
-	private function __construct( $namespace ) {
+	public function __construct( $namespace ) {
 		$this->namespace = $namespace;
-	}
-
-	public static function get_instance( $namespace ) {
-		if ( ! isset( static::$instance[ $namespace ] ) ) {
-			static::$instance[ $namespace ] = new static( $namespace );
-		}
-
-		return static::$instance[ $namespace ];
 	}
 
 	/**
@@ -69,11 +54,14 @@ class Registry {
 	 * @return string
 	 * @throws \Exception In debug mode, if the key is invalid.
 	 */
-	public function sanitize_key( $key ) {
+	private function sanitize_key( $key ) {
 		$sanitized_key = sanitize_key( $key );
 		$sanitized_key = str_replace( '-', '_', $sanitized_key );
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && $sanitized_key !== $key ) {
-			throw new \Exception( "Invalid key '$key'. Keys should only include alphanumeric characters and underscores." );
+			// If the key is invalid,
+			// Log an error during development
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( "Invalid key '$key'. Keys should only include alphanumeric characters and underscores." );
 		}
 		return $sanitized_key;
 	}
@@ -85,46 +73,27 @@ class Registry {
 	 *
 	 * @return string
 	 */
-	public function sanitize_url_key( $key ) {
+	private function sanitize_url_key( $key ) {
 		return str_replace( '_', '-', sanitize_key( $key ) );
 	}
 
 	/**
 	 * Register a new entry and add it to the registry.
 	 *
-	 * @param $entry_name        string - The name of the entry. For example `widget_status`.
-	 * @param $handler_class     Data_Sync_Entry_Handler
-	 * @param $storage_class     Storage_Driver
+	 * @param $key        string - The name of the entry. For example `widget_status`.
+	 * @param $entry      Data_Sync_Entry_Adapter
 	 *
-	 * @return Data_Sync_Entry
-	 * @throws \Exception If the option name is invalid.
+	 * @return Data_Sync_Entry_Adapter
 	 */
-	public function register( $key, $handler_class, $storage_class = WP_Option_Storage::class ) {
+	public function register( $key, $entry ) {
 
 		$key = $this->sanitize_key( $key );
 
-		/**
-		 * Set up handler that adheres to `Data_Sync_Entry_Handler` contract.
-		 *
-		 * @see Data_Sync_Entry_Handler
-		 */
-		$handler = new $handler_class();
-
-		/**
-		 * Set up storage driver that adheres to `Storage_Driver` contract.
-		 * The default driver is WP_Option_Storage that stores values in WordPress options.
-		 *
-		 * @see Storage_Driver
-		 */
-		$storage = new $storage_class( $this->namespace );
-
-		$entry                 = new Data_Sync_Entry( $this->namespace, $key, $handler, $storage );
-		$this->entries[ $key ] = $entry;
-
-		$endpoint                = new Endpoint( $this->get_namespace_http(), $this->sanitize_url_key( $entry->key() ), $entry );
+		$this->entries[ $key ]   = $entry;
+		$endpoint                = new Endpoint( $this->get_namespace_http(), $this->sanitize_url_key( $key ), $entry );
 		$this->endpoints[ $key ] = $endpoint;
 
-		add_action( 'rest_api_init', array( $endpoint, 'register_rest_route' ) );
+		add_action( 'rest_api_init', array( $endpoint, 'register_rest_routes' ) );
 
 		return $entry;
 	}
@@ -132,7 +101,7 @@ class Registry {
 	/**
 	 * Get all registered entries.
 	 *
-	 * @return Data_Sync_Entry[]
+	 * @return Entry_Can_Get[]
 	 */
 	public function all() {
 		return $this->entries;

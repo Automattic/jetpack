@@ -3,6 +3,7 @@
  */
 import {
 	BlockControls,
+	BlockCaption,
 	InspectorControls,
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
@@ -20,6 +21,7 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
+import getMediaToken from '../../../lib/get-media-token/index.native';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
 import isLocalFile from '../../utils/is-local-file.native';
@@ -42,6 +44,7 @@ import type { VideoBlockAttributes } from './types';
  * @param {Function} props.setAttributes - Function to set block attributes.
  * @param {boolean} props.isSelected	 - Whether block is selected.
  * @param {Function} props.onFocus       - Callback to notify when block should gain focus.
+ * @param {Function} props.insertBlocksAfter - Function to insert a new block after the current block.
  * @returns {React.ReactNode}            - React component.
  */
 export default function VideoPressEdit( {
@@ -50,9 +53,9 @@ export default function VideoPressEdit( {
 	setAttributes,
 	isSelected,
 	onFocus,
+	insertBlocksAfter,
 } ): React.ReactNode {
 	const {
-		autoplay,
 		controls,
 		guid,
 		loop,
@@ -74,6 +77,23 @@ export default function VideoPressEdit( {
 		isReplacing: false,
 		prevAttrs: {},
 	} );
+	const [ , setToken ] = useState< string >();
+
+	// Fetch token for a VideoPress GUID
+	useEffect( () => {
+		if ( guid ) {
+			getMediaToken( 'playback', { guid } )
+				.then( tokenData => {
+					setToken( tokenData.token );
+				} )
+				.catch( error => {
+					// eslint-disable-next-line no-console
+					console.error( "Can't obtain the token:", error );
+				} );
+		}
+	}, [ guid ] );
+
+	const [ showReplaceControl, setShowReplaceControl ] = useState( true );
 
 	const wasBlockJustInserted = useSelect(
 		select => select( blockEditorStore ).wasBlockJustInserted( clientId, 'inserter_menu' ),
@@ -83,7 +103,7 @@ export default function VideoPressEdit( {
 	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay,
+		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
 		controls,
 		loop,
 		muted,
@@ -185,6 +205,26 @@ export default function VideoPressEdit( {
 		[ setAttributes ]
 	);
 
+	const accessibilityLabelCreator = useCallback( caption => {
+		if ( caption ) {
+			return sprintf(
+				/* translators: accessibility text. %s: Video caption. */
+				__( 'Video caption. %s', 'jetpack-videopress-pkg' ),
+				caption
+			);
+		}
+		/* translators: accessibility text. Empty Video caption. */
+		return __( 'Video caption. Empty', 'jetpack-videopress-pkg' );
+	}, [] );
+
+	const onCaptionFocus = useCallback( () => {
+		setShowReplaceControl( false );
+	}, [ setShowReplaceControl ] );
+
+	const onCaptionBlur = useCallback( () => {
+		setShowReplaceControl( true );
+	}, [ setShowReplaceControl ] );
+
 	if ( isUploadingFile ) {
 		return (
 			<VideoPressUploader
@@ -203,11 +243,13 @@ export default function VideoPressEdit( {
 	return (
 		<View style={ style[ 'wp-block-jetpack-videopress__container' ] }>
 			<BlockControls>
-				<ReplaceControl
-					onUploadFileStart={ onReplaceUploadStart }
-					onSelectVideoFromLibrary={ onReplaceSelectFromLibrary }
-					onSelectURL={ onReplaceSelectURL }
-				/>
+				{ showReplaceControl && (
+					<ReplaceControl
+						onUploadFileStart={ onReplaceUploadStart }
+						onSelectVideoFromLibrary={ onReplaceSelectFromLibrary }
+						onSelectURL={ onReplaceSelectURL }
+					/>
+				) }
 			</BlockControls>
 
 			{ isSelected && (
@@ -225,6 +267,15 @@ export default function VideoPressEdit( {
 				html={ preview.html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
 				isSelected={ isSelected }
+			/>
+
+			<BlockCaption
+				clientId={ clientId }
+				insertBlocksAfter={ insertBlocksAfter }
+				accessibilityLabelCreator={ accessibilityLabelCreator }
+				accessible
+				onFocus={ onCaptionFocus }
+				onBlur={ onCaptionBlur }
 			/>
 		</View>
 	);
