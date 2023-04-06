@@ -36,11 +36,12 @@ export const reloadModulesState = async () => {
 export const isModuleAvailableStore = ( slug: string ) =>
 	derived( modulesState, $modulesState => $modulesState[ slug ].available );
 
-export async function updateModuleState( slug: string, value: boolean ) {
-	modulesState.update( $modulesState => {
-		$modulesState[ slug ].active = value;
-		return $modulesState;
+export async function updateModuleState( slug: string, active: boolean ) {
+	const result = await modulesStateClient.endpoint.MERGE( {
+		[ slug ]: { active },
 	} );
+	modulesStateClient.store.override( result );
+	return result;
 }
 
 export const isModuleEnabledStore = ( slug: string ) =>

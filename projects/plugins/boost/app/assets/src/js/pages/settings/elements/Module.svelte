@@ -13,16 +13,14 @@
 	const isPending = modulesStateClient.pending;
 
 	async function handleToggle() {
-		const updatedIsModuleActive = ! isModuleActive;
-		await modulesStateClient.endpoint.MERGE( {
-			[ slug ]: { active: updatedIsModuleActive },
-		} );
-		const event = updatedIsModuleActive ? 'disabled' : 'enabled';
-		modulesStateClient.store.overrideUpdate( value => {
-			value[ slug ].active = updatedIsModuleActive;
-			return value;
-		} );
-		dispatch( event );
+		const previousState = isModuleActive;
+		const result = await updateModuleState( slug, ! isModuleActive );
+		const state = result[ slug ].active;
+
+		if ( previousState !== state ) {
+			const eventName = state === true ? 'enable' : 'disable';
+			dispatch( eventName );
+		}
 	}
 
 	onMount( async () => {
