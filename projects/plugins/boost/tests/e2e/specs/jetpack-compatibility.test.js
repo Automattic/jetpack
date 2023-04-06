@@ -63,7 +63,7 @@ test.describe( 'Jetpack compatibility', () => {
 		page,
 	} ) => {
 		const boostSlug = 'lazy_images';
-		const jetpackSlug = 'lazy_images';
+		const jetpackSlug = 'lazy-images';
 		await boostPrerequisitesBuilder( page )
 			.withConnection( true )
 			.withInactiveModules( [ boostSlug ] )
@@ -89,6 +89,6 @@ test.describe( 'Jetpack compatibility', () => {
 		const isActiveInJetpack = await isModuleActive( jetpackSlug );
 
 		expect( isActiveInBoost, 'lazy_images module should be active in Jetpack Boost' ).toBe( true );
-		expect( isActiveInJetpack, 'lazy_images module should be active in Jetpack' ).toBe( true );
+		expect( isActiveInJetpack, 'lazy-images module should be active in Jetpack' ).toBe( true );
 	} );
 } );
