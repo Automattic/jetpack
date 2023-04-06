@@ -12,7 +12,7 @@ BASE=$PWD
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-a] [-n <name>] [-v] [-H] [-U|-u] [<slug> ...]
+		usage: $0 [-a] [-n <name>] [-v] [-R] [-U|-u] [<slug> ...]
 
 		Check that all composer and pnpm dependencies between monorepo projects are up to date.
 
@@ -27,7 +27,7 @@ function usage {
 		 -a: Pass --filename-auto-suffix to changelogger (avoids "file already exists" errors).
 		 -n: Set changelogger filename.
 		 -v: Output debug information.
-		 -H: When on a release branch, skip updating the corresponding plugin.
+		 -R: When on a release branch, skip updating the corresponding plugins.
 	EOH
 	exit 1
 }
@@ -38,8 +38,8 @@ VERBOSE=false
 DOCL_EVER=true
 AUTO_SUFFIX=false
 CL_FILENAME=
-HARDWAY=false
-while getopts ":uUvhHan:" opt; do
+RELEASEBRANCH=false
+while getopts ":uUvhHRan:" opt; do
 	case ${opt} in
 		u)
 			UPDATE=true
@@ -57,8 +57,9 @@ while getopts ":uUvhHan:" opt; do
 		v)
 			VERBOSE=true
 			;;
-		H)
-			HARDWAY=true
+		H|R)
+			# -H is an old name, kept for back compat.
+			RELEASEBRANCH=true
 			;;
 		h)
 			usage
@@ -91,8 +92,8 @@ else
 fi
 
 declare -A SKIPSLUGS
-if $HARDWAY; then
-	debug "Checking for release branch for -H"
+if $RELEASEBRANCH; then
+	debug "Checking for release branch for -R"
 	BRANCH="$(git symbolic-ref --short HEAD)"
 	if [[ "$BRANCH" == */branch-* ]]; then
 		for k in $(jq -r --arg prefix "${BRANCH%%/*}" '.extra["release-branch-prefix"] | if type == "array" then . else [ . ] end | if index( $prefix ) then input_filename | capture( "projects/(?<s>[^/]+/[^/]+)/composer.json" ).s else empty end' projects/*/*/composer.json); do
@@ -100,14 +101,14 @@ if $HARDWAY; then
 			SKIPSLUGS[$k]=$k
 		done
 		if [[ "${#SKIPSLUGS[@]}" -eq 0 ]]; then
-			warn "-H was specified, but the current branch (\"$BRANCH\") does not appear to be a release branch for any monorepo plugin"
-			HARDWAY=false
+			warn "-R was specified, but the current branch (\"$BRANCH\") does not appear to be a release branch for any monorepo plugin"
+			RELEASEBRANCH=false
 		else
 			debug "Release branch matches ${SKIPSLUGS[*]}"
 		fi
 	else
-		warn "-H was specified, but the current branch (\"$BRANCH\") does not appear to be a release branch"
-		HARDWAY=false
+		warn "-R was specified, but the current branch (\"$BRANCH\") does not appear to be a release branch"
+		RELEASEBRANCH=false
 	fi
 fi
 
@@ -307,13 +308,13 @@ if ! $UPDATE && [[ "$EXIT" != "0" ]]; then
 	jetpackGreen 'You might use `tools/check-intra-monorepo-deps.sh -u` to fix these errors.'
 fi
 
-if $HARDWAY && [[ "${#SKIPPED[@]}" -gt 0 && "$EXIT" == "0" ]]; then
+if $RELEASEBRANCH && [[ "${#SKIPPED[@]}" -gt 0 && "$EXIT" == "0" ]]; then
 	jetpackGreen <<-EOF
-		Due to use of \`-H\`, dependencies may not be fully updated. If you're doing a
-		"hard way" package release, next steps are:
+		Due to use of \`-R\`, dependencies may not be fully updated. If you're doing a
+		package release from a release branch, next steps are:
 		 1. Commit the changes and push to the release branch. Note the
 		    "Check plugin monorepo dep versions" test will fail.
-		 2. Use the build artifact to do the package releases.
+		 2. Use the build artifact to do the package releases for any not auto-tagged.
 		 3. Update the release plugin's deps by running
 		      tools/check-intra-monorepo-deps.sh -aU ${SKIPPED[*]}
 		    then commit and push.
