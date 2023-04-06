@@ -4,7 +4,6 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_Status_Entry;
-use Automattic\Jetpack_Boost\Modules\Modules_Index;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
@@ -18,7 +17,7 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
  */
 function jetpack_boost_register_option( $key, $schema, $entry = null ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-	         ->register( $key, $schema, $entry );
+			->register( $key, $schema, $entry );
 }
 
 /**
@@ -28,8 +27,8 @@ function jetpack_boost_register_option( $key, $schema, $entry = null ) {
  */
 function jetpack_boost_ds_entry( $key ) {
 	return Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-	                ->get_registry()
-	                ->get_entry( $key );
+					->get_registry()
+					->get_entry( $key );
 }
 
 function jetpack_boost_ds_get( $key ) {
@@ -128,12 +127,12 @@ jetpack_boost_register_option( 'critical_css_suggest_regenerate', Schema::as_boo
 
 $modules_state_schema = Schema::as_array(
 	Schema::as_assoc_array(
-		[
+		array(
 			'active'    => Schema::as_boolean()->fallback( false ),
 			'available' => Schema::as_boolean()->nullable(),
-		]
+		)
 	)
-)->fallback( [] );
+)->fallback( array() );
 
 $entry = new Modules_Status_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE, 'modules_state' );
 jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
