@@ -97,6 +97,23 @@ Time, in milliseconds, for every step of the Range control.
 - type: `boolean`
 - default: `True`
 
+### renderTooltip
+
+- type: `function`
+- optional
+
+Optional option that when True renders a tooltip in the Range control, with a default time format.
+
+<Canvas>
+  <Story id="packages-videopress-timestamp-control--show-tooltip" />
+</Canvas>
+
+It also accepts a function. The example below shows how to customize what the tooltip shows.
+
+<Canvas>
+  <Story id="packages-videopress-timestamp-control--custom-tooltip" />
+</Canvas>
+
 ### marksEvery
 
 - type: `number`

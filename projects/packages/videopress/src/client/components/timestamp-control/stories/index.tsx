@@ -72,7 +72,7 @@ export const showTooltip = Template.bind( {} );
 showTooltip.args = {
 	value: 80000, // 1 minute 20 seconds
 	max: 1000 * 100, // 100 seconds
-	showTooltip: true,
+	renderTooltip: true,
 };
 
 export const customTooltip = Template.bind( {} );
