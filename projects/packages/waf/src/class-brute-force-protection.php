@@ -12,6 +12,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\CookieState;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Waf\Waf_Compatibility;
 use Automattic\Jetpack\Waf\Waf_Constants;
 use Jetpack_IXR_Client;
 use Jetpack_Options;
@@ -121,6 +122,12 @@ class Brute_Force_Protection {
 	 * Registers actions
 	 */
 	private function __construct() {
+		// Older versions of Jetpack initialize brute force protection directly in the plugin.
+		// Return early to avoid running it twice.
+		if ( Waf_Compatibility::is_brute_force_running_in_jetpack() ) {
+			return;
+		}
+
 		add_action( 'jetpack_modules_loaded', array( $this, 'modules_loaded' ) );
 		add_action( 'login_form', array( $this, 'check_use_math' ), 0 );
 		add_filter( 'authenticate', array( $this, 'check_preauth' ), 10, 3 );
@@ -150,6 +157,12 @@ class Brute_Force_Protection {
 	 * @return void
 	 */
 	public static function initialize() {
+		// Older versions of Jetpack initialize brute force protection directly in the plugin.
+		// Return early to avoid running it twice.
+		if ( Waf_Compatibility::is_brute_force_running_in_jetpack() ) {
+			return;
+		}
+
 		$brute_force_protection_is_enabled = self::is_enabled();
 		if ( $brute_force_protection_is_enabled && ( new Connection_Manager() )->is_connected() ) {
 			global $pagenow;
@@ -490,16 +503,9 @@ class Brute_Force_Protection {
 		 * @param array Information about failed login attempt
 		 *   [
 		 *     'login'             => (string) Username or email used in failed login attempt
-		 *     'has_login_ability' => (bool) Whether the user has the ability to login based on their IP address
 		 *   ]
 		 */
-		do_action(
-			'jpp_log_failed_attempt',
-			array(
-				'login'             => $login_user,
-				'has_login_ability' => $this->has_login_ability(),
-			)
-		);
+		do_action( 'jpp_log_failed_attempt', array( 'login' => $login_user ) );
 
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 

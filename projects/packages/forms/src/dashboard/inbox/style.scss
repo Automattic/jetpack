@@ -1,12 +1,25 @@
-$tabs-height: 40px;
-$action-bar-height: 72px;
+$tab-item-height: 40px;
+$tabs-height: $tab-item-height + 16px;
+$action-bar-height: 88px;
 
 .jp-forms__inbox {
-	 a.back-button {
-	 	align-items: center;
-	 	color: #2C3338;
+	a.back-button {
+		align-items: center;
+		color: #2C3338;
+		cursor: pointer;
 		display: none;
 		font-size: 14px;
+		font-weight: 500;
+
+		svg {
+			margin-right: 4px;
+		}
+	}
+
+	.components-dropdown-menu {
+		.components-menu-item__button {
+			font-size: 1rem;
+		}
 	}
 
 	@media (min-width: 1025px) {
@@ -41,8 +54,8 @@ $action-bar-height: 72px;
 
 	.components-tab-panel__tabs {
 		background-color: #f9f9f9;
-		margin: 0 0 16px;
-		padding: 0 64px;
+		margin: 0;
+		padding: 16px 64px 0;
 		position: sticky;
 		top: var(--wp-admin--admin-bar--height);
 		z-index: 1;
@@ -50,13 +63,18 @@ $action-bar-height: 72px;
 		@media (max-width: 600px) {
 			top: 0;
 		}
+
+		@media (max-width: 660px) {
+			padding: 0 24px;
+		}
 	}
 }
 
 .jp-forms__inbox-tab-item {
 	border-bottom: 2px solid transparent;
+	font-size: 1rem;
 	font-weight: normal;
-	height: $tabs-height;
+	height: $tab-item-height;
 	padding: 8px 16px;
 
 	&.active-tab {
@@ -73,7 +91,7 @@ $action-bar-height: 72px;
 	padding: 0 0 48px;
 	position: relative;
 	width: 100%;
-	margin-top: calc( var( --jp-forms-spacing-base ) * 2 );
+	margin-top: 0;
 	z-index: 0;
 
 	@media (min-width: 1025px) {
@@ -106,7 +124,12 @@ $action-bar-height: 72px;
 		display: flex;
 	}
 
-	@media (min-width: 481px) and (max-width: 1024px) {
+	@media (max-width: 660px) {
+		padding-left: 24px;
+		padding-right: 24px;
+	}
+
+	@media (min-width: 661px) and (max-width: 1024px) {
 		padding-left: 64px;
 		padding-right: 64px;
 	}
@@ -119,6 +142,22 @@ $action-bar-height: 72px;
 		&:last-child {
 			flex: 2;
 		}
+	}
+
+	.jp-forms__inbox-sticky-sentinel {
+		background: transparent;
+		width: 1px;
+		height: 1px;
+		position: absolute;
+		top: 0;
+	}
+
+	.jp-forms__inbox-sticky-mark {
+		border-bottom: 1px solid #dcdcde;
+		box-shadow: 0 1px 5px 0 rgb(0 0 0 / 30%);
+		position: sticky;
+		top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height});
+		width: 100%;
 	}
 
 	.jp-forms__page-navigation {
@@ -142,12 +181,6 @@ $action-bar-height: 72px;
 	display: table;
 	min-height: unset;
 
-	@media (max-width: 480px) {
-		border-left-width: 0;
-		border-right-width: 0;
-		border-radius: 0;
-	}
-
 	@media (max-width: 1024px) {
 		.jp-forms__table-item.is-active {
 			background-color: #fff;
@@ -156,15 +189,23 @@ $action-bar-height: 72px;
 			&:nth-child(even) {
 				background-color: #f9f9f6;
 			}
+
+			.is-link {
+				text-decoration: underline;
+			}
 		}
+	}
+
+	@media (min-width: 1025px) {
+		display: flex;
+		min-height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px));
 	}
 
 	.jp-forms__table-cell {
 		white-space: nowrap;
 	}
 
-	.jp-forms__table-cell.is-name,
-	.jp-forms__table-cell.is-source {
+	.jp-forms__table-cell.is-name {
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
@@ -182,6 +223,89 @@ $action-bar-height: 72px;
 	.jp-forms__table-cell.is-source {
 		min-width: 100px;
 		width: 27.5%;
+
+		.is-link {
+			cursor: pointer;
+			display: inline-block;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			width: 100%;
+			text-decoration: none;
+
+			 &:hover {
+				 text-decoration: underline;
+			 }
+		}
+	}
+
+	.jp-forms__table-item.is-active {
+		.is-link {
+			text-decoration: underline;
+		}
+	}
+
+	.jp-forms__table-cell.is-actions {
+		max-width: 64px;
+		min-width: 64px;
+
+		.components-dropdown-menu__toggle {
+			color: currentColor;
+			padding: 0;
+
+			> svg {
+				width: 32px;
+				height: 32px;
+			}
+		}
+
+		.components-dropdown__content {
+			white-space: normal;
+
+			.components-button.is-tertiary:hover:not(:disabled) {
+				color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #007cba));
+				background: transparent;
+			}
+		}
+	}
+
+	@media (max-width: 1280px) {
+		.jp-forms__table-cell.is-actions {
+			display: none;
+		}
+	}
+
+	@media (max-width: 1080px) {
+		.jp-forms__table-cell.is-name {
+			width: 60%;
+		}
+
+		.jp-forms__table-cell.is-date {
+			width: 40%;
+		}
+
+		.jp-forms__table-cell.is-source {
+			display: none;
+		}
+	}
+
+	@media (max-width: 1024px) {
+		.jp-forms__table-cell.is-name {
+			width: 45%;
+		}
+
+		.jp-forms__table-cell.is-date {
+			width: 27.5%;
+		}
+
+		.jp-forms__table-cell.is-source {
+			width: 27.5%;
+			display: table-cell;
+		}
+
+		.jp-forms__table-cell.is-actions {
+			display: table-cell;
+		}
 	}
 
 	@media (max-width: 660px) {
@@ -196,6 +320,10 @@ $action-bar-height: 72px;
 		.jp-forms__table-cell.is-source {
 			display: none;
 		}
+
+		.jp-forms__table-cell.is-actions {
+			display: none;
+		}
 	}
 }
 
@@ -203,7 +331,7 @@ $action-bar-height: 72px;
 	position: relative;
 
 	@media (min-width: 1025px) {
-		height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 20px));
+		height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px));
 		overflow-y: auto;
 		position: sticky;
 		top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height});
@@ -310,13 +438,17 @@ $action-bar-height: 72px;
 	display: flex;
 	flex-direction: row;
 	gap: var( --jp-forms-spacing-base );
-	padding: calc( var(--jp-forms-spacing-base ) * 2 ) 64px;
+	padding: 32px 64px 16px;
 	position: sticky;
 	top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height});
 	z-index: 1;
 
 	@media (max-width: 600px) {
 		top: $tabs-height;
+	}
+
+	@media (max-width: 660px) {
+		padding: calc( var(--jp-forms-spacing-base ) * 2 ) 24px;
 	}
 
 	.jp-forms__inbox.is-response-view & {
@@ -327,10 +459,17 @@ $action-bar-height: 72px;
 		}
 	}
 
+	.components-dropdown {
+		@media (max-width: 782px) {
+			display: none;
+		}
+	}
+
 	.components-button {
 		border-radius: var( --jp-forms-border-radius );
 		height: var( --jp-forms-input-wrapper-height );
 		letter-spacing: -0.02em;
+		font-size: 1rem;
 		font-weight: 400;
 		padding: var( --jp-forms-spacing-base ) calc( var( --jp-forms-spacing-base ) * 1.5 );
 
@@ -345,7 +484,17 @@ $action-bar-height: 72px;
 				color: var( --jp-forms-white );
 			}
 		}
+	}
 
+	.button-primary.export-button {
+		background-color: #000;
+		border-color: #000;
+		color: #fff;
+		margin-left: auto;
+
+		@media (max-width: 782px) {
+			display: none;
+		}
 	}
 }
 

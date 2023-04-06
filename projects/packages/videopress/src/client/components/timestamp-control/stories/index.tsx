@@ -1,10 +1,8 @@
 /**
- * External dependencies
- */
-import { useState } from 'react';
-/**
  * Internal dependencies
  */
+import { RangeControl } from '@wordpress/components';
+import { useState } from 'react';
 import TimestampControl from '..';
 import Doc from './TimestampControl.mdx';
 /**
@@ -23,17 +21,7 @@ export default {
 } as ComponentMeta< typeof TimestampControl >;
 
 const Template: ComponentStory< typeof TimestampControl > = args => {
-	const [ time, setTime ] = useState( args.value );
-	return (
-		<TimestampControl
-			{ ...args }
-			value={ time }
-			onChange={ newTime => {
-				setTime( newTime );
-				args?.onChange( newTime );
-			} }
-		/>
-	);
+	return <TimestampControl { ...args } />;
 };
 
 export const _default = Template.bind( {} );
@@ -57,13 +45,7 @@ _default.args = {
 
 _default.storyName = 'Timestamp Control';
 
-// decimalPlaces story
-const decimalPlacesStoryTemplate: ComponentStory< typeof TimestampControl > = args => {
-	const [ time, setTime ] = useState( args.value );
-	return <TimestampControl { ...args } value={ time } onChange={ setTime } />;
-};
-
-export const decimalPlaces = decimalPlacesStoryTemplate.bind( {} );
+export const decimalPlaces = Template.bind( {} );
 decimalPlaces.args = {
 	value: 3500, // 3.5 seconds
 	max: 1000 * 5, // five seconds
@@ -71,14 +53,66 @@ decimalPlaces.args = {
 };
 
 // disabled story
-const disabledStoryTemplate: ComponentStory< typeof TimestampControl > = args => {
-	const [ time, setTime ] = useState( args.value );
-	return <TimestampControl { ...args } value={ time } onChange={ setTime } />;
-};
-
-export const disabled = disabledStoryTemplate.bind( {} );
+export const disabled = Template.bind( {} );
 disabled.args = {
 	max: 3600 * 1000 * 2, // 2 hours
 	value: 3600 * 1000 + 15 * 60 * 1000 + 43 * 1000, // 1.5 hours
 	disabled: true,
+};
+
+export const withMarks = Template.bind( {} );
+withMarks.args = {
+	value: 3500, // 3.5 seconds
+	max: 1000 * 10, // ten seconds
+	marksEvery: 1000, // a mark every second
+	fineAdjustment: 200,
+};
+
+export const showTooltip = Template.bind( {} );
+showTooltip.args = {
+	value: 80000, // 1 minute 20 seconds
+	max: 1000 * 100, // 100 seconds
+	renderTooltip: true,
+};
+
+export const customTooltip = Template.bind( {} );
+customTooltip.args = {
+	value: 1000 * 50, // 3.5 seconds
+	max: 1000 * 80, // ten seconds
+	fineAdjustment: 200,
+	renderTooltip: ( value: number ) => {
+		return <span>{ value / 1000 } seconds</span>;
+	},
+};
+
+const ChangingValueTemplate: ComponentStory< typeof TimestampControl > = args => {
+	const [ value, setValue ] = useState( args.value );
+
+	return (
+		<>
+			<TimestampControl
+				{ ...args }
+				label="TimestampControl component"
+				help="The value is handled internally by the component."
+				value={ value }
+				onDebounceChange={ setValue }
+			/>
+			<br />
+			<RangeControl
+				label="RangeControl component"
+				help="The value is handled externally, and passed to the <TimestampControl /> above component."
+				value={ value }
+				onChange={ setValue }
+				max={ args.max }
+			/>
+		</>
+	);
+};
+
+export const changingValueExternally = ChangingValueTemplate.bind( {} );
+changingValueExternally.args = {
+	value: 3500, // 3.5 seconds
+	max: 1000 * 5, // five seconds
+	decimalPlaces: 2,
+	wait: 100,
 };

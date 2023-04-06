@@ -3,6 +3,7 @@
  */
 import {
 	BlockControls,
+	BlockCaption,
 	InspectorControls,
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
@@ -20,8 +21,10 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
+import getMediaToken from '../../../lib/get-media-token/index.native';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
+import addTokenIntoIframeSource from '../../utils/add-token-iframe-source';
 import isLocalFile from '../../utils/is-local-file.native';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
@@ -42,6 +45,7 @@ import type { VideoBlockAttributes } from './types';
  * @param {Function} props.setAttributes - Function to set block attributes.
  * @param {boolean} props.isSelected	 - Whether block is selected.
  * @param {Function} props.onFocus       - Callback to notify when block should gain focus.
+ * @param {Function} props.insertBlocksAfter - Function to insert a new block after the current block.
  * @returns {React.ReactNode}            - React component.
  */
 export default function VideoPressEdit( {
@@ -50,9 +54,9 @@ export default function VideoPressEdit( {
 	setAttributes,
 	isSelected,
 	onFocus,
+	insertBlocksAfter,
 } ): React.ReactNode {
 	const {
-		autoplay,
 		controls,
 		guid,
 		loop,
@@ -74,6 +78,18 @@ export default function VideoPressEdit( {
 		isReplacing: false,
 		prevAttrs: {},
 	} );
+	const [ token, setToken ] = useState< string >();
+
+	// Fetch token for a VideoPress GUID
+	useEffect( () => {
+		if ( guid ) {
+			getMediaToken( 'playback', { guid } ).then( tokenData => {
+				setToken( tokenData.token );
+			} );
+		}
+	}, [ guid ] );
+
+	const [ showReplaceControl, setShowReplaceControl ] = useState( true );
 
 	const wasBlockJustInserted = useSelect(
 		select => select( blockEditorStore ).wasBlockJustInserted( clientId, 'inserter_menu' ),
@@ -83,7 +99,7 @@ export default function VideoPressEdit( {
 	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay,
+		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
 		controls,
 		loop,
 		muted,
@@ -96,6 +112,7 @@ export default function VideoPressEdit( {
 	} );
 
 	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
+	const previewHTML = addTokenIntoIframeSource( preview?.html, token );
 
 	// Display upload progress in case the editor is closed and re-opened
 	// while the upload is in progress.
@@ -185,6 +202,26 @@ export default function VideoPressEdit( {
 		[ setAttributes ]
 	);
 
+	const accessibilityLabelCreator = useCallback( caption => {
+		if ( caption ) {
+			return sprintf(
+				/* translators: accessibility text. %s: Video caption. */
+				__( 'Video caption. %s', 'jetpack-videopress-pkg' ),
+				caption
+			);
+		}
+		/* translators: accessibility text. Empty Video caption. */
+		return __( 'Video caption. Empty', 'jetpack-videopress-pkg' );
+	}, [] );
+
+	const onCaptionFocus = useCallback( () => {
+		setShowReplaceControl( false );
+	}, [ setShowReplaceControl ] );
+
+	const onCaptionBlur = useCallback( () => {
+		setShowReplaceControl( true );
+	}, [ setShowReplaceControl ] );
+
 	if ( isUploadingFile ) {
 		return (
 			<VideoPressUploader
@@ -203,11 +240,13 @@ export default function VideoPressEdit( {
 	return (
 		<View style={ style[ 'wp-block-jetpack-videopress__container' ] }>
 			<BlockControls>
-				<ReplaceControl
-					onUploadFileStart={ onReplaceUploadStart }
-					onSelectVideoFromLibrary={ onReplaceSelectFromLibrary }
-					onSelectURL={ onReplaceSelectURL }
-				/>
+				{ showReplaceControl && (
+					<ReplaceControl
+						onUploadFileStart={ onReplaceUploadStart }
+						onSelectVideoFromLibrary={ onReplaceSelectFromLibrary }
+						onSelectURL={ onReplaceSelectURL }
+					/>
+				) }
 			</BlockControls>
 
 			{ isSelected && (
@@ -222,9 +261,18 @@ export default function VideoPressEdit( {
 			) }
 
 			<Player
-				html={ preview.html }
+				html={ previewHTML }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
 				isSelected={ isSelected }
+			/>
+
+			<BlockCaption
+				clientId={ clientId }
+				insertBlocksAfter={ insertBlocksAfter }
+				accessibilityLabelCreator={ accessibilityLabelCreator }
+				accessible
+				onFocus={ onCaptionFocus }
+				onBlur={ onCaptionBlur }
 			/>
 		</View>
 	);

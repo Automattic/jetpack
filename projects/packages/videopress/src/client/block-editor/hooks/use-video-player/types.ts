@@ -2,14 +2,21 @@ export type PlayerStateProp = 'not-rendered' | 'loaded' | 'first-play' | 'ready'
 
 export type UseVideoPlayer = {
 	playerIsReady: boolean;
-	playerState: PlayerStateProp;
+	play: () => void;
+	pause: () => void;
 };
 
 export type UseVideoPlayerOptions = {
 	/*
+	 * Autoplay the video.
+	 * It will be controlled when the previewOnHover is enabled.
+	 */
+	autoplay?: boolean;
+
+	/*
 	 * The time to initially set the player to.
 	 */
-	atTime: number;
+	initialTimePosition: number;
 
 	/*
 	 * DOM player wrapper element.

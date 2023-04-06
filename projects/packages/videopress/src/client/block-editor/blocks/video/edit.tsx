@@ -23,7 +23,7 @@ import debugFactory from 'debug';
 import { isStandaloneActive, isVideoPressActive } from '../../../lib/connection';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
-import { useSyncMedia } from '../../hooks/use-video-data-update';
+import { useSyncMedia } from '../../hooks/use-sync-media';
 import ConnectBanner from './components/banner/connect-banner';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
@@ -116,6 +116,7 @@ export default function VideoPressEdit( {
 		guid,
 		cacheHtml,
 		poster,
+		posterData,
 		align,
 		videoRatio,
 		tracks,
@@ -125,10 +126,10 @@ export default function VideoPressEdit( {
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay,
+		autoplay: autoplay || posterData.previewOnHover, // enabled when `previewOnHover` is enabled.
 		controls,
 		loop,
-		muted,
+		muted: muted || posterData.previewOnHover, // enabled when `previewOnHover` is enabled.
 		playsinline,
 		preload,
 		seekbarColor,

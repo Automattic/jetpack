@@ -25,11 +25,9 @@ use Automattic\Jetpack_Boost\Lib\Connection;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Transient;
-use Automattic\Jetpack_Boost\Modules\Modules;
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Config_State;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Module_Status;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimizations_Status;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 /**
@@ -96,11 +94,11 @@ class Jetpack_Boost {
 			\WP_CLI::add_command( 'jetpack-boost', $cli_instance );
 		}
 
-		$optimizations = new Modules();
-		Setup::add( $optimizations );
+		$modules_setup = new Modules_Setup();
+		Setup::add( $modules_setup );
 
 		// Initialize the Admin experience.
-		$this->init_admin( $optimizations );
+		$this->init_admin( $modules_setup );
 
 		// Add the setup prompt.
 		Setup::add( new Setup_Prompt() );
@@ -150,8 +148,6 @@ class Jetpack_Boost {
 	 * Initialize the admin experience.
 	 */
 	public function init_admin( $modules ) {
-		REST_API::register( Module_Status::class );
-		REST_API::register( Optimizations_Status::class );
 		REST_API::register( Config_State::class );
 		REST_API::register( List_Site_Urls::class );
 		$this->connection->ensure_connection();
