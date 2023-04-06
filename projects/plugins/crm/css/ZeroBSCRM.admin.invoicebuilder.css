@@ -996,9 +996,7 @@
 }
 
 .zbs-invoice-actions-bottom {
-  border-top: 1px solid #ddd;
-  background: #f5f5f5;
-  margin-top: 20px;
+  background: #ffffff;
   padding: 2px;
   margin-left: -12px;
   margin-right: -12px;
@@ -1006,7 +1004,6 @@
   padding-right: 10px;
   margin-bottom: -12px;
   padding-bottom: 12px;
-  padding-top: 10px;
 }
 
 .zbs-actions-side {
