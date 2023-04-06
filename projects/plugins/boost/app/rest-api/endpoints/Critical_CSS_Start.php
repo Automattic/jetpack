@@ -21,7 +21,7 @@ class Critical_CSS_Start implements Endpoint {
 
 	public function is_cloud_css() {
 		$optimizations = ( new Modules_Setup() )->get_status();
-		return isset( $optimizations['cloud-css'] ) && $optimizations['cloud-css'];
+		return isset( $optimizations['cloud_css'] ) && $optimizations['cloud_css'];
 	}
 
 	public function response( $_request ) {
