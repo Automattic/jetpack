@@ -7,6 +7,7 @@ export const PRODUCT_STATUSES = {
 	INACTIVE: 'inactive',
 	ERROR: 'error',
 	ABSENT: 'plugin_absent',
+	ABSENT_WITH_PLAN: 'plugin_absent_with_plan',
 	NEEDS_PURCHASE: 'needs_purchase',
 	NEEDS_PURCHASE_OR_FREE: 'needs_purchase_or_free',
 };
@@ -41,12 +42,21 @@ const ActionButton = ( {
 
 	switch ( status ) {
 		case PRODUCT_STATUSES.ABSENT:
+		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
 			return (
 				<Button { ...buttonState } size="small" variant="link" weight="regular">
-					{
-						/* translators: placeholder is product name. */
-						sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), name )
-					}
+					{ status === PRODUCT_STATUSES.ABSENT &&
+						sprintf(
+							/* translators: placeholder is product name. */
+							__( 'Get %s', 'jetpack-my-jetpack' ),
+							name
+						) }
+					{ status === PRODUCT_STATUSES.ABSENT_WITH_PLAN &&
+						sprintf(
+							/* translators: placeholder is product name. */
+							__( 'Install %s', 'jetpack-my-jetpack' ),
+							name
+						) }
 				</Button>
 			);
 		case PRODUCT_STATUSES.NEEDS_PURCHASE:

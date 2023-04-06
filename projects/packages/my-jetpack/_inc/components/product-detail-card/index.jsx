@@ -281,14 +281,17 @@ const ProductDetailCard = ( {
 						className={ styles[ 'checkout-button' ] }
 						variant="body"
 					>
-						{
+						{ ( isBundle || ! hasRequiredPlan ) &&
 							/* translators: placeholder is product name. */
-							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), productMoniker )
-						}
+							sprintf( __( 'Get %s', 'jetpack-my-jetpack' ), productMoniker ) }
+						{ ! isBundle &&
+							hasRequiredPlan &&
+							/* translators: placeholder is product name. */
+							sprintf( __( 'Install %s', 'jetpack-my-jetpack' ), productMoniker ) }
 					</Text>
 				) }
 
-				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && trialAvailable && (
+				{ ! isBundle && trialAvailable && ! hasRequiredPlan && (
 					<Text
 						component={ ProductDetailButton }
 						onClick={ trialClickHandler }
