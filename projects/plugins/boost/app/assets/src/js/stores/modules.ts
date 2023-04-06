@@ -1,6 +1,5 @@
 // eslint-disable-next-line import/no-unresolved
 import { SyncedStoreInterface } from '@automattic/jetpack-svelte-data-sync-client/build/types';
-import { updatedDiff } from 'deep-object-diff';
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { client } from './data-sync-client';
@@ -21,10 +20,6 @@ export const modulesStateClient = client.createAsyncStore(
 		} )
 	)
 );
-modulesStateClient.setSyncAction( ( prevValue, newValue, abortController ) => {
-	const diff = updatedDiff( prevValue, newValue );
-	return modulesStateClient.endpoint.MERGE( diff, abortController );
-} );
 
 export const modulesState = modulesStateClient.store;
 

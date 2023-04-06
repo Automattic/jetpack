@@ -11,7 +11,6 @@
 		"@automattic/jetpack-svelte-data-sync-client": "workspace:*",
 		"@wordpress/components": "23.7.0",
 		"@wordpress/element": "5.7.0",
-		"deep-object-diff": "1.1.9",
 		"history": "5.3.0",
 		"jetpack-boost-critical-css-gen": "github:automattic/jetpack-boost-critical-css-gen#release-0.0.7",
 		"prettier": "2.8.6",
