@@ -45,7 +45,6 @@ export interface Pending {
  */
 export type SyncedWritable< T > = Writable< T > & {
 	override: ( value: T ) => void;
-	overrideUpdate: ( svelteStoreUpdate: ( value: T ) => T ) => void;
 };
 
 export type SyncedStoreError< T > = {

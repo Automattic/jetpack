@@ -58,18 +58,11 @@ export class SyncedStore< T > {
 			store.update( () => value );
 		};
 
-		const overrideUpdate: SvelteUpdater = svelteStoreUpdate => {
-			store.update( prevValue => {
-				return svelteStoreUpdate( prevValue );
-			} );
-		};
-
 		return {
 			subscribe: store.subscribe,
 			set,
 			update,
 			override,
-			overrideUpdate,
 		};
 	}
 
