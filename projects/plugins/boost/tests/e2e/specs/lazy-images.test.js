@@ -18,7 +18,7 @@ test.describe( 'Lazy Images module', () => {
 	} );
 
 	test( 'Images on a post should not be lazy loaded when the module is inactive', async () => {
-		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'lazy-images' ] ).build();
+		await boostPrerequisitesBuilder( page ).withInactiveModules( [ 'lazy_images' ] ).build();
 		const frontend = await PostFrontendPage.visit( page );
 		await frontend.click( `text=${ testPostTitle }` );
 		expect(
@@ -28,7 +28,7 @@ test.describe( 'Lazy Images module', () => {
 	} );
 
 	test( 'Images on a post should be lazy loaded when the module is active', async () => {
-		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'lazy-images' ] ).build();
+		await boostPrerequisitesBuilder( page ).withActiveModules( [ 'lazy_images' ] ).build();
 		const frontend = await PostFrontendPage.visit( page );
 		await frontend.click( `text=${ testPostTitle }` );
 		expect(

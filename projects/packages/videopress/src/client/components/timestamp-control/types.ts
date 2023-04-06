@@ -20,5 +20,7 @@ export type TimestampControlProps = TimestampInputProps & {
 	label?: ReactNode;
 	help?: ReactNode;
 	wait?: number;
+	marksEvery?: number;
+	renderTooltip?: boolean;
 	onDebounceChange?: ( ms: number ) => void;
 };

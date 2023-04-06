@@ -9,7 +9,6 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Type;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Validation_Rule;
 
 final class Data_Sync_Entry implements Data_Sync_Entry_Adapter {
 

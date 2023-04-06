@@ -18,7 +18,7 @@ function previewOnHoverEffect(): void {
 	 * Pick all VideoPress video block intances,
 	 * based on the class name.
 	 */
-	const videoPlayers = document.querySelectorAll( '.wp-block-videopress-video' );
+	const videoPlayers = document.querySelectorAll( '.wp-block-jetpack-videopress-container' );
 	if ( videoPlayers.length === 0 ) {
 		return;
 	}
@@ -30,9 +30,8 @@ function previewOnHoverEffect(): void {
 			return;
 		}
 
-		// Get the data container element.
-		const dataContainer = videoPlayerElement.querySelector( 'span.videopress-poh' );
-		if ( ! dataContainer ) {
+		// If the VideoPress iFrame API is not available, return.
+		if ( ! window?.VideoPressIframeApi ) {
 			return;
 		}
 
@@ -40,20 +39,25 @@ function previewOnHoverEffect(): void {
 		 * Try to pick the POH data from the data container element.
 		 * If it fails, log the error and return.
 		 */
-		const previewOnHoverData = {
-			previewAtTime: Number(
-				dataContainer.querySelector( 'span.videopress-poh__sp' )?.textContent
-			),
-			previewLoopDuration: Number(
-				dataContainer.querySelector( 'span.videopress-poh__duration' )?.textContent
-			),
+		const dataContainer = videoPlayerElement.querySelector( 'script[type="application/json"]' );
+		if ( ! dataContainer ) {
+			return;
+		}
+
+		let previewOnHoverData: {
+			previewAtTime: number;
+			previewLoopDuration: number;
 		};
+
+		try {
+			previewOnHoverData = JSON.parse( dataContainer.innerHTML );
+		} catch ( error ) {
+			console.error( error ); // eslint-disable-line no-console
+			return;
+		}
 
 		// Clean the data container element. It isn't needed anymore.
 		dataContainer.remove();
-		if ( ! window?.VideoPressIframeApi ) {
-			return;
-		}
 
 		const iframeApi = window.VideoPressIframeApi( iFrame, () => {
 			iframeApi.status.onPlayerStatusChanged( ( oldStatus, newStatus ) => {
