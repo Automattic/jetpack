@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "caf9faff33166919ac766ce977ae3ad5",
+    "content-hash": "b7a8e5dffa0e5f5b8303419bbfab4a32",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -661,16 +661,16 @@
         },
         {
             "name": "automattic/jetpack-logo",
-            "version": "v1.5.22",
+            "version": "v1.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-logo.git",
-                "reference": "21b4ac9b32556ffdace7b7e22d21a954e01d5229"
+                "reference": "8fd05d7b089b4d73bbe49198c1b71954adbbe619"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/21b4ac9b32556ffdace7b7e22d21a954e01d5229",
-                "reference": "21b4ac9b32556ffdace7b7e22d21a954e01d5229",
+                "url": "https://api.github.com/repos/Automattic/jetpack-logo/zipball/8fd05d7b089b4d73bbe49198c1b71954adbbe619",
+                "reference": "8fd05d7b089b4d73bbe49198c1b71954adbbe619",
                 "shasum": ""
             },
             "require-dev": {
@@ -685,7 +685,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-logo/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.5.x-dev"
+                    "dev-trunk": "1.6.x-dev"
                 }
             },
             "autoload": {
@@ -699,9 +699,9 @@
             ],
             "description": "A logo for Jetpack",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-logo/tree/v1.5.22"
+                "source": "https://github.com/Automattic/jetpack-logo/tree/v1.6.0"
             },
-            "time": "2023-02-20T19:47:14+00:00"
+            "time": "2023-04-04T21:32:55+00:00"
         },
         {
             "name": "automattic/jetpack-my-jetpack",
@@ -959,23 +959,23 @@
         },
         {
             "name": "automattic/jetpack-publicize",
-            "version": "v0.24.0",
+            "version": "v0.24.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-publicize.git",
-                "reference": "5b8425486870336c5b3a533f3639f0d7fe73e5ba"
+                "reference": "09ffe60c505269ee4b8b767d3584e7795a7a7b2e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-publicize/zipball/5b8425486870336c5b3a533f3639f0d7fe73e5ba",
-                "reference": "5b8425486870336c5b3a533f3639f0d7fe73e5ba",
+                "url": "https://api.github.com/repos/Automattic/jetpack-publicize/zipball/09ffe60c505269ee4b8b767d3584e7795a7a7b2e",
+                "reference": "09ffe60c505269ee4b8b767d3584e7795a7a7b2e",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-assets": "^1.17.34",
                 "automattic/jetpack-autoloader": "^2.11.18",
                 "automattic/jetpack-config": "^1.15.1",
-                "automattic/jetpack-connection": "^1.51.4",
+                "automattic/jetpack-connection": "^1.51.5",
                 "automattic/jetpack-plans": "^0.2.10",
                 "automattic/jetpack-redirect": "^1.7.24"
             },
@@ -1010,9 +1010,9 @@
             ],
             "description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-publicize/tree/v0.24.0"
+                "source": "https://github.com/Automattic/jetpack-publicize/tree/v0.24.0.1"
             },
-            "time": "2023-03-29T12:52:56+00:00"
+            "time": "2023-04-06T18:07:53+00:00"
         },
         {
             "name": "automattic/jetpack-redirect",
