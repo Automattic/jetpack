@@ -165,10 +165,8 @@ export const regenerateCriticalCss = async () => {
 	const $isCloudCssEnabled = get( isModuleEnabledStore( 'cloud_css' ) ) || false;
 
 	if ( $isCloudCssEnabled ) {
-		console.log( 'startPollingCloudStatus' );
 		startPollingCloudStatus();
 	} else {
-		console.log( 'regenerateLocalCriticalCss' );
 		await regenerateLocalCriticalCss( freshState );
 	}
 };
