@@ -21,6 +21,7 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
+import getMediaToken from '../../../lib/get-media-token/index.native';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
 import isLocalFile from '../../utils/is-local-file.native';
@@ -76,6 +77,21 @@ export default function VideoPressEdit( {
 		isReplacing: false,
 		prevAttrs: {},
 	} );
+	const [ , setToken ] = useState< string >();
+
+	// Fetch token for a VideoPress GUID
+	useEffect( () => {
+		if ( guid ) {
+			getMediaToken( 'playback', { guid } )
+				.then( tokenData => {
+					setToken( tokenData.token );
+				} )
+				.catch( error => {
+					// eslint-disable-next-line no-console
+					console.error( "Can't obtain the token:", error );
+				} );
+		}
+	}, [ guid ] );
 
 	const [ showReplaceControl, setShowReplaceControl ] = useState( true );
 
