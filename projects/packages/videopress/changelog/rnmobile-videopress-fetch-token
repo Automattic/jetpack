@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-VideoPress block: Add native version of `getMediaToken` function to fetch the VideoPress token.

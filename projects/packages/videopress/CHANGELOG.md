@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.6] - 2023-04-05
+### Added
+- VideoPress: change the way to propagate the Preview On Hover data [#29912]
+- VideoPress: check if beta extensions are enabled when saving VideoPress video block [#29926]
+- VideoPress: enqueue the VideoPress IFrame API asset file [#29912]
+- VideoPress: first previewOnHover implementation in the front-end [#29912]
+- VideoPress block: Add native version of `getMediaToken` function to fetch the VideoPress token. [#29756]
+
+### Changed
+- VideoPress: update URL and add version when enqueuing VideoPress IFrame API file [#29923]
+
+### Fixed
+- VideoPress: Add empty native version of `PosterPanel` component. [#29943]
+- VideoPress: Fix minimum loop duration and default hover values [#29925]
+
 ## [0.13.5] - 2023-04-04
 ### Added
 - Add video caption to native player [#29765]
@@ -885,6 +900,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.13.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.5...v0.13.6
 [0.13.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.4...v0.13.5
 [0.13.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.3...v0.13.4
 [0.13.3]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.2...v0.13.3
