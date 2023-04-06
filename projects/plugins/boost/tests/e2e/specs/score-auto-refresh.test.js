@@ -12,12 +12,12 @@ test.describe( 'Auto refresh of speed scores', () => {
 
 		await boostPrerequisitesBuilder( page )
 			.withConnection( true )
-			.withInactiveModules( [ 'critical-css', 'lazy-images', 'render-blocking-js' ] )
+			.withInactiveModules( [ 'critical_css', 'lazy_images', 'render_blocking_js' ] )
 			.build();
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );
 
-	[ 'lazy-images', 'render-blocking-js' ].forEach( moduleSlug => {
+	[ 'lazy_images', 'render_blocking_js' ].forEach( moduleSlug => {
 		test( `Enabling ${ moduleSlug } should refresh scores`, async () => {
 			await jetpackBoostPage.waitForScoreLoadingToFinish();
 
@@ -34,13 +34,13 @@ test.describe( 'Auto refresh of speed scores', () => {
 	test( 'Score refresh should debounce between multiple module toggle', async () => {
 		await jetpackBoostPage.waitForScoreLoadingToFinish();
 
-		await jetpackBoostPage.toggleModule( 'lazy-images' );
+		await jetpackBoostPage.toggleModule( 'lazy_images' );
 
 		// Wait a second after first module is toggled
 		await new Promise( resolve => setTimeout( resolve, 1000 ) );
 
 		// Toggle another module before the automatic score refresh started
-		await jetpackBoostPage.toggleModule( 'render-blocking-js' );
+		await jetpackBoostPage.toggleModule( 'render_blocking_js' );
 
 		// Wait slightly more than a second after second module is toggled
 		await new Promise( resolve => setTimeout( resolve, 1100 ) );
