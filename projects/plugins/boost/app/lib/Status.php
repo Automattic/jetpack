@@ -32,6 +32,12 @@ class Status {
 		);
 	}
 
+	public function update( $new_status ) {
+		$entry                          = jetpack_boost_ds_get( 'modules_state' );
+		$entry[ $this->slug ]['active'] = $new_status;
+		jetpack_boost_ds_set( 'modules_state', $entry );
+	}
+
 	public function is_enabled() {
 		$modules_state = jetpack_boost_ds_get( 'modules_state' );
 		return $modules_state[ $this->slug ]['active'];
@@ -69,9 +75,7 @@ class Status {
 		}
 
 		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module ) {
-			$entry                             = jetpack_boost_ds_get( 'modules_state' );
-			$entry[ $mapped_module ]['active'] = $new_status;
-			jetpack_boost_ds_set( 'modules_state', $entry );
+			$this->update( $new_status );
 		}
 
 		// The moduleInstance will be there. But check just in case.

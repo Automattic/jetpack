@@ -53,8 +53,8 @@ class CLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp jetpack-boost module activate critical-css
-	 * wp jetpack-boost module deactivate critical-css
+	 * wp jetpack-boost module activate critical_css
+	 * wp jetpack-boost module deactivate critical_css
 	 *
 	 * @param array $args Command arguments.
 	 */
