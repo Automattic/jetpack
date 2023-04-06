@@ -29,8 +29,9 @@ modulesStateClient.setSyncAction( ( prevValue, newValue, abortController ) => {
 export const modulesState = modulesStateClient.store;
 
 export const reloadModulesState = async () => {
-	// @todo Implement a real API call.
-	await new Promise( resolve => setTimeout( resolve, 1000 ) );
+	const result = await modulesStateClient.endpoint.GET();
+	modulesStateClient.store.override( result );
+	return result;
 };
 
 export const isModuleAvailableStore = ( slug: string ) =>
