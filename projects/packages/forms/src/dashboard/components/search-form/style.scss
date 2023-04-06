@@ -1,7 +1,10 @@
 .jp-forms__actions-search {
 	display: flex;
 	flex-direction: row;
-	flex: 1;
+
+	@media (max-width: 600px) {
+		flex: 1;
+	}
 
 	.input-wrapper {
 		min-height: var( --jp-forms-input-wrapper-height );
