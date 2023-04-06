@@ -7,40 +7,32 @@
 
 	const dispatch = createEventDispatcher();
 
-	let module;
-	let moduleWasDisabled;
-	$: {
-		module = $modulesState[ slug ];
-
-		if ( module.active && moduleWasDisabled === true ) {
-			dispatch( 'enabled' );
-			moduleWasDisabled = false;
-		} else if ( ! module.active && moduleWasDisabled === false ) {
-			dispatch( 'disabled' );
-			moduleWasDisabled = true;
-		}
+	$: isModuleActive = $modulesState[ slug ].active;
+	$: isModuleAvailable = $modulesState[ slug ].available;
+	$: if ( isModuleActive ) {
+		dispatch( 'enabled' );
+	} else {
+		dispatch( 'disabled' );
 	}
 	const isPending = modulesStateClient.pending;
 
 	function handleToggle() {
-		updateModuleState( slug, ! module.active );
+		updateModuleState( slug, ! isModuleActive );
 	}
 
 	onMount( async () => {
-		if ( module.active ) {
+		if ( isModuleActive ) {
 			dispatch( 'mountEnabled' );
-		} else {
-			moduleWasDisabled = true;
 		}
 	} );
 </script>
 
-{#if module.available}
+{#if isModuleAvailable}
 	<div class="jb-feature-toggle">
 		<div class="jb-feature-toggle__toggle">
 			<Toggle
 				id={`jb-feature-toggle-${ slug }`}
-				checked={module.active}
+				checked={isModuleActive}
 				disabled={$isPending}
 				on:click={handleToggle}
 			/>
@@ -55,7 +47,7 @@
 			<div class="jb-feature-toggle__content">
 				<slot />
 
-				{#if module.active}
+				{#if isModuleActive}
 					<div class="jb-feature-toggle__meta">
 						<slot name="meta" />
 					</div>
