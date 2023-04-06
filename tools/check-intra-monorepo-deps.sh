@@ -95,7 +95,7 @@ if $HARDWAY; then
 	debug "Checking for release branch for -H"
 	BRANCH="$(git symbolic-ref --short HEAD)"
 	if [[ "$BRANCH" == */branch-* ]]; then
-		for k in $(jq -r --arg prefix "${BRANCH%%/*}" 'if .extra["release-branch-prefix"] == $prefix then input_filename | capture( "projects/(?<s>[^/]+/[^/]+)/composer.json" ).s else empty end' projects/*/*/composer.json); do
+		for k in $(jq -r --arg prefix "${BRANCH%%/*}" '.extra["release-branch-prefix"] | if type == "array" then . else [ . ] end | if index( $prefix ) then input_filename | capture( "projects/(?<s>[^/]+/[^/]+)/composer.json" ).s else empty end' projects/*/*/composer.json); do
 			debug "Release branch matches $k"
 			SKIPSLUGS[$k]=$k
 		done

@@ -30,20 +30,28 @@ jobs:
       - name: Check branch
         id: check-branch
         run: |
-          PREFIX=
+          PREFIXES=
           if [[ -e composer.json ]]; then
-            PREFIX=$(jq -r '.extra["release-branch-prefix"] // ""' composer.json)
+            PREFIXES=$(jq -r '.extra["release-branch-prefix"] // "" | if type == "array" then .[] else . end' composer.json)
           fi
-          if [[ -z "$PREFIX" && "$GITHUB_REF" != "refs/heads/trunk" && "$GITHUB_REF" != "refs/heads/prerelease" ]]; then
+          if [[ -z "$PREFIXES" && "$GITHUB_REF" != "refs/heads/trunk" && "$GITHUB_REF" != "refs/heads/prerelease" ]]; then
             echo "::error::Expected to be called for \"refs/heads/trunk\" or \"refs/heads/prerelease\", not \"$GITHUB_REF\""
             exit 1
-          elif [[ -n "$PREFIX" && ( "$GITHUB_REF" == "refs/heads/trunk" || "$GITHUB_REF" == "refs/heads/prerelease" ) ]]; then
-            echo "::notice::Ignoring push to $GITHUB_REF, as this project has a release branch prefix set (\"$PREFIX\")"
+          elif [[ -n "$PREFIXES" && ( "$GITHUB_REF" == "refs/heads/trunk" || "$GITHUB_REF" == "refs/heads/prerelease" ) ]]; then
+            echo "::notice::Ignoring push to $GITHUB_REF, as this project has a release branch prefix set (\"${PREFIXES//$'\n'/'" "'}\")"
             echo "run=false" >> "$GITHUB_OUTPUT"
-          elif [[ -n "$PREFIX" && "$GITHUB_REF" != "refs/heads/$PREFIX/branch-"* ]]; then
-            echo "::error::Expected to be called for \"refs/heads/$PREFIX/branch-*\", not \"$GITHUB_REF\""
-            exit 1
           else
+            if [[ -n "$PREFIXES" ]]; then
+              OK=false
+              while IFS= read -r P; do
+                [[ "$GITHUB_REF" == "refs/heads/$P/branch-"* ]] && OK=true
+              done <<<"$PREFIXES"
+              if ! $OK; then
+                echo "::error::Expected to be called for \"refs/heads/\$PREFIX/branch-*\" for a prefix in \"${PREFIXES//$'\n'/'" "'}\", not \"$GITHUB_REF\""
+                exit 1
+              fi
+            fi
+
             echo "Push to \"$GITHUB_REF\" ok"
             echo "run=true" >> "$GITHUB_OUTPUT"
           fi
