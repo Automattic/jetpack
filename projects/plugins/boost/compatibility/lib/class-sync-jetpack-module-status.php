@@ -19,8 +19,8 @@ class Sync_Jetpack_Module_Status {
 
 	public function init() {
 		// Use Jetpack as the source of truth for the module status
-		add_filter( "default_option_jetpack_boost_status_$this->boost_module_slug", array( $this, 'get_jetpack_module_status' ) );
-		add_filter( "option_jetpack_boost_status_$this->boost_module_slug", array( $this, 'get_jetpack_module_status' ) );
+		add_filter( "default_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'get_jetpack_module_status' ) );
+		add_filter( "option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'get_jetpack_module_status' ) );
 
 		$this->add_sync_to_jetpack_action();
 		$this->add_sync_from_jetpack_action();
@@ -69,7 +69,7 @@ class Sync_Jetpack_Module_Status {
 	 */
 	public function sync_from_jetpack() {
 		$this->remove_sync_to_jetpack_action();
-		update_option( "jetpack_boost_status_$this->boost_module_slug", \Jetpack::is_module_active( $this->jetpack_module_slug ) );
+		update_option( "jetpack_boost_status_{$this->boost_module_slug}", \Jetpack::is_module_active( $this->jetpack_module_slug ) );
 		$this->add_sync_to_jetpack_action();
 	}
 
@@ -77,26 +77,26 @@ class Sync_Jetpack_Module_Status {
 	 * Sync the status to Boost when interacting with the Jetpack dashboard.
 	 */
 	public function add_sync_from_jetpack_action() {
-		add_action( "jetpack_deactivate_module_$this->jetpack_module_slug", array( $this, 'sync_from_jetpack' ), 10, 2 );
-		add_action( "jetpack_activate_module_$this->jetpack_module_slug", array( $this, 'sync_from_jetpack' ), 10, 2 );
+		add_action( "jetpack_deactivate_module_{$this->jetpack_module_slug}", array( $this, 'sync_from_jetpack' ), 10, 2 );
+		add_action( "jetpack_activate_module_{$this->jetpack_module_slug}", array( $this, 'sync_from_jetpack' ), 10, 2 );
 	}
 
 	public function remove_sync_from_jetpack_action() {
-		remove_action( "jetpack_deactivate_module_$this->jetpack_module_slug", array( $this, 'sync_from_jetpack' ), 10, 2 );
-		remove_action( "jetpack_activate_module_$this->jetpack_module_slug", array( $this, 'sync_from_jetpack' ), 10, 2 );
+		remove_action( "jetpack_deactivate_module_{$this->jetpack_module_slug}", array( $this, 'sync_from_jetpack' ), 10, 2 );
+		remove_action( "jetpack_activate_module_{$this->jetpack_module_slug}", array( $this, 'sync_from_jetpack' ), 10, 2 );
 	}
 
 	/**
 	 * Sync the status to Jetpack when interacting with the Boost dashboard
 	 */
 	public function add_sync_to_jetpack_action() {
-		add_action( "add_option_jetpack_boost_status_$this->boost_module_slug", array( $this, 'sync_to_jetpack' ), 10, 2 );
-		add_action( "update_option_jetpack_boost_status_$this->boost_module_slug", array( $this, 'sync_to_jetpack' ), 10, 2 );
+		add_action( "add_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10, 2 );
+		add_action( "update_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10, 2 );
 	}
 
 	public function remove_sync_to_jetpack_action() {
-		remove_action( "add_option_jetpack_boost_status_$this->boost_module_slug", array( $this, 'sync_to_jetpack' ), 10, 2 );
-		remove_action( "update_option_jetpack_boost_status_$this->boost_module_slug", array( $this, 'sync_to_jetpack' ), 10, 2 );
+		remove_action( "add_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10, 2 );
+		remove_action( "update_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10, 2 );
 	}
 
 }
