@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { get } from 'svelte/store';
 	import Toggle from '../../../elements/Toggle.svelte';
 	import { modulesState, modulesStateClient, updateModuleState } from '../../../stores/modules';
 
@@ -8,34 +7,41 @@
 
 	const dispatch = createEventDispatcher();
 
-	$: isEnabled = $modulesState[ slug ].active;
-	$: isAvailable = $modulesState[ slug ].available;
-	$: isSaving = get( modulesStateClient.pending );
+	let module;
+	let moduleWasDisabled;
+	$: {
+		module = $modulesState[ slug ];
 
-	if ( isEnabled ) {
-		dispatch( 'enabled' );
-	} else {
-		dispatch( 'disabled' );
+		if ( module.active && moduleWasDisabled === true ) {
+			dispatch( 'enabled' );
+			moduleWasDisabled = false;
+		} else if ( ! module.active && moduleWasDisabled === false ) {
+			dispatch( 'disabled' );
+			moduleWasDisabled = true;
+		}
 	}
+	const isPending = modulesStateClient.pending;
 
 	function handleToggle() {
-		updateModuleState( slug, ! isEnabled );
+		updateModuleState( slug, ! module.active );
 	}
 
 	onMount( async () => {
-		if ( isEnabled ) {
+		if ( module.active ) {
 			dispatch( 'mountEnabled' );
+		} else {
+			moduleWasDisabled = true;
 		}
 	} );
 </script>
 
-{#if isAvailable}
+{#if module.available}
 	<div class="jb-feature-toggle">
 		<div class="jb-feature-toggle__toggle">
 			<Toggle
 				id={`jb-feature-toggle-${ slug }`}
-				checked={isEnabled}
-				disabled={isSaving}
+				checked={module.active}
+				disabled={$isPending}
 				on:click={handleToggle}
 			/>
 		</div>
@@ -49,8 +55,10 @@
 			<div class="jb-feature-toggle__content">
 				<slot />
 
-				{#if isEnabled}
-					<slot name="meta" />
+				{#if module.active}
+					<div class="jb-feature-toggle__meta">
+						<slot name="meta" />
+					</div>
 				{/if}
 
 				<slot name="notice" />
