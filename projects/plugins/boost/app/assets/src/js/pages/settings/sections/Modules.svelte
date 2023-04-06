@@ -9,7 +9,11 @@
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import ImageSizeAnalysisView from '../../../modules/image-size-analysis/ModuleView.svelte';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
-	import { criticalCssState, regenerateCriticalCss } from '../../../stores/critical-css-state';
+	import {
+		criticalCssState,
+		regenerateLocalCriticalCss,
+		regenerateCriticalCss,
+	} from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { isModuleAvailableStore } from '../../../stores/modules';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
@@ -42,6 +46,7 @@
 		if ( ! $criticalCssState || $criticalCssState.status === 'not_generated' ) {
 			return regenerateCriticalCss();
 		}
+		await regenerateLocalCriticalCss( $criticalCssState );
 	}
 </script>
 
