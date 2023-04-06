@@ -316,6 +316,7 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 					onChange={ onChangeHandler }
 					marks={ marksEvery ? marks : undefined }
 					renderTooltipContent={ renderTooltipHandler }
+					{ ...( renderTooltip === false ? { showTooltip: false } : {} ) }
 				/>
 			</div>
 		</BaseControl>
