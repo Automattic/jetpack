@@ -18,7 +18,7 @@
 		const state = result[ slug ].active;
 
 		if ( previousState !== state ) {
-			const eventName = state === true ? 'enable' : 'disable';
+			const eventName = state === true ? 'enabled' : 'disabled';
 			dispatch( eventName );
 		}
 	}
