@@ -19,8 +19,9 @@
 	const { navigate } = routerHistory;
 
 	const cloudCssAvailable = isModuleAvailableStore( 'cloud_css' );
-	$: successCount = $criticalCssState.providers.filter( provider => provider.status === 'success' )
-		.length;
+	$: successCount = $criticalCssState.providers.filter(
+		provider => provider.status === 'success'
+	).length;
 </script>
 
 <div class="jb-critical-css__meta">
