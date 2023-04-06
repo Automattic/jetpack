@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
 import { find, includes, map } from 'lodash';
+import { useRef } from 'react';
 import DropdownFilter from '../components/dropdown-filter';
 import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
@@ -37,9 +38,11 @@ const TABS = [
 ];
 
 const Inbox = () => {
+	const stickySentinel = useRef();
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ view, setView ] = useState( 'list' );
+	const [ isSticky, setSticky ] = useState( false );
 
 	const {
 		fetchResponses,
@@ -88,6 +91,31 @@ const Inbox = () => {
 
 		setCurrentResponseId( responses[ 0 ].id );
 	}, [ responses, currentResponseId ] );
+
+	useEffect( () => {
+		const stickySentinelRef = stickySentinel.current;
+
+		if ( ! stickySentinelRef ) {
+			return;
+		}
+
+		const observer = new IntersectionObserver(
+			( [ sentinel ] ) => {
+				setSticky( ! sentinel.isIntersecting && ! loading );
+			},
+			{
+				rootMargin: '-177px 0px 0px 0px',
+				threshold: 0,
+			}
+		);
+
+		observer.observe( stickySentinelRef );
+
+		return () => {
+			observer.unobserve( stickySentinelRef );
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ stickySentinel.current, loading ] );
 
 	const selectResponse = useCallback( id => {
 		setCurrentResponseId( id );
@@ -201,6 +229,8 @@ const Inbox = () => {
 						</div>
 						<div className="jp-forms__inbox-content">
 							<div className="jp-forms__inbox-content-column">
+								<div className="jp-forms__inbox-sticky-sentinel" ref={ stickySentinel } />
+								{ ! loading && isSticky && <div className="jp-forms__inbox-sticky-mark" /> }
 								<InboxList
 									currentPage={ currentPage }
 									currentResponseId={ currentResponseId }
