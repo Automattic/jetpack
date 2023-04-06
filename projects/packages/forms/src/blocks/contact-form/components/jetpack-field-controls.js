@@ -100,7 +100,7 @@ const JetpackFieldControls = ( {
 					{ ! hidePlaceholder && (
 						<TextControl
 							label={ __( 'Placeholder text', 'jetpack-forms' ) }
-							value={ placeholder }
+							value={ placeholder || '' }
 							onChange={ value => setAttributes( { [ placeholderField ]: value } ) }
 							help={ __(
 								'Show visitors an example of the type of content expected. Otherwise, leave blank.',
