@@ -189,6 +189,10 @@ $action-bar-height: 88px;
 			&:nth-child(even) {
 				background-color: #f9f9f6;
 			}
+
+			.is-link {
+				text-decoration: underline;
+			}
 		}
 	}
 
@@ -221,11 +225,23 @@ $action-bar-height: 88px;
 		width: 27.5%;
 
 		.is-link {
+			cursor: pointer;
 			display: inline-block;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
 			width: 100%;
+			text-decoration: none;
+
+			 &:hover {
+				 text-decoration: underline;
+			 }
+		}
+	}
+
+	.jp-forms__table-item.is-active {
+		.is-link {
+			text-decoration: underline;
 		}
 	}
 
