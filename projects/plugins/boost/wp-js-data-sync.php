@@ -3,7 +3,7 @@
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack_Boost\Lib\Status;
+use Automattic\Jetpack_Boost\Data_Sync\Modules_Status_Entry;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
@@ -27,8 +27,8 @@ function jetpack_boost_register_option( $key, $schema, $entry = null ) {
  */
 function jetpack_boost_ds_entry( $key ) {
 	return Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
-			->get_registry()
-			->get_entry( $key );
+					->get_registry()
+					->get_entry( $key );
 }
 
 function jetpack_boost_ds_get( $key ) {
@@ -125,9 +125,14 @@ $critical_css_state_schema = Schema::as_assoc_array(
 jetpack_boost_register_option( 'critical_css_state', $critical_css_state_schema );
 jetpack_boost_register_option( 'critical_css_suggest_regenerate', Schema::as_boolean()->fallback( false ) );
 
-/**
- * Register module status options for each feature.
- */
-foreach ( Automattic\Jetpack_Boost\Modules\Modules::MODULES as $feature_class ) {
-	jetpack_boost_register_option( ( new Status( $feature_class::get_slug() ) )->get_ds_entry_name(), Schema::as_boolean()->fallback( false ) );
-}
+$modules_state_schema = Schema::as_array(
+	Schema::as_assoc_array(
+		array(
+			'active'    => Schema::as_boolean()->fallback( false ),
+			'available' => Schema::as_boolean()->nullable(),
+		)
+	)
+)->fallback( array() );
+
+$entry = new Modules_Status_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE, 'modules_state' );
+jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
