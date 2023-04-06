@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { writable } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
 	import {
 		getScoreLetter,
@@ -29,14 +28,14 @@
 
 	let isLoading = false;
 
-	const scores = writable( {
+	let scores = {
 		current: {
 			mobile: 0,
 			desktop: 0,
 		},
 		noBoost: null,
 		isStale: false,
-	} );
+	};
 
 	refreshScore( false );
 
@@ -66,9 +65,9 @@
 		loadError = undefined;
 
 		try {
-			scores.set( await requestSpeedScores( force ) );
-			scoreLetter = getScoreLetter( $scores.current.mobile, $scores.current.desktop );
-			showPrevScores = didScoresChange( $scores ) && ! $scores.isStale;
+			scores = await requestSpeedScores( force );
+			scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
+			showPrevScores = didScoresChange( scores ) && ! scores.isStale;
 		} catch ( err ) {
 			recordBoostEvent( 'speed_score_request_error', {
 				error_message: castToString( err.message ),
@@ -85,7 +84,7 @@
 	}, 2000 );
 
 	let modalData: ScoreChangeMessage | null = null;
-	$: modalData = ! isLoading && ! $scores.isStale && scoreChangeModal( $scores );
+	$: modalData = ! isLoading && ! scores.isStale && scoreChangeModal( scores );
 
 	$: if ( currentScoreConfigString && $isGenerating === false ) {
 		debouncedRefreshScore( true );
@@ -152,8 +151,8 @@
 				<div>{__( 'Mobile score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				prevScore={$scores.noBoost?.mobile}
-				score={$scores.current.mobile}
+				prevScore={scores.noBoost?.mobile}
+				score={scores.current.mobile}
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
@@ -167,8 +166,8 @@
 				<div>{__( 'Desktop score', 'jetpack-boost' )}</div>
 			</div>
 			<ScoreBar
-				prevScore={$scores.noBoost?.desktop}
-				score={$scores.current.desktop}
+				prevScore={scores.noBoost?.desktop}
+				score={scores.current.desktop}
 				active={siteIsOnline}
 				{isLoading}
 				{showPrevScores}
