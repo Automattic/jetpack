@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { derived, get, writable } from 'svelte/store';
+	import { writable } from 'svelte/store';
 	import { __ } from '@wordpress/i18n';
 	import {
 		getScoreLetter,
@@ -10,7 +10,7 @@
 	} from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import { criticalCssState, isGenerating } from '../../../stores/critical-css-state';
-	import { modulesState, modulesStateClient } from '../../../stores/modules';
+	import { modulesState } from '../../../stores/modules';
 	import ComputerIcon from '../../../svg/computer.svg';
 	import MobileIcon from '../../../svg/mobile.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
@@ -27,7 +27,7 @@
 	let showPrevScores;
 	let scoreLetter = '';
 
-	const isLoading = writable( siteIsOnline );
+	let isLoading = false;
 
 	const scores = writable( {
 		current: {
@@ -41,84 +41,53 @@
 	refreshScore( false );
 
 	/**
-	 * Derived datastore which makes it easy to check if module states are currently in sync with server.
+	 * The configuration that led to latest speed score.
 	 */
-	$: modulesInSync = get( modulesStateClient.pending );
-
-	const scoreModules = Object.assign( {}, $modulesState );
-	delete scoreModules.image_guide;
-	delete scoreModules.image_size_analysis;
-
-	/**
-	 * String representation of the current state that may impact the score.
-	 *
-	 * @type {Readable<string>}
-	 */
-	$: scoreConfigString = JSON.stringify( {
-		modules: Object.values( scoreModules ).map( module => module.active ),
+	$: activeModules = Object.entries( $modulesState ).reduce( ( acc, [ key, value ] ) => {
+		if ( key !== 'image_guide' && key !== 'image_size_analysis' ) {
+			acc.push( value.active );
+		}
+		return acc;
+	}, [] );
+	$: lastCreatedState = $criticalCssState.created;
+	$: currentScoreConfigString = JSON.stringify( {
+		modules: activeModules,
 		criticalCss: {
-			created: $criticalCssState.created,
+			created: lastCreatedState,
 		},
 	} );
-
-	/**
-	 * The configuration that led to latest speed score.
-	 *
-	 * @type {Readable<string>}
-	 */
-	let currentScoreConfigString = scoreConfigString;
 
 	async function refreshScore( force = false ) {
 		if ( ! siteIsOnline ) {
 			return;
 		}
 
-		isLoading.set( true );
+		isLoading = true;
 		loadError = undefined;
 
 		try {
 			scores.set( await requestSpeedScores( force ) );
 			scoreLetter = getScoreLetter( $scores.current.mobile, $scores.current.desktop );
 			showPrevScores = didScoresChange( $scores ) && ! $scores.isStale;
-			currentScoreConfigString = scoreConfigString;
 		} catch ( err ) {
 			recordBoostEvent( 'speed_score_request_error', {
 				error_message: castToString( err.message ),
 			} );
 			// eslint-disable-next-line no-console
-			console.log( err );
 			loadError = err;
 		} finally {
-			isLoading.set( false );
+			isLoading = false;
 		}
 	}
 
-	// noinspection JSUnusedLocalSymbols
-	/**
-	 * A store that checks if the speed score needs a refresh.
-	 */
-	const needsRefresh = derived(
-		[ isGenerating, scores ],
-		// eslint-disable-next-line no-shadow
-		( [ $isGenerating, $scores ] ) => {
-			return (
-				! $isGenerating &&
-				modulesInSync &&
-				( scoreConfigString !== currentScoreConfigString || $scores.isStale )
-			);
-		}
-	);
-
 	const debouncedRefreshScore = debounce( force => {
-		if ( $needsRefresh ) {
-			refreshScore( force );
-		}
+		refreshScore( force );
 	}, 2000 );
 
 	let modalData: ScoreChangeMessage | null = null;
-	$: modalData = ! $isLoading && ! $scores.isStale && scoreChangeModal( $scores );
+	$: modalData = ! isLoading && ! $scores.isStale && scoreChangeModal( $scores );
 
-	$: if ( $needsRefresh ) {
+	$: if ( currentScoreConfigString && $isGenerating === false ) {
 		debouncedRefreshScore( true );
 	}
 
@@ -129,11 +98,11 @@
 
 <div class="jb-container">
 	<div id="jp-admin-notices" class="jetpack-boost-jitm-card" />
-	<div class="jb-site-score" class:loading={$isLoading}>
+	<div class="jb-site-score" class:loading={isLoading}>
 		{#if siteIsOnline}
 			<div class="jb-site-score__top">
 				<h2>
-					{#if $isLoading}
+					{#if isLoading}
 						{__( 'Loading…', 'jetpack-boost' )}
 					{:else if loadError}
 						{__( 'Whoops, something went wrong', 'jetpack-boost' )}
@@ -141,13 +110,13 @@
 						{__( 'Overall score', 'jetpack-boost' )}: {scoreLetter}
 					{/if}
 				</h2>
-				{#if ! $isLoading && ! loadError}
+				{#if ! isLoading && ! loadError}
 					<ScoreContext />
 				{/if}
 				<button
 					type="button"
 					class="components-button is-link"
-					disabled={$isLoading}
+					disabled={isLoading}
 					on:click={() => refreshScore( true )}
 				>
 					<RefreshIcon />
@@ -186,7 +155,7 @@
 				prevScore={$scores.noBoost?.mobile}
 				score={$scores.current.mobile}
 				active={siteIsOnline}
-				isLoading={$isLoading}
+				{isLoading}
 				{showPrevScores}
 				noBoostScoreTooltip={__( 'Your mobile score without Boost', 'jetpack-boost' )}
 			/>
@@ -201,7 +170,7 @@
 				prevScore={$scores.noBoost?.desktop}
 				score={$scores.current.desktop}
 				active={siteIsOnline}
-				isLoading={$isLoading}
+				{isLoading}
 				{showPrevScores}
 				noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
 			/>
