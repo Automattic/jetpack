@@ -3,21 +3,26 @@
 	import Toggle from '../../../elements/Toggle.svelte';
 	import { modulesState, modulesStateClient, updateModuleState } from '../../../stores/modules';
 
-	export let slug;
+	export let slug: string;
 
 	const dispatch = createEventDispatcher();
 
 	$: isModuleActive = $modulesState[ slug ].active;
 	$: isModuleAvailable = $modulesState[ slug ].available;
-	$: if ( isModuleActive ) {
-		dispatch( 'enabled' );
-	} else {
-		dispatch( 'disabled' );
-	}
+
 	const isPending = modulesStateClient.pending;
 
-	function handleToggle() {
-		updateModuleState( slug, ! isModuleActive );
+	async function handleToggle() {
+		const updatedIsModuleActive = ! isModuleActive;
+		await modulesStateClient.endpoint.MERGE( {
+			[ slug ]: { active: updatedIsModuleActive },
+		} );
+		const event = updatedIsModuleActive ? 'disabled' : 'enabled';
+		modulesStateClient.store.overrideUpdate( value => {
+			value[ slug ].active = updatedIsModuleActive;
+			return value;
+		} );
+		dispatch( event );
 	}
 
 	onMount( async () => {
