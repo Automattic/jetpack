@@ -75,7 +75,8 @@ class Status {
 		}
 
 		foreach ( $this->status_sync_map[ $this->slug ] as $mapped_module ) {
-			$this->update( $new_status );
+			$mapped_status = new Status( $mapped_module );
+			$mapped_status->update( $new_status );
 		}
 
 		// The moduleInstance will be there. But check just in case.
