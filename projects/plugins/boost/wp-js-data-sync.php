@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Critical_CSS_Sync;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
@@ -120,8 +121,8 @@ $critical_css_state_schema = Schema::as_assoc_array(
 /**
  * Register Data Sync Stores
  */
-jetpack_boost_register_option( 'critical_css_state', $critical_css_state_schema );
-jetpack_boost_register_option( 'critical_css_suggest_regenerate', Schema::as_boolean()->fallback( false ) );
+jetpack_boost_register_option( 'critical_css_state', Critical_CSS_Sync::class );
+jetpack_boost_register_option( 'critical_css_suggest_regenerate', Boolean_Entry::class );
 
 /**
  * Register module status options for each feature.
