@@ -62,6 +62,13 @@ abstract class Product {
 	public static $requires_user_connection = true;
 
 	/**
+	 * Whether this product has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = false;
+
+	/**
 	 * Get the plugin slug
 	 *
 	 * @return ?string
