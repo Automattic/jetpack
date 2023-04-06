@@ -48,14 +48,12 @@
 				<slot />
 
 				{#if isModuleActive}
-					<div class="jb-feature-toggle__meta">
-						<slot name="meta" />
-					</div>
+					<slot name="meta" />
+
+					<slot name="notice" />
+
+					<slot name="cta" />
 				{/if}
-
-				<slot name="notice" />
-
-				<slot name="cta" />
 			</div>
 		</div>
 	</div>
