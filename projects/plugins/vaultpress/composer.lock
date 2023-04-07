@@ -63,11 +63,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "b99461ddaf9f8b86a38f9013b980f7b47f1bdb75"
+                "reference": "9b1700dc1f2654c5e7d288c885694af851ffcecd"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {

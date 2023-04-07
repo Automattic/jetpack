@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "415991c41215cc0daac2579d0d1a18ffe8484f60"
+                "reference": "02c955e3903fc06ad293660b59a275c1340f4af3"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -22,6 +22,9 @@
                 "brain/monkey": "2.6.1",
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -175,12 +178,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "f1541ff1d4b84a403937905e480c22711e082518"
+                "reference": "80fdbda01651cebdb8f3ae9cec50f2030cf41b42"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {

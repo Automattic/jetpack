@@ -10,6 +10,9 @@
 		"automattic/jetpack-logo": "@dev",
 		"automattic/wordbless": "dev-master"
 	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+	},
 	"autoload": {
 		"classmap": [
 			"src/"

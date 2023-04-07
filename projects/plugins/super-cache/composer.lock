@@ -12,11 +12,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "1b49b50929473de584bf13533d09a6df683cc0dc"
+                "reference": "693cc8c89f1bdb0449ef75886b306dec3b321dcc"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
