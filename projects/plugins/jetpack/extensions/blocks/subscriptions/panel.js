@@ -21,7 +21,7 @@ import { getSubscriberCounts } from './api';
 import './panel.scss';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions, MisconfigurationWarning } from './settings';
-import { isNewsletterConfigured } from './utils';
+import { showNewsletterAccessPanel } from './utils';
 import { name } from './';
 
 const SubscriptionsPanelPlaceholder = ( { children } ) => {
@@ -44,7 +44,7 @@ const SubscriptionsPanelPlaceholder = ( { children } ) => {
 };
 
 function AccessLevelSelectorPanel( { setPostMeta, accessLevel } ) {
-	if ( ! isNewsletterConfigured() ) {
+	if ( ! showNewsletterAccessPanel() ) {
 		return null;
 	}
 
@@ -139,7 +139,7 @@ export default function SubscribePanels() {
 				}
 				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
-				{ isNewsletterConfigured() && showMisconfigurationMessage && (
+				{ showNewsletterAccessPanel() && showMisconfigurationMessage && (
 					<>
 						<MisconfigurationWarning accessLevel={ accessLevel } />
 						<br />
@@ -180,7 +180,7 @@ export default function SubscribePanels() {
 					</InspectorNotice>
 				) }
 
-				{ isNewsletterConfigured() && (
+				{ showNewsletterAccessPanel() && (
 					<NewsletterAccess
 						setPostMeta={ setPostMeta }
 						accessLevel={ accessLevel }
