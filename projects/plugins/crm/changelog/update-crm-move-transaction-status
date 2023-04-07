@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Transactions: move status select html from Transaction Actions to main edit section underneath ID
