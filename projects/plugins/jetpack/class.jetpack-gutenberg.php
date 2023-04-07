@@ -721,7 +721,15 @@ class Jetpack_Gutenberg {
 					apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
 					&& class_exists( '\Jetpack_Memberships' )
 				),
-				'is_newsletter_configured'      => self::is_newsletter_configured(),
+				/**
+				 * Show the Paid Newsletter access panel selector in every post sidebar.
+				 *
+				 * @module subscriptions
+				 * @since 12.0
+				 *
+				 * @param bool false Show the Paid Newsletter access panel selector in every post sidebar.
+				 */
+				'is_newsletter_panel_active'    => apply_filters( 'jetpack_subscriptions_newsletter_show_panel', self::is_newsletter_configured() ),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
