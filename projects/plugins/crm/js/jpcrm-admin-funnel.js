@@ -3,7 +3,7 @@
  * 
  * Inspired in part by https://codepen.io/tylerlwsmith/pen/RwNZKgp
  * 
- * @param funnel_data array of funnel data (value and color)
+ * @param funnel_data array of funnel data (count, backfill_count, contact_status, and link)
  * @element HTML element to turn into a funnel
  **/
 
