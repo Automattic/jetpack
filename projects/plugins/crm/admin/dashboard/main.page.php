@@ -315,7 +315,7 @@ if (jQuery('#bar-chart').length){
 </div>
 
 <div class="ui grid narrow">
-	<div class="six wide column zbs-funnel"  id="settings_dashboard_sales_funnel_display" 
+	<div class="six wide column" id="settings_dashboard_sales_funnel_display" 
 	<?php
 	if ( $settings_dashboard_sales_funnel == 'true' ) {
 		echo "style='display:block;'";
