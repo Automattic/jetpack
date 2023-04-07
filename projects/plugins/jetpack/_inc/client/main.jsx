@@ -67,6 +67,7 @@ import {
 	isAtomicSite,
 	isWoASite,
 	isWooCommerceActive,
+	userIsSubscriber,
 } from 'state/initial-state';
 import {
 	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
@@ -242,7 +243,7 @@ class Main extends React.Component {
 	}
 
 	/**
-	 * Render
+	 * Render the main navigation bar.
 	 *
 	 * @param {string} route - The current page route.
 	 * @returns {React.ReactElement|null} - The navigation component or `null` if not available.
@@ -268,7 +269,21 @@ class Main extends React.Component {
 		}
 
 		if ( ! this.props.userCanManageModules ) {
-			return null;
+			if ( ! this.props.siteConnectionStatus ) {
+				return null;
+			}
+
+			switch ( route ) {
+				case '/settings':
+				case '/writing':
+				case '/sharing':
+				case '/performance':
+					if ( ! this.props.isSubscriber ) {
+						return <NavigationSettings { ...this.props } />;
+					}
+			}
+
+			return <Navigation { ...this.props } />;
 		}
 
 		if ( this.isMainConnectScreen() ) {
@@ -864,6 +879,7 @@ export default connect(
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
 			partnerCoupon: getPartnerCoupon( state ),
 			currentRecommendationsStep: getInitialRecommendationsStep( state ),
+			isSubscriber: userIsSubscriber( state ),
 		};
 	},
 	dispatch => ( {
