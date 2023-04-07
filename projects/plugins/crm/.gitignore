@@ -8,10 +8,14 @@
 /node_modules/
 /vendor/
 codeception.yml
+**/css/*.css.map
+**/css/**/*.css.map
 **/css/*.min.css.map
 **/css/**/*.min.css.map
 **/css/*.min.rtl.*
 **/css/**/*.min.rtl.*
+**/css/*.rtl.css
+**/css/**/*.rtl.css
 **/css/*.min.css
 **/css/welcome-to-zbs/*.min.css
 **/css/integrations/*
