@@ -1,14 +1,23 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 // eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
 import { __experimentalInspectorPopoverHeader as InspectorPopoverHeader } from '@wordpress/block-editor';
-import { Flex, FlexBlock, Button, PanelRow, Dropdown, VisuallyHidden } from '@wordpress/components';
-import { useInstanceId } from '@wordpress/compose';
-import { useSelect } from '@wordpress/data';
+import {
+	Flex,
+	FlexBlock,
+	Button,
+	PanelRow,
+	Dropdown,
+	VisuallyHidden,
+	ToolbarButton,
+} from '@wordpress/components';
+import { useInstanceId, compose } from '@wordpress/compose';
+import { useSelect, withSelect } from '@wordpress/data';
 import { PostVisibilityCheck } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
+import { getPaidPlanLink } from './utils';
 
 import './settings.scss';
 
@@ -82,7 +91,12 @@ function NewsletterAccessChoices( { accessLevel, onChange } ) {
 	);
 }
 
-export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true } ) {
+function NewsletterAccessPanel( {
+	accessLevel,
+	setPostMeta,
+	withModal = true,
+	hasNewsletterPlans,
+} ) {
 	if ( ! accessLevel || ! Object.keys( accessOptions ).includes( accessLevel ) ) {
 		accessLevel = Object.keys( accessOptions )[ 0 ];
 	}
@@ -94,6 +108,21 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 
 	const showVisibilityRestrictedMessage = ! postVisibilityIsPublic && accessLevel === 'everybody';
 	const showMisconfigurationMessage = ! postVisibilityIsPublic && accessLevel !== 'everybody';
+
+	if ( ! hasNewsletterPlans ) {
+		return (
+			<>
+				<PanelRow>
+					{ __( 'Set up paid plan for readers to access your content.', 'jetpack' ) }
+				</PanelRow>
+				<PanelRow>
+					<ToolbarButton href={ getPaidPlanLink( false ) } target="_blank">
+						{ __( 'Add Payments', 'jetpack' ) }
+					</ToolbarButton>
+				</PanelRow>
+			</>
+		);
+	}
 
 	return (
 		<PostVisibilityCheck
@@ -197,3 +226,14 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 		/>
 	);
 }
+
+export const NewsletterAccess = compose( [
+	withSelect( select => {
+		const newsletterPlans = select( 'jetpack/membership-products' )
+			?.getProducts()
+			?.filter( product => product.subscribe_as_site_subscriber );
+		return {
+			hasNewsletterPlans: newsletterPlans?.length !== 0,
+		};
+	} ),
+] )( NewsletterAccessPanel );
