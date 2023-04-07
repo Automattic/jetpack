@@ -272,9 +272,11 @@ abstract class Product {
 	 * @return string
 	 */
 	public static function get_status() {
-
 		if ( ! static::is_plugin_installed() ) {
 			$status = 'plugin_absent';
+			if ( static::has_required_plan() ) {
+				$status = 'plugin_absent_with_plan';
+			}
 		} elseif ( static::is_active() ) {
 			$status = 'active';
 			// We only consider missing user connection an error when the Product is active.

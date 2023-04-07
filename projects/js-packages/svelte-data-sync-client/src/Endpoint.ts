@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { API, RequestMethods, RequestParams } from './API';
+import { ApiError } from './ApiError';
 
 /**
  * Every SyncedStore option has its own API Endpoint.
@@ -21,14 +22,29 @@ export class API_Endpoint< T extends RequestParams > {
 		this.endpoint = this.name.replaceAll( '_', '-' );
 	}
 
-	public async validatedRequest(
+	private async validatedRequest(
 		method: RequestMethods = 'GET',
+		path = '',
 		params?: T,
 		abortSignal?: AbortSignal
 	): Promise< T > {
-		const data = await this.api.request( this.endpoint, method, this.nonce, params, abortSignal );
-		const parsed = this.schema.parse( data );
-		return parsed;
+		const data = await this.api.request(
+			this.endpoint + path,
+			method,
+			this.nonce,
+			params,
+			abortSignal
+		);
+		try {
+			const parsed = this.schema.parse( data );
+			return parsed;
+		} catch ( error ) {
+			const url = `${ this.endpoint }/${ path }`;
+			// Log Zod validation errors to the console.
+			// eslint-disable-next-line no-console
+			console.error( error );
+			throw new ApiError( url, 'schema_error', 'Schema validation failed' );
+		}
 	}
 
 	/**
@@ -40,14 +56,18 @@ export class API_Endpoint< T extends RequestParams > {
 	 * without losing the `this` context.
 	 */
 	public GET = async ( abortSignal?: AbortSignal ): Promise< T > => {
-		return await this.validatedRequest( 'GET', undefined, abortSignal );
+		return await this.validatedRequest( 'GET', '', undefined, abortSignal );
 	};
 
-	public POST = async ( params: T, abortSignal?: AbortSignal ): Promise< T > => {
-		return await this.validatedRequest( 'POST', params, abortSignal );
+	public SET = async ( params: T, abortSignal?: AbortSignal ): Promise< T > => {
+		return await this.validatedRequest( 'POST', '/set', params, abortSignal );
+	};
+
+	public MERGE = async ( params: T, abortSignal?: AbortSignal ): Promise< T > => {
+		return await this.validatedRequest( 'POST', '/merge', params, abortSignal );
 	};
 
 	public DELETE = async ( abortSignal?: AbortSignal ) => {
-		return await this.validatedRequest( 'DELETE', undefined, abortSignal );
+		return await this.validatedRequest( 'POST', 'delete', undefined, abortSignal );
 	};
 }

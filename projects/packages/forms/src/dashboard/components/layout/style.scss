@@ -16,6 +16,10 @@ body.toplevel_page_jetpack-forms {
 
 	.jp-forms__logo {
 		margin: 40px 64px;
+
+		@media (max-width: 660px) {
+			margin: 40px 24px;
+		}
 	}
 }
 
@@ -23,8 +27,12 @@ body.toplevel_page_jetpack-forms {
 	background-color: #f9f9f9;
 	box-sizing: border-box;
 	margin: 0;
-	padding: 48px 64px 32px;
+	padding: 48px 64px 16px;
 	width: 100%;
+
+	@media (max-width: 660px) {
+		padding: 48px 24px 32px;
+	}
 }
 
 .jp-forms__layout-title {
