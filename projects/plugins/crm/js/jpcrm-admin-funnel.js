@@ -11,7 +11,7 @@ function jpcrm_build_funnel(data, funnel_element) {
 	// something's wrong, so stop
 	if (!element || !data) return;
 
-	const COLORS = [ '#00a0d2', '#0073aa', '#035d88', '#333', '#222', '#000' ];
+	const COLORS = [ '#000', '#222', '#333', '#035d88', '#0073aa', '#00a0d2' ];
 
 	// show legend if desired
 	const SHOW_FUNNEL_LEGEND = false;
