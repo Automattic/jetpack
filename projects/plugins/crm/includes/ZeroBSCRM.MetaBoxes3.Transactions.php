@@ -238,13 +238,7 @@
 							'"' .
 							esc_attr( $sel ) .
 							'>' .
-							esc_html(
-								sprintf(
-									/* Translators: placeholder is the name of the transaction status */
-									__( '%s', 'zero-bs-crm' ), // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings
-									$status
-								)
-							) .
+							esc_html( $status ) .
 							'</option>';
 						}
 						?>
