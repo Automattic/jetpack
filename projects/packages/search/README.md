@@ -1,14 +1,6 @@
-# forms
+# Search
 
-Jetpack Forms
-
-## How to install forms
-
-### Installation From Git Repo
-
-## Contribute
-
-## Get Help
+Tools to assist with enabling cloud search for Jetpack sites. The search package provides a search interface for the [Elasticsearch](https://www.elastic.co/elasticsearch/) search engine.
 
 ## Using this package in your WordPress plugin
 
@@ -20,5 +12,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-forms is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-
+jetpack-search is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)

@@ -1,14 +1,6 @@
-# forms
+# Jetpack Tracking
 
-Jetpack Forms
-
-## How to install forms
-
-### Installation From Git Repo
-
-## Contribute
-
-## Get Help
+This package is used to track events in Jetpack.
 
 ## Using this package in your WordPress plugin
 
@@ -20,5 +12,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-forms is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-
+jetpack-tracking is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)

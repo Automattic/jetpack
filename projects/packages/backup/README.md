@@ -1,14 +1,6 @@
-# forms
+# Backup
 
-Jetpack Forms
-
-## How to install forms
-
-### Installation From Git Repo
-
-## Contribute
-
-## Get Help
+Tools to assist with backing up Jetpack sites.
 
 ## Using this package in your WordPress plugin
 
@@ -20,5 +12,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-forms is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-
+jetpack-backups is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
