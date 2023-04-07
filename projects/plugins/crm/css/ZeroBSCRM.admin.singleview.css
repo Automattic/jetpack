@@ -44,7 +44,7 @@
   margin: 0 0 0.5em 0;
   text-transform: uppercase;
   white-space: nowrap;
-  color: rgba(115, 115, 115, 0.8117647059);
+  color: #737373cf;
 }
 
 /*----- TIMELINE MARKER -----*/
@@ -365,7 +365,9 @@
   box-shadow: 0px 0px 0px 1px transparent inset, 0px 0em 0px 0px rgba(34, 36, 38, 0.15) inset;
   -webkit-user-select: none;
   -moz-user-select: none;
+  -ms-user-select: none;
   user-select: none;
+  -webkit-transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
   transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
   will-change: "";
   -webkit-tap-highlight-color: transparent;
@@ -409,7 +411,7 @@
 .zbs-long-desc {
   display: none;
   padding: 0.5em;
-  background: rgba(92, 151, 210, 0.0901960784);
+  background: #5c97d217;
   margin-right: 2em;
   border-radius: 0.2em;
 }

@@ -19,6 +19,7 @@ codeception.yml
 **/css/*.min.css
 **/css/welcome-to-zbs/*.min.css
 **/css/integrations/*
+**/css/font-awesome.css
 **/js/*.min.js.map
 **/js/**/*.min.js.map
 **/js/*.min.js

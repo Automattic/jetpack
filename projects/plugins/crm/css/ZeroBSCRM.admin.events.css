@@ -217,10 +217,6 @@
   height: 200px;
 }
 
-::-moz-placeholder {
-  color: #ccc;
-}
-
 ::placeholder {
   color: #ccc;
 }
