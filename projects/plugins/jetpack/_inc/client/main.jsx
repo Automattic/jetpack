@@ -735,42 +735,6 @@ class Main extends React.Component {
 		this.props.fetchSettings();
 	}
 
-	/**
-	 * Render the header.
-	 *
-	 * @returns {React.ReactElement} - The header component;
-	 */
-	renderHeader() {
-		const mainNav = this.renderMainNav( this.props.location.pathname );
-
-		const internals = (
-			<>
-				<AdminNotices />
-				<JetpackNotices />
-				{ this.shouldConnectUser() && this.connectUser() }
-				<Prompt
-					when={ this.props.areThereUnsavedSettings }
-					message={ this.handleRouterWillLeave }
-				/>
-			</>
-		);
-
-		if ( ! mainNav && ! this.shouldShowMasthead() && ! this.shouldShowRewindStatus() ) {
-			return internals;
-		}
-
-		return (
-			<div className="jp-top">
-				<div className="jp-top-inside">
-					{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
-					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
-					{ internals }
-					{ mainNav }
-				</div>
-			</div>
-		);
-	}
-
 	render() {
 		const jpClasses = [ 'jp-lower' ];
 
@@ -786,15 +750,40 @@ class Main extends React.Component {
 			jpClasses.push( 'jp-licensing-screen' );
 		}
 
+		const mainNav = this.renderMainNav( this.props.location.pathname );
+		const showHeader = mainNav || this.shouldShowMasthead() || this.shouldShowRewindStatus();
+
+		const headerInternals = (
+			<>
+				<AdminNotices />
+				<JetpackNotices />
+				{ this.shouldConnectUser() && this.connectUser() }
+				<Prompt
+					when={ this.props.areThereUnsavedSettings }
+					message={ this.handleRouterWillLeave }
+				/>
+			</>
+		);
+
 		return (
 			<div>
 				{ this.shouldShowReconnectModal() && (
 					<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
 				) }
 
-				{ this.renderHeader() }
+				{ showHeader && (
+					<div className="jp-top">
+						<div className="jp-top-inside">
+							{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
+							{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
+							{ headerInternals }
+							{ mainNav }
+						</div>
+					</div>
+				) }
 
 				<div className={ jpClasses.join( ' ' ) }>
+					{ ! showHeader && headerInternals }
 					{ this.renderMainContent( this.props.location.pathname ) }
 					{ this.shouldShowAgenciesCard() && (
 						<AgenciesCard path={ this.props.location.pathname } discountPercentage={ 25 } />
