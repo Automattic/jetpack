@@ -10,3 +10,26 @@
 	width: 100%;
 	z-index: 1;
 }
+
+.videopress-player__overlay-controls {
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	z-index: 1;
+}
+
+.videopress-player__overlay-controls-button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	width: 100%;
+}
+
+.videopress-player__overlay-controls-button-icon {
+	width: 64px;
+	height: 64px;
+	size: 64;
+}
