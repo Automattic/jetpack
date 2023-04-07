@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0-beta] - 2023-04-06
+### Added
+- Critical CSS: Added a notice to regenerate Critical CSS to the Boost dashboard. [#28858]
+- General: Added a link to activate a license key. [#29443]
+- Image CDN: Added image CDN to Boost. [#29561]
+- Image Guide: Added information about the Image Guide to the readme. [#29799]
+
+### Changed
+- Critical CSS: Added clearer explanations of the feature, and when to regenerate CSS. [#29250]
+- General: Faster "Getting Started" flow, bypassing the first connection screen. [#28938]
+- General: Revised Jetpack connection agreement text to comply with our User Agreement. [#28403]
+- General: Switch to a more stable internal data sync package. [#29899]
+- General: Updated contributors list. [#28891]
+- General: Updated to React 18. [#28710]
+
+### Fixed
+- Critical CSS: Added Internal schema validation for improved stability. [#29564]
+- Critical CSS: Expanded the set of site changes which can trigger a regeneration. [#29109]
+- Critical CSS: Fixed a minor UI glitch caused by a missing close tag. [#28548]
+- Critical CSS: Fixed PHP warning when deleting stored Critical CSS [#28372]
+- Critical CSS: Unified the internal structure of Cloud and Critical CSS, ensuring a smoother experience when switching between the two. [#29554]
+- Lazy Loading: Fixed images sometimes failing to Lazy-load in Safari. [#29266]
+- General: Fixed incorrect font sizes and weights in various screens. [#29411]
+- General: Fixed incorrect GET parameters used during purchase flow, which leading to inconsistent behaviour. [#28825]
+- Deferred JS: Fixed some compatibility issues with page-builders by turning off Deferred JS in the customizer preview. [#29143]
+- General: Fixed triggers for optimization initialization sometimes firing on the wrong hook. [#28888]
+- General: Fixed "Undefined array key: post" warning. [#29096]
+- General: Fixed stats tracking by using the correct casing for Tracks event properties. [#29111]
+
 ## [1.7.0] - 2023-01-17
 ### Added
 - New Feature: Jetpack Boost Image Guide.
@@ -206,6 +235,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [1.3.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.2.0...v1.3.0-beta
 [1.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.1.0...v1.2.0-beta
 [1.4.3-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.2...v1.4.3-beta
+[1.8.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.7.0...v1.8.0-beta
 [1.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.5.4...v1.6.0
 [1.5.4]: https://github.com/Automattic/jetpack-boost-production/compare/v1.5.3...v1.5.4

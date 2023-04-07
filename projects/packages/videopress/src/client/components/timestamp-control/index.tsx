@@ -13,6 +13,7 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
+import { formatTime } from '../../utils/time';
 import styles from './style.module.scss';
 /**
  * Types
@@ -236,7 +237,8 @@ export const TimestampInput = ( {
 export const TimestampControl = ( props: TimestampControlProps ): React.ReactElement => {
 	const {
 		disabled = false,
-		max,
+		min = 0,
+		max = Number.MAX_SAFE_INTEGER,
 		value,
 		onChange,
 		onDebounceChange,
@@ -244,6 +246,8 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 		fineAdjustment = 50,
 		autoHideTimeInput = true,
 		decimalPlaces,
+		marksEvery,
+		renderTooltip,
 	} = props;
 
 	const debounceTimer = useRef< NodeJS.Timeout >();
@@ -264,12 +268,27 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 				newValue = max;
 			}
 
+			if ( newValue < min ) {
+				newValue = min;
+			}
+
 			setControledValue( newValue );
 			onChange?.( newValue );
 			debounceTimer.current = setTimeout( onDebounceChange?.bind( null, newValue ), wait );
 		},
-		[ onDebounceChange, onChange, max, wait ]
+		[ onDebounceChange, onChange, max, min, wait ]
 	);
+
+	const marks: Array< { value: number; label: string } > = [];
+	if ( marksEvery ) {
+		for ( let i = min; i <= max; i += marksEvery ) {
+			marks.push( { value: i, label: null } );
+		}
+	}
+
+	// Provides a default function to render the tooltip content.
+	const renderTooltipHandler =
+		typeof renderTooltip === 'function' ? renderTooltip : ( time: number ) => formatTime( time );
 
 	return (
 		<BaseControl { ...baseControlProps }>
@@ -288,14 +307,16 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 				<RangeControl
 					disabled={ disabled }
 					className={ styles[ 'timestamp-range-control' ] }
-					min={ 0 }
+					min={ min }
 					step={ fineAdjustment }
 					initialPosition={ controledValue }
 					value={ controledValue }
 					max={ max }
-					showTooltip={ false }
 					withInputField={ false }
 					onChange={ onChangeHandler }
+					marks={ marksEvery ? marks : undefined }
+					renderTooltipContent={ renderTooltipHandler }
+					{ ...( renderTooltip === false ? { showTooltip: false } : {} ) }
 				/>
 			</div>
 		</BaseControl>

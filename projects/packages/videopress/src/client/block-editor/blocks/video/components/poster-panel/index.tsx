@@ -28,6 +28,7 @@ import classnames from 'classnames';
  */
 import TimestampControl from '../../../../../components/timestamp-control';
 import { getVideoPressUrl } from '../../../../../lib/url';
+import { millisecondsToClockTime } from '../../../../../utils/video-chapters/generate-chapters-file';
 import { usePreview } from '../../../../hooks/use-preview';
 import useVideoPlayer from '../../../../hooks/use-video-player';
 import { VIDEO_POSTER_ALLOWED_MEDIA_TYPES } from '../../constants';
@@ -37,7 +38,7 @@ import './style.scss';
  * Types
  */
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
-import type { PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
+import type { PosterDataProps, PosterPanelProps, VideoControlProps, VideoGUID } from '../../types';
 import type React from 'react';
 
 const MIN_LOOP_DURATION = 3 * 1000;
@@ -325,16 +326,28 @@ export function VideoHoverPreviewControl( {
 	onPreviewAtTimeChange,
 	onLoopDurationChange,
 }: VideoHoverPreviewControlProps ): React.ReactElement {
+	const disabled = ! videoDuration;
 	const maxStartingPoint = videoDuration - MIN_LOOP_DURATION;
 
 	const [ maxLoopDuration, setMaxLoopDuration ] = useState(
 		Math.min( MAX_LOOP_DURATION, videoDuration - previewAtTime )
 	);
 
+	const startingPointHelp = createInterpolateElement(
+		sprintf(
+			/* translators: placeholder is video duration */
+			__( 'Video duration: <em>%s</em>.', 'jetpack-videopress-pkg' ),
+			millisecondsToClockTime( maxStartingPoint )
+		),
+		{
+			em: <em />,
+		}
+	);
+
 	const loopDurationHelp = createInterpolateElement(
 		sprintf(
 			/* translators: placeholder is the maximum lapse duration for the previewOnHover */
-			__( 'Minimum value: <em>3s</em>. Maximum value: <em>%s</em>s.', 'jetpack-videopress-pkg' ),
+			__( 'Minimum: <em>3s</em>. Maximum: <em>%s</em>s.', 'jetpack-videopress-pkg' ),
 			( ( maxLoopDuration / 10 ) | 0 ) / 100
 		),
 		{
@@ -351,6 +364,7 @@ export function VideoHoverPreviewControl( {
 				label={ __( 'Video preview on hover', 'jetpack-videopress-pkg' ) }
 				checked={ previewOnHover }
 				onChange={ onPreviewOnHoverChange }
+				disabled={ ! previewOnHover && disabled }
 			/>
 
 			{ previewOnHover && (
@@ -358,26 +372,35 @@ export function VideoHoverPreviewControl( {
 					<TimestampControl
 						label={ __( 'Starting point', 'jetpack-videopress-pkg' ) }
 						max={ maxStartingPoint }
-						fineAdjustment={ 1 }
-						decimalPlaces={ 2 }
+						fineAdjustment={ 50 }
 						value={ previewAtTime }
 						onDebounceChange={ timestamp => {
 							onPreviewAtTimeChange( timestamp );
-							setMaxLoopDuration( Math.min( MAX_LOOP_DURATION, videoDuration - timestamp ) );
+
+							const max = Math.min( MAX_LOOP_DURATION, videoDuration - timestamp );
+							setMaxLoopDuration( max );
+
+							// Adjust loop duration if it's needed
+							if ( loopDuration > max ) {
+								onLoopDurationChange( max );
+							}
 						} }
-						wait={ 100 }
+						wait={ 300 }
+						disabled={ disabled }
+						help={ startingPointHelp }
 					/>
 
 					<TimestampControl
 						max={ maxLoopDuration }
-						fineAdjustment={ 1 }
-						decimalPlaces={ 2 }
+						min={ MIN_LOOP_DURATION }
+						fineAdjustment={ 50 }
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
 						value={ loopDuration }
 						onDebounceChange={ onLoopDurationChange }
-						wait={ 100 }
+						wait={ 300 }
 						help={ loopDurationHelp }
-						disabled={ noLoopDurationRange }
+						disabled={ disabled || noLoopDurationRange }
+						marksEvery={ 5000 }
 					/>
 				</>
 			) }
@@ -427,11 +450,23 @@ export default function PosterPanel( {
 
 	const onPreviewOnHoverChange = useCallback(
 		( shouldPreviewOnHover: boolean ) => {
+			let newPosterData: PosterDataProps = {
+				...attributes.posterData,
+				previewOnHover: shouldPreviewOnHover,
+			};
+
+			// Add default values for the preview options on activation
+			if ( shouldPreviewOnHover ) {
+				newPosterData = {
+					previewAtTime,
+					previewLoopDuration,
+					...newPosterData,
+				};
+			}
+
 			setAttributes( {
-				posterData: {
-					...attributes.posterData,
-					previewOnHover: shouldPreviewOnHover,
-				},
+				posterData: newPosterData,
+				controls: shouldPreviewOnHover ? false : attributes.controls,
 			} );
 		},
 		[ attributes ]
