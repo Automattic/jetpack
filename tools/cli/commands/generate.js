@@ -556,6 +556,9 @@ async function createComposerJson( composerJson, answers ) {
 				'::PACKAGE_VERSION': `src/class-${ answers.name }.php`,
 			};
 			composerJson.type = 'jetpack-library';
+			composerJson.suggest ||= {};
+			composerJson.suggest[ 'automattic/jetpack-autoloader' ] =
+				'Allow for better interopability with other plugins that use this package.';
 			break;
 		case 'plugin':
 			composerJson.extra = composerJson.extra || {};
@@ -693,6 +696,10 @@ function createReadMeMd( answers ) {
 		'## Contribute\n' +
 		'\n' +
 		'## Get Help\n' +
+		'\n' +
+		'## Using this package in your WordPress plugin\n' +
+		'\n' +
+		'If you plan on using this package in your WordPress plugin, we would recommend that you use[Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.\n' +
 		'\n' +
 		'## Security\n' +
 		'\n' +
