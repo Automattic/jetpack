@@ -109,7 +109,11 @@
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-production",
-		"release-branch-prefix": "jetpack",
+		"release-branch-prefix": [
+			"jetpack",
+			"weekly",
+			"monthly"
+		],
 		"version-constants": {
 			"JETPACK__VERSION": "jetpack.php"
 		},

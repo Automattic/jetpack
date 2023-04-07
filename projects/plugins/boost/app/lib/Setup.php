@@ -32,7 +32,17 @@ class Setup {
 		self::$instances[] = $instance;
 	}
 
-	public function get_instances() {
+	public static function get_instances() {
 		return self::$instances;
+	}
+
+	public static function get_instance_of( $class_name ) {
+		foreach ( self::get_instances() as $instance ) {
+			if ( $instance instanceof $class_name ) {
+				return $instance;
+			}
+		}
+
+		return null;
 	}
 }

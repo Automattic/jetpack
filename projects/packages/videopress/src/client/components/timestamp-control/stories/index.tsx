@@ -60,6 +60,31 @@ disabled.args = {
 	disabled: true,
 };
 
+export const withMarks = Template.bind( {} );
+withMarks.args = {
+	value: 3500, // 3.5 seconds
+	max: 1000 * 10, // ten seconds
+	marksEvery: 1000, // a mark every second
+	fineAdjustment: 200,
+};
+
+export const showTooltip = Template.bind( {} );
+showTooltip.args = {
+	value: 80000, // 1 minute 20 seconds
+	max: 1000 * 100, // 100 seconds
+	renderTooltip: true,
+};
+
+export const customTooltip = Template.bind( {} );
+customTooltip.args = {
+	value: 1000 * 50, // 3.5 seconds
+	max: 1000 * 80, // ten seconds
+	fineAdjustment: 200,
+	renderTooltip: ( value: number ) => {
+		return <span>{ value / 1000 } seconds</span>;
+	},
+};
+
 const ChangingValueTemplate: ComponentStory< typeof TimestampControl > = args => {
 	const [ value, setValue ] = useState( args.value );
 
