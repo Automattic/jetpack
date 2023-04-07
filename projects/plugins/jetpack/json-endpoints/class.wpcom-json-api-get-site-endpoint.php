@@ -237,6 +237,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'plan',
 		'products',
 		'zendesk_site_meta',
+		'wpcom_production_blog_id',
+		'wpcom_staging_blog_ids',
 	);
 
 	/**
