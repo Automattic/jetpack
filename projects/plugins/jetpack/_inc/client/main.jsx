@@ -241,6 +241,38 @@ class Main extends React.Component {
 		this.props.setConnectionStatus( this.props.connectionStatus );
 	}
 
+	/**
+	 * Render
+	 *
+	 * @param {string} route - The current page route.
+	 * @returns {React.ReactElement|null} - The navigation component or `null` if not available.
+	 */
+	renderMainNav = route => {
+		switch ( route ) {
+			case '/settings':
+			case '/security':
+			case '/performance':
+			case '/writing':
+			case '/sharing':
+			case '/discussion':
+			case '/traffic':
+			case '/privacy':
+				return (
+					<NavigationSettings
+						routeName={ this.props.routeName }
+						siteRawUrl={ this.props.siteRawUrl }
+						siteAdminUrl={ this.props.siteAdminUrl }
+					/>
+				);
+			case '/license/activation':
+				if ( this.props.isLinked && this.props.isConnectionOwner ) {
+					return null;
+				}
+		}
+
+		return <Navigation routeName={ this.props.routeName } />;
+	};
+
 	renderMainContent = route => {
 		if ( this.shouldShowWooConnectionScreen() ) {
 			const previousPath = this.props.location.state?.previousPath;
@@ -417,15 +449,7 @@ class Main extends React.Component {
 			);
 		}
 
-		const settingsNav = (
-			<NavigationSettings
-				routeName={ this.props.routeName }
-				siteRawUrl={ this.props.siteRawUrl }
-				siteAdminUrl={ this.props.siteAdminUrl }
-			/>
-		);
-		let pageComponent,
-			navComponent = <Navigation routeName={ this.props.routeName } />;
+		let pageComponent;
 
 		switch ( route ) {
 			case '/dashboard':
@@ -465,7 +489,6 @@ class Main extends React.Component {
 			case '/discussion':
 			case '/traffic':
 			case '/privacy':
-				navComponent = settingsNav;
 				pageComponent = (
 					<SearchableSettings
 						siteAdminUrl={ this.props.siteAdminUrl }
@@ -478,7 +501,6 @@ class Main extends React.Component {
 				break;
 			case '/license/activation':
 				if ( this.props.isLinked && this.props.isConnectionOwner ) {
-					navComponent = null;
 					pageComponent = (
 						<ActivationScreen
 							siteRawUrl={ this.props.siteRawUrl }
@@ -551,7 +573,6 @@ class Main extends React.Component {
 
 		return (
 			<div aria-live="assertive" className={ `${ this.shouldBlurMainContent() ? 'blur' : '' }` }>
-				{ navComponent }
 				{ pageComponent }
 			</div>
 		);
@@ -714,6 +735,42 @@ class Main extends React.Component {
 		this.props.fetchSettings();
 	}
 
+	/**
+	 * Render the header.
+	 *
+	 * @returns {React.ReactElement} - The header component;
+	 */
+	renderHeader() {
+		const mainNav = this.renderMainNav( this.props.location.pathname );
+
+		const internals = (
+			<>
+				<AdminNotices />
+				<JetpackNotices />
+				{ this.shouldConnectUser() && this.connectUser() }
+				<Prompt
+					when={ this.props.areThereUnsavedSettings }
+					message={ this.handleRouterWillLeave }
+				/>
+			</>
+		);
+
+		if ( ! mainNav && ! this.shouldShowMasthead() && ! this.shouldShowRewindStatus() ) {
+			return internals;
+		}
+
+		return (
+			<div className="jp-top">
+				<div className="jp-top-inside">
+					{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
+					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
+					{ internals }
+					{ mainNav }
+				</div>
+			</div>
+		);
+	}
+
 	render() {
 		const jpClasses = [ 'jp-lower' ];
 
@@ -734,16 +791,10 @@ class Main extends React.Component {
 				{ this.shouldShowReconnectModal() && (
 					<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
 				) }
-				{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
+
+				{ this.renderHeader() }
+
 				<div className={ jpClasses.join( ' ' ) }>
-					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
-					<AdminNotices />
-					<JetpackNotices />
-					{ this.shouldConnectUser() && this.connectUser() }
-					<Prompt
-						when={ this.props.areThereUnsavedSettings }
-						message={ this.handleRouterWillLeave }
-					/>
 					{ this.renderMainContent( this.props.location.pathname ) }
 					{ this.shouldShowAgenciesCard() && (
 						<AgenciesCard path={ this.props.location.pathname } discountPercentage={ 25 } />
