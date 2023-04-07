@@ -17,7 +17,7 @@ import { store as noticesStore } from '@wordpress/notices';
  * External dependencies
  */
 import React from 'react';
-import { View } from 'react-native';
+import { View, Platform } from 'react-native';
 /**
  * Internal dependencies
  */
@@ -57,7 +57,6 @@ export default function VideoPressEdit( {
 	insertBlocksAfter,
 } ): React.ReactNode {
 	const {
-		controls,
 		guid,
 		loop,
 		muted,
@@ -100,7 +99,7 @@ export default function VideoPressEdit( {
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
-		controls,
+		controls: Platform.OS === 'ios',
 		loop,
 		muted,
 		playsinline,
