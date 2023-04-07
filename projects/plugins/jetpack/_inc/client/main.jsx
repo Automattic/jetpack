@@ -248,6 +248,33 @@ class Main extends React.Component {
 	 * @returns {React.ReactElement|null} - The navigation component or `null` if not available.
 	 */
 	renderMainNav = route => {
+		if ( this.shouldShowWooConnectionScreen() ) {
+			return null;
+		}
+
+		if ( this.props.partnerCoupon ) {
+			const forceShow = new URLSearchParams( window.location.search ).get( 'showCouponRedemption' );
+
+			if ( ! this.props.isOfflineMode && ( ! this.props.isSiteConnected || forceShow ) ) {
+				return null;
+			}
+		}
+
+		if (
+			this.isUserConnectScreen() &&
+			( this.props.userCanManageModules || this.props.hasConnectedOwner )
+		) {
+			return null;
+		}
+
+		if ( ! this.props.userCanManageModules ) {
+			return null;
+		}
+
+		if ( this.isMainConnectScreen() ) {
+			return null;
+		}
+
 		switch ( route ) {
 			case '/settings':
 			case '/security':
@@ -626,6 +653,10 @@ class Main extends React.Component {
 	}
 
 	shouldShowMasthead() {
+		if ( this.isMainConnectScreen() ) {
+			return false;
+		}
+
 		// Only show on the setup pages, dashboard, and settings page
 		return [ ...dashboardRoutes, ...recommendationsRoutes, ...settingsRoutes ].includes(
 			this.props.location.pathname
