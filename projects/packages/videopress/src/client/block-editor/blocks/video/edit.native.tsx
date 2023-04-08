@@ -24,6 +24,7 @@ import { View } from 'react-native';
 import getMediaToken from '../../../lib/get-media-token/index.native';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
+import { useSyncMedia } from '../../hooks/use-sync-media';
 import addTokenIntoIframeSource from '../../utils/add-token-iframe-source';
 import isLocalFile from '../../utils/is-local-file.native';
 import ColorPanel from './components/color-panel';
@@ -132,6 +133,8 @@ export default function VideoPressEdit( {
 		},
 		[ setAttributes ]
 	);
+
+	useSyncMedia( attributes, setAttributes );
 
 	const handleDoneUpload = useCallback(
 		newVideoData => {

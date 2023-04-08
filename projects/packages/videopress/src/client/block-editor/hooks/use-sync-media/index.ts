@@ -283,7 +283,7 @@ export function useSyncMedia(
 	 * Store and compare the block attributes
 	 * in order to detect changes on them.
 	 */
-	const { isGeneratingPoster } = isWeb && useVideoPosterData( attributes );
+	const isGeneratingPoster = isWeb ? useVideoPosterData( attributes ).isGeneratingPoster : null;
 
 	/*
 	 * Block attributes => Media data (sync)
