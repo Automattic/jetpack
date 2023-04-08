@@ -37,7 +37,10 @@ export default function useVideoData( {
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
 
 	useEffect( () => {
-		if ( ! isUserConnected ) {
+		// Skip check for native as only simple WordPress.com sites are supported in the current native block.
+		// We can assume that all simple WordPress.com sites are connected.
+		// TODO: Add native connection logic for Jetpack-connected sites in future iterations.
+		if ( ! isUserConnected && isWeb ) {
 			debug( 'User is not connected' );
 			return;
 		}
