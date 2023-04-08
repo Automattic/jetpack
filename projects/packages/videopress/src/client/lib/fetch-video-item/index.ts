@@ -2,6 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { Platform } from '@wordpress/element';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -17,7 +18,10 @@ import type {
 } from '../../types';
 import type { MediaTokenProps } from '../get-media-token/types';
 
-const debug = debugFactory( 'videopress:lib:fetch-video-item' );
+const isWeb = Platform.isWeb;
+
+// eslint-disable-next-line no-console
+const debug = isWeb ? debugFactory( 'videopress:video:use-video-data' ) : console.log;
 
 /**
  * Fetches the video item from the v1.1/videos endpoint.

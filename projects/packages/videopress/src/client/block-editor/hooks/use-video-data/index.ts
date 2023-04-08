@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, Platform } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import debugFactory from 'debug';
 /**
@@ -14,7 +14,10 @@ import { fetchVideoItem } from '../../../lib/fetch-video-item';
  */
 import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from './types';
 
-const debug = debugFactory( 'videopress:video:use-video-data' );
+const isWeb = Platform.isWeb;
+
+// eslint-disable-next-line no-console
+const debug = isWeb ? debugFactory( 'videopress:video:use-video-data' ) : console.log;
 
 const isUserConnected = getIsUserConnected();
 
