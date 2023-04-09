@@ -116,7 +116,7 @@ function NewsletterAccessPanel( {
 					{ __( 'Set up paid plan for readers to access your content.', 'jetpack' ) }
 				</PanelRow>
 				<PanelRow>
-					<ToolbarButton href={ getPaidPlanLink( false ) } target="_blank">
+					<ToolbarButton variant="primary" is href={ getPaidPlanLink( false ) } target="_blank">
 						{ __( 'Add Payments', 'jetpack' ) }
 					</ToolbarButton>
 				</PanelRow>
