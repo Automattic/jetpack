@@ -102,7 +102,6 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 			?.getProducts()
 			?.filter( product => product.subscribe_as_site_subscriber )
 	);
-	const plansConfigured = newsletterPlans && newsletterPlans.length > 0;
 
 	// Can be “private”, “password”, or “public”.
 	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
@@ -111,29 +110,46 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 	const showVisibilityRestrictedMessage = ! postVisibilityIsPublic && accessLevel === 'everybody';
 	const showMisconfigurationMessage = ! postVisibilityIsPublic && accessLevel !== 'everybody';
 
+	if ( ! newsletterPlans || newsletterPlans.length === 0 ) {
+		return (
+			<>
+				<PanelRow>
+					{ __( 'Set up paid plan for readers to access your content.', 'jetpack' ) }
+				</PanelRow>
+				<PanelRow>
+					<ToolbarButton variant="primary" is href={ getPaidPlanLink( false ) } target="_blank">
+						{ __( 'Add Payments', 'jetpack' ) }
+					</ToolbarButton>
+				</PanelRow>
+				<PanelRow>
+					<small spanClass={ 'jetpack-subscribe-info' }>
+						{ createInterpolateElement(
+							/* translators: basic information about the newsletter visibility */
+							__( 'Restrict your post to subscribers. <a>Learn more</a>.', 'jetpack' ),
+							{
+								a: (
+									<a
+										href={ getRedirectUrl( 'paid-newsletter-info', {
+											anchor: 'memberships-and-subscriptions',
+										} ) }
+										rel="noopener noreferrer"
+										target="_blank"
+									/>
+								),
+							}
+						) }
+					</small>
+				</PanelRow>
+			</>
+		);
+	}
+
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => (
 				<PanelRow className="edit-post-post-visibility">
 					<Flex direction={ 'column' }>
-						{ ! plansConfigured && (
-							<>
-								<FlexBlock>
-									{ __( 'Set up paid plan for readers to access your content.', 'jetpack' ) }
-								</FlexBlock>
-								<FlexBlock>
-									<ToolbarButton
-										variant="primary"
-										is
-										href={ getPaidPlanLink( false ) }
-										target="_blank"
-									>
-										{ __( 'Add Payments', 'jetpack' ) }
-									</ToolbarButton>
-								</FlexBlock>
-							</>
-						) }
-						{ plansConfigured && canEdit && withModal && showVisibilityRestrictedMessage && (
+						{ canEdit && withModal && showVisibilityRestrictedMessage && (
 							<FlexBlock>
 								<InspectorNotice spanClass={ 'jetpack-subscribe-notice-visibility' }>
 									{
@@ -146,8 +162,8 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 								</InspectorNotice>
 							</FlexBlock>
 						) }
-						{ plansConfigured &&
-							canEdit &&
+
+						{ canEdit &&
 							withModal /* to prevent displaying in pre-publish panel */ &&
 							showMisconfigurationMessage && (
 								<FlexBlock>
@@ -155,56 +171,54 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 								</FlexBlock>
 							) }
 
-						{ plansConfigured && (
-							<Flex direction={ withModal ? 'row' : 'column' }>
+						<Flex direction={ withModal ? 'row' : 'column' }>
+							<FlexBlock>
+								<span>{ __( 'Access', 'jetpack' ) }</span>
+							</FlexBlock>
+							{ ( ! canEdit || showVisibilityRestrictedMessage ) && <span>{ accessLabel }</span> }
+							{ ! showVisibilityRestrictedMessage && withModal && canEdit && (
 								<FlexBlock>
-									<span>{ __( 'Access', 'jetpack' ) }</span>
+									<Dropdown
+										placement="bottom-end"
+										contentClassName="edit-post-post-visibility__dialog"
+										focusOnMount
+										renderToggle={ ( { isOpen, onToggle } ) => (
+											<Button
+												variant="tertiary"
+												onClick={ onToggle }
+												aria-expanded={ isOpen }
+												aria-label={ sprintf(
+													// translators: %s: Current newsletter post access.
+													__( 'Select audience: %s', 'jetpack' ),
+													accessLabel
+												) }
+											>
+												{ accessLabel }
+											</Button>
+										) }
+										renderContent={ ( { onClose } ) => (
+											<div className="editor-post-visibility">
+												<InspectorPopoverHeader
+													title={ __( 'Audience', 'jetpack' ) }
+													help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
+													onClose={ onClose }
+												/>
+												<NewsletterAccessChoices
+													accessLevel={ accessLevel }
+													onChange={ setPostMeta }
+												/>
+											</div>
+										) }
+									/>
 								</FlexBlock>
-								{ ( ! canEdit || showVisibilityRestrictedMessage ) && <span>{ accessLabel }</span> }
-								{ ! showVisibilityRestrictedMessage && withModal && canEdit && (
-									<FlexBlock>
-										<Dropdown
-											placement="bottom-end"
-											contentClassName="edit-post-post-visibility__dialog"
-											focusOnMount
-											renderToggle={ ( { isOpen, onToggle } ) => (
-												<Button
-													variant="tertiary"
-													onClick={ onToggle }
-													aria-expanded={ isOpen }
-													aria-label={ sprintf(
-														// translators: %s: Current newsletter post access.
-														__( 'Select audience: %s', 'jetpack' ),
-														accessLabel
-													) }
-												>
-													{ accessLabel }
-												</Button>
-											) }
-											renderContent={ ( { onClose } ) => (
-												<div className="editor-post-visibility">
-													<InspectorPopoverHeader
-														title={ __( 'Audience', 'jetpack' ) }
-														help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
-														onClose={ onClose }
-													/>
-													<NewsletterAccessChoices
-														accessLevel={ accessLevel }
-														onChange={ setPostMeta }
-													/>
-												</div>
-											) }
-										/>
-									</FlexBlock>
-								) }
+							) }
 
-								{ ! showVisibilityRestrictedMessage && ! withModal && canEdit && (
-									<FlexBlock>
-										<NewsletterAccessChoices accessLevel={ accessLevel } onChange={ setPostMeta } />
-									</FlexBlock>
-								) }
-							</Flex>
-						) }
+							{ ! showVisibilityRestrictedMessage && ! withModal && canEdit && (
+								<FlexBlock>
+									<NewsletterAccessChoices accessLevel={ accessLevel } onChange={ setPostMeta } />
+								</FlexBlock>
+							) }
+						</Flex>
 						{ withModal && (
 							<FlexBlock>
 								<small spanClass={ 'jetpack-subscribe-info' }>
