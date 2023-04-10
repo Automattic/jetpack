@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Email: caught PHP notices if recipient was deleted

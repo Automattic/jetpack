@@ -70,10 +70,7 @@ export class API {
 			args.body = JSON.stringify( { JSON: params } );
 		}
 
-		const result = await fetch( url, args );
-		if ( ! result.ok ) {
-			throw new ApiError( url, result.status, result.statusText );
-		}
+		const result = await this.attemptRequest( url, args );
 
 		let data;
 		const text = await result.text();
@@ -97,5 +94,18 @@ export class API {
 		}
 
 		return data.JSON;
+	}
+
+	private async attemptRequest( url: string, args: RequestInit ) {
+		try {
+			const result = await fetch( url, args );
+			if ( ! result.ok ) {
+				throw new ApiError( url, result.status, result.statusText );
+			}
+
+			return result;
+		} catch ( e ) {
+			throw new ApiError( url, 'failed_to_sync', e.message );
+		}
 	}
 }

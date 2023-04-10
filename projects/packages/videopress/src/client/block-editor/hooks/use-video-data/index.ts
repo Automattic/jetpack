@@ -17,6 +17,7 @@ import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from '.
 const debug = debugFactory( 'videopress:video:use-video-data' );
 
 const isUserConnected = getIsUserConnected();
+
 /**
  * React hook to fetch the video data from the media library.
  *
@@ -45,12 +46,28 @@ export default function useVideoData( {
 		 */
 		async function setFromVideo( token: string | null = null ) {
 			try {
-				const response = await fetchVideoItem( {
-					guid,
-					isPrivate: maybeIsPrivate,
-					token,
-					skipRatingControl,
-				} );
+				let response;
+
+				// Some video data is not available immediately after upload, so we retry a few times.
+				for ( let retries = 0; retries < 5; retries++ ) {
+					response = await fetchVideoItem( {
+						guid,
+						isPrivate: maybeIsPrivate,
+						token,
+						skipRatingControl,
+					} );
+
+					if ( response.duration ) {
+						debug(
+							`video duration available: ${ response.duration }, retried ${ retries } times`,
+							response
+						);
+						break;
+					}
+
+					debug( `video duration not yet available, retrying (${ retries + 1 })`, response );
+					await new Promise( resolve => setTimeout( resolve, 1500 ) );
+				}
 
 				setIsRequestingVideoData( false );
 
@@ -58,6 +75,7 @@ export default function useVideoData( {
 				const filename = response.original?.split( '/' )?.at( -1 );
 
 				setVideoData( {
+					duration: response.duration,
 					allow_download: response.allow_download,
 					post_id: response.post_id,
 					guid: response.guid,

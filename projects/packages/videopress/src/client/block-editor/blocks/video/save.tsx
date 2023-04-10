@@ -10,6 +10,7 @@ import { getVideoPressUrl } from '../../../lib/url';
 /**
  * Types
  */
+import { isVideoFramePosterEnabled } from './components/poster-panel';
 import type { VideoBlockAttributes } from './types';
 import type React from 'react';
 
@@ -41,6 +42,7 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 		guid,
 		maxWidth,
 		poster,
+		posterData,
 	} = attributes;
 
 	const blockProps = useBlockProps.save( {
@@ -49,11 +51,16 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 		} ),
 	} );
 
+	const isPreviewOnHoverEnabled = isVideoFramePosterEnabled();
+
+	const autoplayArg = ! isPreviewOnHoverEnabled ? autoplay : autoplay || posterData.previewOnHover;
+	const mutedArg = ! isPreviewOnHoverEnabled ? muted : muted || posterData.previewOnHover;
+
 	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay,
+		autoplay: autoplayArg,
 		controls,
 		loop,
-		muted,
+		muted: mutedArg,
 		playsinline,
 		preload,
 		seekbarColor,
@@ -68,6 +75,22 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 	if ( maxWidth && maxWidth.length > 0 && '100%' !== maxWidth ) {
 		style.maxWidth = maxWidth;
 		style.margin = 'auto';
+	}
+
+	if ( ! isVideoFramePosterEnabled() ) {
+		return (
+			<figure { ...blockProps } style={ style }>
+				{ videoPressUrl && (
+					<div className="jetpack-videopress-player__wrapper">
+						{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
+					</div>
+				) }
+
+				{ ! RichText.isEmpty( caption ) && (
+					<RichText.Content tagName="figcaption" value={ caption } />
+				) }
+			</figure>
+		);
 	}
 
 	return (

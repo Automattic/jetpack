@@ -16,8 +16,6 @@ import style from './style.scss';
  */
 import type { PlayerProps } from './types';
 
-type NativePlayerProps = Pick< PlayerProps, 'html' | 'isRequestingEmbedPreview' | 'isSelected' >;
-
 /**
  * VideoPlayer react component
  *
@@ -25,13 +23,9 @@ type NativePlayerProps = Pick< PlayerProps, 'html' | 'isRequestingEmbedPreview' 
  * @param {string} props.html - HTML markup for the player.
  * @param {boolean} props.isRequestingEmbedPreview - Whether the preview is being requested.
  * @param {boolean} props.isSelected - Whether the block is selected.
- * @returns {object}                     - React component.
+ * @returns {object} - React component.
  */
-export default function Player( {
-	html,
-	isRequestingEmbedPreview,
-	isSelected,
-}: NativePlayerProps ) {
+export default function Player( { html, isRequestingEmbedPreview, isSelected }: PlayerProps ) {
 	// Set up style for when the player is loading.
 	const loadingStyle: { height?: number } = {};
 	if ( ! html || isRequestingEmbedPreview ) {
@@ -41,7 +35,6 @@ export default function Player( {
 	return (
 		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
 			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
-
 			{ ! isRequestingEmbedPreview && <SandBox html={ html } /> }
 			{ ! html && <Text>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text> }
 		</View>

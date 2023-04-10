@@ -46,10 +46,10 @@ export const settings = {
 		const prevHasNeverPublishedPostOption = useRef( hasNeverPublishedPostOption );
 
 		const siteFragment = getSiteFragment();
-		const launchPadUrl = getRedirectUrl( `wpcom-launchpad-setup-${ siteIntentOption }`, {
+		const launchPadUrl = getRedirectUrl( 'wpcom-launchpad-setup', {
+			path: siteIntentOption,
 			query: `siteSlug=${ siteFragment }`,
 		} );
-
 		const { tracks } = useAnalytics();
 
 		const recordTracksEvent = eventName =>

@@ -67,7 +67,7 @@ export const getVideoPressUrl = (
 };
 
 export const pickGUIDFromUrl: ( url: string ) => null | string = url => {
-	if ( ! url ) {
+	if ( ! url || typeof url !== 'string' ) {
 		return null;
 	}
 

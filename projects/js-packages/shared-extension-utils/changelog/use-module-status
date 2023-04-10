@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-useModuleStatus: Add new hook to enable or disable Jetpack modules.

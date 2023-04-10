@@ -1013,7 +1013,6 @@ final class ZeroBSCRM {
 		$this->slugs['logout']       = 'zerobscrm-logout';
 		$this->slugs['datatools']    = 'zerobscrm-datatools';
 		$this->slugs['welcome']      = 'zerobscrm-welcome';
-		$this->slugs['feedback']     = 'zerobscrm-feedback';
 		$this->slugs['crmresources'] = 'jpcrm-resources';
 		$this->slugs['extensions']   = 'zerobscrm-extensions';
 		$this->slugs['modules']      = 'zerobscrm-modules';
@@ -1318,12 +1317,6 @@ final class ZeroBSCRM {
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			// if we need CLI stuff
-		}
-
-		// Where the request specifies HTTP_USER_AGENT of Zapier, we're likely dealing with a Zap
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && $_SERVER['HTTP_USER_AGENT'] == 'Zapier' ) {
-			require_once JPCRM_MODULES_PATH . 'zapier/class-jpcrm-zapier.php';
-			$this->zapier = new \Automattic\JetpackCRM\JPCRM_Zapier();
 		}
 
 		// ====================================================================

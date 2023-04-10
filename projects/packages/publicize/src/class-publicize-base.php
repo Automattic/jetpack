@@ -1063,7 +1063,8 @@ abstract class Publicize_Base {
 			'single'        => true,
 			'default'       => array(
 				'image_generator_settings' => array(
-					'template' => Social_Image_Generator\Templates::DEFAULT_TEMPLATE,
+					'template' => ( new Social_Image_Generator\Settings() )->get_default_template(),
+					'enabled'  => false,
 				),
 			),
 			'show_in_rest'  => array(
@@ -1101,6 +1102,9 @@ abstract class Publicize_Base {
 									'type' => 'number',
 								),
 								'template'    => array(
+									'type' => 'string',
+								),
+								'token'       => array(
 									'type' => 'string',
 								),
 							),
@@ -1615,17 +1619,21 @@ abstract class Publicize_Base {
 	/**
 	 * Check if the social image generator is enabled.
 	 *
+	 * @deprecated $$next-version$$ use Automattic\Jetpack\Publicize\Publicize_Base\has_social_image_generator_feature instead.
 	 * @param int $blog_id The blog ID for the current blog.
 	 * @return bool
 	 */
-	public function is_social_image_generator_enabled( $blog_id ) {
-		$data = $this->get_api_data( $blog_id );
+	public function is_social_image_generator_enabled( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return $this->has_social_image_generator_feature();
+	}
 
-		if ( empty( $data ) ) {
-			return false;
-		}
-
-		return ! empty( $data['is_social_image_generator_enabled'] );
+	/**
+	 * Check if the social image generator is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_social_image_generator_feature() {
+		return Current_Plan::supports( 'social-image-generator' );
 	}
 
 	/**
