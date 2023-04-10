@@ -10,7 +10,7 @@ function jpcrm_get_segment_colors(num_segments) {
 
 	if (num_segments === COLORS.length) {
 		// use full set of colors
-		return colors;
+		return COLORS;
 	} else if (num_segments < COLORS.length) {
 		// use a middle subset of colors
 		let midpoint = Math.floor(COLORS.length/2);
