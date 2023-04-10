@@ -868,6 +868,9 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../components
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../webpack-config
       '@babel/core':
         specifier: 7.21.4
         version: 7.21.4
