@@ -61,7 +61,7 @@ export function getTweetTemplate( state ) {
 		profileImage:
 			twitterAccount?.profile_picture ||
 			'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
-		screenName: twitterAccount?.display_name || '',
+		screenName: twitterAccount?.display_name || '@account',
 	};
 }
 
