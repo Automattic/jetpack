@@ -18,10 +18,10 @@ import type {
 } from '../../types';
 import type { MediaTokenProps } from '../get-media-token/types';
 
-const isWeb = Platform.isWeb;
+const isNative = Platform.OS === 'ios' || Platform.OS === 'android';
 
 // eslint-disable-next-line no-console
-const debug = isWeb ? debugFactory( 'videopress:video:use-video-data' ) : console.log;
+const debug = isNative ? console.log : debugFactory( 'videopress:video:use-video-data' );
 
 /**
  * Fetches the video item from the v1.1/videos endpoint.
