@@ -101,7 +101,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_1_a_2",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_1_a_4",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
@@ -109,7 +109,11 @@
 	},
 	"extra": {
 		"mirror-repo": "Automattic/jetpack-production",
-		"release-branch-prefix": "jetpack",
+		"release-branch-prefix": [
+			"jetpack",
+			"weekly",
+			"monthly"
+		],
 		"version-constants": {
 			"JETPACK__VERSION": "jetpack.php"
 		},

@@ -132,6 +132,7 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.extra.mirror-repo`: This specifies the name of the GitHub mirror repo, i.e. the "Automattic/jetpack-_something_" in "<span>https://</span>github.com/Automattic/jetpack-_something_".
 * `.extra.npmjs-autopublish`: Set truthy to enable automatic publishing of tagged versions to npmjs.com. See [Mirror repositories > Npmjs Auto-publisher](#npmjs-auto-publisher) for details.
 * `.extra.release-branch-prefix`: Our mirroring and release tooling considers any branch named like "_prefix_/branch-_version_" to be a release branch, and this specifies which _prefix_ belongs to the project.
+  * This may also be an array of multiple prefixes. In that case the first element in the array should be a prefix used only by this plugin, with any additional prefixes shared by multiple plugins coming after.
 * `.extra.version-constants`: When `tools/project-version.sh` is checking or updating versions, this specifies PHP constants to check or update. The value is an object matching constants to the file (relative to the package root) in which the constant is defined.
   * Note that constant definitions must be on a single line and use single quotes to be detected by the script. Like this:
     ```php

@@ -86,7 +86,8 @@ const ProductCard = props => {
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
-	const isAbsent = status === PRODUCT_STATUSES.ABSENT;
+	const isAbsent =
+		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
 	const isPurchaseRequired =
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE ||
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;
@@ -228,6 +229,7 @@ ProductCard.propTypes = {
 		PRODUCT_STATUSES.INACTIVE,
 		PRODUCT_STATUSES.ERROR,
 		PRODUCT_STATUSES.ABSENT,
+		PRODUCT_STATUSES.ABSENT_WITH_PLAN,
 		PRODUCT_STATUSES.NEEDS_PURCHASE,
 		PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE,
 	] ).isRequired,

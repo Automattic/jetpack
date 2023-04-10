@@ -28,6 +28,7 @@ import classnames from 'classnames';
  */
 import TimestampControl from '../../../../../components/timestamp-control';
 import { getVideoPressUrl } from '../../../../../lib/url';
+import { millisecondsToClockTime } from '../../../../../utils/video-chapters/generate-chapters-file';
 import { usePreview } from '../../../../hooks/use-preview';
 import useVideoPlayer from '../../../../hooks/use-video-player';
 import { VIDEO_POSTER_ALLOWED_MEDIA_TYPES } from '../../constants';
@@ -332,10 +333,21 @@ export function VideoHoverPreviewControl( {
 		Math.min( MAX_LOOP_DURATION, videoDuration - previewAtTime )
 	);
 
+	const startingPointHelp = createInterpolateElement(
+		sprintf(
+			/* translators: placeholder is video duration */
+			__( 'Video duration: <em>%s</em>.', 'jetpack-videopress-pkg' ),
+			millisecondsToClockTime( maxStartingPoint )
+		),
+		{
+			em: <em />,
+		}
+	);
+
 	const loopDurationHelp = createInterpolateElement(
 		sprintf(
 			/* translators: placeholder is the maximum lapse duration for the previewOnHover */
-			__( 'Minimum value: <em>3s</em>. Maximum value: <em>%s</em>s.', 'jetpack-videopress-pkg' ),
+			__( 'Minimum: <em>3s</em>. Maximum: <em>%s</em>s.', 'jetpack-videopress-pkg' ),
 			( ( maxLoopDuration / 10 ) | 0 ) / 100
 		),
 		{
@@ -360,8 +372,7 @@ export function VideoHoverPreviewControl( {
 					<TimestampControl
 						label={ __( 'Starting point', 'jetpack-videopress-pkg' ) }
 						max={ maxStartingPoint }
-						fineAdjustment={ 1 }
-						decimalPlaces={ 2 }
+						fineAdjustment={ 50 }
 						value={ previewAtTime }
 						onDebounceChange={ timestamp => {
 							onPreviewAtTimeChange( timestamp );
@@ -374,21 +385,22 @@ export function VideoHoverPreviewControl( {
 								onLoopDurationChange( max );
 							}
 						} }
-						wait={ 100 }
+						wait={ 300 }
 						disabled={ disabled }
+						help={ startingPointHelp }
 					/>
 
 					<TimestampControl
 						max={ maxLoopDuration }
 						min={ MIN_LOOP_DURATION }
-						fineAdjustment={ 1 }
-						decimalPlaces={ 2 }
+						fineAdjustment={ 50 }
 						label={ __( 'Loop duration', 'jetpack-videopress-pkg' ) }
 						value={ loopDuration }
 						onDebounceChange={ onLoopDurationChange }
-						wait={ 100 }
+						wait={ 300 }
 						help={ loopDurationHelp }
 						disabled={ disabled || noLoopDurationRange }
+						marksEvery={ 5000 }
 					/>
 				</>
 			) }
@@ -454,6 +466,7 @@ export default function PosterPanel( {
 
 			setAttributes( {
 				posterData: newPosterData,
+				controls: shouldPreviewOnHover ? false : attributes.controls,
 			} );
 		},
 		[ attributes ]

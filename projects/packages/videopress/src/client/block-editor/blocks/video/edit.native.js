@@ -23,6 +23,7 @@ import { View } from 'react-native';
 import getMediaToken from '../../../lib/get-media-token/index.native';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
+import addTokenIntoIframeSource from '../../utils/add-token-iframe-source';
 import isLocalFile from '../../utils/is-local-file';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
@@ -72,19 +73,14 @@ export default function VideoPressEdit( {
 		isReplacing: false,
 		prevAttrs: {},
 	} );
-	const [ , setToken ] = useState();
+	const [ token, setToken ] = useState();
 
 	// Fetch token for a VideoPress GUID
 	useEffect( () => {
 		if ( guid ) {
-			getMediaToken( 'playback', { guid } )
-				.then( tokenData => {
-					setToken( tokenData.token );
-				} )
-				.catch( error => {
-					// eslint-disable-next-line no-console
-					console.error( "Can't obtain the token:", error );
-				} );
+			getMediaToken( 'playback', { guid } ).then( tokenData => {
+				setToken( tokenData.token );
+			} );
 		}
 	}, [ guid ] );
 
@@ -111,6 +107,7 @@ export default function VideoPressEdit( {
 	} );
 
 	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
+	const previewHTML = addTokenIntoIframeSource( preview?.html, token );
 
 	// Display upload progress in case the editor is closed and re-opened
 	// while the upload is in progress.
@@ -259,7 +256,7 @@ export default function VideoPressEdit( {
 			) }
 
 			<Player
-				html={ preview.html }
+				html={ previewHTML }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }
 				isSelected={ isSelected }
 			/>
