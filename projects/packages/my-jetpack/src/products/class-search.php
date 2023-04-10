@@ -41,6 +41,13 @@ class Search extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-search';
 
 	/**
+	 * Search has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
 	 * The filename (id) of the plugin associated with this product.
 	 *
 	 * @var string

@@ -45,6 +45,13 @@ class Backup extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-backup';
 
 	/**
+	 * Backup has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
 	 * Get the internationalized product name
 	 *
 	 * @return string
