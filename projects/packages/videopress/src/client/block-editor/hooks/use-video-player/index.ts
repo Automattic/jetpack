@@ -152,7 +152,7 @@ const useVideoPlayer = (
 			return;
 		}
 
-		// Do not play if the effect is disabled.`
+		// Do not play if the effect is disabled.
 		if ( isEffectDisabled ) {
 			return;
 		}
@@ -165,7 +165,7 @@ const useVideoPlayer = (
 			return;
 		}
 
-		// Do not pause if the preview on hover is enabled.
+		// Do not pause if the preview on hover is disabled.
 		if ( isEffectDisabled ) {
 			return;
 		}
