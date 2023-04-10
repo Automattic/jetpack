@@ -13,7 +13,7 @@ const SingleActionsMenu = ( { id } ) => {
 
 	const deleteLabel =
 		currentTab !== TABS.trash
-			? __( 'Delete', 'jetpack-forms' )
+			? __( 'Trash', 'jetpack-forms' )
 			: __( 'Delete permanently', 'jetpack-forms' );
 	const deleteAction = currentTab !== TABS.trash ? ACTIONS.moveToTrash : ACTIONS.delete;
 

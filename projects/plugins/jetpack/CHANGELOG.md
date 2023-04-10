@@ -2,26 +2,33 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.1-a.5 - 2023-04-10
+### Enhancements
+- Implemented a "tabbed" variation for static filters. This adds tabs on top of the results for each filter group. [#29811]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adds Odyssey Widget behind odyssey_widget=1 for WP Dashboard [#29929]
+
 ## 12.1-a.3 - 2023-04-05
 ### Bug fixes
-- Assets: avoid fatal error with outdated package versions. [#29947]
+- Assets: avoid fatal errors with plugins that use outdated Jetpack package versions. [#29947]
 
 ## 12.1-a.1 - 2023-04-04
 ### Enhancements
-- Admin menu: use the latest version of the Jetpack logo. [#29418]
-- Display the correct gated text for newsletters when Stripe is disconnected [#29880]
-- Display the correct newsletter locked content text for paid newsletters [#29860]
+- Dashboard: use the latest version of the Jetpack logo. [#29418]
+- Newsletters: display the correct locked content text for newsletters when Stripe is disconnected. [#29880]
+- Newsletters: display the correct locked content text for paid newsletters. [#29860]
 
 ### Bug fixes
-- Dashboard: improve upgrade description for users with Akismet already installed and active [#29827]
-- Fix an issue where Subscribe block on homepage would return as paid if the first blog post was a paid blog (because it is looping) [#29860]
-- Fix fatal error with Token_Subscription_Service [#29885]
-- Properly gate the Newsletter feature based on newsletter configuration on the site [#29860]
-- Return fresh HTML when the users revists after accepting cookies [#29831]
+- Dashboard: improve upgrade description for users with Akismet already installed and active. [#29827]
+- Newsletters: properly gate the feature based on the configuration of the site. [#29860]
+- Cookie Consent Block: return fresh HTML when the user revists after accepting cookies. [#29831]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Admin Page: simplify Akismet logic to fix display issue. [#29866]
 - Akismet: use product interstitial for upgrades [#29598]
+- Fix an issue where Subscribe block on homepage would return as paid if the first blog post was a paid blog (because it is looping) [#29860]
+- Fix fatal error with Token_Subscription_Service [#29885]
 - Stats: remove deprecated Stats functions. [#29780]
 - Updated package dependencies. [#29565, #29854, #29856, #29857]
 

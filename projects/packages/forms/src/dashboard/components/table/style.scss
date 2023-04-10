@@ -49,6 +49,11 @@
 	&.is-select {
 		min-width: 62px;
 		padding: 0 20px;
+
+		@media (max-width: 480px) {
+			min-width: 46px;
+			padding: 0 12px;
+		}
 	}
 
 	&.is-empty {
