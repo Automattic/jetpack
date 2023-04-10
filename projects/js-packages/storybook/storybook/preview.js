@@ -7,30 +7,32 @@ import React from 'react';
 
 import './style.scss';
 
-export const parameters = {
-	backgrounds: {
-		default: 'Jetpack Dashboard',
-		values: [
-			{
-				name: 'Jetpack Dashboard',
-				value: 'var(--jp-white-off)',
-			},
-			{
-				name: 'Dark',
-				value: 'rgb(51, 51, 51)',
-			},
-			{
-				name: 'Light',
-				value: '#FFF',
-			},
-		],
+const preview = {
+	parameters: {
+		backgrounds: {
+			default: 'Jetpack Dashboard',
+			values: [
+				{
+					name: 'Jetpack Dashboard',
+					value: 'var(--jp-white-off)',
+				},
+				{
+					name: 'Dark',
+					value: 'rgb(51, 51, 51)',
+				},
+				{
+					name: 'Light',
+					value: '#FFF',
+				},
+			],
+		},
 	},
+	decorators: [
+		Story => (
+			<ThemeProvider id="storybook-stories" targetDom={ document.body }>
+				<Story />
+			</ThemeProvider>
+		),
+	],
 };
-
-export const decorators = [
-	Story => (
-		<ThemeProvider id="storybook-stories" targetDom={ document.body }>
-			<Story />
-		</ThemeProvider>
-	),
-];
+export default preview;
