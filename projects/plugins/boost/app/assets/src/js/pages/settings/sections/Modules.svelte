@@ -20,6 +20,7 @@
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
+	import MinifyMeta from '../elements/MinifyMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
 	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
@@ -195,6 +196,13 @@
 				'jetpack-boost'
 			)}
 		</p>
+
+		<div slot="meta">
+			<MinifyMeta
+				summary={__( 'Except: jquery, jquery-core, underscore, backbone', 'jetpack-boost' )}
+				buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
+			/>
+		</div>
 	</Module>
 
 	<Module slug="minify_css">
@@ -205,6 +213,13 @@
 				'jetpack-boost'
 			)}
 		</p>
+
+		<div slot="meta">
+			<MinifyMeta
+				summary={__( 'Except: theme-styles.css', 'jetpack-boost' )}
+				buttonText={__( 'Exclude CSS Strings', 'jetpack-boost' )}
+			/>
+		</div>
 	</Module>
 
 	<Module slug="image_size_analysis">
