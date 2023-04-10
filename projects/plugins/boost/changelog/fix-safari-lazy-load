@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed images sometimes failing to Lazy-load in Safari.

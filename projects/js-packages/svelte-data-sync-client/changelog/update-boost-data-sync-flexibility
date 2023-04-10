@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Refactored DataSync Client to work with the upgraded WP JS DataSync package
