@@ -166,22 +166,6 @@ const useVideoPlayer = (
 		};
 	}, [ isPreviewOnHoverEnabled, wrapperElement, playerIsReady ] );
 
-	// Move the video to the "Starting point" when it changes.
-	useEffect( () => {
-		if ( ! playerIsReady || ! previewOnHover ) {
-			return;
-		}
-
-		if ( ! sandboxIFrameWindow ) {
-			return;
-		}
-
-		sandboxIFrameWindow.postMessage(
-			{ event: 'videopress_action_set_currenttime', currentTime: previewOnHover.atTime / 1000 },
-			{ targetOrigin: '*' }
-		);
-	}, [ previewOnHover?.atTime, playerIsReady, sandboxIFrameWindow ] );
-
 	// Move the video to the "duration" when it changes.
 	useEffect( () => {
 		if ( ! playerIsReady || ! previewOnHover ) {
@@ -201,6 +185,21 @@ const useVideoPlayer = (
 		);
 	}, [ previewOnHover?.duration, playerIsReady, sandboxIFrameWindow ] );
 
+	// Move the video to the "Starting point" when it changes.
+	useEffect( () => {
+		if ( ! playerIsReady || ! previewOnHover ) {
+			return;
+		}
+
+		if ( ! sandboxIFrameWindow ) {
+			return;
+		}
+
+		sandboxIFrameWindow.postMessage(
+			{ event: 'videopress_action_set_currenttime', currentTime: previewOnHover.atTime / 1000 },
+			{ targetOrigin: '*' }
+		);
+	}, [ previewOnHover?.atTime, playerIsReady, sandboxIFrameWindow ] );
 	return {
 		playerIsReady,
 		play,
