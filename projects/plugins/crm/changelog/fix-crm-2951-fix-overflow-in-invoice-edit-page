@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Invoices: fix overflow issue in the edit invoice page
