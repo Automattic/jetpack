@@ -3217,6 +3217,25 @@ a.list-group-item-danger.active,a.list-group-item-danger.active:focus,a.list-gro
     color:inherit
 }
 
+.jpcrm-latest-contacts-heading, .jpcrm-recent-activity-heading {
+	margin-bottom: 40px;
+	position: relative;
+	text-align: center;
+
+	.panel-title {
+		position: absolute;
+		left: 30%;
+		right: 30%;
+	}
+
+	.upsell {
+		top: 45px;
+		right: 25px;
+	}
+}
+
+
+
 .panel-footer {
     padding:10px 15px;
     background-color:#f5f5f5;
