@@ -42,6 +42,7 @@ const useVideoPlayer = (
 	{ autoplay, initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions
 ): UseVideoPlayer => {
 	const [ playerIsReady, setPlayerIsReady ] = useState( false );
+	const [ isEffectDisabled, setDisableEffect ] = useState( false );
 	const playerState = useRef< PlayerStateProp >( 'not-rendered' );
 
 	/**
@@ -59,6 +60,11 @@ const useVideoPlayer = (
 	function listenEventsHandler( event: MessageEvent ) {
 		const { data: eventData = {}, source } = event;
 		const { event: eventName } = event?.data || {};
+
+		// Do not listen events when the effect is disabled.
+		if ( isEffectDisabled ) {
+			return;
+		}
 
 		// Detect when the video has been loaded.
 		if ( eventName === 'videopress_loading_state' && eventData.state === 'loaded' ) {
@@ -133,38 +139,60 @@ const useVideoPlayer = (
 			// Remove the listener when the component is unmounted.
 			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
 		};
-	}, [ sandboxIFrameWindow, isRequestingPreview, wasPreviewOnHoverJustEnabled, previewOnHover ] );
+	}, [
+		sandboxIFrameWindow,
+		isRequestingPreview,
+		wasPreviewOnHoverJustEnabled,
+		previewOnHover,
+		isEffectDisabled,
+	] );
 
 	const play = useCallback( () => {
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
 		}
 
+		// Do not play if the effect is disabled.`
+		if ( isEffectDisabled ) {
+			return;
+		}
+
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_play' }, '*' );
-	}, [ iFrameRef, playerIsReady, sandboxIFrameWindow ] );
+	}, [ iFrameRef, playerIsReady, sandboxIFrameWindow, isEffectDisabled ] );
 
 	const pause = useCallback( () => {
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
 		}
 
+		// Do not pause if the preview on hover is enabled.
+		if ( isEffectDisabled ) {
+			return;
+		}
+
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_pause' }, '*' );
-	}, [ iFrameRef, playerIsReady, sandboxIFrameWindow ] );
+	}, [ iFrameRef, playerIsReady, sandboxIFrameWindow, isEffectDisabled ] );
+
+	const skipPOHEffect = useCallback( () => {
+		setDisableEffect( true );
+	}, [] );
 
 	useEffect( () => {
 		if ( ! wrapperElement || ! isPreviewOnHoverEnabled ) {
 			return;
 		}
 
+		wrapperElement.addEventListener( 'mousedown', skipPOHEffect );
 		wrapperElement.addEventListener( 'mouseenter', play );
 		wrapperElement.addEventListener( 'mouseleave', pause );
 
 		return () => {
 			// Remove the listener when the component is unmounted.
+			wrapperElement.removeEventListener( 'mousedown', skipPOHEffect );
 			wrapperElement.removeEventListener( 'mouseenter', play );
 			wrapperElement.removeEventListener( 'mouseleave', pause );
 		};
-	}, [ isPreviewOnHoverEnabled, wrapperElement, playerIsReady ] );
+	}, [ isPreviewOnHoverEnabled, wrapperElement, playerIsReady, isEffectDisabled ] );
 
 	// Move the video to the "duration" when it changes.
 	useEffect( () => {
