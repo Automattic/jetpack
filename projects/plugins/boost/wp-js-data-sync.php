@@ -136,3 +136,10 @@ $modules_state_schema = Schema::as_array(
 
 $entry = new Modules_Status_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE, 'modules_state' );
 jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
+
+/**
+ * Register Minify Excludes stores.
+ */
+// @todo - add validations for these options.
+jetpack_boost_register_option( 'minify_js_excludes', Schema::as_string()->fallback( false ) );
+jetpack_boost_register_option( 'minify_css_excludes', Schema::as_string()->fallback( false ) );
