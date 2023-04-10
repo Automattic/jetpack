@@ -6,23 +6,24 @@
  * @returns an array of colors
  **/
 function jpcrm_get_segment_colors(num_segments) {
-	let colors = [ '#68b3e8', '#399ce3', '#1689db', '#0675c4', '#055d9c', '#044b7a', '#02395c', '#01283d', '#001621', '#000000' ];
+	const COLORS = [ '#68b3e8', '#399ce3', '#1689db', '#0675c4', '#055d9c', '#044b7a', '#02395c', '#01283d', '#001621', '#000000' ];
 
-	if (num_segments === colors.length) {
+	if (num_segments === COLORS.length) {
 		// use full set of colors
 		return colors;
-	} else if (num_segments < colors.length) {
+	} else if (num_segments < COLORS.length) {
 		// use a middle subset of colors
-		let mid_point = Math.floor(colors.length/2);
-		let start_index = Math.floor(mid_point - num_segments/2);
-		return colors.slice(start_index,start_index+num_segments);
+		let midpoint = Math.floor(COLORS.length/2);
+		let start_index = Math.floor(midpoint - num_segments/2);
+		return COLORS.slice(start_index,start_index+num_segments);
 	}
 
-	// use full set of colors, repeated
-	while (num_segments > colors.length) {
-		colors = colors.concat(colors);
+	// use full set of colors, repeated and variably reversed
+	let lotsa_colors = COLORS.slice();
+	while (num_segments > lotsa_colors.length) {
+		lotsa_colors = lotsa_colors.concat(COLORS.reverse().slice(1));
 	}
-	return colors.slice(0,num_segments);
+	return lotsa_colors.slice(0,num_segments);
 }
 
 /**
