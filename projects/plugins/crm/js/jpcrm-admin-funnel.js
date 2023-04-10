@@ -30,14 +30,13 @@ function jpcrm_build_funnel(funnel_data, funnel_element) {
 	}
 	for (var i=0; i<NUM_FUNNEL_SECTIONS; i++) {
 		let section_color = COLORS[i%COLORS.length];
-		let section_html = `<a
+		funnel_html += `<a
 			${funnel_data[i]['link']?'href='+funnel_data[i]['link']:''}
 			class="funnel_section"
 			data-hover="${funnel_data[i]['contact_status'] + ': \u00a0'}"
 			alt="${funnel_data[i]['contact_status']}: ${funnel_data[i]['backfill_count']}"
 			style="background-color: ${section_color};"
 			>${funnel_data[i]['backfill_count']}</a>`;
-		funnel_html += section_html;
 
 		if (SHOW_FUNNEL_LEGEND) {
 			legend_html += `<div class="legend-color" style="background-color: ${section_color}"></div><div class="legend-label">${funnel_data[i]['contact_status']}</div>`;
