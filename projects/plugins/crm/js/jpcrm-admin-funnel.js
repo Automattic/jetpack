@@ -16,15 +16,19 @@ function jpcrm_build_funnel(funnel_data, funnel_element) {
 	// show legend if desired
 	const SHOW_FUNNEL_LEGEND = false;
 
-	num_of_funnel_sections = funnel_data.length;
-	funnel_height = num_of_funnel_sections * 50;
-	let funnel_html = `<div class="jpcrm_funnel" style="height: ${funnel_height}px">`;
+	// number of funnel sections
+	const NUM_FUNNEL_SECTIONS = funnel_data.length;
+
+	// height of each section
+	const SECTION_HEIGHT = 50;
+
+	let funnel_html = `<div class="jpcrm_funnel" style="height: ${SECTION_HEIGHT * NUM_FUNNEL_SECTIONS}px">`;
 	let legend_html = '';
 	
 	if (SHOW_FUNNEL_LEGEND) {
 		legend_html = '<div class="jpcrm_funnel_legend">';
 	}
-	for (var i=0; i<num_of_funnel_sections; i++) {
+	for (var i=0; i<NUM_FUNNEL_SECTIONS; i++) {
 		let section_color = COLORS[i%COLORS.length];
 		let section_html = `<a
 			${funnel_data[i]['link']?'href='+funnel_data[i]['link']:''}
