@@ -15,23 +15,21 @@ import {
 	VIDEO_RATING_PG_13,
 	VIDEO_RATING_R_17,
 } from '../../../../../state/constants';
-/**
- * Types
- */
-import type { VideoControlProps } from '../../types';
-import type React from 'react';
 
 /**
  * React component that renders the settings within the privacy and ratings panel.
  *
- * @param {VideoControlProps} props - Component props.
- * @returns {React.ReactElement}    - Settings to change video's privacy and ratings.
+ * @param {object} props - Component props.
+ * @param {object} props.attributes - Block attributes.
+ * @param {Function} props.setAttributes - Function to set block attributes.
+ * @param {boolean} props.privateEnabledForSite - True if the site's privacy is set to Private.
+ * @returns {import('react').ReactElement} - Settings to change video's privacy and ratings.
  */
 export default function PrivacyAndRatingSettings( {
 	attributes,
 	setAttributes,
 	privateEnabledForSite,
-}: VideoControlProps ): React.ReactElement {
+} ) {
 	const { privacySetting, rating, allowDownload, displayEmbed } = attributes;
 
 	const privacyLabels = {
@@ -53,7 +51,7 @@ export default function PrivacyAndRatingSettings( {
 	};
 
 	return (
-		<PanelBody title={ __( 'Privacy and rating', 'jetpack-videopress-pkg' ) } initialOpen={ false }>
+		<PanelBody initialOpen={ false }>
 			<SelectControl
 				label={ _x( 'Rating', 'The age rating for this video.', 'jetpack-videopress-pkg' ) }
 				value={ rating ?? '' }
@@ -87,10 +85,7 @@ export default function PrivacyAndRatingSettings( {
 			<SelectControl
 				label={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
 				onChange={ value => {
-					const attrsToUpdate: {
-						privacySetting?: number;
-						isPrivate?: boolean;
-					} = {};
+					const attrsToUpdate = {};
 
 					// Anticipate the isPrivate attribute.
 					if ( value !== privacyOptionSiteDefault.value ) {
