@@ -4,12 +4,12 @@
  * Inspired in part by https://codepen.io/tylerlwsmith/pen/RwNZKgp
  * 
  * @param funnel_data array of funnel data (count, backfill_count, contact_status, and link)
- * @element HTML element to turn into a funnel
+ * @funnel_element HTML element to turn into a funnel
  **/
 
 function jpcrm_build_funnel(funnel_data, funnel_element) {
 	// something's wrong, so stop
-	if (!element || !funnel_data) return;
+	if (!funnel_element || !funnel_data) return;
 
 	const COLORS = [ '#000', '#222', '#333', '#035d88', '#0073aa', '#00a0d2' ];
 
