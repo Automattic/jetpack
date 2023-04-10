@@ -73,6 +73,7 @@ $highlight-color: #3858e9;
 		padding: 10px;
 		background-color: $white;
 		flex: 1;
+		overflow: auto;
 
 		> div {
 			display: flex;
