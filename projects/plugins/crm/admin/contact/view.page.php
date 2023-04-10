@@ -139,10 +139,13 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 					<?php
 
 				} else {
-
-					// normal, 2 column 'contact card'
+					/*
+					 * We are setting a min-width of 125px to match the size of the
+					 * edit button since Semantic UI does not handle the button
+					 * resizing well when the screen is too small.
+					 */
 					?>
-					<div class="three wide column" style="text-align:center">
+					<div class="three wide column" style="text-align:center; min-width:125px;">
 						<?php echo $avatar; ?>
 						<a class="ui button green" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link( 'edit', $id, 'zerobs_customer', false ); ?>">
 							<?php esc_html_e( 'Edit Contact', 'zero-bs-crm' ); ?>
