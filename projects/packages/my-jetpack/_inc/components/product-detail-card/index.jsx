@@ -74,8 +74,7 @@ const ProductDetailCard = ( {
 	preferProductName,
 	supportingInfo,
 } ) => {
-	const { adminUrl, fileSystemWriteAccess, siteSuffix, myJetpackUrl, isJetpackPluginActive } =
-		window?.myJetpackInitialState ?? {};
+	const { fileSystemWriteAccess, siteSuffix, myJetpackUrl } = window?.myJetpackInitialState ?? {};
 
 	const { detail, isFetching } = useProduct( slug );
 	const {
@@ -90,6 +89,7 @@ const ProductDetailCard = ( {
 		hasRequiredPlan,
 		status,
 		pluginSlug,
+		postCheckoutUrl,
 	} = detail;
 
 	const cantInstallPlugin = status === 'plugin_absent' && 'no' === fileSystemWriteAccess;
@@ -114,9 +114,7 @@ const ProductDetailCard = ( {
 	 */
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-	const checkoutRedirectUrl = isJetpackPluginActive
-		? adminUrl + 'admin.php?page=jetpack#/recommendations'
-		: myJetpackUrl;
+	const checkoutRedirectUrl = postCheckoutUrl ? postCheckoutUrl : myJetpackUrl;
 
 	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
 		useProductCheckoutWorkflow( {

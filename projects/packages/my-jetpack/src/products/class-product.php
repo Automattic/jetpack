@@ -131,6 +131,7 @@ abstract class Product {
 			'manage_url'               => static::get_manage_url(),
 			'post_activation_url'      => static::get_post_activation_url(),
 			'class'                    => get_called_class(),
+			'post_checkout_url'        => static::get_post_checkout_url(),
 		);
 	}
 
@@ -190,6 +191,15 @@ abstract class Product {
 	 */
 	public static function get_post_activation_url() {
 		return static::get_manage_url();
+	}
+
+	/**
+	 * Get the URL the user is taken after purchasing the product through the checkout
+	 *
+	 * @return ?string
+	 */
+	public static function get_post_checkout_url() {
+		return null;
 	}
 
 	/**
