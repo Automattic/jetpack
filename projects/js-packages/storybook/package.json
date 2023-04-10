@@ -16,8 +16,8 @@
 	"author": "Automattic",
 	"scripts": {
 		"//": "# We set NODE_PATH here so postcss-loader can find its plugins with pnpm 7. See https://github.com/pnpm/pnpm/discussions/3536#discussioncomment-2688984",
-		"storybook:build": "NODE_PATH=\"$PWD/node_modules\" storybook build -s ./public -c ./storybook -o ./docs",
-		"storybook:dev": "NODE_PATH=\"$PWD/node_modules\" storybook dev -c ./storybook -p 50240 -s ./public",
+		"storybook:build": "NODE_PATH=\"$PWD/node_modules\" storybook build -c ./storybook -o ./docs",
+		"storybook:dev": "NODE_PATH=\"$PWD/node_modules\" storybook dev -c ./storybook -p 50240",
 		"test": "jest tests/"
 	},
 	"devDependencies": {
@@ -62,6 +62,7 @@
 		"postcss-loader": "6.2.0",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
+		"remark-gfm": "3.0.1",
 		"require-from-string": "2.0.2",
 		"sass": "1.43.3",
 		"sass-loader": "12.4.0",

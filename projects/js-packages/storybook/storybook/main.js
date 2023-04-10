@@ -3,9 +3,10 @@
  */
 
 import { fileURLToPath } from 'url';
+import remarkGfm from 'remark-gfm';
 import * as projects from './projects.js';
 
-const storiesSearch = '*.@(story|stories).@(js|jsx|mdx|ts|tsx)';
+const storiesSearch = '*.@(mdx|@(story|stories).@(js|jsx|ts|tsx))';
 const stories = [ process.env.NODE_ENV !== 'test' && `./stories/**/${ storiesSearch }` ]
 	.concat( projects.map( project => `${ project }/**/stories/${ storiesSearch }` ) )
 	.filter( Boolean );
@@ -19,6 +20,11 @@ const sbconfig = {
 			name: '@storybook/addon-docs',
 			options: {
 				configureJSX: true,
+				mdxPluginOptions: {
+					mdxCompileOptions: {
+						remarkPlugins: [ remarkGfm ],
+					},
+				},
 			},
 		},
 		'@storybook/addon-storysource',
@@ -58,5 +64,6 @@ const sbconfig = {
 	docs: {
 		autodocs: true,
 	},
+	staticDirs: [ '../public' ],
 };
 export default sbconfig;
