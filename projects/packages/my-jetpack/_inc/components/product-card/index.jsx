@@ -185,15 +185,9 @@ const ProductCard = props => {
 					children
 				) : (
 					<>
-						{ isAbsent ? (
-							<Text variant="body-small" className={ styles.description }>
-								{ description }
-							</Text>
-						) : (
-							<Text variant="label" className={ statusClassName }>
-								{ flagLabel }
-							</Text>
-						) }
+						<Text variant="body-small" className={ styles.description }>
+							{ description }
+						</Text>
 						<div className={ styles.actions }>
 							<ActionButton
 								{ ...props }
@@ -202,6 +196,11 @@ const ProductCard = props => {
 								onManage={ manageHandler }
 								className={ styles.button }
 							/>
+							{ ! isAbsent && (
+								<Text variant="label" className={ statusClassName }>
+									{ flagLabel }
+								</Text>
+							) }
 						</div>
 					</>
 				)
