@@ -162,7 +162,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			keywords.add( '[Tools] Development CLI' );
 		}
 
-		const docs = file.match( /^docs\// );
+		const docs = file.match( /^docs\/|\.md$/ );
 		if ( docs !== null ) {
 			keywords.add( 'Docs' );
 		}
