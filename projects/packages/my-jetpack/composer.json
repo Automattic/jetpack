@@ -20,7 +20,7 @@
 		"automattic/jetpack-videopress": "@dev"
 	},
 	"suggest": {
-		"automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [

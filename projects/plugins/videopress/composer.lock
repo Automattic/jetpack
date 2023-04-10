@@ -19,7 +19,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -68,7 +68,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -130,7 +130,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -290,7 +290,7 @@
                 "automattic/jetpack-changelogger": "@dev"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -340,7 +340,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -406,7 +406,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -453,7 +453,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -508,7 +508,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -576,7 +576,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -638,7 +638,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -703,7 +703,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -757,7 +757,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -816,7 +816,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -897,7 +897,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -951,7 +951,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1010,7 +1010,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "library",
             "extra": {
@@ -1072,7 +1072,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1124,7 +1124,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1172,7 +1172,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1224,7 +1224,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1281,7 +1281,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1346,7 +1346,7 @@
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "suggest": {
-                "automattic/jetpack-autoloader": "Allow for better interopability with other plugins that use this package."
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {

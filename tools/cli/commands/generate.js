@@ -558,7 +558,7 @@ async function createComposerJson( composerJson, answers ) {
 			composerJson.type = 'jetpack-library';
 			composerJson.suggest ||= {};
 			composerJson.suggest[ 'automattic/jetpack-autoloader' ] =
-				'Allow for better interopability with other plugins that use this package.';
+				'Allow for better interoperability with other plugins that use this package.';
 			break;
 		case 'plugin':
 			composerJson.extra = composerJson.extra || {};
