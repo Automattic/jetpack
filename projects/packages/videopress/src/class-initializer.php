@@ -180,22 +180,78 @@ class Initializer {
 	/**
 	 * VideoPress video block render method
 	 *
-	 * @param array  $block_attributes - Block attributes.
-	 * @param string $content          - Block markup.
+	 * @param array $block_attributes - Block attributes.
 	 * @return string                    Block markup.
 	 */
-	public static function render_videopress_video_block( $block_attributes, $content ) {
-		// Preview On Hover data
-		if ( ! isset( $block_attributes['posterData']['previewOnHover'] ) || ! $block_attributes['posterData']['previewOnHover'] ) {
-			return sprintf( '<div class="wp-block-jetpack-videopress-container">%s</div>', $content );
+	public static function render_videopress_video_block( $block_attributes ) {
+		// VideoPress URL
+		$videopress_url = Utils::get_video_press_url( $block_attributes['guid'], $block_attributes );
+
+		// CSS classes
+		$align       = isset( $block_attributes['align'] ) ? $block_attributes['align'] : null;
+		$align_class = $align ? ' align' . $align : '';
+		$classes     = 'wp-block-jetpack-videopress jetpack-videopress-player' . $align_class;
+
+		// Inline style
+		$style     = '';
+		$max_width = isset( $block_attributes['maxWidth'] ) ? $block_attributes['maxWidth'] : null;
+		if ( $max_width && $max_width !== '100%' ) {
+			$style = sprintf( 'max-width: %s; margin: auto;', $max_width );
 		}
 
-		$preview_on_hover_data = array(
-			'previewAtTime'       => $block_attributes['posterData']['previewAtTime'],
-			'previewLoopDuration' => $block_attributes['posterData']['previewLoopDuration'],
-		);
+		// Preview On Hover data
+		$preview_on_hover = '';
+		if (
+			isset( $block_attributes['posterData']['previewOnHover'] ) &&
+			$block_attributes['posterData']['previewOnHover']
+		) {
+			$preview_on_hover = array(
+				'previewAtTime'       => $block_attributes['posterData']['previewAtTime'],
+				'previewLoopDuration' => $block_attributes['posterData']['previewLoopDuration'],
+			);
+			$preview_on_hover = sprintf( '<div className="jetpack-videopress-player__overlay"></div><script type="application/json">%s</script>', wp_json_encode( $preview_on_hover ) );
+		}
 
-		return sprintf( '<div class="wp-block-jetpack-videopress-container"><script type="application/json">%s</script>%s</div>', wp_json_encode( $preview_on_hover_data ), $content );
+		if ( ! empty( $videopress_url ) ) {
+			$videopress_url = wp_kses_post( $videopress_url );
+		}
+
+		$caption = ! empty( $block_attributes['caption'] ) ? wp_kses_post( $block_attributes['caption'] ) : '';
+
+		$figure_template = '
+		<figure class="%1$s" style="%2$s">			
+			%3$s
+			%4$s
+			%5$s
+		</figure>
+		';
+
+		$video_wrapper = '';
+		if ( $videopress_url ) {
+			$wp_embed      = new \WP_Embed();
+			$oembed_html   = $wp_embed->autoembed( $videopress_url );
+			$video_wrapper = sprintf(
+				'<div class="jetpack-videopress-player__wrapper">%s</div>',
+				$oembed_html
+			);
+		}
+
+		$figcaption = '';
+		if ( ! empty( $caption ) ) {
+			$figcaption = sprintf(
+				'<figcaption>%s</figcaption>',
+				$caption
+			);
+		}
+
+		return sprintf(
+			$figure_template,
+			esc_attr( $classes ),
+			esc_attr( $style ),
+			$preview_on_hover,
+			$video_wrapper,
+			$figcaption
+		);
 	}
 
 	/**
