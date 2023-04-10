@@ -14,10 +14,10 @@ import { fetchVideoItem } from '../../../lib/fetch-video-item';
  */
 import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from './types';
 
-const isWeb = Platform.isWeb;
+const isNative = Platform.OS === 'ios' || Platform.OS === 'android';
 
 // eslint-disable-next-line no-console
-const debug = isWeb ? debugFactory( 'videopress:video:use-video-data' ) : console.log;
+const debug = isNative ? console.log : debugFactory( 'videopress:video:use-video-data' );
 
 const isUserConnected = getIsUserConnected();
 
@@ -40,7 +40,7 @@ export default function useVideoData( {
 		// Skip check for native as only simple WordPress.com sites are supported in the current native block.
 		// We can assume that all simple WordPress.com sites are connected.
 		// TODO: Add native connection logic for Jetpack-connected sites in future iterations.
-		if ( ! isUserConnected && isWeb ) {
+		if ( ! isUserConnected && ! isNative ) {
 			debug( 'User is not connected' );
 			return;
 		}
