@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
-import { Platform } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -52,10 +51,7 @@ export default function PrivacyAndRatingSettings( {
 	};
 
 	return (
-		<PanelBody
-			title={ Platform.isWeb && __( 'Privacy and rating', 'jetpack-videopress-pkg' ) }
-			initialOpen={ false }
-		>
+		<PanelBody initialOpen={ false }>
 			<SelectControl
 				label={ _x( 'Rating', 'The age rating for this video.', 'jetpack-videopress-pkg' ) }
 				value={ rating ?? '' }
