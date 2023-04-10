@@ -58,8 +58,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Checklist extends WP_REST_Controller 
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
-	 * @return array Associative array with `site_intent`, `launchpad_screen`,
-	 *               and `launchpad_checklist_tasks_statuses` as `checklist`.
+	 * @return array Array of launchpad tasks for a given checklist
 	 */
 	public function get_data( $request ) {
 		// TODO: Add checklist_slug from request input
