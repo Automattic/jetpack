@@ -4,7 +4,7 @@
  * Inspired in part by https://codepen.io/tylerlwsmith/pen/RwNZKgp
  * 
  * @param funnel_data array of funnel data (count, backfill_count, contact_status, and link)
- * @funnel_element HTML element to turn into a funnel
+ * @param funnel_element HTML element to turn into a funnel
  **/
 
 function jpcrm_build_funnel(funnel_data, funnel_element) {
