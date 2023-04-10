@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: skip PreviewOnHover when user interacts with video player
