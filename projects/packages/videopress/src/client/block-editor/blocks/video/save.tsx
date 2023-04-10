@@ -45,8 +45,6 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 		posterData,
 	} = attributes;
 
-	const { previewOnHover, previewAtTime, previewLoopDuration } = posterData ?? {};
-
 	const blockProps = useBlockProps.save( {
 		className: classnames( 'wp-block-jetpack-videopress', 'jetpack-videopress-player', {
 			[ `align${ align }` ]: align,
@@ -79,39 +77,12 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 		style.margin = 'auto';
 	}
 
-	if ( ! isVideoFramePosterEnabled() ) {
-		return (
-			<figure { ...blockProps } style={ style }>
-				{ videoPressUrl && (
-					<div className="jetpack-videopress-player__wrapper">
-						{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
-					</div>
-				) }
-
-				{ ! RichText.isEmpty( caption ) && (
-					<RichText.Content tagName="figcaption" value={ caption } />
-				) }
-			</figure>
-		);
-	}
-
 	return (
 		<figure { ...blockProps } style={ style }>
 			{ videoPressUrl && (
-				<>
-					{ previewOnHover && (
-						<span
-							style={ { display: 'none', visibility: 'hidden', position: 'absolute' } }
-							className="videopress-poh"
-						>
-							<span className="videopress-poh__sp">{ previewAtTime }</span>
-							<span className="videopress-poh__duration">{ previewLoopDuration }</span>
-						</span>
-					) }
-					<div className="jetpack-videopress-player__wrapper">
-						{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
-					</div>
-				</>
+				<div className="jetpack-videopress-player__wrapper">
+					{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
+				</div>
 			) }
 
 			{ ! RichText.isEmpty( caption ) && (

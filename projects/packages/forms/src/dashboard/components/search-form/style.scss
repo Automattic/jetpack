@@ -2,6 +2,10 @@
 	display: flex;
 	flex-direction: row;
 
+	@media (max-width: 600px) {
+		flex: 1;
+	}
+
 	.input-wrapper {
 		min-height: var( --jp-forms-input-wrapper-height );
 		padding: var( --jp-forms-spacing-base );
@@ -14,6 +18,14 @@
 		box-sizing: border-box;
 		height: var( --jp-forms-input-wrapper-height );
 		width: 350px;
+
+		@media (min-width: 783px) and (max-width: 960px) {
+			width: 300px;
+		}
+
+		@media (max-width: 600px) {
+			width: 100%;
+		}
 
 		&:focus-within {
 			box-shadow: 0 0 0 1px var( --jp-black ) inset;

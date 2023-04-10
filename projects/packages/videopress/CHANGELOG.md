@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.7] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+- VideoPress: Add fallback for experimental features for hover preview [#29974]
+- VideoPress: add help to the "Starting point" range control [#29950]
+- VideoPress: add marksEvery to the TimestampControl component [#29955]
+- VideoPress block: Add token to play private videos. [#29933]
+
+### Changed
+- VideoPress: Do not force-enable the Stats module inside the VideoPress plugin. [#29966]
+- VideoPress: expose the Preview On Hover data dynamically [#29939]
+- VideoPress: set video player position according to "starting point" and "duration" [#29954]
+- VideoPress: support tooltip in TimestampControl component [#29967]
+- VideoPress: turn playback "controls" off when pOH feature is enabled [#29949]
+- VideoPress block: Divide poster functionality from the useSyncMedia hook into a smaller hook. [#29973]
+
 ## [0.13.6] - 2023-04-05
 ### Added
 - VideoPress: change the way to propagate the Preview On Hover data [#29912]
@@ -900,6 +916,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.13.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.6...v0.13.7
 [0.13.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.5...v0.13.6
 [0.13.5]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.4...v0.13.5
 [0.13.4]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.3...v0.13.4

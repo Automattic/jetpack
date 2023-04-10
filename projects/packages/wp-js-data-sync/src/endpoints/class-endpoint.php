@@ -143,7 +143,8 @@ class Endpoint {
 
 		try {
 			$params = $request->get_json_params();
-			$result = $this->entry->$entry_method( $params['JSON'] );
+			$data   = isset( $params['JSON'] ) ? $params['JSON'] : null;
+			$result = $this->entry->$entry_method( $data );
 			return rest_ensure_response(
 				array(
 					'status' => 'success',
