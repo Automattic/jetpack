@@ -560,9 +560,9 @@ if (jQuery('#bar-chart').length){
 </div>
 <script>
 // build sales funnel
-element = document.getElementById('jpcrm_sales_funnel');
-funnel_data = <?php echo wp_json_encode( $funnel_data ); ?>;
-jpcrm_build_funnel(funnel_data,element);
+let funnel_element = document.getElementById('jpcrm_sales_funnel');
+let funnel_data = <?php echo wp_json_encode( $funnel_data ); ?>;
+jpcrm_build_funnel(funnel_data,funnel_element);
 </script>
 	<?php
 
