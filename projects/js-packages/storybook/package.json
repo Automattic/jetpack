@@ -29,7 +29,6 @@
 		"@emotion/babel-plugin": "11.3.0",
 		"@emotion/react": "11.4.1",
 		"@emotion/styled": "11.3.0",
-		"@mdx-js/react": "1.6.22 || remove this when @storybook/addon-docs uses mdx-js v2, see https://github.com/mdx-js/mdx/issues/2019",
 		"@storybook/addon-a11y": "7.0.2",
 		"@storybook/addon-docs": "7.0.2",
 		"@storybook/addon-essentials": "7.0.2",
