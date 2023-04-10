@@ -3217,10 +3217,7 @@ a.list-group-item-danger.active,a.list-group-item-danger.active:focus,a.list-gro
     color:inherit
 }
 
-.jpcrm-latest-contacts-heading, .jpcrm-revenue-chart-heading {
-	margin-bottom: 40px;
-	position: relative;
-	text-align: center;
+.jpcrm-latest-contacts-heading,.jpcrm-revenue-chart-heading {
 
 	.panel-title {
 		position: absolute;
@@ -3230,7 +3227,22 @@ a.list-group-item-danger.active,a.list-group-item-danger.active:focus,a.list-gro
 
 	.upsell {
 		top: 45px;
+	}
+}
+
+.jpcrm-latest-contacts-heading {
+	margin-bottom: 40px;
+
+	.upsell {
 		right: 25px;
+	}
+}
+
+.jpcrm-revenue-chart-heading {
+	margin-bottom: 60px;
+
+	.upsell {
+		right: 20px;
 	}
 }
 
