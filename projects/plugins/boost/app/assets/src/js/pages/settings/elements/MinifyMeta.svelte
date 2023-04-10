@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { __, sprintf } from '@wordpress/i18n';
 	import {
 		minifyJsExcludesState,
 		updateminifyJsExcludesState,
@@ -8,7 +9,7 @@
 	import PencilIcon from '../../../svg/pencil.svg';
 
 	export let type: string;
-	export let summary: string;
+	export let inputLabel: string;
 	export let buttonText: string;
 
 	let isEditing = true;
@@ -27,18 +28,28 @@
 
 <div class="jb-critical-css__meta">
 	{#if isEditing}
-		<p>Exclude JS Strings:</p>
-		<input type="text" bind:value placeholder="Use comma to separate them" />
-		<button on:click={handleUpdate}>Save</button>
-		<button
-			on:click={() => {
-				isEditing = false;
-			}}>Cancel</button
-		>
+		<p>{inputLabel}</p>
+		<input
+			type="text"
+			bind:value
+			placeholder={__( 'Use comma to separate them', 'jetpack-boost' )}
+		/>
+		<div class="button-container">
+			<button on:click={handleUpdate}>Save</button>
+			<button
+				on:click={() => {
+					isEditing = false;
+				}}>Cancel</button
+			>
+		</div>
 	{:else}
 		<div class="summary">
 			<div class="successes">
-				{summary}
+				{sprintf(
+					/* Translators: %s refers to the list of excluded items. */
+					__( 'Except: %s', 'jetpack-boost' ),
+					value
+				)}
 			</div>
 		</div>
 

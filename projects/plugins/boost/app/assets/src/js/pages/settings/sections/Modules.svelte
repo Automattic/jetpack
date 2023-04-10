@@ -200,7 +200,7 @@
 		<div slot="meta">
 			<MinifyMeta
 				type="js"
-				summary={__( 'Except: jquery, jquery-core, underscore, backbone', 'jetpack-boost' )}
+				inputLabel={__( 'Exclude JS Strings:', 'jetpack-boost' )}
 				buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
 			/>
 		</div>
@@ -218,7 +218,7 @@
 		<div slot="meta">
 			<MinifyMeta
 				type="css"
-				summary={__( 'Except: theme-styles.css', 'jetpack-boost' )}
+				inputLabel={__( 'Exclude CSS Strings:', 'jetpack-boost' )}
 				buttonText={__( 'Exclude CSS Strings', 'jetpack-boost' )}
 			/>
 		</div>
