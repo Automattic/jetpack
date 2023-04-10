@@ -5,7 +5,7 @@
 const path = require( 'path' );
 const projects = require( './projects' );
 const modulesDir = path.join( __dirname, '../node_modules' );
-const storiesSearch = '*.@(js|jsx|mdx|ts|tsx)';
+const storiesSearch = '*.@(story|stories).@(js|jsx|mdx|ts|tsx)';
 const stories = [ process.env.NODE_ENV !== 'test' && `./stories/**/${ storiesSearch }` ]
 	.concat( projects.map( project => `${ project }/**/stories/${ storiesSearch }` ) )
 	.filter( Boolean );
