@@ -194,17 +194,15 @@ const ProductCard = props => {
 								{ flagLabel }
 							</Text>
 						) }
-						{ ! menuIsActive && (
-							<div className={ styles.actions }>
-								<ActionButton
-									{ ...props }
-									onActivate={ activateHandler }
-									onFixConnection={ fixConnectionHandler }
-									onManage={ manageHandler }
-									className={ styles.button }
-								/>
-							</div>
-						) }
+						<div className={ styles.actions }>
+							<ActionButton
+								{ ...props }
+								onActivate={ activateHandler }
+								onFixConnection={ fixConnectionHandler }
+								onManage={ manageHandler }
+								className={ styles.button }
+							/>
+						</div>
 					</>
 				)
 			}
