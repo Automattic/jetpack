@@ -6,7 +6,6 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, useCallback } from '@wordpress/element';
-import { Platform } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
@@ -31,10 +30,7 @@ import { useVideoPosterData } from '../use-video-poster-data';
 import type { UseSyncMedia, ArrangeTracksAttributesProps } from './types';
 import type { UploadTrackDataProps } from '../../../lib/video-tracks/types';
 
-const isWeb = Platform.isWeb;
-
-// eslint-disable-next-line no-console
-const debug = isWeb ? debugFactory( 'videopress:video:use-video-data' ) : console.log;
+const debug = debugFactory( 'videopress:video:use-video-data' );
 
 /*
  * Fields list to keep in sync with block attributes.
@@ -283,7 +279,7 @@ export function useSyncMedia(
 	 * Store and compare the block attributes
 	 * in order to detect changes on them.
 	 */
-	const isGeneratingPoster = isWeb ? useVideoPosterData( attributes ).isGeneratingPoster : null;
+	const isGeneratingPoster = useVideoPosterData( attributes ).isGeneratingPoster;
 
 	/*
 	 * Block attributes => Media data (sync)
@@ -294,7 +290,7 @@ export function useSyncMedia(
 	 * (via the VideoPress API) when the post saves.
 	 */
 	useEffect( () => {
-		if ( isWeb && ! postHasBeenJustSaved ) {
+		if ( ! postHasBeenJustSaved ) {
 			return;
 		}
 
