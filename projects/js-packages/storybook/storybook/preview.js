@@ -1,6 +1,4 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
-import { withA11y } from '@storybook/addon-a11y';
-import { addDecorator } from '@storybook/react';
 import React from 'react';
 
 /* eslint-disable no-restricted-syntax */
@@ -8,8 +6,6 @@ import React from 'react';
 /* eslint-enable no-restricted-syntax */
 
 import './style.scss';
-
-addDecorator( withA11y );
 
 export const parameters = {
 	backgrounds: {

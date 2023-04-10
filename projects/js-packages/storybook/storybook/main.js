@@ -4,15 +4,11 @@
 
 const path = require( 'path' );
 const projects = require( './projects' );
-
 const modulesDir = path.join( __dirname, '../node_modules' );
-
 const storiesSearch = '*.@(js|jsx|mdx|ts|tsx)';
-
 const stories = [ process.env.NODE_ENV !== 'test' && `./stories/**/${ storiesSearch }` ]
 	.concat( projects.map( project => `${ project }/**/stories/${ storiesSearch }` ) )
 	.filter( Boolean );
-
 const customEnvVariables = {};
 
 // Workaround for Emotion 11
@@ -30,16 +26,14 @@ const updateEmotionAliases = config => ( {
 		},
 	},
 } );
-
 module.exports = {
-	core: {
-		builder: 'webpack5',
-	},
 	stories,
 	addons: [
 		{
 			name: '@storybook/addon-docs',
-			options: { configureJSX: true },
+			options: {
+				configureJSX: true,
+			},
 		},
 		'@storybook/addon-storysource',
 		'@storybook/addon-viewport',
@@ -60,14 +54,12 @@ module.exports = {
 		Object.keys( customEnvVariables ).forEach( key => {
 			plugin.definitions[ 'process.env' ][ key ] = JSON.stringify( customEnvVariables[ key ] );
 		} );
-
 		const finalConfig = updateEmotionAliases( config );
 
 		// Conform to Webpack module resolution rule for Search dashboard.
 		finalConfig.resolve.modules.push(
 			path.join( __dirname, '../../../packages/search/src/dashboard/' )
 		);
-
 		return finalConfig;
 	},
 	refs: {
@@ -75,5 +67,12 @@ module.exports = {
 			title: 'Gutenberg Components',
 			url: 'https://wordpress.github.io/gutenberg/',
 		},
+	},
+	framework: {
+		name: '@storybook/react-webpack5',
+		options: {},
+	},
+	docs: {
+		autodocs: true,
 	},
 };

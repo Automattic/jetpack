@@ -16,8 +16,8 @@
 	"author": "Automattic",
 	"scripts": {
 		"//": "# We set NODE_PATH here so postcss-loader can find its plugins with pnpm 7. See https://github.com/pnpm/pnpm/discussions/3536#discussioncomment-2688984",
-		"storybook:build": "NODE_PATH=\"$PWD/node_modules\" build-storybook -s ./public -c ./storybook -o ./docs",
-		"storybook:dev": "NODE_PATH=\"$PWD/node_modules\" start-storybook -c ./storybook -p 50240 -s ./public",
+		"storybook:build": "NODE_PATH=\"$PWD/node_modules\" storybook build -s ./public -c ./storybook -o ./docs",
+		"storybook:dev": "NODE_PATH=\"$PWD/node_modules\" storybook dev -c ./storybook -p 50240 -s ./public",
 		"test": "jest tests/"
 	},
 	"devDependencies": {
@@ -36,9 +36,11 @@
 		"@storybook/addon-viewport": "7.0.2",
 		"@storybook/addons": "7.0.2",
 		"@storybook/api": "7.0.2",
-		"@storybook/builder-webpack5": "7.0.2",
+		"@storybook/blocks": "7.0.2",
 		"@storybook/components": "7.0.2",
+		"@storybook/manager-api": "7.0.2",
 		"@storybook/react": "7.0.2",
+		"@storybook/react-webpack5": "7.0.2",
 		"@storybook/source-loader": "7.0.2",
 		"@storybook/theming": "7.0.2",
 		"@wordpress/babel-preset-default": "7.14.0",
@@ -62,6 +64,7 @@
 		"require-from-string": "2.0.2",
 		"sass": "1.43.3",
 		"sass-loader": "12.4.0",
+		"storybook": "7.0.2",
 		"storybook-addon-mock": "4.0.0",
 		"storybook-addon-turbo-build": "1.1.0",
 		"style-loader": "2.0.0",
