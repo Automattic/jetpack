@@ -69,8 +69,12 @@ export async function fetchVideoItem( {
 			? `?${ new URLSearchParams( params ).toString() }`
 			: '';
 
+		const endpoint = isNative
+			? { path: `/rest/v1.1/videos/${ guid }${ requestArgs }` }
+			: { url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ requestArgs }` };
+
 		return await apiFetch( {
-			url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ requestArgs }`,
+			...endpoint,
 			credentials: 'omit',
 			global: true,
 		} );
