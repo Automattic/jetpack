@@ -290,9 +290,9 @@ const ProductDetailCard = ( {
 						agreeButtonLabel={
 							hasTrialButton
 								? sprintf(
-										/* translators: placeholder is product name. */
-										__( 'Add %s or Start for free', 'jetpack-my-jetpack' ),
-										productMoniker
+										/* translators: placeholder is cta label. */
+										__( '%s or Start for free', 'jetpack-my-jetpack' ),
+										ctaLabel
 								  )
 								: ctaLabel
 						}
