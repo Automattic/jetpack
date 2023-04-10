@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.18.1] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
 ## [1.18.0] - 2023-04-04
 ### Changed
 - Async script enqueuing: switch to static method. [#29780]
@@ -317,6 +321,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[1.18.1]: https://github.com/Automattic/jetpack-assets/compare/v1.18.0...v1.18.1
 [1.18.0]: https://github.com/Automattic/jetpack-assets/compare/v1.17.34...v1.18.0
 [1.17.34]: https://github.com/Automattic/jetpack-assets/compare/v1.17.33...v1.17.34
 [1.17.33]: https://github.com/Automattic/jetpack-assets/compare/v1.17.32...v1.17.33
