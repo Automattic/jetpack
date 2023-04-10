@@ -3217,24 +3217,12 @@ a.list-group-item-danger.active,a.list-group-item-danger.active:focus,a.list-gro
     color:inherit
 }
 
-.jpcrm-latest-contacts-heading,.jpcrm-revenue-chart-heading {
-
-	.panel-title {
-		position: absolute;
-		left: 30%;
-		right: 30%;
-	}
-
-	.upsell {
-		top: 45px;
-	}
-}
-
 .jpcrm-latest-contacts-heading {
 	margin-bottom: 40px;
 
 	.upsell {
 		right: 25px;
+		top: 45px;
 	}
 }
 
@@ -3243,6 +3231,7 @@ a.list-group-item-danger.active,a.list-group-item-danger.active:focus,a.list-gro
 
 	.upsell {
 		right: 20px;
+		top: 45px;
 	}
 }
 
