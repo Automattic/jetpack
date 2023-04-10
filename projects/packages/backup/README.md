@@ -12,4 +12,4 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-jetpack-backups is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+jetpack-backup is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)

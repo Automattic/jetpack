@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "693cc8c89f1bdb0449ef75886b306dec3b321dcc"
+                "reference": "ea2d9e8b7a3aab6c7d2b2633dff66dc35f78d7eb"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",

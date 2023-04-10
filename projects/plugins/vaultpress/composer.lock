@@ -63,7 +63,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "9b1700dc1f2654c5e7d288c885694af851ffcecd"
+                "reference": "d851d1c6c59dd523f68cdf36ff58d98118a2b99d"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
