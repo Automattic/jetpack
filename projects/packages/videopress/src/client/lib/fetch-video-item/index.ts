@@ -18,7 +18,7 @@ import type {
 } from '../../types';
 import type { MediaTokenProps } from '../get-media-token/types';
 
-const isNative = Platform.OS === 'ios' || Platform.OS === 'android';
+const isNative = Platform.isNative;
 
 // eslint-disable-next-line no-console
 const debug = isNative ? console.log : debugFactory( 'videopress:video:use-video-data' );
