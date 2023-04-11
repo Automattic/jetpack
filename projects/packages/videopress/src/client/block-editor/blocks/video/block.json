@@ -126,6 +126,6 @@
 	"textdomain": "jetpack-videopress",
 	"editorScript": "jetpack-videopress-video-block",
 	"editorStyle": "jetpack-videopress-video-block",
-	"style": "file:style-index.css",
+	"style": "jetpack-videopress-video-block-view",
 	"viewScript": "jetpack-videopress-video-block-view"
 }

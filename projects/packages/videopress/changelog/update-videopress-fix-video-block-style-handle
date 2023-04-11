@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: fix setting front-end css file issue for the VideoPress video block

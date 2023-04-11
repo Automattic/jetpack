@@ -3,22 +3,79 @@
  */
 import {
 	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalNumberControl as NumberControl,
+	__experimentalNumberControl,
+	TextControl,
 	RangeControl,
 	BaseControl,
-	useBaseControlProps,
+	useBaseControlProps as originalUseBaseControlProps,
 } from '@wordpress/components';
+import { useInstanceId } from '@wordpress/compose';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import classNames from 'classnames';
 /**
  * Internal dependencies
  */
+import { formatTime } from '../../utils/time';
 import styles from './style.module.scss';
 /**
  * Types
  */
 import { TimestampInputProps, TimestampControlProps, DecimalPlacesProp } from './types';
 import type React from 'react';
+
+/**
+ * Fallback implementation of useBaseControlProps.
+ *
+ * @param {object} props - The component props.
+ * @returns {object}     - The computed control props.
+ */
+function useBaseControlPropsFallback( props: Record< string, unknown > ): {
+	baseControlProps: Record< string, unknown >;
+	controlProps: Record< string, unknown >;
+} {
+	const { help, id: preferredId, ...restProps } = props;
+
+	const uniqueId = useInstanceId(
+		BaseControl,
+		'wp-components-base-control',
+		preferredId as string
+	);
+
+	// ARIA descriptions can only contain plain text, so fall back to aria-details if not.
+	const helpPropName = typeof help === 'string' ? 'aria-describedby' : 'aria-details';
+
+	return {
+		baseControlProps: {
+			id: uniqueId,
+			help,
+			...restProps,
+		},
+		controlProps: {
+			id: uniqueId,
+			...( help ? { [ helpPropName ]: `${ uniqueId }__help` } : {} ),
+		},
+	};
+}
+
+const useBaseControlProps = originalUseBaseControlProps || useBaseControlPropsFallback;
+
+// Fallback for the experimental NumberControl component.
+const NumberControl = props => {
+	if ( __experimentalNumberControl ) {
+		return <__experimentalNumberControl { ...props } />;
+	}
+
+	const textControlProps = { ...props };
+	[
+		'spinControls',
+		'isPressEnterToChange',
+		'isDragEnabled',
+		'isShiftStepEnabled',
+		'__unstableStateReducer',
+	].forEach( key => delete textControlProps[ key ] );
+
+	return <TextControl { ...textControlProps } />;
+};
 
 const TimeDivider = ( { char = ':' } ): React.ReactElement => {
 	return <span className={ styles[ 'timestamp-control-divider' ] }>{ char }</span>;
@@ -245,6 +302,8 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 		fineAdjustment = 50,
 		autoHideTimeInput = true,
 		decimalPlaces,
+		marksEvery,
+		renderTooltip,
 	} = props;
 
 	const debounceTimer = useRef< NodeJS.Timeout >();
@@ -276,6 +335,17 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 		[ onDebounceChange, onChange, max, min, wait ]
 	);
 
+	const marks: Array< { value: number; label: string } > = [];
+	if ( marksEvery ) {
+		for ( let i = min; i <= max; i += marksEvery ) {
+			marks.push( { value: i, label: null } );
+		}
+	}
+
+	// Provides a default function to render the tooltip content.
+	const renderTooltipHandler =
+		typeof renderTooltip === 'function' ? renderTooltip : ( time: number ) => formatTime( time );
+
 	return (
 		<BaseControl { ...baseControlProps }>
 			<div className={ styles[ 'timestamp-control__controls-wrapper' ] }>
@@ -298,9 +368,11 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 					initialPosition={ controledValue }
 					value={ controledValue }
 					max={ max }
-					showTooltip={ false }
 					withInputField={ false }
 					onChange={ onChangeHandler }
+					marks={ marksEvery ? marks : undefined }
+					renderTooltipContent={ renderTooltipHandler }
+					{ ...( renderTooltip === false ? { showTooltip: false } : {} ) }
 				/>
 			</div>
 		</BaseControl>

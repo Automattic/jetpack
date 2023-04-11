@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Use correct WorDBless setup command. No user-visible change to package.
-
-

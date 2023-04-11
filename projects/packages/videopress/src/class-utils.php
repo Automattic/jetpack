@@ -1,0 +1,64 @@
+<?php
+/**
+ * The Utils class.
+ *
+ * @package automattic/jetpack-videopress
+ */
+
+namespace Automattic\Jetpack\VideoPress;
+
+/**
+ * The Utils class.
+ */
+class Utils {
+	/**
+	 * Build a VideoPress video URL based on the guid and block attributes.
+	 *
+	 * @param {string} $guid       - Video GUID.
+	 * @param {array}  $attributes - Video block attributes. Default is an empty array.
+	 *
+	 * @return {string} VideoPress video URL with the specified attributes.
+	 */
+	public static function get_video_press_url( $guid, $attributes = array() ) {
+		if ( ! $guid ) {
+			return null;
+		}
+
+		$video_press_url_options = wp_parse_args(
+			$attributes,
+			array(
+				'autoplay'            => false,
+				'controls'            => true,
+				'loop'                => false,
+				'muted'               => false,
+				'playsinline'         => false,
+				'poster'              => '',
+				'preload'             => 'metadata',
+				'seekbarColor'        => '',
+				'seekbarPlayedColor'  => '',
+				'seekbarLoadingColor' => '',
+				'useAverageColor'     => true,
+			)
+		);
+
+		$query_args = array(
+			'resizeToParent'  => 1,
+			'cover'           => 1,
+			'autoPlay'        => (int) $video_press_url_options['autoplay'],
+			'controls'        => (int) $video_press_url_options['controls'],
+			'loop'            => (int) $video_press_url_options['loop'],
+			'muted'           => (int) $video_press_url_options['muted'],
+			'persistVolume'   => $video_press_url_options['muted'] ? 0 : 1,
+			'playsinline'     => (int) $video_press_url_options['playsinline'],
+			'posterUrl'       => rawurlencode( $video_press_url_options['poster'] ),
+			'preloadContent'  => $video_press_url_options['preload'],
+			'sbc'             => $video_press_url_options['seekbarColor'],
+			'sbpc'            => $video_press_url_options['seekbarPlayedColor'],
+			'sblc'            => $video_press_url_options['seekbarLoadingColor'],
+			'useAverageColor' => (int) $video_press_url_options['useAverageColor'],
+		);
+
+		$url = 'https://videopress.com/v/' . $guid;
+		return add_query_arg( $query_args, $url );
+	}
+}

@@ -13,22 +13,17 @@ class Sync_Jetpack_Module_Status {
 	public $boost_module_slug;
 
 	public function __construct( $boost_module_slug, $jetpack_module_slug ) {
-		$this->boost_module_slug   = str_replace( '-', '_', $boost_module_slug );
+		$this->boost_module_slug   = str_replace( '_', '-', $boost_module_slug );
 		$this->jetpack_module_slug = $jetpack_module_slug;
 	}
 
 	public function init() {
 		// Use Jetpack as the source of truth for the module status
-		add_filter( "default_option_jetpack_boost_ds_module_status_$this->boost_module_slug", array( $this, 'get_jetpack_module_status' ) );
-		add_filter( "option_jetpack_boost_ds_module_status_$this->boost_module_slug", array( $this, 'get_jetpack_module_status' ) );
+		add_filter( "default_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'get_jetpack_module_status' ) );
+		add_filter( "option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'get_jetpack_module_status' ) );
 
-		// Sync the status to Jetpack when interacting with the Boost dashboard
-		add_action( "add_option_jetpack_boost_ds_module_status_$this->boost_module_slug", array( $this, 'sync_to_jetpack' ), 10, 2 );
-		add_action( "update_option_jetpack_boost_ds_module_status_$this->boost_module_slug", array( $this, 'sync_to_jetpack' ), 10, 2 );
-
-		// Sync the status to Boost when interacting with the Jetpack dashboard
-		add_action( "jetpack_deactivate_module_$this->jetpack_module_slug", array( $this, 'sync_from_jetpack' ), 10, 2 );
-		add_action( "jetpack_activate_module_$this->jetpack_module_slug", array( $this, 'sync_from_jetpack' ), 10, 2 );
+		$this->add_sync_to_jetpack_action();
+		$this->add_sync_from_jetpack_action();
 
 		/**
 		 * Update the Jetpack Boost option to match the Jetpack option,
@@ -51,11 +46,15 @@ class Sync_Jetpack_Module_Status {
 	 * when interacting with Jetpack Boost dashboard.
 	 */
 	public function sync_to_jetpack( $_unused, $new_value ) {
+		$this->remove_sync_from_jetpack_action();
+
 		if ( $new_value ) {
 			\Jetpack::activate_module( $this->jetpack_module_slug, false, false );
 		} else {
 			\Jetpack::deactivate_module( $this->jetpack_module_slug );
 		}
+
+		$this->add_sync_from_jetpack_action();
 
 		return $new_value;
 	}
@@ -69,7 +68,35 @@ class Sync_Jetpack_Module_Status {
 	 * And make sure that Jetpack Boost is in sync.
 	 */
 	public function sync_from_jetpack() {
-		update_option( "jetpack_boost_ds_module_status_$this->boost_module_slug", \Jetpack::is_module_active( $this->jetpack_module_slug ) );
+		$this->remove_sync_to_jetpack_action();
+		update_option( "jetpack_boost_status_{$this->boost_module_slug}", \Jetpack::is_module_active( $this->jetpack_module_slug ) );
+		$this->add_sync_to_jetpack_action();
+	}
+
+	/**
+	 * Sync the status to Boost when interacting with the Jetpack dashboard.
+	 */
+	public function add_sync_from_jetpack_action() {
+		add_action( "jetpack_deactivate_module_{$this->jetpack_module_slug}", array( $this, 'sync_from_jetpack' ), 10, 2 );
+		add_action( "jetpack_activate_module_{$this->jetpack_module_slug}", array( $this, 'sync_from_jetpack' ), 10, 2 );
+	}
+
+	public function remove_sync_from_jetpack_action() {
+		remove_action( "jetpack_deactivate_module_{$this->jetpack_module_slug}", array( $this, 'sync_from_jetpack' ), 10, 2 );
+		remove_action( "jetpack_activate_module_{$this->jetpack_module_slug}", array( $this, 'sync_from_jetpack' ), 10, 2 );
+	}
+
+	/**
+	 * Sync the status to Jetpack when interacting with the Boost dashboard
+	 */
+	public function add_sync_to_jetpack_action() {
+		add_action( "add_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10, 2 );
+		add_action( "update_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10, 2 );
+	}
+
+	public function remove_sync_to_jetpack_action() {
+		remove_action( "add_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10, 2 );
+		remove_action( "update_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'sync_to_jetpack' ), 10, 2 );
 	}
 
 }

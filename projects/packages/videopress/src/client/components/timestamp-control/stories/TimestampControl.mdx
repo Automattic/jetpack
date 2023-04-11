@@ -77,7 +77,7 @@ Also, if it's bigger than one hour, the hour input will be rendered into the Tim
 
 The decimalPlaces property is used to add fractions of a second.
 This property allows the user to specify the number of digits to be displayed after the seconds separator,
-thus allowing for a customizable level of precision.
+thus allowpackages-videopress-timestamp-control--with-marksing for a customizable level of precision.
 
 <Canvas withSource="open">
   <Story id="packages-videopress-timestamp-control--decimal-places" />
@@ -96,6 +96,34 @@ Time, in milliseconds, for every step of the Range control.
 
 - type: `boolean`
 - default: `True`
+
+### renderTooltip
+
+- type: `function`
+- optional
+
+Optional option that when True renders a tooltip in the Range control, with a default time format.
+
+<Canvas>
+  <Story id="packages-videopress-timestamp-control--show-tooltip" />
+</Canvas>
+
+It also accepts a function. The example below shows how to customize what the tooltip shows.
+
+<Canvas>
+  <Story id="packages-videopress-timestamp-control--custom-tooltip" />
+</Canvas>
+
+### marksEvery
+
+- type: `number`
+- optional
+
+Pass a time value, in milliseconds, to generate a mark set to add to the Range control.
+
+<Canvas>
+  <Story id="packages-videopress-timestamp-control--with-marks" />
+</Canvas>
 
 ## Handling the value property
 
