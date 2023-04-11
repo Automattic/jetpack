@@ -831,7 +831,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					);
 
 					$old_subscription_options = get_option( 'subscription_options' );
-					$new_subscription_options = array_merge( $filtered_value, $old_subscription_options );
+					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
 
 					if ( update_option( $key, $new_subscription_options ) ) {
 						$updated[ $key ] = $filtered_value;
