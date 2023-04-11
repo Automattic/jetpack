@@ -111,8 +111,8 @@ class UtilsTest extends BaseTestCase {
 			'poster' => '',
 		);
 
-		$url_witt_empty_poster = Utils::get_video_press_url( $guid, $attributes_without_poster );
-		$this->assertStringNotContainsString( 'posterUrl', $url_witt_empty_poster );
+		$url_with_empty_poster = Utils::get_video_press_url( $guid, $attributes_without_poster );
+		$this->assertStringNotContainsString( 'posterUrl', $url_with_empty_poster );
 
 		// Test without provided poster URL.
 		$attributes_without_poster = array();
