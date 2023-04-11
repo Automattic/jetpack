@@ -10,6 +10,5 @@
 	inputLabel={__( 'Exclude JS Strings:', 'jetpack-boost' )}
 	buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
 	placeholder={__( 'Use comma to separate them', 'jetpack-boost' )}
-	value={$excludes}
-	on:update={e => ( $excludes = e.detail )}
+	bind:value={$excludes}
 />

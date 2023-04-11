@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import { __, sprintf } from '@wordpress/i18n';
 	import PencilIcon from '../../../../svg/pencil.svg';
 
@@ -9,14 +8,8 @@
 	export let placeholder: string;
 
 	export let value: string;
-	let storedValue = value;
+	let inputValue = value;
 	let isEditing = false;
-
-	const dispatch = createEventDispatcher();
-	function handleSave() {
-		storedValue = value;
-		dispatch( 'update', value );
-	}
 
 	// While debugging
 	isEditing = true;
@@ -26,9 +19,9 @@
 	{#if isEditing}
 		<div class="manage-excludes">
 			<label for={id}>{inputLabel}</label>
-			<input type="text" bind:value {placeholder} {id} />
+			<input type="text" bind:value={inputValue} {placeholder} {id} />
 			<div class="buttons-container">
-				<button disabled={value === storedValue} on:click={handleSave}
+				<button disabled={value === inputValue} on:click={() => ( value = inputValue )}
 					>{__( 'Save', 'jetpack-boost' )}</button
 				>
 				<button
