@@ -70,9 +70,6 @@ jQuery( function ( $ ) {
 		} );
 	}
 
-	funnel_height = jQuery( '#bar-chart' ).height();
-	jQuery( '.zbs-funnel' ).height( funnel_height );
-
 	jQuery( '.dashboard-customiser' ).on( 'click', function ( e ) {
 		jQuery( '.dashboard-custom-choices' ).toggle();
 	} );
@@ -218,34 +215,6 @@ function jetpackcrm_draw_contact_chart( data ) {
 	window.contactChart.data.datasets[ 0 ].data = data.data;
 	window.contactChart.update();
 }
-
-//handle window resizing + charts
-jQuery( window ).on( 'resize', function () {
-	jQuery( '#funnel-container' ).html( '' );
-
-	funnel_height = jQuery( '#bar-chart' ).height();
-	jQuery( '.zbs-funnel' ).height( funnel_height );
-
-	jQuery( '#funnel-container' ).drawFunnel( window.funnelData, {
-		width: jQuery( '.zbs-funnel' ).width() - 50,
-		height: jQuery( '.zbs-funnel' ).height() - 50,
-
-		// Padding between segments, in pixels
-		padding: 1,
-
-		// Render only a half funnel
-		half: false,
-
-		// Width of a segment can't be smaller than this, in pixels
-		minSegmentSize: 30,
-
-		// label: function () { return "Label!"; }
-
-		label: function ( obj ) {
-			return obj;
-		},
-	} );
-} );
 
 if ( typeof module !== 'undefined' ) {
     module.exports = {  jetpackcrm_draw_contact_chart  };

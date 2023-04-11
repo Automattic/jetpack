@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { usePrevious } from '@wordpress/compose';
 import debugFactory from 'debug';
 import { useEffect, useRef, useState, useCallback } from 'react';
 /**
@@ -91,64 +92,119 @@ const useVideoPlayer = (
 			setPlayerIsReady( true );
 			playerState.current = 'ready';
 		}
+
+		if ( eventName === 'videopress_timeupdate' && previewOnHover ) {
+			const currentTime = eventData.currentTimeMs;
+			const startLimit = previewOnHover.atTime;
+			const endLimit = previewOnHover.atTime + previewOnHover.duration;
+			if (
+				currentTime < startLimit || // Before the start limit.
+				currentTime > endLimit // After the end limit.
+			) {
+				source.postMessage(
+					{ event: 'videopress_action_set_currenttime', currentTime: startLimit / 1000 },
+					{ targetOrigin: '*' }
+				);
+			}
+		}
 	}
+
+	// PreviewOnHover feature.
+	const isPreviewOnHoverEnabled = !! previewOnHover;
+	const wasPreviewOnHoverEnabled = usePrevious( isPreviewOnHoverEnabled );
+	const wasPreviewOnHoverJustEnabled = isPreviewOnHoverEnabled && ! wasPreviewOnHoverEnabled;
+
+	const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
 
 	// Listen player events.
 	useEffect( () => {
-		if ( isRequestingPreview ) {
-			return;
-		}
-
-		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
 		if ( ! sandboxIFrameWindow ) {
 			return;
 		}
 
+		if ( isRequestingPreview ) {
+			return;
+		}
+
+		debug( 'player is ready to listen events' );
 		sandboxIFrameWindow.addEventListener( 'message', listenEventsHandler );
 
 		return () => {
 			// Remove the listener when the component is unmounted.
 			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
 		};
-	}, [ iFrameRef, isRequestingPreview ] );
+	}, [ sandboxIFrameWindow, isRequestingPreview, wasPreviewOnHoverJustEnabled, previewOnHover ] );
 
-	const playVideo = useCallback( () => {
-		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
+	const play = useCallback( () => {
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
 		}
 
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_play' }, '*' );
-	}, [ iFrameRef, playerIsReady ] );
+	}, [ iFrameRef, playerIsReady, sandboxIFrameWindow ] );
 
-	const stopVideo = useCallback( () => {
-		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
+	const pause = useCallback( () => {
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
 		}
 
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_pause' }, '*' );
-	}, [ iFrameRef, playerIsReady ] );
+	}, [ iFrameRef, playerIsReady, sandboxIFrameWindow ] );
 
-	// PreviewOnHover feature.
 	useEffect( () => {
-		if ( ! wrapperElement || ! previewOnHover ) {
+		if ( ! wrapperElement || ! isPreviewOnHoverEnabled ) {
 			return;
 		}
 
-		wrapperElement.addEventListener( 'mouseenter', playVideo );
-		wrapperElement.addEventListener( 'mouseleave', stopVideo );
+		wrapperElement.addEventListener( 'mouseenter', play );
+		wrapperElement.addEventListener( 'mouseleave', pause );
 
 		return () => {
 			// Remove the listener when the component is unmounted.
-			wrapperElement.removeEventListener( 'mouseenter', playVideo );
-			wrapperElement.removeEventListener( 'mouseleave', stopVideo );
+			wrapperElement.removeEventListener( 'mouseenter', play );
+			wrapperElement.removeEventListener( 'mouseleave', pause );
 		};
-	}, [ previewOnHover, wrapperElement, playerIsReady ] );
+	}, [ isPreviewOnHoverEnabled, wrapperElement, playerIsReady ] );
+
+	// Move the video to the "Starting point" when it changes.
+	useEffect( () => {
+		if ( ! playerIsReady || ! previewOnHover ) {
+			return;
+		}
+
+		if ( ! sandboxIFrameWindow ) {
+			return;
+		}
+
+		sandboxIFrameWindow.postMessage(
+			{ event: 'videopress_action_set_currenttime', currentTime: previewOnHover.atTime / 1000 },
+			{ targetOrigin: '*' }
+		);
+	}, [ previewOnHover?.atTime, playerIsReady, sandboxIFrameWindow ] );
+
+	// Move the video to the "duration" when it changes.
+	useEffect( () => {
+		if ( ! playerIsReady || ! previewOnHover ) {
+			return;
+		}
+
+		if ( ! sandboxIFrameWindow ) {
+			return;
+		}
+
+		sandboxIFrameWindow.postMessage(
+			{
+				event: 'videopress_action_set_currenttime',
+				currentTime: ( previewOnHover.atTime + previewOnHover.duration ) / 1000,
+			},
+			{ targetOrigin: '*' }
+		);
+	}, [ previewOnHover?.duration, playerIsReady, sandboxIFrameWindow ] );
 
 	return {
 		playerIsReady,
-		playerState: playerState.current,
+		play,
+		pause,
 	};
 };
 

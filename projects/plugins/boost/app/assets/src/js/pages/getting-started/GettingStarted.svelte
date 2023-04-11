@@ -62,7 +62,8 @@
 					markGetStartedComplete();
 
 					// Need to await in this case because the generation request needs to go after the backend has enabled the module.
-					await updateModuleState( 'critical-css', true );
+					await updateModuleState( 'critical_css', true );
+
 					navigate( '/' );
 				} catch ( e ) {
 					dismissedSnackbar.set( false );
