@@ -92,7 +92,7 @@
 		width: 100%;
 		padding: 10px;
 		border-radius: 4px;
-		border: 1px solid #ccc;
+		border: 1px solid $gray_10;
 		margin-bottom: 16px;
 	}
 
@@ -113,7 +113,7 @@
 	}
 
 	.buttons-container button:first-child {
-		background-color: black;
+		background-color: $primary-black;
 		color: $primary-white;
 	}
 
