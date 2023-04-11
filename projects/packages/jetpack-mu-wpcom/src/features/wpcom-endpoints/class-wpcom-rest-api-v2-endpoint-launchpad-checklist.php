@@ -64,7 +64,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Checklist extends WP_REST_Controller 
 		// TODO: Add checklist_slug from request input
 		$checklist_slug = $request['checklist_slug'];
 		return array(
-			'checklist' => get_launchpad_checklist_by_checklist_slug( $checklist_slug ),
+			'checklist' => A8C\Launchpad\get_launchpad_checklist_by_checklist_slug( $checklist_slug ),
 		);
 	}
 
