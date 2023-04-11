@@ -3,7 +3,6 @@
 
 import {
 	Button,
-	getRedirectUrl,
 	Notice,
 	PricingTable,
 	PricingTableColumn,
@@ -13,7 +12,6 @@ import {
 	Text,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
-import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import React, { useCallback, useMemo } from 'react';
 import { useProduct } from '../../hooks/use-product';
@@ -136,24 +134,28 @@ const ProductDetailTableColumn = ( {
 					info,
 				} = feature.tiers[ tier ];
 
+				const label =
+					struckDescription || description ? (
+						<>
+							{ struckDescription ? (
+								<>
+									<del>{ struckDescription }</del>{ ' ' }
+								</>
+							) : null }
+							{ description ? <strong>{ description }</strong> : null }
+						</>
+					) : null;
+
 				return (
 					<PricingTableItem
 						key={ mapIndex }
 						isIncluded={ included }
-						label={
-							struckDescription || description ? (
-								<>
-									{ struckDescription ? (
-										<>
-											<del>{ struckDescription }</del>{ ' ' }
-										</>
-									) : null }
-									{ description ? <strong>{ description }</strong> : null }
-								</>
-							) : null
-						}
+						label={ label }
 						tooltipTitle={ info?.title }
-						tooltipInfo={ info?.content }
+						tooltipInfo={
+							// eslint-disable-next-line react/no-danger
+							info?.content ? <div dangerouslySetInnerHTML={ { __html: info?.content } } /> : null
+						}
 					/>
 				);
 			} ) }
@@ -211,35 +213,14 @@ const ProductDetailTable = ( { slug, clickHandler, trackButtonClick } ) => {
 	// The feature list/descriptions for the pricing table.
 	const pricingTableItems = useMemo(
 		() =>
-			featuresByTier.map( feature => {
-				const { content, link } = feature?.info || {};
-
-				const learnMoreLink =
-					Boolean( link ) &&
-					createInterpolateElement(
-						sprintf(
-							/** translators: placeholder is the clickable title of the "learn more" link. */
-							__( 'Learn more on <link>%s</link>.', 'jetpack-my-jetpack' ),
-							link?.title
-						),
-						{
-							link: <a href={ getRedirectUrl( link?.id ) } target="_blank" rel="noreferrer" />,
-						}
-					);
-
-				const tooltipInfo =
-					content || learnMoreLink ? (
-						<>
-							{ content } { learnMoreLink }
-						</>
-					) : null;
-
-				return {
-					name: feature?.name,
-					tooltipTitle: feature?.info?.title,
-					tooltipInfo,
-				};
-			} ),
+			featuresByTier.map( feature => ( {
+				name: feature?.name,
+				tooltipTitle: feature?.info?.title,
+				tooltipInfo: feature?.info?.content ? (
+					// eslint-disable-next-line react/no-danger
+					<div dangerouslySetInnerHTML={ { __html: feature?.info?.content } } />
+				) : null,
+			} ) ),
 		[ featuresByTier ]
 	);
 

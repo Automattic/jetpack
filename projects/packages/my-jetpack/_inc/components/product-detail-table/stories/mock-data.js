@@ -22,11 +22,25 @@ export const boostProductData = {
 			tiers: {
 				free: {
 					included: false,
-					description: 'Manual Critical CSS regeneration',
+					description: 'Must be done manually',
+					info: {
+						title: '',
+						content: `To enhance the speed of your site, with this plan you will need to optimize CSS by using the Manual Critical CSS generation feature whenever you:
+							<ul>
+								<li>Activate, deactivate, or update plugins that impact your site layout or HTML structure.</li>
+								<li>Change settings of plugins that impact your site layout or HTML structure.</li>
+								<li>Upgrade your WordPress version if the new release includes core CSS changes.</li>
+							</ul>`,
+					},
 				},
 				upgraded: {
 					included: true,
-					description: 'Automatic Critical CSS regeneration',
+					description: 'Automatically updated',
+					info: {
+						title: 'Automatic Critical CSS regeneration',
+						content:
+							'It’s essential to regenerate Critical CSS to optimize your site speed whenever your HTML or CSS structure changes. Being on top of this can be tedious and time-consuming.<br><br>Boost’s cloud service can automatically detect when your site needs the Critical CSS regenerated, and perform this function behind the scenes without requiring you to monitor it manually.',
+					},
 				},
 			},
 		},
@@ -34,11 +48,7 @@ export const boostProductData = {
 			name: 'Defer non-essential JavaScript',
 			info: {
 				content:
-					'Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly.',
-				link: {
-					id: 'jetpack-boost-defer-js',
-					title: 'dev.to',
-				},
+					'Run non-essential JavaScript after the page has loaded so that styles and images can load more quickly. Read more on <a href="#" target="_blank" rel="noreferrer" />web.dev</a>.',
 			},
 			tiers: {
 				free: {
@@ -52,11 +62,23 @@ export const boostProductData = {
 		{
 			name: 'Lazy image loading',
 			info: {
-				content: 'Improve page loading speed by only loading images when they are required.',
-				link: {
-					id: 'jetpack-boost-lazy-load',
-					title: 'dev.to',
+				content:
+					'Improve page loading speed by only loading images when they are required. Read more on <a href="#" target="_blank" rel="noreferrer" />web.dev</a>.',
+			},
+			tiers: {
+				free: {
+					included: true,
 				},
+				upgraded: {
+					included: true,
+				},
+			},
+		},
+		{
+			name: 'Image guide',
+			info: {
+				content:
+					'Discover and fix images with a suboptimal resolution, aspect ratio, or file size, improving user experience and page speed.',
 			},
 			tiers: {
 				free: {
@@ -71,7 +93,7 @@ export const boostProductData = {
 			name: 'Dedicated support',
 			info: {
 				content:
-					'Paid customers get dedicated email support from our world-class Happiness Engineers to help with any issue. All other questions are handled by our team as quickly as we are able to go through the WordPress support forum.',
+					'Paid customers get dedicated email support from our world-class Happiness Engineers to help with any issue.<br><br>All other questions are handled by our team as quickly as we are able to go through the WordPress support forum.',
 			},
 			tiers: {
 				free: {
