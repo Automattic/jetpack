@@ -20,12 +20,13 @@
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
-	import MinifyMeta from '../elements/MinifyMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
 	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
 	import ResizingUnavailable from '../elements/ResizingUnavailable.svelte';
 	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
+	import MinifyCss from '../elements/minify/MinifyCSS.svelte';
+	import MinifyJs from '../elements/minify/MinifyJS.svelte';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
@@ -198,11 +199,7 @@
 		</p>
 
 		<div slot="meta">
-			<MinifyMeta
-				type="js"
-				inputLabel={__( 'Exclude JS Strings:', 'jetpack-boost' )}
-				buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
-			/>
+			<MinifyJs />
 		</div>
 	</Module>
 
@@ -216,11 +213,7 @@
 		</p>
 
 		<div slot="meta">
-			<MinifyMeta
-				type="css"
-				inputLabel={__( 'Exclude CSS Strings:', 'jetpack-boost' )}
-				buttonText={__( 'Exclude CSS Strings', 'jetpack-boost' )}
-			/>
+			<MinifyCss />
 		</div>
 	</Module>
 

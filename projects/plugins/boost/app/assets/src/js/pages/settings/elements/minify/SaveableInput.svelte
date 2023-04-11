@@ -1,48 +1,27 @@
 <script lang="ts">
 	import { __, sprintf } from '@wordpress/i18n';
-	import {
-		minifyJsExcludesState,
-		updateminifyJsExcludesState,
-		minifyCssExcludesState,
-		updateminifyCssExcludesState,
-	} from '../../../stores/minify';
-	import PencilIcon from '../../../svg/pencil.svg';
+	import PencilIcon from '../../../../svg/pencil.svg';
 
-	export let type: string;
+	export let id: string;
 	export let inputLabel: string;
 	export let buttonText: string;
-
+	export let initialValue: string;
+	export let placeholder: string;
+	export let value = initialValue;
 	let isEditing = true;
-	const editingJs = 'js' === type;
-	const excludesHtmlId = `${ type }-excludes-list`;
-
-	$: value = editingJs ? $minifyJsExcludesState : $minifyCssExcludesState;
-
-	async function handleUpdate() {
-		if ( editingJs ) {
-			await updateminifyJsExcludesState( value );
-		} else {
-			await updateminifyCssExcludesState( value );
-		}
-	}
 </script>
 
 <div class="jb-critical-css__meta">
 	{#if isEditing}
 		<div class="manage-excludes">
-			<label for={excludesHtmlId}>{inputLabel}</label>
-			<input
-				type="text"
-				bind:value
-				placeholder={__( 'Use comma to separate them', 'jetpack-boost' )}
-				id={excludesHtmlId}
-			/>
+			<label for={id}>{inputLabel}</label>
+			<input type="text" bind:value {placeholder} {id} />
 			<div class="buttons-container">
-				<button on:click={handleUpdate}>Save</button>
+				<button on:click>{__( 'Save', 'jetpack-boost' )}</button>
 				<button
 					on:click={() => {
 						isEditing = false;
-					}}>Cancel</button
+					}}>{__( 'Cancel', 'jetpack-boost' )}</button
 				>
 			</div>
 		</div>
@@ -71,7 +50,7 @@
 </div>
 
 <style lang="scss">
-	@use '../../../../css/main/variables.scss' as *;
+	@use '../../../../../css/main/variables.scss' as *;
 
 	.manage-excludes {
 		display: flex;
