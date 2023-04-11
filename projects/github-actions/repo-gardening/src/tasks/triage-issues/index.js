@@ -255,8 +255,8 @@ async function triageIssues( payload, octokit ) {
 			} );
 		}
 
-		// Add priority label, if none already exists on the issue.
-		if ( priorityLabels.length === 0 ) {
+		// Add priority label to all bugs, if none already exists on the issue.
+		if ( priorityLabels.length === 0 && isBugIssue ) {
 			debug( `triage-issues: Adding [Pri] ${ priority } label to issue #${ number }` );
 
 			await octokit.rest.issues.addLabels( {
@@ -266,9 +266,9 @@ async function triageIssues( payload, octokit ) {
 				labels: [ `[Pri] ${ priority }` ],
 			} );
 
-			// If we're adding a TBD priority, if we're in the Calypso repo, if that's a bug,
+			// If we're adding a TBD priority, if we're in the Calypso repo,
 			// send a Slack notification.
-			if ( priority === 'TBD' && full_name === 'Automattic/wp-calypso' && isBugIssue ) {
+			if ( priority === 'TBD' && full_name === 'Automattic/wp-calypso' ) {
 				debug(
 					`triage-issues: #${ number } doesn't have a Priority set. Sending in Slack message to the Kitkat team.`
 				);
