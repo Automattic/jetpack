@@ -6,7 +6,7 @@ import type { BoostScoreBarProps } from '../types';
 
 describe( 'BoostScrollBar', () => {
 	const defaultProps: BoostScoreBarProps = {
-		score: 70,
+		score: 80,
 		prevScore: 60,
 		scoreBarType: 'desktop',
 		active: true,
@@ -45,6 +45,7 @@ describe( 'BoostScrollBar', () => {
 		const { container } = render( <BoostScoreBar { ...defaultProps } isLoading={ true } /> );
 
 		expect( container.querySelector( '.jb-score-bar__loading' ) ).toBeInTheDocument();
+		expect( container.querySelector( '.fill-loading' ) ).toBeInTheDocument();
 	} );
 
 	it( 'does not display loading spinner when isLoading is false', () => {
@@ -80,5 +81,23 @@ describe( 'BoostScrollBar', () => {
 		const { container } = render( <BoostScoreBar { ...defaultProps } showPrevScores={ false } /> );
 
 		expect( container.querySelector( '.jb-score-bar__no_boost_score' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the correct score bar class when score is < 50', () => {
+		const { container } = render( <BoostScoreBar { ...defaultProps } score={ 40 } /> );
+
+		expect( container.querySelector( '.fill-bad' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the correct score bar class when score is >= 50 and < 71', () => {
+		const { container } = render( <BoostScoreBar { ...defaultProps } score={ 60 } /> );
+
+		expect( container.querySelector( '.fill-mediocre' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the correct score bar class when score is > 70', () => {
+		const { container } = render( <BoostScoreBar { ...defaultProps } /> );
+
+		expect( container.querySelector( '.fill-good' ) ).toBeInTheDocument();
 	} );
 } );
