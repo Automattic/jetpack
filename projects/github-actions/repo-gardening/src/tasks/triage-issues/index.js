@@ -45,20 +45,21 @@ async function hasEscalatedLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - Issue number.
- * @param {string} body    - Issue body.
+ * @param {string} action  - Action that triggered the event ('opened', 'reopened', 'labeled').
+ * @param {object} label   - Label that was added to the issue.
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
-async function isBug( octokit, owner, repo, number, body ) {
+async function isBug( octokit, owner, repo, number, action, label ) {
 	// If the issue has a "[Type] Bug" label, it's a bug.
 	const labels = await getLabels( octokit, owner, repo, number );
 	if ( labels.includes( '[Type] Bug' ) ) {
 		return true;
 	}
 
-	// Next, check if the issue body contains the "Available workarounds?" section.
-	// If it does, it's a bug report.
-	const regex = /###\sAvailable\sworkarounds\?/gm;
-	return regex.test( body );
+	// Next, check if the current event was a [Type] Bug label being added.
+	if ( 'labeled' === action && '[Type] Bug' === label.name ) {
+		return true;
+	}
 }
 
 /**
@@ -187,7 +188,7 @@ function formatSlackMessage( payload, channel, message ) {
  * @param {GitHub}              octokit - Initialized Octokit REST client.
  */
 async function triageIssues( payload, octokit ) {
-	const { action, issue, repository } = payload;
+	const { action, issue, label = {}, repository } = payload;
 	const { number, body, state } = issue;
 	const { owner, name, full_name } = repository;
 	const ownerLogin = owner.login;
@@ -205,7 +206,7 @@ async function triageIssues( payload, octokit ) {
 	}
 
 	// Find Priority.
-	const priorityLabels = await hasPriorityLabels( octokit, ownerLogin, name, number );
+	const priorityLabels = await hasPriorityLabels( octokit, ownerLogin, name, number, action );
 	if ( priorityLabels.length > 0 ) {
 		debug(
 			`triage-issues: Issue #${ number } has existing priority labels: ${ priorityLabels.join(
@@ -220,7 +221,7 @@ async function triageIssues( payload, octokit ) {
 	const priority = findPriority( body );
 	debug( `triage-issues: Priority for issue #${ number } is ${ priority }` );
 
-	const isBugIssue = await isBug( octokit, ownerLogin, name, number, body );
+	const isBugIssue = await isBug( octokit, ownerLogin, name, number, action, label );
 
 	// If this is a new issue, try to add labels.
 	if ( action === 'opened' || action === 'reopened' ) {
