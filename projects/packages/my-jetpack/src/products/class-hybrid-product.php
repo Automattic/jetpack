@@ -23,6 +23,13 @@ use WP_Error;
 abstract class Hybrid_Product extends Product {
 
 	/**
+	 * All hybrid products have a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
 	 * Checks whether the Product is active
 	 *
 	 * @return boolean
