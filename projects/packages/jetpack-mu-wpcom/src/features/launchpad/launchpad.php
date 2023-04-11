@@ -5,8 +5,10 @@
  * @package A8C\Launchpad
  */
 
-namespace A8C\Launchpad;
-
+/**
+ * This file provides helpers that return the appropriate Launchpad
+ * checklist and tasks for a given checklist slug
+ */
 const TASK_DEFINITIONS = array(
 	'setup_newsletter'
 		=> array(
