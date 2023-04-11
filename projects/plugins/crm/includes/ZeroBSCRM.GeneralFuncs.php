@@ -1422,6 +1422,8 @@ function jpcrm_create_and_secure_dir_from_external_access( $directory_path = '',
 			'file'    => '.htaccess',
 			'content' => 'DirectoryIndex index.php index.html' . PHP_EOL . 'deny from all',
 		);
+	} elseif ( file_exists( trailingslashit( $directory_path ) . '.htaccess' ) ) {
+		wp_delete_file( trailingslashit( $directory_path ) . '.htaccess' );
 	}
 
 	foreach ( $files as $file ) {
