@@ -46,18 +46,18 @@ export default {
 		position: {
 			control: {
 				type: 'select',
-				options: [
-					'top left',
-					'top right',
-					'top center',
-					'middle left',
-					'middle right',
-					'middle center',
-					'bottom left',
-					'bottom right',
-					'bottom center',
-				],
 			},
+			options: [
+				'top left',
+				'top right',
+				'top center',
+				'middle left',
+				'middle right',
+				'middle center',
+				'bottom left',
+				'bottom right',
+				'bottom center',
+			],
 		},
 		noArrow: {
 			control: { type: 'boolean' },

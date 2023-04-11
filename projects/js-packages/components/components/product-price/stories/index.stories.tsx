@@ -7,7 +7,8 @@ export default {
 	component: ProductPrice,
 	argTypes: {
 		currency: {
-			control: { type: 'select', options: Object.keys( CURRENCIES ) },
+			control: { type: 'select' },
+			options: Object.keys( CURRENCIES ),
 		},
 	},
 } as ComponentMeta< typeof ProductPrice >;

@@ -9,8 +9,8 @@ export default {
 		level: {
 			control: {
 				type: 'select',
-				options: [ 'info', 'success', 'warning', 'error' ],
 			},
+			options: [ 'info', 'success', 'warning', 'error' ],
 		},
 		hideCloseButton: {
 			control: {

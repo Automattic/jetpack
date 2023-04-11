@@ -11,7 +11,8 @@ export default {
 			control: { type: 'number' },
 		},
 		level: {
-			control: { type: 'select', options: [ 'L', 'M', 'Q', 'H' ] },
+			control: { type: 'select' },
+			options: [ 'L', 'M', 'Q', 'H' ],
 		},
 		fgColor: {
 			control: { type: 'color' },
@@ -20,7 +21,8 @@ export default {
 			control: { type: 'color' },
 		},
 		renderAs: {
-			control: { type: 'select', options: [ 'canvas', 'svg' ] },
+			control: { type: 'select' },
+			options: [ 'canvas', 'svg' ],
 		},
 	},
 };

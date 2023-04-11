@@ -12,7 +12,8 @@ export default {
 			control: { type: 'text' },
 		},
 		size: {
-			control: { type: 'select', options: TIPOGRAPHY_SIZES },
+			control: { type: 'select' },
+			options: TIPOGRAPHY_SIZES,
 		},
 	},
 };

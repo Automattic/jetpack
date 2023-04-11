@@ -13,7 +13,8 @@ export default {
 			control: { type: 'text' },
 		},
 		weight: {
-			control: { type: 'select', options: TIPOGRAPHY_WEIGHTS },
+			control: { type: 'select' },
+			options: TIPOGRAPHY_WEIGHTS,
 		},
 	},
 };

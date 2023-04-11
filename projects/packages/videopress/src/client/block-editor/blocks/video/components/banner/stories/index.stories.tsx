@@ -30,8 +30,8 @@ export default {
 		icon: {
 			control: {
 				type: 'select',
-				options: [ 'none', ...Object.keys( icons ) ],
 			},
+			options: [ 'none', ...Object.keys( icons ) ],
 		},
 		action: {
 			table: {

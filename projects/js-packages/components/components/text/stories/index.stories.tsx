@@ -13,7 +13,8 @@ export default {
 			( obj, cur ) => ( {
 				...obj,
 				[ cur ]: {
-					control: { type: 'select', options: SPACING_VALUES },
+					control: { type: 'select' },
+					options: SPACING_VALUES,
 				},
 			} ),
 			{}
@@ -21,8 +22,8 @@ export default {
 		variant: {
 			control: {
 				type: 'select',
-				options: Object.keys( VARIANTS_MAPPING ),
 			},
+			options: Object.keys( VARIANTS_MAPPING ),
 		},
 	},
 	subcomponents: { H2, H3, Title },

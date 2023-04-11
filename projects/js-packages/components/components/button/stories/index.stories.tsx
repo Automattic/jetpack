@@ -72,26 +72,26 @@ export default {
 		variant: {
 			control: {
 				type: 'select',
-				options: [ 'primary', 'secondary', 'link', 'tertiary' ],
 			},
+			options: [ 'primary', 'secondary', 'link', 'tertiary' ],
 		},
 		size: {
 			control: {
 				type: 'select',
-				options: [ 'normal', 'small' ],
 			},
+			options: [ 'normal', 'small' ],
 		},
 		weight: {
 			control: {
 				type: 'select',
-				options: [ 'bold', 'regular' ],
 			},
+			options: [ 'bold', 'regular' ],
 		},
 		icon: {
 			control: {
 				type: 'select',
-				options: [ 'none', ...Object.keys( icons ) ],
 			},
+			options: [ 'none', ...Object.keys( icons ) ],
 		},
 	},
 	parameters: {

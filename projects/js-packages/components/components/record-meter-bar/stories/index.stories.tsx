@@ -5,7 +5,8 @@ export default {
 	component: RecordMeterBar,
 	argTypes: {
 		sortByCount: {
-			control: { type: 'select', options: [ undefined, 'ascending', 'descending' ] },
+			control: { type: 'select' },
+			options: [ undefined, 'ascending', 'descending' ],
 		},
 	},
 };

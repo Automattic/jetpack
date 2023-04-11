@@ -11,7 +11,8 @@ export default {
 	},
 	argTypes: {
 		slug: {
-			control: { type: 'select', options: getProductSlugs( true ) },
+			control: { type: 'select' },
+			options: getProductSlugs( true ),
 		},
 		isCard: {
 			control: { type: 'boolean' },

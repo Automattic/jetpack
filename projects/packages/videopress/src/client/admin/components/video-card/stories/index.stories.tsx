@@ -24,7 +24,8 @@ export default {
 	},
 	argTypes: {
 		thumbnail: {
-			control: { type: 'select', options: [ ...postersArray, 'none' ] },
+			control: { type: 'select' },
+			options: [ ...postersArray, 'none' ],
 		},
 	},
 } as ComponentMeta< typeof VideoCardComponent >;

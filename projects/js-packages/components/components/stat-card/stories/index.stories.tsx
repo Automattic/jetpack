@@ -13,7 +13,8 @@ export default {
 	},
 	argTypes: {
 		variant: {
-			control: { type: 'radio', options: [ 'square', 'horizontal' ] },
+			control: { type: 'radio' },
+			options: [ 'square', 'horizontal' ],
 		},
 		label: {
 			control: { type: 'text' },
