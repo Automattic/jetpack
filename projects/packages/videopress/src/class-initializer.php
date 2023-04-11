@@ -258,7 +258,7 @@ class Initializer {
 		$video_wrapper = '';
 		if ( $videopress_url ) {
 			$wp_embed      = new \WP_Embed();
-			$oembed_html   = $wp_embed->autoembed( $videopress_url );
+			$oembed_html   = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
 			$video_wrapper = sprintf(
 				'<div class="jetpack-videopress-player__wrapper">%s</div>',
 				$oembed_html
