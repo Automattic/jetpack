@@ -37,13 +37,15 @@ function get_image_url( $post_id ) {
  * @param string $text Text to use in the generated image.
  * @param string $image_url Image to use in the generated image.
  * @param string $template Template to use in the generated image.
+ * @param int    $blog_id ID of the site that will be generating the image.
  * @return array
  */
-function get_token_body( $text, $image_url, $template ) {
+function get_token_body( $text, $image_url, $template, $blog_id ) {
 	return array(
 		'text'      => $text,
 		'image_url' => $image_url,
 		'template'  => $template,
+		'blog_id'   => $blog_id,
 	);
 }
 
@@ -56,10 +58,11 @@ function get_token_body( $text, $image_url, $template ) {
  * @return string|WP_Error  The generated token or a WP_Error object if there's been a problem.
  */
 function fetch_token( $text, $image_url, $template ) {
-	$body            = get_token_body( $text, $image_url, $template );
+	$blog_id         = absint( \Jetpack_Options::get_option( 'id' ) );
+	$body            = get_token_body( $text, $image_url, $template, $blog_id );
 	$rest_controller = new REST_Controller();
 	$response        = Client::wpcom_json_api_request_as_blog(
-		sprintf( 'sites/%d/jetpack-social/generate-image-token', absint( \Jetpack_Options::get_option( 'id' ) ) ),
+		sprintf( 'sites/%d/jetpack-social/generate-image-token', $blog_id ),
 		'2',
 		array(
 			'headers' => array( 'content-type' => 'application/json' ),
