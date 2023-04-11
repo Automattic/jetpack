@@ -1,10 +1,8 @@
 import { Meta, Story, Canvas } from '@storybook/addon-docs';
 import Banner from '../index';
+import * as BannerStories from './index.stories';
 
-<Meta
-  title="Packages/VideoPress/Block Editor/Banner"
-  component={Banner}
-/>
+<Meta of={BannerStories} />
 
 # Banner
 A banner to show a message, with loading state control and customizable icon and call-to-action.

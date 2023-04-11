@@ -1,16 +1,10 @@
 import { Icon, postList } from '@wordpress/icons';
 import StatCard from '..';
-import Doc from './StatCard.mdx';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
 	title: 'JS Packages/Components/Stat Card',
 	component: StatCard,
-	parameters: {
-		docs: {
-			page: Doc,
-		},
-	},
 	argTypes: {
 		variant: {
 			control: { type: 'radio' },

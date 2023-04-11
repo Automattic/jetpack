@@ -1,18 +1,14 @@
 import { Meta, Story, Canvas } from '@storybook/addon-docs';
 import ClipboardButtonInput from '../index';
+import * as ClipboardButtonStories from './index.stories';
 
-<Meta
-  title="Packages/VideoPress/Clipboard Button Input"
-  component={ClipboardButtonInput}
-/>
+<Meta of={ClipboardButtonStories} />
 
 # ClipboardButtonInput
 
 ClipboardButtonInput is a React component used to display a text input field containing a button for copying the value of the input to a user's clipboard.
 
-<Canvas withSource="open">
-  <Story id="packages-videopress-clipboard-button-input--default" />
-</Canvas>
+<Canvas sourceState="shown" of={ClipboardButtonStories._default} />
 
 ## API
 

@@ -1,16 +1,6 @@
-/**
- * External dependencies
- */
 import { action } from '@storybook/addon-actions';
-/**
- * Internal dependencies
- */
 import { VideoCard as VideoCardComponent } from '..';
 import { postersArray, randomPoster } from '../../../mock';
-import Doc from './VideoCard.mdx';
-/**
- * Types
- */
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
@@ -18,9 +8,6 @@ export default {
 	component: VideoCardComponent,
 	parameters: {
 		layout: 'centered',
-		docs: {
-			page: Doc,
-		},
 	},
 	argTypes: {
 		thumbnail: {

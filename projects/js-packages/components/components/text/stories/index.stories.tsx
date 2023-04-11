@@ -1,5 +1,4 @@
 import Text, { BOX_MODEL_VALUES, H2, H3, Title, VARIANTS_MAPPING } from '../index';
-import TextMDXDocumentation from './Text-MDX-Documentation.mdx';
 import styles from './style.module.scss';
 import type { SpacingValue } from '../types';
 
@@ -27,11 +26,6 @@ export default {
 		},
 	},
 	subcomponents: { H2, H3, Title },
-	parameters: {
-		docs: {
-			page: TextMDXDocumentation,
-		},
-	},
 };
 
 const Template = args => <Text { ...args }>{ args.variant ?? 'body' }</Text>;

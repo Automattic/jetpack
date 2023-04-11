@@ -3,7 +3,6 @@ import Col from '../../layout/col';
 import Container from '../../layout/container';
 import Text, { H3 } from '../../text';
 import Button from '../index';
-import Doc from './Button.mdx';
 import styles from './style.module.scss';
 
 const { Icon: WPIcon, ...icons } = allIcons;
@@ -97,9 +96,6 @@ export default {
 	parameters: {
 		backgrounds: {
 			default: 'Jetpack Dashboard',
-		},
-		docs: {
-			page: Doc,
 		},
 	},
 };

@@ -1,23 +1,11 @@
-/**
- * Internal dependencies
- */
 import { RangeControl } from '@wordpress/components';
 import { useState } from 'react';
 import TimestampControl from '..';
-import Doc from './TimestampControl.mdx';
-/**
- * Types
- */
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Timestamp Control',
 	component: TimestampControl,
-	parameters: {
-		docs: {
-			page: Doc,
-		},
-	},
 } as ComponentMeta< typeof TimestampControl >;
 
 const Template: ComponentStory< typeof TimestampControl > = args => {

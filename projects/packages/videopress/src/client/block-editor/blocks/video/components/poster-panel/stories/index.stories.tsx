@@ -1,21 +1,9 @@
-/**
- * External dependencies
- */
 import React, { useState } from 'react';
-/**
- * Internal dependencies
- */
 import PosterPanel, { VideoHoverPreviewControl } from '..';
-import Doc from './PosterPanel.mdx';
 
 export default {
 	title: 'Packages/VideoPress/Block Editor/Poster Panel',
 	component: PosterPanel,
-	parameters: {
-		docs: {
-			page: Doc,
-		},
-	},
 	argTypes: {},
 };
 

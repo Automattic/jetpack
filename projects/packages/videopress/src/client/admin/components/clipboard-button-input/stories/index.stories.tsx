@@ -1,22 +1,10 @@
-/**
- * Internal dependencies
- */
 import { action } from '@storybook/addon-actions';
 import ClipboardButtonInput from '..';
-import Doc from './ClipboardButtonInput.mdx';
-/**
- * Last imports
- */
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Clipboard Button Input',
 	component: ClipboardButtonInput,
-	parameters: {
-		docs: {
-			page: Doc,
-		},
-	},
 } as ComponentMeta< typeof ClipboardButtonInput >;
 
 const Template: ComponentStory< typeof ClipboardButtonInput > = args => {

@@ -2,17 +2,11 @@ import { action } from '@storybook/addon-actions';
 import { Icon, mapMarker } from '@wordpress/icons';
 import { useState } from 'react';
 import { Input, SearchInput } from '..';
-import Doc from './Input.mdx';
 import type { ComponentStory, ComponentMeta } from '@storybook/react';
 
 export default {
 	title: 'Packages/VideoPress/Input',
 	component: Input,
-	parameters: {
-		docs: {
-			page: Doc,
-		},
-	},
 
 	argTypes: {
 		size: {

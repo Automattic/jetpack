@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { Button } from '@wordpress/components';
 import * as allIcons from '@wordpress/icons';
 import React from 'react';
 import Banner, { BlockBannerProps } from '..';
-/**
- * Internal dependencies
- */
-import Doc from './Banner.mdx';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const { Icon, ...icons } = allIcons;
@@ -21,11 +14,6 @@ type BannerStoryProps = BlockBannerProps & {
 export default {
 	title: 'Packages/VideoPress/Block Editor/Banner',
 	component: Banner,
-	parameters: {
-		docs: {
-			page: Doc,
-		},
-	},
 	argTypes: {
 		icon: {
 			control: {
