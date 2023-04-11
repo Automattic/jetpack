@@ -15,18 +15,18 @@
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
+	import { minifyJsExcludesStore, minifyCssExcludesStore } from '../../../stores/minify';
 	import { isModuleAvailableStore } from '../../../stores/modules';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
+	import ExcludesInput from '../elements/ExcludesInput.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
 	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
 	import ResizingUnavailable from '../elements/ResizingUnavailable.svelte';
 	import SuperCacheInfo from '../elements/SuperCacheInfo.svelte';
-	import MinifyCss from '../elements/minify/MinifyCSS.svelte';
-	import MinifyJs from '../elements/minify/MinifyJS.svelte';
 
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
@@ -199,7 +199,13 @@
 		</p>
 
 		<div slot="meta">
-			<MinifyJs />
+			<ExcludesInput
+				id="js-excludes-list"
+				inputLabel={__( 'Exclude JS Strings:', 'jetpack-boost' )}
+				buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
+				placeholder={__( 'Use comma to separate them', 'jetpack-boost' )}
+				bind:value={$minifyJsExcludesStore}
+			/>
 		</div>
 	</Module>
 
@@ -213,7 +219,13 @@
 		</p>
 
 		<div slot="meta">
-			<MinifyCss />
+			<ExcludesInput
+				id="css-excludes-list"
+				inputLabel={__( 'Exclude CSS Strings:', 'jetpack-boost' )}
+				buttonText={__( 'Exclude CSS Strings', 'jetpack-boost' )}
+				placeholder={__( 'Use comma to separate them', 'jetpack-boost' )}
+				bind:value={$minifyCssExcludesStore}
+			/>
 		</div>
 	</Module>
 

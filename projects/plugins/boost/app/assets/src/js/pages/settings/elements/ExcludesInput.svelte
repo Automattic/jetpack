@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { __, sprintf } from '@wordpress/i18n';
-	import PencilIcon from '../../../../svg/pencil.svg';
+	import PencilIcon from '../../../svg/pencil.svg';
 
 	export let id: string;
 	export let inputLabel: string;
@@ -56,7 +56,7 @@
 </div>
 
 <style lang="scss">
-	@use '../../../../../css/main/variables.scss' as *;
+	@use '../../../../css/main/variables.scss' as *;
 
 	.manage-excludes {
 		display: flex;
