@@ -33,13 +33,15 @@
 		</div>
 	{:else}
 		<div class="summary">
-			<div class="successes">
-				{sprintf(
-					/* Translators: %s refers to the list of excluded items. */
-					__( 'Except: %s', 'jetpack-boost' ),
-					value
-				)}
-			</div>
+			{#if value}
+				<div class="successes">
+					{sprintf(
+						/* Translators: %s refers to the list of excluded items. */
+						__( 'Except: %s', 'jetpack-boost' ),
+						value
+					)}
+				</div>
+			{/if}
 		</div>
 
 		<button
