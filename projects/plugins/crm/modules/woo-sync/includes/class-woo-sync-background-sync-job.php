@@ -1701,45 +1701,43 @@ class Woo_Sync_Background_Sync_Job {
 				// Add order item line
 				$data['lineitems'][] = $new_line_item;
 
-				// --- Process any present fee in the order --- //
-
-				$fees = $order->get_fees();
-
-				if ( is_array( $fees ) && count( $fees ) > 0 ) {
-
-					foreach ( $fees as $fee ) {
-						if ( $fee instanceof \WC_Order_Item_Fee ) {
-							$new_line_item = array(
-								'order'    => $order_post_id, // passed as parameter to this function
-								'currency' => $order_currency,
-								'quantity' => 1,
-								'price'    => $fee->get_amount( false ),
-								'fee'      => $fee->get_amount( false ),
-								'total'    => $fee->get_amount( false ),
-								'title'    => esc_html__( 'Fee', 'zero-bs-crm' ),
-								'desc'     => $fee->get_name(),
-								'tax'      => $fee->get_total_tax(),
-								'shipping' => 0.0,
-							);
-
-							$order_data['subtotal'] += $new_line_item['price'];
-
-							// Check for tax applied
-							if ( is_array( $item_tax_rate_ids ) && count( $item_tax_rate_ids ) > 0 ) {
-								$new_line_item['taxes'] = implode( ',', $item_tax_rate_ids );
-							}
-
-							// Add fee as an item to the invoice
-							$data['lineitems'][] = $new_line_item;
-						}
-					}
-				}
-
 				// add to tags where not alreday present
 				if ( !in_array( $item_data['name'], $order_tags ) ) {
 					$order_tags[] = $tag_product_prefix . $item_data['name'];
 				}
 
+			}
+
+			// --- Process any present fee in the order --- //
+			$fees = $order->get_fees();
+
+			if ( is_array( $fees ) && count( $fees ) > 0 ) {
+				foreach ( $fees as $fee ) {
+					if ( $fee instanceof \WC_Order_Item_Fee ) {
+						$new_line_item = array(
+							'order'    => $order_post_id, // passed as parameter to this function
+							'currency' => $order_currency,
+							'quantity' => 1,
+							'price'    => $fee->get_amount( false ),
+							'fee'      => $fee->get_amount( false ),
+							'total'    => $fee->get_amount( false ),
+							'title'    => esc_html__( 'Fee', 'zero-bs-crm' ),
+							'desc'     => $fee->get_name(),
+							'tax'      => $fee->get_total_tax(),
+							'shipping' => 0.0,
+						);
+
+						$order_data['subtotal'] += $new_line_item['price'];
+
+						// Check for tax applied
+						if ( is_array( $item_tax_rate_ids ) && count( $item_tax_rate_ids ) > 0 ) {
+							$new_line_item['taxes'] = implode( ',', $item_tax_rate_ids );
+						}
+
+						// Add fee as an item to the invoice
+						$data['lineitems'][] = $new_line_item;
+					}
+				}
 			}
 
 			// if the order has a coupon. Tag the contact with that coupon too, but only if from same store.
