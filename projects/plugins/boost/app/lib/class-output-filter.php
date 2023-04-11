@@ -91,11 +91,18 @@ class Output_Filter {
 	 * @return string Buffer data to be flushed to browser.
 	 */
 	public function tick( $buffer, $phase ) {
-		// Don't do anything if we're not support to do any filtering.
+		// Bail early if not filtering.
 		if ( ! $this->is_filtering ) {
 			return $buffer;
 		}
 
+		// Special case: If this is the first, last and only chunk, fake an empty 'previous' chunk to keep processing simple.
+		$is_last_chunk = ( $phase & PHP_OUTPUT_HANDLER_END ) > 0;
+		if ( $is_last_chunk && ! isset( $this->buffered_chunk ) ) {
+			$this->buffered_chunk = '';
+		}
+
+		// If there are no previous chunks, just store this one for the next tick.
 		if ( ! isset( $this->buffered_chunk ) ) {
 			$this->buffered_chunk = $buffer;
 
@@ -113,7 +120,7 @@ class Output_Filter {
 
 		// If the second part of the buffer is the last chunk,
 		// merge the buffer back together to ensure whole output.
-		if ( PHP_OUTPUT_HANDLER_END === $phase ) {
+		if ( $is_last_chunk ) {
 			// If more buffer chunks arrive, don't apply callbacks to them.
 			$this->is_filtering = false;
 
