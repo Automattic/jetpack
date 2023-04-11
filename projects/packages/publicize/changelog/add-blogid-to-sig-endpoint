@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added blog_id to token generation
