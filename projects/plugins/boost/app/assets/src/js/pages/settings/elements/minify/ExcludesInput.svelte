@@ -1,14 +1,22 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
 	import { __, sprintf } from '@wordpress/i18n';
 	import PencilIcon from '../../../../svg/pencil.svg';
 
 	export let id: string;
 	export let inputLabel: string;
 	export let buttonText: string;
-	export let initialValue: string;
 	export let placeholder: string;
-	export let value = initialValue;
+
+	export let value: string;
+	let storedValue = value;
 	let isEditing = false;
+
+	const dispatch = createEventDispatcher();
+	function handleSave() {
+		storedValue = value;
+		dispatch( 'update', value );
+	}
 
 	// While debugging
 	isEditing = true;
@@ -20,7 +28,9 @@
 			<label for={id}>{inputLabel}</label>
 			<input type="text" bind:value {placeholder} {id} />
 			<div class="buttons-container">
-				<button disabled={value === initialValue} on:click>{__( 'Save', 'jetpack-boost' )}</button>
+				<button disabled={value === storedValue} on:click={handleSave}
+					>{__( 'Save', 'jetpack-boost' )}</button
+				>
 				<button
 					on:click={() => {
 						isEditing = false;
