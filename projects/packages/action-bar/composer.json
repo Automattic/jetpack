@@ -12,6 +12,9 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "dev-master"
 	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
 	"autoload": {
 		"classmap": [
 			"src/"

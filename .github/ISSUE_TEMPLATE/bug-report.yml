@@ -26,6 +26,7 @@ body:
         - Backup
         - Boost
         - Beta
+        - CRM
         - Debug Helper
         - Migration
         - Protect
@@ -33,6 +34,8 @@ body:
         - Social
         - Super Cache
         - VaultPress
+        - VideoPress
+        - WordPress.com Features (mu-wpcom)
         - None / Other
       multiple: true
     validations:

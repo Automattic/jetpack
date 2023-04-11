@@ -15,7 +15,7 @@
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
-	import { modules } from '../../../stores/modules';
+	import { isModuleAvailableStore } from '../../../stores/modules';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
@@ -34,7 +34,7 @@
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
 
-	$: cloudCssAvailable = !! $modules[ 'cloud-css' ];
+	$: cloudCssAvailable = isModuleAvailableStore( 'cloud_css' );
 	const suggestRegenerate = suggestRegenerateDS.store;
 
 	async function resume() {
@@ -52,7 +52,7 @@
 
 <div class="jb-container--narrow">
 	<Module
-		slug="critical-css"
+		slug="critical_css"
 		on:enabled={resume}
 		on:mountEnabled={resume}
 		on:disabled={() => ( alreadyResumed = false )}
@@ -99,14 +99,14 @@
 		</div>
 
 		<div slot="cta">
-			{#if ! cloudCssAvailable}
+			{#if ! $cloudCssAvailable}
 				<PremiumCTA />
 			{/if}
 		</div>
 	</Module>
 
 	<Module
-		slug="cloud-css"
+		slug="cloud_css"
 		on:enabled={regenerateCriticalCss}
 		on:disabled={stopPollingCloudCssStatus}
 		on:mountEnabled={startPollingCloudStatus}
@@ -144,7 +144,7 @@
 		</div>
 	</Module>
 
-	<Module slug="render-blocking-js">
+	<Module slug="render_blocking_js">
 		<h3 slot="title">
 			{__( 'Defer Non-Essential JavaScript', 'jetpack-boost' )}
 		</h3>
@@ -159,7 +159,7 @@
 		</p>
 	</Module>
 
-	<Module slug="lazy-images">
+	<Module slug="lazy_images">
 		<h3 slot="title">{__( 'Lazy Image Loading', 'jetpack-boost' )}</h3>
 		<p slot="description">
 			<TemplatedString
@@ -173,7 +173,7 @@
 	</Module>
 
 	<div class="settings">
-		<Module slug="image-guide">
+		<Module slug="image_guide">
 			<h3 slot="title">{__( 'Image Guide', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 			<p slot="description">
 				{__(
@@ -201,7 +201,7 @@
 		</p>
 	</Module>
 
-	<Module slug="image-size-analysis">
+	<Module slug="image_size_analysis">
 		<h3 slot="title">
 			{__( 'Image Size Analysis', 'jetpack-boost' )}<span class="beta">Beta</span>
 		</h3>
@@ -214,6 +214,16 @@
 		<svelte:fragment slot="meta">
 			<ImageSizeAnalysisView />
 		</svelte:fragment>
+	</Module>
+
+	<Module slug="image_cdn">
+		<h3 slot="title">{__( 'Image CDN', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
+		<p slot="description">
+			{__(
+				`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.`,
+				'jetpack-boost'
+			)}
+		</p>
 	</Module>
 
 	<SuperCacheInfo />

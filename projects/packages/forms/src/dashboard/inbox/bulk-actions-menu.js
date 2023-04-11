@@ -1,34 +1,59 @@
-import { AntiSpamIcon } from '@automattic/jetpack-components';
-import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { Button } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, trash, archive, inbox } from '@wordpress/icons';
+import { doBulkAction } from '../data/responses';
+import { STORE_NAME } from '../state';
+import { ACTIONS, TABS } from './constants';
 
-const ActionsMenu = () => {
+const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } ) => {
+	const { fetchResponses, setLoading } = useDispatch( STORE_NAME );
+	const query = useSelect( select => select( STORE_NAME ).getResponsesQuery(), [] );
+
+	const onActionHandler = action => async () => {
+		try {
+			setLoading( true );
+			await doBulkAction( selectedResponses, action );
+			fetchResponses( query );
+			setSelectedResponses( [] );
+		} catch {
+			//TODO: Implement error handling
+		}
+	};
+
 	return (
-		<DropdownMenu
-			label={ __( 'Bulk actions', 'jetpack-forms' ) }
-			text={ __( 'Bulk actions', 'jetpack-forms' ) }
-			icon={ chevronDown }
-			popoverProps={ { placement: 'bottom-end' } }
-			toggleProps={ { variant: 'secondary', iconPosition: 'right' } }
-		>
-			{ ( { onClose } ) => (
-				<MenuGroup>
-					<MenuItem onClick={ onClose } icon={ <AntiSpamIcon size="22" /> } iconPosition="left">
-						{ __( 'Spam check', 'jetpack-forms' ) }
-					</MenuItem>
-					<MenuItem icon={ inbox } iconPosition="left">
-						{ __( 'Mark unread', 'jetpack-forms' ) }
-					</MenuItem>
-					<MenuItem icon={ archive } iconPosition="left">
-						{ __( 'Archive', 'jetpack-forms' ) }
-					</MenuItem>
-					<MenuItem icon={ trash } iconPosition="left">
-						{ __( 'Delete', 'jetpack-forms' ) }
-					</MenuItem>
-				</MenuGroup>
+		<>
+			{ currentView !== TABS.trash && (
+				<Button onClick={ onActionHandler( ACTIONS.moveToTrash ) } variant="secondary">
+					{ __( 'Move to trash', 'jetpack-forms' ) }
+				</Button>
 			) }
-		</DropdownMenu>
+
+			{ currentView === TABS.trash && (
+				<Button onClick={ onActionHandler( ACTIONS.removeFromTrash ) } variant="secondary">
+					{ __( 'Remove from trash', 'jetpack-forms' ) }
+				</Button>
+			) }
+
+			{ currentView !== TABS.spam && (
+				<Button onClick={ onActionHandler( ACTIONS.markAsSpam ) } variant="secondary">
+					{ __( 'Mark as spam', 'jetpack-forms' ) }
+				</Button>
+			) }
+
+			{ currentView === TABS.spam && (
+				<Button onClick={ onActionHandler( ACTIONS.markAsNotSpam ) } variant="secondary">
+					{ __( 'Remove from spam', 'jetpack-forms' ) }
+				</Button>
+			) }
+
+			{ /* Hiding this button until we're able to execute the action */ }
+			{ /*<Button*/ }
+			{ /*	variant="secondary"*/ }
+			{ /*>*/ }
+			{ /*	<AntiSpamIcon size="22"/>*/ }
+			{ /*	{ __( 'Spam check', 'jetpack-forms' ) }*/ }
+			{ /*</Button>*/ }
+		</>
 	);
 };
 
