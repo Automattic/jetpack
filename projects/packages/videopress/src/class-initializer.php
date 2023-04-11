@@ -241,12 +241,6 @@ class Initializer {
 			$block_attributes['muted']    = true;
 		}
 
-		// VideoPress URL
-		$videopress_url = Utils::get_video_press_url( $block_attributes['guid'], $block_attributes );
-		if ( ! empty( $videopress_url ) ) {
-			$videopress_url = wp_kses_post( $videopress_url );
-		}
-
 		$figure_template = '
 		<figure class="%1$s" style="%2$s">			
 			%3$s
@@ -255,11 +249,15 @@ class Initializer {
 		</figure>
 		';
 
+		// VideoPress URL
+		$videopress_url = Utils::get_video_press_url( $block_attributes['guid'], $block_attributes );
+
 		$video_wrapper = '';
 		if ( $videopress_url ) {
-			$wp_embed      = new \WP_Embed();
-			$oembed_html   = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
-			$video_wrapper = sprintf(
+			$videopress_url = wp_kses_post( $videopress_url );
+			$wp_embed       = new \WP_Embed();
+			$oembed_html    = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
+			$video_wrapper  = sprintf(
 				'<div class="jetpack-videopress-player__wrapper">%s</div>',
 				$oembed_html
 			);
