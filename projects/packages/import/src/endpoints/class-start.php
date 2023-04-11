@@ -143,6 +143,7 @@ class Start extends \WP_REST_Controller {
 	private function get_posts_max_id() {
 		global $wpdb;
 
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$max_id = $wpdb->get_var( "SELECT MAX(ID) FROM $wpdb->posts" );
 
 		return $max_id;
