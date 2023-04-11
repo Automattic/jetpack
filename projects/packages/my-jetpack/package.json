@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
-	"version": "2.10.1",
+	"version": "2.10.2-alpha",
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
@@ -46,8 +46,8 @@
 	],
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.20.12",
-		"@babel/preset-env": "7.20.2",
+		"@babel/core": "7.21.4",
+		"@babel/preset-env": "7.21.4",
 		"@storybook/addons": "6.5.16",
 		"@storybook/client-api": "6.5.16",
 		"@storybook/preview-web": "6.5.16",

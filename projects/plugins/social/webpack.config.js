@@ -102,4 +102,29 @@ module.exports = [
 			],
 		},
 	},
+	{
+		...socialWebpackConfig,
+		entry: {
+			review: './src/js/review-prompt.js',
+		},
+		module: {
+			...socialWebpackConfig.module,
+			rules: [
+				...socialWebpackConfig.module.rules,
+				// Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [
+						{
+							loader: 'postcss-loader',
+							options: {
+								postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
+							},
+						},
+						'sass-loader',
+					],
+				} ),
+			],
+		},
+	},
 ];
