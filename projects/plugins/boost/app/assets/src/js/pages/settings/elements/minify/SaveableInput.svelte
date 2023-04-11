@@ -8,7 +8,10 @@
 	export let initialValue: string;
 	export let placeholder: string;
 	export let value = initialValue;
-	let isEditing = true;
+	let isEditing = false;
+
+	// While debugging
+	isEditing = true;
 </script>
 
 <div class="jb-critical-css__meta">
