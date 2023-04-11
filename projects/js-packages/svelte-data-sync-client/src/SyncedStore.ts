@@ -111,7 +111,9 @@ export class SyncedStore< T > {
 		if ( signal.aborted ) {
 			return;
 		}
+		this.pending.start();
 		const result = await this.synchronize( prevValue, value );
+		this.pending.stop();
 		if ( signal.aborted ) {
 			return;
 		}

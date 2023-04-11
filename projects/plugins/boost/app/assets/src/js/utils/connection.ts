@@ -9,8 +9,8 @@ import { isModuleEnabledStore } from '../stores/modules';
 export async function onConnectionComplete(): Promise< void > {
 	await config.refresh();
 
-	// Request fresh Cloud CSS if cloud-css is enabled
-	if ( get( isModuleEnabledStore( 'cloud-css' ) ) ) {
+	// Request fresh Cloud CSS if cloud_css is enabled
+	if ( get( isModuleEnabledStore( 'cloud_css' ) ) ) {
 		await regenerateCriticalCss();
 	}
 }

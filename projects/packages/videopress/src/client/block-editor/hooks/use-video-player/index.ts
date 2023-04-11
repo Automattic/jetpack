@@ -114,14 +114,15 @@ const useVideoPlayer = (
 	const wasPreviewOnHoverEnabled = usePrevious( isPreviewOnHoverEnabled );
 	const wasPreviewOnHoverJustEnabled = isPreviewOnHoverEnabled && ! wasPreviewOnHoverEnabled;
 
+	const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
+
 	// Listen player events.
 	useEffect( () => {
-		if ( isRequestingPreview ) {
+		if ( ! sandboxIFrameWindow ) {
 			return;
 		}
 
-		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
-		if ( ! sandboxIFrameWindow ) {
+		if ( isRequestingPreview ) {
 			return;
 		}
 
@@ -132,25 +133,23 @@ const useVideoPlayer = (
 			// Remove the listener when the component is unmounted.
 			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
 		};
-	}, [ iFrameRef, isRequestingPreview, wasPreviewOnHoverJustEnabled, previewOnHover ] );
+	}, [ sandboxIFrameWindow, isRequestingPreview, wasPreviewOnHoverJustEnabled, previewOnHover ] );
 
 	const play = useCallback( () => {
-		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
 		}
 
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_play' }, '*' );
-	}, [ iFrameRef, playerIsReady ] );
+	}, [ iFrameRef, playerIsReady, sandboxIFrameWindow ] );
 
 	const pause = useCallback( () => {
-		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
 		}
 
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_pause' }, '*' );
-	}, [ iFrameRef, playerIsReady ] );
+	}, [ iFrameRef, playerIsReady, sandboxIFrameWindow ] );
 
 	useEffect( () => {
 		if ( ! wrapperElement || ! isPreviewOnHoverEnabled ) {
@@ -166,6 +165,41 @@ const useVideoPlayer = (
 			wrapperElement.removeEventListener( 'mouseleave', pause );
 		};
 	}, [ isPreviewOnHoverEnabled, wrapperElement, playerIsReady ] );
+
+	// Move the video to the "Starting point" when it changes.
+	useEffect( () => {
+		if ( ! playerIsReady || ! previewOnHover ) {
+			return;
+		}
+
+		if ( ! sandboxIFrameWindow ) {
+			return;
+		}
+
+		sandboxIFrameWindow.postMessage(
+			{ event: 'videopress_action_set_currenttime', currentTime: previewOnHover.atTime / 1000 },
+			{ targetOrigin: '*' }
+		);
+	}, [ previewOnHover?.atTime, playerIsReady, sandboxIFrameWindow ] );
+
+	// Move the video to the "duration" when it changes.
+	useEffect( () => {
+		if ( ! playerIsReady || ! previewOnHover ) {
+			return;
+		}
+
+		if ( ! sandboxIFrameWindow ) {
+			return;
+		}
+
+		sandboxIFrameWindow.postMessage(
+			{
+				event: 'videopress_action_set_currenttime',
+				currentTime: ( previewOnHover.atTime + previewOnHover.duration ) / 1000,
+			},
+			{ targetOrigin: '*' }
+		);
+	}, [ previewOnHover?.duration, playerIsReady, sandboxIFrameWindow ] );
 
 	return {
 		playerIsReady,

@@ -1,59 +1,42 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
-	import { __ } from '@wordpress/i18n';
-	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import Toggle from '../../../elements/Toggle.svelte';
-	import {
-		isModuleAvailableStore,
-		isModuleEnabledStore,
-		updateModuleState,
-	} from '../../../stores/modules';
+	import { modulesState, modulesStateClient, updateModuleState } from '../../../stores/modules';
 
-	export let slug;
+	export let slug: string;
 
 	const dispatch = createEventDispatcher();
 
-	const isEnabled = isModuleEnabledStore( slug );
-	const isAvailable = isModuleAvailableStore( slug );
+	$: isModuleActive = $modulesState[ slug ].active;
+	$: isModuleAvailable = $modulesState[ slug ].available;
 
-	let error = null;
-	let isLoading = false;
+	const isPending = modulesStateClient.pending;
 
 	async function handleToggle() {
-		if ( isLoading ) {
-			return;
+		const previousState = isModuleActive;
+		const result = await updateModuleState( slug, ! isModuleActive );
+		const state = result[ slug ].active;
+
+		if ( previousState !== state ) {
+			const eventName = state === true ? 'enabled' : 'disabled';
+			dispatch( eventName );
 		}
-
-		error = null;
-		isLoading = true;
-
-		try {
-			if ( await updateModuleState( slug, ! $isEnabled ) ) {
-				dispatch( 'enabled' );
-			} else {
-				dispatch( 'disabled' );
-			}
-		} catch ( caughtError ) {
-			error = caughtError;
-		}
-
-		isLoading = false;
 	}
 
 	onMount( async () => {
-		if ( $isEnabled ) {
+		if ( isModuleAvailable && isModuleActive ) {
 			dispatch( 'mountEnabled' );
 		}
 	} );
 </script>
 
-{#if $isAvailable}
+{#if isModuleAvailable}
 	<div class="jb-feature-toggle">
 		<div class="jb-feature-toggle__toggle">
 			<Toggle
 				id={`jb-feature-toggle-${ slug }`}
-				checked={$isEnabled}
-				bind:disabled={isLoading}
+				checked={isModuleActive}
+				disabled={$isPending}
 				on:click={handleToggle}
 			/>
 		</div>
@@ -67,17 +50,13 @@
 			<div class="jb-feature-toggle__content">
 				<slot />
 
-				{#if error}
-					<ErrorNotice title={__( 'Failed to toggle feature', 'jetpack-boost' )} {error} />
-				{/if}
-
-				{#if $isEnabled}
+				{#if isModuleActive}
 					<slot name="meta" />
+
+					<slot name="notice" />
+
+					<slot name="cta" />
 				{/if}
-
-				<slot name="notice" />
-
-				<slot name="cta" />
 			</div>
 		</div>
 	</div>

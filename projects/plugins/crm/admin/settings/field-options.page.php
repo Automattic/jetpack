@@ -460,12 +460,12 @@ if ( isset( $sbupdated ) ) {
 
 								if ( empty( $zbsFunnelStr ) ) {
 									// } Defaults:
-									$zbsFunnelStr = 'Lead,Contacted,Customer,Upsell'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									$zbsFunnelStr = 'Lead,Customer'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								}
 
 								?>
 								<input type="text" name="zbs-funnel" id="zbs-funnel" value="<?php echo esc_attr( $zbsFunnelStr ); ?>" class="form-control" />
-								<p style="margin-top:4px"><?php esc_html_e( 'Enter which statuses you want to display in the funnel. Starting at the top of the funnel', 'zero-bs-crm' ); ?>. e.g. Lead,Contacted,Customer,Upsell as a CSV value</p>
+								<p style="margin-top:4px"><?php esc_html_e( 'Enter which statuses you want to display in the funnel. Starting at the top of the funnel', 'zero-bs-crm' ); ?>. e.g. Lead,Customer as a CSV value</p>
 							</td>
 						</tr>
 

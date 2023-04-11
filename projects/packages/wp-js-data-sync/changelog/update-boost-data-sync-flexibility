@@ -1,4 +1,0 @@
-Significance: major
-Type: changed
-
-Refactored WP JS Data Sync to a more flexible approach and use schemas for ensuring the data is the correct shape.
