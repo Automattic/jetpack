@@ -812,7 +812,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						ARRAY_FILTER_USE_KEY
 					);
 
-					if ( is_empty( $filtered_value ) ) {
+					if ( empty( $filtered_value ) ) {
 						break;
 					}
 
