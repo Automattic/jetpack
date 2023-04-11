@@ -1,13 +1,29 @@
+@use "sass:math";
+
+$bar_height: 42px;
+$label_z_index: 50;
+$score_pointer_size: 6px;
+$no_boost_score_size: 28px;
+
+%score-pill {
+	background-color: #fff;
+	border-radius: $bar_height;
+	height: $bar_height;
+	display: flex;
+	align-items: center;
+	border: 2px solid transparent;
+}
+
 .jb-score-bar {
 	width: 100%;
 	display: flex;
 
 
 	&--mobile { // .jb-score-bar--mobile
-		margin-bottom: $halfling;
+		margin-bottom: 1.5rem;
 	}
 
-	@include breakpoint(xs) {
+	@media ( max-width: 767px ) {
 		flex-direction: column;
 		&__label {
 			background-color: transparent;
@@ -33,7 +49,7 @@
 		font-size: 14px;
 		position: relative;
 
-		@include breakpoint(sm) {
+		@media ( max-width: 767px ) {
 			padding-left: 15px;
 			padding-right: 15px;
 			width: 200px;
@@ -61,7 +77,7 @@
 		max-width: 100%;
 		position: relative;
 		z-index: $label_z_index - 10;
-		@include breakpoint(sm) {
+		@media (min-width: 768px) {
 			width: calc(100% + #{math.div($bar-height, 2)});
 			margin-left: math.div( -$bar_height, 2) ;
 		}
@@ -76,7 +92,7 @@
 		will-change: width;
 		width: 0;
 		position: relative;
-		@include breakpoint(xs) {
+		@media (max-width: 767px) {
 			min-width: $bar_height + 1px;
 			border-radius: inherit;
 		}
@@ -119,8 +135,7 @@
 	}
 
 	&__no_boost_score_tooltip {
-		@include box-shadow();
-
+		box-shadow: 0 0 20px 0 rgb(170 170 170 / 28%);
 		position: absolute;
 		top: -62px;
 		left: -10em;
@@ -156,14 +171,14 @@
 	}
 
 	.fill-good {
-		background-color: $jetpack_green_40;
+		background-color: #069e08;
 	}
 
 	.fill-mediocre {
-		background-color: $orange_20;
+		background-color: #faa754;
 	}
 
 	.fill-bad {
-		background-color: $red_50;
+		background-color: #d63638;
 	}
 }
