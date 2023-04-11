@@ -86,7 +86,9 @@ export const BoostScoreBar: FunctionComponent< BoostScoreBarProps > = ( {
 						>
 							{ prevScore }
 							{ noBoostScoreTooltip && (
-								<div className="jb-score-bar__no_boost_score_tooltip">{ noBoostScoreTooltip }</div>
+								<div role="tooltip" className="jb-score-bar__no_boost_score_tooltip">
+									{ noBoostScoreTooltip }
+								</div>
 							) }
 						</div>
 					) }
