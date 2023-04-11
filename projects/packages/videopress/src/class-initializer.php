@@ -180,10 +180,11 @@ class Initializer {
 	/**
 	 * VideoPress video block render method
 	 *
-	 * @param array $block_attributes - Block attributes.
+	 * @param array  $block_attributes - Block attributes.
+	 * @param string $content          - Block markup.
 	 * @return string                    Block markup.
 	 */
-	public static function render_videopress_video_block( $block_attributes ) {
+	public static function render_videopress_video_block( $block_attributes, $content ) {
 		// VideoPress URL
 		$videopress_url = Utils::get_video_press_url( $block_attributes['guid'], $block_attributes );
 
@@ -197,6 +198,31 @@ class Initializer {
 		$max_width = isset( $block_attributes['maxWidth'] ) ? $block_attributes['maxWidth'] : null;
 		if ( $max_width && $max_width !== '100%' ) {
 			$style = sprintf( 'max-width: %s; margin: auto;', $max_width );
+		}
+
+		/*
+		 * <figcaption /> element
+		 * Caption is stored into the block attributes,
+		 * but also it was stored into the <figcaption /> element,
+		 * meaning that it could be stored in two different places.
+		 */
+		$figcaption = '';
+
+		// Caption from block attributes
+		$caption = isset( $block_attributes['caption'] ) ? $block_attributes['caption'] : null;
+
+		/*
+		 * If the caption is not stored into the block attributes,
+		 * try to get it from the <figcaption /> element.
+		 */
+		if ( $caption === null ) {
+			preg_match( '/<figcaption>(.*?)<\/figcaption>/', $content, $matches );
+			$caption = isset( $matches[1] ) ? $matches[1] : null;
+		}
+
+		// If we have a caption, create the <figcaption /> element.
+		if ( $caption !== null ) {
+			$figcaption = sprintf( '<figcaption>%s</figcaption>', $caption );
 		}
 
 		// Preview On Hover data
@@ -233,14 +259,6 @@ class Initializer {
 			$video_wrapper = sprintf(
 				'<div class="jetpack-videopress-player__wrapper">%s</div>',
 				$oembed_html
-			);
-		}
-
-		$figcaption = '';
-		if ( ! empty( $caption ) ) {
-			$figcaption = sprintf(
-				'<figcaption>%s</figcaption>',
-				$caption
 			);
 		}
 
