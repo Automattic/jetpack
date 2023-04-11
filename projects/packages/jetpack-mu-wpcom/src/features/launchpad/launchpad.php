@@ -7,7 +7,7 @@
 
 namespace A8C\Launchpad;
 
-const TASKS = array(
+const TASK_DEFINITIONS = array(
 	'setup_newsletter'
 		=> array(
 			'id'        => 'setup_newsletter',
@@ -125,13 +125,54 @@ const TASKS = array(
 );
 
 const CHECKLIST_DEFINITIONS = array(
-	'newsletter' => array(
+	'build'           => array(
+		'setup_general',
+		'design_selected',
+		'first_post_published',
+		'design_edited',
+		'site_launched',
+	),
+	'free'            => array(
+		'setup_free',
+		'design_selected',
+		'domain_upsell',
+		'first_post_published',
+		'design_edited',
+		'site_launched',
+	),
+	'link-in-bio'     => array(
+		'design_selected',
+		'setup_link_in_bio',
+		'plan_selected',
+		'links_added',
+		'link_in_bio_launched',
+	),
+	'link-in-bio-tld' => array(
+		'design_selected',
+		'setup_link_in_bio',
+		'plan_selected',
+		'links_added',
+		'link_in_bio_launched',
+	),
+	'newsletter'      => array(
 		'setup_newsletter',
 		'plan_selected',
 		'subscribers_added',
 		'verify_email',
 		'first_post_published_newsletter',
 		'first_post_published',
+	),
+	'videopress'      => array(
+		'videopress_setup',
+		'plan_selected',
+		'videopress_upload',
+		'videopress_launched',
+	),
+	'write'           => array(
+		'setup_write',
+		'design_selected',
+		'first_post_published',
+		'site_launched',
 	),
 );
 
@@ -166,7 +207,7 @@ function build_checklist( $checklist_slug ) {
 		return $checklist;
 	}
 	foreach ( CHECKLIST_DEFINITIONS[ $checklist_slug ] as $task_id ) {
-		$checklist[] = TASKS[ $task_id ];
+		$checklist[] = TASK_DEFINITIONS[ $task_id ];
 	}
 	return $checklist;
 }
