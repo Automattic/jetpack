@@ -5,8 +5,6 @@
  * @package A8C\Launchpad
  */
 
-namespace A8C\Launchpad;
-
 const TASK_DEFINITIONS = array(
 	'setup_newsletter'
 		=> array(
