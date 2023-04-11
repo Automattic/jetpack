@@ -17,13 +17,13 @@ $no_boost_score_size: 28px;
 .jb-score-bar {
 	width: 100%;
 	display: flex;
-
+	color: var(--jp-gray-70);
 
 	&--mobile { // .jb-score-bar--mobile
 		margin-bottom: 1.5rem;
 	}
 
-	@media ( max-width: 767px ) {
+	@media (max-width: 767px) {
 		flex-direction: column;
 		&__label {
 			background-color: transparent;
@@ -49,7 +49,7 @@ $no_boost_score_size: 28px;
 		font-size: 14px;
 		position: relative;
 
-		@media ( max-width: 767px ) {
+		@media (min-width: 768px) {
 			padding-left: 15px;
 			padding-right: 15px;
 			width: 200px;
@@ -79,7 +79,7 @@ $no_boost_score_size: 28px;
 		z-index: $label_z_index - 10;
 		@media (min-width: 768px) {
 			width: calc(100% + #{math.div($bar-height, 2)});
-			margin-left: math.div( -$bar_height, 2) ;
+			margin-left: math.div(-$bar_height, 2) ;
 		}
 	}
 
@@ -109,6 +109,7 @@ $no_boost_score_size: 28px;
 		top: $score_pointer_size;
 		width: $no_boost_score_size;
 		height: $no_boost_score_size;
+		line-height: 1.625;
 		font-size: 0.7em;
 		text-align: center;
 		cursor: pointer;

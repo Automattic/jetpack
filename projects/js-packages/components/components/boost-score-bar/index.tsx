@@ -25,10 +25,10 @@ export const BoostScoreBar: FunctionComponent< BoostScoreBarProps > = ( {
 
 	const getIcon = () => {
 		if ( scoreBarType === 'desktop' ) {
-			return <Gridicon icon="computer" />;
+			return <Gridicon icon="computer" size={ 24 } />;
 		}
 
-		return <Gridicon icon="phone" />;
+		return <Gridicon icon="phone" size={ 24 } />;
 	};
 
 	const getFillColor = () => {
