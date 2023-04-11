@@ -92,4 +92,33 @@ class UtilsTest extends BaseTestCase {
 		$this->assertStringContainsString( 'useAverageColor=0', $url );
 	}
 
+	/**
+	 * Test the get_video_press_url with poster URL.
+	 */
+	public function test_get_video_press_url_posterUrl() {
+		$guid = '3Nq0kSMu';
+
+		// Test with provided poster URL.
+		$attributes_with_poster = array(
+			'poster' => 'http://localhost/wp-content/uploads/2023/03/poster.jpg',
+		);
+
+		$url_with_poster = Utils::get_video_press_url( $guid, $attributes_with_poster );
+		$this->assertStringContainsString( 'posterUrl=' . rawurlencode( $attributes_with_poster['poster'] ), $url_with_poster );
+
+		// Test with provided empty poster URL.
+		$attributes_without_poster = array(
+			'poster' => '',
+		);
+
+		$url_witt_empty_poster = Utils::get_video_press_url( $guid, $attributes_without_poster );
+		$this->assertStringNotContainsString( 'posterUrl', $url_witt_empty_poster );
+
+		// Test without provided poster URL.
+		$attributes_without_poster = array();
+
+		$url_without_poster = Utils::get_video_press_url( $guid, $attributes_without_poster );
+		$this->assertStringNotContainsString( 'posterUrl', $url_without_poster );
+	}
+
 }
