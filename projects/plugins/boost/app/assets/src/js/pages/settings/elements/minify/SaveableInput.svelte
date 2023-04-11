@@ -20,7 +20,7 @@
 			<label for={id}>{inputLabel}</label>
 			<input type="text" bind:value {placeholder} {id} />
 			<div class="buttons-container">
-				<button on:click>{__( 'Save', 'jetpack-boost' )}</button>
+				<button disabled={value === initialValue} on:click>{__( 'Save', 'jetpack-boost' )}</button>
 				<button
 					on:click={() => {
 						isEditing = false;
@@ -102,5 +102,12 @@
 	.buttons-container button:last-child {
 		margin-right: 0;
 		background-color: transparent;
+	}
+
+	.buttons-container button[disabled] {
+		border-color: $gray-5;
+		background-color: $gray-5;
+		color: $gray-20;
+		cursor: not-allowed;
 	}
 </style>
