@@ -383,7 +383,7 @@ $settings      = $zbs->settings->getAll();
 
 					<label><?php esc_html_e( 'Enable Invoices', 'zero-bs-crm' ); ?></label>
 					<p><?php esc_html_e( "You can run Jetpack CRM with or without Invoicing. We recommend you use this though, as it's very useful (you can invoice online!)", 'zero-bs-crm' ); ?></p>
-					<p class="zbs-extra"><?php esc_html_e( 'Accept online payments with', 'zero-bs-crm' ); ?> <a href="https://jetpackcrm.com/product/invoicing-pro/?utm_content=zbsplugin_welcomewiz" target="_blank">Invoicing Pro</a> <?php esc_html_e( '(Let your clients pay with Stripe or PayPal)', 'zero-bs-crm' ); ?></p>
+					<div class="zbs-extrainfo"><?php esc_html_e( 'Accept online payments with', 'zero-bs-crm' ); ?> <a href="https://jetpackcrm.com/product/invoicing-pro/?utm_content=zbsplugin_welcomewiz" target="_blank" style="color:#0073aa;">Invoicing Pro</a> <?php esc_html_e( '(Let your clients pay with Stripe or PayPal)', 'zero-bs-crm' ); ?></div>
 					
 				</div>
 
@@ -404,7 +404,7 @@ $settings      = $zbs->settings->getAll();
 
 					<label><?php esc_html_e( 'Enable WooSync', 'zero-bs-crm' ); ?></label>
 					<p><?php esc_html_e( 'Automatically import all your customers, transactions, and invoices from WooCommerce, a full-featured eCommerce solution for WordPress.', 'zero-bs-crm' ); ?></p>
-					<p class="zbs-extra"><?php esc_html_e( 'Note that you will also need a site that has the free WooCommerce plugin installed.', 'zero-bs-crm' ); ?></p>
+					<div class="zbs-extrainfo"><?php esc_html_e( 'Note that you will also need a site that has the free WooCommerce plugin installed.', 'zero-bs-crm' ); ?></div>
 					
 
 				</div>
@@ -442,7 +442,7 @@ $settings      = $zbs->settings->getAll();
 				$em    = $current_user->user_email;
 				?>
 				<h3><?php esc_html_e( 'Leverage your new CRM! (BONUSES)', 'zero-bs-crm' ); ?></h3>
-				<p style="font-size:16px;color:#e06d17"><strong><?php esc_html_e( 'Join the Jetpack CRM community today', 'zero-bs-crm' ); ?>:</strong><br />(<?php esc_html_e( 'Bonuses, Critical update notifications', 'zero-bs-crm' ); ?>.)</p>
+				<p style="font-size:16px;color:#000"><label><?php esc_html_e( 'Join the Jetpack CRM community today', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Gain access to exclusive bonuses and critical update notifications.', 'zero-bs-crm' ); ?></p>
 
 				<p style="text-align:center">
 					<input type="hidden" id="zbs_crm_subblogname" name="zbs_crm_subblogname" value="<?php bloginfo( 'name' ); ?>" />
