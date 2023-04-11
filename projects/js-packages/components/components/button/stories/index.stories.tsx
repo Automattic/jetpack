@@ -172,6 +172,22 @@ ButtonLink.args = {
 	variant: 'link',
 };
 
+export const ButtonExternalLink = Template.bind( {} );
+ButtonExternalLink.argTypes = {
+	...disableVariant,
+	...disableDisabled,
+	...disableIcon,
+	...disableIsLoading,
+	...disableIsDestructive,
+	...disableClassName,
+	...disableFullWidth,
+};
+ButtonExternalLink.args = {
+	size: 'normal',
+	children: 'Jetpack Button',
+	variant: 'external-link',
+};
+
 export const Icon = Template.bind( {} );
 Icon.argTypes = {
 	...disableIcon,
