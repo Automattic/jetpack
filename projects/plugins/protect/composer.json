@@ -6,7 +6,7 @@
 	"require": {
 		"ext-json": "*",
 		"automattic/jetpack-assets": "^1.17.34",
-		"automattic/jetpack-admin-ui": "^0.2.17",
+		"automattic/jetpack-admin-ui": "^0.2.19",
 		"automattic/jetpack-autoloader": "^2.11.18",
 		"automattic/jetpack-composer-plugin": "^1.1.10",
 		"automattic/jetpack-config": "^1.15.1",
@@ -16,8 +16,8 @@
 		"automattic/jetpack-sync": "^1.47.4",
 		"automattic/jetpack-transport-helper": "^0.1.4",
 		"automattic/jetpack-plans": "^0.2.10",
-		"automattic/jetpack-waf": "^0.11.0",
-		"automattic/jetpack-status": "^1.16.3"
+		"automattic/jetpack-waf": "^0.11.2",
+		"automattic/jetpack-status": "^1.16.4"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
