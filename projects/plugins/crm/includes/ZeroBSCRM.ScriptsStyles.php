@@ -561,6 +561,9 @@ function zeroBSCRM_admin_styles_homedash(){
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
 	wp_register_script('zerobscrmjs-dash' , ZEROBSCRM_URL .'js/ZeroBSCRM.admin.dash'.wp_scripts_get_suffix().'.js', array('jquery'), $zbs->version);
 	wp_enqueue_script( 'zerobscrmjs-dash');
+
+	wp_enqueue_script( 'jpcrm-funnel-js', ZEROBSCRM_URL . 'js/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.js', array(), $zbs->version, false );
+	wp_enqueue_style( 'jpcrm-funnel-css', ZEROBSCRM_URL . 'css/jpcrm-admin-funnel' . wp_scripts_get_suffix() . '.css', array(), $zbs->version );
 	
 }
 

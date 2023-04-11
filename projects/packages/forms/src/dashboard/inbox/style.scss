@@ -408,6 +408,18 @@ $action-bar-height: 88px;
 .jp-forms__inbox-response-meta-key,
 .jp-forms__inbox-response-meta-value {
 	display: table-cell;
+	white-space: nowrap;
+}
+
+.jp-forms__inbox-response-meta-key {
+	padding-right: 8px;
+}
+
+.jp-forms__inbox-response-meta-value {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 80%;
+	max-width: 0;
 }
 
 .jp-forms__inbox-response-separator {
