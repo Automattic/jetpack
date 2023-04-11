@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "899d63f75ca0475080c54cea1a755b03",
+    "content-hash": "71b836df925660da5bb52ccee1bbb3f0",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -223,22 +223,25 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v1.3.0",
+            "version": "v1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "478dadc0a36a25436869751cc491ed1058cbf8d3"
+                "reference": "cc1fcce3bc750d417e50ca21c2b51b66db4564c2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/478dadc0a36a25436869751cc491ed1058cbf8d3",
-                "reference": "478dadc0a36a25436869751cc491ed1058cbf8d3",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/cc1fcce3bc750d417e50ca21c2b51b66db4564c2",
+                "reference": "cc1fcce3bc750d417e50ca21c2b51b66db4564c2",
                 "shasum": ""
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.3.2",
                 "automattic/wordbless": "0.4.2",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -266,9 +269,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v1.3.0"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v1.3.1"
             },
-            "time": "2023-04-04T21:33:01+00:00"
+            "time": "2023-04-10T11:43:55+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
