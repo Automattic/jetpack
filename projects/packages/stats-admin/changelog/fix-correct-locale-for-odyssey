@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats Admin: change site locale format from only language code to real locale e.g. `en-us`

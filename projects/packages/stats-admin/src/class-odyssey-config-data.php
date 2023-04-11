@@ -53,6 +53,10 @@ class Odyssey_Config_Data {
 			'sections'                       => array(),
 			// Features are inlined @see https://github.com/Automattic/wp-calypso/pull/70122
 			'features'                       => array(),
+			// Intended for apps that do not use redux.
+			'gmt_offset'                     => $this->get_gmt_offset(),
+			// TODO: check whether this works with Pressable.
+			'odyssey_stats_base_url'         => admin_url( 'admin.php?page=stats' ),
 			'intial_state'                   => array(
 				'currentUser' => array(
 					'id'           => 1000,
@@ -75,8 +79,9 @@ class Odyssey_Config_Data {
 							'products'      => array(),
 							'plan'          => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
 							'options'       => array(
-								'wordads'   => ( new Modules() )->is_active( 'wordads' ),
-								'admin_url' => admin_url(),
+								'wordads'    => ( new Modules() )->is_active( 'wordads' ),
+								'admin_url'  => admin_url(),
+								'gmt_offset' => $this->get_gmt_offset(),
 							),
 							'stats_notices' => ( new Notices() )->get_notices_to_show(),
 						),
@@ -85,6 +90,15 @@ class Odyssey_Config_Data {
 				),
 			),
 		);
+	}
+
+	/**
+	 * Get the current site GMT Offset.
+	 *
+	 * @return float The current site GMT Offset by hours.
+	 */
+	protected function get_gmt_offset() {
+		return (float) get_option( 'gmt_offset' );
 	}
 
 	/**
@@ -105,20 +119,14 @@ class Odyssey_Config_Data {
 	 * Get locale acceptable by Calypso.
 	 */
 	protected function get_site_locale() {
-		// Stolen from `projects/plugins/jetpack/modules/sitemaps/sitemap-builder.php`
-
-		/*
-		 * Trim the locale to an ISO 639 language code as required by Google.
-		 * Special cases are zh-cn (Simplified Chinese) and zh-tw (Traditional Chinese).
-		 * @link https://www.loc.gov/standards/iso639-2/php/code_list.php
+		/**
+		 * In WP, locales are formatted as LANGUAGE_REGION, for example `en`, `en_US`, `es_AR`,
+		 * but Calypso expects language-region, e.g. `en-us`, `en`,  `es-ar`. So we need to convert
+		 * them to lower case and replace the underscore with a dash.
 		 */
 		$locale = strtolower( get_locale() );
+		$locale = str_replace( '_', '-', $locale );
 
-		if ( in_array( $locale, array( 'zh_tw', 'zh_cn' ), true ) ) {
-			$locale = str_replace( '_', '-', $locale );
-		} else {
-			$locale = preg_replace( '/(_.*)$/i', '', $locale );
-		}
 		return $locale;
 	}
 

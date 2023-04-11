@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Update requesting a page speed refresh to force wpcom into making a new page speed request.
