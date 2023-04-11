@@ -45,12 +45,20 @@ async function hasEscalatedLabel( octokit, owner, repo, number ) {
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - Issue number.
+ * @param {string} body    - Issue body.
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
-async function isBug( octokit, owner, repo, number ) {
+async function isBug( octokit, owner, repo, number, body ) {
+	// If the issue has a "[Type] Bug" label, it's a bug.
 	const labels = await getLabels( octokit, owner, repo, number );
+	if ( labels.includes( '[Type] Bug' ) ) {
+		return true;
+	}
 
-	return labels.includes( '[Type] Bug' );
+	// Next, check if the issue body contains the "Available workarounds?" section.
+	// If it does, it's a bug report.
+	const regex = /###\sAvailable\sworkarounds\?/gm;
+	return regex.test( body );
 }
 
 /**
@@ -212,8 +220,7 @@ async function triageIssues( payload, octokit ) {
 	const priority = findPriority( body );
 	debug( `triage-issues: Priority for issue #${ number } is ${ priority }` );
 
-	const hasBugLabel = await isBug( octokit, ownerLogin, name, number );
-	debug( `triage-issues: Issue #${ number } is a bug.` );
+	const isBugIssue = await isBug( octokit, ownerLogin, name, number, body );
 
 	// If this is a new issue, try to add labels.
 	if ( action === 'opened' || action === 'reopened' ) {
@@ -260,7 +267,7 @@ async function triageIssues( payload, octokit ) {
 
 			// If we're adding a TBD priority, if we're in the Calypso repo, if that's a bug,
 			// send a Slack notification.
-			if ( priority === 'TBD' && full_name === 'Automattic/wp-calypso' && hasBugLabel ) {
+			if ( priority === 'TBD' && full_name === 'Automattic/wp-calypso' && isBugIssue ) {
 				debug(
 					`triage-issues: #${ number } doesn't have a Priority set. Sending in Slack message to the Kitkat team.`
 				);
@@ -279,7 +286,7 @@ async function triageIssues( payload, octokit ) {
 	const isEscalated = await hasEscalatedLabel( octokit, ownerLogin, name, number );
 	const highPriorityIssue = priority === 'High' || priorityLabels.includes( '[Pri] High' );
 	const blockerIssue = priority === 'BLOCKER' || priorityLabels.includes( '[Pri] BLOCKER' );
-	if ( hasBugLabel && state === 'open' && ! isEscalated && ( highPriorityIssue || blockerIssue ) ) {
+	if ( isBugIssue && state === 'open' && ! isEscalated && ( highPriorityIssue || blockerIssue ) ) {
 		const message = `New ${
 			highPriorityIssue ? 'High-priority' : 'Blocker'
 		} bug! Please check the priority.`;
