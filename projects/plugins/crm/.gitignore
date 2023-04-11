@@ -8,10 +8,6 @@
 /node_modules/
 /vendor/
 codeception.yml
-**/css/*.css.map
-**/css/**/*.css.map
-**/css/*.min.css.map
-**/css/**/*.min.css.map
 **/css/*.min.rtl.*
 **/css/**/*.min.rtl.*
 **/css/*.rtl.css
