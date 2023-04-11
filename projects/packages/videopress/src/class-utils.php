@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 /**
- * The Data class.
+ * The Utils class.
  */
 class Utils {
 	/**
