@@ -185,6 +185,8 @@ class Initializer {
 	 * @return string                    Block markup.
 	 */
 	public static function render_videopress_video_block( $block_attributes, $content ) {
+		global $wp_embed;
+
 		// CSS classes
 		$align       = isset( $block_attributes['align'] ) ? $block_attributes['align'] : null;
 		$align_class = $align ? ' align' . $align : '';
@@ -255,7 +257,6 @@ class Initializer {
 		$video_wrapper = '';
 		if ( $videopress_url ) {
 			$videopress_url = wp_kses_post( $videopress_url );
-			$wp_embed       = new \WP_Embed();
 			$oembed_html    = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
 			$video_wrapper  = sprintf(
 				'<div class="jetpack-videopress-player__wrapper">%s</div>',
