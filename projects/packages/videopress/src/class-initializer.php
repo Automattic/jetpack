@@ -181,13 +181,10 @@ class Initializer {
 	 * VideoPress video block render method
 	 *
 	 * @param array  $block_attributes - Block attributes.
-	 * @param string $content          - Block markup.
+	 * @param string $content          - Current block markup.
 	 * @return string                    Block markup.
 	 */
 	public static function render_videopress_video_block( $block_attributes, $content ) {
-		// VideoPress URL
-		$videopress_url = Utils::get_video_press_url( $block_attributes['guid'], $block_attributes );
-
 		// CSS classes
 		$align       = isset( $block_attributes['align'] ) ? $block_attributes['align'] : null;
 		$align_class = $align ? ' align' . $align : '';
@@ -222,7 +219,7 @@ class Initializer {
 
 		// If we have a caption, create the <figcaption /> element.
 		if ( $caption !== null ) {
-			$figcaption = sprintf( '<figcaption>%s</figcaption>', $caption );
+			$figcaption = sprintf( '<figcaption>%s</figcaption>', wp_kses_post( $caption ) );
 		}
 
 		// Preview On Hover data
@@ -238,11 +235,11 @@ class Initializer {
 			$preview_on_hover = sprintf( '<div className="jetpack-videopress-player__overlay"></div><script type="application/json">%s</script>', wp_json_encode( $preview_on_hover ) );
 		}
 
+		// VideoPress URL
+		$videopress_url = Utils::get_video_press_url( $block_attributes['guid'], $block_attributes );
 		if ( ! empty( $videopress_url ) ) {
 			$videopress_url = wp_kses_post( $videopress_url );
 		}
-
-		$caption = ! empty( $block_attributes['caption'] ) ? wp_kses_post( $block_attributes['caption'] ) : '';
 
 		$figure_template = '
 		<figure class="%1$s" style="%2$s">			
