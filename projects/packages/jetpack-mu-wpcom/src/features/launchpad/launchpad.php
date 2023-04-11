@@ -203,7 +203,7 @@ function get_checklist_task( $task ) {
  */
 function build_checklist( $checklist_slug ) {
 	$checklist = array();
-	if ( null !== ( CHECKLIST_DEFINITIONS[ $checklist_slug ] ) ) {
+	if ( null == ( CHECKLIST_DEFINITIONS[ $checklist_slug ] ) ) {
 		return $checklist;
 	}
 	foreach ( CHECKLIST_DEFINITIONS[ $checklist_slug ] as $task_id ) {
