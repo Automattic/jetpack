@@ -1930,9 +1930,8 @@ class Woo_Sync_Background_Sync_Job {
 				'discount'             => $order_data['discount_total'],
 				'discount_type'        => 'm',
 				'shipping'             => $order_data['shipping_total'],
-				'shipping_taxes'       => $shipping_tax_id,
 				'shipping_tax'         => $order_data['shipping_tax'],
-				'tax'                  => $order_data['total_tax'] - $order_data['discount_tax'],
+				'tax'                  => $order_data['total_tax'],
 				'ref'                  => $item_title,
 				'hours_or_quantity'    => 1,
 				'lineitems'            => $data['lineitems'],
@@ -1951,6 +1950,13 @@ class Woo_Sync_Background_Sync_Job {
 					'api'           => $from_api,
 				),
 			);
+
+			if ( isset( $shipping_tax_id ) && ! empty( $shipping_tax_id ) ) {
+				$data['invoice']['shipping_taxes'] = $shipping_tax_id;
+			}
+			if ( isset( $data['tax'] ) && isset( $order_data['discount_tax'] ) ) {
+				$data['tax'] -= $order_data['discount_tax'];
+			}
 
 			if ( is_array( $extra_meta ) && count( $extra_meta ) > 0 ) {
 
