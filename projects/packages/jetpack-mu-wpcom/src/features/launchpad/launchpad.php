@@ -8,101 +8,120 @@
 namespace A8C\Launchpad;
 
 const TASKS = array(
-	array(
-		'id'        => 'setup_newsletter',
-		'completed' => true,
-		'disabled'  => false,
-	),
-	array(
-		'id'        => 'plan_selected',
-		'completed' => true,
-		'disabled'  => false,
-	),
-	array(
-		'id'        => 'subscribers_added',
-		'completed' => true,
-		'disabled'  => false,
-	),
-	array(
-		'id'        => 'first_post_published',
-		'completed' => 'get_checklist_task( first_post_published ).completed',
-		'disabled'  => false,
-	),
-	array(
-		'id'        => 'first_post_published_newsletter',
-		'completed' => false,
-		'disabled'  => false,
-	),
-	array(
-		'id'        => 'design_selected',
-		'completed' => true,
-		'disabled'  => true,
-	),
-	array(
-		'id'        => 'setup_link_in_bio',
-		'completed' => true,
-		'disabled'  => false,
-	),
-	array(
-		'id'        => 'links_added',
-		'completed' => false,
-		'disabled'  => false,
-	),
-	array(
-		'id'        => 'link_in_bio_launched',
-		'completed' => false,
-		'disabled'  => true,
-	),
-	array(
-		'id'        => 'videopress_setup',
-		'completed' => true,
-		'disabled'  => false,
-	),
-	array(
-		'id'        => 'videopress_upload',
-		'completed' => false,
-		'disabled'  => false,
-	),
-	array(
-		'id'        => 'videopress_launched',
-		'completed' => false,
-		'disabled'  => true,
-	),
-	array(
-		'id'        => 'setup_free',
-		'completed' => true,
-		'disabled'  => false,
-	),
-	array(
-		'id'        => 'setup_general',
-		'completed' => true,
-		'disabled'  => true,
-	),
-	array(
-		'id'        => 'design_edited',
-		'completed' => false,
-		'disabled'  => false,
-	),
-	array(
-		'id'        => 'site_launched',
-		'completed' => false,
-		'disabled'  => false,
-	),
-	array(
-		'id'        => 'setup_write',
-		'completed' => true,
-		'disabled'  => true,
-	),
-	array(
-		'id'        => 'domain_upsell',
-		'completed' => false,
-		'disabled'  => false,
-	),
-	array(
-		'id'       => 'verify_email',
-		'complete' => false,
-		'disabled' => true,
-	),
+	'setup_newsletter'
+		=> array(
+			'id'        => 'setup_newsletter',
+			'completed' => true,
+			'disabled'  => false,
+		),
+	'plan_selected'
+		=> array(
+			'id'        => 'plan_selected',
+			'completed' => true,
+			'disabled'  => false,
+		),
+	'subscribers_added'
+		=> array(
+			'id'        => 'subscribers_added',
+			'completed' => true,
+			'disabled'  => false,
+		),
+	'first_post_published'
+		=> array(
+			'id'        => 'first_post_published',
+			'completed' => 'get_checklist_task( first_post_published ).completed',
+			'disabled'  => false,
+		),
+	'first_post_published_newsletter'
+		=> array(
+			'id'        => 'first_post_published_newsletter',
+			'completed' => false,
+			'disabled'  => false,
+		),
+	'design_selected'
+		=> array(
+			'id'        => 'design_selected',
+			'completed' => true,
+			'disabled'  => true,
+		),
+	'setup_link_in_bio'
+		=> array(
+			'id'        => 'setup_link_in_bio',
+			'completed' => true,
+			'disabled'  => false,
+		),
+	'links_added'
+		=> array(
+			'id'        => 'links_added',
+			'completed' => false,
+			'disabled'  => false,
+		),
+	'link_in_bio_launched'
+		=> array(
+			'id'        => 'link_in_bio_launched',
+			'completed' => false,
+			'disabled'  => true,
+		),
+	'videopress_setup'
+		=> array(
+			'id'        => 'videopress_setup',
+			'completed' => true,
+			'disabled'  => false,
+		),
+	'videopress_upload'
+		=> array(
+			'id'        => 'videopress_upload',
+			'completed' => false,
+			'disabled'  => false,
+		),
+	'videopress_launched'
+		=> array(
+			'id'        => 'videopress_launched',
+			'completed' => false,
+			'disabled'  => true,
+		),
+	'setup_free'
+		=> array(
+			'id'        => 'setup_free',
+			'completed' => true,
+			'disabled'  => false,
+		),
+	'setup_general'
+		=> array(
+			'id'        => 'setup_general',
+			'completed' => true,
+			'disabled'  => true,
+		),
+	'design_edited'
+		=> array(
+			'id'        => 'design_edited',
+			'completed' => false,
+			'disabled'  => false,
+		),
+	'site_launched'
+		=> array(
+			'id'        => 'site_launched',
+			'completed' => false,
+			'disabled'  => false,
+		),
+	'setup_write'
+		=> array(
+			'id'        => 'setup_write',
+			'completed' => true,
+			'disabled'  => true,
+		),
+	'domain_upsell'
+		=> array(
+			'id'        => 'domain_upsell',
+			'completed' => false,
+			'disabled'  => false,
+		),
+	'verify_email'
+		=> array(
+			'id'       => 'verify_email',
+			'complete' => false,
+			'disabled' => true,
+		),
 );
 
 const CHECKLIST_DEFINITIONS = array(
