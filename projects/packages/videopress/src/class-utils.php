@@ -50,13 +50,16 @@ class Utils {
 			'muted'           => (int) $video_press_url_options['muted'],
 			'persistVolume'   => $video_press_url_options['muted'] ? 0 : 1,
 			'playsinline'     => (int) $video_press_url_options['playsinline'],
-			'posterUrl'       => rawurlencode( $video_press_url_options['poster'] ),
 			'preloadContent'  => $video_press_url_options['preload'],
 			'sbc'             => $video_press_url_options['seekbarColor'],
 			'sbpc'            => $video_press_url_options['seekbarPlayedColor'],
 			'sblc'            => $video_press_url_options['seekbarLoadingColor'],
 			'useAverageColor' => (int) $video_press_url_options['useAverageColor'],
 		);
+
+		if ( ! empty( $video_press_url_options['poster'] ) ) {
+			$query_args['posterUrl'] = rawurlencode( $video_press_url_options['poster'] );
+		}
 
 		$url = 'https://videopress.com/v/' . $guid;
 		return add_query_arg( $query_args, $url );
