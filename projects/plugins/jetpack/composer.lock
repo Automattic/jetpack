@@ -1478,7 +1478,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "bc77bbaad33d4fb8d7236d687f2fb6588bd7a54e"
+                "reference": "564147cb2c64ef2f53c235dda82cf55df99db5b8"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
