@@ -3,7 +3,7 @@ import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Path } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { filter, isEmpty, map, trim } from 'lodash';
+import { filter, isEmpty, map, startsWith, trim } from 'lodash';
 import { getIconColor } from '../../shared/block-icons';
 import renderMaterialIcon from '../../shared/render-material-icon';
 import JetpackField from './components/jetpack-field';
@@ -95,68 +95,120 @@ const FieldDefaults = {
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-text' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-text', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-name' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-name', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-email' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-email', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-url' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-url', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-date' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-date', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-telephone' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-telephone', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-textarea' ],
-				isMatch: ( { options } ) => ! options.length,
 				transform: attributes => createBlock( 'jetpack/field-textarea', attributes ),
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-checkbox-multiple' ],
-				isMatch: ( { options } ) => 1 <= options.length,
-				transform: attributes => createBlock( 'jetpack/field-checkbox-multiple', attributes ),
+				transform: ( attributes, innerBlocks ) => {
+					let newInnerBlocks = [];
+
+					if ( ! isEmpty( innerBlocks ) ) {
+						const optionBlocks = filter( innerBlocks, ( { name } ) =>
+							startsWith( name, 'jetpack/field-option' )
+						);
+
+						newInnerBlocks = map( optionBlocks, block =>
+							createBlock( 'jetpack/field-option-checkbox', {
+								label: block.attributes.label,
+								fieldType: 'checkbox',
+							} )
+						);
+					} else if ( attributes.options?.length ) {
+						newInnerBlocks = map( attributes.options, option =>
+							createBlock( 'jetpack/field-option-checkbox', {
+								label: option,
+								fieldType: 'checkbox',
+							} )
+						);
+					}
+
+					return createBlock( 'jetpack/field-checkbox-multiple', attributes, newInnerBlocks );
+				},
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-radio' ],
-				isMatch: ( { options } ) => 1 <= options.length,
-				transform: attributes => createBlock( 'jetpack/field-radio', attributes ),
+				transform: ( attributes, innerBlocks ) => {
+					let newInnerBlocks = [];
+
+					if ( ! isEmpty( innerBlocks ) ) {
+						const optionBlocks = filter( innerBlocks, ( { name } ) =>
+							startsWith( name, 'jetpack/field-option' )
+						);
+
+						newInnerBlocks = map( optionBlocks, block =>
+							createBlock( 'jetpack/field-option-radio', {
+								label: block.attributes.label,
+								fieldType: 'radio',
+							} )
+						);
+					} else if ( attributes.options?.length ) {
+						newInnerBlocks = map( attributes.options, option =>
+							createBlock( 'jetpack/field-option-radio', {
+								label: option,
+								fieldType: 'radio',
+							} )
+						);
+					}
+
+					return createBlock( 'jetpack/field-radio', attributes, newInnerBlocks );
+				},
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-select' ],
-				isMatch: ( { options } ) => 1 <= options.length,
-				transform: attributes => createBlock( 'jetpack/field-select', attributes ),
+				transform: ( attributes, innerBlocks ) => {
+					if ( ! isEmpty( innerBlocks ) ) {
+						const optionBlocks = filter( innerBlocks, ( { name } ) =>
+							startsWith( name, 'jetpack/field-option' )
+						);
+						attributes.options = map( optionBlocks, b => b.attributes.label );
+					}
+
+					attributes.options = attributes.options?.length ? attributes.options : [ '' ];
+					return createBlock( 'jetpack/field-select', attributes );
+				},
 			},
 			{
 				type: 'block',
 				blocks: [ 'jetpack/field-consent' ],
-				isMatch: ( { options } ) => 1 <= options.length,
 				transform: attributes => createBlock( 'jetpack/field-consent', attributes ),
+			},
+			{
+				type: 'block',
+				blocks: [ 'jetpack/field-checkbox' ],
+				transform: attributes => createBlock( 'jetpack/field-checkbox', attributes ),
 			},
 		],
 	},
