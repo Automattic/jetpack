@@ -59,18 +59,32 @@ trait Import {
 	}
 
 	/**
+	 * Registers the routes for the objects of the controller.
+	 *
+	 * @see WP_REST_Controller::register_rest_route()
+	 */
+	public function register_routes() {
+		register_rest_route(
+			self::$rest_namespace,
+			'/' . $this->rest_base,
+			$this->get_route_options()
+		);
+	}
+
+	/**
 	 * Adds the unique identifier to the schema array.
 	 *
 	 * @param array $schema Schema array.
+	 * @param bool  $required Whether the field is required.
 	 * @return array Modified Schema array.
 	 */
-	protected function add_unique_identifier_to_schema( $schema ) {
+	protected function add_unique_identifier_to_schema( $schema, $required = true ) {
 		// Add the import unique ID to the schema.
 		$schema['properties'][ $this->import_id_field_name ] = array(
 			'description' => __( 'Jetpack Import unique identifier for the term.', 'jetpack-import' ),
 			'type'        => 'integer',
 			'context'     => array( 'view', 'embed', 'edit' ),
-			'required'    => true,
+			'required'    => $required,
 		);
 
 		return $schema;
@@ -89,10 +103,11 @@ trait Import {
 			return $response;
 		}
 
-		$data = $response->get_data();
+		$data   = $response->get_data();
+		$status = $response->get_status();
 
-		// Skip if the resource has not been added.
-		if ( $response->get_status() !== 201 ) {
+		// Skip if the resource has not been added or modified.
+		if ( ! ( $status === 200 || $status === 201 ) ) {
 			return $response;
 		}
 
@@ -158,8 +173,29 @@ trait Import {
 				'permission_callback' => array( $this, 'import_permissions_callback' ),
 				'args'                => $this->get_endpoint_args_for_item_schema( \WP_REST_Server::CREATABLE ),
 			),
-			'allow_batch' => array( 'v1' => true ),
+			'allow_batch' => $this->allow_batch,
 			'schema'      => array( $this, 'get_public_item_schema' ),
 		);
+	}
+
+	/**
+	 * Ensure that the HTTP status is correct.
+	 *
+	 * @param WP_Error $response   Response error object.
+	 * @param int      $error_code Error code.
+	 * @param int      $status     HTTP status.
+	 */
+	protected function ensure_http_status( $response, $error_code, $status ) {
+		if ( is_wp_error( $response ) && in_array( $error_code, $response->get_error_codes(), true ) ) {
+			$data = $response->get_error_data( $error_code );
+
+			if ( isset( $data['status'] ) ) {
+				$data['status'] = $status;
+
+				$response->add_data( $data );
+			}
+		}
+
+		return $response;
 	}
 }

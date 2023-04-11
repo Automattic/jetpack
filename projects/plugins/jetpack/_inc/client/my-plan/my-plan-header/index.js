@@ -9,7 +9,12 @@ import { ProductActivated } from 'components/product-activated';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
 import analytics from 'lib/analytics';
-import { getPlanClass, JETPACK_BACKUP_PRODUCTS, JETPACK_SCAN_PRODUCTS } from 'lib/plans/constants';
+import {
+	containsGiftedPlanOrProduct,
+	getPlanClass,
+	JETPACK_BACKUP_PRODUCTS,
+	JETPACK_SCAN_PRODUCTS,
+} from 'lib/plans/constants';
 import { find, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -56,6 +61,7 @@ class MyPlanHeader extends React.Component {
 					expiryDate={ purchase.expiry_date }
 					purchaseDate={ purchase.subscribed_date }
 					isRefundable={ purchase.is_refundable }
+					isGift={ containsGiftedPlanOrProduct( purchase.product_slug ) }
 				/>
 			);
 
@@ -364,6 +370,19 @@ class MyPlanHeader extends React.Component {
 					} ),
 				};
 
+			case 'is-jetpack-social-advanced-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'You can automatically share your content to social media sites and get access to advanced posting options.',
+						'jetpack'
+					),
+					title: createInterpolateElement( __( 'Jetpack Social Advanced', 'jetpack' ), {
+						em: <em />,
+					} ),
+				};
+
 			case 'is-jetpack-boost-plan':
 				return {
 					...productProps,
@@ -373,6 +392,17 @@ class MyPlanHeader extends React.Component {
 						'jetpack'
 					),
 					title: __( 'Jetpack Boost', 'jetpack' ),
+				};
+
+			case 'is-jetpack-golden-token-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'You have been gifted a Jetpack Golden Token. This unlocks a lifetime of Jetpack VaultPress Backup and Jetpack Scan for your website.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Golden Token', 'jetpack' ),
 				};
 
 			default:

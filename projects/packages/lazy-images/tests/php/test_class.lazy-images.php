@@ -13,8 +13,6 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 
 	/**
 	 * Setup.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		add_filter( 'lazyload_images_placeholder_image', array( $this, 'override_image_placeholder' ) );

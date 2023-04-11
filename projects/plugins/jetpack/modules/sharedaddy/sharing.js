@@ -195,6 +195,19 @@
 		}
 	};
 
+	MoreButton.prototype.nonHoverOpen = function () {
+		clearTimeout( this.openTimer );
+		clearTimeout( this.closeTimer );
+
+		if ( this.recentlyOpenedByHover ) {
+			this.recentlyOpenedByHover = false;
+			clearTimeout( this.hoverOpenTimer );
+			this.open();
+		} else {
+			this.toggle();
+		}
+	};
+
 	MoreButton.prototype.resetCloseTimer = function () {
 		clearTimeout( this.closeTimer );
 		this.closeTimer = setTimeout( this.close.bind( this ), MoreButton.hoverCloseDelay );
@@ -206,15 +219,16 @@
 			event.stopPropagation();
 
 			this.openedBy = 'click';
-			clearTimeout( this.openTimer );
-			clearTimeout( this.closeTimer );
+			this.nonHoverOpen();
+		}.bind( this );
 
-			if ( this.recentlyOpenedByHover ) {
-				this.recentlyOpenedByHover = false;
-				clearTimeout( this.hoverOpenTimer );
-				this.open();
-			} else {
-				this.toggle();
+		this.buttonKeydown = function ( event ) {
+			if ( event.keyCode === 13 || event.keyCode === 32 ) {
+				event.preventDefault();
+				event.stopPropagation();
+
+				this.openedBy = 'keydown';
+				this.nonHoverOpen();
 			}
 		}.bind( this );
 
@@ -260,6 +274,7 @@
 		}.bind( this );
 
 		this.button.addEventListener( 'click', this.buttonClick );
+		this.button.addEventListener( 'keydown', this.buttonKeydown );
 		document.addEventListener( 'click', this.documentClick );
 
 		if ( document.ontouchstart === undefined ) {

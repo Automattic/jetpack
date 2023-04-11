@@ -76,7 +76,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_fse_eligible'             => '(bool) If the site is capable of Full Site Editing or not',
 		'is_core_site_editor_enabled' => '(bool) If the site has the core site editor enabled.',
 		'is_wpcom_atomic'             => '(bool) If the site is a WP.com Atomic one.',
+		'is_wpcom_staging_site'       => '(bool) If the site is a WP.com staging site.',
 		'user_interactions'           => '(array) An array of user interactions with a site.',
+		'was_ecommerce_trial'         => '(bool) If the site ever used an eCommerce trial.',
 	);
 
 	/**
@@ -109,6 +111,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_fse_eligible',
 		'is_core_site_editor_enabled',
 		'is_wpcom_atomic',
+		'is_wpcom_staging_site',
 	);
 
 	/**
@@ -195,6 +198,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'blogging_prompts_settings',
 		'launchpad_screen',
 		'launchpad_checklist_tasks_statuses',
+		'wpcom_production_blog_id',
+		'wpcom_staging_blog_ids',
+		'can_blaze',
 	);
 
 	/**
@@ -217,6 +223,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'subscribers_count',
 		'site_migration',
 		'site_owner',
+		'is_wpcom_staging_site',
+		'was_ecommerce_trial',
 	);
 
 	/**
@@ -557,11 +565,17 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'is_wpcom_atomic':
 				$response[ $key ] = $this->site->is_wpcom_atomic();
 				break;
+			case 'is_wpcom_staging_site':
+				$response[ $key ] = $this->site->is_wpcom_staging_site();
+				break;
 			case 'user_interactions':
 				$response[ $key ] = $this->site->get_user_interactions();
 				break;
 			case 'p2_thumbnail_elements':
 				$response[ $key ] = $this->site->get_p2_thumbnail_elements();
+				break;
+			case 'was_ecommerce_trial':
+				$response[ $key ] = $this->site->was_ecommerce_trial();
 				break;
 		}
 
@@ -852,6 +866,15 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'launchpad_checklist_tasks_statuses':
 					$options[ $key ] = $site->get_launchpad_checklist_tasks_statuses();
+					break;
+				case 'wpcom_production_blog_id':
+					$options[ $key ] = $site->get_wpcom_production_blog_id();
+					break;
+				case 'wpcom_staging_blog_ids':
+					$options[ $key ] = $site->get_wpcom_staging_blog_ids();
+					break;
+				case 'can_blaze':
+					$options[ $key ] = $site->can_blaze();
 					break;
 			}
 		}

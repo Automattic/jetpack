@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.1] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+### Fixed
+- Fixed featured image not loading on startup [#29752]
+
+## [0.20.0] - 2023-03-28
+### Added
+- Added SIG image preview component [#29559]
+- Added toggle to Social admin page to enable or disable Social Image Generator as well as an option to pick a default template [#29722]
+
+## [0.19.0] - 2023-03-27
+### Added
+- Added SIG image preview component [#29559]
+
+### Changed
+- Use TemplatePicker to save selected template and send it to our token generation endpoint [#29590]
+
+### Fixed
+- Fixed infinite loop with media section [#29729]
+- Fixed the bug where the attache media doesn't show up after post publish. [#29613]
+
+## [0.18.0] - 2023-03-20
+### Added
+- Add Template Picker component to Jetpack Social [#29504]
+
+### Changed
+- Update deprecated core selector [#29420]
+
+### Fixed
+- Fixed a bug where reduce would show an error because of empty array [#29272]
+
+## [0.17.1] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## [0.17.0] - 2023-02-28
+### Added
+- Add Social Image Generator editor panel to post sidebar [#28737]
+- Add Social Image Generator feature flag to Jetpack Social [#29001]
+- Jetpack Social: Add Mastodon and default media upload restrictions [#29034]
+
+### Removed
+- Removed default image for SIG as it's not used yet [#29206]
+
+### Fixed
+- Update React peer dependencies to match updated dev dependencies. [#28924]
+
 ## [0.16.1] - 2023-02-20
 ### Changed
 - Minor internal updates.
@@ -201,6 +250,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.20.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.20.0...v0.20.1
+[0.20.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.19.0...v0.20.0
+[0.19.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.18.0...v0.19.0
+[0.18.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.17.1...v0.18.0
+[0.17.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.17.0...v0.17.1
+[0.17.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.16.1...v0.17.0
 [0.16.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.15.2...v0.16.0
 [0.15.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.15.1...v0.15.2

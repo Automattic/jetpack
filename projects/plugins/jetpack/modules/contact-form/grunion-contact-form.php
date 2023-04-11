@@ -389,7 +389,6 @@ class Grunion_Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-		self::enqueue_contact_forms_style_script();
 		self::register_contact_form_blocks();
 	}
 
@@ -398,14 +397,7 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	private static function enqueue_contact_forms_style_script() {
 		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_style_script_concat' ), 10, 3 );
-
-		wp_enqueue_script(
-			'contact-form-styles',
-			plugins_url( 'js/form-styles.js', __FILE__ ),
-			array(),
-			JETPACK__VERSION,
-			true
-		);
+		Jetpack_Gutenberg::load_assets_as_required( 'contact-form' );
 	}
 
 	/**
@@ -415,7 +407,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @param string $handle - script name.
 	 */
 	public static function disable_forms_style_script_concat( $do_concat, $handle ) {
-		if ( 'contact-form-styles' === $handle ) {
+		if ( 'jetpack-block-contact-form' === $handle ) {
 			$do_concat = false;
 		}
 		return $do_concat;
@@ -488,9 +480,21 @@ class Grunion_Contact_Form_Plugin {
 			)
 		);
 		Blocks::jetpack_register_block(
+			'jetpack/field-option-checkbox',
+			array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option' ),
+			)
+		);
+		Blocks::jetpack_register_block(
 			'jetpack/field-radio',
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/field-option-radio',
+			array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option' ),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -516,7 +520,6 @@ class Grunion_Contact_Form_Plugin {
 	 * @return string
 	 */
 	public static function gutenblock_render_form( $atts, $content ) {
-
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
 		if ( ! jetpack_is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			return sprintf(
@@ -526,6 +529,8 @@ class Grunion_Contact_Form_Plugin {
 				esc_html__( 'Submit a form.', 'jetpack' )
 			);
 		}
+
+		self::enqueue_contact_forms_style_script();
 
 		return Grunion_Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
@@ -667,6 +672,19 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple' );
+		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the multiple choice field option.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_option( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'field-option' );
 		return Grunion_Contact_Form::parse_contact_field( $atts, $content );
 	}
 
@@ -1011,6 +1029,10 @@ class Grunion_Contact_Form_Plugin {
 	public function add_shortcode() {
 		add_shortcode( 'contact-form', array( 'Grunion_Contact_Form', 'parse' ) );
 		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+
+		// We need 'contact-field-option' to be registered, so it's included to the get_shortcode_regex() method
+		// But we don't need a callback because we're handling contact-field-option manually
+		add_shortcode( 'contact-field-option', '__return_null' );
 	}
 
 	/**
@@ -1786,11 +1808,12 @@ class Grunion_Contact_Form_Plugin {
 		sort( $field_names, SORT_NUMERIC );
 
 		$well_known_column_names = $this->get_well_known_column_names();
+		$result                  = array();
+
 		/**
 		 * Loop through every post, which is essentially CSV row.
 		 */
 		foreach ( $posts_data as $post_id => $single_post_data ) {
-
 			/**
 			 * Go through all the possible fields and check if the field is available
 			 * in the current post.
@@ -1803,10 +1826,18 @@ class Grunion_Contact_Form_Plugin {
 					? $well_known_column_names[ $single_field_name ]
 					: $single_field_name;
 
-					/**
-				 * Remove the numeral prefix 1_, 2_, etc, only for export results
+				/**
+				 * Remove the numeral prefix -3_, 1_, 2_, etc, only for export results.
+				 * Prefixes can be both positive and negative numeral values, functional to the SORT_NUMERIC above.
+				 * TODO: to return fieldnames based on field label, we need to work both field names and post data:
+				 * unique -> sort -> unique/rename
+				 * $renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
 				 */
-				$renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
+
+				if ( ! isset( $result[ $renamed_field ] ) ) {
+					$result[ $renamed_field ] = array();
+				}
+
 				if (
 					isset( $single_post_data[ $single_field_name ] )
 					&& ! empty( $single_post_data[ $single_field_name ] )
@@ -1982,7 +2013,56 @@ class Grunion_Contact_Form_Plugin {
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+
+		$this->record_tracks_event( 'forms_export_responses', array( 'format' => 'csv' ) );
 		exit();
+	}
+
+	/**
+	 * Send an event to Tracks
+	 *
+	 * @param string $event_name - the name of the event.
+	 * @param array  $event_props - event properties to send.
+	 *
+	 * @return null|void
+	 */
+	public function record_tracks_event( $event_name, $event_props ) {
+		/*
+		 * Event details.
+		 */
+		$event_user = wp_get_current_user();
+
+		/*
+		 * Record event.
+		 * We use different libs on wpcom and Jetpack.
+		 */
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$event_name             = 'wpcom_' . $event_name;
+			$event_props['blog_id'] = get_current_blog_id();
+			// logged out visitor, record event with blog owner.
+			if ( empty( $event_user->ID ) ) {
+				$event_user_id = wpcom_get_blog_owner( $event_props['blog_id'] );
+				$event_user    = get_userdata( $event_user_id );
+			}
+
+			require_lib( 'tracks/client' );
+			tracks_record_event( $event_user, $event_name, $event_props );
+		} else {
+			$user_connected = ( new \Automattic\Jetpack\Connection\Manager( 'jetpack-forms' ) )->is_user_connected( get_current_user_id() );
+			if ( ! $user_connected ) {
+				return;
+			}
+			// logged out visitor, record event with Jetpack master user.
+			if ( empty( $event_user->ID ) ) {
+				$master_user_id = Jetpack_Options::get_option( 'master_user' );
+				if ( ! empty( $master_user_id ) ) {
+					$event_user = get_userdata( $master_user_id );
+				}
+			}
+
+			$tracking = new \Automattic\Jetpack\Tracking();
+			$tracking->record_user_event( $event_name, $event_props, $event_user );
+		}
 	}
 
 	/**
@@ -2095,17 +2175,26 @@ class Grunion_Contact_Form_Plugin {
 		$lines        = array();
 
 		if ( count( $content ) > 1 ) {
-			$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
-			$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
+			$content = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
+			if ( strpos( $content, 'JSON_DATA' ) !== false ) {
+				$chunks     = explode( "\nJSON_DATA", $content );
+				$all_values = json_decode( $chunks[1], true );
+				if ( is_array( $all_values ) ) {
+					$fields_array = array_keys( $all_values );
+				}
+				$lines = array_filter( explode( "\n", $chunks[0] ) );
+			} else {
+				$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 
-			// TODO: some explanation on this regex could help
-			preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
+				// TODO: some explanation on this regex could help
+				preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
 
-			if ( count( $matches ) > 1 ) {
-				$all_values = array_combine( array_map( 'trim', $matches[1] ), array_map( 'trim', $matches[2] ) );
+				if ( count( $matches ) > 1 ) {
+					$all_values = array_combine( array_map( 'trim', $matches[1] ), array_map( 'trim', $matches[2] ) );
+				}
+
+				$lines = array_filter( explode( "\n", $content ) );
 			}
-
-			$lines = array_filter( explode( "\n", $content ) );
 		}
 
 		$var_map = array(
@@ -2717,7 +2806,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 		if ( isset( $GLOBALS['grunion_block_template_part_id'] ) ) {
 			self::style_on();
-			$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
+			if ( is_array( $attributes ) ) {
+				$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
+			}
 		}
 		// Create a new Grunion_Contact_Form object (this class)
 		$form = new Grunion_Contact_Form( $attributes, $content );
@@ -3208,11 +3299,29 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	public static function parse_contact_field( $attributes, $content ) {
 		// Don't try to parse contact form fields if not inside a contact form
 		if ( ! Grunion_Contact_Form_Plugin::$using_contact_form_field ) {
-			$att_strs = array();
+			$type = isset( $attributes['type'] ) ? $attributes['type'] : null;
+
+			if ( $type === 'checkbox-multiple' || $type === 'radio' ) {
+				preg_match_all( '/' . get_shortcode_regex() . '/s', $content, $matches );
+
+				if ( ! empty( $matches[0] ) ) {
+					$options = array();
+					foreach ( $matches[0] as $shortcode ) {
+						$attr = shortcode_parse_atts( $shortcode );
+						if ( ! empty( $attr['label'] ) ) {
+							$options[] = $attr['label'];
+						}
+					}
+
+					$attributes['options'] = $options;
+				}
+			}
+
 			if ( ! isset( $attributes['label'] ) ) {
-				$type                = isset( $attributes['type'] ) ? $attributes['type'] : null;
 				$attributes['label'] = self::get_default_label_from_type( $type );
 			}
+
+			$att_strs = array();
 			foreach ( $attributes as $att => $val ) {
 				if ( is_numeric( $att ) ) { // Is a valueless attribute
 					$att_strs[] = self::esc_shortcode_val( $val );
@@ -3231,7 +3340,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				}
 			}
 
-			$html = '[contact-field ' . implode( ' ', $att_strs );
+			$shortcode_type = 'contact-field';
+			if ( $type === 'field-option' ) {
+				$shortcode_type = 'contact-field-option';
+			}
+
+			$html = '[' . $shortcode_type . ' ' . implode( ' ', $att_strs );
 
 			if ( isset( $content ) && ! empty( $content ) ) { // If there is content, let's add a closing tag
 				$html .= ']' . esc_html( $content ) . '[/contact-field]';
@@ -3772,7 +3886,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				'post_parent'  => $post ? (int) $post->ID : 0,
 				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase, WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_print_r
-				'post_content' => addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . @print_r( $all_values, true ), array() ) ), // so that search will pick up this data
+				'post_content' => addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\nJSON_DATA\n" . @wp_json_encode( $all_values, true ), array() ) ), // so that search will pick up this data
 				'post_name'    => $feedback_id,
 			)
 		);
@@ -5217,57 +5331,19 @@ function grunion_delete_old_spam() {
 /**
  * Send an event to Tracks on form submission.
  *
- * @param int   $post_id - the post_id for the CPT that is created.
- * @param array $all_values - fields from the default contact form.
- * @param array $extra_values - extra fields added to from the contact form.
+ * @param int $post_id - the post_id for the CPT that is created.
  *
  * @return null|void
  */
-function jetpack_tracks_record_grunion_pre_message_sent( $post_id, $all_values, $extra_values ) {
-	// Do not do anything if the submission is not from a block.
-	if (
-		! isset( $extra_values['is_block'] )
-		|| ! $extra_values['is_block']
-	) {
-		return;
-	}
-
-	/*
-	 * Event details.
-	 */
-	$event_user  = wp_get_current_user();
-	$event_name  = 'contact_form_block_message_sent';
-	$event_props = array(
-		'entry_permalink' => esc_url( $all_values['entry_permalink'] ),
-		'feedback_id'     => esc_attr( $all_values['feedback_id'] ),
-	);
-
-	/*
-	 * Record event.
-	 * We use different libs on wpcom and Jetpack.
-	 */
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		$event_name             = 'wpcom_' . $event_name;
-		$event_props['blog_id'] = get_current_blog_id();
-		// If the form was sent by a logged out visitor, record event with blog owner.
-		if ( empty( $event_user->ID ) ) {
-			$event_user_id = wpcom_get_blog_owner( $event_props['blog_id'] );
-			$event_user    = get_userdata( $event_user_id );
-		}
-
-		require_lib( 'tracks/client' );
-		tracks_record_event( $event_user, $event_name, $event_props );
+function jetpack_tracks_record_grunion_pre_message_sent( $post_id ) {
+	$post = get_post( $post_id );
+	if ( $post ) {
+		$extra = gmdate( 'Y-W', strtotime( $post->post_date_gmt ) );
 	} else {
-		// If the form was sent by a logged out visitor, record event with Jetpack master user.
-		if ( empty( $event_user->ID ) ) {
-			$master_user_id = Jetpack_Options::get_option( 'master_user' );
-			if ( ! empty( $master_user_id ) ) {
-				$event_user = get_userdata( $master_user_id );
-			}
-		}
-
-		$tracking = new Automattic\Jetpack\Tracking();
-		$tracking->record_user_event( $event_name, $event_props, $event_user );
+		$extra = 'no-post';
 	}
+
+	/** This action is documented in modules/widgets/social-media-icons.php */
+	do_action( 'jetpack_bump_stats_extras', 'jetpack_forms_message_sent', $extra );
 }
-add_action( 'grunion_pre_message_sent', 'jetpack_tracks_record_grunion_pre_message_sent', 12, 3 );
+add_action( 'grunion_pre_message_sent', 'jetpack_tracks_record_grunion_pre_message_sent', 12 );

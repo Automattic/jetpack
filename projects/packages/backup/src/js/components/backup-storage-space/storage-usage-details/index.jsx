@@ -1,5 +1,6 @@
 import './style.scss';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -27,10 +28,8 @@ const StorageUsageDetails = ( { storageUsed, storageLimit } ) => {
 						daysOfBackupsSaved === 1 ? singularDaysOfBackupLabel : pluralDaysOfBackupLabel,
 						{
 							a: (
-								<a
-									href={ getRedirectUrl( 'backup-plugin-activity-log-rewind', { site: domain } ) }
-									target="_blank"
-									rel="noreferrer"
+								<ExternalLink
+									href={ getRedirectUrl( 'backup-plugin-storage-backups-saved', { site: domain } ) }
 								/>
 							),
 						}

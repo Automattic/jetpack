@@ -12,24 +12,22 @@
 
 namespace Automattic\Jetpack_Boost;
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Plugin_Deactivation\Deactivation_Handler;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Admin\Regenerate_Admin_Notice;
-use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Features\Setup_Prompt\Setup_Prompt;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\CLI;
 use Automattic\Jetpack_Boost\Lib\Connection;
-use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Transient;
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Config_State;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\List_Site_Urls;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimization_Status;
-use Automattic\Jetpack_Boost\REST_API\Endpoints\Optimizations_Status;
 use Automattic\Jetpack_Boost\REST_API\REST_API;
 
 /**
@@ -96,11 +94,11 @@ class Jetpack_Boost {
 			\WP_CLI::add_command( 'jetpack-boost', $cli_instance );
 		}
 
-		$optimizations = new Optimizations();
-		Setup::add( $optimizations );
+		$modules_setup = new Modules_Setup();
+		Setup::add( $modules_setup );
 
 		// Initialize the Admin experience.
-		$this->init_admin( $optimizations );
+		$this->init_admin( $modules_setup );
 
 		// Add the setup prompt.
 		Setup::add( new Setup_Prompt() );
@@ -115,6 +113,9 @@ class Jetpack_Boost {
 		My_Jetpack_Initializer::init();
 
 		Deactivation_Handler::init( $this->plugin_name, __DIR__ . '/admin/deactivation-dialog.php' );
+
+		// Register the core Image CDN hooks.
+		Image_CDN_Core::setup();
 	}
 
 	/**
@@ -147,8 +148,6 @@ class Jetpack_Boost {
 	 * Initialize the admin experience.
 	 */
 	public function init_admin( $modules ) {
-		REST_API::register( Optimization_Status::class );
-		REST_API::register( Optimizations_Status::class );
 		REST_API::register( Config_State::class );
 		REST_API::register( List_Site_Urls::class );
 		$this->connection->ensure_connection();
@@ -196,7 +195,7 @@ class Jetpack_Boost {
 		if ( $is_major_change ) {
 			Regenerate_Admin_Notice::enable();
 		} else {
-			Critical_CSS_State::set_fresh( false );
+			jetpack_boost_ds_set( 'critical_css_suggest_regenerate', true );
 		}
 	}
 

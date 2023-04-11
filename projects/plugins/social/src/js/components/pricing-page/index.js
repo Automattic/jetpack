@@ -9,7 +9,7 @@ import {
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
@@ -31,6 +31,11 @@ const PricingPage = () => {
 		};
 		updateOptions( newOption );
 	}, [ updateOptions ] );
+
+	// todo: pull pricing from wpcom
+	const firstMonthIntroOffer = 1;
+	const monthlyBasicPrice = 10;
+	const monthlyAdvancedPrice = 15;
 
 	const UNLIMITED_SHARES_TABLE_ITEM = (
 		<PricingTableItem
@@ -99,9 +104,13 @@ const PricingPage = () => {
 			<PricingTableColumn primary>
 				<PricingTableHeader>
 					<ProductPrice
-						price={ 30 }
-						offPrice={ 1 }
-						legend={ __( '/month, billed yearly', 'jetpack-social' ) }
+						price={ monthlyAdvancedPrice }
+						offPrice={ firstMonthIntroOffer }
+						legend={ sprintf(
+							// translators: %s is the regular monthly price
+							__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-social' ),
+							monthlyAdvancedPrice
+						) }
 						currency="USD"
 						hidePriceFraction
 					/>
@@ -129,9 +138,13 @@ const PricingPage = () => {
 			<PricingTableColumn primary>
 				<PricingTableHeader>
 					<ProductPrice
-						price={ 10 }
-						offPrice={ 1 }
-						legend={ __( '/month, billed yearly', 'jetpack-social' ) }
+						price={ monthlyBasicPrice }
+						offPrice={ firstMonthIntroOffer }
+						legend={ sprintf(
+							// translators: %s is the regular monthly price
+							__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-social' ),
+							monthlyBasicPrice
+						) }
 						currency="USD"
 						hidePriceFraction
 					/>

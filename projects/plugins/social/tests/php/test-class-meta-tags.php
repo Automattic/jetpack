@@ -35,8 +35,6 @@ class Meta_Tags_Test extends BaseTestCase {
 
 	/**
 	 * Initialize tests
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->meta_tags           = new Automattic\Jetpack\Social\Meta_Tags();
@@ -53,8 +51,6 @@ class Meta_Tags_Test extends BaseTestCase {
 
 	/**
 	 * Reverting the testing environment to its original state.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		Monkey\tearDown();

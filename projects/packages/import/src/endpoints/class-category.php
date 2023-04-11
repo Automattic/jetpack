@@ -18,6 +18,13 @@ class Category extends \WP_REST_Terms_Controller {
 	use Import;
 
 	/**
+	 * Whether the controller supports batching. Default true.
+	 *
+	 * @var array
+	 */
+	protected $allow_batch = array( 'v1' => true );
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -25,19 +32,6 @@ class Category extends \WP_REST_Terms_Controller {
 
 		// @see add_term_meta
 		$this->import_id_meta_type = 'term';
-	}
-
-	/**
-	 * Registers the routes for the objects of the controller.
-	 *
-	 * @see WP_REST_Terms_Controller::register_rest_route()
-	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			'/categories',
-			$this->get_route_options()
-		);
 	}
 
 	/**
@@ -72,6 +66,9 @@ class Category extends \WP_REST_Terms_Controller {
 		}
 
 		$response = parent::create_item( $request );
+
+		// Ensure that the HTTP status is a valid one.
+		$response = $this->ensure_http_status( $response, 'term_exists', 409 );
 
 		return $this->add_import_id_metadata( $request, $response );
 	}

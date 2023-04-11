@@ -69,7 +69,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
-		$this->add_inbox_menu();
+
+		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
+			$this->add_inbox_menu();
+		}
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -310,6 +313,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @param string $plan The current WPCOM plan of the blog.
 	 */
 	public function add_upgrades_menu( $plan = null ) {
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			return;
+		}
 		$products = Jetpack_Plan::get();
 		if ( array_key_exists( 'product_name_short', $products ) ) {
 			$plan = $products['product_name_short'];
@@ -355,13 +362,6 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		add_submenu_page( 'options-general.php', esc_attr__( 'Hosting Configuration', 'jetpack' ), __( 'Hosting Configuration', 'jetpack' ), 'manage_options', 'https://wordpress.com/hosting-config/' . $this->domain, null, 11 );
 
-		if (
-			function_exists( 'wpcom_site_has_feature' ) &&
-			wpcom_site_has_feature( \WPCOM_Features::ATOMIC )
-		) {
-			add_submenu_page( 'options-general.php', esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'https://wordpress.com/settings/jetpack/' . $this->domain, null, 12 );
-		}
-
 		// Page Optimize is active by default on all Atomic sites and registers a Settings > Performance submenu which
 		// would conflict with our own Settings > Performance that links to Calypso, so we hide it it since the Calypso
 		// performance settings already have a link to Page Optimize settings page.
@@ -369,6 +369,27 @@ class Atomic_Admin_Menu extends Admin_Menu {
 
 		if ( Blaze::should_initialize() ) {
 			add_submenu_page( 'tools.php', esc_attr__( 'Advertising', 'jetpack' ), __( 'Advertising', 'jetpack' ), 'manage_options', 'https://wordpress.com/advertising/' . $this->domain, null, 1 );
+		}
+	}
+
+	/**
+	 * Adds Tools menu entries.
+	 */
+	public function add_tools_menu() {
+		parent::add_tools_menu();
+
+		/**
+		 * Whether to show the WordPress.com Site Logs submenu under the main Tools menu.
+		 *
+		 * @use add_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_true' );
+		 * @module masterbar
+		 *
+		 * @since 12.0
+		 *
+		 * @param bool $show_wpcom_site_logs_menu Load the WordPress.com Site Logs submenu item. Default to false.
+		 */
+		if ( apply_filters( 'jetpack_show_wpcom_site_logs_menu', false ) ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Site Logs', 'jetpack' ), __( 'Site Logs', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-logs/' . $this->domain, null, 7 );
 		}
 	}
 

@@ -92,6 +92,9 @@ Inside `Automattic\Jetpack\Stats\WPCOM_Stats` class you can find the following m
 - `get_total_post_views`: Get the total number of views for each post.
 - `get_visits`: Get the number of visits for the site.
 
+## Using this package in your WordPress plugin
+
+If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
 
 ## Security
 

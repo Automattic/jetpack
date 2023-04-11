@@ -152,6 +152,7 @@ export async function scriptRouter( argv ) {
 			break;
 		case 'amend':
 			await checkBranchValid( argv );
+			// @todo Stop assuming `composer install` has been done so vendor/bin/changelogger already exists.
 			argv.script = `vendor/bin/changelogger`;
 			argv.scriptArgs = [ `write`, `--amend` ];
 			argv.addPrNum && argv.scriptArgs.push( '--add-pr-num' );
@@ -164,7 +165,8 @@ export async function scriptRouter( argv ) {
 			argv = await promptForVersion( argv );
 			argv.script = 'tools/project-version.sh';
 			argv.scriptArgs = [ '-Cu', argv.version, argv.project ];
-			argv.next = `Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
+			argv.next =
+				`Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
 				 - The main php file
 				 - package.json
 				 - composer.json (the autoloader-suffix filed)
@@ -183,7 +185,7 @@ export async function scriptRouter( argv ) {
  */
 export async function checkBranchValid( argv ) {
 	const currentBranch = child_process.execSync( 'git branch --show-current' ).toString().trim();
-	const branchPrefix = await readComposerJson( argv.project ).extra[ 'release-branch-prefix' ];
+	let branchPrefix = await readComposerJson( argv.project ).extra[ 'release-branch-prefix' ];
 	if ( ! branchPrefix ) {
 		console.log(
 			chalk.red(
@@ -193,7 +195,11 @@ export async function checkBranchValid( argv ) {
 		process.exit( 1 );
 	}
 
-	if ( ! currentBranch.startsWith( `${ branchPrefix }/branch-` ) ) {
+	if ( ! Array.isArray( branchPrefix ) ) {
+		branchPrefix = [ branchPrefix ];
+	}
+
+	if ( ! branchPrefix.some( prefix => currentBranch.startsWith( `${ prefix }/branch-` ) ) ) {
 		console.log(
 			chalk.red(
 				`Doesn't look like you're on a release branch! Please check out the release branch before amending the changelog.`

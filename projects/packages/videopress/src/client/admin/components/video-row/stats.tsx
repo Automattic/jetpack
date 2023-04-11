@@ -1,6 +1,5 @@
-import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Text, useBreakpointMatch, LoadingPlaceholder } from '@automattic/jetpack-components';
 import classNames from 'classnames';
-import Placeholder from '../placeholder';
 import styles from './style.module.scss';
 
 const Stats = ( {
@@ -24,10 +23,10 @@ const Stats = ( {
 		<div className={ classNames( className, styles.stats, { [ styles.small ]: isSmall } ) }>
 			{ loading ? (
 				<>
-					<Placeholder height={ 24 } />
-					<Placeholder height={ 24 } />
-					<Placeholder height={ 24 } />
-					<Placeholder height={ 24 } className={ styles.upload } />
+					<LoadingPlaceholder height={ 24 } />
+					<LoadingPlaceholder height={ 24 } />
+					<LoadingPlaceholder height={ 24 } />
+					<LoadingPlaceholder height={ 24 } className={ styles.upload } />
 				</>
 			) : (
 				<>

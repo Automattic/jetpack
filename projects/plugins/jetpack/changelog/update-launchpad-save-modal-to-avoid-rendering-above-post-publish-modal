@@ -1,4 +1,0 @@
-Significance: minor
-Type: compat
-
-Prevent launchpad modal from rendering on top of the first post published modal

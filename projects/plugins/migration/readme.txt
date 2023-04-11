@@ -3,7 +3,7 @@ Contributors: automattic
 Tags: migrate, migration, backup, restore, transfer, move, copy, wordpress.com, automattic, import, importer, hosting
 Requires at least: 6.0
 Requires PHP: 5.6
-Tested up to: 6.1
+Tested up to: 6.2
 Stable tag: 0.1.0-alpha
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -39,5 +39,6 @@ If you need a little help during or after the migration, you’ll have round-the
 3. Next, click the Activate button. After activating, you can navigate to Move to WordPress.com in your admin area.
 
 == Changelog ==
-
-<!-- When you do a release, use the monorepo script tools/plugin-changelog-to-readme.sh to copy from CHANGELOG.md to here. -->
+### 0.1.0 - 2023-03-01
+#### Added
+- Initial release

@@ -1,5 +1,4 @@
 import { pasteHandler } from '@wordpress/blocks';
-import { select } from '@wordpress/data';
 import { _x, __ } from '@wordpress/i18n';
 import { getIconColor } from '../../../shared/block-icons';
 import createBlocksFromTemplate from '../../../shared/create-block-from-inner-blocks-template';
@@ -71,94 +70,32 @@ function podcastSummarySection( { episodeTrack } ) {
 }
 
 function podcastConversationSection() {
-	const conversationBlockName = 'jetpack/conversation';
-	const isConversationBlockAvailable = select( 'core/blocks' ).getBlockType(
-		conversationBlockName
-	);
-
-	// Check if `jetpack/conversation` block is register.
-	if ( ! isConversationBlockAvailable ) {
-		// When it is not, return a fallback core-blocks composition.
-		return [
-			[
-				'core/heading',
-				{
-					level: 3,
-					content: __( 'Transcription', 'jetpack' ),
-					placeholder: __( 'Podcast episode transcription', 'jetpack' ),
-				},
-			],
-			[
-				'core/paragraph',
-				{
-					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-				},
-			],
-			[
-				'core/paragraph',
-				{
-					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-				},
-			],
-			[
-				'core/paragraph',
-				{
-					placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-				},
-			],
-		];
-	}
-
 	return [
 		[
-			conversationBlockName,
+			'core/heading',
 			{
-				participants: [
-					{
-						slug: 'participant-0',
-						label: __( 'Speaker 1', 'jetpack' ),
-					},
-					{
-						slug: 'participant-1',
-						label: __( 'Speaker 2', 'jetpack' ),
-					},
-					{
-						slug: 'participant-2',
-						label: __( 'Speaker 3', 'jetpack' ),
-					},
-				],
+				level: 3,
+				content: __( 'Transcription', 'jetpack' ),
+				placeholder: __( 'Podcast episode transcription', 'jetpack' ),
 			},
-			[
-				[
-					'core/heading',
-					{
-						level: 3,
-						content: __( 'Transcription', 'jetpack' ),
-						placeholder: __( 'Podcast episode transcription', 'jetpack' ),
-					},
-				],
-				[
-					'jetpack/dialogue',
-					{
-						placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-						slug: 'participant-0',
-					},
-				],
-				[
-					'jetpack/dialogue',
-					{
-						placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-						slug: 'participant-1',
-					},
-				],
-				[
-					'jetpack/dialogue',
-					{
-						placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
-						slug: 'participant-2',
-					},
-				],
-			],
+		],
+		[
+			'core/paragraph',
+			{
+				placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+			},
+		],
+		[
+			'core/paragraph',
+			{
+				placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+			},
+		],
+		[
+			'core/paragraph',
+			{
+				placeholder: __( 'Podcast episode dialogue', 'jetpack' ),
+			},
 		],
 	];
 }

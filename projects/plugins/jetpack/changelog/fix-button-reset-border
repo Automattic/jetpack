@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Button Block: ensure no borders are added by default browser styles.

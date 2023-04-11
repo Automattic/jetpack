@@ -1,0 +1,55 @@
+.jp-forms__page-navigation {
+	background-color: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: row;
+	height: 36px;
+	justify-content: center;
+	padding: 0;
+	width: fit-content;
+}
+
+.jp-forms__page-navigation-button,
+.jp-forms__page-navigation-button:hover,
+.jp-forms__page-navigation-placeholder:hover,
+.jp-forms__page-navigation-placeholder {
+	background: transparent;
+	border: 0;
+	box-sizing: border-box;
+	color: #101517;
+	cursor: pointer;
+	display: inline-flex;
+	font-weight: bold;
+	font-size: 13px;
+	height: 34px;
+	line-height: 18px;
+	text-align: center;
+	padding: 8px 12px;
+
+	&.is-active {
+		background-color: #101517;
+		color: #fff;
+	}
+
+	&:disabled {
+		cursor: default;
+
+		&:first-child, &:last-child {
+			color: #dcdcde;
+		}
+	}
+
+	.gridicon {
+		display: inline-flex;
+
+		&.gridicons-arrow-left {
+			margin-right: 3px;
+		}
+
+		&.gridicons-arrow-right {
+			margin-left: 3px;
+		}
+	}
+}

@@ -27,17 +27,20 @@ const JetpackFieldControls = ( {
 	id,
 	placeholder,
 	placeholderField = 'placeholder',
+	hidePlaceholder,
 	required,
 	setAttributes,
 	width,
 } ) => {
-	const setNumberAttribute = ( key, parse = parseInt ) => value => {
-		const parsedValue = parse( value, 10 );
+	const setNumberAttribute =
+		( key, parse = parseInt ) =>
+		value => {
+			const parsedValue = parse( value, 10 );
 
-		setAttributes( {
-			[ key ]: ! isNaN( parsedValue ) ? parsedValue : '',
-		} );
-	};
+			setAttributes( {
+				[ key ]: ! isNaN( parsedValue ) ? parsedValue : '',
+			} );
+		};
 
 	const colorSettings = [
 		{
@@ -94,17 +97,18 @@ const JetpackFieldControls = ( {
 						onChange={ value => setAttributes( { required: value } ) }
 						help={ __( 'You can edit the "required" label in the editor', 'jetpack' ) }
 					/>
-
-					<TextControl
-						label={ __( 'Placeholder text', 'jetpack' ) }
-						value={ placeholder }
-						onChange={ value => setAttributes( { [ placeholderField ]: value } ) }
-						help={ __(
-							'Show visitors an example of the type of content expected. Otherwise, leave blank.',
-							'jetpack'
-						) }
-					/>
-
+					{ ! hidePlaceholder && (
+						<TextControl
+							label={ __( 'Placeholder text', 'jetpack' ) }
+							value={ placeholder || '' }
+							onChange={ value => setAttributes( { [ placeholderField ]: value } ) }
+							help={ __(
+								'Show visitors an example of the type of content expected. Otherwise, leave blank.',
+								'jetpack'
+							) }
+						/>
+					) }
+					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<ToggleControl
 						label={ __( 'Sync fields style', 'jetpack' ) }
 						checked={ attributes.shareFieldAttributes }
@@ -118,7 +122,6 @@ const JetpackFieldControls = ( {
 					colorSettings={ colorSettings }
 				/>
 				<PanelBody title={ __( 'Input Field Styles', 'jetpack' ) } initialOpen={ false }>
-					<JetpackFieldWidth setAttributes={ setAttributes } width={ width } />
 					<BaseControl>
 						<FontSizePicker
 							withReset={ true }

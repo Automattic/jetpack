@@ -18,6 +18,13 @@ class Comment extends \WP_REST_Comments_Controller {
 	use Import;
 
 	/**
+	 * Whether the controller supports batching.
+	 *
+	 * @var array
+	 */
+	protected $allow_batch = array( 'v1' => true );
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -25,19 +32,6 @@ class Comment extends \WP_REST_Comments_Controller {
 
 		// @see add_comment_meta
 		$this->import_id_meta_type = 'comment';
-	}
-
-	/**
-	 * Registers the routes for the objects of the controller.
-	 *
-	 * @see WP_REST_Comments_Controller::register_rest_route()
-	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			$this->rest_base,
-			$this->get_route_options()
-		);
 	}
 
 	/**
@@ -63,7 +57,42 @@ class Comment extends \WP_REST_Comments_Controller {
 			$request['parent'] = is_array( $comments ) && count( $comments ) ? $comments[0] : 0;
 		}
 
+		$duplicated_id = null;
+
+		/**
+		 * Core comment creation function doesn't return the duplicated comment ID.
+		 * Add a filter to get the ID.
+		 *
+		 * phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		 */
+		$get_id_func = function ( $dupe_id, $commentdata ) use ( &$duplicated_id ) {
+			if ( $dupe_id !== null ) {
+				$duplicated_id = $dupe_id;
+			}
+
+			return $dupe_id;
+		};
+
+		// Add the filter.
+		\add_filter( 'duplicate_comment_id', $get_id_func, 10, 2 );
+
 		$response = parent::create_item( $request );
+
+		// Check if the comment is duplicated.
+		if (
+			$duplicated_id !== null &&
+			is_wp_error( $response ) &&
+			$response->get_error_code() === 'comment_duplicate' ) {
+			$data = $response->get_error_data( 'comment_duplicate' );
+
+			// Add the comment ID.
+			$data['comment_id'] = $duplicated_id;
+
+			$response->add_data( $data );
+		}
+
+		// Remove the filter.
+		\remove_filter( 'duplicate_comment_id', $get_id_func );
 
 		return $this->add_import_id_metadata( $request, $response );
 	}

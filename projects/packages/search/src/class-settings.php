@@ -45,7 +45,7 @@ class Settings {
 			array( $setting_prefix . 'highlight_color', 'string', '#FFC' ),
 			array( $setting_prefix . 'enable_sort', 'boolean', true ),
 			array( $setting_prefix . 'inf_scroll', 'boolean', true ),
-			array( $setting_prefix . 'show_post_date', 'boolean', is_multisite() ),
+			array( $setting_prefix . 'show_post_date', 'boolean', true ),
 			array( $setting_prefix . 'show_powered_by', 'boolean', true ),
 		);
 		foreach ( $settings as $value ) {

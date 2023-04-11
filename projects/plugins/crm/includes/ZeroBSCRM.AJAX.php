@@ -486,7 +486,7 @@ function zbs_save_email_status() {
 	// nonce field is zbs-save-email_active
 }
 
-// WLREMOVE
+##WLREMOVE
 // Wizard Finish Step
 // AJAX function for installing demo content
 add_action( 'wp_ajax_nopriv_zbs_wizard_fin', 'zbs_wizard_fin' );
@@ -708,7 +708,7 @@ function zbs_wizard_fin() {
 		die();
 	}
 }
-// /WLREMOVE
+##/WLREMOVE
 
 	// } General App Helpers - log user closing a modal (see also zeroBSCRM_getCloseState)
 	// basically log a dismissed dialog..
@@ -1345,6 +1345,12 @@ function ZeroBSCRM_get_quote_template() {
 				$quote_date = date( 'd/m/Y', time() );
 			}
 
+			if ( empty( $quote_notes ) ) {
+				if ( isset( $_POST['quote_fields']['zbscq_notes'] ) ) {
+					$quote_notes = sanitize_text_field( wp_unslash( $_POST['quote_fields']['zbscq_notes'] ) );
+				}
+			}
+
 			$workingHTML = zeroBSCRM_io_WPEditor_DBToHTML( $quoteTemplate['content'] );
 
 			// replacements
@@ -1353,10 +1359,9 @@ function ZeroBSCRM_get_quote_template() {
 			$replacements['quote-title']      = $quote_title;
 			$replacements['quote-value']      = zeroBSCRM_formatCurrency( $quote_val );
 			$replacements['quote-date']       = $quote_date;
+			$replacements['quote-notes']      = $quote_notes;
 			$replacements['biz-state']        = $bizState;
 			$replacements['contact-fullname'] = $customerName;
-
-			$workingHTML = $placeholder_templating->replace_placeholders( array( 'global', 'contact', 'quote' ), $workingHTML, $replacements, array( ZBS_TYPE_CONTACT => $contact_object ) );
 
 			// if DAL3, also replace any custom fields
 			if ( isset( $_POST['quote_fields'] ) && is_array( $_POST['quote_fields'] ) ) {
@@ -1385,11 +1390,12 @@ function ZeroBSCRM_get_quote_template() {
 							$workingHTML = str_replace( '##QUOTE-' . strtoupper( $key ) . '##', $v, $workingHTML );
 							$workingHTML = str_replace( '##QUOTE-' . strtolower( $key ) . '##', $v, $workingHTML );
 							$workingHTML = str_replace( '##quote-' . strtolower( $key ) . '##', $v, $workingHTML );
-
 						}
 					}
 				}
 			}
+			$workingHTML = $placeholder_templating->replace_placeholders( array( 'global', 'contact', 'quote' ), $workingHTML, $replacements, array( ZBS_TYPE_CONTACT => $contact_object ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
 			// } replace the rest (#fname, etc)
 			// WH: moved to nice filter :) $workingHTML = zeroBSCRM_replace_customer_placeholders($customer_ID, $workingHTML);
 			$workingHTML = apply_filters( 'zerobscrm_quote_html_generate', $workingHTML, $customer_ID );
@@ -2012,8 +2018,8 @@ function zbs_lead_form_capture() {
 									'objtype'   => ZBS_TYPE_CONTACT,
 									'objid'     => $cID,
 									'type'      => zeroBSCRM_permifyLogType( 'Form Filled' ),
-									'shortdesc' => __( 'Customer added via Form Submit', 'zero-bs-crm' ),
-									'longdesc'  => '<blockquote>' . __( 'Customer added via Form Submit', 'zero-bs-crm' ) . '</blockquote>',
+									'shortdesc' => __( 'Contact added via Form Submit', 'zero-bs-crm' ),
+									'longdesc'  => '<blockquote>' . __( 'Contact added via Form Submit', 'zero-bs-crm' ) . '</blockquote>',
 
 								),
 							)

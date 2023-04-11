@@ -177,7 +177,7 @@ class Jetpack_Admin {
 	 */
 	public static function theme_enhancements_redirect() {
 		wp_safe_redirect(
-			'admin.php?page=jetpack#/writing?term=Custom%20CSS'
+			'admin.php?page=jetpack#/writing?term=custom-css'
 		);
 		exit;
 	}

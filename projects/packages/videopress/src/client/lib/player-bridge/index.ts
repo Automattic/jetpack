@@ -1,9 +1,15 @@
 /**
+ * External dependencies
+ */
+import debugFactory from 'debug';
+/**
  * Types
  */
 import type { VideoGUID } from '../../block-editor/blocks/video/types';
 
 type Origin = 'https://videopress.com' | 'https://video.wordpress.com';
+
+const debug = debugFactory( 'videopress:player-bridge' );
 
 const VIDEOPRESS_ALLOWED_LISTENING_EVENTS = [
 	'videopress_playing',
@@ -19,8 +25,15 @@ const VIDEOPRESS_ALLOWED_LISTENING_EVENTS = [
 	'videopress_toggle_fullscreen',
 ] as const;
 
+const VIDEOPRESS_ALLOWED_EMITTING_EVENTS = [
+	'videopress_action_play',
+	'videopress_action_pause',
+	'videopress_action_set_currenttime',
+	'videopress_action_set_volume',
+] as const;
+
 type PlayerBrigeEventProps = {
-	event: typeof VIDEOPRESS_ALLOWED_LISTENING_EVENTS[ number ];
+	event: ( typeof VIDEOPRESS_ALLOWED_LISTENING_EVENTS )[ number ];
 	id: VideoGUID;
 	origin: Origin;
 };
@@ -38,21 +51,29 @@ export async function playerBridgeHandler(
 	const { event: eventName } = data;
 
 	// Propagate only allowed events.
-	if ( ! VIDEOPRESS_ALLOWED_LISTENING_EVENTS.includes( eventName ) ) {
-		return;
+	if ( VIDEOPRESS_ALLOWED_LISTENING_EVENTS.includes( eventName ) ) {
+		// Propagate only allowed origins.
+		const allowed_origins: Array< Origin > = [
+			'https://videopress.com',
+			'https://video.wordpress.com',
+		];
+
+		if ( -1 !== allowed_origins.indexOf( event.origin as Origin ) ) {
+			debug( 'broadcast %o event: %o', eventName, data );
+			window.top.postMessage( event.data, '*' );
+		}
 	}
 
-	// Propagate only allowed origins.
-	const allowed_origins: Array< Origin > = [
-		'https://videopress.com',
-		'https://video.wordpress.com',
-	];
+	if ( VIDEOPRESS_ALLOWED_EMITTING_EVENTS.includes( eventName ) ) {
+		const videoPressIFrame = document.querySelector( 'iframe' );
+		const videoPressWindow = videoPressIFrame?.contentWindow;
+		if ( ! videoPressWindow ) {
+			return;
+		}
 
-	if ( -1 === allowed_origins.indexOf( event.origin as Origin ) ) {
-		return;
+		debug( 'emit %o event - %o', eventName, data );
+		videoPressWindow.postMessage( data, '*' );
 	}
-
-	window.top.postMessage( event.data, '*' );
 }
 
 ( function () {

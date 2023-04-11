@@ -266,7 +266,7 @@ class Connections_Post_Field {
 	protected function get_meta_to_update( $requested_connections, $post_id = 0 ) {
 		global $publicize;
 
-		if ( ! $publicize ) {
+		if ( ! $publicize || ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) {
 			return array();
 		}
 

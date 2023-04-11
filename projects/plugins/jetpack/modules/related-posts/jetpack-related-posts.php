@@ -138,8 +138,9 @@ class Jetpack_RelatedPosts {
 						'padding' => true,
 					),
 					'typography' => array(
-						'fontSize'   => true,
-						'lineHeight' => true,
+						'__experimentalFontFamily' => true,
+						'fontSize'                 => true,
+						'lineHeight'               => true,
 					),
 					'align'      => array( 'wide', 'full' ),
 				),

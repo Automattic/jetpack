@@ -3,9 +3,9 @@ Contributors: automattic, xwp, adnan007, bjorsch, danwalmsley, davidlonjon, ebin
 Donate link: https://automattic.com
 Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
-Tested up to: 6.1
+Tested up to: 6.2
 Requires PHP: 7.0
-Stable tag: 1.6.0
+Stable tag: 1.7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -48,6 +48,8 @@ Currently, the plugin has 3 performance modules available:
 3. *Lazy Image Loading* only loads the images the user can see. As the user scrolls, images are loaded just before they show up on the page. This simple optimization makes websites faster and saves bandwidth for your host and your customers.
 
    Read more about lazy image loading at [web.dev](https://jetpack.com/redirect/?source=jetpack-boost-lazy-load)
+
+4. *Image Guide* is a must-have feature for anyone who wants to optimize the images on their website. With this guide, you can ensure that the images on your site are the right size and dimensions, which is critical for improving user experience, page speed, and site ranking. Following the tips and best practices outlined in the guide, you can reduce image file sizes and speed up your site. Check out our [support page](https://jetpack.com/support/jetpack-boost/image-performance-guide/) to learn more about this feature and how it can help you achieve a faster and smoother website experience for your users.
 
  Google PageSpeed API is used to measure the performance score of a site. It's important to look at the Page Speed score because Core Web Vitals are going to be used as a ranking factor in search engines which means improving your SERP listing and increase your website visitors.
 
@@ -176,19 +178,34 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.7.0 - 2023-01-17
+### 1.8.0-beta - 2023-04-06
 #### Added
-- New Feature: Jetpack Boost Image Guide.
-- General: Add a notification bubble next to Boost in the WP-admin sidebar.
-- General: Added new tracks events.
-- User Experience: Add redirect to Boost dashboard after activating Boost plugin.
+- Critical CSS: Added a notice to regenerate Critical CSS to the Boost dashboard.
+- General: Added a link to activate a license key.
+- Image CDN: Added image CDN to Boost.
+- Image Guide: Added information about the Image Guide to the readme.
+
+#### Changed
+- Critical CSS: Added clearer explanations of the feature, and when to regenerate CSS.
+- General: Faster "Getting Started" flow, bypassing the first connection screen.
+- General: Revised Jetpack connection agreement text to comply with our User Agreement.
+- General: Switch to a more stable internal data sync package.
+- General: Updated contributors list.
+- General: Updated to React 18.
 
 #### Fixed
-- Admin notices: only display regeneration notice to admins.
-- Compatibility: Improve critical CSS compatibility with older Safari browsers.
-- General: Don't let analytics failures prevent features from functioning.
-- Critical CSS: Fixed an issue where notices to regenerate critical CSS were showing unnecessarily.
-- General: Fix woocommerce deprecation warning.
+- Critical CSS: Added Internal schema validation for improved stability.
+- Critical CSS: Expanded the set of site changes which can trigger a regeneration.
+- Critical CSS: Fixed a minor UI glitch caused by a missing close tag.
+- Critical CSS: Fixed PHP warning when deleting stored Critical CSS
+- Critical CSS: Unified the internal structure of Cloud and Critical CSS, ensuring a smoother experience when switching between the two.
+- Lazy Loading: Fixed images sometimes failing to Lazy-load in Safari.
+- General: Fixed incorrect font sizes and weights in various screens.
+- General: Fixed incorrect GET parameters used during purchase flow, which leading to inconsistent behaviour.
+- Deferred JS: Fixed some compatibility issues with page-builders by turning off Deferred JS in the customizer preview.
+- General: Fixed triggers for optimization initialization sometimes firing on the wrong hook.
+- General: Fixed "Undefined array key: post" warning.
+- General: Fixed stats tracking by using the correct casing for Tracks event properties.
 
 --------
 

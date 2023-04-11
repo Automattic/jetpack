@@ -1,28 +1,12 @@
-import { Dialog, ProductOffer, Text, getRedirectUrl } from '@automattic/jetpack-components';
+import { Dialog, ProductOffer, TermsOfService } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
-import { ExternalLink } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { STORE_ID } from '../../store';
 import background from './background.svg';
 import illustration from './illustration.png';
 import styles from './styles.module.scss';
-
-const tos = createInterpolateElement(
-	__(
-		'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
-		'jetpack-social'
-	),
-	{
-		tosLink: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
-		shareDetailsLink: (
-			<ExternalLink href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) } />
-		),
-	}
-);
-
 const ConnectionScreen = () => {
 	const connectProps = useSelect( select => {
 		const store = select( STORE_ID );
@@ -33,16 +17,14 @@ const ConnectionScreen = () => {
 		};
 	} );
 
-	const {
-		userIsConnecting,
-		siteIsRegistering,
-		handleRegisterSite,
-		registrationError,
-	} = useConnection( {
-		from: 'jetpack-social',
-		redirectUri: 'admin.php?page=jetpack-social',
-		...connectProps,
-	} );
+	const { userIsConnecting, siteIsRegistering, handleRegisterSite, registrationError } =
+		useConnection( {
+			from: 'jetpack-social',
+			redirectUri: 'admin.php?page=jetpack-social',
+			...connectProps,
+		} );
+
+	const buttonText = __( 'Get Started', 'jetpack-social' );
 
 	return (
 		<Dialog
@@ -65,18 +47,21 @@ const ConnectionScreen = () => {
 						isCard={ false }
 						isBundle={ false }
 						onAdd={ handleRegisterSite }
-						buttonText={ __( 'Get Started', 'jetpack-social' ) }
+						buttonText={ buttonText }
 						icon="social"
 						isLoading={ siteIsRegistering || userIsConnecting }
+						buttonDisclaimer={
+							<TermsOfService
+								className={ styles[ 'terms-of-service' ] }
+								agreeButtonLabel={ buttonText }
+							/>
+						}
 						error={
 							registrationError
 								? __( 'An error occurred. Please try again.', 'jetpack-social' )
 								: null
 						}
 					/>
-					<Text variant="body-small" className={ styles.tos } mt={ 3 }>
-						{ tos }
-					</Text>
 				</div>
 			}
 			secondary={

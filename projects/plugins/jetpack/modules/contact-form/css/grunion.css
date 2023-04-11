@@ -1,3 +1,12 @@
+:root {
+    --jetpack--contact-form--border: 1px solid #8c8f94;
+    --jetpack--contact-form--border-color: #8c8f94;
+    --jetpack--contact-form--border-size: 1px;
+    --jetpack--contact-form--border-style: solid;
+    --jetpack--contact-form--border-radius: 0px;
+    --jetpack--contact-form--input-padding: 16px;
+}
+
 .contact-form .clear-form {
 	clear: both;
 }
@@ -35,6 +44,11 @@
 	height: 200px;
 }
 
+.contact-form :where(.grunion-field[type="text"], .grunion-field.textarea) {
+	padding-left: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+	padding-right: max(var(--jetpack--contact-form--input-padding-left, 16px), var(--jetpack--contact-form--border-radius));
+}
+
 .contact-form .grunion-field-wrap input,
 .contact-form .grunion-field-wrap textarea {
 	margin: 0;
@@ -45,11 +59,14 @@
 	min-width: 150px;
 }
 
-.contact-form input[type='radio'],
-.contact-form input[type='checkbox'] {
+.contact-form :where(input[type='radio'], input[type='checkbox']) {
 	width: 1rem;
 	height: 1rem;
 	float: none;
+}
+
+.contact-form input[type='radio'],
+.contact-form input[type='checkbox'] {
 	margin: 0 0.75rem 0 0;
 }
 
@@ -85,14 +102,14 @@
 	font-weight: normal;
 	display: inline-flex;
 	align-items: center;
-	line-height: 1.5;
+	line-height: 1;
 }
 
 .contact-form .grunion-checkbox-multiple-options,
 .contact-form .grunion-radio-options {
 	display: flex;
 	flex-direction: column;
-	gap: 0.25em
+	gap: 12px;
 }
 
 .contact-form label span {
@@ -326,6 +343,12 @@
 	padding: 0;
 	line-height: normal;
 	box-shadow: 0 2px 6px rgb(0 0 0 / 5%);
+	list-style: none;
+	margin: 0;
+}
+
+.contact-form .contact-form-dropdown__menu .ui-menu-item {
+	margin: 0;
 }
 
 .contact-form .contact-form-dropdown__menu .ui-menu {
@@ -363,7 +386,7 @@
 .contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options
 {
 	padding: var(--jetpack--contact-form--input-padding, 16px);
-	padding-top: calc(var(--jetpack--contact-form--input-padding, 16px) + 4px);
+	padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
 	flex-grow: 1;
 }
 
@@ -569,16 +592,4 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-below .grunion-field-wrap .below-label__label {
 	margin-left: var(--jetpack--contact-form--border-size);
-}
-
-.wp-block-jetpack-contact-form-container {
-	filter: blur(10px);
-}
-
-.contact-form-styles-loaded .wp-block-jetpack-contact-form-container,
-html[amp] body .wp-block-jetpack-contact-form-container,
-html[amp-version] body .wp-block-jetpack-contact-form-container,
-html[class*='amphtml'] body .wp-block-jetpack-contact-form-container
-{
-	filter: blur(0px);
 }

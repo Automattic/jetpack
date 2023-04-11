@@ -6,9 +6,9 @@
 	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
+	import { regenerateCriticalCss } from '../../stores/critical-css-state';
 	import { updateModuleState } from '../../stores/modules';
 	import Logo from '../../svg/jetpack-green.svg';
-	import { requestCloudCss } from '../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
@@ -18,8 +18,8 @@
 
 	onMount( async () => {
 		// Enable cloud-css on a successful upgrade.
-		await updateModuleState( 'cloud-css', true );
-		await requestCloudCss();
+		await updateModuleState( 'cloud_css', true );
+		await regenerateCriticalCss();
 	} );
 </script>
 

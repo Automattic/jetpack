@@ -54,6 +54,9 @@ export const PLAN_VIP = 'vip';
 export const PLAN_CHARGEBACK = 'chargeback';
 export const PLAN_JETPACK_SOCIAL_BASIC = 'jetpack_social_basic_yearly';
 export const PLAN_JETPACK_SOCIAL_BASIC_MONTHLY = 'jetpack_social_basic_monthly';
+export const PLAN_JETPACK_SOCIAL_ADVANCED = 'jetpack_social_advanced_yearly';
+export const PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY = 'jetpack_social_advanced_monthly';
+export const PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME = 'jetpack_golden_token_lifetime';
 
 // DEPRECATED: Daily and Real-time variations will soon be retired.
 // Remove after all customers are migrated to new products.
@@ -100,6 +103,7 @@ export const JETPACK_BUNDLES = [
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_YEARLY,
 	PLAN_JETPACK_SECURITY_T2_MONTHLY,
+	PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME,
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
@@ -121,6 +125,7 @@ export const JETPACK_PLANS_WITH_BACKUP = [
 	PLAN_JETPACK_SECURITY_T2_MONTHLY,
 	PLAN_JETPACK_COMPLETE,
 	PLAN_JETPACK_COMPLETE_MONTHLY,
+	PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME,
 ];
 
 export const JETPACK_PLANS_WITH_ANTI_SPAM = [
@@ -146,6 +151,8 @@ export const JETPACK_PLANS_WITH_ANTI_SPAM = [
 ];
 
 export const JETPACK_COMPLETE_BUNDLES = [ PLAN_JETPACK_COMPLETE, PLAN_JETPACK_COMPLETE_MONTHLY ];
+
+export const JETPACK_GOLDEN_TOKEN_BUNDLES = [ PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME ];
 
 export const JETPACK_SECURITY_BUNDLES = [
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
@@ -213,6 +220,8 @@ export const JETPACK_VIDEOPRESS_PRODUCTS = [
 export const JETPACK_SOCIAL_PRODUCTS = [
 	PLAN_JETPACK_SOCIAL_BASIC,
 	PLAN_JETPACK_SOCIAL_BASIC_MONTHLY,
+	PLAN_JETPACK_SOCIAL_ADVANCED,
+	PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY,
 ];
 
 export const JETPACK_BOOST_PRODUCTS = [ PLAN_JETPACK_BOOST, PLAN_JETPACK_BOOST_MONTHLY ];
@@ -548,6 +557,8 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_VIDEOPRESS:
 		case PLAN_JETPACK_VIDEOPRESS_MONTHLY:
 			return 'is-videopress-plan';
+		case PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME:
+			return 'is-jetpack-golden-token-plan';
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
@@ -567,6 +578,10 @@ export function getPlanClass( plan ) {
 		case PLAN_JETPACK_SOCIAL_BASIC:
 		case PLAN_JETPACK_SOCIAL_BASIC_MONTHLY:
 			return 'is-jetpack-social-basic-plan';
+
+		case PLAN_JETPACK_SOCIAL_ADVANCED:
+		case PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY:
+			return 'is-jetpack-social-advanced-plan';
 
 		case PLAN_JETPACK_BOOST:
 		case PLAN_JETPACK_BOOST_MONTHLY:
@@ -609,6 +624,16 @@ export function getMonthlyPlanByYearly( plan ) {
 }
 
 /**
+ * Determines if the plan or product is a special gifted offering.
+ *
+ * @param {string} planOrProductSlug - A plan or product slug.
+ * @returns {boolean} True if the plan or product is a special gifted offering, false otherwise.
+ */
+export function containsGiftedPlanOrProduct( planOrProductSlug ) {
+	return [ PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME ].includes( planOrProductSlug );
+}
+
+/**
  * Determines if the plan class contains backup daily.
  *
  * @param {string} planClass - A plan class.
@@ -640,6 +665,7 @@ export function containsBackupRealtime( planClass ) {
 		'is-security-t1-plan',
 		'is-security-t2-plan',
 		'is-complete-plan',
+		'is-jetpack-golden-token-plan',
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.
