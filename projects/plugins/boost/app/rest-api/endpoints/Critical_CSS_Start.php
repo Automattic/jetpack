@@ -21,7 +21,7 @@ class Critical_CSS_Start implements Endpoint {
 
 	public function is_cloud_css() {
 		$optimizations = ( new Modules_Setup() )->get_status();
-		return isset( $optimizations['cloud-css'] ) && $optimizations['cloud-css'];
+		return isset( $optimizations[ Cloud_CSS::get_slug() ] ) && $optimizations[ Cloud_CSS::get_slug() ];
 	}
 
 	public function response( $_request ) {
@@ -33,8 +33,8 @@ class Critical_CSS_Start implements Endpoint {
 		// Store those URLs in the Critical CSS State
 		$state = new Critical_CSS_State();
 		$state->prepare_request()
-			->set_pending_providers( $providers )
-			->save();
+				->set_pending_providers( $providers )
+				->save();
 
 		// Get the data
 		$data = $state->get();
