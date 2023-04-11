@@ -21,7 +21,7 @@
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
-	import ExcludesInput from '../elements/MinifyMeta.svelte';
+	import MinifyMeta from '../elements/MinifyMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
 	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
@@ -199,7 +199,7 @@
 		</p>
 
 		<div slot="meta">
-			<ExcludesInput
+			<MinifyMeta
 				id="js-excludes-list"
 				inputLabel={__( 'Exclude JS Strings:', 'jetpack-boost' )}
 				buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
@@ -219,7 +219,7 @@
 		</p>
 
 		<div slot="meta">
-			<ExcludesInput
+			<MinifyMeta
 				id="css-excludes-list"
 				inputLabel={__( 'Exclude CSS Strings:', 'jetpack-boost' )}
 				buttonText={__( 'Exclude CSS Strings', 'jetpack-boost' )}
