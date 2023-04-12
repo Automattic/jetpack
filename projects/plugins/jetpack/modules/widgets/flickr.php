@@ -2,6 +2,9 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
+
+use Automattic\Jetpack\Image_CDN\Image_CDN;
+
 /**
  * Disable direct access/execution to/of the widget code.
  */
@@ -139,8 +142,8 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 					$photos .= 'title="' . esc_attr( $photo->get_title() ) . '" ';
 					$photos .= ' /></a>';
 				}
-				if ( ! empty( $photos ) && class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) ) {
-					$photos = Jetpack_Photon::filter_the_content( $photos );
+				if ( ! empty( $photos ) && class_exists( 'Automattic\Jetpack\Image_CDN\Image_CDN' ) && Jetpack::is_module_active( 'photon' ) ) {
+					$photos = Image_CDN::filter_the_content( $photos );
 				}
 
 				$flickr_home = $rss->get_link(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Used in flickr/widget.php template file.

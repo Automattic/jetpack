@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4f41e4c3a855281b948c65e1b5440b15",
+    "content-hash": "24adfbc44fbeb669f7364bb34566764e",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1107,6 +1107,74 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Identity Crisis.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-image-cdn",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/image-cdn",
+                "reference": "6a7235d4f10d3d70016239ee89cc6f3c865cffbd"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-status": "@dev"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-image-cdn",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-image-cdn/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-image-cdn",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-image-cdn.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Serve images through Jetpack's powerful CDN",
             "transport-options": {
                 "relative": true
             }
@@ -5484,8 +5552,9 @@
         "automattic/jetpack-forms": 20,
         "automattic/jetpack-google-fonts-provider": 20,
         "automattic/jetpack-identity-crisis": 20,
-        "automattic/jetpack-ip": 20,
+        "automattic/jetpack-image-cdn": 20,
         "automattic/jetpack-import": 20,
+        "automattic/jetpack-ip": 20,
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-lazy-images": 20,
         "automattic/jetpack-licensing": 20,

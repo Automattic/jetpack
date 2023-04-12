@@ -14,6 +14,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /*
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -189,6 +191,9 @@ if ( is_readable( $jetpack_autoloader ) && is_readable( $jetpack_module_headings
 
 register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
+
+// Load image cdn core. This should load regardless of whether the photon module is active.
+Image_CDN_Core::setup();
 
 // Require everything else, that is not loaded via the autoloader.
 require_once JETPACK__PLUGIN_DIR . 'load-jetpack.php';
