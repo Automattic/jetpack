@@ -246,6 +246,7 @@ class Initializer {
 			$preview_on_hover = array(
 				'previewAtTime'       => $block_attributes['posterData']['previewAtTime'],
 				'previewLoopDuration' => $block_attributes['posterData']['previewLoopDuration'],
+				'autoplay'            => (bool) $block_attributes['autoplay'],
 			);
 
 			// Expose the preview on hover data to the client.
