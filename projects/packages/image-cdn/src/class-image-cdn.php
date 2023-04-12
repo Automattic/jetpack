@@ -1204,7 +1204,7 @@ final class Image_CDN {
 	 *
 	 * @param array $tags Open graph tags.
 	 * @param array $parameters Image parameters.
-	 * @uses Image_CDN_Core::jetpack_photon_url
+	 * @uses Image_CDN_Core::cdn_url
 	 * @return array Open graph tags.
 	 */
 	public function filter_open_graph_tags( $tags, $parameters ) {
