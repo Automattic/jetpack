@@ -178,6 +178,9 @@ export const regenerateCriticalCss = async () => {
  * @param state
  */
 export async function regenerateLocalCriticalCss( state: CriticalCssState ) {
+	if ( state.status === 'generated' ) {
+		return;
+	}
 	const generatingSucceeded = await generateCriticalCss( state );
 	const status = generatingSucceeded ? 'generated' : 'error';
 	replaceCssState( { status } );
