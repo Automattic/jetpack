@@ -20,8 +20,6 @@ function load_3rd_party() {
 	$compat_files = array(
 		// This one probably makes more sense to move to the Forms package (and the module until it is fully deprecated).
 		'class-salesforce-lead-form.php', // not a module but the handler for Salesforce forms
-		// Looking for a copy of the plugin and some revent versions to confirm a good way to check it.
-		'wpml.php',
 	);
 
 	foreach ( $compat_files as $file ) {
@@ -110,6 +108,11 @@ function load_3rd_party_compat_filters() {
 	// Atomic Weekly
 	if ( ( new Host() )->is_atomic_platform() ) {
 		add_filter( 'jetpack_development_version', __NAMESPACE__ . '\atomic_weekly_override' );
+	}
+
+	// WPML
+	if ( defined( 'ICL_SITEPRESS_VERSION' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/wpml.php';
 	}
 }
 
