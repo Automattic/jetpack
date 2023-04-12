@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Status\Host;
+// Automattic\Jetpack\Constants is already available via the Automattic\Jetpack namespace.
 
 /**
  * Loads the individual 3rd-party compat files.
@@ -24,7 +25,6 @@ function load_3rd_party() {
 		'jetpack-backup.php',
 		'jetpack-boost.php',
 		'debug-bar.php',
-		'class-domain-mapping.php',
 		'crowdsignal.php',
 		'qtranslate-x.php',
 		'vaultpress.php',
@@ -70,8 +70,13 @@ function load_3rd_party_compat_filters() {
 	}
 
 	// AMP. AMP__DIR__ is defined in the AMP plugin since the very first version.
-	if ( defined( 'AMP__DIR__' ) ) {
+	if ( Constants::is_defined( 'AMP__DIR__' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/class.jetpack-amp-support.php';
+	}
+
+	// Domain Mapping. All assume multisite, so it's an easy check.
+	if ( Constants::is_defined( 'SUNRISE' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/class-domain-mapping.php';
 	}
 }
 
