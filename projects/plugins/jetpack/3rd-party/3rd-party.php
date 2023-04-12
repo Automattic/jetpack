@@ -17,7 +17,6 @@ function load_3rd_party() {
 	add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 11 );
 	// Array of third-party compat files to always require.
 	$compat_files = array(
-		'class.jetpack-amp-support.php',
 		'class-jetpack-crm-data.php',
 		'class-jetpack-modules-overrides.php', // Special case. Tools to be used to override module settings.
 		'class-salesforce-lead-form.php', // not a module but the handler for Salesforce forms
@@ -68,6 +67,11 @@ function load_3rd_party_compat_filters() {
 	// BuddyPress
 	if ( class_exists( 'BuddyPress' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/buddypress.php';
+	}
+
+	// AMP. AMP__DIR__ is defined in the AMP plugin since the very first version.
+	if ( defined( 'AMP__DIR__' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/class.jetpack-amp-support.php';
 	}
 }
 
