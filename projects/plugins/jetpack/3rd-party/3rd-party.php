@@ -22,7 +22,6 @@ function load_3rd_party() {
 		'debug-bar.php',
 		'crowdsignal.php',
 		'qtranslate-x.php',
-		'web-stories.php',
 		'wpml.php',
 	);
 
@@ -87,6 +86,12 @@ function load_3rd_party_compat_filters() {
 	if ( Constants::is_defined( 'VAULTPRESS__VERSION' ) || class_exists( 'VaultPress' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/vaultpress.php';
 	}
+
+	// Web Stories
+	if ( Constants::is_defined( 'WEBSTORIES_VERSION' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/web-stories.php';
+	}
+
 	// WooCommerce
 	if ( class_exists( 'WooCommerce' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/woocommerce.php';
