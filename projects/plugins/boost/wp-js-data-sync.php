@@ -141,5 +141,5 @@ jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
  * Register Minify Excludes stores.
  */
 // @todo - add validations for these options.
-jetpack_boost_register_option( 'minify_js_excludes', Schema::as_string()->fallback( false ) );
-jetpack_boost_register_option( 'minify_css_excludes', Schema::as_string()->fallback( false ) );
+jetpack_boost_register_option( 'minify_js_excludes', Schema::as_string()->fallback( '' ) );
+jetpack_boost_register_option( 'minify_css_excludes', Schema::as_string()->fallback( '' ) );
