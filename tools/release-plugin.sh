@@ -103,12 +103,12 @@ done
 
 # Try to obtain a version number for plugins that we didn't supply.
 for SLUG in "${!PROJECTS[@]}"; do
-	cd "$BASE"
 	if [[ -z "${PROJECTS[$SLUG]}" ]]; then
-		cd "projects/$SLUG"
+		cd "$BASE/projects/$SLUG"
 		PROJECTS["$SLUG"]=$(changelogger version next)
 	fi
 done
+cd "$BASE"
 
 # Check the plugin version(s) to use for the plugin(s).
 function check_ver {
