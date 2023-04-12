@@ -134,15 +134,10 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		}
 
 		// Modules.
-		const module = file.match(
-			/^projects\/plugins\/jetpack\/?(?<test>tests\/php\/)?modules\/(?<module>[^/]*)\//
-		);
+		const module = file.match( /^projects\/plugins\/jetpack\/modules\/(?<module>[^/]*)\// );
 		const moduleName = module && module.groups.module;
 		if ( moduleName ) {
 			keywords.add( `${ cleanName( moduleName ) }` );
-		}
-		if ( module && module.groups.test ) {
-			keywords.add( 'Unit Tests' );
 		}
 
 		// Actions.
@@ -225,9 +220,10 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			keywords.add( 'E2E Tests' );
 		}
 
-		const anyTestFile = file.match( /\/tests\// );
+		// Tests.
+		const anyTestFile = file.match( /\/tests?\// );
 		if ( anyTestFile ) {
-			keywords.add( '[Status] Needs Test Review' );
+			keywords.add( '[Tests] Includes Tests' );
 		}
 
 		// Add '[Status] In Progress' for draft PRs
