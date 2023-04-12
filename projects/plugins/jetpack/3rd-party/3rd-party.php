@@ -17,7 +17,6 @@ function load_3rd_party() {
 	add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 11 );
 	// Array of third-party compat files to always require.
 	$compat_files = array(
-		'beaverbuilder.php',
 		'bitly.php',
 		'buddypress.php',
 		'class.jetpack-amp-support.php',
@@ -56,7 +55,11 @@ function load_3rd_party_compat_filters() {
 	// bbPress
 	if ( function_exists( 'bbpress' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/bbpress.php';
+	}
 
+	// Beaver Builder
+	if ( class_exists( 'FLBuilder' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/beaverbuilder.php';
 	}
 }
 
