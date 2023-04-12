@@ -21,7 +21,6 @@ function load_3rd_party() {
 		'class-salesforce-lead-form.php', // not a module but the handler for Salesforce forms
 		'debug-bar.php',
 		'crowdsignal.php',
-		'qtranslate-x.php',
 		'wpml.php',
 	);
 
@@ -81,6 +80,11 @@ function load_3rd_party_compat_filters() {
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/jetpack-backup.php';
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/jetpack-boost.php';
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/woocommerce-services.php';
+
+	// qTranslate. Plugin closed in 2021, but leaving support for now to allow sites to drop it.
+	if ( Constants::is_defined( 'QTX_VERSION' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/qtranslate-x.php';
+	}
 
 	// VaultPress.
 	if ( Constants::is_defined( 'VAULTPRESS__VERSION' ) || class_exists( 'VaultPress' ) ) {
