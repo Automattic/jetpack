@@ -396,6 +396,8 @@ class Main extends React.Component {
 			this.isUserConnectScreen() &&
 			( this.props.userCanManageModules || this.props.hasConnectedOwner )
 		) {
+			const searchParams = new URLSearchParams( location.search.split( '?' )[ 1 ] );
+
 			return (
 				<ConnectScreen
 					apiNonce={ this.props.apiNonce }
@@ -403,6 +405,7 @@ class Main extends React.Component {
 					apiRoot={ this.props.apiRoot }
 					images={ [ '/images/connect-right-secondary.png' ] }
 					assetBaseUrl={ this.props.pluginBaseUrl }
+					autoTrigger={ this.shouldAutoTriggerConnection() }
 					title={
 						this.props.connectingUserFeatureLabel
 							? sprintf(
@@ -414,6 +417,7 @@ class Main extends React.Component {
 					}
 					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
 					redirectUri="admin.php?page=jetpack"
+					from={ searchParams && searchParams.get( 'from' ) }
 				>
 					<ul>
 						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
@@ -498,6 +502,7 @@ class Main extends React.Component {
 			case '/reconnect':
 			case '/disconnect':
 			case '/connect-user':
+			case '/connect-user-setup':
 			case '/woo-setup':
 			case '/setup':
 				pageComponent = (
@@ -715,7 +720,10 @@ class Main extends React.Component {
 	 * @returns {boolean} Whether this is the user connection screen page.
 	 */
 	isUserConnectScreen() {
-		return '/connect-user' === this.props.location.pathname;
+		return (
+			'/connect-user' === this.props.location.pathname ||
+			'/connect-user-setup' === this.props.location.pathname
+		);
 	}
 
 	/**
@@ -759,7 +767,10 @@ class Main extends React.Component {
 	 * @returns {boolean} Whether to trigger the connection flow automatically.
 	 */
 	shouldAutoTriggerConnection() {
-		return this.props.location.pathname.startsWith( '/setup' );
+		return (
+			this.props.location.pathname.startsWith( '/setup' ) ||
+			this.props.location.pathname.startsWith( '/connect-user-setup' )
+		);
 	}
 
 	/**
@@ -799,18 +810,6 @@ class Main extends React.Component {
 		const mainNav = this.renderMainNav( this.props.location.pathname );
 		const showHeader = mainNav || this.shouldShowMasthead() || this.shouldShowRewindStatus();
 
-		const headerInternals = (
-			<>
-				<AdminNotices />
-				<JetpackNotices />
-				{ this.shouldConnectUser() && this.connectUser() }
-				<Prompt
-					when={ this.props.areThereUnsavedSettings }
-					message={ this.handleRouterWillLeave }
-				/>
-			</>
-		);
-
 		return (
 			<div>
 				{ this.shouldShowReconnectModal() && (
@@ -822,14 +821,20 @@ class Main extends React.Component {
 						<div className="jp-top-inside">
 							{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
 							{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
-							{ headerInternals }
 							{ mainNav }
 						</div>
 					</div>
 				) }
 
 				<div className={ jpClasses.join( ' ' ) }>
-					{ ! showHeader && headerInternals }
+					<AdminNotices />
+					<JetpackNotices />
+					{ this.shouldConnectUser() && this.connectUser() }
+					<Prompt
+						when={ this.props.areThereUnsavedSettings }
+						message={ this.handleRouterWillLeave }
+					/>
+
 					{ this.renderMainContent( this.props.location.pathname ) }
 					{ this.shouldShowAgenciesCard() && (
 						<AgenciesCard path={ this.props.location.pathname } discountPercentage={ 25 } />
