@@ -35,7 +35,7 @@ class Test_Initial_State extends TestCase {
 		);
 
 		$expected_state = array(
-			'apiRoot'            => esc_url_raw( rest_url() ),
+			'apiRoot123'         => esc_url_raw( rest_url() ),
 			'apiNonce'           => wp_create_nonce( 'wp_rest' ),
 			'registrationNonce'  => wp_create_nonce( 'jetpack-registration-nonce' ),
 			'connectionStatus'   => REST_Connector::connection_status( false ),
