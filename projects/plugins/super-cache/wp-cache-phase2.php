@@ -2661,6 +2661,12 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 			wp_cache_debug( "gc: could not delete $directory as it's protected.", 2 );
 			$oktodelete = false;
 		}
+
+		if ( ! $rename && $cache_max_time < 1 ) {
+			wp_cache_debug( "gc: should not delete $directory as cache_max_time is 0.", 2 );
+			$oktodelete = false;
+		}
+
 		if ( $oktodelete && ! $rename ) {
 			wp_cache_debug( "prune_super_cache: deleted $directory", 5 );
 			@unlink( $directory );
