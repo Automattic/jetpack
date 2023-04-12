@@ -19,11 +19,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 const PLUGIN_SLUG = 'jetpack-backup';
 const PLUGIN_FILE = 'jetpack-backup/jetpack-backup.php';
 
-if ( isset( $_GET['jetpack-backup-install-error'] ) ) {
+if ( isset( $_GET['jetpack-backup-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
 }
 
-if ( isset( $_GET['jetpack-backup-action'] ) ) {
+if ( isset( $_GET['jetpack-backup-action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
 }
 
