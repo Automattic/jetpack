@@ -95,7 +95,7 @@ function get_task_definitions() {
 		'first_post_published'
 			=> array(
 				'id'        => 'first_post_published',
-				'completed' => get_checklist_task( first_post_published ) . completed,
+				'completed' => get_checklist_task( first_post_published ),
 				'disabled'  => false,
 			),
 		'first_post_published_newsletter'
