@@ -225,7 +225,7 @@ class Scan extends Module_Product {
 
 		// If Jetpack is not active, it means that the user has another standalone plugin active
 		// and it follows the `Protect` plugin flow instead of `Scan` so for now it would be safe
-		// to return an empty string and let the user go back to the My Jetpack page.
-		return '';
+		// to return null and let the user go back to the My Jetpack page.
+		return null;
 	}
 }
