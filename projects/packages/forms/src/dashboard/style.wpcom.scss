@@ -34,6 +34,14 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 	.jp-forms__layout-header,
 	.jp-forms__inbox-tabs .components-tab-panel__tabs {
 		background-color: #fff;
+		color: #101517;
+		padding-left: 32px;
+		padding-right: 32px;
+	}
+
+	.jp-forms__inbox-tabs .components-tab-panel__tab-content {
+		border-top: 1px solid #0000000d;
+		padding-top: 32px;
 	}
 
 	.jp-forms__layout-title {
@@ -45,15 +53,13 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 			font-weight: 400;
 			font-size: 20px;
 			line-height: 26px;
+			margin-bottom: 4px;
 		}
 	}
 
 	.jp-forms__inbox-tab-item {
 		color: #50575E;
 		font-size: 14px;
-		margin-right: 16px;
-		padding-left: 0;
-		padding-right: 0;
 
 		&.active-tab {
 			border-color: #101517;
@@ -62,7 +68,8 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		}
 	}
 
-	.jp-forms__actions-search .input-wrapper {
+	.jp-forms__actions-search .input-wrapper,
+	.jp-forms__actions-search .input-wrapper .input {
 		font-size: 14px;
 
 		svg {
@@ -74,7 +81,9 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		--jp-forms-border-color: #c3c4c7;
 
 		background: #fdfdfd;
-		padding-top: 48px;
+		padding-left: 32px;
+		padding-right: 32px;
+		padding-top: 0;
 
 		.components-button {
 			font-size: 14px;
@@ -83,6 +92,23 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 			svg {
 				fill: #8c8f94;
 			}
+		}
+	}
+
+	.jp-forms__inbox-content {
+		@media (min-width: 1025px) {
+			padding-left: 32px;
+			padding-right: 32px;
+		}
+	}
+
+	.jp-forms__inbox-content-column {
+		padding-left: 32px;
+		padding-right: 32px;
+
+		@media (min-width: 1025px) {
+			padding-left: 0;
+			padding-right: 0;
 		}
 	}
 
