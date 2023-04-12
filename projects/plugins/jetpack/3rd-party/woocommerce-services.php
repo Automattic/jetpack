@@ -46,7 +46,7 @@ class WC_Services_Installer {
 			add_action( 'admin_notices', array( $this, 'error_notice' ) );
 		}
 
-		if ( isset( $_GET['wc-services-action'] ) ) {
+		if ( isset( $_GET['wc-services-action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			add_action( 'admin_init', array( $this, 'try_install' ) );
 		}
 	}
