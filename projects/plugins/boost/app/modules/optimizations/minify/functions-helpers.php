@@ -71,54 +71,6 @@ function jetpack_boost_init_filesystem() {
 	}
 }
 
-function jetpack_boost_page_optimize_should_concat_js() {
-	// Support query param for easy testing
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( isset( $_GET['concat-js'] ) && $_GET['concat-js'] !== '0' ) {
-		return true;
-	}
-
-	return (bool) get_option( 'page_optimize-js', jetpack_boost_page_optimize_js_default() );
-}
-
-// TODO: Support JS load mode regardless of whether concat is enabled
-function jetpack_boost_page_optimize_load_mode_js() {
-	$load_mode_arg = jetpack_boost_page_optimize_sanitize_js_load_mode(
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		empty( $_GET['load-mode-js'] ) ? '' : filter_var( wp_unslash( $_GET['load-mode-js'] ) )
-	);
-
-	if ( ! empty( $load_mode_arg ) ) {
-		return $load_mode_arg;
-	}
-
-	return jetpack_boost_page_optimize_sanitize_js_load_mode(
-		get_option( 'page_optimize-load-mode', jetpack_boost_page_optimize_js_load_mode_default() )
-	);
-}
-
-function jetpack_boost_page_optimize_should_concat_css() {
-	// Support query param for easy testing
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( isset( $_GET['concat-css'] ) && $_GET['concat-css'] !== '0' ) {
-		return true;
-	}
-
-	return (bool) get_option( 'page_optimize-css', jetpack_boost_page_optimize_css_default() );
-}
-
-function jetpack_boost_page_optimize_js_default() {
-	return true;
-}
-
-function jetpack_boost_page_optimize_css_default() {
-	return true;
-}
-
-function jetpack_boost_page_optimize_js_load_mode_default() {
-	return '';
-}
-
 function jetpack_boost_page_optimize_js_exclude_list() {
 	$exclude_list = get_option( 'jetpack_boost_ds_minify_js_excludes' );
 	if ( false === $exclude_list ) {
@@ -153,19 +105,6 @@ function jetpack_boost_page_optimize_css_exclude_list() {
 function jetpack_boost_page_optimize_css_exclude_list_default() {
 	// WordPress core stuff
 	return array( 'admin-bar', 'dashicons' );
-}
-
-function jetpack_boost_page_optimize_sanitize_js_load_mode( $value ) {
-	switch ( $value ) {
-		case 'async':
-		case 'defer':
-			break;
-		default:
-			$value = '';
-			break;
-	}
-
-	return $value;
 }
 
 function jetpack_boost_page_optimize_sanitize_exclude_field( $value ) {

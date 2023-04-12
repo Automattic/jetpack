@@ -17,12 +17,10 @@ class Css extends Minify implements Pluggable {
 
 		jetpack_boost_init_filesystem();
 
-		if ( jetpack_boost_page_optimize_should_concat_css() ) {
-			global $wp_styles;
+		global $wp_styles;
 
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$wp_styles                         = new Concatenate_CSS( $wp_styles );
-			$wp_styles->allow_gzip_compression = true; // @todo - used constant ALLOW_GZIP_COMPRESSION = true if not defined.
-		}
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_styles                         = new Concatenate_CSS( $wp_styles );
+		$wp_styles->allow_gzip_compression = true; // @todo - used constant ALLOW_GZIP_COMPRESSION = true if not defined.
 	}
 }
