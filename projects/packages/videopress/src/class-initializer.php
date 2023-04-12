@@ -248,7 +248,7 @@ class Initializer {
 			);
 
 			// Expose the preview on hover data to the client.
-			$preview_on_hover = sprintf( '<div className="jetpack-videopress-player__overlay"></div><script type="application/json">%s</script>', wp_json_encode( $preview_on_hover ) );
+			$preview_on_hover = sprintf( '<script type="application/json">%s</script>', wp_json_encode( $preview_on_hover ) );
 
 			// Set `autoplay` and `muted` attributes to the video element.
 			$block_attributes['autoplay'] = true;
@@ -272,7 +272,7 @@ class Initializer {
 			$videopress_url = wp_kses_post( $videopress_url );
 			$oembed_html    = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
 			$video_wrapper  = sprintf(
-				'<div class="jetpack-videopress-player__wrapper">%s</div>',
+				'<div class="jetpack-videopress-player__wrapper"><div class="jetpack-videopress-player__overlay"></div>%s</div>',
 				$oembed_html
 			);
 		}
