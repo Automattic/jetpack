@@ -48,6 +48,7 @@ function previewOnHoverEffect(): void {
 			previewAtTime: number;
 			previewLoopDuration: number;
 			autoplay: boolean;
+			showControls: boolean;
 		};
 
 		try {
@@ -92,13 +93,19 @@ function previewOnHoverEffect(): void {
 			return;
 		}
 
-		// Disable pOH when the user clicks on the video (overlay).
-		overlay.addEventListener( 'click', () => {
-			userHasInteracted = true;
-			overlay.remove();
-			// Delete overlay element.
-			setTimeout( iframeApi.controls.pause, 100 ); // Hack; without this, the video will not pause.
-		} );
+		/*
+		 * Disable PreviewOnHover (pOH) when the player
+		 * should show the controls and
+		 * once the user clicks on the video (overlay).
+		 */
+		if ( previewOnHoverData.showControls ) {
+			overlay.addEventListener( 'click', () => {
+				userHasInteracted = true;
+				overlay.remove();
+				// Delete overlay element.
+				setTimeout( iframeApi.controls.pause, 100 ); // Hack; without this, the video will not pause.
+			} );
+		}
 
 		overlay.addEventListener( 'mouseenter', iframeApi.controls.play );
 		overlay.addEventListener( 'mouseleave', iframeApi.controls.pause );
