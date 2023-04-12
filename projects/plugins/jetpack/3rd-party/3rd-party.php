@@ -17,7 +17,6 @@ function load_3rd_party() {
 	add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 11 );
 	// Array of third-party compat files to always require.
 	$compat_files = array(
-		'buddypress.php',
 		'class.jetpack-amp-support.php',
 		'class-jetpack-crm-data.php',
 		'class-jetpack-modules-overrides.php', // Special case. Tools to be used to override module settings.
@@ -64,6 +63,11 @@ function load_3rd_party_compat_filters() {
 	// Bitly
 	if ( class_exists( 'Bitly' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/bitly.php';
+	}
+
+	// BuddyPress
+	if ( class_exists( 'BuddyPress' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/buddypress.php';
 	}
 }
 
