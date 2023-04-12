@@ -220,7 +220,7 @@ class Backup extends Hybrid_Product {
 	public static function get_post_checkout_url() {
 		if ( static::is_jetpack_plugin_active() ) {
 			return admin_url( 'admin.php?page=jetpack#/recommendations' );
-		} else {
+		} elseif ( static::is_plugin_active() ) {
 			return admin_url( 'admin.php?page=jetpack-backup' );
 		}
 	}
