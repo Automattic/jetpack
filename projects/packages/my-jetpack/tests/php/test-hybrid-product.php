@@ -178,7 +178,7 @@ class Test_Hybrid_Product extends TestCase {
 		Backup::install_and_activate_standalone();
 
 		// The standalone plugin must be active
-		$this->assertTrue( Backup::is_plugin_active() );
+		$this->assertTrue( Backup::is_standalone_plugin_active() );
 
 		// The Jetpack plugin should not be active
 		$this->assertFalse( Backup::is_jetpack_plugin_active() );
