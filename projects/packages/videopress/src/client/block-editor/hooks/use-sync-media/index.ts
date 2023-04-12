@@ -297,7 +297,7 @@ export function useSyncMedia(
 		}
 
 		if ( ! isNative ) {
-			debug( '%o Post has been just save. Syncing...', attributes?.guid );
+			debug( '%o Post has been just saved. Syncing...', attributes?.guid );
 		}
 
 		if ( ! attributes?.id ) {
