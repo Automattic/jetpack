@@ -22,7 +22,6 @@ function load_3rd_party() {
 		'debug-bar.php',
 		'crowdsignal.php',
 		'qtranslate-x.php',
-		'vaultpress.php',
 		'web-stories.php',
 		'wpml.php',
 	);
@@ -84,6 +83,10 @@ function load_3rd_party_compat_filters() {
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/jetpack-boost.php';
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/woocommerce-services.php';
 
+	// VaultPress.
+	if ( Constants::is_defined( 'VAULTPRESS__VERSION' ) || class_exists( 'VaultPress' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/vaultpress.php';
+	}
 	// WooCommerce
 	if ( class_exists( 'WooCommerce' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/woocommerce.php';
