@@ -290,7 +290,7 @@ export function useSyncMedia(
 	 * (via the VideoPress API) when the post saves.
 	 */
 	useEffect( () => {
-		if ( ! postHasBeenJustSaved ) {
+		if ( ! postHasBeenJustSaved && ! isNative ) {
 			return;
 		}
 
