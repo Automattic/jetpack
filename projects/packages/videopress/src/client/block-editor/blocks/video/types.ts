@@ -16,11 +16,16 @@ declare global {
 				onInfoUpdated: ( fn: () => void ) => void;
 			};
 			status: {
+				onFullscreenChanged: ( fn: ( isFullscreen: boolean ) => void ) => void;
 				onPlayerStatusChanged: (
 					fn: ( oldStatus: playerStatuses, newStatus: playerStatuses ) => void
 				) => void;
 				onPlaybackTimeUpdated: ( fn: ( playbackTime: number ) => void ) => void;
 				onTimeUpdate: ( fn: ( playbackTime: number ) => void ) => void;
+				onChaptersChapterChanged: ( fn: ( chapter: number ) => void ) => void;
+				onChaptersTrackChanged: ( fn: ( track: number ) => void ) => void;
+				onBorderColorsChanged: ( fn: ( colors: string[] ) => void ) => void;
+				onError: ( fn: ( code: number, message: string ) => void ) => void;
 			};
 			controls: {
 				play: () => void;

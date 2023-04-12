@@ -78,8 +78,20 @@ function previewOnHoverEffect(): void {
 			} );
 		} );
 
-		videoPlayerElement.addEventListener( 'mouseenter', iframeApi.controls.play );
-		videoPlayerElement.addEventListener( 'mouseleave', iframeApi.controls.pause );
+		const overlay = videoPlayerElement.querySelector( '.jetpack-videopress-player__overlay' );
+		if ( ! overlay ) {
+			return;
+		}
+
+		// Disable pOH when the user clicks on the video (overlay).
+		overlay.addEventListener( 'click', () => {
+			overlay.remove();
+			// Delete overlay element.
+			setTimeout( iframeApi.controls.pause, 100 ); // Hack; without this, the video will not pause.
+		} );
+
+		overlay.addEventListener( 'mouseenter', iframeApi.controls.play );
+		overlay.addEventListener( 'mouseleave', iframeApi.controls.pause );
 	} );
 }
 
