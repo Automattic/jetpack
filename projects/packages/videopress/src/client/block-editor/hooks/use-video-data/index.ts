@@ -77,8 +77,7 @@ export default function useVideoData( {
 				setIsRequestingVideoData( false );
 
 				// pick filename from the source_url
-				const filename =
-					response.original?.split( '/' )?.[ response.original.split( '/' ).length - 1 ];
+				const filename = response.original?.split( '/' )?.at( -1 );
 
 				setVideoData( {
 					duration: response.duration,
