@@ -262,6 +262,20 @@ i.alternate {
   color: #000;
 }
 
+/* Position modal in middle of page */
+#jpcrm-first-use-dash {
+  position: static !important;
+  margin: auto auto;
+  height: 800px;
+  overflow-x: hidden;
+}
+
+/* Fix an apparent bug in Semantic UI CSS, which had the width larger than the screen min-width */
+@media only screen and (min-width: 992px) {
+  #jpcrm-first-use-dash.ui.large.modal {
+    width: 940px;
+  }
+}
 #jpcrm-first-use-dash.woovariant .jpcrm-modal-cta-group {
   padding-left: 70px;
   padding-right: 40px;

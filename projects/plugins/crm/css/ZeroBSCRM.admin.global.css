@@ -7727,7 +7727,6 @@ ul#adminmenu #toplevel_page_zerobscrm-logout ul#adminmenu > li.current > a.curre
   border: 0 !important;
 }
 
-#settings_dashboard_sales_funnel_display .panel,
 #settings_dashboard_revenue_chart_display .panel {
   box-shadow: none !important;
 }
