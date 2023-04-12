@@ -47,6 +47,7 @@ function previewOnHoverEffect(): void {
 		let previewOnHoverData: {
 			previewAtTime: number;
 			previewLoopDuration: number;
+			autoplay: boolean;
 		};
 
 		try {
@@ -63,7 +64,10 @@ function previewOnHoverEffect(): void {
 		const iframeApi = window.VideoPressIframeApi( iFrame, () => {
 			iframeApi.status.onPlayerStatusChanged( ( oldStatus, newStatus ) => {
 				if ( oldStatus === 'ready' && newStatus === 'playing' ) {
-					iframeApi.controls.pause();
+					if ( ! previewOnHoverData.autoplay ) {
+						iframeApi.controls.pause();
+					}
+
 					iframeApi.controls.seek( previewOnHoverData.previewAtTime );
 				}
 			} );
