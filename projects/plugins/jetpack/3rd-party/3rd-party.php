@@ -18,7 +18,6 @@ function load_3rd_party() {
 	add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 11 );
 	// Array of third-party compat files to always require.
 	$compat_files = array(
-		'class-jetpack-crm-data.php',
 		'class-jetpack-modules-overrides.php', // Special case. Tools to be used to override module settings.
 		'class-salesforce-lead-form.php', // not a module but the handler for Salesforce forms
 		'creative-mail.php',
@@ -78,6 +77,9 @@ function load_3rd_party_compat_filters() {
 	if ( Constants::is_defined( 'SUNRISE' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/class-domain-mapping.php';
 	}
+
+	// CRM. Always included; it is used only when certain endpoints are hit.
+	require_once JETPACK__PLUGIN_DIR . '/3rd-party/class-jetpack-crm-data.php';
 }
 
 /**
