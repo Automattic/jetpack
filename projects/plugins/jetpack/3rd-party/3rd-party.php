@@ -25,8 +25,6 @@ function load_3rd_party() {
 		'vaultpress.php',
 		'web-stories.php',
 		'wpml.php',
-		'woocommerce.php',
-		'woocommerce-services.php',
 	);
 
 	foreach ( $compat_files as $file ) {
@@ -84,6 +82,12 @@ function load_3rd_party_compat_filters() {
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/creative-mail.php';
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/jetpack-backup.php';
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/jetpack-boost.php';
+	require_once JETPACK__PLUGIN_DIR . '/3rd-party/woocommerce-services.php';
+
+	// WooCommerce
+	if ( class_exists( 'WooCommerce' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/woocommerce.php';
+	}
 }
 
 /**
