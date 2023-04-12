@@ -10,9 +10,6 @@
 	export let value: string;
 	let inputValue = value;
 	let isEditing = false;
-
-	// While debugging
-	isEditing = true;
 </script>
 
 <div class="jb-critical-css__meta">
