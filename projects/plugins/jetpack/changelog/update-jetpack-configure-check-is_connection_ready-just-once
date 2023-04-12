@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+In `Jetpack::configure()`, only check `is_connection_ready()` once.
