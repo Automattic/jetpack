@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Prevent post-preload cleanup from deleting nearly-new files when Garbage Collection time set to 0
