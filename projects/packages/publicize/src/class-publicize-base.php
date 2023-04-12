@@ -1630,7 +1630,7 @@ abstract class Publicize_Base {
 	/**
 	 * Check if the social image generator is enabled.
 	 *
-	 * @deprecated $$next-version$$ use Automattic\Jetpack\Publicize\Publicize_Base\has_social_image_generator_feature instead.
+	 * @deprecated 0.24.2 use Automattic\Jetpack\Publicize\Publicize_Base\has_social_image_generator_feature instead.
 	 * @param int $blog_id The blog ID for the current blog.
 	 * @return bool
 	 */
