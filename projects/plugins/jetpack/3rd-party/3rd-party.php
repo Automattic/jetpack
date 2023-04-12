@@ -18,7 +18,9 @@ function load_3rd_party() {
 	add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 11 );
 	// Array of third-party compat files to always require.
 	$compat_files = array(
+		// This one probably makes more sense to move to the Forms package (and the module until it is fully deprecated).
 		'class-salesforce-lead-form.php', // not a module but the handler for Salesforce forms
+		// Looking for a copy of the plugin and some revent versions to confirm a good way to check it.
 		'wpml.php',
 	);
 
@@ -27,8 +29,6 @@ function load_3rd_party() {
 			require_once JETPACK__PLUGIN_DIR . '/3rd-party/' . $file;
 		}
 	}
-
-	add_filter( 'jetpack_development_version', __NAMESPACE__ . '\atomic_weekly_override' );
 }
 
 /**
@@ -105,6 +105,11 @@ function load_3rd_party_compat_filters() {
 	// WooCommerce
 	if ( class_exists( 'WooCommerce' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/woocommerce.php';
+	}
+
+	// Atomic Weekly
+	if ( ( new Host() )->is_atomic_platform() ) {
+		add_filter( 'jetpack_development_version', __NAMESPACE__ . '\atomic_weekly_override' );
 	}
 }
 
