@@ -6,7 +6,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 
-class Modules_Status_Entry implements Entry_Can_Get, Entry_Can_Merge {
+class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 	public function get() {
 		$modules = Modules_Index::MODULES;
 
