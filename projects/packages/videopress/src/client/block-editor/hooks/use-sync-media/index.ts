@@ -30,7 +30,7 @@ import { useVideoPosterData } from '../use-video-poster-data';
 import type { UseSyncMedia, ArrangeTracksAttributesProps } from './types';
 import type { UploadTrackDataProps } from '../../../lib/video-tracks/types';
 
-const debug = debugFactory( 'videopress:video:use-video-data' );
+const debug = debugFactory( 'videopress:video:use-sync-media' );
 
 /*
  * Fields list to keep in sync with block attributes.
@@ -279,7 +279,7 @@ export function useSyncMedia(
 	 * Store and compare the block attributes
 	 * in order to detect changes on them.
 	 */
-	const isGeneratingPoster = useVideoPosterData( attributes ).isGeneratingPoster;
+	const { isGeneratingPoster } = useVideoPosterData( attributes );
 
 	/*
 	 * Block attributes => Media data (sync)
@@ -294,7 +294,9 @@ export function useSyncMedia(
 			return;
 		}
 
-		debug( '%o Post has been just save. Syncing...', attributes?.guid );
+		if ( ! isNative ) {
+			debug( '%o Post has been just save. Syncing...', attributes?.guid );
+		}
 
 		if ( ! attributes?.id ) {
 			debug( '%o No media ID found. Impossible to sync. Bail early', attributes?.guid );
