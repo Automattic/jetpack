@@ -69,7 +69,7 @@ async function isBug( octokit, owner, repo, number, action, label ) {
  * @returns {Array} Plugins concerned by issue.
  */
 function findPlugins( body ) {
-	const regex = /###\sImpacted\splugin\n\n([a-zA-Z ,]*)\n\n/gm;
+	const regex = /###\sImpacted\splugin\n\n([a-zA-Z ,-]*)\n\n/gm;
 
 	const match = regex.exec( body );
 	if ( match ) {
