@@ -6,19 +6,12 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
 
+require_once JETPACK__PLUGIN_DIR . '3rd-party/atomic.php';
+
 /**
  * Class WP_Test_Third_Party_Support
  */
 class WP_Test_Third_Party_Support extends WP_UnitTestCase {
-
-	/**
-	 * Set up tests.
-	 */
-	public function set_up() {
-		parent::set_up();
-		require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';
-	}
-
 	/**
 	 * Clean up tests.
 	 */
