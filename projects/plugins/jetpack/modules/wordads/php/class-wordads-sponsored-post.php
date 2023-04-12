@@ -21,7 +21,9 @@ class WordAds_Sponsored_Post {
 	 * Initializes scripts and hooks.
 	 */
 	public static function init() {
+		// Inject the sponsored post.
 		add_filter( 'the_posts', array( __CLASS__, 'inject_sponsored_post' ), 10, 2 );
+		add_action( 'loop_start', array( __CLASS__, 'amp_fix' ) );
 
 		// Override post display.
 		add_filter( 'post_class', array( __CLASS__, 'add_post_class' ), 10, 3 );
@@ -57,11 +59,7 @@ class WordAds_Sponsored_Post {
 	 */
 	public static function inject_sponsored_post( $posts, $wp_query ) {
 
-		// No support for AMP.
-		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-			return $posts;
-		}
-
+		// Only inject on main front page query.
 		if ( ! ( is_front_page() && $wp_query->is_main_query() ) ) {
 			return $posts;
 		}
@@ -79,9 +77,42 @@ class WordAds_Sponsored_Post {
 		$dummy_post            = new WP_Post( $dummy );
 		wp_cache_add( $dummy->ID, $dummy_post, 'posts' );
 
-		$posts[] = $dummy_post;
+		$posts[1] = $dummy_post;
 
 		return $posts;
+	}
+
+	/**
+	 * Removes sponsored post from the query when running AMP.
+	 *
+	 * @param WP_Query $wp_query The WP query.
+	 *
+	 * @return void
+	 */
+	public static function amp_fix( $wp_query ) {
+		/*
+		 * The purpose here is to remove the sponsored post when AMP is enabled so it's not rendered to the page.
+		 * This is a bit janky. We need to inject the sponsored post in the_posts hook, but at that point in time
+		 * AMP hasn't been initialized yet to check if it's active. So here we hook the main loop and if AMP is
+		 * enabled we remove the sponsored post and fixup the post count.
+		 */
+
+		if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
+
+			if ( 0 === count( $wp_query->posts ) ) {
+				return;
+			}
+
+			foreach ( $wp_query->posts as $index => $post ) {
+				if ( self::POST_ID === $post->ID ) {
+					unset( $wp_query->posts[ $index ] );
+					--$wp_query->post_count;
+				}
+			}
+
+			// Re-index the array incase we unset a post.
+			$wp_query->posts = array_values( $wp_query->posts );
+		}
 	}
 
 	/**
