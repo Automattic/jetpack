@@ -477,7 +477,7 @@ if (jQuery('#bar-chart').length){
 	<div class="ten wide column" id="settings_dashboard_latest_contacts_display" 
 	<?php
 	if ( $settings_dashboard_latest_contacts == 'true' ) {
-		echo "style='display:block;margin: 0;padding-left: 0;'";
+		echo "style='display:block;margin: 0;'";
 	} else {
 		echo "style='display:none;'";}
 	?>

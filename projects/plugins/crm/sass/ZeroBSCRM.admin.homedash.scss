@@ -369,11 +369,15 @@ background:white;
 }
 
 #settings_dashboard_revenue_chart_display{
-  padding-bottom:0px;
-  .panel{
-    border: 1px solid #ccd0d4 !important;
-    padding-left: 10px;
-  }
+	padding-bottom: 0px;
+	.panel{
+    	border: 1px solid #ccd0d4 !important;
+    	padding-left: 10px;
+  	}
+}
+
+#settings_dashboard_recent_activity_display .panel, #settings_dashboard_latest_contacts_display .panel {
+	height:100%;
 }
 
 .grid{
