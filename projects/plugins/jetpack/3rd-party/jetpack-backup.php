@@ -19,8 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 const PLUGIN_SLUG = 'jetpack-backup';
 const PLUGIN_FILE = 'jetpack-backup/jetpack-backup.php';
 
-add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
-add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
+if ( isset( $_GET['jetpack-backup-install-error'] ) ) {
+	add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
+}
+
+if ( isset( $_GET['jetpack-backup-action'] ) ) {
+	add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
+}
 
 /**
  * Verify the intent to install Jetpack Backup, and kick off installation.
