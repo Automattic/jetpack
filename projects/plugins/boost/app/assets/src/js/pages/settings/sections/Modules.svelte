@@ -204,7 +204,8 @@
 				inputLabel={__( 'Exclude JS Strings:', 'jetpack-boost' )}
 				buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
 				placeholder={__( 'Use comma to separate them', 'jetpack-boost' )}
-				bind:value={$minifyJsExcludesStore}
+				value={$minifyJsExcludesStore}
+				on:save={e => ( $minifyJsExcludesStore = e.detail )}
 			/>
 		</div>
 	</Module>
@@ -224,7 +225,8 @@
 				inputLabel={__( 'Exclude CSS Strings:', 'jetpack-boost' )}
 				buttonText={__( 'Exclude CSS Strings', 'jetpack-boost' )}
 				placeholder={__( 'Use comma to separate them', 'jetpack-boost' )}
-				bind:value={$minifyCssExcludesStore}
+				value={$minifyCssExcludesStore}
+				on:save={e => ( $minifyCssExcludesStore = e.detail )}
 			/>
 		</div>
 	</Module>

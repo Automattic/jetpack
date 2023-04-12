@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
 	import { __, sprintf } from '@wordpress/i18n';
 	import PencilIcon from '../../../svg/pencil.svg';
 
@@ -10,6 +11,13 @@
 	export let value: string;
 	let inputValue = value;
 	let isEditing = false;
+
+	const dispatch = createEventDispatcher();
+
+	function save() {
+		dispatch( 'save', inputValue );
+		value = inputValue;
+	}
 </script>
 
 <div class="jb-critical-css__meta">
@@ -18,7 +26,7 @@
 			<label for={id}>{inputLabel}</label>
 			<input type="text" bind:value={inputValue} {placeholder} {id} />
 			<div class="buttons-container">
-				<button disabled={value === inputValue} on:click={() => ( value = inputValue )}
+				<button disabled={value === inputValue} on:click={save}
 					>{__( 'Save', 'jetpack-boost' )}</button
 				>
 				<button
