@@ -20,8 +20,7 @@ import type { MediaTokenProps } from '../get-media-token/types';
 
 const isNative = Platform.isNative;
 
-// eslint-disable-next-line no-console
-const debug = isNative ? console.log : debugFactory( 'videopress:video:use-video-data' );
+const debug = debugFactory( 'videopress:lib:fetch-video-item' );
 
 /**
  * Fetches the video item from the v1.1/videos endpoint.

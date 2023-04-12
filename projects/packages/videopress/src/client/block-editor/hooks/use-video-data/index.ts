@@ -16,8 +16,7 @@ import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from '.
 
 const isNative = Platform.isNative;
 
-// eslint-disable-next-line no-console
-const debug = isNative ? console.log : debugFactory( 'videopress:video:use-video-data' );
+const debug = debugFactory( 'videopress:video:use-video-data' );
 
 const isUserConnected = getIsUserConnected();
 
