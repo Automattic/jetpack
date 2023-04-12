@@ -29,9 +29,6 @@ export const reloadModulesState = async () => {
 	return result;
 };
 
-export const isModuleAvailableStore = ( slug: string ) =>
-	derived( modulesState, $modulesState => $modulesState[ slug ].available );
-
 export async function updateModuleState( slug: string, active: boolean ) {
 	// Update local state first
 	const currentState = get( modulesState );
