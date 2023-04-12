@@ -89,14 +89,14 @@
 			border-right: 0;
 		}
 
-		&:last-child {
-			border-left: 0;
-		}
-
 		&.is-primary {
 			background: $black;
 			color: white;
 			border: 1.5px solid $black;
+
+			&:last-child {
+				border-left: 0;
+			}
 		}
 	}
 }
