@@ -1,6 +1,6 @@
 // eslint-disable-next-line import/no-unresolved
 import { SyncedStoreInterface } from '@automattic/jetpack-svelte-data-sync-client/build/types';
-import { derived, get } from 'svelte/store';
+import { get } from 'svelte/store';
 import { z } from 'zod';
 import { client } from './data-sync-client';
 
@@ -43,9 +43,3 @@ export async function updateModuleState( slug: string, active: boolean ) {
 	modulesStateClient.store.override( result );
 	return result;
 }
-
-export const isModuleEnabledStore = ( slug: string ) =>
-	derived(
-		modulesState,
-		$modulesState => $modulesState[ slug ].available && $modulesState[ slug ].active
-	);
