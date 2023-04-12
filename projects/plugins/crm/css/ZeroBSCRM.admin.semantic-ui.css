@@ -270,7 +270,7 @@ i.alternate {
 }
 
 /* Fix an apparent bug in Semantic UI CSS, which had the width larger than the screen min-width */
-@media only screen and (min-width: 992px) {
+@media only screen and (min-width: 992px) and (max-width: 1200px) {
   #jpcrm-first-use-dash.ui.large.modal {
     width: 940px;
   }
