@@ -93,8 +93,8 @@ const ProductCard = props => {
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 
-	// If status isn't active, we show only one action through the button
-	const menuIsActive = showMenu && isActive;
+	// If status is absent, we disable the menu
+	const menuIsActive = showMenu && ! isAbsent;
 
 	const containerClassName = classNames( styles.container, {
 		[ styles.plugin_absent ]: isAbsent,
@@ -184,30 +184,25 @@ const ProductCard = props => {
 				isActive && children ? (
 					children
 				) : (
-					<>
-						{ isAbsent ? (
-							<Text variant="body-small" className={ styles.description }>
-								{ description }
-							</Text>
-						) : (
-							<Text variant="label" className={ statusClassName }>
-								{ flagLabel }
-							</Text>
-						) }
-						{ ! menuIsActive && (
-							<div className={ styles.actions }>
-								<ActionButton
-									{ ...props }
-									onActivate={ activateHandler }
-									onFixConnection={ fixConnectionHandler }
-									onManage={ manageHandler }
-									className={ styles.button }
-								/>
-							</div>
-						) }
-					</>
+					<Text variant="body-small" className={ styles.description }>
+						{ description }
+					</Text>
 				)
 			}
+			<div className={ styles.actions }>
+				<ActionButton
+					{ ...props }
+					onActivate={ activateHandler }
+					onFixConnection={ fixConnectionHandler }
+					onManage={ manageHandler }
+					className={ styles.button }
+				/>
+				{ ! isAbsent && (
+					<Text variant="label" className={ statusClassName }>
+						{ flagLabel }
+					</Text>
+				) }
+			</div>
 		</CardWrapper>
 	);
 };

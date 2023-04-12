@@ -8,22 +8,16 @@ import { useDebounce } from '@wordpress/compose';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
-/**
- * Internal dependencies
- */
-import { VideoBlockColorAttributesProps, VideoControlProps } from '../../types';
-/**
- * Types
- */
-import type React from 'react';
 
 /**
  * React component that renders the playback bar color settings panel.
  *
- * @param {VideoControlProps} props - Component properties.
- * @returns {React.ReactElement}    - Playback bar color settings panel.
+ * @param {object} props - Component properties.
+ * @param {object} props.attributes - Block attributes.
+ * @param {Function} props.setAttributes - Function to set block attributes.
+ * @returns {import('react').ReactElement} - Playback bar color settings panel.
  */
-export default function ColorPanel( { attributes, setAttributes }: VideoControlProps ) {
+export default function ColorPanel( { attributes, setAttributes } ) {
 	const [ showSubSheet, setShowSubSheet ] = useState( false );
 	const navigation = useNavigation();
 
@@ -39,7 +33,7 @@ export default function ColorPanel( { attributes, setAttributes }: VideoControlP
 
 	const { useAverageColor, seekbarColor, seekbarLoadingColor, seekbarPlayedColor } = attributes;
 
-	const initialColorState: VideoBlockColorAttributesProps = {
+	const initialColorState = {
 		seekbarPlayedColor,
 		seekbarLoadingColor,
 		seekbarColor,

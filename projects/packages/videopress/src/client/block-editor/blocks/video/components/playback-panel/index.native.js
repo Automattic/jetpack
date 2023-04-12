@@ -7,22 +7,16 @@ import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { Text } from 'react-native';
-/**
- * Internal dependencies
- */
-import { VideoControlProps } from '../../types';
-/**
- * Types
- */
-import type React from 'react';
 
 /**
  * Sidebar Control component.
  *
- * @param {VideoControlProps} props - Component props.
- * @returns {React.ReactElement}      Playback block sidebar panel
+ * @param {object} props - Component props.
+ * @param {object} props.attributes - Block attributes.
+ * @param {Function} props.setAttributes - Function to set attributes.
+ * @returns {import('react').ReactElement} - Playback block sidebar panel
  */
-export default function PlaybackPanel( { attributes, setAttributes }: VideoControlProps ) {
+export default function PlaybackPanel( { attributes, setAttributes } ) {
 	const [ showSubSheet, setShowSubSheet ] = useState( false );
 	const navigation = useNavigation();
 
@@ -39,7 +33,7 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 	const { autoplay, loop, muted, controls, playsinline, preload } = attributes;
 
 	const handleAttributeChange = useCallback(
-		( attributeName: string, attributeValue?: string ) => {
+		( attributeName, attributeValue ) => {
 			return newValue => {
 				setAttributes( { [ attributeName ]: attributeValue ?? newValue } );
 			};

@@ -9,22 +9,11 @@ import { replace } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import isLocalFile from '../../../../utils/is-local-file.native';
+import isLocalFile from '../../../../utils/is-local-file';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
-
 import './style.scss';
 
-type ReplaceControlProps = {
-	onUploadFileStart: ( media ) => void;
-	onSelectVideoFromLibrary: ( media ) => void;
-	onSelectURL: ( url: string ) => void;
-};
-
-const ReplaceControl = ( {
-	onUploadFileStart,
-	onSelectVideoFromLibrary,
-	onSelectURL,
-}: ReplaceControlProps ) => {
+const ReplaceControl = ( { onUploadFileStart, onSelectVideoFromLibrary, onSelectURL } ) => {
 	/**
 	 * Handler to define the prop to run
 	 * when the user selects a video from the media library,

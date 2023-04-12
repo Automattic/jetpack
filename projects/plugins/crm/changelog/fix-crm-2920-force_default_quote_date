@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Quotes: use current date if quote date is blank

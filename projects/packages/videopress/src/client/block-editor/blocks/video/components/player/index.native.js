@@ -11,10 +11,6 @@ import { View, Text } from 'react-native';
  * Internal dependencies
  */
 import style from './style.scss';
-/**
- * Types
- */
-import type { PlayerProps } from './types';
 
 /**
  * VideoPlayer react component
@@ -23,11 +19,11 @@ import type { PlayerProps } from './types';
  * @param {string} props.html - HTML markup for the player.
  * @param {boolean} props.isRequestingEmbedPreview - Whether the preview is being requested.
  * @param {boolean} props.isSelected - Whether the block is selected.
- * @returns {object} - React component.
+ * @returns {import('react').ReactElement} - React component.
  */
-export default function Player( { html, isRequestingEmbedPreview, isSelected }: PlayerProps ) {
+export default function Player( { html, isRequestingEmbedPreview, isSelected } ) {
 	// Set up style for when the player is loading.
-	const loadingStyle: { height?: number } = {};
+	const loadingStyle = {};
 	if ( ! html || isRequestingEmbedPreview ) {
 		loadingStyle.height = 250;
 	}
