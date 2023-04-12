@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Don't run local regenerate automagically when using cloud css

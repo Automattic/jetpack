@@ -489,9 +489,9 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'welcome__golden_token':
 			return {
-				question: __( 'Congratulations, you have been gifted a Jetpack Gold Token!', 'jetpack' ),
+				question: __( 'Congratulations, you have been gifted a Jetpack Golden Token!', 'jetpack' ),
 				description: __(
-					'Congratulations, your Jetpack Gold Token provides a lifetime license for this website and includes the following products:',
+					'Congratulations, your Jetpack Golden Token provides a lifetime license for this website and includes the following products:',
 					'jetpack'
 				),
 				descriptionList: [

@@ -147,26 +147,6 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom:20px;
 }
 
-#funnel-container{
-  position:relative;
-  padding:20px;
-  padding-bottom: 96px;
-}
-
-.zbs-funnel{
-  position:relative;
-}
-
-.zbs-funnel .panel{
-  margin-bottom:0px !important;
-  -webkit-box-shadow: 0 0px 0px rgba(0,0,0,0.05);
-   box-shadow: 0 0px 0px rgba(0,0,0,0.05);
-}
-.zbs-funnel .funnel-label{
-  color:white;
-  font-weight:900;
-}
-
 .progress {
     -webkit-box-shadow: none !important;
     background-color: #f5f5f5;
@@ -192,24 +172,9 @@ h1, h2, h3, h4, h5, h6 {
   cursor:pointer;
 }
 
-.zbs-legend{
-  width:15px;
-  height:15px;
-  margin-right:5px;
-  float:left;
-}
-
 .zbs-label{
   float:left;
   margin-right:5px;
-}
-
-.funnel-legend{
-    float: left;
-    margin-right: 6px;
-    margin-bottom: 5px;
-    position: absolute;
-    bottom: 22px;
 }
 
 .upsell a, .upsell a:hover{
@@ -403,17 +368,12 @@ background:white;
   top: -3px;
 }
 
-#settings_dashboard_sales_funnel_display, #settings_dashboard_revenue_chart_display{
+#settings_dashboard_revenue_chart_display{
   padding-bottom:0px;
   .panel{
     border: 1px solid #ccd0d4 !important;
     padding-left: 10px;
   }
-}
-
-#settings_dashboard_sales_funnel_display{
-  margin-bottom:15px;
-  padding-bottom:68px;
 }
 
 .grid{
@@ -452,8 +412,13 @@ background:white;
   }
 }
 
+/* match padding of other rows on page */
+#crm_summary_numbers_container {
+  padding: 0 1rem;
+  margin-bottom: 10px;
+}
+
 #crm_summary_numbers {
-  font-family: "Lato", "Helvetica Neue", Arial, Helvetica, sans-serif;
   .range_total {
     color: #28a745;
     font-weight: bold;

@@ -214,4 +214,15 @@ class Waf_Compatibility {
 		return $waf_allow_list;
 	}
 
+	/**
+	 * Check if the brute force protection code is being run by an older version of Jetpack (< 12.0).
+	 *
+	 * @since 0.11.1
+	 *
+	 * @return bool
+	 */
+	public static function is_brute_force_running_in_jetpack() {
+		return defined( 'JETPACK__VERSION' ) && version_compare( JETPACK__VERSION, '12', '<' );
+	}
+
 }

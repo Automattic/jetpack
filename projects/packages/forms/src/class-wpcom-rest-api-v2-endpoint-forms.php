@@ -71,10 +71,10 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/responses',
+			$this->rest_base . '/responses/bulk_actions',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'update_responses' ),
+				'callback'            => array( $this, 'bulk_actions' ),
 				'permission_callback' => array( $this, 'get_responses_permission_check' ),
 			)
 		);
@@ -113,6 +113,11 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			$args['s'] = $request['search'];
 		}
 
+		$filter_args = array_merge(
+			$args,
+			array( 'post_status' => array( 'draft', 'publish', 'spam', 'trash' ) )
+		);
+
 		$query = array(
 			'inbox' => new \WP_Query(
 				array_merge(
@@ -140,10 +145,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 		}
 
 		$source_ids = Contact_Form_Plugin::get_all_parent_post_ids(
-			array_diff_key(
-				array_intersect_key( $query[ $current_query ]->query_vars, $args, array( 'post_status' => '' ) ),
-				array( 'post_parent' => '' )
-			)
+			array_diff_key( $filter_args, array( 'post_parent' => '' ) )
 		);
 
 		$responses = array_map(
@@ -187,7 +189,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 					$query
 				),
 				'filters_available' => array(
-					'month'  => $this->get_months_filter_for_query( $query[ $current_query ]->quer_vars ),
+					'month'  => $this->get_months_filter_for_query( $filter_args ),
 					'source' => array_map(
 						function ( $post_id ) {
 							return array(
@@ -217,14 +219,6 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 
 		if ( isset( $query['post_parent'] ) ) {
 			$filters = $wpdb->prepare( 'AND post_parent = %d ', $query['post_parent'] );
-		}
-
-		if ( isset( $query['post_status'] ) ) {
-			if ( is_array( $query['post_status'] ) ) {
-				$filters .= $wpdb->prepare( 'AND post_status IN (%s) ', implode( ',', $query['post_status'] ) );
-			} else {
-				$filters .= $wpdb->prepare( 'AND post_status = %s ', $query['post_status'] );
-			}
 		}
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -257,19 +251,15 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	 *
 	 * @return WP_REST_Response A response object..
 	 */
-	public function update_responses( $request ) {
-		$content_type = $request->get_header( 'Content-Type' );
+	public function bulk_actions( $request ) {
+		$action   = $request->get_param( 'action' );
+		$post_ids = $request->get_param( 'post_ids' );
 
-		// Match 'action' directive inside Content-Type header value
-		preg_match( '/\;\s*bulk_action=([a-z_]*)/i', $content_type, $matches );
-		$bulk_action = isset( $matches[1] ) ? $matches[1] : null;
-		$post_ids    = $request->get_param( 'post_ids' );
-
-		if ( $bulk_action && ! is_array( $post_ids ) ) {
+		if ( $action && ! is_array( $post_ids ) ) {
 			return new $this->error_response( __( 'Bad request', 'jetpack-forms' ), 400 );
 		}
 
-		switch ( $bulk_action ) {
+		switch ( $action ) {
 			case 'mark_as_spam':
 				return $this->bulk_action_mark_as_spam( $post_ids );
 

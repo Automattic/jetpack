@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add support for wp_block, wp_navigation, wp_template, wp_template_part import.

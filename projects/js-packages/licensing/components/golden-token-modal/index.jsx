@@ -94,7 +94,7 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 									</p>
 								) }
 								<h2 className={ styles.headline }>
-									{ __( 'You have been gifted a Jetpack Gold Token.', 'jetpack' ) }
+									{ __( 'You have been gifted a Jetpack Golden Token.', 'jetpack' ) }
 								</h2>
 								<p>
 									{ tokenRedeemed &&
@@ -127,7 +127,7 @@ function GoldenTokenModal( { redeemClick, displayName, onModalClose, tokenRedeem
 								</h2>
 								<p className={ styles.paragraph }>
 									{ __(
-										'Your Jetpack Gold Token provides a lifetime license for this website and includes the following products:',
+										'Your Jetpack Golden Token provides a lifetime license for this website and includes the following products:',
 										'jetpack'
 									) }
 								</p>

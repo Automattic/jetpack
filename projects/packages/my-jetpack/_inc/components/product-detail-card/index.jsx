@@ -9,6 +9,7 @@ import {
 	Text,
 	H3,
 	Alert,
+	TermsOfService,
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { ExternalLink } from '@wordpress/components';
@@ -206,9 +207,22 @@ const ProductDetailCard = ( {
 		);
 	}
 
+	const hasTrialButton = ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && trialAvailable;
+
 	// If we prefer the product name, use that everywhere instead of the title
 	const productMoniker = name && preferProductName ? name : title;
-
+	const ctaLabel =
+		! isBundle && hasRequiredPlan
+			? sprintf(
+					/* translators: placeholder is product name. */
+					__( 'Install %s', 'jetpack-my-jetpack' ),
+					productMoniker
+			  )
+			: sprintf(
+					/* translators: placeholder is product name. */
+					__( 'Get %s', 'jetpack-my-jetpack' ),
+					productMoniker
+			  );
 	return (
 		<div
 			className={ classnames( styles.card, className, {
@@ -271,6 +285,20 @@ const ProductDetailCard = ( {
 					</Alert>
 				) }
 
+				<div className={ styles[ 'tos-container' ] }>
+					<TermsOfService
+						agreeButtonLabel={
+							hasTrialButton
+								? sprintf(
+										/* translators: placeholder is cta label. */
+										__( '%s or Start for free', 'jetpack-my-jetpack' ),
+										ctaLabel
+								  )
+								: ctaLabel
+						}
+					/>
+				</div>
+
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Text
 						component={ ProductDetailButton }
@@ -281,14 +309,11 @@ const ProductDetailCard = ( {
 						className={ styles[ 'checkout-button' ] }
 						variant="body"
 					>
-						{
-							/* translators: placeholder is product name. */
-							sprintf( __( 'Add %s', 'jetpack-my-jetpack' ), productMoniker )
-						}
+						{ ctaLabel }
 					</Text>
 				) }
 
-				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && trialAvailable && (
+				{ ! isBundle && trialAvailable && ! hasRequiredPlan && (
 					<Text
 						component={ ProductDetailButton }
 						onClick={ trialClickHandler }
