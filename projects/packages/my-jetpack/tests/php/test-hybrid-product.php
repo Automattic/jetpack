@@ -164,4 +164,43 @@ class Test_Hybrid_Product extends TestCase {
 		$this->assertSame( '', Backup::get_post_activation_url() );
 	}
 
+	/**
+	 * Tests the activation of the standalone plugin without Jetpack.
+	 *
+	 * We can't test the installation process, but at least we can check
+	 * for the installation and proceed with the activation.
+	 */
+	public function test_install_and_activate_standalone_without_jetpack() {
+		deactivate_plugins( 'jetpack/jetpack.php' );
+		deactivate_plugins( Backup::get_installed_plugin_filename() );
+
+		// Trigger the installation + activation of the standalone plugin
+		Backup::install_and_activate_standalone();
+
+		// The standalone plugin must be active
+		$this->assertTrue( Backup::is_plugin_active() );
+
+		// The Jetpack plugin should not be active
+		$this->assertFalse( Backup::is_jetpack_plugin_active() );
+	}
+
+	/**
+	 * Tests the activation of the standalone plugin with Jetpack.
+	 *
+	 * We can't test the installation process, but at least we can check
+	 * for the installation and proceed with the activation.
+	 */
+	public function test_install_and_activate_standalone_with_jetpack() {
+		activate_plugins( 'jetpack/jetpack.php' );
+		deactivate_plugins( Backup::get_installed_plugin_filename() );
+
+		// Trigger the installation + activation of the standalone plugin
+		Backup::install_and_activate_standalone();
+
+		// The standalone plugin must be active
+		$this->assertTrue( Backup::is_standalone_plugin_active() );
+
+		// The Jetpack plugin should not be active
+		$this->assertTrue( Backup::is_jetpack_plugin_active() );
+	}
 }
