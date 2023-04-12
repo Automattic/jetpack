@@ -63,20 +63,21 @@ export default function Player( { isSelected, attributes } ) {
 		poster,
 	} );
 
-	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
+	const { preview } = usePreview( videoPressUrl );
 	const html = addTokenIntoIframeSource( preview?.html, token );
 
-	// Set up style for when the player is loading.
-	const loadingStyle = {};
-	if ( ! html || isRequestingEmbedPreview ) {
-		loadingStyle.height = 250;
-	}
+	const renderEmbed = () => {
+		if ( ! html ) {
+			return <SandBox html={ html } viewportProps="user-scalable=0" />;
+		}
+
+		return <Text style={ { height: 250 } }>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text>;
+	};
 
 	return (
-		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
+		<View style={ style[ 'videopress-player' ] }>
 			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
-			{ ! isRequestingEmbedPreview && <SandBox html={ html } viewportProps="user-scalable=0" /> }
-			{ ! html && <Text>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text> }
+			{ renderEmbed() }
 		</View>
 	);
 }
