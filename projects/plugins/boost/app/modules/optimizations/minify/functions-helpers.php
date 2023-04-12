@@ -1,7 +1,9 @@
 <?php
 
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Config;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Css as Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Dependency_Path_Mapping;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Js as Minify_JS;
 
 // @todo - refactor this. Dump of functions from page optimize.
 
@@ -86,7 +88,7 @@ function jetpack_boost_page_optimize_js_exclude_list() {
 
 function jetpack_boost_page_optimize_js_exclude_list_default() {
 	// WordPress core stuff, a lot of other plugins depend on it.
-	return array( 'jquery', 'jquery-core', 'underscore', 'backbone' );
+	return Minify_JS::$default_excludes;
 }
 
 function jetpack_boost_page_optimize_css_exclude_list() {
@@ -104,7 +106,7 @@ function jetpack_boost_page_optimize_css_exclude_list() {
 
 function jetpack_boost_page_optimize_css_exclude_list_default() {
 	// WordPress core stuff
-	return array( 'admin-bar', 'dashicons' );
+	return Minify_CSS::$default_excludes;
 }
 
 function jetpack_boost_page_optimize_sanitize_exclude_field( $value ) {

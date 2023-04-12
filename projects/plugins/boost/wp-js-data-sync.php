@@ -4,6 +4,8 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_Status_Entry;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Css as Minify_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Js as Minify_JS;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
@@ -141,5 +143,5 @@ jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
  * Register Minify Excludes stores.
  */
 // @todo - add validations for these options.
-jetpack_boost_register_option( 'minify_js_excludes', Schema::as_string()->fallback( '' ) );
-jetpack_boost_register_option( 'minify_css_excludes', Schema::as_string()->fallback( '' ) );
+jetpack_boost_register_option( 'minify_js_excludes', Schema::as_string()->fallback( implode( ',', Minify_JS::$default_excludes ) ) );
+jetpack_boost_register_option( 'minify_css_excludes', Schema::as_string()->fallback( implode( ',', Minify_CSS::$default_excludes ) ) );

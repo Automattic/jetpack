@@ -6,6 +6,8 @@ use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
 class Js extends Minify implements Pluggable {
 
+	public static $default_excludes = array( 'jquery', 'jquery-core', 'underscore', 'backbone' );
+
 	public static function get_slug() {
 		return 'minify_js';
 	}

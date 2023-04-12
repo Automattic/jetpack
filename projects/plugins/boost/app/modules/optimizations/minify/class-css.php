@@ -6,6 +6,8 @@ use Automattic\Jetpack_Boost\Contracts\Pluggable;
 
 class Css extends Minify implements Pluggable {
 
+	public static $default_excludes = array( 'admin-bar', 'dashicons' );
+
 	public static function get_slug() {
 		return 'minify_css';
 	}
