@@ -39,6 +39,15 @@ abstract class Hybrid_Product extends Product {
 	}
 
 	/**
+	 * Checks whether the standalone plugin for this product is active
+	 *
+	 * @return boolean
+	 */
+	public static function is_standalone_plugin_active() {
+		return parent::is_plugin_active();
+	}
+
+	/**
 	 * Checks whether the plugin is installed
 	 *
 	 * @return boolean
