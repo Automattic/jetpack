@@ -182,7 +182,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 
 		// React Dashboard and Boost Admin.
 		const reactAdmin = file.match(
-			/^(projects\/plugins\/boost\/app\/admin|projects\/plugins\/jetpack\/_inc\/client)\//
+			/^(projects\/plugins\/(crm|boost\/app)\/admin|projects\/plugins\/jetpack\/_inc\/client)\//
 		);
 		if ( reactAdmin !== null ) {
 			keywords.add( 'Admin Page' );
@@ -200,6 +200,18 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		const wpcomApi = file.match( /^projects\/plugins\/jetpack\/json-endpoints\// );
 		if ( wpcomApi !== null ) {
 			keywords.add( 'WPCOM API' );
+		}
+
+		// CRM elements.
+		const crmModules = file.match( /^projects\/plugins\/crm\/modules\/(?<crmModule>[^/]*)\// );
+		const crmModuleName = crmModules && crmModules.groups.crmModule;
+		if ( crmModuleName ) {
+			keywords.add( `[CRM] ${ cleanName( crmModuleName ) } Module` );
+		}
+
+		const crmApi = file.match( /^projects\/plugins\/crm\/api\// );
+		if ( crmApi !== null ) {
+			keywords.add( '[CRM] API' );
 		}
 
 		// Boost Critical CSS.
