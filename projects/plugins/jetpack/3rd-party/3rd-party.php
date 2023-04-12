@@ -14,9 +14,9 @@ use Automattic\Jetpack\Status\Host;
  * Loads the individual 3rd-party compat files.
  */
 function load_3rd_party() {
+	add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 11 );
 	// Array of third-party compat files to always require.
 	$compat_files = array(
-		'bbpress.php',
 		'beaverbuilder.php',
 		'bitly.php',
 		'buddypress.php',
@@ -45,6 +45,19 @@ function load_3rd_party() {
 	}
 
 	add_filter( 'jetpack_development_version', __NAMESPACE__ . '\atomic_weekly_override' );
+}
+
+/**
+ * Loads the individual 3rd-party compat functions.
+ *
+ * This is a refactor of load_3rd_party() to load the individual compat files only when needed instead of universally.
+ */
+function load_3rd_party_compat_filters() {
+	// bbPress
+	if ( function_exists( 'bbpress' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/bbpress.php';
+
+	}
 }
 
 /**
