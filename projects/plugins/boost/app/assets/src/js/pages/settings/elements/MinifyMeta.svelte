@@ -17,6 +17,7 @@
 	function save() {
 		dispatch( 'save', inputValue );
 		value = inputValue;
+		isEditing = false;
 	}
 </script>
 
