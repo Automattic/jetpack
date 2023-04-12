@@ -1,0 +1,27 @@
+/**
+ * WordPress dependencies
+ */
+import domReady from '@wordpress/dom-ready';
+import { render } from '@wordpress/element';
+
+/**
+ * Internal dependencies
+ */
+import QuestionAnswer from './question-answer';
+
+/**
+ *
+ * @
+ */
+const AskWP = () => {
+	return (
+		<div>
+			<QuestionAnswer />
+		</div>
+	);
+};
+
+domReady( function () {
+	const container = document.querySelector( '#jetpack-ai-chat' );
+	render( <AskWP />, container );
+} );
