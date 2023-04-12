@@ -19,7 +19,6 @@ function load_3rd_party() {
 	// Array of third-party compat files to always require.
 	$compat_files = array(
 		'class-salesforce-lead-form.php', // not a module but the handler for Salesforce forms
-		'debug-bar.php',
 		'wpml.php',
 	);
 
@@ -66,6 +65,11 @@ function load_3rd_party_compat_filters() {
 	// Domain Mapping. All assume multisite, so it's an easy check.
 	if ( Constants::is_defined( 'SUNRISE' ) ) {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/class-domain-mapping.php';
+	}
+
+	// Debug Bar
+	if ( class_exists( 'Debug_Bar' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/debug-bar.php';
 	}
 
 	// CRM. Always included; it is used only when certain endpoints are hit.
