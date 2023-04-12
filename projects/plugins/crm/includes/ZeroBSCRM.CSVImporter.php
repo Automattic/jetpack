@@ -80,9 +80,9 @@ function zeroBSCRM_CSVImporterLiteadmin_menu() {
 	global $zbs,$zeroBSCRM_CSVImporterLiteslugs; // req
 
 	wp_register_style( 'zerobscrm-csvimporter-admcss', ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.csvimporter' . wp_scripts_get_suffix() . '.css', array(), $zbs->version );
-	$csvAdminPage = add_submenu_page( null, 'CSV Importer', 'CSV Importer', 'admin_zerobs_customers', $zbs->slugs['csvlite'], 'zeroBSCRM_CSVImporterLitepages_app', 1 ); // $zeroBSCRM_CSVImporterLiteslugs['app']
-	add_action( "admin_print_styles-{$csvAdminPage}", 'zeroBSCRM_CSVImporter_lite_admin_styles' );
-	add_action( "admin_print_styles-{$csvAdminPage}", 'zeroBSCRM_global_admin_styles' ); // } and this.
+	$csv_admin_page = add_submenu_page( 'jpcrm-hidden', 'CSV Importer', 'CSV Importer', 'admin_zerobs_customers', $zbs->slugs['csvlite'], 'zeroBSCRM_CSVImporterLitepages_app', 1 ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
+	add_action( "admin_print_styles-{$csv_admin_page}", 'zeroBSCRM_CSVImporter_lite_admin_styles' );
+	add_action( "admin_print_styles-{$csv_admin_page}", 'zeroBSCRM_global_admin_styles' ); // } and this.
 }
 add_action( 'zerobs_admin_menu', 'zeroBSCRM_CSVImporterLiteadmin_menu' );
 

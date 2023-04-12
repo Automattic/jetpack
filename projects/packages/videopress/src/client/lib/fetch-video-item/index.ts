@@ -2,6 +2,7 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
+import { Platform } from '@wordpress/element';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -16,6 +17,8 @@ import type {
 	WPCOMRestAPIVideosGetEndpointResponseProps,
 } from '../../types';
 import type { MediaTokenProps } from '../get-media-token/types';
+
+const isNative = Platform.isNative;
 
 const debug = debugFactory( 'videopress:lib:fetch-video-item' );
 
@@ -65,8 +68,12 @@ export async function fetchVideoItem( {
 			? `?${ new URLSearchParams( params ).toString() }`
 			: '';
 
+		const endpoint = isNative
+			? { path: `/rest/v1.1/videos/${ guid }${ requestArgs }` }
+			: { url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ requestArgs }` };
+
 		return await apiFetch( {
-			url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ requestArgs }`,
+			...endpoint,
 			credentials: 'omit',
 			global: true,
 		} );

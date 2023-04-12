@@ -134,15 +134,10 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		}
 
 		// Modules.
-		const module = file.match(
-			/^projects\/plugins\/jetpack\/?(?<test>tests\/php\/)?modules\/(?<module>[^/]*)\//
-		);
+		const module = file.match( /^projects\/plugins\/jetpack\/modules\/(?<module>[^/]*)\// );
 		const moduleName = module && module.groups.module;
 		if ( moduleName ) {
 			keywords.add( `${ cleanName( moduleName ) }` );
-		}
-		if ( module && module.groups.test ) {
-			keywords.add( 'Unit Tests' );
 		}
 
 		// Actions.
@@ -182,7 +177,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 
 		// React Dashboard and Boost Admin.
 		const reactAdmin = file.match(
-			/^(projects\/plugins\/boost\/app\/admin|projects\/plugins\/jetpack\/_inc\/client)\//
+			/^(projects\/plugins\/(crm|boost\/app)\/admin|projects\/plugins\/jetpack\/_inc\/client)\//
 		);
 		if ( reactAdmin !== null ) {
 			keywords.add( 'Admin Page' );
@@ -200,6 +195,18 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		const wpcomApi = file.match( /^projects\/plugins\/jetpack\/json-endpoints\// );
 		if ( wpcomApi !== null ) {
 			keywords.add( 'WPCOM API' );
+		}
+
+		// CRM elements.
+		const crmModules = file.match( /^projects\/plugins\/crm\/modules\/(?<crmModule>[^/]*)\// );
+		const crmModuleName = crmModules && crmModules.groups.crmModule;
+		if ( crmModuleName ) {
+			keywords.add( `[CRM] ${ cleanName( crmModuleName ) } Module` );
+		}
+
+		const crmApi = file.match( /^projects\/plugins\/crm\/api\// );
+		if ( crmApi !== null ) {
+			keywords.add( '[CRM] API' );
 		}
 
 		// Boost Critical CSS.
@@ -225,9 +232,10 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			keywords.add( 'E2E Tests' );
 		}
 
-		const anyTestFile = file.match( /\/tests\// );
+		// Tests.
+		const anyTestFile = file.match( /\/tests?\// );
 		if ( anyTestFile ) {
-			keywords.add( '[Status] Needs Test Review' );
+			keywords.add( '[Tests] Includes Tests' );
 		}
 
 		// Add '[Status] In Progress' for draft PRs
