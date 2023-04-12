@@ -45,7 +45,12 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 
 	.jp-forms__inbox-tabs .components-tab-panel__tab-content {
 		border-top: 1px solid #0000000d;
-		padding-top: 32px;
+	}
+
+	.jp-forms__inbox.is-response-view .jp-forms__inbox-content-column {
+		@media (max-width: 1025px) {
+			padding-top: 32px;
+		}
 	}
 
 	.jp-forms__layout-title {
@@ -91,7 +96,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		background: var( --color-neutral-0, #f6f7f7 );
 		padding-left: 32px;
 		padding-right: 32px;
-		padding-top: 0;
+		padding-top: 32px;
 
 		.components-button {
 			font-size: 14px;
@@ -145,7 +150,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		}
 	}
 
-	.jp-forms__inbox-response{
+	.jp-forms__inbox-response {
 		background-color: #fff;
 
 		&::before {
