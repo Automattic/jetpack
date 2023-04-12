@@ -3,22 +3,16 @@
  */
 import { PanelBody, TextControl, BottomSheetTextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
-import { VideoControlProps } from '../../types';
-/**
- * Types
- */
-import type React from 'react';
 
 /**
  * React component that renders the details settings panel.
  *
- * @param {VideoControlProps} props - Component properties.
- * @returns {React.ReactElement}	- Details panel component.
+ * @param {object} props - Component properties.
+ * @param {object} props.attributes - Block attributes.
+ * @param {Function} props.setAttributes - Function to set attributes.
+ * @returns {import('react').ReactElement} - Details panel component.
  */
-export default function DetailsPanel( { attributes, setAttributes }: VideoControlProps ) {
+export default function DetailsPanel( { attributes, setAttributes } ) {
 	const { title, description } = attributes;
 
 	return (
