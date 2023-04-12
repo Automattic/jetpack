@@ -26,9 +26,7 @@
 			"type": "string"
 		},
 		"caption": {
-			"type": "string",
-			"source": "html",
-			"selector": "figcaption"
+			"type": "string"
 		},
 		"controls": {
 			"type": "boolean",
