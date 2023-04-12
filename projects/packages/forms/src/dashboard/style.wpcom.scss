@@ -3,27 +3,31 @@
 body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 	--jp-forms-input-wrapper-height: 48px;
 
-	background-color: #fdfdfd;
+	background-color: var( --color-neutral-0, #f6f7f7 );
 
 	#screen-meta-links {
-		background-color: #fff;
+		background-color: var( --color-surface );
 		display: flex;
 		justify-content: flex-end;
 		width: 100%;
 	}
 
-	&.wp-core-ui .button {
-		background-color: #fff;
-		border-color: #c3c4c7;
-		color: #101517;
+	&.wp-core-ui #wpbody-content .button {
+		background-color: var( --color-surface );
+		border-color: var( --color-neutral-10, #c3c4c7 );
+		color: var( --color-neutral-100, #101517 );
 		font-size: 14px;
 		height: 48px;
 		padding: 0 calc( var( --jp-forms-spacing-base ) * 2 );
 
+		&:hover {
+			background-color: var( --color-neutral-0, #f6f7f7 );
+		}
+
 		&.button-primary {
-			background-color: #3057DC;
+			background-color: var( --color-primary, #3057dc );
 			border: 0;
-			color: #fff;
+			color: var( --color-text-inverted, #fff );
 		}
 	}
 
@@ -33,8 +37,8 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 
 	.jp-forms__layout-header,
 	.jp-forms__inbox-tabs .components-tab-panel__tabs {
-		background-color: #fff;
-		color: #101517;
+		background-color: var( --color-surface, #fff );
+		color: var( --color-neutral-100, #101517 );
 		padding-left: 32px;
 		padding-right: 32px;
 	}
@@ -48,22 +52,26 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		flex-direction: column;
 
 		.title {
-			color: #101517;
+			color: var( --color-neutral-100, #101517 );
 			font-family: 'Recoleta';
 			font-weight: 400;
 			font-size: 20px;
 			line-height: 26px;
 			margin-bottom: 4px;
 		}
+
+		.subtitle {
+			color: var( --color-text, #2c3338 );
+		}
 	}
 
 	.jp-forms__inbox-tab-item {
-		color: #50575E;
+		color: var( --color-text, #2c3338 );
 		font-size: 14px;
 
 		&.active-tab {
-			border-color: #101517;
-			color: #101517;
+			border-color: var( --color-neutral-100, #101517 );
+			color: var( --color-neutral-100, #101517 );
 			font-weight: normal;
 		}
 	}
@@ -73,14 +81,14 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		font-size: 14px;
 
 		svg {
-			fill: #8c8f94;
+			fill: var( --color-neutral-30, #8c8f94 );
 		}
 	}
 
 	.jp-forms__inbox-actions {
-		--jp-forms-border-color: #c3c4c7;
+		--jp-forms-border-color: var( --color-neutral-5, #dcdcde );
 
-		background: #fdfdfd;
+		background: var( --color-neutral-0, #f6f7f7 );
 		padding-left: 32px;
 		padding-right: 32px;
 		padding-top: 0;
@@ -89,8 +97,14 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 			font-size: 14px;
 			padding: var(--jp-forms-spacing-base ) calc( var( --jp-forms-spacing-base ) * 2 );
 
+			&:hover {
+				background-color: var( --color-neutral-0, #f6f7f7 );
+				box-shadow: inset 0 0 0 1px var( --jp-forms-border-color );
+				color: var( --color-neutral-100, #101517 );
+			}
+
 			svg {
-				fill: #8c8f94;
+				fill: var( --color-neutral-30, #8c8f94 );
 			}
 		}
 	}
@@ -113,21 +127,21 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 	}
 
 	.jp-forms__inbox-list {
-		background-color: #fff;
+		background-color: var( --color-surface, #fff );
 	}
 
 	.jp-forms__table-header {
-		background-color: #fdfdfd;
-		color: #50575E;
+		background-color: var( --color-neutral-0, #f6f7f7 );
+		color: var( --color-text-subtle, #50575e );
 		font-weight: 600;
 	}
 
 	.jp-forms__table-item {
-		background-color: #fff;
-		color: #2C3338;
+		background-color: var( --color-surface, #fff );
+		color: var( --color-text, #2C3338 );
 
 		&.is-active {
-			background-color: #f6f7f7;
+			background-color: var( --color-neutral-0, #f6f7f7 );
 		}
 	}
 
@@ -135,13 +149,13 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		background-color: #fff;
 
 		&::before {
-			background: #3057dc;
+			background: var( --color-primary, #3057dc );
 			padding-top: 16px;
 		}
 	}
 
 	.jp-forms__inbox-response-title {
-		color: #000;
+		color: var( --color-neutral-100, #101517 );
 		font-family: 'Recoleta';
 		font-weight: 400;
 		font-size: 32px;
@@ -149,7 +163,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 	}
 
 	.jp-forms__inbox-response-subtitle {
-		color: #2C3338;
+		color: var( --color-text, #2c3338 );
 	}
 
 	.jp-forms__inbox-response-meta {
@@ -162,11 +176,11 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 	}
 
 	.jp-forms__inbox-response-data {
-		color: #2c3338;
+		color: var( --color-text, #2c3338 );
 	}
 
 	.jp-forms__export-modal-header-title {
-		color: #101517;
+		color: var( --color-neutral-100, #101517 );
 		font-family: 'Recoleta';
 		font-size: 32px;
 		font-weight: 400;
@@ -174,28 +188,28 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 	}
 
 	.jp-forms__export-modal-header-subtitle {
-		color: #2c3338;
+		color: var( --color-text, #2c3338 );
 	}
 
 	.jp-forms__export-modal-card-header-title {
-		color: #2C3338;
+		color: var( --color-text, #2C3338 );
 		font-size: 16px;
 		font-weight: 600;
 	}
 
 	.jp-forms__export-modal-card:first-child .jp-forms__export-modal-card-header svg path {
-		fill: #3057dc;
+		fill: var( --studio-blue-50, #0675c4 );
 	}
 
 	.jp-forms__export-modal-card:last-child .jp-forms__export-modal-card-header svg path {
-		stroke: #3057dc;
+		stroke: var( --studio-blue-50, #0675c4 );
 	}
 
 	.jp-forms__export-modal-card-beta-badge {
-		background-color: #3057dc;
+		background-color: var( --studio-blue-50, #3057dc );
 	}
 
 	.jp-forms__export-modal-card-body-description {
-		color: #3C434A;
+		color: var( --color-neutral-10, #3C434A );
 	}
 }
