@@ -32,25 +32,6 @@ add_filter( 'default_option_wpcom_is_staging_site', 'wpcomsh_is_staging_site_get
 add_filter( 'option_wpcom_is_staging_site', 'wpcomsh_is_staging_site_get_atomic_persistent_data' );
 
 /**
- * Removes admin menus that are not relevant to staging sites.
- */
-function wpcomsh_maybe_remove_staging_site_menu_items() {
-	if ( ! get_option( WPCOM_IS_STAGING_SITE_OPTION_NAME ) ) {
-		return;
-	}
-
-	if ( ! class_exists( 'Automattic\Jetpack\Status' ) ) {
-		return;
-	}
-
-	$domain = ( new \Automattic\Jetpack\Status() )->get_site_suffix();
-
-	remove_menu_page( 'https://wordpress.com/inbox/' . $domain ); // Inbox
-	remove_menu_page( 'paid-upgrades.php' ); // Upgrades
-}
-add_action( 'admin_menu', 'wpcomsh_maybe_remove_staging_site_menu_items', 100000 ); // Jetpack uses 99999.
-
-/**
  * Disable Jetpack staging mode for wpcom staging sites.
  *
  * We set WP_ENVIRONMENT_TYPE constant to 'staging' for WPCOM staging sites, but we don't want
