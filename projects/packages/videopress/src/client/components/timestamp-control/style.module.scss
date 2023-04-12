@@ -49,6 +49,19 @@
 		&:last-child{
 			margin-bottom: 0;
 		}
+
+		/* For TextControl fallback */
+		:global {
+			.components-base-control__field {
+				margin-bottom: 0;
+
+				.components-text-control__input {
+					border: none;
+					text-align: center;
+					padding: 0;
+				}
+			}
+		}
 	}
 
 	:global {
