@@ -5,7 +5,7 @@ import { usePrevious } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useState, useCallback } from '@wordpress/element';
+import { useEffect, useState, useCallback, Platform } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 /**
@@ -29,6 +29,8 @@ import { useVideoPosterData } from '../use-video-poster-data';
  */
 import type { UseSyncMedia, ArrangeTracksAttributesProps } from './types';
 import type { UploadTrackDataProps } from '../../../lib/video-tracks/types';
+
+const isNative = Platform.isNative;
 
 const debug = debugFactory( 'videopress:video:use-sync-media' );
 
