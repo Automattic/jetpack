@@ -19,7 +19,6 @@ function load_3rd_party() {
 	// Array of third-party compat files to always require.
 	$compat_files = array(
 		'class-salesforce-lead-form.php', // not a module but the handler for Salesforce forms
-		'creative-mail.php',
 		'jetpack-backup.php',
 		'jetpack-boost.php',
 		'debug-bar.php',
@@ -82,6 +81,9 @@ function load_3rd_party_compat_filters() {
 
 	// Special case. Tools to be used to override module settings.
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/class-jetpack-modules-overrides.php';
+
+	// Creative Mail. Letting it always load since it handles somethings upon plugin activation.
+	require_once JETPACK__PLUGIN_DIR . '/3rd-party/creative-mail.php';
 }
 
 /**

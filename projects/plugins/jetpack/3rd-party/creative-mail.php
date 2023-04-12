@@ -19,9 +19,16 @@ if ( ! defined( 'ABSPATH' ) ) {
 const PLUGIN_SLUG = 'creative-mail-by-constant-contact';
 const PLUGIN_FILE = 'creative-mail-by-constant-contact/creative-mail-plugin.php';
 
-add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
-add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
 add_action( 'jetpack_activated_plugin', __NAMESPACE__ . '\configure_plugin', 10, 2 );
+
+// Check for the JITM action.
+if ( isset( $_GET['creative-mail-action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
+}
+
+if ( isset( $_GET['creative-mail-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
+}
 
 /**
  * Verify the intent to install Creative Mail, and kick off installation.
@@ -33,7 +40,7 @@ function try_install() {
 		return;
 	}
 
-	check_admin_referer( 'creative-mail-install' );
+		check_admin_referer( 'creative-mail-install' );
 
 	$result   = false;
 	$redirect = admin_url( 'edit.php?post_type=feedback' );
@@ -94,10 +101,6 @@ function activate() {
  * Notify the user that the installation of Creative Mail failed.
  */
 function error_notice() {
-	if ( empty( $_GET['creative-mail-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		return;
-	}
-
 	?>
 	<div class="notice notice-error is-dismissible">
 		<p><?php esc_html_e( 'There was an error installing Creative Mail.', 'jetpack' ); ?></p>
