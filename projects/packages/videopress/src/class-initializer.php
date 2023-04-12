@@ -178,6 +178,27 @@ class Initializer {
 	}
 
 	/**
+	 * VideoPress video block render method
+	 *
+	 * @param array  $block_attributes - Block attributes.
+	 * @param string $content          - Block markup.
+	 * @return string                    Block markup.
+	 */
+	public static function render_videopress_video_block( $block_attributes, $content ) {
+		// Preview On Hover data
+		if ( ! isset( $block_attributes['posterData']['previewOnHover'] ) || ! $block_attributes['posterData']['previewOnHover'] ) {
+			return sprintf( '<div class="wp-block-jetpack-videopress-container">%s</div>', $content );
+		}
+
+		$preview_on_hover_data = array(
+			'previewAtTime'       => $block_attributes['posterData']['previewAtTime'],
+			'previewLoopDuration' => $block_attributes['posterData']['previewLoopDuration'],
+		);
+
+		return sprintf( '<div class="wp-block-jetpack-videopress-container"><script type="application/json">%s</script>%s</div>', wp_json_encode( $preview_on_hover_data ), $content );
+	}
+
+	/**
 	 * Register the VideoPress block editor block,
 	 * AKA "VideoPress Block v6".
 	 *
@@ -228,7 +249,20 @@ class Initializer {
 			)
 		);
 
+		wp_enqueue_script(
+			self::JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER . '-iframe-api',
+			'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress-iframe-api.js',
+			array(),
+			gmdate( 'YW' ),
+			false
+		);
+
 		// Register VideoPress video block.
-		register_block_type( $videopress_video_metadata_file );
+		register_block_type(
+			$videopress_video_metadata_file,
+			array(
+				'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
+			)
+		);
 	}
 }

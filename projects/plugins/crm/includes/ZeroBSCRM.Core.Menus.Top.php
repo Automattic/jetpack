@@ -565,25 +565,31 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['managetransactions'] ) ); ?>"><i class="icon list"></i> <?php esc_html_e( 'View all', 'zero-bs-crm' ); ?></a>
 					<a class="item" href="<?php echo jpcrm_esc_link( 'tags', -1, 'zerobs_transaction', false, 'zerobscrm_transactiontag' ); ?>"><i class="icon tags"></i> <?php esc_html_e( 'Tags', 'zero-bs-crm' ); ?></a>
 
-					<?php if ( zeroBSCRM_permsTransactions() ) { ?>
+					<?php
+					if ( zeroBSCRM_permsTransactions() ) {
+						// If CSV Pro is installed and active it will add an Import menu item to the zbs-transactions-menu filter - we'll then add that here
+						$transactions_menu = array();
+						$transactions_menu = apply_filters( 'zbs-transactions-menu', $transactions_menu ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+						$import_menu_item  = preg_grep( '/\bpage\=zerobscrm\-csvimporter\-app\b/i', $transactions_menu );
+						if ( count( $import_menu_item ) > 0 ) {
+							echo wp_kses( $import_menu_item[0], $zbs->acceptable_html );
+							$transactions_menu = array_diff( $transactions_menu, $import_menu_item );
+						}
+						?>
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['export-tools'] ) ); ?>&zbstype=transaction"><i class="icon cloud download"></i> <?php esc_html_e( 'Export', 'zero-bs-crm' ); ?></a>
 					<?php } ?>
 
 					<?php
 
-						// filter items (allows additions from ext etc.)
-						// for now empty (could contain the above)
-						$transactionsMenu = array();
-						$transactionsMenu = apply_filters( 'zbs-transactions-menu', $transactionsMenu );
-					if ( count( $transactionsMenu ) > 0 ) {
-
+					// Display remaining menu items added via the zbs-transactions-menu filter
+					if ( count( $transactions_menu ) > 0 ) {
 						// show divider?
 						?>
-							<div class="ui divider"></div>
-							<?php
-
-							foreach ( $transactionsMenu as $menuItem ) {
-								echo $menuItem; }
+						<div class="ui divider"></div>
+						<?php
+						foreach ( $transactions_menu as $menu_item ) {
+							echo wp_kses( $menu_item, $zbs->acceptable_html );
+						}
 					}
 
 					?>
@@ -802,7 +808,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 				?>
 					<?php ##/WLREMOVE ?>
 					
-					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['feedback'] ) ); ?>"><i class="idea icon" aria-hidden="true"></i> <?php esc_html_e( 'Give Feedback', 'zero-bs-crm' ); ?></a>
+					<a class="item" href="<?php echo esc_url( $zbs->urls['rateuswporg'] ); ?>"><i class="star icon" aria-hidden="true"></i> <?php esc_html_e( 'Leave a review', 'zero-bs-crm' ); ?></a>
 					
 					<?php
 					// welcome tour and crm resources page for admins :)

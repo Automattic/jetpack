@@ -399,6 +399,7 @@ final class ZeroBSCRM {
 		'a'          => array(
 			'href'  => array(),
 			'title' => array(),
+			'class' => array(),
 		),
 		'br'         => array(),
 		'em'         => array(),
@@ -1013,7 +1014,6 @@ final class ZeroBSCRM {
 		$this->slugs['logout']       = 'zerobscrm-logout';
 		$this->slugs['datatools']    = 'zerobscrm-datatools';
 		$this->slugs['welcome']      = 'zerobscrm-welcome';
-		$this->slugs['feedback']     = 'zerobscrm-feedback';
 		$this->slugs['crmresources'] = 'jpcrm-resources';
 		$this->slugs['extensions']   = 'zerobscrm-extensions';
 		$this->slugs['modules']      = 'zerobscrm-modules';

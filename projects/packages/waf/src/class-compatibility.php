@@ -33,7 +33,7 @@ class Waf_Compatibility {
 	/**
 	 * Run compatibility migrations.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @return void
 	 */
@@ -99,7 +99,7 @@ class Waf_Compatibility {
 	/**
 	 * Merge the WAF and Brute Force Protection IP allow lists.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @param string $waf_allow_list        The WAF IP allow list.
 	 * @param array  $brute_force_allow_list The Brute Force Protection IP allow list. Array of IP objects.
@@ -137,7 +137,7 @@ class Waf_Compatibility {
 	/**
 	 * Migrate the brute force protection IP allow list option to the WAF option.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @return void
 	 */
@@ -171,7 +171,7 @@ class Waf_Compatibility {
 	 * Merges the deprecated IP allow list from the brute force protection module
 	 * with the existing option value, and flags that the WAF needs to be updated.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @param array $waf_allow_list The current value of the option.
 	 *
@@ -212,6 +212,17 @@ class Waf_Compatibility {
 		}
 
 		return $waf_allow_list;
+	}
+
+	/**
+	 * Check if the brute force protection code is being run by an older version of Jetpack (< 12.0).
+	 *
+	 * @since 0.11.1
+	 *
+	 * @return bool
+	 */
+	public static function is_brute_force_running_in_jetpack() {
+		return defined( 'JETPACK__VERSION' ) && version_compare( JETPACK__VERSION, '12', '<' );
 	}
 
 }

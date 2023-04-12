@@ -452,6 +452,12 @@ background:white;
   }
 }
 
+/* match padding of other rows on page */
+#crm_summary_numbers_container {
+  padding: 0 1rem;
+  margin-bottom: 10px;
+}
+
 #crm_summary_numbers {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
   .range_total {

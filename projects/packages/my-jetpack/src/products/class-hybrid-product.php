@@ -12,13 +12,6 @@ use Automattic\Jetpack\Plugins_Installer;
 use WP_Error;
 
 /**
- *
- * DEPRECATED: This class is deprecated and will be removed in a future version.
- *
- * All product classes have been moved out of the hybrid class concept
- *
- * @deprecated 2.7.2
- *
  * Class responsible for handling the hybrid products
  *
  * Hybrid products are those that may work both as a stand-alone plugin or with the Jetpack plugin.

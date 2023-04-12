@@ -6,7 +6,11 @@ import type { z } from 'zod';
  * This is typically a POST request to the corresponding API endpoint.
  * But can be changed to any function that returns a Promise.
  */
-export type SyncedStoreCallback< T > = ( value: T, abortSignal?: AbortSignal ) => Promise< T >;
+export type SyncedStoreCallback< T > = (
+	prevValue: T,
+	value: T,
+	abortSignal?: AbortSignal
+) => Promise< T >;
 
 /**
  * A Svelte store that's going to automatically sync with the API.
@@ -15,7 +19,7 @@ export type SyncedStoreInterface< T > = {
 	store: SyncedWritable< T >;
 	pending: Readable< boolean >;
 	errors: Readable< SyncedStoreError< T >[] >;
-	setCallback: ( callback: SyncedStoreCallback< T > ) => void;
+	setSyncAction: ( callback: SyncedStoreCallback< T > ) => void;
 };
 
 /**

@@ -59,6 +59,19 @@ trait Import {
 	}
 
 	/**
+	 * Registers the routes for the objects of the controller.
+	 *
+	 * @see WP_REST_Controller::register_rest_route()
+	 */
+	public function register_routes() {
+		register_rest_route(
+			self::$rest_namespace,
+			'/' . $this->rest_base,
+			$this->get_route_options()
+		);
+	}
+
+	/**
 	 * Adds the unique identifier to the schema array.
 	 *
 	 * @param array $schema Schema array.
@@ -163,5 +176,26 @@ trait Import {
 			'allow_batch' => $this->allow_batch,
 			'schema'      => array( $this, 'get_public_item_schema' ),
 		);
+	}
+
+	/**
+	 * Ensure that the HTTP status is correct.
+	 *
+	 * @param WP_Error $response   Response error object.
+	 * @param int      $error_code Error code.
+	 * @param int      $status     HTTP status.
+	 */
+	protected function ensure_http_status( $response, $error_code, $status ) {
+		if ( is_wp_error( $response ) && in_array( $error_code, $response->get_error_codes(), true ) ) {
+			$data = $response->get_error_data( $error_code );
+
+			if ( isset( $data['status'] ) ) {
+				$data['status'] = $status;
+
+				$response->add_data( $data );
+			}
+		}
+
+		return $response;
 	}
 }

@@ -20,6 +20,7 @@ export const productDescriptionRoutes = [
 ];
 
 export const myJetpackRoutes = [
+	`/add-${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_ANTI_SPAM }`,
 	`/add-${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_BACKUP }`,
 	`/add-${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SCAN }`,
 	`/add-${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SEARCH }`,

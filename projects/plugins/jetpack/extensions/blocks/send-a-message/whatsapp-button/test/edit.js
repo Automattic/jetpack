@@ -1,10 +1,5 @@
 import { render, screen } from '@testing-library/react';
-// this is necessary because block editor store becomes unregistered during jest initialization
-import { store as blockEditorStore } from '@wordpress/block-editor';
-import { register } from '@wordpress/data';
 import WhatsAppButtonEdit from '../edit';
-
-register( blockEditorStore );
 
 const defaultAttributes = {
 	countryCode: 'us',

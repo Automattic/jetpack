@@ -1,5 +1,0 @@
-Significance: patch
-Type: added
-Comment: Added a has_login_ability property to the jpp_log_failed_attempt action for use by the Sync package.
-
-

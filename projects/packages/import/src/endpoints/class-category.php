@@ -35,19 +35,6 @@ class Category extends \WP_REST_Terms_Controller {
 	}
 
 	/**
-	 * Registers the routes for the objects of the controller.
-	 *
-	 * @see WP_REST_Terms_Controller::register_rest_route()
-	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			'/categories',
-			$this->get_route_options()
-		);
-	}
-
-	/**
 	 * Adds the schema from additional fields to a schema array.
 	 *
 	 * The type of object is inferred from the passed schema.
@@ -79,6 +66,9 @@ class Category extends \WP_REST_Terms_Controller {
 		}
 
 		$response = parent::create_item( $request );
+
+		// Ensure that the HTTP status is a valid one.
+		$response = $this->ensure_http_status( $response, 'term_exists', 409 );
 
 		return $this->add_import_id_metadata( $request, $response );
 	}

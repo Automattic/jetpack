@@ -1027,9 +1027,7 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 			// contact nav
 			$navigation = $zbs->DAL->contacts->getContactPrevNext( $id );
 
-			$html = '<span class="ui navigation-quick-links">';
-
-			$html .= '<a style="margin-right:6px;" href="' . jpcrm_esc_link( $zbs->slugs["managecontacts"] ) . '" class="ui button mini was-inverted basic" id="back-to-list">' . esc_html( __( 'Back to List', 'zero-bs-crm' ) ) . '</a>';
+			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managecontacts'] );
 
 			// PREV
 			if ( $navigation && $navigationMode === 1 ) {
@@ -1056,8 +1054,7 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 			// company nav
 			$navigation = $zbs->DAL->companies->getCompanyPrevNext( $id );
 
-			$html = '<span class="ui navigation-quick-links">';
-			$html .= '<a style="margin-right:6px;" href="' . jpcrm_esc_link( $zbs->slugs["managecompanies"] ) . '" class="ui button mini was-inverted basic" id="back-to-list">' .  esc_html( __( 'Back to List', 'zero-bs-crm' ) ) . '</a>';
+			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managecompanies'] );
 
 			// PREV
 			if ( $navigation && $navigationMode === 1 ) {
@@ -1069,14 +1066,31 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 				}
 			}
 
-			#} If in edit mode, add in save + view
+			// If in edit mode, add in view.
 			if ( $key === 'edit' ) {
 				$html .= '<a style="margin-left:6px;" class="ui icon button blue mini labeled" href="' . jpcrm_esc_link( 'view', $id, ZBS_TYPE_COMPANY ) . '"><i class="eye left icon"></i> ' . esc_html( __( 'View', 'zero-bs-crm' ) ) . '</a>';
-				if ( zeroBSCRM_permsCustomers() ) {
-					// $html .= '<button class="ui icon button mini green labeled" type="button" id="zbs-edit-save" style="margin-right:5px;margin-left:5px;"><i class="icon save"></i>' . esc_html( __( 'Save', 'zero-bs-crm' ) ) . '</button>';
-				}
-
 			}
+
+			$html .= '</span>';
+
+			break;
+
+		case ZBS_TYPE_QUOTE:
+			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managequotes'] );
+
+			$html .= '</span>';
+
+			break;
+
+		case ZBS_TYPE_INVOICE:
+			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['manageinvoices'] );
+
+			$html .= '</span>';
+
+			break;
+
+		case ZBS_TYPE_TRANSACTION:
+			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managetransactions'] );
 
 			$html .= '</span>';
 
@@ -1086,6 +1100,21 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 	return $html;
 
 }
+
+/**
+ * Helper function to print the 'back to list' navigation button.
+ *
+ * @param string $slug - The slug for the page.
+ * @return string $html - The HTML string.
+ */
+function zeroBSCRM_print_backtolist_html( $slug ) {
+	$html = '<span class="ui navigation-quick-links">';
+
+	$html .= '<a style="margin-right:6px;" href="' . jpcrm_esc_link( $slug ) . '" class="ui button mini was-inverted basic" id="back-to-list">' . esc_html( __( 'Back to List', 'zero-bs-crm' ) ) . '</a>';
+
+	return $html;
+}
+
 /* ======================================================
   /	Object Nav
    ====================================================== */
@@ -1165,105 +1194,132 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
   Email History
    ====================================================== */
 
-function zeroBSCRM_outputEmailHistory($userID = -1){
+function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid,Squiz.Commenting.FunctionComment.Missing,Squiz.Commenting.FunctionComment.WrongStyle
 
 	global $zbs;
 
-	//get the last 50 (can add pagination later...)
-    $email_hist = zeroBSCRM_get_email_history(0,50, $userID); 
-    ?>
-    <style>
-    	.zbs-email-sending-record {
-    		margin-bottom:0.8em;
-    	}
-    	.zbs-email-sending-record .avatar{
-    		margin-left: 5px;
-    		border-radius: 50%;
-    	}
-    	.zbs-email-detail {
-		    width: 80%;
-		    display: inline-block;
-    	}
+	// get the last 50 (can add pagination later...)
+	$email_hist = zeroBSCRM_get_email_history( 0, 50, $user_id );
+	?>
+	<style>
+		.zbs-email-sending-record {
+			margin-bottom:0.8em;
+		}
+		.zbs-email-sending-record .avatar{
+			margin-left: 5px;
+			border-radius: 50%;
+		}
+		.zbs-email-detail {
+			width: 80%;
+			display: inline-block;
+		}
 	</style>
-    <?php
+	<?php
 
-    if(count($email_hist) == 0){
-    	echo "<div class='ui message'><i class='icon envelope outline'></i>" . esc_html( __('No Recent Emails','zero-bs-crm') ) . "</div>";
-    }
-    
-    foreach($email_hist as $em_hist){
+	if ( count( $email_hist ) === 0 ) {
+		echo '<div class="ui message"><i class="icon envelope outline"></i>' . esc_html( __( 'No Recent Emails', 'zero-bs-crm' ) ) . '</div>';
+	}
 
-        $email_subject = zeroBSCRM_mailTemplate_getSubject($em_hist->zbsmail_type);
-        $emoji = '🤖';
-        if($email_subject ==''){
-          //then this is a custom email
-          $email_subject = $em_hist->zbsmail_subject;
-          $emoji ='😀';
-        }
-        // if still empty
-        if (empty($email_subject)) $email_subject = __('Untitled','zero-bs-crm');
-        echo "<div class='zbs-email-sending-record'>";
-		echo "<span class='label blue ui tiny hist-label' style='float:left'> " . esc_html( __('sent','zero-bs-crm') ) . ' </span>';
-		echo '<div class="zbs-email-detail">'. esc_html( $emoji );
-		echo " <strong>" . esc_html( $email_subject ) . "</strong><br />";
-		echo "<span class='sent-to'>" . esc_html( __(" sent to ", 'zero-bs-crm') ) . "</span>";
+	foreach ( $email_hist as $em_hist ) {
+
+		$email_details_html = '';
+
+		$email_subject = zeroBSCRM_mailTemplate_getSubject( $em_hist->zbsmail_type );
+		$emoji         = '🤖';
+
+		if ( $email_subject === '' ) {
+			// then this is a custom email
+			$email_subject = $em_hist->zbsmail_subject;
+			$emoji         = '😀';
+		}
+
+		// if still empty
+		if ( empty( $email_subject ) ) {
+			$email_subject = esc_html__( 'Untitled', 'zero-bs-crm' );
+		}
+		$email_details_html .= '<div class="zbs-email-sending-record">';
+		$email_details_html .= '<span class="label blue ui tiny hist-label" style="float:left"> ' . esc_html( __( 'sent', 'zero-bs-crm' ) ) . ' </span>';
+		$email_details_html .= '<div class="zbs-email-detail">' . esc_html( $emoji );
+		$email_details_html .= ' <strong>' . esc_html( $email_subject ) . '</strong><br />';
+		$email_details_html .= '<span class="sent-to">' . esc_html( __( ' sent to ', 'zero-bs-crm' ) ) . '</span>';
+
 		// -10 are the system emails sent to CUSTOMERS
-		if($em_hist->zbsmail_sender_wpid == -10){
-			$customer = zeroBS_getCustomerMeta($em_hist->zbsmail_target_objid);
-			$link = admin_url('admin.php?page='.$zbs->slugs['addedit'].'&action=view&zbsid=' .$em_hist->zbsmail_target_objid);
-			if($customer['fname'] == '' && $customer['lname'] == ''){
-				echo "<a href='".esc_url( $link )."'>" . esc_html( $customer['email'] ) . "</a>";
-			}else{ 
-				echo "<a href='".esc_url( $link )."'>" . esc_html( $customer['fname'] . ' ' . $customer['lname'] ) . "</a>";
-			}
-		}else if($em_hist->zbsmail_sender_wpid == -11){
-			//quote proposal accepted (sent to admin...)
-			$userIDobj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
-			echo esc_html( $userIDobj->data->display_name );
-			echo jpcrm_get_avatar( $em_hist->zbsmail_target_objid, 20 ); 
-		
-		}else if($em_hist->zbsmail_sender_wpid == -12){
-			//quote proposal accepted (sent to admin...) -12 is the you have a new quote...
-			$customer = zeroBS_getCustomerMeta($em_hist->zbsmail_target_objid);
-			$link = admin_url('admin.php?page='.$zbs->slugs['addedit'].'&action=view&zbsid=' .$em_hist->zbsmail_target_objid);
-			if($customer['fname'] == '' && $customer['lname'] == ''){
-				echo "<a href='".esc_url( $link )."'>" . esc_html( $customer['email'] ) . "</a>";
-			}else{ 
-				echo "<a href='".esc_url( $link )."'>" . esc_html( $customer['fname'] . ' ' . $customer['lname'] ) . "</a>";
-			}
-		}else if($em_hist->zbsmail_sender_wpid == -13){
-			//-13 is the event notification (sent to the OWNER of the event) so a WP user (not ZBS contact)...
-			$userIDobj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
-			echo esc_html( $userIDobj->data->display_name );
-			echo jpcrm_get_avatar( $em_hist->zbsmail_target_objid, 20 ); 
-		}else{
-			$customer = zeroBS_getCustomerMeta($em_hist->zbsmail_target_objid);
-
-			//zbs_prettyprint($customer);
-
-			//then it is a CRM team member [team member is quote accept]....
-			$link = admin_url('admin.php?page='.$zbs->slugs['addedit'].'&action=view&zbsid=' .$em_hist->zbsmail_target_objid);
-			if($customer['fname'] == '' && $customer['lname'] == ''){
-				echo "<a href='".esc_url( $link )."'>" . esc_html( $customer['email'] ) . "</a>";
-			}else{ 
-				echo "<a href='".esc_url( $link )."'>" . esc_html( $customer['fname'] . " " . $customer['lname'] ) . "</a>";
+		if ( $em_hist->zbsmail_sender_wpid === '-10' ) {
+			$customer = zeroBS_getCustomerMeta( $em_hist->zbsmail_target_objid );
+			if ( ! $customer ) {
+				continue;
 			}
 
-			$userIDobj = get_user_by( 'ID', $em_hist->zbsmail_sender_wpid );
-			if (gettype($userIDobj) == 'object'){
-				echo esc_html( __(' by ','zero-bs-crm') . $userIDobj->data->display_name );
-				echo jpcrm_get_avatar( $em_hist->zbsmail_sender_wpid, 20 ); 
+			$link = admin_url( 'admin.php?page=' . $zbs->slugs['addedit'] . '&action=view&zbsid=' . $em_hist->zbsmail_target_objid );
+			if ( $customer['fname'] === '' && $customer['lname'] === '' ) {
+				$email_details_html .= '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['email'] ) . '</a>';
+			} else {
+				$email_details_html .= '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['fname'] . ' ' . $customer['lname'] ) . '</a>';
+			}
+		} elseif ( $em_hist->zbsmail_sender_wpid === '-11' ) {
+			// quote proposal accepted (sent to admin...)
+			$user_obj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
+			if ( ! $user_obj ) {
+				continue;
 			}
 
+			$email_details_html .= esc_html( $user_obj->data->display_name );
+			$email_details_html .= jpcrm_get_avatar( $em_hist->zbsmail_target_objid, 20 );
+		} elseif ( $em_hist->zbsmail_sender_wpid === '-12' ) {
+			// quote proposal accepted (sent to admin...) -12 is the you have a new quote...
+			$customer = zeroBS_getCustomerMeta( $em_hist->zbsmail_target_objid );
+			if ( ! $customer ) {
+				continue;
+			}
+
+			$link = admin_url( 'admin.php?page=' . $zbs->slugs['addedit'] . '&action=view&zbsid=' . $em_hist->zbsmail_target_objid );
+			if ( $customer['fname'] === '' && $customer['lname'] === '' ) {
+				$email_details_html .= '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['email'] ) . '</a>';
+			} else {
+				$email_details_html .= '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['fname'] . ' ' . $customer['lname'] ) . '</a>';
+			}
+		} elseif ( $em_hist->zbsmail_sender_wpid === '-13' ) {
+			// -13 is the event notification (sent to the OWNER of the event) so a WP user (not ZBS contact)...
+			$user_obj = get_user_by( 'ID', $em_hist->zbsmail_target_objid );
+			if ( ! $user_obj ) {
+				continue;
+			}
+
+			$email_details_html .= esc_html( $user_obj->data->display_name );
+			$email_details_html .= jpcrm_get_avatar( $em_hist->zbsmail_target_objid, 20 );
+		} else {
+			$customer = zeroBS_getCustomerMeta( $em_hist->zbsmail_target_objid );
+			if ( ! $customer ) {
+				continue;
+			}
+
+			// then it is a CRM team member [team member is quote accept]....
+			$link = admin_url( 'admin.php?page=' . $zbs->slugs['addedit'] . '&action=view&zbsid=' . $em_hist->zbsmail_target_objid );
+			if ( $customer['fname'] === '' && $customer['lname'] === '' ) {
+				$email_details_html .= '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['email'] ) . '</a>';
+			} else {
+				$email_details_html .= '<a href="' . esc_url( $link ) . '">' . esc_html( $customer['fname'] . ' ' . $customer['lname'] ) . '</a>';
+			}
+
+			$user_obj = get_user_by( 'ID', $em_hist->zbsmail_sender_wpid );
+			if ( ! $user_obj ) {
+				continue;
+			}
+
+			$email_details_html .= esc_html( __( ' by ', 'zero-bs-crm' ) . $user_obj->data->display_name );
+			$email_details_html .= jpcrm_get_avatar( $em_hist->zbsmail_sender_wpid, 20 );
 		}
-		$unixts =  date('U', $em_hist->zbsmail_created);
-		$diff   = human_time_diff($unixts, time());
-		echo "<time>". esc_html( $diff . __(' ago', 'zero-bs-crm') ) . "</time>";
-		if($em_hist->zbsmail_opened == 1){
-			echo "<span class='ui green basic label mini' style='margin-left:7px;'><i class='icon check'></i> ". esc_html( __('opened','zero-bs-crm') ) ."</span>";
+		$unixts = gmdate( 'U', $em_hist->zbsmail_created );
+		$diff   = human_time_diff( $unixts, time() );
+
+		$email_details_html .= '<time>' . esc_html( $diff . __( ' ago', 'zero-bs-crm' ) ) . '</time>';
+		if ( $em_hist->zbsmail_opened === '1' ) {
+			$email_details_html .= '<span class="ui green basic label mini" style="margin-left:7px;"><i class="icon check"></i> ' . esc_html( __( 'opened', 'zero-bs-crm' ) ) . '</span>';
 		}
-        echo "</div></div>";
-    }
+		$email_details_html .= '</div></div>';
+
+		echo $email_details_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	}
 }
 
 /* ======================================================
