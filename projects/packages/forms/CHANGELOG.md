@@ -5,6 +5,64 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+### Changed
+- Forms: Add line on top of the response list when the actions menu is sticky [#29941]
+- Forms: Dashboard finetunings round 2 [#29909]
+- Forms: Update source column styles and trash action label [#29970]
+
+## [0.11.0] - 2023-04-04
+### Added
+- Export modal for the new JP Forms dashboard. [#29775]
+- Forms: Add single actions menu to the Dashboard inbox view [#29848]
+- Forms: Create response inbox filters [#29694]
+
+### Changed
+- Disregard post_status when calculating available filters for form responses. [#29817]
+- Forms: Dashboard finetunings [#29789]
+- Forms: Include bulk actions menu [#29766]
+- Forms: Update Dashboard inbox columns responsiveness and sticky items style [#29914]
+- Updated form responses endpoint to embed available filter data. [#29805]
+- Updated package dependencies. [#29854]
+- Updated package dependencies. [#29857]
+
+### Fixed
+- Made feedback bulk actions more explicit and easier to work with. [#29884]
+
+## [0.10.2] - 2023-04-03
+### Changed
+- Internal updates.
+
+## [0.10.1] - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## [0.10.0] - 2023-03-27
+### Added
+- Add all source post IDs on forms/responses endpoint [#29428]
+- Added an endpoint for performing bulk actions on feedback responses. [#29682]
+- Forms: Add Tabs to Forms dashboard inbox view [#29652]
+
+### Changed
+- Add a check for array on $attributes before trying to set an item on it [#29557]
+- Add search input and styles [#29397]
+- Change default entries per page on responses inbox [#29406]
+- Feedback responses endpoint now allows filtering by post status and returns all totals. [#29589]
+- Forms: Adjust Forms inbox view columns responsiveness [#29666]
+- Forms: Update Forms inbox view responses styles [#29660]
+- Jetpack Forms: changed "message sent" tracking from Tracks to bump stat. [#29383]
+- Jetpack Forms: Change default entries per page on responses inbox [#29701]
+- Jetpack Forms: display carriage returns in responses in the Feedback->Form Responses page. [#29698]
+- Jetpack Forms: json_encode form responses instead of using print_r. [#29664]
+- Upgrade package number [#29457]
+
+### Fixed
+- Refactored state management for forms dashboard [#29684]
+- Use Contact_Form_Plugin::init instead of requiring the old module file [#29648]
+
 ## [0.9.0] - 2023-03-20
 ### Added
 - Jetpack Forms: Add tracking of Google Sheets exports [#29225]
@@ -103,6 +161,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.12.0]: https://github.com/automattic/jetpack-forms/compare/v0.11.0...v0.12.0
+[0.11.0]: https://github.com/automattic/jetpack-forms/compare/v0.10.2...v0.11.0
+[0.10.2]: https://github.com/automattic/jetpack-forms/compare/v0.10.1...v0.10.2
+[0.10.1]: https://github.com/automattic/jetpack-forms/compare/v0.10.0...v0.10.1
+[0.10.0]: https://github.com/automattic/jetpack-forms/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/automattic/jetpack-forms/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/automattic/jetpack-forms/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/automattic/jetpack-forms/compare/v0.6.0...v0.7.0

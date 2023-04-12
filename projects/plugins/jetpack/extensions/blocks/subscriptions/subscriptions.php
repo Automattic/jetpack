@@ -58,8 +58,16 @@ function register_block() {
 		return;
 	}
 
-	if ( ! Jetpack_Gutenberg::is_newsletter_enabled() ) {
-		return; // Stop here if the Newsletter feature is not enabled.
+	/**
+	 * Do not proceed if the newsletter feature is not enabled
+	 * or if the 'Jetpack_Memberships' class does not exists.
+	 */
+	if (
+		/** This filter is documented in class.jetpack-gutenberg.php */
+		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+		|| ! class_exists( '\Jetpack_Memberships' )
+	) {
+		return;
 	}
 
 	register_post_meta(
@@ -362,7 +370,7 @@ function render_block( $attributes ) {
 		return '';
 	}
 
-	if ( Jetpack_Gutenberg::is_newsletter_enabled() ) {
+	if ( Jetpack_Gutenberg::is_newsletter_configured() ) {
 		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
 		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 		if ( ! wp_style_is( 'enqueued' ) ) {
@@ -425,6 +433,11 @@ function render_block( $attributes ) {
  * @return string the actual post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
  */
 function get_post_access_level() {
+	if ( ! is_singular() ) {
+		// There is no "actual" current post.
+		return 'everybody';
+	}
+
 	$post_id = get_the_ID();
 	if ( ! $post_id ) {
 		return 'everybody';
@@ -696,7 +709,9 @@ function maybe_get_locked_content( $the_content ) {
 	if ( Jetpack_Memberships::user_can_view_post() ) {
 		return $the_content;
 	}
-	return get_locked_content_placeholder_text();
+
+	$newsletter_access_level = Jetpack_Memberships::get_newsletter_access_level();
+	return get_locked_content_placeholder_text( $newsletter_access_level );
 }
 
 /**
@@ -737,13 +752,30 @@ function maybe_gate_existing_comments( $comment ) {
 /**
  * Placeholder text for non-subscribers
  *
+ * @param string $newsletter_access_level The newsletter access level.
  * @return string
  */
-function get_locked_content_placeholder_text() {
+function get_locked_content_placeholder_text( $newsletter_access_level ) {
+	// Default to subscribers
+	$access_level = __( 'subscribers', 'jetpack' );
+
+	// Only display this text when Stripe is connected and the post is marked for paid subscribers
+	if (
+		$newsletter_access_level === 'paid_subscribers'
+		&& ! empty( \Jetpack_Memberships::get_connected_account_id() )
+	) {
+		$access_level = __( 'paid subscribers', 'jetpack' );
+	}
+
 	return do_blocks(
 		'<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}},"border":{"width":"1px","radius":"4px"}},"borderColor":"primary","layout":{"type":"constrained","contentSize":"400px"}} -->
 			<div class="wp-block-group has-border-color has-primary-border-color" style="border-width:1px;border-radius:4px;padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center","style":{"typography":{"fontSize":"24px"},"spacing":{"margin":{"bottom":"var:preset|spacing|60"}}}} -->
-			<h2 class="wp-block-heading has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60);font-size:24px">' . esc_html__( 'This post is for paid subscribers', 'jetpack' ) . '</h2>
+			<h2 class="wp-block-heading has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60);font-size:24px">' .
+
+			/* translators: Newsletter access. Possible values are "paid newsletters" and "subscribers" */
+			sprintf( esc_html__( 'This post is for %s', 'jetpack' ), $access_level )
+
+			. '</h2>
 			<!-- /wp:heading -->
 
 			<!-- wp:jetpack/subscriptions {"borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /-->

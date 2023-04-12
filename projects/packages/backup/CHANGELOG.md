@@ -5,6 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.12] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.12.11] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## [1.12.10] - 2023-04-03
+### Changed
+- Internal updates.
+
+## [1.12.9] - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## [1.12.8] - 2023-03-27
+### Added
+- (Backup, Boost, Search, Social) Add links on upgrade pages to activate a license key, if you already have one. [#29443]
+
+### Fixed
+- Backup: validate if storage details has loaded before attempting to fetch it again. [#29645]
+
 ## [1.12.7] - 2023-03-20
 ### Changed
 - Updated package dependencies. [#29471]
@@ -365,6 +388,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.12.12]: https://github.com/Automattic/jetpack-backup/compare/v1.12.11...v1.12.12
+[1.12.11]: https://github.com/Automattic/jetpack-backup/compare/v1.12.10...v1.12.11
+[1.12.10]: https://github.com/Automattic/jetpack-backup/compare/v1.12.9...v1.12.10
+[1.12.9]: https://github.com/Automattic/jetpack-backup/compare/v1.12.8...v1.12.9
+[1.12.8]: https://github.com/Automattic/jetpack-backup/compare/v1.12.7...v1.12.8
 [1.12.7]: https://github.com/Automattic/jetpack-backup/compare/v1.12.6...v1.12.7
 [1.12.6]: https://github.com/Automattic/jetpack-backup/compare/v1.12.5...v1.12.6
 [1.12.5]: https://github.com/Automattic/jetpack-backup/compare/v1.12.4...v1.12.5

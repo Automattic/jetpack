@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## [0.4.2] - 2023-03-29
+### Changed
+- Minor internal updates.
+
+## [0.4.1] - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## [0.4.0] - 2023-03-27
+### Changed
+- Add new vars [#29644]
+- Modularized root variable declaration out of main style file [#29600]
+
 ## [0.3.20] - 2023-03-08
 ### Changed
 - Updated package dependencies. [#29216]
@@ -151,6 +168,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Node 16.7.0 in tooling. This shouldn't change the behavior of the code itself.
 
+[0.4.3]: https://github.com/Automattic/jetpack-base-styles/compare/0.4.2...0.4.3
+[0.4.2]: https://github.com/Automattic/jetpack-base-styles/compare/0.4.1...0.4.2
+[0.4.1]: https://github.com/Automattic/jetpack-base-styles/compare/0.4.0...0.4.1
+[0.4.0]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.20...0.4.0
 [0.3.20]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.19...0.3.20
 [0.3.19]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.18...0.3.19
 [0.3.18]: https://github.com/Automattic/jetpack-base-styles/compare/0.3.17...0.3.18

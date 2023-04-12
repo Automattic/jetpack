@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 import * as stories from './stories';
 
-const { Default, Absent } = composeStories( stories );
+const { Default } = composeStories( stories );
 
 describe( 'ProductCard', () => {
 	describe( 'when the product is active', () => {
@@ -22,8 +22,8 @@ describe( 'ProductCard', () => {
 		test( 'calls onAdd', async () => {
 			const user = userEvent.setup();
 			const onAdd = jest.fn();
-			render( <Absent onAdd={ onAdd } /> );
-			const actionButton = screen.getByRole( 'button', { name: 'Add Backup' } );
+			render( <Default status="plugin_absent" onAdd={ onAdd } /> );
+			const actionButton = screen.getByRole( 'button', { name: 'Get Backup' } );
 			await user.click( actionButton );
 			expect( onAdd ).toHaveBeenCalled();
 		} );

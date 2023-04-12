@@ -13,9 +13,14 @@ namespace Automattic\Jetpack\Import\Endpoints;
 class Attachment extends \WP_REST_Attachments_Controller {
 
 	/**
-	 * The Import ID add a new item to the schema.
+	 * Base class
 	 */
 	use Import;
+
+	/**
+	 * The Import ID add a new item to the schema.
+	 */
+	use Import_ID;
 
 	/**
 	 * Whether the controller supports batching. Default false.
@@ -141,7 +146,6 @@ class Attachment extends \WP_REST_Attachments_Controller {
 	 * @return array Modified Schema array.
 	 */
 	public function add_additional_fields_schema( $schema ) {
-
 		// Validate the upload_date, used for placing the uploaded file in the correct upload directory.
 		$schema['properties']['upload_date'] = array(
 			'description' => __( 'The date for the upload directory of the attachment.', 'jetpack-import' ),

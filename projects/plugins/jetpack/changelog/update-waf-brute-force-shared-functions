@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Move the brute force protection transient cleanup and shared functions to dedicated namespaced classes.

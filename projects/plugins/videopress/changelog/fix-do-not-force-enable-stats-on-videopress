@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: Do not force-enable the Stats module inside the VideoPress plugin.
