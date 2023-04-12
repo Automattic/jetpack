@@ -58,6 +58,10 @@ class Domain_Mapping {
 	 * to try and hook a domain mapping plugin to the Jetpack sync filters for the home_url and site_url callables.
 	 */
 	public function attempt_to_hook_domain_mapping_plugins() {
+		if ( ! Constants::is_defined( 'SUNRISE' ) ) {
+			return;
+		}
+
 		$hooked = false;
 		$count  = count( self::$test_methods );
 		for ( $i = 0; $i < $count && ! $hooked; $i++ ) {
