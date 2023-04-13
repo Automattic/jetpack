@@ -155,7 +155,7 @@ export function useSyncMedia(
 	attributes: VideoBlockAttributes,
 	setAttributes: VideoBlockSetAttributesProps,
 	blockSettingsSaved = false,
-	setBlockSettingsSaved = undefined
+	setBlockSettingsSaved
 ): UseSyncMedia {
 	const { id, guid, isPrivate } = attributes;
 	const { videoData, isRequestingVideoData } = useVideoData( {
