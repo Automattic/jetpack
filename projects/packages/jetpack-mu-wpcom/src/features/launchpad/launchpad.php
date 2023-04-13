@@ -95,7 +95,7 @@ function get_task_definitions() {
 		'first_post_published'
 			=> array(
 				'id'        => 'first_post_published',
-				'completed' => get_checklist_task( first_post_published ) . completed,
+				'completed' => get_checklist_task( 'first_post_published' ),
 				'disabled'  => false,
 			),
 		'first_post_published_newsletter'
@@ -113,20 +113,23 @@ function get_task_definitions() {
 		'setup_link_in_bio'
 			=> array(
 				'id'        => 'setup_link_in_bio',
+				'title'     => __( 'Personalize Link in Bio', 'jetpack-mu-wpcom' ),
 				'completed' => true,
 				'disabled'  => false,
 			),
 		'links_added'
 			=> array(
 				'id'        => 'links_added',
-				'completed' => false,
+				'title'     => __( 'Add links', 'jetpack-mu-wpcom' ),
+				'completed' => get_checklist_task( 'links_edited' ),
 				'disabled'  => false,
 			),
 		'link_in_bio_launched'
 			=> array(
 				'id'        => 'link_in_bio_launched',
-				'completed' => false,
-				'disabled'  => true,
+				'title'     => __( 'Launch your site', 'jetpack-mu-wpcom' ),
+				'completed' => get_checklist_task( 'site_launched' ),
+				'disabled'  => ! get_checklist_task( 'links_added' ),
 			),
 		'videopress_setup'
 			=> array(
