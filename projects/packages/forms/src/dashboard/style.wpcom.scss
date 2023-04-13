@@ -89,17 +89,23 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		}
 
 		.subtitle {
-			color: var( --color-text, #2c3338 );
+			color: var( --color-neutral-60, #50575e );
+			line-height: 20px;
 
 			a {
 				color: var( --color-primary, #006088 );
+				text-decoration: none;
 			}
 		}
 	}
 
 	.jp-forms__inbox-tab-item {
-		color: var( --color-text, #2c3338 );
+		color: var( --color-neutral-60, #50575e );
 		font-size: 14px;
+
+		&:hover {
+			border-color: var( --color-neutral-5, #dcdcde );
+		}
 
 		&.active-tab {
 			border-color: var( --color-neutral-100, #101517 );
@@ -172,7 +178,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 
 	.jp-forms__table-header {
 		background-color: #fdfdfd;
-		color: var( --color-text-subtle, #50575e );
+		color: var( --color-neutral-60, #50575e );
 		font-weight: 600;
 	}
 

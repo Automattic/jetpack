@@ -199,7 +199,7 @@ const Inbox = () => {
 				<span className="subtitle">
 					{ createInterpolateElement(
 						__(
-							'Collect and manage responses from your audience. <a>Learn more.</a>',
+							'Collect and manage responses from your audience. <a>Learn more</a>',
 							'jetpack-forms'
 						),
 						{
