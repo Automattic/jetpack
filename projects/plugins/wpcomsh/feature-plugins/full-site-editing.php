@@ -124,10 +124,10 @@ function wpcom_public_coming_soon_replace_yoast_seo_notice() {
 
 		if ( $is_wpcom_public_coming_soon_enabled ) {
 			/* translators: 1: opening anchor tag; 2: closing anchor tag. */
-			$text = __( 'Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site\'s privacy settings.' );
+			$text = __( 'Heads up! Your site is currently in Coming Soon mode. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site\'s privacy settings.', 'wpcomsh' );
 		} else {
 			/* translators: 1: opening anchor tag; 2: closing anchor tag. */
-			$text = __( 'Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site\'s privacy settings.' );
+			$text = __( 'Heads up! Search engines are currently discouraged from indexing your site. If you want search engines to show this site in their search results you have to launch your site. %1$sClick here%2$s to change your site\'s privacy settings.', 'wpcomsh' );
 		}
 
 		printf(
