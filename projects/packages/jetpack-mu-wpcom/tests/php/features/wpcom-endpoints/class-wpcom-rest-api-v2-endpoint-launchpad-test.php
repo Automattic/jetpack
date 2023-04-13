@@ -15,13 +15,6 @@ require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom
  */
 class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase {
 	/**
-	 * REST server.
-	 *
-	 * @var WP_REST_Server
-	 */
-	public $server;
-
-	/**
 	 * Admin user ID.
 	 *
 	 * @var int
