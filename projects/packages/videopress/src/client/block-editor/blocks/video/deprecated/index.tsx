@@ -6,12 +6,12 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import { getVideoPressUrl } from '../../../lib/url';
+import { getVideoPressUrl } from '../../../../lib/url';
+import { isVideoFramePosterEnabled } from '../components/poster-panel';
 /**
  * Types
  */
-import { isVideoFramePosterEnabled } from './components/poster-panel';
-import type { VideoBlockAttributes } from './types';
+import type { VideoBlockAttributes } from '../types';
 import type React from 'react';
 
 type videoBlockSaveProps = {
@@ -25,7 +25,7 @@ type videoBlockSaveProps = {
  * @param {object} props.attributes  - Block attributes.
  * @returns {object}                 - React component.
  */
-export default function save( { attributes }: videoBlockSaveProps ): React.ReactNode {
+function save( { attributes }: videoBlockSaveProps ): React.ReactNode {
 	const {
 		align,
 		autoplay,
@@ -91,3 +91,123 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 		</figure>
 	);
 }
+
+const attributes = {
+	autoplay: {
+		type: 'boolean',
+	},
+	title: {
+		type: 'string',
+	},
+	description: {
+		type: 'string',
+	},
+	caption: {
+		type: 'string',
+		source: 'html',
+		selector: 'figcaption',
+	},
+	controls: {
+		type: 'boolean',
+		default: true,
+	},
+	loop: {
+		type: 'boolean',
+	},
+	maxWidth: {
+		type: 'string',
+		default: '100%',
+	},
+	muted: {
+		type: 'boolean',
+	},
+	playsinline: {
+		type: 'boolean',
+	},
+	preload: {
+		type: 'string',
+		default: 'metadata',
+	},
+	seekbarPlayedColor: {
+		type: 'string',
+		default: '',
+	},
+	seekbarLoadingColor: {
+		type: 'string',
+		default: '',
+	},
+	seekbarColor: {
+		type: 'string',
+		default: '',
+	},
+	useAverageColor: {
+		type: 'boolean',
+		default: true,
+	},
+	id: {
+		type: 'number',
+	},
+	guid: {
+		type: 'string',
+	},
+	src: {
+		type: 'string',
+	},
+	cacheHtml: {
+		type: 'string',
+		default: '',
+	},
+	poster: {
+		type: 'string',
+	},
+	posterData: {
+		type: 'object',
+		default: {},
+	},
+	videoRatio: {
+		type: 'number',
+	},
+	tracks: {
+		type: 'array',
+		items: {
+			type: 'object',
+		},
+		default: [],
+	},
+	privacySetting: {
+		type: 'number',
+		default: 1,
+	},
+	allowDownload: {
+		type: 'boolean',
+		default: true,
+	},
+	displayEmbed: {
+		type: 'boolean',
+		default: true,
+	},
+	rating: {
+		type: 'string',
+	},
+	isPrivate: {
+		type: 'boolean',
+	},
+	isExample: {
+		type: 'boolean',
+		default: false,
+	},
+	duration: {
+		type: 'number',
+	},
+};
+
+export default [
+	{
+		attributes,
+		supports: {
+			align: true,
+			anchor: true,
+		},
+		save,
+	},
+];
