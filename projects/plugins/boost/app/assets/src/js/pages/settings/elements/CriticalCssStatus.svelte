@@ -8,7 +8,7 @@
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
 	import { criticalCssIssues } from '../../../stores/critical-css-state-errors';
-	import { isModuleAvailableStore } from '../../../stores/modules';
+	import { modulesState } from '../../../stores/modules';
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
@@ -18,7 +18,6 @@
 	export let generateMoreText = '';
 	const { navigate } = routerHistory;
 
-	const cloudCssAvailable = isModuleAvailableStore( 'cloud_css' );
 	$: successCount = $criticalCssState.providers.filter(
 		provider => provider.status === 'success'
 	).length;
@@ -38,7 +37,7 @@
 				{#if $criticalCssState.updated}
 					<TimeAgo time={new Date( $criticalCssState.updated * 1000 )} />.
 				{/if}
-				{#if ! $cloudCssAvailable}
+				{#if ! $modulesState.cloud_css?.available}
 					{__(
 						'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
 						'jetpack-boost'

@@ -124,12 +124,12 @@ function jetpack_debugger_site_status_tests( $core_tests ) {
  * @param string $hook The current admin page hook.
  */
 function jetpack_debugger_enqueue_site_health_scripts( $hook ) {
-	$full_sync_module = Modules::get_module( 'full-sync' );
-	$progress_percent = $full_sync_module ? $full_sync_module->get_sync_progress_percentage() : false;
-
-	$ajax_nonce = wp_create_nonce( 'jetpack-site-health' );
-
 	if ( 'site-health.php' === $hook ) {
+		$full_sync_module = Modules::get_module( 'full-sync' );
+		$progress_percent = $full_sync_module ? $full_sync_module->get_sync_progress_percentage() : false;
+
+		$ajax_nonce = wp_create_nonce( 'jetpack-site-health' );
+
 		$wp_scripts = wp_scripts();
 		wp_enqueue_script( 'jquery-ui-progressbar' );
 		wp_enqueue_script(

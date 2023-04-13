@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+The notifyKitKat and triageNewIssues tasks have been removed. The new triageIssues task now handles both of those tasks.

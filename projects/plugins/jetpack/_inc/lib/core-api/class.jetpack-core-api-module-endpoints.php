@@ -410,6 +410,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				$module['description']       = $i18n['description'];
 				$module['short_description'] = $i18n['description'];
 			}
+			if ( isset( $module['module_tags'] ) ) {
+				$module['module_tags'] = array_map( 'jetpack_get_module_i18n_tag', $module['module_tags'] );
+			}
 
 			return Jetpack_Core_Json_Api_Endpoints::prepare_modules_for_response( $module );
 		}

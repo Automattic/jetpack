@@ -3,7 +3,7 @@
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack_Boost\Data_Sync\Modules_Status_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
@@ -134,5 +134,5 @@ $modules_state_schema = Schema::as_array(
 	)
 )->fallback( array() );
 
-$entry = new Modules_Status_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE, 'modules_state' );
+$entry = new Modules_State_Entry();
 jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
