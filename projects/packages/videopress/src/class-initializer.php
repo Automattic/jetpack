@@ -225,6 +225,12 @@ class Initializer {
 			$figcaption = sprintf( '<figcaption>%s</figcaption>', wp_kses_post( $caption ) );
 		}
 
+		// Custom anchor from block content
+		$id_attribute = '';
+		if ( preg_match( '/<figure[^>]*id="([^"]+)"/', $content, $matches ) ) {
+			$id_attribute = sprintf( 'id="%s"', $matches[1] );
+		}
+
 		// Preview On Hover data
 		$preview_on_hover = '';
 		if (
@@ -245,7 +251,7 @@ class Initializer {
 		}
 
 		$figure_template = '
-		<figure class="%1$s" style="%2$s">			
+		<figure %6$s class="%1$s" style="%2$s">			
 			%3$s
 			%4$s
 			%5$s
@@ -271,7 +277,8 @@ class Initializer {
 			esc_attr( $style ),
 			$preview_on_hover,
 			$video_wrapper,
-			$figcaption
+			$figcaption,
+			$id_attribute
 		);
 	}
 
