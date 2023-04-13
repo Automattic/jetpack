@@ -25,6 +25,10 @@ class Minify {
 			register_uninstall_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_uninstall' );
 
 			jetpack_boost_page_optimize_schedule_cache_cleanup();
+
+			add_filter( 'pre_option_page_optimize-js', '__return_empty_string', 0 );
+			add_filter( 'pre_option_page_optimize-css', '__return_empty_string', 0 );
+			add_filter( 'pre_option_page_optimize-load-mode', '__return_empty_string', 0 );
 		}
 
 		add_action( 'init', array( $this, 'init_concatenate' ) );
