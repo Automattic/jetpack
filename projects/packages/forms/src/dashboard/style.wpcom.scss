@@ -3,7 +3,7 @@
 body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 	--jp-forms-input-wrapper-height: 48px;
 
-	background-color: var( --color-neutral-0, #f6f7f7 );
+	background-color: #fdfdfd;
 
 	#screen-meta-links {
 		background-color: var( --color-surface );
@@ -12,7 +12,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		width: 100%;
 	}
 
-	&.wp-core-ui #wpbody-content .button {
+	&.wp-core-ui #jp-forms-dashboard .button {
 		background-color: var( --color-surface );
 		border-color: var( --color-neutral-10, #c3c4c7 );
 		color: var( --color-neutral-100, #101517 );
@@ -25,7 +25,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		}
 
 		&.button-primary {
-			background-color: var( --color-primary, #3057dc );
+			background-color: var( --color-accent, #c9356e );
 			border: 0;
 			color: var( --color-text-inverted, #fff );
 		}
@@ -41,6 +41,16 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		color: var( --color-neutral-100, #101517 );
 		padding-left: 32px;
 		padding-right: 32px;
+	}
+
+	.jp-forms__inbox-tab-item {
+		margin-left: 16px;
+		padding-left: 12px;
+		padding-right: 12px;
+
+		&:first-child {
+			margin-left: 0;
+		}
 	}
 
 	.jp-forms__inbox-tabs .components-tab-panel__tab-content {
@@ -93,7 +103,6 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 	.jp-forms__inbox-actions {
 		--jp-forms-border-color: var( --color-neutral-5, #dcdcde );
 
-		background: var( --color-neutral-0, #f6f7f7 );
 		padding-left: 32px;
 		padding-right: 32px;
 		padding-top: 32px;
@@ -132,17 +141,17 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 	}
 
 	.jp-forms__inbox-list {
-		background-color: var( --color-surface, #fff );
+		background-color: #fdfdfd;
 	}
 
 	.jp-forms__table-header {
-		background-color: var( --color-neutral-0, #f6f7f7 );
+		background-color: #fdfdfd;
 		color: var( --color-text-subtle, #50575e );
 		font-weight: 600;
 	}
 
 	.jp-forms__table-item {
-		background-color: var( --color-surface, #fff );
+		background-color: #fdfdfd;
 		color: var( --color-text, #2C3338 );
 
 		&.is-active {
@@ -154,7 +163,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		background-color: #fff;
 
 		&::before {
-			background: var( --color-primary, #3057dc );
+			background: var( --color-accent, #c9356e );
 			padding-top: 16px;
 		}
 	}
