@@ -3,16 +3,12 @@
  */
 import domReady from '@wordpress/dom-ready';
 import { render } from '@wordpress/element';
-
 /**
  * Internal dependencies
  */
 import QuestionAnswer from './question-answer';
+import './view.scss';
 
-/**
- *
- * @
- */
 const AskWP = () => {
 	return (
 		<div>

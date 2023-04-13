@@ -9,57 +9,62 @@ import {
 	ExternalLink,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-
 /**
  * Internal dependencies
  */
 import useSubmitQuestion from './use-submit-question';
 
+const waitStrings = [
+	__( 'Good question, give me a moment to think about that 🤔', 'jetpack' ),
+	__( 'Let me work out the answer to that, back soon!', 'jetpack' ),
+	__( '🤔 Thinking, thinking, will be back with an answer soon', 'jetpack' ),
+];
 export default function QuestionAnswer() {
-	const { query, setQuery, docs, isLoading, submitQuestion, references } = useSubmitQuestion();
+	const { question, setQuestion, answer, isLoading, submitQuestion, references } = useSubmitQuestion();
 
 	return (
 		<>
-			<div className="question-input">
-				<KeyboardShortcuts
-					shortcuts={ {
-						enter: submitQuestion,
-					} }
-				>
+			<KeyboardShortcuts
+				shortcuts={ {
+					enter: submitQuestion,
+				} }
+			>
+				<div className="jetpack-ai-chat-question-wrapper">
 					<TextControl
-						id="jetpack-ai-chat-query-input"
-						placeholder={ __( 'Enter a question to Ask WP!', 'jetpack' ) }
+						className="jetpack-ai-chat-question-input"
+						placeholder={ __( "Enter a question about this blog's content", 'jetpack' ) }
 						size={ 50 }
-						value={ query }
-						onChange={ newQuery => setQuery( newQuery ) }
+						value={ question }
+						onChange={ newQuestion => setQuestion( newQuestion ) }
 					/>
 
 					<Button variant="primary" disabled={ isLoading } onClick={ submitQuestion }>
-						{ __( 'Get Docs', 'jetpack' ) }
+						{ __( 'Ask', 'jetpack' ) }
 					</Button>
-				</KeyboardShortcuts>
-			</div>
+				</div>
+			</KeyboardShortcuts>
 			<div>
-				<div id="jetpack-ai-chat-docs-container">
+				<div className="jetpack-ai-chat-answer-container">
 					{ isLoading ? (
 						<>
 							<Spinner />
-							{ __( 'Looking for the answer …', 'jetpack' ) }
+							{ waitStrings[ Math.floor( Math.random() * 3 ) ] }
 						</>
 					) : (
-						<div> { docs } </div>
+						// eslint-disable-next-line react/no-danger
+						<div dangerouslySetInnerHTML={ { __html: answer } } />
 					) }
 				</div>
 				{ references && references.length > 0 && ! isLoading && (
-					<div className="references">
-						<div>{ __( 'The above answer was sourced from the following pages:', 'jetpack' ) }</div>
+					<div className="jetpack-ai-chat-answer-references">
+						<div>{ __( 'Additional resources:', 'jetpack' ) }</div>
 
 						<ul>
 							{ references.map( ( reference, index ) => (
 								<li key={ index }>
-									<ExternalLink href={ reference }>{ reference }</ExternalLink>
+									<ExternalLink href={ reference.url }>{ reference.title }</ExternalLink>
 								</li>
-							) )}
+							) ) }
 						</ul>
 					</div>
 				) }
