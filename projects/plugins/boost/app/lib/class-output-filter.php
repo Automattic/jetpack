@@ -97,6 +97,9 @@ class Output_Filter {
 		}
 
 		// Check if this the first or last buffer. Use the $phase bitmask to figure it out.
+		// $phase can contain multiple PHP_OUTPUT_HANDLER_* constants.
+		// e.g.: PHP_OUTPUT_HANDLER_END = 8 (binary 1000), PHP_OUTPUT_HANDLER_START = 1 (binary 0001). Both = 9 (binary 1001).
+		// Use bitwise AND to read individual flags from $phase.
 		$is_first_chunk = ( $phase & PHP_OUTPUT_HANDLER_START ) > 0;
 		$is_last_chunk  = ( $phase & PHP_OUTPUT_HANDLER_END ) > 0;
 
