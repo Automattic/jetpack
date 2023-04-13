@@ -5,8 +5,6 @@ namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 class Minify {
 	private static $called = false; // This class is called multiple times, so we need to make sure we only run some things once.
 
-	// @todo - handle PHP constants.
-
 	public function setup() {
 		require_once __DIR__ . '/functions-helpers.php';
 
