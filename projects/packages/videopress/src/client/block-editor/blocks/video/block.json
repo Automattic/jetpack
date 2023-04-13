@@ -19,6 +19,9 @@
 		"autoplay": {
 			"type": "boolean"
 		},
+		"anchor": {
+			"type": "string"
+		},
 		"title": {
 			"type": "string"
 		},
