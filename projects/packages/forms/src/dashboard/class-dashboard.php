@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status\Host;
 
 /**
  * Handles the Jetpack Forms dashboard.
@@ -83,8 +84,7 @@ class Dashboard {
 			'before'
 		);
 
-		// See pdG1ka-46-p2 for more details.
-		if ( function_exists( 'wpcom_site_has_feature' ) ) {
+		if ( ( new Host() )->is_wpcom_platform() ) {
 			Assets::register_script(
 				'jp-forms-dashboard-wpcom',
 				'../../dist/dashboard/jetpack-forms-dashboard.wpcom.js',
@@ -143,7 +143,6 @@ class Dashboard {
 			'gdriveConnection'        => $jetpack_connected && Google_Drive::has_valid_connection( $user_id ),
 			'gdriveConnectURL'        => esc_url( Redirect::get_url( 'jetpack-forms-responses-connect' ) ),
 			'gdriveConnectSupportURL' => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
-			'isWpcom'                 => function_exists( 'wpcom_site_has_feature' ),
 			'checkForSpamNonce'       => wp_create_nonce( 'grunion_recheck_queue' ),
 		);
 		?>

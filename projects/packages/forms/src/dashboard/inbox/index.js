@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { TabPanel, Icon } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
@@ -6,7 +9,9 @@ import { __ } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
 import { find, includes, map } from 'lodash';
-import { config } from '../';
+/**
+ * Internal dependencies
+ */
 import DropdownFilter from '../components/dropdown-filter';
 import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
@@ -15,6 +20,10 @@ import BulkActionsMenu from './bulk-actions-menu';
 import ExportModal from './export-modal';
 import InboxList from './list';
 import InboxResponse from './response';
+import { isWpcom } from './util';
+/**
+ * Style dependencies
+ */
 import './style.scss';
 
 const RESPONSES_FETCH_LIMIT = 50;
@@ -177,11 +186,9 @@ const Inbox = () => {
 	const title = (
 		<>
 			<span className="title">
-				{ config( 'isWpcom' )
-					? __( 'Jetpack Forms', 'jetpack-forms' )
-					: __( 'Responses', 'jetpack-forms' ) }
+				{ isWpcom() ? __( 'Jetpack Forms', 'jetpack-forms' ) : __( 'Responses', 'jetpack-forms' ) }
 			</span>
-			{ config( 'isWpcom' ) && (
+			{ isWpcom() && (
 				<span className="subtitle">
 					{ __( 'Collect and manage responses from your audience.', 'jetpack-forms' ) }
 				</span>

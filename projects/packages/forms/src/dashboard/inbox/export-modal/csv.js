@@ -1,7 +1,13 @@
+/**
+ * External dependencies
+ */
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { config } from '../../';
+/**
+ * Internal dependencies
+ */
+import { isWpcom } from '../util';
 
 const CSVExport = ( { onExport } ) => {
 	const downloadCSV = useCallback( () => {
@@ -23,7 +29,7 @@ const CSVExport = ( { onExport } ) => {
 	}, [ onExport ] );
 
 	const buttonClasses = classnames( 'button', 'export-button', 'export-csv', {
-		'button-primary': ! config( 'isWpcom' ),
+		'button-primary': ! isWpcom(),
 	} );
 
 	return (

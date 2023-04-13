@@ -1,8 +1,15 @@
+/**
+ * External dependencies
+ */
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { tap } from 'lodash';
+/**
+ * Internal dependencies
+ */
 import { config } from '../../';
+import { isWpcom } from '../util';
 
 const GoogleDriveExport = ( { onExport } ) => {
 	const [ isConnected, setIsConnected ] = useState( config( 'gdriveConnection' ) );
@@ -45,7 +52,7 @@ const GoogleDriveExport = ( { onExport } ) => {
 	}, [ onExport ] );
 
 	const buttonClasses = classnames( 'button', 'export-button', 'export-gdrive', {
-		'button-primary': ! config( 'isWpcom' ),
+		'button-primary': ! isWpcom(),
 	} );
 
 	return (
