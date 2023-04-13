@@ -222,7 +222,7 @@
 			<MinifyMeta
 				inputLabel={__( 'Exclude CSS Strings:', 'jetpack-boost' )}
 				buttonText={__( 'Exclude CSS Strings', 'jetpack-boost' )}
-				placeholder={__( 'Use comma to separate them', 'jetpack-boost' )}
+				placeholder={__( 'Comma separated list of CSS stylesheets to exclude', 'jetpack-boost' )}
 				value={$minifyCssExcludesStore}
 				on:save={e => ( $minifyCssExcludesStore = e.detail )}
 			/>
