@@ -204,6 +204,9 @@ const attributes = {
 export default [
 	{
 		attributes,
+		supports: {
+			anchor: true,
+		},
 		save,
 	},
 ];
