@@ -238,15 +238,15 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 	}
 
 	.jp-forms__export-modal-card:first-child .jp-forms__export-modal-card-header svg path {
-		fill: var( --studio-blue-50, #0675c4 );
+		fill: var( --color-primary, #006088 );
 	}
 
 	.jp-forms__export-modal-card:last-child .jp-forms__export-modal-card-header svg path {
-		stroke: var( --studio-blue-50, #0675c4 );
+		stroke: var( --color-primary, #006088 );
 	}
 
 	.jp-forms__export-modal-card-beta-badge {
-		background-color: var( --studio-blue-50, #3057dc );
+		background-color: var( --color-accent, #c9356e );
 	}
 
 	.jp-forms__export-modal-card-body-description {
