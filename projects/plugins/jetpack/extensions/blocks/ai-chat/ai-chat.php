@@ -31,8 +31,8 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * Jetpack AI Paragraph block registration/dependency declaration.
  *
- * @param array  $attr    Array containing the Jetpack AI Paragraph block attributes.
- * @param string $content String containing the Jetpack AI Paragraph block content.
+ * @param array  $attr    Array containing the Jetpack AI Chat block attributes.
+ * @param string $content String containing the Jetpack AI Chat block content.
  *
  * @return string
  */
