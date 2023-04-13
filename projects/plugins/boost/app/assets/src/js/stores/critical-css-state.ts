@@ -165,9 +165,9 @@ export const regenerateCriticalCss = async () => {
 	// This will update the store without triggering a save back to the server.
 	cssStateStore.override( freshState );
 
-	const $isCloudCssEnabled = get( modulesState ).cloud_css?.active || false;
+	const isCloudCssEnabled = get( modulesState ).cloud_css?.active || false;
 
-	if ( $isCloudCssEnabled ) {
+	if ( isCloudCssEnabled ) {
 		startPollingCloudStatus();
 	} else {
 		await regenerateLocalCriticalCss( freshState );
