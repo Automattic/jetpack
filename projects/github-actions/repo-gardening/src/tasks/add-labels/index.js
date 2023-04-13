@@ -68,6 +68,11 @@ function cleanName( name ) {
 		name = 'Defer JS';
 	}
 
+	// [Plugin] mu wpcom plugin is a bit too long.
+	if ( name === 'mu-wpcom-plugin' ) {
+		name = 'mu-wpcom';
+	}
+
 	return (
 		name
 			// Break up words
