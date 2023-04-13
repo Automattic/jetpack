@@ -29,7 +29,7 @@
 		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-google-fonts-provider": "@dev",
 		"automattic/jetpack-identity-crisis": "@dev",
-		"automattic/jetpack-image-cdn": "0.1.x-dev",
+		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-import": "@dev",
 		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-jitm": "@dev",
