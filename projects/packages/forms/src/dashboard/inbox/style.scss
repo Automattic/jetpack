@@ -18,7 +18,7 @@ $action-bar-height: 88px;
 
 	.components-dropdown-menu {
 		.components-menu-item__button {
-			font-size: 1rem;
+			font-size: var(--jp-forms-font-size-regular);
 		}
 	}
 
@@ -72,7 +72,7 @@ $action-bar-height: 88px;
 
 .jp-forms__inbox-tab-item {
 	border-bottom: 2px solid transparent;
-	font-size: 1rem;
+	font-size: var(--jp-forms-font-size-regular);
 	font-weight: normal;
 	height: $tab-item-height;
 	padding: 8px 16px;
@@ -246,8 +246,8 @@ $action-bar-height: 88px;
 	}
 
 	.jp-forms__table-cell.is-actions {
-		max-width: 64px;
-		min-width: 64px;
+		max-width: 68px;
+		min-width: 68px;
 
 		.components-dropdown-menu__toggle {
 			color: currentColor;
@@ -429,7 +429,7 @@ $action-bar-height: 88px;
 
 .jp-forms__inbox-response-data {
 	display: flex;
-	font-size: 16px;
+	font-size: var(--jp-forms-font-size-regular);
 	flex-direction: column;
 	line-height: 24px;
 	padding: 24px 32px;
@@ -481,7 +481,7 @@ $action-bar-height: 88px;
 		border-radius: var( --jp-forms-border-radius );
 		height: var( --jp-forms-input-wrapper-height );
 		letter-spacing: -0.02em;
-		font-size: 1rem;
+		font-size: var(--jp-forms-font-size-regular);
 		font-weight: 400;
 		padding: var( --jp-forms-spacing-base ) calc( var( --jp-forms-spacing-base ) * 1.5 );
 
@@ -496,6 +496,10 @@ $action-bar-height: 88px;
 				color: var( --jp-forms-white );
 			}
 		}
+	}
+
+	.jp-forms__check-for-spam svg {
+		margin: 0 10px 0 0;
 	}
 
 	.button-primary.export-button {
