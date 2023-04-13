@@ -17,6 +17,9 @@
 		"brain/monkey": "2.6.1",
 		"automattic/jetpack-changelogger": "@dev"
 	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
 	"autoload": {
 		"classmap": [
 			"legacy",
