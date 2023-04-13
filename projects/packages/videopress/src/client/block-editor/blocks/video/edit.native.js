@@ -92,7 +92,6 @@ export default function VideoPressEdit( {
 		[ clientId ]
 	);
 	const { replaceBlock } = useDispatch( blockEditorStore );
-	const { createErrorNotice } = useDispatch( noticesStore );
 	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
