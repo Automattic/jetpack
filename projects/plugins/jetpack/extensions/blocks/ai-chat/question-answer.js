@@ -8,6 +8,7 @@ import {
 	KeyboardShortcuts,
 	ExternalLink,
 } from '@wordpress/components';
+import { RawHTML, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -19,14 +20,62 @@ const waitStrings = [
 	__( 'Let me work out the answer to that, back soon!', 'jetpack' ),
 	__( '🤔 Thinking, thinking, will be back with an answer soon', 'jetpack' ),
 ];
+
+// This component displays the text word by word if show animation is true
+function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
+	// This is the HTML to be displayed.
+	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
+
+	useEffect(
+		() => {
+			// That will only happen once
+			if ( showAnimation && html ) {
+				// This is to animate text input. I think this will give an idea of a "better" AI.
+				// At this point this is an established pattern.
+				const tokens = html.split( ' ' );
+				for ( let i = 1; i < tokens.length; i++ ) {
+					const output = tokens.slice( 0, i ).join( ' ' );
+					setTimeout( () => setDisplayedRawHTML( output ), 50 * i );
+				}
+				setTimeout( () => {
+					setDisplayedRawHTML( html );
+					onAnimationDone();
+				}, 50 * tokens.length );
+			} else {
+				setDisplayedRawHTML( html );
+			}
+		},
+		// eslint-disable-next-line
+		[]
+	);
+
+	return (
+		<div className="content">
+			<RawHTML>{ displayedRawHTML }</RawHTML>
+		</div>
+	);
+}
 export default function QuestionAnswer() {
 	const { question, setQuestion, answer, isLoading, submitQuestion, references } = useSubmitQuestion();
 
+	const [ animationDone, setAnimationDone ] = useState( false );
+	const [ showReferences, setShowReferences ] = useState( false );
+
+	const handleSubmitQuestion = () => {
+		setAnimationDone( false );
+		setShowReferences( false );
+		submitQuestion();
+	};
+
+	const handleSetAnimationDone = () => {
+		setAnimationDone( true );
+		setShowReferences( true );
+	};
 	return (
 		<>
 			<KeyboardShortcuts
 				shortcuts={ {
-					enter: submitQuestion,
+					enter: handleSubmitQuestion,
 				} }
 			>
 				<div className="jetpack-ai-chat-question-wrapper">
@@ -38,7 +87,7 @@ export default function QuestionAnswer() {
 						onChange={ newQuestion => setQuestion( newQuestion ) }
 					/>
 
-					<Button variant="primary" disabled={ isLoading } onClick={ submitQuestion }>
+					<Button variant="primary" disabled={ isLoading } onClick={ handleSubmitQuestion }>
 						{ __( 'Ask', 'jetpack' ) }
 					</Button>
 				</div>
@@ -52,10 +101,14 @@ export default function QuestionAnswer() {
 						</>
 					) : (
 						// eslint-disable-next-line react/no-danger
-						<div dangerouslySetInnerHTML={ { __html: answer } } />
+						<ShowLittleByLittle
+							showAnimation={ ! animationDone }
+							onAnimationDone={ handleSetAnimationDone }
+							html={ answer }
+						/>
 					) }
 				</div>
-				{ references && references.length > 0 && ! isLoading && (
+				{ references && references.length > 0 && showReferences && (
 					<div className="jetpack-ai-chat-answer-references">
 						<div>{ __( 'Additional resources:', 'jetpack' ) }</div>
 

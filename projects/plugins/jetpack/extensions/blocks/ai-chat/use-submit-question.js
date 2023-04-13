@@ -46,7 +46,7 @@ export default function useSubmitQuestion() {
 			setAnswer( mockAnswer.response );
 			setReferences( mockAnswer.urls );
 			setIsLoading( false );
-		}, 2000 );
+		}, 3000 );
 	};
 
 	return { question, setQuestion, answer, isLoading, submitQuestion, references };

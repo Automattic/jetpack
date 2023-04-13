@@ -23,10 +23,16 @@
 			padding: 0.5rem 1rem;
 			height: 38px;
 			border-radius: 2px;
+
+			&:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
 		}
 
 	}
 	.jetpack-ai-chat-answer-references {
+		margin-top: 12px;
 		font-size: 1rem;
 	}
 }
