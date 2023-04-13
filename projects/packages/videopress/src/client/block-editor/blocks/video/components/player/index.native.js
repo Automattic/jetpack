@@ -75,7 +75,7 @@ export default function Player( { isSelected, attributes } ) {
 	return (
 		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
 			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
-			{ ! isRequestingEmbedPreview && <SandBox html={ html } /> }
+			{ ! isRequestingEmbedPreview && <SandBox html={ html } viewportProps="user-scalable=0" /> }
 			{ ! html && <Text>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text> }
 		</View>
 	);
