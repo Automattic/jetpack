@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Build: change build steps so that CSS files are also generated for production
