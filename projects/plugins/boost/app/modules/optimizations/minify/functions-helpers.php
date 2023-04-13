@@ -74,7 +74,7 @@ function jetpack_boost_init_filesystem() {
 }
 
 function jetpack_boost_page_optimize_js_exclude_list() {
-	$exclude_list = get_option( 'jetpack_boost_ds_minify_js_excludes' );
+	$exclude_list = jetpack_boost_ds_get( 'minify_js_excludes' );
 	if ( false === $exclude_list ) {
 		// Use the default since the option is not set
 		return jetpack_boost_page_optimize_js_exclude_list_default();
@@ -92,7 +92,7 @@ function jetpack_boost_page_optimize_js_exclude_list_default() {
 }
 
 function jetpack_boost_page_optimize_css_exclude_list() {
-	$exclude_list = get_option( 'jetpack_boost_ds_minify_css_excludes' );
+	$exclude_list = jetpack_boost_ds_get( 'minify_css_excludes' );
 	if ( false === $exclude_list ) {
 		// Use the default since the option is not set
 		return jetpack_boost_page_optimize_css_exclude_list_default();
