@@ -202,7 +202,7 @@
 			<MinifyMeta
 				inputLabel={__( 'Exclude JS Strings:', 'jetpack-boost' )}
 				buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
-				placeholder={__( 'Use comma to separate them', 'jetpack-boost' )}
+				placeholder={__( 'Comma separated list of JS scripts to exclude', 'jetpack-boost' )}
 				value={$minifyJsExcludesStore}
 				on:save={e => ( $minifyJsExcludesStore = e.detail )}
 			/>
