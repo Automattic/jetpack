@@ -6,7 +6,7 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack_Boost\Modules\Modules_Index;
 
-class Modules_Status_Entry implements Entry_Can_Get, Entry_Can_Merge {
+class Modules_State_Entry implements Entry_Can_Get, Entry_Can_Merge {
 	public function get() {
 		$modules = Modules_Index::MODULES;
 
@@ -22,7 +22,7 @@ class Modules_Status_Entry implements Entry_Can_Get, Entry_Can_Merge {
 			$option_name = $this->get_module_option_name( $slug );
 
 			$modules_state[ $slug ] = array(
-				'active'    => get_option( $option_name, false ),
+				'active'    => isset( $available_modules[ $slug ] ) && get_option( $option_name, false ),
 				'available' => isset( $available_modules[ $slug ] ),
 			);
 		}
