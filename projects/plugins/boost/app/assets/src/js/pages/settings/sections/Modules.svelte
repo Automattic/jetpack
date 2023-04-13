@@ -193,7 +193,7 @@
 		<h3 slot="title">{__( 'Concatenate JS', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 		<p slot="description">
 			{__(
-				'Scripts are grouped by the original placement to reduce site loading time and lower number of requests.',
+				'Scripts are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
 				'jetpack-boost'
 			)}
 		</p>
