@@ -1,9 +1,12 @@
+<script lang="ts" context="module">
+	let nextIdIndex = 0;
+</script>
+
 <script lang="ts">
 	import { createEventDispatcher } from 'svelte';
 	import { __, sprintf } from '@wordpress/i18n';
 	import PencilIcon from '../../../svg/pencil.svg';
 
-	export let id: string;
 	export let inputLabel: string;
 	export let buttonText: string;
 	export let placeholder: string;
@@ -11,6 +14,7 @@
 	export let value: string;
 	let inputValue = value;
 	let isEditing = false;
+	const htmlId = `minify-meta-exclude-list-${ nextIdIndex++ }`;
 
 	const dispatch = createEventDispatcher();
 
@@ -24,8 +28,8 @@
 <div class="jb-critical-css__meta">
 	{#if isEditing}
 		<div class="manage-excludes">
-			<label for={id}>{inputLabel}</label>
-			<input type="text" bind:value={inputValue} {placeholder} {id} />
+			<label for={htmlId}>{inputLabel}</label>
+			<input type="text" bind:value={inputValue} {placeholder} id={htmlId} />
 			<div class="buttons-container">
 				<button disabled={value === inputValue} on:click={save}
 					>{__( 'Save', 'jetpack-boost' )}</button
