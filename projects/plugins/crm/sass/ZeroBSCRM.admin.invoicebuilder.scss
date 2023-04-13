@@ -295,13 +295,13 @@
 		.zbs-invoice-topper{
 			width:50%;
 			float:right;
+			min-width: 335px;
 			input, select{
 				// WH: changed for symmetry with rest of page width:80%;
 				width:100%;
 				float:left;
 			}
 			th{
-			    vertical-align: middle;
 			    text-align:right;
 			}
 		}
@@ -380,9 +380,9 @@
 		font-weight:100;
 		.fa{
 			color: #428bca;
-		    margin-right: 10px;
-		    font-size: 20px;
-		    font-weight: 100;
+		   margin-right: 10px;
+		   font-size: 20px;
+		   font-weight: 100;
 		}
 	}
 	#zbs-business-info-wrapper{
@@ -759,6 +759,7 @@
 	    .fa{
 	    	color: #428bca;
 	    	margin-right:5px;
+			margin-bottom:10px;
 	    	font-size:40px;
 	    	font-weight:100;
 	    }
@@ -769,6 +770,8 @@
 		    margin-left: 20px;
 		    position: absolute;
 		    top: 63px;
+		    display: contents;
+		    white-space: nowrap;
 	    }
 	}
 }
@@ -911,5 +914,11 @@
 	}
 	label {
 		margin-bottom:0;
+	}
+}
+
+@media screen and (max-width: 782px) {
+	div.zbs-invoice-topper th {
+		text-align:left !important;
 	}
 }
