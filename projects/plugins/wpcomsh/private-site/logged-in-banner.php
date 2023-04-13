@@ -46,6 +46,19 @@ function show_logged_in_banner() {
 		return;
 	}
 
+	/**
+	 * Filter to make it possible for the launch banner to be hidden.
+	 *
+	 * One such use case is for eCommerce trials, where users can only launch after upgrading.
+	 *
+	 * @since 3.11.11
+	 * @param bool $should_show_logged_in_banner Should the launch banner be shown to the current logged-in user. Defaults to true.
+	 */
+	$should_show_logged_in_banner = apply_filters( 'wpcomsh_private_site_show_logged_in_banner', true );
+	if ( ! $should_show_logged_in_banner ) {
+		return;
+	}
+
 	$current_user = wp_get_current_user();
 	$blog_id      = get_current_blog_id();
 	$blog_domain  = \Jetpack::build_raw_urls( get_home_url() );
