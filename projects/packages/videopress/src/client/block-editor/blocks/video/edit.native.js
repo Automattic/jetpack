@@ -8,7 +8,7 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { PanelBody } from '@wordpress/components';
+import { PanelBody, BottomSheet } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -129,7 +129,16 @@ export default function VideoPressEdit( {
 		[ setAttributes ]
 	);
 
-	useSyncMedia( attributes, setAttributes );
+	// TODO: This is a temporary solution for manually saving block settings.
+	// This will be removed and replaced with a more robust solution before the block is shipped to users.
+	// See: https://github.com/Automattic/jetpack/pull/29996
+	const [ blockSettingsSaved, setBlockSettingsSaved ] = useState( false );
+
+	const onSaveBlockSettings = () => {
+		setBlockSettingsSaved( true );
+	};
+
+	useSyncMedia( attributes, setAttributes, blockSettingsSaved, setBlockSettingsSaved );
 
 	const handleDoneUpload = useCallback(
 		newVideoData => {
@@ -254,6 +263,9 @@ export default function VideoPressEdit( {
 						<PlaybackPanel { ...{ attributes, setAttributes } } />
 						<ColorPanel { ...{ attributes, setAttributes } } />
 						<PrivacyAndRatingPanel { ...{ attributes, setAttributes } } />
+					</PanelBody>
+					<PanelBody title={ 'Temporary for Testing' }>
+						<BottomSheet.Cell label={ 'Save Settings' } onPress={ onSaveBlockSettings } />
 					</PanelBody>
 				</InspectorControls>
 			) }

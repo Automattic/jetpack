@@ -147,11 +147,15 @@ function arrangeTracksAttributes(
  *
  * @param {object} attributes      - Block attributes.
  * @param {Function} setAttributes - Block attributes setter.
+ * @param {boolean} blockSettingsSaved  - Temporary attribute to track when block settings have been saved on native.
+ * @param {Function} setBlockSettingsSaved  - Temporary attribute to track manually control when settings are synchronised on native.
  * @returns {UseSyncMedia}      Hook API object.
  */
 export function useSyncMedia(
 	attributes: VideoBlockAttributes,
-	setAttributes: VideoBlockSetAttributesProps
+	setAttributes: VideoBlockSetAttributesProps,
+	blockSettingsSaved = false,
+	setBlockSettingsSaved = undefined
 ): UseSyncMedia {
 	const { id, guid, isPrivate } = attributes;
 	const { videoData, isRequestingVideoData } = useVideoData( {
@@ -272,8 +276,7 @@ export function useSyncMedia(
 
 	const updateMediaHandler = useMediaDataUpdate( id );
 
-	// Detect when the post has been just saved.
-	const postHasBeenJustSaved = !! ( wasSaving && ! isSaving );
+	const postHasBeenJustSaved = isNative ? blockSettingsSaved : !! ( wasSaving && ! isSaving );
 
 	/*
 	 * Video frame poster: Block attributes => Frame poster generation
@@ -292,13 +295,15 @@ export function useSyncMedia(
 	 * (via the VideoPress API) when the post saves.
 	 */
 	useEffect( () => {
-		if ( ! postHasBeenJustSaved && ! isNative ) {
+		if ( ! postHasBeenJustSaved ) {
 			return;
 		}
 
-		if ( ! isNative ) {
-			debug( '%o Post has been just saved. Syncing...', attributes?.guid );
+		if ( isNative ) {
+			setBlockSettingsSaved( false );
 		}
+
+		debug( '%o Post has been just saved. Syncing...', attributes?.guid );
 
 		if ( ! attributes?.id ) {
 			debug( '%o No media ID found. Impossible to sync. Bail early', attributes?.guid );
