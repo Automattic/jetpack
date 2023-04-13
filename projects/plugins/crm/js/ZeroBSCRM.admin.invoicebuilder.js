@@ -830,6 +830,7 @@ function zbscrm_JS_draw_invoice_totals( res ) {
 	shipping = res.invoiceObj.totals;
 	//this will be the setting for what tax rate to apply to shipping (not stored (yet) in the data)
 	shipping.taxes = res.invoiceObj.shipping_taxes;
+	shipping.tax = res.invoiceObj.shipping_tax;
 
 	if ( res.invoiceObj.settings.invpandp == 1 && res.invoiceObj.settings.invtax == 1 ) {
 		//tax on shipping (select)
@@ -1052,8 +1053,10 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 
 	var tax_id;
 
-	if ( typeof v.taxes === 'undefined' || v.taxes == null ) {
+	if ( ( typeof v.taxes === 'undefined' || v.taxes == null || v.taxes == '' ) && ( typeof v.tax === 'undefined' || v.tax == null ) ) {
 		tax_id = 0;
+	} else if ( typeof v.taxes === 'undefined' || v.taxes == null || v.taxes == '' ) {
+		tax_id = -1;
 	} else {
 		tax_id = parseInt( v.taxes ); // fine while we have 1 tax, if multi-select on tax, this'll be a CSV, e.g. "130,132"
 	}
@@ -1073,29 +1076,35 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 			i +
 			'">';
 	}
-
-	selected = '';
-	if ( tax_id == 0 ) {
-		selected = 'selected';
-	}
-	taxhtml +=
-		'<option value="0" ' +
-		selected +
-		'>' +
-		zbscrm_JS_invoice_lang( 'no_tax' ) +
-		'</option><optgroup label="' +
-		zbscrm_JS_invoice_lang( 'taxgrouplabel' ) +
-		'">';
-	jQuery.each( res.tax_linesObj, function ( j, t ) {
-		if ( tax_id == t.id ) {
+	
+	if ( tax_id === -1 ) {
+		taxhtml += '<option class="zbs-total-tax">' + v.tax + '</option>';
+	} else {
+		selected = '';
+		if ( tax_id == 0 ) {
 			selected = 'selected';
-		} else {
-			selected = '';
 		}
 		taxhtml +=
-			'<option value="' + t.id + '" ' + selected + '>' + t.name + ' : ' + t.rate + '%</option>';
-	} );
-	taxhtml += '</optgroup>';
+			'<option value="0" ' +
+			selected +
+			'>' +
+			zbscrm_JS_invoice_lang( 'no_tax' ) +
+			'</option><optgroup label="' +
+			zbscrm_JS_invoice_lang( 'taxgrouplabel' ) +
+			'">';
+		jQuery.each( res.tax_linesObj, function ( j, t ) {
+			if ( tax_id == t.id ) {
+				selected = 'selected';
+			} else {
+				selected = '';
+			}
+			taxhtml +=
+				'<option value="' + t.id + '" ' + selected + '>' + t.name + ' : ' + t.rate + '%</option>';
+		} );
+		taxhtml += '</optgroup>';
+	}
+
+	
 	taxhtml += '</select>';
 
 	return taxhtml;
