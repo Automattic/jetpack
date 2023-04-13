@@ -17,22 +17,9 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 	}
 
 	&.wp-core-ui #jp-forms-dashboard .button {
-		background-color: var( --color-surface );
-		border-color: var( --color-neutral-10, #c3c4c7 );
-		color: var( --color-neutral-100, #101517 );
 		font-size: 14px;
 		height: 48px;
 		padding: 0 calc( var( --jp-forms-spacing-base ) * 2 );
-
-		&:hover {
-			background-color: var( --color-neutral-0, #f6f7f7 );
-		}
-
-		&.button-primary {
-			background-color: var( --color-accent, #c9356e );
-			border: 0;
-			color: var( --color-text-inverted, #fff );
-		}
 	}
 
 	.jp-forms__logo {
@@ -205,7 +192,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		}
 
 		&::before {
-			background: var( --color-accent, #c9356e );
+			background: var( --wp-admin-theme-color, #c9356e );
 			padding-top: 16px;
 		}
 	}
@@ -254,15 +241,15 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 	}
 
 	.jp-forms__export-modal-card:first-child .jp-forms__export-modal-card-header svg path {
-		fill: var( --color-primary, #006088 );
+		fill: var( --wp-admin-theme-color, #006088 );
 	}
 
 	.jp-forms__export-modal-card:last-child .jp-forms__export-modal-card-header svg path {
-		stroke: var( --color-primary, #006088 );
+		stroke: var( --wp-admin-theme-color, #006088 );
 	}
 
 	.jp-forms__export-modal-card-beta-badge {
-		background-color: var( --color-accent, #c9356e );
+		background-color: var( --wp-admin-theme-color, #c9356e );
 	}
 
 	.jp-forms__export-modal-card-body-description {

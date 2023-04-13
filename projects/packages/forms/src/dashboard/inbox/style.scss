@@ -514,9 +514,8 @@ $action-bar-height: 88px;
 	}
 
 	.button-primary.export-button {
-		background-color: #000;
-		border-color: #000;
-		color: #fff;
+		background-color: var( --wp-admin-theme-color, #000 );
+		border-color: var( --wp-admin-theme-color, #000 );
 		margin-left: auto;
 
 		@media (max-width: 782px) {
