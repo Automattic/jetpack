@@ -483,8 +483,8 @@ abstract class SAL_Site {
 	 * @return bool
 	 */
 	public function is_wpcom_staging_site() {
-		if ( function_exists( 'has_blog_sticker' ) ) {
-			return has_blog_sticker( 'staging_site' );
+		if ( function_exists( 'is_blog_wpcom_staging' ) ) {
+			return is_blog_wpcom_staging( $this->blog_id );
 		}
 		return false;
 	}
