@@ -47,6 +47,14 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		padding-right: 32px;
 	}
 
+	.jp-forms__layout-header {
+		padding-top: 16px;
+	}
+
+	.jp-forms__inbox-tabs .components-tab-panel__tabs {
+		padding-top: 0;
+	}
+
 	.jp-forms__inbox-tab-item {
 		margin-left: 16px;
 		padding-left: 12px;
@@ -69,6 +77,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 
 	.jp-forms__layout-title {
 		flex-direction: column;
+		height: auto;
 
 		.title {
 			color: var( --color-neutral-100, #101517 );
