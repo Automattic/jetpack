@@ -3,13 +3,16 @@
  */
 
 import { fileURLToPath } from 'url';
+import postcssPlugins from '@wordpress/postcss-plugins-preset';
 import remarkGfm from 'remark-gfm';
-import * as projects from './projects.js';
+import projects from './projects.js';
 
 const storiesSearch = '*.@(mdx|@(story|stories).@(js|jsx|ts|tsx))';
 const stories = [ process.env.NODE_ENV !== 'test' && `./stories/**/${ storiesSearch }` ]
 	.concat( projects.map( project => `${ project }/**/stories/${ storiesSearch }` ) )
 	.filter( Boolean );
+
+const includePaths = [ fileURLToPath( new URL( '.', import.meta.url ) ) ].concat( projects );
 
 const customEnvVariables = {};
 
@@ -42,6 +45,26 @@ const sbconfig = {
 		// Add custom env variables
 		Object.keys( customEnvVariables ).forEach( key => {
 			plugin.definitions[ 'process.env' ][ key ] = JSON.stringify( customEnvVariables[ key ] );
+		} );
+
+		// Add sass handling.
+		config.module.rules.push( {
+			test: /\.scss$/,
+			use: [
+				'style-loader',
+				'css-loader',
+				{
+					loader: 'postcss-loader',
+					options: {
+						postcssOptions: {
+							ident: 'postcss',
+							plugins: postcssPlugins,
+						},
+					},
+				},
+				'sass-loader',
+			],
+			include: includePaths,
 		} );
 
 		// Conform to Webpack module resolution rule for Search dashboard.
