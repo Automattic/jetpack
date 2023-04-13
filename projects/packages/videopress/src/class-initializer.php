@@ -252,7 +252,8 @@ class Initializer {
 		';
 
 		// VideoPress URL
-		$videopress_url = Utils::get_video_press_url( $block_attributes['guid'], $block_attributes );
+		$guid           = isset( $block_attributes['guid'] ) ? $block_attributes['guid'] : null;
+		$videopress_url = Utils::get_video_press_url( $guid, $block_attributes );
 
 		$video_wrapper = '';
 		if ( $videopress_url ) {
