@@ -205,6 +205,7 @@ export default [
 	{
 		attributes,
 		supports: {
+			align: true,
 			anchor: true,
 		},
 		save,
