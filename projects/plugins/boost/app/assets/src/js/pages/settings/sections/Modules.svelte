@@ -213,7 +213,7 @@
 		<h3 slot="title">{__( 'Concatenate CSS', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 		<p slot="description">
 			{__(
-				'Styles are grouped by the original placement to reduce site loading time and lower number of requests.',
+				'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
 				'jetpack-boost'
 			)}
 		</p>
