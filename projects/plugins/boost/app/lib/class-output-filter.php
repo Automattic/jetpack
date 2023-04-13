@@ -50,9 +50,9 @@ class Output_Filter {
 	/**
 	 * One chunk always remains in the buffer to allow for cross-seam matching.
 	 *
-	 * @var string|null
+	 * @var string
 	 */
-	private $buffered_chunk;
+	private $buffered_chunk = '';
 
 	/**
 	 * Whether we allow the callbacks to filter incoming chunks of output.
@@ -96,14 +96,13 @@ class Output_Filter {
 			return $buffer;
 		}
 
-		// Special case: If this is the first, last and only chunk, fake an empty 'previous' chunk to keep processing simple.
-		$is_last_chunk = ( $phase & PHP_OUTPUT_HANDLER_END ) > 0;
-		if ( $is_last_chunk && ! isset( $this->buffered_chunk ) ) {
-			$this->buffered_chunk = '';
-		}
+		// Check if this the first or last buffer. Use the $phase bitmask to figure it out.
+		$is_first_chunk = ( $phase & PHP_OUTPUT_HANDLER_START ) > 0;
+		$is_last_chunk  = ( $phase & PHP_OUTPUT_HANDLER_END ) > 0;
 
-		// If there are no previous chunks, just store this one for the next tick.
-		if ( ! isset( $this->buffered_chunk ) ) {
+		// Don't handle the first chunk (unless it's also the last) - we want to output
+		// one chunk behind the latest to allow for cross-seam matching.
+		if ( $is_first_chunk && ! $is_last_chunk ) {
 			$this->buffered_chunk = $buffer;
 
 			return '';
