@@ -1,4 +1,4 @@
-<?php
+<?php // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 /**
  * End REST route
  *
@@ -96,6 +96,8 @@ class End extends \WP_REST_Controller {
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return WP_REST_Response|WP_Error Response object on success, or error object on failure.
+	 *
+	 * phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	 */
 	public function cleanup_database( $request ) {
 		global $wpdb;
