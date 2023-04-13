@@ -20,8 +20,8 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
-import { useSyncMedia } from '../../hooks/use-sync-media';
 import { buildVideoPressURL } from '../../../lib/url';
+import { useSyncMedia } from '../../hooks/use-sync-media';
 import isLocalFile from '../../utils/is-local-file';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
