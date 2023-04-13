@@ -188,9 +188,10 @@ class Initializer {
 		global $wp_embed;
 
 		// CSS classes
-		$align       = isset( $block_attributes['align'] ) ? $block_attributes['align'] : null;
-		$align_class = $align ? ' align' . $align : '';
-		$classes     = 'wp-block-jetpack-videopress jetpack-videopress-player' . $align_class;
+		$align        = isset( $block_attributes['align'] ) ? $block_attributes['align'] : null;
+		$align_class  = $align ? ' align' . $align : '';
+		$custom_class = isset( $block_attributes['className'] ) ? ' ' . $block_attributes['className'] : '';
+		$classes      = 'wp-block-jetpack-videopress jetpack-videopress-player' . $custom_class . $align_class;
 
 		// Inline style
 		$style     = '';
@@ -224,6 +225,17 @@ class Initializer {
 			$figcaption = sprintf( '<figcaption>%s</figcaption>', wp_kses_post( $caption ) );
 		}
 
+		// Custom anchor from block content
+		$id_attribute = '';
+
+		// Try to get the custom anchor from the block attributes.
+		if ( isset( $block_attributes['anchor'] ) && $block_attributes['anchor'] ) {
+			$id_attribute = sprintf( 'id="%s"', $block_attributes['anchor'] );
+		} elseif ( preg_match( '/<figure[^>]*id="([^"]+)"/', $content, $matches ) ) {
+			// Othwerwise, try to get the custom anchor from the <figure /> element.
+			$id_attribute = sprintf( 'id="%s"', $matches[1] );
+		}
+
 		// Preview On Hover data
 		$preview_on_hover = '';
 		if (
@@ -244,7 +256,7 @@ class Initializer {
 		}
 
 		$figure_template = '
-		<figure class="%1$s" style="%2$s">			
+		<figure %6$s class="%1$s" style="%2$s">			
 			%3$s
 			%4$s
 			%5$s
@@ -271,7 +283,8 @@ class Initializer {
 			esc_attr( $style ),
 			$preview_on_hover,
 			$video_wrapper,
-			$figcaption
+			$figcaption,
+			$id_attribute
 		);
 	}
 
