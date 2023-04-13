@@ -2662,7 +2662,7 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 			$oktodelete = false;
 		}
 
-		if ( ! $rename && $cache_max_time < 1 ) {
+		if ( ! $rename && $cache_max_time === 0 ) {
 			wp_cache_debug( "gc: should not delete $directory as cache_max_time is 0.", 2 );
 			$oktodelete = false;
 		}
