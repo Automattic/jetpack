@@ -1,7 +1,7 @@
 /* Style overrides for WP.com */
 
 $tab-item-height: 40px;
-$tabs-height: $tab-item-height + 16px;
+$tabs-height: $tab-item-height;
 $action-bar-height: 96px;
 
 body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
@@ -119,6 +119,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		padding-left: 32px;
 		padding-right: 32px;
 		padding-top: 32px;
+		top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height});
 
 		.components-button {
 			font-size: 14px;
