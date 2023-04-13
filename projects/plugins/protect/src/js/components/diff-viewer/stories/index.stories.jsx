@@ -19,4 +19,7 @@ const diff = `index 51455bdb14..bc0622d001 100644
    pre:
      - ? |`;
 
-export const Default = () => <DiffViewer diff={ diff } />;
+export const Default = args => <DiffViewer { ...args } />;
+Default.args = {
+	diff,
+};

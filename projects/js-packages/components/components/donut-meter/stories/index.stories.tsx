@@ -35,16 +35,17 @@ const DangerArgs: DonutMeterProps = {
 export const Danger = Template.bind( {} );
 Danger.args = DangerArgs;
 
-export const AdaptiveColors = () => (
+export const AdaptiveColors = args => (
 	<div>
 		<div style={ { display: 'flex', flexFlow: 'row' } }>
-			<DonutMeter { ...DefaultArgs } segmentCount={ 0 } useAdaptiveColors />
-			<DonutMeter { ...DefaultArgs } segmentCount={ 20 } useAdaptiveColors />
-			<DonutMeter { ...DefaultArgs } segmentCount={ 40 } useAdaptiveColors />
-			<DonutMeter { ...DefaultArgs } segmentCount={ 60 } useAdaptiveColors />
-			<DonutMeter { ...DefaultArgs } segmentCount={ 80 } useAdaptiveColors />
-			<DonutMeter { ...DefaultArgs } segmentCount={ 100 } useAdaptiveColors />
+			<DonutMeter { ...args } segmentCount={ 0 } useAdaptiveColors />
+			<DonutMeter { ...args } segmentCount={ 20 } useAdaptiveColors />
+			<DonutMeter { ...args } segmentCount={ 40 } useAdaptiveColors />
+			<DonutMeter { ...args } segmentCount={ 60 } useAdaptiveColors />
+			<DonutMeter { ...args } segmentCount={ 80 } useAdaptiveColors />
+			<DonutMeter { ...args } segmentCount={ 100 } useAdaptiveColors />
 		</div>
 		<p>Color changing according to the fullness of the meter.</p>
 	</div>
 );
+AdaptiveColors.args = { ...DefaultArgs };

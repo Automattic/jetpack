@@ -6,32 +6,30 @@ export default {
 	component: FormToggle,
 };
 
-export const Default = () => {
-	const [ checked, setChecked ] = useState( false );
+const Template = args => {
+	const [ checked, setChecked ] = useState( args.checked );
 
 	const handleChecked = useCallback( () => {
 		setChecked( ! checked );
 	}, [ checked ] );
 
-	return <FormToggle checked={ checked } onChange={ handleChecked } />;
+	return <FormToggle { ...args } checked={ checked } onChange={ handleChecked } />;
 };
 
-export const DisabledOff = () => {
-	const [ checked, setChecked ] = useState( false );
-
-	const handleChecked = useCallback( () => {
-		setChecked( ! checked );
-	}, [ checked ] );
-
-	return <FormToggle checked={ checked } onChange={ handleChecked } disabled />;
+export const Default = Template.bind( {} );
+Default.args = {
+	checked: false,
+	disabled: false,
 };
 
-export const DisabledOn = () => {
-	const [ checked, setChecked ] = useState( true );
+export const DisabledOff = Template.bind( {} );
+DisabledOff.args = {
+	checked: false,
+	disabled: true,
+};
 
-	const handleChecked = useCallback( () => {
-		setChecked( ! checked );
-	}, [ checked ] );
-
-	return <FormToggle checked={ checked } onChange={ handleChecked } disabled />;
+export const DisabledOn = Template.bind( {} );
+DisabledOn.args = {
+	checked: true,
+	disabled: true,
 };

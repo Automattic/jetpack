@@ -87,6 +87,9 @@ export const Tokens = () => (
 		<Section title="Spacing" data={ spacing } />
 	</>
 );
+Tokens.parameters = {
+	docs: { source: { code: null } },
+};
 
 export const Typographies = args => (
 	<div className={ styles[ 'instances-wrapper' ] }>
@@ -110,6 +113,9 @@ export const Typographies = args => (
 
 Typographies.args = {
 	[ 'Text Instance' ]: '',
+};
+Typographies.parameters = {
+	docs: { source: { code: null } },
 };
 
 export const Colors = () => (
@@ -135,6 +141,9 @@ export const Colors = () => (
 		) ) }
 	</div>
 );
+Colors.parameters = {
+	docs: { source: { code: null } },
+};
 
 const Template: ComponentStory< typeof ThemeProvider > = args => (
 	<ThemeProvider { ...args }>

@@ -86,7 +86,8 @@ Default.args = {
 	],
 };
 
-export const BreakpointMatch = () => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const BreakpointMatch = args => {
 	const [ isSm, isGtSm, isMd, isLtOrMd, isLtMd, isGtOrMd, isGtMd, isLessThanLg, isLg ] =
 		useBreakpointMatch(
 			[ 'sm', 'sm', 'md', 'md', 'md', 'md', 'md', 'lg', 'lg' ],

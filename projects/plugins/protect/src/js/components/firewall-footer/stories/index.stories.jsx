@@ -6,6 +6,6 @@ export default {
 	component: FirewallFooter,
 };
 
-export const Default = () => {
-	return <FirewallFooter />;
+export const Default = args => {
+	return <FirewallFooter { ...args } />;
 };

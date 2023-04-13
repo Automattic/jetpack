@@ -57,6 +57,7 @@ export default {
 	title: 'Playground/Block Editor',
 };
 
-export const _default = () => {
-	return <App />;
+export const _default = () => <App />;
+_default.parameters = {
+	docs: { source: { code: null } },
 };

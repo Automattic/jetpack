@@ -6,4 +6,4 @@ export default {
 	component: Summary,
 };
 
-export const Default = () => <Summary />;
+export const Default = args => <Summary { ...args } />;

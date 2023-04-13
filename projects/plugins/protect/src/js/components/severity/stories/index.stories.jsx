@@ -6,6 +6,9 @@ export default {
 	component: ThreatSeverityBadge,
 };
 
-export const Low = () => <ThreatSeverityBadge severity={ 1 } />;
-export const High = () => <ThreatSeverityBadge severity={ 3 } />;
-export const Critical = () => <ThreatSeverityBadge severity={ 5 } />;
+export const Low = args => <ThreatSeverityBadge { ...args } />;
+Low.args = { severity: 1 };
+export const High = args => <ThreatSeverityBadge { ...args } />;
+High.args = { severity: 3 };
+export const Critical = args => <ThreatSeverityBadge { ...args } />;
+Critical.args = { severity: 5 };

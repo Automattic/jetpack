@@ -7,9 +7,9 @@ export default {
 	component: Tabs,
 };
 
-export const Default = () => (
+export const Default = args => (
 	<HashRouter>
-		<Tabs>
+		<Tabs { ...args }>
 			<Tab link="/" label="Scan" />
 			<Tab link="/firewall" label="Firewall" />
 		</Tabs>

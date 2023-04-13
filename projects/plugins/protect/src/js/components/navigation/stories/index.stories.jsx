@@ -18,8 +18,8 @@ export default {
 	],
 };
 
-export const Default = () => {
-	const [ selected, setSelectedItem ] = useState( 'all' );
+export const Default = args => {
+	const [ selected, setSelectedItem ] = useState( args.selected );
 
 	return (
 		<Navigation selected={ selected } onSelect={ setSelectedItem }>
@@ -58,4 +58,7 @@ export const Default = () => {
 			</NavigationGroup>
 		</Navigation>
 	);
+};
+Default.args = {
+	selected: 'all',
 };

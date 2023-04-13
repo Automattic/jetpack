@@ -18,7 +18,8 @@ export default {
 	],
 };
 
-export const Default = () => (
+// eslint-disable-next-line no-unused-vars
+export const Default = args => (
 	<PaidAccordion>
 		<PaidAccordionItem
 			id="wordpress"

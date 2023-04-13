@@ -6,12 +6,16 @@ export default {
 	component: Textarea,
 };
 
-export const Default = () => (
-	<Textarea label="Textarea" placeholder="Code is poetry." id="default" />
-);
+export const Default = args => <Textarea { ...args } />;
+Default.args = {
+	label: 'Textarea',
+	placeholder: 'Code is poetry.',
+	id: 'default',
+};
 
-export const Disabled = () => (
-	<Textarea label="Disabled Textarea" id="disabled" disabled>
-		Code is poetry.
-	</Textarea>
-);
+export const Disabled = args => <Textarea { ...args } />;
+Disabled.args = {
+	label: 'Disabled Textarea',
+	id: 'disabled',
+	children: 'Code is poetry.',
+};

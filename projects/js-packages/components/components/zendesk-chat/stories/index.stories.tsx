@@ -10,6 +10,6 @@ export default {
 	},
 };
 
-const Template = () => <ZendeskChat />;
+const Template = args => <ZendeskChat { ...args } />;
 
 export const _default = Template.bind( {} );

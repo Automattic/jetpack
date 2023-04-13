@@ -16,55 +16,54 @@ export default {
 	],
 };
 
-export const Default = () => (
+export const Default = args => (
 	<div>
-		<NoticeBox
-			recordCount={ 1 }
-			tierMaximumRecords={ 100 }
-			hasBeenIndexed={ true }
-			hasValidData={ true }
-			hasItems={ true }
-		/>
+		<NoticeBox { ...args } />
 		<p>No notice box should be rendered here; no notice is shown if there are no issues.</p>
 	</div>
 );
+Default.args = {
+	recordCount: 1,
+	tierMaximumRecords: 100,
+	hasBeenIndexed: true,
+	hasValidData: true,
+	hasItems: true,
+};
 
-export const NotIndexed = () => (
-	<NoticeBox
-		recordCount={ 1 }
-		tierMaximumRecords={ 100 }
-		hasBeenIndexed={ false }
-		hasValidData={ true }
-		hasItems={ true }
-	/>
-);
+const Template = args => <NoticeBox { ...args } />;
 
-export const InvalidData = () => (
-	<NoticeBox
-		recordCount={ 1 }
-		tierMaximumRecords={ 100 }
-		hasBeenIndexed={ true }
-		hasValidData={ false }
-		hasItems={ true }
-	/>
-);
+export const NotIndexed = Template.bind( {} );
+NotIndexed.args = {
+	recordCount: 1,
+	tierMaximumRecords: 100,
+	hasBeenIndexed: false,
+	hasValidData: true,
+	hasItems: true,
+};
 
-export const NoItems = () => (
-	<NoticeBox
-		recordCount={ 1 }
-		tierMaximumRecords={ 100 }
-		hasBeenIndexed={ true }
-		hasValidData={ true }
-		hasItems={ false }
-	/>
-);
+export const InvalidData = Template.bind( {} );
+InvalidData.args = {
+	recordCount: 1,
+	tierMaximumRecords: 100,
+	hasBeenIndexed: true,
+	hasValidData: false,
+	hasItems: true,
+};
 
-export const NearRecordLimit = () => (
-	<NoticeBox
-		recordCount={ 99 }
-		tierMaximumRecords={ 100 }
-		hasBeenIndexed={ true }
-		hasValidData={ true }
-		hasItems={ true }
-	/>
-);
+export const NoItems = Template.bind( {} );
+NoItems.args = {
+	recordCount: 1,
+	tierMaximumRecords: 100,
+	hasBeenIndexed: true,
+	hasValidData: true,
+	hasItems: false,
+};
+
+export const NearRecordLimit = Template.bind( {} );
+NearRecordLimit.args = {
+	recordCount: 99,
+	tierMaximumRecords: 100,
+	hasBeenIndexed: true,
+	hasValidData: true,
+	hasItems: true,
+};

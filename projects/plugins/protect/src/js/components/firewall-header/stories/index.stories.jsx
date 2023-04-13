@@ -6,22 +6,34 @@ export default {
 	component: FirewallHeader,
 };
 
-export const FirewallOn = () => {
-	return <FirewallHeader status={ 'on' } hasRequiredPlan={ false } />;
+const Template = args => <FirewallHeader { ...args } />;
+
+export const FirewallOn = Template.bind( {} );
+FirewallOn.args = {
+	status: 'on',
+	hasRequiredPlan: false,
 };
 
-export const FirewallOnPaid = () => {
-	return <FirewallHeader status={ 'on' } hasRequiredPlan={ true } />;
+export const FirewallOnPaid = Template.bind( {} );
+FirewallOnPaid.args = {
+	status: 'on',
+	hasRequiredPlan: true,
 };
 
-export const FirewallOff = () => {
-	return <FirewallHeader status={ 'off' } hasRequiredPlan={ false } />;
+export const FirewallOff = Template.bind( {} );
+FirewallOff.args = {
+	status: 'off',
+	hasRequiredPlan: false,
 };
 
-export const FirewallOffPaid = () => {
-	return <FirewallHeader status={ 'off' } hasRequiredPlan={ true } />;
+export const FirewallOffPaid = Template.bind( {} );
+FirewallOffPaid.args = {
+	status: 'off',
+	hasRequiredPlan: true,
 };
 
-export const FirewallLoading = () => {
-	return <FirewallHeader status={ 'loading' } hasRequiredPlan={ true } />;
+export const FirewallLoading = Template.bind( {} );
+FirewallLoading.args = {
+	status: 'loading',
+	hasRequiredPlan: true,
 };

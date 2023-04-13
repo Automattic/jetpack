@@ -10,7 +10,8 @@ export default {
 } as ComponentMeta< typeof AdminSection >;
 
 // Export additional stories using pre-defined values
-const Template: ComponentStory< typeof AdminSection > = () => (
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const Template: ComponentStory< typeof AdminSection > = args => (
 	<AdminPage>
 		<AdminSectionHero>
 			<Container>
@@ -34,7 +35,8 @@ const Template: ComponentStory< typeof AdminSection > = () => (
 // Export Default story
 export const _default = Template.bind( {} );
 
-export const onlyBasic = () => (
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const onlyBasic = args => (
 	<AdminSection>
 		<Container>
 			<Col lg={ 12 } md={ 8 } sm={ 4 }>
@@ -45,7 +47,8 @@ export const onlyBasic = () => (
 	</AdminSection>
 );
 
-export const onlyHero = () => (
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const onlyHero = args => (
 	<AdminSectionHero>
 		<Container>
 			<Col lg={ 12 } md={ 8 } sm={ 4 }>
