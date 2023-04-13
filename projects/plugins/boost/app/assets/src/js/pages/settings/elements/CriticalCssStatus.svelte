@@ -18,7 +18,6 @@
 	export let generateMoreText = '';
 	const { navigate } = routerHistory;
 
-	$: cloudCssAvailable = $modulesState.cloud_css.available;
 	$: successCount = $criticalCssState.providers.filter(
 		provider => provider.status === 'success'
 	).length;
@@ -38,7 +37,7 @@
 				{#if $criticalCssState.updated}
 					<TimeAgo time={new Date( $criticalCssState.updated * 1000 )} />.
 				{/if}
-				{#if ! cloudCssAvailable}
+				{#if ! $modulesState.cloud_css?.available}
 					{__(
 						'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
 						'jetpack-boost'
