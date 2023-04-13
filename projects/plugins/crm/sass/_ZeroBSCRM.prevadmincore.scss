@@ -10,6 +10,8 @@
     This was copied from previous CSS :)
 
  */
+@import '_color_studio.scss';
+
 html {
     font-family:sans-serif;
     -ms-text-size-adjust:100%;
@@ -796,20 +798,20 @@ output {
 }
 
 .form-control:-moz-placeholder {
-    color:#999
+    color: $studio-gray-5;
 }
 
 .form-control::-moz-placeholder {
-    color:#999;
+    color: $studio-gray-5;
     opacity:1
 }
 
 .form-control:-ms-input-placeholder {
-    color:#999
+    color: $studio-gray-5;
 }
 
 .form-control::-webkit-input-placeholder {
-    color:#999
+    color: $studio-gray-5;
 }
 
 .form-control[disabled],.form-control[readonly],fieldset[disabled] .form-control {

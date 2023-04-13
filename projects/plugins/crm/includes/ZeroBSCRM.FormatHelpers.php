@@ -1038,16 +1038,11 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 					$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['next'], 'zerobs_customer', false ) . '" class="ui right labeled icon button mini" id="zbs-nav-next">' . esc_html( __( 'Next', 'zero-bs-crm' ) ) . '<i class="right chevron icon"></i></a>';
 				}
 			}
-
 			#} If in edit mode, add in save + view
 			if ( $key === 'edit' ) {
-				if( $id > 0 ) {
-					$html .= '<a style="margin-left:6px;" class="ui icon button blue mini labeled" href="' . jpcrm_esc_link( 'view', $id, 'zerobs_customer' ) . '" id="zbs-nav-view"><i class="eye left icon"></i> ' . esc_html( __( 'View', 'zero-bs-crm' ) ) . '</a>';
+				if ( $id > 0 ) {
+					$html .= '<a style="margin-right:5px;margin-left:5px;" class="ui icon button blue mini labeled" href="' . jpcrm_esc_link( 'view', $id, 'zerobs_customer' ) . '" id="zbs-nav-view"><i class="eye left icon"></i> ' . esc_html( __( 'View', 'zero-bs-crm' ) ) . '</a>';
 				}
-				if ( zeroBSCRM_permsCustomers() ) {
-					$html .= '<button class="ui icon button mini green labeled" type="button" id="zbs-edit-save" style="margin-right:5px;margin-left:5px;"><i class="icon save"></i>' . esc_html( __( 'Save', 'zero-bs-crm' ) ) . '</button>';
-				}
-
 			}
 
 			$html .= '</span>';
