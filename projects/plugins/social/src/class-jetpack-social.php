@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
@@ -95,6 +96,8 @@ class Jetpack_Social {
 		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
 		add_action( 'activated_plugin', array( $this, 'redirect_after_activation' ) );
 
+		add_action( 'jetpack_heartbeat', array( $this, 'refresh_plan_data' ) );
+
 		add_action(
 			'plugins_loaded',
 			function () {
@@ -109,6 +112,7 @@ class Jetpack_Social {
 
 		// Add block editor assets
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_review_prompt' ) );
 
 		// Add meta tags.
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
@@ -184,6 +188,13 @@ class Jetpack_Social {
 	}
 
 	/**
+	 * Refresh plan data.
+	 */
+	public function refresh_plan_data() {
+		Current_Plan::refresh_from_wpcom();
+	}
+
+	/**
 	 * Get the shares data, but cache it so we don't call the API
 	 * more than once per request.
 	 *
@@ -208,6 +219,7 @@ class Jetpack_Social {
 
 		$state = array(
 			'siteData' => array(
+				'adminUrl'          => esc_url( admin_url() ),
 				'apiRoot'           => esc_url_raw( rest_url() ),
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
@@ -217,19 +229,26 @@ class Jetpack_Social {
 		);
 
 		if ( $this->is_connected() ) {
+			$sig_settings = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
+
 			$state = array_merge(
 				$state,
 				array(
-					'jetpackSettings' => array(
+					'jetpackSettings'              => array(
 						'publicize_active'  => self::is_publicize_active(),
 						'show_pricing_page' => self::should_show_pricing_page(),
 						'showNudge'         => ! $publicize->has_paid_plan( true ),
 					),
-					'connectionData'  => array(
+					'connectionData'               => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 						'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 					),
-					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'sharesData'                   => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'socialImageGeneratorSettings' => array(
+						'available'       => $sig_settings->is_available(),
+						'enabled'         => $sig_settings->is_enabled(),
+						'defaultTemplate' => $sig_settings->get_default_template(),
+					),
 				)
 			);
 		}
@@ -298,8 +317,6 @@ class Jetpack_Social {
 				'social'       => array(
 					'adminUrl'                      => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
 					'sharesData'                    => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-					'reviewRequestDismissed'        => self::is_review_request_dismissed(),
-					'dismissReviewRequestPath'      => '/jetpack/v4/social/review-dismiss',
 					'connectionRefreshPath'         => '/jetpack/v4/publicize/connection-test-results',
 					'resharePath'                   => '/jetpack/v4/publicize/{postId}',
 					'publicizeConnectionsUrl'       => esc_url_raw(
@@ -307,13 +324,53 @@ class Jetpack_Social {
 					),
 					'hasPaidPlan'                   => $publicize->has_paid_plan(),
 					'isEnhancedPublishingEnabled'   => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
-					'isSocialImageGeneratorEnabled' => $publicize->is_social_image_generator_enabled( Jetpack_Options::get_option( 'id' ) ),
+					'isSocialImageGeneratorEnabled' => ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->is_enabled(),
 				),
 			)
 		);
 
 		// Connection initial state is expected when the connection JS package is in the bundle
 		wp_add_inline_script( 'jetpack-social-editor', Connection_Initial_State::render(), 'before' );
+	}
+
+	/**
+	 * Load a separate script to manage the review prompt
+	 * This script can run whenever the social plugin is active and should not conflict with the main Jetpack plugin
+	 *
+	 * @return void
+	 */
+	public function enqueue_review_prompt() {
+		if (
+				! $this->is_connected() ||
+				! self::is_publicize_active() ||
+				! $this->is_supported_post()
+		) {
+			return;
+		}
+
+		Assets::register_script(
+			'jetpack-social-review-prompt',
+			'build/review.js',
+			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-social',
+			)
+		);
+
+		Assets::enqueue_script( 'jetpack-social-review-prompt' );
+		wp_localize_script(
+			'jetpack-social-review-prompt',
+			'Jetpack_Editor_Initial_State',
+			array(
+				'siteFragment' => ( new Status() )->get_site_suffix(),
+				'socialReview' => array(
+					'reviewRequestDismissed'   => self::is_review_request_dismissed(),
+					'dismissReviewRequestPath' => '/jetpack/v4/social/review-dismiss',
+				),
+			)
+		);
+
 		// Conditionally load analytics scripts
 		// The only component using analytics in the editor at the moment is the review request
 		if ( ! in_array( get_post_status(), array( 'publish', 'private', 'trash' ), true ) && self::can_use_analytics() && ! self::is_review_request_dismissed() ) {

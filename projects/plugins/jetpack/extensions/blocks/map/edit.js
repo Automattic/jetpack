@@ -242,7 +242,8 @@ class MapEdit extends Component {
 			mapHeight,
 			showFullscreenButton,
 		} = attributes;
-		const {
+
+    const {
 			addPointVisibility,
 			apiKey,
 			apiKeyControl,

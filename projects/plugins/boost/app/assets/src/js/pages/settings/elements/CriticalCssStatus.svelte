@@ -8,6 +8,7 @@
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
 	import { criticalCssIssues } from '../../../stores/critical-css-state-errors';
+	import { modulesState } from '../../../stores/modules';
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
@@ -16,8 +17,10 @@
 	export let generateText = '';
 	export let generateMoreText = '';
 	const { navigate } = routerHistory;
-	$: successCount = $criticalCssState.providers.filter( provider => provider.status === 'success' )
-		.length;
+
+	$: successCount = $criticalCssState.providers.filter(
+		provider => provider.status === 'success'
+	).length;
 </script>
 
 <div class="jb-critical-css__meta">
@@ -33,6 +36,12 @@
 				)}
 				{#if $criticalCssState.updated}
 					<TimeAgo time={new Date( $criticalCssState.updated * 1000 )} />.
+				{/if}
+				{#if ! $modulesState.cloud_css?.available}
+					{__(
+						'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
+						'jetpack-boost'
+					)}
 				{/if}
 				{#if $criticalCssProgress < 100}
 					<span>{generateMoreText}</span>

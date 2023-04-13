@@ -165,7 +165,7 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 			return {
 				displayName: __( 'Custom Site Search', 'jetpack' ),
 				ctaLabel: __( 'Customize', 'jetpack' ),
-				ctaLink: getJetpackCloudUrl( state, 'jetpack-search' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-search-configure',
 			};
 	}
 };
@@ -471,7 +471,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'Customize Search', 'jetpack' ),
-				ctaLink: getJetpackCloudUrl( state, 'jetpack-search' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-search-configure',
 				illustration: 'assistant-search',
 				skipText: __( 'Next', 'jetpack' ),
 			};
@@ -486,6 +486,21 @@ export const getStepContent = ( state, stepSlug ) => {
 				ctaLink: getJetpackCloudUrl( state, 'scan' ),
 				illustration: 'assistant-backup-welcome',
 				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'welcome__golden_token':
+			return {
+				question: __( 'Congratulations, you have been gifted a Jetpack Golden Token!', 'jetpack' ),
+				description: __(
+					'Congratulations, your Jetpack Golden Token provides a lifetime license for this website and includes the following products:',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Jetpack VaultPress Backup', 'jetpack' ),
+					__( 'Jetpack Scan', 'jetpack' ),
+				],
+				ctaText: __( 'Setup your new powers', 'jetpack' ),
+				hasNoAction: true,
+				illustration: 'assistant-golden-token-welcome',
 			};
 		case 'backup-activated':
 			return {
@@ -543,7 +558,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'Customize Search', 'jetpack' ),
-				ctaLink: getJetpackCloudUrl( state, 'jetpack-search' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-search-configure',
 				illustration: 'assistant-search',
 				skipText: __( 'Next', 'jetpack' ),
 			};

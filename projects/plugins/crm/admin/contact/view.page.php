@@ -1223,7 +1223,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								
 								<div id="zbsFileActionOutput" style="display:none"></div>
 									<?php
-									// WLREMOVE
+									##WLREMOVE
 
 									// and upsell here if admin + not using client portal pro
 									if ( current_user_can( 'admin_zerobs_manage_options' ) && ! defined( 'ZBS_CLIENTPRO_TEMPLATES' ) ) {
@@ -1254,7 +1254,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 									}
 
-									// /WLREMOVE
+									##/WLREMOVE
 									?>
 
 							</div>

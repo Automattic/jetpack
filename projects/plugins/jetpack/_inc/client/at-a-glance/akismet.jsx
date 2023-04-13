@@ -86,7 +86,7 @@ class DashAkismet extends Component {
 	};
 
 	getContent() {
-		const akismetData = this.props.akismetData;
+		const { akismetData, siteAdminUrl } = this.props;
 		const labelName = __( 'Akismet Anti-spam', 'jetpack' );
 
 		const support = {
@@ -99,16 +99,27 @@ class DashAkismet extends Component {
 		};
 
 		const getAkismetUpgradeBanner = () => {
-			const description = createInterpolateElement(
-				__( 'Already have a key? <Button>Activate Akismet Anti-spam</Button>', 'jetpack' ),
-				{
-					Button: <Button className="jp-link-button" onClick={ this.onActivateClick } />,
-				}
-			);
+			let description;
+
+			if ( 'not_active' === akismetData ) {
+				description = createInterpolateElement(
+					__( 'Already have an API key? <Button>Activate Akismet Anti-spam</Button>.', 'jetpack' ),
+					{
+						Button: <Button className="jp-link-button" onClick={ this.onActivateClick } />,
+					}
+				);
+			} else if ( 'invalid_key' === akismetData ) {
+				description = createInterpolateElement(
+					__( 'Already have an API key? <a>Get started</a>.', 'jetpack' ),
+					{
+						a: <a href={ siteAdminUrl + 'admin.php?page=akismet-key-config' } />,
+					}
+				);
+			}
 
 			return (
 				<JetpackBanner
-					callToAction={ __( 'Upgrade', 'jetpack' ) }
+					callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 					title={ __( 'Automatically clear spam from comments and forms.', 'jetpack' ) }
 					description={ description }
 					disableHref="false"
@@ -139,22 +150,6 @@ class DashAkismet extends Component {
 		};
 
 		const getBanner = () => {
-			if ( this.props.isOfflineMode ) {
-				return (
-					<DashItem
-						label={ labelName }
-						module="akismet"
-						support={ support }
-						pro={ true }
-						className="jp-dash-item__is-inactive"
-					>
-						<p className="jp-dash-item__description">
-							{ __( 'Unavailable in Offline Mode.', 'jetpack' ) }
-						</p>
-					</DashItem>
-				);
-			}
-
 			return this.props.hasConnectedOwner ? getAkismetUpgradeBanner() : getConnectBanner();
 		};
 
@@ -182,6 +177,7 @@ class DashAkismet extends Component {
 			);
 		};
 
+		// If we don't have data from Akismet yet, show a loading state.
 		if ( 'N/A' === akismetData ) {
 			return (
 				<DashItem label={ labelName } module="akismet" support={ support } pro={ true }>
@@ -190,56 +186,38 @@ class DashAkismet extends Component {
 			);
 		}
 
-		if ( ! this.props.hasAntiSpam && ! this.props.hasAkismet ) {
-			if ( 'not_installed' === akismetData ) {
-				return (
-					<DashItem
-						label={ labelName }
-						module="akismet"
-						support={ support }
-						className="jp-dash-item__is-inactive"
-						pro={ true }
-						overrideContent={ getBanner() }
-					/>
-				);
-			}
-
-			if ( 'not_active' === akismetData ) {
-				return (
-					<DashItem
-						label={ labelName }
-						module="akismet"
-						support={ support }
-						className="jp-dash-item__is-inactive"
-						pro={ true }
-						overrideContent={ getBanner() }
-					/>
-				);
-			}
-
-			if ( 'invalid_key' === akismetData ) {
-				return (
-					<DashItem
-						label={ labelName }
-						module="akismet"
-						support={ support }
-						className="jp-dash-item__is-inactive"
-						pro={ true }
-						overrideContent={ getBanner() }
-					/>
-				);
-			}
-		}
-
+		// If Akismet is not installed or not configured yet, show a banner to install it.
 		if ( [ 'not_installed', 'not_active', 'invalid_key' ].includes( akismetData ) ) {
+			const commonProps = {
+				label: labelName,
+				module: 'akismet',
+				support: support,
+				className: 'jp-dash-item__is-inactive',
+				pro: true,
+			};
+
+			// Akismet is not installed nor activated.
+			if ( ! this.props.hasAntiSpam && ! this.props.hasAkismet ) {
+				// In Offline Mode, we can't prompt to connect to WordPress.com
+				// the site will not be able to communicate with Akismet servers,
+				// and is very likely not to get any comments.
+				// Akismet will not be useful for them.
+				if ( this.props.isOfflineMode ) {
+					return (
+						<DashItem { ...commonProps }>
+							<p className="jp-dash-item__description">
+								{ __( 'Unavailable in Offline Mode.', 'jetpack' ) }
+							</p>
+						</DashItem>
+					);
+				}
+
+				return <DashItem { ...commonProps } overrideContent={ getBanner() } />;
+			}
+
+			// The plugin is installed and activated, but not configured yet.
 			return (
-				<DashItem
-					label={ labelName }
-					module="akismet"
-					support={ support }
-					className="jp-dash-item__is-inactive"
-					pro={ true }
-				>
+				<DashItem { ...commonProps }>
 					{ __(
 						"Your Jetpack plan provides anti-spam protection through Akismet. Click 'set up' to enable it on your site.",
 						'jetpack'

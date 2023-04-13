@@ -44,12 +44,13 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
         // other fields
         'status'            => array(
             // db model:
-            'fieldname' => 'zbsco_status', 'format' => 'str',
+			'fieldname'             => 'zbsco_status',
+			'format'                => 'str',
             // output model
             'input_type' => 'select',
             'label' => 'Status',
             'placeholder'=>'',
-            'options'=>array('Lead','Customer','Refused','Blacklisted'),
+			'options'               => array( 'Lead', 'Customer', 'Refused', 'Blacklisted' ),
             'essential' => true,
             'max_len' => 50,
             'do_not_show_on_portal' => true
@@ -1309,7 +1310,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                     case 'customer':
 
                                         // hack - adapted from DAL1 (probs can be slicker)
-                                        $wheres['quickfiltercustomer'] = array('zbsco_status','LIKE','%s','Customer');
+										$wheres['quickfiltercustomer'] = array( 'zbsco_status', 'LIKE', '%s', 'Customer' );
 
                                         break;
 

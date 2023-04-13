@@ -1,24 +1,29 @@
 ( function ( w, d ) {
+	function parseJSON( str ) {
+		try {
+			return str ? w.JSON.parse( str ) : null;
+		} catch ( error ) {
+			return null;
+		}
+	}
+
 	w.polldaddyshortcode = {
 		render: function () {
 			const ratings = d.querySelectorAll( 'div.pd-rating[data-settings]' );
 			const polls = d.querySelectorAll( 'div.PDS_Poll[data-settings]' );
 
 			polls.forEach( pollEl => {
-				const isInitialized = pollEl.getAttribute( 'data-pd-init-done' );
-
-				if ( isInitialized ) {
+				if ( pollEl.hasAttribute( 'data-pd-init-done' ) ) {
 					return;
 				}
 
 				pollEl.setAttribute( 'data-pd-init-done', '1' );
-				const settings = pollEl.getAttribute( 'data-settings' );
-				const poll = settings ? JSON.parse( settings ) : null;
+				const poll = parseJSON( pollEl.getAttribute( 'data-settings' ) );
 
 				if ( poll ) {
 					let poll_url;
 					try {
-						poll_url = new URL( poll.url, 'https://invalid.tld' );
+						poll_url = new w.URL( poll.url, 'https://invalid.tld' );
 					} catch ( error ) {
 						return false;
 					}
@@ -43,16 +48,13 @@
 				let scriptContents = '';
 
 				ratings.forEach( ratingEl => {
-					const isInitialized = ratingEl.getAttribute( 'data-pd-init-done' );
-
-					if ( isInitialized ) {
+					if ( ratingEl.hasAttribute( 'data-pd-init-done' ) ) {
 						return;
 					}
 
 					ratingEl.setAttribute( 'data-pd-init-done', '1' );
 
-					const settings = ratingEl.getAttribute( 'data-settings' );
-					const rating = settings ? JSON.parse( settings ) : null;
+					const rating = parseJSON( ratingEl.getAttribute( 'data-settings' ) );
 
 					if ( rating ) {
 						scriptContents += `

@@ -72,6 +72,8 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 		'is_fse_eligible'             => '(bool) If the site is capable of Full Site Editing or not',
 		'is_core_site_editor_enabled' => '(bool) If the site has the core site editor enabled.',
 		'is_wpcom_atomic'             => '(bool) If the site is a WP.com Atomic one.',
+		'is_wpcom_staging_site'       => '(bool) If the site is a WP.com staging site.',
+		'was_ecommerce_trial'         => '(bool) If the site ever used an eCommerce trial.',
 	);
 
 	/**

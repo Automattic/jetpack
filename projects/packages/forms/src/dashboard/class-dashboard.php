@@ -8,6 +8,9 @@
 namespace Automattic\Jetpack\Forms\Dashboard;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Forms\Service\Google_Drive;
+use Automattic\Jetpack\Redirect;
 
 /**
  * Handles the Jetpack Forms dashboard.
@@ -66,12 +69,12 @@ class Dashboard {
 				'in_footer'    => true,
 				'textdomain'   => 'jetpack-forms',
 				'enqueue'      => true,
-				'dependencies' => array( 'wp-api-fetch' ), // this here just for testing, remove when done (apiFetch will be on build)
+				'dependencies' => array( 'wp-api-fetch' ),
 			)
 		);
 
 		$api_root = defined( 'IS_WPCOM' ) && IS_WPCOM
-			? sprintf( '/wpcom/v2/sites/%s/', esc_url_raw( rest_url() ) ) // should we include full URL here (public-api.wordpress.com)?
+			? sprintf( '/wpcom/v2/sites/%s/', esc_url_raw( rest_url() ) )
 			: '/wp-json/wpcom/v2/';
 
 		wp_add_inline_script(
@@ -116,8 +119,19 @@ class Dashboard {
 	 * Render the dashboard.
 	 */
 	public function render_dashboard() {
+		$jetpack_connected = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Connection_Manager( 'jetpack-forms' ) )->is_user_connected( get_current_user_id() );
+		$user_id           = (int) get_current_user_id();
+
+		$config = array(
+			'blogId'                  => get_current_blog_id(),
+			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
+			'gdriveConnection'        => $jetpack_connected && Google_Drive::has_valid_connection( $user_id ),
+			'gdriveConnectURL'        => esc_url( Redirect::get_url( 'jetpack-forms-responses-connect' ) ),
+			'gdriveConnectSupportURL' => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
+			'checkForSpamNonce'       => wp_create_nonce( 'grunion_recheck_queue' ),
+		);
 		?>
-		<div id="jp-forms-dashboard" style="min-height: calc(100vh - 100px);"></div>
+		<div id="jp-forms-dashboard" style="min-height: calc(100vh - 100px);" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>
 		<?php
 	}
 }

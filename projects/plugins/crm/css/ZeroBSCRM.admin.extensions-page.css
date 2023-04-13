@@ -104,8 +104,10 @@
   display: block;
 }
 .zbs-extensions-manager .thinner {
-  padding-left: 25% !important; /* WH added for v3rc2, for some reason necessary */
-  padding-right: 25% !important; /* WH added for v3rc2, for some reason necessary */
+  padding-left: 25% !important;
+  /* WH added for v3rc2, for some reason necessary */
+  padding-right: 25% !important;
+  /* WH added for v3rc2, for some reason necessary */
 }
 .zbs-extensions-manager .single-info-start {
   margin-top: -35px !important;

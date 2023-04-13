@@ -6,16 +6,27 @@ import { useSelect } from '@wordpress/data';
 /*
  * Types
  */
-import type { VideoPreview } from '../../../block-editor/blocks/video/types';
+import type { VideoPreviewProps } from '../../../block-editor/blocks/video/types';
 
-export type UsePreviewResult = {
-	preview: VideoPreview;
+export type UsePreviewProps = {
+	preview: VideoPreviewProps;
 	isRequestingEmbedPreview: boolean;
 };
 
-const defaultPreview: VideoPreview = { html: null, scripts: [], width: null, height: null };
+const defaultPreview: VideoPreviewProps = {
+	html: null,
+	width: null,
+	height: null,
+	thumbnail_height: null,
+	thumbnail_width: null,
+	title: null,
+	version: '1.0',
+	type: 'video',
+	provider_name: 'VideoPress',
+	provider_url: 'https://videopress.com',
+};
 
-export const usePreview = ( videoPressUrl?: string ): UsePreviewResult => {
+export const usePreview = ( videoPressUrl?: string ): UsePreviewProps => {
 	return useSelect(
 		select => {
 			if ( ! videoPressUrl ) {
