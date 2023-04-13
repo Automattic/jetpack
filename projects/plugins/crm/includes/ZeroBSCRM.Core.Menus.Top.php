@@ -276,7 +276,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		<div class="ui mobile tablet only" id="zbs-mobile-nav">
 			<div id="zbs-main-logo-mobile">
 				<div class="zbs-face-1-mobile">
-					<img id="zbs-main-logo-mobby" alt="Jetpack CRM mobile logo" src="<?php echo esc_url( jpcrm_get_logo( true, 'white' ) ); ?>" style="cursor:pointer;">
+					<img id="zbs-main-logo-mobby" alt="Jetpack CRM mobile logo" src="<?php echo esc_url( jpcrm_get_logo( false, 'white' ) ); ?>" style="cursor:pointer;">
 				</div>
 			</div>
 			<?php
@@ -347,7 +347,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		<div class="item <?php echo esc_attr( $admin_menu_state ); ?> mobile hidden" id="zbs-main-logo-wrap">
 			<div class="zbs-cube" id="zbs-main-logo-cube-wrap">
 				<div class="zbs-face1">
-					<img id="zbs-main-logo" alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo() ); ?>" style="cursor:pointer;">
+					<img id="zbs-main-logo" alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>" style="cursor:pointer;">
 				</div>
 				<div class="zbs-face2">
 					<i class="expand icon fa-flip-horizontal"></i>
