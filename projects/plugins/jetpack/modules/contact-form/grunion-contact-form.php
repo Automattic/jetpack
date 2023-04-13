@@ -3193,10 +3193,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$field_index = array_search( $field_ids[ $type ], $field_ids['all'], true );
 				$field_label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
 
-				$compiled_form[ $field_index ] = sprintf(
-					'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
+				$compiled_form[ $field_index ] = array(
 					wp_kses( $field_label, array() ),
-					self::escape_and_sanitize_field_value( $value )
+					self::escape_and_sanitize_field_value( $value ),
 				);
 			}
 		}
@@ -3220,14 +3219,27 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 					$field_label = $field->get_attribute( 'label' ) ? $field->get_attribute( 'label' ) . ':' : '';
 
-					$compiled_form[ $field_index ] = sprintf(
-						'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
+					$compiled_form[ $field_index ] = array(
 						wp_kses( $field_label, array() ),
-						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] )
+						self::escape_and_sanitize_field_value( $extra_fields[ $extra_field_keys[ $i ] ] ),
 					);
 
 					++$i;
 				}
+			}
+		}
+
+		$updated_compiled_form = apply_filters( 'jetpack_forms_response_email', $compiled_form, $feedback_id, $form );
+		if ( array_diff( $updated_compiled_form, $compiled_form ) ) {
+			$compiled_form = $updated_compiled_form;
+		} else {
+			// add styling to the array
+			foreach ( $compiled_form as $key => $value ) {
+				$compiled_form[ $key ] = sprintf(
+					'<p><strong>%1$s</strong><br /><span>%2$s</span></p>',
+					$value[0],
+					$value[1]
+				);
 			}
 		}
 
@@ -3920,6 +3932,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 */
 		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this->fields, $is_spam, $entry_values );
 
+		$header  = '<h1>' . __( 'You got a new response!', 'jetpack' ) . '</h1>';
 		$message = self::get_compiled_form_for_email( $post_id, $this );
 
 		array_push(
@@ -3945,7 +3958,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			array_push( $message, '<p>' . __( 'Sent by an unverified visitor to your site.', 'jetpack' ) . '</p>' );
 		}
 
-		$message = join( '', $message );
+		$footer = '<p>View Response: ' . admin_url( 'edit.php?post_type=feedback' ) . '</p>';
+
+		array_unshift( $message, $header );
+		$message[] = $footer;
+
+		$message = join( '', apply_filters( 'jetpack_forms_response_email_message', $message ) );
 
 		/**
 		 * Filters the message sent via email after a successful form submission.
@@ -4164,14 +4182,17 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			str_replace(
 				"\t",
 				'',
-				'<!doctype html>
-				<html xmlns="http://www.w3.org/1999/xhtml">
-				<body>
+				apply_filters(
+					'jetpack_forms_respone_email_template',
+					'<!doctype html>
+					<html xmlns="http://www.w3.org/1999/xhtml">
+					<body>
 
-				%s
+					%s
 
-				</body>
-				</html>'
+					</body>
+					</html>'
+				)
 			),
 			$body
 		);
