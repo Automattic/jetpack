@@ -227,7 +227,12 @@ class Initializer {
 
 		// Custom anchor from block content
 		$id_attribute = '';
-		if ( preg_match( '/<figure[^>]*id="([^"]+)"/', $content, $matches ) ) {
+
+		// Try to get the custom anchor from the block attributes.
+		if ( isset( $block_attributes['anchor'] ) && $block_attributes['anchor'] ) {
+			$id_attribute = sprintf( 'id="%s"', $block_attributes['anchor'] );
+		} elseif ( preg_match( '/<figure[^>]*id="([^"]+)"/', $content, $matches ) ) {
+			// Othwerwise, try to get the custom anchor from the <figure /> element.
 			$id_attribute = sprintf( 'id="%s"', $matches[1] );
 		}
 
