@@ -181,21 +181,97 @@ class Initializer {
 	 * VideoPress video block render method
 	 *
 	 * @param array  $block_attributes - Block attributes.
-	 * @param string $content          - Block markup.
+	 * @param string $content          - Current block markup.
 	 * @return string                    Block markup.
 	 */
 	public static function render_videopress_video_block( $block_attributes, $content ) {
-		// Preview On Hover data
-		if ( ! isset( $block_attributes['posterData']['previewOnHover'] ) || ! $block_attributes['posterData']['previewOnHover'] ) {
-			return sprintf( '<div class="wp-block-jetpack-videopress-container">%s</div>', $content );
+		global $wp_embed;
+
+		// CSS classes
+		$align       = isset( $block_attributes['align'] ) ? $block_attributes['align'] : null;
+		$align_class = $align ? ' align' . $align : '';
+		$classes     = 'wp-block-jetpack-videopress jetpack-videopress-player' . $align_class;
+
+		// Inline style
+		$style     = '';
+		$max_width = isset( $block_attributes['maxWidth'] ) ? $block_attributes['maxWidth'] : null;
+		if ( $max_width && $max_width !== '100%' ) {
+			$style = sprintf( 'max-width: %s; margin: auto;', $max_width );
 		}
 
-		$preview_on_hover_data = array(
-			'previewAtTime'       => $block_attributes['posterData']['previewAtTime'],
-			'previewLoopDuration' => $block_attributes['posterData']['previewLoopDuration'],
-		);
+		/*
+		 * <figcaption /> element
+		 * Caption is stored into the block attributes,
+		 * but also it was stored into the <figcaption /> element,
+		 * meaning that it could be stored in two different places.
+		 */
+		$figcaption = '';
 
-		return sprintf( '<div class="wp-block-jetpack-videopress-container"><script type="application/json">%s</script>%s</div>', wp_json_encode( $preview_on_hover_data ), $content );
+		// Caption from block attributes
+		$caption = isset( $block_attributes['caption'] ) ? $block_attributes['caption'] : null;
+
+		/*
+		 * If the caption is not stored into the block attributes,
+		 * try to get it from the <figcaption /> element.
+		 */
+		if ( $caption === null ) {
+			preg_match( '/<figcaption>(.*?)<\/figcaption>/', $content, $matches );
+			$caption = isset( $matches[1] ) ? $matches[1] : null;
+		}
+
+		// If we have a caption, create the <figcaption /> element.
+		if ( $caption !== null ) {
+			$figcaption = sprintf( '<figcaption>%s</figcaption>', wp_kses_post( $caption ) );
+		}
+
+		// Preview On Hover data
+		$preview_on_hover = '';
+		if (
+			isset( $block_attributes['posterData']['previewOnHover'] ) &&
+			$block_attributes['posterData']['previewOnHover']
+		) {
+			$preview_on_hover = array(
+				'previewAtTime'       => $block_attributes['posterData']['previewAtTime'],
+				'previewLoopDuration' => $block_attributes['posterData']['previewLoopDuration'],
+			);
+
+			// Expose the preview on hover data to the client.
+			$preview_on_hover = sprintf( '<div className="jetpack-videopress-player__overlay"></div><script type="application/json">%s</script>', wp_json_encode( $preview_on_hover ) );
+
+			// Set `autoplay` and `muted` attributes to the video element.
+			$block_attributes['autoplay'] = true;
+			$block_attributes['muted']    = true;
+		}
+
+		$figure_template = '
+		<figure class="%1$s" style="%2$s">			
+			%3$s
+			%4$s
+			%5$s
+		</figure>
+		';
+
+		// VideoPress URL
+		$videopress_url = Utils::get_video_press_url( $block_attributes['guid'], $block_attributes );
+
+		$video_wrapper = '';
+		if ( $videopress_url ) {
+			$videopress_url = wp_kses_post( $videopress_url );
+			$oembed_html    = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
+			$video_wrapper  = sprintf(
+				'<div class="jetpack-videopress-player__wrapper">%s</div>',
+				$oembed_html
+			);
+		}
+
+		return sprintf(
+			$figure_template,
+			esc_attr( $classes ),
+			esc_attr( $style ),
+			$preview_on_hover,
+			$video_wrapper,
+			$figcaption
+		);
 	}
 
 	/**
