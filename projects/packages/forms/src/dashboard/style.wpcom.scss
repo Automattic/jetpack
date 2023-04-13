@@ -90,6 +90,10 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 
 		.subtitle {
 			color: var( --color-text, #2c3338 );
+
+			a {
+				color: var( --color-primary, #006088 );
+			}
 		}
 	}
 

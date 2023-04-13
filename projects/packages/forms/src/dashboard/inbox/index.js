@@ -4,7 +4,14 @@
 import { TabPanel, Icon } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useEffect, useMemo, useState, useRef } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+	useRef,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -190,7 +197,21 @@ const Inbox = () => {
 			</span>
 			{ isWpcom() && (
 				<span className="subtitle">
-					{ __( 'Collect and manage responses from your audience.', 'jetpack-forms' ) }
+					{ createInterpolateElement(
+						__(
+							'Collect and manage responses from your audience. <a>Learn more.</a>',
+							'jetpack-forms'
+						),
+						{
+							a: (
+								<a
+									href="https://jetpack.com/support/jetpack-blocks/contact-form/"
+									rel="noreferrer noopener"
+									target="_blank"
+								/>
+							),
+						}
+					) }
 				</span>
 			) }
 			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
