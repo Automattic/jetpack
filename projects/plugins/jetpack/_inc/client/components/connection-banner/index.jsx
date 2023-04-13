@@ -28,7 +28,11 @@ export class ConnectionBanner extends React.Component {
 		};
 
 		return (
-			<Notice title={ title } actions={ [ <ActionButton { ...connectButtonProps } /> ] }>
+			<Notice
+				title={ title }
+				hideCloseButton
+				actions={ [ <ActionButton { ...connectButtonProps } /> ] }
+			>
 				{ description }
 			</Notice>
 		);
