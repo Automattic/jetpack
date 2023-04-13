@@ -62,7 +62,7 @@ const ALLOWED_BLOCKS = [
 const RESPONSES_PATH = `${ get( getJetpackData(), 'adminUrl', false ) }edit.php?post_type=feedback`;
 const CUSTOMIZING_FORMS_URL = 'https://jetpack.com/support/jetpack-blocks/contact-form/';
 
-const JetpackContactFormEdit = forwardRef(
+export const JetpackContactFormEdit = forwardRef(
 	(
 		{
 			attributes,
