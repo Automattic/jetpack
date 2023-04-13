@@ -6,6 +6,8 @@ shopt -s inherit_errexit
 BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
+. "$BASE/tools/includes/changelogger.sh"
+. "$BASE/tools/includes/alpha-tag.sh"
 . "$BASE/tools/includes/normalize-version.sh"
 . "$BASE/tools/includes/plugin-functions.sh"
 . "$BASE/tools/includes/proceed_p.sh"
@@ -143,8 +145,8 @@ function check_ver {
 	local CUR_VERSION
 	CUR_VERSION=$("$BASE/tools/plugin-version.sh" "${DIRS[$2]}")
 	# shellcheck disable=SC2310
-	if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION"; then
-		proceed_p "Version $NORMALIZED_VERSION <= $CUR_VERSION."
+	if version_compare "$CUR_VERSION" "$NORMALIZED_VERSION" 1; then
+		proceed_p "Version $NORMALIZED_VERSION < $CUR_VERSION."
 		return $?
 	fi
 	return 0
@@ -163,19 +165,31 @@ else
 	# Prompt for versions.
 	$INTERACTIVE || die "Cannot prompt for versions when running in non-interactive mode!"
 	for ((i=0; i < ${#DIRS[@]}; i++)); do
+		cd "${DIRS[$i]}"
+
+		CHANGES_DIR="$(jq -r '.extra.changelogger["changes-dir"] // "changelog"' composer.json)"
+		if [[ -d "$CHANGES_DIR" && "$(ls -- "$CHANGES_DIR")" ]]; then
+			PRERELEASE=$(alpha_tag composer.json 0)
+			VER=$(changelogger version next --default-first-version --prerelease="$PRERELEASE") || die "$VER"
+		else
+			VER=$(changelogger version current --default-first-version) || die "$VER"
+		fi
+
 		PROMPT="Version to use for plugin ${NAMES[$i]}:"
 		# shellcheck disable=SC2310
 		if color_supported; then
 			PROMPT=$(FORCE_COLOR=1 prompt "$PROMPT")
 		fi
 		while [[ ${#VERSIONS[@]} -le $i ]]; do
-			IFS= read -p "$PROMPT " -r LINE || die "Aborting!"
+			IFS= read -e -i "$VER" -p "$PROMPT " -r LINE || die "Aborting!"
+			[[ -z "$LINE" ]] && LINE=$VER
 			# shellcheck disable=SC2310
 			if [[ -n "$LINE" ]] && check_ver "$LINE" "$i"; then
 				VERSIONS+=( "$NORMALIZED_VERSION" )
 			fi
 		done
 	done
+	cd "$BASE"
 fi
 
 # Figure out the release branch, and see if it already exists.
@@ -200,7 +214,7 @@ else
 			PROMPT=$(FORCE_COLOR=1 prompt "$PROMPT")
 		fi
 		while [[ -z "$BRANCH" ]]; do
-			IFS= read -p "$PROMPT " -r LINE || die "Aborting!"
+			IFS= read -e -i "$(date +%F)" -p "$PROMPT " -r LINE || die "Aborting!"
 			if [[ -n "$LINE" ]]; then
 				BRANCH="$PREFIX/branch-$LINE"
 			fi
