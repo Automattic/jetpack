@@ -83,7 +83,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 			line-height: 20px;
 
 			a {
-				color: var( --color-primary, #006088 );
+				color: var( --color-link, #006088 );
 				text-decoration: none;
 			}
 		}
@@ -250,9 +250,5 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 
 	.jp-forms__export-modal-card-beta-badge {
 		background-color: var( --wp-admin-theme-color, #c9356e );
-	}
-
-	.jp-forms__export-modal-card-body-description {
-		color: var( --color-neutral-10, #3C434A );
 	}
 }
