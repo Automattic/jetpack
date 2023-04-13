@@ -188,9 +188,10 @@ class Initializer {
 		global $wp_embed;
 
 		// CSS classes
-		$align       = isset( $block_attributes['align'] ) ? $block_attributes['align'] : null;
-		$align_class = $align ? ' align' . $align : '';
-		$classes     = 'wp-block-jetpack-videopress jetpack-videopress-player' . $align_class;
+		$align        = isset( $block_attributes['align'] ) ? $block_attributes['align'] : null;
+		$align_class  = $align ? ' align' . $align : '';
+		$custom_class = isset( $block_attributes['className'] ) ? ' ' . $block_attributes['className'] : '';
+		$classes      = 'wp-block-jetpack-videopress jetpack-videopress-player' . $custom_class . $align_class;
 
 		// Inline style
 		$style     = '';
