@@ -1366,28 +1366,19 @@ function zeroBSCRM_html_home2() {
 	<div class="container">
 
 		<div class="intro">
-
 			<div class="block" style="text-align:center;margin-top:-50px;">
 						<img src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>" alt="Jetpack CRMt" id="jetpack-crm-welcome" style="text-align:center;padding:30px;"> 
 						<h6><?php esc_html_e( 'Thank you for choosing Jetpack CRM - The Ultimate Entrepreneurs\' CRM for WordPress', 'zero-bs-crm' ); ?></h6>
-					</div>
-
-		</div>
-
-		<div id="first-customer">
-		<a href="https://jetpackcrm.com/learn/" target="_blank"><img src="<?php echo esc_url( plugins_url( '/i/first-customer-welcome-image.png', ZBS_ROOTFILE ) ); ?>" alt="<?php esc_attr_e( 'Adding your first customer', 'zero-bs-crm' ); ?>"></a>
+			</div>
 		</div>
 
 		<div id="action-buttons" class='block'>
 		<h6>
 		<?php
-		esc_html_e( 'Jetpack CRM makes it easy for you to manage your contacts using WordPress. To get started, ', 'zero-bs-crm' );
-		echo '<a href="https://jetpackcrm.com/learn/" target="_blank">';
-		esc_html_e( 'watch the video tutorial', 'zero-bs-crm' );
-		echo '</a> ';
-		esc_html_e( 'or read our guide on how create your first contact', 'zero-bs-crm' );
+		esc_html_e( 'Jetpack CRM makes it easy for you to manage your contacts using WordPress. To get started, read our guide on how create your first contact', 'zero-bs-crm' );
+		echo ':';
 		?>
-		:</h6>
+		</h6>
 		<div class='zbs-button-wrap'>
 			<div class="left">
 			<a href="<?php echo esc_url( $add_new_customer_link ); ?>" class='add-first-customer btn btn-cta'><?php esc_html_e( 'Add Your First Contact', 'zero-bs-crm' ); ?></a>
