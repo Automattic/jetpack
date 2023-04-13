@@ -35,7 +35,14 @@ const sbconfig = {
 		'@storybook/addon-a11y',
 		'@storybook/addon-essentials',
 		'storybook-addon-mock',
-		'storybook-addon-turbo-build',
+		{
+			name: 'storybook-addon-turbo-build',
+			options: {
+				esbuildMinifyOptions: {
+					target: 'es2018',
+				},
+			},
+		},
 	],
 	// Workaround:
 	// https://github.com/storybookjs/storybook/issues/12270
