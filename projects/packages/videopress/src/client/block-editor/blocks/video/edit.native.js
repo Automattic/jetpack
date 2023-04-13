@@ -139,7 +139,13 @@ export default function VideoPressEdit( {
 		createSuccessNotice( 'Block settings saved.' );
 	};
 
-	useSyncMedia( attributes, setAttributes, blockSettingsSaved, setBlockSettingsSaved );
+	const { videoData } = useSyncMedia(
+		attributes,
+		setAttributes,
+		blockSettingsSaved,
+		setBlockSettingsSaved
+	);
+	const { private_enabled_for_site: privateEnabledForSite } = videoData;
 
 	const handleDoneUpload = useCallback(
 		newVideoData => {
@@ -263,7 +269,7 @@ export default function VideoPressEdit( {
 					<PanelBody title={ __( 'More', 'jetpack-videopress-pkg' ) }>
 						<PlaybackPanel { ...{ attributes, setAttributes } } />
 						<ColorPanel { ...{ attributes, setAttributes } } />
-						<PrivacyAndRatingPanel { ...{ attributes, setAttributes } } />
+						<PrivacyAndRatingPanel { ...{ attributes, setAttributes, privateEnabledForSite } } />
 					</PanelBody>
 					<PanelBody title={ 'Temporary for Testing' }>
 						<BottomSheet.Cell label={ 'Save Settings' } onPress={ onSaveBlockSettings } />
