@@ -175,7 +175,7 @@ function process_anchor_params() {
 	}
 
 	// Display an outbound link after publishing a post (only to English-speaking users since Anchor
-	 	// is English only).  This is only displayed if the blog is connected to an Anchor podcast.
+	// is English only).  This is only displayed if the blog is connected to an Anchor podcast.
 	$blog_connected_to_anchor = function_exists( 'get_blog_option' ) && false !== get_blog_option( get_current_blog_id(), 'anchor_podcast' );
 	if (
 		'post' === get_post_type() &&
