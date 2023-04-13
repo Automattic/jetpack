@@ -93,6 +93,7 @@ export default function VideoPressEdit( {
 	);
 	const { replaceBlock } = useDispatch( blockEditorStore );
 	const { createErrorNotice } = useDispatch( noticesStore );
+	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
@@ -136,6 +137,7 @@ export default function VideoPressEdit( {
 
 	const onSaveBlockSettings = () => {
 		setBlockSettingsSaved( true );
+		createSuccessNotice( 'Block settings saved.' );
 	};
 
 	useSyncMedia( attributes, setAttributes, blockSettingsSaved, setBlockSettingsSaved );
