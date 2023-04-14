@@ -42,9 +42,9 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					'permission_callback' => array( $this, 'can_access' ),
 					'args'                => array(
 						'checklist_statuses' => array(
-							'description' => 'Launchpad statuses',
-							'type'        => 'array',
-							'items'       => array(
+							'description'          => 'Launchpad statuses',
+							'type'                 => 'object',
+							'properties'           => array(
 								'domain_upsell_deferred' => array(
 									'type' => 'boolean',
 								),
@@ -70,6 +70,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 									'type' => 'boolean',
 								),
 							),
+							'additionalProperties' => false,
 						),
 						'site_intent'        => array(
 							'description' => 'Site intent',

@@ -85,7 +85,10 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	public function test_update_checklist_statuses() {
 		wp_set_current_user( $this->admin_id );
 
-		$values = array( true, false, true );
+		$values = array(
+			'publish_first_course' => false,
+			'site_launched'        => true,
+		);
 		$data   = array( 'checklist_statuses' => $values );
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
@@ -99,6 +102,13 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( array( 'updated' => array( 'checklist_statuses' => $values ) ), $result->get_data() );
 		$this->assertSame( $values, get_option( 'launchpad_checklist_tasks_statuses' ) );
+
+		// Invalid parameter.
+		$request->set_body( wp_json_encode( array( 'checklist_statuses' => array( 'wrong_key' => true ) ) ) );
+		$result = rest_do_request( $request );
+
+		$this->assertSame( 400, $result->get_status() );
+		$this->assertSame( 'rest_invalid_param', $result->get_data()['code'] );
 	}
 
 	/**
@@ -136,7 +146,9 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 
 		$data = array(
 			'site_intent'        => 'write',
-			'checklist_statuses' => array( true, false, true ),
+			'checklist_statuses' => array(
+				'site_launched' => true,
+			),
 		);
 
 		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
@@ -150,6 +162,6 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$this->assertSame( 200, $result->get_status() );
 		$this->assertSame( 'write', get_option( 'site_intent' ) );
 		$this->assertSame( $data, $result->get_data()['updated'] );
-		$this->assertSame( array( true, false, true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
+		$this->assertSame( array( 'site_launched' => true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
 	}
 }
