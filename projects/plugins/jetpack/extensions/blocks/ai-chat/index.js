@@ -1,6 +1,3 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
-import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
@@ -12,25 +9,13 @@ import edit from './edit';
 import './editor.scss';
 
 export const name = 'ai-chat';
-export const title = __( 'AI Chat(Experimental)', 'jetpack' );
+export const title = __( 'AI Chat (Experimental)', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,
-	description: (
-		<Fragment>
-			<p>
-				{ __( 'Provides summarised chat across a sites content, powered by AI magic.', 'jetpack' ) }
-			</p>
-			<p>
-				{ __(
-					'We are experimenting with this feature and can tweak or remove it at any point.',
-					'jetpack'
-				) }
-			</p>
-			<ExternalLink href={ getRedirectUrl( 'jetpack_ai_feedback' ) }>
-				{ __( 'Share your feedback.', 'jetpack' ) }
-			</ExternalLink>
-		</Fragment>
+	description: __(
+		'Provides summarized chat across a site’s content, powered by AI magic.',
+		'jetpack'
 	),
 	icon: {
 		src: 'superhero',
