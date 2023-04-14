@@ -31,7 +31,16 @@ class Initializer {
 	 *
 	 * @var string
 	 */
+<<<<<<< HEAD
 	const PACKAGE_VERSION = '2.10.3';
+=======
+<<<<<<< HEAD
+	const PACKAGE_VERSION = '2.10.3-alpha';
+=======
+
+	const PACKAGE_VERSION = '2.11.0-alpha';
+>>>>>>> e66927ca78 (Fixup package versions)
+>>>>>>> dc938b76e1 ([not verified] Fixup package versions)
 
 	/**
 	 * Initialize My Jetpack

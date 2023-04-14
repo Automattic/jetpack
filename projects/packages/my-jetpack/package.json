@@ -1,7 +1,11 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-my-jetpack",
+<<<<<<< HEAD
 	"version": "2.10.3",
+=======
+	"version": "2.11.0-alpha",
+>>>>>>> dc938b76e1 ([not verified] Fixup package versions)
 	"description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/my-jetpack/#readme",
 	"bugs": {
