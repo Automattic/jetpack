@@ -65,6 +65,7 @@ class WPCOM_Features {
 	private const WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY       = 'wooexpress-medium-bundle-yearly'; // 1055
 	private const WPCOM_WOOEXPRESS_SMALL_BUNDLE_MONTHLY       = 'wooexpress-small-bundle-monthly'; // 1054
 	private const WPCOM_WOOEXPRESS_SMALL_BUNDLE_YEARLY        = 'wooexpress-small-bundle-yearly'; // 1056
+	private const WPCOM_STAGING_PRODUCT                       = 'wp_staging_site_lifetime'; // 1060
 	private const JETPACK_PREMIUM                             = 'jetpack_premium'; // 2000
 	private const JETPACK_BUSINESS                            = 'jetpack_business'; // 2001
 	private const JETPACK_FREE                                = 'jetpack_free'; // 2002
@@ -390,6 +391,7 @@ class WPCOM_Features {
 		self::ATOMIC                           => array(
 			self::WPCOM_PRO_PLANS,
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_STAGING_PRODUCT,
 			array( 'product_type' => array( 'marketplace_plugin', 'saas_plugin' ) ),
 		),
 		// BACKUPS - Site has *any* kind of backups.
