@@ -1117,7 +1117,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/import",
-                "reference": "4719155795f2161d4a9ac73a99bb20610787095b"
+                "reference": "77de2554d86dfc4202a8ed41905a367b9748954b"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev"
@@ -1138,7 +1138,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.7.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "textdomain": "jetpack-import",
                 "version-constants": {
@@ -2281,7 +2281,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "8254f98df9bf989973d102a2901b2328e51775c0"
+                "reference": "92d026aa0316ac90edeb4adcef68fce1e0f10578"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -2303,7 +2303,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.17.x-dev"
+                    "dev-trunk": "1.16.x-dev"
                 }
             },
             "autoload": {

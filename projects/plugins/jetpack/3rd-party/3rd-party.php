@@ -46,9 +46,6 @@ function load_3rd_party_compat_filters() {
 		add_action( 'init', array( 'Jetpack_AMP_Support', 'init' ), 1 );
 		add_action( 'admin_init', array( 'Jetpack_AMP_Support', 'admin_init' ), 1 );
 	}
-	// This class is used statically in a few places to determine if it is an AMP request so needs to be loaded.
-	// The filters, though, are only added if the AMP plugin is active.
-	require_once JETPACK__PLUGIN_DIR . '/3rd-party/class.jetpack-amp-support.php';
 
 	// Domain Mapping. All assume multisite, so it's an easy check.
 	if ( Constants::is_defined( 'SUNRISE' ) ) {
@@ -60,11 +57,8 @@ function load_3rd_party_compat_filters() {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/debug-bar.php';
 	}
 
-	// CRM. Always included; it is used only when certain endpoints are hit.
-	require_once JETPACK__PLUGIN_DIR . '/3rd-party/class-jetpack-crm-data.php';
-
 	// Special case. Tools to be used to override module settings.
-	require_once JETPACK__PLUGIN_DIR . '/3rd-party/class-jetpack-modules-overrides.php';
+	\Jetpack_Modules_Overrides::instance();
 
 	// Letting these always load since it handles somethings upon plugin activation.
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/creative-mail.php';

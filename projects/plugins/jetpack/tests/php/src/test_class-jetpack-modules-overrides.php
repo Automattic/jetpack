@@ -6,11 +6,6 @@
  */
 
 /**
- * Include the code to test.
- */
-require_once JETPACK__PLUGIN_DIR . '3rd-party/class-jetpack-modules-overrides.php';
-
-/**
  * Class WP_Test_Jetpack_Modules_Overrides
  */
 class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
