@@ -2,10 +2,9 @@
  * WordPress dependencies
  */
 import { SandBox } from '@wordpress/components';
-import { store as coreStore } from '@wordpress/core-data';
-import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 /**
  * External dependencies
  */
@@ -60,7 +59,7 @@ export default function Player( { isSelected, attributes } ) {
 		}
 	}, [ guid ] );
 
-	const videoPressUrl = getVideoPressUrl( guid, {
+	let videoPressUrl = getVideoPressUrl( guid, {
 		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
 		controls,
 		loop,
@@ -73,22 +72,21 @@ export default function Player( { isSelected, attributes } ) {
 		poster,
 	} );
 
-	// Helper to invalidate the preview cache.
-	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
-	const invalidatePreview = useCallback( () => {
-		invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
-	}, [ videoPressUrl, invalidateResolution ] );
+	// Append the attempt number to the URL to force a new request
+	if ( previewCheckAttempts > 0 ) {
+		videoPressUrl = addQueryArgs( videoPressUrl, {
+			jp_app_attempts: previewCheckAttempts,
+		} );
+	}
 
-	const { preview = {}, isRequestingEmbedPreview } = usePreview( videoPressUrl );
+	const { preview = {} } = usePreview( videoPressUrl );
 	const html = addTokenIntoIframeSource( preview.html, token );
 
-	const cancelPreviewCheckInterval = useCallback( () => {
-		clearInterval( previewCheckInterval.current );
-	}, [ previewCheckInterval ] );
+	const cancelPreviewCheckInterval = () => clearInterval( previewCheckInterval.current );
 
 	// Fetch the preview until it's ready
 	useEffect( () => {
-		// Wait for the client player to load
+		// Wait till the player is loaded to start checking for the preview
 		if ( ! isPlayerLoaded ) {
 			return;
 		}
@@ -98,14 +96,7 @@ export default function Player( { isSelected, attributes } ) {
 				return cancelPreviewCheckInterval();
 			}
 
-			// Avoid lapping any prior request
-			if ( isRequestingEmbedPreview ) {
-				return;
-			}
-
-			// Invalidate the cache and wait for the next interval since the preview is not ready yet
 			setPreviewCheckAttempts( previewCheckAttempts + 1 );
-			invalidatePreview();
 		}, 1000 );
 
 		return cancelPreviewCheckInterval;
@@ -132,7 +123,7 @@ export default function Player( { isSelected, attributes } ) {
 				/>
 			);
 		}
-		return <Text>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</Text>;
+		return <Text>{ __( 'Error loading video', 'jetpack-videopress-pkg' ) }</Text>;
 	};
 
 	return (
