@@ -14,9 +14,9 @@ import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import React, { useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
-import useUserConfig from '../../hooks/use-user-config';
 import ConnectionsSection from '../connections-section';
 import PlansSection from '../plans-section';
 import ProductCardsSection from '../product-cards-section';
@@ -77,7 +77,8 @@ export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const { userConfig } = useUserConfig();
+	const { chatAvailability, isFetchingChatAvailability } = useChatAvailability();
+	const shouldShowZendeskChatWidget = ! isFetchingChatAvailability && chatAvailability.is_available;
 
 	const { recordEvent } = useAnalytics();
 
@@ -126,7 +127,7 @@ export default function MyJetpackScreen() {
 				</Container>
 			</AdminSection>
 
-			{ userConfig && <ZendeskChat /> }
+			{ shouldShowZendeskChatWidget && <ZendeskChat /> }
 		</AdminPage>
 	);
 }

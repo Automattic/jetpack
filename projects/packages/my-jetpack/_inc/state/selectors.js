@@ -59,9 +59,9 @@ const purchasesSelectors = {
 	isRequestingPurchases: state => state.purchases?.isFetching || false,
 };
 
-const userConfigSelectors = {
-	getUserConfig: state => state.userConfig?.items || {},
-	isRequestingUserConfig: state => state.purchases?.isFetching || false,
+const chatAvailabilitySelectors = {
+	getChatAvailability: state => state.chatAvailability?.items || {},
+	isRequestingChatAvailability: state => state.chatAvailability?.isFetching || false,
 };
 
 const availableLicensesSelectors = {
@@ -104,7 +104,7 @@ const productStatsSelectors = {
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
-	...userConfigSelectors,
+	...chatAvailabilitySelectors,
 	...availableLicensesSelectors,
 	...noticeSelectors,
 	...pluginSelectors,

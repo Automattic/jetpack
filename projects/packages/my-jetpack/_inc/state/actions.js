@@ -17,8 +17,8 @@ const SET_PRODUCT = 'SET_PRODUCT';
 const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
 const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
-const SET_USER_CONFIG_IS_FETCHING = 'SET_USER_CONFIG_IS_FETCHING';
-const SET_USER_CONFIG = 'SET_USER_CONFIG';
+const SET_CHAT_AVAILABILITY_IS_FETCHING = 'SET_CHAT_AVAILABILITY_IS_FETCHING';
+const SET_CHAT_AVAILABILITY = 'SET_CHAT_AVAILABILITY';
 
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
 const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
@@ -30,8 +30,8 @@ const setPurchasesIsFetching = isFetching => {
 	return { type: SET_PURCHASES_IS_FETCHING, isFetching };
 };
 
-const setUserConfigIsFetching = isFetching => {
-	return { type: SET_USER_CONFIG_IS_FETCHING, isFetching };
+const setChatAvailabilityIsFetching = isFetching => {
+	return { type: SET_CHAT_AVAILABILITY_IS_FETCHING, isFetching };
 };
 
 const fetchPurchases = () => {
@@ -42,8 +42,8 @@ const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
 };
 
-const setUserConfig = userConfig => {
-	return { type: SET_USER_CONFIG, userConfig };
+const setChatAvailability = chatAvailability => {
+	return { type: SET_CHAT_AVAILABILITY, chatAvailability };
 };
 
 const setAvailableLicensesIsFetching = isFetching => {
@@ -243,10 +243,10 @@ const noticeActions = {
 
 const actions = {
 	setPurchasesIsFetching,
-	setUserConfigIsFetching,
+	setChatAvailabilityIsFetching,
 	fetchPurchases,
 	setPurchases,
-	setUserConfig,
+	setChatAvailability,
 	setAvailableLicensesIsFetching,
 	fetchAvailableLicenses,
 	setAvailableLicenses,
@@ -272,5 +272,7 @@ export {
 	CLEAN_GLOBAL_NOTICE,
 	SET_PRODUCT_STATS,
 	SET_IS_FETCHING_PRODUCT_STATS,
+	SET_CHAT_AVAILABILITY,
+	SET_CHAT_AVAILABILITY_IS_FETCHING,
 	actions as default,
 };

@@ -21,3 +21,6 @@ None
 
 Because the chat is conditionally rendered based on Date and Time, no props are needed in order to render correctly.
   
+## Note
+
+There is an wpcom/v2 API endpoint `/presales/chat?group=jp_presales` that returns whether or not chat is available at this time. This should be used when determinging whether or not to render this component.
