@@ -4,7 +4,9 @@
 
 import { fileURLToPath } from 'url';
 import postcssPlugins from '@wordpress/postcss-plugins-preset';
+import { EsbuildPlugin } from 'esbuild-loader';
 import remarkGfm from 'remark-gfm';
+import { ProgressPlugin } from 'webpack';
 import projects from './projects.js';
 
 const storiesSearch = '*.@(mdx|@(story|stories).@(js|jsx|ts|tsx))';
@@ -34,18 +36,23 @@ const sbconfig = {
 		'@storybook/addon-a11y',
 		'@storybook/addon-essentials',
 		'storybook-addon-mock',
-		{
-			name: 'storybook-addon-turbo-build',
-			options: {
-				esbuildMinifyOptions: {
-					target: 'es2018',
-				},
-			},
-		},
 	],
 	// Workaround:
 	// https://github.com/storybookjs/storybook/issues/12270
 	webpackFinal: async config => {
+		// Remove ProgressPlugin and source maps in production builds.
+		if ( process.env.NODE_ENV === 'production' ) {
+			config.devtool = false;
+			config.plugins = config.plugins.filter( p => ! ( p instanceof ProgressPlugin ) );
+		}
+
+		// Use esbuild to minify.
+		config.optimization.minimizer = [
+			new EsbuildPlugin( {
+				target: 'es2018',
+			} ),
+		];
+
 		// Find the DefinePlugin
 		const plugin = config.plugins.find( p => p.definitions?.[ 'process.env' ] );
 		// Add custom env variables
