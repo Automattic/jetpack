@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Switches `is_wpcom_staging_site()` to our custom function instead of a blog sticker.
