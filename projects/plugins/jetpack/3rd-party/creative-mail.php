@@ -36,10 +36,6 @@ if ( isset( $_GET['creative-mail-install-error'] ) ) { // phpcs:ignore WordPress
  * This works in tandem with a JITM set up in the JITM package.
  */
 function try_install() {
-	if ( ! isset( $_GET['creative-mail-action'] ) ) {
-		return;
-	}
-
 	check_admin_referer( 'creative-mail-install' );
 
 	$result   = false;
@@ -47,7 +43,7 @@ function try_install() {
 
 	// Attempt to install and activate the plugin.
 	if ( current_user_can( 'activate_plugins' ) ) {
-		switch ( $_GET['creative-mail-action'] ) {
+		switch ( $_GET['creative-mail-action'] ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- Function only hooked if set.
 			case 'install':
 				$result = install_and_activate();
 				break;
