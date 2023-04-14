@@ -1972,6 +1972,7 @@ function zbscrm_JS_bind_invoice_actions() {
 			jQuery( '#wh-logo-set-img' ).attr( 'src', '' ).hide();
 			jQuery( '#zbs_invoice_logo' ).val( '' );
 			jQuery( '.wh-logo' ).removeClass( 'hide' ).show();
+			jQuery( '.wh-logo-set input' ).val( '' );
 			jQuery( '.wh-logo-set' ).hide();
 		} );
 	jQuery( '.business-info-toggle' )
