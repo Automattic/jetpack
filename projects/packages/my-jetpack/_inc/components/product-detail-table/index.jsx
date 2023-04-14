@@ -22,12 +22,12 @@ import { useProduct } from '../../hooks/use-product';
  *
  * Renders a single column for a product tier, for use in the ProductDetailTable component.
  *
- * @param {object}   props                   - Component props.
- * @param {boolean}  props.cantInstallPlugin - True when the plugin cannot be automatically installed.
- * @param {Function} props.onProductButtonClick      - Click handler for the product button.
- * @param {object}   props.detail            - Product detail object.
- * @param {string}   props.tier              - Product tier slug, i.e. 'free' or 'upgraded'.
- * @param {Function} props.trackProductButtonClick  - Tracks click event for the product button.
+ * @param {object}   props                         - Component props.
+ * @param {boolean}  props.cantInstallPlugin       - True when the plugin cannot be automatically installed.
+ * @param {Function} props.onProductButtonClick    - Click handler for the product button.
+ * @param {object}   props.detail                  - Product detail object.
+ * @param {string}   props.tier                    - Product tier slug, i.e. 'free' or 'upgraded'.
+ * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
  * @returns {object} - ProductDetailTableColumn component.
  */
 const ProductDetailTableColumn = ( {
@@ -178,9 +178,9 @@ ProductDetailTableColumn.propTypes = {
  *
  * Displays a pricing table, with a column for each product tier.
  *
- * @param {object}   props                  - Component props.
- * @param {string}   props.slug             - Product slug.
- * @param {Function} props.onProductButtonClick     - Click handler for the product button.
+ * @param {object}   props                         - Component props.
+ * @param {string}   props.slug                    - Product slug.
+ * @param {Function} props.onProductButtonClick    - Click handler for the product button.
  * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
  * @returns {object} - ProductDetailTable react component.
  */
