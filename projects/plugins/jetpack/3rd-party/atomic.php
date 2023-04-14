@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+namespace Automattic\Jetpack\Third_Party;
+
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Host;
 
@@ -30,3 +32,5 @@ function atomic_weekly_override( $development_version ) {
 	}
 	return $development_version; // Return default if not on Atomic.
 }
+
+add_filter( 'jetpack_development_version', __NAMESPACE__ . '\atomic_weekly_override' );
