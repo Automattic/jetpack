@@ -31,7 +31,6 @@ const sbconfig = {
 			},
 		},
 		'@storybook/addon-storysource',
-		'@storybook/addon-viewport',
 		'@storybook/addon-a11y',
 		'@storybook/addon-essentials',
 		'storybook-addon-mock',
