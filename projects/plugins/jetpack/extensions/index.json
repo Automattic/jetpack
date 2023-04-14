@@ -49,6 +49,7 @@
 		"videopress/video"
 	],
 	"beta": [
+		"ai-chat",
 		"amazon",
 		"conversation",
 		"dialogue",
@@ -59,7 +60,7 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters"
 	],
-	"experimental": [ "ai-chat", "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],
+	"experimental": [ "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",
