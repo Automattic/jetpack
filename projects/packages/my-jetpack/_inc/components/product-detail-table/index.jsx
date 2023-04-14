@@ -13,6 +13,7 @@ import {
 } from '@automattic/jetpack-components';
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { sprintf, __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
 import React, { useCallback, useMemo } from 'react';
 import { useProduct } from '../../hooks/use-product';
 
@@ -23,18 +24,18 @@ import { useProduct } from '../../hooks/use-product';
  *
  * @param {object}   props                   - Component props.
  * @param {boolean}  props.cantInstallPlugin - True when the plugin cannot be automatically installed.
- * @param {Function} props.clickHandler      - Click handler for the product button.
+ * @param {Function} props.onProductButtonClick      - Click handler for the product button.
  * @param {object}   props.detail            - Product detail object.
  * @param {string}   props.tier              - Product tier slug, i.e. 'free' or 'upgraded'.
- * @param {Function} props.trackButtonClick  - Tracks click event for the product button.
+ * @param {Function} props.trackProductButtonClick  - Tracks click event for the product button.
  * @returns {object} - ProductDetailTableColumn component.
  */
 const ProductDetailTableColumn = ( {
 	cantInstallPlugin,
-	clickHandler,
+	onProductButtonClick,
 	detail,
 	tier,
-	trackButtonClick,
+	trackProductButtonClick,
 } ) => {
 	const { siteSuffix, myJetpackUrl } = window?.myJetpackInitialState ?? {};
 
@@ -65,9 +66,9 @@ const ProductDetailTableColumn = ( {
 
 	// Register the click handler for the product button.
 	const onClick = useCallback( () => {
-		trackButtonClick();
-		clickHandler?.( runCheckout, detail, tier );
-	}, [ trackButtonClick, clickHandler, runCheckout, detail, tier ] );
+		trackProductButtonClick();
+		onProductButtonClick?.( runCheckout, detail, tier );
+	}, [ trackProductButtonClick, onProductButtonClick, runCheckout, detail, tier ] );
 
 	// Compute the price per month.
 	const price = fullPrice ? Math.ceil( ( fullPrice / 12 ) * 100 ) / 100 : null;
@@ -164,6 +165,14 @@ const ProductDetailTableColumn = ( {
 	);
 };
 
+ProductDetailTableColumn.propTypes = {
+	cantInstallPlugin: PropTypes.bool.isRequired,
+	onProductButtonClick: PropTypes.func.isRequired,
+	detail: PropTypes.object.isRequired,
+	tier: PropTypes.string.isRequired,
+	trackProductButtonClick: PropTypes.func.isRequired,
+};
+
 /**
  * Product Detail Table component.
  *
@@ -171,11 +180,11 @@ const ProductDetailTableColumn = ( {
  *
  * @param {object}   props                  - Component props.
  * @param {string}   props.slug             - Product slug.
- * @param {Function} props.clickHandler     - Click handler for the product button.
- * @param {Function} props.trackButtonClick - Tracks click event for the product button.
+ * @param {Function} props.onProductButtonClick     - Click handler for the product button.
+ * @param {Function} props.trackProductButtonClick - Tracks click event for the product button.
  * @returns {object} - ProductDetailTable react component.
  */
-const ProductDetailTable = ( { slug, clickHandler, trackButtonClick } ) => {
+const ProductDetailTable = ( { slug, onProductButtonClick, trackProductButtonClick } ) => {
 	const { fileSystemWriteAccess } = window?.myJetpackInitialState ?? {};
 
 	const { detail } = useProduct( slug );
@@ -235,8 +244,8 @@ const ProductDetailTable = ( { slug, clickHandler, trackButtonClick } ) => {
 						key={ index }
 						tier={ tier }
 						detail={ detail }
-						clickHandler={ clickHandler }
-						trackButtonClick={ trackButtonClick }
+						onProductButtonClick={ onProductButtonClick }
+						trackProductButtonClick={ trackProductButtonClick }
 						primary={ index === 0 }
 						cantInstallPlugin={ cantInstallPlugin }
 					/>
@@ -244,6 +253,12 @@ const ProductDetailTable = ( { slug, clickHandler, trackButtonClick } ) => {
 			</PricingTable>
 		</>
 	);
+};
+
+ProductDetailTable.propTypes = {
+	slug: PropTypes.string.isRequired,
+	onProductButtonClick: PropTypes.func.isRequired,
+	trackProductButtonClick: PropTypes.func.isRequired,
 };
 
 export default ProductDetailTable;
