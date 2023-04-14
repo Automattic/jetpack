@@ -56,7 +56,8 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 	);
 }
 export default function QuestionAnswer() {
-	const { question, setQuestion, answer, isLoading, submitQuestion, references } = useSubmitQuestion();
+	const { question, setQuestion, answer, isLoading, submitQuestion, references } =
+		useSubmitQuestion();
 
 	const [ animationDone, setAnimationDone ] = useState( false );
 	const [ showReferences, setShowReferences ] = useState( false );

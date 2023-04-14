@@ -32,11 +32,10 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * Jetpack AI Paragraph block registration/dependency declaration.
  *
  * @param array  $attr    Array containing the Jetpack AI Chat block attributes.
- * @param string $content String containing the Jetpack AI Chat block content.
  *
  * @return string
  */
-function load_assets( $attr, $content ) {
+function load_assets( $attr ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
@@ -44,6 +43,6 @@ function load_assets( $attr, $content ) {
 
 	return sprintf(
 		'<div class="%1$s" id="jetpack-ai-chat"></div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) )
 	);
 }
