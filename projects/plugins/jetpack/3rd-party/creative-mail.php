@@ -26,7 +26,7 @@ if ( isset( $_GET['creative-mail-action'] ) ) { // phpcs:ignore WordPress.Securi
 	add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
 }
 
-if ( isset( $_GET['creative-mail-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+if ( ! empty( $_GET['creative-mail-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
 }
 
