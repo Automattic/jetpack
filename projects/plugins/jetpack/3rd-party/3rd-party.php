@@ -9,23 +9,8 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Status\Host;
-// Automattic\Jetpack\Constants is already available via the Automattic\Jetpack namespace.
 
-/**
- * Loads the individual 3rd-party compat files.
- */
-function load_3rd_party() {
-	add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 11 );
-	// Array of third-party compat files to always require.
-	$compat_files = array();
-
-	foreach ( $compat_files as $file ) {
-		if ( file_exists( JETPACK__PLUGIN_DIR . '/3rd-party/' . $file ) ) {
-			require_once JETPACK__PLUGIN_DIR . '/3rd-party/' . $file;
-		}
-	}
-}
-
+add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 11 );
 /**
  * Loads the individual 3rd-party compat functions.
  *
@@ -120,5 +105,3 @@ function load_3rd_party_compat_filters() {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/wpml.php';
 	}
 }
-
-load_3rd_party();
