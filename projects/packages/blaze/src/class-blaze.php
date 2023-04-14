@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Blaze\Dashboard as Blaze_Dashboard;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
@@ -16,9 +18,6 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  * Class for promoting posts.
  */
 class Blaze {
-
-	const PACKAGE_VERSION = '0.5.10-alpha';
-
 	/**
 	 * Script handle for the JS file we enqueue in the post editor.
 	 *
@@ -43,6 +42,8 @@ class Blaze {
 		add_action( 'load-edit.php', array( __CLASS__, 'add_post_links_actions' ) );
 		// In the post editor, add a post-publish panel to allow promoting the post.
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
+		// Add a Blaze Menu.
+		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
 	}
 
 	/**
@@ -54,6 +55,27 @@ class Blaze {
 		if ( self::should_initialize() ) {
 			add_filter( 'post_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
 			add_filter( 'page_row_actions', array( __CLASS__, 'jetpack_blaze_row_action' ), 10, 2 );
+		}
+	}
+
+	/**
+	 * Enable the Blaze menu.
+	 *
+	 * @return void
+	 */
+	public static function enable_blaze_menu() {
+		if ( self::should_initialize() ) {
+			$blaze_dashboard = new Blaze_Dashboard();
+			$page_suffix     = Admin_Menu::add_menu(
+				_x( 'Blaze', 'product name', 'jetpack-blaze' ),
+				_x( 'Blaze', 'product name', 'jetpack-blaze' ),
+				'manage_options',
+				'jetpack-blaze',
+				array( $blaze_dashboard, 'render' ),
+				100
+			);
+
+			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		}
 	}
 
