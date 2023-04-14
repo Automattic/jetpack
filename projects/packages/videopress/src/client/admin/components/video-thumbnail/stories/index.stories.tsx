@@ -34,12 +34,15 @@ export default {
 	],
 } as ComponentMeta< typeof VideoThumbnail >;
 
-const VideoThumbnailTemplate: ComponentStory< typeof VideoThumbnail > = args => {
-	if ( args.thumbnail === 'none' ) {
-		args.thumbnail = null;
+const VideoThumbnailTemplate: ComponentStory< typeof VideoThumbnail > = ( {
+	thumbnail,
+	...args
+} ) => {
+	if ( thumbnail === 'none' ) {
+		thumbnail = false;
 	}
 
-	return <VideoThumbnail { ...args } />;
+	return <VideoThumbnail { ...args } thumbnail={ thumbnail } />;
 };
 
 export const Default = VideoThumbnailTemplate.bind( {} );
