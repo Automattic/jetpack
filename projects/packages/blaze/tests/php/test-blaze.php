@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use WorDBless\BaseTestCase;
 
 /**
@@ -66,9 +67,9 @@ class Test_Blaze extends BaseTestCase {
 	 *
 	 * @covers Automattic\Jetpack\Blaze::init
 	 */
-	public function test_should_not_check_eligibility_by_defuault() {
+	public function test_should_not_check_eligibility_by_default() {
 		/*
-		 *The post_row_actions action should not be available on init.
+		 * The post_row_actions action should not be available on init.
 		 * It only happens on a specific screen.
 		 */
 		$this->assertFalse( has_action( 'post_row_actions' ) );
@@ -122,6 +123,27 @@ class Test_Blaze extends BaseTestCase {
 		Blaze::add_post_links_actions();
 
 		$this->assertNotFalse( has_action( 'post_row_actions' ) );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test if the admin menu is added for admins when we force Blaze to be enabled.
+	 *
+	 * @covers Automattic\Jetpack\Blaze::enable_blaze_menu
+	 */
+	public function test_admin_menu_added() {
+		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
+
+		$test_suffix = Admin_Menu::add_menu( 'Blaze', 'Blaze', 'manage_options', 'jetpack-blaze', '__return_null' );
+		$this->assertFalse( has_action( 'load-' . $test_suffix ) );
+
+		wp_set_current_user( $this->admin_id );
+
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+
+		Blaze::enable_blaze_menu();
+		$this->assertNotFalse( has_action( 'load-' . $test_suffix ) );
+
 		add_filter( 'jetpack_blaze_enabled', '__return_false' );
 	}
 
