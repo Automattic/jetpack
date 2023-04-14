@@ -58,8 +58,12 @@ function load_3rd_party_compat_filters() {
 
 	// AMP. AMP__DIR__ is defined in the AMP plugin since the very first version.
 	if ( Constants::is_defined( 'AMP__DIR__' ) ) {
-		require_once JETPACK__PLUGIN_DIR . '/3rd-party/class.jetpack-amp-support.php';
+		add_action( 'init', array( 'Jetpack_AMP_Support', 'init' ), 1 );
+		add_action( 'admin_init', array( 'Jetpack_AMP_Support', 'admin_init' ), 1 );
 	}
+	// This class is used statically in a few places to determine if it is an AMP request so needs to be loaded.
+	// The filters, though, are only added if the AMP plugin is active.
+	require_once JETPACK__PLUGIN_DIR . '/3rd-party/class.jetpack-amp-support.php';
 
 	// Domain Mapping. All assume multisite, so it's an easy check.
 	if ( Constants::is_defined( 'SUNRISE' ) ) {
