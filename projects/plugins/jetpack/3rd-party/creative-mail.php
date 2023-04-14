@@ -40,7 +40,7 @@ function try_install() {
 		return;
 	}
 
-		check_admin_referer( 'creative-mail-install' );
+	check_admin_referer( 'creative-mail-install' );
 
 	$result   = false;
 	$redirect = admin_url( 'edit.php?post_type=feedback' );
