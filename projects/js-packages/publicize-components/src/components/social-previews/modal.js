@@ -21,6 +21,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 	author,
 	isTweetStorm,
 	tweets,
+	media,
 } ) {
 	return (
 		<Modal
@@ -49,6 +50,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 							image={ image }
 							isTweetStorm={ isTweetStorm }
 							tweets={ tweets }
+							media={ media }
 						/>
 					</div>
 				) }
@@ -67,6 +69,8 @@ export default withSelect( select => {
 	const authorId = getEditedPostAttribute( 'author' );
 	const user = authorId && getUser( authorId );
 
+	const media = getMedia( featuredImageId );
+
 	const postData = {
 		post: getCurrentPost(),
 		title:
@@ -78,7 +82,7 @@ export default withSelect( select => {
 			__( 'Visit the post for more.', 'jetpack' ),
 		url: getEditedPostAttribute( 'link' ),
 		author: user?.name,
-		image: !! featuredImageId && getMediaSourceUrl( getMedia( featuredImageId ) ),
+		image: !! featuredImageId && getMediaSourceUrl( media ),
 	};
 
 	let tweets = [];
@@ -98,6 +102,15 @@ export default withSelect( select => {
 	return {
 		...postData,
 		tweets,
+		media: media
+			? [
+					{
+						type: media.mime_type,
+						url: getMediaSourceUrl( media ),
+						alt: media.alt_text,
+					},
+			  ]
+			: null,
 		isTweetStorm: isTweetStorm(),
 	};
 } )( SocialPreviewsModal );
