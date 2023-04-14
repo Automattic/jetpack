@@ -156,6 +156,7 @@ const ProductDetailTableColumn = ( {
 							// eslint-disable-next-line react/no-danger
 							info?.content ? <div dangerouslySetInnerHTML={ { __html: info?.content } } /> : null
 						}
+						tooltipClassName={ info?.class }
 					/>
 				);
 			} ) }
