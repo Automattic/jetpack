@@ -113,7 +113,7 @@ const PricingPage = () => {
 									'jetpack-social'
 								),
 								productInfo?.currencyCode,
-								productInfo?.advanced?.price
+								parseFloat( productInfo?.advanced?.price ).toFixed( 2 )
 							) }
 							currency={ productInfo?.currencyCode }
 							hidePriceFraction
