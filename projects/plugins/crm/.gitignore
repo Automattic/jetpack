@@ -18,5 +18,5 @@
 /templates/invoices/index.html
 /templates/quotes/.htaccess
 /templates/quotes/index.html
-/templates/acceptance.suite.yml
+/tests/acceptance.suite.yml
 phpcs.security.xml
