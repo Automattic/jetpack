@@ -25,7 +25,7 @@ export default function JetpackPaymentsIntroEdit( { name, clientId, className } 
 
 	const { replaceBlock, selectBlock, updateSettings } = useDispatch( blockEditorStore );
 
-	const maybeUpdateBlockVisibility = useCallback(
+	const maybeMakeBlockVisible = useCallback(
 		blockName => {
 			if ( ! settings?.allowedBlockTypes?.includes( blockName ) ) {
 				// Add the block to the allowed block list before rendering
@@ -41,7 +41,7 @@ export default function JetpackPaymentsIntroEdit( { name, clientId, className } 
 	const setVariation = variation => {
 		const blockName = variation.name;
 
-		maybeUpdateBlockVisibility( blockName );
+		maybeMakeBlockVisible( blockName );
 		replaceBlock( clientId, createBlock( blockName ) );
 		selectBlock( clientId );
 	};
