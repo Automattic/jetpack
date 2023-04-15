@@ -68,6 +68,23 @@ function get_checklist_definitions() {
 }
 
 /**
+ * Returns the subtitle for the plan selected task
+ *
+ * @return string Subtitle text
+ */
+function get_plan_selected_subtitle() {
+	if ( function_exists( 'wpcom_global_styles_in_use' ) && function_exists( 'wpcom_should_limit_global_styles' ) ) {
+		return '';
+	}
+
+	return wpcom_global_styles_in_use() && wpcom_should_limit_global_styles()
+		? __(
+			'Your site contains custom colors that will only be visible once you upgrade to a Premium plan.',
+			'jetpack-mu-wpcom'
+		) : '';
+}
+
+/**
  * Returns the checklist task definitions.
  *
  * @return array Associative array with checklist task data
@@ -85,8 +102,7 @@ function get_task_definitions() {
 			=> array(
 				'id'        => 'plan_selected',
 				'title'     => __( 'Choose a Plan', 'jetpack-mu-wpcom' ),
-				// TODO: Fix subtitle
-				'subtitle'  => planWarningText,
+				'subtitle'  => get_plan_selected_subtitle(),
 				'completed' => true,
 				'disabled'  => false,
 			),
