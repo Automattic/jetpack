@@ -7,7 +7,7 @@ This component is used to implement toggle switches.
 
 ```js
 import { useCallback, useState } from 'react';
-import { FormToggle } from '@automattic/jetpack-components';
+import { Toggle } from '@automattic/jetpack-components';
 
 const MyToggle = () => {
     const [ checked, setChecked ] = useState( false );
@@ -18,7 +18,7 @@ const MyToggle = () => {
     }, [ checked ] );
 
     return (
-        <FormToggle
+        <Toggle
             ariaLabel={ checked ? 'Turn off' : 'Turn on' }
             disabled={ disabled }
             disabledReason="This toggle is disabled because of reasons."
@@ -26,7 +26,7 @@ const MyToggle = () => {
             onChange={ onChange }
         >
             { checked ? 'On' : 'Off' }
-        </FormToggle>
+        </Toggle>
     );
 }
 ```
