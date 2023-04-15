@@ -124,8 +124,7 @@ function get_task_definitions() {
 				'id'        => 'first_post_published_newsletter',
 				'title'     => __( 'Start writing', 'jetpack-mu-wpcom' ),
 				'completed' => get_checklist_task( 'first_post_published' ),
-				// TODO: Fix disabled attribute
-				'disabled'  => mustVerifyEmailBeforePosting || false,
+				'disabled'  => false,
 			),
 		'design_selected'
 			=> array(
@@ -212,8 +211,7 @@ function get_task_definitions() {
 			=> array(
 				'id'       => 'verify_email',
 				'title'    => __( 'Confirm Email (Check Your Inbox)', 'jetpack-mu-wpcom' ),
-				// TODO: Fix complete
-				'complete' => isEmailVerified,
+				'complete' => false,
 				'disabled' => true,
 			),
 	);
