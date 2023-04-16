@@ -68,6 +68,16 @@ function get_checklist_definitions() {
 }
 
 /**
+ * Determines whether or not design selected task is enabled
+ *
+ * @return boolean True if design selected task is enabled
+ */
+function can_update_design_selected_task() {
+	$site_intent = get_option( 'site_intent' );
+	return $site_intent === 'newsletter' || $site_intent === 'build' || $site_intent === 'write';
+}
+
+/**
  * Returns the checklist task definitions.
  *
  * @return array Associative array with checklist task data
@@ -109,8 +119,7 @@ function get_task_definitions() {
 				'id'        => 'design_selected',
 				'title'     => __( 'Select a design', 'jetpack-mu-wpcom' ),
 				'completed' => true,
-				// TODO: fix is flow checks
-				'disabled'  => ! isFreeFlow( flow ) || isBuildFlow( flow ) || isWriteFlow( flow ),
+				'disabled'  => ! can_update_design_selected_task(),
 			),
 		'setup_link_in_bio'
 			=> array(
