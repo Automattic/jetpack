@@ -107,8 +107,10 @@ function get_task_definitions() {
 		'design_selected'
 			=> array(
 				'id'        => 'design_selected',
+				'title'     => __( 'Select a design', 'jetpack-mu-wpcom' ),
 				'completed' => true,
-				'disabled'  => true,
+				// TODO: fix is flow checks
+				'disabled'  => ! isFreeFlow( flow ) || isBuildFlow( flow ) || isWriteFlow( flow ),
 			),
 		'setup_link_in_bio'
 			=> array(
@@ -169,13 +171,16 @@ function get_task_definitions() {
 			),
 		'site_launched'
 			=> array(
-				'id'        => 'site_launched',
-				'completed' => false,
-				'disabled'  => false,
+				'id'           => 'site_launched',
+				'title'        => __( 'Launch your site', 'jetpack-mu-wpcom' ),
+				'completed'    => get_checklist_task( 'site_launched' ),
+				'disabled'     => false,
+				'isLaunchTask' => true,
 			),
 		'setup_write'
 			=> array(
 				'id'        => 'setup_write',
+				'title'     => __( 'Set up your site', 'jetpack-mu-wpcom' ),
 				'completed' => true,
 				'disabled'  => true,
 			),
