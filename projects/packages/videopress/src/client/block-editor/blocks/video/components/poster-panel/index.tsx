@@ -281,9 +281,7 @@ function VideoFramePicker( {
 		}
 	}, [ isGeneratingPoster, pause ] );
 
-	const onFramePickerMouseLeave = useCallback( () => {
-		pause();
-	}, [ pause ] );
+	const onFramePickerMouseLeave = useCallback( pause, [ pause ] );
 
 	const onTimestampDebounceChange = useCallback(
 		iframeTimePosition => {
