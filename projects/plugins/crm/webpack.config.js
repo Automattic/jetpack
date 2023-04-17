@@ -173,7 +173,6 @@ module.exports = [
 							keep_fnames: true,
 							keep_classnames: true,
 						},
-						
 					},
 					extractComments: jetpackWebpackConfig.isProduction,
 				} ),
