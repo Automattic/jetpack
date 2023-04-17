@@ -112,7 +112,6 @@ class Jetpack_Social {
 
 		// Add block editor assets
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_review_prompt' ) );
 
 		// Add meta tags.
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );

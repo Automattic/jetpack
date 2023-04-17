@@ -69,6 +69,7 @@ class Main {
 			'categories'     => new Endpoints\Category(),
 			'comments'       => new Endpoints\Comment(),
 			'custom-css'     => new Endpoints\Custom_CSS(),
+			'end'            => new Endpoints\End(),
 			'global-styles'  => new Endpoints\Global_Style(),
 			'media'          => new Endpoints\Attachment(),
 			'menu-items'     => new Endpoints\Menu_Item(),
@@ -78,8 +79,8 @@ class Main {
 			'posts'          => new Endpoints\Post(),
 			'start'          => new Endpoints\Start(),
 			'tags'           => new Endpoints\Tag(),
-			'templates'      => new Endpoints\Template(),
 			'template-parts' => new Endpoints\Template_Part(),
+			'templates'      => new Endpoints\Template(),
 		);
 
 		/**

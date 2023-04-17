@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Export: catch PHP notice when exporting a subset of objects

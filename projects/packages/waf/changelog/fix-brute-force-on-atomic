@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix brute force protection not initializing on atomic.

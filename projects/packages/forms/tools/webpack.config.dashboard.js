@@ -9,6 +9,11 @@ module.exports = {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
 		[ 'jetpack-forms-dashboard' ]: path.join( __dirname, '..', 'src/dashboard/index.js' ),
+		[ 'jetpack-forms-dashboard.wpcom' ]: path.join(
+			__dirname,
+			'..',
+			'src/dashboard/style.wpcom.scss'
+		),
 	},
 	output: {
 		...jetpackWebpackConfig.output,

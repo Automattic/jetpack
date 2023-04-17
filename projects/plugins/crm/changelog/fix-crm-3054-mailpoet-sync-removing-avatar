@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Mailpoet Sync: Fixed an issue where contact images would disappear after synchronization.
