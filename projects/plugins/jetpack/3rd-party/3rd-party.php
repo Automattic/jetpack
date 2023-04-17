@@ -57,9 +57,6 @@ function load_3rd_party_compat_filters() {
 		require_once JETPACK__PLUGIN_DIR . '/3rd-party/debug-bar.php';
 	}
 
-	// Special case. Tools to be used to override module settings.
-	\Jetpack_Modules_Overrides::instance();
-
 	// Letting these always load since it handles somethings upon plugin activation.
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/creative-mail.php';
 	require_once JETPACK__PLUGIN_DIR . '/3rd-party/jetpack-backup.php';
