@@ -1053,10 +1053,8 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 
 	var tax_id;
 
-	if ( ( typeof v.taxes === 'undefined' || v.taxes == null || v.taxes == '' ) && ( typeof v.tax === 'undefined' || v.tax == null ) ) {
+	if ( typeof v.taxes === 'undefined' || v.taxes == null || v.taxes == '' ) {
 		tax_id = 0;
-	} else if ( typeof v.taxes === 'undefined' || v.taxes == null || v.taxes == '' ) {
-		tax_id = -1;
 	} else {
 		tax_id = parseInt( v.taxes ); // fine while we have 1 tax, if multi-select on tax, this'll be a CSV, e.g. "130,132"
 	}
@@ -1077,34 +1075,29 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 			'">';
 	}
 	
-	if ( tax_id === -1 ) {
-		taxhtml += '<option class="zbs-total-tax">' + v.tax + '</option>';
-	} else {
-		selected = '';
-		if ( tax_id == 0 ) {
+	selected = '';
+	if ( tax_id == 0 ) {
+		selected = 'selected';
+	}
+	taxhtml +=
+		'<option value="0" ' +
+		selected +
+		'>' +
+		zbscrm_JS_invoice_lang( 'no_tax' ) +
+		'</option><optgroup label="' +
+		zbscrm_JS_invoice_lang( 'taxgrouplabel' ) +
+		'">';
+	jQuery.each( res.tax_linesObj, function ( j, t ) {
+		if ( tax_id == t.id ) {
 			selected = 'selected';
+		} else {
+			selected = '';
 		}
 		taxhtml +=
-			'<option value="0" ' +
-			selected +
-			'>' +
-			zbscrm_JS_invoice_lang( 'no_tax' ) +
-			'</option><optgroup label="' +
-			zbscrm_JS_invoice_lang( 'taxgrouplabel' ) +
-			'">';
-		jQuery.each( res.tax_linesObj, function ( j, t ) {
-			if ( tax_id == t.id ) {
-				selected = 'selected';
-			} else {
-				selected = '';
-			}
-			taxhtml +=
-				'<option value="' + t.id + '" ' + selected + '>' + t.name + ' : ' + t.rate + '%</option>';
-		} );
-		taxhtml += '</optgroup>';
-	}
-
+			'<option value="' + t.id + '" ' + selected + '>' + t.name + ' : ' + t.rate + '%</option>';
+	} );
 	
+	taxhtml += '</optgroup>';
 	taxhtml += '</select>';
 
 	return taxhtml;
@@ -1331,8 +1324,16 @@ function zbscrm_JS_calculate_invoice_tax_table() {
 		total_amount = total_amount + this_row_amount[ index ];
 
 		if ( this_tax_id > 0 ) {
-			this_tax_line_data = zbscrm_JS_pickTaxRate( this_tax_id ); //tax_table_index[this_tax_id];
-			tax_percent[ index ] = this_tax_line_data.id;
+			const selectedOption = this.options[this.selectedIndex];
+
+			// Check if the tax is the absolute amount
+			if ( selectedOption.classList.contains( 'zbs-fixed-tax' ) ) {
+				this_tax_amount = this_tax_id;
+				tax_percent[ index ] = this_tax_amount / this_row_amount[ index ]; 
+			} else {
+				this_tax_line_data = zbscrm_JS_pickTaxRate( this_tax_id ); //tax_table_index[this_tax_id];
+				tax_percent[ index ] = this_tax_line_data.id;
+			}
 		} else {
 			tax_percent[ index ] = 0;
 		}
