@@ -9,11 +9,13 @@
  * Field controller for adding the is_block_theme field to the themes endpoint.
  */
 class WPCOM_REST_API_V2_Theme_Fields_Is_Block_Theme extends WPCOM_REST_API_V2_Field_Controller {
-		/**
-		 * Array of post types that can handle Publicize.
-		 *
-		 * @var array
-		 */
+	// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- extended methods must have the same signatures, even if paramaters are unused.
+
+	/**
+	 * Array of post types that can handle Publicize.
+	 *
+	 * @var array
+	 */
 	protected $object_type = array( 'theme' );
 
 	/**
