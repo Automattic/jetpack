@@ -84,6 +84,16 @@ function get_plan_selected_subtitle() {
 }
 
 /**
+ * Determines whether or not design selected task is enabled
+ *
+ * @return boolean True if design selected task is enabled
+ */
+function can_update_design_selected_task() {
+	$site_intent = get_option( 'site_intent' );
+	return $site_intent === 'free' || $site_intent === 'build' || $site_intent === 'write';
+}
+
+/**
  * Returns the checklist task definitions.
  *
  * @return array Associative array with checklist task data
@@ -128,8 +138,9 @@ function get_task_definitions() {
 		'design_selected'
 			=> array(
 				'id'        => 'design_selected',
+				'title'     => __( 'Select a design', 'jetpack-mu-wpcom' ),
 				'completed' => true,
-				'disabled'  => true,
+				'disabled'  => ! can_update_design_selected_task(),
 			),
 		'setup_link_in_bio'
 			=> array(
@@ -190,13 +201,16 @@ function get_task_definitions() {
 			),
 		'site_launched'
 			=> array(
-				'id'        => 'site_launched',
-				'completed' => false,
-				'disabled'  => false,
+				'id'           => 'site_launched',
+				'title'        => __( 'Launch your site', 'jetpack-mu-wpcom' ),
+				'completed'    => get_checklist_task( 'site_launched' ),
+				'disabled'     => false,
+				'isLaunchTask' => true,
 			),
 		'setup_write'
 			=> array(
 				'id'        => 'setup_write',
+				'title'     => __( 'Set up your site', 'jetpack-mu-wpcom' ),
 				'completed' => true,
 				'disabled'  => true,
 			),
