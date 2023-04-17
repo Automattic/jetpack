@@ -750,7 +750,7 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.0\n' +
+		'Requires at least: 6.1\n' +
 		'Requires PHP: 5.6\n' +
 		'Tested up to: 6.2\n' +
 		`Stable tag: ${ answers.version }\n` +

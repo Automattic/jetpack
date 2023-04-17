@@ -1,7 +1,7 @@
 === Jetpack VaultPress Backup ===
 Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
 Tags: jetpack
-Requires at least: 6.0
+Requires at least: 6.1
 Requires PHP: 5.6
 Tested up to: 6.2
 Stable tag: 1.5
