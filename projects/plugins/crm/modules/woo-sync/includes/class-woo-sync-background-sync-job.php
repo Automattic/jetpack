@@ -1724,15 +1724,16 @@ class Woo_Sync_Background_Sync_Job {
 							'title'    => esc_html__( 'Fee', 'zero-bs-crm' ),
 							'desc'     => $fee->get_name(),
 							'tax'      => $fee->get_total_tax(),
+							'taxes'    => -1,
 							'shipping' => 0.0,
 						);
 
-						$order_data['subtotal'] += $new_line_item['price'];
-
-						// Check for tax applied
+						// Apply the same tax
 						if ( is_array( $item_tax_rate_ids ) && count( $item_tax_rate_ids ) > 0 ) {
 							$new_line_item['taxes'] = implode( ',', $item_tax_rate_ids );
 						}
+
+						$order_data['subtotal'] += $new_line_item['price'];
 
 						// Add fee as an item to the invoice
 						$data['lineitems'][] = $new_line_item;
