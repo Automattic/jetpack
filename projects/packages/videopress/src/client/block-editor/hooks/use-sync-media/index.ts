@@ -147,15 +147,11 @@ function arrangeTracksAttributes(
  *
  * @param {object} attributes      - Block attributes.
  * @param {Function} setAttributes - Block attributes setter.
- * @param {boolean} blockSettingsSaved  - Temporary attribute to track when block settings have been saved on native.
- * @param {Function} setBlockSettingsSaved  - Temporary attribute to track manually control when settings are synchronised on native.
  * @returns {UseSyncMedia}      Hook API object.
  */
 export function useSyncMedia(
 	attributes: VideoBlockAttributes,
-	setAttributes: VideoBlockSetAttributesProps,
-	blockSettingsSaved = false,
-	setBlockSettingsSaved
+	setAttributes: VideoBlockSetAttributesProps
 ): UseSyncMedia {
 	const { id, guid, isPrivate } = attributes;
 	const { videoData, isRequestingVideoData } = useVideoData( {
@@ -276,7 +272,7 @@ export function useSyncMedia(
 
 	const updateMediaHandler = useMediaDataUpdate( id );
 
-	const postHasBeenJustSaved = isNative ? blockSettingsSaved : !! ( wasSaving && ! isSaving );
+	const postHasBeenJustSaved = !! ( wasSaving && ! isSaving );
 
 	/*
 	 * Video frame poster: Block attributes => Frame poster generation
@@ -299,9 +295,6 @@ export function useSyncMedia(
 			return;
 		}
 
-		if ( isNative ) {
-			setBlockSettingsSaved( false );
-		}
 
 		debug( '%o Post has been just saved. Syncing...', attributes?.guid );
 
