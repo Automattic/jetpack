@@ -117,7 +117,7 @@ class WordAds_Sponsored_Post {
 				}
 			}
 
-			// Re-index the array incase we unset a post.
+			// Re-index the array in case we unset a post.
 			$wp_query->posts = array_values( $wp_query->posts );
 		}
 	}
