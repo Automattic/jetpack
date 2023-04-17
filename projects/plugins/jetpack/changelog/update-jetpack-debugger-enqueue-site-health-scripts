@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Jetpack_debugger_enqueue_site_health_scripts(): Only load full-sync Module on site-health.php
