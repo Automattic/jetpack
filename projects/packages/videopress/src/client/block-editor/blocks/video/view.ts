@@ -61,6 +61,8 @@ function previewOnHoverEffect(): void {
 		// Clean the data container element. It isn't needed anymore.
 		dataContainer.remove();
 
+		let userHasInteracted = false;
+
 		const iframeApi = window.VideoPressIframeApi( iFrame, () => {
 			iframeApi.status.onPlayerStatusChanged( ( oldStatus, newStatus ) => {
 				if ( oldStatus === 'ready' && newStatus === 'playing' ) {
@@ -70,6 +72,10 @@ function previewOnHoverEffect(): void {
 			} );
 
 			iframeApi.status.onTimeUpdate( playbackTime => {
+				if ( userHasInteracted ) {
+					return;
+				}
+
 				const playback = playbackTime * 1000;
 				const start = previewOnHoverData.previewAtTime;
 				const end = start + previewOnHoverData.previewLoopDuration;
@@ -92,8 +98,13 @@ function previewOnHoverEffect(): void {
 		 */
 		if ( previewOnHoverData.showControls ) {
 			overlay.addEventListener( 'click', () => {
+				// Set the userHasInteracted flag to true.
+				userHasInteracted = true;
+
 				// Delete overlay element.
 				overlay.remove();
+
+				// Pause when user clicks on the video.
 				setTimeout( iframeApi.controls.pause, 100 ); // Hack; without this, the video will not pause.
 			} );
 		}
