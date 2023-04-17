@@ -1,8 +1,9 @@
+import { Button } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { noop } from 'lodash';
 import PageNavigation from '../components/page-navigation';
 import Table from '../components/table';
+import SingleActionsMenu from './single-actions-menu';
 
 const COLUMNS = [
 	{
@@ -16,6 +17,15 @@ const COLUMNS = [
 	{
 		key: 'source',
 		label: __( 'Source', 'jetpack-forms' ),
+		component: Button,
+		getProps: item => ( {
+			href: item.entry_permalink,
+			variant: 'link',
+		} ),
+	},
+	{
+		key: 'actions',
+		component: SingleActionsMenu,
 	},
 ];
 
@@ -24,8 +34,11 @@ const InboxList = ( {
 	currentResponseId,
 	pages,
 	responses,
+	selectedResponses,
 	setCurrentPage,
 	setCurrentResponseId,
+	setSelectedResponses,
+	loading,
 } ) => {
 	const tableItems = useMemo(
 		() =>
@@ -37,8 +50,23 @@ const InboxList = ( {
 		[ currentResponseId, responses, setCurrentResponseId ]
 	);
 
+	if ( loading ) {
+		return (
+			<Table
+				className="jp-forms__inbox-list"
+				columns={ [ { key: 'empty', label: __( 'Loading…', 'jetpack-forms' ) } ] }
+				items={ [] }
+			/>
+		);
+	}
 	if ( responses.length === 0 ) {
-		return null;
+		return (
+			<Table
+				className="jp-forms__inbox-list"
+				columns={ [ { key: 'empty', label: __( 'No results found', 'jetpack-forms' ) } ] }
+				items={ [] }
+			/>
+		);
 	}
 
 	return (
@@ -47,15 +75,18 @@ const InboxList = ( {
 				className="jp-forms__inbox-list"
 				columns={ COLUMNS }
 				items={ tableItems }
-				onSelectionChange={ noop }
+				selectedResponses={ selectedResponses }
+				setSelectedResponses={ setSelectedResponses }
 			/>
 
-			<PageNavigation
-				currentPage={ currentPage }
-				pages={ pages }
-				onSelectPage={ setCurrentPage }
-				expandedRange={ 2 }
-			/>
+			{ pages > 1 && (
+				<PageNavigation
+					currentPage={ currentPage }
+					pages={ pages }
+					onSelectPage={ setCurrentPage }
+					expandedRange={ 2 }
+				/>
+			) }
 		</>
 	);
 };

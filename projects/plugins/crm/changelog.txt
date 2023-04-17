@@ -1,3 +1,5 @@
+See CHANGELOG.md for recent entries.
+
 v5.5.3 - 26 January 2023
 -------------------------
 * Fixed: CRM no longer breaks WordPress sites running on PHP 7.2

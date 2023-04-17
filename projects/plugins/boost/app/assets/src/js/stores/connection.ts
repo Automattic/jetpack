@@ -1,3 +1,4 @@
+import { tick } from 'svelte';
 import { get, writable } from 'svelte/store';
 import api from '../api/api';
 import { onConnectionComplete } from '../utils/connection';
@@ -7,7 +8,7 @@ export type ConnectionStatus = {
 	isConnecting: boolean;
 	connected: boolean;
 	userConnected: boolean;
-	error: null | string;
+	error: null | Error;
 };
 
 const initialState = Jetpack_Boost.connection;
@@ -41,22 +42,21 @@ async function initialize(): Promise< void > {
 		// refresh the modules state to fetch the latest.
 		// Ideally, we should replace this with a more general server-state update thing.
 		// 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻 🔻
-		// @REFACTORING: To get past compile errors.
-		// eslint-disable-next-line @typescript-eslint/ban-types
-		if ( ( connection as { connected: boolean } ).connected ) {
+		if ( connection.connected ) {
 			await reloadModulesState();
 		}
 		// 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺 🔺
 
 		await onConnectionComplete();
-		// @REFACTORING: To get past compile errors.
-		// eslint-disable-next-line @typescript-eslint/ban-types
-		partialUpdate( connection as { connected: boolean } );
+		partialUpdate( connection );
 	} catch ( e ) {
 		partialUpdate( {
 			isConnecting: false,
 			error: e,
 		} );
+	} finally {
+		// Wait for the next tick to ensure that the connection status is updated.
+		await tick();
 	}
 }
 

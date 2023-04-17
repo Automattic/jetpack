@@ -115,7 +115,7 @@ jobs:
       - name: Update reminder with testing instructions
         id: update-reminder-comment
         uses: actions/github-script@v6
-        if: ${{ github.event_name == 'pull_request' && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name && fromJSON(steps.check-test-reminder-comment.outputs.result)['commentId'] != 0 }}
         env:
           BRANCH_NAME: ${{ github.head_ref }}
           DATA: ${{ steps.check-test-reminder-comment.outputs.result }}

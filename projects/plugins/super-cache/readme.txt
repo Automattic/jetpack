@@ -1,9 +1,9 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, adnan007, mikemayhem3030, ppetrov2c, pyronaur, thingalon
 Tags: performance, caching, wp-cache, wp-super-cache, cache
-Requires at least: 5.9
+Requires at least: 6.1
 Requires PHP: 5.6
-Tested up to: 6.1
+Tested up to: 6.2
 Stable tag: 1.9.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -49,7 +49,7 @@ Even with preload mode enabled cached files will still be deleted when posts are
 * Translation of the plugin into different languages is on the [translation page](https://translate.wordpress.org/projects/wp-plugins/wp-super-cache).
 
 ### Documentation ###
-If you need more information than the following, you can have a look at the [Developer documentation](https://odd.blog/wp-super-cache-developers/).
+If you need more information than the following, you can have a look at [the wiki](https://github.com/Automattic/wp-super-cache/wiki) or the [Developer documentation](https://odd.blog/wp-super-cache-developers/).
 
 #### Preloading ####
 You can generate cached files for the posts, categories and tags of your site by preloading. Preloading will visit each page of your site generating a cached page as it goes along, just like any other visitor to the site. Due to the sequential nature of this function, it can take some time to preload a complete site if there are many posts.

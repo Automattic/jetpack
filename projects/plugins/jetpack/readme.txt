@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.9
-Requires at least: 6.0
+Stable tag: 12.0
+Requires at least: 6.1
 Requires PHP: 5.6
-Tested up to: 6.1
+Tested up to: 6.2
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -197,7 +197,7 @@ Blocks are the individual sections that make up a page. There are many block typ
 * Related Posts Block - The Related Posts feature scans all of your posts' contents, analyzes it, and uses that to display contextual posts your visitors might be interested in reading after they're finished with the current post.
 * Repeat Visitor Block - The Repeat Visitor block enables the author to control the visibility of its nested block(s) depending on how many times a visitor has previously visited the page.
 * Revue Block - The Revue block creates a simple signup form for readers to opt-in to receive your newsletter.
-* Slideshow Block - The Slideshow block lets you insert an image slideshow into a post or page.﻿
+* Slideshow Block - The Slideshow block lets you insert an image slideshow into a post or page.
 * Star Rating Block - The Ratings block allows any site author to add reviews to the site.
 * Subscription Form Block - The Subscription Form Block allows you to insert a subscription form within the content area of any post or page, enabling your readers to get notifications when you publish new posts.
 * Tiled Gallery Block - With Tiled Galleries you can display your image galleries in four styles: tiled mosaic, circular grid, square tiles, and tiled columns.
@@ -244,39 +244,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.9 - 2023-03-07
-#### Enhancements
-- Assistant: add new card to highlight VaultPress Backup.
-- Form block: add form field style synchronization for input fields.
-- Related Posts: add support for font family in Related Posts block.
-- Sharing: add Mastodon sharing button.
-- Sharing: update look and feel of sharing buttons when in "official" mode.
-- Social: visual update to social buttons.
-- Stats: show new Jetpack Stats dashboard design by default.
-- Subscriptions: updated submit messages text for subscriptions.
-
-#### Improved compatibility
-- Sharing: add spacebar as an option to open the "More" button overlay.
-- VideoPress: add support for the `preload` or `preloadcontent` attribute to the VideoPress shortcode.
-
+### 12.1-a.3 - 2023-04-05
 #### Bug fixes
-- Connection: revise Jetpack connection agreement text to comply with our User Agreement.
-- Custom CSS: ensure the link to enable Custom CSS works in all languages.
-- Form block: improve multiple choice field styles for the Twenty Twenty theme.
-- Form block: increase form fields padding based on user-defined border-radius.
-- Form block: move field width settings, and remove placeholder field from multiple and single choice fields.
-- Form block: set defaults for Jetpack Forms CSS variables.
-- Form block: update form-styles script to run in the context of the Form block.
-- Form block: add filter to prevent contact-form-styles script from being concatenated.
-- Presentation shortcode: always add presentation container.
-- Recommendations: avoid applying coupon codes from the Assistant on products with trial prices.
-- Sharing: fix a JS error and adjust margin on Pinterest official button.
-- Sharing: fix broken Tumblr button inside "More" button overlay.
-- Sharing buttons: fix display issues when choosing the icon-only option.
-- Story block: remove dependency on wp-components from the frontend code.
-- Subscriptions: fix premium content block where it would only allow access to site subscribers.
-- Subscriptions: fix subscribe-block button to behave the same as in the fronted.
-- Widgets: fix GoodReads custom widget not finding the target HTML element and appending another after its script tag.
+- Assets: avoid fatal error with outdated package versions.
 
 --------
 

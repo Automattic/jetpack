@@ -321,7 +321,8 @@
 		height: 1rem;
 		border-color: currentColor;
 		opacity: 1;
-		margin: 0 0.75rem 0 0
+		margin: 0 0.75rem 0 0;
+		pointer-events: none;
 	}
 
 	&.jetpack-field-multiple {
@@ -350,6 +351,20 @@
 
 	.jetpack-field-consent__checkbox + .jetpack-field-label {
 		line-height: normal;
+	}
+
+	.jetpack-field-option {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+
+		> input {
+			margin: 0 5px 0 0;
+		}
+
+		> .rich-text {
+			line-height: 2;
+		}
 	}
 }
 
@@ -595,7 +610,6 @@
 	&:not(.is-style-outlined):not(.is-style-animated) {
 		.jetpack-field.jetpack-field-multiple {
 			.jetpack-field-multiple__list {
-				background-color: var(--jetpack--contact-form--input-background);
 				border-radius: var(--jetpack--contact-form--border-radius);
 				border-color: var(--jetpack--contact-form--border-color);
 				border-style: var(--jetpack--contact-form--border-style);
@@ -731,6 +745,10 @@
 						border-right: none;
 					}
 				}
+			}
+
+			&.jetpack-field-checkbox {
+				margin-top: 0;
 			}
 
 			.jetpack-field-dropdown {

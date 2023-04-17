@@ -70,14 +70,8 @@ const PopoverWithAnchor = ( {
 };
 
 const ActionItem = ( { icon, children, className, ...props }: ActionItemProps ) => {
-	const {
-		setAnchor,
-		setIsFocused,
-		setIsHovering,
-		anchor,
-		isFocused,
-		showPopover,
-	} = useActionItem();
+	const { setAnchor, setIsFocused, setIsHovering, anchor, isFocused, showPopover } =
+		useActionItem();
 
 	return (
 		<div ref={ setAnchor } className={ className }>
@@ -109,19 +103,12 @@ const ThumbnailActionsDropdown = ( {
 	isUpdatingPoster,
 	disabled,
 }: ThumbnailActionsDropdownProps ) => {
-	const {
-		setAnchor,
-		setIsFocused,
-		setIsHovering,
-		setShowPopover,
-		anchor,
-		isFocused,
-		showPopover,
-	} = useActionItem();
+	const { setAnchor, setIsFocused, setIsHovering, setShowPopover, anchor, isFocused, showPopover } =
+		useActionItem();
 
 	return (
 		<Dropdown
-			position="bottom left"
+			placement="bottom left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<div ref={ setAnchor }>
 					<Button
@@ -168,15 +155,8 @@ const PrivacyActionsDropdown = ( {
 	onUpdate,
 	disabled,
 }: PrivacyActionsDropdownProps ) => {
-	const {
-		setAnchor,
-		setIsFocused,
-		setIsHovering,
-		setShowPopover,
-		anchor,
-		isFocused,
-		showPopover,
-	} = useActionItem();
+	const { setAnchor, setIsFocused, setIsHovering, setShowPopover, anchor, isFocused, showPopover } =
+		useActionItem();
 
 	let currentPrivacyIcon = siteDefaultPrivacyIcon;
 	if ( VIDEO_PRIVACY_LEVELS[ privacySetting ] === VIDEO_PRIVACY_LEVEL_PRIVATE ) {
@@ -187,7 +167,7 @@ const PrivacyActionsDropdown = ( {
 
 	return (
 		<Dropdown
-			position="bottom left"
+			placement="bottom left"
 			renderToggle={ ( { isOpen, onToggle } ) => (
 				<div ref={ setAnchor }>
 					<Button
@@ -310,9 +290,8 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		return null;
 	}
 
-	const { data, updateVideoPrivacy, deleteVideo, isUpdatingPrivacy, isUpdatingPoster } = useVideo(
-		videoId
-	);
+	const { data, updateVideoPrivacy, deleteVideo, isUpdatingPrivacy, isUpdatingPoster } =
+		useVideo( videoId );
 
 	const { isFetchingPlaybackToken } = usePlaybackToken( data );
 
@@ -328,14 +307,15 @@ export const ConnectVideoQuickActions = ( props: ConnectVideoQuickActionsProps )
 		selectAndUpdatePosterImageFromLibrary,
 	} = usePosterEdit( { video: data } );
 
-	const onUpdateVideoThumbnail: VideoQuickActionsProps[ 'onUpdateVideoThumbnail' ] = async action => {
-		switch ( action ) {
-			case 'select-from-video':
-				return handleOpenSelectFrame();
-			case 'upload-image':
-				return selectAndUpdatePosterImageFromLibrary();
-		}
-	};
+	const onUpdateVideoThumbnail: VideoQuickActionsProps[ 'onUpdateVideoThumbnail' ] =
+		async action => {
+			switch ( action ) {
+				case 'select-from-video':
+					return handleOpenSelectFrame();
+				case 'upload-image':
+					return selectAndUpdatePosterImageFromLibrary();
+			}
+		};
 
 	useEffect( () => {
 		if ( selectedTime == null ) {

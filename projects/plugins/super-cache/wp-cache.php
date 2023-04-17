@@ -3,7 +3,7 @@
  * Plugin Name: WP Super Cache
  * Plugin URI: https://wordpress.org/plugins/wp-super-cache/
  * Description: Very fast caching plugin for WordPress.
- * Version: 1.9.5-alpha
+ * Version: 1.10.0-alpha
  * Author: Automattic
  * Author URI: https://automattic.com/
  * License: GPL2+
@@ -1186,7 +1186,7 @@ table.wpsc-settings-table {
 			global $wp_super_cache_advanced_debug, $wp_cache_debug_username, $wp_super_cache_front_page_clear;
 			wpsc_render_partial(
 				'debug',
-				compact( 'wp_super_cache_debug', 'wp_cache_debug_log', 'wp_cache_debug_ip', 'cache_path', 'valid_nonce', 'wp_cache_config_file', 'wp_super_cache_comments', 'wp_super_cache_front_page_check', 'wp_super_cache_front_page_clear', 'wp_super_cache_front_page_text', 'wp_super_cache_front_page_notification', 'wp_super_cache_advanced_debug', 'wp_cache_debug_username' )
+				compact( 'wp_super_cache_debug', 'wp_cache_debug_log', 'wp_cache_debug_ip', 'cache_path', 'valid_nonce', 'wp_cache_config_file', 'wp_super_cache_comments', 'wp_super_cache_front_page_check', 'wp_super_cache_front_page_clear', 'wp_super_cache_front_page_text', 'wp_super_cache_front_page_notification', 'wp_super_cache_advanced_debug', 'wp_cache_debug_username', 'wp_cache_home_path' )
 			);
 			break;
 		case 'settings':

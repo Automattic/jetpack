@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Pre-escape the ampersand in the default content of the cookie consent block

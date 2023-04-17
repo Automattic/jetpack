@@ -2,6 +2,56 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.31.5 - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+### Fixed
+- Set Term of service links whitespace to no wrap. [#29683]
+
+## 0.31.4 - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## 0.31.3 - 2023-04-03
+### Changed
+- Minor internal updates.
+
+## 0.31.2 - 2023-03-29
+### Changed
+- Minor internal updates.
+
+## 0.31.1 - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## 0.31.0 - 2023-03-27
+### Changed
+- Added option for CUT component to have a tooltip [#29609]
+
+## 0.30.2 - 2023-03-23
+### Changed
+- Updated package dependencies.
+
+## 0.30.1 - 2023-03-20
+### Changed
+- RNA: tweak secondary button styling [#29475]
+- Updated package dependencies. [#29471]
+
+## 0.30.0 - 2023-03-13
+### Added
+- Add Zendesk chat module to My Jetpack page [#28712]
+
+### Changed
+- Updated pricing table component to allow a custom tooltip class. Will allow more flexibility over styling individual tooltips. [#29250]
+
+## 0.29.0 - 2023-03-08
+### Added
+- Add loading placeholder component into js-packages [#29270]
+
+### Changed
+- Updated package dependencies. [#29216]
+
 ## 0.28.0 - 2023-02-28
 ### Added
 - Added arrow-left and arrow-right icons to the Gridicon component [#28826]

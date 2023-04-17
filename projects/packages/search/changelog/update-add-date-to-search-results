@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixes bad check against isMultiSite resulting in extended search format not showing expected additional post details.

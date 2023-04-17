@@ -1,0 +1,108 @@
+.timestamp-control__controls-wrapper {
+	--input-width: 24px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	.timestamp-range-control,
+	.timestamp-range-control:last-child {
+		margin-bottom: 0;
+		flex-grow: 2;
+
+		:global {
+			.components-base-control__field {
+				margin-bottom: 0;
+			}
+
+			.components-range-control__wrapper {
+				margin-bottom: 0;
+			}
+		}
+
+	}
+	
+	:global {
+		.components-range-control__marks {
+			top: 13px;
+		}
+	}
+}
+
+.timestamp-input-wrapper {
+	display: flex;
+	align-items: center;
+	border-color: #949494;
+	background-color: #fff;
+	border-style: solid;
+	justify-content: space-around;
+	border-width: 1px;
+	padding: 0px;
+
+	.timestamp-control-input {
+		padding: 0 1px;
+		margin-bottom: 0;
+
+		input {
+			max-width: var( --input-width );
+		}
+
+		&:last-child{
+			margin-bottom: 0;
+		}
+
+		/* For TextControl fallback */
+		:global {
+			.components-base-control__field {
+				margin-bottom: 0;
+
+				.components-text-control__input {
+					border: none;
+					text-align: center;
+					padding: 0;
+				}
+			}
+		}
+	}
+
+	:global {
+		.components-input-control:last-child {
+			margin-bottom: 0;
+		}
+
+		.components-input-control__input {
+			padding-left: 0 !important;
+			padding-right: 0 !important;
+			text-align: center;
+
+			/*
+			 * Remove arrows from the number input
+			 * backward compatibility for Firefox, Safari, and Chrome
+			 */
+			 &::-webkit-outer-spin-button,
+			 &::-webkit-inner-spin-button {
+				 -webkit-appearance: none;
+			 }
+ 
+			 &[type=number] {
+				 appearance: textfield;
+				 -moz-appearance: textfield;
+			 }
+		}
+
+		.components-input-control__backdrop {
+			border-style: none !important;
+		}
+	}
+
+	&.is-disabled {
+		background-color: #f0f0f0;
+
+		.timestamp-control-divider {
+			color: #949494;
+		}
+	}
+}
+
+.timestamp-control-divider {
+	font-weight: 900;
+}

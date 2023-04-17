@@ -11,6 +11,9 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "dev-master"
 	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
 	"autoload": {
 		"classmap": [
 			"src/"
@@ -51,7 +54,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "0.7.x-dev"
 		},
 		"textdomain": "jetpack-import",
 		"version-constants": {

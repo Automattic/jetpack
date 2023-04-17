@@ -323,9 +323,10 @@ const UsageMeters = ( { usageInfo, isPlanJustUpgraded } ) => {
 		[ setCurrentTooltipIndex, myStorage, isPlanJustUpgraded ]
 	);
 
-	const setTooltipRead = useCallback( () => myStorage.setItem( 'upgrade_tooltip_finished', 1 ), [
-		myStorage,
-	] );
+	const setTooltipRead = useCallback(
+		() => myStorage.setItem( 'upgrade_tooltip_finished', 1 ),
+		[ myStorage ]
+	);
 	const goToNext = useCallback( () => {
 		setCurrentTooltipIndex( idx => {
 			if ( idx >= 2 ) {

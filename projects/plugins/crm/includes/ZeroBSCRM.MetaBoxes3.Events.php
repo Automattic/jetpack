@@ -355,7 +355,7 @@
 
             ?><div class="zbs-generic-save-wrap">
 
-                    <div class="ui medium dividing header"><i class="save icon"></i> <?php esc_html_e('Event Actions','zero-bs-crm'); ?></div>
+				<div class="ui medium dividing header"><i class="save icon"></i> <?php esc_html_e( 'Task Actions', 'zero-bs-crm' ); ?></div>
 
             <?php
 
@@ -402,7 +402,7 @@
 
                     <div class="zbs-event-actions-bottom zbs-objedit-actions-bottom">
 
-                        <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Update","zero-bs-crm"); ?> <?php esc_html_e("Event","zero-bs-crm"); ?></button>
+							<button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Task', 'zero-bs-crm' ); ?></button>
 
                         <?php
 
@@ -425,7 +425,7 @@
 
                     // NEW Event ?>
 
-                    <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Save","zero-bs-crm"); ?> <?php esc_html_e("Event","zero-bs-crm"); ?></button>
+						<button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Task', 'zero-bs-crm' ); ?></button>
 
                  <?php
 
@@ -641,8 +641,11 @@ function zeroBSCRM_task_ui_mark_complete($taskObject = array(), $taskID = -1){
             $html .= "<div id='task-mark-incomplete' class='task-comp incomplete'><button class='ui button green' data-taskid='".$taskID."'><i class='ui icon check white'></i>".__('Completed','zero-bs-crm')."</button></div>";
             $complete = "<input type='hidden' id='zbs-task-complete' value = '1' name = 'zbs-task-complete'/>";
         } else {
-
-            $html .= "<div id='task-mark-complete' class='task-comp complete'><button class='ui button' data-taskid='".$taskID."'><i class='ui icon check'></i>".__('Mark Complete','zero-bs-crm')."</button></div>";
+				$html .= sprintf(
+					'<div id="task-mark-complete" class="task-comp complete"><button class="button button-primary button-large" data-taskid="%s"><i class="ui icon check"></i>%s</button></div>',
+					$taskID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					__( 'Mark Complete', 'zero-bs-crm' )
+				);
             $complete = "<input type='hidden' id='zbs-task-complete' value = '-1' name = 'zbs-task-complete'/>";
         }
 
@@ -815,9 +818,11 @@ function zeroBSCRM_task_ui_reminders($taskObject = array(), $taskID = -1){
 
             // add admin cog (settings) for event notification template
             if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-                
-                $html .= '<a href="' . esc_url_raw( jpcrm_esc_link( 'zbs-email-templates' ) . '&zbs_template_id=' . ZBSEMAIL_EVENTNOTIFICATION ) . '" class="ui icon button right floated" title="'.__('Admin: Notification Settings','zero-bs-crm').'" target="_blank"><i class="cogs icon"></i></a>';        
-
+					$html .= sprintf(
+						'<a href="%s" class="button button-primary button-large" title="%s" target="_blank"><i class="cogs icon"></i></a>',
+						esc_url_raw( jpcrm_esc_link( 'zbs-email-templates' ) . '&zbs_template_id=' . ZBSEMAIL_EVENTNOTIFICATION ),
+						__( 'Admin: Notification Settings', 'zero-bs-crm' )
+					);
             }
 
         $html .= '<input name="zbs_remind_task_24" id="zbs_remind_task_24" type="checkbox" value="24"';

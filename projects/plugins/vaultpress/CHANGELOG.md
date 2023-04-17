@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## 2.2.3 - 2023-03-08
+### Changed
+- Add a note to README (visible in wordpress.org) that Jetpack VaultPress is deprecated. [#27465]
+- Compatibility: WordPress 6.1 compatibility [#27084]
+- Updated package dependencies.
+- Update README references from VaultPress to Jetpack VaultPress [#27412]
+
 ## 2.2.2 - 2022-07-06
 ### Changed
 - Build: do not ship PHPCS configuration file. [#22604]

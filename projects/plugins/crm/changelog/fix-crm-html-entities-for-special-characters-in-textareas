@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Special characters in textarea fields (contacts, transactions, quotes) produce visible HTML entities

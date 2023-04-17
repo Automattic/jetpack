@@ -8,6 +8,9 @@
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev"
 	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
 	"autoload": {
 		"classmap": [
 			"src/"
@@ -39,7 +42,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-logo/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "1.5.x-dev"
+			"dev-trunk": "1.6.x-dev"
 		}
 	}
 }

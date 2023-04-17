@@ -4,7 +4,7 @@
 import { Button } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { moreVertical, media, trash } from '@wordpress/icons';
+import { moreVertical, media, trash, download } from '@wordpress/icons';
 import { addQueryArgs } from '@wordpress/url';
 import { useCallback, useState } from 'react';
 /**
@@ -26,7 +26,7 @@ const VideoDetailsActions = ( {
 	const [ showDeleteModal, setShowDeleteModal ] = useState( false );
 
 	const {
-		data: { guid },
+		data: { guid, url },
 		deleteVideo,
 	} = useVideo( videoId );
 
@@ -45,7 +45,7 @@ const VideoDetailsActions = ( {
 	return (
 		<>
 			<Dropdown
-				position="bottom center"
+				placement="bottom center"
 				className={ styles.dropdown }
 				renderToggle={ ( { isOpen, onToggle } ) => (
 					<Button
@@ -69,6 +69,18 @@ const VideoDetailsActions = ( {
 							onClick={ onClose }
 						>
 							{ __( 'Add to new post', 'jetpack-videopress-pkg' ) }
+						</Button>
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							icon={ download }
+							href={ url }
+							target="_blank"
+							disabled={ disabled }
+							onClick={ onClose }
+						>
+							{ __( 'Download file', 'jetpack-videopress-pkg' ) }
 						</Button>
 						<hr className={ styles.separator } />
 						<Button

@@ -5,6 +5,7 @@ import {
 	Container,
 	Col,
 	Text,
+	ZendeskChat,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
@@ -114,14 +115,15 @@ export default function MyJetpackScreen() {
 
 			<AdminSection>
 				<Container horizontalSpacing={ 8 }>
-					<Col sm={ 2 } md={ 4 } lg={ 6 }>
+					<Col sm={ 4 } md={ 4 } lg={ 6 }>
 						<PlansSection />
 					</Col>
-					<Col sm={ 2 } md={ 4 } lg={ 6 }>
+					<Col sm={ 4 } md={ 4 } lg={ 6 }>
 						<ConnectionsSection />
 					</Col>
 				</Container>
 			</AdminSection>
+			<ZendeskChat />
 		</AdminPage>
 	);
 }

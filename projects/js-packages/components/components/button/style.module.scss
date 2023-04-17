@@ -81,6 +81,7 @@
 	// Only Secondary
 	&:global(.is-secondary) {
 		background: var(--jp-white);
+		box-shadow: inset 0 0 0 1.5px var(--jp-black);
 
 		// Hover & Active
 		&:active:not(:disabled),
@@ -146,12 +147,12 @@
 			&:not(:disabled) {
 				color: var(--jp-red-50);
 				background: var(--jp-white);
-				box-shadow: inset 0 0 0 1px var(--jp-red-50);
+				box-shadow: inset 0 0 0 1.5px var(--jp-red-50);
 			}
 
 			&:hover:not(:disabled) {
 				background: var(--jp-red-0);
-				box-shadow: inset 0 0 0 1px var(--jp-red-60);
+				box-shadow: inset 0 0 0 1.5px var(--jp-red-60);
 				color: var(--jp-red-60);
 			}
 
