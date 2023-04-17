@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove WordPress 6.0 backwards-compatibility code.
