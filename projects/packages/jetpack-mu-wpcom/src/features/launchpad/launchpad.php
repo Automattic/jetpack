@@ -90,7 +90,7 @@ function get_plan_selected_subtitle() {
  */
 function can_update_design_selected_task() {
 	$site_intent = get_option( 'site_intent' );
-	return $site_intent === 'newsletter' || $site_intent === 'build' || $site_intent === 'write';
+	return $site_intent === 'free' || $site_intent === 'build' || $site_intent === 'write';
 }
 
 /**
