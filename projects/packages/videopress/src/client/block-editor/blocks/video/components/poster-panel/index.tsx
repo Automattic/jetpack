@@ -266,7 +266,7 @@ function VideoFramePicker( {
 		[ setTimestamp, debouncedVideoFrameSelect ]
 	);
 
-	const { playerIsReady } = useVideoPlayer(
+	const { playerIsReady, pause } = useVideoPlayer(
 		playerWrapperRef,
 		isRequestingEmbedPreview,
 		{
@@ -274,6 +274,14 @@ function VideoFramePicker( {
 		},
 		onTimestampUpdateFromPlayer
 	);
+
+	useEffect( () => {
+		if ( isGeneratingPoster ) {
+			pause();
+		}
+	}, [ isGeneratingPoster, pause ] );
+
+	const onFramePickerMouseLeave = useCallback( pause, [ pause ] );
 
 	const onTimestampDebounceChange = useCallback(
 		iframeTimePosition => {
@@ -295,6 +303,7 @@ function VideoFramePicker( {
 					'is-player-ready': playerIsReady,
 					'is-generating-poster': isGeneratingPoster,
 				} ) }
+				onMouseLeave={ onFramePickerMouseLeave }
 			>
 				{ ( ! playerIsReady || isGeneratingPoster ) && <Spinner /> }
 				<SandBox html={ html } scripts={ sandboxScripts } />

@@ -73,6 +73,9 @@
 		<testsuite name="masterbar">
 			<directory prefix="test" suffix=".php">php/modules/masterbar</directory>
 		</testsuite>
+		<testsuite name="autoloaded">
+			<directory prefix="test" suffix=".php">php/src</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>

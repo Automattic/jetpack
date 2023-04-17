@@ -228,7 +228,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			/^(projects\/plugins\/boost\/compatibility|projects\/plugins\/jetpack\/3rd-party)\//
 		);
 		if ( compat ) {
-			keywords.add( 'Compatibility' );
+			keywords.add( '[Focus] Compatibility' );
 		}
 
 		// E2E tests.
