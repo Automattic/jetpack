@@ -163,15 +163,15 @@ function get_task_definitions() {
 			=> array(
 				'id'        => 'videopress_upload',
 				'title'     => __( 'Upload your first video', 'jetpack-mu-wpcom' ),
-				'completed' => get_checklist_task( 'videopress_uploaded' ),
-				'disabled'  => get_checklist_task( 'videopress_uploaded' ),
+				'completed' => get_checklist_task( 'video_uploaded' ),
+				'disabled'  => get_checklist_task( 'video_uploaded' ),
 			),
 		'videopress_launched'
 			=> array(
 				'id'        => 'videopress_launched',
 				'title'     => __( 'Launch site', 'jetpack-mu-wpcom' ),
-				'completed' => false,
-				'disabled'  => ! get_checklist_task( 'videopress_uploaded' ),
+				'completed' => get_checklist_task( 'site_launched' ),
+				'disabled'  => ! get_checklist_task( 'video_uploaded' ),
 			),
 		'setup_free'
 			=> array(
