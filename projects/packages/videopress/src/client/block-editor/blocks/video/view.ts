@@ -78,8 +78,13 @@ function previewOnHoverEffect(): void {
 			} );
 		} );
 
-		videoPlayerElement.addEventListener( 'mouseenter', iframeApi.controls.play );
-		videoPlayerElement.addEventListener( 'mouseleave', iframeApi.controls.pause );
+		const overlay = videoPlayerElement.querySelector( '.jetpack-videopress-player__overlay' );
+		if ( ! overlay ) {
+			return;
+		}
+
+		overlay.addEventListener( 'mouseenter', iframeApi.controls.play );
+		overlay.addEventListener( 'mouseleave', iframeApi.controls.pause );
 	} );
 }
 
