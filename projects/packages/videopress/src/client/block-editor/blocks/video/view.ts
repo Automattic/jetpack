@@ -47,6 +47,8 @@ function previewOnHoverEffect(): void {
 		let previewOnHoverData: {
 			previewAtTime: number;
 			previewLoopDuration: number;
+			autoplay: boolean;
+			showControls: boolean;
 		};
 
 		try {
@@ -81,6 +83,19 @@ function previewOnHoverEffect(): void {
 		const overlay = videoPlayerElement.querySelector( '.jetpack-videopress-player__overlay' );
 		if ( ! overlay ) {
 			return;
+		}
+
+		/*
+		 * Disable PreviewOnHover (pOH) when the player
+		 * should show the controls and
+		 * once the user clicks on the video (overlay).
+		 */
+		if ( previewOnHoverData.showControls ) {
+			overlay.addEventListener( 'click', () => {
+				// Delete overlay element.
+				overlay.remove();
+				setTimeout( iframeApi.controls.pause, 100 ); // Hack; without this, the video will not pause.
+			} );
 		}
 
 		overlay.addEventListener( 'mouseenter', iframeApi.controls.play );
