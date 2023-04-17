@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Site Settings API: Fixed being able to update `subscription_options` for non-standard cases where the object contains more than 2 keys

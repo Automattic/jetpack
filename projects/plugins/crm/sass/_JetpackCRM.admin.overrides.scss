@@ -71,9 +71,9 @@
  }
 
  .zbs-cube{
-	 width:80px !important;
+	 width: 120px !important;
 	 img{
-		 max-width: 80px !important;
+		 max-width: 120px !important;
 	 }
  }
  
@@ -116,7 +116,9 @@
 	background-color: $blue-medium;
 }
 
-
+.ui.icon.buttons .button, .ui.icon.button {
+	font-size: 14px;
+}
 
 .dops-button {
 	background: #f3f5f6;

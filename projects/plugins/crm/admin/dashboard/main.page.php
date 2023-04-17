@@ -343,7 +343,7 @@ if (jQuery('#bar-chart').length){
 		>
 	<div class='panel'>
 
-		<div class="panel-heading" style="text-align:center">
+		<div class="panel-heading jpcrm-revenue-chart-heading" style="text-align:center;position:relative">
 		<?php $currencyChar = zeroBSCRM_getCurrencyChr(); ?>
 		<h4 class="panel-title text-muted font-light"><?php esc_html_e( 'Revenue Chart', 'zero-bs-crm' ); ?> (<?php echo esc_html( $currencyChar ); ?>)</h4>
 		<?php ##WLREMOVE ?>
@@ -477,13 +477,13 @@ if (jQuery('#bar-chart').length){
 	<div class="ten wide column" id="settings_dashboard_latest_contacts_display" 
 	<?php
 	if ( $settings_dashboard_latest_contacts == 'true' ) {
-		echo "style='display:block;margin: 0;padding-left: 0;'";
+		echo "style='display:block;margin: 0;'";
 	} else {
 		echo "style='display:none;'";}
 	?>
 		>
 	<div class="panel">
-		<div class="panel-heading" style="text-align:center;position:relative">
+		<div class="panel-heading jpcrm-latest-contacts-heading" style="text-align:center;position:relative">
 			<h4 class="panel-title text-muted font-light"><?php esc_html_e( 'Latest Contacts', 'zero-bs-crm' ); ?></h4>
 			<span class='upsell'><a href="<?php echo jpcrm_esc_link( $zbs->slugs['managecontacts'] ); ?>"><?php esc_html_e( 'View All', 'zero-bs-crm' ); ?></a></span>
 		</div>
