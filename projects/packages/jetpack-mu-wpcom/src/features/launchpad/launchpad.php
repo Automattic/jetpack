@@ -72,7 +72,7 @@ function get_checklist_definitions() {
  * @return string Subtitle text
  */
 function get_plan_selected_subtitle() {
-	if ( function_exists( 'wpcom_global_styles_in_use' ) && function_exists( 'wpcom_should_limit_global_styles' ) ) {
+	if ( ! function_exists( 'wpcom_global_styles_in_use' ) || ! function_exists( 'wpcom_should_limit_global_styles' ) ) {
 		return '';
 	}
 
