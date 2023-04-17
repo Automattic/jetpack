@@ -2124,7 +2124,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 			#
 			$parts = preg_split($tag_re, $text, 2, PREG_SPLIT_DELIM_CAPTURE);
 
-			if ((is_countable($parts) ? count($parts) : 0) < 3) {
+			if ( ! $parts || count($parts) < 3 ) {
 				#
 				# End of $text reached with unbalenced tag(s).
 				# In that case, we return original text unchanged and pass the
