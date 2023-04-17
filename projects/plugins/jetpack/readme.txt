@@ -244,9 +244,17 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 12.1-a.3 - 2023-04-05
+### 12.1-a.7 - 2023-04-17
+#### Enhancements
+- Dashboard: update the links to the Mobile apps to allow opening links in the appropriate app store right away.
+- Forms: Update Forms child blocks to allow any transformation between the blocks.
+
+#### Improved compatibility
+- General: Jetpack now requires WordPress version 6.1.
+
 #### Bug fixes
-- Assets: avoid fatal error with outdated package versions.
+- Button Block: ensure no borders are added by default browser styles.
+- Forms: Fix Forms styles when inside Cover blocks.
 
 --------
 
