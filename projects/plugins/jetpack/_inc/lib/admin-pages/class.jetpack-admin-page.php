@@ -348,7 +348,7 @@ abstract class Jetpack_Admin_Page {
 		?>
 		">
 
-			<div class="jp-masthead">
+			<div class="jp-masthead jp-masthead-middle">
 				<div class="jp-masthead__inside-container">
 					<div class="jp-masthead__logo-container">
 						<a class="jp-masthead__logo-link" href="<?php echo esc_url( $jetpack_admin_url ); ?>">

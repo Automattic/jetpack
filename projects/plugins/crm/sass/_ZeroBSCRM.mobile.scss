@@ -135,7 +135,7 @@
 
         #zbs-main-logo-mobile{
             img{
-                width:45px;
+                width:85px;
                 cursor:pointer;
                 height:auto;
             }
@@ -190,11 +190,6 @@
             max-width: 100%;
             width: 95% !important;
         }
-
-        .zbs-view-card{
-            text-align:center;
-        }
-
 
         #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap, #zbs-side-sortables{
             padding-right:0px !important;
@@ -302,7 +297,7 @@
 @media only screen and (max-width: 600px) {
     #wpcontent {
             #zbs-mobile-nav.ui.mobile.only{
-                padding-top: 40px;
+                padding-top: 55px;
             }
     }
 }
@@ -390,7 +385,7 @@
 
         #zbs-main-logo-mobile{
             img{
-                width:45px;
+                width:85px;
                 cursor:pointer;
                 height:auto;
             }
@@ -435,12 +430,6 @@
         #zbs-list-table-wrap, #zbs-list-sidebar-wrap{
             padding-right: 0;
         }
-
-
-        .zbs-view-card{
-            text-align:center;
-        }
-
 
         #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap, #zbs-side-sortables{
             padding-right:0px !important;

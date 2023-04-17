@@ -22,6 +22,11 @@ $action-bar-height: 88px;
 		}
 	}
 
+	span.subtitle {
+		padding-left: 0;
+		white-space: pre;
+	}
+
 	@media (min-width: 1025px) {
 		a.back-button {
 			display: none !important;
@@ -30,10 +35,16 @@ $action-bar-height: 88px;
 		span.title {
 			display: inline-flex !important;
 		}
+
+		span.subtitle {
+			display: inline-flex !important;
+			flex-wrap: wrap;
+		}
 	}
 
 	&.is-response-view {
-		span.title {
+		span.title,
+		span.subtitle {
 			display: none;
 		}
 
@@ -503,9 +514,8 @@ $action-bar-height: 88px;
 	}
 
 	.button-primary.export-button {
-		background-color: #000;
-		border-color: #000;
-		color: #fff;
+		background-color: var( --wp-admin-theme-color, #000 );
+		border-color: var( --wp-admin-theme-color, #000 );
 		margin-left: auto;
 
 		@media (max-width: 782px) {

@@ -18,7 +18,7 @@ function previewOnHoverEffect(): void {
 	 * Pick all VideoPress video block intances,
 	 * based on the class name.
 	 */
-	const videoPlayers = document.querySelectorAll( '.wp-block-jetpack-videopress-container' );
+	const videoPlayers = document.querySelectorAll( '.wp-block-jetpack-videopress' );
 	if ( videoPlayers.length === 0 ) {
 		return;
 	}
