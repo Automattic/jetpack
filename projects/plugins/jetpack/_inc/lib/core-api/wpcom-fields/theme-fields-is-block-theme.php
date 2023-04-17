@@ -34,9 +34,22 @@ class WPCOM_REST_API_V2_Theme_Fields_Is_Block_Theme extends WPCOM_REST_API_V2_Fi
 	 * @return bool
 	 */
 	public function get_permission_check( $object_data, $request ) {
-		// Allow access to the field if user alraedy has permission to view the theme,
-		// as checked by WP_REST_Themes_Controller.
+		// Allow access to the field if user already has permission to view the theme,
+		// as checked by the WP_REST_Themes_Controller.
 		return true;
+	}
+
+	/**
+	 * Get the value of the field.
+	 *
+	 * @param array           $object_data The theme data.
+	 * @param WP_REST_Request $request     WP API request.
+	 *
+	 * @return bool Whether the theme is a block-based theme.
+	 */
+	public function get( $object_data, $request ) {
+		$theme = wp_get_theme( $object_data['stylesheet'] );
+		return $theme->exists() ? $theme->is_block_theme() : false;
 	}
 
 	/**
@@ -52,19 +65,6 @@ class WPCOM_REST_API_V2_Theme_Fields_Is_Block_Theme extends WPCOM_REST_API_V2_Fi
 	 */
 	public function update_permission_check( $value, $object_data, $request ) {
 		return false;
-	}
-
-	/**
-	 * Get the value of the field.
-	 *
-	 * @param array           $object_data The theme data.
-	 * @param WP_REST_Request $request     WP API request.
-	 *
-	 * @return bool Whether the theme is a block-based theme.
-	 */
-	public function get( $object_data, $request ) {
-		$theme = wp_get_theme( $object_data['stylesheet'] );
-		return $theme->exists() ? $theme->is_block_theme() : false;
 	}
 
 	/**
@@ -96,6 +96,6 @@ class WPCOM_REST_API_V2_Theme_Fields_Is_Block_Theme extends WPCOM_REST_API_V2_Fi
 	}
 }
 
-// TODO: add conditional to only load this if it ends up being included in Core.
+// TODO: If this field is also added to Core, add a conditional to load only when using an older version of WordPress.
 // See https://core.trac.wordpress.org/ticket/58123
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Theme_Fields_Is_Block_Theme' );
