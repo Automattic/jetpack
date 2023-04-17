@@ -199,10 +199,11 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - Critical CSS: Fixed a minor UI glitch caused by a missing close tag.
 - Critical CSS: Fixed PHP warning when deleting stored Critical CSS
 - Critical CSS: Unified the internal structure of Cloud and Critical CSS, ensuring a smoother experience when switching between the two.
+- Deferred JS: Fixed extremely short HTML pages failing to render due to only using one Output Buffer chunk. [#30025]
+- Deferred JS: Fixed some compatibility issues with page-builders by turning off Deferred JS in the customizer preview. [#29143]
 - Lazy Loading: Fixed images sometimes failing to Lazy-load in Safari.
 - General: Fixed incorrect font sizes and weights in various screens.
 - General: Fixed incorrect GET parameters used during purchase flow, which leading to inconsistent behaviour.
-- Deferred JS: Fixed some compatibility issues with page-builders by turning off Deferred JS in the customizer preview.
 - General: Fixed triggers for optimization initialization sometimes firing on the wrong hook.
 - General: Fixed "Undefined array key: post" warning.
 - General: Fixed stats tracking by using the correct casing for Tracks event properties.
