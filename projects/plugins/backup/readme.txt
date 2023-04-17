@@ -33,7 +33,7 @@ If you make money from your site, or spend hours perfecting content, you need Wo
 Host backups offer some protection but may not be sufficient to fully safeguard your valuable data. They often have limitations, such as single daily backups only, on-site storage, and clunky interfaces.
 
 Unlock the VaultPress Backup advantage:
-* Unmatched Security: Safeguard every change in real-time in the ultra-secure Jetpack Cloud
+* Unmatched Security: Safeguard every change in real-time in the ultra-secure Jetpack Cloud.
 * Instant Recovery: Restore your site even when your host is down.
 * Backups built specifically for WordPress and WooCommerce sites.
 
