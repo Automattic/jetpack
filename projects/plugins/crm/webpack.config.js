@@ -165,6 +165,7 @@ module.exports = [
 		},
 		optimization: {
 			...crmWebpackConfig.optimization,
+			minimize: true,
 			minimizer: [
 				jetpackWebpackConfig.TerserPlugin( {
 					terserOptions: {
@@ -172,7 +173,9 @@ module.exports = [
 							keep_fnames: true,
 							keep_classnames: true,
 						},
+						
 					},
+					extractComments: jetpackWebpackConfig.isProduction,
 				} ),
 			],
 		},
