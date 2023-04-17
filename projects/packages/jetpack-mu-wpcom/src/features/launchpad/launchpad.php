@@ -50,7 +50,6 @@ function get_checklist_definitions() {
 			'subscribers_added',
 			'verify_email',
 			'first_post_published_newsletter',
-			'first_post_published',
 		),
 		'videopress'      => array(
 			'videopress_setup',
