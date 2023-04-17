@@ -7,6 +7,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState, useCallback, Platform } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { subscribePostSaveEvent } from '@wordpress/react-native-bridge';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
@@ -165,6 +166,26 @@ export function useSyncMedia(
 
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
+
+	// In native, it's not currently possible to access a post's saved state from the editor store.
+	// We therefore need to listen to a native event emitter to know when a post has just been saved.
+	const [ postHasBeenJustSavedNative, setPostHasBeenJustSavedNative ] = useState( false );
+
+	isNative &&
+		useEffect( () => {
+			const handlePostSaveEvent = () => {
+				setPostHasBeenJustSavedNative( true );
+			};
+
+			const subscription = subscribePostSaveEvent( handlePostSaveEvent );
+
+			return () => {
+				if ( subscription ) {
+					subscription.remove();
+				}
+			};
+		}, [] );
+
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 
 	const [ initialState, setState ] = useState< VideoDataProps >( {} );
@@ -272,7 +293,9 @@ export function useSyncMedia(
 
 	const updateMediaHandler = useMediaDataUpdate( id );
 
-	const postHasBeenJustSaved = !! ( wasSaving && ! isSaving );
+	const postHasBeenJustSaved = isNative
+		? postHasBeenJustSavedNative
+		: !! ( wasSaving && ! isSaving );
 
 	/*
 	 * Video frame poster: Block attributes => Frame poster generation
@@ -295,8 +318,9 @@ export function useSyncMedia(
 			return;
 		}
 
-
 		debug( '%o Post has been just saved. Syncing...', attributes?.guid );
+
+		setPostHasBeenJustSavedNative( false );
 
 		if ( ! attributes?.id ) {
 			debug( '%o No media ID found. Impossible to sync. Bail early', attributes?.guid );
