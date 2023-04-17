@@ -845,6 +845,9 @@ function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 
 			$top_status = '<div class="jpcrm-invoice-status">' . esc_html( $zbs_stat ) . '</div>';
 
 		}
+	} elseif ( $template === 'notification' ) {
+		// sent to contact via email
+		$top_status = esc_html( $zbs_stat );
 	}
 
 	// inv lines
