@@ -1,7 +1,15 @@
+/**
+ * External dependencies
+ */
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 import { tap } from 'lodash';
+/**
+ * Internal dependencies
+ */
 import { config } from '../../';
+import { isWpcom } from '../util';
 
 const GoogleDriveExport = ( { onExport } ) => {
 	const [ isConnected, setIsConnected ] = useState( config( 'gdriveConnection' ) );
@@ -42,6 +50,10 @@ const GoogleDriveExport = ( { onExport } ) => {
 				window.open( data.sheet_link, '_blank' );
 			} );
 	}, [ onExport ] );
+
+	const buttonClasses = classnames( 'button', 'export-button', 'export-gdrive', {
+		'button-primary': ! isWpcom(),
+	} );
 
 	return (
 		<div className="jp-forms__export-modal-card">
@@ -84,10 +96,7 @@ const GoogleDriveExport = ( { onExport } ) => {
 				</div>
 				<div className="jp-forms__export-modal-card-body-cta">
 					{ isConnected && (
-						<button
-							className="button button-primary export-button export-gdrive"
-							onClick={ exportToGoogleDrive }
-						>
+						<button className={ buttonClasses } onClick={ exportToGoogleDrive }>
 							{ __( 'Export', 'jetpack-forms' ) }
 						</button>
 					) }
@@ -95,7 +104,7 @@ const GoogleDriveExport = ( { onExport } ) => {
 					{ ! isConnected && (
 						<a
 							href={ config( 'gdriveConnectURL' ) }
-							className="button button-primary export-button export-gdrive"
+							className={ buttonClasses }
 							rel="noopener noreferrer"
 							target="_blank"
 							onClick={ pollForConnection }

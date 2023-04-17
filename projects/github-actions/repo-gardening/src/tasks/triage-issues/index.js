@@ -6,50 +6,75 @@ const sendSlackMessage = require( '../../utils/send-slack-message' );
 /* global GitHub, WebhookPayloadIssue */
 
 /**
- * Check for Priority label on an issue
+ * Check for Priority labels on an issue.
+ * It could be existing labels,
+ * or it could be that it's being added as part of the event that triggers this action.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - Issue number.
- * @returns {Promise<Array>} Promise resolving to an array of the existing Priority labels found.
+ * @param {GitHub} octokit    - Initialized Octokit REST client.
+ * @param {string} owner      - Repository owner.
+ * @param {string} repo       - Repository name.
+ * @param {string} number     - Issue number.
+ * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
+ * @param {object} eventLabel - Label that was added to the issue.
+ * @returns {Promise<Array>} Promise resolving to an array of Priority labels.
  */
-async function hasPriorityLabels( octokit, owner, repo, number ) {
+async function hasPriorityLabels( octokit, owner, repo, number, action, eventLabel ) {
 	const labels = await getLabels( octokit, owner, repo, number );
+	if ( 'labeled' === action && eventLabel.name && eventLabel.name.match( /^\[Pri\].*$/ ) ) {
+		labels.push( eventLabel.name );
+	}
 
 	return labels.filter( label => label.match( /^\[Pri\].*$/ ) );
 }
 
 /**
- * Check for a label showing that it was already escalated.
+ * Check for a "[Status] Escalated" label showing that it was already escalated.
+ * It could be an existing label,
+ * or it could be that it's being added as part of the event that triggers this action.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - Issue number.
+ * @param {GitHub} octokit    - Initialized Octokit REST client.
+ * @param {string} owner      - Repository owner.
+ * @param {string} repo       - Repository name.
+ * @param {string} number     - Issue number.
+ * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
+ * @param {object} eventLabel - Label that was added to the issue.
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
-async function hasEscalatedLabel( octokit, owner, repo, number ) {
+async function hasEscalatedLabel( octokit, owner, repo, number, action, eventLabel ) {
+	// Check for an exisiting label first.
 	const labels = await getLabels( octokit, owner, repo, number );
+	if (
+		labels.includes( '[Status] Escalated' ) ||
+		labels.includes( '[Status] Escalated to Kitkat' )
+	) {
+		return true;
+	}
 
-	// Does the list of labels includes the "[Status] Escalated" or "[Status] Escalated to Kitkat" label?
-	return (
-		labels.includes( '[Status] Escalated' ) || labels.includes( '[Status] Escalated to Kitkat' )
-	);
+	// If the issue is being labeled, check if the label is "[Status] Escalated".
+	// No need to check for "[Status] Escalated to Kitkat" here, it's a legacy label.
+	if (
+		'labeled' === action &&
+		eventLabel.name &&
+		eventLabel.name.match( /^\[Status\] Escalated.*$/ )
+	) {
+		return true;
+	}
 }
 
 /**
- * Ensure the issue is a bug.
+ * Ensure the issue is a bug, by looking for a "[Type] Bug" label.
+ * It could be an existing label,
+ * or it could be that it's being added as part of the event that triggers this action.
  *
- * @param {GitHub} octokit - Initialized Octokit REST client.
- * @param {string} owner   - Repository owner.
- * @param {string} repo    - Repository name.
- * @param {string} number  - Issue number.
- * @param {string} action  - Action that triggered the event ('opened', 'reopened', 'labeled').
- * @param {object} label   - Label that was added to the issue.
+ * @param {GitHub} octokit    - Initialized Octokit REST client.
+ * @param {string} owner      - Repository owner.
+ * @param {string} repo       - Repository name.
+ * @param {string} number     - Issue number.
+ * @param {string} action     - Action that triggered the event ('opened', 'reopened', 'labeled').
+ * @param {object} eventLabel - Label that was added to the issue.
  * @returns {Promise<boolean>} Promise resolving to boolean.
  */
-async function isBug( octokit, owner, repo, number, action, label ) {
+async function isBug( octokit, owner, repo, number, action, eventLabel ) {
 	// If the issue has a "[Type] Bug" label, it's a bug.
 	const labels = await getLabels( octokit, owner, repo, number );
 	if ( labels.includes( '[Type] Bug' ) ) {
@@ -57,7 +82,7 @@ async function isBug( octokit, owner, repo, number, action, label ) {
 	}
 
 	// Next, check if the current event was a [Type] Bug label being added.
-	if ( 'labeled' === action && '[Type] Bug' === label.name ) {
+	if ( 'labeled' === action && eventLabel.name && '[Type] Bug' === eventLabel.name ) {
 		return true;
 	}
 }
@@ -206,10 +231,17 @@ async function triageIssues( payload, octokit ) {
 	}
 
 	// Find Priority.
-	const priorityLabels = await hasPriorityLabels( octokit, ownerLogin, name, number, action );
+	const priorityLabels = await hasPriorityLabels(
+		octokit,
+		ownerLogin,
+		name,
+		number,
+		action,
+		label
+	);
 	if ( priorityLabels.length > 0 ) {
 		debug(
-			`triage-issues: Issue #${ number } has existing priority labels: ${ priorityLabels.join(
+			`triage-issues: Issue #${ number } has the following priority labels: ${ priorityLabels.join(
 				', '
 			) }`
 		);
@@ -279,15 +311,33 @@ async function triageIssues( payload, octokit ) {
 		}
 	}
 
-	// Is this a bug,
-	// Is the issue still opened,
-	// is it a high priority or blocker (inferred from the existing labels or from the issue body),
-	// and is this a new issue, not escalated yet?
-	// If so, send a Slack notification.
-	const isEscalated = await hasEscalatedLabel( octokit, ownerLogin, name, number );
+	/*
+	 * Send a Slack Notification if the issue is important.
+	 *
+	 * We define an important issue when meeting all of the following criteria:
+	 * - A bug (includes a "[Type] Bug" label, or a "[Type] Bug" label is added to the issue right now)
+	 * - The issue is still opened
+	 * - The issue is not escalated yet (no "[Status] Escalated" label)
+	 * - The issue is either a high priority or a blocker (inferred from the existing labels or from the issue body)
+	 * - The issue is not already set to another priority label (no "[Pri] High", "[Pri] BLOCKER", or "[Pri] TBD" label)
+	 */
+
+	const isEscalated = await hasEscalatedLabel( octokit, ownerLogin, name, number, action, label );
+
 	const highPriorityIssue = priority === 'High' || priorityLabels.includes( '[Pri] High' );
 	const blockerIssue = priority === 'BLOCKER' || priorityLabels.includes( '[Pri] BLOCKER' );
-	if ( isBugIssue && state === 'open' && ! isEscalated && ( highPriorityIssue || blockerIssue ) ) {
+
+	const hasOtherPriorityLabels = priorityLabels.some( priLabel =>
+		/^\[Pri\] (?!High|BLOCKER|TBD)/.test( priLabel )
+	);
+
+	if (
+		isBugIssue &&
+		state === 'open' &&
+		! isEscalated &&
+		( highPriorityIssue || blockerIssue ) &&
+		! hasOtherPriorityLabels
+	) {
 		const message = `New ${
 			highPriorityIssue ? 'High-priority' : 'Blocker'
 		} bug! Please check the priority.`;
