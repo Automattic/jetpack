@@ -192,7 +192,7 @@ const installStandalonePluginForProduct = productId => async store => {
 			.catch( error => {
 				const { name } = select.getProduct( productId );
 				const message = sprintf(
-					// translators: %$1s: Jetpack Product name
+					// translators: %$1s: Jetpack Product name; %$2s: Original error message
 					__(
 						'Failed to install standalone plugin for %1$s: %2$s. Please try again',
 						'jetpack-my-jetpack'
