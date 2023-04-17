@@ -125,6 +125,7 @@ function get_task_definitions() {
 		'first_post_published'
 			=> array(
 				'id'        => 'first_post_published',
+				'title'     => __( 'Write your first post', 'jetpack-mu-wpcom' ),
 				'completed' => get_checklist_task( 'first_post_published' ),
 				'disabled'  => false,
 			),
@@ -190,13 +191,15 @@ function get_task_definitions() {
 		'setup_general'
 			=> array(
 				'id'        => 'setup_general',
+				'title'     => __( 'Set up your site', 'jetpack-mu-wpcom' ),
 				'completed' => true,
 				'disabled'  => true,
 			),
 		'design_edited'
 			=> array(
 				'id'        => 'design_edited',
-				'completed' => false,
+				'title'     => __( 'Edit site design', 'jetpack-mu-wpcom' ),
+				'completed' => get_checklist_task( 'site_edited' ),
 				'disabled'  => false,
 			),
 		'site_launched'
