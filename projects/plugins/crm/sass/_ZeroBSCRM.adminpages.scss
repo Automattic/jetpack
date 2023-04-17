@@ -572,8 +572,26 @@
     color:white;
 	margin-right:0.4em;
 }
-.learn{
-	margin-left: 10px !important;
+
+#learn {
+	background: transparent;
+	padding: 0;
+	vertical-align: text-bottom;
+
+	.gridicon {
+		color: #8c8f94;
+		fill: currentColor;
+		vertical-align: text-bottom;
+		margin-left: 4px;
+
+		&:hover {
+			color: darken( desaturate( #87a6bc, 100% ), 38% );
+		}
+
+		&:focus {
+			box-shadow: none;
+		}
+	}
 }
 
 

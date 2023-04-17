@@ -423,12 +423,9 @@ class Learn_Menu {
 
 	          // output title
 	          echo esc_html( $page_title ); 
-	          ?></span><?php 
-	          if ( !empty( $add_new ) ) {
-	          	echo ' ' . $add_new;
-	          } ?>
+				?>
+				</span>
 	          	<?php if ($show_learn){ 
-
 	          		// show sidebar?
 	          		$sidebar = false;
 	          		if (
@@ -444,7 +441,11 @@ class Learn_Menu {
 	          			){
 	          				$sidebar = true;
 	          			} ?>
-					<div class="ui button brown tiny learn" id="learn"><i class="fa fa-graduation-cap" aria-hidden="true"></i> <?php esc_html_e( "Learn", 'zero-bs-crm' ); ?></div>
+					<div class="ui tiny learn button" id="learn">
+					<svg class="gridicon gridicons-info-outline needs-offset" height="20" width="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+					<g><path d="M13 9h-2V7h2v2zm0 2h-2v6h2v-6zm-1-7c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8m0-2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path></g>
+					</svg>
+					</div>
 					<div class="ui special popup top left transition hidden" id="learn-pop" style="<?php echo esc_attr( $popup_extra_css ); ?>">
 						<div class="jpcrm-learn-popup-close"></div>						
 						<div class="jpcrm-learn-container ui grid">
@@ -467,7 +468,9 @@ class Learn_Menu {
 
 									// learn more link
 									if ( !empty( $learn_more_url ) ){
-										echo '<br/><a href="' . esc_url( $learn_more_url ) . '" target="_blank" class="learn-more-link">' . esc_html__( "Learn More", 'zero-bs-crm' ) . '</a>';
+										echo '<br/><a href="' . esc_url( $learn_more_url ) . '" target="_blank" class="learn-more-link">' . esc_html__( 'Learn More', 'zero-bs-crm' ) .
+										'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" width="24" height="24" class="jpcrm-external-link-icon" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg>' .
+										'</a>';
 									} ?>
 								</div>
 							</div>
@@ -528,7 +531,13 @@ class Learn_Menu {
 	              		</div>
 	            	</div>
 	            <?php } ?>
-	            <?php if ( !empty( $filter_str ) ) {
+				<?php
+				if ( ! empty( $add_new ) ) {
+					echo ' ' . $add_new; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				}
+				?>
+				<?php
+				if ( ! empty( $filter_str ) ) {
 	            	echo $filter_str;
 	            } ?>
 	          </div>
