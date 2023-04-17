@@ -50,7 +50,6 @@ function get_checklist_definitions() {
 			'subscribers_added',
 			'verify_email',
 			'first_post_published_newsletter',
-			'first_post_published',
 		),
 		'videopress'      => array(
 			'videopress_setup',
@@ -65,6 +64,23 @@ function get_checklist_definitions() {
 			'site_launched',
 		),
 	);
+}
+
+/**
+ * Returns the subtitle for the plan selected task
+ *
+ * @return string Subtitle text
+ */
+function get_plan_selected_subtitle() {
+	if ( ! function_exists( 'wpcom_global_styles_in_use' ) || ! function_exists( 'wpcom_should_limit_global_styles' ) ) {
+		return '';
+	}
+
+	return wpcom_global_styles_in_use() && wpcom_should_limit_global_styles()
+		? __(
+			'Your site contains custom colors that will only be visible once you upgrade to a Premium plan.',
+			'jetpack-mu-wpcom'
+		) : '';
 }
 
 /**
@@ -87,18 +103,22 @@ function get_task_definitions() {
 		'setup_newsletter'
 			=> array(
 				'id'        => 'setup_newsletter',
+				'title'     => __( 'Personalize Newsletter', 'jetpack-mu-wpcom' ),
 				'completed' => true,
 				'disabled'  => false,
 			),
 		'plan_selected'
 			=> array(
 				'id'        => 'plan_selected',
+				'title'     => __( 'Choose a Plan', 'jetpack-mu-wpcom' ),
+				'subtitle'  => get_plan_selected_subtitle(),
 				'completed' => true,
 				'disabled'  => false,
 			),
 		'subscribers_added'
 			=> array(
 				'id'        => 'subscribers_added',
+				'title'     => __( 'Add Subscribers', 'jetpack-mu-wpcom' ),
 				'completed' => true,
 				'disabled'  => false,
 			),
@@ -112,7 +132,8 @@ function get_task_definitions() {
 		'first_post_published_newsletter'
 			=> array(
 				'id'        => 'first_post_published_newsletter',
-				'completed' => false,
+				'title'     => __( 'Start writing', 'jetpack-mu-wpcom' ),
+				'completed' => get_checklist_task( 'first_post_published' ),
 				'disabled'  => false,
 			),
 		'design_selected'
@@ -205,6 +226,7 @@ function get_task_definitions() {
 		'verify_email'
 			=> array(
 				'id'       => 'verify_email',
+				'title'    => __( 'Confirm Email (Check Your Inbox)', 'jetpack-mu-wpcom' ),
 				'complete' => false,
 				'disabled' => true,
 			),

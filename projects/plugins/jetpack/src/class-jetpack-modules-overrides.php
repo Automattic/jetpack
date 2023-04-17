@@ -144,5 +144,3 @@ class Jetpack_Modules_Overrides {
 	private function __construct() {
 	}
 }
-
-Jetpack_Modules_Overrides::instance();
