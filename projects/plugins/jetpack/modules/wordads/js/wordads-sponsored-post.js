@@ -60,14 +60,14 @@
 		};
 
 		this.insertMarkup = function ( markup, selector ) {
-			var articles = document.querySelectorAll( selector );
-			var length = articles.length;
+			var posts = document.querySelectorAll( selector );
+			var length = posts.length;
 			var target = null;
 
 			for ( var i = 0; i < length; i++ ) {
-				if ( ! this.isBottomOfElementInViewport( articles[ i ] ) ) {
-					target = articles[ i ];
-					articles[ i ].insertAdjacentHTML( 'afterend', markup );
+				if ( ! this.isBottomOfElementInViewport( posts[ i ] ) ) {
+					target = posts[ i ];
+					posts[ i ].insertAdjacentHTML( 'afterend', markup );
 					break;
 				}
 			}
@@ -314,13 +314,57 @@
 		};
 
 		// Extract the template from the rendered sponsored post placeholder.
-		var placeholder = document.getElementsByClassName( 'wa-sponsored-post' )[ 0 ];
+		var template = document.getElementsByClassName( 'wa-sponsored-post' )[ 0 ];
+
+		// Collect previous sibling elements.
+		var prevElements = [];
+
+		for (
+			var prev = template.previousElementSibling;
+			prev && ! prev.classList.contains( 'hentry' );
+			prev = prev.previousElementSibling
+		) {
+			prevElements.push( prev );
+		}
+
+		// Collect next sibling elements.
+		var nextElements = [];
+
+		for (
+			var next = template.nextElementSibling;
+			next && ! next.classList.contains( 'hentry' );
+			next = next.nextElementSibling
+		) {
+			nextElements.push( next );
+		}
+
+		var hasPrevElements = prevElements.length > 0;
+		var hasNextElements = nextElements.length > 0;
 
 		/*global wa_sponsored_post*/
-		wa_sponsored_post.template = placeholder.outerHTML;
-		wa_sponsored_post.selector = getSelector( placeholder );
 
-		placeholder.parentElement.removeChild( placeholder );
+		/* Four cases we need to handle */
+		if ( ! ( hasPrevElements || hasNextElements ) ) {
+			wa_sponsored_post.template = template.outerHTML;
+			wa_sponsored_post.selector = getSelector( template );
+			template.parentElement.removeChild( template );
+		} else if ( hasPrevElements && ! hasNextElements ) {
+			prevElements.forEach( el => ( wa_sponsored_post.template += el.outerHTML ) );
+			wa_sponsored_post.template += template.outerHTML;
+			wa_sponsored_post.selector = getSelector( template );
+			prevElements.forEach( el => template.parentElement.removeChild( el ) );
+			template.parentElement.removeChild( template );
+		} else if ( ! hasPrevElements && hasNextElements ) {
+			wa_sponsored_post.template = template.outerHTML;
+			wa_sponsored_post.selector = getSelector( template );
+			template.parentElement.removeChild( template );
+		} else if ( hasPrevElements && hasNextElements ) {
+			wa_sponsored_post.template = template.outerHTML;
+			nextElements.forEach( el => ( wa_sponsored_post.template += el.outerHTML ) );
+			wa_sponsored_post.selector = getSelector( template.previousElementSibling );
+			nextElements.forEach( el => template.parentElement.removeChild( el ) );
+			template.parentElement.removeChild( template );
+		}
 
 		const smart = new Smart();
 		await smart.hydrateFromAdCall();

@@ -46,7 +46,14 @@ class WordAds_Sponsored_Post {
 			false
 		);
 
-		wp_localize_script( 'wordads_sponsored', 'wa_sponsored_post', array() );
+		wp_localize_script(
+			'wordads_sponsored',
+			'wa_sponsored_post',
+			array(
+				'template' => '',
+				'selector' => '',
+			)
+		);
 	}
 
 	/**
@@ -77,7 +84,7 @@ class WordAds_Sponsored_Post {
 		$dummy_post            = new WP_Post( $dummy );
 		wp_cache_add( $dummy->ID, $dummy_post, 'posts' );
 
-		$posts[1] = $dummy_post;
+		$posts[] = $dummy_post;
 
 		return $posts;
 	}
