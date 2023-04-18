@@ -323,7 +323,7 @@ export function useSyncMedia(
 
 		debug( '%o Post has been just saved. Syncing...', attributes?.guid );
 
-		setPostHasBeenJustSavedNative( false );
+		isNative && setPostHasBeenJustSavedNative( false );
 
 		if ( ! attributes?.id ) {
 			debug( '%o No media ID found. Impossible to sync. Bail early', attributes?.guid );
