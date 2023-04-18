@@ -1206,6 +1206,12 @@ class Woo_Sync_Background_Sync_Job {
 
 	    // ==== Tax Rates (on local stores only)
 	    if ( !$from_api ) {
+
+			// Force Woo order totals recalculation to ensure taxes were applied correctly
+			$order->calculate_totals();
+			$order->save();
+
+			$order_data = $order->get_data();
 		
 			// retrieve tax table to feed in tax links
 			$tax_rates_table = $this->woosync()->background_sync->get_tax_rates_table();
