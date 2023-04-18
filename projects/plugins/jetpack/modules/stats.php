@@ -1305,55 +1305,57 @@ function stats_dashboard_widget_content() {
 				</a>
 			</div>
 		</div>
-		<div id="top-posts" class="stats-section">
-			<div class="stats-section-inner">
-			<h3 class="heading"><?php esc_html_e( 'Top Posts', 'jetpack' ); ?></h3>
-			<?php
-			if ( empty( $top_posts ) ) {
-				?>
-				<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+		<div class="stats-info-content">
+			<div id="top-posts" class="stats-section">
+				<div class="stats-section-inner">
+				<h3 class="heading"><?php esc_html_e( 'Top Posts', 'jetpack' ); ?></h3>
 				<?php
-			} else {
-				foreach ( $top_posts as $post ) {
-					if ( ! get_post( $post['post_id'] ) ) {
-						continue;
+				if ( empty( $top_posts ) ) {
+					?>
+					<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+					<?php
+				} else {
+					foreach ( $top_posts as $post ) {
+						if ( ! get_post( $post['post_id'] ) ) {
+							continue;
+						}
+						?>
+						<p>
+						<?php
+						printf(
+							esc_html(
+								/* Translators: Stats dashboard widget Post list with view count: "Post Title 1 View (or Views if plural)". */
+								_n( '%1$s %2$s View', '%1$s %2$s Views', $post['views'], 'jetpack' )
+							),
+							'<a href="' . esc_url( get_permalink( $post['post_id'] ) ) . '">' . esc_html( get_the_title( $post['post_id'] ) ) . '</a>',
+							esc_html( number_format_i18n( $post['views'] ) )
+						);
+						?>
+					</p>
+						<?php
 					}
-					?>
-					<p>
-					<?php
-					printf(
-						esc_html(
-							/* Translators: Stats dashboard widget Post list with view count: "Post Title 1 View (or Views if plural)". */
-							_n( '%1$s %2$s View', '%1$s %2$s Views', $post['views'], 'jetpack' )
-						),
-						'<a href="' . esc_url( get_permalink( $post['post_id'] ) ) . '">' . esc_html( get_the_title( $post['post_id'] ) ) . '</a>',
-						esc_html( number_format_i18n( $post['views'] ) )
-					);
-					?>
-				</p>
-					<?php
 				}
-			}
-			?>
-			</div>
-		</div>
-		<div id="top-search" class="stats-section">
-			<div class="stats-section-inner">
-			<h3 class="heading"><?php esc_html_e( 'Top Searches', 'jetpack' ); ?></h3>
-			<?php
-			if ( empty( $searches ) ) {
 				?>
-				<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+				</div>
+			</div>
+			<div id="top-search" class="stats-section">
+				<div class="stats-section-inner">
+				<h3 class="heading"><?php esc_html_e( 'Top Searches', 'jetpack' ); ?></h3>
 				<?php
-			} else {
-				foreach ( $searches as $search_term_item ) {
-					printf(
-						'<p>%s</p>',
-						esc_html( $search_term_item )
-					);
+				if ( empty( $searches ) ) {
+					?>
+					<p class="nothing"><?php esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+					<?php
+				} else {
+					foreach ( $searches as $search_term_item ) {
+						printf(
+							'<p>%s</p>',
+							esc_html( $search_term_item )
+						);
+					}
 				}
-			}
-			?>
+				?>
+				</div>
 			</div>
 		</div>
 	</div>
