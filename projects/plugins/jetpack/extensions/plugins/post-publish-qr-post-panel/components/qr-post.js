@@ -66,7 +66,7 @@ export function QRPostButton() {
 
 	return (
 		<div className="qr-post-button">
-			<Button isSecondary onClick={ switchModal }>
+			<Button variant="secondary" onClick={ switchModal }>
 				{ __( 'Get QR code', 'jetpack' ) }
 			</Button>
 
