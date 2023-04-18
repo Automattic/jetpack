@@ -39,6 +39,21 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Checklist extends WP_REST_Controller 
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_data' ),
 					'permission_callback' => array( $this, 'can_access' ),
+					'args'                => array(
+						'checklist_slug' => array(
+							'description' => 'Checklist slug',
+							'type'        => 'string',
+							'enum'        => array(
+								'build',
+								'free',
+								'link-in-bio',
+								'link-in-bio-tld',
+								'newsletter',
+								'videopress',
+								'write',
+							),
+						),
+					),
 				),
 			)
 		);
