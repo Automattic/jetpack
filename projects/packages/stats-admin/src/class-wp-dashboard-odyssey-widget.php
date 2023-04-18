@@ -49,7 +49,13 @@ class WP_Dashboard_Odyssey_Widget {
 		$config_data = ( new Odyssey_Config_Data() )->get_data();
 		// The widget doesn't use redux.
 		unset( $config_data['intial_state'] );
-		// TODO: change `configData` to a more unique name to avoid future conflicts.
-		( new Odyssey_Assets() )->load_admin_scripts( 'jetpack_stats_widget', 'widget-loader.min', 'configData', $config_data );
+		( new Odyssey_Assets() )->load_admin_scripts(
+			'jetpack_stats_widget',
+			'widget-loader.min',
+			array(
+				'config_variable_name' => 'jetpackStatsOdysseyWidgetConfigData',
+				'config_data'          => $config_data,
+			)
+		);
 	}
 }
