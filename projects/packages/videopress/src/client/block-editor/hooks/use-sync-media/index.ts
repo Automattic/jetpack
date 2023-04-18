@@ -179,9 +179,7 @@ export function useSyncMedia(
 		const subscription = subscribePostSaveEvent( () => setPostHasBeenJustSavedNative( true ) );
 
 		return () => {
-			if ( subscription ) {
-				subscription.remove();
-			}
+			subscription?.remove();
 		};
 	}, [] );
 
