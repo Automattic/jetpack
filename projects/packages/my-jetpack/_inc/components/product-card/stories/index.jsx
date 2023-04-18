@@ -113,3 +113,20 @@ WithMenu.args = {
 		},
 	],
 };
+
+export const WithMenuForStandalone = Template.bind( {} );
+WithMenuForStandalone.args = {
+	...DefaultArgs,
+	showMenu: true,
+	menuItems: [
+		{
+			label: 'Upload',
+			icon: arrowUp,
+		},
+	],
+	onInstallStandalone: () => alert( 'Installing standalone plugin' ),
+	onActivateStandalone: () => alert( 'Activating standalone plugin' ),
+	hasStandalonePlugin: true,
+	isStandaloneInstalled: false,
+	isStandaloneActive: false,
+};
