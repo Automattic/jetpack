@@ -48,7 +48,7 @@
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.21.4",
 		"@babel/preset-env": "7.21.4",
-		"@storybook/react": "7.0.4",
+		"@storybook/react": "7.0.5",
 		"@testing-library/dom": "8.19.1",
 		"@testing-library/react": "13.4.0",
 		"@testing-library/user-event": "14.4.3",
