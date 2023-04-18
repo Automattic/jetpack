@@ -112,31 +112,6 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 	}
 
 	/**
-	 * Test updating site_intent.
-	 *
-	 * @covers ::update_site_options
-	 */
-	public function test_update_site_intent() {
-		wp_set_current_user( $this->admin_id );
-
-		$data = array(
-			'site_intent' => 'write',
-		);
-
-		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/launchpad' );
-		$request->set_header( 'content_type', 'application/json' );
-		$request->set_body( wp_json_encode( $data ) );
-
-		$this->assertFalse( get_option( 'site_intent' ) );
-
-		$result = rest_do_request( $request );
-
-		$this->assertSame( 200, $result->get_status() );
-		$this->assertSame( array( 'updated' => array( 'site_intent' => 'write' ) ), $result->get_data() );
-		$this->assertSame( 'write', get_option( 'site_intent' ) );
-	}
-
-	/**
 	 * Test updating multiple options.
 	 *
 	 * @covers ::update_site_options
@@ -145,7 +120,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		wp_set_current_user( $this->admin_id );
 
 		$data = array(
-			'site_intent'        => 'write',
+			'launchpad_screen'   => 'off',
 			'checklist_statuses' => array(
 				'site_launched' => true,
 			),
@@ -155,12 +130,12 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Test extends \WorDBless\BaseTestCase 
 		$request->set_header( 'content_type', 'application/json' );
 		$request->set_body( wp_json_encode( $data ) );
 
-		$this->assertFalse( get_option( 'site_intent' ) );
+		$this->assertFalse( get_option( 'launchpad_screen' ) );
 
 		$result = rest_do_request( $request );
 
 		$this->assertSame( 200, $result->get_status() );
-		$this->assertSame( 'write', get_option( 'site_intent' ) );
+		$this->assertSame( 'off', get_option( 'launchpad_screen' ) );
 		$this->assertSame( $data, $result->get_data()['updated'] );
 		$this->assertSame( array( 'site_launched' => true ), get_option( 'launchpad_checklist_tasks_statuses' ) );
 	}

@@ -72,19 +72,6 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 							),
 							'additionalProperties' => false,
 						),
-						'site_intent'        => array(
-							'description' => 'Site intent',
-							'type'        => 'string',
-							'enum'        => array(
-								'build',
-								'free',
-								'link-in-bio',
-								'newsletter',
-								'podcast',
-								'videopress',
-								'write',
-							),
-						),
 						'launchpad_screen'   => array(
 							'description' => 'Launchpad screen',
 							'type'        => 'string',
