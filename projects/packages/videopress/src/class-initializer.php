@@ -129,6 +129,10 @@ class Initializer {
 		XMLRPC::init();
 		Block_Editor_Content::init();
 		self::register_oembed_providers();
+
+		// Enqueuethe VideoPress Iframe API script in the front-end.
+		add_filter( 'embed_oembed_html', array( __CLASS__, 'enqueue_videopress_iframe_api_script' ), 10, 4 );
+
 		if ( self::should_initialize_admin_ui() ) {
 			Admin_UI::init();
 		}
@@ -339,9 +343,6 @@ class Initializer {
 				'textdomain' => 'jetpack-videopress-pkg',
 			)
 		);
-
-		// Handle enqueuing of the VideoPress Iframe API script in the front-end.
-		add_filter( 'embed_oembed_html', array( __CLASS__, 'enqueue_videopress_iframe_api_script' ), 10, 4 );
 
 		// Register VideoPress video block.
 		register_block_type(
