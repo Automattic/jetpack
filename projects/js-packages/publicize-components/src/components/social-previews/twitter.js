@@ -61,7 +61,7 @@ export function Twitter( { isTweetStorm, tweets, media } ) {
 							{
 								LearnMoreLink: (
 									<a
-										href={ 'https://jetpack.com/support/jetpack-social/twitter/' }
+										href={ 'https://jetpack.com/support/jetpack-social-image-generator' }
 										rel="noopener noreferrer"
 										target="_blank"
 									/>
