@@ -78,13 +78,13 @@ class REST_Controller {
 			)
 		);
 
-		// Get currently promoted product from the product's endpoint.
+		// Get current social product from the product's endpoint.
 		register_rest_route(
 			'jetpack/v4',
-			'/social-promoted-product-info',
+			'/social-product-info',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_social_promoted_product_info' ),
+				'callback'            => array( $this, 'get_social_product_info' ),
 				'permission_callback' => array( $this, 'require_admin_privilege_callback' ),
 			)
 		);
@@ -176,21 +176,16 @@ class REST_Controller {
 	}
 
 	/**
-	 * Gets information about the currently promoted social product.
+	 * Gets information about the current social product plans.
 	 *
-	 * @return string|WP_Error A JSON object of the current social product being promoted if the request was successful, or a WP_Error otherwise.
+	 * @return string|WP_Error A JSON object of the current social product being if the request was successful, or a WP_Error otherwise.
 	 */
-	public static function get_social_promoted_product_info() {
+	public static function get_social_product_info() {
 		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?locale=' . get_user_locale() . '&type=jetpack';
 		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
-		if ( 200 === $response_code ) {
-			$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
-			return array(
-				'advanced' => $products->{self::JETPACK_SOCIAL_ADVANCED_YEARLY},
-				'basic'    => $products->{self::JETPACK_SOCIAL_BASIC_YEARLY},
-			);
-		} else {
+
+		if ( 200 !== $response_code ) {
 			// Something went wrong so we'll just return the response without caching.
 			return new WP_Error(
 				'failed_to_fetch_data',
@@ -201,6 +196,12 @@ class REST_Controller {
 				)
 			);
 		}
+
+		$products = json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+		return array(
+			'advanced' => $products->{self::JETPACK_SOCIAL_ADVANCED_YEARLY},
+			'basic'    => $products->{self::JETPACK_SOCIAL_BASIC_YEARLY},
+		);
 	}
 
 	/**

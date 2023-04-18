@@ -102,7 +102,7 @@ const PricingPage = () => {
 		>
 			<PricingTableColumn primary>
 				<PricingTableHeader>
-					{ productInfo ? (
+					{ productInfo?.advanced ? (
 						<ProductPrice
 							price={ productInfo?.advanced?.price }
 							offPrice={ productInfo?.advanced?.introOffer }
@@ -144,7 +144,7 @@ const PricingPage = () => {
 			</PricingTableColumn>
 			<PricingTableColumn primary>
 				<PricingTableHeader>
-					{ productInfo ? (
+					{ productInfo?.basic ? (
 						<ProductPrice
 							price={ productInfo?.basic?.price }
 							offPrice={ productInfo?.basic?.introOffer }

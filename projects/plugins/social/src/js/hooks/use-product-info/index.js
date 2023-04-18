@@ -11,11 +11,11 @@ const getPriceData = productObject => {
 };
 
 const parsePromotedProductInfo = response => {
-	const currencyCode = response.advanced.currency_code;
+	const currencyCode = response?.advanced?.currency_code || response?.basic?.currency_code || 'USD';
 	return {
 		currencyCode,
-		basic: getPriceData( response.basic ),
-		advanced: getPriceData( response.advanced ),
+		basic: response?.basic ? getPriceData( response.basic ) : null,
+		advanced: response?.advanced ? getPriceData( response.advanced ) : null,
 	};
 };
 
@@ -30,7 +30,7 @@ export default function useProductInfo() {
 	const getAsyncInfo = useCallback( async () => {
 		try {
 			const socialPromotedProductInfo = await apiFetch( {
-				path: '/jetpack/v4/social-promoted-product-info',
+				path: '/jetpack/v4/social-product-info',
 			} );
 			setProductInfo( parsePromotedProductInfo( socialPromotedProductInfo ) );
 		} catch {
