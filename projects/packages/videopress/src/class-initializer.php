@@ -16,6 +16,7 @@ class Initializer {
 
 	const JETPACK_VIDEOPRESS_VIDEO_HANDLER      = 'jetpack-videopress-video-block';
 	const JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER = 'jetpack-videopress-video-block-view';
+	const JETPACK_VIDEOPRESS_IFRAME_API_HANDLER = 'jetpack-videopress-iframe-api';
 
 	/**
 	 * Initialization optinos
@@ -128,6 +129,10 @@ class Initializer {
 		XMLRPC::init();
 		Block_Editor_Content::init();
 		self::register_oembed_providers();
+
+		// Enqueuethe VideoPress Iframe API script in the front-end.
+		add_filter( 'embed_oembed_html', array( __CLASS__, 'enqueue_videopress_iframe_api_script' ), 10, 4 );
+
 		if ( self::should_initialize_admin_ui() ) {
 			Admin_UI::init();
 		}
@@ -339,14 +344,6 @@ class Initializer {
 			)
 		);
 
-		wp_enqueue_script(
-			self::JETPACK_VIDEOPRESS_VIDEO_VIEW_HANDLER . '-iframe-api',
-			'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress-iframe-api.js',
-			array(),
-			gmdate( 'YW' ),
-			false
-		);
-
 		// Register VideoPress video block.
 		register_block_type(
 			$videopress_video_metadata_file,
@@ -354,5 +351,31 @@ class Initializer {
 				'render_callback' => array( __CLASS__, 'render_videopress_video_block' ),
 			)
 		);
+	}
+
+	/**
+	 * Enqueue the VideoPress Iframe API script
+	 * when the URL of oEmbed HTML is a VideoPress URL.
+	 *
+	 * @param string|false $cache   The cached HTML result, stored in post meta.
+	 * @param string       $url     The attempted embed URL.
+	 * @param array        $attr    An array of shortcode attributes.
+	 * @param int          $post_ID Post ID.
+	 *
+	 * @return string|false
+	 */
+	public static function enqueue_videopress_iframe_api_script( $cache, $url, $attr, $post_ID ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( Utils::is_videopress_url( $url ) ) {
+			// Enqueue the VideoPress IFrame API in the front-end.
+			wp_enqueue_script(
+				self::JETPACK_VIDEOPRESS_IFRAME_API_HANDLER,
+				'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress-iframe-api.js',
+				array(),
+				gmdate( 'YW' ),
+				false
+			);
+		}
+
+		return $cache;
 	}
 }
