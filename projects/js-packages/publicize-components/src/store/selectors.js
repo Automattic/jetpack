@@ -37,6 +37,31 @@ export function getMustReauthConnections() {
 }
 
 /**
+ * Returns a template for linkedIn data, based on the first linkedin account found.
+ *
+ * @param {object} args - Arguments.
+ * @param {boolean} args.forceDefaults - Whether to use default values.
+ * @returns {object} The linkedin account data.
+ */
+export function getLinkedInDetails( { forceDefaults = false } = {} ) {
+	if ( ! forceDefaults ) {
+		const connection = getConnections().find( ( { service_name } ) => 'linkedin' === service_name );
+
+		if ( connection ) {
+			return {
+				name: connection.display_name,
+				profileImage: connection.profile_picture,
+			};
+		}
+	}
+
+	return {
+		name: __( 'Account Name', 'jetpack' ),
+		profileImage: 'https://static.licdn.com/sc/h/1c5u578iilxfi4m4dvc4q810q',
+	};
+}
+
+/**
  * Returns a template for tweet data, based on the first Twitter account found.
  *
  * @param {object} state - State object.
@@ -235,6 +260,19 @@ export function getTwitterCardForURLs( state, urls ) {
  */
 export function twitterCardIsCached( state, url ) {
 	return !! state.twitterCards[ url ];
+}
+
+/**
+ * Gets the text that will be used when sharing this post on LinkedIn.
+ *
+ * @returns {string} The share message.
+ */
+export function getTextForLinkedIn() {
+	const { getEditedPostAttribute } = select( 'core/editor' );
+	const meta = getEditedPostAttribute( 'meta' );
+	const text = meta?.jetpack_publicize_message || getEditedPostAttribute( 'title' ) || '';
+
+	return text;
 }
 
 /**
