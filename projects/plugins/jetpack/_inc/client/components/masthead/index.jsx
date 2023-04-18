@@ -46,7 +46,7 @@ export class Masthead extends React.Component {
 				<div className="jp-masthead__inside-container">
 					<div className="jp-masthead__logo-container">
 						<a onClick={ this.trackLogoClick } className="jp-masthead__logo-link" href="#dashboard">
-							<JetpackLogo className="jetpack-logo__masthead" />
+							<JetpackLogo className="jetpack-logo__masthead" height={ 40 } />
 						</a>
 						{ offlineNotice }
 						{ sandboxedBadge }

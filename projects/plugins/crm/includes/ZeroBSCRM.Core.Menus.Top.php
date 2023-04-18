@@ -276,7 +276,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		<div class="ui mobile tablet only" id="zbs-mobile-nav">
 			<div id="zbs-main-logo-mobile">
 				<div class="zbs-face-1-mobile">
-					<img id="zbs-main-logo-mobby" alt="Jetpack CRM mobile logo" src="<?php echo esc_url( jpcrm_get_logo( true, 'white' ) ); ?>" style="cursor:pointer;">
+					<img id="zbs-main-logo-mobby" alt="Jetpack CRM mobile logo" src="<?php echo esc_url( jpcrm_get_logo( false, 'white' ) ); ?>" style="cursor:pointer;">
 				</div>
 			</div>
 			<?php
@@ -347,7 +347,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		<div class="item <?php echo esc_attr( $admin_menu_state ); ?> mobile hidden" id="zbs-main-logo-wrap">
 			<div class="zbs-cube" id="zbs-main-logo-cube-wrap">
 				<div class="zbs-face1">
-					<img id="zbs-main-logo" alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo() ); ?>" style="cursor:pointer;">
+					<img id="zbs-main-logo" alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>" style="cursor:pointer;">
 				</div>
 				<div class="zbs-face2">
 					<i class="expand icon fa-flip-horizontal"></i>
@@ -565,25 +565,31 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['managetransactions'] ) ); ?>"><i class="icon list"></i> <?php esc_html_e( 'View all', 'zero-bs-crm' ); ?></a>
 					<a class="item" href="<?php echo jpcrm_esc_link( 'tags', -1, 'zerobs_transaction', false, 'zerobscrm_transactiontag' ); ?>"><i class="icon tags"></i> <?php esc_html_e( 'Tags', 'zero-bs-crm' ); ?></a>
 
-					<?php if ( zeroBSCRM_permsTransactions() ) { ?>
+					<?php
+					if ( zeroBSCRM_permsTransactions() ) {
+						// If CSV Pro is installed and active it will add an Import menu item to the zbs-transactions-menu filter - we'll then add that here
+						$transactions_menu = array();
+						$transactions_menu = apply_filters( 'zbs-transactions-menu', $transactions_menu ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+						$import_menu_item  = preg_grep( '/\bpage\=zerobscrm\-csvimporter\-app\b/i', $transactions_menu );
+						if ( count( $import_menu_item ) > 0 ) {
+							echo wp_kses( $import_menu_item[0], $zbs->acceptable_html );
+							$transactions_menu = array_diff( $transactions_menu, $import_menu_item );
+						}
+						?>
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['export-tools'] ) ); ?>&zbstype=transaction"><i class="icon cloud download"></i> <?php esc_html_e( 'Export', 'zero-bs-crm' ); ?></a>
 					<?php } ?>
 
 					<?php
 
-						// filter items (allows additions from ext etc.)
-						// for now empty (could contain the above)
-						$transactionsMenu = array();
-						$transactionsMenu = apply_filters( 'zbs-transactions-menu', $transactionsMenu );
-					if ( count( $transactionsMenu ) > 0 ) {
-
+					// Display remaining menu items added via the zbs-transactions-menu filter
+					if ( count( $transactions_menu ) > 0 ) {
 						// show divider?
 						?>
-							<div class="ui divider"></div>
-							<?php
-
-							foreach ( $transactionsMenu as $menuItem ) {
-								echo $menuItem; }
+						<div class="ui divider"></div>
+						<?php
+						foreach ( $transactions_menu as $menu_item ) {
+							echo wp_kses( $menu_item, $zbs->acceptable_html );
+						}
 					}
 
 					?>

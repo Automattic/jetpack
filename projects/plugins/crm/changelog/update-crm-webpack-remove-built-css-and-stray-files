@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Tooling: remove CSS from the monorepo but not production and cleaning up gitattibutes and gitignore

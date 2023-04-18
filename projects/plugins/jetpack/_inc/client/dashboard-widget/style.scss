@@ -101,7 +101,12 @@
 				}
 				p {
 					margin: 0 0 .25em;
-					color: #999;
+					color: var(--jp-gray-40);
+
+					&.nothing {
+						color: var(--jp-gray-60);
+					}
+
 					&.widget-loading {
 						margin: 1em 0 0;
 						color: #333;
@@ -128,12 +133,25 @@
 		overflow: hidden;
 
 		display: grid;
-		gap: 1em 1em;
+		row-gap: 1em;
 		grid-template-areas:
-			'header header'
+			'header'
+			'content';
+		grid-template-rows: min-content min-content;
+	}
+
+	.stats-info-content {
+		grid-area: content;
+		display: grid;
+		grid-template-areas:
 			'posts searches';
 		grid-template-columns: 1fr 1fr;
-		grid-template-rows: min-content min-content;
+		column-gap: 1em;
+
+		.stats-section {
+			// Make sure the stats section doesn't overflow the container, which makes ellipsis work.
+			min-width: 0;
+		}
 	}
 
 	#stats-info .stats-info-header {
