@@ -9,7 +9,7 @@ import ProductCard from '../product-card';
 const ConnectedProductCard = ( { admin, slug, children } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 	const { detail, status, activate, deactivate, isFetching } = useProduct( slug );
-	const { name, description, manageUrl, requiresUserConnection } = detail;
+	const { name, description, manageUrl, requiresUserConnection, standalonePluginInfo } = detail;
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 
@@ -56,6 +56,9 @@ const ConnectedProductCard = ( { admin, slug, children } ) => {
 			onAdd={ navigateToAddProductPage }
 			onManage={ onManage }
 			onFixConnection={ navigateToConnectionPage }
+			hasStandalonePlugin={ standalonePluginInfo?.hasStandalonePlugin }
+			isStandaloneInstalled={ standalonePluginInfo?.isStandaloneInstalled }
+			isStandaloneActive={ standalonePluginInfo?.isStandaloneActive }
 		>
 			{ children }
 		</ProductCard>
