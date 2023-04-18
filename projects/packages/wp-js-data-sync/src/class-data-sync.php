@@ -86,7 +86,6 @@ final class Data_Sync {
 	 * @var Data_Sync[]
 	 */
 	private static $instance = array();
-
 	/**
 	 * @var string The namespace to use for the registry.
 	 */

@@ -21,7 +21,7 @@ class Speed_Score {
 	 * @var Modules_Setup
 	 */
 	protected $modules;
-	
+
 	public function __construct( Modules_Setup $modules ) {
 		$this->modules = $modules;
 
@@ -284,6 +284,5 @@ class Speed_Score {
 
 		return rest_ensure_response( $response );
 	}
-
 
 }
