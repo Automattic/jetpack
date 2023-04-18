@@ -28,7 +28,7 @@ async function runTests() {
 	const siteUrl = resolveSiteUrl();
 
 	execSyncShellCommand( `export WP_BASE_URL=${ siteUrl } &&
-	cd ../../gutenberg &&
+	cd ../../gutenberg && mkdir -p artifacts &&
 	npm run test:performance packages/e2e-tests/specs/performance/post-editor.test.js` );
 }
 
