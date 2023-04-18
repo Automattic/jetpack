@@ -19,6 +19,7 @@ const PRODUCT_STATUSES_LABELS = {
 
 /* eslint-disable react/jsx-no-bind */
 const Menu = ( {
+	productStatus,
 	items = [],
 	onManage,
 	onInstall,
@@ -63,21 +64,22 @@ const Menu = ( {
 							{ item?.label }
 						</Button>
 					) ) }
-					<Button
-						weight="regular"
-						fullWidth
-						variant="tertiary"
-						icon={ external }
-						onClick={ () => {
-							onClose();
-							onManage?.();
-						} }
-					>
-						{ __( 'Manage', 'jetpack-my-jetpack' ) }
-					</Button>
+					{ productStatus === PRODUCT_STATUSES.ACTIVE && (
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							icon={ external }
+							onClick={ () => {
+								onClose();
+								onManage?.();
+							} }
+						>
+							{ __( 'Manage', 'jetpack-my-jetpack' ) }
+						</Button>
+					) }
 					{ showStandaloneOption && (
 						<>
-							<hr />
 							{ ! isStandaloneInstalled && (
 								<Button
 									weight="regular"
@@ -256,7 +258,7 @@ const ProductCard = props => {
 				</div>
 				{ menuIsActive ? (
 					<Menu
-						status={ status }
+						productStatus={ status }
 						items={ menuItems }
 						onManage={ onManage }
 						onInstall={ installStandaloneHandler }
