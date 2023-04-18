@@ -1,7 +1,7 @@
 .jp-dash-section-header {
 	display: flex;
 	flex-wrap: wrap;
-	margin: rem( 40px ) 0 rem( 8px );
+	margin: rem( 12px ) 0 rem( 12px );
 
 	@include breakpoint( "<660px" ) {
 		margin-bottom: rem( 24px );
@@ -21,9 +21,10 @@
 	display: inline-block;
 	margin-top: 0;
 	margin-bottom: 0;
-	font-size: $font-title-small;
+	font-size: $font-title-medium;
 	font-weight: 400;
 	white-space: nowrap;
+	color: $black;
 
 	@include breakpoint( ">480px" ) {
 		display: inline-block;

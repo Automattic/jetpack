@@ -10,6 +10,14 @@
 	}
 }
 
+.jp-dash-section-header.jp-dash-section-header-stats {
+	margin-bottom: 0;
+
+	.jp-dash-section-header__name {
+		margin-bottom: rem(12px);
+	}
+}
+
 .jp-at-a-glance__stats-card {
 	padding: 0;
 }
@@ -241,7 +249,7 @@
 	display: inline-block;
 	margin-top: 0;
 	margin-bottom: 0;
-	margin-left: rem( 16px );
+	margin-left: rem( 12px );
 
 	&:focus {
 		outline: 0;
@@ -255,20 +263,26 @@
 
 .jp-at-a-glance__stats-view-link,
 .jp-at-a-glance__stats-view-link:visited {
-	color: $gray;
+	color: $gray-60;
 	text-decoration: underline;
+	font-size: 16px;
+	line-height: 24px;
+	letter-spacing: -0.02em;
+	padding: 0 4px;
 
 	&.is-current,
 	&:visited.is-current,
 	&:focus.is-current {
-		color: #1d2327;
+		color: $black;
 		text-decoration: none;
+		padding-bottom: rem(11px);
+		border-bottom: 2px solid $black;
 	}
 }
 
 .jp-at-a-glance__stats-view-link:focus {
 	outline: 0;
-	box-shadow: 0 0 0 1px #4f94d4, 0 0 2px 1px rgba( 30, 140, 190, 0.8 );
+	box-shadow: none;
 }
 
 // heavy flexbox nesting below, careful! – @jeffgolenski
