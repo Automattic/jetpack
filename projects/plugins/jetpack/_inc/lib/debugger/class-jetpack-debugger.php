@@ -48,195 +48,211 @@ class Jetpack_Debugger {
 		$cxntests = new Jetpack_Cxn_Tests();
 		?>
 		<div class="wrap">
-			<h2><?php esc_html_e( 'Debugging Center', 'jetpack' ); ?></h2>
-				<h3><?php esc_html_e( "Testing your site's compatibility with Jetpack...", 'jetpack' ); ?></h3>
-				<div class="jetpack-debug-test-container">
-					<?php
-					if ( $cxntests->pass() ) {
-						echo '<div class="jetpack-tests-succeed">' . esc_html__( 'Your Jetpack setup looks a-okay!', 'jetpack' ) . '</div>';
-					} else {
-						$failures = $cxntests->list_fails();
-						foreach ( $failures as $fail ) {
-							$action_link  = $fail['action'];
-							$action_label = $fail['action_label'];
-							$action       = ( $action_link ) ? '<a href="' . $action_link . '">' . $action_label . '</a>' : $action_label;
-							echo '<div class="jetpack-test-error">';
-							echo '<p><a class="jetpack-test-heading" href="#">' . esc_html( $fail['short_description'] );
-							echo '<span class="noticon noticon-collapse"></span></a></p>';
-							echo '<p class="jetpack-test-details">' . wp_kses(
-								$action,
-								array(
-									'a' => array(
-										'href'   => array(),
-										'target' => array(),
-										'rel'    => array(),
-									),
-								)
-							) . '</p>';
-							echo '</div>';
+			<div class="jp-static-block">
+				<h2><?php esc_html_e( 'Debugging Center', 'jetpack' ); ?></h2>
+
+				<div class="jp-static-block-body">
+					<h3><?php esc_html_e( "Testing your site's compatibility with Jetpack...", 'jetpack' ); ?></h3>
+					<div class="jetpack-debug-test-container">
+						<?php
+						if ( $cxntests->pass() ) {
+							echo '<div class="jetpack-tests-succeed">' . esc_html__( 'Your Jetpack setup looks a-okay!', 'jetpack' ) . '</div>';
+						} else {
+							$failures = $cxntests->list_fails();
+							foreach ( $failures as $fail ) {
+								$action_link  = $fail['action'];
+								$action_label = $fail['action_label'];
+								$action       = ( $action_link ) ? '<a href="' . $action_link . '">' . $action_label . '</a>' : $action_label;
+								echo '<div class="jetpack-test-error">';
+								echo '<p><a class="jetpack-test-heading" href="#">' . esc_html( $fail['short_description'] );
+								echo '<span class="noticon noticon-collapse"></span></a></p>';
+								echo '<p class="jetpack-test-details">' . wp_kses(
+									$action,
+									array(
+										'a' => array(
+											'href'   => array(),
+											'target' => array(),
+											'rel'    => array(),
+										),
+									)
+								) . '</p>';
+								echo '</div>';
+							}
 						}
+						?>
+					</div>
+
+					<div class="entry-content">
+						<h4><?php esc_html_e( 'Trouble with Jetpack?', 'jetpack' ); ?></h4>
+						<p><?php esc_html_e( 'It may be caused by one of these issues, which you can diagnose yourself:', 'jetpack' ); ?></p>
+						<ol>
+							<li><?php esc_html_e( 'A known issue.', 'jetpack' ); ?>
+								<?php
+								echo sprintf(
+									wp_kses(
+										/* translators: URLs to Jetpack support pages. */
+										__( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%2$s" target="_blank">list</a>. (You can also browse the <a href="%3$s" target="_blank">Jetpack support pages</a> or <a href="%4$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ),
+										array(
+											'a' => array(
+												'href'   => array(),
+												'target' => array(),
+											),
+										)
+									),
+									esc_url( Redirect::get_url( 'jetpack-contact-support-known-issues' ) ),
+									esc_url( Redirect::get_url( 'jetpack-contact-support-known-issues' ) ),
+									esc_url( Redirect::get_url( 'jetpack-support' ) ),
+									esc_url( Redirect::get_url( 'wporg-support-plugin-jetpack' ) )
+								);
+								?>
+							</li>
+							<li>
+								<?php esc_html_e( 'An incompatible plugin.', 'jetpack' ); ?>
+								<?php esc_html_e( "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help.", 'jetpack' ); ?>
+							</li>
+							<li>
+								<?php esc_html_e( 'A theme conflict.', 'jetpack' ); ?>
+								<?php
+								$default_theme = wp_get_theme( WP_DEFAULT_THEME );
+
+								if ( $default_theme->exists() ) {
+									/* translators: %s is the name of a theme */
+									echo esc_html( sprintf( __( "If your problem isn't known or caused by a plugin, try activating %s (the default WordPress theme).", 'jetpack' ), $default_theme->get( 'Name' ) ) );
+								} else {
+									esc_html_e( "If your problem isn't known or caused by a plugin, try activating the default WordPress theme.", 'jetpack' );
+								}
+								?>
+								<?php esc_html_e( "If this solves the problem, something in your theme is probably broken – let the theme's author know.", 'jetpack' ); ?>
+							</li>
+							<li>
+								<?php esc_html_e( 'A problem with your XMLRPC file.', 'jetpack' ); ?>
+								<?php
+								echo sprintf(
+									wp_kses(
+										/* translators: The URL to the site's xmlrpc.php file. */
+										__( 'Load your <a href="%s">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself.', 'jetpack' ),
+										array( 'a' => array( 'href' => array() ) )
+									),
+									esc_attr( site_url( 'xmlrpc.php' ) )
+								);
+								?>
+								<ul>
+									<li><?php esc_html_e( "If it's not by itself, a theme or plugin is displaying extra characters. Try steps 2 and 3.", 'jetpack' ); ?></li>
+									<li><?php esc_html_e( 'If you get a 404 message, contact your web host. Their security may block XMLRPC.', 'jetpack' ); ?></li>
+								</ul>
+							</li>
+
+							<?php if ( current_user_can( 'jetpack_disconnect' ) && Jetpack::is_connection_ready() ) : ?>
+								<li>
+									<?php esc_html_e( 'A connection problem with WordPress.com.', 'jetpack' ); ?>
+									<?php
+									echo sprintf(
+										wp_kses(
+											/* translators: URL to disconnect and reconnect Jetpack. */
+											__( 'Jetpack works by connecting to WordPress.com for a lot of features. Sometimes, when the connection gets messed up, you need to disconnect and reconnect to get things working properly. <a href="%s">Disconnect from WordPress.com</a>', 'jetpack' ),
+											array(
+												'a' => array(
+													'href' => array(),
+													'class' => array(),
+												),
+											)
+										),
+										esc_attr(
+											wp_nonce_url(
+												Jetpack::admin_url(
+													array(
+														'page' => 'jetpack-debugger',
+														'disconnect' => true,
+													)
+												),
+												'jp_disconnect',
+												'nonce'
+											)
+										)
+									);
+									?>
+								</li>
+							<?php endif; ?>
+						</ol>
+
+						<h4><?php esc_html_e( 'Still having trouble?', 'jetpack' ); ?></h4>
+						<p>
+							<?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?>
+
+							<?php
+							/**
+							 * Offload to new WordPress debug data.
+							 */
+							echo sprintf(
+								wp_kses(
+									/* translators: URL for Jetpack support. URL for WordPress's Site Health */
+									__( '<a href="%1$s">Contact our Happiness team</a>. When you do, please include the <a href="%2$s">full debug information from your site</a>.', 'jetpack' ),
+									array( 'a' => array( 'href' => array() ) )
+								),
+								esc_url( $support_url ),
+								esc_url( admin_url() . 'site-health.php?tab=debug' )
+							);
+							?>
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="jp-static-block">
+				<h2><?php esc_html_e( 'More details about your Jetpack settings', 'jetpack' ); ?></h2>
+
+				<div class="jp-static-block-body">
+					<?php if ( Jetpack::is_connection_ready() ) : ?>
+						<div id="connected-user-details">
+							<p>
+								<?php
+								printf(
+									wp_kses(
+										/* translators: %s is an e-mail address */
+										__( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ),
+										array( 'strong' => array() )
+									),
+									esc_html( Jetpack::get_master_user_email() )
+								);
+								?>
+							</p>
+						</div>
+					<?php else : ?>
+						<div id="dev-mode-details">
+							<p>
+								<?php
+								printf(
+									wp_kses(
+										/* translators: Link to a Jetpack support page. */
+										__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s offline mode</a>.', 'jetpack' ),
+										array( 'a' => array( 'href' => array() ) )
+									),
+									esc_url( Redirect::get_url( 'jetpack-support-development-mode' ) )
+								);
+								?>
+							</p>
+						</div>
+					<?php endif; ?>
+
+					<?php
+					if (
+						current_user_can( 'jetpack_manage_modules' )
+						&& ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() )
+					) {
+						printf(
+							wp_kses(
+								'<p><a href="%1$s">%2$s</a></p>',
+								array(
+									'a' => array( 'href' => array() ),
+									'p' => array(),
+								)
+							),
+							esc_attr( Jetpack::admin_url( 'page=jetpack_modules' ) ),
+							esc_html__( 'Access the full list of Jetpack modules available on your site.', 'jetpack' )
+						);
 					}
 					?>
 				</div>
-			<div class="entry-content">
-				<h3><?php esc_html_e( 'Trouble with Jetpack?', 'jetpack' ); ?></h3>
-				<h4><?php esc_html_e( 'It may be caused by one of these issues, which you can diagnose yourself:', 'jetpack' ); ?></h4>
-				<ol>
-					<li><b><em>
-						<?php
-						esc_html_e( 'A known issue.', 'jetpack' );
-						?>
-					</em></b>
-						<?php
-						echo sprintf(
-							wp_kses(
-								/* translators: URLs to Jetpack support pages. */
-								__( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%2$s" target="_blank">list</a>. (You can also browse the <a href="%3$s" target="_blank">Jetpack support pages</a> or <a href="%4$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ),
-								array(
-									'a' => array(
-										'href'   => array(),
-										'target' => array(),
-									),
-								)
-							),
-							esc_url( Redirect::get_url( 'jetpack-contact-support-known-issues' ) ),
-							esc_url( Redirect::get_url( 'jetpack-contact-support-known-issues' ) ),
-							esc_url( Redirect::get_url( 'jetpack-support' ) ),
-							esc_url( Redirect::get_url( 'wporg-support-plugin-jetpack' ) )
-						);
-						?>
-						</li>
-					<li><b><em><?php esc_html_e( 'An incompatible plugin.', 'jetpack' ); ?></em></b>  <?php esc_html_e( "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help.", 'jetpack' ); ?></li>
-					<li>
-						<b><em><?php esc_html_e( 'A theme conflict.', 'jetpack' ); ?></em></b>
-						<?php
-							$default_theme = wp_get_theme( WP_DEFAULT_THEME );
-
-						if ( $default_theme->exists() ) {
-							/* translators: %s is the name of a theme */
-							echo esc_html( sprintf( __( "If your problem isn't known or caused by a plugin, try activating %s (the default WordPress theme).", 'jetpack' ), $default_theme->get( 'Name' ) ) );
-						} else {
-							esc_html_e( "If your problem isn't known or caused by a plugin, try activating the default WordPress theme.", 'jetpack' );
-						}
-						?>
-						<?php esc_html_e( "If this solves the problem, something in your theme is probably broken – let the theme's author know.", 'jetpack' ); ?>
-					</li>
-					<li><b><em><?php esc_html_e( 'A problem with your XMLRPC file.', 'jetpack' ); ?></em></b>
-						<?php
-						echo sprintf(
-							wp_kses(
-								/* translators: The URL to the site's xmlrpc.php file. */
-								__( 'Load your <a href="%s">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself.', 'jetpack' ),
-								array( 'a' => array( 'href' => array() ) )
-							),
-							esc_attr( site_url( 'xmlrpc.php' ) )
-						);
-						?>
-						<ul>
-							<li>- <?php esc_html_e( "If it's not by itself, a theme or plugin is displaying extra characters. Try steps 2 and 3.", 'jetpack' ); ?></li>
-							<li>- <?php esc_html_e( 'If you get a 404 message, contact your web host. Their security may block XMLRPC.', 'jetpack' ); ?></li>
-						</ul>
-					</li>
-					<?php if ( current_user_can( 'jetpack_disconnect' ) && Jetpack::is_connection_ready() ) : ?>
-						<li>
-							<strong><em><?php esc_html_e( 'A connection problem with WordPress.com.', 'jetpack' ); ?></em></strong>
-							<?php
-							echo sprintf(
-								wp_kses(
-									/* translators: URL to disconnect and reconnect Jetpack. */
-									__( 'Jetpack works by connecting to WordPress.com for a lot of features. Sometimes, when the connection gets messed up, you need to disconnect and reconnect to get things working properly. <a href="%s">Disconnect from WordPress.com</a>', 'jetpack' ),
-									array(
-										'a' => array(
-											'href'  => array(),
-											'class' => array(),
-										),
-									)
-								),
-								esc_attr(
-									wp_nonce_url(
-										Jetpack::admin_url(
-											array(
-												'page' => 'jetpack-debugger',
-												'disconnect' => true,
-											)
-										),
-										'jp_disconnect',
-										'nonce'
-									)
-								)
-							);
-							?>
-						</li>
-					<?php endif; ?>
-				</ol>
-				<h4><?php esc_html_e( 'Still having trouble?', 'jetpack' ); ?></h4>
-				<p><b><em><?php esc_html_e( 'Ask us for help!', 'jetpack' ); ?></em></b>
-				<?php
-				/**
-				 * Offload to new WordPress debug data.
-				 */
-					echo sprintf(
-						wp_kses(
-							/* translators: URL for Jetpack support. URL for WordPress's Site Health */
-							__( '<a href="%1$s">Contact our Happiness team</a>. When you do, please include the <a href="%2$s">full debug information from your site</a>.', 'jetpack' ),
-							array( 'a' => array( 'href' => array() ) )
-						),
-						esc_url( $support_url ),
-						esc_url( admin_url() . 'site-health.php?tab=debug' )
-					);
-				?>
-						</p>
-				<hr />
-				<?php if ( Jetpack::is_connection_ready() ) : ?>
-					<div id="connected-user-details">
-						<h3><?php esc_html_e( 'More details about your Jetpack settings', 'jetpack' ); ?></h3>
-						<p>
-						<?php
-						printf(
-							wp_kses(
-								/* translators: %s is an e-mail address */
-								__( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ),
-								array( 'strong' => array() )
-							),
-							esc_html( Jetpack::get_master_user_email() )
-						);
-						?>
-							</p>
-					</div>
-				<?php else : ?>
-					<div id="dev-mode-details">
-						<p>
-						<?php
-						printf(
-							wp_kses(
-								/* translators: Link to a Jetpack support page. */
-								__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s offline mode</a>.', 'jetpack' ),
-								array( 'a' => array( 'href' => array() ) )
-							),
-							esc_url( Redirect::get_url( 'jetpack-support-development-mode' ) )
-						);
-						?>
-							</p>
-					</div>
-				<?php endif; ?>
-				<?php
-				if (
-					current_user_can( 'jetpack_manage_modules' )
-					&& ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() )
-				) {
-					printf(
-						wp_kses(
-							'<p><a href="%1$s">%2$s</a></p>',
-							array(
-								'a' => array( 'href' => array() ),
-								'p' => array(),
-							)
-						),
-						esc_attr( Jetpack::admin_url( 'page=jetpack_modules' ) ),
-						esc_html__( 'Access the full list of Jetpack modules available on your site.', 'jetpack' )
-					);
-				}
-				?>
 			</div>
 		</div>
 		<?php
@@ -252,8 +268,7 @@ class Jetpack_Debugger {
 		<style type="text/css">
 
 			.jetpack-debug-test-container {
-				margin-top: 20px;
-				margin-bottom: 30px;
+				margin: 8px 0;
 			}
 
 			.jetpack-tests-succeed {
