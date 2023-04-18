@@ -147,7 +147,12 @@ const ProductCard = props => {
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 
 	// If status is absent, we disable the menu
-	const menuIsActive = showMenu && ! isAbsent;
+	const menuIsActive =
+		showMenu && // The menu is enabled for the product AND
+		! isAbsent && // product status is not absent AND
+		( isActive || // product is active, show at least the Manage option
+			menuItems?.length > 0 || // Show custom menus, if present
+			( hasStandalonePlugin && ( ! isStandaloneActive || ! isStandaloneInstalled ) ) ); // Show install | activate options for standalone plugin
 
 	const containerClassName = classNames( styles.container, {
 		[ styles.plugin_absent ]: isAbsent,
