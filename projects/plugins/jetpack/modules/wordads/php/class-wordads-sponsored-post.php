@@ -18,22 +18,12 @@ class WordAds_Sponsored_Post {
 	const POST_ID = -99;
 
 	/**
-	 * Is AMP request?
-	 *
-	 * @var bool True if is an AMP request.
-	 */
-	private static $is_amp_request = false;
-
-	/**
 	 * Initializes scripts and hooks.
 	 */
 	public static function init() {
-		// Setup if is an AMP request.
-		add_filter( 'pre_get_posts', array( __CLASS__, 'set_up_amp_request' ), 10, 2 );
-
 		// Inject the sponsored post.
 		add_filter( 'the_posts', array( __CLASS__, 'inject_sponsored_post' ), 10, 2 );
-		// add_action( 'loop_start', array( __CLASS__, 'amp_fix' ) );
+		add_action( 'loop_start', array( __CLASS__, 'amp_fix' ) );
 
 		// Override post display.
 		add_filter( 'post_class', array( __CLASS__, 'add_post_class' ), 10, 3 );
@@ -76,8 +66,8 @@ class WordAds_Sponsored_Post {
 	 */
 	public static function inject_sponsored_post( $posts, $wp_query ) {
 
-		// Only inject on non-AMP pages and main front page query.
-		if ( ! ( ! self::$is_amp_request && is_front_page() && $wp_query->is_main_query() ) ) {
+		// Only inject on main front page query.
+		if ( ! ( is_front_page() && $wp_query->is_main_query() ) ) {
 			return $posts;
 		}
 
@@ -97,15 +87,6 @@ class WordAds_Sponsored_Post {
 		$posts[] = $dummy_post;
 
 		return $posts;
-	}
-
-	/**
-	 * Set up if is an AMP request.
-	 *
-	 * @return void
-	 */
-	public static function set_up_amp_request() {
-		self::$is_amp_request = class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request();
 	}
 
 	/**
