@@ -1,6 +1,7 @@
 name: Jetpack block performance
 
 on:
+  pull_request:
   schedule:
     - cron:  '0 */12 * * *'
 
