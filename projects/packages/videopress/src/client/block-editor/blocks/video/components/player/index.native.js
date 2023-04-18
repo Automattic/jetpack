@@ -118,7 +118,7 @@ export default function Player( { isSelected, attributes } ) {
 				/>
 			);
 		}
-		return <Text>{ __( 'Error loading video', 'jetpack-videopress-pkg' ) }</Text>;
+		return <Text>{ __( 'Loading', 'jetpack-videopress-pkg' ) }</Text>;
 	};
 
 	return (
