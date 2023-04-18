@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Invoices: move status select html from Invoice Actions to main edit section under ID

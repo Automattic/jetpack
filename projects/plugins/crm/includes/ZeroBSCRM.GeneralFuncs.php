@@ -789,12 +789,16 @@ function zeroBSCRM_wpb_lastlogin($uid ) {
 	    return json_decode(trim($jsonp,'();'), $assoc);
 	}
 
-	// used by DAL2 settings 
-	// https://stackoverflow.com/questions/6041741/fastest-way-to-check-if-a-string-is-json-in-php
-	function zeroBSCRM_isJson($str) {
-	    $json = json_decode($str);
-	    return $json && $str != $json;
+// used by DAL2 settings
+// https://stackoverflow.com/questions/6041741/fastest-way-to-check-if-a-string-is-json-in-php
+// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+function zeroBSCRM_isJson( $str ) {
+	if ( $str === null ) {
+		return false;
 	}
+	$json = json_decode( $str );
+	return $json && $str != $json; // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+}
 
 	// return placeholder img :) DAL2 friendly
 	function zeroBSCRM_getDefaultContactAvatar(){

@@ -58,6 +58,11 @@ const automaticallyUpdatedContext = (
 	</span>
 );
 
+const imageCdnContext = __(
+	`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.`,
+	'jetpack-boost'
+);
+
 const manuallyUpdatedContext = (
 	<span>
 		{ __(
@@ -127,6 +132,10 @@ export const BoostPricingTable = ( {
 					tooltipInfo: imageGuideContext,
 				},
 				{
+					name: __( 'Image CDN', 'jetpack-boost' ),
+					tooltipInfo: imageCdnContext,
+				},
+				{
 					name: __( 'Dedicated email support', 'jetpack-boost' ),
 					tooltipInfo: <span dangerouslySetInnerHTML={ { __html: supportContext } }></span>,
 				},
@@ -161,6 +170,7 @@ export const BoostPricingTable = ( {
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
@@ -187,6 +197,7 @@ export const BoostPricingTable = ( {
 					tooltipInfo={ manuallyUpdatedContext }
 					tooltipClassName="wide-tooltip"
 				/>
+				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />

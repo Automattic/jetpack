@@ -120,6 +120,9 @@
 		<testsuite name="compatfunctions">
 			<file>tests/php/test_functions.compat.php</file>
 		</testsuite>
+		<testsuite name="autoloaded">
+			<directory prefix="test" suffix=".php">tests/php/src</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
