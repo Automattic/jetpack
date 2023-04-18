@@ -280,3 +280,15 @@ An initial full sync of the site is started when the site is registered or when 
 The `Actions::do_only_first_initial_sync` method can be used to start an initial full sync when a site has not already had a full sync started. This is useful for situations in which a plugin needs to start an initial full sync only if no other plugin has already started one.
 
 ## Examples
+
+## Using this package in your WordPress plugin
+
+If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
+
+## Security
+
+Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
+
+## License
+
+jetpack-sync is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)

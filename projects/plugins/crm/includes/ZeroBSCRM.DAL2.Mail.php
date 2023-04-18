@@ -453,7 +453,7 @@ function zeroBSCRM_populateEmailTemplateList() {
 	$bcc      = '';
 
 	// } The email stuff...
-	$subject = __( 'Your Event starts soon', 'zero-bs-crm' );
+	$subject = __( 'Your scheduled Task starts soon', 'zero-bs-crm' );
 	$content = zeroBSCRM_mail_retrieveDefaultBodyTemplate( 'eventnotification' );
 
 	// BRUTAL DELETE old one (avoids dupes)

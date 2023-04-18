@@ -32,13 +32,15 @@ const JetpackFieldControls = ( {
 	setAttributes,
 	width,
 } ) => {
-	const setNumberAttribute = ( key, parse = parseInt ) => value => {
-		const parsedValue = parse( value, 10 );
+	const setNumberAttribute =
+		( key, parse = parseInt ) =>
+		value => {
+			const parsedValue = parse( value, 10 );
 
-		setAttributes( {
-			[ key ]: ! isNaN( parsedValue ) ? parsedValue : '',
-		} );
-	};
+			setAttributes( {
+				[ key ]: ! isNaN( parsedValue ) ? parsedValue : '',
+			} );
+		};
 
 	const colorSettings = [
 		{
@@ -98,7 +100,7 @@ const JetpackFieldControls = ( {
 					{ ! hidePlaceholder && (
 						<TextControl
 							label={ __( 'Placeholder text', 'jetpack-forms' ) }
-							value={ placeholder }
+							value={ placeholder || '' }
 							onChange={ value => setAttributes( { [ placeholderField ]: value } ) }
 							help={ __(
 								'Show visitors an example of the type of content expected. Otherwise, leave blank.',

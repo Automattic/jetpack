@@ -3,24 +3,48 @@
  */
 import { BlockIcon, MediaPlaceholder } from '@wordpress/block-editor';
 import { useDispatch } from '@wordpress/data';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import { isURL, getProtocol } from '@wordpress/url';
 /**
  * Internal dependencies
  */
 import { buildVideoPressURL } from '../../../../../lib/url';
+import isLocalFile from '../../../../utils/is-local-file.native';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { title } from '../../index';
 import { VideoPressIcon } from '../icons';
 import UploadProgress from './uploader-progress';
 import './style.scss';
 
-const VideoPressUploader = ( { handleDoneUpload } ) => {
+const VideoPressUploader = ( {
+	autoOpenMediaUpload,
+	fileToUpload,
+	handleDoneUpload,
+	isInteractionDisabled,
+	isReplacing,
+	onFocus,
+	onReplaceCancel,
+	onStartUpload,
+} ) => {
 	const [ uploadFile, setFile ] = useState( null );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
 	const { createErrorNotice } = useDispatch( noticesStore );
+
+	const startUpload = file => {
+		setFile( file );
+		setIsUploadingInProgress( true );
+		onStartUpload( file );
+	};
+
+	// Start the upload process when a file to upload is set.
+	useEffect( () => {
+		if ( ! fileToUpload ) {
+			return;
+		}
+
+		startUpload( fileToUpload );
+	}, [ fileToUpload ] );
 
 	const onSelectURL = useCallback(
 		( videoSource, id ) => {
@@ -37,18 +61,16 @@ const VideoPressUploader = ( { handleDoneUpload } ) => {
 
 	const onSelectVideo = useCallback(
 		media => {
-			const isUploadingFile =
-				media?.url && isURL( media?.url ) && getProtocol( media?.url ) === 'file:' && media?.type;
+			const isUploadingFile = isLocalFile( media?.url ) && media?.type;
 
 			// Upload local file.
 			if ( isUploadingFile ) {
-				setFile( media );
-				setIsUploadingInProgress( true );
+				startUpload( media );
 				return;
 			}
 
 			// Insert media library VideoPress attachment.
-			const videoPressGuid = media?.videopressGUID;
+			const videoPressGuid = media?.metadata?.videopressGUID;
 			if ( videoPressGuid ) {
 				onSelectURL( videoPressGuid, media?.id );
 				return;
@@ -59,8 +81,22 @@ const VideoPressUploader = ( { handleDoneUpload } ) => {
 		[ onSelectURL ]
 	);
 
+	const onResetUpload = useCallback( () => {
+		setIsUploadingInProgress( false );
+		if ( isReplacing ) {
+			onReplaceCancel();
+		}
+	}, [] );
+
 	if ( isUploadingInProgress ) {
-		return <UploadProgress file={ uploadFile } onDone={ handleDoneUpload } />;
+		return (
+			<UploadProgress
+				file={ uploadFile }
+				onDone={ handleDoneUpload }
+				onReset={ onResetUpload }
+				isInteractionDisabled={ isInteractionDisabled }
+			/>
+		);
 	}
 
 	return (
@@ -72,7 +108,8 @@ const VideoPressUploader = ( { handleDoneUpload } ) => {
 			onSelect={ onSelectVideo }
 			onSelectURL={ onSelectURL }
 			allowedTypes={ VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES }
-			autoOpenMediaUpload
+			autoOpenMediaUpload={ autoOpenMediaUpload }
+			onFocus={ onFocus }
 		/>
 	);
 };

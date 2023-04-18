@@ -306,8 +306,12 @@ class Jetpack {
 	/**
 	 * Plugins for which we turn off our Facebook OG Tags implementation.
 	 *
-	 * Note: All in One SEO Pack, All in one SEO Pack Pro, WordPress SEO by Yoast, and WordPress SEO Premium by Yoast automatically deactivate
-	 * Jetpack's Open Graph tags via filter when their Social Meta modules are active.
+	 * Note: the following plugins automatically deactivate Jetpack's Open
+	 * Graph tags via filter when their Social Meta modules are active:
+	 *
+	 * - All in One SEO Pack, All in one SEO Pack Pro
+	 * - WordPress SEO by Yoast, WordPress SEO Premium by Yoast
+	 * - SEOPress, SEOPress Pro
 	 *
 	 * Plugin authors: If you'd like to prevent Jetpack's Open Graph tag generation in your plugin, you can do so via this filter:
 	 * add_filter( 'jetpack_enable_open_graph', '__return_false' );
@@ -897,7 +901,9 @@ class Jetpack {
 			$network->set_connection( $this->connection_manager );
 		}
 
-		if ( self::is_connection_ready() ) {
+		$is_connection_ready = self::is_connection_ready();
+
+		if ( $is_connection_ready ) {
 			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
 
 			Jetpack_Heartbeat::init();
@@ -913,7 +919,7 @@ class Jetpack {
 		/*
 		 * Enable enhanced handling of previewing sites in Calypso
 		 */
-		if ( self::is_connection_ready() ) {
+		if ( $is_connection_ready ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
@@ -1240,10 +1246,6 @@ class Jetpack {
 		 */
 		require_once JETPACK__PLUGIN_DIR . '_inc/social-logos.php';
 		jetpack_register_social_logos();
-
-		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) ) {
-			wp_register_style( 'jetpack-icons', plugins_url( 'css/jetpack-icons.min.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
-		}
 	}
 
 	/**
@@ -2407,6 +2409,9 @@ class Jetpack {
 				$modules[ $index ]['description']       = $i18n_module['description'];
 				$modules[ $index ]['short_description'] = $i18n_module['description'];
 			}
+			if ( isset( $module['module_tags'] ) ) {
+				$modules[ $index ]['module_tags'] = array_map( 'jetpack_get_module_i18n_tag', $module['module_tags'] );
+			}
 		}
 		return $modules;
 	}
@@ -3306,7 +3311,6 @@ p {
 
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
 		add_action( 'load-plugins.php', array( $this, 'plugins_page_init_jetpack_state' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
 
 		if ( ! ( is_multisite() && is_plugin_active_for_network( 'jetpack/jetpack.php' ) && ! is_network_admin() ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
@@ -3712,15 +3716,6 @@ p {
 			'<p><a href="' . $support_url . '" rel="noopener noreferrer" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>' .
 			'<p><a href="' . self::admin_url( array( 'page' => 'jetpack-debugger' ) ) . '">' . __( 'Jetpack Debugging Center', 'jetpack' ) . '</a></p>'
 		);
-	}
-
-	/**
-	 * Enqueues the jetpack-icons style.
-	 *
-	 * @return void
-	 */
-	public function admin_menu_css() {
-		wp_enqueue_style( 'jetpack-icons' );
 	}
 
 	/**
@@ -6738,7 +6733,7 @@ endif;
 		);
 
 		$products['akismet'] = array(
-			'title'             => __( 'Jetpack Anti-Spam', 'jetpack' ),
+			'title'             => __( 'Akismet Anti-Spam', 'jetpack' ),
 			'slug'              => 'jetpack_anti_spam',
 			'description'       => __( 'Save time and get better responses by automatically blocking spam from your comments and forms.', 'jetpack' ),
 			'show_promotion'    => true,
@@ -6746,7 +6741,6 @@ endif;
 			'included_in_plans' => array( 'security' ),
 			'features'          => array(
 				_x( 'Comment and form spam protection', 'Anti-Spam Product Feature', 'jetpack' ),
-				_x( 'Powered by Akismet', 'Anti-Spam Product Feature', 'jetpack' ),
 				_x( 'Block spam without CAPTCHAs', 'Anti-Spam Product Feature', 'jetpack' ),
 				_x( 'Advanced stats', 'Anti-Spam Product Feature', 'jetpack' ),
 			),

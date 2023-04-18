@@ -321,10 +321,10 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$submission  = get_post( $feedback_id );
 		$this->assertEquals( 'feedback', $submission->post_type, 'Post type doesn\'t match' );
 
-		$this->assertStringContains( '[1_Name] =&gt; John Doe', $submission->post_content, 'Post content did not contain the name label and/or value' );
-		$this->assertStringContains( '[2_Dropdown] =&gt; First option', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
-		$this->assertStringContains( '[3_Radio] =&gt; Second option', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
-		$this->assertStringContains( '[4_Text] =&gt; Texty text', $submission->post_content, 'Post content did not contain the text field label and/or value' );
+		$this->assertStringContains( '\"1_Name\":\"John Doe\"', $submission->post_content, 'Post content did not contain the name label and/or value' );
+		$this->assertStringContains( '\"2_Dropdown\":\"First option\"', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
+		$this->assertStringContains( '\"3_Radio\":\"Second option\"', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
+		$this->assertStringContains( '\"4_Text\":\"Texty text\"', $submission->post_content, 'Post content did not contain the text field label and/or value' );
 	}
 
 	/**

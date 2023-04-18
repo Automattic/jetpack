@@ -2,45 +2,35 @@ const JETPACK_ANTI_SPAM_PRODUCT_IDS = [ 2110, 2111 ];
 
 const JETPACK_BACKUP_PRODUCT_IDS = [
 	// Backup Daily
-	2100,
-	2101,
+	2100, 2101,
 	// Backup Realtime
-	2102,
-	2103,
+	2102, 2103,
 	// Backup Tier 1
-	2112,
-	2113,
+	2112, 2113,
 	// Backup Tier 2
-	2114,
-	2115,
+	2114, 2115,
 ];
 
 const JETPACK_COMPLETE_PRODUCT_IDS = [ 2014, 2015 ];
 
 const JETPACK_SCAN_PRODUCT_IDS = [
 	// Scan Daily
-	2106,
-	2107,
+	2106, 2107,
 	// Scan Realtime
-	2108,
-	2109,
+	2108, 2109,
 ];
 
 const JETPACK_SEARCH_PRODUCT_IDS = [ 2104, 2105 ];
 
 const JETPACK_SECURITY_PRODUCT_IDS = [
 	// Security Daily
-	2010,
-	2011,
+	2010, 2011,
 	// Security Realtime
-	2012,
-	2013,
+	2012, 2013,
 	// Security Tier 1
-	2016,
-	2017,
+	2016, 2017,
 	// Security Tier 2
-	2019,
-	2020,
+	2019, 2020,
 ];
 
 const JETPACK_VIDEOPRESS_PRODUCT_IDS = [ 2116, 2117 ];

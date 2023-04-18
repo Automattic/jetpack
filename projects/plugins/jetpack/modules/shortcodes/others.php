@@ -36,14 +36,5 @@ function jetpack_oembed_timeout_override( $timeout, $url ) {
 // TODO: Remove this. This should hopefully be a temporary hack since Apple's oEmbed often seems to take more than 5 seconds to respond. 10 is an arbitrary number of seconds that seems to work better.
 add_filter( 'http_request_timeout', 'jetpack_oembed_timeout_override', 10, 2 );
 
-/**
- * Conditionally add PocketCasts as an oEmbed provider in advanced of its inclusion in WP 6.1.
- *
- * @todo Remove when WordPress 6.1 is the minimum supported version.
- */
-global $wp_version;
-if ( version_compare( $wp_version, '6.1-alpha-53744', '<' ) ) {
-	wp_oembed_add_provider( '#https?://pca\.st/.+#i', 'https://pca.st/oembed.json', true );
-}
 // WordPress core only registers pca.st, not pcast.pocketcasts.net.
 wp_oembed_add_provider( '#https?://pcast\.pocketcasts\.net/.+#i', 'https://pcast.pocketcasts.net/oembed.json', true );

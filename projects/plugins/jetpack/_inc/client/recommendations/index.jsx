@@ -139,6 +139,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__SCAN:
 			redirectPath = '/welcome-scan';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN:
+			redirectPath = '/welcome-golden-token';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.SERVER_CREDENTIALS:
 			redirectPath = '/server-credentials';
 			break;
@@ -261,6 +264,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/welcome-scan">
 						<ResourcePrompt stepSlug="welcome__scan" />
+					</Route>
+					<Route path="/recommendations/welcome-golden-token">
+						<ResourcePrompt stepSlug="welcome__golden_token" />
 					</Route>
 					<Route path="/recommendations/backup-activated">
 						<ResourcePrompt stepSlug="backup-activated" />

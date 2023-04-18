@@ -110,6 +110,23 @@
 
                 global $zbs;
 
+				// Define Quote statuses.
+				$acceptable_quote_statuses = array(
+					'draft'     => __( 'Draft', 'zero-bs-crm' ),
+					'published' => __( 'Published, Unaccepted', 'zero-bs-crm' ),
+					'accepted'  => __( 'Accepted', 'zero-bs-crm' ),
+				);
+
+				// status
+				$status = __( 'Draft', 'zero-bs-crm' );
+			if ( is_array( $quote ) && isset( $quote['status'] ) ) {
+				if ( $quote['status'] === -2 ) {
+					$status = __( 'Published, Unaccepted', 'zero-bs-crm' );
+				}
+				if ( $quote['status'] === 1 ) {
+					$status = __( 'Accepted', 'zero-bs-crm' );
+				}
+			}
                 // Debug echo 'Quote:<pre>'.print_r($quote,1).'</pre>';
     
                 ?>                
@@ -182,7 +199,31 @@
                         </td></tr><?php
 
                     }
+					// Quote status.
+				if ( $quoteID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					?>
+				
+					<tr class="wh-large"><th><label for="quote_status"><?php esc_html_e( 'Status', 'zero-bs-crm' ); ?>:</label></th>
+						<td>
+							<div class="zbs-prominent">
 
+							<select id="quote_status" name="quote_status">
+							<?php
+							foreach ( $acceptable_quote_statuses as $status_opt => $status_str ) {
+								$sel = '';
+								if ( $status_str === $status ) {
+									$sel = ' selected="selected"';
+								}
+								/* Translators:  %s is the Quote status. */
+								echo '<option value="' . esc_attr( $status_opt ) . '"' . esc_attr( $sel ) . '>' . esc_html( sprintf( __( '%s', 'zero-bs-crm' ), $status_str ) ) . '</option>'; // phpcs:ignore WordPress.WP.I18n.NoEmptyStrings
+							}
+							?>
+							</select>
+							
+						</div>
+						</td></tr>
+						<?php
+				} // end if
 
                     #} ALSO customer assigning is seperate:
                     ?><tr class="wh-large"><th><label><?php esc_html_e('Contact',"zero-bs-crm");?>:</label></th>
@@ -338,7 +379,7 @@
                                     <p><?php esc_html_e('Create additional quote templates',"zero-bs-crm"); ?> <a href="<?php echo jpcrm_esc_link( $zbs->slugs['quote-templates'] ); ?>"><?php esc_html_e('here',"zero-bs-crm");?></a></p>
                                     <button type="button" id="zbsQuoteBuilderStep2" class="button button-primary button-large xl"<?php if (!isset($quoteContactID) || empty($quoteContactID)){ echo ' disabled="disabled"'; } ?>><?php esc_html_e('Use Quote Builder',"zero-bs-crm");?></button>
                                     <?php if (!isset($quoteContactID) || empty($quoteContactID)){ ?>
-                                    <p id="zbsQuoteBuilderStep2info">(<?php esc_html_e("You'll need to assign this Quote to a customer to use this","zero-bs-crm");?>);</p>
+									<p id="zbsQuoteBuilderStep2info">(<?php esc_html_e( "You'll need to assign this Quote to a contact to use this", 'zero-bs-crm' ); ?>);</p>
                                     <?php } ?>
 
                                 </div>
@@ -724,7 +765,7 @@
 
                                 <!-- infoz -->
                                 <h3><?php esc_html_e("Publish this Quote","zero-bs-crm");?></h3>
-                                <p><?php esc_html_e("When you've finished writing your Quote, save it here before sending on to your customer","zero-bs-crm");?>:</p>
+								<p><?php esc_html_e( "When you've finished writing your Quote, save it here before sending on to your contact", 'zero-bs-crm' ); ?>:</p>
 
                                 <button type="button" id="zbsQuoteBuilderStep3" class="button button-primary button-large xl"><?php esc_html_e("Save Quote","zero-bs-crm");?></button>
 
@@ -764,12 +805,12 @@
 
                                     <!-- infoz -->
                                     <h3><?php esc_html_e("Email or Share","zero-bs-crm");?></h3>
-                                    <p><?php esc_html_e("Great! Your Quote has been published. You can now email it to your customer, or share the link directly","zero-bs-crm");?>:</p>
+									<p><?php esc_html_e( 'Great! Your Quote has been published. You can now email it to your contact, or share the link directly', 'zero-bs-crm' ); ?>:</p>
 
                                     <?php do_action('zbs_quote_actions'); ?>
 
                                     <div class="zbsEmailOrShare">
-                                        <h4><?php esc_html_e("Email to Customer","zero-bs-crm");?>:</h4>
+										<h4><?php esc_html_e( 'Email to Contact', 'zero-bs-crm' ); ?>:</h4>
                                         <!-- todo -->                                    
                                         <p><input type="text" class="form-control" id="zbsQuoteBuilderEmailTo" value="<?php echo esc_attr( $contactEmail ); ?>" placeholder="<?php esc_attr_e('e.g. customer@yahoo.com','zero-bs-crm'); ?>" data-quoteid="<?php echo esc_attr( $quoteID ); ?>" /></p>
                                         <p><button type="button" id="zbsQuoteBuilderSendNotification" class="button button-primary button-large"><?php esc_html_e("Send Quote","zero-bs-crm");?></button></p>
@@ -1317,49 +1358,8 @@ class zeroBS__Metabox_QuoteTags extends zeroBS__Metabox_Tags{
             
                 #} if a saved post...
                 //if (isset($post->post_status) && $post->post_status != "auto-draft"){
-                if ($quoteID > 0){ // existing
-
-                    // hard typed for now.
-                    $acceptableQuoteStatuses = array(
-                        "draft" => __('Draft','zero-bs-crm'),
-                        "published" => __('Published, Unaccepted','zero-bs-crm'),
-                        "accepted" => __('Accepted','zero-bs-crm')
-                    );
-
-                    // status
-                    $status = __('Draft','zero-bs-crm');
-                    if (is_array($quote) && isset($quote['status'])){
-                        if ($quote['status'] == -2) $status = __('Published, Unaccepted','zero-bs-crm');
-                        if ($quote['status'] == 1) $status = __('Accepted','zero-bs-crm');
-                    }
-
-                    /* grid doesn't work great for long-named:
-
-                    <div class="ui grid">
-                        <div class="six wide column">
-                        </div>
-                        <div class="ten wide column">
-                        </div>
-                    </div>
-
-                    */
-                    ?>
-                    <div>
-                        <label for="quote_status"><?php esc_html_e('Status',"zero-bs-crm"); ?>: </label>
-                        <select id="quote_status" name="quote_status">
-                            <?php foreach($acceptableQuoteStatuses as $statusOpt => $statusStr){
-
-                                $sel = '';
-                                if ($statusStr == $status) $sel = ' selected="selected"';
-                                echo '<option value="' . esc_attr( $statusOpt ) . '"'. esc_attr( $sel ) .'>'.esc_html__($statusStr,"zero-bs-crm").'</option>';
-
-                            } ?>
-                        </select>
-                    </div>
-
-                    <div class="clear"></div>
-
-
+			if ( $quoteID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				?>
                     <div class="zbs-quote-actions-bottom zbs-objedit-actions-bottom">
 
                         <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Update","zero-bs-crm"); ?> <?php esc_html_e("Quote","zero-bs-crm"); ?></button>
@@ -1383,7 +1383,8 @@ class zeroBS__Metabox_QuoteTags extends zeroBS__Metabox_Tags{
 
                 } else {
 
-                    // NEW quote ?>
+				// NEW quote
+				?>
 
                     <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Save","zero-bs-crm"); ?> <?php esc_html_e("Quote","zero-bs-crm"); ?></button>
 

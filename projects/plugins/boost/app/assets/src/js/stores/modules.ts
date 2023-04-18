@@ -1,95 +1,45 @@
-import { get, writable, derived } from 'svelte/store';
-import api from '../api/api';
-import { setModuleState } from '../api/modules';
-import config from './config';
+// eslint-disable-next-line import/no-unresolved
+import { SyncedStoreInterface } from '@automattic/jetpack-svelte-data-sync-client/build/types';
+import { get } from 'svelte/store';
+import { z } from 'zod';
+import { client } from './data-sync-client';
 
 export type Optimizations = {
 	[ slug: string ]: boolean;
 };
 
-export type ModulesState = {
-	[ slug: string ]: {
-		enabled: boolean;
-		synced?: boolean;
-	};
-};
+export type ModulesState = SyncedStoreInterface< boolean >;
 
-const { subscribe, update, set } = writable< ModulesState >(
-	buildModuleState( get( config ).optimizations )
+export const modulesStateClient = client.createAsyncStore(
+	'modules_state',
+	z.record(
+		z.string().min( 1 ),
+		z.object( {
+			active: z.boolean(),
+			available: z.boolean(),
+		} )
+	)
 );
 
-// Keep a subscribed copy for quick reading.
-let currentState: ModulesState;
-subscribe( value => ( currentState = value ) );
+export const modulesState = modulesStateClient.store;
 
-/**
- * Given a set of optimizations and their on/off booleans, convert them to a ModulesState object,
- * ready for use in the modules datastore.
- *
- * @param {Optimizations} optmizations - Set of optimizations and their on/off booleans.
- * @return {ModulesState} - Object ready for use in the modules store.
- */
-function buildModuleState( optmizations: Optimizations ): ModulesState {
-	const state = {};
-
-	for ( const [ name, value ] of Object.entries( optmizations ) ) {
-		state[ name ] = {
-			enabled: value,
-		};
-	}
-
-	return state;
-}
-
-/**
- * Fetch the current state of the modules from the server.
- */
-export async function reloadModulesState() {
-	set( buildModuleState( await api.get( '/optimizations/status' ) ) );
-}
-
-export async function updateModuleState( slug: string, state: boolean ): Promise< boolean > {
-	// Do not enable a module that isn't available.
-	if ( typeof currentState[ slug ] === 'undefined' ) {
-		return false;
-	}
-
-	const originalState = currentState[ slug ] && currentState[ slug ].enabled;
-	let finalState = state;
-
-	// Tentatively set requested state, undo if the API fails or denies it.
-	setEnabled( slug, state );
-
-	// Run it by the API properly.
-	try {
-		finalState = await setModuleState( slug, state );
-		setEnabled( slug, finalState, true );
-	} catch ( err ) {
-		// On error, bounce back to original state and rethrow error.
-		setEnabled( slug, originalState, true );
-		throw err;
-	}
-
-	return finalState;
-}
-
-function setEnabled( slug: string, enabled: boolean, synced = false ) {
-	update( state => ( {
-		...state,
-		[ slug ]: {
-			...state[ slug ],
-			enabled,
-			synced,
-		},
-	} ) );
-}
-
-export const modules = {
-	subscribe,
-	updateModuleState,
+export const reloadModulesState = async () => {
+	const result = await modulesStateClient.endpoint.GET();
+	modulesStateClient.store.override( result );
+	return result;
 };
 
-export const isModuleEnabledStore = ( slug: string ) =>
-	derived( modules, $modules => $modules[ slug ] && $modules[ slug ].enabled );
-export const isModuleAvailableStore = ( slug: string ) =>
-	derived( modules, $modules => typeof $modules[ slug ] !== 'undefined' );
+export async function updateModuleState( slug: string, active: boolean ) {
+	// Update local state first
+	const currentState = get( modulesState );
+	currentState[ slug ].active = active;
+	modulesStateClient.store.override( currentState );
+
+	const result = await modulesStateClient.endpoint.MERGE( {
+		[ slug ]: { active },
+	} );
+
+	// Update local state with the result from the server
+	modulesStateClient.store.override( result );
+	return result;
+}

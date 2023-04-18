@@ -6,7 +6,8 @@ import deprecatedV1 from './deprecated/v1';
 import edit from './edit';
 import save from './save';
 
-export const URL_REGEX = /^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i;
+export const URL_REGEX =
+	/^\s*https?:\/\/(?:www\.)?(?:[a-z]{2}\.)?(?:pinterest\.[a-z.]+|pin\.it)\/([^/]+)(\/[^/]+)?/i;
 
 export const PINTEREST_EXAMPLE_URL = 'https://pinterest.com/anapinskywalker/';
 

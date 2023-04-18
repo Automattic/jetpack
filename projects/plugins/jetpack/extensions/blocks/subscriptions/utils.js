@@ -30,6 +30,10 @@ export const isNewsletterFeatureEnabled = () => {
 	return getJetpackData()?.jetpack?.is_newsletter_feature_enabled ?? false;
 };
 
+export const isNewsletterConfigured = () => {
+	return getJetpackData()?.jetpack?.is_newsletter_configured ?? false;
+};
+
 export default function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
 	const addPaidPlanButtonText = hasNewsletterPlans
 		? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )

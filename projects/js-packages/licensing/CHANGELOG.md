@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.9.3 - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## 0.9.2 - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## 0.9.1 - 2023-04-03
+### Changed
+- Minor internal updates.
+
+## 0.9.0 - 2023-03-28
+### Added
+- Adds GoldenTokenModal component for successful token redemptions. Also adds classnames as a dependency [#29748]
+
+## 0.8.0 - 2023-03-27
+### Added
+- Clarified when license activation fails that a user connection is required, added a link to complete the connection, and added functionality to redirect back to license activation when the connection is done. [#29443]
+
 ## 0.7.8 - 2023-03-08
 ### Changed
 - Updated package dependencies. [#29216]

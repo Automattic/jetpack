@@ -219,9 +219,9 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		// } passing "branding" for the logo top :-)
 		$branding = '';
 
-		// WLREMOVE
+		##WLREMOVE
 		$branding = 'zero-bs-crm';
-		// /WLREMOVE
+		##/WLREMOVE
 
 		// } AJAX nonce, rest is dealt with in the admin global js :)
 		?>
@@ -264,9 +264,9 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			// } Add extensions to base, always :) more upsell.
 			if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 				$toolsMenu[] = '<a class="item" id="zbs-manage-modules-tour" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) . '"><i class="icon th" aria-hidden="true"></i> ' . __( 'Core Modules', 'zero-bs-crm' ) . '</a>';
-				// WLREMOVE
+				##WLREMOVE
 				$toolsMenu[] = '<a class="item" id="zbs-manage-ext-tour" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['extensions'] ) . '"><i class="icon plug" aria-hidden="true"></i> ' . __( 'Extensions', 'zero-bs-crm' ) . '</a>';
-				// /WLREMOVE
+				##/WLREMOVE
 			}
 
 			?>
@@ -276,7 +276,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		<div class="ui mobile tablet only" id="zbs-mobile-nav">
 			<div id="zbs-main-logo-mobile">
 				<div class="zbs-face-1-mobile">
-					<img id="zbs-main-logo-mobby" alt="Jetpack CRM mobile logo" src="<?php echo esc_url( jpcrm_get_logo( true, 'white' ) ); ?>" style="cursor:pointer;">
+					<img id="zbs-main-logo-mobby" alt="Jetpack CRM mobile logo" src="<?php echo esc_url( jpcrm_get_logo( false, 'white' ) ); ?>" style="cursor:pointer;">
 				</div>
 			</div>
 			<?php
@@ -347,7 +347,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		<div class="item <?php echo esc_attr( $admin_menu_state ); ?> mobile hidden" id="zbs-main-logo-wrap">
 			<div class="zbs-cube" id="zbs-main-logo-cube-wrap">
 				<div class="zbs-face1">
-					<img id="zbs-main-logo" alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo() ); ?>" style="cursor:pointer;">
+					<img id="zbs-main-logo" alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>" style="cursor:pointer;">
 				</div>
 				<div class="zbs-face2">
 					<i class="expand icon fa-flip-horizontal"></i>
@@ -565,25 +565,31 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['managetransactions'] ) ); ?>"><i class="icon list"></i> <?php esc_html_e( 'View all', 'zero-bs-crm' ); ?></a>
 					<a class="item" href="<?php echo jpcrm_esc_link( 'tags', -1, 'zerobs_transaction', false, 'zerobscrm_transactiontag' ); ?>"><i class="icon tags"></i> <?php esc_html_e( 'Tags', 'zero-bs-crm' ); ?></a>
 
-					<?php if ( zeroBSCRM_permsTransactions() ) { ?>
+					<?php
+					if ( zeroBSCRM_permsTransactions() ) {
+						// If CSV Pro is installed and active it will add an Import menu item to the zbs-transactions-menu filter - we'll then add that here
+						$transactions_menu = array();
+						$transactions_menu = apply_filters( 'zbs-transactions-menu', $transactions_menu ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
+						$import_menu_item  = preg_grep( '/\bpage\=zerobscrm\-csvimporter\-app\b/i', $transactions_menu );
+						if ( count( $import_menu_item ) > 0 ) {
+							echo wp_kses( $import_menu_item[0], $zbs->acceptable_html );
+							$transactions_menu = array_diff( $transactions_menu, $import_menu_item );
+						}
+						?>
 					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['export-tools'] ) ); ?>&zbstype=transaction"><i class="icon cloud download"></i> <?php esc_html_e( 'Export', 'zero-bs-crm' ); ?></a>
 					<?php } ?>
 
 					<?php
 
-						// filter items (allows additions from ext etc.)
-						// for now empty (could contain the above)
-						$transactionsMenu = array();
-						$transactionsMenu = apply_filters( 'zbs-transactions-menu', $transactionsMenu );
-					if ( count( $transactionsMenu ) > 0 ) {
-
+					// Display remaining menu items added via the zbs-transactions-menu filter
+					if ( count( $transactions_menu ) > 0 ) {
 						// show divider?
 						?>
-							<div class="ui divider"></div>
-							<?php
-
-							foreach ( $transactionsMenu as $menuItem ) {
-								echo $menuItem; }
+						<div class="ui divider"></div>
+						<?php
+						foreach ( $transactions_menu as $menu_item ) {
+							echo wp_kses( $menu_item, $zbs->acceptable_html );
+						}
 					}
 
 					?>
@@ -601,11 +607,11 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			<div class="menu ui inverted zbs-admin-bg-menu zbs-dropdown">
 				<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) ); ?>"><i class="icon th" aria-hidden="true"></i> Core Modules</a>
 				<?php
-				// WLREMOVE
+				##WLREMOVE
 				?>
 				<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['extensions'] ) ); ?>"><i class="fa fa-tachometer" aria-hidden="true"></i> Manage Extensions</a>
 				<?php
-					// /WLREMOVE
+					##/WLREMOVE
 					// this allows us to add items to this menu. This is done via add_action
 					// e.g. add_action('zbs-top-menu-extensions-dropdown', 'zeroBSCRM_{extensionName}_topmenu', 10); //10 being default.
 					do_action( 'zbs-top-menu-extensions-dropdown' );
@@ -730,9 +736,9 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			// if admin, settings + datatools
 			if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 				$popout_menu['col1'][] = '<a id="zbs-settings2-top-menu" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '" class="item"><i class="settings icon"></i> ' . __( 'Settings', 'zero-bs-crm' ) . '</a>';
-				// WLREMOVE
+				##WLREMOVE
 				$popout_menu['col1'][] = '<a id="zbs-datatools-top-menu" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['datatools'] ) . '" class="item"><i class="wrench icon"></i> ' . __( 'Data Tools', 'zero-bs-crm' ) . '</a>';
-				// /WLREMOVE
+				##/WLREMOVE
 			}
 			// teams page for WP Admin or Jetpack CRM Full Admin
 			if ( current_user_can( 'manage_options' ) ) {
@@ -744,9 +750,9 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 				$popout_menu['col1'][] = '<a class="item" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['systemstatus'] ) . '"><i class="server icon" aria-hidden="true"></i> ' . __( 'System Assistant', 'zero-bs-crm' ) . '</a>';
 				$popout_menu['col1'][] = '<a class="item" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['emails'] ) . '"><i class="envelope icon" aria-hidden="true"></i> ' . __( 'Emails', 'zero-bs-crm' ) . '</a>';
 				$popout_menu['col1'][] = '<a class="item" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) . '"><i class="icon th" aria-hidden="true"></i> ' . __( 'Core Modules', 'zero-bs-crm' ) . '</a>';
-				// WLREMOVE
+				##WLREMOVE
 				$popout_menu['col1'][] = '<a class="item" href="' . zeroBSCRM_getAdminURL( $zbs->slugs['extensions'] ) . '"><i class="icon plug" aria-hidden="true"></i> ' . __( 'Extensions', 'zero-bs-crm' ) . '</a>';
-				// /WLREMOVE
+				##/WLREMOVE
 
 			}
 
@@ -784,13 +790,13 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 					<h4 class="ui header"><?php esc_html_e( 'Support', 'zero-bs-crm' ); ?></h4>
 					<div class="ui link list">
 					
-				<?php // WLREMOVE ?>
+				<?php ##WLREMOVE ?>
 					<a href="<?php echo esc_url( $zbs->urls['docs'] ); ?>" class="item" target="_blank"><i class="file text outline icon"></i> <?php esc_html_e( 'Knowledge base', 'zero-bs-crm' ); ?></a>
-				<?php // /WLREMOVE ?>
+				<?php ##/WLREMOVE ?>
 					
 					<a href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['support'] ) ); ?>" class="item"><i class="icon user md"></i> <?php esc_html_e( 'Support', 'zero-bs-crm' ); ?></a>
 					
-				<?php // WLREMOVE ?>
+				<?php ##WLREMOVE ?>
 					<a href="<?php echo esc_url( $zbs->urls['twitter'] ); ?>" class="item" target="_blank"><i class="icon twitter"></i> <?php esc_html_e( '@jetpackcrm', 'zero-bs-crm' ); ?></a>
 				<?php
 					// slack for admins :)
@@ -800,19 +806,19 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 						<?php
 				}
 				?>
-					<?php // /WLREMOVE ?>
+					<?php ##/WLREMOVE ?>
 					
-					<a class="item" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['feedback'] ) ); ?>"><i class="idea icon" aria-hidden="true"></i> <?php esc_html_e( 'Give Feedback', 'zero-bs-crm' ); ?></a>
+					<a class="item" href="<?php echo esc_url( $zbs->urls['rateuswporg'] ); ?>"><i class="star icon" aria-hidden="true"></i> <?php esc_html_e( 'Leave a review', 'zero-bs-crm' ); ?></a>
 					
 					<?php
 					// welcome tour and crm resources page for admins :)
 					if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-						// WLREMOVE
+						##WLREMOVE
 						?>
 						<a id="zbs-tour-top-menu-dash" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['dash'] ) ); ?>&zbs-welcome-tour=1" class="item"><i class="icon magic"></i> <?php esc_html_e( 'Welcome Tour', 'zero-bs-crm' ); ?></a>
 						<a id="crm-resources-top-menu-dash" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['crmresources'] ) ); ?>" class="item"><i class="icon building"></i> <?php esc_html_e( 'Resources', 'zero-bs-crm' ); ?></a>
 						<?php
-						// /WLREMOVE
+						##/WLREMOVE
 					}
 					?>
 					</div>
@@ -831,13 +837,13 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 					<?php } ?>
 
 					<?php
-					// WLREMOVE //upsell
+					##WLREMOVE //upsell
 					if ( ! zeroBSCRM_hasPaidExtensionActivated() && zeroBSCRM_isZBSAdminOrAdmin() ) {
 						?>
 						
 						<a class="item" href="<?php echo esc_url( $zbs->urls['pricing'] ); ?>" target="_blank"><i class="rocket icon" aria-hidden="true"></i> <?php esc_html_e( 'Plans', 'zero-bs-crm' ); ?></a>
 
-					<?php } // /WLREMOVE ?>
+					<?php } ##/WLREMOVE ?>
 
 					<div class="ui divider"></div>
 

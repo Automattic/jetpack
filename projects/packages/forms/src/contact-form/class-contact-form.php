@@ -242,7 +242,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 		if ( isset( $GLOBALS['grunion_block_template_part_id'] ) ) {
 			self::style_on();
-			$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
+			if ( is_array( $attributes ) ) {
+				$attributes['block_template_part'] = $GLOBALS['grunion_block_template_part_id'];
+			}
 		}
 		// Create a new Grunion_Contact_Form object (this class)
 		$form = new Contact_Form( $attributes, $content );
@@ -1320,7 +1322,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'post_parent'  => $post ? (int) $post->ID : 0,
 				'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
 				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.InterpolatedVariableNotSnakeCase, WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.PHP.DevelopmentFunctions.error_log_print_r
-				'post_content' => addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . @print_r( $all_values, true ), array() ) ), // so that search will pick up this data
+				'post_content' => addslashes( wp_kses( "$comment_content\n<!--more-->\nAUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\nJSON_DATA\n" . @wp_json_encode( $all_values, true ), array() ) ), // so that search will pick up this data
 				'post_name'    => $feedback_id,
 			)
 		);
