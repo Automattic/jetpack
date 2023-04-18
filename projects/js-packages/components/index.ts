@@ -39,7 +39,7 @@ export * from './components/icons';
 export { default as SplitButton } from './components/split-button';
 export { default as ThemeProvider } from './components/theme-provider';
 export { default as Text, H2, H3, Title } from './components/text';
-export { default as Toggle } from './components/toggle';
+export { default as ToggleControl } from './components/toggle-control';
 export { default as numberFormat } from './components/number-format';
 export { default as QRCode } from './components/qr-code';
 export { default as Button } from './components/button';
