@@ -178,7 +178,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.8.0-beta - 2023-04-06
+### 1.8.0 - 2023-04-06
 #### Added
 - Critical CSS: Added a notice to regenerate Critical CSS to the Boost dashboard.
 - General: Added a link to activate a license key.
