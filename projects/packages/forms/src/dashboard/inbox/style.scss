@@ -346,6 +346,17 @@ $action-bar-height: 88px;
 	}
 }
 
+@keyframes jp-forms__slide-out {
+	75% {
+		opacity: 1;
+	}
+
+	to {
+		opacity: 0;
+		transform: translateY(100px);
+	}
+}
+
 .jp-forms__inbox-response {
 	background-color: #fff;
 	position: relative;
@@ -389,7 +400,7 @@ $action-bar-height: 88px;
 			z-index: -1;
 
 			.jp-forms__inbox.is-response-animation-reverted & {
-				animation: jp-forms__slide-in .2s ease-out forwards reverse;
+				animation: jp-forms__slide-out s ease-out forwards;
 				z-index: 1;
 			}
 		}
