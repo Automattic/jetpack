@@ -242,18 +242,24 @@ class Initializer {
 		}
 
 		// Preview On Hover data
-		$preview_on_hover = '';
-		if (
+		$is_poh_enabled =
 			isset( $block_attributes['posterData']['previewOnHover'] ) &&
-			$block_attributes['posterData']['previewOnHover']
-		) {
+			$block_attributes['posterData']['previewOnHover'];
+
+		$autoplay = isset( $block_attributes['autoplay'] ) ? $block_attributes['autoplay'] : false;
+		$controls = isset( $block_attributes['controls'] ) ? $block_attributes['controls'] : false;
+
+		$preview_on_hover = '';
+		if ( $is_poh_enabled ) {
 			$preview_on_hover = array(
 				'previewAtTime'       => $block_attributes['posterData']['previewAtTime'],
 				'previewLoopDuration' => $block_attributes['posterData']['previewLoopDuration'],
+				'autoplay'            => $autoplay,
+				'showControls'        => $controls,
 			);
 
 			// Expose the preview on hover data to the client.
-			$preview_on_hover = sprintf( '<div className="jetpack-videopress-player__overlay"></div><script type="application/json">%s</script>', wp_json_encode( $preview_on_hover ) );
+			$preview_on_hover = sprintf( '<div class="jetpack-videopress-player__overlay"></div><script type="application/json">%s</script>', wp_json_encode( $preview_on_hover ) );
 
 			// Set `autoplay` and `muted` attributes to the video element.
 			$block_attributes['autoplay'] = true;
