@@ -217,6 +217,26 @@ const ProductCard = props => {
 		onFixConnection();
 	}, [ slug, onFixConnection, recordEvent ] );
 
+	/**
+	 * Use a Tracks event to count a standalone plugin install request
+	 */
+	const installStandaloneHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
+			product: slug,
+		} );
+		onInstallStandalone();
+	}, [ slug, onInstallStandalone, recordEvent ] );
+
+	/**
+	 * Use a Tracks event to count a standalone plugin activation request
+	 */
+	const activateStandaloneHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_activate_standalone_plugin_click', {
+			product: slug,
+		} );
+		onActivateStandalone();
+	}, [ slug, onActivateStandalone, recordEvent ] );
+
 	const CardWrapper = isAbsent
 		? ( { children: wrapperChildren, ...cardProps } ) => (
 				<a { ...cardProps } href="#" onClick={ addHandler }>
@@ -239,8 +259,8 @@ const ProductCard = props => {
 						status={ status }
 						items={ menuItems }
 						onManage={ onManage }
-						onInstall={ onInstallStandalone }
-						onActivate={ onActivateStandalone }
+						onInstall={ installStandaloneHandler }
+						onActivate={ activateStandaloneHandler }
 						hasStandalonePlugin={ hasStandalonePlugin }
 						isStandaloneActive={ isStandaloneActive }
 						isStandaloneInstalled={ isStandaloneInstalled }
