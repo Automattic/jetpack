@@ -8,12 +8,16 @@ const Layout = ( { children, className, title, subtitle } ) => {
 
 	return (
 		<div className={ classes }>
-			<JetpackFormsLogo />
-
-			<div className="jp-forms__layout-header">
-				<h2 className="jp-forms__layout-title">{ title }</h2>
-				{ subtitle && <p className="jp-forms__header-subtext">{ subtitle }</p> }
+			<div className="jp-forms__logo-wrapper">
+				<JetpackFormsLogo />
 			</div>
+
+			{ ( title || subtitle ) && (
+				<div className="jp-forms__layout-header">
+					{ title && <h2 className="jp-forms__layout-title">{ title }</h2> }
+					{ subtitle && <p className="jp-forms__header-subtext">{ subtitle }</p> }
+				</div>
+			) }
 
 			{ children }
 		</div>

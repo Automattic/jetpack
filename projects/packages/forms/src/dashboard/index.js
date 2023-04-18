@@ -1,7 +1,9 @@
 import { render } from '@wordpress/element';
 import { get } from 'lodash';
+// eslint-disable-next-line
 import Inbox from './inbox';
 import './style.scss';
+import LandingPage from './landing';
 
 let settings = {};
 
@@ -13,5 +15,7 @@ window.addEventListener( 'load', () => {
 	settings = JSON.parse( unescape( container.dataset.config ) );
 	delete container.dataset.config;
 
-	render( <Inbox />, container );
+	//FIXME
+	//render( <Inbox />, container );
+	render( <LandingPage />, container );
 } );
