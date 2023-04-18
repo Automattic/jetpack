@@ -1,10 +1,18 @@
 import { __ } from '@wordpress/i18n';
 import Layout from '../components/layout';
+import { config } from '../index';
+import AkismetSVG from './akismet-svg';
+import CheckSVG from './check-svg';
+import CloseSVG from './close-svg';
+import ExportSVG from './export-svg';
+import NotificationsSVG from './notifications-svg';
+import WordpressSVG from './wordpress-svg';
+
 import './style.scss';
 
-import './teaser-video.png';
-
 const LandingPage = () => {
+	const ASSETS_URL = config( 'pluginAssetsURL' );
+
 	return (
 		<Layout className="jp-forms__landing">
 			<section className="jp-forms__landing-section bg-white-off">
@@ -16,7 +24,11 @@ const LandingPage = () => {
 					<button className="button button-primary mb-6">
 						{ __( 'Create your first form', 'jetpack-forms' ) }
 					</button>
-					<div className="jp-forms__video-placeholder">Video Placeholder</div>
+					<img
+						src={ `${ ASSETS_URL }/images/responses-inbox.png` }
+						className="jp-forms__teaser-video"
+						alt={ __( 'Jetpack Forms teaser video', 'jetpack-forms' ) }
+					/>
 				</div>
 			</section>
 			<section className="jp-forms__landing-section">
@@ -25,28 +37,46 @@ const LandingPage = () => {
 					<h1 className="mb-12">{ __( 'Customize to your needs.', 'jetpack-forms' ) }</h1>
 					<div className="jp-forms__patterns-grid mb-8">
 						<div className="jp-forms__pattern-item">
-							<div>Image Placeholder</div>
+							<img
+								src={ `${ ASSETS_URL }/images/contact-form.png` }
+								alt={ __( 'Contact Form', 'jetpack-forms' ) }
+							/>
 							<span>{ __( 'Contact form', 'jetpack-forms' ) }</span>
 						</div>
 						<div className="jp-forms__pattern-item">
-							<div>Image Placeholder</div>
-							<span>{ __( 'Contact form', 'jetpack-forms' ) }</span>
+							<img
+								src={ `${ ASSETS_URL }/images/booking-form.png` }
+								alt={ __( 'Booking Form', 'jetpack-forms' ) }
+							/>
+							<span>{ __( 'Booking/Appointments form', 'jetpack-forms' ) }</span>
 						</div>
 						<div className="jp-forms__pattern-item">
-							<div>Image Placeholder</div>
-							<span>{ __( 'Contact form', 'jetpack-forms' ) }</span>
+							<img
+								src={ `${ ASSETS_URL }/images/feedback-form.png` }
+								alt={ __( 'Feedback Form', 'jetpack-forms' ) }
+							/>
+							<span>{ __( 'Feedback form', 'jetpack-forms' ) }</span>
 						</div>
 						<div className="jp-forms__pattern-item">
-							<div>Image Placeholder</div>
-							<span>{ __( 'Contact form', 'jetpack-forms' ) }</span>
+							<img
+								src={ `${ ASSETS_URL }/images/newsletter-form.png` }
+								alt={ __( 'Newsletter Form', 'jetpack-forms' ) }
+							/>
+							<span>{ __( 'Newsletter subscription form', 'jetpack-forms' ) }</span>
 						</div>
 						<div className="jp-forms__pattern-item">
-							<div>Image Placeholder</div>
-							<span>{ __( 'Contact form', 'jetpack-forms' ) }</span>
+							<img
+								src={ `${ ASSETS_URL }/images/quote-form.png` }
+								alt={ __( 'Quote Form', 'jetpack-forms' ) }
+							/>
+							<span>{ __( 'Quote form', 'jetpack-forms' ) }</span>
 						</div>
 						<div className="jp-forms__pattern-item">
-							<div>Image Placeholder</div>
-							<span>{ __( 'Contact form', 'jetpack-forms' ) }</span>
+							<img
+								src={ `${ ASSETS_URL }/images/registration-form.png` }
+								alt={ __( 'Registration Form', 'jetpack-forms' ) }
+							/>
+							<span>{ __( 'Registration and login forms', 'jetpack-forms' ) }</span>
 						</div>
 					</div>
 					<button className="button button-primary">
@@ -58,6 +88,54 @@ const LandingPage = () => {
 				<div className="jp-forms__landing-content">
 					<h1>{ __( 'You’re in full control of the data.', 'jetpack-forms' ) }</h1>
 					<h1 className="mb-12">{ __( 'Empower your workflow.', 'jetpack-forms' ) }</h1>
+					<div className="jp-forms__features">
+						<div className="jp-forms__feature feature-connect">
+							<div className="jp-forms__feature-image-wrapper">
+								<img
+									src={ `${ ASSETS_URL }/images/google-sheets-icon.png` }
+									alt={ __( 'Google Sheets icon', 'jetpack-forms' ) }
+								/>
+								<img
+									src={ `${ ASSETS_URL }/images/salesforce-icon.png` }
+									alt={ __( 'Salesforce icon', 'jetpack-forms' ) }
+								/>
+							</div>
+							<h1>{ __( 'Connect with apps you already work with', 'jetpack-forms' ) }</h1>
+						</div>
+						<div className="jp-forms__feature feature-data">
+							<h4>{ __( 'Manage your data in wp-admin', 'jetpack-forms' ) }</h4>
+							<WordpressSVG />
+						</div>
+						<div className="jp-forms__feature feature-akismet">
+							<AkismetSVG className="mb-6" />
+							<h4>{ __( 'No spam with Akismet', 'jetpack-forms' ) }</h4>
+						</div>
+						<div className="jp-forms__feature feature-export">
+							<ExportSVG />
+							<h4>{ __( 'Manage your data in wp-admin', 'jetpack-forms' ) }</h4>
+						</div>
+						<div className="jp-forms__feature feature-notifications">
+							<NotificationsSVG className="mb-6" />
+							<h4>{ __( 'Real-time notifications via email', 'jetpack-forms' ) }</h4>
+						</div>
+						<div className="jp-forms__feature feature-dependencies">
+							<h1>
+								<span>{ __( 'Nada', 'jetpack-forms' ) }</span>
+								{ __( 'Zero', 'jetpack-forms' ) }
+								<span>{ __( 'Ziltch', 'jetpack-forms' ) }</span>
+							</h1>
+							<h4 className="align-center">
+								{ __( 'No additional plugins required', 'jetpack-forms' ) }
+							</h4>
+						</div>
+						<div className="jp-forms__feature feature-validation">
+							<div className="jp-forms__feature-image-wrapper align-center mb-4">
+								<CheckSVG />
+								<CloseSVG />
+							</div>
+							<h4 className="align-center">{ __( 'Auto field validation', 'jetpack-forms' ) }</h4>
+						</div>
+					</div>
 				</div>
 			</section>
 			<section className="jp-forms__landing-section align-center">

@@ -57,6 +57,10 @@ $page-spacing-horizontal: 76px;
 		margin-bottom: 8px;
 	}
 
+	.mb-4 {
+		margin-bottom: 16px;
+	}
+
 	.mb-6 {
 		margin-bottom: 24px;
 	}
@@ -79,17 +83,9 @@ $page-spacing-horizontal: 76px;
 	max-width: $content-max-width;
 }
 
-//TEMP - Video Placeholder
-.jp-forms__video-placeholder {
-	align-items: center;
-	background: lightgray;
+.jp-forms__teaser-video {
 	display: flex;
-	filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.04)) drop-shadow(0px -8px 16px rgba(0, 0, 0, 0.08));
-	height: 308px;
-	justify-content: center;
 	margin: 0 auto -84px;
-	max-width: 100%;
-	width: 764px;
 }
 
 .jp-forms__patterns-grid {
@@ -97,13 +93,13 @@ $page-spacing-horizontal: 76px;
 	grid-template-columns: repeat(3, minmax(300px, 350px));
 	justify-content: space-between;
 	margin: 0 auto;
-	gap: 28px 32px;
+	gap: 28px 40px;
 
-	@media ( max-width: 1280px ) {
+	@media (max-width: 1280px) {
 		grid-template-columns: repeat(2, minmax(300px, 400px));
 	}
 
-	@media ( max-width: 820px ) {
+	@media (max-width: 820px) {
 		grid-template-columns: minmax(300px, 400px);
 		justify-content: center;
 	}
@@ -115,8 +111,7 @@ $page-spacing-horizontal: 76px;
 	align-items: center;
 	gap: 8px;
 
-	//TEMP - Image Placeholder
-	div {
+	img {
 		aspect-ratio: 3/2;
 		display: flex;
 		align-items: center;
@@ -129,5 +124,93 @@ $page-spacing-horizontal: 76px;
 		font-size: 14px;
 		font-weight: 700;
 		line-height: 21px;
+	}
+}
+
+.jp-forms__features {
+	display: grid;
+	gap: 24px;
+	grid-template-columns: repeat(12, 1fr);
+}
+
+.jp-forms__feature {
+	background-color: var(--jp-forms-white);
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	min-height: 100px;
+	overflow: hidden;
+	padding: 24px 32px;
+	position: relative;
+
+	&.feature-connect {
+		grid-column: span 5 / span 5;
+	}
+
+	&.feature-data,
+	&.feature-notifications {
+		grid-column: span 4 / span 4;
+	}
+
+	&.feature-akismet,
+	&.feature-export,
+	&.feature-dependencies {
+		grid-column: span 3 / span 3;
+	}
+
+	&.feature-validation {
+		grid-column: span 2 / span 2;
+	}
+
+	&.feature-connect {
+		.jp-forms__feature-image-wrapper {
+			display: flex;
+			align-items: center;
+			gap: 24px;
+			margin-bottom: 8px;
+		}
+	}
+
+	&.feature-data {
+		h4 {
+			max-width: 220px;
+		}
+
+		svg {
+			position: absolute;
+			bottom: 0;
+			right: 0;
+		}
+	}
+
+	&.feature-export {
+		svg {
+			margin-left: -32px;
+		}
+	}
+
+	&.feature-dependencies {
+		padding: 24px 16px;
+		text-align: center;
+
+		h1 {
+			overflow: hidden;
+			align-self: center;
+		}
+
+		span {
+			opacity: 0.3;
+		}
+	}
+
+	&.feature-validation {
+		.jp-forms__feature-image-wrapper {
+			white-space: nowrap;
+		}
+	}
+
+	h4 {
+		font-weight: 700;
 	}
 }
