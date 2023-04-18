@@ -1,7 +1,7 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { external, moreVertical, arrowDown } from '@wordpress/icons';
+import { external, moreVertical, download, check } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
@@ -83,7 +83,7 @@ const Menu = ( {
 									weight="regular"
 									fullWidth
 									variant="tertiary"
-									icon={ arrowDown }
+									icon={ download }
 									onClick={ () => {
 										onClose();
 										onInstall?.();
@@ -97,7 +97,7 @@ const Menu = ( {
 									weight="regular"
 									fullWidth
 									variant="tertiary"
-									icon={ external }
+									icon={ check }
 									onClick={ () => {
 										onClose();
 										onActivate?.();
