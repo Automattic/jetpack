@@ -34,7 +34,7 @@ async function runTests() {
 
 async function moveResults( type, id ) {
 	execSyncShellCommand(
-		`mv artifacts/post-editor.test.performance-results.json ../tools/e2e-commons/results/${ type }.${ id }.test.results.json`
+		`mv ../../artifacts/post-editor.test.performance-results.json ../tools/e2e-commons/results/${ type }.${ id }.test.results.json`
 	);
 }
 
