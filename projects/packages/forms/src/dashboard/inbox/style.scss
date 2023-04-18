@@ -374,15 +374,24 @@ $action-bar-height: 88px;
 		&.enter,
 		&.enter-active {
 			animation: jp-forms__slide-in .2s ease-out forwards;
+
+			.jp-forms__inbox.is-response-animation-reverted & {
+				animation: none;
+			}
 		}
 		&.exit,
 		&.exit-active,
 		&.exit-done {
 			display: flex;
 			position: absolute;
-			top: 0;
+			top: 0 !important;
 			left: 0;
 			z-index: -1;
+
+			.jp-forms__inbox.is-response-animation-reverted & {
+				animation: jp-forms__slide-in .2s ease-out forwards reverse;
+				z-index: 1;
+			}
 		}
 	}
 }
