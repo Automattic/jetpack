@@ -6,7 +6,7 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
 import ProductCard from '../product-card';
 
-const ConnectedProductCard = ( { admin, slug, children } ) => {
+const ConnectedProductCard = ( { admin, slug, children, showMenu = false } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 	const { detail, status, activate, deactivate, isFetching, installStandalonePlugin } =
 		useProduct( slug );
@@ -81,6 +81,7 @@ const ConnectedProductCard = ( { admin, slug, children } ) => {
 			onAdd={ navigateToAddProductPage }
 			onManage={ onManage }
 			onFixConnection={ navigateToConnectionPage }
+			showMenu={ showMenu }
 			onInstallStandalone={ handleInstallAndActivateStandalonePlugin }
 			onActivateStandalone={ handleInstallAndActivateStandalonePlugin }
 			hasStandalonePlugin={ standalonePluginInfo?.hasStandalonePlugin }
