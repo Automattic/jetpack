@@ -201,7 +201,7 @@ importers:
         version: 6.5.16(react-dom@18.2.0)(react@18.2.0)
       '@storybook/react':
         specifier: 6.5.16
-        version: 6.5.16(@babel/core@7.21.4)(@storybook/builder-webpack5@6.5.16)(@storybook/manager-webpack5@6.5.16)(react-dom@18.2.0)(react@18.2.0)(require-from-string@2.0.2)(typescript@4.8.2)(webpack-cli@4.9.1)
+        version: 6.5.16(@babel/core@7.21.4)(react-dom@18.2.0)(react@18.2.0)(require-from-string@2.0.2)(typescript@4.8.2)(webpack-cli@4.9.1)
       '@testing-library/dom':
         specifier: 8.19.1
         version: 8.19.1
@@ -1419,6 +1419,9 @@ importers:
       react-router-dom:
         specifier: 5.3.4
         version: 5.3.4(react@18.2.0)
+      react-transition-group:
+        specifier: ^4.4.5
+        version: 4.4.5(react-dom@18.2.0)(react@18.2.0)
       redux:
         specifier: 4.0.5
         version: 4.0.5
@@ -1694,7 +1697,7 @@ importers:
         version: 6.5.16(react-dom@18.2.0)(react@18.2.0)
       '@storybook/react':
         specifier: 6.5.16
-        version: 6.5.16(@babel/core@7.21.4)(@storybook/builder-webpack5@6.5.16)(@storybook/manager-webpack5@6.5.16)(react-dom@18.2.0)(react@18.2.0)(require-from-string@2.0.2)(typescript@4.8.2)(webpack-cli@4.9.1)
+        version: 6.5.16(@babel/core@7.21.4)(react-dom@18.2.0)(react@18.2.0)(require-from-string@2.0.2)(typescript@4.8.2)(webpack-cli@4.9.1)
       '@storybook/testing-react':
         specifier: 1.3.0
         version: 1.3.0(@storybook/addons@6.5.16)(@storybook/client-api@6.5.16)(@storybook/preview-web@6.5.16)(@storybook/react@6.5.16)(react@18.2.0)
@@ -2084,7 +2087,7 @@ importers:
         version: 6.5.16(react-dom@18.2.0)(react@18.2.0)
       '@storybook/react':
         specifier: 6.5.16
-        version: 6.5.16(@babel/core@7.21.4)(@storybook/builder-webpack5@6.5.16)(@storybook/manager-webpack5@6.5.16)(react-dom@18.2.0)(react@18.2.0)(require-from-string@2.0.2)(typescript@4.8.2)(webpack-cli@4.9.1)
+        version: 6.5.16(@babel/core@7.21.4)(react-dom@18.2.0)(react@18.2.0)(require-from-string@2.0.2)(typescript@4.8.2)(webpack-cli@4.9.1)
       '@testing-library/dom':
         specifier: 8.19.1
         version: 8.19.1
@@ -7781,6 +7784,84 @@ packages:
       - webpack-cli
     dev: true
 
+  /@storybook/core-server@6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1):
+    resolution: {integrity: sha512-/3NPfmNyply395Dm0zaVZ8P9aruwO+tPx4D6/jpw8aqrRSwvAMndPMpoMCm0NXcpSm5rdX+Je4S3JW6JcggFkA==}
+    peerDependencies:
+      '@storybook/builder-webpack5': '*'
+      '@storybook/manager-webpack5': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      typescript: '*'
+    peerDependenciesMeta:
+      '@storybook/builder-webpack5':
+        optional: true
+      '@storybook/manager-webpack5':
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@discoveryjs/json-ext': 0.5.7
+      '@storybook/builder-webpack4': /@storybook/builder-webpack5@6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)
+      '@storybook/core-client': 6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack@5.76.0)
+      '@storybook/core-common': 6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)
+      '@storybook/core-events': 6.5.16
+      '@storybook/csf': 0.0.2--canary.4566f4d.1
+      '@storybook/csf-tools': 6.5.16
+      '@storybook/manager-webpack4': /@storybook/manager-webpack5@6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)
+      '@storybook/node-logger': 6.5.16
+      '@storybook/semver': 7.3.2
+      '@storybook/store': 6.5.16(react-dom@18.2.0)(react@18.2.0)
+      '@storybook/telemetry': 6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)
+      '@types/node': 16.18.23
+      '@types/node-fetch': 2.6.3
+      '@types/pretty-hrtime': 1.0.1
+      '@types/webpack': 5.28.1(webpack-cli@4.9.1)
+      better-opn: 2.1.1
+      boxen: 5.1.2
+      chalk: 4.1.2
+      cli-table3: 0.6.3
+      commander: 6.2.1
+      compression: 1.7.4
+      core-js: 3.23.5
+      cpy: 8.1.2
+      detect-port: 1.5.1
+      express: 4.18.2
+      fs-extra: 9.1.0
+      global: 4.4.0
+      globby: 11.1.0
+      ip: 2.0.0
+      lodash: 4.17.21
+      node-fetch: 2.6.7
+      open: 8.4.2
+      pretty-hrtime: 1.0.3
+      prompts: 2.4.2
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      regenerator-runtime: 0.13.9
+      serve-favicon: 2.5.0
+      slash: 3.0.0
+      telejson: 6.0.8
+      ts-dedent: 2.2.0
+      typescript: 4.8.2
+      util-deprecate: 1.0.2
+      watchpack: 2.4.0
+      webpack: 5.76.0(webpack-cli@4.9.1)
+      ws: 8.13.0
+      x-default-browser: 0.4.0
+    transitivePeerDependencies:
+      - '@storybook/mdx2-csf'
+      - '@swc/core'
+      - bufferutil
+      - encoding
+      - esbuild
+      - eslint
+      - supports-color
+      - uglify-js
+      - utf-8-validate
+      - vue-template-compiler
+      - webpack-cli
+    dev: true
+
   /@storybook/core@6.5.16(@storybook/builder-webpack5@6.5.16)(@storybook/manager-webpack5@6.5.16)(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)(webpack@5.76.0):
     resolution: {integrity: sha512-CEF3QFTsm/VMnMKtRNr4rRdLeIkIG0g1t26WcmxTdSThNPBd8CsWzQJ7Jqu7CKiut+MU4A1LMOwbwCE5F2gmyA==}
     peerDependencies:
@@ -7798,8 +7879,47 @@ packages:
       typescript:
         optional: true
     dependencies:
+      '@storybook/builder-webpack5': 6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)
       '@storybook/core-client': 6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack@5.76.0)
       '@storybook/core-server': 6.5.16(@storybook/builder-webpack5@6.5.16)(@storybook/manager-webpack5@6.5.16)(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)
+      '@storybook/manager-webpack5': 6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      typescript: 4.8.2
+      webpack: 5.76.0(webpack-cli@4.9.1)
+    transitivePeerDependencies:
+      - '@storybook/mdx2-csf'
+      - '@swc/core'
+      - bufferutil
+      - encoding
+      - esbuild
+      - eslint
+      - supports-color
+      - uglify-js
+      - utf-8-validate
+      - vue-template-compiler
+      - webpack-cli
+    dev: true
+
+  /@storybook/core@6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)(webpack@5.76.0):
+    resolution: {integrity: sha512-CEF3QFTsm/VMnMKtRNr4rRdLeIkIG0g1t26WcmxTdSThNPBd8CsWzQJ7Jqu7CKiut+MU4A1LMOwbwCE5F2gmyA==}
+    peerDependencies:
+      '@storybook/builder-webpack5': '*'
+      '@storybook/manager-webpack5': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      typescript: '*'
+      webpack: '*'
+    peerDependenciesMeta:
+      '@storybook/builder-webpack5':
+        optional: true
+      '@storybook/manager-webpack5':
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@storybook/core-client': 6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack@5.76.0)
+      '@storybook/core-server': 6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       typescript: 4.8.2
@@ -8040,8 +8160,98 @@ packages:
       '@babel/preset-react': 7.18.6(@babel/core@7.21.4)
       '@pmmmwh/react-refresh-webpack-plugin': 0.5.10(react-refresh@0.11.0)(webpack@5.76.0)
       '@storybook/addons': 6.5.16(react-dom@18.2.0)(react@18.2.0)
+      '@storybook/builder-webpack5': 6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)
       '@storybook/client-logger': 6.5.16
       '@storybook/core': 6.5.16(@storybook/builder-webpack5@6.5.16)(@storybook/manager-webpack5@6.5.16)(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)(webpack@5.76.0)
+      '@storybook/core-common': 6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)
+      '@storybook/csf': 0.0.2--canary.4566f4d.1
+      '@storybook/docs-tools': 6.5.16(react-dom@18.2.0)(react@18.2.0)
+      '@storybook/manager-webpack5': 6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)
+      '@storybook/node-logger': 6.5.16
+      '@storybook/react-docgen-typescript-plugin': 1.0.2-canary.6.9d540b91e815f8fc2f8829189deb00553559ff63.0(typescript@4.8.2)(webpack@5.76.0)
+      '@storybook/semver': 7.3.2
+      '@storybook/store': 6.5.16(react-dom@18.2.0)(react@18.2.0)
+      '@types/estree': 0.0.51
+      '@types/node': 16.18.23
+      '@types/webpack-env': 1.18.0
+      acorn: 7.4.1
+      acorn-jsx: 5.3.2(acorn@7.4.1)
+      acorn-walk: 7.2.0
+      babel-plugin-add-react-displayname: 0.0.5
+      babel-plugin-react-docgen: 4.2.1
+      core-js: 3.23.5
+      escodegen: 2.0.0
+      fs-extra: 9.1.0
+      global: 4.4.0
+      html-tags: 3.3.1
+      lodash: 4.17.21
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+      react-element-to-jsx-string: 15.0.0(react-dom@18.2.0)(react@18.2.0)
+      react-refresh: 0.11.0
+      read-pkg-up: 7.0.1
+      regenerator-runtime: 0.13.9
+      require-from-string: 2.0.2
+      ts-dedent: 2.2.0
+      typescript: 4.8.2
+      util-deprecate: 1.0.2
+      webpack: 5.76.0(webpack-cli@4.9.1)
+    transitivePeerDependencies:
+      - '@storybook/mdx2-csf'
+      - '@swc/core'
+      - '@types/webpack'
+      - bufferutil
+      - encoding
+      - esbuild
+      - eslint
+      - sockjs-client
+      - supports-color
+      - type-fest
+      - uglify-js
+      - utf-8-validate
+      - vue-template-compiler
+      - webpack-cli
+      - webpack-dev-server
+      - webpack-hot-middleware
+      - webpack-plugin-serve
+    dev: true
+
+  /@storybook/react@6.5.16(@babel/core@7.21.4)(react-dom@18.2.0)(react@18.2.0)(require-from-string@2.0.2)(typescript@4.8.2)(webpack-cli@4.9.1):
+    resolution: {integrity: sha512-cBtNlOzf/MySpNLBK22lJ8wFU22HnfTB2xJyBk7W7Zi71Lm7Uxkhv1Pz8HdiQndJ0SlsAAQOWjQYsSZsGkZIaA==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    peerDependencies:
+      '@babel/core': ^7.11.5
+      '@storybook/builder-webpack4': '*'
+      '@storybook/builder-webpack5': '*'
+      '@storybook/manager-webpack4': '*'
+      '@storybook/manager-webpack5': '*'
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+      require-from-string: ^2.0.2
+      typescript: '*'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@storybook/builder-webpack4':
+        optional: true
+      '@storybook/builder-webpack5':
+        optional: true
+      '@storybook/manager-webpack4':
+        optional: true
+      '@storybook/manager-webpack5':
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@babel/core': 7.21.4
+      '@babel/preset-flow': 7.21.4(@babel/core@7.21.4)
+      '@babel/preset-react': 7.18.6(@babel/core@7.21.4)
+      '@pmmmwh/react-refresh-webpack-plugin': 0.5.10(react-refresh@0.11.0)(webpack@5.76.0)
+      '@storybook/addons': 6.5.16(react-dom@18.2.0)(react@18.2.0)
+      '@storybook/client-logger': 6.5.16
+      '@storybook/core': 6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)(webpack@5.76.0)
       '@storybook/core-common': 6.5.16(react-dom@18.2.0)(react@18.2.0)(typescript@4.8.2)(webpack-cli@4.9.1)
       '@storybook/csf': 0.0.2--canary.4566f4d.1
       '@storybook/docs-tools': 6.5.16(react-dom@18.2.0)(react@18.2.0)
@@ -8205,7 +8415,7 @@ packages:
       '@storybook/client-api': 6.5.16(react-dom@18.2.0)(react@18.2.0)
       '@storybook/csf': 0.0.2--canary.87bc651.0
       '@storybook/preview-web': 6.5.16(react-dom@18.2.0)(react@18.2.0)
-      '@storybook/react': 6.5.16(@babel/core@7.21.4)(@storybook/builder-webpack5@6.5.16)(@storybook/manager-webpack5@6.5.16)(react-dom@18.2.0)(react@18.2.0)(require-from-string@2.0.2)(typescript@4.8.2)(webpack-cli@4.9.1)
+      '@storybook/react': 6.5.16(@babel/core@7.21.4)(react-dom@18.2.0)(react@18.2.0)(require-from-string@2.0.2)(typescript@4.8.2)(webpack-cli@4.9.1)
       react: 18.2.0
     dev: true
 
@@ -11182,7 +11392,7 @@ packages:
   /axios@0.27.2:
     resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
     dependencies:
-      follow-redirects: 1.15.2
+      follow-redirects: 1.15.2(debug@4.3.4)
       form-data: 4.0.0
     transitivePeerDependencies:
       - debug
@@ -12969,6 +13179,13 @@ packages:
       utila: 0.4.0
     dev: true
 
+  /dom-helpers@5.2.1:
+    resolution: {integrity: sha512-nRCa7CK3VTrM2NmGkIy4cbK7IZlgBE/PYMn55rrXefr5xXDP0LdtfPnblFDoVdcAfslJ7or6iqAUnx0CCGIWQA==}
+    dependencies:
+      '@babel/runtime': 7.21.0
+      csstype: 3.1.2
+    dev: false
+
   /dom-scroll-into-view@1.2.1:
     resolution: {integrity: sha512-LwNVg3GJOprWDO+QhLL1Z9MMgWe/KAFLxVWKzjRTxNSPn8/LLDIfmuG71YHznXCqaqTjvHJDYO1MEAgX6XCNbQ==}
 
@@ -14371,15 +14588,6 @@ packages:
       tabbable: 5.3.3
     dev: false
 
-  /follow-redirects@1.15.2:
-    resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-
   /follow-redirects@1.15.2(debug@4.3.4):
     resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
     engines: {node: '>=4.0'}
@@ -14390,7 +14598,6 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.4
-    dev: true
 
   /for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
@@ -19484,6 +19691,20 @@ packages:
       react-shallow-renderer: 16.15.0(react@18.2.0)
       scheduler: 0.23.0
     dev: true
+
+  /react-transition-group@4.4.5(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
+    peerDependencies:
+      react: '>=16.6.0'
+      react-dom: '>=16.6.0'
+    dependencies:
+      '@babel/runtime': 7.21.0
+      dom-helpers: 5.2.1
+      loose-envify: 1.4.0
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
 
   /react@17.0.2:
     resolution: {integrity: sha512-gnhPt75i/dq/z3/6q/0asP78D0u592D5L1pd7M8P+dck6Fu/jJeL6iVVK23fptSUZj8Vjf++7wXA8UNclGQcbA==}

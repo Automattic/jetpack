@@ -1,8 +1,15 @@
+/**
+ * External dependencies
+ */
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEmpty, map } from 'lodash';
+/**
+ * Internal dependencies
+ */
+import SwitchTransition from '../components/switch-transition';
 import { formatFieldName, getDisplayName } from './util';
 
 const InboxResponse = ( { loading, response } ) => {
@@ -29,7 +36,7 @@ const InboxResponse = ( { loading, response } ) => {
 	}
 
 	return (
-		<div className={ classes } ref={ ref }>
+		<SwitchTransition activeViewKey={ response.id } className={ classes } duration={ 200 }>
 			<div className="jp-forms__inbox-response-avatar">
 				<img
 					src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"
@@ -84,7 +91,7 @@ const InboxResponse = ( { loading, response } ) => {
 					);
 				} ) }
 			</div>
-		</div>
+		</SwitchTransition>
 	);
 };
 
