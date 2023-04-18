@@ -2,9 +2,10 @@
  * WordPress dependencies
  */
 import { SandBox } from '@wordpress/components';
+import { store as coreStore } from '@wordpress/core-data';
+import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { addQueryArgs } from '@wordpress/url';
 /**
  * External dependencies
  */
@@ -48,7 +49,7 @@ export default function Player( { isSelected, attributes } ) {
 	const [ isPlayerLoaded, setIsPlayerLoaded ] = useState( false );
 	const [ token, setToken ] = useState();
 	const [ previewCheckAttempts, setPreviewCheckAttempts ] = useState( 0 );
-	const previewCheckInterval = useRef();
+	const previewCheckTimer = useRef();
 
 	// Fetch token for a VideoPress GUID
 	useEffect( () => {
@@ -59,7 +60,7 @@ export default function Player( { isSelected, attributes } ) {
 		}
 	}, [ guid ] );
 
-	let videoPressUrl = getVideoPressUrl( guid, {
+	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
 		controls,
 		loop,
@@ -72,35 +73,29 @@ export default function Player( { isSelected, attributes } ) {
 		poster,
 	} );
 
-	// Append the attempt number to the URL to force a new request
-	if ( previewCheckAttempts > 0 ) {
-		videoPressUrl = addQueryArgs( videoPressUrl, {
-			jp_app_attempts: previewCheckAttempts,
-		} );
-	}
-
-	const { preview = {} } = usePreview( videoPressUrl );
+	const { preview = {}, isRequestingEmbedPreview } = usePreview( videoPressUrl );
 	const html = addTokenIntoIframeSource( preview.html, token );
 
-	const cancelPreviewCheckInterval = () => clearInterval( previewCheckInterval.current );
+	const { invalidateResolution } = useDispatch( coreStore );
+	const invalidatePreview = () => invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 
 	// Fetch the preview until it's ready
 	useEffect( () => {
-		// Wait till the player is loaded to start checking for the preview
-		if ( ! isPlayerLoaded ) {
+		if ( ! isPlayerLoaded || isRequestingEmbedPreview ) {
 			return;
 		}
-		previewCheckInterval.current = setInterval( () => {
-			// if the preview is ready or we reached the max attempts, clear the interval
-			if ( isPreviewReady( preview ) || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT ) {
-				return cancelPreviewCheckInterval();
-			}
 
+		if ( isPreviewReady( preview ) || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT ) {
+			return clearTimeout( previewCheckTimer.current );
+		}
+
+		previewCheckTimer.current = setTimeout( () => {
+			invalidatePreview();
 			setPreviewCheckAttempts( previewCheckAttempts + 1 );
 		}, 1000 );
 
-		return cancelPreviewCheckInterval;
-	}, [ preview, isPlayerLoaded ] );
+		return () => clearTimeout( previewCheckTimer.current );
+	}, [ preview, isPlayerLoaded, isRequestingEmbedPreview, previewCheckAttempts ] );
 
 	const onSandboxMessage = useCallback( message => {
 		if ( message.event === 'videopress_loading_state' && message.state === 'loaded' ) {
