@@ -35,6 +35,14 @@ const Menu = ( {
 	const showStandaloneOption =
 		hasStandalonePlugin && ( ! isStandaloneInstalled || ! isStandaloneActive );
 
+	if ( productStatus === PRODUCT_STATUSES.ACTIVE ) {
+		items.push( {
+			label: __( 'Manage', 'jetpack-my-jetpack' ),
+			onClick: onManage,
+			icon: external,
+		} );
+	}
+
 	return (
 		<Dropdown
 			className={ styles.dropdown }
@@ -64,20 +72,6 @@ const Menu = ( {
 							{ item?.label }
 						</Button>
 					) ) }
-					{ productStatus === PRODUCT_STATUSES.ACTIVE && (
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ external }
-							onClick={ () => {
-								onClose();
-								onManage?.();
-							} }
-						>
-							{ __( 'Manage', 'jetpack-my-jetpack' ) }
-						</Button>
-					) }
 					{ showStandaloneOption && (
 						<>
 							{ ! isStandaloneInstalled && (
