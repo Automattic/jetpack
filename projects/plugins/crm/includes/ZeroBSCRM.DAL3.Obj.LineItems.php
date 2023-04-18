@@ -1092,68 +1092,57 @@ class zbsDAL_lineitems extends zbsDAL_ObjectLayer {
 
     }
 
+	/**
+	 * Takes whatever lineitem data available and re-calculates net, total, tax etc.
+	 * .. returning same obj with updated vals
+	 *
+	 * @param array $line_item The line item.
+	 *
+	 * @return array $lineItem
+	 */
+	public function recalculate( $line_item = false ) {
 
-    /**
-     * Takes whatever lineitem data available and re-calculates net, total, tax etc. 
-     * .. returning same obj with updated vals
-     *
-     * @param array $lineItem
-     *
-     * @return array $lineItem
-     */
-    public function recalculate($lineItem=false){
+		if ( is_array( $line_item ) ) {
 
-        if (is_array($lineItem)){
+			// subtotal (zbsi_net)
+			// == line item Quantity * rate * tax%
+			$total = 0.0;
 
-            // subtotal (zbsi_net)
-            // == line item Quantity * rate * tax%
-            $subTotal = 0.0; $tax = 0.0; $total = 0.0;
+			if ( isset( $line_item ) && is_array( $line_item ) ) {
+				// Subtotal
+				if ( isset( $line_item['quantity'] ) && isset( $line_item['price'] ) ) {
 
-                // calc?
-                if (isset($lineItem) && is_array($lineItem)){
-                    
-                    // Subtotal
-                    if (isset($lineItem['quantity']) && isset($lineItem['price'])){
+					$quantity = (float) $line_item['quantity'];
+					$price    = (float) $line_item['price'];
 
-                        $quantity = (float)$lineItem['quantity'];
-                        $price = (float)$lineItem['price'];
+					// Discount? (applied to gross)
+					// ALWAYS gross 0.00 value for lineitems (Where as at invoice level can be %)
+					$discount = 0;
+					if ( isset( $line_item['discount'] ) ) {
+						$discount = (float) $line_item['discount'];
+					}
 
-                        // Discount? (applied to gross)
-                        // ALWAYS gross 0.00 value for lineitems (Where as at invoice level can be %)
-                        $discount = 0; if (isset($lineItem['discount'])) $discount = (float)$lineItem['discount'];
-                        
-                        // gross
-                        $subTotalPreDiscount = $quantity*$price;
-                        $subTotal = $subTotalPreDiscount-$discount;
+					// gross
+					$sub_total_pre_discount = $quantity * $price;
 
-                        // lineitems can store these, but we're not using them in v3.0 mvp (invs have their own global level for these)
-                        // currency
-                        // shipping
+					$sub_total = $sub_total_pre_discount - $discount;
 
-                        // tax - this should be logged against line item, but lets recalc
-                        if (isset($lineItem['taxes'])) $tax = zeroBSCRM_taxRates_getTaxValue($subTotal,$lineItem['taxes']);
+					// tax - this should be logged against line item, but lets recalc
+					if ( isset( $line_item['taxes'] ) && $line_item['taxes'] !== -1 ) {
+						$line_item['tax'] = zeroBSCRM_taxRates_getTaxValue( $sub_total, $line_item['taxes'] );
+					}
 
-                        // total would have discount, shipping, but as above, not using per line item as at v3.0 mvp
-                        $total = $subTotal + $tax;
+					// total would have discount, shipping, but as above, not using per line item as at v3.0 mvp
+					$total = $sub_total + $line_item['tax'];
+				}
+			}
+			$line_item['net']   = $sub_total_pre_discount;
+			$line_item['total'] = $total;
 
-
-                    }
-            
-
-                }
-
-            // set it
-            $lineItem['net'] = $subTotalPreDiscount;
-            $lineItem['tax'] = $tax;
-            $lineItem['total'] = $total;
-
-            return $lineItem;
-
-        }
-
-        return false;
-
-    }
+			return $line_item;
+		}
+		return false;
+	}
 
 
     /**
