@@ -8,7 +8,8 @@ import ProductCard from '../product-card';
 
 const ConnectedProductCard = ( { admin, slug, children } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
-	const { detail, status, activate, deactivate, isFetching } = useProduct( slug );
+	const { detail, status, activate, deactivate, isFetching, installStandalonePlugin } =
+		useProduct( slug );
 	const { name, description, manageUrl, requiresUserConnection, standalonePluginInfo } = detail;
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
@@ -40,6 +41,30 @@ const ConnectedProductCard = ( { admin, slug, children } ) => {
 		navigateToConnectionPage,
 	] );
 
+	/*
+	 * Redirect to connection page if the user is not connected
+	 */
+	const handleInstallAndActivateStandalonePlugin = useCallback( () => {
+		if ( ( ! isRegistered || ! isUserConnected ) && requiresUserConnection ) {
+			navigateToConnectionPage();
+			return;
+		}
+
+		/**
+		 * For both installing and activating the plugin, the action is the same
+		 * because the backend endpoint performs both actions
+		 * - installing when is not installed
+		 * - activating when is not active
+		 */
+		installStandalonePlugin();
+	}, [
+		installStandalonePlugin,
+		isRegistered,
+		isUserConnected,
+		requiresUserConnection,
+		navigateToConnectionPage,
+	] );
+
 	const Icon = getIconBySlug( slug );
 
 	return (
@@ -56,6 +81,8 @@ const ConnectedProductCard = ( { admin, slug, children } ) => {
 			onAdd={ navigateToAddProductPage }
 			onManage={ onManage }
 			onFixConnection={ navigateToConnectionPage }
+			onInstallStandalone={ handleInstallAndActivateStandalonePlugin }
+			onActivateStandalone={ handleInstallAndActivateStandalonePlugin }
 			hasStandalonePlugin={ standalonePluginInfo?.hasStandalonePlugin }
 			isStandaloneInstalled={ standalonePluginInfo?.isStandaloneInstalled }
 			isStandaloneActive={ standalonePluginInfo?.isStandaloneActive }
