@@ -87,6 +87,11 @@ final class Data_Sync {
 	 */
 	private static $instance = array();
 
+	/**
+	 * @var string The namespace to use for the registry.
+	 */
+	private $namespace;
+
 	public function __construct( $namespace ) {
 		$this->namespace = $namespace;
 		$this->registry  = new Registry( $namespace );
