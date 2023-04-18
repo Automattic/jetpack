@@ -176,11 +176,7 @@ export function useSyncMedia(
 			return;
 		}
 
-		const handlePostSaveEvent = () => {
-			setPostHasBeenJustSavedNative( true );
-		};
-
-		const subscription = subscribePostSaveEvent( handlePostSaveEvent );
+		const subscription = subscribePostSaveEvent( () => setPostHasBeenJustSavedNative( true ) );
 
 		return () => {
 			if ( subscription ) {
