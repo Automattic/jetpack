@@ -171,20 +171,23 @@ export function useSyncMedia(
 	// We therefore need to listen to a native event emitter to know when a post has just been saved.
 	const [ postHasBeenJustSavedNative, setPostHasBeenJustSavedNative ] = useState( false );
 
-	isNative &&
-		useEffect( () => {
-			const handlePostSaveEvent = () => {
-				setPostHasBeenJustSavedNative( true );
-			};
+	useEffect( () => {
+		if ( ! isNative ) {
+			return;
+		}
 
-			const subscription = subscribePostSaveEvent( handlePostSaveEvent );
+		const handlePostSaveEvent = () => {
+			setPostHasBeenJustSavedNative( true );
+		};
 
-			return () => {
-				if ( subscription ) {
-					subscription.remove();
-				}
-			};
-		}, [] );
+		const subscription = subscribePostSaveEvent( handlePostSaveEvent );
+
+		return () => {
+			if ( subscription ) {
+				subscription.remove();
+			}
+		};
+	}, [] );
 
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 
