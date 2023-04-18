@@ -15,12 +15,6 @@ import { __ } from '@wordpress/i18n';
  */
 import useSubmitQuestion from './use-submit-question';
 
-const waitStrings = [
-	__( 'Good question, give me a moment to think about that 🤔', 'jetpack' ),
-	__( 'Let me work out the answer to that, back soon!', 'jetpack' ),
-	__( '🤔 Thinking, thinking, will be back with an answer soon', 'jetpack' ),
-];
-
 // This component displays the text word by word if show animation is true
 function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 	// This is the HTML to be displayed.
@@ -56,22 +50,20 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 	);
 }
 export default function QuestionAnswer() {
-	const { question, setQuestion, answer, isLoading, submitQuestion, references } =
+	const { question, setQuestion, answer, isLoading, submitQuestion, references, waitString } =
 		useSubmitQuestion();
 
 	const [ animationDone, setAnimationDone ] = useState( false );
-	const [ showReferences, setShowReferences ] = useState( false );
 
 	const handleSubmitQuestion = () => {
 		setAnimationDone( false );
-		setShowReferences( false );
 		submitQuestion();
 	};
 
 	const handleSetAnimationDone = () => {
 		setAnimationDone( true );
-		setShowReferences( true );
 	};
+
 	return (
 		<>
 			<KeyboardShortcuts
@@ -98,7 +90,7 @@ export default function QuestionAnswer() {
 					{ isLoading ? (
 						<>
 							<Spinner />
-							{ waitStrings[ Math.floor( Math.random() * 3 ) ] }
+							{ waitString }
 						</>
 					) : (
 						// eslint-disable-next-line react/no-danger
@@ -109,9 +101,9 @@ export default function QuestionAnswer() {
 						/>
 					) }
 				</div>
-				{ references && references.length > 0 && showReferences && (
+				{ references && references.length > 0 && (
 					<div className="jetpack-ai-chat-answer-references">
-						<div>{ __( 'Additional resources:', 'jetpack' ) }</div>
+						<div>{ __( 'Related resources:', 'jetpack' ) }</div>
 
 						<ul>
 							{ references.map( ( reference, index ) => (

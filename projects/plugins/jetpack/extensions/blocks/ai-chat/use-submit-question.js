@@ -1,31 +1,12 @@
 /**
  * WordPress dependencies
  */
+import apiFetch from '@wordpress/api-fetch';
 import { useState } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import { addQueryArgs } from '@wordpress/url';
 
-const mockAnswer = {
-	response:
-		'To add a new block, you can click on the <strong>+</strong> button (called the <a href="http://en.support.wordpress.com/wordpress-editor/add-content-blocks/">Block Inserter</a>). This button can be found in several places, such as the top left corner of the editor or at the side of an empty block. Additionally, you can press the Enter/Return key on your keyboard to create a new line below an existing block and click the <strong>+ Block Inserter</strong> there. Once you see the Block Inserter, you can search for a specific block type and click it to insert it into your content.',
-	urls: [
-		{
-			url: 'http://en.support.wordpress.com/replacing-the-older-wordpress-com-editor-with-the-wordpress-block-editor/',
-			title: 'Replacing the Older WordPress.com Editor with the WordPress Block Editor',
-		},
-		{
-			url: 'http://en.support.wordpress.com/wordpress-editor/switching-from-the-classic-to-the-block-editor/',
-			title: 'Convert from the Classic to the Block Editor',
-		},
-		{
-			url: 'http://en.support.wordpress.com/video-tutorials/using-the-block-editor/',
-			title: 'Video Tutorials: Using the Block Editor',
-		},
-		{
-			url: 'http://en.support.wordpress.com/wordpress-editor/add-content-blocks/',
-			title: 'Add Content Using Blocks',
-		},
-		{ url: 'http://en.support.wordpress.com/wordpress-editor/blocks/', title: 'Blocks' },
-	],
-};
+const blogId = '9619154';
 
 export default function useSubmitQuestion() {
 	const [ question, setQuestion ] = useState( '' );
@@ -33,21 +14,54 @@ export default function useSubmitQuestion() {
 	const [ answer, setAnswer ] = useState();
 	const [ references, setReferences ] = useState( [] );
 	const [ isLoading, setIsLoading ] = useState( false );
+	const [ waitString, setWaitString ] = useState( '' );
 
 	const submitQuestion = async () => {
+		setReferences( [] );
 		setIsLoading( true );
-		// apiFetch( {
-		// 	path: `/wpcom/v2/sites/${ siteID }/jetpack-search/ai/search?_envelope=1&query=${ question }?&environment-id=development&_gutenberg_nonce=${ nonce }&_locale=user`,
-		// 	method: 'GET',
-		// } ).then( res => {
-		// 	setIsLoading( false );
-		// } );
-		setTimeout( () => {
-			setAnswer( mockAnswer.response );
-			setReferences( mockAnswer.urls );
-			setIsLoading( false );
-		}, 3000 );
+		const encoded = encodeURIComponent( question );
+		apiFetch( {
+			path: addQueryArgs( `wpcom/v2/sites/${ blogId }/jetpack-search/ai/search`, {
+				stop_at: 'terms',
+				query: encoded,
+			} ),
+		} )
+			.then( response => {
+				setWaitString(
+					sprintf(
+						/* translators: %1$s: A list of terms being searched for. */
+						__( 'Site tight, I am going to search for %1$s', 'jetpack' ),
+						response.terms.join( ', ' )
+					)
+				);
+				return apiFetch( {
+					path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/jetpack-search/ai/search`, {
+						stop_at: 'urls',
+						query: encoded,
+					} ),
+				} );
+			} )
+			.then( response => {
+				setReferences( response.urls );
+				setWaitString(
+					__(
+						'I have found the following documents. Bear with me while I try and summarise them for you',
+						'jetpack'
+					)
+				);
+
+				return apiFetch( {
+					path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/jetpack-search/ai/search`, {
+						stop_at: 'response',
+						query: encoded,
+					} ),
+				} );
+			} )
+			.then( response => {
+				setAnswer( response.response );
+				setIsLoading( false );
+			} );
 	};
 
-	return { question, setQuestion, answer, isLoading, submitQuestion, references };
+	return { question, setQuestion, answer, isLoading, submitQuestion, references, waitString };
 }
