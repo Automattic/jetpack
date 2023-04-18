@@ -36,7 +36,12 @@ const InboxResponse = ( { loading, response } ) => {
 	}
 
 	return (
-		<SwitchTransition activeViewKey={ response.id } className={ classes } duration={ 200 }>
+		<SwitchTransition
+			ref={ ref }
+			activeViewKey={ response.id }
+			className={ classes }
+			duration={ 200 }
+		>
 			<div className="jp-forms__inbox-response-avatar">
 				<img
 					src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"
