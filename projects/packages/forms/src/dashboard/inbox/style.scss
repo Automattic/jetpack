@@ -341,19 +341,17 @@ $action-bar-height: 88px;
 
 @keyframes jp-forms__slide-in {
 	from {
-		opacity: 0;
-		transform: translateY(100px);
+		transform: translateY(150px);
 	}
 }
 
-@keyframes jp-forms__slide-out {
-	75% {
-		opacity: 1;
+@keyframes jp-forms__fade-in {
+	from {
+		opacity: 0;
 	}
 
-	to {
-		opacity: 0;
-		transform: translateY(100px);
+	35% {
+		opacity: 1;
 	}
 }
 
@@ -384,7 +382,7 @@ $action-bar-height: 88px;
 	@media (min-width: 1025px) {
 		&.enter,
 		&.enter-active {
-			animation: jp-forms__slide-in .2s ease-out forwards;
+			animation: jp-forms__slide-in .2s ease-out forwards, jp-forms__fade-in .2s ease-in forwards;
 
 			.jp-forms__inbox.is-response-animation-reverted & {
 				animation: none;
@@ -400,7 +398,7 @@ $action-bar-height: 88px;
 			z-index: -1;
 
 			.jp-forms__inbox.is-response-animation-reverted & {
-				animation: jp-forms__slide-out s ease-out forwards;
+				animation: jp-forms__slide-in .2s ease-out forwards reverse, jp-forms__fade-in .2s ease-in forwards reverse;
 				z-index: 1;
 			}
 		}
