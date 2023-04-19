@@ -1,44 +1,56 @@
-## Jetpack 11.9
+## Jetpack 12.0
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### Form Block
+### Blocks
 
-The Form block received several updates, to test:
+Some blocks were moved from beta status to production and are now available to all users.
+No new features were added, so the only thing to test here is that they work as expected and show up without the beta blocks being enabled:
 
-- Create a new test post and add a Form block (contact form template will work).
-- Add a 'Multiple Choice (checkbox)' field with a few options to select from.
-- Add a 'Text Input Field' with some dummy 'Placeholder Text' in the sidebar settings. Then change the border-radius for the text field to a large value.
-	- While editing or viewing the form on the frontend, the placeholder text should remain visible even with a large border-radius set.
-- While still having the text input field selected, make sure the 'Sync fields style' is enabled. Then, change the background color or other style settings from the sidebar.
-- Add an additional text input field. This new field should retain the same style settings previously applied from the other text field.
-- On the frontend in a new private/guest browser window, submit a test form submission.
-	- You may notice the form having a brief blur while while it is loading, this is expected.
-- Check the form responses in 'Feedback > Form Responses' for the test submission. Make sure that the output looks ok and that you don't see an 'Array()' wrapped around the multiple choice checkbox field data.
+**VideoPress** - add a block and try adding and playing a video.
 
-Related PRs: [28815](https://github.com/Automattic/jetpack/pull/28815), [28988](https://github.com/Automattic/jetpack/pull/28988), [28820](https://github.com/Automattic/jetpack/pull/28820), [28973](https://github.com/Automattic/jetpack/pull/28973)
+**Cookie Consent block** - make sure you are using a block-based theme such as "Twenty Twenty-Three". Go to the site editor and try adding a Cookie consent block.
 
-### Sharing Buttons
+**Writing Prompt block** - create a new post and add a Writing Prompt block to it. Save or publish the post and check if appropriate tags, such as 'dailyprompt' and 'dailyprompt-1810' are added.
 
-The Sharing buttons also received updates in this version, to test:
+### The Form block
 
-- Verify that the sharing buttons are enabled in 'Jetpack > Settings > Sharing'.
-- Click on the 'Configure your sharing buttons' link.
-- Add some different sharing buttons including the new Mastadon button. Save those changes.
-- Have at least one blog post published, then visit a post on the frontend.
-- Make sure the sharing buttons are displayed as expected.
-	- Be sure to test the sharing buttons displayed on the frontend in a variety of different browsers and screen sizes.
-	- If you aren't seeing any sharing buttons at all, try disabling any adblock extensions.
-- Activate the 'Twenty Nineteen' theme on your site and check the sharing buttons on the frontend again, they should look the same.
-- Test additional sharing button settings such as 'official buttons' versus 'icon only' for example.
+**Multiple Choice and Single Choice** fields had some design updates. To test it:
 
-Related PRs: [28874](https://github.com/Automattic/jetpack/pull/28874), [28694](https://github.com/Automattic/jetpack/pull/28694)
+- Create a post and add a Form block.
+- Include a Multiple Choice and a Single Choice field.
+- Check if they work as expected.
+- Publish the post and check if it looks as expected on the frontend.
+- Multiline feedback message support:
+- Create and publish a post that includes a contact form.
+- Submit a multi-line message through a form.
+- Look at Feedback->Form Responses and make sure the message is not showing up as a single line.
+
+### WordPress 6.2 compatibility
+
+This version of Jetpack included several small fixes to ensure compatibility with the latest WordPress. WordPress 6.2 is now available to all users, so make sure you update your site to the latest version.
+
+### Things to check:
+
+#### Twitter block
+
+- Create a new post and add a Twitter block.
+- Paste a Twitter URL for a thread (tweetstorm).
+- Click on Unroll.
+- Change Publicize options to publish a thread instead of a single tweet.
+- Observe separators being added to the post content.
+- Click on the "Social Previews" section at the bottom of the sidebar.
+- You should see previews under some of the tweets, and you should not see any notices in your error logs.
+
+### Pinterest block
+
+- Create a new post and add a Pinterest block. When adding a Pinterest URL, no errors should appear in your logs.
 
 ### And More!
 
-You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/jetpack/branch-11.9/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
+You can see a [full list of changes in this release here](https://github.com/Automattic/jetpack/blob/jetpack/branch-12.0/projects/plugins/jetpack/CHANGELOG.md). Please feel free to test any and all functionality mentioned! 
 
 **Thank you for all your help!**

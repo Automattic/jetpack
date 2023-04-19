@@ -2,7 +2,7 @@
 Contributors: automattic, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
 Tested up to: 6.2
-Stable tag: 5.5.3
+Stable tag: 5.6.0
 Requires at least: 5.0
 Requires PHP: 7.2
 License: GPLv2
@@ -399,32 +399,49 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 5.5.4-alpha - 2023-02-15
-#### Added
-- adds the necessary migration to move all files that were inside the zbscrm-store folder with a flat struture to the new jpcrm-storage folder that uses a hierarchical structure
-- Copy tests from old repo.
-
+### 5.6.0 - 2023-03-23
 #### Changed
-- Added webpack build step
-- CRM: changing variable declarations back to var
-- CRM: export vars that are referenced via window.
-- Updated package dependencies.
+- Contacts: Change customer references to contact in all but Woo and commerce contexts
+- Compatibility: Indicate full compatibility with the latest version of WordPress, 6.2
+- Move all files that were inside the zbscrm-store folder with a flat structure to the new jpcrm-storage folder that uses a hierarchical structure
+- Extensions: Highlight popular Woo extensions on extensions page, plus alphabetize results
 
 #### Fixed
-- Client Portal bug that prevented access from being disabled using the contact page was fixed
-- CRM: add a missing < which prevented a <script> tag from being opened.
-- CRM: Adding a JS function to a list of exports so that it can be called outside the bundle it was declared in.
-- CRM: Adding exports to functions called externally, in all JS fiiles where it is needed.
-- CRM:  allows custom profile pictures to be shown in the dashboard.
-- CRM: Escaping an invoice ID in ZeroBSCRM.admin.invoicebuilder.js
-- CRM: Fix avatar getting removed when saving a contact
-- CRM: Fixes a contact fild issue when a Woo order subscription is updated.
-- CRM: Fix escape in contact list filters
-- CRM: Fixing minor admin only issue on placeholder fields.
-- CRM: fix issue  where exporting contacts shows "County" when it should show "State".
-- CRM:  fix the escape used in the "Bundle holder" notification when uploading files to a contact
-- Fixed numeric fields, date fields, and textareas in the Client Portal
+- Add a missing < which prevented a script tag from being opened.
+- Allowing XMLRPC and REST requests when the frontend is disabled
+- Client Portal: Fix bug that prevented access from being disabled using the contact page
+- Client Portal: Fix numeric fields, date fields, and textareas in the Client Portal
+- Change escape function for API generated activity
+- Contacts: Prevent JS error when custom avatars are not enabled
+- Contacts: Fix PHP error when using empty values for Address Custom Field (Date)
+- Contacts: Fix a contact field issue when a Woo order subscription is updated
+- Contacts: Fix avatar getting removed when saving a contact
+- Contacts: Fix escape in contact list filters
+- Contacts: Fix issue where exporting contacts shows "County" when it should show "State"
+- Contacts: Fix the escape used in the "Bundle holder" notification when uploading files to a contact
+- Dashboard:  Allow custom profile pictures to be shown in the dashboard
+- Invoices: Escape an invoice ID in ZeroBSCRM.admin.invoicebuilder.js
+- Tasks: Correct text where tasks where being referred to as events
+- Placeholders: Fix secondary address placeholders
+- Placeholders: Fix several placeholders throughout CRM
+- Placeholders: Fix minor admin only issue on placeholder fields
+- Exports: Fix some export cases by adding a check for the segment index
+- Taxes: Fix tax page deletion for single entries
+- Taxes: Fix tax rate creation link on tax rate settings page
+- Forms: Swapping edit and new form titles to correctly reflect page
+- Dashboard: Show default avatar under activity, when contact image mode set to none
+- Client Portal: Fix accept quote in Client Portal button not working for PHP versions 8.1 and up
+- Taxes: Fix potential XSS in the Tax Settings page
+- Contacts: Fix wrong naming from Customer ID to Contact ID in the Edit Contact page
+- Contacts: Importing contacts using CSV files no longer erases fields that are missing
+- Client Portal: Background for the menu in the Twenty Seventeen theme is no longer dark gray
+- OAuth Connections: No longer shows critical error after saving credentials
+- WooSync: Remove PHP notice when a WooCommerce order is in a Draft status
+- Segments: Fix list pagination
+- Fix special characters in textarea fields (contacts, transactions, quotes) to prevent producing visible HTML entities
+- WooSync: Change status only for contacts with the Lead status
 
+v5.5.3 - 26 January 2023
 -------------------------
 * Fixed: CRM no longer breaks WordPress sites running on PHP 7.2
 * Fixed: HTML escaped code in contact list filters for segments

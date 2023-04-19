@@ -15,6 +15,9 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "dev-master"
 	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
 	"autoload": {
 		"classmap": [
 			"src/"
@@ -47,7 +50,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-stats-admin",
 		"branch-alias": {
-			"dev-trunk": "0.6.x-dev"
+			"dev-trunk": "0.7.x-dev"
 		},
 		"textdomain": "jetpack-stats-admin",
 		"version-constants": {

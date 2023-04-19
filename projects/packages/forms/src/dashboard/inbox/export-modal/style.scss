@@ -1,0 +1,190 @@
+.jp-forms__export-modal {
+	align-items: center;
+	background: rgba(0, 0, 0, 0.3);
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 0;
+	position: fixed;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	z-index: 9999;
+
+	@media (min-width: 601px) {
+		padding: 40px 60px;
+	}
+}
+
+.jp-forms__export-modal-wrapper {
+	background-color: #fff;
+	display: flex;
+	flex-direction: column;
+	max-width: 680px;
+	padding: 24px 48px 0;
+	position: relative;
+}
+
+.jp-forms__export-modal-close-button {
+	background: transparent;
+	border: 0;
+	cursor: pointer;
+	height: 24px;
+	padding: 3px;
+	position: absolute;
+	right: 8px;
+	top: 8px;
+	width: 24px;
+}
+
+.jp-forms__export-modal-header {
+	margin-bottom: 32px;
+}
+
+.jp-forms__export-modal-header-title {
+	font-style: normal;
+	font-weight: 700;
+	font-size: 24px;
+	line-height: 32px;
+	margin-bottom: 8px;
+}
+
+.jp-forms__export-modal-header-subtitle {
+	font-style: normal;
+	font-weight: 400;
+	font-size: 16px;
+	line-height: 24px;
+	letter-spacing: -0.02em;
+	color: #000000;
+	padding: 0;
+	margin-top: 8px;
+	margin-bottom: 0;
+}
+
+.jp-forms__export-modal-content {
+	display: flex;
+	flex-grow: 1;
+	flex-direction: column;
+	padding: 0px;
+	gap: 32px;
+}
+
+.jp-forms__export-modal-footer {
+	box-sizing: border-box;
+	display: flex;
+	justify-content: space-between;
+	padding: 48px 16px 24px;
+}
+
+.jp-forms__export-modal-footer-column {
+	display: flex;
+	align-items: center;
+}
+
+/* override JP logo */
+.jp-forms__export-modal-footer #jetpack-logo__icon {
+	width: 16px;
+	height: 16px;
+}
+
+.jp-forms__export-modal-footer #jetpack-logo__icon path {
+	fill: #000000;
+}
+
+.jp-forms__export-modal-footer .jp-forms__export-modal-footer-link {
+	padding-left: 8px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 0;
+	letter-spacing: -0.02em;
+	text-align: left;
+	color: #23282D;
+	text-decoration: none;
+}
+
+.jp-forms__export-modal-card {
+	border-radius: var(--jp-border-radius, 4px);
+	box-shadow: 0 0 0 1px var(--jp-gray-10, #c3c4c7) inset;
+	display: flex;
+	flex-direction: column;
+	padding: 24px;
+	isolation: isolate;
+}
+
+.jp-forms__export-modal-card-body, .jp-forms__export-modal-card-header {
+	display: flex;
+}
+
+.jp-forms__export-modal-card-header {
+	align-items: center;
+	margin-bottom: 16px;
+	gap: 16px;
+}
+
+.jp-forms__export-modal-card-header-title {
+	font-style: normal;
+	font-weight: 700;
+	font-size: 20px;
+	line-height: 30px;
+}
+
+.jp-forms__export-modal-card-body {
+	gap: 32px;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.jp-forms__export-modal-card-body-description {
+	flex-grow: 1;
+	font-style: normal;
+	font-weight: 400;
+	font-size: 14px;
+	line-height: 24px;
+	letter-spacing: -0.02em;
+	color: #000000;
+	max-width: 60%;
+}
+
+.jp-forms__export-modal-card-body-description a {
+	color: inherit;
+}
+
+.jp-forms__export-modal-card-body-description-footer {
+	font-style: normal;
+	font-weight: 400;
+	font-size: 12px;
+	line-height: 150%;
+	color: #757575;
+	margin-bottom: 0px;
+}
+
+.jp-forms__export-modal-card-body-cta {
+	align-self: flex-end;
+}
+
+.jp-forms__export-modal-card-body-cta .button-primary.export-button {
+	font-style: normal;
+	font-weight: 400;
+	letter-spacing: -0.01em;
+	color: #FFFFFF;
+	background: #000000;
+	border: 1px solid #FFFFFF;
+	border-radius: 4px;
+}
+
+.jp-forms__export-modal-card-beta-badge {
+	background: #2FB41F;
+	border-radius: 2px;
+	font-style: normal;
+	font-weight: 600;
+	font-size: 11px;
+	line-height: 150%;
+	/* identical to box height, or 16px */
+
+	text-align: right;
+	text-transform: uppercase;
+	padding: 4px 8px;
+	color: #FFFFFF;
+}

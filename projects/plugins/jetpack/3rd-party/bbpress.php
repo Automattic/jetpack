@@ -2,10 +2,13 @@
 /**
  * Compatibility functions for bbpress.
  *
+ * Only added if bbpress is active via function_exists( 'bbpress' ) in 3rd-party.php.
+ *
  * @package automattic/jetpack
  */
 
-add_action( 'init', 'jetpack_bbpress_compat', 11 ); // Priority 11 needed to ensure sharing_display is loaded.
+// Priority 11 needed to ensure sharing_display is loaded.
+add_action( 'init', 'jetpack_bbpress_compat', 11 );
 
 /**
  * Adds Jetpack + bbPress Compatibility filters.
@@ -14,10 +17,6 @@ add_action( 'init', 'jetpack_bbpress_compat', 11 ); // Priority 11 needed to ens
  * @since  3.7.1
  */
 function jetpack_bbpress_compat() {
-	if ( ! function_exists( 'bbpress' ) ) {
-		return;
-	}
-
 	/**
 	 * Add compatibility layer for REST API.
 	 *

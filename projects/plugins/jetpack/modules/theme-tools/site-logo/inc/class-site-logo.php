@@ -184,7 +184,7 @@ class Site_Logo {
 			wp_enqueue_script(
 				'site-logo-header-text',
 				plugins_url( '../js/site-logo-header-text.js', __FILE__ ),
-				array( 'media-views' ),
+				array( 'jquery', 'media-views' ),
 				JETPACK__VERSION,
 				true
 			);

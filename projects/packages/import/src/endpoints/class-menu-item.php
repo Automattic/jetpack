@@ -13,9 +13,14 @@ namespace Automattic\Jetpack\Import\Endpoints;
 class Menu_Item extends \WP_REST_Menu_Items_Controller {
 
 	/**
-	 * The Import ID add a new item to the schema.
+	 * Base class
 	 */
 	use Import;
+
+	/**
+	 * The Import ID add a new item to the schema.
+	 */
+	use Import_ID;
 
 	/**
 	 * Whether the controller supports batching. Default true.
@@ -32,19 +37,6 @@ class Menu_Item extends \WP_REST_Menu_Items_Controller {
 
 		// @see add_term_meta
 		$this->import_id_meta_type = 'post';
-	}
-
-	/**
-	 * Registers the routes for the objects of the controller.
-	 *
-	 * @see WP_REST_Terms_Controller::register_rest_route()
-	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			'/menu-items',
-			$this->get_route_options()
-		);
 	}
 
 	/**

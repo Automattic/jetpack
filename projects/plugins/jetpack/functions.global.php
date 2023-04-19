@@ -177,6 +177,37 @@ function jetpack_register_migration_post_type() {
 }
 
 /**
+ * Checks whether the Post DB threat currently exists on the site.
+ *
+ * @since 12.0
+ *
+ * @param string $option_name  Option name.
+ *
+ * @return WP_Post|bool
+ */
+function jetpack_migration_post_exists( $option_name ) {
+	$query = new WP_Query(
+		array(
+			'post_type'              => 'jetpack_migration',
+			'title'                  => $option_name,
+			'post_status'            => 'all',
+			'posts_per_page'         => 1,
+			'no_found_rows'          => true,
+			'ignore_sticky_posts'    => true,
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false,
+			'orderby'                => 'post_date ID',
+			'order'                  => 'ASC',
+		)
+	);
+	if ( ! empty( $query->post ) ) {
+		return $query->post;
+	}
+
+	return false;
+}
+
+/**
  * Stores migration data in the database.
  *
  * @since 5.2
@@ -196,10 +227,9 @@ function jetpack_store_migration_data( $option_name, $option_value ) {
 		'post_date'             => gmdate( 'Y-m-d H:i:s', time() ),
 	);
 
-	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
-
-	if ( null !== $post ) {
-		$insert['ID'] = $post->ID;
+	$migration_post = jetpack_migration_post_exists( $option_name );
+	if ( $migration_post ) {
+		$insert['ID'] = $migration_post->ID;
 	}
 
 	return wp_insert_post( $insert, true );
@@ -215,7 +245,7 @@ function jetpack_store_migration_data( $option_name, $option_value ) {
  * @return mixed|null
  */
 function jetpack_get_migration_data( $option_name ) {
-	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
+	$post = jetpack_migration_post_exists( $option_name );
 
 	return null !== $post ? maybe_unserialize( $post->post_content_filtered ) : null;
 }

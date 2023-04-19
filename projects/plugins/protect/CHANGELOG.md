@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.4.0-beta - 2023-03-29
+### Added
+- Add brute force protection. [#28401]
+
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.2. [#29341]
+- Improve the firewall status heading to provide more information based on the current configuration. [#28401]
+- Updated package dependencies. [#29480]
+
 ## 1.3.0 - 2023-03-13
 ### Added
 - Add ability to toggle automatic and manual firewall rules independently. [#27726]

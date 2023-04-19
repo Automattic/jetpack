@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Add a check for array on $attributes before trying to set an item on it

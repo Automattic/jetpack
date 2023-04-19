@@ -178,7 +178,8 @@ export class UserUnlinked extends React.Component {
 			return (
 				<div className="jp-unlinked-notice">
 					<ConnectionBanner
-						title={ __(
+						title={ __( 'Connect your WordPress.com account', 'jetpack' ) }
+						description={ __(
 							'Jetpack is powering your site, but to access all of its features you’ll need to connect your account to WordPress.com.',
 							'jetpack'
 						) }
@@ -210,7 +211,7 @@ class JetpackNotices extends React.Component {
 			error.hasOwnProperty( 'action' )
 		);
 
-		const isUserConnectScreen = '/connect-user' === this.props.location.pathname;
+		const isUserConnectScreen = this.props.location.pathname.startsWith( '/connect-user' );
 
 		return (
 			<div aria-live="polite">
