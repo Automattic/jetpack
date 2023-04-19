@@ -63,4 +63,4 @@ export const reloadModulesState = async () => {
 };
 
 export const modulesState = modulesStateClient.store;
-export const modulesIsPending = modulesStateClient.pending;
+export const modulesStatePending = modulesStateClient.pending;

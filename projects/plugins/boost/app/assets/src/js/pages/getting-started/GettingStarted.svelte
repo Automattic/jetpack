@@ -8,7 +8,7 @@
 	import Header from '../../sections/Header.svelte';
 	import config, { markGetStartedComplete } from '../../stores/config';
 	import { connection } from '../../stores/connection';
-	import { modulesState } from '../../stores/modules';
+	import { modulesState, modulesStatePending } from '../../stores/modules';
 	import { recordBoostEvent } from '../../utils/analytics';
 	import { getUpgradeURL } from '../../utils/upgrade';
 
@@ -61,10 +61,15 @@
 					// Allow opening the boost settings page. The actual flag is changed in the backend by enabling the critical-css module below.
 					markGetStartedComplete();
 
-					// Need to await in this case because the generation request needs to go after the backend has enabled the module.
-					// @REFACTORING: @TODO: This doesn't work at the moment.
+					// Wait for the module to become active.
+					// Otherwise Critical CSS Generation will fail to start.
 					$modulesState.critical_css.active = true;
-					navigate( '/' );
+					const unsubscribe = modulesStatePending.subscribe( isPending => {
+						if ( isPending === false ) {
+							unsubscribe();
+							navigate( '/' );
+						}
+					} );
 				} catch ( e ) {
 					dismissedSnackbar.set( false );
 				} finally {
