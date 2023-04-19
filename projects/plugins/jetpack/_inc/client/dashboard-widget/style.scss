@@ -176,7 +176,7 @@
 
 			// Use emerald button style.
 			.wp-core-ui & .button-primary {
-				@include emerald_button();
+				@include emerald-button();
 			}
 		}
 	}
@@ -311,7 +311,7 @@
 		}
 
 		.button {
-			@include emerald_button();
+			@include emerald-button();
 			margin-top: 8px;
 		}
 	}
