@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-crm",
-	"version": "5.7.0-alpha",
+	"version": "5.7.1-alpha",
 	"description": "The CRM for WordPress",
 	"author": "Automattic",
 	"license": "GPL-2.0",
@@ -8,7 +8,7 @@
 		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "NODE_PATH=\"$PWD/node_modules\" webpack",
 		"build-production": "NODE_ENV=production BABEL_ENV=production pnpm run build",
-		"clean": "rm -rf build css/*.min.css* css/*.min.rtl.css css/integrations/ css/welcome-to-zbs/*.min.css* css/welcome-to-zbs/*.min.rtl.css js/*.min.js* js/welcome-to-zbs/wizard2.min.js*",
+		"clean": "rm -rf build css/*.map.css css/*.min.css* css/*.min.rtl.css css/*.rtl.css css/integrations/ css/welcome-to-zbs/*.min.css* css/welcome-to-zbs/*.min.rtl.css js/*.min.js* js/welcome-to-zbs/wizard2.min.js*",
 		"test": "jest",
 		"watch": "pnpm run build && NODE_PATH=\"$PWD/node_modules\" webpack watch"
 	},

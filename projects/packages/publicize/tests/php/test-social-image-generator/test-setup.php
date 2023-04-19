@@ -38,6 +38,8 @@ class Setup_Test extends BaseTestCase {
 			->willReturn( true );
 
 		add_filter( 'jetpack_active_modules', array( $this, 'mock_publicize_being_active' ) );
+		// Enable SIG.
+		( new Social_Image_Generator\Settings() )->set_enabled( true );
 		$this->sig = new Social_Image_Generator\Setup();
 		$this->sig->init();
 		// Mock site connection.

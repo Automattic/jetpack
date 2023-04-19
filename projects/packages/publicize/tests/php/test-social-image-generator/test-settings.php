@@ -75,15 +75,15 @@ class Settings_Test extends BaseTestCase {
 	 * Test that it correctly returns enabled or disabled.
 	 */
 	public function test_correctly_returns_enabled_status() {
-		$this->assertTrue( $this->settings->is_enabled() );
+		$this->assertFalse( $this->settings->is_enabled() );
 	}
 
 	/**
 	 * Test that it correctly updates the enabled status.
 	 */
 	public function test_correctly_updates_enabled_status() {
-		$this->settings->set_enabled( false );
-		$this->assertFalse( $this->settings->is_enabled() );
+		$this->settings->set_enabled( true );
+		$this->assertTrue( $this->settings->is_enabled() );
 	}
 
 	/**

@@ -121,4 +121,53 @@ class UtilsTest extends BaseTestCase {
 		$this->assertStringNotContainsString( 'posterUrl', $url_without_poster );
 	}
 
+	/**
+	 * Test the is_videopress_url method.
+	 */
+	public function test_is_videopress_url() {
+		// Test valid VideoPress URLs.
+		$valid_urls = array(
+			'https://videopress.com/v/123abcde',
+			'http://videopress.com/v/123abcde',
+			'https://videopress.com/embed/123abcde',
+			'http://videopress.com/embed/123abcde',
+			'https://video.wordpress.com/v/123abcde',
+			'http://video.wordpress.com/v/123abcde',
+			'https://video.wordpress.com/embed/123abcde',
+			'http://video.wordpress.com/embed/123abcde',
+			'https://v.wordpress.com/123abcde',
+			'http://v.wordpress.com/123abcde',
+		);
+
+		foreach ( $valid_urls as $url ) {
+			$this->assertTrue( Utils::is_videopress_url( $url ) );
+		}
+
+		// Test invalid VideoPress URLs.
+		$invalid_urls = array(
+			// Invalid domain
+			'https://example.com/v/123abcde',
+			'http://example.com/v/123abcde',
+			'https://example.com/embed/123abcde',
+			'http://example.com/embed/123abcde',
+
+			// Missing VideoPress GUID
+			'https://videopress.com/v/',
+			'http://videopress.com/v/',
+			'https://videopress.com/embed/',
+			'http://videopress.com/embed/',
+			'https://video.wordpress.com/v/',
+			'http://video.wordpress.com/v/',
+			'https://video.wordpress.com/embed/',
+			'http://video.wordpress.com/embed/',
+
+			// Missing VideoPress GUID (shortened URL)
+			'https://v.wordpress.com/',
+			'http://v.wordpress.com/',
+		);
+
+		foreach ( $invalid_urls as $url ) {
+			$this->assertFalse( Utils::is_videopress_url( $url ) );
+		}
+	}
 }
