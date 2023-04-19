@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Adding foundational logic for a new version of our API. It doesn't change any existing logic nor does it introduce anyt new user-facing features.
+
+
