@@ -3,6 +3,7 @@
  * Compatibility file for Page Optimize.
  *
  * This will synchronize the settings from Page Optimize to Jetpack Boost.
+ * It will also disable the Page Optimize functionality.
  *
  * @package automattic/jetpack-boost
  */
