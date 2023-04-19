@@ -44,7 +44,6 @@ export class SyncedStore< T > {
 		const isPrimitive = this.isPrimitive( initialValue );
 		let prevValue: T;
 		store.subscribe( value => {
-			console.log( 'prevValue', prevValue, isPrimitive, value );
 			// structuredClone may be necessary because using `set` in Svelte will mutate objects.
 			// By the time the value gets to SyncedStore methods it's already mutated,
 			// and so the previous value will be the same as the current value.
