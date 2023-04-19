@@ -1500,6 +1500,30 @@ function jetpackcrm_create_zeros_array($start, $end, $zbs_steps = 86400){
 	return $filled_zeros;
 }
 
+/**
+ * Returns SVG markup for various icons
+ *
+ * @param string $icon the string representing the icon type.
+ *
+ * @return string $svg the SVG markup.
+ */
+function jetpackcrm_svg_gridicon( $icon = '' ) {
+	if ( empty( $icon ) ) {
+		return;
+	}
+	switch ( $icon ) {
+		case 'info':
+			$svg = '<svg class="gridicon gridicons-info-outline needs-offset" height="20" width="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+			<g><path d="M13 9h-2V7h2v2zm0 2h-2v6h2v-6zm-1-7c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8m0-2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2z"></path></g>
+			</svg>';
+			break;
+		case 'external-link':
+			$svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 22 22" width="24" height="24" class="jpcrm-external-link-icon" aria-hidden="true" focusable="false"><path d="M18.2 17c0 .7-.6 1.2-1.2 1.2H7c-.7 0-1.2-.6-1.2-1.2V7c0-.7.6-1.2 1.2-1.2h3.2V4.2H7C5.5 4.2 4.2 5.5 4.2 7v10c0 1.5 1.2 2.8 2.8 2.8h10c1.5 0 2.8-1.2 2.8-2.8v-3.6h-1.5V17zM14.9 3v1.5h3.7l-6.4 6.4 1.1 1.1 6.4-6.4v3.7h1.5V3h-6.3z"></path></svg>';
+			break;
+	}
+	return $svg;
+}
+
 /* ======================================================
    / Dashboard Helpers
    ====================================================== */
