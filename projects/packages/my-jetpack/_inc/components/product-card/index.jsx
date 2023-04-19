@@ -30,10 +30,13 @@ const Menu = ( {
 } ) => {
 	/**
 	 * Only show standalone related option if plugin is not installed
-	 * or the plugin is not active
+	 * or the plugin is not active, the product has a standalone plugin
+	 * and there is no connection error.
 	 */
 	const showStandaloneOption =
-		hasStandalonePlugin && ( ! isStandaloneInstalled || ! isStandaloneActive );
+		productStatus !== PRODUCT_STATUSES.ERROR &&
+		hasStandalonePlugin &&
+		( ! isStandaloneInstalled || ! isStandaloneActive );
 
 	return (
 		<Dropdown
