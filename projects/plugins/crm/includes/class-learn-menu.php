@@ -443,7 +443,6 @@ class Learn_Menu {
 	          			} ?>
 					<div class="ui tiny learn button" id="learn">
 					<?php
-					//echo wp_remote_retrieve_body( wp_remote_get( esc_url( plugin_dir_url( __FILE__ ) . '../i/gridicon-info.svg' ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- is being escaped.
 					echo '<img class="jpcrm-info-gridicon" src="' . esc_url( ZEROBSCRM_URL ) . 'i/gridicon-info.svg" />';
 					?>
 					</div>
