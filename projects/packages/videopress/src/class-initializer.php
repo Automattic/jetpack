@@ -248,6 +248,7 @@ class Initializer {
 
 		$autoplay = isset( $block_attributes['autoplay'] ) ? $block_attributes['autoplay'] : false;
 		$controls = isset( $block_attributes['controls'] ) ? $block_attributes['controls'] : false;
+		$poster   = isset( $block_attributes['posterData']['url'] ) ? $block_attributes['posterData']['url'] : null;
 
 		$preview_on_hover = '';
 		if ( $is_poh_enabled ) {
@@ -258,8 +259,22 @@ class Initializer {
 				'showControls'        => $controls,
 			);
 
+			// Create inlione style in case video has a custom poster.
+			$inline_style = '';
+			if ( $poster ) {
+				$inline_style = sprintf(
+					'style="background-image: url(%s); background-size: cover;
+				background-position: center center;"',
+					$poster
+				);
+			}
+
 			// Expose the preview on hover data to the client.
-			$preview_on_hover = sprintf( '<div class="jetpack-videopress-player__overlay"></div><script type="application/json">%s</script>', wp_json_encode( $preview_on_hover ) );
+			$preview_on_hover = sprintf(
+				'<div class="jetpack-videopress-player__overlay" %s></div><script type="application/json">%s</script>',
+				$inline_style,
+				wp_json_encode( $preview_on_hover )
+			);
 
 			// Set `autoplay` and `muted` attributes to the video element.
 			$block_attributes['autoplay'] = true;
