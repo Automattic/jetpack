@@ -45,7 +45,7 @@ function jetpack_boost_page_optimize_deactivate() {
 
 	jetpack_boost_page_optimize_cache_cleanup( $cache_folder, 0 /* max file age in seconds */ );
 
-	wp_clear_scheduled_hook( Config::get_cron_cache_cleanup_hook(), array( $cache_folder ) );
+	wp_clear_scheduled_hook( 'page_optimize_cron_cache_cleanup', array( $cache_folder ) );
 }
 
 function jetpack_boost_page_optimize_uninstall() {
@@ -181,7 +181,7 @@ function jetpack_boost_page_optimize_schedule_cache_cleanup() {
 	$cache_folder = Config::get_cache_dir_path();
 	$args         = array( $cache_folder );
 
-	$cache_cleanup_hook = Config::get_cron_cache_cleanup_hook();
+	$cache_cleanup_hook = 'page_optimize_cron_cache_cleanup';
 
 	// If caching is on, and job isn't queued for current cache folder
 	if ( false !== $cache_folder && false === wp_next_scheduled( $cache_cleanup_hook, $args ) ) {
@@ -278,7 +278,7 @@ function jetpack_boost_minify_setup() {
 		return;
 	}
 
-	add_action( Config::get_cron_cache_cleanup_hook(), 'jetpack_boost_page_optimize_cache_cleanup' );
+	add_action( 'page_optimize_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
 	register_deactivation_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_deactivate' );
 	register_uninstall_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_uninstall' );
 

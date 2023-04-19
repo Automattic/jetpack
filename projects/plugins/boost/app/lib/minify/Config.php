@@ -39,8 +39,4 @@ class Config {
 
 		return $path;
 	}
-
-	public static function get_cron_cache_cleanup_hook() {
-		return 'page_optimize_cron_cache_cleanup';
-	}
 }
