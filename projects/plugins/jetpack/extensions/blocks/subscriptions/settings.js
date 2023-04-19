@@ -114,7 +114,7 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 		return (
 			<>
 				<PanelRow>
-					{ __( 'Set up paid plan for readers to access your content.', 'jetpack' ) }
+					{ __( 'Set up a paid plan for readers to access your content.', 'jetpack' ) }
 				</PanelRow>
 				<PanelRow>
 					<ToolbarButton variant="primary" is href={ getPaidPlanLink( false ) } target="_blank">

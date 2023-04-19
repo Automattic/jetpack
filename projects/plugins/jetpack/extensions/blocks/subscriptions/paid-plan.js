@@ -12,7 +12,7 @@ function PaidPlanPanel( { hasNewsletterPlans } ) {
 				'unused context to distinguish translations',
 				'jetpack'
 		  )
-		: __( 'Set up paid plan for readers to access your content.', 'jetpack' );
+		: __( 'Set up a paid plan for readers to access your content.', 'jetpack' );
 
 	return (
 		<PanelBody title={ title } initialOpen={ true }>
