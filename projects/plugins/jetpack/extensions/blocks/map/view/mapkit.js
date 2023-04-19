@@ -66,7 +66,7 @@ class MapkitBlock {
 				case 'satellite':
 					return this.mapkit.Map.MapTypes.Satellite;
 				case 'muted':
-					return this.mapkit.Map.MapTypes.Muted;
+					return this.mapkit.Map.MapTypes.MutedStandard;
 				case 'hybrid':
 					return this.mapkit.Map.MapTypes.Hybrid;
 				default:
