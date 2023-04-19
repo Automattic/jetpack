@@ -163,7 +163,6 @@ export function useSyncMedia(
 
 	const isSaving = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const wasSaving = usePrevious( isSaving );
-
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
 
 	const [ initialState, setState ] = useState< VideoDataProps >( {} );
