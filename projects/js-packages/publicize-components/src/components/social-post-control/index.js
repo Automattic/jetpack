@@ -22,17 +22,16 @@ export default function SocialPostControl() {
 
 	return (
 		<ThemeProvider>
-			<div className={ styles.container }>
-				<CheckboxControl
-					checked={ shouldUploadAttachedMedia }
-					onChange={ onCheckboxChange }
-					label={ __( 'Share as a social post', 'jetpack' ) }
-					help={ __(
-						'By default, the image and text appear on social media as a link preview. To optimize engagement, share as a social post.',
-						'jetpack'
-					) }
-				/>
-			</div>
+			<CheckboxControl
+				className={ styles.checkbox }
+				checked={ shouldUploadAttachedMedia }
+				onChange={ onCheckboxChange }
+				label={ __( 'Share as a social post', 'jetpack' ) }
+				help={ __(
+					'By default, the image and text appear on social media as a link preview. To optimize engagement, share as a social post.',
+					'jetpack'
+				) }
+			/>
 		</ThemeProvider>
 	);
 }
