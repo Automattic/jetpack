@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+My Jetpack: Add side-effect action to request the standalone plugin installation on the backend.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: ensure the link to the post editor works, even when WordPress is installed in a subdirectory.
