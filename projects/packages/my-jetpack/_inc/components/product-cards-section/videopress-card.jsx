@@ -50,7 +50,7 @@ const VideopressCard = ( { admin } ) => {
 	const description = __( 'Views, last 7 days', 'jetpack-my-jetpack' );
 
 	return (
-		<ProductCard admin={ admin } slug="videopress" showMenu={ true }>
+		<ProductCard admin={ admin } slug="videopress" showMenu>
 			<SingleContextualInfo
 				loading={ loading }
 				description={ description }
