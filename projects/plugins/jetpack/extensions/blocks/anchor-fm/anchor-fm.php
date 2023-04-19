@@ -175,11 +175,13 @@ function process_anchor_params() {
 	}
 
 	// Display an outbound link after publishing a post (only to English-speaking users since Anchor
-	// is English only).
+	// is English only).  This is only displayed if the blog is connected to an Anchor podcast.
+	$blog_connected_to_anchor = function_exists( 'get_blog_option' ) && false !== get_blog_option( get_current_blog_id(), 'anchor_podcast' );
 	if (
 		'post' === get_post_type() &&
 		! get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) &&
-		0 === strpos( get_user_locale(), 'en' )
+		0 === strpos( get_user_locale(), 'en' ) &&
+		$blog_connected_to_anchor
 	) {
 		$data['actions'][] = 'show-post-publish-outbound-link';
 	}

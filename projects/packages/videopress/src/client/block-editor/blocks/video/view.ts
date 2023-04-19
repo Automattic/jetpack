@@ -18,7 +18,7 @@ function previewOnHoverEffect(): void {
 	 * Pick all VideoPress video block intances,
 	 * based on the class name.
 	 */
-	const videoPlayers = document.querySelectorAll( '.wp-block-jetpack-videopress-container' );
+	const videoPlayers = document.querySelectorAll( '.wp-block-jetpack-videopress' );
 	if ( videoPlayers.length === 0 ) {
 		return;
 	}
@@ -47,6 +47,8 @@ function previewOnHoverEffect(): void {
 		let previewOnHoverData: {
 			previewAtTime: number;
 			previewLoopDuration: number;
+			autoplay: boolean;
+			showControls: boolean;
 		};
 
 		try {
@@ -59,6 +61,8 @@ function previewOnHoverEffect(): void {
 		// Clean the data container element. It isn't needed anymore.
 		dataContainer.remove();
 
+		let userHasInteracted = false;
+
 		const iframeApi = window.VideoPressIframeApi( iFrame, () => {
 			iframeApi.status.onPlayerStatusChanged( ( oldStatus, newStatus ) => {
 				if ( oldStatus === 'ready' && newStatus === 'playing' ) {
@@ -68,6 +72,10 @@ function previewOnHoverEffect(): void {
 			} );
 
 			iframeApi.status.onTimeUpdate( playbackTime => {
+				if ( userHasInteracted ) {
+					return;
+				}
+
 				const playback = playbackTime * 1000;
 				const start = previewOnHoverData.previewAtTime;
 				const end = start + previewOnHoverData.previewLoopDuration;
@@ -78,8 +86,31 @@ function previewOnHoverEffect(): void {
 			} );
 		} );
 
-		videoPlayerElement.addEventListener( 'mouseenter', iframeApi.controls.play );
-		videoPlayerElement.addEventListener( 'mouseleave', iframeApi.controls.pause );
+		const overlay = videoPlayerElement.querySelector( '.jetpack-videopress-player__overlay' );
+		if ( ! overlay ) {
+			return;
+		}
+
+		/*
+		 * Disable PreviewOnHover (pOH) when the player
+		 * should show the controls and
+		 * once the user clicks on the video (overlay).
+		 */
+		if ( previewOnHoverData.showControls ) {
+			overlay.addEventListener( 'click', () => {
+				// Set the userHasInteracted flag to true.
+				userHasInteracted = true;
+
+				// Delete overlay element.
+				overlay.remove();
+
+				// Pause when user clicks on the video.
+				setTimeout( iframeApi.controls.pause, 100 ); // Hack; without this, the video will not pause.
+			} );
+		}
+
+		overlay.addEventListener( 'mouseenter', iframeApi.controls.play );
+		overlay.addEventListener( 'mouseleave', iframeApi.controls.pause );
 	} );
 }
 

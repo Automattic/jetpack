@@ -8,8 +8,8 @@ import { registerBlockType } from '@wordpress/blocks';
  */
 import metadata from './block.json';
 import { VideoPressIcon as icon } from './components/icons';
+import deprecated from './deprecated';
 import Edit from './edit';
-import save from './save';
 import transforms from './transforms';
 import './style.scss';
 
@@ -35,10 +35,11 @@ export default function registerVideoPressBlock() {
 	const result = registerBlockType( name, {
 		edit: Edit,
 		title,
-		save,
+		save: () => null,
 		icon,
 		attributes,
 		transforms,
+		deprecated,
 	} );
 
 	// eslint-disable-next-line no-console

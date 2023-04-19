@@ -16,9 +16,14 @@ require_once ABSPATH . 'wp-includes/theme.php';
 class Global_Style extends \WP_REST_Posts_Controller {
 
 	/**
-	 * The Import ID add a new item to the schema.
+	 * Base class
 	 */
 	use Import;
+
+	/**
+	 * The Import ID add a new item to the schema.
+	 */
+	use Import_ID;
 
 	/**
 	 * Whether the controller supports batching.
