@@ -1,7 +1,23 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
 .wp-block-jetpack-videopress {
+	position: relative;
+
 	figcaption {
 		@include caption-style-theme();
+	}
+
+	.jetpack-videopress-player__wrapper {
+		position: relative;
+	}
+
+	.jetpack-videopress-player__overlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: transparent;
+		z-index: 10;
 	}
 }
