@@ -3,6 +3,7 @@
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
 
 use Automattic\Jetpack_Boost\Contracts\Pluggable;
+use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_CSS;
 
 class Minify_CSS implements Pluggable {
 

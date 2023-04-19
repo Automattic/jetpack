@@ -1,9 +1,9 @@
 <?php
 
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Config;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Css as Minify_CSS;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Dependency_Path_Mapping;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Js as Minify_JS;
+use Automattic\Jetpack_Boost\Lib\Minify\Config;
+use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
 // @todo - refactor this. Dump of functions from page optimize.
 

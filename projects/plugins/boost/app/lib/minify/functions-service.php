@@ -1,7 +1,7 @@
 <?php
 
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Config;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Dependency_Path_Mapping;
+use Automattic\Jetpack_Boost\Lib\Minify\Config;
+use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 use tubalmartin\CssMin;
 
 function jetpack_boost_page_optimize_types() {
