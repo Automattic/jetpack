@@ -55,7 +55,7 @@ jobs:
         working-directory: ./projects/github-actions/repo-gardening
 
       - name: Checkout the PR
-        if: github.event_name == 'pull_request_target' && github.event.state != 'closed'
+        if: github.event_name == 'pull_request_target' && github.event.pull_request.state != 'closed'
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
@@ -78,4 +78,3 @@ jobs:
           slack_editorial_channel: ${{ secrets.SLACK_EDITORIAL_CHANNEL }}
           slack_he_triage_channel: ${{ secrets.SLACK_HE_TRIAGE_CHANNEL }}
           slack_quality_channel: ${{ secrets.SLACK_QUALITY_CHANNEL }}
-          slack_kitkat_channel: ${{ secrets.SLACK_KITKAT_CHANNEL }}
