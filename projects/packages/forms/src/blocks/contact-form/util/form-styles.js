@@ -8,12 +8,21 @@ window.jetpackForms.getBackgroundColor = function ( backgroundColorNode ) {
 		backgroundColorNode.parentNode.nodeType === window.Node.ELEMENT_NODE
 	) {
 		backgroundColorNode = backgroundColorNode.parentNode;
+
+		if ( backgroundColorNode.className === 'wp-block-cover' ) {
+			const coverBackgroundNode = backgroundColorNode.querySelector(
+				'.wp-block-cover__background'
+			);
+			backgroundColor = window.getComputedStyle( coverBackgroundNode ).backgroundColor;
+			continue;
+		}
+
 		backgroundColor = window.getComputedStyle( backgroundColorNode ).backgroundColor;
 	}
 	return backgroundColor;
 };
 
-window.jetpackForms.generateStyleVariables = function ( selector ) {
+window.jetpackForms.generateStyleVariables = function ( formNode ) {
 	const STYLE_PROBE_CLASS = 'contact-form__style-probe';
 	const STYLE_PROBE_STYLE =
 		'position: absolute; z-index: -1; width: 1px; height: 1px; visibility: hidden';
@@ -31,7 +40,7 @@ window.jetpackForms.generateStyleVariables = function ( selector ) {
 	const _document = window[ 'editor-canvas' ] ? window[ 'editor-canvas' ].document : document;
 	const bodyNode = _document.querySelector( 'body' );
 
-	if ( ! _document.querySelectorAll( selector ).length ) {
+	if ( ! formNode ) {
 		return;
 	}
 
@@ -40,14 +49,14 @@ window.jetpackForms.generateStyleVariables = function ( selector ) {
 	styleProbe.style = STYLE_PROBE_STYLE;
 	styleProbe.innerHTML = HTML;
 
-	const container = _document.querySelector( selector );
-	container.appendChild( styleProbe );
+	formNode.appendChild( styleProbe );
 
 	const buttonNode = styleProbe.querySelector( '.wp-block-button__link' );
 	const inputNode = styleProbe.querySelector( 'input[type="text"]' );
 
 	const backgroundColor = window.jetpackForms.getBackgroundColor( bodyNode );
-	const inputBackground = window.jetpackForms.getBackgroundColor( inputNode );
+	const inputBackgroundFallback = window.jetpackForms.getBackgroundColor( inputNode );
+	const inputBackground = window.getComputedStyle( inputNode ).backgroundColor;
 	const primaryColor = window.getComputedStyle( buttonNode ).borderColor;
 
 	const {
@@ -77,6 +86,7 @@ window.jetpackForms.generateStyleVariables = function ( selector ) {
 		'--jetpack--contact-form--border-style': borderStyle,
 		'--jetpack--contact-form--border-radius': borderRadius,
 		'--jetpack--contact-form--input-background': inputBackground,
+		'--jetpack--contact-form--input-background-fallback': inputBackgroundFallback,
 		'--jetpack--contact-form--input-padding': inputPadding,
 		'--jetpack--contact-form--input-padding-top': inputPaddingTop,
 		'--jetpack--contact-form--input-padding-left': inputPaddingLeft,

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "10a2c12f927c45575bbb67b17795f054",
+    "content-hash": "c589cebd22b20912c16e626753b60efa",
     "packages": [
         {
             "name": "automattic/jetpack-mu-wpcom",
@@ -12,12 +12,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "f6f56c31edc84044a85846ed774ce9e9738a6a64"
+                "reference": "acb5f9b1c7b549bbe0ae4d3d1afde58d83410606"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/wordbless": "0.4.2",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -27,7 +30,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "1.3.x-dev"
+                    "dev-trunk": "1.5.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {

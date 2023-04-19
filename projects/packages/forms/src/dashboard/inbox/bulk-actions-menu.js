@@ -1,18 +1,60 @@
-import { Button } from '@wordpress/components';
+import { AntiSpamIcon } from '@automattic/jetpack-components';
+import { Button, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { updateResponseStatus } from '../data/responses';
+import { config } from '../';
+import { doBulkAction } from '../data/responses';
 import { STORE_NAME } from '../state';
 import { ACTIONS, TABS } from './constants';
 
+/**
+ * Custom temporary handler for check-for-spam action based on grunion_check_for_spam.
+ *
+ * @param {number} offset - Offset for the query.
+ * @returns {Promise} Promise that resolves once checking for spam has finished.
+ */
+const checkForSpam = ( offset = 0 ) => {
+	const limit = 100;
+	const body = new FormData();
+
+	body.append( 'action', 'grunion_recheck_queue' );
+	body.append(
+		`jetpack_check_feedback_spam_${ config( 'blogId' ) }`,
+		config( 'checkForSpamNonce' )
+	);
+	body.append( 'offset', offset );
+	body.append( 'limit', limit );
+
+	return fetch( window.ajaxurl, { method: 'POST', body } )
+		.then( response => response.json() )
+		.then( data => {
+			if ( data.processed < limit ) {
+				return;
+			}
+
+			return checkForSpam( offset + limit );
+		} );
+};
+
 const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } ) => {
+	const [ checkingForSpam, setCheckingForSpam ] = useState( false );
+
 	const { fetchResponses, setLoading } = useDispatch( STORE_NAME );
 	const query = useSelect( select => select( STORE_NAME ).getResponsesQuery(), [] );
+
+	const handleCheckForSpam = useCallback( () => {
+		setCheckingForSpam( true );
+		checkForSpam().finally( () => {
+			setCheckingForSpam( false );
+			fetchResponses( query );
+		} );
+	}, [ fetchResponses, setCheckingForSpam, query ] );
 
 	const onActionHandler = action => async () => {
 		try {
 			setLoading( true );
-			await updateResponseStatus( selectedResponses, action );
+			await doBulkAction( selectedResponses, action );
 			fetchResponses( query );
 			setSelectedResponses( [] );
 		} catch {
@@ -46,13 +88,17 @@ const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } )
 				</Button>
 			) }
 
-			{ /* Hiding this button until we're able to execute the action */ }
-			{ /*<Button*/ }
-			{ /*	variant="secondary"*/ }
-			{ /*>*/ }
-			{ /*	<AntiSpamIcon size="22"/>*/ }
-			{ /*	{ __( 'Spam check', 'jetpack-forms' ) }*/ }
-			{ /*</Button>*/ }
+			{ currentView === TABS.inbox && selectedResponses.length > 0 && (
+				<Button
+					className="jp-forms__check-for-spam"
+					disabled={ checkingForSpam }
+					variant="secondary"
+					onClick={ handleCheckForSpam }
+				>
+					{ checkingForSpam ? <Spinner /> : <AntiSpamIcon /> }
+					{ __( 'Check for spam', 'jetpack-forms' ) }
+				</Button>
+			) }
 		</>
 	);
 };

@@ -19,24 +19,26 @@ import styles from './styles.module.scss';
 
 const Header = () => {
 	const {
-		hasConnections,
-		isModuleEnabled,
 		connectionsAdminUrl,
-		sharesCount,
-		postsCount,
-		isShareLimitEnabled,
+		hasConnections,
 		hasPaidPlan,
+		isModuleEnabled,
+		isShareLimitEnabled,
+		newPostUrl,
+		postsCount,
+		sharesCount,
 		siteSuffix,
 	} = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
-			hasConnections: store.hasConnections(),
-			isModuleEnabled: store.isModuleEnabled(),
 			connectionsAdminUrl: store.getConnectionsAdminUrl(),
-			sharesCount: select( STORE_ID ).getSharesCount(),
-			postsCount: select( STORE_ID ).getPostsCount(),
-			isShareLimitEnabled: select( STORE_ID ).isShareLimitEnabled(),
+			hasConnections: store.hasConnections(),
 			hasPaidPlan: select( STORE_ID ).hasPaidPlan(),
+			isModuleEnabled: store.isModuleEnabled(),
+			isShareLimitEnabled: select( STORE_ID ).isShareLimitEnabled(),
+			newPostUrl: `${ store.getAdminUrl() }post-new.php`,
+			postsCount: select( STORE_ID ).getPostsCount(),
+			sharesCount: select( STORE_ID ).getSharesCount(),
 			siteSuffix: select( STORE_ID ).getSiteSuffix(),
 		};
 	} );
@@ -68,7 +70,7 @@ const Header = () => {
 								{ __( 'Connect accounts', 'jetpack-social' ) }
 							</Button>
 						) }
-						<Button href={ '/wp-admin/post-new.php' } variant="secondary">
+						<Button href={ newPostUrl } variant="secondary">
 							{ __( 'Write a post', 'jetpack-social' ) }
 						</Button>
 					</div>

@@ -30,23 +30,23 @@ class Waf_Initializer {
 	public static function init() {
 		// Do not run in unsupported environments
 		add_action( 'jetpack_get_available_modules', __CLASS__ . '::remove_module_on_unsupported_environments' );
-		if ( ! Waf_Runner::is_supported_environment() ) {
-			return;
-		}
-
-		// Update the WAF after installing or upgrading a relevant Jetpack plugin
-		add_action( 'upgrader_process_complete', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );
-		add_action( 'admin_init', __CLASS__ . '::check_for_waf_update' );
-
-		// Activation/Deactivation hooks
-		add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
-		add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_deactivation' );
 
 		// Ensure backwards compatibility
 		Waf_Compatibility::add_compatibility_hooks();
 
-		// Run the WAF
-		Waf_Runner::initialize();
+		// Run the WAF on supported environments
+		if ( Waf_Runner::is_supported_environment() ) {
+			// Update the WAF after installing or upgrading a relevant Jetpack plugin
+			add_action( 'upgrader_process_complete', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );
+			add_action( 'admin_init', __CLASS__ . '::check_for_waf_update' );
+
+			// Activation/Deactivation hooks
+			add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
+			add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_deactivation' );
+
+			// Run the WAF
+			Waf_Runner::initialize();
+		}
 
 		// Run brute force protection
 		Brute_Force_Protection::initialize();

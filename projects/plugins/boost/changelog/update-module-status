@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed an issue causing reactiveness of module toggle if the state failed to update

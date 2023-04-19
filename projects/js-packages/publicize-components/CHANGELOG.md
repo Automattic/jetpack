@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.2] - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## [0.20.1] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+### Fixed
+- Fixed featured image not loading on startup [#29752]
+
 ## [0.20.0] - 2023-03-28
 ### Added
 - Added SIG image preview component [#29559]
@@ -243,6 +254,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.20.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.20.1...v0.20.2
+[0.20.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.17.1...v0.18.0

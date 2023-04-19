@@ -1,18 +1,36 @@
-import { Gridicon } from '@automattic/jetpack-components';
-import { TabPanel } from '@wordpress/components';
+/**
+ * External dependencies
+ */
+import { TabPanel, Icon } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+	useRef,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
-import { find, includes, map } from 'lodash';
+import { find, findIndex, includes, map } from 'lodash';
+/**
+ * Internal dependencies
+ */
 import DropdownFilter from '../components/dropdown-filter';
 import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
 import { STORE_NAME } from '../state';
 import BulkActionsMenu from './bulk-actions-menu';
+import ExportModal from './export-modal';
 import InboxList from './list';
 import InboxResponse from './response';
+import { isWpcom } from './util';
+/**
+ * Style dependencies
+ */
 import './style.scss';
 
 const RESPONSES_FETCH_LIMIT = 50;
@@ -36,9 +54,12 @@ const TABS = [
 ];
 
 const Inbox = () => {
+	const stickySentinel = useRef();
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
+	const [ responseAnimationDirection, setResponseAnimationDirection ] = useState( 1 );
+	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ view, setView ] = useState( 'list' );
-	const [ selectedResponses, setSelectedResponses ] = useState( [] );
+	const [ isSticky, setSticky ] = useState( false );
 
 	const {
 		fetchResponses,
@@ -47,15 +68,26 @@ const Inbox = () => {
 		setSearchQuery,
 		setSourceQuery,
 		setStatusQuery,
+		selectResponses,
 	} = useDispatch( STORE_NAME );
-	const [ currentPage, monthFilter, sourceFilter, loading, responses, query, total ] = useSelect(
+	const [
+		currentPage,
+		monthFilter,
+		sourceFilter,
+		loading,
+		query,
+		responses,
+		selectedResponses,
+		total,
+	] = useSelect(
 		select => [
 			select( STORE_NAME ).getCurrentPage(),
 			select( STORE_NAME ).getMonthFilter(),
 			select( STORE_NAME ).getSourceFilter(),
 			select( STORE_NAME ).isFetchingResponses(),
-			select( STORE_NAME ).getResponses(),
 			select( STORE_NAME ).getResponsesQuery(),
+			select( STORE_NAME ).getResponses(),
+			select( STORE_NAME ).getSelectedResponseIds(),
 			select( STORE_NAME ).getTotalResponses(),
 		],
 		[]
@@ -77,15 +109,51 @@ const Inbox = () => {
 		setCurrentResponseId( responses[ 0 ].id );
 	}, [ responses, currentResponseId ] );
 
-	const selectResponse = useCallback( id => {
-		setCurrentResponseId( id );
-		setView( 'response' );
-	}, [] );
+	useEffect( () => {
+		const stickySentinelRef = stickySentinel.current;
+
+		if ( ! stickySentinelRef ) {
+			return;
+		}
+
+		const observer = new IntersectionObserver(
+			( [ sentinel ] ) => {
+				setSticky( ! sentinel.isIntersecting && ! loading );
+			},
+			{
+				rootMargin: '-177px 0px 0px 0px',
+				threshold: 0,
+			}
+		);
+
+		observer.observe( stickySentinelRef );
+
+		return () => {
+			observer.unobserve( stickySentinelRef );
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ stickySentinel.current, loading ] );
+
+	const selectResponse = useCallback(
+		id => {
+			setCurrentResponseId( id );
+			setView( 'response' );
+			setResponseAnimationDirection(
+				findIndex( responses, { id } ) - findIndex( responses, { id: currentResponseId } )
+			);
+		},
+		[ currentResponseId, responses ]
+	);
 
 	const handleGoBack = useCallback( event => {
 		event.preventDefault();
 		setView( 'list' );
 	}, [] );
+
+	const toggleExportModal = useCallback(
+		() => setShowExportModal( ! showExportModal ),
+		[ showExportModal, setShowExportModal ]
+	);
 
 	const monthList = useMemo( () => {
 		const list = map( monthFilter, item => {
@@ -127,14 +195,36 @@ const Inbox = () => {
 
 	const classes = classnames( 'jp-forms__inbox', {
 		'is-response-view': view === 'response',
+		'is-response-animation-reverted': responseAnimationDirection < 0,
 	} );
 
 	const title = (
 		<>
-			<span className="title">{ __( 'Responses', 'jetpack-forms' ) }</span>
+			<span className="title">
+				{ isWpcom() ? __( 'Jetpack Forms', 'jetpack-forms' ) : __( 'Responses', 'jetpack-forms' ) }
+			</span>
+			{ isWpcom() && (
+				<span className="subtitle">
+					{ createInterpolateElement(
+						__(
+							'Collect and manage responses from your audience. <a>Learn more</a>',
+							'jetpack-forms'
+						),
+						{
+							a: (
+								<a
+									href="https://jetpack.com/support/jetpack-blocks/contact-form/"
+									rel="noreferrer noopener"
+									target="_blank"
+								/>
+							),
+						}
+					) }
+				</span>
+			) }
 			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 			<a className="back-button" onClick={ handleGoBack }>
-				<Gridicon icon="arrow-left" />
+				<Icon icon={ arrowLeft } />
 				{ __( 'View all responses', 'jetpack-forms' ) }
 			</a>
 		</>
@@ -174,12 +264,18 @@ const Inbox = () => {
 								<BulkActionsMenu
 									currentView={ query.status }
 									selectedResponses={ selectedResponses }
-									setSelectedResponses={ setSelectedResponses }
+									setSelectedResponses={ selectResponses }
 								/>
 							) }
+
+							<button className="button button-primary export-button" onClick={ toggleExportModal }>
+								{ __( 'Export', 'jetpack-forms' ) }
+							</button>
 						</div>
 						<div className="jp-forms__inbox-content">
 							<div className="jp-forms__inbox-content-column">
+								<div className="jp-forms__inbox-sticky-sentinel" ref={ stickySentinel } />
+								{ ! loading && isSticky && <div className="jp-forms__inbox-sticky-mark" /> }
 								<InboxList
 									currentPage={ currentPage }
 									currentResponseId={ currentResponseId }
@@ -189,7 +285,7 @@ const Inbox = () => {
 									selectedResponses={ selectedResponses }
 									setCurrentPage={ setCurrentPage }
 									setCurrentResponseId={ selectResponse }
-									setSelectedResponses={ setSelectedResponses }
+									setSelectedResponses={ selectResponses }
 								/>
 							</div>
 
@@ -203,6 +299,8 @@ const Inbox = () => {
 					</>
 				) }
 			</TabPanel>
+
+			<ExportModal isVisible={ showExportModal } onClose={ toggleExportModal } />
 		</Layout>
 	);
 };

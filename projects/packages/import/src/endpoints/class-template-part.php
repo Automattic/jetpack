@@ -13,9 +13,14 @@ namespace Automattic\Jetpack\Import\Endpoints;
 class Template_Part extends \WP_REST_Templates_Controller {
 
 	/**
-	 * The Import ID add a new item to the schema.
+	 * Base class
 	 */
 	use Import;
+
+	/**
+	 * The Import ID add a new item to the schema.
+	 */
+	use Import_ID;
 
 	/**
 	 * Whether the controller supports batching.

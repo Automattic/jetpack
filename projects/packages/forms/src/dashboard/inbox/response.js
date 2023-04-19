@@ -1,9 +1,16 @@
+/**
+ * External dependencies
+ */
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import { isEmpty, map } from 'lodash';
-import { formatFieldName, getDisplayName, getPath } from './util';
+/**
+ * Internal dependencies
+ */
+import SwitchTransition from '../components/switch-transition';
+import { formatFieldName, getDisplayName } from './util';
 
 const InboxResponse = ( { loading, response } ) => {
 	const ref = useRef();
@@ -29,7 +36,12 @@ const InboxResponse = ( { loading, response } ) => {
 	}
 
 	return (
-		<div className={ classes } ref={ ref }>
+		<SwitchTransition
+			ref={ ref }
+			activeViewKey={ response.id }
+			className={ classes }
+			duration={ 200 }
+		>
 			<div className="jp-forms__inbox-response-avatar">
 				<img
 					src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"
@@ -60,7 +72,7 @@ const InboxResponse = ( { loading, response } ) => {
 					<span className="jp-forms__inbox-response-meta-key">
 						{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
 					</span>
-					<span className="jp-forms__inbox-response-meta-value">{ getPath( response ) }</span>
+					<span className="jp-forms__inbox-response-meta-value">{ response.entry_permalink }</span>
 				</div>
 				<div className="jp-forms__inbox-response-meta-label">
 					<span className="jp-forms__inbox-response-meta-key	">
@@ -84,7 +96,7 @@ const InboxResponse = ( { loading, response } ) => {
 					);
 				} ) }
 			</div>
-		</div>
+		</SwitchTransition>
 	);
 };
 
