@@ -577,7 +577,7 @@ export function getAttachedMedia() {
  * @returns {boolean} Whether the post is a social post.
  */
 export function isSocialPost() {
-	return getJetpackSocialOptions()?.is_social_post ?? false;
+	return getJetpackSocialOptions()?.should_upload_attached_media ?? false;
 }
 
 /**

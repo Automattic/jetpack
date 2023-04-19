@@ -7,9 +7,9 @@ const PUBLICIZE_STORE = 'jetpack/publicize';
 /**
  * @typedef {object} AttachedMediaHook
  * @property {Array} attachedMedia - List of media with ID, URL, and metadata.
- * @property {boolean} isSocialPost - Whether the post is a social post.
+ * @property {boolean} shouldUploadAttachedMedia - Whether the post is a social post and we upload the media.
  * @property {Function} updateAttachedMedia - Callback used to update the attached media.
- * @property {Function} updateIsSocialPost - Callback used to update the isSocialPost value.
+ * @property {Function} updateShouldUploadAttachedMedia - Callback used to update the shouldUploadAttachedMedia value.
  */
 
 /**
@@ -20,28 +20,17 @@ const PUBLICIZE_STORE = 'jetpack/publicize';
 export default function useAttachedMedia() {
 	const { editPost } = useDispatch( editorStore );
 
-	const { isSocialPost, attachedMedia, currentOptions } = useSelect( select => ( {
-		isSocialPost: select( PUBLICIZE_STORE ).isSocialPost(),
+	const { shouldUploadAttachedMedia, attachedMedia, currentOptions } = useSelect( select => ( {
+		shouldUploadAttachedMedia: select( PUBLICIZE_STORE ).isSocialPost(),
 		attachedMedia: select( PUBLICIZE_STORE ).getAttachedMedia(),
 		currentOptions: select( PUBLICIZE_STORE ).getJetpackSocialOptions(),
 	} ) );
 
-	const updateAttachedMedia = useCallback(
-		medias => {
+	const updateJetpackSocialOptions = useCallback(
+		( key, value ) => {
 			editPost( {
 				meta: {
-					jetpack_social_options: { ...currentOptions, attached_media: medias },
-				},
-			} );
-		},
-		[ currentOptions, editPost ]
-	);
-
-	const updateIsSocialPost = useCallback(
-		option => {
-			editPost( {
-				meta: {
-					jetpack_social_options: { ...currentOptions, is_social_post: option },
+					jetpack_social_options: { ...currentOptions, [ key ]: value },
 				},
 			} );
 		},
@@ -50,8 +39,9 @@ export default function useAttachedMedia() {
 
 	return {
 		attachedMedia,
-		isSocialPost,
-		updateAttachedMedia,
-		updateIsSocialPost,
+		shouldUploadAttachedMedia,
+		updateAttachedMedia: media => updateJetpackSocialOptions( 'attached_media', media ),
+		updateShouldUploadAttachedMedia: option =>
+			updateJetpackSocialOptions( 'should_upload_attached_media', option ),
 	};
 }
