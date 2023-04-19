@@ -1,7 +1,7 @@
 .single-contextual-info {
 	display: flex;
 	align-items: baseline;
-	margin-top: calc( var( --spacing-base ) / 2 );
+	margin-top: calc( var( --spacing-base ) / 2 ); // 4px
 
 	.main-value {
 		font-weight: 400;
@@ -43,5 +43,5 @@
 }
 
 .loading-placeholder {
-	margin-top: 4px;
+	margin-top: calc( var( --spacing-base ) / 2 ); // 4px
 }
