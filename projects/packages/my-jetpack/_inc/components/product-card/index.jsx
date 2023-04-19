@@ -1,7 +1,7 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { external, moreVertical } from '@wordpress/icons';
+import { external, moreVertical, arrowDown } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
@@ -18,7 +18,22 @@ const PRODUCT_STATUSES_LABELS = {
 };
 
 /* eslint-disable react/jsx-no-bind */
-const Menu = ( { items = [], onManage } ) => {
+const Menu = ( {
+	items = [],
+	onManage,
+	onInstall,
+	onActivate,
+	hasStandalonePlugin,
+	isStandaloneInstalled,
+	isStandaloneActive,
+} ) => {
+	/**
+	 * Only show standalone related option if plugin is not installed
+	 * or the plugin is not active
+	 */
+	const showStandaloneOption =
+		hasStandalonePlugin && ( ! isStandaloneInstalled || ! isStandaloneActive );
+
 	return (
 		<Dropdown
 			className={ styles.dropdown }
@@ -60,6 +75,39 @@ const Menu = ( { items = [], onManage } ) => {
 					>
 						{ __( 'Manage', 'jetpack-my-jetpack' ) }
 					</Button>
+					{ showStandaloneOption && (
+						<>
+							<hr />
+							{ ! isStandaloneInstalled && (
+								<Button
+									weight="regular"
+									fullWidth
+									variant="tertiary"
+									icon={ arrowDown }
+									onClick={ () => {
+										onClose();
+										onInstall?.();
+									} }
+								>
+									{ __( 'Install plugin', 'jetpack-my-jetpack' ) }
+								</Button>
+							) }
+							{ isStandaloneInstalled && ! isStandaloneActive && (
+								<Button
+									weight="regular"
+									fullWidth
+									variant="tertiary"
+									icon={ external }
+									onClick={ () => {
+										onClose();
+										onActivate?.();
+									} }
+								>
+									{ __( 'Activate plugin', 'jetpack-my-jetpack' ) }
+								</Button>
+							) }
+						</>
+					) }
 				</>
 			) }
 		/>
@@ -82,6 +130,11 @@ const ProductCard = props => {
 		children,
 		showMenu = false,
 		menuItems = [],
+		onInstallStandalone,
+		onActivateStandalone,
+		hasStandalonePlugin = false,
+		isStandaloneInstalled = false,
+		isStandaloneActive = false,
 	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
@@ -176,7 +229,20 @@ const ProductCard = props => {
 					<Text variant="title-medium">{ name }</Text>
 					{ menuIsActive && icon }
 				</div>
-				{ menuIsActive ? <Menu items={ menuItems } onManage={ onManage } /> : icon }
+				{ menuIsActive ? (
+					<Menu
+						status={ status }
+						items={ menuItems }
+						onManage={ onManage }
+						onInstall={ onInstallStandalone }
+						onActivate={ onActivateStandalone }
+						hasStandalonePlugin={ hasStandalonePlugin }
+						isStandaloneActive={ isStandaloneActive }
+						isStandaloneInstalled={ isStandaloneInstalled }
+					/>
+				) : (
+					icon
+				) }
 			</div>
 			{
 				// If is not active, no reason to use children

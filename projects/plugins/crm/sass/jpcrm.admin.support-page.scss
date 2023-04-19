@@ -1,0 +1,135 @@
+/*!
+ * Jetpack CRM
+ * http://jetpackcrm.com
+ */
+
+#support-page {
+	margin: 40px 10px 10px 10px;
+	padding: 30px 40px 40px 40px;
+	
+	i.icon.user.md {
+		font-size: 30px;
+		color: #808080;
+	}
+
+	.form-group {
+		margin-bottom: 1.5rem;
+	}
+
+	label {
+		display: inline-block;
+		margin-bottom: 0.5rem;
+		font-weight: bold;
+	}
+	
+	a:focus {
+		box-shadow: none;
+	}
+
+	#support-form {
+		margin: 30px 0 10px 0;
+		color: #505050;
+		textarea {
+			height: 200px;
+		}
+	}
+
+	.form-control {
+		display: block;
+		width: 100%;
+		padding: 0.375rem 0.75rem;
+		font-size: 1rem;
+		line-height: 1.5;
+		color: #495057;
+		background-color: #fff;
+		border: 1px solid #ced4da;
+		border-radius: 0.25rem;
+	}
+
+	.btn {
+		color: #fff;
+		font-size: 18px;
+		padding: 10px 20px;
+	}
+	.btn.btn-primary {
+			background-color: #079E08;
+	}
+	.btn.btn-info {
+		background-color: #2185D0;
+	}
+	
+	.goto-kb {
+		margin: 30px 0 30px 0;
+	}
+
+	.btn-support-forum {
+		margin-top: 50px;
+		.ui.button {
+			background-color: #079E08;
+			color: #fff;
+			font-size: 17px;
+			padding: 20px 20px;
+		}
+	}
+
+	.jetpack-crm-contact-text {
+		font-size: 16px;
+		color: #505050;
+		line-height: 1.5;
+		p {
+			margin: 10px 0 10px 0;
+		}
+	}
+	
+	h1 {
+		font-size: 24px;
+		img {
+			vertical-align: middle;
+			margin-right: 5px;
+		}
+	}
+
+	h2 {
+		margin: 40px 0 15px 0;
+		padding: 0;
+		font-size: 18px;
+		font-weight: bold;
+		color: #202020;
+	}
+
+	.license-status {
+		margin: 10px 0 40px 0;
+		color: #404040;
+		.label {
+			margin-left: 5px;	
+		}
+		b,span {
+			vertical-align: middle;
+		}
+		.license {
+			font-size: 12px;
+			margin-left:10px;
+			padding: 5px;
+			background-color: #f5f5f5;
+			color:#505050;
+		}
+		.invalid-license {
+			font-size: 13px;
+			margin-left: 5px;
+		}
+		.expires {
+			font-size: 12px;
+			margin-left: 5px;
+			color: #909090;
+		}
+		.account {
+			float: right;
+		}
+	}
+
+	.data-shared {
+		padding: 10px;
+		margin: 10px 0 20px 0;
+		background: #f5f5f5;
+	}
+}
