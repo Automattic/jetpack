@@ -23,13 +23,25 @@
 		value = inputValue;
 		isEditing = false;
 	}
+
+	function handleKeyPress( e ) {
+		if ( value !== inputValue && e.key === 'Enter' ) {
+			save();
+		}
+	}
 </script>
 
 <div class="jb-critical-css__meta">
 	{#if isEditing}
 		<div class="manage-excludes">
 			<label for={htmlId}>{inputLabel}</label>
-			<input type="text" bind:value={inputValue} {placeholder} id={htmlId} />
+			<input
+				type="text"
+				bind:value={inputValue}
+				{placeholder}
+				id={htmlId}
+				on:keypress={handleKeyPress}
+			/>
 			<div class="buttons-container">
 				<button disabled={value === inputValue} on:click={save}
 					>{__( 'Save', 'jetpack-boost' )}</button
