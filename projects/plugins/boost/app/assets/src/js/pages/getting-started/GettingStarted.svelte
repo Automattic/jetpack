@@ -8,7 +8,7 @@
 	import Header from '../../sections/Header.svelte';
 	import config, { markGetStartedComplete } from '../../stores/config';
 	import { connection } from '../../stores/connection';
-	import { updateModuleState } from '../../stores/modules';
+	import { modulesState } from '../../stores/modules';
 	import { recordBoostEvent } from '../../utils/analytics';
 	import { getUpgradeURL } from '../../utils/upgrade';
 
@@ -62,8 +62,8 @@
 					markGetStartedComplete();
 
 					// Need to await in this case because the generation request needs to go after the backend has enabled the module.
-					await updateModuleState( 'critical_css', true );
-
+					// @REFACTORING: @TODO: This doesn't work at the moment.
+					$modulesState.critical_css.active = true;
 					navigate( '/' );
 				} catch ( e ) {
 					dismissedSnackbar.set( false );
