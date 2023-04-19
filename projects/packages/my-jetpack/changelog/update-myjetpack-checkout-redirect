@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Backup and Scan: redirect after checkout to Jetpack recommendations page if Jetpack plugin is active. Otherwise, redirect back to plugin admin page.

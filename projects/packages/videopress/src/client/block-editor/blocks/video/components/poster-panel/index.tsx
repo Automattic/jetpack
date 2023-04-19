@@ -1,7 +1,7 @@
 /**
  *External dependencies
  */
-import { MediaUploadCheck, MediaUpload } from '@wordpress/block-editor';
+import { MediaUploadCheck, MediaUpload, store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	MenuItem,
 	PanelBody,
@@ -13,6 +13,8 @@ import {
 	Spinner,
 	Notice,
 } from '@wordpress/components';
+import { useDebounce } from '@wordpress/compose';
+import { select } from '@wordpress/data';
 import {
 	useRef,
 	useEffect,
@@ -252,9 +254,38 @@ function VideoFramePicker( {
 	const { preview = { html: null }, isRequestingEmbedPreview } = usePreview( url );
 	const { html } = preview;
 
-	const { playerIsReady } = useVideoPlayer( playerWrapperRef, isRequestingEmbedPreview, {
-		initialTimePosition: atTime,
-	} );
+	const debouncedVideoFrameSelect = useDebounce( ( time: number ) => {
+		onVideoFrameSelect( time );
+	}, 2000 );
+
+	const onTimestampUpdateFromPlayer = useCallback(
+		time => {
+			setTimestamp( time );
+			debouncedVideoFrameSelect( time );
+		},
+		[ setTimestamp, debouncedVideoFrameSelect ]
+	);
+
+	const { playerIsReady } = useVideoPlayer(
+		playerWrapperRef,
+		isRequestingEmbedPreview,
+		{
+			initialTimePosition: atTime,
+		},
+		onTimestampUpdateFromPlayer
+	);
+
+	const onTimestampDebounceChange = useCallback(
+		iframeTimePosition => {
+			const sandboxIFrameWindow = getIframeWindowFromRef( playerWrapperRef );
+			sandboxIFrameWindow?.postMessage( {
+				event: 'videopress_action_set_currenttime',
+				currentTime: iframeTimePosition / 1000,
+			} );
+			onVideoFrameSelect( iframeTimePosition );
+		},
+		[ playerWrapperRef, onVideoFrameSelect ]
+	);
 
 	return (
 		<div className="poster-panel__frame-picker">
@@ -288,14 +319,7 @@ function VideoFramePicker( {
 				fineAdjustment={ 1 }
 				decimalPlaces={ 2 }
 				onChange={ setTimestamp }
-				onDebounceChange={ iframeTimePosition => {
-					const sandboxIFrameWindow = getIframeWindowFromRef( playerWrapperRef );
-					sandboxIFrameWindow?.postMessage( {
-						event: 'videopress_action_set_currenttime',
-						currentTime: iframeTimePosition / 1000,
-					} );
-					onVideoFrameSelect( iframeTimePosition );
-				} }
+				onDebounceChange={ onTimestampDebounceChange }
 			/>
 		</div>
 	);
@@ -327,17 +351,19 @@ export function VideoHoverPreviewControl( {
 	onLoopDurationChange,
 }: VideoHoverPreviewControlProps ): React.ReactElement {
 	const disabled = ! videoDuration;
-	const maxStartingPoint = videoDuration - MIN_LOOP_DURATION;
+	const maxStartingPoint = Math.max( videoDuration - MIN_LOOP_DURATION, 0 );
 
 	const [ maxLoopDuration, setMaxLoopDuration ] = useState(
 		Math.min( MAX_LOOP_DURATION, videoDuration - previewAtTime )
 	);
 
+	const maxLoopDurationSeconds = ( ( maxLoopDuration / 10 ) | 0 ) / 100;
+
 	const startingPointHelp = createInterpolateElement(
 		sprintf(
 			/* translators: placeholder is video duration */
 			__( 'Video duration: <em>%s</em>.', 'jetpack-videopress-pkg' ),
-			millisecondsToClockTime( maxStartingPoint )
+			millisecondsToClockTime( videoDuration )
 		),
 		{
 			em: <em />,
@@ -346,16 +372,33 @@ export function VideoHoverPreviewControl( {
 
 	const loopDurationHelp = createInterpolateElement(
 		sprintf(
-			/* translators: placeholder is the maximum lapse duration for the previewOnHover */
-			__( 'Minimum: <em>3s</em>. Maximum: <em>%s</em>s.', 'jetpack-videopress-pkg' ),
-			( ( maxLoopDuration / 10 ) | 0 ) / 100
+			/* translators: placeholders are the minimum and maximum lapse duration for the previewOnHover, in seconds */
+			__( 'Minimum: <em>%1$ss</em>. Maximum: <em>%2$ss</em>.', 'jetpack-videopress-pkg' ),
+			Math.min( MIN_LOOP_DURATION / 1000, maxLoopDurationSeconds ),
+			maxLoopDurationSeconds
 		),
 		{
 			em: <em />,
 		}
 	);
 
+	const noStartingPointRange = maxStartingPoint === 0;
 	const noLoopDurationRange = maxLoopDuration <= MIN_LOOP_DURATION;
+
+	const onStartingPointDebounceChange = useCallback(
+		( timestamp: number ) => {
+			onPreviewAtTimeChange( timestamp );
+
+			const max = Math.min( MAX_LOOP_DURATION, videoDuration - timestamp );
+			setMaxLoopDuration( max );
+
+			// Adjust loop duration if needed
+			if ( loopDuration > max ) {
+				onLoopDurationChange( max );
+			}
+		},
+		[ onPreviewAtTimeChange, videoDuration, loopDuration, onLoopDurationChange ]
+	);
 
 	return (
 		<>
@@ -374,19 +417,9 @@ export function VideoHoverPreviewControl( {
 						max={ maxStartingPoint }
 						fineAdjustment={ 50 }
 						value={ previewAtTime }
-						onDebounceChange={ timestamp => {
-							onPreviewAtTimeChange( timestamp );
-
-							const max = Math.min( MAX_LOOP_DURATION, videoDuration - timestamp );
-							setMaxLoopDuration( max );
-
-							// Adjust loop duration if it's needed
-							if ( loopDuration > max ) {
-								onLoopDurationChange( max );
-							}
-						} }
+						onDebounceChange={ onStartingPointDebounceChange }
 						wait={ 300 }
-						disabled={ disabled }
+						disabled={ disabled || noStartingPointRange }
 						help={ startingPointHelp }
 					/>
 
@@ -418,15 +451,21 @@ export default function PosterPanel( {
 	attributes,
 	setAttributes,
 	isGeneratingPoster,
+	clientId,
 }: PosterPanelProps ): React.ReactElement {
 	const { poster, posterData } = attributes;
+	const { getBlockAttributes } = select( blockEditorStore );
+
+	const videoDuration = attributes?.duration;
 
 	const pickPosterFromFrame = posterData?.type === 'video-frame';
 	const previewOnHover = posterData?.previewOnHover || false;
 	const previewAtTime = posterData?.previewAtTime ?? posterData?.atTime ?? 0;
-	const previewLoopDuration = posterData?.previewLoopDuration ?? DEFAULT_LOOP_DURATION;
+	let previewLoopDuration = posterData?.previewLoopDuration ?? DEFAULT_LOOP_DURATION;
 
-	const videoDuration = attributes?.duration;
+	if ( previewLoopDuration > videoDuration - previewAtTime ) {
+		previewLoopDuration = videoDuration - previewAtTime;
+	}
 
 	const onRemovePoster = () => {
 		setAttributes( { poster: '', posterData: { ...attributes.posterData, url: '' } } );
@@ -504,6 +543,21 @@ export default function PosterPanel( {
 		[ attributes ]
 	);
 
+	// This callback can be called by an event, which does not trigger a re-render and attributes are not up-to-date.
+	const onVideoFrameSelect = ( timestamp: number ) => {
+		// Get the current attributes by using the block store directly.
+		const currentAttributes = getBlockAttributes( clientId );
+
+		setAttributes( {
+			posterData: {
+				...currentAttributes.posterData,
+				type: 'video-frame',
+				atTime: timestamp,
+			},
+			poster: '',
+		} );
+	};
+
 	if ( ! isVideoFramePosterEnabled() ) {
 		return (
 			<PanelBody title={ __( 'Poster', 'jetpack-videopress-pkg' ) } className="poster-panel">
@@ -541,16 +595,7 @@ export default function PosterPanel( {
 					guid={ attributes?.guid }
 					atTime={ posterData?.atTime }
 					duration={ videoDuration }
-					onVideoFrameSelect={ timestamp => {
-						setAttributes( {
-							posterData: {
-								...attributes.posterData,
-								type: 'video-frame',
-								atTime: timestamp,
-							},
-							poster: '',
-						} );
-					} }
+					onVideoFrameSelect={ onVideoFrameSelect }
 				/>
 			</div>
 

@@ -55,6 +55,13 @@ class Videopress extends Hybrid_Product {
 	public static $requires_user_connection = true;
 
 	/**
+	 * VideoPress has a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
 	 * Get the internationalized product name
 	 *
 	 * @return string

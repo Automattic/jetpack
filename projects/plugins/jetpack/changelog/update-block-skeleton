@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Blocks: update block cli structure to only use strings in descriptions

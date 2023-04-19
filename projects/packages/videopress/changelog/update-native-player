@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Refactor native Player component to handle the embed preview

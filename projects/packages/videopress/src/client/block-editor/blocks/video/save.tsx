@@ -77,22 +77,6 @@ export default function save( { attributes }: videoBlockSaveProps ): React.React
 		style.margin = 'auto';
 	}
 
-	if ( ! isVideoFramePosterEnabled() ) {
-		return (
-			<figure { ...blockProps } style={ style }>
-				{ videoPressUrl && (
-					<div className="jetpack-videopress-player__wrapper">
-						{ `\n${ videoPressUrl }\n` /* URL needs to be on its own line. */ }
-					</div>
-				) }
-
-				{ ! RichText.isEmpty( caption ) && (
-					<RichText.Content tagName="figcaption" value={ caption } />
-				) }
-			</figure>
-		);
-	}
-
 	return (
 		<figure { ...blockProps } style={ style }>
 			{ videoPressUrl && (
