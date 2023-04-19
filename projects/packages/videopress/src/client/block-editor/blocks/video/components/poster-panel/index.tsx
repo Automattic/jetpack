@@ -226,6 +226,7 @@ type PosterFramePickerProps = {
 	duration: number;
 	isGeneratingPoster?: boolean;
 	onVideoFrameSelect: ( timestamp: number ) => void;
+	clientId: string;
 };
 
 /**
@@ -240,6 +241,7 @@ function VideoFramePicker( {
 	atTime = 0.1,
 	onVideoFrameSelect,
 	duration,
+	clientId,
 }: PosterFramePickerProps ): React.ReactElement {
 	const [ timestamp, setTimestamp ] = useState( atTime );
 	const playerWrapperRef = useRef< HTMLDivElement >( null );
@@ -260,10 +262,20 @@ function VideoFramePicker( {
 
 	const onTimestampUpdateFromPlayer = useCallback(
 		time => {
-			setTimestamp( time );
-			debouncedVideoFrameSelect( time );
+			// Get the current attributes by using the block store directly as
+			// it is updated by events that do not trigger re-render.
+			const { getBlockAttributes } = select( blockEditorStore );
+			const currentAttributes = getBlockAttributes( clientId );
+
+			const { posterData } = currentAttributes;
+			const pickPosterFromFrame = posterData?.type === 'video-frame';
+
+			if ( pickPosterFromFrame ) {
+				setTimestamp( time );
+				debouncedVideoFrameSelect( time );
+			}
 		},
-		[ setTimestamp, debouncedVideoFrameSelect ]
+		[ select, setTimestamp, debouncedVideoFrameSelect ]
 	);
 
 	const { playerIsReady, pause } = useVideoPlayer(
@@ -482,16 +494,24 @@ export default function PosterPanel( {
 
 	const switchPosterSource = useCallback(
 		( shouldPickFromFrame: boolean ) => {
-			setAttributes( {
+			const newAttributes = {
 				// Extend the posterData attr with the new type.
 				posterData: {
 					...attributes.posterData,
-					type: shouldPickFromFrame ? 'video-frame' : 'media-library',
+					type: ( shouldPickFromFrame ? 'video-frame' : 'media-library' ) as
+						| 'video-frame'
+						| 'media-library',
 				},
 
 				// Clean the poster URL when it should be picked from the video frame.
 				poster: shouldPickFromFrame ? '' : attributes.posterData.url || '',
-			} );
+			};
+
+			if ( shouldPickFromFrame ) {
+				newAttributes.posterData.atTime = newAttributes.posterData.atTime || 0;
+			}
+
+			setAttributes( newAttributes );
 		},
 		[ attributes ]
 	);
@@ -605,6 +625,7 @@ export default function PosterPanel( {
 					atTime={ posterData?.atTime }
 					duration={ videoDuration }
 					onVideoFrameSelect={ onVideoFrameSelect }
+					clientId={ clientId }
 				/>
 			</div>
 
