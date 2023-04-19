@@ -32,3 +32,8 @@ if ( false === $boost_css_excludes ) {
 
 	add_option( 'jetpack_boost_ds_minify_css_excludes', $css_excludes );
 }
+
+// Disable Page Optimize functionality.
+add_filter( 'pre_option_page_optimize-js', '__return_empty_string', 0 );
+add_filter( 'pre_option_page_optimize-css', '__return_empty_string', 0 );
+add_filter( 'pre_option_page_optimize-load-mode', '__return_empty_string', 0 );

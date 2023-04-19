@@ -294,10 +294,6 @@ function jetpack_boost_minify_setup() {
 
 	jetpack_boost_page_optimize_schedule_cache_cleanup();
 
-	add_filter( 'pre_option_page_optimize-js', '__return_empty_string', 0 );
-	add_filter( 'pre_option_page_optimize-css', '__return_empty_string', 0 );
-	add_filter( 'pre_option_page_optimize-load-mode', '__return_empty_string', 0 );
-
 	// Disable Jetpack photon-cdn for static JS/CSS.
 	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
 }
