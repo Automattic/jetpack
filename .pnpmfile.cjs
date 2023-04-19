@@ -25,31 +25,6 @@ function fixDeps( pkg ) {
 		pkg.dependencies.punycode = '^2.1.1';
 	}
 
-	// Even though Storybook works with webpack 5, they still have a bunch of deps on webpack4.
-	// I hear v7 is supposed to fix that <https://github.com/storybookjs/storybook/issues/18261#issuecomment-1132031458>.
-	if ( pkg.name.startsWith( '@storybook/' ) ) {
-		if ( pkg.dependencies[ '@storybook/builder-webpack4' ] ) {
-			pkg.dependencies[ '@storybook/builder-webpack4' ] = 'npm:@storybook/builder-webpack5@^6';
-		}
-		if ( pkg.dependencies[ '@storybook/manager-webpack4' ] ) {
-			pkg.dependencies[ '@storybook/manager-webpack4' ] = 'npm:@storybook/manager-webpack5@^6';
-		}
-		if ( pkg.dependencies.webpack ) {
-			pkg.dependencies.webpack = '^5';
-		}
-		if ( pkg.dependencies[ '@types/webpack' ] ) {
-			pkg.dependencies[ '@types/webpack' ] = '^5';
-		}
-
-		// Same for some react deps, again fixed in v7.
-		if ( pkg.dependencies[ 'react-inspector' ] ) {
-			pkg.dependencies[ 'react-inspector' ] += ' || ^6';
-		}
-		if ( pkg.dependencies[ 'react-element-to-jsx-string' ] ) {
-			pkg.dependencies[ 'react-element-to-jsx-string' ] += ' || ^15';
-		}
-	}
-
 	// Undeclared dependency on prop-types.
 	// https://github.com/nutboltu/storybook-addon-mock/issues/157
 	if ( pkg.name === 'storybook-addon-mock' ) {
@@ -87,12 +62,6 @@ function fixDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
-	}
-
-	// Regular expression DOS.
-	// Dep is via storybook, fix in v7: https://github.com/storybookjs/storybook/issues/14603#issuecomment-1105006210
-	if ( pkg.dependencies.trim === '0.0.1' ) {
-		pkg.dependencies.trim = '^0.0.3';
 	}
 
 	// Avoid annoying flip-flopping of sub-dep peer deps.
@@ -147,7 +116,6 @@ function fixPeerDeps( pkg ) {
 		'reakit-system', // @wordpress/components → reakit
 		'reakit-utils', // @wordpress/components → reakit
 		'reakit-warning', // @wordpress/components → reakit
-		'@mdx-js/react',
 		'@automattic/components',
 		'@automattic/social-previews',
 	] );
