@@ -80,6 +80,7 @@ const Menu = ( {
 					) }
 					{ showStandaloneOption && (
 						<>
+							{ ( productStatus === PRODUCT_STATUSES.ACTIVE || items.length > 0 ) && <hr /> }
 							{ ! isStandaloneInstalled && (
 								<Button
 									weight="regular"
