@@ -15,7 +15,7 @@ class VideoPress_Divi_Module extends ET_Builder_Module {
 	 *
 	 * @var string
 	 */
-	public $slug = 'vidi_videopress';
+	public $slug = 'divi_videopress';
 
 	/**
 	 * For matching VideoPress urls or guids.
