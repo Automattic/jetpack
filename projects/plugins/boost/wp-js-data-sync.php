@@ -3,7 +3,7 @@
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack_Boost\Data_Sync\Modules_Status_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Css as Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Js as Minify_JS;
 
