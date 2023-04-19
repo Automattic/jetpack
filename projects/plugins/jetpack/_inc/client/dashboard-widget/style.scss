@@ -1,6 +1,6 @@
 @import '@automattic/jetpack-base-styles/root-variables';
 
-@mixin emerald-button() {
+@mixin emerald-button-colors() {
 	background: var(--jp-black);
 	border-color: var(--jp-black);
 	color: var(--jp-white);
@@ -176,7 +176,7 @@
 
 			// Use emerald button style.
 			.wp-core-ui & .button-primary {
-				@include emerald-button();
+				@include emerald-button-colors();
 			}
 		}
 	}
@@ -311,7 +311,7 @@
 		}
 
 		.button {
-			@include emerald-button();
+			@include emerald-button-colors();
 			margin-top: 8px;
 		}
 	}
