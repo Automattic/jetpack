@@ -35,7 +35,7 @@ export const ChangePercentageContext = ( { change, changePercentage } ) => {
 			) }
 			<Text className={ styles[ 'change-values' ] }>
 				{ sprintf(
-					/* translators: first placeholder is user name, second is either the (Owner) string or an empty string */
+					/* translators: both placeholders are numbers */
 					__( '%1$s (%2$s%%)', 'jetpack-my-jetpack' ),
 					changeFormatted,
 					changePercentage
