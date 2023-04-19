@@ -1086,6 +1086,9 @@ abstract class Publicize_Base {
 								),
 							),
 						),
+						'is_social_post'           => array(
+							'type' => 'boolean',
+						),
 						'image_generator_settings' => array(
 							'type'       => 'object',
 							'properties' => array(
