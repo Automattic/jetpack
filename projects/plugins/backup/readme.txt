@@ -28,6 +28,16 @@ If you make money from your site, or spend hours perfecting content, you need Wo
 * No developer required
 * Best-in-class support
 
+### If your host’s servers go down, you’re covered
+
+Host backups offer some protection but may not be sufficient to fully safeguard your valuable data. They often have limitations, such as single daily backups only, on-site storage, and clunky interfaces.
+
+Unlock the VaultPress Backup advantage:
+
+* Unmatched Security: Safeguard every change in real-time in the ultra-secure Jetpack Cloud.
+* Instant Recovery: Restore your site even when your host is down.
+* Backups built specifically for WordPress and WooCommerce sites.
+
 ### Reliability you can trust
 
 Jetpack VaultPress Backup is built on WordPress.com’s world‑class infrastructure, so you can be sure your site is safe and can be recovered at any moment. Host backups are often time‑consuming and require technical expertise to restore. You’ve got more important things to do.

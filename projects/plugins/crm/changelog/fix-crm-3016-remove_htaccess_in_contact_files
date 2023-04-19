@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Contact files: fix 403 if file was uploaded via Client Portal Pro using Apache web server
