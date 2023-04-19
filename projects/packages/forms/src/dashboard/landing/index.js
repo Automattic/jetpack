@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import Details from '../components/details';
 import Layout from '../components/layout';
 import { config } from '../index';
 import AkismetSVG from './akismet-svg';
@@ -112,7 +113,7 @@ const LandingPage = () => {
 						</div>
 						<div className="jp-forms__feature feature-export">
 							<ExportSVG />
-							<h4>{ __( 'Manage your data in wp-admin', 'jetpack-forms' ) }</h4>
+							<h4>{ __( 'Export your data anytime', 'jetpack-forms' ) }</h4>
 						</div>
 						<div className="jp-forms__feature feature-notifications">
 							<NotificationsSVG className="mb-6" />
@@ -141,7 +142,7 @@ const LandingPage = () => {
 			<section className="jp-forms__landing-section align-center">
 				<div className="jp-forms__landing-content">
 					<h4 className="mb-6">{ __( 'You are in good company.', 'jetpack-forms' ) }</h4>
-					<h1 className="mb-8">
+					<h1 className="jp-forms__wp-sites mb-8">
 						{ __( 'Trusted by more than 5 million WordPress sites.', 'jetpack-forms' ) }
 					</h1>
 					<button className="button button-primary">
@@ -152,6 +153,48 @@ const LandingPage = () => {
 			<section className="jp-forms__landing-section bg-white-off">
 				<div className="jp-forms__landing-content">
 					<h1 className="mb-6">{ __( 'Frequently Asked Questions', 'jetpack-forms' ) }</h1>
+					<Details summary={ __( 'What do I need to use Jetpack Forms?', 'jetpack-forms' ) }>
+						{ __(
+							'You simply need to add a Jetpack form to one of your pages or posts to start collecting data.',
+							'jetpack-forms'
+						) }
+					</Details>
+					<Details summary={ __( 'How much does Jetpack Forms cost?', 'jetpack-forms' ) }>
+						{ __(
+							'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lacus turpis, dignissim in urna et, egestas consectetur nibh. Praesent in neque placerat, varius sapien eu, sollicitudin arcu. Suspendisse justo nibh, gravida vitae efficitur non, hendrerit non velit.',
+							'jetpack-forms'
+						) }
+					</Details>
+					<Details summary={ __( 'Where is my data stored?', 'jetpack-forms' ) }>
+						{ __(
+							'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lacus turpis, dignissim in urna et, egestas consectetur nibh. Praesent in neque placerat, varius sapien eu, sollicitudin arcu. Suspendisse justo nibh, gravida vitae efficitur non, hendrerit non velit.',
+							'jetpack-forms'
+						) }
+					</Details>
+					<Details summary={ __( 'Is Jetpack Forms GDPR compliant?', 'jetpack-forms' ) }>
+						{ __(
+							'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lacus turpis, dignissim in urna et, egestas consectetur nibh. Praesent in neque placerat, varius sapien eu, sollicitudin arcu. Suspendisse justo nibh, gravida vitae efficitur non, hendrerit non velit.',
+							'jetpack-forms'
+						) }
+					</Details>
+					<Details summary={ __( 'Do I need coding skills to connect my data?', 'jetpack-forms' ) }>
+						{ __(
+							'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lacus turpis, dignissim in urna et, egestas consectetur nibh. Praesent in neque placerat, varius sapien eu, sollicitudin arcu. Suspendisse justo nibh, gravida vitae efficitur non, hendrerit non velit.',
+							'jetpack-forms'
+						) }
+					</Details>
+					<Details summary={ __( 'Is there a form responses limit?', 'jetpack-forms' ) }>
+						{ __(
+							'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lacus turpis, dignissim in urna et, egestas consectetur nibh. Praesent in neque placerat, varius sapien eu, sollicitudin arcu. Suspendisse justo nibh, gravida vitae efficitur non, hendrerit non velit.',
+							'jetpack-forms'
+						) }
+					</Details>
+					<Details summary={ __( 'What if I would need some help?', 'jetpack-forms' ) }>
+						{ __(
+							'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lacus turpis, dignissim in urna et, egestas consectetur nibh. Praesent in neque placerat, varius sapien eu, sollicitudin arcu. Suspendisse justo nibh, gravida vitae efficitur non, hendrerit non velit.',
+							'jetpack-forms'
+						) }
+					</Details>
 				</div>
 			</section>
 		</Layout>
