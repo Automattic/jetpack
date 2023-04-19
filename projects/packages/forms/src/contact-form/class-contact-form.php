@@ -138,6 +138,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
 			'className'              => null,
+			'postToUrl'              => null,
+			'salesforceData'         => null,
+			'hiddenFields'           => null,
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
