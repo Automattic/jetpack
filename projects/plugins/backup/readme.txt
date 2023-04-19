@@ -1,7 +1,7 @@
 === Jetpack VaultPress Backup ===
 Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
 Tags: jetpack
-Requires at least: 6.0
+Requires at least: 6.1
 Requires PHP: 5.6
 Tested up to: 6.2
 Stable tag: 1.5
@@ -27,6 +27,16 @@ If you make money from your site, or spend hours perfecting content, you need Wo
 * Restore even if your site is offline
 * No developer required
 * Best-in-class support
+
+### If your host’s servers go down, you’re covered
+
+Host backups offer some protection but may not be sufficient to fully safeguard your valuable data. They often have limitations, such as single daily backups only, on-site storage, and clunky interfaces.
+
+Unlock the VaultPress Backup advantage:
+
+* Unmatched Security: Safeguard every change in real-time in the ultra-secure Jetpack Cloud.
+* Instant Recovery: Restore your site even when your host is down.
+* Backups built specifically for WordPress and WooCommerce sites.
 
 ### Reliability you can trust
 
