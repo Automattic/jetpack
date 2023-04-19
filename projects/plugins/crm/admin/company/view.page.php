@@ -85,17 +85,21 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 			}
 
 			// values - DAL3 we get them passed all nicely :)
-			$companyTotalValue = 0;
+			$company_total_value   = 0;
+			$count_cmp_deleted_inv = 0;
+			$cmp_deleted_inv_total = 0;
 			if ( isset( $company['total_value'] ) ) {
-				$companyTotalValue = $company['total_value'];
+				$deleted_invoice_details                               = jetpackCRM_deleted_invoice_totals( $company['invoices'] );
+				list( $count_cmp_deleted_inv, $cmp_deleted_inv_total ) = array( $deleted_invoice_details['count'], $deleted_invoice_details['total'] );
+				$company_total_value                                   = $company['total_value'] - $cmp_deleted_inv_total;
 			}
 			$companyQuotesValue = 0;
 			if ( isset( $company['quotes_total'] ) ) {
 				$companyQuotesValue = $company['quotes_total'];
 			}
-			$companyInvoicesValue = 0;
+			$company_invoices_value = 0;
 			if ( isset( $company['invoices_total'] ) ) {
-				$companyInvoicesValue = $company['invoices_total'];
+				$company_invoices_value = $company['invoices_total'] - $cmp_deleted_inv_total;
 			}
 			$companyTransactionsValue = 0;
 			if ( isset( $company['transactions_total'] ) ) {
@@ -108,7 +112,7 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 				// calc'd each individually
 				// never used (pre dal3) $companyTotalValue = zeroBS_companyTotalValue($id, $company['invoices'],$company['transactions'])
 				// never used (pre dal3) $companyQuotesValue = zeroBS_companyQuotesValue($id, $company['quotes']);
-				$companyInvoicesValue     = zeroBS_companyInvoicesValue( $id, $company['invoices'] );
+				$company_invoices_value   = zeroBS_companyInvoicesValue( $id, $company['invoices'] );
 				$companyTransactionsValue = zeroBS_companyTransactionsValue( $id, $company['transactions'] );
 
 			}
@@ -311,7 +315,7 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 								?>
 							<tr>
 							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( 'Total Value is all transaction types and any unpaid invoices', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
-							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $companyTotalValue ) ); ?></strong></td>
+							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $company_total_value ) ); ?></strong></td>
 							</tr>
 							<?php endif; ?>
 							<?php if ( $useQuotes == '1' ) : ?>
@@ -337,7 +341,7 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 							<td>
 							<?php
 							if ( count( $company['invoices'] ) > 0 ) {
-									echo esc_html( zeroBSCRM_formatCurrency( $companyInvoicesValue ) . ' (' . count( $company['invoices'] ) . ')' );
+									echo esc_html( zeroBSCRM_formatCurrency( $company_invoices_value ) . ' (' . ( count( $company['invoices'] ) - $count_cmp_deleted_inv ) . ')' );
 							} else {
 								esc_html_e( 'None', 'zero-bs-crm' );
 							}

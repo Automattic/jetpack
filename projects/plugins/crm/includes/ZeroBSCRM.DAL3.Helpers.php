@@ -5696,6 +5696,32 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 		return false;
 	}
 
+/**
+ * Helper function calculate the number of deleted invoices and the
+ * total value of those invoices, for any particular contact.
+ *
+ * @param array $all_invoices An array of all invoice data for a contact.
+ *
+ * @returns array An array with the deleted invoices total, and the deleted invoices count.
+ */
+function jetpackCRM_deleted_invoice_totals( $all_invoices = null ) {
+	if ( empty( $all_invoices ) ) {
+		return;
+	}
+	$count_deleted = 0;
+	$total_deleted = 0;
+
+	foreach ( $all_invoices as $invoice ) {
+		if ( $invoice['status'] === __( 'Deleted', 'zero-bs-crm' ) ) {
+			$total_deleted += $invoice['total'];
+			++$count_deleted;
+		}
+	}
+	return array(
+		'total' => $total_deleted,
+		'count' => $count_deleted,
+	);
+}
 
 /* ======================================================
   	/ Invoice helpers

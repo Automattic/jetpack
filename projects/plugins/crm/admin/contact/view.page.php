@@ -297,17 +297,21 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 				}
 
 				// values - DAL3 we get them passed all nicely :)
-				$contactTotalValue = 0;
+				$contact_total_value = 0;
+				$total_deleted       = 0;
 				if ( isset( $contact['total_value'] ) ) {
-					$contactTotalValue = $contact['total_value'];
+					$deleted_invoice_details               = jetpackCRM_deleted_invoice_totals( $contact['invoices'] );
+					list( $count_deleted, $total_deleted ) = array( $deleted_invoice_details['count'], $deleted_invoice_details['total'] );
+					$contact_total_value                   = $contact['total_value'] - $total_deleted;
+					$contact_invoice_count                -= $count_deleted;
 				}
 				$contactQuotesValue = 0;
 				if ( isset( $contact['quotes_total'] ) ) {
 					$contactQuotesValue = $contact['quotes_total'];
 				}
-				$contactInvoicesValue = 0;
+				$contact_invoices_value = 0;
 				if ( isset( $contact['invoices_total'] ) ) {
-					$contactInvoicesValue = $contact['invoices_total'];
+					$contact_invoices_value = $contact['invoices_total'] - $total_deleted;
 				}
 				$contactTransactionsValue = 0;
 				if ( isset( $contact['transactions_total'] ) ) {
@@ -375,7 +379,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						<?php if ( $useInvoices == '1' || $useTrans == '1' ) : ?>
 						<tr class="zbs-view-vital-totalvalue">
 							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( 'Total Value is all transaction types and any unpaid invoices', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
-							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $contactTotalValue ) ); ?></strong></td>
+							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $contact_total_value ) ); ?></strong></td>
 						</tr>
 						<?php endif; ?>
 						<?php if ( $useQuotes == '1' ) { ?>
@@ -398,7 +402,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 							<td>
 								<?php
 								if ( $contact_invoice_count > 0 ) {
-									echo esc_html( zeroBSCRM_formatCurrency( $contactInvoicesValue ) . ' (' . zeroBSCRM_prettifyLongInts( $contact_invoice_count ) . ')' );
+									echo esc_html( zeroBSCRM_formatCurrency( $contact_invoices_value ) . ' (' . zeroBSCRM_prettifyLongInts( $contact_invoice_count ) . ')' );
 								} else {
 									esc_html_e( 'None', 'zero-bs-crm' );
 								}
