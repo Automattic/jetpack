@@ -152,7 +152,7 @@ export function useSyncMedia( attributes, setAttributes ) {
 		updateInitialState( initialVideoData );
 		debug( 'Initial state: ', initialVideoData );
 
-		if ( ! Object.keys( initialVideoData ).length || Object.keys( attributesToUpdate ).length ) {
+		if ( ! Object.keys( initialVideoData ).length || ! Object.keys( attributesToUpdate ).length ) {
 			return;
 		}
 
