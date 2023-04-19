@@ -354,5 +354,3 @@ function jetpack_boost_page_optimize_get_path( $uri ) {
 
 	return $path;
 }
-
-jetpack_boost_page_optimize_service_request();
