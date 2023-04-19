@@ -22,6 +22,7 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
  * @return string The raw final URL. You should run this through esc_url() before displaying it.
  */
 function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
+	_deprecated_function( __FUNCTION__, 'jetpack-12.1', 'Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url' );
 	return Image_CDN_Core::cdn_url( $image_url, $args, $scheme );
 }
 
