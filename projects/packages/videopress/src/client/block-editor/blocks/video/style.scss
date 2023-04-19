@@ -4,6 +4,8 @@
 	position: relative;
 
 	figcaption {
+		margin-bottom: 1em;
+    	margin-top: 0.5em;
 		@include caption-style-theme();
 	}
 
