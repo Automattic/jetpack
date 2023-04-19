@@ -73,7 +73,7 @@ export const SingleContextualInfo = ( { description, value, context, loading } )
 
 SingleContextualInfo.propTypes = {
 	description: PropTypes.string.isRequired,
-	value: PropTypes.string.isRequired,
+	value: PropTypes.string,
 	context: PropTypes.node,
 	loading: PropTypes.bool,
 };
