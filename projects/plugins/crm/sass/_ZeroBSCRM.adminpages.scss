@@ -578,19 +578,9 @@
 	padding: 0;
 	vertical-align: text-bottom;
 
-	.gridicon {
-		color: #8c8f94;
-		fill: currentColor;
+	.jpcrm-info-gridicon {
 		vertical-align: text-bottom;
 		margin-left: 4px;
-
-		&:hover {
-			color: darken( desaturate( #87a6bc, 100% ), 38% );
-		}
-
-		&:focus {
-			box-shadow: none;
-		}
 	}
 }
 

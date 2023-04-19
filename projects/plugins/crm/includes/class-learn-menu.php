@@ -443,7 +443,8 @@ class Learn_Menu {
 	          			} ?>
 					<div class="ui tiny learn button" id="learn">
 					<?php
-					echo wp_remote_retrieve_body( wp_remote_get( esc_url( plugin_dir_url( __FILE__ ) . '../i/gridicon-info.svg' ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- is being escaped.
+					//echo wp_remote_retrieve_body( wp_remote_get( esc_url( plugin_dir_url( __FILE__ ) . '../i/gridicon-info.svg' ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- is being escaped.
+					echo '<img class="jpcrm-info-gridicon" src="' . esc_url( ZEROBSCRM_URL ) . 'i/gridicon-info.svg" />';
 					?>
 					</div>
 					<div class="ui special popup top left transition hidden" id="learn-pop" style="<?php echo esc_attr( $popup_extra_css ); ?>">
@@ -469,7 +470,7 @@ class Learn_Menu {
 									// learn more link
 									if ( !empty( $learn_more_url ) ){
 										echo '<br/><a href="' . esc_url( $learn_more_url ) . '" target="_blank" class="learn-more-link">' . esc_html__( 'Learn More', 'zero-bs-crm' ) .
-										wp_remote_retrieve_body( wp_remote_get( esc_url( plugin_dir_url( __FILE__ ) . '../i/external-link.svg' ) ) ) . // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- is being escaped.
+										'<img class="jpcrm-external-link-icon" src="' . esc_url( ZEROBSCRM_URL ) . 'i/external-link.svg" />' .
 										'</a>';
 									} ?>
 								</div>
