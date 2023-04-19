@@ -21,7 +21,7 @@ export default function useAttachedMedia() {
 	const { editPost } = useDispatch( editorStore );
 
 	const { shouldUploadAttachedMedia, attachedMedia, currentOptions } = useSelect( select => ( {
-		shouldUploadAttachedMedia: select( PUBLICIZE_STORE ).isSocialPost(),
+		shouldUploadAttachedMedia: select( PUBLICIZE_STORE ).shouldUploadAttachedMedia(),
 		attachedMedia: select( PUBLICIZE_STORE ).getAttachedMedia(),
 		currentOptions: select( PUBLICIZE_STORE ).getJetpackSocialOptions(),
 	} ) );
