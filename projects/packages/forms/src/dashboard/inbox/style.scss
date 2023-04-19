@@ -478,6 +478,15 @@ $action-bar-height: 88px;
 	text-overflow: ellipsis;
 	width: 80%;
 	max-width: 0;
+
+	.is-link {
+		text-decoration: none;
+		color: inherit;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
 }
 
 .jp-forms__inbox-response-separator {

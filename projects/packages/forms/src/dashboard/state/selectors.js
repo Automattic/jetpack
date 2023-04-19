@@ -11,6 +11,7 @@ export const getResponses = state =>
 	map( state.responses, response => {
 		return {
 			...response,
+			rawDate: response.date,
 			date: dateI18n( 'M j, Y', response.date ),
 			source: response.entry_title || getPath( response ),
 			name: response.author_name || response.author_email || response.author_url || response.ip,

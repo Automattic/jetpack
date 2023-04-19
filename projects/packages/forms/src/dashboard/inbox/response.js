@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Button } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -63,8 +64,8 @@ const InboxResponse = ( { loading, response } ) => {
 						{ sprintf(
 							/* Translators: %1$s is the date, %2$s is the time. */
 							__( '%1$s at %2$s', 'jetpack-forms' ),
-							dateI18n( getDateSettings().formats.date, response.date ),
-							dateI18n( getDateSettings().formats.time, response.date )
+							dateI18n( getDateSettings().formats.date, response.rawDate ),
+							dateI18n( getDateSettings().formats.time, response.rawDate )
 						) }
 					</span>
 				</div>
@@ -72,7 +73,11 @@ const InboxResponse = ( { loading, response } ) => {
 					<span className="jp-forms__inbox-response-meta-key">
 						{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
 					</span>
-					<span className="jp-forms__inbox-response-meta-value">{ response.entry_permalink }</span>
+					<span className="jp-forms__inbox-response-meta-value">
+						<Button variant="link" href={ response.entry_permalink }>
+							{ response.entry_permalink }
+						</Button>
+					</span>
 				</div>
 				<div className="jp-forms__inbox-response-meta-label">
 					<span className="jp-forms__inbox-response-meta-key	">
