@@ -34,7 +34,7 @@ class Jetpack_Forms {
 			add_action( 'current_screen', '\Automattic\Jetpack\Forms\ContactForm\Editor_View::add_hooks' );
 		}
 
-		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Util::register_pattern' );
+		add_action( 'init', array( __CLASS__, 'init' ) );
 
 		add_action( 'rest_api_init', array( new WPCOM_REST_API_V2_Endpoint_Forms(), 'register_rest_routes' ) );
 	}
@@ -61,5 +61,15 @@ class Jetpack_Forms {
 		 * @param bool false Should the new Jetpack Forms dashboard be enabled? Default to false.
 		 */
 		return apply_filters( 'jetpack_forms_dashboard_enable', false );
+	}
+
+	/**
+	 * Initialization, calls for register pattern and loads any extra file/libs.
+	 */
+	public static function init() {
+		Util::register_pattern();
+
+		// Load any extra file/libs so they are available on the namespace for use (Forms\Post_To_URL_Hook::initialize)
+		require_once __DIR__ . '/class-post-to-url-hook.php';
 	}
 }
