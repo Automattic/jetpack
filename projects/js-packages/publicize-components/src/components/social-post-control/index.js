@@ -1,4 +1,4 @@
-import { Text, ThemeProvider } from '@automattic/jetpack-components';
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { CheckboxControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -27,13 +27,11 @@ export default function SocialPostControl() {
 					checked={ shouldUploadAttachedMedia }
 					onChange={ onCheckboxChange }
 					label={ __( 'Share as a social post', 'jetpack' ) }
-				/>
-				<Text variant="small" className={ styles.description }>
-					{ __(
+					help={ __(
 						'By default, the image and text appear on social media as a link preview. To optimize engagement, share as a social post.',
 						'jetpack'
 					) }
-				</Text>
+				/>
 			</div>
 		</ThemeProvider>
 	);
