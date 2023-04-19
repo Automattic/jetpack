@@ -196,7 +196,7 @@ class Jetpack_Stats_Dashboard_Widget {
 						)
 					);
 					?>
-								" class="button button-primary" title="<?php esc_attr_e( 'Protect helps to keep you secure from brute-force login attacks.', 'jetpack' ); ?>">
+								" class="button button-primary" title="<?php esc_attr_e( 'Jetpack helps to keep you secure from brute-force login attacks.', 'jetpack' ); ?>">
 						<?php esc_html_e( 'Activate', 'jetpack' ); ?>
 					</a>
 				<?php else : ?>
