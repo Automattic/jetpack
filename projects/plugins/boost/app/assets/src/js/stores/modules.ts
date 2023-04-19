@@ -1,7 +1,6 @@
-import { SyncedStoreCallback } from '@automattic/jetpack-svelte-data-sync-client/build/types';
-import { get } from 'svelte/store';
 import { z } from 'zod';
 import { client } from './data-sync-client';
+import type { SyncedStoreCallback } from '@automattic/jetpack-svelte-data-sync-client';
 
 export type Optimizations = {
 	[ slug: string ]: boolean;
@@ -26,7 +25,11 @@ function createModulesSyncAction() {
 	// Keep track of the pending values
 	const pendingValues = new Map< string, ModulesState[ string ] >();
 
-	const action: SyncedStoreCallback< ModulesState > = async ( prevValue, newValue, abortSignal ) => {
+	const action: SyncedStoreCallback< ModulesState > = async (
+		prevValue,
+		newValue,
+		abortSignal
+	) => {
 		// Extract the keys that have changed
 		const changedKeys = Object.keys( newValue ).filter(
 			key => prevValue[ key ].active !== newValue[ key ].active
