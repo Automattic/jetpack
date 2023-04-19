@@ -12,6 +12,9 @@
 		"automattic/jetpack-status": "@dev",
 		"automattic/wordbless": "@dev"
 	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+	},
 	"autoload": {
 		"classmap": [
 			"src/"

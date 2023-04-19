@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Publicize\Social_Image_Generator;
 
+use Automattic\Jetpack\Modules;
+
 /**
  * This class is used to get and update SIG-specific global settings.
  */
@@ -62,12 +64,41 @@ class Settings {
 	}
 
 	/**
+	 * Check if SIG is available.
+	 *
+	 * @return bool True if SIG is available, false otherwise.
+	 */
+	public function is_available() {
+		global $publicize;
+
+		if ( ! $publicize ) {
+			return false;
+		}
+
+		return $publicize->has_social_image_generator_feature();
+	}
+
+	/**
 	 * Check if SIG is enabled.
 	 *
 	 * @return bool True if SIG is enabled, false otherwise.
 	 */
 	public function is_enabled() {
-		return ! empty( $this->settings['enabled'] );
+		// If the feature isn't available it should never be enabled.
+		if ( ! $this->is_available() ) {
+			return false;
+		}
+
+		// SIG cannot be enabled without Publicize.
+		if ( ! ( new Modules() )->is_active( 'publicize' ) ) {
+			return false;
+		}
+
+		if ( isset( $this->settings['enabled'] ) ) {
+			return $this->settings['enabled'];
+		}
+
+		return true;
 	}
 
 	/**

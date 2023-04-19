@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed errors on GET requests

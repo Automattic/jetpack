@@ -216,6 +216,35 @@
 						<td colspan="2"><hr /></td>
 					</tr>
 
+					<?php
+
+					// Transaction Status
+					$potential_statuses = zeroBSCRM_getTransactionsStatuses( true );
+					$current_status     = '';
+				if ( is_array( $transaction ) && isset( $transaction['status'] ) ) {
+						$current_status = $transaction['status'];
+				}
+				?>
+					<tr class="wh-large">
+						<th><label for="zbst_status"><?php echo esc_html( __( 'Transaction Status:', 'zero-bs-crm' ) ); ?></label>
+						</th>
+						<td>
+						<select id="zbst_status" name="zbst_status">
+							<?php
+						foreach ( $potential_statuses as $status ) {
+							$sel = $status === $current_status ? ' selected' : '';
+							echo '<option value="' .
+							esc_attr( $status ) .
+							'"' .
+							esc_attr( $sel ) .
+							'>' .
+							esc_html( $status ) .
+							'</option>';
+						}
+						?>
+						</select>
+					</tr>
+
 					<tr class="wh-large">
 						<th><label for="title"><?php echo esc_html( __( 'Transaction Name:', 'zero-bs-crm' ) ); ?></label>
 							<span class="zbs-infobox" style="margin-top:3px"><?php echo esc_html( __( 'If possible, keep these the same if you routinely use common products here (they are used in the transaction index)', 'zero-bs-crm' ) );?></span>
@@ -671,26 +700,6 @@ class zeroBS__Metabox_TransactionTags extends zeroBS__Metabox_Tags{
 
             // localise ID & content
             $transactionID = -1; if (is_array($transaction) && isset($transaction['id'])) $transactionID = (int)$transaction['id'];
-            
-            	#} Status either way
-                $potentialStatuses = zeroBSCRM_getTransactionsStatuses(true);
-
-            	$status = ''; if (is_array($transaction) && isset($transaction['status'])) $status = $transaction['status'];
-
-                ?>
-                <div>
-                    <label for="zbst_status"><?php echo esc_html( __( 'Status', 'zero-bs-crm' ) ); ?>: </label>
-                    <select id="zbst_status" name="zbst_status">
-                            <?php foreach($potentialStatuses as $z){
-                                if($z == $status){$sel = ' selected'; }else{ $sel = '';}
-                                echo '<option value="'.esc_attr( $z ).'"'. esc_attr( $sel ) .'>'.esc_html__($z,"zero-bs-crm").'</option>';
-                            } ?>
-                    </select>
-                </div>
-
-                <div class="clear"></div>
-                <?php
-
 
                 #} if a saved post...
                 //if (isset($post->post_status) && $post->post_status != "auto-draft"){

@@ -3,22 +3,79 @@
  */
 import {
 	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalNumberControl as NumberControl,
+	__experimentalNumberControl,
+	TextControl,
 	RangeControl,
 	BaseControl,
-	useBaseControlProps,
+	useBaseControlProps as originalUseBaseControlProps,
 } from '@wordpress/components';
-import { useCallback, useRef } from '@wordpress/element';
+import { useInstanceId } from '@wordpress/compose';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import classNames from 'classnames';
 /**
  * Internal dependencies
  */
+import { formatTime } from '../../utils/time';
 import styles from './style.module.scss';
 /**
  * Types
  */
 import { TimestampInputProps, TimestampControlProps, DecimalPlacesProp } from './types';
 import type React from 'react';
+
+/**
+ * Fallback implementation of useBaseControlProps.
+ *
+ * @param {object} props - The component props.
+ * @returns {object}     - The computed control props.
+ */
+function useBaseControlPropsFallback( props: Record< string, unknown > ): {
+	baseControlProps: Record< string, unknown >;
+	controlProps: Record< string, unknown >;
+} {
+	const { help, id: preferredId, ...restProps } = props;
+
+	const uniqueId = useInstanceId(
+		BaseControl,
+		'wp-components-base-control',
+		preferredId as string
+	);
+
+	// ARIA descriptions can only contain plain text, so fall back to aria-details if not.
+	const helpPropName = typeof help === 'string' ? 'aria-describedby' : 'aria-details';
+
+	return {
+		baseControlProps: {
+			id: uniqueId,
+			help,
+			...restProps,
+		},
+		controlProps: {
+			id: uniqueId,
+			...( help ? { [ helpPropName ]: `${ uniqueId }__help` } : {} ),
+		},
+	};
+}
+
+const useBaseControlProps = originalUseBaseControlProps || useBaseControlPropsFallback;
+
+// Fallback for the experimental NumberControl component.
+const NumberControl = props => {
+	if ( __experimentalNumberControl ) {
+		return <__experimentalNumberControl { ...props } />;
+	}
+
+	const textControlProps = { ...props };
+	[
+		'spinControls',
+		'isPressEnterToChange',
+		'isDragEnabled',
+		'isShiftStepEnabled',
+		'__unstableStateReducer',
+	].forEach( key => delete textControlProps[ key ] );
+
+	return <TextControl { ...textControlProps } />;
+};
 
 const TimeDivider = ( { char = ':' } ): React.ReactElement => {
 	return <span className={ styles[ 'timestamp-control-divider' ] }>{ char }</span>;
@@ -58,9 +115,18 @@ type TimeDataProps = {
  *
  * @param {number} value                    - The value to be converted.
  * @param {DecimalPlacesProp} decimalPlaces - The number of decimal places to be used.
+ * @param {number} max                      - The maximum value.
  * @returns {TimeDataProps}                   The time data.
  */
-function getTimeDataByValue( value: number, decimalPlaces: DecimalPlacesProp ): TimeDataProps {
+function getTimeDataByValue(
+	value: number,
+	decimalPlaces: DecimalPlacesProp,
+	max: number
+): TimeDataProps {
+	if ( value > max ) {
+		value = max;
+	}
+
 	const valueIsNaN = Number.isNaN( value );
 
 	// Compute decimal part based on the decimalPlaces.
@@ -86,7 +152,7 @@ export const TimestampInput = ( {
 	decimalPlaces,
 }: TimestampInputProps ): React.ReactElement => {
 	const time = {
-		value: getTimeDataByValue( value, decimalPlaces ),
+		value: getTimeDataByValue( value, decimalPlaces, max ),
 	};
 
 	// Check whether it should add hours input.
@@ -113,7 +179,7 @@ export const TimestampInput = ( {
 		}
 
 		// Update time object data.
-		time.value = { ...getTimeDataByValue( value, decimalPlaces ), [ unit ]: newValue };
+		time.value = { ...getTimeDataByValue( value, decimalPlaces, max ), [ unit ]: newValue };
 
 		// Call onChange callback.
 		const decimalValue = time.value.decimal
@@ -227,7 +293,8 @@ export const TimestampInput = ( {
 export const TimestampControl = ( props: TimestampControlProps ): React.ReactElement => {
 	const {
 		disabled = false,
-		max,
+		min = 0,
+		max = Number.MAX_SAFE_INTEGER,
 		value,
 		onChange,
 		onDebounceChange,
@@ -235,45 +302,77 @@ export const TimestampControl = ( props: TimestampControlProps ): React.ReactEle
 		fineAdjustment = 50,
 		autoHideTimeInput = true,
 		decimalPlaces,
+		marksEvery,
+		renderTooltip,
 	} = props;
 
 	const debounceTimer = useRef< NodeJS.Timeout >();
+	const [ controledValue, setControledValue ] = useState( value );
 
+	useEffect( () => {
+		setControledValue( value );
+	}, [ value ] );
+
+	// Check and add a fallback for the `useBaseControlProps` hook.
 	const { baseControlProps } = useBaseControlProps?.( props ) || {};
 
 	const onChangeHandler = useCallback(
 		( newValue: number ) => {
 			clearTimeout( debounceTimer?.current );
 
+			if ( newValue > max ) {
+				newValue = max;
+			}
+
+			if ( newValue < min ) {
+				newValue = min;
+			}
+
+			setControledValue( newValue );
 			onChange?.( newValue );
 			debounceTimer.current = setTimeout( onDebounceChange?.bind( null, newValue ), wait );
 		},
-		[ onChange ]
+		[ onDebounceChange, onChange, max, min, wait ]
 	);
+
+	const marks: Array< { value: number; label: string } > = [];
+	if ( marksEvery ) {
+		for ( let i = min; i <= max; i += marksEvery ) {
+			marks.push( { value: i, label: null } );
+		}
+	}
+
+	// Provides a default function to render the tooltip content.
+	const renderTooltipHandler =
+		typeof renderTooltip === 'function' ? renderTooltip : ( time: number ) => formatTime( time );
 
 	return (
 		<BaseControl { ...baseControlProps }>
 			<div className={ styles[ 'timestamp-control__controls-wrapper' ] }>
-				<TimestampInput
-					disabled={ disabled }
-					max={ max }
-					value={ value }
-					onChange={ onChangeHandler }
-					autoHideTimeInput={ autoHideTimeInput }
-					decimalPlaces={ decimalPlaces }
-				/>
+				{ NumberControl && (
+					<TimestampInput
+						disabled={ disabled }
+						max={ max }
+						value={ controledValue }
+						onChange={ onChangeHandler }
+						autoHideTimeInput={ autoHideTimeInput }
+						decimalPlaces={ decimalPlaces }
+					/>
+				) }
 
 				<RangeControl
 					disabled={ disabled }
 					className={ styles[ 'timestamp-range-control' ] }
-					min={ 0 }
+					min={ min }
 					step={ fineAdjustment }
-					initialPosition={ value }
-					value={ value }
+					initialPosition={ controledValue }
+					value={ controledValue }
 					max={ max }
-					showTooltip={ false }
 					withInputField={ false }
 					onChange={ onChangeHandler }
+					marks={ marksEvery ? marks : undefined }
+					renderTooltipContent={ renderTooltipHandler }
+					{ ...( renderTooltip === false ? { showTooltip: false } : {} ) }
 				/>
 			</div>
 		</BaseControl>

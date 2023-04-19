@@ -49,6 +49,7 @@
 		"videopress/video"
 	],
 	"beta": [
+		"ai-chat",
 		"amazon",
 		"conversation",
 		"dialogue",
@@ -56,6 +57,7 @@
 		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
 		"recipe",
+		"v6-video-frame-poster",
 		"videopress/video-chapters"
 	],
 	"experimental": [ "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],

@@ -14,6 +14,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
@@ -94,6 +95,8 @@ class Jetpack_Social {
 		// Activate the module as the plugin is activated
 		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
 		add_action( 'activated_plugin', array( $this, 'redirect_after_activation' ) );
+
+		add_action( 'jetpack_heartbeat', array( $this, 'refresh_plan_data' ) );
 
 		add_action(
 			'plugins_loaded',
@@ -184,6 +187,13 @@ class Jetpack_Social {
 	}
 
 	/**
+	 * Refresh plan data.
+	 */
+	public function refresh_plan_data() {
+		Current_Plan::refresh_from_wpcom();
+	}
+
+	/**
 	 * Get the shares data, but cache it so we don't call the API
 	 * more than once per request.
 	 *
@@ -208,6 +218,7 @@ class Jetpack_Social {
 
 		$state = array(
 			'siteData' => array(
+				'adminUrl'          => esc_url( admin_url() ),
 				'apiRoot'           => esc_url_raw( rest_url() ),
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
@@ -217,19 +228,26 @@ class Jetpack_Social {
 		);
 
 		if ( $this->is_connected() ) {
+			$sig_settings = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
+
 			$state = array_merge(
 				$state,
 				array(
-					'jetpackSettings' => array(
+					'jetpackSettings'              => array(
 						'publicize_active'  => self::is_publicize_active(),
 						'show_pricing_page' => self::should_show_pricing_page(),
 						'showNudge'         => ! $publicize->has_paid_plan( true ),
 					),
-					'connectionData'  => array(
+					'connectionData'               => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 						'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 					),
-					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'sharesData'                   => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'socialImageGeneratorSettings' => array(
+						'available'       => $sig_settings->is_available(),
+						'enabled'         => $sig_settings->is_enabled(),
+						'defaultTemplate' => $sig_settings->get_default_template(),
+					),
 				)
 			);
 		}
@@ -307,7 +325,7 @@ class Jetpack_Social {
 					),
 					'hasPaidPlan'                   => $publicize->has_paid_plan(),
 					'isEnhancedPublishingEnabled'   => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
-					'isSocialImageGeneratorEnabled' => $publicize->is_social_image_generator_enabled( Jetpack_Options::get_option( 'id' ) ),
+					'isSocialImageGeneratorEnabled' => ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->is_enabled(),
 				),
 			)
 		);

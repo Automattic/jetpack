@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.47.7] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.47.6] - 2023-04-04
+### Changed
+- Sync: Lowered priority to sync so that the hook is run at the end. [#29804]
+
+## [1.47.5] - 2023-04-03
+### Changed
+- Minor internal updates.
+
+## [1.47.4] - 2023-03-28
+### Changed
+- Move brute force protection into WAF package. [#28401]
+
 ## [1.47.3] - 2023-03-20
 ### Changed
 - Updated package dependencies. [#29480]
@@ -822,6 +838,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Move sync to a classmapped package
 
+[1.47.7]: https://github.com/Automattic/jetpack-sync/compare/v1.47.6...v1.47.7
+[1.47.6]: https://github.com/Automattic/jetpack-sync/compare/v1.47.5...v1.47.6
+[1.47.5]: https://github.com/Automattic/jetpack-sync/compare/v1.47.4...v1.47.5
+[1.47.4]: https://github.com/Automattic/jetpack-sync/compare/v1.47.3...v1.47.4
 [1.47.3]: https://github.com/Automattic/jetpack-sync/compare/v1.47.2...v1.47.3
 [1.47.2]: https://github.com/Automattic/jetpack-sync/compare/v1.47.1...v1.47.2
 [1.47.1]: https://github.com/Automattic/jetpack-sync/compare/v1.47.0...v1.47.1

@@ -205,6 +205,29 @@
 
 }
 
+/* Position modal in middle of page */
+#jpcrm-first-use-dash {
+  position: static !important;
+ 	height: 95%;
+	margin: auto auto !important;
+	overflow-x: hidden;
+}
+
+/* Fix an apparent bug in Semantic UI CSS, which had the width larger than the screen min-width */
+@media only screen and (min-width: 768px) and (max-width: 1199px) {
+	#jpcrm-first-use-dash.ui.large.modal {
+		height: 720px;
+		width: 95%;
+		max-width: 1080px !important;
+	}
+}
+
+@media only screen and (min-width: 1200px) {
+	#jpcrm-first-use-dash.ui.large.modal {
+		height: 700px;
+	}
+}
+
 
 
 // Woo variant of first use dashboard:
@@ -213,7 +236,7 @@
   // bigger button needs more space
   .jpcrm-modal-cta-group {
 
-    padding-left: 70px;
+    padding-left: 50px;
     padding-right: 40px;
 
   }
@@ -231,7 +254,7 @@
   // bigger button needs even more space
   #jpcrm-first-use-dash.woovariant .jpcrm-modal-cta-group {
 
-      padding-left: 50px;
+      padding-left: 40px;
       padding-right: 30px;
 
   }

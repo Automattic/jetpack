@@ -2,6 +2,10 @@
 	display: flex;
 	flex-direction: row;
 
+	@media (max-width: 600px) {
+		flex: 1;
+	}
+
 	.input-wrapper {
 		min-height: var( --jp-forms-input-wrapper-height );
 		padding: var( --jp-forms-spacing-base );
@@ -15,6 +19,14 @@
 		height: var( --jp-forms-input-wrapper-height );
 		width: 350px;
 
+		@media (min-width: 783px) and (max-width: 960px) {
+			width: 300px;
+		}
+
+		@media (max-width: 600px) {
+			width: 100%;
+		}
+
 		&:focus-within {
 			box-shadow: 0 0 0 1px var( --jp-black ) inset;
 		}
@@ -26,7 +38,7 @@
 		}
 
 		.input {
-			font-size: unset;
+			font-size: var(--jp-forms-font-size-regular);
 			font-family: unset;
 			width: 100%;
 			border: 0;
