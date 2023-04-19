@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix content overflowing in contact view page.

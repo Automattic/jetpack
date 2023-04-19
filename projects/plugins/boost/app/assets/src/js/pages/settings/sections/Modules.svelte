@@ -16,7 +16,6 @@
 	} from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
 	import { minifyJsExcludesStore, minifyCssExcludesStore } from '../../../stores/minify';
-	import { isModuleAvailableStore } from '../../../stores/modules';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
@@ -35,7 +34,6 @@
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
 
-	$: cloudCssAvailable = isModuleAvailableStore( 'cloud_css' );
 	const suggestRegenerate = suggestRegenerateDS.store;
 
 	async function resume() {
@@ -100,9 +98,7 @@
 		</div>
 
 		<div slot="cta">
-			{#if ! $cloudCssAvailable}
-				<PremiumCTA />
-			{/if}
+			<PremiumCTA />
 		</div>
 	</Module>
 

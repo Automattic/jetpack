@@ -18,8 +18,13 @@ $action-bar-height: 88px;
 
 	.components-dropdown-menu {
 		.components-menu-item__button {
-			font-size: 1rem;
+			font-size: var(--jp-forms-font-size-regular);
 		}
+	}
+
+	span.subtitle {
+		padding-left: 0;
+		white-space: pre;
 	}
 
 	@media (min-width: 1025px) {
@@ -30,10 +35,16 @@ $action-bar-height: 88px;
 		span.title {
 			display: inline-flex !important;
 		}
+
+		span.subtitle {
+			display: inline-flex !important;
+			flex-wrap: wrap;
+		}
 	}
 
 	&.is-response-view {
-		span.title {
+		span.title,
+		span.subtitle {
 			display: none;
 		}
 
@@ -72,7 +83,7 @@ $action-bar-height: 88px;
 
 .jp-forms__inbox-tab-item {
 	border-bottom: 2px solid transparent;
-	font-size: 1rem;
+	font-size: var(--jp-forms-font-size-regular);
 	font-weight: normal;
 	height: $tab-item-height;
 	padding: 8px 16px;
@@ -246,8 +257,8 @@ $action-bar-height: 88px;
 	}
 
 	.jp-forms__table-cell.is-actions {
-		max-width: 64px;
-		min-width: 64px;
+		max-width: 68px;
+		min-width: 68px;
 
 		.components-dropdown-menu__toggle {
 			color: currentColor;
@@ -408,6 +419,18 @@ $action-bar-height: 88px;
 .jp-forms__inbox-response-meta-key,
 .jp-forms__inbox-response-meta-value {
 	display: table-cell;
+	white-space: nowrap;
+}
+
+.jp-forms__inbox-response-meta-key {
+	padding-right: 8px;
+}
+
+.jp-forms__inbox-response-meta-value {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 80%;
+	max-width: 0;
 }
 
 .jp-forms__inbox-response-separator {
@@ -417,7 +440,7 @@ $action-bar-height: 88px;
 
 .jp-forms__inbox-response-data {
 	display: flex;
-	font-size: 16px;
+	font-size: var(--jp-forms-font-size-regular);
 	flex-direction: column;
 	line-height: 24px;
 	padding: 24px 32px;
@@ -469,7 +492,7 @@ $action-bar-height: 88px;
 		border-radius: var( --jp-forms-border-radius );
 		height: var( --jp-forms-input-wrapper-height );
 		letter-spacing: -0.02em;
-		font-size: 1rem;
+		font-size: var(--jp-forms-font-size-regular);
 		font-weight: 400;
 		padding: var( --jp-forms-spacing-base ) calc( var( --jp-forms-spacing-base ) * 1.5 );
 
@@ -486,10 +509,13 @@ $action-bar-height: 88px;
 		}
 	}
 
+	.jp-forms__check-for-spam svg {
+		margin: 0 10px 0 0;
+	}
+
 	.button-primary.export-button {
-		background-color: #000;
-		border-color: #000;
-		color: #fff;
+		background-color: var( --wp-admin-theme-color, #000 );
+		border-color: var( --wp-admin-theme-color, #000 );
 		margin-left: auto;
 
 		@media (max-width: 782px) {

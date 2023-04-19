@@ -42,8 +42,13 @@ class WC_Services_Installer {
 	 */
 	public function __construct() {
 		add_action( 'jetpack_loaded', array( $this, 'on_jetpack_loaded' ) );
-		add_action( 'admin_init', array( $this, 'add_error_notice' ) );
-		add_action( 'admin_init', array( $this, 'try_install' ) );
+		if ( ! empty( $_GET['wc-services-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			add_action( 'admin_notices', array( $this, 'error_notice' ) );
+		}
+
+		if ( isset( $_GET['wc-services-action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			add_action( 'admin_init', array( $this, 'try_install' ) );
+		}
 	}
 
 	/**
@@ -100,15 +105,6 @@ class WC_Services_Installer {
 		wp_safe_redirect( $redirect );
 
 		exit;
-	}
-
-	/**
-	 * Set up installation error admin notice.
-	 */
-	public function add_error_notice() {
-		if ( ! empty( $_GET['wc-services-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			add_action( 'admin_notices', array( $this, 'error_notice' ) );
-		}
 	}
 
 	/**

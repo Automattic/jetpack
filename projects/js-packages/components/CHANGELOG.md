@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.31.5 - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+### Fixed
+- Set Term of service links whitespace to no wrap. [#29683]
+
 ## 0.31.4 - 2023-04-04
 ### Changed
 - Updated package dependencies. [#29854]

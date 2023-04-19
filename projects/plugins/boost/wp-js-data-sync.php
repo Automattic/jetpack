@@ -136,7 +136,7 @@ $modules_state_schema = Schema::as_array(
 	)
 )->fallback( array() );
 
-$entry = new Modules_Status_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE, 'modules_state' );
+$entry = new Modules_State_Entry();
 jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
 
 /**

@@ -21,7 +21,7 @@
 	}
 
 	$: currencyObjectAfter = getCurrencyObject(
-		$config.pricing.yearly.priceAfter,
+		$config.pricing.yearly.priceAfter / 12,
 		$config.pricing.yearly.currencyCode
 	);
 </script>
@@ -33,7 +33,7 @@
 			{sprintf(
 				/* translators: %s is the price including the currency symbol in front. */
 				__( `Upgrade now only %s`, 'jetpack-boost' ),
-				currencyObjectAfter.symbol + currencyObjectAfter.integer / 12
+				currencyObjectAfter.symbol + currencyObjectAfter.integer + currencyObjectAfter.fraction
 			)}
 		</p>
 	</div>

@@ -223,7 +223,7 @@ function jpcrm_export_process_file_export() {
 				(
 					( is_array( $objIDArr ) && count( $objIDArr ) > 0 )
 						|| $extraParams['all']
-						|| $extraParams['segment']
+						|| ( isset( $extraParams['segment'] ) && is_array( $extraParams['segment'] ) ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					)
 			) {
 
@@ -297,7 +297,7 @@ function jpcrm_export_process_file_export() {
 
 					$availObjs = $objDALLayer->getAll( $objIDArr );
 
-				} elseif ( $extraParams['segment'] ) {
+				} elseif ( isset( $extraParams['segment'] ) && is_array( $extraParams['segment'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 					// Retrieve segment.
 					$availObjs = $zbs->DAL->segments->getSegmentAudience(
