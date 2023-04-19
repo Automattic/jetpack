@@ -68,7 +68,6 @@ export default withSelect( select => {
 	const featuredImageId = getEditedPostAttribute( 'featured_media' );
 	const authorId = getEditedPostAttribute( 'author' );
 	const user = authorId && getUser( authorId );
-
 	const media = getMedia( featuredImageId );
 
 	const postData = {
@@ -80,6 +79,8 @@ export default withSelect( select => {
 			getEditedPostAttribute( 'excerpt' ) ||
 			getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
 			__( 'Visit the post for more.', 'jetpack' ),
+		excerpt: getEditedPostAttribute( 'excerpt' ),
+		content: getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ],
 		url: getEditedPostAttribute( 'link' ),
 		author: user?.name,
 		image: ( !! featuredImageId && getMediaSourceUrl( media ) ) || '',
