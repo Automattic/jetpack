@@ -66,7 +66,11 @@ function previewOnHoverEffect(): void {
 		const iframeApi = window.VideoPressIframeApi( iFrame, () => {
 			iframeApi.status.onPlayerStatusChanged( ( oldStatus, newStatus ) => {
 				if ( oldStatus === 'ready' && newStatus === 'playing' ) {
-					iframeApi.controls.pause();
+					// Do not pause if autoplay is enabled.
+					if ( ! previewOnHoverData.autoplay ) {
+						iframeApi.controls.pause();
+					}
+
 					iframeApi.controls.seek( previewOnHoverData.previewAtTime );
 				}
 			} );

@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-
-Importer: Allow import of application/csv mime type
-Importer: Better parsing of CSV fields
