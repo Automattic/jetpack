@@ -2,35 +2,30 @@
 	/// Override the @wordpress/components ToggleControl component.
 	/// @link https://github.com/WordPress/gutenberg/tree/trunk/packages/components/src/form-toggle
 	:global {
-		.components-base-control__field {
+		.components-form-toggle {
 			--wp-admin-theme-color: var( --jp-green-40 );
-			margin-bottom: 0;
 
-			.components-form-toggle {
-				margin-right: 0;
+			&__input:focus + .components-form-toggle__track {
+				box-shadow: 0 0 0 2px var( --jp-white ), 0 0 0 4px var( --jp-green-50 );
 			}
-		}
 
-		.components-form-toggle__input:focus + .components-form-toggle__track {
-			box-shadow: 0 0 0 2px var( --jp-white ), 0 0 0 4px var( --jp-green-50 );
-		}
+			.components-form-toggle__track {
+				width: 48px;
+				height: 24px;
+				border-radius: 12px;
+				border-width: 2px;
+			}
 
-		.components-form-toggle__track {
-			width: 48px;
-			height: 24px;
-			border-radius: 12px;
-			border-width: 2px;
-		}
+			.components-form-toggle__thumb {
+				width: 16px;
+				height: 16px;
+				top: 4px;
+				left: 4px;
+			}
 
-		.components-form-toggle__thumb {
-			width: 16px;
-			height: 16px;
-			top: 4px;
-			left: 4px;
-		}
-
-		.components-form-toggle.is-checked .components-form-toggle__thumb {
-			transform: translateX( 24px );
+			&.is-checked .components-form-toggle__thumb {
+				transform: translateX( 24px );
+			}
 		}
 	}
 }
