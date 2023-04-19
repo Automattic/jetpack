@@ -254,6 +254,11 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 	return "$url?m={$mtime}{$q}";
 }
 
+/**
+ * Initializes the cache service for minification in Jetpack Boost.
+ *
+ * @return void
+ */
 function jetpack_boost_minify_init_cache_service() {
 	// TODO: Make concat URL dir configurable
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -263,7 +268,12 @@ function jetpack_boost_minify_init_cache_service() {
 		exit;
 	}
 }
-
+/**
+ * Handles cache service initialization, scheduling of cache cleanup,
+ * and disabling of Jetpack photon-cdn for static JS/CSS.
+ *
+ * @return void
+ */
 function jetpack_boost_minify_setup() {
 	static $already_done = false;
 	if ( $already_done ) {
@@ -288,6 +298,6 @@ function jetpack_boost_minify_setup() {
 	add_filter( 'pre_option_page_optimize-css', '__return_empty_string', 0 );
 	add_filter( 'pre_option_page_optimize-load-mode', '__return_empty_string', 0 );
 
-	// Disable Jetpack photon-cdn for static JS/CSS
+	// Disable Jetpack photon-cdn for static JS/CSS.
 	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
 }
