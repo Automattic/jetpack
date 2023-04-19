@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Plumbed in the WPcom API links to the beta ai-chat block so it can be can be tested against a real blog.
