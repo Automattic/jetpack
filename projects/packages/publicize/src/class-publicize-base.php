@@ -1696,17 +1696,12 @@ abstract class Publicize_Base {
 	/**
 	 * Check if enhanced publishing is enabled.
 	 *
+	 * @deprecated $$next-version use Automattic\Jetpack\Publicize\Publicize_Base\has_enhanced_publishing_feature instead.
 	 * @param int $blog_id The blog ID for the current blog.
 	 * @return bool
 	 */
-	public function is_enhanced_publishing_enabled( $blog_id ) {
-		$data = $this->get_api_data( $blog_id );
-
-		if ( empty( $data ) ) {
-			return false;
-		}
-
-		return ! empty( $data['is_enhanced_publishing_enabled'] );
+	public function is_enhanced_publishing_enabled( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return $this->has_enhanced_publishing_feature();
 	}
 
 	/**
