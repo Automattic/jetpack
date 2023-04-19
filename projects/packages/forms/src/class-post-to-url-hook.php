@@ -130,6 +130,8 @@ class Post_To_Url_Hook {
 	 * @param array $options Options for POST.
 	 *
 	 * @return array|WP_Error The result value from wp_remote_post
+	 *
+	 * TODO: do complex fields (MC, etc) need to be handled differently? JSON should be fine, but URLencoded might need to be serialized.
 	 */
 	public static function post_to_url( $data, $options = array() ) {
 		global $wp_version;
