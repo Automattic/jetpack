@@ -3,6 +3,7 @@
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Css as Minify_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Js as Minify_JS;
@@ -142,6 +143,7 @@ jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
 /**
  * Register Minify Excludes stores.
  */
-// @todo - add validations for these options.
-jetpack_boost_register_option( 'minify_js_excludes', Schema::as_string()->fallback( implode( ',', Minify_JS::$default_excludes ) ) );
-jetpack_boost_register_option( 'minify_css_excludes', Schema::as_string()->fallback( implode( ',', Minify_CSS::$default_excludes ) ) );
+$js_excludes_entry  = new Minify_Excludes_State_Entry( 'minify_js_excludes' );
+$css_excludes_entry = new Minify_Excludes_State_Entry( 'minify_css_excludes' );
+jetpack_boost_register_option( 'minify_js_excludes', Schema::as_string()->fallback( implode( ',', Minify_JS::$default_excludes ) ), $js_excludes_entry );
+jetpack_boost_register_option( 'minify_css_excludes', Schema::as_string()->fallback( implode( ',', Minify_CSS::$default_excludes ) ), $css_excludes_entry );
