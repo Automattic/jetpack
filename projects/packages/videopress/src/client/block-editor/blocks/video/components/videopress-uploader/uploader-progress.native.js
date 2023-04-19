@@ -4,7 +4,9 @@
 import { MediaUploadProgress, VIDEO_ASPECT_RATIO } from '@wordpress/block-editor';
 import { Icon } from '@wordpress/components';
 import { usePreferredColorSchemeStyle } from '@wordpress/compose';
-import { useCallback, useState, Platform } from '@wordpress/element';
+import { store as coreStore } from '@wordpress/core-data';
+import { useSelect } from '@wordpress/data';
+import { useCallback, useEffect, useState, Platform } from '@wordpress/element';
 import {
 	requestImageFailedRetryDialog,
 	requestImageUploadCancelDialog,
@@ -43,6 +45,30 @@ const UploaderProgress = ( { file, onDone, onReset, isInteractionDisabled } ) =>
 	);
 
 	const [ isUploadFailed, setIsUploadFailed ] = useState( false );
+	const [ isFetchingGUID, setIsFetchingGUID ] = useState( false );
+	const [ mediaServerID, setMediaServerID ] = useState();
+
+	// In case the GUID is empty, we fetch it manually via `media` endpoint.
+	const { media } = useSelect(
+		select => ( {
+			media:
+				! isFetchingGUID || typeof mediaServerID === 'undefined'
+					? undefined
+					: select( coreStore ).getMedia( mediaServerID ),
+		} ),
+		[ isFetchingGUID, mediaServerID ]
+	);
+	useEffect( () => {
+		if ( isFetchingGUID && media ) {
+			const { jetpack_videopress_guid: videopressGUID } = media;
+			setIsFetchingGUID( false );
+			setMediaServerID( undefined );
+			onDone( {
+				id: mediaServerID,
+				guid: videopressGUID,
+			} );
+		}
+	}, [ isFetchingGUID, mediaServerID, media ] );
 
 	const onPress = useCallback( () => {
 		if ( isUploadFailed ) {
@@ -64,6 +90,16 @@ const UploaderProgress = ( { file, onDone, onReset, isInteractionDisabled } ) =>
 				android: metadata?.videopressGUID,
 				ios: metadata?.id,
 			} );
+
+			// In most cases the VideoPress GUID will be returned upon upload finish.
+			// However, since the video is asynchronously added to VideoPress, there's
+			// a chance that GUID could be empty. For this case, we'll fetch it manually.
+			if ( ! guid ) {
+				setMediaServerID( mediaServerId );
+				setIsFetchingGUID( true );
+				return;
+			}
+
 			onDone( { id: mediaServerId, guid } );
 		},
 		[ onDone ]
