@@ -16,7 +16,12 @@ export default {
 	component: ProductCard,
 	parameters: {
 		layout: 'centered',
-		actions: { argTypesRegex: '^on.*' },
+		actions: {
+			argTypesRegex: '^on.*',
+		},
+		controls: {
+			exclude: '^on.*',
+		},
 		backgrounds: {
 			default: 'light',
 			values: [ { name: 'light', value: 'var(--jp-white-off)' } ],
@@ -35,6 +40,43 @@ export default {
 				disable: true,
 			},
 		},
+		menuItems: {
+			table: {
+				disable: true,
+			},
+		},
+		children: {
+			table: {
+				disable: true,
+			},
+		},
+		slug: {
+			control: 'select',
+			options: [
+				'anti-spam',
+				'backup',
+				'boost',
+				'crm',
+				'extras',
+				'protect',
+				'scan',
+				'social',
+				'search',
+				'videopress',
+			],
+		},
+		status: {
+			control: 'select',
+			options: [
+				PRODUCT_STATUSES.ACTIVE,
+				PRODUCT_STATUSES.INACTIVE,
+				PRODUCT_STATUSES.ERROR,
+				PRODUCT_STATUSES.ABSENT,
+				PRODUCT_STATUSES.ABSENT_WITH_PLAN,
+				PRODUCT_STATUSES.NEEDS_PURCHASE,
+				PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE,
+			],
+		},
 	},
 };
 
@@ -47,16 +89,12 @@ const DefaultArgs = {
 	status: PRODUCT_STATUSES.ACTIVE,
 	admin: true,
 	slug: 'backup',
+	isFetching: false,
+	showMenu: false,
 };
 
 export const Default = Template.bind( {} );
 Default.args = DefaultArgs;
-
-export const Absent = Template.bind( {} );
-Absent.args = {
-	...DefaultArgs,
-	status: PRODUCT_STATUSES.ABSENT,
-};
 
 export const WithChildren = Template.bind( {} );
 WithChildren.args = {

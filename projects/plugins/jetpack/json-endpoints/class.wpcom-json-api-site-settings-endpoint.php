@@ -799,9 +799,25 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'subscription_options':
-					$sanitized_value = (array) $value;
+					if ( ! is_array( $value ) ) {
+						break;
+					}
+
+					$allowed_keys   = array( 'invitation', 'comment_follow' );
+					$filtered_value = array_filter(
+						$value,
+						function ( $key ) use ( $allowed_keys ) {
+							return in_array( $key, $allowed_keys, true );
+						},
+						ARRAY_FILTER_USE_KEY
+					);
+
+					if ( empty( $filtered_value ) ) {
+						break;
+					}
+
 					array_walk_recursive(
-						$sanitized_value,
+						$filtered_value,
 						function ( &$value ) {
 							$value = wp_kses(
 								$value,
@@ -814,13 +830,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 					);
 
-					$has_correct_length  = count( $sanitized_value ) === 2;
-					$required_keys_exist = array_key_exists( 'invitation', $sanitized_value )
-						&& array_key_exists( 'comment_follow', $sanitized_value );
-					$is_valid            = $has_correct_length && $required_keys_exist;
+					$old_subscription_options = get_option( 'subscription_options' );
+					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
 
-					if ( $is_valid && update_option( $key, $sanitized_value ) ) {
-						$updated[ $key ] = $sanitized_value;
+					if ( update_option( $key, $new_subscription_options ) ) {
+						$updated[ $key ] = $filtered_value;
 					}
 					break;
 

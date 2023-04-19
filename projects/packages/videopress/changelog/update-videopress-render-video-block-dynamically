@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: remove duplicated code when saving video block

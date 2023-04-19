@@ -36,7 +36,7 @@
 	@include jetpackBox;
 
 }
-#settings_dashboard_sales_funnel_display .panel,
+
 #settings_dashboard_revenue_chart_display .panel {
 	box-shadow: none !important;
 }
@@ -116,7 +116,9 @@
 	background-color: $blue-medium;
 }
 
-
+.ui.icon.buttons .button, .ui.icon.button {
+	font-size: 14px;
+}
 
 .dops-button {
 	background: #f3f5f6;

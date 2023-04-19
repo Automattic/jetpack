@@ -375,6 +375,15 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 			html += '</tr>';
 		}
 	}
+	// invoice status.
+	html +=
+	'<tr class="wh-large jpcrm-invoice-status"><th><label for="status">' +
+	zbscrm_JS_invoice_lang( 'invoice_status' ) +
+	':</label></th>';
+	html += '<td>';
+	html += generateInvoiceStatusHtml( res );
+	html += '</td>';
+	html += '</tr>';
 
 	//invoice date :-) date picker. Can we fix this for good in here now? formating etc?
 	html +=
@@ -391,7 +400,7 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 
 	//reference
 	html += '<tr class="wh-large">';
-	html += '<th><label for="ref">' + zbscrm_JS_invoice_lang( 'reference' ) + ':</label></th>';
+	html += '<th><label for="ref">' + zbscrm_JS_invoice_lang( 'reference' ) + '</label></th>';
 	html += '<td>';
 	if ( 'reftype' in res.invoiceObj.settings && res.invoiceObj.settings.reftype === 'autonumber' ) {
 		if ( res.invoiceObj.status === 'draft' ) {
@@ -507,6 +516,32 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 	html += '</table></div>';
 	html += '<div class="clear"></div>';
 
+	return html;
+}
+
+/**
+ * Helper function to generate the HTML for the invoice status selection dropdown.
+ *
+ * @param res
+ */
+function generateInvoiceStatusHtml( res ) {
+	let html = '<select id="invoice-status" name="invoice_status">';
+	const currentStatus = res.invoiceObj.status;
+	const allStatuses = [ 
+		[ 'Draft', 'status_draft' ],
+		[ 'Unpaid', 'status_unpaid' ],
+		[ 'Paid', 'status_paid' ],
+		[ 'Overdue', 'status_overdue'],
+		[ 'Deleted', 'status_deleted']
+	];
+	for ( const statusItem of allStatuses ) {
+		html += '<option value=' + statusItem[0];
+		if ( currentStatus === statusItem[0] ) {
+			html += ' selected';
+		}
+		html += '>' + zbscrm_JS_invoice_lang( statusItem[1] ) + '</option>';
+	}
+	html += '</select>';
 	return html;
 }
 
