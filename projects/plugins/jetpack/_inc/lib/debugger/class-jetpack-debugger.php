@@ -60,23 +60,23 @@ class Jetpack_Debugger {
 						} else {
 							$failures = $cxntests->list_fails();
 							foreach ( $failures as $fail ) {
-								$action_link  = $fail['action'];
-								$action_label = $fail['action_label'];
-								$action       = ( $action_link ) ? '<a href="' . $action_link . '">' . $action_label . '</a>' : $action_label;
-								echo '<div class="jetpack-test-error">';
-								echo '<p><a class="jetpack-test-heading" href="#">' . esc_html( $fail['short_description'] );
-								echo '<span class="noticon noticon-collapse"></span></a></p>';
-								echo '<p class="jetpack-test-details">' . wp_kses(
-									$action,
-									array(
-										'a' => array(
-											'href'   => array(),
-											'target' => array(),
-											'rel'    => array(),
-										),
-									)
-								) . '</p>';
-								echo '</div>';
+								?>
+								<div class="notice notice-error inline">
+									<div class="notice-icon-wrapper">
+										<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 24 24" width="24" height="24" class="y_IPyP1wIAOhyNaqvXJq" aria-hidden="true" focusable="false"><path d="M10 2c4.42 0 8 3.58 8 8s-3.58 8-8 8-8-3.58-8-8 3.58-8 8-8zm1.13 9.38l.35-6.46H8.52l.35 6.46h2.26zm-.09 3.36c.24-.23.37-.55.37-.96 0-.42-.12-.74-.36-.97s-.59-.35-1.06-.35-.82.12-1.07.35-.37.55-.37.97c0 .41.13.73.38.96.26.23.61.34 1.06.34s.8-.11 1.05-.34z"></path></svg>
+									</div>
+
+									<div class="notice-main-content">
+										<div class="notice-title"><?php echo esc_html( $fail['short_description'] ); ?></div>
+
+										<div class="notice-action-bar">
+											<div>
+												<a href="<?php echo esc_attr( $fail['action'] ); ?>" aria-disabled="false" class="components-button is-primary"><span><?php echo esc_html( $fail['action_label'] ); ?></span></a>
+											</div>
+										</div>
+									</div>
+								</div>
+								<?php
 							}
 						}
 						?>
@@ -273,7 +273,7 @@ class Jetpack_Debugger {
 
 			.jetpack-tests-succeed {
 				font-size: large;
-				color: #8BAB3E;
+				color: #069E08;
 			}
 
 			.jetpack-test-details {
@@ -281,34 +281,6 @@ class Jetpack_Debugger {
 				padding: 10px;
 				overflow: auto;
 				display: none;
-			}
-
-			.jetpack-test-error {
-				margin-bottom: 10px;
-				background: #FFEBE8;
-				border: solid 1px #C00;
-				border-radius: 3px;
-			}
-
-			.jetpack-test-error p {
-				margin: 0;
-				padding: 0;
-			}
-
-			p.jetpack-test-details {
-				margin: 4px 6px;
-				padding: 10px;
-			}
-
-			.jetpack-test-error a.jetpack-test-heading {
-				padding: 4px 6px;
-				display: block;
-				text-decoration: none;
-				color: inherit;
-			}
-
-			.jetpack-test-error .noticon {
-				float: right;
 			}
 
 			.formbox {
