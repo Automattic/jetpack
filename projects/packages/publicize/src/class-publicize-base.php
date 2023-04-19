@@ -1076,10 +1076,8 @@ abstract class Publicize_Base {
 			if ( $sig_enabled ) {
 				$jetpack_social_options_args['default'] = array(
 					'image_generator_settings' => array(
-						array(
-							'template' => ( new Social_Image_Generator\Settings() )->get_default_template(),
-							'enabled'  => false,
-						),
+						'template' => ( new Social_Image_Generator\Settings() )->get_default_template(),
+						'enabled'  => false,
 					),
 				);
 				$jetpack_social_options_args['show_in_rest']['schema']['properties']['image_generator_settings'] = array(
