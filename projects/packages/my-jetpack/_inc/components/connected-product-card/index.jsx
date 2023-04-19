@@ -63,6 +63,7 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false } ) => 
 			hasStandalonePlugin={ standalonePluginInfo?.hasStandalonePlugin }
 			isStandaloneInstalled={ standalonePluginInfo?.isStandaloneInstalled }
 			isStandaloneActive={ standalonePluginInfo?.isStandaloneActive }
+			isConnected={ isRegistered && isUserConnected }
 		>
 			{ children }
 		</ProductCard>

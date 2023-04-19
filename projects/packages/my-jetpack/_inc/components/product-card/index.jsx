@@ -141,6 +141,7 @@ const ProductCard = props => {
 		hasStandalonePlugin = false,
 		isStandaloneInstalled = false,
 		isStandaloneActive = false,
+		isConnected = false,
 	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
@@ -157,6 +158,7 @@ const ProductCard = props => {
 		showMenu && // The menu is enabled for the product AND
 		! isAbsent && // product status is not absent AND
 		! isError && // product status is not error AND
+		isConnected && // the site is connected AND
 		( isActive || // product is active, show at least the Manage option
 			menuItems?.length > 0 || // Show custom menus, if present
 			( hasStandalonePlugin && ( ! isStandaloneActive || ! isStandaloneInstalled ) ) ); // Show install | activate options for standalone plugin
