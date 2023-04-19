@@ -35,30 +35,6 @@ const Menu = ( {
 	const showStandaloneOption =
 		hasStandalonePlugin && ( ! isStandaloneInstalled || ! isStandaloneActive );
 
-	if ( productStatus === PRODUCT_STATUSES.ACTIVE ) {
-		items.push( {
-			label: __( 'Manage', 'jetpack-my-jetpack' ),
-			onClick: onManage,
-			icon: external,
-		} );
-	}
-
-	if ( showStandaloneOption && ! isStandaloneInstalled ) {
-		items.push( {
-			label: __( 'Install Plugin', 'jetpack-my-jetpack' ),
-			onClick: onInstall,
-			icon: download,
-		} );
-	}
-
-	if ( showStandaloneOption && isStandaloneInstalled && ! isStandaloneActive ) {
-		items.push( {
-			label: __( 'Activate Plugin', 'jetpack-my-jetpack' ),
-			onClick: onActivate,
-			icon: check,
-		} );
-	}
-
 	return (
 		<Dropdown
 			className={ styles.dropdown }
@@ -88,6 +64,52 @@ const Menu = ( {
 							{ item?.label }
 						</Button>
 					) ) }
+					{ productStatus === PRODUCT_STATUSES.ACTIVE && (
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							icon={ external }
+							onClick={ () => {
+								onClose();
+								onManage?.();
+							} }
+						>
+							{ __( 'Manage', 'jetpack-my-jetpack' ) }
+						</Button>
+					) }
+					{ showStandaloneOption && (
+						<>
+							{ ! isStandaloneInstalled && (
+								<Button
+									weight="regular"
+									fullWidth
+									variant="tertiary"
+									icon={ download }
+									onClick={ () => {
+										onClose();
+										onInstall?.();
+									} }
+								>
+									{ __( 'Install Plugin', 'jetpack-my-jetpack' ) }
+								</Button>
+							) }
+							{ isStandaloneInstalled && ! isStandaloneActive && (
+								<Button
+									weight="regular"
+									fullWidth
+									variant="tertiary"
+									icon={ check }
+									onClick={ () => {
+										onClose();
+										onActivate?.();
+									} }
+								>
+									{ __( 'Activate Plugin', 'jetpack-my-jetpack' ) }
+								</Button>
+							) }
+						</>
+					) }
 				</>
 			) }
 		/>
