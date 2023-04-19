@@ -1,6 +1,8 @@
+/// Toggle Control
+///
+/// Overrides the @wordpress/components ToggleControl component.
+/// @link https://github.com/WordPress/gutenberg/tree/trunk/packages/components/src/form-toggle
 .toggle {
-	/// Override the @wordpress/components ToggleControl component.
-	/// @link https://github.com/WordPress/gutenberg/tree/trunk/packages/components/src/form-toggle
 	:global {
 		.components-form-toggle {
 			--wp-admin-theme-color: var( --jp-green-40 );
@@ -26,6 +28,14 @@
 			&.is-checked .components-form-toggle__thumb {
 				transform: translateX( 24px );
 			}
+		}
+	}
+}
+
+.toggle.is-toggling {
+	:global {
+		.components-form-toggle {
+			opacity: .6;
 		}
 	}
 }

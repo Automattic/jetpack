@@ -21,6 +21,29 @@ export const Default = args => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const Slow = args => {
+	const [ loading, setLoading ] = useState( false );
+	const [ checked, setChecked ] = useState( false );
+
+	const handleChecked = useCallback( () => {
+		setLoading( true );
+		setTimeout( () => {
+			setLoading( false );
+			setChecked( ! checked );
+		}, 2000 );
+	}, [ checked ] );
+
+	return (
+		<ToggleControl
+			checked={ checked }
+			toggling={ loading }
+			onChange={ handleChecked }
+			label="Code is poetry."
+		/>
+	);
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const Disabled = args => {
 	const [ checked, setChecked ] = useState( false );
 

@@ -1,5 +1,6 @@
-import { ToggleControl as CalypsoToggleControl } from '@wordpress/components';
+import { ToggleControl as WPToggleControl } from '@wordpress/components';
 import classNames from 'classnames';
+import { useCallback } from 'react';
 import styles from './styles.module.scss';
 
 interface ToggleControlProps {
@@ -15,6 +16,9 @@ interface ToggleControlProps {
 	/** Additional information to display below the toggle. */
 	help?: React.ReactNode;
 
+	/** Whether or not the toggling is currently toggling. */
+	toggling?: boolean;
+
 	/** The label for the toggle. */
 	label?: React.ReactNode;
 
@@ -27,17 +31,35 @@ const ToggleControl: React.FC< ToggleControlProps > = ( {
 	className,
 	disabled,
 	help,
+	toggling,
 	label,
 	onChange,
 } ) => {
+	const showChecked =
+		toggling !== undefined ? ( checked && ! toggling ) || ( ! checked && toggling ) : checked;
+
+	const handleOnChange = useCallback(
+		( value: boolean ) => {
+			// Don't toggle if the toggle is already toggling.
+			if ( toggling ) {
+				return;
+			}
+
+			onChange( value );
+		},
+		[ toggling, onChange ]
+	);
+
 	return (
-		<CalypsoToggleControl
-			checked={ checked }
-			className={ classNames( styles.toggle, className ) }
+		<WPToggleControl
+			checked={ showChecked }
+			className={ classNames( styles.toggle, className, {
+				[ styles[ 'is-toggling' ] ]: toggling,
+			} ) }
 			disabled={ disabled }
 			help={ help }
 			label={ label }
-			onChange={ onChange }
+			onChange={ handleOnChange }
 		/>
 	);
 };
