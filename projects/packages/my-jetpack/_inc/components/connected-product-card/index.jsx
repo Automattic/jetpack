@@ -41,30 +41,6 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false } ) => 
 		navigateToConnectionPage,
 	] );
 
-	/*
-	 * Redirect to connection page if the user is not connected
-	 */
-	const handleInstallAndActivateStandalonePlugin = useCallback( () => {
-		if ( ( ! isRegistered || ! isUserConnected ) && requiresUserConnection ) {
-			navigateToConnectionPage();
-			return;
-		}
-
-		/**
-		 * For both installing and activating the plugin, the action is the same
-		 * because the backend endpoint performs both actions
-		 * - installing when is not installed
-		 * - activating when is not active
-		 */
-		installStandalonePlugin();
-	}, [
-		installStandalonePlugin,
-		isRegistered,
-		isUserConnected,
-		requiresUserConnection,
-		navigateToConnectionPage,
-	] );
-
 	const Icon = getIconBySlug( slug );
 
 	return (
@@ -82,8 +58,8 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false } ) => 
 			onManage={ onManage }
 			onFixConnection={ navigateToConnectionPage }
 			showMenu={ showMenu }
-			onInstallStandalone={ handleInstallAndActivateStandalonePlugin }
-			onActivateStandalone={ handleInstallAndActivateStandalonePlugin }
+			onInstallStandalone={ installStandalonePlugin }
+			onActivateStandalone={ installStandalonePlugin }
 			hasStandalonePlugin={ standalonePluginInfo?.hasStandalonePlugin }
 			isStandaloneInstalled={ standalonePluginInfo?.isStandaloneInstalled }
 			isStandaloneActive={ standalonePluginInfo?.isStandaloneActive }
