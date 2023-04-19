@@ -1537,12 +1537,6 @@ abstract class Publicize_Base {
 	 * }
 	 */
 	public function get_social_opengraph_image( $post_id ) {
-		$attached_media = $this->get_attached_media_image( $post_id );
-
-		if ( $attached_media ) {
-			return $attached_media;
-		}
-
 		$generated_image_url = Social_Image_Generator\get_image_url( $post_id );
 
 		if ( ! empty( $generated_image_url ) ) {
@@ -1551,6 +1545,12 @@ abstract class Publicize_Base {
 				'width'  => 1200,
 				'height' => 630,
 			);
+		}
+
+		$attached_media = $this->get_attached_media_image( $post_id );
+
+		if ( $attached_media ) {
+			return $attached_media;
 		}
 
 		return array();
