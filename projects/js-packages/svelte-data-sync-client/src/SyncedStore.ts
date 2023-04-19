@@ -104,6 +104,12 @@ export class SyncedStore< T > {
 			this.abortController.abort();
 		}
 
+		// Pending value should only be used to indicate whether the store is currently syncing visually.
+		// It should not be used to prevent the store from updating.
+		// Given that, it's safe to start pending early.
+		if ( retry === 0 ) {
+			this.pending.start();
+		}
 		this.abortController = new AbortController();
 		const signal = this.abortController.signal;
 
@@ -111,9 +117,9 @@ export class SyncedStore< T > {
 		if ( signal.aborted ) {
 			return;
 		}
-		this.pending.start();
+
 		const result = await this.synchronize( prevValue, value );
-		this.pending.stop();
+
 		if ( signal.aborted ) {
 			return;
 		}
@@ -141,6 +147,10 @@ export class SyncedStore< T > {
 			} );
 			this.store.override( prevValue );
 		}
+		// After the request has successfully completed
+		// Or it has failed enough times to give up
+		// release the pending lock.
+		this.pending.stop();
 
 		return result;
 	}
