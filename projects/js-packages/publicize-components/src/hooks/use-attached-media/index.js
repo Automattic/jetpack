@@ -2,6 +2,8 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback } from '@wordpress/element';
 
+const PUBLICIZE_STORE = 'jetpack/publicize';
+
 /**
  * @typedef {object} AttachedMediaHook
  * @property {Array} attachedMedia - List of media with ID, URL, and metadata.
@@ -18,11 +20,11 @@ import { useCallback } from '@wordpress/element';
 export default function useAttachedMedia() {
 	const { editPost } = useDispatch( editorStore );
 
-	const isSocialPost = useSelect( select => select( 'jetpack/publicize' ).isSocialPost() );
-	const attachedMedia = useSelect( select => select( 'jetpack/publicize' ).getAttachedMedia() );
-	const currentOptions = useSelect( select =>
-		select( 'jetpack/publicize' ).getJetpackSocialOptions()
-	);
+	const { isSocialPost, attachedMedia, currentOptions } = useSelect( select => ( {
+		isSocialPost: select( PUBLICIZE_STORE ).isSocialPost(),
+		attachedMedia: select( PUBLICIZE_STORE ).getAttachedMedia(),
+		currentOptions: select( PUBLICIZE_STORE ).getJetpackSocialOptions(),
+	} ) );
 
 	const updateAttachedMedia = useCallback(
 		medias => {
