@@ -1,0 +1,47 @@
+.status {
+    --font-size: var( --font-body-extra-small ); // 12px
+    --indicator-size: calc( var( --font-size ) * 0.666 ); // 8px
+
+    align-items: center;
+    display: flex;
+    font-size: var( --font-size );
+    font-weight: 600;
+    line-height: 1.666;
+    white-space: nowrap;
+
+    &__indicator {
+        background-color: var( --jp-gray-50 );
+        border-radius: var( --indicator-size );
+        flex-shrink: 0;
+        height: var( --indicator-size );
+        width: var( --indicator-size );
+    }
+
+    &__label {
+        margin-left: calc( var( --indicator-size ) / 2 );
+    }
+
+    &--active {
+        color: var( --jp-green-50 );
+
+        .status__indicator {
+            background-color: var( --jp-green-50 );
+        }
+    }
+
+    &--inactive {
+        color: var( --jp-gray-50 );
+        
+        .status__indicator {
+            background-color: var( --jp-gray-50 );
+        }
+    }
+    
+    &--error {
+        color: var( --jp-red-50 );
+        
+        .status__indicator {
+            background-color: var( --jp-red-50 );
+        }
+    }
+}
