@@ -25,7 +25,11 @@ const useVideoPressStats = () => {
 			? numberFormat( current, { notation: 'compact', compactDisplay: 'short' } )
 			: null;
 	const change = current !== null && previous !== null ? current - previous : null;
-	const changePercentage = change !== null ? Math.round( ( change / previous ) * 100 ) : null;
+	let changePercentage = null;
+
+	if ( change !== null ) {
+		changePercentage = previous !== 0 ? Math.round( ( change / previous ) * 100 ) : 0;
+	}
 
 	return {
 		loading,
