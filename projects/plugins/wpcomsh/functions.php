@@ -392,3 +392,15 @@ function wpcomsh_is_wp_rest_request_matching( $path_regex, $request_method = 'GE
 
 	return 1 === preg_match( $path_regex, $rest_path );
 }
+
+/**
+ * Returns the map provider the map block should use.
+ *
+ * @return string
+ */
+function wpcomsh_map_block_map_provider() {
+	return 'mapbox';
+}
+
+add_filter( 'wpcom_map_block_map_provider', 'wpcomsh_map_block_map_provider', 10, 0 );
+
