@@ -45,8 +45,16 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 	);
 }
 export default function QuestionAnswer() {
-	const { question, setQuestion, answer, isLoading, submitQuestion, references, waitString } =
-		useSubmitQuestion();
+	const {
+		question,
+		setQuestion,
+		answer,
+		isLoading,
+		submitQuestion,
+		references,
+		waitString,
+		error,
+	} = useSubmitQuestion();
 
 	const [ animationDone, setAnimationDone ] = useState( false );
 
@@ -82,6 +90,7 @@ export default function QuestionAnswer() {
 			</KeyboardShortcuts>
 			<div>
 				<div className="jetpack-ai-chat-answer-container">
+					{ error && <div className="jetpack-ai-chat-error">{ error }</div> }
 					{ isLoading ? (
 						<>
 							<Loading />

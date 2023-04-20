@@ -15,36 +15,45 @@ export default function useSubmitQuestion() {
 	const [ references, setReferences ] = useState( [] );
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ waitString, setWaitString ] = useState( '' );
+	const [ error, setError ] = useState();
+
+	const handleAPIError = () => {
+		setReferences( [] );
+		setAnswer( undefined );
+		setIsLoading( false );
+		setError( __( 'I seem to have encountered a problem. Please try again.', 'jetpack' ) );
+	};
 
 	const submitQuestion = async () => {
 		setReferences( [] );
+		setError();
 		setIsLoading( true );
 		setWaitString( __( 'Let me think about that for a moment.', 'jetpack' ) );
 		const encoded = encodeURIComponent( question );
 
-		const { terms } = await apiFetch( {
+		const termsResponse = await apiFetch( {
 			path: addQueryArgs( `wpcom/v2/sites/${ blogId }/jetpack-search/ai/search`, {
 				stop_at: 'terms',
 				query: encoded,
 			} ),
-		} );
+		} ).catch( handleAPIError );
 
 		setWaitString(
 			sprintf(
 				/* translators: %1$s: A list of terms being searched for. */
 				__( 'Sit tight, I am going to search for %1$s', 'jetpack' ),
-				terms.join( ', ' )
+				termsResponse.terms.join( ', ' )
 			)
 		);
 
-		const { urls } = await apiFetch( {
+		const urlsResponse = await apiFetch( {
 			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/jetpack-search/ai/search`, {
 				stop_at: 'urls',
 				query: encoded,
 			} ),
-		} );
+		} ).catch( handleAPIError );
 
-		setReferences( urls );
+		setReferences( urlsResponse.urls );
 		setWaitString(
 			__(
 				'I have found the following documents. Bear with me while I try and summarise them for you',
@@ -52,16 +61,25 @@ export default function useSubmitQuestion() {
 			)
 		);
 
-		const { response } = await apiFetch( {
+		const answerResponse = await apiFetch( {
 			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/jetpack-search/ai/search`, {
 				stop_at: 'response',
 				query: encoded,
 			} ),
-		} );
+		} ).catch( handleAPIError );
 
-		setAnswer( response );
+		setAnswer( answerResponse.response );
 		setIsLoading( false );
 	};
 
-	return { question, setQuestion, answer, isLoading, submitQuestion, references, waitString };
+	return {
+		question,
+		setQuestion,
+		answer,
+		isLoading,
+		submitQuestion,
+		references,
+		waitString,
+		error,
+	};
 }
