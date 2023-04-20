@@ -1622,9 +1622,181 @@ class Contact_Form extends Contact_Form_Shortcode {
 					'jetpack_forms_respone_email_template',
 					'<!doctype html>
 					<html xmlns="http://www.w3.org/1999/xhtml">
+					<head>
+					<!--[if lt mso 12]>
+					<style type="text/css">
+						.outlook-hide-pre-2007 {
+							height:0 !important;
+							max-height:0 !important; /* Gmail*/
+							display:none !important; /* Generic*/
+							mso-hide:all !important; /* Outlook clients*/
+							overflow:hidden !important; /* Generic */
+							font-size:0 !important; /* Be careful with this one, only use if absolutely required */
+						}
+						h1,h2,h3,h4 {
+							margin: 0 !important;
+							padding: 0 !important;
+						}
+						table.footer tr td.top {
+							height: 40px !important;
+						}
+						p.btn-calltoaction {
+							margin-top: 0 !important;
+							margin-bottom: 0 !important;
+						}
+					</style>
+					<![endif]-->
+					<!--[if (gte mso 9)|(IE)]>
+					<style type="text/css">
+						body, .body-wrap {
+							font-size: 1em !important;
+							text-align: center !important;
+						}
+						h1,h2,h3,h4 {
+							margin: 0 0 1em !important;
+						}
+						h1 {
+							margin-top: 0 !important;
+							margin-bottom: 2em !important;
+							font-size: 1.5em !important;
+						}
+						h2 {
+							font-size: 1.125em !important;
+							margin-top: 1em !important;
+							margin-bottom: 1em !important;
+						}
+						h5 {
+							font-size: 1em !important;
+						}
+						h1, h2 {
+							font-weight: bold !important;
+						}
+						p, ul, ol {
+							font-size: 1.125em !important;
+							margin-bottom: 1em !important;
+						}
+						.container {
+							width: 40em !important;
+							text-align: left !important;
+						}
+						.content-mc-region {
+							margin-bottom: 2.5em !important;
+							text-align: left !important;
+						}
+						.content-mc-region p,
+						.content-mc-region ul,
+						.content-mc-region ol {
+							font-size: 1.125em !important;
+						}
+						.content-mc-region ol,
+						.content-mc-region ul {
+							padding-right: 0;
+							padding-top: 0;
+						}
+						.content-mc-region ol {
+							padding-left: 25px;
+						}
+						ol, ul {
+							margin: 0 0 0 1.5em !important;
+							padding: 0 !important;
+							list-style-position: inside !important;
+						}
+						li {
+							padding-left: 0
+							margin-left: 0 !important;
+							margin-bottom: 0.5em !important;
+						}
+						p.btn-calltoaction {
+							margin-top: 2.5em !important;
+							margin-bottom: 2.5em !important;
+						}
+						.btn-calltoaction a {
+							border: solid 0.375em #03AADC !important;
+							padding: 0 !important;
+							color: #FFFFFF !important;
+						}
+						td.avatar {
+							padding-top: 1.25em !important;
+							padding-right: 1.25em !important;
+							padding-bottom: 1.25em !important;
+						}
+						td.banner {
+							padding-bottom: 2.25em !important;
+						}
+						.app-download {
+							border: 0 !important;
+							background-color: transparent !important;
+						}
+						.app-download td {
+							padding: 0 !important;
+						}
+						.extra-cta {
+							padding: 0 !important;
+						}
+						table.footer tr td.top {
+							padding-top: 1.4em !important;
+						}
+						table.footer tr td.bottom {
+							padding-bottom: 1.4em !important;
+						}
+						table.footer tr td.tw,
+						table.footer tr td.fb {
+							padding: 0.875em !important;
+							padding-top: 0 !important;
+						}
+						.signature {
+							margin-bottom: 2.25em !important;
+						}
+						.signature td.text {
+							text-align: left !important;
+						}
+						table.footer p a {
+							color: #000000 !important;
+						}
+						.outlook-hide {
+							max-height:0 !important; /* Gmail*/
+							display:none !important; /* Generic*/
+							mso-hide:all !important; /* Outlook clients*/
+							overflow:hidden !important; /* Generic */
+							font-size:0 !important; /* Be careful with this one, only use if absolutely required */
+						}
+					</style>
+					<![endif]-->
+					</head>
 					<body>
+					<table style="width: 100%%;" align="center">
+						<tr>
+							<!-- left column, only here to center the middle column; Outlook requires &nbsp; or it collapses this column  -->
+							<td style="font-size: 1px"><!--[if (gte mso 9)|(IE)]>&nbsp;<![endif]--></td>
 
-					%s
+							<!-- middle column, the margin: 0 auto; combined with the display: block; centers it for modern clients -->
+							<td class="container" border="2" style="max-width: 600px; margin: 0 auto; display: block;">
+								<div align="left">
+									<table cellspacing="0" cellpadding="0" class="logo-wrap">
+										<tr>
+											<td class="left">
+												<img alt="Jetpack.com" class="logo" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/delta/images/jetpack-logo-horizontal.png" width="175" height="47"/>
+											</td>
+										</tr>
+									</table>
+								</div>
+								<div class="content">
+									<table cellspacing="0" cellpadding="0">
+										<tr>
+											<td>
+												<div class="content-mc-region-jp jp-siteless">
+													%s
+												</div>
+											</td>
+										</tr>
+									</table>
+								</div>
+							</td>
+							<!-- right column, along with the left column these two center the middle column; Outlook requires &nbsp; or it collapses this column  -->
+							<td style="font-size: 1px"><!--[if (gte mso 9)|(IE)]>&nbsp;<![endif]--></td>
+						</tr>
+					</table>
+					<img src="https://pixel.wp.com/t.gif" />
 
 					</body>
 					</html>'
