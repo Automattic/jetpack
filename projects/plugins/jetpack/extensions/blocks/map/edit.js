@@ -243,13 +243,8 @@ class MapEdit extends Component {
 			showFullscreenButton,
 		} = attributes;
 
-    const {
-			addPointVisibility,
-			apiKey,
-			apiKeyControl,
-			apiState,
-			apiRequestOutstanding,
-		} = this.state;
+		const { addPointVisibility, apiKey, apiKeyControl, apiState, apiRequestOutstanding } =
+			this.state;
 
 		const mapProvider = this.getMapProvider();
 

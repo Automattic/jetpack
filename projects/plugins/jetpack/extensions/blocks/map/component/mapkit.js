@@ -72,14 +72,8 @@ const MapkitHelpers = memo(
 		onMarkerClick,
 		onMapLoaded,
 	} ) => {
-		const {
-			map,
-			mapkit,
-			setActiveMarker,
-			setPreviousCenter,
-			setCalloutReference,
-			currentDoc,
-		} = useMapkit();
+		const { map, mapkit, setActiveMarker, setPreviousCenter, setCalloutReference, currentDoc } =
+			useMapkit();
 		// Save these in a ref to prevent unwanted rerenders
 		const onMarkerClickRef = useRef( onMarkerClick );
 		const onSetPointsRef = useRef( onSetPoints );
