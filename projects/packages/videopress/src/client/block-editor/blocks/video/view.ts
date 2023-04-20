@@ -119,7 +119,8 @@ function previewOnHoverEffect(): void {
 		}
 
 		overlay.addEventListener( 'mouseenter', () => {
-			playButton?.classList.add( 'is-behind' );
+			// Adding a delay to do not overlap the client fade-in animation.
+			setTimeout( () => playButton?.classList.add( 'is-behind' ), 500 );
 			iframeApi.controls.play();
 		} );
 
