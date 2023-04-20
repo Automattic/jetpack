@@ -35,6 +35,24 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 		[ setAttributes ]
 	);
 
+	const AutoplayHelp = () => {
+		return (
+			<>
+				<span className={ styles[ 'help-message' ] }>
+					{ __( 'Start playing the video as soon as the page loads.', 'jetpack-videopress-pkg' ) }
+				</span>
+				{ autoplay && (
+					<span className={ styles[ 'help-message' ] }>
+						{ __(
+							'Note: Autoplaying videos may cause usability issues for some visitors.',
+							'jetpack-videopress-pkg'
+						) }
+					</span>
+				) }
+			</>
+		);
+	};
+
 	return (
 		<PanelBody title={ __( 'Playback', 'jetpack-videopress-pkg' ) }>
 			<ToggleControl
@@ -42,24 +60,7 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				onChange={ handleAttributeChange( 'autoplay' ) }
 				checked={ autoplay && ! isPreviewOnHoverEnabled }
 				disabled={ isPreviewOnHoverEnabled }
-				help={
-					<>
-						<span className={ styles[ 'help-message' ] }>
-							{ __(
-								'Start playing the video as soon as the page loads.',
-								'jetpack-videopress-pkg'
-							) }
-						</span>
-						{ autoplay && (
-							<span className={ styles[ 'help-message' ] }>
-								{ __(
-									'Note: Autoplaying videos may cause usability issues for some visitors.',
-									'jetpack-videopress-pkg'
-								) }
-							</span>
-						) }
-					</>
-				}
+				help={ <AutoplayHelp /> }
 			/>
 
 			<ToggleControl
