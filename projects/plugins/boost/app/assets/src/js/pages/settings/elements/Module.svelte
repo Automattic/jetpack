@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createEventDispatcher, onMount } from 'svelte';
 	import Toggle from '../../../elements/Toggle.svelte';
-	import { modulesState, modulesStatePending } from '../../../stores/modules';
+	import { modulesState } from '../../../stores/modules';
 
 	export let slug: string;
 
@@ -27,12 +27,7 @@
 {#if isModuleAvailable}
 	<div class="jb-feature-toggle">
 		<div class="jb-feature-toggle__toggle">
-			<Toggle
-				id={`jb-feature-toggle-${ slug }`}
-				checked={isModuleActive}
-				on:click={handleToggle}
-				disabled={$modulesStatePending}
-			/>
+			<Toggle id={`jb-feature-toggle-${ slug }`} checked={isModuleActive} on:click={handleToggle} />
 		</div>
 		<div class="jb-feature-toggle__content">
 			<slot name="title" />
