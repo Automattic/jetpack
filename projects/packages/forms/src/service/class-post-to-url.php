@@ -150,7 +150,6 @@ class Post_To_Url {
 			'sslverify' => empty( $options['sslverify'] ) ? false : $options['sslverify'],
 		);
 
-		$args = apply_filters( 'jetpack_contactform_salesforce_request_args', $args );
 		return wp_remote_post( $url, $args );
 	}
 
