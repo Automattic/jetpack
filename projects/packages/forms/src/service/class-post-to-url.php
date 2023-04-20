@@ -5,27 +5,27 @@
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Forms;
+namespace Automattic\Jetpack\Forms\Service;
 
 /**
- * Class Post_To_Url_Hook
+ * Class Post_To_Url
  *
  * Hooks on Jetpack's Contact form to post form data to some URL.
  */
-class Post_To_Url_Hook {
+class Post_To_Url {
 	/**
 	 * Singleton instance
 	 *
-	 * @var Post_To_Url_Hook
+	 * @var Post_To_Url
 	 */
 	private static $instance = null;
 
 	/**
-	 * Get singleton instance.
+	 * Initialize and return singleton instance.
 	 *
-	 * @return Post_To_Url_Hook
+	 * @return Post_To_Url
 	 */
-	public static function get_instance() {
+	public static function init() {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
@@ -34,10 +34,12 @@ class Post_To_Url_Hook {
 	}
 
 	/**
-	 * Post_To_Url_Hook initializer.
+	 * Post_To_Url class constructor.
 	 * Hooks on `grunion_after_feedback_post_inserted` action to send form data to specified URL.
+	 * NOTE: As a singleton, this constructor is private and only callable from ::init, which will return the singleton instance,
+	 * effectively preventing multiple instances of this class (hence, multiple hooks triggering the POST request).
 	 */
-	public function initialize() {
+	private function __construct() {
 		add_action( 'grunion_after_feedback_post_inserted', array( $this, 'feedback_post_hook' ), 10, 4 );
 	}
 
@@ -89,7 +91,7 @@ class Post_To_Url_Hook {
 	 *
 	 * @return null|void
 	 */
-	public function feedback_post_hook( $post_id, $form, $is_spam, $entry_values ) {
+	private function feedback_post_hook( $post_id, $form, $is_spam, $entry_values ) {
 		if ( ! is_a( $form, 'Automattic\Jetpack\Forms\ContactForm\Contact_Form' ) ) {
 			return;
 		}
@@ -133,7 +135,7 @@ class Post_To_Url_Hook {
 	 *
 	 * TODO: do complex fields (MC, etc) need to be handled differently? JSON should be fine, but URLencoded might need to be serialized.
 	 */
-	public static function post_to_url( $data, $options = array() ) {
+	private function post_to_url( $data, $options = array() ) {
 		global $wp_version;
 
 		$user_agent = "WordPress/{$wp_version} | Jetpack/" . constant( 'JETPACK__VERSION' ) . '; ' . get_bloginfo( 'url' );
@@ -159,7 +161,7 @@ class Post_To_Url_Hook {
 	 * @param Automattic\Jetpack\Forms\ContactForm\Contact_Form $form The form instance being processed/submitted.
 	 * @param array                                             $entry_values The feedback entry values.
 	 */
-	public function get_form_data( $form, $entry_values ) {
+	private function get_form_data( $form, $entry_values ) {
 		$fields = array();
 		foreach ( $form->fields as $field ) {
 			$fields[ $field->get_attribute( 'id' ) ] = $field->value;
