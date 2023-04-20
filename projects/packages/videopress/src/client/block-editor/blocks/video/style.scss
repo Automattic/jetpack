@@ -22,15 +22,6 @@
 		&.has-controls .jetpack-videopress-player__overlay {
 			cursor: pointer;
 		}
-
-		&:hover {
-			.jetpack-videopress-player__play-button {
-				transition-property: opacity;
-  				transition-duration: 0.3s;
-  				transition-delay: 0.5s;
-				opacity: 0;
-			}
-		}
 	}
 
 	.jetpack-videopress-player__overlay {
@@ -71,7 +62,6 @@
 		transition-property: opacity;
 		transition-duration: 0.3s;
 		transition-delay: 0.5s;
-		opacity: 1;
 
 		&.is-behind {
 			z-index: 8;
