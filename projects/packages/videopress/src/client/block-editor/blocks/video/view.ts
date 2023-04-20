@@ -118,8 +118,15 @@ function previewOnHoverEffect(): void {
 			} );
 		}
 
-		overlay.addEventListener( 'mouseenter', iframeApi.controls.play );
-		overlay.addEventListener( 'mouseleave', iframeApi.controls.pause );
+		overlay.addEventListener( 'mouseenter', () => {
+			playButton?.classList.add( 'is-behind' );
+			iframeApi.controls.play();
+		} );
+
+		overlay.addEventListener( 'mouseleave', () => {
+			playButton?.classList.remove( 'is-behind' );
+			iframeApi.controls.pause();
+		} );
 	} );
 }
 
