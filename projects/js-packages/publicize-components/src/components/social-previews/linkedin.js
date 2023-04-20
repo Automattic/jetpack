@@ -1,3 +1,4 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { LinkedInPreview, FEED_TEXT_MAX_LENGTH } from '@automattic/social-previews';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -69,7 +70,7 @@ export function LinkedIn( props ) {
 							{
 								LearnMoreLink: (
 									<a
-										href={ 'https://jetpack.com/support/jetpack-social-image-generator' }
+										href={ getRedirectUrl( 'jetpack-social-image-generator' ) }
 										rel="noopener noreferrer"
 										target="_blank"
 									/>
