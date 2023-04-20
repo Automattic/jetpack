@@ -14,6 +14,7 @@ class MapkitBlock {
 		this.points = JSON.parse( this.root.getAttribute( 'data-points' ) || '[]' );
 		this.color = this.root.getAttribute( 'data-marker-color' ) || 'red';
 		this.zoom = parseFloat( this.root.getAttribute( 'data-zoom' ) ) || 10;
+		this.scrollToZoom = this.root.getAttribute( 'data-scroll-to-zoom' ) === 'true';
 		this.mapStyle = this.root.getAttribute( 'data-map-style' ) || 'default';
 		this.mapHeight = this.root.getAttribute( 'data-map-height' ) || null;
 	}
@@ -81,6 +82,10 @@ class MapkitBlock {
 
 		if ( this.points.length < 2 && this.zoom ) {
 			this.setZoom();
+		}
+
+		if ( this.scrollToZoom ) {
+			this.map._allowWheelToZoom = true;
 		}
 	}
 
