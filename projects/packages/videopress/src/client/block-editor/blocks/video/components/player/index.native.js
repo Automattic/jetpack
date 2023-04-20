@@ -134,7 +134,7 @@ export default function Player( { isSelected, attributes } ) {
 
 	const renderOverlay = () => {
 		// Show custom controls on Android only
-		if ( Platform.OS === 'android' ) {
+		if ( Platform.OS === 'android' && isPlayerLoaded ) {
 			return (
 				<View style={ style[ 'videopress-player__overlay' ] }>
 					<PlayerControls
