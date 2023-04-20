@@ -90,14 +90,19 @@ class Launchpad_Task_Lists {
 	 * @return bool True if successful, false if not.
 	 */
 	public function register_tasks( $tasks = array() ) {
+		$tasks_to_register = array();
+
 		foreach ( $tasks as $task ) {
+			// Register none of the tasks if any are invalid.
 			if ( ! $this->validate_task( $task ) ) {
 				return false;
 			}
+
+			$tasks_to_register[] = array( $task['slug'] => $task );
 		}
 
 		// TODO: Handle duplicate tasks
-		array_merge( $this->task_registry, $tasks );
+		array_merge( $this->task_registry, $tasks_to_register );
 		return true;
 	}
 

@@ -359,8 +359,8 @@ function register_launchpad_task( $task ) {
 function register_default_checklists() {
 	$launchpad_task_lists = Launchpad_Task_Lists->get_instance();
 
-	foreach ( get_checklist_definitions() as $checklist_key => $checklist ) {
-		$launchpad_task_lists->register_checklist( $checklist_key, $checklist );
+	foreach ( get_checklist_definitions() as $checklist ) {
+		$launchpad_task_lists->register_checklist( $checklist );
 	}
 
 	$launchpad_task_lists->register_tasks( get_task_definitions() );
