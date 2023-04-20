@@ -68,6 +68,11 @@ function cleanName( name ) {
 		name = 'Defer JS';
 	}
 
+	// [Plugin] mu wpcom plugin is a bit too long.
+	if ( name === 'mu-wpcom-plugin' ) {
+		name = 'mu-wpcom';
+	}
+
 	return (
 		name
 			// Break up words
@@ -223,7 +228,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			/^(projects\/plugins\/boost\/compatibility|projects\/plugins\/jetpack\/3rd-party)\//
 		);
 		if ( compat ) {
-			keywords.add( 'Compatibility' );
+			keywords.add( '[Focus] Compatibility' );
 		}
 
 		// E2E tests.

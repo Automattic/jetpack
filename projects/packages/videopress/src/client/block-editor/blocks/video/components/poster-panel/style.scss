@@ -86,8 +86,12 @@ body.modal-open .poster-panel__dropdown {
 		opacity: 1;
 	}
 
-	&.is-generating-poster .components-sandbox {
-		opacity: 0.5;
+	&.is-generating-poster {
+		pointer-events: none;
+	
+		.components-sandbox {
+			opacity: 0.5;
+		}
 	}
 }
 

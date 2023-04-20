@@ -196,8 +196,6 @@ jobs:
             if [[ -e "$SRC/to-test.md" ]]; then
               cp "$SRC/to-test.md" "work/${SLUG}-dev/"
             fi
-            mkdir -p "work/${SLUG}-dev/docs/testing/"
-            cp monorepo/docs/testing/testing-tips.md "work/${SLUG}-dev/docs/testing/"
 
             # Extract and update version.
             CURRENT_VERSION=$(monorepo/tools/plugin-version.sh "work/${SLUG}-dev/")-$VERSUFFIX

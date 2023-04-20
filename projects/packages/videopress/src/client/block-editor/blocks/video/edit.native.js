@@ -8,7 +8,7 @@ import {
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { PanelBody } from '@wordpress/components';
+import { PanelBody, BottomSheet } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -20,10 +20,8 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
-import getMediaToken from '../../../lib/get-media-token/index.native';
-import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
-import { usePreview } from '../../hooks/use-preview';
-import addTokenIntoIframeSource from '../../utils/add-token-iframe-source';
+import { buildVideoPressURL } from '../../../lib/url';
+import { useSyncMedia } from '../../hooks/use-sync-media';
 import isLocalFile from '../../utils/is-local-file';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
@@ -54,18 +52,7 @@ export default function VideoPressEdit( {
 	onFocus,
 	insertBlocksAfter,
 } ) {
-	const {
-		controls,
-		guid,
-		loop,
-		muted,
-		playsinline,
-		poster,
-		preload,
-		seekbarColor,
-		seekbarLoadingColor,
-		seekbarPlayedColor,
-	} = attributes;
+	const { guid } = attributes;
 
 	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
 	const [ fileToUpload, setFileToUpload ] = useState( null );
@@ -73,16 +60,6 @@ export default function VideoPressEdit( {
 		isReplacing: false,
 		prevAttrs: {},
 	} );
-	const [ token, setToken ] = useState();
-
-	// Fetch token for a VideoPress GUID
-	useEffect( () => {
-		if ( guid ) {
-			getMediaToken( 'playback', { guid } ).then( tokenData => {
-				setToken( tokenData.token );
-			} );
-		}
-	}, [ guid ] );
 
 	const [ showReplaceControl, setShowReplaceControl ] = useState( true );
 
@@ -91,23 +68,7 @@ export default function VideoPressEdit( {
 		[ clientId ]
 	);
 	const { replaceBlock } = useDispatch( blockEditorStore );
-	const { createErrorNotice } = useDispatch( noticesStore );
-
-	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
-		controls,
-		loop,
-		muted,
-		playsinline,
-		preload,
-		seekbarColor,
-		seekbarLoadingColor,
-		seekbarPlayedColor,
-		poster,
-	} );
-
-	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
-	const previewHTML = addTokenIntoIframeSource( preview?.html, token );
+	const { createErrorNotice, createSuccessNotice } = useDispatch( noticesStore );
 
 	// Display upload progress in case the editor is closed and re-opened
 	// while the upload is in progress.
@@ -127,6 +88,24 @@ export default function VideoPressEdit( {
 		},
 		[ setAttributes ]
 	);
+
+	// TODO: This is a temporary solution for manually saving block settings.
+	// This will be removed and replaced with a more robust solution before the block is shipped to users.
+	// See: https://github.com/Automattic/jetpack/pull/29996
+	const [ blockSettingsSaved, setBlockSettingsSaved ] = useState( false );
+
+	const onSaveBlockSettings = () => {
+		setBlockSettingsSaved( true );
+		createSuccessNotice( 'Block settings saved.' );
+	};
+
+	const { videoData } = useSyncMedia(
+		attributes,
+		setAttributes,
+		blockSettingsSaved,
+		setBlockSettingsSaved
+	);
+	const { private_enabled_for_site: privateEnabledForSite } = videoData;
 
 	const handleDoneUpload = useCallback(
 		newVideoData => {
@@ -250,16 +229,15 @@ export default function VideoPressEdit( {
 					<PanelBody title={ __( 'More', 'jetpack-videopress-pkg' ) }>
 						<PlaybackPanel { ...{ attributes, setAttributes } } />
 						<ColorPanel { ...{ attributes, setAttributes } } />
-						<PrivacyAndRatingPanel { ...{ attributes, setAttributes } } />
+						<PrivacyAndRatingPanel { ...{ attributes, setAttributes, privateEnabledForSite } } />
+					</PanelBody>
+					<PanelBody title={ 'Temporary for Testing' }>
+						<BottomSheet.Cell label={ 'Save Settings' } onPress={ onSaveBlockSettings } />
 					</PanelBody>
 				</InspectorControls>
 			) }
 
-			<Player
-				html={ previewHTML }
-				isRequestingEmbedPreview={ isRequestingEmbedPreview }
-				isSelected={ isSelected }
-			/>
+			<Player { ...{ attributes, isSelected } } />
 
 			<BlockCaption
 				clientId={ clientId }

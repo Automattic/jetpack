@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.2] - 2023-04-17
+### Added
+- Ad missing TOS in Jetpack interstitial. [#29683]
+- My Jetpack: Add endpoint to install the standalone plugin for hybrid products. [#30045]
+- My Jetpack: Expose information about standalone plugin status on My Jetpack product initial state. [#29977]
+
+### Changed
+- Backup and Scan: redirect after checkout to Jetpack recommendations page if Jetpack plugin is active. Otherwise, redirect back to plugin admin page. [#29708]
+- My Jetpack: Adjustments in Product Card [#30014]
+- Updated package dependencies. [#30019]
+
 ## [2.10.1] - 2023-04-10
 ### Added
 - Add Jetpack Autoloader package suggestion. [#29988]
@@ -810,6 +821,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[2.10.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.1...2.10.2
 [2.10.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.0...2.10.1
 [2.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.9.2...2.10.0
 [2.9.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.9.1...2.9.2

@@ -1,12 +1,24 @@
+/**
+ * External dependencies
+ */
 import { TabPanel, Icon } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+	useRef,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
-import { find, includes, map } from 'lodash';
-import { useRef } from 'react';
+import { find, findIndex, includes, map } from 'lodash';
+/**
+ * Internal dependencies
+ */
 import DropdownFilter from '../components/dropdown-filter';
 import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
@@ -15,6 +27,10 @@ import BulkActionsMenu from './bulk-actions-menu';
 import ExportModal from './export-modal';
 import InboxList from './list';
 import InboxResponse from './response';
+import { isWpcom } from './util';
+/**
+ * Style dependencies
+ */
 import './style.scss';
 
 const RESPONSES_FETCH_LIMIT = 50;
@@ -40,6 +56,7 @@ const TABS = [
 const Inbox = () => {
 	const stickySentinel = useRef();
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
+	const [ responseAnimationDirection, setResponseAnimationDirection ] = useState( 1 );
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ view, setView ] = useState( 'list' );
 	const [ isSticky, setSticky ] = useState( false );
@@ -117,10 +134,16 @@ const Inbox = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ stickySentinel.current, loading ] );
 
-	const selectResponse = useCallback( id => {
-		setCurrentResponseId( id );
-		setView( 'response' );
-	}, [] );
+	const selectResponse = useCallback(
+		id => {
+			setCurrentResponseId( id );
+			setView( 'response' );
+			setResponseAnimationDirection(
+				findIndex( responses, { id } ) - findIndex( responses, { id: currentResponseId } )
+			);
+		},
+		[ currentResponseId, responses ]
+	);
 
 	const handleGoBack = useCallback( event => {
 		event.preventDefault();
@@ -172,11 +195,33 @@ const Inbox = () => {
 
 	const classes = classnames( 'jp-forms__inbox', {
 		'is-response-view': view === 'response',
+		'is-response-animation-reverted': responseAnimationDirection < 0,
 	} );
 
 	const title = (
 		<>
-			<span className="title">{ __( 'Responses', 'jetpack-forms' ) }</span>
+			<span className="title">
+				{ isWpcom() ? __( 'Jetpack Forms', 'jetpack-forms' ) : __( 'Responses', 'jetpack-forms' ) }
+			</span>
+			{ isWpcom() && (
+				<span className="subtitle">
+					{ createInterpolateElement(
+						__(
+							'Collect and manage responses from your audience. <a>Learn more</a>',
+							'jetpack-forms'
+						),
+						{
+							a: (
+								<a
+									href="https://jetpack.com/support/jetpack-blocks/contact-form/"
+									rel="noreferrer noopener"
+									target="_blank"
+								/>
+							),
+						}
+					) }
+				</span>
+			) }
 			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 			<a className="back-button" onClick={ handleGoBack }>
 				<Icon icon={ arrowLeft } />

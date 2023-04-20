@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Allow welcome wizard to work when SCRIPT_DEBUG is true
-
-

@@ -179,7 +179,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 		global $wpdb;
 		if ( $this->day_of_year_query > 0 ) {
 			$day          = $this->day_of_year_query;
-			$current_year = gmdate( 'Y' );
+			$current_year = wp_date( 'Y' );
 
 			// Grab the current sort order, `ASC` or `DESC`, so we can reuse it.
 			$order = end( explode( ' ', $clauses['orderby'] ) );
