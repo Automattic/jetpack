@@ -1,6 +1,7 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { FacebookPreview, SearchPreview } from '@automattic/social-previews';
 import { __ } from '@wordpress/i18n';
+import { LinkedIn } from './linkedin';
 import { Twitter } from './twitter';
 
 export const AVAILABLE_SERVICES = [
@@ -32,7 +33,7 @@ export const AVAILABLE_SERVICES = [
 		title: __( 'LinkedIn', 'jetpack' ),
 		icon: props => <SocialServiceIcon serviceName="linkedin" { ...props } />,
 		name: 'linkedin',
-		preview: () => null,
+		preview: props => <LinkedIn { ...props } />,
 	},
 	{
 		title: __( 'Tumblr', 'jetpack' ),

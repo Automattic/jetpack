@@ -1,3 +1,4 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { TwitterPreview } from '@automattic/social-previews';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -61,7 +62,7 @@ export function Twitter( { isTweetStorm, tweets, media } ) {
 							{
 								LearnMoreLink: (
 									<a
-										href={ 'https://jetpack.com/support/jetpack-social/twitter/' }
+										href={ getRedirectUrl( 'jetpack-social-image-generator' ) }
 										rel="noopener noreferrer"
 										target="_blank"
 									/>

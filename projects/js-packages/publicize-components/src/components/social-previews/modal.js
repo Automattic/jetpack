@@ -82,7 +82,7 @@ export default withSelect( select => {
 			__( 'Visit the post for more.', 'jetpack' ),
 		url: getEditedPostAttribute( 'link' ),
 		author: user?.name,
-		image: !! featuredImageId && getMediaSourceUrl( media ),
+		image: ( !! featuredImageId && getMediaSourceUrl( media ) ) || '',
 	};
 
 	let tweets = [];
