@@ -109,8 +109,8 @@ function previewOnHoverEffect(): void {
 				overlay.remove();
 				playButton?.remove();
 
-				// Pause when user clicks on the video.
-				setTimeout( iframeApi.controls.pause, 100 ); // Hack; without this, the video will not pause.
+				// Playback the video from the beginning.
+				iframeApi.controls.seek( 0 );
 			} );
 		}
 
