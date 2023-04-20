@@ -49,6 +49,10 @@
 		.jetpack-ai-chat-wait-string {
 			font-size: 1rem;
 		}
+
+		.content div p:first-of-type {
+			margin-top: 0;
+		}
 	}
 
 	.jetpack-ai-chat-answer-references {
