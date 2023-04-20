@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
  */
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 /**
  * Internal dependencies
  */
@@ -17,6 +17,7 @@ import getMediaToken from '../../../../../lib/get-media-token/index.native';
 import { getVideoPressUrl } from '../../../../../lib/url';
 import { usePreview } from '../../../../hooks/use-preview';
 import addTokenIntoIframeSource from '../../../../utils/add-token-iframe-source';
+import PlayerControls from './controls';
 import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
@@ -51,6 +52,15 @@ export default function Player( { isSelected, attributes } ) {
 	const [ previewCheckAttempts, setPreviewCheckAttempts ] = useState( 0 );
 	const previewCheckTimer = useRef();
 
+	// Used for Android controls only
+	const [ playEnded, setPlayEnded ] = useState( false );
+	const playerRef = useRef();
+	const onToggleEvent = useCallback( event => {
+		playerRef.current?.injectJavaScript( `
+			document?.querySelector('iframe')?.contentWindow.postMessage({event: 'videopress_action_${ event }'}, '*');
+		` );
+	}, [] );
+
 	// Fetch token for a VideoPress GUID
 	useEffect( () => {
 		if ( guid ) {
@@ -62,7 +72,7 @@ export default function Player( { isSelected, attributes } ) {
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
-		controls,
+		controls: Platform.OS === 'ios',
 		loop,
 		muted,
 		playsinline,
@@ -97,16 +107,49 @@ export default function Player( { isSelected, attributes } ) {
 		return () => clearTimeout( previewCheckTimer.current );
 	}, [ preview, isPlayerLoaded, isRequestingEmbedPreview, previewCheckAttempts ] );
 
-	const onSandboxMessage = useCallback( message => {
-		if ( message.event === 'videopress_loading_state' && message.state === 'loaded' ) {
-			setIsPlayerLoaded( true );
+	const onSandboxMessage = message => {
+		switch ( message.event ) {
+			case 'videopress_loading_state':
+				if ( message.state === 'loaded' ) {
+					setIsPlayerLoaded( true );
+				}
+				break;
+
+			// Events use for the Android controls
+			case 'videopress_ended':
+				setPlayEnded( true );
+				break;
+			case 'videopress_playing':
+				if ( playEnded ) {
+					setPlayEnded( false );
+				}
+				break;
 		}
-	}, [] );
+	};
 
 	const loadingStyle = {};
 	if ( ! isPreviewReady( preview ) ) {
 		loadingStyle.height = 250;
 	}
+
+	const renderOverlay = () => {
+		// Show custom controls on Android only
+		if ( Platform.OS === 'android' ) {
+			return (
+				<View style={ style[ 'videopress-player__overlay' ] }>
+					<PlayerControls
+						isSelected={ isSelected }
+						playEnded={ playEnded }
+						onToggle={ onToggleEvent }
+					/>
+				</View>
+			);
+		}
+
+		if ( ! isSelected ) {
+			return <View style={ style[ 'videopress-player__overlay' ] } />;
+		}
+	};
 
 	const renderEmbed = () => {
 		if ( html ) {
@@ -115,6 +158,7 @@ export default function Player( { isSelected, attributes } ) {
 					html={ html }
 					onWindowEvents={ { message: onSandboxMessage } }
 					viewportProps="user-scalable=0"
+					ref={ playerRef }
 				/>
 			);
 		}
@@ -123,7 +167,7 @@ export default function Player( { isSelected, attributes } ) {
 
 	return (
 		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
-			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
+			{ renderOverlay() }
 			{ renderEmbed() }
 		</View>
 	);
