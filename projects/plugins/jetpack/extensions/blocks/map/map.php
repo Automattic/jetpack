@@ -74,16 +74,13 @@ function get_map_provider( $html ) {
 		}
 	}
 
-	// check if we have a map_provider cookie
+	// you can override the map provider with a cookie
 	if ( isset( $_COOKIE['map_provider'] ) ) {
 		return sanitize_text_field( wp_unslash( $_COOKIE['map_provider'] ) );
 	}
 
-	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		return 'mapkit';
-	} else {
-		return 'mapbox';
-	}
+	// if we don't apply the filters & default to mapbox
+	return apply_filters( 'wpcom_map_block_map_provider', 'mapbox' );
 }
 
 /**
