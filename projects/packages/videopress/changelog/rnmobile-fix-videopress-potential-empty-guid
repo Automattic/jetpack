@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress block: Cover case of GUID being empty after upload finish.

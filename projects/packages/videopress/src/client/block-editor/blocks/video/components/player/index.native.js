@@ -96,7 +96,8 @@ export default function Player( { isSelected, attributes } ) {
 		}
 
 		if ( isPreviewReady( preview ) || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT ) {
-			return clearTimeout( previewCheckTimer.current );
+			clearTimeout( previewCheckTimer.current );
+			return;
 		}
 
 		previewCheckTimer.current = setTimeout( () => {

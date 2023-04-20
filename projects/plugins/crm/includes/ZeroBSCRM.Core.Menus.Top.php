@@ -276,7 +276,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		<div class="ui mobile tablet only" id="zbs-mobile-nav">
 			<div id="zbs-main-logo-mobile">
 				<div class="zbs-face-1-mobile">
-					<img id="zbs-main-logo-mobby" alt="Jetpack CRM mobile logo" src="<?php echo esc_url( jpcrm_get_logo( true, 'white' ) ); ?>" style="cursor:pointer;">
+					<img id="zbs-main-logo-mobby" alt="Jetpack CRM mobile logo" src="<?php echo esc_url( jpcrm_get_logo( false, 'white' ) ); ?>" style="cursor:pointer;">
 				</div>
 			</div>
 			<?php
@@ -347,7 +347,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		<div class="item <?php echo esc_attr( $admin_menu_state ); ?> mobile hidden" id="zbs-main-logo-wrap">
 			<div class="zbs-cube" id="zbs-main-logo-cube-wrap">
 				<div class="zbs-face1">
-					<img id="zbs-main-logo" alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo() ); ?>" style="cursor:pointer;">
+					<img id="zbs-main-logo" alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>" style="cursor:pointer;">
 				</div>
 				<div class="zbs-face2">
 					<i class="expand icon fa-flip-horizontal"></i>
@@ -626,7 +626,6 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			<div class="menu ui inverted zbs-admin-bg-menu zbs-dropdown">
 				<a href="<?php echo esc_url( $zbs->urls['support'] ); ?>" class="item" target="_blank"><i class="fa fa-paper-plane"></i> <?php esc_html_e( 'Email us', 'zero-bs-crm' ); ?></a>
 				<a href="<?php echo esc_url( $zbs->urls['twitter'] ); ?>" class="item" target="_blank"><i class="fa fa-twitter"></i> <?php esc_html_e( 'Tweet us', 'zero-bs-crm' ); ?></a>
-				<a href="<?php echo esc_url( $zbs->urls['community'] ); ?>" target="_blank" class="item"><i class="fa fa-slack"></i> <?php esc_html_e( 'Join our Slack', 'zero-bs-crm' ); ?></a>
 				<a href="<?php echo esc_url( $zbs->urls['docs'] ); ?>" class="item" target="_blank"><i class="fa fa-file-text-o"></i> <?php esc_html_e( 'Knowledge base', 'zero-bs-crm' ); ?></a>
 			</div>
 			</div>
@@ -794,20 +793,12 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 					<a href="<?php echo esc_url( $zbs->urls['docs'] ); ?>" class="item" target="_blank"><i class="file text outline icon"></i> <?php esc_html_e( 'Knowledge base', 'zero-bs-crm' ); ?></a>
 				<?php ##/WLREMOVE ?>
 					
-					<a href="<?php echo esc_url( $zbs->urls['support'] ); ?>" class="item" target="_blank"><i class="icon mail outline"></i> <?php esc_html_e( 'Email us', 'zero-bs-crm' ); ?></a>
-					
-				<?php ##WLREMOVE ?>
+					<a href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['support'] ) ); ?>" class="item"><i class="icon user md"></i> <?php esc_html_e( 'Support', 'zero-bs-crm' ); ?></a>
+
+					<?php ##WLREMOVE ?>
 					<a href="<?php echo esc_url( $zbs->urls['twitter'] ); ?>" class="item" target="_blank"><i class="icon twitter"></i> <?php esc_html_e( '@jetpackcrm', 'zero-bs-crm' ); ?></a>
-				<?php
-					// slack for admins :)
-				if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-					?>
-						<a href="<?php echo esc_url( $zbs->urls['community'] ); ?>" target="_blank" class="item"><i class="slack icon"></i> <?php esc_html_e( 'Join our Slack', 'zero-bs-crm' ); ?></a>
-						<?php
-				}
-				?>
 					<?php ##/WLREMOVE ?>
-					
+
 					<a class="item" href="<?php echo esc_url( $zbs->urls['rateuswporg'] ); ?>"><i class="star icon" aria-hidden="true"></i> <?php esc_html_e( 'Leave a review', 'zero-bs-crm' ); ?></a>
 					
 					<?php
