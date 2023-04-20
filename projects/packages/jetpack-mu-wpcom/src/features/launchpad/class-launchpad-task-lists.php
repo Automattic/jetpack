@@ -111,7 +111,7 @@ class Launchpad_Task_Lists {
 	 *
 	 * @param string $slug Task List slug.
 	 *
-	 * @return bool  True if successfully unregistered, false if not found.
+	 * @return bool True if successfully unregistered, false if not found.
 	 */
 	public function unregister_task_list( $slug ) {
 		if ( ! array_key_exists( $this->task_list_registry, $slug ) ) {
@@ -127,7 +127,7 @@ class Launchpad_Task_Lists {
 	 *
 	 * @param string $slug Task slug.
 	 *
-	 * @return bool  True if successful, false if not.
+	 * @return bool True if successful, false if not.
 	 */
 	public function unregister_task( $slug ) {
 		if ( ! array_key_exists( $this->task_registry, $slug ) ) {
@@ -141,39 +141,49 @@ class Launchpad_Task_Lists {
 	/**
 	 * Get a Launchpad Task List
 	 *
-	 * @param string $id Task List slug.
+	 * @param string $slug Task List slug.
 	 *
-	 * @return array Task List arguments.
+	 * @return Task_List Task List.
 	 */
-	public function get_task_list( $id ) {
-		if ( ! array_key_exists( $this->task_list_registry, $id ) ) {
-			return array();
-		}
-
-		return $this->task_list_registry[ $id ];
-	}
-
-	/**
-	 * Register a new Launchpad Task
-	 *
-	 * @param string $slug Task list slug.
-	 *
-	 * @return array Task List with tasks added
-	 */
-	public function build( $slug ) {
-		$task_list = this->get_task_list( $slug );
+	protected function get_task_list( $slug ) {
 		if ( ! array_key_exists( $this->task_list_registry, $slug ) ) {
 			return array();
 		}
 
-		$task_list = $this->task_list_registry[ $slug ];
-		$result    = array();
+		return $this->task_list_registry[ $slug ];
+	}
 
-		foreach ( $task_list['task_ids'] as $key => $value ) {
-			$result [] = $this->task_registry[ $key ];
+	/**
+	 * Get a Launchpad Task
+	 *
+	 * @param string $slug Task slug.
+	 *
+	 * @return Task Task.
+	 */
+	protected function get_task( $slug ) {
+		if ( ! array_key_exists( $this->task_registry, $slug ) ) {
+			return array();
 		}
 
-		return $result;
+		return $this->task_registry[ $slug ];
+	}
+
+	/**
+	 * Builds a collection of tasks for a given task list
+	 *
+	 * @param string $slug Task list slug.
+	 *
+	 * @return Task[] Array of tasks associated with a task list
+	 */
+	public function build( $slug ) {
+		$task_list            = $this->get_task_list( $slug );
+		$task_list_with_tasks = array();
+
+		foreach ( $task_list['task_slugs'] as $task_slug => $value ) {
+			$task_list_with_tasks[] = $this->get_task( $task_slug );
+		}
+
+		return $task_list_with_tasks;
 	}
 
 	/**

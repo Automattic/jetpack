@@ -320,9 +320,8 @@ function get_launchpad_checklist_by_checklist_slug( $checklist_slug ) {
 		return array();
 	}
 
-	// This won't work yet because tasks aren't registered.
 	$launchpad_task_lists = Launchpad_Task_Lists->get_instance();
-	return $launchpad_task_lists->get_task_list( $checklist_slug );
+	return $launchpad_task_lists->build( $checklist_slug );
 }
 
 // TODO: Write code p2 post or dotcom post
