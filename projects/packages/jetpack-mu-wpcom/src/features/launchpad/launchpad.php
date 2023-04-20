@@ -1,12 +1,20 @@
 <?php
 /**
- * Launchpad
+ * Launchpad Helpers
  *
+ * @package automattic/jetpack-mu-wpcom
+ * @since 1.4.0
+ */
+
+/**
  * This file provides helpers that return the appropriate Launchpad
  * checklist and tasks for a given checklist slug.
  *
- * @package A8C\Launchpad
+ * @package automattic/jetpack-mu-wpcom
+ * @since 1.4.0
  */
+
+require_once __DIR__ . '/../launchpad/class-launchpad-task-list.php';
 
 /**
  * Returns the list of tasks by flow or checklist slug.
@@ -311,5 +319,23 @@ function get_launchpad_checklist_by_checklist_slug( $checklist_slug ) {
 	if ( ! $checklist_slug ) {
 		return array();
 	}
-	return build_checklist( $checklist_slug );
+
+	// This won't work yet because tasks aren't registered.
+	$launchpad_task_lists = Launchpad_Task_Lists->getInstance();
+	return $launchpad_task_lists->get_task_list( $checklist_slug );
 }
+
+/**
+ * Registers all default launchpad checklists
+ */
+function register_default_checklists() {
+	$launchpad_task_lists = Launchpad_Task_Lists->getInstance();
+
+	foreach ( get_checklist_definitions() as $checklist_key => $checklist ) {
+		$launchpad_task_lists->register_checklist( $checklist_key, $checklist );
+	}
+
+	// TODO: Register tasks for task list
+}
+
+add_action( 'init', 'register_default_checklists' );
