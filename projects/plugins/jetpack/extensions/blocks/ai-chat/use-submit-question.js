@@ -3,7 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 import { useState } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
 const blogId = '9619154';
@@ -30,21 +30,6 @@ export default function useSubmitQuestion() {
 		setIsLoading( true );
 		setWaitString( __( 'Let me think about that for a moment.', 'jetpack' ) );
 		const encoded = encodeURIComponent( question );
-
-		const termsResponse = await apiFetch( {
-			path: addQueryArgs( `wpcom/v2/sites/${ blogId }/jetpack-search/ai/search`, {
-				stop_at: 'terms',
-				query: encoded,
-			} ),
-		} ).catch( handleAPIError );
-
-		setWaitString(
-			sprintf(
-				/* translators: %1$s: A list of terms being searched for. */
-				__( 'Sit tight, I am going to search for %1$s', 'jetpack' ),
-				termsResponse.terms.join( ', ' )
-			)
-		);
 
 		const urlsResponse = await apiFetch( {
 			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/jetpack-search/ai/search`, {
