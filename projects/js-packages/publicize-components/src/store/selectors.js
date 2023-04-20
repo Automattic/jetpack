@@ -263,19 +263,6 @@ export function twitterCardIsCached( state, url ) {
 }
 
 /**
- * Gets the text that will be used when sharing this post on LinkedIn.
- *
- * @returns {string} The share message.
- */
-export function getTextForLinkedIn() {
-	const { getEditedPostAttribute } = select( 'core/editor' );
-	const meta = getEditedPostAttribute( 'meta' );
-	const text = meta?.jetpack_publicize_message || getEditedPostAttribute( 'title' ) || '';
-
-	return text;
-}
-
-/**
  * Gets the message that will be used hen sharing this post.
  *
  * @returns {string} The share message.

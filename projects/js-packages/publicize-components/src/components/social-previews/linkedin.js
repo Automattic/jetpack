@@ -3,7 +3,8 @@ import { LinkedInPreview, FEED_TEXT_MAX_LENGTH } from '@automattic/social-previe
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
-import { getLinkedInDetails, getTextForLinkedIn } from '../../store/selectors';
+import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import { getLinkedInDetails } from '../../store/selectors';
 
 /**
  * The linkedin tab component.
@@ -16,7 +17,7 @@ export function LinkedIn( props ) {
 
 	const { name, profileImage } = getLinkedInDetails();
 
-	const text = getTextForLinkedIn();
+	const { message: text } = useSocialMediaMessage();
 
 	const autoSharedText = text
 		.substring( 0, FEED_TEXT_MAX_LENGTH )
