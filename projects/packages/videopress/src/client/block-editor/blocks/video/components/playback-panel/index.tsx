@@ -36,6 +36,21 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 	);
 
 	const AutoplayHelp = () => {
+		/*
+		 * If the preview on hover effect is enabled,
+		 * we want to let the user know that the autoplay
+		 */
+		if ( isPreviewOnHoverEnabled ) {
+			return (
+				<span className={ styles[ 'help-message' ] }>
+					{ __(
+						'Autoplay is turned off as the hover preview is active.',
+						'jetpack-videopress-pkg'
+					) }
+				</span>
+			);
+		}
+
 		return (
 			<>
 				<span className={ styles[ 'help-message' ] }>
