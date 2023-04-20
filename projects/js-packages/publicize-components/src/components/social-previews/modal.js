@@ -79,8 +79,6 @@ export default withSelect( select => {
 			getEditedPostAttribute( 'excerpt' ) ||
 			getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
 			__( 'Visit the post for more.', 'jetpack' ),
-		excerpt: getEditedPostAttribute( 'excerpt' ),
-		content: getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ],
 		url: getEditedPostAttribute( 'link' ),
 		author: user?.name,
 		image: ( !! featuredImageId && getMediaSourceUrl( media ) ) || '',

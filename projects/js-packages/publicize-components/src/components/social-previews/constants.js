@@ -1,6 +1,7 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
-import { FacebookPreview, SearchPreview } from '@automattic/social-previews';
+import { SearchPreview } from '@automattic/social-previews';
 import { __ } from '@wordpress/i18n';
+import FacebookPreview from '../facebook-preview';
 import { LinkedIn } from './linkedin';
 import { Twitter } from './twitter';
 
@@ -21,37 +22,7 @@ export const AVAILABLE_SERVICES = [
 		title: __( 'Facebook', 'jetpack' ),
 		icon: props => <SocialServiceIcon serviceName="facebook" { ...props } />,
 		name: 'facebook',
-		preview: props => {
-			const { connection, title, excerpt, content, message, mediaDetails, attachedMediaDetails } =
-				props;
-			const attachedMediaData = attachedMediaDetails?.mediaData;
-			const { sourceUrl, width, height } = attachedMediaData || mediaDetails || {};
-
-			let user;
-			let imageMode;
-
-			if ( connection ) {
-				user = {
-					displayName: connection.display_name,
-					avatarUrl: connection.profile_picture,
-				};
-			}
-
-			if ( width && height && typeof width === 'number' && typeof height === 'number' ) {
-				imageMode = width > height ? 'landscape' : 'portrait';
-			}
-
-			return (
-				<FacebookPreview
-					{ ...props }
-					type="article"
-					user={ user }
-					customText={ message || excerpt || content || title }
-					customImage={ sourceUrl }
-					imageMode={ imageMode }
-				/>
-			);
-		},
+		preview: FacebookPreview,
 	},
 	{
 		title: __( 'Instagram', 'jetpack' ),
