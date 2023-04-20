@@ -89,7 +89,7 @@ export default function VideoPressEdit( {
 		[ setAttributes ]
 	);
 
-	const { videoData } = useSyncMedia( attributes, setAttributes );
+	const { videoData } = useSyncMedia( attributes, setAttributes, isReplacingFile.isReplacing );
 	const { private_enabled_for_site: privateEnabledForSite } = videoData;
 
 	const handleDoneUpload = useCallback(

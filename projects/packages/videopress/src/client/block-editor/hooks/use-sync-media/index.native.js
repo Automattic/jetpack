@@ -65,9 +65,10 @@ const invalidateEmbedResolutionFields = [
  *
  * @param {object} attributes		- Block attributes.
  * @param {Function} setAttributes	- Block attributes setter.
+ * @param {boolean} isReplacingFile	- Whether the video is being replaced.
  * @returns {object}				- Hook API object.
  */
-export function useSyncMedia( attributes, setAttributes ) {
+export function useSyncMedia( attributes, setAttributes, isReplacingFile ) {
 	const { id, guid, isPrivate } = attributes;
 	const { videoData, isRequestingVideoData } = useVideoData( {
 		id,
@@ -106,7 +107,7 @@ export function useSyncMedia( attributes, setAttributes ) {
 	 * when the block is mounted.
 	 */
 	useEffect( () => {
-		if ( isRequestingVideoData ) {
+		if ( isRequestingVideoData || isReplacingFile ) {
 			return;
 		}
 
