@@ -3,7 +3,7 @@ import React from 'react';
 import ProductCard from '../connected-product-card';
 
 const VideopressCard = ( { admin } ) => {
-	return <ProductCard admin={ admin } slug="videopress" />;
+	return <ProductCard admin={ admin } slug="videopress" showMenu={ true } />;
 };
 
 VideopressCard.propTypes = {

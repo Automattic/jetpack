@@ -7,7 +7,7 @@
  */
 
 /**
- * Fetches Launchpad-related data for the site
+ * Fetches Launchpad-related data for the site.
  *
  * @since 1.1.0
  */
@@ -25,8 +25,6 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 
 	/**
 	 * Register our routes.
-	 *
-	 * @return void
 	 */
 	public function register_routes() {
 		register_rest_route(
@@ -42,8 +40,43 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_site_options' ),
 					'permission_callback' => array( $this, 'can_access' ),
-					'request_format'      => array(
-						'checklist_statuses' => '(array) Array of launchpad checklist tasks completion status',
+					'args'                => array(
+						'checklist_statuses' => array(
+							'description'          => 'Launchpad statuses',
+							'type'                 => 'object',
+							'properties'           => array(
+								'domain_upsell_deferred' => array(
+									'type' => 'boolean',
+								),
+								'links_edited'           => array(
+									'type' => 'boolean',
+								),
+								'site_edited'            => array(
+									'type' => 'boolean',
+								),
+								'site_launched'          => array(
+									'type' => 'boolean',
+								),
+								'first_post_published'   => array(
+									'type' => 'boolean',
+								),
+								'video_uploaded'         => array(
+									'type' => 'boolean',
+								),
+								'publish_first_course'   => array(
+									'type' => 'boolean',
+								),
+								'plan_completed'         => array(
+									'type' => 'boolean',
+								),
+							),
+							'additionalProperties' => false,
+						),
+						'launchpad_screen'   => array(
+							'description' => 'Launchpad screen',
+							'type'        => 'string',
+							'enum'        => array( 'off', 'minimized', 'full' ),
+						),
 					),
 				),
 			)
@@ -51,7 +84,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	}
 
 	/**
-	 * Permission callback for the REST route
+	 * Permission callback for the REST route.
 	 *
 	 * @return boolean
 	 */
@@ -60,7 +93,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	}
 
 	/**
-	 * Returns Launchpad-related options
+	 * Returns Launchpad-related options.
 	 *
 	 * @return array Associative array with `site_intent`, `launchpad_screen`,
 	 *               and `launchpad_checklist_tasks_statuses` as `checklist`.
@@ -76,49 +109,36 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	/**
 	 * Updates Launchpad-related options and returns the result
 	 *
-	 * @param array $request The unsanitized request values.
-	 *
-	 * @return array Associative array with updated site options
+	 * @param WP_REST_Request $request Request object.
+	 * @return array Associative array with updated site options.
 	 */
 	public function update_site_options( $request ) {
 		$updated = array();
 		$input   = $request->get_json_params();
 
 		foreach ( $input as $key => $value ) {
-			if ( ! is_array( $value ) ) {
-				$value = trim( $value );
-			}
-
 			switch ( $key ) {
 				case 'checklist_statuses':
-					$launchpad_checklist_tasks_statuses_option = get_option( 'launchpad_checklist_tasks_statuses' );
-
-					$filtered_input_array = array_filter(
-						(array) $value,
-						function ( $array_value ) {
-							return is_bool( $array_value );
-						}
-					);
-
-					if ( ! is_array( $launchpad_checklist_tasks_statuses_option ) ) {
-						$launchpad_checklist_tasks_statuses_option = array();
-					}
-					$launchpad_checklist_tasks_statuses_option = array_merge( $launchpad_checklist_tasks_statuses_option, $filtered_input_array );
+					$launchpad_checklist_tasks_statuses_option = (array) get_option( 'launchpad_checklist_tasks_statuses', array() );
+					$launchpad_checklist_tasks_statuses_option = array_merge( $launchpad_checklist_tasks_statuses_option, $value );
 
 					if ( update_option( 'launchpad_checklist_tasks_statuses', $launchpad_checklist_tasks_statuses_option ) ) {
-						$updated[ $key ] = $filtered_input_array;
+						$updated[ $key ] = $value;
 					}
 					break;
+
 				default:
+					if ( update_option( $key, $value ) ) {
+						$updated[ $key ] = $value;
+					}
 					break;
 			}
-
-			return array(
-				'updated' => $updated,
-			);
 		}
-	}
 
+		return array(
+			'updated' => $updated,
+		);
+	}
 }
 
 wpcom_rest_api_v2_load_plugin( 'WPCOM_REST_API_V2_Endpoint_Launchpad' );

@@ -12,7 +12,7 @@ import ReactDom from 'react-dom';
 /**
  * Internal Variables
  */
-const MOBILE_PANEL_THRESHOLD = 480;
+const MOBILE_PANEL_THRESHOLD = 660;
 
 class NavTabs extends React.Component {
 	static propTypes = {
