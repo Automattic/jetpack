@@ -39,6 +39,7 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 		/*
 		 * If the preview on hover effect is enabled,
 		 * we want to let the user know that the autoplay
+		 * option is not available.
 		 */
 		if ( isPreviewOnHoverEnabled ) {
 			return (
