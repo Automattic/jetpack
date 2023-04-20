@@ -22,7 +22,7 @@ const Status = ( { className, label, status = 'inactive' }: StatusProps ): JSX.E
 			className={ classNames(
 				styles.status,
 				{
-					[ styles[ `status--${ status }` ] ]: status,
+					[ styles[ `is-${ status }` ] ]: status,
 				},
 				className
 			) }

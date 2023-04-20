@@ -21,7 +21,7 @@
         margin-left: calc( var( --indicator-size ) / 2 );
     }
 
-    &--active {
+    &.is-active {
         color: var( --jp-green-50 );
 
         .status__indicator {
@@ -29,7 +29,7 @@
         }
     }
 
-    &--inactive {
+    &.is-inactive {
         color: var( --jp-gray-50 );
         
         .status__indicator {
@@ -37,7 +37,7 @@
         }
     }
     
-    &--error {
+    &.is-error {
         color: var( --jp-red-50 );
         
         .status__indicator {
@@ -45,7 +45,7 @@
         }
     }
 
-    &--action {
+    &.is-action {
         color: var( --jp-yellow-30 );
 
         .status__indicator {
@@ -53,7 +53,7 @@
         }
     }
 
-    &--initializing {
+    &.is-initializing {
         color: var( --jp-blue-40 );
 
         .status__indicator {
