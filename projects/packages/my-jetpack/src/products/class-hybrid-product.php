@@ -170,8 +170,14 @@ abstract class Hybrid_Product extends Product {
 		 * Activate the installed plugin
 		 */
 		$result = static::activate_plugin();
-		if ( is_wp_error( $result ) ) {
-			return $result;
+
+		/**
+		 * Activate the module as well
+		 */
+		$module_result = static::do_product_specific_activation( $result );
+
+		if ( is_wp_error( $module_result ) ) {
+			return $module_result;
 		}
 
 		return true;
