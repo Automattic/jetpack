@@ -5,6 +5,10 @@ import apiFetch from '@wordpress/api-fetch';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+/**
+ * Internal dependencies
+ */
+import { referenceTexts, initialWaitTexts } from './response-strings';
 
 const blogId = '9619154';
 
@@ -28,7 +32,7 @@ export default function useSubmitQuestion() {
 		setReferences( [] );
 		setError();
 		setIsLoading( true );
-		setWaitString( __( 'Let me think about that for a moment.', 'jetpack' ) );
+		setWaitString( initialWaitTexts[ Math.floor( Math.random() * initialWaitTexts.length ) ] );
 		const encoded = encodeURIComponent( question );
 
 		const urlsResponse = await apiFetch( {
@@ -39,12 +43,7 @@ export default function useSubmitQuestion() {
 		} ).catch( handleAPIError );
 
 		setReferences( urlsResponse.urls );
-		setWaitString(
-			__(
-				'I have found the following documents. Bear with me while I try and summarise them for you',
-				'jetpack'
-			)
-		);
+		setWaitString( referenceTexts[ Math.floor( Math.random() * referenceTexts.length ) ] );
 
 		const answerResponse = await apiFetch( {
 			path: addQueryArgs( `/wpcom/v2/sites/${ blogId }/jetpack-search/ai/search`, {

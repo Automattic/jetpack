@@ -94,7 +94,7 @@ export default function QuestionAnswer() {
 					{ isLoading ? (
 						<>
 							<Loading />
-							{ waitString }
+							{ <div className="jetpack-ai-chat-wait-string">{ waitString } </div> }
 						</>
 					) : (
 						// eslint-disable-next-line react/no-danger
