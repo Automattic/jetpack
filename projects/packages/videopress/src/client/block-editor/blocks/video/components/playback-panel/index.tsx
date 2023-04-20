@@ -21,7 +21,10 @@ import type React from 'react';
  * @returns {React.ReactElement}      Playback block sidebar panel
  */
 export default function PlaybackPanel( { attributes, setAttributes }: VideoControlProps ) {
-	const { autoplay, loop, muted, controls, playsinline, preload } = attributes;
+	const { autoplay, loop, muted, controls, playsinline, preload, posterData } = attributes;
+
+	// Is Preview On Hover effect enabled?
+	const isPreviewOnHoverEnabled = posterData?.previewOnHover;
 
 	const handleAttributeChange = useCallback(
 		( attributeName: string, attributeValue?: string ) => {
@@ -37,7 +40,8 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 			<ToggleControl
 				label={ __( 'Autoplay', 'jetpack-videopress-pkg' ) }
 				onChange={ handleAttributeChange( 'autoplay' ) }
-				checked={ autoplay }
+				checked={ autoplay && ! isPreviewOnHoverEnabled }
+				disabled={ isPreviewOnHoverEnabled }
 				help={
 					<>
 						<span className={ styles[ 'help-message' ] }>
