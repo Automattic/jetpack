@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress block: Ensure settings persist following a replacement
