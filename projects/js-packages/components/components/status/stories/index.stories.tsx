@@ -19,6 +19,11 @@ export const Error = args => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const ActionNeeded = args => {
+	return <Status status="action" />;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const Inactive = args => {
 	return <Status status="inactive" />;
 };

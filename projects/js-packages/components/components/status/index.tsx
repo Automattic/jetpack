@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import styles from './style.module.scss';
 
 interface StatusProps {
-	status?: 'active' | 'error' | 'inactive';
+	status?: 'active' | 'error' | 'inactive' | 'action';
 	label?: string;
 	className?: string;
 }
@@ -12,6 +12,7 @@ const Status = ( { className, label, status = 'inactive', ...rest }: StatusProps
 	const defaultLabels: Record< string, string > = {
 		active: __( 'Active', 'jetpack' ),
 		error: __( 'Error', 'jetpack' ),
+		action: __( 'Action needed', 'jetpack' ),
 		inactive: __( 'Inactive', 'jetpack' ),
 	};
 

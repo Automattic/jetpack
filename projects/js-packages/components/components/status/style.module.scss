@@ -44,4 +44,12 @@
             background-color: var( --jp-red-50 );
         }
     }
+
+    &--action {
+        color: var( --jp-yellow-30 );
+
+        .status__indicator {
+            background-color: var( --jp-yellow-30 );
+        }
+    }
 }
