@@ -67,6 +67,32 @@ function get_checklist_definitions() {
 }
 
 /**
+ * Determines whether or not design selected task is enabled
+ *
+ * @return boolean True if design selected task is enabled
+ */
+function can_update_design_selected_task() {
+	$site_intent = get_option( 'site_intent' );
+	return $site_intent === 'free' || $site_intent === 'build' || $site_intent === 'write';
+}
+
+/**
+ * Determines whether or not domain upsell task is completed
+ *
+ * @return boolean True if domain upsell task is completed
+ */
+function is_domain_upsell_completed() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		if ( class_exists( '\WPCOM_Store_API' ) ) {
+			$plan = \WPCOM_Store_API::get_current_plan( \get_current_blog_id() );
+			return ! $plan['is_free'] || get_checklist_task( 'domain_upsell_deferred' );
+		}
+	}
+
+	return get_checklist_task( 'domain_upsell_deferred' );
+}
+
+/**
  * Returns the subtitle for the plan selected task
  *
  * @return string Subtitle text
@@ -84,13 +110,12 @@ function get_plan_selected_subtitle() {
 }
 
 /**
- * Determines whether or not design selected task is enabled
+ * Returns the badge text for the plan selected task
  *
- * @return boolean True if design selected task is enabled
+ * @return string Badge text
  */
-function can_update_design_selected_task() {
-	$site_intent = get_option( 'site_intent' );
-	return $site_intent === 'free' || $site_intent === 'build' || $site_intent === 'write';
+function get_domain_upsell_badge_text() {
+	return is_domain_upsell_completed() ? '' : __( 'Upgrade plan', 'jetpack-mu-wpcom' );
 }
 
 /**
@@ -162,29 +187,33 @@ function get_task_definitions() {
 				'id'        => 'link_in_bio_launched',
 				'title'     => __( 'Launch your site', 'jetpack-mu-wpcom' ),
 				'completed' => get_checklist_task( 'site_launched' ),
-				'disabled'  => ! get_checklist_task( 'links_added' ),
+				'disabled'  => ! get_checklist_task( 'links_edited' ),
 			),
 		'videopress_setup'
 			=> array(
 				'id'        => 'videopress_setup',
+				'title'     => __( 'Set up your video site', 'jetpack-mu-wpcom' ),
 				'completed' => true,
 				'disabled'  => false,
 			),
 		'videopress_upload'
 			=> array(
 				'id'        => 'videopress_upload',
-				'completed' => false,
-				'disabled'  => false,
+				'title'     => __( 'Upload your first video', 'jetpack-mu-wpcom' ),
+				'completed' => get_checklist_task( 'video_uploaded' ),
+				'disabled'  => get_checklist_task( 'video_uploaded' ),
 			),
 		'videopress_launched'
 			=> array(
 				'id'        => 'videopress_launched',
-				'completed' => false,
-				'disabled'  => true,
+				'title'     => __( 'Launch site', 'jetpack-mu-wpcom' ),
+				'completed' => get_checklist_task( 'site_launched' ),
+				'disabled'  => ! get_checklist_task( 'video_uploaded' ),
 			),
 		'setup_free'
 			=> array(
 				'id'        => 'setup_free',
+				'title'     => __( 'Personalize your site', 'jetpack-mu-wpcom' ),
 				'completed' => true,
 				'disabled'  => false,
 			),
@@ -219,9 +248,11 @@ function get_task_definitions() {
 			),
 		'domain_upsell'
 			=> array(
-				'id'        => 'domain_upsell',
-				'completed' => false,
-				'disabled'  => false,
+				'id'         => 'domain_upsell',
+				'title'      => __( 'Choose a domain', 'jetpack-mu-wpcom' ),
+				'completed'  => is_domain_upsell_completed(),
+				'disabled'   => false,
+				'badge_text' => get_domain_upsell_badge_text(),
 			),
 		'verify_email'
 			=> array(
