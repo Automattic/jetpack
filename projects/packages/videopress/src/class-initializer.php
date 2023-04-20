@@ -302,12 +302,18 @@ class Initializer {
 		$guid           = isset( $block_attributes['guid'] ) ? $block_attributes['guid'] : null;
 		$videopress_url = Utils::get_video_press_url( $guid, $block_attributes );
 
-		$video_wrapper = '';
+		$video_wrapper         = '';
+		$video_wrapper_classes = 'jetpack-videopress-player__wrapper';
+		if ( $controls ) {
+			$video_wrapper_classes .= ' has-controls';
+		}
+
 		if ( $videopress_url ) {
 			$videopress_url = wp_kses_post( $videopress_url );
 			$oembed_html    = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
 			$video_wrapper  = sprintf(
-				'<div class="jetpack-videopress-player__wrapper">%s %s %s</div>',
+				'<div class="%s">%s %s %s</div>',
+				$video_wrapper_classes,
 				$play_button,
 				$preview_on_hover,
 				$oembed_html
