@@ -66,7 +66,7 @@ function wpcom_load_event( $access_token_source ) {
  * @return string The name of the map provider.
  */
 function get_map_provider( $html ) {
-	$mapbox_styles = array( 'is-style-terrain', 'is-style-black_and_white' );
+	$mapbox_styles = array( 'is-style-terrain' );
 	// return mapbox if html contains one of the mapbox styles
 	foreach ( $mapbox_styles as $style ) {
 		if ( strpos( $html, $style ) !== false ) {

@@ -7,7 +7,7 @@ function getCookie( name ) {
 }
 
 const getMapProvider = props => {
-	const mapboxStyles = [ 'black_and_white', 'terrain' ];
+	const mapboxStyles = [ 'terrain' ];
 	if ( props?.mapStyle && mapboxStyles.includes( props.mapStyle ) ) {
 		return 'mapbox';
 	}

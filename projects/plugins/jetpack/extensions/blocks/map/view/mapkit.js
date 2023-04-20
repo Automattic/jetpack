@@ -66,7 +66,7 @@ class MapkitBlock {
 			switch ( this.mapStyle ) {
 				case 'satellite':
 					return this.mapkit.Map.MapTypes.Satellite;
-				case 'muted':
+				case 'black_and_white':
 					return this.mapkit.Map.MapTypes.MutedStandard;
 				case 'hybrid':
 					return this.mapkit.Map.MapTypes.Hybrid;

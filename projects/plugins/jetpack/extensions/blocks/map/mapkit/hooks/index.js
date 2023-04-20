@@ -132,8 +132,8 @@ const useMapkitType = mapStyle => {
 			switch ( mapStyle ) {
 				case 'satellite':
 					return mapkit.Map.MapTypes.Satellite;
-				case 'muted':
-					return mapkit.Map.MapTypes.Muted;
+				case 'black_and_white':
+					return mapkit.Map.MapTypes.MutedStandard;
 				case 'hybrid':
 					return mapkit.Map.MapTypes.Hybrid;
 				default:
