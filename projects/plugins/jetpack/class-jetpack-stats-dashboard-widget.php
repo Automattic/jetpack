@@ -196,8 +196,8 @@ class Jetpack_Stats_Dashboard_Widget {
 						)
 					);
 					?>
-								" class="button button-jetpack" title="<?php esc_attr_e( 'Protect helps to keep you secure from brute-force login attacks.', 'jetpack' ); ?>">
-						<?php esc_html_e( 'Activate brute force attack protection', 'jetpack' ); ?>
+								" class="button button-primary" title="<?php esc_attr_e( 'Jetpack helps to keep you secure from brute-force login attacks.', 'jetpack' ); ?>">
+						<?php esc_html_e( 'Activate', 'jetpack' ); ?>
 					</a>
 				<?php else : ?>
 					<?php esc_html_e( 'Brute force attack protection is inactive.', 'jetpack' ); ?>
@@ -227,8 +227,8 @@ class Jetpack_Stats_Dashboard_Widget {
 						)
 					);
 					?>
-								" class="button button-jetpack">
-						<?php esc_html_e( 'Activate Anti-spam', 'jetpack' ); ?>
+								" class="button button-primary">
+						<?php esc_html_e( 'Activate', 'jetpack' ); ?>
 					</a>
 				<?php else : ?>
 					<p><a href="<?php echo esc_url( 'https://akismet.com/?utm_source=jetpack&utm_medium=link&utm_campaign=Jetpack%20Dashboard%20Widget%20Footer%20Link' ); ?>"><?php esc_html_e( 'Anti-spam can help to keep your blog safe from spam!', 'jetpack' ); ?></a></p>

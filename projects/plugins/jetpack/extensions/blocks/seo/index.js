@@ -15,12 +15,12 @@ export const name = 'seo';
 export const settings = {
 	render: () => {
 		const jetpackSeoPanelProps = {
-			title: __( 'Jetpack SEO', 'jetpack' ),
+			title: __( 'SEO', 'jetpack' ),
 		};
 
 		const jetpackSeoPrePublishPanelProps = {
 			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
-			title: __( 'Jetpack SEO', 'jetpack' ),
+			title: __( 'SEO', 'jetpack' ),
 		};
 
 		return (
