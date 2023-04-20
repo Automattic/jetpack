@@ -18,9 +18,16 @@ class Launchpad_Task_Lists {
 	/**
 	 * Internal storage for registered Launchpad Task Lists
 	 *
-	 * @var array
+	 * @var Task_List[]
 	 */
-	private $registry = array();
+	private $task_list_registry = array();
+
+	/**
+	 * Internal storage for registered Launchpad Task Lists
+	 *
+	 * @var Task[]
+	 */
+	private $task_registry = array();
 
 	/**
 	 * Singleton instance
@@ -45,20 +52,52 @@ class Launchpad_Task_Lists {
 	/**
 	 * Register a new Launchpad Task List
 	 *
-	 * @param string $slug Task List slug.
-	 * @param array  $args Task List arguments.
+	 * @param array $task_list Task List definition.
 	 *
-	 * @return bool  True if successfully registered.
+	 * @return bool True if successfully registered.
 	 */
-	public function register_task_list( $slug, $args ) {
-		if ( ! self::validate_task_list( $args ) ) {
+	public function register_task_list( $task_list = array() ) {
+		if ( ! $this->validate_task_list( $task_list ) ) {
 			return false;
 		}
 
-		self::$registry = array_merge(
-			$this->registry,
-			array( $slug => $args )
-		);
+		$this->task_list_registry[] = array( $task_list['slug'] => $task_list );
+		return true;
+	}
+
+	/**
+	 * Register a new Launchpad Task
+	 *
+	 * @param array $task Task definition.
+	 *
+	 * @return bool True if successful, false if not.
+	 */
+	public function register_task( $task = array() ) {
+		if ( ! $this->validate_task( $task ) ) {
+			return false;
+		}
+
+		// TODO: Handle duplicate tasks
+		$this->task_registry[] = array( $task['slug'] => $task );
+		return true;
+	}
+
+	/**
+	 * Register a new Launchpad Task
+	 *
+	 * @param array $tasks Collection of task definitions.
+	 *
+	 * @return bool True if successful, false if not.
+	 */
+	public function register_tasks( $tasks = array() ) {
+		foreach ( $tasks as $task ) {
+			if ( ! $this->validate_task( $task ) ) {
+				return false;
+			}
+		}
+
+		// TODO: Handle duplicate tasks
+		array_merge( $this->task_registry, $tasks );
 		return true;
 	}
 
@@ -70,47 +109,66 @@ class Launchpad_Task_Lists {
 	 * @return bool  True if successfully unregistered, false if not found.
 	 */
 	public function unregister_task_list( $slug ) {
-		if ( ! isset( self::$registry[ $slug ] ) ) {
+		if ( ! array_key_exists( $this->task_list_registry, $slug ) ) {
 			return false;
 		}
 
-		unset( self::$registry[ $slug ] );
+		unset( $this->task_list_registry[ $slug ] );
+		return true;
+	}
+
+	/**
+	 * Unregister a Launchpad Task
+	 *
+	 * @param string $slug Task slug.
+	 *
+	 * @return bool  True if successful, false if not.
+	 */
+	public function unregister_task( $slug ) {
+		if ( ! array_key_exists( $this->task_registry, $slug ) ) {
+			return false;
+		}
+
+		unset( $this->task_registry[ $slug ] );
 		return true;
 	}
 
 	/**
 	 * Get a Launchpad Task List
 	 *
-	 * @param string $slug Task List slug.
+	 * @param string $id Task List slug.
 	 *
 	 * @return array Task List arguments.
 	 */
-	public function get_task_list( $slug ) {
-		if ( ! array_key_exists( self::$registry, $slug ) ) {
+	public function get_task_list( $id ) {
+		if ( ! array_key_exists( $this->task_list_registry, $id ) ) {
 			return array();
 		}
 
-		return self::$registry[ $slug ];
+		return $this->task_list_registry[ $id ];
 	}
 
 	/**
 	 * Register a new Launchpad Task
 	 *
-	 * @param string $task_list_slug Task list slug.
-	 * @param array  $args Task List arguments.
+	 * @param string $slug Task list slug.
 	 *
-	 * @return bool  True if successful
+	 * @return array Task List with tasks added
 	 */
-	public function register_task( $task_list_slug, $args = array() ) {
-		if ( ! self::validate_task( $args ) ) {
-			return false;
+	public function build( $slug ) {
+		$task_list = this->get_task_list( $slug );
+		if ( ! array_key_exists( $this->task_list_registry, $slug ) ) {
+			return array();
 		}
 
-		if ( ! array_key_exists( self::$registry, $task_list_slug ) ) {
-			return false;
+		$task_list = $this->task_list_registry[ $slug ];
+		$result    = array();
+
+		foreach ( $task_list['task_ids'] as $key => $value ) {
+			$result [] = $this->task_registry[ $key ];
 		}
 
-		self::$registry[ $task_list_slug ] = array_push( self::$registry[ $task_list_slug ], $args );
+		return $result;
 	}
 
 	/**
@@ -122,6 +180,14 @@ class Launchpad_Task_Lists {
 	 */
 	public static function validate_task_list( $task_list ) {
 		if ( ! is_array( $task_list ) ) {
+			return false;
+		}
+
+		if ( ! isset( $task_list['slug'] ) ) {
+			return false;
+		}
+
+		if ( ! isset( $task_list['title'] ) ) {
 			return false;
 		}
 
@@ -140,7 +206,7 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
-		if ( ! isset( $task['id'] ) ) {
+		if ( ! isset( $task['slug'] ) ) {
 			return false;
 		}
 

@@ -321,21 +321,49 @@ function get_launchpad_checklist_by_checklist_slug( $checklist_slug ) {
 	}
 
 	// This won't work yet because tasks aren't registered.
-	$launchpad_task_lists = Launchpad_Task_Lists->getInstance();
+	$launchpad_task_lists = Launchpad_Task_Lists->get_instance();
 	return $launchpad_task_lists->get_task_list( $checklist_slug );
+}
+
+// TODO: Write code p2 post or dotcom post
+/**
+ * Wrapper that registers a launchpad checklist without needing
+ * to know about the implementation details.
+ *
+ * @param string $slug Task list slug.
+ * @param array  $task_list Task list definition.
+ *
+ * @return bool True if successful, false otherwise.
+ */
+function register_launchpad_task_list( $slug, $task_list ) {
+	$launchpad_task_lists = Launchpad_Task_Lists->get_instance();
+	return $launchpad_task_lists->register_task_list( $slug, $task_list );
+}
+
+/**
+ * Wrapper that registers a launchpad checklist without needing
+ * to know about the implementation details.
+ *
+ * @param array $task Task definition.
+ *
+ * @return bool True if successful, false otherwise.
+ */
+function register_launchpad_task( $task ) {
+	$launchpad_task_lists = Launchpad_Task_Lists->get_instance();
+	return $launchpad_task_lists->register_task( $task );
 }
 
 /**
  * Registers all default launchpad checklists
  */
 function register_default_checklists() {
-	$launchpad_task_lists = Launchpad_Task_Lists->getInstance();
+	$launchpad_task_lists = Launchpad_Task_Lists->get_instance();
 
 	foreach ( get_checklist_definitions() as $checklist_key => $checklist ) {
 		$launchpad_task_lists->register_checklist( $checklist_key, $checklist );
 	}
 
-	// TODO: Register tasks for task list
+	$launchpad_task_lists->register_tasks( get_task_definitions() );
 }
 
 add_action( 'init', 'register_default_checklists' );
