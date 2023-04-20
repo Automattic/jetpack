@@ -1,24 +1,20 @@
 .status {
-    --font-size: var( --font-body-extra-small ); // 12px
-    --indicator-size: calc( var( --font-size ) * 0.666 ); // 8px
-
     align-items: center;
     display: flex;
-    font-size: var( --font-size );
-    font-weight: 600;
-    line-height: 1.666;
     white-space: nowrap;
 
     &__indicator {
         background-color: var( --jp-gray-50 );
-        border-radius: var( --indicator-size );
+        border-radius: 50%;
         flex-shrink: 0;
-        height: var( --indicator-size );
-        width: var( --indicator-size );
+        height: 0.666em;
+        width: 0.666em;
     }
 
     &__label {
-        margin-left: calc( var( --indicator-size ) / 2 );
+        font-weight: 600;
+        line-height: 1.666;
+        margin-left: calc( var( --spacing-base ) / 2 ); // 4px
     }
 
     &.is-active {

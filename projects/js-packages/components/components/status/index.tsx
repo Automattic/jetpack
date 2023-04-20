@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import classNames from 'classnames';
+import Text from '../text';
 import styles from './style.module.scss';
 
 interface StatusProps {
@@ -18,7 +19,8 @@ const Status = ( { className, label, status = 'inactive' }: StatusProps ): JSX.E
 	};
 
 	return (
-		<span
+		<Text
+			variant="body-extra-small"
 			className={ classNames(
 				styles.status,
 				{
@@ -28,12 +30,10 @@ const Status = ( { className, label, status = 'inactive' }: StatusProps ): JSX.E
 			) }
 		>
 			<span className={ styles.status__indicator } />
-			{ label || label === '' ? (
-				<span className={ styles.status__label }>{ label }</span>
-			) : (
-				<span className={ styles.status__label }>{ defaultLabels[ status ] }</span>
-			) }
-		</span>
+			<span className={ styles.status__label }>
+				{ label || label === '' ? label : defaultLabels[ status ] }
+			</span>
+		</Text>
 	);
 };
 
