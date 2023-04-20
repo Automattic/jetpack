@@ -93,12 +93,12 @@ describe( 'Inspector controls', () => {
 			expect( screen.getByText( 'Scroll to zoom' ) ).toBeInTheDocument();
 		} );
 
-		test( "scroll to zoom toggle doesn't show when mapProvider is mapkit", () => {
+		test( 'scroll to zoom toggle  shows correctly when mapProvider when mapProvider is mapkit', () => {
 			const props = { ...defaultProps, mapProvider: 'mapkit' };
 
 			render( <MapControls { ...props } /> );
 
-			expect( screen.queryByText( 'Scroll to zoom' ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Scroll to zoom' ) ).toBeInTheDocument();
 		} );
 
 		test( 'show fullscreen button toggle shows correctly when mapProvider is mapbox', () => {
