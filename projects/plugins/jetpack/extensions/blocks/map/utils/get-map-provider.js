@@ -1,5 +1,3 @@
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-
 function getCookie( name ) {
 	const value = `; ${ document.cookie }`;
 	const parts = value.split( `; ${ name }=` );
@@ -19,8 +17,10 @@ const getMapProvider = props => {
 		return mapProviderCookie;
 	}
 
-	if ( isAtomicSite() || isSimpleSite() ) {
-		return 'mapkit';
+	if ( window && window.map_block_map_provider ) {
+		if ( [ 'mapbox', 'mapkit' ].includes( window.map_block_map_provider ) ) {
+			return window.map_block_map_provider;
+		}
 	}
 	return 'mapbox';
 };
