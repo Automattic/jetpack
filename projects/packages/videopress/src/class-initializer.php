@@ -282,8 +282,7 @@ class Initializer {
 		}
 
 		$figure_template = '
-		<figure %6$s class="%1$s" style="%2$s">			
-			%3$s
+		<figure class="%1$s" style="%2$s" %3$s>
 			%4$s
 			%5$s
 		</figure>
@@ -298,7 +297,8 @@ class Initializer {
 			$videopress_url = wp_kses_post( $videopress_url );
 			$oembed_html    = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
 			$video_wrapper  = sprintf(
-				'<div class="jetpack-videopress-player__wrapper">%s</div>',
+				'<div class="jetpack-videopress-player__wrapper">%s %s</div>',
+				$preview_on_hover,
 				$oembed_html
 			);
 		}
@@ -307,10 +307,9 @@ class Initializer {
 			$figure_template,
 			esc_attr( $classes ),
 			esc_attr( $style ),
-			$preview_on_hover,
+			$id_attribute,
 			$video_wrapper,
-			$figcaption,
-			$id_attribute
+			$figcaption
 		);
 	}
 
