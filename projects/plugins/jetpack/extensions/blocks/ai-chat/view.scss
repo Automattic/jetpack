@@ -31,6 +31,21 @@
 		}
 
 	}
+	.jetpack-ai-chat-answer-container {
+		display: flex;
+		align-items: center;
+		font-size: 1.2rem;
+
+		p { 
+			font-size: 1.2rem;
+		}
+
+		svg {
+			width: 40px;
+			height: 40px;
+			margin-right: 12px;
+		}
+	}
 	.jetpack-ai-chat-answer-references {
 		margin-top: 12px;
 		font-size: 1rem;

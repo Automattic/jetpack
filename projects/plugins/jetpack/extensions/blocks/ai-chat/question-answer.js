@@ -1,18 +1,13 @@
 /**
  * WordPress dependencies
  */
-import {
-	Button,
-	TextControl,
-	Spinner,
-	KeyboardShortcuts,
-	ExternalLink,
-} from '@wordpress/components';
+import { Button, TextControl, KeyboardShortcuts, ExternalLink } from '@wordpress/components';
 import { RawHTML, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import Loading from './loading';
 import useSubmitQuestion from './use-submit-question';
 
 // This component displays the text word by word if show animation is true
@@ -89,7 +84,7 @@ export default function QuestionAnswer() {
 				<div className="jetpack-ai-chat-answer-container">
 					{ isLoading ? (
 						<>
-							<Spinner />
+							<Loading />
 							{ waitString }
 						</>
 					) : (
