@@ -8,7 +8,7 @@ interface StatusProps {
 	className?: string;
 }
 
-const Status = ( { className, label, status = 'inactive', ...rest }: StatusProps ): JSX.Element => {
+const Status = ( { className, label, status = 'inactive' }: StatusProps ): JSX.Element => {
 	const defaultLabels: Record< string, string > = {
 		active: __( 'Active', 'jetpack' ),
 		error: __( 'Error', 'jetpack' ),
@@ -26,7 +26,6 @@ const Status = ( { className, label, status = 'inactive', ...rest }: StatusProps
 				},
 				className
 			) }
-			{ ...rest }
 		>
 			<span className={ styles.status__indicator } />
 			{ label || label === '' ? (
