@@ -10,7 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
-use Automattic\Jetpack\Forms\Post_To_Url_Hook;
+use Automattic\Jetpack\Forms\Service\Post_To_Url;
 
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
@@ -867,7 +867,7 @@ class Contact_Form_Plugin {
 		}
 
 		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
-			Post_To_Url_Hook::get_instance()->initialize();
+			Post_To_Url::init();
 		}
 		// Process the form
 		return $form->process_submission();
