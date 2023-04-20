@@ -1,3 +1,6 @@
+export const RESPONSES_FETCH_LIMIT = 50;
+export const RESPONSES_PLACEHOLDER_LIMIT = 10;
+
 export const TABS = {
 	inbox: 'inbox',
 	spam: 'spam',

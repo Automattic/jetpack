@@ -1,8 +1,16 @@
+/**
+ * External dependencies
+ */
 import { Button } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { times } from 'lodash';
+/**
+ * Internal dependencies
+ */
 import PageNavigation from '../components/page-navigation';
 import Table from '../components/table';
+import { RESPONSES_PLACEHOLDER_LIMIT } from './constants';
 import SingleActionsMenu from './single-actions-menu';
 
 const COLUMNS = [
@@ -40,26 +48,25 @@ const InboxList = ( {
 	setSelectedResponses,
 	loading,
 } ) => {
-	const tableItems = useMemo(
-		() =>
-			responses.map( response => ( {
-				...response,
-				onClick: () => setCurrentResponseId( response.id ),
-				isActive: response.id === currentResponseId,
-			} ) ),
-		[ currentResponseId, responses, setCurrentResponseId ]
-	);
+	const tableItems = useMemo( () => {
+		const items = responses.map( response => ( {
+			...response,
+			onClick: () => setCurrentResponseId( response.id ),
+			isActive: response.id === currentResponseId,
+		} ) );
 
-	if ( loading ) {
-		return (
-			<Table
-				className="jp-forms__inbox-list"
-				columns={ [ { key: 'empty', label: __( 'Loading…', 'jetpack-forms' ) } ] }
-				items={ [] }
-			/>
-		);
-	}
-	if ( responses.length === 0 ) {
+		if ( loading ) {
+			return items.concat(
+				times( Math.max( RESPONSES_PLACEHOLDER_LIMIT - responses.length, 1 ), () => ( {
+					isLoading: true,
+				} ) )
+			);
+		}
+
+		return items;
+	}, [ currentResponseId, loading, responses, setCurrentResponseId ] );
+
+	if ( ! loading && responses.length === 0 ) {
 		return (
 			<Table
 				className="jp-forms__inbox-list"

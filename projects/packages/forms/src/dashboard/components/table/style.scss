@@ -23,6 +23,12 @@
 	color: #fff;
 }
 
+@keyframes jp-forms__table-pulse {
+	from { opacity: .2; }
+	50% { opacity: .1; }
+	to { opacity: .2 }
+}
+
 .jp-forms__table-cell {
 	border-bottom: 1px solid #dcdcde;
 	box-sizing: border-box;
@@ -61,6 +67,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+	}
+
+	.jp-forms__table-item.is-loading &::before {
+		animation: jp-forms__table-pulse 2s ease-in-out infinite;
+		content: '';
+		background-color: #000;
+		border-radius: .5em;
+		display: flex;
+		height: 1em;
 	}
 
 	.components-button.is-link {

@@ -56,9 +56,9 @@ const Table = ( { className, columns, items, selectedResponses = [], setSelected
 				} ) }
 			</div>
 
-			{ map( items, item => (
+			{ map( items, ( item, index ) => (
 				<TableItem
-					key={ `table-row-${ item.id }` }
+					key={ `table-row-${ item.isLoading ? index + '-loading' : item.id }` }
 					columns={ columns }
 					item={ item }
 					isSelected={ includes( selectedResponses, item.id ) }

@@ -7,10 +7,11 @@ const stopPropagation = event => event.stopPropagation();
 const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 	const handleChange = useCallback( () => onSelectChange( item.id ), [ item.id, onSelectChange ] );
 
-	const classes = classnames( 'jp-forms__table-item', {
-		'is-active': item.isActive,
-		'is-clickable': item.onClick,
-		'is-selected': isSelected,
+	const classes = classnames( 'jp-forms__table-item', item.className, {
+		'is-active': ! item.isLoading && item.isActive,
+		'is-clickable': ! item.isLoading && item.onClick,
+		'is-loading': item.isLoading,
+		'is-selected': ! item.isLoading && isSelected,
 	} );
 
 	return (
@@ -18,17 +19,19 @@ const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 		<div className={ classes } onClick={ item.onClick }>
 			{ !! onSelectChange && (
 				<div className="jp-forms__table-cell is-select">
-					<input
-						className="jp-forms__table-checkbox"
-						type="checkbox"
-						onClick={ stopPropagation }
-						onChange={ handleChange }
-						checked={ isSelected }
-					/>
+					{ ! item.isLoading && (
+						<input
+							className="jp-forms__table-checkbox"
+							type="checkbox"
+							onClick={ stopPropagation }
+							onChange={ handleChange }
+							checked={ isSelected }
+						/>
+					) }
 				</div>
 			) }
 
-			{ map( columns, ( { additionalClassNames, component, getProps, key } ) => {
+			{ map( columns, ( { additionalClassNames, component, getProps, key }, index ) => {
 				let Wrapper = Fragment;
 				let props = {};
 
@@ -42,6 +45,10 @@ const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 					`is-${ kebabCase( key ) }`,
 					additionalClassNames
 				);
+
+				if ( item.isLoading ) {
+					return <div key={ `table-${ key }-${ index }-loading` } className={ cellClasses } />;
+				}
 
 				return (
 					<div key={ `table-${ key }-${ item.id }` } className={ cellClasses }>
