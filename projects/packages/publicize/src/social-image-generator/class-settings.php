@@ -98,7 +98,7 @@ class Settings {
 			return $this->settings['enabled'];
 		}
 
-		return true;
+		return false;
 	}
 
 	/**

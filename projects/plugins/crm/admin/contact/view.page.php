@@ -139,10 +139,13 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 					<?php
 
 				} else {
-
-					// normal, 2 column 'contact card'
+					/*
+					 * We are setting a min-width of 125px to match the size of the
+					 * edit button since Semantic UI does not handle the button
+					 * resizing well when the screen is too small.
+					 */
 					?>
-					<div class="three wide column" style="text-align:center">
+					<div class="three wide column" style="text-align:center; min-width:125px;">
 						<?php echo $avatar; ?>
 						<a class="ui button green" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link( 'edit', $id, 'zerobs_customer', false ); ?>">
 							<?php esc_html_e( 'Edit Contact', 'zero-bs-crm' ); ?>
@@ -172,6 +175,20 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						<?php zeroBSCRM_html_sendemailto( $id, $contact_email, false ); ?>
 						<input type="hidden" id="email" value="<?php echo esc_attr( $contact_email ); ?>" />
 						</p>
+
+					<?php
+					$statusStr = ''; //phpcs:ignore  WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					if ( isset( $contact ) && isset( $contact['status'] ) && ! empty( $contact['status'] ) ) {
+						$statusStr = $contact['status']; //phpcs:ignore  WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					}
+
+					if ( ! empty( $statusStr ) ) { //phpcs:ignore  WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						?>
+					<p>
+						<?php esc_html_e( 'Status', 'zero-bs-crm' ); ?>: 
+						<b><?php echo esc_html( $statusStr ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?></b>
+					</p>
+					<?php } ?>
 
 						<div class="zbs-social-buttons">
 							<?php
@@ -257,12 +274,6 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 				<!-- customer vitals -->
 				<?php
 
-				// prep
-				$statusStr = '';
-				if ( isset( $contact ) && isset( $contact['status'] ) && ! empty( $contact['status'] ) ) {
-					$statusStr = $contact['status'];
-				}
-
 				// compiled addr str
 				$addrStr = '';
 				if ( isset( $contact ) ) {
@@ -318,16 +329,8 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 					?>
 					item">
 														<?php
-
-															// custom title e.g. Lead Vitals
-														if ( ! empty( $statusStr ) ) {
-															echo esc_html( $statusStr );
-														} else {
 															esc_html_e( 'Contact', 'zero-bs-crm' );
-														}
-
 															echo ' ' . esc_html__( 'Vitals', 'zero-bs-crm' );
-
 														?>
 						</div>
 					<?php if ( count( $zbsSocialAccountTypes ) > 0 && count( $contact_socials ) > 0 ) { ?>
@@ -364,12 +367,6 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						}
 					}
 					?>
-					<?php if ( ! empty( $statusStr ) ) { ?>
-					<div class="right menu item">
-						<?php esc_html_e( 'Status', 'zero-bs-crm' ); ?>: 
-					<span class="ui green label"><?php echo esc_html( $statusStr ); ?></span>
-					</div>
-					<?php } ?>
 				</div>
 
 				<div class="ui bottom attached active tab segment" data-tab="vitals" id="zbs-contact-view-vitals">

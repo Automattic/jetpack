@@ -5,6 +5,59 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.7.0] - 2023-04-19
+### Added
+- Menus: Add back to list button on add and edit pages for companies, transactions, invoices, and quotes [#29999]
+- Settings: Remove 'Restore default settings' from the General Settings page, add to settings page menu [#29999]
+- Support Page: Add new support page for customers to submit support requests [#29545]
+
+### Changed
+- API: Add optional parameter to the API to set the external service name, and replace hyphens from the json response to underscores [#29316]
+- Companies: Move status select from Actions to main edit section underneath ID [#29999]
+- Contacts: Change location of save button and add Contact Actions metabox for contacts [#29999]
+- Onboarding: Change onboarding wizard company name description to remove 'as shown below' [#29999]
+- Quotes: Move Quote Status underneath Quote ID [#29999]
+- Menus: Swap the stacked logo to the horizontal one [#30092]
+- CSV Importer: Various UI/UX tweaks [#29851]
+- Dashboard: Align the Latest Contacts and Revenue Chart buttons [#29999]
+- Dashboard: Make spacing between panels more consistent [#29999]
+- Invoices: Fix overflow issue in the edit invoice page [#29999]
+- Invoices: Move status select HTML from Invoice Actions to main edit section under ID [#29999]
+- OAuth: Dependencies are now downloaded to wp-content/jpcrm-storage/packages [#29734]
+- Onboarding: Make all hint styles consistent [#29999]
+- Transactions: Change location of import sub-menu item when CSV Pro is installed and active [#29999]
+- Transactions: Move status select HTML from Transaction Actions to main edit section underneath ID [#29999]
+
+### Removed
+- Onboarding: Remove company name preview from onboarding wizard [#29999]
+
+### Fixed
+- UI: Change fonts to smaller size, and different font family [#29999]
+- UI: Change form placeholder colors to a lighter shade of gray [#29999]
+- Contacts: Fix 403 error if file was uploaded via Client Portal Pro using Apache web server [#29969]
+- Menus: Remove border from top menu [#29999]
+- Dashboard: Adjustments to first-use modals [#30065]
+- Dashboard: Various fixes for the sales funnel [#29995]
+- Email: Caught PHP notices if recipient was deleted [#29747]
+- Exports: Catch PHP notice when exporting a subset of objects [#30111]
+- UI: Fix content overflowing in contact view page [#29999]
+- Support: Fix the Give Feedback link so that it sends to the reviews page on .org [#29873]
+- General: Fix various corrupt JS files [#29705]
+- Onboarding: Get updates (mailing list) changed from opt-out to opt-in in the onboarding wizard [#29999]
+- Importer: Allow import of application/csv mime type
+  Importer: Better parsing of CSV fields [#29822]
+- General: Improved compatibility with PHP 8.1 [#29945]
+- Invoices: Fix ability to remove logo from invoice edit page [#30099]
+- Invoices: Fix PHP notice when sending contact an invoice via email [#30110]
+- General: Fix broken link in bulk actions function in list view [#29623]
+- Mailpoet Sync: Fix an issue where contact images would disappear after synchronization [#30091]
+- Onboarding: Remove outdated YouTube video from welcome overlay [#29999]
+- Quotes: Use current date if quote date is blank [#30032]
+- Settings: Fix broken link on white label installs [#30160]
+- Settings: Allow new tax rates to be added [#29938]
+- Onboarding: Usage tracking changed from opt-out to opt-in in the onboarding wizard [#29999]
+- WooSync: Tag existing contacts with new orders [#30107]
+
 ## [5.6.0] - 2023-03-23
 ### Changed
 - Contacts: Change customer references to contact in all but Woo and commerce contexts [#29267]
@@ -75,5 +128,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved: Security around phone numbers viewing
 - Improved: Added a migration to remove outdated AKA lines
 
-[5.6.0]: https://github.com/Automattic/jetpack-crm/compare/v5.5.4-a.1...v5.6.0
 [5.5.4-a.1]: https://github.com/Automattic/jetpack-crm/compare/v5.5.3...v5.5.4-a.1
+[5.7.0]: https://github.com/Automattic/jetpack-crm/compare/v5.6.0...v5.7.0
+[5.6.0]: https://github.com/Automattic/jetpack-crm/compare/v5.5.4-a.1...v5.6.0
