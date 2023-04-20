@@ -19,6 +19,10 @@
 		position: relative;
 		display: flex;
 
+		&.has-controls .jetpack-videopress-player__overlay {
+			cursor: pointer;
+		}
+
 		&:hover {
 			.jetpack-videopress-player__play-button {
 				transition-property: opacity;
