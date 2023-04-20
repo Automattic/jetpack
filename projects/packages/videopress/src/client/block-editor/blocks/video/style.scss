@@ -58,13 +58,8 @@
 		background: url( data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjIiIGhlaWdodD0iMjIiIHZpZXdCb3g9IjAgMCAyMiAyMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KCTxwYXRoCgkJZD0iTTYuMjU3MjUgMS4wNzVDNi4xMDI3OSAwLjk3NzQ0OSA1LjkxMDQxIDAuOTc0ODg5IDUuNzUzNjUgMS4wNjgzMkM1LjU5Njg5IDEuMTYxNzQgNS41IDEuMzM2NyA1LjUgMS41MjYzMlYyMC40NzM3QzUuNSAyMC42NjMzIDUuNTk2ODkgMjAuODM4MyA1Ljc1MzY1IDIwLjkzMTdDNS45MTA0MSAyMS4wMjUxIDYuMTAyNzkgMjEuMDIyNiA2LjI1NzI1IDIwLjkyNUwyMS4yNTczIDExLjQ1MTNDMjEuNDA3OSAxMS4zNTYyIDIxLjUgMTEuMTg0OSAyMS41IDExQzIxLjUgMTAuODE1MSAyMS40MDc5IDEwLjY0MzggMjEuMjU3MyAxMC41NDg3TDYuMjU3MjUgMS4wNzVaIgoJCWZpbGw9IndoaXRlIgoJLz4KPC9zdmc+ );
 		background-size: var( --big-play-button-size ) var( --big-play-button-size );
 
-		/* Transition properties for mouse-leave */
-		transition-property: opacity;
-		transition-duration: 0.3s;
-		transition-delay: 0.5s;
-
 		&.is-behind {
 			z-index: 8;
 		}
-	}	
+	}
 }
