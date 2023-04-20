@@ -24,6 +24,11 @@ export const ActionNeeded = args => {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const Initializing = args => {
+	return <Status status="initializing" />;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const Inactive = args => {
 	return <Status status="inactive" />;
 };

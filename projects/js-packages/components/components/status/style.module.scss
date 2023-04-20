@@ -52,4 +52,12 @@
             background-color: var( --jp-yellow-30 );
         }
     }
+
+    &--initializing {
+        color: var( --jp-blue-40 );
+
+        .status__indicator {
+            background-color: var( --jp-blue-40 );
+        }
+    }
 }
