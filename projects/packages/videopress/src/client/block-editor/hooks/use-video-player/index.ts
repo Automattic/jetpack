@@ -39,7 +39,7 @@ export const getIframeWindowFromRef = (
 const useVideoPlayer = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >,
 	isRequestingPreview: boolean,
-	{ initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions,
+	{ initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions
 ): UseVideoPlayer => {
 	const [ playerIsReady, setPlayerIsReady ] = useState( false );
 	const playerState = useRef< PlayerStateProp >( 'not-rendered' );
