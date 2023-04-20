@@ -20,9 +20,9 @@
 
 .jp-at-a-glance__stats-card {
 	padding: 0;
-}
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+	border-radius: 4px;
 
-.jp-at-a-glance__stats-card {
 	.jp-link-button {
 		background: $white;
 		border: none;
@@ -100,7 +100,7 @@
 }
 
 .jp-at-a-glance__stats-chart {
-	padding: rem( 16px );
+	padding: rem( 16px ) 0;
 	position: relative;
 }
 
@@ -112,7 +112,7 @@
 }
 
 .jp-at-a-glance__stats-bottom {
-	margin: rem( 32px ) 0 0;
+	margin: rem( 8px ) 0 0;
 
 	@include breakpoint( '<480px' ) {
 		box-shadow: 0 0 0 1px $light-gray-700;
@@ -121,7 +121,6 @@
 
 .jp-at-a-glance__stats-summary {
 	text-align: center;
-	border-bottom: 1px $light-gray-700 solid;
 
 	@include breakpoint( '>660px' ) {
 		flex-wrap: nowrap;
@@ -134,52 +133,55 @@
 }
 
 .jp-at-a-glance__stats-summary-today,
-.jp-at-a-glance__stats-summary-bestday {
+.jp-at-a-glance__stats-summary-bestday,
+.jp-at-a-glance__stats-summary-alltime-views,
+.jp-at-a-glance__stats-summary-alltime-comments {
 	flex-basis: 25%;
-	padding: rem( 16px );
-	box-shadow: 0 0 0 1px $light-gray-700;
+	padding: rem( 13px ) 0 rem( 17px );
 }
 
 .jp-at-a-glance__stats-summary-today {
+	border-width: 1px 1px 1px 0;
+	border-style: solid;
+	border-color: #DCDCDE;
+
 	@include breakpoint( '<660px' ) {
 		margin-top: rem( -1px );
 	}
 }
 
 .jp-at-a-glance__stats-summary-bestday {
+	border-width: 1px 1px 1px 0;
+	border-style: solid;
+	border-color: #DCDCDE;
+
 	@include breakpoint( '>660px' ) {
 		margin: 0 rem( 1px );
 	}
 }
 
+.jp-at-a-glance__stats-summary-alltime-views {
+	border-width: 1px 0;
+	border-style: solid;
+	border-color: #DCDCDE;
+}
+
+.jp-at-a-glance__stats-summary-alltime-comments {
+	border-width: 1px 0 1px 1px;
+	border-style: solid;
+	border-color: #DCDCDE;
+}
+
 .jp-at-a-glance__stats-summary-bestday,
-.jp-at-a-glance__stats-summary-alltime {
+.jp-at-a-glance__stats-summary-alltime-views,
+.jp-at-a-glance__stats-summary-alltime-comments {
 	@include breakpoint( '<660px' ) {
 		margin-top: rem( 1px );
 	}
 }
 
-.jp-at-a-glance__stats-summary-alltime {
-	flex-basis: 50%;
-	padding: rem( 16px );
-	box-shadow: 0 0 0 1px $light-gray-700;
-
-	@include breakpoint( '>660px' ) {
-		max-width: 50%; // for IE 10 since it doesn't recognize flex-basis
-		display: flex;
-		flex-grow: 1;
-		flex-shrink: 1;
-	}
-}
-
-.jp-at-a-glance__stats-alltime-views,
-.jp-at-a-glance__stats-alltime-comments {
-	flex-basis: 50%;
-}
-
 .jp-at-a-glance__stats-cta {
-	padding: rem( 16px );
-	background-color: lighten( $gray, 35% );
+	padding: rem( 12px );
 
 	@include breakpoint( '>660px' ) {
 		display: flex;
@@ -200,13 +202,18 @@
 
 .jp-at-a-glance__stat-details {
 	margin: 0;
-	font-size: $font-body-small;
+	font-size: $font-body;
+	line-height: 24px;
+	color: $gray-80;
+	letter-spacing: -0.02em;
 }
 
 .jp-at-a-glance__stat-number {
-	font-size: $font-title-medium;
-	font-weight: 400;
-	margin: rem( 8px ) 0;
+	color: $black;
+	font-size: $font-title-small;
+	line-height: 30px;
+	font-weight: 500;
+	margin: rem( 6px ) 0 rem( 4px );
 }
 
 .jp-at-a-glance__stats-ctas {
@@ -262,9 +269,10 @@
 }
 
 .jp-at-a-glance__stats-view-link,
+.jp-at-a-glance__stats-view-link:hover,
 .jp-at-a-glance__stats-view-link:visited {
 	color: $gray-60;
-	text-decoration: underline;
+	text-decoration: none;
 	font-size: 16px;
 	line-height: 24px;
 	letter-spacing: -0.02em;

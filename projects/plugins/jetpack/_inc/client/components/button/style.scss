@@ -18,13 +18,14 @@
 	margin: 0;
 	outline: 0;
 	overflow: hidden;
-	font-size: $font-body-small;
+	font-size: $font-body;
+	line-height: 24px;
 	text-overflow: ellipsis;
 	text-decoration: none;
 	vertical-align: top;
 	box-sizing: border-box;
-	border-radius: 3px;
-	padding: 7px 14px 9px;
+	border-radius: 4px;
+	padding: 8px 24px;
 	-webkit-appearance: none;
 	appearance: none;
 
@@ -83,21 +84,10 @@
 
 // Primary buttons
 .dops-button.is-primary {
-	background: $blue-medium;
-	border-color: $blue-medium;
+	background: $black;
+	border: none;
 	color: $white;
 
-	&:hover,
-	&:focus {
-		border-color: $blue-medium-dark;
-		background: $blue-medium-dark;
-		color: $white;
-	}
-	&:focus {
-		box-shadow:
-			0 0 0 1px $white,
-			0 0 0 3px $blue-medium-dark;
-	}
 	&[disabled],
 	&:disabled {
 		color: #66c6e4 !important;

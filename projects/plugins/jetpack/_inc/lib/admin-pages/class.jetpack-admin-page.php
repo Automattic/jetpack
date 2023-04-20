@@ -278,7 +278,7 @@ abstract class Jetpack_Admin_Page {
 				padding-left: 0 !important;
 			}
 			#wpbody-content {
-				background-color: #f6f6f6;
+				background-color: var( --jp-white-off );
 			}
 
 			@media (max-width: 782px) {
