@@ -44,7 +44,7 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 			return (
 				<span className={ styles[ 'help-message' ] }>
 					{ __(
-						'Autoplay is turned off as the hover preview is active.',
+						'Autoplay is turned off as the preview on hover is active.',
 						'jetpack-videopress-pkg'
 					) }
 				</span>
