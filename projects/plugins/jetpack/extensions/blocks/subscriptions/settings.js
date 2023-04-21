@@ -10,6 +10,7 @@ import {
 	VisuallyHidden,
 	ToolbarButton,
 	ExternalLink,
+	Spinner,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -130,11 +131,14 @@ export function NewsletterAccess( {
 	}
 	const accessLabel = accessOptions[ accessLevel ]?.label;
 
-	const newsletterPlans = useSelect( select =>
-		select( 'jetpack/membership-products' )
-			?.getProducts()
-			?.filter( product => product.subscribe_as_site_subscriber )
-	);
+	const { newsletterPlans, isLoading } = useSelect( select => {
+		const { getProducts, isApiStateLoading } = select( 'jetpack/membership-products' );
+
+		return {
+			isLoading: isApiStateLoading(),
+			newsletterPlans: getProducts()?.filter( product => product.subscribe_as_site_subscriber ),
+		};
+	} );
 
 	// Can be “private”, “password”, or “public”.
 	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
@@ -144,6 +148,14 @@ export function NewsletterAccess( {
 		! postVisibilityIsPublic && accessLevel === accessOptions.everybody.string;
 	const showMisconfigurationMessage =
 		! postVisibilityIsPublic && accessLevel !== accessOptions.everybody.string;
+
+	if ( isLoading ) {
+		return (
+			<Flex direction="column" align="center">
+				<Spinner />
+			</Flex>
+		);
+	}
 
 	if ( ! newsletterPlans || newsletterPlans.length === 0 ) {
 		return (
