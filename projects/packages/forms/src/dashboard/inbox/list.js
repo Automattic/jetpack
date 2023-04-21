@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { Button } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { times } from 'lodash';
@@ -10,7 +11,8 @@ import { times } from 'lodash';
  */
 import PageNavigation from '../components/page-navigation';
 import Table from '../components/table';
-import { RESPONSES_PLACEHOLDER_LIMIT } from './constants';
+import { STORE_NAME } from '../state';
+import { RESPONSES_FETCH_LIMIT } from './constants';
 import SingleActionsMenu from './single-actions-menu';
 
 const COLUMNS = [
@@ -48,6 +50,8 @@ const InboxList = ( {
 	setSelectedResponses,
 	loading,
 } ) => {
+	const totalResponses = useSelect( select => select( STORE_NAME ).getTotalResponses(), [] );
+
 	const tableItems = useMemo( () => {
 		const items = responses.map( response => ( {
 			...response,
@@ -56,15 +60,22 @@ const InboxList = ( {
 		} ) );
 
 		if ( loading ) {
+			const numPlaceholders = responses.length
+				? Math.min(
+						RESPONSES_FETCH_LIMIT,
+						totalResponses - ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
+				  )
+				: 10;
+
 			return items.concat(
-				times( Math.max( RESPONSES_PLACEHOLDER_LIMIT - responses.length, 1 ), () => ( {
+				times( numPlaceholders, () => ( {
 					isLoading: true,
 				} ) )
 			);
 		}
 
 		return items;
-	}, [ currentResponseId, loading, responses, setCurrentResponseId ] );
+	}, [ currentPage, currentResponseId, loading, responses, setCurrentResponseId, totalResponses ] );
 
 	if ( ! loading && responses.length === 0 ) {
 		return (

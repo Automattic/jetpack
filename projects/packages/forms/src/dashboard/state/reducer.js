@@ -76,6 +76,10 @@ const total = ( state = 0, action ) => {
 		return action.total;
 	}
 
+	if ( action.type === RESPONSES_REMOVE ) {
+		return state - action.responseIds.length;
+	}
+
 	return state;
 };
 
