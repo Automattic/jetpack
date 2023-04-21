@@ -336,7 +336,7 @@ function register_launchpad_task_list( $task_list ) {
  */
 function register_launchpad_tasks( $tasks ) {
 	$launchpad_task_lists = Launchpad_Task_Lists::get_instance();
-	return $launchpad_task_lists->register_task( $tasks );
+	return $launchpad_task_lists->register_tasks( $tasks );
 }
 
 /**
