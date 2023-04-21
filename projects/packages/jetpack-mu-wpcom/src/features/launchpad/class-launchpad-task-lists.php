@@ -201,10 +201,7 @@ class Launchpad_Task_Lists {
 		}
 
 		if ( ! isset( $task_list['slug'] ) ) {
-			return false;
-		}
-
-		if ( ! isset( $task_list['title'] ) ) {
+			trigger_error( 'The Launchpad task list being registered requires a "slug" attribute', E_USER_WARNING );
 			return false;
 		}
 
@@ -224,18 +221,22 @@ class Launchpad_Task_Lists {
 		}
 
 		if ( ! isset( $task['slug'] ) ) {
+			trigger_error( 'The Launchpad task being registered requires a "slug" attribute', E_USER_WARNING );
 			return false;
 		}
 
 		if ( ! isset( $task['title'] ) ) {
+			trigger_error( 'The Launchpad task being registered requires a "title" attribute', E_USER_WARNING );
 			return false;
 		}
 
 		if ( ! isset( $task['completed'] ) ) {
+			trigger_error( 'The Launchpad task being registered requires a "completed" attribute', E_USER_WARNING );
 			return false;
 		}
 
 		if ( ! isset( $args['disabled'] ) ) {
+			trigger_error( 'The Launchpad task being registered requires a "disabled" attribute', E_USER_WARNING );
 			return false;
 		}
 
