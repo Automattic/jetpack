@@ -47,6 +47,7 @@ export function* fetchResponses( query ) {
 			type: RESPONSES_FETCH_RECEIVE,
 			responses: data.responses,
 			total: data.totals[ query.status || 'inbox' ],
+			tabTotals: data.totals,
 			filters: data.filters_available,
 		};
 	} catch ( error ) {
