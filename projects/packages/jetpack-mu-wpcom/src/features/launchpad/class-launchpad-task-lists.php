@@ -203,6 +203,11 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
+		if ( ! isset( $task_list['task_ids'] ) ) {
+			trigger_error( 'The Launchpad task list being registered requires a "task_ids" attribute', E_USER_WARNING );
+			return false;
+		}
+
 		return true;
 	}
 
