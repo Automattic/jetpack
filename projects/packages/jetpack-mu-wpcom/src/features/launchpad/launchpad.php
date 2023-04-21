@@ -273,10 +273,10 @@ function get_task_definitions() {
 			'badge_text' => get_domain_upsell_badge_text(),
 		),
 		array(
-			'id'       => 'verify_email',
-			'title'    => __( 'Confirm Email (Check Your Inbox)', 'jetpack-mu-wpcom' ),
-			'complete' => false,
-			'disabled' => true,
+			'id'        => 'verify_email',
+			'title'     => __( 'Confirm Email (Check Your Inbox)', 'jetpack-mu-wpcom' ),
+			'completed' => false,
+			'disabled'  => true,
 		),
 	);
 }
