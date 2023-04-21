@@ -132,7 +132,7 @@ export default function VideoPressEdit( {
 			setAttributes( { guid: null } );
 			setFileToUpload( media );
 		},
-		[ setIsReplacingFile, setIsUploadingFile, setFileToUpload ]
+		[ attributes, setIsReplacingFile, setIsUploadingFile, setFileToUpload ]
 	);
 
 	const onReplaceSelectFromLibrary = useCallback(
