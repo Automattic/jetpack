@@ -130,7 +130,7 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 								anchor: 'memberships-and-subscriptions',
 							} ) }
 						>
-							{ __( 'Learn More', 'jetpack' ) }{ ' ' }
+							{ __( 'Learn More', 'jetpack' ) }
 						</ExternalLink>
 					</small>
 				</PanelRow>
@@ -223,7 +223,7 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 											anchor: 'memberships-and-subscriptions',
 										} ) }
 									>
-										{ __( 'Learn More', 'jetpack' ) }{ ' ' }
+										{ __( 'Learn More', 'jetpack' ) }
 									</ExternalLink>
 								</small>
 							</FlexBlock>
