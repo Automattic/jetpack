@@ -58,7 +58,7 @@ function get_checklist_definitions() {
 			),
 		),
 		array(
-			'id'       => 'link-in-bio',
+			'id'       => 'link-in-bio-tld',
 			'title'    => 'Link In Bio',
 			'task_ids' => array(
 				'design_selected',
@@ -91,7 +91,7 @@ function get_checklist_definitions() {
 		),
 		array(
 			'id'       => 'write',
-			'title'    => 'write',
+			'title'    => 'Write',
 			'task_ids' => array(
 				'setup_write',
 				'design_selected',
