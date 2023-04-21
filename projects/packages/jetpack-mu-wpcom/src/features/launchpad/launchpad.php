@@ -14,7 +14,7 @@
  * @since 1.4.0
  */
 
-require_once __DIR__ . '/../launchpad/class-launchpad-task-list.php';
+require_once __DIR__ . '/class-launchpad-task-lists.php';
 
 /**
  * Returns the list of tasks by flow or checklist slug.
@@ -328,14 +328,25 @@ function get_launchpad_checklist_by_checklist_slug( $checklist_slug ) {
 /**
  * Wrapper that registers a launchpad checklist.
  *
- * @param string    $slug Task list slug.
  * @param Task_List $task_list Task list definition.
  *
  * @return bool True if successful, false otherwise.
  */
-function register_launchpad_task_list( $slug, $task_list ) {
+function register_launchpad_task_list( $task_list ) {
 	$launchpad_task_lists = Launchpad_Task_Lists::get_instance();
-	return $launchpad_task_lists->register_task_list( $slug, $task_list );
+	return $launchpad_task_lists->register_task_list( $task_list );
+}
+
+/**
+ * Wrapper that registers a launchpad checklist.
+ *
+ * @param Task $tasks Collection of Task definitions.
+ *
+ * @return bool True if successful, false otherwise.
+ */
+function register_launchpad_tasks( $tasks ) {
+	$launchpad_task_lists = Launchpad_Task_Lists::get_instance();
+	return $launchpad_task_lists->register_task( $tasks );
 }
 
 /**
@@ -354,13 +365,11 @@ function register_launchpad_task( $task ) {
  * Registers all default launchpad checklists
  */
 function register_default_checklists() {
-	$launchpad_task_lists = Launchpad_Task_Lists::get_instance();
-
 	foreach ( get_checklist_definitions() as $checklist ) {
-		$launchpad_task_lists->register_checklist( $checklist );
+		register_launchpad_task_list( $checklist );
 	}
 
-	$launchpad_task_lists->register_tasks( get_task_definitions() );
+	register_launchpad_tasks( get_task_definitions() );
 }
 
 add_action( 'init', 'register_default_checklists' );
