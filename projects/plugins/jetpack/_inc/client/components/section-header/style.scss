@@ -7,8 +7,8 @@
 	display: flex;
 	flex-wrap: wrap;
 	max-width: 100%;
-	padding-top: rem( 11px );
-	padding-bottom: rem( 11px );
+	padding-top: rem( 16px );
+	padding-bottom: rem( 15px );
 	position: relative;
 
 	&:after {
@@ -18,13 +18,14 @@
 
 .dops-section-header__label {
 	display: flex;
-		align-items: center;
+	align-items: center;
 	flex-grow: 1;
 	min-width: 0; // weird fix for overflowing items
-	line-height: rem( 28px );
+	line-height: rem( 30px );
 	position: relative;
-	color: $gray-dark;
-	font-size: rem( 14px );
+	color: $black;
+	font-size: rem( 20px );
+	font-weight: 500;
 
 	.dops-count {
 		margin-left: rem( 8px );

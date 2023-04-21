@@ -41,7 +41,7 @@ const renderCard = props => (
 			),
 			link: getRedirectUrl( 'jetpack-support-backup' ),
 		} }
-		className={ props.className }
+		className={ props.className + ' dash-backups' }
 		status={ props.status }
 		pro={ true }
 		overrideContent={ props.overrideContent }
