@@ -23,53 +23,81 @@ require_once __DIR__ . '/class-launchpad-task-lists.php';
  */
 function get_checklist_definitions() {
 	return array(
-		'build'           => array(
-			'setup_general',
-			'design_selected',
-			'first_post_published',
-			'design_edited',
-			'site_launched',
+		array(
+			'slug'       => 'build',
+			'title'      => 'Build',
+			'task_slugs' => array(
+				'setup_general',
+				'design_selected',
+				'first_post_published',
+				'design_edited',
+				'site_launched',
+			),
 		),
-		'free'            => array(
-			'setup_free',
-			'design_selected',
-			'domain_upsell',
-			'first_post_published',
-			'design_edited',
-			'site_launched',
+		array(
+			'slug'       => 'free',
+			'title'      => 'Free',
+			'task_slugs' => array(
+				'setup_free',
+				'design_selected',
+				'domain_upsell',
+				'first_post_published',
+				'design_edited',
+				'site_launched',
+			),
 		),
-		'link-in-bio'     => array(
-			'design_selected',
-			'setup_link_in_bio',
-			'plan_selected',
-			'links_added',
-			'link_in_bio_launched',
+		array(
+			'slug'       => 'link-in-bio',
+			'title'      => 'Link In Bio',
+			'task_slugs' => array(
+				'design_selected',
+				'setup_link_in_bio',
+				'plan_selected',
+				'links_added',
+				'link_in_bio_launched',
+			),
 		),
-		'link-in-bio-tld' => array(
-			'design_selected',
-			'setup_link_in_bio',
-			'plan_selected',
-			'links_added',
-			'link_in_bio_launched',
+		array(
+			'slug'       => 'link-in-bio',
+			'title'      => 'Link In Bio',
+			'task_slugs' => array(
+				'design_selected',
+				'setup_link_in_bio',
+				'plan_selected',
+				'links_added',
+				'link_in_bio_launched',
+			),
 		),
-		'newsletter'      => array(
-			'setup_newsletter',
-			'plan_selected',
-			'subscribers_added',
-			'verify_email',
-			'first_post_published_newsletter',
+		array(
+			'slug'       => 'newsletter',
+			'title'      => 'Newsletter',
+			'task_slugs' => array(
+				'setup_newsletter',
+				'plan_selected',
+				'subscribers_added',
+				'verify_email',
+				'first_post_published_newsletter',
+			),
 		),
-		'videopress'      => array(
-			'videopress_setup',
-			'plan_selected',
-			'videopress_upload',
-			'videopress_launched',
+		array(
+			'slug'       => 'videopress',
+			'title'      => 'Videopress',
+			'task_slugs' => array(
+				'videopress_setup',
+				'plan_selected',
+				'videopress_upload',
+				'videopress_launched',
+			),
 		),
-		'write'           => array(
-			'setup_write',
-			'design_selected',
-			'first_post_published',
-			'site_launched',
+		array(
+			'slug'       => 'write',
+			'title'      => 'write',
+			'task_slugs' => array(
+				'setup_write',
+				'design_selected',
+				'first_post_published',
+				'site_launched',
+			),
 		),
 	);
 }
