@@ -177,6 +177,9 @@ $color__back-link: #787c82;
 	  color: black;
 	  text-decoration: underline;
 	}
+  	& :hover {
+	  text-decoration-thickness: 3px;
+	}
 }
 
 
