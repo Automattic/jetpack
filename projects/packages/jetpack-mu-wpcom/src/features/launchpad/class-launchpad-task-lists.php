@@ -177,10 +177,16 @@ class Launchpad_Task_Lists {
 	public function build( $id ) {
 		$task_list           = $this->get_task_list( $id );
 		$tasks_for_task_list = array();
+
 		// Takes a registered task list, looks at its associated task ids,
 		// and returns a collection of associated tasks.
 		foreach ( $task_list['task_ids'] as $task_id ) {
-			$tasks_for_task_list[] = $this->get_task( $task_id );
+			$task = $this->get_task( $task_id );
+
+			// if task can't be found don't add anything
+			if ( ! empty( $task ) ) {
+				$tasks_for_task_list[] = $this->get_task( $task_id );
+			}
 		}
 
 		return $tasks_for_task_list;
