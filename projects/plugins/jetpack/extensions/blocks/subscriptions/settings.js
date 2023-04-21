@@ -9,11 +9,11 @@ import {
 	Dropdown,
 	VisuallyHidden,
 	ToolbarButton,
+	ExternalLink,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck } from '@wordpress/editor';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
@@ -123,21 +123,15 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 				</PanelRow>
 				<PanelRow>
 					<small spanClass={ 'jetpack-subscribe-info' }>
-						{ createInterpolateElement(
-							/* translators: basic information about the newsletter visibility */
-							__( 'Restrict your post to subscribers. <a>Learn more</a>.', 'jetpack' ),
-							{
-								a: (
-									<a
-										href={ getRedirectUrl( 'paid-newsletter-info', {
-											anchor: 'memberships-and-subscriptions',
-										} ) }
-										rel="noopener noreferrer"
-										target="_blank"
-									/>
-								),
-							}
-						) }
+						{ /* translators: basic information about the newsletter visibility */ }
+						{ __( 'Restrict your post to subscribers.', 'jetpack' ) }
+						<ExternalLink
+							href={ getRedirectUrl( 'paid-newsletter-info', {
+								anchor: 'memberships-and-subscriptions',
+							} ) }
+						>
+							{ __( 'Learn More', 'jetpack' ) }{ ' ' }
+						</ExternalLink>
 					</small>
 				</PanelRow>
 			</>
@@ -222,21 +216,15 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 						{ withModal && (
 							<FlexBlock>
 								<small spanClass={ 'jetpack-subscribe-info' }>
-									{ createInterpolateElement(
-										/* translators: basic information about the newsletter visibility */
-										__( 'Restrict your post to subscribers. <a>Learn more</a>.', 'jetpack' ),
-										{
-											a: (
-												<a
-													href={ getRedirectUrl( 'paid-newsletter-info', {
-														anchor: 'memberships-and-subscriptions',
-													} ) }
-													rel="noopener noreferrer"
-													target="_blank"
-												/>
-											),
-										}
-									) }
+									{ /* translators: basic information about the newsletter visibility */ }
+									{ __( 'Restrict your post to subscribers. ', 'jetpack' ) }
+									<ExternalLink
+										href={ getRedirectUrl( 'paid-newsletter-info', {
+											anchor: 'memberships-and-subscriptions',
+										} ) }
+									>
+										{ __( 'Learn More', 'jetpack' ) }{ ' ' }
+									</ExternalLink>
 								</small>
 							</FlexBlock>
 						) }
