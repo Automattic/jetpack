@@ -115,6 +115,7 @@
 	}
 	.jb-table-row__expand {
 		cursor: pointer;
+		margin-left: auto;
 		text-align: right;
 		width: var( --table-column-expand );
 	}
