@@ -6,7 +6,7 @@
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
 	import { regenerateCriticalCss } from '../../stores/critical-css-state';
-	import { updateModuleState } from '../../stores/modules';
+	import { modulesState } from '../../stores/modules';
 	import Logo from '../../svg/jetpack-green.svg';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
 
@@ -16,8 +16,7 @@
 	export let location, navigate;
 
 	onMount( async () => {
-		// Enable cloud-css on a successful upgrade.
-		await updateModuleState( 'cloud_css', true );
+		$modulesState.cloud_css.active = true;
 		await regenerateCriticalCss();
 	} );
 </script>

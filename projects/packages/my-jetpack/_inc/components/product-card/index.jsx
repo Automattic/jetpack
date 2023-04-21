@@ -1,7 +1,7 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { external, moreVertical, arrowDown } from '@wordpress/icons';
+import { external, moreVertical, download, check } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
@@ -19,6 +19,7 @@ const PRODUCT_STATUSES_LABELS = {
 
 /* eslint-disable react/jsx-no-bind */
 const Menu = ( {
+	productStatus,
 	items = [],
 	onManage,
 	onInstall,
@@ -29,10 +30,13 @@ const Menu = ( {
 } ) => {
 	/**
 	 * Only show standalone related option if plugin is not installed
-	 * or the plugin is not active
+	 * or the plugin is not active, the product has a standalone plugin
+	 * and there is no connection error.
 	 */
 	const showStandaloneOption =
-		hasStandalonePlugin && ( ! isStandaloneInstalled || ! isStandaloneActive );
+		productStatus !== PRODUCT_STATUSES.ERROR &&
+		hasStandalonePlugin &&
+		( ! isStandaloneInstalled || ! isStandaloneActive );
 
 	return (
 		<Dropdown
@@ -63,33 +67,35 @@ const Menu = ( {
 							{ item?.label }
 						</Button>
 					) ) }
-					<Button
-						weight="regular"
-						fullWidth
-						variant="tertiary"
-						icon={ external }
-						onClick={ () => {
-							onClose();
-							onManage?.();
-						} }
-					>
-						{ __( 'Manage', 'jetpack-my-jetpack' ) }
-					</Button>
+					{ productStatus === PRODUCT_STATUSES.ACTIVE && (
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							icon={ external }
+							onClick={ () => {
+								onClose();
+								onManage?.();
+							} }
+						>
+							{ __( 'Manage', 'jetpack-my-jetpack' ) }
+						</Button>
+					) }
 					{ showStandaloneOption && (
 						<>
-							<hr />
+							{ ( productStatus === PRODUCT_STATUSES.ACTIVE || items.length > 0 ) && <hr /> }
 							{ ! isStandaloneInstalled && (
 								<Button
 									weight="regular"
 									fullWidth
 									variant="tertiary"
-									icon={ arrowDown }
+									icon={ download }
 									onClick={ () => {
 										onClose();
 										onInstall?.();
 									} }
 								>
-									{ __( 'Install plugin', 'jetpack-my-jetpack' ) }
+									{ __( 'Install Plugin', 'jetpack-my-jetpack' ) }
 								</Button>
 							) }
 							{ isStandaloneInstalled && ! isStandaloneActive && (
@@ -97,13 +103,13 @@ const Menu = ( {
 									weight="regular"
 									fullWidth
 									variant="tertiary"
-									icon={ external }
+									icon={ check }
 									onClick={ () => {
 										onClose();
 										onActivate?.();
 									} }
 								>
-									{ __( 'Activate plugin', 'jetpack-my-jetpack' ) }
+									{ __( 'Activate Plugin', 'jetpack-my-jetpack' ) }
 								</Button>
 							) }
 						</>
@@ -135,6 +141,7 @@ const ProductCard = props => {
 		hasStandalonePlugin = false,
 		isStandaloneInstalled = false,
 		isStandaloneActive = false,
+		isConnected = false,
 	} = props;
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
@@ -147,7 +154,14 @@ const ProductCard = props => {
 	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 
 	// If status is absent, we disable the menu
-	const menuIsActive = showMenu && ! isAbsent;
+	const menuIsActive =
+		showMenu && // The menu is enabled for the product AND
+		! isAbsent && // product status is not absent AND
+		! isError && // product status is not error AND
+		isConnected && // the site is connected AND
+		( isActive || // product is active, show at least the Manage option
+			menuItems?.length > 0 || // Show custom menus, if present
+			( hasStandalonePlugin && ( ! isStandaloneActive || ! isStandaloneInstalled ) ) ); // Show install | activate options for standalone plugin
 
 	const containerClassName = classNames( styles.container, {
 		[ styles.plugin_absent ]: isAbsent,
@@ -212,6 +226,26 @@ const ProductCard = props => {
 		onFixConnection();
 	}, [ slug, onFixConnection, recordEvent ] );
 
+	/**
+	 * Use a Tracks event to count a standalone plugin install request
+	 */
+	const installStandaloneHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_install_standalone_plugin_click', {
+			product: slug,
+		} );
+		onInstallStandalone();
+	}, [ slug, onInstallStandalone, recordEvent ] );
+
+	/**
+	 * Use a Tracks event to count a standalone plugin activation request
+	 */
+	const activateStandaloneHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_activate_standalone_plugin_click', {
+			product: slug,
+		} );
+		onActivateStandalone();
+	}, [ slug, onActivateStandalone, recordEvent ] );
+
 	const CardWrapper = isAbsent
 		? ( { children: wrapperChildren, ...cardProps } ) => (
 				<a { ...cardProps } href="#" onClick={ addHandler }>
@@ -231,11 +265,11 @@ const ProductCard = props => {
 				</div>
 				{ menuIsActive ? (
 					<Menu
-						status={ status }
+						productStatus={ status }
 						items={ menuItems }
 						onManage={ onManage }
-						onInstall={ onInstallStandalone }
-						onActivate={ onActivateStandalone }
+						onInstall={ installStandaloneHandler }
+						onActivate={ activateStandaloneHandler }
 						hasStandalonePlugin={ hasStandalonePlugin }
 						isStandaloneActive={ isStandaloneActive }
 						isStandaloneInstalled={ isStandaloneInstalled }
