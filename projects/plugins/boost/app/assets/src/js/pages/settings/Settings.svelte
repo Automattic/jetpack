@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { derived } from 'svelte/store';
 	import ReRouter from '../../elements/ReRouter.svelte';
+	import RecommendationsPage from '../../modules/image-size-analysis/RecommendationsPage.svelte';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
@@ -31,6 +32,7 @@
 			<div class="jb-section jb-section--main">
 				<Route path="critical-css-advanced" component={AdvancedCriticalCss} />
 				<Route path="/" component={Modules} />
+				<Route path="image-size-analysis" component={RecommendationsPage} />
 			</div>
 		</Router>
 

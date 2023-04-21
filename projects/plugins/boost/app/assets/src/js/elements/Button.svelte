@@ -1,6 +1,18 @@
-<button class="button" on:click>
-	<slot />
-</button>
+<script lang="ts">
+	export let small = false;
+	export let fill = false;
+	export let href = '';
+</script>
+
+{#if href}
+	<a {href} class="button" class:small class:fill>
+		<slot />
+	</a>
+{:else}
+	<button class="button" class:small class:fill on:click>
+		<slot />
+	</button>
+{/if}
 
 <style lang="scss">
 	// Increasing specificity
@@ -17,14 +29,25 @@
 
 			background: #ffffff;
 
-			color: var( --jetpack-green-100 );
+			color: #000;
 			border: 1px solid currentColor;
 			border-radius: 4px;
 
 			font-weight: 600;
-			font-size: 16px;
+			font-size: 1rem;
 			letter-spacing: -0.01em;
-			line-height: 24px;
+		}
+		.small {
+			padding: 4px 10px;
+			line-height: 1.1;
+			width: auto;
+			height: auto;
+			font-size: 0.875rem;
+			border-radius: 6px;
+		}
+		.fill {
+			color: #ffffff;
+			background: #000;
 		}
 	}
 </style>
