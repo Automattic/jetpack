@@ -111,7 +111,8 @@ export default function Player( { isSelected, attributes } ) {
 
 	const containerLoadingStyle = {};
 	if ( ! isPreviewAvailable( preview ) ) {
-		containerLoadingStyle.height = loadingStyle?.height;
+		containerLoadingStyle.height = loadingStyle.height;
+		containerLoadingStyle.backgroundColor = loadingStyle.backgroundColor;
 	}
 
 	const renderEmbed = () => {
