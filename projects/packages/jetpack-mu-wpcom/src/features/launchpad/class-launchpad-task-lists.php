@@ -61,7 +61,7 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
-		$this->task_list_registry[] = array( $task_list['slug'] => $task_list );
+		$this->task_list_registry[] = array( $task_list['id'] => $task_list );
 		return true;
 	}
 
@@ -78,7 +78,7 @@ class Launchpad_Task_Lists {
 		}
 
 		// TODO: Handle duplicate tasks
-		$this->task_registry[] = array( $task['slug'] => $task );
+		$this->task_registry[] = array( $task['id'] => $task );
 		return true;
 	}
 
@@ -98,7 +98,7 @@ class Launchpad_Task_Lists {
 				return false;
 			}
 
-			$tasks_to_register[] = array( $task['slug'] => $task );
+			$tasks_to_register[] = array( $task['id'] => $task );
 		}
 
 		// TODO: Handle duplicate tasks
@@ -109,80 +109,81 @@ class Launchpad_Task_Lists {
 	/**
 	 * Unregister a Launchpad Task List
 	 *
-	 * @param string $slug Task List slug.
+	 * @param string $id Task List id.
 	 *
 	 * @return bool True if successfully unregistered, false if not found.
 	 */
-	public function unregister_task_list( $slug ) {
-		if ( ! array_key_exists( $this->task_list_registry, $slug ) ) {
+	public function unregister_task_list( $id ) {
+		if ( ! array_key_exists( $this->task_list_registry, $id ) ) {
 			return false;
 		}
 
-		unset( $this->task_list_registry[ $slug ] );
+		unset( $this->task_list_registry[ $id ] );
 		return true;
 	}
 
 	/**
 	 * Unregister a Launchpad Task
 	 *
-	 * @param string $slug Task slug.
+	 * @param string $id Task id.
 	 *
 	 * @return bool True if successful, false if not.
 	 */
-	public function unregister_task( $slug ) {
-		if ( ! array_key_exists( $this->task_registry, $slug ) ) {
+	public function unregister_task( $id ) {
+		if ( ! array_key_exists( $this->task_registry, $id ) ) {
 			return false;
 		}
 
-		unset( $this->task_registry[ $slug ] );
+		unset( $this->task_registry[ $id ] );
 		return true;
 	}
 
 	/**
 	 * Get a Launchpad Task List definition
 	 *
-	 * @param string $slug Task List slug.
+	 * @param string $id Task List id.
 	 *
 	 * @return Task_List Task List.
 	 */
-	protected function get_task_list( $slug ) {
-		if ( ! array_key_exists( $this->task_list_registry, $slug ) ) {
+	protected function get_task_list( $id ) {
+		if ( ! array_key_exists( $this->task_list_registry, $id ) ) {
 			return array();
 		}
 
-		return $this->task_list_registry[ $slug ];
+		return $this->task_list_registry[ $id ];
 	}
 
 	/**
 	 * Get a Launchpad Task definition
 	 *
-	 * @param string $slug Task slug.
+	 * @param string $id Task id.
 	 *
 	 * @return Task Task.
 	 */
-	protected function get_task( $slug ) {
-		if ( ! array_key_exists( $this->task_registry, $slug ) ) {
+	protected function get_task( $id ) {
+		if ( ! array_key_exists( $this->task_registry, $id ) ) {
 			return array();
 		}
 
-		return $this->task_registry[ $slug ];
+		return $this->task_registry[ $id ];
 	}
 
 	/**
 	 * Builds a collection of tasks for a given task list
 	 *
-	 * @param string $slug Task list slug.
+	 * @param string $id Task list id.
 	 *
 	 * @return Task[] Collection of tasks associated with a task list.
 	 */
-	public function build( $slug ) {
-		$task_list           = $this->get_task_list( $slug );
+	public function build( $id ) {
+		l( $id );
+		$task_list           = $this->get_task_list( $id );
 		$tasks_for_task_list = array();
 
-		// Takes a registered task list, looks at its associated task slugs,
+		// Takes a registered task list, looks at its associated task ids,
 		// and returns a collection of associated tasks.
-		foreach ( $task_list['task_slugs'] as $task_slug => $value ) {
-			$tasks_for_task_list[] = $this->get_task( $task_slug );
+		foreach ( $task_list['task_ids'] as $task_id => $value ) {
+			$tasks_for_task_list[] = $this->get_task( $task_id );
 		}
 
 		return $tasks_for_task_list;
@@ -200,8 +201,8 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
-		if ( ! isset( $task_list['slug'] ) ) {
-			trigger_error( 'The Launchpad task list being registered requires a "slug" attribute', E_USER_WARNING );
+		if ( ! isset( $task_list['id'] ) ) {
+			trigger_error( 'The Launchpad task list being registered requires a "id" attribute', E_USER_WARNING );
 			return false;
 		}
 
@@ -220,8 +221,8 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
-		if ( ! isset( $task['slug'] ) ) {
-			trigger_error( 'The Launchpad task being registered requires a "slug" attribute', E_USER_WARNING );
+		if ( ! isset( $task['id'] ) ) {
+			trigger_error( 'The Launchpad task being registered requires a "id" attribute', E_USER_WARNING );
 			return false;
 		}
 
