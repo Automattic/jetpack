@@ -198,7 +198,7 @@ class Initializer {
 	 */
 	public static function get_my_jetpack_flags() {
 		$flags = array(
-			'stats' => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_STATS_ENABLED' ),
+			'videoPressStats' => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
 		);
 
 		return $flags;
