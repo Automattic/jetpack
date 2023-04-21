@@ -389,7 +389,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		// The actual iframe (loads comment form from Jetpack server).
 
-		$is_amp = Jetpack_AMP_Support::is_amp_request();
+		$is_amp = class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request();
 		?>
 
 		<div id="respond" class="comment-respond">
@@ -449,7 +449,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function watch_comment_parent() {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if ( class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request() ) {
 			// @todo Implement AMP support.
 			return;
 		}
