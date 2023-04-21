@@ -6183,7 +6183,7 @@ endif;
 		}
 
 		// Do not implode CSS when the page loads via the AMP plugin.
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if ( class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request() ) {
 			$do_implode = false;
 		}
 
