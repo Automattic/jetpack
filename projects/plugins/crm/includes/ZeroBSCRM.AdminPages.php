@@ -76,6 +76,13 @@ function zeroBSCRM_pages_crmresources() {
 	jpcrm_load_admin_page( 'crm-resources/main' );
 }
 
+/**
+ * Load the Support Contact page
+ */
+function jpcrm_pages_support() {
+	jpcrm_load_admin_page( 'support/main' );
+}
+
 // Email Box
 function zeroBSCRM_pages_emailbox() {
 	// load
