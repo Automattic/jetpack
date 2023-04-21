@@ -1,26 +1,53 @@
 <script lang="ts">
+	import Button from '../../../elements/Button.svelte';
 	import { ImageMeta } from '../ApiMock';
 
-	export let data: ImageMeta;
-
-	const dimensions = `${ data.image.dimensions.file.width } x ${ data.image.dimensions.file.height }`;
-	const sizeOnScreen = `${ data.image.dimensions.size_on_screen.width } x ${ data.image.dimensions.size_on_screen.height }`;
-	const expectedDimensions = `${ data.image.dimensions.expected.width } x ${ data.image.dimensions.expected.height }`;
+	export let image: ImageMeta[ 'image' ];
+	export let instructions: string | undefined;
 </script>
 
 <div class="table-row-expanded">
 	<div class="image-details">
 		<h4>Image Details</h4>
-		<p>File dimensions: {dimensions} px</p>
-		<p>Expected dimensions: {expectedDimensions} px</p>
-		<p>Size on screen: {sizeOnScreen} px</p>
+
+		<div class="row">
+			<div class="label">File Dimensions</div>
+			<div class="value">
+				{Math.round( image.dimensions.file.width )}
+				x
+				{Math.round( image.dimensions.file.height )}
+				px
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="label">Expected Dimensions</div>
+			<div class="value">
+				{Math.round( image.dimensions.expected.width )}
+				x
+				{Math.round( image.dimensions.expected.height )}
+				px
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="label">Size on screen</div>
+			<div class="value">
+				{Math.round( image.dimensions.size_on_screen.width )}
+				x
+				{Math.round( image.dimensions.size_on_screen.height )}
+				px
+			</div>
+		</div>
 	</div>
 
 	<div class="fix-options">
 		<h4>How to fix</h4>
-		<p>{data.instructions}</p>
-		<button>Fix on page</button>
-		<button class="ignore-btn">Ignore</button>
+		<p>{instructions}</p>
+		<div class="jb-actions">
+			<Button width="auto" fill>Fix on page</Button>
+			<Button width="auto">Ignore</Button>
+		</div>
 	</div>
 </div>
 
@@ -28,37 +55,36 @@
 	.table-row-expanded {
 		display: flex;
 		justify-content: space-between;
-		padding: 1rem;
+		padding: var( --gap );
+		padding-left: calc( var( --thumbnail-size ) + var( --gap ) * 2 );
 	}
 
 	.image-details {
 		flex: 1;
-		border-right: 1px solid #ddd;
-		padding-right: 1rem;
+		max-width: 300px;
+		display: flex;
+		flex-direction: column;
+		font-size: 0.875rem;
+		gap: calc( var( --gap ) / 2 );
+		h4 {
+			font-weight: 600;
+		}
+		.row {
+			display: flex;
+			gap: 10px;
+			justify-content: space-between;
+		}
+		.value {
+			font-weight: 500;
+		}
 	}
 
+	.jb-actions {
+		display: flex;
+		gap: var( --gap );
+	}
 	.fix-options {
 		flex: 1;
-		text-align: right;
-		padding-left: 1rem;
-	}
-
-	button {
-		background-color: #4caf50;
-		border: none;
-		color: white;
-		text-align: center;
-		text-decoration: none;
-		display: inline-block;
-		font-size: 14px;
-
-		margin: 4px 2px;
-		cursor: pointer;
-		border-radius: 4px;
-		padding: 8px 16px;
-	}
-
-	.ignore-btn {
-		background-color: #f44336;
+		margin-left: calc( var( --table-header-potential-size ) - var( --gap ) * 2 );
 	}
 </style>

@@ -57,7 +57,7 @@
 </div>
 
 {#if expanded}
-	<TableRowExpanded {data} />
+	<TableRowExpanded image={data.image} instructions={data.instructions} />
 {/if}
 
 <style lang="scss">

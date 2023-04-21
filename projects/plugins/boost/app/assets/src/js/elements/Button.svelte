@@ -1,15 +1,16 @@
 <script lang="ts">
 	export let small = false;
 	export let fill = false;
+	export let width: string | undefined;
 	export let href = '';
 </script>
 
 {#if href}
-	<a {href} class="button" class:small class:fill>
+	<a {href} class="button" class:small class:fill style:width>
 		<slot />
 	</a>
 {:else}
-	<button class="button" class:small class:fill on:click>
+	<button class="button" class:small class:fill on:click style:width>
 		<slot />
 	</button>
 {/if}
@@ -22,7 +23,7 @@
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			padding: 8px 24px;
+			padding: 8px 16px;
 
 			width: 220px;
 			height: 40px;
