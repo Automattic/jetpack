@@ -185,7 +185,7 @@ class Launchpad_Task_Lists {
 
 			// if task can't be found don't add anything
 			if ( ! empty( $task ) ) {
-				$tasks_for_task_list[] = $this->get_task( $task_id );
+				$tasks_for_task_list[] = $task;
 			}
 		}
 
