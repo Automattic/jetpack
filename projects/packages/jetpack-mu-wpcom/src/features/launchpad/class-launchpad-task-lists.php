@@ -205,12 +205,12 @@ class Launchpad_Task_Lists {
 		}
 
 		if ( ! isset( $task_list['id'] ) ) {
-			trigger_error( 'The Launchpad task list being registered requires a "id" attribute', E_USER_WARNING );
+			_doing_it_wrong( 'validate_task_list', 'The Launchpad task list being registered requires a "id" attribute', '6.1' );
 			return false;
 		}
 
 		if ( ! isset( $task_list['task_ids'] ) ) {
-			trigger_error( 'The Launchpad task list being registered requires a "task_ids" attribute', E_USER_WARNING );
+			_doing_it_wrong( 'validate_task_list', 'The Launchpad task list being registered requires a "task_ids" attribute', '6.1' );
 			return false;
 		}
 
@@ -230,22 +230,22 @@ class Launchpad_Task_Lists {
 		}
 
 		if ( ! isset( $task['id'] ) ) {
-			trigger_error( 'The Launchpad task being registered requires a "id" attribute', E_USER_WARNING );
+			_doing_it_wrong( 'validate_task', 'The Launchpad task being registered requires a "id" attribute', '6.1' );
 			return false;
 		}
 
 		if ( ! isset( $task['title'] ) ) {
-			trigger_error( 'The Launchpad task being registered requires a "title" attribute', E_USER_WARNING );
+			_doing_it_wrong( 'validate_task', 'The Launchpad task being registered requires a "title" attribute', '6.1' );
 			return false;
 		}
 
 		if ( ! isset( $task['completed'] ) ) {
-			trigger_error( 'The Launchpad task being registered requires a "completed" attribute', E_USER_WARNING );
+			_doing_it_wrong( 'validate_task', 'The Launchpad task being registered requires a "completed" attribute', '6.1' );
 			return false;
 		}
 
 		if ( ! isset( $task['disabled'] ) ) {
-			trigger_error( 'The Launchpad task being registered requires a "disabled" attribute', E_USER_WARNING );
+			_doing_it_wrong( 'validate_task', 'The Launchpad task being registered requires a "disabled" attribute', '6.1' );
 			return false;
 		}
 
