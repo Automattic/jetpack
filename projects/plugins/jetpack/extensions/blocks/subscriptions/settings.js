@@ -23,18 +23,37 @@ import './settings.scss';
 
 export const accessOptions = {
 	everybody: {
+		string: 'everybody',
 		label: __( 'Everybody', 'jetpack' ),
 		info: __( 'Visible to everyone.', 'jetpack' ),
 	},
 	subscribers: {
+		string: 'subscribers',
 		label: __( 'All subscribers', 'jetpack' ),
 		info: __( 'Visible to everyone that subscribes to your site.', 'jetpack' ),
 	},
 	paid_subscribers: {
+		string: 'paid_subscribers',
 		label: __( 'Paid subscribers', 'jetpack' ),
 		info: __( 'Visible to everyone that purchases a paid plan on your site.', 'jetpack' ),
 	},
 };
+
+function getReachForAccessLevel( key, emailSubscribers, paidSubscribers, socialFollowers ) {
+	if ( emailSubscribers === null || paidSubscribers === null || socialFollowers === null ) {
+		return '';
+	}
+
+	switch ( accessOptions[ key ] ) {
+		case accessOptions.everybody:
+			return '(' + ( emailSubscribers + socialFollowers ) + '+)';
+		case accessOptions.subscribers:
+			return '(' + emailSubscribers + ')';
+		case accessOptions.paid_subscribers:
+			return '(' + paidSubscribers + ')';
+		default:
+	}
+}
 
 export function MisconfigurationWarning( { accessLevel } ) {
 	return (
@@ -52,7 +71,13 @@ export function MisconfigurationWarning( { accessLevel } ) {
 	);
 }
 
-function NewsletterAccessChoices( { accessLevel, onChange } ) {
+function NewsletterAccessChoices( {
+	accessLevel,
+	onChange,
+	socialFollowers,
+	emailSubscribers,
+	paidSubscribers,
+} ) {
 	const instanceId = useInstanceId( NewsletterAccessChoices );
 	return (
 		<fieldset className="editor-post-visibility__fieldset">
@@ -77,7 +102,8 @@ function NewsletterAccessChoices( { accessLevel, onChange } ) {
 						htmlFor={ `editor-post-${ key }-${ instanceId }` }
 						className="editor-post-visibility__label"
 					>
-						{ accessOptions[ key ].label }
+						{ accessOptions[ key ].label }{ ' ' }
+						{ getReachForAccessLevel( key, emailSubscribers, paidSubscribers, socialFollowers ) }
 					</label>
 					<p
 						id={ `editor-post-${ key }-${ instanceId }-description` }
@@ -91,7 +117,14 @@ function NewsletterAccessChoices( { accessLevel, onChange } ) {
 	);
 }
 
-export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true } ) {
+export function NewsletterAccess( {
+	accessLevel,
+	setPostMeta,
+	socialFollowers,
+	emailSubscribers,
+	paidSubscribers,
+	withModal = true,
+} ) {
 	if ( ! accessLevel || ! Object.keys( accessOptions ).includes( accessLevel ) ) {
 		accessLevel = Object.keys( accessOptions )[ 0 ];
 	}
@@ -107,8 +140,10 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
 	const postVisibilityIsPublic = postVisibility === 'public';
 
-	const showVisibilityRestrictedMessage = ! postVisibilityIsPublic && accessLevel === 'everybody';
-	const showMisconfigurationMessage = ! postVisibilityIsPublic && accessLevel !== 'everybody';
+	const showVisibilityRestrictedMessage =
+		! postVisibilityIsPublic && accessLevel === accessOptions.everybody.string;
+	const showMisconfigurationMessage =
+		! postVisibilityIsPublic && accessLevel !== accessOptions.everybody.string;
 
 	if ( ! newsletterPlans || newsletterPlans.length === 0 ) {
 		return (
@@ -199,6 +234,9 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 												/>
 												<NewsletterAccessChoices
 													accessLevel={ accessLevel }
+													socialFollowers={ socialFollowers }
+													emailSubscribers={ emailSubscribers }
+													paidSubscribers={ paidSubscribers }
 													onChange={ setPostMeta }
 												/>
 											</div>
@@ -209,7 +247,13 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 
 							{ ! showVisibilityRestrictedMessage && ! withModal && canEdit && (
 								<FlexBlock>
-									<NewsletterAccessChoices accessLevel={ accessLevel } onChange={ setPostMeta } />
+									<NewsletterAccessChoices
+										accessLevel={ accessLevel }
+										socialFollowers={ socialFollowers }
+										emailSubscribers={ emailSubscribers }
+										paidSubscribers={ paidSubscribers }
+										onChange={ setPostMeta }
+									/>
 								</FlexBlock>
 							) }
 						</Flex>

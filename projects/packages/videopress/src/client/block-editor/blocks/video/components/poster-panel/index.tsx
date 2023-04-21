@@ -1,7 +1,7 @@
 /**
  *External dependencies
  */
-import { MediaUploadCheck, MediaUpload, store as blockEditorStore } from '@wordpress/block-editor';
+import { MediaUploadCheck, MediaUpload } from '@wordpress/block-editor';
 import {
 	MenuItem,
 	PanelBody,
@@ -13,8 +13,6 @@ import {
 	Spinner,
 	Notice,
 } from '@wordpress/components';
-import { useDebounce } from '@wordpress/compose';
-import { select } from '@wordpress/data';
 import {
 	useRef,
 	useEffect,
@@ -254,34 +252,9 @@ function VideoFramePicker( {
 	const { preview = { html: null }, isRequestingEmbedPreview } = usePreview( url );
 	const { html } = preview;
 
-	const debouncedVideoFrameSelect = useDebounce( ( time: number ) => {
-		onVideoFrameSelect( time );
-	}, 2000 );
-
-	const onTimestampUpdateFromPlayer = useCallback(
-		time => {
-			setTimestamp( time );
-			debouncedVideoFrameSelect( time );
-		},
-		[ setTimestamp, debouncedVideoFrameSelect ]
-	);
-
-	const { playerIsReady, pause } = useVideoPlayer(
-		playerWrapperRef,
-		isRequestingEmbedPreview,
-		{
-			initialTimePosition: atTime,
-		},
-		onTimestampUpdateFromPlayer
-	);
-
-	useEffect( () => {
-		if ( isGeneratingPoster ) {
-			pause();
-		}
-	}, [ isGeneratingPoster, pause ] );
-
-	const onFramePickerMouseLeave = useCallback( pause, [ pause ] );
+	const { playerIsReady } = useVideoPlayer( playerWrapperRef, isRequestingEmbedPreview, {
+		initialTimePosition: atTime,
+	} );
 
 	const onTimestampDebounceChange = useCallback(
 		iframeTimePosition => {
@@ -292,7 +265,7 @@ function VideoFramePicker( {
 			} );
 			onVideoFrameSelect( iframeTimePosition );
 		},
-		[ playerWrapperRef, onVideoFrameSelect ]
+		[ getIframeWindowFromRef, onVideoFrameSelect ]
 	);
 
 	return (
@@ -303,7 +276,6 @@ function VideoFramePicker( {
 					'is-player-ready': playerIsReady,
 					'is-generating-poster': isGeneratingPoster,
 				} ) }
-				onMouseLeave={ onFramePickerMouseLeave }
 			>
 				{ ( ! playerIsReady || isGeneratingPoster ) && <Spinner /> }
 				<SandBox html={ html } scripts={ sandboxScripts } />
@@ -460,10 +432,8 @@ export default function PosterPanel( {
 	attributes,
 	setAttributes,
 	isGeneratingPoster,
-	clientId,
 }: PosterPanelProps ): React.ReactElement {
 	const { poster, posterData } = attributes;
-	const { getBlockAttributes } = select( blockEditorStore );
 
 	const videoDuration = attributes?.duration;
 
@@ -552,14 +522,10 @@ export default function PosterPanel( {
 		[ attributes ]
 	);
 
-	// This callback can be called by an event, which does not trigger a re-render and attributes are not up-to-date.
 	const onVideoFrameSelect = ( timestamp: number ) => {
-		// Get the current attributes by using the block store directly.
-		const currentAttributes = getBlockAttributes( clientId );
-
 		setAttributes( {
 			posterData: {
-				...currentAttributes.posterData,
+				...attributes.posterData,
 				type: 'video-frame',
 				atTime: timestamp,
 			},
