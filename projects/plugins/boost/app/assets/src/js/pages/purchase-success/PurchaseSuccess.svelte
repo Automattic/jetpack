@@ -3,7 +3,6 @@
 	import { onMount } from 'svelte';
 	import { Button } from '@wordpress/components';
 	import { __ } from '@wordpress/i18n';
-	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
 	import { regenerateCriticalCss } from '../../stores/critical-css-state';
@@ -24,7 +23,6 @@
 
 <div id="jb-settings" class="jb-settings">
 	<div class="jb-container jb-container--fixed mt-2">
-		<BackButton />
 		<div class="jb-card">
 			<div class="jb-card__content">
 				<Logo class="my-2" />
