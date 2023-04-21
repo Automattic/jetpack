@@ -725,7 +725,7 @@ class Jetpack_Gutenberg {
 				 * Show the Paid Newsletter access panel selector in every post sidebar.
 				 *
 				 * @module subscriptions
-				 * @since @since $$next-version$$
+				 * @since $$next-version$$
 				 *
 				 * @param bool false Show the Paid Newsletter access panel selector in every post sidebar.
 				 */
