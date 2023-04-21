@@ -28,7 +28,13 @@ const useVideoPressStats = () => {
 	let changePercentage = null;
 
 	if ( change !== null ) {
-		changePercentage = previous !== 0 ? Math.round( ( change / previous ) * 100 ) : 0;
+		if ( change === 0 ) {
+			changePercentage = 0;
+		} else if ( previous === 0 ) {
+			changePercentage = Number.POSITIVE_INFINITY;
+		} else {
+			changePercentage = Math.round( ( change / previous ) * 100 );
+		}
 	}
 
 	return {
