@@ -38,7 +38,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_tools_menu();
 		$this->add_options_menu();
 		$this->add_jetpack_menu();
-		$this->add_gutenberg_menus();
 
 		// Remove Links Manager menu since its usage is discouraged. https://github.com/Automattic/wp-calypso/issues/51188.
 		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
@@ -424,26 +423,6 @@ class Admin_Menu extends Base_Admin_Menu {
 			// Remove the submenu auto-created by Core just to be sure that there no issues on non-admin roles.
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
-	}
-
-	/**
-	 * Update Site Editor menu item's link and position.
-	 */
-	public function add_gutenberg_menus() {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'site-editor.php' ) ) {
-			return;
-		}
-
-		$this->update_menu( 'gutenberg-edit-site', 'https://wordpress.com/site-editor/' . $this->domain, null, null, null, 59 );
-
-		// Gutenberg 11.9 moves the Site Editor to an Appearance submenu as Editor.
-		$submenus_to_update = array(
-			// Keep the old rule in order to Calypsoify the route for GB < 13.7.
-			'gutenberg-edit-site' => 'https://wordpress.com/site-editor/' . $this->domain,
-			// New route: Gutenberg 13.7 changes the site editor menu item slug and url.
-			'site-editor.php'     => 'https://wordpress.com/site-editor/' . $this->domain,
-		);
-		$this->update_submenus( 'themes.php', $submenus_to_update );
 	}
 
 	/**
