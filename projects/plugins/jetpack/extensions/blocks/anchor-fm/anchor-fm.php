@@ -204,6 +204,7 @@ function process_anchor_params() {
  * Function to check if the Anchor feature is enabled. This is used in the
  * filter below.
  *
+ * @param bool $is_anchor_enabled filter input value.
  * @return bool whether the feature is enabled or not.
  */
 function is_anchor_enabled( $is_anchor_enabled ) {
