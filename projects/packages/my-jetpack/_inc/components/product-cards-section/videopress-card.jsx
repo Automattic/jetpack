@@ -47,9 +47,10 @@ const useVideoPressStats = () => {
 };
 
 const VideopressCard = ( { admin } ) => {
+	const { videoPressStats = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
 	const { loading, hasError, change, currentFormatted, changePercentage } = useVideoPressStats();
 
-	if ( hasError ) {
+	if ( ! videoPressStats || hasError ) {
 		return <ProductCard admin={ admin } slug="videopress" showMenu />;
 	}
 
