@@ -61,7 +61,7 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
-		$this->task_list_registry[] = array( $task_list['id'] => $task_list );
+		$this->task_list_registry[ $task_list['id'] ] = $task_list;
 		return true;
 	}
 
@@ -76,9 +76,8 @@ class Launchpad_Task_Lists {
 		if ( ! $this->validate_task( $task ) ) {
 			return false;
 		}
-
 		// TODO: Handle duplicate tasks
-		$this->task_registry[] = array( $task['id'] => $task );
+		$this->task_registry[ $task['id'] ] = $task;
 		return true;
 	}
 
@@ -98,7 +97,7 @@ class Launchpad_Task_Lists {
 				return false;
 			}
 
-			$tasks_to_register[] = array( $task['id'] => $task );
+			$tasks_to_register[ $task['id'] ] = $task;
 		}
 
 		// TODO: Handle duplicate tasks
@@ -178,10 +177,9 @@ class Launchpad_Task_Lists {
 	public function build( $id ) {
 		$task_list           = $this->get_task_list( $id );
 		$tasks_for_task_list = array();
-
 		// Takes a registered task list, looks at its associated task ids,
 		// and returns a collection of associated tasks.
-		foreach ( $task_list['task_ids'] as $task_id => $value ) {
+		foreach ( $task_list['task_ids'] as $task_id ) {
 			$tasks_for_task_list[] = $this->get_task( $task_id );
 		}
 
