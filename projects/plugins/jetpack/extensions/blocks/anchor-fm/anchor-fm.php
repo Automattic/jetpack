@@ -206,7 +206,11 @@ function process_anchor_params() {
  *
  * @return bool whether the feature is enabled or not.
  */
-function is_anchor_enabled() {
+function is_anchor_enabled( $is_anchor_enabled ) {
+	if ( ! $is_anchor_enabled ) {
+		return false;
+	}
+
 	return time() < strtotime( '2023-05-11 00:00:00 UTC' );
 }
 
