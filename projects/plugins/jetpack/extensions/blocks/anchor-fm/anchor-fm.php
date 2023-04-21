@@ -183,16 +183,16 @@ function process_anchor_params() {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param bool $is_enabled Whether the prompt is enabled or not.
+	 * @param bool $is_anchor_enabled Whether the prompt is enabled or not.
 	 */
-	$is_enabled = apply_filters( 'jetpack_is_anchor_enabled', true );
+	$is_anchor_enabled = apply_filters( 'jetpack_is_anchor_enabled', true );
 
 	if (
 		'post' === get_post_type() &&
 		! get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) &&
 		0 === strpos( get_user_locale(), 'en' ) &&
 		$blog_connected_to_anchor &&
-		$is_enabled
+		$is_anchor_enabled
 	) {
 		$data['actions'][] = 'show-post-publish-outbound-link';
 	}
