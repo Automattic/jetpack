@@ -114,7 +114,7 @@ class Launchpad_Task_Lists {
 	 * @return bool True if successfully unregistered, false if not found.
 	 */
 	public function unregister_task_list( $id ) {
-		if ( ! array_key_exists( $this->task_list_registry, $id ) ) {
+		if ( ! array_key_exists( $id, $this->task_list_registry ) ) {
 			return false;
 		}
 
@@ -130,7 +130,7 @@ class Launchpad_Task_Lists {
 	 * @return bool True if successful, false if not.
 	 */
 	public function unregister_task( $id ) {
-		if ( ! array_key_exists( $this->task_registry, $id ) ) {
+		if ( ! array_key_exists( $id, $this->task_registry ) ) {
 			return false;
 		}
 
@@ -146,7 +146,7 @@ class Launchpad_Task_Lists {
 	 * @return Task_List Task List.
 	 */
 	protected function get_task_list( $id ) {
-		if ( ! array_key_exists( $this->task_list_registry, $id ) ) {
+		if ( ! array_key_exists( $id, $this->task_list_registry ) ) {
 			return array();
 		}
 
@@ -161,7 +161,7 @@ class Launchpad_Task_Lists {
 	 * @return Task Task.
 	 */
 	protected function get_task( $id ) {
-		if ( ! array_key_exists( $this->task_registry, $id ) ) {
+		if ( ! array_key_exists( $id, $this->task_registry ) ) {
 			return array();
 		}
 
