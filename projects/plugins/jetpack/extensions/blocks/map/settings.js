@@ -12,6 +12,13 @@ import { getMapProvider } from './utils';
 
 const provider = getMapProvider();
 
+const mutedLabel = ( () => {
+	if ( provider === 'mapkit' ) {
+		return __( 'Muted', 'jetpack' );
+	}
+	return __( 'Black and white', 'jetpack' );
+} )();
+
 export const settings = {
 	name: 'map',
 	prefix: 'jetpack',
@@ -98,7 +105,7 @@ export const settings = {
 		},
 		{
 			name: 'black_and_white',
-			label: provider === 'mapkit' ? __( 'Muted', 'jetpack' ) : __( 'Black & White', 'jetpack' ),
+			label: mutedLabel,
 			preview: provider === 'mapkit' ? blackAndWhiteThemeMapkit : blackAndWhiteTheme,
 		},
 		{
