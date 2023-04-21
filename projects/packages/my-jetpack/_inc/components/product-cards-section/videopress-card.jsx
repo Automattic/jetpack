@@ -31,7 +31,7 @@ const useVideoPressStats = () => {
 		if ( change === 0 ) {
 			changePercentage = 0;
 		} else if ( previous === 0 ) {
-			changePercentage = Number.POSITIVE_INFINITY;
+			changePercentage = 100;
 		} else {
 			changePercentage = Math.round( ( change / previous ) * 100 );
 		}

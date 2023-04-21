@@ -38,7 +38,7 @@ export const ChangePercentageContext = ( { change, changePercentage } ) => {
 					/* translators: both placeholders are numbers */
 					__( '%1$s (%2$s%%)', 'jetpack-my-jetpack' ),
 					changeFormatted,
-					changePercentage === Number.POSITIVE_INFINITY ? '-' : changePercentage
+					changePercentage
 				) }
 			</Text>
 		</div>
