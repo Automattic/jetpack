@@ -200,6 +200,12 @@ function process_anchor_params() {
 	wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_AnchorFm', $data );
 }
 
+/**
+ * Function to check if the Anchor feature is enabled. This is used in the
+ * filter below.
+ * 
+ * @return bool whether the feature is enabled or not.
+ */
 function is_anchor_enabled() {
 	return time() < strtotime( '2023-05-11 00:00:00 UTC' );
 }
