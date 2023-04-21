@@ -177,19 +177,35 @@ function process_anchor_params() {
 	// Display an outbound link after publishing a post (only to English-speaking users since Anchor
 	// is English only).  This is only displayed if the blog is connected to an Anchor podcast.
 	$blog_connected_to_anchor = function_exists( 'get_blog_option' ) && false !== get_blog_option( get_current_blog_id(), 'anchor_podcast' );
-	$is_after_deadline        = time() > strtotime("2023-05-11 00:00:00 UTC");
+
+	/**
+	 * Allows disabling the Anchor convert to audio prompt.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $is_enabled Whether the prompt is enabled or not.
+	 */
+	$is_enabled = apply_filters( 'jetpack_is_anchor_enabled', true );
+
 	if (
 		'post' === get_post_type() &&
 		! get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) &&
 		0 === strpos( get_user_locale(), 'en' ) &&
 		$blog_connected_to_anchor &&
-		! $is_after_deadline
+		$is_enabled
 	) {
 		$data['actions'][] = 'show-post-publish-outbound-link';
 	}
 
 	wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_AnchorFm', $data );
 }
+
+add_filter(
+	'jetpack_is_anchor_enabled',
+	function ( $is_enabled ) {
+		return time() < strtotime( '2023-05-11 00:00:00 UTC' );
+	}
+);
 
 add_action( 'init', __NAMESPACE__ . '\register_extension' );
 add_action( 'enqueue_block_assets', __NAMESPACE__ . '\process_anchor_params' );
