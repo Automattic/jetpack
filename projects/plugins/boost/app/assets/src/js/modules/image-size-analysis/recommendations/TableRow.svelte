@@ -13,10 +13,12 @@
 	const title = data.image.url.split( '/' ).pop();
 </script>
 
+<!-- svelte-ignore a11y-click-events-have-key-events -->
 <div
 	class="jb-table-row"
 	on:mouseenter={() => ( hover = true )}
 	on:mouseleave={() => ( hover = false )}
+	on:click={() => ( expanded = ! expanded )}
 >
 	<div class="jb-table-row__thumbnail">
 		<Thumbnail {title} url={data.image.url} width={65} height={65} />
@@ -66,6 +68,7 @@
 		gap: var( --gap );
 		padding: var( --padding );
 		border-bottom: var( --border );
+		cursor: pointer;
 
 		.jb-table-row__hover-content {
 			display: none;
