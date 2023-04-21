@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { SandBox } from '@wordpress/components';
+import { SandBox, Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
@@ -17,12 +17,10 @@ import getMediaToken from '../../../../../lib/get-media-token/index.native';
 import { getVideoPressUrl } from '../../../../../lib/url';
 import { usePreview } from '../../../../hooks/use-preview';
 import addTokenIntoIframeSource from '../../../../utils/add-token-iframe-source';
+import { VideoPressIcon } from '../icons';
 import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
-
-// The preview is ready when it has a height property
-const isPreviewReady = preview => !! preview?.height;
 
 /**
  * VideoPlayer react component
@@ -79,13 +77,20 @@ export default function Player( { isSelected, attributes } ) {
 	const { invalidateResolution } = useDispatch( coreStore );
 	const invalidatePreview = () => invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 
+	const iconStyle = style[ 'videopress-player__loading-icon' ];
+	const loadingStyle = style[ 'videopress-player__loading' ];
+
+	// Check if the preview is ready or we ran out of attempts.
+	const isPreviewAvailable = preview =>
+		!! preview?.height || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT;
+
 	// Fetch the preview until it's ready
 	useEffect( () => {
 		if ( ! isPlayerLoaded || isRequestingEmbedPreview ) {
 			return;
 		}
 
-		if ( isPreviewReady( preview ) || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT ) {
+		if ( isPreviewAvailable( preview ) ) {
 			clearTimeout( previewCheckTimer.current );
 			return;
 		}
@@ -104,26 +109,36 @@ export default function Player( { isSelected, attributes } ) {
 		}
 	}, [] );
 
-	const loadingStyle = {};
-	if ( ! isPreviewReady( preview ) ) {
-		loadingStyle.height = 250;
+	const containerLoadingStyle = {};
+	if ( ! isPreviewAvailable( preview ) ) {
+		containerLoadingStyle.height = loadingStyle?.height;
 	}
 
 	const renderEmbed = () => {
-		if ( html ) {
+		// Show the loading view if the embed html is not available or
+		// if still preparing the preview
+		if ( ! html || ( isPlayerLoaded && ! isPreviewAvailable( preview ) ) ) {
 			return (
-				<SandBox
-					html={ html }
-					onWindowEvents={ { message: onSandboxMessage } }
-					viewportProps="user-scalable=0"
-				/>
+				<View style={ style[ 'videopress-player__loading' ] }>
+					<Icon icon={ VideoPressIcon } size={ iconStyle?.size } style={ iconStyle } />
+					<Text style={ style[ 'videopress-player__loading-text' ] }>
+						{ __( 'Loading', 'jetpack-videopress-pkg' ) }
+					</Text>
+				</View>
 			);
 		}
-		return <Text>{ __( 'Loading', 'jetpack-videopress-pkg' ) }</Text>;
+
+		return (
+			<SandBox
+				html={ html }
+				onWindowEvents={ { message: onSandboxMessage } }
+				viewportProps="user-scalable=0"
+			/>
+		);
 	};
 
 	return (
-		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
+		<View style={ [ style[ 'videopress-player' ], containerLoadingStyle ] }>
 			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
 			{ renderEmbed() }
 		</View>

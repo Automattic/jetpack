@@ -10,3 +10,21 @@
 	width: 100%;
 	z-index: 1;
 }
+
+.videopress-player__loading {
+	display: flex;
+	justify-content: space-evenly;
+	align-items: center;
+	height: 225px;
+	width: 100%;
+	background-color: #000000;
+	padding-bottom: 14px;
+}
+.videopress-player__loading-icon,
+.videopress-player__loading-text {
+	color: $white;
+}
+
+.videopress-player__loading-icon {
+	size: 100;
+}
