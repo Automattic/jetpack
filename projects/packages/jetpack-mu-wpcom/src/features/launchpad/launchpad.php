@@ -313,42 +313,40 @@ function build_checklist( $checklist_slug ) {
  *
  * @param string $checklist_slug Checklist slug.
  *
- * @return array Associative array with checklist task data
+ * @return Task[] Collection of tasks for a given checklist
  */
 function get_launchpad_checklist_by_checklist_slug( $checklist_slug ) {
 	if ( ! $checklist_slug ) {
 		return array();
 	}
 
-	$launchpad_task_lists = Launchpad_Task_Lists->get_instance();
+	$launchpad_task_lists = Launchpad_Task_Lists::get_instance();
 	return $launchpad_task_lists->build( $checklist_slug );
 }
 
 // TODO: Write code p2 post or dotcom post
 /**
- * Wrapper that registers a launchpad checklist without needing
- * to know about the implementation details.
+ * Wrapper that registers a launchpad checklist.
  *
- * @param string $slug Task list slug.
- * @param array  $task_list Task list definition.
+ * @param string    $slug Task list slug.
+ * @param Task_List $task_list Task list definition.
  *
  * @return bool True if successful, false otherwise.
  */
 function register_launchpad_task_list( $slug, $task_list ) {
-	$launchpad_task_lists = Launchpad_Task_Lists->get_instance();
+	$launchpad_task_lists = Launchpad_Task_Lists::get_instance();
 	return $launchpad_task_lists->register_task_list( $slug, $task_list );
 }
 
 /**
- * Wrapper that registers a launchpad checklist without needing
- * to know about the implementation details.
+ * Wrapper that registers a launchpad checklist.
  *
- * @param array $task Task definition.
+ * @param Task $task Task definition.
  *
  * @return bool True if successful, false otherwise.
  */
 function register_launchpad_task( $task ) {
-	$launchpad_task_lists = Launchpad_Task_Lists->get_instance();
+	$launchpad_task_lists = Launchpad_Task_Lists::get_instance();
 	return $launchpad_task_lists->register_task( $task );
 }
 
@@ -356,7 +354,7 @@ function register_launchpad_task( $task ) {
  * Registers all default launchpad checklists
  */
 function register_default_checklists() {
-	$launchpad_task_lists = Launchpad_Task_Lists->get_instance();
+	$launchpad_task_lists = Launchpad_Task_Lists::get_instance();
 
 	foreach ( get_checklist_definitions() as $checklist ) {
 		$launchpad_task_lists->register_checklist( $checklist );

@@ -52,9 +52,9 @@ class Launchpad_Task_Lists {
 	/**
 	 * Register a new Launchpad Task List
 	 *
-	 * @param array $task_list Task List definition.
+	 * @param Task_List $task_list Task List definition.
 	 *
-	 * @return bool True if successfully registered.
+	 * @return bool True if successfully registered, false if not.
 	 */
 	public function register_task_list( $task_list = array() ) {
 		if ( ! $this->validate_task_list( $task_list ) ) {
@@ -68,7 +68,7 @@ class Launchpad_Task_Lists {
 	/**
 	 * Register a new Launchpad Task
 	 *
-	 * @param array $task Task definition.
+	 * @param Task $task Task definition.
 	 *
 	 * @return bool True if successful, false if not.
 	 */
@@ -85,7 +85,7 @@ class Launchpad_Task_Lists {
 	/**
 	 * Register a new Launchpad Task
 	 *
-	 * @param array $tasks Collection of task definitions.
+	 * @param Task[] $tasks Collection of task definitions.
 	 *
 	 * @return bool True if successful, false if not.
 	 */
@@ -102,7 +102,7 @@ class Launchpad_Task_Lists {
 		}
 
 		// TODO: Handle duplicate tasks
-		array_merge( $this->task_registry, $tasks_to_register );
+		$this->task_registry = array_merge( $this->task_registry, $tasks_to_register );
 		return true;
 	}
 
@@ -139,7 +139,7 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
-	 * Get a Launchpad Task List
+	 * Get a Launchpad Task List definition
 	 *
 	 * @param string $slug Task List slug.
 	 *
@@ -154,7 +154,7 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
-	 * Get a Launchpad Task
+	 * Get a Launchpad Task definition
 	 *
 	 * @param string $slug Task slug.
 	 *
@@ -173,23 +173,25 @@ class Launchpad_Task_Lists {
 	 *
 	 * @param string $slug Task list slug.
 	 *
-	 * @return Task[] Array of tasks associated with a task list
+	 * @return Task[] Collection of tasks associated with a task list.
 	 */
 	public function build( $slug ) {
-		$task_list            = $this->get_task_list( $slug );
-		$task_list_with_tasks = array();
+		$task_list           = $this->get_task_list( $slug );
+		$tasks_for_task_list = array();
 
+		// Takes a registered task list, looks at its associated task slugs,
+		// and returns a collection of associated tasks.
 		foreach ( $task_list['task_slugs'] as $task_slug => $value ) {
-			$task_list_with_tasks[] = $this->get_task( $task_slug );
+			$tasks_for_task_list[] = $this->get_task( $task_slug );
 		}
 
-		return $task_list_with_tasks;
+		return $tasks_for_task_list;
 	}
 
 	/**
 	 * Validate a Launchpad Task List
 	 *
-	 * @param array $task_list Task List arguments.
+	 * @param Task_List $task_list Task List.
 	 *
 	 * @return bool True if valid, false if not.
 	 */
@@ -212,7 +214,7 @@ class Launchpad_Task_Lists {
 	/**
 	 * Validate a Launchpad Task
 	 *
-	 * @param array $task Task arguments.
+	 * @param Task $task Task.
 	 *
 	 * @return bool True if valid, false if not.
 	 */
