@@ -188,11 +188,11 @@ function process_anchor_params() {
 	$is_anchor_enabled = apply_filters( 'jetpack_is_anchor_enabled', true );
 
 	if (
+		$is_anchor_enabled &&
 		'post' === get_post_type() &&
 		! get_post_meta( $post->ID, 'jetpack_anchor_spotify_show', true ) &&
 		0 === strpos( get_user_locale(), 'en' ) &&
-		$blog_connected_to_anchor &&
-		$is_anchor_enabled
+		$blog_connected_to_anchor
 	) {
 		$data['actions'][] = 'show-post-publish-outbound-link';
 	}
