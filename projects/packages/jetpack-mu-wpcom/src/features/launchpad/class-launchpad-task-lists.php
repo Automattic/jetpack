@@ -176,7 +176,6 @@ class Launchpad_Task_Lists {
 	 * @return Task[] Collection of tasks associated with a task list.
 	 */
 	public function build( $id ) {
-		l( $id );
 		$task_list           = $this->get_task_list( $id );
 		$tasks_for_task_list = array();
 
