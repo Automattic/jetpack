@@ -236,7 +236,7 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
-		if ( ! isset( $args['disabled'] ) ) {
+		if ( ! isset( $task['disabled'] ) ) {
 			trigger_error( 'The Launchpad task being registered requires a "disabled" attribute', E_USER_WARNING );
 			return false;
 		}
