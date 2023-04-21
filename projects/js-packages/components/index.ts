@@ -59,6 +59,7 @@ export { default as RecordMeterBar } from './components/record-meter-bar';
 export { default as ContextualUpgradeTrigger } from './components/contextual-upgrade-trigger';
 export { default as Alert } from './components/alert';
 export { default as Notice } from './components/notice';
+export { default as Status } from './components/status';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar';
 export { default as ActionPopover } from './components/action-popover';
 export { default as ZendeskChat } from './components/zendesk-chat';
