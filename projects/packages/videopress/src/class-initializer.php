@@ -251,6 +251,8 @@ class Initializer {
 		$poster   = isset( $block_attributes['posterData']['url'] ) ? $block_attributes['posterData']['url'] : null;
 
 		$preview_on_hover = '';
+		$play_button      = '';
+
 		if ( $is_poh_enabled ) {
 			$preview_on_hover = array(
 				'previewAtTime'       => $block_attributes['posterData']['previewAtTime'],
@@ -269,6 +271,14 @@ class Initializer {
 				);
 			}
 
+			/*
+			 * Add a child element to show the play button
+			 * when the controls is enabled
+			 */
+			if ( $controls ) {
+				$play_button = '<div class="jetpack-videopress-player__play-button"></div>';
+			}
+
 			// Expose the preview on hover data to the client.
 			$preview_on_hover = sprintf(
 				'<div class="jetpack-videopress-player__overlay" %s></div><script type="application/json">%s</script>',
@@ -282,8 +292,7 @@ class Initializer {
 		}
 
 		$figure_template = '
-		<figure %6$s class="%1$s" style="%2$s">			
-			%3$s
+		<figure class="%1$s" style="%2$s" %3$s>
 			%4$s
 			%5$s
 		</figure>
@@ -293,12 +302,20 @@ class Initializer {
 		$guid           = isset( $block_attributes['guid'] ) ? $block_attributes['guid'] : null;
 		$videopress_url = Utils::get_video_press_url( $guid, $block_attributes );
 
-		$video_wrapper = '';
+		$video_wrapper         = '';
+		$video_wrapper_classes = 'jetpack-videopress-player__wrapper';
+		if ( $controls ) {
+			$video_wrapper_classes .= ' has-controls';
+		}
+
 		if ( $videopress_url ) {
 			$videopress_url = wp_kses_post( $videopress_url );
 			$oembed_html    = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
 			$video_wrapper  = sprintf(
-				'<div class="jetpack-videopress-player__wrapper">%s</div>',
+				'<div class="%s">%s %s %s</div>',
+				$video_wrapper_classes,
+				$play_button,
+				$preview_on_hover,
 				$oembed_html
 			);
 		}
@@ -307,10 +324,9 @@ class Initializer {
 			$figure_template,
 			esc_attr( $classes ),
 			esc_attr( $style ),
-			$preview_on_hover,
+			$id_attribute,
 			$video_wrapper,
-			$figcaption,
-			$id_attribute
+			$figcaption
 		);
 	}
 
