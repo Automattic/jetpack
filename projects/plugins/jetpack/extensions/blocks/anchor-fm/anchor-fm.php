@@ -200,11 +200,13 @@ function process_anchor_params() {
 	wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_AnchorFm', $data );
 }
 
+function is_anchor_enabled() {
+	return time() < strtotime( '2023-05-11 00:00:00 UTC' );
+}
+
 add_filter(
 	'jetpack_is_anchor_enabled',
-	function ( $is_enabled ) {
-		return time() < strtotime( '2023-05-11 00:00:00 UTC' );
-	}
+	__NAMESPACE__ . '\is_anchor_enabled'
 );
 
 add_action( 'init', __NAMESPACE__ . '\register_extension' );
