@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '5.6.0';
+	public $version = '5.7.0';
 
 	/**
 	 * WordPress version tested with.
@@ -931,7 +931,6 @@ final class ZeroBSCRM {
 		// account
 		$this->urls['account']     = 'https://app.jetpackcrm.com/';
 		$this->urls['licensekeys'] = 'https://app.jetpackcrm.com/license-keys';
-		$this->urls['community']   = 'https://jetpackcrm.com/community/';
 
 		// } sales urls
 		$this->urls['products']          = 'https://jetpackcrm.com/extensions/';

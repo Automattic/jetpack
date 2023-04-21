@@ -91,6 +91,10 @@ function previewOnHoverEffect(): void {
 			return;
 		}
 
+		const playButton = videoPlayerElement.querySelector(
+			'.jetpack-videopress-player__play-button'
+		);
+
 		/*
 		 * Disable PreviewOnHover (pOH) when the player
 		 * should show the controls and
@@ -101,16 +105,25 @@ function previewOnHoverEffect(): void {
 				// Set the userHasInteracted flag to true.
 				userHasInteracted = true;
 
-				// Delete overlay element.
+				// Delete overlay and play button elements.
 				overlay.remove();
+				playButton?.remove();
 
 				// Pause when user clicks on the video.
 				setTimeout( iframeApi.controls.pause, 100 ); // Hack; without this, the video will not pause.
 			} );
 		}
 
-		overlay.addEventListener( 'mouseenter', iframeApi.controls.play );
-		overlay.addEventListener( 'mouseleave', iframeApi.controls.pause );
+		overlay.addEventListener( 'mouseenter', () => {
+			// Adding a delay to do not overlap the client fade-in animation.
+			setTimeout( () => playButton?.classList.add( 'is-behind' ), 500 );
+			iframeApi.controls.play();
+		} );
+
+		overlay.addEventListener( 'mouseleave', () => {
+			playButton?.classList.remove( 'is-behind' );
+			iframeApi.controls.pause();
+		} );
 	} );
 }
 

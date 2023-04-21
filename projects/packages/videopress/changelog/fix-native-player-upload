@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix native player aspect ratio after uploading a video
