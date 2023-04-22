@@ -7,9 +7,17 @@ interface StatusProps {
 	status?: 'active' | 'error' | 'inactive' | 'action' | 'initializing';
 	label?: string;
 	className?: string;
+	href?: string;
+	onClick: () => void;
 }
 
-const Status = ( { className, label, status = 'inactive' }: StatusProps ): JSX.Element => {
+const Status = ( {
+	className,
+	label,
+	status = 'inactive',
+	href,
+	onClick,
+}: StatusProps ): JSX.Element => {
 	const defaultLabels: Record< string, string > = {
 		active: __( 'Active', 'jetpack' ),
 		error: __( 'Error', 'jetpack' ),
@@ -17,6 +25,8 @@ const Status = ( { className, label, status = 'inactive' }: StatusProps ): JSX.E
 		inactive: __( 'Inactive', 'jetpack' ),
 		initializing: __( 'Setting up', 'jetpack' ),
 	};
+
+	label = label || defaultLabels[ status ];
 
 	return (
 		<Text
@@ -30,9 +40,13 @@ const Status = ( { className, label, status = 'inactive' }: StatusProps ): JSX.E
 			) }
 		>
 			<span className={ styles.status__indicator } />
-			<span className={ styles.status__label }>
-				{ label || label === '' ? label : defaultLabels[ status ] }
-			</span>
+			{ href ? (
+				<a className={ styles.status__link } href={ href } onClick={ onClick }>
+					{ label }
+				</a>
+			) : (
+				<span className={ styles.status__label }>{ label }</span>
+			) }
 		</Text>
 	);
 };

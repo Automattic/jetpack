@@ -1,4 +1,4 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, Status } from '@automattic/jetpack-components';
 import { __, _n, _x } from '@wordpress/i18n';
 import Button from 'components/button';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
@@ -89,28 +89,19 @@ class ProStatus extends React.Component {
 	getProActions = ( type, feature ) => {
 		let status = '',
 			message = false,
-			action = false,
 			actionUrl = '';
 		switch ( type ) {
 			case 'threats':
-				status = 'is-error';
-				if ( this.props.isCompact ) {
-					action = _x(
-						'Threats',
-						'A caption for a small button to fix security issues.',
-						'jetpack'
-					);
-				} else {
-					action = _x(
-						'See threats',
-						'A caption for a small button to fix security issues.',
-						'jetpack'
-					);
-				}
+				status = 'error';
+				message = _x(
+					'Threats detected',
+					'A caption for a small button to fix security issues.',
+					'jetpack'
+				);
 				actionUrl = getRedirectUrl( 'vaultpress-dashboard' );
 				break;
 			case 'secure':
-				status = 'is-success';
+				status = 'active';
 				message = _x(
 					'Secure',
 					'Short message informing user that the site is secure.',
@@ -121,28 +112,21 @@ class ProStatus extends React.Component {
 				return;
 			case 'rewind_connected':
 				const rewindMessage = this.getRewindMessage();
-				return (
-					<SimpleNotice showDismiss={ false } status={ rewindMessage.status } isCompact>
-						{ rewindMessage.text }
-					</SimpleNotice>
-				);
+				return <Status status="active" label={ rewindMessage.text } />;
 			case 'active':
 				return <span className="jp-dash-item__active-label">{ __( 'ACTIVE', 'jetpack' ) }</span>;
 		}
-		return (
-			<SimpleNotice showDismiss={ false } status={ status } isCompact={ true }>
-				{ message }
-				{ action && (
-					<a
-						className="dops-notice__text-no-underline"
-						onClick={ handleClickForTracking( type, feature ) }
-						href={ actionUrl }
-					>
-						{ action }
-					</a>
-				) }
-			</SimpleNotice>
-		);
+
+		if ( message ) {
+			return (
+				<Status
+					status={ status }
+					label={ message }
+					href={ actionUrl }
+					onClick={ handleClickForTracking( type, feature ) }
+				/>
+			);
+		}
 	};
 
 	/**

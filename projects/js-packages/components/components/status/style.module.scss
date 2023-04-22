@@ -1,4 +1,7 @@
 .status {
+	--spacing-base: 8px;
+	--wp-admin-border-width-focus: 1.5px;
+
     align-items: center;
     display: flex;
     white-space: nowrap;
@@ -11,14 +14,30 @@
         width: 0.666em;
     }
 
-    &__label {
+    &__label, &__link {
         font-weight: 600;
         line-height: 1.666;
         margin-left: calc( var( --spacing-base ) / 2 ); // 4px
     }
 
+	&__link {
+		text-decoration: underline;
+
+		&:hover {
+			text-decoration-thickness: 3px;
+		}
+		&:focus {
+			text-decoration-line: none;
+			border-radius: 2px;
+			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+			outline: 3px solid transparent;
+		}
+	}
+
     &.is-active {
-        color: var( --jp-green-50 );
+		span, a {
+			color: var(--jp-green-50);
+		}
 
         .status__indicator {
             background-color: var( --jp-green-50 );
@@ -26,23 +45,29 @@
     }
 
     &.is-inactive {
-        color: var( --jp-gray-50 );
-        
+		span, a {
+			color: var(--jp-gray-50);
+		}
+
         .status__indicator {
             background-color: var( --jp-gray-50 );
         }
     }
-    
+
     &.is-error {
-        color: var( --jp-red-50 );
-        
+		span, a {
+			color: var(--jp-red-50);
+		}
+
         .status__indicator {
             background-color: var( --jp-red-50 );
         }
     }
 
     &.is-action {
-        color: var( --jp-yellow-30 );
+		span, a {
+			color: var(--jp-yellow-30);
+		}
 
         .status__indicator {
             background-color: var( --jp-yellow-30 );
@@ -50,7 +75,9 @@
     }
 
     &.is-initializing {
-        color: var( --jp-blue-40 );
+		span, a {
+			color: var(--jp-blue-40);
+		}
 
         .status__indicator {
             background-color: var( --jp-blue-40 );
