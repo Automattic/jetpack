@@ -71,10 +71,7 @@ export const settings = {
 		reusable: false,
 	},
 	edit,
-	save: attrs => {
-		const blockProps = useBlockProps.save();
-		return <RawHTML { ...blockProps }>{ attrs.attributes.content }</RawHTML>;
-	},
+	save: () => null,
 	attributes,
 	transforms: {
 		to: [

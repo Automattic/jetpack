@@ -2,9 +2,10 @@ import './editor.scss';
 
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
-import { useBlockProps } from '@wordpress/block-editor';
+import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
+import { rawHandler, serialize } from '@wordpress/blocks';
 import { Placeholder, Button, Spinner } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, RawHTML, useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { name as aiParagraphBlockName } from './index';
@@ -67,10 +68,10 @@ export const createPrompt = (
 };
 
 // This component displays the text word by word if show animation is true
-function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
+function ShowLittleByLittle( { html, showAnimation, onAnimationDone, clientId } ) {
 	// This is the HTML to be displayed.
 	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
-
+	const { replaceBlocks } = useDispatch( blockEditorStore );
 	useEffect(
 		() => {
 			// That will only happen once
@@ -93,10 +94,13 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 		// eslint-disable-next-line
 		[]
 	);
-
+	const handleAcceptContent = () => {
+		replaceBlocks( clientId, rawHandler( { HTML: displayedRawHTML } ) );
+	};
 	return (
 		<div className="content">
 			<RawHTML>{ displayedRawHTML }</RawHTML>
+			<Button onClick={ handleAcceptContent }>Accept</Button>
 		</div>
 	);
 }
@@ -294,6 +298,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					onAnimationDone={ () => {
 						setAttributes( { animationDone: true } );
 					} }
+					clientId={ clientId }
 					html={ attributes.content }
 				/>
 			) }
