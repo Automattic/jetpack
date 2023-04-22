@@ -3,8 +3,8 @@ import './editor.scss';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
-import { rawHandler } from '@wordpress/blocks';
-import { Placeholder, Button, Spinner, TextareaControl } from '@wordpress/components';
+import { rawHandler, serialize } from '@wordpress/blocks';
+import { Placeholder, Button, Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, RawHTML, useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
@@ -18,61 +18,60 @@ export const createPrompt = (
 	postTitle = '',
 	contentBeforeCurrentBlock = [],
 	categoriesNames = '',
-	tagsNames = '',
-	userPrompt = ''
+	tagsNames = ''
 ) => {
-	// const content = contentBeforeCurrentBlock
-	// 	.filter( function ( block ) {
-	// 		return block && block.attributes && block.attributes.content;
-	// 	} )
-	// 	.map( function ( block ) {
-	// 		return block.attributes.content.replaceAll( '<br/>', '\n' );
-	// 	} )
-	// 	.join( '\n' );
-	// const shorter_content = content.slice( -1 * MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
+	const content = contentBeforeCurrentBlock
+		.filter( function ( block ) {
+			return block && block.attributes && block.attributes.content;
+		} )
+		.map( function ( block ) {
+			return block.attributes.content.replaceAll( '<br/>', '\n' );
+		} )
+		.join( '\n' );
+	const shorter_content = content.slice( -1 * MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
 
 	// We prevent a prompt if everything is empty
-	// if ( ! postTitle && ! shorter_content && ! categoriesNames && ! tagsNames && ! userPrompt ) {
-	// 	return false;
-	// }
+	if ( ! postTitle && ! shorter_content && ! categoriesNames && ! tagsNames ) {
+		return false;
+	}
 
-	// let prompt = '';
+	let prompt = '';
 	// We will generate the content
-	// if ( ! userPrompt && postTitle ) {
-	// 	prompt = sprintf(
-	// 		/** translators: This will be the beginning of a prompt that will be sent to OpenAI based on the post title. */
-	// 		__( "Please help me write a short piece of a blog post titled '%1$s'", 'jetpack' ),
-	// 		postTitle
-	// 	);
-	// } else {
-	// 	prompt = __( 'Please help me write a short piece of a blog post', 'jetpack' );
-	// }
+	if ( postTitle ) {
+		prompt = sprintf(
+			/** translators: This will be the beginning of a prompt that will be sent to OpenAI based on the post title. */
+			__( "Please help me write a short piece of a blog post titled '%1$s'", 'jetpack' ),
+			postTitle
+		);
+	} else {
+		prompt = __( 'Please help me write a short piece of a blog post', 'jetpack' );
+	}
 
-	// if ( categoriesNames ) {
-	// 	/** translators: This will be the follow up of a prompt that will be sent to OpenAI based on comma-seperated category names. */
-	// 	prompt += sprintf( __( ", published in categories '%1$s'", 'jetpack' ), categoriesNames );
-	// }
+	if ( categoriesNames ) {
+		/** translators: This will be the follow up of a prompt that will be sent to OpenAI based on comma-seperated category names. */
+		prompt += sprintf( __( ", published in categories '%1$s'", 'jetpack' ), categoriesNames );
+	}
 
-	// if ( tagsNames ) {
-	// 	/** translators: This will be the follow up of a prompt that will be sent to OpenAI based on comma-seperated category names. */
-	// 	prompt += sprintf( __( " and tagged '%1$s'", 'jetpack' ), tagsNames );
-	// }
-	let prompt = userPrompt;
+	if ( tagsNames ) {
+		/** translators: This will be the follow up of a prompt that will be sent to OpenAI based on comma-seperated category names. */
+		prompt += sprintf( __( " and tagged '%1$s'", 'jetpack' ), tagsNames );
+	}
+
 	prompt += __( '. Please only output generated content ready for publishing.', 'jetpack' );
 
-	// if ( shorter_content ) {
-	// 	/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
-	// 	prompt += sprintf( __( ' Please continue from here:\n\n … %s', 'jetpack' ), shorter_content ); // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-	// }
+	if ( shorter_content ) {
+		/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
+		prompt += sprintf( __( ' Please continue from here:\n\n … %s', 'jetpack' ), shorter_content ); // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+	}
 
 	return prompt.trim();
 };
 
 // This component displays the text word by word if show animation is true
-function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
+function ShowLittleByLittle( { html, showAnimation, onAnimationDone, clientId } ) {
 	// This is the HTML to be displayed.
 	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
-
+	const { replaceBlocks } = useDispatch( blockEditorStore );
 	useEffect(
 		() => {
 			// That will only happen once
@@ -95,9 +94,13 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 		// eslint-disable-next-line
 		[]
 	);
+	const handleAcceptContent = () => {
+		replaceBlocks( clientId, rawHandler( { HTML: displayedRawHTML } ) );
+	};
 	return (
 		<div className="content">
 			<RawHTML>{ displayedRawHTML }</RawHTML>
+			<Button onClick={ handleAcceptContent }>Accept</Button>
 		</div>
 	);
 }
@@ -106,12 +109,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( false );
-	const [ userPrompt, setUserPrompt ] = useState();
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
 	const { tracks } = useAnalytics();
-
-	const { replaceBlocks } = useDispatch( blockEditorStore );
 
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
@@ -200,7 +200,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setIsLoadingCompletion( true );
 
 		const data = {
-			content: createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames, userPrompt ),
+			content: createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames ),
 		};
 
 		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
@@ -242,34 +242,34 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const noLogicNeeded = contentIsLoaded || isWaitingState;
 
 	useSelect( () => {
-		// if ( ! noLogicNeeded ) {
-		// 	const prompt2 = createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames );
+		if ( ! noLogicNeeded ) {
+			const prompt = createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames );
 
-		// 	if ( containsAiUntriggeredParagraph() ) {
-		// 		setErrorMessage(
-		// 			/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
-		// 			__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
-		// 		);
-		// 	} else if ( ! prompt ) {
-		// 		setErrorMessage(
-		// 			/** translators: First placeholder is a number of more characters we need */
-		// 			__(
-		// 				'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs some content.',
-		// 				'jetpack'
-		// 			)
-		// 		);
-		// 		setNeedsMoreCharacters( true );
-		// 	} else if ( needsMoreCharacters ) {
-		// 		setErrorMessage(
-		// 			/** translators: This is to retry to complete the text */
-		// 			__( 'Ready to retry', 'jetpack' )
-		// 		);
-		// 		setShowRetry( true );
-		// 		setNeedsMoreCharacters( false );
-		// 	} else if ( ! needsMoreCharacters && ! showRetry ) {
-		// 		// getSuggestionFromOpenAI();
-		// 	}
-		// }
+			if ( containsAiUntriggeredParagraph() ) {
+				setErrorMessage(
+					/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
+					__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
+				);
+			} else if ( ! prompt ) {
+				setErrorMessage(
+					/** translators: First placeholder is a number of more characters we need */
+					__(
+						'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs some content.',
+						'jetpack'
+					)
+				);
+				setNeedsMoreCharacters( true );
+			} else if ( needsMoreCharacters ) {
+				setErrorMessage(
+					/** translators: This is to retry to complete the text */
+					__( 'Ready to retry', 'jetpack' )
+				);
+				setShowRetry( true );
+				setNeedsMoreCharacters( false );
+			} else if ( ! needsMoreCharacters && ! showRetry ) {
+				getSuggestionFromOpenAI();
+			}
+		}
 	}, [
 		currentPostTitle,
 		contentBefore,
@@ -280,41 +280,27 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		showRetry,
 	] );
 
-	const handleAcceptContent = () => {
-		replaceBlocks( clientId, rawHandler( { HTML: attributes.content } ) );
-	};
-
 	return (
 		<div { ...useBlockProps() }>
-			{ ! contentIsLoaded && (
+			{ ! isLoadingCompletion && ! isLoadingCategories && errorMessage && (
 				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
 					{ showRetry && (
 						<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
 							{ __( 'Retry', 'jetpack' ) }
 						</Button>
 					) }
-					<TextareaControl onChange={ value => setUserPrompt( value ) } />
-					<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
-						{ __( 'Get', 'jetpack' ) }
-					</Button>
 				</Placeholder>
 			) }
 
 			{ contentIsLoaded && (
-				<>
-					<ShowLittleByLittle
-						showAnimation={ ! attributes.animationDone }
-						onAnimationDone={ () => {
-							setAttributes( { animationDone: true } );
-						} }
-						clientId={ clientId }
-						html={ attributes.content }
-					/>
-					<Button onClick={ handleAcceptContent }>{ __( 'Accept', 'jetpack' ) }</Button>
-					<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
-						{ __( 'Retry', 'jetpack' ) }
-					</Button>
-				</>
+				<ShowLittleByLittle
+					showAnimation={ ! attributes.animationDone }
+					onAnimationDone={ () => {
+						setAttributes( { animationDone: true } );
+					} }
+					clientId={ clientId }
+					html={ attributes.content }
+				/>
 			) }
 
 			{ ! attributes.content && isWaitingState && (
