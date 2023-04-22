@@ -49,6 +49,7 @@
 		"videopress/video"
 	],
 	"beta": [
+		"ai-assistant",
 		"ai-chat",
 		"amazon",
 		"conversation",
