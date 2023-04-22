@@ -1,12 +1,10 @@
 /**
- * Editor styles for Jetpack AI Paragraph
+ * Editor styles for Jetpack AI Assistant
  */
 
 .wp-block-ai-generate-suggestion {
 	padding: 0;
 }
-
-.wp-block-ai-generate-suggestion .content {}
 
 .wp-block-ai-generate-suggestion .components-text-control__input {
 	margin: 10px;
@@ -15,4 +13,22 @@
 
 .wp-block-ai-generate-suggestion .components-button.is-primary {
 	margin: 10px;
+}
+
+.jetpack-ai-assistant__loading-spinner {
+	width: 40px;
+	height: 40px;
+	margin-right: 12px;
+	margin-left: 12px;
+}
+
+.jetpack-ai-assistant__controls {
+	display: flex;
+	align-items: center;
+}
+
+.jetpack-ai-assistant__accept {
+	margin: 12px;
+	display: flex;
+	justify-content: right;
 }

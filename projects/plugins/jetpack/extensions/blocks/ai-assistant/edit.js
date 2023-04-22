@@ -4,10 +4,12 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
-import { Placeholder, Button, Spinner, TextareaControl } from '@wordpress/components';
+import { Button, TextareaControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, RawHTML, useEffect } from '@wordpress/element';
-import { sprintf, __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
+import { Icon, pencil } from '@wordpress/icons';
+import Loading from './loading';
 import { name as aiParagraphBlockName } from './index';
 
 // Maximum number of characters we send from the content
@@ -283,20 +285,36 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		replaceBlocks( clientId, rawHandler( { HTML: attributes.content } ) );
 	};
 
+	const retry = () => {
+		setAttributes( { content: undefined } );
+	};
+
 	return (
 		<div { ...useBlockProps() }>
 			{ ! contentIsLoaded && (
-				<Placeholder instructions={ errorMessage }>
+				<div>
 					{ showRetry && (
 						<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
 							{ __( 'Retry', 'jetpack' ) }
 						</Button>
 					) }
-					<TextareaControl onChange={ value => setUserPrompt( value ) } />
-					<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
-						{ __( 'Get', 'jetpack' ) }
-					</Button>
-				</Placeholder>
+					<TextareaControl
+						onChange={ value => setUserPrompt( value ) }
+						rows="2"
+						placeholder={ __( 'Write a paragraph about …', 'jetpack' ) }
+					/>
+					<div className="jetpack-ai-assistant__controls">
+						<Button
+							variant="primary"
+							onClick={ () => getSuggestionFromOpenAI() }
+							disabled={ isWaitingState }
+							label={ __( 'Do some magic', 'jetpack' ) }
+						>
+							<Icon icon={ pencil } />
+						</Button>
+						{ ! attributes.content && isWaitingState && <Loading /> }
+					</div>
+				</div>
 			) }
 
 			{ contentIsLoaded && (
@@ -309,22 +327,15 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						clientId={ clientId }
 						html={ attributes.content }
 					/>
-					<Button onClick={ handleAcceptContent }>{ __( 'Accept', 'jetpack' ) }</Button>
-					<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
-						{ __( 'Retry', 'jetpack' ) }
-					</Button>
+					{ contentIsLoaded && attributes.animationDone && (
+						<div className="jetpack-ai-assistant__accept">
+							<Button variant="primary" onClick={ handleAcceptContent }>
+								{ __( 'Accept', 'jetpack' ) }
+							</Button>
+							<Button onClick={ retry }>{ __( 'Retry', 'jetpack' ) }</Button>
+						</div>
+					) }
 				</>
-			) }
-
-			{ ! attributes.content && isWaitingState && (
-				<div style={ { padding: '10px', textAlign: 'center' } }>
-					<Spinner
-						style={ {
-							height: 'calc(4px * 20)',
-							width: 'calc(4px * 20)',
-						} }
-					/>
-				</div>
 			) }
 		</div>
 	);
