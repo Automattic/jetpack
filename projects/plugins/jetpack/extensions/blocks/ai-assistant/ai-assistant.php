@@ -28,8 +28,7 @@ function register_block() {
 	if ( ! \Jetpack_AI_Helper::is_enabled() ) {
 		return;
 	}
-echo 'here!!!ss'
-exit;
+
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )

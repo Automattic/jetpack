@@ -286,7 +286,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	return (
 		<div { ...useBlockProps() }>
 			{ ! contentIsLoaded && (
-				<Placeholder label={ __( 'AI Paragraph', 'jetpack' ) } instructions={ errorMessage }>
+				<Placeholder instructions={ errorMessage }>
 					{ showRetry && (
 						<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
 							{ __( 'Retry', 'jetpack' ) }
