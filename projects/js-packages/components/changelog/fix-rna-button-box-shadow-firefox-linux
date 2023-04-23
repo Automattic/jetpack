@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+RNA: Fix button box-shadow radius on Linux build of Firefox

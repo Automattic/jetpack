@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+change link_in_bio_launched dependency to link_edited

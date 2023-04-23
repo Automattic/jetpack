@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress block: Fix blocking state when stopping an upload

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+MyJetpack: Try to activate the product module after installing the standalone plugin
