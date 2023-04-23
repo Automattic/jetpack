@@ -3,10 +3,14 @@ import './editor.scss';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
-import { rawHandler } from '@wordpress/blocks';
+import { rawHandler, createBlock } from '@wordpress/blocks';
 import {
 	Button,
 	DropdownMenu,
+	Flex,
+	FlexBlock,
+	FlexItem,
+	Modal,
 	TextareaControl,
 	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
 	__experimentalToggleGroupControl as ToggleGroupControl,
@@ -121,6 +125,48 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 	);
 }
 
+function getImagesFromOpenAI(
+	prompt,
+	setAttributes,
+	setLoadingImages,
+	setResultImages,
+	setErrorMessage,
+	postId
+) {
+	setLoadingImages( true );
+	setErrorMessage( null );
+	setAttributes( { requestedPrompt: prompt } ); // This will prevent double submitting.
+
+	apiFetch( {
+		path: '/wpcom/v2/jetpack-ai/images/generations',
+		method: 'POST',
+		data: {
+			prompt,
+			post_id: postId,
+		},
+	} )
+		.then( res => {
+			setLoadingImages( false );
+			const images = res.data.map( image => {
+				return 'data:image/png;base64,' + image.b64_json;
+			} );
+			setResultImages( images );
+		} )
+		.catch( e => {
+			if ( e.message ) {
+				setErrorMessage( e.message ); // Message was already translated by the backend
+			} else {
+				setErrorMessage(
+					__(
+						'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
+						'jetpack'
+					)
+				);
+			}
+			setLoadingImages( false );
+		} );
+}
+
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
@@ -129,9 +175,19 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
 	const [ aiType, setAiType ] = useState( 'text' );
+	const [ loadingImages, setLoadingImages ] = useState( false );
+	const [ resultImages, setResultImages ] = useState( [] );
+	const [ imageModal, setImageModal ] = useState( null );
 	const { tracks } = useAnalytics();
 
-	const { replaceBlocks } = useDispatch( blockEditorStore );
+	const { replaceBlocks, replaceBlock } = useDispatch( blockEditorStore );
+	const { mediaUpload } = useSelect( select => {
+		const { getSettings } = select( blockEditorStore );
+		const settings = getSettings();
+		return {
+			mediaUpload: settings.mediaUpload,
+		};
+	}, [] );
 
 	// Let's grab post data so that we can do something smart.
 	const currentPostTitle = useSelect( select =>
@@ -252,6 +308,81 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			} );
 	};
 
+	const ImageWithSelect = ( { image, inModal = false } ) => {
+		return (
+			<Flex direction="column">
+				{ inModal && (
+					<FlexItem style={ { 'text-align': 'center' } }>
+						<Button variant="primary" onClick={ () => saveImage( image ) }>
+							{ __( 'Use this image', 'jetpack' ) }
+						</Button>
+					</FlexItem>
+				) }
+				<FlexBlock>
+					<img
+						className="wp-block-ai-image-image"
+						src={ image }
+						alt=""
+						onClick={ () => setImageModal( image ) }
+					/>
+				</FlexBlock>
+				{ ! inModal && (
+					<FlexBlock>
+						<Flex direction="column" style={ { 'align-items': 'center' } }>
+							<FlexItem>
+								<Button variant="primary" onClick={ () => saveImage( image ) }>
+									{ __( 'Use this image', 'jetpack' ) }
+								</Button>
+							</FlexItem>
+						</Flex>
+					</FlexBlock>
+				) }
+			</Flex>
+		);
+	};
+
+	const saveImage = async image => {
+		if ( loadingImages ) {
+			return;
+		}
+		setLoadingImages( true );
+		setErrorMessage( null );
+
+		// First convert image to a proper blob file
+		const resp = await fetch( image );
+		const blob = await resp.blob();
+		const file = new File( [ blob ], 'jetpack_ai_image.png', {
+			type: 'image/png',
+		} );
+		// Actually upload the image
+		mediaUpload( {
+			filesList: [ file ],
+			onFileChange: ( [ img ] ) => {
+				if ( ! img.id ) {
+					// Without this image gets uploaded twice
+					return;
+				}
+				replaceBlock(
+					clientId,
+					createBlock( 'core/image', {
+						url: img.url,
+						caption: attributes.requestedPrompt,
+						alt: attributes.requestedPrompt,
+					} )
+				);
+			},
+			allowedTypes: [ 'image' ],
+			onError: message => {
+				// eslint-disable-next-line no-console
+				console.error( message );
+				setLoadingImages( false );
+			},
+		} );
+		tracks.recordEvent( 'jetpack_ai_dalle_generation_upload', {
+			post_id: postId,
+		} );
+	};
+
 	// Waiting state means there is nothing to be done until it resolves
 	const isWaitingState = isLoadingCompletion || isLoadingCategories;
 	// Content is loaded
@@ -269,12 +400,35 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		aiType === 'text'
 			? __( 'Write a paragraph about …', 'jetpack' )
 			: __( 'What would you like to see?', 'jetpack' );
+
+	const handleGetSuggestion = () => {
+		if ( aiType === 'text' ) {
+			getSuggestionFromOpenAI();
+			return;
+		}
+
+		setLoadingImages( false );
+		setResultImages( [] );
+		setErrorMessage( null );
+		getImagesFromOpenAI(
+			userPrompt.trim() === '' ? placeholder : userPrompt,
+			setAttributes,
+			setLoadingImages,
+			setResultImages,
+			setErrorMessage,
+			postId
+		);
+		tracks.recordEvent( 'jetpack_ai_dalle_generation', {
+			post_id: postId,
+		} );
+	};
+
 	return (
 		<div { ...useBlockProps() }>
 			{ ! contentIsLoaded && (
 				<div>
 					{ showRetry && (
-						<Button variant="primary" onClick={ () => getSuggestionFromOpenAI() }>
+						<Button variant="primary" onClick={ () => handleGetSuggestion() }>
 							{ __( 'Retry', 'jetpack' ) }
 						</Button>
 					) }
@@ -302,9 +456,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					<div className="jetpack-ai-assistant__controls">
 						<Button
 							variant="primary"
-							onClick={ () => getSuggestionFromOpenAI() }
+							onClick={ () => handleGetSuggestion() }
 							disabled={ isWaitingState }
-							label={ __( 'Do some magic', 'jetpack' ) }
+							label={ __( 'Do some magic!', 'jetpack' ) }
 						>
 							<Icon icon={ pencil } />
 						</Button>
@@ -326,7 +480,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 								] }
 							/>
 						) }
-						{ ! attributes.content && isWaitingState && <Loading /> }
+						{ ( ( ! attributes.content && isWaitingState ) || loadingImages ) && <Loading /> }
 					</div>
 				</div>
 			) }
@@ -350,6 +504,28 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						</div>
 					) }
 				</>
+			) }
+			{ ! loadingImages && resultImages.length > 0 && (
+				<Flex direction="column" style={ { width: '100%' } }>
+					<FlexBlock
+						style={ { textAlign: 'center', margin: '12px', fontStyle: 'italic', width: '100%' } }
+					>
+						{ attributes.requestedPrompt }
+					</FlexBlock>
+					<FlexBlock style={ { fontSize: '20px', lineHeight: '38px' } }>
+						{ __( 'Please choose your image', 'jetpack' ) }
+					</FlexBlock>
+					<Flex direction="row" wrap={ true }>
+						{ resultImages.map( image => (
+							<ImageWithSelect image={ image } />
+						) ) }
+					</Flex>
+				</Flex>
+			) }
+			{ ! loadingImages && imageModal && (
+				<Modal onRequestClose={ () => setImageModal( null ) }>
+					<ImageWithSelect image={ imageModal } inModal={ true } />
+				</Modal>
 			) }
 		</div>
 	);
