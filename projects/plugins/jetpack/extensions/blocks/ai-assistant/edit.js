@@ -9,6 +9,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, RawHTML, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, pencil } from '@wordpress/icons';
+import MarkdownIt from 'markdown-it';
 import Loading from './loading';
 import { name as aiParagraphBlockName } from './index';
 
@@ -60,7 +61,10 @@ export const createPrompt = (
 	// 	prompt += sprintf( __( " and tagged '%1$s'", 'jetpack' ), tagsNames );
 	// }
 	let prompt = userPrompt;
-	prompt += __( '. Please only output generated content ready for publishing.', 'jetpack' );
+	prompt += __(
+		'. Please always output the generated content in markdown format. Please only output generated content ready for publishing.',
+		'jetpack'
+	);
 
 	// if ( shorter_content ) {
 	// 	/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
@@ -98,7 +102,7 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 		[]
 	);
 	return (
-		<div className="content">
+		<div className="jetpack-ai-assistant__content">
 			<RawHTML>{ displayedRawHTML }</RawHTML>
 		</div>
 	);
@@ -215,8 +219,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			data: data,
 		} )
 			.then( res => {
-				const result = res.trim().replaceAll( '\n', '<br/>' );
-				setAttributes( { content: result } );
+				const result = res.trim();
+				const markdownConverter = new MarkdownIt();
+				setAttributes( { content: result.length ? markdownConverter.render( result ) : '' } );
 				setIsLoadingCompletion( false );
 			} )
 			.catch( e => {
