@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+Comment: Only load class `Jetpack_AMP_Support` when the AMP plugin is initialized.
+

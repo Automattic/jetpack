@@ -15,7 +15,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
-import { find, includes, map } from 'lodash';
+import { find, findIndex, includes, map } from 'lodash';
 /**
  * Internal dependencies
  */
@@ -56,6 +56,7 @@ const TABS = [
 const Inbox = () => {
 	const stickySentinel = useRef();
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
+	const [ responseAnimationDirection, setResponseAnimationDirection ] = useState( 1 );
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ view, setView ] = useState( 'list' );
 	const [ isSticky, setSticky ] = useState( false );
@@ -133,10 +134,16 @@ const Inbox = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ stickySentinel.current, loading ] );
 
-	const selectResponse = useCallback( id => {
-		setCurrentResponseId( id );
-		setView( 'response' );
-	}, [] );
+	const selectResponse = useCallback(
+		id => {
+			setCurrentResponseId( id );
+			setView( 'response' );
+			setResponseAnimationDirection(
+				findIndex( responses, { id } ) - findIndex( responses, { id: currentResponseId } )
+			);
+		},
+		[ currentResponseId, responses ]
+	);
 
 	const handleGoBack = useCallback( event => {
 		event.preventDefault();
@@ -188,6 +195,7 @@ const Inbox = () => {
 
 	const classes = classnames( 'jp-forms__inbox', {
 		'is-response-view': view === 'response',
+		'is-response-animation-reverted': responseAnimationDirection < 0,
 	} );
 
 	const title = (

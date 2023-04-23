@@ -167,7 +167,7 @@ class Jetpack_Comment_Likes {
 	 * Initialize front end
 	 */
 	public function frontend_init() {
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if ( class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request() ) {
 			return;
 		}
 

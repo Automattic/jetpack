@@ -187,7 +187,7 @@ function get_task_definitions() {
 				'id'        => 'link_in_bio_launched',
 				'title'     => __( 'Launch your site', 'jetpack-mu-wpcom' ),
 				'completed' => get_checklist_task( 'site_launched' ),
-				'disabled'  => ! get_checklist_task( 'links_added' ),
+				'disabled'  => ! get_checklist_task( 'links_edited' ),
 			),
 		'videopress_setup'
 			=> array(
