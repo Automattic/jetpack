@@ -7,7 +7,6 @@
 	.dops-section-header__actions {
 		.form-toggle__label {
 			position: relative;
-			top: 6px;
 			right: 0;
 		}
 		.form-toggle__label-content {
@@ -107,7 +106,6 @@
 }
 .jp-dash-item__active-label {
 	display: inline-block;
-	padding: rem( 6px ) 0 0;
 	color: darken( $gray, 10% );
 	color: $gray;
 	font-size: rem( 12px );
