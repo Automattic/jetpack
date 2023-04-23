@@ -4,11 +4,11 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
-import { Button, TextareaControl } from '@wordpress/components';
+import { Button, DropdownMenu, TextareaControl } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, RawHTML, useEffect } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-import { Icon, pencil } from '@wordpress/icons';
+import { __, sprintf } from '@wordpress/i18n';
+import { Icon, pencil, moreVertical } from '@wordpress/icons';
 import MarkdownIt from 'markdown-it';
 import Loading from './loading';
 import { name as aiParagraphBlockName } from './index';
@@ -22,33 +22,49 @@ export const createPrompt = (
 	contentBeforeCurrentBlock = [],
 	categoriesNames = '',
 	tagsNames = '',
-	userPrompt = ''
+	userPrompt = '',
+	type = 'userPrompt'
 ) => {
-	// const content = contentBeforeCurrentBlock
-	// 	.filter( function ( block ) {
-	// 		return block && block.attributes && block.attributes.content;
-	// 	} )
-	// 	.map( function ( block ) {
-	// 		return block.attributes.content.replaceAll( '<br/>', '\n' );
-	// 	} )
-	// 	.join( '\n' );
-	// const shorter_content = content.slice( -1 * MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
+	const promptSuffix = __(
+		'. Please always output the generated content in markdown format. Please only output generated content ready for publishing.',
+		'jetpack'
+	);
 
-	// We prevent a prompt if everything is empty
+	if ( type === 'userPrompt' ) {
+		return userPrompt + promptSuffix;
+	}
+
+	if ( type === 'titleSummary' ) {
+		const titlePrompt = sprintf(
+			/** translators: This will be the beginning of a prompt that will be sent to OpenAI based on the post title. */
+			__( "Please help me write a short piece of a blog post titled '%1$s'", 'jetpack' ),
+			postTitle
+		);
+		return titlePrompt + promptSuffix;
+	}
+
+	if ( type === 'expandPreceding' ) {
+		const content = contentBeforeCurrentBlock
+			.filter( function ( block ) {
+				return block && block.attributes && block.attributes.content;
+			} )
+			.map( function ( block ) {
+				return block.attributes.content.replaceAll( '<br/>', '\n' );
+			} )
+			.join( '\n' );
+		const shorter_content = content.slice( -1 * MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
+
+		const expandPrompt = sprintf(
+			/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
+			__( ' Please continue from here:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+			shorter_content
+		);
+		return expandPrompt + promptSuffix;
+	}
+
+	// We prevent a prompt if everything is empty.
 	// if ( ! postTitle && ! shorter_content && ! categoriesNames && ! tagsNames && ! userPrompt ) {
 	// 	return false;
-	// }
-
-	// let prompt = '';
-	// We will generate the content
-	// if ( ! userPrompt && postTitle ) {
-	// 	prompt = sprintf(
-	// 		/** translators: This will be the beginning of a prompt that will be sent to OpenAI based on the post title. */
-	// 		__( "Please help me write a short piece of a blog post titled '%1$s'", 'jetpack' ),
-	// 		postTitle
-	// 	);
-	// } else {
-	// 	prompt = __( 'Please help me write a short piece of a blog post', 'jetpack' );
 	// }
 
 	// if ( categoriesNames ) {
@@ -59,16 +75,6 @@ export const createPrompt = (
 	// if ( tagsNames ) {
 	// 	/** translators: This will be the follow up of a prompt that will be sent to OpenAI based on comma-seperated category names. */
 	// 	prompt += sprintf( __( " and tagged '%1$s'", 'jetpack' ), tagsNames );
-	// }
-	let prompt = userPrompt;
-	prompt += __(
-		'. Please always output the generated content in markdown format. Please only output generated content ready for publishing.',
-		'jetpack'
-	);
-
-	// if ( shorter_content ) {
-	// 	/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
-	// 	prompt += sprintf( __( ' Please continue from here:\n\n … %s', 'jetpack' ), shorter_content ); // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
 	// }
 
 	return prompt.trim();
@@ -195,7 +201,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		);
 	};
 
-	const getSuggestionFromOpenAI = () => {
+	const getSuggestionFromOpenAI = type => {
 		if ( !! attributes.content || isLoadingCompletion ) {
 			return;
 		}
@@ -206,7 +212,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setIsLoadingCompletion( true );
 
 		const data = {
-			content: createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames, userPrompt ),
+			content: createPrompt(
+				currentPostTitle,
+				contentBefore,
+				categoryNames,
+				tagNames,
+				userPrompt,
+				type
+			),
 		};
 
 		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
@@ -317,6 +330,22 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						>
 							<Icon icon={ pencil } />
 						</Button>
+						<DropdownMenu
+							icon={ moreVertical }
+							label={ __( 'Other options', 'jetpack' ) }
+							controls={ [
+								{
+									title: __( 'Write a summary based on title', 'jetpack' ),
+									onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
+									isDisabled: isWaitingState,
+								},
+								{
+									title: __( 'Expand on preceding content', 'jetpack' ),
+									onClick: () => getSuggestionFromOpenAI( 'expandpreceding' ),
+									isDisabled: isWaitingState,
+								},
+							] }
+						/>
 						{ ! attributes.content && isWaitingState && <Loading /> }
 					</div>
 				</div>
