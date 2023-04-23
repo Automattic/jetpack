@@ -10,6 +10,8 @@
 	padding-top: rem( 16px );
 	padding-bottom: rem( 15px );
 	position: relative;
+	border-bottom: 1px solid #DCDCDE;
+	margin-bottom: 0;
 
 	&:after {
 		content: '';
@@ -50,17 +52,8 @@
 }
 
 .dops-section-header__actions {
+	align-items: center;
+	display: flex;
 	flex-grow: 0;
 	position: relative;
-
-	@include clear-fix;
-}
-
-.section-header__actions .button {
-	float: left;
-	margin-right: rem( 8px );
-
-	&:last-child {
-		margin-right: 0;
-	}
 }

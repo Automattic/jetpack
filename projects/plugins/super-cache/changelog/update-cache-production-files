@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Do not ship development environment files with the stable version of the plugin.

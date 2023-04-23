@@ -21,7 +21,7 @@ In your project's `composer.json`, add the following lines:
 ```json
 {
     "require-dev": {
-        "automattic/jetpack-autoloader": "^1"
+        "automattic/jetpack-autoloader": "^2"
     }
 }
 ```
