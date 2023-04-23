@@ -6,6 +6,8 @@
  * @since 11.8
  */
 
+use Automattic\Jetpack\AI_Helper;
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_AI
  */
@@ -31,11 +33,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 		$this->is_wpcom                     = true;
 		$this->wpcom_is_wpcom_only_endpoint = true;
 
-		if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
-		}
-
-		if ( ! \Jetpack_AI_Helper::is_enabled() ) {
+		if ( ! AI_Helper::is_enabled() ) {
 			return;
 		}
 
@@ -53,7 +51,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'request_gpt_completion' ),
-					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
+					'permission_callback' => array( 'AI_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
 					'content' => array(
@@ -75,7 +73,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'request_dalle_generation' ),
-					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
+					'permission_callback' => array( 'AI_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
 					'prompt'  => array(
@@ -98,7 +96,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	 * @param  WP_REST_Request $request The request.
 	 */
 	public function request_gpt_completion( $request ) {
-		return Jetpack_AI_Helper::get_gpt_completion( $request['content'], $request['post_id'] );
+		return AI_Helper::get_gpt_completion( $request['content'], $request['post_id'] );
 	}
 
 	/**
@@ -107,7 +105,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	 * @param  WP_REST_Request $request The request.
 	 */
 	public function request_dalle_generation( $request ) {
-		return Jetpack_AI_Helper::get_dalle_generation( $request['prompt'], $request['post_id'] );
+		return AI_Helper::get_dalle_generation( $request['prompt'], $request['post_id'] );
 	}
 }
 

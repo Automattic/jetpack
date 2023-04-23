@@ -14,6 +14,7 @@
 		"automattic/jetpack-a8c-mc-stats": "@dev",
 		"automattic/jetpack-abtest": "@dev",
 		"automattic/jetpack-action-bar": "@dev",
+		"automattic/jetpack-ai": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-backup": "@dev",

@@ -9,6 +9,7 @@
 
 namespace Automattic\Jetpack\Extensions\AIImage;
 
+use Automattic\Jetpack\AI_Helper;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
@@ -21,11 +22,7 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
-	}
-
-	if ( ! \Jetpack_AI_Helper::is_enabled() ) {
+	if ( ! AI_Helper::is_enabled() ) {
 		return;
 	}
 
