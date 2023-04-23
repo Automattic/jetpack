@@ -4,14 +4,21 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { rawHandler } from '@wordpress/blocks';
-import { Button, DropdownMenu, TextareaControl } from '@wordpress/components';
+import {
+	Button,
+	DropdownMenu,
+	TextareaControl,
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalToggleGroupControl as ToggleGroupControl,
+	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
+} from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, RawHTML, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, pencil, moreVertical } from '@wordpress/icons';
 import MarkdownIt from 'markdown-it';
 import Loading from './loading';
-import { name as aiParagraphBlockName } from './index';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
@@ -121,6 +128,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
+	const [ aiType, setAiType ] = useState( 'text' );
 	const { tracks } = useAnalytics();
 
 	const { replaceBlocks } = useDispatch( blockEditorStore );
@@ -192,15 +200,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		return editor.getBlocks().slice( 0, index ) ?? [];
 	} );
 
-	const containsAiUntriggeredParagraph = () => {
-		const blockName = 'jetpack/' + aiParagraphBlockName;
-		return (
-			contentBefore.filter(
-				block => block.name && block.name === blockName && ! block.attributes.content
-			).length > 0
-		);
-	};
-
 	const getSuggestionFromOpenAI = type => {
 		if ( !! attributes.content || isLoadingCompletion ) {
 			return;
@@ -258,47 +257,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	// Content is loaded
 	const contentIsLoaded = !! attributes.content;
 
-	// We do nothing is we are waiting for stuff OR if the content is already loaded.
-	const noLogicNeeded = contentIsLoaded || isWaitingState;
-
-	useSelect( () => {
-		// if ( ! noLogicNeeded ) {
-		// 	const prompt2 = createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames );
-		// 	if ( containsAiUntriggeredParagraph() ) {
-		// 		setErrorMessage(
-		// 			/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
-		// 			__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
-		// 		);
-		// 	} else if ( ! prompt ) {
-		// 		setErrorMessage(
-		// 			/** translators: First placeholder is a number of more characters we need */
-		// 			__(
-		// 				'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs some content.',
-		// 				'jetpack'
-		// 			)
-		// 		);
-		// 		setNeedsMoreCharacters( true );
-		// 	} else if ( needsMoreCharacters ) {
-		// 		setErrorMessage(
-		// 			/** translators: This is to retry to complete the text */
-		// 			__( 'Ready to retry', 'jetpack' )
-		// 		);
-		// 		setShowRetry( true );
-		// 		setNeedsMoreCharacters( false );
-		// 	} else if ( ! needsMoreCharacters && ! showRetry ) {
-		// 		// getSuggestionFromOpenAI();
-		// 	}
-		// }
-	}, [
-		currentPostTitle,
-		contentBefore,
-		categoryNames,
-		tagNames,
-		noLogicNeeded,
-		needsMoreCharacters,
-		showRetry,
-	] );
-
 	const handleAcceptContent = () => {
 		replaceBlocks( clientId, rawHandler( { HTML: attributes.content } ) );
 	};
@@ -307,6 +265,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setAttributes( { content: undefined } );
 	};
 
+	const placeholder =
+		aiType === 'text'
+			? __( 'Write a paragraph about …', 'jetpack' )
+			: __( 'What would you like to see?', 'jetpack' );
 	return (
 		<div { ...useBlockProps() }>
 			{ ! contentIsLoaded && (
@@ -316,11 +278,27 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 							{ __( 'Retry', 'jetpack' ) }
 						</Button>
 					) }
-					<TextareaControl
-						onChange={ value => setUserPrompt( value ) }
-						rows="2"
-						placeholder={ __( 'Write a paragraph about …', 'jetpack' ) }
-					/>
+					<div className="jetpack-ai-assistant__input-wrapper">
+						<TextareaControl
+							onChange={ value => setUserPrompt( value ) }
+							rows="1"
+							placeholder={ placeholder }
+							className="jetpack-ai-assistant__input"
+						/>
+						<ToggleGroupControl
+							__nextHasNoMarginBottom={ true }
+							label={ __( 'Type of AI assistance needed', 'jetpack' ) }
+							hideLabelFromVision
+							value={ aiType }
+							onChange={ newType => setAiType( newType ) }
+							isBlock
+							size="2"
+							className="jetpack-ai-assistant__input-toggle"
+						>
+							<ToggleGroupControlOption value="text" label={ __( 'Text', 'jetpack' ) } />
+							<ToggleGroupControlOption value="image" label={ __( 'Images', 'jetpack' ) } />
+						</ToggleGroupControl>
+					</div>
 					<div className="jetpack-ai-assistant__controls">
 						<Button
 							variant="primary"
@@ -330,22 +308,24 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						>
 							<Icon icon={ pencil } />
 						</Button>
-						<DropdownMenu
-							icon={ moreVertical }
-							label={ __( 'Other options', 'jetpack' ) }
-							controls={ [
-								{
-									title: __( 'Write a summary based on title', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
-									isDisabled: isWaitingState,
-								},
-								{
-									title: __( 'Expand on preceding content', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'expandpreceding' ),
-									isDisabled: isWaitingState,
-								},
-							] }
-						/>
+						{ aiType === 'text' && (
+							<DropdownMenu
+								icon={ moreVertical }
+								label={ __( 'Other options', 'jetpack' ) }
+								controls={ [
+									{
+										title: __( 'Write a summary based on title', 'jetpack' ),
+										onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
+										isDisabled: isWaitingState,
+									},
+									{
+										title: __( 'Expand on preceding content', 'jetpack' ),
+										onClick: () => getSuggestionFromOpenAI( 'expandpreceding' ),
+										isDisabled: isWaitingState,
+									},
+								] }
+							/>
+						) }
 						{ ! attributes.content && isWaitingState && <Loading /> }
 					</div>
 				</div>

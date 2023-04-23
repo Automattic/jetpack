@@ -22,6 +22,16 @@
 	margin-left: 12px;
 }
 
+.jetpack-ai-assistant__input-wrapper {
+	display: flex;
+	align-items: top;
+
+	.jetpack-ai-assistant__input {
+		flex-grow: 1;
+		margin-right: 12px;
+	}
+}
+
 .jetpack-ai-assistant__controls {
 	display: flex;
 	align-items: center;
