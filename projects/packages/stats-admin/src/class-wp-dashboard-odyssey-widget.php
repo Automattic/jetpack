@@ -53,7 +53,7 @@ class WP_Dashboard_Odyssey_Widget {
 			array(
 				'config_variable_name' => 'jetpackStatsOdysseyWidgetConfigData',
 				'config_data'          => $config_data,
-				'css_path'             => false,
+				'enqueue_css'          => false,
 			)
 		);
 	}
