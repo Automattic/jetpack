@@ -15,7 +15,7 @@ if [[ -n "$ARTIFACTS_DIR" ]]; then
 	ln -s "$ARTIFACTS_DIR" tests/codecept/_output
 fi
 
-# Setup database. Even though tests/acceptance.suite.yml contains commands to create it, it chokes before it gets to run them without this.
+# Setup database. Even though tests/codecept/acceptance.suite.yml contains commands to create it, it chokes before it gets to run them without this.
 mysql -e "DROP DATABASE IF EXISTS jpcrm_testing; CREATE DATABASE jpcrm_testing;"
 
 # Setup config.
