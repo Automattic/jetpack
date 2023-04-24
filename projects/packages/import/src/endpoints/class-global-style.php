@@ -16,9 +16,14 @@ require_once ABSPATH . 'wp-includes/theme.php';
 class Global_Style extends \WP_REST_Posts_Controller {
 
 	/**
-	 * The Import ID add a new item to the schema.
+	 * Base class
 	 */
 	use Import;
+
+	/**
+	 * The Import ID add a new item to the schema.
+	 */
+	use Import_ID;
 
 	/**
 	 * Whether the controller supports batching.
@@ -34,19 +39,6 @@ class Global_Style extends \WP_REST_Posts_Controller {
 		parent::__construct( 'wp_global_styles' );
 
 		$this->rest_base = 'global-styles';
-	}
-
-	/**
-	 * Registers the routes for the objects of the controller.
-	 *
-	 * @see WP_REST_Posts_Controller::register_rest_route()
-	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			'/' . $this->rest_base,
-			$this->get_route_options()
-		);
 	}
 
 	/**

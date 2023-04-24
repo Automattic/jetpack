@@ -1,0 +1,38 @@
+.wp-block-jetpack-ai-chat {
+	.jetpack-ai-chat-question-wrapper {
+		display: flex;
+		flex-wrap: wrap;
+		margin: 1rem 0;
+
+		input {
+			flex: 1;
+			padding: 0.5rem;
+			font-size: 16px;
+		}
+
+		button {
+			margin-left: 1rem;
+			border: none;
+			transition: 0.3s;
+			cursor: pointer;
+			position: relative;
+			display: block;
+			color: var(--wp-components-color-accent-inverted, #fff);
+			background-color: var(--wp-components-color-accent-darker-10, var(--wp-admin-theme-color-darker-10, #006ba1));;
+			font-size: 16px;
+			padding: 0.5rem 1rem;
+			height: 38px;
+			border-radius: 2px;
+
+			&:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+		}
+
+	}
+	.jetpack-ai-chat-answer-references {
+		margin-top: 12px;
+		font-size: 1rem;
+	}
+}

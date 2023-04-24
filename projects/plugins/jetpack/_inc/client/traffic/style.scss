@@ -137,6 +137,8 @@
 }
 
 .jp-seo-social-previews {
+	margin-bottom: 0;
+
 	.search-preview,
 	.facebook-preview,
 	.twitter-preview {
@@ -198,6 +200,17 @@
 	&-save-button {
 		float: right;
 		margin-top: 0.75rem;
+	}
+}
+
+.jp-seo-yoast-promo-banner {
+	// Overwrites of dops-banner styles for purposes of Yoast ad
+	border-left-color: #A3286A !important;
+
+	.dops-banner__icon-plan {
+		& > img {
+			height: 32px;
+		}
 	}
 }
 

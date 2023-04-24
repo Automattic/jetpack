@@ -13,7 +13,7 @@
 		"picomatch": "2.2.3"
 	},
 	"devDependencies": {
-		"@vercel/ncc": "0.36.0"
+		"@vercel/ncc": "0.36.1"
 	},
 	"scripts": {
 		"build": "ncc build src/main.js -o dist --source-map --license licenses.txt"

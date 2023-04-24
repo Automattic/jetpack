@@ -28,6 +28,20 @@ type SiteDataSelectors = {
 	getSiteTitle: () => string;
 };
 
+type SocialImageGeneratorSettingsSelectors = {
+	getSocialImageGeneratorSettings: () => {
+		available: boolean;
+		enabled: boolean;
+		defaults: () => {
+			template: string;
+		};
+	};
+	isSocialImageGeneratorAvailable: () => boolean;
+	isSocialImageGeneratorEnabled: () => boolean;
+	isUpdatingSocialImageGeneratorSettings: () => boolean;
+	getSocialImageGeneratorDefaultTemplate: () => string;
+};
+
 /**
  * Types of the Social Store selectors.
  *
@@ -36,4 +50,5 @@ type SiteDataSelectors = {
 export type SocialStoreSelectors = JetpackSettingsSelectors &
 	ConnectionDataSelectors &
 	SharesDataSelectors &
-	SiteDataSelectors;
+	SiteDataSelectors &
+	SocialImageGeneratorSettingsSelectors;

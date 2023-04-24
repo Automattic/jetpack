@@ -25,4 +25,8 @@ class Decorate_With_Default implements Schema_Type {
 			return $this->default_value;
 		}
 	}
+
+	public function get_default_value() {
+		return $this->default_value;
+	}
 }

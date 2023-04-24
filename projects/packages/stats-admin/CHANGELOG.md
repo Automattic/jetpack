@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.7.1 - 2023-04-17
+### Changed
+- Stats Admin: change site locale format from only language code to real locale e.g. `en-us` [#29958]
+
+## 0.7.0 - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+- Stats Admin: Adds ability to render Odyssey Widget [#29929]
+
+## 0.6.4 - 2023-04-04
+### Changed
+- Stats Admin: moved Odyssey assets loading to separate class [#29893]
+- Stats Admin: refactoring config data code to Odyssey_Config_Data [#29863]
+
 ## 0.6.3 - 2023-03-20
 ### Added
 - Add momentjs dependency for Odyssey Stats [#29329]

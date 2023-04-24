@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '5.6.0';
+	public $version = '5.7.0';
 
 	/**
 	 * WordPress version tested with.
@@ -397,9 +397,12 @@ final class ZeroBSCRM {
 			'id'    => array(),
 		),
 		'a'          => array(
-			'href'  => array(),
-			'title' => array(),
+			'href'   => array(),
+			'title'  => array(),
+			'target' => array(),
+			'class'  => array(),
 		),
+		'b'          => array(),
 		'br'         => array(),
 		'em'         => array(),
 		'strong'     => array(),
@@ -888,10 +891,11 @@ final class ZeroBSCRM {
 		// Urls
 		$this->urls['home']              = 'https://jetpackcrm.com';
 		$this->urls['kb']                = 'https://kb.jetpackcrm.com';
-		$this->urls['support']           = 'https://kb.jetpackcrm.com/submit-a-ticket/';
-		$this->urls['feedback']          = 'https://kb.jetpackcrm.com/submit-a-ticket/';
+		$this->urls['support']           = 'https://kb.jetpackcrm.com/crm-support/';
+		$this->urls['feedback']          = 'https://kb.jetpackcrm.com/crm-support/';
 		$this->urls['pricing']           = 'https://jetpackcrm.com/pricing/';
 		$this->urls['usagetrackinginfo'] = 'https://jetpackcrm.com/usage-tracking/';
+		$this->urls['support-forum']     = 'https://wordpress.org/support/plugin/zero-bs-crm';
 
 		##WLREMOVE
 		$this->urls['betafeedbackemail'] = 'hello@jetpackcrm.com'; // SPECIFICALLY ONLY USED FOR FEEDBACK ON BETA RELEASES, DO NOT USE ELSEWHERE
@@ -922,11 +926,11 @@ final class ZeroBSCRM {
 		$this->urls['api']           = 'https://app.jetpackcrm.com/api/updates/updates';
 		$this->urls['apilocalcheck'] = 'https://app.jetpackcrm.com/api/updates/localcheck';
 		$this->urls['smm']           = 'https://app.jetpackcrm.com/api/welcome-wizard';
+		$this->urls['api-support']   = 'https://app.jetpackcrm.com/api/support';
 
 		// account
 		$this->urls['account']     = 'https://app.jetpackcrm.com/';
 		$this->urls['licensekeys'] = 'https://app.jetpackcrm.com/license-keys';
-		$this->urls['community']   = 'https://jetpackcrm.com/community/';
 
 		// } sales urls
 		$this->urls['products']          = 'https://jetpackcrm.com/extensions/';
@@ -1013,8 +1017,8 @@ final class ZeroBSCRM {
 		$this->slugs['logout']       = 'zerobscrm-logout';
 		$this->slugs['datatools']    = 'zerobscrm-datatools';
 		$this->slugs['welcome']      = 'zerobscrm-welcome';
-		$this->slugs['feedback']     = 'zerobscrm-feedback';
 		$this->slugs['crmresources'] = 'jpcrm-resources';
+		$this->slugs['support']      = 'jpcrm-support';
 		$this->slugs['extensions']   = 'zerobscrm-extensions';
 		$this->slugs['modules']      = 'zerobscrm-modules';
 		$this->slugs['export']       = 'zerobscrm-export';
@@ -1318,12 +1322,6 @@ final class ZeroBSCRM {
 
 		if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			// if we need CLI stuff
-		}
-
-		// Where the request specifies HTTP_USER_AGENT of Zapier, we're likely dealing with a Zap
-		if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && $_SERVER['HTTP_USER_AGENT'] == 'Zapier' ) {
-			require_once JPCRM_MODULES_PATH . 'zapier/class-jpcrm-zapier.php';
-			$this->zapier = new \Automattic\JetpackCRM\JPCRM_Zapier();
 		}
 
 		// ====================================================================

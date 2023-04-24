@@ -69,6 +69,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
+		$this->remove_gutenberg_menu();
 
 		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
 			$this->add_inbox_menu();
@@ -384,7 +385,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		 * @use add_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_true' );
 		 * @module masterbar
 		 *
-		 * @since $$next-version$$
+		 * @since 12.0
 		 *
 		 * @param bool $show_wpcom_site_logs_menu Load the WordPress.com Site Logs submenu item. Default to false.
 		 */
@@ -411,10 +412,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	/**
 	 * Also remove the Gutenberg plugin menu.
 	 */
-	public function add_gutenberg_menus() {
+	public function remove_gutenberg_menu() {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
-		parent::add_gutenberg_menus();
 	}
 
 	/**

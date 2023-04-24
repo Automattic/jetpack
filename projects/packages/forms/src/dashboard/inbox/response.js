@@ -1,10 +1,19 @@
+/**
+ * External dependencies
+ */
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import { useEffect, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { map } from 'lodash';
-import { formatFieldName, getDisplayName, getPath } from './util';
+import { isEmpty, map } from 'lodash';
+/**
+ * Internal dependencies
+ */
+import SwitchTransition from '../components/switch-transition';
+import { formatFieldName, getDisplayName } from './util';
 
 const InboxResponse = ( { loading, response } ) => {
+	const ref = useRef();
 	const classes = classnames( 'jp-forms__inbox-response', {
 		'has-email': true,
 	} );
@@ -14,12 +23,25 @@ const InboxResponse = ( { loading, response } ) => {
 		'is-name': true,
 	} );
 
+	useEffect( () => {
+		if ( ! ref.current ) {
+			return;
+		}
+
+		ref.current.scrollTop = 0;
+	}, [ response ] );
+
 	if ( ! loading && ! response ) {
 		return null;
 	}
 
 	return (
-		<div className={ classes }>
+		<SwitchTransition
+			ref={ ref }
+			activeViewKey={ response.id }
+			className={ classes }
+			duration={ 200 }
+		>
 			<div className="jp-forms__inbox-response-avatar">
 				<img
 					src="https://gravatar.com/avatar/6e998f49bfee1a92cfe639eabb350bc5?size=68&default=identicon"
@@ -28,7 +50,7 @@ const InboxResponse = ( { loading, response } ) => {
 			</div>
 
 			<h3 className={ titleClasses }>{ getDisplayName( response ) }</h3>
-			{ response.author_email && (
+			{ response.author_email && getDisplayName( response ) !== response.author_email && (
 				<p className="jp-forms__inbox-response-subtitle">{ response.author_email }</p>
 			) }
 
@@ -50,7 +72,7 @@ const InboxResponse = ( { loading, response } ) => {
 					<span className="jp-forms__inbox-response-meta-key">
 						{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
 					</span>
-					<span className="jp-forms__inbox-response-meta-value">{ getPath( response ) }</span>
+					<span className="jp-forms__inbox-response-meta-value">{ response.entry_permalink }</span>
 				</div>
 				<div className="jp-forms__inbox-response-meta-label">
 					<span className="jp-forms__inbox-response-meta-key	">
@@ -63,16 +85,16 @@ const InboxResponse = ( { loading, response } ) => {
 			<div className="jp-forms__inbox-response-separator" />
 
 			<div className="jp-forms__inbox-response-data">
-				{ map( response.fields, ( value, key ) => {
-					return (
-						<div key={ key } className="jp-forms__inbox-response-item">
-							<div className="jp-forms__inbox-response-data-label">{ formatFieldName( key ) }:</div>
-							<div className="jp-forms__inbox-response-data-value">{ value }</div>
+				{ map( response.fields, ( value, key ) => (
+					<div key={ key } className="jp-forms__inbox-response-item">
+						<div className="jp-forms__inbox-response-data-label">{ formatFieldName( key ) }:</div>
+						<div className="jp-forms__inbox-response-data-value">
+							{ isEmpty( value ) ? '-' : value }
 						</div>
-					);
-				} ) }
+					</div>
+				) ) }
 			</div>
-		</div>
+		</SwitchTransition>
 	);
 };
 

@@ -252,7 +252,7 @@ class Jetpack_Slideshow_Shortcode {
 		wp_enqueue_script(
 			'jetpack-slideshow',
 			Assets::get_file_url_for_environment( '_inc/build/shortcodes/js/slideshow-shortcode.min.js', 'modules/shortcodes/js/slideshow-shortcode.js' ),
-			array( 'jquery-cycle' ),
+			array( 'jquery', 'jquery-cycle' ),
 			'20160119.1',
 			true
 		);

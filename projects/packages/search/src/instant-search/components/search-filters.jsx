@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { mapFilterToFilterKey, mapFilterToType, getAvailableStaticFilters } from '../lib/filters';
+import { recordStaticFilterSelect } from '../lib/tracks';
 import { clearFilters, setFilter, setStaticFilter } from '../store/actions';
 import SearchFilter from './search-filter';
 import './search-filters.scss';
@@ -18,6 +19,7 @@ class SearchFilters extends Component {
 	};
 
 	onChangeStaticFilter = ( filterName, filterValue ) => {
+		recordStaticFilterSelect( { filterName, filterValue } );
 		this.props.setStaticFilter( filterName, filterValue );
 		this.props.onChange && this.props.onChange();
 	};
@@ -69,7 +71,7 @@ class SearchFilters extends Component {
 			return null;
 		}
 
-		const availableStaticFilters = getAvailableStaticFilters();
+		const availableStaticFilters = getAvailableStaticFilters( 'sidebar' );
 		const aggregations = this.props.results?.aggregations;
 		return (
 			<div className="jetpack-instant-search__search-filters">

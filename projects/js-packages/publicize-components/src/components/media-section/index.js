@@ -13,6 +13,7 @@ import useMediaRestrictions, {
 } from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import MediaPicker from '../media-picker';
+import SocialPostControl from '../social-post-control';
 import styles from './styles.module.scss';
 
 const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack' );
@@ -54,7 +55,7 @@ export default function MediaSection() {
 
 	useEffect( () => {
 		// Removes selected media if connection change results in invalid image
-		if ( ! mediaDetails.metaData ) {
+		if ( ! mediaDetails.metaData || ! attachedMedia.length ) {
 			return;
 		}
 
@@ -63,7 +64,7 @@ export default function MediaSection() {
 			setValidationError( error );
 			updateAttachedMedia( [] );
 		}
-	}, [ updateAttachedMedia, getValidationError, mediaDetails ] );
+	}, [ attachedMedia, updateAttachedMedia, getValidationError, mediaDetails ] );
 
 	const onChange = useCallback(
 		media => {
@@ -112,6 +113,7 @@ export default function MediaSection() {
 					</Notice>
 				) }
 			</BaseControl>
+			<SocialPostControl />
 		</ThemeProvider>
 	);
 }
