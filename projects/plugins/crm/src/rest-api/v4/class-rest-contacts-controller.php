@@ -115,7 +115,7 @@ final class REST_Contacts_Controller extends REST_Base_Objects_Controller {
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has read access for the item, WP_Error object otherwise.
 	 */
-	public function get_item_permissions_check( $request ) {
+	public function get_item_permissions_check( $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Technically, we should always have a current user at this point, so we
 		// do not have to check if current user is a WP_User object or wrap this in
 		// a try/catch since it's an actual fatal error if something weird happens.
