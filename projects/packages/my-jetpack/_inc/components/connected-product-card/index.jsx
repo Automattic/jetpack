@@ -18,18 +18,19 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 
 	/* Menu Handling */
 	const hasStandalonePlugin = standalonePluginInfo?.hasStandalonePlugin;
+	const isConnected = isRegistered && isUserConnected;
 	const isStandaloneInstalled = standalonePluginInfo?.isStandaloneInstalled;
 	const isStandaloneActive = standalonePluginInfo?.isStandaloneActive;
-	const isAbsent = PRODUCT_STATUSES.ABSENT || PRODUCT_STATUSES.ABSENT_WITH_PLAN;
+	const isAbsent =
+		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
 	const installOrActivateStandalone =
 		hasStandalonePlugin && ( ! isStandaloneInstalled || ! isStandaloneActive );
 
 	const menuIsActive =
 		showMenu && // The menu is enabled for the product AND
 		! isAbsent && // product status is not absent AND
-		! status === PRODUCT_STATUSES.ERROR && // product status is not error AND
-		isRegistered &&
-		isUserConnected && // the site is connected AND
+		status !== PRODUCT_STATUSES.ERROR && // product status is not error AND
+		isConnected && // the site is connected AND
 		( status === PRODUCT_STATUSES.ACTIVE || // product is active, show at least the Manage option
 			menuItems?.length > 0 || // Show custom menus, if present
 			installOrActivateStandalone ); // Show install | activate options for standalone plugin
