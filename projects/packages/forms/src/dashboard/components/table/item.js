@@ -28,7 +28,7 @@ const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 				</div>
 			) }
 
-			{ map( columns, ( { additionalClassNames, component, getProps, key } ) => {
+			{ map( columns, ( { additionalClassNames, component, getProps, getValue, key } ) => {
 				let Wrapper = Fragment;
 				let props = {};
 
@@ -36,6 +36,8 @@ const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 					Wrapper = component;
 					props = getProps ? getProps( item ) : item;
 				}
+
+				const value = getValue ? getValue( item ) : item[ key ];
 
 				const cellClasses = classnames(
 					'jp-forms__table-cell',
@@ -45,7 +47,7 @@ const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 
 				return (
 					<div key={ `table-${ key }-${ item.id }` } className={ cellClasses }>
-						<Wrapper { ...props }>{ item[ key ] }</Wrapper>
+						<Wrapper { ...props }>{ value }</Wrapper>
 					</div>
 				);
 			} ) }

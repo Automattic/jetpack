@@ -1,4 +1,5 @@
 import { Button } from '@wordpress/components';
+import { dateI18n } from '@wordpress/date';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PageNavigation from '../components/page-navigation';
@@ -13,6 +14,7 @@ const COLUMNS = [
 	{
 		key: 'date',
 		label: __( 'Date', 'jetpack-forms' ),
+		getValue: item => dateI18n( 'M j, Y', item.date ),
 	},
 	{
 		key: 'source',

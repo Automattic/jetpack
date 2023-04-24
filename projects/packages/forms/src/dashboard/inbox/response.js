@@ -64,8 +64,8 @@ const InboxResponse = ( { loading, response } ) => {
 						{ sprintf(
 							/* Translators: %1$s is the date, %2$s is the time. */
 							__( '%1$s at %2$s', 'jetpack-forms' ),
-							dateI18n( getDateSettings().formats.date, response.rawDate ),
-							dateI18n( getDateSettings().formats.time, response.rawDate )
+							dateI18n( getDateSettings().formats.date, response.date ),
+							dateI18n( getDateSettings().formats.time, response.date )
 						) }
 					</span>
 				</div>
