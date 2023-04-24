@@ -1,3 +1,4 @@
+import apiFetch from '@wordpress/api-fetch';
 import { waitForObject } from '../../../shared/block-editor-asset-loader';
 
 const earthRadius = 6.371e6;
@@ -112,11 +113,9 @@ function fetchMapkitKey( mapkitObj, blogId, currentWindow ) {
 			mapkitObj.init( {
 				authorizationCallback: async done => {
 					try {
-						const response = await fetch(
-							`https://public-api.wordpress.com/wpcom/v2/sites/${ blogId }/mapkit`
-						);
-						if ( response.status === 200 ) {
-							const data = await response.json();
+						const data = await apiFetch( { path: `/wpcom/v2/mapkit-token` } );
+
+						if ( data ) {
 							done( data.wpcom_mapkit_access_token );
 						} else {
 							reject();
