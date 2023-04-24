@@ -16,6 +16,7 @@
 	// An inner to filter only the text color
 	span {
 		color: var( --jb-pill-color );
-		filter: brightness( 0.275 ) saturate( 11 );
+		filter: brightness( 0.3 ) saturate( 10 );
+		font-weight: 500;
 	}
 </style>
