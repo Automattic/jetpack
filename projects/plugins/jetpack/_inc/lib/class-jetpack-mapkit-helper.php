@@ -23,8 +23,6 @@ class Jetpack_Mapkit_Helper {
 	 * @return string An array containing the key (if any) and its source ("site" or "wpcom").
 	 */
 	public static function get_access_token() {
-		$site_id = self::get_wpcom_site_id();
-
 		// If there is a cached token, return it.
 		$cached_token = get_transient( self::$transient_key );
 		if ( $cached_token ) {
@@ -40,7 +38,7 @@ class Jetpack_Mapkit_Helper {
 			'headers' => $headers,
 		);
 
-		$request_url = 'https://public-api.wordpress.com/wpcom/v2/sites/' . $site_id . '/mapkit';
+		$request_url = 'https://public-api.wordpress.com/wpcom/v2/mapkit';
 		$response    = wp_remote_get( esc_url_raw( $request_url ), $args );
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return '';
@@ -61,19 +59,4 @@ class Jetpack_Mapkit_Helper {
 	private static function is_wpcom() {
 		return defined( 'IS_WPCOM' ) && IS_WPCOM;
 	}
-
-	/**
-	 * Get the current site's WordPress.com ID.
-	 *
-	 * @return mixed The site's WordPress.com ID.
-	 */
-	private static function get_wpcom_site_id() {
-		if ( self::is_wpcom() ) {
-			return get_current_blog_id();
-		} elseif ( method_exists( 'Jetpack', 'is_connection_ready' ) && Jetpack::is_connection_ready() ) {
-			return Jetpack_Options::get_option( 'id' );
-		}
-		return false;
-	}
-
 }
