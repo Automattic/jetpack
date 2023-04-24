@@ -2,7 +2,8 @@
 /node_modules/
 /build/
 /.cache/
-**/css/*.css 
+/.phpunit.result.cache
+**/css/*.css
 **/css/**/*.css
 **/css/integrations/
 **/js/*.min.js.map
@@ -20,3 +21,4 @@
 /templates/quotes/index.html
 /tests/acceptance.suite.yml
 phpcs.security.xml
+/wordpress/

@@ -565,18 +565,6 @@ final class ZeroBSCRM {
 				Automattic\Jetpack_CRM\Onboarding_Wizard\Bootstrap::get_instance();
 			}
 
-			/**
-			 * Feature flag to conditionally load in development API.
-			 *
-			 * @ignore
-			 * @since TBD
-			 *
-			 * @param bool Determine if we should initialize the new REST APIs.
-			 */
-			if ( apply_filters( 'jetpack_crm_feature_flag_api_v4', false ) ) {
-				new Automattic\Jetpack_CRM\REST_API\V4\Contact_Controller();
-			}
-
 			// } Post Init hook
 			do_action( 'zerobscrm_loaded' );
 
