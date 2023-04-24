@@ -1,9 +1,9 @@
 paths:
     tests: tests
-    output: tests/codecept/_output
-    data: tests/codecept/_data
-    support: tests/codecept/_support
-    envs: tests/codecept/_envs
+    output: tests/codeception/_output
+    data: tests/codeception/_data
+    support: tests/codeception/_support
+    envs: tests/codeception/_envs
 actor_suffix: Tester
 extensions:
     enabled:

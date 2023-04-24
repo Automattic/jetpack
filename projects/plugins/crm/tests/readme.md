@@ -8,7 +8,7 @@ These are where our PHPUnit tests live (or any libraries that extend PHPUnit lik
 
 These tests are part of the default Jetpack tech stack.
 
-### `tests/codecept`
+### `tests/codeception`
 
 These are where our old Codeception tests live. We have chosen to keep our old tests from before we migrated into the monorepo to make sure we do not break anything.
 
