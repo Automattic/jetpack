@@ -24,12 +24,15 @@ export class JetpackBanner extends Banner {
 		siteSlug: PropTypes.string,
 		title: PropTypes.node.isRequired,
 		noIcon: PropTypes.bool,
+		rna: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		onClick: noop,
 		trackBannerDisplay: noop,
 		plan: '',
+		rna: false,
+		noIcon: false,
 	};
 
 	componentDidMount() {

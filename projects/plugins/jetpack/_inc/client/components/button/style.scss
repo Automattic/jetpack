@@ -9,9 +9,9 @@
 
 .dops-button {
 	background: $white;
-	border: 1.5px solid $black;
+	box-shadow: inset 0 0 0 1.5px $black;
+	border: none;
 	color: $black;
-	cursor: pointer;
 	display: inline-block;
 	margin: 0;
 	outline: 0;
@@ -26,10 +26,11 @@
 	padding: 8px 24px;
 	-webkit-appearance: none;
 	appearance: none;
+	cursor: pointer;
 
 	&:hover {
 		background: $blue-grey-light;
-		border-color: $gray-80;
+		box-shadow: inset 0 0 0 1px $black;
 		color: $gray-80;
 	}
 	&[disabled],
@@ -41,9 +42,9 @@
 	}
 	&:focus {
 		background: $white;
-		border-color: $blue-medium-dark;
-		box-shadow: 0 0 0 1px $blue-medium-dark;
+		border-color: $black;
 	}
+
 	&.is-compact {
 		padding: 4px 8px;
 		line-height: 20px;
@@ -68,7 +69,9 @@
 		.gridicons-plus-small + .gridicon {
 			margin-left: -4px;
 		}
+
 	}
+
 	&.hidden {
 		display: none;
 	}
@@ -85,8 +88,12 @@
 // Primary buttons
 .dops-button.is-primary {
 	background: $black;
-	border: none;
+	box-shadow: inset 0 0 0 1.5px $black;
 	color: $white;
+
+	&:hover {
+		background: var( --jp-gray-80 )
+	}
 
 	&[disabled],
 	&:disabled {
@@ -98,100 +105,101 @@
 		cursor: default;
 	}
 	&.is-compact {
+		color: $white;
 		white-space: nowrap;
 	}
 }
 
 // Scary buttons
 .dops-button.is-scary {
+  color: $alert-red;
+
+  &:hover,
+  &:focus {
+	border-color: $alert-red;
+  }
+  &:focus {
+	box-shadow: 0 0 0 2px lighten( $alert-red, 20% );
+  }
+  &[disabled],
+  &:disabled {
+	color: lighten( $alert-red, 30% );
+	border-color: lighten( $gray, 30% );
+  }
+}
+
+.dops-button.is-primary.is-scary {
+  background: $alert-red;
+  border-color: darken( $alert-red, 20% );
+  color: $white;
+
+  &:hover,
+  &:focus {
+	border-color: darken( $alert-red, 40% );
+  }
+  &[disabled],
+  &:disabled {
+	background: lighten( $alert-red, 20% );
+	border-color: tint( $alert-red, 30% );
+  }
+}
+
+.dops-button.is-borderless {
+  box-shadow: none;
+  color: darken( $gray, 10% );
+  padding-left: 0;
+  padding-right: 0;
+
+  &:hover {
+	color: $gray-dark;
+  }
+
+  &:focus {
+	box-shadow: none;
+  }
+
+  .dops-accessible-focus &:focus {
+	outline: thin dotted;
+  }
+
+  .gridicon {
+	width: 24px;
+	height: 24px;
+	top: 6px;
+  }
+
+  &[disabled],
+  &:disabled {
+	color: lighten( $gray, 30% );
+	background: $white;
+	cursor: default;
+
+	&:active {
+	  border-width: 0;
+	}
+  }
+  &.is-scary {
 	color: $alert-red;
 
 	&:hover,
 	&:focus {
-		border-color: $alert-red;
-	}
-	&:focus {
-		box-shadow: 0 0 0 2px lighten( $alert-red, 20% );
-	}
-	&[disabled],
-	&:disabled {
-		color: lighten( $alert-red, 30% );
-		border-color: lighten( $gray, 30% );
-	}
-}
-
-.dops-button.is-primary.is-scary {
-	background: $alert-red;
-	border-color: darken( $alert-red, 20% );
-	color: $white;
-
-	&:hover,
-	&:focus {
-		border-color: darken( $alert-red, 40% );
-	}
-	&[disabled],
-	&:disabled {
-		background: lighten( $alert-red, 20% );
-		border-color: tint( $alert-red, 30% );
-	}
-}
-
-.dops-button.is-borderless {
-	border: none;
-	color: darken( $gray, 10% );
-	padding-left: 0;
-	padding-right: 0;
-
-	&:hover {
-		color: $gray-dark;
+	  color: darken( $alert-red, 20% );
 	}
 
-	&:focus {
-		box-shadow: none;
+	&[disabled] {
+	  color: lighten( $alert-red, 30% );
 	}
+  }
 
-	.dops-accessible-focus &:focus {
-		outline: thin dotted;
-	}
-
+  &.is-compact {
+	background: transparent;
+	border-radius: 0;
 	.gridicon {
-		width: 24px;
-		height: 24px;
-		top: 6px;
+	  width: 18px;
+	  height: 18px;
+	  top: 5px;
 	}
-
-	&[disabled],
-	&:disabled {
-		color: lighten( $gray, 30% );
-		background: $white;
-		cursor: default;
-
-		&:active {
-			border-width: 0;
-		}
-	}
-	&.is-scary {
-		color: $alert-red;
-
-		&:hover,
-		&:focus {
-			color: darken( $alert-red, 20% );
-		}
-
-		&[disabled] {
-			color: lighten( $alert-red, 30% );
-		}
-	}
-
-	&.is-compact {
-		background: transparent;
-		border-radius: 0;
-		.gridicon {
-			width: 18px;
-			height: 18px;
-			top: 5px;
-		}
-	}
+  }
 }
 
 // ==========================================================================
@@ -200,7 +208,10 @@
 // ==========================================================================
 
 .dops-button.is-rna {
-	padding: 0.625rem 1.5rem;
+	font-size: rem( 16px );
+	line-height: rem( 24px );
+	padding: rem( 8px ) rem( 24px );
+	letter-spacing: -0.01em;
 
 	font-weight: 600;
 	text-align: center;
@@ -219,41 +230,52 @@
 	.gridicon {
 		margin-inline-start: 0.25rem;
 	}
+
+	&.is-compact {
+		font-size: rem( 12px );
+		line-height: rem( 20px );
+		padding: rem( 4px ) rem( 8px );
+	}
 }
 
 .dops-button:not(.is-primary).is-rna {
-	background-color: var( --jp-white );
-	border-color: var( --jp-black );
-	color: var( --jp-black );
+  background-color: var( --jp-white );
+  border-color: var( --jp-black );
+  color: var( --jp-black );
 
-	&:hover,
-	&:active {
-		background: var( --jp-gray-0 );
-	}
+  &:hover,
+  &:active {
+	background: var( --jp-gray-0 );
+  }
 
-	&:focus {
-		box-shadow: none;
-		outline: solid 2px var( --jp-black );
-		outline-offset: -1px;
-	}
+  &:focus {
+	box-shadow: none;
+	outline: solid 2px var( --jp-black );
+	outline-offset: -1px;
+  }
 }
 
 .dops-button.is-primary.is-rna {
-	background-color: var( --jp-black );
-	border-color: var( --jp-black );
+  background-color: var( --jp-black );
+  border-color: var( --jp-black );
 
-	-webkit-font-smoothing: antialiased;
+  -webkit-font-smoothing: antialiased;
 
-	&:hover,
-	&:active {
-		background: var( --jp-gray-80 );
-		border-color: var( --jp-gray-80 );
-		color: var( --jp-white );
-	}
+  &:hover,
+  &:active {
+	background: var( --jp-gray-80 );
+	border-color: var( --jp-gray-80 );
+	color: var( --jp-white );
+  }
 
-	&:focus {
-		box-shadow: none;
-		outline: solid 1px var( --jp-black );
-		outline-offset: 1px;
-	}
+  &:focus {
+	box-shadow: none;
+	outline: solid 1px var( --jp-black );
+	outline-offset: 1px;
+  }
+}
+
+a .components-external-link,
+button .components-external-link {
+	color: $black;
 }

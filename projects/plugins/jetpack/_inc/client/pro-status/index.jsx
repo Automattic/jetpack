@@ -1,10 +1,9 @@
-import { getRedirectUrl, Status } from '@automattic/jetpack-components';
+import { Status, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _n, _x } from '@wordpress/i18n';
 import Button from 'components/button';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import SimpleNotice from 'components/notice';
 import analytics from 'lib/analytics';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
@@ -28,9 +27,8 @@ import { isFetchingPluginsData, isPluginActive, isPluginInstalled } from 'state/
 /**
  * Track click on Pro status badge.
  *
- * @param {string} type    Status of a certain feature.
- * @param {string} feature Slug of plugin or service.
- *
+ * @param {string} type    - Status of a certain feature.
+ * @param {string} feature - Slug of plugin or service.
  * @returns {undefined}
  */
 const trackProStatusClick = ( type, feature ) =>
@@ -43,10 +41,9 @@ const trackProStatusClick = ( type, feature ) =>
 /**
  * Build function to pass as onClick property.
  *
- * @param {string} type    Status of a certain feature.
- * @param {string} feature Slug of plugin or service.
- *
- * @returns {function} Function to track a click.
+ * @param {string} type    - Status of a certain feature.
+ * @param {string} feature - Slug of plugin or service.
+ * @returns {Function} Function to track a click.
  */
 const handleClickForTracking = ( type, feature ) => () => trackProStatusClick( type, feature );
 
@@ -68,17 +65,17 @@ class ProStatus extends React.Component {
 		switch ( this.props.rewindStatus.state ) {
 			case 'provisioning':
 				return {
-					status: 'is-info',
+					status: 'initializing',
 					text: __( 'Setting up', 'jetpack' ),
 				};
 			case 'awaiting_credentials':
 				return {
-					status: 'is-warning',
+					status: 'action',
 					text: __( 'Action needed', 'jetpack' ),
 				};
 			case 'active':
 				return {
-					status: 'is-success',
+					status: 'active',
 					text: __( 'Connected', 'jetpack' ),
 				};
 			default:
@@ -89,15 +86,17 @@ class ProStatus extends React.Component {
 	getProActions = ( type, feature ) => {
 		let status = '',
 			message = false,
+			action = false,
 			actionUrl = '';
 		switch ( type ) {
 			case 'threats':
 				status = 'error';
-				message = _x(
+				action = _x(
 					'Threats detected',
 					'A caption for a small button to fix security issues.',
 					'jetpack'
 				);
+
 				actionUrl = getRedirectUrl( 'vaultpress-dashboard' );
 				break;
 			case 'secure':
@@ -112,29 +111,34 @@ class ProStatus extends React.Component {
 				return;
 			case 'rewind_connected':
 				const rewindMessage = this.getRewindMessage();
-				return <Status status="active" label={ rewindMessage.text } />;
+				return <Status status={ rewindMessage.status } text={ rewindMessage.text } />;
 			case 'active':
-				return <span className="jp-dash-item__active-label">{ __( 'ACTIVE', 'jetpack' ) }</span>;
+				return <Status status="active" />;
 		}
 
-		if ( message ) {
-			return (
-				<Status
-					status={ status }
-					label={ message }
-					href={ actionUrl }
-					onClick={ handleClickForTracking( type, feature ) }
-				/>
-			);
-		}
+		const label = (
+			<>
+				{ message }
+				{ action && (
+					<a
+						className="dops-notice__text-no-underline"
+						onClick={ handleClickForTracking( type, feature ) }
+						href={ actionUrl }
+					>
+						{ action }
+					</a>
+				) }
+			</>
+		);
+
+		return <Status status={ status } label={ label } />;
 	};
 
 	/**
 	 * Return a button to Set Up a feature.
 	 *
-	 * @param {string} feature Slug of the feature to set up.
-	 *
-	 * @return {component} A Button component.
+	 * @param {string} feature - Slug of the feature to set up.
+	 * @returns {React.ReactElement} A Button component.
 	 */
 	getSetUpButton = feature => {
 		return (
@@ -205,20 +209,17 @@ class ProStatus extends React.Component {
 					} else if ( scanStatus && scanStatus.state !== 'unavailable' ) {
 						if ( Array.isArray( scanStatus.threats ) && scanStatus.threats.length > 0 ) {
 							return (
-								<SimpleNotice showDismiss={ false } status="is-error" isCompact>
-									{ _n( 'Threat', 'Threats', scanStatus.threats.length, 'jetpack' ) }
-								</SimpleNotice>
+								<Status
+									status="error"
+									label={ _n( 'Threat', 'Threats', scanStatus.threats.length, 'jetpack' ) }
+								/>
 							);
 						}
 						if ( ! scanStatus.credentials ) {
 							return '';
 						}
 						if ( scanStatus.credentials.length === 0 ) {
-							return (
-								<SimpleNotice showDismiss={ false } status="is-warning" isCompact>
-									{ __( 'Action needed', 'jetpack' ) }
-								</SimpleNotice>
-							);
+							return <Status status="action" />;
 						}
 						return this.getProActions( 'secure', 'scan' );
 					}

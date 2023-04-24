@@ -103,9 +103,7 @@ class ModuleToggleComponent extends Component {
 				onChange={ this.toggleModule }
 				help={ this.getDisabledReason() }
 				label={ this.props.children }
-			>
-				{ this.props.children }
-			</ToggleControl>
+			/>
 		);
 	}
 }

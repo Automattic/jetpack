@@ -203,24 +203,22 @@ class ThemeEnhancements extends React.Component {
 						} }
 					>
 						<FormLegend className="jp-form-label-wide">{ customCSS.name }</FormLegend>
-						<span>
-							<p>
-								{ __(
-									'Additional CSS can be added from the Customizer. Enable the enhanced Custom CSS feature below to add additional features.',
+						<p>
+							{ __(
+								'Additional CSS can be added from the Customizer. Enable the enhanced Custom CSS feature below to add additional features.',
+								'jetpack'
+							) + ' ' }
+							<a
+								onClick={ this.trackVisitCustomizer }
+								href={ `${ this.props.siteAdminUrl }customize.php?autofocus%5Bsection%5D=custom_css` }
+								title={ __(
+									'Edit and add CSS directly on your site from the Customizer.',
 									'jetpack'
-								) + ' ' }
-								<a
-									onClick={ this.trackVisitCustomizer }
-									href={ `${ this.props.siteAdminUrl }customize.php?autofocus%5Bsection%5D=custom_css` }
-									title={ __(
-										'Edit and add CSS directly on your site from the Customizer.',
-										'jetpack'
-									) }
-								>
-									{ __( 'Access the Customizer here.', 'jetpack' ) }
-								</a>
-							</p>
-						</span>
+								) }
+							>
+								{ __( 'Access the Customizer here.', 'jetpack' ) }
+							</a>
+						</p>
 						<ModuleToggle
 							slug="custom-css"
 							activated={ !! this.props.getOptionValue( 'custom-css' ) }
