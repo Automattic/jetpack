@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add JETPACK_VERSION constant to get around the fact that Brute Force Protection requires it to hard block users
