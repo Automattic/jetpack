@@ -1,12 +1,13 @@
 <script lang="ts">
+	import { quadOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
 	import Button from '../../../elements/Button.svelte';
 	import { ImageMeta } from '../ApiMock';
-
 	export let image: ImageMeta[ 'image' ];
 	export let instructions: string | undefined;
 </script>
 
-<div class="table-row-expanded">
+<div class="table-row-expanded" transition:slide={{ duration: 100, easing: quadOut }}>
 	<div class="image-details">
 		<h4>Image Details</h4>
 

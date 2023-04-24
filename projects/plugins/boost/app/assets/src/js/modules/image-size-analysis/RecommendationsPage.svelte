@@ -17,6 +17,7 @@
 
 		// Table
 		--gap: 16px;
+		--expanded-gap: 8px;
 		--padding: 16px;
 		--border-radius: 4px;
 

@@ -19,12 +19,6 @@
 	:global( .jb-section--main ) {
 		background-color: #f9f9f6;
 	}
-	.jb-table {
-		border: var( --border );
-		border-radius: var( --border-radius );
-		box-shadow: 0px 4px 24px rgba( 0, 0, 0, 0.08 );
-		background-color: #fff;
-	}
 	.jb-table-header {
 		display: flex;
 		gap: var( --gap );
@@ -32,7 +26,11 @@
 		justify-content: space-between;
 		font-size: 0.875rem;
 		color: var( --gray-60 );
-		border-bottom: var( --border );
+		border: var( --border );
+		border-top-left-radius: var( --border-radius );
+		border-top-right-radius: var( --border-radius );
+		border-bottom: 0;
+		background-color: #fff;
 	}
 
 	.jb-table-header__image {

@@ -14,60 +14,122 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div
-	class="jb-table-row"
-	on:mouseenter={() => ( hover = true )}
-	on:mouseleave={() => ( hover = false )}
-	on:click={() => ( expanded = ! expanded )}
->
-	<div class="jb-table-row__thumbnail">
-		<Thumbnail {title} url={data.image.url} width={65} height={65} />
-	</div>
+<div class="jb-table-row-container" class:expanded>
+	<div
+		class="jb-table-row"
+		on:mouseenter={() => ( hover = true )}
+		on:mouseleave={() => ( hover = false )}
+		on:click={() => ( expanded = ! expanded )}
+	>
+		<div class="jb-table-row__thumbnail">
+			<Thumbnail {title} url={data.image.url} width={65} height={65} />
+		</div>
 
-	<div class="jb-table-row__title">
-		<RowTitle {title} url={data.page.url} />
-	</div>
+		<div class="jb-table-row__title">
+			<RowTitle {title} url={data.page.url} />
+		</div>
 
-	<div class="jb-table-row__potential-size">
-		<Pill color="#facfd2">
-			{Math.round( data.image.weight.current )} KB
-		</Pill>
-		<div class="jb-arrow">→</div>
-		<Pill color="#d0e6b8">
-			{Math.round( data.image.weight.potential )} KB
-		</Pill>
-	</div>
+		<div class="jb-table-row__potential-size">
+			<Pill color="#facfd2">
+				{Math.round( data.image.weight.current )} KB
+			</Pill>
+			<div class="jb-arrow">→</div>
+			<Pill color="#d0e6b8">
+				{Math.round( data.image.weight.potential )} KB
+			</Pill>
+		</div>
 
-	<div class="jb-table-row__hover-content">
-		<TableRowHover />
-	</div>
+		<div class="jb-table-row__hover-content">
+			<TableRowHover />
+		</div>
 
-	<div class="jb-table-row__device">
-		<Device device={data.device_type} />
-	</div>
+		<div class="jb-table-row__device">
+			<Device device={data.device_type} />
+		</div>
 
-	<div class="jb-table-row__page">
-		<a href={data.page.url}>{data.page.title}</a>
-	</div>
+		<div class="jb-table-row__page">
+			<a href={data.page.url}>{data.page.title}</a>
+		</div>
 
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<div class="jb-table-row__expand" on:click={() => ( expanded = ! expanded )}>
-		<span>{expanded ? '▲' : '▼'}</span>
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<div class="jb-table-row__expand" on:click={() => ( expanded = ! expanded )}>
+			<span>{expanded ? '▲' : '▼'}</span>
+		</div>
 	</div>
+	{#if expanded}
+		<TableRowExpanded image={data.image} instructions={data.instructions} />
+	{/if}
 </div>
 
-{#if expanded}
-	<TableRowExpanded image={data.image} instructions={data.instructions} />
-{/if}
-
 <style lang="scss">
+	.jb-table-row-container {
+		background-color: #fff;
+		border-top: var( --border );
+		border-left: var( --border );
+		border-right: var( --border );
+		margin: 0;
+		transition: margin 100ms ease;
+
+		// This is a workaround for box shadows.
+		// If the shadow was applied to the row directly
+		// it would cast a shadow on other rows
+		// This puts the shadow on a pseudo element
+		// and moves it behind the row
+		// The downside of this approach is that I can't use
+		// overflow: hidden to clip border radius here.
+		position: relative;
+		&:before {
+			content: '';
+			position: absolute;
+			box-shadow: 0px 4px 24px 0px hsla( 0, 0%, 0%, 0.08 );
+			top: 0;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			z-index: -1;
+		}
+
+		&:last-child {
+			border-bottom-right-radius: var( --border-radius );
+			border-bottom-left-radius: var( --border-radius );
+			border-bottom: var( --border );
+		}
+	}
+
+	.expanded {
+		margin-bottom: var( --expanded-gap );
+		border-bottom-right-radius: var( --border-radius );
+		border-bottom-left-radius: var( --border-radius );
+		border-bottom: var( --border );
+	}
+
+	// Expanded view, but not the one at the very top.
+	:global( :not( .jb-table-header ) + .jb-table-row-container.expanded ) {
+		margin-top: var( --expanded-gap );
+		border-top-right-radius: var( --border-radius );
+		border-top-left-radius: var( --border-radius );
+	}
+
+	// The row after the expanded view.
+	:global( .expanded + .jb-table-row-container ) {
+		border-top-right-radius: var( --border-radius );
+		border-top-left-radius: var( --border-radius );
+	}
+
+	// The row before the expanded view.
+	:global( .jb-table-row-container:has( + .expanded ) ) {
+		border-bottom-right-radius: var( --border-radius );
+		border-bottom-left-radius: var( --border-radius );
+		border-bottom: var( --border );
+	}
+
 	.jb-table-row {
 		display: flex;
 		align-items: center;
 		height: 110px;
 		gap: var( --gap );
 		padding: var( --padding );
-		border-bottom: var( --border );
+
 		cursor: pointer;
 
 		.jb-table-row__hover-content {
@@ -75,6 +137,13 @@
 		}
 		&:hover {
 			background-color: #f6f7f7;
+
+			// Can't use overflow because of the box-shadow workaround above.
+			// So instead, repeating the border radius.
+			.expanded & {
+				border-top-right-radius: var( --border-radius );
+				border-top-left-radius: var( --border-radius );
+			}
 			.jb-table-row__hover-content {
 				display: block;
 			}
