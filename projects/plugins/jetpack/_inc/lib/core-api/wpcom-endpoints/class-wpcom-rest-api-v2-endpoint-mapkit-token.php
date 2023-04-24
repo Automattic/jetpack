@@ -17,8 +17,10 @@ class WPCOM_REST_API_V2_Endpoint_Mapkit_Token extends WP_REST_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
-		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'mapkit-token';
+		$this->namespace                       = 'wpcom/v2';
+		$this->rest_base                       = 'mapkit-token';
+		$this->wpcom_is_wpcom_only_endpoint    = true;
+		$this->wpcom_is_site_specific_endpoint = false;
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
