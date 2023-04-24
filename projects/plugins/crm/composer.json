@@ -11,7 +11,8 @@
 		"codeception/module-filesystem": "^1.0",
 		"codeception/util-universalframework": "^1.0",
 		"automattic/wordbless": "0.4.2",
-		"yoast/phpunit-polyfills": "1.0.4"
+		"yoast/phpunit-polyfills": "1.0.4",
+		"phpunit/phpunit": "^8"
 	},
 	"scripts": {
 		"build-development": [
