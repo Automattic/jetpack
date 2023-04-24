@@ -41,11 +41,13 @@ export class Banner extends Component {
 		title: PropTypes.node.isRequired,
 		isCurrentUserLinked: PropTypes.bool,
 		isConnectionOwner: PropTypes.bool,
+		rna: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		onClick: noop,
 		eventProps: {},
+		rna: false,
 	};
 
 	getHref() {
@@ -121,7 +123,7 @@ export class Banner extends Component {
 	}
 
 	getContent() {
-		const { callToAction, description, list, title } = this.props;
+		const { callToAction, description, list, title, rna } = this.props;
 
 		return (
 			<div className="dops-banner__content">
@@ -142,7 +144,13 @@ export class Banner extends Component {
 				{ callToAction && (
 					<div className="dops-banner__action">
 						{ callToAction && (
-							<Button compact href={ this.getHref() } onClick={ this.handleClick } primary>
+							<Button
+								rna={ rna }
+								compact
+								href={ this.getHref() }
+								onClick={ this.handleClick }
+								primary
+							>
 								{ callToAction }
 							</Button>
 						) }
@@ -174,6 +182,7 @@ export class Banner extends Component {
 			<Card
 				className={ classes }
 				href={ callToAction ? null : this.getHref() }
+				target={ callToAction || ! this.getHref() ? null : '_blank' }
 				onClick={ callToAction ? noop : this.handleClick }
 			>
 				{ this.getIcon() }

@@ -1,8 +1,7 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import Card from 'components/card';
 import ConnectUserBar from 'components/connect-user-bar';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -105,35 +104,34 @@ class SubscriptionsComponent extends React.Component {
 					</ModuleToggle>
 					{
 						<FormFieldset>
-							<CompactFormToggle
-								checked={ this.state.stb_enabled }
+							<ToggleControl
+								checked={ isSubscriptionsActive && this.props.getOptionValue( 'stb_enabled' ) }
 								disabled={
 									! isSubscriptionsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'subscriptions', 'stb_enabled' ] )
+									this.props.isSavingAnyOption( [ 'subscriptions' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'stb_enabled' ] ) }
 								onChange={ this.handleSubscribeToBlogToggleChange }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Enable the “subscribe to site” option on your comment form', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
-							<CompactFormToggle
-								checked={ this.state.stc_enabled }
+								label={ __(
+									'Enable the “subscribe to site” option on your comment form',
+									'jetpack'
+								) }
+							/>
+							<ToggleControl
+								checked={ isSubscriptionsActive && this.props.getOptionValue( 'stc_enabled' ) }
 								disabled={
 									! isSubscriptionsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'subscriptions', 'stc_enabled' ] )
+									this.props.isSavingAnyOption( [ 'subscriptions' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'stc_enabled' ] ) }
 								onChange={ this.handleSubscribeToCommentToggleChange }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __(
-										'Enable the “subscribe to comments” option on your comment form',
-										'jetpack'
-									) }
-								</span>
-							</CompactFormToggle>
+								label={ __(
+									'Enable the “subscribe to comments” option on your comment form',
+									'jetpack'
+								) }
+							/>
 						</FormFieldset>
 					}
 				</SettingsGroup>

@@ -23,12 +23,14 @@ export class JetpackBanner extends Banner {
 		plan: PropTypes.string,
 		siteSlug: PropTypes.string,
 		title: PropTypes.node.isRequired,
+		rna: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		onClick: noop,
 		trackBannerDisplay: noop,
 		plan: '',
+		rna: false,
 	};
 
 	componentDidMount() {
