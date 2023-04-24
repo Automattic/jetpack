@@ -170,8 +170,21 @@ abstract class Hybrid_Product extends Product {
 		 * Activate the installed plugin
 		 */
 		$result = static::activate_plugin();
+
 		if ( is_wp_error( $result ) ) {
 			return $result;
+		}
+
+		/**
+		 * Activate the module as well, if the user has a plan
+		 * or the product does not require a plan to work
+		 */
+		if ( static::has_required_plan() ) {
+			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
+
+			if ( ! $module_activation ) {
+				return new WP_Error( 'module_activation_failed', __( 'Error activating Jetpack module', 'jetpack-my-jetpack' ) );
+			}
 		}
 
 		return true;

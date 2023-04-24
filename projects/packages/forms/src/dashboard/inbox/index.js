@@ -38,17 +38,17 @@ const RESPONSES_FETCH_LIMIT = 50;
 const TABS = [
 	{
 		name: 'inbox',
-		title: 'Inbox',
+		title: __( 'Inbox', 'jetpack-forms' ),
 		className: 'jp-forms__inbox-tab-item',
 	},
 	{
 		name: 'spam',
-		title: 'Spam',
+		title: __( 'Spam', 'jetpack-forms' ),
 		className: 'jp-forms__inbox-tab-item',
 	},
 	{
 		name: 'trash',
-		title: 'Trash',
+		title: __( 'Trash', 'jetpack-forms' ),
 		className: 'jp-forms__inbox-tab-item',
 	},
 ];
@@ -78,6 +78,7 @@ const Inbox = () => {
 		query,
 		responses,
 		selectedResponses,
+		tabTotals,
 		total,
 	] = useSelect(
 		select => [
@@ -88,6 +89,7 @@ const Inbox = () => {
 			select( STORE_NAME ).getResponsesQuery(),
 			select( STORE_NAME ).getResponses(),
 			select( STORE_NAME ).getSelectedResponseIds(),
+			select( STORE_NAME ).getTabTotals(),
 			select( STORE_NAME ).getTotalResponses(),
 		],
 		[]
@@ -153,6 +155,22 @@ const Inbox = () => {
 	const toggleExportModal = useCallback(
 		() => setShowExportModal( ! showExportModal ),
 		[ showExportModal, setShowExportModal ]
+	);
+
+	const tabs = useMemo(
+		() =>
+			TABS.map( ( { title, ...tab } ) => ( {
+				...tab,
+				title: (
+					<>
+						{ title }
+						{ tabTotals && (
+							<span className="jp-forms__inbox-tab-item-count">{ tabTotals[ tab.name ] || 0 }</span>
+						) }
+					</>
+				),
+			} ) ),
+		[ tabTotals ]
 	);
 
 	const monthList = useMemo( () => {
@@ -236,7 +254,7 @@ const Inbox = () => {
 				className="jp-forms__inbox-tabs"
 				activeClass="active-tab"
 				onSelect={ setStatusQuery }
-				tabs={ TABS }
+				tabs={ tabs }
 			>
 				{ () => (
 					<>
