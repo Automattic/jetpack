@@ -238,5 +238,6 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 		);
 	}
 );
+VideoThumbnail.displayName = 'VideoThumbnail';
 
 export default VideoThumbnail;

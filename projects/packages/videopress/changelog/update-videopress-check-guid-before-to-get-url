@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-VideoPress: check guid attribute before to get the VideoPress video url

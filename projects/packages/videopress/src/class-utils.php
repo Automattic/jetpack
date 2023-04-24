@@ -64,4 +64,17 @@ class Utils {
 		$url = 'https://videopress.com/v/' . $guid;
 		return add_query_arg( $query_args, $url );
 	}
+
+	/**
+	 * Determines if a given URL is a VideoPress URL.
+	 *
+	 * @since x.x.x
+	 *
+	 * @param string $url The URL to check.
+	 * @return bool True if the URL is a VideoPress URL, false otherwise.
+	 */
+	public static function is_videopress_url( $url ) {
+		$pattern = '/^https?:\/\/(?:(?:v(?:ideo)?\.wordpress\.com|videopress\.com)\/(?:v|embed)|v\.wordpress\.com)\/([a-z\d]{8})(\/|\b)/i'; // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+		return (bool) preg_match( $pattern, $url );
+	}
 }
