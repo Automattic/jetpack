@@ -4,7 +4,7 @@
 </script>
 
 <div class="jb-table">
-	<div class="jb-table-header">
+	<div class="jb-table-header recommendation-page-grid">
 		<div class="jb-table-header__image">Image</div>
 		<div class="jb-table-header__potential-size">Potential Size</div>
 		<div class="jb-table-header__device">Device</div>
@@ -20,10 +20,6 @@
 		background-color: #f9f9f6;
 	}
 	.jb-table-header {
-		display: flex;
-		gap: var( --gap );
-		padding: var( --padding );
-		justify-content: space-between;
 		font-size: 0.875rem;
 		color: var( --gray-60 );
 		border: var( --border );
@@ -34,16 +30,16 @@
 	}
 
 	.jb-table-header__image {
-		width: var( --table-header-image );
+		grid-column: thumbnail / title;
 	}
 	.jb-table-header__device {
-		width: var( --table-header-device );
+		grid-column: device;
 		text-align: center;
 	}
 	.jb-table-header__potential-size {
-		width: var( --table-header-potential-size );
+		grid-column: potential-size;
 	}
 	.jb-table-header__page {
-		flex-grow: 1;
+		grid-column: page / expand;
 	}
 </style>

@@ -18,6 +18,5 @@
 	}
 	p {
 		flex-grow: 1;
-		max-width: 220px;
 	}
 </style>

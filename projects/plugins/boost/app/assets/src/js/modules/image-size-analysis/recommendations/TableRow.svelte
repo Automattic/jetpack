@@ -16,7 +16,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="jb-table-row-container" class:expanded>
 	<div
-		class="jb-table-row"
+		class="jb-table-row recommendation-page-grid"
 		on:mouseenter={() => ( hover = true )}
 		on:mouseleave={() => ( hover = false )}
 		on:click={() => ( expanded = ! expanded )}
@@ -136,17 +136,13 @@
 	}
 
 	.jb-table-row {
-		display: flex;
-		align-items: center;
-		height: 110px;
-		gap: var( --gap );
-		padding: var( --padding );
-
+		min-height: 115px;
 		cursor: pointer;
 
 		.jb-table-row__hover-content {
 			display: none;
 		}
+
 		&:hover {
 			background-color: #f6f7f7;
 
@@ -166,32 +162,27 @@
 		}
 	}
 	.jb-table-row__thumbnail {
-		width: 65px;
+		grid-column: thumbnail;
 	}
 	.jb-table-row__title {
-		// header - thumbnail - gap
-		width: var( --table-column-title );
+		grid-column: title;
 	}
 	.jb-table-row__hover-content {
-		width: calc(
-			var( --table-column-potential-size ) + var( --table-column-device ) +
-				var( --table-column-expand )
-		);
+		grid-column: device / expand;
 	}
 	.jb-table-row__potential-size {
-		width: var( --table-column-potential-size );
-
+		grid-column: potential-size;
 		display: flex;
 		align-items: center;
 		gap: calc( var( --gap ) / 2 );
 	}
 
 	.jb-table-row__device {
-		width: var( --table-column-device );
+		grid-column: device;
 		text-align: center;
 	}
 	.jb-table-row__page {
-		flex-grow: 1;
+		grid-column: page;
 		a {
 			text-decoration: none;
 			color: var( --gray-60 );
@@ -199,9 +190,8 @@
 	}
 	.jb-table-row__expand {
 		cursor: pointer;
-		margin-left: auto;
 		text-align: center;
-		width: var( --table-column-expand );
+		grid-column: expand;
 		.expanded & {
 			svg {
 				transform: rotate( 180deg );

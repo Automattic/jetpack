@@ -40,4 +40,18 @@
 		line-height: 1.5;
 		-webkit-font-smoothing: antialiased;
 	}
+
+	:global( .recommendation-page-grid ) {
+		padding: var( --padding );
+		display: grid;
+		gap: var( --gap );
+		align-items: center;
+		grid-template-columns:
+			[thumbnail] var( --thumbnail-size )
+			[title] var( --table-column-title )
+			[potential-size] var( --table-column-potential-size )
+			[device] var( --table-column-device )
+			[page] 1fr
+			[expand] var( --table-column-expand );
+	}
 </style>

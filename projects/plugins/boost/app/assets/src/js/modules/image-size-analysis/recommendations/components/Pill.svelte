@@ -18,5 +18,6 @@
 		color: var( --jb-pill-color );
 		filter: brightness( 0.3 ) saturate( 10 );
 		font-weight: 500;
+		white-space: nowrap;
 	}
 </style>
