@@ -69,7 +69,7 @@ class Jetpack_Twitter_Cards {
 			/**
 			 * Filter the default Twitter card image, used when no image can be found in a post.
 			 *
-			 * @module sharedaddy, publicize
+			 * @module sharedaddy
 			 *
 			 * @since 5.9.0
 			 *

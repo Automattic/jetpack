@@ -41,6 +41,7 @@ class Jetpack_Keyring_Service_Helper {
 		'facebook'                 => array(
 			'for' => 'publicize',
 		),
+		// @todo Remove when Twitter has been dropped from Publicize.
 		'twitter'                  => array(
 			'for' => 'publicize',
 		),

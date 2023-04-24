@@ -656,7 +656,7 @@ html[dir=rtl] .select2-container-multi .select2-search-choice-close {
     -webkit-transition: all .1s ease-in-out;
     transition: all .1s ease-in-out;
 }
-.woocommerce-message .twitter-share-button {
+.woocommerce-message twitter-share-button {
     margin-top: -3px;
     margin-left: 3px;
     vertical-align: middle;
