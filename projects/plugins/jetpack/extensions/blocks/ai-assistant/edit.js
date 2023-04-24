@@ -37,7 +37,7 @@ export const createPrompt = (
 	type = 'userPrompt'
 ) => {
 	const promptSuffix = __(
-		'. Please always output the generated content in markdown format. Please only output generated content ready for publishing.',
+		'. Please always output the generated content in markdown format. Do not include a top level heading by default. Please only output generated content ready for publishing.',
 		'jetpack'
 	);
 
@@ -88,7 +88,7 @@ export const createPrompt = (
 	// 	prompt += sprintf( __( " and tagged '%1$s'", 'jetpack' ), tagsNames );
 	// }
 
-	return prompt.trim();
+	// return prompt.trim();
 };
 
 // This component displays the text word by word if show animation is true
@@ -474,7 +474,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 									},
 									{
 										title: __( 'Expand on preceding content', 'jetpack' ),
-										onClick: () => getSuggestionFromOpenAI( 'expandpreceding' ),
+										onClick: () => getSuggestionFromOpenAI( 'expandPreceding' ),
 										isDisabled: isWaitingState,
 									},
 								] }

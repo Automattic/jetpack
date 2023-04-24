@@ -68,7 +68,7 @@ export const settings = {
 		multiple: true,
 		// When false, the block won't be available to be converted into a reusable block.
 		reusable: false,
-		inserter: true,
+		inserter: false,
 	},
 	edit,
 	/* @TODO Write the block editor output */
