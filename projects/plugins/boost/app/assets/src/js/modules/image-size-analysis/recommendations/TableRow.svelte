@@ -52,8 +52,20 @@
 		</div>
 
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
-		<div class="jb-table-row__expand" on:click={() => ( expanded = ! expanded )}>
-			<span>{expanded ? '▲' : '▼'}</span>
+		<div class="jb-table-row__expand">
+			<svg
+				width="16"
+				height="10"
+				viewBox="0 0 16 10"
+				fill="none"
+				xmlns="http://www.w3.org/2000/svg"
+			>
+				<path
+					d="M0.667349 1.33325L8.00068 7.99992L15.334 1.33325"
+					stroke="#1E1E1E"
+					stroke-width="1.5"
+				/>
+			</svg>
 		</div>
 	</div>
 	{#if expanded}
@@ -190,5 +202,10 @@
 		margin-left: auto;
 		text-align: right;
 		width: var( --table-column-expand );
+		.expanded & {
+			svg {
+				transform: rotate( 180deg );
+			}
+		}
 	}
 </style>

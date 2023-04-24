@@ -33,7 +33,7 @@
 
 		// Table Columns: Content
 		--table-column-device: var( --table-header-device );
-		--table-column-expand: 65px;
+		--table-column-expand: 100px;
 		--table-column-title: 33%;
 		--table-column-potential-size: var( --table-header-potential-size );
 
