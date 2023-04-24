@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats Admin: changed to use custom config data variable name to avoid conflicts with `configData`
