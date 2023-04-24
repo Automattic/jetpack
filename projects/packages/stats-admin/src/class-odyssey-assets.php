@@ -36,6 +36,7 @@ class Odyssey_Assets {
 		$default_options = array(
 			'config_data'          => ( new Odyssey_Config_Data() )->get_data(),
 			'config_variable_name' => 'configData',
+			'enqueue_css'          => true,
 		);
 		$options         = wp_parse_args( $options, $default_options );
 		if ( file_exists( __DIR__ . "/../dist/{$asset_name}.js" ) ) {
@@ -52,12 +53,16 @@ class Odyssey_Assets {
 			Assets::enqueue_script( $asset_handle );
 		} else {
 			// In production, we load the assets from our CDN.
-			$css_url    = $asset_name . ( is_rtl() ? '.rtl' : '' ) . '.css';
-			$css_handle = $asset_handle . '-style';
 			wp_register_script( $asset_handle, sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, "{$asset_name}.js" ), self::JS_DEPENDENCIES, $this->get_cdn_asset_cache_buster(), true );
-			wp_register_style( $css_handle, sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, $css_url ), array(), $this->get_cdn_asset_cache_buster() );
 			wp_enqueue_script( $asset_handle );
-			wp_enqueue_style( $css_handle );
+
+			// Enqueue CSS if needed.
+			if ( $options['enqueue_css'] ) {
+				$css_url    = $asset_name . ( is_rtl() ? '.rtl' : '' ) . '.css';
+				$css_handle = $asset_handle . '-style';
+				wp_register_style( $css_handle, sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, $css_url ), array(), $this->get_cdn_asset_cache_buster() );
+				wp_enqueue_style( $css_handle );
+			}
 		}
 
 		wp_add_inline_script(
