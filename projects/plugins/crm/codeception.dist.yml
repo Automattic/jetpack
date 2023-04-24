@@ -1,5 +1,5 @@
 paths:
-    tests: tests
+    tests: tests/codeception
     output: tests/codeception/_output
     data: tests/codeception/_data
     support: tests/codeception/_support
