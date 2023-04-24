@@ -200,7 +200,7 @@
 	.jb-table-row__expand {
 		cursor: pointer;
 		margin-left: auto;
-		text-align: right;
+		text-align: center;
 		width: var( --table-column-expand );
 		.expanded & {
 			svg {
