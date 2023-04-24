@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 3.11.18
+ * Version: 3.11.19
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '3.11.18' );
+define( 'WPCOMSH_VERSION', '3.11.19' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -385,6 +385,38 @@ function wpcomsh_make_content_clickable( $content ) {
 	$combine = '';
 	$split   = array();
 
+	// Defines a set of rules for the wpcomsh_make_content_clickable() function to ignore matching html elements.
+	$make_clickable_rules = array(
+		array(
+			'match' => array( '<a ' ),
+			'end'   => '</a>',
+		),
+		array(
+			'match' => array( '<pre ', '<pre>' ),
+			'end'   => '</pre>',
+		),
+		array(
+			'match' => array( '<code ', '<code>' ),
+			'end'   => '</code>',
+		),
+		array(
+			'match' => array( '<script ', '<script>' ),
+			'end'   => '</script>',
+		),
+		array(
+			'match' => array( '<style ', '<style>' ),
+			'end'   => '</style>',
+		),
+		array(
+			'match' => array( '<textarea ', '<textarea>' ),
+			'end'   => '</textarea>',
+		),
+		array(
+			'match' => array( '<div class="skip-make-clickable' ),
+			'end'   => '</div>',
+		),
+	);
+
 	// filter the array and combine <a></a>, <pre></pre>, <script></script> and <style></style> into one
 	// (none of these tags can be nested so when we see the opening tag, we grab everything untill we reach the closing tag)
 	foreach ( $_split as $chunk ) {
@@ -403,25 +435,20 @@ function wpcomsh_make_content_clickable( $content ) {
 			continue;
 		}
 
-		if ( strpos( strtolower( $chunk ), '<a ' ) === 0 ) {
-			$combine .= $chunk;
-			$end      = '</a>';
-		} elseif ( strpos( strtolower( $chunk ), '<pre' ) === 0 ) {
-			$combine .= $chunk;
-			$end      = '</pre>';
-		} elseif ( strpos( strtolower( $chunk ), '<style' ) === 0 ) {
-			$combine .= $chunk;
-			$end      = '</style>';
-		} elseif ( strpos( strtolower( $chunk ), '<script' ) === 0 ) {
-			$combine .= $chunk;
-			$end      = '</script>';
-		} elseif ( strpos( strtolower( $chunk ), '<div class="skip-make-clickable' ) === 0 ) {
-			$combine .= $chunk;
-			$end      = '</div>';
-		} elseif ( strpos( strtolower( $chunk ), '<textarea' ) === 0 ) {
-			$combine .= $chunk;
-			$end      = '</textarea>';
-		} else {
+		$found = false;
+		foreach ( $make_clickable_rules as $rule ) {
+			foreach ( $rule['match'] as $match ) {
+				if ( stripos( $chunk, $match ) === 0 ) {
+					$combine .= $chunk;
+					$end      = $rule['end'];
+					$found    = true;
+
+					break 2;
+				}
+			}
+		}
+
+		if ( $found === false ) {
 			$split[] = $chunk;
 		}
 	}
