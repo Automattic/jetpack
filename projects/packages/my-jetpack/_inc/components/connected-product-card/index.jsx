@@ -84,11 +84,11 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			onFixConnection={ navigateToConnectionPage }
 			showMenu={ menuIsActive }
 			menuItems={ menuItems }
+			showManageOption={ status === PRODUCT_STATUSES.ACTIVE }
+			showActivateOption={ hasStandalonePlugin && isStandaloneInstalled && ! isStandaloneActive }
+			showInstallOption={ hasStandalonePlugin && ! isStandaloneInstalled }
 			onInstallStandalone={ handleInstallStandalone }
 			onActivateStandalone={ handleInstallStandalone }
-			hasStandalonePlugin={ hasStandalonePlugin }
-			isStandaloneInstalled={ isStandaloneInstalled }
-			isStandaloneActive={ isStandaloneActive }
 		>
 			{ children }
 		</ProductCard>

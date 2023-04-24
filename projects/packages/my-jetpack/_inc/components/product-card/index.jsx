@@ -19,25 +19,14 @@ const PRODUCT_STATUSES_LABELS = {
 
 /* eslint-disable react/jsx-no-bind */
 const Menu = ( {
-	productStatus,
 	items = [],
+	showManage = false,
 	onManage,
+	showInstall = false,
 	onInstall,
+	showActivate = false,
 	onActivate,
-	hasStandalonePlugin,
-	isStandaloneInstalled,
-	isStandaloneActive,
 } ) => {
-	/**
-	 * Only show standalone related option if plugin is not installed
-	 * or the plugin is not active, the product has a standalone plugin
-	 * and there is no connection error.
-	 */
-	const showStandaloneOption =
-		productStatus !== PRODUCT_STATUSES.ERROR &&
-		hasStandalonePlugin &&
-		( ! isStandaloneInstalled || ! isStandaloneActive );
-
 	return (
 		<Dropdown
 			className={ styles.dropdown }
@@ -67,7 +56,7 @@ const Menu = ( {
 							{ item?.label }
 						</Button>
 					) ) }
-					{ productStatus === PRODUCT_STATUSES.ACTIVE && (
+					{ showManage && (
 						<Button
 							weight="regular"
 							fullWidth
@@ -81,38 +70,33 @@ const Menu = ( {
 							{ __( 'Manage', 'jetpack-my-jetpack' ) }
 						</Button>
 					) }
-					{ showStandaloneOption && (
-						<>
-							{ ( productStatus === PRODUCT_STATUSES.ACTIVE || items.length > 0 ) && <hr /> }
-							{ ! isStandaloneInstalled && (
-								<Button
-									weight="regular"
-									fullWidth
-									variant="tertiary"
-									icon={ download }
-									onClick={ () => {
-										onClose();
-										onInstall?.();
-									} }
-								>
-									{ __( 'Install Plugin', 'jetpack-my-jetpack' ) }
-								</Button>
-							) }
-							{ isStandaloneInstalled && ! isStandaloneActive && (
-								<Button
-									weight="regular"
-									fullWidth
-									variant="tertiary"
-									icon={ check }
-									onClick={ () => {
-										onClose();
-										onActivate?.();
-									} }
-								>
-									{ __( 'Activate Plugin', 'jetpack-my-jetpack' ) }
-								</Button>
-							) }
-						</>
+					{ showInstall && (
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							icon={ download }
+							onClick={ () => {
+								onClose();
+								onInstall?.();
+							} }
+						>
+							{ __( 'Install Plugin', 'jetpack-my-jetpack' ) }
+						</Button>
+					) }
+					{ showActivate && (
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							icon={ check }
+							onClick={ () => {
+								onClose();
+								onActivate?.();
+							} }
+						>
+							{ __( 'Activate Plugin', 'jetpack-my-jetpack' ) }
+						</Button>
 					) }
 				</>
 			) }
@@ -134,13 +118,14 @@ const ProductCard = props => {
 		isFetching,
 		slug,
 		children,
+		// Menu Related
 		showMenu = false,
+		showManageOption = false,
+		showActivateOption = false,
+		showInstallOption = false,
 		menuItems = [],
 		onInstallStandalone,
 		onActivateStandalone,
-		hasStandalonePlugin = false,
-		isStandaloneInstalled = false,
-		isStandaloneActive = false,
 	} = props;
 
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
@@ -256,14 +241,13 @@ const ProductCard = props => {
 				</div>
 				{ showMenu ? (
 					<Menu
-						productStatus={ status }
 						items={ menuItems }
+						showManage={ showManageOption }
 						onManage={ onManage }
-						onInstall={ installStandaloneHandler }
+						showActivate={ showActivateOption }
 						onActivate={ activateStandaloneHandler }
-						hasStandalonePlugin={ hasStandalonePlugin }
-						isStandaloneActive={ isStandaloneActive }
-						isStandaloneInstalled={ isStandaloneInstalled }
+						showInstall={ showInstallOption }
+						onInstall={ installStandaloneHandler }
 					/>
 				) : (
 					icon
