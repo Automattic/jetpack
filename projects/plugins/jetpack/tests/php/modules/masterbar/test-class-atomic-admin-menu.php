@@ -303,13 +303,13 @@ class Test_Atomic_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_gutenberg_menus
+	 * Tests remove_gutenberg_menu
 	 *
-	 * @covers ::add_gutenberg_menus
+	 * @covers ::remove_gutenberg_menu
 	 */
-	public function test_add_gutenberg_menus() {
+	public function test_remove_gutenberg_menu() {
 		global $menu;
-		static::$admin_menu->add_gutenberg_menus();
+		static::$admin_menu->remove_gutenberg_menu();
 
 		// Gutenberg plugin menu should not be visible.
 		$this->assertArrayNotHasKey( 101, $menu );
