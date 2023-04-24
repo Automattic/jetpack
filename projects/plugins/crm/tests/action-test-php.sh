@@ -11,19 +11,19 @@ fi
 
 # Point output dir to the CI artifacts dir.
 if [[ -n "$ARTIFACTS_DIR" ]]; then
-	rm -rf tests/_output
-	ln -s "$ARTIFACTS_DIR" tests/_output
+	rm -rf tests/codecept/_output
+	ln -s "$ARTIFACTS_DIR" tests/codecept/_output
 fi
 
 # Setup database. Even though tests/acceptance.suite.yml contains commands to create it, it chokes before it gets to run them without this.
 mysql -e "DROP DATABASE IF EXISTS jpcrm_testing; CREATE DATABASE jpcrm_testing;"
 
 # Setup config.
-cp tests/acceptance.suite.dist.yml tests/acceptance.suite.yml
-sed -i 's/some_db_user/root/g' tests/acceptance.suite.yml
-sed -i 's/some_db_pass/root/g' tests/acceptance.suite.yml
-sed -i 's/host=localhost/host=127.0.0.1/g' tests/acceptance.suite.yml
-sed -i 's!/path/to/test/file/must-overwrite-it-in-acceptance.suite.yml!'"$WORDPRESS_DIR"'!g' tests/acceptance.suite.yml
+cp tests/codecept/acceptance.suite.dist.yml tests/codecept/acceptance.suite.yml
+sed -i 's/some_db_user/root/g' tests/codecept/acceptance.suite.yml
+sed -i 's/some_db_pass/root/g' tests/codecept/acceptance.suite.yml
+sed -i 's/host=localhost/host=127.0.0.1/g' tests/codecept/acceptance.suite.yml
+sed -i 's!/path/to/test/file/must-overwrite-it-in-acceptance.suite.yml!'"$WORDPRESS_DIR"'!g' tests/codecept/acceptance.suite.yml
 
 # Setup WordPress runtime config.
 cp "$WORDPRESS_DIR/wp-config-sample.php" "$WORDPRESS_DIR/wp-config.php"
