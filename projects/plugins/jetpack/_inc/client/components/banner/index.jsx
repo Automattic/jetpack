@@ -41,6 +41,7 @@ export class Banner extends Component {
 		title: PropTypes.node.isRequired,
 		isCurrentUserLinked: PropTypes.bool,
 		isConnectionOwner: PropTypes.bool,
+		noIcon: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -153,7 +154,7 @@ export class Banner extends Component {
 	}
 
 	render() {
-		const { callToAction, className, plan } = this.props;
+		const { callToAction, className, plan, noIcon } = this.props;
 		const planClass = getPlanClass( plan );
 		const isLegacy = isJetpackLegacyPlan( plan );
 		const isProduct = isJetpackProduct( plan );
@@ -176,7 +177,7 @@ export class Banner extends Component {
 				href={ callToAction ? null : this.getHref() }
 				onClick={ callToAction ? noop : this.handleClick }
 			>
-				{ this.getIcon() }
+				{ ! noIcon && this.getIcon() }
 				{ this.getContent() }
 			</Card>
 		);

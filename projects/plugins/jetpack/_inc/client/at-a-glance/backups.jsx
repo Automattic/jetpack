@@ -313,7 +313,7 @@ class DashBackups extends Component {
 						{ buildCard( message ) }
 						<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom">
 							<div className="jp-dash-item__action-links">
-								<a
+								<ExternalLink
 									href={
 										isWoA
 											? getRedirectUrl( 'calypso-backups', {
@@ -328,8 +328,8 @@ class DashBackups extends Component {
 									onClick={ this.trackBackupsClick( 'backups-link' ) }
 								>
 									{ __( "View your site's backups", 'jetpack' ) }
-								</a>
-								<a
+								</ExternalLink>
+								<ExternalLink
 									href={ getRedirectUrl( 'calypso-activity-log', {
 										site: siteRawUrl,
 										query: 'group=rewind',
@@ -339,7 +339,7 @@ class DashBackups extends Component {
 									onClick={ this.trackBackupsClick( 'restore-points-link' ) }
 								>
 									{ __( 'View your most recent restore points', 'jetpack' ) }
-								</a>
+								</ExternalLink>
 							</div>
 						</Card>
 					</React.Fragment>

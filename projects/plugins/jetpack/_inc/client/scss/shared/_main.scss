@@ -29,6 +29,10 @@
 
 	.jetpack-pagestyles a {
 		text-decoration: none;
+
+		&.components-external-link .components-external-link__icon {
+			margin-left: 5px;
+		}
 	}
 
 	// Hello Dolly positioning overwrite

@@ -8,6 +8,16 @@
 	&__pinned-bundle {
 		margin-bottom: 1rem;
 	}
+
+	.jp-dash-item__card {
+		box-shadow: none;
+		padding: rem( 18px ) rem( 24px );
+	}
+
+	.dops-card.is-compact {
+		box-shadow: none;
+		margin-top: 0;
+	}
 }
 
 .jp-dash-section-header.jp-dash-section-header-stats {
@@ -512,6 +522,29 @@
 	display: flex;
 	flex-wrap: wrap;
 	gap: 8px 26px;
+}
+
+.jp-dash-item__action-links a,
+a.jp-dash-item__manage-in-wpcom {
+	&, &:active, &:visited, &:hover, &:focus {
+		font-weight: 400;
+		font-size: $font-body-small;
+		line-height: 24px;
+		letter-spacing: -0.02em;
+		text-decoration: underline;
+		color: $black;
+
+		&:hover {
+			text-decoration-thickness: 3px;
+		}
+
+		&:focus {
+			text-decoration-line: none;
+			border-radius: 2px;
+			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+			outline: 3px solid transparent;
+		}
+	}
 }
 
 .jp-dash-item.dash-backups {
