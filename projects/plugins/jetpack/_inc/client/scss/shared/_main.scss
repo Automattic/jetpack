@@ -28,18 +28,7 @@
 }
 
 	.jetpack-pagestyles a {
-		color: $black;
-
-	  	&:hover {
-		  text-decoration-thickness: 3px;
-		}
-
-	  	&:focus {
-		  text-decoration-line: none;
-		  border-radius: 2px;
-		  box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
-		  outline: 3px solid transparent;
-		}
+		text-decoration: none;
 	}
 
 	// Hello Dolly positioning overwrite

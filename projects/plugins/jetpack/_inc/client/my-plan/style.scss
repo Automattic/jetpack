@@ -37,6 +37,22 @@
 		border-bottom: 0;
 	  }
 	}
+
+  	.my-plan-card__tag-line a {
+	  color: $black;
+	  text-decoration-line: underline;
+
+	  &:hover {
+		text-decoration-thickness: 3px;
+	  }
+
+	  &:focus {
+		text-decoration-line: none;
+		border-radius: 2px;
+		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+		outline: 3px solid transparent;
+	  }
+	}
 }
 
 .jp-landing__card-header {
