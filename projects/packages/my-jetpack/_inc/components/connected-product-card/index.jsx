@@ -4,17 +4,36 @@ import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
-import ProductCard from '../product-card';
+import ProductCard, { PRODUCT_STATUSES } from '../product-card';
 
-const ConnectedProductCard = ( { admin, slug, children, showMenu = false } ) => {
+const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuItems = [] } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
+
 	const { detail, status, activate, deactivate, isFetching, installStandalonePlugin } =
 		useProduct( slug );
 	const { name, description, manageUrl, requiresUserConnection, standalonePluginInfo } = detail;
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
-
 	const navigateToAddProductPage = useMyJetpackNavigate( `add-${ slug }` );
+
+	/* Menu Handling */
+	const hasStandalonePlugin = standalonePluginInfo?.hasStandalonePlugin;
+	const isStandaloneInstalled = standalonePluginInfo?.isStandaloneInstalled;
+	const isStandaloneActive = standalonePluginInfo?.isStandaloneActive;
+	const isAbsent = PRODUCT_STATUSES.ABSENT || PRODUCT_STATUSES.ABSENT_WITH_PLAN;
+	const installOrActivateStandalone =
+		hasStandalonePlugin && ( ! isStandaloneInstalled || ! isStandaloneActive );
+
+	const menuIsActive =
+		showMenu && // The menu is enabled for the product AND
+		! isAbsent && // product status is not absent AND
+		! status === PRODUCT_STATUSES.ERROR && // product status is not error AND
+		isRegistered &&
+		isUserConnected && // the site is connected AND
+		( status === PRODUCT_STATUSES.ACTIVE || // product is active, show at least the Manage option
+			menuItems?.length > 0 || // Show custom menus, if present
+			installOrActivateStandalone ); // Show install | activate options for standalone plugin
+	/* End Menu Handling */
 
 	/*
 	 * Redirect to manage URL
@@ -63,13 +82,13 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false } ) => 
 			onAdd={ navigateToAddProductPage }
 			onManage={ onManage }
 			onFixConnection={ navigateToConnectionPage }
-			showMenu={ showMenu }
+			showMenu={ menuIsActive }
+			menuItems={ menuItems }
 			onInstallStandalone={ handleInstallStandalone }
 			onActivateStandalone={ handleInstallStandalone }
-			hasStandalonePlugin={ standalonePluginInfo?.hasStandalonePlugin }
-			isStandaloneInstalled={ standalonePluginInfo?.isStandaloneInstalled }
-			isStandaloneActive={ standalonePluginInfo?.isStandaloneActive }
-			isConnected={ isRegistered && isUserConnected }
+			hasStandalonePlugin={ hasStandalonePlugin }
+			isStandaloneInstalled={ isStandaloneInstalled }
+			isStandaloneActive={ isStandaloneActive }
 		>
 			{ children }
 		</ProductCard>

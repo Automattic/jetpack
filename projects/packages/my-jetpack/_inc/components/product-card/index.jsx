@@ -141,8 +141,8 @@ const ProductCard = props => {
 		hasStandalonePlugin = false,
 		isStandaloneInstalled = false,
 		isStandaloneActive = false,
-		isConnected = false,
 	} = props;
+
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
 	const isError = status === PRODUCT_STATUSES.ERROR;
 	const isInactive = status === PRODUCT_STATUSES.INACTIVE;
@@ -151,17 +151,8 @@ const ProductCard = props => {
 	const isPurchaseRequired =
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE ||
 		status === PRODUCT_STATUSES.NEEDS_PURCHASE_OR_FREE;
-	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 
-	// If status is absent, we disable the menu
-	const menuIsActive =
-		showMenu && // The menu is enabled for the product AND
-		! isAbsent && // product status is not absent AND
-		! isError && // product status is not error AND
-		isConnected && // the site is connected AND
-		( isActive || // product is active, show at least the Manage option
-			menuItems?.length > 0 || // Show custom menus, if present
-			( hasStandalonePlugin && ( ! isStandaloneActive || ! isStandaloneInstalled ) ) ); // Show install | activate options for standalone plugin
+	const flagLabel = PRODUCT_STATUSES_LABELS[ status ];
 
 	const containerClassName = classNames( styles.container, {
 		[ styles.plugin_absent ]: isAbsent,
@@ -261,9 +252,9 @@ const ProductCard = props => {
 			<div className={ styles.title }>
 				<div className={ styles.name }>
 					<Text variant="title-medium">{ name }</Text>
-					{ menuIsActive && icon }
+					{ showMenu && icon }
 				</div>
-				{ menuIsActive ? (
+				{ showMenu ? (
 					<Menu
 						productStatus={ status }
 						items={ menuItems }
