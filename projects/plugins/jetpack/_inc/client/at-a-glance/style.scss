@@ -9,14 +9,13 @@
 		margin-bottom: 1rem;
 	}
 
-	.jp-dash-item__card {
-		box-shadow: none;
-		padding: rem( 18px ) rem( 24px );
-	}
-
 	.dops-card.is-compact {
 		box-shadow: none;
 		margin-top: 0;
+
+		&.is-card-link {
+			padding-top: 0;
+		}
 	}
 }
 
@@ -381,27 +380,30 @@
 .jp-connection-type {
 	.jp-dash-item__card {
 		align-items: flex-start;
+		padding: 24px;
 	}
 }
 .jp-connection-settings__info {
 	display: flex;
 }
 
-.jp-connection-settings__actions {
-	margin: 1em 0 0;
-
-	a {
-		cursor: pointer;
-	}
-}
-
 .jp-connection-settings__text {
 	margin-left: rem( 16px );
 	word-break: break-word;
+	color: $gray-80;
+	font-size: $font-body-small;
+	line-height: 24px;
+	letter-spacing: -0.02em;
+
+	.jp-connection-settings__is-owner {
+		display: block;
+	}
 }
+
 .jp-connection-settings__info {
 	.gridicon {
 		opacity: 0.6;
+		margin: 4px 0;
 	}
 	.gridicon,
 	.jp-connection-settings__site-icon {
@@ -416,17 +418,6 @@
 		border-radius: 50%;
 		margin-bottom: 0;
 	}
-}
-
-.jp-connection-settings__username {
-	font-weight: 600;
-}
-
-.jp-connection-settings__email {
-	color: $gray;
-	font-size: $font-body-small;
-	font-style: italic;
-	font-weight: 400;
 }
 
 .jp-connection-settings__modal.dops-modal {
@@ -505,9 +496,11 @@
 	width: 100%;
 }
 
-.jp-dash-item .dops-banner.dops-banner {
+.jp-dash-item .dops-banner {
 	width: 100%;
 	margin-bottom: 0;
+	border: 0;
+	box-shadow: none;
 }
 
 .jp-dash-item__videopress .jp-dash-item__card {
@@ -525,8 +518,11 @@
 }
 
 .jp-dash-item__action-links a,
-a.jp-dash-item__manage-in-wpcom {
+a.jp-dash-item__manage-in-wpcom,
+.dops-banner__title a,
+.jp-connection-settings__actions a {
 	&, &:active, &:visited, &:hover, &:focus {
+		cursor: pointer;
 		font-weight: 400;
 		font-size: $font-body-small;
 		line-height: 24px;
@@ -547,6 +543,12 @@ a.jp-dash-item__manage-in-wpcom {
 	}
 }
 
+.jp-connection-settings__actions a {
+	&, &:active, &:visited, &:hover, &:focus {
+		color: $gray-80;
+	}
+}
+
 .jp-dash-item.dash-backups {
 	@include dashboard-card-shadow;
 
@@ -554,8 +556,6 @@ a.jp-dash-item__manage-in-wpcom {
 		box-shadow: none;
 		border: 0;
 		border-bottom: 1px solid $gray-5;
-		border-top-right-radius: 4px;
-		border-top-left-radius: 4px;
 		margin: 0;
 	}
 
@@ -567,7 +567,5 @@ a.jp-dash-item__manage-in-wpcom {
 	.dops-banner {
 		box-shadow: none;
 		border: 0;
-		border-bottom-right-radius: 4px;
-		border-bottom-left-radius: 4px;
 	}
 }

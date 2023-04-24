@@ -28,9 +28,9 @@
 	appearance: none;
 
 	&:hover {
-		background: #f0f0f1;
-		border-color: $blue-grey-dark;
-		color: $blue-grey-dark;
+		background: $blue-grey-light;
+		border-color: $gray-80;
+		color: $gray-80;
 	}
 	&[disabled],
 	&:disabled {
@@ -74,8 +74,9 @@
 	}
 	.gridicon {
 		position: relative;
-			top: 4px;
+		top: 4px;
 		margin-top: -2px;
+		margin-left: 10px;
 		width: 18px;
 		height: 18px;
 	}
