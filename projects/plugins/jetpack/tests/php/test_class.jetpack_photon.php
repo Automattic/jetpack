@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-amp-support.php';
+
 /**
  * Class WP_Test_Jetpack_Photon
  */
