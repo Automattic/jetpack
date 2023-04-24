@@ -31,6 +31,13 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	public $day_of_year_query = 0;
 
 	/**
+	 * A year used to force one prompt per day for a specific year.
+	 *
+	 * @var integer
+	 */
+	public $force_year = 0;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -93,6 +100,10 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	public function get_items( $request ) {
 		if ( ! $this->is_wpcom ) {
 			return $this->proxy_request_to_wpcom( $request );
+		}
+
+		if ( $request->get_param( 'force_year' ) ) {
+			$this->force_year = $request->get_param( 'force_year' );
 		}
 
 		switch_to_blog( self::TEMPLATE_BLOG_ID );
@@ -207,6 +218,11 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 				$day
 			);
 
+			// If we're forcing the year, group by day of year, so that we only get one prompt per day.
+			if ( $this->force_year ) {
+				$clauses['groupby'] = 'day_of_year';
+			}
+
 			$clauses['fields']  = $fields;
 			$clauses['where']   = $where;
 			$clauses['orderby'] = $orderby;
@@ -289,6 +305,15 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 		$post_date = $date ? $date : $date_gmt;
 		$date_obj  = date_create( $post_date );
 
+		if ( $this->force_year ) {
+			$date_obj->setDate( $this->force_year, $date_obj->format( 'm' ), $date_obj->format( 'd' ) );
+
+			// If ascending by day of year, go to the next year when we pass the last day of the year.
+			if ( $date_obj->format( 'm-d' ) === '12-31' ) {
+				$this->force_year += 1;
+			}
+		}
+
 		return false !== $date_obj ? $date_obj->format( 'Y-m-d' ) : substr( $post_date, 0, 10 );
 	}
 
@@ -302,11 +327,11 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 
 		$args = array(
 			// Modify date args so that will except a YYYY-MM-DD without a time.
-			'after'  => array(
+			'after'      => array(
 				'description'       => __( 'Show prompts following a given date.', 'jetpack' ),
 				'type'              => 'string',
 				'validate_callback' => function ( $param ) {
-					// Allow month and date without year, e.g. `--02-28`
+					// Allow month and day without year, e.g. `--02-28`
 					if ( strpos( $param, '-' ) === 0 ) {
 						return false !== date_create_from_format( '--m-d', $param );
 					}
@@ -314,11 +339,18 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 					return false !== date_create( $param );
 				},
 			),
-			'before' => array(
+			'before'     => array(
 				'description'       => __( 'Show prompts before a given date.', 'jetpack' ),
 				'type'              => 'string',
 				'validate_callback' => function ( $param ) {
 					return false !== date_create( $param );
+				},
+			),
+			'force_year' => array(
+				'description'       => __( 'Force the returned prompts to be for a specific year. Returns only one prompt for each day.', 'jetpack' ),
+				'type'              => 'integer',
+				'validate_callback' => function ( $param ) {
+					return is_int( $param ) && $param < 9999;
 				},
 			),
 		);
