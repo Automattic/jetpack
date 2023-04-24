@@ -10,7 +10,6 @@ import {
 	setApiState,
 	setConnectUrl,
 	setProducts,
-	setShouldUpgrade,
 	setSiteSlug,
 	setUpgradeUrl,
 } from './actions';
@@ -54,7 +53,6 @@ const mapAPIResponseToMembershipProductsStoreData = ( response, registry, dispat
 	const postId = registry.select( editorStore ).getCurrentPostId();
 
 	dispatch( setConnectUrl( getConnectUrl( postId, response.connect_url ) ) );
-	dispatch( setShouldUpgrade( response.should_upgrade_to_access_memberships ) );
 	dispatch( setSiteSlug( response.site_slug ) );
 	dispatch( setUpgradeUrl( response.upgrade_url ) );
 	dispatch( setProducts( response.products ) );
@@ -79,9 +77,7 @@ const createDefaultProduct = async ( productType, setSelectedProductId, dispatch
 };
 
 const shouldCreateDefaultProduct = response =>
-	! response.products.length &&
-	! response.should_upgrade_to_access_memberships &&
-	response.connected_account_id;
+	! response.products.length && response.connected_account_id;
 
 const setDefaultProductIfNeeded = ( selectedProductId, setSelectedProductId, select ) => {
 	if ( selectedProductId ) {

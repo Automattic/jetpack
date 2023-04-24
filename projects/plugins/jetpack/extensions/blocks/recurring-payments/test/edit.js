@@ -44,7 +44,6 @@ describe( 'MembershipsButtonEdit', () => {
 		connect_url: '',
 		connected_account_id: 1,
 		products: [],
-		should_upgrade_to_access_memberships: false,
 		site_slug: 'test',
 		upgrade_url: 'https://wordpress.com/checkout/test/jetpack_security_daily_monthly',
 	};
