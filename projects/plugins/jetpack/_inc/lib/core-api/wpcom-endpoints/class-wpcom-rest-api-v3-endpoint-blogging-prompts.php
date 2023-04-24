@@ -350,7 +350,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 				'description'       => __( 'Force the returned prompts to be for a specific year. Returns only one prompt for each day.', 'jetpack' ),
 				'type'              => 'integer',
 				'validate_callback' => function ( $param ) {
-					return is_int( $param ) && $param < 9999;
+					return is_numeric( $param ) && intval( $param ) > 0 && intval( $param ) < 9999;
 				},
 			),
 		);
