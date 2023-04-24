@@ -149,7 +149,7 @@ class Post_To_Url {
 			),
 			'sslverify' => empty( $options['sslverify'] ) ? false : $options['sslverify'],
 		);
-
+		// phpcs:ignore Universal.CodeAnalysis.ConstructorDestructorReturn.ReturnValueFound -- this is no constructor
 		return wp_remote_post( $url, $args );
 	}
 
