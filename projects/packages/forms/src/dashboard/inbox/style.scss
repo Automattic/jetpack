@@ -446,24 +446,37 @@ $action-bar-height: 88px;
 	height: 40px;
 	line-height: 40px;
 	margin: 0;
+	position: relative;
 	overflow: hidden;
 	padding: 0 32px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 
 	.components-button {
-		display: none;
+		background-color: #fff;
+		display: inline-block;
 		float: right;
 		height: 28px;
 		margin-left: auto;
 		padding: 4px 8px;
+		position: absolute;
+		top: 6px;
+		right: 32px;
+		z-index: 100;
+
+		@media (min-width: 1025px) {
+			display: none;
+		}
 	}
 
-	&:hover {
-		background-color: #f6f6f7;
+	@media (min-width: 1025px) {
+		&:hover {
+			background-color: #f6f6f7;
 
-		.components-button {
-			display: inline-block;
+			.components-button {
+				background-color: #f6f6f7;
+				display: inline-block;
+			}
 		}
 	}
 }
