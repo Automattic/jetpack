@@ -202,25 +202,34 @@
 // ==========================================================================
 
 .dops-button.is-rna {
-  padding: 0.625rem 1.5rem;
+	font-size: rem( 16px );
+	line-height: rem( 24px );
+	padding: rem( 8px ) rem( 24px );
+	letter-spacing: -0.01em;
 
-  font-weight: 600;
-  text-align: center;
+	font-weight: 600;
+	text-align: center;
 
-  transition: all 150ms ease-in-out;
+	transition: all 150ms ease-in-out;
 
-  &:disabled,
-  &.disabled {
-	background: var( --jp-gray ) !important;
-	border-color: transparent !important;
-	color: var( --jp-gray-20 ) !important;
+	&:disabled,
+	&.disabled {
+		background: var( --jp-gray ) !important;
+		border-color: transparent !important;
+		color: var( --jp-gray-20 ) !important;
 
-	pointer-events: none;
-  }
+		pointer-events: none;
+	}
 
-  .gridicon {
-	margin-inline-start: 0.25rem;
-  }
+	.gridicon {
+		margin-inline-start: 0.25rem;
+	}
+
+	&.is-compact {
+		font-size: rem( 12px );
+		line-height: rem( 20px );
+		padding: rem( 4px ) rem( 8px );
+	}
 }
 
 .dops-button:not(.is-primary).is-rna {
