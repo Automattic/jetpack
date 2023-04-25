@@ -1524,7 +1524,7 @@ function jpcrm_ajax_quote_send_email() {
 		// attach it
 		if ( $pdf_file !== false ) {
 
-			$attachments[] = array( $pdf_file, 'quote.pdf' );
+			$attachments[] = array( $pdf_file );
 
 		}
 
