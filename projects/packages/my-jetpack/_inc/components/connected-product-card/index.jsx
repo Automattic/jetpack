@@ -41,6 +41,12 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false } ) => 
 		navigateToConnectionPage,
 	] );
 
+	const handleInstallStandalone = useCallback( () => {
+		installStandalonePlugin().then( () => {
+			window?.location?.reload();
+		} );
+	}, [ installStandalonePlugin ] );
+
 	const Icon = getIconBySlug( slug );
 
 	return (
@@ -58,8 +64,8 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false } ) => 
 			onManage={ onManage }
 			onFixConnection={ navigateToConnectionPage }
 			showMenu={ showMenu }
-			onInstallStandalone={ installStandalonePlugin }
-			onActivateStandalone={ installStandalonePlugin }
+			onInstallStandalone={ handleInstallStandalone }
+			onActivateStandalone={ handleInstallStandalone }
 			hasStandalonePlugin={ standalonePluginInfo?.hasStandalonePlugin }
 			isStandaloneInstalled={ standalonePluginInfo?.isStandaloneInstalled }
 			isStandaloneActive={ standalonePluginInfo?.isStandaloneActive }

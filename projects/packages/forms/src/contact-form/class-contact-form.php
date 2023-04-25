@@ -138,6 +138,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			'customThankyouRedirect' => '', // The URL to redirect to when customThankyou is set to 'redirect'.
 			'jetpackCRM'             => true, // Whether Jetpack CRM should store the form submission.
 			'className'              => null,
+			'postToUrl'              => null,
+			'salesforceData'         => null,
+			'hiddenFields'           => null,
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
@@ -1354,7 +1357,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param boolean $is_spam Whether the form submission has been identified as spam.
 		 * @param array   $entry_values The feedback entry values.
 		 */
-		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this->fields, $is_spam, $entry_values );
+		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this, $is_spam, $entry_values );
 
 		$message = self::get_compiled_form_for_email( $post_id, $this );
 

@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Stats_Admin\WP_Dashboard_Odyssey_Widget as Dashboard_Stats_Widget;
 use Automattic\Jetpack\Status;
 
@@ -63,8 +64,17 @@ class Jetpack_Stats_Dashboard_Widget {
 				__( 'Jetpack Stats', 'jetpack' )
 			);
 
-			// phpcs:disable WordPress.Security.NonceVerification.Recommended
-			if ( ! isset( $_GET['odyssey_widget'] ) ) {
+			if ( Stats_Options::get_option( 'enable_odyssey_stats' ) ) {
+				// New widget implemented in Odyssey Stats.
+				$stats_widget = new Dashboard_Stats_Widget();
+				wp_add_dashboard_widget(
+					'jetpack_summary_widget',
+					$widget_title,
+					array( $stats_widget, 'render' )
+				);
+				$stats_widget->load_admin_scripts();
+			} else {
+				// Legacy widget.
 				wp_add_dashboard_widget(
 					'jetpack_summary_widget',
 					$widget_title,
@@ -80,14 +90,6 @@ class Jetpack_Stats_Dashboard_Widget {
 					JETPACK__VERSION
 				);
 				wp_style_add_data( 'jetpack-dashboard-widget', 'rtl', 'replace' );
-			} else {
-				$stats_widget = new Dashboard_Stats_Widget();
-				wp_add_dashboard_widget(
-					'jetpack_summary_widget',
-					$widget_title,
-					array( $stats_widget, 'render' )
-				);
-				$stats_widget->load_admin_scripts();
 			}
 		}
 	}
