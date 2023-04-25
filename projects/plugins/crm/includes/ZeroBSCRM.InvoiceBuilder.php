@@ -270,7 +270,7 @@ function zbs_invoice_generate_pdf(){
 
 		// Check ID
 		$invoice_id = -1;
-		if ( isset( $_POST['zbs_invoice_id'] ) && ! empty( $_POST['zbs_invoice_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		if ( ! empty( $_POST['zbs_invoice_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 			$invoice_id = (int) $_POST['zbs_invoice_id']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		}
 		if ( $invoice_id <= 0 ) {
