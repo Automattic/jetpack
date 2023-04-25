@@ -107,10 +107,7 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_map_block_settings() {
 		$map_provider = apply_filters( 'wpcom_map_block_map_provider', 'mapbox' );
-
-		wp_register_script( 'map-block-settings', '', array(), '1.0', true );
-		wp_localize_script( 'map-block-settings', 'map_block_settings', array( 'provider' => $map_provider ) );
-		wp_enqueue_script( 'map-block-settings', '', array(), '1.0', true );
+		wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_Maps', array( 'provider' => $map_provider ) );
 	}
 
 	/**
