@@ -5,7 +5,7 @@
 	import Table from './recommendations/Table.svelte';
 </script>
 
-<div id="jb-settings" class="jb-recommendations jb-settings">
+<div id="jb-dashboard" class="jb-dashboard">
 	<div class="jb-container">
 		<Header />
 	</div>
@@ -18,7 +18,7 @@
 </div>
 
 <style lang="scss">
-	.jb-recommendations {
+	.jb-dashboard {
 		background-color: #f9f9f6;
 	}
 	.recommendations-page {

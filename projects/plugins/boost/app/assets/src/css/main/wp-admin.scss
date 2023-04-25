@@ -1,5 +1,5 @@
 // Style everything with border box turned on
-#jb-settings * {
+#jb-dashboard * {
 	box-sizing: border-box;
 }
 
@@ -7,11 +7,11 @@ p {
 	font-size: 16px;
 	color: $gray_80;
 }
-.jb-settings--main {
+.jb-dashboard--main {
 	background-color: $primary-white;
 }
 // Override WordPress component styles
-.jb-settings {
+.jb-dashboard {
 	--wp-admin-theme-color: #{$jetpack_green_50};
 	--wp-admin-theme-link-color: #{$gray_90};
 	--wp-admin-theme-color-darker-10: #{$jetpack_green_60};

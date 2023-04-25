@@ -18,7 +18,7 @@
 <style lang="scss">
 	// Increasing specificity
 	// to override the default WordPress button styles.
-	:global( #jb-settings ) {
+	:global( #jb-dashboard ) {
 		button {
 			display: flex;
 			justify-content: center;

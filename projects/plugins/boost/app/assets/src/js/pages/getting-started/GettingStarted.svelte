@@ -118,7 +118,7 @@
 	} );
 </script>
 
-<div id="jb-settings" class="jb-settings jb-settings--main">
+<div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
 	<div class="jb-container jb-get-started-header">
 		<Header />
 

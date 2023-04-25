@@ -18,7 +18,7 @@
 </script>
 
 <ReRouter to="/getting-started" when={$shouldGetStarted}>
-	<div id="jb-settings" class="jb-settings jb-settings--main">
+	<div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
 		<div class="jb-container">
 			<Header />
 		</div>

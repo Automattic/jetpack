@@ -47,7 +47,7 @@
 	}
 }
 
-.jb-settings-header {
+.jb-dashboard-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -64,7 +64,7 @@
 	}
 }
 
-.jb-settings-footer {
+.jb-dashboard-footer {
 	@extend .jb-container;
 
 	display: flex;
