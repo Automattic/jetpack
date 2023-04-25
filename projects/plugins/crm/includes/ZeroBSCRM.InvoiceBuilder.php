@@ -278,7 +278,7 @@ function zbs_invoice_generate_pdf(){
 		}
 
 		// generate the PDF
-		$pdf_path = zeroBSCRM_generateInvoicePDFFile( $invoice_id );
+		$pdf_path = jpcrm_invoice_generate_pdf( $invoice_id );
 
 		if ( $pdf_path !== false ) {
 
@@ -303,9 +303,13 @@ function zbs_invoice_generate_pdf(){
 // This fires post ZBS init
 add_action( 'zerobscrm_post_init', 'zbs_invoice_generate_pdf' );
 
-#} V3.0 can generate invoice pdf files without sending them
-#} ... used for attaching pdf's to emails etc.
-function zeroBSCRM_generateInvoicePDFFile( $invoice_id = -1 ) {
+/**
+ * Generate PDF file for an invoice
+ *
+ * @param int $invoice_id Invoice ID.
+ * @return str path to PDF file
+ */
+function jpcrm_invoice_generate_pdf( $invoice_id = -1 ) {
 
 	// brutal.
 	if ( ! zeroBSCRM_permsInvoices() ) {

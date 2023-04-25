@@ -5964,12 +5964,12 @@ function zeroBSCRM_AJAX_sendInvoiceEmail_v3( $email = '', $invoiceID = -1, $atta
 			// make pdf.
 
 			// generate the PDF
-			$pdfFileLocation = zeroBSCRM_generateInvoicePDFFile( $invoiceID );
+			$pdf_path = jpcrm_invoice_generate_pdf( $invoiceID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-			if ( $pdfFileLocation !== false ) {
+			if ( $pdf_path !== false ) {
 
 				// attach inv
-				$attachments[] = array( $pdfFileLocation ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$attachments[] = array( $pdf_path );
 
 			}
 
@@ -6035,10 +6035,10 @@ function zeroBSCRM_AJAX_sendInvoiceEmail_v3( $email = '', $invoiceID = -1, $atta
 			$sent = zeroBSCRM_mailDelivery_sendMessage( $mailDeliveryMethod, $mailArray );
 
 			// delete any gen'd pdf's
-			if ( $attachAsPDF && $pdfFileLocation !== false ) {
+			if ( $attachAsPDF && $pdf_path !== false ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				// delete the PDF file once it's been read (i.e. emailed)
-				unlink( $pdfFileLocation );
+				wp_delete_file( $pdf_path );
 
 			}
 
