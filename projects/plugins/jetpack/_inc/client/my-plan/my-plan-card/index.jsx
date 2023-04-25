@@ -5,9 +5,19 @@ import React from 'react';
 
 import './style.scss';
 
-const MyPlanCard = ( { productSlug, action, isError, isPlaceholder, details, tagLine, title } ) => {
+const MyPlanCard = ( {
+	productSlug,
+	action,
+	isError,
+	isPlaceholder,
+	details,
+	tagLine,
+	title,
+	isPlan,
+} ) => {
 	const cardClassNames = classNames( 'my-plan-card', {
 		'is-placeholder': isPlaceholder,
+		'is-plan': isPlan,
 		'has-action-only': action && ! details && ! isPlaceholder,
 	} );
 	const detailsClassNames = classNames( 'my-plan-card__details', { 'is-error': isError } );

@@ -626,7 +626,6 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			<div class="menu ui inverted zbs-admin-bg-menu zbs-dropdown">
 				<a href="<?php echo esc_url( $zbs->urls['support'] ); ?>" class="item" target="_blank"><i class="fa fa-paper-plane"></i> <?php esc_html_e( 'Email us', 'zero-bs-crm' ); ?></a>
 				<a href="<?php echo esc_url( $zbs->urls['twitter'] ); ?>" class="item" target="_blank"><i class="fa fa-twitter"></i> <?php esc_html_e( 'Tweet us', 'zero-bs-crm' ); ?></a>
-				<a href="<?php echo esc_url( $zbs->urls['community'] ); ?>" target="_blank" class="item"><i class="fa fa-slack"></i> <?php esc_html_e( 'Join our Slack', 'zero-bs-crm' ); ?></a>
 				<a href="<?php echo esc_url( $zbs->urls['docs'] ); ?>" class="item" target="_blank"><i class="fa fa-file-text-o"></i> <?php esc_html_e( 'Knowledge base', 'zero-bs-crm' ); ?></a>
 			</div>
 			</div>
@@ -795,19 +794,11 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 				<?php ##/WLREMOVE ?>
 					
 					<a href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['support'] ) ); ?>" class="item"><i class="icon user md"></i> <?php esc_html_e( 'Support', 'zero-bs-crm' ); ?></a>
-					
-				<?php ##WLREMOVE ?>
+
+					<?php ##WLREMOVE ?>
 					<a href="<?php echo esc_url( $zbs->urls['twitter'] ); ?>" class="item" target="_blank"><i class="icon twitter"></i> <?php esc_html_e( '@jetpackcrm', 'zero-bs-crm' ); ?></a>
-				<?php
-					// slack for admins :)
-				if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-					?>
-						<a href="<?php echo esc_url( $zbs->urls['community'] ); ?>" target="_blank" class="item"><i class="slack icon"></i> <?php esc_html_e( 'Join our Slack', 'zero-bs-crm' ); ?></a>
-						<?php
-				}
-				?>
 					<?php ##/WLREMOVE ?>
-					
+
 					<a class="item" href="<?php echo esc_url( $zbs->urls['rateuswporg'] ); ?>"><i class="star icon" aria-hidden="true"></i> <?php esc_html_e( 'Leave a review', 'zero-bs-crm' ); ?></a>
 					
 					<?php
