@@ -44,26 +44,6 @@ h2.dops-card-title {
 	font-size: $font-title-small;
 }
 
-// Clickable Card
-.dops-card__link-indicator {
-	color: lighten( $gray, 20% );
-	display: block;
-	height: 100%;
-	position: absolute;
-		top: 0;
-		right: 16px;
-}
-
-a.dops-card:hover {
-	.dops-card__link-indicator {
-		color: lighten( $gray, 10% );
-	}
-}
-
 a.dops-card:focus {
 	outline: 0;
-
-	.dops-card__link-indicator {
-		color: $link-highlight;
-	}
 }

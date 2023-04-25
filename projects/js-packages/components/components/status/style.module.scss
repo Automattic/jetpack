@@ -1,4 +1,7 @@
 .status {
+	--spacing-base: 8px;
+	--wp-admin-border-width-focus: 1.5px;
+
     align-items: center;
     display: flex;
     white-space: nowrap;
@@ -18,7 +21,9 @@
     }
 
     &.is-active {
-        color: var( --jp-green-50 );
+		span, a {
+			color: var(--jp-green-50);
+		}
 
         .status__indicator {
             background-color: var( --jp-green-50 );
@@ -26,23 +31,29 @@
     }
 
     &.is-inactive {
-        color: var( --jp-gray-50 );
-        
+		span, a {
+			color: var(--jp-gray-50);
+		}
+
         .status__indicator {
             background-color: var( --jp-gray-50 );
         }
     }
-    
+
     &.is-error {
-        color: var( --jp-red-50 );
-        
+		span, a {
+			color: var(--jp-red-50);
+		}
+
         .status__indicator {
             background-color: var( --jp-red-50 );
         }
     }
 
     &.is-action {
-        color: var( --jp-yellow-30 );
+		span, a {
+			color: var(--jp-yellow-30);
+		}
 
         .status__indicator {
             background-color: var( --jp-yellow-30 );
@@ -50,7 +61,9 @@
     }
 
     &.is-initializing {
-        color: var( --jp-blue-40 );
+		span, a {
+			color: var(--jp-blue-40);
+		}
 
         .status__indicator {
             background-color: var( --jp-blue-40 );

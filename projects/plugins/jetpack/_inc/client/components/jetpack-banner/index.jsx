@@ -23,6 +23,7 @@ export class JetpackBanner extends Banner {
 		plan: PropTypes.string,
 		siteSlug: PropTypes.string,
 		title: PropTypes.node.isRequired,
+		noIcon: PropTypes.bool,
 		rna: PropTypes.bool,
 	};
 
@@ -31,6 +32,7 @@ export class JetpackBanner extends Banner {
 		trackBannerDisplay: noop,
 		plan: '',
 		rna: false,
+		noIcon: false,
 	};
 
 	componentDidMount() {

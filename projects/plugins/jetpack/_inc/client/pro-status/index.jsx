@@ -91,19 +91,12 @@ class ProStatus extends React.Component {
 		switch ( type ) {
 			case 'threats':
 				status = 'error';
-				if ( this.props.isCompact ) {
-					action = _x(
-						'Threats',
-						'A caption for a small button to fix security issues.',
-						'jetpack'
-					);
-				} else {
-					action = _x(
-						'See threats',
-						'A caption for a small button to fix security issues.',
-						'jetpack'
-					);
-				}
+				action = _x(
+					'Threats detected',
+					'A caption for a small button to fix security issues.',
+					'jetpack'
+				);
+
 				actionUrl = getRedirectUrl( 'vaultpress-dashboard' );
 				break;
 			case 'secure':

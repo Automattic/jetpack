@@ -41,6 +41,7 @@ export class Banner extends Component {
 		title: PropTypes.node.isRequired,
 		isCurrentUserLinked: PropTypes.bool,
 		isConnectionOwner: PropTypes.bool,
+		noIcon: PropTypes.bool,
 		rna: PropTypes.bool,
 	};
 
@@ -48,6 +49,7 @@ export class Banner extends Component {
 		onClick: noop,
 		eventProps: {},
 		rna: false,
+		noIcon: false,
 	};
 
 	getHref() {
@@ -161,7 +163,7 @@ export class Banner extends Component {
 	}
 
 	render() {
-		const { callToAction, className, plan } = this.props;
+		const { callToAction, className, plan, noIcon } = this.props;
 		const planClass = getPlanClass( plan );
 		const isLegacy = isJetpackLegacyPlan( plan );
 		const isProduct = isJetpackProduct( plan );
@@ -185,7 +187,7 @@ export class Banner extends Component {
 				target={ callToAction || ! this.getHref() ? null : '_blank' }
 				onClick={ callToAction ? noop : this.handleClick }
 			>
-				{ this.getIcon() }
+				{ ! noIcon && this.getIcon() }
 				{ this.getContent() }
 			</Card>
 		);
