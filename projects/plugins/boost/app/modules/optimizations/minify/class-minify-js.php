@@ -12,8 +12,8 @@ class Minify_JS implements Pluggable {
 	public function setup() {
 		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
 
-		$setup_done = jetpack_boost_minify_setup();
-		if ( false === $setup_done ) {
+		$should_minify = jetpack_boost_minify_setup();
+		if ( false === $should_minify ) {
 			return;
 		}
 
