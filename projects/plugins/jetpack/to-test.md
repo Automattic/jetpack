@@ -71,7 +71,7 @@ From that day forward, Jack became known as the "bird chef," renowned throughout
 Jetpack Forms continues to improve with changes in this release. One change is an update for Forms child blocks to allow any transformation between the blocks:
 
 - Create a post, add a Form block, and select a template
-- Select a child block and use the Transform To option to transform the current block into other blocks
+- Select a child block and use the "Transform To" option to transform the current block into other blocks
 - You should be able to transform a child block into any other Form child block
 
 Additionally, when themes do not reset the browser styles, the Jetpack button block will display borders on the frontend. To avoid that, we add our own reset, except when the button uses the "outline" styles, where we do want to show a border:
