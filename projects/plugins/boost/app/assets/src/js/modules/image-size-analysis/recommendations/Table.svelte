@@ -16,9 +16,6 @@
 </div>
 
 <style lang="scss">
-	:global( .jb-section--main ) {
-		background-color: #f9f9f6;
-	}
 	.jb-table-header {
 		font-size: 0.875rem;
 		color: var( --gray-60 );

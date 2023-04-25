@@ -1,16 +1,26 @@
 <script lang="ts">
-	import Header from './recommendations/Header.svelte';
+	import Footer from '../../sections/Footer.svelte';
+	import Header from '../../sections/Header.svelte';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 </script>
 
-<div class="recommendations-page jb-container">
-	<Header />
-	<Table />
-	<Pagination />
+<div id="jb-settings" class="jb-recommendations jb-settings">
+	<div class="jb-container">
+		<Header />
+	</div>
+	<div class="recommendations-page jb-container jb-section--alt">
+		<h1>Image Recommendations</h1>
+		<Table />
+		<Pagination />
+		<Footer />
+	</div>
 </div>
 
 <style lang="scss">
+	.jb-recommendations {
+		background-color: #f9f9f6;
+	}
 	.recommendations-page {
 		display: grid;
 		gap: 1rem;

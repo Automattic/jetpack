@@ -1,4 +1,5 @@
 <script lang="ts">
+	import RecommendationsPage from './modules/image-size-analysis/RecommendationsPage.svelte';
 	import BenefitsInterstitial from './pages/benefits/BenefitsInterstitial.svelte';
 	import GettingStarted from './pages/getting-started/GettingStarted.svelte';
 	import PurchaseSuccess from './pages/purchase-success/PurchaseSuccess.svelte';
@@ -27,5 +28,6 @@
 	<Route path="upgrade" component={BenefitsInterstitial} />
 	<Route path="purchase-successful" component={PurchaseSuccess} />
 	<Route path="getting-started" component={GettingStarted} />
+	<Route path="image-size-analysis" component={RecommendationsPage} />
 	<Route component={Settings} />
 </Router>
