@@ -10,12 +10,10 @@ Jetpack 12.1 brings a visual refresh to multiple pages of the admin area. Please
 
 #### Jetpack Debugger:
 - Connect Jetpack, scroll down to the bottom menu and click "Debug" (/wp-admin/admin.php?page=jetpack-debugger, not to be confused with the "Jetpack Debug" plugin).
-- Confirm the Debug page looks according to the design.
-- Optionally use "Jetpack Debug -> Broken Token" to break the blog token.
-- Go back to the Debug page and confirm that you see the connection errors, and they look according to the design (design pending).
+- Confirm the Debug page looks good in different resolutions and different browsers.
 
 #### About page:
-- Go to About us and see if it matches expected look
+- Go to About us and see if it looks good in different resolutions and different browsers.
 
 #### Section Headers:
 - Review the Jetpack dashboard and settings screens, validating the new styles are present.
@@ -85,7 +83,7 @@ A fix has been added to avoid the following issue: the "Single Choice" and "Mult
 
 - Add a cover block to a page, and a form inside it.
 - Add a "Single Choice" or "Multiple Choice" block to the form.
-- For form blocks always respect the background setting set in the block's settings, regardless of where they are placed.
+- Make sure that form blocks always respect the background setting set in the block's settings, regardless of where they are placed.
 - Save changes.
 - Observe no issues on front-end as well.
 
