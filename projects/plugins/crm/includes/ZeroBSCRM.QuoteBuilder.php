@@ -112,7 +112,8 @@ function jpcrm_quote_generate_pdf( $quote_id = false ) {
 	$content = zeroBS_getQuoteBuilderContent( $quote_id );
 	$html    = $placeholder_templating->replace_single_placeholder( 'quote-content', $content['content'], $html );
 
-	$pdf_filename = 'quote-' . $quote_id . '.pdf';
+	// normalise translated text to alphanumeric, resulting in a filename like `quote-321.pdf`
+	$pdf_filename = sanitize_title( __( 'Quote', 'zero-bs-crm' ) . '-' . $quote_id ) . '.pdf';
 
 	// return PDF filename if successful, false if not
 	return jpcrm_generate_pdf( $html, $pdf_filename );
