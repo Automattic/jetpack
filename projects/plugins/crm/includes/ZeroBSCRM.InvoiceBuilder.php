@@ -333,7 +333,7 @@ function jpcrm_invoice_generate_pdf( $invoice_id = -1 ) {
 	}
 
 	// normalise translated text to alphanumeric, resulting in a filename like `invoice-321.pdf`
-	$pdf_filename = sanitize_title( __( 'invoice', 'zero-bs-crm' ) . '-' . $invoice_id ) . '.pdf';
+	$pdf_filename = sanitize_title( __( 'Invoice', 'zero-bs-crm' ) . '-' . $invoice_id ) . '.pdf';
 
 	// return PDF filename if successful, false if not
 	return jpcrm_generate_pdf( $html, $pdf_filename );
