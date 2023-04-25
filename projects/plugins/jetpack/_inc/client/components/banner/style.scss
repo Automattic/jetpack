@@ -5,7 +5,6 @@
 @import '../../scss/typography';
 
 @mixin banner-color( $color ) {
-	border-left-color: $color;
 	.dops-banner__icon {
 		color: $color;
 	}
@@ -15,7 +14,6 @@
 }
 
 .dops-banner.dops-card {
-	border-left: 3px solid;
 	display: flex;
 	padding: 12px 6px 12px 12px;
 	position: relative;
