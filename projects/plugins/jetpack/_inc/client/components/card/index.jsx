@@ -1,4 +1,3 @@
-import { ExternalLink } from '@wordpress/components';
 import classnames from 'classnames';
 import { assign, omit } from 'lodash';
 import PropTypes from 'prop-types';
@@ -84,7 +83,12 @@ class Card extends React.Component {
 
 		const omitProps = [ 'compact', 'tagName', 'meta', 'iconColor' ];
 
-		if ( ! this.props.href ) {
+		let linkIndicator;
+		if ( this.props.href ) {
+			linkIndicator = this.props.target && (
+				<Gridicon className="dops-card__link-indicator" icon="external" />
+			);
+		} else {
 			omitProps.push( 'href', 'target' );
 		}
 
@@ -99,13 +103,12 @@ class Card extends React.Component {
 			);
 		}
 
-		const link = this.props.target ? ExternalLink : 'a';
-
 		return React.createElement(
-			this.props.href ? link : this.props.tagName,
+			this.props.href ? 'a' : this.props.tagName,
 			assign( omit( this.props, omitProps ), { className } ),
 			fancyTitle,
-			this.props.children
+			this.props.children,
+			linkIndicator
 		);
 	}
 

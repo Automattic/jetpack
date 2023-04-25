@@ -15,6 +15,13 @@
 
 		&.is-card-link {
 			padding-top: 0;
+
+			.gridicon {
+				width: 1em;
+				position: relative;
+				top: 7px;
+				margin-left: 5px;
+			}
 		}
 	}
 }
