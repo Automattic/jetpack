@@ -30,10 +30,15 @@ const ImageMeta = z.object( {
 	instructions: z.string(),
 } );
 
-const ImageSizeAnalysis = z.object( {
-	last_updated: z.number(),
-	images: z.array( ImageMeta ),
-} );
+const ImageSizeAnalysis = z
+	.object( {
+		last_updated: z.number(),
+		images: z.array( ImageMeta ),
+	} )
+	.catch( {
+		last_updated: 0,
+		images: [],
+	} );
 
 type CategoryState = {
 	name: string;
