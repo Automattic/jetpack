@@ -21,7 +21,7 @@ import { VideoPressIcon } from '../icons';
 import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
-const DEFAULT_PLAYER_ASPECT = 380 / 600; // This is the observed default aspect ratio from VideoPress embeds.
+const DEFAULT_PLAYER_ASPECT_RATIO = 380 / 600; // This is the observed default aspect ratio from VideoPress embeds.
 const LOADING_OFFSET_HEIGHT = 37;
 const MAX_WIDTH = 548;
 
@@ -121,7 +121,7 @@ export default function Player( { isSelected, attributes } ) {
 
 	const onLayout = useCallback( event => {
 		const { height, width } = event.nativeEvent.layout;
-		const scaledHeight = width * DEFAULT_PLAYER_ASPECT;
+		const scaledHeight = width * DEFAULT_PLAYER_ASPECT_RATIO;
 		const scaledOffset = ( width / MAX_WIDTH ) * LOADING_OFFSET_HEIGHT;
 		setLoadingHeight( scaledHeight - scaledOffset );
 	}, [] );
