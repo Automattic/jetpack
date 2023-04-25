@@ -14,7 +14,7 @@
 - Stats Widget: improve appearance of footer buttons. [#30173]
 - Stats Widget: make frame sections balanced with long titles. [#30106]
 - Stats Widget: make the new version of the widget available to general audience. [#30174]
-- Subscriptions: Add counts in the newsletter panel to show the newsletter reach. [#29230]
+- Subscriptions: add counts in the newsletter panel to show the newsletter reach. [#29230]
 
 ### Improved compatibility
 - General: remove WordPress 6.0 backwards-compatibility code, now that Jetpack requires WordPress 6.1. [#30126]
