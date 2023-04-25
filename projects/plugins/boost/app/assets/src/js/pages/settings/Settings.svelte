@@ -19,9 +19,7 @@
 
 <ReRouter to="/getting-started" when={$shouldGetStarted}>
 	<div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
-		<div class="jb-container">
-			<Header />
-		</div>
+		<Header />
 
 		<div class="jb-section jb-section--alt jb-section--scores">
 			<Score />

@@ -5,9 +5,13 @@
 </script>
 
 <div class="jb-dashboard-header">
-	<!-- svelte-ignore a11y-click-events-have-key-events -->
-	<div class="jb-dashboard-header__logo" on:click={() => navigate( '/' )}>
-		<Logo />
+	<div class="jb-container">
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<div class="jb-dashboard-header__logo" on:click={() => navigate( '/' )}>
+			<Logo />
+		</div>
+
+		<slot />
 	</div>
 </div>
 
@@ -17,5 +21,13 @@
 	}
 	.jb-dashboard-header__logo {
 		cursor: pointer;
+	}
+
+	.jb-container {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 24px;
 	}
 </style>

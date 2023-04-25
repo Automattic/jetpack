@@ -119,11 +119,9 @@
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
-	<div class="jb-container jb-get-started-header">
-		<Header />
-
+	<Header>
 		<ActivateLicense />
-	</div>
+	</Header>
 
 	{#if pricing.yearly}
 		<div class="jb-section jb-section--alt">
@@ -149,3 +147,9 @@
 		</div>
 	{/if}
 </div>
+
+<style lang="scss">
+	.jb-pricing-table {
+		isolation: isolate;
+	}
+</style>

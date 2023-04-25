@@ -7,9 +7,7 @@
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
-	<div class="jb-container">
-		<Header />
-	</div>
+	<Header />
 	<div class="recommendations-page jb-container jb-section--alt">
 		<Hero />
 		<Table />
