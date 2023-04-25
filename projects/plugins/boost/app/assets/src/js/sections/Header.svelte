@@ -12,6 +12,9 @@
 </div>
 
 <style lang="scss">
+	.jb-dashboard-header {
+		background-color: var( --primary-white );
+	}
 	.jb-dashboard-header__logo {
 		cursor: pointer;
 	}
