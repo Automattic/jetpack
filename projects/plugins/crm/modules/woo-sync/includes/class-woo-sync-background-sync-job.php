@@ -1216,8 +1216,11 @@ class Woo_Sync_Background_Sync_Job {
 	    if ( !$from_api ) {
 
 			// Force Woo order totals recalculation to ensure taxes were applied correctly
-			$order->calculate_totals();
-			$order->save();
+			// Only force recalculation if the order is not paid yet
+			if ( $order->get_status() === 'pending' || $order->get_status() === 'on-hold' ) {
+				$order->calculate_totals();
+				$order->save();
+			}
 
 			$order_data = $order->get_data();
 		
