@@ -17,9 +17,9 @@ const getMapProvider = props => {
 		return mapProviderCookie;
 	}
 
-	if ( window && typeof window.map_block_map_provider === 'string' ) {
-		if ( [ 'mapbox', 'mapkit' ].includes( window.map_block_map_provider ) ) {
-			return window.map_block_map_provider;
+	if ( window && typeof window.map_block_settings?.provider === 'string' ) {
+		if ( [ 'mapbox', 'mapkit' ].includes( window.map_block_settings?.provider ) ) {
+			return window.map_block_settings?.provider;
 		}
 	}
 	return 'mapbox';
