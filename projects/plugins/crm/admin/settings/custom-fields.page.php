@@ -319,11 +319,11 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 	 * the next step. We do this by first adding all currently valid custom
 	 * fields, then adding all others (that should be the default ones).
 	 */
-	$custom_field_names = array();
+	$sort_field_names = array();
 	foreach ( $custom_fields as $custom_type => $field_arrays ) {
 		foreach ( $field_arrays as $field_array ) {
 			if ( isset( $field_array[3] ) ) {
-					$custom_field_names[ $custom_type ][ $field_array[3] ] = true;
+					$sort_field_names[ $custom_type ][ $field_array[3] ] = true;
 			}
 		}
 	}
@@ -334,11 +334,11 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 			if ( isset( $field_array['custom-field'] ) && $field_array['custom-field'] ) {
 				continue;
 			}
-			$custom_field_names[ $custom_type ][ $field_key ] = true;
+			$sort_field_names[ $custom_type ][ $field_key ] = true;
 
 			// This is a special case used for grouping addresses.
 			if ( isset( $field_array['migrate'] ) ) {
-				$custom_field_names[ $custom_type ][ $field_array['migrate'] ] = true;
+				$sort_field_names[ $custom_type ][ $field_array['migrate'] ] = true;
 			}
 		}
 	}
@@ -355,7 +355,7 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 		foreach ( $fields as $sort_type => $sort_names ) {
 			$custom_type = $sort_types_map[ $sort_type ]['custom_key'];
 
-			if ( ! isset( $custom_fields[ $custom_type ] ) || ! isset( $custom_field_names[ $custom_type ] ) ) {
+			if ( ! isset( $custom_fields[ $custom_type ] ) || ! isset( $sort_field_names[ $custom_type ] ) ) {
 				unset( $fields[ $sort_type ] );
 				continue;
 			}
@@ -363,8 +363,8 @@ if ( zeroBSCRM_isZBSAdminOrAdmin() && isset( $_POST['editwplf'] ) ) {
 			$fields[ $sort_type ] = array_values(
 				array_filter(
 					$sort_names,
-					function ( $field_name ) use ( $custom_field_names, $custom_type ) {
-						return isset( $custom_field_names[ $custom_type ][ $field_name ] );
+					function ( $field_name ) use ( $sort_field_names, $custom_type ) {
+						return isset( $sort_field_names[ $custom_type ][ $field_name ] );
 					}
 				)
 			);
