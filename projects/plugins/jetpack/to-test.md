@@ -81,7 +81,7 @@ Additionally, when themes do not reset the browser styles, the Jetpack button bl
 - In one of those blocks, use the default "fill" block style, and in the other use the "outline" style.
 - On the frontend, the button should not have a border when using the "fill" block style.
 
-Another fix was to avoid the following issue. The "Single Choice" and "Multiple Choice" blocks in Jetpack Form blocks, when added to a form inside a Cover block, used to not obey the background setting set in the editor and display with a white background instead. This release fixes the problem:
+A fix has been added to avoid the following issue: the "Single Choice" and "Multiple Choice" blocks in Jetpack Form blocks, when added to a form inside a Cover block, previously did not obey the background setting set in the editor and would display with a white background. This release fixes the problem, to test:
 
 - Add a cover block to a page, and a form inside it.
 - Add a "Single Choice" or "Multiple Choice" block to the form.
