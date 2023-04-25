@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
+	import Hero from './recommendations/Hero.svelte';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 </script>
@@ -10,7 +11,7 @@
 		<Header />
 	</div>
 	<div class="recommendations-page jb-container jb-section--alt">
-		<h1>Image Recommendations</h1>
+		<Hero />
 		<Table />
 		<Pagination />
 		<Footer />
@@ -22,9 +23,6 @@
 		background-color: #f9f9f6;
 	}
 	.recommendations-page {
-		display: grid;
-		gap: 1rem;
-
 		// Table
 		--gap: 16px;
 		--expanded-gap: 8px;
@@ -52,8 +50,8 @@
 	}
 
 	:global( .recommendation-page-grid ) {
-		padding: var( --padding );
 		display: grid;
+		padding: var( --padding );
 		gap: var( --gap );
 		align-items: center;
 		grid-template-columns:
