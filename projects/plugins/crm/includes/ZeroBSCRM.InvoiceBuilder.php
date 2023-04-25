@@ -260,50 +260,55 @@ function zeroBSCRM_invoice_generatePortalInvoiceHTML_v3($invoiceID=-1,$return=tr
 
 function zbs_invoice_generate_pdf(){
 
-    global $zbs;
+	global $zbs;
 
-    #} download flag
-    if ( isset($_POST['zbs_invoicing_download_pdf'])  ) {
+	// download flag
+	if ( isset( $_POST['zbs_invoicing_download_pdf'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-        #} THIS REALLLY needs nonces! For now (1.1.19) added this for you...
-        if (!zeroBSCRM_permsInvoices()) exit();
+		// THIS REALLLY needs nonces! For now (1.1.19) added this for you...
+		if ( ! zeroBSCRM_permsInvoices() ) {
+			exit();
+		}
 
-        #} Check ID
-        $invoiceID = -1;
-        if (isset($_POST['zbs_invoice_id']) && !empty($_POST['zbs_invoice_id'])) $invoiceID = (int)sanitize_text_field($_POST['zbs_invoice_id']);
-        if ($invoiceID <= 0) exit();
+		// Check ID
+		$invoice_id = -1;
+		if ( isset( $_POST['zbs_invoice_id'] ) && ! empty( $_POST['zbs_invoice_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$invoice_id = (int) $_POST['zbs_invoice_id']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		}
+		if ( $invoice_id <= 0 ) {
+			exit();
+		}
 
-        // generate the PDF
-        $pdfFileLocation = zeroBSCRM_generateInvoicePDFFile($invoiceID);
+		// generate the PDF
+		$pdf_file_location = zeroBSCRM_generateInvoicePDFFile( $invoice_id );
 
-        if ($pdfFileLocation !== false){
+		if ( $pdf_file_location !== false ) {
 
-            $invoice = $zbs->DAL->invoices->getInvoice( $invoiceID );
-            $ref = $invoice[ 'id_override' ];
+			$invoice = $zbs->DAL->invoices->getInvoice( $invoice_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$ref     = $invoice['id_override'];
 
-            if ( empty( $ref ) ) {
-                $ref = $invoiceID;
-            }
+			if ( empty( $ref ) ) {
+				$ref = $invoice_id;
+			}
 
-            //print the pdf file to the screen for saving
-            header('Content-type: application/pdf');
-            header('Content-Disposition: attachment; filename="invoice-' . $ref . '.pdf"' );
-            header('Content-Transfer-Encoding: binary');
-            header('Content-Length: ' . filesize($pdfFileLocation));
-            header('Accept-Ranges: bytes');
-            readfile($pdfFileLocation);
+			// print the pdf file to the screen for saving
+			header( 'Content-type: application/pdf' );
+			header( 'Content-Disposition: attachment; filename="invoice-' . $ref . '.pdf"' );
+			header( 'Content-Transfer-Encoding: binary' );
+			header( 'Content-Length: ' . filesize( $pdf_file_location ) );
+			header( 'Accept-Ranges: bytes' );
+			readfile( $pdf_file_location ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
 
-            //delete the PDF file once it's been read (i.e. downloaded)
-            unlink($pdfFileLocation); 
+			// delete the PDF file once it's been read (i.e. downloaded)
+			wp_delete_file( $pdf_file_location );
 
-        }
+		}
 
-        exit();
-    }
-
+		exit();
+	}
 }
-#} This fires post ZBS init
-add_action('zerobscrm_post_init','zbs_invoice_generate_pdf');
+// This fires post ZBS init
+add_action( 'zerobscrm_post_init', 'zbs_invoice_generate_pdf' );
 
 #} V3.0 can generate invoice pdf files without sending them
 #} ... used for attaching pdf's to emails etc.
