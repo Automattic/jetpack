@@ -99,7 +99,7 @@ const chatAvailability = ( state = {}, action ) => {
 		case SET_CHAT_AVAILABILITY_IS_FETCHING:
 			return {
 				...state,
-				isFetching: action.isFetching,
+				isFetching: action.isFetching || false,
 			};
 
 		case SET_CHAT_AVAILABILITY:
