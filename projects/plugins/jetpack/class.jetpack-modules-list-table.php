@@ -122,18 +122,18 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" />
 					</th>
 					<td class='name column-name'>
-						<span class='info'><a href="{{{item.learn_more_button}}}" target="blank">{{{ item.name }}}</a></span>
+						<p class='info'><a href="{{{item.learn_more_button}}}" target="blank" style="text-decoration: none;">{{{ item.name }}}</a></p>
 						<div class="row-actions">
 						<# if ( item.configurable ) { #>
 							<span class='configure'>{{{ item.configurable }}}</span>
 						<# } #>
 						<# if ( item.activated && 'vaultpress' !== item.module && item.available ) { #>
-							<span class='delete'><a href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php esc_html_e( 'Deactivate', 'jetpack' ); ?></a></span>
+							<span class='delete'><a class="dops-button is-compact" href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php esc_html_e( 'Deactivate', 'jetpack' ); ?></a></span>
 						<# } else if ( item.available ) { #>
-							<span class='activate'><a href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php esc_html_e( 'Activate', 'jetpack' ); ?></a></span>
+							<span class='activate'><a class="dops-button is-compact" href="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php esc_html_e( 'Activate', 'jetpack' ); ?></a></span>
 						<# } #>
 						<# if ( ! item.available ) { #>
-							<span class='unavailable_reason'>{{{ item.unavailable_reason }}}</span>
+							<p class='unavailable_reason'>{{{ item.unavailable_reason }}}</p>
 						<# } #>
 						</div>
 					</td>
@@ -309,7 +309,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 * @return string[] HTML.
 	 */
 	public function get_table_classes() {
-		return array( 'table', 'table-bordered', 'wp-list-table', 'widefat', 'fixed', 'jetpack-modules' );
+		return array( 'table', 'table-bordered', 'wp-list-table', 'widefat', 'fixed' );
 	}
 
 	/**

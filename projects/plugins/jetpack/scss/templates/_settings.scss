@@ -1,6 +1,7 @@
 // ==========================================================================
 // Settings
 // ==========================================================================
+@import '../../_inc/client/scss/calypso-colors';
 
 .page-content.configure {
 	margin-top: 0;
@@ -57,165 +58,217 @@
 	}
 }
 
-.table-bordered.jetpack-modules {
-	border: none;
-	margin-bottom: 0;
-	tr.jetpack-module {
+//.table-bordered.jetpack-modules {
+//	border: none;
+//	margin-bottom: 0;
+//	tr.jetpack-module {
+//
+//		th {
+//			border-left: 0;
+//			padding: 14px 4px 0;
+//			input {
+//				display: block;
+//			}
+//		}
+//		&.active {
+//			th,
+//			td {
+//				background: #f7fcfe;
+//			}
+//			th {
+//				border-left: 4px solid #2ea2cc;
+//				padding-left: 0px;
+//			}
+//			td {
+//				&:first-child {
+//					border-left: 4px solid #2ea2cc;
+//				}
+//			}
+//		}
+//		&.unavailable {
+//			input {
+//				display: none;
+//			}
+//		}
+//		&.deprecated {
+//			span {
+//				color: #888;
+//			}
+//			.dep-msg {
+//				margin-right: 10px;
+//				color: #555;
+//			}
+//		}
+//		th,
+//		td {
+//			background: #fff;
+//			margin: 0;
+//			-webkit-box-shadow: inset 0 -1px 0 rgba(0,0,0,0.1);
+//			box-shadow: inset 0 -1px 0 rgba(0,0,0,0.1);
+//
+//		}
+//		td {
+//			padding: 10px 10px 8px 14px;
+//			line-height: 25px;
+//
+//			&:first-child {
+//				border-left: 4px solid #fff;
+//			}
+//			.row-actions {
+//				float: right;
+//				padding: 0 0 1px;
+//				visibility: visible;
+//				position: static;
+//
+//				span {
+//					margin-left: 5px;
+//				}
+//
+//				@media (max-width: 530px) {
+//					display: none;
+//				}
+//				@include breakpoint(tablet){
+//					display: block;
+//					padding-left: 10px;
+//					visibility: visible;
+//				};
+//
+//				span.unavailable_reason {
+//					color: #000;
+//				}
+//			}
+//		}
+//	}
+//	&.with-transparency tr.jetpack-module {
+//
+//		&:hover {
+//			td .row-actions span a {
+//				opacity: 1;
+//			}
+//		}
+//		&.unavailable {
+//			opacity: 0.3;
+//		}
+//	}
+//	&>thead>tr>th {
+//
+//		&:last-child {
+//			padding-right: 0;
+//
+//			@include breakpoint(tablet){
+//				padding-left: 0;
+//			}
+//		}
+//	}
+//	td {
+//		background: #fff;
+//	}
+//	#doaction {
+//		margin-top: 0;
+//
+//		@media (max-width: 782px) {
+//			padding: 10px 7px;
+//		}
+//	}
+//	.checkall {
+//		width: 20px;
+//		height: 20px;
+//		border-radius: 2px;
+//	}
+//	.filter-search {
+//		margin-top: 8px;
+//	}
+//	.genericon {
+//		color: #999;
+//		display: none;
+//		margin: 7px 3px 0;
+//
+//		@include breakpoint(desktop){
+//			display: inline-block;
+//		};
+//	}
+//	.med {
+//		width: 70px;
+//	}
+//	.sm {
+//		width: 30px;
+//	}
+//	@media (max-width: 782px) {
+//		.check-column {
+//			width: 50px;
+//		}
+//	}
+//}
 
-		th {
-			border-left: 0;
-			padding: 14px 4px 0;
-			input {
-				display: block;
-			}
-		}
-		&:hover {
-			.genericon {
-				display: inline-block;
-			}
-		}
-		&.active {
-			th,
-			td {
-				background: #f7fcfe;
-			}
-			th {
-				border-left: 4px solid #2ea2cc;
-				padding-left: 0px;
-			}
-			td {
-				&:first-child {
-					border-left: 4px solid #2ea2cc;
-				}
-			}
-		}
-		&.unavailable {
-			input {
-				display: none;
-			}
-		}
-		&.deprecated {
-			span {
-				color: #888;
-			}
-			.dep-msg {
-				margin-right: 10px;
-				color: #555;
-			}
-		}
-		th,
-		td {
-			background: #fff;
-			margin: 0;
-			-webkit-box-shadow: inset 0 -1px 0 rgba(0,0,0,0.1);
-			box-shadow: inset 0 -1px 0 rgba(0,0,0,0.1);
+// Bulk select table header area.
+.fixed-top {
+	box-sizing: border-box;
+	border-bottom: 1px solid $gray-5;
 
+	/* Auto layout */
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 16px;
+	gap: 16px;
+
+	.tablenav.top {
+		display: flex;
+		padding: 0;
+		margin: 0;
+	}
+
+	select#bulk-action-selector-top {
+		width: 180px;
+		height: 40px;
+		border: 1px solid #DCDCDE;
+		border-radius: 4px;
+		padding: 8px 16px;
+		line-height: normal;
+	}
+
+	.alignleft.actions.bulkactions {
+		display: flex;
+		align-items: center;
+
+		.button {
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			align-items: center;
+			padding: 8px 24px;
+
+			width: 93px;
+			height: 40px;
+			background: $white;
+			border: 1.5px solid $black;
+			border-radius: 4px;
+
+			// Button label.
+			font-size: 16px;
+			line-height: 24px;
+			letter-spacing: -0.01em;
+			color: $black;
 		}
-		td {
-			padding: 10px 10px 8px 14px;
-			line-height: 25px;
 
-			&:first-child {
-				border-left: 4px solid #fff;
-			}
-			.row-actions {
-				float: right;
-				padding: 0 0 1px;
-				visibility: visible;
-				position: static;
-
-				span {
-					margin-left: 5px;
-				}
-
-				@media (max-width: 530px) {
-					display: none;
-				}
-				@include breakpoint(tablet){
-					display: block;
-					padding-left: 10px;
-					visibility: visible;
-				};
-
-				span.unavailable_reason {
-					color: #000;
-				}
-			}
+		.button:hover {
+			//border: 1.5px solid $black;
 		}
 	}
-	&.with-transparency tr.jetpack-module {
 
-		&:hover {
-			td .row-actions span a {
-				opacity: 1;
-			}
-		}
-		&.unavailable {
-			opacity: 0.3;
-		}
-	}
-	&>thead>tr>th {
-		border: 0;
-		vertical-align: middle;
+	.check-column {
 
-		&:last-child {
-			padding-right: 0;
-
-			@include breakpoint(tablet){
-				padding-left: 0;
-			}
-		}
 	}
-	td {
-		background: #fff;
-	}
-	#doaction {
-		margin-top: 0;
-
-		@media (max-width: 782px) {
-			padding: 10px 7px;
-		}
-	}
-	.checkall {
-		margin-top: 1px;
-	}
-	.filter-search {
-		margin-top: 8px;
-	}
-	.genericon {
-		color: #999;
-		display: none;
-		margin: 7px 3px 0;
-
-		@include breakpoint(desktop){
-			display: inline-block;
-		};
-	}
-	.med {
-		width: 70px;
-	}
-	.sm {
-		width: 30px;
-	}
-	@media (max-width: 782px) {
-		.check-column {
-			width: 50px;
-		}
-	}
-}
-.fixed-top .check-column {
-	padding: 8px 10px 0 10px;
-	width: 2.2em;
 }
 .wrap {
 	margin: 0;
 	padding: 0 1.5em 1em;
 	overflow: hidden;
 
-	h2 {
-		font-size: 24px;
-		font-weight: 400;
-	}
+	//h2 {
+	//	font-size: 24px;
+	//	font-weight: 400;
+	//}
 	.manage-left {
 		float: left;
 		margin: 0;
@@ -234,20 +287,18 @@
 		}
 	}
 	.manage-right {
-		margin: 0;
+		margin-top: 36px;
 		padding: 0;
 		float: right;
 		width: 35%;
 		z-index: 1;
 
 		p {
-			font-size: 12px;
-			font-weight: bold;
-			color: #bbb;
-			padding-top: 2px;
-			text-transform: uppercase;
-			letter-spacing: 1px;
+			font-size: 14px;
+			font-weight: 700;
+			color: $black;
 			clear: left;
+			margin-bottom: 8px;
 		}
 		.bumper {
 			margin-left: 33px;
@@ -270,9 +321,16 @@
 			position: relative;
 
 			input[type='search'] {
-				padding: 0 8px;
-				width: 90%;
-				line-height: initial;
+				//padding: 0 8px;
+				//width: 90%;
+				//line-height: initial;
+				border: 1px solid #DCDCDE;
+				border-radius: 4px;
+				padding: 8px 16px;
+				line-height: normal;
+				height: 40px;
+				width: 100%;
+				margin-bottom: 14px;
 
 				@media (max-width: 782px) {
 					float: left;
@@ -285,9 +343,24 @@
 		}
 		.button-group {
 			.button {
-				outline: none;
+				box-shadow: none;
+				padding-left: 24px;
+				padding-right: 24px;
+				min-width: 90px;
+				/* Gray / Gray 0 */
+				background: #F6F7F7;
+				/* Gray / Gray 80 */
+				border: 1px solid $gray-80;
+				color: $black;
+				height: 40px;
+			}
+
+			button.dops-button.button.active {
+				background: $black;
+				color: $white;
 			}
 		}
+
 		.subsubsub {
 			margin: 0;
 			padding: 0;
@@ -295,13 +368,16 @@
 			a {
 				padding: 0;
 				line-height: inherit;
+				color: $black;
+				text-decoration: underline;
 			}
 			.current{
-				padding:1px 5px;
+				padding: 2px 6px;
 				border-radius:2px;
-				margin-left:-5px;
-				background: #0D72B2;
-				color: #fff;
+				//margin-left:-5px;
+				background: $black;
+				color: $white;
+				text-decoration: none;
 
 				.count{
 					color: #BCD7E7;
@@ -312,6 +388,8 @@
 			li {
 				display: block;
 				text-align: left;
+				margin: 8px 0;
+				font-size: 14px;
 			}
 		}
 
@@ -369,3 +447,80 @@
 			display: block;
 		}
 } // < 430
+
+// Modules page hacks
+.jetpack-modules-list-table-form .widefat td {
+	width: 100%;
+}
+
+.jetpack-module-list .widefat {
+	border: none;
+}
+
+tr.jetpack-module {
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 16px;
+	gap: 16px;
+	width: 100%;
+	height: 60px;
+	background: $white;
+	border-bottom: 1px solid $gray-5;
+
+	th.check-column {
+		padding-top: 0;
+		width: auto;
+	}
+
+	a, p {
+		text-decoration: none;
+	}
+}
+
+tr.jetpack-module.unavailable {
+	background: #F9F9F6;
+}
+
+tr.jetpack-module.active {
+	background: #F9F9F6;
+
+	.column-name .info {
+		font-weight: 700;
+	}
+
+
+}
+
+input.checkall, tr.jetpack-module input[type="checkbox"] {
+	width: 20px;
+	height: 20px;
+	border-radius: 2px;
+	margin-left: 0;
+}
+
+tr.jetpack-module .column-name {
+	color: $gray-80;
+	float: left;
+	align-items: center;
+	display: flex;
+	padding: 0;
+
+	a {
+		text-decoration: none !important;
+	}
+}
+
+tr.jetpack-module .row-actions {
+	float: right;
+	align-items: center;
+	display: flex;
+	position: relative;
+	margin-left: auto;
+	left: 0;
+
+	span.configure {
+		margin-right: 16px;
+	}
+}

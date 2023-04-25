@@ -285,7 +285,7 @@ abstract class Jetpack_Admin_Page {
 	 */
 	public static function wrap_ui( $callback, $args = array() ) {
 		$defaults          = array(
-			'is-wide'  => false,
+			'is-wide'  => true,
 			'show-nav' => true,
 		);
 		$args              = wp_parse_args( $args, $defaults );
