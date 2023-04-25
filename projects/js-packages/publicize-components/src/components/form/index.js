@@ -81,15 +81,13 @@ export default function PublicizeForm( {
 				<Notice type={ 'error' }>
 					{ createInterpolateElement(
 						_n(
-							'One of your social connections is broken. Reconnect them on the <moreInfo>connection management</moreInfo> page.',
-							'Some of your social connections are broken. Reconnect them on the <moreInfo>connection management</moreInfo> page.',
+							'One of your social connections is broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
+							'Some of your social connections are broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
 							brokenConnections.length,
 							'jetpack'
 						),
 						{
-							moreInfo: (
-								<ExternalLink href={ getRedirectUrl( 'publicize-connection-not-supported' ) } />
-							),
+							fixLink: <ExternalLink href={ connectionsAdminUrl } />,
 						}
 					) }
 				</Notice>
@@ -98,13 +96,15 @@ export default function PublicizeForm( {
 				<Notice type={ 'error' }>
 					{ createInterpolateElement(
 						_n(
-							'One of your social connection is not supported anymore. <fixLink>Learn more here</fixLink>.',
-							'Some of your social connections are not supported anymore. <fixLink>Learn more here</fixLink>.',
+							'One of your social connection is not supported anymore. <moreInfo>Learn more here</moreInfo>.',
+							'Some of your social connections are not supported anymore. <moreInfo>Learn more here</moreInfo>.',
 							unsupportedConnections.length,
 							'jetpack'
 						),
 						{
-							fixLink: <ExternalLink href={ connectionsAdminUrl } />,
+							moreInfo: (
+								<ExternalLink href={ getRedirectUrl( 'publicize-connection-not-supported' ) } />
+							),
 						}
 					) }
 				</Notice>
