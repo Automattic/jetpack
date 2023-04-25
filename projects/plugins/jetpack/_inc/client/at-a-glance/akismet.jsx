@@ -154,7 +154,7 @@ class DashAkismet extends Component {
 		};
 
 		const getAkismetCounter = () => {
-			if ( '0' !== this.props.akismetData ) {
+			if ( 0 !== this.props.akismetData ) {
 				return (
 					<>
 						<h2 className="jp-dash-item__count">{ numberFormat( this.props.akismetData ) }</h2>
