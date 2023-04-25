@@ -1368,7 +1368,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 */
 		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this->fields, $is_spam, $entry_values );
 
-		$header  = '<h1>' . __( 'You got a new response!', 'jetpack-forms' ) . '</h1>';
+		$title   = apply_filters( 'jetpack_forms_response_email_title', __( 'You got a new response!', 'jetpack-forms' ) );
 		$message = self::get_compiled_form_for_email( $post_id, $this );
 
 		array_push(
@@ -1394,10 +1394,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			array_push( $message, '<p>' . __( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '</p>' );
 		}
 
-		$footer = '<p>View Response: ' . admin_url( 'edit.php?post_type=feedback' ) . '</p>';
-
-		array_unshift( $message, $header );
-		$message[] = $footer;
+		$response_link = admin_url( 'edit.php?post_type=feedback' );
 
 		$message = join( '', apply_filters( 'jetpack_forms_response_email_message', $message ) );
 
@@ -1413,7 +1410,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$message = apply_filters( 'contact_form_message', $message );
 
 		// This is called after `contact_form_message`, in order to preserve back-compat
-		$message = self::wrap_message_in_html_tags( $message );
+		$message = self::wrap_message_in_html_tags( $title, $response_link, $url, $message );
 
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
@@ -1601,11 +1598,14 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 *
 	 * This helps to ensure correct parsing by clients, and also helps avoid triggering spam filtering rules
 	 *
+	 * @param string $title - title of the email.
+	 * @param string $response_link - the link to the response.
+	 * @param string $form_link - the link to the form.
 	 * @param string $body - the message body.
 	 *
 	 * @return string
 	 */
-	public static function wrap_message_in_html_tags( $body ) {
+	public static function wrap_message_in_html_tags( $title, $response_link, $form_link, $body ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters
 		if ( false !== strpos( $body, '<html' ) ) {
@@ -1620,9 +1620,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 				'',
 				apply_filters(
 					'jetpack_forms_respone_email_template',
-					'<!doctype html>
+					'
+					<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 					<html xmlns="http://www.w3.org/1999/xhtml">
-					<head>
+						<head>
+							<title>Jetpack Forms Response</title>
+							<meta http-equiv="Content-Type" content="text/html charset=UTF-8">
+							<meta http-equiv="Content-Language" content="en-us">
 					<!--[if lt mso 12]>
 					<style type="text/css">
 						.outlook-hide-pre-2007 {
@@ -1645,8 +1649,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 							margin-bottom: 0 !important;
 						}
 					</style>
-					<![endif]-->
-					<!--[if (gte mso 9)|(IE)]>
+					<![endif]--><!--[if (gte mso 9)|(IE)]>
 					<style type="text/css">
 						body, .body-wrap {
 							font-size: 1em !important;
@@ -1762,47 +1765,130 @@ class Contact_Form extends Contact_Form_Shortcode {
 						}
 					</style>
 					<![endif]-->
-					</head>
-					<body>
-					<table style="width: 100%%;" align="center">
-						<tr>
-							<!-- left column, only here to center the middle column; Outlook requires &nbsp; or it collapses this column  -->
-							<td style="font-size: 1px"><!--[if (gte mso 9)|(IE)]>&nbsp;<![endif]--></td>
+							<style type="text/css">
+								@media screen and (max-width: 599px) {
+									#table_body{margin: 0px !important;}.wrapper{width: 100%% !important;min-width: 0 !important;}
+									h1{font-size: 26px !important; line-height: 30px !important;}
+									h2{font-size: 22px !important; line-height: 26px !important;}
+									p{font-size: 16px !important; line-height: 24px !important;}
+								}
+								@media screen and ( min-width: 599px) {
+									td.jetpack-header{padding-right: 56px !important; padding-left: 56px !important;}
+								}
+								@media screen and ( max-width: 599px ) {
+									tr.jetpack-onboarding-hero-section > td{padding-left: 24px !important; padding-right: 24px !important;}
+									h1.jetpack-onboarding-hero-title-text{font-size: 36px !important; line-height: 1.2 !important;}
+								}
+								@media screen and ( min-width: 600px ) {
+									td.jetpack-new-onboarding-section{padding: 40px 56px !important;}
+									h2.jetpack-new-onboarding-section-header-text{font-size: 32px !important;}
+									td.jetpack-onboarding-video-section,td.build-your-own-jetpack-new-section{padding: 48px 56px !important;}h2.build-your-own-jetpack-new-section-header-text{font-size: 32px !important;}
+								}
+								@media screen and ( max-width: 599px ) {
+									td.footer-november-2022{padding-left: 24px !important; padding-right: 24px !important;}
+									p.footer-november-2022-body-text{font-size: 14px !important;}
+									p.footer-november-2022-address-text,p.footer-november-2022-unsub-text{font-size: 12px !important;width: 215px;}
+								}
+							</style>
+						</head>
+						<body style="-webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; height: 100%%; font-size: 1em; margin: 0; padding: 0; background: #DCDCDE; font-family: \'Helvetica Neue\', \'Helvetica\', Helvetica, Arial, sans-serif; direction: ltr; width: 100%%; clear: both;">
+							<span class="preheader" style="color: #DCDCDE; font-size: 1px; display:none;">Export your form responses to Google Sheets with just one click</span>
+							<table id="table_body" cellspacing="0" role="presentation" style="border-collapse: collapse; width: 100%%; padding: 0; margin: 15px 0; background: #DCDCDE; border: 0;">
+								<tbody>
+									<tr>
+										<td style="border-collapse: collapse;">
+											<table id="table_wrapper" class="wrapper" width="600" align="center" cellpadding="0" cellspacing="0" bgcolor="#ffffff" role="presentation" style="border-collapse: collapse; background: #ffffff; margin: 0 auto; min-width: 600px; margin-top: 10px;">
+												<tbody>
+													<tr>
+														<td align="left" class="jetpack-header" style="border-collapse: collapse; padding: 48px 24px 0px 24px;">
+															<img alt height="32" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/jetpack-logo-horizontal-dark-green.png" width="117" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none; display: inline-block;">
+														</td>
+													</tr>
+													<tr class="jetpack-new-onboarding" style="font-family: \'SF Pro Display\', Helvetica, Arial, sans-serif;">
+														<td class="jetpack-new-onboarding-section" align="left" style="border-collapse: collapse; padding: 32px 24px;font-size: 16px">
+															<h1 class="jetpack-onboarding-hero-title-text" style="color: #101517; font-style: normal; font-weight: normal; line-height: 1.2; text-align:left; font-size: 36px;">
+																%1$s
+															</h1>
+															%2$s
+															<p><a class="build-your-own-jetpack-new-section-link" href="%3$s" style="color: #000; display: inline-block; box-sizing: border-box; line-height: 24px; letter-spacing: -0.02em; text-decoration: none; padding: 12px 24px; border: 1px solid #000; border-radius: 4px; font-size: 16px;">' . __( 'View Response', 'jetpack-forms' ) . '</a></p>
 
-							<!-- middle column, the margin: 0 auto; combined with the display: block; centers it for modern clients -->
-							<td class="container" border="2" style="max-width: 600px; margin: 0 auto; display: block;">
-								<div align="left">
-									<table cellspacing="0" cellpadding="0" class="logo-wrap">
-										<tr>
-											<td class="left">
-												<img alt="Jetpack.com" class="logo" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/delta/images/jetpack-logo-horizontal.png" width="175" height="47"/>
-											</td>
-										</tr>
-									</table>
-								</div>
-								<div class="content">
-									<table cellspacing="0" cellpadding="0">
-										<tr>
-											<td>
-												<div class="content-mc-region-jp jp-siteless">
-													%s
-												</div>
-											</td>
-										</tr>
-									</table>
-								</div>
-							</td>
-							<!-- right column, along with the left column these two center the middle column; Outlook requires &nbsp; or it collapses this column  -->
-							<td style="font-size: 1px"><!--[if (gte mso 9)|(IE)]>&nbsp;<![endif]--></td>
-						</tr>
-					</table>
-					<img src="https://pixel.wp.com/t.gif" />
+														</td>
+													</tr>
+													<tr>
+														<td class="build-your-own-jetpack-new-section" align="left" style="border-collapse: collapse; background-color: #F9F9F6; font-family: \'SF Pro Display\', Helvetica, Arial, sans-serif; padding: 32px 24px;">
+															<span class="build-your-own-jetpack-new-section-eyebrow" style="color: #008710; font-weight: 600; line-height: 1.8; font-size: 16px;">' . __( 'Did you know?', 'jetpack-forms' ) . '</span>
+															<h2 class="build-your-own-jetpack-new-section-header-text" style="font-size: 26px; font-weight: 600; line-height: 1.2; margin: 16px 0;">' . __( 'Export your form responses to Google Sheets with just one click', 'jetpack-forms' ) . '</h2>
+															<img alt class="jetpack-onboarding-hero-image" src="http://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/jetpack-backup-onboarding-hero.png" width="500" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none; display: inline-block; max-width: 100%%;">
+															<p class="build-your-own-jetpack-new-section-body-text" style="direction: ltr; letter-spacing: -0.02em; line-height: 1.5; margin-bottom: 24px; font-size: 16px;">' . __( 'Exporting form responses to Google Sheets allows you to easily manage and analyze the data collected through your forms. This feature can be useful for analysing customer feedback, conducting market research, or organizing event registration information.', 'jetpack-forms' ) . '</p>
 
-					</body>
-					</html>'
+															<a class="build-your-own-jetpack-new-section-link" href="https://jetpack.com/support/jetpack-blocks/contact-form/#export-form-responses" style="background-color: #000; border-radius: 4px; display: inline-block; box-sizing: border-box; color: #fff; font-weight: 600; letter-spacing: -0.02em;line-height: 24px; padding: 12px 24px; text-decoration: none; font-size: 16px;">' . __( 'Learn more', 'jetpack-forms' ) . '</a>
+														</td>
+													</tr>
+													<tr>
+														<td class="footer-november-2022" style="border-collapse: collapse; font-family: \'SF Pro Display\', Helvetica, Arial, sans-serif; padding: 48px 56px;">
+															<table style="border-collapse: collapse; width: 100%%;">
+																<tr>
+																	<td style="border-collapse: collapse;">
+																		<img src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/jetpack-icon.png" class="footer-november-2022-jetpack-icon" width="20" height="20" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none; display: inline-block; margin-bottom: 16px;">
+																	</td>
+																</tr>
+																<tr>
+																	<td align="left" style="border-collapse: collapse;">
+																		<h2 class="footer-november-2022-header-text" style="color: #101517; font-size: 16px; line-height: 1.2; margin-bottom: 8px; margin-top: 0;">Get Jetpack on the go</h2>
+
+																		<p class="footer-november-2022-body-text" style="direction: ltr; color: #3c434a; font-size: 14px; line-height: 1.4; margin-bottom: 16px; margin-top: 0;">View site activity and stats, get notifications when your site is down, fix malware threats, and restore your site from anywhere.  </p>
+																	</td>
+																</tr>
+																<tr>
+																	<td align="left" class="footer-november-2022-app-links" style="border-collapse: collapse;">
+																		<a href="https://play.google.com/store/apps/details?id=com.jetpack.android" style="color: #00AADC; text-decoration: none; width: 115px; display: inline-block; margin-bottom: 64px;"><img src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/play-store-badge.png" class="footer-november-2022-app-image" width="115" height="33" style="line-height: 100%%;outline: none; text-decoration: none; border: 0 none; display: inline-block; height: 33px;"></a>
+
+																		<a href="https://apps.apple.com/us/app/jetpack-website-builder/id1565481562" style="color: #00AADC; text-decoration: none; width: 115px; display: inline-block; margin-bottom: 64px;"><img src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/app-store-badge.png" class="footer-november-2022-app-image" width="115" height="33" style="line-height: 100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block; height: 33px;"></a>
+																	</td>
+																</tr>
+																<tr>
+																	<td align="left" class="footer-november-2022-socials-section" style="border-collapse: collapse;">
+																		<a href="https://twitter.com/jetpack" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right: 22px;"><img aria-label="jetpack twitter page" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/twitter-dark.png" width="20" height="20" style="height: auto; line-height: 100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
+
+																		<a href="https://www.facebook.com/jetpackme" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right:22px;"><img aria-label="jetpack facebook page" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/facebook-dark.png" width="20" height="20" style="height: auto; line-height:100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
+
+																		<a href="https://www.linkedin.com/company/jetpack-for-wordpress/" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right: 22px;"><img aria-label="jetpack linkedin page" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/linkedin-dark.png" width="20" height="20" style="height: auto; line-height:100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
+																	</td>
+																</tr>
+																<tr>
+																	<td align="left" style="border-collapse: collapse;">
+																		<p class="footer-november-2022-address-text" style="direction: ltr; color: #101517; font-size: 12px; line-height: 1.5; margin-bottom: 10px; margin-top: 24px;">
+																		<b style="font-weight: 600;">Automattic, Inc.</b> - 60 29th St. #343, San Francisco, CA 94110
+																		</p>
+																	</td>
+																</tr>
+																<tr>
+																	<td align="left" style="border-collapse: collapse;">
+																		<p class="footer-november-2022-unsub-text" style="direction: ltr; color: #101517; font-size: 12px; line-height: 1.5;">
+																		<b style="font-weight: 600;">Don\'t want these emails?</b>
+																		<a href="%4$s" class="unsub" style="text-decoration: none; color: #101517;">Change the email address on your form</a>.
+																		</p>
+																	</td>
+																</tr>
+															</table>
+														</td>
+													</tr>
+												</tbody>
+											</table>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<img src="https://pixel.wp.com/t.gif?_ui=125798103&amp;campaign=jetpack_post_purchase_bak_tiers&amp;email_name=jetpack_po=0&amp;blog_lang=0&amp;user_lang=en&amp;_ts=1674047053288" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none;">
+						</body>
+					</html>
+					'
 				)
 			),
-			$body
+			$title,
+			$body,
+			$response_link,
+			$form_link
 		);
 
 		return $html_message;
