@@ -38,18 +38,12 @@ function jpcrm_quote_generate_posted_pdf() {
 			exit();
 		}
 
-		global $zbs;
-
-		// only 3.0+
-		if ( ! $zbs->isDAL3() ) {
-			exit();
-		}
-
 		// Check ID
 		$quote_id = -1;
 		if ( ! empty( $_POST['jpcrm_quote_id'] ) ) {
 			$quote_id = (int) $_POST['jpcrm_quote_id'];
 		}
+
 		if ( $quote_id <= 0 ) {
 			exit();
 		}
