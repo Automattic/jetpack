@@ -38,6 +38,9 @@ class Jetpack_Mu_Wpcom {
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
 
+		// Load the Map block settings.
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_map_block_settings' ) );
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -95,6 +98,19 @@ class Jetpack_Mu_Wpcom {
 		foreach ( array_filter( $plugins, 'is_file' ) as $plugin ) {
 			require_once $plugin;
 		}
+	}
+
+	/**
+	 * Adds a global variable containing the map provider in a map_block_settings object to the window object
+	 *
+	 * @return void
+	 */
+	public static function load_map_block_settings() {
+		$map_provider = apply_filters( 'wpcom_map_block_map_provider', 'mapbox' );
+
+		wp_register_script( 'map-block-settings', '', array(), '1.0', true );
+		wp_localize_script( 'map-block-settings', 'map_block_settings', array( 'provider' => $map_provider ) );
+		wp_enqueue_script( 'map-block-settings', '', array(), '1.0', true );
 	}
 
 	/**
