@@ -313,11 +313,18 @@ function zeroBSCRM_generateInvoicePDFFile( $invoice_id = -1 ) {
 
 	// brutal.
 	if ( ! zeroBSCRM_permsInvoices() ) {
-			return false;
+		return false;
 	}
 
 	// If user has no perms, or id not present, die
 	if ( $invoice_id <= 0 ) {
+		return false;
+	}
+
+	$temp_dir = zeroBSCRM_privatisedDirCheckWorks();
+
+	// if tmp dir doesn't exist, die
+	if ( ! $temp_dir ) {
 		return false;
 	}
 
@@ -329,14 +336,7 @@ function zeroBSCRM_generateInvoicePDFFile( $invoice_id = -1 ) {
 	$dompdf->loadHtml( $html, 'UTF-8' );
 	$dompdf->render();
 
-	$upload_dir  = wp_upload_dir();
-	$invoice_dir = $upload_dir['basedir'] . '/invoices/';
-
-	if ( ! file_exists( $invoice_dir ) ) {
-		wp_mkdir_p( $invoice_dir );
-	}
-
-	$file_to_save = $invoice_dir . $invoice_id . '.pdf';
+	$file_to_save = $temp_dir['path'] . '/' . sanitize_title( __( 'invoice', 'zero-bs-crm' ) ) . '-' . $invoice_id . '.pdf';
 
 	// save the pdf file on the server
 	file_put_contents( $file_to_save, $dompdf->output() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
