@@ -97,6 +97,9 @@ class Concatenate_JS extends WP_Scripts {
 
 			// Only try to concat static js files
 			if ( false !== strpos( $js_url_parsed['path'], '.js' ) ) {
+				// Previously, the value of this variable was determined by a function.
+				// Now, since concatenation is always enabled when the module is active,
+				// the value will always be true for static files.
 				$do_concat = true;
 			} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					echo sprintf( "\n<!-- No Concat JS %s => Maybe Not Static File %s -->\n", esc_html( $handle ), esc_html( $obj->src ) );
