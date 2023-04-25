@@ -14,9 +14,8 @@ import useSelectSocialMediaConnections from '../../hooks/use-social-media-connec
 import PublicizeConnectionVerify from '../connection-verify';
 import PublicizeForm from '../form';
 import { SharePostRow } from '../share-post';
-import PublicizeTwitterOptions from '../twitter/options';
 
-const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
+const PublicizePanel = ( { prePublish, children } ) => {
 	const { refresh, hasConnections, hasEnabledConnections } = useSelectSocialMediaConnections();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 
@@ -85,9 +84,6 @@ const PublicizePanel = ( { prePublish, enableTweetStorm, children } ) => {
 						isEnhancedPublishingEnabled={ isEnhancedPublishingEnabled }
 						adminUrl={ adminUrl }
 					/>
-					{ enableTweetStorm && isPublicizeEnabled && (
-						<PublicizeTwitterOptions prePublish={ prePublish } />
-					) }
 					<SharePostRow />
 				</Fragment>
 			) }

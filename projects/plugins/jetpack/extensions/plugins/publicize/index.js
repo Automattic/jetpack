@@ -35,7 +35,7 @@ const PublicizeSettings = () => {
 			<TwitterThreadListener />
 
 			<JetpackPluginSidebar>
-				<PublicizePanel enableTweetStorm={ true }>
+				<PublicizePanel>
 					<UpsellNotice />
 				</PublicizePanel>
 				{ isSocialImageGeneratorEnabled && <SocialImageGeneratorPanel /> }
@@ -51,7 +51,7 @@ const PublicizeSettings = () => {
 				}
 				icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 			>
-				<PublicizePanel prePublish={ true } enableTweetStorm={ true }>
+				<PublicizePanel prePublish={ true }>
 					<UpsellNotice />
 				</PublicizePanel>
 			</PluginPrePublishPanel>
