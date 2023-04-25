@@ -1,6 +1,7 @@
 {
 	"production": [
 		"blogging-prompt",
+		"blogroll",
 		"business-hours",
 		"button",
 		"calendly",
