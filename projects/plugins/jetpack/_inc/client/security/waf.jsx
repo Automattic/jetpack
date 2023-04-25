@@ -1,10 +1,9 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import Button from 'components/button';
 import FoldableCard from 'components/foldable-card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel } from 'components/forms';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import JetpackBanner from 'components/jetpack-banner';
@@ -200,52 +199,48 @@ export const Waf = class extends Component {
 					rel="noopener noreferrer"
 					className="waf__header__badge"
 				>
-					{ _x( 'Beta', 'Settings header badge', 'jetpack' ) }
+					{ _x( 'NEW', 'Settings header badge', 'jetpack' ) }
 				</a>
 			</div>
 		);
 
 		const automaticRulesSettings = (
 			<div className="waf__settings__toggle-setting">
-				<CompactFormToggle
+				<ToggleControl
 					checked={
 						this.props.hasScan || this.props.settings?.automaticRulesAvailable
-							? this.state.automaticRulesEnabled
+							? this.props.settings?.automaticRulesEnabled
 							: false
+					}
+					toggling={
+						this.props.isUpdatingWafSettings &&
+						this.state.automaticRulesEnabled !== this.props.settings?.automaticRulesEnabled
 					}
 					disabled={
 						baseInputDisabledCase ||
-						( ! this.props.hasScan && ! this.props.settings?.automaticRulesAvailable ) ||
-						( this.props.isUpdatingWafSettings &&
-							this.state.automaticRulesEnabled !== this.props.settings?.automaticRulesEnabled )
+						( ! this.props.hasScan && ! this.props.settings?.automaticRulesAvailable )
 					}
 					onChange={ this.toggleAutomaticRules }
-				>
-					<span className="jp-form-toggle-explanation">
-						{ __(
-							'Automatic rules - Protect your site against untrusted traffic sources with automatic security rules',
-							'jetpack'
-						) }
-					</span>
-				</CompactFormToggle>
+					label={ __(
+						'Automatic rules - Protect your site against untrusted traffic sources with automatic security rules',
+						'jetpack'
+					) }
+				/>
 			</div>
 		);
 
 		const ipListSettings = (
 			<div className="waf__settings__toggle-setting">
-				<CompactFormToggle
-					checked={ this.state.manualRulesEnabled }
-					disabled={
-						baseInputDisabledCase ||
-						( this.props.isUpdatingWafSettings &&
-							this.state.manualRulesEnabled !== this.props.settings?.manualRulesEnabled )
+				<ToggleControl
+					checked={ this.props.settings?.manualRulesEnabled }
+					toggling={
+						this.props.isUpdatingWafSettings &&
+						this.state.manualRulesEnabled !== this.props.settings?.manualRulesEnabled
 					}
+					disabled={ baseInputDisabledCase }
 					onChange={ this.toggleManualRules }
-				>
-					<span className="jp-form-toggle-explanation">
-						{ __( 'Allow / Block list - Block or allow a specific request IP', 'jetpack' ) }
-					</span>
-				</CompactFormToggle>
+					label={ __( 'Allow / Block list - Block or allow a specific request IP', 'jetpack' ) }
+				/>
 
 				{ this.state.manualRulesEnabled && (
 					<>
@@ -268,6 +263,7 @@ export const Waf = class extends Component {
 							/>
 							<Button
 								primary
+								rna
 								compact
 								type="button"
 								className="waf__settings__ips__save-button"
@@ -297,6 +293,7 @@ export const Waf = class extends Component {
 							/>
 							<Button
 								primary
+								rna
 								compact
 								type="button"
 								className="waf__settings__ips__save-button"
@@ -318,37 +315,40 @@ export const Waf = class extends Component {
 
 		const shareDataSettings = (
 			<div className="waf__settings__toggle-setting">
-				<CompactFormToggle
-					checked={ this.state.shareData }
-					disabled={
-						baseInputDisabledCase ||
-						( this.props.isUpdatingWafSettings &&
-							this.state.shareData !== this.props.settings?.shareData )
+				<ToggleControl
+					checked={ this.props.settings?.shareData }
+					disabled={ baseInputDisabledCase }
+					toggling={
+						this.props.isUpdatingWafSettings &&
+						this.state.shareData !== this.props.settings?.shareData
 					}
 					onChange={ this.toggleShareData }
-				>
-					<span className="jp-form-toggle-explanation">
-						{ __( 'Share data with Jetpack', 'jetpack' ) }
-					</span>
-				</CompactFormToggle>
-				<InfoPopover
-					position="right"
-					screenReaderText={ __( 'Learn more', 'jetpack' ) }
-					className="waf__settings__share-data-popover"
-				>
-					{ createInterpolateElement(
-						__(
-							'Allow Jetpack to collect data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
-							'jetpack'
-						),
-						{
-							ExternalLink: (
-								<ExternalLink href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) } />
-							),
-							hr: <hr />,
-						}
-					) }
-				</InfoPopover>
+					label={
+						<div className="waf__settings__toggle-setting__label">
+							<span>{ __( 'Share data with Jetpack', 'jetpack' ) }</span>
+							<InfoPopover
+								position="right"
+								screenReaderText={ __( 'Learn more', 'jetpack' ) }
+								className="waf__settings__share-data-popover"
+							>
+								{ createInterpolateElement(
+									__(
+										'Allow Jetpack to collect data to improve Firewall protection and rules. <ExternalLink>Learn more</ExternalLink> <hr /> <ExternalLink>Privacy Information</ExternalLink>',
+										'jetpack'
+									),
+									{
+										ExternalLink: (
+											<ExternalLink
+												href={ getRedirectUrl( 'jetpack-waf-settings-privacy-info' ) }
+											/>
+										),
+										hr: <hr />,
+									}
+								) }
+							</InfoPopover>
+						</div>
+					}
+				/>
 			</div>
 		);
 
@@ -426,6 +426,7 @@ export const Waf = class extends Component {
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 				feature="jetpack_scan"
 				href={ this.props.scanUpgradeUrl }
+				rna
 			/>
 		);
 

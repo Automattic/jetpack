@@ -1,5 +1,6 @@
 import { imagePath } from 'constants/urls';
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import Button from 'components/button';
 import QuerySitePlugins from 'components/data/query-site-plugins';
@@ -97,7 +98,7 @@ class MyPlanBody extends React.Component {
 				<div className="jp-landing__plan-features-card">
 					<div className="jp-landing__plan-features-img">
 						<img
-							src={ imagePath + '/jetpack-backup.svg' }
+							src={ imagePath + '/product/product-jetpack-backup.svg' }
 							className="jp-landing__plan-features-icon"
 							alt={ __( 'A Jetpack Site securely backed up with Jetpack Backup', 'jetpack' ) }
 						/>
@@ -108,8 +109,9 @@ class MyPlanBody extends React.Component {
 						<Button
 							onClick={ this.handleButtonClickForTracking( 'view_backup_dash' ) }
 							href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
+							compact
 						>
-							{ __( 'View your backups', 'jetpack' ) }
+							<ExternalLink>{ __( 'View your backups', 'jetpack' ) }</ExternalLink>
 						</Button>
 					</div>
 				</div>
@@ -126,7 +128,7 @@ class MyPlanBody extends React.Component {
 					<div className="jp-landing__plan-features-card">
 						<div className="jp-landing__plan-features-img">
 							<img
-								src={ imagePath + '/jetpack-security.svg' }
+								src={ imagePath + '/product/product-jetpack-backup.svg' }
 								className="jp-landing__plan-features-icon"
 								alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
 							/>
@@ -144,8 +146,9 @@ class MyPlanBody extends React.Component {
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'view_security_dash_rewind' ) }
 								href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
+								compact
 							>
-								{ __( 'View your security activity', 'jetpack' ) }
+								<ExternalLink>{ __( 'View your security activity', 'jetpack' ) }</ExternalLink>
 							</Button>
 						</div>
 					</div>
@@ -181,7 +184,7 @@ class MyPlanBody extends React.Component {
 				<div className="jp-landing__plan-features-card">
 					<div className="jp-landing__plan-features-img">
 						<img
-							src={ imagePath + '/jetpack-security.svg' }
+							src={ imagePath + '/product/product-jetpack-protect.svg' }
 							className="jp-landing__plan-features-icon"
 							alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
 						/>
@@ -196,8 +199,9 @@ class MyPlanBody extends React.Component {
 							<Button
 								onClick={ this.handleButtonClickForTracking( 'view_security_dash' ) }
 								href={ getRedirectUrl( 'vaultpress-dashboard' ) }
+								compact
 							>
-								{ __( 'View your security dashboard', 'jetpack' ) }
+								<ExternalLink> { __( 'View your security dashboard', 'jetpack' ) }</ExternalLink>
 							</Button>
 						) : (
 							<Button
@@ -206,8 +210,9 @@ class MyPlanBody extends React.Component {
 									site: this.props.siteRawUrl,
 									query: 'only=vaultpress',
 								} ) }
+								compact
 							>
-								{ __( 'View settings', 'jetpack' ) }
+								<ExternalLink>{ __( 'View settings', 'jetpack' ) }</ExternalLink>
 							</Button>
 						) }
 					</div>
@@ -253,7 +258,7 @@ class MyPlanBody extends React.Component {
 				<div className="jp-landing__plan-features-card">
 					<div className="jp-landing__plan-features-img">
 						<img
-							src={ imagePath + '/jetpack-search-icon.svg' }
+							src={ imagePath + '/products/product-jetpack-search.svg' }
 							className="jp-landing__plan-features-icon"
 							alt={ __( 'A Jetpack Site with the power of Jetpack Search', 'jetpack' ) }
 						/>
@@ -271,6 +276,7 @@ class MyPlanBody extends React.Component {
 						<Button
 							onClick={ this.handleButtonClickForTracking( 'view_search_customizer' ) }
 							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack-search-configure' }
+							compact
 						>
 							{ __( 'Customize Search', 'jetpack' ) }
 						</Button>
@@ -299,7 +305,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/jetpack-speed-icon.svg' }
+									src={ imagePath + '/products/product-jetpack-boost.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __( 'A fast and performant website', 'jetpack' ) }
 								/>
@@ -317,6 +323,7 @@ class MyPlanBody extends React.Component {
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'paid_performance' ) }
 									href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/performance' }
+									compact
 								>
 									{ __( 'Make your site faster', 'jetpack' ) }
 								</Button>
@@ -326,7 +333,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/jetpack-spam.svg' }
+									src={ imagePath + '/products/product-jetpack-anti-spam.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __( 'A folder holding real comments', 'jetpack' ) }
 								/>
@@ -341,6 +348,7 @@ class MyPlanBody extends React.Component {
 									<Button
 										onClick={ this.handleButtonClickForTracking( 'view_spam_stats' ) }
 										href={ `${ this.props.siteAdminUrl }admin.php?page=akismet-key-config&view=stats` }
+										compact
 									>
 										{ __( 'View your spam stats', 'jetpack' ) }
 									</Button>
@@ -351,8 +359,9 @@ class MyPlanBody extends React.Component {
 											site: this.props.siteRawUrl,
 											query: 'only=akismet',
 										} ) }
+										compact
 									>
-										{ __( 'View settings', 'jetpack' ) }
+										<ExternalLink>{ __( 'View settings', 'jetpack' ) }</ExternalLink>
 									</Button>
 								) }
 							</div>
@@ -363,7 +372,7 @@ class MyPlanBody extends React.Component {
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
 										<img
-											src={ imagePath + '/jetpack-video-hosting.svg' }
+											src={ imagePath + '/products/product-jetpack-videopress.svg' }
 											className="jp-landing__plan-features-icon"
 											alt={ __(
 												'A cloud with multiple types of content floating around it',
@@ -385,6 +394,7 @@ class MyPlanBody extends React.Component {
 											<Button
 												onClick={ this.handleButtonClickForTracking( 'upload_videos' ) }
 												href={ this.props.siteAdminUrl + 'upload.php' }
+												compact
 											>
 												{ __( 'Upload videos', 'jetpack' ) }
 											</Button>
@@ -392,6 +402,7 @@ class MyPlanBody extends React.Component {
 											<Button
 												onClick={ this.activateVideoPress }
 												disabled={ this.props.isActivatingFeature( 'videopress' ) }
+												compact
 											>
 												{ __( 'Activate VideoPress', 'jetpack' ) }
 											</Button>
@@ -403,7 +414,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/jetpack-site-activity.svg' }
+									src={ imagePath + '/plans/jetpack.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __(
 										'Interface showing a chronological list of changes and updates in a site',
@@ -424,8 +435,9 @@ class MyPlanBody extends React.Component {
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) }
 									href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
+									compact
 								>
-									{ __( 'View your site activity', 'jetpack' ) }
+									<ExternalLink>{ __( 'View your site activity', 'jetpack' ) }</ExternalLink>
 								</Button>
 							</div>
 						</div>
@@ -434,7 +446,7 @@ class MyPlanBody extends React.Component {
 							<div className="jp-landing__plan-features-card">
 								<div className="jp-landing__plan-features-img">
 									<img
-										src={ imagePath + '/jetpack-wordads.svg' }
+										src={ imagePath + '/plans/jetpack.svg' }
 										className="jp-landing__plan-features-icon"
 										alt={ __( 'A chart showing an healthy increase in earnings', 'jetpack' ) }
 									/>
@@ -455,13 +467,15 @@ class MyPlanBody extends React.Component {
 											href={ getRedirectUrl( 'wpcom-ads-earnings', {
 												site: this.props.siteRawUrl,
 											} ) }
+											compact
 										>
-											{ __( 'View your earnings', 'jetpack' ) }
+											<ExternalLink>{ __( 'View your earnings', 'jetpack' ) }</ExternalLink>
 										</Button>
 									) : (
 										<Button
 											onClick={ this.activateAds }
 											disabled={ this.props.isActivatingModule( 'wordads' ) }
+											compact
 										>
 											{ __( 'Start earning', 'jetpack' ) }
 										</Button>
@@ -475,7 +489,7 @@ class MyPlanBody extends React.Component {
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
 										<img
-											src={ imagePath + '/jetpack-google-analytics.svg' }
+											src={ imagePath + '/plans/jetpack.svg' }
 											className="jp-landing__plan-features-icon"
 											alt={ __(
 												'Charts depicting an evolution in traffic and engagement',
@@ -499,13 +513,17 @@ class MyPlanBody extends React.Component {
 												href={ getRedirectUrl( 'calypso-marketing-traffic', {
 													site: this.props.siteRawUrl,
 												} ) }
+												compact
 											>
-												{ __( 'Configure Google Analytics', 'jetpack' ) }
+												<ExternalLink>
+													{ __( 'Configure Google Analytics', 'jetpack' ) }
+												</ExternalLink>
 											</Button>
 										) : (
 											<Button
 												onClick={ this.activateGoogleAnalytics }
 												disabled={ this.props.isActivatingModule( 'google-analytics' ) }
+												compact
 											>
 												{ __( 'Activate Google Analytics', 'jetpack' ) }
 											</Button>
@@ -519,7 +537,7 @@ class MyPlanBody extends React.Component {
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
 										<img
-											src={ imagePath + '/jetpack-marketing.svg' }
+											src={ imagePath + '/products/product-jetpack-social.svg' }
 											className="jp-landing__plan-features-icon"
 											alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
 										/>
@@ -540,13 +558,15 @@ class MyPlanBody extends React.Component {
 												href={ getRedirectUrl( 'calypso-edit-posts', {
 													site: this.props.siteRawUrl,
 												} ) }
+												compact
 											>
-												{ __( 'Schedule posts', 'jetpack' ) }
+												<ExternalLink>{ __( 'Schedule posts', 'jetpack' ) }</ExternalLink>
 											</Button>
 										) : (
 											<Button
 												onClick={ this.activatePublicize }
 												disabled={ this.props.isActivatingModule( 'publicize' ) }
+												compact
 											>
 												{ __( 'Activate Jetpack Social', 'jetpack' ) }
 											</Button>
@@ -577,7 +597,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/jetpack-security.svg' }
+									src={ imagePath + '/products/product-jetpack-protect.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
 								/>
@@ -597,8 +617,9 @@ class MyPlanBody extends React.Component {
 									href={ getRedirectUrl( 'calypso-settings-security', {
 										site: this.props.siteRawUrl,
 									} ) }
+									compact
 								>
-									{ __( 'Set up your site security', 'jetpack' ) }
+									<ExternalLink>{ __( 'Set up your site security', 'jetpack' ) }</ExternalLink>
 								</Button>
 							</div>
 						</div>
@@ -606,7 +627,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/jetpack-speed-icon.svg' }
+									src={ imagePath + '/products/product-jetpack-boost.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __( 'A fast and performant website', 'jetpack' ) }
 								/>
@@ -624,6 +645,7 @@ class MyPlanBody extends React.Component {
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_performance' ) }
 									href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/performance' }
+									compact
 								>
 									{ __( 'Make your site faster', 'jetpack' ) }
 								</Button>
@@ -633,7 +655,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/jetpack-themes.svg' }
+									src={ imagePath + '/plans/jetpack.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __( 'A wide variety of themes and tools to customize a site', 'jetpack' ) }
 								/>
@@ -644,15 +666,16 @@ class MyPlanBody extends React.Component {
 								</h3>
 								<p>
 									{ __(
-										'Get access to professionally crafted themes offered on WordPress.com, and customize your site exactly how you like it.',
+										'Get access to professionally crafted themes offered on WordPress.com, & customize your site exactly how you like it.',
 										'jetpack'
 									) }
 								</p>
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_themes' ) }
 									href={ getRedirectUrl( 'calypso-themes', { site: this.props.siteRawUrl } ) }
+									compact
 								>
-									{ __( 'Explore themes', 'jetpack' ) }
+									<ExternalLink>{ __( 'Explore themes', 'jetpack' ) }</ExternalLink>
 								</Button>
 							</div>
 						</div>
@@ -660,7 +683,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/jetpack-performance-icon.svg' }
+									src={ imagePath + '/products/product-jetpack-social.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __(
 										'Jetpack Stats showing an evolution in traffic and engagement',
@@ -685,13 +708,15 @@ class MyPlanBody extends React.Component {
 											href={ getRedirectUrl( 'calypso-marketing-connections', {
 												site: this.props.siteRawUrl,
 											} ) }
+											compact
 										>
-											{ __( 'Start sharing', 'jetpack' ) }
+											<ExternalLink>{ __( 'Start sharing', 'jetpack' ) }</ExternalLink>
 										</Button>
 									) : (
 										<Button
 											onClick={ this.activatePublicize }
 											disabled={ this.props.isActivatingModule( 'publicize' ) }
+											compact
 										>
 											{ __( 'Activate Jetpack Social', 'jetpack' ) }
 										</Button>
@@ -703,7 +728,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/jetpack-site-activity.svg' }
+									src={ imagePath + '/plans/jetpack.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __(
 										'Interface showing a chronological list of changes and updates in a site',
@@ -724,8 +749,9 @@ class MyPlanBody extends React.Component {
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'view_site_activity' ) }
 									href={ getRedirectUrl( 'calypso-activity-log', { site: this.props.siteRawUrl } ) }
+									compact
 								>
-									{ __( 'View your site activity', 'jetpack' ) }
+									<ExternalLink>{ __( 'View your site activity', 'jetpack' ) }</ExternalLink>
 								</Button>
 							</div>
 						</div>
@@ -733,7 +759,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/jetpack-support.svg' }
+									src={ imagePath + '/plans/jetpack.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __( 'Chat bubbles representing getting in touch with support', 'jetpack' ) }
 								/>
@@ -751,8 +777,9 @@ class MyPlanBody extends React.Component {
 								<Button
 									onClick={ this.handleButtonClickForTracking( 'free_support_documentation' ) }
 									href={ getRedirectUrl( 'jetpack-support' ) }
+									compact
 								>
-									{ __( 'Search support docs', 'jetpack' ) }
+									<ExternalLink>{ __( 'Search support docs', 'jetpack' ) }</ExternalLink>
 								</Button>
 							</div>
 						</div>
