@@ -94,9 +94,6 @@ function jpcrm_quote_generate_pdf( $quote_id = false ) {
 		return false;
 	}
 
-	// let's build a PDF
-	global $zbs;
-
 	// Discern template and retrieve
 	$global_quote_pdf_template = zeroBSCRM_getSetting( 'quote_pdf_template' );
 	if ( ! empty( $global_quote_pdf_template ) ) {
@@ -104,7 +101,7 @@ function jpcrm_quote_generate_pdf( $quote_id = false ) {
 	}
 
 	// fallback to default template
-	if ( ! isset( $html ) || empty( $html ) ) {
+	if ( empty( $html ) ) {
 
 		// template failed as setting potentially holds out of date (removed) template
 		// so use the default
@@ -113,28 +110,15 @@ function jpcrm_quote_generate_pdf( $quote_id = false ) {
 	}
 
 	// load templating
+	global $zbs;
 	$placeholder_templating = $zbs->get_templating();
 
 	// build HTML
 	$content = zeroBS_getQuoteBuilderContent( $quote_id );
 	$html    = $placeholder_templating->replace_single_placeholder( 'quote-content', $content['content'], $html );
 
-	// build PDF
-	$dompdf = $zbs->pdf_engine();
-	$dompdf->loadHtml( $html, 'UTF-8' );
-	$dompdf->render();
+	$pdf_filename = 'quote-' . $quote_id . '.pdf';
 
-	// directory & target
-	$upload_dir = wp_upload_dir();
-	$pdf_dir    = $upload_dir['basedir'] . '/quotes/';
-
-	if ( ! file_exists( $pdf_dir ) ) {
-		wp_mkdir_p( $pdf_dir );
-	}
-	$file_to_save = $pdf_dir . 'quote-' . $quote_id . '.pdf';
-
-	// save the .pdf
-	file_put_contents( $file_to_save, $dompdf->output() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-
-	return $file_to_save;
+	// return PDF filename if successful, false if not
+	return jpcrm_generate_pdf( $html, $pdf_filename );
 }
