@@ -246,39 +246,24 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 == Changelog ==
 ### 12.1-beta - 2023-04-25
 #### Enhancements
-- Add counts in the newsletter panel to show the newsletter reach
-- Add is_block_theme field to the wp/v2/themes endpoint to indicate it the theme is a block-based theme.
-- Align protect option value logic with Akismet.
 - Block editor: collapse Jetpack feature panels by default.
-- Dashboard: update the links to the Mobile apps to allow opening links in the appropriate app store right away.
-- Dashboard: use the latest version of the Jetpack logo.
-- Debug page redesign.
-- Forms: Update Forms child blocks to allow any transformation between the blocks.
-- Improve the appearance.
-- Jetpack Dashboard - At a Glance page redesign.
-- Make Stats Widget frame sections balanced with long titles.
-- Markdown Block: add support for footnotes
-- Newsletters: display the correct locked content text for newsletters when Stripe is disconnected.
-- Newsletters: display the correct locked content text for paid newsletters.
-- Publicize: Use attached media for the OpenGraph image
-- Remove rewriting the Site Editor to Calypso's iframed `/site-editor/SITE_SLUG` route
-- Search: implemented a "tabbed" variation for static filters, adding tabs on top of the results for each filter group.
-- Stats widget: improve appearance of footer buttons
-- Stats Widget: remove feature gating
+- Dashboard: align Protect information display with Akismet.
+- Dashboard: improve the general appearance.
+- Dashboard: redesign the At a Glance page.
+- Dashboard: visually refresh the Debug page.
+- Markdown Block: add support for footnotes.
+- Publicize: improve page metadata by using attached media for the OpenGraph image.
+- Stats Widget: improve appearance of footer buttons.
+- Stats Widget: make frame sections balanced with long titles.
+- Stats Widget: make the new version of the widget available to general audience.
+- Subscriptions: Add counts in the newsletter panel to show the newsletter reach.
 
 #### Improved compatibility
-- General: Jetpack now requires WordPress version 6.1.
-- General: remove WordPress 6.0 backwards-compatibility code, now that Jetpack requires WordPress 6.1
+- General: remove WordPress 6.0 backwards-compatibility code, now that Jetpack requires WordPress 6.1.
 
 #### Bug fixes
-- 3rd-party shims: improve loading performance
-- Assets: avoid fatal errors with plugins that use outdated Jetpack package versions.
-- Button Block: ensure no borders are added by default browser styles.
-- Cookie Consent Block: return fresh HTML when the user revists after accepting cookies.
-- Dashboard: improve upgrade description for users with Akismet already installed and active.
-- Forms: Fix Forms styles when inside Cover blocks.
-- Newsletters: properly gate the feature based on the configuration of the site.
-- Update the visibility setting of the Payment block inner blocks on click to ensure that the inner block renders
+- 3rd-party plugin support code: improve loading performance.
+- Payment Block: update the visibility setting of inner blocks on click to ensure that the inner block renders.
 
 --------
 
