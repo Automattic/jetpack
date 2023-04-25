@@ -1,5 +1,6 @@
 <?php
-
+// phpcs:ignoreFile
+// This is a temporary file only active when the flag is enabled.
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 
 function jetpack_boost_mock_api( $count ) {
