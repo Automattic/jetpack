@@ -336,10 +336,11 @@ function zeroBSCRM_generateInvoicePDFFile( $invoice_id = -1 ) {
 	$dompdf->loadHtml( $html, 'UTF-8' );
 	$dompdf->render();
 
-	$file_to_save = $temp_dir['path'] . '/' . sanitize_title( __( 'invoice', 'zero-bs-crm' ) ) . '-' . $invoice_id . '.pdf';
+	// normalise translated text to alphanumeric, resulting in a filename like `invoice-321.pdf`
+	$file_to_save = sanitize_title( __( 'invoice', 'zero-bs-crm' ) ) . '-' . $invoice_id . '.pdf';
 
 	// save the pdf file on the server
-	file_put_contents( $file_to_save, $dompdf->output() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+	file_put_contents( $temp_dir['path'] . '/' . $file_to_save, $dompdf->output() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 
 	return $file_to_save;
 }
