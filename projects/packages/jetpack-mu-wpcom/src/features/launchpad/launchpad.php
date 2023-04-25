@@ -163,20 +163,20 @@ function get_task_definitions() {
 	return array(
 		array(
 			'id'        => 'setup_newsletter',
-			'title'     => __( 'Personalize Newsletter', 'jetpack-mu-wpcom' ),
+			'title'     => __( 'Personalize newsletter', 'jetpack-mu-wpcom' ),
 			'completed' => true,
 			'disabled'  => false,
 		),
 		array(
 			'id'        => 'plan_selected',
-			'title'     => __( 'Choose a Plan', 'jetpack-mu-wpcom' ),
+			'title'     => __( 'Choose a plan', 'jetpack-mu-wpcom' ),
 			'subtitle'  => get_plan_selected_subtitle(),
 			'completed' => true,
 			'disabled'  => false,
 		),
 		array(
 			'id'        => 'subscribers_added',
-			'title'     => __( 'Add Subscribers', 'jetpack-mu-wpcom' ),
+			'title'     => __( 'Add subscribers', 'jetpack-mu-wpcom' ),
 			'completed' => true,
 			'disabled'  => false,
 		),
@@ -274,7 +274,7 @@ function get_task_definitions() {
 		),
 		array(
 			'id'        => 'verify_email',
-			'title'     => __( 'Confirm Email (Check Your Inbox)', 'jetpack-mu-wpcom' ),
+			'title'     => __( 'Confirm email (check your inbox)', 'jetpack-mu-wpcom' ),
 			'completed' => false,
 			'disabled'  => true,
 		),
