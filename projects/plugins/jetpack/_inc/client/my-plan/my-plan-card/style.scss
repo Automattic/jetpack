@@ -22,8 +22,16 @@
 	flex: 1;
 }
 
-.is-plan  .my-plan-card__title{
+.is-plan .my-plan-card__title{
   font-size: 24px;
+}
+
+.is-plan .my-plan-card__tag-line{
+  font-size: 16px;
+}
+
+.is-plan .my-plan-card__header{
+  margin: auto;
 }
 
 .my-plan-card__title {
@@ -42,7 +50,7 @@
 	$font-body-small: 14px;
 	font-weight: 400;
 	line-height: 18px;
-	margin: 0 0 24px;
+	margin: 0 0 4px 0;
 
 	@include breakpoint( '<960px' ) {
 	  margin-bottom: 8px;
