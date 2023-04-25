@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let small = false;
 	export let fill = false;
-	export let width: string | undefined;
+	export let width: string | null = null;
 	export let href = '';
 </script>
 
@@ -19,14 +19,11 @@
 	// Increasing specificity
 	// to override the default WordPress button styles.
 	:global( #jb-dashboard ) {
-		button {
-			display: flex;
+		.button {
+			display: inline-flex;
 			justify-content: center;
 			align-items: center;
-			padding: 8px 16px;
-
-			width: 220px;
-			height: 40px;
+			padding: 0 24px;
 
 			background: #ffffff;
 
