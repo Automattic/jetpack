@@ -120,7 +120,7 @@ export default function Player( { isSelected, attributes } ) {
 	}
 
 	const onLayout = useCallback( event => {
-		const { height, width } = event.nativeEvent.layout;
+		const { width } = event.nativeEvent.layout;
 		const scaledHeight = width * DEFAULT_PLAYER_ASPECT_RATIO;
 		const scaledOffset = ( width / MAX_WIDTH ) * LOADING_OFFSET_HEIGHT;
 		setLoadingHeight( scaledHeight - scaledOffset );
