@@ -158,7 +158,7 @@ export const dashboard = combineReducers( {
 /**
  * Returns string of active Stats tab in At A Glance section
  *
- * @param  {Object}  state -  Global state tree
+ * @param  {object}  state - Global state tree
  * @returns {string}         Which Stats tab is open.
  */
 export function getActiveStatsTab( state ) {
@@ -168,7 +168,7 @@ export function getActiveStatsTab( state ) {
 /**
  * Returns true if currently requesting Stats data.
  *
- * @param  {Object}  state -  Global state tree
+ * @param  {object}  state - Global state tree
  * @returns {boolean}        Whether Stats data is being requested
  */
 export function isFetchingStatsData( state ) {
@@ -178,8 +178,8 @@ export function isFetchingStatsData( state ) {
 /**
  * Returns object with Stats data.
  *
- * @param  {Object}  state -  Global state tree
- * @returns {Object}			Stats data.
+ * @param  {object}  state - Global state tree
+ * @returns {object}			Stats data.
  */
 export function getStatsData( state ) {
 	return state.jetpack.dashboard.statsData;
@@ -188,7 +188,7 @@ export function getStatsData( state ) {
 /**
  * Returns true if currently requesting Akismet data
  *
- * @param  {Object}  state -  Global state tree
+ * @param  {object}  state - Global state tree
  * @returns {boolean}        Whether Akismet data is being requested
  */
 export function isFetchingAkismetData( state ) {
@@ -198,8 +198,8 @@ export function isFetchingAkismetData( state ) {
 /**
  * Returns int of protect count of blocked attempts.
  *
- * @param  {Object}  state -  Global state tree
- * @returns {int} Number of comments blocked by Akismet
+ * @param  {object}  state - Global state tree
+ * @returns {number | string} Number of comments blocked by Akismet or error code: 'not_active', 'not_installed', 'invalid_key'
  */
 export function getAkismetData( state ) {
 	return state.jetpack.dashboard.akismetData;
@@ -208,7 +208,7 @@ export function getAkismetData( state ) {
 /**
  * Returns true if currently checking Akismet API key for validity.
  *
- * @param  {Object}  state -  Global state tree
+ * @param  {object}  state - Global state tree
  * @returns {boolean}        Whether Akismet API key is being checked.
  */
 export function isCheckingAkismetKey( state ) {
@@ -218,7 +218,7 @@ export function isCheckingAkismetKey( state ) {
 /**
  * Checks if the Akismet key is valid.
  *
- * @param  {Object}  state -  Global state tree
+ * @param  {object}  state - Global state tree
  * @returns {boolean} True if Akismet API key is valid.
  */
 export function isAkismetKeyValid( state ) {
@@ -228,7 +228,7 @@ export function isAkismetKeyValid( state ) {
 /**
  * Returns true if currently requesting Protect data
  *
- * @param  {Object}  state -  Global state tree
+ * @param  {object}  state - Global state tree
  * @returns {boolean}        Whether Protect data is being requested
  */
 export function isFetchingProtectData( state ) {
@@ -238,8 +238,8 @@ export function isFetchingProtectData( state ) {
 /**
  * Returns int of protect count of blocked attempts.
  *
- * @param  {Object}  state -  Global state tree
- * @returns {int} Number of blocked brute force login attempts
+ * @param  {object}  state - Global state tree
+ * @returns {number} Number of blocked brute force login attempts
  */
 export function getProtectCount( state ) {
 	return state.jetpack.dashboard.protectCount;
@@ -249,7 +249,7 @@ export function getProtectCount( state ) {
  * Returns true if a fetch to VaultPress data has completed.
  * Both success and error states will set hasLoadedVaultPressData = true.
  *
- * @param  {Object} state - Global state tree.
+ * @param  {object} state - Global state tree.
  * @returns {boolean} Whether a VaultPress data fetch has finished.
  */
 export function hasLoadedVaultPressData( state ) {
@@ -259,7 +259,7 @@ export function hasLoadedVaultPressData( state ) {
 /**
  * Returns true if currently requesting VaultPress data
  *
- * @param  {Object}  state -  Global state tree
+ * @param  {object}  state - Global state tree
  * @returns {boolean}        Whether VaultPress data is being requested
  */
 export function isFetchingVaultPressData( state ) {
@@ -270,8 +270,8 @@ export function isFetchingVaultPressData( state ) {
  *
  * Returns all VaultPress data as an object.
  *
- * @param  {Object}  state -  Global state tree
- * @returns {Object} All VaultPress configuration/status data
+ * @param  {object}  state - Global state tree
+ * @returns {object} All VaultPress configuration/status data
  */
 export function getVaultPressData( state ) {
 	return state.jetpack.dashboard.vaultPressData;
@@ -281,8 +281,8 @@ export function getVaultPressData( state ) {
  *
  * Returns number of VaultPress Scan threats found.
  *
- * @param  {Object}  state -  Global state tree
- * @returns {int} The number of current security threats found by VaultPress
+ * @param  {object}  state - Global state tree
+ * @returns {number} The number of current security threats found by VaultPress
  */
 export function getVaultPressScanThreatCount( state ) {
 	return get( state.jetpack.dashboard.vaultPressData, 'data.security.notice_count', 0 );
@@ -291,7 +291,7 @@ export function getVaultPressScanThreatCount( state ) {
 /**
  * Returns true if currently requesting Plugin Updates
  *
- * @param  {Object}  state -  Global state tree
+ * @param  {object}  state - Global state tree
  * @returns {boolean}        Whether Plugin Updates are being requested
  */
 export function isFetchingPluginUpdates( state ) {
@@ -301,8 +301,8 @@ export function isFetchingPluginUpdates( state ) {
 /**
  * Returns int of plugin updates
  *
- * @param  {Object}  state -  Global state tree
- * @returns {int} Number of plugin updates currently available
+ * @param  {object}  state - Global state tree
+ * @returns {number} Number of plugin updates currently available
  */
 export function getPluginUpdates( state ) {
 	return state.jetpack.dashboard.pluginUpdates;
@@ -311,7 +311,7 @@ export function getPluginUpdates( state ) {
 /**
  * Returns true if currently requesting plugins data.
  *
- * @param  {object}  state -  Global state tree
+ * @param  {object}  state - Global state tree
  * @returns {boolean}        Whether plugins data is being requested
  */
 export function isFetchingPluginsData( state ) {
@@ -322,7 +322,7 @@ export function isFetchingPluginsData( state ) {
  * Returns the plugins data items object, with key being the plugin basepath
  * and value being an object containing plugin details
  *
- * @param  {object}  state -  Global state tree
+ * @param  {object}  state - Global state tree
  * @returns {object} The plugins data items
  */
 export function getPluginItems( state ) {

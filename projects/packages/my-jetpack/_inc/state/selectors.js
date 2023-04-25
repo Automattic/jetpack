@@ -84,7 +84,7 @@ const noticeSelectors = {
 };
 
 const getProductStats = ( state, productId ) => {
-	return state.stats?.items?.[ productId ] || null;
+	return state.stats?.items?.[ productId ];
 };
 
 const isFetchingProductStats = ( state, productId ) => {
