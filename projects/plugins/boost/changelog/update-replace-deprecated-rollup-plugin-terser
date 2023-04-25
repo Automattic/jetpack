@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Replace deprecated JS dep `rollup-plugin-terser` with `@rollup/plugin-terser`.
+
+

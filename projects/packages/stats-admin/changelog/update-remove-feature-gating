@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stats Admin: add minify=false to avoid JS minified by WP.com

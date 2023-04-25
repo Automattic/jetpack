@@ -22,10 +22,9 @@ const VideoPressUploader = ( {
 	fileToUpload,
 	handleDoneUpload,
 	isInteractionDisabled,
-	isReplacing,
 	onFocus,
-	onReplaceCancel,
 	onStartUpload,
+	onStopUpload,
 } ) => {
 	const [ uploadFile, setFile ] = useState( null );
 	const [ isUploadingInProgress, setIsUploadingInProgress ] = useState( false );
@@ -83,9 +82,7 @@ const VideoPressUploader = ( {
 
 	const onResetUpload = useCallback( () => {
 		setIsUploadingInProgress( false );
-		if ( isReplacing ) {
-			onReplaceCancel();
-		}
+		onStopUpload();
 	}, [] );
 
 	if ( isUploadingInProgress ) {
