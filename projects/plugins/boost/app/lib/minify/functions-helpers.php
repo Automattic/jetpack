@@ -181,11 +181,9 @@ function jetpack_boost_page_optimize_schedule_cache_cleanup() {
 	$cache_folder = Config::get_cache_dir_path();
 	$args         = array( $cache_folder );
 
-	$cache_cleanup_hook = 'page_optimize_cron_cache_cleanup';
-
 	// If caching is on, and job isn't queued for current cache folder
-	if ( false !== $cache_folder && false === wp_next_scheduled( $cache_cleanup_hook, $args ) ) {
-		wp_schedule_event( time(), 'daily', $cache_cleanup_hook, $args );
+	if ( false !== $cache_folder && false === wp_next_scheduled( 'page_optimize_cron_cache_cleanup', $args ) ) {
+		wp_schedule_event( time(), 'daily', 'page_optimize_cron_cache_cleanup', $args );
 	}
 }
 
