@@ -278,10 +278,11 @@ function zbs_invoice_generate_pdf(){
 		}
 
 		// generate the PDF
-		$pdf_path     = zeroBSCRM_generateInvoicePDFFile( $invoice_id );
-		$pdf_filename = basename( $pdf_path );
+		$pdf_path = zeroBSCRM_generateInvoicePDFFile( $invoice_id );
 
 		if ( $pdf_path !== false ) {
+
+			$pdf_filename = basename( $pdf_path );
 
 			// print the pdf file to the screen for saving
 			header( 'Content-type: application/pdf' );
