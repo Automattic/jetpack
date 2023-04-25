@@ -68,7 +68,7 @@ From that day forward, Jack became known as the "bird chef," renowned throughout
 ````
 
 ### Jetpack Forms
-Jetpack Forms evolve very quickly, and the Form block should get attention from testers in every release. This time there are changes as well. One of them is the update for Forms child blocks to allow any transformation between the blocks:
+Jetpack Forms continues to improve with changes in this release. One change is an update for Forms child blocks to allow any transformation between the blocks:
 
 - Create a post, add a Form block, and select a template
 - Select a child block and use the Transform To option to transform the current block into other blocks
