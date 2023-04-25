@@ -2,8 +2,6 @@
 
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
 // @todo - refactor this. Dump of functions from page optimize.
 
@@ -75,38 +73,20 @@ function jetpack_boost_init_filesystem() {
 
 function jetpack_boost_page_optimize_js_exclude_list() {
 	$exclude_list = jetpack_boost_ds_get( 'minify_js_excludes' );
-	if ( false === $exclude_list ) {
-		// Use the default since the option is not set
-		return jetpack_boost_page_optimize_js_exclude_list_default();
-	}
 	if ( '' === $exclude_list ) {
 		return array();
 	}
 
 	return explode( ',', $exclude_list );
-}
-
-function jetpack_boost_page_optimize_js_exclude_list_default() {
-	// WordPress core stuff, a lot of other plugins depend on it.
-	return Minify_JS::$default_excludes;
 }
 
 function jetpack_boost_page_optimize_css_exclude_list() {
 	$exclude_list = jetpack_boost_ds_get( 'minify_css_excludes' );
-	if ( false === $exclude_list ) {
-		// Use the default since the option is not set
-		return jetpack_boost_page_optimize_css_exclude_list_default();
-	}
 	if ( '' === $exclude_list ) {
 		return array();
 	}
 
 	return explode( ',', $exclude_list );
-}
-
-function jetpack_boost_page_optimize_css_exclude_list_default() {
-	// WordPress core stuff
-	return Minify_CSS::$default_excludes;
 }
 
 function jetpack_boost_page_optimize_sanitize_exclude_field( $value ) {
