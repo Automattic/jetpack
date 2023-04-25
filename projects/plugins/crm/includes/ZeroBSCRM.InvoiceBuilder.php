@@ -309,42 +309,39 @@ add_action('zerobscrm_post_init','zbs_invoice_generate_pdf');
 #} ... used for attaching pdf's to emails etc.
 function zeroBSCRM_generateInvoicePDFFile( $invoice_id = -1 ) {
 
-    global $zbs;
+	global $zbs;
 
-    // brutal.
-    if ( !zeroBSCRM_permsInvoices() ){
-        return false;
-    }
+	// brutal.
+	if ( ! zeroBSCRM_permsInvoices() ) {
+			return false;
+	}
 
-    // If user has no perms, or id not present, die
-    if ( $invoice_id <= 0 ){
-        
-        return false;
-        
-    }
+	// If user has no perms, or id not present, die
+	if ( $invoice_id <= 0 ) {
+		return false;
+	}
 
-    // Generate html
-    $html = zeroBSCRM_invoice_generateInvoiceHTML( $invoice_id );
+	// Generate html
+	$html = zeroBSCRM_invoice_generateInvoiceHTML( $invoice_id );
 
-    // build PDF
-    $dompdf = $zbs->pdf_engine();
-    $dompdf->loadHtml( $html, 'UTF-8' );
-    $dompdf->render();
+	// build PDF
+	$dompdf = $zbs->pdf_engine();
+	$dompdf->loadHtml( $html, 'UTF-8' );
+	$dompdf->render();
 
-    $upload_dir = wp_upload_dir();        
-    $zbsInvoiceDir = $upload_dir['basedir'].'/invoices/';
+	$upload_dir  = wp_upload_dir();
+	$invoice_dir = $upload_dir['basedir'] . '/invoices/';
 
-    if ( ! file_exists( $zbsInvoiceDir ) ) {
-        wp_mkdir_p( $zbsInvoiceDir );
-    }
-    
-    $file_to_save = $zbsInvoiceDir . $invoice_id . '.pdf';
+	if ( ! file_exists( $invoice_dir ) ) {
+		wp_mkdir_p( $invoice_dir );
+	}
 
-    // save the pdf file on the server
-    file_put_contents( $file_to_save, $dompdf->output() ); 
-    
-    return $file_to_save;
+	$file_to_save = $invoice_dir . $invoice_id . '.pdf';
 
+	// save the pdf file on the server
+	file_put_contents( $file_to_save, $dompdf->output() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+	return $file_to_save;
 }
 
 // LEGACY, should now be using zeroBSCRM_invoice_generateInvoiceHTML
