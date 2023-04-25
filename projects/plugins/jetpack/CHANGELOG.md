@@ -4,32 +4,32 @@
 
 ## 12.1-beta - 2023-04-25
 ### Enhancements
-- Add counts in the newsletter panel to show the newsletter reach [#29230]
-- Add is_block_theme field to the wp/v2/themes endpoint to indicate it the theme is a block-based theme. [#30144]
-- Align protect option value logic with Akismet. [#30222]
 - Block editor: collapse Jetpack feature panels by default. [#30140]
-- Debug page redesign. [#30166]
-- Improve the appearance. [#30166]
-- Jetpack Dashboard - At a Glance page redesign. [#30166]
-- Make Stats Widget frame sections balanced with long titles. [#30106]
-- Markdown Block: add support for footnotes [#30149]
-- Publicize: Use attached media for the OpenGraph image [#30162]
-- Remove rewriting the Site Editor to Calypso's iframed `/site-editor/SITE_SLUG` route [#30072]
-- Stats widget: improve appearance of footer buttons [#30173]
-- Stats Widget: remove feature gating [#30174]
+- Dashboard: align Protect information display with Akismet. [#30222]
+- Dashboard: improve the general appearance. [#30166]
+- Dashboard: redesign the At a Glance page. [#30166]
+- Dashboard: visually refresh the Debug page. [#30166]
+- Markdown Block: add support for footnotes. [#30149]
+- Publicize: improve page metadata by using attached media for the OpenGraph image. [#30162]
+- Stats Widget: improve appearance of footer buttons. [#30173]
+- Stats Widget: make frame sections balanced with long titles. [#30106]
+- Stats Widget: make the new version of the widget available to general audience. [#30174]
+- Subscriptions: add counts in the newsletter panel to show the newsletter reach. [#29230]
 
 ### Improved compatibility
-- General: remove WordPress 6.0 backwards-compatibility code, now that Jetpack requires WordPress 6.1 [#30126]
+- General: remove WordPress 6.0 backwards-compatibility code, now that Jetpack requires WordPress 6.1. [#30126]
 
 ### Bug fixes
-- 3rd-party shims: improve loading performance [#30060]
-- Update the visibility setting of the Payment block inner blocks on click to ensure that the inner block renders [#30095]
+- 3rd-party plugin support code: improve loading performance. [#30060]
+- Payment Block: update the visibility setting of inner blocks on click to ensure that the inner block renders. [#30095]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
-- Changelog editoria [#30133]
+- Add is_block_theme field to the wp/v2/themes endpoint to indicate it the theme is a block-based theme. [#30144]
+- Changelog editorial. [#30133]
 - Connection: update the full-screen connection banner to the new design. [#29566]
-- Fix firefox not detecting the collapsed state of the sidebar properly [#30240]
-- Make sure the hook receives an array before attempting any process [#30192]
+- Fix firefox not detecting the collapsed state of the sidebar properly. [#30240]
+- Make sure the hook receives an array before attempting any process. [#30192]
+- Remove rewriting the Site Editor to Calypso's iframed `/site-editor/SITE_SLUG` route. [#30072]
 - SEO: update panel name in block editor. [#30138]
 - Shows convert to audio CTA based on the value of a filter that defaults to the current sunsetting date. [#30239]
 
