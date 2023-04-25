@@ -260,8 +260,6 @@ function zeroBSCRM_invoice_generatePortalInvoiceHTML_v3($invoiceID=-1,$return=tr
 
 function zbs_invoice_generate_pdf(){
 
-	global $zbs;
-
 	// download flag
 	if ( isset( $_POST['zbs_invoicing_download_pdf'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
@@ -280,27 +278,21 @@ function zbs_invoice_generate_pdf(){
 		}
 
 		// generate the PDF
-		$pdf_file_location = zeroBSCRM_generateInvoicePDFFile( $invoice_id );
+		$pdf_path     = zeroBSCRM_generateInvoicePDFFile( $invoice_id );
+		$pdf_filename = basename( $pdf_path );
 
-		if ( $pdf_file_location !== false ) {
-
-			$invoice = $zbs->DAL->invoices->getInvoice( $invoice_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			$ref     = $invoice['id_override'];
-
-			if ( empty( $ref ) ) {
-				$ref = $invoice_id;
-			}
+		if ( $pdf_path !== false ) {
 
 			// print the pdf file to the screen for saving
 			header( 'Content-type: application/pdf' );
-			header( 'Content-Disposition: attachment; filename="invoice-' . $ref . '.pdf"' );
+			header( 'Content-Disposition: attachment; filename="' . $pdf_filename . '"' );
 			header( 'Content-Transfer-Encoding: binary' );
-			header( 'Content-Length: ' . filesize( $pdf_file_location ) );
+			header( 'Content-Length: ' . filesize( $pdf_path ) );
 			header( 'Accept-Ranges: bytes' );
-			readfile( $pdf_file_location ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
+			readfile( $pdf_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
 
 			// delete the PDF file once it's been read (i.e. downloaded)
-			wp_delete_file( $pdf_file_location );
+			wp_delete_file( $pdf_path );
 
 		}
 
