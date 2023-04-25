@@ -14,25 +14,11 @@
         width: 0.666em;
     }
 
-    &__label, &__link {
+    &__label {
         font-weight: 600;
         line-height: 1.666;
         margin-left: calc( var( --spacing-base ) / 2 ); // 4px
     }
-
-	&__link {
-		text-decoration: underline;
-
-		&:hover {
-			text-decoration-thickness: 3px;
-		}
-		&:focus {
-			text-decoration-line: none;
-			border-radius: 2px;
-			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
-			outline: 3px solid transparent;
-		}
-	}
 
     &.is-active {
 		span, a {
