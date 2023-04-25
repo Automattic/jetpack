@@ -137,8 +137,6 @@ $modules_state_schema = Schema::as_array(
 $entry = new Modules_State_Entry();
 jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
 
-
-
 function jetpack_boost_mock_api( $count ) {
 	$args = array(
 		'post_type'      => 'post',
@@ -154,75 +152,109 @@ function jetpack_boost_mock_api( $count ) {
 		),
 	);
 
-	$posts = get_posts( $args );
+	$posts       = get_posts( $args );
 	$image_posts = array();
 
 	foreach ( $posts as $post ) {
 		$image_meta = array();
 
 		// Get the featured image.
-		$image_url = get_the_post_thumbnail_url( $post->ID );
-		$image_meta['thumbnail'] = $image_url;
+		$image_url                  = get_the_post_thumbnail_url( $post->ID );
+		$image_meta['thumbnail']    = $image_url;
 		$image_meta['image']['url'] = $image_url;
 
 		// Get image dimensions.
-		list( $width, $height ) = getimagesize( $image_url );
-		$random = mt_rand( 50, 90 ) / 100;
-		$image_meta['image']['dimensions']['file'] = array( 'width' => $width, 'height' => $height );
-		$image_meta['image']['dimensions']['expected'] = array( 'width' => $width * $random, 'height' => $height * $random );
-		$image_meta['image']['dimensions']['size_on_screen'] = array( 'width' => ($width * $random) / 2 , 'height' => ($width * $random) / 2  );
+		list( $width, $height )                        = getimagesize( $image_url );
+		$random                                        = mt_rand( 50, 90 ) / 100;
+		$image_meta['image']['dimensions']['file']     = array(
+			'width'  => $width,
+			'height' => $height,
+		);
+		$image_meta['image']['dimensions']['expected'] = array(
+			'width'  => $width * $random,
+			'height' => $height * $random,
+		);
+		$image_meta['image']['dimensions']['size_on_screen'] = array(
+			'width'  => ( $width * $random ) / 2,
+			'height' => ( $width * $random ) / 2,
+		);
 
 		// Get image weight.
-		$weight = filesize( get_attached_file( get_post_thumbnail_id( $post->ID ) ) ) / 1024;
-		$image_meta['image']['weight']['current'] = $weight;
+		$weight                                     = filesize( get_attached_file( get_post_thumbnail_id( $post->ID ) ) ) / 1024;
+		$image_meta['image']['weight']['current']   = $weight;
 		$image_meta['image']['weight']['potential'] = $weight * 0.5;
 
-		$image_meta['page']['id'] = $post->ID;
-		$permalink = home_url() . '?p=' . $post->ID; // Fallback permalink with query parameter
-		$image_meta['page']['url'] = $permalink;
+		$image_meta['page']['id']    = $post->ID;
+		$permalink                   = home_url() . '?p=' . $post->ID; // Fallback permalink with query parameter
+		$image_meta['page']['url']   = $permalink;
 		$image_meta['page']['title'] = get_the_title( $post->ID );
 
-		$image_meta['device_type'] = mt_rand( 1, 2) === 1 ? 'phone' : 'desktop';
+		$image_meta['device_type'] = mt_rand( 1, 2 ) === 1 ? 'phone' : 'desktop';
 
 		$image_meta['instructions'] = 'Resize the image to the expected dimensions and compress it.';
 
 		$image_posts[] = $image_meta;
 	}
 
-	return $image_posts;
+	return array(
+		'last_updated' => 1682419855474,
+		'images'       => $image_posts,
+	);
 }
 
-
-$image_size_analysis = Schema::as_assoc_array([
-	'thumbnail' => Schema::as_string(),
-	'image' => Schema::as_assoc_array([
-		'url' => Schema::as_string(),
-		'dimensions' => Schema::as_assoc_array([
-			'file' => Schema::as_assoc_array([
-				'width' => Schema::as_number(),
-				'height' => Schema::as_number(),
-			]),
-			'expected' => Schema::as_assoc_array([
-				'width' => Schema::as_number(),
-				'height' => Schema::as_number(),
-			]),
-			'size_on_screen' => Schema::as_assoc_array([
-				'width' => Schema::as_number(),
-				'height' => Schema::as_number(),
-			]),
-		]),
-		'weight' => Schema::as_assoc_array([
-			'current' => Schema::as_number(),
-			'potential' => Schema::as_number(),
-		]),
-	]),
-	'page' => Schema::as_assoc_array([
-		'id' => Schema::as_number(),
-		'url' => Schema::as_string(),
-		'title' => Schema::as_string(),
-	]),
-	'device_type' => Schema::enum(['phone', 'desktop']),
-	'instructions' => Schema::as_string(),
-])->fallback( jetpack_boost_mock_api( 10 ) );
+$image_size_analysis = Schema::as_assoc_array(
+	array(
+		'last_updated' => Schema::as_number(),
+		'images'       => Schema::as_array(
+			Schema::as_assoc_array(
+				array(
+					'thumbnail'    => Schema::as_string(),
+					'image'        => Schema::as_assoc_array(
+						array(
+							'url'        => Schema::as_string(),
+							'dimensions' => Schema::as_assoc_array(
+								array(
+									'file'           => Schema::as_assoc_array(
+										array(
+											'width'  => Schema::as_number(),
+											'height' => Schema::as_number(),
+										)
+									),
+									'expected'       => Schema::as_assoc_array(
+										array(
+											'width'  => Schema::as_number(),
+											'height' => Schema::as_number(),
+										)
+									),
+									'size_on_screen' => Schema::as_assoc_array(
+										array(
+											'width'  => Schema::as_number(),
+											'height' => Schema::as_number(),
+										)
+									),
+								)
+							),
+							'weight'     => Schema::as_assoc_array(
+								array(
+									'current'   => Schema::as_number(),
+									'potential' => Schema::as_number(),
+								)
+							),
+						)
+					),
+					'page'         => Schema::as_assoc_array(
+						array(
+							'id'    => Schema::as_number(),
+							'url'   => Schema::as_string(),
+							'title' => Schema::as_string(),
+						)
+					),
+					'device_type'  => Schema::enum( array( 'phone', 'desktop' ) ),
+					'instructions' => Schema::as_string(),
+				)
+			)
+		),
+	)
+)->fallback( jetpack_boost_mock_api( 10 ) );
 
 jetpack_boost_register_option( 'image_size_analysis', $image_size_analysis );

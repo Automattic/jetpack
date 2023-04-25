@@ -1,10 +1,17 @@
 <script lang="ts">
 	import { imageStore } from '../ApiMock';
+	const formatter = new Intl.DateTimeFormat( 'en-US', {
+		month: 'long',
+		day: 'numeric',
+		hour: 'numeric',
+		minute: 'numeric',
+		hour12: true,
+	} );
 </script>
 
 <div class="jb-hero">
-	<span>Latest report as of March 17th at 3:27 PM</span>
-	<h1>{$imageStore.length} Image Recommendations</h1>
+	<span>Latest report as of {formatter.format( $imageStore.last_updated )}</span>
+	<h1>{$imageStore.images.length} Image Recommendations</h1>
 </div>
 
 <style lang="scss">

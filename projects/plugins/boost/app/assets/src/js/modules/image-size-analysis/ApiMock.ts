@@ -1,5 +1,5 @@
 import { initializeClient } from '@automattic/jetpack-svelte-data-sync-client';
-import { readable, writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 import { z } from 'zod';
 
 const Dimensions = z.object( {
@@ -28,6 +28,11 @@ const ImageMeta = z.object( {
 	} ),
 	device_type: z.enum( [ 'phone', 'desktop' ] ),
 	instructions: z.string(),
+} );
+
+const ImageSizeAnalysis = z.object( {
+	last_updated: z.number(),
+	images: z.array( ImageMeta ),
 } );
 
 type CategoryState = {
@@ -67,6 +72,6 @@ export type Dimensions = { width: number; height: number };
 export type ImageMeta = z.infer< typeof ImageMeta >;
 
 const client = initializeClient( 'jetpack_boost_ds' );
-const imageMeta = client.createAsyncStore( 'image_size_analysis', z.array( ImageMeta ) );
+const imageMeta = client.createAsyncStore( 'image_size_analysis', ImageSizeAnalysis );
 
 export const imageStore = imageMeta.store;
