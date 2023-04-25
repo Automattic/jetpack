@@ -77,8 +77,8 @@ export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const { chatAvailability, isFetchingChatAvailability } = useChatAvailability();
-	const shouldShowZendeskChatWidget = ! isFetchingChatAvailability && chatAvailability.is_available;
+	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
+	const shouldShowZendeskChatWidget = ! isFetchingChatAvailability && isAvailable;
 
 	const { recordEvent } = useAnalytics();
 

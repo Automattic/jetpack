@@ -7,17 +7,17 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} chat availability data
  */
 export default function useChatAvailability() {
-	const { chatAvailability, isFetchingChatAvailability } = useSelect( select => {
+	const { isAvailable, isFetchingChatAvailability } = useSelect( select => {
 		const { getChatAvailability, isRequestingChatAvailability } = select( STORE_ID );
 
 		return {
-			chatAvailability: getChatAvailability(),
+			isAvailable: getChatAvailability(),
 			isFetchingChatAvailability: isRequestingChatAvailability(),
 		};
 	} );
 
 	return {
-		chatAvailability,
+		isAvailable,
 		isFetchingChatAvailability,
 	};
 }

@@ -105,7 +105,7 @@ const chatAvailability = ( state = {}, action ) => {
 		case SET_CHAT_AVAILABILITY:
 			return {
 				...state,
-				items: action?.chatAvailability || [],
+				isAvailable: action?.chatAvailability?.is_available || false,
 			};
 
 		default:

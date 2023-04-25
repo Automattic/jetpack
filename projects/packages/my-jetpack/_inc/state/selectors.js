@@ -60,7 +60,7 @@ const purchasesSelectors = {
 };
 
 const chatAvailabilitySelectors = {
-	getChatAvailability: state => state.chatAvailability?.items || {},
+	getChatAvailability: state => state.chatAvailability.isAvailable,
 	isRequestingChatAvailability: state => state.chatAvailability?.isFetching || false,
 };
 
