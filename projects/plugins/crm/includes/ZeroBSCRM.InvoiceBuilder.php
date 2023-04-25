@@ -306,8 +306,6 @@ add_action( 'zerobscrm_post_init', 'zbs_invoice_generate_pdf' );
 #} ... used for attaching pdf's to emails etc.
 function zeroBSCRM_generateInvoicePDFFile( $invoice_id = -1 ) {
 
-	global $zbs;
-
 	// brutal.
 	if ( ! zeroBSCRM_permsInvoices() ) {
 		return false;
@@ -318,21 +316,10 @@ function zeroBSCRM_generateInvoicePDFFile( $invoice_id = -1 ) {
 		return false;
 	}
 
-	$temp_dir = zeroBSCRM_privatisedDirCheckWorks();
-
-	// if tmp dir doesn't exist, die
-	if ( ! $temp_dir ) {
-		return false;
-	}
-
 	// Generate html
 	$html = zeroBSCRM_invoice_generateInvoiceHTML( $invoice_id );
 
-	// build PDF
-	$dompdf = $zbs->pdf_engine();
-	$dompdf->loadHtml( $html, 'UTF-8' );
-	$dompdf->render();
-
+	global $zbs;
 	$invoice = $zbs->DAL->invoices->getInvoice( $invoice_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 	// if invoice has reference number, use instead of ID
@@ -342,12 +329,9 @@ function zeroBSCRM_generateInvoicePDFFile( $invoice_id = -1 ) {
 
 	// normalise translated text to alphanumeric, resulting in a filename like `invoice-321.pdf`
 	$pdf_filename = sanitize_title( __( 'invoice', 'zero-bs-crm' ) . '-' . $invoice_id ) . '.pdf';
-	$pdf_path     = $temp_dir['path'] . '/' . $pdf_filename;
 
-	// save the pdf file on the server
-	file_put_contents( $pdf_path, $dompdf->output() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-
-	return $pdf_path;
+	// return PDF filename if successful, false if not
+	return jpcrm_generate_pdf( $html, $pdf_filename );
 }
 
 // LEGACY, should now be using zeroBSCRM_invoice_generateInvoiceHTML
