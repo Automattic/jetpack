@@ -252,7 +252,7 @@ class Concatenate_JS extends WP_Scripts {
 					$handles = implode( ',', $js_array['handles'] );
 
 					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-						$tag = "<script data-handles='" . esc_attr( $handles ) . "' type='text/javascript' src='$href'></script>\n";
+						$tag = "<script data-handles='" . esc_attr( $handles ) . "' type='text/javascript' src='" . esc_url( $href ) . "'></script>\n";
 					} else {
 						$tag = "<script type='text/javascript' src='" . esc_url( $href ) . "'></script>\n";
 					}
