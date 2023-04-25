@@ -37,7 +37,7 @@ Jetpack 12.1 brings a visual refresh to multiple pages of the admin area. Please
 - Make sure nothing looks broken.
 
 ### The Markdown block
-Jetpack ships with 2 flavors of Markdown. 12.1 makes no changes to the classic Markdown feature available in the classic editor. This classic Markdown feature already supports footnotes. In this release, we're adding support for footnotes to the Markdown Block:
+Jetpack ships with two flavors of Markdown. 12.1 makes no changes to the classic Markdown feature available in the classic editor. This classic Markdown feature already supports footnotes. In this release, we're adding support for footnotes to the Markdown Block:
 
 - Start with a site that's connected to WordPress.com or in Offline mode.
 - Go to Posts > Add New
