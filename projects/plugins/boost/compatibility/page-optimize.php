@@ -49,6 +49,4 @@ if ( function_exists( 'page_optimize_css_exclude_list' ) ) {
 }
 
 // Disable Page Optimize functionality.
-add_filter( 'pre_option_page_optimize-js', '__return_empty_string', 0 );
-add_filter( 'pre_option_page_optimize-css', '__return_empty_string', 0 );
-add_filter( 'pre_option_page_optimize-load-mode', '__return_empty_string', 0 );
+remove_action( 'plugins_loaded', 'page_optimize_init' );
