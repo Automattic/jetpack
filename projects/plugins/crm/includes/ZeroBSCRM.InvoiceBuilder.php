@@ -341,13 +341,21 @@ function zeroBSCRM_generateInvoicePDFFile( $invoice_id = -1 ) {
 	$dompdf->loadHtml( $html, 'UTF-8' );
 	$dompdf->render();
 
+	$invoice = $zbs->DAL->invoices->getInvoice( $invoice_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+	// if invoice has reference number, use instead of ID
+	if ( ! empty( $invoice['id_override'] ) ) {
+		$invoice_id = $invoice['id_override'];
+	}
+
 	// normalise translated text to alphanumeric, resulting in a filename like `invoice-321.pdf`
-	$file_to_save = $temp_dir['path'] . '/' . sanitize_title( __( 'invoice', 'zero-bs-crm' ) ) . '-' . $invoice_id . '.pdf';
+	$pdf_filename = sanitize_title( __( 'invoice', 'zero-bs-crm' ) . '-' . $invoice_id ) . '.pdf';
+	$pdf_path     = $temp_dir['path'] . '/' . $pdf_filename;
 
 	// save the pdf file on the server
-	file_put_contents( $file_to_save, $dompdf->output() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+	file_put_contents( $pdf_path, $dompdf->output() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 
-	return $file_to_save;
+	return $pdf_path;
 }
 
 // LEGACY, should now be using zeroBSCRM_invoice_generateInvoiceHTML
