@@ -47,7 +47,12 @@ export default function PublicizeForm( {
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
-	const brokenConnections = connections.filter( connection => false === connection.is_healthy );
+	const brokenConnections = connections.filter(
+		connection => false === connection.is_healthy && 'broken' === connection.error_code
+	);
+	const unsupportedConnections = connections.filter(
+		connection => false === connection.is_healthy && 'unsupported' === connection.error_code
+	);
 
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
@@ -68,6 +73,43 @@ export default function PublicizeForm( {
 			}
 		},
 		[ autosave, isEditedPostDirty ]
+	);
+
+	const renderNotices = () => (
+		<>
+			{ brokenConnections.length > 0 && (
+				<Notice type={ 'error' }>
+					{ createInterpolateElement(
+						_n(
+							'One of your social connections is broken. Reconnect them on the <moreInfo>connection management</moreInfo> page.',
+							'Some of your social connections are broken. Reconnect them on the <moreInfo>connection management</moreInfo> page.',
+							brokenConnections.length,
+							'jetpack'
+						),
+						{
+							moreInfo: (
+								<ExternalLink href={ getRedirectUrl( 'publicize-connection-not-supported' ) } />
+							),
+						}
+					) }
+				</Notice>
+			) }
+			{ unsupportedConnections.length > 0 && (
+				<Notice type={ 'error' }>
+					{ createInterpolateElement(
+						_n(
+							'One of your social connection is not supported anymore. <fixLink>Learn more here</fixLink>.',
+							'Some of your social connections are not supported anymore. <fixLink>Learn more here</fixLink>.',
+							unsupportedConnections.length,
+							'jetpack'
+						),
+						{
+							fixLink: <ExternalLink href={ connectionsAdminUrl } />,
+						}
+					) }
+				</Notice>
+			) }
+		</>
 	);
 
 	return (
@@ -127,21 +169,7 @@ export default function PublicizeForm( {
 							</Notice>
 						</PanelRow>
 					) }
-					{ brokenConnections.length > 0 && (
-						<Notice type={ 'error' }>
-							{ createInterpolateElement(
-								_n(
-									'One of your social connections is broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
-									'Some of your social connections are broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
-									brokenConnections.length,
-									'jetpack'
-								),
-								{
-									fixLink: <ExternalLink href={ connectionsAdminUrl } />,
-								}
-							) }
-						</Notice>
-					) }
+					{ renderNotices() }
 					<PanelRow>
 						<ul className={ styles[ 'connections-list' ] }>
 							{ connections.map(
