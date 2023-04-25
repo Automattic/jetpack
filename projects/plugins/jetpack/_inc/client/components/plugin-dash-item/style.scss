@@ -16,8 +16,10 @@
 	}
 
 	.dops-banner.dops-card {
-		border-left-color: $color-product;
 		height: 100%;
+		border: 0;
+		box-shadow: none;
+
 		.dops-banner__icons {
 
 			.dops-banner__icon-circle{
@@ -35,7 +37,7 @@
 			}
 
 			@include breakpoint( '<480px' ) {
-		
+
 				.dops-banner__icon {
 					display: none;
 				}
@@ -43,7 +45,7 @@
 					display: block;
 				}
 			}
-		} 
+		}
 	}
 
 	.plugin-dash-item__content {

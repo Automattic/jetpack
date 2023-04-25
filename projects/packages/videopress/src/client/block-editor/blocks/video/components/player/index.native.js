@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { SandBox } from '@wordpress/components';
+import { SandBox, Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
@@ -18,12 +18,13 @@ import { getVideoPressUrl } from '../../../../../lib/url';
 import { usePreview } from '../../../../hooks/use-preview';
 import addTokenIntoIframeSource from '../../../../utils/add-token-iframe-source';
 import PlayerControls from './controls';
+import { VideoPressIcon } from '../icons';
 import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
-
-// The preview is ready when it has a height property
-const isPreviewReady = preview => !! preview?.height;
+const DEFAULT_PLAYER_ASPECT_RATIO = 380 / 600; // This is the observed default aspect ratio from VideoPress embeds.
+const LOADING_OFFSET_HEIGHT = 37;
+const MAX_WIDTH = 548;
 
 /**
  * VideoPlayer react component
@@ -47,9 +48,13 @@ export default function Player( { isSelected, attributes } ) {
 		seekbarPlayedColor,
 	} = attributes;
 
+	const iconStyle = style[ 'videopress-player__loading-icon' ];
+	const loadingViewStyle = style[ 'videopress-player__loading' ];
+
 	const [ isPlayerLoaded, setIsPlayerLoaded ] = useState( false );
 	const [ token, setToken ] = useState();
 	const [ previewCheckAttempts, setPreviewCheckAttempts ] = useState( 0 );
+	const [ loadingHeight, setLoadingHeight ] = useState( loadingViewStyle.height );
 	const previewCheckTimer = useRef();
 
 	// Used for Android controls only
@@ -89,13 +94,17 @@ export default function Player( { isSelected, attributes } ) {
 	const { invalidateResolution } = useDispatch( coreStore );
 	const invalidatePreview = () => invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 
+	// Check if the preview is ready or we ran out of attempts.
+	const isPreviewAvailable =
+		!! preview?.height || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT;
+
 	// Fetch the preview until it's ready
 	useEffect( () => {
 		if ( ! isPlayerLoaded || isRequestingEmbedPreview ) {
 			return;
 		}
 
-		if ( isPreviewReady( preview ) || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT ) {
+		if ( isPreviewAvailable ) {
 			clearTimeout( previewCheckTimer.current );
 			return;
 		}
@@ -128,10 +137,18 @@ export default function Player( { isSelected, attributes } ) {
 		}
 	};
 
+	// Set up container loading styles
 	const loadingStyle = {};
-	if ( ! isPreviewReady( preview ) ) {
-		loadingStyle.height = 250;
+	if ( ! isPreviewAvailable ) {
+		loadingStyle.height = loadingHeight;
 	}
+
+	const onLayout = useCallback( event => {
+		const { width } = event.nativeEvent.layout;
+		const scaledHeight = width * DEFAULT_PLAYER_ASPECT_RATIO;
+		const scaledOffset = ( width / MAX_WIDTH ) * LOADING_OFFSET_HEIGHT;
+		setLoadingHeight( scaledHeight - scaledOffset );
+	}, [] );
 
 	const renderOverlay = () => {
 		// Show custom controls on Android only
@@ -153,17 +170,26 @@ export default function Player( { isSelected, attributes } ) {
 	};
 
 	const renderEmbed = () => {
-		if ( html ) {
+		// Show the loading view if the embed html is not available or
+		// if still preparing the preview
+		if ( ! html || ( isPlayerLoaded && ! isPreviewAvailable ) ) {
 			return (
-				<SandBox
-					html={ html }
-					onWindowEvents={ { message: onSandboxMessage } }
-					viewportProps="user-scalable=0"
-					ref={ playerRef }
-				/>
+				<View style={ [ loadingViewStyle, loadingStyle ] } onLayout={ onLayout }>
+					<Icon icon={ VideoPressIcon } size={ iconStyle?.size } style={ iconStyle } />
+					<Text style={ style[ 'videopress-player__loading-text' ] }>
+						{ __( 'Loading', 'jetpack-videopress-pkg' ) }
+					</Text>
+				</View>
 			);
 		}
-		return <Text>{ __( 'Loading', 'jetpack-videopress-pkg' ) }</Text>;
+
+		return (
+			<SandBox
+				html={ html }
+				onWindowEvents={ { message: onSandboxMessage } }
+				viewportProps="user-scalable=0"
+			/>
+		);
 	};
 
 	return (
