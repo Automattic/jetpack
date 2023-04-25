@@ -21,6 +21,9 @@ import { VideoPressIcon } from '../icons';
 import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
+const DEFAULT_PLAYER_ASPECT = 380 / 600; // This is the observed default aspect ratio from VideoPress embeds.
+const LOADING_OFFSET_HEIGHT = 37;
+const MAX_WIDTH = 548;
 
 /**
  * VideoPlayer react component
@@ -44,9 +47,13 @@ export default function Player( { isSelected, attributes } ) {
 		seekbarPlayedColor,
 	} = attributes;
 
+	const iconStyle = style[ 'videopress-player__loading-icon' ];
+	const loadingViewStyle = style[ 'videopress-player__loading' ];
+
 	const [ isPlayerLoaded, setIsPlayerLoaded ] = useState( false );
 	const [ token, setToken ] = useState();
 	const [ previewCheckAttempts, setPreviewCheckAttempts ] = useState( 0 );
+	const [ loadingHeight, setLoadingHeight ] = useState( loadingViewStyle.height );
 	const previewCheckTimer = useRef();
 
 	// Fetch token for a VideoPress GUID
@@ -77,11 +84,8 @@ export default function Player( { isSelected, attributes } ) {
 	const { invalidateResolution } = useDispatch( coreStore );
 	const invalidatePreview = () => invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 
-	const iconStyle = style[ 'videopress-player__loading-icon' ];
-	const loadingStyle = style[ 'videopress-player__loading' ];
-
 	// Check if the preview is ready or we ran out of attempts.
-	const isPreviewAvailable = preview =>
+	const isPreviewAvailable =
 		!! preview?.height || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT;
 
 	// Fetch the preview until it's ready
@@ -90,7 +94,7 @@ export default function Player( { isSelected, attributes } ) {
 			return;
 		}
 
-		if ( isPreviewAvailable( preview ) ) {
+		if ( isPreviewAvailable ) {
 			clearTimeout( previewCheckTimer.current );
 			return;
 		}
@@ -109,18 +113,25 @@ export default function Player( { isSelected, attributes } ) {
 		}
 	}, [] );
 
-	const containerLoadingStyle = {};
-	if ( ! isPreviewAvailable( preview ) ) {
-		containerLoadingStyle.height = loadingStyle.height;
-		containerLoadingStyle.backgroundColor = loadingStyle.backgroundColor;
+	// Set up container loading styles
+	const loadingStyle = {};
+	if ( ! isPreviewAvailable ) {
+		loadingStyle.height = loadingHeight;
 	}
+
+	const onLayout = useCallback( event => {
+		const { height, width } = event.nativeEvent.layout;
+		const scaledHeight = width * DEFAULT_PLAYER_ASPECT;
+		const scaledOffset = ( width / MAX_WIDTH ) * LOADING_OFFSET_HEIGHT;
+		setLoadingHeight( scaledHeight - scaledOffset );
+	}, [] );
 
 	const renderEmbed = () => {
 		// Show the loading view if the embed html is not available or
 		// if still preparing the preview
-		if ( ! html || ( isPlayerLoaded && ! isPreviewAvailable( preview ) ) ) {
+		if ( ! html || ( isPlayerLoaded && ! isPreviewAvailable ) ) {
 			return (
-				<View style={ style[ 'videopress-player__loading' ] }>
+				<View style={ [ loadingViewStyle, loadingStyle ] } onLayout={ onLayout }>
 					<Icon icon={ VideoPressIcon } size={ iconStyle?.size } style={ iconStyle } />
 					<Text style={ style[ 'videopress-player__loading-text' ] }>
 						{ __( 'Loading', 'jetpack-videopress-pkg' ) }
@@ -139,7 +150,7 @@ export default function Player( { isSelected, attributes } ) {
 	};
 
 	return (
-		<View style={ [ style[ 'videopress-player' ], containerLoadingStyle ] }>
+		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
 			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
 			{ renderEmbed() }
 		</View>
