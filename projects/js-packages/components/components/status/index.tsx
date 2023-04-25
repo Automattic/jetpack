@@ -18,8 +18,6 @@ const Status = ( { className, label, status = 'inactive' }: StatusProps ): JSX.E
 		initializing: __( 'Setting up', 'jetpack' ),
 	};
 
-	label = label || defaultLabels[ status ];
-
 	return (
 		<Text
 			variant="body-extra-small"
