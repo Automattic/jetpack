@@ -55,20 +55,21 @@ function jpcrm_quote_generate_posted_pdf() {
 		}
 
 		// generate the PDF
-		$pdf_file = jpcrm_quote_generate_pdf( $quote_id );
+		$pdf_path = jpcrm_quote_generate_pdf( $quote_id );
 
-		if ( $pdf_file !== false ) {
+		if ( $pdf_path !== false ) {
+			$pdf_filename = basename( $pdf_path );
 
 			// output the PDF
 			header( 'Content-type: application/pdf' );
-			header( 'Content-Disposition: attachment; filename="quote-' . $quote_id . '.pdf"' );
+			header( 'Content-Disposition: attachment; filename="' . $pdf_filename . '"' );
 			header( 'Content-Transfer-Encoding: binary' );
-			header( 'Content-Length: ' . filesize( $pdf_file ) );
+			header( 'Content-Length: ' . filesize( $pdf_path ) );
 			header( 'Accept-Ranges: bytes' );
-			readfile( $pdf_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
+			readfile( $pdf_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
 
 			// delete the PDF file once it's been read (i.e. downloaded)
-			wp_delete_file( $pdf_file );
+			wp_delete_file( $pdf_path );
 
 		}
 
