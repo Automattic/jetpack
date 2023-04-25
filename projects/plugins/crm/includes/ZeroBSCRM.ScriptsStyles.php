@@ -438,9 +438,7 @@ function zeroBSCRM_admin_styles_ui2_listview(){
 
 	// our list view css
 	wp_enqueue_script( 'zerobscrmlistviewjs');
-	
-	// 2.97.9 - wh updated moment
-	//wp_enqueue_script('wh-moment-v2-1-3-js', ZEROBSCRM_URL .'/js/lib/moment.min.js', array('jquery'));
+
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
 
 	// hook to allow modules etc. to add list view stylesheets
@@ -459,8 +457,7 @@ function zeroBSCRM_admin_styles_ui2_editview(){
 			wp_enqueue_script( 'zerobscrmeditviewjs');
 			wp_enqueue_script( 'zerobscrmtagmetaboxjs');
 			wp_enqueue_script( 'zerobscrmmm'); // metabox manager
-			//wp_enqueue_script('wh-moment-v2-1-3-js', ZEROBSCRM_URL .'/js/lib/moment.min.js', array('jquery'));
-			
+
 			// daterange + moment
 			zeroBSCRM_enqueue_libs_js_momentdatepicker();
 
@@ -580,8 +577,6 @@ function zeroBSCRM_calendar_admin_styles(){
 
 	global $zbs;
 
-	//2.97.9 WH updated moment
-	//wp_enqueue_script('wh-moment-v2-1-3-js', ZEROBSCRM_URL .'js/lib/moment.min.js', array('jquery'));
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
 
 
