@@ -8,15 +8,12 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} The information available in Protect's initial state.
  */
 export default function useProtectData() {
-	const { statusIsFetching, status, jetpackScan, productData, hasRequiredPlan } = useSelect(
-		select => ( {
-			statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
-			status: select( STORE_ID ).getStatus(),
-			jetpackScan: select( STORE_ID ).getJetpackScan(),
-			productData: select( STORE_ID ).getProductData(),
-			hasRequiredPlan: select( STORE_ID ).hasRequiredPlan(),
-		} )
-	);
+	const { statusIsFetching, status, jetpackScan, hasRequiredPlan } = useSelect( select => ( {
+		statusIsFetching: select( STORE_ID ).getStatusIsFetching(),
+		status: select( STORE_ID ).getStatus(),
+		jetpackScan: select( STORE_ID ).getJetpackScan(),
+		hasRequiredPlan: select( STORE_ID ).hasRequiredPlan(),
+	} ) );
 
 	let currentStatus = 'error';
 	if ( true === statusIsFetching ) {
@@ -25,7 +22,7 @@ export default function useProtectData() {
 		currentStatus = status.status;
 	}
 
-	const numCoreThreats = useMemo( () => status.core?.threat?.length || 0, [ status.core ] );
+	const numCoreThreats = useMemo( () => status.core?.threats?.length || 0, [ status.core ] );
 
 	const numPluginsThreats = useMemo(
 		() =>
@@ -68,7 +65,6 @@ export default function useProtectData() {
 		currentStatus,
 		hasUncheckedItems: status.hasUncheckedItems,
 		jetpackScan,
-		productData,
 		hasRequiredPlan,
 	};
 }

@@ -269,7 +269,6 @@ class Broken_Token_Connection_Errors {
 			'An error was triggered',
 			compact( 'signature_details', 'error_type' )
 		);
-
 	}
 
 	/**

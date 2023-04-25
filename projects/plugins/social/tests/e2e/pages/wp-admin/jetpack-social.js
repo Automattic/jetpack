@@ -10,8 +10,8 @@ export default class JetpackSocialPage extends WpPage {
 
 	async getStarted() {
 		logger.step( 'Connect Jetpack Social to wordpress.com' );
-		await this.click( 'text=Get Started' );
-		await this.waitForElementToBeHidden( 'button > svg.components-spinner' );
+		await this.click( 'button >> text=Get Started' );
+		await this.waitForElementToBeHidden( 'button > svg.components-spinner', 40000 );
 	}
 
 	async startForFree() {

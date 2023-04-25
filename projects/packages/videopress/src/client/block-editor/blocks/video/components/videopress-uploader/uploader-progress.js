@@ -2,9 +2,12 @@
  * External dependencies
  */
 import apiFetch from '@wordpress/api-fetch';
-import { Button, Spinner } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { Button, TextControl } from '@wordpress/components';
+import { useDebounce } from '@wordpress/compose';
+import { useState, useEffect } from '@wordpress/element';
+import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
+import debugFactory from 'debug';
 import filesize from 'filesize';
 /**
  * Internal dependencies
@@ -12,19 +15,22 @@ import filesize from 'filesize';
 import useMetaUpdate from '../../../../../hooks/use-meta-update.js';
 import usePosterImage from '../../../../../hooks/use-poster-image.js';
 import usePosterUpload from '../../../../../hooks/use-poster-upload.js';
-import { PlaceholderWrapper } from '../../edit.js';
+import { removeFileNameExtension } from '../../../../../lib/url';
+import { PlaceholderWrapper } from '../../edit';
 import UploadingEditor from './uploader-editor.js';
 
-const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
+const debug = debugFactory( 'videopress:block:uploader' );
+
+const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 	const [ isFinishingUpdate, setIsFinishingUpdate ] = useState( false );
 	const [ videoFrameMs, setVideoFrameMs ] = useState( null );
 	const [ videoPosterImageData, setVideoPosterImageData ] = useState( null );
-	const [ title, setTitle ] = useState( null );
+	const { title } = videoData;
 
-	const guid = attributes?.guid;
+	const guid = videoData?.guid;
 	const videoPressUploadPoster = usePosterUpload( guid );
 	const videoPressGetPoster = usePosterImage( guid );
-	const updateMeta = useMetaUpdate( attributes?.id );
+	const updateMeta = useMetaUpdate( videoData?.id );
 
 	const getPosterImage = () => {
 		return new Promise( ( resolve, reject ) => {
@@ -78,6 +84,10 @@ const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
 		} );
 	};
 
+	const debouncedSsendUpdatePoster = useDebounce( posterData => {
+		sendUpdatePoster( posterData );
+	}, 1000 );
+
 	const sendUpdateTitleRequest = () => {
 		return updateMeta( { title } );
 	};
@@ -104,27 +114,31 @@ const usePosterAndTitleUpdate = ( { setAttributes, attributes, onDone } ) => {
 			updates.push( sendUpdateTitleRequest() );
 		}
 
-		if ( videoPosterImageData ) {
-			updates.push( sendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } ) );
-		} else if (
-			// Check if videoFrameMs is not undefined or null instead of bool check to allow 0ms. selection
-			'undefined' !== typeof videoFrameMs &&
-			null !== videoFrameMs
-		) {
-			updates.push( sendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } ) );
-		}
-
 		Promise.allSettled( updates ).then( () => {
 			setIsFinishingUpdate( false );
-			onDone();
+			onDone( videoData );
 		} );
 	};
+
+	useEffect( () => {
+		if ( ! guid ) {
+			return;
+		}
+
+		if ( videoPosterImageData ) {
+			return debouncedSsendUpdatePoster( { poster_attachment_id: videoPosterImageData?.id } );
+		}
+
+		// Check if videoFrameMs is not undefined or null instead of bool check to allow 0ms. selection
+		if ( 'undefined' !== typeof videoFrameMs && null !== videoFrameMs ) {
+			debouncedSsendUpdatePoster( { at_time: videoFrameMs, is_millisec: true } );
+		}
+	}, [ videoPosterImageData, videoFrameMs, guid ] );
 
 	return [
 		handleVideoFrameSelected,
 		handleSelectPoster,
 		handleRemovePoster,
-		setTitle,
 		handleDoneUpload,
 		videoPosterImageData,
 		isFinishingUpdate,
@@ -137,20 +151,44 @@ const UploaderProgress = ( {
 	progress,
 	file,
 	paused,
-	completed,
+	uploadedVideoData,
 	onPauseOrResume,
 	onDone,
 	supportPauseOrResume,
+	isReplacing,
+	onReplaceCancel,
 } ) => {
 	const [
 		handleVideoFrameSelected,
 		handleSelectPoster,
 		handleRemovePoster,
-		handleChangeTitle,
 		handleDoneUpload,
 		videoPosterImageData,
 		isFinishingUpdate,
-	] = usePosterAndTitleUpdate( { setAttributes, attributes, onDone } );
+	] = usePosterAndTitleUpdate( {
+		setAttributes,
+		videoData: { ...uploadedVideoData, title: attributes.title },
+		onDone,
+	} );
+
+	/**
+	 * Flag to control the processing state
+	 */
+	const [ isProcessing, setIsProcessing ] = useState( true );
+
+	/**
+	 * When the upload and the metadata update is ready,
+	 * wait for some time and then release the "Done" button.
+	 */
+	useEffect( () => {
+		if ( uploadedVideoData && ! isFinishingUpdate && isProcessing ) {
+			debug( 'Waiting for some time before enabling the DONE button...' );
+			setTimeout( () => {
+				debug( 'Done, enabling the DONE button now...' );
+				setIsProcessing( false );
+			}, 2500 );
+		}
+	}, [ uploadedVideoData, isFinishingUpdate ] );
 
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${ roundedProgress }%` };
@@ -160,65 +198,77 @@ const UploaderProgress = ( {
 	// Support File from library or File instance
 	const fileSizeLabel = file?.filesizeHumanReadable ?? filesize( file?.size );
 
+	const { title } = attributes;
+	const filename = removeFileNameExtension( escapeHTML( file?.name ) );
+
 	return (
 		<PlaceholderWrapper disableInstructions>
+			<TextControl
+				label={ __( 'Video title', 'jetpack-videopress-pkg' ) }
+				className="uploading-editor__title"
+				onChange={ newTitle => setAttributes( { title: newTitle } ) }
+				value={ title }
+				placeholder={ filename }
+			/>
+
 			<UploadingEditor
 				file={ file }
 				onSelectPoster={ handleSelectPoster }
 				onRemovePoster={ handleRemovePoster }
-				onChangeTitle={ handleChangeTitle }
 				onVideoFrameSelected={ handleVideoFrameSelected }
 				videoPosterImageData={ videoPosterImageData }
 			/>
+
 			<div className="videopress-uploader-progress">
-				{ completed ? (
+				{ roundedProgress < 100 ? (
 					<>
-						<span>{ __( 'Upload Complete!', 'jetpack-videopress-pkg' ) } 🎉</span>
-						<Button
-							variant="primary"
-							onClick={ handleDoneUpload }
-							disabled={ isFinishingUpdate }
-							isBusy={ isFinishingUpdate }
-						>
-							{ __( 'Done', 'jetpack-videopress-pkg' ) }
-						</Button>
+						<div className="videopress-uploader-progress__file-info">
+							<div className="videopress-uploader-progress__progress">
+								<div className="videopress-uploader-progress__progress-loaded" style={ cssWidth } />
+							</div>
+							<div className="videopress-upload__percent-complete">
+								{ sprintf(
+									/* translators: Placeholder is an upload progress percenatage number, from 0-100. */
+									__( 'Uploading (%1$s%%)', 'jetpack-videopress-pkg' ),
+									roundedProgress
+								) }
+							</div>
+							<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
+						</div>
+						{ isReplacing && (
+							<div className="videopress-uploader-progress__actions">
+								<Button onClick={ onReplaceCancel } variant="tertiary" isDestructive>
+									{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
+								</Button>
+							</div>
+						) }
+						<div className="videopress-uploader-progress__actions">
+							{ roundedProgress < 100 && (
+								<Button
+									variant="tertiary"
+									onClick={ onPauseOrResume }
+									disabled={ ! supportPauseOrResume }
+								>
+									{ paused ? resumeText : pauseText }
+								</Button>
+							) }
+						</div>
 					</>
 				) : (
 					<>
-						{ roundedProgress < 100 ? (
-							<>
-								<div className="videopress-uploader-progress__file-info">
-									<div className="videopress-uploader-progress__progress">
-										<div
-											className="videopress-uploader-progress__progress-loaded"
-											style={ cssWidth }
-										/>
-									</div>
-									<div className="videopress-upload__percent-complete">
-										{ sprintf(
-											/* translators: Placeholder is an upload progress percenatage number, from 0-100. */
-											__( 'Uploading (%1$s%%)', 'jetpack-videopress-pkg' ),
-											roundedProgress
-										) }
-									</div>
-									<div className="videopress-uploader-progress__file-size">{ fileSizeLabel }</div>
-								</div>
-								{ supportPauseOrResume && (
-									<div className="videopress-uploader-progress__actions">
-										{ roundedProgress < 100 && (
-											<Button variant="link" onClick={ onPauseOrResume }>
-												{ paused ? resumeText : pauseText }
-											</Button>
-										) }
-									</div>
-								) }
-							</>
+						{ ! isProcessing ? (
+							<span>{ __( 'Upload Complete!', 'jetpack-videopress-pkg' ) } 🎉</span>
 						) : (
-							<>
-								<span>{ __( 'Finishing up …', 'jetpack-videopress-pkg' ) } 🎬</span>
-								<Spinner />
-							</>
+							<span>{ __( 'Finishing up …', 'jetpack-videopress-pkg' ) } 🎬</span>
 						) }
+						<Button
+							variant="primary"
+							onClick={ handleDoneUpload }
+							disabled={ isProcessing }
+							isBusy={ isProcessing }
+						>
+							{ __( 'Done', 'jetpack-videopress-pkg' ) }
+						</Button>
 					</>
 				) }
 			</div>

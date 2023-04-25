@@ -86,7 +86,6 @@ class Test_WPCOM_REST_API_V2_Subscribers_Endpoint extends WP_Test_Jetpack_REST_T
 
 		$this->assertEquals( 100, $data['counts']['email_subscribers'] );
 		$this->assertEquals( 200, $data['counts']['social_followers'] );
-
 	}
 
 	public function test_get_subscriber_counts_without_edit_permission() {

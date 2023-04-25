@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 
 /**
  * Instagram connections helper API.
@@ -102,7 +103,7 @@ class WPCOM_REST_API_V2_Endpoint_Instagram_Gallery extends WP_REST_Controller {
 			return WPCOM_Instagram_Gallery_Helper::get_connect_url();
 		}
 
-		$site_id = Jetpack_Instagram_Gallery_Helper::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
 		}

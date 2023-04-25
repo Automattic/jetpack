@@ -1,5 +1,6 @@
-import { Container, Col, AdminPage } from '@automattic/jetpack-components';
+import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
 import { select } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
@@ -22,15 +23,19 @@ import videoPressImage from './videopress.png';
  * @param {string} props.slug                    - Product slug
  * @param {string} props.bundle                  - Bundle including this product
  * @param {object} props.children                - Product additional content
+ * @param {string} props.existingLicenseKeyUrl 	 - URL to enter an existing license key (e.g. Akismet)
  * @param {boolean} props.installsPlugin         - Whether the interstitial button installs a plugin*
  * @param {React.ReactNode} props.supportingInfo - Complementary links or support/legal text
+ * @param {boolean} props.preferProductName      - Use product name instead of title
  * @returns {object}                               ProductInterstitial react component.
  */
 export default function ProductInterstitial( {
 	bundle,
+	existingLicenseKeyUrl = 'admin.php?page=my-jetpack#/add-license',
 	installsPlugin = false,
 	slug,
 	supportingInfo,
+	preferProductName = false,
 	children = null,
 } ) {
 	const { activate, detail } = useProduct( slug );
@@ -58,9 +63,16 @@ export default function ProductInterstitial( {
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 
 	const clickHandler = useCallback(
-		checkoutUrl => {
-			activate().finally( () => {
+		checkout => {
+			const activateOrCheckout = () => ( bundle ? Promise.resolve() : activate() );
+
+			activateOrCheckout().finally( () => {
 				const product = select( STORE_ID ).getProduct( slug );
+				if ( bundle ) {
+					// Get straight to the checkout page.
+					checkout?.();
+					return;
+				}
 				const postActivationUrl = product?.postActivationUrl;
 				const hasRequiredPlan = product?.hasRequiredPlan;
 				const isFree = product?.pricingForUi?.isFree;
@@ -71,28 +83,56 @@ export default function ProductInterstitial( {
 					return;
 				}
 
-				if ( ! needsPurchase || ! checkoutUrl ) {
+				if ( ! needsPurchase ) {
 					return navigateToMyJetpackOverviewPage();
 				}
 
 				// Redirect to the checkout page.
-				window.location.href = checkoutUrl;
+				checkout?.();
 			} );
 		},
-		[ navigateToMyJetpackOverviewPage, activate, slug ]
+		[ navigateToMyJetpackOverviewPage, activate, bundle, slug ]
 	);
 
-	const onClickGoBack = useCallback( () => {
-		if ( slug ) {
-			recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
-		}
-	}, [ recordEvent, slug ] );
+	const onClickGoBack = useCallback(
+		event => {
+			if ( slug ) {
+				recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
+			}
+
+			if ( document.referrer.includes( window.location.host ) ) {
+				// Prevent default here to minimize page change within the My Jetpack app.
+				event.preventDefault();
+				history.back();
+			}
+		},
+		[ recordEvent, slug ]
+	);
 
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col>
+				<Col className={ styles[ 'product-interstitial__header' ] }>
 					<GoBackLink onClick={ onClickGoBack } />
+					{ existingLicenseKeyUrl && (
+						<Text variant="body-small">
+							{ createInterpolateElement(
+								__(
+									'Already have an existing plan or license key? <a>Get started</a>.',
+									'jetpack-my-jetpack'
+								),
+								{
+									a: (
+										<Button
+											className={ styles[ 'product-interstitial__license-activation-link' ] }
+											href={ existingLicenseKeyUrl }
+											variant="link"
+										/>
+									),
+								}
+							) }
+						</Text>
+					) }
 				</Col>
 				<Col>
 					<Container
@@ -108,13 +148,15 @@ export default function ProductInterstitial( {
 								onClick={ installsPlugin ? clickHandler : undefined }
 								className={ isUpgradableByBundle ? styles.container : null }
 								supportingInfo={ supportingInfo }
+								preferProductName={ preferProductName }
 							/>
 						</Col>
 						<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
 							{ bundle ? (
 								<ProductDetailCard
-									slug="security"
+									slug={ bundle }
 									trackButtonClick={ trackBundleClick }
+									onClick={ clickHandler }
 									className={ isUpgradableByBundle ? styles.container : null }
 								/>
 							) : (
@@ -134,7 +176,19 @@ export default function ProductInterstitial( {
  * @returns {object} AntiSpamInterstitial react component.
  */
 export function AntiSpamInterstitial() {
-	return <ProductInterstitial slug="anti-spam" installsPlugin={ true } bundle="security" />;
+	const slug = 'anti-spam';
+	const { detail } = useProduct( slug );
+	const { isPluginActive } = detail;
+
+	return (
+		<ProductInterstitial
+			slug={ slug }
+			installsPlugin={ true }
+			bundle="security"
+			existingLicenseKeyUrl={ isPluginActive ? 'admin.php?page=akismet-key-config' : null }
+			preferProductName={ true }
+		/>
+	);
 }
 
 /**

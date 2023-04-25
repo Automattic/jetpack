@@ -1,8 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
+import Gridicon from 'components/gridicon';
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
 import {
@@ -76,7 +77,7 @@ class SupportCard extends React.Component {
 			<div className={ classes }>
 				<Card className="jp-support-card__happiness">
 					<div className="jp-support-card__happiness-contact">
-						<h3 className="jp-support-card__header">{ __( "We're here to help", 'jetpack' ) }</h3>
+						<h3 className="jp-support-card__header">{ __( 'We’re here to help', 'jetpack' ) }</h3>
 						<p className="jp-support-card__description">
 							{ hasSupport
 								? sprintf(
@@ -99,6 +100,7 @@ class SupportCard extends React.Component {
 								}
 							>
 								{ __( 'Getting started with Jetpack', 'jetpack' ) }
+								<Gridicon className="dops-card__link-indicator" icon="external" />
 							</Button>
 							<Button
 								onClick={ this.trackSearchClick }
@@ -109,6 +111,7 @@ class SupportCard extends React.Component {
 								}
 							>
 								{ __( 'Search our support site', 'jetpack' ) }
+								<Gridicon className="dops-card__link-indicator" icon="external" />
 							</Button>
 						</p>
 					</div>
@@ -117,7 +120,7 @@ class SupportCard extends React.Component {
 					<JetpackBanner
 						title={ __( 'Get a faster resolution to your support questions.', 'jetpack' ) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_PRIORITY_SUPPORT_JETPACK ) }
-						callToAction={ __( 'Upgrade', 'jetpack' ) }
+						callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 						onClick={ this.trackBannerClick }
 						href={ this.props.supportUpgradeUrl }
 					/>

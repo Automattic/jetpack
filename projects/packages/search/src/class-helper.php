@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Status;
 use GP_Locales;
 use Jetpack; // TODO: Remove this once migrated.
 
@@ -520,7 +521,7 @@ class Helper {
 
 			$key = sprintf( 'widget_filter_type_%s', $filter['type'] );
 			if ( isset( $filters_properties[ $key ] ) ) {
-				$filters_properties[ $key ] ++;
+				++$filters_properties[ $key ];
 			} else {
 				$filters_properties[ $key ] = 1;
 			}
@@ -840,13 +841,14 @@ class Helper {
 		}
 
 		$is_wpcom                  = static::is_wpcom();
-		$is_private_site           = '-1' === get_option( 'blog_public' );
+		$is_private_site           = ( new Status() )->is_private_site();
 		$is_jetpack_photon_enabled = method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' );
 
 		$options = array(
 			'overlayOptions'        => array(
 				'colorTheme'        => get_option( $prefix . 'color_theme', 'light' ),
 				'enableInfScroll'   => get_option( $prefix . 'inf_scroll', '1' ) === '1',
+				'enablePostDate'    => get_option( $prefix . 'show_post_date', '1' ) === '1',
 				'enableSort'        => get_option( $prefix . 'enable_sort', '1' ) === '1',
 				'highlightColor'    => get_option( $prefix . 'highlight_color', '#FFC' ),
 				'overlayTrigger'    => get_option( $prefix . 'overlay_trigger', Options::DEFAULT_OVERLAY_TRIGGER ),

@@ -1,0 +1,178 @@
+/*!
+ * Jetpack CRM
+ * http://zerobscrm.com
+ * V2.2+
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 12/09/2017
+ */
+
+// WH fixes for clashes between wp + semantic when nested
+
+// button heights
+.wp-core-ui .button, .wp-core-ui .button-primary, .wp-core-ui .button-secondary {
+	height:auto;
+}
+
+// undo semantic change of menu font
+#adminmenu ul li, #adminmenu ul li a, #adminmenu div {
+	font-family: sans-serif;
+}
+
+// this breaks with semantic's flow overrides
+#wpfooter {
+	// WH modified 11/10/18, trying putting back 
+  //display:none;
+  clear:both;
+  position: relative;
+  margin-top: 2em;
+}
+
+// annoying bg colour
+.quicktags.icon, .search.icon {
+	background-color:transparent !important;
+}
+
+// menu padding fixes
+.ui.menu {
+	padding-top:0 !important;
+}
+
+// match wp menu bg colour to page (white)
+ul#adminmenu a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:after {
+
+    border-right-color: none !important;
+
+}
+
+// WP default sets all <p> to be tiny (13px) - this undoes that before semantic sets in :)
+.ui p {
+	font-size: 1em;
+}
+
+// fix for .card WP annoyance
+i.card {
+
+    padding: 0;
+    min-width: auto;
+    border: 0;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    background: none;
+
+}
+
+
+// WH addition - segment noborder
+.ui.segment.borderless {
+	    border: none !important;
+    box-shadow: none !important;
+}
+
+
+// allows transparent background inverted (segment)
+.ui.inverted.segment.zbstrans {
+	    background: rgba(245, 237, 237, 0.3) !important;
+}
+
+//https://stackoverflow.com/questions/12514915/semantic-html-and-clear-both
+.ui.zbsclear:after { clear:both; content:"."; display:block; height:0; visibility:hidden; }
+
+// centered big ico segment
+.ui.segment.zbsbigico {
+
+    text-align: center;
+    font-size: 3em;
+    line-height: 1em;
+    padding-top: 1em;
+    padding-bottom: 0.5em;
+    
+}
+
+
+// https://stackoverflow.com/questions/39963655/semantic-ui-floats
+div [class*="left floated"] {
+  float: left;
+  margin-left: 0.25em;
+}
+
+div [class*="right floated"] {
+  float: right;
+   margin-right: 0.25em;
+} 
+
+
+// right class on buttons - like this https://github.com/Semantic-Org/Semantic-UI/issues/664
+.button-primary.right, .button-secondary.right, .button.right {
+  float:none;
+}
+
+// remove background on .alternate for icons (and other stuff?)
+i.alternate {
+    background-color: transparent;
+}
+
+// animated buttons:
+.ui.animated.button {
+
+  // init
+  .hidden.content {
+    display:block !important;
+  }
+
+}
+
+
+// ==== WP.com specific fix/overrides as per #ZBS-1009
+
+// override for the css for button
+.wp-core-ui .ui.button {
+    cursor: pointer;
+    display: inline-block;
+    min-height: 1em;
+    outline: none;
+    border: none;
+    vertical-align: baseline;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+    margin: 0em 0.25em 0em 0em;
+    padding: 0.78571429em 1.5em 0.78571429em;
+    text-transform: none;
+    text-shadow: none;
+    font-weight: 500;
+    line-height: 1em;
+    font-style: normal;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 0.28571429rem;
+    box-shadow: 0px 0px 0px 1px transparent inset, 0px 0em 0px 0px rgba(34,36,38,0.15) inset;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+    transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+    will-change: '';
+    -webkit-tap-highlight-color: transparent;
+    height:auto;
+}
+
+
+
+
+// ===== WordPress 5.3 introduced some styles which broke some semantic ui overrides:
+.ui[class*="right labeled"].input input, .ui.fluid.input>input {
+    height: auto !important;
+}
+/*
+.form-control {
+    padding: 6px 12px !important;
+    line-height: 1.42857 !important;
+} */
+
+
+
+// ==== Everywhere we want semantic overrides, we also want modal overrides (small addition)
+
+  // pull in modal css
+  @import 'JetpackCRM.admin.modals';

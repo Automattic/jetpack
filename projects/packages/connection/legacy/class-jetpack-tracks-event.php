@@ -42,6 +42,7 @@
 /**
  * Class Jetpack_Tracks_Event
  */
+#[AllowDynamicProperties]
 class Jetpack_Tracks_Event {
 	const EVENT_NAME_REGEX = '/^(([a-z0-9]+)_){2}([a-z0-9_]+)$/';
 	const PROP_NAME_REGEX  = '/^[a-z_][a-z0-9_]*$/';

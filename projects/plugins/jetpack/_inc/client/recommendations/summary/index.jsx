@@ -80,20 +80,25 @@ const SummaryComponent = props => {
 						siteTitle
 					) }
 				</h1>
-				{ summaryPrimarySections.map( ( { name, slugs } ) => (
-					<section key={ name } aria-labelledby={ `primary-onboarding-${ name }` }>
-						<h2 id={ `primary-onboarding-${ name }` }>
-							{ sprintf(
-								/* translators: %s is the jetpack plan name */
-								__( 'Part of your %s plan', 'jetpack' ),
-								name
-							) }
-						</h2>
-						{ slugs.map( slug => (
-							<PrimarySummary key={ slug } slug={ slug } />
-						) ) }
-					</section>
-				) ) }
+				{ summaryPrimarySections.map( ( { name, slugs } ) => {
+					const productSlug = name.toLowerCase().replace( /[\s_-]+/g, '-' );
+					const id = `primary-onboarding-${ productSlug }`;
+
+					return (
+						<section key={ name } aria-labelledby={ id }>
+							<h2 id={ id }>
+								{ sprintf(
+									/* translators: %s is the jetpack plan name */
+									__( 'Part of your %s plan', 'jetpack' ),
+									name
+								) }
+							</h2>
+							{ slugs.map( slug => (
+								<PrimarySummary key={ slug } slug={ slug } />
+							) ) }
+						</section>
+					);
+				} ) }
 				{ ( summaryFeatureSlugs.selected.length > 0 || summaryFeatureSlugs.skipped.length > 0 ) && (
 					<section aria-labelledby="enabled-recommendations">
 						<h2 id="enabled-recommendations">{ __( 'Recommendations enabled', 'jetpack' ) }</h2>

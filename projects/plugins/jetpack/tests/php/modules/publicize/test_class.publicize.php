@@ -1,5 +1,7 @@
 <?php
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
+
 if ( ! function_exists( 'publicize_init' ) ) {
 	/**
 	 * Some tests rely on this function which won't get defined unless we mock lots
@@ -37,6 +39,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	 * @var integer $user_id ID of current user.
 	 */
 	private $user_id;
+
+	private $publicize;
 
 	/**
 	 * Index in 'publicize_connections' test data of normal connection.

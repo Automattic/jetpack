@@ -36,6 +36,7 @@
 				class="jb-button--primary"
 				href={ctaLink}
 				target="_blank"
+				rel="noreferrer"
 				on:click={() => {
 					disablePrompt();
 				}}
@@ -47,6 +48,7 @@
 				class="jb-link"
 				href={ctaLink}
 				target="_blank"
+				rel="noreferrer"
 				on:click|preventDefault={() => {
 					disablePrompt();
 				}}

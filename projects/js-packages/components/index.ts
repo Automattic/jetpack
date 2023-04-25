@@ -16,8 +16,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 export { default as JetpackLogo } from './components/jetpack-logo';
 export { default as JetpackSearchLogo } from './components/jetpack-search-logo';
+export { default as JetpackVaultPressBackupLogo } from './components/jetpack-vaultpress-backup-logo';
+export { default as JetpackVideoPressLogo } from './components/jetpack-videopress-logo';
 export { default as getRedirectUrl } from './tools/jp-redirect';
 export { default as getProductCheckoutUrl } from './tools/get-product-checkout-url';
+export { isFirstMonthTrial } from './tools/pricing-utils';
 export { default as AutomatticBylineLogo } from './components/automattic-byline-logo';
 export { default as JetpackFooter } from './components/jetpack-footer';
 export { default as Spinner } from './components/spinner';
@@ -36,9 +39,12 @@ export * from './components/icons';
 export { default as SplitButton } from './components/split-button';
 export { default as ThemeProvider } from './components/theme-provider';
 export { default as Text, H2, H3, Title } from './components/text';
+export { default as ToggleControl } from './components/toggle-control';
 export { default as numberFormat } from './components/number-format';
 export { default as QRCode } from './components/qr-code';
 export { default as Button } from './components/button';
+export { default as LoadingPlaceholder } from './components/loading-placeholder';
+export { default as TermsOfService } from './components/terms-of-service';
 export {
 	default as PricingTable,
 	PricingTableColumn,
@@ -53,6 +59,8 @@ export { default as RecordMeterBar } from './components/record-meter-bar';
 export { default as ContextualUpgradeTrigger } from './components/contextual-upgrade-trigger';
 export { default as Alert } from './components/alert';
 export { default as Notice } from './components/notice';
+export { default as Status } from './components/status';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar';
 export { default as ActionPopover } from './components/action-popover';
+export { default as ZendeskChat } from './components/zendesk-chat';
 export { getUserLocale, cleanLocale } from './lib/locale';

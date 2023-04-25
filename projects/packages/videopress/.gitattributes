@@ -14,4 +14,5 @@ build/**         production-include
 changelog/**      production-exclude
 phpunit.xml.dist  production-exclude
 .phpcs.dir.xml    production-exclude
+src/client/**     production-exclude
 tests/**          production-exclude

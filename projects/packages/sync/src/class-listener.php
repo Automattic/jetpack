@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Roles;
 
 /**
@@ -426,15 +427,9 @@ class Listener {
 		);
 
 		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
-			$ip = isset( $_SERVER['REMOTE_ADDR'] ) ? filter_var( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-			if ( defined( 'JETPACK__PLUGIN_DIR' ) ) {
-				if ( ! function_exists( 'jetpack_protect_get_ip' ) ) {
-					require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
-				}
-				$ip = jetpack_protect_get_ip();
-			}
+			$ip = IP_Utils::get_ip();
 
-			$actor['ip']         = $ip;
+			$actor['ip']         = $ip ? $ip : '';
 			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : 'unknown';
 		}
 

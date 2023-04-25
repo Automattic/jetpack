@@ -103,6 +103,14 @@ class Plan {
 	}
 
 	/**
+	 * Returns true if the plan usage is exceeded and search should no longer work.
+	 */
+	public function must_upgrade() {
+		$plan_info = $this->get_plan_info();
+		return isset( $plan_info['plan_usage']['must_upgrade'] ) && $plan_info['plan_usage']['must_upgrade'];
+	}
+
+	/**
 	 * Returns true if the plan only supports Classic Search.
 	 */
 	public function supports_only_classic_search() {

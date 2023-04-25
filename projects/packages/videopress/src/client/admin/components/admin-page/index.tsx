@@ -11,6 +11,7 @@ import {
 	Col,
 	useBreakpointMatch,
 	ContextualUpgradeTrigger,
+	JetpackVideoPressLogo,
 } from '@automattic/jetpack-components';
 import {
 	useProductCheckoutWorkflow,
@@ -21,7 +22,7 @@ import { FormFileUpload } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -31,10 +32,10 @@ import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { usePermission } from '../../hooks/use-permission';
 import { usePlan } from '../../hooks/use-plan';
+import { useSearchParams } from '../../hooks/use-search-params';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import { NeedUserConnectionGlobalNotice } from '../global-notice';
-import Logo from '../logo';
 import PricingSection from '../pricing-section';
 import { ConnectSiteSettingsSection as SettingsSection } from '../site-settings-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
@@ -43,11 +44,65 @@ import { LocalLibrary, VideoPressLibrary } from './libraries';
 import styles from './styles.module.scss';
 
 const useDashboardVideos = () => {
-	const { uploadVideo, uploadVideoFromLibrary } = useDispatch( STORE_ID );
-
-	const { items, uploading, uploadedVideoCount, isFetching, search, page } = useVideos();
+	const { uploadVideo, uploadVideoFromLibrary, setVideosQuery } = useDispatch( STORE_ID );
+	const { items, uploading, uploadedVideoCount, isFetching, search, page, itemsPerPage, total } =
+		useVideos();
 	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
 	const { hasVideoPressPurchase } = usePlan();
+
+	// Use a tempPage to catch changes in page from store and not URL
+	const tempPage = useRef( page );
+
+	/** Get the page number from the search parameters and set it to the state when the state is outdated */
+	const searchParams = useSearchParams();
+	const pageFromSearchParam = parseInt( searchParams.getParam( 'page', '1' ) );
+	const searchFromSearchParam = searchParams.getParam( 'q', '' );
+	const totalOfPages = Math.ceil( total / itemsPerPage );
+
+	useEffect( () => {
+		// when there are no search results, ensure that the current page number is 1
+		if ( total === 0 && pageFromSearchParam !== 1 ) {
+			// go back to page 1
+			searchParams.deleteParam( 'page' );
+			searchParams.update();
+			return;
+		}
+
+		// when there are search results, ensure that the current page is between 1 and totalOfPages, inclusive
+		if ( total > 0 && ( pageFromSearchParam < 1 || pageFromSearchParam > totalOfPages ) ) {
+			// go back to page 1
+			searchParams.deleteParam( 'page' );
+			searchParams.update();
+			return;
+		}
+
+		// react to a page param change
+		if ( page !== pageFromSearchParam ) {
+			// store changed and not url
+			// update url to match store update
+			if ( page !== tempPage.current ) {
+				tempPage.current = page;
+				searchParams.setParam( 'page', page );
+				searchParams.update();
+			} else {
+				tempPage.current = pageFromSearchParam;
+				setVideosQuery( {
+					page: pageFromSearchParam,
+				} );
+			}
+
+			return;
+		}
+
+		// react to a search param change
+		if ( search !== searchFromSearchParam ) {
+			setVideosQuery( {
+				search: searchFromSearchParam,
+			} );
+
+			return;
+		}
+	}, [ totalOfPages, page, pageFromSearchParam, search, searchFromSearchParam, tempPage.current ] );
 
 	// Do not show uploading videos if not in the first page or searching
 	let videos = page > 1 || Boolean( search ) ? items : [ ...uploading, ...items ];
@@ -71,8 +126,12 @@ const useDashboardVideos = () => {
 
 	// Fill with empty videos if loading
 	if ( isFetching ) {
+		const numPlaceholders = Math.max(
+			1, // at least one placeholder
+			Math.min( itemsPerPage, uploadedVideoCount - itemsPerPage * ( page - 1 ) ) // at most the number of videos in the page without query
+		);
 		// Use generated ID to work with React Key
-		videos = new Array( 6 ).fill( {} ).map( () => ( { id: uid() } ) );
+		videos = new Array( numPlaceholders ).fill( {} ).map( () => ( { id: uid() } ) );
 	}
 
 	return {
@@ -114,27 +173,19 @@ const Admin = () => {
 
 	const canUpload = ( hasVideoPressPurchase || ! hasVideos ) && canPerformAction;
 
-	const {
-		isDraggingOver,
-		inputRef,
-		handleFileInputChangeEvent,
-		filterVideoFiles,
-	} = useSelectVideoFiles( {
-		canDrop: canUpload && ! loading,
-		dropElement: document,
-		onSelectFiles: handleFilesUpload,
-	} );
-
-	const addNewLabel = __( 'Add new video', 'jetpack-videopress-pkg' );
-	const addFirstLabel = __( 'Add your first video', 'jetpack-videopress-pkg' );
-	const addVideoLabel = hasVideos ? addNewLabel : addFirstLabel;
+	const { isDraggingOver, inputRef, handleFileInputChangeEvent, filterVideoFiles } =
+		useSelectVideoFiles( {
+			canDrop: canUpload && ! loading,
+			dropElement: document,
+			onSelectFiles: handleFilesUpload,
+		} );
 
 	useAnalyticsTracks( { pageViewEventName: 'jetpack_videopress_admin_page_view' } );
 
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-			header={ <Logo /> }
+			header={ <JetpackVideoPressLogo /> }
 		>
 			<div
 				className={ classnames( styles[ 'files-overlay' ], {
@@ -196,23 +247,29 @@ const Admin = () => {
 									/>
 								) }
 
-								<FormFileUpload
-									onChange={ evt =>
-										handleFilesUpload( filterVideoFiles( evt.currentTarget.files ) )
-									}
-									accept={ fileInputExtensions }
-									multiple={ hasVideoPressPurchase }
-									render={ ( { openFileDialog } ) => (
-										<Button
-											fullWidth={ isSm }
-											onClick={ openFileDialog }
-											isLoading={ loading }
-											disabled={ ! canUpload }
-										>
-											{ addVideoLabel }
-										</Button>
-									) }
-								/>
+								{ hasVideos ? (
+									<FormFileUpload
+										onChange={ evt =>
+											handleFilesUpload( filterVideoFiles( evt.currentTarget.files ) )
+										}
+										accept={ fileInputExtensions }
+										multiple={ hasVideoPressPurchase }
+										render={ ( { openFileDialog } ) => (
+											<Button
+												fullWidth={ isSm }
+												onClick={ openFileDialog }
+												isLoading={ loading }
+												disabled={ ! canUpload }
+											>
+												{ __( 'Add new video', 'jetpack-videopress-pkg' ) }
+											</Button>
+										) }
+									/>
+								) : (
+									<Text variant="title-medium">
+										{ __( "Let's add your first video below!", 'jetpack-videopress-pkg' ) }
+									</Text>
+								) }
 
 								{ ! hasVideoPressPurchase && <UpgradeTrigger hasUsedVideo={ hasVideos } /> }
 							</Col>
@@ -230,13 +287,8 @@ const Admin = () => {
 								</Col>
 							) : (
 								<Col sm={ 4 } md={ 6 } lg={ 12 } className={ styles[ 'first-video-wrapper' ] }>
-									<Text variant="headline-small">
-										{ __( "Let's add your first video", 'jetpack-videopress-pkg' ) }
-									</Text>
 									<VideoUploadArea
-										className={ classnames( styles[ 'upload-area' ], {
-											[ styles.small ]: isSm,
-										} ) }
+										className={ styles[ 'upload-area' ] }
 										onSelectFiles={ handleFilesUpload }
 									/>
 								</Col>

@@ -23,6 +23,10 @@ export default function usePublicizeConfig() {
 	const isRePublicizeFeatureAvailable =
 		getJetpackExtensionAvailability( republicizeFeatureName )?.available || isShareLimitEnabled;
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const isPostAlreadyShared = useSelect(
+		select => select( 'jetpack/publicize' ).getJetpackSocialPostAlreadyShared(),
+		[]
+	);
 	const connectionsRootUrl =
 		getJetpackData()?.social?.publicizeConnectionsUrl ??
 		'https://wordpress.com/marketing/connections/';
@@ -86,9 +90,12 @@ export default function usePublicizeConfig() {
 		isRePublicizeUpgradableViaUpsell,
 		hidePublicizeFeature,
 		isShareLimitEnabled,
+		isPostAlreadyShared,
 		numberOfSharesRemaining: sharesData.shares_remaining,
 		hasPaidPlan: !! getJetpackData()?.social?.hasPaidPlan,
 		isEnhancedPublishingEnabled: !! getJetpackData()?.social?.isEnhancedPublishingEnabled,
+		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
 		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),
+		adminUrl: getJetpackData()?.social?.adminUrl,
 	};
 }

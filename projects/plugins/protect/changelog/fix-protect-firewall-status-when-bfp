@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix firewall status to be "on" when brute force protection is enabled.
+
+

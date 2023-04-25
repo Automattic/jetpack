@@ -5,6 +5,75 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.9.3 - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## 0.9.2 - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## 0.9.1 - 2023-04-03
+### Changed
+- Minor internal updates.
+
+## 0.9.0 - 2023-03-28
+### Added
+- Adds GoldenTokenModal component for successful token redemptions. Also adds classnames as a dependency [#29748]
+
+## 0.8.0 - 2023-03-27
+### Added
+- Clarified when license activation fails that a user connection is required, added a link to complete the connection, and added functionality to redirect back to license activation when the connection is done. [#29443]
+
+## 0.7.8 - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## 0.7.7 - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## 0.7.6 - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## 0.7.5 - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682]
+
+## 0.7.4 - 2023-01-26
+### Changed
+- Use `flex-start` instead of `start` for better browser compatibility. [#28530]
+
+## 0.7.3 - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## 0.7.2 - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Fix issue with activation screen failing to activate due to incorrect JP Rest API root and nonce value. [#28014]
+
+## 0.7.1 - 2022-12-19
+### Changed
+- Updated package dependencies.
+
+## 0.7.0 - 2022-12-19
+### Added
+- Add license key selector in My Jetpack activation screen. [#27609]
+
+### Changed
+- Updated package dependencies. [#27916]
+
+### Fixed
+- Remove useEffect that sets API root and nonce value in JP REST API client causing issue in Jetpack plugin activation page. [#27974]
+
+## 0.6.9 - 2022-12-02
+### Changed
+- Updated package dependencies. [#27697]
+
 ## 0.6.8 - 2022-11-28
 ### Changed
 - Updated package dependencies. [#27576]

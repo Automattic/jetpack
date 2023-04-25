@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.25] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.7.24] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [1.7.23] - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## [1.7.22] - 2022-12-19
+### Changed
+- Updated package dependencies.
+
+## [1.7.21] - 2022-12-02
+### Changed
+- Updated package dependencies. [#27688]
+
 ## [1.7.20] - 2022-11-22
 ### Changed
 - Updated package dependencies. [#27043]
@@ -160,6 +180,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create Jetpack Redirect package
 
+[1.7.25]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.24...v1.7.25
+[1.7.24]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.23...v1.7.24
+[1.7.23]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.22...v1.7.23
+[1.7.22]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.21...v1.7.22
+[1.7.21]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.20...v1.7.21
 [1.7.20]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.19...v1.7.20
 [1.7.19]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.18...v1.7.19
 [1.7.18]: https://github.com/Automattic/jetpack-redirect/compare/v1.7.17...v1.7.18

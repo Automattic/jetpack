@@ -9,8 +9,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
 import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
-import { Fragment, createInterpolateElement } from '@wordpress/element';
-import { _n, sprintf } from '@wordpress/i18n';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { Fragment, createInterpolateElement, useCallback } from '@wordpress/element';
+import { _n, sprintf, __ } from '@wordpress/i18n';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import PublicizeConnection from '../connection';
@@ -29,6 +30,7 @@ import styles from './styles.module.scss';
  * @param {number} props.numberOfSharesRemaining        - The number of shares remaining for the current period. Optional.
  * @param {boolean} props.isEnhancedPublishingEnabled   - Whether enhanced publishing options are available. Optional.
  * @param {string} props.connectionsAdminUrl            - URL to the Admin connections page
+ * @param {string} props.adminUrl                       - URL af the plugin's admin page to redirect to after a plan upgrade
  * @returns {object}                                    - Publicize form component.
  */
 export default function PublicizeForm( {
@@ -37,13 +39,10 @@ export default function PublicizeForm( {
 	numberOfSharesRemaining = null,
 	isEnhancedPublishingEnabled = false,
 	connectionsAdminUrl,
+	adminUrl,
 } ) {
-	const {
-		connections,
-		toggleById,
-		hasConnections,
-		enabledConnections,
-	} = useSocialMediaConnections();
+	const { connections, toggleById, hasConnections, enabledConnections } =
+		useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
@@ -53,6 +52,24 @@ export default function PublicizeForm( {
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
 
+	const { isEditedPostDirty } = useSelect( 'core/editor' );
+	const { autosave } = useDispatch( 'core/editor' );
+	const autosaveAndRedirect = useCallback(
+		async ev => {
+			const target = ev.target.getAttribute( 'target' );
+			if ( isEditedPostDirty() && ! target ) {
+				ev.preventDefault();
+				await autosave();
+				window.location.href = ev.target.href;
+			}
+			if ( target ) {
+				ev.preventDefault();
+				window.open( ev.target.href, target, 'noreferrer' );
+			}
+		},
+		[ autosave, isEditedPostDirty ]
+	);
+
 	return (
 		<Wrapper>
 			{ hasConnections && (
@@ -60,28 +77,53 @@ export default function PublicizeForm( {
 					{ numberOfSharesRemaining !== null && (
 						<PanelRow>
 							<Notice type={ numberOfSharesRemaining < connections.length ? 'warning' : 'default' }>
-								{ createInterpolateElement(
-									sprintf(
-										/* translators: %d is the number of shares remaining, upgradeLink is the link to upgrade to a different plan */
-										_n(
-											'You have %d share remaining. <upgradeLink>Upgrade now</upgradeLink> to share more.',
-											'You have %d shares remaining. <upgradeLink>Upgrade now</upgradeLink> to share more.',
-											numberOfSharesRemaining,
-											'jetpack'
+								<Fragment>
+									{ createInterpolateElement(
+										sprintf(
+											/* translators: %d is the number of shares remaining, upgradeLink is the link to upgrade to a different plan */
+											_n(
+												'You have %d share remaining in the next 30 days. <upgradeLink>Upgrade now</upgradeLink> to share more.',
+												'You have %d shares remaining in the next 30 days. <upgradeLink>Upgrade now</upgradeLink> to share more.',
+												numberOfSharesRemaining,
+												'jetpack'
+											),
+											numberOfSharesRemaining
 										),
-										numberOfSharesRemaining
-									),
-									{
-										upgradeLink: (
-											<a
-												href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
-													site: getSiteFragment(),
-													query: 'redirect_to=' + window.location.href,
-												} ) }
-											/>
-										),
-									}
-								) }
+										{
+											upgradeLink: (
+												<a
+													className={ styles[ 'upgrade-link' ] }
+													href={ getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {
+														site: getSiteFragment(),
+														query: 'redirect_to=' + encodeURIComponent( window.location.href ),
+													} ) }
+													onClick={ autosaveAndRedirect }
+												/>
+											),
+										}
+									) }
+									<br />
+									{ createInterpolateElement(
+										/* translators: %d is the number of shares remaining, moreLink is the link to find out more information about the plan */
+										__( '<moreLink>More about Jetpack Social</moreLink>.', 'jetpack' ),
+										{
+											moreLink: (
+												<a
+													className={ styles[ 'more-link' ] }
+													href={ getRedirectUrl( 'jetpack-social-block-editor-more-info', {
+														site: getSiteFragment(),
+														...( adminUrl
+															? { query: 'redirect_to=' + encodeURIComponent( adminUrl ) }
+															: {} ),
+													} ) }
+													target="_blank"
+													rel="noreferrer"
+													onClick={ autosaveAndRedirect }
+												/>
+											),
+										}
+									) }
+								</Fragment>
 							</Notice>
 						</PanelRow>
 					) }
@@ -144,9 +186,9 @@ export default function PublicizeForm( {
 								onChange={ updateMessage }
 								message={ message }
 							/>
-							{ isEnhancedPublishingEnabled && <MediaSection /> }
 						</>
 					) }
+					{ isEnhancedPublishingEnabled && <MediaSection /> }
 				</Fragment>
 			) }
 		</Wrapper>

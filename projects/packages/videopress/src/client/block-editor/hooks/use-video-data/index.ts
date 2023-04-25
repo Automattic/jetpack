@@ -1,14 +1,24 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
-import getMediaToken from '../../../lib/get-media-token';
+import { useEffect, useState, Platform } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
+import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
+import { isUserConnected as getIsUserConnected } from '../../../lib/connection';
+import { fetchVideoItem } from '../../../lib/fetch-video-item';
 /**
  * Types
  */
-import { WPCOMRestAPIVideosGetEndpointResponseProps } from '../../../types';
-import { UseVideoDataProps, UseVideoDataArgumentsProps } from './types';
+import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from './types';
+
+const isNative = Platform.isNative;
+
+const debug = debugFactory( 'videopress:video:use-video-data' );
+
+const isUserConnected = getIsUserConnected();
 
 /**
  * React hook to fetch the video data from the media library.
@@ -19,25 +29,50 @@ import { UseVideoDataProps, UseVideoDataArgumentsProps } from './types';
 export default function useVideoData( {
 	id,
 	guid,
+	skipRatingControl = false,
+	maybeIsPrivate = false,
 }: UseVideoDataArgumentsProps ): UseVideoDataProps {
-	const [ videoData, setVideoData ] = useState( {} );
+	const [ videoData, setVideoData ] = useState< VideoDataProps >( {} );
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
 
 	useEffect( () => {
+		// Skip check for native as only simple WordPress.com sites are supported in the current native block.
+		// We can assume that all simple WordPress.com sites are connected.
+		// TODO: Add native connection logic for Jetpack-connected sites in future iterations.
+		if ( ! isUserConnected && ! isNative ) {
+			debug( 'User is not connected' );
+			return;
+		}
+
 		/**
 		 * Fetches the video videoData from the API.
+		 *
+		 * @param {string} token - The token to use in the request.
 		 */
-		async function fetchVideoItem() {
+		async function setFromVideo( token: string | null = null ) {
 			try {
-				const tokenData = await getMediaToken( 'playback', { id, guid } );
-				const params = tokenData?.token
-					? `?${ new URLSearchParams( { metadata_token: tokenData.token } ).toString() }`
-					: '';
+				let response;
 
-				const response: WPCOMRestAPIVideosGetEndpointResponseProps = await apiFetch( {
-					url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ params }`,
-					credentials: 'omit',
-				} );
+				// Some video data is not available immediately after upload, so we retry a few times.
+				for ( let retries = 0; retries < 5; retries++ ) {
+					response = await fetchVideoItem( {
+						guid,
+						isPrivate: maybeIsPrivate,
+						token,
+						skipRatingControl,
+					} );
+
+					if ( response.duration ) {
+						debug(
+							`video duration available: ${ response.duration }, retried ${ retries } times`,
+							response
+						);
+						break;
+					}
+
+					debug( `video duration not yet available, retrying (${ retries + 1 })`, response );
+					await new Promise( resolve => setTimeout( resolve, 1500 ) );
+				}
 
 				setIsRequestingVideoData( false );
 
@@ -45,25 +80,29 @@ export default function useVideoData( {
 				const filename = response.original?.split( '/' )?.at( -1 );
 
 				setVideoData( {
-					guid: response.guid,
-					title: response.title,
-					description: response.description,
+					duration: response.duration,
 					allow_download: response.allow_download,
+					post_id: response.post_id,
+					guid: response.guid,
+					title: decodeEntities( response.title ),
+					description: decodeEntities( response.description ),
+					display_embed: response.display_embed,
 					privacy_setting: response.privacy_setting,
 					rating: response.rating,
 					filename,
 					tracks: response.tracks,
 					is_private: response.is_private,
+					private_enabled_for_site: response.private_enabled_for_site,
 				} );
-			} catch ( error ) {
+			} catch ( errorData ) {
 				setIsRequestingVideoData( false );
-				throw new Error( error?.message ?? error );
+				throw new Error( errorData?.message ?? errorData );
 			}
 		}
 
 		if ( guid ) {
 			setIsRequestingVideoData( true );
-			fetchVideoItem();
+			setFromVideo();
 		}
 	}, [ id, guid ] );
 

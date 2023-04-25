@@ -5,6 +5,8 @@ use Automattic\Jetpack\Connection\Client;
 defined( 'VIDEOPRESS_MIN_WIDTH' ) || define( 'VIDEOPRESS_MIN_WIDTH', 60 );
 defined( 'VIDEOPRESS_DEFAULT_WIDTH' ) || define( 'VIDEOPRESS_DEFAULT_WIDTH', 640 );
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * VideoPress Privacy constants.
  */
@@ -188,7 +190,7 @@ function videopress_cleanup_media_library() {
 				// Force delete the attachment, because we don't want it appearing in the trash.
 				wp_delete_attachment( $post->ID, true );
 
-				$cleaned++;
+				++$cleaned;
 			}
 		}
 	}
@@ -505,6 +507,7 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 		$videopress_meta             = $meta['videopress'];
 		$video_info->rating          = isset( $videopress_meta['rating'] ) ? $videopress_meta['rating'] : null;
 		$video_info->allow_download  = isset( $videopress_meta['allow_download'] ) ? $videopress_meta['allow_download'] : 0;
+		$video_info->display_embed   = isset( $videopress_meta['display_embed'] ) ? $videopress_meta['display_embed'] : 0;
 		$video_info->privacy_setting = ! isset( $videopress_meta['privacy_setting'] ) ? VIDEOPRESS_PRIVACY::SITE_DEFAULT : $videopress_meta['privacy_setting'];
 	}
 

@@ -374,6 +374,16 @@ Since everything under `mu-plugins` and `wordpress/wp-content` is git-ignored, y
 Note that any folder within the `projects/plugins` directory will be automatically linked.
 If you're starting a new monorepo plugin, you may need to `jetpack docker stop` and `jetpack docker up` to re-run the initial linking step so it can be added.
 
+You can add your plugin to the list of plugins not allowed to be deleted or updated by adding this to a new file at `tools/docker/mu-plugins`:
+
+```php
+function jetpack_docker_disable_gutenberg_deletion( $plugins ) {
+	array_push( $plugins, 'gutenberg' );
+	return $plugins;
+}
+add_filter( 'jetpack_docker_avoided_plugins', 'jetpack_docker_disable_gutenberg_deletion' );
+```
+
 ## Debugging
 
 ### Accessing logs

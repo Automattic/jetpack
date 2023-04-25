@@ -20,8 +20,8 @@ const isVideo = mediaElement =>
  * slide progress state. This is useful in particular when player is
  * re-mounted somewhere else.
  *
- * @param {Object} action  - Action which had initiated the effect handler.
- * @param {Object} store   - Store instance.
+ * @param {object} action  - Action which had initiated the effect handler.
+ * @param {object} store   - Store instance.
  */
 function syncNewMediaElement( action, store ) {
 	const { getState, dispatch } = store;
@@ -46,8 +46,8 @@ function syncNewMediaElement( action, store ) {
 /**
  * Effect handler which will sync the current slide progress with a video element
  *
- * @param {Object} action  - Action which had initiated the effect handler.
- * @param {Object} store   - Store instance.
+ * @param {object} action  - Action which had initiated the effect handler.
+ * @param {object} store   - Store instance.
  */
 function syncWithMediaElement( action, store ) {
 	const { getState } = store;
@@ -87,8 +87,8 @@ function syncWithMediaElement( action, store ) {
 /**
  * Effect handler which will track the current slide progress.
  *
- * @param {Object} action  - Action which had initiated the effect handler.
- * @param {Object} store   - Store instance.
+ * @param {object} action  - Action which had initiated the effect handler.
+ * @param {object} store   - Store instance.
  */
 export function trackProgress( action, store ) {
 	const { getState, dispatch } = store;

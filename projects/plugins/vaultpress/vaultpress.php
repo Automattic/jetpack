@@ -3,7 +3,7 @@
  * Plugin Name: VaultPress
  * Plugin URI: http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * Description: Protect your content, themes, plugins, and settings with <strong>realtime backup</strong> and <strong>automated security scanning</strong> from <a href="http://vaultpress.com/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">VaultPress</a>. Activate, enter your registration key, and never worry again. <a href="http://vaultpress.com/help/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">Need some help?</a>
- * Version: 2.2.3-alpha
+ * Version: 2.2.4-alpha
  * Author: Automattic
  * Author URI: http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * License: GPL2+
@@ -17,7 +17,7 @@
 defined( 'ABSPATH' ) || die();
 
 define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '5.6' );
-define( 'VAULTPRESS__VERSION', '2.2.3-alpha' );
+define( 'VAULTPRESS__VERSION', '2.2.4-alpha' );
 define( 'VAULTPRESS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
@@ -476,7 +476,7 @@ class VaultPress {
 		}
 	}
 
-  // show message after activation
+	// show message after activation
 	function activated_notice() {
 		if ( 'network' == $this->get_option( 'activated' ) ) {
 			$message = sprintf(
@@ -1461,7 +1461,7 @@ class VaultPress {
 		$retry = 2;
 		$protocol = 'https';
 		do {
-			$retry--;
+			--$retry;
 			$args['sslverify'] = 'https' == $protocol ? true : false;
 			$r = wp_remote_get( $url=sprintf( "%s://%s/%s?cidr_ranges=1", $protocol, $hostname, $path ), $args );
 			if ( 200 == wp_remote_retrieve_response_code( $r ) ) {
@@ -1769,8 +1769,8 @@ JS;
 		}
 
 		if ( !isset( $bdb ) ) {
-			require_once( dirname( __FILE__ ) . '/class.vaultpress-database.php' );
-			require_once( dirname( __FILE__ ) . '/class.vaultpress-filesystem.php' );
+			require_once __DIR__ . '/class.vaultpress-database.php';
+			require_once __DIR__ . '/class.vaultpress-filesystem.php';
 
 			$bdb = new VaultPress_Database();
 			$bfs = new VaultPress_Filesystem();
@@ -2216,7 +2216,7 @@ JS;
 		$hostname = $this->get_option( 'hostname' );
 
 		if ( !class_exists( 'VaultPress_IXR_SSL_Client' ) )
-			require_once( dirname( __FILE__ ) . '/class.vaultpress-ixr-ssl-client.php' );
+			require_once __DIR__ . '/class.vaultpress-ixr-ssl-client.php';
 		$useragent = 'VaultPress/' . $this->plugin_version . '; ' . $this->site_url();
 		$client = new VaultPress_IXR_SSL_Client( $hostname, '/xmlrpc.php', 80, $timeout, $useragent );
 
@@ -2577,7 +2577,7 @@ JS;
 				foreach ( $data as $val ) {
 					if ( in_array( $data, $vaultpress_pings[$type] ) )
 						continue;
-					$vaultpress_pings['count']++;
+					++$vaultpress_pings['count'];
 					$vaultpress_pings[$type][]=$val;
 				}
 				return;
@@ -2588,13 +2588,13 @@ JS;
 					$vaultpress_pings[$type][$subtype] = array();
 				if ( in_array( $data, $vaultpress_pings[$type][$subtype] ) )
 					return;
-				$vaultpress_pings['count']++;
+				++$vaultpress_pings['count'];
 				$vaultpress_pings[$type][$subtype][] = $data;
 				return;
 			default:
 				if ( in_array( $data, $vaultpress_pings[$type] ) )
 					return;
-				$vaultpress_pings['count']++;
+				++$vaultpress_pings['count'];
 				$vaultpress_pings[$type][] = $data;
 				return;
 		}
@@ -2628,7 +2628,7 @@ JS;
 
 		$ping_attempts = 0;
 		do {
-			$ping_attempts++;
+			++$ping_attempts;
 			$rval = $this->contact_service( 'ping', array( 'args' => $vaultpress_pings ) );
 			if ( $rval || $ping_attempts >= 3 )
 				break;
@@ -2663,7 +2663,7 @@ JS;
 			return ABSPATH . 'wp-content' . DIRECTORY_SEPARATOR;
 		}
 		// Run with a solid assumption: WP_CONTENT_DIR/vaultpress/vaultpress.php
-		return dirname( dirname( __FILE__ ) ) . DIRECTORY_SEPARATOR;
+		return dirname( __DIR__ ) . DIRECTORY_SEPARATOR;
 	}
 
 	function resolve_upload_path() {
@@ -3037,12 +3037,12 @@ if ( isset( $_GET['vaultpress'] ) && $_GET['vaultpress'] ) {
 }
 
 // only load hotfixes if it's not a VP request
-require_once( dirname( __FILE__ ) . '/class.vaultpress-hotfixes.php' );
+require_once __DIR__ . '/class.vaultpress-hotfixes.php';
 $hotfixes = new VaultPress_Hotfixes();
 
 // Add a helper method to WP CLI for auto-registerion via Jetpack
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	require_once( dirname( __FILE__ ) . '/class.vaultpress-cli.php' );
+	require_once __DIR__ . '/class.vaultpress-cli.php';
 }
 
-include_once( dirname( __FILE__ ) . '/cron-tasks.php' );
+require_once __DIR__ . '/cron-tasks.php';

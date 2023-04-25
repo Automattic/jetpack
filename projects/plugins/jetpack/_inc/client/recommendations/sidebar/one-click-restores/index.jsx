@@ -88,7 +88,7 @@ const OneClickRestoresComponent = props => {
 						/>
 					</a>
 					<div>
-						<h2>{ __( 'Getting started with Jetpack Backup', 'jetpack' ) }</h2>
+						<h2>{ __( 'Getting started with Jetpack VaultPress Backup', 'jetpack' ) }</h2>
 						<p>{ __( 'A short video guide on how to back up your website', 'jetpack' ) }</p>
 					</div>
 				</div>

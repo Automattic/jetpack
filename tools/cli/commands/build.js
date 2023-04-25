@@ -4,12 +4,12 @@ import { once } from 'node:events';
 import { createInterface as rlcreateInterface } from 'node:readline';
 import npath from 'path';
 import chalk from 'chalk';
-import execa from 'execa';
+import { execa } from 'execa';
 import inquirer from 'inquirer';
 import Listr from 'listr';
+import ListrState from 'listr/lib/state.js';
 import SilentRenderer from 'listr-silent-renderer';
 import UpdateRenderer from 'listr-update-renderer';
-import ListrState from 'listr/lib/state.js';
 import pLimit from 'p-limit';
 import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
 import formatDuration from '../helpers/format-duration.js';
@@ -155,6 +155,7 @@ export async function handler( argv ) {
 				await t.setStatus( 'installing' );
 				await t.execa( 'pnpm', await getInstallArgs( 'monorepo', 'pnpm', argv ), {
 					cwd: process.cwd(),
+					buffer: false,
 				} );
 			} )
 		);
@@ -398,7 +399,11 @@ async function setupForMirroring( argv ) {
 
 	if ( ! process.env.CI || process.env.CI === '' ) {
 		try {
-			await execa( 'git', [ 'diff', '--quiet' ], { stdio: 'inherit', cwd: process.cwd() } );
+			await execa( 'git', [ 'diff', '--quiet' ], {
+				stdio: 'inherit',
+				buffer: false,
+				cwd: process.cwd(),
+			} );
 		} catch {
 			console.error( chalk.bgRed( 'The working tree has unstaged changes!' ) );
 			console.error( 'Please stage, merge, or revert them before trying to use --for-mirrors.' );
@@ -569,6 +574,7 @@ async function buildProject( t ) {
 				if ( await fsExists( `${ t.cwd }/composer.lock` ) ) {
 					await t.execa( 'composer', [ 'update', '--no-install', ...Object.keys( versions ) ], {
 						cwd: t.cwd,
+						buffer: false,
 					} );
 				}
 			}
@@ -579,6 +585,7 @@ async function buildProject( t ) {
 	// Install.
 	await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
 		cwd: t.cwd,
+		buffer: false,
 	} );
 
 	await t.setStatus( 'building' );
@@ -598,7 +605,7 @@ async function buildProject( t ) {
 	if ( script === null ) {
 		await t.output( `No build scripts are defined for ${ t.project }\n` );
 	} else {
-		await t.execa( 'composer', [ 'run', '--timeout=0', script ], { cwd: t.cwd } );
+		await t.execa( 'composer', [ 'run', '--timeout=0', script ], { cwd: t.cwd, buffer: false } );
 	}
 
 	// If we're not mirroring, the build is done. Mirroring has a bunch of stuff to do yet.
@@ -646,7 +653,7 @@ async function buildProject( t ) {
 					`--yes`,
 					`-vvv`,
 				],
-				{ cwd: t.cwd }
+				{ cwd: t.cwd, buffer: false }
 			);
 
 			t.output( '\n=== Updating $$next-version$$ ===\n\n' );
@@ -656,11 +663,11 @@ async function buildProject( t ) {
 					stdio: [ null, 'pipe', null ],
 				} )
 			 ).stdout;
-			await t.execa( npath.resolve( 'tools/replace-next-version-tag.sh' ), [
-				'-v',
-				t.project,
-				ver,
-			] );
+			await t.execa(
+				npath.resolve( 'tools/replace-next-version-tag.sh' ),
+				[ '-v', t.project, ver ],
+				{ buffer: false }
+			);
 		} else {
 			t.output( 'Not updating changelog, there are no change files\n' );
 		}

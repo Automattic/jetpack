@@ -7,7 +7,7 @@ import useRestoreConnection from '../../hooks/use-restore-connection/index.jsx';
  * Returns a ConnectionErrorNotice component and the conditional flag on whether
  * to render the component or not.
  *
- * @returns {Object} - The hook data.
+ * @returns {object} - The hook data.
  */
 export default function useConnectionErrorNotice() {
 	const { connectionErrors } = useConnection( {} );
@@ -24,11 +24,8 @@ export default function useConnectionErrorNotice() {
 
 export const ConnectionError = () => {
 	const { hasConnectionError, connectionErrorMessage } = useConnectionErrorNotice();
-	const {
-		restoreConnection,
-		isRestoringConnection,
-		restoreConnectionError,
-	} = useRestoreConnection();
+	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
+		useRestoreConnection();
 
 	return hasConnectionError ? (
 		<ConnectionErrorNotice

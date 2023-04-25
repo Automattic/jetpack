@@ -5,6 +5,105 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.12.14] - 2023-04-25
+- Minor internal updates.
+
+## [1.12.13] - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## [1.12.12] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.12.11] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## [1.12.10] - 2023-04-03
+### Changed
+- Internal updates.
+
+## [1.12.9] - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## [1.12.8] - 2023-03-27
+### Added
+- (Backup, Boost, Search, Social) Add links on upgrade pages to activate a license key, if you already have one. [#29443]
+
+### Fixed
+- Backup: validate if storage details has loaded before attempting to fetch it again. [#29645]
+
+## [1.12.7] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## [1.12.6] - 2023-03-08
+### Changed
+- Switch to use tracking check from connection package [#29187]
+- Updated package dependencies. [#29216]
+
+## [1.12.5] - 2023-02-28
+### Changed
+- Update billing language [#29126]
+- Update days of saved backups link to use external link instead of plain link. [#29137]
+
+## [1.12.4] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [1.12.3] - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## [1.12.2] - 2023-02-08
+### Added
+- Add filter to redirect users who have a license to license activation page. [#28509]
+
+### Changed
+- Updated package dependencies. [#28682]
+
+## [1.12.1] - 2023-01-30
+### Added
+- Add track event when user clicks on upgrade storage CTA [#28647]
+
+## [1.12.0] - 2023-01-30
+### Added
+- Move usage storage level to a global state [#28603]
+
+### Changed
+- Backup storage details improvement [#28581]
+
+## [1.11.0] - 2023-01-26
+### Added
+- Add backup storage UI on backup plugin [#28085]
+
+## [1.10.8] - 2023-01-23
+### Fixed
+- Clean up JavaScript eslint issues. [#28441]
+- Fixes the price display for products with intro offers for the first month. [#28424]
+
+## [1.10.7] - 2023-01-11
+### Added
+- Setup js tests and add some tests to existing reducers, selectors and hooks [#28130]
+
+### Changed
+- Updated package dependencies. [#28127]
+- Use `WP_Filesystem` more consistently in `Helper_Script_Manager`. [#28198]
+
+## [1.10.6] - 2022-12-19
+### Changed
+- Update Backup logo [#27802]
+
+### Fixed
+- Update for PHP 8.2 deprecations. [#27949]
+
+## [1.10.5] - 2022-12-06
+### Changed
+- Updated backup layout to improve consistency and remove redundancy. [#27222]
+- Updated package dependencies. [#27340, #27688, #27696, #27697]
+
 ## [1.10.4] - 2022-11-28
 ### Changed
 - Rename Jetpack Backup to Jetpack VaultPress Backup [#27432]
@@ -296,6 +395,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[1.12.14]: https://github.com/Automattic/jetpack-backup/compare/v1.12.13...v1.12.14
+[1.12.13]: https://github.com/Automattic/jetpack-backup/compare/v1.12.12...v1.12.13
+[1.12.12]: https://github.com/Automattic/jetpack-backup/compare/v1.12.11...v1.12.12
+[1.12.11]: https://github.com/Automattic/jetpack-backup/compare/v1.12.10...v1.12.11
+[1.12.10]: https://github.com/Automattic/jetpack-backup/compare/v1.12.9...v1.12.10
+[1.12.9]: https://github.com/Automattic/jetpack-backup/compare/v1.12.8...v1.12.9
+[1.12.8]: https://github.com/Automattic/jetpack-backup/compare/v1.12.7...v1.12.8
+[1.12.7]: https://github.com/Automattic/jetpack-backup/compare/v1.12.6...v1.12.7
+[1.12.6]: https://github.com/Automattic/jetpack-backup/compare/v1.12.5...v1.12.6
+[1.12.5]: https://github.com/Automattic/jetpack-backup/compare/v1.12.4...v1.12.5
+[1.12.4]: https://github.com/Automattic/jetpack-backup/compare/v1.12.3...v1.12.4
+[1.12.3]: https://github.com/Automattic/jetpack-backup/compare/v1.12.2...v1.12.3
+[1.12.2]: https://github.com/Automattic/jetpack-backup/compare/v1.12.1...v1.12.2
+[1.12.1]: https://github.com/Automattic/jetpack-backup/compare/v1.12.0...v1.12.1
+[1.12.0]: https://github.com/Automattic/jetpack-backup/compare/v1.11.0...v1.12.0
+[1.11.0]: https://github.com/Automattic/jetpack-backup/compare/v1.10.8...v1.11.0
+[1.10.8]: https://github.com/Automattic/jetpack-backup/compare/v1.10.7...v1.10.8
+[1.10.7]: https://github.com/Automattic/jetpack-backup/compare/v1.10.6...v1.10.7
+[1.10.6]: https://github.com/Automattic/jetpack-backup/compare/v1.10.5...v1.10.6
+[1.10.5]: https://github.com/Automattic/jetpack-backup/compare/v1.10.4...v1.10.5
 [1.10.4]: https://github.com/Automattic/jetpack-backup/compare/v1.10.3...v1.10.4
 [1.10.3]: https://github.com/Automattic/jetpack-backup/compare/v1.10.2...v1.10.3
 [1.10.2]: https://github.com/Automattic/jetpack-backup/compare/v1.10.1...v1.10.2

@@ -52,7 +52,6 @@ class Test_REST_Controller extends Search_Test_Case {
 		add_action( 'rest_api_init', array( $this->rest_controller, 'register_rest_routes' ) );
 
 		do_action( 'rest_api_init' );
-
 	}
 
 	/**

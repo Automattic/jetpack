@@ -1,6 +1,5 @@
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
+import { render, renderHook, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import React from 'react';
 import '../../../store';

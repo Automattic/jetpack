@@ -154,6 +154,15 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 	private function build_collection_api_urls() {
 		$font_families_urls = array();
 
+		/**
+		 * Filters the Google Fonts API URL.
+		 *
+		 * @since 0.4.0
+		 *
+		 * @param string $url The Google Fonts API URL.
+		 */
+		$root_url = \esc_url( apply_filters( 'jetpack_google_fonts_api_url', $this->root_url ) );
+
 		/*
 		* Iterate over each font-family group to build the Google Fonts API URL
 		* for that specific family. Each is added to the collection of URLs to be
@@ -179,7 +188,7 @@ class Google_Fonts_Provider extends \WP_Webfonts_Provider {
 			}
 
 			// Build the URL for this font-family and add it to the collection.
-			$font_families_urls[] = $this->root_url . '?family=' . implode( '&family=', $url_parts ) . '&display=' . $font_display;
+			$font_families_urls[] = $root_url . '?family=' . implode( '&family=', $url_parts ) . '&display=' . $font_display;
 		}
 
 		return $font_families_urls;

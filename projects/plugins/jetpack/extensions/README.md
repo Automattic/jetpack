@@ -16,7 +16,7 @@ Blocks, usually core blocks, extended by Jetpack plugin.
 Located in the `./extended-blocks` folder.
 
 ### Plugins
-Core Editor [plugins](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-plugins/), 
+Core Editor [plugins](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-plugins/),
 registered by Jetpack to extend the application UI via [Slot&Fill](https://developer.wordpress.org/block-editor/reference-guides/slotfills/) components.
 
 ## Extension Structure
@@ -79,16 +79,17 @@ By keeping your extension in the beta array, it's safe to do small PRs and merge
 Generally, all new extensions should start out as a beta.
 
 - Before you develop, remember to add your extension's slug to the beta array in `extensions/index.json`.
-- In the `wp-config.php` for your Docker environment (`docker/wordpress/wp-config.php`) or in your custom mu-plugins file (`docker/mu-plugins/yourfile.php`), enable beta extensions with the following snippet: `define( 'JETPACK_BETA_BLOCKS', true );`
+- In the `wp-config.php` for your Docker environment (`docker/wordpress/wp-config.php`) or in your custom mu-plugins file (`docker/mu-plugins/yourfile.php`), enable beta extensions with the following snippet: `define( 'JETPACK_BLOCKS_VARIATION', 'beta' );`
 - When you use this constant, you'll get all blocks: Beta blocks, Experimental blocks, and Production blocks.
+- You can also filter to specific extensions: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`.
 - In the WordPress.com environment, Automatticians will be able to see beta extensions with no further configuration
-- In a Jurassic Ninja site, you must go to Settings > Jetpack Constants, and enable the `JETPACK_BETA_BLOCKS` option there.
+- In a Jurassic Ninja site, you must go to Settings > Jetpack Constants, and enable the Beta blocks option there.
 - Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
 
 ### Experimental Extensions
 
-We also offer an "experimental" state for extensions. Those extensions will be made available to anyone having the `JETPACK_EXPERIMENTAL_BLOCKS` constant defined in `wp-config.php`. When you use this constant, you'll get Experimental blocks as well as Production blocks.
+We also offer an "experimental" state for extensions. Those extensions will be made available to anyone having the `JETPACK_BLOCKS_VARIATION` constant set to `experimental` in `wp-config.php`. When you use this constant, you'll get Experimental blocks as well as Production blocks.
 
 Experimental extensions are usually considered ready for production, but are served only to sites requesting them.
 
@@ -340,7 +341,7 @@ See [Publicize](blocks/publicize/index.js) and [Shortlinks](blocks/shortlinks/in
 
 ### i18n
 
-`@wordpress/i18n` doesn't support React elements in strings, but you can use `createInterpolateElement` from `@wordpress/element`. 
+`@wordpress/i18n` doesn't support React elements in strings, but you can use `createInterpolateElement` from `@wordpress/element`.
 
 ### Colors
 
@@ -353,6 +354,25 @@ The build pipeline also supports [Color studio](https://github.com/Automattic/co
 ### Icons
 
 Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Gutenberg. Don't rely on icons used in WordPress core to avoid visual mixing up with core blocks.
+
+### SVG files
+
+When an svg (or other asset) file is imported into js, by default webpack transforms the import into a url for the file. If you would like to import an svg file as a React component (using the [svgr library](https://react-svgr.com/)), append `?component` to the import source. This is particularly useful for [block icons](https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/#icon-optional), which need to be either svg markup or a React component.
+
+```js
+// index.js for a block
+import { getIconColor } from '../../shared/block-icons';
+import Icon from './icon.svg?component';
+
+export const settings = {
+	...
+	icon: {
+		src: Icon,
+		foreground: getIconColor(),
+	},
+	...
+};
+```
 
 ## Native support
 

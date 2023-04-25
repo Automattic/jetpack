@@ -1,4 +1,5 @@
 import { getCurrencyObject } from '@automattic/format-currency';
+import { isFirstMonthTrial } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
@@ -42,17 +43,20 @@ const ProductCardUpsellComponent = ( {
 	const { discount } = discountData;
 	const hasDiscount = useMemo( () => isCouponValid( discountData ), [ discountData ] );
 
-	const { original_price: introOriginalPrice, raw_price: introRawPrice } = useMemo(
+	const introOffer = useMemo(
 		() => introOffers.find( ( { product_slug } ) => product_slug === slug ) || {},
 		[ slug, introOffers ]
 	);
+	const { original_price: introOriginalPrice, raw_price: introRawPrice } = introOffer;
 	// introOriginalPrice is the price per year before introductory offer. Defaults to `cost`
 	// (which is cost per month) if there's no such offer available.
 	const initialPrice = introOriginalPrice || cost * 12;
 	// introRawPrice is the price after introductory offer, but before any other discount.
 	const introPrice = introRawPrice || initialPrice;
-	// Apply special discount.
-	const finalPrice = hasDiscount && discount ? introPrice * ( 1 - discount / 100 ) : introPrice;
+	const isTrial = isFirstMonthTrial( introOffer );
+	// Apply special discount if there's a discount and is not a first month trial.
+	const finalPrice =
+		! isTrial && hasDiscount && discount ? introPrice * ( 1 - discount / 100 ) : introPrice;
 
 	// Compute total discount, including introductory offer (if it exists) and special discount.
 	const totalDiscount = initialPrice
@@ -60,14 +64,22 @@ const ProductCardUpsellComponent = ( {
 		: null;
 
 	// Get price parts, such as currency symbol and value.
-	const initialCurrencyObject = useMemo( () => getCurrencyObject( initialPrice / 12, currency ), [
-		initialPrice,
-		currency,
-	] );
-	const currencyObject = useMemo( () => getCurrencyObject( finalPrice / 12, currency ), [
-		finalPrice,
-		currency,
-	] );
+	const initialCurrencyObject = useMemo(
+		() => getCurrencyObject( initialPrice / 12, currency ),
+		[ initialPrice, currency ]
+	);
+	const currencyObject = useMemo(
+		() => getCurrencyObject( finalPrice / 12, currency ),
+		[ finalPrice, currency ]
+	);
+
+	const checkoutUrl = new URL( upgradeUrl );
+
+	// Remove the coupon code from the URL if it's a trial.
+	// This is mostly to avoid confusion since the UI won't show the discount either
+	if ( isTrial ) {
+		checkoutUrl.searchParams.delete( 'coupon' );
+	}
 
 	const header = isRecommended && (
 		<RecommendedHeader className="jp-recommendations-product-card-upsell__header" />
@@ -125,7 +137,7 @@ const ProductCardUpsellComponent = ( {
 				className="jp-recommendations-product-card-upsell__cta-button"
 				primary={ ! isRecommended }
 				rna
-				href={ upgradeUrl }
+				href={ checkoutUrl.toString() }
 				onClick={ onClick }
 				target="_blank"
 				rel="noopener noreferrer"

@@ -1,18 +1,30 @@
 /**
  * External dependencies
  */
-import { TrackProps, VideoGUID, VideoId } from '../../blocks/video/types';
+import { PrivacySettingProp, RatingProp, VideoTracksResponseBodyProps } from '../../../types';
+import { VideoGUID, VideoId } from '../../blocks/video/types';
 
 export type UseVideoDataArgumentsProps = {
 	id?: VideoId;
 	guid?: VideoGUID;
-	isPrivate?: boolean;
+	skipRatingControl: boolean;
+	maybeIsPrivate: boolean;
 };
 
 export type VideoDataProps = {
-	title?: string;
+	duration?: number;
+	allow_download?: boolean;
 	description?: string;
-	tracks?: Array< TrackProps >;
+	display_embed?: boolean;
+	filename?: string;
+	guid?: VideoGUID;
+	is_private?: boolean;
+	post_id?: number;
+	privacy_setting?: PrivacySettingProp;
+	private_enabled_for_site?: boolean;
+	rating?: RatingProp;
+	title?: string;
+	tracks?: VideoTracksResponseBodyProps;
 };
 
 export type UseVideoDataProps = {

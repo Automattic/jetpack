@@ -1,6 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -68,17 +67,14 @@ export class Traffic extends React.Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Traffic Settings', 'jetpack' ) }</h1>
-				<Card
-					title={
-						this.props.searchTerm
-							? __( 'Traffic', 'jetpack' )
-							: __(
-									'Maximize your site’s visibility in search engines and view traffic patterns in real time.',
-									'jetpack'
-							  )
-					}
-					className="jp-settings-description"
-				/>
+				<h2 className="jp-settings__section-title">
+					{ this.props.searchTerm
+						? __( 'Traffic', 'jetpack' )
+						: __(
+								'Maximize your site’s visibility in search engines and view traffic patterns in real time.',
+								'jetpack'
+						  ) }
+				</h2>
 				{ foundAds && (
 					<Ads
 						{ ...commonProps }
@@ -110,6 +106,7 @@ export class Traffic extends React.Component {
 						} ) }
 					/>
 				) }
+				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundAnalytics && (
 					<GoogleAnalytics
 						{ ...commonProps }
@@ -119,7 +116,6 @@ export class Traffic extends React.Component {
 						} ) }
 					/>
 				) }
-				{ foundStats && <SiteStats { ...commonProps } /> }
 				{ foundShortlinks && <Shortlinks { ...commonProps } /> }
 				{ foundSitemaps && <Sitemaps { ...commonProps } /> }
 				{ foundVerification && <VerificationServices { ...commonProps } /> }

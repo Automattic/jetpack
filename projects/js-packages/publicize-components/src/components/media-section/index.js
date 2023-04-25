@@ -1,46 +1,22 @@
-import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import { Button, ResponsiveWrapper, Spinner } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { ThemeProvider, getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink, Notice, BaseControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
+import { useEffect, useState } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
+import useMediaDetails from '../../hooks/use-media-details';
+import useMediaRestrictions, {
+	FILE_SIZE_ERROR,
+	FILE_TYPE_ERROR,
+	VIDEO_LENGTH_TOO_LONG_ERROR,
+	VIDEO_LENGTH_TOO_SHORT_ERROR,
+} from '../../hooks/use-media-restrictions';
+import useSocialMediaConnections from '../../hooks/use-social-media-connections';
+import MediaPicker from '../media-picker';
+import SocialPostControl from '../social-post-control';
 import styles from './styles.module.scss';
 
-/**
- * Get relevant details from a WordPress media object.
- *
- * @param {Object} media - WordPress media object.
- * @returns {{ mediaWidth: [ number ], mediaHeight: [ number ], mediaSourceUrl: [ string ] }} - Media details.
- */
-const getMediaDetails = media => {
-	if ( ! media ) {
-		return {};
-	}
-
-	const sizes = media?.media_details?.sizes ?? {};
-
-	if ( Object.keys( sizes ).length === 0 ) {
-		return {
-			mediaWidth: media.media_details.width,
-			mediaHeight: media.media_details.height,
-			mediaSourceUrl: media.source_url,
-		};
-	}
-
-	const mediaObject = sizes.large || sizes.thumbnail;
-
-	return {
-		mediaWidth: mediaObject.width,
-		mediaHeight: mediaObject.height,
-		mediaSourceUrl: mediaObject.source_url,
-	};
-};
-
-const ADD_MEDIA_LABEL = __( 'Set Social Image', 'jetpack' );
-const REPLACE_MEDIA_LABEL = __( 'Replace Social Image', 'jetpack' );
-const REMOVE_MEDIA_LABEL = __( 'Remove Social Image', 'jetpack' );
-
-const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
+const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack' );
 
 /**
  * Wrapper that handles media-related functionality.
@@ -48,77 +24,96 @@ const ALLOWED_MEDIA_TYPES = [ 'image/jpeg', 'image/png' ];
  * @returns {object} The media section.
  */
 export default function MediaSection() {
+	const [ validationError, setValidationError ] = useState( null );
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
+	const { enabledConnections } = useSocialMediaConnections();
 
-	const mediaObject = useSelect( select =>
-		select( 'core' ).getMedia( attachedMedia[ 0 ] || null, { context: 'view' } )
-	);
+	const [ mediaDetails ] = useMediaDetails( attachedMedia[ 0 ]?.id );
 
-	const { mediaWidth, mediaHeight, mediaSourceUrl } = getMediaDetails( mediaObject );
+	const { maxImageSize, getValidationError, allowedMediaTypes } =
+		useMediaRestrictions( enabledConnections );
 
-	const onRemoveMedia = useCallback( () => updateAttachedMedia( [] ), [ updateAttachedMedia ] );
-	const onUpdateMedia = useCallback(
+	const validationErrorMessages = {
+		[ FILE_TYPE_ERROR ]: __(
+			'The selected media type is not accepted by these platforms.',
+			'jetpack'
+		),
+		[ FILE_SIZE_ERROR ]: sprintf(
+			/* translators: placeholder is the maximum image size in MB */
+			__( 'This media is over %d MB and cannot be used for these platforms.', 'jetpack' ),
+			maxImageSize
+		),
+		[ VIDEO_LENGTH_TOO_LONG_ERROR ]: __(
+			'The selected video is too long for these platforms.',
+			'jetpack'
+		),
+		[ VIDEO_LENGTH_TOO_SHORT_ERROR ]: __(
+			'The selected video is too short for these platforms.',
+			'jetpack'
+		),
+	};
+
+	useEffect( () => {
+		// Removes selected media if connection change results in invalid image
+		if ( ! mediaDetails.metaData || ! attachedMedia.length ) {
+			return;
+		}
+
+		const error = getValidationError( mediaDetails.metaData );
+		if ( error ) {
+			setValidationError( error );
+			updateAttachedMedia( [] );
+		}
+	}, [ attachedMedia, updateAttachedMedia, getValidationError, mediaDetails ] );
+
+	const onChange = useCallback(
 		media => {
-			// allowedTypes doesn't properly disallow uploaded media types.
-			// See: https://github.com/WordPress/gutenberg/issues/25130
-			if ( ! ALLOWED_MEDIA_TYPES.includes( media.mime ) ) {
-				return;
+			if ( ! media ) {
+				updateAttachedMedia( [] );
+			} else {
+				const { id, url } = media;
+				updateAttachedMedia( [ { id, url } ] );
 			}
-
-			updateAttachedMedia( [ media.id ] );
+			setValidationError( null );
 		},
 		[ updateAttachedMedia ]
 	);
 
-	const setMediaRender = useCallback(
-		( { open } ) => (
-			<div className={ styles.container }>
-				<Button className={ ! mediaObject ? styles.toggle : styles.preview } onClick={ open }>
-					{ mediaWidth && mediaHeight && mediaSourceUrl && (
-						<ResponsiveWrapper naturalWidth={ mediaWidth } naturalHeight={ mediaHeight } isInline>
-							<img src={ mediaSourceUrl } alt="" />
-						</ResponsiveWrapper>
-					) }
-					{ ! mediaObject && ( attachedMedia.length ? <Spinner /> : ADD_MEDIA_LABEL ) }
-				</Button>
-			</div>
-		),
-		[ mediaHeight, mediaObject, mediaSourceUrl, mediaWidth, attachedMedia ]
-	);
-
-	const replaceMediaRender = useCallback(
-		( { open } ) => (
-			<Button onClick={ open } variant="secondary">
-				{ REPLACE_MEDIA_LABEL }
-			</Button>
-		),
-		[]
-	);
-
+	const onDismissClick = useCallback( () => setValidationError( null ), [] );
 	return (
-		<div className={ styles.wrapper }>
-			<MediaUploadCheck>
-				<MediaUpload
-					title={ ADD_MEDIA_LABEL }
-					onSelect={ onUpdateMedia }
-					allowedTypes={ ALLOWED_MEDIA_TYPES }
-					render={ setMediaRender }
-					value={ attachedMedia[ 0 ] }
+		<ThemeProvider>
+			<BaseControl label={ __( 'Media', 'jetpack' ) } className={ styles.wrapper }>
+				<p className={ styles.subtitle }>
+					{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
+				</p>
+
+				<MediaPicker
+					buttonLabel={ ADD_MEDIA_LABEL }
+					subTitle={ __( 'Add an image or video', 'jetpack' ) }
+					mediaId={ attachedMedia[ 0 ]?.id }
+					mediaDetails={ mediaDetails }
+					onChange={ onChange }
+					allowedMediaTypes={ allowedMediaTypes }
 				/>
-				{ mediaObject && (
-					<>
-						<MediaUpload
-							title={ REPLACE_MEDIA_LABEL }
-							onSelect={ onUpdateMedia }
-							allowedTypes={ ALLOWED_MEDIA_TYPES }
-							render={ replaceMediaRender }
-						/>
-						<Button onClick={ onRemoveMedia } variant="link" isDestructive>
-							{ REMOVE_MEDIA_LABEL }
-						</Button>
-					</>
+
+				<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+					{ __( 'Learn photo and video best practices', 'jetpack' ) }
+				</ExternalLink>
+				{ validationError && (
+					<Notice
+						className={ styles.notice }
+						isDismissible={ true }
+						onDismiss={ onDismissClick }
+						status="warning"
+					>
+						<p>{ validationErrorMessages[ validationError ] }</p>
+						<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+							{ __( 'Troubleshooting tips', 'jetpack' ) }
+						</ExternalLink>
+					</Notice>
 				) }
-			</MediaUploadCheck>
-		</div>
+			</BaseControl>
+			<SocialPostControl />
+		</ThemeProvider>
 	);
 }

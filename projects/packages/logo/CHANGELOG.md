@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.6.0] - 2023-04-04
+### Added
+- Add new method to get a base64 encoded SVG of the Jetpack logo. [#29418]
+
+## [1.5.22] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [1.5.21] - 2023-01-30
+### Changed
+- Updated styles for Just in Time Messages (notices) [#27515]
+
+## [1.5.20] - 2022-12-02
+### Changed
+- Updated package dependencies. [#27688]
+
 ## [1.5.19] - 2022-11-22
 ### Changed
 - Updated package dependencies. [#27043]
@@ -134,6 +154,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Add a basic Jetpack Logo package
 
+[1.6.1]: https://github.com/Automattic/jetpack-logo/compare/v1.6.0...v1.6.1
+[1.6.0]: https://github.com/Automattic/jetpack-logo/compare/v1.5.22...v1.6.0
+[1.5.22]: https://github.com/Automattic/jetpack-logo/compare/v1.5.21...v1.5.22
+[1.5.21]: https://github.com/Automattic/jetpack-logo/compare/v1.5.20...v1.5.21
+[1.5.20]: https://github.com/Automattic/jetpack-logo/compare/v1.5.19...v1.5.20
 [1.5.19]: https://github.com/Automattic/jetpack-logo/compare/v1.5.18...v1.5.19
 [1.5.18]: https://github.com/Automattic/jetpack-logo/compare/v1.5.17...v1.5.18
 [1.5.17]: https://github.com/Automattic/jetpack-logo/compare/v1.5.16...v1.5.17

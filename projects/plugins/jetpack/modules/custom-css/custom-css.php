@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 
 /**
@@ -44,7 +46,6 @@ class Jetpack_Custom_CSS_Enhancements {
 		add_filter( 'editor_max_image_size', array( __CLASS__, 'editor_max_image_size' ), 10, 3 );
 		add_action( 'template_redirect', array( __CLASS__, 'set_content_width' ) );
 		add_action( 'admin_init', array( __CLASS__, 'set_content_width' ) );
-
 	}
 
 	/**
@@ -64,6 +65,7 @@ class Jetpack_Custom_CSS_Enhancements {
 			'jetpack-customizer-css',
 			$src,
 			array(
+				'jquery',
 				'customize-controls',
 				'underscore',
 			),
@@ -77,7 +79,7 @@ class Jetpack_Custom_CSS_Enhancements {
 				'_inc/build/custom-css/custom-css/js/core-customizer-css-preview.min.js',
 				'modules/custom-css/custom-css/js/core-customizer-css-preview.js'
 			),
-			array( 'customize-selective-refresh' ),
+			array( 'jquery', 'customize-selective-refresh' ),
 			JETPACK__VERSION,
 			true
 		);
@@ -788,7 +790,6 @@ class Jetpack_Custom_CSS_Enhancements {
 				)
 			);
 		}
-
 	}
 
 	/**

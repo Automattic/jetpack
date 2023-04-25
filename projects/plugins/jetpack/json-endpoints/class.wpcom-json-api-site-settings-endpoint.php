@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
+
 new WPCOM_JSON_API_Site_Settings_Endpoint(
 	array(
 		'description'      => 'Get detailed settings information about a site.',
@@ -51,9 +53,11 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'blog_public'                             => '(string) Site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
 			'jetpack_sync_non_public_post_stati'      => '(bool) allow sync of post and pages with non-public posts stati',
 			'jetpack_relatedposts_enabled'            => '(bool) Enable related posts?',
+			'jetpack_relatedposts_show_context'       => '(bool) Show post\'s tags and category in related posts?',
+			'jetpack_relatedposts_show_date'          => '(bool) Show date in related posts?',
 			'jetpack_relatedposts_show_headline'      => '(bool) Show headline in related posts?',
 			'jetpack_relatedposts_show_thumbnails'    => '(bool) Show thumbnails in related posts?',
-			'jetpack_protect_whitelist'               => '(array) List of IP addresses to whitelist',
+			'jetpack_protect_whitelist'               => '(array) List of IP addresses to always allow',
 			'instant_search_enabled'                  => '(bool) Enable the new Jetpack Instant Search interface',
 			'jetpack_search_enabled'                  => '(bool) Enable Jetpack Search',
 			'jetpack_search_supported'                => '(bool) Jetpack Search is supported',
@@ -188,7 +192,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		} else {
 			return new WP_Error( 'bad_request', 'An unsupported request method was used.' );
 		}
-
 	}
 
 	/**
@@ -357,8 +360,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[ $key ] = array(
 						// also exists as "options".
 						'admin_url'                        => get_admin_url(),
-						'default_ping_status'              => (bool) ( 'closed' !== get_option( 'default_ping_status' ) ),
-						'default_comment_status'           => (bool) ( 'closed' !== get_option( 'default_comment_status' ) ),
+						'default_ping_status'              => 'closed' !== get_option( 'default_ping_status' ),
+						'default_comment_status'           => 'closed' !== get_option( 'default_comment_status' ),
 
 						// new stuff starts here.
 						'instant_search_enabled'           => (bool) get_option( 'instant_search_enabled' ),
@@ -366,8 +369,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
 						'jetpack_relatedposts_allowed'     => (bool) $this->jetpack_relatedposts_supported(),
 						'jetpack_relatedposts_enabled'     => (bool) $jetpack_relatedposts_options['enabled'],
-						'jetpack_relatedposts_show_headline' => (bool) isset( $jetpack_relatedposts_options['show_headline'] ) ? $jetpack_relatedposts_options['show_headline'] : false,
-						'jetpack_relatedposts_show_thumbnails' => (bool) isset( $jetpack_relatedposts_options['show_thumbnails'] ) ? $jetpack_relatedposts_options['show_thumbnails'] : false,
+						'jetpack_relatedposts_show_context' => ! empty( $jetpack_relatedposts_options['show_context'] ),
+						'jetpack_relatedposts_show_date'   => ! empty( $jetpack_relatedposts_options['show_date'] ),
+						'jetpack_relatedposts_show_headline' => ! empty( $jetpack_relatedposts_options['show_headline'] ),
+						'jetpack_relatedposts_show_thumbnails' => ! empty( $jetpack_relatedposts_options['show_thumbnails'] ),
 						'jetpack_search_enabled'           => (bool) $jetpack_search_active,
 						'jetpack_search_supported'         => (bool) $jetpack_search_supported,
 						'default_category'                 => (int) get_option( 'default_category' ),
@@ -435,8 +440,13 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
-						'featured_image_email_enabled'     => (bool) get_option( 'featured_image_email_enabled' ),
+						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
+						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
+						'show_on_front'                    => (string) get_option( 'show_on_front' ),
+						'page_on_front'                    => (string) get_option( 'page_on_front' ),
+						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
+						'subscription_options'             => (array) get_option( 'subscription_options' ),
 					);
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -485,9 +495,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$response[ $key ]['sharing_open_links']   = (string) $sharing['open_links'];
 					}
 
-					if ( function_exists( 'jetpack_protect_format_whitelist' ) ) {
-						$response[ $key ]['jetpack_protect_whitelist'] = jetpack_protect_format_whitelist();
-					}
+					$response[ $key ]['jetpack_protect_whitelist'] = Brute_Force_Protection_Shared_Functions::format_allow_list();
 
 					if ( ! current_user_can( 'edit_posts' ) ) {
 						unset( $response[ $key ] );
@@ -496,7 +504,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 		return $response;
-
 	}
 
 	/**
@@ -511,6 +518,19 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 			foreach ( $purchases as $purchase ) {
 				if ( wpcom_purchase_has_feature( $purchase, \WPCOM_Features::SUBSCRIPTION_GIFTING ) ) {
+					/*
+					 * We set default value as false when expiration date not match the following:
+					 * - 54 days before the annual plan expiration.
+					 * - 5 days before the monthly plan expiration.
+					 * This is to match the gifting banner logic.
+					 */
+					$days_of_warning          = false !== strpos( $purchase->product_slug, 'monthly' ) ? 5 : 54;
+					$seconds_until_expiration = strtotime( $purchase->expiry_date ) - time();
+					if ( $seconds_until_expiration >= $days_of_warning * DAY_IN_SECONDS ) {
+						return false;
+					}
+
+					// We set default to the inverse of auto-renew.
 					if ( isset( $purchase->auto_renew ) ) {
 						return ! $purchase->auto_renew;
 					} elseif ( isset( $purchase->user_allows_auto_renew ) ) {
@@ -608,12 +628,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'jetpack_protect_whitelist':
-					if ( function_exists( 'jetpack_protect_save_whitelist' ) ) {
-						$result = jetpack_protect_save_whitelist( $value );
+					if ( class_exists( 'Brute_Force_Protection_Shared_Functions' ) ) {
+						$result = Brute_Force_Protection_Shared_Functions::save_allow_list( $value );
 						if ( is_wp_error( $result ) ) {
 							return $result;
 						}
-						$updated[ $key ] = jetpack_protect_format_whitelist();
+						$updated[ $key ] = Brute_Force_Protection_Shared_Functions::format_allow_list();
 					}
 					break;
 				case 'jetpack_sync_non_public_post_stati':
@@ -628,6 +648,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (bool) $value;
 					break;
 				case 'jetpack_relatedposts_enabled':
+				case 'jetpack_relatedposts_show_context':
+				case 'jetpack_relatedposts_show_date':
 				case 'jetpack_relatedposts_show_thumbnails':
 				case 'jetpack_relatedposts_show_headline':
 					if ( ! $this->jetpack_relatedposts_supported() ) {
@@ -776,6 +798,46 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
+				case 'subscription_options':
+					if ( ! is_array( $value ) ) {
+						break;
+					}
+
+					$allowed_keys   = array( 'invitation', 'comment_follow' );
+					$filtered_value = array_filter(
+						$value,
+						function ( $key ) use ( $allowed_keys ) {
+							return in_array( $key, $allowed_keys, true );
+						},
+						ARRAY_FILTER_USE_KEY
+					);
+
+					if ( empty( $filtered_value ) ) {
+						break;
+					}
+
+					array_walk_recursive(
+						$filtered_value,
+						function ( &$value ) {
+							$value = wp_kses(
+								$value,
+								array(
+									'a' => array(
+										'href' => array(),
+									),
+								)
+							);
+						}
+					);
+
+					$old_subscription_options = get_option( 'subscription_options' );
+					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
+
+					if ( update_option( $key, $new_subscription_options ) ) {
+						$updated[ $key ] = $filtered_value;
+					}
+					break;
+
 				case 'woocommerce_onboarding_profile':
 					// Allow boolean values but sanitize_text_field everything else.
 					$sanitized_value = (array) $value;
@@ -911,11 +973,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						if ( add_option( $key, $coerce_value ) ) {
 							$updated[ $key ] = $coerce_value;
 						}
-					} else {
-						// If the option already exists use update_option.
-						if ( update_option( $key, $coerce_value ) ) {
-							$updated[ $key ] = $coerce_value;
-						}
+					} elseif ( update_option( $key, $coerce_value ) ) { // If the option already exists use update_option.
+						$updated[ $key ] = $coerce_value;
 					}
 					break;
 
@@ -930,6 +989,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'rss_use_excerpt':
 					update_option( 'rss_use_excerpt', (int) (bool) $value );
+					break;
+
+				case 'wpcom_subscription_emails_use_excerpt':
+					update_option( 'wpcom_subscription_emails_use_excerpt', (bool) $value );
+					$updated[ $key ] = (bool) $value;
 					break;
 
 				case 'instant_search_enabled':
@@ -949,9 +1013,42 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (int) $value;
 					break;
 
-				case 'featured_image_email_enabled':
-					update_option( 'featured_image_email_enabled', (int) (bool) $value );
+				case 'wpcom_featured_image_in_email':
+					update_option( 'wpcom_featured_image_in_email', (int) (bool) $value );
 					$updated[ $key ] = (int) (bool) $value;
+					break;
+
+				case 'show_on_front':
+					if ( in_array( $value, array( 'page', 'posts' ), true ) && update_option( $key, $value ) ) {
+							$updated[ $key ] = $value;
+					}
+					break;
+
+				case 'page_on_front':
+				case 'page_for_posts':
+					if ( $value === '' ) { // empty function is not applicable here because '0' may be a valid page id
+						if ( delete_option( $key ) ) {
+							$updated[ $key ] = null;
+						}
+
+						break;
+					}
+
+					if ( ! $this->is_valid_page_id( $value ) ) {
+						break;
+					}
+
+					$related_option_key   = $key === 'page_on_front' ? 'page_for_posts' : 'page_on_front';
+					$related_option_value = get_option( $related_option_key );
+					if ( $related_option_value === $value ) {
+						// page_on_front and page_for_posts are not allowed to be the same
+						break;
+					}
+
+					if ( update_option( $key, $value ) ) {
+						$updated[ $key ] = $value;
+					}
+
 					break;
 
 				default:
@@ -980,9 +1077,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( count( $jetpack_relatedposts_options ) ) {
 			// track new jetpack_relatedposts options against old.
 			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
-			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
+
+			$jetpack_relatedposts_options_to_save = $old_relatedposts_options;
+			foreach ( $jetpack_relatedposts_options as $key => $value ) {
+				$jetpack_relatedposts_options_to_save[ $key ] = $value;
+			}
+
+			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options_to_save ) ) {
 				foreach ( $jetpack_relatedposts_options as $key => $value ) {
-					if ( isset( $old_relatedposts_options[ $key ] ) && $value !== $old_relatedposts_options[ $key ] ) {
+					if ( in_array( $key, array( 'show_context', 'show_date' ), true ) ) {
+						$has_initialized_option = ! isset( $old_relatedposts_options[ $key ] ) && $value;
+						$has_updated_option     = isset( $old_relatedposts_options[ $key ] ) && $value !== $old_relatedposts_options[ $key ];
+
+						if ( $has_initialized_option || $has_updated_option ) {
+							$updated[ 'jetpack_relatedposts_' . $key ] = (bool) $value;
+						}
+					} elseif ( isset( $old_relatedposts_options[ $key ] ) && $value !== $old_relatedposts_options[ $key ] ) {
 						$updated[ 'jetpack_relatedposts_' . $key ] = $value;
 					}
 				}
@@ -1023,6 +1133,42 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return array(
 			'updated' => $updated,
 		);
+	}
 
+	/**
+	 * Get the value of the wpcom_subscription_emails_use_excerpt option.
+	 * When the option is not set, it will return the value of the rss_use_excerpt option.
+	 *
+	 * @return bool
+	 */
+	protected function get_wpcom_subscription_emails_use_excerpt_option() {
+		$wpcom_subscription_emails_use_excerpt = get_option( 'wpcom_subscription_emails_use_excerpt', null );
+
+		if ( $wpcom_subscription_emails_use_excerpt === null ) {
+			$rss_use_excerpt                       = get_option( 'rss_use_excerpt', null );
+			$wpcom_subscription_emails_use_excerpt = $rss_use_excerpt === null ? false : $rss_use_excerpt;
+		}
+
+		return (bool) $wpcom_subscription_emails_use_excerpt;
+	}
+
+	/**
+	 * Check if the given value is a valid page ID for the current site.
+	 *
+	 * @param mixed $value The value to check.
+	 * @return bool True if the value is a valid page ID for the current site, false otherwise.
+	 */
+	protected function is_valid_page_id( $value ) {
+		$all_page_ids = get_all_page_ids();
+
+		$valid_page_id = false;
+		foreach ( $all_page_ids as $page_id ) {
+			if ( $page_id === (string) $value ) {
+				$valid_page_id = true;
+				break;
+			}
+		}
+
+		return $valid_page_id;
 	}
 }

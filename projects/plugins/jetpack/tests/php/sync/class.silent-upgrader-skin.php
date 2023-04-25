@@ -27,7 +27,6 @@ class Silent_Upgrader_Skin extends WP_Upgrader_Skin {
 	}
 
 	public function feedback( $string, ...$args ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
 	}
 
 	public function header() {

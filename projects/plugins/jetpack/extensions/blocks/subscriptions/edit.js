@@ -1,12 +1,16 @@
+import { ThemeProvider } from '@automattic/jetpack-components';
+import { useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import {
+	BlockControls,
 	InspectorControls,
 	RichText,
 	withColors,
 	withFontSizes,
 	__experimentalUseGradient as useGradient, // eslint-disable-line wpcalypso/no-unsafe-wp-apis
 } from '@wordpress/block-editor';
-import { TextControl, withFallbackStyles } from '@wordpress/components';
+import { TextControl, Toolbar, withFallbackStyles } from '@wordpress/components';
 import { compose, usePrevious } from '@wordpress/compose';
+import { withSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
@@ -23,6 +27,10 @@ import {
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
 import SubscriptionControls from './controls';
+import { SubscriptionsPlaceholder } from './subscription-placeholder';
+import SubscriptionSkeletonLoader from './subscription-skeleton-loader';
+import GetAddPaidPlanButton, { isNewsletterFeatureEnabled } from './utils';
+import { name } from './';
 
 const { getComputedStyle } = window;
 const isGradientAvailable = !! useGradient;
@@ -59,8 +67,10 @@ export function SubscriptionEdit( props ) {
 		borderColor,
 		setBorderColor,
 		fontSize,
+		hasNewsletterPlans,
 	} = props;
-
+	const { isLoadingModules, isChangingStatus, isModuleActive, changeStatus } =
+		useModuleStatus( name );
 	const validatedAttributes = getValidatedAttributes( defaultAttributes, attributes );
 	if ( ! isEqual( validatedAttributes, attributes ) ) {
 		setAttributes( validatedAttributes );
@@ -175,6 +185,9 @@ export function SubscriptionEdit( props ) {
 	};
 
 	useEffect( () => {
+		if ( ! isModuleActive ) {
+			return;
+		}
 		getSubscriberCounts(
 			counts => {
 				const count = includeSocialFollowers
@@ -195,11 +208,14 @@ export function SubscriptionEdit( props ) {
 				setSubscriberCount( 0 );
 			}
 		);
-	}, [ includeSocialFollowers ] );
+	}, [ includeSocialFollowers, isModuleActive ] );
 
 	const previousButtonBackgroundColor = usePrevious( buttonBackgroundColor );
 
 	useEffect( () => {
+		if ( ! isModuleActive ) {
+			return;
+		}
 		if (
 			previousButtonBackgroundColor?.color !== borderColor?.color ||
 			borderColor?.color === buttonBackgroundColor?.color
@@ -207,7 +223,27 @@ export function SubscriptionEdit( props ) {
 			return;
 		}
 		setBorderColor( buttonBackgroundColor.color );
-	}, [ buttonBackgroundColor, previousButtonBackgroundColor, borderColor, setBorderColor ] );
+	}, [
+		buttonBackgroundColor,
+		previousButtonBackgroundColor,
+		borderColor,
+		setBorderColor,
+		isModuleActive,
+	] );
+
+	if ( isLoadingModules ) {
+		return <SubscriptionSkeletonLoader />;
+	}
+
+	if ( ! isModuleActive ) {
+		return (
+			<SubscriptionsPlaceholder
+				changeStatus={ changeStatus }
+				isModuleActive={ isModuleActive }
+				isLoading={ isChangingStatus }
+			/>
+		);
+	}
 
 	return (
 		<>
@@ -238,6 +274,13 @@ export function SubscriptionEdit( props ) {
 					successMessage={ successMessage }
 				/>
 			</InspectorControls>
+			{ isNewsletterFeatureEnabled() && (
+				<BlockControls>
+					<Toolbar>
+						<GetAddPaidPlanButton context={ 'toolbar' } hasNewsletterPlans={ hasNewsletterPlans } />
+					</Toolbar>
+				</BlockControls>
+			) }
 
 			<div className={ getBlockClassName() }>
 				<div className="wp-block-jetpack-subscriptions__form" role="form">
@@ -271,7 +314,22 @@ export function SubscriptionEdit( props ) {
 	);
 }
 
+const withThemeProvider = WrappedComponent => props =>
+	(
+		<ThemeProvider>
+			<WrappedComponent { ...props } />
+		</ThemeProvider>
+	);
+
 export default compose( [
+	withSelect( select => {
+		const newsletterPlans = select( 'jetpack/membership-products' )
+			?.getProducts()
+			?.filter( product => product.subscribe_as_site_subscriber );
+		return {
+			hasNewsletterPlans: newsletterPlans?.length !== 0,
+		};
+	} ),
 	withColors(
 		{ emailFieldBackgroundColor: 'backgroundColor' },
 		{ buttonBackgroundColor: 'backgroundColor' },
@@ -280,4 +338,5 @@ export default compose( [
 	),
 	withFontSizes( 'fontSize' ),
 	applyFallbackStyles,
+	withThemeProvider,
 ] )( SubscriptionEdit );

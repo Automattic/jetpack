@@ -1,10 +1,10 @@
 === Jetpack Social  ===
 Contributors: automattic, pabline, danielpost, siddarthan, gmjuhasz
 Tags: social-media, publicize, social-media-manager, social-networking, social marketing, social, social share,  social media scheduling, social media automation, auto post, auto- publish, social share
-Requires at least: 6.0
+Requires at least: 6.1
 Requires PHP: 5.6
-Tested up to: 6.1
-Stable tag: 1.5.0
+Tested up to: 6.2
+Stable tag: 1.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -91,10 +91,7 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.5.1-beta - 2022-11-28
-#### Changed
-- Updated package dependencies.
-
+### 1.9.1 - 2023-04-06
 #### Fixed
-- Fix alignment issues on social admin page
+- Reinstated is_social_image_generator_enabled for backwards compatibility.
 

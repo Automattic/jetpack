@@ -3,7 +3,7 @@ on:
   pull_request_target: # When a PR is opened, edited, updated, closed, or a label is added.
     types: [opened, reopened, synchronize, edited, labeled, closed ]
   issues: # For auto-triage of issues.
-    types: [opened, reopened, edited, closed]
+    types: [opened, reopened, labeled, edited, closed]
   issue_comment: # To gather support references in issue comments.
     types: [created]
   push:
@@ -55,7 +55,7 @@ jobs:
         working-directory: ./projects/github-actions/repo-gardening
 
       - name: Checkout the PR
-        if: github.event_name == 'pull_request_target' && github.event.action != 'closed'
+        if: github.event_name == 'pull_request_target' && github.event.pull_request.state != 'closed'
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}

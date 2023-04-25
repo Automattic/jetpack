@@ -2,11 +2,44 @@
 
 ### This is a list detailing changes for the Jetpack RNA IDC package releases.
 
+## 0.10.37 - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## 0.10.36 - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## 0.10.35 - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+### Fixed
+- Update React peer dependencies to match updated dev dependencies. [#28924]
+
+## 0.10.34 - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## 0.10.33 - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682]
+
+## 0.10.32 - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## 0.10.31 - 2023-01-11
+### Changed
+- Updated package dependencies. [#28127]
+
+## 0.10.30 - 2022-12-02
+### Changed
+- Updated package dependencies. [#27697]
+
 ## 0.10.29 - 2022-11-22
 ### Changed
-- Updated package dependencies. [#26069]
-- Updated package dependencies. [#26736]
-- Updated package dependencies. [#27043]
+- Updated package dependencies.
 
 ## 0.10.28 - 2022-11-10
 ### Changed

@@ -930,7 +930,7 @@ class Jetpack_Portfolio {
 				?>
 				</div><!-- close .portfolio-entry -->
 				<?php
-				$portfolio_index_number++;
+				++$portfolio_index_number;
 			} // end of while loop.
 
 			wp_reset_postdata();

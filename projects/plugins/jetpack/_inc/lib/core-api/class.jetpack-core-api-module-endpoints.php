@@ -8,7 +8,10 @@
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
+use Automattic\Jetpack\Stats_Admin\Main as Stats_Admin_Main;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
 /**
  * This is the base class for every Core API endpoint Jetpack uses.
@@ -407,6 +410,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				$module['description']       = $i18n['description'];
 				$module['short_description'] = $i18n['description'];
 			}
+			if ( isset( $module['module_tags'] ) ) {
+				$module['module_tags'] = array_map( 'jetpack_get_module_i18n_tag', $module['module_tags'] );
+			}
 
 			return Jetpack_Core_Json_Api_Endpoints::prepare_modules_for_response( $module );
 		}
@@ -732,9 +738,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'jetpack_protect_key':
-					$protect = Jetpack_Protect_Module::instance();
+					$brute_force_protection = Brute_Force_Protection::instance();
 					if ( 'create' === $value ) {
-						$result = $protect->get_protect_key();
+						$result = $brute_force_protection->get_protect_key();
 					} else {
 						$result = false;
 					}
@@ -747,11 +753,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'jetpack_protect_global_whitelist':
-					if ( ! function_exists( 'jetpack_protect_save_whitelist' ) ) {
-						require_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
-					}
-
-					$updated = jetpack_protect_save_whitelist( explode( PHP_EOL, str_replace( array( ' ', ',' ), array( '', "\n" ), $value ) ) );
+					$updated = Brute_Force_Protection_Shared_Functions::save_allow_list( explode( PHP_EOL, str_replace( array( ' ', ',' ), array( '', "\n" ), $value ) ) );
 
 					if ( is_wp_error( $updated ) ) {
 						$error = $updated->get_error_message();
@@ -777,16 +779,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						if ( ! $plan->supports_instant_search() ) {
 							$updated = new WP_Error( 'instant_search_not_supported', 'Instant Search is not supported by this site', array( 'status' => 400 ) );
 							$error   = $updated->get_error_message();
+						} elseif ( ! Automattic\Jetpack\Search\Options::is_instant_enabled() ) {
+							$updated = new WP_Error( 'instant_search_disabled', 'Instant Search is disabled', array( 'status' => 400 ) );
+							$error   = $updated->get_error_message();
 						} else {
-							if ( ! Automattic\Jetpack\Search\Options::is_instant_enabled() ) {
-								$updated = new WP_Error( 'instant_search_disabled', 'Instant Search is disabled', array( 'status' => 400 ) );
-								$error   = $updated->get_error_message();
-							} else {
-								$blog_id  = Automattic\Jetpack\Search\Helper::get_wpcom_site_id();
-								$instance = Automattic\Jetpack\Search\Instant_Search::instance( $blog_id );
-								$instance->auto_config_search();
-								$updated = true;
-							}
+							$blog_id  = Automattic\Jetpack\Search\Helper::get_wpcom_site_id();
+							$instance = Automattic\Jetpack\Search\Instant_Search::instance( $blog_id );
+							$instance->auto_config_search();
+							$updated = true;
 						}
 					}
 					break;
@@ -865,7 +865,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'admin_bar':
-				case 'enable_calypso_stats':
 				case 'roles':
 				case 'count_roles':
 				case 'blog_id':
@@ -880,6 +879,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated = $grouped_options_current !== $grouped_options
 						? update_option( 'stats_options', $grouped_options )
 						: true;
+					break;
+
+				case 'enable_odyssey_stats':
+					$updated = Stats_Admin_Main::update_new_stats_status( $value );
+
 					break;
 
 				case 'akismet_show_user_comments_approved':
@@ -1034,7 +1038,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			// There was an error because some options were updated but others were invalid or failed to update.
 			return new WP_Error( 'some_updated', esc_html( $error ), array( 'status' => 400 ) );
 		}
-
 	}
 
 	/**
@@ -1430,7 +1433,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 */
 	public function get_protect_data() {
 		if ( Jetpack::is_module_active( 'protect' ) ) {
-			return get_site_option( 'jetpack_protect_blocked_attempts' );
+			return (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 );
 		}
 
 		return new WP_Error(
@@ -1818,6 +1821,8 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		return current_user_can( 'jetpack_admin_page' );
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
 
 /**
  * Actions performed only when Gravatar Hovercards is activated through the endpoint call.

@@ -39,7 +39,6 @@ class Rest_Api_Endpoints {
 				'permission_callback' => __CLASS__ . '::delete_jitm_message_permission_callback',
 			)
 		);
-
 	}
 
 	/**

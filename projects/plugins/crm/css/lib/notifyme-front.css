@@ -1,0 +1,78 @@
+/*
+Specific styles to make space in the plugin hunt theme menu..  should really write this in SCSS though...
+*/
+.site--header .phmenu {
+  margin-right: 15px !important; }
+.site--header .dropdown {
+  margin-left: 20px;
+  margin-top: 6px; }
+
+/*
+Styles for anything wrapped in the notifyme wrapper span
+*/
+.notifyme {
+  cursor: pointer; }
+  .notifyme .fa-bell {
+    padding-right: 5px;
+    padding-left: 5px;
+    margin-top: 6px;
+    color: #bbb; }
+
+.notfications {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #da552f;
+  color: white;
+  min-width: 1em;
+  border-radius: 50%;
+  vertical-align: middle;
+  width: 28px;
+  height: 28px;
+  font-size: 14px; }
+
+.notfications:before {
+  content: '';
+  float: left;
+  width: auto;
+  padding-bottom: 100%; }
+
+.ph_notification_list_wrap .ph_notification_list {
+  margin-top: 5px;
+  padding: 10px;
+  margin-bottom: 15px; }
+  .ph_notification_list_wrap .ph_notification_list .ph_noti_img {
+    float: left;
+    margin-right:10px;
+     }
+    .ph_notification_list_wrap .ph_notification_list .ph_noti_img img {
+      border-radius: 50%; }
+  .ph_notification_list_wrap .ph_notification_list .ph_noti_timeago {
+    font-size: 14px;
+    line-height: 18px;
+    color: #999;
+    margin-left: 3px;
+    margin-top: 1px; }
+
+
+
+.notif_save {
+  margin-top: 10px;
+  margin-bottom: 10px; }
+
+#ph_notifications_preferences input[type="submit"] {
+  margin-left: 22px;
+  background: #9e9e9e; }
+
+.ph_notification_list_wrap .r1 .ph_noti_img {
+  opacity: 0.6; }
+.ph_notification_list_wrap .r1 .ph_noti_message {
+  color: #999; }
+  .ph_notification_list_wrap .r1 .ph_noti_message a {
+    color: #3f4347;
+    font-weight: bold;
+    text-decoration: underline; }
+  .ph_notification_list_wrap .r1 .ph_noti_message .emoji {
+    opacity: 0.6; }
+.ph_notification_list_wrap .r0 {
+  font-weight: 600; }

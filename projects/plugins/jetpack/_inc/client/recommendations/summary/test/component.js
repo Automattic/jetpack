@@ -186,7 +186,7 @@ describe( 'Recommendations – Summary', () => {
 			expect( within( searchSummary ).getByText( 'Custom Site Search' ) ).toBeInTheDocument();
 
 			const antiSpamSummary = screen.getByRole( 'region', {
-				name: /part of your anti-spam plan/i,
+				name: /part of your akismet anti-spam plan/i,
 			} );
 			expect( antiSpamSummary ).toBeInTheDocument();
 			expect(
@@ -221,7 +221,7 @@ describe( 'Recommendations – Summary', () => {
 
 			expect(
 				screen.queryByRole( 'region', {
-					name: /part of your anti-spam plan/i,
+					name: /part of your akismet anti-spam plan/i,
 				} )
 			).not.toBeInTheDocument();
 		} );

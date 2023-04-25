@@ -108,7 +108,7 @@ class Dashboard {
 		} else {
 			// always add the page, but hide it from the menu.
 			$page_suffix = add_submenu_page(
-				null,
+				'',
 				__( 'Jetpack Search', 'jetpack-search-pkg' ),
 				_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
 				'manage_options',
@@ -217,7 +217,7 @@ class Dashboard {
 		if (
 			property_exists( $current_screen, 'base' ) &&
 			strpos( $current_screen->base, 'jetpack_page_' ) !== false &&
-			! $this->plan->supports_search()
+			( ! $this->plan->supports_search() || $this->plan->must_upgrade() )
 		) {
 			$this->module_control->deactivate();
 		}

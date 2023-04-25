@@ -97,17 +97,9 @@ function phpcsFilesToFilter( file ) {
  * @returns {boolean} If the file matches the requirelist.
  */
 function filterJsFiles( file ) {
-	return [
-		'.js',
-		'.json',
-		'.json5',
-		'.jsx',
-		'.cjs',
-		'.mjs',
-		'.ts',
-		'.tsx',
-		'.svelte',
-	].some( extension => file.endsWith( extension ) );
+	return [ '.js', '.json', '.json5', '.jsx', '.cjs', '.mjs', '.ts', '.tsx', '.svelte' ].some(
+		extension => file.endsWith( extension )
+	);
 }
 
 /**
@@ -219,7 +211,7 @@ function findClosestConfigFile( configFileName, searchPath ) {
  *
  * @param {string} configFileName - The name of the config file to find (e.g.: .prettierrc.js)
  * @param {Array} files - The set of files to divide by relevant config file.
- * @returns {Object} - An object mapping config files to the files which should use them.
+ * @returns {object} - An object mapping config files to the files which should use them.
  */
 function groupByClosestConfig( configFileName, files ) {
 	return files.reduce( ( groupedFiles, file ) => {

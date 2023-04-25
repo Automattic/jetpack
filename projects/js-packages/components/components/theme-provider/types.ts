@@ -13,6 +13,10 @@ export type ThemeProviderProps = {
 	 * Content
 	 */
 	children?: React.ReactElement;
+	/**
+	 * Inser global/reset styles
+	 */
+	withGlobalStyles?: boolean;
 };
 
 export type ThemeInstance = {

@@ -1,20 +1,23 @@
-import { imagePath } from 'constants/urls';
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { imagePath, JETPACK_STATS_OPT_OUT_SURVEY } from 'constants/urls';
+import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
 import FoldableCard from 'components/foldable-card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLegend } from 'components/forms';
 import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { filter, includes } from 'lodash';
 import React from 'react';
+import { connect } from 'react-redux';
+import { isWoASite } from 'state/initial-state';
 
 class SiteStatsComponent extends React.Component {
 	constructor( props ) {
@@ -141,10 +144,15 @@ class SiteStatsComponent extends React.Component {
 	}
 
 	render() {
-		const stats = this.props.getModule( 'stats' ),
-			isStatsActive = this.props.getOptionValue( 'stats' ),
-			unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'stats' ),
-			siteRoles = this.props.getSiteRoles();
+		const stats = this.props.getModule( 'stats' );
+		const isStatsActive = this.props.getOptionValue( 'stats' );
+		const unavailableInOfflineMode = this.props.isUnavailableInOfflineMode( 'stats' );
+		const siteRoles = this.props.getSiteRoles();
+
+		const optedOutOfOdyssey =
+			isStatsActive &&
+			! unavailableInOfflineMode &&
+			! this.props.getOptionValue( 'enable_odyssey_stats' );
 
 		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
 			return <ModuleOverriddenBanner moduleName={ stats.name } />;
@@ -176,7 +184,9 @@ class SiteStatsComponent extends React.Component {
 											'jetpack'
 										),
 										{
-											Button: <Button className="jp-link-button" onClick={ this.activateStats } />,
+											Button: (
+												<Button rna className="jp-link-button" onClick={ this.activateStats } />
+											),
 											a: (
 												<a
 													href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
@@ -189,7 +199,7 @@ class SiteStatsComponent extends React.Component {
 						</div>
 						{ ! this.props.isOfflineMode && (
 							<div className="jp-at-a-glance__stats-inactive-button">
-								<Button onClick={ this.activateStats } primary={ true }>
+								<Button rna onClick={ this.activateStats } primary={ true }>
 									{ __( 'Activate Jetpack Stats', 'jetpack' ) }
 								</Button>
 							</div>
@@ -228,72 +238,100 @@ class SiteStatsComponent extends React.Component {
 							link: getRedirectUrl( 'jetpack-support-wordpress-com-stats' ),
 						} }
 					>
+						{ ! this.props.isWoASite && (
+							<>
+								{ optedOutOfOdyssey && (
+									<SimpleNotice
+										className="jp-stats-odyssey-disabled-notice"
+										showDismiss={ false }
+										status="is-error"
+										text={ __(
+											'Not into the new stats? Tell us why so we can make stats better for you.',
+											'jetpack'
+										) }
+									>
+										<NoticeAction href={ JETPACK_STATS_OPT_OUT_SURVEY } external={ true }>
+											{ __( 'Take a Quick Survey', 'jetpack' ) }
+										</NoticeAction>
+									</SimpleNotice>
+								) }
+								{ /* Hide Odyssey Stats toggle on WoA sites, which should use Calypso Stats instead. */ }
+								<FormFieldset className="jp-stats-odyssey-toggle">
+									<ToggleControl
+										checked={ !! this.props.getOptionValue( 'enable_odyssey_stats' ) }
+										disabled={
+											! isStatsActive ||
+											unavailableInOfflineMode ||
+											this.props.isSavingAnyOption( [ 'stats' ] )
+										}
+										toggling={ this.props.isSavingAnyOption( [ 'enable_odyssey_stats' ] ) }
+										onChange={ this.handleStatsOptionToggle( 'enable_odyssey_stats' ) }
+										label={
+											<>
+												{ /* This toggle enables Odyssey Stats. */ }
+												{ __( 'Enable a new Jetpack Stats experience', 'jetpack' ) }
+												<span className="jp-stats-odyssey-badge">{ __( 'New', 'jetpack' ) }</span>
+											</>
+										}
+									/>
+								</FormFieldset>
+							</>
+						) }
 						<FormFieldset>
-							<CompactFormToggle
+							<ToggleControl
 								checked={ !! this.props.getOptionValue( 'admin_bar' ) }
-								disabled={ ! isStatsActive || unavailableInOfflineMode }
-								toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
+								disabled={
+									! isStatsActive ||
+									unavailableInOfflineMode ||
+									this.props.isSavingAnyOption( [ 'stats' ] )
+								}
+								toggling={ this.props.isSavingAnyOption( [ 'admin_bar' ] ) }
 								onChange={ this.handleStatsOptionToggle( 'admin_bar' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __(
-										'Include a small chart in your admin bar with a 48-hour traffic snapshot',
-										'jetpack'
-									) }
-								</span>
-							</CompactFormToggle>
-						</FormFieldset>
-						{ /* We hide the new Stats option till we lauch it to the general public. */ }
-						<FormFieldset style={ { display: 'none' } }>
-							<CompactFormToggle
-								checked={ !! this.props.getOptionValue( 'enable_calypso_stats' ) }
-								disabled={ ! isStatsActive || unavailableInOfflineMode }
-								toggling={ this.props.isSavingAnyOption( [ 'stats', 'enable_calypso_stats' ] ) }
-								onChange={ this.handleStatsOptionToggle( 'enable_calypso_stats' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Preview new Jetpack Stats experience (Experimental)', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
+								label={ __(
+									'Include a small chart in your admin bar with a 48-hour traffic snapshot',
+									'jetpack'
+								) }
+							/>
 						</FormFieldset>
 						<FormFieldset>
 							<FormLegend>{ __( 'Count logged in page views from', 'jetpack' ) }</FormLegend>
 							{ Object.keys( siteRoles ).map( key => (
-								<CompactFormToggle
+								<ToggleControl
 									checked={ this.state[ `count_roles_${ key }` ] }
 									disabled={
 										! isStatsActive ||
 										unavailableInOfflineMode ||
-										this.props.isSavingAnyOption( [ 'stats', 'count_roles' ] )
+										this.props.isSavingAnyOption( [ 'stats' ] )
 									}
+									toggling={ this.props.isSavingAnyOption( [ `count_roles_${ key }` ] ) }
 									onChange={ this.handleRoleToggleChange( key, 'count_roles' ) }
 									key={ `count_roles-${ key }` }
-								>
-									<span className="jp-form-toggle-explanation">{ siteRoles[ key ].name }</span>
-								</CompactFormToggle>
+									label={ siteRoles[ key ].name }
+								/>
 							) ) }
 						</FormFieldset>
 						<FormFieldset>
 							<FormLegend>{ __( 'Allow Jetpack Stats to be viewed by', 'jetpack' ) }</FormLegend>
-							<CompactFormToggle checked={ true } disabled={ true }>
-								<span className="jp-form-toggle-explanation">{ siteRoles.administrator.name }</span>
-							</CompactFormToggle>
-							{ Object.keys( siteRoles ).map(
-								key =>
-									'administrator' !== key && (
-										<CompactFormToggle
-											checked={ this.state[ `roles_${ key }` ] }
-											disabled={
-												! isStatsActive ||
-												unavailableInOfflineMode ||
-												this.props.isSavingAnyOption( [ 'stats', 'roles' ] )
-											}
-											onChange={ this.handleRoleToggleChange( key, 'roles' ) }
-											key={ `roles-${ key }` }
-										>
-											<span className="jp-form-toggle-explanation">{ siteRoles[ key ].name }</span>
-										</CompactFormToggle>
-									)
+							<ToggleControl
+								checked={ true }
+								disabled={ true }
+								label={ siteRoles.administrator.name }
+							/>
+							{ Object.keys( siteRoles ).map( key =>
+								'administrator' !== key ? (
+									<ToggleControl
+										checked={ this.state[ `roles_${ key }` ] }
+										disabled={
+											! isStatsActive ||
+											unavailableInOfflineMode ||
+											this.props.isSavingAnyOption( [ 'stats' ] )
+										}
+										toggling={ this.props.isSavingAnyOption( [ `roles_${ key }` ] ) }
+										onChange={ this.handleRoleToggleChange( key, 'roles' ) }
+										key={ `roles-${ key }` }
+										label={ siteRoles[ key ].name }
+									/>
+								) : null
 							) }
 						</FormFieldset>
 					</SettingsGroup>
@@ -303,4 +341,6 @@ class SiteStatsComponent extends React.Component {
 	}
 }
 
-export const SiteStats = withModuleSettingsFormHelpers( SiteStatsComponent );
+export const SiteStats = connect( state => ( {
+	isWoASite: isWoASite( state ),
+} ) )( withModuleSettingsFormHelpers( SiteStatsComponent ) );

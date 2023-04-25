@@ -1,5 +1,4 @@
-import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, closeSmall } from '@wordpress/icons';
 import classnames from 'classnames';
 import {
@@ -11,9 +10,9 @@ import {
 	ReactElement,
 } from 'react';
 import React, { CSSProperties } from 'react';
-import { getRedirectUrl } from '../../../components';
 import IconTooltip from '../icon-tooltip';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
+import TermsOfService from '../terms-of-service';
 import Text from '../text';
 import styles from './styles.module.scss';
 import {
@@ -23,64 +22,72 @@ import {
 	PricingTableItemProps,
 } from './types';
 
-const ToS = createInterpolateElement(
-	__(
-		'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
-		'jetpack'
-	),
-	{
-		tosLink: <a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />,
-		shareDetailsLink: (
-			<a
-				href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-				rel="noopener noreferrer"
-				target="_blank"
-			/>
-		),
-	}
-);
+const INCLUDED_TEXT = __( 'Included', 'jetpack' );
+const NOT_INCLUDED_TEXT = __( 'Not included', 'jetpack' );
+const COMING_SOON_TEXT = __( 'Coming soon', 'jetpack' );
 
 const PricingTableContext = createContext( undefined );
 
+const getItemLabels = ( isComingSoon, isIncluded, featureNameLabel ) => {
+	if ( isComingSoon ) {
+		return {
+			lg: COMING_SOON_TEXT,
+			// translators: Name of the current feature
+			default: sprintf( __( '%s coming soon', 'jetpack' ), featureNameLabel ),
+		};
+	}
+
+	return {
+		lg: isIncluded ? INCLUDED_TEXT : NOT_INCLUDED_TEXT,
+		default: isIncluded
+			? featureNameLabel
+			: sprintf(
+					/* translators: Name of the current feature */
+					__( '%s not included', 'jetpack' ),
+					featureNameLabel
+			  ),
+	};
+};
+
 export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
-	isIncluded,
+	isIncluded = false,
+	isComingSoon = false,
 	index = 0,
 	label = null,
 	tooltipInfo,
 	tooltipTitle,
+	tooltipClassName = '',
 } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
-	const items = useContext( PricingTableContext );
-	const rowLabel = items[ index ].name;
-	const defaultTooltipInfo = items[ index ].tooltipInfo;
-	const defaultTooltipTitle = items[ index ].tooltipTitle;
-	const includedLabel = __( 'Included', 'jetpack' );
-	const notIncludedLabel = __( 'Not included', 'jetpack' );
+	const item = useContext( PricingTableContext )[ index ];
+	const showTick = isComingSoon || isIncluded;
+
+	const featureNameLabel = item.name;
+
+	const defaultTooltipInfo = item.tooltipInfo;
+	const defaultTooltipTitle = item.tooltipTitle;
 	const showTooltip = tooltipInfo || ( ! isLg && defaultTooltipInfo );
 
-	let defaultLabel = isIncluded ? includedLabel : notIncludedLabel;
-	defaultLabel = isLg ? defaultLabel : rowLabel;
+	const labels = getItemLabels( isComingSoon, isIncluded, featureNameLabel );
 
-	if ( ! isLg && ! isIncluded && label === null ) {
-		return null;
-	}
+	const defaultLabel = isLg ? labels.lg : labels.default;
 
 	return (
 		<div className={ classnames( styles.item, styles.value ) }>
 			<Icon
 				className={ classnames(
 					styles.icon,
-					isIncluded ? styles[ 'icon-check' ] : styles[ 'icon-cross' ]
+					showTick ? styles[ 'icon-check' ] : styles[ 'icon-cross' ]
 				) }
 				size={ 32 }
-				icon={ isIncluded ? check : closeSmall }
+				icon={ showTick ? check : closeSmall }
 			/>
 			<Text variant="body-small">{ label || defaultLabel }</Text>
 			{ showTooltip && (
 				<IconTooltip
 					title={ tooltipTitle ? tooltipTitle : defaultTooltipTitle }
 					iconClassName={ styles[ 'popover-icon' ] }
-					className={ styles.popover }
+					className={ classnames( styles.popover, tooltipClassName ) }
 					placement={ 'bottom-end' }
 					iconSize={ 14 }
 					offset={ 4 }
@@ -120,7 +127,12 @@ export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( {
 	);
 };
 
-const PricingTable: React.FC< PricingTableProps > = ( { title, items, children } ) => {
+const PricingTable: React.FC< PricingTableProps > = ( {
+	title,
+	items,
+	children,
+	showIntroOfferDisclaimer = false,
+} ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 
 	return (
@@ -165,9 +177,17 @@ const PricingTable: React.FC< PricingTableProps > = ( { title, items, children }
 				</div>
 			</div>
 			<div className={ styles[ 'tos-container' ] }>
-				<Text className={ styles.tos } variant="body-small">
-					{ ToS }
-				</Text>
+				<div className={ styles.tos }>
+					{ showIntroOfferDisclaimer && (
+						<Text variant="body-small">
+							{ __(
+								'Reduced pricing is a limited offer for the first year and renews at regular price.',
+								'jetpack'
+							) }
+						</Text>
+					) }
+					<TermsOfService multipleButtons />
+				</div>
 			</div>
 		</PricingTableContext.Provider>
 	);

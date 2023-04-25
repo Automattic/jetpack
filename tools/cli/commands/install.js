@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import chalk from 'chalk';
-import execa from 'execa';
+import { execa } from 'execa';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';

@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 
 /**
  * Class Jetpack_Instagram_Gallery_Helper
@@ -21,7 +22,7 @@ class Jetpack_Instagram_Gallery_Helper {
 	 * @return bool
 	 */
 	public static function is_instagram_access_token_valid( $access_token_id ) {
-		$site_id = self::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return false;
 		}
@@ -52,7 +53,7 @@ class Jetpack_Instagram_Gallery_Helper {
 	 * @return mixed
 	 */
 	public static function get_instagram_gallery( $access_token_id, $count ) {
-		$site_id = self::get_site_id();
+		$site_id = Manager::get_site_id();
 		if ( is_wp_error( $site_id ) ) {
 			return $site_id;
 		}
@@ -93,23 +94,5 @@ class Jetpack_Instagram_Gallery_Helper {
 		$gallery = wp_remote_retrieve_body( $response );
 		set_transient( $transient_key, $gallery, HOUR_IN_SECONDS );
 		return json_decode( $gallery );
-	}
-
-	/**
-	 * Get the WPCOM or self-hosted site ID.
-	 *
-	 * @return mixed
-	 */
-	public static function get_site_id() {
-		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
-		$site_id  = $is_wpcom ? get_current_blog_id() : Jetpack_Options::get_option( 'id' );
-		if ( ! $site_id ) {
-			return new WP_Error(
-				'unavailable_site_id',
-				__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack' ),
-				403
-			);
-		}
-		return (int) $site_id;
 	}
 }

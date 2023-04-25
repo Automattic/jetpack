@@ -80,6 +80,12 @@ The requirements consist of an array of requirement objects. A requirement objec
 * `paths` is an array of path patterns, or the string "unmatched". If an array, the reviewers
   specified will be checked if any path in the array matches any path in the PR. If the string
   "unmatched", the reviewers are checked if any file in the PR has not been matched yet.
+* `consume` is a boolean, defaulting to false. If set, any paths that match this rule will be ignored
+  for all following rules.
+
+  This is intended for things like lockfiles or changelogs that you might want to allow everyone
+  to edit in any package in a monorepo, to avoid having to manually exclude these files in every
+  requirement for each different team owning some package.
 * `teams` is an array of strings that are GitHub team slugs in the organization or repository. A
   review is required from a member of any of these teams.
 
@@ -107,6 +113,23 @@ the "Docs" and "Front end" review requirements. If you wanted to avoid that, you
    - 'docs/**'
   teams:
    - documentation
+
+# Everyone can update lockfiles, even if later rules might otherwise match.
+- name: Lockfiles
+  paths:
+   - 'packages/*/composer.lock'
+   - '**.css'
+  consume: true
+  teams:
+   - everyone
+
+# The "Some package" team must approve anything in `packages/some-package/`.
+# Except for changes to `packages/some-package/composer.lock`, because the previous requirement consumed that path.
+- name: Some package
+  paths:
+   - 'packages/some-package/**'
+  teams:
+   - some-package-team
 
 # Any CSS and React .jsx files must be reviewed by a front-end developer AND by a designer,
 # OR by a member of the maintenance team.

@@ -83,7 +83,6 @@ class WP_Test_Json_Api_Update_Post_Endpoints extends WP_UnitTestCase {
 				'post_status'  => 'publish',
 			)
 		);
-
 	}
 
 	/**

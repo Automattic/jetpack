@@ -46,6 +46,20 @@ class Manager {
 	private $plugin = null;
 
 	/**
+	 * Error handler object.
+	 *
+	 * @var Error_Handler
+	 */
+	public $error_handler = null;
+
+	/**
+	 * Jetpack_XMLRPC_Server object
+	 *
+	 * @var Jetpack_XMLRPC_Server
+	 */
+	public $xmlrpc_server = null;
+
+	/**
 	 * Holds extra parameters that will be sent along in the register request body.
 	 *
 	 * Use Manager::add_register_request_param to add values to this array.
@@ -117,6 +131,9 @@ class Manager {
 		if ( defined( 'JETPACK__SANDBOX_DOMAIN' ) && JETPACK__SANDBOX_DOMAIN ) {
 			( new Server_Sandbox() )->init();
 		}
+
+		// Initialize connection notices.
+		new Connection_Notice();
 	}
 
 	/**
@@ -900,7 +917,8 @@ class Manager {
 	 * @return true|WP_Error True if owner successfully changed, WP_Error otherwise.
 	 */
 	public function update_connection_owner( $new_owner_id ) {
-		if ( ! user_can( $new_owner_id, 'administrator' ) ) {
+		$roles = new Roles();
+		if ( ! user_can( $new_owner_id, $roles->translate_role_to_cap( 'administrator' ) ) ) {
 			return new WP_Error(
 				'new_owner_not_admin',
 				__( 'New owner is not admin', 'jetpack-connection' ),
@@ -1764,7 +1782,6 @@ class Manager {
 	 * Should be changed to protected.
 	 */
 	public function handle_authorization() {
-
 	}
 
 	/**
@@ -1857,7 +1874,7 @@ class Manager {
 				'user_email'            => $user->user_email,
 				'user_login'            => $user->user_login,
 				'is_active'             => $this->has_connected_owner(), // TODO Deprecate this.
-				'jp_version'            => Constants::get_constant( 'JETPACK__VERSION' ),
+				'jp_version'            => (string) Constants::get_constant( 'JETPACK__VERSION' ),
 				'auth_type'             => $auth_type,
 				'secret'                => $secrets['secret_1'],
 				'blogname'              => get_option( 'blogname' ),
@@ -2473,5 +2490,23 @@ class Manager {
 			}
 		}
 		return $stats;
+	}
+
+	/**
+	 * Get the WPCOM or self-hosted site ID.
+	 *
+	 * @return int|WP_Error
+	 */
+	public static function get_site_id() {
+		$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+		$site_id  = $is_wpcom ? get_current_blog_id() : \Jetpack_Options::get_option( 'id' );
+		if ( ! $site_id ) {
+			return new \WP_Error(
+				'unavailable_site_id',
+				__( 'Sorry, something is wrong with your Jetpack connection.', 'jetpack-connection' ),
+				403
+			);
+		}
+		return (int) $site_id;
 	}
 }

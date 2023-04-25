@@ -13,7 +13,7 @@
 	},
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
-		"wp-coding-standards/wpcs": "2022-02-07 as 2.3.1",
+		"wp-coding-standards/wpcs": "2023-01-04 as 2.3.1",
 		"yoast/phpunit-polyfills": "1.0.4"
 	},
 	"autoload": {
@@ -27,9 +27,6 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"skip-test-php": [
 			"./tests/action-skip-test-php.sh"

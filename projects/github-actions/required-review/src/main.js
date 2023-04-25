@@ -63,17 +63,19 @@ async function main() {
 		reviewers.forEach( r => core.info( r ) );
 		core.endGroup();
 
-		const paths = await require( './paths.js' )();
+		let paths = await require( './paths.js' )();
 		core.startGroup( `PR affects ${ paths.length } file(s)` );
 		paths.forEach( p => core.info( p ) );
 		core.endGroup();
 
-		const matchedPaths = [];
+		let matchedPaths = [];
 		let ok = true;
 		for ( let i = 0; i < requirements.length; i++ ) {
 			const r = requirements[ i ];
 			core.startGroup( `Checking requirement "${ r.name }"...` );
-			if ( ! r.appliesToPaths( paths, matchedPaths ) ) {
+			let applies;
+			( { applies, matchedPaths, paths } = r.appliesToPaths( paths, matchedPaths ) );
+			if ( ! applies ) {
 				core.endGroup();
 				core.info( `Requirement "${ r.name }" does not apply to any files in this PR.` );
 			} else if ( await r.isSatisfied( reviewers ) ) {

@@ -85,6 +85,8 @@ const ProductOffer: React.FC< ProductOfferProps > = ( {
 					{ error }
 				</Alert>
 
+				{ buttonDisclaimer }
+
 				{ ( ! isBundle || ( isBundle && ! hasRequiredPlan ) ) && (
 					<Button
 						onClick={ addProductUrl ? null : onAdd }
@@ -104,8 +106,6 @@ const ProductOffer: React.FC< ProductOfferProps > = ( {
 						<Text>{ __( 'Active on your site', 'jetpack' ) }</Text>
 					</div>
 				) }
-
-				{ buttonDisclaimer }
 			</div>
 		</div>
 	);

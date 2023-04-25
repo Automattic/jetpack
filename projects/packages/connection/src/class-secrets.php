@@ -40,7 +40,7 @@ class Secrets {
 		$attempts      = 1;
 		$secret_length = strlen( $secret );
 		while ( $secret_length < 32 && $attempts < 32 ) {
-			$attempts++;
+			++$attempts;
 			$secret       .= wp_generate_password( 32, false );
 			$secret_length = strlen( $secret );
 		}

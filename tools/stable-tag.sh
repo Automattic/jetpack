@@ -63,6 +63,7 @@ WPSLUG=$(jq -r '.extra["wp-plugin-slug"] // ""' "$PLUGIN_DIR/composer.json")
 if [[ -z "$BUILD_DIR" ]]; then
 	TMPDIR="${TMPDIR:-/tmp}"
 	BUILD_DIR=$(mktemp -d "${TMPDIR%/}/update-tag.XXXXXXXX")
+	trap 'rm -rf "$BUILD_DIR"' EXIT
 elif [[ ! -e "$BUILD_DIR" ]]; then
 	mkdir -p "$BUILD_DIR"
 else
@@ -104,7 +105,7 @@ if ! jq -e '.' <<<"$JSON" &>/dev/null; then
 	die "Failed to retrieve JSON data from https://api.github.com/repos/$MIRROR/releases/latest"
 fi
 
-GH_LATEST=$(jq -r '.tag_name' <<<"$GH_JSON")
+GH_LATEST=$(jq -r '.tag_name | ltrimstr( "v" )' <<<"$GH_JSON")
 
 yellow "Current stable tag: ${CURRENT_STABLE_VERSION}"
 yellow "Latest tag in SVN: ${SVN_LATEST}"

@@ -59,7 +59,7 @@ class Test_Case extends TestCase {
 		wp_set_current_user( 0 );
 
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
-		add_filter( 'http_response', array( $this, 'plan_http_response_fixture' ), 10, 3 );
+		add_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ), 10, 3 );
 	}
 
 	/**
@@ -74,7 +74,7 @@ class Test_Case extends TestCase {
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();
 
-		remove_filter( 'http_response', array( $this, 'plan_http_response_fixture' ) );
+		remove_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
 	}
 
@@ -124,10 +124,10 @@ class Test_Case extends TestCase {
 		if ( strpos( $url, '/sites/999/' ) !== false ) {
 			return array(
 				'response' => array(
-					'code'    => 403,
-					'message' => 'forbidden',
+					'code'    => 200,
+					'message' => 'ok',
 				),
-				'body'     => '{"code"=>"forbidden"}',
+				'body'     => '{}',
 			);
 		}
 

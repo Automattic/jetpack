@@ -14,9 +14,12 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Class Jetpack_Social
@@ -25,6 +28,7 @@ class Jetpack_Social {
 	const JETPACK_PUBLICIZE_MODULE_SLUG           = 'publicize';
 	const JETPACK_SOCIAL_ACTIVATION_OPTION        = JETPACK_SOCIAL_PLUGIN_SLUG . '_activated';
 	const JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION = JETPACK_SOCIAL_PLUGIN_SLUG . '_show_pricing_page';
+	const JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION  = JETPACK_SOCIAL_PLUGIN_SLUG . '_review_prompt_dismissed';
 
 	/**
 	 * The connection manager used to check if we have a Jetpack connection.
@@ -90,6 +94,9 @@ class Jetpack_Social {
 
 		// Activate the module as the plugin is activated
 		add_action( 'admin_init', array( $this, 'do_plugin_activation_activities' ) );
+		add_action( 'activated_plugin', array( $this, 'redirect_after_activation' ) );
+
+		add_action( 'jetpack_heartbeat', array( $this, 'refresh_plan_data' ) );
 
 		add_action(
 			'plugins_loaded',
@@ -110,6 +117,8 @@ class Jetpack_Social {
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
 
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'social_filter_available_modules' ), 10, 1 );
+
+		add_filter( 'plugin_action_links_' . JETPACK_SOCIAL_PLUGIN_FOLDER . '/jetpack-social.php', array( $this, 'add_settings_link' ) );
 	}
 
 	/**
@@ -178,6 +187,13 @@ class Jetpack_Social {
 	}
 
 	/**
+	 * Refresh plan data.
+	 */
+	public function refresh_plan_data() {
+		Current_Plan::refresh_from_wpcom();
+	}
+
+	/**
 	 * Get the shares data, but cache it so we don't call the API
 	 * more than once per request.
 	 *
@@ -202,6 +218,7 @@ class Jetpack_Social {
 
 		$state = array(
 			'siteData' => array(
+				'adminUrl'          => esc_url( admin_url() ),
 				'apiRoot'           => esc_url_raw( rest_url() ),
 				'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 				'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
@@ -211,19 +228,26 @@ class Jetpack_Social {
 		);
 
 		if ( $this->is_connected() ) {
+			$sig_settings = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
+
 			$state = array_merge(
 				$state,
 				array(
-					'jetpackSettings' => array(
+					'jetpackSettings'              => array(
 						'publicize_active'  => self::is_publicize_active(),
 						'show_pricing_page' => self::should_show_pricing_page(),
 						'showNudge'         => ! $publicize->has_paid_plan( true ),
 					),
-					'connectionData'  => array(
+					'connectionData'               => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
 						'adminUrl'    => esc_url_raw( $publicize->publicize_connections_url( 'jetpack-social-connections-admin-page' ) ),
 					),
-					'sharesData'      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'sharesData'                   => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'socialImageGeneratorSettings' => array(
+						'available'       => $sig_settings->is_available(),
+						'enabled'         => $sig_settings->is_enabled(),
+						'defaultTemplate' => $sig_settings->get_default_template(),
+					),
 				)
 			);
 		}
@@ -284,25 +308,35 @@ class Jetpack_Social {
 		);
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
-
 		wp_localize_script(
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
 			array(
 				'siteFragment' => ( new Status() )->get_site_suffix(),
 				'social'       => array(
-					'sharesData'                  => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-					'connectionRefreshPath'       => '/jetpack/v4/publicize/connection-test-results',
-					'resharePath'                 => '/jetpack/v4/publicize/{postId}',
-					'publicizeConnectionsUrl'     => esc_url_raw(
+					'adminUrl'                      => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
+					'sharesData'                    => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'reviewRequestDismissed'        => self::is_review_request_dismissed(),
+					'dismissReviewRequestPath'      => '/jetpack/v4/social/review-dismiss',
+					'connectionRefreshPath'         => '/jetpack/v4/publicize/connection-test-results',
+					'resharePath'                   => '/jetpack/v4/publicize/{postId}',
+					'publicizeConnectionsUrl'       => esc_url_raw(
 						'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
 					),
-					'hasPaidPlan'                 => $publicize->has_paid_plan(),
-					'isEnhancedPublishingEnabled' => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
+					'hasPaidPlan'                   => $publicize->has_paid_plan(),
+					'isEnhancedPublishingEnabled'   => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
+					'isSocialImageGeneratorEnabled' => ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->is_enabled(),
 				),
 			)
 		);
 
+		// Connection initial state is expected when the connection JS package is in the bundle
+		wp_add_inline_script( 'jetpack-social-editor', Connection_Initial_State::render(), 'before' );
+		// Conditionally load analytics scripts
+		// The only component using analytics in the editor at the moment is the review request
+		if ( ! in_array( get_post_status(), array( 'publish', 'private', 'trash' ), true ) && self::can_use_analytics() && ! self::is_review_request_dismissed() ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
 	}
 
 	/**
@@ -345,6 +379,21 @@ class Jetpack_Social {
 	}
 
 	/**
+	 * Redirect to the plugin settings page after activation.
+	 *
+	 * @param string $plugin Path to the plugin file relative to the plugins directory.
+	 */
+	public function redirect_after_activation( $plugin ) {
+		if (
+			JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH === $plugin &&
+			\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( JETPACK_SOCIAL_PLUGIN_ROOT_FILE_RELATIVE_PATH )
+		) {
+			wp_safe_redirect( esc_url( admin_url( 'admin.php?page=' . JETPACK_SOCIAL_PLUGIN_SLUG ) ) );
+			exit;
+		}
+	}
+
+	/**
 	 * Activates the Publicize module and disables the activation option
 	 */
 	public function activate_module() {
@@ -377,5 +426,43 @@ class Jetpack_Social {
 	 */
 	public static function should_show_pricing_page() {
 		return (bool) get_option( self::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, 1 );
+	}
+
+	/**
+	 * Check to see if the request to review the plugin has already been dismissed.
+	 * This will also return true if Jetpack promotions are disabled via a filter ( allows this prompt to be disabled )
+	 *
+	 * @return bool
+	 */
+	public static function is_review_request_dismissed() {
+		$saved_as_dismissed         = (bool) get_option( self::JETPACK_SOCIAL_REVIEW_DISMISSED_OPTION, false );
+		$jetpack_promotions_enabled = apply_filters( 'jetpack_show_promotions', true );
+
+		return $saved_as_dismissed || ! $jetpack_promotions_enabled;
+	}
+
+	/**
+	 * Returns whether we are in condition to track to use
+	 * Analytics functionality like Tracks, MC, or GA.
+	 */
+	public static function can_use_analytics() {
+		$status     = new Status();
+		$connection = new Connection_Manager();
+		$tracking   = new Tracking( 'jetpack', $connection );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
+	}
+
+	/**
+	 * Add a link to the admin page from the plugins page.
+	 *
+	 * @param array $actions The plugin actions.
+	 * @return array
+	 */
+	public function add_settings_link( $actions ) {
+		return array_merge(
+			array( '<a href="' . esc_url( admin_url( 'admin.php?page=' . JETPACK_SOCIAL_PLUGIN_SLUG ) ) . '">' . __( 'Settings', 'jetpack-social' ) . '</a>' ),
+			$actions
+		);
 	}
 }

@@ -43,7 +43,7 @@ describe( 'Notification rules', () => {
  * Writes the rules object to a temp file and returns the path to that file.
  *
  * @param {object} rules - the rules object
- * @returns {string} the path to the temp file
+ * @returns {string|undefined} the path to the temp file
  */
 function writeRules( rules ) {
 	const rulesPath = './tests/ignore';
@@ -57,4 +57,6 @@ function writeRules( rules ) {
 		fs.writeFileSync( rulePath, JSON.stringify( rules ) );
 		return path.resolve( rulePath );
 	}
+
+	return undefined;
 }

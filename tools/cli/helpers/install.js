@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import execa from 'execa';
+import { execa } from 'execa';
 
 /**
  * Test if a lockfile is checked in.

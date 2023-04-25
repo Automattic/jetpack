@@ -1,6 +1,6 @@
 {
 	"name": "required-review",
-	"version": "3.0.2-alpha",
+	"version": "3.1.0-alpha",
 	"description": "Check that a Pull Request has reviews from required teams.",
 	"main": "index.js",
 	"author": "Automattic",
@@ -13,13 +13,13 @@
 		"picomatch": "2.2.3"
 	},
 	"devDependencies": {
-		"@vercel/ncc": "0.28.5"
+		"@vercel/ncc": "0.36.1"
 	},
 	"scripts": {
 		"build": "ncc build src/main.js -o dist --source-map --license licenses.txt"
 	},
 	"engines": {
-		"node": "^16.13.2",
+		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
 	}
 }

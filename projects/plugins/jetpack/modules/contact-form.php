@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Forms\Jetpack_Forms;
+
 /**
  * Module Name: Contact Form
  * Module Description: Add a customizable contact form to any post or page using the Jetpack Form Block.
@@ -17,6 +19,21 @@
  * Feature: Writing
  * Additional Search Queries: contact, form, grunion, feedback, submission, contact form, email, feedback, contact form plugin, custom form, custom form plugin, form builder, forms, form maker, survey, contact by jetpack, contact us, forms free
  */
+
+/**
+ * Whether to load the newer Jetpack Forms package.
+ *
+ * @use add_filter( 'jetpack_contact_form_use_package', '__return_true' );
+ * @module contact-form
+ *
+ * @since 11.8
+ *
+ * @param bool $load_contact_form_package Load Jetpack Forms package. Default to false.
+ */
+if ( apply_filters( 'jetpack_contact_form_use_package', false ) ) {
+	Jetpack_Forms::load_contact_form();
+	return true; // Not returning true will cause the module to become deactivated.
+}
 
 require_once __DIR__ . '/contact-form/grunion-contact-form.php';
 
@@ -102,7 +119,7 @@ function jetpack_form_register_pattern() {
 			'title'      => 'Appointment Form',
 			'blockTypes' => array( 'jetpack/contact-form' ),
 			'categories' => array( $category_slug ),
-			'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new appointment booked from your website","to":"cgastrell@gmail.com","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
+			'content'    => '<!-- wp:jetpack/contact-form {"subject":"A new appointment booked from your website","style":{"spacing":{"padding":{"top":"16px","right":"16px","bottom":"16px","left":"16px"}}}} -->
 				<div class="wp-block-jetpack-contact-form" style="padding-top:16px;padding-right:16px;padding-bottom:16px;padding-left:16px">
 					<!-- wp:jetpack/field-name {"required":true} /-->
 					<!-- wp:jetpack/field-email {"required":true} /-->

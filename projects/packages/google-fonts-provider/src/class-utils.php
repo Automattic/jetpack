@@ -44,14 +44,39 @@ class Utils {
 	 * @return boolean|void Whether the font family is registered, or void if WP_Webfonts is not available.
 	 */
 	public static function is_font_family_registered( $font_family_name ) {
-		if ( ! function_exists( 'wp_webfonts' ) || ! method_exists( 'WP_Webfonts', 'get_font_slug' ) ) {
-			return;
+		// New WP Fonts API since Gutenberg 14.9
+		// Remove conditional once WP 6.2 is the minimum version (must confirm this made it into 6.2)
+		// See https://github.com/Automattic/jetpack/issues/28063
+		if ( class_exists( 'WP_Fonts' ) ) {
+			if (
+				! function_exists( 'wp_webfonts' ) ||
+				! class_exists( 'WP_Web_Fonts' ) ||
+				! class_exists( 'WP_Fonts_Utils' )
+			) {
+				return;
+			}
+
+			$wp_webfonts = wp_webfonts();
+
+			if ( ! method_exists( $wp_webfonts, 'get_registered_font_families' ) ) {
+				return;
+			}
+
+			$handle = \WP_Fonts_Utils::convert_font_family_into_handle( $font_family_name );
+
+			return in_array( $handle, $wp_webfonts->get_registered_font_families(), true );
+
+			// Old deprecated WP Fonts API pre-Gutenberg 14.9
+		} elseif ( class_exists( 'WP_Webfonts' ) ) {
+			if ( ! function_exists( 'wp_webfonts' ) || ! method_exists( 'WP_Webfonts', 'get_font_slug' ) ) {
+				return;
+			}
+
+			$wp_webfonts = wp_webfonts();
+
+			$slug = \WP_Webfonts::get_font_slug( $font_family_name );
+
+			return isset( $wp_webfonts->get_registered_webfonts()[ $slug ] );
 		}
-
-		$wp_webfonts = wp_webfonts();
-
-		$slug = \WP_Webfonts::get_font_slug( $font_family_name );
-
-		return isset( $wp_webfonts->get_registered_webfonts()[ $slug ] );
 	}
 }

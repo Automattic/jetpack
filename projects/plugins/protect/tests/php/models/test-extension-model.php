@@ -12,15 +12,6 @@ use WorDBless\BaseTestCase;
 class Test_Extension_Model extends BaseTestCase {
 
 	/**
-	 * Set up before each test
-	 *
-	 * @before
-	 */
-	protected function set_up() {
-		parent::setUp();
-	}
-
-	/**
 	 * Get a sample threat
 	 *
 	 * @param int|string $id The sample threat's unique identifier.
@@ -69,7 +60,6 @@ class Test_Extension_Model extends BaseTestCase {
 				}
 			}
 		}
-
 	}
 
 }

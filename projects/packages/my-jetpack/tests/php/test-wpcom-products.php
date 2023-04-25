@@ -41,7 +41,6 @@ class Test_Wpcom_Products extends TestCase {
 		Jetpack_Options::update_option( 'id', 123 );
 		Initializer::init();
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-
 	}
 
 	/**
@@ -133,7 +132,6 @@ class Test_Wpcom_Products extends TestCase {
 
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
-
 	}
 
 	/**
@@ -163,7 +161,6 @@ class Test_Wpcom_Products extends TestCase {
 		// tests that a second request will get from cache. If it tried to make the request, it would throw a Fatal error.
 		$products = Wpcom_Products::get_products();
 		$this->assertEquals( $this->get_mock_products_data(), $products );
-
 	}
 
 	/**
@@ -177,7 +174,6 @@ class Test_Wpcom_Products extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
 
 		$this->assertTrue( is_wp_error( $products ) );
-
 	}
 
 	/**
@@ -197,7 +193,6 @@ class Test_Wpcom_Products extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_error_response' ) );
 
 		$this->assertEquals( $this->get_mock_products_data(), $products );
-
 	}
 
 	/**
@@ -215,11 +210,11 @@ class Test_Wpcom_Products extends TestCase {
 			'full_price'            => 4.9,
 			'discount_price'        => 2.45,
 			'is_introductory_offer' => false,
+			'introductory_offer'    => null,
 			'coupon_discount'       => 50,
 		);
 
 		$this->assertSame( $expected, $product_price );
-
 	}
 
 	/**
@@ -233,7 +228,6 @@ class Test_Wpcom_Products extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'mock_success_response' ) );
 
 		$this->assertSame( array(), $product_price );
-
 	}
 
 }

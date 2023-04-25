@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 // @todo Fix performance issues before shipping.
 // add_action( 'widgets_init', 'follow_button_register_widget' );
 /**

@@ -9,7 +9,11 @@ export const getProduct = ( state, productId ) => {
 	const stateProduct = getProducts( state )?.[ productId ] || {};
 
 	const product = mapObjectKeysToCamel( stateProduct, true );
+	product.standalonePluginInfo = mapObjectKeysToCamel( product.standalonePluginInfo || {}, true );
 	product.pricingForUi = mapObjectKeysToCamel( product.pricingForUi || {}, true );
+	product.pricingForUi.introductoryOffer = product.pricingForUi.isIntroductoryOffer
+		? mapObjectKeysToCamel( product.pricingForUi.introductoryOffer, true )
+		: null;
 	product.features = product.features || [];
 	product.supportedProducts = product.supportedProducts || [];
 
@@ -52,7 +56,12 @@ const productSelectors = {
 
 const purchasesSelectors = {
 	getPurchases: state => state.purchases?.items || [],
-	isRequestingPurchases: state => state.isRequestingPurchases || false,
+	isRequestingPurchases: state => state.purchases?.isFetching || false,
+};
+
+const availableLicensesSelectors = {
+	getAvailableLicenses: state => state.availableLicenses?.items || [],
+	isFetchingAvailableLicenses: state => state.availableLicenses?.isFetching || false,
 };
 
 const pluginSelectors = {
@@ -74,11 +83,26 @@ const noticeSelectors = {
 	getGlobalNotice: state => state.notices?.global,
 };
 
+const getProductStats = ( state, productId ) => {
+	return state.stats?.items?.[ productId ];
+};
+
+const isFetchingProductStats = ( state, productId ) => {
+	return state.stats?.isFetching?.[ productId ] || false;
+};
+
+const productStatsSelectors = {
+	getProductStats,
+	isFetchingProductStats,
+};
+
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
+	...availableLicensesSelectors,
 	...noticeSelectors,
 	...pluginSelectors,
+	...productStatsSelectors,
 };
 
 export default selectors;

@@ -184,7 +184,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$characters        = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 		$characters_length = strlen( $characters );
 		$random_string     = '';
-		for ( $i = 0; $i < 2000; $i ++ ) {
+		for ( $i = 0; $i < 2000; $i++ ) {
 			$random_string .= $characters[ rand( 0, $characters_length - 1 ) ];
 		}
 
@@ -532,7 +532,6 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		// False or WP_Error is expected.
 		$this->assertNotTrue( $result );
-
 	}
 
 	/**

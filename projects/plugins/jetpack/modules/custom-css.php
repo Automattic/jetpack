@@ -28,7 +28,6 @@ add_action( 'jetpack_modules_loaded', 'custom_css_loaded' );
 function custom_css_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
 	add_filter( 'jetpack_module_configuration_url_custom-css', 'jetpack_custom_css_configuration_url' );
-
 }
 
 /**

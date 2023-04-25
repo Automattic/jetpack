@@ -142,6 +142,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 		$code = str_replace( 'array (', 'array(', $code );
 		$code = preg_replace( '/ => \n\s*array\(/', ' => array(', $code );
 
+		$filesystem->ensureDirectoryExists( 'jetpack_vendor' );
 		$filesystem->filePutContentsIfModified( 'jetpack_vendor/i18n-map.php', $code );
 	}
 

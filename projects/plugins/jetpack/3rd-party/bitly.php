@@ -6,15 +6,11 @@
  * @package automattic/jetpack
  */
 
-if ( class_exists( 'Bitly' ) ) {
-
-	if ( isset( $GLOBALS['bitly'] ) ) {
-		if ( method_exists( $GLOBALS['bitly'], 'og_tags' ) ) {
-			remove_action( 'wp_head', array( $GLOBALS['bitly'], 'og_tags' ) );
-		}
-
-		add_action( 'wp_head', 'jetpack_bitly_og_tag', 100 );
+if ( isset( $GLOBALS['bitly'] ) ) {
+	if ( method_exists( $GLOBALS['bitly'], 'og_tags' ) ) {
+		remove_action( 'wp_head', array( $GLOBALS['bitly'], 'og_tags' ) );
 	}
+		add_action( 'wp_head', 'jetpack_bitly_og_tag', 100 );
 }
 
 /**
@@ -29,5 +25,4 @@ function jetpack_bitly_og_tag() {
 	} elseif ( isset( $GLOBALS['posts'] ) && $GLOBALS['posts'][0]->ID > 0 ) {
 		printf( "<meta property=\"bitly:url\" content=\"%s\" /> \n", esc_attr( $GLOBALS['bitly']->get_bitly_link_for_post_id( $GLOBALS['posts'][0]->ID ) ) );
 	}
-
 }

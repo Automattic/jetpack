@@ -51,12 +51,27 @@ class Test_Connections_Post_Field  extends TestCase {
 	 * @var array
 	 */
 	private $wp_rest_additional_fields = null;
+
 	/**
 	 * Publicize instance.
 	 *
 	 * @var ?Publicize
 	 */
 	private $publicize = null;
+
+	/**
+	 * Admin user ID.
+	 *
+	 * @var int
+	 */
+	private $admin_id;
+
+	/**
+	 * WP_REST_Server instance.
+	 *
+	 * @var WP_REST_Server
+	 */
+	private $server;
 
 	/**
 	 * Setting up the test.
@@ -141,7 +156,6 @@ class Test_Connections_Post_Field  extends TestCase {
 				'post_date_gmt'         => '',
 			)
 		);
-
 	}
 
 	/**

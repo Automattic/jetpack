@@ -12,6 +12,8 @@ use Automattic\Jetpack\Sync\Modules\WP_Super_Cache;
 use Automattic\Jetpack\Sync\Sender;
 use Automattic\Jetpack\Sync\Settings;
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed
+
 require_once __DIR__ . '/test_class.jetpack-sync-base.php';
 
 function jetpack_foo_is_callable() {
@@ -616,7 +618,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertNotNull( $wp_taxonomies['example']->update_count_callback );
 		$this->assertNotNull( $wp_taxonomies['example']->meta_box_cb );
-
 	}
 
 	public function test_sanitize_sync_taxonomies_method() {
@@ -652,7 +653,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$sanitized = Functions::sanitize_post_type( $post_type_object );
 		$this->assert_sanitized_post_type_default( $sanitized, $label );
-
 	}
 
 	public function test_sanitize_sync_post_type_method_remove_unknown_values_set() {
@@ -696,7 +696,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( is_object( $sanitized->labels ) );
 		$this->assertIsArray( $sanitized->rewrite );
 		$this->assertTrue( is_object( $sanitized->cap ) );
-
 	}
 
 	public function test_sanitize_sync_post_type_method_all_values_set() {
@@ -847,7 +846,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		delete_transient( 'jetpack_plugin_api_action_links_refresh' );
 		$helper_all = new Jetpack_Sync_Test_Helper();
 
-		$helper_all->array_override = array( '<a href="fun.php">fun</a>' );
+		$helper_all->array_override = array( '<a href="fun.php">fun 😀</a>' );
 		add_filter( 'plugin_action_links', array( $helper_all, 'filter_override_array' ), 10 );
 
 		$helper_jetpack                 = new Jetpack_Sync_Test_Helper();
@@ -862,7 +861,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$expected_array = array(
 			'hello.php'           => array(
-				'fun' => admin_url( 'fun.php' ),
+				'fun 😀' => admin_url( 'fun.php' ),
 			),
 			'jetpack/jetpack.php' => array(
 				'settings' => admin_url( 'settings.php' ),
@@ -1029,7 +1028,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$synced_value3           = $this->server_replica_storage->get_callable( 'jetpack_foo' );
 		Settings::$is_doing_cron = false;
 		$this->assertNotEmpty( $synced_value3, 'value is empty!' );
-
 	}
 
 	/**
@@ -1232,7 +1230,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 					->getMock();
 
 		$this->assertEquals( 'gd-managed-wp', $functions->get_hosting_provider_by_known_class() );
-
 	}
 
 	/**

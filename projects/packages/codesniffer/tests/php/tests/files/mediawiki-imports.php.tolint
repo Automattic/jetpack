@@ -41,9 +41,6 @@ class Dummy_Class {
 		require_once( 'bar.php' );
 		$u->clone = clone( $x );
 
-		// MediaWiki.Usage.DirUsage.
-		$u->dir = dirname( __FILE__ );
-
 		// MediaWiki.Usage.DoubleNotOperator.
 		$u->bool = ! ! $u->bool;
 

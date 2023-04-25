@@ -151,7 +151,7 @@ class WordpressVersioning implements VersioningPlugin {
 		);
 
 		if ( $this->input->getOption( 'point-release' ) ) {
-			$info['point']++;
+			++$info['point'];
 		} else {
 			$info['point']  = 0;
 			$info['major'] += 0.1;

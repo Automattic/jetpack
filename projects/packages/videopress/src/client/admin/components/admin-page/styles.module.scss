@@ -18,11 +18,12 @@
 		align-items: center;
 		gap: var(--spacing-base);
 		flex-grow: 1;
-		justify-content: end;
+		justify-content: flex-end;
 	}
 
 	.search-input {
 		width: 262px;
+		box-sizing: border-box;
 
 		&.small {
 			width: 100%;
@@ -49,11 +50,6 @@
 .upload-area {
 	width: 100%;
 	max-width: 552px;
-	margin-top: calc( var( --spacing-base ) * 6 );
-
-	&.small {
-		margin-top: calc( var( --spacing-base ) * 3 );
-	}
 }
 
 .upgrade-trigger {

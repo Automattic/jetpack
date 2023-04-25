@@ -14,18 +14,50 @@ function version_compare {
 		return $EQ
 	fi
 
-	local A=() B=()
-	IFS='.-' read -r -a A <<<"$1"
-	IFS='.-' read -r -a B <<<"$2"
+	local V1="${1%%+*}" V2="${2%%+*}"
 
-	while [[ ${#A[@]} -lt 3 ]]; do
-		A+=( '0' )
+	local A=() B=() i
+
+	# First, compare the version parts.
+	IFS='.' read -r -a A <<<"${V1%%-*}"
+	IFS='.' read -r -a B <<<"${V2%%-*}"
+
+	while [[ ${#A[@]} -lt ${#B[@]} ]]; do
+		A+=( 0 )
 	done
-	while [[ ${#B[@]} -lt 3 ]]; do
-		B+=( '0' )
+	while [[ ${#B[@]} -lt ${#A[@]} ]]; do
+		B+=( 0 )
 	done
 
-	local i=0
+	i=0
+	while [[ $i -lt ${#A[@]} && $i -lt ${#B[@]} ]]; do
+		local AA=${A[$i]}
+		local BB=${B[$i]}
+		i=$((i + 1))
+		if [[ $AA -gt $BB ]]; then
+			return 0
+		elif [[ $AA -lt $BB ]]; then
+			return 1
+		fi
+	done
+
+	# Version parts were equal, check prerelease parts.
+
+	if [[ "$V1" != *-* && "$V2" != *-* ]]; then
+		# Neither has prerelease components, so they're equal
+		return $EQ
+	elif [[ "$V1" != *-* && "$V2" == *-* ]]; then
+		# Something with no pre-release components > something with
+		return 0
+	elif [[ "$V1" == *-* && "$V2" != *-* ]]; then
+		# Something with pre-release components < something without
+		return 1
+	fi
+
+	IFS='.' read -r -a A <<<"${V1#*-}"
+	IFS='.' read -r -a B <<<"${V2#*-}"
+
+	i=0
 	while [[ $i -lt ${#A[@]} && $i -lt ${#B[@]} ]]; do
 		local AA=${A[$i]}
 		local BB=${B[$i]}
@@ -51,12 +83,6 @@ function version_compare {
 
 	if [[ ${#A[@]} -eq ${#B[@]} ]]; then
 		return $EQ
-	elif [[ ${#A[@]} -eq 3 ]]; then
-		# Something with no pre-release components > something with
-		return 0
-	elif [[ ${#B[@]} -eq 3 ]]; then
-		# Something with pre-release components < something without
-		return 1
 	else
 		# The thing with more pre-release components is greater.
 		[[ ${#A[@]} -gt ${#B[@]} ]]

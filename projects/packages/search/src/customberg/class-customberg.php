@@ -56,9 +56,9 @@ class Customberg {
 			return;
 		}
 
-		// Intentionally omits adding a submenu via the first null argument.
+		// Intentionally omits adding a submenu via the first empty argument.
 		$hook = add_submenu_page(
-			null,
+			'',
 			__( 'Jetpack Search', 'jetpack-search-pkg' ),
 			__( 'Search', 'jetpack-search-pkg' ),
 			'manage_options', // Must be an admin.

@@ -14,6 +14,7 @@ use Automattic\Jetpack\Sync\Settings;
 class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	protected $post;
+	protected $post_id;
 	protected $test_already = false;
 
 	/**
@@ -44,7 +45,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->post->post_content = str_repeat( 'X', Automattic\Jetpack\Sync\Modules\Posts::MAX_POST_CONTENT_LENGTH );
 		$filtered_post            = $post_sync_module->filter_post_content_and_add_links( $this->post );
 		$this->assertEmpty( $filtered_post->post_content, 'Filtered post content is not truncated (empty) for stings larger than allowed length.' );
-
 	}
 
 	public function test_add_post_syncs_event() {
@@ -134,7 +134,11 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		wp_delete_post( $this->post->ID, true );
 
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event();
+
+		// Only getting the deleted_post event types because the latest might be
+		// an option update for post counts.
+		// @see https://core.trac.wordpress.org/changeset/55419/trunk
+		$event = $this->server_event_storage->get_most_recent_event( 'deleted_post' );
 
 		$this->assertEquals( 'deleted_post', $event->action );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
@@ -166,7 +170,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sync_new_page() {
 		$this->post->post_type = 'page';
-		$this->post_id         = wp_insert_post( $this->post );
+		wp_insert_post( $this->post );
 
 		$this->sender->do_sync();
 
@@ -351,7 +355,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$should_not_be_there = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 		$this->assertFalse( (bool) $should_not_be_there );
-
 	}
 
 	public function test_sync_attachment_delete_is_synced() {
@@ -389,7 +392,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$attachment        = get_post( $attach_id );
 
 		$this->assertEquals( $attachment, $remote_attachment );
-
 	}
 
 	public function test_sync_attachment_force_delete_is_synced() {
@@ -510,7 +512,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotEquals( $post_on_server->post_password, 'bob' );
 		// Make sure it is not empty
 		$this->assertNotEmpty( $post_on_server->post_password );
-
 	}
 
 	public function test_sync_post_includes_permalink_and_shortlink() {
@@ -1284,10 +1285,11 @@ That was a cool video.';
 	 * @return array[] Test parameters.
 	 */
 	public function provider_jetpack_published_post_no_action() {
+		// @todo This seems somewhat broken, $this->post isn't set yet when this runs.
 		return array(
 			array( null, $this->post ),
 			array( 'alpha', $this->post ),
-			array( $this->post_id, null ),
+			array( isset( $this->post->ID ) ? $this->post->ID : null, null ),
 			array( -1111, $this->post ),
 		);
 	}
@@ -1301,7 +1303,7 @@ That was a cool video.';
 	 */
 	public function test_sync_jetpack_published_post_no_action( $post_ID, $post ) {
 		$this->server_event_storage->reset();
-		do_action( 'wp_after_insert_post', $post_ID, $post, false );
+		do_action( 'wp_after_insert_post', $post_ID, $post, false, null );
 
 		$this->sender->do_sync();
 

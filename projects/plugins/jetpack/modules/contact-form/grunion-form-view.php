@@ -23,7 +23,7 @@ wp_register_script(
 		'_inc/build/contact-form/js/grunion.min.js',
 		'modules/contact-form/js/grunion.js'
 	),
-	array( 'jquery-ui-sortable', 'jquery-ui-draggable' ),
+	array( 'jquery', 'jquery-ui-sortable', 'jquery-ui-draggable' ),
 	JETPACK__VERSION,
 	false
 );
@@ -38,7 +38,7 @@ wp_localize_script(
 		'commentLabel'          => esc_attr( _x( 'Comment', 'noun', 'jetpack' ) ),
 		'newLabel'              => esc_attr( _x( 'New Field', 'Default label for new HTML form field in contact form builder', 'jetpack' ) ),
 		'optionsLabel'          => esc_attr( _x( 'Options', 'Label for the set of options to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
-		'optionsLabel'          => esc_attr( _x( 'Option', 'Label for an option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
+		'optionLabel'           => esc_attr( _x( 'Option', 'Label for an option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
 		'firstOptionLabel'      => esc_attr( _x( 'First option', 'Default label for the first option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
 		'problemGeneratingForm' => esc_attr( _x( "Oops, there was a problem generating your form. You'll likely need to try again.", 'error message in contact form builder', 'jetpack' ) ),
 		'moveInstructions'      => esc_attr__( "Drag up or down\nto re-arrange", 'jetpack' ),
@@ -60,7 +60,7 @@ wp_localize_script(
 <script type="text/javascript">
 	var ajaxurl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
 	var postId = <?php echo isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- not making a site change. ?>;
-	var ajax_nonce_shortcode = <?php echo wp_json_encode( wp_create_nonce( 'grunion_shortcode' ) ); ?>; 
+	var ajax_nonce_shortcode = <?php echo wp_json_encode( wp_create_nonce( 'grunion_shortcode' ) ); ?>;
 	var ajax_nonce_json = <?php echo wp_json_encode( wp_create_nonce( 'grunion_shortcode_to_json' ) ); ?>;
 </script>
 <?php wp_print_scripts( 'grunion' ); ?>

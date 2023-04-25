@@ -18,6 +18,8 @@
  * possible future work to recombine the front-ends.
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 
 Assets::add_resource_hint(
@@ -38,6 +40,13 @@ require_once __DIR__ . '/likes/jetpack-likes-settings.php';
  * Jetpack Like Class
  */
 class Jetpack_Likes {
+
+	/**
+	 * Jetpack_Likes_Settings object
+	 *
+	 * @var Jetpack_Likes_Settings
+	 */
+	public $settings;
 
 	/**
 	 * Initialize class
@@ -342,7 +351,7 @@ class Jetpack_Likes {
 					'_inc/build/likes/post-count-jetpack.min.js',
 					'modules/likes/post-count-jetpack.js'
 				),
-				array( 'likes-post-count' ),
+				array( 'jquery', 'likes-post-count' ),
 				JETPACK__VERSION,
 				$in_footer = false
 			);

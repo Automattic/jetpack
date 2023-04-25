@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Redirect;
 
 /**
@@ -245,20 +247,18 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 
 			$my_community .= '</ul></div>';
 
+		} elseif ( current_user_can( 'edit_theme_options' ) ) {
+			$my_community = '<p>' . wp_kses(
+				sprintf(
+					/* Translators: 1. link to the widgets settings screen. 2. link to support document. */
+					__( 'There are no users to display in this <a href="%1$s">My Community widget</a>. <a href="%2$s">Want more traffic?</a>', 'jetpack' ),
+					admin_url( 'widgets.php' ),
+					esc_url( Redirect::get_url( 'jetpack-support-getting-more-views-and-traffic' ) )
+				),
+				array( 'a' => array( 'href' => true ) )
+			) . '</p>';
 		} else {
-			if ( current_user_can( 'edit_theme_options' ) ) {
-				$my_community = '<p>' . wp_kses(
-					sprintf(
-						/* Translators: 1. link to the widgets settings screen. 2. link to support document. */
-						__( 'There are no users to display in this <a href="%1$s">My Community widget</a>. <a href="%2$s">Want more traffic?</a>', 'jetpack' ),
-						admin_url( 'widgets.php' ),
-						esc_url( Redirect::get_url( 'jetpack-support-getting-more-views-and-traffic' ) )
-					),
-					array( 'a' => array( 'href' => true ) )
-				) . '</p>';
-			} else {
-				$my_community = '<p>' . esc_html__( "I'm just starting out; leave me a comment or a like :)", 'jetpack' ) . '</p>';
-			}
+			$my_community = '<p>' . esc_html__( "I'm just starting out; leave me a comment or a like :)", 'jetpack' ) . '</p>';
 		}
 
 		return $my_community;

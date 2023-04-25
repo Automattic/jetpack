@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c7be9286f0c674e4e132c92533fad74c",
+    "content-hash": "4f41e4c3a855281b948c65e1b5440b15",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -12,11 +12,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/a8c-mc-stats",
-                "reference": "b1876d56110471dd79cc6790956d01519c7633da"
+                "reference": "ba8d7eaf8927ca54287703c83d7433c28dc19878"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -38,9 +41,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -59,7 +59,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/abtest",
-                "reference": "63b7b475757259264351596e904fbe0b63ad07e0"
+                "reference": "1078abbf8086ec40fb8685775263c58647eb8826"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -69,6 +69,9 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -96,9 +99,6 @@
                 "post-update-cmd": [
                     "WorDBless\\Composer\\InstallDropin::copy"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -117,7 +117,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/action-bar",
-                "reference": "f82c72df5cc7faad767ab52eedc80ecd643035a1"
+                "reference": "cd9b07164fe803cbdb79c574605b90ec010cf102"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -127,6 +127,9 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -148,9 +151,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -182,12 +182,16 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "9405b138a2b173706dd3f977c71ca2ea55e3710b"
+                "reference": "d8475051fd608dcf425b1998eca2af247d4fd801"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-logo": "@dev",
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -213,9 +217,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -240,7 +241,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/assets",
-                "reference": "09690fa4f7f37e5c4332952983b3cb014f215c0e"
+                "reference": "9a0cc21a8632fafd5ef09442a1fb11a6f65c0cb7"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
@@ -251,6 +252,9 @@
                 "wikimedia/testing-access-wrapper": "^1.0 || ^2.0",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
             "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
@@ -260,7 +264,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-assets/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.17.x-dev"
+                    "dev-trunk": "1.18.x-dev"
                 }
             },
             "autoload": {
@@ -280,10 +284,6 @@
                 ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/php/clover.xml\"",
-                    "pnpm run test-coverage"
                 ],
                 "test-js": [
                     "pnpm run test"
@@ -306,7 +306,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "72fed2574397e08e77ab517fef1118444d56d50a"
+                "reference": "46e8df227c3deee5a1fb0e8f43fa4191e3db323a"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -339,10 +339,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-php \"./tests/php/tmp/coverage-report.php\"",
-                    "php ./tests/php/bin/test-coverage.php \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -361,7 +357,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/backup",
-                "reference": "92d9ceae99ec006eb6ac2608c762015ec30b07fd"
+                "reference": "46d75d68f0427c3076c02df0982f4d34bf263481"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -371,7 +367,6 @@
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-identity-crisis": "@dev",
-                "automattic/jetpack-my-jetpack": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev"
             },
@@ -379,6 +374,9 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -392,7 +390,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-backup/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.10.x-dev"
+                    "dev-trunk": "1.12.x-dev"
                 }
             },
             "autoload": {
@@ -407,8 +405,8 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                "test-js": [
+                    "pnpm run test"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -439,18 +437,94 @@
             }
         },
         {
+            "name": "automattic/jetpack-blaze",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/blaze",
+                "reference": "c15d3c034cc4bceaa02c1c3376a7e99cb464de92"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-sync": "@dev"
+            },
+            "require-dev": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "@dev",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-blaze",
+                "changelogger": {
+                    "link-template": "https://github.com/automattic/jetpack-blaze/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.5.x-dev"
+                },
+                "textdomain": "jetpack-blaze",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-blaze.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Attract high-quality traffic to your site using Blaze.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-blocks",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/blocks",
-                "reference": "b4c81e9cfff38c4e6ace66062b5d5d539fa2913c"
+                "reference": "c7d4fa7a31c55cdd76cafbffc7359c4003fb6588"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/wordbless": "dev-master",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -478,9 +552,6 @@
                 "post-update-cmd": [
                     "WorDBless\\Composer\\InstallDropin::copy"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -499,10 +570,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/compat",
-                "reference": "b52735cd33313a40ae1375559f1397e41300dcd8"
+                "reference": "efed5add55337c6f88c2d496b03468c7fb48ffd8"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -538,14 +612,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "ecd8142558fa54149518f7071f5cc8e7104fe520"
+                "reference": "aa7328bf97fb2ec9ef69857b79ad16215da07f8c"
             },
             "require": {
                 "composer-plugin-api": "^2.1.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "composer/composer": "2.2.12",
+                "composer/composer": "^2.2 || ^2.4",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
             "type": "composer-plugin",
@@ -570,9 +644,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -591,10 +662,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/config",
-                "reference": "ad6c987585b5b4a0f8cbdd5add6711278c4d675f"
+                "reference": "6a05cd2a4f161c97adb8c7ac698d7bb1e2397594"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -605,7 +679,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.11.x-dev"
+                    "dev-trunk": "1.15.x-dev"
                 }
             },
             "autoload": {
@@ -627,7 +701,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "d9974434c1a7705cbc3b4e1d59d7c561c750051d"
+                "reference": "9b61d9875d4b380cdd0a54ba4cea498bd544e9e9"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -643,6 +717,9 @@
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
             "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
@@ -655,7 +732,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.47.x-dev"
+                    "dev-trunk": "1.51.x-dev"
                 }
             },
             "autoload": {
@@ -681,9 +758,6 @@
                 "post-update-cmd": [
                     "WorDBless\\Composer\\InstallDropin::copy"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -702,12 +776,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/constants",
-                "reference": "9852ec480f55504ae8cb5c8732560ad1f9edbef0"
+                "reference": "e4b0c59050ded5ef2c4ed142c864c4ee4475fd01"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -729,9 +806,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -750,11 +824,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/device-detection",
-                "reference": "d72b5210e5eb379b9e2a6c05805eae99d49ca8af"
+                "reference": "ea2d9e8b7a3aab6c7d2b2633dff66dc35f78d7eb"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -776,9 +853,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -797,11 +871,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/error",
-                "reference": "1dbd78e7a220156b3b921518179b3dc084980ffb"
+                "reference": "6ae53f5b1cb51f243024ee30d2b3fb524d6d9140"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -823,9 +900,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -839,17 +913,95 @@
             }
         },
         {
+            "name": "automattic/jetpack-forms",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/forms",
+                "reference": "1f0615b070ef92ffa0cbbe73d9dc0f37c8f18fd6"
+            },
+            "require": {
+                "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-blocks": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-status": "@dev"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-connection": "@dev",
+                "automattic/wordbless": "^0.4.1",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-forms",
+                "changelogger": {
+                    "link-template": "https://github.com/automattic/jetpack-forms/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.14.x-dev"
+                },
+                "textdomain": "jetpack-forms",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-jetpack-forms.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "pnpm run build-production"
+                ],
+                "build-development": [
+                    "pnpm run build"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Jetpack Forms",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-google-fonts-provider",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/google-fonts-provider",
-                "reference": "373aec2cb57cf906657bf586402b83a732bac0cc"
+                "reference": "083c72d25a05c7b0d2243be23b8ee4177145ac2d"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -859,7 +1011,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-google-fonts-provider/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.5.x-dev"
                 },
                 "textdomain": "jetpack-google-fonts-provider"
             },
@@ -871,9 +1023,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -893,7 +1042,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/identity-crisis",
-                "reference": "881965ec5eebf747320a2daac961845683dd2b47"
+                "reference": "d59b99834924d39cf29c69d3172c1478728f6df7"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -906,6 +1055,9 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -937,9 +1089,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -963,12 +1112,131 @@
             }
         },
         {
+            "name": "automattic/jetpack-import",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/import",
+                "reference": "4719155795f2161d4a9ac73a99bb20610787095b"
+            },
+            "require": {
+                "automattic/jetpack-connection": "@dev"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "dev-master",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-import",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-import/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.7.x-dev"
+                },
+                "textdomain": "jetpack-import",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-main.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Set of REST API routes used in WPCOM Unified Importer.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-ip",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/ip",
+                "reference": "dc0c165825678684ea76fe12fbf587765a5b0fe4"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "brain/monkey": "2.6.1",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "autotagger": true,
+                "mirror-repo": "Automattic/jetpack-ip",
+                "changelogger": {
+                    "link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
+                },
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-ip",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-utils.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Utilities for working with IP addresses.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-jitm",
             "version": "dev-trunk",
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "1eb301733370d234b6be83c888f3652c1da4bd4c"
+                "reference": "a758c6c53d18cab45b122e5b00fa053017a49032"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -985,6 +1253,9 @@
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
             "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
@@ -997,7 +1268,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.2.x-dev"
+                    "dev-trunk": "2.3.x-dev"
                 }
             },
             "autoload": {
@@ -1015,11 +1286,12 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [
@@ -1036,7 +1308,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/lazy-images",
-                "reference": "01d1171d36de7b2a2c4e2b59bfad3ea07b381dec"
+                "reference": "79093fbf81b6813d0fff6b033a99d743da0e11bd"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1046,6 +1318,9 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1080,9 +1355,6 @@
                 "post-update-cmd": [
                     "WorDBless\\Composer\\InstallDropin::copy"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -1101,7 +1373,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/licensing",
-                "reference": "b674def77092632292a60e49e26615601c0bb065"
+                "reference": "f60e9f0f92c4edb24fcd6a5aea63b8370a1f0525"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev"
@@ -1110,6 +1382,9 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1120,7 +1395,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-licensing/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.7.x-dev"
+                    "dev-trunk": "1.8.x-dev"
                 }
             },
             "autoload": {
@@ -1137,9 +1412,6 @@
                 ],
                 "post-update-cmd": [
                     "WorDBless\\Composer\\InstallDropin::copy"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1159,11 +1431,14 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/logo",
-                "reference": "70330dbf1e898f98c674fc6d50db347ace102e70"
+                "reference": "d851d1c6c59dd523f68cdf36ff58d98118a2b99d"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1173,7 +1448,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-logo/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.5.x-dev"
+                    "dev-trunk": "1.6.x-dev"
                 }
             },
             "autoload": {
@@ -1184,9 +1459,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1206,7 +1478,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "06fc8f1ff2c52aac53109dfc25e92d8e3f97b20b"
+                "reference": "9029f672aa47a067f8b4a114d9e2d4767737cbe6"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1220,8 +1492,12 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-videopress": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1232,7 +1508,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.5.x-dev"
+                    "dev-trunk": "2.10.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1247,10 +1523,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/coverage.xml\"",
-                    "pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1293,7 +1565,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/options",
-                "reference": "344610e07ee35a968b62b40dea511aa12d6690ce"
+                "reference": "fc17d17f66d419f29fcbef2e073c6e050bd48a17"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev"
@@ -1301,6 +1573,9 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1333,7 +1608,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/partner",
-                "reference": "d74a6543d486c63a87992909895ad1cb5525ab07"
+                "reference": "a9bbbf1bb59e83ec893a62134e1eca8315463b2b"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1344,6 +1619,9 @@
                 "automattic/wordbless": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1371,9 +1649,6 @@
                 "post-update-cmd": [
                     "WorDBless\\Composer\\InstallDropin::copy"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -1392,12 +1667,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/password-checker",
-                "reference": "3283515f7402a2c486b811e7a26723632dccb7c3"
+                "reference": "cc15ccf0804801b1772e299e9136c8a9adfcff5a"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1419,9 +1697,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1447,7 +1722,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "2c8de83a36fffad85959615188e11630ce6de73e"
+                "reference": "d8f5318b02f31a758bc7f3483cfa1b220c2c5fb5"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev"
@@ -1457,6 +1732,9 @@
                 "automattic/jetpack-status": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "library",
             "extra": {
@@ -1477,9 +1755,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1511,7 +1786,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plugins-installer",
-                "reference": "f1c1122267edde673ba53f562559c5923641afee"
+                "reference": "76d699b85b5a4d9d0d6bbb966c3fc4ca92907a8e"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev"
@@ -1519,6 +1794,9 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1541,9 +1819,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -1562,7 +1837,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/post-list",
-                "reference": "6eab711b2ebb34249dbca0c6281653562989f9d0"
+                "reference": "f29b4beb49966997116cb7c527abd5d83298b824"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev"
@@ -1571,6 +1846,9 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1596,9 +1874,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1623,19 +1898,23 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "58d96de1ef0d28ac6d02b0250a44d100089c59fa"
+                "reference": "5cd27d4f7e22c3f213ab5631d9797d9ed1985eb3"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-autoloader": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-redirect": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "0.4.0",
+                "automattic/wordbless": "0.4.2",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1646,20 +1925,20 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.18.x-dev"
+                    "dev-trunk": "0.25.x-dev"
                 }
             },
             "autoload": {
                 "classmap": [
                     "src/"
+                ],
+                "files": [
+                    "src/social-image-generator/utilities.php"
                 ]
             },
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1691,7 +1970,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/redirect",
-                "reference": "c7634b719ccd7cf8ebe12abdc53a74ba310eca77"
+                "reference": "7dd2ca653cdcca5f90ac11fc8992de47706ae812"
             },
             "require": {
                 "automattic/jetpack-status": "@dev"
@@ -1700,6 +1979,9 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1721,9 +2003,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -1742,12 +2021,15 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/roles",
-                "reference": "1ebccf029b8db3173a45a23ae4cec2ebdc0aa855"
+                "reference": "cef8b8e3bbc5fe024a95ee3b46f88dcb915f425c"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1769,9 +2051,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -1790,7 +2069,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/search",
-                "reference": "c41a3180fcefc306ade95bef53eae230b205e994"
+                "reference": "e281f3b99f572ac5352a0440734d7d83f3fdb5fa"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -1802,8 +2081,11 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "0.4.0",
+                "automattic/wordbless": "0.4.2",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -1814,7 +2096,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.31.x-dev"
+                    "dev-trunk": "0.36.x-dev"
                 },
                 "version-constants": {
                     "::VERSION": "src/class-package.php"
@@ -1838,9 +2120,6 @@
                 ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-js": [
                     "pnpm run test"
@@ -1873,9 +2152,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats",
-                "reference": "c33d4f4c97ec0eb77ffe8aff852b16e3bf974093"
+                "reference": "31297abd2f6bcf6f9f17da60a8ea19371471d71d"
             },
             "require": {
+                "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-status": "@dev"
@@ -1885,6 +2165,9 @@
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
             "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
@@ -1893,7 +2176,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.3.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 },
                 "textdomain": "jetpack-stats"
             },
@@ -1905,9 +2188,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -1933,23 +2213,29 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/stats-admin",
-                "reference": "cd68679775ac75711ed13dc4718a3012e980cb39"
+                "reference": "1e07ddecf105bbe32e3f69e6654449594aa53e00"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
-                "automattic/jetpack-options": "@dev"
+                "automattic/jetpack-jitm": "@dev",
+                "automattic/jetpack-options": "@dev",
+                "automattic/jetpack-stats": "@dev",
+                "automattic/jetpack-status": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/wordbless": "dev-master",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
             "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-stats-admin",
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 },
                 "textdomain": "jetpack-stats-admin",
                 "version-constants": {
@@ -1965,9 +2251,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -1977,8 +2260,11 @@
                 "build-development": [
                     "echo 'Add your build step to composer.json, please!'"
                 ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
                 "post-update-cmd": [
-                    "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ]
             },
             "license": [
@@ -1995,15 +2281,19 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "295e13cbb1b584a5435c8a467773bffd5f90a5e2"
+                "reference": "8254f98df9bf989973d102a2901b2328e51775c0"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/jetpack-ip": "@dev",
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -2013,7 +2303,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.15.x-dev"
+                    "dev-trunk": "1.17.x-dev"
                 }
             },
             "autoload": {
@@ -2024,9 +2314,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -2046,12 +2333,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "fa77060ba7ac1c88363f04f02edb1207779cd3f0"
+                "reference": "acc57b8cb9ccb46197ba8a6700aac24f79432d02"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-identity-crisis": "@dev",
+                "automattic/jetpack-ip": "@dev",
                 "automattic/jetpack-password-checker": "@dev",
                 "automattic/jetpack-roles": "@dev",
                 "automattic/jetpack-status": "@dev"
@@ -2060,6 +2348,9 @@
                 "automattic/jetpack-changelogger": "@dev",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -2073,7 +2364,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.44.x-dev"
+                    "dev-trunk": "1.47.x-dev"
                 }
             },
             "autoload": {
@@ -2084,9 +2375,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -2112,7 +2400,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "f4e72e6315dbdc54ea46fc3656ace1be7f63b3f7"
+                "reference": "6f71cf3bb0f9a14780e60c725fbd2d91a921a6ed"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -2126,6 +2414,9 @@
                 "brain/monkey": "2.6.1",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
             "type": "jetpack-library",
             "extra": {
                 "autotagger": true,
@@ -2134,7 +2425,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.13.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"
@@ -2149,9 +2440,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -2190,14 +2478,22 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/waf",
-                "reference": "9b247af2b7754a8d9d652ac4c04ea07198302fda"
+                "reference": "278b09f381778a035f26eeb7a0905e3e87533114"
             },
             "require": {
+                "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
+                "automattic/jetpack-ip": "@dev",
+                "automattic/jetpack-status": "@dev",
                 "wikimedia/aho-corasick": "^1.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -2208,7 +2504,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-waf/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.11.x-dev"
                 }
             },
             "autoload": {
@@ -2221,13 +2517,18 @@
             },
             "scripts": {
                 "phpunit": [
-                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                    "./vendor/phpunit/phpunit/phpunit --configuration tests/php/integration/phpunit.xml.dist --colors=always",
+                    "./vendor/phpunit/phpunit/phpunit --configuration tests/php/unit/phpunit.xml.dist --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
                 ],
                 "test-coverage-html": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage"
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage --configuration tests/php/integration/phpunit.xml.dist",
+                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-html ./coverage --configuration tests/php/unit/phpunit.xml.dist"
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -2247,7 +2548,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/wordads",
-                "reference": "5503930995106964e2386cd69a61b4ca0f301d0a"
+                "reference": "1f0743fefe9d12306e76c715f8bbf5d4759a009b"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2259,6 +2560,9 @@
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
             },
             "type": "jetpack-library",
             "extra": {
@@ -2293,9 +2597,6 @@
                 ],
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-js": [
                     "pnpm run test"
@@ -2441,16 +2742,16 @@
     "packages-dev": [
         {
             "name": "antecedent/patchwork",
-            "version": "2.1.21",
+            "version": "2.1.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/antecedent/patchwork.git",
-                "reference": "25c1fa0cd9a6e6d0d13863d8df8f050b6733f16d"
+                "reference": "17314e042d45e0dacb0a494c2d1ef50e7621136a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/antecedent/patchwork/zipball/25c1fa0cd9a6e6d0d13863d8df8f050b6733f16d",
-                "reference": "25c1fa0cd9a6e6d0d13863d8df8f050b6733f16d",
+                "url": "https://api.github.com/repos/antecedent/patchwork/zipball/17314e042d45e0dacb0a494c2d1ef50e7621136a",
+                "reference": "17314e042d45e0dacb0a494c2d1ef50e7621136a",
                 "shasum": ""
             },
             "require": {
@@ -2483,9 +2784,9 @@
             ],
             "support": {
                 "issues": "https://github.com/antecedent/patchwork/issues",
-                "source": "https://github.com/antecedent/patchwork/tree/2.1.21"
+                "source": "https://github.com/antecedent/patchwork/tree/2.1.25"
             },
-            "time": "2022-02-07T07:28:34+00:00"
+            "time": "2023-02-19T12:51:24+00:00"
         },
         {
             "name": "automattic/jetpack-changelogger",
@@ -2493,7 +2794,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "f5b5e04e8bab59d4bfb71c42d56d68a3003cebd0"
+                "reference": "6cf3c9cec0a7d620c0389859b50867317301ebba"
             },
             "require": {
                 "php": ">=5.6",
@@ -2512,7 +2813,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "3.2.x-dev"
+                    "dev-trunk": "3.3.x-dev"
                 },
                 "mirror-repo": "Automattic/jetpack-changelogger",
                 "version-constants": {
@@ -2538,9 +2839,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ],
@@ -2561,30 +2859,30 @@
         },
         {
             "name": "doctrine/instantiator",
-            "version": "1.4.1",
+            "version": "1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/instantiator.git",
-                "reference": "10dcfce151b967d20fde1b34ae6640712c3891bc"
+                "reference": "0a0fa9780f5d4e507415a065172d26a98d02047b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/10dcfce151b967d20fde1b34ae6640712c3891bc",
-                "reference": "10dcfce151b967d20fde1b34ae6640712c3891bc",
+                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/0a0fa9780f5d4e507415a065172d26a98d02047b",
+                "reference": "0a0fa9780f5d4e507415a065172d26a98d02047b",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.1 || ^8.0"
             },
             "require-dev": {
-                "doctrine/coding-standard": "^9",
+                "doctrine/coding-standard": "^9 || ^11",
                 "ext-pdo": "*",
                 "ext-phar": "*",
                 "phpbench/phpbench": "^0.16 || ^1",
                 "phpstan/phpstan": "^1.4",
                 "phpstan/phpstan-phpunit": "^1",
                 "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5",
-                "vimeo/psalm": "^4.22"
+                "vimeo/psalm": "^4.30 || ^5.4"
             },
             "type": "library",
             "autoload": {
@@ -2611,7 +2909,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/instantiator/issues",
-                "source": "https://github.com/doctrine/instantiator/tree/1.4.1"
+                "source": "https://github.com/doctrine/instantiator/tree/1.5.0"
             },
             "funding": [
                 {
@@ -2627,7 +2925,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-03-03T08:28:38+00:00"
+            "time": "2022-12-30T00:15:36+00:00"
         },
         {
             "name": "johnkary/phpunit-speedtrap",
@@ -2683,16 +2981,16 @@
         },
         {
             "name": "myclabs/deep-copy",
-            "version": "1.11.0",
+            "version": "1.11.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "14daed4296fae74d9e3201d2c4925d1acb7aa614"
+                "reference": "7284c22080590fb39f2ffa3e9057f10a4ddd0e0c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/14daed4296fae74d9e3201d2c4925d1acb7aa614",
-                "reference": "14daed4296fae74d9e3201d2c4925d1acb7aa614",
+                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/7284c22080590fb39f2ffa3e9057f10a4ddd0e0c",
+                "reference": "7284c22080590fb39f2ffa3e9057f10a4ddd0e0c",
                 "shasum": ""
             },
             "require": {
@@ -2730,7 +3028,7 @@
             ],
             "support": {
                 "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.11.0"
+                "source": "https://github.com/myclabs/DeepCopy/tree/1.11.1"
             },
             "funding": [
                 {
@@ -2738,20 +3036,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-03-03T13:19:32+00:00"
+            "time": "2023-03-08T13:26:56+00:00"
         },
         {
             "name": "nikic/php-parser",
-            "version": "v4.15.2",
+            "version": "v4.15.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nikic/PHP-Parser.git",
-                "reference": "f59bbe44bf7d96f24f3e2b4ddc21cd52c1d2adbc"
+                "reference": "6bb5176bc4af8bcb7d926f88718db9b96a2d4290"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/f59bbe44bf7d96f24f3e2b4ddc21cd52c1d2adbc",
-                "reference": "f59bbe44bf7d96f24f3e2b4ddc21cd52c1d2adbc",
+                "url": "https://api.github.com/repos/nikic/PHP-Parser/zipball/6bb5176bc4af8bcb7d926f88718db9b96a2d4290",
+                "reference": "6bb5176bc4af8bcb7d926f88718db9b96a2d4290",
                 "shasum": ""
             },
             "require": {
@@ -2792,9 +3090,9 @@
             ],
             "support": {
                 "issues": "https://github.com/nikic/PHP-Parser/issues",
-                "source": "https://github.com/nikic/PHP-Parser/tree/v4.15.2"
+                "source": "https://github.com/nikic/PHP-Parser/tree/v4.15.4"
             },
-            "time": "2022-11-12T15:38:23+00:00"
+            "time": "2023-03-05T19:49:14+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -2909,23 +3207,23 @@
         },
         {
             "name": "phpunit/php-code-coverage",
-            "version": "9.2.19",
+            "version": "9.2.26",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "c77b56b63e3d2031bd8997fcec43c1925ae46559"
+                "reference": "443bc6912c9bd5b409254a40f4b0f4ced7c80ea1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/c77b56b63e3d2031bd8997fcec43c1925ae46559",
-                "reference": "c77b56b63e3d2031bd8997fcec43c1925ae46559",
+                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/443bc6912c9bd5b409254a40f4b0f4ced7c80ea1",
+                "reference": "443bc6912c9bd5b409254a40f4b0f4ced7c80ea1",
                 "shasum": ""
             },
             "require": {
                 "ext-dom": "*",
                 "ext-libxml": "*",
                 "ext-xmlwriter": "*",
-                "nikic/php-parser": "^4.14",
+                "nikic/php-parser": "^4.15",
                 "php": ">=7.3",
                 "phpunit/php-file-iterator": "^3.0.3",
                 "phpunit/php-text-template": "^2.0.2",
@@ -2940,8 +3238,8 @@
                 "phpunit/phpunit": "^9.3"
             },
             "suggest": {
-                "ext-pcov": "*",
-                "ext-xdebug": "*"
+                "ext-pcov": "PHP extension that provides line coverage",
+                "ext-xdebug": "PHP extension that provides line coverage as well as branch and path coverage"
             },
             "type": "library",
             "extra": {
@@ -2974,7 +3272,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.19"
+                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.26"
             },
             "funding": [
                 {
@@ -2982,7 +3280,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-11-18T07:47:47+00:00"
+            "time": "2023-03-06T12:58:08+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -3227,20 +3525,20 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "9.5.26",
+            "version": "9.6.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "851867efcbb6a1b992ec515c71cdcf20d895e9d2"
+                "reference": "b65d59a059d3004a040c16a82e07bbdf6cfdd115"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/851867efcbb6a1b992ec515c71cdcf20d895e9d2",
-                "reference": "851867efcbb6a1b992ec515c71cdcf20d895e9d2",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b65d59a059d3004a040c16a82e07bbdf6cfdd115",
+                "reference": "b65d59a059d3004a040c16a82e07bbdf6cfdd115",
                 "shasum": ""
             },
             "require": {
-                "doctrine/instantiator": "^1.3.1",
+                "doctrine/instantiator": "^1.3.1 || ^2",
                 "ext-dom": "*",
                 "ext-json": "*",
                 "ext-libxml": "*",
@@ -3269,8 +3567,8 @@
                 "sebastian/version": "^3.0.2"
             },
             "suggest": {
-                "ext-soap": "*",
-                "ext-xdebug": "*"
+                "ext-soap": "To be able to generate mocks based on WSDL files",
+                "ext-xdebug": "PHP extension that provides line coverage as well as branch and path coverage"
             },
             "bin": [
                 "phpunit"
@@ -3278,7 +3576,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "9.5-dev"
+                    "dev-master": "9.6-dev"
                 }
             },
             "autoload": {
@@ -3309,7 +3607,8 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.5.26"
+                "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.6"
             },
             "funding": [
                 {
@@ -3325,7 +3624,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-10-28T06:00:21+00:00"
+            "time": "2023-03-27T11:43:46+00:00"
         },
         {
             "name": "psr/container",
@@ -3746,16 +4045,16 @@
         },
         {
             "name": "sebastian/environment",
-            "version": "5.1.4",
+            "version": "5.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/environment.git",
-                "reference": "1b5dff7bb151a4db11d49d90e5408e4e938270f7"
+                "reference": "830c43a844f1f8d5b7a1f6d6076b784454d8b7ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/1b5dff7bb151a4db11d49d90e5408e4e938270f7",
-                "reference": "1b5dff7bb151a4db11d49d90e5408e4e938270f7",
+                "url": "https://api.github.com/repos/sebastianbergmann/environment/zipball/830c43a844f1f8d5b7a1f6d6076b784454d8b7ed",
+                "reference": "830c43a844f1f8d5b7a1f6d6076b784454d8b7ed",
                 "shasum": ""
             },
             "require": {
@@ -3797,7 +4096,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/environment/issues",
-                "source": "https://github.com/sebastianbergmann/environment/tree/5.1.4"
+                "source": "https://github.com/sebastianbergmann/environment/tree/5.1.5"
             },
             "funding": [
                 {
@@ -3805,7 +4104,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-04-03T09:37:03+00:00"
+            "time": "2023-02-03T06:03:51+00:00"
         },
         {
             "name": "sebastian/exporter",
@@ -4119,16 +4418,16 @@
         },
         {
             "name": "sebastian/recursion-context",
-            "version": "4.0.4",
+            "version": "4.0.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/recursion-context.git",
-                "reference": "cd9d8cf3c5804de4341c283ed787f099f5506172"
+                "reference": "e75bd0f07204fec2a0af9b0f3cfe97d05f92efc1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/cd9d8cf3c5804de4341c283ed787f099f5506172",
-                "reference": "cd9d8cf3c5804de4341c283ed787f099f5506172",
+                "url": "https://api.github.com/repos/sebastianbergmann/recursion-context/zipball/e75bd0f07204fec2a0af9b0f3cfe97d05f92efc1",
+                "reference": "e75bd0f07204fec2a0af9b0f3cfe97d05f92efc1",
                 "shasum": ""
             },
             "require": {
@@ -4167,10 +4466,10 @@
                 }
             ],
             "description": "Provides functionality to recursively process PHP variables",
-            "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
+            "homepage": "https://github.com/sebastianbergmann/recursion-context",
             "support": {
                 "issues": "https://github.com/sebastianbergmann/recursion-context/issues",
-                "source": "https://github.com/sebastianbergmann/recursion-context/tree/4.0.4"
+                "source": "https://github.com/sebastianbergmann/recursion-context/tree/4.0.5"
             },
             "funding": [
                 {
@@ -4178,7 +4477,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-26T13:17:30+00:00"
+            "time": "2023-02-03T06:07:39+00:00"
         },
         {
             "name": "sebastian/resource-operations",
@@ -4237,16 +4536,16 @@
         },
         {
             "name": "sebastian/type",
-            "version": "3.2.0",
+            "version": "3.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/type.git",
-                "reference": "fb3fe09c5f0bae6bc27ef3ce933a1e0ed9464b6e"
+                "reference": "75e2c2a32f5e0b3aef905b9ed0b179b953b3d7c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/type/zipball/fb3fe09c5f0bae6bc27ef3ce933a1e0ed9464b6e",
-                "reference": "fb3fe09c5f0bae6bc27ef3ce933a1e0ed9464b6e",
+                "url": "https://api.github.com/repos/sebastianbergmann/type/zipball/75e2c2a32f5e0b3aef905b9ed0b179b953b3d7c7",
+                "reference": "75e2c2a32f5e0b3aef905b9ed0b179b953b3d7c7",
                 "shasum": ""
             },
             "require": {
@@ -4281,7 +4580,7 @@
             "homepage": "https://github.com/sebastianbergmann/type",
             "support": {
                 "issues": "https://github.com/sebastianbergmann/type/issues",
-                "source": "https://github.com/sebastianbergmann/type/tree/3.2.0"
+                "source": "https://github.com/sebastianbergmann/type/tree/3.2.1"
             },
             "funding": [
                 {
@@ -4289,7 +4588,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2022-09-12T14:47:03+00:00"
+            "time": "2023-02-03T06:13:03+00:00"
         },
         {
             "name": "sebastian/version",
@@ -4346,16 +4645,16 @@
         },
         {
             "name": "symfony/console",
-            "version": "v6.0.14",
+            "version": "v6.0.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "1f89cab8d52c84424f798495b3f10342a7b1a070"
+                "reference": "c3ebc83d031b71c39da318ca8b7a07ecc67507ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/1f89cab8d52c84424f798495b3f10342a7b1a070",
-                "reference": "1f89cab8d52c84424f798495b3f10342a7b1a070",
+                "url": "https://api.github.com/repos/symfony/console/zipball/c3ebc83d031b71c39da318ca8b7a07ecc67507ed",
+                "reference": "c3ebc83d031b71c39da318ca8b7a07ecc67507ed",
                 "shasum": ""
             },
             "require": {
@@ -4421,7 +4720,7 @@
                 "terminal"
             ],
             "support": {
-                "source": "https://github.com/symfony/console/tree/v6.0.14"
+                "source": "https://github.com/symfony/console/tree/v6.0.19"
             },
             "funding": [
                 {
@@ -4437,7 +4736,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-10-07T08:02:12+00:00"
+            "time": "2023-01-01T08:36:10+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -4523,16 +4822,16 @@
         },
         {
             "name": "symfony/polyfill-intl-grapheme",
-            "version": "v1.26.0",
+            "version": "v1.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-grapheme.git",
-                "reference": "433d05519ce6990bf3530fba6957499d327395c2"
+                "reference": "511a08c03c1960e08a883f4cffcacd219b758354"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-grapheme/zipball/433d05519ce6990bf3530fba6957499d327395c2",
-                "reference": "433d05519ce6990bf3530fba6957499d327395c2",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-grapheme/zipball/511a08c03c1960e08a883f4cffcacd219b758354",
+                "reference": "511a08c03c1960e08a883f4cffcacd219b758354",
                 "shasum": ""
             },
             "require": {
@@ -4544,7 +4843,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.26-dev"
+                    "dev-main": "1.27-dev"
                 },
                 "thanks": {
                     "name": "symfony/polyfill",
@@ -4584,7 +4883,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.26.0"
+                "source": "https://github.com/symfony/polyfill-intl-grapheme/tree/v1.27.0"
             },
             "funding": [
                 {
@@ -4600,20 +4899,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-24T11:49:31+00:00"
+            "time": "2022-11-03T14:55:06+00:00"
         },
         {
             "name": "symfony/polyfill-intl-normalizer",
-            "version": "v1.26.0",
+            "version": "v1.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-intl-normalizer.git",
-                "reference": "219aa369ceff116e673852dce47c3a41794c14bd"
+                "reference": "19bd1e4fcd5b91116f14d8533c57831ed00571b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/219aa369ceff116e673852dce47c3a41794c14bd",
-                "reference": "219aa369ceff116e673852dce47c3a41794c14bd",
+                "url": "https://api.github.com/repos/symfony/polyfill-intl-normalizer/zipball/19bd1e4fcd5b91116f14d8533c57831ed00571b6",
+                "reference": "19bd1e4fcd5b91116f14d8533c57831ed00571b6",
                 "shasum": ""
             },
             "require": {
@@ -4625,7 +4924,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.26-dev"
+                    "dev-main": "1.27-dev"
                 },
                 "thanks": {
                     "name": "symfony/polyfill",
@@ -4668,7 +4967,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.26.0"
+                "source": "https://github.com/symfony/polyfill-intl-normalizer/tree/v1.27.0"
             },
             "funding": [
                 {
@@ -4684,20 +4983,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-24T11:49:31+00:00"
+            "time": "2022-11-03T14:55:06+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.26.0",
+            "version": "v1.27.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "9344f9cb97f3b19424af1a21a3b0e75b0a7d8d7e"
+                "reference": "8ad114f6b39e2c98a8b0e3bd907732c207c2b534"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/9344f9cb97f3b19424af1a21a3b0e75b0a7d8d7e",
-                "reference": "9344f9cb97f3b19424af1a21a3b0e75b0a7d8d7e",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/8ad114f6b39e2c98a8b0e3bd907732c207c2b534",
+                "reference": "8ad114f6b39e2c98a8b0e3bd907732c207c2b534",
                 "shasum": ""
             },
             "require": {
@@ -4712,7 +5011,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "1.26-dev"
+                    "dev-main": "1.27-dev"
                 },
                 "thanks": {
                     "name": "symfony/polyfill",
@@ -4751,7 +5050,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.26.0"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.27.0"
             },
             "funding": [
                 {
@@ -4767,20 +5066,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-24T11:49:31+00:00"
+            "time": "2022-11-03T14:55:06+00:00"
         },
         {
             "name": "symfony/process",
-            "version": "v6.0.11",
+            "version": "v6.0.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "44270a08ccb664143dede554ff1c00aaa2247a43"
+                "reference": "2114fd60f26a296cc403a7939ab91478475a33d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/44270a08ccb664143dede554ff1c00aaa2247a43",
-                "reference": "44270a08ccb664143dede554ff1c00aaa2247a43",
+                "url": "https://api.github.com/repos/symfony/process/zipball/2114fd60f26a296cc403a7939ab91478475a33d4",
+                "reference": "2114fd60f26a296cc403a7939ab91478475a33d4",
                 "shasum": ""
             },
             "require": {
@@ -4812,7 +5111,7 @@
             "description": "Executes commands in sub-processes",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/process/tree/v6.0.11"
+                "source": "https://github.com/symfony/process/tree/v6.0.19"
             },
             "funding": [
                 {
@@ -4828,7 +5127,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-06-27T17:10:44+00:00"
+            "time": "2023-01-01T08:36:10+00:00"
         },
         {
             "name": "symfony/service-contracts",
@@ -4914,16 +5213,16 @@
         },
         {
             "name": "symfony/string",
-            "version": "v6.0.14",
+            "version": "v6.0.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/string.git",
-                "reference": "3db7da820a6e4a584b714b3933c34c6a7db4d86c"
+                "reference": "d9e72497367c23e08bf94176d2be45b00a9d232a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/string/zipball/3db7da820a6e4a584b714b3933c34c6a7db4d86c",
-                "reference": "3db7da820a6e4a584b714b3933c34c6a7db4d86c",
+                "url": "https://api.github.com/repos/symfony/string/zipball/d9e72497367c23e08bf94176d2be45b00a9d232a",
+                "reference": "d9e72497367c23e08bf94176d2be45b00a9d232a",
                 "shasum": ""
             },
             "require": {
@@ -4979,7 +5278,7 @@
                 "utf8"
             ],
             "support": {
-                "source": "https://github.com/symfony/string/tree/v6.0.14"
+                "source": "https://github.com/symfony/string/tree/v6.0.19"
             },
             "funding": [
                 {
@@ -4995,7 +5294,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-10-10T09:34:08+00:00"
+            "time": "2023-01-01T08:36:10+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -5173,6 +5472,7 @@
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
         "automattic/jetpack-backup": 20,
+        "automattic/jetpack-blaze": 20,
         "automattic/jetpack-blocks": 20,
         "automattic/jetpack-compat": 20,
         "automattic/jetpack-composer-plugin": 20,
@@ -5181,8 +5481,11 @@
         "automattic/jetpack-constants": 20,
         "automattic/jetpack-device-detection": 20,
         "automattic/jetpack-error": 20,
+        "automattic/jetpack-forms": 20,
         "automattic/jetpack-google-fonts-provider": 20,
         "automattic/jetpack-identity-crisis": 20,
+        "automattic/jetpack-ip": 20,
+        "automattic/jetpack-import": 20,
         "automattic/jetpack-jitm": 20,
         "automattic/jetpack-lazy-images": 20,
         "automattic/jetpack-licensing": 20,

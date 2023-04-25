@@ -10,9 +10,9 @@ import {
 	SET_VIDEOS_QUERY,
 	SET_VIDEOS_FILTER,
 	WP_REST_API_MEDIA_ENDPOINT,
-	DELETE_VIDEO,
+	FLUSH_DELETED_VIDEOS,
 	REST_API_SITE_INFO_ENDPOINT,
-	PROCESSING_VIDEO,
+	SET_VIDEO_PROCESSING,
 	SET_LOCAL_VIDEOS_QUERY,
 	WP_REST_API_USERS_ENDPOINT,
 	WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT,
@@ -75,97 +75,100 @@ const getVideos = {
 		return state?.videos?._meta?.relyOnInitialState;
 	},
 
-	fulfill: () => async ( { dispatch, select, resolveSelect } ) => {
-		dispatch.setIsFetchingVideos( true );
+	fulfill:
+		() =>
+		async ( { dispatch, select, resolveSelect } ) => {
+			dispatch.setIsFetchingVideos( true );
 
-		let query = select.getVideosQuery();
-
-		/*
-		 * If there is no query:
-		 * - set the default query (dispatch)
-		 * - and use it to fetch the videos.
-		 */
-		if ( ! query ) {
-			query = getDefaultQuery();
-			dispatch.setVideosQuery( query );
-		}
-
-		// Map query to the format expected by the API.
-		const wpv2MediaQuery = {
-			order: query.order,
-			orderby: query.orderBy,
-			page: query.page,
-			per_page: query.itemsPerPage,
-			media_type: 'video',
-			mime_type: 'video/videopress',
-		};
-
-		if ( typeof query.search === 'string' && query.search.length > 0 ) {
-			wpv2MediaQuery.search = query.search;
-		}
-
-		const filter = select.getVideosFilter();
-
-		// Filter -> Rating
-		const videoPressRatingFilter = Object.keys( filter?.rating || {} )
-			.filter( key => filter.rating[ key ] )
-			.join( ',' );
-
-		if ( videoPressRatingFilter?.length ) {
-			wpv2MediaQuery.videopress_rating = videoPressRatingFilter;
-		}
-
-		// Filter -> Privacy
-		const videoPressPrivacyFilter = Object.keys( filter?.privacy || {} )
-			.filter( key => filter.privacy[ key ] )
-			.join( ',' );
-
-		if ( videoPressPrivacyFilter?.length ) {
-			wpv2MediaQuery.videopress_privacy_setting = videoPressPrivacyFilter;
-		}
-
-		// Filter -> Uploader
-		const videoPressUploaderFilter = Object.keys( filter?.uploader || {} )
-			.filter( key => filter.uploader[ key ] )
-			.join( ',' );
-
-		if ( videoPressUploaderFilter?.length ) {
-			wpv2MediaQuery.author = videoPressUploaderFilter;
-		}
-
-		try {
-			const response = await fetch(
-				addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
-			);
-
-			// pick the pagination data form response header...
-			const total = Number( response.headers.get( 'X-WP-Total' ) );
-			const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
-
-			// Update pagination and total uploaded videos count.
-			dispatch.setVideosPagination( { total, totalPages } );
-
-			// ... and the videos data from the response body.
-			const videos = await response.json();
+			let query = select.getVideosQuery();
 
 			/*
-			 * Map videos from the API to the format expected by the app,
-			 * and tokenize some data when the video is private.
+			 * If there is no query:
+			 * - set the default query (dispatch)
+			 * - and use it to fetch the videos.
 			 */
-			const mappedVideos = await Promise.all(
-				mapVideosFromWPV2MediaEndpoint( videos ).map( async video => {
-					return await populateVideoDataWithToken( video, resolveSelect, dispatch );
-				} )
-			);
+			if ( ! query ) {
+				query = getDefaultQuery();
+				dispatch.setVideosQuery( query );
+			}
 
-			dispatch.setVideos( mappedVideos );
-			return videos;
-		} catch ( error ) {
-			console.error( error ); // eslint-disable-line no-console
-		}
-	},
+			// Map query to the format expected by the API.
+			const wpv2MediaQuery = {
+				order: query.order,
+				orderby: query.orderBy,
+				page: query.page,
+				per_page: query.itemsPerPage,
+				media_type: 'video',
+				mime_type: 'video/videopress',
+			};
+
+			if ( typeof query.search === 'string' && query.search.length > 0 ) {
+				wpv2MediaQuery.search = query.search;
+			}
+
+			const filter = select.getVideosFilter();
+
+			// Filter -> Rating
+			const videoPressRatingFilter = Object.keys( filter?.rating || {} )
+				.filter( key => filter.rating[ key ] )
+				.join( ',' );
+
+			if ( videoPressRatingFilter?.length ) {
+				wpv2MediaQuery.videopress_rating = videoPressRatingFilter;
+			}
+
+			// Filter -> Privacy
+			const videoPressPrivacyFilter = Object.keys( filter?.privacy || {} )
+				.filter( key => filter.privacy[ key ] )
+				.join( ',' );
+
+			if ( videoPressPrivacyFilter?.length ) {
+				wpv2MediaQuery.videopress_privacy_setting = videoPressPrivacyFilter;
+			}
+
+			// Filter -> Uploader
+			const videoPressUploaderFilter = Object.keys( filter?.uploader || {} )
+				.filter( key => filter.uploader[ key ] )
+				.join( ',' );
+
+			if ( videoPressUploaderFilter?.length ) {
+				wpv2MediaQuery.author = videoPressUploaderFilter;
+			}
+
+			try {
+				const response = await fetch(
+					addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
+				);
+
+				// pick the pagination data form response header...
+				const total = Number( response.headers.get( 'X-WP-Total' ) );
+				const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
+
+				// Update pagination and total uploaded videos count.
+				dispatch.setVideosPagination( { total, totalPages } );
+
+				// ... and the videos data from the response body.
+				const videos = await response.json();
+
+				/*
+				 * Map videos from the API to the format expected by the app,
+				 * and tokenize some data when the video is private.
+				 */
+				const mappedVideos = await Promise.all(
+					mapVideosFromWPV2MediaEndpoint( videos ).map( async video => {
+						return await populateVideoDataWithToken( video, resolveSelect, dispatch );
+					} )
+				);
+
+				dispatch.setVideos( mappedVideos );
+				return videos;
+			} catch ( error ) {
+				console.error( error ); // eslint-disable-line no-console
+			}
+		},
+
 	shouldInvalidate: ( { type } ) => {
-		return type === SET_VIDEOS_QUERY || type === DELETE_VIDEO || type === SET_VIDEOS_FILTER;
+		return type === SET_VIDEOS_QUERY || type === FLUSH_DELETED_VIDEOS || type === SET_VIDEOS_FILTER;
 	},
 };
 
@@ -189,25 +192,28 @@ const getVideo = {
 
 		return video;
 	},
-	fulfill: id => async ( { dispatch, resolveSelect } ) => {
-		dispatch.setIsFetchingVideos( true );
 
-		try {
-			const video = await apiFetch( {
-				path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ id }` ),
-			} );
-			const mappedVideoData = await populateVideoDataWithToken(
-				mapVideoFromWPV2MediaEndpoint( video ),
-				resolveSelect,
-				dispatch
-			);
+	fulfill:
+		( id, addAtEnd = false ) =>
+		async ( { dispatch, resolveSelect } ) => {
+			dispatch.setIsFetchingVideos( true );
 
-			dispatch.setVideo( mappedVideoData );
-			return video;
-		} catch ( error ) {
-			console.error( error ); // eslint-disable-line no-console
-		}
-	},
+			try {
+				const video = await apiFetch( {
+					path: addQueryArgs( `${ WP_REST_API_MEDIA_ENDPOINT }/${ id }` ),
+				} );
+				const mappedVideoData = await populateVideoDataWithToken(
+					mapVideoFromWPV2MediaEndpoint( video ),
+					resolveSelect,
+					dispatch
+				);
+
+				dispatch.setVideo( mappedVideoData, addAtEnd );
+				return video;
+			} catch ( error ) {
+				console.error( error ); // eslint-disable-line no-console
+			}
+		},
 };
 
 const getUploadedVideoCount = {
@@ -215,33 +221,35 @@ const getUploadedVideoCount = {
 		return state?.videos?._meta?.relyOnInitialState;
 	},
 
-	fulfill: () => async ( { dispatch } ) => {
-		// Only the minimum necessary data
-		const wpv2MediaQuery = {
-			per_page: 1,
-			media_type: 'video',
-			mime_type: 'video/videopress',
-		};
+	fulfill:
+		() =>
+		async ( { dispatch } ) => {
+			// Only the minimum necessary data
+			const wpv2MediaQuery = {
+				per_page: 1,
+				media_type: 'video',
+				mime_type: 'video/videopress',
+			};
 
-		dispatch.setIsFetchingUploadedVideoCount( true );
+			dispatch.setIsFetchingUploadedVideoCount( true );
 
-		try {
-			const response = await fetch(
-				addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
-			);
+			try {
+				const response = await fetch(
+					addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
+				);
 
-			const total = Number( response.headers.get( 'X-WP-Total' ) );
+				const total = Number( response.headers.get( 'X-WP-Total' ) );
 
-			dispatch.setUploadedVideoCount( total );
+				dispatch.setUploadedVideoCount( total );
 
-			return total;
-		} catch ( error ) {
-			console.error( error ); // eslint-disable-line no-console
-		}
-	},
+				return total;
+			} catch ( error ) {
+				console.error( error ); // eslint-disable-line no-console
+			}
+		},
 
 	shouldInvalidate: action => {
-		return action.type === PROCESSING_VIDEO || action.type === DELETE_VIDEO;
+		return action.type === SET_VIDEO_PROCESSING || action.type === FLUSH_DELETED_VIDEOS;
 	},
 };
 
@@ -250,27 +258,29 @@ const getStorageUsed = {
 		return state?.videos?._meta?.relyOnInitialState;
 	},
 
-	fulfill: () => async ( { dispatch } ) => {
-		try {
-			const response = await apiFetch( { path: REST_API_SITE_INFO_ENDPOINT } );
-			if ( ! response?.options?.videopress_storage_used ) {
-				return;
+	fulfill:
+		() =>
+		async ( { dispatch } ) => {
+			try {
+				const response = await apiFetch( { path: REST_API_SITE_INFO_ENDPOINT } );
+				if ( ! response?.options?.videopress_storage_used ) {
+					return;
+				}
+
+				/*
+				 * Storage used in megabytes or null if not found.
+				 * Let's compute the value in bytes.
+				 */
+				const storageUsed = response.options.videopress_storage_used
+					? Math.round( Number( response.options.videopress_storage_used ) * 1000 * 1000 )
+					: 0;
+
+				dispatch.setVideosStorageUsed( storageUsed );
+			} catch ( error ) {
+				// @todo: handle error
+				console.error( error ); // eslint-disable-line no-console
 			}
-
-			/*
-			 * Storage used in megabytes or null if not found.
-			 * Let's compute the value in bytes.
-			 */
-			const storageUsed = response.options.videopress_storage_used
-				? Math.round( Number( response.options.videopress_storage_used ) * 1000 * 1000 )
-				: 0;
-
-			dispatch.setVideosStorageUsed( storageUsed );
-		} catch ( error ) {
-			// @todo: handle error
-			console.error( error ); // eslint-disable-line no-console
-		}
-	},
+		},
 };
 
 const getLocalVideos = {
@@ -278,51 +288,54 @@ const getLocalVideos = {
 		return state?.localVideos?._meta?.relyOnInitialState;
 	},
 
-	fulfill: () => async ( { dispatch, select } ) => {
-		let query = select.getLocalVideosQuery();
-		dispatch.setIsFetchingLocalVideos( true );
+	fulfill:
+		() =>
+		async ( { dispatch, select } ) => {
+			let query = select.getLocalVideosQuery();
+			dispatch.setIsFetchingLocalVideos( true );
 
-		/*
-		 * If there is no query:
-		 * - set the default query (dispatch)
-		 * - and use it to fetch the videos.
-		 */
-		if ( ! query ) {
-			query = getDefaultQuery();
-			dispatch.setVideosQuery( query );
-		}
+			/*
+			 * If there is no query:
+			 * - set the default query (dispatch)
+			 * - and use it to fetch the videos.
+			 */
+			if ( ! query ) {
+				query = getDefaultQuery();
+				dispatch.setVideosQuery( query );
+			}
 
-		// Map query to the format expected by the API.
-		const wpv2MediaQuery = {
-			order: query.order,
-			orderby: query.orderBy,
-			page: query.page,
-			per_page: query.itemsPerPage,
-			media_type: 'video',
-			no_videopress: true,
-		};
+			// Map query to the format expected by the API.
+			const wpv2MediaQuery = {
+				order: query.order,
+				orderby: query.orderBy,
+				page: query.page,
+				per_page: query.itemsPerPage,
+				media_type: 'video',
+				no_videopress: true,
+			};
 
-		if ( typeof query.search === 'string' && query.search.length > 0 ) {
-			wpv2MediaQuery.search = query.search;
-		}
+			if ( typeof query.search === 'string' && query.search.length > 0 ) {
+				wpv2MediaQuery.search = query.search;
+			}
 
-		try {
-			const response = await fetch(
-				addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
-			);
+			try {
+				const response = await fetch(
+					addQueryArgs( `${ apiRoot }${ WP_REST_API_MEDIA_ENDPOINT }`, wpv2MediaQuery )
+				);
 
-			const total = Number( response.headers.get( 'X-WP-Total' ) );
-			const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
+				const total = Number( response.headers.get( 'X-WP-Total' ) );
+				const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
 
-			dispatch.setLocalVideosPagination( { total, totalPages } );
+				dispatch.setLocalVideosPagination( { total, totalPages } );
 
-			const localVideos = await response.json();
-			dispatch.setLocalVideos( mapLocalVideosFromWPV2MediaEndpoint( localVideos ) );
-			return localVideos;
-		} catch ( error ) {
-			console.error( error ); // eslint-disable-line no-console
-		}
-	},
+				const localVideos = await response.json();
+				dispatch.setLocalVideos( mapLocalVideosFromWPV2MediaEndpoint( localVideos ) );
+				return localVideos;
+			} catch ( error ) {
+				console.error( error ); // eslint-disable-line no-console
+			}
+		},
+
 	shouldInvalidate: action => {
 		return action.type === SET_LOCAL_VIDEOS_QUERY;
 	},
@@ -333,37 +346,39 @@ const getUsers = {
 		return state?.users?._meta?.relyOnInitialState;
 	},
 
-	fulfill: () => async ( { dispatch } ) => {
-		dispatch.setIsFetchingLocalVideos( true );
+	fulfill:
+		() =>
+		async ( { dispatch } ) => {
+			dispatch.setIsFetchingLocalVideos( true );
 
-		try {
-			const response = await fetch( `${ apiRoot }${ WP_REST_API_USERS_ENDPOINT }` );
+			try {
+				const response = await fetch( `${ apiRoot }${ WP_REST_API_USERS_ENDPOINT }` );
 
-			const total = Number( response.headers.get( 'X-WP-Total' ) );
-			const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
-			dispatch.setUsersPagination( { total, totalPages } );
+				const total = Number( response.headers.get( 'X-WP-Total' ) );
+				const totalPages = Number( response.headers.get( 'X-WP-TotalPages' ) );
+				dispatch.setUsersPagination( { total, totalPages } );
 
-			const users = await response.json();
-			if ( ! users?.length ) {
-				return;
+				const users = await response.json();
+				if ( ! users?.length ) {
+					return;
+				}
+				dispatch.setUsers(
+					users.map( user => {
+						return {
+							id: user.id,
+							name: user.name,
+							slug: user.slug,
+							description: user.description,
+							link: user.link,
+							avatar: user.avatar_urls,
+						};
+					} )
+				);
+				return users;
+			} catch ( error ) {
+				console.error( error ); // eslint-disable-line no-console
 			}
-			dispatch.setUsers(
-				users.map( user => {
-					return {
-						id: user.id,
-						name: user.name,
-						slug: user.slug,
-						description: user.description,
-						link: user.link,
-						avatar: user.avatar_urls,
-					};
-				} )
-			);
-			return users;
-		} catch ( error ) {
-			console.error( error ); // eslint-disable-line no-console
-		}
-	},
+		},
 };
 
 const getPlaybackToken = {
@@ -371,28 +386,32 @@ const getPlaybackToken = {
 		const playbackTokens = state?.playbackTokens?.items ?? [];
 		return playbackTokens?.some( token => token?.guid === guid );
 	},
-	fulfill: guid => async ( { dispatch } ) => {
-		dispatch.setIsFetchingPlaybackToken( true );
 
-		try {
-			const playbackTokenResponse = await apiFetch( {
-				path: addQueryArgs( `${ WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT }/${ guid }` ),
-				method: 'POST',
-			} );
+	fulfill:
+		guid =>
+		async ( { dispatch } ) => {
+			dispatch.setIsFetchingPlaybackToken( true );
 
-			const playbackToken = {
-				guid,
-				token: playbackTokenResponse.playback_token,
-				issueTime: Date.now(),
-			};
+			try {
+				const playbackTokenResponse = await apiFetch( {
+					path: addQueryArgs( `${ WP_REST_API_VIDEOPRESS_PLAYBACK_TOKEN_ENDPOINT }/${ guid }` ),
+					method: 'POST',
+				} );
 
-			dispatch.setPlaybackToken( playbackToken );
+				const playbackToken = {
+					guid,
+					token: playbackTokenResponse.playback_token,
+					issueTime: Date.now(),
+				};
 
-			return playbackToken;
-		} catch ( error ) {
-			console.error( error ); // eslint-disable-line no-console
-		}
-	},
+				dispatch.setPlaybackToken( playbackToken );
+
+				return playbackToken;
+			} catch ( error ) {
+				console.error( error ); // eslint-disable-line no-console
+			}
+		},
+
 	shouldInvalidate: ( action, guid ) => {
 		return action.type === EXPIRE_PLAYBACK_TOKEN && action.guid === guid;
 	},
@@ -402,23 +421,25 @@ const getVideoPressSettings = {
 	isFulfilled: state => {
 		return state?.siteSettings !== undefined;
 	},
-	fulfill: () => async ( { dispatch } ) => {
-		try {
-			const { videopress_videos_private_for_site: videoPressVideosPrivateForSite } = await apiFetch(
-				{
-					path: addQueryArgs( `${ WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT }` ),
-					method: 'GET',
-				}
-			);
 
-			const videoPressSettings = { videoPressVideosPrivateForSite };
+	fulfill:
+		() =>
+		async ( { dispatch } ) => {
+			try {
+				const { videopress_videos_private_for_site: videoPressVideosPrivateForSite } =
+					await apiFetch( {
+						path: addQueryArgs( `${ WP_REST_API_VIDEOPRESS_SETTINGS_ENDPOINT }` ),
+						method: 'GET',
+					} );
 
-			dispatch.setVideoPressSettings( videoPressSettings );
-			return videoPressSettings;
-		} catch ( error ) {
-			console.error( error ); // eslint-disable-line no-console
-		}
-	},
+				const videoPressSettings = { videoPressVideosPrivateForSite };
+
+				dispatch.setVideoPressSettings( videoPressSettings );
+				return videoPressSettings;
+			} catch ( error ) {
+				console.error( error ); // eslint-disable-line no-console
+			}
+		},
 };
 
 export default {

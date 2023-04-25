@@ -5,12 +5,18 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"automattic/jetpack-constants": "@dev",
-		"automattic/jetpack-options": "@dev"
+		"automattic/jetpack-options": "@dev",
+		"automattic/jetpack-stats": "@dev",
+		"automattic/jetpack-status": "@dev",
+		"automattic/jetpack-jitm": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
 		"automattic/wordbless": "dev-master"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -21,15 +27,13 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
 		"test-php": [
 			"@composer phpunit"
 		],
 		"build-production": "echo 'Add your build step to composer.json, please!'",
 		"build-development": "echo 'Add your build step to composer.json, please!'",
-		"post-update-cmd": "php -r \"copy('vendor/automattic/wordbless/src/dbless-wpdb.php', 'wordpress/wp-content/db.php');\""
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
 	"repositories": [
 		{
@@ -46,7 +50,7 @@
 		"autotagger": true,
 		"mirror-repo": "Automattic/jetpack-stats-admin",
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "0.7.x-dev"
 		},
 		"textdomain": "jetpack-stats-admin",
 		"version-constants": {

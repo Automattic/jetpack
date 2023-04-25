@@ -25,7 +25,6 @@ class Test_Products extends TestCase {
 		if ( version_compare( phpversion(), '5.7', '<=' ) ) {
 			$this->markTestSkipped( 'avoid bug in PHP 5.6 that throws strict mode warnings for abstract static methods.' );
 		}
-
 	}
 
 	/**

@@ -1,11 +1,12 @@
-import PageActions from '../../page-actions.js';
+import EditorCanvas from './editor-canvas.js';
+import { expect } from '@playwright/test';
+import { BlockEditorPage } from '../index.js';
 
-export default class SimplePaymentBlock extends PageActions {
+export default class SimplePaymentBlock extends EditorCanvas {
 	constructor( blockId, page ) {
 		super( page, 'Pay with PayPal block' );
 		this.blockTitle = SimplePaymentBlock.title();
 		this.page = page;
-		this.blockSelector = '#block-' + blockId;
 	}
 
 	static name() {
@@ -14,6 +15,27 @@ export default class SimplePaymentBlock extends PageActions {
 
 	static title() {
 		return 'Pay with PayPal';
+	}
+
+	async insertBlock() {
+		const blockEditor = new BlockEditorPage( this.page );
+
+		const responsePromise = this.page.waitForResponse(
+			r =>
+				decodeURIComponent( decodeURIComponent( r.url() ) ).match( /jp_pay_product/ ) &&
+				r.request().method() === 'POST',
+			{ timeout: 30000 }
+		);
+		const blockId = await blockEditor.insertBlock(
+			SimplePaymentBlock.name(),
+			SimplePaymentBlock.title()
+		);
+		const response = await responsePromise;
+
+		expect( response.ok(), 'Response status should be ok' ).toBeTruthy();
+
+		this.blockId = blockId;
+		return blockId;
 	}
 
 	async fillDetails( {
@@ -27,14 +49,14 @@ export default class SimplePaymentBlock extends PageActions {
 		const priceSelector = this.getSelector( '.simple-payments__field-price input' );
 		const emailSelector = this.getSelector( '.simple-payments__field-email input' );
 
-		await this.fill( titleSelector, title );
-		await this.fill( descriptionSelector, description );
-		await this.fill( priceSelector, price );
-		await this.fill( emailSelector, email );
+		await this.canvas().fill( titleSelector, title );
+		await this.canvas().fill( descriptionSelector, description );
+		await this.canvas().fill( priceSelector, price );
+		await this.canvas().fill( emailSelector, email );
 	}
 
 	getSelector( selector ) {
-		return `${ this.blockSelector } ${ selector }`;
+		return `${ '#block-' + this.blockId } ${ selector }`;
 	}
 
 	/**
@@ -43,8 +65,6 @@ export default class SimplePaymentBlock extends PageActions {
 	 * @param {page} page Playwright page instance
 	 */
 	static async isRendered( page ) {
-		const containerSelector = '.jetpack-simple-payments-product';
-
-		await page.waitForSelector( containerSelector );
+		await page.waitForSelector( '.jetpack-simple-payments-product' );
 	}
 }

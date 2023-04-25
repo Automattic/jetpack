@@ -305,7 +305,7 @@ class Instant_Search extends Classic_Search {
 		do_action( 'did_jetpack_search_query', $query );
 
 		// Update local cache.
-		set_transient( $transient_name, $response, 1 * HOUR_IN_SECONDS );
+		set_transient( $transient_name, $response, 4 * HOUR_IN_SECONDS );
 
 		return $response;
 	}

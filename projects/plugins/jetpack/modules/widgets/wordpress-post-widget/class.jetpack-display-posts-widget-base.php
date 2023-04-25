@@ -152,7 +152,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		 */
 		$number_of_posts = min( $instance['number_of_posts'], count( $posts_list ) );
 
-		for ( $i = 0; $i < $number_of_posts; $i ++ ) {
+		for ( $i = 0; $i < $number_of_posts; $i++ ) {
 			$single_post = $posts_list[ $i ];
 			$post_title  = ( $single_post['title'] ) ? $single_post['title'] : '( No Title )';
 
@@ -259,7 +259,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 			<label for="<?php echo esc_attr( $this->get_field_id( 'number_of_posts' ) ); ?>"><?php esc_html_e( 'Number of Posts to Display:', 'jetpack' ); ?></label>
 			<select name="<?php echo esc_attr( $this->get_field_name( 'number_of_posts' ) ); ?>">
 				<?php
-				for ( $i = 1; $i <= 10; $i ++ ) {
+				for ( $i = 1; $i <= 10; $i++ ) {
 					echo '<option value="' . esc_attr( $i ) . '" ' . selected( $number_of_posts, $i ) . '>' . esc_html( $i ) . '</option>';
 				}
 				?>

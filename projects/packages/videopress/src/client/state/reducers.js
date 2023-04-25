@@ -19,9 +19,9 @@ import {
 	SET_VIDEOS_STORAGE_USED,
 	REMOVE_VIDEO,
 	DELETE_VIDEO,
-	UPLOADING_VIDEO,
-	PROCESSING_VIDEO,
-	UPLOADED_VIDEO,
+	SET_VIDEO_UPLOADING,
+	SET_VIDEO_PROCESSING,
+	SET_VIDEO_UPLOADED,
 	SET_IS_FETCHING_PURCHASES,
 	SET_PURCHASES,
 	UPDATE_VIDEO_PRIVACY,
@@ -40,6 +40,10 @@ import {
 	SET_VIDEO_UPLOAD_PROGRESS,
 	EXPIRE_PLAYBACK_TOKEN,
 	SET_VIDEOPRESS_SETTINGS,
+	DISMISS_FIRST_VIDEO_POPOVER,
+	FLUSH_DELETED_VIDEOS,
+	UPDATE_PAGINATION_AFTER_DELETE,
+	UPDATE_VIDEO_IS_PRIVATE,
 } from './constants';
 
 /**
@@ -131,13 +135,13 @@ const videos = ( state, action ) => {
 		}
 
 		case SET_VIDEO: {
-			const { video } = action;
+			const { video, addAtEnd = false } = action;
 			const items = [ ...( state.items ?? [] ) ]; // Clone the array, to avoid mutating the state.
 			const videoIndex = items.findIndex( item => item.id === video.id );
 
 			if ( videoIndex === -1 ) {
-				// Add video when not found at beginning of the list.
-				items.unshift( video );
+				// Add video to the list when not found, at the end or at the beginning by default
+				addAtEnd ? items.push( video ) : items.unshift( video );
 			} else {
 				// Update video when found
 				items[ videoIndex ] = {
@@ -220,6 +224,27 @@ const videos = ( state, action ) => {
 			};
 		}
 
+		case UPDATE_VIDEO_IS_PRIVATE: {
+			const { id, isPrivate } = action;
+			const items = [ ...( state.items ?? [] ) ];
+			const videoIndex = items.findIndex( item => item.id === id );
+
+			if ( videoIndex < 0 ) {
+				return state;
+			}
+
+			// Set isPrivate on video state
+			items[ videoIndex ] = {
+				...items[ videoIndex ],
+				isPrivate,
+			};
+
+			return {
+				...state,
+				items,
+			};
+		}
+
 		/*
 		 * REMOVE_VIDEO is the action trigger
 		 * right after the user tries to remove the video,
@@ -245,10 +270,14 @@ const videos = ( state, action ) => {
 			return {
 				...state,
 				// Do not remove the video from the list, just update the meta data.
-				// Keep here in caswe we want to do it in the future.
+				// Keep here in case we want to do it in the future.
 				// items: [ ...state.items.slice( 0, videoIndex ), ...state.items.slice( videoIndex + 1 ) ],
 				_meta: {
 					...state._meta,
+					videosBeingRemoved: [
+						{ id, processed: false, deleted: false },
+						...( state._meta.videosBeingRemoved ?? [] ),
+					],
 					items: {
 						..._metaItems,
 						[ id ]: {
@@ -268,10 +297,24 @@ const videos = ( state, action ) => {
 			const { id, hasBeenDeleted, video: deletedVideo } = action;
 			const _metaItems = state?._meta?.items || [];
 			const _metaVideo = _metaItems[ id ] || {};
-			const uploadedVideoCount = state.uploadedVideoCount - 1;
+			const videosBeingRemoved = [ ...( state._meta.videosBeingRemoved ?? [] ) ];
+			const removedVideoIndex = videosBeingRemoved.findIndex( item => item.id === id );
 
-			if ( ! _metaVideo ) {
+			if ( ! _metaVideo || removedVideoIndex < 0 ) {
 				return state;
+			}
+
+			videosBeingRemoved[ removedVideoIndex ].processed = true;
+			videosBeingRemoved[ removedVideoIndex ].deleted = hasBeenDeleted;
+
+			const processedAllVideosBeingRemoved =
+				videosBeingRemoved.filter( item => ! item.processed ).length === 0;
+
+			let uploadedVideoCount = state.uploadedVideoCount ?? 0;
+
+			if ( processedAllVideosBeingRemoved ) {
+				const videosBeingRemovedCount = videosBeingRemoved.filter( item => item.deleted ).length;
+				uploadedVideoCount = uploadedVideoCount - videosBeingRemovedCount;
 			}
 
 			return {
@@ -279,16 +322,61 @@ const videos = ( state, action ) => {
 				uploadedVideoCount,
 				_meta: {
 					...state._meta,
-					relyOnInitialState: false,
+					videosBeingRemoved,
+					processedAllVideosBeingRemoved,
 					items: {
 						..._metaItems,
 						[ id ]: {
 							..._metaVideo,
-							isDeleting: false,
 							hasBeenDeleted,
 							deletedVideo,
 						},
 					},
+				},
+			};
+		}
+
+		case FLUSH_DELETED_VIDEOS: {
+			return {
+				...state,
+				_meta: {
+					...state._meta,
+					videosBeingRemoved: [],
+					relyOnInitialState: false,
+				},
+			};
+		}
+
+		/*
+		 * Check if query and pagination should change
+		 * after deleting video
+		 */
+		case UPDATE_PAGINATION_AFTER_DELETE: {
+			const { items = [], query = {}, pagination = {}, _meta = {} } = state;
+			const { videosBeingRemoved = [] } = _meta;
+			const videosBeingRemovedCount = videosBeingRemoved.filter( item => item.deleted ).length;
+
+			// If the last videos of the page are deleted, reduce the page by 1
+			// Being optimistic here
+			const areLastVideos = items?.length === videosBeingRemovedCount;
+			const currentPage = query?.page ?? 1;
+			const currentTotalPage = pagination?.totalPages ?? 1;
+			const currentTotal = pagination?.total;
+
+			const page = areLastVideos && currentPage > 1 ? currentPage - 1 : currentPage;
+			const totalPages =
+				areLastVideos && currentTotalPage > 1 ? currentTotalPage - 1 : currentTotalPage;
+
+			return {
+				...state,
+				query: {
+					...query,
+					page,
+				},
+				pagination: {
+					...pagination,
+					total: currentTotal - 1,
+					totalPages,
 				},
 			};
 		}
@@ -315,7 +403,7 @@ const videos = ( state, action ) => {
 			};
 		}
 
-		case UPLOADING_VIDEO: {
+		case SET_VIDEO_UPLOADING: {
 			const { id, title } = action;
 			const currentMeta = state?._meta || {};
 			const currentMetaItems = currentMeta?.items || {};
@@ -336,7 +424,7 @@ const videos = ( state, action ) => {
 			};
 		}
 
-		case PROCESSING_VIDEO: {
+		case SET_VIDEO_PROCESSING: {
 			const { id, data } = action;
 			const query = state?.query ?? getDefaultQuery();
 			const pagination = { ...state.pagination };
@@ -350,7 +438,16 @@ const videos = ( state, action ) => {
 
 			let total = state?.uploadedVideoCount ?? 0;
 
-			// Not update total and pagination if user is searching or not in the first page.
+			let firstUploadedVideoId = state?.firstUploadedVideoId ?? null;
+			let firstVideoProcessed = state?.firstVideoProcessed ?? false;
+			let dismissedFirstVideoPopover = state?.dismissedFirstVideoPopover ?? false;
+			if ( total === 0 ) {
+				firstUploadedVideoId = data.id;
+				firstVideoProcessed = false;
+				dismissedFirstVideoPopover = false;
+			}
+
+			// Don't update total and pagination if user is searching or not in the first page.
 			if ( query?.page === 1 && ! query?.search ) {
 				// Updating pagination and count
 				total = ( state?.uploadedVideoCount ?? 0 ) + 1;
@@ -375,6 +472,9 @@ const videos = ( state, action ) => {
 				...state,
 				items,
 				uploadedVideoCount: total,
+				firstUploadedVideoId,
+				firstVideoProcessed,
+				dismissedFirstVideoPopover,
 				pagination,
 				_meta: {
 					...currentMeta,
@@ -383,20 +483,30 @@ const videos = ( state, action ) => {
 			};
 		}
 
-		case UPLOADED_VIDEO: {
+		case SET_VIDEO_UPLOADED: {
 			const { video } = action;
 			const items = [ ...( state?.items ?? [] ) ];
 			const videoIndex = items.findIndex( item => item.id === video.id );
 
+			const firstUploadedVideoId = state?.firstUploadedVideoId ?? null;
+			let firstVideoProcessed = state?.firstVideoProcessed ?? null;
+			if ( video.id === firstUploadedVideoId ) {
+				firstVideoProcessed = true;
+			}
+
 			// Probably user is searching or in another page than first
 			if ( videoIndex === -1 ) {
-				return state;
+				return {
+					...state,
+					firstVideoProcessed,
+				};
 			}
 
 			items[ videoIndex ] = video;
 
 			return {
 				...state,
+				firstVideoProcessed,
 				items,
 			};
 		}
@@ -470,6 +580,14 @@ const videos = ( state, action ) => {
 						},
 					},
 				},
+			};
+		}
+
+		case DISMISS_FIRST_VIDEO_POPOVER: {
+			return {
+				...state,
+				dismissedFirstVideoPopover: true,
+				firstUploadedVideoId: null,
 			};
 		}
 

@@ -2,6 +2,142 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.32.0 - 2023-04-25
+### Added
+- Add a Toggle component. [#30166]
+- Add Status component. [#30166]
+
+### Fixed
+- RNA: Fix button box-shadow radius on Linux build of Firefox [#30249]
+
+## 0.31.6 - 2023-04-19
+### Changed
+- Updated package dependencies. [#30015]
+
+### Removed
+- Remove WordPress 6.0 backwards-compatibility code. [#30126]
+
+## 0.31.5 - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+### Fixed
+- Set Term of service links whitespace to no wrap. [#29683]
+
+## 0.31.4 - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## 0.31.3 - 2023-04-03
+### Changed
+- Minor internal updates.
+
+## 0.31.2 - 2023-03-29
+### Changed
+- Minor internal updates.
+
+## 0.31.1 - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## 0.31.0 - 2023-03-27
+### Changed
+- Added option for CUT component to have a tooltip [#29609]
+
+## 0.30.2 - 2023-03-23
+### Changed
+- Updated package dependencies.
+
+## 0.30.1 - 2023-03-20
+### Changed
+- RNA: tweak secondary button styling [#29475]
+- Updated package dependencies. [#29471]
+
+## 0.30.0 - 2023-03-13
+### Added
+- Add Zendesk chat module to My Jetpack page [#28712]
+
+### Changed
+- Updated pricing table component to allow a custom tooltip class. Will allow more flexibility over styling individual tooltips. [#29250]
+
+## 0.29.0 - 2023-03-08
+### Added
+- Add loading placeholder component into js-packages [#29270]
+
+### Changed
+- Updated package dependencies. [#29216]
+
+## 0.28.0 - 2023-02-28
+### Added
+- Added arrow-left and arrow-right icons to the Gridicon component [#28826]
+- JS Components: add Mastodon icon [#28987]
+- JS Components: add pricing-utils folder to store pricing-related helper functions. [#29139]
+
+### Fixed
+- Revise Jetpack connection agreement text to comply with our User Agreement [#28403]
+- Update React peer dependencies to match updated dev dependencies. [#28924]
+
+## 0.27.7 - 2023-02-20
+### Fixed
+- Changed wrong version [#28824]
+- Use External Link icons for external links [#28922]
+
+## 0.27.6 - 2023-02-15
+### Changed
+- Editing changelog for Jetpack 11.9-a.3 [#28971]
+
+### Fixed
+- Fixed a circular dependency reference [#28937]
+
+## 0.27.5 - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## 0.27.4 - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682, #28700]
+
+## 0.27.3 - 2023-01-26
+### Changed
+- Use `flex-start` instead of `start` for better browser compatibility. [#28530]
+
+## 0.27.2 - 2023-01-25
+### Changed
+- Minor internal updates.
+
+## 0.27.1 - 2023-01-23
+### Fixed
+- Components: Fix usage of box-sizing across the elements [#28489]
+
+## 0.27.0 - 2023-01-18
+### Added
+- Added Advanced Social plan to pricing table [#28258]
+
+## 0.26.5 - 2023-01-11
+### Changed
+- Updated package dependencies.
+
+## 0.26.4 - 2022-12-19
+### Added
+- Add Jetpack VaultPress Backup Logo [#27802]
+- Add Jetpack VideoPress logo [#27807]
+
+### Changed
+- Update Backup, Anti-spam, and VideoPress logos [#27847]
+- Updated package dependencies. [#27916]
+
+## 0.26.3 - 2022-12-12
+### Changed
+- Updated package dependencies. [#27888]
+
+## 0.26.2 - 2022-12-12
+### Added
+- RNA: Add props to ActionPopover related to link on action button [#27714]
+
+## 0.26.1 - 2022-12-02
+### Changed
+- Updated package dependencies. [#27699]
+
 ## 0.26.0 - 2022-11-30
 ### Added
 - RNA: Add ActionPopover component [#27656]

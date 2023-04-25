@@ -10,6 +10,8 @@
  * phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -105,6 +107,7 @@ class Sharing_Service {
 			'telegram'         => 'Share_Telegram',
 			'jetpack-whatsapp' => 'Jetpack_Share_WhatsApp',
 			'skype'            => 'Share_Skype',
+			'mastodon'         => 'Share_Mastodon',
 		);
 
 		if ( is_multisite() && is_plugin_active( 'press-this/press-this-plugin.php' ) ) {
@@ -581,8 +584,8 @@ class Sharing_Service {
 
 		$ret = wp_cache_get( $cache_key, 'sharing' );
 		if ( $ret === false ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
-			$ret = (int) $wpdb->get_var( $sql ); // db call ok
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery -- Prepared above.
+			$ret = (int) $wpdb->get_var( $sql );
 			wp_cache_set( $cache_key, $ret, 'sharing', 5 * MINUTE_IN_SECONDS );
 		}
 		return $ret;
@@ -621,7 +624,7 @@ class Sharing_Service {
 		$cache_key = "sharing_service_get_posts_total_{$blog_id}";
 		$my_data   = wp_cache_get( $cache_key, 'sharing' );
 		if ( $my_data === false ) {
-			$my_data = $wpdb->get_results( $wpdb->prepare( 'SELECT post_id as id, SUM( count ) as total FROM sharing_stats WHERE blog_id = %d GROUP BY post_id ORDER BY count DESC ', $blog_id ) ); // db call ok
+			$my_data = $wpdb->get_results( $wpdb->prepare( 'SELECT post_id as id, SUM( count ) as total FROM sharing_stats WHERE blog_id = %d GROUP BY post_id ORDER BY count DESC ', $blog_id ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 			wp_cache_set( $cache_key, $my_data, 'sharing', 5 * MINUTE_IN_SECONDS );
 		}
 
@@ -901,7 +904,6 @@ function sharing_add_header() {
 		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) . 'sharing.css', array(), JETPACK__VERSION );
 		wp_enqueue_style( 'social-logos' );
 	}
-
 }
 add_action( 'wp_head', 'sharing_add_header', 1 );
 
@@ -958,8 +960,7 @@ function sharing_display( $text = '', $echo = false ) {
 	}
 
 	// Prevent from rendering sharing buttons in block which is fetched from REST endpoint by editor
-	if ( defined( 'REST_REQUEST' ) && REST_REQUEST &&
-		isset( $_GET['context'] ) && 'edit' === $_GET['context'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
 		return $text;
 	}
 
@@ -1164,7 +1165,6 @@ function sharing_display( $text = '', $echo = false ) {
 					$sharing_content .= '<ul>';
 				}
 
-				$count = 1;
 				foreach ( $enabled['hidden'] as $service ) {
 					// Individual HTML for sharing service.
 					$klasses = array( 'share-' . $service->get_class() );
@@ -1177,12 +1177,6 @@ function sharing_display( $text = '', $echo = false ) {
 					$sharing_content .= '<li class="' . implode( ' ', $klasses ) . '">';
 					$sharing_content .= $service->get_display( $post );
 					$sharing_content .= '</li>';
-
-					if ( ( $count % 2 ) === 0 ) {
-						$sharing_content .= '<li class="share-end"></li>';
-					}
-
-					$count ++;
 				}
 
 				// End of wrapper.

@@ -51,7 +51,6 @@ class Protect_Helper {
 				add_filter( 'pre_http_request', array( $this, 'filter_status_fetch' ), 10, 3 );
 			}
 		}
-
 	}
 
 	/**
@@ -201,7 +200,6 @@ class Protect_Helper {
 	 */
 	public function display_protect_overwritten_notice() {
 		echo '<div class="notice notice-warning"><p>Jetpack Protect Status is being overwritten by the Jetpack Debug Helper plugin.</p></div>';
-
 	}
 
 	/**
@@ -264,7 +262,6 @@ class Protect_Helper {
 		}
 
 		return $response;
-
 	}
 
 	/**
@@ -431,11 +428,10 @@ class Protect_Helper {
 								  leo, eget blandit nunc tortor eu nibh. Nullam mollis. Ut justo. Suspendisse potenti.',
 				'fixed_in'    => '3.14.2',
 			);
-			$current_index ++;
+			++$current_index;
 		}
 
 		return $vuls;
-
 	}
 
 	/**

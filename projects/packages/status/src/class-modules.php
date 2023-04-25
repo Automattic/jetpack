@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Constants as Constants;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 
 /**
  * Class Automattic\Jetpack\Modules
@@ -79,9 +80,8 @@ class Modules {
 			if ( $mod['module_tags'] ) {
 				$mod['module_tags'] = explode( ',', $mod['module_tags'] );
 				$mod['module_tags'] = array_map( 'trim', $mod['module_tags'] );
-				$mod['module_tags'] = array_map( 'jetpack_get_module_i18n_tag', $mod['module_tags'] );
 			} else {
-				$mod['module_tags'] = array( jetpack_get_module_i18n_tag( 'Other' ) );
+				$mod['module_tags'] = array( 'Other' );
 			}
 
 			if ( $mod['plan_classes'] ) {
@@ -95,7 +95,7 @@ class Modules {
 				$mod['feature'] = explode( ',', $mod['feature'] );
 				$mod['feature'] = array_map( 'trim', $mod['feature'] );
 			} else {
-				$mod['feature'] = array( jetpack_get_module_i18n_tag( 'Other' ) );
+				$mod['feature'] = array( 'Other' );
 			}
 
 			$modules_details[ $module ] = $mod;
@@ -416,11 +416,17 @@ class Modules {
 
 				// Check and see if the old plugin is active.
 				if ( isset( $jetpack->plugins_to_deactivate[ $module ] ) ) {
-					// Deactivate the old plugin.
-					if ( \Jetpack_Client_Server::deactivate_plugin( $jetpack->plugins_to_deactivate[ $module ][0], $jetpack->plugins_to_deactivate[ $module ][1] ) ) {
-						// If we deactivated the old plugin, remembere that with ::state() and redirect back to this page to activate the module
-						// We can't activate the module on this page load since the newly deactivated old plugin is still loaded on this page load.
-						$state->state( 'deactivated_plugins', $module );
+					// Deactivate the old plugins.
+					$deactivated = array();
+					foreach ( $jetpack->plugins_to_deactivate[ $module ] as $idx => $deactivate_me ) {
+						if ( \Jetpack_Client_Server::deactivate_plugin( $deactivate_me[0], $deactivate_me[1] ) ) {
+							// If we deactivated the old plugin, remembere that with ::state() and redirect back to this page to activate the module
+							// We can't activate the module on this page load since the newly deactivated old plugin is still loaded on this page load.
+							$deactivated[] = "$module:$idx";
+						}
+					}
+					if ( $deactivated ) {
+						$state->state( 'deactivated_plugins', join( ',', $deactivated ) );
 						wp_safe_redirect( add_query_arg( 'jetpack_restate', 1 ) );
 						exit;
 					}
@@ -428,9 +434,8 @@ class Modules {
 			}
 
 			// Protect won't work with mis-configured IPs.
-			if ( 'protect' === $module && Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
-				include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
-				if ( ! jetpack_protect_get_ip() ) {
+			if ( 'protect' === $module ) {
+				if ( ! IP_Utils::get_ip() ) {
 					$state->state( 'message', 'protect_misconfigured_ip' );
 					return false;
 				}

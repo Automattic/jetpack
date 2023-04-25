@@ -8,24 +8,28 @@
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-config": "@dev",
 		"automattic/jetpack-assets": "@dev",
-		"automattic/jetpack-redirect": "@dev"
+		"automattic/jetpack-redirect": "@dev",
+		"automattic/jetpack-plans": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.0"
+		"automattic/wordbless": "0.4.2"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
 			"src/"
+		],
+		"files": [
+			"src/social-image-generator/utilities.php"
 		]
 	},
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -58,7 +62,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.18.x-dev"
+			"dev-trunk": "0.25.x-dev"
 		}
 	},
 	"config": {

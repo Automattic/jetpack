@@ -17,7 +17,6 @@ infrastructureFileSets.base = new Set( [
 infrastructureFileSets.test = new Set( [
 	...infrastructureFileSets.base,
 	'.github/files/generate-ci-matrix.php',
-	'.github/files/process-coverage.sh',
 	'.github/files/setup-wordpress-env.sh',
 	'.github/workflows/tests.yml',
 ] );
@@ -74,6 +73,10 @@ export function builder( yargs ) {
 			describe: 'Ignore the monorepo root.',
 			type: 'boolean',
 		} )
+		.option( 'no-dev', {
+			describe: 'Do not consider dev dependencies.',
+			type: 'boolean',
+		} )
 		.option( 'pretty', {
 			describe: 'Pretty-print JSON or build-order output.',
 			type: 'boolean',
@@ -86,7 +89,7 @@ export function builder( yargs ) {
  * @param {object} argv - the arguments passed.
  */
 export async function handler( argv ) {
-	let deps = await getDependencies( process.cwd(), argv.extra );
+	let deps = await getDependencies( process.cwd(), argv.extra, argv.dev === false );
 
 	if ( argv.ignoreRoot ) {
 		deps.delete( 'monorepo' );

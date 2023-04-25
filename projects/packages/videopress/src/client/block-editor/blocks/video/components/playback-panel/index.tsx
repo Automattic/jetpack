@@ -1,9 +1,9 @@
 /**
  *External dependencies
  */
-import { ExternalLink, PanelBody, RadioControl, ToggleControl } from '@wordpress/components';
+import { ExternalLink, PanelBody, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement, useCallback } from '@wordpress/element';
-import { __, _x } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -21,41 +21,62 @@ import type React from 'react';
  * @returns {React.ReactElement}      Playback block sidebar panel
  */
 export default function PlaybackPanel( { attributes, setAttributes }: VideoControlProps ) {
-	const { autoplay, loop, muted, controls, playsinline, preload } = attributes;
+	const { autoplay, loop, muted, controls, playsinline, preload, posterData } = attributes;
+
+	// Is Preview On Hover effect enabled?
+	const isPreviewOnHoverEnabled = posterData?.previewOnHover;
 
 	const handleAttributeChange = useCallback(
-		( attributeName: string ) => {
+		( attributeName: string, attributeValue?: string ) => {
 			return newValue => {
-				setAttributes( { [ attributeName ]: newValue } );
+				setAttributes( { [ attributeName ]: attributeValue ?? newValue } );
 			};
 		},
 		[ setAttributes ]
 	);
+
+	const AutoplayHelp = () => {
+		/*
+		 * If the preview on hover effect is enabled,
+		 * we want to let the user know that the autoplay
+		 * option is not available.
+		 */
+		if ( isPreviewOnHoverEnabled ) {
+			return (
+				<span className={ styles[ 'help-message' ] }>
+					{ __(
+						'Autoplay is turned off as the preview on hover is active.',
+						'jetpack-videopress-pkg'
+					) }
+				</span>
+			);
+		}
+
+		return (
+			<>
+				<span className={ styles[ 'help-message' ] }>
+					{ __( 'Start playing the video as soon as the page loads.', 'jetpack-videopress-pkg' ) }
+				</span>
+				{ autoplay && (
+					<span className={ styles[ 'help-message' ] }>
+						{ __(
+							'Note: Autoplaying videos may cause usability issues for some visitors.',
+							'jetpack-videopress-pkg'
+						) }
+					</span>
+				) }
+			</>
+		);
+	};
 
 	return (
 		<PanelBody title={ __( 'Playback', 'jetpack-videopress-pkg' ) }>
 			<ToggleControl
 				label={ __( 'Autoplay', 'jetpack-videopress-pkg' ) }
 				onChange={ handleAttributeChange( 'autoplay' ) }
-				checked={ autoplay }
-				help={
-					<>
-						<span className={ styles[ 'help-message' ] }>
-							{ __(
-								'Start playing the video as soon as the page loads.',
-								'jetpack-videopress-pkg'
-							) }
-						</span>
-						{ autoplay && (
-							<span className={ styles[ 'help-message' ] }>
-								{ __(
-									'Note: Autoplaying videos may cause usability issues for some visitors.',
-									'jetpack-videopress-pkg'
-								) }
-							</span>
-						) }
-					</>
-				}
+				checked={ autoplay && ! isPreviewOnHoverEnabled }
+				disabled={ isPreviewOnHoverEnabled }
+				help={ <AutoplayHelp /> }
 			/>
 
 			<ToggleControl
@@ -88,40 +109,19 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 				) }
 			/>
 
-			<RadioControl
-				label={ __( 'Preload', 'jetpack-videopress-pkg' ) }
-				selected={ preload }
-				onChange={ value => setAttributes( { preload: value } ) }
-				options={ [
-					{
-						value: 'metadata',
-						label: _x( 'Metadata', 'VideoPress preload setting', 'jetpack-videopress-pkg' ),
-					},
-					{
-						value: 'none',
-						label: _x( 'None', 'VideoPress preload setting', 'jetpack-videopress-pkg' ),
-					},
-					{
-						value: 'auto',
-						label: _x( 'Auto', 'VideoPress preload setting', 'jetpack-videopress-pkg' ),
-					},
-				] }
-				help={
-					<>
-						<span className={ styles[ 'help-message' ] }>
-							{ __( 'Content to download before the video is played.', 'jetpack-videopress-pkg' ) }
-						</span>
-						{ preload === 'auto' && (
-							<span className={ styles[ 'help-message' ] }>
-								{ __(
-									'Note: Automatically downloading videos may cause issues if there are many videos displayed on the same page.',
-									'jetpack-videopress-pkg'
-								) }
-							</span>
-						) }
-					</>
-				}
+			<ToggleControl
+				label={ __( 'Preload Metadata', 'jetpack-videopress-pkg' ) }
+				onChange={ handleAttributeChange(
+					'preload',
+					preload === 'metadata' ? 'none' : 'metadata'
+				) }
+				checked={ preload === 'metadata' }
+				help={ __(
+					'Preload the video metadata when the page is loaded.',
+					'jetpack-videopress-pkg'
+				) }
 			/>
+
 			{ createInterpolateElement(
 				__( 'Send us your <a>VideoPress feedback</a>', 'jetpack-videopress-pkg' ),
 				{

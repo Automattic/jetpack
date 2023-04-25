@@ -24,20 +24,25 @@ class Test_REST_Controller extends Stats_Test_Case {
 		'/jetpack/v4/stats-app/sites/999/stats/top-authors',
 		'/jetpack/v4/stats-app/sites/999/stats/video-plays',
 		'/jetpack/v4/stats-app/sites/999/posts',
+		'/jetpack/v4/stats-app/sites/999/posts/1000',
+		'/jetpack/v4/stats-app/sites/999/posts/1000/likes',
 		'/jetpack/v4/stats-app/sites/999/stats/streak',
 		'/jetpack/v4/stats-app/sites/999/stats/tags',
 		'/jetpack/v4/stats-app/sites/999/stats/followers',
+		'/jetpack/v4/stats-app/sites/999/stats/file-downloads',
+		'/jetpack/v4/stats-app/sites/999/stats/insights',
 		'/jetpack/v4/stats-app/sites/999/stats/publicize',
 		'/jetpack/v4/stats-app/sites/999/stats/comments',
-		'/jetpack/v4/stats-app/sites/999/stats/comment-follower',
+		'/jetpack/v4/stats-app/sites/999/stats/comment-followers',
+		'/jetpack/v4/stats-app/sites/999/stats/post/1',
+		'/jetpack/v4/stats-app/sites/999/stats/video/1',
+		'/jetpack/v4/stats-app/sites/999/site-has-never-published-post',
+	);
 
-		// TODO: investigate how we could remove these calls.
-		// '/jetpack/v4/stats-app/sites/999/rewind',
-		// '/jetpack/v4/stats-app/sites/999/plugins',
-		// '/jetpack/v4/stats-app/sites/999/keyrings',
-		// '/jetpack/v4/stats-app/me/connections',
-		// '/jetpack/v4/stats-app/jetpack-blogs/999/rest-api/',
-		// '/jetpack/v4/stats-app/sites/999/sharing-buttons',
+	const UNSUPPORTED_ROUTES = array(
+		'/jetpack/v4/stats-app/sites/999/stats/this-is-not-supported',
+		'/jetpack/v4/stats-app/sites/999/rewind',
+		'/jetpack/v4/stats-app/sites/999/stats/some-post-type/1',
 	);
 
 	/**
@@ -88,10 +93,20 @@ class Test_REST_Controller extends Stats_Test_Case {
 	/**
 	 * Test /stats exists.
 	 */
-	public function test_blog_stats_endpoint_exists() {
+	public function test_blog_stats_endpoints_exists() {
 		wp_set_current_user( $this->admin_id );
 		foreach ( self::SUPPORTED_ROUTES as $route ) {
 			$this->assert_route_exists( $route );
+		}
+	}
+
+	/**
+	 * Test not supported endpoints.
+	 */
+	public function test_blog_stats_endpoints_not_supported() {
+		wp_set_current_user( $this->admin_id );
+		foreach ( self::UNSUPPORTED_ROUTES as $route ) {
+			$this->assert_route_not_supported( $route );
 		}
 	}
 
@@ -105,7 +120,20 @@ class Test_REST_Controller extends Stats_Test_Case {
 		$request->set_header( 'content-type', 'application/json' );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertNotEquals( 'rest_no_route', $response->get_data()['code'] );
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * Ensure required routes exists
+	 *
+	 * @param string $route The route to check.
+	 */
+	public function assert_route_not_supported( $route ) {
+		$request = new WP_REST_Request( 'GET', $route );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertNotEquals( 200, $response->get_status() );
 	}
 
 	/**
@@ -117,5 +145,126 @@ class Test_REST_Controller extends Stats_Test_Case {
 		$response = $this->server->dispatch( $request );
 
 		$this->assertNotTrue( $response );
+	}
+
+	/**
+	 * Test '/jetpack/v4/stats-app/stats/notices' succeed.
+	 */
+	public function test_stats_notices_succeed() {
+		wp_set_current_user( $this->admin_id );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/stats-app/stats/notices' );
+		$request->set_body_params(
+			array(
+				'id'     => 'new_stats_feedback',
+				'status' => 'dismissed',
+			)
+		);
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * Test '/jetpack/v4/stats-app/stats/notices' failed
+	 */
+	public function test_stats_notices_illegal_params() {
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/stats-app/stats/notices' );
+		$request->set_body_params(
+			array(
+				'id' => 'new_stats_feedback',
+			)
+		);
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+	}
+
+	/**
+	 * Test filter_and_build_query_string.
+	 */
+	public function test_filter_and_build_query_string() {
+		$filter_and_build_query_string = new \ReflectionMethod( $this->rest_controller, 'filter_and_build_query_string' );
+		$filter_and_build_query_string->setAccessible( true );
+
+		$this->assertEquals(
+			'c=d&e=f',
+			$filter_and_build_query_string->invoke(
+				$this->rest_controller,
+				array(
+					'a'          => 'b',
+					'c'          => 'd',
+					'rest_route' => '/jetpack/v4/test-route',
+					'e'          => 'f',
+				),
+				array( 'a' )
+			)
+		);
+		$this->assertEquals(
+			'a=b&c=d&e=f',
+			$filter_and_build_query_string->invoke(
+				$this->rest_controller,
+				array(
+					'a'          => 'b',
+					'c'          => 'd',
+					'rest_route' => '/jetpack/v4/test-route',
+					'e'          => 'f',
+				)
+			)
+		);
+		$this->assertEquals(
+			'',
+			$filter_and_build_query_string->invoke(
+				$this->rest_controller,
+				array()
+			)
+		);
+	}
+
+	/**
+	 * Test filter_and_build_query_string.
+	 */
+	public function test_get_wp_error() {
+		$get_wp_error = new \ReflectionMethod( $this->rest_controller, 'get_wp_error' );
+		$get_wp_error->setAccessible( true );
+
+		$error = $get_wp_error->invoke(
+			$this->rest_controller,
+			array(
+				'error'   => 'err1',
+				'message' => 'msg1',
+			),
+			500
+		);
+		$this->assertEquals(
+			'err1',
+			$error->get_error_code()
+		);
+
+		$error = $get_wp_error->invoke(
+			$this->rest_controller,
+			array(
+				'code'    => 'err2',
+				'message' => 'msg1',
+			),
+			500
+		);
+		$this->assertEquals(
+			'err2',
+			$error->get_error_code()
+		);
+
+		$error = $get_wp_error->invoke(
+			$this->rest_controller,
+			array(
+				'code' => 'err2',
+			),
+			500
+		);
+		$this->assertEquals(
+			'unknown remote error',
+			$error->get_error_message()
+		);
 	}
 }

@@ -1292,7 +1292,6 @@ class Jetpack_Photon {
 		$this->should_rest_photon_image_downsize_override( $request );
 
 		return $response;
-
 	}
 
 	/**
@@ -1339,7 +1338,6 @@ class Jetpack_Photon {
 		}
 
 		$this->should_rest_photon_image_downsize_override( $request );
-
 	}
 
 	/**

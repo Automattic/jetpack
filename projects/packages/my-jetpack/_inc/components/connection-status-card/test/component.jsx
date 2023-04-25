@@ -1,7 +1,6 @@
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
+import { render, renderHook, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import React from 'react';
 import ConnectionStatusCard from '../index';
@@ -30,9 +29,9 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "Manage" button', () => {
+		it( 'Does not render the "Manage" button', () => {
 			setup();
-			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Manage' } ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'renders the "You’re not connected" error list item', () => {
@@ -63,9 +62,9 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "Manage" button', () => {
+		it( 'Does not render the "Manage" button', () => {
 			setup();
-			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: 'Manage' } ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'Render the "You’re not connected" error list item', () => {
@@ -98,7 +97,7 @@ describe( 'ConnectionStatusCard', () => {
 			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the "Manage" button', () => {
+		it( 'renders the "Manage" buttons', () => {
 			setup();
 			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
 		} );

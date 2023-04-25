@@ -1,4 +1,5 @@
 import { numberFormat } from '@automattic/jetpack-components';
+import { usePublicizeConfig } from '@automattic/jetpack-publicize-components';
 import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import {
 	ContrastChecker,
@@ -26,6 +27,8 @@ import {
 	DEFAULT_SPACING_VALUE,
 	DEFAULT_FONTSIZE_VALUE,
 } from './constants';
+import PaidPlanPanel from './paid-plan';
+import { isNewsletterConfigured } from './utils';
 
 export default function SubscriptionControls( {
 	buttonBackgroundColor,
@@ -52,8 +55,11 @@ export default function SubscriptionControls( {
 	buttonWidth,
 	successMessage,
 } ) {
+	const { isPublicizeEnabled } = usePublicizeConfig();
+
 	return (
 		<>
+			{ isNewsletterConfigured() && <PaidPlanPanel /> }
 			{ subscriberCount > 0 && (
 				<InspectorNotice>
 					{ createInterpolateElement(
@@ -67,7 +73,7 @@ export default function SubscriptionControls( {
 							),
 							numberFormat( subscriberCount )
 						),
-						{ span: <span style={ { textDecoration: 'underline' } } /> }
+						{ span: <span style={ { fontWeight: 'bold' } } /> }
 					) }
 				</InspectorNotice>
 			) }
@@ -237,14 +243,17 @@ export default function SubscriptionControls( {
 						}
 					} }
 				/>
-				<ToggleControl
-					disabled={ ! showSubscribersTotal }
-					label={ __( 'Include social followers in count', 'jetpack' ) }
-					checked={ includeSocialFollowers }
-					onChange={ () => {
-						setAttributes( { includeSocialFollowers: ! includeSocialFollowers } );
-					} }
-				/>
+				{ showSubscribersTotal && isPublicizeEnabled ? (
+					<ToggleControl
+						disabled={ ! showSubscribersTotal }
+						label={ __( 'Include social followers in count', 'jetpack' ) }
+						checked={ includeSocialFollowers }
+						onChange={ () => {
+							setAttributes( { includeSocialFollowers: ! includeSocialFollowers } );
+						} }
+					/>
+				) : null }
+
 				<ToggleControl
 					label={ __( 'Place button on new line', 'jetpack' ) }
 					checked={ buttonOnNewLine }

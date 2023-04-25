@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-amp-support.php';
+
 /**
  * Class WP_Test_Jetpack_Photon
  */
@@ -1180,7 +1182,7 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		add_filter( 'jetpack_is_amp_request', '__return_true' );
 		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
 		$attributes       = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
-		$this->assertStringEndsWith( $photon_src, html_entity_decode( $attributes['src']['value'] ) );
+		$this->assertStringEndsWith( $photon_src, html_entity_decode( $attributes['src']['value'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) );
 		$this->assertArrayHasKey( 'width', $attributes );
 		$this->assertArrayHasKey( 'height', $attributes );
 		$this->assertStringNotContainsString( 'data-recalc-dims', $filtered_content );

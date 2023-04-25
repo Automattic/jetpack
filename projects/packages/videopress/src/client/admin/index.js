@@ -2,9 +2,9 @@
  * External dependencies
  */
 import { ThemeProvider } from '@automattic/jetpack-components';
+import * as WPElement from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
-import ReactDOM from 'react-dom';
 import { HashRouter, Switch, Route, useLocation } from 'react-router-dom';
 /**
  * Internal dependencies
@@ -25,7 +25,12 @@ initStore();
  */
 function ScrollToTop() {
 	const location = useLocation();
-	useEffect( () => window.scrollTo( 0, 0 ), [ location ] );
+	useEffect( () => {
+		// Timeout to mitigate flickering.
+		setTimeout( () => {
+			window.scrollTo( 0, 0 );
+		}, 0 );
+	}, [ location ] );
 
 	return null;
 }
@@ -68,7 +73,12 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render( <VideoPress />, container );
+	// @todo: Remove fallback when we drop support for WP 6.1
+	if ( WPElement.createRoot ) {
+		WPElement.createRoot( container ).render( <VideoPress /> );
+	} else {
+		WPElement.render( <VideoPress />, container );
+	}
 }
 
 render();

@@ -328,7 +328,7 @@ class REST_Controller {
 
 		$option_names = (array) $request->get_param( 'name' );
 
-		$options = array_map( 'self::get_option_row', $option_names );
+		$options = array_map( self::class . '::get_option_row', $option_names );
 		return array( 'options' => $options );
 	}
 

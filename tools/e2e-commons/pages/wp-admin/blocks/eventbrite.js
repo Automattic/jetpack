@@ -1,6 +1,6 @@
-import PageActions from '../../page-actions.js';
+import EditorCanvas from './editor-canvas.js';
 
-export default class EventbriteBlock extends PageActions {
+export default class EventbriteBlock extends EditorCanvas {
 	constructor( blockId, page, eventId ) {
 		super( page, 'Eventbrite block' );
 		this.blockTitle = EventbriteBlock.title();
@@ -24,12 +24,9 @@ export default class EventbriteBlock extends PageActions {
 		const inputSelector = this.getSelector( '.components-placeholder__input' );
 		const descriptionSelector = this.getSelector( "button[type='submit']" );
 
-		await this.fill( inputSelector, this.embedUrl() );
-		await this.click( descriptionSelector );
-		await this.waitForElementToBeVisible(
-			'.wp-block-jetpack-eventbrite .components-sandbox',
-			30000
-		);
+		await this.canvas().fill( inputSelector, this.embedUrl() );
+		await this.canvas().click( descriptionSelector );
+		await this.canvas().waitForSelector( '.wp-block-jetpack-eventbrite .components-sandbox' );
 	}
 
 	getSelector( selector ) {

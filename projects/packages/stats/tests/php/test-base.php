@@ -20,11 +20,8 @@ use WP_Post;
 abstract class StatsBaseTestCase extends BaseTestCase {
 	/**
 	 * Set up before each test
-	 *
-	 * @before
 	 */
 	protected function set_up() {
-		parent::setUp();
 		// Mock Jetpack Connection.
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
@@ -32,8 +29,6 @@ abstract class StatsBaseTestCase extends BaseTestCase {
 
 	/**
 	 * Clean up the testing environment.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();

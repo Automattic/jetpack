@@ -1,10 +1,10 @@
 === Jetpack Search ===
 Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon, robfelty, gibrown, trakos, dognose24, a8ck3n
 Tags: search, filter, woocommerce search, ajax search, product search, free cloud-based search
-Requires at least: 6.0
+Requires at least: 6.1
 Requires PHP: 5.6
-Tested up to: 6.1
-Stable tag: 1.3.1
+Tested up to: 6.2
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,25 +122,11 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 1.3.1 - 2022-11-13
-#### Added
-- Search: support for Jetpack Search FREE tier for up to 5000 records or 500 search requests per month.
-- Search: Enable stats tracking upon establishing a site connection.
-- Search Dashboard: new record count and search request donut meters.
-- Search Dashboard: conditional CTA and notices.
-- Search: blog filtering support.
-
+### 1.4.1 - 2023-03-08
 #### Changed
-- Compatibility: WordPress 6.1 compatibility.
-- Search: now support 38 languages.
-- Search: always add Search Dashboard page even when submenu is hidden.
+- Remove `ci.targets` from package.json. Better scoping of e2e tests.
+- Update playwright dependency.
 - Updated package dependencies.
-
-### Fixed
-- Customizer: Fixes the issue where search results are not loaded in customizer.
-- Instant Search: Fix error message styling in Instant Search overlay.
-- Search: hide meters etc for Classic Search.
-- Fixed readme and descriptions for Free tier support and new pricing.
 
 == Testimonials ==
 

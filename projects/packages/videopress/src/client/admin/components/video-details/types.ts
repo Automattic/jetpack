@@ -1,4 +1,11 @@
+import type { VideoGUID } from '../../../block-editor/blocks/video/types';
+
 export type VideoDetailsProps = {
+	/**
+	 * VideoPress GUID.
+	 */
+	guid?: VideoGUID;
+
 	/**
 	 * Video filename.
 	 */
@@ -7,7 +14,12 @@ export type VideoDetailsProps = {
 	/**
 	 * Video source file URL.
 	 */
-	src: string;
+	src?: string;
+
+	/**
+	 * VideoPress embed shortcode.
+	 */
+	shortcode: string;
 
 	/**
 	 * Video uploaded date
@@ -17,5 +29,7 @@ export type VideoDetailsProps = {
 	/**
 	 * Loading mode
 	 */
-	loading: boolean;
+	loading?: boolean;
+
+	isPrivate?: boolean;
 };

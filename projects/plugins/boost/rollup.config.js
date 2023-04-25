@@ -4,17 +4,19 @@ import commonjs from '@rollup/plugin-commonjs';
 import json from '@rollup/plugin-json';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
+import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 import copy from 'rollup-plugin-copy';
 import globals from 'rollup-plugin-node-globals';
 import postcss from 'rollup-plugin-postcss';
 import svelte from 'rollup-plugin-svelte';
 import svelteSVG from 'rollup-plugin-svelte-svg';
-import { terser } from 'rollup-plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import tsconfig from './rollup-tsconfig.json';
 
-const cssGenPath = path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) );
+const cssGenPath = path.dirname(
+	path.dirname( require.resolve( 'jetpack-boost-critical-css-gen' ) )
+);
 
 const production = ! process.env.ROLLUP_WATCH;
 const runServer = !! process.env.SERVE;
@@ -64,7 +66,7 @@ if ( ! production ) {
 	} );
 }
 
-const GUIDE_PATH = `app/features/image-guide`;
+const GUIDE_PATH = `app/modules/image-guide`;
 
 export default [
 	/**
@@ -110,7 +112,6 @@ export default [
 			json(),
 
 			babel( {
-				exclude: 'node_modules/**',
 				presets: [ '@babel/preset-react' ],
 				babelHelpers: 'bundled',
 				compact: true,
@@ -165,7 +166,6 @@ export default [
 					'createPortal',
 					'findDOMNode',
 					'render',
-					'unmountComponentAtNode',
 					'createRef',
 					'memo',
 					'useImperativeHandle',
@@ -216,8 +216,21 @@ export default [
 			format: 'iife',
 			name: 'app',
 			file: `${ GUIDE_PATH }/dist/guide.js`,
+			globals: {
+				'@wordpress/components': 'wp.components',
+			},
 		},
+		external: [ '@wordpress/components' ],
 		plugins: [
+			replace( {
+				preventAssignment: true,
+				delimiters: [ '', '' ],
+				values: {
+					"@import '@automattic": "@import '~@automattic",
+					'process.env.NODE_ENV': '"production"',
+				},
+			} ),
+
 			resolve( {
 				browser: true,
 				preferBuiltins: false,
@@ -229,7 +242,6 @@ export default [
 			json(),
 
 			babel( {
-				exclude: 'node_modules/**',
 				presets: [ '@babel/preset-react' ],
 				babelHelpers: 'bundled',
 				compact: true,

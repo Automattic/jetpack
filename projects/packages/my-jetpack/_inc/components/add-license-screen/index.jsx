@@ -1,8 +1,10 @@
 import restApi from '@automattic/jetpack-api';
 import { AdminPage, Container, Col } from '@automattic/jetpack-components';
+import { useConnection } from '@automattic/jetpack-connection';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
 import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import useAvailableLicenses from '../../hooks/use-available-licenses';
 import GoBackLink from '../go-back-link';
 
 /**
@@ -18,6 +20,13 @@ export default function AddLicenseScreen() {
 	}, [] );
 
 	const { recordEvent } = useAnalytics();
+	const { availableLicenses, fetchingAvailableLicenses } = useAvailableLicenses();
+	const { userConnectionData } = useConnection();
+	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.
+	const displayName =
+		userConnectionData?.currentUser?.wpcomUser?.display_name ||
+		userConnectionData?.currentUser?.wpcomUser?.login ||
+		userConnectionData?.currentUser?.username;
 
 	const onClickGoBack = useCallback(
 		event => {
@@ -40,10 +49,13 @@ export default function AddLicenseScreen() {
 				</Col>
 				<Col>
 					<ActivationScreen
-						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
+						currentRecommendationsStep={ null }
+						availableLicenses={ availableLicenses }
+						fetchingAvailableLicenses={ fetchingAvailableLicenses }
 						onActivationSuccess={ undefined }
 						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
-						currentRecommendationsStep={ null }
+						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
+						displayName={ displayName }
 					/>
 				</Col>
 			</Container>

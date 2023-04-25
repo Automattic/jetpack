@@ -59,6 +59,10 @@ type VideoRowBaseProps = {
 	 * Adornment to be showed after title.
 	 */
 	disableActionButton?: boolean;
+	/**
+	 * True when row is used to show a local video.
+	 */
+	isLocalVideo?: boolean;
 };
 
 type VideoPressVideoProps = VideoRowBaseProps &

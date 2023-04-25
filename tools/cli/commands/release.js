@@ -136,38 +136,28 @@ export async function scriptRouter( argv ) {
 				argv.scriptArgs.unshift( '-b' );
 			}
 			argv.addPrNum && argv.scriptArgs.unshift( '-p' );
-			argv.next = `Finished! Next: \n	- Create the "prerelease" branch off trunk, review the changes, make any necessary adjustments. \n	- Commit your changes. \n	- To continue with the release process, update the readme.txt by running:\n		jetpack release ${ argv.project } readme \n`;
+			argv.next = `Finished! You may want to update the readme.txt by running 'jetpack release ${ argv.project } readme' \n`;
 			break;
 		case 'readme':
 			argv.script = `tools/plugin-changelog-to-readme.sh`;
 			argv.scriptArgs = [ argv.project ];
-			argv.next = `Finished! Next:
-				  - If this is a beta, ensure the stable tag in readme.txt is latest stable.
-				  - Create a PR and have your changes reviewed and merged.
-				  - Wait and make sure changes are propagated to mirror repos for each updated package.
-				  - After propagation, if you need to create a release branch, stand on "prerelease" and then run:
-				      jetpack release ${ argv.project } release-branch \n`.replace( /^\t+/gm, '' );
+			argv.next = 'Finished updating readme!';
 			break;
 		case 'release-branch':
 			argv.version = await getReleaseVersion( argv );
 			argv = await promptForVersion( argv );
 			argv.script = `tools/create-release-branch.sh`;
 			argv.scriptArgs = [ argv.project, argv.version ];
-			argv.next = `Finished! Next:
-				  - Once the branch is pushed, GitHub Actions will build and create a branch on your plugin's mirror repo.
-				  - That mirror repo branch will be the branch that is tagged in GitHub and pushed to svn in WordPress.org.
-				  - When changes are pushed to the release branch that was just created, GitHub Actions takes care of building/mirroring to the mirror repo.
-				  - You will now likely want to start a new release cycle like so:
-				      jetpack release ${ argv.project } new-cycle \n`.replace( /^\t+/gm, '' );
+			argv.next = 'Release branch pushed!';
 			break;
 		case 'amend':
 			await checkBranchValid( argv );
+			// @todo Stop assuming `composer install` has been done so vendor/bin/changelogger already exists.
 			argv.script = `vendor/bin/changelogger`;
 			argv.scriptArgs = [ `write`, `--amend` ];
 			argv.addPrNum && argv.scriptArgs.push( '--add-pr-num' );
 			argv.workingDir = `projects/${ argv.project }`;
-			argv.next = `Finished! Next:
-				  - You will now likely want to update readme.txt again, then commit to the release branch:
+			argv.next = `Finished! You will now likely want to update readme.txt again:
 				    jetpack release ${ argv.project } readme \n`.replace( /^\t+/gm, '' );
 			break;
 		case 'version':
@@ -175,7 +165,8 @@ export async function scriptRouter( argv ) {
 			argv = await promptForVersion( argv );
 			argv.script = 'tools/project-version.sh';
 			argv.scriptArgs = [ '-Cu', argv.version, argv.project ];
-			argv.next = `Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
+			argv.next =
+				`Finished! Next, you will likely want to check the following project files to make sure versions were updated correctly:
 				 - The main php file
 				 - package.json
 				 - composer.json (the autoloader-suffix filed)
@@ -194,7 +185,7 @@ export async function scriptRouter( argv ) {
  */
 export async function checkBranchValid( argv ) {
 	const currentBranch = child_process.execSync( 'git branch --show-current' ).toString().trim();
-	const branchPrefix = await readComposerJson( argv.project ).extra[ 'release-branch-prefix' ];
+	let branchPrefix = await readComposerJson( argv.project ).extra[ 'release-branch-prefix' ];
 	if ( ! branchPrefix ) {
 		console.log(
 			chalk.red(
@@ -204,7 +195,11 @@ export async function checkBranchValid( argv ) {
 		process.exit( 1 );
 	}
 
-	if ( ! currentBranch.startsWith( `${ branchPrefix }/branch-` ) ) {
+	if ( ! Array.isArray( branchPrefix ) ) {
+		branchPrefix = [ branchPrefix ];
+	}
+
+	if ( ! branchPrefix.some( prefix => currentBranch.startsWith( `${ prefix }/branch-` ) ) ) {
 		console.log(
 			chalk.red(
 				`Doesn't look like you're on a release branch! Please check out the release branch before amending the changelog.`

@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] - 2023-03-08
+### Changed
+- Remove `ci.targets` from package.json. Better scoping of e2e tests. [#28913]
+- Update playwright dependency. [#28094]
+- Updated package dependencies.
+
+## [1.4.0] - 2022-12-12
+### Added
+- Search: port Search plugin 1.3.1 changelog and plugin description [#27399]
+
+### Changed
+- My Jetpack: Requires connection only if needed [#27615]
+- My Jetpack: Show My Jetpack even if site is disconnected [#26967]
+- Updated package dependencies. [#26069]
+
+### Fixed
+- Search: Fixed E2E testing failures after adding a checkmark icon for resolved topics [#27586]
+- Search: fixed search E2E failure after the new pricing update [#27430]
+
 ## [1.3.1] - 2022-11-13
 ### Fixed
 - Fixed readme and descriptions for Free tier support and new pricing [#27341]
@@ -102,7 +121,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [1.1.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.0.0...1.1.0-beta
 [1.2.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.1.0...1.2.0-beta
-[1.3.1]: https://github.com/Automattic/jetpack-search-plugin/compare/v1.3.0...v1.3.1
+[1.4.1]: https://github.com/Automattic/jetpack-search-plugin/compare/v1.4.0...v1.4.1
+[1.4.0]: https://github.com/Automattic/jetpack-search-plugin/compare/1.3.1...1.4.0
+[1.3.1]: https://github.com/Automattic/jetpack-search-plugin/compare/1.3.0...1.3.1
 [1.3.0]: https://github.com/Automattic/jetpack-search-plugin/compare/1.2.0...1.3.0
 [1.2.0]: https://github.com/Automattic/jetpack-search-plugin/compare/1.2.0-beta...1.2.0
 [1.1.0]: https://github.com/Automattic/jetpack-search-plugin/compare/1.1.0-beta...1.1.0

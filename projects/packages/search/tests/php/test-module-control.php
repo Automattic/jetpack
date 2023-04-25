@@ -98,7 +98,6 @@ class Test_Module_Control extends Search_Test_Case {
 		// Cannot activate search if site is not connected.
 		$this->assertEquals( 'connection_required', $err->get_error_code() );
 		$this->assertEquals( array(), get_option( 'jetpack_' . Module_Control::JETPACK_ACTIVE_MODULES_OPTION_KEY, array() ) );
-
 	}
 
 	/**

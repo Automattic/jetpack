@@ -98,12 +98,12 @@ export function getTweetStorm( state ) {
  * Constructs the first tweet to use in the thread.
  *
  * @param {object} state - State object.
- * @returns {object} The tweet.
+ * @returns {object|undefined} The tweet.
  */
 export function getFirstTweet( state ) {
 	// This isn't defined properly in the test environment, so we have to skip this function.
 	if ( ! select( 'core' ) ) {
-		return;
+		return undefined;
 	}
 
 	const tweetTemplate = getTweetTemplate( state );
@@ -139,12 +139,12 @@ export function getFirstTweet( state ) {
  * Constructs the last tweet to use in the thread.
  *
  * @param {object} state - State object.
- * @returns {object} The tweet.
+ * @returns {object|undefined} The tweet.
  */
 export function getLastTweet( state ) {
 	// This isn't defined properly in the test environment, so we have to skip this function.
 	if ( ! select( 'core/editor' ) ) {
-		return;
+		return undefined;
 	}
 
 	const { getEditedPostAttribute } = select( 'core/editor' );
@@ -543,12 +543,23 @@ export function getFeatureEnableState() {
 /**
  * Get all Jetpack Social options.
  *
- * @returns {Object} Object with Jetpack Social options.
+ * @returns {object} Object with Jetpack Social options.
  */
 export function getJetpackSocialOptions() {
 	const { getEditedPostAttribute } = select( editorStore );
 	const meta = getEditedPostAttribute( 'meta' );
 	return get( meta, [ 'jetpack_social_options' ], {} );
+}
+
+/**
+ * Get whether the post has already been shared.
+ *
+ * @returns {object} Object with Jetpack Social options.
+ */
+export function getJetpackSocialPostAlreadyShared() {
+	const { getEditedPostAttribute } = select( editorStore );
+	const meta = getEditedPostAttribute( 'meta' );
+	return get( meta, [ 'jetpack_social_post_already_shared' ], {} );
 }
 
 /**
@@ -558,4 +569,22 @@ export function getJetpackSocialOptions() {
  */
 export function getAttachedMedia() {
 	return get( getJetpackSocialOptions(), [ 'attached_media' ], [] );
+}
+
+/**
+ * Checks if the post is a social post.
+ *
+ * @returns {boolean} Whether the post is a social post.
+ */
+export function shouldUploadAttachedMedia() {
+	return getJetpackSocialOptions()?.should_upload_attached_media ?? false;
+}
+
+/**
+ * Get a list of all image generator settings for a post.
+ *
+ * @returns {Array} An array of image generator settings.
+ */
+export function getImageGeneratorPostSettings() {
+	return getJetpackSocialOptions()?.image_generator_settings ?? [];
 }

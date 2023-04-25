@@ -9,7 +9,7 @@
  * Plugin Name:       Jetpack Boost
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
- * Version: 1.6.1-alpha
+ * Version: 1.8.1-alpha
  * Author:            Automattic - Jetpack Site Speed team
  * Author URI:        https://jetpack.com/boost/
  * License:           GPL-2.0+
@@ -29,7 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'JETPACK_BOOST_VERSION', '1.6.1-alpha' );
+define( 'JETPACK_BOOST_VERSION', '1.8.1-alpha' );
 define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
 
 if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
@@ -128,6 +128,27 @@ add_action( 'plugins_loaded', '\Automattic\Jetpack_Boost\run_jetpack_boost', 1 )
 
 register_activation_hook( __FILE__, array( 'Automattic\Jetpack_Boost\Jetpack_Boost', 'activate' ) );
 
+// Redirect to plugin page when the plugin is activated.
+add_action( 'activated_plugin', __NAMESPACE__ . '\jetpack_boost_plugin_activation' );
+
+/**
+ * Redirects to plugin page when the plugin is activated
+ *
+ * @access public
+ * @static
+ *
+ * @param string $plugin Path to the plugin file relative to the plugins directory.
+ */
+function jetpack_boost_plugin_activation( $plugin ) {
+	if (
+		JETPACK_BOOST_PLUGIN_BASE === $plugin &&
+		\Automattic\Jetpack\Plugins_Installer::is_current_request_activating_plugin_from_plugins_screen( JETPACK_BOOST_PLUGIN_BASE )
+	) {
+		wp_safe_redirect( esc_url( admin_url( 'admin.php?page=jetpack-boost' ) ) );
+		exit;
+	}
+}
+
 /**
  * Extra tweaks to make Jetpack Boost work better with others.
  */
@@ -172,3 +193,4 @@ function jetpack_boost_uninstall() {
  * Previous version compatibility files
  */
 require_once __DIR__ . '/compatibility/boost-1.3.1.php';
+require_once __DIR__ . '/wp-js-data-sync.php';

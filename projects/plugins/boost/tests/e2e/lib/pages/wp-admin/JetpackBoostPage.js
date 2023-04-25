@@ -2,10 +2,7 @@ import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 
 const apiEndpointsRegex = {
-	'critical-css-status': /jetpack-boost\/v1\/module\/critical-css\/status/,
-	'lazy-images-status': /jetpack-boost\/v1\/module\/lazy-images\/status/,
-	'render-blocking-js-status': /jetpack-boost\/v1\/module\/render-blocking-js\/status/,
-	'speed-scores-update': /jetpack-boost\/v1\/speed-scores\/\w*\/update/,
+	'modules-state': /jetpack-boost-ds\/modules-state\/merge/,
 	connection: /jetpack-boost\/v1\/connection/,
 };
 
@@ -16,20 +13,10 @@ export default class JetpackBoostPage extends WpPage {
 	}
 
 	/**
-	 * Tries to connect Jetpack Boost to WordPress.com, and waits for the connection API call to complete.
-	 */
-	async connect() {
-		const button = await this.page.$( '.jb-connection button' );
-		await button.click();
-		await this.waitForApiResponse( 'connection' );
-		await this.waitForElementToBeDetached( '.jb-connection button' );
-	}
-
-	/**
 	 * Select the free plan from getting started page.
 	 */
 	async chooseFreePlan() {
-		const button = await this.page.$( 'text=Start for free' );
+		const button = await this.page.locator( 'text=Start for free' );
 		await button.click();
 		await this.waitForElementToBeVisible( '.jb-section--scores' );
 	}
@@ -79,7 +66,7 @@ export default class JetpackBoostPage extends WpPage {
 
 	async toggleModule( moduleName ) {
 		this.page.click( `#jb-feature-toggle-${ moduleName }` );
-		await this.waitForApiResponse( `${ moduleName }-status` );
+		await this.waitForApiResponse( 'modules-state' );
 	}
 
 	async isModuleEnabled( moduleName ) {

@@ -150,6 +150,16 @@ const upgradeMessageRequests = apiData => {
 	return { description: message, cta: cta };
 };
 
+const upgradeMessageSearchDisabled = () => {
+	// Always returns a valid message.
+	const message = __(
+		'You’ve exceeded the limits available for your search plan.',
+		'jetpack-search-pkg'
+	);
+	const cta = __( 'Upgrade now to restore Jetpack Search functionality.', 'jetpack-search-pkg' );
+	return { description: message, cta: cta };
+};
+
 const upgradeMessageNoOverage = () => {
 	// Always returns a valid message.
 	const message = __(
@@ -197,7 +207,10 @@ const upgradeMessageFromAPIData = apiData => {
 	// apiData.currentUsage.upgrade_reason.requests
 	// apiData.currentUsage.months_over_plan_records_limit
 	// apiData.currentUsage.months_over_plan_requests_limit
-	if ( ! apiData.currentUsage.should_upgrade && ! apiData.currentUsage.must_upgrade ) {
+	if ( apiData.currentUsage.must_upgrade ) {
+		return upgradeMessageSearchDisabled();
+	}
+	if ( ! apiData.currentUsage.should_upgrade ) {
 		return null;
 	}
 	// Handle both case.
@@ -220,7 +233,11 @@ const upgradeMessageFromAPIData = apiData => {
 };
 
 const PlanUsageSection = ( { isFreePlan, planInfo, sendPaidPlanToCart, isPlanJustUpgraded } ) => {
-	const upgradeMessage = isFreePlan ? upgradeMessageFromAPIData( planInfo ) : null;
+	// For free plan, we want to show the CTA early.
+	// For complete plan, we only show the final CTA once search is already disabled.
+	// It's just because it was added later, and we didn't want to redesign existing CTAs at the time.
+	const upgradeMessage =
+		isFreePlan || planInfo.currentUsage.must_upgrade ? upgradeMessageFromAPIData( planInfo ) : null;
 	const usageInfo = usageInfoFromAPIData( planInfo );
 
 	return (
@@ -306,9 +323,10 @@ const UsageMeters = ( { usageInfo, isPlanJustUpgraded } ) => {
 		[ setCurrentTooltipIndex, myStorage, isPlanJustUpgraded ]
 	);
 
-	const setTooltipRead = useCallback( () => myStorage.setItem( 'upgrade_tooltip_finished', 1 ), [
-		myStorage,
-	] );
+	const setTooltipRead = useCallback(
+		() => myStorage.setItem( 'upgrade_tooltip_finished', 1 ),
+		[ myStorage ]
+	);
 	const goToNext = useCallback( () => {
 		setCurrentTooltipIndex( idx => {
 			if ( idx >= 2 ) {

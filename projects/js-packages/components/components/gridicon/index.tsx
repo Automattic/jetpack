@@ -19,6 +19,8 @@ class Gridicon extends Component< GridiconProps > {
 
 	needsOffset( icon, size ) {
 		const iconNeedsOffset = [
+			'gridicons-arrow-left',
+			'gridicons-arrow-right',
 			'gridicons-calendar',
 			'gridicons-cart',
 			'gridicons-folder',
@@ -46,6 +48,10 @@ class Gridicon extends Component< GridiconProps > {
 				return '';
 			case 'gridicons-audio':
 				return __( 'Has audio.', 'jetpack' );
+			case 'gridicons-arrow-left':
+				return __( 'Arrow left', 'jetpack' );
+			case 'gridicons-arrow-right':
+				return __( 'Arrow right', 'jetpack' );
 			case 'gridicons-calendar':
 				return __( 'Is an event.', 'jetpack' );
 			case 'gridicons-cart':
@@ -89,6 +95,18 @@ class Gridicon extends Component< GridiconProps > {
 				return (
 					<g>
 						<path d="M8 4v10.184C7.686 14.072 7.353 14 7 14c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3V7h7v4.184c-.314-.112-.647-.184-1-.184-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3V4H8z" />
+					</g>
+				);
+			case 'gridicons-arrow-left':
+				return (
+					<g>
+						<path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" />
+					</g>
+				);
+			case 'gridicons-arrow-right':
+				return (
+					<g>
+						<path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z" />
 					</g>
 				);
 			case 'gridicons-block':

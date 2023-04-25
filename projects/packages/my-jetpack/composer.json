@@ -16,7 +16,11 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "@dev"
+		"automattic/wordbless": "@dev",
+		"automattic/jetpack-videopress": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -27,10 +31,6 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/coverage.xml\"",
-			"pnpm run test --coverageDirectory=\"$COVERAGE_DIR\" --coverage --coverageReporters=clover"
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -74,7 +74,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "2.5.x-dev"
+			"dev-trunk": "2.10.x-dev"
 		},
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-initializer.php"

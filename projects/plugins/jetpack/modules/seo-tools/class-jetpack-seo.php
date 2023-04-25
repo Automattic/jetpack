@@ -102,10 +102,8 @@ class Jetpack_SEO {
 
 		if ( is_front_page() && ! empty( $front_page_meta ) ) {
 			$tags['og:description'] = $front_page_meta;
-		} else {
-			if ( ! empty( $post_custom_description ) ) {
-				$tags['og:description'] = $post_custom_description;
-			}
+		} elseif ( ! empty( $post_custom_description ) ) {
+			$tags['og:description'] = $post_custom_description;
 		}
 
 		return $tags;

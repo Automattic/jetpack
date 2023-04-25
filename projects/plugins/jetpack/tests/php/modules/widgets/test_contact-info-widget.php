@@ -11,6 +11,8 @@ class WP_Test_Contact_Info_Widget extends WP_UnitTestCase {
 
 	const TEST_API_KEY = '12345abcde';
 
+	private $contact_info_widget;
+
 	/**
 	 * This method is called before each test.
 	 */

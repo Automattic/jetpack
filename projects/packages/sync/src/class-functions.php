@@ -627,7 +627,6 @@ class Functions {
 		}
 
 		return $any;
-
 	}
 
 	/**

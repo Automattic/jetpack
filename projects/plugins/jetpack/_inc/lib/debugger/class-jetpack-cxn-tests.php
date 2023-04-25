@@ -776,7 +776,6 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			);
 
 		}
-
 	}
 
 	/**
@@ -925,7 +924,6 @@ class Jetpack_Cxn_Tests extends Jetpack_Cxn_Test_Base {
 			);
 
 		}
-
 	}
 
 	/**

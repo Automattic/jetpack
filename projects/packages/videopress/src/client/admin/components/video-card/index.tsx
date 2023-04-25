@@ -7,6 +7,7 @@ import {
 	Title,
 	numberFormat,
 	useBreakpointMatch,
+	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
@@ -14,10 +15,10 @@ import classnames from 'classnames';
 import { useState } from 'react';
 import { usePermission } from '../../hooks/use-permission';
 import useVideo from '../../hooks/use-video';
-import Placeholder from '../placeholder';
 /**
  * Internal dependencies
  */
+import PublishFirstVideoPopover from '../publish-first-video-popover';
 import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
 import styles from './style.module.scss';
@@ -86,6 +87,7 @@ export const VideoCard = ( {
 				numberFormat( plays )
 		  )
 		: '';
+	const [ anchor, setAnchor ] = useState( null );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const disabled = loading || uploading;
@@ -110,6 +112,7 @@ export const VideoCard = ( {
 					duration={ loading ? null : duration }
 					editable={ loading ? false : editable }
 					uploadProgress={ uploadProgress }
+					ref={ setAnchor }
 				/>
 
 				<div className={ styles[ 'video-card__title-section' ] }>
@@ -121,7 +124,7 @@ export const VideoCard = ( {
 					) }
 
 					{ loading ? (
-						<Placeholder width="60%" height={ 30 } />
+						<LoadingPlaceholder width="60%" height={ 30 } />
 					) : (
 						<Title className={ styles[ 'video-card__title' ] } mb={ 0 } size="small">
 							{ title }
@@ -129,7 +132,7 @@ export const VideoCard = ( {
 					) }
 
 					{ loading ? (
-						<Placeholder width={ 96 } height={ 24 } />
+						<LoadingPlaceholder width={ 96 } height={ 24 } />
 					) : (
 						<>
 							{ hasPlays && (
@@ -146,6 +149,8 @@ export const VideoCard = ( {
 						</>
 					) }
 				</div>
+
+				<PublishFirstVideoPopover id={ id } anchor={ anchor } />
 
 				{ showQuickActions && ! isSm && (
 					<QuickActions
@@ -170,9 +175,8 @@ export const VideoCard = ( {
 };
 
 export const ConnectVideoCard = ( { id, ...restProps }: VideoCardProps ) => {
-	const { isDeleting, uploading, processing, isUpdatingPoster, data, uploadProgress } = useVideo(
-		id
-	);
+	const { isDeleting, uploading, processing, isUpdatingPoster, data, uploadProgress } =
+		useVideo( id );
 
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 	const editable = restProps?.editable && ! isDeleting && ! uploading && ! processing;

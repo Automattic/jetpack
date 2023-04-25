@@ -19,7 +19,7 @@ const webpack = jetpackWebpackConfig.webpack;
 function requestToExternal( request ) {
 	// Ensure that React will be aliased to preact/compat by preventing externalization.
 	if ( request === 'react' || request === 'react-dom' ) {
-		return;
+		return undefined;
 	}
 	return defaultRequestToExternal( request );
 }

@@ -138,8 +138,9 @@ class Jetpack_RelatedPosts {
 						'padding' => true,
 					),
 					'typography' => array(
-						'fontSize'   => true,
-						'lineHeight' => true,
+						'__experimentalFontFamily' => true,
+						'fontSize'                 => true,
+						'lineHeight'               => true,
 					),
 					'align'      => array( 'wide', 'full' ),
 				),
@@ -207,7 +208,6 @@ class Jetpack_RelatedPosts {
 
 			$this->action_frontend_init_page();
 		}
-
 	}
 
 	/**
@@ -507,7 +507,7 @@ EOT;
 		 * @param array $related_posts Array of related posts.
 		 * @param array $block_attributes Array of Block attributes.
 		 */
-		return apply_filters( 'jetpack_related_posts_display_markup', $display_markup, $post_id, $related_posts, $block_attributes );
+		return (string) apply_filters( 'jetpack_related_posts_display_markup', $display_markup, $post_id, $related_posts, $block_attributes );
 	}
 
 	/**
@@ -1746,7 +1746,6 @@ EOT;
 	 * @param int $link_position - the link position.
 	 */
 	protected function log_click( $post_id, $to_post_id, $link_position ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-
 	}
 
 	/**

@@ -1,46 +1,16 @@
-// seventy-five layout
-// Handle large lg size from here,
-// adding a gap on one column
-// in between main and secondary sections.
-@media ( min-width: 960px ) {
-	.main {
-		grid-column: 1 / span 6;
-	}
-
-	.secondary {
-		grid-column: 8 / span 5;
-	}
+.navigation {
+    margin-top: calc( var( --spacing-base ) * 3 * -1 ); // -24px
 }
 
-// Alert section
-.main-content {
-	padding: calc( var( --spacing-base ) * 7 ) 0; // 56px | 0px
-}
-
-.loading-content {
-	display: flex;
-	align-items: center;
-}
-
-.illustration {
-	display: flex;
-	align-items: center;
-	height: 100%;
-	img {
-		// let's fit images
-		object-fit: cover;
-		width: 100%;
-	}
-}
-
-// Viewport breakpoints.
-.is-viewport-small {
-	// Add spacing between main and secondary in "sm" viewport size
-	.main {
-		margin-bottom: calc( var( --spacing-base ) * 3 ); // 24px
-	}
-}
-
-.connection-error-col {
-	margin-top: calc( var( --spacing-base ) * 3 + 1px ); // 25px
+.badge {
+    color: var( --jp-white );
+    background-color: var( --jp-green );
+    font-size: 12px;
+    line-height: 1;
+    letter-spacing: -2%;
+    padding: calc( var( --spacing-base ) / 2 ) var( --spacing-base ); // 4px | 8px
+    border-radius: 32px;
+    margin-left: var( --spacing-base ); // 8px
+    position: relative;
+    top: -1px;
 }

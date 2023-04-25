@@ -184,7 +184,7 @@ export function didScoresChange( scores: SpeedScoresSet ): boolean {
 /**
  * Determine the change in scores to pass through to other functions.
  *
- * @param  scores
+ * @param scores
  * @return percentage
  */
 export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {
@@ -216,7 +216,7 @@ export function scoreChangeModal( scores: SpeedScoresSet ): ScoreChangeMessage |
 		return {
 			id: 'score-increase',
 			title: __( 'Your site got faster', 'jetpack-boost' ),
-			message: __( 'That great! If you’re happy, why not rate Boost?', 'jetpack-boost' ),
+			message: __( `That's great! If you’re happy, why not rate Boost?`, 'jetpack-boost' ),
 			cta: __( 'Rate the Plugin', 'jetpack-boost' ),
 			ctaLink: 'https://wordpress.org/support/plugin/jetpack-boost/reviews/#new-post',
 		};

@@ -779,7 +779,7 @@ class WPCOM_JSON_API_Delete_Sharing_Button_Endpoint extends WPCOM_JSON_API_Shari
 
 		// Verify button is custom
 		if ( ! is_a( $all_buttons[ $button_id ], 'Share_Custom' ) ) {
-			return new WP_error( 'invalid_request', 'Only custom sharing buttons can be deleted', 400 );
+			return new WP_Error( 'invalid_request', 'Only custom sharing buttons can be deleted', 400 );
 		}
 
 		$success = $this->sharing_service->delete_service( $button_id );

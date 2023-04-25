@@ -8,8 +8,9 @@
 		"issues": "https://github.com/Automattic/jetpack/issues"
 	},
 	"require": {
+		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
-		"composer/semver": "3.2.7",
+		"composer/semver": "3.3.2",
 		"erusev/parsedown": "1.7.4"
 	},
 	"require-dev": {
@@ -34,7 +35,7 @@
 	"prefer-stable": true,
 	"config": {
 		"sort-packages": true,
-		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_1_4_alpha",
+		"autoloader-suffix": "567fa3f555de8fd218dfdc1688bb97b5_betaⓥ3_1_5_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true
 		}

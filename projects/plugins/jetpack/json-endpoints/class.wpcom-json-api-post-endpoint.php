@@ -567,7 +567,6 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		} else {
 			return (object) array();
 		}
-
 	}
 
 	/**
@@ -579,7 +578,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		global $post;
 
 		static $instance = 0;
-		$instance++;
+		++$instance;
 
 		// @todo - find out if this is a bug, intentionally unused, or can be removed.
 		$output = ''; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable

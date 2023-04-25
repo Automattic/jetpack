@@ -1,9 +1,5 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
-.iconWrapper {
-	fill: #2C3338;
-}
-
 .star-icon {
 	fill: black;
 }
@@ -30,6 +26,9 @@
 	}
 	&.google {
 		fill: var( --color-gplus );
+	}
+	&.mastodon {
+		fill: var( --color-mastodon );
 	}
 }
 

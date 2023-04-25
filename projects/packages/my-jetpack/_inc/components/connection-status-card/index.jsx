@@ -1,4 +1,4 @@
-import { Button, H3, Text } from '@automattic/jetpack-components';
+import { Button, getRedirectUrl, H3, Text } from '@automattic/jetpack-components';
 import {
 	ManageConnectionDialog,
 	useConnection,
@@ -104,7 +104,15 @@ const ConnectionStatusCard = props => {
 			<H3>{ title }</H3>
 
 			<Text variant="body" mb={ 3 }>
-				{ connectionInfoText }
+				{ `${ connectionInfoText } ` }
+				<Button
+					href={ getRedirectUrl( 'why-the-wordpress-com-connection-is-important-for-jetpack' ) }
+					variant="link"
+					weight="regular"
+					isExternalLink={ true }
+				>
+					{ __( 'Learn more about connections', 'jetpack-my-jetpack' ) }
+				</Button>
 			</Text>
 
 			<div className={ styles.status }>
@@ -137,16 +145,32 @@ const ConnectionStatusCard = props => {
 						<ConnectionListItem
 							onClick={ openManageConnectionDialog }
 							text={ __( 'Site connected.', 'jetpack-my-jetpack' ) }
-							actionText={ ! isUserConnected ? __( 'Manage', 'jetpack-my-jetpack' ) : null }
+							actionText={
+								isUserConnected && userConnectionData.currentUser?.isMaster
+									? __( 'Manage', 'jetpack-my-jetpack' )
+									: null
+							}
 						/>
 						{ isUserConnected && (
 							<ConnectionListItem
 								onClick={ openManageConnectionDialog }
 								actionText={ __( 'Manage', 'jetpack-my-jetpack' ) }
 								text={ sprintf(
-									/* translators: placeholder is user name */
-									__( 'Connected as %s.', 'jetpack-my-jetpack' ),
-									userConnectionData.currentUser?.wpcomUser?.display_name
+									/* translators: first placeholder is user name, second is either the (Owner) string or an empty string */
+									__( 'Connected as %1$s%2$s.', 'jetpack-my-jetpack' ),
+									userConnectionData.currentUser?.wpcomUser?.display_name,
+									userConnectionData.currentUser?.isMaster
+										? __( ' (Owner)', 'jetpack-my-jetpack' )
+										: ''
+								) }
+							/>
+						) }
+						{ isUserConnected && ! userConnectionData.currentUser?.isMaster && (
+							<ConnectionListItem
+								text={ sprintf(
+									/* translators: placeholder is the username of the Jetpack connection owner */
+									__( 'Also connected: %s (Owner).', 'jetpack-my-jetpack' ),
+									userConnectionData.connectionOwner
 								) }
 							/>
 						) }

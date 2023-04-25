@@ -66,7 +66,7 @@ const useBackupsState = () => {
 				}
 
 				// Repeat query for NO_BACKUPS (before first) and IN_PROGRESS
-				if ( res.length === 0 || 'started' === latestBackup.status ) {
+				if ( res.length === 0 || ( latestBackup && 'started' === latestBackup.status ) ) {
 					// Grab progress and update every progressInterval until complete.
 					setTimeout( () => {
 						fetchBackupsState();

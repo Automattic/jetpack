@@ -326,6 +326,8 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		}
 	}
 
+	// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
+
 	/**
 	 * Register Jetpack_EU_Cookie_Law_Widget widget.
 	 */

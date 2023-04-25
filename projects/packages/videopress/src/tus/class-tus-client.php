@@ -116,7 +116,6 @@ class Tus_Client {
 		$this->api_url = sprintf( self::BASE_API_URL, (int) $blog_id );
 
 		$this->cache = new Transient_Store( $this->get_key() );
-
 	}
 
 	/**
@@ -696,7 +695,6 @@ class Tus_Client {
 		}
 
 		return (int) wp_remote_retrieve_header( $response, 'upload-offset' );
-
 	}
 
 	/**

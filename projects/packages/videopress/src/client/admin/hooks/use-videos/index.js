@@ -23,26 +23,35 @@ export default function useVideos() {
 	const isFetchingUploadedVideoCount = useSelect( select =>
 		select( STORE_ID ).getIsFetchingUploadedVideoCount()
 	);
+	const firstUploadedVideoId = useSelect( select => select( STORE_ID ).getFirstUploadedVideoId() );
+	const firstVideoProcessed = useSelect( select => select( STORE_ID ).getFirstVideoProcessed() );
+	const dismissedFirstVideoPopover = useSelect( select =>
+		select( STORE_ID ).getDismissedFirstVideoPopover()
+	);
 	const query = useSelect( select => select( STORE_ID ).getVideosQuery() || {} );
 	const pagination = useSelect( select => select( STORE_ID ).getPagination() );
 	const storageUsed = useSelect( select => select( STORE_ID ).getStorageUsed(), [] );
+	const filter = useSelect( select => select( STORE_ID ).getVideosFilter() );
 
 	return {
 		items,
 		uploading,
 		isUploading,
 		search,
+		filter,
 		uploadedVideoCount,
 		isFetching,
 		isFetchingUploadedVideoCount,
+		firstUploadedVideoId,
+		firstVideoProcessed,
+		dismissedFirstVideoPopover,
 		...query,
 		...pagination,
 		...storageUsed,
 
 		// Handlers
 		setPage: page => dispatch( STORE_ID ).setVideosQuery( { page } ),
-		setSearch: querySearch =>
-			dispatch( STORE_ID ).setVideosQuery( { search: querySearch, page: 1 } ),
+		setSearch: querySearch => dispatch( STORE_ID ).setVideosQuery( { search: querySearch } ),
 		setFilter: dispatch( STORE_ID ).setVideosFilter,
 	};
 }
@@ -70,4 +79,15 @@ export const useLocalVideos = () => {
 		// Handlers
 		setPage: page => dispatch( STORE_ID ).setLocalVideosQuery( { page } ),
 	};
+};
+
+/**
+ * React custom hook to get the videos query.
+ *
+ * @returns {object} search query information
+ */
+export const useVideosQuery = () => {
+	// Data
+	const query = useSelect( select => select( STORE_ID ).getVideosQuery() || {} );
+	return query;
 };

@@ -5,7 +5,76 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.5.1-beta - 2022-11-28
+## 1.10.0-beta - 2023-04-25
+### Added
+- Social: Updating plugin version. [#30158]
+
+### Changed
+- Added dynamic pricing to Social admin page. [#30105]
+- Updated package dependencies. [#29565, #29854, #29857, #30019]
+- Update WordPress version requirements. Now requires version 6.1. [#30120]
+
+### Fixed
+- Dashboard: ensure the link to the post editor works, even when WordPress is installed in a subdirectory. [#30159]
+- Temporarily removed review prompts to fix the plugin's UI state. [#30101]
+
+## 1.9.1 - 2023-04-06
+### Fixed
+- Reinstated is_social_image_generator_enabled for backwards compatibility. [#29952]
+
+## 1.9.0 - 2023-04-04
+### Added
+- (Backup, Boost, Search, Social) Add links on upgrade pages to activate a license key, if you already have one. [#29443]
+- Added option for CUT component to have a tooltip. [#29609]
+- Added SIG image to the post media array if it's enabled. [#29093]
+- Added toggle to Social admin page to enable or disable Social Image Generator as well as an option to pick a default template. [#29722]
+
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.2. [#29341]
+- Jetpack Social: Enable Social Image Generator by default when it's available. [#29742]
+- Refactored the ToggleSection component to decouple it from other logic. [#29619]
+- Updated package dependencies. [#29216, #29289, #29297, #29434, #29471, #29480]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Updated composer.lock. [#29762]
+
+## 1.8.0 - 2023-03-07
+### Added
+- Add Social Image Generator editor panel to post sidebar [#28737]
+- Add Social Image Generator feature flag to Jetpack Social [#29001]
+
+### Changed
+- Changed remaining shares phrasing [#28688]
+- Remove `ci.targets` from package.json. Better scoping of e2e tests. [#28913]
+- Update billing language [#29126]
+- Updated package dependencies.
+- Update to React 18. [#28710]
+
+### Fixed
+- Revise Jetpack connection agreement text to comply with our User Agreement [#28403]
+- Use External Link icons for external links [#28922]
+
+## 1.7.0 - 2023-02-07
+### Added
+- Added Advanced Social plan to pricing table [#28258]
+
+### Changed
+- Moved resharing to be available in the free plan [#28661]
+- Updated package dependencies.
+- Update playwright dependency [#28094]
+- Use `flex-end` instead of `end` for better browser compatibility. [#28530]
+
+## 1.6.0 - 2023-01-10
+### Added
+- Add a review request prompt for Jetpack Social plugin. [#28072]
+- Add simple JS React test. [#27122]
+- Add the adminUrl to the initial editor state. [#27617]
+- Redirect to admin page on plugin activation, and add link to admin page from plugins page. [#24586]
+
+### Changed
+- Updated package dependencies. [#27340, #27688, #27689, #27696, #27697, #27874, #27887, #27916, #27962]
+
+## 1.5.1 - 2022-12-06
 ### Changed
 - Updated package dependencies. [#26069]
 

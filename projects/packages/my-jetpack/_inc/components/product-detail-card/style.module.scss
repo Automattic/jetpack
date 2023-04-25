@@ -71,7 +71,7 @@
 		height: auto;
 		white-space: normal;
 	}
-	
+
 	&:global(.is-secondary):hover:not(:disabled) {
 		background-color: var( --jp-black );
 		color: var( --jp-white );
@@ -92,7 +92,7 @@
 	li {
 		list-style: none;
 		display: flex;
-		align-items: start;
+		align-items: flex-start;
 		margin-bottom: var( --spacing-base );
 	}
 
@@ -146,4 +146,8 @@
 
 .supporting-info {
 	margin-top: calc( var( --spacing-base ) * 5 );
+}
+
+.tos-container {
+	margin-bottom: calc( var( --spacing-base ) * 4 );
 }

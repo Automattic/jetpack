@@ -66,6 +66,7 @@ export const settings = {
 			padding: true,
 		},
 		typography: {
+			__experimentalFontFamily: true,
 			fontSize: true,
 			lineHeight: true,
 		},

@@ -1,8 +1,8 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Card from 'components/card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLegend } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -58,19 +58,17 @@ export const Ads = withModuleSettingsFormHelpers(
 						link: 'https://jetpack.com/support/ads/',
 					} }
 				>
-					<CompactFormToggle
+					<ToggleControl
 						checked={ wordads_custom_adstxt_enabled }
 						disabled={
 							! isAdsActive ||
 							unavailableInOfflineMode ||
-							this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt_enabled' ] )
+							this.props.isSavingAnyOption( [ 'wordads' ] )
 						}
+						toggling={ this.props.isSavingAnyOption( [ 'wordads_custom_adstxt_enabled' ] ) }
 						onChange={ this.handleChange( 'wordads_custom_adstxt_enabled' ) }
-					>
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Customize your ads.txt file', 'jetpack' ) }
-						</span>
-					</CompactFormToggle>
+						label={ __( 'Customize your ads.txt file', 'jetpack' ) }
+					/>
 					{ wordads_custom_adstxt_enabled && (
 						<FormFieldset>
 							<br />
@@ -175,7 +173,7 @@ export const Ads = withModuleSettingsFormHelpers(
 									),
 									{
 										link: (
-											<a
+											<ExternalLink
 												href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) }
 												target="_blank"
 												rel="noopener noreferrer"
@@ -200,81 +198,75 @@ export const Ads = withModuleSettingsFormHelpers(
 						</ModuleToggle>
 						<FormFieldset>
 							<FormLegend>{ __( 'Display ads below posts on', 'jetpack' ) }</FormLegend>
-							<CompactFormToggle
+							<ToggleControl
 								checked={ wordads_display_front_page }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_front_page' ] )
+									this.props.isSavingAnyOption( [ 'wordads' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_front_page' ] ) }
 								onChange={ this.handleChange( 'wordads_display_front_page' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Front page', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+								label={ __( 'Front page', 'jetpack' ) }
+							/>
+							<ToggleControl
 								checked={ wordads_display_post }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_post' ] )
+									this.props.isSavingAnyOption( [ 'wordads' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_post' ] ) }
 								onChange={ this.handleChange( 'wordads_display_post' ) }
-							>
-								<span className="jp-form-toggle-explanation">{ __( 'Posts', 'jetpack' ) }</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+								label={ __( 'Posts', 'jetpack' ) }
+							/>
+							<ToggleControl
 								checked={ wordads_display_page }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_page' ] )
+									this.props.isSavingAnyOption( [ 'wordads' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_page' ] ) }
 								onChange={ this.handleChange( 'wordads_display_page' ) }
-							>
-								<span className="jp-form-toggle-explanation">{ __( 'Pages', 'jetpack' ) }</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+								label={ __( 'Pages', 'jetpack' ) }
+							/>
+							<ToggleControl
 								checked={ wordads_display_archive }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_archive' ] )
+									this.props.isSavingAnyOption( [ 'wordads' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_archive' ] ) }
 								onChange={ this.handleChange( 'wordads_display_archive' ) }
-							>
-								<span className="jp-form-toggle-explanation">{ __( 'Archives', 'jetpack' ) }</span>
-							</CompactFormToggle>
+								label={ __( 'Archives', 'jetpack' ) }
+							/>
 						</FormFieldset>
 						<FormFieldset>
 							<FormLegend>{ __( 'Additional ad placements', 'jetpack' ) }</FormLegend>
-							<CompactFormToggle
+							<ToggleControl
 								checked={ enable_header_ad }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'enable_header_ad' ] )
+									this.props.isSavingAnyOption( [ 'wordads' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'enable_header_ad' ] ) }
 								onChange={ this.handleChange( 'enable_header_ad' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Top of each page', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+								label={ __( 'Top of each page', 'jetpack' ) }
+							/>
+							<ToggleControl
 								checked={ wordads_second_belowpost }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'wordads_second_belowpost' ] )
+									this.props.isSavingAnyOption( [ 'wordads' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'wordads_second_belowpost' ] ) }
 								onChange={ this.handleChange( 'wordads_second_belowpost' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Second ad below post', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
+								label={ __( 'Second ad below post', 'jetpack' ) }
+							/>
 						</FormFieldset>
 					</SettingsGroup>
 					<SettingsGroup
@@ -289,22 +281,20 @@ export const Ads = withModuleSettingsFormHelpers(
 								: getRedirectUrl( 'jetpack-support-ads' ),
 						} }
 					>
-						<CompactFormToggle
+						<ToggleControl
 							checked={ wordads_ccpa_enabled }
 							disabled={
 								! isAdsActive ||
 								unavailableInOfflineMode ||
-								this.props.isSavingAnyOption( [ 'wordads', 'wordads_ccpa_enabled' ] )
+								this.props.isSavingAnyOption( [ 'wordads' ] )
 							}
+							toggling={ this.props.isSavingAnyOption( [ 'wordads_ccpa_enabled' ] ) }
 							onChange={ this.handleChange( 'wordads_ccpa_enabled' ) }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ __(
-									'Enable targeted advertising to site visitors in all US states.',
-									'jetpack'
-								) }
-							</span>
-						</CompactFormToggle>
+							label={ __(
+								'Enable targeted advertising to site visitors in all US states.',
+								'jetpack'
+							) }
+						/>
 						{ wordads_ccpa_enabled && (
 							<FormFieldset>
 								<p>

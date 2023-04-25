@@ -179,7 +179,6 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 		}
 
 		$this->assertTrue( is_wp_error( $result ) );
-
 	}
 
 	/**
@@ -262,7 +261,6 @@ class WP_Test_Jetpack_Json_Api_Plugins_Endpoints extends WP_UnitTestCase {
 		}
 
 		$this->assertTrue( $result );
-
 	}
 
 	/**

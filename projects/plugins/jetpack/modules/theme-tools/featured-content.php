@@ -7,6 +7,8 @@
 
 use Automattic\Jetpack\Constants;
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 
 	/**
@@ -495,10 +497,10 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * @return void
 		 */
 		public static function register_setting() {
-			add_settings_field( 'featured-content', __( 'Featured Content', 'jetpack' ), array( __class__, 'render_form' ), 'reading' );
+			add_settings_field( 'featured-content', __( 'Featured Content', 'jetpack' ), array( __CLASS__, 'render_form' ), 'reading' );
 
 			// Register sanitization callback for the Customizer.
-			register_setting( 'featured-content', 'featured-content', array( __class__, 'validate_settings' ) );
+			register_setting( 'featured-content', 'featured-content', array( __CLASS__, 'validate_settings' ) );
 		}
 
 		/**
@@ -588,7 +590,7 @@ if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'pl
 		 * Enqueue the tag suggestion script.
 		 */
 		public static function enqueue_scripts() {
-			wp_enqueue_script( 'featured-content-suggest', plugins_url( 'js/suggest.js', __FILE__ ), array( 'suggest' ), '20131022', true );
+			wp_enqueue_script( 'featured-content-suggest', plugins_url( 'js/suggest.js', __FILE__ ), array( 'jquery', 'suggest' ), '20131022', true );
 		}
 
 		/**

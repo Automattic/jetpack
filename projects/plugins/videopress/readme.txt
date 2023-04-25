@@ -2,9 +2,9 @@
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani
 Tags: video, video-hosting, video-player, cdn, vimeo, youtube, video-streaming, mobile-video, jetpack
 
-Requires at least: 6.0
-Tested up to: 6.1
-Stable tag: 1.0.0
+Requires at least: 6.1
+Tested up to: 6.2
+Stable tag: 1.5
 Requires PHP: 5.6
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -27,7 +27,7 @@ Tired of video companies sending your customers to their app to view videos? Or 
 
 High-quality, lightning-fast video hosting
 
-Take the complexity out of self-hosting videos. VideoPress offers fully-hosted videos and a CDN to ensure instant video speed for your audience around the globe. With our powerful and reliable hosting infrastructure, you can provide your audience with fast-motion videos with 60 FPS and full 4K resolution. 
+Take the complexity out of self-hosting videos. VideoPress offers fully-hosted videos and a CDN to ensure instant video speed for your audience around the globe. With our powerful and reliable hosting infrastructure, you can provide your audience with fast-motion videos with 60 FPS and full 4K resolution.
 
 
 == Installation ==
@@ -73,27 +73,24 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 2. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 1.1.0-beta - 2022-11-22
-
+### 1.5 - 2023-03-22
 #### Added
-- Added VideoPress feedback link to the VideoPress block.
-- Added Download, Details, Privacy, Rating and Dimensions panel to block.
-- Added rating control to the block's admin page details panel.
-- Added file drop support also after first video on admin page.
-- Added thumbnail selection from video frame on quick action and in edit details view for the admin page.
+- Added request and update video poster functionality
+- Added label and help properties support for the TimestampControl component
+- Added basic upload functionality to mobile app block version
+- Added details panel to mobile app block's settings
+- Added check to remove tracks from previous video after replacement on block
 
 #### Changed
-
-- Updated Color Panel on block.
-- Allowed keyboard navigation on video quick actions.
-- Renamed "Match video title" setting for "Dynamic color" in block settings panel.
+- Indicated full compatibility with the latest version of WordPress, 6.2.
+- Updated deprecated core prop
+- Replaced loading placeholder
+- Updated package dependencies
 
 #### Fixed
-
-- Fixed recognition of Jetpack Complete plan.
-- Fixed issue when setting video privacy.
-- Introduced a static list of video extensions allowed on VideoPress.
-- Mitigated video re-rendering flicker.
-- Fixed an issue with private VideoPress videos timing out when script loading is delayed.
-- Added Site Settings section for controlling site-wide privacy for videos.
+- Fixed video details form change detection
+- Fixed race condition when saving the post too fast after uploading a video
+- Fixed video library displaying arbitrary video in first page
+- Fixed opening upload options automatically when  block is inserted from the block inserter menu (mobile)
+- Fixed handling failed uploads on VideoPress block
 

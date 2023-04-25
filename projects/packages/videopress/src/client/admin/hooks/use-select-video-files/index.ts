@@ -23,7 +23,9 @@ const useSelectVideoFiles = ( {
 
 	const filterVideoFiles = ( files: FileList | File[] ) => {
 		return Array.from( files ).filter( file => {
-			return allowedVideoExtensions.some( extension => file.name.endsWith( extension ) );
+			return allowedVideoExtensions.some( extension =>
+				file.name.toLocaleLowerCase().endsWith( extension )
+			);
 		} );
 	};
 
@@ -95,12 +97,12 @@ const useSelectVideoFiles = ( {
 
 	if ( dropElement ) {
 		useEffect( () => {
-			dropElement.addEventListener( 'drop', ( handleDropEvent as unknown ) as EventListener );
+			dropElement.addEventListener( 'drop', handleDropEvent as unknown as EventListener );
 			dropElement.addEventListener( 'dragover', handleDragOverEvent );
 			dropElement.addEventListener( 'dragleave', handleDragLeaveEvent );
 
 			return () => {
-				dropElement.removeEventListener( 'drop', ( handleDropEvent as unknown ) as EventListener );
+				dropElement.removeEventListener( 'drop', handleDropEvent as unknown as EventListener );
 				dropElement.removeEventListener( 'dragover', handleDragOverEvent );
 				dropElement.removeEventListener( 'dragleave', handleDragLeaveEvent );
 			};

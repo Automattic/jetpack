@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.4.0-beta - 2023-03-29
+### Added
+- Add brute force protection. [#28401]
+
+### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.2. [#29341]
+- Improve the firewall status heading to provide more information based on the current configuration. [#28401]
+- Updated package dependencies. [#29480]
+
+## 1.3.0 - 2023-03-13
+### Added
+- Add ability to toggle automatic and manual firewall rules independently. [#27726]
+- Add improved messaging for currently enabled firewall features. [#27845]
+- Disable Jetpack Firewall on unsupported environments. [#27939]
+- Add link to pricing page for getting started with an existing plan or license key. [#27745]
+
+### Changed
+- Updated package dependencies. [#29297]
+- Update to React 18. [#28710]
+- Use `flex-start`/`flex-end` instead of `start`/`end` for better browser compatibility. [#28530]
+
+### Fixed
+- Fix connection button loading indicators. [#28514]
+- Fix Protect status report caching. [#28766]
+- Remove unnecessary full path from example in UI. [#29037]
+- Other assorted fixes for minor bugs and grammar. [#27846] [#28091] [#28397] [#28273]
+
+## 1.2.0 - 2023-01-16
+### Added
+- Add web application firewall (WAF) features [#27528]
+- Add progress bar to site scannnig screen [#27171]
+
+### Fixed
+- Poll for scan status while scanner is provisioning [#28275]
+- Bug fixes
+
 ## 1.1.2 - 2022-11-30
 ### Changed
 - changed description and author [#27618]

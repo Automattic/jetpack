@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 add_action( 'widgets_init', 'jetpack_facebook_likebox_init' );
 /**
  * Register the widget for use in Appearance -> Widgets
@@ -95,7 +97,8 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			array(),
 			JETPACK__VERSION
 		);
-		wp_style_add_data( 'jetpack_facebook_likebox', 'jetpack-inline', true );
+		// Inline styles. @see wp_maybe_inline_styles()
+		wp_style_add_data( 'jetpack_facebook_likebox', 'path', plugin_dir_path( __FILE__ ) . 'facebook-likebox/style.css' );
 	}
 
 	/**

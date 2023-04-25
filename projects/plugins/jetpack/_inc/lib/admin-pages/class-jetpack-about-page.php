@@ -41,7 +41,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 	public function get_page_hook() {
 		// Add the main admin Jetpack menu.
 		return add_submenu_page(
-			null,
+			'',
 			esc_html__( 'About Jetpack', 'jetpack' ),
 			'',
 			'jetpack_admin_page',
@@ -198,7 +198,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 				<p class="jetpack-about__services-more">
 				<?php
 				echo wp_kses(
-					__( 'For even more of our WordPress plugins, please <a href="https://profiles.wordpress.org/automattic/#content-plugins" target="_blank" rel="noopener noreferrer" class="jptracks" data-jptracks-name="jetpack_about_wporg_profile">take a look at our WordPress.org profile</a>.', 'jetpack' ),
+					__( 'For even more of our WordPress plugins, please take a look at <a href="https://profiles.wordpress.org/automattic/#content-plugins" target="_blank" rel="noopener noreferrer" class="jptracks" data-jptracks-name="jetpack_about_wporg_profile">our WordPress.org profile</a>.', 'jetpack' ),
 					array(
 						'a' => array(
 							'href'               => array(),
@@ -520,7 +520,6 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 			<?php
 
 		}
-
 	}
 
 	/**

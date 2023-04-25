@@ -17,7 +17,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
 import { isOfflineMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
-import { getInitialStateStatsData, getDateFormat } from 'state/initial-state';
+import {
+	isOdysseyStatsEnabled,
+	getInitialStateStatsData,
+	getDateFormat,
+} from 'state/initial-state';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
 import DashStatsBottom from './dash-stats-bottom';
@@ -93,10 +97,12 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link: getRedirectUrl( `calypso-stats-${ unit }`, {
-						site: props.siteRawUrl,
-						query: `startDate=${ date }`,
-					} ),
+					link: isOdysseyStatsEnabled
+						? `${ props.siteAdminUrl }admin.php?page=stats#!/stats/day/${ props.siteRawUrl }?startDate=${ date }`
+						: getRedirectUrl( `calypso-stats-${ unit }`, {
+								site: props.siteRawUrl,
+								query: `startDate=${ date }`,
+						  } ),
 				},
 				tooltipData: [
 					{
@@ -351,7 +357,10 @@ export class DashStats extends Component {
 			this.props.isModuleAvailable && (
 				<div>
 					<QueryStatsData range={ this.props.activeTab } />
-					<DashSectionHeader label={ __( 'Jetpack Stats', 'jetpack' ) }>
+					<DashSectionHeader
+						label={ __( 'Jetpack Stats', 'jetpack' ) }
+						className="jp-dash-section-header-stats"
+					>
 						{ this.maybeShowStatsTabs() }
 					</DashSectionHeader>
 					<Card

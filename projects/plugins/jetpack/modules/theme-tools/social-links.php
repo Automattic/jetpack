@@ -13,6 +13,8 @@
  * @package automattic/jetpack
  */
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 /**
  * Init Social_Links if the theme declares support.
  */

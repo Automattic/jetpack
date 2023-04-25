@@ -72,6 +72,7 @@ require __DIR__ . '/class.csstidy-optimise.php';
  * @author Florian Schmitz (floele at gmail dot com) 2005-2006
  * @version 1.3.1
  */
+#[AllowDynamicProperties]
 class csstidy { // phpcs:ignore
 
 	/**
@@ -464,7 +465,7 @@ class csstidy { // phpcs:ignore
 			if ( ctype_space( $string[ $i ] ) ) {
 				break;
 			}
-			$i++;
+			++$i;
 		}
 
 		if ( hexdec( $add ) > 47 && hexdec( $add ) < 58 || hexdec( $add ) > 64 && hexdec( $add ) < 91 || hexdec( $add ) > 96 && hexdec( $add ) < 123 ) {
@@ -477,7 +478,7 @@ class csstidy { // phpcs:ignore
 
 		if ( @ctype_xdigit( $string[ $i + 1 ] ) && ctype_space( $string[ $i ] )
 						&& ! $replaced || ! ctype_space( $string[ $i ] ) ) {
-			$i--;
+			--$i;
 		}
 
 		if ( '\\' !== $add || ! $this->get_cfg( 'remove_bslash' ) || strpos( $this->tokens_list, $string[ $i + 1 ] ) !== false ) {
@@ -522,21 +523,21 @@ class csstidy { // phpcs:ignore
 		$filename .= ( $formatted ) ? '.xhtml' : '.css';
 
 		if ( ! is_dir( 'temp' ) ) {
-			$madedir = mkdir( 'temp' );
+			$madedir = mkdir( 'temp' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
 			if ( ! $madedir ) {
 				print 'Could not make directory "temp" in ' . __DIR__;
 				exit;
 			}
 		}
-		$handle = fopen( 'temp/' . $filename, 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fopen
+		$handle = fopen( 'temp/' . $filename, 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 		if ( $handle ) {
 			if ( ! $formatted ) {
-				fwrite( $handle, $this->print->plain() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fwrite
+				fwrite( $handle, $this->print->plain() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 			} else {
-				fwrite( $handle, $this->print->formatted_page( $doctype, $externalcss, $title, $lang, $pre_code ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fwrite
+				fwrite( $handle, $this->print->formatted_page( $doctype, $externalcss, $title, $lang, $pre_code ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 			}
 		}
-		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_read_fclose
+		fclose( $handle ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 	}
 
 	/**
@@ -973,7 +974,7 @@ class csstidy { // phpcs:ignore
 				case 'ic':
 					if ( '*' === $string[ $i ] && '/' === $string[ $i + 1 ] ) {
 						$this->status = array_pop( $this->from );
-						$i++;
+						++$i;
 						$this->_add_token( COMMENT, $cur_comment );
 						$cur_comment = '';
 					} else {
@@ -1088,7 +1089,7 @@ class csstidy { // phpcs:ignore
 		}
 		while ( isset( $this->css[ $media ] ) ) {
 			if ( is_numeric( $media ) ) {
-				$media++;
+				++$media;
 			} else {
 				$media .= ' ';
 			}
@@ -1291,15 +1292,11 @@ class csstidy { // phpcs:ignore
 				} elseif ( ! $in_str ) {
 					$in_str = $value[ $i ];
 				}
-			} else {
-				if ( $in_str ) {
-					$current_string .= $value[ $i ];
-				} else {
-					if ( ! preg_match( '/[\s,]/', $value[ $i ] ) ) {
-						$in_str         = true;
-						$current_string = $value[ $i ];
-					}
-				}
+			} elseif ( $in_str ) {
+				$current_string .= $value[ $i ];
+			} elseif ( ! preg_match( '/[\s,]/', $value[ $i ] ) ) {
+				$in_str         = true;
+				$current_string = $value[ $i ];
 			}
 		}
 

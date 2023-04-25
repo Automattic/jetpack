@@ -68,7 +68,7 @@ if ( $cache_enabled ) {
 					echo '<p>' . sprintf( __( '<strong>Errors:</strong> %s', 'wp-super-cache' ), $errors ) . '</p>';
 				}
 			}
-			$c ++;
+			++$c;
 		}
 
 		if ( false == $cache_test_error ) {

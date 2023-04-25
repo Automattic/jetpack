@@ -50,7 +50,6 @@ class Admin_UI {
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'edit_video_link' ), 10, 3 );
 
 		add_action( 'admin_init', array( __CLASS__, 'remove_jetpack_hooks' ) );
-
 	}
 
 	/**
@@ -141,6 +140,7 @@ class Admin_UI {
 		);
 		Assets::enqueue_script( self::JETPACK_VIDEOPRESS_PKG_NAMESPACE );
 
+		// Required for Media Library access
 		wp_enqueue_media();
 
 		// Required for Analytics.
@@ -185,6 +185,7 @@ class Admin_UI {
 			'siteProductData'        => My_Jetpack_Products::get_product( 'videopress' ),
 			'allowedVideoExtensions' => self::get_allowed_video_extensions(),
 			'initialState'           => Data::get_initial_state(),
+			'contentNonce'           => wp_create_nonce( 'videopress-content-nonce' ),
 		);
 	}
 
@@ -301,7 +302,6 @@ class Admin_UI {
 			});
 		</script>
 		<?php
-
 	}
 
 	/**
@@ -373,7 +373,6 @@ class Admin_UI {
 			});
 		</script>
 		<?php
-
 	}
 
 	/**

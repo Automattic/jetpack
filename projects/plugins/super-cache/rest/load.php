@@ -105,7 +105,6 @@ class WP_Super_Cache_Router {
 				'args'           	  => array(),
 			),
 		) );
-
 	}
 
 	/**
@@ -161,7 +160,7 @@ class WP_Super_Cache_Router {
 }
 
 function wpsc_load_rest_api() {
-	$wpsupercache_route = new WP_Super_Cache_Router;
+	$wpsupercache_route = new WP_Super_Cache_Router();
 	$wpsupercache_route->register_routes();
 };
 

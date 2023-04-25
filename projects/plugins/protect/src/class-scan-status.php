@@ -124,7 +124,7 @@ class Scan_Status extends Status {
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ) );
-		self::update_option( maybe_serialize( $body ) );
+		self::update_status_option( $body );
 		return $body;
 	}
 
@@ -146,6 +146,7 @@ class Scan_Status extends Status {
 		$status->num_themes_threats  = 0;
 		$status->num_plugins_threats = 0;
 		$status->has_unchecked_items = false;
+		$status->current_progress    = isset( $scan_data->current->progress ) ? $scan_data->current->progress : null;
 
 		if ( ! empty( $scan_data->most_recent->timestamp ) ) {
 			$date = new \DateTime( $scan_data->most_recent->timestamp );
@@ -201,8 +202,8 @@ class Scan_Status extends Status {
 								'source'              => isset( $threat->source ) ? $threat->source : null,
 							)
 						);
-						$status->num_threats++;
-						$status->num_plugins_threats++;
+						++$status->num_threats;
+						++$status->num_plugins_threats;
 						continue;
 					}
 
@@ -241,8 +242,8 @@ class Scan_Status extends Status {
 								'source'              => isset( $threat->source ) ? $threat->source : null,
 							)
 						);
-						$status->num_threats++;
-						$status->num_themes_threats++;
+						++$status->num_threats;
+						++$status->num_themes_threats;
 						continue;
 					}
 				}
@@ -262,20 +263,20 @@ class Scan_Status extends Status {
 							'severity'       => $threat->severity,
 						)
 					);
-					$status->num_threats++;
+					++$status->num_threats;
 
 					continue;
 				}
 
 				if ( ! empty( $threat->filename ) ) {
 					$status->files[] = new Threat_Model( $threat );
-					$status->num_threats++;
+					++$status->num_threats;
 					continue;
 				}
 
 				if ( ! empty( $threat->table ) ) {
 					$status->database[] = new Threat_Model( $threat );
-					$status->num_threats++;
+					++$status->num_threats;
 					continue;
 				}
 			}
