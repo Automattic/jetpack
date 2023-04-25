@@ -5969,7 +5969,7 @@ function zeroBSCRM_AJAX_sendInvoiceEmail_v3( $email = '', $invoiceID = -1, $atta
 			if ( $pdfFileLocation !== false ) {
 
 				// attach inv
-				$attachments[] = array( $pdfFileLocation, 'invoice.pdf' );
+				$attachments[] = array( $pdfFileLocation ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			}
 
