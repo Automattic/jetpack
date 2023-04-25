@@ -22,12 +22,20 @@
 	flex: 1;
 }
 
+.is-plan  .my-plan-card__title{
+  font-size: 24px;
+}
+
 .my-plan-card__title {
-	font-size: $font-title-small;
-	font-weight: 600;
+	font-size: 20px;
+	font-weight: 500;
 	line-height: 30px;
-	margin: 6px 0;
-	color: $gray-dark;
+	margin: 4px 0;
+	color: $black;
+
+  @include breakpoint( '<960px' ) {
+	padding-top: 16px;
+  }
 }
 
 .my-plan-card__tag-line {
@@ -36,16 +44,22 @@
 	line-height: 18px;
 	margin: 0 0 24px;
 
-	@include breakpoint( '>960px' ) {
-		margin-bottom: 8px;
+	@include breakpoint( '<960px' ) {
+	  margin-bottom: 8px;
 	}
+}
+
+.is-plan .my-plan-card__icon {
+	width: 99px;
+	height: 99px;
+	margin: 0 16px 0 0;
 }
 
 .my-plan-card__icon {
 	flex: 0 0 auto;
-	width: 64px;
-	height: 64px;
-	margin: 8px 20px 16px 0;
+	width: 48px;
+	height: 48px;
+	margin: 16px 24px 16px 0;
 
 	@include breakpoint( '<660px' ) {
 		display: none;
@@ -63,7 +77,7 @@
 	flex-flow: row wrap;
 	align-items: center;
 	justify-content: space-between;
-	padding: 8px 0 0;
+	padding: 0;
 
 	@include breakpoint( '>960px' ) {
 		flex-flow: column nowrap;
@@ -75,10 +89,10 @@
 	&::before {
 		content: '';
 		position: absolute;
-		top: 0;
 		left: -16px;
 		right: -16px;
-		border-top: 1px solid $light-gray-700;
+		border-bottom: 1px solid var(--jp-gray);
+	  	bottom: 0;
 
 		@include breakpoint( '>480px' ) {
 			left: -24px;
@@ -101,7 +115,7 @@
 }
 
 .my-plan-card__details {
-	padding-top: 8px;
+	padding: 8px 0 16px;
 	color: $gray-darken-10;
 
 	@include breakpoint( '>480px' ) {
