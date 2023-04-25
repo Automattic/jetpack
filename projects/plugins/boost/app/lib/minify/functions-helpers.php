@@ -43,7 +43,7 @@ function jetpack_boost_page_optimize_deactivate() {
 
 	jetpack_boost_page_optimize_cache_cleanup( $cache_folder, 0 /* max file age in seconds */ );
 
-	wp_clear_scheduled_hook( 'page_optimize_cron_cache_cleanup', array( $cache_folder ) );
+	wp_clear_scheduled_hook( 'jetpack_boost_minify_cron_cache_cleanup', array( $cache_folder ) );
 }
 
 function jetpack_boost_page_optimize_uninstall() {
@@ -162,8 +162,8 @@ function jetpack_boost_page_optimize_schedule_cache_cleanup() {
 	$args         = array( $cache_folder );
 
 	// If caching is on, and job isn't queued for current cache folder
-	if ( false !== $cache_folder && false === wp_next_scheduled( 'page_optimize_cron_cache_cleanup', $args ) ) {
-		wp_schedule_event( time(), 'daily', 'page_optimize_cron_cache_cleanup', $args );
+	if ( false !== $cache_folder && false === wp_next_scheduled( 'jetpack_boost_minify_cron_cache_cleanup', $args ) ) {
+		wp_schedule_event( time(), 'daily', 'jetpack_boost_minify_cron_cache_cleanup', $args );
 	}
 }
 
@@ -264,7 +264,7 @@ function jetpack_boost_minify_setup() {
 		return false;
 	}
 
-	add_action( 'page_optimize_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
+	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
 	register_deactivation_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_deactivate' );
 	register_uninstall_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_uninstall' );
 
