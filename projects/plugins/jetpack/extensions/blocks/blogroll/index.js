@@ -1,7 +1,7 @@
+import { InnerBlocks, useBlockProps } from '@wordpress/block-editor';
 import { __ } from '@wordpress/i18n';
 import attributes from './attributes';
 import edit from './edit';
-
 /**
  * Style dependencies
  */
@@ -26,8 +26,17 @@ export const settings = {
 		className: true,
 	},
 	edit,
+	save: () => {
+		const blockProps = useBlockProps.save();
+
+		return (
+			<div { ...blockProps }>
+				<InnerBlocks.Content />
+			</div>
+		);
+	},
 	attributes,
 	example: {
-		attributes: {},
+		attributes,
 	},
 };

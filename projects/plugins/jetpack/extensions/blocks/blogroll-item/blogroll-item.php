@@ -1,18 +1,18 @@
 <?php
 /**
- * Blogroll Block.
+ * Blogroll Item Block.
  *
  * @since 12.0
  *
  * @package automattic/jetpack
  */
 
-namespace Automattic\Jetpack\Extensions\Blogroll;
+namespace Automattic\Jetpack\Extensions\Blogroll_Item;
 
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
-const FEATURE_NAME = 'blogroll';
+const FEATURE_NAME = 'blogroll-item';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 /**
@@ -31,10 +31,10 @@ function register_block() {
 add_action( 'init', __NAMESPACE__ . '\register_block' );
 
 /**
- * Blogroll block registration/dependency declaration.
+ * Blogroll item block registration/dependency declaration.
  *
- * @param array  $attributes    Array containing the Blogroll block attributes.
- * @param string $content String containing the Blogroll block content.
+ * @param array  $attributes    Array containing the Blogroll item block attributes.
+ * @param string $content String containing the Blogroll item block content.
  *
  * @return string
  */
@@ -42,8 +42,9 @@ function render( $attributes, $content ) {
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
+
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-	return '<div>Blogroll</div>';
+	return '<div>Blogroll Item</div>';
 }
 
 
