@@ -12,7 +12,10 @@ class Minify_CSS implements Pluggable {
 	public function setup() {
 		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';
 
-		jetpack_boost_minify_setup();
+		$setup_done = jetpack_boost_minify_setup();
+		if ( false === $setup_done ) {
+			return;
+		}
 
 		if ( is_admin() ) {
 			return;

@@ -273,17 +273,15 @@ function jetpack_boost_minify_init_cache_service() {
  * @return void
  */
 function jetpack_boost_minify_setup() {
-	static $already_done = false;
-	if ( $already_done ) {
-		return;
+	static $setup_done;
+	if ( $setup_done ) {
+		return $setup_done;
 	}
-
-	$already_done = true;
 
 	jetpack_boost_minify_init_cache_service();
 
 	if ( jetpack_boost_page_optimize_bail() ) {
-		return;
+		return false;
 	}
 
 	add_action( 'page_optimize_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
@@ -294,4 +292,8 @@ function jetpack_boost_minify_setup() {
 
 	// Disable Jetpack photon-cdn for static JS/CSS.
 	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
+
+	$setup_done = true;
+
+	return $setup_done;
 }
