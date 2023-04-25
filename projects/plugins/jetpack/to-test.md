@@ -77,7 +77,7 @@ Jetpack Forms continues to improve with changes in this release. One change is a
 Additionally, when themes do not reset the browser styles, the Jetpack button block will display borders on the frontend. To avoid that, we add our own reset, except when the button uses the "outline" styles, where we do want to show a border:
 
 - Start with a site using the Twenty Twenty Two theme.
-- In a new post, add 2 blocks that use the Jetpack button block: the Form block as well as the Revue block are good examples.
+- In a new post, add two blocks that use the Jetpack button block: the Form block as well as the Revue block are good examples.
 - In one of those blocks, use the default "fill" block style, and in the other use the "outline" style.
 - On the frontend, the button should not have a border when using the "fill" block style.
 
