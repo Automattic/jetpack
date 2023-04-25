@@ -94,18 +94,18 @@ const purchases = ( state = {}, action ) => {
 	}
 };
 
-const chatAvailability = ( state = {}, action ) => {
+const chatAvailability = ( state = { isFetching: false, isAvailable: false }, action ) => {
 	switch ( action.type ) {
 		case SET_CHAT_AVAILABILITY_IS_FETCHING:
 			return {
 				...state,
-				isFetching: action.isFetching || false,
+				isFetching: action.isFetching,
 			};
 
 		case SET_CHAT_AVAILABILITY:
 			return {
 				...state,
-				isAvailable: action?.chatAvailability?.is_available || false,
+				isAvailable: action?.chatAvailability?.is_available,
 			};
 
 		default:
