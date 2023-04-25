@@ -1,7 +1,7 @@
 {
 	"private": true,
 	"name": "@automattic/jetpack-forms",
-	"version": "0.13.0",
+	"version": "0.14.0-alpha",
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
 	"bugs": {
@@ -45,6 +45,7 @@
 		"lodash": "4.17.21",
 		"react-redux": "7.2.8",
 		"react-router-dom": "5.3.4",
+		"react-transition-group": "^4.4.5",
 		"redux": "4.0.5",
 		"redux-thunk": "2.3.0",
 		"sass": "1.38.1",

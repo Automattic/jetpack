@@ -8,13 +8,52 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Stats\WPCOM_Stats;
 use WP_Error;
 
 /**
  * Provides data stats about videos inside VideoPress
  */
 class Stats {
+	/**
+	 * Hit WPCOM video-plays stats endpoint.
+	 *
+	 * @param array $args Request args.
+	 * @return array|WP_Error WP HTTP response on success
+	 */
+	public static function fetch_video_plays( $args = array() ) {
+		$blog_id = VideoPressToken::blog_id();
+
+		$endpoint = sprintf(
+			'sites/%d/stats/video-plays?check_stats_module=false',
+			$blog_id
+		);
+
+		if ( is_array( $args ) && ! empty( $args ) ) {
+			$endpoint .= '&' . http_build_query( $args );
+		}
+
+		$result = Client::wpcom_json_api_request_as_blog( $endpoint );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$response      = $result['http_response'];
+		$response_code = $response->get_status();
+		$response_body = json_decode( $response->get_data(), true );
+
+		if ( 200 !== $response_code ) {
+			return new WP_Error(
+				'videopress_stats_error',
+				$response_body
+			);
+		}
+
+		return array(
+			'code' => $response_code,
+			'data' => $response_body,
+		);
+	}
 
 	/**
 	 * Returns the counter of today's plays for all videos.
@@ -22,34 +61,19 @@ class Stats {
 	 * @return int|WP_Error the total of plays for today, or WP_Error on failure.
 	 */
 	public static function get_today_plays() {
-		$error = new WP_Error(
-			'videopress_stats_error',
-			__( "Could not fetch today's stats from the service", 'jetpack-videopress-pkg' )
-		);
-
-		$blog_id = VideoPressToken::blog_id();
-
-		$path = sprintf(
-			'sites/%d/stats/video-plays',
-			$blog_id
-		);
-
-		$response = Client::wpcom_json_api_request_as_blog( $path, '1.1', array(), null, 'rest' );
+		$response = self::fetch_video_plays();
 
 		if ( is_wp_error( $response ) ) {
-			return $error;
+			return $response;
 		}
 
-		$response_code = wp_remote_retrieve_response_code( $response );
-		if ( 200 !== $response_code ) {
-			return $error;
-		}
-
-		$body = wp_remote_retrieve_body( $response );
-		$data = json_decode( $body, true );
+		$data = $response['data'];
 
 		if ( ! $data || ! isset( $data['days'] ) || count( $data['days'] ) === 0 ) {
-			return $error;
+			return new WP_Error(
+				'videopress_stats_error',
+				__( 'Could not find any stats from the service', 'jetpack-videopress-pkg' )
+			);
 		}
 
 		/*
@@ -66,10 +90,7 @@ class Stats {
 	 * @return array|WP_Error a list of stats, or WP_Error on failure.
 	 */
 	public static function get_featured_stats() {
-		$error_code    = 'videopress_featured_stats_error';
-		$error_message = __( 'Could not fetch featured stats from the service', 'jetpack-videopress-pkg' );
-
-		$data = ( new WPCOM_Stats() )->get_video_plays(
+		$response = self::fetch_video_plays(
 			array(
 				'period'         => 'day',
 				'num'            => 14,
@@ -77,14 +98,16 @@ class Stats {
 			)
 		);
 
-		if ( is_wp_error( $data ) ) {
-			return $data;
+		if ( is_wp_error( $response ) ) {
+			return $response;
 		}
+
+		$data = $response['data'];
 
 		if ( ! $data ) {
 			return new WP_Error(
-				$error_code,
-				$error_message
+				'videopress_stats_error',
+				__( 'Could not find any stats from the service', 'jetpack-videopress-pkg' )
 			);
 		}
 

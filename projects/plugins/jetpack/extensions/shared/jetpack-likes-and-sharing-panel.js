@@ -18,7 +18,9 @@ registerPlugin( 'jetpack-likes-and-sharing-panel', {
 
 					return (
 						<JetpackPluginSidebar>
-							<PanelBody title={ __( 'Likes and Sharing', 'jetpack' ) }>{ fills }</PanelBody>
+							<PanelBody title={ __( 'Likes and Sharing', 'jetpack' ) } initialOpen={ false }>
+								{ fills }
+							</PanelBody>
 						</JetpackPluginSidebar>
 					);
 				} }
