@@ -1,6 +1,10 @@
+<script lang="ts">
+	import { imageStore } from '../ApiMock';
+</script>
+
 <div class="jb-hero">
 	<span>Latest report as of March 17th at 3:27 PM</span>
-	<h1>21 Image Recommendations</h1>
+	<h1>{$imageStore.length} Image Recommendations</h1>
 </div>
 
 <style lang="scss">
