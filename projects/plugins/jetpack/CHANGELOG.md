@@ -2,6 +2,37 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.1-beta - 2023-04-25
+### Enhancements
+- Add counts in the newsletter panel to show the newsletter reach [#29230]
+- Add is_block_theme field to the wp/v2/themes endpoint to indicate it the theme is a block-based theme. [#30144]
+- Align protect option value logic with Akismet. [#30222]
+- Block editor: collapse Jetpack feature panels by default. [#30140]
+- Debug page redesign. [#30166]
+- Improve the appearance. [#30166]
+- Jetpack Dashboard - At a Glance page redesign. [#30166]
+- Make Stats Widget frame sections balanced with long titles. [#30106]
+- Markdown Block: add support for footnotes [#30149]
+- Publicize: Use attached media for the OpenGraph image [#30162]
+- Remove rewriting the Site Editor to Calypso's iframed `/site-editor/SITE_SLUG` route [#30072]
+- Stats widget: improve appearance of footer buttons [#30173]
+- Stats Widget: remove feature gating [#30174]
+
+### Improved compatibility
+- General: remove WordPress 6.0 backwards-compatibility code, now that Jetpack requires WordPress 6.1 [#30126]
+
+### Bug fixes
+- 3rd-party shims: improve loading performance [#30060]
+- Update the visibility setting of the Payment block inner blocks on click to ensure that the inner block renders [#30095]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Changelog editoria [#30133]
+- Connection: update the full-screen connection banner to the new design. [#29566]
+- Fix firefox not detecting the collapsed state of the sidebar properly [#30240]
+- Make sure the hook receives an array before attempting any process [#30192]
+- SEO: update panel name in block editor. [#30138]
+- Shows convert to audio CTA based on the value of a filter that defaults to the current sunsetting date. [#30239]
+
 ## 12.1-a.7 - 2023-04-17
 ### Enhancements
 - Dashboard: update the links to the Mobile apps to allow opening links in the appropriate app store right away. [#30063]
