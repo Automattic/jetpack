@@ -55,7 +55,7 @@
 		"semver": "7.3.5",
 		"sort-package-json": "1.50.0",
 		"svelte": "3.58.0",
-		"typescript": "4.8.2",
+		"typescript": "5.0.4",
 		"yaml": "2.2.2"
 	},
 	"engines": {
