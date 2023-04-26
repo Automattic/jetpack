@@ -1371,28 +1371,33 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$title   = apply_filters( 'jetpack_forms_response_email_title', __( 'You got a new response!', 'jetpack-forms' ) );
 		$message = self::get_compiled_form_for_email( $post_id, $this );
 
-		array_push(
-			$message,
-			'<br />',
-			'<hr />',
-			__( 'Time:', 'jetpack-forms' ) . ' ' . $time . '<br />',
-			__( 'IP Address:', 'jetpack-forms' ) . ' ' . $comment_author_IP . '<br />', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-			__( 'Contact Form URL:', 'jetpack-forms' ) . ' ' . $url . '<br />'
-		);
-
 		if ( is_user_logged_in() ) {
-			array_push(
-				$message,
-				sprintf(
-					// translators: the the name of the site.
-					'<p>' . __( 'Sent by a verified %s user.', 'jetpack-forms' ) . '</p>',
-					isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ?
-						$GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
-				)
+			$sent_by_text = sprintf(
+				// translators: the the name of the site.
+				'<br />' . __( 'Sent by a verified %s user.', 'jetpack-forms' ) . '<br />',
+				isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ? $GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
 			);
 		} else {
-			array_push( $message, '<p>' . __( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '</p>' );
+			$sent_by_text = '<br />' . __( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '<br />';
 		}
+
+		$footer = join(
+			'',
+			apply_filters(
+				'jetpack_forms_response_email_footer',
+				array(
+					'<br />',
+					'<hr />',
+					'<span style="font-size: 12px">',
+					__( 'Time:', 'jetpack-forms' ) . ' ' . $time . '<br />',
+					__( 'IP Address:', 'jetpack-forms' ) . ' ' . $comment_author_IP . '<br />', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					__( 'Contact Form URL:', 'jetpack-forms' ) . ' ' . $url . '<br />',
+					$sent_by_text,
+					'</span>',
+					'<hr />',
+				)
+			)
+		);
 
 		$response_link = admin_url( 'edit.php?post_type=feedback' );
 
@@ -1410,7 +1415,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$message = apply_filters( 'contact_form_message', $message );
 
 		// This is called after `contact_form_message`, in order to preserve back-compat
-		$message = self::wrap_message_in_html_tags( $title, $response_link, $url, $message );
+		$message = self::wrap_message_in_html_tags( $title, $response_link, $url, $message, $footer );
 
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
@@ -1602,10 +1607,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @param string $response_link - the link to the response.
 	 * @param string $form_link - the link to the form.
 	 * @param string $body - the message body.
+	 * @param string $footer - the footer containing meta information.
 	 *
 	 * @return string
 	 */
-	public static function wrap_message_in_html_tags( $title, $response_link, $form_link, $body ) {
+	public static function wrap_message_in_html_tags( $title, $response_link, $form_link, $body, $footer ) {
 		// Don't do anything if the message was already wrapped in HTML tags
 		// That could have be done by a plugin via filters
 		if ( false !== strpos( $body, '<html' ) ) {
@@ -1809,16 +1815,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 															<h1 class="jetpack-onboarding-hero-title-text" style="color: #101517; font-style: normal; font-weight: normal; line-height: 1.2; text-align:left; font-size: 36px;">
 																%1$s
 															</h1>
-															%2$s
+															<p>%2$s</p>
 															<p><a class="build-your-own-jetpack-new-section-link" href="%3$s" style="color: #000; display: inline-block; box-sizing: border-box; line-height: 24px; letter-spacing: -0.02em; text-decoration: none; padding: 12px 24px; border: 1px solid #000; border-radius: 4px; font-size: 16px;">' . __( 'View Response', 'jetpack-forms' ) . '</a></p>
-
+															%5$s
 														</td>
 													</tr>
 													<tr>
 														<td class="build-your-own-jetpack-new-section" align="left" style="border-collapse: collapse; background-color: #F9F9F6; font-family: \'SF Pro Display\', Helvetica, Arial, sans-serif; padding: 32px 24px;">
 															<span class="build-your-own-jetpack-new-section-eyebrow" style="color: #008710; font-weight: 600; line-height: 1.8; font-size: 16px;">' . __( 'Did you know?', 'jetpack-forms' ) . '</span>
 															<h2 class="build-your-own-jetpack-new-section-header-text" style="font-size: 26px; font-weight: 600; line-height: 1.2; margin: 16px 0;">' . __( 'Export your form responses to Google Sheets with just one click', 'jetpack-forms' ) . '</h2>
-															<img alt class="jetpack-onboarding-hero-image" src="http://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/jetpack-backup-onboarding-hero.png" width="500" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none; display: inline-block; max-width: 100%%;">
+															<img alt class="jetpack-onboarding-hero-image" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/jetpack-forms-google-sheets-hero.jpg" width="500" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none; display: inline-block; max-width: 100%%;">
 															<p class="build-your-own-jetpack-new-section-body-text" style="direction: ltr; letter-spacing: -0.02em; line-height: 1.5; margin-bottom: 24px; font-size: 16px;">' . __( 'Exporting form responses to Google Sheets allows you to easily manage and analyze the data collected through your forms. This feature can be useful for analysing customer feedback, conducting market research, or organizing event registration information.', 'jetpack-forms' ) . '</p>
 
 															<a class="build-your-own-jetpack-new-section-link" href="https://jetpack.com/support/jetpack-blocks/contact-form/#export-form-responses" style="background-color: #000; border-radius: 4px; display: inline-block; box-sizing: border-box; color: #fff; font-weight: 600; letter-spacing: -0.02em;line-height: 24px; padding: 12px 24px; text-decoration: none; font-size: 16px;">' . __( 'Learn more', 'jetpack-forms' ) . '</a>
@@ -1888,7 +1894,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$title,
 			$body,
 			$response_link,
-			$form_link
+			$form_link,
+			$footer
 		);
 
 		return $html_message;
