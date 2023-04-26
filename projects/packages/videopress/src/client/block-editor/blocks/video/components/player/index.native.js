@@ -95,7 +95,7 @@ export default function Player( { isSelected, attributes } ) {
 			return;
 		}
 
-		if ( isPreviewReady) {
+		if ( isPreviewReady ) {
 			clearTimeout( previewCheckTimer.current );
 			return;
 		}
