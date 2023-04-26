@@ -94,6 +94,12 @@ function fixDeps( pkg ) {
 		pkg.dependencies[ '@wordpress/components' ] = '*';
 	}
 
+	// Outdated dependency.
+	// No upstream bug link yet.
+	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
+		pkg.dependencies.cssnano = '^5.0.1 || ^6';
+	}
+
 	return pkg;
 }
 
