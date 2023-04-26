@@ -12,6 +12,7 @@ import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { Fragment, createInterpolateElement, useCallback } from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
+import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import PublicizeConnection from '../connection';
@@ -44,6 +45,7 @@ export default function PublicizeForm( {
 	const { connections, toggleById, hasConnections, enabledConnections } =
 		useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
+	const { isEnabled: isImageGeneratorEnabled } = useImageGeneratorConfig();
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
@@ -188,7 +190,19 @@ export default function PublicizeForm( {
 							/>
 						</>
 					) }
-					{ isEnhancedPublishingEnabled && <MediaSection /> }
+					{ isEnhancedPublishingEnabled && (
+						<MediaSection
+							disabled={ isImageGeneratorEnabled }
+							notice={
+								isImageGeneratorEnabled
+									? __(
+											'It is not possible to add an image or video when Social Image Generator is enabled.',
+											'jetpack'
+									  )
+									: null
+							}
+						/>
+					) }
 				</Fragment>
 			) }
 		</Wrapper>
