@@ -1182,14 +1182,14 @@ function zeroBSCRM_pages_admin_system_emails() {
 							// close column and grid
 								echo '</div></div>';
 
-							$content        = esc_html( $form->zbsmail_body );
-							$editorsettings = array(
+							$content         = esc_html( $form->zbsmail_body );
+							$editor_settings = array(
 								'media_buttons' => false,
 								'editor_height' => 350,
 								'quicktags'     => false,
 								'tinymce'       => false,
 							);
-							wp_editor( $content, 'zbscontent', $editorsettings );
+							wp_editor( $content, 'zbscontent', $editor_settings );
 							echo '</div>';
 							?>
 
