@@ -76,13 +76,13 @@ export type Dimensions = { width: number; height: number };
 export type ImageMeta = z.infer< typeof ImageMeta >;
 
 const imageMeta = jetpack_boost_ds.createAsyncStore( 'image_size_analysis', ImageSizeAnalysis );
-// imageMeta.setSyncAction( async ( prevValue, value, signal ) => {
-// 	const fresh = await imageMeta.endpoint.SET( value, signal );
-// 	if ( signal.aborted ) {
-// 		return prevValue;
-// 	}
-// 	imageMeta.store.override( fresh );
-// 	return value;
-// } );
+imageMeta.setSyncAction( async ( prevValue, value, signal ) => {
+	const fresh = await imageMeta.endpoint.SET( value, signal );
+	if ( signal.aborted ) {
+		return prevValue;
+	}
+	imageMeta.store.override( fresh );
+	return value;
+} );
 export const imageStore = imageMeta.store;
 export const imagesAreLoading = imageMeta.pending;
