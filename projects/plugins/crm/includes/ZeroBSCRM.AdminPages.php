@@ -1189,8 +1189,7 @@ function zeroBSCRM_pages_admin_system_emails() {
 								'quicktags'     => false,
 								'tinymce'       => false,
 							);
-							wp_editor( htmlspecialchars_decode( $content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), 'zbscontent', $editorsettings );
-
+							wp_editor( $content, 'zbscontent', $editorsettings );
 							echo '</div>';
 							?>
 

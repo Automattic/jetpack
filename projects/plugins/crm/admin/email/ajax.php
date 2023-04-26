@@ -141,9 +141,8 @@ function zeroBSCRM_emails_customer_panel() {
 
 	zeroBSCRM_mark_as_read( $threadID );
 
-	global $zbs;
-
-	$e = 0;
+	$e         = 0;
+	$email_ret = array();
 	foreach ( $email as $em ) {
 		$email_ret[ $e ]['the_id']          = $em->ID;
 		$email_ret[ $e ]['date']            = zeroBSCRM_locale_utsToDate( $em->zbsmail_created );
@@ -151,7 +150,7 @@ function zeroBSCRM_emails_customer_panel() {
 		if ( $em->zbsmail_content == null ) {
 			$email_ret[ $e ]['zbsmail_content'] = __( 'No content was stored for this message', 'zero-bs-crm' );
 		} else {
-			$email_ret[ $e ]['zbsmail_content'] = wp_kses( zeroBSCRM_io_WPEditor_DBToHTML( $em->zbsmail_content ), $zbs->acceptable_html );
+			$email_ret[ $e ]['zbsmail_content'] = $em->zbsmail_content;
 		}
 		$email_ret[ $e ]['zbsmail_opened']     = $em->zbsmail_opened;
 		$email_ret[ $e ]['zbsmail_lastopened'] = zeroBSCRM_locale_utsToDatetimeWP( $em->zbsmail_firstopened );

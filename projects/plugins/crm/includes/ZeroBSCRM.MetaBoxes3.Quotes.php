@@ -450,7 +450,7 @@
 
                         #} Save content
                         //$data=htmlspecialchars($_POST['zbs_quote_content'], ENT_COMPAT);
-                        $quote['content'] = zeroBSCRM_io_WPEditor_WPEditorToDB($_POST['zbs_quote_content']);                        
+						$quote['content'] = wp_kses( wp_unslash( $_POST['zbs_quote_content'] ), $zbs->acceptable_html ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- to follow up with.
 
                         #} update templated vars
                         if (isset($_POST['zbs_quote_template_id'])) $quote['template'] = (int)sanitize_text_field($_POST['zbs_quote_template_id']);
@@ -675,10 +675,12 @@
 
             // localise ID & content
             $quoteID = -1; if (is_array($quote) && isset($quote['id'])) $quoteID = (int)$quote['id'];
-            $quoteContent = ''; if (is_array($quote) && isset($quote['content'])) $quoteContent = $quote['content'];
+			$quote_content = '';
+		if ( is_array( $quote ) && isset( $quote['content'] ) ) {
+			$quote_content = $quote['content'];
+		}
             
-            #http://stackoverflow.com/questions/3493313/how-to-add-wysiwyg-editor-in-wordpress-meta-box
-            $content = zeroBSCRM_io_WPEditor_DBToWPEditor($quoteContent);
+			$content = $quote_content;
 
             // remove "Add contact form" button from Jetpack
             remove_action( 'media_buttons', 'grunion_media_button', 999 );

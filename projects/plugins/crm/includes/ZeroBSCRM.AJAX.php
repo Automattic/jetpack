@@ -1351,7 +1351,7 @@ function ZeroBSCRM_get_quote_template() {
 				}
 			}
 
-			$workingHTML = zeroBSCRM_io_WPEditor_DBToHTML( $quoteTemplate['content'] );
+			$workingHTML = $quoteTemplate['content']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// replacements
 			$replacements = $placeholder_templating->get_generic_replacements();

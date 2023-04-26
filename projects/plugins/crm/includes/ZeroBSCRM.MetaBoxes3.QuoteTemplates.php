@@ -155,8 +155,7 @@
                         echo '<p style="text-align:right"><span class="ui basic blue label">'.esc_html__('Did you know: You can now use Quote Placeholders?','zero-bs-crm').' <a href="' . esc_url( $zbs->urls['kbquoteplaceholders'] ) . '" target="_blank">' . esc_html__('Read More','zero-bs-crm') . '</a></span></p>';
                         ##/WLREMOVE
 
-                        #http://stackoverflow.com/questions/3493313/how-to-add-wysiwyg-editor-in-wordpress-meta-box
-                        $content = zeroBSCRM_io_WPEditor_DBToWPEditor($quoteTemplateContent);
+						$content = $quoteTemplateContent; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                         // remove "Add contact form" button from Jetpack
                         remove_action( 'media_buttons', 'grunion_media_button', 999 );
@@ -198,7 +197,7 @@
                 if (isset($_POST['zbs_quotetemplate_content'])) {
 
                     #} Save content
-                    $quoteTemplate['content'] = zeroBSCRM_io_WPEditor_WPEditorToDB($_POST['zbs_quotetemplate_content']);                        
+					$quoteTemplate['content'] = wp_kses( wp_unslash( $_POST['zbs_quotetemplate_content'] ), $zbs->acceptable_html ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.Security.NonceVerification.Missing -- to follow up with.
 
                     #} update templated vars
                     // Think this was here in err... if (isset($_POST['zbs_quote_template_id_used'])) $quote['template'] = (int)sanitize_text_field($_POST['zbs_quote_template_id_used']);
