@@ -17,6 +17,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	 * Class constructor
 	 */
 	public function __construct() {
+		require_once __DIR__ . '/../launchpad/launchpad.php';
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'launchpad';
 
