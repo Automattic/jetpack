@@ -90,16 +90,14 @@ const InboxResponse = ( { loading, response } ) => {
 			<div className="jp-forms__inbox-response-separator" />
 
 			<div className="jp-forms__inbox-response-data">
-				{ map( response.fields, ( value, key ) => {
-					return (
-						<div key={ key } className="jp-forms__inbox-response-item">
-							<div className="jp-forms__inbox-response-data-label">{ formatFieldName( key ) }:</div>
-							<div className="jp-forms__inbox-response-data-value">
-								{ isEmpty( value ) ? '-' : value }
-							</div>
+				{ map( response.fields, ( value, key ) => (
+					<div key={ key } className="jp-forms__inbox-response-item">
+						<div className="jp-forms__inbox-response-data-label">{ formatFieldName( key ) }:</div>
+						<div className="jp-forms__inbox-response-data-value">
+							{ isEmpty( value ) ? '-' : value }
 						</div>
-					);
-				} ) }
+					</div>
+				) ) }
 			</div>
 		</SwitchTransition>
 	);
