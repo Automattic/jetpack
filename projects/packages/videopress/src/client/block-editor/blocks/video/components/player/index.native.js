@@ -50,8 +50,6 @@ export default function Player( { isSelected, attributes } ) {
 
 	const [ isPlayerLoaded, setIsPlayerLoaded ] = useState( false );
 	const [ isPlayerReady, setIsPlayerReady ] = useState( false );
-	const [ isPlayerLoading, setIsPlayerLoading ] = useState( true );
-	const [ showLoading, setShowLoading ] = useState( true ); 
 	const [ token, setToken ] = useState();
 	const [ previewCheckAttempts, setPreviewCheckAttempts ] = useState( 0 );
 	const previewCheckTimer = useRef();
@@ -141,11 +139,11 @@ export default function Player( { isSelected, attributes } ) {
 		<View style={ [ style[ 'videopress-player' ], { aspectRatio } ] }>
 			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
 			{ showLoadingOverlay && loadingOverlay }
-			<SandBox
+			{ html && <SandBox
 				html={ html }
 				onWindowEvents={ { message: onSandboxMessage } }
 				viewportProps="user-scalable=0"
-			/>
+			/> }
 		</View>
 	);
 }
