@@ -1885,7 +1885,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 									</tr>
 								</tbody>
 							</table>
-							<img src="https://pixel.wp.com/t.gif?_ui=125798103&amp;campaign=jetpack_post_purchase_bak_tiers&amp;email_name=jetpack_po=0&amp;blog_lang=0&amp;user_lang=en&amp;_ts=1674047053288" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none;">
 						</body>
 					</html>
 					'
