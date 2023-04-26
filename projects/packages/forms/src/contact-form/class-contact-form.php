@@ -1391,7 +1391,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 					'<span style="font-size: 12px">',
 					__( 'Time:', 'jetpack-forms' ) . ' ' . $time . '<br />',
 					__( 'IP Address:', 'jetpack-forms' ) . ' ' . $comment_author_IP . '<br />', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-					__( 'Contact Form URL:', 'jetpack-forms' ) . ' ' . $url . '<br />',
+					__( 'Source URL:', 'jetpack-forms' ) . ' ' . $url . '<br />',
 					$sent_by_text,
 					'</span>',
 					'<hr />',

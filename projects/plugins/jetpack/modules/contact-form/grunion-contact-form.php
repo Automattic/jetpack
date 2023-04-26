@@ -3955,7 +3955,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					'<span style="font-size: 12px">',
 					__( 'Time:', 'jetpack' ) . ' ' . $time . '<br />',
 					__( 'IP Address:', 'jetpack' ) . ' ' . $comment_author_IP . '<br />', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-					__( 'Contact Form URL:', 'jetpack' ) . ' ' . $url . '<br />',
+					__( 'Source URL:', 'jetpack' ) . ' ' . $url . '<br />',
 					$sent_by_text,
 					'</span>',
 					'<hr />',
