@@ -120,7 +120,6 @@ export default function Player( { isSelected, attributes } ) {
 	}, [ preview, isPlayerLoaded, isRequestingEmbedPreview, previewCheckAttempts ] );
 
 	const onSandboxMessage = message => {
-		console.log( 'onSandboxMessage', message)
 		switch ( message.event ) {
 			case 'videopress_ready':
 				setIsPlayerReady( true );
