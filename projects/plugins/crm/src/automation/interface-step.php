@@ -2,7 +2,7 @@
 /**
  * Interface to define Step in a automation recipe.
  *
- * @package automations
+ * @package Automattic\Jetpack\CRM\Automation
  */
 
 namespace Automattic\Jetpack\CRM\Automation;
