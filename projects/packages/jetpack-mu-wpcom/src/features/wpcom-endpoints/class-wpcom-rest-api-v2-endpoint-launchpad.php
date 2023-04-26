@@ -117,12 +117,11 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	 */
 	public function get_data( $request ) {
 		$checklist_slug = $request['checklist_slug'];
-		$checklist      = $checklist_slug ? get_launchpad_checklist_by_checklist_slug( $checklist_slug ) : null;
 		return array(
 			'site_intent'        => get_option( 'site_intent' ),
 			'launchpad_screen'   => get_option( 'launchpad_screen' ),
 			'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
-			'checklist'          => $checklist,
+			'checklist'          => get_launchpad_checklist_by_checklist_slug( $checklist_slug ),
 		);
 	}
 
