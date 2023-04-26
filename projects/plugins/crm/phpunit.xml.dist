@@ -2,7 +2,7 @@
 <phpunit bootstrap="tests/php/bootstrap.php" backupGlobals="false" colors="true" convertDeprecationsToExceptions="true">
 	<testsuites>
 		<testsuite name="rest-api">
-			<directory suffix="test.php">tests/php</directory>
+			<directory suffix="test.php">tests/php/rest-api</directory>
 		</testsuite>
 	</testsuites>
 	<filter>

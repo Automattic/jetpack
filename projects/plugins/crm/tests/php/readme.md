@@ -8,6 +8,22 @@ The monorepo relies on the `test-php` Composer script defined in the plugins `co
 
 The main drawback by this solution is that we have some custom acceptance (codecept) tests that cannot run locally because the script bails early. So we have to trigger PHP tests directly through Composer instead.
 
+### Create new test suites
+
+To create a new test suite, you need to:
+
+* Add a new `<testsuite>` element to the `../phpunit.xml.dist` file.
+  * To make naming consistent with other test suites, you should end the file with `*-test.php` and end the class name with `_Test`.
+* Follow WordPress code standards (e.g.: name the file `class-my-test.php` if you create a `My_Test` class).
+
+#### Example
+
+```xml
+<testsuite name="rest-api">
+	<directory suffix="test.php">tests/php/rest-api</directory>
+</testsuite>
+```
+
 ### Running locally
 
 These instructions assume that you've successfully gone through the [Development Environment](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md) guide.
