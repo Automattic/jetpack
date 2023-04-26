@@ -147,7 +147,7 @@ class Jetpack_About_Page extends Jetpack_Admin_Page {
 							<a href="https://automattic.com/" target="_blank" rel="noopener noreferrer" class="jptracks" data-jptracks-name="jetpack_about_learn_more">
 								<?php esc_html_e( 'Learn more about us', 'jetpack' ); ?>
 							</a>
-							<svg class="gridicons-external" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M19 13v6c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V7c0-1.105.895-2 2-2h6v2H5v12h12v-6h2zM13 3v2h4.586l-7.793 7.793 1.414 1.414L19 6.414V11h2V3h-8z"></path></g></svg>.
+							<svg class="gridicons-external" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M19 13v6c0 1.105-.895 2-2 2H5c-1.105 0-2-.895-2-2V7c0-1.105.895-2 2-2h6v2H5v12h12v-6h2zM13 3v2h4.586l-7.793 7.793 1.414 1.414L19 6.414V11h2V3h-8z"></path></g></svg>
 						</p>
 						<p>
 							<?php
