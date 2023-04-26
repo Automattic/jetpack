@@ -21,9 +21,7 @@ import { VideoPressIcon } from '../icons';
 import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
-const DEFAULT_PLAYER_ASPECT_RATIO = 380 / 600; // This is the observed default aspect ratio from VideoPress embeds.
-const LOADING_OFFSET_HEIGHT = 37;
-const MAX_WIDTH = 548;
+const DEFAULT_PLAYER_ASPECT_RATIO =  16 / 9; // This is the observed default aspect ratio from VideoPress embeds.
 
 /**
  * VideoPlayer react component
@@ -51,9 +49,11 @@ export default function Player( { isSelected, attributes } ) {
 	const loadingViewStyle = style[ 'videopress-player__loading' ];
 
 	const [ isPlayerLoaded, setIsPlayerLoaded ] = useState( false );
+	const [ isPlayerReady, setIsPlayerReady ] = useState( false );
+	const [ isPlayerLoading, setIsPlayerLoading ] = useState( true );
+	const [ showLoading, setShowLoading ] = useState( true ); 
 	const [ token, setToken ] = useState();
 	const [ previewCheckAttempts, setPreviewCheckAttempts ] = useState( 0 );
-	const [ loadingHeight, setLoadingHeight ] = useState( loadingViewStyle.height );
 	const previewCheckTimer = useRef();
 
 	// Fetch token for a VideoPress GUID
@@ -85,16 +85,19 @@ export default function Player( { isSelected, attributes } ) {
 	const invalidatePreview = () => invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 
 	// Check if the preview is ready or we ran out of attempts.
-	const isPreviewAvailable =
+	const isPreviewReady =
 		!! preview?.height || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT;
+
+	const aspectRatio = preview?.width / preview?.height || DEFAULT_PLAYER_ASPECT_RATIO;
 
 	// Fetch the preview until it's ready
 	useEffect( () => {
+		// return early 
 		if ( ! isPlayerLoaded || isRequestingEmbedPreview ) {
 			return;
 		}
 
-		if ( isPreviewAvailable ) {
+		if ( isPreviewReady) {
 			clearTimeout( previewCheckTimer.current );
 			return;
 		}
@@ -108,51 +111,41 @@ export default function Player( { isSelected, attributes } ) {
 	}, [ preview, isPlayerLoaded, isRequestingEmbedPreview, previewCheckAttempts ] );
 
 	const onSandboxMessage = useCallback( message => {
-		if ( message.event === 'videopress_loading_state' && message.state === 'loaded' ) {
-			setIsPlayerLoaded( true );
+		switch ( message.event ) {
+			case 'videopress_ready':
+				setIsPlayerReady( true );
+				break;
+			case 'videopress_loading_state':
+				setIsPlayerLoaded( message?.state === 'loaded' );
+				break;
 		}
 	}, [] );
 
-	// Set up container loading styles
-	const loadingStyle = {};
-	if ( ! isPreviewAvailable ) {
-		loadingStyle.height = loadingHeight;
-	}
+	const loadingOverlay = (
+		<View style={ style[ 'videopress-player__overlay' ] } >
+			<View style={ loadingViewStyle } >
+				<Icon icon={ VideoPressIcon } size={ iconStyle?.size } style={ iconStyle } />
+				<Text style={ style[ 'videopress-player__loading-text' ] }>
+					{ __( 'Loading', 'jetpack-videopress-pkg' ) }
+				</Text>
+			</View>
+		</View>
+	);
 
-	const onLayout = useCallback( event => {
-		const { width } = event.nativeEvent.layout;
-		const scaledHeight = width * DEFAULT_PLAYER_ASPECT_RATIO;
-		const scaledOffset = ( width / MAX_WIDTH ) * LOADING_OFFSET_HEIGHT;
-		setLoadingHeight( scaledHeight - scaledOffset );
-	}, [] );
-
-	const renderEmbed = () => {
-		// Show the loading view if the embed html is not available or
-		// if still preparing the preview
-		if ( ! html || ( isPlayerLoaded && ! isPreviewAvailable ) ) {
-			return (
-				<View style={ [ loadingViewStyle, loadingStyle ] } onLayout={ onLayout }>
-					<Icon icon={ VideoPressIcon } size={ iconStyle?.size } style={ iconStyle } />
-					<Text style={ style[ 'videopress-player__loading-text' ] }>
-						{ __( 'Loading', 'jetpack-videopress-pkg' ) }
-					</Text>
-				</View>
-			);
-		}
-
-		return (
+	// Show the loading overlay when: 
+	// 1. Player is not ready
+	// 2. Player is loaded but preview is not ready
+	const showLoadingOverlay = ! isPlayerReady || ( isPlayerLoaded && ! isPreviewReady );
+	
+	return (
+		<View style={ [ style[ 'videopress-player' ], { aspectRatio } ] }>
+			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
+			{ showLoadingOverlay && loadingOverlay }
 			<SandBox
 				html={ html }
 				onWindowEvents={ { message: onSandboxMessage } }
 				viewportProps="user-scalable=0"
 			/>
-		);
-	};
-
-	return (
-		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
-			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
-			{ renderEmbed() }
 		</View>
 	);
 }
