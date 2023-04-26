@@ -76,7 +76,7 @@ export default function Player( { isSelected, attributes } ) {
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
-		controls: Platform.OS === 'ios',
+		controls: ! IS_ANDROID && controls,
 		loop,
 		muted,
 		playsinline,
