@@ -357,7 +357,10 @@ export class DashStats extends Component {
 			this.props.isModuleAvailable && (
 				<div>
 					<QueryStatsData range={ this.props.activeTab } />
-					<DashSectionHeader label={ __( 'Jetpack Stats', 'jetpack' ) }>
+					<DashSectionHeader
+						label={ __( 'Jetpack Stats', 'jetpack' ) }
+						className="jp-dash-section-header-stats"
+					>
 						{ this.maybeShowStatsTabs() }
 					</DashSectionHeader>
 					<Card

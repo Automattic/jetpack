@@ -1,5 +1,9 @@
+/**
+ * External dependencies
+ */
 import apiFetch from '@wordpress/api-fetch';
-import { isNil, omitBy, pick } from 'lodash';
+import { decodeEntities } from '@wordpress/html-entities';
+import { isNil, mapValues, omitBy, pick } from 'lodash';
 
 /**
  * Fetches responses from backend (API)
@@ -16,7 +20,15 @@ export const fetchResponses = query => {
 		pick( omitBy( query, isNil ), [ 'limit', 'offset', 'search', 'status', 'parent_id', 'month' ] )
 	).toString();
 
-	return apiFetch( { path: `/wpcom/v2/forms/responses?${ queryString }` } );
+	return apiFetch( { path: `/wpcom/v2/forms/responses?${ queryString }` } ).then( data => ( {
+		...data,
+		responses: data.responses.map( response => ( {
+			...response,
+			author_name: decodeEntities( response.author_name ),
+			entry_title: decodeEntities( response.entry_title ),
+			fields: mapValues( response.fields, value => decodeEntities( value ) ),
+		} ) ),
+	} ) );
 };
 
 /**

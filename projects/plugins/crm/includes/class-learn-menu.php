@@ -423,12 +423,9 @@ class Learn_Menu {
 
 	          // output title
 	          echo esc_html( $page_title ); 
-	          ?></span><?php 
-	          if ( !empty( $add_new ) ) {
-	          	echo ' ' . $add_new;
-	          } ?>
+				?>
+				</span>
 	          	<?php if ($show_learn){ 
-
 	          		// show sidebar?
 	          		$sidebar = false;
 	          		if (
@@ -444,7 +441,11 @@ class Learn_Menu {
 	          			){
 	          				$sidebar = true;
 	          			} ?>
-					<div class="ui button brown tiny learn" id="learn"><i class="fa fa-graduation-cap" aria-hidden="true"></i> <?php esc_html_e( "Learn", 'zero-bs-crm' ); ?></div>
+					<div class="ui tiny learn button" id="learn">
+					<?php
+					echo '<img class="jpcrm-info-gridicon" src="' . esc_url( ZEROBSCRM_URL ) . 'i/gridicon-info.svg" />';
+					?>
+					</div>
 					<div class="ui special popup top left transition hidden" id="learn-pop" style="<?php echo esc_attr( $popup_extra_css ); ?>">
 						<div class="jpcrm-learn-popup-close"></div>						
 						<div class="jpcrm-learn-container ui grid">
@@ -467,7 +468,9 @@ class Learn_Menu {
 
 									// learn more link
 									if ( !empty( $learn_more_url ) ){
-										echo '<br/><a href="' . esc_url( $learn_more_url ) . '" target="_blank" class="learn-more-link">' . esc_html__( "Learn More", 'zero-bs-crm' ) . '</a>';
+										echo '<br/><a href="' . esc_url( $learn_more_url ) . '" target="_blank" class="learn-more-link">' . esc_html__( 'Learn More', 'zero-bs-crm' ) .
+										'<img class="jpcrm-external-link-icon" src="' . esc_url( ZEROBSCRM_URL ) . 'i/external-link.svg" />' .
+										'</a>';
 									} ?>
 								</div>
 							</div>
@@ -528,7 +531,13 @@ class Learn_Menu {
 	              		</div>
 	            	</div>
 	            <?php } ?>
-	            <?php if ( !empty( $filter_str ) ) {
+				<?php
+				if ( ! empty( $add_new ) ) {
+					echo ' ' . $add_new; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				}
+				?>
+				<?php
+				if ( ! empty( $filter_str ) ) {
 	            	echo $filter_str;
 	            } ?>
 	          </div>

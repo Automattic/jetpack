@@ -1,8 +1,7 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import CompactCard from 'components/card/compact';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
@@ -78,14 +77,14 @@ export class CustomContentTypes extends React.Component {
 							}
 						) }
 					</p>
-					<CompactFormToggle
-						checked={ this.state.testimonial }
-						disabled={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) || disabledByOverride }
+					<ToggleControl
+						checked={ this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' ) }
+						disabled={ disabledByOverride }
+						toggling={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
 						onChange={ this.handleTestimonialToggleChange }
 						disabledReason={ disabledReason }
-					>
-						<span className="jp-form-toggle-explanation">{ __( 'Testimonials', 'jetpack' ) }</span>
-					</CompactFormToggle>
+						label={ __( 'Testimonials', 'jetpack' ) }
+					/>
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
 							{ __( 'Testimonials shortcode: [testimonials]', 'jetpack' ) }
@@ -118,14 +117,14 @@ export class CustomContentTypes extends React.Component {
 							}
 						) }
 					</p>
-					<CompactFormToggle
-						checked={ this.state.portfolio }
-						disabled={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) || disabledByOverride }
+					<ToggleControl
+						checked={ this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' ) }
+						disabled={ disabledByOverride }
+						toggling={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
 						onChange={ this.handlePortfolioToggleChange }
 						disabledReason={ disabledReason }
-					>
-						<span className="jp-form-toggle-explanation">{ __( 'Portfolios', 'jetpack' ) }</span>
-					</CompactFormToggle>
+						label={ __( 'Portfolios', 'jetpack' ) }
+					/>
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
 							{ __( 'Portfolios shortcode: [portfolio]', 'jetpack' ) }
