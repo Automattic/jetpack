@@ -60,20 +60,28 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string block markup.
  */
 function get_bookmark_content( $attributes ) {
-
-	return wp_list_bookmarks(
-		array(
-			'title_li'        => $attributes['title'],
-			'hide_invisible'  => $attributes['hide_invisible'],
-			'categorize'      => 0,
-			'orderby'         => $attributes['orderby'],
-			'order'           => $attributes['order'],
-			'limit'           => $attributes['limit'],
-			'echo'            => false,
-			'category_before' => '',
-			'category_after'  => '',
-		)
+	$args            = array(
+		'title_li'        => $attributes['title'],
+		'hide_invisible'  => $attributes['hide_invisible'],
+		'categorize'      => 0,
+		'orderby'         => $attributes['orderby'],
+		'order'           => $attributes['order'],
+		'limit'           => $attributes['limit'],
+		'echo'            => false,
+		'category_before' => '',
+		'category_after'  => '',
 	);
+	$bookmark_markup = wp_list_bookmarks(
+		$args
+	);
+	if ( empty( $bookmark_markup ) ) {
+		return sprintf(
+			'<p>%s<a href="/wp-admin/link-manager.php" target="_blank">%s</a></p>',
+			esc_html__( 'No bookmarks found.', 'jetpack' ),
+			esc_html__( 'Add a bookmark', 'jetpack' )
+		);
+	}
+	return $bookmark_markup;
 }
 
 /**
