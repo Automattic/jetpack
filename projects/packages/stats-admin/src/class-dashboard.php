@@ -126,6 +126,6 @@ class Dashboard {
 	 * Load the admin scripts.
 	 */
 	public function load_admin_scripts() {
-		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'build.min' );
+		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'build.min', array( 'config_variable_name' => 'jetpackStatsOdysseyAppConfigData' ) );
 	}
 }

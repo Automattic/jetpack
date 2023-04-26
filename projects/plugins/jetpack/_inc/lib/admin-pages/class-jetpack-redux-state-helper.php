@@ -33,8 +33,10 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_minimal_state() {
 		return array(
-			'WP_API_root'  => esc_url_raw( rest_url() ),
-			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
+			'pluginBaseUrl'     => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			'registrationNonce' => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'WP_API_root'       => esc_url_raw( rest_url() ),
+			'WP_API_nonce'      => wp_create_nonce( 'wp_rest' ),
 		);
 	}
 

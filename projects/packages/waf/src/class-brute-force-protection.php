@@ -962,6 +962,11 @@ class Brute_Force_Protection {
 			$user_agent                .= ' | Jetpack/' . constant( 'JETPACK__VERSION' );
 		}
 
+		if ( defined( 'JETPACK_PROTECT_VERSION' ) && ! defined( 'JETPACK__VERSION' ) ) {
+			$request['jetpack_version'] = '12.1';
+			$user_agent                .= ' | JetpackProtect/' . constant( 'JETPACK_PROTECT_VERSION' );
+		}
+
 		if ( is_multisite() ) {
 			$request['multisite'] = get_blog_count();
 		}

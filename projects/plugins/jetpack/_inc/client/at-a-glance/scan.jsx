@@ -262,6 +262,7 @@ class DashScan extends Component {
 				path="dashboard"
 				plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 				trackBannerDisplay={ this.props.trackUpgradeButtonView }
+				noIcon
 			/>
 		);
 	}

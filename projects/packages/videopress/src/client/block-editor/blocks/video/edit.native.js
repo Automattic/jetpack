@@ -114,10 +114,14 @@ export default function VideoPressEdit( {
 		[ setIsUploadingFile, setAttributes ]
 	);
 
-	const cancelReplacingVideoFile = useCallback( () => {
-		setAttributes( isReplacingFile.prevAttrs );
-		setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
-		setIsUploadingFile( false );
+	const onStopUpload = useCallback( () => {
+		if ( isReplacingFile?.isReplacing ) {
+			setAttributes( isReplacingFile.prevAttrs );
+			setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
+			setIsUploadingFile( false );
+		} else {
+			setAttributes( { id: undefined, src: undefined } );
+		}
 	}, [ isReplacingFile, setAttributes, setIsReplacingFile, setIsUploadingFile ] );
 
 	// Handlers of `ReplaceControl`
@@ -128,7 +132,7 @@ export default function VideoPressEdit( {
 			setAttributes( { guid: null } );
 			setFileToUpload( media );
 		},
-		[ setIsReplacingFile, setIsUploadingFile, setFileToUpload ]
+		[ attributes, setIsReplacingFile, setIsUploadingFile, setFileToUpload ]
 	);
 
 	const onReplaceSelectFromLibrary = useCallback(
@@ -188,10 +192,9 @@ export default function VideoPressEdit( {
 				fileToUpload={ fileToUpload }
 				handleDoneUpload={ handleDoneUpload }
 				isInteractionDisabled={ ! isSelected }
-				isReplacing={ isReplacingFile?.isReplacing }
 				onFocus={ onFocus }
-				onReplaceCancel={ cancelReplacingVideoFile }
 				onStartUpload={ onStartUpload }
+				onStopUpload={ onStopUpload }
 			/>
 		);
 	}

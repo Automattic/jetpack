@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.9] - 2023-04-25
+### Added
+- VideoPress: add is_videopress_url() helper function [#30142]
+- VideoPress: add play button when the video block show controls and Preview On Hovwer is enabled [#30224]
+- VideoPress: autoplay video also when Preview On Hover is enabled [#30181]
+- VideoPress: integrate video poster with Preview On Hover effect [#30184]
+- VideoPress: return the player control after user interaction [#30165]
+- VideoPress block: Sync metadata when post is manually saved on native [#30131]
+
+### Changed
+- Updated package dependencies. [#30015]
+- VideoPress: change max duration of the Preview On Hover effect to ten seconds [#30183]
+- VideoPress: enqueue IFrame API file based on the embed_oembed_html filter [#30154]
+- VideoPress: fix visual issue in the poster integration with Preview On Hover [#30208]
+- VideoPress: iterated over autoplay + PreviewOnHover effect [#30214]
+- VideoPress: Move out from Stats class [#30194]
+- VideoPress: playback at beginning when Preview On Hover is enabled [#30234]
+
+### Removed
+- VideoPress: Remove poster frame update on preview play [#30217]
+
+### Fixed
+- Fix native player aspect ratio after uploading a video [#30071]
+- VideoPress: Pause poster preview video when necessary [#30123]
+- VideoPress block: Cover case of GUID being empty after upload finish. [#30130]
+- VideoPress block: Fix blocking state when stopping an upload [#30244]
+- VideoPress block: Stop saving HTML markup representation. [#30134]
+
 ## [0.13.8] - 2023-04-17
 ### Added
 - VideoPress: add Utils PHP class [#30033]
@@ -938,6 +966,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.13.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.8...v0.13.9
 [0.13.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.7...v0.13.8
 [0.13.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.6...v0.13.7
 [0.13.6]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.5...v0.13.6
