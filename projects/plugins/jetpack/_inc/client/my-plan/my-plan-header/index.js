@@ -483,6 +483,7 @@ class MyPlanHeader extends React.Component {
 								onClick={ this.trackAllPurchasesClick }
 								href={ getRedirectUrl( 'calypso-purchases' ) }
 								compact
+								rna
 							>
 								<ExternalLink>{ __( 'View all purchases', 'jetpack' ) }</ExternalLink>
 							</Button>
@@ -498,6 +499,7 @@ class MyPlanHeader extends React.Component {
 								onClick={ this.trackLicenseActivationClick }
 								primary
 								compact
+								rna
 							>
 								{ _x( 'Activate a Product', 'Navigation item.', 'jetpack' ) }
 							</Button>
@@ -506,6 +508,7 @@ class MyPlanHeader extends React.Component {
 								href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
 								onClick={ this.trackRecommendationsClick }
 								primary
+								rna
 							>
 								{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
 							</Button>
