@@ -614,7 +614,7 @@ class Publicize extends Publicize_Base {
 			'user_can_refresh' => $user_can_refresh,
 			'refresh_text'     => $refresh_text,
 			'refresh_url'      => $refresh_url,
-			'code'             => $connection_error_code,
+			'error_code'       => $connection_error_code,
 		);
 
 		$this->test_connection_results[ $id ] = new \WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );

@@ -686,7 +686,7 @@ abstract class Publicize_Base {
 					$user_can_refresh           = $error_data['user_can_refresh'];
 					$refresh_text               = $error_data['refresh_text'];
 					$refresh_url                = $error_data['refresh_url'];
-					$connection_test_error_code = $connection_test_passed ? '' : $this->parse_connection_error_code( $error_data['code'] );
+					$connection_test_error_code = $connection_test_passed ? '' : $this->parse_connection_error_code( $error_data['error_code'] );
 				}
 				// Mark Facebook profiles as deprecated.
 				if ( 'facebook' === $service_name ) {
