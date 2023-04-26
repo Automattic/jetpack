@@ -1,6 +1,6 @@
 # Testsuite: REST API
 
-All tests in this directory are strictly meant to cover rest-api package in Jetpack CRM located in the internal `src/php/rest-api` package. 
+All tests in this directory are strictly meant to cover rest-api package in Jetpack CRM located in the internal `src/php/rest-api` package.
 
 ## Usage
 

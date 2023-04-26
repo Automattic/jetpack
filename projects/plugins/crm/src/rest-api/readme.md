@@ -45,7 +45,7 @@ public function register_routes() {
 			),
 		)
 	);
-	
+
 	// Register REST singleton resource endpoints.
 	register_rest_route(
 		$this->namespace,

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "55e659b0fcd12d7d1d3870f83f94fc86",
+    "content-hash": "3199bd9b8c873d74218e5c71b8df7ca6",
     "packages": [
         {
             "name": "automattic/jetpack-assets",
@@ -4734,7 +4734,7 @@
             "support": {
                 "source": "https://github.com/wikimedia/at-ease/tree/master"
             },
-            "time": "2021-02-27T15:53:37+00:00"
+            "time": "2018-10-10T15:39:06+00:00"
         },
         {
             "name": "yoast/phpunit-polyfills",
