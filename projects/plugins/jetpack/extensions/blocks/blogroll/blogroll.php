@@ -28,8 +28,11 @@ function register_block() {
 				'blogroll_title' => array(
 					'type' => 'string',
 				),
-				'align'          => array(
-					'type' => 'string',
+				'hide_invisible' => array(
+					'type' => 'boolean',
+				),
+				'limit'          => array(
+					'type' => 'number',
 				),
 			),
 			'render_callback' => __NAMESPACE__ . '\render',
@@ -46,30 +49,27 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string block markup.
  */
 function get_bookmark_content( $attributes ) {
-	$blogroll_title = $attributes['blogroll_title'];
-	$bookmars       = get_bookmarks(
-		array(
-			'orderby'       => 'name',
-			'order'         => 'ASC',
-			'category_name' => '',
-			'limit'         => -1,
+	$list_type = 'ul';
+
+	$args = array(
+		'title_li'       => $attributes['blogroll_title'],
+		'hide_invisible' => $attributes['hide_invisible'],
+		'categorize'     => 0,
+		'limit'          => $attributes['limit'],
+		'echo'           => false,
+	);
+	// orderby
+	// order
+	// limit
+	// category
+	l(
+		wp_list_bookmarks(
+			$args
 		)
 	);
 
-	$bookmars = array_map(
-		function ( $bookmark ) {
-			return sprintf(
-				'<li><a href="%1$s">%2$s</a></li>',
-				$bookmark->link_url,
-				$bookmark->link_name
-			);
-		},
-		$bookmars
-	);
-
-	return sprintf(
-		'<ul>%s</ul>',
-		implode( $bookmars )
+	return wp_list_bookmarks(
+		$args
 	);
 }
 
@@ -89,7 +89,8 @@ function render( $attributes, $content ) {
 	$content = get_bookmark_content( $attributes );
 
 	return sprintf(
-		'<div">%1$s</div>',
+		'<div class="%1$s">%2$s</div>',
+		esc_attr( Blocks::classes( FEATURE_NAME, $attributes ) ),
 		$content
 	);
 }

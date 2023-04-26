@@ -3,8 +3,12 @@ export default {
 		type: 'string',
 		default: 'Blogroll title',
 	},
-	align: {
-		type: 'string',
-		default: 'wide',
+	hide_invisible: {
+		type: 'boolean',
+		default: true,
+	},
+	limit: {
+		type: 'number',
+		default: -1,
 	},
 };

@@ -1,22 +1,21 @@
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl } from '@wordpress/components';
+import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import ServerSideRender from '@wordpress/server-side-render';
 import './editor.scss';
 
 export default function Edit( props ) {
 	const { attributes, setAttributes, className } = props;
-	const { blogroll_title, align } = attributes;
+	const { blogroll_title, hide_invisible, limit } = attributes;
 
 	const blockProps = useBlockProps();
+
+	function onChangeHideInvisible() {
+		setAttributes( { hide_invisible: ! hide_invisible } );
+	}
 	return (
 		<div className={ className } { ...blockProps }>
-			{ blogroll_title.trim() !== '' && (
-				<div>
-					<h1>{ blogroll_title }</h1>
-				</div>
-			) }
-			<ServerSideRender block="jetpack/blogroll" attributes={ { blogroll_title, align } } />
+			<ServerSideRender block="jetpack/blogroll" attributes={ attributes } />
 
 			<InspectorControls>
 				<PanelBody title={ 'Blogroll Title' }>
@@ -25,6 +24,19 @@ export default function Edit( props ) {
 						label={ __( 'Blogroll title', 'jetpack' ) }
 						value={ blogroll_title }
 						onChange={ value => setAttributes( { blogroll_title: value } ) }
+					/>
+
+					<ToggleControl
+						label={ __( 'Hide invisible', 'jetpack' ) }
+						checked={ !! hide_invisible }
+						onChange={ onChangeHideInvisible }
+					/>
+
+					<TextControl
+						label={ __( 'Limit', 'jetpack' ) }
+						type={ 'number' }
+						value={ limit }
+						onChange={ value => setAttributes( { limit: value } ) }
 					/>
 				</PanelBody>
 			</InspectorControls>
