@@ -19,8 +19,6 @@ import './style.scss';
 
 export const PluginDashItem = ( {
 	fetchPluginsData,
-	iconAlt,
-	iconSrc,
 	installOrActivatePrompt,
 	isFetchingPluginsData,
 	aPluginIsActive,
@@ -102,11 +100,9 @@ export const PluginDashItem = ( {
 						__( 'Install %s', 'jetpack' ),
 						pluginName
 					) }
-					icon={ iconSrc ? undefined : 'plugins' }
-					iconAlt={ iconAlt }
-					iconSrc={ iconSrc }
 					title={ installOrActivatePrompt }
 					onClick={ activateOrInstallPlugin }
+					noIcon
 				/>
 			);
 		} else if ( ! aPluginIsActive ) {
@@ -117,11 +113,9 @@ export const PluginDashItem = ( {
 						__( 'Activate %s', 'jetpack' ),
 						pluginName
 					) }
-					icon={ iconSrc ? undefined : 'plugins' }
-					iconAlt={ iconAlt }
-					iconSrc={ iconSrc }
 					title={ installOrActivatePrompt }
 					onClick={ activateOrInstallPlugin }
+					noIcon
 				/>
 			);
 		}
@@ -132,11 +126,9 @@ export const PluginDashItem = ( {
 					__( 'Manage %s', 'jetpack' ),
 					pluginName
 				) }
-				icon={ iconSrc ? undefined : 'plugins' }
-				iconAlt={ iconAlt }
-				iconSrc={ iconSrc }
 				title={ __( 'Plugin is installed & active.', 'jetpack' ) }
 				href={ pluginLink }
+				noIcon
 			/>
 		);
 	};

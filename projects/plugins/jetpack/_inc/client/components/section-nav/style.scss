@@ -238,6 +238,10 @@
 .dops-section-nav-tab {
 	margin-bottom: 0;
 
+	a.dops-section-nav-tab__link {
+		text-decoration: none;
+	}
+
 	@include breakpoint( ">660px" ) {
 		width: auto;
 		flex: none;

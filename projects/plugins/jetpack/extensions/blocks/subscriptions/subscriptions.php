@@ -158,18 +158,15 @@ function populate_newsletter_access_rows( $column_id, $post_id ) {
 }
 
 /**
- * Determine the amount of folks currently subscribed to the blog, splitted out in email_subscribers & social_followers
+ * Determine the amount of folks currently subscribed to the blog, splitted out in email_subscribers & social_followers & paid_subscribers
  *
- * @return array containing ['value' => ['email_subscribers' => 0, 'social_followers' => 0]]
+ * @return array containing ['value' => ['email_subscribers' => 0, 'paid_subscribers' => 0, 'social_followers' => 0]]
  */
 function fetch_subscriber_counts() {
 	$subs_count = 0;
 	if ( is_wpcom() ) {
 		$subs_count = array(
-			'value' => array(
-				'email_subscribers' => \wpcom_subs_total_for_blog(),
-				'social_followers'  => \wpcom_social_followers_total_for_blog(),
-			),
+			'value' => \wpcom_fetch_subs_counts( false ),
 		);
 	} else {
 		$cache_key  = 'wpcom_subscribers_totals';

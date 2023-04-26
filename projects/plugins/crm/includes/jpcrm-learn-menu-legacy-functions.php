@@ -763,10 +763,10 @@ function jpcrm_settings_learn_menu(){
 
 	// wh temp hack for mail delivery learn
     $title = __("Settings","zero-bs-crm");
-    
-    if ( current_user_can('admin_zerobs_manage_options') ) {
-        $addNew =  ' <a href="' . zeroBSCRM_getAdminURL($zbs->slugs['extensions'])  . '#free-extensions-tour" class="button ui orange tiny zbs-add-new" id="manage-features">' . __( 'Manage Features',"zero-bs-crm") . '</a>';
-    }
+
+	if ( current_user_can( 'admin_zerobs_manage_options' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
+		$addNew = ' <a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) . '" class="button ui orange tiny zbs-add-new" id="manage-features">' . __( 'Manage modules', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
 
 	$tab = '';
 	if (isset($_GET['tab']) && $_GET['tab'] == 'maildelivery'){

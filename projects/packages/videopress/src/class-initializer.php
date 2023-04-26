@@ -165,10 +165,10 @@ class Initializer {
 	 * @return string|false
 	 */
 	public static function video_enqueue_bridge_when_oembed_present( $cache, $url, $attr, $post_ID ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( preg_match( '/^https?:\/\/(video\.wordpress\.com|videopress\.com)\/(v|embed)\//', $url ) // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
-			|| preg_match( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', $url ) ) { // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+		if ( Utils::is_videopress_url( $url ) ) {
 			Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 		}
+
 		return $cache;
 	}
 
@@ -242,18 +242,49 @@ class Initializer {
 		}
 
 		// Preview On Hover data
-		$preview_on_hover = '';
-		if (
+		$is_poh_enabled =
 			isset( $block_attributes['posterData']['previewOnHover'] ) &&
-			$block_attributes['posterData']['previewOnHover']
-		) {
+			$block_attributes['posterData']['previewOnHover'];
+
+		$autoplay = isset( $block_attributes['autoplay'] ) ? $block_attributes['autoplay'] : false;
+		$controls = isset( $block_attributes['controls'] ) ? $block_attributes['controls'] : false;
+		$poster   = isset( $block_attributes['posterData']['url'] ) ? $block_attributes['posterData']['url'] : null;
+
+		$preview_on_hover = '';
+		$play_button      = '';
+
+		if ( $is_poh_enabled ) {
 			$preview_on_hover = array(
 				'previewAtTime'       => $block_attributes['posterData']['previewAtTime'],
 				'previewLoopDuration' => $block_attributes['posterData']['previewLoopDuration'],
+				'autoplay'            => $autoplay,
+				'showControls'        => $controls,
 			);
 
+			// Create inlione style in case video has a custom poster.
+			$inline_style = '';
+			if ( $poster ) {
+				$inline_style = sprintf(
+					'style="background-image: url(%s); background-size: cover;
+				background-position: center center;"',
+					$poster
+				);
+			}
+
+			/*
+			 * Add a child element to show the play button
+			 * when the controls is enabled
+			 */
+			if ( $controls ) {
+				$play_button = '<div class="jetpack-videopress-player__play-button"></div>';
+			}
+
 			// Expose the preview on hover data to the client.
-			$preview_on_hover = sprintf( '<div className="jetpack-videopress-player__overlay"></div><script type="application/json">%s</script>', wp_json_encode( $preview_on_hover ) );
+			$preview_on_hover = sprintf(
+				'<div class="jetpack-videopress-player__overlay" %s></div><script type="application/json">%s</script>',
+				$inline_style,
+				wp_json_encode( $preview_on_hover )
+			);
 
 			// Set `autoplay` and `muted` attributes to the video element.
 			$block_attributes['autoplay'] = true;
@@ -261,8 +292,7 @@ class Initializer {
 		}
 
 		$figure_template = '
-		<figure %6$s class="%1$s" style="%2$s">			
-			%3$s
+		<figure class="%1$s" style="%2$s" %3$s>
 			%4$s
 			%5$s
 		</figure>
@@ -272,12 +302,20 @@ class Initializer {
 		$guid           = isset( $block_attributes['guid'] ) ? $block_attributes['guid'] : null;
 		$videopress_url = Utils::get_video_press_url( $guid, $block_attributes );
 
-		$video_wrapper = '';
+		$video_wrapper         = '';
+		$video_wrapper_classes = 'jetpack-videopress-player__wrapper';
+		if ( $controls ) {
+			$video_wrapper_classes .= ' has-controls';
+		}
+
 		if ( $videopress_url ) {
 			$videopress_url = wp_kses_post( $videopress_url );
 			$oembed_html    = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
 			$video_wrapper  = sprintf(
-				'<div class="jetpack-videopress-player__wrapper">%s</div>',
+				'<div class="%s">%s %s %s</div>',
+				$video_wrapper_classes,
+				$play_button,
+				$preview_on_hover,
 				$oembed_html
 			);
 		}
@@ -286,10 +324,9 @@ class Initializer {
 			$figure_template,
 			esc_attr( $classes ),
 			esc_attr( $style ),
-			$preview_on_hover,
+			$id_attribute,
 			$video_wrapper,
-			$figcaption,
-			$id_attribute
+			$figcaption
 		);
 	}
 
