@@ -6,3 +6,16 @@
 	margin-bottom: 1.5rem;
 	max-width: 50%;
 }
+
+
+.media__videopress-upgrade {
+	border-top: 1px solid #DCDCDE;
+
+	&.dops-banner.dops-card.is-product {
+		border-left: none;
+
+		.dops-banner__title {
+			font-weight: 500;
+		}
+	}
+}

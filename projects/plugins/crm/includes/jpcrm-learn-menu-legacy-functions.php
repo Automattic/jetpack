@@ -347,6 +347,44 @@ function jpcrm_quotelist_learn_menu(){
 
 }
 
+/**
+ * Output the back to list button on Quote Edit and Add New pages
+ */
+function jpcrm_quoteedit_list_menu() {
+
+	global $zbs;
+
+	$title   = __( 'New Quote', 'zero-bs-crm' );
+	$zbsid   = -1;
+	$content = $zbs->learn_menu->get_content_body( 'quotenew' );
+	$links   = $zbs->learn_menu->get_content_urls( 'quotenew' );
+	$add_new = '<div id="zbs-quote-learn-nav"></div>';
+
+	if ( isset( $_GET['zbsid'] ) && ! empty( $_GET['zbsid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$title   = __( 'Edit Quote', 'zero-bs-crm' );
+		$zbsid   = (int) sanitize_text_field( wp_unslash( $_GET['zbsid'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$content = $zbs->learn_menu->get_content_body( 'quoteedit' );
+		$links   = $zbs->learn_menu->get_content_urls( 'quoteedit' );
+		$add_new = '<div id="zbs-quote-learn-nav"></div>  <a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_QUOTE, false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
+
+	}
+
+	$filter_str = '<div class="ui items right floated" style="margin:0">' . zeroBSCRM_getObjNav( $zbsid, 'edit', ZBS_TYPE_QUOTE ) . '</div>';
+
+	// output
+	$zbs->learn_menu->render_generic_learn_menu(
+		$title,
+		$add_new,
+		$filter_str,
+		true,
+		$title,
+		$content,
+		$links['learn'],
+		$links['img'],
+		$links['vid'],
+		''
+	);
+}
 
 function jpcrm_translist_learn_menu(){
 
@@ -377,19 +415,44 @@ function jpcrm_translist_learn_menu(){
 }
 
 
-
+/**
+ * Output the navigation buttons on Transaction Edit and Add New pages
+ */
 function jpcrm_transedit_learn_menu(){
 
 	global $zbs;
 
-    $title      = __( 'Edit Transaction','zero-bs-crm' );
-    #} Add new
-    $addNew = '<div id="zbs-transaction-learn-nav"></div>'; if ( zeroBSCRM_permsTransactions() ) {
-        $addNew = ' <a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION, false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
-    }
-    $content    = $zbs->learn_menu->get_content_body( 'transedit' );
-    $links      = $zbs->learn_menu->get_content_urls( 'transedit' );	
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,'',true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
+	$zbsid      = -1;
+	$filter_str = '<div class="ui items right floated" style="margin:0">' . zeroBSCRM_getObjNav( $zbsid, 'edit', ZBS_TYPE_TRANSACTION ) . '</div>';
+	$title      = __( 'New Transaction', 'zero-bs-crm' );
+	$content    = $zbs->learn_menu->get_content_body( 'transnew' );
+	$links      = $zbs->learn_menu->get_content_urls( 'transnew' );
+	$add_new    = '<div id="zbs-transaction-learn-nav"></div>';
+
+	if ( isset( $_GET['zbsid'] ) && ! empty( $_GET['zbsid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$title   = __( 'Edit Transaction', 'zero-bs-crm' );
+		$zbsid   = (int) sanitize_text_field( wp_unslash( $_GET['zbsid'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$content = $zbs->learn_menu->get_content_body( 'transedit' );
+		$links   = $zbs->learn_menu->get_content_urls( 'transedit' );
+
+		if ( zeroBSCRM_permsInvoices() ) {
+			$add_new = ' <a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION, false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
+		}
+	}
+
+	// output
+	$zbs->learn_menu->render_generic_learn_menu(
+		$title,
+		$add_new,
+		$filter_str,
+		true,
+		$title,
+		$content,
+		$links['learn'],
+		$links['img'],
+		$links['vid'],
+		''
+	);
 
 }
 
@@ -427,33 +490,52 @@ function jpcrm_invoicelist_learn_menu(){
 }
 
 
-
+/**
+ * Output the navigation buttons on Invoice Edit and Add New pages
+ */
 function jpcrm_invoiceedit_learn_menu(){
 
 	global $zbs;
 	
-	$filterStr = '';
-    $title      = __( 'Edit Invoice','zero-bs-crm' );
-    
-    $alsoInAddNew = '';
+	$zbsid      = -1;
+	$filter_str = '<div class="ui items right floated" style="margin:0">' . zeroBSCRM_getObjNav( $zbsid, 'edit', ZBS_TYPE_INVOICE ) . '</div>';
+	$title      = __( 'New Invoice', 'zero-bs-crm' );
+	$content    = $zbs->learn_menu->get_content_body( 'invoicenew' );
+	$links      = $zbs->learn_menu->get_content_urls( 'invoicenew' );
+	$add_new    = '<div id="zbs-invoice-learn-nav"></div>';
+
+	$also_in_add_new = '';
 	// if admin, show settings links too
 	// (these get appended to the zbs-invoice-learn-nav) so that they can be shared with the js-added nav
-    if (zeroBSCRM_isZBSAdminOrAdmin()){ 
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		$also_in_add_new = '<a class="ui icon mini button" target="_blank" href="' . admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=invbuilder title="' . __( 'Invoice Settings', 'zero-bs-crm' ) . '"><i class="options icon"></i></a> <a class="ui icon mini button" target="_blank" href="' . admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=bizinfo title="' . __( 'Business Settings', 'zero-bs-crm' ) . '"><i class="building icon"></i></a>';
+	}
 
-    	global $zbs;
-        $alsoInAddNew .= '<a class="ui icon mini button" target="_blank" href="'.admin_url("admin.php?page=" . $zbs->slugs['settings']) . "&tab=invbuilder".'" title="'.__( 'Invoice Settings','zero-bs-crm').'"><i class="options icon"></i></a>';
-        $alsoInAddNew .= '<a class="ui icon mini button" target="_blank" href="'.admin_url("admin.php?page=" . $zbs->slugs['settings']) . "&tab=bizinfo".'" title="'.__( 'Business Settings','zero-bs-crm').'"><i class="building icon"></i></a>';		        
-    }
+	if ( isset( $_GET['zbsid'] ) && ! empty( $_GET['zbsid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$title   = __( 'Edit Invoice', 'zero-bs-crm' );
+		$zbsid   = (int) sanitize_text_field( wp_unslash( $_GET['zbsid'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$content = $zbs->learn_menu->get_content_body( 'invoiceedit' );
+		$links   = $zbs->learn_menu->get_content_urls( 'invoiceedit' );
+		$add_new = '<div id="zbs-invoice-learn-nav">' . $also_in_add_new . '</div>'; // js adds/edits
 
-    $addNew     = '<div id="zbs-invoice-learn-nav">'.$alsoInAddNew.'</div>'; // js adds/edits
-    if ( zeroBSCRM_permsInvoices() ) {
-        $addNew .=  '<a href="' . jpcrm_esc_link('create',-1,'zerobs_invoice',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
-    }
-    $content    = $zbs->learn_menu->get_content_body( 'invoiceedit' );
-    $links      = $zbs->learn_menu->get_content_urls( 'invoiceedit' );	
+		if ( zeroBSCRM_permsInvoices() ) {
+			$add_new .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_invoice', false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
+		}
+	}
 
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
-
+	// output
+	$zbs->learn_menu->render_generic_learn_menu(
+		$title,
+		$add_new,
+		$filter_str,
+		true,
+		$title,
+		$content,
+		$links['learn'],
+		$links['img'],
+		$links['vid'],
+		''
+	);
 }
 
 
@@ -489,7 +571,42 @@ function jpcrm_companylist_learn_menu(){
     
 }
 
+/**
+ * Output the navigation buttons on Company Edit and Add New pages
+ */
+function jpcrm_companyedit_learn_menu() {
 
+	global $zbs;
+
+	$title   = sprintf( 'New %s', jpcrm_label_company( true ) );
+	$zbsid   = -1;
+	$content = $zbs->learn_menu->get_content_body( 'companynew' );
+	$links   = $zbs->learn_menu->get_content_urls( 'companynew' );
+	$add_new = '';
+
+	if ( isset( $_GET['zbsid'] ) && ! empty( $_GET['zbsid'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$title   = sprintf( 'Edit %s', jpcrm_label_company( true ) );
+		$zbsid   = (int) sanitize_text_field( wp_unslash( $_GET['zbsid'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$content = $zbs->learn_menu->get_content_body( 'copmanyedit' );
+		$links   = $zbs->learn_menu->get_content_urls( 'companyedit' );
+	}
+
+	$filter_str = '<div class="ui items right floated" style="margin:0">' . zeroBSCRM_getObjNav( $zbsid, 'edit', ZBS_TYPE_COMPANY ) . '</div>';
+
+	// output
+	$zbs->learn_menu->render_generic_learn_menu(
+		$title,
+		$add_new,
+		$filter_str,
+		true,
+		$title,
+		$content,
+		$links['learn'],
+		$links['img'],
+		$links['vid'],
+		''
+	);
+}
 
 function jpcrm_tasklist_learn_menu(){
 
@@ -646,10 +763,10 @@ function jpcrm_settings_learn_menu(){
 
 	// wh temp hack for mail delivery learn
     $title = __("Settings","zero-bs-crm");
-    
-    if ( current_user_can('admin_zerobs_manage_options') ) {
-        $addNew =  ' <a href="' . zeroBSCRM_getAdminURL($zbs->slugs['extensions'])  . '#free-extensions-tour" class="button ui orange tiny zbs-add-new" id="manage-features">' . __( 'Manage Features',"zero-bs-crm") . '</a>';
-    }
+
+	if ( current_user_can( 'admin_zerobs_manage_options' ) ) { // phpcs:ignore WordPress.WP.Capabilities.Unknown
+		$addNew = ' <a href="' . zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) . '" class="button ui orange tiny zbs-add-new" id="manage-features">' . __( 'Manage modules', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
 
 	$tab = '';
 	if (isset($_GET['tab']) && $_GET['tab'] == 'maildelivery'){

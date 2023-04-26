@@ -211,7 +211,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                 <table class="form-table wh-metatab wptbp" id="wptbpMetaBoxLogs">
                     
                     <tr>
-                        <td><h2><span id="zbsActiveLogCount"><?php echo esc_html( zeroBSCRM_prettifyLongInts(count($zbsLogs)) ); ?></span> <?php esc_html_e("Logs","zero-bs-crm");?></h2></td>
+								<td><h4><span id="zbsActiveLogCount"><?php echo esc_html( zeroBSCRM_prettifyLongInts( count( $zbsLogs ) ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?></span> <?php esc_html_e( 'Logs', 'zero-bs-crm' ); ?></h4></td>
                         <td><button type="button" class="ui primary button button-primary button-large" id="zbscrmAddLog"><?php esc_html_e("Add Log","zero-bs-crm");?></button></td>
                     </tr>
 

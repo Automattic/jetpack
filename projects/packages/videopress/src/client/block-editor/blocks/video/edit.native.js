@@ -21,6 +21,7 @@ import { View } from 'react-native';
  * Internal dependencies
  */
 import { buildVideoPressURL } from '../../../lib/url';
+import { useSyncMedia } from '../../hooks/use-sync-media';
 import isLocalFile from '../../utils/is-local-file';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
@@ -88,6 +89,9 @@ export default function VideoPressEdit( {
 		[ setAttributes ]
 	);
 
+	const { videoData } = useSyncMedia( attributes, setAttributes );
+	const { private_enabled_for_site: privateEnabledForSite } = videoData;
+
 	const handleDoneUpload = useCallback(
 		newVideoData => {
 			setIsUploadingFile( false );
@@ -110,10 +114,14 @@ export default function VideoPressEdit( {
 		[ setIsUploadingFile, setAttributes ]
 	);
 
-	const cancelReplacingVideoFile = useCallback( () => {
-		setAttributes( isReplacingFile.prevAttrs );
-		setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
-		setIsUploadingFile( false );
+	const onStopUpload = useCallback( () => {
+		if ( isReplacingFile?.isReplacing ) {
+			setAttributes( isReplacingFile.prevAttrs );
+			setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
+			setIsUploadingFile( false );
+		} else {
+			setAttributes( { id: undefined, src: undefined } );
+		}
 	}, [ isReplacingFile, setAttributes, setIsReplacingFile, setIsUploadingFile ] );
 
 	// Handlers of `ReplaceControl`
@@ -124,7 +132,7 @@ export default function VideoPressEdit( {
 			setAttributes( { guid: null } );
 			setFileToUpload( media );
 		},
-		[ setIsReplacingFile, setIsUploadingFile, setFileToUpload ]
+		[ attributes, setIsReplacingFile, setIsUploadingFile, setFileToUpload ]
 	);
 
 	const onReplaceSelectFromLibrary = useCallback(
@@ -184,10 +192,9 @@ export default function VideoPressEdit( {
 				fileToUpload={ fileToUpload }
 				handleDoneUpload={ handleDoneUpload }
 				isInteractionDisabled={ ! isSelected }
-				isReplacing={ isReplacingFile?.isReplacing }
 				onFocus={ onFocus }
-				onReplaceCancel={ cancelReplacingVideoFile }
 				onStartUpload={ onStartUpload }
+				onStopUpload={ onStopUpload }
 			/>
 		);
 	}
@@ -210,7 +217,7 @@ export default function VideoPressEdit( {
 					<PanelBody title={ __( 'More', 'jetpack-videopress-pkg' ) }>
 						<PlaybackPanel { ...{ attributes, setAttributes } } />
 						<ColorPanel { ...{ attributes, setAttributes } } />
-						<PrivacyAndRatingPanel { ...{ attributes, setAttributes } } />
+						<PrivacyAndRatingPanel { ...{ attributes, setAttributes, privateEnabledForSite } } />
 					</PanelBody>
 				</InspectorControls>
 			) }

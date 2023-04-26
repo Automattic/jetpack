@@ -13,7 +13,7 @@ namespace Automattic\Jetpack\Admin_UI;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.2.19';
+	const PACKAGE_VERSION = '0.2.20';
 
 	/**
 	 * Whether this class has been initialized
@@ -73,7 +73,7 @@ class Admin_Menu {
 	public static function admin_menu_hook_callback() {
 		$can_see_toplevel_menu  = true;
 		$jetpack_plugin_present = class_exists( 'Jetpack_React_Page' );
-		$icon                   = class_exists( '\Automattic\Jetpack\Assets\Logo' )
+		$icon                   = method_exists( '\Automattic\Jetpack\Assets\Logo', 'get_base64_logo' )
 			? ( new \Automattic\Jetpack\Assets\Logo() )->get_base64_logo()
 			: 'dashicons-admin-plugins';
 

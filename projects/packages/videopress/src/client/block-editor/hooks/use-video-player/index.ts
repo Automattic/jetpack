@@ -39,7 +39,7 @@ export const getIframeWindowFromRef = (
 const useVideoPlayer = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >,
 	isRequestingPreview: boolean,
-	{ autoplay, initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions
+	{ initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions
 ): UseVideoPlayer => {
 	const [ playerIsReady, setPlayerIsReady ] = useState( false );
 	const playerState = useRef< PlayerStateProp >( 'not-rendered' );
@@ -71,13 +71,8 @@ const useVideoPlayer = (
 			playerState.current = 'first-play';
 			debug( 'state: first-play detected' );
 
-			// Pause the video only if the autoplay is disabled.
-			if ( autoplay ) {
-				debug( 'autoplay enabled. Do not pause' );
-			} else {
-				debug( 'pause video' );
-				source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
-			}
+			debug( 'pause video' );
+			source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
 
 			// Set position at time if it was provided.
 			if ( typeof initialTimePosition !== 'undefined' ) {

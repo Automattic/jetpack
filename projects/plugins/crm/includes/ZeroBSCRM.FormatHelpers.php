@@ -1027,9 +1027,7 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 			// contact nav
 			$navigation = $zbs->DAL->contacts->getContactPrevNext( $id );
 
-			$html = '<span class="ui navigation-quick-links">';
-
-			$html .= '<a style="margin-right:6px;" href="' . jpcrm_esc_link( $zbs->slugs["managecontacts"] ) . '" class="ui button mini was-inverted basic" id="back-to-list">' . esc_html( __( 'Back to List', 'zero-bs-crm' ) ) . '</a>';
+			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managecontacts'] );
 
 			// PREV
 			if ( $navigation && $navigationMode === 1 ) {
@@ -1040,16 +1038,11 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 					$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['next'], 'zerobs_customer', false ) . '" class="ui right labeled icon button mini" id="zbs-nav-next">' . esc_html( __( 'Next', 'zero-bs-crm' ) ) . '<i class="right chevron icon"></i></a>';
 				}
 			}
-
 			#} If in edit mode, add in save + view
 			if ( $key === 'edit' ) {
-				if( $id > 0 ) {
-					$html .= '<a style="margin-left:6px;" class="ui icon button blue mini labeled" href="' . jpcrm_esc_link( 'view', $id, 'zerobs_customer' ) . '" id="zbs-nav-view"><i class="eye left icon"></i> ' . esc_html( __( 'View', 'zero-bs-crm' ) ) . '</a>';
+				if ( $id > 0 ) {
+					$html .= '<a style="margin-right:5px;margin-left:5px;" class="ui icon button blue mini labeled" href="' . jpcrm_esc_link( 'view', $id, 'zerobs_customer' ) . '" id="zbs-nav-view"><i class="eye left icon"></i> ' . esc_html( __( 'View', 'zero-bs-crm' ) ) . '</a>';
 				}
-				if ( zeroBSCRM_permsCustomers() ) {
-					$html .= '<button class="ui icon button mini green labeled" type="button" id="zbs-edit-save" style="margin-right:5px;margin-left:5px;"><i class="icon save"></i>' . esc_html( __( 'Save', 'zero-bs-crm' ) ) . '</button>';
-				}
-
 			}
 
 			$html .= '</span>';
@@ -1061,8 +1054,7 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 			// company nav
 			$navigation = $zbs->DAL->companies->getCompanyPrevNext( $id );
 
-			$html = '<span class="ui navigation-quick-links">';
-			$html .= '<a style="margin-right:6px;" href="' . jpcrm_esc_link( $zbs->slugs["managecompanies"] ) . '" class="ui button mini was-inverted basic" id="back-to-list">' .  esc_html( __( 'Back to List', 'zero-bs-crm' ) ) . '</a>';
+			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managecompanies'] );
 
 			// PREV
 			if ( $navigation && $navigationMode === 1 ) {
@@ -1074,14 +1066,31 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 				}
 			}
 
-			#} If in edit mode, add in save + view
+			// If in edit mode, add in view.
 			if ( $key === 'edit' ) {
 				$html .= '<a style="margin-left:6px;" class="ui icon button blue mini labeled" href="' . jpcrm_esc_link( 'view', $id, ZBS_TYPE_COMPANY ) . '"><i class="eye left icon"></i> ' . esc_html( __( 'View', 'zero-bs-crm' ) ) . '</a>';
-				if ( zeroBSCRM_permsCustomers() ) {
-					// $html .= '<button class="ui icon button mini green labeled" type="button" id="zbs-edit-save" style="margin-right:5px;margin-left:5px;"><i class="icon save"></i>' . esc_html( __( 'Save', 'zero-bs-crm' ) ) . '</button>';
-				}
-
 			}
+
+			$html .= '</span>';
+
+			break;
+
+		case ZBS_TYPE_QUOTE:
+			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managequotes'] );
+
+			$html .= '</span>';
+
+			break;
+
+		case ZBS_TYPE_INVOICE:
+			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['manageinvoices'] );
+
+			$html .= '</span>';
+
+			break;
+
+		case ZBS_TYPE_TRANSACTION:
+			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managetransactions'] );
 
 			$html .= '</span>';
 
@@ -1091,6 +1100,21 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 	return $html;
 
 }
+
+/**
+ * Helper function to print the 'back to list' navigation button.
+ *
+ * @param string $slug - The slug for the page.
+ * @return string $html - The HTML string.
+ */
+function zeroBSCRM_print_backtolist_html( $slug ) {
+	$html = '<span class="ui navigation-quick-links">';
+
+	$html .= '<a style="margin-right:6px;" href="' . jpcrm_esc_link( $slug ) . '" class="ui button mini was-inverted basic" id="back-to-list">' . esc_html( __( 'Back to List', 'zero-bs-crm' ) ) . '</a>';
+
+	return $html;
+}
+
 /* ======================================================
   /	Object Nav
    ====================================================== */

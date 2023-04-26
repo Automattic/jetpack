@@ -42,8 +42,8 @@ import type { PosterDataProps, PosterPanelProps, VideoControlProps, VideoGUID } 
 import type React from 'react';
 
 const MIN_LOOP_DURATION = 3 * 1000;
-const MAX_LOOP_DURATION = 30 * 1000;
-const DEFAULT_LOOP_DURATION = 10 * 1000;
+const MAX_LOOP_DURATION = 10 * 1000;
+const DEFAULT_LOOP_DURATION = 5 * 1000;
 
 /*
  * Check whether video frame poster extension is enabled.
@@ -256,6 +256,18 @@ function VideoFramePicker( {
 		initialTimePosition: atTime,
 	} );
 
+	const onTimestampDebounceChange = useCallback(
+		iframeTimePosition => {
+			const sandboxIFrameWindow = getIframeWindowFromRef( playerWrapperRef );
+			sandboxIFrameWindow?.postMessage( {
+				event: 'videopress_action_set_currenttime',
+				currentTime: iframeTimePosition / 1000,
+			} );
+			onVideoFrameSelect( iframeTimePosition );
+		},
+		[ getIframeWindowFromRef, onVideoFrameSelect ]
+	);
+
 	return (
 		<div className="poster-panel__frame-picker">
 			<div
@@ -288,14 +300,7 @@ function VideoFramePicker( {
 				fineAdjustment={ 1 }
 				decimalPlaces={ 2 }
 				onChange={ setTimestamp }
-				onDebounceChange={ iframeTimePosition => {
-					const sandboxIFrameWindow = getIframeWindowFromRef( playerWrapperRef );
-					sandboxIFrameWindow?.postMessage( {
-						event: 'videopress_action_set_currenttime',
-						currentTime: iframeTimePosition / 1000,
-					} );
-					onVideoFrameSelect( iframeTimePosition );
-				} }
+				onDebounceChange={ onTimestampDebounceChange }
 			/>
 		</div>
 	);
@@ -361,6 +366,21 @@ export function VideoHoverPreviewControl( {
 	const noStartingPointRange = maxStartingPoint === 0;
 	const noLoopDurationRange = maxLoopDuration <= MIN_LOOP_DURATION;
 
+	const onStartingPointDebounceChange = useCallback(
+		( timestamp: number ) => {
+			onPreviewAtTimeChange( timestamp );
+
+			const max = Math.min( MAX_LOOP_DURATION, videoDuration - timestamp );
+			setMaxLoopDuration( max );
+
+			// Adjust loop duration if needed
+			if ( loopDuration > max ) {
+				onLoopDurationChange( max );
+			}
+		},
+		[ onPreviewAtTimeChange, videoDuration, loopDuration, onLoopDurationChange ]
+	);
+
 	return (
 		<>
 			<ToggleControl
@@ -378,17 +398,7 @@ export function VideoHoverPreviewControl( {
 						max={ maxStartingPoint }
 						fineAdjustment={ 50 }
 						value={ previewAtTime }
-						onDebounceChange={ timestamp => {
-							onPreviewAtTimeChange( timestamp );
-
-							const max = Math.min( MAX_LOOP_DURATION, videoDuration - timestamp );
-							setMaxLoopDuration( max );
-
-							// Adjust loop duration if it's needed
-							if ( loopDuration > max ) {
-								onLoopDurationChange( max );
-							}
-						} }
+						onDebounceChange={ onStartingPointDebounceChange }
 						wait={ 300 }
 						disabled={ disabled || noStartingPointRange }
 						help={ startingPointHelp }
@@ -404,7 +414,7 @@ export function VideoHoverPreviewControl( {
 						wait={ 300 }
 						help={ loopDurationHelp }
 						disabled={ disabled || noLoopDurationRange }
-						marksEvery={ 5000 }
+						marksEvery={ 1000 }
 					/>
 				</>
 			) }
@@ -512,6 +522,17 @@ export default function PosterPanel( {
 		[ attributes ]
 	);
 
+	const onVideoFrameSelect = ( timestamp: number ) => {
+		setAttributes( {
+			posterData: {
+				...attributes.posterData,
+				type: 'video-frame',
+				atTime: timestamp,
+			},
+			poster: '',
+		} );
+	};
+
 	if ( ! isVideoFramePosterEnabled() ) {
 		return (
 			<PanelBody title={ __( 'Poster', 'jetpack-videopress-pkg' ) } className="poster-panel">
@@ -549,16 +570,7 @@ export default function PosterPanel( {
 					guid={ attributes?.guid }
 					atTime={ posterData?.atTime }
 					duration={ videoDuration }
-					onVideoFrameSelect={ timestamp => {
-						setAttributes( {
-							posterData: {
-								...attributes.posterData,
-								type: 'video-frame',
-								atTime: timestamp,
-							},
-							poster: '',
-						} );
-					} }
+					onVideoFrameSelect={ onVideoFrameSelect }
 				/>
 			</div>
 
