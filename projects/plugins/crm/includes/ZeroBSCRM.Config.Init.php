@@ -165,19 +165,14 @@ $zeroBSCRM_Conf_Def = array(
 
 	/* === Field Sorts === */
 	'fieldsorts'                         => array(
-		'address'      => false,
-		'customers'    => false,
-		'quotes'       => false,
-		'invoices'     => false,
-		'transactions' => false,
+		'address'  => array(),
+		'customer' => array(),
+		'company'  => array(),
 	),
 	'fieldhides'                         => array(
-		'address'      => false,
-		'customers'    => false,
-		'company'      => false,
-		'quotes'       => false,
-		'invoices'     => false,
-		'transactions' => false,
+		'address'  => array(),
+		'customer' => array(),
+		'company'  => array(),
 	),
 
 	/*
