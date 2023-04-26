@@ -108,7 +108,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 						<form class="navbar-form" role="search">
 							<input type="hidden" name="page" value="jetpack_modules" />
 							<?php $list_table->search_box( __( 'Search', 'jetpack' ), 'srch-term' ); ?>
-							<p><?php esc_html_e( 'View:', 'jetpack' ); ?></p>
+							<p><?php esc_html_e( 'View', 'jetpack' ); ?></p>
 							<span class="dops-button-group button-group filter-active">
 								<button type="button" class="dops-button is-compact button
 								<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
@@ -133,7 +133,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 								?>
 								" data-filter-by="activated" data-filter-value="false"><?php esc_html_e( 'Inactive', 'jetpack' ); ?></button>
 							</span>
-							<p><?php esc_html_e( 'Sort by:', 'jetpack' ); ?></p>
+							<p><?php esc_html_e( 'Sort by', 'jetpack' ); ?></p>
 							<span class="dops-button-group button-group sort">
 								<button type="button" class="dops-button button
 								<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
@@ -157,7 +157,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 								?>
 								" data-sort-by="sort"><?php esc_html_e( 'Popular', 'jetpack' ); ?></button>
 							</span>
-							<p><?php esc_html_e( 'Show:', 'jetpack' ); ?></p>
+							<p><?php esc_html_e( 'Show', 'jetpack' ); ?></p>
 							<?php $list_table->views(); ?>
 						</form>
 					</div>
