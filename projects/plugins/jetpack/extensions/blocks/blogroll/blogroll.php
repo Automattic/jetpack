@@ -25,14 +25,25 @@ function register_block() {
 		BLOCK_NAME,
 		array(
 			'attributes'      => array(
-				'blogroll_title' => array(
-					'type' => 'string',
+				'title'          => array(
+					'type'    => 'string',
+					'default' => 'Title',
 				),
 				'hide_invisible' => array(
-					'type' => 'boolean',
+					'type'    => 'boolean',
+					'default' => true,
 				),
 				'limit'          => array(
-					'type' => 'number',
+					'type'    => 'number',
+					'default' => -1,
+				),
+				'orderby'        => array(
+					'type'    => 'string',
+					'default' => 'name',
+				),
+				'order'          => array(
+					'type'    => 'string',
+					'default' => 'DESC',
 				),
 			),
 			'render_callback' => __NAMESPACE__ . '\render',
@@ -49,27 +60,19 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string block markup.
  */
 function get_bookmark_content( $attributes ) {
-	$list_type = 'ul';
-
-	$args = array(
-		'title_li'       => $attributes['blogroll_title'],
-		'hide_invisible' => $attributes['hide_invisible'],
-		'categorize'     => 0,
-		'limit'          => $attributes['limit'],
-		'echo'           => false,
-	);
-	// orderby
-	// order
-	// limit
-	// category
-	l(
-		wp_list_bookmarks(
-			$args
-		)
-	);
 
 	return wp_list_bookmarks(
-		$args
+		array(
+			'title_li'        => $attributes['title'],
+			'hide_invisible'  => $attributes['hide_invisible'],
+			'categorize'      => 0,
+			'orderby'         => $attributes['orderby'],
+			'order'           => $attributes['order'],
+			'limit'           => $attributes['limit'],
+			'echo'            => false,
+			'category_before' => '',
+			'category_after'  => '',
+		)
 	);
 }
 

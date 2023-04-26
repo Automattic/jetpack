@@ -1,13 +1,30 @@
 import { useBlockProps, InspectorControls } from '@wordpress/block-editor';
-import { PanelBody, TextControl, ToggleControl } from '@wordpress/components';
+import { PanelBody, TextControl, ToggleControl, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import ServerSideRender from '@wordpress/server-side-render';
 import './editor.scss';
 
 export default function Edit( props ) {
 	const { attributes, setAttributes, className } = props;
-	const { blogroll_title, hide_invisible, limit } = attributes;
-
+	const { title, hide_invisible, limit, orderby, order } = attributes;
+	const select_options = [
+		{
+			label: __( 'Name', 'jetpack' ),
+			value: 'name',
+		},
+		{
+			label: __( 'Url', 'jetpack' ),
+			value: 'url',
+		},
+		{
+			label: __( 'Category', 'jetpack' ),
+			value: 'categories',
+		},
+		{
+			label: __( 'Rating', 'jetpack' ),
+			value: 'Rating',
+		},
+	];
 	const blockProps = useBlockProps();
 
 	function onChangeHideInvisible() {
@@ -21,22 +38,37 @@ export default function Edit( props ) {
 				<PanelBody title={ 'Blogroll Title' }>
 					<TextControl
 						type="text"
-						label={ __( 'Blogroll title', 'jetpack' ) }
-						value={ blogroll_title }
-						onChange={ value => setAttributes( { blogroll_title: value } ) }
+						label={ __( 'Title', 'jetpack' ) }
+						value={ title }
+						onChange={ value => setAttributes( { title: value } ) }
 					/>
 
 					<ToggleControl
-						label={ __( 'Hide invisible', 'jetpack' ) }
+						label={ __( 'Hide invisible links', 'jetpack' ) }
 						checked={ !! hide_invisible }
 						onChange={ onChangeHideInvisible }
 					/>
 
 					<TextControl
-						label={ __( 'Limit', 'jetpack' ) }
+						label={ __( 'Number of visible links', 'jetpack' ) }
 						type={ 'number' }
 						value={ limit }
 						onChange={ value => setAttributes( { limit: value } ) }
+					/>
+					<SelectControl
+						label={ __( 'Select an order preference', 'jetpack' ) }
+						value={ orderby }
+						options={ select_options }
+						onChange={ value => setAttributes( { orderby: value } ) }
+					/>
+					<SelectControl
+						label={ __( 'Order direction', 'jetpack' ) }
+						value={ order }
+						options={ [
+							{ label: __( 'Ascending', 'jetpack' ), value: 'ASC' },
+							{ label: __( 'Descending', 'jetpack' ), value: 'DESC' },
+						] }
+						onChange={ value => setAttributes( { order: value } ) }
 					/>
 				</PanelBody>
 			</InspectorControls>
