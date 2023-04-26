@@ -121,14 +121,14 @@ function is_wpcom() {
 }
 
 /**
- * Adds a 'Newsletter access' column after the 'Title' column
+ * Adds a 'Newsletter' column after the 'Title' column
  *
  * @param array $columns An array of column names.
  * @return array An array of column names.
  */
 function add_newsletter_access_column( $columns ) {
 	$position   = array_search( 'title', array_keys( $columns ), true );
-	$new_column = array( NEWSLETTER_COLUMN_ID => '<span>' . __( 'Newsletter access', 'jetpack' ) . '</span>' );
+	$new_column = array( NEWSLETTER_COLUMN_ID => '<span>' . __( 'Newsletter', 'jetpack' ) . '</span>' );
 	return array_merge( array_slice( $columns, 1, $position ), $new_column, array_slice( $columns, $position ) );
 }
 
