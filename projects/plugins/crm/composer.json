@@ -3,7 +3,6 @@
 	"description": "[Jetpack CRM](https://jetpackcrm.com) Core CRM Plugin - WordPress.org Hosted",
 	"require-dev": {
 		"automattic/wordbless": "0.4.2",
-		"automattic/jetpack-changelogger": "@dev",
 		"codeception/codeception": "^4.1",
 		"codeception/module-asserts": "^1.0",
 		"codeception/module-phpbrowser": "^1.0",
@@ -11,6 +10,7 @@
 		"codeception/module-db": "^1.0",
 		"codeception/module-filesystem": "^1.0",
 		"codeception/util-universalframework": "^1.0",
+		"automattic/jetpack-changelogger": "@dev",
 		"yoast/phpunit-polyfills": "1.0.4",
 		"phpunit/phpunit": "^8"
 	},
@@ -23,8 +23,8 @@
 		],
 		"tests": "vendor/bin/codecept run acceptance --fail-fast",
 		"tests-debug": "vendor/bin/codecept run acceptance --fail-fast --debug",
-		"build-tests": "vendor/bin/codecept build",
 		"create-test": "vendor/bin/codecept generate:cest acceptance $1",
+		"build-tests": "vendor/bin/codecept build",
 		"cs": "temp=$(git diff --diff-filter=d --name-only trunk HEAD | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-base trunk $temp || echo 'No changes found.'",
 		"cs-security": "temp=$(git diff --diff-filter=d --name-only trunk HEAD | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --standard=phpcs.security.xml$([[ ! -f phpcs.security.xml ]] && echo .dist) --always-exit-zero --git --git-base trunk $temp || echo 'No changes found.'",
 		"cs-staged": "temp=$(git diff --diff-filter=d --name-only --cached | grep '.php'); [[ -n $temp ]] && phpcs-changed -s --always-exit-zero --git --git-staged $temp || echo 'No changes found.'",
