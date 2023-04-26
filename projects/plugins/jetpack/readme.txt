@@ -244,17 +244,26 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 12.1-a.7 - 2023-04-17
+### 12.1-beta - 2023-04-25
 #### Enhancements
-- Dashboard: update the links to the Mobile apps to allow opening links in the appropriate app store right away.
-- Forms: Update Forms child blocks to allow any transformation between the blocks.
+- Block editor: collapse Jetpack feature panels by default.
+- Dashboard: align Protect information display with Akismet.
+- Dashboard: improve the general appearance.
+- Dashboard: redesign the At a Glance page.
+- Dashboard: visually refresh the Debug page.
+- Markdown Block: add support for footnotes.
+- Publicize: improve page metadata by using attached media for the OpenGraph image.
+- Stats Widget: improve appearance of footer buttons.
+- Stats Widget: make frame sections balanced with long titles.
+- Stats Widget: make the new version of the widget available to general audience.
+- Subscriptions: Add counts in the newsletter panel to show the newsletter reach.
 
 #### Improved compatibility
-- General: Jetpack now requires WordPress version 6.1.
+- General: remove WordPress 6.0 backwards-compatibility code, now that Jetpack requires WordPress 6.1.
 
 #### Bug fixes
-- Button Block: ensure no borders are added by default browser styles.
-- Forms: Fix Forms styles when inside Cover blocks.
+- 3rd-party plugin support code: improve loading performance.
+- Payment Block: update the visibility setting of inner blocks on click to ensure that the inner block renders.
 
 --------
 
