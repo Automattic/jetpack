@@ -175,7 +175,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 					'entry_permalink'         => $data['all_fields']['entry_permalink'],
 					'subject'                 => $data['_feedback_subject'],
 					'fields'                  => array_diff_key(
-						$data['all_fields'],
+						empty( $data['all_fields'] ) ? array() : $data['all_fields'],
 						array(
 							'email_marketing_consent' => '',
 							'entry_title'             => '',
