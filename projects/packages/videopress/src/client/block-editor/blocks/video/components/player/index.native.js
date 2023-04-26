@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
  */
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 /**
  * Internal dependencies
  */
@@ -22,6 +22,7 @@ import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 const DEFAULT_PLAYER_ASPECT_RATIO =  16 / 9; // This is the observed default aspect ratio from VideoPress embeds.
+const IS_ANDROID = Platform.OS === 'android';
 
 /**
  * VideoPlayer react component
@@ -53,6 +54,7 @@ export default function Player( { isSelected, attributes } ) {
 	const [ token, setToken ] = useState();
 	const [ previewCheckAttempts, setPreviewCheckAttempts ] = useState( 0 );
 	const previewCheckTimer = useRef();
+	const androidPlayerReadyTimer = useRef();
 
 	// Fetch token for a VideoPress GUID
 	useEffect( () => {
@@ -87,6 +89,20 @@ export default function Player( { isSelected, attributes } ) {
 		!! preview?.height || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT;
 
 	const aspectRatio = preview?.width / preview?.height || DEFAULT_PLAYER_ASPECT_RATIO;
+
+	// Android doesn't receive the videopress_ready event,
+	// so we need to set the player as ready after a delay.
+	useEffect( () => {
+		if ( IS_ANDROID && !! html ) {
+			androidPlayerReadyTimer.current = setTimeout( () => {
+				if ( ! isPlayerLoaded ) {
+					setIsPlayerReady( true );
+				}
+			}, 500 );
+		}
+		return () => clearTimeout( androidPlayerReadyTimer.current );
+	}, [ html ] );
+
 
 	// Fetch the preview until it's ready
 	useEffect( () => {
