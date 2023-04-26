@@ -15,7 +15,7 @@ modules:
                 - 'DROP DATABASE IF EXISTS jpcrm_testing'
                 - 'CREATE DATABASE jpcrm_testing'
                 - 'USE jpcrm_testing;'
-            dump: 'tests/_data/53496.sql'
+            dump: 'tests/codeception/_data/53496.sql'
             populate: true
             populator: 'mysql -u $user -p$password $dbname < $dump'
         - \Helper\JPCRM_Acceptance:
