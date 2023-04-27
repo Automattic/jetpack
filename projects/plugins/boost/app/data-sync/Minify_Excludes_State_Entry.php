@@ -31,17 +31,21 @@ class Minify_Excludes_State_Entry implements Entry_Can_Get, Entry_Can_Set {
 	}
 
 	/**
-	 * Retrieves the current value of the Minify Excludes option.
+	 * Retrieves the value of the specified option.
 	 *
-	 * @return mixed The current value of the Minify Excludes option.
+	 * If the option does not exist, it returns the provided fallback value
+	 * or null if no fallback value is provided.
+	 *
+	 * @param mixed $fallback_value Optional. The value to return if the option does not exist.
+	 *                              Default is false.
+	 * @return mixed The value of the option, or the fallback value if the option does not exist.
 	 */
-	public function get() {
-		$value = get_option( $this->option_key );
-		if ( false === $value ) {
-			$value = array();
+	public function get( $fallback_value = false ) {
+		if ( $fallback_value !== false ) {
+			return get_option( $this->option_key, $fallback_value );
 		}
 
-		return $value;
+		return get_option( $this->option_key );
 	}
 
 	/**
