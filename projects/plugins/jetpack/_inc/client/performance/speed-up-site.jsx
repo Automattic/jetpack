@@ -1,6 +1,5 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -250,16 +249,13 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 								) }
 							</p>
 							{ canAppearInSearch && (
-								<CompactFormToggle
+								<ToggleControl
 									checked={ siteAcceleratorStatus }
 									toggling={ togglingSiteAccelerator }
 									onChange={ this.handleSiteAcceleratorChange }
 									disabled={ ! canDisplaySiteAcceleratorSettings }
-								>
-									<span className="jp-form-toggle-explanation">
-										{ __( 'Enable site accelerator', 'jetpack' ) }
-									</span>
-								</CompactFormToggle>
+									label={ __( 'Enable site accelerator', 'jetpack' ) }
+								/>
 							) }
 							<FormFieldset>
 								{ foundPhoton && (
