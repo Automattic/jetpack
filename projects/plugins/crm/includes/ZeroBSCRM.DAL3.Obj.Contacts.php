@@ -3622,7 +3622,14 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             // if have totals, pass them :)
             if (isset($obj->quotes_total)) $res['quotes_total'] = $obj->quotes_total;
-            if (isset($obj->invoices_total)) $res['invoices_total'] = $obj->invoices_total;
+				if ( isset( $obj->invoices_total ) ) {
+					$contact                            = $zbs->DAL->contacts->getContact( $res['id'], array( 'withInvoices' => true ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$deleted_invoice_details            = jetpackCRM_deleted_invoice_totals( $contact['invoices'] );
+					$res['invoices_total']              = $obj->invoices_total - $deleted_invoice_details['total'];
+					$res['invoices_total_with_deleted'] = $deleted_invoice_details['total'];
+					$res['invoices_count']              = $zbs->DAL->contacts->contactHasCountObjType( $res['id'], ZBS_TYPE_INVOICE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$res['invoices_count_with_deleted'] = $deleted_invoice_details['count'];
+				}
             if (isset($obj->transactions_total)) $res['transactions_total'] = $obj->transactions_total;
             if (isset($obj->transactions_paid_total)) $res['transactions_paid_total'] = $obj->transactions_paid_total;
 
@@ -4905,8 +4912,10 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
      * @return int
      */
     public function contactHasCountObjType( $contact_id, $obj_type_id ){
-
-        global $ZBSCRM_t, $wpdb;
+			// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			global $zbs;
+			global $ZBSCRM_t;
+			global $wpdb;
 
         switch ( $obj_type_id ){
 
@@ -4941,19 +4950,26 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                 break;
         }
 
-        $obj_query = "SELECT COUNT(obj_table.id) FROM " . $table_name . " obj_table"
-            . " INNER JOIN " . $ZBSCRM_t['objlinks'] . " obj_links"
-            . " ON obj_table.id = obj_links.zbsol_objid_from"
-            . " WHERE obj_links.zbsol_objtype_from = " . $obj_type_id
-            . " AND obj_links.zbsol_objtype_to = " . ZBS_TYPE_CONTACT
-            . " AND obj_links.zbsol_objid_to = %d";
+			$obj_query = 'SELECT COUNT(obj_table.id) FROM ' . $table_name . ' obj_table'
+			. ' INNER JOIN ' . $ZBSCRM_t['objlinks'] . ' obj_links' // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			. ' ON obj_table.id = obj_links.zbsol_objid_from'
+			. ' WHERE obj_links.zbsol_objtype_from = ' . $obj_type_id
+			. ' AND obj_links.zbsol_objtype_to = ' . ZBS_TYPE_CONTACT
+			. ' AND obj_links.zbsol_objid_to = %d';
 
         // counting objs with objlinks to this contact
         // Note this also ignores ownership :O
         $query = $this->prepare( $obj_query, $contact_id );
+			$count = (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared 
 
-        return (int)$wpdb->get_var( $query );
-        
+			if ( $obj_type_id === ZBS_TYPE_INVOICE ) {
+				$contact                 = $zbs->DAL->contacts->getContact( $contact_id, array( 'withInvoices' => true ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$deleted_invoice_details = jetpackCRM_deleted_invoice_totals( $contact['invoices'] );
+				return $count - $deleted_invoice_details['count'];
+			}
+
+			return $count;
+		// phpcs:enable  WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
     }
 
     /**

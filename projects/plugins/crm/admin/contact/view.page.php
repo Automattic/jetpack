@@ -75,7 +75,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 
 		// contact obj counts
 		$contact_quote_count       = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_QUOTE );
-		$contact_invoice_count     = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_INVOICE );
+		$contact_invoice_count     = $contact['invoices_count'];
 		$contact_transaction_count = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_TRANSACTION );
 		$contact_task_count        = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_EVENT );
 
@@ -298,12 +298,8 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 
 				// values - DAL3 we get them passed all nicely :)
 				$contact_total_value = 0;
-				$total_deleted       = 0;
 				if ( isset( $contact['total_value'] ) ) {
-					$deleted_invoice_details               = jetpackCRM_deleted_invoice_totals( $contact['invoices'] );
-					list( $count_deleted, $total_deleted ) = array( $deleted_invoice_details['count'], $deleted_invoice_details['total'] );
-					$contact_total_value                   = $contact['total_value'] - $total_deleted;
-					$contact_invoice_count                -= $count_deleted;
+					$contact_total_value = $contact['invoices_total'];
 				}
 				$contactQuotesValue = 0;
 				if ( isset( $contact['quotes_total'] ) ) {
@@ -311,7 +307,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 				}
 				$contact_invoices_value = 0;
 				if ( isset( $contact['invoices_total'] ) ) {
-					$contact_invoices_value = $contact['invoices_total'] - $total_deleted;
+					$contact_invoices_value = $contact['invoices_total'];
 				}
 				$contactTransactionsValue = 0;
 				if ( isset( $contact['transactions_total'] ) ) {

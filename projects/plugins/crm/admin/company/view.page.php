@@ -85,13 +85,9 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 			}
 
 			// values - DAL3 we get them passed all nicely :)
-			$company_total_value   = 0;
-			$count_cmp_deleted_inv = 0;
-			$cmp_deleted_inv_total = 0;
+			$company_total_value = 0;
 			if ( isset( $company['total_value'] ) ) {
-				$deleted_invoice_details                               = jetpackCRM_deleted_invoice_totals( $company['invoices'] );
-				list( $count_cmp_deleted_inv, $cmp_deleted_inv_total ) = array( $deleted_invoice_details['count'], $deleted_invoice_details['total'] );
-				$company_total_value                                   = $company['total_value'] - $cmp_deleted_inv_total;
+				$company_total_value = $company['total_value'];
 			}
 			$companyQuotesValue = 0;
 			if ( isset( $company['quotes_total'] ) ) {
@@ -99,7 +95,7 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 			}
 			$company_invoices_value = 0;
 			if ( isset( $company['invoices_total'] ) ) {
-				$company_invoices_value = $company['invoices_total'] - $cmp_deleted_inv_total;
+				$company_invoices_value = $company['invoices_total'];
 			}
 			$companyTransactionsValue = 0;
 			if ( isset( $company['transactions_total'] ) ) {
@@ -340,8 +336,8 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 							<td class="zbs-view-vital-label"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Invoices: This shows the total sum of your invoices & count (excluding deleted status invoices).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
 							<td>
 							<?php
-							if ( count( $company['invoices'] ) > 0 ) {
-									echo esc_html( zeroBSCRM_formatCurrency( $company_invoices_value ) . ' (' . ( count( $company['invoices'] ) - $count_cmp_deleted_inv ) . ')' );
+							if ( $company['invoices_count'] > 0 ) {
+									echo esc_html( zeroBSCRM_formatCurrency( $company_invoices_value ) . ' (' . $company['invoices_count'] . ')' );
 							} else {
 								esc_html_e( 'None', 'zero-bs-crm' );
 							}

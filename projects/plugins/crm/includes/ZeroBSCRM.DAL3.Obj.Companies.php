@@ -2715,6 +2715,8 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
      */
     private function tidy_company($obj=false,$withCustomFields=false){
 
+		global $zbs;
+
             $res = false;
 
             if (isset($obj->ID)){
@@ -2759,7 +2761,14 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 
             // if have totals, pass them :)
             if (isset($obj->quotes_total)) $res['quotes_total'] = $obj->quotes_total;
-            if (isset($obj->invoices_total)) $res['invoices_total'] = $obj->invoices_total;
+			if ( isset( $obj->invoices_total ) ) {
+				$company                            = $zbs->DAL->companies->getCompany( $res['id'], array( 'withInvoices' => true ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$deleted_invoice_details            = jetpackCRM_deleted_invoice_totals( $company['invoices'] );
+				$res['invoices_total']              = $obj->invoices_total - $deleted_invoice_details['total'];
+				$res['invoices_total_with_deleted'] = $deleted_invoice_details['total'];
+				$res['invoices_count']              = $zbs->DAL->companies->company_has_count_obj_type( $res['id'], ZBS_TYPE_INVOICE ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$res['invoices_count_with_deleted'] = $deleted_invoice_details['count'];
+			}
             if (isset($obj->transactions_total)) $res['transactions_total'] = $obj->transactions_total;
             if (isset($obj->transactions_paid_total)) $res['transactions_paid_total'] = $obj->transactions_paid_total;
 
@@ -3137,6 +3146,66 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
         return false;
         
     }
+
+	/**
+	 * Returns a count of objects of a type which are associated with this company
+	 * Supports Quotes, Invoices, Transactions, Events currently
+	 *
+	 * @param int $company_id The company ID.
+	 * @param int $obj_type_id The type constant being checked (eg ZBS_TYPE_QUOTE).
+	 *
+	 * @return int The count of relevant objects of the given type.
+	 */
+	public function company_has_count_obj_type( $company_id, $obj_type_id ) {
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		global $zbs;
+		global $ZBSCRM_t;
+		global $wpdb;
+
+		switch ( $obj_type_id ) {
+			case ZBS_TYPE_QUOTE:
+				$table_name = $ZBSCRM_t['quotes'];
+				break;
+
+			case ZBS_TYPE_INVOICE:
+				$table_name = $ZBSCRM_t['invoices'];
+				break;
+
+			case ZBS_TYPE_TRANSACTION:
+				$table_name = $ZBSCRM_t['transactions'];
+				break;
+
+			case ZBS_TYPE_EVENT:
+				$table_name = $ZBSCRM_t['events'];
+				break;
+
+			default:
+				// For any unsupported objtype.
+				return -1;
+		}
+
+		$obj_query = 'SELECT COUNT(obj_table.id) FROM ' . $table_name . ' obj_table'
+			. ' INNER JOIN ' . $ZBSCRM_t['objlinks'] . ' obj_links'
+			. ' ON obj_table.id = obj_links.zbsol_objid_from'
+			. ' WHERE obj_links.zbsol_objtype_from = ' . $obj_type_id
+			. ' AND obj_links.zbsol_objtype_to = ' . ZBS_TYPE_COMPANY
+			. ' AND obj_links.zbsol_objid_to = %d';
+
+		// Counting objs with objlinks to this company, ignoring ownership.
+		$query = $this->prepare( $obj_query, $company_id );
+		$count = (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching -- To be refactored.
+
+		if ( $obj_type_id === ZBS_TYPE_INVOICE ) {
+
+			$company                 = $zbs->DAL->companies->getCompany( $company_id, array( 'withInvoices' => true ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$deleted_invoice_details = jetpackCRM_deleted_invoice_totals( $company['invoices'] );
+			return $count - $deleted_invoice_details['count'];
+
+		}
+
+		return $count;
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
     
     
     /**
