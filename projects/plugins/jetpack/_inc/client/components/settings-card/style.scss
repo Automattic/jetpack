@@ -29,7 +29,7 @@
 
 	.dops-card {
 		box-shadow: none;
-		padding: rem( 24px );
+		padding: rem( 16px ) rem( 24px );
 
 		p:last-child {
 			margin-bottom: 0;
@@ -76,7 +76,7 @@
 		}
 
 		.dops-foldable-card__content {
-			padding: rem( 24px );
+			padding: rem( 16px ) rem( 24px );
 			border-top: 1px solid var( --jp-gray );
 		}
 
