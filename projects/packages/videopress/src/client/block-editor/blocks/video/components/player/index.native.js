@@ -21,7 +21,7 @@ import { VideoPressIcon } from '../icons';
 import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
-const DEFAULT_PLAYER_ASPECT_RATIO =  16 / 9; // This is the observed default aspect ratio from VideoPress embeds.
+const DEFAULT_PLAYER_ASPECT_RATIO = 16 / 9; // This is the observed default aspect ratio from VideoPress embeds.
 
 /**
  * VideoPlayer react component
@@ -83,14 +83,13 @@ export default function Player( { isSelected, attributes } ) {
 	const invalidatePreview = () => invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 
 	// Check if the preview is ready or we ran out of attempts.
-	const isPreviewReady =
-		!! preview?.height || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT;
+	const isPreviewReady = !! preview?.height || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT;
 
 	const aspectRatio = preview?.width / preview?.height || DEFAULT_PLAYER_ASPECT_RATIO;
 
 	// Fetch the preview until it's ready
 	useEffect( () => {
-		// return early 
+		// return early
 		if ( ! isPlayerLoaded || isRequestingEmbedPreview ) {
 			return;
 		}
@@ -120,8 +119,8 @@ export default function Player( { isSelected, attributes } ) {
 	}, [] );
 
 	const loadingOverlay = (
-		<View style={ style[ 'videopress-player__overlay' ] } >
-			<View style={ loadingViewStyle } >
+		<View style={ style[ 'videopress-player__overlay' ] }>
+			<View style={ loadingViewStyle }>
 				<Icon icon={ VideoPressIcon } size={ iconStyle?.size } style={ iconStyle } />
 				<Text style={ style[ 'videopress-player__loading-text' ] }>
 					{ __( 'Loading', 'jetpack-videopress-pkg' ) }
@@ -130,20 +129,22 @@ export default function Player( { isSelected, attributes } ) {
 		</View>
 	);
 
-	// Show the loading overlay when: 
+	// Show the loading overlay when:
 	// 1. Player is not ready
 	// 2. Player is loaded but preview is not ready
 	const showLoadingOverlay = ! isPlayerReady || ( isPlayerLoaded && ! isPreviewReady );
-	
+
 	return (
 		<View style={ [ style[ 'videopress-player' ], { aspectRatio } ] }>
 			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
 			{ showLoadingOverlay && loadingOverlay }
-			{ html && <SandBox
-				html={ html }
-				onWindowEvents={ { message: onSandboxMessage } }
-				viewportProps="user-scalable=0"
-			/> }
+			{ html && (
+				<SandBox
+					html={ html }
+					onWindowEvents={ { message: onSandboxMessage } }
+					viewportProps="user-scalable=0"
+				/>
+			) }
 		</View>
 	);
 }
