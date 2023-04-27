@@ -40,6 +40,14 @@
 		}
 	}
 
+	.jp-form-settings-group + .dops-card.is-card-link {
+		border-top: 1px solid var( --jp-gray );
+	}
+
+	.dops-card.is-card-link + .jp-form-settings-group {
+		border-top: 1px solid var( --jp-gray );
+	}
+
 	.dops-banner.dops-card.is-card-link {
 		padding: rem(24px);
 		align-items: center;
