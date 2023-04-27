@@ -114,7 +114,8 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
 	 * @return array Associative array with `site_intent`, `launchpad_screen`,
-	 *               `launchpad_checklist_tasks_statuses`, and `checklist`.
+	 *               `launchpad_checklist_tasks_statuses` as `checklist_statuses`,
+	 *               and `checklist`.
 	 */
 	public function get_data( $request ) {
 		$checklist_slug = $request['checklist_slug'];
