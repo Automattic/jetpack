@@ -56,6 +56,7 @@ export const GoogleAnalytics = withModuleSettingsFormHelpers(
 							className="jp-settings-card__configure-link"
 							onClick={ this.trackConfigureClick }
 							href={ this.props.configureUrl }
+							target="_blank"
 						>
 							{ __( 'Configure your Google Analytics settings', 'jetpack' ) }
 						</Card>

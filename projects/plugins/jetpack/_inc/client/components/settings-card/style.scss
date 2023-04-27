@@ -123,6 +123,7 @@
 	a.dops-card .dops-card__link-indicator {
 		color:  #1E1E1E;
 		width: rem( 18px );
+		margin-left: auto;
 
 		&:hover {
 			color: var( --jp-black );
