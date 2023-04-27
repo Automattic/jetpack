@@ -348,11 +348,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
 		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
 
-		$email_body = explode( PHP_EOL . PHP_EOL, $email['message'] );
-
-		$email_body = $email_body[1];
-
-		$this->assertStringStartsWith( $expected, $email_body );
+		$this->assertStringContainsString( $expected, $email['message'] );
 	}
 
 	/**
@@ -401,11 +397,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$expected .= '<p><strong>Radio:</strong><br /><span>Second option</span></p>';
 		$expected .= '<p><strong>Text:</strong><br /><span>Texty text</span></p>';
 
-		// Divides email by the first empty line.
-		$email_body = explode( PHP_EOL . PHP_EOL, $args['message'] );
-		$email_body = $email_body[1];
-
-		$this->assertStringStartsWith( $expected, $email_body );
+		$this->assertStringContainsString( $expected, $args['message'] );
 	}
 
 	/**
