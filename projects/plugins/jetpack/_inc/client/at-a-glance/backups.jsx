@@ -36,7 +36,7 @@ const renderCard = props => (
 		module={ props.feature || 'backups' }
 		support={ {
 			text: __(
-				'Jetpack Backups allow you to easily restore or download a backup from a specific moment.',
+				'VaultPress Backup allow you to easily restore or download a backup from a specific moment.',
 				'jetpack'
 			),
 			link: getRedirectUrl( 'jetpack-support-backup' ),
