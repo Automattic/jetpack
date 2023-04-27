@@ -4,6 +4,7 @@
   "description": "A helper for connecting WordPress.com sites to external host infrastructure.",
   "license": "GPLv3",
   "require": {
+    "php": ">=7.0.0",
     "automattic/at-pressable-podcasting": "v1.2.8",
     "automattic/custom-fonts": "v2.1.1",
     "automattic/custom-fonts-typekit": "1.0.8",
@@ -15,7 +16,6 @@
     "automattic/jetpack-mu-wpcom": "^1.5.0"
   },
   "require-dev": {
-    "php": ">=7.0.0",
     "phpunit/phpunit": "^9"
   },
   "repositories": [
