@@ -40,9 +40,14 @@ export default function ConnectBanner( {
 		connectButtonText = __( 'Redirecting…', 'jetpack-videopress-pkg' );
 	}
 
-	const buttonText = ! isModuleActive
-		? __( 'Enable Jetpack module to continue using VideoPress', 'jetpack-videopress-pkg' )
-		: __( 'Connect your account to continue using VideoPress', 'jetpack-videopress-pkg' );
+	const connectYourAccountMessage = __(
+		'Connect your account to continue using VideoPress',
+		'jetpack-videopress-pkg'
+	);
+	const connectJetpackModuleMessage = __(
+		'Enable Jetpack module to continue using VideoPress',
+		'jetpack-videopress-pkg'
+	);
 
 	return (
 		<Banner
@@ -57,7 +62,7 @@ export default function ConnectBanner( {
 				</Button>
 			}
 		>
-			{ buttonText }
+			{ isModuleActive ? connectYourAccountMessage : connectJetpackModuleMessage }
 		</Banner>
 	);
 }
