@@ -21,7 +21,7 @@
 	} );
 </script>
 
-<div id="jb-settings" class="jb-settings">
+<div id="jb-dashboard" class="jb-dashboard">
 	<div class="jb-container jb-container--fixed mt-2">
 		<div class="jb-card">
 			<div class="jb-card__content">

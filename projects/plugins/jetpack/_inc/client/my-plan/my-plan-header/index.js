@@ -419,7 +419,10 @@ class MyPlanHeader extends React.Component {
 				{ this.renderLicensingActions() }
 				<Card compact>
 					{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
-					<MyPlanCard { ...this.getProductProps( this.props.plan, this.props.activeProducts ) } />
+					<MyPlanCard
+						{ ...this.getProductProps( this.props.plan, this.props.activeProducts ) }
+						isPlan
+					/>
 				</Card>
 			</>
 		);
@@ -476,14 +479,16 @@ class MyPlanHeader extends React.Component {
 						} ) }
 					>
 						{ showPurchasesLink && (
-							<ExternalLink
-								className="all-purchases__link"
-								href={ getRedirectUrl( 'calypso-purchases' ) }
+							<Button
 								onClick={ this.trackAllPurchasesClick }
+								href={ getRedirectUrl( 'calypso-purchases' ) }
+								compact
+								rna
 							>
-								{ __( 'View all purchases', 'jetpack' ) }
-							</ExternalLink>
+								<ExternalLink>{ __( 'View all purchases', 'jetpack' ) }</ExternalLink>
+							</Button>
 						) }
+
 						{ 'header' === position ? (
 							<Button
 								href={
@@ -493,6 +498,8 @@ class MyPlanHeader extends React.Component {
 								}
 								onClick={ this.trackLicenseActivationClick }
 								primary
+								compact
+								rna
 							>
 								{ _x( 'Activate a Product', 'Navigation item.', 'jetpack' ) }
 							</Button>
@@ -501,6 +508,7 @@ class MyPlanHeader extends React.Component {
 								href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
 								onClick={ this.trackRecommendationsClick }
 								primary
+								rna
 							>
 								{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
 							</Button>

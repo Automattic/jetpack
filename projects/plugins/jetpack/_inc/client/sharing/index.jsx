@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -47,17 +46,14 @@ class Sharing extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Sharing Settings', 'jetpack' ) }</h1>
-				<Card
-					title={
-						this.props.searchTerm
-							? __( 'Sharing', 'jetpack' )
-							: __(
-									'Share your content to social media, reaching new audiences and increasing engagement.',
-									'jetpack'
-							  )
-					}
-					className="jp-settings-description"
-				/>
+				<h2 className="jp-settings__section-title">
+					{ this.props.searchTerm
+						? __( 'Sharing', 'jetpack' )
+						: __(
+								'Share your content to social media, reaching new audiences and increasing engagement.',
+								'jetpack'
+						  ) }
+				</h2>
 				{ foundPublicize && <Publicize { ...commonProps } /> }
 				{ foundSharing && <ShareButtons { ...commonProps } /> }
 				{ foundLikes && <Likes { ...commonProps } /> }

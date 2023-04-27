@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Adds a 'Staging' badge to the wp-admin nav menu when the site is a WordPress.com staging site.

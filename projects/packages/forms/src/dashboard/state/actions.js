@@ -50,6 +50,7 @@ export function* fetchResponses( query, options = {} ) {
 			type: RESPONSES_FETCH_RECEIVE,
 			responses: data.responses,
 			total: data.totals[ query.status || 'inbox' ],
+			tabTotals: data.totals,
 			filters: data.filters_available,
 			append: options.append,
 		};
