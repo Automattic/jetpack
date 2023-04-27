@@ -50,9 +50,7 @@
 		flex-basis: 100%
 	}
 	&.is-alert {
-		color: $white;
-		background: $alert-red;
-		border-color: $alert-red;
+		color: var( --jp-red-50 );
 	}
 }
 

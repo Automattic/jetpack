@@ -544,8 +544,6 @@ a.jp-dash-item__manage-in-wpcom,
 		letter-spacing: -0.02em;
 		text-decoration: underline;
 		color: $black;
-		box-shadow: none;
-		background: none;
 
 		&:hover {
 			text-decoration-thickness: 3px;
@@ -584,11 +582,13 @@ a.jp-dash-item__manage-in-wpcom,
 	.dops-banner {
 		box-shadow: none;
 		border: 0;
+		border-top: 1px solid $gray-5;
 	}
 }
 
 .jp-support-card {
 	.dops-banner {
 		margin-bottom: 0;
+		border-top: 1px solid $gray-5;
 	}
 }

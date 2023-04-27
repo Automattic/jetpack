@@ -70,7 +70,7 @@
 	}
 
 	@include breakpoint( '>480px' ) {
-		padding: 12px 16px 16px;
+		padding: 16px;
 		&.is-dismissible {
 			padding-right: 16px;
 		}
@@ -169,6 +169,8 @@
 			&, &:active, &:visited, &:hover, &:focus {
 				font-size: $font-body-extra-small;
 				line-height: 1.4;
+				box-shadow: none;
+				background: none;
 			}
 		}
 	}
