@@ -321,9 +321,18 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	 */
 	private function bulk_action_mark_as_spam( $post_ids ) {
 		foreach ( $post_ids as $post_id ) {
-			$post              = get_post( $post_id );
-			$post->post_status = 'spam';
-			$status            = wp_insert_post( $post );
+			$post = get_post( $post_id );
+			if ( $post->post_type !== 'feedback' ) {
+				continue;
+			}
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'spam',
+				),
+				false,
+				false
+			);
 
 			if ( ! $status || is_wp_error( $status ) ) {
 				return $this->error_response(
@@ -355,9 +364,18 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	 */
 	private function bulk_action_mark_as_not_spam( $post_ids ) {
 		foreach ( $post_ids as $post_id ) {
-			$post              = get_post( $post_id );
-			$post->post_status = 'publish';
-			$status            = wp_insert_post( $post );
+			$post = get_post( $post_id );
+			if ( $post->post_type !== 'feedback' ) {
+				continue;
+			}
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'published',
+				),
+				false,
+				false
+			);
 
 			if ( ! $status || is_wp_error( $status ) ) {
 				return $this->error_response(
