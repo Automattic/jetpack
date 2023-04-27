@@ -8,13 +8,12 @@ Stable tag: 1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-VaultPress is the most proven WordPress backup plugin with over 270 million backups. Save each change and get back online fast with one-click restores.
+Jetpack VaultPress Backup. Save each change and get back online fast with one-click restores. The most proven WordPress backup plugin with over 270 million backups.
 
 == Description ==
 
-Jetpack VaultPress Backup is a plugin that gives you cloud-based backups and one-click restores without needing to install the full Jetpack plugin.
-
-VaultPress is the most proven WordPress backup plugin with over 270 million backups. Save each change and get back online fast with one-click restores.
+Jetpack VaultPress Backup is a plugin that gives you cloud-based backups and one-click restores without needing to install the full Jetpack plugin. 
+The most proven WordPress backup plugin with over 270 million backups. Save each change and get back online fast with one-click restores.
 
 Note: To use this plugin you will need to have a paid Jetpack plan that includes Backup.
 
