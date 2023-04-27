@@ -1,10 +1,10 @@
-import { Fragment, useCallback } from '@wordpress/element';
+import { Fragment, forwardRef, useCallback } from '@wordpress/element';
 import classnames from 'classnames';
 import { kebabCase, map } from 'lodash';
 
 const stopPropagation = event => event.stopPropagation();
 
-const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
+const TableItem = ( { columns, item, isSelected, onSelectChange }, ref ) => {
 	const handleChange = useCallback( () => onSelectChange( item.id ), [ item.id, onSelectChange ] );
 
 	const classes = classnames( 'jp-forms__table-item', item.className, {
@@ -16,7 +16,7 @@ const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 
 	return (
 		/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */
-		<div className={ classes } onClick={ item.onClick }>
+		<div ref={ ref } className={ classes } onClick={ item.onClick }>
 			{ !! onSelectChange && (
 				<div className="jp-forms__table-cell is-select">
 					{ ! item.isLoading && (
@@ -60,4 +60,4 @@ const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 	);
 };
 
-export default TableItem;
+export default forwardRef( TableItem );

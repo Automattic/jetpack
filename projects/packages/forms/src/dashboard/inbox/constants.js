@@ -12,5 +12,11 @@ export const ACTIONS = {
 	delete: 'delete',
 	markAsSpam: 'mark_as_spam',
 	markAsNotSpam: 'mark_as_not_spam',
-	spamCheck: 'spam_check',
+};
+
+export const ACTION_TABS = {
+	[ ACTIONS.moveToTrash ]: TABS.trash,
+	[ ACTIONS.removeFromTrash ]: TABS.inbox,
+	[ ACTIONS.markAsSpam ]: TABS.spam,
+	[ ACTIONS.markAsNotSpam ]: TABS.inbox,
 };

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { combineReducers } from '@wordpress/data';
-import { uniqBy } from 'lodash';
+import { fromPairs, keys, map, uniqBy } from 'lodash';
 /**
  * Internal dependencies
  */
@@ -19,6 +19,7 @@ import {
 	RESPONSES_QUERY_STATUS_UPDATE,
 	RESPONSES_REMOVE,
 	RESPONSES_SELECTION_SET,
+	RESPONSES_TAB_TOTALS_ADD,
 } from './action-types';
 
 const filters = ( state = {}, action ) => {
@@ -70,6 +71,15 @@ const responses = ( state = [], action ) => {
 const tabTotals = ( state = undefined, action ) => {
 	if ( action.type === RESPONSES_FETCH_RECEIVE ) {
 		return action.tabTotals;
+	}
+
+	if ( action.type === RESPONSES_TAB_TOTALS_ADD ) {
+		return fromPairs(
+			map( keys( { ...state, ...action.tabTotals } ), tab => [
+				tab,
+				( state[ tab ] || 0 ) + ( action.tabTotals[ tab ] || 0 ),
+			] )
+		);
 	}
 
 	return state;

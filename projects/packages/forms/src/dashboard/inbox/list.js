@@ -42,6 +42,7 @@ const COLUMNS = [
 const InboxList = ( {
 	currentPage,
 	currentResponseId,
+	currentTab,
 	pages,
 	responses,
 	selectedResponses,
@@ -50,7 +51,8 @@ const InboxList = ( {
 	setSelectedResponses,
 	loading,
 } ) => {
-	const totalResponses = useSelect( select => select( STORE_NAME ).getTotalResponses(), [] );
+	const tabTotals = useSelect( select => select( STORE_NAME ).getTabTotals(), [] );
+	const totalResponses = tabTotals[ currentTab ];
 
 	const tableItems = useMemo( () => {
 		const items = responses.map( response => ( {
@@ -60,7 +62,7 @@ const InboxList = ( {
 		} ) );
 
 		if ( loading ) {
-			const numPlaceholders = responses.length
+			const numPlaceholders = totalResponses
 				? Math.min(
 						RESPONSES_FETCH_LIMIT,
 						totalResponses - ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
@@ -90,11 +92,13 @@ const InboxList = ( {
 	return (
 		<>
 			<Table
+				key={ `responses-${ currentTab }-${ currentPage }` }
 				className="jp-forms__inbox-list"
 				columns={ COLUMNS }
 				items={ tableItems }
 				selectedResponses={ selectedResponses }
 				setSelectedResponses={ setSelectedResponses }
+				rowAnimationTimeout={ 200 }
 			/>
 
 			{ pages > 1 && (

@@ -4,10 +4,10 @@ import { __ } from '@wordpress/i18n';
 import { trash, inbox, moreHorizontal } from '@wordpress/icons';
 import { doBulkAction } from '../data/responses';
 import { STORE_NAME } from '../state';
-import { ACTIONS, RESPONSES_FETCH_LIMIT, TABS } from './constants';
+import { ACTION_TABS, ACTIONS, RESPONSES_FETCH_LIMIT, TABS } from './constants';
 
 const SingleActionsMenu = ( { id } ) => {
-	const { fetchResponses, removeResponses, setLoading } = useDispatch( STORE_NAME );
+	const { addTabTotals, fetchResponses, removeResponses, setLoading } = useDispatch( STORE_NAME );
 	const [ currentPage, query ] = useSelect(
 		select => [ select( STORE_NAME ).getCurrentPage(), select( STORE_NAME ).getResponsesQuery() ],
 		[]
@@ -24,6 +24,10 @@ const SingleActionsMenu = ( { id } ) => {
 		try {
 			setLoading( true );
 			removeResponses( [ id ] );
+			addTabTotals( {
+				[ currentTab ]: -1,
+				[ ACTION_TABS[ action ] ]: 1,
+			} );
 			await doBulkAction( [ id ], action );
 
 			fetchResponses( {

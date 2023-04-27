@@ -16,6 +16,7 @@ import {
 	RESPONSES_QUERY_STATUS_UPDATE,
 	RESPONSES_REMOVE,
 	RESPONSES_SELECTION_SET,
+	RESPONSES_TAB_TOTALS_ADD,
 } from './action-types';
 
 /**
@@ -66,11 +67,13 @@ export function* fetchResponses( query, options = {} ) {
  * Removes the given responses from the current set.
  *
  * @param {Array} responseIds - Response IDs to remove.
+ * @param {string} status - Current of the responses to be removed.
  * @returns {object} Action object.
  */
-export const removeResponses = responseIds => ( {
+export const removeResponses = ( responseIds, status ) => ( {
 	type: RESPONSES_REMOVE,
 	responseIds,
+	status,
 } );
 
 /**
@@ -157,4 +160,15 @@ export const selectResponses = selectedResponses => ( {
 export const setLoading = loading => ( {
 	type: RESPONSES_LOADING_SET,
 	loading,
+} );
+
+/**
+ * Add to current tab total numbers.
+ *
+ * @param {object} tabTotals - Totals to add.
+ * @returns {object} Action object,
+ */
+export const addTabTotals = tabTotals => ( {
+	type: RESPONSES_TAB_TOTALS_ADD,
+	tabTotals,
 } );

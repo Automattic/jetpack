@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { config } from '../';
 import { doBulkAction } from '../data/responses';
 import { STORE_NAME } from '../state';
-import { ACTIONS, RESPONSES_FETCH_LIMIT, TABS } from './constants';
+import { ACTION_TABS, ACTIONS, RESPONSES_FETCH_LIMIT, TABS } from './constants';
 
 /**
  * Custom temporary handler for check-for-spam action based on grunion_check_for_spam.
@@ -40,7 +40,7 @@ const checkForSpam = ( offset = 0 ) => {
 const ActionsMenu = ( { currentPage, currentView, selectedResponses, setSelectedResponses } ) => {
 	const [ checkingForSpam, setCheckingForSpam ] = useState( false );
 
-	const { fetchResponses, removeResponses, setLoading } = useDispatch( STORE_NAME );
+	const { addTabTotals, fetchResponses, removeResponses, setLoading } = useDispatch( STORE_NAME );
 	const query = useSelect( select => select( STORE_NAME ).getResponsesQuery(), [] );
 
 	const handleCheckForSpam = useCallback( () => {
@@ -54,10 +54,14 @@ const ActionsMenu = ( { currentPage, currentView, selectedResponses, setSelected
 	const onActionHandler = action => async () => {
 		try {
 			setLoading( true );
+			setSelectedResponses( [] );
 			removeResponses( selectedResponses );
+			addTabTotals( {
+				[ currentView ]: -selectedResponses.length,
+				[ ACTION_TABS[ action ] ]: selectedResponses.length,
+			} );
 			await doBulkAction( selectedResponses, action );
 
-			setSelectedResponses( [] );
 			fetchResponses(
 				{
 					...query,

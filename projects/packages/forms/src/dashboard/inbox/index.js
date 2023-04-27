@@ -297,6 +297,7 @@ const Inbox = () => {
 								<InboxList
 									currentPage={ currentPage }
 									currentResponseId={ currentResponseId }
+									currentTab={ query.status }
 									loading={ loading }
 									pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
 									responses={ responses }
