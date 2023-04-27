@@ -50,12 +50,13 @@ export class DashStats extends Component {
 	barClick = bar => {
 		if ( bar.data.link ) {
 			analytics.tracks.recordJetpackClick( 'stats_bar' );
-			window.open( bar.data.link, '_blank' );
+			// Open the link in the same tab if the user is on a non-Atomic Jetpack site.
+			window.open( bar.data.link, this.shouldLinkToWpcomStats() ? '_blank' : '_self' );
 		}
 	};
 
 	statsChart( unit ) {
-		const props = this.props,
+		const { siteAdminUrl, siteRawUrl, statsData } = this.props,
 			s = [];
 
 		let totalViews = 0;
@@ -67,11 +68,11 @@ export class DashStats extends Component {
 			/* translators: long month/year format, such as: January, 2021. */
 			longMonthYearFormat = __( 'F Y', 'jetpack' );
 
-		if ( 'object' !== typeof props.statsData[ unit ] ) {
+		if ( 'object' !== typeof statsData[ unit ] ) {
 			return { chartData: s, totalViews: false };
 		}
 
-		forEach( props.statsData[ unit ].data, function ( v ) {
+		forEach( statsData[ unit ].data, v => {
 			const views = v[ 1 ];
 			let date = v[ 0 ],
 				chartLabel = '',
@@ -102,13 +103,12 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link:
-						isOdysseyStatsEnabled && ! isAtomicSite
-							? `${ props.siteAdminUrl }admin.php?page=stats#!/stats/day/${ props.siteRawUrl }?startDate=${ date }`
-							: getRedirectUrl( `calypso-stats-${ unit }`, {
-									site: props.siteRawUrl,
-									query: `startDate=${ date }`,
-							  } ),
+					link: ! this.shouldLinkToWpcomStats()
+						? `${ siteAdminUrl }admin.php?page=stats#!/stats/day/${ siteRawUrl }?startDate=${ date }`
+						: getRedirectUrl( `calypso-stats-${ unit }`, {
+								site: siteRawUrl,
+								query: `startDate=${ date }`,
+						  } ),
 				},
 				tooltipData: [
 					{
