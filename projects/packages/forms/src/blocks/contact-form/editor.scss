@@ -280,7 +280,7 @@
 
 .jetpack-field-label__input {
 	min-height: unset;
-	
+
 	padding: 0;
 }
 
@@ -864,13 +864,16 @@
 
 			&.jetpack-field-multiple {
 				background-color: var(--jetpack--contact-form--input-background);
-				padding: var(--jetpack--contact-form--input-padding, 16px);
-				padding-top: 1.7em;
-				border-radius: var(--jetpack--contact-form--border-radius);
-				border: var(--jetpack--contact-form--border);
-				border-color: var(--jetpack--contact-form--border-color);
-				border-style: var(--jetpack--contact-form--border-style);
-				border-width: var(--jetpack--contact-form--border-size);
+				padding-bottom: var(--jetpack--contact-form--input-padding, 16px);
+				padding-top: 1.8em;
+
+				&.has-placeholder {
+					.animated-label__label {
+						font-size: 1em;
+						top: 0;
+						left: 0;
+					}
+				}
 			}
 
 			.animated-label__label {
@@ -884,6 +887,10 @@
 				margin: 0;
 				transform: translateY(-50%);
 				transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
+
+				.jetpack-field-label__input {
+					margin: 0;
+				}
 			}
 
 			&.jetpack-field-textarea .animated-label__label {

@@ -795,13 +795,16 @@
 
 			&.jetpack-field-multiple {
 				background-color: var(--jetpack--contact-form--input-background);
-				padding: var(--jetpack--contact-form--input-padding, 16px);
+				padding-bottom: var(--jetpack--contact-form--input-padding, 16px);
 				padding-top: 1.7em;
-				border-radius: var(--jetpack--contact-form--border-radius);
-				border: var(--jetpack--contact-form--border);
-				border-color: var(--jetpack--contact-form--border-color);
-				border-style: var(--jetpack--contact-form--border-style);
-				border-width: var(--jetpack--contact-form--border-size);
+
+				&.has-placeholder {
+					.animated-label__label {
+						font-size: 1em;
+						top: 0;
+						left: 0;
+					}
+				}
 			}
 
 			.animated-label__label {

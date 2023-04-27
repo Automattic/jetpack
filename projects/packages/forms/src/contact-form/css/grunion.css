@@ -381,12 +381,10 @@
 }
 
 .contact-form .is-style-outlined .grunion-field-wrap .grunion-checkbox-multiple-options,
-.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options
+.contact-form .is-style-outlined .grunion-field-wrap .grunion-radio-options
 {
 	padding: var(--jetpack--contact-form--input-padding, 16px);
-	padding-top: calc(var(--jetpack--contact-form--input-padding, 16px) + 4px);
+	padding-top: calc(var(--jetpack--contact-form--input-padding-top, 16px) + 4px);
 	flex-grow: 1;
 }
 
@@ -539,16 +537,13 @@ on production builds, the attributes are being reordered, causing side-effects
 .contact-form .is-style-animated .grunion-field-checkbox-multiple-wrap,
 .contact-form .is-style-animated .grunion-field-radio-wrap {
 	background-color: var(--jetpack--contact-form--input-background);
-	border-radius: var(--jetpack--contact-form--border-radius);
-	border: var(--jetpack--contact-form--border);
-	border-color: var(--jetpack--contact-form--border-color);
-	border-style: var(--jetpack--contact-form--border-style);
-	border-width: var(--jetpack--contact-form--border-size);
 }
 
 .contact-form .is-style-animated .grunion-field-checkbox-multiple-wrap .grunion-checkbox-multiple-options,
 .contact-form .is-style-animated .grunion-field-radio-wrap .grunion-radio-options {
-	padding-top: 1.7em;
+	padding-bottom: var(--jetpack--contact-form--input-padding, 16px);
+	padding-top: 1.8em;
+	flex-grow: 1
 }
 
 .contact-form .is-style-animated .grunion-field-wrap .animated-label__label {
@@ -571,13 +566,18 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form .is-style-animated .grunion-field-wrap .grunion-field:focus ~ .animated-label__label,
 .contact-form .is-style-animated .grunion-field-wrap .grunion-field:not(:placeholder-shown) ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options ~ .animated-label__label,
-.contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options ~ .animated-label__label
+.contact-form .is-style-animated .grunion-field-wrap .grunion-field.has-placeholder ~ .animated-label__label
 {
 	font-size: 0.75em;
 	transform: translateY(0);
 	top: calc(2px + var(--jetpack--contact-form--border-size));
+}
+
+.contact-form .is-style-animated .grunion-field-wrap .grunion-checkbox-multiple-options ~ .animated-label__label,
+.contact-form .is-style-animated .grunion-field-wrap .grunion-radio-options ~ .animated-label__label {
+	top: 0;
+	left: 0;
+	transform: translateY(0);
 }
 
 .contact-form .is-style-below .grunion-field-wrap .below-label__label {
@@ -728,7 +728,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	background: unset;
 	content: "✓";
 	display: block;
-	font-size: 1.3em;
+	font-size: 1em;
 	height: auto;
 	margin: -0.2em 0 0;
 	position: relative;
