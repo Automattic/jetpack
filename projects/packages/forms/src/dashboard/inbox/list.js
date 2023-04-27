@@ -79,7 +79,7 @@ const InboxList = ( {
 		return items;
 	}, [ currentPage, currentResponseId, loading, responses, setCurrentResponseId, totalResponses ] );
 
-	if ( ! loading && responses.length === 0 ) {
+	if ( ( ! loading && responses.length === 0 ) || totalResponses === 0 ) {
 		return (
 			<Table
 				className="jp-forms__inbox-list"
