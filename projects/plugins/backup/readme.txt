@@ -12,8 +12,7 @@ Jetpack VaultPress Backup. Save each change and get back online fast with one-cl
 
 == Description ==
 
-Jetpack VaultPress Backup is a plugin that gives you cloud-based backups and one-click restores without needing to install the full Jetpack plugin. 
-The most proven WordPress backup plugin with over 270 million backups. Save each change and get back online fast with one-click restores.
+Jetpack VaultPress Backup is a plugin that gives you cloud-based backups and one-click restores without needing to install the full Jetpack plugin. The most proven WordPress backup plugin with over 270 million backups. Save each change and get back online fast with one-click restores.
 
 Note: To use this plugin you will need to have a paid Jetpack plan that includes Backup.
 
