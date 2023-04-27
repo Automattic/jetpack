@@ -93,7 +93,7 @@
 /**
  * Takes WP Editor content + applies WP conversion (adds <p> and deals with <b> as if was wp post)
  *
- * @deprecated use wp_kses directly instead.
+ * @deprecated $$next-version$$ use wp_kses directly instead.
  *
  * @param string $string A string including the HTML content to be saved to the DB.
  *
@@ -104,7 +104,7 @@ function zeroBSCRM_io_WPEditor_WPEditorToDB( $string = '' ) {
 	global $zbs;
 
 	if ( function_exists( '_deprecated_function' ) ) {
-		_deprecated_function( __FUNCTION__, 'Jetpack CRM 5.7.1' );
+		_deprecated_function( __FUNCTION__, 'crm-$$next-version$$' );
 	}
 	return wp_kses( $string, $zbs->acceptable_html );
 }
@@ -112,7 +112,7 @@ function zeroBSCRM_io_WPEditor_WPEditorToDB( $string = '' ) {
 /**
  * This takes Database saved HTML and puts it back out in the wp editor
  *
- * @deprecated No replacement as we will now replicate expected TinyMCE behavior and not decode HTML
+ * @deprecated $$next-version$$ No replacement as we will now replicate expected TinyMCE behavior and not decode HTML
  *
  * @param string $string HTML in the form of a string.
  *
@@ -121,7 +121,7 @@ function zeroBSCRM_io_WPEditor_WPEditorToDB( $string = '' ) {
 function zeroBSCRM_io_WPEditor_DBToWPEditor( $string = '' ) {
 
 	if ( function_exists( '_deprecated_function' ) ) {
-		_deprecated_function( __FUNCTION__, 'Jetpack CRM 5.7.1' );
+		_deprecated_function( __FUNCTION__, 'crm-$$next-version$$' );
 	}
 
 	// See https://wordpress.stackexchange.com/questions/245201/how-to-save-html-and-text-in-the-database
@@ -132,7 +132,7 @@ function zeroBSCRM_io_WPEditor_DBToWPEditor( $string = '' ) {
  * This takes Database saved HTML (from wp_editor via zeroBSCRM_io_WPEditor_WPEditorToDB)
  * .. and returns raw HTML (with paragraphs) (e.g. for output in quote portal page)
  *
- * @deprecated No replacement as we will now replicate expected TinyMCE behavior and not decode HTML
+ * @deprecated $$next-version$$ No replacement as we will now replicate expected TinyMCE behavior and not decode HTML
  *
  * @param string $string HTML in the form of a string.
  *
@@ -141,7 +141,7 @@ function zeroBSCRM_io_WPEditor_DBToWPEditor( $string = '' ) {
 function zeroBSCRM_io_WPEditor_DBToHTML( $string = '' ) {
 
 	if ( function_exists( '_deprecated_function' ) ) {
-		_deprecated_function( __FUNCTION__, 'Jetpack CRM 5.7.1' );
+		_deprecated_function( __FUNCTION__, 'crm-$$next-version$$' );
 	}
 
 	// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
@@ -156,7 +156,7 @@ function zeroBSCRM_io_WPEditor_DBToHTML( $string = '' ) {
  * This takes Database saved HTML (from wp_editor via zeroBSCRM_io_WPEditor_WPEditorToDB)
  * .. and returns first X characters, no tags
  *
- * @deprecated Use the strip_tags / html_entity_decode / stripslashes functions directly instead, if needed.
+ * @deprecated $$next-version$$ Use the strip_tags / html_entity_decode / stripslashes functions directly instead, if needed.
  *
  * @param string $string HTML in the form of a string.
  * @param int    $len The max length in characters in the excerpt.
@@ -166,7 +166,7 @@ function zeroBSCRM_io_WPEditor_DBToHTML( $string = '' ) {
 function zeroBSCRM_io_WPEditor_DBToHTMLExcerpt( $string = '', $len = 200 ) {
 
 	if ( function_exists( '_deprecated_function' ) ) {
-		_deprecated_function( __FUNCTION__, 'Jetpack CRM 5.7.1' );
+		_deprecated_function( __FUNCTION__, 'crm-$$next-version$$' );
 	}
 
 	$string = strip_tags( html_entity_decode( stripslashes( $string ), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ) ); // phpcs:ignore WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
