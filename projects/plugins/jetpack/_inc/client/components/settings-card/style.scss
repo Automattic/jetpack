@@ -31,6 +31,10 @@
 		box-shadow: none;
 		padding: rem( 16px ) rem( 24px );
 
+		&::after {
+			display: none;
+		}
+
 		p:last-child {
 			margin-bottom: 0;
 		}
@@ -123,6 +127,7 @@
 	a.dops-card .dops-card__link-indicator {
 		color:  #1E1E1E;
 		width: rem( 18px );
+		flex-shrink: 0;
 		margin-left: auto;
 
 		&:hover {
