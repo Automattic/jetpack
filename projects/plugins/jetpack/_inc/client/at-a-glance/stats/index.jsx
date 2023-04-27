@@ -154,7 +154,7 @@ export class DashStats extends Component {
 
 	dismissCard = () => {
 		this.setState( { emptyStatsDismissed: true } );
-		// this.props.updateOptions( { dismiss_empty_stats_card: true } );
+		this.props.updateOptions( { dismiss_empty_stats_card: true } );
 	};
 
 	renderEmptyStatsCard() {
@@ -211,7 +211,7 @@ export class DashStats extends Component {
 
 			const statsChart = this.statsChart( this.props.activeTab ),
 				chartData = statsChart.chartData,
-				totalViews = 0, //statsChart.totalViews,
+				totalViews = statsChart.totalViews,
 				showEmptyStats =
 					chartData.length &&
 					totalViews <= 0 &&
