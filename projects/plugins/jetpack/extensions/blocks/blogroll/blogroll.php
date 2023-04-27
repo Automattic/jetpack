@@ -24,26 +24,60 @@ function register_block() {
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array(
+			'supports'        => array(
+				'color'      => array(
+					'gradients' => true,
+					'link'      => true,
+				),
+				'spacing'    => array(
+					'margin'  => true,
+					'padding' => true,
+				),
+				'typography' => array(
+					'fontSize'   => true,
+					'lineHeight' => true,
+				),
+			),
 			'attributes'      => array(
-				'title'          => array(
+				'title'           => array(
 					'type'    => 'string',
 					'default' => 'Title',
 				),
-				'hide_invisible' => array(
+				'title_markup'    => array(
+					'type'    => 'string',
+					'default' => 'h2',
+				),
+				'hide_invisible'  => array(
 					'type'    => 'boolean',
 					'default' => true,
 				),
-				'limit'          => array(
+				'limit'           => array(
 					'type'    => 'number',
 					'default' => -1,
 				),
-				'orderby'        => array(
+				'orderby'         => array(
 					'type'    => 'string',
 					'default' => 'name',
 				),
-				'order'          => array(
+				'order'           => array(
 					'type'    => 'string',
 					'default' => 'DESC',
+				),
+				'list_style'      => array(
+					'type'    => 'string',
+					'default' => 'none',
+				),
+				'textColor'       => array(
+					'type' => 'string',
+				),
+				'backgroundColor' => array(
+					'type' => 'string',
+				),
+				'fontSize'        => array(
+					'type' => 'string',
+				),
+				'style'           => array(
+					'type' => 'object',
 				),
 			),
 			'render_callback' => __NAMESPACE__ . '\render',
@@ -60,8 +94,14 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string block markup.
  */
 function get_bookmark_content( $attributes ) {
-	$args            = array(
+	$title_markup = in_array( $attributes['title_markup'], array( 'h1', 'h2', 'h3', 'h4', 'h5', 'p' ), true )
+		? $attributes['title_markup']
+		: 'h2';
+
+	$args = array(
 		'title_li'        => $attributes['title'],
+		'title_before'    => "<$title_markup>",
+		'title_after'     => "</$title_markup>",
 		'hide_invisible'  => $attributes['hide_invisible'],
 		'categorize'      => 0,
 		'orderby'         => $attributes['orderby'],
@@ -71,9 +111,11 @@ function get_bookmark_content( $attributes ) {
 		'category_before' => '',
 		'category_after'  => '',
 	);
+
 	$bookmark_markup = wp_list_bookmarks(
 		$args
 	);
+
 	if ( empty( $bookmark_markup ) ) {
 		return sprintf(
 			'<p>%s<a href="/wp-admin/link-manager.php" target="_blank">%s</a></p>',
@@ -81,6 +123,7 @@ function get_bookmark_content( $attributes ) {
 			esc_html__( 'Add a bookmark', 'jetpack' )
 		);
 	}
+
 	return $bookmark_markup;
 }
 
@@ -97,14 +140,15 @@ function render( $attributes, $content ) {
 	 * Enqueue necessary scripts and styles.
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
-	$content = get_bookmark_content( $attributes );
+
+	$content            = get_bookmark_content( $attributes );
+	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 
 	return sprintf(
-		'<div class="%1$s">%2$s</div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attributes ) ),
+		'<div class="%1$s%2$s"%3$s>%4$s</div>',
+		! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
+		! empty( $attributes['list_style'] ) ? ' ' . esc_attr( 'list-style-' . $attributes['list_style'] ) : '',
+		! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
 		$content
 	);
 }
-
-// Aid users in enabling the links menu without having to install other plugins or search how to.
-add_filter( 'pre_option_link_manager_enabled', '__return_true' );

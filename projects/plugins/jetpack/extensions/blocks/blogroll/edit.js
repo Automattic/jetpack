@@ -6,30 +6,10 @@ import './editor.scss';
 
 export default function Edit( props ) {
 	const { attributes, setAttributes, className } = props;
-	const { title, hide_invisible, limit, orderby, order } = attributes;
-	const select_options = [
-		{
-			label: __( 'Name', 'jetpack' ),
-			value: 'name',
-		},
-		{
-			label: __( 'Url', 'jetpack' ),
-			value: 'url',
-		},
-		{
-			label: __( 'Category', 'jetpack' ),
-			value: 'categories',
-		},
-		{
-			label: __( 'Rating', 'jetpack' ),
-			value: 'Rating',
-		},
-	];
+	const { title, title_markup, hide_invisible, limit, orderby, order, list_style } = attributes;
+
 	const blockProps = useBlockProps();
 
-	function onChangeHideInvisible() {
-		setAttributes( { hide_invisible: ! hide_invisible } );
-	}
 	return (
 		<div className={ className } { ...blockProps }>
 			<ServerSideRender block="jetpack/blogroll" attributes={ attributes } />
@@ -42,11 +22,24 @@ export default function Edit( props ) {
 						value={ title }
 						onChange={ value => setAttributes( { title: value } ) }
 					/>
+					<SelectControl
+						label={ __( 'Title Markup', 'jetpack' ) }
+						value={ title_markup }
+						options={ [
+							{ label: 'h1', value: 'h1' },
+							{ label: 'h2', value: 'h2' },
+							{ label: 'h3', value: 'h3' },
+							{ label: 'h4', value: 'h4' },
+							{ label: 'h5', value: 'h5' },
+							{ label: 'p', value: 'p' },
+						] }
+						onChange={ value => setAttributes( { title_markup: value } ) }
+					/>
 
 					<ToggleControl
 						label={ __( 'Hide invisible links', 'jetpack' ) }
 						checked={ !! hide_invisible }
-						onChange={ onChangeHideInvisible }
+						onChange={ () => setAttributes( { hide_invisible: ! hide_invisible } ) }
 					/>
 
 					<TextControl
@@ -58,7 +51,24 @@ export default function Edit( props ) {
 					<SelectControl
 						label={ __( 'Select an order preference', 'jetpack' ) }
 						value={ orderby }
-						options={ select_options }
+						options={ [
+							{
+								label: __( 'Name', 'jetpack' ),
+								value: 'name',
+							},
+							{
+								label: __( 'Url', 'jetpack' ),
+								value: 'url',
+							},
+							{
+								label: __( 'Category', 'jetpack' ),
+								value: 'categories',
+							},
+							{
+								label: __( 'Rating', 'jetpack' ),
+								value: 'Rating',
+							},
+						] }
 						onChange={ value => setAttributes( { orderby: value } ) }
 					/>
 					<SelectControl
@@ -69,6 +79,16 @@ export default function Edit( props ) {
 							{ label: __( 'Descending', 'jetpack' ), value: 'DESC' },
 						] }
 						onChange={ value => setAttributes( { order: value } ) }
+					/>
+					<SelectControl
+						label={ __( 'List style', 'jetpack' ) }
+						value={ list_style }
+						options={ [
+							{ label: __( 'None', 'jetpack' ), value: 'none' },
+							{ label: __( 'Ordered', 'jetpack' ), value: 'ordered' },
+							{ label: __( 'Unordered', 'jetpack' ), value: 'unordered' },
+						] }
+						onChange={ value => setAttributes( { list_style: value } ) }
 					/>
 				</PanelBody>
 			</InspectorControls>

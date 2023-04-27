@@ -1,0 +1,20 @@
+.wp-block-jetpack-blogroll {
+	&.list-style-none {
+		ul {
+			list-style-type: none;
+		}
+	}
+
+	&.list-style-ordered {
+		ul {
+			list-style-type: decimal;
+		}
+	}
+
+	&.list-style-unordered {
+		ul {
+			list-style-type: disc;
+		}
+	}
+}
+
