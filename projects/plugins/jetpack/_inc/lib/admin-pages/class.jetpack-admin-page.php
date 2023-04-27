@@ -405,7 +405,7 @@ abstract class Jetpack_Admin_Page {
 						<a href="<?php echo esc_url( $jetpack_about_url ); ?>" title="<?php esc_attr__( 'About Jetpack', 'jetpack' ); ?>" class="jp-footer__menu-item">
 							<?php echo esc_html__( 'About', 'jetpack' ); ?>
 						</a>
-						<a href="<?php echo esc_url( $jetpack_privacy_url ); ?>" rel="noopener noreferrer" title="<?php esc_html_e( "Automattic's Privacy Policy", 'jetpack' ); ?>" class="jp-footer__menu-item <?php echo ! $connectable ? 'is-external' : ''; ?> ?>">
+						<a href="<?php echo esc_url( $jetpack_privacy_url ); ?>" rel="noopener noreferrer" title="<?php esc_html_e( "Automattic's Privacy Policy", 'jetpack' ); ?>" class="jp-footer__menu-item <?php echo ! $connectable ? 'is-external' : ''; ?> ?>" target="<?php echo ! $connectable ? '_blank' : '_self'; ?>">
 							<?php echo esc_html_x( 'Privacy', 'Navigation item', 'jetpack' ); ?>
 							<?php echo ! $connectable ? $external_link_icon : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</a>
