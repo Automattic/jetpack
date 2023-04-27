@@ -1208,36 +1208,6 @@ class Jetpack_Photon {
 	}
 
 	/**
-	 * Pass og:image URLs through Photon
-	 *
-	 * @param array $tags Open graph tags.
-	 * @param array $parameters Image parameters.
-	 * @uses jetpack_photon_url
-	 * @return array Open graph tags.
-	 */
-	public function filter_open_graph_tags( $tags, $parameters ) {
-		if ( empty( $tags['og:image'] ) ) {
-			return $tags;
-		}
-
-		$photon_args = array(
-			'fit' => sprintf( '%d,%d', 2 * $parameters['image_width'], 2 * $parameters['image_height'] ),
-		);
-
-		if ( is_array( $tags['og:image'] ) ) {
-			$images = array();
-			foreach ( $tags['og:image'] as $image ) {
-				$images[] = jetpack_photon_url( $image, $photon_args );
-			}
-			$tags['og:image'] = $images;
-		} else {
-			$tags['og:image'] = jetpack_photon_url( $tags['og:image'], $photon_args );
-		}
-
-		return $tags;
-	}
-
-	/**
 	 * Enqueue Photon helper script
 	 *
 	 * @uses wp_enqueue_script, plugins_url
