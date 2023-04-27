@@ -17,3 +17,24 @@ const DefaultArgs = {
 
 export const _default = Template.bind( {} );
 _default.args = DefaultArgs;
+
+export const WithMenu = Template.bind( {} );
+WithMenu.args = {
+	...DefaultArgs,
+	menu: [
+		{
+			label: 'Menu Item',
+			href: '#',
+		},
+		{
+			label: 'External Menu Item',
+			href: '#',
+			target: '_blank',
+		},
+		{
+			label: 'Menu Item With Title',
+			title: 'Hello, World!',
+			href: '#',
+		},
+	],
+};

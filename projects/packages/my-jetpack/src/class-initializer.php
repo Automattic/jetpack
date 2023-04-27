@@ -31,7 +31,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '2.10.4-alpha';
+	const PACKAGE_VERSION = '2.11.0-alpha';
 
 	/**
 	 * Initialize My Jetpack
@@ -231,6 +231,16 @@ class Initializer {
 				'permission_callback' => __CLASS__ . '::permissions_callback',
 			)
 		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'chat/availability',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_chat_availability',
+				'permission_callback' => __CLASS__ . '::permissions_callback',
+			)
+		);
 	}
 
 	/**
@@ -280,6 +290,26 @@ class Initializer {
 
 		if ( is_wp_error( $response ) || empty( $response['body'] ) ) {
 			return new \WP_Error( 'site_data_fetch_failed', 'Site data fetch failed', array( 'status' => $response_code ) );
+		}
+
+		return rest_ensure_response( $body, 200 );
+	}
+
+	/**
+	 * Calls `wpcom/v2/presales/chat?group=jp_presales` endpoint.
+	 * This endpoint returns whether or not the Jetpack presales chat group is available
+	 *
+	 * @return object|WP_Error Object: { is_available: bool }
+	 */
+	public static function get_chat_availability() {
+		$wpcom_endpoint    = '/presales/chat?group=jp_presales';
+		$wpcom_api_version = '2';
+		$response          = Client::wpcom_json_api_request_as_user( $wpcom_endpoint, $wpcom_api_version );
+		$response_code     = wp_remote_retrieve_response_code( $response );
+		$body              = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( is_wp_error( $response ) || empty( $response['body'] ) ) {
+			return new \WP_Error( 'chat_config_data_fetch_failed', 'Chat config data fetch failed', array( 'status' => $response_code ) );
 		}
 
 		return rest_ensure_response( $body, 200 );
