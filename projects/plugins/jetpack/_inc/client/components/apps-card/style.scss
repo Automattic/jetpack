@@ -23,6 +23,29 @@
 	&:after {
 		content: none;
 	}
+
+	.jp-apps-card__description {
+		margin-right: 20px;
+	}
+
+	.apps-badge {
+		max-width: none;
+		max-height: none;
+
+		img {
+			width: 210px;
+			max-width: 100%;
+		}
+	}
+
+	@include breakpoint( '<782px' ) {
+		flex-direction: column;
+
+		.jp-apps-card__description {
+			margin-right: 0;
+			margin-bottom: 20px;
+		}
+	}
 }
 
 .jp-apps-card__top_img {
