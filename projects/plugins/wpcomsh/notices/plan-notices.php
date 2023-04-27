@@ -76,9 +76,12 @@ function wpcomsh_plan_notices() {
 
 	$domain      = preg_replace( '#^https?://#', '', network_site_url() );
 	$renewal_url = sprintf( 'https://wordpress.com/checkout/%1$s/%2$s', $slug, $domain );
+	// By default, display the notice 1 day after expiration
+	$notice_offset = -1 * DAY_IN_SECONDS;
 
 	// Pre-expiration message for non-monthly plans only.
 	if ( false === stripos( $slug, 'monthly' ) ) {
+		$notice_offset = 0;
 		$plan_messages = array(
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
 			'personal'  => __(
@@ -109,7 +112,7 @@ function wpcomsh_plan_notices() {
 	}
 
 	// Expired message for annual and monthly plans.
-	if ( $seconds_to_expiration < 0 ) {
+	if ( $seconds_to_expiration < $notice_offset ) {
 		$plan_messages = array(
 			/* translators: %1$s is a link for plan renewal, %2$s human readable time e.g. January 1, 2021, %3$s site URL */
 			'personal'  => __(
