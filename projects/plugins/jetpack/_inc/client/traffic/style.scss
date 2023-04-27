@@ -29,6 +29,13 @@
 	.dops-clipboard-button-input {
 		flex-grow: 1;
 	}
+
+	.components-external-link__icon {
+		width: 1.125rem;
+		height: 1.125rem;
+		margin-left: 6px;
+		margin-top: -3px;
+	}
 }
 
 // we want to place.jp-form-input-with-prefix's margin after this element
