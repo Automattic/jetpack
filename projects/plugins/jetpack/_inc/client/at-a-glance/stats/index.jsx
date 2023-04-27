@@ -43,12 +43,16 @@ export class DashStats extends Component {
 		};
 	}
 
-	barClick( bar ) {
+	shouldLinkToWpcomStats() {
+		return ! this.props.isOdysseyStatsEnabled || this.props.isAtomicSite;
+	}
+
+	barClick = bar => {
 		if ( bar.data.link ) {
 			analytics.tracks.recordJetpackClick( 'stats_bar' );
 			window.open( bar.data.link, '_blank' );
 		}
-	}
+	};
 
 	statsChart( unit ) {
 		const props = this.props,
@@ -391,6 +395,8 @@ export default connect(
 			: getStatsData( state ),
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
+		isAtomicSite: isAtomicSite( state ),
 	} ),
 	dispatch => ( {
 		switchView: tab => dispatch( statsSwitchTab( tab ) ),
