@@ -50,8 +50,11 @@ export class DashStats extends Component {
 	barClick = bar => {
 		if ( bar.data.link ) {
 			analytics.tracks.recordJetpackClick( 'stats_bar' );
-			// Open the link in the same tab if the user is on a non-Atomic Jetpack site.
-			window.open( bar.data.link, this.shouldLinkToWpcomStats() ? '_blank' : '_self' );
+			// Open the link in the same tab if the user has Odyssey enabled or is on at Atomic site.
+			window.open(
+				bar.data.link,
+				this.props.isOdysseyStatsEnabled || this.props.isAtomicSite ? '_self' : '_blank'
+			);
 		}
 	};
 
