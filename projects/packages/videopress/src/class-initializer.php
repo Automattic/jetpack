@@ -318,8 +318,7 @@ class Initializer {
 	}
 
 	/**
-	 * Register the VideoPress block editor block,
-	 * AKA "VideoPress Block v6".
+	 * Register the VideoPress video block.
 	 *
 	 * @return void
 	 */
@@ -367,6 +366,20 @@ class Initializer {
 				'textdomain' => 'jetpack-videopress-pkg',
 			)
 		);
+
+		/*
+		 * Enqueue the VideoPress Iframe API script
+		 * only when the plugin/Jetpack module is active.
+		 */
+		if ( Status::is_active() ) {
+			wp_enqueue_script(
+				self::JETPACK_VIDEOPRESS_IFRAME_API_HANDLER,
+				'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress-iframe-api.js',
+				array(),
+				gmdate( 'YW' ),
+				false
+			);
+		}
 
 		// Register VideoPress video block.
 		register_block_type(
