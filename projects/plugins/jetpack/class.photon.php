@@ -3,7 +3,7 @@
  * Class for photon functionality.
  *
  * @package automattic/jetpack
- * @deprecated 12.1 Use Automattic\Jetpack\Image_CDN\Image_CDN instead.
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Image_CDN\Image_CDN instead.
  */
 
 use Automattic\Jetpack\Image_CDN\Image_CDN;
@@ -11,7 +11,7 @@ use Automattic\Jetpack\Image_CDN\Image_CDN;
 /**
  * Class Jetpack_Photon
  *
- * @deprecated 12.1 Use Automattic\Jetpack\Image_CDN\Image_CDN instead.
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Image_CDN\Image_CDN instead.
  */
 class Jetpack_Photon {
 
@@ -25,7 +25,7 @@ class Jetpack_Photon {
 	 */
 	public function __call( $name, $arguments ) {
 		if ( method_exists( Image_CDN::class, $name ) ) {
-			_deprecated_function( __CLASS__ . '::' . esc_html( $name ), 'jetpack-12.1', 'Automattic\Jetpack\Image_CDN\Image_CDN::' . esc_html( $name ) );
+			_deprecated_function( __CLASS__ . '::' . esc_html( $name ), 'jetpack-$$next-version$$', 'Automattic\Jetpack\Image_CDN\Image_CDN::' . esc_html( $name ) );
 			return Image_CDN::instance()->$name( ...$arguments );
 		} else {
 			// Handle cases where the method is not found
@@ -43,7 +43,7 @@ class Jetpack_Photon {
 	 */
 	public static function __callStatic( $name, $arguments ) {
 		if ( method_exists( Image_CDN::class, $name ) ) {
-			_deprecated_function( __CLASS__ . '::' . esc_html( $name ), 'jetpack-12.1', 'Automattic\Jetpack\Image_CDN\Image_CDN::' . esc_html( $name ) );
+			_deprecated_function( __CLASS__ . '::' . esc_html( $name ), 'jetpack-$$next-version$$', 'Automattic\Jetpack\Image_CDN\Image_CDN::' . esc_html( $name ) );
 			return Image_CDN::$name( ...$arguments );
 		} else {
 			// Handle cases where the method is not found
