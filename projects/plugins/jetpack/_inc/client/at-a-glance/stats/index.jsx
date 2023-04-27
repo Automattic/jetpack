@@ -1,5 +1,5 @@
 import { imagePath } from 'constants/urls';
-import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
+import { getRedirectUrl, JetpackLogo, numberFormat } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
@@ -160,13 +160,7 @@ export class DashStats extends Component {
 	renderEmptyStatsCard() {
 		return (
 			<Card className="jp-at-a-glance__stats-empty">
-				<img
-					src={ imagePath + 'stats-people.svg' }
-					width="272"
-					height="144"
-					alt={ __( 'People studying site traffic charts', 'jetpack' ) }
-					className="jp-at-a-glance__stats-icon"
-				/>
+				<JetpackLogo height={ 64 } showText={ false } />
 				<p>
 					{ __( 'Hello there! Jetpack Stats has been activated.', 'jetpack' ) }
 					<br />

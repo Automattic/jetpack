@@ -70,7 +70,7 @@
 	}
 
 	@include breakpoint( '>480px' ) {
-		padding: 12px 16px;
+		padding: 12px 16px 16px;
 		&.is-dismissible {
 			padding-right: 16px;
 		}

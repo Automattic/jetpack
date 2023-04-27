@@ -24,6 +24,10 @@
 			}
 		}
 	}
+
+	.dops-button .dashicons-no {
+		color: $black;
+	}
 }
 
 .jp-dash-section-header.jp-dash-section-header-stats {
@@ -67,7 +71,7 @@
 
 	p {
 		font-size: $font-body-small;
-		color: $gray-text-min;
+		color: $gray-80;
 	}
 }
 
@@ -527,7 +531,8 @@
 .jp-dash-item__action-links a,
 a.jp-dash-item__manage-in-wpcom,
 .dops-banner__title a,
-.jp-connection-settings__actions a {
+.jp-connection-settings__actions a,
+.jp-dash-item a:not( .dops-button ) {
 	&, &:active, &:visited, &:hover, &:focus {
 		cursor: pointer;
 		font-weight: 400;
@@ -574,5 +579,11 @@ a.jp-dash-item__manage-in-wpcom,
 	.dops-banner {
 		box-shadow: none;
 		border: 0;
+	}
+}
+
+.jp-support-card {
+	.dops-banner {
+		margin-bottom: 0;
 	}
 }

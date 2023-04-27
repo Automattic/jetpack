@@ -1,9 +1,13 @@
+@import '../../scss/mixins/ui';
+
 .jp-apps-card {
-	margin-top: rem( 64px );
+	margin-top: rem( 24px );
 	margin-bottom: 0;
 }
 
 .jp-apps-card__content {
+	@include dashboard-card-shadow;
+
 	display: flex;
 	justify-content: space-between;
 	align-content: center;
