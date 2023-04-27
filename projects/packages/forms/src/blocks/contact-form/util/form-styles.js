@@ -52,7 +52,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 	styleProbe.style = STYLE_PROBE_STYLE;
 	styleProbe.innerHTML = HTML;
 
-	formNode.appendChild( styleProbe );
+	formNode.parentNode.appendChild( styleProbe );
 
 	const buttonPrimaryNode = styleProbe.querySelector( '.btn-primary' );
 	const buttonOutlineNode = styleProbe.querySelector( '.btn-outline' );
@@ -69,6 +69,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 	} = window.getComputedStyle( buttonPrimaryNode );
 
 	const {
+		backgroundColor: buttonOutlineBackgroundColor,
 		border: buttonOutlineBorder,
 		borderWidth: buttonOutlineBorderSize,
 		borderRadius: buttonOutlineBorderRadius,
@@ -117,6 +118,7 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--button-primary--border-color': buttonPrimaryBorderColor,
 		'--jetpack--contact-form--button-outline--padding': buttonOutlinePadding,
 		'--jetpack--contact-form--button-outline--border': buttonOutlineBorder,
+		'--jetpack--contact-form--button-outline--background-color': buttonOutlineBackgroundColor,
 		'--jetpack--contact-form--button-outline--border-size': buttonOutlineBorderSize,
 		'--jetpack--contact-form--button-outline--border-radius': buttonOutlineBorderRadius,
 		'--jetpack--contact-form--button-outline--text-color': buttonOutlineTextColor,

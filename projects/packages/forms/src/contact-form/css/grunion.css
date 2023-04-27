@@ -584,8 +584,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	margin-left: var(--jetpack--contact-form--border-size);
 }
 
-.contact-form .grunion-field-checkbox-multiple-wrap:not(.is-style-button-wrap) .grunion-checkbox-multiple-options,
-.contact-form .grunion-field-radio-wrap:not(.is-style-button-wrap) .grunion-radio-options {
+.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-checkbox-multiple-options,
+.contact-form :where(.grunion-field-wrap:not(.is-style-button-wrap)) .grunion-radio-options {
 	padding-top: 8px;
 }
 
@@ -663,6 +663,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	line-height: var(--jetpack--contact-form--button-outline--line-height);
 	cursor: pointer;
 	position: relative;
+	z-index: 0;
 }
 
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-radio-label {
