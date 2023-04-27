@@ -154,7 +154,7 @@ export class DashStats extends Component {
 
 	dismissCard = () => {
 		this.setState( { emptyStatsDismissed: true } );
-		this.props.updateOptions( { dismiss_empty_stats_card: true } );
+		// this.props.updateOptions( { dismiss_empty_stats_card: true } );
 	};
 
 	renderEmptyStatsCard() {
