@@ -109,7 +109,7 @@ export class Banner extends Component {
 
 		if ( iconWp ) {
 			return (
-				<div class="dops-banner__icon-wp">
+				<div className="dops-banner__icon-wp">
 					<Icon icon={ iconWp } />
 				</div>
 			);
