@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bab9d8f363bad48b61ba81901c7461f0",
+    "content-hash": "1267380ad63d85a6e047b1c31a0fecde",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -1089,16 +1089,16 @@
         },
         {
             "name": "automattic/jetpack-status",
-            "version": "v1.16.4",
+            "version": "v1.17.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-status.git",
-                "reference": "7c9153b4589bc5efc91637d3e8c6a8618f7afa6b"
+                "reference": "a16c59bb54cac04c579621efffa1ca1d5738c5cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/7c9153b4589bc5efc91637d3e8c6a8618f7afa6b",
-                "reference": "7c9153b4589bc5efc91637d3e8c6a8618f7afa6b",
+                "url": "https://api.github.com/repos/Automattic/jetpack-status/zipball/a16c59bb54cac04c579621efffa1ca1d5738c5cc",
+                "reference": "a16c59bb54cac04c579621efffa1ca1d5738c5cc",
                 "shasum": ""
             },
             "require": {
@@ -1121,7 +1121,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.16.x-dev"
+                    "dev-trunk": "1.17.x-dev"
                 }
             },
             "autoload": {
@@ -1135,9 +1135,9 @@
             ],
             "description": "Used to retrieve information about the current status of Jetpack and the site overall.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-status/tree/v1.16.4"
+                "source": "https://github.com/Automattic/jetpack-status/tree/v1.17.0"
             },
-            "time": "2023-04-10T11:44:02+00:00"
+            "time": "2023-04-17T13:43:20+00:00"
         },
         {
             "name": "automattic/jetpack-sync",
@@ -1254,23 +1254,23 @@
         },
         {
             "name": "automattic/jetpack-waf",
-            "version": "v0.11.2",
+            "version": "v0.11.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-waf.git",
-                "reference": "9fa3b3ab9cfa690bb5aaee6b9882141b2039104f"
+                "reference": "ec68a1429a7bb0ff8c5c4b51186319b86818d0b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-waf/zipball/9fa3b3ab9cfa690bb5aaee6b9882141b2039104f",
-                "reference": "9fa3b3ab9cfa690bb5aaee6b9882141b2039104f",
+                "url": "https://api.github.com/repos/Automattic/jetpack-waf/zipball/ec68a1429a7bb0ff8c5c4b51186319b86818d0b1",
+                "reference": "ec68a1429a7bb0ff8c5c4b51186319b86818d0b1",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-connection": "^1.51.7",
                 "automattic/jetpack-constants": "^1.6.22",
                 "automattic/jetpack-ip": "^0.1.2",
-                "automattic/jetpack-status": "^1.16.4",
+                "automattic/jetpack-status": "^1.17.0",
                 "wikimedia/aho-corasick": "^1.0"
             },
             "require-dev": {
@@ -1307,9 +1307,9 @@
             ],
             "description": "Tools to assist with the Jetpack Web Application Firewall",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-waf/tree/v0.11.2"
+                "source": "https://github.com/Automattic/jetpack-waf/tree/v0.11.4"
             },
-            "time": "2023-04-10T11:44:28+00:00"
+            "time": "2023-04-27T18:11:36+00:00"
         },
         {
             "name": "wikimedia/aho-corasick",
