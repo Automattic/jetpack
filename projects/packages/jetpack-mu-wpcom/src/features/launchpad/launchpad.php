@@ -310,8 +310,7 @@ function get_launchpad_checklist_by_checklist_slug( $checklist_slug ) {
 		return array();
 	}
 
-	$launchpad_task_lists = Launchpad_Task_Lists::get_instance();
-	return $launchpad_task_lists->build( $checklist_slug );
+	return launchpad_checklists()->build( $checklist_slug );
 }
 
 // TODO: Write code p2 post or dotcom post
@@ -323,8 +322,7 @@ function get_launchpad_checklist_by_checklist_slug( $checklist_slug ) {
  * @return bool True if successful, false otherwise.
  */
 function register_launchpad_task_list( $task_list ) {
-	$launchpad_task_lists = Launchpad_Task_Lists::get_instance();
-	return $launchpad_task_lists->register_task_list( $task_list );
+	return launchpad_checklists()->register_task_list( $task_list );
 }
 
 /**
@@ -335,8 +333,7 @@ function register_launchpad_task_list( $task_list ) {
  * @return bool True if successful, false otherwise.
  */
 function register_launchpad_tasks( $tasks ) {
-	$launchpad_task_lists = Launchpad_Task_Lists::get_instance();
-	return $launchpad_task_lists->register_tasks( $tasks );
+	return launchpad_checklists()->register_tasks( $tasks );
 }
 
 /**
@@ -347,12 +344,13 @@ function register_launchpad_tasks( $tasks ) {
  * @return bool True if successful, false otherwise.
  */
 function register_launchpad_task( $task ) {
-	$launchpad_task_lists = Launchpad_Task_Lists::get_instance();
-	return $launchpad_task_lists->register_task( $task );
+	return launchpad_checklists()->register_task( $task );
 }
 
 /**
- * Registers all default launchpad checklists
+ * Helper function to return a `Launchpad_Task_Lists` instance.
+ *
+ * @return object Launchpad_Task_Lists instance.
  */
 function register_default_checklists() {
 	foreach ( get_checklist_definitions() as $checklist ) {
