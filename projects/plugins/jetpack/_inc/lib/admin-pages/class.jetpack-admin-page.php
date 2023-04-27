@@ -407,15 +407,15 @@ abstract class Jetpack_Admin_Page {
 						</a>
 						<a href="<?php echo esc_url( $jetpack_privacy_url ); ?>" rel="noopener noreferrer" title="<?php esc_html_e( "Automattic's Privacy Policy", 'jetpack' ); ?>" class="jp-footer__menu-item <?php echo ! $connectable ? 'is-external' : ''; ?> ?>">
 							<?php echo esc_html_x( 'Privacy', 'Navigation item', 'jetpack' ); ?>
-							<?php echo ! $connectable ? esc_html( $external_link_icon ) : ''; ?>
+							<?php echo ! $connectable ? $external_link_icon : ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</a>
 						<a href="<?php echo esc_url( Redirect::get_url( 'wpcom-tos' ) ); ?>" target="_blank" rel="noopener noreferrer" title="<?php esc_html__( 'WordPress.com Terms of Service', 'jetpack' ); ?>" class="jp-footer__menu-item is-external">
 							<?php echo esc_html_x( 'Terms', 'Navigation item', 'jetpack' ); ?>
-							<?php esc_html( $external_link_icon ); ?>
+							<?php echo $external_link_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</a>
 						<a href="<?php echo esc_url( Redirect::get_url( 'jetpack' ) ); ?>" target="_blank" rel="noopener noreferrer" aria-label="Jetpack 12.2-a.0" class="jp-footer__menu-item is-external">
 							Version <?php echo esc_html( JETPACK__VERSION ); ?>
-							<?php esc_html( $external_link_icon ); ?>
+							<?php echo $external_link_icon; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
 						</a>
 						<?php if ( is_multisite() && current_user_can( 'jetpack_network_sites_page' ) ) { ?>
 							<a href="<?php echo esc_url( network_admin_url( 'admin.php?page=jetpack' ) ); ?>" title="<?php esc_html_e( "Manage your network's Jetpack Sites.", 'jetpack' ); ?>" class="jp-footer__menu-item"><?php echo esc_html_x( 'Network Sites', 'Navigation item', 'jetpack' ); ?></a>
