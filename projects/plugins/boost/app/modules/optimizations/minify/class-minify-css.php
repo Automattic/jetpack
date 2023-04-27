@@ -23,11 +23,7 @@ class Minify_CSS implements Pluggable {
 
 		jetpack_boost_init_filesystem();
 
-		global $wp_styles;
-
-		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-		$wp_styles                         = new Concatenate_CSS( $wp_styles );
-		$wp_styles->allow_gzip_compression = true; // @todo - used constant ALLOW_GZIP_COMPRESSION = true if not defined.
+		add_action( 'init', array( $this, 'init_minify' ) );
 	}
 
 	public static function get_slug() {
@@ -38,7 +34,11 @@ class Minify_CSS implements Pluggable {
 		return true;
 	}
 
-	public function setup_trigger() {
-		return 'init';
+	public function init_minify() {
+		global $wp_styles;
+
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$wp_styles                         = new Concatenate_CSS( $wp_styles );
+		$wp_styles->allow_gzip_compression = true; // @todo - used constant ALLOW_GZIP_COMPRESSION = true if not defined.
 	}
 }
