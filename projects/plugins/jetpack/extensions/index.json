@@ -1,8 +1,6 @@
 {
 	"production": [
 		"blogging-prompt",
-		"blogroll",
-		"blogroll-item",
 		"business-hours",
 		"button",
 		"calendly",
@@ -53,6 +51,7 @@
 	"beta": [
 		"ai-chat",
 		"amazon",
+		"blogroll",
 		"conversation",
 		"dialogue",
 		"google-docs-embed",
