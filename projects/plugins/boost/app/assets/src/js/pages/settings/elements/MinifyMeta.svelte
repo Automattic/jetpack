@@ -11,7 +11,7 @@
 	export let buttonText: string;
 	export let placeholder: string;
 
-	export let value: string;
+	export let value: string[];
 	let inputValue = value;
 	let isEditing = false;
 	const htmlId = `minify-meta-exclude-list-${ nextIdIndex++ }`;

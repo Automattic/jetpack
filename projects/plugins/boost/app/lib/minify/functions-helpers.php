@@ -72,21 +72,11 @@ function jetpack_boost_init_filesystem() {
 }
 
 function jetpack_boost_page_optimize_js_exclude_list() {
-	$exclude_list = jetpack_boost_ds_get( 'minify_js_excludes' );
-	if ( '' === $exclude_list ) {
-		return array();
-	}
-
-	return explode( ',', $exclude_list );
+	return jetpack_boost_ds_get( 'minify_js_excludes' );
 }
 
 function jetpack_boost_page_optimize_css_exclude_list() {
-	$exclude_list = jetpack_boost_ds_get( 'minify_css_excludes' );
-	if ( '' === $exclude_list ) {
-		return array();
-	}
-
-	return explode( ',', $exclude_list );
+	return jetpack_boost_ds_get( 'minify_css_excludes' );
 }
 
 function jetpack_boost_page_optimize_sanitize_exclude_field( $value ) {

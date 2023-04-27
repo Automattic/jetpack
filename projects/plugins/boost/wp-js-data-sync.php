@@ -145,5 +145,5 @@ jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
  */
 $js_excludes_entry  = new Minify_Excludes_State_Entry( 'minify_js_excludes' );
 $css_excludes_entry = new Minify_Excludes_State_Entry( 'minify_css_excludes' );
-jetpack_boost_register_option( 'minify_js_excludes', Schema::as_string()->fallback( implode( ',', Minify_JS::$default_excludes ) ), $js_excludes_entry );
-jetpack_boost_register_option( 'minify_css_excludes', Schema::as_string()->fallback( implode( ',', Minify_CSS::$default_excludes ) ), $css_excludes_entry );
+jetpack_boost_register_option( 'minify_js_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_JS::$default_excludes ), $js_excludes_entry );
+jetpack_boost_register_option( 'minify_css_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_CSS::$default_excludes ), $css_excludes_entry );

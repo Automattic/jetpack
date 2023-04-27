@@ -37,8 +37,11 @@ class Minify_Excludes_State_Entry implements Entry_Can_Get, Entry_Can_Set {
 	 */
 	public function get() {
 		$value = get_option( $this->option_key );
+		if ( false === $value ) {
+			$value = array();
+		}
 
-		return $this->sanitize_value( $value );
+		return $value;
 	}
 
 	/**
@@ -60,14 +63,12 @@ class Minify_Excludes_State_Entry implements Entry_Can_Get, Entry_Can_Set {
 	 * @return string The sanitized value, as a comma-separated list of unique, trimmed strings.
 	 */
 	private function sanitize_value( $value ) {
-		if ( is_string( $value ) ) {
-			$value = explode( ',', $value );
+		if ( is_array( $value ) ) {
+			$value = array_unique( array_filter( array_map( 'trim', $value ) ) );
 		} else {
 			$value = array();
 		}
 
-		$value = array_unique( array_filter( array_map( 'trim', $value ) ) );
-
-		return implode( ',', $value );
+		return $value;
 	}
 }

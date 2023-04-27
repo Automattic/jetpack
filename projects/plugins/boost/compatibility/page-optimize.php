@@ -22,7 +22,7 @@ if ( function_exists( 'page_optimize_js_exclude_list' ) ) {
 	$boost_js_excludes = get_option( 'jetpack_boost_ds_minify_js_excludes' );
 	// Only migrate this setting if Boost's equivalent hasn't been used.
 	if ( false === $boost_js_excludes ) {
-		$page_optimize_js_excludes = implode( ',', page_optimize_js_exclude_list() );
+		$page_optimize_js_excludes = page_optimize_js_exclude_list();
 
 		add_option( 'jetpack_boost_ds_minify_js_excludes', $page_optimize_js_excludes );
 	}
@@ -42,7 +42,7 @@ if ( function_exists( 'page_optimize_css_exclude_list' ) ) {
 	$boost_css_excludes = get_option( 'jetpack_boost_ds_minify_css_excludes' );
 	// Only migrate this setting if Boost's equivalent hasn't been used.
 	if ( false === $boost_css_excludes ) {
-		$page_optimize_css_excludes = implode( ',', page_optimize_css_exclude_list() );
+		$page_optimize_css_excludes = page_optimize_css_exclude_list();
 
 		add_option( 'jetpack_boost_ds_minify_css_excludes', $page_optimize_css_excludes );
 	}
