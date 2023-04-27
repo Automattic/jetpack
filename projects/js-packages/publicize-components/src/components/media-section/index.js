@@ -84,14 +84,16 @@ export default function MediaSection( { disabled = false, notice = '' } ) {
 	const onDismissClick = useCallback( () => setValidationError( null ), [] );
 
 	const MediaWrapper = disabled ? Disabled : Fragment;
-	const mediaWrapperProps = disabled ? { className: styles.disabled } : {};
+	const mediaWrapperProps = disabled
+		? { className: styles.disabled, 'data-testid': 'disabled' }
+		: {};
 
 	return (
 		<ThemeProvider>
 			<BaseControl label={ __( 'Media', 'jetpack' ) } className={ styles.wrapper }>
 				{ notice ? (
 					<Notice className={ styles.notice } isDismissible={ false } status="warning">
-						<p>{ notice }</p>
+						<p data-testid="notice">{ notice }</p>
 					</Notice>
 				) : (
 					<p className={ styles.subtitle }>
