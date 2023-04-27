@@ -75,7 +75,10 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 
 		// contact obj counts
 		$contact_quote_count       = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_QUOTE );
-		$contact_invoice_count     = $contact['invoices_count'];
+		$contact_invoice_count = 0;
+		if ( isset( $contact['invoices_count'] ) ) {
+			$contact_invoice_count = $contact['invoices_count'];
+		}
 		$contact_transaction_count = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_TRANSACTION );
 		$contact_task_count        = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_EVENT );
 
