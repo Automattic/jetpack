@@ -15,7 +15,7 @@ export default function Edit( props ) {
 			<ServerSideRender block="jetpack/blogroll" attributes={ attributes } />
 
 			<InspectorControls>
-				<PanelBody title={ 'Blogroll Title' }>
+				<PanelBody title={ 'Blogroll Settings' }>
 					<TextControl
 						type="text"
 						label={ __( 'Title', 'jetpack' ) }
@@ -49,7 +49,7 @@ export default function Edit( props ) {
 						onChange={ value => setAttributes( { limit: value } ) }
 					/>
 					<SelectControl
-						label={ __( 'Select an order preference', 'jetpack' ) }
+						label={ __( 'Order preference', 'jetpack' ) }
 						value={ orderby }
 						options={ [
 							{
