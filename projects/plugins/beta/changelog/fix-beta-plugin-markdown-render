@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Disable HTML-style tags in the markdown renderer, the library used doesn't always handle them properly.
