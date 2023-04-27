@@ -21,6 +21,7 @@ import {
 	isOdysseyStatsEnabled,
 	getInitialStateStatsData,
 	getDateFormat,
+	isAtomicSite,
 } from 'state/initial-state';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
@@ -97,12 +98,13 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link: isOdysseyStatsEnabled
-						? `${ props.siteAdminUrl }admin.php?page=stats#!/stats/day/${ props.siteRawUrl }?startDate=${ date }`
-						: getRedirectUrl( `calypso-stats-${ unit }`, {
-								site: props.siteRawUrl,
-								query: `startDate=${ date }`,
-						  } ),
+					link:
+						isOdysseyStatsEnabled && ! isAtomicSite
+							? `${ props.siteAdminUrl }admin.php?page=stats#!/stats/day/${ props.siteRawUrl }?startDate=${ date }`
+							: getRedirectUrl( `calypso-stats-${ unit }`, {
+									site: props.siteRawUrl,
+									query: `startDate=${ date }`,
+							  } ),
 				},
 				tooltipData: [
 					{
