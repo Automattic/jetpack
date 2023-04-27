@@ -43,8 +43,7 @@ function load_3rd_party_compat_filters() {
 
 	// AMP. AMP__DIR__ is defined in the AMP plugin since the very first version.
 	if ( Constants::is_defined( 'AMP__DIR__' ) ) {
-		add_action( 'init', array( 'Jetpack_AMP_Support', 'init' ), 1 );
-		add_action( 'admin_init', array( 'Jetpack_AMP_Support', 'admin_init' ), 1 );
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/amp.php';
 	}
 
 	// Domain Mapping. All assume multisite, so it's an easy check.

@@ -107,7 +107,7 @@ class DashVideoPress extends Component {
 									title={ bannerText }
 									disableHref="false"
 									eventFeature="videopress"
-									icon="video"
+									noIcon
 									path={ 'dashboard' }
 									plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 									feature="jetpack_videopress"

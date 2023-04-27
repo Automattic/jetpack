@@ -13,6 +13,7 @@ import useMediaRestrictions, {
 } from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import MediaPicker from '../media-picker';
+import SocialPostControl from '../social-post-control';
 import styles from './styles.module.scss';
 
 const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack' );
@@ -112,6 +113,7 @@ export default function MediaSection() {
 					</Notice>
 				) }
 			</BaseControl>
+			<SocialPostControl />
 		</ThemeProvider>
 	);
 }

@@ -17,8 +17,8 @@ import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement, useEffect, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
-import { getSubscriberCounts } from './api';
 import './panel.scss';
+import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
 import { NewsletterAccess, accessOptions, MisconfigurationWarning } from './settings';
 import { isNewsletterConfigured } from './utils';
@@ -43,43 +43,58 @@ const SubscriptionsPanelPlaceholder = ( { children } ) => {
 	);
 };
 
-function AccessLevelSelectorPanel( { setPostMeta, accessLevel } ) {
+function AccessLevelSelectorPanel( {
+	setPostMeta,
+	accessLevel,
+	socialFollowers,
+	emailSubscribers,
+	paidSubscribers,
+} ) {
 	if ( ! isNewsletterConfigured() ) {
 		return null;
 	}
 
 	return (
 		<PluginDocumentSettingPanel title={ __( 'Newsletter', 'jetpack' ) }>
-			<NewsletterAccess setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
+			<NewsletterAccess
+				setPostMeta={ setPostMeta }
+				accessLevel={ accessLevel }
+				socialFollowers={ socialFollowers }
+				emailSubscribers={ emailSubscribers }
+				paidSubscribers={ paidSubscribers }
+			/>
 		</PluginDocumentSettingPanel>
 	);
 }
 
 export default function SubscribePanels() {
+	const [ emailSubscribers, setEmailSubscribers ] = useState( null );
+	const [ paidSubscribers, setPaidSubscribers ] = useState( null );
+	const [ socialFollowers, setSocialFollowers ] = useState( null );
 	const { tracks } = useAnalytics();
 	const { isModuleActive, changeStatus, isLoadingModules, isChangingStatus } =
 		useModuleStatus( name );
-	const [ subscriberCount, setSubscriberCount ] = useState( null );
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
 	const accessLevel =
 		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? Object.keys( accessOptions )[ 0 ];
 
-	const [ followerCount, setFollowerCount ] = useState( null );
 	useEffect( () => {
 		if ( ! isModuleActive ) {
 			return;
 		}
 		getSubscriberCounts( counts => {
-			setSubscriberCount( counts.email_subscribers );
-			setFollowerCount( counts.social_followers );
+			setEmailSubscribers( counts.email_subscribers );
+			setSocialFollowers( counts.social_followers );
+			setPaidSubscribers( counts.paid_subscribers );
 		} );
 	}, [ isModuleActive ] );
 
 	// Can be “private”, “password”, or “public”.
 	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
-	const showMisconfigurationMessage = postVisibility !== 'public' && accessLevel !== 'everybody';
+	const showMisconfigurationMessage =
+		postVisibility !== 'public' && accessLevel !== accessOptions.everybody.string;
 
 	// Only show this for posts for now (subscriptions are only available on posts).
 	const postWasEverPublished = useSelect(
@@ -104,26 +119,47 @@ export default function SubscribePanels() {
 		return null;
 	}
 
+	// In the paid-subscriber only, we send to a restricted number of subscribers
+	const subscribersCount =
+		accessLevel === accessOptions.paid_subscribers.string ? paidSubscribers : emailSubscribers;
+	// We send to the social followers only when it is "everybody"
+	const followersCount = accessLevel === accessOptions.everybody.string ? socialFollowers : 0;
+
 	// Subscriptions will not be triggered for a post that was already published in the past and the email was sent.
 	// We still need to render the access level selector, as historical posts need a way to edit their access level for people visiting them on the web.
 	// TODO: Additionally, pages also can be protected. They will not send an email, but can be a resource that needs the acces selector.
 	if ( postWasEverPublished ) {
-		return <AccessLevelSelectorPanel setPostMeta={ setPostMeta } accessLevel={ accessLevel } />;
+		return (
+			<AccessLevelSelectorPanel
+				setPostMeta={ setPostMeta }
+				accessLevel={ accessLevel }
+				socialFollowers={ socialFollowers }
+				emailSubscribers={ emailSubscribers }
+				paidSubscribers={ paidSubscribers }
+			/>
+		);
 	}
 
 	// Do not show any panels when we have no info about the subscriber count, or it is too low.
 	if (
-		( ! Number.isFinite( subscriberCount ) || subscriberCount <= 0 ) &&
-		( ! Number.isFinite( followerCount ) || followerCount <= 0 ) &&
+		( ! Number.isFinite( emailSubscribers ) || emailSubscribers <= 0 ) &&
+		( ! Number.isFinite( paidSubscribers ) || paidSubscribers <= 0 ) &&
+		( ! Number.isFinite( socialFollowers ) || socialFollowers <= 0 ) &&
 		isModuleActive
 	) {
 		return null;
 	}
 
-	const showNotices = Number.isFinite( subscriberCount ) && subscriberCount > 0 && isModuleActive;
+	const showNotices = Number.isFinite( subscribersCount ) && subscribersCount > 0 && isModuleActive;
 	return (
 		<>
-			<AccessLevelSelectorPanel setPostMeta={ setPostMeta } accessLevel={ accessLevel } />
+			<AccessLevelSelectorPanel
+				setPostMeta={ setPostMeta }
+				accessLevel={ accessLevel }
+				socialFollowers={ socialFollowers }
+				emailSubscribers={ emailSubscribers }
+				paidSubscribers={ paidSubscribers }
+			/>
 			<PluginPrePublishPanel
 				className="jetpack-subscribe-pre-publish-panel"
 				initialOpen
@@ -148,7 +184,7 @@ export default function SubscribePanels() {
 				{ ! showMisconfigurationMessage && showNotices && (
 					<InspectorNotice>
 						{ createInterpolateElement(
-							followerCount !== 0
+							followersCount !== 0
 								? sprintf(
 										/* translators: 1$s will be subscribers, %2$s will be social followers */
 										__(
@@ -157,13 +193,13 @@ export default function SubscribePanels() {
 										),
 										sprintf(
 											/* translators: %s will be a number of subscribers */
-											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-											numberFormat( subscriberCount )
+											_n( '%s subscriber', '%s subscribers', subscribersCount, 'jetpack' ),
+											numberFormat( subscribersCount )
 										),
 										sprintf(
 											/* translators: %s will be a number of social followers */
-											_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
-											numberFormat( followerCount )
+											_n( '%s social follower', '%s social followers', followersCount, 'jetpack' ),
+											numberFormat( followersCount )
 										)
 								  )
 								: sprintf(
@@ -171,8 +207,8 @@ export default function SubscribePanels() {
 										__( 'This post will reach <span>%1$s</span>.', 'jetpack' ),
 										sprintf(
 											/* translators: %s will be a number of subscribers */
-											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-											numberFormat( subscriberCount )
+											_n( '%s subscriber', '%s subscribers', subscribersCount, 'jetpack' ),
+											numberFormat( subscribersCount )
 										)
 								  ),
 							{ span: <span className="jetpack-subscribe-reader-count" /> }
@@ -185,6 +221,9 @@ export default function SubscribePanels() {
 						setPostMeta={ setPostMeta }
 						accessLevel={ accessLevel }
 						withModal={ false }
+						socialFollowers={ socialFollowers }
+						emailSubscribers={ emailSubscribers }
+						paidSubscribers={ paidSubscribers }
 					/>
 				) }
 				{ ! isModuleActive && ! isLoadingModules && (
@@ -210,7 +249,7 @@ export default function SubscribePanels() {
 				{ showNotices && (
 					<InspectorNotice>
 						{ createInterpolateElement(
-							followerCount !== 0
+							socialFollowers !== 0
 								? sprintf(
 										/* translators: 1$s will be subscribers, %2$s will be social followers */
 										__(
@@ -219,13 +258,13 @@ export default function SubscribePanels() {
 										),
 										sprintf(
 											/* translators: %s will be a number of subscribers */
-											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-											numberFormat( subscriberCount )
+											_n( '%s subscriber', '%s subscribers', subscribersCount, 'jetpack' ),
+											numberFormat( subscribersCount )
 										),
 										sprintf(
 											/* translators: %s will be a number of social followers */
-											_n( '%s social follower', '%s social followers', followerCount, 'jetpack' ),
-											numberFormat( followerCount )
+											_n( '%s social follower', '%s social followers', followersCount, 'jetpack' ),
+											numberFormat( followersCount )
 										)
 								  )
 								: sprintf(
@@ -233,8 +272,8 @@ export default function SubscribePanels() {
 										__( 'This post was shared to <span>%1$s</span>.', 'jetpack' ),
 										sprintf(
 											/* translators: %s will be a number of subscribers */
-											_n( '%s subscriber', '%s subscribers', subscriberCount, 'jetpack' ),
-											numberFormat( subscriberCount )
+											_n( '%s subscriber', '%s subscribers', subscribersCount, 'jetpack' ),
+											numberFormat( subscribersCount )
 										)
 								  ),
 							{ span: <span className="jetpack-subscribe-reader-count" /> }

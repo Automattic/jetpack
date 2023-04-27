@@ -8,7 +8,7 @@
 	import Header from '../../sections/Header.svelte';
 	import config, { markGetStartedComplete } from '../../stores/config';
 	import { connection } from '../../stores/connection';
-	import { updateModuleState } from '../../stores/modules';
+	import { modulesState, modulesStatePending } from '../../stores/modules';
 	import { recordBoostEvent } from '../../utils/analytics';
 	import { getUpgradeURL } from '../../utils/upgrade';
 
@@ -61,10 +61,15 @@
 					// Allow opening the boost settings page. The actual flag is changed in the backend by enabling the critical-css module below.
 					markGetStartedComplete();
 
-					// Need to await in this case because the generation request needs to go after the backend has enabled the module.
-					await updateModuleState( 'critical_css', true );
-
-					navigate( '/' );
+					// Wait for the module to become active.
+					// Otherwise Critical CSS Generation will fail to start.
+					$modulesState.critical_css.active = true;
+					const unsubscribe = modulesStatePending.subscribe( isPending => {
+						if ( isPending === false ) {
+							unsubscribe();
+							navigate( '/' );
+						}
+					} );
 				} catch ( e ) {
 					dismissedSnackbar.set( false );
 				} finally {
@@ -113,12 +118,10 @@
 	} );
 </script>
 
-<div id="jb-settings" class="jb-settings jb-settings--main">
-	<div class="jb-container jb-get-started-header">
-		<Header />
-
+<div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
+	<Header>
 		<ActivateLicense />
-	</div>
+	</Header>
 
 	{#if pricing.yearly}
 		<div class="jb-section jb-section--alt">
@@ -144,3 +147,9 @@
 		</div>
 	{/if}
 </div>
+
+<style lang="scss">
+	.jb-pricing-table {
+		isolation: isolate;
+	}
+</style>

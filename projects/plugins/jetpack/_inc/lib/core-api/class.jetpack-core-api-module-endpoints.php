@@ -1433,7 +1433,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 */
 	public function get_protect_data() {
 		if ( Jetpack::is_module_active( 'protect' ) ) {
-			return get_site_option( 'jetpack_protect_blocked_attempts' );
+			return (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 );
 		}
 
 		return new WP_Error(
