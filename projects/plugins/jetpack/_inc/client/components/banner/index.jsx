@@ -1,3 +1,4 @@
+import { Icon } from '@wordpress/icons';
 import classNames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -16,7 +17,6 @@ import React, { Component } from 'react';
 import { connect as reduxConnect } from 'react-redux';
 import { isCurrentUserLinked, isConnectionOwner } from 'state/connection';
 import { getCurrentVersion } from 'state/initial-state';
-
 import './style.scss';
 
 export class Banner extends Component {
@@ -33,6 +33,7 @@ export class Banner extends Component {
 		iconAlt: PropTypes.string,
 		iconSrc: PropTypes.string,
 		iconRaw: PropTypes.string,
+		iconWp: PropTypes.any,
 		list: PropTypes.arrayOf( PropTypes.string ),
 		onClick: PropTypes.func,
 		path: PropTypes.string,
@@ -88,7 +89,7 @@ export class Banner extends Component {
 	};
 
 	getIcon() {
-		const { icon, iconAlt, iconSrc, iconRaw, plan } = this.props;
+		const { icon, iconAlt, iconSrc, iconRaw, iconWp, plan } = this.props;
 
 		if ( iconRaw ) {
 			return (
@@ -102,6 +103,14 @@ export class Banner extends Component {
 			return (
 				<div className="dops-banner__icon-plan">
 					<PlanIcon plan={ plan } />
+				</div>
+			);
+		}
+
+		if ( iconWp ) {
+			return (
+				<div class="dops-banner__icon-wp">
+					<Icon icon={ iconWp } />
 				</div>
 			);
 		}

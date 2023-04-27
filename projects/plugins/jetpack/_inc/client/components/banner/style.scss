@@ -11,6 +11,9 @@
 	.dops-banner__icon-circle {
 		background-color: $color;
 	}
+	.dops-banner__icon-wp {
+		fill: $color;
+	}
 }
 
 .dops-banner.dops-card {
@@ -50,6 +53,10 @@
 		}
 		&.is-bundle {
 			@include banner-color( $color-bundle );
+		}
+
+		&.is-jetpack-warning {
+			@include banner-color( $alert-yellow );
 		}
 	}
 
@@ -132,6 +139,12 @@
 	@include breakpoint( '>480px' ) {
 		align-items: center;
 	}
+}
+
+.dops-banner__icon-wp {
+	margin-right: 16px;
+	width: 22px;
+	height: 22px;
 }
 
 .dops-banner__content {
