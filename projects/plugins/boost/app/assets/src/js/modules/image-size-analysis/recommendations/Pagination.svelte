@@ -1,19 +1,47 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { imageStore } from '../ApiMock';
 
 	$: current = $imageStore.pagination.current;
 	$: total = $imageStore.pagination.total;
-	$: pages = Array.from( { length: total }, ( _, i ) => i + 1 );
+
+	function slidingWindow(pages, currentPage) {
+		const windowSize = 8;
+		const first = Math.max(
+			1,
+			Math.min(pages - windowSize, currentPage - Math.floor(windowSize / 2))
+		);
+		const last = Math.min(pages, first + windowSize);
+
+		return new Array(last - first + 1).fill(0).map((_, i) => first + i);
+	}
+
+	function generatePagination(current, total) {
+		const padding = 2;
+		const MORE_ICON = -1;
+
+		const pagination = slidingWindow(total, current);
+
+		if (pagination[pagination.length - padding] <= total - padding) {
+			pagination.splice(pagination.length - padding, padding, MORE_ICON, total);
+		}
+
+		if (pagination[0] - padding >= 0) {
+			pagination.splice(0, padding, 1, MORE_ICON);
+		}
+
+		return pagination;
+	}
+
+	$: pages = generatePagination(current, total);
 
 	function nextPage() {
-		if ( current < total ) {
+		if (current < total) {
 			$imageStore.pagination.current += 1;
 		}
 	}
 
 	function previousPage() {
-		if ( current > 1 ) {
+		if (current > 1) {
 			$imageStore.pagination.current -= 1;
 		}
 	}
@@ -36,8 +64,14 @@
 			<li>
 				<button
 					class:current={page === current}
-					on:click={() => ( $imageStore.pagination.current = page )}>{page}</button
+					on:click={() => ($imageStore.pagination.current = page)}
 				>
+					{#if page === -1}
+						...
+					{:else}
+						{page}
+					{/if}
+				</button>
 			</li>
 		{/each}
 	</ul>
@@ -65,7 +99,7 @@
 	}
 	.current {
 		background-color: #000;
-		border-radius: var( --border-radius );
+		border-radius: var(--border-radius);
 		color: #fff;
 		cursor: pointer;
 		border: 0;
