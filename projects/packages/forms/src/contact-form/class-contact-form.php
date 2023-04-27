@@ -669,7 +669,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$updated_compiled_form = apply_filters( 'jetpack_forms_response_email', $compiled_form, $feedback_id, $form );
-		if ( array_diff( $updated_compiled_form, $compiled_form ) ) {
+		if ( $updated_compiled_form !== $compiled_form ) {
 			$compiled_form = $updated_compiled_form;
 		} else {
 			// add styling to the array
