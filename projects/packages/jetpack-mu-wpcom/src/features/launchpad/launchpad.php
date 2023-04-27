@@ -17,12 +17,185 @@
 require_once __DIR__ . '/class-launchpad-task-lists.php';
 
 /**
- * Returns the list of tasks by flow or checklist id.
- *
- * @return array Associative array with checklist task data
+ * Registers all default launchpad checklists
  */
-function get_checklist_definitions() {
-	return array(
+function register_default_checklists() {
+	register_launchpad_task_list(
+		array(
+			'id'        => 'setup_newsletter',
+			'title'     => __( 'Personalize newsletter', 'jetpack-mu-wpcom' ),
+			'completed' => true,
+			'disabled'  => false,
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'plan_selected',
+			'title'     => __( 'Choose a plan', 'jetpack-mu-wpcom' ),
+			'subtitle'  => get_plan_selected_subtitle(),
+			'completed' => true,
+			'disabled'  => false,
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'subscribers_added',
+			'title'     => __( 'Add subscribers', 'jetpack-mu-wpcom' ),
+			'completed' => true,
+			'disabled'  => false,
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'first_post_published',
+			'title'     => __( 'Write your first post', 'jetpack-mu-wpcom' ),
+			'completed' => get_checklist_task( 'first_post_published' ),
+			'disabled'  => false,
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'first_post_published_newsletter',
+			'title'     => __( 'Start writing', 'jetpack-mu-wpcom' ),
+			'completed' => get_checklist_task( 'first_post_published' ),
+			'disabled'  => false,
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'design_selected',
+			'title'     => __( 'Select a design', 'jetpack-mu-wpcom' ),
+			'completed' => true,
+			'disabled'  => ! can_update_design_selected_task(),
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'setup_link_in_bio',
+			'title'     => __( 'Personalize Link in Bio', 'jetpack-mu-wpcom' ),
+			'completed' => true,
+			'disabled'  => false,
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'links_added',
+			'title'     => __( 'Add links', 'jetpack-mu-wpcom' ),
+			'completed' => get_checklist_task( 'links_edited' ),
+			'disabled'  => false,
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'link_in_bio_launched',
+			'title'     => __( 'Launch your site', 'jetpack-mu-wpcom' ),
+			'completed' => get_checklist_task( 'site_launched' ),
+			'disabled'  => ! get_checklist_task( 'links_edited' ),
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'videopress_setup',
+			'title'     => __( 'Set up your video site', 'jetpack-mu-wpcom' ),
+			'completed' => true,
+			'disabled'  => false,
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'videopress_upload',
+			'title'     => __( 'Upload your first video', 'jetpack-mu-wpcom' ),
+			'completed' => get_checklist_task( 'video_uploaded' ),
+			'disabled'  => get_checklist_task( 'video_uploaded' ),
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'videopress_launched',
+			'title'     => __( 'Launch site', 'jetpack-mu-wpcom' ),
+			'completed' => get_checklist_task( 'site_launched' ),
+			'disabled'  => ! get_checklist_task( 'video_uploaded' ),
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'setup_free',
+			'title'     => __( 'Personalize your site', 'jetpack-mu-wpcom' ),
+			'completed' => true,
+			'disabled'  => false,
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'setup_general',
+			'title'     => __( 'Set up your site', 'jetpack-mu-wpcom' ),
+			'completed' => true,
+			'disabled'  => true,
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'design_edited',
+			'title'     => __( 'Edit site design', 'jetpack-mu-wpcom' ),
+			'completed' => get_checklist_task( 'site_edited' ),
+			'disabled'  => false,
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'           => 'site_launched',
+			'title'        => __( 'Launch your site', 'jetpack-mu-wpcom' ),
+			'completed'    => get_checklist_task( 'site_launched' ),
+			'disabled'     => false,
+			'isLaunchTask' => true,
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'setup_write',
+			'title'     => __( 'Set up your site', 'jetpack-mu-wpcom' ),
+			'completed' => true,
+			'disabled'  => true,
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'         => 'domain_upsell',
+			'title'      => __( 'Choose a domain', 'jetpack-mu-wpcom' ),
+			'completed'  => is_domain_upsell_completed(),
+			'disabled'   => false,
+			'badge_text' => get_domain_upsell_badge_text(),
+		)
+	);
+
+	register_launchpad_task_list(
+		array(
+			'id'        => 'verify_email',
+			'title'     => __( 'Confirm email (check your inbox)', 'jetpack-mu-wpcom' ),
+			'completed' => false,
+			'disabled'  => true,
+		)
+	);
+
+	// Tasks registered, now onto the checklists.
+	register_launchpad_task_list(
 		array(
 			'id'       => 'build',
 			'title'    => 'Build',
@@ -33,7 +206,10 @@ function get_checklist_definitions() {
 				'design_edited',
 				'site_launched',
 			),
-		),
+		)
+	);
+
+	register_launchpad_task_list(
 		array(
 			'id'       => 'free',
 			'title'    => 'Free',
@@ -45,7 +221,10 @@ function get_checklist_definitions() {
 				'design_edited',
 				'site_launched',
 			),
-		),
+		)
+	);
+
+	register_launchpad_task_list(
 		array(
 			'id'       => 'link-in-bio',
 			'title'    => 'Link In Bio',
@@ -56,7 +235,10 @@ function get_checklist_definitions() {
 				'links_added',
 				'link_in_bio_launched',
 			),
-		),
+		)
+	);
+
+	register_launchpad_task_list(
 		array(
 			'id'       => 'link-in-bio-tld',
 			'title'    => 'Link In Bio',
@@ -67,7 +249,10 @@ function get_checklist_definitions() {
 				'links_added',
 				'link_in_bio_launched',
 			),
-		),
+		)
+	);
+
+	register_launchpad_task_list(
 		array(
 			'id'       => 'newsletter',
 			'title'    => 'Newsletter',
@@ -78,7 +263,10 @@ function get_checklist_definitions() {
 				'verify_email',
 				'first_post_published_newsletter',
 			),
-		),
+		)
+	);
+
+	register_launchpad_task_list(
 		array(
 			'id'       => 'videopress',
 			'title'    => 'Videopress',
@@ -88,7 +276,10 @@ function get_checklist_definitions() {
 				'videopress_upload',
 				'videopress_launched',
 			),
-		),
+		)
+	);
+
+	register_launchpad_task_list(
 		array(
 			'id'       => 'write',
 			'title'    => 'Write',
@@ -98,9 +289,14 @@ function get_checklist_definitions() {
 				'first_post_published',
 				'site_launched',
 			),
-		),
+		)
 	);
+
+	// This is the hook that allows other plugins to register their own checklists.
+	do_action( 'wpcom_register_launchpad_tasks' );
 }
+// Running on priority 11 will allow anything that adds hooks on init with default priority 10 to add their hooks to the `wpcom_register_launchpad_tasks` action.
+add_action( 'init', 'register_default_checklists', 11 );
 
 /**
  * Determines whether or not design selected task is enabled
@@ -152,133 +348,6 @@ function get_plan_selected_subtitle() {
  */
 function get_domain_upsell_badge_text() {
 	return is_domain_upsell_completed() ? '' : __( 'Upgrade plan', 'jetpack-mu-wpcom' );
-}
-
-/**
- * Returns the checklist task definitions.
- *
- * @return array Associative array with checklist task data
- */
-function get_task_definitions() {
-	return array(
-		array(
-			'id'        => 'setup_newsletter',
-			'title'     => __( 'Personalize newsletter', 'jetpack-mu-wpcom' ),
-			'completed' => true,
-			'disabled'  => false,
-		),
-		array(
-			'id'        => 'plan_selected',
-			'title'     => __( 'Choose a plan', 'jetpack-mu-wpcom' ),
-			'subtitle'  => get_plan_selected_subtitle(),
-			'completed' => true,
-			'disabled'  => false,
-		),
-		array(
-			'id'        => 'subscribers_added',
-			'title'     => __( 'Add subscribers', 'jetpack-mu-wpcom' ),
-			'completed' => true,
-			'disabled'  => false,
-		),
-		array(
-			'id'        => 'first_post_published',
-			'title'     => __( 'Write your first post', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'first_post_published' ),
-			'disabled'  => false,
-		),
-		array(
-			'id'        => 'first_post_published_newsletter',
-			'title'     => __( 'Start writing', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'first_post_published' ),
-			'disabled'  => false,
-		),
-		array(
-			'id'        => 'design_selected',
-			'title'     => __( 'Select a design', 'jetpack-mu-wpcom' ),
-			'completed' => true,
-			'disabled'  => ! can_update_design_selected_task(),
-		),
-		array(
-			'id'        => 'setup_link_in_bio',
-			'title'     => __( 'Personalize Link in Bio', 'jetpack-mu-wpcom' ),
-			'completed' => true,
-			'disabled'  => false,
-		),
-		array(
-			'id'        => 'links_added',
-			'title'     => __( 'Add links', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'links_edited' ),
-			'disabled'  => false,
-		),
-		array(
-			'id'        => 'link_in_bio_launched',
-			'title'     => __( 'Launch your site', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'site_launched' ),
-			'disabled'  => ! get_checklist_task( 'links_edited' ),
-		),
-		array(
-			'id'        => 'videopress_setup',
-			'title'     => __( 'Set up your video site', 'jetpack-mu-wpcom' ),
-			'completed' => true,
-			'disabled'  => false,
-		),
-		array(
-			'id'        => 'videopress_upload',
-			'title'     => __( 'Upload your first video', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'video_uploaded' ),
-			'disabled'  => get_checklist_task( 'video_uploaded' ),
-		),
-		array(
-			'id'        => 'videopress_launched',
-			'title'     => __( 'Launch site', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'site_launched' ),
-			'disabled'  => ! get_checklist_task( 'video_uploaded' ),
-		),
-		array(
-			'id'        => 'setup_free',
-			'title'     => __( 'Personalize your site', 'jetpack-mu-wpcom' ),
-			'completed' => true,
-			'disabled'  => false,
-		),
-		array(
-			'id'        => 'setup_general',
-			'title'     => __( 'Set up your site', 'jetpack-mu-wpcom' ),
-			'completed' => true,
-			'disabled'  => true,
-		),
-		array(
-			'id'        => 'design_edited',
-			'title'     => __( 'Edit site design', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'site_edited' ),
-			'disabled'  => false,
-		),
-		array(
-			'id'           => 'site_launched',
-			'title'        => __( 'Launch your site', 'jetpack-mu-wpcom' ),
-			'completed'    => get_checklist_task( 'site_launched' ),
-			'disabled'     => false,
-			'isLaunchTask' => true,
-		),
-		array(
-			'id'        => 'setup_write',
-			'title'     => __( 'Set up your site', 'jetpack-mu-wpcom' ),
-			'completed' => true,
-			'disabled'  => true,
-		),
-		array(
-			'id'         => 'domain_upsell',
-			'title'      => __( 'Choose a domain', 'jetpack-mu-wpcom' ),
-			'completed'  => is_domain_upsell_completed(),
-			'disabled'   => false,
-			'badge_text' => get_domain_upsell_badge_text(),
-		),
-		array(
-			'id'        => 'verify_email',
-			'title'     => __( 'Confirm email (check your inbox)', 'jetpack-mu-wpcom' ),
-			'completed' => false,
-			'disabled'  => true,
-		),
-	);
 }
 
 /**
@@ -352,12 +421,6 @@ function register_launchpad_task( $task ) {
  *
  * @return object Launchpad_Task_Lists instance.
  */
-function register_default_checklists() {
-	foreach ( get_checklist_definitions() as $checklist ) {
-		register_launchpad_task_list( $checklist );
-	}
-
-	register_launchpad_tasks( get_task_definitions() );
+function launchpad_checklists() {
+	return Launchpad_Task_Lists::get_instance();
 }
-
-add_action( 'init', 'register_default_checklists' );
