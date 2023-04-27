@@ -63,6 +63,14 @@ export default function Player( { isSelected, attributes } ) {
 		}
 	}, [ guid ] );
 
+	// Reset ready/loaded states when video changes.
+	useEffect( () => {
+		if ( guid ) {
+			setIsPlayerLoaded( false );
+			setIsPlayerReady( false );
+		}
+	}, [ guid ] );
+
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
 		controls,
