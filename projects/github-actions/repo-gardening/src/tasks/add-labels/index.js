@@ -128,6 +128,13 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			}
 			keywords.add( `[${ prefix }] ${ cleanName( project.groups.pname ) }` );
 
+			// The Image CDN was previously named "Photon".
+			// If we're touching that package, let's add the Photon label too
+			// so we can keep track of changes to the feature.
+			if ( keywords.has( '[Package] Image Cdn' ) ) {
+				keywords.add( 'Photon' );
+			}
+
 			// Extra labels.
 			if ( project.groups.ptype === 'github-actions' ) {
 				keywords.add( 'Actions' );
