@@ -222,6 +222,7 @@
 	&.disabled {
 		background: var( --jp-gray ) !important;
 		border-color: transparent !important;
+		box-shadow: none;
 		color: var( --jp-gray-20 ) !important;
 
 		pointer-events: none;
