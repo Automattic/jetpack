@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Fix hardblock issue if user only has Protect installed
