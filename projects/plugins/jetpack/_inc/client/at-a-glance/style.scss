@@ -60,6 +60,8 @@
 }
 
 .dops-banner__description {
+	padding-left: 8px;
+
 	.jp-link-button {
 		padding: 0;
 	}
@@ -532,7 +534,8 @@
 a.jp-dash-item__manage-in-wpcom,
 .dops-banner__title a,
 .jp-connection-settings__actions a,
-.jp-dash-item a:not( .dops-button ) {
+.jp-dash-item a:not( .dops-button ),
+.dops-banner__description .jp-link-button {
 	&, &:active, &:visited, &:hover, &:focus {
 		cursor: pointer;
 		font-weight: 400;
@@ -541,6 +544,8 @@ a.jp-dash-item__manage-in-wpcom,
 		letter-spacing: -0.02em;
 		text-decoration: underline;
 		color: $black;
+		box-shadow: none;
+		background: none;
 
 		&:hover {
 			text-decoration-thickness: 3px;

@@ -164,6 +164,13 @@
 	.dops-banner__description {
 		font-size: $font-body-extra-small;
 		margin-top: 3px;
+
+		.jp-link-button {
+			&, &:active, &:visited, &:hover, &:focus {
+				font-size: $font-body-extra-small;
+				line-height: 1.4;
+			}
+		}
 	}
 
 	.dops-banner__list {
