@@ -30,6 +30,7 @@ import styles from './styles.module.scss';
  * @param {boolean} props.isPublicizeDisabledBySitePlan - A combination of the republicize feature being enabled and/or the post not being published.
  * @param {number} props.numberOfSharesRemaining        - The number of shares remaining for the current period. Optional.
  * @param {boolean} props.isEnhancedPublishingEnabled   - Whether enhanced publishing options are available. Optional.
+ * @param {boolean} props.isSocialImageGeneratorEnabled - Whether the Social Image Generator feature is available. Optional.
  * @param {string} props.connectionsAdminUrl            - URL to the Admin connections page
  * @param {string} props.adminUrl                       - URL af the plugin's admin page to redirect to after a plan upgrade
  * @returns {object}                                    - Publicize form component.
@@ -39,6 +40,7 @@ export default function PublicizeForm( {
 	isPublicizeDisabledBySitePlan,
 	numberOfSharesRemaining = null,
 	isEnhancedPublishingEnabled = false,
+	isSocialImageGeneratorEnabled = false,
 	connectionsAdminUrl,
 	adminUrl,
 } ) {
@@ -192,9 +194,9 @@ export default function PublicizeForm( {
 					) }
 					{ isEnhancedPublishingEnabled && (
 						<MediaSection
-							disabled={ isImageGeneratorEnabled }
+							disabled={ isSocialImageGeneratorEnabled && isImageGeneratorEnabled }
 							notice={
-								isImageGeneratorEnabled
+								isSocialImageGeneratorEnabled && isImageGeneratorEnabled
 									? __(
 											'It is not possible to add an image or video when Social Image Generator is enabled.',
 											'jetpack'
