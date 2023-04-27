@@ -1,4 +1,4 @@
-import { Fragment, useCallback } from '@wordpress/element';
+import { useCallback } from '@wordpress/element';
 import classnames from 'classnames';
 import { kebabCase, map } from 'lodash';
 
@@ -28,15 +28,7 @@ const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 				</div>
 			) }
 
-			{ map( columns, ( { additionalClassNames, component, getProps, getValue, key } ) => {
-				let Wrapper = Fragment;
-				let props = {};
-
-				if ( component ) {
-					Wrapper = component;
-					props = getProps ? getProps( item ) : item;
-				}
-
+			{ map( columns, ( { additionalClassNames, getValue, key } ) => {
 				const value = getValue ? getValue( item ) : item[ key ];
 
 				const cellClasses = classnames(
@@ -47,7 +39,7 @@ const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 
 				return (
 					<div key={ `table-${ key }-${ item.id }` } className={ cellClasses }>
-						<Wrapper { ...props }>{ value }</Wrapper>
+						{ value }
 					</div>
 				);
 			} ) }

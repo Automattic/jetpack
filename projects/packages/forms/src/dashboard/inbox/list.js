@@ -19,15 +19,15 @@ const COLUMNS = [
 	{
 		key: 'source',
 		label: __( 'Source', 'jetpack-forms' ),
-		component: Button,
-		getProps: item => ( {
-			href: item.entry_permalink,
-			variant: 'link',
-		} ),
+		getValue: item => (
+			<Button href={ item.entry_permalink } variant="link">
+				{ item.source }
+			</Button>
+		),
 	},
 	{
 		key: 'actions',
-		component: SingleActionsMenu,
+		getValue: item => <SingleActionsMenu id={ item.id } />,
 	},
 ];
 
