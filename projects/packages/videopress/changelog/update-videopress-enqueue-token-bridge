@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: enqueue token bridge file in the front-end only when required

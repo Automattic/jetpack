@@ -1,9 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
+import Gridicon from 'components/gridicon';
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
 import {
@@ -91,27 +91,27 @@ class SupportCard extends React.Component {
 								  ) }
 						</p>
 						<p className="jp-support-card__description">
-							<Button onClick={ this.trackGettingStartedClick }>
-								<ExternalLink
-									href={
-										this.props.isAtomicSite
-											? getRedirectUrl( 'calypso-help' )
-											: getRedirectUrl( 'jetpack-support-getting-started' )
-									}
-								>
-									{ __( 'Getting started with Jetpack', 'jetpack' ) }
-								</ExternalLink>
+							<Button
+								onClick={ this.trackGettingStartedClick }
+								href={
+									this.props.isAtomicSite
+										? getRedirectUrl( 'calypso-help' )
+										: getRedirectUrl( 'jetpack-support-getting-started' )
+								}
+							>
+								{ __( 'Getting started with Jetpack', 'jetpack' ) }
+								<Gridicon className="dops-card__link-indicator" icon="external" />
 							</Button>
-							<Button onClick={ this.trackSearchClick }>
-								<ExternalLink
-									href={
-										this.props.isAtomicSite
-											? getRedirectUrl( 'calypso-help' )
-											: getRedirectUrl( 'jetpack-support' )
-									}
-								>
-									{ __( 'Search our support site', 'jetpack' ) }
-								</ExternalLink>
+							<Button
+								onClick={ this.trackSearchClick }
+								href={
+									this.props.isAtomicSite
+										? getRedirectUrl( 'calypso-help' )
+										: getRedirectUrl( 'jetpack-support' )
+								}
+							>
+								{ __( 'Search our support site', 'jetpack' ) }
+								<Gridicon className="dops-card__link-indicator" icon="external" />
 							</Button>
 						</p>
 					</div>
