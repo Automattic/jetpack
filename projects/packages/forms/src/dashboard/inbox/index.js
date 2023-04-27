@@ -168,8 +168,9 @@ const Inbox = () => {
 						) }
 					</>
 				),
+				disabled: loading,
 			} ) ),
-		[ tabTotals ]
+		[ loading, tabTotals ]
 	);
 
 	const monthList = useMemo( () => {

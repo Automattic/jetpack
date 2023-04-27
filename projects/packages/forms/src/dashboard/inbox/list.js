@@ -65,7 +65,7 @@ const InboxList = ( {
 			const numPlaceholders = totalResponses
 				? Math.min(
 						RESPONSES_FETCH_LIMIT,
-						totalResponses - ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
+						totalResponses - responses.length - ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
 				  )
 				: 10;
 

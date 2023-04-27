@@ -51,6 +51,16 @@ const responses = ( state = [], action ) => {
 		return [];
 	}
 
+	if (
+		action.type === RESPONSES_QUERY_RESET ||
+		action.type === RESPONSES_QUERY_SEARCH_UPDATE ||
+		action.type === RESPONSES_QUERY_STATUS_UPDATE ||
+		action.type === RESPONSES_QUERY_MONTH_UPDATE ||
+		action.type === RESPONSES_QUERY_SOURCE_UPDATE
+	) {
+		return [];
+	}
+
 	if ( action.type === RESPONSES_FETCH_RECEIVE ) {
 		if ( ! action.append ) {
 			return [ ...action.responses ];
