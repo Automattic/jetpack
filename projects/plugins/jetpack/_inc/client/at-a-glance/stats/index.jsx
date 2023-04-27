@@ -133,7 +133,7 @@ export class DashStats extends Component {
 
 	renderStatsChart( chartData ) {
 		return (
-			<div>
+			<div className="jp-at-a-glance__stats-chart-container">
 				<div className="jp-at-a-glance__stats-chart">
 					<Chart data={ chartData } barClick={ this.barClick } />
 					{ 0 === chartData.length && <Spinner /> }
@@ -159,19 +159,21 @@ export class DashStats extends Component {
 
 	renderEmptyStatsCard() {
 		return (
-			<Card className="jp-at-a-glance__stats-empty">
-				<JetpackLogo height={ 64 } showText={ false } />
-				<p>
-					{ __( 'Hello there! Jetpack Stats has been activated.', 'jetpack' ) }
-					<br />
-					{ __(
-						'Just give us a little time to collect data so we can display it for you here.',
-						'jetpack'
-					) }
-				</p>
-				<Button onClick={ this.dismissCard } primary>
-					{ __( 'Okay, got it!', 'jetpack' ) }
-				</Button>
+			<Card className="jp-at-a-glance__stats-empty-container">
+				<div className="jp-at-a-glance__stats-empty">
+					<JetpackLogo height={ 64 } showText={ false } />
+					<p>
+						{ __( 'Hello there! Jetpack Stats has been activated.', 'jetpack' ) }
+						<br />
+						{ __(
+							'Just give us a little time to collect data so we can display it for you here.',
+							'jetpack'
+						) }
+					</p>
+					<Button onClick={ this.dismissCard } primary>
+						{ __( 'Okay, got it!', 'jetpack' ) }
+					</Button>
+				</div>
 			</Card>
 		);
 	}
@@ -209,7 +211,7 @@ export class DashStats extends Component {
 
 			const statsChart = this.statsChart( this.props.activeTab ),
 				chartData = statsChart.chartData,
-				totalViews = statsChart.totalViews,
+				totalViews = 0, //statsChart.totalViews,
 				showEmptyStats =
 					chartData.length &&
 					totalViews <= 0 &&
@@ -217,8 +219,14 @@ export class DashStats extends Component {
 					! this.state.emptyStatsDismissed;
 
 			return (
-				<div className="jp-at-a-glance__stats-container">
-					{ showEmptyStats ? this.renderEmptyStatsCard() : this.renderStatsChart( chartData ) }
+				<div
+					className={
+						'jp-at-a-glance__stats-container' +
+						( showEmptyStats && ' jp-at-a-glance__stats-container-empty' )
+					}
+				>
+					{ showEmptyStats ? this.renderEmptyStatsCard() : '' }
+					{ this.renderStatsChart( chartData ) }
 				</div>
 			);
 		}

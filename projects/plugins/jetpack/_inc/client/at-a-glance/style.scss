@@ -141,6 +141,32 @@
 	}
 }
 
+.jp-at-a-glance__stats-container-empty {
+	position: relative;
+
+	.jp-at-a-glance__stats-empty-container {
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		z-index: 999;
+		background: none;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+
+		.jp-at-a-glance__stats-empty {
+			background: white;
+			border-radius: 4px;
+			box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+			padding: 30px;
+		}
+	}
+
+	.jp-at-a-glance__stats-chart-container {
+		filter: blur( 2px );
+	}
+}
+
 .jp-at-a-glance__stats-summary {
 	text-align: center;
 
