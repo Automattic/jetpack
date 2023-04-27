@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import {
 	REST_API_SITE_PURCHASES_ENDPOINT,
 	REST_API_SITE_PRODUCTS_ENDPOINT,
+	REST_API_CHAT_AVAILABILITY_ENDPOINT,
 	PRODUCTS_THAT_NEEDS_INITIAL_FETCH,
 } from './constants';
 import resolveProductStatsRequest from './stats-resolvers';
@@ -61,6 +62,21 @@ const myJetpackResolvers = {
 							status: 'error',
 						}
 					);
+			}
+		},
+
+	getChatAvailability:
+		() =>
+		async ( { dispatch } ) => {
+			dispatch.setChatAvailabilityIsFetching( true );
+
+			try {
+				dispatch.setChatAvailability(
+					await apiFetch( { path: REST_API_CHAT_AVAILABILITY_ENDPOINT } )
+				);
+				dispatch.setChatAvailabilityIsFetching( false );
+			} catch ( error ) {
+				dispatch.setChatAvailabilityIsFetching( false );
 			}
 		},
 
