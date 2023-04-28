@@ -45,7 +45,6 @@ describe( 'MembershipsButtonEdit', () => {
 		connected_account_id: 1,
 		products: [],
 		site_slug: 'test',
-		upgrade_url: 'https://wordpress.com/checkout/test/jetpack_security_daily_monthly',
 	};
 
 	const defaultApiResponse = Promise.resolve( {
