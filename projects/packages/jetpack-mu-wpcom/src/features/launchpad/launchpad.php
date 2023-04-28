@@ -296,6 +296,20 @@ function wpcom_register_default_launchpad_checklists() {
 		)
 	);
 
+	wpcom_register_launchpad_task_list(
+		array(
+			'id'       => 'start-writing',
+			'title'    => 'Start Writing',
+			'task_ids' => array(
+				'first_post_published',
+				'setup_free',
+				'domain_upsell',
+				'plan_selected',
+				'blog_launched',
+			),
+		),
+	);
+
 	// This is the hook that allows other plugins to register their own checklists.
 	do_action( 'wpcom_register_launchpad_tasks' );
 
