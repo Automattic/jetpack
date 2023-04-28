@@ -209,6 +209,21 @@ $action-bar-height: 88px;
 	display: table;
 	min-height: unset;
 
+	.jp-forms__table-item {
+		max-height: 52px;
+		overflow: hidden;
+		transition: max-height .2s;
+
+		&.exit-active,
+		&.exit-done {
+			max-height: 0;
+		}
+
+		&.exit-active.is-loading {
+			display: none;
+		}
+	}
+
 	@media (max-width: 1024px) {
 		.jp-forms__table-item.is-active {
 			background-color: #fff;

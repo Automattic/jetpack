@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Remove unused method used to update images in Open Graph Meta tags.

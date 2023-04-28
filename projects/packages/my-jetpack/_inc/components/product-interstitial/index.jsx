@@ -63,14 +63,15 @@ export default function ProductInterstitial( {
 
 	const clickHandler = useCallback(
 		( checkout, product, tier ) => {
-			const activateOrCheckout = () => ( bundle ? Promise.resolve() : activate() );
+			const activateOrCheckout = () => ( product?.isBundle ? Promise.resolve() : activate() );
 
 			activateOrCheckout().finally( () => {
-				if ( bundle ) {
+				if ( product?.isBundle ) {
 					// Get straight to the checkout page.
 					checkout?.();
 					return;
 				}
+
 				const postActivationUrl = product?.postActivationUrl;
 				const hasRequiredPlan = tier
 					? product?.hasRequiredTier?.[ tier ]
@@ -95,7 +96,7 @@ export default function ProductInterstitial( {
 				checkout?.();
 			} );
 		},
-		[ navigateToMyJetpackOverviewPage, activate, bundle ]
+		[ navigateToMyJetpackOverviewPage, activate ]
 	);
 
 	const onClickGoBack = useCallback(
