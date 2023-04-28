@@ -5,11 +5,18 @@ import debugFactory from 'debug';
 /**
  * Types
  */
+import { VideoPressApiIframeInstance } from '../../block-editor/global';
 import type { VideoGUID } from '../../block-editor/blocks/video/types';
 
 type Origin = 'https://videopress.com' | 'https://video.wordpress.com';
 
 const debug = debugFactory( 'videopress:player-bridge' );
+
+declare global {
+	interface Window {
+		iframeApiInstance: VideoPressApiIframeInstance;
+	}
+}
 
 const VIDEOPRESS_ALLOWED_LISTENING_EVENTS = [
 	'videopress_playing',
@@ -30,13 +37,47 @@ const VIDEOPRESS_ALLOWED_EMITTING_EVENTS = [
 	'videopress_action_pause',
 	'videopress_action_set_currenttime',
 	'videopress_action_set_volume',
+	'videopress_action_set_mute',
 ] as const;
 
+type VideoPressEvent =
+	| ( typeof VIDEOPRESS_ALLOWED_LISTENING_EVENTS )[ number ]
+	| ( typeof VIDEOPRESS_ALLOWED_EMITTING_EVENTS )[ number ];
+
 type PlayerBrigeEventProps = {
-	event: ( typeof VIDEOPRESS_ALLOWED_LISTENING_EVENTS )[ number ];
+	event: VideoPressEvent;
 	id: VideoGUID;
 	origin: Origin;
+	muted: boolean;
 };
+
+/**
+ * Check if the event is allowed to be listened.
+ *
+ * @param {VideoPressEvent} event - The event name
+ * @returns {boolean} 		 	  - Whether the event is allowed to be listened
+ */
+function isListeningEvent(
+	event: VideoPressEvent
+): event is ( typeof VIDEOPRESS_ALLOWED_LISTENING_EVENTS )[ number ] {
+	return VIDEOPRESS_ALLOWED_LISTENING_EVENTS.includes(
+		event as ( typeof VIDEOPRESS_ALLOWED_LISTENING_EVENTS )[ number ]
+	);
+}
+
+/**
+ * Check if the event is allowed to be emitted.
+ *
+ * @param {VideoPressEvent} event - The event name
+ * @returns {boolean} 		 	  - Whether the event is allowed to be listened
+ */
+function isEmittingEvent(
+	event: VideoPressEvent
+): event is ( typeof VIDEOPRESS_ALLOWED_EMITTING_EVENTS )[ number ] {
+	return VIDEOPRESS_ALLOWED_EMITTING_EVENTS.includes(
+		event as ( typeof VIDEOPRESS_ALLOWED_EMITTING_EVENTS )[ number ]
+	);
+}
 
 /**
  * Function handler to dialog between
@@ -47,24 +88,27 @@ type PlayerBrigeEventProps = {
 export async function playerBridgeHandler(
 	event: MessageEvent< PlayerBrigeEventProps >
 ): Promise< void > {
-	const { data = { event: null } } = event || {};
-	const { event: eventName } = data;
+	const data = event.data;
+	const eventName = data.event;
+
+	// const { data = { event: null }, origin } = event;
+	// const { event: eventName } = data;
 
 	// Propagate only allowed events.
-	if ( VIDEOPRESS_ALLOWED_LISTENING_EVENTS.includes( eventName ) ) {
+	if ( isListeningEvent( eventName ) ) {
 		// Propagate only allowed origins.
 		const allowed_origins: Array< Origin > = [
 			'https://videopress.com',
 			'https://video.wordpress.com',
 		];
 
-		if ( -1 !== allowed_origins.indexOf( event.origin as Origin ) ) {
+		if ( -1 !== allowed_origins.indexOf( origin as Origin ) ) {
 			debug( 'broadcast %o event: %o', eventName, data );
-			window.top.postMessage( event.data, '*' );
+			window.top.postMessage( data, '*' );
 		}
 	}
 
-	if ( VIDEOPRESS_ALLOWED_EMITTING_EVENTS.includes( eventName ) ) {
+	if ( isEmittingEvent( eventName ) ) {
 		const videoPressIFrame = document.querySelector( 'iframe' );
 		const videoPressWindow = videoPressIFrame?.contentWindow;
 		if ( ! videoPressWindow ) {
@@ -73,9 +117,37 @@ export async function playerBridgeHandler(
 
 		debug( 'emit %o event - %o', eventName, data );
 		videoPressWindow.postMessage( data, '*' );
+
+		if ( ! window?.iframeApiInstance ) {
+			return;
+		}
+
+		const iframeApiInstance = window.iframeApiInstance;
+
+		if ( eventName === 'videopress_action_set_mute' ) {
+			iframeApiInstance.controls.mute( data.muted );
+		}
 	}
 }
 
 ( function () {
-	window.addEventListener( 'message', playerBridgeHandler );
+	window.addEventListener( 'DOMContentLoaded', function () {
+		const videoPressIFrameElement = document.querySelector( 'iframe' );
+
+		// Check whether the IFrame API is available
+		if ( ! videoPressIFrameElement || ! window?.VideoPressIframeApi ) {
+			return window.addEventListener( 'message', playerBridgeHandler );
+		}
+
+		/*
+		 * Create an instance of the VideoPressIframeApi,
+		 * store it in the global scope and add a listener,
+		 * and then add a listener to the window message event.
+		 * This is to ensure that the VideoPressIframeApi is
+		 * available before the message event is fired.
+		 */
+		window.iframeApiInstance = window.VideoPressIframeApi( videoPressIFrameElement, function () {
+			window.addEventListener( 'message', playerBridgeHandler );
+		} );
+	} );
 } )();
