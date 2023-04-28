@@ -91,17 +91,15 @@ class SupportCard extends React.Component {
 								  ) }
 						</p>
 						<p className="jp-support-card__description">
-							<Button
-								onClick={ this.trackGettingStartedClick }
-								href={
-									this.props.isAtomicSite
-										? getRedirectUrl( 'calypso-help' )
-										: getRedirectUrl( 'jetpack-support-getting-started' )
-								}
-							>
-								{ __( 'Getting started with Jetpack', 'jetpack' ) }
-								<Gridicon className="dops-card__link-indicator" icon="external" />
-							</Button>
+							{ this.props.isAtomicSite || (
+								<Button
+									onClick={ this.trackGettingStartedClick }
+									href={ getRedirectUrl( 'jetpack-support-getting-started' ) }
+								>
+									{ __( 'Getting started with Jetpack', 'jetpack' ) }
+									<Gridicon className="dops-card__link-indicator" icon="external" />
+								</Button>
+							) }
 							<Button
 								onClick={ this.trackSearchClick }
 								href={

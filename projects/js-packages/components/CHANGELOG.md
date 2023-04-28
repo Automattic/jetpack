@@ -2,6 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.32.0 - 2023-04-25
+### Added
+- Add a Toggle component. [#30166]
+- Add Status component. [#30166]
+
+### Fixed
+- RNA: Fix button box-shadow radius on Linux build of Firefox [#30249]
+
 ## 0.31.6 - 2023-04-19
 ### Changed
 - Updated package dependencies. [#30015]

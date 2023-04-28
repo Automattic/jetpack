@@ -16,7 +16,7 @@
 <MultiProgress />
 
 <div class="jb-spacer" />
-<Button>See report in progress</Button>
+<Button href="#image-size-analysis">See report in progress</Button>
 
 <style lang="scss">
 	.jb-spacer {

@@ -181,7 +181,7 @@ function process_anchor_params() {
 	/**
 	 * Allows disabling the Anchor convert to audio prompt.
 	 *
-	 * @since $$next-version$$
+	 * @since 12.1
 	 *
 	 * @param bool $is_anchor_enabled Whether the prompt is enabled or not.
 	 */

@@ -1,14 +1,24 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 // eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
 import { __experimentalInspectorPopoverHeader as InspectorPopoverHeader } from '@wordpress/block-editor';
-import { Flex, FlexBlock, Button, PanelRow, Dropdown, VisuallyHidden } from '@wordpress/components';
+import {
+	Flex,
+	FlexBlock,
+	Button,
+	PanelRow,
+	Dropdown,
+	VisuallyHidden,
+	ToolbarButton,
+	ExternalLink,
+	Spinner,
+} from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck } from '@wordpress/editor';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
+import { getPaidPlanLink } from './utils';
 
 import './settings.scss';
 
@@ -121,6 +131,15 @@ export function NewsletterAccess( {
 	}
 	const accessLabel = accessOptions[ accessLevel ]?.label;
 
+	const { newsletterPlans, isLoading } = useSelect( select => {
+		const { getProducts, isApiStateLoading } = select( 'jetpack/membership-products' );
+
+		return {
+			isLoading: isApiStateLoading(),
+			newsletterPlans: getProducts()?.filter( product => product.subscribe_as_site_subscriber ),
+		};
+	} );
+
 	// Can be “private”, “password”, or “public”.
 	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
 	const postVisibilityIsPublic = postVisibility === 'public';
@@ -129,6 +148,42 @@ export function NewsletterAccess( {
 		! postVisibilityIsPublic && accessLevel === accessOptions.everybody.string;
 	const showMisconfigurationMessage =
 		! postVisibilityIsPublic && accessLevel !== accessOptions.everybody.string;
+
+	if ( isLoading ) {
+		return (
+			<Flex direction="column" align="center">
+				<Spinner />
+			</Flex>
+		);
+	}
+
+	if ( ! newsletterPlans || newsletterPlans.length === 0 ) {
+		return (
+			<>
+				<PanelRow>
+					{ __( 'Set up a paid plan for readers to access your content.', 'jetpack' ) }
+				</PanelRow>
+				<PanelRow>
+					<ToolbarButton variant="primary" href={ getPaidPlanLink( false ) } target="_blank">
+						{ __( 'Add Payments', 'jetpack' ) }
+					</ToolbarButton>
+				</PanelRow>
+				<PanelRow>
+					<small spanClass={ 'jetpack-subscribe-info' }>
+						{ /* translators: basic information about the newsletter visibility */ }
+						{ __( 'Restrict your post to subscribers.', 'jetpack' ) }
+						<ExternalLink
+							href={ getRedirectUrl( 'paid-newsletter-info', {
+								anchor: 'memberships-and-subscriptions',
+							} ) }
+						>
+							{ __( 'Learn More', 'jetpack' ) }
+						</ExternalLink>
+					</small>
+				</PanelRow>
+			</>
+		);
+	}
 
 	return (
 		<PostVisibilityCheck
@@ -217,21 +272,15 @@ export function NewsletterAccess( {
 						{ withModal && (
 							<FlexBlock>
 								<small spanClass={ 'jetpack-subscribe-info' }>
-									{ createInterpolateElement(
-										/* translators: basic information about the newsletter visibility */
-										__( 'Restrict your post to subscribers. <a>Learn more</a>.', 'jetpack' ),
-										{
-											a: (
-												<a
-													href={ getRedirectUrl( 'paid-newsletter-info', {
-														anchor: 'memberships-and-subscriptions',
-													} ) }
-													rel="noopener noreferrer"
-													target="_blank"
-												/>
-											),
-										}
-									) }
+									{ /* translators: basic information about the newsletter visibility */ }
+									{ __( 'Restrict your post to subscribers. ', 'jetpack' ) }
+									<ExternalLink
+										href={ getRedirectUrl( 'paid-newsletter-info', {
+											anchor: 'memberships-and-subscriptions',
+										} ) }
+									>
+										{ __( 'Learn More', 'jetpack' ) }
+									</ExternalLink>
 								</small>
 							</FlexBlock>
 						) }
