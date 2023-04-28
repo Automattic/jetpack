@@ -51,6 +51,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Checklist extends WP_REST_Controller 
 								'newsletter',
 								'videopress',
 								'write',
+								'start-writing',
 							),
 						),
 					),
