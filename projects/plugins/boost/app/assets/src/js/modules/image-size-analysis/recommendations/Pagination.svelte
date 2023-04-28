@@ -67,6 +67,7 @@
 			<li>
 				<button
 					class:current={page === current}
+					disabled={page === MORE_ICON}
 					on:click={() => ($imageStore.pagination.current = page)}
 				>
 					{#if page === MORE_ICON}
@@ -117,6 +118,11 @@
 		line-height: 1;
 		font-size: 13px;
 		font-weight: 600;
+
+		&[disabled] {
+			cursor: default;
+			color: #000;
+		}
 
 		&.inactive {
 			opacity: 0.25;
