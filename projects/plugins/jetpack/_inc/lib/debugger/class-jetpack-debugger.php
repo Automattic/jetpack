@@ -270,6 +270,10 @@ class Jetpack_Debugger {
 				margin: 8px 0;
 			}
 
+			#connected-user-details p strong {
+				word-break: break-all;
+			}
+
 			.jetpack-tests-succeed {
 				font-size: large;
 				color: #069E08;
