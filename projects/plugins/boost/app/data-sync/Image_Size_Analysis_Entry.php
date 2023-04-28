@@ -11,14 +11,14 @@ class Image_Size_Analysis_Entry implements Entry_Can_Get, Entry_Can_Set {
 
 	private function get_mock_data( $page ) {
 
-		return [
-			'pagination'   => [
+		return array(
+			'pagination'   => array(
 				'current' => $page,
 				'total'   => 3,
-			],
+			),
 			'last_updated' => 1682419855474,
 			'images'       => jetpack_boost_mock_api( 10, $page ),
-		];
+		);
 	}
 
 	public function get() {
@@ -32,3 +32,4 @@ class Image_Size_Analysis_Entry implements Entry_Can_Get, Entry_Can_Set {
 		return $this->get();
 	}
 }
+
