@@ -150,7 +150,7 @@ function zeroBSCRM_emails_customer_panel() {
 		if ( $em->zbsmail_content == null ) {
 			$email_ret[ $e ]['zbsmail_content'] = __( 'No content was stored for this message', 'zero-bs-crm' );
 		} else {
-			$email_ret[ $e ]['zbsmail_content'] = $em->zbsmail_content;
+			$email_ret[ $e ]['zbsmail_content'] = wp_kses( $em->zbsmail_content, $zbs->acceptable_html );
 		}
 		$email_ret[ $e ]['zbsmail_opened']     = $em->zbsmail_opened;
 		$email_ret[ $e ]['zbsmail_lastopened'] = zeroBSCRM_locale_utsToDatetimeWP( $em->zbsmail_firstopened );
