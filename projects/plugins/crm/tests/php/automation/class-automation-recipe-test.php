@@ -93,18 +93,19 @@ class Automation_Recipe_Test extends BaseTestCase {
 		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
 
 		$recipe_data = $this->automation_faker->recipe_without_initial_step();
-
-		// Fake event data
-		$contact_data = $this->automation_faker->contact_data();
-
+		
 		// Build a PHPUnit mock Automation_Recipe
 		$recipe = $this->getMockBuilder( Automation_Recipe::class )
 			->setConstructorArgs( array( $recipe_data ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
+		
+		// Add and init the recipes
+		$automation->add_recipe( $recipe );
+		$automation->init_recipes();
 
-		// Init the triggers from the recipe
-		$recipe->init_triggers();
+		// Fake event data
+		$contact_data = $this->automation_faker->contact_data();
 
 		// We expect the recipe to be executed on contact_created event with the contact data
 		$recipe->expects( $this->once() )
