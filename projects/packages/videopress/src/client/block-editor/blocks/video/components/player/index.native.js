@@ -144,7 +144,7 @@ export default function Player( { isSelected, attributes } ) {
 				}
 				break;
 		}
-	} );
+	}, [] );
 
 	const loadingOverlay = (
 		<View style={ style[ 'videopress-player__overlay' ] }>
