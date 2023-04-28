@@ -46,7 +46,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 				'withExternalSourcesGrouped' => true,
 
 				// but we limit to the top 20 (quotes, invs, trans etc.)
-				// note that this means we have to add calls to contactHasCountObjType, but it protects against contacts with 1000 objs etc.
+				// note that this means we have to add calls to customer_has_count_obj_type, but it protects against contacts with 1000 objs etc.
 				// Note this is defunct until we add contact filters to our object list views.
 				// 'withObjLimit' => 20,
 
@@ -74,13 +74,12 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 		}
 
 		// contact obj counts
-		$contact_quote_count       = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_QUOTE );
+		$contact_quote_count   = $zbs->DAL->customer_has_count_obj_type( $id, ZBS_TYPE_QUOTE, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$contact_invoice_count = 0;
 		if ( isset( $contact['invoices_count'] ) ) {
 			$contact_invoice_count = $contact['invoices_count'];
 		}
-		$contact_transaction_count = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_TRANSACTION );
-		$contact_task_count        = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_EVENT );
+		$contact_transaction_count = $zbs->DAL->customer_has_count_obj_type( $id, ZBS_TYPE_TRANSACTION, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 		// socials
 		global $zbsSocialAccountTypes;
