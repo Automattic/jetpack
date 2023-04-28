@@ -70,10 +70,11 @@ final class Image_CDN {
 	 * @return void
 	 */
 	private function setup() {
-		// Images in post content and galleries.
+		// Images in post content and galleries and widgets.
 		add_filter( 'the_content', array( __CLASS__, 'filter_the_content' ), 999999 );
 		add_filter( 'get_post_galleries', array( __CLASS__, 'filter_the_galleries' ), 999999 );
 		add_filter( 'widget_media_image_instance', array( __CLASS__, 'filter_the_image_widget' ), 999999 );
+		add_filter( 'widget_text', array( __CLASS__, 'filter_the_content' ) );
 
 		// Core image retrieval.
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
