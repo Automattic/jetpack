@@ -128,6 +128,7 @@ class DashAkismet extends Component {
 					path="dashboard"
 					plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 					trackBannerDisplay={ this.props.trackUpgradeButtonView }
+					noIcon
 				/>
 			);
 		};

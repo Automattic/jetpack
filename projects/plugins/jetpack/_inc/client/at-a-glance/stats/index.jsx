@@ -1,5 +1,5 @@
 import { imagePath } from 'constants/urls';
-import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
+import { getRedirectUrl, JetpackLogo, numberFormat } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
@@ -135,7 +135,7 @@ export class DashStats extends Component {
 
 	renderStatsChart( chartData ) {
 		return (
-			<div>
+			<div className="jp-at-a-glance__stats-chart-container">
 				<div className="jp-at-a-glance__stats-chart">
 					<Chart data={ chartData } barClick={ this.barClick } />
 					{ 0 === chartData.length && <Spinner /> }
@@ -161,25 +161,21 @@ export class DashStats extends Component {
 
 	renderEmptyStatsCard() {
 		return (
-			<Card className="jp-at-a-glance__stats-empty">
-				<img
-					src={ imagePath + 'stats-people.svg' }
-					width="272"
-					height="144"
-					alt={ __( 'People studying site traffic charts', 'jetpack' ) }
-					className="jp-at-a-glance__stats-icon"
-				/>
-				<p>
-					{ __( 'Hello there! Jetpack Stats has been activated.', 'jetpack' ) }
-					<br />
-					{ __(
-						'Just give us a little time to collect data so we can display it for you here.',
-						'jetpack'
-					) }
-				</p>
-				<Button onClick={ this.dismissCard } primary>
-					{ __( 'Okay, got it!', 'jetpack' ) }
-				</Button>
+			<Card className="jp-at-a-glance__stats-empty-container">
+				<div className="jp-at-a-glance__stats-empty">
+					<JetpackLogo height={ 64 } showText={ false } />
+					<p>
+						{ __( 'Hello there! Jetpack Stats has been activated.', 'jetpack' ) }
+						<br />
+						{ __(
+							'Just give us a little time to collect data so we can display it for you here.',
+							'jetpack'
+						) }
+					</p>
+					<Button onClick={ this.dismissCard } primary>
+						{ __( 'Okay, got it!', 'jetpack' ) }
+					</Button>
+				</div>
 			</Card>
 		);
 	}
@@ -225,8 +221,14 @@ export class DashStats extends Component {
 					! this.state.emptyStatsDismissed;
 
 			return (
-				<div className="jp-at-a-glance__stats-container">
-					{ showEmptyStats ? this.renderEmptyStatsCard() : this.renderStatsChart( chartData ) }
+				<div
+					className={
+						'jp-at-a-glance__stats-container' +
+						( showEmptyStats && ' jp-at-a-glance__stats-container-empty' )
+					}
+				>
+					{ showEmptyStats ? this.renderEmptyStatsCard() : '' }
+					{ this.renderStatsChart( chartData ) }
 				</div>
 			);
 		}
