@@ -28,7 +28,7 @@ export default function AddLicenseScreen() {
 	const { recordEvent } = useAnalytics();
 	const { availableLicenses, fetchingAvailableLicenses } = useAvailableLicenses();
 	const { userConnectionData } = useConnection();
-	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( true );
+	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( false );
 
 	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.
 	const displayName =
@@ -36,18 +36,9 @@ export default function AddLicenseScreen() {
 		userConnectionData?.currentUser?.wpcomUser?.login ||
 		userConnectionData?.currentUser?.username;
 
-	const onClickGoBack = useCallback(
-		event => {
-			recordEvent( 'jetpack_myjetpack_license_activation_back_link_click' );
-
-			if ( document.referrer.includes( window.location.host ) ) {
-				// Prevent default here to minimize page change within the My Jetpack app.
-				event.preventDefault();
-				history.back();
-			}
-		},
-		[ recordEvent ]
-	);
+	const onClickGoBack = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_license_activation_back_link_click' );
+	}, [ recordEvent ] );
 
 	const handleActivationSuccess = useCallback( () => {
 		setHasActivatedLicense( true );
