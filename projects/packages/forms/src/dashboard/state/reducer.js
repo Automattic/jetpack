@@ -16,6 +16,7 @@ import {
 	RESPONSES_QUERY_SEARCH_UPDATE,
 	RESPONSES_QUERY_SOURCE_UPDATE,
 	RESPONSES_QUERY_STATUS_UPDATE,
+	RESPONSES_SELECTION_SET,
 } from './action-types';
 
 const filters = ( state = {}, action ) => {
@@ -49,6 +50,14 @@ const responses = ( state = [], action ) => {
 
 	if ( action.type === RESPONSES_FETCH_RECEIVE ) {
 		return [ ...action.responses ];
+	}
+
+	return state;
+};
+
+const tabTotals = ( state = undefined, action ) => {
+	if ( action.type === RESPONSES_FETCH_RECEIVE ) {
+		return action.tabTotals;
 	}
 
 	return state;
@@ -118,11 +127,25 @@ const query = ( state = {}, action ) => {
 	return state;
 };
 
+const currentSelection = ( state = [], action ) => {
+	if ( action.type === RESPONSES_FETCH_RECEIVE ) {
+		return [];
+	}
+
+	if ( action.type === RESPONSES_SELECTION_SET ) {
+		return action.selectedResponses;
+	}
+
+	return state;
+};
+
 export default combineReducers( {
 	currentPage,
+	currentSelection,
 	filters,
 	loading,
 	query,
 	responses,
+	tabTotals,
 	total,
 } );

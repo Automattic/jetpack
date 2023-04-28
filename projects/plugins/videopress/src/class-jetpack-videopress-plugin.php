@@ -11,7 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
-use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 
@@ -51,9 +50,6 @@ class Jetpack_VideoPress_Plugin {
 					'videopress',
 					array( 'admin_ui' => true )
 				);
-
-				// Stats package.
-				$config->ensure( 'stats' );
 			},
 			1
 		);
@@ -76,15 +72,6 @@ class Jetpack_VideoPress_Plugin {
 	public static function plugin_deactivation() {
 		$manager = new Connection_Manager( 'jetpack-videopress' );
 		$manager->remove_connection();
-	}
-
-	/**
-	 * Activation hook. Enables the Stats module since it's required
-	 * for getting stats.
-	 */
-	public static function plugin_activation() {
-		// Enable the Stats module
-		( new Modules() )->activate( 'stats', false, false );
 	}
 
 	/**

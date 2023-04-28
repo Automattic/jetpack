@@ -556,6 +556,9 @@ async function createComposerJson( composerJson, answers ) {
 				'::PACKAGE_VERSION': `src/class-${ answers.name }.php`,
 			};
 			composerJson.type = 'jetpack-library';
+			composerJson.suggest ||= {};
+			composerJson.suggest[ 'automattic/jetpack-autoloader' ] =
+				'Allow for better interoperability with other plugins that use this package.';
 			break;
 		case 'plugin':
 			composerJson.extra = composerJson.extra || {};
@@ -694,6 +697,10 @@ function createReadMeMd( answers ) {
 		'\n' +
 		'## Get Help\n' +
 		'\n' +
+		'## Using this package in your WordPress plugin\n' +
+		'\n' +
+		'If you plan on using this package in your WordPress plugin, we would recommend that you use[Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.\n' +
+		'\n' +
 		'## Security\n' +
 		'\n' +
 		'Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).\n' +
@@ -743,7 +750,7 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.0\n' +
+		'Requires at least: 6.1\n' +
 		'Requires PHP: 5.6\n' +
 		'Tested up to: 6.2\n' +
 		`Stable tag: ${ answers.version }\n` +

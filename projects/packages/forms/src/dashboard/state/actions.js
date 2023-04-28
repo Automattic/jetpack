@@ -14,6 +14,7 @@ import {
 	RESPONSES_QUERY_SEARCH_UPDATE,
 	RESPONSES_QUERY_SOURCE_UPDATE,
 	RESPONSES_QUERY_STATUS_UPDATE,
+	RESPONSES_SELECTION_SET,
 } from './action-types';
 
 /**
@@ -46,6 +47,7 @@ export function* fetchResponses( query ) {
 			type: RESPONSES_FETCH_RECEIVE,
 			responses: data.responses,
 			total: data.totals[ query.status || 'inbox' ],
+			tabTotals: data.totals,
 			filters: data.filters_available,
 		};
 	} catch ( error ) {
@@ -118,6 +120,17 @@ export const setSourceQuery = source => ( {
 export const setStatusQuery = status => ( {
 	type: RESPONSES_QUERY_STATUS_UPDATE,
 	status,
+} );
+
+/**
+ * Updates the currently selected responses.
+ *
+ * @param  {Array} selectedResponses - Selected responses.
+ * @returns {object}                   Action object.
+ */
+export const selectResponses = selectedResponses => ( {
+	type: RESPONSES_SELECTION_SET,
+	selectedResponses,
 } );
 
 /**

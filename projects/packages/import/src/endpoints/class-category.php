@@ -13,9 +13,14 @@ namespace Automattic\Jetpack\Import\Endpoints;
 class Category extends \WP_REST_Terms_Controller {
 
 	/**
-	 * The Import ID add a new item to the schema.
+	 * Base class
 	 */
 	use Import;
+
+	/**
+	 * The Import ID add a new item to the schema.
+	 */
+	use Import_ID;
 
 	/**
 	 * Whether the controller supports batching. Default true.
@@ -66,6 +71,9 @@ class Category extends \WP_REST_Terms_Controller {
 		}
 
 		$response = parent::create_item( $request );
+
+		// Ensure that the HTTP status is a valid one.
+		$response = $this->ensure_http_status( $response, 'term_exists', 409 );
 
 		return $this->add_import_id_metadata( $request, $response );
 	}

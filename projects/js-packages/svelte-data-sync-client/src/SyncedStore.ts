@@ -1,4 +1,3 @@
-import deepEqual from 'deep-equal';
 import { Writable, writable } from 'svelte/store';
 import { ApiError } from './ApiError';
 import {
@@ -17,7 +16,7 @@ export class SyncedStore< T > {
 	private store: SyncedWritable< T >;
 	private errorStore: Writable< SyncedStoreError< T >[] >;
 	private pending: Pending;
-	private updateCallback?: SyncedStoreCallback< T >;
+	private syncAction?: SyncedStoreCallback< T >;
 	private abortController: AbortController;
 
 	constructor( initialValue?: T ) {
@@ -26,69 +25,75 @@ export class SyncedStore< T > {
 		this.pending = this.createPendingStore();
 	}
 
+	private isPrimitive( value: T ): boolean {
+		return (
+			typeof value === 'string' ||
+			typeof value === 'number' ||
+			typeof value === 'boolean' ||
+			value === null ||
+			value === undefined
+		);
+	}
+
 	private createStore( initialValue?: T ): SyncedWritable< T > {
 		const store = writable< T >( initialValue );
 
-		// Send the store value to the API
+		// Track the previous value.
+		// This is used to determine if the value has changed.
+		// If the value has not changed, then the store should not be synchronized.
+		const isPrimitive = this.isPrimitive( initialValue );
+		let prevValue: T;
+		store.subscribe( value => {
+			// structuredClone may be necessary because using `set` in Svelte will mutate objects.
+			// By the time the value gets to SyncedStore methods it's already mutated,
+			// and so the previous value will be the same as the current value.
+			prevValue = isPrimitive ? value : structuredClone( value );
+		} );
+
+		// `set` is a required method in the Writable interface.
+		// It is called when value is modified using the `store.set` method or `$store = value`.
+		// Set the store value and synchronize it with the API.
 		const set = value => {
-			store.update( prevValue => {
-				// Synchronize is an async function, but is called without await here.
-				// This intentionally prevents the store from waiting for the request to complete.
-				// This is because we want the store to update immediately,
-				// and then the request to happen in the background.
-				this.abortableSynchronize( prevValue, value );
-				return value;
-			} );
+			// Synchronize is called without await here. This is intentional!
+			// This way the store can be updated immediately without waiting for the API.
+			this.abortableSynchronize( prevValue, value );
+			store.set( value );
 		};
 
+		// Update is an useful utility function in Svelte for updating a value
+		// based on the previous value. This is here only because SyncedStore
+		// aims to have full parity with Svelte's writable store.
 		type SvelteUpdater = typeof store.update;
 		const update: SvelteUpdater = updateCallback => {
-			store.update( prevValue => {
-				// Structured Clone is necessary because
-				// the updateCallback function may mutate the value
-				// And debouncedSynchronize may fail an object comparison
-				// because of it.
-				const value = updateCallback( prevValue );
-				this.abortableSynchronize( prevValue, value );
-				return value;
-			} );
-		};
-
-		const override = ( value: T ) => {
-			store.update( () => value );
+			set( updateCallback( prevValue ) );
 		};
 
 		return {
 			subscribe: store.subscribe,
 			set,
 			update,
-			override,
+			override: store.set,
 		};
 	}
 
 	/**
 	 * A callback that will synchronize the store in some way.
-	 * By default, this is set to endpoint.POST in the client initializer
+	 * By default, this is set to endpoint.SET in the client initializer
 	 */
-	private setCallback( callback: SyncedStoreCallback< T > ) {
-		this.updateCallback = callback;
+	private setSyncAction( callback: SyncedStoreCallback< T > ) {
+		this.syncAction = callback;
 	}
 
 	/**
 	 * Attempt to synchronize the store with the API.
 	 */
-	private async synchronize( value: T ): Promise< T | ApiError > {
-		if ( ! this.updateCallback ) {
+	private async synchronize( prevValue: T, value: T ): Promise< T | ApiError > {
+		if ( ! this.syncAction ) {
 			return value;
 		}
 
 		try {
-			const result = await this.updateCallback( value, this.abortController.signal );
-
-			// Success is only when the updateCallback result matches the value.
-			if ( this.equals( result, value ) ) {
-				return result ? result : value;
-			}
+			return await this.syncAction( prevValue, value, this.abortController.signal );
 		} catch ( error ) {
 			if ( error instanceof ApiError || error.name === 'ApiError' ) {
 				return error as ApiError;
@@ -97,8 +102,6 @@ export class SyncedStore< T > {
 			// Rethrow the error if it's not an ApiError.
 			throw error;
 		}
-
-		return new ApiError( 'SyncedStore::synchronize', 'failed_to_sync', 'Failed to sync' );
 	}
 
 	/**
@@ -111,6 +114,12 @@ export class SyncedStore< T > {
 			this.abortController.abort();
 		}
 
+		// Pending value should only be used to indicate whether the store is currently syncing visually.
+		// It should not be used to prevent the store from updating.
+		// Given that, it's safe to start pending early.
+		if ( retry === 0 ) {
+			this.pending.start();
+		}
 		this.abortController = new AbortController();
 		const signal = this.abortController.signal;
 
@@ -118,7 +127,9 @@ export class SyncedStore< T > {
 		if ( signal.aborted ) {
 			return;
 		}
-		const result = await this.synchronize( value );
+
+		const result = await this.synchronize( prevValue, value );
+
 		if ( signal.aborted ) {
 			return;
 		}
@@ -146,6 +157,10 @@ export class SyncedStore< T > {
 			} );
 			this.store.override( prevValue );
 		}
+		// After the request has successfully completed
+		// Or it has failed enough times to give up
+		// release the pending lock.
+		this.pending.stop();
 
 		return result;
 	}
@@ -157,14 +172,6 @@ export class SyncedStore< T > {
 			stop: () => set( false ),
 			start: () => set( true ),
 		};
-	}
-
-	private equals( a: unknown, b: unknown ) {
-		if ( typeof a === 'object' && typeof b === 'object' ) {
-			return deepEqual( a, b );
-		}
-
-		return a === b;
 	}
 
 	/**
@@ -181,7 +188,7 @@ export class SyncedStore< T > {
 			errors: {
 				subscribe: this.errorStore.subscribe,
 			},
-			setCallback: this.setCallback.bind( this ),
+			setSyncAction: this.setSyncAction.bind( this ),
 		};
 	}
 }

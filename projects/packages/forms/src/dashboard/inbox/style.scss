@@ -1,18 +1,30 @@
-$tabs-height: 40px;
-$action-bar-height: 72px;
+$tab-item-height: 40px;
+$tabs-height: $tab-item-height + 16px;
+$action-bar-height: 88px;
 
 .jp-forms__inbox {
-	 a.back-button {
-	 	align-items: center;
-	 	color: #2C3338;
+	a.back-button {
+		align-items: center;
+		color: #2C3338;
+		cursor: pointer;
 		display: none;
 		font-size: 14px;
+		font-weight: 500;
+
+		svg {
+			margin-right: 4px;
+		}
 	}
 
 	.components-dropdown-menu {
 		.components-menu-item__button {
-			font-size: 1rem;
+			font-size: var(--jp-forms-font-size-regular);
 		}
+	}
+
+	span.subtitle {
+		padding-left: 0;
+		white-space: pre;
 	}
 
 	@media (min-width: 1025px) {
@@ -23,10 +35,16 @@ $action-bar-height: 72px;
 		span.title {
 			display: inline-flex !important;
 		}
+
+		span.subtitle {
+			display: inline-flex !important;
+			flex-wrap: wrap;
+		}
 	}
 
 	&.is-response-view {
-		span.title {
+		span.title,
+		span.subtitle {
 			display: none;
 		}
 
@@ -47,8 +65,8 @@ $action-bar-height: 72px;
 
 	.components-tab-panel__tabs {
 		background-color: #f9f9f9;
-		margin: 0 0 16px;
-		padding: 0 64px;
+		margin: 0;
+		padding: 16px 64px 0;
 		position: sticky;
 		top: var(--wp-admin--admin-bar--height);
 		z-index: 1;
@@ -56,20 +74,40 @@ $action-bar-height: 72px;
 		@media (max-width: 600px) {
 			top: 0;
 		}
+
+		@media (max-width: 660px) {
+			padding: 0 24px;
+		}
 	}
 }
 
 .jp-forms__inbox-tab-item {
 	border-bottom: 2px solid transparent;
-	font-size: 1rem;
+	font-size: var(--jp-forms-font-size-regular);
 	font-weight: normal;
-	height: $tabs-height;
+	height: $tab-item-height;
 	padding: 8px 16px;
 
 	&.active-tab {
 		border-color: #000000;
 		font-weight: 600;
 	}
+}
+
+.jp-forms__inbox-tab-item-count {
+	align-items: center;
+	background: transparent;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	box-sizing: border-box;
+	color: #2C3338;
+	display: inline-flex;
+	font-size: 12px;
+	font-weight: 400;
+	height: 20px;
+	line-height: 18px;
+	margin-left: 10px;
+	padding: 0 6px;
 }
 
 .jp-forms__inbox-content {
@@ -80,7 +118,7 @@ $action-bar-height: 72px;
 	padding: 0 0 48px;
 	position: relative;
 	width: 100%;
-	margin-top: calc( var( --jp-forms-spacing-base ) * 2 );
+	margin-top: 0;
 	z-index: 0;
 
 	@media (min-width: 1025px) {
@@ -95,6 +133,7 @@ $action-bar-height: 72px;
 	box-sizing: border-box;
 	flex-direction: column;
 	min-width: 0;
+	position: relative;
 	width: 100%;
 
 	&:first-child {
@@ -113,7 +152,12 @@ $action-bar-height: 72px;
 		display: flex;
 	}
 
-	@media (min-width: 481px) and (max-width: 1024px) {
+	@media (max-width: 660px) {
+		padding-left: 24px;
+		padding-right: 24px;
+	}
+
+	@media (min-width: 661px) and (max-width: 1024px) {
 		padding-left: 64px;
 		padding-right: 64px;
 	}
@@ -126,6 +170,22 @@ $action-bar-height: 72px;
 		&:last-child {
 			flex: 2;
 		}
+	}
+
+	.jp-forms__inbox-sticky-sentinel {
+		background: transparent;
+		width: 1px;
+		height: 1px;
+		position: absolute;
+		top: 0;
+	}
+
+	.jp-forms__inbox-sticky-mark {
+		border-bottom: 1px solid #dcdcde;
+		box-shadow: 0 1px 5px 0 rgb(0 0 0 / 30%);
+		position: sticky;
+		top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height});
+		width: 100%;
 	}
 
 	.jp-forms__page-navigation {
@@ -149,12 +209,6 @@ $action-bar-height: 72px;
 	display: table;
 	min-height: unset;
 
-	@media (max-width: 480px) {
-		border-left-width: 0;
-		border-right-width: 0;
-		border-radius: 0;
-	}
-
 	@media (max-width: 1024px) {
 		.jp-forms__table-item.is-active {
 			background-color: #fff;
@@ -162,6 +216,10 @@ $action-bar-height: 72px;
 
 			&:nth-child(even) {
 				background-color: #f9f9f6;
+			}
+
+			.is-link {
+				text-decoration: underline;
 			}
 		}
 	}
@@ -175,8 +233,7 @@ $action-bar-height: 72px;
 		white-space: nowrap;
 	}
 
-	.jp-forms__table-cell.is-name,
-	.jp-forms__table-cell.is-source {
+	.jp-forms__table-cell.is-name {
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}
@@ -194,10 +251,31 @@ $action-bar-height: 72px;
 	.jp-forms__table-cell.is-source {
 		min-width: 100px;
 		width: 27.5%;
+
+		.is-link {
+			cursor: pointer;
+			display: inline-block;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			width: 100%;
+			text-decoration: none;
+
+			 &:hover {
+				 text-decoration: underline;
+			 }
+		}
+	}
+
+	.jp-forms__table-item.is-active {
+		.is-link {
+			text-decoration: underline;
+		}
 	}
 
 	.jp-forms__table-cell.is-actions {
-		max-width: 64px;
+		max-width: 68px;
+		min-width: 68px;
 
 		.components-dropdown-menu__toggle {
 			color: currentColor;
@@ -219,7 +297,13 @@ $action-bar-height: 72px;
 		}
 	}
 
-	@media (max-width: 660px) {
+	@media (max-width: 1280px) {
+		.jp-forms__table-cell.is-actions {
+			display: none;
+		}
+	}
+
+	@media (max-width: 1080px) {
 		.jp-forms__table-cell.is-name {
 			width: 60%;
 		}
@@ -232,9 +316,63 @@ $action-bar-height: 72px;
 			display: none;
 		}
 	}
+
+	@media (max-width: 1024px) {
+		.jp-forms__table-cell.is-name {
+			width: 45%;
+		}
+
+		.jp-forms__table-cell.is-date {
+			width: 27.5%;
+		}
+
+		.jp-forms__table-cell.is-source {
+			width: 27.5%;
+			display: table-cell;
+		}
+
+		.jp-forms__table-cell.is-actions {
+			display: table-cell;
+		}
+	}
+
+	@media (max-width: 660px) {
+		.jp-forms__table-cell.is-name {
+			width: 60%;
+		}
+
+		.jp-forms__table-cell.is-date {
+			width: 40%;
+		}
+
+		.jp-forms__table-cell.is-source {
+			display: none;
+		}
+
+		.jp-forms__table-cell.is-actions {
+			display: none;
+		}
+	}
+}
+
+@keyframes jp-forms__slide-in {
+	from {
+		transform: translateY(150px);
+	}
+}
+
+@keyframes jp-forms__fade-in {
+	from {
+		opacity: 0;
+	}
+
+	35% {
+		opacity: 1;
+	}
 }
 
 .jp-forms__inbox-response {
+	background-color: #fff;
 	position: relative;
 
 	@media (min-width: 1025px) {
@@ -251,6 +389,35 @@ $action-bar-height: 72px;
 		content: "";
 		display: flex;
 		padding-top: 24px;
+	}
+
+	&.exit-active {
+		display: none;
+	}
+
+	@media (min-width: 1025px) {
+		&.enter,
+		&.enter-active {
+			animation: jp-forms__slide-in .2s ease-out forwards, jp-forms__fade-in .2s ease-in forwards;
+
+			.jp-forms__inbox.is-response-animation-reverted & {
+				animation: none;
+			}
+		}
+		&.exit,
+		&.exit-active,
+		&.exit-done {
+			display: flex;
+			position: absolute;
+			top: 0 !important;
+			left: 0;
+			z-index: -1;
+
+			.jp-forms__inbox.is-response-animation-reverted & {
+				animation: jp-forms__slide-in .2s ease-out forwards reverse, jp-forms__fade-in .2s ease-in forwards reverse;
+				z-index: 1;
+			}
+		}
 	}
 }
 
@@ -286,15 +453,48 @@ $action-bar-height: 72px;
 }
 
 .jp-forms__inbox-response-subtitle {
+	align-items: center;
 	color: #646970;
+	display: flex;
 	flex-shrink: 0;
 	font-size: 16px;
 	font-weight: 500;
-	margin: 4px 0 0;
+	height: 40px;
+	line-height: 40px;
+	margin: 0;
+	position: relative;
 	overflow: hidden;
 	padding: 0 32px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+
+	.components-button {
+		background-color: #fff;
+		display: inline-block;
+		float: right;
+		height: 28px;
+		margin-left: auto;
+		padding: 4px 8px;
+		position: absolute;
+		top: 6px;
+		right: 32px;
+		z-index: 100;
+
+		@media (min-width: 1025px) {
+			display: none;
+		}
+	}
+
+	@media (min-width: 1025px) {
+		&:hover {
+			background-color: #f6f6f7;
+
+			.components-button {
+				background-color: #f6f6f7;
+				display: inline-block;
+			}
+		}
+	}
 }
 
 .jp-forms__inbox-response-meta {
@@ -305,7 +505,7 @@ $action-bar-height: 72px;
 	font-weight: 400;
 	line-height: 20px;
 	row-gap: 4px;
-	padding: 16px 32px 24px;
+	padding: 12px 32px 24px;
 }
 
 .jp-forms__inbox-response-meta-label {
@@ -315,6 +515,18 @@ $action-bar-height: 72px;
 .jp-forms__inbox-response-meta-key,
 .jp-forms__inbox-response-meta-value {
 	display: table-cell;
+	white-space: nowrap;
+}
+
+.jp-forms__inbox-response-meta-key {
+	padding-right: 8px;
+}
+
+.jp-forms__inbox-response-meta-value {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 80%;
+	max-width: 0;
 }
 
 .jp-forms__inbox-response-separator {
@@ -324,7 +536,7 @@ $action-bar-height: 72px;
 
 .jp-forms__inbox-response-data {
 	display: flex;
-	font-size: 16px;
+	font-size: var(--jp-forms-font-size-regular);
 	flex-direction: column;
 	line-height: 24px;
 	padding: 24px 32px;
@@ -345,13 +557,17 @@ $action-bar-height: 72px;
 	display: flex;
 	flex-direction: row;
 	gap: var( --jp-forms-spacing-base );
-	padding: calc( var(--jp-forms-spacing-base ) * 2 ) 64px;
+	padding: 32px 64px 16px;
 	position: sticky;
 	top: calc(var(--wp-admin--admin-bar--height) + #{$tabs-height});
 	z-index: 1;
 
 	@media (max-width: 600px) {
 		top: $tabs-height;
+	}
+
+	@media (max-width: 660px) {
+		padding: calc( var(--jp-forms-spacing-base ) * 2 ) 24px;
 	}
 
 	.jp-forms__inbox.is-response-view & {
@@ -362,11 +578,17 @@ $action-bar-height: 72px;
 		}
 	}
 
+	.components-dropdown {
+		@media (max-width: 782px) {
+			display: none;
+		}
+	}
+
 	.components-button {
 		border-radius: var( --jp-forms-border-radius );
 		height: var( --jp-forms-input-wrapper-height );
 		letter-spacing: -0.02em;
-		font-size: 1rem;
+		font-size: var(--jp-forms-font-size-regular);
 		font-weight: 400;
 		padding: var( --jp-forms-spacing-base ) calc( var( --jp-forms-spacing-base ) * 1.5 );
 
@@ -380,6 +602,20 @@ $action-bar-height: 72px;
 				background: var(--jp-forms-color-darker-10 );
 				color: var( --jp-forms-white );
 			}
+		}
+	}
+
+	.jp-forms__check-for-spam svg {
+		margin: 0 10px 0 0;
+	}
+
+	.button-primary.export-button {
+		background-color: var( --wp-admin-theme-color, #000 );
+		border-color: var( --wp-admin-theme-color, #000 );
+		margin-left: auto;
+
+		@media (max-width: 782px) {
+			display: none;
 		}
 	}
 }

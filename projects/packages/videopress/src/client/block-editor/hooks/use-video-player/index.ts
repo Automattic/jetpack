@@ -39,7 +39,7 @@ export const getIframeWindowFromRef = (
 const useVideoPlayer = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >,
 	isRequestingPreview: boolean,
-	{ autoplay, initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions
+	{ initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions
 ): UseVideoPlayer => {
 	const [ playerIsReady, setPlayerIsReady ] = useState( false );
 	const playerState = useRef< PlayerStateProp >( 'not-rendered' );
@@ -71,13 +71,8 @@ const useVideoPlayer = (
 			playerState.current = 'first-play';
 			debug( 'state: first-play detected' );
 
-			// Pause the video only if the autoplay is disabled.
-			if ( autoplay ) {
-				debug( 'autoplay enabled. Do not pause' );
-			} else {
-				debug( 'pause video' );
-				source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
-			}
+			debug( 'pause video' );
+			source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
 
 			// Set position at time if it was provided.
 			if ( typeof initialTimePosition !== 'undefined' ) {
@@ -92,6 +87,21 @@ const useVideoPlayer = (
 			setPlayerIsReady( true );
 			playerState.current = 'ready';
 		}
+
+		if ( eventName === 'videopress_timeupdate' && previewOnHover ) {
+			const currentTime = eventData.currentTimeMs;
+			const startLimit = previewOnHover.atTime;
+			const endLimit = previewOnHover.atTime + previewOnHover.duration;
+			if (
+				currentTime < startLimit || // Before the start limit.
+				currentTime > endLimit // After the end limit.
+			) {
+				source.postMessage(
+					{ event: 'videopress_action_set_currenttime', currentTime: startLimit / 1000 },
+					{ targetOrigin: '*' }
+				);
+			}
+		}
 	}
 
 	// PreviewOnHover feature.
@@ -99,14 +109,15 @@ const useVideoPlayer = (
 	const wasPreviewOnHoverEnabled = usePrevious( isPreviewOnHoverEnabled );
 	const wasPreviewOnHoverJustEnabled = isPreviewOnHoverEnabled && ! wasPreviewOnHoverEnabled;
 
+	const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
+
 	// Listen player events.
 	useEffect( () => {
-		if ( isRequestingPreview ) {
+		if ( ! sandboxIFrameWindow ) {
 			return;
 		}
 
-		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
-		if ( ! sandboxIFrameWindow ) {
+		if ( isRequestingPreview ) {
 			return;
 		}
 
@@ -117,25 +128,23 @@ const useVideoPlayer = (
 			// Remove the listener when the component is unmounted.
 			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
 		};
-	}, [ iFrameRef, isRequestingPreview, wasPreviewOnHoverJustEnabled ] );
+	}, [ sandboxIFrameWindow, isRequestingPreview, wasPreviewOnHoverJustEnabled, previewOnHover ] );
 
 	const play = useCallback( () => {
-		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
 		}
 
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_play' }, '*' );
-	}, [ iFrameRef, playerIsReady ] );
+	}, [ iFrameRef, playerIsReady, sandboxIFrameWindow ] );
 
 	const pause = useCallback( () => {
-		const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
 		}
 
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_pause' }, '*' );
-	}, [ iFrameRef, playerIsReady ] );
+	}, [ iFrameRef, playerIsReady, sandboxIFrameWindow ] );
 
 	useEffect( () => {
 		if ( ! wrapperElement || ! isPreviewOnHoverEnabled ) {
@@ -151,6 +160,41 @@ const useVideoPlayer = (
 			wrapperElement.removeEventListener( 'mouseleave', pause );
 		};
 	}, [ isPreviewOnHoverEnabled, wrapperElement, playerIsReady ] );
+
+	// Move the video to the "Starting point" when it changes.
+	useEffect( () => {
+		if ( ! playerIsReady || ! previewOnHover ) {
+			return;
+		}
+
+		if ( ! sandboxIFrameWindow ) {
+			return;
+		}
+
+		sandboxIFrameWindow.postMessage(
+			{ event: 'videopress_action_set_currenttime', currentTime: previewOnHover.atTime / 1000 },
+			{ targetOrigin: '*' }
+		);
+	}, [ previewOnHover?.atTime, playerIsReady, sandboxIFrameWindow ] );
+
+	// Move the video to the "duration" when it changes.
+	useEffect( () => {
+		if ( ! playerIsReady || ! previewOnHover ) {
+			return;
+		}
+
+		if ( ! sandboxIFrameWindow ) {
+			return;
+		}
+
+		sandboxIFrameWindow.postMessage(
+			{
+				event: 'videopress_action_set_currenttime',
+				currentTime: ( previewOnHover.atTime + previewOnHover.duration ) / 1000,
+			},
+			{ targetOrigin: '*' }
+		);
+	}, [ previewOnHover?.duration, playerIsReady, sandboxIFrameWindow ] );
 
 	return {
 		playerIsReady,

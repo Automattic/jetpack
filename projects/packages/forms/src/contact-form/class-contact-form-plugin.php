@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Forms\Service\Post_To_Url;
 
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
@@ -865,6 +866,9 @@ class Contact_Form_Plugin {
 			return $form->errors;
 		}
 
+		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
+			Post_To_Url::init();
+		}
 		// Process the form
 		return $form->process_submission();
 	}
@@ -1784,7 +1788,7 @@ class Contact_Form_Plugin {
 		$args = array(
 			'posts_per_page'   => -1,
 			'post_type'        => 'feedback',
-			'post_status'      => 'publish',
+			'post_status'      => array( 'publish', 'draft' ),
 			'order'            => 'ASC',
 			'fields'           => 'ids',
 			'suppress_filters' => false,
@@ -1794,6 +1798,14 @@ class Contact_Form_Plugin {
 		// Check if we want to download all the feedbacks or just a certain contact form
 		if ( ! empty( $_POST['post'] ) && $_POST['post'] !== 'all' ) {
 			$args['post_parent'] = (int) $_POST['post'];
+		}
+
+		if ( ! empty( $_POST['status'] ) && in_array( $_POST['status'], array( 'spam', 'trash' ), true ) ) {
+			$args['post_status'] = sanitize_text_field( wp_unslash( $_POST['status'] ) );
+		}
+
+		if ( ! empty( $_POST['search'] ) ) {
+			$args['s'] = sanitize_text_field( wp_unslash( $_POST['search'] ) );
 		}
 
 		if ( ! empty( $_POST['year'] ) && intval( $_POST['year'] ) > 0 ) {

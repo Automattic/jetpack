@@ -20,10 +20,14 @@ import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import { isStandaloneActive, isVideoPressActive } from '../../../lib/connection';
+import {
+	isStandaloneActive,
+	isVideoPressActive,
+	isVideoPressModuleActive,
+} from '../../../lib/connection';
 import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
 import { usePreview } from '../../hooks/use-preview';
-import { useSyncMedia } from '../../hooks/use-video-data-update';
+import { useSyncMedia } from '../../hooks/use-sync-media';
 import ConnectBanner from './components/banner/connect-banner';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
@@ -54,6 +58,7 @@ const { myJetpackConnectUrl, jetpackVideoPressSettingUrl } = window?.videoPressE
  */
 const isStandalonePluginActive = isStandaloneActive();
 const isActive = isVideoPressActive();
+const isModuleActive = isVideoPressModuleActive();
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 
@@ -356,6 +361,7 @@ export default function VideoPressEdit( {
 				<>
 					<ConnectBanner
 						isConnected={ isActive }
+						isModuleActive={ isModuleActive }
 						isConnecting={ isRedirectingToMyJetpack }
 						onConnect={ () => {
 							setIsRedirectingToMyJetpack( true );
@@ -547,6 +553,7 @@ export default function VideoPressEdit( {
 			</InspectorControls>
 
 			<ConnectBanner
+				isModuleActive={ isModuleActive }
 				isConnected={ isActive }
 				isConnecting={ isRedirectingToMyJetpack }
 				onConnect={ () => {

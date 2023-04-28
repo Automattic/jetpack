@@ -69,6 +69,7 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
+		$this->remove_gutenberg_menu();
 
 		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
 			$this->add_inbox_menu();
@@ -205,6 +206,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$is_coming_soon = ( new Status() )->is_coming_soon();
 
 		$badge = '';
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			$badge .= '<span class="site__badge site__badge-staging">' . esc_html__( 'Staging', 'jetpack' ) . '</span>';
+		}
+
 		if ( ( function_exists( 'site_is_private' ) && site_is_private() ) || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
@@ -411,10 +417,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	/**
 	 * Also remove the Gutenberg plugin menu.
 	 */
-	public function add_gutenberg_menus() {
+	public function remove_gutenberg_menu() {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
-		parent::add_gutenberg_menus();
 	}
 
 	/**

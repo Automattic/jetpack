@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.10.3] - 2023-04-25
+### Added
+- My Jetpack: Add flags field in initial state [#30241]
+- My Jetpack: Add Install/Activate menu actions based on the standalone plugin status. [#30153]
+- My Jetpack: Add neutral color in contextual card [#30250]
+- My Jetpack: Add side-effect action to request the standalone plugin installation on the backend. [#30143]
+- My Jetpack: Add stats to VideoPress card [#30197]
+- My Jetpack: Enable menu for all hybrid products [#30247]
+- My Jetpack: Reload page after standalone action [#30221]
+
+### Changed
+- My Jetpack: Connect the standalone plugin menu options so they trigger the installation and activation when clicked. [#30168]
+- MyJetpack: set the Social standalone page as the default admin one [#30193]
+- MyJetpack: Try to activate the product module after installing the standalone plugin [#30215]
+- Updated package dependencies. [#30015]
+
+## [2.10.2] - 2023-04-17
+### Added
+- Ad missing TOS in Jetpack interstitial. [#29683]
+- My Jetpack: Add endpoint to install the standalone plugin for hybrid products. [#30045]
+- My Jetpack: Expose information about standalone plugin status on My Jetpack product initial state. [#29977]
+
+### Changed
+- Backup and Scan: redirect after checkout to Jetpack recommendations page if Jetpack plugin is active. Otherwise, redirect back to plugin admin page. [#29708]
+- My Jetpack: Adjustments in Product Card [#30014]
+- Updated package dependencies. [#30019]
+
+## [2.10.1] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+- My Jetpack: Introduce absent_with_plan status [#29920]
+
+### Changed
+- My Jetpack: Turn Search into a hybrid product to handle it as module and as standalone plugin. [#29946]
+- My Jetpack: Turn Social into a hybrid product to handle it as module and as standalone plugin. [#29935]
+- My Jetpack: Turn VaultPress Backup into a Hybrid product to handle it as module and as standalone plugin. [#29928]
+- My Jetpack: Turn VideoPress into a Hybrid product to handle it as module and as standalone plugin. [#29918]
+
+## [2.10.0] - 2023-04-04
+### Added
+- My Jetpack: Adds a selector, reducer and resolver machinery to fetch product stats. [#29764]
+- My Jetpack: Enhance Product Card [#29787]
+- My Jetpack: Introduce menu in Product Card [#29815]
+
+### Changed
+- * Updated add-anti-spam path to add-akismet to match the product key
+  * Updated product interstitial component to accept an existingLicenseKeyUrl
+  * Updated product interstitial component to display a product name instead of a title where preferProductName is set
+  * Make is_plugin_active available from the API [#29598]
+- My Jetpack: Change the bottom of My Jetpack screen to use single-column rows on small viewports. [#29844]
+- Updated package dependencies. [#29854]
+
+## [2.9.2] - 2023-04-03
+### Changed
+- Internal updates.
+
 ## [2.9.1] - 2023-03-28
 ### Changed
 - Move GoldenTokenModal component to licensing package. [#29748]
@@ -781,6 +837,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[2.10.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.2...2.10.3
+[2.10.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.1...2.10.2
+[2.10.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.0...2.10.1
+[2.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.9.2...2.10.0
+[2.9.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.9.1...2.9.2
 [2.9.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.9.0...2.9.1
 [2.9.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.8.1...2.9.0
 [2.8.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.8.0...2.8.1

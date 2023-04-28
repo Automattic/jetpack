@@ -2,7 +2,7 @@ import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { trash, inbox, moreHorizontal } from '@wordpress/icons';
-import { updateResponseStatus } from '../data/responses';
+import { doBulkAction } from '../data/responses';
 import { STORE_NAME } from '../state';
 import { ACTIONS, TABS } from './constants';
 
@@ -13,14 +13,14 @@ const SingleActionsMenu = ( { id } ) => {
 
 	const deleteLabel =
 		currentTab !== TABS.trash
-			? __( 'Delete', 'jetpack-forms' )
+			? __( 'Trash', 'jetpack-forms' )
 			: __( 'Delete permanently', 'jetpack-forms' );
 	const deleteAction = currentTab !== TABS.trash ? ACTIONS.moveToTrash : ACTIONS.delete;
 
 	const onActionHandler = action => async () => {
 		try {
 			setLoading( true );
-			await updateResponseStatus( [ id ], action );
+			await doBulkAction( [ id ], action );
 			fetchResponses( query );
 		} catch {
 			//TODO: Implement error handling

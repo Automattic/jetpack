@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
@@ -117,18 +116,15 @@ function is_wpcom() {
 }
 
 /**
- * Determine the amount of folks currently subscribed to the blog, splitted out in email_subscribers & social_followers
+ * Determine the amount of folks currently subscribed to the blog, splitted out in email_subscribers & social_followers & paid_subscribers
  *
- * @return array containing ['value' => ['email_subscribers' => 0, 'social_followers' => 0]]
+ * @return array containing ['value' => ['email_subscribers' => 0, 'paid_subscribers' => 0, 'social_followers' => 0]]
  */
 function fetch_subscriber_counts() {
 	$subs_count = 0;
 	if ( is_wpcom() ) {
 		$subs_count = array(
-			'value' => array(
-				'email_subscribers' => \wpcom_subs_total_for_blog(),
-				'social_followers'  => \wpcom_social_followers_total_for_blog(),
-			),
+			'value' => \wpcom_fetch_subs_counts( false ),
 		);
 	} else {
 		$cache_key  = 'wpcom_subscribers_totals';
@@ -436,16 +432,16 @@ function render_block( $attributes ) {
 function get_post_access_level() {
 	if ( ! is_singular() ) {
 		// There is no "actual" current post.
-		return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+		return 'everybody';
 	}
 
 	$post_id = get_the_ID();
 	if ( ! $post_id ) {
-		return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+		return 'everybody';
 	}
 	$meta = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 	if ( empty( $meta ) ) {
-		$meta = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+		$meta = 'everybody';
 	}
 	return $meta;
 }
@@ -757,7 +753,16 @@ function maybe_gate_existing_comments( $comment ) {
  * @return string
  */
 function get_locked_content_placeholder_text( $newsletter_access_level ) {
-	$access_level = $newsletter_access_level === Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ? __( 'paid subscribers', 'jetpack' ) : __( 'subscribers', 'jetpack' );
+	// Default to subscribers
+	$access_level = __( 'subscribers', 'jetpack' );
+
+	// Only display this text when Stripe is connected and the post is marked for paid subscribers
+	if (
+		$newsletter_access_level === 'paid_subscribers'
+		&& ! empty( \Jetpack_Memberships::get_connected_account_id() )
+	) {
+		$access_level = __( 'paid subscribers', 'jetpack' );
+	}
 
 	return do_blocks(
 		'<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}},"border":{"width":"1px","radius":"4px"}},"borderColor":"primary","layout":{"type":"constrained","contentSize":"400px"}} -->

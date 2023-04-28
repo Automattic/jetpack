@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2023-04-25
+### Security
+- Sanitize cand validate checklist slug query param [#30112]
+
+### Added
+- Add newsletter task dedefinitions to launchpad checklist API endpoints [#30078]
+- Fixed a bug where only the first option was updated and added unit tests. [#30096]
+- Launchpad Checklist API: Adds registry to easily manage Launchpad checklists [#30211]
+- SLaunchpad Checklist API: add task definitions for the Launchpad free flow [#30146]
+- Update launchpad checklist API twrite flow task definitions to use site option data [#30116]
+- Update launchpad checklist API twrite flow task definitions to use site option data [#30117]
+
+### Changed
+- Launchpad Checklist API: Update VideoPress tasks [#30141]
+
+### Fixed
+- change link_in_bio_launched dependency to link_edited [#30176]
+
+## [1.4.0] - 2023-04-17
+### Added
+- Added Launchpad Checklist API scaffolding code [#30023]
+- Launchpad: Add link-in-bio task logic to endpoint [#30076]
+
+### Removed
+- Removed namespacing of jetpack-mu-wpcom launchpad feature [#30044]
+
+### Fixed
+- Launchpad: Fixed variable scope issue with endpoint [#30069]
+
+## [1.3.1] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.3.0] - 2023-04-05
+### Added
+- Add jetpack-mu-wpcom launchpad update site settings endpoint [#29841]
+
 ## [1.2.1] - 2023-03-28
 ### Changed
 - Minor internal updates.
@@ -64,6 +101,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[1.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v1.4.0...v1.5.0
+[1.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v1.3.1...v1.4.0
+[1.3.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v1.3.0...v1.3.1
+[1.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v1.1.3...v1.2.0
 [1.1.3]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v1.1.2...v1.1.3

@@ -1,8 +1,8 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.9.1
-Requires at least: 6.0
+Stable tag: 12.0
+Requires at least: 6.1
 Requires PHP: 5.6
 Tested up to: 6.2
 
@@ -244,23 +244,26 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 12.0-beta - 2023-03-28
+### 12.1-beta - 2023-04-25
 #### Enhancements
-- Forms: display carriage returns in user response text to properly display multiline text.
-- Protect: remove account connection requirement to use the brute force protection feature.
-- Protect: share IP allow list between the Jetpack Firewall and Brute Force Protection modules.
-- Subscriptions: make the Subscribe Block available, even when the Subscriptions module is off, so Subscriptions can be easily enabled.
-- Stats: update visuals for the wp-admin dashboard Stats widget.
+- Block editor: collapse Jetpack feature panels by default.
+- Dashboard: align Protect information display with Akismet.
+- Dashboard: improve the general appearance.
+- Dashboard: redesign the At a Glance page.
+- Dashboard: visually refresh the Debug page.
+- Markdown Block: add support for footnotes.
+- Publicize: improve page metadata by using attached media for the OpenGraph image.
+- Stats Widget: improve appearance of footer buttons.
+- Stats Widget: make frame sections balanced with long titles.
+- Stats Widget: make the new version of the widget available to general audience.
+- Subscriptions: Add counts in the newsletter panel to show the newsletter reach.
 
 #### Improved compatibility
-- Blocks: avoid conflicts with Better Click To Tweet plugin.
-- Image CDN: do not process Flickr-hosted images with Jetpack's Image CDN.
-- SEO Tools: add message to settings screen when The SEO Framework plugin is active.
-- WordPress 6.2 compatibility: ensure that the block editor's External Media functionality and Jetpack's Twitter features in the block editor stays compatible with the upcoming version of WordPress.
+- General: remove WordPress 6.0 backwards-compatibility code, now that Jetpack requires WordPress 6.1.
 
 #### Bug fixes
-- Forms: fix a PHP warning on Feedback->Response Forms when looking at old responses.
-- Subscriptions: ensure the block's settings are displayed properly, even when using a block theme.
+- 3rd-party plugin support code: improve loading performance.
+- Payment Block: update the visibility setting of inner blocks on click to ensure that the inner block renders.
 
 --------
 

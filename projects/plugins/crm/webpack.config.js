@@ -2,6 +2,7 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const glob = require( 'glob' );
+const doNotMinify = false;
 
 /**
  * Return an array with a list of our legacy '.js' files.
@@ -34,9 +35,11 @@ function getLegacyJsEntries() {
  *
  * Format: [ './full/path/file' => './full/path/file.scss'].
  *
+ * @param boolean minification Whether or not the scss should be minified.
+ *
  * @returns {Array} The list of scss files that must be compiled and minified.
  */
-function getLegacySassEntries() {
+function getLegacySassEntries( minification = true ) {
 	const patterns = [
 		'sass/**/*.scss',
 		'modules/**/sass/**/*.scss',
@@ -53,8 +56,14 @@ function getLegacySassEntries() {
 	const entries = {};
 	glob.sync( `{${ patterns.join( ',' ) }}`, { ignore: ignorePatterns } ).forEach( file => {
 		const newPath = file.replace( 'sass', 'css' );
+		if ( minification ) {
 		entries[ './' + newPath.substring( 0, newPath.length - '.scss'.length ) + '.min' ] =
 			'./' + file;
+		}
+		else {
+			entries[ './' + newPath.substring( 0, newPath.length - '.scss'.length ) ] =
+			'./' + file;
+		}
 	} );
 	return entries;
 }
@@ -101,7 +110,7 @@ function getReactComponentViewMapping() {
 
 const crmWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: false,
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.resolve( __dirname, '.' ),
@@ -156,6 +165,7 @@ module.exports = [
 		},
 		optimization: {
 			...crmWebpackConfig.optimization,
+			minimize: true,
 			minimizer: [
 				jetpackWebpackConfig.TerserPlugin( {
 					terserOptions: {
@@ -164,6 +174,7 @@ module.exports = [
 							keep_classnames: true,
 						},
 					},
+					extractComments: jetpackWebpackConfig.isProduction,
 				} ),
 			],
 		},
@@ -179,6 +190,45 @@ module.exports = [
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
 					extraLoaders: [ 'sass-loader' ],
+					CssLoader: {
+						url: false,
+					},
+				} ),
+			],
+		},
+		plugins: [
+			...crmWebpackConfig.plugins,
+			// Delete the dummy JS files Webpack would otherwise create.
+			new RemoveAssetWebpackPlugin( {
+				assets: /\.js(\.map)?$/,
+			} ),
+		],
+	},
+	{
+		...crmWebpackConfig,
+		mode: 'production',
+		entry: getLegacySassEntries( doNotMinify ),
+		optimization: {
+			...crmWebpackConfig.optimization,
+			minimize: false,
+		},
+		module: {
+			...crmWebpackConfig.module,
+			rules: [
+				...crmWebpackConfig.module.rules,
+				// // Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [ 
+						{
+							loader: 'sass-loader',
+							options: {
+								sassOptions: {
+									outputStyle: 'expanded',
+								},
+							},
+						},
+					],
 					CssLoader: {
 						url: false,
 					},

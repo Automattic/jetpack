@@ -217,7 +217,7 @@ abstract class Publicize_Base {
 
 		// Default checkbox state for each Connection.
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 2 );
-		add_filter( 'jetpack_open_graph_tags', array( $this, 'get_sig_image_for_post' ), 10, 1 );
+		add_filter( 'jetpack_open_graph_tags', array( $this, 'add_jetpack_social_og_images' ), 12, 1 ); // $priority = 12, to run after Jetpack adds the tags in the Jetpack_Twitter_Cards class.
 
 		// Alter the "Post Publish" admin notice to mention the Connections we Publicized to.
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
@@ -1072,7 +1072,7 @@ abstract class Publicize_Base {
 				'schema' => array(
 					'type'       => 'object',
 					'properties' => array(
-						'attached_media'           => array(
+						'attached_media'               => array(
 							'type'  => 'array',
 							'items' => array(
 								'type'       => 'object',
@@ -1086,7 +1086,10 @@ abstract class Publicize_Base {
 								),
 							),
 						),
-						'image_generator_settings' => array(
+						'should_upload_attached_media' => array(
+							'type' => 'boolean',
+						),
+						'image_generator_settings'     => array(
 							'type'       => 'object',
 							'properties' => array(
 								'enabled'     => array(
@@ -1487,23 +1490,104 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Adds the sig image to the meta tags array.
+	 * Get the attached image for a post.
+	 *
+	 * @param int $post_id ID of the post to get attached media for.
+	 * @return array {
+	 *     Array of image data, or empty array if no image is available.
+	 *
+	 *     @type string $url Image source URL.
+	 *     @type int    $width Image width in pixels.
+	 *     @type int    $height Image height in pixels.
+	 * }
+	 */
+	public function get_attached_media_image( $post_id ) {
+		$options = get_post_meta( $post_id, self::POST_JETPACK_SOCIAL_OPTIONS, true );
+
+		if ( ! is_array( $options ) || empty( $options['attached_media'] ) || empty( $options['attached_media'][0]['id'] ) ) {
+			return array();
+		}
+
+		$media_id = $options['attached_media'][0]['id'];
+
+		if ( ! wp_attachment_is_image( $media_id ) ) {
+			return array();
+		}
+
+		$image = wp_get_attachment_image_src( $media_id, array( 1200 ) );
+
+		if ( ! $image ) {
+			return array();
+		}
+
+		return array(
+			'url'    => $image[0],
+			'width'  => $image[1],
+			'height' => $image[2],
+		);
+	}
+
+	/**
+	 * Get the OpenGraph image for a post.
+	 *
+	 * @param int $post_id ID of the post to get OpenGraph image for.
+	 * @return array {
+	 *     Array of image data, or empty array if no image is available.
+	 *
+	 *     @type string $url Image source URL.
+	 *     @type int    $width Image width in pixels.
+	 *     @type int    $height Image height in pixels.
+	 * }
+	 */
+	public function get_social_opengraph_image( $post_id ) {
+		$generated_image_url = Social_Image_Generator\get_image_url( $post_id );
+
+		if ( ! empty( $generated_image_url ) ) {
+			return array(
+				'url'    => $generated_image_url,
+				'width'  => 1200,
+				'height' => 630,
+			);
+		}
+
+		$attached_media = $this->get_attached_media_image( $post_id );
+
+		if ( $attached_media ) {
+			return $attached_media;
+		}
+
+		return array();
+	}
+
+	/**
+	 * Add the Jetpack Social images (attached media, SIG image) to the OpenGraph tags.
 	 *
 	 * @param array $tags Current tags.
 	 */
-	public function get_sig_image_for_post( $tags ) {
-		$generated_image_url = Social_Image_Generator\get_image_url( get_the_ID() );
-		if ( ! empty( $generated_image_url ) ) {
-			$tags = array_merge(
-				$tags,
-				array(
-					'og:image'        => $generated_image_url,
-					'og:image:width'  => 1200,
-					'og:image:height' => 630,
-				)
-			);
+	public function add_jetpack_social_og_images( $tags ) {
+		$opengraph_image = $this->get_social_opengraph_image( get_the_ID() );
+
+		if ( empty( $opengraph_image ) ) {
+			return $tags;
 		}
-		return $tags;
+
+		// If this code is running in Jetpack, we need to add Twitter cards.
+		// Some active plugins disable Jetpack's Twitter Cards, so we need
+		// to check if the class was instantiated before adding the cards.
+		$needs_twitter_cards = class_exists( 'Jetpack_Twitter_Cards' );
+
+		return array_merge(
+			$tags,
+			array(
+				'og:image'        => $opengraph_image['url'],
+				'og:image:width'  => $opengraph_image['width'],
+				'og:image:height' => $opengraph_image['height'],
+			),
+			$needs_twitter_cards ? array(
+				'twitter:image' => $opengraph_image['url'],
+				'twitter:card'  => 'summary_large_image',
+			) : array()
+		);
 	}
 
 	/**
@@ -1614,6 +1698,17 @@ abstract class Publicize_Base {
 		}
 
 		return ! empty( $data['is_enhanced_publishing_enabled'] );
+	}
+
+	/**
+	 * Check if the social image generator is enabled.
+	 *
+	 * @deprecated 0.24.2 use Automattic\Jetpack\Publicize\Publicize_Base\has_social_image_generator_feature instead.
+	 * @param int $blog_id The blog ID for the current blog.
+	 * @return bool
+	 */
+	public function is_social_image_generator_enabled( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return $this->has_social_image_generator_feature();
 	}
 
 	/**

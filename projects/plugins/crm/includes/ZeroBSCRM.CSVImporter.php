@@ -80,9 +80,9 @@ function zeroBSCRM_CSVImporterLiteadmin_menu() {
 	global $zbs,$zeroBSCRM_CSVImporterLiteslugs; // req
 
 	wp_register_style( 'zerobscrm-csvimporter-admcss', ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.csvimporter' . wp_scripts_get_suffix() . '.css', array(), $zbs->version );
-	$csvAdminPage = add_submenu_page( null, 'CSV Importer', 'CSV Importer', 'admin_zerobs_customers', $zbs->slugs['csvlite'], 'zeroBSCRM_CSVImporterLitepages_app', 1 ); // $zeroBSCRM_CSVImporterLiteslugs['app']
-	add_action( "admin_print_styles-{$csvAdminPage}", 'zeroBSCRM_CSVImporter_lite_admin_styles' );
-	add_action( "admin_print_styles-{$csvAdminPage}", 'zeroBSCRM_global_admin_styles' ); // } and this.
+	$csv_admin_page = add_submenu_page( 'jpcrm-hidden', 'CSV Importer', 'CSV Importer', 'admin_zerobs_customers', $zbs->slugs['csvlite'], 'zeroBSCRM_CSVImporterLitepages_app', 1 ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
+	add_action( "admin_print_styles-{$csv_admin_page}", 'zeroBSCRM_CSVImporter_lite_admin_styles' );
+	add_action( "admin_print_styles-{$csv_admin_page}", 'zeroBSCRM_global_admin_styles' ); // } and this.
 }
 add_action( 'zerobs_admin_menu', 'zeroBSCRM_CSVImporterLiteadmin_menu' );
 
@@ -246,7 +246,7 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 		}
 
 		// verify file extension and MIME
-		if ( ! jpcrm_file_check_mime_extension( $csv_file_data, '.csv', array( 'text/csv', 'text/plain' ) ) ) {
+		if ( ! jpcrm_file_check_mime_extension( $csv_file_data, '.csv', array( 'text/csv', 'text/plain', 'application/csv' ) ) ) {
 			throw new Exception( __( 'Your file is not a correctly-formatted CSV file. Please check your file format. If you continue to have issues please contact support.', 'zero-bs-crm' ) );
 		}
 
@@ -325,18 +325,21 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 		throw new Exception( __( 'There was an error processing your CSV file. Please try again.', 'zero-bs-crm' ) );
 	}
 
-	// Get CSV data
-	$csv_data = file_get_contents( $file_path );
+	$csv_data = array();
+
+	$file = fopen( $file_path, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+	while ( ! feof( $file ) ) {
+		$csv_data[] = fgetcsv( $file );
+	}
+
+	fclose( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
 	// no lines or empty first line
 	if ( empty( $csv_data ) ) {
 		// delete the file
-		unlink( $file_path );
+		unlink( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		throw new Exception( __( 'We did not find any usable lines in the provided file. If you are having continued problems please contact support.', 'zero-bs-crm' ) );
 	}
-
-	$csv_data = strip_tags( $csv_data );
-	$csv_data = preg_split( "/\\r\\n|\\r|\\n/", $csv_data );
 
 	// Count lines
 	$num_lines         = count( $csv_data );
@@ -424,8 +427,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 							// } Cycle through each field and display a mapping option
 							// } Using first line of import
-							$firstLine      = $file_details['csv_data'][0];
-							$firstLineParts = explode( ',', $firstLine );
+							$first_line_parts = $file_details['csv_data'][0];
 
 							// } Retrieve possible map fields from fields model
 							$possibleFields = array();
@@ -443,7 +445,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 							// } Loop
 							$indx = 1;
-						foreach ( $firstLineParts as $userField ) {
+						foreach ( $first_line_parts as $userField ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							// } Clean user field - ""
 							if ( substr( $userField, 0, 1 ) == '"' && substr( $userField, -1 ) == '"' ) {
@@ -520,8 +522,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 						// Cycle through each field
 						// Using first line of import
-						$firstLine      = $file_details['csv_data'][0];
-						$firstLineParts = explode( ',', $firstLine );
+						$first_line_parts = $file_details['csv_data'][0];
 
 						foreach ( $file_details['field_map'] as $fieldID => $fieldTarget ) {
 
@@ -535,8 +536,8 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 							}
 
 							$fromStr = '';
-							if ( isset( $firstLineParts[ $fieldID - 1 ] ) ) {
-								$fromStr = $firstLineParts[ $fieldID - 1 ];
+							if ( isset( $first_line_parts[ $fieldID - 1 ] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+								$fromStr = $first_line_parts[ $fieldID - 1 ]; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							}
 
 							// Clean user field - ""
@@ -623,7 +624,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						$linesAdded         = 0;
 						$existingOverwrites = array();
 						$brStrs             = array( '<br>', '<BR>', '<br />', '<BR />', '<br/>', '<BR/>' );
-						foreach ( $file_details['csv_data'] as $line ) {
+						foreach ( $file_details['csv_data'] as $lineParts ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							// } Check line
 							if ( $lineIndx === 0 && $file_details['ignore_first_line'] ) {
@@ -631,10 +632,6 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 								echo '<div class="zbscrm-import-log-line">' . esc_html__( 'Skipping header row...', 'zero-bs-crm' ) . '<i class="fa fa-check"></i></div>';
 
 							} else {
-
-								// } split
-								$lineParts = explode( ',', $line );
-								// debug echo '<pre>'; print_r(array($lineParts,$fieldMap)); echo '</pre>';
 
 								// } build arr
 								$customerFields = array();
@@ -661,18 +658,11 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 										$cleanUserField = trim( $cleanUserField );
 
-										// } Clean user field - ""
-										if ( substr( $cleanUserField, 0, 1 ) == '"' && substr( $cleanUserField, -1 ) == '"' ) {
-											$cleanUserField = substr( $cleanUserField, 1, strlen( $cleanUserField ) - 2 );
-										}
-										// } Clean user field - ''
-										if ( substr( $cleanUserField, 0, 1 ) == "'" && substr( $cleanUserField, -1 ) == "'" ) {
-											$cleanUserField = substr( $cleanUserField, 1, strlen( $cleanUserField ) - 2 );
-										}
-
 										if ( $cleanUserField == 'NULL' ) {
 											$cleanUserField = '';
 										}
+
+										$cleanUserField = sanitize_text_field( $cleanUserField ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 										// } set customer fields
 										$customerFields[ 'zbsc_' . $fieldTarget ] = $cleanUserField;
@@ -684,7 +674,8 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 								if ( count( $customerFields ) > 0 ) {
 
 									// } Try and find a unique id for this user
-									$userUniqueID = md5( $line . '#' . $file_details['public_name'] );
+									// adjusted for backward-compatibility, but this should be rewritten
+									$userUniqueID = md5( implode( ',', $lineParts ) . '#' . $file_details['public_name'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 										// } 1st use email if there
 									if ( isset( $customerFields['zbsc_email'] ) && ! empty( $customerFields['zbsc_email'] ) ) {
