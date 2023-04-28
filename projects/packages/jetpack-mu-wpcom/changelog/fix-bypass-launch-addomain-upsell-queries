@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a bypass to a query in the launchpad.php file that was running too often.
