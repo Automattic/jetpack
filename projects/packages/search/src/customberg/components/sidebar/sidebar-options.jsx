@@ -31,10 +31,12 @@ export default function SidebarOptions() {
 		color,
 		excludedPostTypes,
 		infiniteScroll = true,
+		filteringOpensOverlay = true,
 		resultFormat,
 		setColor,
 		setExcludedPostTypes,
 		setInfiniteScroll,
+		setFilteringOpensOverlay,
 		setResultFormat,
 		setShowLogo,
 		setSort,
@@ -132,6 +134,13 @@ export default function SidebarOptions() {
 					disabled={ isDisabled }
 					label={ __( 'Enable infinite scroll', 'jetpack-search-pkg' ) }
 					onChange={ setInfiniteScroll }
+				/>
+				<ToggleControl
+					className="jp-search-configure-filtering-opens-overlay-toggle"
+					checked={ filteringOpensOverlay }
+					disabled={ isDisabled }
+					label={ __( 'Filtering opens overlay', 'jetpack-search-pkg' ) }
+					onChange={ setFilteringOpensOverlay }
 				/>
 				{ 'expanded' === resultFormat && (
 					<ToggleControl
