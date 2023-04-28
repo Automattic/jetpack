@@ -4,7 +4,7 @@
 import { SandBox, Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
-import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
+import { useState, useEffect, useRef, useCallback, render } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
@@ -74,6 +74,14 @@ export default function Player( { isSelected, attributes } ) {
 		}
 	}, [ guid ] );
 
+	// Reset ready/loaded states when video changes.
+	useEffect( () => {
+		if ( guid ) {
+			setIsPlayerLoaded( false );
+			setIsPlayerReady( false );
+		}
+	}, [ guid ] );
+
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
 		controls: ! IS_ANDROID && controls,
@@ -119,7 +127,7 @@ export default function Player( { isSelected, attributes } ) {
 		return () => clearTimeout( previewCheckTimer.current );
 	}, [ preview, isPlayerLoaded, isRequestingEmbedPreview, previewCheckAttempts ] );
 
-	const onSandboxMessage = message => {
+	const onSandboxMessage = useCallback( message => {
 		switch ( message.event ) {
 			case 'videopress_ready':
 				setIsPlayerReady( true );
@@ -140,8 +148,8 @@ export default function Player( { isSelected, attributes } ) {
 	};
 
 	const loadingOverlay = (
-		<View style={ style[ 'videopress-player__overlay' ] } >
-			<View style={ loadingViewStyle } >
+		<View style={ style[ 'videopress-player__overlay' ] }>
+			<View style={ loadingViewStyle }>
 				<Icon icon={ VideoPressIcon } size={ iconStyle?.size } style={ iconStyle } />
 				<Text style={ style[ 'videopress-player__loading-text' ] }>
 					{ __( 'Loading', 'jetpack-videopress-pkg' ) }
@@ -169,23 +177,22 @@ export default function Player( { isSelected, attributes } ) {
 		}
 	};
 
-
-
-	// Show the loading overlay when: 
+	// Show the loading overlay when:
 	// 1. Player is not ready
 	// 2. Player is loaded but preview is not ready
 	const showLoadingOverlay = ! isPlayerReady || ( isPlayerLoaded && ! isPreviewReady );
-	
+
 	return (
 		<View style={ [ style[ 'videopress-player' ], { aspectRatio } ] }>
 			{ renderOverlay() }
 			{ showLoadingOverlay && loadingOverlay }
-			{ html && <SandBox
-				html={ html }
-				onWindowEvents={ { message: onSandboxMessage } }
-				viewportProps="user-scalable=0"
-				ref={ playerRef }
-			/> }
+			{ html && (
+				<SandBox
+					html={ html }
+					onWindowEvents={ { message: onSandboxMessage } }
+					viewportProps="user-scalable=0"
+				/>
+			) }
 		</View>
 	);
 }

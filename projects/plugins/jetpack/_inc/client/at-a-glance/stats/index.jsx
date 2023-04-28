@@ -21,6 +21,7 @@ import {
 	isOdysseyStatsEnabled,
 	getInitialStateStatsData,
 	getDateFormat,
+	isAtomicSite,
 } from 'state/initial-state';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
@@ -42,15 +43,23 @@ export class DashStats extends Component {
 		};
 	}
 
-	barClick( bar ) {
-		if ( bar.data.link ) {
-			analytics.tracks.recordJetpackClick( 'stats_bar' );
-			window.open( bar.data.link, '_blank' );
-		}
+	shouldLinkToWpcomStats() {
+		return ! this.props.isOdysseyStatsEnabled || this.props.isAtomicSite;
 	}
 
+	barClick = bar => {
+		if ( bar.data.link ) {
+			analytics.tracks.recordJetpackClick( 'stats_bar' );
+			// Open the link in the same tab if the user has Odyssey enabled or is on at Atomic site.
+			window.open(
+				bar.data.link,
+				this.props.isOdysseyStatsEnabled || this.props.isAtomicSite ? '_self' : '_blank'
+			);
+		}
+	};
+
 	statsChart( unit ) {
-		const props = this.props,
+		const { siteAdminUrl, siteRawUrl, statsData } = this.props,
 			s = [];
 
 		let totalViews = 0;
@@ -62,11 +71,11 @@ export class DashStats extends Component {
 			/* translators: long month/year format, such as: January, 2021. */
 			longMonthYearFormat = __( 'F Y', 'jetpack' );
 
-		if ( 'object' !== typeof props.statsData[ unit ] ) {
+		if ( 'object' !== typeof statsData[ unit ] ) {
 			return { chartData: s, totalViews: false };
 		}
 
-		forEach( props.statsData[ unit ].data, function ( v ) {
+		forEach( statsData[ unit ].data, v => {
 			const views = v[ 1 ];
 			let date = v[ 0 ],
 				chartLabel = '',
@@ -97,10 +106,10 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link: isOdysseyStatsEnabled
-						? `${ props.siteAdminUrl }admin.php?page=stats#!/stats/day/${ props.siteRawUrl }?startDate=${ date }`
+					link: ! this.shouldLinkToWpcomStats()
+						? `${ siteAdminUrl }admin.php?page=stats#!/stats/day/${ siteRawUrl }?startDate=${ date }`
 						: getRedirectUrl( `calypso-stats-${ unit }`, {
-								site: props.siteRawUrl,
+								site: siteRawUrl,
 								query: `startDate=${ date }`,
 						  } ),
 				},
@@ -114,7 +123,6 @@ export class DashStats extends Component {
 						),
 						className: 'tooltip class',
 					},
-					{ label: __( 'Click to view Jetpack Stats.', 'jetpack' ) },
 				],
 			} );
 		} );
@@ -389,6 +397,8 @@ export default connect(
 			: getStatsData( state ),
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
+		isAtomicSite: isAtomicSite( state ),
 	} ),
 	dispatch => ( {
 		switchView: tab => dispatch( statsSwitchTab( tab ) ),
