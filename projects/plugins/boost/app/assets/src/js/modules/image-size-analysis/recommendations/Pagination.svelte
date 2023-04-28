@@ -17,14 +17,14 @@
 
 	function generatePagination(current, total) {
 		const padding = 2;
-
-
 		const pagination = slidingWindow(total, current);
 
+		// Prepend "1 ..."
 		if (pagination[pagination.length - padding] <= total - padding) {
 			pagination.splice(pagination.length - padding, padding, MORE_ICON, total);
 		}
 
+		// Append "... 99"
 		if (pagination[0] - padding >= 0) {
 			pagination.splice(0, padding, 1, MORE_ICON);
 		}
