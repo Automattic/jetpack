@@ -87,7 +87,7 @@
 		}
 
 		@include breakpoint( "<660px" ) {
-			justify-content: space-between;
+		  	flex-direction: unset;
 			flex: 1;
 		}
 
@@ -104,6 +104,13 @@
 
 	.jp-landing__licensing-actions-item.no-licenses {
 		justify-content: flex-end;
+
+		@include breakpoint( "<660px" ) {
+		  justify-content: space-around;
+		  a {
+			margin: 0;
+		  }
+		}
 	}
 }
 
