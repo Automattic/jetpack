@@ -109,6 +109,10 @@
 		  justify-content: space-around;
 		  a {
 			margin: 0;
+
+			&.is-compact {
+			  width: 48%;
+			}
 		  }
 		}
 	}
