@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { connect } from 'react-redux';
 import {
+	arePreConnectionHelpersEnabled,
 	getApiRootUrl,
 	getApiNonce,
 	getRegistrationNonce,
@@ -26,7 +27,7 @@ import './activation-modal.scss';
  * @returns {React.Component} - The ActivationModal component.
  */
 const ActivationModal = props => {
-	const { apiRoot, apiNonce, pluginBaseUrl, registrationNonce } = props;
+	const { apiRoot, apiNonce, pluginBaseUrl, preConnectionHelpers, registrationNonce } = props;
 	const [ modalDismissed, setModalDismissed ] = useState( false );
 
 	const dismissModal = useCallback( () => {
@@ -62,9 +63,9 @@ const ActivationModal = props => {
 					labelledby: 'jp-action-button--button',
 				} }
 				className="jp-connection__portal-contents"
-				shouldCloseOnClickOutside={ true }
-				shouldCloseOnEsc={ true }
-				isDismissible={ true }
+				shouldCloseOnClickOutside={ ! preConnectionHelpers }
+				shouldCloseOnEsc={ ! preConnectionHelpers }
+				isDismissible={ ! preConnectionHelpers }
 				onRequestClose={ dismissModal }
 			>
 				<ConnectScreen
@@ -100,6 +101,7 @@ export default connect( state => {
 	return {
 		apiRoot: getApiRootUrl( state ),
 		apiNonce: getApiNonce( state ),
+		preConnectionHelpers: arePreConnectionHelpersEnabled( state ),
 		pluginBaseUrl: getPluginBaseUrl( state ),
 		registrationNonce: getRegistrationNonce( state ),
 	};

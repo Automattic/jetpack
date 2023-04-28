@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Remove unused method used to update images in Open Graph Meta tags.

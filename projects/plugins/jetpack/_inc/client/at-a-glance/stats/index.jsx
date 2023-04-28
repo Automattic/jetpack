@@ -1,5 +1,5 @@
 import { imagePath } from 'constants/urls';
-import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
+import { getRedirectUrl, JetpackLogo, numberFormat } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
@@ -43,15 +43,23 @@ export class DashStats extends Component {
 		};
 	}
 
-	barClick( bar ) {
-		if ( bar.data.link ) {
-			analytics.tracks.recordJetpackClick( 'stats_bar' );
-			window.open( bar.data.link, '_blank' );
-		}
+	shouldLinkToWpcomStats() {
+		return ! this.props.isOdysseyStatsEnabled || this.props.isAtomicSite;
 	}
 
+	barClick = bar => {
+		if ( bar.data.link ) {
+			analytics.tracks.recordJetpackClick( 'stats_bar' );
+			// Open the link in the same tab if the user has Odyssey enabled or is on at Atomic site.
+			window.open(
+				bar.data.link,
+				this.props.isOdysseyStatsEnabled || this.props.isAtomicSite ? '_self' : '_blank'
+			);
+		}
+	};
+
 	statsChart( unit ) {
-		const props = this.props,
+		const { siteAdminUrl, siteRawUrl, statsData } = this.props,
 			s = [];
 
 		let totalViews = 0;
@@ -63,11 +71,11 @@ export class DashStats extends Component {
 			/* translators: long month/year format, such as: January, 2021. */
 			longMonthYearFormat = __( 'F Y', 'jetpack' );
 
-		if ( 'object' !== typeof props.statsData[ unit ] ) {
+		if ( 'object' !== typeof statsData[ unit ] ) {
 			return { chartData: s, totalViews: false };
 		}
 
-		forEach( props.statsData[ unit ].data, function ( v ) {
+		forEach( statsData[ unit ].data, v => {
 			const views = v[ 1 ];
 			let date = v[ 0 ],
 				chartLabel = '',
@@ -98,13 +106,12 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link:
-						isOdysseyStatsEnabled && ! isAtomicSite
-							? `${ props.siteAdminUrl }admin.php?page=stats#!/stats/day/${ props.siteRawUrl }?startDate=${ date }`
-							: getRedirectUrl( `calypso-stats-${ unit }`, {
-									site: props.siteRawUrl,
-									query: `startDate=${ date }`,
-							  } ),
+					link: ! this.shouldLinkToWpcomStats()
+						? `${ siteAdminUrl }admin.php?page=stats#!/stats/day/${ siteRawUrl }?startDate=${ date }`
+						: getRedirectUrl( `calypso-stats-${ unit }`, {
+								site: siteRawUrl,
+								query: `startDate=${ date }`,
+						  } ),
 				},
 				tooltipData: [
 					{
@@ -116,7 +123,6 @@ export class DashStats extends Component {
 						),
 						className: 'tooltip class',
 					},
-					{ label: __( 'Click to view Jetpack Stats.', 'jetpack' ) },
 				],
 			} );
 		} );
@@ -135,7 +141,7 @@ export class DashStats extends Component {
 
 	renderStatsChart( chartData ) {
 		return (
-			<div>
+			<div className="jp-at-a-glance__stats-chart-container">
 				<div className="jp-at-a-glance__stats-chart">
 					<Chart data={ chartData } barClick={ this.barClick } />
 					{ 0 === chartData.length && <Spinner /> }
@@ -161,25 +167,21 @@ export class DashStats extends Component {
 
 	renderEmptyStatsCard() {
 		return (
-			<Card className="jp-at-a-glance__stats-empty">
-				<img
-					src={ imagePath + 'stats-people.svg' }
-					width="272"
-					height="144"
-					alt={ __( 'People studying site traffic charts', 'jetpack' ) }
-					className="jp-at-a-glance__stats-icon"
-				/>
-				<p>
-					{ __( 'Hello there! Jetpack Stats has been activated.', 'jetpack' ) }
-					<br />
-					{ __(
-						'Just give us a little time to collect data so we can display it for you here.',
-						'jetpack'
-					) }
-				</p>
-				<Button onClick={ this.dismissCard } primary>
-					{ __( 'Okay, got it!', 'jetpack' ) }
-				</Button>
+			<Card className="jp-at-a-glance__stats-empty-container">
+				<div className="jp-at-a-glance__stats-empty">
+					<JetpackLogo height={ 64 } showText={ false } />
+					<p>
+						{ __( 'Hello there! Jetpack Stats has been activated.', 'jetpack' ) }
+						<br />
+						{ __(
+							'Just give us a little time to collect data so we can display it for you here.',
+							'jetpack'
+						) }
+					</p>
+					<Button onClick={ this.dismissCard } primary>
+						{ __( 'Okay, got it!', 'jetpack' ) }
+					</Button>
+				</div>
 			</Card>
 		);
 	}
@@ -225,8 +227,14 @@ export class DashStats extends Component {
 					! this.state.emptyStatsDismissed;
 
 			return (
-				<div className="jp-at-a-glance__stats-container">
-					{ showEmptyStats ? this.renderEmptyStatsCard() : this.renderStatsChart( chartData ) }
+				<div
+					className={
+						'jp-at-a-glance__stats-container' +
+						( showEmptyStats && ' jp-at-a-glance__stats-container-empty' )
+					}
+				>
+					{ showEmptyStats ? this.renderEmptyStatsCard() : '' }
+					{ this.renderStatsChart( chartData ) }
 				</div>
 			);
 		}
@@ -391,6 +399,8 @@ export default connect(
 			: getStatsData( state ),
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
+		isAtomicSite: isAtomicSite( state ),
 	} ),
 	dispatch => ( {
 		switchView: tab => dispatch( statsSwitchTab( tab ) ),
