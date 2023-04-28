@@ -1,5 +1,12 @@
+/**
+ * External dependencies
+ */
 import { render } from '@wordpress/element';
 import { get } from 'lodash';
+import { BrowserRouter } from 'react-router-dom';
+/**
+ * Internal dependencies
+ */
 import Inbox from './inbox';
 import './style.scss';
 
@@ -13,5 +20,10 @@ window.addEventListener( 'load', () => {
 	settings = JSON.parse( unescape( container.dataset.config ) );
 	delete container.dataset.config;
 
-	render( <Inbox />, container );
+	render(
+		<BrowserRouter>
+			<Inbox />
+		</BrowserRouter>,
+		container
+	);
 } );

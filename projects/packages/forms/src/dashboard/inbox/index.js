@@ -28,6 +28,7 @@ import { RESPONSES_FETCH_LIMIT } from './constants';
 import ExportModal from './export-modal';
 import InboxList from './list';
 import InboxResponse from './response';
+import { useFeedbackQuery } from './use-feedback-query';
 import { isWpcom } from './util';
 /**
  * Style dependencies
@@ -60,39 +61,30 @@ const Inbox = () => {
 	const [ view, setView ] = useState( 'list' );
 	const [ isSticky, setSticky ] = useState( false );
 
+	const { fetchResponses, selectResponses } = useDispatch( STORE_NAME );
+	const [ monthFilter, sourceFilter, loading, responses, selectedResponses, tabTotals, total ] =
+		useSelect(
+			select => [
+				select( STORE_NAME ).getMonthFilter(),
+				select( STORE_NAME ).getSourceFilter(),
+				select( STORE_NAME ).isFetchingResponses(),
+				select( STORE_NAME ).getResponses(),
+				select( STORE_NAME ).getSelectedResponseIds(),
+				select( STORE_NAME ).getTabTotals(),
+				select( STORE_NAME ).getTotalResponses(),
+			],
+			[]
+		);
+
 	const {
-		fetchResponses,
+		currentPage,
 		setCurrentPage,
 		setMonthQuery,
 		setSearchQuery,
 		setSourceQuery,
 		setStatusQuery,
-		selectResponses,
-	} = useDispatch( STORE_NAME );
-	const [
-		currentPage,
-		monthFilter,
-		sourceFilter,
-		loading,
 		query,
-		responses,
-		selectedResponses,
-		tabTotals,
-		total,
-	] = useSelect(
-		select => [
-			select( STORE_NAME ).getCurrentPage(),
-			select( STORE_NAME ).getMonthFilter(),
-			select( STORE_NAME ).getSourceFilter(),
-			select( STORE_NAME ).isFetchingResponses(),
-			select( STORE_NAME ).getResponsesQuery(),
-			select( STORE_NAME ).getResponses(),
-			select( STORE_NAME ).getSelectedResponseIds(),
-			select( STORE_NAME ).getTabTotals(),
-			select( STORE_NAME ).getTotalResponses(),
-		],
-		[]
-	);
+	} = useFeedbackQuery();
 
 	useEffect( () => {
 		fetchResponses( {
@@ -253,6 +245,7 @@ const Inbox = () => {
 			<TabPanel
 				className="jp-forms__inbox-tabs"
 				activeClass="active-tab"
+				initialTabName={ query.status }
 				onSelect={ setStatusQuery }
 				tabs={ tabs }
 			>
@@ -280,7 +273,6 @@ const Inbox = () => {
 							) }
 							{ showBulkActionsMenu && (
 								<BulkActionsMenu
-									currentPage={ currentPage }
 									currentView={ query.status }
 									selectedResponses={ selectedResponses }
 									setSelectedResponses={ selectResponses }
