@@ -34,7 +34,7 @@ class Automation_Recipe {
 		$this->name         = $recipe_data['name'];
 		$this->description  = $recipe_data['description'];
 		$this->category     = $recipe_data['category'];
-		$this->active       = false;
+		$this->active       = $recipe_data['is_active'];
 		
 		$this->automation_engine = Automation_Engine::instance();
 	}
@@ -57,6 +57,11 @@ class Automation_Recipe {
 	 * @throws Recipe_Exception
 	 */
 	public function init_triggers() {
+		
+		if ( ! $this->is_active() ) {
+			return;
+		}
+		
 		foreach ( $this->get_triggers() as $trigger_name ) {
 			try {
 				$class_name = $this->automation_engine->get_trigger_class( $trigger_name );
@@ -137,6 +142,7 @@ class Automation_Recipe {
 			'name'          => $this->name,
 			'description'   => $this->description,
 			'category'      => $this->category,
+			'is_active'     => $this->active,
 			'triggers'      => $this->triggers,
 			'initial_step'  => $this->initial_step->get_name(),
 		);
