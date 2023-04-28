@@ -139,7 +139,7 @@ export default function SidebarOptions() {
 					className="jp-search-configure-filtering-opens-overlay-toggle"
 					checked={ filteringOpensOverlay }
 					disabled={ isDisabled }
-					label={ __( 'Filtering opens overlay', 'jetpack-search-pkg' ) }
+					label={ __( 'Enable filter-triggered overlay', 'jetpack-search-pkg' ) }
 					onChange={ setFilteringOpensOverlay }
 				/>
 				{ 'expanded' === resultFormat && (

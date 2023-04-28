@@ -248,7 +248,7 @@ class Customizer {
 			array(
 				'type'    => 'checkbox',
 				'section' => $section_id,
-				'label'   => __( 'Filtering opens overlay', 'jetpack-search-pkg' ),
+				'label'   => __( 'Enable filter-triggered overlay', 'jetpack-search-pkg' ),
 			)
 		);
 
