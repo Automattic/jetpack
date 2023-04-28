@@ -4,6 +4,9 @@
 		<testsuite name="rest-api">
 			<directory suffix="test.php">tests/php/rest-api</directory>
 		</testsuite>
+		<testsuite name="automation">
+			<directory suffix="test.php">tests/php/automation</directory>
+		</testsuite>
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="false">
