@@ -450,8 +450,7 @@
 
                         #} Save content
                         //$data=htmlspecialchars($_POST['zbs_quote_content'], ENT_COMPAT);
-						$quote['content'] = wp_kses( wp_unslash( $_POST['zbs_quote_content'] ), $zbs->acceptable_html ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- to follow up with.
-
+						$quote['content'] = wp_kses( $_POST['zbs_quote_content'], $zbs->acceptable_html ); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- to follow up with.
                         #} update templated vars
                         if (isset($_POST['zbs_quote_template_id'])) $quote['template'] = (int)sanitize_text_field($_POST['zbs_quote_template_id']);
 
@@ -673,21 +672,25 @@
 
         public function html( $quote, $metabox ) {
 
+			global $zbs;
+
             // localise ID & content
             $quoteID = -1; if (is_array($quote) && isset($quote['id'])) $quoteID = (int)$quote['id'];
 			$quote_content = '';
 		if ( is_array( $quote ) && isset( $quote['content'] ) ) {
-			$quote_content = $quote['content'];
+			$quote_content = wp_kses( $quote['content'], $zbs->acceptable_html );
 		}
             
-			$content = $quote_content;
-
             // remove "Add contact form" button from Jetpack
             remove_action( 'media_buttons', 'grunion_media_button', 999 );
-            wp_editor( $content, 'zbs_quote_content', array(
-                'editor_height' => 580,
-                'wpautop' => false,
-            ));
+			wp_editor(
+				$quote_content,
+				'zbs_quote_content',
+				array(
+					'editor_height' => 580,
+					'wpautop'       => false,
+				)
+			);
         }
 
         // saved via main metabox

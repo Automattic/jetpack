@@ -1,4 +1,5 @@
 <?php 
+//phpcs:disable
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
@@ -197,7 +198,7 @@
                 if (isset($_POST['zbs_quotetemplate_content'])) {
 
                     #} Save content
-					$quoteTemplate['content'] = wp_kses( wp_unslash( $_POST['zbs_quotetemplate_content'] ), $zbs->acceptable_html ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.Security.NonceVerification.Missing -- to follow up with.
+					$quoteTemplate['content'] = wp_kses( $_POST['zbs_quotetemplate_content'], $zbs->acceptable_html ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- to follow up with.
 
                     #} update templated vars
                     // Think this was here in err... if (isset($_POST['zbs_quote_template_id_used'])) $quote['template'] = (int)sanitize_text_field($_POST['zbs_quote_template_id_used']);

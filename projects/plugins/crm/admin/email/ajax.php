@@ -141,6 +141,8 @@ function zeroBSCRM_emails_customer_panel() {
 
 	zeroBSCRM_mark_as_read( $threadID );
 
+	global $zbs;
+
 	$e         = 0;
 	$email_ret = array();
 	foreach ( $email as $em ) {
