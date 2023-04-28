@@ -14,6 +14,10 @@
 	.dops-card.is-compact {
 	  margin-bottom: 0;
 	  border-bottom: 1px solid var(--jp-gray);
+
+	  	@include breakpoint( "<960px" ) {
+		border-bottom: 0;
+	  	}
 	}
 
   	.dops-card:first-child {
