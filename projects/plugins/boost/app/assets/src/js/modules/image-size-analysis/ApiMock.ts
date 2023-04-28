@@ -77,12 +77,18 @@ export type ImageMeta = z.infer< typeof ImageMeta >;
 
 const imageMeta = jetpack_boost_ds.createAsyncStore( 'image_size_analysis', ImageSizeAnalysis );
 imageMeta.setSyncAction( async ( prevValue, value, signal ) => {
+	// Only the current page is writable.
+	if ( prevValue.pagination.current === value.pagination.current ) {
+		return prevValue;
+	}
+	// Send a request to the SET endpoint.
 	const fresh = await imageMeta.endpoint.SET( value, signal );
 	if ( signal.aborted ) {
 		return prevValue;
 	}
+	// Override store value without triggering another SET request.
 	imageMeta.store.override( fresh );
-	return value;
+	return fresh;
 } );
 export const imageStore = imageMeta.store;
 export const imagesAreLoading = imageMeta.pending;
