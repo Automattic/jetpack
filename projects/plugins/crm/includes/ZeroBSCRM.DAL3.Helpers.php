@@ -5706,7 +5706,10 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
  */
 function jetpackCRM_deleted_totals( $all_invoices = null ) {
 	if ( empty( $all_invoices ) ) {
-		return;
+		return array(
+			'total' => 0,
+			'count' => 0,
+		);
 	}
 	$count_deleted = 0;
 	$total_deleted = 0;

@@ -318,7 +318,7 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 							if ( $useInvoices == '1' || $useTrans == '1' ) :
 								?>
 							<tr>
-							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( 'Total Value is all transaction types and any unpaid invoices (excluding deleted status invoices).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
+							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( 'Total Value is all transaction types and any unpaid invoices (excluding deleted status invoices and transactions).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
 							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $company_total_value ) ); ?></strong></td>
 							</tr>
 							<?php endif; ?>
@@ -355,7 +355,7 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 						<?php endif; ?>
 							<?php if ( $useTrans == '1' ) : ?>
 						<tr>
-							<td class="zbs-view-vital-label"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Transactions Total & count: This shows the sum of your succeeded transactions (set in settings)', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
+							<td class="zbs-view-vital-label"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Transactions Total & count: This shows the sum of your succeeded transactions (set in settings, and minus deleted status transactions)', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
 							<td>
 								<?php
 								if ( $company_transactions_count > 0 ) {
