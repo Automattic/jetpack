@@ -130,11 +130,32 @@ export default function VideoPressEdit( {
 		isExample,
 	} = attributes;
 
-	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay: autoplay || posterData.previewOnHover, // enabled when `previewOnHover` is enabled.
+	const [ videoPressUrl, setVideoPressUrl ] = useState( '' );
+	useEffect( () => {
+		setVideoPressUrl(
+			getVideoPressUrl( guid, {
+				autoplay: autoplay || posterData.previewOnHover, // enabled when `previewOnHover` is enabled.
+				controls,
+				loop,
+				muted: muted || posterData.previewOnHover, // enabled when `previewOnHover` is enabled.
+				playsinline,
+				preload,
+				seekbarColor,
+				seekbarLoadingColor,
+				seekbarPlayedColor,
+				useAverageColor,
+				poster,
+			} )
+		);
+	}, [
+		/*
+		 * `muted` is not added as a dependency.
+		 * This is the first attributed handled by the client API
+		 * @todo: migrate the rest of the attributes to the client API.
+		 */
+		autoplay,
 		controls,
 		loop,
-		muted: muted || posterData.previewOnHover, // enabled when `previewOnHover` is enabled.
 		playsinline,
 		preload,
 		seekbarColor,
@@ -142,7 +163,8 @@ export default function VideoPressEdit( {
 		seekbarPlayedColor,
 		useAverageColor,
 		poster,
-	} );
+		posterData,
+	] );
 
 	// Get the redirect URI for the connection flow.
 	const [ isRedirectingToMyJetpack, setIsRedirectingToMyJetpack ] = useState( false );
