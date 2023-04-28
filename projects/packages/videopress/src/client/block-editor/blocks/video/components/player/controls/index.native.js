@@ -48,15 +48,17 @@ const PlayerControls = ( { isSelected, playEnded, onToggle } ) => {
 		return () => {
 			clearTimeout( hidePauseTimer.current );
 		};
-	}, [ isPlaying ] );
+	}, [ isPlaying, isFinishedPlaying ] );
 
 	const togglePlayState = useCallback( () => {
+		const nextEvent = ! isPlaying || isFinishedPlaying ? 'play' : 'pause';
+
 		setIsFinishedPlaying( false );
 		setShowControlIcon( true );
+		setIsPlaying( nextEvent === 'play' );
 
-		onToggle( isPlaying ? 'pause' : 'play' );
-		setIsPlaying( ! isPlaying );
-	}, [ isPlaying ] );
+		onToggle( nextEvent );
+	}, [ isPlaying, isFinishedPlaying ] );
 
 	let icon = PlayIcon;
 
