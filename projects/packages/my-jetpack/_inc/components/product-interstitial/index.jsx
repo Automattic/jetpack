@@ -143,6 +143,7 @@ export default function ProductInterstitial( {
 						<ProductDetailTable
 							slug={ slug }
 							clickHandler={ clickHandler }
+							onProductButtonClick={ clickHandler }
 							trackProductButtonClick={ trackProductClick }
 						/>
 					) : (

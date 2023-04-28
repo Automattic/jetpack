@@ -144,6 +144,26 @@ class Protect extends Product {
 				),
 			),
 			array(
+				'name'  => __( 'Web Application Firewall', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array(
+						'included'    => false,
+						'description' => __( 'Manual rules only', 'jetpack-my-jetpack' ),
+					),
+					self::UPGRADED_TIER_SLUG => array(
+						'included'    => true,
+						'description' => __( 'Automatic protection and rule updates', 'jetpack-my-jetpack' ),
+					),
+				),
+			),
+			array(
+				'name'  => __( 'Brute force protection', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => true ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
 				'name'  => __( 'Access to scan on Cloud', 'jetpack-my-jetpack' ),
 				'tiers' => array(
 					self::FREE_TIER_SLUG     => array( 'included' => false ),
