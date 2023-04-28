@@ -91,11 +91,12 @@ class Jetpack_Debugger {
 								echo sprintf(
 									wp_kses(
 										/* translators: URLs to Jetpack support pages. */
-										__( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the list. (You can also browse the <a href="%2$s" target="_blank">Jetpack support pages</a> or <a href="%3$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ),
+										__( 'Some themes and plugins have <a href="%1$s" target="_blank" rel="noopener noreferrer">known conflicts</a> with Jetpack – check the list. (You can also browse the <a href="%2$s" target="_blank" rel="noopener noreferrer">Jetpack support pages</a> or <a href="%3$s" target="_blank" rel="noopener noreferrer">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ),
 										array(
 											'a' => array(
 												'href'   => array(),
 												'target' => array(),
+												'rel'    => array(),
 											),
 										)
 									),
