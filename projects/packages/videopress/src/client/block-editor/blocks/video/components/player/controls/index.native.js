@@ -33,6 +33,7 @@ const PlayerControls = ( { isSelected, playEnded, onToggle } ) => {
 			setIsPlaying( false );
 			onToggle( 'pause' );
 			setIsFinishedPlaying( false );
+			setShowControlIcon( true );
 		}
 	}, [ isSelected ] );
 

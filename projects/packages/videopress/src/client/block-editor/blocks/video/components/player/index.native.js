@@ -60,6 +60,7 @@ export default function Player( { isSelected, attributes } ) {
 	const [ playEnded, setPlayEnded ] = useState( false );
 	const playerRef = useRef();
 	const onToggleEvent = useCallback( event => {
+		setPlayEnded( false );
 		playerRef.current?.injectJavaScript( `
 			document?.querySelector('iframe')?.contentWindow.postMessage({event: 'videopress_action_${ event }'}, '*');
 		` );
