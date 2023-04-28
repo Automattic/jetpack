@@ -1,8 +1,14 @@
+/*
+ * External dependencies
+ */
 import restApi from '@automattic/jetpack-api';
 import { AdminPage, Container, Col } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+/*
+ * Internal dependencies
+ */
 import useAnalytics from '../../hooks/use-analytics';
 import useAvailableLicenses from '../../hooks/use-available-licenses';
 import GoBackLink from '../go-back-link';
@@ -10,7 +16,7 @@ import GoBackLink from '../go-back-link';
 /**
  * The AddLicenseScreen component of the My Jetpack app.
  *
- * @returns {object} The AddLicenseScree component.
+ * @returns {object} The AddLicenseScreen component.
  */
 export default function AddLicenseScreen() {
 	useEffect( () => {
@@ -22,6 +28,8 @@ export default function AddLicenseScreen() {
 	const { recordEvent } = useAnalytics();
 	const { availableLicenses, fetchingAvailableLicenses } = useAvailableLicenses();
 	const { userConnectionData } = useConnection();
+	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( false );
+
 	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.
 	const displayName =
 		userConnectionData?.currentUser?.wpcomUser?.display_name ||
@@ -36,9 +44,14 @@ export default function AddLicenseScreen() {
 				// Prevent default here to minimize page change within the My Jetpack app.
 				event.preventDefault();
 				history.back();
+
+				if ( hasActivatedLicense ) {
+					// Reload the page to reflect the new license in the product card.
+					window.location.reload();
+				}
 			}
 		},
-		[ recordEvent ]
+		[ recordEvent, hasActivatedLicense ]
 	);
 
 	return (
@@ -52,7 +65,7 @@ export default function AddLicenseScreen() {
 						currentRecommendationsStep={ null }
 						availableLicenses={ availableLicenses }
 						fetchingAvailableLicenses={ fetchingAvailableLicenses }
-						onActivationSuccess={ undefined }
+						onActivationSuccess={ setHasActivatedLicense( true ) }
 						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
 						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
 						displayName={ displayName }
