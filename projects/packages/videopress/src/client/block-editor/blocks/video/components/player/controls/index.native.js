@@ -31,6 +31,7 @@ const PlayerControls = ( { isSelected, playEnded, onToggle } ) => {
 	useEffect( () => {
 		if ( ! isSelected ) {
 			setIsPlaying( false );
+			onToggle( 'pause' );
 			setIsFinishedPlaying( false );
 		}
 	}, [ isSelected ] );
