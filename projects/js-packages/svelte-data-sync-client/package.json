@@ -16,7 +16,6 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"prepare": "[ -e ./build/index.js ] || pnpm build",
 		"build": "pnpm run clean && webpack",
 		"clean": "rm -rf build/",
 		"watch": "pnpm run build && pnpm webpack watch",
@@ -40,6 +39,13 @@
 	"engines": {
 		"node": "^18.13.0",
 		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"exports": {
+		".": {
+			"jetpack:src": "./src/index.ts",
+			"types": "./build/index.d.ts",
+			"default": "./build/index.js"
+		}
 	},
 	"main": "./build/index.js",
 	"types": "./build/index.d.ts"
