@@ -54,6 +54,10 @@ export default function AddLicenseScreen() {
 		[ recordEvent, hasActivatedLicense ]
 	);
 
+	const handleActivationSuccess = useCallback( () => {
+		setHasActivatedLicense( true );
+	}, [] );
+
 	return (
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
@@ -65,7 +69,7 @@ export default function AddLicenseScreen() {
 						currentRecommendationsStep={ null }
 						availableLicenses={ availableLicenses }
 						fetchingAvailableLicenses={ fetchingAvailableLicenses }
-						onActivationSuccess={ setHasActivatedLicense( true ) }
+						onActivationSuccess={ handleActivationSuccess }
 						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
 						siteRawUrl={ window?.myJetpackInitialState?.siteSuffix }
 						displayName={ displayName }
