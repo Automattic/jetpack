@@ -35,7 +35,7 @@ function jetpack_image_cdn_photon_compat() {
 	 *
 	 * When this is happening, the package is likely being loaded from a different plugin, e.g. Boost.
 	 */
-	if ( class_exists( 'Jetpack' ) && defined( 'JETPACK__VERSION' ) && ( version_compare( JETPACK__VERSION, '12.0', '<=' ) ) ) {
+	if ( class_exists( 'Jetpack' ) && defined( 'JETPACK__VERSION' ) && ( version_compare( JETPACK__VERSION, '12.1', '<=' ) ) ) {
 		do_action( 'jetpack_module_loaded_photon' );
 	}
 }
