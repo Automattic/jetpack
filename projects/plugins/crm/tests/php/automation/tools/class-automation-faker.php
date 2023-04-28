@@ -26,6 +26,7 @@ class Automation_Faker {
 			'name'         => 'Recipe Test',
 			'description'  => 'Test: the description of the recipe',
 			'category'     => 'Test',
+			'is_active'    => true,
 			'triggers'     => array(
 				'contact_created',
 			),
@@ -52,6 +53,7 @@ class Automation_Faker {
 			'name'         => 'Recipe Test',
 			'description'  => 'Test: the description of the recipe',
 			'category'     => 'Test',
+			'is_active'    => true,
 			'triggers'     => array(
 				'contact_created',
 			),
@@ -92,6 +94,7 @@ class Automation_Faker {
 			'name'         => 'Recipe Test',
 			'description'  => 'Test: the description of the recipe',
 			'category'     => 'Test',
+			'is_active'    => true,
 			'triggers'     => array(
 				'contact_created',
 			),
