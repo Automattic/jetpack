@@ -1,5 +1,4 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
@@ -10,6 +9,7 @@ import { connect } from 'react-redux';
 import { isCurrentUserLinked, isConnectionOwner, connectUser } from 'state/connection';
 import { agenciesLearnMoreDismissed, updateSettings } from 'state/settings';
 import { isFetchingSiteData } from 'state/site';
+import Gridicon from '../gridicon';
 
 interface Props {
 	isDismissed: boolean;
@@ -65,34 +65,44 @@ const AgenciesCard: FC< Props > = ( {
 	return (
 		<div className={ classes }>
 			<Card className="jp-agencies-card__wrapper">
-				<Button borderless compact className="jp-agencies-card__dismiss" onClick={ handleDismiss }>
-					<span className="dashicons dashicons-no" />
-				</Button>
 				<div className="jp-agencies-card__contact">
-					<h3 className="jp-agencies-card__header">
-						{ __( 'Manage your clients’ sites with ease', 'jetpack' ) }
-					</h3>
-					<p className="jp-agencies-card__description">
-						{ sprintf(
-							/* translators: %s is the percentage discount the users get in the agencies portal */
-							__(
-								'Manage your clients’ sites with ease and get a %s discount with the Jetpack licensing platform.',
-								'jetpack'
-							),
-							`${ discountPercentage }%`
-						) }
-					</p>
-					<p className="jp-agencies-card__link-button">
-						<Button onClick={ handleClick }>
-							<ExternalLink
+					<div className="jp-agencies-card__content">
+						<div className="jp-agencies-card-text">
+							<h3 className="jp-agencies-card__header">
+								{ __( 'Manage your clients’ sites with ease', 'jetpack' ) }
+							</h3>
+							<p className="jp-agencies-card__description">
+								{ sprintf(
+									/* translators: %s is the percentage discount the users get in the agencies portal */
+									__(
+										'Manage your clients’ sites with ease and get a %s discount with the Jetpack licensing platform.',
+										'jetpack'
+									),
+									`${ discountPercentage }%`
+								) }
+							</p>
+						</div>
+						<div className="jp-agencies-card__link-button">
+							<Button
+								onClick={ handleClick }
+								primary
 								href={ getRedirectUrl( 'jitm-jetpack_agencies_ad' ) }
 								target="_blank"
 								rel="noreferrer"
 							>
 								{ __( 'Learn More', 'jetpack' ) }
-							</ExternalLink>
-						</Button>
-					</p>
+								<Gridicon className="dops-card__link-indicator" icon="external" />
+							</Button>
+						</div>
+					</div>
+					<Button
+						borderless
+						compact
+						className="jp-agencies-card__dismiss"
+						onClick={ handleDismiss }
+					>
+						<span className="dashicons dashicons-no" />
+					</Button>
 				</div>
 			</Card>
 		</div>

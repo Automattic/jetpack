@@ -1,15 +1,21 @@
 import { __ } from '@wordpress/i18n';
-import Gridicon from 'components/gridicon';
 import React from 'react';
 
 import './style.scss';
 
-const ProductActivated = () => {
+const ProductActivated = ( { type } ) => {
+	if ( type === 'product-expired' ) {
+		return (
+			<div className="jp-product-activated-label expired">
+				<span className="jp-product-expired-label__text">{ __( 'Expired', 'jetpack' ) }</span>
+			</div>
+		);
+	}
 	return (
 		<div className="jp-product-activated-label">
-			<Gridicon icon="checkmark" size={ 20 } />
-
-			<span className="jp-product-activated-label__text">{ __( 'Activated', 'jetpack' ) }</span>
+			<span className="jp-product-activated-label__text">
+				{ __( 'Subscription active', 'jetpack' ) }
+			</span>
 		</div>
 	);
 };

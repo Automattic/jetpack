@@ -59,6 +59,31 @@ function wpcom_load_event( $access_token_source ) {
 }
 
 /**
+ * Function to determine which map provider to choose
+ *
+ * @param array $html The block's HTML - needed for the class name.
+ *
+ * @return string The name of the map provider.
+ */
+function get_map_provider( $html ) {
+	$mapbox_styles = array( 'is-style-terrain' );
+	// return mapbox if html contains one of the mapbox styles
+	foreach ( $mapbox_styles as $style ) {
+		if ( strpos( $html, $style ) !== false ) {
+			return 'mapbox';
+		}
+	}
+
+	// you can override the map provider with a cookie
+	if ( isset( $_COOKIE['map_provider'] ) ) {
+		return sanitize_text_field( wp_unslash( $_COOKIE['map_provider'] ) );
+	}
+
+	// if we don't apply the filters & default to mapbox
+	return apply_filters( 'wpcom_map_block_map_provider', 'mapbox' );
+}
+
+/**
  * Map block registration/dependency declaration.
  *
  * @param array  $attr    Array containing the map block attributes.
@@ -68,7 +93,6 @@ function wpcom_load_event( $access_token_source ) {
  */
 function load_assets( $attr, $content ) {
 	$access_token = Jetpack_Mapbox_Helper::get_access_token();
-
 	wpcom_load_event( $access_token['source'] );
 
 	if ( Blocks::is_amp_request() ) {
@@ -101,7 +125,12 @@ function load_assets( $attr, $content ) {
 
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	return preg_replace( '/<div /', '<div data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $content, 1 );
+	$map_provider = get_map_provider( $content );
+	if ( $map_provider === 'mapkit' ) {
+		return preg_replace( '/<div /', '<div data-map-provider="mapkit" data-blog-id="' . \Jetpack_Options::get_option( 'id' ) . '" ', $content, 1 );
+	}
+
+	return preg_replace( '/<div /', '<div data-map-provider="mapbox" data-api-key="' . esc_attr( $access_token['key'] ) . '" ', $content, 1 );
 }
 
 /**
