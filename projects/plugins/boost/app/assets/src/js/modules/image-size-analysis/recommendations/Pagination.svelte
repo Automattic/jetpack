@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { imageStore } from '../ApiMock';
 
-	$: current = $imageStore.pagination.current;
-	$: total = $imageStore.pagination.total;
+	// "-1" is replaced by "..." when rendering the pagination
+	const MORE_ICON = -1;
 
 	function slidingWindow(pages, currentPage) {
 		const windowSize = 8;
@@ -17,7 +17,7 @@
 
 	function generatePagination(current, total) {
 		const padding = 2;
-		const MORE_ICON = -1;
+
 
 		const pagination = slidingWindow(total, current);
 
@@ -32,8 +32,6 @@
 		return pagination;
 	}
 
-	$: pages = generatePagination(current, total);
-
 	function nextPage() {
 		if (current < total) {
 			$imageStore.pagination.current += 1;
@@ -45,6 +43,11 @@
 			$imageStore.pagination.current -= 1;
 		}
 	}
+
+	$: current = $imageStore.pagination.current;
+	$: total = $imageStore.pagination.total;
+	$: pages = generatePagination(current, total);
+
 </script>
 
 <div>
@@ -66,7 +69,7 @@
 					class:current={page === current}
 					on:click={() => ($imageStore.pagination.current = page)}
 				>
-					{#if page === -1}
+					{#if page === MORE_ICON}
 						...
 					{:else}
 						{page}
