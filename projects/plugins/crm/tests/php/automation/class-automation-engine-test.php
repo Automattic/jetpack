@@ -5,6 +5,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
+use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
@@ -28,6 +29,7 @@ class Automation_Engine_Test extends BaseTestCase {
 	 */
 	public function test_automation_engine_instance() {
 		$automation_1 = Automation_Engine::instance();
+		$automation_1->set_automation_logger( Automation_Logger::instance() );
 
 		$this->assertTrue( $automation_1 instanceof Automation_Engine );
 
