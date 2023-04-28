@@ -105,9 +105,9 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 			if ( isset( $company['transactions_total'] ) ) {
 				$company_transactions_value = $company['transactions_total'];
 			}
-			$company_transaction_count = 0;
+			$company_transactions_count = 0;
 			if ( isset( $company['transactions_count'] ) ) {
-				$company_transaction_count = $company['transactions_count'];
+				$company_transactions_count = $company['transactions_count'];
 			}
 
 			// pre dal 3 did this way
@@ -358,8 +358,8 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 							<td class="zbs-view-vital-label"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Transactions Total & count: This shows the sum of your succeeded transactions (set in settings)', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
 							<td>
 								<?php
-								if ( $company_transaction_count > 0 ) {
-									echo esc_html( zeroBSCRM_formatCurrency( $company_transactions_value ) . ' (' . $company_transaction_count . ')' );
+								if ( $company_transactions_count > 0 ) {
+									echo esc_html( zeroBSCRM_formatCurrency( $company_transactions_value ) . ' (' . $company_transactions_count . ')' );
 								} else {
 									esc_html_e( 'None', 'zero-bs-crm' );
 								}
@@ -730,7 +730,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									// prep link to create a new transaction
 									$new_transaction_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION ) . '&prefillco=' . $company['id'];
 
-									if ( $company_transaction_count > 0 ) {
+									if ( $company_transactions_count > 0 ) {
 
 										foreach ( $company['transactions'] as $zbsTransaction ) {
 
@@ -782,7 +782,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 								</tbody>
 							</table>
-								<?php if ( $company_transaction_count > 0 ) : ?>
+								<?php if ( $company_transactions_count > 0 ) : ?>
 								<div style="text-align: right;">
 								<a href="<?php echo esc_url( $new_transaction_url ); ?>" class="ui basic green button">
 									<i class="plus square outline icon"></i>
