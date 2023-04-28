@@ -13,9 +13,8 @@ interface Step {
 	 * Execute the step
 	 *
 	 * @param array $data Data passed from the trigger.
-	 * @return bool
 	 */
-	public function execute( array $data ): bool;
+	public function execute( array $data );
 
 	/**
 	 * Get the next step
