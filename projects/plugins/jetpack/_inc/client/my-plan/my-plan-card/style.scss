@@ -126,6 +126,11 @@
 .my-plan-card__details {
 	padding: 8px 0 16px;
 	color: $gray-darken-10;
+  	display: contents;
+
+	@include breakpoint( '<960px' ) {
+	  display: block;
+	}
 
 	@include breakpoint( '>480px' ) {
 		white-space: nowrap;
@@ -138,13 +143,53 @@
 	&.is-error {
 		color: $alert-red;
 	}
+
+	a.my-plan-card__renew {
+	  text-decoration: underline;
+	  margin-top: 8px;
+
+	  &:hover {
+		text-decoration-thickness: 3px;
+		color: $black;
+	  }
+
+	  &:focus {
+		text-decoration-line: none;
+		border-radius: 2px;
+		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) black;
+		outline: 3px solid transparent;
+		color: $black;
+	  }
+
+	  &:active {
+		color: $black;
+	  }
+	}
 }
 
 .my-plan-card__action {
 	padding-top: 8px;
 	white-space: nowrap;
 
-	.has-action-only & {
-		padding-top: 0;
+	  .has-action-only & {
+		  padding-top: 0;
+	  }
+}
+
+.my-plan-card__expired {
+	color: $alert-red;
+}
+.my-plan-card__renew {
+	display: flex;
+	justify-content: flex-end;
+	color: $black;
+
+	.components-external-link__icon {
+	  align-self: center;
+	}
+
+	@include breakpoint( '<960px' ) {
+	  justify-content: flex-start;
 	}
 }
+
