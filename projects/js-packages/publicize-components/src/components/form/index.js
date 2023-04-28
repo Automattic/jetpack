@@ -47,8 +47,10 @@ export default function PublicizeForm( {
 	const { connections, toggleById, hasConnections, enabledConnections } =
 		useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
-	const { isEnabled: isImageGeneratorEnabled } = useImageGeneratorConfig();
+	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 
+	const shouldDisableMediaPicker =
+		isSocialImageGeneratorEnabled && isSocialImageGeneratorEnabledForPost;
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
 	const brokenConnections = connections.filter( connection => false === connection.is_healthy );
@@ -194,9 +196,9 @@ export default function PublicizeForm( {
 					) }
 					{ isEnhancedPublishingEnabled && (
 						<MediaSection
-							disabled={ isSocialImageGeneratorEnabled && isImageGeneratorEnabled }
+							disabled={ shouldDisableMediaPicker }
 							notice={
-								isSocialImageGeneratorEnabled && isImageGeneratorEnabled
+								shouldDisableMediaPicker
 									? __(
 											'It is not possible to add an image or video when Social Image Generator is enabled.',
 											'jetpack'
