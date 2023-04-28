@@ -575,15 +575,14 @@ class zbsDAL {
 	 * Returns a count of objects of a type which are associated with a company or contact
 	 * Supports Quotes, Invoices, Transactions, Events currently
 	 *
-	 * @param int   $cust_id The company / contact ID.
-	 * @param int   $obj_type_id The type constant being checked (eg ZBS_TYPE_QUOTE).
-	 * @param const $zbs_type The contact or company type, for example ZBS_TYPE_COMPANY, ZBS_TYPE_CONTACT (default contact).
+	 * @param int $cust_id The company / contact ID.
+	 * @param int $obj_type_id The type constant being checked (eg ZBS_TYPE_QUOTE).
+	 * @param int $zbs_type The contact or company type, for example ZBS_TYPE_COMPANY, ZBS_TYPE_CONTACT (default contact).
 	 *
 	 * @return int The count of relevant objects of the given type.
 	 */
 	public function customer_has_count_obj_type( $cust_id, $obj_type_id, $zbs_type = ZBS_TYPE_CONTACT ) {
 		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		global $zbs;
 		global $ZBSCRM_t;
 		global $wpdb;
 
@@ -619,22 +618,6 @@ class zbsDAL {
 		// Counting objs with objlinks to this company, ignoring ownership.
 		$query = $this->prepare( $obj_query, $cust_id );
 		$count = (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching -- To be refactored.
-
-		if ( $obj_type_id === ZBS_TYPE_INVOICE ) {
-			$customer = array();
-
-			if ( $zbs_type === ZBS_TYPE_CONTACT ) {
-				$customer = $zbs->DAL->contacts->getContact( $cust_id, array( 'withInvoices' => true ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-
-			}
-			if ( $zbs_type === ZBS_TYPE_COMPANY ) {
-				$customer = $zbs->DAL->companies->getCompany( $cust_id, array( 'withInvoices' => true ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-			}
-
-			$deleted_invoice_details = jetpackCRM_deleted_invoice_totals( $customer['invoices'] );
-			return $count - $deleted_invoice_details['count'];
-
-		}
 
 		return $count;
 		// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase

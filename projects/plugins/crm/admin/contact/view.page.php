@@ -79,7 +79,10 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 		if ( isset( $contact['invoices_count'] ) ) {
 			$contact_invoice_count = $contact['invoices_count'];
 		}
-		$contact_transaction_count = $zbs->DAL->customer_has_count_obj_type( $id, ZBS_TYPE_TRANSACTION, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$contact_transaction_count = 0;
+		if ( isset( $contact['transactions_count'] ) ) {
+			$contact_transaction_count = $contact['transactions_count'];
+		}
 
 		// socials
 		global $zbsSocialAccountTypes;
@@ -869,7 +872,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 							// prep link to create a new invoice
 							$new_invoice_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_INVOICE ) . '&zbsprefillcust=' . $contact['id'];
-							if ( count( $contact['invoices'] ) > 0 ) {
+							if ( $contact_invoice_count > 0 ) {
 
 								foreach ( $contact['invoices'] as $invoice ) {
 
@@ -958,7 +961,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 						</tbody>
 					</table>
-						<?php if ( count( $contact['invoices'] ) > 0 ) : ?>
+						<?php if ( $contact_invoice_count > 0 ) : ?>
 						<div style="text-align: right;">
 						<a href="<?php echo esc_url( $new_invoice_url ); ?>" class="ui basic green button">
 							<i class="plus square outline icon"></i>
@@ -1020,7 +1023,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 							// prep link to create a new transaction
 							$new_transaction_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION ) . '&zbsprefillcust=' . $contact['id'];
 
-							if ( count( $contact['transactions'] ) > 0 ) {
+							if ( $contact_transaction_count > 0 ) {
 
 								foreach ( $contact['transactions'] as $zbsTransaction ) {
 
@@ -1082,7 +1085,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 						</tbody>
 					</table>
-						<?php if ( count( $contact['transactions'] ) > 0 ) : ?>
+						<?php if ( $contact_transaction_count > 0 ) : ?>
 						<div style="text-align: right;">
 						<a href="<?php echo esc_url( $new_transaction_url ); ?>" class="ui basic green button">
 							<i class="plus square outline icon"></i>

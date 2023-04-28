@@ -97,9 +97,17 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 			if ( isset( $company['invoices_total'] ) ) {
 				$company_invoices_value = $company['invoices_total'];
 			}
-			$companyTransactionsValue = 0;
+			$company_invoices_count = 0;
+			if ( isset( $company['invoices_count'] ) ) {
+				$company_invoices_count = $company['invoices_count'];
+			}
+			$company_transactions_value = 0;
 			if ( isset( $company['transactions_total'] ) ) {
-				$companyTransactionsValue = $company['transactions_total'];
+				$company_transactions_value = $company['transactions_total'];
+			}
+			$company_transaction_count = 0;
+			if ( isset( $company['transactions_count'] ) ) {
+				$company_transaction_count = $company['transactions_count'];
 			}
 
 			// pre dal 3 did this way
@@ -108,8 +116,8 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 				// calc'd each individually
 				// never used (pre dal3) $companyTotalValue = zeroBS_companyTotalValue($id, $company['invoices'],$company['transactions'])
 				// never used (pre dal3) $companyQuotesValue = zeroBS_companyQuotesValue($id, $company['quotes']);
-				$company_invoices_value   = zeroBS_companyInvoicesValue( $id, $company['invoices'] );
-				$companyTransactionsValue = zeroBS_companyTransactionsValue( $id, $company['transactions'] );
+				$company_invoices_value     = zeroBS_companyInvoicesValue( $id, $company['invoices'] );
+				$company_transactions_value = zeroBS_companyTransactionsValue( $id, $company['transactions'] );
 
 			}
 
@@ -336,8 +344,8 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 							<td class="zbs-view-vital-label"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Invoices: This shows the total sum of your invoices & count (excluding deleted status invoices).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
 							<td>
 							<?php
-							if ( $company['invoices_count'] > 0 ) {
-									echo esc_html( zeroBSCRM_formatCurrency( $company_invoices_value ) . ' (' . $company['invoices_count'] . ')' );
+							if ( $company_invoices_count > 0 ) {
+									echo esc_html( zeroBSCRM_formatCurrency( $company_invoices_value ) . ' (' . $company_invoices_count . ')' );
 							} else {
 								esc_html_e( 'None', 'zero-bs-crm' );
 							}
@@ -350,8 +358,8 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 							<td class="zbs-view-vital-label"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Transactions Total & count: This shows the sum of your succeeded transactions (set in settings)', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
 							<td>
 								<?php
-								if ( count( $company['transactions'] ) > 0 ) {
-									echo esc_html( zeroBSCRM_formatCurrency( $companyTransactionsValue ) . ' (' . count( $company['transactions'] ) . ')' );
+								if ( $company_transaction_count > 0 ) {
+									echo esc_html( zeroBSCRM_formatCurrency( $company_transactions_value ) . ' (' . $company_transaction_count . ')' );
 								} else {
 									esc_html_e( 'None', 'zero-bs-crm' );
 								}
@@ -586,7 +594,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								// prep link to create a new invoice
 								$new_invoice_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_INVOICE ) . '&prefillco=' . $company['id'];
 
-								if ( count( $company['invoices'] ) > 0 ) {
+								if ( $company_invoices_count > 0 ) {
 
 									foreach ( $company['invoices'] as $invoice ) {
 										// debugecho '<pre>'; print_r($invoice); echo '</pre><hr>';
@@ -667,7 +675,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 								</tbody>
 							</table>
-							<?php if ( count( $company['invoices'] ) > 0 ) : ?>
+							<?php if ( $company_invoices_count > 0 ) : ?>
 								<div style="text-align: right;">
 								<a href="<?php echo esc_url( $new_invoice_url ); ?>" class="ui basic green button">
 									<i class="plus square outline icon"></i>
@@ -722,7 +730,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									// prep link to create a new transaction
 									$new_transaction_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION ) . '&prefillco=' . $company['id'];
 
-									if ( count( $company['transactions'] ) > 0 ) {
+									if ( $company_transaction_count > 0 ) {
 
 										foreach ( $company['transactions'] as $zbsTransaction ) {
 
@@ -774,7 +782,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 								</tbody>
 							</table>
-								<?php if ( count( $company['transactions'] ) > 0 ) : ?>
+								<?php if ( $company_transaction_count > 0 ) : ?>
 								<div style="text-align: right;">
 								<a href="<?php echo esc_url( $new_transaction_url ); ?>" class="ui basic green button">
 									<i class="plus square outline icon"></i>
