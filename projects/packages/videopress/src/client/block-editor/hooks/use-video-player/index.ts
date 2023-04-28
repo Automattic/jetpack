@@ -39,7 +39,7 @@ export const getIframeWindowFromRef = (
 const useVideoPlayer = (
 	iFrameWrapperRef: React.MutableRefObject< HTMLDivElement >,
 	isRequestingPreview: boolean,
-	{ initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions
+	{ initialTimePosition, wrapperElement, previewOnHover, muted }: UseVideoPlayerOptions
 ): UseVideoPlayer => {
 	const [ playerIsReady, setPlayerIsReady ] = useState( false );
 	const playerState = useRef< PlayerStateProp >( 'not-rendered' );
@@ -116,6 +116,18 @@ const useVideoPlayer = (
 	const wasPreviewOnHoverJustEnabled = isPreviewOnHoverEnabled && ! wasPreviewOnHoverEnabled;
 
 	const sandboxIFrameWindow = getIframeWindowFromRef( iFrameWrapperRef );
+
+	// Move the video to the "Starting point" when it changes.
+	useEffect( () => {
+		if ( ! sandboxIFrameWindow ) {
+			return;
+		}
+
+		sandboxIFrameWindow.postMessage(
+			{ event: 'videopress_action_set_mute', muted },
+			{ targetOrigin: '*' }
+		);
+	}, [ muted, sandboxIFrameWindow ] );
 
 	// Listen player events.
 	useEffect( () => {

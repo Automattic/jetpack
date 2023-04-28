@@ -30,4 +30,6 @@ export type UseVideoPlayerOptions = {
 		atTime: number;
 		duration: number;
 	};
+
+	muted: boolean;
 };
