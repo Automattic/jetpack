@@ -98,7 +98,7 @@ class MyPlanBody extends React.Component {
 				<div className="jp-landing__plan-features-card">
 					<div className="jp-landing__plan-features-img">
 						<img
-							src={ imagePath + '/product/product-jetpack-backup.svg' }
+							src={ imagePath + '/products/product-jetpack-backup.svg' }
 							className="jp-landing__plan-features-icon"
 							alt={ __( 'A Jetpack Site securely backed up with Jetpack Backup', 'jetpack' ) }
 						/>
@@ -242,6 +242,7 @@ class MyPlanBody extends React.Component {
 			[
 				'is-backup-t1-plan',
 				'is-backup-t2-plan',
+				'is-jetpack-starter-plan',
 
 				// DEPRECATED: Daily and Real-time variations will soon be retired.
 				// Remove after all customers are migrated to new products.
@@ -293,7 +294,7 @@ class MyPlanBody extends React.Component {
 		switch ( planClass ) {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
-			case 'is-starter-plan':
+			case 'is-jetpack-starter-plan':
 			case 'is-security-t1-plan':
 			case 'is-security-t2-plan':
 			case 'is-business-plan':
@@ -308,6 +309,7 @@ class MyPlanBody extends React.Component {
 						{ 'is-premium-plan' === planClass && getRewindVaultPressCard() }
 						{ 'is-business-plan' === planClass && getRewindVaultPressCard() }
 						{ this.props.hasInstantSearch && getSearchCard() }
+						{ 'is-jetpack-starter-plan' === planClass && jetpackBackupCard }
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img

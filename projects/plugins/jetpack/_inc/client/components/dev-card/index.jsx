@@ -206,7 +206,7 @@ export class DevCard extends React.Component {
 								id="jetpack_starter"
 								value="jetpack_starter_yearly"
 								name="jetpack_starter_yearly"
-								checked={ 'is-starter-plan' === planClass }
+								checked={ 'is-jetpack-starter-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
 							Security (10 GB)
