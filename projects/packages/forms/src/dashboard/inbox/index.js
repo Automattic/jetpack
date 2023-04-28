@@ -55,7 +55,6 @@ const TABS = [
 
 const Inbox = () => {
 	const stickySentinel = useRef();
-	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
 	const [ responseAnimationDirection, setResponseAnimationDirection ] = useState( 1 );
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ view, setView ] = useState( 'list' );
@@ -78,7 +77,9 @@ const Inbox = () => {
 
 	const {
 		currentPage,
+		currentResponseId,
 		setCurrentPage,
+		setCurrentResponseId: setActiveResponse,
 		setMonthQuery,
 		setSearchQuery,
 		setSourceQuery,
@@ -94,13 +95,13 @@ const Inbox = () => {
 		} );
 	}, [ currentPage, fetchResponses, query ] );
 
-	useEffect( () => {
-		if ( responses.length === 0 || includes( map( responses, 'id' ), currentResponseId ) ) {
-			return;
+	const activeResponse = useMemo( () => {
+		if ( responses.length && ! includes( map( responses, 'id' ), currentResponseId ) ) {
+			return responses[ 0 ].id;
 		}
 
-		setCurrentResponseId( responses[ 0 ].id );
-	}, [ responses, currentResponseId ] );
+		return currentResponseId;
+	}, [ currentResponseId, responses ] );
 
 	useEffect( () => {
 		const stickySentinelRef = stickySentinel.current;
@@ -129,13 +130,13 @@ const Inbox = () => {
 
 	const selectResponse = useCallback(
 		id => {
-			setCurrentResponseId( id );
+			setActiveResponse( id );
 			setView( 'response' );
 			setResponseAnimationDirection(
-				findIndex( responses, { id } ) - findIndex( responses, { id: currentResponseId } )
+				findIndex( responses, { id } ) - findIndex( responses, { id: activeResponse } )
 			);
 		},
-		[ currentResponseId, responses ]
+		[ activeResponse, responses, setActiveResponse ]
 	);
 
 	const handleGoBack = useCallback( event => {
@@ -289,7 +290,7 @@ const Inbox = () => {
 								{ ! loading && isSticky && <div className="jp-forms__inbox-sticky-mark" /> }
 								<InboxList
 									currentPage={ currentPage }
-									currentResponseId={ currentResponseId }
+									currentResponseId={ activeResponse }
 									currentTab={ query.status }
 									loading={ loading }
 									pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
@@ -304,7 +305,7 @@ const Inbox = () => {
 							<div className="jp-forms__inbox-content-column">
 								<InboxResponse
 									isLoading={ loading }
-									response={ find( responses, { id: currentResponseId } ) }
+									response={ find( responses, { id: activeResponse } ) }
 								/>
 							</div>
 						</div>

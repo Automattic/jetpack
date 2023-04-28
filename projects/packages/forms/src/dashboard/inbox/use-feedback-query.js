@@ -1,50 +1,56 @@
 /**
  * External dependencies
  */
-import { useCallback, useMemo } from '@wordpress/element';
-import { fromPairs, thru } from 'lodash';
+import { useMemo } from '@wordpress/element';
+import { fromPairs } from 'lodash';
 import { useSearchParams } from 'react-router-dom';
 
 const DEFAULT_PARAMS = {
-	currentPage: 1,
+	p: 1, // current page
+	r: 0, // current response ID
 	status: 'inbox',
 };
 
 export const useFeedbackQuery = () => {
 	const [ searchParams, setSearchParams ] = useSearchParams();
 
-	const { currentPage, query } = useMemo(
-		() =>
-			thru(
-				{
-					...DEFAULT_PARAMS,
-					...fromPairs( [ ...searchParams ] ),
-				},
-				// eslint-disable-next-line no-shadow
-				( { currentPage, page, ...query } ) => ( { currentPage, query } )
-			),
+	const params = useMemo(
+		() => ( {
+			...DEFAULT_PARAMS,
+			...fromPairs( [ ...searchParams ] ),
+		} ),
 		[ searchParams ]
 	);
 
-	const setCurrentPage = useCallback(
-		value =>
-			setSearchParams( params => {
-				params.set( 'currentPage', value );
-				return params;
-			} ),
-		[ setSearchParams ]
+	const query = useMemo(
+		() => ( {
+			month: params.month,
+			parent_id: params.parent_id,
+			search: params.search,
+			status: params.status,
+		} ),
+		[ params.month, params.parent_id, params.search, params.status ]
 	);
 
+	const updateParam = key => value =>
+		setSearchParams( sp => {
+			sp.set( key, value );
+			return sp;
+		} );
+
 	const updateQueryParam = key => value =>
-		setSearchParams( params => {
-			params.delete( 'currentPage' );
-			params.set( key, value );
-			return params;
+		setSearchParams( sp => {
+			sp.delete( 'p' );
+			sp.delete( 'r' );
+			sp.set( key, value );
+			return sp;
 		} );
 
 	return {
-		currentPage,
-		setCurrentPage,
+		currentPage: parseInt( params.p, 10 ),
+		currentResponseId: parseInt( params.r, 10 ),
+		setCurrentPage: updateParam( 'p' ),
+		setCurrentResponseId: updateParam( 'r' ),
 		setMonthQuery: updateQueryParam( 'month' ),
 		setSearchQuery: updateQueryParam( 'search' ),
 		setSourceQuery: updateQueryParam( 'parent_id' ),
