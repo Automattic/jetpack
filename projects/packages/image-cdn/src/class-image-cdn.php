@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Image_CDN;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Class Image_CDN
  */
@@ -1211,16 +1213,18 @@ final class Image_CDN {
 		if ( self::is_amp_endpoint() ) {
 			return;
 		}
-		wp_enqueue_script(
-			'jetpack-photon',
-			plugins_url(
-				'js/photon.js',
-				__FILE__
-			),
-			array(),
-			20191001,
-			true
+
+		Assets::register_script(
+			'jetpack-image-cdn',
+			'../dist/image-cdn.js',
+			__FILE__,
+			array(
+				'nonminpath' => 'js/image-cdn.js',
+				'in_footer'  => true,
+			)
 		);
+
+		Assets::enqueue_script( 'jetpack-image-cdn' );
 	}
 
 	/**
