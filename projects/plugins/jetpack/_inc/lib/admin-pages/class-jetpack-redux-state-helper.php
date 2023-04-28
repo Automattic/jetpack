@@ -283,7 +283,6 @@ class Jetpack_Redux_State_Helper {
 
 		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
 		if ( ! empty( $post_thumbnail ) ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-photon-image.php';
 			$photon_image = new Image_CDN_Image(
 				array(
 					'file'   => Image_CDN_Core::cdn_url( $post_thumbnail['URL'] ),
