@@ -4,50 +4,49 @@
 	// "-1" is replaced by "..." when rendering the pagination
 	const MORE_ICON = -1;
 
-	function slidingWindow(pages, currentPage) {
+	function slidingWindow( currentPage, maxPage ) {
 		const windowSize = 8;
 		const first = Math.max(
 			1,
-			Math.min(pages - windowSize, currentPage - Math.floor(windowSize / 2))
+			Math.min( maxPage - windowSize, currentPage - Math.floor( windowSize / 2 ) )
 		);
-		const last = Math.min(pages, first + windowSize);
+		const last = Math.min( maxPage, first + windowSize );
 
-		return new Array(last - first + 1).fill(0).map((_, i) => first + i);
+		return new Array( last - first + 1 ).fill( 0 ).map( ( _, i ) => first + i );
 	}
 
-	function generatePagination(current, total) {
+	function generatePagination( currentPage, maxPage ) {
 		const padding = 2;
-		const pagination = slidingWindow(total, current);
+		const pagination = slidingWindow( currentPage, maxPage );
 
 		// Prepend "1 ..."
-		if (pagination[pagination.length - padding] <= total - padding) {
-			pagination.splice(pagination.length - padding, padding, MORE_ICON, total);
+		if ( pagination[ pagination.length - padding ] <= maxPage - padding ) {
+			pagination.splice( pagination.length - padding, padding, MORE_ICON, maxPage );
 		}
 
 		// Append "... 99"
-		if (pagination[0] - padding >= 0) {
-			pagination.splice(0, padding, 1, MORE_ICON);
+		if ( pagination[ 0 ] - padding >= 0 ) {
+			pagination.splice( 0, padding, 1, MORE_ICON );
 		}
 
 		return pagination;
 	}
 
 	function nextPage() {
-		if (current < total) {
+		if ( current < total ) {
 			$imageStore.pagination.current += 1;
 		}
 	}
 
 	function previousPage() {
-		if (current > 1) {
+		if ( current > 1 ) {
 			$imageStore.pagination.current -= 1;
 		}
 	}
 
 	$: current = $imageStore.pagination.current;
 	$: total = $imageStore.pagination.total;
-	$: pages = generatePagination(current, total);
-
+	$: pages = generatePagination( current, total );
 </script>
 
 <div>
@@ -68,7 +67,7 @@
 				<button
 					class:current={page === current}
 					disabled={page === MORE_ICON}
-					on:click={() => ($imageStore.pagination.current = page)}
+					on:click={() => ( $imageStore.pagination.current = page )}
 				>
 					{#if page === MORE_ICON}
 						...
@@ -103,7 +102,7 @@
 	}
 	.current {
 		background-color: #000;
-		border-radius: var(--border-radius);
+		border-radius: var( --border-radius );
 		color: #fff;
 		cursor: pointer;
 		border: 0;
