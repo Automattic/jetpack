@@ -111,7 +111,7 @@
 			flex-direction: row;
 			justify-content: center;
 			align-items: center;
-			padding: 8px 24px;
+			padding: 6px 24px;
 
 			width: 93px;
 			height: 40px;
@@ -237,6 +237,7 @@
 			margin: 16px 0 0 0;
 			float: none;
 			display: block;
+			position: static;
 
 			input[type='search'] {
 				border: 1px solid $gray-5;
@@ -396,6 +397,7 @@
 
 	.wrap {
 		display: flex;
+		overflow: visible;
 
 		.manage-left {
 			flex-grow: 1;
@@ -423,6 +425,10 @@ tr.jetpack-module {
 	@media (max-width: 782px) {
 		padding: 4px 10px;
 		height: auto;
+	}
+
+	&:last-of-type {
+		border-bottom: 0;
 	}
 
 	th.check-column {

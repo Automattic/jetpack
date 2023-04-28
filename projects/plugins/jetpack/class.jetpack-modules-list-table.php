@@ -119,7 +119,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				if ( item === undefined ) return; #>
 				<tr class="jetpack-module <# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
-						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" />
+						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" {{{ item.disabled }}} />
 					</th>
 					<td class='name column-name'>
 						<p class='info'><a href="{{{item.learn_more_button}}}" target="blank" style="text-decoration: none;">{{{ item.name }}}</a></p>
