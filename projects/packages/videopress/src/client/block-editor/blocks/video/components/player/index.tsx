@@ -37,6 +37,9 @@ if ( window.videopressAjax ) {
 
 if ( window?.videoPressEditorState?.playerBridgeUrl ) {
 	sandboxScripts.push( window.videoPressEditorState.playerBridgeUrl );
+	sandboxScripts.push(
+		'https://s0.wp.com/wp-content/plugins/video/assets/js/videojs/videopress-iframe-api.js'
+	);
 }
 
 /**

@@ -16,13 +16,13 @@ const debug = debugFactory( 'videopress:use-video-player' );
  * Return the (content) Window object of the iframe,
  * given the iframe's ref.
  *
- * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - iframe ref
+ * @param {React.MutableRefObject< HTMLDivElement >} iFrameWrapperRef - iframe ref
  * @returns {Window | null}	                                     Window object of the iframe
  */
 export const getIframeWindowFromRef = (
-	iFrameRef: React.MutableRefObject< HTMLDivElement >
+	iFrameWrapperRef: React.MutableRefObject< HTMLDivElement >
 ): Window | null => {
-	const iFrame: HTMLIFrameElement = iFrameRef?.current?.querySelector(
+	const iFrame: HTMLIFrameElement = iFrameWrapperRef?.current?.querySelector(
 		'iframe.components-sandbox'
 	);
 	return iFrame?.contentWindow;
@@ -31,13 +31,13 @@ export const getIframeWindowFromRef = (
 /**
  * Custom hook to set the player ready to use:
  *
- * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - useRef of the sandbox wrapper.
- * @param {boolean} isRequestingPreview                        - Whether the preview is being requested.
- * @param {UseVideoPlayerOptions} options                      - Options object.
- * @returns {UseVideoPlayer}                                     playerIsReady and playerState
+ * @param {React.MutableRefObject< HTMLDivElement >} iFrameWrapperRef - useRef of the sandbox wrapper.
+ * @param {boolean} isRequestingPreview                               - Whether the preview is being requested.
+ * @param {UseVideoPlayerOptions} options                             - Options object.
+ * @returns {UseVideoPlayer}                                            playerIsReady and playerState
  */
 const useVideoPlayer = (
-	iFrameRef: React.MutableRefObject< HTMLDivElement >,
+	iFrameWrapperRef: React.MutableRefObject< HTMLDivElement >,
 	isRequestingPreview: boolean,
 	{ initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions
 ): UseVideoPlayer => {
@@ -115,7 +115,7 @@ const useVideoPlayer = (
 	const wasPreviewOnHoverEnabled = usePrevious( isPreviewOnHoverEnabled );
 	const wasPreviewOnHoverJustEnabled = isPreviewOnHoverEnabled && ! wasPreviewOnHoverEnabled;
 
-	const sandboxIFrameWindow = getIframeWindowFromRef( iFrameRef );
+	const sandboxIFrameWindow = getIframeWindowFromRef( iFrameWrapperRef );
 
 	// Listen player events.
 	useEffect( () => {
@@ -143,7 +143,7 @@ const useVideoPlayer = (
 		}
 
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_play' }, '*' );
-	}, [ iFrameRef, playerIsReady, sandboxIFrameWindow ] );
+	}, [ iFrameWrapperRef, playerIsReady, sandboxIFrameWindow ] );
 
 	const pause = useCallback( () => {
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
@@ -151,7 +151,7 @@ const useVideoPlayer = (
 		}
 
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_pause' }, '*' );
-	}, [ iFrameRef, playerIsReady, sandboxIFrameWindow ] );
+	}, [ iFrameWrapperRef, playerIsReady, sandboxIFrameWindow ] );
 
 	useEffect( () => {
 		if ( ! wrapperElement || ! isPreviewOnHoverEnabled ) {
