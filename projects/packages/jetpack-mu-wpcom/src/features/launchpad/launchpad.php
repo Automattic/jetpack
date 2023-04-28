@@ -99,6 +99,17 @@ function get_checklist_definitions() {
 				'site_launched',
 			),
 		),
+		array(
+			'id'       => 'start-writing',
+			'title'    => 'Start Writing',
+			'task_ids' => array(
+				'first_post_published',
+				'setup_free',
+				'domain_upsell',
+				'plan_selected',
+				'blog_launched',
+			),
+		),
 	);
 }
 
@@ -280,6 +291,13 @@ function get_task_definitions() {
 			'title'     => __( 'Confirm email (check your inbox)', 'jetpack-mu-wpcom' ),
 			'completed' => false,
 			'disabled'  => true,
+		),
+		array(
+			'id'           => 'blog_launched',
+			'title'        => __( 'Launch your blog', 'jetpack-mu-wpcom' ),
+			'completed'    => get_checklist_task( 'site_launched' ),
+			'disabled'     => false,
+			'isLaunchTask' => true,
 		),
 	);
 }
