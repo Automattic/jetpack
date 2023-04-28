@@ -28,7 +28,7 @@ export default function AddLicenseScreen() {
 	const { recordEvent } = useAnalytics();
 	const { availableLicenses, fetchingAvailableLicenses } = useAvailableLicenses();
 	const { userConnectionData } = useConnection();
-	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( false );
+	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( true );
 
 	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.
 	const displayName =
@@ -44,14 +44,9 @@ export default function AddLicenseScreen() {
 				// Prevent default here to minimize page change within the My Jetpack app.
 				event.preventDefault();
 				history.back();
-
-				if ( hasActivatedLicense ) {
-					// Reload the page to reflect the new license in the product card.
-					window.location.reload();
-				}
 			}
 		},
-		[ recordEvent, hasActivatedLicense ]
+		[ recordEvent ]
 	);
 
 	const handleActivationSuccess = useCallback( () => {
@@ -62,7 +57,7 @@ export default function AddLicenseScreen() {
 		<AdminPage showHeader={ false } showBackground={ false }>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col>
-					<GoBackLink onClick={ onClickGoBack } />
+					<GoBackLink onClick={ onClickGoBack } reload={ hasActivatedLicense } />
 				</Col>
 				<Col>
 					<ActivationScreen
