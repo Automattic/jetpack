@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed html entities not displaying correctly in the forms dashboard

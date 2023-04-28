@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed an issue causing the forms dashboard view setting not to be saved on WP.com
