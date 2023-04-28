@@ -4,7 +4,7 @@
 import { SandBox, Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
-import { useState, useEffect, useRef, useCallback, render } from '@wordpress/element';
+import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
@@ -17,12 +17,12 @@ import getMediaToken from '../../../../../lib/get-media-token/index.native';
 import { getVideoPressUrl } from '../../../../../lib/url';
 import { usePreview } from '../../../../hooks/use-preview';
 import addTokenIntoIframeSource from '../../../../utils/add-token-iframe-source';
-import PlayerControls from './controls';
 import { VideoPressIcon } from '../icons';
+import PlayerControls from './controls';
 import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
-const DEFAULT_PLAYER_ASPECT_RATIO =  16 / 9; // This is the observed default aspect ratio from VideoPress embeds.
+const DEFAULT_PLAYER_ASPECT_RATIO = 16 / 9; // This is the observed default aspect ratio from VideoPress embeds.
 const IS_ANDROID = Platform.OS === 'android';
 
 /**
@@ -102,14 +102,13 @@ export default function Player( { isSelected, attributes } ) {
 	const invalidatePreview = () => invalidateResolution( 'getEmbedPreview', [ videoPressUrl ] );
 
 	// Check if the preview is ready or we ran out of attempts.
-	const isPreviewReady =
-		!! preview?.height || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT;
+	const isPreviewReady = !! preview?.height || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT;
 
 	const aspectRatio = preview?.width / preview?.height || DEFAULT_PLAYER_ASPECT_RATIO;
 
 	// Fetch the preview until it's ready
 	useEffect( () => {
-		// return early 
+		// return early
 		if ( ! isPlayerLoaded || isRequestingEmbedPreview ) {
 			return;
 		}
@@ -143,9 +142,9 @@ export default function Player( { isSelected, attributes } ) {
 				if ( playEnded ) {
 					setPlayEnded( false );
 				}
-				break
+				break;
 		}
-	};
+	} );
 
 	const loadingOverlay = (
 		<View style={ style[ 'videopress-player__overlay' ] }>
