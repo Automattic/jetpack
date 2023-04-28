@@ -23,7 +23,7 @@ class Automation_Engine {
 
 	/** @var Automation_Logger Automation logger */
 	private $automation_logger;
-	
+
 	/** @var array */
 	private $recipes = array();
 
@@ -39,7 +39,7 @@ class Automation_Engine {
 
 		return self::$instance;
 	}
-	
+
 	/**
 	 * Set the automation logger
 	 *
@@ -162,5 +162,65 @@ class Automation_Engine {
 	 */
 	public function get_registered_triggers(): array {
 		return $this->triggers_map;
+	}
+
+	/**
+	 * Get registered actions
+	 *
+	 * @return array
+	 */
+	public function get_registered_actions(): array {
+		return $this->actions_map;
+	}
+
+	/**
+	 * Get registered conditions
+	 *
+	 * @return array
+	 */
+	public function get_registered_conditions(): array {
+		return $this->conditions_map;
+	}
+
+	/**
+	 * Add a recipe
+	 *
+	 * @param Automation_Recipe $recipe
+	 * @param bool              $init_recipe
+	 * @return void
+	 * @throws Recipe_Exception
+	 */
+	public function add_recipe( Automation_Recipe $recipe, bool $init_recipe = false ) {
+		$this->recipes[] = $recipe;
+
+		if ( $init_recipe ) {
+			$recipe->init_triggers();
+		}
+	}
+
+	/**
+	 * Build and add a recipe
+	 *
+	 * @param array       $recipe_data
+	 * @param $init_recipe
+	 * @return Automation_Recipe
+	 * @throws Recipe_Exception
+	 */
+	public function build_add_recipe( array $recipe_data, bool $init_recipe = false ): Automation_Recipe {
+		$recipe = new Automation_Recipe( $recipe_data );
+		$this->add_recipe( $recipe, $init_recipe );
+
+		return $recipe;
+	}
+
+	/**
+	 * Init automation recipes.
+	 *
+	 * @return void
+	 */
+	public function init_recipes() {
+		foreach ( $this->recipes as $recipe ) {
+			$recipe->init_triggers();
+		}
 	}
 }
