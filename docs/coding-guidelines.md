@@ -43,15 +43,13 @@ Example usage for deprecating a function:
  */
 function example_function( ) {
  
-    if ( function_exists( '_deprecated_function' ) ) {
-        _deprecated_function( __FUNCTION__, '{plugin/package}-$$next-version$$' );
-    }
+    _deprecated_function( __FUNCTION__, '{plugin/package}-$$next-version$$' );
  
    return 'example';
 }
 ```
 
-For more information on how to use `$$next-version`, please see the [packages README](../packages/README.md#package-version-annotations) (relevant for plugins as well).
+For more information on how to use `$$next-version$$`, please see the [packages README](../projects/packages/README.md#package-version-annotations) (relevant for plugins as well).
 
 ## Widgets
 
