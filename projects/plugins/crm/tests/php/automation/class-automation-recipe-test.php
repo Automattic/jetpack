@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 
 use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
+use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Automation_Recipe;
 use Automattic\Jetpack\CRM\Automation\Trigger;
 use WorDBless\BaseTestCase;
@@ -88,6 +89,7 @@ class Automation_Recipe_Test extends BaseTestCase {
 	public function test_recipe_execution_on_contact_created() {
 
 		$automation = Automation_Engine::instance();
+		$automation->set_automation_logger( Automation_Logger::instance() );
 		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
 
 		$recipe_data = $this->automation_faker->recipe_without_initial_step();
