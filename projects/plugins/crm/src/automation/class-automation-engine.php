@@ -23,15 +23,9 @@ class Automation_Engine {
 
 	/** @var Automation_Logger Automation logger */
 	private $automation_logger;
-
-	/**
-	 * Initialize the automation engine
-	 *
-	 * @param Automation_Logger $logger The automation logger.
-	 */
-	private function __construct( Automation_Logger $logger ) {
-		$this->automation_logger = $logger;
-	}
+	
+	/** @var array */
+	private $recipes = array();
 
 	/**
 	 *  Instance singleton object
@@ -40,11 +34,19 @@ class Automation_Engine {
 	 */
 	public static function instance(): Automation_Engine {
 		if ( ! self::$instance ) {
-			$logger         = Automation_Logger::instance();
-			self::$instance = new self( $logger );
+			self::$instance = new self();
 		}
 
 		return self::$instance;
+	}
+	
+	/**
+	 * Set the automation logger
+	 *
+	 * @param Automation_Logger $logger The automation logger.
+	 */
+	public function set_automation_logger( Automation_Logger $logger ) {
+		$this->automation_logger = $logger;
 	}
 
 	/**
