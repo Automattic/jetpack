@@ -1,12 +1,10 @@
 import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
-import { select } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
-import { STORE_ID } from '../../state/store';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
 import boostImage from './boost.png';
@@ -63,20 +61,21 @@ export default function ProductInterstitial( {
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 
 	const clickHandler = useCallback(
-		checkout => {
-			const activateOrCheckout = () => ( bundle ? Promise.resolve() : activate() );
+		( checkout, selectedProductDetail ) => {
+			const activateOrCheckout = () =>
+				selectedProductDetail?.isBundle ? Promise.resolve() : activate();
 
 			activateOrCheckout().finally( () => {
-				const product = select( STORE_ID ).getProduct( slug );
-				if ( bundle ) {
+				const postActivationUrl = selectedProductDetail?.postActivationUrl;
+				const hasRequiredPlan = selectedProductDetail?.hasRequiredPlan;
+				const isFree = selectedProductDetail?.pricingForUi?.isFree;
+				const needsPurchase = ! isFree && ! hasRequiredPlan;
+
+				if ( selectedProductDetail?.isBundle ) {
 					// Get straight to the checkout page.
 					checkout?.();
 					return;
 				}
-				const postActivationUrl = product?.postActivationUrl;
-				const hasRequiredPlan = product?.hasRequiredPlan;
-				const isFree = product?.pricingForUi?.isFree;
-				const needsPurchase = ! isFree && ! hasRequiredPlan;
 
 				if ( postActivationUrl ) {
 					window.location.href = postActivationUrl;
@@ -91,7 +90,7 @@ export default function ProductInterstitial( {
 				checkout?.();
 			} );
 		},
-		[ navigateToMyJetpackOverviewPage, activate, bundle, slug ]
+		[ navigateToMyJetpackOverviewPage, activate ]
 	);
 
 	const onClickGoBack = useCallback(
