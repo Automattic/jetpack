@@ -293,6 +293,7 @@ class MyPlanBody extends React.Component {
 		switch ( planClass ) {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
+			case 'is-starter-plan':
 			case 'is-security-t1-plan':
 			case 'is-security-t2-plan':
 			case 'is-business-plan':
