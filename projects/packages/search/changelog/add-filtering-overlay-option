@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Jetpack Search: add "Filtering opens overlay" option, which allows users to enable/disable the opening of the search overlay when filtering from a separate widget are outside of the Jetpack Search Sidebar
+Jetpack Search: add "Enable filter-triggered overlay" option, which allows users to enable/disable the opening of the search overlay when filtering from a separate widget outside of the Jetpack Search Sidebar
