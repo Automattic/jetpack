@@ -78,7 +78,7 @@ export default function Player( { isSelected, attributes } ) {
 	useEffect( () => {
 		if ( guid ) {
 			setIsPlayerLoaded( false );
-			setIsPlayerReady( false );
+			setIsPlayerReady( IS_ANDROID );
 		}
 	}, [ guid ] );
 
@@ -190,6 +190,7 @@ export default function Player( { isSelected, attributes } ) {
 					html={ html }
 					onWindowEvents={ { message: onSandboxMessage } }
 					viewportProps="user-scalable=0"
+					ref={ playerRef }
 				/>
 			) }
 		</View>
