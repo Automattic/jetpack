@@ -57,6 +57,12 @@
 	<rule ref="PHPCompatibility.Interfaces.NewInterfaces.throwableFound">
 		<severity>0</severity>
 	</rule>
+	<rule ref="PHPCompatibility.FunctionDeclarations.NewNullableTypes.returnTypeFound">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Generic.Commenting.DocComment.MissingShort">
+		<severity>0</severity>
+	</rule>
 
 	<!-- Custom JPCRM escape function -->
 	<rule ref="WordPress.Security.EscapeOutput">
