@@ -14,6 +14,7 @@ import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import React, { useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
 import ConnectionsSection from '../connections-section';
@@ -76,6 +77,8 @@ export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
+	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
+	const shouldShowZendeskChatWidget = ! isFetchingChatAvailability && isAvailable;
 
 	const { recordEvent } = useAnalytics();
 
@@ -123,7 +126,8 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 			</AdminSection>
-			<ZendeskChat />
+
+			{ shouldShowZendeskChatWidget && <ZendeskChat /> }
 		</AdminPage>
 	);
 }

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Add support for including a menu in the JetpackFooter component.
+
+
