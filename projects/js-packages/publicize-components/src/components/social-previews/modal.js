@@ -68,7 +68,6 @@ export default withSelect( select => {
 	const featuredImageId = getEditedPostAttribute( 'featured_media' );
 	const authorId = getEditedPostAttribute( 'author' );
 	const user = authorId && getUser( authorId );
-
 	const media = getMedia( featuredImageId );
 
 	const postData = {
