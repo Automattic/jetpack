@@ -10,9 +10,8 @@ import { View, Pressable } from 'react-native';
 /**
  * Internal dependencies
  */
-import PauseIcon from './icons/icon-pause.native.js';
-import PlayIcon from './icons/icon-play.native.js';
-import ReplayIcon from './icons/icon-replay.native.js';
+
+import { PauseIcon, PlayIcon, ReplayIcon } from '../../icons';
 import style from './style.scss';
 
 const PlayerControls = ( { isSelected, playEnded, onToggle } ) => {

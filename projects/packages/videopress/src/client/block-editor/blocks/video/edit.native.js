@@ -16,7 +16,6 @@ import { store as noticesStore } from '@wordpress/notices';
 /**
  * External dependencies
  */
-import React from 'react';
 import { View } from 'react-native';
 /**
  * Internal dependencies
