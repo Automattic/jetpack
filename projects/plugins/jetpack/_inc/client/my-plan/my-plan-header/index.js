@@ -9,7 +9,12 @@ import { ProductActivated } from 'components/product-activated';
 import ProductExpiration from 'components/product-expiration';
 import UpgradeLink from 'components/upgrade-link';
 import analytics from 'lib/analytics';
-import { getPlanClass, JETPACK_BACKUP_PRODUCTS, JETPACK_SCAN_PRODUCTS } from 'lib/plans/constants';
+import {
+	containsGiftedPlanOrProduct,
+	getPlanClass,
+	JETPACK_BACKUP_PRODUCTS,
+	JETPACK_SCAN_PRODUCTS,
+} from 'lib/plans/constants';
 import { find, isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -56,6 +61,7 @@ class MyPlanHeader extends React.Component {
 					expiryDate={ purchase.expiry_date }
 					purchaseDate={ purchase.subscribed_date }
 					isRefundable={ purchase.is_refundable }
+					isGift={ containsGiftedPlanOrProduct( purchase.product_slug ) }
 				/>
 			);
 
@@ -388,6 +394,17 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Boost', 'jetpack' ),
 				};
 
+			case 'is-jetpack-golden-token-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'You have been gifted a Jetpack Golden Token. This unlocks a lifetime of Jetpack VaultPress Backup and Jetpack Scan for your website.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Golden Token', 'jetpack' ),
+				};
+
 			default:
 				return {
 					...productProps,
@@ -402,7 +419,10 @@ class MyPlanHeader extends React.Component {
 				{ this.renderLicensingActions() }
 				<Card compact>
 					{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
-					<MyPlanCard { ...this.getProductProps( this.props.plan, this.props.activeProducts ) } />
+					<MyPlanCard
+						{ ...this.getProductProps( this.props.plan, this.props.activeProducts ) }
+						isPlan
+					/>
 				</Card>
 			</>
 		);
@@ -459,14 +479,16 @@ class MyPlanHeader extends React.Component {
 						} ) }
 					>
 						{ showPurchasesLink && (
-							<ExternalLink
-								className="all-purchases__link"
-								href={ getRedirectUrl( 'calypso-purchases' ) }
+							<Button
 								onClick={ this.trackAllPurchasesClick }
+								href={ getRedirectUrl( 'calypso-purchases' ) }
+								compact
+								rna
 							>
-								{ __( 'View all purchases', 'jetpack' ) }
-							</ExternalLink>
+								<ExternalLink>{ __( 'View all purchases', 'jetpack' ) }</ExternalLink>
+							</Button>
 						) }
+
 						{ 'header' === position ? (
 							<Button
 								href={
@@ -476,6 +498,8 @@ class MyPlanHeader extends React.Component {
 								}
 								onClick={ this.trackLicenseActivationClick }
 								primary
+								compact
+								rna
 							>
 								{ _x( 'Activate a Product', 'Navigation item.', 'jetpack' ) }
 							</Button>
@@ -484,6 +508,7 @@ class MyPlanHeader extends React.Component {
 								href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
 								onClick={ this.trackRecommendationsClick }
 								primary
+								rna
 							>
 								{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
 							</Button>

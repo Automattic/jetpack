@@ -17,7 +17,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { getStatsData, statsSwitchTab, fetchStatsData, getActiveStatsTab } from 'state/at-a-glance';
 import { isOfflineMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
-import { getInitialStateStatsData, getDateFormat } from 'state/initial-state';
+import {
+	isOdysseyStatsEnabled,
+	getInitialStateStatsData,
+	getDateFormat,
+	isAtomicSite,
+} from 'state/initial-state';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
 import DashStatsBottom from './dash-stats-bottom';
@@ -38,15 +43,23 @@ export class DashStats extends Component {
 		};
 	}
 
-	barClick( bar ) {
-		if ( bar.data.link ) {
-			analytics.tracks.recordJetpackClick( 'stats_bar' );
-			window.open( bar.data.link, '_blank' );
-		}
+	shouldLinkToWpcomStats() {
+		return ! this.props.isOdysseyStatsEnabled || this.props.isAtomicSite;
 	}
 
+	barClick = bar => {
+		if ( bar.data.link ) {
+			analytics.tracks.recordJetpackClick( 'stats_bar' );
+			// Open the link in the same tab if the user has Odyssey enabled or is on at Atomic site.
+			window.open(
+				bar.data.link,
+				this.props.isOdysseyStatsEnabled || this.props.isAtomicSite ? '_self' : '_blank'
+			);
+		}
+	};
+
 	statsChart( unit ) {
-		const props = this.props,
+		const { siteAdminUrl, siteRawUrl, statsData } = this.props,
 			s = [];
 
 		let totalViews = 0;
@@ -58,11 +71,11 @@ export class DashStats extends Component {
 			/* translators: long month/year format, such as: January, 2021. */
 			longMonthYearFormat = __( 'F Y', 'jetpack' );
 
-		if ( 'object' !== typeof props.statsData[ unit ] ) {
+		if ( 'object' !== typeof statsData[ unit ] ) {
 			return { chartData: s, totalViews: false };
 		}
 
-		forEach( props.statsData[ unit ].data, function ( v ) {
+		forEach( statsData[ unit ].data, v => {
 			const views = v[ 1 ];
 			let date = v[ 0 ],
 				chartLabel = '',
@@ -93,10 +106,12 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link: getRedirectUrl( `calypso-stats-${ unit }`, {
-						site: props.siteRawUrl,
-						query: `startDate=${ date }`,
-					} ),
+					link: ! this.shouldLinkToWpcomStats()
+						? `${ siteAdminUrl }admin.php?page=stats#!/stats/day/${ siteRawUrl }?startDate=${ date }`
+						: getRedirectUrl( `calypso-stats-${ unit }`, {
+								site: siteRawUrl,
+								query: `startDate=${ date }`,
+						  } ),
 				},
 				tooltipData: [
 					{
@@ -108,7 +123,6 @@ export class DashStats extends Component {
 						),
 						className: 'tooltip class',
 					},
-					{ label: __( 'Click to view Jetpack Stats.', 'jetpack' ) },
 				],
 			} );
 		} );
@@ -351,7 +365,10 @@ export class DashStats extends Component {
 			this.props.isModuleAvailable && (
 				<div>
 					<QueryStatsData range={ this.props.activeTab } />
-					<DashSectionHeader label={ __( 'Jetpack Stats', 'jetpack' ) }>
+					<DashSectionHeader
+						label={ __( 'Jetpack Stats', 'jetpack' ) }
+						className="jp-dash-section-header-stats"
+					>
 						{ this.maybeShowStatsTabs() }
 					</DashSectionHeader>
 					<Card
@@ -380,6 +397,8 @@ export default connect(
 			: getStatsData( state ),
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
+		isAtomicSite: isAtomicSite( state ),
 	} ),
 	dispatch => ( {
 		switchView: tab => dispatch( statsSwitchTab( tab ) ),

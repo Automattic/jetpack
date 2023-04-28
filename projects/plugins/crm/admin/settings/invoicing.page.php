@@ -477,9 +477,9 @@ if ( isset( $sbupdated ) ) {
 					<p style="text-align:center"><?php esc_html_e( 'Looking for easy-access link settings? You can turn configure those via the Client Portal settings page.', 'zero-bs-crm' ); ?></p>
 					<p style="text-align:center">
 						<a href="<?php echo jpcrm_esc_link( $zbs->slugs['settings'] ); ?>&tab=clients" class="ui mini button blue"><?php esc_html_e( 'View Client Portal Settings', 'zero-bs-crm' ); ?></a>
-						<?php // WLREMOVE ?>
+						<?php ##WLREMOVE ?>
 						<a href="<?php echo esc_url( $zbs->urls['easyaccessguide'] ); ?>" target="_blank" class="ui mini button green"><?php esc_html_e( 'View Easy-Access Links Guide', 'zero-bs-crm' ); ?></a>
-						<?php // /WLREMOVE ?>
+						<?php ##/WLREMOVE ?>
 					</p>
 				</td>
 			</tr>

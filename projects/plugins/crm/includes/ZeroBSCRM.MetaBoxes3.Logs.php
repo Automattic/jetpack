@@ -66,7 +66,7 @@
                     'updated'=> array("locked" => true,"label" => __("Updated","zero-bs-crm"), "ico" => "fa-pencil-square-o"),
                     'quote_created'=> array("locked" => true,"label" => __("Quote Created","zero-bs-crm"), "ico" => "fa-plus-circle"),                    
                     'invoice_created'=> array("locked" => true,"label" => __("Invoice Created","zero-bs-crm"), "ico" => "fa-plus-circle"),
-                    'event_created'=> array("locked" => true,"label" => __("Event Created","zero-bs-crm"), "ico" => "fa-calendar"),
+			'event_created' => array('locked' => true, 'label' => __( 'Task Created', 'zero-bs-crm' ), 'ico' => 'fa-calendar' ), // phpcs:ignore WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound, WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
                     'task_created'=> array("locked" => true,"label" => __("Task Created","zero-bs-crm"), "ico" => "fa-calendar"),
                     'transaction_created'=> array("locked" => true,"label" => __("Transaction Created","zero-bs-crm"), "ico" => "fa-credit-card"),
                     'transaction_updated'=> array("locked" => true,"label" => __("Transaction Updated","zero-bs-crm"), "ico" => "fa-credit-card"),
@@ -211,7 +211,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                 <table class="form-table wh-metatab wptbp" id="wptbpMetaBoxLogs">
                     
                     <tr>
-                        <td><h2><span id="zbsActiveLogCount"><?php echo esc_html( zeroBSCRM_prettifyLongInts(count($zbsLogs)) ); ?></span> <?php esc_html_e("Logs","zero-bs-crm");?></h2></td>
+								<td><h4><span id="zbsActiveLogCount"><?php echo esc_html( zeroBSCRM_prettifyLongInts( count( $zbsLogs ) ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?></span> <?php esc_html_e( 'Logs', 'zero-bs-crm' ); ?></h4></td>
                         <td><button type="button" class="ui primary button button-primary button-large" id="zbscrmAddLog"><?php esc_html_e("Add Log","zero-bs-crm");?></button></td>
                     </tr>
 

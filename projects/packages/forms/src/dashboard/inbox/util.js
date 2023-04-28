@@ -1,3 +1,5 @@
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+
 export const getDisplayName = response => {
 	if ( response.author_name ) {
 		return response.author_name;
@@ -25,3 +27,5 @@ export const formatFieldName = fieldName => {
 
 	return fieldName;
 };
+
+export const isWpcom = () => isAtomicSite() || isSimpleSite();

@@ -64,28 +64,9 @@ function zeroBSCRM_menu_buildMenu() {
 	$use_forms        = zeroBSCRM_isExtensionInstalled( 'forms' ) == 1; // zeroBSCRM_getSetting('feat_forms');
 	$use_calendar     = zeroBSCRM_getSetting( 'feat_calendar' ) == 1;
 
-	// Menu Builder, in a POST CPT world
-
-	/*
-		array(
-			'zbscrm' => array(
-				'ico' => 'icon',
-				'title' => 'title',
-				'url' => 'url',
-				'perms' => 'admin_zerobs_customers', (user capability)
-				'order' => 99, // this is internal ordering (e.g. in zbs menus)
-				'wpposition' => 99, // this is passed to wp
-				'subitems' => array,
-				'callback' => zeroBSCRM_pages_home
-				'stylefuncs' => array
-			),
-
-			'hidden' => array(
-				'subitems' => array() // THIS is all pages which need adding to WP but not adding to menus
-			)
-
-		)
-	*/
+	// Check if it has license to show the Support menu
+	$license     = zeroBSCRM_getSetting( 'license_key' );
+	$has_license = is_array( $license ) && ! empty( $license['key'] );
 
 	// this is the "first build" function, so begin with this :)
 	$menu = array(
@@ -262,7 +243,7 @@ function zeroBSCRM_menu_buildMenu() {
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_extension_admin_styles', 'zeroBSCRM_settingspage_admin_styles' ),
 		);
 
-		// WLREMOVE
+		##WLREMOVE
 		// Install Extensions (sub)
 		if ( current_user_can( 'manage_options' ) ) {
 			$menu['jpcrm']['subitems']['installext'] = array(
@@ -275,7 +256,7 @@ function zeroBSCRM_menu_buildMenu() {
 				'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_extension_admin_styles', 'zeroBSCRM_settingspage_admin_styles' ),
 			);
 		}
-		// /WLREMOVE
+		##/WLREMOVE
 
 		// System Status (sub)
 		$menu['jpcrm']['subitems']['systemstatus'] = array(
@@ -299,7 +280,7 @@ function zeroBSCRM_menu_buildMenu() {
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_settingspage_admin_styles' ),
 		);
 
-		// WLREMOVE
+		##WLREMOVE
 
 		// Feedback (sub)
 		$menu['jpcrm']['subitems']['crmresources'] = array(
@@ -312,7 +293,19 @@ function zeroBSCRM_menu_buildMenu() {
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'jpcrm_crm_resources_page_styles_scripts' ),
 		);
 
-		// /WLREMOVE
+		$support_menu = $has_license ? 'jpcrm' : 'hidden';
+
+		$menu[ $support_menu ]['subitems']['support'] = array(
+			'title'      => '<span>' . __( 'Support', 'zero-bs-crm' ) . '</span>',
+			'url'        => $zbs->slugs['support'],
+			'perms'      => 'admin_zerobs_manage_options',
+			'order'      => 102,
+			'wpposition' => 102,
+			'callback'   => 'jpcrm_pages_support',
+			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'jpcrm_support_page_styles_scripts' ),
+		);
+
+		## /WLREMOVE
 
 	}
 	/**
@@ -366,7 +359,7 @@ function zeroBSCRM_menu_buildMenu() {
 			'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_extension_admin_styles', 'zeroBSCRM_settingspage_admin_styles' ),
 		);
 
-		// WLREMOVE
+		##WLREMOVE
 		// Extensions (sub)
 		if ( current_user_can( 'manage_options' ) ) {
 			$menu['jpcrm']['subitems']['installext'] = array(
@@ -379,7 +372,7 @@ function zeroBSCRM_menu_buildMenu() {
 				'stylefuncs' => array( 'zeroBSCRM_global_admin_styles', 'zeroBSCRM_extension_admin_styles', 'zeroBSCRM_settingspage_admin_styles' ),
 			);
 		}
-		// /WLREMOVE
+		##/WLREMOVE
 
 		// System Status (sub)
 		$menu['jpcrm']['subitems']['systemstatus'] = array(
@@ -1263,7 +1256,7 @@ function zeroBSCRM_menu_add_sublevel( $menuItem = -1, $subMenuKey = -1, $subMenu
 
 		// https://developer.wordpress.org/reference/functions/add_submenu_page/
 		$adminSubPage = add_submenu_page(
-			( is_array( $menuItem ) && isset( $menuItem['url'] ) ) ? $menuItem['url'] : null, // parent slug
+			( is_array( $menuItem ) && isset( $menuItem['url'] ) ) ? $menuItem['url'] : 'jpcrm-hidden', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			$subMenuItem['title'], // __( 'Tags', 'zero-bs-crm' ),
 			$subMenuItem['title'], // __( 'Tags', 'zero-bs-crm' ),
 			$subMenuItem['perms'], // 'admin_zerobs_customers',

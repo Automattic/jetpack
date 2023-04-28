@@ -316,6 +316,6 @@ class Render_Blocking_JS implements Pluggable {
 	}
 
 	public static function get_slug() {
-		return 'render-blocking-js';
+		return 'render_blocking_js';
 	}
 }

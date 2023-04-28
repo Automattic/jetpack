@@ -1,5 +1,6 @@
 {
 	"production": [
+		"blogging-prompt",
 		"business-hours",
 		"button",
 		"calendly",
@@ -48,23 +49,18 @@
 		"videopress/video"
 	],
 	"beta": [
+		"ai-chat",
 		"amazon",
-		"blogging-prompt",
 		"conversation",
 		"dialogue",
 		"google-docs-embed",
 		"launchpad-save-modal",
 		"post-publish-promote-post-panel",
 		"recipe",
+		"v6-video-frame-poster",
 		"videopress/video-chapters"
 	],
-	"experimental": [
-		"ai-image",
-		"ai-paragraph",
-		"anchor-fm",
-		"blogging-prompts",
-		"premium-content"
-	],
+	"experimental": [ "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",

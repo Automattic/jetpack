@@ -5,4 +5,5 @@ export type CutBaseProps = {
 	href?: string;
 	openInNewTab?: boolean;
 	onClick?: () => void;
+	tooltipText?: string;
 };

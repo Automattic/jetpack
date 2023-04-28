@@ -44,13 +44,16 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 		return ! ( isEmpty( formDataField ) && isEmpty( videoField ) ) && isDifferent;
 	};
 
-	const metaChanged = [
-		'title',
-		'description',
-		'rating',
-		'allowDownload',
-		'displayEmbed',
-	].some( field => hasFieldChanged( field ) );
+	const metaChanged = [ 'title', 'description', 'rating', 'allowDownload', 'displayEmbed' ].some(
+		field => hasFieldChanged( field )
+	);
+
+	const hasPrivacySettingChanged = () => {
+		const formDataPrivacySetting = formData?.privacySetting;
+		const videoPrivacySetting = video?.privacySetting;
+		const isDifferent = formDataPrivacySetting !== VIDEO_PRIVACY_LEVELS[ videoPrivacySetting ];
+		return ! ( isEmpty( formDataPrivacySetting ) && isEmpty( videoPrivacySetting ) ) && isDifferent;
+	};
 
 	const setTitle = ( title: string ) => {
 		updateData( { title } );
@@ -58,6 +61,10 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 
 	const setDescription = ( description: string ) => {
 		updateData( { description } );
+	};
+
+	const setPrivacySetting = ( privacySetting: string ) => {
+		updateData( { privacySetting } );
 	};
 
 	const setRating = ( rating: RatingProp ) => {
@@ -85,12 +92,14 @@ const useMetaEdit = ( { videoId, formData, video, updateData } ) => {
 	return {
 		setTitle,
 		setDescription,
+		setPrivacySetting,
 		setRating,
 		setAllowDownload,
 		setDisplayEmbed,
 		handleMetaUpdate,
 		metaChanged,
 		hasFieldChanged,
+		hasPrivacySettingChanged,
 	};
 };
 
@@ -105,13 +114,18 @@ export default () => {
 
 	const { videoId: videoIdFromParams } = useParams();
 	const videoId = Number( videoIdFromParams );
-	const { data: video, isFetching, processing, isDeleting, updateVideoPrivacy } = useVideo(
-		Number( videoId )
-	);
+	const {
+		data: video,
+		isFetching,
+		processing,
+		isDeleting,
+		updateVideoPrivacy,
+	} = useVideo( Number( videoId ), true );
 
 	const { playbackToken, isFetchingPlaybackToken } = usePlaybackToken( video );
 
 	const [ libraryAttachment, setLibraryAttachment ] = useState( null );
+	const [ currentLibraryAttachment, setCurrentLibraryAttachment ] = useState( null );
 	const [ posterImageSource, setPosterImageSource ] = useState<
 		'default' | 'video' | 'upload' | null
 	>( null );
@@ -119,13 +133,10 @@ export default () => {
 	const [ updating, setUpdating ] = useState( false );
 	const [ updated, setUpdated ] = useState( false );
 	const [ deleted, setDeleted ] = useState( false );
-	const [ privacySetting, setPrivacySetting ] = useState(
-		VIDEO_PRIVACY_LEVELS[ video?.privacySetting ]
-	);
-
 	const [ formData, setFormData ] = useState( {
 		title: video?.title,
 		description: video?.description,
+		privacySetting: VIDEO_PRIVACY_LEVELS[ video?.privacySetting ],
 		rating: video?.rating,
 		allowDownload: video?.allowDownload,
 		displayEmbed: video?.displayEmbed,
@@ -137,6 +148,7 @@ export default () => {
 
 	const {
 		selectedTime,
+		setVideoFrameMs,
 
 		updatePosterImageFromFrame,
 
@@ -144,7 +156,13 @@ export default () => {
 		updatePosterImageFromLibrary,
 		...posterEditData
 	} = usePosterEdit( { video } );
-	const { metaChanged, handleMetaUpdate, hasFieldChanged, ...metaEditData } = useMetaEdit( {
+	const {
+		metaChanged,
+		handleMetaUpdate,
+		hasFieldChanged,
+		hasPrivacySettingChanged,
+		...metaEditData
+	} = useMetaEdit( {
 		videoId,
 		video,
 		formData,
@@ -162,8 +180,8 @@ export default () => {
 	const hasChanges =
 		metaChanged ||
 		selectedTime != null ||
-		libraryAttachment != null ||
-		privacySetting !== VIDEO_PRIVACY_LEVELS[ video?.privacySetting ];
+		libraryAttachment !== currentLibraryAttachment ||
+		hasPrivacySettingChanged();
 
 	const selectPosterImageFromLibrary = async () => {
 		const attachment = await selectAttachmentFromLibrary();
@@ -239,8 +257,8 @@ export default () => {
 			promises.push( updatePosterImageFromLibrary( libraryAttachment.id ) );
 		}
 
-		if ( privacySetting !== VIDEO_PRIVACY_LEVELS[ video?.privacySetting ] ) {
-			updateVideoPrivacy( privacySetting );
+		if ( hasFieldChanged( 'privacySetting' ) ) {
+			promises.push( updateVideoPrivacy( formData.privacySetting ) );
 		}
 
 		// TODO: handle errors
@@ -251,6 +269,10 @@ export default () => {
 
 			// privacySetting already set by the action
 			delete videoData.privacySetting;
+
+			// Reset poster image selection
+			setVideoFrameMs( null );
+			setCurrentLibraryAttachment( libraryAttachment );
 
 			setUpdating( false );
 			dispatch?.setVideo( videoData );
@@ -275,6 +297,7 @@ export default () => {
 			setFormData( {
 				title: video?.title,
 				description: video?.description,
+				privacySetting: VIDEO_PRIVACY_LEVELS[ video?.privacySetting ],
 				rating: video?.rating,
 				allowDownload: video?.allowDownload,
 				displayEmbed: video?.displayEmbed,
@@ -306,8 +329,6 @@ export default () => {
 		updated,
 		deleted,
 		selectedTime,
-		setPrivacySetting,
-		privacySetting,
 		...metaEditData,
 		...posterEditData,
 	};

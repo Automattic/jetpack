@@ -5,9 +5,9 @@ import playwrightConfig from 'jetpack-e2e-commons/playwright.config.cjs';
 
 const modules = [
 	// ['MODULE_NAME', 'DEFAULT STATE'],
-	[ 'critical-css', 'disabled' ],
-	[ 'lazy-images', 'disabled' ],
-	[ 'render-blocking-js', 'disabled' ],
+	[ 'critical_css', 'disabled' ],
+	[ 'lazy_images', 'disabled' ],
+	[ 'render_blocking_js', 'disabled' ],
 ];
 
 test.describe.serial( 'Modules', () => {
@@ -19,7 +19,7 @@ test.describe.serial( 'Modules', () => {
 
 		await boostPrerequisitesBuilder( page )
 			.withConnection( true )
-			.withInactiveModules( [ 'critical-css', 'lazy-images', 'render-blocking-js' ] )
+			.withInactiveModules( [ 'critical_css', 'lazy_images', 'render_blocking_js' ] )
 			.build();
 		jetpackBoostPage = await JetpackBoostPage.visit( page );
 	} );

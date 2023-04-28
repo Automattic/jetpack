@@ -41,12 +41,8 @@ export default function PublicizeForm( {
 	connectionsAdminUrl,
 	adminUrl,
 } ) {
-	const {
-		connections,
-		toggleById,
-		hasConnections,
-		enabledConnections,
-	} = useSocialMediaConnections();
+	const { connections, toggleById, hasConnections, enabledConnections } =
+		useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
@@ -185,7 +181,6 @@ export default function PublicizeForm( {
 
 					{ isPublicizeEnabled && connections.some( connection => connection.enabled ) && (
 						<>
-							{ isEnhancedPublishingEnabled && <MediaSection /> }
 							<MessageBoxControl
 								maxLength={ maxLength }
 								onChange={ updateMessage }
@@ -193,6 +188,7 @@ export default function PublicizeForm( {
 							/>
 						</>
 					) }
+					{ isEnhancedPublishingEnabled && <MediaSection /> }
 				</Fragment>
 			) }
 		</Wrapper>

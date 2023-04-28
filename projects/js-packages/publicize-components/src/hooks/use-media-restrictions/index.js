@@ -48,7 +48,7 @@ export const getAllowedMediaTypes = enabledConnections => {
 	);
 
 	if ( typeArrays.length === 0 ) {
-		return [];
+		return DEFAULT_RESTRICTIONS.allowedMediaTypes;
 	}
 
 	return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection

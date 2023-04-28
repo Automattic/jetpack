@@ -1,34 +1,119 @@
 import { AntiSpamIcon } from '@automattic/jetpack-components';
-import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { Button, Spinner } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
+import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, trash, archive, inbox } from '@wordpress/icons';
+import { config } from '../';
+import { doBulkAction } from '../data/responses';
+import { STORE_NAME } from '../state';
+import { ACTION_TABS, ACTIONS, RESPONSES_FETCH_LIMIT, TABS } from './constants';
 
-const ActionsMenu = () => {
+/**
+ * Custom temporary handler for check-for-spam action based on grunion_check_for_spam.
+ *
+ * @param {number} offset - Offset for the query.
+ * @returns {Promise} Promise that resolves once checking for spam has finished.
+ */
+const checkForSpam = ( offset = 0 ) => {
+	const limit = 100;
+	const body = new FormData();
+
+	body.append( 'action', 'grunion_recheck_queue' );
+	body.append(
+		`jetpack_check_feedback_spam_${ config( 'blogId' ) }`,
+		config( 'checkForSpamNonce' )
+	);
+	body.append( 'offset', offset );
+	body.append( 'limit', limit );
+
+	return fetch( window.ajaxurl, { method: 'POST', body } )
+		.then( response => response.json() )
+		.then( data => {
+			if ( data.processed < limit ) {
+				return;
+			}
+
+			return checkForSpam( offset + limit );
+		} );
+};
+
+const ActionsMenu = ( { currentPage, currentView, selectedResponses, setSelectedResponses } ) => {
+	const [ checkingForSpam, setCheckingForSpam ] = useState( false );
+
+	const { addTabTotals, fetchResponses, removeResponses, setLoading } = useDispatch( STORE_NAME );
+	const query = useSelect( select => select( STORE_NAME ).getResponsesQuery(), [] );
+
+	const handleCheckForSpam = useCallback( () => {
+		setCheckingForSpam( true );
+		checkForSpam().finally( () => {
+			setCheckingForSpam( false );
+			fetchResponses( query );
+		} );
+	}, [ fetchResponses, setCheckingForSpam, query ] );
+
+	const onActionHandler = action => async () => {
+		try {
+			setLoading( true );
+			setSelectedResponses( [] );
+			removeResponses( selectedResponses );
+			addTabTotals( {
+				[ currentView ]: -selectedResponses.length,
+				[ ACTION_TABS[ action ] ]: selectedResponses.length,
+			} );
+			await doBulkAction( selectedResponses, action );
+
+			fetchResponses(
+				{
+					...query,
+					limit: RESPONSES_FETCH_LIMIT,
+					offset: ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
+				},
+				{ append: true }
+			);
+		} finally {
+			// Prevent getting stuck in loading state if doBulkAction fails
+			setLoading( false );
+		}
+	};
+
 	return (
-		<DropdownMenu
-			label={ __( 'Bulk actions', 'jetpack-forms' ) }
-			text={ __( 'Bulk actions', 'jetpack-forms' ) }
-			icon={ chevronDown }
-			popoverProps={ { placement: 'bottom-end' } }
-			toggleProps={ { variant: 'primary', iconPosition: 'right' } }
-		>
-			{ ( { onClose } ) => (
-				<MenuGroup>
-					<MenuItem onClick={ onClose } icon={ <AntiSpamIcon size="22" /> } iconPosition="left">
-						{ __( 'Spam check', 'jetpack-forms' ) }
-					</MenuItem>
-					<MenuItem icon={ inbox } iconPosition="left">
-						{ __( 'Mark unread', 'jetpack-forms' ) }
-					</MenuItem>
-					<MenuItem icon={ archive } iconPosition="left">
-						{ __( 'Archive', 'jetpack-forms' ) }
-					</MenuItem>
-					<MenuItem icon={ trash } iconPosition="left">
-						{ __( 'Delete', 'jetpack-forms' ) }
-					</MenuItem>
-				</MenuGroup>
+		<>
+			{ currentView !== TABS.trash && (
+				<Button onClick={ onActionHandler( ACTIONS.moveToTrash ) } variant="secondary">
+					{ __( 'Move to trash', 'jetpack-forms' ) }
+				</Button>
 			) }
-		</DropdownMenu>
+
+			{ currentView === TABS.trash && (
+				<Button onClick={ onActionHandler( ACTIONS.removeFromTrash ) } variant="secondary">
+					{ __( 'Remove from trash', 'jetpack-forms' ) }
+				</Button>
+			) }
+
+			{ currentView !== TABS.spam && (
+				<Button onClick={ onActionHandler( ACTIONS.markAsSpam ) } variant="secondary">
+					{ __( 'Mark as spam', 'jetpack-forms' ) }
+				</Button>
+			) }
+
+			{ currentView === TABS.spam && (
+				<Button onClick={ onActionHandler( ACTIONS.markAsNotSpam ) } variant="secondary">
+					{ __( 'Remove from spam', 'jetpack-forms' ) }
+				</Button>
+			) }
+
+			{ currentView === TABS.inbox && selectedResponses.length > 0 && (
+				<Button
+					className="jp-forms__check-for-spam"
+					disabled={ checkingForSpam }
+					variant="secondary"
+					onClick={ handleCheckForSpam }
+				>
+					{ checkingForSpam ? <Spinner /> : <AntiSpamIcon /> }
+					{ __( 'Check for spam', 'jetpack-forms' ) }
+				</Button>
+			) }
+		</>
 	);
 };
 

@@ -7,6 +7,7 @@ import { useDebounce } from '@wordpress/compose';
 import { useState, useEffect } from '@wordpress/element';
 import { escapeHTML } from '@wordpress/escape-html';
 import { __, sprintf } from '@wordpress/i18n';
+import debugFactory from 'debug';
 import filesize from 'filesize';
 /**
  * Internal dependencies
@@ -17,6 +18,8 @@ import usePosterUpload from '../../../../../hooks/use-poster-upload.js';
 import { removeFileNameExtension } from '../../../../../lib/url';
 import { PlaceholderWrapper } from '../../edit';
 import UploadingEditor from './uploader-editor.js';
+
+const debug = debugFactory( 'videopress:block:uploader' );
 
 const usePosterAndTitleUpdate = ( { setAttributes, videoData, onDone } ) => {
 	const [ isFinishingUpdate, setIsFinishingUpdate ] = useState( false );
@@ -168,6 +171,25 @@ const UploaderProgress = ( {
 		onDone,
 	} );
 
+	/**
+	 * Flag to control the processing state
+	 */
+	const [ isProcessing, setIsProcessing ] = useState( true );
+
+	/**
+	 * When the upload and the metadata update is ready,
+	 * wait for some time and then release the "Done" button.
+	 */
+	useEffect( () => {
+		if ( uploadedVideoData && ! isFinishingUpdate && isProcessing ) {
+			debug( 'Waiting for some time before enabling the DONE button...' );
+			setTimeout( () => {
+				debug( 'Done, enabling the DONE button now...' );
+				setIsProcessing( false );
+			}, 2500 );
+		}
+	}, [ uploadedVideoData, isFinishingUpdate ] );
+
 	const roundedProgress = Math.round( progress );
 	const cssWidth = { width: `${ roundedProgress }%` };
 	const resumeText = __( 'Resume', 'jetpack-videopress-pkg' );
@@ -234,7 +256,7 @@ const UploaderProgress = ( {
 					</>
 				) : (
 					<>
-						{ uploadedVideoData ? (
+						{ ! isProcessing ? (
 							<span>{ __( 'Upload Complete!', 'jetpack-videopress-pkg' ) } 🎉</span>
 						) : (
 							<span>{ __( 'Finishing up …', 'jetpack-videopress-pkg' ) } 🎬</span>
@@ -242,8 +264,8 @@ const UploaderProgress = ( {
 						<Button
 							variant="primary"
 							onClick={ handleDoneUpload }
-							disabled={ ! uploadedVideoData || isFinishingUpdate }
-							isBusy={ ! uploadedVideoData || isFinishingUpdate }
+							disabled={ isProcessing }
+							isBusy={ isProcessing }
 						>
 							{ __( 'Done', 'jetpack-videopress-pkg' ) }
 						</Button>

@@ -1,7 +1,7 @@
 === Jetpack Protect ===
 Contributors: automattic, retrofox, leogermani, renatoagds, bjorsch, ebinnion, fgiannar, zinigor, miguelxavierpenha, dsmart, jeherve, manzoorwanijk, njweller, oskosk, samiff, siddarthan, wpkaren, arsihasi, kraftbj, kev, sermitr, kangzj, pabline, dkmyta
 Tags: jetpack, protect, security, malware, scan
-Requires at least: 6.0
+Requires at least: 6.1
 Requires PHP: 5.6
 Tested up to: 6.2
 Stable tag: 1.3.0
@@ -39,6 +39,14 @@ Some of the ways vulnerabilities can be introduced to a site are:
 If a bad actor detects a vulnerability on your site, they can exploit it to access sensitive information, update your site, and more to damage your business or brand.
 
 That’s why it’s essential to use a reputable and reliable vulnerability & malware site scanner like Jetpack Protect to safeguard your site.
+
+= Can I use Jetpack Scan to fix a site that is already infected? =
+
+Jetpack Protect (Scan) detects and prevents attacks, but is not designed to fully clean up sites infected before it was active. If your site has malware, take immediate action to clean it up and remove the malicious code.
+
+To clean up your site, we suggest using a malware removal tool, or if possible restore from a backup taken before the infection. We recommend using Jetpack VaultPress Backup in conjunction with Jetpack Scan to secure your website.
+
+[Learn more about cleaning your site](https://jetpack.com/support/scan/how-to-clean-your-hacked-wordpress-site/)
 
 == UPGRADE PROTECT TO REMOVE MALWARE IN ONE CLICK AND BE PROTECTED BY OUR WAF ==
 By upgrading Protect, you unlock total site security from WordPress experts:
@@ -150,20 +158,12 @@ The new Jetpack Protect plugin is different from the Jetpack feature formerly kn
 4. The Jetpack Firewall is a web application firewall (known as WAF) designed to protect your WordPress site from malicious requests.
 
 == Changelog ==
-### 1.3.0 - 2023-03-13
+### 1.4.0-beta - 2023-03-29
 #### Added
-- Add ability to toggle automatic and manual firewall rules independently.
-- Add improved messaging for currently enabled firewall features.
-- Disable Jetpack Firewall on unsupported environments.
-- Add link to pricing page for getting started with an existing plan or license key.
+- Add brute force protection.
 
 #### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.2.
+- Improve the firewall status heading to provide more information based on the current configuration.
 - Updated package dependencies.
-- Update to React 18.
-- Use `flex-start`/`flex-end` instead of `start`/`end` for better browser compatibility.
 
-#### Fixed
-- Fix connection button loading indicators.
-- Fix Protect status report caching.
-- Remove unnecessary full path from example in UI.
-- Other assorted fixes for minor bugs and grammar.

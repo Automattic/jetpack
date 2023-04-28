@@ -6,13 +6,12 @@ import { MediaReplaceFlow } from '@wordpress/block-editor';
  * Internal dependencies
  */
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
+import './style.scss';
 /**
  * Types
  */
 import type { AdminAjaxQueryAttachmentsResponseItemProps } from '../../../../../types';
 import type { VideoBlockAttributes } from '../../types';
-
-import './style.scss';
 
 type ReplaceControlProps = {
 	attributes: VideoBlockAttributes;

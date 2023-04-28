@@ -4,7 +4,7 @@ import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
 import FoldableCard from 'components/foldable-card';
-import { FormLabel, FormTextarea, FormFieldset } from 'components/forms';
+import { FormLabel, FormTextarea } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SimpleNotice from 'components/notice';
@@ -48,6 +48,10 @@ export const conflictingSeoPluginsList = [
 	{
 		name: 'SEOKEY Pro',
 		slug: 'seo-key-pro/seo-key.php',
+	},
+	{
+		name: 'The SEO Framework',
+		slug: 'autodescription/autodescription.php',
 	},
 ];
 
@@ -95,7 +99,7 @@ export const SEO = withModuleSettingsFormHelpers(
 		saveButton = props => {
 			const isSaving = this.props.isSavingAnyOption( this.constants.moduleOptionsArray );
 			return (
-				<Button primary compact type="submit" disabled={ isSaving || ! props.isDirty() }>
+				<Button primary rna compact type="submit" disabled={ isSaving || ! props.isDirty() }>
 					{ isSaving
 						? _x( 'Saving…', 'Button caption', 'jetpack' )
 						: _x(
@@ -198,7 +202,7 @@ export const SEO = withModuleSettingsFormHelpers(
 						! isOfflineMode &&
 						! isFetchingPluginsData( this.props.state ) &&
 						! hasConflictingSeoPlugin && (
-							<div>
+							<>
 								<FoldableCard
 									header={ __(
 										'Expand to customize the page title structures of your site.',
@@ -214,13 +218,11 @@ export const SEO = withModuleSettingsFormHelpers(
 												'jetpack'
 											) }
 										</p>
-										<FormFieldset>
-											<CustomSeoTitles
-												customSeoTitles={ customSeoTitles }
-												updateCustomSeoTitleInputState={ this.updateCustomSeoTitleInputState }
-												siteData={ siteData }
-											/>
-										</FormFieldset>
+										<CustomSeoTitles
+											customSeoTitles={ customSeoTitles }
+											updateCustomSeoTitleInputState={ this.updateCustomSeoTitleInputState }
+											siteData={ siteData }
+										/>
 										{
 											<div className={ 'jp-seo-custom-titles-save-button' }>
 												{ this.saveButton( this.props ) }
@@ -311,7 +313,7 @@ export const SEO = withModuleSettingsFormHelpers(
 									</div>
 									{ this.SocialPreviewTwitter( siteData ) }
 								</FoldableCard>
-							</div>
+							</>
 						) }
 				</SettingsCard>
 			);

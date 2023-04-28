@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Constants as Constants;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 
 /**
  * Class Automattic\Jetpack\Modules
@@ -79,9 +80,8 @@ class Modules {
 			if ( $mod['module_tags'] ) {
 				$mod['module_tags'] = explode( ',', $mod['module_tags'] );
 				$mod['module_tags'] = array_map( 'trim', $mod['module_tags'] );
-				$mod['module_tags'] = array_map( 'jetpack_get_module_i18n_tag', $mod['module_tags'] );
 			} else {
-				$mod['module_tags'] = array( jetpack_get_module_i18n_tag( 'Other' ) );
+				$mod['module_tags'] = array( 'Other' );
 			}
 
 			if ( $mod['plan_classes'] ) {
@@ -95,7 +95,7 @@ class Modules {
 				$mod['feature'] = explode( ',', $mod['feature'] );
 				$mod['feature'] = array_map( 'trim', $mod['feature'] );
 			} else {
-				$mod['feature'] = array( jetpack_get_module_i18n_tag( 'Other' ) );
+				$mod['feature'] = array( 'Other' );
 			}
 
 			$modules_details[ $module ] = $mod;
@@ -434,9 +434,8 @@ class Modules {
 			}
 
 			// Protect won't work with mis-configured IPs.
-			if ( 'protect' === $module && Constants::is_defined( 'JETPACK__PLUGIN_DIR' ) ) {
-				include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
-				if ( ! jetpack_protect_get_ip() ) {
+			if ( 'protect' === $module ) {
+				if ( ! IP_Utils::get_ip() ) {
 					$state->state( 'message', 'protect_misconfigured_ip' );
 					return false;
 				}

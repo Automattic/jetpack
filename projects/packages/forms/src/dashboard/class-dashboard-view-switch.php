@@ -54,13 +54,13 @@ class Dashboard_View_Switch {
 		<div id="jetpack-forms__view-wrap" class="screen-options-tab__wrapper hide-if-no-js hidden" tabindex="-1">
 			<div class="screen-options-tab__dropdown" data-testid="screen-options-dropdown">
 				<div class="jp-forms__view-switcher">
-					<a class="jp-forms__view-switcher-button <?php echo $this->is_classic_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'preferred-view', self::CLASSIC_VIEW, 'edit.php?post_type=feedback' ) ); ?>">
+					<a class="jp-forms__view-switcher-button <?php echo $this->is_classic_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'dashboard-preferred-view', self::CLASSIC_VIEW, 'edit.php?post_type=feedback' ) ); ?>">
 						<strong><?php esc_html_e( 'Classic', 'jetpack-forms' ); ?></strong>
 						<?php esc_html_e( 'The classic WP-Admin WordPress interface.', 'jetpack-forms' ); ?>
 					</a>
-					<a class="jp-forms__view-switcher-button <?php echo $this->is_modern_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'preferred-view', self::MODERN_VIEW, 'admin.php?page=jetpack-forms' ) ); ?>">
-						<strong><?php esc_html_e( 'Modern', 'jetpack-forms' ); ?></strong>
-						<?php esc_html_e( 'The new and improved Jetpack Forms dashboard.', 'jetpack-forms' ); ?>
+					<a class="jp-forms__view-switcher-button <?php echo $this->is_modern_view() ? 'is-active' : ''; ?>" href="<?php echo esc_url( add_query_arg( 'dashboard-preferred-view', self::MODERN_VIEW, 'admin.php?page=jetpack-forms' ) ); ?>">
+						<strong><?php esc_html_e( 'Inbox', 'jetpack-forms' ); ?></strong>
+						<?php esc_html_e( 'The new Jetpack Forms inbox interface for form responses.', 'jetpack-forms' ); ?>
 					</a>
 				</div>
 			</div>
@@ -93,9 +93,9 @@ class Dashboard_View_Switch {
 			}
 
 			.toplevel_page_jetpack-forms :not(#screen-meta-links) > #jetpack-forms__view-link-wrap {
-				position: fixed;
+				position: absolute;
 				right: 32px;
-				top: var(--wp-admin--admin-bar--height);
+				top: 0;
 				z-index: 179;
 			}
 
@@ -153,6 +153,10 @@ class Dashboard_View_Switch {
 			@media screen and (max-width: 600px) {
 				.screen-options-tab__dropdown {
 					top: 93px;
+				}
+
+				.toplevel_page_jetpack-forms :not(#screen-meta-links) > #jetpack-forms__view-link-wrap {
+					top: var(--wp-admin--admin-bar--height);
 				}
 			}
 
@@ -234,19 +238,19 @@ CSS
 		// For simplicity, we only treat this as a valid operation
 		// if it occurs on one of the screens with the switch active.
 		// phpcs:disable WordPress.Security.NonceVerification
-		if ( ! $this->is_visible() || ! isset( $_GET['preferred-view'] ) ) {
+		if ( ! $this->is_visible() || ! isset( $_GET['dashboard-preferred-view'] ) ) {
 			return;
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification
-		$view = sanitize_key( $_GET['preferred-view'] );
+		$view = sanitize_key( $_GET['dashboard-preferred-view'] );
 
 		if ( ! in_array( $view, array( self::CLASSIC_VIEW, self::MODERN_VIEW ), true ) ) {
 			return;
 		}
 
 		update_user_option( get_current_user_id(), 'jetpack_forms_admin_preferred_view', $view );
-		wp_safe_redirect( remove_query_arg( 'preferred-view' ) );
+		wp_safe_redirect( remove_query_arg( 'dashboard-preferred-view' ) );
 		exit;
 	}
 

@@ -124,13 +124,13 @@ if ( isset( $_GET['edit-provider'] ) && $zbs->oauth->legitimate_provider( $_GET[
 		</table>
 
 		<?php
-		// WLREMOVE
+		##WLREMOVE
 		?>
 		<p style="text-align: center;padding:2em">                            
 			<a href="<?php echo esc_url( $zbs->urls['oauthdocs'] ); ?>" target="_blank" class="ui tiny button"><?php esc_html_e( 'OAuth Connection Documentation', 'zero-bs-crm' ); ?></a>
 		</p>
 		<?php
-		// /WLREMOVE
+		##/WLREMOVE
 		?>
 		<?php
 

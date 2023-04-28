@@ -238,7 +238,8 @@ foreach ( $tabs as $tab => $name ) {
 		<?php } ?>
 
 	<?php endforeach ?>
-	<?php // WLREMOVE ?>
+	<?php ##WLREMOVE ?>
 	<a class="item" href="<?php echo jpcrm_esc_link( $zbs->slugs['extensions'] ); ?>"><i class="ui orange puzzle piece icon"></i> <?php echo esc_html__( 'Extensions', 'zero-bs-crm' ); ?></a>
-	<?php // /WLREMOVE ?>
+	<?php ##/WLREMOVE ?>
+	<a class="item" href="<?php echo jpcrm_esc_link( wp_nonce_url( $zbs->slugs['settings'] . '&resetsettings=1' ) ); ?> "></i> <?php echo esc_html__( 'Restore default settings', 'zero-bs-crm' ); ?></a>
 </div>

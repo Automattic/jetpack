@@ -1,8 +1,19 @@
+/**
+ * External dependencies
+ */
+import { Button } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { noop } from 'lodash';
+import { times } from 'lodash';
+/**
+ * Internal dependencies
+ */
 import PageNavigation from '../components/page-navigation';
 import Table from '../components/table';
+import { STORE_NAME } from '../state';
+import { RESPONSES_FETCH_LIMIT } from './constants';
+import SingleActionsMenu from './single-actions-menu';
 
 const COLUMNS = [
 	{
@@ -16,38 +27,59 @@ const COLUMNS = [
 	{
 		key: 'source',
 		label: __( 'Source', 'jetpack-forms' ),
+		component: Button,
+		getProps: item => ( {
+			href: item.entry_permalink,
+			variant: 'link',
+		} ),
+	},
+	{
+		key: 'actions',
+		component: SingleActionsMenu,
 	},
 ];
 
 const InboxList = ( {
 	currentPage,
 	currentResponseId,
+	currentTab,
 	pages,
 	responses,
+	selectedResponses,
 	setCurrentPage,
 	setCurrentResponseId,
+	setSelectedResponses,
 	loading,
 } ) => {
-	const tableItems = useMemo(
-		() =>
-			responses.map( response => ( {
-				...response,
-				onClick: () => setCurrentResponseId( response.id ),
-				isActive: response.id === currentResponseId,
-			} ) ),
-		[ currentResponseId, responses, setCurrentResponseId ]
-	);
+	const tabTotals = useSelect( select => select( STORE_NAME ).getTabTotals(), [] );
+	const totalResponses = tabTotals[ currentTab ];
 
-	if ( loading ) {
-		return (
-			<Table
-				className="jp-forms__inbox-list"
-				columns={ [ { key: 'empty', label: __( 'Loading…', 'jetpack-forms' ) } ] }
-				items={ [] }
-			/>
-		);
-	}
-	if ( responses.length === 0 ) {
+	const tableItems = useMemo( () => {
+		const items = responses.map( response => ( {
+			...response,
+			onClick: () => setCurrentResponseId( response.id ),
+			isActive: response.id === currentResponseId,
+		} ) );
+
+		if ( loading ) {
+			const numPlaceholders = totalResponses
+				? Math.min(
+						RESPONSES_FETCH_LIMIT,
+						totalResponses - responses.length - ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
+				  )
+				: 10;
+
+			return items.concat(
+				times( numPlaceholders, () => ( {
+					isLoading: true,
+				} ) )
+			);
+		}
+
+		return items;
+	}, [ currentPage, currentResponseId, loading, responses, setCurrentResponseId, totalResponses ] );
+
+	if ( ( ! loading && responses.length === 0 ) || totalResponses === 0 ) {
 		return (
 			<Table
 				className="jp-forms__inbox-list"
@@ -60,18 +92,23 @@ const InboxList = ( {
 	return (
 		<>
 			<Table
+				key={ `responses-${ currentTab }-${ currentPage }` }
 				className="jp-forms__inbox-list"
 				columns={ COLUMNS }
 				items={ tableItems }
-				onSelectionChange={ noop }
+				selectedResponses={ selectedResponses }
+				setSelectedResponses={ setSelectedResponses }
+				rowAnimationTimeout={ 200 }
 			/>
 
-			<PageNavigation
-				currentPage={ currentPage }
-				pages={ pages }
-				onSelectPage={ setCurrentPage }
-				expandedRange={ 2 }
-			/>
+			{ pages > 1 && (
+				<PageNavigation
+					currentPage={ currentPage }
+					pages={ pages }
+					onSelectPage={ setCurrentPage }
+					expandedRange={ 2 }
+				/>
+			) }
 		</>
 	);
 };

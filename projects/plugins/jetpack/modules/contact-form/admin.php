@@ -323,17 +323,30 @@ function grunion_manage_post_column_response( $post ) {
 	$post_content = get_post_field( 'post_content', $post->ID );
 	$content      = explode( '<!--more-->', $post_content );
 	$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
-	$chunks       = explode( "\nArray", $content );
-	if ( $chunks[1] ) {
-		// re-construct the array string
-		$array = 'Array' . $chunks[1];
-		// re-construct the array
-		$rearray         = Grunion_Contact_Form_Plugin::reverse_that_print( $array, true );
-		$response_fields = is_array( $rearray ) ? $rearray : array();
-	} else {
-		// couldn't reconstruct array, use the old method
-		$content_fields  = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post->ID );
-		$response_fields = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
+	$chunks       = explode( "\nJSON_DATA", $content );
+
+	$response_fields = array();
+
+	if ( is_array( $chunks ) && isset( $chunks[1] ) ) {
+		$rearray = json_decode( $chunks[1], true );
+		if ( is_array( $rearray ) && isset( $rearray['feedback_id'] ) ) {
+			$response_fields = $rearray;
+		}
+	}
+
+	if ( empty( $response_fields ) ) {
+		$chunks = explode( "\nArray", $content );
+		if ( $chunks[1] ) {
+			// re-construct the array string
+			$array = 'Array' . $chunks[1];
+			// re-construct the array
+			$rearray         = Grunion_Contact_Form_Plugin::reverse_that_print( $array, true );
+			$response_fields = is_array( $rearray ) ? $rearray : array();
+		} else {
+			// couldn't reconstruct array, use the old method
+			$content_fields  = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post->ID );
+			$response_fields = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
+		}
 	}
 
 	$response_fields = array_diff_key( $response_fields, array_flip( $non_printable_keys ) );
@@ -347,7 +360,7 @@ function grunion_manage_post_column_response( $post ) {
 		printf(
 			'<div class="feedback_response__item-key">%s</div><div class="feedback_response__item-value">%s</div>',
 			esc_html( preg_replace( '#^\d+_#', '', $key ) ),
-			esc_html( $value )
+			nl2br( esc_html( $value ) )
 		);
 	}
 	echo '</div>';

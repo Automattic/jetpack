@@ -33,7 +33,8 @@ const RedeemPartnerCouponPreConnection = props => {
 	);
 
 	const classes = classNames( 'jetpack-redeem-partner-coupon-pre-connection', {
-		'jetpack-redeem-partner-coupon-pre-connection--connected': !! connectionStatus.hasConnectedOwner,
+		'jetpack-redeem-partner-coupon-pre-connection--connected':
+			!! connectionStatus.hasConnectedOwner,
 	} );
 
 	return (

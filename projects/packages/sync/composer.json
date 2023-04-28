@@ -8,6 +8,7 @@
 		"automattic/jetpack-constants": "@dev",
 		"automattic/jetpack-identity-crisis": "@dev",
 		"automattic/jetpack-password-checker": "@dev",
+		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-roles": "@dev",
 		"automattic/jetpack-status": "@dev"
 	},
@@ -15,6 +16,9 @@
 		"automattic/jetpack-changelogger": "@dev",
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/wordbless": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [

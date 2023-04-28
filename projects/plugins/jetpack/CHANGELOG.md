@@ -2,6 +2,178 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.1-beta - 2023-04-25
+### Enhancements
+- Block editor: collapse Jetpack feature panels by default. [#30140]
+- Dashboard: align Protect information display with Akismet. [#30222]
+- Dashboard: improve the general appearance. [#30166]
+- Dashboard: redesign the At a Glance page. [#30166]
+- Dashboard: visually refresh the Debug page. [#30166]
+- Markdown Block: add support for footnotes. [#30149]
+- Publicize: improve page metadata by using attached media for the OpenGraph image. [#30162]
+- Stats Widget: improve appearance of footer buttons. [#30173]
+- Stats Widget: make frame sections balanced with long titles. [#30106]
+- Stats Widget: make the new version of the widget available to general audience. [#30174]
+- Subscriptions: add counts in the newsletter panel to show the newsletter reach. [#29230]
+
+### Improved compatibility
+- General: remove WordPress 6.0 backwards-compatibility code, now that Jetpack requires WordPress 6.1. [#30126]
+
+### Bug fixes
+- 3rd-party plugin support code: improve loading performance. [#30060]
+- Payment Block: update the visibility setting of inner blocks on click to ensure that the inner block renders. [#30095]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add is_block_theme field to the wp/v2/themes endpoint to indicate it the theme is a block-based theme. [#30144]
+- Changelog editorial. [#30133]
+- Connection: update the full-screen connection banner to the new design. [#29566]
+- Fix firefox not detecting the collapsed state of the sidebar properly. [#30240]
+- Make sure the hook receives an array before attempting any process. [#30192]
+- Remove rewriting the Site Editor to Calypso's iframed `/site-editor/SITE_SLUG` route. [#30072]
+- SEO: update panel name in block editor. [#30138]
+- Shows convert to audio CTA based on the value of a filter that defaults to the current sunsetting date. [#30239]
+
+## 12.1-a.7 - 2023-04-17
+### Enhancements
+- Dashboard: update the links to the Mobile apps to allow opening links in the appropriate app store right away. [#30063]
+- Forms: Update Forms child blocks to allow any transformation between the blocks. [#29978]
+
+### Improved compatibility
+- General: Jetpack now requires WordPress version 6.1. [#30120]
+
+### Bug fixes
+- Button Block: ensure no borders are added by default browser styles. [#24646]
+- Forms: Fix Forms styles when inside Cover blocks. [#30075]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI: added an experimental AI chat block. [#30077]
+- Blocks: update block cli structure to only use strings in descriptions. [#30079]
+- Dashboard: header and navigation visual refresh. [#29980]
+- In `Jetpack::configure()`, only check `is_connection_ready()` once. [#30068]
+- Jetpack_debugger_enqueue_site_health_scripts(): Only load full-sync Module on site-health.php. [#30070]
+- Move i18n of module tags closer to the output. [#30067]
+- My Jetpack: add missing TOS in Jetpack interstitial. [#29683]
+- Only shows convert to audio cta after publishing a post in blogs that are connected to Anchor.fm. [#30084]
+- Site Settings API: Fixed updating `subscription_options` for non-standard cases. [#30026]
+- Switches `is_wpcom_staging_site()` to our custom function instead of a blog sticker. [#30093]
+- Update Jetpack code to use WPCOM trait for handling production-staging relation. [#29981]
+
+## 12.1-a.5 - 2023-04-10
+### Enhancements
+- Search: implemented a "tabbed" variation for static filters, adding tabs on top of the results for each filter group. [#29811]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adds Odyssey Widget behind odyssey_widget=1 for WP Dashboard [#29929]
+
+## 12.1-a.3 - 2023-04-05
+### Bug fixes
+- Assets: avoid fatal errors with plugins that use outdated Jetpack package versions. [#29947]
+
+## 12.1-a.1 - 2023-04-04
+### Enhancements
+- Dashboard: use the latest version of the Jetpack logo. [#29418]
+- Newsletters: display the correct locked content text for newsletters when Stripe is disconnected. [#29880]
+- Newsletters: display the correct locked content text for paid newsletters. [#29860]
+
+### Bug fixes
+- Dashboard: improve upgrade description for users with Akismet already installed and active. [#29827]
+- Newsletters: properly gate the feature based on the configuration of the site. [#29860]
+- Cookie Consent Block: return fresh HTML when the user revists after accepting cookies. [#29831]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Admin Page: simplify Akismet logic to fix display issue. [#29866]
+- Akismet: use product interstitial for upgrades [#29598]
+- Fix an issue where Subscribe block on homepage would return as paid if the first blog post was a paid blog (because it is looping) [#29860]
+- Fix fatal error with Token_Subscription_Service [#29885]
+- Stats: remove deprecated Stats functions. [#29780]
+- Updated package dependencies. [#29565, #29854, #29856, #29857]
+
+## [12.0] - 2023-04-04
+### Enhancements
+- Forms: display carriage returns in user response text to properly display multiline text. [#29698]
+- Protect: remove account connection requirement to use the brute force protection feature. [#28401]
+- Protect: share IP allow list between the Jetpack Firewall and Brute Force Protection modules. [#28401]
+- Stats: update visuals for the wp-admin dashboard Stats widget. [#29600]
+- Subscriptions: make the Subscribe Block available, even when the Subscriptions module is off, so Subscriptions can be easily enabled. [#29044]
+
+### Improved compatibility
+- Blocks: avoid conflicts with Better Click To Tweet plugin. [#29681]
+- Image CDN: do not process Flickr-hosted images with Jetpack's Image CDN. [#29649]
+- SEO Tools: add message to settings screen when The SEO Framework plugin is active. [#29728]
+- WordPress 6.2 compatibility: ensure that the block editor's External Media functionality and Jetpack's Twitter features in the block editor stays compatible with the upcoming version of WordPress. [#29542]
+
+### Bug fixes
+- Dashboard: avoid errors in the Recommendations dashboard. [#29798]
+- Forms: fix a PHP warning on Feedback->Response Forms when looking at old responses. [#29699]
+- Stats Widget: Fix incorrect invocation of module-restricted functions [#29783]
+- Subscriptions: ensure the block's settings are displayed properly, even when using a block theme. [#29631]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add Golden Ticket plan support for the My Plan page. [#29673]
+- Amended the to-test.md file for non-a11n testers. [#29814]
+- Blaze: add can_blaze property to application API for enhanced admin user exprience. [#29614]
+- Editor: add a promotional banner into a pre-publication block. [#29641]
+- Forms: add a check for array on $attributes before trying to set an item on it. [#29557]
+- Forms: add all source post IDs on forms/responses endpoint. [#29428]
+- Forms: add search input and styles. [#29397]
+- Forms: change "message sent" tracking from Tracks to bump stat. [#29383]
+- Forms: change default entries per page on responses inbox. [#29406]
+- Forms: json_encode form responses instead of using print_r. [#29664]
+- Forms: use Contact_Form_Plugin::init instead of requiring the old module file. [#29648]
+- General: do not load the Yoast banner. [#29725]
+- General: remove a deprecated Core function in favor of direct WP Query. [#29460]
+- Launchpad: update modal content for newsletter flow. [#29484]
+- Masterbar: remove Upgrades and Inbox menus for staging sites [#29355]
+- Protect: move the brute force protection logic into the WAF package. [#28401]
+- Protect: move the brute force protection transient cleanup and shared functions to dedicated namespaced classes. [#28401]
+- Protect: update documentation for filter. [#29731]
+- Redirect: refactor redirect URL to use a dynamic path variable. [#29422]
+- SEO: add Yoast promo in SEO settings banner. [#29643]
+- Social: add a toggle to enable image generator and choose a default template. [#29722]
+- Social: enable Social Image Generator by default when it is available. [#29742]
+- Stats: change Calypso Stats to Odyssey Stats. [#29679]
+- Stats: consolidate stats widget code and improve form submission handling. [#29524]
+- Updated composer.lock. [#29762]
+- Updated the changelog and readme.txt [#29784]
+- VideoPress: enable the video frame poster extension for all site plans. [#29692]
+- VideoPress: register the v6-video-frame-poster beta extension. [#29678]
+- WordPress.com Toolbar: gate Site Logs menu item behind constant [#29606]
+
+## 12.0-a.7 - 2023-03-20
+### Enhancements
+- Blocks: the cookie consent block is now available to general audience. [#29462]
+- Blocks: the VideoPress block is now available to general audience. [#29459]
+- Blocks: the writing prompts block is now available to general audience. [#29433]
+- Notifications: remove all library dependencies for improved performance and lower footprint. [#29510]
+- Paid newsletter block: improve logic for showing the UI based on site configuration. [#29262]
+
+### Improved compatibility
+- Blocks: ensure the Pinterest block does not trigger errors when using WordPress 6.2. [#29505]
+- Connection: improve the connection flow that happens after plugin activation. [#29526]
+
+### Bug fixes
+- Blocks: avoid warnings in the block editor because of invalid categories for some blocks. [#29513]
+- Blocks: fix the VideoPress preload behavior when "none" is chosen. [#29563]
+- Forms: avoid PHP notices when using a form with a dropdown field. [#29512]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Adds the `is_wpcom_staging_site` attribute in a few more contexts. [#29453]
+- Blocks: update deprecated block editor selector. [#29420]
+- Blocks: update deprecated component prop. [#29463]
+- Firewall: add updateWafSettings method. [#29299]
+- Jetpack Forms: add tracking of Google Sheets exports. [#29225]
+- Paid newsletters: add the launchpad source to memberships status endpoint. [#29468]
+- Send individual plugin upgrade buttons to My Jetpack insterstitial [#29138]
+- Sites API: add was_ecommerce_trial flag to data returned for site details. [#29423]
+- Small change to unreleased block. [#29501]
+- Stats Widget: minor cleanup of Akismet section. [#29347]
+- Updated package dependencies. [#29471]
+
+## 12.0-a.5 - 2023-03-15
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Changelog edits. [#29445]
+- Updated package dependencies.
+
 ## 12.0-a.3 - 2023-03-13
 ### Enhancements
 - Newsletter: improve UI around newsletter visibility and add a help link in the post editor sidebar. [#29042]
@@ -54,6 +226,12 @@
 - Updated package dependencies. [#29216]
 - VideoPress: pick and convert core/video VideoPress instances also from inner blocks [#29339]
 - Writing prompts: marks prompt as answered when using a writing prompt block [#29214]
+
+## 11.9.1 - 2023-03-14
+### Bug fixes
+- Forms: fix fatal error on sites using old AMP versions [#29444]
+- Forms: fix issue with exported form data column and fields being incorrect [#29448]
+- Sharing: ensure the sharing icons can appear when using a CDN to serve static assets on your site. [#29441]
 
 ## [11.9] - 2023-03-07
 ### Enhancements
@@ -7868,6 +8046,7 @@ Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits
 - Initial release
 
 [11.6]: https://wp.me/p1moTy-PLI
+[12.0]: https://wp.me/p1moTy-RGw
 [11.9]: https://wp.me/p1moTy-RdX
 [11.8]: https://wp.me/p1moTy-QEM
 [11.7]: https://wp.me/p1moTy-Q9t

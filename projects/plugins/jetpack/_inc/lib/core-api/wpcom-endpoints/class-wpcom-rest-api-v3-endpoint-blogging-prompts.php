@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
 
 /**
  * REST API endpoint wpcom/v3/sites/%s/blogging-prompts.
@@ -177,20 +178,28 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	public function filter_sql( $clauses ) {
 		global $wpdb;
 		if ( $this->day_of_year_query > 0 ) {
-			$day = $this->day_of_year_query;
+			$day          = $this->day_of_year_query;
+			$current_year = wp_date( 'Y' );
 
 			// Grab the current sort order, `ASC` or `DESC`, so we can reuse it.
 			$order = end( explode( ' ', $clauses['orderby'] ) );
+
+			// Calculate the day of year for each prompt, from 1 to 366, but use the current year so that prompts published
+			// during leap years have the correct day for non-leap years.
+			$fields = $clauses['fields'] . $wpdb->prepare( ", DAYOFYEAR(CONCAT(%d, DATE_FORMAT({$wpdb->posts}.post_date, '-%%m-%%d'))) AS day_of_year", $current_year );
+
+			// When it's not a leap year, exclude posts used for Feb 29th. DAYOFYEAR will return null for Feb 29th on non-leap years.
+			$where = $clauses['where'] . $wpdb->prepare( " AND DAYOFYEAR(CONCAT(%d, DATE_FORMAT({$wpdb->posts}.post_date, '-%%m-%%d'))) IS NOT NULL", $current_year );
 
 			// Order posts regardless of year: get a list of posts for each day,
 			// starting with the query date through the end of the year, then from the start of the year through the day before.
 			$orderby = $wpdb->prepare(
 				'CASE ' .
-					"WHEN DAYOFYEAR({$wpdb->posts}.post_date) < %d " .
+					'WHEN day_of_year < %d ' .
 					// Push posts from the beginning of the year until the day before to the end.
-					"THEN DAYOFYEAR({$wpdb->posts}.post_date) + 366 " .
+					'THEN day_of_year + 366 ' .
 					// Otherwise order posts from the query date through the end of the year.
-					"ELSE DAYOFYEAR({$wpdb->posts}.post_date) " .
+					'ELSE day_of_year ' .
 				'END' .
 				// Sort posts for the same day by year, in asc or desc order.
 				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- order string cannot be escaped.
@@ -198,6 +207,8 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 				$day
 			);
 
+			$clauses['fields']  = $fields;
+			$clauses['where']   = $where;
 			$clauses['orderby'] = $orderby;
 		}
 
@@ -243,6 +254,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 			$data['attribution'] = esc_html( get_post_meta( $prompt->ID, 'blogging_prompts_attribution', true ) );
 		}
 
+		// Will always be false when requesting as blog.
 		if ( rest_is_field_included( 'answered', $fields ) ) {
 			$data['answered'] = (bool) \A8C\BloggingPrompts\Answers::is_answered_by_user( $prompt->ID, get_current_user_id() );
 		}
@@ -395,15 +407,27 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 * @return true|WP_Error True if the request has read access, WP_Error object otherwise.
 	 */
 	public function permissions_check() {
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			return new WP_Error(
-				'rest_cannot_read_prompts',
-				__( 'Sorry, you are not allowed to access blogging prompts on this site.', 'jetpack' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
+		if ( current_user_can( 'edit_posts' ) ) {
+			return true;
 		}
 
-		return true;
+		// Allow "as blog" requests to wpcom so users without accounts can insert the Writing prompt block in the editor.
+		if ( $this->is_wpcom && is_jetpack_site( get_current_blog_id() ) ) {
+			if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Jetpack_Auth' ) ) {
+				require_once dirname( __DIR__ ) . '/rest-api-plugins/endpoints/jetpack-auth.php';
+			}
+
+			$jp_auth_endpoint = new WPCOM_REST_API_V2_Endpoint_Jetpack_Auth();
+			if ( true === $jp_auth_endpoint->is_jetpack_authorized_for_site() ) {
+				return true;
+			}
+		}
+
+		return new WP_Error(
+			'rest_cannot_read_prompts',
+			__( 'Sorry, you are not allowed to access blogging prompts on this site.', 'jetpack' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 
 	/**
@@ -414,10 +438,14 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 * @return mixed|WP_Error           Response from wpcom servers or an error.
 	 */
 	public function proxy_request_to_wpcom( $request, $path = '' ) {
-		$blog_id  = \Jetpack_Options::get_option( 'id' );
-		$path     = '/sites/' . rawurldecode( $blog_id ) . '/' . rawurldecode( $this->rest_base ) . ( $path ? '/' . rawurldecode( $path ) : '' );
-		$api_url  = add_query_arg( $request->get_query_params(), $path );
-		$response = Client::wpcom_json_api_request_as_user( $api_url, '3' );
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+		$path    = '/sites/' . rawurldecode( $blog_id ) . '/' . rawurldecode( $this->rest_base ) . ( $path ? '/' . rawurldecode( $path ) : '' );
+		$api_url = add_query_arg( $request->get_query_params(), $path );
+
+		// Prefer request as user, if possible. Fall back to blog request to show prompt data for unconnected users.
+		$response = ( new Manager() )->is_user_connected()
+			? Client::wpcom_json_api_request_as_user( $api_url, '3', array(), null, 'wpcom' )
+			: Client::wpcom_json_api_request_as_blog( $api_url, 'v3', array(), null, 'wpcom' );
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
@@ -442,7 +470,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 * @return array List of users, including a gravatar url for each user.
 	 */
 	protected function build_answering_users_sample( $prompt_id ) {
-		$results = A8C\BloggingPrompts\Answers::get_sample_users_by( $prompt_id );
+		$results = \A8C\BloggingPrompts\Answers::get_sample_users_by( $prompt_id );
 
 		if ( ! $results ) {
 			return array();
