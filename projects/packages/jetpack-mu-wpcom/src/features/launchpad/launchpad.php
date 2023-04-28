@@ -17,6 +17,61 @@
 require_once __DIR__ . '/class-launchpad-task-lists.php';
 
 /**
+ * Determine if site was started via Newsletter flow.
+ *
+ * @return bool
+ */
+function is_newsletter_flow() {
+	return get_option( 'site_intent' ) === 'newsletter';
+}
+
+/**
+ * Determine if site was started via Link in Bio flow.
+ *
+ * @return bool
+ */
+function is_link_in_bio_flow() {
+	return get_option( 'site_intent' ) === 'link-in-bio';
+}
+
+/**
+ * Determine if site was started via Newsletter flow.
+ *
+ * @return bool
+ */
+function is_podcast_flow() {
+	return get_option( 'site_intent' ) === 'podcast';
+}
+
+/**
+ * Determine if site was started via Videopress flow.
+ *
+ * @return bool
+ */
+function is_videopress_flow() {
+	return get_option( 'site_intent' ) === 'videopress';
+}
+
+/**
+ * Determine if site was started via Free flow.
+ *
+ * @return bool
+ */
+function is_free_flow() {
+	return get_option( 'site_intent' ) === 'free';
+}
+
+/**
+ * Determine if site was started via a general onbaording flow.
+ *
+ * @return bool
+ */
+function is_general_flow() {
+	$intent = get_option( 'site_intent' );
+	return 'write' === $intent || 'build' === $intent;
+}
+
+/**
  * Returns the list of tasks by flow or checklist id.
  *
  * @return array Associative array with checklist task data
@@ -299,6 +354,24 @@ function get_checklist_task( $task ) {
 }
 
 /**
+ * Update a Launchpad task status.
+ * Note: We store all launchpad checklist task statuses in one option, 'launchpad_checklist_tasks_statuses'.
+ *
+ * @param string $task The name of the task being updated.
+ * @param string $value The new value.
+ * @return void
+ */
+function update_checklist_task( $task, $value ) {
+	$launchpad_checklist_tasks_statuses_option = get_option( 'launchpad_checklist_tasks_statuses' );
+	if ( ! is_array( $launchpad_checklist_tasks_statuses_option ) ) {
+		$launchpad_checklist_tasks_statuses_option = array( $task => $value );
+	} else {
+		$launchpad_checklist_tasks_statuses_option[ $task ] = $value;
+	}
+	update_option( 'launchpad_checklist_tasks_statuses', $launchpad_checklist_tasks_statuses_option );
+}
+
+/**
  * Returns launchpad checklist by checklist slug.
  *
  * @param string $checklist_slug Checklist slug.
@@ -362,4 +435,253 @@ function register_default_checklists() {
 	register_launchpad_tasks( get_task_definitions() );
 }
 
+/**
+ * Add CSS that disallows interaction with the Launchpad preview.
+ *
+ * @return void|string
+ */
+function maybe_preview_with_no_interactions() {
+	// phpcs:ignore
+	if ( empty( $_GET['do_preview_no_interactions'] ) || $_GET['do_preview_no_interactions'] !== 'true' ) {
+		return;
+	}
+
+	?>
+		<style type="text/css">
+			body {
+				pointer-events: none !important;
+				}
+		</style>
+	<?php
+}
+
+/**
+ * Update Launchpad's site_edited or links_edited tasks to true.
+ *
+ * This will currently run whenever a user visites the Site Editor.
+ * For generic flows (currently just Free Flow), we set site_edited to true.
+ * For Link in Bio flows, we set links_edited to true.
+ *
+ * The site_edited and links_edited options effectively track the same thing.
+ * We are keeping them separate in case the different use cases eventually
+ * require different handling, and to avoid complexity for existing link in bio
+ * sites with links_edited already set.
+ *
+ * @return void
+ */
+function track_edit_site_task() {
+	if ( is_link_in_bio_flow() && should_update_tasks() ) {
+		if ( ! get_checklist_task( 'links_edited' ) ) {
+			update_checklist_task( 'links_edited', true );
+		}
+	}
+
+	if ( is_free_flow() && should_update_tasks() ) {
+		if ( ! get_checklist_task( 'site_edited' ) ) {
+			update_checklist_task( 'site_edited', true );
+		}
+	}
+
+	if ( is_general_flow() && should_update_tasks() ) {
+		if ( ! get_checklist_task( 'site_edited' ) ) {
+			update_checklist_task( 'site_edited', true );
+		}
+	}
+}
+
+/**
+ * We should only update Launchpad tasks if launchpad has been enabled, and is not yet complete.
+ *
+ * @return bool
+ */
+function should_update_tasks() {
+	$has_launchpad_been_enabled   = in_array( get_option( 'launchpad_screen' ), array( 'off', 'minimized', 'full' ), true );
+	$has_launchpad_been_completed = get_option( 'launchpad_screen' ) === 'off';
+
+	return $has_launchpad_been_enabled && ! $has_launchpad_been_completed;
+}
+
+/**
+ * Update Launchpad's video_uploaded task.
+ *
+ * Only updated for videopress flows currently.
+ *
+ * @param string $post_id The id of the post being udpated.
+ * @return void
+ */
+function track_video_uploaded_task( $post_id ) {
+	if ( ! is_videopress_flow() ) {
+		return;
+	}
+
+	// Not using `wp_attachment_is` because it requires the actual file
+	// which is not the case for Atomic VideoPress.
+	if ( 0 !== strpos( get_post_mime_type( $post_id ), 'video/' ) ) {
+		return;
+	}
+
+	if ( should_update_tasks() && ! get_checklist_task( 'video_uploaded' ) ) {
+		update_checklist_task( 'video_uploaded', true );
+	}
+}
+
+/**
+ * Update Launchpad's site_launched task
+ *
+ * We only update this task for flows with a site launch task.
+ * Some flows have tasks that must be completed prior to site launch.
+ * So we also only update the launch task if/when those tasks
+ * are already complete.
+ *
+ * When this task is updated to true, we also turn off Launchpad (it is complete).
+ *
+ * @return void
+ */
+function track_site_launch_task() {
+	if ( ! is_link_in_bio_flow() && ! is_videopress_flow() && ! is_free_flow() && ! is_general_flow() ) {
+		return;
+	}
+
+	if ( ! should_update_tasks() ) {
+		return;
+	}
+
+	$is_link_in_bio_flow_ready_to_launch = is_link_in_bio_flow() && get_checklist_task( 'links_edited' );
+	$is_videopress_flow_ready_to_launch  = is_videopress_flow() && get_checklist_task( 'video_uploaded' );
+	$is_free_flow_ready_to_launch        = is_free_flow();
+	$is_general_flow_ready_to_launch     = is_general_flow();
+
+	$is_site_ready_to_launch = $is_link_in_bio_flow_ready_to_launch || $is_videopress_flow_ready_to_launch || $is_free_flow_ready_to_launch || $is_general_flow_ready_to_launch;
+
+	if ( $is_site_ready_to_launch ) {
+		if ( ! get_checklist_task( 'site_launched' ) ) {
+			update_checklist_task( 'site_launched', true );
+		}
+
+		update_option( 'launchpad_screen', 'off' );
+	}
+}
+
+/**
+ * Action that fires when `blog_public` is updated.
+ *
+ * @param string $old_value The updated option value.
+ * @param string $new_value The previous option value.
+ * @return void
+ */
+function maybe_track_site_launch( $old_value, $new_value ) {
+	$blog_public = (int) $new_value;
+	// 'blog_public' is set to '1' when a site is launched.
+	if ( $blog_public === 1 ) {
+		track_site_launch_task();
+	}
+}
+
+/**
+ * A filter for `get_option( 'launchpad_screen' )`
+ *
+ * @param mixed $value The filterable option value, retrieved from the DB.
+ * @return mixed       false if DIFM is active, the unaltered value otherwise.
+ */
+function maybe_disable_for_difm( $value ) {
+	// If it's already false I don't care
+	if ( $value === false ) {
+		return $value;
+	}
+
+	// We want to disable for Built By Express aka DIFM, in case they've
+	// 1) Entered the Launchpad during signup, then 2) Purchased DIFM
+	if ( has_blog_sticker( 'difm-lite-in-progress' ) ) {
+		return false;
+	}
+	// Just in case, always return from a filter!
+	return $value;
+}
+
+/**
+ * Update Launchpad's first_post_published task to true.
+ *
+ * @return void
+ */
+function mark_publish_first_post_task_as_complete() {
+	if ( ! get_checklist_task( 'first_post_published' ) ) {
+		update_checklist_task( 'first_post_published', true );
+	}
+}
+
+/**
+ * Only update first_post_pubished task under specific conditions.
+ * Also turn launchpad_screen optoin off when this task is completed for Newsletters.
+ *
+ * @return void
+ */
+function track_publish_first_post_task() {
+	// Ensure that Headstart posts don't mark this as complete
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
+
+	if ( is_newsletter_flow() && should_update_tasks() ) {
+		mark_publish_first_post_task_as_complete();
+		update_option( 'launchpad_screen', 'off' );
+	}
+
+	if ( is_free_flow() && should_update_tasks() ) {
+		mark_publish_first_post_task_as_complete();
+	}
+
+	if ( is_general_flow() && should_update_tasks() ) {
+		mark_publish_first_post_task_as_complete();
+	}
+}
+
+/**
+ * Logs data when e2eflowtesting5.wordpress.com has launchpad enabled.
+ *
+ * @param string $option The updated option value.
+ * @param string $value The previous option value.
+ * @return void
+ */
+function log_launchpad_being_enabled_for_test_sites( $option, $value ) {
+	// e2eflowtesting5.wordpress.com
+	if ( get_current_blog_id() !== 208860881 || $value !== 'full' ) {
+		return;
+	}
+
+	require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+	require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
+	$current_plan = WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+	$extra        = array(
+		'is_free'     => $current_plan['is_free'],
+		'site_intent' => get_option( 'site_intent' ),
+	);
+
+	log2logstash(
+		array(
+			'feature' => 'launchpad',
+			'message' => 'Launchpad enabled for e2e test site.',
+			'extra'   => wp_json_encode( $extra ),
+		)
+	);
+}
+
 add_action( 'init', 'register_default_checklists' );
+add_action( 'load-site-editor.php', 'track_edit_site_task', 10 );
+add_action( 'wp_head', 'maybe_preview_with_no_interactions', PHP_INT_MAX );
+add_action( 'publish_post', 'track_publish_first_post_task', 10 );
+
+// WIP ( Need to test )
+// add_action( 'add_attachment', 'track_video_uploaded_task', 10, 1 );
+// add_action( 'wpcom_site_launched', 'track_site_launch_task', 10 );
+// Atomic Only
+// if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+// add_action( 'update_option_blog_public', 'maybe_track_site_launch', 10, 2 );
+// } else {
+// WPCOM only - relies on blog stickers
+// add_filter( 'option_launchpad_screen', 'maybe_disable_for_difm' );
+// }
+
+// Temporarily log information to debug intermittent launchpad errors for e2e tests
+// if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+// add_action( 'add_option_launchpad_screen', 'log_launchpad_being_enabled_for_test_sites', 10, 2 );
+// }
