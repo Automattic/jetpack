@@ -27,6 +27,14 @@
 	.dops-button .dashicons-no {
 		color: $black;
 	}
+
+	.dops-banner__description {
+		padding-left: 8px;
+	
+		.jp-link-button {
+			padding: 0;
+		}
+	}
 }
 
 .jp-dash-section-header.jp-dash-section-header-stats {
@@ -55,14 +63,6 @@
 		border: none;
 		font-size: 0.75rem;
 		padding: 1px 0;
-	}
-}
-
-.dops-banner__description {
-	padding-left: 8px;
-
-	.jp-link-button {
-		padding: 0;
 	}
 }
 
