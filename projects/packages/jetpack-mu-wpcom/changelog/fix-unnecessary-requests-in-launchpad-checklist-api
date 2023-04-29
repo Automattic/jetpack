@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use cached wpcom_site_has_feature call to retrieve   information about a site
