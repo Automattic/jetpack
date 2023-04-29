@@ -144,7 +144,8 @@
 	}
 
 	&-save-button {
-		float: right;
+		display: flex;
+		justify-content: end;
 		margin-top: 0.75rem;
 	}
 }
@@ -211,7 +212,8 @@
 	}
 
 	&-save-button {
-		float: right;
+		display: flex;
+		justify-content: end;
 		margin-top: 0.75rem;
 	}
 }
