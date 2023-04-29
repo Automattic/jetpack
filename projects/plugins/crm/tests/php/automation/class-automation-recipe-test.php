@@ -6,6 +6,7 @@ use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use Automattic\Jetpack\CRM\Automation\Automation_Recipe;
+use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
 use Automattic\Jetpack\CRM\Automation\Trigger;
 use WorDBless\BaseTestCase;
 
@@ -125,5 +126,46 @@ class Automation_Recipe_Test extends BaseTestCase {
 		// Emit the contact_created event with the fake contact data
 		$event_emitter = Event_Emitter::instance();
 		$event_emitter->emit_event( 'contact_created', $contact_data );
+	}
+
+	/**
+	 * @testdox Test an automation recipe execution with a dummy action
+	 */
+	public function test_recipe_execution_with_dummy_action() {
+		
+		$logger = Automation_Logger::instance();
+		//$logger->with_output( true );
+		
+		$automation = Automation_Engine::instance();
+		$automation->set_automation_logger( $logger );
+		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
+		$automation->register_action( 'dummy_action', Dummy_Step::class );
+
+		$recipe_data = $this->automation_faker->recipe_without_initial_step();
+		
+		$recipe = new Automation_Recipe( $recipe_data );
+		$recipe->set_initial_step( [
+			'name' => 'dummy_action',
+			'type' => 'action',	
+		] );
+
+		// Add and init the recipes
+		$automation->add_recipe( $recipe );
+		$automation->init_recipes();
+
+		// Fake event data
+		$contact_data = $this->automation_faker->contact_data();
+
+		// Emit the contact_created event with the fake contact data
+		$event_emitter = Event_Emitter::instance();
+		$event_emitter->emit_event( 'contact_created', $contact_data );
+		
+		$log = $logger->get_log();
+		$total_log = count( $log );
+
+		$this->assertGreaterThan( 3, $total_log );
+
+		$this->assertEquals( 'Recipe execution finished: No more steps found.', $log[ $total_log-1 ][1] );
+		$this->assertEquals( 'Dummy step executed', $log[ $total_log-3 ][1] );
 	}
 }
