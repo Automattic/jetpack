@@ -121,11 +121,8 @@ function is_domain_upsell_completed() {
 	// Adding a 'false' bypass to this for now to unblock Jetpack release.
 	// This was resulting in queries being run on too many requests to wpcom.
 	// Slack context - p1682634633096559/1682634536.650749-slack-C0299DMPG
-	if ( false && defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-		if ( class_exists( '\WPCOM_Store_API' ) ) {
-			$plan = \WPCOM_Store_API::get_current_plan( \get_current_blog_id() );
-			return ! $plan['is_free'] || get_checklist_task( 'domain_upsell_deferred' );
-		}
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		return ! wpcom_site_has_feature( 'free-blog' ) || get_checklist_task( 'domain_upsell_deferred' );
 	}
 
 	return get_checklist_task( 'domain_upsell_deferred' );
