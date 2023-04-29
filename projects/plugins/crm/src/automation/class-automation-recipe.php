@@ -28,6 +28,9 @@ class Automation_Recipe {
 	/** @var Automation_Engine */
 	private $automation_engine;
 	
+	/** @var Automation_Logger */
+	private $logger;
+	
 	public function __construct( array $recipe_data ) {
 		$this->triggers     = $recipe_data['triggers']; //$this->createTriggers(  );
 		$this->initial_step = $recipe_data['initial_step'];
@@ -37,6 +40,16 @@ class Automation_Recipe {
 		$this->active       = $recipe_data['is_active'];
 		
 		$this->automation_engine = Automation_Engine::instance();
+		$this->logger            = Automation_Logger::instance();
+	}
+	
+	/**
+	 * Get the id of this recipe
+	 * 
+	 * @return int
+	 */
+	public function get_id(): int {
+		return $this->id;
 	}
 
 	public function set_triggers( array $triggers ) {
@@ -44,9 +57,9 @@ class Automation_Recipe {
 	}
 
 	/**
-	 * Get the triggers of this recipe
+	 * Get the trigger names of this recipe
 	 * 
-	 * @return Trigger[]
+	 * @return array
 	 */
 	public function get_triggers(): array {
 		return $this->triggers;
@@ -78,58 +91,10 @@ class Automation_Recipe {
 	
 	/** 
 	 * Set initial step of this recipe
-	 * @param Step $step
+	 * @param array $step_data
 	 */
-	public function set_initial_step( Step $step ) {
-		$this->initial_step = $step;
-	}
-
-	static public function get_plain_step( Step $step ): array {
-
-		$plain_step = array(
-			'class' => get_class( $step ),
-			'name' => $step->get_name(),
-			'description' => $step->get_description(),
-			'params' => $step->get_params(),
-		);
-
-		if( $step->has_next_step_true() ) {
-			$plain_step['next_step_true'] = self::get_plain_step( $step->next_step_true() );
-		}
-
-		if( $step->has_next_step_false() ) {
-			$plain_step['next_step_false'] = self::get_plain_step( $step->next_step_false() );
-		}
-
-		return $plain_step;
-	}
-
-	static public function build_step( array $plain_step ): Step {
-		$class = $plain_step['class'];
-		$name = $plain_step['name'];
-		$description = $plain_step['description'];
-
-		if( !class_exists( $class ) ) {
-			throw new Step_Exception('Step class doesn\'t exists', Step_Exception::STEP_CLASS_DOES_NOT_EXIST );
-		}
-
-		/** @var Step $step */
-		$step = new $class();
-		$step->set_name( $name );
-		$step->set_description( $description );
-
-		//todo: process next_step_if_true
-		//todo: process next_step_if_false
-
-		return $step;
-	}
-
-	/**
-	 * Get the initial step of this recipe
-	 * @return Step
-	 */
-	public function get_initial_step(): Step {
-		return $this->initial_step;
+	public function set_initial_step( array $step_data ) {
+		$this->initial_step = $step_data;
 	}
 
 	/**
@@ -152,13 +117,15 @@ class Automation_Recipe {
 	
 	/**
 	 * Start the recipe execution once a trigger is activated
-	 * @param array $trigger_data
+	 * 
+	 * @param Trigger $trigger
+	 * @param array $data
+	 * @return bool
 	 * @throws Automation_Exception
 	 */
-	public function execute( Trigger $trigger, array $data ) {
-		
-		Automation_Logger::log( 'Executing recipe: ' . $this->name );
-		Automation_Logger::log( 'Trigger: ' . $trigger->get_name() );
+	public function execute( Trigger $trigger, array $data ): bool {
+		$this->logger->log( 'Trigger activated: ' . $trigger->get_name() );
+		$this->logger->log( 'Executing recipe: ' . $this->name );
 		
 		$step_data = $this->initial_step;
 		
@@ -167,27 +134,30 @@ class Automation_Recipe {
 					$step_name = $step_data['name'];
 					$step_type = $step_data['type'];
 
-					Automation_Logger::log( 'Executing step: ' . $step_name . ' - Type: ' . $step_type );
+					$this->logger->log( 'Executing step: ' . $step_name . ' - Type: ' . $step_type );
 					
 					$step_class = $this->automation_engine->get_step_class( $step_name, $step_type );
 				
+					/** @var Step $step */
 					$step = new $step_class( $step_data );
 					$step->execute( $data );
-					$step_data = $step->get_next_step( $data );
-					
-					Automation_Logger::log( 'Step executed: ' . $step_name );
+					$step_data = $step->get_next_step();
+
+					$this->logger->log( 'Step executed: ' . $step_name );
 					
 				if ( ! $step_data ) {
-					Automation_Logger::log( 'Recipe execution finished: No more steps found.' );
-					break;
+					$this->logger->log( 'Recipe execution finished: No more steps found.' );
+					return true;
 				}
 			} catch ( Automation_Exception $automation_exception ) {
-				
-				Automation_Logger::log( 'Error executing the recipe on step: ' . $step_name . ' - ' . $automation_exception->getMessage() );
+
+				$this->logger->log( 'Error executing the recipe on step: ' . $step_name . ' - ' . $automation_exception->getMessage() );
 				
 				throw $automation_exception;
 			}
 		}
+		
+		return false;
 	}
 	
 	/**
