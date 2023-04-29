@@ -7,6 +7,8 @@ class Automation_Logger {
 	private static $instance = null;
 	
 	private $log = array();
+	
+	private $output = false;
 
 	/**
 	 * Initialize the logger
@@ -18,12 +20,19 @@ class Automation_Logger {
 		
 		return self::$instance;
 	}
+
+	/**
+	 * Set if output the log or not
+	 */
+	public function with_output( bool $output ) {
+		$this->output = $output;
+	}
 	
 	/**
 	 * Get log list
 	 */
-	public static function get_log(): array {
-		return self::$instance->log;
+	public function get_log(): array {
+		return $this->log;
 	}
 	
 	/**
@@ -31,7 +40,13 @@ class Automation_Logger {
 	 * 
 	 * @param string $message
 	 */
-	public static function log( string $message ) {
-		self::$instance->log[] = array( date( 'Y-m-d H:i' ), $message );
+	public function log( string $message ) {
+		
+		if ( $this->output ) {
+			error_log( $message );
+		}
+		
+		$log = array( date( 'Y-m-d H:i' ), $message );
+		$this->log[] = $log;
 	}
 }
