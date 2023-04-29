@@ -114,18 +114,18 @@ abstract class Base_Step implements Step {
 	/**
 	 * Set the next step
 	 *
-	 * @param Step $step The next linked step.
+	 * @param array $step_data The next linked step.
 	 */
-	public function set_next_step( Step $step ) {
-		$this->next_step = $step;
+	public function set_next_step( array $step_data ) {
+		$this->next_step = $step_data;
 	}
 
 	/**
 	 * Get the next step
 	 *
-	 * @return Step|null
+	 * @return array|null
 	 */
-	public function get_next_step(): ?Step {
+	public function get_next_step(): ?array {
 		return $this->next_step;
 	}
 
