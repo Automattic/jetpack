@@ -95,13 +95,15 @@ function Search( props ) {
 								toggling={ togglingInstantSearch }
 								onChange={ toggleInstantSearch }
 								label={ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
+								help={
+									<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
+										{ __(
+											'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
+											'jetpack'
+										) }
+									</p>
+								}
 							/>
-							<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
-								{ __(
-									'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
-									'jetpack'
-								) }
-							</p>
 						</FormFieldset>
 					</Fragment>
 				) }

@@ -2,7 +2,6 @@ import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import CompactCard from 'components/card/compact';
-import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -84,12 +83,12 @@ export class CustomContentTypes extends React.Component {
 						onChange={ this.handleTestimonialToggleChange }
 						disabledReason={ disabledReason }
 						label={ __( 'Testimonials', 'jetpack' ) }
+						help={
+							<p className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
+								{ __( 'Testimonials shortcode: [testimonials]', 'jetpack' ) }
+							</p>
+						}
 					/>
-					<FormFieldset>
-						<p className="jp-form-setting-explanation">
-							{ __( 'Testimonials shortcode: [testimonials]', 'jetpack' ) }
-						</p>
-					</FormFieldset>
 				</SettingsGroup>
 				{ this.props.testimonialActive && (
 					<CompactCard
@@ -124,12 +123,12 @@ export class CustomContentTypes extends React.Component {
 						onChange={ this.handlePortfolioToggleChange }
 						disabledReason={ disabledReason }
 						label={ __( 'Portfolios', 'jetpack' ) }
+						help={
+							<p className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
+								{ __( 'Portfolios shortcode: [portfolio]', 'jetpack' ) }
+							</p>
+						}
 					/>
-					<FormFieldset>
-						<p className="jp-form-setting-explanation">
-							{ __( 'Portfolios shortcode: [portfolio]', 'jetpack' ) }
-						</p>
-					</FormFieldset>
 				</SettingsGroup>
 				{ this.props.portfolioActive && (
 					<CompactCard

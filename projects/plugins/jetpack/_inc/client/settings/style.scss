@@ -3,11 +3,19 @@
 	a, a:link, a:visited {
 		color: var( --jp-black-80 );
 		text-decoration: underline;
+
+		&.dops-notice__action {
+			color: var( --jp-gray-20 );
+		}
 	}
 
 	a:hover, a:active {
 		color: var( --jp-black );
 		text-decoration-thickness: var( --jp-underline-thickness );
+
+		&.dops-notice__action {
+			color: var( --jp-white );
+		}
 	}
 
 	a.dops-banner,
