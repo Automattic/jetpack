@@ -33,6 +33,7 @@ const ConnectScreen = ( {
 	images,
 	children,
 	assetBaseUrl,
+	autoTrigger,
 	footer,
 	skipUserConnection,
 } ) => {
@@ -48,6 +49,7 @@ const ConnectScreen = ( {
 		redirectUri,
 		apiRoot,
 		apiNonce,
+		autoTrigger,
 		from,
 		skipUserConnection,
 	} );
@@ -81,6 +83,7 @@ ConnectScreen.propTypes = {
 	registrationNonce: PropTypes.string.isRequired,
 	from: PropTypes.string,
 	redirectUri: PropTypes.string.isRequired,
+	autoTrigger: PropTypes.bool,
 	images: PropTypes.arrayOf( PropTypes.string ),
 	assetBaseUrl: PropTypes.string,
 	skipUserConnection: PropTypes.bool,
@@ -91,6 +94,7 @@ ConnectScreen.defaultProps = {
 	buttonLabel: __( 'Set up Jetpack', 'jetpack' ),
 	images: [],
 	redirectUri: null,
+	autoTrigger: false,
 	skipUserConnection: false,
 };
 
