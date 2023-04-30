@@ -75,16 +75,20 @@ class Odyssey_Assets {
 	/**
 	 * Returns cache buster string for assets.
 	 * Development mode doesn't need this, as it's handled by `Assets` class.
+	 *
+	 * @param bool $force_refresh Whether to force refresh the cache buster.
 	 */
-	protected function get_cdn_asset_cache_buster() {
+	protected function get_cdn_asset_cache_buster( $force_refresh = false ) {
 		// Use cached cache buster in production.
 		$remote_asset_version = get_transient( self::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
-		if ( ! empty( $remote_asset_version ) ) {
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( ! empty( $remote_asset_version ) && ! $force_refresh && ! isset( $_GET['force_refresh'] ) ) {
 			return $remote_asset_version;
 		}
 
 		// If no cached cache buster, we fetch it from CDN and set to transient.
-		$response = wp_remote_get( sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build_meta.json' ), array( 'timeout' => 5 ) );
+		$response = wp_remote_get( sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, 'build_meta.json?t=' . time() ), array( 'timeout' => 5 ) );
 
 		if ( is_wp_error( $response ) ) {
 			// fallback to the package version.
