@@ -434,6 +434,13 @@ tr.jetpack-module {
 	th.check-column {
 		padding-top: 0;
 		width: auto;
+
+		input[type=checkbox]::before {
+			margin: -2px;
+			color: $black;
+			width: 21px;
+			height: 21px;
+		}
 	}
 
 	a, p {
