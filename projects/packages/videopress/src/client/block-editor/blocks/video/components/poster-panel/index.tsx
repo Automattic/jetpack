@@ -252,9 +252,16 @@ function VideoFramePicker( {
 	const { preview = { html: null }, isRequestingEmbedPreview } = usePreview( url );
 	const { html } = preview;
 
-	const { playerIsReady } = useVideoPlayer( playerWrapperRef, isRequestingEmbedPreview, {
+	const { playerIsReady, pause } = useVideoPlayer( playerWrapperRef, isRequestingEmbedPreview, {
 		initialTimePosition: atTime,
 	} );
+
+	useEffect( () => {
+		if ( ! playerIsReady ) {
+			return;
+		}
+		pause();
+	}, [ playerIsReady, pause ] );
 
 	const onTimestampDebounceChange = useCallback(
 		iframeTimePosition => {
