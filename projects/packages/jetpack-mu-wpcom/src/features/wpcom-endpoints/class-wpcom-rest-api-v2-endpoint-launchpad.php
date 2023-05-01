@@ -118,7 +118,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	 *               and `checklist`.
 	 */
 	public function get_data( $request ) {
-		$checklist_slug = $request['checklist_slug'];
+		$checklist_slug = isset( $request['checklist_slug'] ) ? $request['checklist_slug'] : get_option( 'site_intent' );
 		return array(
 			'site_intent'        => get_option( 'site_intent' ),
 			'launchpad_screen'   => get_option( 'launchpad_screen' ),
