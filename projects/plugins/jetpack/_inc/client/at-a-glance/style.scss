@@ -28,6 +28,10 @@
 		color: $black;
 	}
 
+	.dops-banner__title {
+		padding: 0 rem( 8px );
+	}
+
 	.dops-banner__description {
 		padding-left: 8px;
 	
@@ -386,9 +390,6 @@
 					text-transform: none;
 				}
 			}
-		}
-		.dops-banner__title {
-			padding: 0 rem( 8px );
 		}
 	}
 	.jp-dash-item__card {
