@@ -37,6 +37,11 @@ const VIDEOPRESS_ALLOWED_EMITTING_EVENTS = [
 	'videopress_action_pause',
 	'videopress_action_set_currenttime',
 	'videopress_action_set_volume',
+
+	/*
+	 * The following events are not handled by the PostMessageAPI,
+	 * but internally mapped to the IFrame API.
+	 */
 	'videopress_action_set_mute',
 ] as const;
 
@@ -80,8 +85,8 @@ function isEmittingEvent(
 }
 
 /**
- * Function handler to dialog between
- * the client (player) and the app (editor)
+ * The function handler facilitates dialogue
+ * between the client (player) and the app (editor).
  *
  * @param {object} event - The event object
  */
@@ -91,10 +96,7 @@ export async function playerBridgeHandler(
 	const data = event.data;
 	const eventName = data.event;
 
-	// const { data = { event: null }, origin } = event;
-	// const { event: eventName } = data;
-
-	// Propagate only allowed events.
+	// From client (player) to the app (editor).
 	if ( isListeningEvent( eventName ) ) {
 		// Propagate only allowed origins.
 		const allowed_origins: Array< Origin > = [
@@ -108,6 +110,7 @@ export async function playerBridgeHandler(
 		}
 	}
 
+	// From app (editor) to the client (player).
 	if ( isEmittingEvent( eventName ) ) {
 		const videoPressIFrame = document.querySelector( 'iframe' );
 		const videoPressWindow = videoPressIFrame?.contentWindow;
@@ -142,7 +145,7 @@ export async function playerBridgeHandler(
 		/*
 		 * Create an instance of the VideoPressIframeApi,
 		 * store it in the global scope and add a listener,
-		 * and then add a listener to the window message event.
+		 * and then add a listener to the window `message` event.
 		 * This is to ensure that the VideoPressIframeApi is
 		 * available before the message event is fired.
 		 */

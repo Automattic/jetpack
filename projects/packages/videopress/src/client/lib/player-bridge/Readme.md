@@ -1,26 +1,28 @@
 # Player Bridge
 
-Bridge to communicate player with the block editor.
+A bridge to facilitate communication between the VideoPress player and the block editor.
 
-## How
+## Overview
 
-The file script is intended to be provided and run to a children document,
-usually implemented via a core Sandbox component.
+This script file is designed to be included and executed within a child document,
+typically implemented via a core [Sandbox](https://github.com/WordPress/gutenberg/tree/trunk/packages/components/src/sandbox) component.
 
+## Listening to Player Events
 
-## Listen to player events
+There is no need to use the bridge for this purpose.
+You can subscribe to player events by accessing the `contentWindow`
+of the sandbox iFrame element.
+The player emits events to both its own window and the parent window.
 
-You don't need to use the bridge for this.
-It's possible to get subscribed just by picking the `contentWindow` of the sandbox iFrame element,
-since the player emits evens to its window and parent window.
+## Triggering Events to the Player
 
-## Triggering events to the player
+To trigger events to the player:
 
-You need to get the `contentWindow` of the sandbox iFrame element, and trigger the events just by calling the postMessage() function:
+- First obtain the `contentWindow` of the sandbox iFrame element.
+- Then, use the `postMessage()` function to send the desired event.
 
-```es6
-const iFrame = getElementById( 'my-sandbox-element' );
+```javascript
+const iFrame = document.getElementById( 'my-sandbox-element' );
 const iFrameWindow = iFrame?.contentWindow;
 
 iFrameWindow?.postMessage( { event: 'videopress_action_pause' } );
-```
