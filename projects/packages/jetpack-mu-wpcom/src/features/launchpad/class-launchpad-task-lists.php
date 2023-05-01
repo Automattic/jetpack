@@ -219,14 +219,12 @@ class Launchpad_Task_Lists {
 	 * @return bool True if completed, false if not.
 	 */
 	public function get_task_completion_status( $task ) {
-		if ( isset( $task['completed'] ) ) {
-			if ( array_key_exists( $task['id'], $this->launchpad_task_completion_status_mapping ) ) {
-				$task_status_mapped_value = $this->launchpad_task_completion_status_mapping[ $task['id'] ];
-				if ( is_callable( $task_status_mapped_value ) ) {
-					return call_user_func( $task_status_mapped_value );
-				} elseif ( is_string( $task_status_mapped_value ) ) {
-					return get_checklist_task( $task_status_mapped_value );
-				}
+		if ( array_key_exists( $task['id'], $this->launchpad_task_completion_status_mapping ) ) {
+			$task_status_mapped_value = $this->launchpad_task_completion_status_mapping[ $task['id'] ];
+			if ( is_callable( $task_status_mapped_value ) ) {
+				return call_user_func( $task_status_mapped_value );
+			} elseif ( is_string( $task_status_mapped_value ) ) {
+				return get_checklist_task( $task_status_mapped_value );
 			}
 		}
 		return $task['completed'];
