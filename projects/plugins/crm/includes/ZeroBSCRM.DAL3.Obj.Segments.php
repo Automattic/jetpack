@@ -719,8 +719,8 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
 
 				$count = $this->DAL()->contacts->getContacts( $contact_get_args );
 
-					// effectively a compile, so update compiled no on record
-					$this->updateSegmentCompiled( $segment_id, $count, time() );
+				// effectively a compile, so update compiled no on record
+				$this->updateSegmentCompiled( $segment_id, $count, time() );
 
 				return $count;
 			}
