@@ -128,13 +128,6 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			}
 			keywords.add( `[${ prefix }] ${ cleanName( project.groups.pname ) }` );
 
-			// The Image CDN was previously named "Photon".
-			// If we're touching that package, let's add the Photon label too
-			// so we can keep track of changes to the feature.
-			if ( keywords.has( '[Package] Image Cdn' ) ) {
-				keywords.add( 'Photon' );
-			}
-
 			// Extra labels.
 			if ( project.groups.ptype === 'github-actions' ) {
 				keywords.add( 'Actions' );
@@ -249,12 +242,19 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		if ( anyTestFile ) {
 			keywords.add( '[Tests] Includes Tests' );
 		}
-
-		// Add '[Status] In Progress' for draft PRs
-		if ( isDraft ) {
-			keywords.add( '[Status] In Progress' );
-		}
 	} );
+
+	// The Image CDN was previously named "Photon".
+	// If we're touching that package, let's add the Photon label too
+	// so we can keep track of changes to the feature.
+	if ( keywords.has( '[Package] Image Cdn' ) ) {
+		keywords.add( 'Photon' );
+	}
+
+	// Add '[Status] In Progress' for draft PRs
+	if ( isDraft ) {
+		keywords.add( '[Status] In Progress' );
+	}
 
 	return [ ...keywords ];
 }
