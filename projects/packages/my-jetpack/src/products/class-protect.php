@@ -116,4 +116,14 @@ class Protect extends Product {
 	public static function get_manage_url() {
 		return admin_url( 'admin.php?page=jetpack-protect' );
 	}
+
+	/**
+	 * Return product bundles list
+	 * that supports the product.
+	 *
+	 * @return array Products bundle list.
+	 */
+	public static function is_upgradable_by_bundle() {
+		return array( 'security' );
+	}
 }
