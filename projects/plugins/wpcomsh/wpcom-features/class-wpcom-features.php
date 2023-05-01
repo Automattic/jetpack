@@ -515,8 +515,8 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 		),
 		self::DONATIONS                        => array(
-			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
-			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::WPCOM_ALL_SITES,
+			self::JETPACK_ALL_SITES,
 		),
 		// ECOMMERCE_MANAGED_PLUGINS - Can install the plugin bundle that comes with eCommerce plans.
 		self::ECOMMERCE_MANAGED_PLUGINS        => array(
@@ -715,8 +715,8 @@ class WPCOM_Features {
 			self::WPCOM_PRO_PLANS,
 		),
 		self::RECURRING_PAYMENTS               => array(
-			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
-			self::JETPACK_PERSONAL_AND_HIGHER,
+			self::WPCOM_ALL_SITES,
+			self::JETPACK_ALL_SITES,
 		),
 
 		/*
