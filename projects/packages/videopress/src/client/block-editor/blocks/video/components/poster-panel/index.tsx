@@ -297,8 +297,7 @@ function VideoFramePicker( {
 				max={ duration }
 				value={ timestamp }
 				wait={ 250 }
-				fineAdjustment={ 1 }
-				decimalPlaces={ 2 }
+				fineAdjustment={ 50 }
 				onChange={ setTimestamp }
 				onDebounceChange={ onTimestampDebounceChange }
 			/>
