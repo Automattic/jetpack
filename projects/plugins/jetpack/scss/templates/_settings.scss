@@ -85,7 +85,7 @@
 	.tablenav.top {
 		display: flex;
 		padding: 0;
-		margin: 0;
+		margin: 0 0 0 10px;
 		height: auto;
 	}
 
@@ -136,7 +136,19 @@
 	border-collapse: collapse;
 
 	.check-column {
-		padding-right: 10px;
+		input[type="checkbox"] {
+			width: 20px;
+			height: 20px;
+			border-radius: 2px;
+			margin-left: 0;
+
+			&::before {
+				margin: -2px;
+				color: $black;
+				width: 21px;
+				height: 21px;
+			}
+		}
 	}
 
 	.info {
@@ -434,13 +446,6 @@ tr.jetpack-module {
 	th.check-column {
 		padding-top: 0;
 		width: auto;
-
-		input[type=checkbox]::before {
-			margin: -2px;
-			color: $black;
-			width: 21px;
-			height: 21px;
-		}
 	}
 
 	a, p {
@@ -460,13 +465,6 @@ tr.jetpack-module.active {
 	}
 
 
-}
-
-input.checkall, tr.jetpack-module input[type="checkbox"] {
-	width: 20px;
-	height: 20px;
-	border-radius: 2px;
-	margin-left: 0;
 }
 
 tr.jetpack-module .column-name {
