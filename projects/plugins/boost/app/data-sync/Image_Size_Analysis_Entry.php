@@ -25,9 +25,7 @@ class Image_Size_Analysis_Entry implements Entry_Can_Get, Entry_Can_Set {
 		return $this->get_mock_data( $this->page );
 	}
 
-	public function set(
-		$value
-	) {
+	public function set( $value ) {
 		$this->page = $value['pagination']['current'];
 		return $this->get();
 	}

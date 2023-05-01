@@ -9,7 +9,7 @@ function jetpack_boost_mock_api( $count, $paged = 1 ) {
 	$image_posts    = array();
 	$posts_per_page = 10;
 
-	
+
 	while ( count( $image_posts ) < $count ) {
 		$args = array(
 			'post_type'      => 'post',
@@ -85,10 +85,12 @@ function jetpack_boost_mock_api( $count, $paged = 1 ) {
 $image_size_analysis = Schema::as_assoc_array(
 	array(
 		'last_updated' => Schema::as_number(),
-		'pagination'   => Schema::as_assoc_array( [
-			                                          'current' => Schema::as_number(),
-			                                          'total'   => Schema::as_number(),
-		                                          ] ),
+		'pagination'   => Schema::as_assoc_array(
+			[
+				'current' => Schema::as_number(),
+				'total'   => Schema::as_number(),
+			]
+		),
 		'images'       => Schema::as_array(
 			Schema::as_assoc_array(
 				array(
