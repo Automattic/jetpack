@@ -4,14 +4,24 @@
 	// "-1" is replaced by "..." when rendering the pagination
 	const MORE_ICON = -1;
 
-	function slidingWindow( currentPage, maxPage ) {
+	// Given a number, this creates an array of page numbers around it
+	// Returns An array of page numbers that are within given range.
+	function slidingWindow( currentPage: number, maxPage: number ): number[] {
+		// The size of the sliding window.
 		const windowSize = 8;
+
+		// Calculate the first page number in the sliding window.
 		const first = Math.max(
 			1,
 			Math.min( maxPage - windowSize, currentPage - Math.floor( windowSize / 2 ) )
 		);
+
+		// Calculate the last page number in the sliding window.
 		const last = Math.min( maxPage, first + windowSize );
 
+		// Create an array of page numbers in the sliding window,
+		// initialized with zeros and then replaced with actual values
+		// based on the first and last page numbers.
 		return new Array( last - first + 1 ).fill( 0 ).map( ( _, i ) => first + i );
 	}
 
