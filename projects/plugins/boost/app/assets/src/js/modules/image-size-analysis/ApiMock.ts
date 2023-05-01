@@ -1,7 +1,6 @@
-import { get, writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../stores/data-sync-client';
-import { modulesState } from '../../stores/modules';
 
 const Dimensions = z.object( {
 	width: z.number(),
