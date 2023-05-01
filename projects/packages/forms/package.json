@@ -39,7 +39,7 @@
 		"@wordpress/hooks": "3.30.0",
 		"@wordpress/i18n": "4.30.0",
 		"@wordpress/icons": "9.21.0",
-		"classnames": "2.3.1",
+		"classnames": "2.3.2",
 		"email-validator": "2.0.4",
 		"gridicons": "3.4.1",
 		"lodash": "4.17.21",
