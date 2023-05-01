@@ -127,6 +127,8 @@ export async function playerBridgeHandler(
 
 		const iframeApiInstance = window.iframeApiInstance;
 
+		debug( 'emit (mapped) %o event - %o', eventName, data );
+
 		if ( eventName === 'videopress_action_set_mute' ) {
 			iframeApiInstance.controls.mute( data.muted );
 		}
