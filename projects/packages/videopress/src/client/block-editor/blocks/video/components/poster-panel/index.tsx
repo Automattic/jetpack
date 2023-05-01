@@ -304,8 +304,7 @@ function VideoFramePicker( {
 				max={ duration }
 				value={ timestamp }
 				wait={ 250 }
-				fineAdjustment={ 1 }
-				decimalPlaces={ 2 }
+				fineAdjustment={ 50 }
 				onChange={ setTimestamp }
 				onDebounceChange={ onTimestampDebounceChange }
 			/>
@@ -540,21 +539,6 @@ export default function PosterPanel( {
 		} );
 	};
 
-	if ( ! isVideoFramePosterEnabled() ) {
-		return (
-			<PanelBody title={ __( 'Poster', 'jetpack-videopress-pkg' ) } className="poster-panel">
-				<PosterDropdown attributes={ attributes } setAttributes={ setAttributes } />
-				<VideoPosterCard poster={ poster } className="poster-panel-card" />
-
-				{ poster && (
-					<MenuItem onClick={ onRemovePoster } icon={ linkOff } isDestructive variant="tertiary">
-						{ __( 'Remove and use default', 'jetpack-videopress-pkg' ) }
-					</MenuItem>
-				) }
-			</PanelBody>
-		);
-	}
-
 	const panelTitle = isVideoFramePosterEnabled()
 		? __( 'Poster and preview', 'jetpack-videopress-pkg' )
 		: __( 'Poster', 'jetpack-videopress-pkg' );
@@ -597,15 +581,17 @@ export default function PosterPanel( {
 				) }
 			</div>
 
-			<VideoHoverPreviewControl
-				previewOnHover={ previewOnHover }
-				previewAtTime={ previewAtTime }
-				loopDuration={ previewLoopDuration }
-				videoDuration={ videoDuration }
-				onPreviewOnHoverChange={ onPreviewOnHoverChange }
-				onPreviewAtTimeChange={ onPreviewAtTimeChange }
-				onLoopDurationChange={ onLoopDurationChange }
-			/>
+			{ isVideoFramePosterEnabled() && (
+				<VideoHoverPreviewControl
+					previewOnHover={ previewOnHover }
+					previewAtTime={ previewAtTime }
+					loopDuration={ previewLoopDuration }
+					videoDuration={ videoDuration }
+					onPreviewOnHoverChange={ onPreviewOnHoverChange }
+					onPreviewAtTimeChange={ onPreviewAtTimeChange }
+					onLoopDurationChange={ onLoopDurationChange }
+				/>
+			) }
 		</PanelBody>
 	);
 }
