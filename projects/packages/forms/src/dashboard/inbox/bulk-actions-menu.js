@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { config } from '../';
 import { doBulkAction } from '../data/responses';
 import { STORE_NAME } from '../state';
-import { ACTIONS, TABS } from './constants';
+import { ACTION_TABS, ACTIONS, RESPONSES_FETCH_LIMIT, TABS } from './constants';
 
 /**
  * Custom temporary handler for check-for-spam action based on grunion_check_for_spam.
@@ -37,10 +37,10 @@ const checkForSpam = ( offset = 0 ) => {
 		} );
 };
 
-const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } ) => {
+const ActionsMenu = ( { currentPage, currentView, selectedResponses, setSelectedResponses } ) => {
 	const [ checkingForSpam, setCheckingForSpam ] = useState( false );
 
-	const { fetchResponses, setLoading } = useDispatch( STORE_NAME );
+	const { addTabTotals, fetchResponses, removeResponses, setLoading } = useDispatch( STORE_NAME );
 	const query = useSelect( select => select( STORE_NAME ).getResponsesQuery(), [] );
 
 	const handleCheckForSpam = useCallback( () => {
@@ -54,11 +54,25 @@ const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } )
 	const onActionHandler = action => async () => {
 		try {
 			setLoading( true );
-			await doBulkAction( selectedResponses, action );
-			fetchResponses( query );
 			setSelectedResponses( [] );
-		} catch {
-			//TODO: Implement error handling
+			removeResponses( selectedResponses );
+			addTabTotals( {
+				[ currentView ]: -selectedResponses.length,
+				[ ACTION_TABS[ action ] ]: selectedResponses.length,
+			} );
+			await doBulkAction( selectedResponses, action );
+
+			fetchResponses(
+				{
+					...query,
+					limit: RESPONSES_FETCH_LIMIT,
+					offset: ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
+				},
+				{ append: true }
+			);
+		} finally {
+			// Prevent getting stuck in loading state if doBulkAction fails
+			setLoading( false );
 		}
 	};
 

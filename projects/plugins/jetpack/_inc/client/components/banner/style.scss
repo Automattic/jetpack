@@ -70,7 +70,7 @@
 	}
 
 	@include breakpoint( '>480px' ) {
-		padding: 12px 16px;
+		padding: 16px;
 		&.is-dismissible {
 			padding-right: 16px;
 		}
@@ -164,6 +164,15 @@
 	.dops-banner__description {
 		font-size: $font-body-extra-small;
 		margin-top: 3px;
+
+		.jp-link-button {
+			&, &:active, &:visited, &:hover, &:focus {
+				font-size: $font-body-extra-small;
+				line-height: 1.4;
+				box-shadow: none;
+				background: none;
+			}
+		}
 	}
 
 	.dops-banner__list {
@@ -193,7 +202,7 @@
 .dops-banner__action {
 	align-self: center;
 	font-size: $font-body-extra-small;
-	margin: 8px 0 0 0;
+	margin: 8px 0 0 8px;
 	text-align: left;
 	width: 100%;
 

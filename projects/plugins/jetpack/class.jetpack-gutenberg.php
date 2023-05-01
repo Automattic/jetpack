@@ -721,7 +721,15 @@ class Jetpack_Gutenberg {
 					apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
 					&& class_exists( '\Jetpack_Memberships' )
 				),
-				'is_newsletter_configured'      => self::is_newsletter_configured(),
+				/**
+				 * Show the Paid Newsletter access panel selector in every post sidebar.
+				 *
+				 * @module subscriptions
+				 * @since $$next-version$$
+				 *
+				 * @param bool false Show the Paid Newsletter access panel selector in every post sidebar.
+				 */
+				'is_newsletter_panel_active'    => apply_filters( 'jetpack_subscriptions_newsletter_show_panel', self::is_newsletter_configured() ),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
@@ -749,11 +757,13 @@ class Jetpack_Gutenberg {
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
 			$publicize               = publicize_init();
+			$sig_settings            = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
 			$initial_state['social'] = array(
-				'sharesData'                    => $publicize->get_publicize_shares_info( $blog_id ),
-				'hasPaidPlan'                   => $publicize->has_paid_plan(),
-				'isEnhancedPublishingEnabled'   => $publicize->is_enhanced_publishing_enabled( $blog_id ),
-				'isSocialImageGeneratorEnabled' => ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->is_enabled(),
+				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
+				'hasPaidPlan'                     => $publicize->has_paid_plan(),
+				'isEnhancedPublishingEnabled'     => $publicize->is_enhanced_publishing_enabled( $blog_id ),
+				'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
+				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 			);
 		}
 
