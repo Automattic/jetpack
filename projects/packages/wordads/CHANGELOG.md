@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.41] - 2023-05-01
+### Changed
+- Internal updates.
+
 ## [0.2.40] - 2023-04-17
 ### Changed
 - Updated package dependencies. [#30019]
@@ -197,6 +201,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PHPCS: Fix `WordPress.Security.ValidatedSanitizedInput`
 - Updated package dependencies.
 
+[0.2.41]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.40...v0.2.41
 [0.2.40]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.39...v0.2.40
 [0.2.39]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.38...v0.2.39
 [0.2.38]: https://github.com/Automattic/jetpack-wordads/compare/v0.2.37...v0.2.38
