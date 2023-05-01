@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e65dc75b01fe518401728f60e6b3c928",
+    "content-hash": "8a39f76cae9939f1039194841f6072e5",
     "packages": [
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v1.5.0",
+            "version": "v1.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "54dc03b5afdbafabc638df56b02b158e5cd0b63f"
+                "reference": "12381c4fcbbef54ac3d295e6e591587d5c10ee60"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/54dc03b5afdbafabc638df56b02b158e5cd0b63f",
-                "reference": "54dc03b5afdbafabc638df56b02b158e5cd0b63f",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/12381c4fcbbef54ac3d295e6e591587d5c10ee60",
+                "reference": "12381c4fcbbef54ac3d295e6e591587d5c10ee60",
                 "shasum": ""
             },
             "require-dev": {
@@ -54,9 +54,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v1.5.0"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v1.5.1"
             },
-            "time": "2023-04-25T15:05:46+00:00"
+            "time": "2023-05-01T17:32:54+00:00"
         }
     ],
     "packages-dev": [
