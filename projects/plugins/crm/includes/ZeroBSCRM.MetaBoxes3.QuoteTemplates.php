@@ -1,5 +1,4 @@
 <?php 
-//phpcs:disable
 /*!
  * Jetpack CRM
  * https://jetpackcrm.com
