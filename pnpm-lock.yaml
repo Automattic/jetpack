@@ -223,9 +223,6 @@ importers:
       '@types/testing-library__jest-dom':
         specifier: 5.14.1
         version: 5.14.1
-      '@types/wordpress__components':
-        specifier: 23.0.1
-        version: 23.0.1(react-dom@18.2.0)(react@18.2.0)
       jest:
         specifier: 29.4.3
         version: 29.4.3
@@ -2100,9 +2097,6 @@ importers:
       '@types/testing-library__jest-dom':
         specifier: 5.14.1
         version: 5.14.1
-      '@types/wordpress__components':
-        specifier: 23.0.1
-        version: 23.0.1(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/browserslist-config':
         specifier: 5.15.0
         version: 5.15.0
@@ -2607,9 +2601,6 @@ importers:
       '@types/react-test-renderer':
         specifier: 18.0.0
         version: 18.0.0
-      '@types/wordpress__components':
-        specifier: 23.0.1
-        version: 23.0.1(react-dom@18.2.0)(react@18.2.0)
       babel-jest:
         specifier: 29.3.1
         version: 29.3.1(@babel/core@7.21.5)
@@ -8381,10 +8372,6 @@ packages:
       '@types/jest': 29.2.5
     dev: true
 
-  /@types/tinycolor2@1.4.3:
-    resolution: {integrity: sha512-Kf1w9NE5HEgGxCRyIcRXR/ZYtDv0V8FVPtYHwLxl0O+maGX0erE77pQlD0gpP+/KByMZ87mOA79SjifhSB3PjQ==}
-    dev: true
-
   /@types/tough-cookie@4.0.2:
     resolution: {integrity: sha512-Q5vtl1W5ue16D+nIaW8JWebSSraJVlK+EthKn7e7UcD4KWsaSJ8BqGPXNaPghgtcn/fhvrN17Tv8ksUsQpiplw==}
     dev: true
@@ -8395,39 +8382,6 @@ packages:
 
   /@types/unist@2.0.6:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
-    dev: true
-
-  /@types/wordpress__components@23.0.1(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-mpAVr74ElANYR6f8+atultx4A1Md40vZeKfA2ZtgcJMWXQWez3OzP1W2g20BENxOo2kWVsp1r3Tcik/mt/8l/g==}
-    dependencies:
-      '@types/react': 18.0.27
-      '@types/tinycolor2': 1.4.3
-      '@types/wordpress__notices': 3.27.0(react@18.2.0)
-      '@types/wordpress__rich-text': 6.4.0(react@18.2.0)
-      '@wordpress/element': 5.9.0
-      downshift: 6.1.12(react@18.2.0)
-      re-resizable: 6.9.9(react-dom@18.2.0)(react@18.2.0)
-    transitivePeerDependencies:
-      - react
-      - react-dom
-    dev: true
-
-  /@types/wordpress__notices@3.27.0(react@18.2.0):
-    resolution: {integrity: sha512-Da2iJ295TVYqk08EjgUuJjyxSV2DdBktrhBvNd38FH0jEFmI1Y4ollcMHvZ5EWlQk6rPeBreNke4PkuC9vL40A==}
-    dependencies:
-      '@types/react': 18.0.27
-      '@wordpress/data': 8.6.0(react@18.2.0)
-    transitivePeerDependencies:
-      - react
-    dev: true
-
-  /@types/wordpress__rich-text@6.4.0(react@18.2.0):
-    resolution: {integrity: sha512-xG+4ALsKVj4I6N7GXAvhxvobgri39rjiKBGRM1UTo02jFGVBQcE4ICSsggkZ/fox5WJwdk1vmWLFuQAGTNb7nw==}
-    dependencies:
-      '@types/react': 18.0.27
-      '@wordpress/data': 8.6.0(react@18.2.0)
-    transitivePeerDependencies:
-      - react
     dev: true
 
   /@types/yargs-parser@21.0.0:
@@ -9241,30 +9195,6 @@ packages:
       rememo: 4.0.2
       uuid: 8.3.2
 
-  /@wordpress/data@8.6.0(react@18.2.0):
-    resolution: {integrity: sha512-+bQ5dTkJkHeOng3mXXzLBZkudUlOifJql1U99sWGbtLarU/yjfF0ldi/a6uR1cVvDJkGizDYHf9vv/nA39Oaqw==}
-    engines: {node: '>=12'}
-    peerDependencies:
-      react: ^18.0.0
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@wordpress/compose': 6.9.0(react@18.2.0)
-      '@wordpress/deprecated': 3.32.0
-      '@wordpress/element': 5.9.0
-      '@wordpress/is-shallow-equal': 4.32.0
-      '@wordpress/priority-queue': 2.32.0
-      '@wordpress/private-apis': 0.11.0
-      '@wordpress/redux-routine': 4.32.0(redux@4.2.1)
-      deepmerge: 4.3.1
-      equivalent-key-map: 0.2.2
-      is-plain-object: 5.0.0
-      is-promise: 4.0.0
-      react: 18.2.0
-      redux: 4.2.1
-      turbo-combine-reducers: 1.0.2
-      use-memo-one: 1.1.3(react@18.2.0)
-    dev: true
-
   /@wordpress/data@9.2.0(react@18.2.0):
     resolution: {integrity: sha512-7LIklCC9zc9kG8zVQquniEnX0KLL8J5n7WWY/AWYLOHFnjKQR65mzF5KaMl6YX041oWsDGaKBKzLvWOm23KWlA==}
     engines: {node: '>=12'}
@@ -9917,13 +9847,6 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.5
       requestidlecallback: 0.3.0
-
-  /@wordpress/private-apis@0.11.0:
-    resolution: {integrity: sha512-GpAZ34Ou9YkYi9fuJCb9oDIZhsLqj41stuHflxpTNih6vV/Qw7ApBkLZDhDCyWjOybnjtHQH1LWw3K3RCN4miw==}
-    engines: {node: '>=12'}
-    dependencies:
-      '@babel/runtime': 7.21.5
-    dev: true
 
   /@wordpress/private-apis@0.14.0:
     resolution: {integrity: sha512-4F5aCsjWijjq9JjAPUAh0iGnrsRoJNVgQGfOZFND7PMswuaA+uu7xtarKQ5QRsjA1owz2QOv7Hg+MvMuwmG0NA==}
