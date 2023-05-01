@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4734a029a1c81f53000349127b49196a",
+    "content-hash": "dbd06488693b1586d82aa23b485d1238",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -470,16 +470,16 @@
         },
         {
             "name": "automattic/jetpack-identity-crisis",
-            "version": "v0.8.44",
+            "version": "v0.8.45",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-identity-crisis.git",
-                "reference": "a348bca6c5f794d2959c94bebe6ae2a29f93b9d3"
+                "reference": "ba4e5fb76cbe7939e8823989de1d3c9649ff5e8a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-identity-crisis/zipball/a348bca6c5f794d2959c94bebe6ae2a29f93b9d3",
-                "reference": "a348bca6c5f794d2959c94bebe6ae2a29f93b9d3",
+                "url": "https://api.github.com/repos/Automattic/jetpack-identity-crisis/zipball/ba4e5fb76cbe7939e8823989de1d3c9649ff5e8a",
+                "reference": "ba4e5fb76cbe7939e8823989de1d3c9649ff5e8a",
                 "shasum": ""
             },
             "require": {
@@ -523,9 +523,9 @@
             ],
             "description": "Identity Crisis.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-identity-crisis/tree/v0.8.44"
+                "source": "https://github.com/Automattic/jetpack-identity-crisis/tree/v0.8.45"
             },
-            "time": "2023-04-17T13:43:52+00:00"
+            "time": "2023-05-01T17:34:15+00:00"
         },
         {
             "name": "automattic/jetpack-ip",
@@ -742,16 +742,16 @@
         },
         {
             "name": "automattic/jetpack-my-jetpack",
-            "version": "v2.10.3",
+            "version": "v2.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-my-jetpack.git",
-                "reference": "50b7e0a52499386d7266ede9599b4a60bab77b4d"
+                "reference": "feb8c676610558ac257055644ecb5d259a28b506"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/50b7e0a52499386d7266ede9599b4a60bab77b4d",
-                "reference": "50b7e0a52499386d7266ede9599b4a60bab77b4d",
+                "url": "https://api.github.com/repos/Automattic/jetpack-my-jetpack/zipball/feb8c676610558ac257055644ecb5d259a28b506",
+                "reference": "feb8c676610558ac257055644ecb5d259a28b506",
                 "shasum": ""
             },
             "require": {
@@ -766,7 +766,7 @@
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.3.2",
-                "automattic/jetpack-videopress": "^0.13.9",
+                "automattic/jetpack-videopress": "^0.13.10",
                 "automattic/wordbless": "@dev",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
@@ -782,7 +782,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.10.x-dev"
+                    "dev-trunk": "2.11.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -800,9 +800,9 @@
             ],
             "description": "WP Admin page with information and configuration shared among all Jetpack stand-alone plugins",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v2.10.3"
+                "source": "https://github.com/Automattic/jetpack-my-jetpack/tree/v2.11.0"
             },
-            "time": "2023-04-25T15:06:33+00:00"
+            "time": "2023-05-01T17:34:40+00:00"
         },
         {
             "name": "automattic/jetpack-partner",
@@ -1011,16 +1011,16 @@
         },
         {
             "name": "automattic/jetpack-publicize",
-            "version": "v0.25.0",
+            "version": "v0.25.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-publicize.git",
-                "reference": "a2ef74866e6ea5cbf5c99103a69fbd4f858186d9"
+                "reference": "2e15be948839b67585c26b70c769c5eea1e83667"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-publicize/zipball/a2ef74866e6ea5cbf5c99103a69fbd4f858186d9",
-                "reference": "a2ef74866e6ea5cbf5c99103a69fbd4f858186d9",
+                "url": "https://api.github.com/repos/Automattic/jetpack-publicize/zipball/2e15be948839b67585c26b70c769c5eea1e83667",
+                "reference": "2e15be948839b67585c26b70c769c5eea1e83667",
                 "shasum": ""
             },
             "require": {
@@ -1065,9 +1065,9 @@
             ],
             "description": "Publicize makes it easy to share your site’s posts on several social media networks automatically when you publish a new post.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-publicize/tree/v0.25.0"
+                "source": "https://github.com/Automattic/jetpack-publicize/tree/v0.25.1"
             },
-            "time": "2023-04-25T15:06:23+00:00"
+            "time": "2023-05-01T17:34:24+00:00"
         },
         {
             "name": "automattic/jetpack-redirect",
@@ -1222,26 +1222,26 @@
         },
         {
             "name": "automattic/jetpack-sync",
-            "version": "v1.47.7",
+            "version": "v1.47.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-sync.git",
-                "reference": "d37f35bf8bf43ab1e1c665af2831e30814354d27"
+                "reference": "32cb7a8453c980e141312ab65b14ea4e68ea5ce8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/d37f35bf8bf43ab1e1c665af2831e30814354d27",
-                "reference": "d37f35bf8bf43ab1e1c665af2831e30814354d27",
+                "url": "https://api.github.com/repos/Automattic/jetpack-sync/zipball/32cb7a8453c980e141312ab65b14ea4e68ea5ce8",
+                "reference": "32cb7a8453c980e141312ab65b14ea4e68ea5ce8",
                 "shasum": ""
             },
             "require": {
                 "automattic/jetpack-connection": "^1.51.7",
                 "automattic/jetpack-constants": "^1.6.22",
-                "automattic/jetpack-identity-crisis": "^0.8.43",
+                "automattic/jetpack-identity-crisis": "^0.8.45",
                 "automattic/jetpack-ip": "^0.1.2",
                 "automattic/jetpack-password-checker": "^0.2.13",
                 "automattic/jetpack-roles": "^1.4.23",
-                "automattic/jetpack-status": "^1.16.4"
+                "automattic/jetpack-status": "^1.17.0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "^3.3.2",
@@ -1277,9 +1277,9 @@
             ],
             "description": "Everything needed to allow syncing to the WP.com infrastructure.",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-sync/tree/v1.47.7"
+                "source": "https://github.com/Automattic/jetpack-sync/tree/v1.47.8"
             },
-            "time": "2023-04-10T11:44:43+00:00"
+            "time": "2023-05-01T17:34:26+00:00"
         }
     ],
     "packages-dev": [
