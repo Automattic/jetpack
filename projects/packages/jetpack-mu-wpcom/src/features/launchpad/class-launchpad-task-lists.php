@@ -30,6 +30,24 @@ class Launchpad_Task_Lists {
 	private $task_registry = array();
 
 	/**
+	 * Mapping of Launchpad Task List ids to completion status
+	 * The value can either be a string or user defined function.
+	 *
+	 * @var array
+	 */
+	private $launchpad_task_completion_status_mapping = array(
+		'first_post_published'            => 'first_post_published',
+		'first_post_published_newsletter' => 'first_post_published',
+		'links_added'                     => 'links_edited',
+		'link_in_bio_launched'            => 'site_launched',
+		'videopress_upload'               => 'video_uploaded',
+		'videopress_launched'             => 'site_launched',
+		'design_edited'                   => 'site_edited',
+		'site_launched'                   => 'site_launched',
+		'domain_upsell'                   => 'is_domain_upsell_completed',
+	);
+
+	/**
 	 * Singleton instance
 	 *
 	 * @var Launchpad_Task_List
@@ -185,11 +203,33 @@ class Launchpad_Task_Lists {
 
 			// if task can't be found don't add anything
 			if ( ! empty( $task ) ) {
+				$task['completed']     = $this->get_task_completion_status( $task );
 				$tasks_for_task_list[] = $task;
 			}
 		}
 
 		return $tasks_for_task_list;
+	}
+
+	/**
+	 * Get the completion status of a task
+	 *
+	 * @param Task $task Task definition.
+	 *
+	 * @return bool True if completed, false if not.
+	 */
+	public function get_task_completion_status( $task ) {
+		if ( isset( $task['completed'] ) ) {
+			if ( array_key_exists( $task['id'], $this->launchpad_task_completion_status_mapping ) ) {
+				$task_status_mapped_value = $this->launchpad_task_completion_status_mapping[ $task['id'] ];
+				if ( is_callable( $task_status_mapped_value ) ) {
+					return call_user_func( $task_status_mapped_value );
+				} elseif ( is_string( $task_status_mapped_value ) ) {
+					return get_checklist_task( $task_status_mapped_value );
+				}
+			}
+		}
+		return $task['completed'];
 	}
 
 	/**
