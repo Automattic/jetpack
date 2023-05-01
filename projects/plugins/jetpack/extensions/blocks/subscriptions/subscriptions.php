@@ -153,7 +153,7 @@ function populate_newsletter_access_rows( $column_id, $post_id ) {
 			echo esc_html__( 'Subscribers', 'jetpack' );
 			break;
 		default:
-			echo esc_html__( 'Everybody', 'jetpack' );
+			echo '';
 	}
 }
 
