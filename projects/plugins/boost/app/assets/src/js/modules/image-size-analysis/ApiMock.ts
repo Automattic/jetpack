@@ -1,6 +1,7 @@
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../stores/data-sync-client';
+import { modulesState } from '../../stores/modules';
 
 const Dimensions = z.object( {
 	width: z.number(),
@@ -30,14 +31,24 @@ const ImageMeta = z.object( {
 	instructions: z.string(),
 } );
 
-const ImageSizeAnalysis = z.object( {
-	pagination: z.object( {
-		current: z.number().catch( 1 ),
-		total: z.number().catch( 1 ),
-	} ),
-	last_updated: z.number(),
-	images: z.array( ImageMeta ),
-} );
+const ImageSizeAnalysis = z
+	.object( {
+		pagination: z.object( {
+			current: z.number().catch( 1 ),
+			total: z.number().catch( 1 ),
+		} ),
+		last_updated: z.number(),
+		images: z.array( ImageMeta ),
+	} )
+	// Prevent fatal error when this module isn't available.
+	.catch( {
+		pagination: {
+			current: 1,
+			total: 1,
+		},
+		last_updated: 0,
+		images: [],
+	} );
 
 type CategoryState = {
 	name: string;
@@ -90,5 +101,6 @@ imageMeta.setSyncAction( async ( prevValue, value, signal ) => {
 	imageMeta.store.override( fresh );
 	return fresh;
 } );
+
 export const imageStore = imageMeta.store;
 export const imagesAreLoading = imageMeta.pending;
