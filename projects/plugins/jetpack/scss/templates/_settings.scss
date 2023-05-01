@@ -296,12 +296,29 @@
 				line-height: 18px;
 				font-weight: 400;
 				background: $white;
+
+				&:hover {
+					background: $gray-0;
+				}
+
+				&:focus {
+					border-color: $black;
+				}
 			}
 
 			button.dops-button.button.active {
 				background: $black;
 				color: $white;
 				font-weight: 600;
+
+				&:hover {
+					background: $gray-80;
+				}
+
+				&:focus {
+					border-color: $white;
+					box-shadow: 0 0 0 1px $black;
+				}
 			}
 		}
 
