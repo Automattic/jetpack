@@ -37,7 +37,7 @@
 		"@wordpress/i18n": "4.30.0",
 		"@wordpress/icons": "9.21.0",
 		"@wordpress/url": "3.31.0",
-		"camelize": "1.0.0",
+		"camelize": "1.0.1",
 		"classnames": "2.3.2",
 		"diff": "^4.0.2",
 		"moment": "2.29.4",

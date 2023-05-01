@@ -3126,8 +3126,8 @@ importers:
         specifier: 3.31.0
         version: 3.31.0
       camelize:
-        specifier: 1.0.0
-        version: 1.0.0
+        specifier: 1.0.1
+        version: 1.0.1
       classnames:
         specifier: 2.3.2
         version: 2.3.2
@@ -11148,8 +11148,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  /camelize@1.0.0:
-    resolution: {integrity: sha512-W2lPwkBkMZwFlPCXhIlYgxu+7gC/NUlCtdK652DAJ1JdgV0sTrvuPFshNPrFa1TY2JOkLhgdeEBplB4ezEa+xg==}
+  /camelize@1.0.1:
+    resolution: {integrity: sha512-dU+Tx2fsypxTgtLoE36npi3UqcjSSMNYfkqgmoEhtZrraP5VWq0K7FkWVTYa8eMPtnU/G2txVsfdCJTn9uzpuQ==}
     dev: false
 
   /caniuse-api@3.0.0:
