@@ -29,7 +29,6 @@
 		"debug": "4.3.4",
 		"eslint": "8.39.0",
 		"eslint-config-prettier": "8.8.0",
-		"eslint-import-resolver-exports": "1.0.0-beta.5",
 		"eslint-plugin-es": "4.1.0",
 		"eslint-plugin-import": "2.27.5",
 		"eslint-plugin-inclusive-language": "2.2.0",

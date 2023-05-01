@@ -21,10 +21,6 @@ const cssGenPath = path.dirname(
 const production = ! process.env.ROLLUP_WATCH;
 const runServer = !! process.env.SERVE;
 
-const exportConditions = process.env.npm_config_jetpack_webpack_config_resolve_conditions
-	? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
-	: [];
-
 // eslint-disable-next-line jsdoc/require-jsdoc
 function serve() {
 	let server;
@@ -109,7 +105,6 @@ export default [
 				browser: true,
 				preferBuiltins: false,
 				dedupe: [ 'svelte' ],
-				exportConditions,
 			} ),
 
 			commonjs(),
@@ -240,7 +235,6 @@ export default [
 				browser: true,
 				preferBuiltins: false,
 				dedupe: [ 'svelte' ],
-				exportConditions,
 			} ),
 
 			commonjs(),
