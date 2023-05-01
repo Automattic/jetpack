@@ -20,6 +20,7 @@ import ConnectScreenVisual from './visual';
  * @param {string?} props.assetBaseUrl -- The assets base URL.
  * @param {object?} props.footer -- Additional page elements to show after the call to action.
  * @param {boolean?} props.skipUserConnection -- Whether to not require a user connection and just redirect after site connection.
+ * @param {boolean?} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const ConnectScreen = ( {
