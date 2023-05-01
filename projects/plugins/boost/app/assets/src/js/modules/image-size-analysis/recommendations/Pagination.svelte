@@ -7,10 +7,7 @@
 
 	// Given a number, this creates an array of page numbers around it
 	// Returns An array of page numbers that are within given range.
-	function slidingWindow( currentPage: number, maxPage: number ): number[] {
-		// The size of the sliding window.
-		const windowSize = 8;
-
+	function slidingWindow( currentPage: number, maxPage: number, windowSize = 8 ): number[] {
 		// Calculate the first page number in the sliding window.
 		const first = Math.max(
 			1,
