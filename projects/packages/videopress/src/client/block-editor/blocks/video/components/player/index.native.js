@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { VideoPlayer } from '@wordpress/block-editor';
 import { SandBox, Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
@@ -14,6 +15,7 @@ import { View, Text } from 'react-native';
  * Internal dependencies
  */
 import getMediaToken from '../../../../../lib/get-media-token/index.native';
+import { requestVideoPoster } from '../../../../../lib/poster';
 import { getVideoPressUrl } from '../../../../../lib/url';
 import { usePreview } from '../../../../hooks/use-preview';
 import addTokenIntoIframeSource from '../../../../utils/add-token-iframe-source';
@@ -22,7 +24,7 @@ import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 const DEFAULT_PLAYER_ASPECT_RATIO = 16 / 9; // This is the observed default aspect ratio from VideoPress embeds.
-
+const IS_ANDROID = Platform.OS === 'android';
 /**
  * VideoPlayer react component
  *
@@ -49,10 +51,12 @@ export default function Player( { isSelected, attributes } ) {
 	const loadingViewStyle = style[ 'videopress-player__loading' ];
 
 	const [ isPlayerLoaded, setIsPlayerLoaded ] = useState( false );
-	const [ isPlayerReady, setIsPlayerReady ] = useState( false );
+	const [ isPlayerReady, setIsPlayerReady ] = useState( IS_ANDROID );
 	const [ token, setToken ] = useState();
 	const [ previewCheckAttempts, setPreviewCheckAttempts ] = useState( 0 );
 	const previewCheckTimer = useRef();
+
+	const [ videoPoster, setVideoPoster ] = useState( null );
 
 	// Fetch token for a VideoPress GUID
 	useEffect( () => {
@@ -67,9 +71,19 @@ export default function Player( { isSelected, attributes } ) {
 	useEffect( () => {
 		if ( guid ) {
 			setIsPlayerLoaded( false );
-			setIsPlayerReady( false );
+			setIsPlayerReady( IS_ANDROID );
 		}
 	}, [ guid ] );
+
+	useEffect( () => {
+		const fetchPoster = async () => {
+			const posterRequest = await requestVideoPoster( guid );
+			setVideoPoster( posterRequest?.data?.poster );
+		};
+		if ( IS_ANDROID && guid && ! videoPoster ) {
+			fetchPoster();
+		}
+	}, [ videoPoster, guid ] );
 
 	const videoPressUrl = getVideoPressUrl( guid, {
 		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
@@ -137,22 +151,45 @@ export default function Player( { isSelected, attributes } ) {
 		</View>
 	);
 
-	// Show the loading overlay when:
-	// 1. Player is not ready
-	// 2. Player is loaded but preview is not ready
-	const showLoadingOverlay = ! isPlayerReady || ( isPlayerLoaded && ! isPreviewReady );
+	const renderVideoPlayer = () => {
+		console.log( 'videoPoster', videoPoster );
+		console.log( 'isPlayerLoaded', isPlayerLoaded );
+		if ( IS_ANDROID && isPlayerLoaded ) {
+			return (
+				<VideoPlayer
+					style={ { height: 250, width: '100%' } }
+					source={ { uri: `https://videopress.com/v/${ guid }` } }
+					poster={ videoPoster }
+					isSelected={ isSelected }
+				/>
+			);
+		}
 
-	return (
-		<View style={ [ style[ 'videopress-player' ], { aspectRatio } ] }>
-			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
-			{ showLoadingOverlay && loadingOverlay }
-			{ html && (
+		if ( html ) {
+			return (
 				<SandBox
 					html={ html }
 					onWindowEvents={ { message: onSandboxMessage } }
 					viewportProps="user-scalable=0"
 				/>
-			) }
+			);
+		}
+
+		return null;
+	};
+
+	// Show the loading overlay when:
+	// 1. Player is not ready
+	// 2. Player is loaded but preview is not ready
+	const showLoadingOverlay = ! isPlayerReady || ( isPlayerLoaded && ! isPreviewReady );
+
+	const loadingStyle = IS_ANDROID ? {} : { aspectRatio };
+
+	return (
+		<View style={ [ style[ 'videopress-player' ], loadingStyle ] }>
+			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
+			{ false && showLoadingOverlay && loadingOverlay }
+			{ renderVideoPlayer() }
 		</View>
 	);
 }
