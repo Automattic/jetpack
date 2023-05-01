@@ -14,6 +14,10 @@
 	.dops-card.is-compact {
 	  margin-bottom: 0;
 	  border-bottom: 1px solid var(--jp-gray);
+
+	  	@include breakpoint( "<960px" ) {
+		border-bottom: 0;
+	  	}
 	}
 
   	.dops-card:first-child {
@@ -87,7 +91,7 @@
 		}
 
 		@include breakpoint( "<660px" ) {
-			justify-content: space-between;
+		  	flex-direction: unset;
 			flex: 1;
 		}
 
@@ -104,6 +108,17 @@
 
 	.jp-landing__licensing-actions-item.no-licenses {
 		justify-content: flex-end;
+
+		@include breakpoint( "<660px" ) {
+		  justify-content: space-around;
+		  a {
+			margin: 0;
+
+			&.is-compact {
+			  width: 48%;
+			}
+		  }
+		}
 	}
 }
 
