@@ -749,11 +749,13 @@ class Jetpack_Gutenberg {
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
 			$publicize               = publicize_init();
+			$sig_settings            = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
 			$initial_state['social'] = array(
-				'sharesData'                    => $publicize->get_publicize_shares_info( $blog_id ),
-				'hasPaidPlan'                   => $publicize->has_paid_plan(),
-				'isEnhancedPublishingEnabled'   => $publicize->is_enhanced_publishing_enabled( $blog_id ),
-				'isSocialImageGeneratorEnabled' => ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->is_enabled(),
+				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
+				'hasPaidPlan'                     => $publicize->has_paid_plan(),
+				'isEnhancedPublishingEnabled'     => $publicize->is_enhanced_publishing_enabled( $blog_id ),
+				'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
+				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 			);
 		}
 
