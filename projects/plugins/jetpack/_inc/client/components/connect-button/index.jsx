@@ -61,6 +61,8 @@ export class ConnectButton extends React.Component {
 		asLink: false,
 		connectInPlace: true,
 		autoOpenInDisconnectRoute: false,
+		rna: false,
+		compact: false,
 	};
 
 	constructor( props ) {
@@ -139,8 +141,8 @@ export class ConnectButton extends React.Component {
 				className: 'is-primary jp-jetpack-connect__button',
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl || this.props.isAuthorizing,
-				rna: this.props.rna || false,
-				compact: this.props.compact || false,
+				rna: this.props.rna,
+				compact: this.props.compact,
 			},
 			connectLegend =
 				this.props.connectLegend || __( 'Connect your WordPress.com account', 'jetpack' );
