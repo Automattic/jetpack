@@ -713,7 +713,6 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
 
 			// count ver
 			if ( $only_count ) {
-				$contact_get_args            = $contact_get_args;
 				$contact_get_args['page']    = -1;
 				$contact_get_args['perPage'] = -1;
 				$contact_get_args['count']   = true;
