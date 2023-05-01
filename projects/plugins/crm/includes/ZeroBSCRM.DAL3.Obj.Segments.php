@@ -736,6 +736,8 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
 				$contact_get_args['onlyColumns'] = $limited_fields;
 			}
 
+			$contact_get_args['withAssigned'] = true;
+
 			$contacts = $this->DAL()->contacts->getContacts( $contact_get_args );
 
 			// if no limits, update compile record (effectively a compile)
