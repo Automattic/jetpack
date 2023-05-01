@@ -14,6 +14,25 @@ export const getProduct = ( state, productId ) => {
 	product.pricingForUi.introductoryOffer = product.pricingForUi.isIntroductoryOffer
 		? mapObjectKeysToCamel( product.pricingForUi.introductoryOffer, true )
 		: null;
+
+	// Camelize object keys for each tier in pricingForUi
+	if ( product.pricingForUi?.tiers ) {
+		product.pricingForUi.tiers = mapObjectKeysToCamel( product.pricingForUi.tiers, true );
+		product.pricingForUi.tiers = Object.keys( product.pricingForUi.tiers ).reduce(
+			( result, tierKey ) => {
+				const tier = mapObjectKeysToCamel( product.pricingForUi.tiers[ tierKey ], true ) || {};
+				result[ tierKey ] = {
+					...tier,
+					introductoryOffer: tier?.isIntroductoryOffer
+						? mapObjectKeysToCamel( tier?.introductoryOffer, true )
+						: null,
+				};
+				return result;
+			},
+			{}
+		);
+	}
+
 	product.features = product.features || [];
 	product.supportedProducts = product.supportedProducts || [];
 
