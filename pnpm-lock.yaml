@@ -169,8 +169,8 @@ importers:
         specifier: 9.21.0
         version: 9.21.0
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       prop-types:
         specifier: ^15.7.2
         version: 15.8.1
@@ -299,8 +299,8 @@ importers:
         specifier: 9.21.0
         version: 9.21.0
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       debug:
         specifier: 4.3.4
         version: 4.3.4
@@ -536,8 +536,8 @@ importers:
         specifier: 9.21.0
         version: 9.21.0
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       prop-types:
         specifier: 15.7.2
         version: 15.7.2
@@ -588,8 +588,8 @@ importers:
         specifier: 4.30.0
         version: 4.30.0
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       prop-types:
         specifier: 15.7.2
         version: 15.7.2
@@ -697,8 +697,8 @@ importers:
         specifier: 3.30.0
         version: 3.30.0(react@18.2.0)
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       lodash:
         specifier: 4.17.21
         version: 4.17.21
@@ -1405,8 +1405,8 @@ importers:
         specifier: 9.21.0
         version: 9.21.0
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       email-validator:
         specifier: 2.0.4
         version: 2.0.4
@@ -1671,8 +1671,8 @@ importers:
         specifier: 9.21.0
         version: 9.21.0
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -1828,8 +1828,8 @@ importers:
         specifier: 9.21.0
         version: 9.21.0
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       fast-json-stable-stringify:
         specifier: 2.1.0
         version: 2.1.0
@@ -2037,8 +2037,8 @@ importers:
         specifier: 3.31.0
         version: 3.31.0
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       debug:
         specifier: 4.3.4
         version: 4.3.4
@@ -2185,8 +2185,8 @@ importers:
         specifier: 3.7.1
         version: 3.7.1
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       fast-json-stable-stringify:
         specifier: 2.1.0
         version: 2.1.0
@@ -2559,8 +2559,8 @@ importers:
         specifier: 9.21.0
         version: 9.21.0
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -2740,8 +2740,8 @@ importers:
         specifier: 1.0.5
         version: 1.0.5
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       clipboard:
         specifier: 2.0.6
         version: 2.0.6
@@ -3129,8 +3129,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       diff:
         specifier: ^4.0.2
         version: 4.0.2
@@ -3240,8 +3240,8 @@ importers:
         specifier: 9.21.0
         version: 9.21.0
       classnames:
-        specifier: 2.3.1
-        version: 2.3.1
+        specifier: 2.3.2
+        version: 2.3.2
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -3870,7 +3870,7 @@ packages:
       '@automattic/typography': 1.0.0
       '@wordpress/base-styles': 4.21.0
       '@wordpress/data': 9.0.0(react@18.2.0)
-      classnames: 2.3.1
+      classnames: 2.3.2
       gridicons: 3.4.1(react@18.2.0)
       lodash: 4.17.21
       prop-types: 15.8.1
@@ -3915,7 +3915,7 @@ packages:
       '@emotion/react': 11.4.1(@babel/core@7.21.4)(@types/react@18.0.27)(react@18.2.0)
       '@wordpress/components': 23.7.0(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/i18n': 4.30.0
-      classnames: 2.3.1
+      classnames: 2.3.2
       lodash: 4.17.21
       moment: 2.29.4
       prop-types: 15.8.1
@@ -8866,7 +8866,7 @@ packages:
       '@wordpress/warning': 2.30.0
       '@wordpress/wordcount': 3.30.0
       change-case: 4.1.2
-      classnames: 2.3.1
+      classnames: 2.3.2
       colord: 2.9.3
       diff: 4.0.2
       dom-scroll-into-view: 1.2.1
@@ -8927,7 +8927,7 @@ packages:
       '@wordpress/warning': 2.30.0
       '@wordpress/wordcount': 3.30.0
       change-case: 4.1.2
-      classnames: 2.3.1
+      classnames: 2.3.2
       colord: 2.9.3
       diff: 4.0.2
       dom-scroll-into-view: 1.2.1
@@ -8987,7 +8987,7 @@ packages:
       '@wordpress/viewport': 5.7.0(@wordpress/element@5.7.0)(react@18.2.0)
       '@wordpress/wordcount': 3.30.0
       change-case: 4.1.2
-      classnames: 2.3.1
+      classnames: 2.3.2
       colord: 2.9.3
       escape-html: 1.0.3
       fast-average-color: 9.3.0
@@ -9045,7 +9045,7 @@ packages:
       '@wordpress/viewport': 5.7.0(@wordpress/element@5.7.0)(react@18.2.0)
       '@wordpress/wordcount': 3.30.0
       change-case: 4.1.2
-      classnames: 2.3.1
+      classnames: 2.3.2
       colord: 2.9.3
       escape-html: 1.0.3
       fast-average-color: 9.3.0
@@ -9143,7 +9143,7 @@ packages:
       '@wordpress/rich-text': 6.7.0(react@18.2.0)
       '@wordpress/warning': 2.30.0
       change-case: 4.1.2
-      classnames: 2.3.1
+      classnames: 2.3.2
       colord: 2.9.3
       date-fns: 2.29.3
       deepmerge: 4.3.1
@@ -9208,7 +9208,7 @@ packages:
       '@wordpress/rich-text': 6.7.0(react@18.2.0)
       '@wordpress/warning': 2.30.0
       change-case: 4.1.2
-      classnames: 2.3.1
+      classnames: 2.3.2
       colord: 2.9.3
       date-fns: 2.29.3
       deepmerge: 4.3.1
@@ -9407,7 +9407,7 @@ packages:
       '@wordpress/viewport': 5.7.0(@wordpress/element@5.7.0)(react@18.2.0)
       '@wordpress/warning': 2.30.0
       '@wordpress/widgets': 3.7.0(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
-      classnames: 2.3.1
+      classnames: 2.3.2
       memize: 1.1.0
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -9457,7 +9457,7 @@ packages:
       '@wordpress/viewport': 5.7.0(@wordpress/element@5.7.0)(react@18.2.0)
       '@wordpress/warning': 2.30.0
       '@wordpress/widgets': 3.7.0(react-dom@18.2.0)(react@18.2.0)
-      classnames: 2.3.1
+      classnames: 2.3.2
       memize: 1.1.0
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -9507,7 +9507,7 @@ packages:
       '@wordpress/server-side-render': 4.7.0(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/url': 3.31.0
       '@wordpress/wordcount': 3.30.0
-      classnames: 2.3.1
+      classnames: 2.3.2
       date-fns: 2.29.3
       escape-html: 1.0.3
       lodash: 4.17.21
@@ -9561,7 +9561,7 @@ packages:
       '@wordpress/server-side-render': 4.7.0(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/url': 3.31.0
       '@wordpress/wordcount': 3.30.0
-      classnames: 2.3.1
+      classnames: 2.3.2
       date-fns: 2.29.3
       escape-html: 1.0.3
       lodash: 4.17.21
@@ -9726,7 +9726,7 @@ packages:
       '@wordpress/plugins': 5.7.0(react@18.2.0)
       '@wordpress/preferences': 3.7.0(@types/react@18.0.27)(@wordpress/element@5.7.0)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/viewport': 5.7.0(@wordpress/element@5.7.0)(react@18.2.0)
-      classnames: 2.3.1
+      classnames: 2.3.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -9757,7 +9757,7 @@ packages:
       '@wordpress/plugins': 5.7.0(react@18.2.0)
       '@wordpress/preferences': 3.7.0(@wordpress/element@5.7.0)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/viewport': 5.7.0(@wordpress/element@5.7.0)(react@18.2.0)
-      classnames: 2.3.1
+      classnames: 2.3.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -9869,7 +9869,7 @@ packages:
       '@wordpress/element': 5.7.0
       '@wordpress/i18n': 4.30.0
       '@wordpress/icons': 9.21.0
-      classnames: 2.3.1
+      classnames: 2.3.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -9895,7 +9895,7 @@ packages:
       '@wordpress/element': 5.7.0
       '@wordpress/i18n': 4.30.0
       '@wordpress/icons': 9.21.0
-      classnames: 2.3.1
+      classnames: 2.3.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -9921,7 +9921,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.0
       '@wordpress/element': 5.7.0
-      classnames: 2.3.1
+      classnames: 2.3.2
 
   /@wordpress/priority-queue@2.30.0:
     resolution: {integrity: sha512-++X/TXeBM4N4PBeLR5NeXE6wzZvvsOhfLo+/hXwcu6lkSumtw/gK7EfN9qxu0O1MRNHFEdIGdKyX8QTTjcCPGw==}
@@ -10150,7 +10150,7 @@ packages:
       '@wordpress/i18n': 4.30.0
       '@wordpress/icons': 9.21.0
       '@wordpress/notices': 3.30.0(react@18.2.0)
-      classnames: 2.3.1
+      classnames: 2.3.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -10180,7 +10180,7 @@ packages:
       '@wordpress/i18n': 4.30.0
       '@wordpress/icons': 9.21.0
       '@wordpress/notices': 3.30.0(react@18.2.0)
-      classnames: 2.3.1
+      classnames: 2.3.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
     transitivePeerDependencies:
@@ -11328,8 +11328,8 @@ packages:
     resolution: {integrity: sha512-cOU9usZw8/dXIXKtwa8pM0OTJQuJkxMN6w30csNRUerHfeQ5R6U3kkU/FtJeIf3M202OHfY2U8ccInBG7/xogA==}
     dev: true
 
-  /classnames@2.3.1:
-    resolution: {integrity: sha512-OlQdbZ7gLfGarSqxesMesDa5uz7KFbID8Kpq/SxIoNGDqY8lSYs0D+hhtBXhcdB3rcbXArFr7vlHheLk1voeNA==}
+  /classnames@2.3.2:
+    resolution: {integrity: sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw==}
 
   /clean-css@5.3.2:
     resolution: {integrity: sha512-JVJbM+f3d3Q704rF4bqQ5UUyTtuJ0JRKNbTKVEeujCCBoMdkEi+V+e8oktO9qGQNSvHrFTM6JZRXrUvGR1czww==}
