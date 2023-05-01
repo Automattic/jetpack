@@ -1,3 +1,4 @@
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
 import { __ } from '@wordpress/i18n';
 import DashSectionHeader from 'components/dash-section-header';
@@ -180,27 +181,29 @@ class AtAGlance extends Component {
 			) : null;
 
 			return (
-				<div className="jp-at-a-glance">
-					<h1 className="screen-reader-text">
-						{ __( 'Jetpack At A Glance Dashboard', 'jetpack' ) }
-					</h1>
-					<QuerySitePlugins />
-					<QuerySite />
-					<QueryRecommendationsData />
-					<QueryScanStatus />
-					{ redeemPartnerCoupon }
-					<DashStats { ...settingsProps } { ...urls } />
-					<Section
-						header={ securityHeader }
-						cards={ securityCards }
-						pinnedBundle={ pinnedBundle }
-					/>
-					<Section
-						header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
-						cards={ performanceCards }
-					/>
-					{ connections }
-				</div>
+				<ThemeProvider>
+					<div className="jp-at-a-glance">
+						<h1 className="screen-reader-text">
+							{ __( 'Jetpack At A Glance Dashboard', 'jetpack' ) }
+						</h1>
+						<QuerySitePlugins />
+						<QuerySite />
+						<QueryRecommendationsData />
+						<QueryScanStatus />
+						{ redeemPartnerCoupon }
+						<DashStats { ...settingsProps } { ...urls } />
+						<Section
+							header={ securityHeader }
+							cards={ securityCards }
+							pinnedBundle={ pinnedBundle }
+						/>
+						<Section
+							header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
+							cards={ performanceCards }
+						/>
+						{ connections }
+					</div>
+				</ThemeProvider>
 			);
 		}
 

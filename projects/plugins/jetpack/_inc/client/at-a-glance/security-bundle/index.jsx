@@ -11,6 +11,7 @@ import {
 	isFetchingSitePurchases as getIsFetchingSitePurchases,
 	hasActiveSecurityPurchase as getHasActiveSecurityPurchase,
 } from 'state/site';
+import Gridicon from '../../components/gridicon';
 import bundleImageUrl from './shield-with-check.svg';
 
 import './style.scss';
@@ -75,6 +76,7 @@ class DashSecurityBundle extends Component {
 							target="_blank"
 						>
 							{ _x( 'Learn more', 'Learn more about the new plan', 'jetpack' ) }
+							<Gridicon className="dops-card__link-indicator" icon="external" />
 						</Button>
 					</div>
 				</div>
