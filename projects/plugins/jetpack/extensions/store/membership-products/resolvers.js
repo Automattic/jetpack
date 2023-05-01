@@ -5,14 +5,7 @@ import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../shared/components/product-manag
 import { getMessageByProductType } from '../../shared/components/product-management-controls/utils';
 import executionLock from '../../shared/execution-lock';
 import getConnectUrl from '../../shared/get-connect-url';
-import {
-	saveProduct,
-	setApiState,
-	setConnectUrl,
-	setProducts,
-	setSiteSlug,
-	setUpgradeUrl,
-} from './actions';
+import { saveProduct, setApiState, setConnectUrl, setProducts, setSiteSlug } from './actions';
 import { API_STATE_CONNECTED, API_STATE_NOTCONNECTED } from './constants';
 import { onError } from './utils';
 
@@ -54,7 +47,6 @@ const mapAPIResponseToMembershipProductsStoreData = ( response, registry, dispat
 
 	dispatch( setConnectUrl( getConnectUrl( postId, response.connect_url ) ) );
 	dispatch( setSiteSlug( response.site_slug ) );
-	dispatch( setUpgradeUrl( response.upgrade_url ) );
 	dispatch( setProducts( response.products ) );
 	dispatch(
 		setApiState( response.connected_account_id ? API_STATE_CONNECTED : API_STATE_NOTCONNECTED )
