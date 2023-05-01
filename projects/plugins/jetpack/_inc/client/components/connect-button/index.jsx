@@ -51,6 +51,8 @@ export class ConnectButton extends React.Component {
 		connectInPlace: PropTypes.bool,
 		customConnect: PropTypes.func,
 		autoOpenInDisconnectRoute: PropTypes.bool,
+		rna: PropTypes.bool,
+		compact: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -137,6 +139,8 @@ export class ConnectButton extends React.Component {
 				className: 'is-primary jp-jetpack-connect__button',
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl || this.props.isAuthorizing,
+				rna: this.props.rna || false,
+				compact: this.props.compact || false,
 			},
 			connectLegend =
 				this.props.connectLegend || __( 'Connect your WordPress.com account', 'jetpack' );
