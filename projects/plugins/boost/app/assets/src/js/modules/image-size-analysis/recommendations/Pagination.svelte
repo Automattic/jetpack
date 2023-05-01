@@ -1,6 +1,7 @@
 <script lang="ts">
+	import ChevronLeft from '../../../svg/chevron-left.svg';
+	import ChevronRight from '../../../svg/chevron-right.svg';
 	import { imageStore } from '../ApiMock';
-
 	// "-1" is replaced by "..." when rendering the pagination
 	const MORE_ICON = -1;
 
@@ -61,14 +62,7 @@
 
 <div>
 	<button class="jb-chevron" class:inactive={current === 1} on:click={previousPage}>
-		<svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<path
-				fill-rule="evenodd"
-				clip-rule="evenodd"
-				d="M6.44509 13.0045L0.98645 6.99999L6.44509 0.995483L7.555 2.00449L3.01364 6.99999L7.555 11.9955L6.44509 13.0045Z"
-				fill="#1E1E1E"
-			/>
-		</svg>
+		<ChevronLeft />
 	</button>
 
 	<ul>
@@ -90,9 +84,7 @@
 	</ul>
 
 	<button class="jb-chevron" class:inactive={current === total} on:click={nextPage}>
-		<svg width="8" height="14" viewBox="0 0 8 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-			<path d="M1.5 12.5L6.5 6.99998L1.5 1.5" stroke="#1E1E1E" stroke-width="1.5" />
-		</svg>
+		<ChevronRight />
 	</button>
 </div>
 
