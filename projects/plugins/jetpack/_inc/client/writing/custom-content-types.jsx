@@ -84,9 +84,9 @@ export class CustomContentTypes extends React.Component {
 						disabledReason={ disabledReason }
 						label={ __( 'Testimonials', 'jetpack' ) }
 						help={
-							<p className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
+							<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
 								{ __( 'Testimonials shortcode: [testimonials]', 'jetpack' ) }
-							</p>
+							</span>
 						}
 					/>
 				</SettingsGroup>
@@ -124,9 +124,9 @@ export class CustomContentTypes extends React.Component {
 						disabledReason={ disabledReason }
 						label={ __( 'Portfolios', 'jetpack' ) }
 						help={
-							<p className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
+							<span className="jp-form-setting-explanation jp-form-shortcode-setting-explanation">
 								{ __( 'Portfolios shortcode: [portfolio]', 'jetpack' ) }
-							</p>
+							</span>
 						}
 					/>
 				</SettingsGroup>
