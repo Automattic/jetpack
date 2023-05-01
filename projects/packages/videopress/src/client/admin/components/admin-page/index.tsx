@@ -35,6 +35,7 @@ import { usePlan } from '../../hooks/use-plan';
 import { useSearchParams } from '../../hooks/use-search-params';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
+import { initialData } from '../../lib/initial-data';
 import { NeedUserConnectionGlobalNotice } from '../global-notice';
 import PricingSection from '../pricing-section';
 import { ConnectSiteSettingsSection as SettingsSection } from '../site-settings-section';
@@ -53,33 +54,33 @@ const useDashboardVideos = () => {
 	// Use a tempPage to catch changes in page from store and not URL
 	const tempPage = useRef( page );
 
-	/** Get the page number from the search parameters and set it to the state when the state is outdated */
+	// Get the page number from the search parameters and set it to the state when the state is outdated
 	const searchParams = useSearchParams();
 	const pageFromSearchParam = parseInt( searchParams.getParam( 'page', '1' ) );
 	const searchFromSearchParam = searchParams.getParam( 'q', '' );
 	const totalOfPages = Math.ceil( total / itemsPerPage );
 
 	useEffect( () => {
-		// when there are no search results, ensure that the current page number is 1
+		// When there are no search results, ensure that the current page number is 1
 		if ( total === 0 && pageFromSearchParam !== 1 ) {
-			// go back to page 1
+			// Go back to page 1
 			searchParams.deleteParam( 'page' );
 			searchParams.update();
 			return;
 		}
 
-		// when there are search results, ensure that the current page is between 1 and totalOfPages, inclusive
+		// When there are search results, ensure that the current page is between 1 and totalOfPages, inclusive
 		if ( total > 0 && ( pageFromSearchParam < 1 || pageFromSearchParam > totalOfPages ) ) {
-			// go back to page 1
+			// Go back to page 1
 			searchParams.deleteParam( 'page' );
 			searchParams.update();
 			return;
 		}
 
-		// react to a page param change
+		// React to a page param change
 		if ( page !== pageFromSearchParam ) {
-			// store changed and not url
-			// update url to match store update
+			// Store changed and not URL
+			// Update URL to match store update
 			if ( page !== tempPage.current ) {
 				tempPage.current = page;
 				searchParams.setParam( 'page', page );
@@ -94,7 +95,7 @@ const useDashboardVideos = () => {
 			return;
 		}
 
-		// react to a search param change
+		// React to a search param change
 		if ( search !== searchFromSearchParam ) {
 			setVideosQuery( {
 				search: searchFromSearchParam,
@@ -127,8 +128,8 @@ const useDashboardVideos = () => {
 	// Fill with empty videos if loading
 	if ( isFetching ) {
 		const numPlaceholders = Math.max(
-			1, // at least one placeholder
-			Math.min( itemsPerPage, uploadedVideoCount - itemsPerPage * ( page - 1 ) ) // at most the number of videos in the page without query
+			1, // At least one placeholder
+			Math.min( itemsPerPage, uploadedVideoCount - itemsPerPage * ( page - 1 ) ) // At most the number of videos in the page without query
 		);
 		// Use generated ID to work with React Key
 		videos = new Array( numPlaceholders ).fill( {} ).map( () => ( { id: uid() } ) );
@@ -318,7 +319,7 @@ const Admin = () => {
 export default Admin;
 
 const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) => {
-	const { adminUrl, siteSuffix } = window.jetpackVideoPressInitialState;
+	const { adminUrl, siteSuffix } = initialData;
 
 	const { product, hasVideoPressPurchase, isFetchingPurchases } = usePlan();
 	const { run } = useProductCheckoutWorkflow( {

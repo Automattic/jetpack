@@ -11,6 +11,7 @@ import { addQueryArgs } from '@wordpress/url';
 import { STORE_ID } from '../../../state';
 import useVideo from '../../hooks/use-video';
 import useVideos from '../../hooks/use-videos';
+import { initialData } from '../../lib/initial-data';
 import styles from './styles.module.scss';
 /**
  * Types
@@ -39,7 +40,7 @@ const PublishFirstVideoPopover = ( {
 
 	const closePopover = () => dispatch.dismissFirstVideoPopover();
 
-	const nonce = window.jetpackVideoPressInitialState?.contentNonce ?? '';
+	const nonce = initialData?.contentNonce ?? '';
 	const newPostURL = addQueryArgs( 'post-new.php', {
 		videopress_guid: data.guid,
 		_wpnonce: nonce,

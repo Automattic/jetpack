@@ -16,9 +16,10 @@ import { useState } from 'react';
  * Internal dependencies
  */
 import { usePlan } from '../../hooks/use-plan';
+import { initialData } from '../../lib/initial-data';
 
 const PricingPage = ( { onRedirecting } ) => {
-	const { siteSuffix, adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
+	const { siteSuffix, adminUri, registrationNonce } = initialData;
 	const { siteProduct, productPrice } = usePlan();
 	const { yearly: yearlyPrice } = productPrice;
 

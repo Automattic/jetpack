@@ -11,6 +11,7 @@ import { useCallback, useState } from 'react';
  * Internal dependencies
  */
 import useVideo from '../../hooks/use-video';
+import { initialData } from '../../lib/initial-data';
 import DeleteVideoConfirmationModal from '../delete-video-confirmation-modal';
 import styles from './style.module.scss';
 
@@ -30,7 +31,7 @@ const VideoDetailsActions = ( {
 		deleteVideo,
 	} = useVideo( videoId );
 
-	const nonce = window.jetpackVideoPressInitialState?.contentNonce ?? '';
+	const nonce = initialData?.contentNonce ?? '';
 	const newPostURL = addQueryArgs( 'post-new.php', {
 		videopress_guid: guid,
 		_wpnonce: nonce,

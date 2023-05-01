@@ -10,6 +10,7 @@ import React from 'react';
 /**
  * Internal dependencies
  */
+import { initialData } from '../../lib/initial-data';
 import styles from './styles.module.scss';
 
 type NoticeStatusProp = 'success' | 'info' | 'warning' | 'error';
@@ -81,7 +82,7 @@ export default function GlobalNotice( {
 }
 
 export const NeedUserConnectionGlobalNotice = () => {
-	const { adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
+	const { adminUri, registrationNonce } = initialData;
 
 	const { hasConnectedOwner, handleRegisterSite } = useConnection( {
 		redirectUri: adminUri,

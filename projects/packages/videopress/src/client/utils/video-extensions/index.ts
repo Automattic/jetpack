@@ -1,5 +1,9 @@
-const allowedVideoExtensionsAndMimetypes =
-	window.jetpackVideoPressInitialState?.allowedVideoExtensions || {};
+/**
+ * Internal dependencies
+ */
+import { initialData } from '../../admin/lib/initial-data';
+
+const allowedVideoExtensionsAndMimetypes = initialData?.allowedVideoExtensions || {};
 
 const allowedVideoExtensions = Object.keys( allowedVideoExtensionsAndMimetypes ).filter(
 	// No .videopress file

@@ -10,6 +10,7 @@ import { mapObjectKeysToCamel } from '../../../utils/map-object-keys-to-camel-ca
 /**
  * types
  */
+import { initialData } from '../../lib/initial-data';
 import { VideopressSelectors } from '../../types';
 import {
 	paidFeaturesProp,
@@ -24,7 +25,7 @@ const {
 	siteProductData = <siteProductOriginalProps>{},
 	productData = <productOriginalProps>{},
 	productPrice = <productPriceOriginalProps>{},
-} = window && window.jetpackVideoPressInitialState ? window.jetpackVideoPressInitialState : {};
+} = initialData;
 
 export const usePlan = (): usePlanProps => {
 	const pricingForUi = mapObjectKeysToCamel( siteProductData.pricing_for_ui, true );
