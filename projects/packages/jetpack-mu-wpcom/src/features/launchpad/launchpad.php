@@ -238,13 +238,13 @@ function get_task_definitions() {
 		array(
 			'id'        => 'first_post_published',
 			'title'     => __( 'Write your first post', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'first_post_published' ),
+			'completed' => false,
 			'disabled'  => false,
 		),
 		array(
 			'id'        => 'first_post_published_newsletter',
 			'title'     => __( 'Start writing', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'first_post_published' ),
+			'completed' => false,
 			'disabled'  => false,
 		),
 		array(
@@ -262,13 +262,13 @@ function get_task_definitions() {
 		array(
 			'id'        => 'links_added',
 			'title'     => __( 'Add links', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'links_edited' ),
+			'completed' => false,
 			'disabled'  => false,
 		),
 		array(
 			'id'        => 'link_in_bio_launched',
 			'title'     => __( 'Launch your site', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'site_launched' ),
+			'completed' => false,
 			'disabled'  => ! get_checklist_task( 'links_edited' ),
 		),
 		array(
@@ -280,13 +280,13 @@ function get_task_definitions() {
 		array(
 			'id'        => 'videopress_upload',
 			'title'     => __( 'Upload your first video', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'video_uploaded' ),
+			'completed' => false,
 			'disabled'  => get_checklist_task( 'video_uploaded' ),
 		),
 		array(
 			'id'        => 'videopress_launched',
 			'title'     => __( 'Launch site', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'site_launched' ),
+			'completed' => false,
 			'disabled'  => ! get_checklist_task( 'video_uploaded' ),
 		),
 		array(
@@ -304,13 +304,13 @@ function get_task_definitions() {
 		array(
 			'id'        => 'design_edited',
 			'title'     => __( 'Edit site design', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'site_edited' ),
+			'completed' => false,
 			'disabled'  => false,
 		),
 		array(
 			'id'           => 'site_launched',
 			'title'        => __( 'Launch your site', 'jetpack-mu-wpcom' ),
-			'completed'    => get_checklist_task( 'site_launched' ),
+			'completed'    => false,
 			'disabled'     => false,
 			'isLaunchTask' => true,
 		),
@@ -323,7 +323,7 @@ function get_task_definitions() {
 		array(
 			'id'         => 'domain_upsell',
 			'title'      => __( 'Choose a domain', 'jetpack-mu-wpcom' ),
-			'completed'  => is_domain_upsell_completed(),
+			'completed'  => false,
 			'disabled'   => false,
 			'badge_text' => get_domain_upsell_badge_text(),
 		),
@@ -669,19 +669,16 @@ add_action( 'init', 'register_default_checklists' );
 add_action( 'load-site-editor.php', 'track_edit_site_task', 10 );
 add_action( 'wp_head', 'maybe_preview_with_no_interactions', PHP_INT_MAX );
 add_action( 'publish_post', 'track_publish_first_post_task', 10 );
-
-// WIP ( Need to test )
-// add_action( 'add_attachment', 'track_video_uploaded_task', 10, 1 );
-// add_action( 'wpcom_site_launched', 'track_site_launch_task', 10 );
+add_action( 'wpcom_site_launched', 'track_site_launch_task', 10 );
+add_action( 'add_attachment', 'track_video_uploaded_task', 10, 1 );
 // Atomic Only
-// if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
-// add_action( 'update_option_blog_public', 'maybe_track_site_launch', 10, 2 );
-// } else {
-// WPCOM only - relies on blog stickers
-// add_filter( 'option_launchpad_screen', 'maybe_disable_for_difm' );
-// }
-
+if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+	add_action( 'update_option_blog_public', 'maybe_track_site_launch', 10, 2 );
+} else {
+	// WPCOM only - relies on blog stickers
+	add_filter( 'option_launchpad_screen', 'maybe_disable_for_difm' );
+}
 // Temporarily log information to debug intermittent launchpad errors for e2e tests
-// if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-// add_action( 'add_option_launchpad_screen', 'log_launchpad_being_enabled_for_test_sites', 10, 2 );
-// }
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	add_action( 'add_option_launchpad_screen', 'log_launchpad_being_enabled_for_test_sites', 10, 2 );
+}
