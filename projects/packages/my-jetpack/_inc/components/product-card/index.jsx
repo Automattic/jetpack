@@ -52,6 +52,7 @@ const Menu = ( {
 								onClose();
 								item?.onClick?.();
 							} }
+							key={ item?.label }
 						>
 							{ item?.label }
 						</Button>

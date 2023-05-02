@@ -5,10 +5,11 @@ import { numberFormat } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import { useProduct } from '../../hooks/use-product';
 import { STORE_ID } from '../../state/store';
 import ProductCard from '../connected-product-card';
 import { SingleContextualInfo, ChangePercentageContext } from './contextual-card-info';
@@ -49,6 +50,13 @@ const useVideoPressStats = () => {
 const VideopressCard = ( { admin } ) => {
 	const { videoPressStats = false } = window.myJetpackInitialState?.myJetpackFlags ?? {};
 	const { loading, hasError, change, currentFormatted, changePercentage } = useVideoPressStats();
+	const {
+		detail: { manageUrl },
+	} = useProduct( 'videopress' );
+
+	const handleUploadVideo = useCallback( () => {
+		window.location = `${ manageUrl }#/?action=upload`;
+	}, [ manageUrl ] );
 
 	if ( ! videoPressStats || hasError ) {
 		return <ProductCard admin={ admin } slug="videopress" showMenu />;
@@ -57,7 +65,17 @@ const VideopressCard = ( { admin } ) => {
 	const description = __( 'Views, last 7 days', 'jetpack-my-jetpack' );
 
 	return (
-		<ProductCard admin={ admin } slug="videopress" showMenu>
+		<ProductCard
+			admin={ admin }
+			slug="videopress"
+			showMenu
+			menuItems={ [
+				{
+					label: __( 'Upload video', 'jetpack-my-jetpack' ),
+					onClick: handleUploadVideo,
+				},
+			] }
+		>
 			<SingleContextualInfo
 				loading={ loading }
 				description={ description }
