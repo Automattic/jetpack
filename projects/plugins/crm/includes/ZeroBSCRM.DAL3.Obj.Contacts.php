@@ -3624,19 +3624,14 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
             if (isset($obj->quotes_total)) $res['quotes_total'] = $obj->quotes_total;
 				if ( isset( $obj->invoices_total ) ) {
 					$contact                            = $zbs->DAL->contacts->getContact( $res['id'], array( 'withInvoices' => true ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					$deleted_invoice_details            = jetpackCRM_deleted_totals( $contact['invoices'] );
+					$deleted_invoice_details            = jpcrm_deleted_invoice_total_and_counts( $contact['invoices'] );
 					$res['invoices_total']              = $obj->invoices_total - $deleted_invoice_details['total'];
-					$res['invoices_total_with_deleted'] = $deleted_invoice_details['total'];
-					$res['invoices_count_with_deleted'] = $zbs->DAL->customer_has_count_obj_type( $res['id'], ZBS_TYPE_INVOICE, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$res['invoices_total_with_deleted'] = $obj->invoices_total;
+					$res['invoices_count_with_deleted'] = count( $contact['invoices'] );
 					$res['invoices_count']              = $res['invoices_count_with_deleted'] - $deleted_invoice_details['count'];
 				}
 				if ( isset( $obj->transactions_total ) ) {
-					$contact                                = $zbs->DAL->contacts->getContact( $res['id'], array( 'withTransactions' => true ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					$deleted_transaction_details            = jetpackCRM_deleted_totals( $contact['transactions'] );
-					$res['transactions_total']              = $obj->transactions_total - $deleted_transaction_details['total'];
-					$res['transactions_total_with_deleted'] = $deleted_transaction_details['total'];
-					$res['transactions_count_with_deleted'] = $zbs->DAL->customer_has_count_obj_type( $res['id'], ZBS_TYPE_TRANSACTION, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					$res['transactions_count']              = $res['transactions_count_with_deleted'] - $deleted_transaction_details['count'];
+					$res['transactions_total'] = $obj->transactions_total;
 				}
             if (isset($obj->transactions_paid_total)) $res['transactions_paid_total'] = $obj->transactions_paid_total;
 

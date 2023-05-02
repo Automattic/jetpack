@@ -46,7 +46,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 				'withExternalSourcesGrouped' => true,
 
 				// but we limit to the top 20 (quotes, invs, trans etc.)
-				// note that this means we have to add calls to customer_has_count_obj_type, but it protects against contacts with 1000 objs etc.
+				// note that this means we have to add calls to specific_obj_type_count_for_assignee, but it protects against contacts with 1000 objs etc.
 				// Note this is defunct until we add contact filters to our object list views.
 				// 'withObjLimit' => 20,
 
@@ -74,15 +74,12 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 		}
 
 		// contact obj counts
-		$contact_quote_count   = $zbs->DAL->customer_has_count_obj_type( $id, ZBS_TYPE_QUOTE, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$contact_quote_count   = $zbs->DAL->specific_obj_type_count_for_assignee( $id, ZBS_TYPE_QUOTE, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		$contact_invoice_count = 0;
 		if ( isset( $contact['invoices_count'] ) ) {
 			$contact_invoice_count = $contact['invoices_count'];
 		}
-		$contact_transaction_count = 0;
-		if ( isset( $contact['transactions_count'] ) ) {
-			$contact_transaction_count = $contact['transactions_count'];
-		}
+		$contact_transaction_count = $zbs->DAL->specific_obj_type_count_for_assignee( $id, ZBS_TYPE_TRANSACTION ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 		// socials
 		global $zbsSocialAccountTypes;
@@ -413,7 +410,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						<?php } ?>
 							<?php if ( $useTrans == '1' ) { ?>
 						<tr class="zbs-view-vital-transactions">
-							<td class="zbs-view-vital-label"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Transactions Total & count: This shows the sum of your succeeded transactions (set in settings, and minus deleted status transactions)', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
+							<td class="zbs-view-vital-label"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Transactions Total & count: This shows the sum of your succeeded transactions (set in settings)', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
 							<td>
 								<?php
 								if ( $contact_transaction_count > 0 ) {
@@ -872,7 +869,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 							// prep link to create a new invoice
 							$new_invoice_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_INVOICE ) . '&zbsprefillcust=' . $contact['id'];
-							if ( $contact_invoice_count > 0 ) {
+							if ( count( $contact['invoices'] ) > 0 ) {
 
 								foreach ( $contact['invoices'] as $invoice ) {
 
@@ -961,7 +958,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 						</tbody>
 					</table>
-						<?php if ( $contact_invoice_count > 0 ) : ?>
+						<?php if ( count( $contact['invoices'] ) > 0 ) : ?>
 						<div style="text-align: right;">
 						<a href="<?php echo esc_url( $new_invoice_url ); ?>" class="ui basic green button">
 							<i class="plus square outline icon"></i>
@@ -1023,7 +1020,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 							// prep link to create a new transaction
 							$new_transaction_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION ) . '&zbsprefillcust=' . $contact['id'];
 
-							if ( $contact_transaction_count > 0 ) {
+							if ( count( $contact['transactions'] ) > 0 ) {
 
 								foreach ( $contact['transactions'] as $zbsTransaction ) {
 
@@ -1085,7 +1082,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 						</tbody>
 					</table>
-						<?php if ( $contact_transaction_count > 0 ) : ?>
+						<?php if ( count( $contact['transactions'] ) > 0 ) : ?>
 						<div style="text-align: right;">
 						<a href="<?php echo esc_url( $new_transaction_url ); ?>" class="ui basic green button">
 							<i class="plus square outline icon"></i>

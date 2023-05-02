@@ -572,16 +572,16 @@ class zbsDAL {
     }
 
 	/**
-	 * Returns a count of objects of a type which are associated with a company or contact
+	 * Returns a count of objects of a type which are associated with an assignee (eg. company or contact)
 	 * Supports Quotes, Invoices, Transactions, Events currently
 	 *
-	 * @param int $cust_id The company / contact ID.
+	 * @param int $assignee_id The assignee ID (for example company / contact ID).
 	 * @param int $obj_type_id The type constant being checked (eg ZBS_TYPE_QUOTE).
-	 * @param int $zbs_type The contact or company type, for example ZBS_TYPE_COMPANY, ZBS_TYPE_CONTACT (default contact).
+	 * @param int $zbs_type The assigne type, for example ZBS_TYPE_COMPANY, ZBS_TYPE_CONTACT (default contact).
 	 *
 	 * @return int The count of relevant objects of the given type.
 	 */
-	public function customer_has_count_obj_type( $cust_id, $obj_type_id, $zbs_type = ZBS_TYPE_CONTACT ) {
+	public function specific_obj_type_count_for_assignee( $assignee_id, $obj_type_id, $zbs_type = ZBS_TYPE_CONTACT ) {
 		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		global $ZBSCRM_t;
 		global $wpdb;
@@ -615,8 +615,8 @@ class zbsDAL {
 			. ' AND obj_links.zbsol_objtype_to = ' . $zbs_type
 			. ' AND obj_links.zbsol_objid_to = %d';
 
-		// Counting objs with objlinks to this company, ignoring ownership.
-		$query = $this->prepare( $obj_query, $cust_id );
+		// Counting objs with objlinks to this assignee, ignoring ownership.
+		$query = $this->prepare( $obj_query, $assignee_id );
 		$count = (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching -- To be refactored.
 
 		return $count;
