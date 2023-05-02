@@ -104,7 +104,7 @@ function get_checklist_definitions() {
 			'title'    => 'Start Writing',
 			'task_ids' => array(
 				'first_post_published',
-				'setup_free',
+				'setup_blog',
 				'domain_upsell',
 				'plan_selected',
 				'blog_launched',
