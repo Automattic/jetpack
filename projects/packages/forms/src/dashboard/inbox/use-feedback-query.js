@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { fromPairs } from 'lodash';
 import { useSearchParams } from 'react-router-dom';
 
@@ -32,40 +32,58 @@ export const useFeedbackQuery = () => {
 		[ params.month, params.parent_id, params.search, params.status ]
 	);
 
-	const updateParam = key => value =>
-		setSearchParams( sp => {
-			if ( value ) {
-				sp.set( key, value );
-				return sp;
-			}
+	const updateParam = useCallback(
+		key => value =>
+			setSearchParams( sp => {
+				if ( value ) {
+					sp.set( key, value );
+					return sp;
+				}
 
-			sp.delete( key );
-			return sp;
-		} );
-
-	const updateQueryParam = key => value =>
-		setSearchParams( sp => {
-			sp.delete( 'p' );
-			sp.delete( 'r' );
-
-			if ( value ) {
-				sp.set( key, value );
-			} else {
 				sp.delete( key );
-			}
+				return sp;
+			} ),
+		[ setSearchParams ]
+	);
 
-			return sp;
-		} );
+	const updateQueryParam = useCallback(
+		key => value =>
+			setSearchParams( sp => {
+				sp.delete( 'p' );
+				sp.delete( 'r' );
+
+				if ( value ) {
+					sp.set( key, value );
+				} else {
+					sp.delete( key );
+				}
+
+				return sp;
+			} ),
+		[ setSearchParams ]
+	);
 
 	return {
 		currentPage: parseInt( params.p, 10 ),
 		currentResponseId: parseInt( params.r, 10 ),
-		setCurrentPage: updateParam( 'p' ),
-		setCurrentResponseId: updateParam( 'r' ),
-		setMonthQuery: updateQueryParam( 'month' ),
-		setSearchQuery: updateQueryParam( 'search' ),
-		setSourceQuery: updateQueryParam( 'parent_id' ),
-		setStatusQuery: updateQueryParam( 'status' ),
+		setCurrentPage: useCallback( value => updateParam( 'p' )( value ), [ updateParam ] ),
+		setCurrentResponseId: useCallback( value => updateParam( 'r' )( value ), [ updateParam ] ),
+		setMonthQuery: useCallback(
+			value => updateQueryParam( 'month' )( value ),
+			[ updateQueryParam ]
+		),
+		setSearchQuery: useCallback(
+			value => updateQueryParam( 'search' )( value ),
+			[ updateQueryParam ]
+		),
+		setSourceQuery: useCallback(
+			value => updateQueryParam( 'parent_id' )( value ),
+			[ updateQueryParam ]
+		),
+		setStatusQuery: useCallback(
+			value => updateQueryParam( 'status' )( value ),
+			[ updateQueryParam ]
+		),
 		query,
 	};
 };

@@ -15,7 +15,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
-import { find, findIndex, includes, isEqual, keys, map, pick } from 'lodash';
+import { find, findIndex, includes, isEqual, join, keys, map, pick } from 'lodash';
 /**
  * Internal dependencies
  */
@@ -105,9 +105,10 @@ const Inbox = () => {
 
 	useEffect( () => {
 		if (
-			loading ||
-			! isEqual( pick( currentQuery, keys( query ) ), query ) ||
-			includes( map( responses, 'id' ), currentResponseId )
+			currentResponseId &&
+			( loading ||
+				! isEqual( pick( currentQuery, keys( query ) ), query ) ||
+				includes( map( responses, 'id' ), currentResponseId ) )
 		) {
 			return;
 		}
@@ -225,6 +226,13 @@ const Inbox = () => {
 		];
 	}, [ sourceFilter ] );
 
+	const listKey = useMemo( () => {
+		return join(
+			map( pick( currentQuery, keys( query ) ), ( value, key ) => `${ key }-${ value }` ),
+			'-'
+		);
+	}, [ currentQuery, query ] );
+
 	const showBulkActionsMenu = !! selectedResponses.length && ! loading;
 
 	const classes = classnames( 'jp-forms__inbox', {
@@ -312,6 +320,7 @@ const Inbox = () => {
 								<div className="jp-forms__inbox-sticky-sentinel" ref={ stickySentinel } />
 								{ ! loading && isSticky && <div className="jp-forms__inbox-sticky-mark" /> }
 								<InboxList
+									key={ listKey }
 									currentPage={ currentPage }
 									currentResponseId={ activeResponse }
 									currentTab={ query.status }
