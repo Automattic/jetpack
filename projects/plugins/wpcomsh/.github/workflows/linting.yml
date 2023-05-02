@@ -7,28 +7,37 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Setup PHP
+      - name: Check existence of composer.json & phpcs.xml.dist files
+        id: check_files
+        uses: andstor/file-existence-action@v2
+        with:
+          files: "composer.json, phpcs.xml.dist"
+
+      - name: Set up PHP environment
+        if: steps.check_files.outputs.files_exists == 'true'
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "7.4"
-          coverage: none
-          tools: composer, cs2pr
+          php-version: '7.4'
+          tools: cs2pr
+        env:
+          COMPOSER_TOKEN: ${{ secrets.REPO_GITHUB_TOKEN }}
 
-      - name: Install php codesniffer
-        run: composer global require "squizlabs/php_codesniffer=*"
-
-      - name: Install wordpress coding standard
-        run: |
-          git clone -b master https://github.com/WordPress/WordPress-Coding-Standards.git ~/wpcs
-          ~/.composer/vendor/bin/phpcs --config-set installed_paths ~/wpcs
+      - name: Install Composer dependencies & cache dependencies
+        if: steps.check_files.outputs.files_exists == 'true'
+        uses: "ramsey/composer-install@v2"
+        env:
+          COMPOSER_ROOT_VERSION: dev-${{ github.event.repository.default_branch }}
+        with:
+          # Bust the cache at least once a month - output format: YYYY-MM.
+          custom-cache-suffix: $(date -u "+%Y-%m")
 
       - name: Detect coding standard violations (Expand for details)
-        continue-on-error: true
-        run: ~/.composer/vendor/bin/phpcs --report-full --report-checkstyle=./phpcs-report.xml
+        # continue-on-error: true
+        run: composer phpcs --report-full --report-checkstyle=./phpcs-report.xml
 
       - name: Show coding standard violations in PR (Expand above section for details)
         run: cs2pr --graceful-warnings ./phpcs-report.xml
