@@ -223,13 +223,15 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 				$clauses['groupby'] = 'day_of_year';
 
 				// Ensure we get either to newest or oldest prompt for each day of the year, depending on the sort order.
+				// GROUP BY runs and collects the prompts for each day of the year before ORDER BY is run, so we first need to use MAX/MIN on post_date
+				// to find the most recent/oldest prompt for each day and join the results to the main query.
 				$clauses['join'] = $wpdb->prepare(
 					'INNER JOIN (' .
 						// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL function cannot be escaped.
 						'SELECT ' . ( 'DESC' === $order ? 'MAX' : 'MIN' ) . "({$wpdb->posts}.post_date) AS post_date, DAYOFYEAR(CONCAT(%d, DATE_FORMAT(post_date, '-%%m-%%d'))) AS day_of_year " .
 						"FROM {$wpdb->posts} " .
 						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- reuses unmodified existing clause.
-						"WHERE 1=1{$clauses['where']} " .
+						"WHERE 1=1 {$clauses['where']} " .
 						'GROUP BY day_of_year' .
 					") AS newest_prompts ON {$wpdb->posts}.post_date = newest_prompts.post_date",
 					$year
