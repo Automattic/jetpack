@@ -1,4 +1,4 @@
-import { _n } from '@wordpress/i18n';
+import { _n, __ } from '@wordpress/i18n';
 import jQuery from 'jquery';
 
 const { ajaxUrl, connectionsUrl } = window.jetpackSocialClassicEditorConnections;
@@ -68,10 +68,8 @@ jQuery( function ( $ ) {
 
 		if ( unsupportedConnections ) {
 			/* translators: %s is the link to the connections page in Calypso */
-			const msg = _n(
-				'One of your social connection is not supported anymore. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more here</a>.',
-				'Some of your social connections are not supported anymore. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more here</a>.',
-				unsupportedConnections,
+			const msg = __(
+				'Twitter is not supported anymore. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more here</a>.',
 				'jetpack-publicize-pkg'
 			);
 
@@ -84,9 +82,7 @@ jQuery( function ( $ ) {
 					.addClass( 'publicize-token-refresh-message' );
 			}
 
-			const unsupportedConnectionsUrl =
-				'https://jetpack.com/redirect/?source=publicize-connection-not-supported';
-			testsSelector.append( msg.replace( '%s', unsupportedConnectionsUrl ) );
+			testsSelector.append( msg.replace( '%s', connectionsUrl ) );
 		}
 	};
 

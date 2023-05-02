@@ -101,16 +101,12 @@ export default function PublicizeForm( {
 			{ unsupportedConnections.length > 0 && (
 				<Notice type={ 'error' }>
 					{ createInterpolateElement(
-						_n(
-							'One of your social connection is not supported anymore. <moreInfo>Learn more here</moreInfo>.',
-							'Some of your social connections are not supported anymore. <moreInfo>Learn more here</moreInfo>.',
-							unsupportedConnections.length,
+						__(
+							'Twitter is not supported anymore. <moreInfo>Learn more here</moreInfo>.',
 							'jetpack'
 						),
 						{
-							moreInfo: (
-								<ExternalLink href={ getRedirectUrl( 'publicize-connection-not-supported' ) } />
-							),
+							moreInfo: <ExternalLink href={ connectionsAdminUrl } />,
 						}
 					) }
 				</Notice>
