@@ -256,8 +256,8 @@ function get_task_definitions() {
 		),
 		array(
 			'id'        => 'setup_blog',
-			'title'     => __( 'Personalize your site', 'jetpack-mu-wpcom' ),
-			'completed' => true,
+			'title'     => __( 'Set up your blog', 'jetpack-mu-wpcom' ),
+			'completed' => false,
 			'disabled'  => false,
 		),
 		array(
