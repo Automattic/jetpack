@@ -244,7 +244,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 12.1-beta2 - 2023-05-01
+### 12.1 - 2023-05-02
 #### Enhancements
 - Block editor: collapse Jetpack feature panels by default.
 - Dashboard: added Jetpack Starter bundle post-activation screen and plan header.
@@ -271,6 +271,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 #### Improved compatibility
 - General: Jetpack now requires WordPress version 6.1.
 - General: remove WordPress 6.0 backwards-compatibility code, now that Jetpack requires WordPress 6.1.
+- Security: ensure blocks are always fully displayed on your site, even when using a caching plugin.
 
 #### Bug fixes
 - 3rd-party plugin support code: improve loading performance.
