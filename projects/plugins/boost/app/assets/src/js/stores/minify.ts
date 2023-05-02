@@ -1,3 +1,4 @@
+import { type Writable, get, writable } from 'svelte/store';
 import { z } from 'zod';
 import { client } from './data-sync-client';
 
@@ -11,5 +12,14 @@ export const minifyCssExcludesClient = client.createAsyncStore(
 	z.array( z.string() )
 );
 
-export const minifyJsExcludesStore = minifyJsExcludesClient.store;
-export const minifyCssExcludesStore = minifyCssExcludesClient.store;
+function derivedWritable( store: Writable< string[] > ) {
+	const stringStore = writable( get( store ).join( ',' ) );
+	stringStore.subscribe( value => {
+		store.set( value.split( ',' ) );
+	} );
+
+	return stringStore;
+}
+
+export const minifyJsExcludesStore = derivedWritable( minifyJsExcludesClient.store );
+export const minifyCssExcludesStore = derivedWritable( minifyCssExcludesClient.store );
