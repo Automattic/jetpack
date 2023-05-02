@@ -222,6 +222,7 @@
 	&.disabled {
 		background: var( --jp-gray ) !important;
 		border-color: transparent !important;
+		box-shadow: none;
 		color: var( --jp-gray-20 ) !important;
 
 		pointer-events: none;
@@ -258,6 +259,7 @@
 .dops-button.is-primary.is-rna {
   background-color: var( --jp-black );
   border-color: var( --jp-black );
+  color: var( --jp-white );
 
   -webkit-font-smoothing: antialiased;
 

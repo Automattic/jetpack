@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2023-05-02
+### Added
+- Adds Divi Builder Compatibility for VideoPress. [#28193]
+
+### Changed
+- Updated package dependencies.
+- VideoPress: change the connection message when the Jetpack VideoPress module is not active [#30345]
+- VideoPress: enqueue token bridge file in the front-end only when required [#30156]
+- VideoPress: fix playing state of poster mini-player [#30383]
+- VideoPress: move video frame poster to production [#30384]
+- VideoPress: update Preview On Hover to the IFrame API updates [#30335]
+
+### Fixed
+- Update the embed loading styles and usage [#30251]
+- VideoPress: set Preview On Hover player initial state only when it's enabled [#30380]
+
+## [0.13.10] - 2023-05-01
+### Changed
+- Internal updates.
+
 ## [0.13.9] - 2023-04-25
 ### Added
 - VideoPress: add is_videopress_url() helper function [#30142]
@@ -966,6 +986,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.14.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.10...v0.14.0
+[0.13.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.9...v0.13.10
 [0.13.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.8...v0.13.9
 [0.13.8]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.7...v0.13.8
 [0.13.7]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.6...v0.13.7

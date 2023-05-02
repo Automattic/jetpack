@@ -43,6 +43,9 @@ export default {
 		children: {
 			control: { type: null },
 		},
+		wide: {
+			control: { type: 'boolean' },
+		},
 	},
 };
 
@@ -79,6 +82,11 @@ HasContent.args = {
 		<div>
 			This is children block!<br></br>
 			<br></br>Break Line!
+			<br></br>
+			<ul>
+				<li>Item 1</li>
+				<li>Item 2</li>
+			</ul>
 		</div>
 	),
 };
@@ -89,4 +97,12 @@ WrapperAnchor.args = {
 	title: 'Site records increased',
 	placement: 'top',
 	forceShow: true,
+};
+
+export const Wide = Template.bind( {} );
+Wide.args = {
+	title: 'This is title!',
+	children: <div>This is a wide tooltip!</div>,
+	wide: true,
+	placement: 'bottom-start',
 };

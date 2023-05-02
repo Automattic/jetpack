@@ -149,7 +149,15 @@ abstract class Jetpack_Admin_Page {
 			$this->page_render();
 			return;
 		}
-		self::wrap_ui( array( $this, 'page_render' ) );
+
+		$args = array();
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( isset( $_GET['page'] ) && 'jetpack_modules' === $_GET['page'] ) {
+			$args['is-wide'] = true;
+		}
+
+		self::wrap_ui( array( $this, 'page_render' ), $args );
 	}
 
 	/**

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Webpack's `.resolve.conditionNames` may now be set from `.npmrc` or the corresponding environment variable.
