@@ -1,4 +1,5 @@
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isArray, isEmpty, join } from 'lodash';
 
 export const getDisplayName = response => {
 	if ( response.author_name ) {
@@ -26,6 +27,16 @@ export const formatFieldName = fieldName => {
 	}
 
 	return fieldName;
+};
+
+export const formatFieldValue = fieldValue => {
+	if ( isEmpty( fieldValue ) ) {
+		return '-';
+	} else if ( isArray( fieldValue ) ) {
+		return join( fieldValue, ', ' );
+	}
+
+	return fieldValue;
 };
 
 export const isWpcom = () => isAtomicSite() || isSimpleSite();
