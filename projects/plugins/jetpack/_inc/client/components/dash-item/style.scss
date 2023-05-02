@@ -1,4 +1,5 @@
 @import '../../scss/calypso-colors';
+@import '../../scss/mixins/ui';
 
 .jp-dash-item {
 	@include dashboard-card-shadow;
@@ -28,8 +29,7 @@
 .jp-dash-item__card {
 	margin: 0;
 	box-shadow: none;
-	padding: rem( 18px ) rem( 24px ) rem( 12px );
-
+	padding: rem( 18px ) rem( 24px ) rem( 16px );
 }
 
 .jp-dash-item__count {
@@ -50,9 +50,7 @@
 		flex-basis: 100%
 	}
 	&.is-alert {
-		color: $white;
-		background: $alert-red;
-		border-color: $alert-red;
+		color: var( --jp-red-50 );
 	}
 }
 

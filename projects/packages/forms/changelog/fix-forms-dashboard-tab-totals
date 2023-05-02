@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed invalid totals being reported for different tabs in the forms dashboard.

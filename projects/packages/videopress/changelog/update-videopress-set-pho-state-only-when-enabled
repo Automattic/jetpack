@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: set Preview On Hover player initial state only when it's enabled
