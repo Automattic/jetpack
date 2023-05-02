@@ -17,6 +17,8 @@ export const getResponses = state =>
 		};
 	} );
 
+export const getTabTotals = state => state.tabTotals || {};
+
 export const getTotalResponses = state => state.total;
 
 export const getCurrentPage = state => state.currentPage;

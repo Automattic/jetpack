@@ -410,6 +410,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				$module['description']       = $i18n['description'];
 				$module['short_description'] = $i18n['description'];
 			}
+			if ( isset( $module['module_tags'] ) ) {
+				$module['module_tags'] = array_map( 'jetpack_get_module_i18n_tag', $module['module_tags'] );
+			}
 
 			return Jetpack_Core_Json_Api_Endpoints::prepare_modules_for_response( $module );
 		}
@@ -1430,7 +1433,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 */
 	public function get_protect_data() {
 		if ( Jetpack::is_module_active( 'protect' ) ) {
-			return get_site_option( 'jetpack_protect_blocked_attempts' );
+			return (int) get_site_option( 'jetpack_protect_blocked_attempts', 0 );
 		}
 
 		return new WP_Error(

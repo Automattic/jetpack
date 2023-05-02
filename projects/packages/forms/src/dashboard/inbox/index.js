@@ -1,38 +1,53 @@
+/**
+ * External dependencies
+ */
 import { TabPanel, Icon } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import {
+	createInterpolateElement,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
+	useRef,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
-import { find, includes, map } from 'lodash';
-import { useRef } from 'react';
+import { find, findIndex, includes, map } from 'lodash';
+/**
+ * Internal dependencies
+ */
 import DropdownFilter from '../components/dropdown-filter';
 import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
 import { STORE_NAME } from '../state';
 import BulkActionsMenu from './bulk-actions-menu';
+import { RESPONSES_FETCH_LIMIT } from './constants';
 import ExportModal from './export-modal';
 import InboxList from './list';
 import InboxResponse from './response';
+import { isWpcom } from './util';
+/**
+ * Style dependencies
+ */
 import './style.scss';
-
-const RESPONSES_FETCH_LIMIT = 50;
 
 const TABS = [
 	{
 		name: 'inbox',
-		title: 'Inbox',
+		title: __( 'Inbox', 'jetpack-forms' ),
 		className: 'jp-forms__inbox-tab-item',
 	},
 	{
 		name: 'spam',
-		title: 'Spam',
+		title: __( 'Spam', 'jetpack-forms' ),
 		className: 'jp-forms__inbox-tab-item',
 	},
 	{
 		name: 'trash',
-		title: 'Trash',
+		title: __( 'Trash', 'jetpack-forms' ),
 		className: 'jp-forms__inbox-tab-item',
 	},
 ];
@@ -40,6 +55,7 @@ const TABS = [
 const Inbox = () => {
 	const stickySentinel = useRef();
 	const [ currentResponseId, setCurrentResponseId ] = useState( -1 );
+	const [ responseAnimationDirection, setResponseAnimationDirection ] = useState( 1 );
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ view, setView ] = useState( 'list' );
 	const [ isSticky, setSticky ] = useState( false );
@@ -61,6 +77,7 @@ const Inbox = () => {
 		query,
 		responses,
 		selectedResponses,
+		tabTotals,
 		total,
 	] = useSelect(
 		select => [
@@ -71,6 +88,7 @@ const Inbox = () => {
 			select( STORE_NAME ).getResponsesQuery(),
 			select( STORE_NAME ).getResponses(),
 			select( STORE_NAME ).getSelectedResponseIds(),
+			select( STORE_NAME ).getTabTotals(),
 			select( STORE_NAME ).getTotalResponses(),
 		],
 		[]
@@ -117,10 +135,16 @@ const Inbox = () => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ stickySentinel.current, loading ] );
 
-	const selectResponse = useCallback( id => {
-		setCurrentResponseId( id );
-		setView( 'response' );
-	}, [] );
+	const selectResponse = useCallback(
+		id => {
+			setCurrentResponseId( id );
+			setView( 'response' );
+			setResponseAnimationDirection(
+				findIndex( responses, { id } ) - findIndex( responses, { id: currentResponseId } )
+			);
+		},
+		[ currentResponseId, responses ]
+	);
 
 	const handleGoBack = useCallback( event => {
 		event.preventDefault();
@@ -130,6 +154,23 @@ const Inbox = () => {
 	const toggleExportModal = useCallback(
 		() => setShowExportModal( ! showExportModal ),
 		[ showExportModal, setShowExportModal ]
+	);
+
+	const tabs = useMemo(
+		() =>
+			TABS.map( ( { title, ...tab } ) => ( {
+				...tab,
+				title: (
+					<>
+						{ title }
+						{ tabTotals && (
+							<span className="jp-forms__inbox-tab-item-count">{ tabTotals[ tab.name ] || 0 }</span>
+						) }
+					</>
+				),
+				disabled: loading,
+			} ) ),
+		[ loading, tabTotals ]
 	);
 
 	const monthList = useMemo( () => {
@@ -172,11 +213,33 @@ const Inbox = () => {
 
 	const classes = classnames( 'jp-forms__inbox', {
 		'is-response-view': view === 'response',
+		'is-response-animation-reverted': responseAnimationDirection < 0,
 	} );
 
 	const title = (
 		<>
-			<span className="title">{ __( 'Responses', 'jetpack-forms' ) }</span>
+			<span className="title">
+				{ isWpcom() ? __( 'Jetpack Forms', 'jetpack-forms' ) : __( 'Responses', 'jetpack-forms' ) }
+			</span>
+			{ isWpcom() && (
+				<span className="subtitle">
+					{ createInterpolateElement(
+						__(
+							'Collect and manage responses from your audience. <a>Learn more</a>',
+							'jetpack-forms'
+						),
+						{
+							a: (
+								<a
+									href="https://jetpack.com/support/jetpack-blocks/contact-form/"
+									rel="noreferrer noopener"
+									target="_blank"
+								/>
+							),
+						}
+					) }
+				</span>
+			) }
 			{ /* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */ }
 			<a className="back-button" onClick={ handleGoBack }>
 				<Icon icon={ arrowLeft } />
@@ -191,7 +254,7 @@ const Inbox = () => {
 				className="jp-forms__inbox-tabs"
 				activeClass="active-tab"
 				onSelect={ setStatusQuery }
-				tabs={ TABS }
+				tabs={ tabs }
 			>
 				{ () => (
 					<>
@@ -217,6 +280,7 @@ const Inbox = () => {
 							) }
 							{ showBulkActionsMenu && (
 								<BulkActionsMenu
+									currentPage={ currentPage }
 									currentView={ query.status }
 									selectedResponses={ selectedResponses }
 									setSelectedResponses={ selectResponses }
@@ -234,6 +298,7 @@ const Inbox = () => {
 								<InboxList
 									currentPage={ currentPage }
 									currentResponseId={ currentResponseId }
+									currentTab={ query.status }
 									loading={ loading }
 									pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
 									responses={ responses }

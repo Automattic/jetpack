@@ -27,6 +27,15 @@ declare global {
 				pause: () => void;
 				seek: ( time: number ) => void;
 			};
+			customize?: {
+				set: ( options: {
+					bigPlayButton?: boolean;
+					playPauseAnimation?: boolean;
+					controlBar?: boolean;
+					shareButton?: boolean;
+					posterImage?: boolean;
+				} ) => void;
+			};
 		};
 	}
 }

@@ -368,12 +368,21 @@ background:white;
   top: -3px;
 }
 
+#settings_dashboard_growth_display {
+	padding-bottom: 14px;
+	padding-top: 10px;
+}
+
 #settings_dashboard_revenue_chart_display{
-  padding-bottom:0px;
-  .panel{
-    border: 1px solid #ccd0d4 !important;
-    padding-left: 10px;
-  }
+	padding-bottom: 0px;
+	.panel{
+    	border: 1px solid #ccd0d4 !important;
+    	padding-left: 10px;
+  	}
+}
+
+#settings_dashboard_recent_activity_display .panel, #settings_dashboard_latest_contacts_display .panel {
+	height:100%;
 }
 
 .grid{
@@ -414,11 +423,12 @@ background:white;
 
 /* match padding of other rows on page */
 #crm_summary_numbers_container {
-  padding: 0 1rem;
+  padding: 14px 1rem;
   margin-bottom: 10px;
 }
 
 #crm_summary_numbers {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
   .range_total {
     color: #28a745;
     font-weight: bold;

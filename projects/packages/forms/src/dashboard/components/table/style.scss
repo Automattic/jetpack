@@ -18,19 +18,26 @@
 	cursor: pointer;
 }
 
-.jp-forms__table-item.is-active {
+.jp-forms__table-item.is-active:not(.exit) {
 	background-color: #000;
 	color: #fff;
+}
+
+@keyframes jp-forms__table-pulse {
+	from { opacity: .2; }
+	50% { opacity: .1; }
+	to { opacity: .2 }
 }
 
 .jp-forms__table-cell {
 	border-bottom: 1px solid #dcdcde;
 	box-sizing: border-box;
 	display: table-cell;
-	font-size: 16px;
-	height: 64px;
+	font-size: var(--jp-forms-font-size-regular);
+	height: 52px;
+	line-height: normal;
 	margin: 0;
-	padding: 16px;
+	padding: 0 16px;
 	position: relative;
 	text-align: left;
 	transition: background-color .1s ease-out, opacity .1s ease-out;
@@ -62,6 +69,15 @@
 		justify-content: center;
 	}
 
+	.jp-forms__table-item.is-loading &::before {
+		animation: jp-forms__table-pulse 2s ease-in-out infinite;
+		content: '';
+		background-color: #000;
+		border-radius: .5em;
+		display: flex;
+		height: 1em;
+	}
+
 	.components-button.is-link {
 		font-size: inherit;
 		color: inherit;
@@ -76,12 +92,12 @@ input[type="checkbox"].jp-forms__table-checkbox {
 	box-shadow: none;
 	box-sizing: border-box;
 	cursor: pointer;
-	font-size: 16px;
-	line-height: 20px;
+	font-size: var(--jp-forms-font-size-regular);
+	line-height: 16px;
 	margin: 0;
 	outline: 0;
-	width: 20px;
-	height: 20px;
+	width: 16px;
+	height: 16px;
 
 	&::before {
 		background: #fff;
@@ -90,14 +106,13 @@ input[type="checkbox"].jp-forms__table-checkbox {
 		color: #000;
 		content: '\00a0';
 		display: inline-block;
-		font-size: 16px;
+		font-size: var(--jp-forms-font-size-regular);
 		font-weight: bold;
-		height: 20px;
-		line-height: 20px;
+		height: 16px;
 		margin: 0;
 		text-align: center;
 		transition: background .1s ease-out, color .1s ease-out, border-color .1s ease-out;
-		width: 20px;
+		width: 16px;
 	}
 
 	&:checked::before {

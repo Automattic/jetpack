@@ -3,11 +3,13 @@
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
-use Automattic\Jetpack_Boost\Data_Sync\Modules_Status_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
+use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
 }
+
 /**
  * Make it easier to register a Jetpack Boost Data-Sync option.
  *
@@ -134,5 +136,9 @@ $modules_state_schema = Schema::as_array(
 	)
 )->fallback( array() );
 
-$entry = new Modules_Status_Entry( JETPACK_BOOST_DATASYNC_NAMESPACE, 'modules_state' );
+$entry = new Modules_State_Entry();
 jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
+
+if ( Image_Size_Analysis::is_available() ) {
+	require_once __DIR__ . '/app/data-sync/init-image-size-analysis.php';
+}

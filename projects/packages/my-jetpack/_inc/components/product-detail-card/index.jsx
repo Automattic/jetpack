@@ -90,6 +90,7 @@ const ProductDetailCard = ( {
 		hasRequiredPlan,
 		status,
 		pluginSlug,
+		postCheckoutUrl,
 	} = detail;
 
 	const cantInstallPlugin = status === 'plugin_absent' && 'no' === fileSystemWriteAccess;
@@ -114,10 +115,12 @@ const ProductDetailCard = ( {
 	 */
 	const needsPurchase = ! isFree && ! hasRequiredPlan;
 
+	const checkoutRedirectUrl = postCheckoutUrl ? postCheckoutUrl : myJetpackUrl;
+
 	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
 		useProductCheckoutWorkflow( {
 			productSlug: wpcomProductSlug,
-			redirectUrl: myJetpackUrl,
+			redirectUrl: checkoutRedirectUrl,
 			siteSuffix,
 			from: 'my-jetpack',
 		} );
@@ -167,8 +170,8 @@ const ProductDetailCard = ( {
 
 	const clickHandler = useCallback( () => {
 		trackButtonClick();
-		onClick?.( mainCheckoutRedirect );
-	}, [ onClick, trackButtonClick, mainCheckoutRedirect ] );
+		onClick?.( mainCheckoutRedirect, detail );
+	}, [ onClick, trackButtonClick, mainCheckoutRedirect, detail ] );
 
 	const trialClickHandler = useCallback( () => {
 		trackButtonClick( wpcomFreeProductSlug );

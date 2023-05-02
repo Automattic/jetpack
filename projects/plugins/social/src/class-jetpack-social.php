@@ -112,7 +112,6 @@ class Jetpack_Social {
 
 		// Add block editor assets
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_scripts' ) );
-		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_review_prompt' ) );
 
 		// Add meta tags.
 		add_action( 'wp_head', array( new Automattic\Jetpack\Social\Meta_Tags(), 'render_tags' ) );
@@ -309,68 +308,34 @@ class Jetpack_Social {
 		);
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
+
+		$sig_settings = ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() );
+
 		wp_localize_script(
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
 			array(
 				'siteFragment' => ( new Status() )->get_site_suffix(),
 				'social'       => array(
-					'adminUrl'                      => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
-					'sharesData'                    => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-					'connectionRefreshPath'         => '/jetpack/v4/publicize/connection-test-results',
-					'resharePath'                   => '/jetpack/v4/publicize/{postId}',
-					'publicizeConnectionsUrl'       => esc_url_raw(
+					'adminUrl'                        => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
+					'sharesData'                      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'reviewRequestDismissed'          => self::is_review_request_dismissed(),
+					'dismissReviewRequestPath'        => '/jetpack/v4/social/review-dismiss',
+					'connectionRefreshPath'           => '/jetpack/v4/publicize/connection-test-results',
+					'resharePath'                     => '/jetpack/v4/publicize/{postId}',
+					'publicizeConnectionsUrl'         => esc_url_raw(
 						'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
 					),
-					'hasPaidPlan'                   => $publicize->has_paid_plan(),
-					'isEnhancedPublishingEnabled'   => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
-					'isSocialImageGeneratorEnabled' => ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->is_enabled(),
+					'hasPaidPlan'                     => $publicize->has_paid_plan(),
+					'isEnhancedPublishingEnabled'     => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
+					'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
+					'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 				),
 			)
 		);
 
 		// Connection initial state is expected when the connection JS package is in the bundle
 		wp_add_inline_script( 'jetpack-social-editor', Connection_Initial_State::render(), 'before' );
-	}
-
-	/**
-	 * Load a separate script to manage the review prompt
-	 * This script can run whenever the social plugin is active and should not conflict with the main Jetpack plugin
-	 *
-	 * @return void
-	 */
-	public function enqueue_review_prompt() {
-		if (
-				! $this->is_connected() ||
-				! self::is_publicize_active() ||
-				! $this->is_supported_post()
-		) {
-			return;
-		}
-
-		Assets::register_script(
-			'jetpack-social-review-prompt',
-			'build/review.js',
-			JETPACK_SOCIAL_PLUGIN_ROOT_FILE,
-			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-social',
-			)
-		);
-
-		Assets::enqueue_script( 'jetpack-social-review-prompt' );
-		wp_localize_script(
-			'jetpack-social-review-prompt',
-			'Jetpack_Editor_Initial_State',
-			array(
-				'siteFragment' => ( new Status() )->get_site_suffix(),
-				'socialReview' => array(
-					'reviewRequestDismissed'   => self::is_review_request_dismissed(),
-					'dismissReviewRequestPath' => '/jetpack/v4/social/review-dismiss',
-				),
-			)
-		);
-
 		// Conditionally load analytics scripts
 		// The only component using analytics in the editor at the moment is the review request
 		if ( ! in_array( get_post_status(), array( 'publish', 'private', 'trash' ), true ) && self::can_use_analytics() && ! self::is_review_request_dismissed() ) {

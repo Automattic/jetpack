@@ -4,7 +4,7 @@
 	border-radius: 0.5rem;
 
 	background-color: var( --jp-white );
-	
+
 	@if $borderless == false {
 		border: 1px solid var( --jp-gray-5 );
 	}
@@ -13,7 +13,7 @@
 @mixin features-list {
 	margin: 1.5rem 0;
 	padding: 0;
-	
+
 	list-style-type: none;
 
 	li {
@@ -24,4 +24,11 @@
 		background-size: 24px;
 		color: var( --jp-black );
 	}
+}
+
+@mixin dashboard-card-shadow {
+	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
+	border: 0;
+	border-radius: 4px;
+	overflow: hidden;
 }

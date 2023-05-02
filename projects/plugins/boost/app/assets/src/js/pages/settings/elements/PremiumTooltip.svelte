@@ -50,7 +50,7 @@
 	</p>
 </Tooltip>
 
-<style type="scss">
+<style lang="scss">
 	a {
 		white-space: nowrap;
 	}

@@ -20,10 +20,8 @@ import { View } from 'react-native';
 /**
  * Internal dependencies
  */
-import getMediaToken from '../../../lib/get-media-token/index.native';
-import { buildVideoPressURL, getVideoPressUrl } from '../../../lib/url';
-import { usePreview } from '../../hooks/use-preview';
-import addTokenIntoIframeSource from '../../utils/add-token-iframe-source';
+import { buildVideoPressURL } from '../../../lib/url';
+import { useSyncMedia } from '../../hooks/use-sync-media';
 import isLocalFile from '../../utils/is-local-file';
 import ColorPanel from './components/color-panel';
 import DetailsPanel from './components/details-panel';
@@ -54,18 +52,7 @@ export default function VideoPressEdit( {
 	onFocus,
 	insertBlocksAfter,
 } ) {
-	const {
-		controls,
-		guid,
-		loop,
-		muted,
-		playsinline,
-		poster,
-		preload,
-		seekbarColor,
-		seekbarLoadingColor,
-		seekbarPlayedColor,
-	} = attributes;
+	const { guid } = attributes;
 
 	const [ isUploadingFile, setIsUploadingFile ] = useState( ! guid );
 	const [ fileToUpload, setFileToUpload ] = useState( null );
@@ -73,16 +60,6 @@ export default function VideoPressEdit( {
 		isReplacing: false,
 		prevAttrs: {},
 	} );
-	const [ token, setToken ] = useState();
-
-	// Fetch token for a VideoPress GUID
-	useEffect( () => {
-		if ( guid ) {
-			getMediaToken( 'playback', { guid } ).then( tokenData => {
-				setToken( tokenData.token );
-			} );
-		}
-	}, [ guid ] );
 
 	const [ showReplaceControl, setShowReplaceControl ] = useState( true );
 
@@ -92,22 +69,6 @@ export default function VideoPressEdit( {
 	);
 	const { replaceBlock } = useDispatch( blockEditorStore );
 	const { createErrorNotice } = useDispatch( noticesStore );
-
-	const videoPressUrl = getVideoPressUrl( guid, {
-		autoplay: false, // Note: Autoplay is disabled to prevent the video from playing fullscreen when loading the editor.
-		controls,
-		loop,
-		muted,
-		playsinline,
-		preload,
-		seekbarColor,
-		seekbarLoadingColor,
-		seekbarPlayedColor,
-		poster,
-	} );
-
-	const { preview, isRequestingEmbedPreview } = usePreview( videoPressUrl );
-	const previewHTML = addTokenIntoIframeSource( preview?.html, token );
 
 	// Display upload progress in case the editor is closed and re-opened
 	// while the upload is in progress.
@@ -127,6 +88,9 @@ export default function VideoPressEdit( {
 		},
 		[ setAttributes ]
 	);
+
+	const { videoData } = useSyncMedia( attributes, setAttributes );
+	const { private_enabled_for_site: privateEnabledForSite } = videoData;
 
 	const handleDoneUpload = useCallback(
 		newVideoData => {
@@ -150,10 +114,14 @@ export default function VideoPressEdit( {
 		[ setIsUploadingFile, setAttributes ]
 	);
 
-	const cancelReplacingVideoFile = useCallback( () => {
-		setAttributes( isReplacingFile.prevAttrs );
-		setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
-		setIsUploadingFile( false );
+	const onStopUpload = useCallback( () => {
+		if ( isReplacingFile?.isReplacing ) {
+			setAttributes( isReplacingFile.prevAttrs );
+			setIsReplacingFile( { isReplacing: false, prevAttrs: {} } );
+			setIsUploadingFile( false );
+		} else {
+			setAttributes( { id: undefined, src: undefined } );
+		}
 	}, [ isReplacingFile, setAttributes, setIsReplacingFile, setIsUploadingFile ] );
 
 	// Handlers of `ReplaceControl`
@@ -164,7 +132,7 @@ export default function VideoPressEdit( {
 			setAttributes( { guid: null } );
 			setFileToUpload( media );
 		},
-		[ setIsReplacingFile, setIsUploadingFile, setFileToUpload ]
+		[ attributes, setIsReplacingFile, setIsUploadingFile, setFileToUpload ]
 	);
 
 	const onReplaceSelectFromLibrary = useCallback(
@@ -224,10 +192,9 @@ export default function VideoPressEdit( {
 				fileToUpload={ fileToUpload }
 				handleDoneUpload={ handleDoneUpload }
 				isInteractionDisabled={ ! isSelected }
-				isReplacing={ isReplacingFile?.isReplacing }
 				onFocus={ onFocus }
-				onReplaceCancel={ cancelReplacingVideoFile }
 				onStartUpload={ onStartUpload }
+				onStopUpload={ onStopUpload }
 			/>
 		);
 	}
@@ -250,16 +217,12 @@ export default function VideoPressEdit( {
 					<PanelBody title={ __( 'More', 'jetpack-videopress-pkg' ) }>
 						<PlaybackPanel { ...{ attributes, setAttributes } } />
 						<ColorPanel { ...{ attributes, setAttributes } } />
-						<PrivacyAndRatingPanel { ...{ attributes, setAttributes } } />
+						<PrivacyAndRatingPanel { ...{ attributes, setAttributes, privateEnabledForSite } } />
 					</PanelBody>
 				</InspectorControls>
 			) }
 
-			<Player
-				html={ previewHTML }
-				isRequestingEmbedPreview={ isRequestingEmbedPreview }
-				isSelected={ isSelected }
-			/>
+			<Player { ...{ attributes, isSelected } } />
 
 			<BlockCaption
 				clientId={ clientId }

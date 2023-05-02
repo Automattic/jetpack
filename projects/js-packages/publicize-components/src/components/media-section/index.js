@@ -1,8 +1,8 @@
 import { ThemeProvider, getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink, Notice, BaseControl } from '@wordpress/components';
+import { Disabled, ExternalLink, Notice, BaseControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useMediaDetails from '../../hooks/use-media-details';
 import useMediaRestrictions, {
@@ -13,16 +13,19 @@ import useMediaRestrictions, {
 } from '../../hooks/use-media-restrictions';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import MediaPicker from '../media-picker';
+import SocialPostControl from '../social-post-control';
 import styles from './styles.module.scss';
-
 const ADD_MEDIA_LABEL = __( 'Choose Media', 'jetpack' );
 
 /**
  * Wrapper that handles media-related functionality.
  *
+ * @param {object} props - The properties passed to the component.
+ * @param {boolean} [props.disabled=false] - Indicates whether the MediaSection is disabled or not.
+ * @param {string} [props.notice=''] - An optional notice that's displayed when the section is disabled.
  * @returns {object} The media section.
  */
-export default function MediaSection() {
+export default function MediaSection( { disabled = false, notice = '' } ) {
 	const [ validationError, setValidationError ] = useState( null );
 	const { attachedMedia, updateAttachedMedia } = useAttachedMedia();
 	const { enabledConnections } = useSocialMediaConnections();
@@ -79,25 +82,39 @@ export default function MediaSection() {
 	);
 
 	const onDismissClick = useCallback( () => setValidationError( null ), [] );
+
+	const MediaWrapper = disabled ? Disabled : Fragment;
+	const mediaWrapperProps = disabled
+		? { className: styles.disabled, 'data-testid': 'disabled' }
+		: {};
+
 	return (
 		<ThemeProvider>
 			<BaseControl label={ __( 'Media', 'jetpack' ) } className={ styles.wrapper }>
-				<p className={ styles.subtitle }>
-					{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
-				</p>
+				{ notice ? (
+					<Notice className={ styles.notice } isDismissible={ false } status="warning">
+						<p data-testid="notice">{ notice }</p>
+					</Notice>
+				) : (
+					<p className={ styles.subtitle }>
+						{ __( 'Choose a visual to accompany your post.', 'jetpack' ) }
+					</p>
+				) }
 
-				<MediaPicker
-					buttonLabel={ ADD_MEDIA_LABEL }
-					subTitle={ __( 'Add an image or video', 'jetpack' ) }
-					mediaId={ attachedMedia[ 0 ]?.id }
-					mediaDetails={ mediaDetails }
-					onChange={ onChange }
-					allowedMediaTypes={ allowedMediaTypes }
-				/>
+				<MediaWrapper { ...mediaWrapperProps }>
+					<MediaPicker
+						buttonLabel={ ADD_MEDIA_LABEL }
+						subTitle={ __( 'Add an image or video', 'jetpack' ) }
+						mediaId={ attachedMedia[ 0 ]?.id }
+						mediaDetails={ mediaDetails }
+						onChange={ onChange }
+						allowedMediaTypes={ allowedMediaTypes }
+					/>
+					<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+						{ __( 'Learn photo and video best practices', 'jetpack' ) }
+					</ExternalLink>
+				</MediaWrapper>
 
-				<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
-					{ __( 'Learn photo and video best practices', 'jetpack' ) }
-				</ExternalLink>
 				{ validationError && (
 					<Notice
 						className={ styles.notice }
@@ -112,6 +129,7 @@ export default function MediaSection() {
 					</Notice>
 				) }
 			</BaseControl>
+			<SocialPostControl />
 		</ThemeProvider>
 	);
 }

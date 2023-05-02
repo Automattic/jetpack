@@ -39,7 +39,7 @@ export const getIframeWindowFromRef = (
 const useVideoPlayer = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >,
 	isRequestingPreview: boolean,
-	{ autoplay, initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions
+	{ initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions
 ): UseVideoPlayer => {
 	const [ playerIsReady, setPlayerIsReady ] = useState( false );
 	const playerState = useRef< PlayerStateProp >( 'not-rendered' );
@@ -71,21 +71,22 @@ const useVideoPlayer = (
 			playerState.current = 'first-play';
 			debug( 'state: first-play detected' );
 
-			// Pause the video only if the autoplay is disabled.
-			if ( autoplay ) {
-				debug( 'autoplay enabled. Do not pause' );
-			} else {
+			/*
+			 * Pause and set the position at time
+			 * if the previewOnHover feature is enabled.
+			 */
+			if ( previewOnHover ) {
 				debug( 'pause video' );
 				source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
-			}
 
-			// Set position at time if it was provided.
-			if ( typeof initialTimePosition !== 'undefined' ) {
-				debug( 'set position at time %o ', initialTimePosition );
-				source.postMessage(
-					{ event: 'videopress_action_set_currenttime', currentTime: initialTimePosition / 1000 },
-					{ targetOrigin: '*' }
-				);
+				// Set position at time if it was provided.
+				if ( typeof initialTimePosition !== 'undefined' ) {
+					debug( 'set position at time %o ', initialTimePosition );
+					source.postMessage(
+						{ event: 'videopress_action_set_currenttime', currentTime: initialTimePosition / 1000 },
+						{ targetOrigin: '*' }
+					);
+				}
 			}
 
 			// Here we consider the video as ready to be controlled.
@@ -118,7 +119,8 @@ const useVideoPlayer = (
 
 	// Listen player events.
 	useEffect( () => {
-		if ( ! sandboxIFrameWindow ) {
+		const win = getIframeWindowFromRef( iFrameRef );
+		if ( ! win ) {
 			return;
 		}
 
@@ -127,13 +129,13 @@ const useVideoPlayer = (
 		}
 
 		debug( 'player is ready to listen events' );
-		sandboxIFrameWindow.addEventListener( 'message', listenEventsHandler );
+		win.addEventListener( 'message', listenEventsHandler );
 
 		return () => {
 			// Remove the listener when the component is unmounted.
-			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
+			win.removeEventListener( 'message', listenEventsHandler );
 		};
-	}, [ sandboxIFrameWindow, isRequestingPreview, wasPreviewOnHoverJustEnabled, previewOnHover ] );
+	}, [ iFrameRef, isRequestingPreview, wasPreviewOnHoverJustEnabled, previewOnHover ] );
 
 	const play = useCallback( () => {
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
