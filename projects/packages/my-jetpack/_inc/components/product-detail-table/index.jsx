@@ -44,6 +44,7 @@ const ProductDetailTableColumn = ( {
 		featuresByTier = [],
 		pricingForUi: { tiers: tiersPricingForUi },
 		title,
+		postActivationUrl,
 	} = detail;
 
 	// Extract the pricing details for the provided tier.
@@ -60,7 +61,7 @@ const ProductDetailTableColumn = ( {
 	const { run: runCheckout, hasCheckoutStarted } = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
 		productSlug: wpcomProductSlug,
-		redirectUrl: myJetpackUrl,
+		redirectUrl: postActivationUrl || myJetpackUrl,
 		siteSuffix,
 	} );
 
