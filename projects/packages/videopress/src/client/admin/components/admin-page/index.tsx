@@ -183,6 +183,34 @@ const Admin = () => {
 
 	useAnalyticsTracks( { pageViewEventName: 'jetpack_videopress_admin_page_view' } );
 
+	const [ firstLoad, setFirstLoad ] = useState( false );
+	const [ autoUpload, setAutoUpload ] = useState( false );
+
+	// Get action, if any, from the search parameters
+	const searchParams = useSearchParams();
+	const action = searchParams.getParam( 'action' );
+
+	// Flags the initial load of the page because `loading` starts as false and then quickly becomes true
+	useEffect( () => {
+		setTimeout( () => {
+			setFirstLoad( true );
+		}, 100 );
+	}, [] );
+
+	if ( action === 'upload' && autoUpload === false ) {
+		setAutoUpload( true );
+		searchParams.deleteParam( 'action' );
+		searchParams.update();
+	}
+
+	useEffect( () => {
+		if ( firstLoad && canUpload && ! loading && autoUpload === true ) {
+			setAutoUpload( false );
+			// Does not work for security reasons. A file selector can only be opened by a direct user action.
+			inputRef.current.click();
+		}
+	}, [ firstLoad, canUpload, loading, autoUpload ] );
+
 	return (
 		<AdminPage
 			moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }

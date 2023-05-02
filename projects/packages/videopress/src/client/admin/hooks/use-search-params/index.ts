@@ -3,7 +3,7 @@
  */
 import { useLocation, useHistory } from 'react-router-dom';
 
-type SearchParamNameProp = 'page' | 'q';
+type SearchParamNameProp = 'page' | 'q' | 'action';
 
 export const useSearchParams = () => {
 	const location = useLocation();
