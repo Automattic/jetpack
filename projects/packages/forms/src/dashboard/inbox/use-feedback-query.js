@@ -34,7 +34,12 @@ export const useFeedbackQuery = () => {
 
 	const updateParam = key => value =>
 		setSearchParams( sp => {
-			sp.set( key, value );
+			if ( value ) {
+				sp.set( key, value );
+				return sp;
+			}
+
+			sp.delete( key );
 			return sp;
 		} );
 
@@ -42,7 +47,13 @@ export const useFeedbackQuery = () => {
 		setSearchParams( sp => {
 			sp.delete( 'p' );
 			sp.delete( 'r' );
-			sp.set( key, value );
+
+			if ( value ) {
+				sp.set( key, value );
+			} else {
+				sp.delete( key );
+			}
+
 			return sp;
 		} );
 

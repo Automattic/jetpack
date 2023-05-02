@@ -62,6 +62,14 @@ const responses = ( state = [], action ) => {
 	return state;
 };
 
+const query = ( state = {}, action ) => {
+	if ( action.type === RESPONSES_FETCH ) {
+		return action.query;
+	}
+
+	return state;
+};
+
 const tabTotals = ( state = undefined, action ) => {
 	if ( action.type === RESPONSES_FETCH_RECEIVE ) {
 		return action.tabTotals;
@@ -111,6 +119,7 @@ export default combineReducers( {
 	currentSelection,
 	filters,
 	loading,
+	query,
 	responses,
 	tabTotals,
 	total,

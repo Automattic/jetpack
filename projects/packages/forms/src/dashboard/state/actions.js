@@ -36,7 +36,7 @@ export const dispatchAsync = ( apply, args = [] ) => ( {
  * @returns {object} Action object.
  */
 export function* fetchResponses( query, options = {} ) {
-	yield { type: RESPONSES_FETCH, append: options.append };
+	yield { type: RESPONSES_FETCH, append: options.append, query };
 
 	try {
 		const data = yield dispatchAsync( fetchResponsesFromApi, [ query ] );

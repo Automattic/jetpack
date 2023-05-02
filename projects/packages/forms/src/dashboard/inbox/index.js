@@ -15,7 +15,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
-import { find, findIndex, includes, map } from 'lodash';
+import { find, findIndex, includes, isEqual, keys, map, pick } from 'lodash';
 /**
  * Internal dependencies
  */
@@ -57,23 +57,31 @@ const Inbox = () => {
 	const stickySentinel = useRef();
 	const [ responseAnimationDirection, setResponseAnimationDirection ] = useState( 1 );
 	const [ showExportModal, setShowExportModal ] = useState( false );
-	const [ view, setView ] = useState( 'list' );
 	const [ isSticky, setSticky ] = useState( false );
 
 	const { fetchResponses, selectResponses } = useDispatch( STORE_NAME );
-	const [ monthFilter, sourceFilter, loading, responses, selectedResponses, tabTotals, total ] =
-		useSelect(
-			select => [
-				select( STORE_NAME ).getMonthFilter(),
-				select( STORE_NAME ).getSourceFilter(),
-				select( STORE_NAME ).isFetchingResponses(),
-				select( STORE_NAME ).getResponses(),
-				select( STORE_NAME ).getSelectedResponseIds(),
-				select( STORE_NAME ).getTabTotals(),
-				select( STORE_NAME ).getTotalResponses(),
-			],
-			[]
-		);
+	const [
+		currentQuery,
+		monthFilter,
+		sourceFilter,
+		loading,
+		responses,
+		selectedResponses,
+		tabTotals,
+		total,
+	] = useSelect(
+		select => [
+			select( STORE_NAME ).getQuery(),
+			select( STORE_NAME ).getMonthFilter(),
+			select( STORE_NAME ).getSourceFilter(),
+			select( STORE_NAME ).isFetchingResponses(),
+			select( STORE_NAME ).getResponses(),
+			select( STORE_NAME ).getSelectedResponseIds(),
+			select( STORE_NAME ).getTabTotals(),
+			select( STORE_NAME ).getTotalResponses(),
+		],
+		[]
+	);
 
 	const {
 		currentPage,
@@ -94,6 +102,19 @@ const Inbox = () => {
 			...query,
 		} );
 	}, [ currentPage, fetchResponses, query ] );
+
+	useEffect( () => {
+		if (
+			loading ||
+			! isEqual( pick( currentQuery, keys( query ) ), query ) ||
+			includes( map( responses, 'id' ), currentResponseId )
+		) {
+			return;
+		}
+
+		// Redirect to the list view on mobile when the response ID is invalid
+		setActiveResponse( 0 );
+	}, [ currentQuery, currentResponseId, loading, responses, setActiveResponse, query ] );
 
 	const activeResponse = useMemo( () => {
 		if ( responses.length && ! includes( map( responses, 'id' ), currentResponseId ) ) {
@@ -131,7 +152,6 @@ const Inbox = () => {
 	const selectResponse = useCallback(
 		id => {
 			setActiveResponse( id );
-			setView( 'response' );
 			setResponseAnimationDirection(
 				findIndex( responses, { id } ) - findIndex( responses, { id: activeResponse } )
 			);
@@ -139,10 +159,13 @@ const Inbox = () => {
 		[ activeResponse, responses, setActiveResponse ]
 	);
 
-	const handleGoBack = useCallback( event => {
-		event.preventDefault();
-		setView( 'list' );
-	}, [] );
+	const handleGoBack = useCallback(
+		event => {
+			event.preventDefault();
+			setActiveResponse( 0 );
+		},
+		[ setActiveResponse ]
+	);
 
 	const toggleExportModal = useCallback(
 		() => setShowExportModal( ! showExportModal ),
@@ -205,7 +228,7 @@ const Inbox = () => {
 	const showBulkActionsMenu = !! selectedResponses.length && ! loading;
 
 	const classes = classnames( 'jp-forms__inbox', {
-		'is-response-view': view === 'response',
+		'is-response-view': !! currentResponseId,
 		'is-response-animation-reverted': responseAnimationDirection < 0,
 	} );
 

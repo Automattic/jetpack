@@ -17,6 +17,8 @@ export const getResponses = state =>
 		};
 	} );
 
+export const getQuery = state => state.query || {};
+
 export const getTabTotals = state => state.tabTotals || {};
 
 export const getTotalResponses = state => state.total;
