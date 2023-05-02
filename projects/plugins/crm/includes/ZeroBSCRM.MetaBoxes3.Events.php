@@ -119,41 +119,6 @@
                 // check this
                 if (empty($event_id) || $event_id < 1)  $event_id = -1;
 
-                /* old way:
-
-                    $zbsEventMeta = array();
-            
-                    $start_d = date('m/d/Y H') . ":00:00";
-                    $end_d =  date('m/d/Y H') . ":00:00";
-                    $zbsEventMeta['from'] = $start_d; if (isset($_POST['zbse_start'])) $zbsEventMeta['from']  =  sanitize_text_field($_POST['zbse_start']);
-                    $zbsEventMeta['to'] =$end_d; if (isset($_POST['zbse_end'])) $zbsEventMeta['to']     = sanitize_text_field($_POST['zbse_end']);
-                    $zbsEventMeta['notes'] = ''; if (isset($_POST['zbse_desc'])) $zbsEventMeta['notes']  = zeroBSCRM_textProcess($_POST['zbse_desc']);
-                    $zbsEventMeta['title'] = ''; if (isset($_POST['event_post_title'])) $zbsEventMeta['title']  = zeroBSCRM_textProcess($_POST['event_post_title']);                        
-                    $zbsEventMeta['showoncal'] = false; if (isset($_POST['zbse_show_on_cal'])) $zbsEventMeta['showoncal']   = sanitize_text_field($_POST['zbse_show_on_cal']);                        
-                    $zbsEventMeta['showonportal'] = false; if (isset($_POST['zbse_show_on_portal'])) $zbsEventMeta['showonportal']   = sanitize_text_field($_POST['zbse_show_on_portal']);
-                    $zbsEventMeta['complete'] = -1; if (isset($_POST['complete_crm'])) $zbsEventMeta['complete']     =  (int)sanitize_text_field($_POST['complete_crm']);
-               
-
-                    // obj links:
-                    $zbsEventMeta['contacts'] = array(); if (isset($_POST['zbse_customer'])) $zbsEventMeta['contacts'][]   = (int)sanitize_text_field($_POST['zbse_customer']);
-                    $zbsEventMeta['companies'] = array(); if (isset($_POST['zbse_company'])) $zbsEventMeta['companies'][]   = (int)sanitize_text_field($_POST['zbse_company']);
-        
-                    // get old-style notify -> reminders
-                    $eventReminders = array();
-                    $zbsEventNotify = false; if (isset($_POST['zbs_remind_task_24'])) $zbsEventNotify  = (int)sanitize_text_field($_POST['zbs_remind_task_24']);
-                    if ($zbsEventNotify > 0){
-
-                            // this was only ever 0 or 24
-                            if ($zbsEventNotify == 24) $eventReminders[] = array(
-
-                                    'remind_at' => -86400,
-                                    'sent' => -1
-
-                            );
-                    }
-
-                */
-
                 // DAL3 way: 
                 $autoGenAutonumbers = true; // generate if not set :)
                 $event = zeroBS_buildObjArr($_POST,array(),'zbse_','',false,ZBS_TYPE_EVENT,$autoGenAutonumbers);
