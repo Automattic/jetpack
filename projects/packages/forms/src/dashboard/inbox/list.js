@@ -94,7 +94,6 @@ const InboxList = ( {
 	return (
 		<>
 			<Table
-				key={ `responses-${ currentTab }-${ currentPage }` }
 				className="jp-forms__inbox-list"
 				columns={ COLUMNS }
 				items={ tableItems }
