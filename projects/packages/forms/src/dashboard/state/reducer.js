@@ -56,7 +56,8 @@ const responses = ( state = [], action ) => {
 		action.type === RESPONSES_QUERY_SEARCH_UPDATE ||
 		action.type === RESPONSES_QUERY_STATUS_UPDATE ||
 		action.type === RESPONSES_QUERY_MONTH_UPDATE ||
-		action.type === RESPONSES_QUERY_SOURCE_UPDATE
+		action.type === RESPONSES_QUERY_SOURCE_UPDATE ||
+		action.type === RESPONSES_CURRENT_PAGE_SET
 	) {
 		return [];
 	}
