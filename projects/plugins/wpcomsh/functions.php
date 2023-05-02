@@ -399,7 +399,7 @@ function wpcomsh_is_wp_rest_request_matching( $path_regex, $request_method = 'GE
  * @return string
  */
 function wpcomsh_map_block_map_provider() {
-	return 'mapbox';
+	return 'mapkit';
 }
 
 add_filter( 'wpcom_map_block_map_provider', 'wpcomsh_map_block_map_provider', 10, 0 );
