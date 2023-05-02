@@ -105,10 +105,10 @@ const Inbox = () => {
 
 	useEffect( () => {
 		if (
-			currentResponseId &&
-			( loading ||
-				! isEqual( pick( currentQuery, keys( query ) ), query ) ||
-				includes( map( responses, 'id' ), currentResponseId ) )
+			! currentResponseId ||
+			loading ||
+			! isEqual( pick( currentQuery, keys( query ) ), query ) ||
+			includes( map( responses, 'id' ), currentResponseId )
 		) {
 			return;
 		}
