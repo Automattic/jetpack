@@ -24,9 +24,12 @@ export const boostProductData = {
 					included: false,
 					description: 'Must be done manually',
 					info: {
-						title: '',
-						content: `To enhance the speed of your site, with this plan you will need to optimize CSS by using the Manual Critical CSS generation feature whenever you:
+						title: 'Manual Critical CSS regeneration',
+						content: `To enhance the speed of your site, with this plan you will need to optimize CSS by using the Manual Critical CSS generation feature whenever you:<br><br>
 							<ul>
+								<li>Make theme changes.</li>
+								<li>Write a new post/page.</li>
+								<li>Edit a post/page.</li>
 								<li>Activate, deactivate, or update plugins that impact your site layout or HTML structure.</li>
 								<li>Change settings of plugins that impact your site layout or HTML structure.</li>
 								<li>Upgrade your WordPress version if the new release includes core CSS changes.</li>
@@ -90,7 +93,7 @@ export const boostProductData = {
 			},
 		},
 		{
-			name: 'Dedicated support',
+			name: 'Dedicated email support',
 			info: {
 				content:
 					'Paid customers get dedicated email support from our world-class Happiness Engineers to help with any issue.<br><br>All other questions are handled by our team as quickly as we are able to go through the WordPress support forum.',
@@ -98,7 +101,6 @@ export const boostProductData = {
 			tiers: {
 				free: {
 					included: false,
-					description: 'No dedicated support',
 				},
 				upgraded: {
 					included: true,
@@ -117,7 +119,16 @@ export const boostProductData = {
 				wpcomProductSlug: 'jetpack_boost',
 				currencyCode: 'USD',
 				fullPrice: 240,
-				discountPrice: 240,
+				discountPrice: 120,
+				isIntroductoryOffer: true,
+				introductoryOffer: {
+					intervalUnit: 'year',
+					intervalCount: 1,
+					usageLimit: null,
+					costPerInterval: 167.4,
+					transitionAfterRenewalCount: 0,
+					shouldProrateWhenOfferEnds: false,
+				},
 			},
 		},
 	},
