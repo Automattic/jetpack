@@ -74,7 +74,7 @@ function previewOnHoverEffect(): void {
 						playPauseAnimation: false,
 						controlBar: false,
 						shareButton: false,
-						posterImage: true,
+						showPoster: true,
 					} );
 				}
 			} );
@@ -123,12 +123,12 @@ function previewOnHoverEffect(): void {
 		}
 
 		overlay.addEventListener( 'mouseenter', () => {
-			iframeApi.customize?.set( { playPauseAnimation: false, posterImage: false } );
+			iframeApi.customize?.set( { playPauseAnimation: false, showPoster: false } );
 			iframeApi.controls.play();
 		} );
 
 		overlay.addEventListener( 'mouseleave', () => {
-			iframeApi.customize?.set( { playPauseAnimation: false, posterImage: true } );
+			iframeApi.customize?.set( { playPauseAnimation: false, showPoster: true } );
 			iframeApi.controls.pause();
 		} );
 	} );

@@ -184,6 +184,7 @@ export default function Player( {
 					duration: previewLoopDuration,
 			  }
 			: undefined,
+		muted: attributes.muted,
 	} );
 
 	useEffect( () => {
