@@ -1,12 +1,19 @@
+/**
+ * External dependencies
+ */
 import { AntiSpamIcon } from '@automattic/jetpack-components';
 import { Button, Spinner } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import { config } from '../';
 import { doBulkAction } from '../data/responses';
 import { STORE_NAME } from '../state';
 import { ACTION_TABS, ACTIONS, RESPONSES_FETCH_LIMIT, TABS } from './constants';
+import { useFeedbackQuery } from './use-feedback-query';
 
 /**
  * Custom temporary handler for check-for-spam action based on grunion_check_for_spam.
@@ -37,11 +44,11 @@ const checkForSpam = ( offset = 0 ) => {
 		} );
 };
 
-const ActionsMenu = ( { currentPage, currentView, selectedResponses, setSelectedResponses } ) => {
+const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } ) => {
 	const [ checkingForSpam, setCheckingForSpam ] = useState( false );
 
 	const { addTabTotals, fetchResponses, removeResponses, setLoading } = useDispatch( STORE_NAME );
-	const query = useSelect( select => select( STORE_NAME ).getResponsesQuery(), [] );
+	const { currentPage, query } = useFeedbackQuery();
 
 	const handleCheckForSpam = useCallback( () => {
 		setCheckingForSpam( true );
