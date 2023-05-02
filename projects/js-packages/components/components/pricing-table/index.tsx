@@ -91,6 +91,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 					placement={ 'bottom-end' }
 					iconSize={ 14 }
 					offset={ 4 }
+					wide={ Boolean( tooltipTitle && tooltipInfo ) }
 				>
 					<Text variant="body-small">{ tooltipInfo || defaultTooltipInfo }</Text>
 				</IconTooltip>
@@ -167,6 +168,7 @@ const PricingTable: React.FC< PricingTableProps > = ( {
 										placement={ 'bottom-end' }
 										iconSize={ 14 }
 										offset={ 4 }
+										wide={ Boolean( item.tooltipTitle && item.tooltipInfo ) }
 									>
 										<Text variant="body-small">{ item.tooltipInfo }</Text>
 									</IconTooltip>
