@@ -17,7 +17,7 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.5.11-alpha';
+	const PACKAGE_VERSION = '0.5.12-alpha';
 
 	/**
 	 * Script handle for the JS file we enqueue in the post editor.

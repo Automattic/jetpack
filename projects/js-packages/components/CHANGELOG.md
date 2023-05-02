@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.32.1 - 2023-05-01
+### Changed
+- Minor internal updates.
+
 ## 0.32.0 - 2023-04-25
 ### Added
 - Add a Toggle component. [#30166]
