@@ -49,20 +49,13 @@ const noop = () => {
 	//
 };
 
-/**
- * Simple function component to wrap `useCopyToClipboard`.
- *
- * @param {object} props - Button properties
- * @param {string} props.text - Text to copy.
- * @returns {Button} Button
- */
-function ClipboardButton( {
+const ClipboardButton: React.FC< React.ComponentProps< typeof Button > > = ( {
 	text,
 	...buttonProps
-}: { text: string } & Omit< React.ComponentProps< typeof Button >, 'text' > ): typeof Button {
+} ) => {
 	const ref = useCopyToClipboard( text, noop );
 	return <Button { ...buttonProps } ref={ ref } />;
-}
+};
 
 const Section = ( { title, data, children = null } ) => (
 	<div className={ styles.section }>
