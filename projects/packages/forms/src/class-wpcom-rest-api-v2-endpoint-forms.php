@@ -161,27 +161,29 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			function ( $response ) {
 				$data = \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::parse_fields_from_content( $response->ID );
 
+				$base_fields = array(
+					'email_marketing_consent' => '',
+					'entry_title'             => '',
+					'entry_permalink'         => '',
+					'feedback_id'             => '',
+				);
+				$all_fields  = array_merge( $base_fields, empty( $data['_feedback_all_fields'] ) ? array() : $data['_feedback_all_fields'] );
 				return array(
 					'id'                      => $response->ID,
-					'uid'                     => $data['all_fields']['feedback_id'],
+					'uid'                     => $all_fields['feedback_id'],
 					'date'                    => get_the_date( 'c', $response ),
 					'author_name'             => $data['_feedback_author'],
 					'author_email'            => $data['_feedback_author_email'],
 					'author_url'              => $data['_feedback_author_url'],
 					'author_avatar'           => empty( $data['_feedback_author_email'] ) ? '' : get_avatar_url( $data['_feedback_author_email'] ),
-					'email_marketing_consent' => $data['all_fields']['email_marketing_consent'],
+					'email_marketing_consent' => $all_fields['email_marketing_consent'],
 					'ip'                      => $data['_feedback_ip'],
-					'entry_title'             => $data['all_fields']['entry_title'],
-					'entry_permalink'         => $data['all_fields']['entry_permalink'],
+					'entry_title'             => $all_fields['entry_title'],
+					'entry_permalink'         => $all_fields['entry_permalink'],
 					'subject'                 => $data['_feedback_subject'],
 					'fields'                  => array_diff_key(
-						$data['all_fields'],
-						array(
-							'email_marketing_consent' => '',
-							'entry_title'             => '',
-							'entry_permalink'         => '',
-							'feedback_id'             => '',
-						)
+						empty( $data['_feedback_all_fields'] ) ? array() : $data['_feedback_all_fields'],
+						$base_fields
 					),
 				);
 			},
@@ -319,9 +321,18 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	 */
 	private function bulk_action_mark_as_spam( $post_ids ) {
 		foreach ( $post_ids as $post_id ) {
-			$post              = get_post( $post_id );
-			$post->post_status = 'spam';
-			$status            = wp_insert_post( $post );
+			$post = get_post( $post_id );
+			if ( $post->post_type !== 'feedback' ) {
+				continue;
+			}
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'spam',
+				),
+				false,
+				false
+			);
 
 			if ( ! $status || is_wp_error( $status ) ) {
 				return $this->error_response(
@@ -353,9 +364,18 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	 */
 	private function bulk_action_mark_as_not_spam( $post_ids ) {
 		foreach ( $post_ids as $post_id ) {
-			$post              = get_post( $post_id );
-			$post->post_status = 'publish';
-			$status            = wp_insert_post( $post );
+			$post = get_post( $post_id );
+			if ( $post->post_type !== 'feedback' ) {
+				continue;
+			}
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'publish',
+				),
+				false,
+				false
+			);
 
 			if ( ! $status || is_wp_error( $status ) ) {
 				return $this->error_response(
