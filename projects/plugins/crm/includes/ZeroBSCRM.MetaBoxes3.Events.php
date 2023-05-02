@@ -132,26 +132,26 @@
 
                 // because we deal with non-model datetime stamps here, we have to process separate to buildObjArr:
 
-                    // default
-                    $eventStart = time(); $eventEnd = time()+3600; 
-                
-                    // process _POST
-                    if (isset($_POST['zbse_start'])) {
+			// jpcrm_datetime_post_keys_to_uts() sanitises POST data
+			$task_start = jpcrm_datetime_post_keys_to_uts( 'jpcrm_start' );
+			$task_end   = jpcrm_datetime_post_keys_to_uts( 'jpcrm_end' );
 
-                        // 2019-05-01 12:00:00
-                        $eventStartStr = sanitize_text_field($_POST['zbse_start']);
-                        $eventStart = zeroBSCRM_locale_dateToUTS($eventStartStr,false,'Y-m-d H:i:s');
-                    }
-                    if (isset($_POST['zbse_end'])) {
+			// if unable to use task start input, set to current time
+			if ( ! $task_start ) {
+				// start +1 hour from now
+				$task_start = time() + 3600;
 
-                        // 2019-05-01 12:00:00
-                        $eventEndStr = sanitize_text_field($_POST['zbse_end']);
-                        $eventEnd = zeroBSCRM_locale_dateToUTS($eventEndStr,false,'Y-m-d H:i:s');
-                    }
+				// round to 15 minutes
+				$task_start -= $task_start % 900;
+			}
 
-                    // override
-                    if ($eventStart > 0) $event['start'] = $eventStart;
-                    if ($eventEnd > 0) $event['end'] = $eventEnd;
+			if ( ! $task_end ) {
+				// if unable to use task end input, set to task start time + 1 hour
+				$task_end = $task_start + 3600;
+			}
+
+			$event['start'] = $task_start;
+			$event['end']   = $task_end;
 
                 // obj links:
                 $event['contacts'] = array(); if (isset($_POST['zbse_customer'])) $event['contacts'][]   = (int)sanitize_text_field($_POST['zbse_customer']);
