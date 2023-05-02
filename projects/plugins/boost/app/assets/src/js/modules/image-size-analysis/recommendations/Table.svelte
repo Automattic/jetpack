@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { imageStore } from '../ApiMock';
+	import { imageStore, imagesAreLoading } from '../ApiMock';
 	import TableRow from './TableRow.svelte';
 </script>
 
-<div class="jb-table">
+<div class="jb-table" class:jb-loading={$imagesAreLoading}>
 	<div class="jb-table-header recommendation-page-grid">
 		<div class="jb-table-header__image">Image</div>
 		<div class="jb-table-header__potential-size">Potential Size</div>
@@ -16,6 +16,10 @@
 </div>
 
 <style lang="scss">
+	.jb-loading {
+		filter: grayscale( 0.5 );
+		opacity: 0.5;
+	}
 	.jb-table-header {
 		font-size: 0.875rem;
 		color: var( --gray-60 );
