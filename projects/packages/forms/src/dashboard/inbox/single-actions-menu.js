@@ -56,7 +56,7 @@ const SingleActionsMenu = ( { id } ) => {
 							iconPosition="left"
 							icon={ inbox }
 						>
-							{ __( 'Remove from spam', 'jetpack-forms' ) }
+							{ __( 'Not spam', 'jetpack-forms' ) }
 						</MenuItem>
 					) }
 
