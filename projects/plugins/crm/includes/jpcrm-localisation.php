@@ -111,10 +111,10 @@ function jpcrm_datetime_str_to_uts( $datetime_str, $format=false ) {
 
 /**
  * Creates a UTS from two POST keys (e.g. 'somefield_datepart' and 'somefield_timepart')
- * 
- * @param string POST key prefix (e.g. 'somefield')
- * @param string DateTime formatting string (e.g. 'Y-m-d H:i')
- * 
+ *
+ * @param string $post_key POST key prefix (e.g. 'somefield').
+ * @param string $format DateTime formatting string (e.g. 'Y-m-d H:i').
+ *
  * @return int $uts
  */
 function jpcrm_datetime_post_keys_to_uts( $post_key, $format=false ) {
@@ -125,7 +125,7 @@ function jpcrm_datetime_post_keys_to_uts( $post_key, $format=false ) {
 
 	// return the UTS if possible
 	if ( !empty( $datepart ) ) {
-		return jpcrm_datetime_str_to_uts( $datepart . ' ' . $timepart );
+		return jpcrm_datetime_str_to_uts( $datepart . ' ' . $timepart, $format );
 	}
 
 	return false;
