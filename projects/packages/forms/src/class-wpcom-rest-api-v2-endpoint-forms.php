@@ -371,7 +371,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			$status = wp_update_post(
 				array(
 					'ID'          => $post_id,
-					'post_status' => 'published',
+					'post_status' => 'publish',
 				),
 				false,
 				false
