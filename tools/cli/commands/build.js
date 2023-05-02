@@ -809,7 +809,7 @@ async function buildProject( t ) {
 		);
 	}
 
-	// Remove engines and workspace refs from package.json.
+	// Remove engines, workspace refs, and jetpack:src from package.json.
 	let packageJson;
 	if ( await fsExists( `${ buildDir }/package.json` ) ) {
 		packageJson = JSON.parse(
@@ -840,6 +840,28 @@ async function buildProject( t ) {
 					}
 				}
 			}
+		}
+
+		if ( packageJson.exports ) {
+			const filterJetpackSrc = obj => {
+				if ( typeof obj !== 'object' ) {
+					return obj;
+				}
+				let ret = { ...obj };
+				delete ret[ 'jetpack:src' ];
+				const keys = Object.keys( ret );
+				if ( keys.length === 0 ) {
+					ret = undefined;
+				} else if ( keys.length === 1 && keys[ 0 ] === 'default' ) {
+					ret = filterJetpackSrc( ret.default );
+				} else {
+					for ( const key of keys ) {
+						ret[ key ] = filterJetpackSrc( ret[ key ] );
+					}
+				}
+				return ret;
+			};
+			packageJson.exports = filterJetpackSrc( packageJson.exports );
 		}
 
 		await writeFileAtomic(
