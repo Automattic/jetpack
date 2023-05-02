@@ -14,9 +14,12 @@ export const getDisplayName = response => {
 };
 
 export const getPath = response => {
-	const url = new URL( response.entry_permalink );
-
-	return url.pathname;
+	try {
+		const url = new URL( response.entry_permalink );
+		return url.pathname;
+	} catch ( error ) {
+		return '';
+	}
 };
 
 export const formatFieldName = fieldName => {
