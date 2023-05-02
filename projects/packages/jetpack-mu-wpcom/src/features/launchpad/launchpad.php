@@ -158,7 +158,7 @@ function register_default_checklists() {
 			'id'                   => 'setup_write',
 			'title'                => __( 'Set up your site', 'jetpack-mu-wpcom' ),
 			'is_complete_callback' => '__return_true',
-			'disabled'             => true,
+			'is_disabled_callback' => '__return_true',
 		)
 	);
 
