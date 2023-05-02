@@ -2589,6 +2589,12 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 	static $log                   = 0;
 	static $protected_directories = '';
 
+	// Don't prune if cache_max_time is set to 0 (no cache expiry).
+	if ( empty( $cache_max_time ) ) {
+		wp_cache_debug( 'prune_super_cache: cache_max_time is 0; skipping.' );
+		return false;
+	}
+
 	$dir       = $directory;
 	$directory = wpsc_get_realpath( $directory );
 	if ( $directory == '' ) {
@@ -2659,11 +2665,6 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 		$oktodelete = true;
 		if ( in_array( $directory, $protected_directories ) ) {
 			wp_cache_debug( "gc: could not delete $directory as it's protected.", 2 );
-			$oktodelete = false;
-		}
-
-		if ( ! $rename && $cache_max_time === 0 ) {
-			wp_cache_debug( "gc: should not delete $directory as cache_max_time is 0.", 2 );
 			$oktodelete = false;
 		}
 

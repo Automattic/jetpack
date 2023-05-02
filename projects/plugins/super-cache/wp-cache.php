@@ -3170,7 +3170,7 @@ function clear_post_supercache( $post_id ) {
 }
 
 function wp_cron_preload_cache() {
-	global $wpdb, $wp_cache_preload_interval, $wp_cache_preload_posts, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $cache_path, $wp_cache_preload_taxonomies;
+	global $wpdb, $wp_cache_preload_interval, $wp_cache_preload_posts, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $cache_path, $wp_cache_preload_taxonomies, $cache_max_time, $file_prefix;
 
 	if ( get_option( 'preload_cache_stop' ) ) {
 		delete_option( 'preload_cache_stop' );
@@ -3201,6 +3201,14 @@ function wp_cron_preload_cache() {
 	$c = $counter[ 'c' ];
 
 	update_option( 'preload_cache_counter', array( 'c' => ( $c + 100 ), 't' => time() ) );
+
+	// Set up the GC timeouts to only affect really old files - either based on the preload interval, or 24 hours
+	// if no interval. Ensures all cache prunes for the rest of this execution won't delete the preloaded data.
+	if ( $wp_cache_preload_interval > 0 ) {
+		$cache_max_time = (int) $wp_cache_preload_interval * 60; // fool the GC into expiring really old files
+	} else {
+		$cache_max_time = 86400; // fool the GC into expiring really old files
+	}
 
 	if ( $wp_cache_preload_email_volume == 'none' && $wp_cache_preload_email_me == 1 ) {
 		$wp_cache_preload_email_me = 0;
@@ -3345,12 +3353,7 @@ function wp_cron_preload_cache() {
 			wp_cache_debug( "wp_cron_preload_cache: no more posts. scheduling next preload in $wp_cache_preload_interval minutes.", 5 );
 			wp_schedule_single_event( time() + ( (int)$wp_cache_preload_interval * 60 ), 'wp_cache_full_preload_hook' );
 		}
-		global $file_prefix, $cache_max_time;
-		if ( $wp_cache_preload_interval > 0 ) {
-			$cache_max_time = (int)$wp_cache_preload_interval * 60; // fool the GC into expiring really old files
-		} else {
-			$cache_max_time = 86400; // fool the GC into expiring really old files
-		}
+
 		if ( $wp_cache_preload_email_me )
 			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Cache Preload Completed', 'wp-super-cache' ), home_url() ), __( "Cleaning up old supercache files.", 'wp-super-cache' ) . "\n" . $msg );
 		if ( $cache_max_time > 0 ) { // GC is NOT disabled
