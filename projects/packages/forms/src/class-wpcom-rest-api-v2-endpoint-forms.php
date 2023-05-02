@@ -118,31 +118,40 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			array( 'post_status' => array( 'draft', 'publish', 'spam', 'trash' ) )
 		);
 
+		$current_query = 'inbox';
+		if ( isset( $request['status'] ) && in_array( $request['status'], array( 'spam', 'trash' ), true ) ) {
+			$current_query = $request['status'];
+		}
+
 		$query = array(
 			'inbox' => new \WP_Query(
 				array_merge(
 					$args,
-					array( 'post_status' => array( 'draft', 'publish' ) )
+					array(
+						'post_status'    => array( 'draft', 'publish' ),
+						'posts_per_page' => $current_query === 'inbox' ? $args['posts_per_page'] : -1,
+					)
 				)
 			),
 			'spam'  => new \WP_Query(
 				array_merge(
 					$args,
-					array( 'post_status' => array( 'spam' ) )
+					array(
+						'post_status'    => array( 'spam' ),
+						'posts_per_page' => $current_query === 'spam' ? $args['posts_per_page'] : -1,
+					)
 				)
 			),
 			'trash' => new \WP_Query(
 				array_merge(
 					$args,
-					array( 'post_status' => array( 'trash' ) )
+					array(
+						'post_status'    => array( 'trash' ),
+						'posts_per_page' => $current_query === 'trash' ? $args['posts_per_page'] : -1,
+					)
 				)
 			),
 		);
-
-		$current_query = 'inbox';
-		if ( isset( $request['status'] ) && in_array( $request['status'], array( 'spam', 'trash' ), true ) ) {
-			$current_query = $request['status'];
-		}
 
 		$source_ids = Contact_Form_Plugin::get_all_parent_post_ids(
 			array_diff_key( $filter_args, array( 'post_parent' => '' ) )

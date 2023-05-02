@@ -7,6 +7,7 @@
 	width: 20px;
 	margin-left: 21px;
 	flex-grow: 0;
+	flex-shrink: 0;
 }
 
 .jp-agencies-card__description,
@@ -40,7 +41,7 @@
 
 	@include dashboard-card-shadow;
 
-	@include breakpoint( "<660px" ) {
+	@include breakpoint( '<782px' ) {
 		.jp-agencies-card__description:first-of-type {
 			margin-bottom: rem( 16px );
 		}
@@ -86,4 +87,11 @@
 	flex-grow: 1;
 	display: flex;
 	align-items: center;
+
+	.jp-agencies-card__content {
+		display: flex;
+		flex-grow: 1;
+		align-items: center;
+		flex-wrap: wrap;
+	}
 }

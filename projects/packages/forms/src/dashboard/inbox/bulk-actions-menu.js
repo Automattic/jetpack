@@ -62,7 +62,7 @@ const ActionsMenu = ( { currentPage, currentView, selectedResponses, setSelected
 			} );
 			await doBulkAction( selectedResponses, action );
 
-			fetchResponses(
+			await fetchResponses(
 				{
 					...query,
 					limit: RESPONSES_FETCH_LIMIT,
@@ -70,8 +70,8 @@ const ActionsMenu = ( { currentPage, currentView, selectedResponses, setSelected
 				},
 				{ append: true }
 			);
-		} finally {
-			// Prevent getting stuck in loading state if doBulkAction fails
+			setLoading( false );
+		} catch ( error ) {
 			setLoading( false );
 		}
 	};

@@ -29,15 +29,28 @@
 
 	.dops-card {
 		box-shadow: none;
-		padding: rem( 24px );
+		padding: rem( 16px ) rem( 24px );
+
+		&::after {
+			display: none;
+		}
 
 		p:last-child {
 			margin-bottom: 0;
 		}
 	}
 
+	.jp-form-settings-group + .dops-card.is-card-link {
+		border-top: 1px solid var( --jp-gray );
+	}
+
+	.dops-card.is-card-link + .jp-form-settings-group {
+		border-top: 1px solid var( --jp-gray );
+	}
+
 	.dops-banner.dops-card.is-card-link {
 		padding: rem(24px);
+		align-items: center;
 
 		&:hover {
 			box-shadow: none;
@@ -75,7 +88,7 @@
 		}
 
 		.dops-foldable-card__content {
-			padding: rem( 24px );
+			padding: rem( 16px ) rem( 24px );
 			border-top: 1px solid var( --jp-gray );
 		}
 
@@ -122,6 +135,8 @@
 	a.dops-card .dops-card__link-indicator {
 		color:  #1E1E1E;
 		width: rem( 18px );
+		flex-shrink: 0;
+		margin-left: auto;
 
 		&:hover {
 			color: var( --jp-black );
