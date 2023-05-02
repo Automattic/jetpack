@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Forms\Service\Post_To_Url;
 
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
@@ -251,16 +252,16 @@ class Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . 'contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
-		add_action( 'enqueue_block_editor_assets', array( $this, 'load_blocks_scripts' ) );
+		add_action( 'enqueue_block_editor_assets', array( $this, 'load_editor_scripts' ) );
+		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_view_script_concat' ), 10, 3 );
 
-		self::enqueue_contact_forms_style_script();
 		self::register_contact_form_blocks();
 	}
 
 	/**
 	 * Loads the Form blocks scripts.
 	 */
-	public static function load_blocks_scripts() {
+	public static function load_editor_scripts() {
 		Assets::register_script(
 			'jp-forms-blocks',
 			'../../dist/blocks/editor.js',
@@ -274,28 +275,34 @@ class Contact_Form_Plugin {
 	}
 
 	/**
-	 * Enqueue scripts responsible for handling contact form styles.
+	 * Enqueue scripts responsible for handling contact form view scripts.
 	 */
-	private static function enqueue_contact_forms_style_script() {
-		add_filter( 'js_do_concat', array( __CLASS__, 'disable_forms_style_script_concat' ), 10, 3 );
+	private static function load_view_scripts() {
+		if ( is_admin() ) {
+			// A block's view assets will not be required in wp-admin.
+			return;
+		}
 
-		wp_enqueue_script(
-			'contact-form-styles',
-			plugins_url( 'js/form-styles.js', __FILE__ ),
-			array(),
-			\JETPACK__VERSION,
-			true
+		Assets::register_script(
+			'jp-forms-view',
+			'../../dist/blocks/view.js',
+			__FILE__,
+			array(
+				'in_footer'  => true,
+				'textdomain' => 'jetpack-forms',
+				'enqueue'    => true,
+			)
 		);
 	}
 
 	/**
-	 * Prevent 'contact-form-styles' script from being concatenated.
+	 * Prevent 'jp-forms-view' script from being concatenated.
 	 *
 	 * @param array  $do_concat - the concatenation flag.
 	 * @param string $handle - script name.
 	 */
-	public static function disable_forms_style_script_concat( $do_concat, $handle ) {
-		if ( 'contact-form-styles' === $handle ) {
+	public static function disable_forms_view_script_concat( $do_concat, $handle ) {
+		if ( 'jp-forms-view' === $handle ) {
 			$do_concat = false;
 		}
 		return $do_concat;
@@ -368,9 +375,21 @@ class Contact_Form_Plugin {
 			)
 		);
 		Blocks::jetpack_register_block(
+			'jetpack/field-option-checkbox',
+			array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option' ),
+			)
+		);
+		Blocks::jetpack_register_block(
 			'jetpack/field-radio',
 			array(
 				'render_callback' => array( __CLASS__, 'gutenblock_render_field_radio' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/field-option-radio',
+			array(
+				'render_callback' => array( __CLASS__, 'gutenblock_render_field_option' ),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -406,6 +425,8 @@ class Contact_Form_Plugin {
 				esc_html__( 'Submit a form.', 'jetpack-forms' )
 			);
 		}
+
+		self::load_view_scripts();
 
 		return Contact_Form::parse( $atts, do_blocks( $content ) );
 	}
@@ -547,6 +568,19 @@ class Contact_Form_Plugin {
 	 */
 	public static function gutenblock_render_field_checkbox_multiple( $atts, $content ) {
 		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'checkbox-multiple' );
+		return Contact_Form::parse_contact_field( $atts, $content );
+	}
+
+	/**
+	 * Render the multiple choice field option.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string HTML for the contact form field.
+	 */
+	public static function gutenblock_render_field_option( $atts, $content ) {
+		$atts = self::block_attributes_to_shortcode_attributes( $atts, 'field-option' );
 		return Contact_Form::parse_contact_field( $atts, $content );
 	}
 
@@ -770,7 +804,7 @@ class Contact_Form_Plugin {
 			// end of copy-pasta from wp-includes/template-loader.php.
 
 			// Ensure 'block_template' attribute is added to any shortcodes in the template.
-			$template = grunion_contact_form_set_block_template_attribute( $template );
+			$template = Util::grunion_contact_form_set_block_template_attribute( $template );
 
 			// Process the block template to populate Grunion_Contact_Form::$last
 			get_the_block_template_html();
@@ -832,6 +866,9 @@ class Contact_Form_Plugin {
 			return $form->errors;
 		}
 
+		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
+			Post_To_Url::init();
+		}
 		// Process the form
 		return $form->process_submission();
 	}
@@ -891,6 +928,10 @@ class Contact_Form_Plugin {
 	public function add_shortcode() {
 		add_shortcode( 'contact-form', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'parse' ) );
 		add_shortcode( 'contact-field', array( '\Automattic\Jetpack\Forms\ContactForm\Contact_Form', 'parse_contact_field' ) );
+
+		// We need 'contact-field-option' to be registered, so it's included to the get_shortcode_regex() method
+		// But we don't need a callback because we're handling contact-field-option manually
+		add_shortcode( 'contact-field-option', '__return_null' );
 	}
 
 	/**
@@ -1665,12 +1706,12 @@ class Contact_Form_Plugin {
 		sort( $field_names, SORT_NUMERIC );
 
 		$well_known_column_names = $this->get_well_known_column_names();
+		$result                  = array();
 
 		/**
 		 * Loop through every post, which is essentially CSV row.
 		 */
 		foreach ( $posts_data as $post_id => $single_post_data ) {
-
 			/**
 			 * Go through all the possible fields and check if the field is available
 			 * in the current post.
@@ -1686,8 +1727,15 @@ class Contact_Form_Plugin {
 				/**
 				 * Remove the numeral prefix -3_, 1_, 2_, etc, only for export results.
 				 * Prefixes can be both positive and negative numeral values, functional to the SORT_NUMERIC above.
+				 * TODO: to return fieldnames based on field label, we need to work both field names and post data:
+				 * unique -> sort -> unique/rename
+				 * $renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
 				 */
-				$renamed_field = preg_replace( '/^(-?\d{1,2}_)/', '', $renamed_field );
+
+				if ( ! isset( $result[ $renamed_field ] ) ) {
+					$result[ $renamed_field ] = array();
+				}
+
 				if (
 					isset( $single_post_data[ $single_field_name ] )
 					&& ! empty( $single_post_data[ $single_field_name ] )
@@ -1740,7 +1788,7 @@ class Contact_Form_Plugin {
 		$args = array(
 			'posts_per_page'   => -1,
 			'post_type'        => 'feedback',
-			'post_status'      => 'publish',
+			'post_status'      => array( 'publish', 'draft' ),
 			'order'            => 'ASC',
 			'fields'           => 'ids',
 			'suppress_filters' => false,
@@ -1750,6 +1798,14 @@ class Contact_Form_Plugin {
 		// Check if we want to download all the feedbacks or just a certain contact form
 		if ( ! empty( $_POST['post'] ) && $_POST['post'] !== 'all' ) {
 			$args['post_parent'] = (int) $_POST['post'];
+		}
+
+		if ( ! empty( $_POST['status'] ) && in_array( $_POST['status'], array( 'spam', 'trash' ), true ) ) {
+			$args['post_status'] = sanitize_text_field( wp_unslash( $_POST['status'] ) );
+		}
+
+		if ( ! empty( $_POST['search'] ) ) {
+			$args['s'] = sanitize_text_field( wp_unslash( $_POST['search'] ) );
 		}
 
 		if ( ! empty( $_POST['year'] ) && intval( $_POST['year'] ) > 0 ) {
@@ -1863,7 +1919,56 @@ class Contact_Form_Plugin {
 		}
 
 		fclose( $output ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+
+		$this->record_tracks_event( 'forms_export_responses', array( 'format' => 'csv' ) );
 		exit();
+	}
+
+	/**
+	 * Send an event to Tracks
+	 *
+	 * @param string $event_name - the name of the event.
+	 * @param array  $event_props - event properties to send.
+	 *
+	 * @return null|void
+	 */
+	public function record_tracks_event( $event_name, $event_props ) {
+		/*
+		 * Event details.
+		 */
+		$event_user = wp_get_current_user();
+
+		/*
+		 * Record event.
+		 * We use different libs on wpcom and Jetpack.
+		 */
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$event_name             = 'wpcom_' . $event_name;
+			$event_props['blog_id'] = get_current_blog_id();
+			// logged out visitor, record event with blog owner.
+			if ( empty( $event_user->ID ) ) {
+				$event_user_id = wpcom_get_blog_owner( $event_props['blog_id'] );
+				$event_user    = get_userdata( $event_user_id );
+			}
+
+			require_lib( 'tracks/client' );
+			tracks_record_event( $event_user, $event_name, $event_props );
+		} else {
+			$user_connected = ( new \Automattic\Jetpack\Connection\Manager( 'jetpack-forms' ) )->is_user_connected( get_current_user_id() );
+			if ( ! $user_connected ) {
+				return;
+			}
+			// logged out visitor, record event with Jetpack master user.
+			if ( empty( $event_user->ID ) ) {
+				$master_user_id = Jetpack_Options::get_option( 'master_user' );
+				if ( ! empty( $master_user_id ) ) {
+					$event_user = get_userdata( $master_user_id );
+				}
+			}
+
+			$tracking = new \Automattic\Jetpack\Tracking();
+			$tracking->record_user_event( $event_name, $event_props, $event_user );
+		}
 	}
 
 	/**
@@ -1891,25 +1996,36 @@ class Contact_Form_Plugin {
 	}
 
 	/**
+	 * Returns an array of parent post IDs for the user.
+	 * The parent posts are those posts where forms have been published.
+	 *
+	 * @param array $query_args A WP_Query compatible array of query args.
+	 *
+	 * @return array The array of post IDs
+	 */
+	public static function get_all_parent_post_ids( $query_args = array() ) {
+		$default_query_args = array(
+			'fields'           => 'id=>parent',
+			'posts_per_page'   => 100000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+			'post_type'        => 'feedback',
+			'post_status'      => 'publish',
+			'suppress_filters' => false,
+		);
+		$args               = array_merge( $default_query_args, $query_args );
+		// Get the feedbacks' parents' post IDs
+		$feedbacks = get_posts( $args );
+		return array_values( array_unique( array_values( $feedbacks ) ) );
+	}
+
+	/**
 	 * Returns a string of HTML <option> items from an array of posts
 	 *
 	 * @param int $selected_id Currently selected post ID.
 	 * @return string a string of HTML <option> items
 	 */
 	protected static function get_feedbacks_as_options( $selected_id = 0 ) {
-		$options = '';
-
-		// Get the feedbacks' parents' post IDs
-		$feedbacks  = get_posts(
-			array(
-				'fields'           => 'id=>parent',
-				'posts_per_page'   => 100000, // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
-				'post_type'        => 'feedback',
-				'post_status'      => 'publish',
-				'suppress_filters' => false,
-			)
-		);
-		$parent_ids = array_unique( array_values( $feedbacks ) );
+		$options    = '';
+		$parent_ids = self::get_all_parent_post_ids();
 
 		// creates the string of <option> elements
 		foreach ( $parent_ids as $parent_id ) {
@@ -1950,6 +2066,7 @@ class Contact_Form_Plugin {
 		}
 
 		$all_fields = array_unique( $all_fields );
+
 		return $all_fields;
 	}
 
@@ -1976,17 +2093,26 @@ class Contact_Form_Plugin {
 		$lines        = array();
 
 		if ( count( $content ) > 1 ) {
-			$content      = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
-			$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
+			$content = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
+			if ( strpos( $content, 'JSON_DATA' ) !== false ) {
+				$chunks     = explode( "\nJSON_DATA", $content );
+				$all_values = json_decode( $chunks[1], true );
+				if ( is_array( $all_values ) ) {
+					$fields_array = array_keys( $all_values );
+				}
+				$lines = array_filter( explode( "\n", $chunks[0] ) );
+			} else {
+				$fields_array = preg_replace( '/.*Array\s\( (.*)\)/msx', '$1', $content );
 
-			// TODO: some explanation on this regex could help
-			preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
+				// TODO: some explanation on this regex could help
+				preg_match_all( '/^\s*\[([^\]]+)\] =\&gt\; (.*)(?=^\s*(\[[^\]]+\] =\&gt\;)|\z)/msU', $fields_array, $matches );
 
-			if ( count( $matches ) > 1 ) {
-				$all_values = array_combine( array_map( 'trim', $matches[1] ), array_map( 'trim', $matches[2] ) );
+				if ( count( $matches ) > 1 ) {
+					$all_values = array_combine( array_map( 'trim', $matches[1] ), array_map( 'trim', $matches[2] ) );
+				}
+
+				$lines = array_filter( explode( "\n", $content ) );
 			}
-
-			$lines = array_filter( explode( "\n", $content ) );
 		}
 
 		$var_map = array(
@@ -2009,6 +2135,7 @@ class Contact_Form_Plugin {
 		}
 
 		$fields['_feedback_all_fields'] = $all_values;
+		$fields['all_fields']           = $all_values;
 
 		$post_fields[ $post_id ] = $fields;
 

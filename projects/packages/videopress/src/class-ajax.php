@@ -142,7 +142,7 @@ class AJAX {
 				break;
 			case VIDEOPRESS_PRIVACY::SITE_DEFAULT:
 			default:
-				$is_videopress_private_for_site = get_option( 'videopress_private_enabled_for_site', false );
+				$is_videopress_private_for_site = Data::get_videopress_videos_private_for_site();
 				$is_user_authed                 = false === $is_videopress_private_for_site || ( $is_videopress_private_for_site && current_user_can( 'read' ) );
 				break;
 		}

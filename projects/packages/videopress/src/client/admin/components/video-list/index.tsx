@@ -11,7 +11,7 @@ import { useState } from 'react';
  * Internal dependencies
  */
 import {
-	ERROR_MIME_TYPE_NOT_SUPPORTED,
+	LOCAL_VIDEO_ERROR_MIME_TYPE_NOT_SUPPORTED,
 	VIDEO_PRIVACY_LEVELS,
 	VIDEO_PRIVACY_LEVEL_PRIVATE,
 } from '../../../state/constants';
@@ -162,7 +162,7 @@ export const LocalVideoList = ( {
 				<Tooltip
 					position="top center"
 					text={
-						video?.readError === ERROR_MIME_TYPE_NOT_SUPPORTED
+						video?.readError === LOCAL_VIDEO_ERROR_MIME_TYPE_NOT_SUPPORTED
 							? errorMessageMimeType
 							: errorMessageReadError
 					}

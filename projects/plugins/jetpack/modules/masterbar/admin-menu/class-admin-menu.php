@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Dashboard_Customizations;
 
+use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/class-base-admin-menu.php';
@@ -37,7 +38,6 @@ class Admin_Menu extends Base_Admin_Menu {
 		$this->add_tools_menu();
 		$this->add_options_menu();
 		$this->add_jetpack_menu();
-		$this->add_gutenberg_menus();
 
 		// Remove Links Manager menu since its usage is discouraged. https://github.com/Automattic/wp-calypso/issues/51188.
 		// @see https://core.trac.wordpress.org/ticket/21307#comment:73.
@@ -405,9 +405,7 @@ class Admin_Menu extends Base_Admin_Menu {
 	public function add_jetpack_menu() {
 		$this->add_admin_menu_separator( 50, 'manage_options' );
 
-		// TODO: Replace with proper SVG data url.
-		$icon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 40 40' %3E%3Cpath fill='%23a0a5aa' d='M20 0c11.046 0 20 8.954 20 20s-8.954 20-20 20S0 31.046 0 20 8.954 0 20 0zm11 17H21v19l10-19zM19 4L9 23h10V4z'/%3E%3C/svg%3E";
-
+		$icon            = ( new Logo() )->get_base64_logo();
 		$is_menu_updated = $this->update_menu( 'jetpack', null, null, null, $icon, 51 );
 		if ( ! $is_menu_updated ) {
 			add_menu_page( esc_attr__( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'manage_options', 'jetpack', null, $icon, 51 );
@@ -425,26 +423,6 @@ class Admin_Menu extends Base_Admin_Menu {
 			// Remove the submenu auto-created by Core just to be sure that there no issues on non-admin roles.
 			remove_submenu_page( 'jetpack', 'jetpack' );
 		}
-	}
-
-	/**
-	 * Update Site Editor menu item's link and position.
-	 */
-	public function add_gutenberg_menus() {
-		if ( self::CLASSIC_VIEW === $this->get_preferred_view( 'site-editor.php' ) ) {
-			return;
-		}
-
-		$this->update_menu( 'gutenberg-edit-site', 'https://wordpress.com/site-editor/' . $this->domain, null, null, null, 59 );
-
-		// Gutenberg 11.9 moves the Site Editor to an Appearance submenu as Editor.
-		$submenus_to_update = array(
-			// Keep the old rule in order to Calypsoify the route for GB < 13.7.
-			'gutenberg-edit-site' => 'https://wordpress.com/site-editor/' . $this->domain,
-			// New route: Gutenberg 13.7 changes the site editor menu item slug and url.
-			'site-editor.php'     => 'https://wordpress.com/site-editor/' . $this->domain,
-		);
-		$this->update_submenus( 'themes.php', $submenus_to_update );
 	}
 
 	/**

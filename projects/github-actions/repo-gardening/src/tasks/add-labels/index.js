@@ -68,6 +68,11 @@ function cleanName( name ) {
 		name = 'Defer JS';
 	}
 
+	// [Plugin] mu wpcom plugin is a bit too long.
+	if ( name === 'mu-wpcom-plugin' ) {
+		name = 'mu-wpcom';
+	}
+
 	return (
 		name
 			// Break up words
@@ -134,15 +139,10 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		}
 
 		// Modules.
-		const module = file.match(
-			/^projects\/plugins\/jetpack\/?(?<test>tests\/php\/)?modules\/(?<module>[^/]*)\//
-		);
+		const module = file.match( /^projects\/plugins\/jetpack\/modules\/(?<module>[^/]*)\// );
 		const moduleName = module && module.groups.module;
 		if ( moduleName ) {
 			keywords.add( `${ cleanName( moduleName ) }` );
-		}
-		if ( module && module.groups.test ) {
-			keywords.add( 'Unit Tests' );
 		}
 
 		// Actions.
@@ -162,7 +162,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			keywords.add( '[Tools] Development CLI' );
 		}
 
-		const docs = file.match( /^docs\// );
+		const docs = file.match( /^docs\/|\.md$/ ) && ! file.match( /\/CHANGELOG\.md$/ );
 		if ( docs !== null ) {
 			keywords.add( 'Docs' );
 		}
@@ -182,7 +182,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 
 		// React Dashboard and Boost Admin.
 		const reactAdmin = file.match(
-			/^(projects\/plugins\/boost\/app\/admin|projects\/plugins\/jetpack\/_inc\/client)\//
+			/^(projects\/plugins\/(crm|boost\/app)\/admin|projects\/plugins\/jetpack\/_inc\/client)\//
 		);
 		if ( reactAdmin !== null ) {
 			keywords.add( 'Admin Page' );
@@ -202,9 +202,21 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			keywords.add( 'WPCOM API' );
 		}
 
+		// CRM elements.
+		const crmModules = file.match( /^projects\/plugins\/crm\/modules\/(?<crmModule>[^/]*)\// );
+		const crmModuleName = crmModules && crmModules.groups.crmModule;
+		if ( crmModuleName ) {
+			keywords.add( `[CRM] ${ cleanName( crmModuleName ) } Module` );
+		}
+
+		const crmApi = file.match( /^projects\/plugins\/crm\/api\// );
+		if ( crmApi !== null ) {
+			keywords.add( '[CRM] API' );
+		}
+
 		// Boost Critical CSS.
 		const boostModules = file.match(
-			/^projects\/plugins\/boost\/app\/features\/(?<boostModule>[^/]*)\//
+			/^projects\/plugins\/boost\/app\/(?:modules|features)\/(?<boostModule>[^/]*)\//
 		);
 		const boostModuleName = boostModules && boostModules.groups.boostModule;
 		if ( boostModuleName ) {
@@ -216,7 +228,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			/^(projects\/plugins\/boost\/compatibility|projects\/plugins\/jetpack\/3rd-party)\//
 		);
 		if ( compat ) {
-			keywords.add( 'Compatibility' );
+			keywords.add( '[Focus] Compatibility' );
 		}
 
 		// E2E tests.
@@ -225,16 +237,24 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			keywords.add( 'E2E Tests' );
 		}
 
-		const anyTestFile = file.match( /\/tests\// );
+		// Tests.
+		const anyTestFile = file.match( /\/tests?\// );
 		if ( anyTestFile ) {
-			keywords.add( '[Status] Needs Test Review' );
-		}
-
-		// Add '[Status] In Progress' for draft PRs
-		if ( isDraft ) {
-			keywords.add( '[Status] In Progress' );
+			keywords.add( '[Tests] Includes Tests' );
 		}
 	} );
+
+	// The Image CDN was previously named "Photon".
+	// If we're touching that package, let's add the Photon label too
+	// so we can keep track of changes to the feature.
+	if ( keywords.has( '[Package] Image Cdn' ) ) {
+		keywords.add( 'Photon' );
+	}
+
+	// Add '[Status] In Progress' for draft PRs
+	if ( isDraft ) {
+		keywords.add( '[Status] In Progress' );
+	}
 
 	return [ ...keywords ];
 }

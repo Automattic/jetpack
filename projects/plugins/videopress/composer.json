@@ -18,7 +18,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.1"
+		"automattic/wordbless": "0.4.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -45,6 +45,9 @@
 		"mirror-repo": "Automattic/jetpack-videopress-plugin",
 		"autorelease": true,
 		"autotagger": true,
+		"changelogger": {
+			"versioning": "wordpress"
+		},
 		"release-branch-prefix": "videopress",
 		"beta-plugin-slug": "jetpack-videopress",
 		"wp-plugin-slug": "jetpack-videopress",
@@ -56,6 +59,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_videopressⓥ1_4_1_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_videopressⓥ1_6_alpha"
 	}
 }

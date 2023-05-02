@@ -10,6 +10,37 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 wp_add_inline_script( 'your-app-script-handle-in-editor', Connection_Initial_State::render(), 'before' );
 ```
 
+Adding Tracks related class and including the check function in your admin ui page:
+```php
+use Automattic\Jetpack\Status as Status;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
+
+/**
+ * Returns whether we are in condition to track to use
+ * Analytics functionality like Tracks, MC, or GA.
+ */
+public static function can_use_analytics() {
+	$status     = new Status();
+	$connection = new Connection_Manager();
+	$tracking   = new Tracking( 'jetpack', $connection );
+
+	return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
+}
+```
+
+Then adding the assets in the `enqueue_admin_scripts` function after the `Assets::register_script` function:
+```php
+public function enqueue_admin_scripts() {
+	...
+	// Required for Analytics.
+	if ( self::can_use_analytics() ) {
+		Tracking::register_tracks_functions_scripts( true );
+	}
+	...
+}
+```
+
 ## Usage
 
 ```es6
@@ -23,7 +54,7 @@ tracks.recordEvent( 'jetpack_editor_block_upgrade_click', {
 ```
 
 The hook function also accepts parameters to record a "page view" event when the component renders.
-You can also import a wrapped version of `recordEvent` that checks for a Jetpack connected user before actually recording the event.  
+You can also import a wrapped version of `recordEvent` that checks for a Jetpack connected user before actually recording the event.
 
 ```es6
 const Component = () => {
@@ -33,7 +64,7 @@ const Component = () => {
 			pageViewSuffix: '',
 		} );
 	const recordClick = useCallback( () => { recordEvent( 'event_name', {} ) }, [] );
-	
+
 	return (
 		<Button
 			onClick={ recordClick }

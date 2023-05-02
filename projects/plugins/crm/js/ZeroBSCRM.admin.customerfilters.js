@@ -109,7 +109,7 @@ function zbscrmJS_customfilters_bindAjaxButton( formSelector, buttonSelector, cb
 							jQuery( formSelector + ' .zbs-crm-customerfilter-ajax-output' ).html(
 								'<i class="fa fa-users"></i> <strong>' +
 									response.count +
-									'</strong> Customers Found'
+									'</strong> Contacts Found'
 							);
 
 							// callback
@@ -118,7 +118,7 @@ function zbscrmJS_customfilters_bindAjaxButton( formSelector, buttonSelector, cb
 							}
 						} else {
 							jQuery( formSelector + ' .zbs-crm-customerfilter-ajax-output' ).html(
-								'<i class="fa fa-user-times"></i> No customers found matching these filters'
+								'<i class="fa fa-user-times"></i> No contacts found matching these filters'
 							);
 						}
 					},
@@ -139,7 +139,7 @@ function zbscrmJS_customfilters_bindAjaxButton( formSelector, buttonSelector, cb
 
 							// UI
 							jQuery( formSelector + ' .zbs-crm-customerfilter-ajax-output' ).html(
-								'<i class="fa fa-user-times"></i> Error Retrieving Customers'
+								'<i class="fa fa-user-times"></i> Error Retrieving Contacts'
 							);
 						} else {
 							// hasn't been able to retrieve, this is a sign of caching of big db.
@@ -157,7 +157,7 @@ function zbscrmJS_customfilters_bindAjaxButton( formSelector, buttonSelector, cb
 
 							// UI
 							jQuery( formSelector + ' .zbs-crm-customerfilter-ajax-output' ).html(
-								'<i class="fa fa-tachometer"></i> It\'s taking some time to retrieve your customers.<br />If you have a large database of customers, this initial query can take some time.<br /><strong>Please try again in a few minutes</strong>, (after your customers are cached, this\'ll be fast!)'
+								'<i class="fa fa-tachometer"></i> It\'s taking some time to retrieve your contacts.<br />If you have a large database of contacts, this initial query can take some time.<br /><strong>Please try again in a few minutes</strong>, (after your contacts are cached, this\'ll be fast!)'
 							);
 						}
 					},

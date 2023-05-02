@@ -13,9 +13,21 @@ namespace Automattic\Jetpack\Import\Endpoints;
 class Comment extends \WP_REST_Comments_Controller {
 
 	/**
-	 * The Import ID add a new item to the schema.
+	 * Base class
 	 */
 	use Import;
+
+	/**
+	 * The Import ID add a new item to the schema.
+	 */
+	use Import_ID;
+
+	/**
+	 * Whether the controller supports batching.
+	 *
+	 * @var array
+	 */
+	protected $allow_batch = array( 'v1' => true );
 
 	/**
 	 * Constructor.
@@ -24,20 +36,7 @@ class Comment extends \WP_REST_Comments_Controller {
 		parent::__construct();
 
 		// @see add_comment_meta
-		$this->import_id_meta_type = $this->rest_base;
-	}
-
-	/**
-	 * Registers the routes for the objects of the controller.
-	 *
-	 * @see WP_REST_Comments_Controller::register_rest_route()
-	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			$this->rest_base,
-			$this->get_route_options()
-		);
+		$this->import_id_meta_type = 'comment';
 	}
 
 	/**
@@ -47,32 +46,59 @@ class Comment extends \WP_REST_Comments_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or error object on failure.
 	 */
 	public function create_item( $request ) {
-		$response = parent::create_item( $request );
+		// Resolve comment post ID.
+		if ( ! empty( $request['post'] ) ) {
+			$posts = \get_posts( $this->get_import_db_query( $request['post'] ) );
 
-		return $this->add_import_id_metadata( $request, $response );
-	}
-
-	/**
-	 * Update the comment parent ID.
-	 *
-	 * @param int $resource_id      The resource ID.
-	 * @param int $parent_import_id The parent ID.
-	 * @return bool True if updated.
-	 */
-	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$comments = \get_comments( $this->get_import_db_query( $parent_import_id ) );
-
-		if ( is_array( $comments ) && count( $comments ) === 1 ) {
-			$parent_id = $comments[0];
-
-			return (bool) \wp_update_comment(
-				array(
-					'comment_ID'     => $resource_id,
-					'comment_parent' => $parent_id,
-				)
-			);
+			// Overwrite the comment parent post ID.
+			$request['post'] = is_array( $posts ) && count( $posts ) ? $posts[0] : 0;
 		}
 
-		return false;
+		// Resolve comment parent ID.
+		if ( ! empty( $request['parent'] ) ) {
+			$comments = \get_comments( $this->get_import_db_query( $request['parent'] ) );
+
+			// Overwrite the comment parent post ID.
+			$request['parent'] = is_array( $comments ) && count( $comments ) ? $comments[0] : 0;
+		}
+
+		$duplicated_id = null;
+
+		/**
+		 * Core comment creation function doesn't return the duplicated comment ID.
+		 * Add a filter to get the ID.
+		 *
+		 * phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		 */
+		$get_id_func = function ( $dupe_id, $commentdata ) use ( &$duplicated_id ) {
+			if ( $dupe_id !== null ) {
+				$duplicated_id = $dupe_id;
+			}
+
+			return $dupe_id;
+		};
+
+		// Add the filter.
+		\add_filter( 'duplicate_comment_id', $get_id_func, 10, 2 );
+
+		$response = parent::create_item( $request );
+
+		// Check if the comment is duplicated.
+		if (
+			$duplicated_id !== null &&
+			is_wp_error( $response ) &&
+			$response->get_error_code() === 'comment_duplicate' ) {
+			$data = $response->get_error_data( 'comment_duplicate' );
+
+			// Add the comment ID.
+			$data['comment_id'] = $duplicated_id;
+
+			$response->add_data( $data );
+		}
+
+		// Remove the filter.
+		\remove_filter( 'duplicate_comment_id', $get_id_func );
+
+		return $this->add_import_id_metadata( $request, $response );
 	}
 }

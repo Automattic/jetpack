@@ -23,8 +23,6 @@ class Jetpack_Starter_Plugin_Test extends BaseTestCase {
 
 	/**
 	 * Initialize tests
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->starter = new Jetpack_Starter_Plugin();
@@ -32,8 +30,6 @@ class Jetpack_Starter_Plugin_Test extends BaseTestCase {
 
 	/**
 	 * Returning the environment into its initial state.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();

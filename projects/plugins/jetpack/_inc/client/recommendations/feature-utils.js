@@ -1,6 +1,7 @@
+import formatCurrency from '@automattic/format-currency';
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { sprintf, __ } from '@wordpress/i18n';
 import {
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_VIDEOPRESS,
@@ -16,6 +17,11 @@ import {
 import { updateSettings } from 'state/settings';
 import { fetchPluginsData } from 'state/site/plugins';
 import { isFeatureActive } from '../state/recommendations';
+import {
+	getSiteProduct,
+	getSiteProductMonthlyCost,
+	isFetchingSiteProducts,
+} from '../state/site-products';
 
 export const mapStateToSummaryFeatureProps = ( state, featureSlug ) => {
 	switch ( featureSlug ) {
@@ -115,6 +121,11 @@ export const getSummaryResourceProps = ( state, resourceSlug ) => {
 				ctaLabel: __( 'Add', 'jetpack' ),
 				ctaLink: getJetpackCloudUrl( state, 'settings' ),
 			};
+		case 'vaultpress-backup':
+		case 'vaultpress-for-woocommerce':
+			return {
+				displayName: __( 'VaultPress Backup', 'jetpack' ),
+			};
 		default:
 			throw `Unknown resource slug in getSummaryResourceProps() recommendations/feature-utils.js: ${ resourceSlug }`;
 	}
@@ -154,7 +165,7 @@ export const getSummaryPrimaryProps = ( state, primarySlug ) => {
 			return {
 				displayName: __( 'Custom Site Search', 'jetpack' ),
 				ctaLabel: __( 'Customize', 'jetpack' ),
-				ctaLink: getJetpackCloudUrl( state, 'jetpack-search' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-search-configure',
 			};
 	}
 };
@@ -281,7 +292,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'creative-mail':
 			return {
-				progressValue: '86',
+				progressValue: '76',
 				question: __( 'Would you like to turn site visitors into subscribers?', 'jetpack' ),
 				description: __(
 					'The Jetpack Newsletter Form combined with Creative Mail by Constant Contact can help automatically gather subscribers and send them beautiful emails. <ExternalLink>Learn more</ExternalLink>',
@@ -294,7 +305,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'monitor':
 			return {
-				progressValue: '57',
+				progressValue: '52',
 				question: __(
 					'Would you like Downtime Monitoring to notify you if your site goes offline?',
 					'jetpack'
@@ -309,7 +320,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'related-posts':
 			return {
-				progressValue: '71',
+				progressValue: '64',
 				question: __(
 					'Would you like Related Posts to display at the bottom of your content?',
 					'jetpack'
@@ -324,7 +335,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'site-accelerator':
 			return {
-				progressValue: '99',
+				progressValue: '88',
 				question: __( 'Would you like your site to load faster?', 'jetpack' ),
 				description: __(
 					'Faster sites get better ranking in search engines and help keep visitors on your site longer. Jetpack will automatically optimize and load your images and files from our global Content Delivery Network (CDN). <ExternalLink>Learn more</ExternalLink>',
@@ -383,7 +394,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'woocommerce':
 			return {
-				progressValue: '43',
+				progressValue: '40',
 				question: __( 'Would you like WooCommerce to power your store?', 'jetpack' ),
 				description: __(
 					'We’re partnered with <strong>WooCommerce</strong> — a customizable, open-source eCommerce platform built for WordPress. It’s everything you need to start selling products today. <ExternalLink>Learn more</ExternalLink>',
@@ -460,7 +471,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'Customize Search', 'jetpack' ),
-				ctaLink: getJetpackCloudUrl( state, 'jetpack-search' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-search-configure',
 				illustration: 'assistant-search',
 				skipText: __( 'Next', 'jetpack' ),
 			};
@@ -475,6 +486,21 @@ export const getStepContent = ( state, stepSlug ) => {
 				ctaLink: getJetpackCloudUrl( state, 'scan' ),
 				illustration: 'assistant-backup-welcome',
 				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'welcome__golden_token':
+			return {
+				question: __( 'Congratulations, you have been gifted a Jetpack Golden Token!', 'jetpack' ),
+				description: __(
+					'Congratulations, your Jetpack Golden Token provides a lifetime license for this website and includes the following products:',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Jetpack VaultPress Backup', 'jetpack' ),
+					__( 'Jetpack Scan', 'jetpack' ),
+				],
+				ctaText: __( 'Setup your new powers', 'jetpack' ),
+				hasNoAction: true,
+				illustration: 'assistant-golden-token-welcome',
 			};
 		case 'backup-activated':
 			return {
@@ -532,7 +558,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'jetpack'
 				),
 				ctaText: __( 'Customize Search', 'jetpack' ),
-				ctaLink: getJetpackCloudUrl( state, 'jetpack-search' ),
+				ctaLink: getSiteAdminUrl( state ) + 'admin.php?page=jetpack-search-configure',
 				illustration: 'assistant-search',
 				skipText: __( 'Next', 'jetpack' ),
 			};
@@ -547,6 +573,90 @@ export const getStepContent = ( state, stepSlug ) => {
 				ctaLink: getJetpackCloudUrl( state, 'settings' ),
 				illustration: 'assistant-server-credentials',
 			};
+		case 'vaultpress-backup': {
+			const siteRawUrl = getSiteRawUrl( state );
+			const monthlyPrice = getSiteProductMonthlyCost( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
+			const product = getSiteProduct( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
+			const price = formatCurrency( monthlyPrice, product?.currency_code );
+			const ctaText = isFetchingSiteProducts( state )
+				? __( 'Try for 30 days', 'jetpack' )
+				: sprintf(
+						/* translators: %s: is a formatted currency. e.g. $1 */
+						__( 'Try for %s for 30 days', 'jetpack' ),
+						price
+				  );
+
+			return {
+				progressValue: 100,
+				question: __(
+					'Never lose your site, even if your host goes down (along with your backups)',
+					'jetpack'
+				),
+				description: '',
+				descriptionList: [
+					__(
+						'VaultPress Backup is built specifically for WordPress and has done over 270 million backups to date.',
+						'jetpack'
+					),
+					__(
+						'We store copies of your backups in our secure cloud, so your content will never be lost.',
+						'jetpack'
+					),
+					__(
+						'If your site goes down, you can restore it with one click from desktop or the Jetpack mobile app.',
+						'jetpack'
+					),
+					__( 'VaultPress Backup is so easy to use; no developer required.', 'jetpack' ),
+				],
+				ctaText: ctaText,
+				ctaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: PLAN_JETPACK_BACKUP_T1_YEARLY,
+				} ),
+				illustration: 'assistant-backup-welcome',
+			};
+		}
+		case 'vaultpress-for-woocommerce': {
+			const siteRawUrl = getSiteRawUrl( state );
+			const monthlyPrice = getSiteProductMonthlyCost( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
+			const product = getSiteProduct( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
+			const price = formatCurrency( monthlyPrice, product?.currency_code );
+			const ctaText = isFetchingSiteProducts( state )
+				? __( 'Try for 30 days', 'jetpack' )
+				: sprintf(
+						/* translators: %s: is a formatted currency. e.g. $1 */
+						__( 'Try for %s for 30 days', 'jetpack' ),
+						price
+				  );
+
+			return {
+				progressValue: 100,
+				question: __(
+					'Store downtime means lost sales. Do you have a cloud-based store backup solution?',
+					'jetpack'
+				),
+				description: __(
+					'VaultPress Backup saves your store in the cloud, so even if your host goes down, you’ll never lose a thing.',
+					'jetpack'
+				),
+				descriptionList: [
+					__(
+						'Restore your site to any past state in one click while keeping all orders and products current.',
+						'jetpack'
+					),
+					__( 'Backups are encrypted, keeping your store data secure.', 'jetpack' ),
+					__( 'Protect your customer data and stay GDPR compliant.', 'jetpack' ),
+					__( 'Custom WooCommerce table backups.', 'jetpack' ),
+					__( 'Easy to use; no developer required.', 'jetpack' ),
+				],
+				ctaText: ctaText,
+				ctaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
+					site: siteRawUrl,
+					path: PLAN_JETPACK_BACKUP_T1_YEARLY,
+				} ),
+				illustration: 'assistant-backup-welcome',
+			};
+		}
 		default:
 			throw `Unknown step slug in recommendations/question: ${ stepSlug }`;
 	}

@@ -2,13 +2,17 @@
 
 Utilities for working with IP addresses.
 
-## How to install IP
+## Usage
 
-### Installation From Git Repo
+```php
+use Automattic\Jetpack\IP\Utils;
 
-## Contribute
+echo "Your IP address is: " . Utils::get_ip();
+```
 
-## Get Help
+## Using this package in your WordPress plugin
+
+If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.
 
 ## Security
 

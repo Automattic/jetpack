@@ -20,7 +20,7 @@ class Main {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.7.0';
 
 	/**
 	 * A list of all the routes.
@@ -50,7 +50,7 @@ class Main {
 		/**
 		 * Runs right after the Jetpack Import package is initialized.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		*/
 		do_action( 'jetpack_import_initialized' );
 	}
@@ -65,17 +65,28 @@ class Main {
 		Rest_Authentication::init();
 
 		$routes = array(
-			'categories' => new Endpoints\Category(),
-			'comments'   => new Endpoints\Comment(),
-			'pages'      => new Endpoints\Page(),
-			'posts'      => new Endpoints\Post(),
-			'tags'       => new Endpoints\Tag(),
+			'blocks'         => new Endpoints\Block(),
+			'categories'     => new Endpoints\Category(),
+			'comments'       => new Endpoints\Comment(),
+			'custom-css'     => new Endpoints\Custom_CSS(),
+			'end'            => new Endpoints\End(),
+			'global-styles'  => new Endpoints\Global_Style(),
+			'media'          => new Endpoints\Attachment(),
+			'menu-items'     => new Endpoints\Menu_Item(),
+			'menus'          => new Endpoints\Menu(),
+			'navigation'     => new Endpoints\Navigation(),
+			'pages'          => new Endpoints\Page(),
+			'posts'          => new Endpoints\Post(),
+			'start'          => new Endpoints\Start(),
+			'tags'           => new Endpoints\Tag(),
+			'template-parts' => new Endpoints\Template_Part(),
+			'templates'      => new Endpoints\Template(),
 		);
 
 		/**
 		 * Allow other plugins to modify import routes.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.1.0
 		 *
 		 * @param array $routes Array of import routes.
 		 */

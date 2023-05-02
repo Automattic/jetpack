@@ -1,8 +1,8 @@
 === Jetpack CRM - Clients, Leads, Invoices, Billing, Email Marketing, & Automation ===
 Contributors: automattic, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
-Tested up to: 6.1
-Stable tag: 5.5.3
+Tested up to: 6.2
+Stable tag: 5.7.0
 Requires at least: 5.0
 Requires PHP: 7.2
 License: GPLv2
@@ -48,9 +48,9 @@ The CRM for small businesses. Manage leads, invoicing, billing, email marketing,
 
 <ul>
     <li>An invoice plugin for WordPress. (It's also an invoice plugin for WooCommerce.)</i>
-    <li>A client manager for WordPress. With a Client Portal for customers to view quotes, invoices, transactions, and files.</i>
+    <li>A client manager for WordPress. With a Client Portal for contacts to view quotes, invoices, transactions, and files.</i>
     <li>A lead generation tool for WordPress.</i>
-    <li>A plugin to make quotes and customer proposals right in WordPress.</i>
+    <li>A plugin to make quotes and contact proposals right in WordPress.</i>
     <li>A billing System for WordPress. Jetpack CRM can be connected to Stripe and PayPal via extensions and work as a payment gateway.</i>
     <li>A plugin to manage your business transactions and payments in WordPress.</i>
     <i>You can use it as a CRM for WooCommerce, tracking orders and automatically syncing payment transactions.</i>
@@ -63,13 +63,13 @@ From reading this to understanding Jetpack CRM will probably take you 10 minutes
 The Jetpack CRM plugin installs in seconds, (with a super-quick welcome wizard to get you started). Adding a contact is straightforward. Creating a quote, or invoice, even simpler. Give it a go, you'll see!
 
 <blockquote>
-= ⭐ Mastering Jetpack CRM = 
+= ⭐ Mastering Jetpack CRM =
 1. Install this WordPress CRM plugin
 2. Step through the guided Welcome Wizard
 3. Add your first contact (lead or customer)
 </blockquote>
 
-Easy CRM's get used. Easy CRM's make your customer data work for you. We aim to make this easy, so you can get on with running your business.
+Easy CRM's get used. Easy CRM's make your contact data work for you. We aim to make this easy, so you can get on with running your business.
 
 Need a helping hand? No worries. Just <a href="https://kb.jetpackcrm.com/submit-a-ticket">ask here</a>.
 
@@ -77,12 +77,12 @@ Need a helping hand? No worries. Just <a href="https://kb.jetpackcrm.com/submit-
 
 ## 💸 Manage your business effectively
 
-<p>Keep your business information in order. Make proposals and send them to your customers as quotes. Make and send invoices to your clients and get paid through the client portal.</p>
+<p>Keep your business information in order. Make proposals and send them to your contacts as quotes. Make and send invoices to your clients and get paid through the client portal.</p>
 
 <p>Our billing system will allow you to track transactions and payments that your clients make for your products and services, (simple, effective accounting).</p>
 
 
- 
+
 <blockquote>
 = Free, but supported =
 <p>Did we already tell you Jetpack CRM is free? Well it is.</p>
@@ -130,7 +130,7 @@ Need a helping hand? No worries. Just <a href="https://kb.jetpackcrm.com/submit-
 <li><a href="https://jetpackcrm.com/product/twilio/">Twilio (for SMS Sending)</a></li>
 <li><a href="https://jetpackcrm.com/extensions/">Plus many more...</a></li>
 </ul>
-</blockquote> 
+</blockquote>
 
 
 ## 🥼 Try Jetpack CRM Today!
@@ -145,8 +145,8 @@ We've added so much value to our new v4.0 that it's hard to give you a list of a
     * **[Contact Management](https://jetpackcrm.com/feature/contacts/)**: Add and manage Leads, Customers, or other Contacts
     * **[Quote Builder](https://jetpackcrm.com/feature/quotes/)**: Write & Deliver stunning online proposals to clients
     * **[Invoice Builder](https://jetpackcrm.com/feature/invoices/)**: Easily and quickly bill clients and get paid with online billing
-    * **[Transaction Manager](https://jetpackcrm.com/feature/transactions/)**: Log payments and refunds against customers
-    * **[Client Portal](https://jetpackcrm.com/feature/client-portal/)**: Allow customers to view proposals, invoices, and files on your website
+    * **[Transaction Manager](https://jetpackcrm.com/feature/transactions/)**: Log payments and refunds against contacts
+    * **[Client Portal](https://jetpackcrm.com/feature/client-portal/)**: Allow contacts to view proposals, invoices, and files on your website
     * **[Front-end Forms](https://jetpackcrm.com/feature/forms/)**: Collect leads from your posts, pages, or widgets, straight into your CRM
     * **[Task Scheduler](https://jetpackcrm.com/feature/tasks/)**: Schedule and manage a calendar against contacts and companies
     * **[Segments](https://jetpackcrm.com/feature/segments/)**: Create dynamic segments which allow you to group contacts based on data in your CRM
@@ -172,7 +172,7 @@ We've added so much value to our new v4.0 that it's hard to give you a list of a
 
 * 🚀 **Modern. Lean. Accessible**
     * [Mobile Ready](https://jetpackcrm.com/feature/mobile-ready/)
-    * [International - Languages & Currencies](https://jetpackcrm.com/feature/multi-language-your-currency/): Translation ready    
+    * [International - Languages & Currencies](https://jetpackcrm.com/feature/multi-language-your-currency/): Translation ready
     * [DIY CRM](https://jetpackcrm.com/feature/diy-crm/)
     * 🇪🇺 Make sure you are GDPR compliant by knowing where your data is stored!
 
@@ -201,24 +201,24 @@ We've added so much value to our new v4.0 that it's hard to give you a list of a
 * 🛡️ **Backed by Automattic**
     * Jetpack CRM is part of the Automattic family
     * Superb as a WooCommerce CRM
-    * Consistent development and improvements 
+    * Consistent development and improvements
 
 * 🏷️ **[White-Label CRM](https://jetpackcrm.com/reseller/)**
-    * [Rebranding Engine](https://jetpackcrm.com/feature/rebrandr/): Brand your CRM with your company name or a customers (and logo!)
+    * [Rebranding Engine](https://jetpackcrm.com/feature/rebrandr/): Brand your CRM with your company name or a contacts (and logo!)
     * [WordPress Override mode](https://jetpackcrm.com/feature/wordpress-override-mode/)
     * Fully takeover WordPress and make Jetpack CRM a standalone CRM (optional)
     * Branded login and disabled front-end make this resellable too!
     * Select the menu style you like: Slimline, CRM only, or Full
 
 * 🧾 **CRM Audit system**
-    * Automatically log customer events like "new invoice" or "filled out web form"
-    * Keep a track of customer calls or meetings
-    * See all customer activity at-a-glance from the customer record, (useful for accounting)
+    * Automatically log contacts events like "new invoice" or "filled out web form"
+    * Keep a track of contacts calls or meetings
+    * See all contacts activity at-a-glance from the contacts record, (useful for accounting)
     * **NEW:** [Automations](https://jetpackcrm.com/product/automations/) extension provides automatic actions on events!
 
-* ➕ **Too much more to mention here...** 
+* ➕ **Too much more to mention here...**
     * [PDF Invoicing](https://jetpackcrm.com/feature/invoices/), billing statements and more client tools
-    * Invoice builder with line items, hourly or item rates, email invoices and get paid via customer portal!
+    * Invoice builder with line items, hourly or item rates, email invoices and get paid via client portal!
     * Tax Table management - assign multiple local/national taxes to Invoices or Transactions
     * Quote Templates allow you to prepare proposal templates ahead of time
     * Lead generation via a range of form support, including Contact form 7, Gravity forms, Jetpack Forms, and our own CRM forms module
@@ -229,7 +229,7 @@ We've added so much value to our new v4.0 that it's hard to give you a list of a
     * [See all features](https://jetpackcrm.com/features/#features)
 
 ## 👔 SME, Small Business, & WordPress Entrepreneurs
-Built for business managers and bootstrapped entrepreneurs, Jetpack CRM is the perfect start-up tool to manage your business essentials. We've added just enough billing and accounting for freelancers and small teams, without getting lost in the potential feature bloat of full accounting and erp software. We didn't add HR tools, but we do have user management. Customer Relationship Management is meant to make lead management easy. Start with a contact form builder and lead generation, track contacts through funnel analytics then use newsletters and email marketing to grow your profits by selling to contacts at companies. 
+Built for business managers and bootstrapped entrepreneurs, Jetpack CRM is the perfect start-up tool to manage your business essentials. We've added just enough billing and accounting for freelancers and small teams, without getting lost in the potential feature bloat of full accounting and erp software. We didn't add HR tools, but we do have user management. Customer Relationship Management is meant to make lead management easy. Start with a contact form builder and lead generation, track contacts through funnel analytics then use newsletters and email marketing to grow your profits by selling to contacts at companies.
 
 Jetpack CRM is the perfect first step to improving your small business. [Try it for free](https://jetpackcrm.com/download/)!
 
@@ -294,11 +294,11 @@ For more documentation, please see the CRM knowledge base: [https://kb.jetpackcr
 
 == Frequently Asked Questions ==
 
-= Is there any limits to customer or invoice counts in Jetpack CRM? =
+= Is there any limits to contact or invoice counts in Jetpack CRM? =
 
 There are absolutely no limits in Jetpack CRM, apart from the usual ones applied by your host (database size etc.), you can create as many clients or invoices as you'd like!
 
-= Is Jetpack CRM really free? = 
+= Is Jetpack CRM really free? =
 
 Totally. The core is a solid, useful, Customer Relationship Manager right out of the box. You don't need anything else to get started managing your leads, and customers. We do build extensions, (because we need them), but they're not at all essential. Further, they're cheap in comparison to the pay-per-month CRM options.
 
@@ -306,35 +306,35 @@ Totally. The core is a solid, useful, Customer Relationship Manager right out of
 
 Of course. Please reach out to us via the in-plugin feedback page if you want to, we'll help you get started, or check out our [Developer resources](https://jetpackcrm.com/feature/developer-ready/).
 
-= What is next on the CRM roadmap? = 
+= What is next on the CRM roadmap? =
 
 We haven't published our roadmap since v3, but we may do in the future. You can vote on future extensions on our [Coming Soon](https://jetpackcrm.com/coming-soon/) page.
 
-= Where can I see the CRM extensions? = 
+= Where can I see the CRM extensions? =
 
 You can see all of the CRM power-ups here: https://jetpackcrm.com/extensions/
 
 = Is there a contact search feature on Jetpack CRM? =
 
-Yes, Jetpack CRM comes with a search feature that allows you to run a customer search, contact search, and then act on it, letting you easily manage customers. There’s also search for transactions, quotes, invoices, companys, lead forms, and tasks.
+Yes, Jetpack CRM comes with a search feature that allows you to run a customer search, contact search, and then act on it, letting you easily manage contacts. There’s also search for transactions, quotes, invoices, companys, lead forms, and tasks.
 
 = Why host your own CRM in WordPress? =
 
-Data privacy, control, extensibility. GDPR compliance. You're probably already paying for hosting too, so you'll save there. SaaS has its place, but there's so much value in hosting your own (e.g. for GDPR rules you need to know where your customer data is kept)!
+Data privacy, control, extensibility. GDPR compliance. You're probably already paying for hosting too, so you'll save there. SaaS has its place, but there's so much value in hosting your own (e.g. for GDPR rules you need to know where your contacts data is kept)!
 
-= How do I get my existing customers into Jetpack CRM? = 
+= How do I get my existing contacts into Jetpack CRM? = 
 
-The free core is fully integrated with WooCommerce using the built-in WooSync module. It also has a basic CSV Importer which works well and allows you to import contacts and import customer data. You can also use our paid extensions for additional features: CSV Importer Pro, PayPal Sync, or Stripe Sync - these automatically pull up all your customer data (including transactions) and then keep it up to date for you!
+The free core is fully integrated with WooCommerce using the built-in WooSync module. It also has a basic CSV Importer which works well and allows you to import contacts and import customer data. You can also use our paid extensions for additional features: CSV Importer Pro, PayPal Sync, or Stripe Sync - these automatically pull up all your contact data (including transactions) and then keep it up to date for you!
 
 = If I’ve been using another CRM, can I import all my data into Jetpack CRM? =
 
-Most CRM providers allow you to export customer data in CSV format, which can then be used to upload into Jetpack CRM. The CSV Importer Pro extension can then be used to import contacts and customer data. CRM is a very broad landscape, so each CRM may have different ways of storing data. See our [CRM Knowledgebase](https://kb.jetpackcrm.com) for more information, or ask in the forums!
+Most CRM providers allow you to export your contact data in CSV format, which can then be used to upload into Jetpack CRM. The CSV Importer Pro extension can then be used to import contacts and customer data. CRM is a very broad landscape, so each CRM may have different ways of storing data. See our [CRM Knowledgebase](https://kb.jetpackcrm.com) for more information, or ask in the forums!
 
-= Do you have a B2B mode? = 
+= Do you have a B2B mode? =
 
 Yes, Jetpack CRM has a [Business to Business mode](https://jetpackcrm.com/feature/b2b-mode/). Enabling the B2B CRM Extension adds a "Companies" layer, which lets you have contacts under a company.
 
-= How does B2B mode (Companies) work in Jetpack CRM? = 
+= How does B2B mode (Companies) work in Jetpack CRM? =
 
 <p>Jetpack CRM allows you to manage contacts at companies from within the CRM. This adds a hierarchy to your CRM, letting you add a contact to a company using our contact manager. Currently you can bill (invoice) companies or contacts respectively, but in the future we want to make this much more integrated.</p>
 <p>For now, this works as follows:</p>
@@ -350,7 +350,7 @@ Yes, Jetpack CRM has a [Business to Business mode](https://jetpackcrm.com/featur
 
 Jetpack CRM allows you to create and manage <a href="https://jetpackcrm.com/feature/quotes">quotes</a>, <a href="https://jetpackcrm.com/feature/invoices/">invoices</a>, and <a href="https://jetpackcrm.com/feature/transactions">transactions</a> against contacts. While this setup may be used in some senses like an ecommerce platform, really the aim with Jetpack CRM is to effectively manage a contact list, including manually billing them (e.g. getting invoices paid online). This works well, via our <a href="https://jetpackcrm.com/feature/client-portal-2/">client portal</a>, but if you want a fuller ecommerce setup, we recommend using <a href="https://woocommerce.com" target="_blank">WooCommerce</a>, which we integrate with, (it's really great).
 
-= Can I use this as a WooCommerce CRM? = 
+= Can I use this as a WooCommerce CRM? =
 
 Yes, Jetpack CRM is actually ideal for using with WooCommerce. You can read more about [Jetpack as a WooCommerce CRM here](https://jetpackcrm.com/woocommerce/).
 
@@ -363,11 +363,11 @@ Yes, Jetpack CRM is actually ideal for using with WooCommerce. You can read more
 
 Yes, Jetpack CRM allows you to easily capture leads using our [lead capture forms](https://jetpackcrm.com/feature/forms/). These could be added into posts, pages or widgets - when leads fill them out their information goes straight into the CRM.
 
-= What are my options for lead generation forms? = 
+= What are my options for lead generation forms? =
 
 Jetpack CRM ships with its own form builder, which lets you insert forms into your posts and pages via shortcode forms or iframe forms. For users that need more advanced form features, we offer support for Jetpack Forms out of the box, and have integrations with Contact Form 7 and Gravity Forms via paid CRM extensions.
 
-= Can Jetpack CRM help me pay sales commissions? = 
+= Can Jetpack CRM help me pay sales commissions? =
 
 <p>We occasionally get asked if Jetpack CRM can help calculate and pay sales commissions. We do have some users who are using the CRM for this, but there are no direct features out of the box which will provide this functionality, these users are simply totting up the transactions assigned to contacts based on their 'owners' in Jetpack CRM, then paying these commissions manually. We may in future expand our reporting to offer something along the lines of a sales summary per agent.</p>
 
@@ -379,52 +379,123 @@ To send out email broadcasts such as newsletters or other email marketing you wi
 
 Jetpack CRM has it's own [Automations extension](https://jetpackcrm.com/product/automations/) which uses Triggers, Conditions, and Actions to automate workflows based on CRM events. This can be used in lead generation, email marketing, or internal business admin. If you have an idea for a workflow or automation you'd like to see, please do [submit it as a feature request](https://kb.jetpackcrm.com/submit-a-ticket/).
 
-= What add-ons are available? = 
+= What add-ons are available? =
 
 <p>We have over 30 premium extensions available in our <a href="https://jetpackcrm.com/extensions/">CRM extension store</a>. These are totally optional, but supercharge some aspects of the CRM, (e.g. StripeSync automatically pulls in your customer and transaction data from Stripe).</p><p>Most users tend to purchase bundles of extensions, which allows them to 'make their perfect CRM':<br /><br /><a href="https://jetpackcrm.com/extension-bundles/">View CRM Bundles</a></p>
 
-= When do I need a license key? = 
+= When do I need a license key? =
 
 <p>You can now add your license key into your Jetpack CRM settings page (under 'CRM License'). This is only required if you wish to use paid extensions. To get started with premium CRM extensions, please visit our <a href="https://jetpackcrm.com/extensions/">extension store</a>.</p><p>After you've purchased you'll be guided to your new license key and extension plugin download.</p>
 
-= How do I purchase more than one license? = 
+= How do I purchase more than one license? =
 
-We have many agencies using Jetpack CRM, so this is a common question. 
+We have many agencies using Jetpack CRM, so this is a common question.
 
 To get stared please see our <a href="https://jetpackcrm.com/extension-bundles/">bundles page</a> - if you're likely to need 10~ licenses, the best bet is to get started with the Reseller package. If you want to build up more slowly, please purchase the Entrepreneur bundle and let us know via a support ticket if you would like to add additional licenses to your account.
 
-= What is the refund policy? = 
+= What is the refund policy? =
 
 We offer a full, no-hassle refund within 14 days. You can read more about that, and how to request a refund, <a href="https://jetpackcrm.com/refund-policy/" target="_blank">on this page</a>.
 
 
 == Changelog ==
-### 5.5.4-alpha - 2023-02-15
+### 5.7.0 - 2023-04-19
 #### Added
-- adds the necessary migration to move all files that were inside the zbscrm-store folder with a flat struture to the new jpcrm-storage folder that uses a hierarchical structure
-- Copy tests from old repo.
+- Menus: Add back to list button on add and edit pages for companies, transactions, invoices, and quotes
+- Settings: Remove 'Restore default settings' from the General Settings page, add to settings page menu
+- Support Page: Add new support page for customers to submit support requests
 
 #### Changed
-- Added webpack build step
-- CRM: changing variable declarations back to var
-- CRM: export vars that are referenced via window.
-- Updated package dependencies.
+- API: Add optional parameter to the API to set the external service name, and replace hyphens from the json response to underscores
+- Companies: Move status select from Actions to main edit section underneath ID
+- Contacts: Change location of save button and add Contact Actions metabox for contacts
+- Onboarding: Change onboarding wizard company name description to remove 'as shown below'
+- Quotes: Move Quote Status underneath Quote ID
+- Menus: Swap the stacked logo to the horizontal one
+- CSV Importer: Various UI/UX tweaks
+- Dashboard: Align the Latest Contacts and Revenue Chart buttons
+- Dashboard: Make spacing between panels more consistent
+- Invoices: Fix overflow issue in the edit invoice page
+- Invoices: Move status select HTML from Invoice Actions to main edit section under ID
+- OAuth: Dependencies are now downloaded to wp-content/jpcrm-storage/packages
+- Onboarding: Make all hint styles consistent
+- Transactions: Change location of import sub-menu item when CSV Pro is installed and active
+- Transactions: Move status select HTML from Transaction Actions to main edit section underneath ID
+
+#### Removed
+- Onboarding: Remove company name preview from onboarding wizard
 
 #### Fixed
-- Client Portal bug that prevented access from being disabled using the contact page was fixed
-- CRM: add a missing < which prevented a <script> tag from being opened.
-- CRM: Adding a JS function to a list of exports so that it can be called outside the bundle it was declared in.
-- CRM: Adding exports to functions called externally, in all JS fiiles where it is needed.
-- CRM:  allows custom profile pictures to be shown in the dashboard.
-- CRM: Escaping an invoice ID in ZeroBSCRM.admin.invoicebuilder.js
-- CRM: Fix avatar getting removed when saving a contact
-- CRM: Fixes a contact fild issue when a Woo order subscription is updated.
-- CRM: Fix escape in contact list filters
-- CRM: Fixing minor admin only issue on placeholder fields.
-- CRM: fix issue  where exporting contacts shows "County" when it should show "State".
-- CRM:  fix the escape used in the "Bundle holder" notification when uploading files to a contact
-- Fixed numeric fields, date fields, and textareas in the Client Portal
+- UI: Change fonts to smaller size, and different font family
+- UI: Change form placeholder colors to a lighter shade of gray
+- Contacts: Fix 403 error if file was uploaded via Client Portal Pro using Apache web server
+- Menus: Remove border from top menu
+- Dashboard: Adjustments to first-use modals
+- Dashboard: Various fixes for the sales funnel
+- Email: Caught PHP notices if recipient was deleted
+- Exports: Catch PHP notice when exporting a subset of objects
+- UI: Fix content overflowing in contact view page
+- Support: Fix the Give Feedback link so that it sends to the reviews page on .org
+- General: Fix various corrupt JS files
+- Onboarding: Get updates (mailing list) changed from opt-out to opt-in in the onboarding wizard
+- Importer: Allow import of application/csv mime type
+- Importer: Better parsing of CSV fields
+- General: Improved compatibility with PHP 8.1
+- Invoices: Fix ability to remove logo from invoice edit page
+- Invoices: Fix PHP notice when sending contact an invoice via email
+- General: Fix broken link in bulk actions function in list view
+- Mailpoet Sync: Fix an issue where contact images would disappear after synchronization
+- Onboarding: Remove outdated YouTube video from welcome overlay
+- Quotes: Use current date if quote date is blank
+- Settings: Fix broken link on white label installs
+- Settings: Allow new tax rates to be added
+- Onboarding: Usage tracking changed from opt-out to opt-in in the onboarding wizard
+- WooSync: Tag existing contacts with new orders
 
+v5.6.0 - 23 March 2023
+-------------------------
+#### Changed
+- Contacts: Change customer references to contact in all but Woo and commerce contexts
+- Compatibility: Indicate full compatibility with the latest version of WordPress, 6.2
+- Move all files that were inside the zbscrm-store folder with a flat structure to the new jpcrm-storage folder that uses a hierarchical structure
+- Extensions: Highlight popular Woo extensions on extensions page, plus alphabetize results
+
+#### Fixed
+- Add a missing < which prevented a script tag from being opened.
+- Allowing XMLRPC and REST requests when the frontend is disabled
+- Client Portal: Fix bug that prevented access from being disabled using the contact page
+- Client Portal: Fix numeric fields, date fields, and textareas in the Client Portal
+- Change escape function for API generated activity
+- Contacts: Prevent JS error when custom avatars are not enabled
+- Contacts: Fix PHP error when using empty values for Address Custom Field (Date)
+- Contacts: Fix a contact field issue when a Woo order subscription is updated
+- Contacts: Fix avatar getting removed when saving a contact
+- Contacts: Fix escape in contact list filters
+- Contacts: Fix issue where exporting contacts shows "County" when it should show "State"
+- Contacts: Fix the escape used in the "Bundle holder" notification when uploading files to a contact
+- Dashboard:  Allow custom profile pictures to be shown in the dashboard
+- Invoices: Escape an invoice ID in ZeroBSCRM.admin.invoicebuilder.js
+- Tasks: Correct text where tasks where being referred to as events
+- Placeholders: Fix secondary address placeholders
+- Placeholders: Fix several placeholders throughout CRM
+- Placeholders: Fix minor admin only issue on placeholder fields
+- Exports: Fix some export cases by adding a check for the segment index
+- Taxes: Fix tax page deletion for single entries
+- Taxes: Fix tax rate creation link on tax rate settings page
+- Forms: Swapping edit and new form titles to correctly reflect page
+- Dashboard: Show default avatar under activity, when contact image mode set to none
+- Client Portal: Fix accept quote in Client Portal button not working for PHP versions 8.1 and up
+- Taxes: Fix potential XSS in the Tax Settings page
+- Contacts: Fix wrong naming from Customer ID to Contact ID in the Edit Contact page
+- Contacts: Importing contacts using CSV files no longer erases fields that are missing
+- Client Portal: Background for the menu in the Twenty Seventeen theme is no longer dark gray
+- OAuth Connections: No longer shows critical error after saving credentials
+- WooSync: Remove PHP notice when a WooCommerce order is in a Draft status
+- Segments: Fix list pagination
+- Fix special characters in textarea fields (contacts, transactions, quotes) to prevent producing visible HTML entities
+- WooSync: Change status only for contacts with the Lead status
+
+v5.5.3 - 26 January 2023
 -------------------------
 * Fixed: CRM no longer breaks WordPress sites running on PHP 7.2
 * Fixed: HTML escaped code in contact list filters for segments

@@ -434,7 +434,7 @@
 
 
 #notes{
-	font-size: 20px;
+	font-size: 14px;
 }
 
 
@@ -572,8 +572,16 @@
     color:white;
 	margin-right:0.4em;
 }
-.learn{
-	margin-left: 10px !important;
+
+div.ui.learn.button {
+	background: transparent;
+	padding: 0;
+	vertical-align: text-bottom;
+
+	.jpcrm-info-gridicon {
+		vertical-align: text-bottom;
+		margin-left: 4px;
+	}
 }
 
 
@@ -871,4 +879,10 @@ table#zbsFilesTable td {
 }
 .swal-wider{
     width:850px !important;
+}
+
+@media only screen and (min-width: 768px) and (max-width: 960px) {
+  #zbs-admin-top-bar {
+    margin-left: 0px !important;
+  }
 }

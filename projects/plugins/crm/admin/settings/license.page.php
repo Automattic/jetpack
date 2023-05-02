@@ -51,11 +51,11 @@ if ( ! zeroBSCRM_isLocal( true ) ) {
 
 		echo "<div class='ui message'><i class='ui icon info'></i>";
 		$msg = __( 'Enter your license key for access to paid extensions and support.', 'zero-bs-crm' );
-		// WLREMOVE
+		##WLREMOVE
 		$msg .= ' ' . sprintf( __( 'Please visit <a href="%s" target="_blank">your account</a> for your CRM key and license management.', 'zero-bs-crm' ), esc_url( $zbs->urls['account'] ) );
 		$msg .= '<br><br>';
 		$msg .= sprintf( __( "Don't have a license yet? Take a look at <a href='%s' target='_blank'>our extension bundles</a>!", 'zero-bs-crm' ), esc_url( $zbs->urls['pricing'] ) );
-		// /WLREMOVE
+		##/WLREMOVE
 		echo wp_kses( $msg, $zbs->acceptable_restricted_html );
 		echo '</div>';
 
@@ -71,7 +71,7 @@ if ( ! zeroBSCRM_isLocal( true ) ) {
 			echo "<div class='ui message red'><i class='ui icon info'></i>";
 			$msg = __( 'Your license key is either invalid, expired, or not assigned to this site.', 'zero-bs-crm' );
 
-			// WLREMOVE
+			##WLREMOVE
 			$msg .= ' ' . sprintf( __( 'Please visit <a href="%s" target="_blank">your account</a> to verify.', 'zero-bs-crm' ), $zbs->urls['licensekeys'] );
 
 			// add debug (from 2.98.1, to help us determine issues)
@@ -88,7 +88,7 @@ if ( ! zeroBSCRM_isLocal( true ) ) {
 				$msg     .= '<br />Last Error:<br />&nbsp;&nbsp;' . $lastErrorMsg;
 				$msg     .= '</div>';
 			}
-			// /WLREMOVE
+			##/WLREMOVE
 			echo $msg;
 
 			// got any errs?
@@ -149,7 +149,7 @@ if ( ! zeroBSCRM_isLocal( true ) ) {
 			}
 			echo '<br />';
 
-			// WLREMOVE
+			##WLREMOVE
 
 			// next renewal
 			echo '<strong>' . esc_html__( 'Next Renewal', 'zero-bs-crm' ) . ':</strong> ';
@@ -165,7 +165,7 @@ if ( ! zeroBSCRM_isLocal( true ) ) {
 
 			echo '<br><br>';
 			echo wp_kses( sprintf( __( 'As needed, please visit <a href="%s" target="_blank">your account</a> to manage your license keys and billing.', 'zero-bs-crm' ), $zbs->urls['account'] ), $zbs->acceptable_restricted_html );
-			// /WLREMOVE
+			##/WLREMOVE
 
 			echo '</div>'; // / col
 
@@ -207,14 +207,14 @@ if ( isset( $sbupdated ) ) {
 ?>
 <?php
 
-// WLREMOVE
+##WLREMOVE
 // claimed license key?
 global $zbsLicenseClaimed;
 if ( isset( $zbsLicenseClaimed ) ) {
 
 	echo zeroBSCRM_UI2_messageHTML( 'info', __( 'License Key Notice', 'zero-bs-crm' ), sprintf( __( 'Thank you for entering your license key. This key has been successfully associated with this install. If you would like to change which domain uses this license key, please go <a href="%s">here</a>.', 'zero-bs-crm' ), $zbs->urls['account'] ) );
 }
-// /WLREMOVE
+##/WLREMOVE
 
 // if on Local server, don't allow entry of license keys, because we will end up with a license key db full
 // + it's hard to license properly on local servers as peeps could have many the same
@@ -222,9 +222,9 @@ if ( isset( $zbsLicenseClaimed ) ) {
 if ( zeroBSCRM_isLocal( true ) ) {
 
 	$guide = '';
-	// WLREMOVE
+	##WLREMOVE
 	$guide = '<br /><br /><a href="' . $zbs->urls['kbdevmode'] . '" class="ui button primary" target="_blank">' . __( 'Read More', 'zero-bs-crm' ) . '</a>';
-	// /WLREMOVE
+	##/WLREMOVE
 
 	echo zeroBSCRM_UI2_messageHTML( 'info', __( 'Developer Mode', 'zero-bs-crm' ), __( 'This install appears to be running on a local machine. For this reason your CRM is in Developer Mode. You cannot add a license key to developer mode, nor retrieve automatic-updates.', 'zero-bs-crm' ) . $guide );
 

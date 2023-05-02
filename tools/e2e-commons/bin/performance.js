@@ -24,20 +24,27 @@ async function envSetup( type ) {
 	);
 }
 
-function runTests( type, id ) {
+async function runTests() {
 	const siteUrl = resolveSiteUrl();
 
 	execSyncShellCommand( `export WP_BASE_URL=${ siteUrl } &&
-	cd ../../gutenberg &&
-	npm run test:performance packages/e2e-tests/specs/performance/post-editor.test.js &&
-	mv packages/e2e-tests/specs/performance/post-editor.test.results.json ../tools/e2e-commons/results/${ type }.${ id }.test.results.json` );
+	cd ../../gutenberg && mkdir -p artifacts &&
+	npm run test:performance packages/e2e-tests/specs/performance/post-editor.test.js` );
+}
+
+async function moveResults( type, id ) {
+	execSyncShellCommand(
+		`mv ../../artifacts/post-editor.test.performance-results.json ./results/${ type }.${ id }.test.results.json`
+	);
 }
 
 async function testRun( type, id ) {
 	console.log( `Starting test run #${ id } for ${ type }` );
 	envReset();
 	await envSetup( type );
-	runTests( type, id );
+	await runTests();
+	console.log( `Finished test run #${ id } for ${ type }` );
+	await moveResults( type, id );
 	console.log( `Done with #${ id } for ${ type }` );
 }
 

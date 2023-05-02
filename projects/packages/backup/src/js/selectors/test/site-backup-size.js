@@ -14,6 +14,7 @@ describe( 'siteBackupSizeSelectors', () => {
 				minDaysOfBackupsAllowed: null,
 				daysOfBackupsAllowed: null,
 				daysOfBackupsSaved: null,
+				retentionDays: null,
 			},
 		},
 		fetchingState: {
@@ -24,6 +25,7 @@ describe( 'siteBackupSizeSelectors', () => {
 				minDaysOfBackupsAllowed: null,
 				daysOfBackupsAllowed: null,
 				daysOfBackupsSaved: null,
+				retentionDays: null,
 			},
 		},
 		failedState: {
@@ -34,6 +36,7 @@ describe( 'siteBackupSizeSelectors', () => {
 				minDaysOfBackupsAllowed: null,
 				daysOfBackupsAllowed: null,
 				daysOfBackupsSaved: null,
+				retentionDays: null,
 			},
 		},
 		successState: {
@@ -44,6 +47,7 @@ describe( 'siteBackupSizeSelectors', () => {
 				minDaysOfBackupsAllowed: 7,
 				daysOfBackupsAllowed: 30,
 				daysOfBackupsSaved: 24,
+				retentionDays: 7,
 			},
 		},
 	};
@@ -195,6 +199,37 @@ describe( 'siteBackupSizeSelectors', () => {
 			'should return getDaysOfBackupsSaved value if passed, null otherwise',
 			( { state, expected } ) => {
 				const output = selectors.getDaysOfBackupsSaved( state );
+				expect( output ).toBe( expected );
+			}
+		);
+	} );
+
+	describe( 'getBackupRetentionDays()', () => {
+		it.each( [
+			{
+				state: fixtures.emptyObject,
+				expected: null,
+			},
+			{
+				state: fixtures.initialState,
+				expected: null,
+			},
+			{
+				state: fixtures.fetchingState,
+				expected: null,
+			},
+			{
+				state: fixtures.failedState,
+				expected: null,
+			},
+			{
+				state: fixtures.successState,
+				expected: 7,
+			},
+		] )(
+			'should return getBackupRetentionDays value if passed, null otherwise',
+			( { state, expected } ) => {
+				const output = selectors.getBackupRetentionDays( state );
 				expect( output ).toBe( expected );
 			}
 		);

@@ -177,7 +177,8 @@ test.describe( 'Site editor', () => {
 			await siteEditor.clearCustomizations();
 		} );
 	} );
-
+	/*
+	* TODO: Re-enable once the site editor is ready for e2e tests #29113.
 	test( 'Subscribe block in site editor', async ( { page } ) => {
 		await prerequisitesBuilder( page ).withActiveModules( [ 'subscriptions' ] ).build();
 		const block = new SubscribeBlock( null, page );
@@ -199,4 +200,5 @@ test.describe( 'Site editor', () => {
 			).toBeTruthy();
 		} );
 	} );
+	 */
 } );

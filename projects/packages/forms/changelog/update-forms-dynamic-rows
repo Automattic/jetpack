@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Rows in the forms dashboard will now be dynamically removed and appended when performing bulk actions.

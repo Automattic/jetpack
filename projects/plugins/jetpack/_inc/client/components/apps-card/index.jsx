@@ -69,26 +69,7 @@ class AppsCard extends React.Component {
 
 	getQrCode = () => (
 		<div className="jp-apps-card__apps-qr-code">
-			<img src={ imagePath + 'get-apps-qr-code.svg' } alt="" />
-			<p className="jp-apps-card__caption">
-				{ createInterpolateElement(
-					__(
-						'Visit <a>jetpack.com/app</a> or scan this code to download the Jetpack mobile app.',
-						'jetpack'
-					),
-					{
-						a: (
-							<a
-								className="jp-apps-card__link"
-								href={ getRedirectUrl( 'jetpack-plugin-dashboard-apps-card' ) }
-								rel="noopener noreferrer"
-								target="_blank"
-								onClick={ this.trackAppLinkClick }
-							/>
-						),
-					}
-				) }
-			</p>
+			<img src={ imagePath + 'get-apps-qr-code.svg' } alt="" width={ 114 } />
 		</div>
 	);
 
@@ -98,22 +79,32 @@ class AppsCard extends React.Component {
 		return (
 			<div className={ classes }>
 				<Card className="jp-apps-card__content">
-					<div className="jp-apps-card__top">
-						<img src={ imagePath + 'get-apps-icon.svg' } alt="" />
-					</div>
-
 					<div className="jp-apps-card__description">
-						<h3 className="jp-apps-card__header">{ __( 'Jetpack in your pocket', 'jetpack' ) }</h3>
+						<img className="jp-apps-card__top_img" src={ imagePath + 'get-apps-icon.svg' } alt="" />
+
+						<h3 className="jp-apps-card__header">
+							{ __( 'Bring your stats with you using the Jetpack mobile app', 'jetpack' ) }
+						</h3>
 
 						<p className="jp-apps-card__paragraph">
-							{ __(
-								'Get powerful security and performance tools in your pocket with the Jetpack mobile app.',
-								'jetpack'
+							{ createInterpolateElement(
+								__(
+									'Visit <a>jetpack.com/app</a> or scan this code to download the Jetpack mobile app.',
+									'jetpack'
+								),
+								{
+									a: (
+										<a
+											className="jp-apps-card__link"
+											href={ getRedirectUrl( 'jetpack-plugin-dashboard-apps-card' ) }
+											onClick={ this.trackAppLinkClick }
+										/>
+									),
+								}
 							) }
 						</p>
-
-						{ this.getAppLinkSection() }
 					</div>
+					{ this.getAppLinkSection() }
 				</Card>
 			</div>
 		);

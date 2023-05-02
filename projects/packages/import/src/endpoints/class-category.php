@@ -13,9 +13,21 @@ namespace Automattic\Jetpack\Import\Endpoints;
 class Category extends \WP_REST_Terms_Controller {
 
 	/**
-	 * The Import ID add a new item to the schema.
+	 * Base class
 	 */
 	use Import;
+
+	/**
+	 * The Import ID add a new item to the schema.
+	 */
+	use Import_ID;
+
+	/**
+	 * Whether the controller supports batching. Default true.
+	 *
+	 * @var array
+	 */
+	protected $allow_batch = array( 'v1' => true );
 
 	/**
 	 * Constructor.
@@ -25,19 +37,6 @@ class Category extends \WP_REST_Terms_Controller {
 
 		// @see add_term_meta
 		$this->import_id_meta_type = 'term';
-	}
-
-	/**
-	 * Registers the routes for the objects of the controller.
-	 *
-	 * @see WP_REST_Terms_Controller::register_rest_route()
-	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			'/categories',
-			$this->get_route_options()
-		);
 	}
 
 	/**
@@ -64,7 +63,7 @@ class Category extends \WP_REST_Terms_Controller {
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
-		if ( isset( $request['parent'] ) ) {
+		if ( ! empty( $request['parent'] ) ) {
 			$parent = get_term_by( 'slug', $request['parent'], 'category' );
 
 			// Overwrite the parent ID with the parent term ID found using the slug.
@@ -73,30 +72,9 @@ class Category extends \WP_REST_Terms_Controller {
 
 		$response = parent::create_item( $request );
 
+		// Ensure that the HTTP status is a valid one.
+		$response = $this->ensure_http_status( $response, 'term_exists', 409 );
+
 		return $this->add_import_id_metadata( $request, $response );
-	}
-
-	/**
-	 * Update the category parent ID.
-	 *
-	 * @param int $resource_id      The resource ID.
-	 * @param int $parent_import_id The parent ID.
-	 * @return bool True if updated.
-	 */
-	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$categories = \get_categories( $this->get_import_db_query( $parent_import_id ) );
-
-		if ( is_array( $categories ) && count( $categories ) === 1 ) {
-			$parent_id = $categories[0];
-
-			return (bool) \wp_update_category(
-				array(
-					'cat_ID'          => $resource_id,
-					'category_parent' => $parent_id,
-				)
-			);
-		}
-
-		return false;
 	}
 }

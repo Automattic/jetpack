@@ -271,7 +271,7 @@
                     # ... further hacked
 
                     if ($zbsShowID == "1" && isset($contact['id']) && !empty($contact['id'])) { ?>
-                    <tr class="wh-large"><th><label><?php esc_html_e('Customer',"zero-bs-crm");?> ID:</label></th>
+							<tr class="wh-large"><th><label><?php esc_html_e( 'Contact ID', 'zero-bs-crm' ); ?>:</label></th>
                     <td class="zbs-field-id">
                         #<?php if (isset($contact['id'])) echo esc_html( $contact['id'] ); ?>
                     </td></tr>
@@ -826,7 +826,6 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
         $this->metaboxArea = 'side';
         $this->metaboxLocation = 'high';
         $this->headless = true;
-        $this->metaboxClasses = 'basic';
         $this->capabilities = array(
 
             'can_hide'          => false, // can be hidden
@@ -843,27 +842,32 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
             $id = (int)sanitize_text_field($_GET['zbsid']);
             // call this, if actions
             $this->actions = zeroBS_contact_actions($id);
-            if (count($this->actions) > 0) $this->initMetabox();
-        }
 
-    }
+		}
+		$this->initMetabox();
+	}
 
     public function html( $contact, $metabox ) {
 
-        global $zbs;
-        
         $avatarMode = zeroBSCRM_getSetting( 'avatarmode' );
         $avatarStr = '';
+		$is_new_contact = count( $this->actions ) > 0 ? false : true;
         if ( $avatarMode !== 3 ) {
 
             $cID = -1; if (is_array($contact) && isset($contact['id'])) $cID = (int)$contact['id'];
             $avatarStr = zeroBS_customerAvatarHTML($cID);
-            $avatarURL = zeroBS_customerAvatar($cID); // url
 
         }
 
+		?>
+		<div class="zbs-generic-save-wrap">
+			<div class="ui medium dividing header"><i class="save icon"></i> <?php esc_html_e( 'Contact Actions', 'zero-bs-crm' ); ?></div>
+			<div class="clear"></div>
+		<?php
+
         # https://codepen.io/kyleshockey/pen/bdeLrE 
-        if (count($this->actions) > 0) { ?>
+		if ( ! $is_new_contact ) {
+			?>
 
         <?php #} Show avatar if avail
         if (!empty($avatarStr)){
@@ -950,7 +954,12 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
         });
         </script>
        <?php }
-
+		?>
+			<div class="zbs-contact-actions-bottom zbs-objedit-actions-bottom">
+				<button class="ui button green" type="button" id="zbs-edit-save"><?php $is_new_contact ? esc_html_e( 'Save', 'zero-bs-crm' ) : esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Contact', 'zero-bs-crm' ); ?></button>
+				<div class='clear'></div>
+			</div>
+			<?php
     }
 
     public function save_data( $contact_id, $contact ) {    
@@ -1716,7 +1725,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
                     } else {
 
                         // explainer - rarely shown
-                        echo '<p style="font-size: 0.9em;margin-top: 0.5em;">' . esc_html__( 'The WordPress user has a role other than CRM Customer. They will need to reset their password via the WP login page.', 'zero-bs-crm' ) . '</p>';
+						echo '<p style="font-size: 0.9em;margin-top: 0.5em;">' . esc_html__( 'The WordPress user has a role other than CRM Contact. They will need to reset their password via the WP login page.', 'zero-bs-crm' ) . '</p>';
 
                     }
 

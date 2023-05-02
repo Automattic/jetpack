@@ -1,7 +1,8 @@
 import { getCurrencyObject } from '@automattic/format-currency';
 import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
-import { PricingCardProps } from './types';
+import TermsOfService from '../terms-of-service';
+import type { PricingCardProps } from './types';
 import type { CurrencyObject } from '@automattic/format-currency/src/types';
 import type React from 'react';
 
@@ -90,16 +91,30 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 				<div className="jp-components__pricing-card__extra-content-wrapper">{ props.children }</div>
 			) }
 
+			{ /*
+			 * Keep the option to pass custom terms of service text,
+			 * but by default, use the shared `TermsOfService` component
+			 * and pass the CTA button's text to it
+			 */ }
+			{ props.tosText && <div className="jp-components__pricing-card__tos">{ props.tosText }</div> }
+
 			{ props.ctaText && (
-				<div className="jp-components__pricing-card__cta">
-					<Button
-						className="jp-components__pricing-card__button"
-						label={ props.ctaText }
-						onClick={ props.onCtaClick }
-					>
-						{ props.ctaText }
-					</Button>
-				</div>
+				<>
+					{ ! props.tosText && (
+						<div className="jp-components__pricing-card__tos">
+							<TermsOfService agreeButtonLabel={ props.ctaText } />
+						</div>
+					) }
+					<div className="jp-components__pricing-card__cta">
+						<Button
+							className="jp-components__pricing-card__button"
+							label={ props.ctaText }
+							onClick={ props.onCtaClick }
+						>
+							{ props.ctaText }
+						</Button>
+					</div>
+				</>
 			) }
 
 			{ props.infoText && (

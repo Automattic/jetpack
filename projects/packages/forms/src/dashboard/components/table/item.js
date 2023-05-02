@@ -1,30 +1,39 @@
-import { Fragment, useCallback } from '@wordpress/element';
+import { Fragment, forwardRef, useCallback } from '@wordpress/element';
 import classnames from 'classnames';
 import { kebabCase, map } from 'lodash';
 
-const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
+const stopPropagation = event => event.stopPropagation();
+
+const TableItem = ( { columns, item, isSelected, onSelectChange }, ref ) => {
 	const handleChange = useCallback( () => onSelectChange( item.id ), [ item.id, onSelectChange ] );
 
-	const classes = classnames( 'jp-forms__table-item', {
-		'is-selected': isSelected,
+	const classes = classnames( 'jp-forms__table-item', item.className, {
+		'is-active': ! item.isLoading && item.isActive,
+		'is-clickable': ! item.isLoading && item.onClick,
+		'is-loading': item.isLoading,
+		'is-selected': ! item.isLoading && isSelected,
 	} );
 
 	return (
-		<div className={ classes }>
+		/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */
+		<div ref={ ref } className={ classes } onClick={ item.onClick }>
 			{ !! onSelectChange && (
 				<div className="jp-forms__table-cell is-select">
-					<input
-						className="jp-forms__table-checkbox"
-						type="checkbox"
-						onChange={ handleChange }
-						checked={ isSelected }
-					/>
+					{ ! item.isLoading && (
+						<input
+							className="jp-forms__table-checkbox"
+							type="checkbox"
+							onClick={ stopPropagation }
+							onChange={ handleChange }
+							checked={ isSelected }
+						/>
+					) }
 				</div>
 			) }
 
-			{ map( columns, ( { additionalClassNames, component, getProps, key } ) => {
+			{ map( columns, ( { additionalClassNames, component, getProps, key }, index ) => {
 				let Wrapper = Fragment;
-				let props = [];
+				let props = {};
 
 				if ( component ) {
 					Wrapper = component;
@@ -37,6 +46,10 @@ const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 					additionalClassNames
 				);
 
+				if ( item.isLoading ) {
+					return <div key={ `table-${ key }-${ index }-loading` } className={ cellClasses } />;
+				}
+
 				return (
 					<div key={ `table-${ key }-${ item.id }` } className={ cellClasses }>
 						<Wrapper { ...props }>{ item[ key ] }</Wrapper>
@@ -47,4 +60,4 @@ const TableItem = ( { columns, item, isSelected, onSelectChange } ) => {
 	);
 };
 
-export default TableItem;
+export default forwardRef( TableItem );

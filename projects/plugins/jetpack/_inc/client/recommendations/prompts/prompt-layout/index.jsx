@@ -45,16 +45,8 @@ const SideContent = ( { isLoading, illustration, illustrationClassName, sidebarC
 };
 
 const PromptLayoutComponent = props => {
-	const {
-		answer,
-		description,
-		illustration,
-		progressBar,
-		question,
-		content,
-		isNew,
-		sidebarCard,
-	} = props;
+	const { answer, description, illustration, progressBar, question, content, isNew, sidebarCard } =
+		props;
 
 	return (
 		<div
@@ -76,7 +68,9 @@ const PromptLayoutComponent = props => {
 						nbsp: <span>&nbsp;</span>,
 					} ) }
 				</h1>
-				<p className="jp-recommendations-question__description">{ description }</p>
+				{ description && (
+					<p className="jp-recommendations-question__description">{ description }</p>
+				) }
 				{ content }
 				<div className="jp-recommendations-question__answer">{ answer }</div>
 			</div>

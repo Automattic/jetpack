@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.11] - 2023-05-01
+### Changed
+- Internal updates.
+
+## [0.5.10] - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## [0.5.9] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [0.5.8] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## [0.5.7] - 2023-04-03
+### Changed
+- Internal updates.
+
+## [0.5.6] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## [0.5.5] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## [0.5.4] - 2023-02-20
+### Changed
+- Minor internal updates.
+
 ## [0.5.3] - 2023-02-15
 ### Changed
 - Update to React 18. [#28710]
@@ -86,6 +118,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#27906]
 
+[0.5.11]: https://github.com/automattic/jetpack-blaze/compare/v0.5.10...v0.5.11
+[0.5.10]: https://github.com/automattic/jetpack-blaze/compare/v0.5.9...v0.5.10
+[0.5.9]: https://github.com/automattic/jetpack-blaze/compare/v0.5.8...v0.5.9
+[0.5.8]: https://github.com/automattic/jetpack-blaze/compare/v0.5.7...v0.5.8
+[0.5.7]: https://github.com/automattic/jetpack-blaze/compare/v0.5.6...v0.5.7
+[0.5.6]: https://github.com/automattic/jetpack-blaze/compare/v0.5.5...v0.5.6
+[0.5.5]: https://github.com/automattic/jetpack-blaze/compare/v0.5.4...v0.5.5
+[0.5.4]: https://github.com/automattic/jetpack-blaze/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/automattic/jetpack-blaze/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/automattic/jetpack-blaze/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/automattic/jetpack-blaze/compare/v0.5.0...v0.5.1

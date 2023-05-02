@@ -9,11 +9,10 @@ import { getDataByKey, updateRecommendationsData } from 'state/recommendations';
 import './style.scss';
 
 const CheckboxAnswerComponent = ( { answerKey, checked, info, title, updateCheckboxAnswer } ) => {
-	const toggleCheckbox = useCallback( () => updateCheckboxAnswer( { [ answerKey ]: ! checked } ), [
-		answerKey,
-		checked,
-		updateCheckboxAnswer,
-	] );
+	const toggleCheckbox = useCallback(
+		() => updateCheckboxAnswer( { [ answerKey ]: ! checked } ),
+		[ answerKey, checked, updateCheckboxAnswer ]
+	);
 
 	const onPopoverClick = useCallback( () => {
 		analytics.tracks.recordEvent( 'jetpack_recommendations_site_type_popover_click', {

@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "902e0f17e8f54dd4b36f83e808a1385e4d001c72"
+                "reference": "6cf3c9cec0a7d620c0389859b50867317301ebba"
             },
             "require": {
                 "php": ">=5.6",
@@ -57,9 +57,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"

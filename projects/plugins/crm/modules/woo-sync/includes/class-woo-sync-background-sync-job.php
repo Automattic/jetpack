@@ -846,6 +846,14 @@ class Woo_Sync_Background_Sync_Job {
 
 			$this->debug( 'Contact added/updated #' . $contact_id );
 
+			$zbs->DAL->contacts->addUpdateContactTags( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				array(
+					'id'        => $contact_id,
+					'tag_input' => $crm_object_data['contact']['tags'],
+					'mode'      => 'append',
+				)
+			);
+
 			// contact logs
 			if ( is_array( $crm_object_data['contact_logs'] ) ) {
 
@@ -1125,6 +1133,7 @@ class Woo_Sync_Background_Sync_Job {
 	    // crm contact custom fields to use the types...
 	    $custom_fields              = $zbs->DAL->getActiveCustomFields( array( 'objtypeid' => ZBS_TYPE_CONTACT ) );
 	    $is_status_mapping_enabled  = ( isset( $settings['enable_woo_status_mapping'] ) ? ( (int) $settings['enable_woo_status_mapping'] === 1 ) : true );
+		$contact_statuses          = zeroBSCRM_getCustomerStatuses( true );
 
 	    // initialise dates
 	    $contact_creation_date         = -1;
@@ -1312,7 +1321,11 @@ class Woo_Sync_Background_Sync_Job {
 		if ( !empty( $contact_email ) ) {
 
 			if ( $is_status_mapping_enabled ) {
-				$data['contact']['status'] = $this->woosync()->woocommerce_order_status_to_contact_status( $order_status );
+				$contact_id = zeroBS_getCustomerIDWithEmail( $contact_email );
+				// If this is a new contact or the current status equals the first status (CRM's default value is 'Lead'), we are allowed to change it.
+				if ( empty( $contact_id ) || $zbs->DAL->contacts->getContactStatus( $contact_id ) === $contact_statuses[0] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$data['contact']['status'] = $this->woosync()->woocommerce_order_status_to_contact_status( $order_status );
+				}
 			}
 			$data['contact']['created']         = $contact_creation_date_uts;
 			$data['contact']['email']           = $contact_email;
@@ -1711,8 +1724,7 @@ class Woo_Sync_Background_Sync_Job {
 		// tags (contact)
 		if ( $tag_contact_with_item ) {
 
-			$data['contact']['tags']     = $order_tags;
-			$data['contact']['tag_mode'] = 'append';
+			$data['contact']['tags'] = $order_tags;
 
 		}
 

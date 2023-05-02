@@ -11,6 +11,7 @@ use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Nonce_Handler;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
@@ -306,8 +307,12 @@ class Jetpack {
 	/**
 	 * Plugins for which we turn off our Facebook OG Tags implementation.
 	 *
-	 * Note: All in One SEO Pack, All in one SEO Pack Pro, WordPress SEO by Yoast, and WordPress SEO Premium by Yoast automatically deactivate
-	 * Jetpack's Open Graph tags via filter when their Social Meta modules are active.
+	 * Note: the following plugins automatically deactivate Jetpack's Open
+	 * Graph tags via filter when their Social Meta modules are active:
+	 *
+	 * - All in One SEO Pack, All in one SEO Pack Pro
+	 * - WordPress SEO by Yoast, WordPress SEO Premium by Yoast
+	 * - SEOPress, SEOPress Pro
 	 *
 	 * Plugin authors: If you'd like to prevent Jetpack's Open Graph tag generation in your plugin, you can do so via this filter:
 	 * add_filter( 'jetpack_enable_open_graph', '__return_false' );
@@ -897,7 +902,9 @@ class Jetpack {
 			$network->set_connection( $this->connection_manager );
 		}
 
-		if ( self::is_connection_ready() ) {
+		$is_connection_ready = self::is_connection_ready();
+
+		if ( $is_connection_ready ) {
 			add_action( 'login_form_jetpack_json_api_authorization', array( $this, 'login_form_json_api_authorization' ) );
 
 			Jetpack_Heartbeat::init();
@@ -913,7 +920,7 @@ class Jetpack {
 		/*
 		 * Enable enhanced handling of previewing sites in Calypso
 		 */
-		if ( self::is_connection_ready() ) {
+		if ( $is_connection_ready ) {
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
 			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
 			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
@@ -1240,10 +1247,6 @@ class Jetpack {
 		 */
 		require_once JETPACK__PLUGIN_DIR . '_inc/social-logos.php';
 		jetpack_register_social_logos();
-
-		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) ) {
-			wp_register_style( 'jetpack-icons', plugins_url( 'css/jetpack-icons.min.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
-		}
 	}
 
 	/**
@@ -2407,6 +2410,9 @@ class Jetpack {
 				$modules[ $index ]['description']       = $i18n_module['description'];
 				$modules[ $index ]['short_description'] = $i18n_module['description'];
 			}
+			if ( isset( $module['module_tags'] ) ) {
+				$modules[ $index ]['module_tags'] = array_map( 'jetpack_get_module_i18n_tag', $module['module_tags'] );
+			}
 		}
 		return $modules;
 	}
@@ -3306,7 +3312,6 @@ p {
 
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
 		add_action( 'load-plugins.php', array( $this, 'plugins_page_init_jetpack_state' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
 
 		if ( ! ( is_multisite() && is_plugin_active_for_network( 'jetpack/jetpack.php' ) && ! is_network_admin() ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'deactivate_dialog' ) );
@@ -3724,33 +3729,6 @@ p {
 	}
 
 	/**
-	 * Registers/enqueues Jetpack banner styles.
-	 *
-	 * @return void
-	 */
-	public function admin_banner_styles() {
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-
-		if ( ! wp_style_is( 'jetpack-dops-style' ) ) {
-			wp_register_style(
-				'jetpack-dops-style',
-				plugins_url( '_inc/build/admin.css', JETPACK__PLUGIN_FILE ),
-				array(), // Load styles for components so the modal can be used.
-				JETPACK__VERSION
-			);
-		}
-
-		wp_enqueue_style(
-			'jetpack',
-			plugins_url( "css/jetpack-banners{$min}.css", JETPACK__PLUGIN_FILE ),
-			array( 'jetpack-dops-style' ),
-			JETPACK__VERSION . '-20121016'
-		);
-		wp_style_add_data( 'jetpack', 'rtl', 'replace' );
-		wp_style_add_data( 'jetpack', 'suffix', $min );
-	}
-
-	/**
 	 * Add action links for the Jetpack plugin.
 	 *
 	 * @param array $actions Plugin actions.
@@ -3769,6 +3747,51 @@ p {
 		}
 
 		return $actions;
+	}
+
+	/**
+	 * Add an activation modal to the plugins page and the main dashboard.
+	 *
+	 * @param string $hook The current admin page.
+	 *
+	 * @return void
+	 */
+	public function activate_dialog( $hook ) {
+		/*
+		 * We do not need it on other plugin pages,
+		 * or when Jetpack is already connected.
+		 */
+		if (
+			! in_array( $hook, array( 'plugins.php', 'index.php' ), true )
+			|| self::is_connection_ready()
+		) {
+			return;
+		}
+
+		// add an activation script that will pick up deactivation actions for the Jetpack plugin.
+		Assets::register_script(
+			'jetpack-full-activation-modal-js',
+			'_inc/build/activation-modal.js',
+			JETPACK__PLUGIN_FILE,
+			array(
+				'enqueue'      => true,
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack',
+				'dependencies' => array(
+					'wp-polyfill',
+					'wp-components',
+				),
+			)
+		);
+
+		// Add objects to be passed to the initial state of the app.
+		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
+		wp_add_inline_script( 'jetpack-full-activation-modal-js', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_minimal_state() ) ) . '"));', 'before' );
+
+		// Adds Connection package initial state.
+		wp_add_inline_script( 'jetpack-full-activation-modal-js', Connection_Initial_State::render(), 'before' );
+
+		add_action( 'admin_notices', array( $this, 'jetpack_plugin_portal_containers' ) );
 	}
 
 	/**
@@ -3812,7 +3835,7 @@ p {
 	}
 
 	/**
-	 * Outputs the wrapper for the plugin deactivation modal
+	 * Outputs the wrapper for the plugin modal
 	 * Contents are loaded by React script
 	 *
 	 * @return void
@@ -6188,7 +6211,7 @@ endif;
 		}
 
 		// Do not implode CSS when the page loads via the AMP plugin.
-		if ( Jetpack_AMP_Support::is_amp_request() ) {
+		if ( class_exists( Jetpack_AMP_Support::class ) && Jetpack_AMP_Support::is_amp_request() ) {
 			$do_implode = false;
 		}
 
@@ -6738,7 +6761,7 @@ endif;
 		);
 
 		$products['akismet'] = array(
-			'title'             => __( 'Jetpack Anti-Spam', 'jetpack' ),
+			'title'             => __( 'Akismet Anti-Spam', 'jetpack' ),
 			'slug'              => 'jetpack_anti_spam',
 			'description'       => __( 'Save time and get better responses by automatically blocking spam from your comments and forms.', 'jetpack' ),
 			'show_promotion'    => true,
@@ -6746,7 +6769,6 @@ endif;
 			'included_in_plans' => array( 'security' ),
 			'features'          => array(
 				_x( 'Comment and form spam protection', 'Anti-Spam Product Feature', 'jetpack' ),
-				_x( 'Powered by Akismet', 'Anti-Spam Product Feature', 'jetpack' ),
 				_x( 'Block spam without CAPTCHAs', 'Anti-Spam Product Feature', 'jetpack' ),
 				_x( 'Advanced stats', 'Anti-Spam Product Feature', 'jetpack' ),
 			),

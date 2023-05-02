@@ -20,7 +20,7 @@ const StandaloneModeModal = () => {
 					<Text variant={ 'body-small' }>
 						{ createInterpolateElement(
 							__(
-								'To ensure the firewall can best protect your site, please update: <mark>auto_prepend_file</mark> PHP directive to point to <mark>src/users/user66501445/public/wp-content/jetpack-waf/bootstrap.php</mark> Typically this is set either in an .htaccess file or in the global PHP configuration; contact your host for further assistance.',
+								'To ensure the firewall can best protect your site, please update: <mark>auto_prepend_file</mark> PHP directive to point to <mark>wp-content/jetpack-waf/bootstrap.php</mark> Typically this is set either in an .htaccess file or in the global PHP configuration; contact your host for further assistance.',
 								'jetpack-protect'
 							),
 							{

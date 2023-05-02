@@ -3,12 +3,11 @@
 	import { onMount } from 'svelte';
 	import { Button } from '@wordpress/components';
 	import { __ } from '@wordpress/i18n';
-	import BackButton from '../../elements/BackButton.svelte';
 	import ReactComponent from '../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../elements/TemplatedString.svelte';
-	import { updateModuleState } from '../../stores/modules';
+	import { regenerateCriticalCss } from '../../stores/critical-css-state';
+	import { modulesState } from '../../stores/modules';
 	import Logo from '../../svg/jetpack-green.svg';
-	import { requestCloudCss } from '../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../utils/external-link-template-var';
 
 	const wpcomPricingUrl = getRedirectUrl( 'wpcom-pricing' );
@@ -17,15 +16,13 @@
 	export let location, navigate;
 
 	onMount( async () => {
-		// Enable cloud-css on a successful upgrade.
-		await updateModuleState( 'cloud-css', true );
-		await requestCloudCss();
+		$modulesState.cloud_css.active = true;
+		await regenerateCriticalCss();
 	} );
 </script>
 
-<div id="jb-settings" class="jb-settings">
+<div id="jb-dashboard" class="jb-dashboard">
 	<div class="jb-container jb-container--fixed mt-2">
-		<BackButton />
 		<div class="jb-card">
 			<div class="jb-card__content">
 				<Logo class="my-2" />

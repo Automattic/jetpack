@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Settings: Eliminate orphaned references to custom fields within field sorting settings when removing custom fields.

@@ -16,7 +16,10 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
+use Automattic\Jetpack\Status as Status;
 use Automattic\Jetpack\Sync\Data_Settings;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 /**
  * Class WPCOM_Migration
@@ -72,11 +75,23 @@ class WPCOM_Migration {
 			'manage_options',
 			'wpcom-migration',
 			array( $this, 'plugin_settings_page' ),
-			'dashicons-admin-generic',
+			'dashicons-migrate',
 			79 // right before the Settings menu (80)
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+	}
+
+	/**
+	 * Returns whether we are in condition to track to use
+	 * Analytics functionality like Tracks, MC, or GA.
+	 */
+	public static function can_use_analytics() {
+		$status     = new Status();
+		$connection = new Connection_Manager();
+		$tracking   = new Tracking( 'jetpack', $connection );
+
+		return $tracking->should_enable_tracking( new Terms_Of_Service(), $status );
 	}
 
 	/**
@@ -100,6 +115,11 @@ class WPCOM_Migration {
 			)
 		);
 		Assets::enqueue_script( 'wpcom-migration' );
+
+		// Required for Analytics.
+		if ( self::can_use_analytics() ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'wpcom-migration', Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( 'wpcom-migration', $this->render_initial_state(), 'before' );

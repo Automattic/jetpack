@@ -73,4 +73,9 @@ export type PricingTableItemProps = {
 	 * Title for the popover, not required.
 	 */
 	tooltipTitle?: string;
+
+	/**
+	 * Class name for the popover, not required.
+	 */
+	tooltipClassName?: string;
 };

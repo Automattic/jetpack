@@ -11,6 +11,7 @@ const initialState = {
 	minDaysOfBackupsAllowed: null,
 	daysOfBackupsAllowed: null,
 	daysOfBackupsSaved: null,
+	retentionDays: null,
 };
 
 const siteBackupSize = ( state = initialState, action ) => {
@@ -32,6 +33,7 @@ const siteBackupSize = ( state = initialState, action ) => {
 				minDaysOfBackupsAllowed: action.payload?.minDaysOfBackupsAllowed,
 				daysOfBackupsAllowed: action.payload?.daysOfBackupsAllowed,
 				daysOfBackupsSaved: action.payload?.daysOfBackupsSaved,
+				retentionDays: action.payload?.retentionDays,
 			};
 		}
 		case SITE_BACKUP_SIZE_GET_FAILED: {

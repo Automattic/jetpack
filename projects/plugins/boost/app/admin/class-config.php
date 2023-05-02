@@ -4,8 +4,8 @@ namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack_Boost\Features\Optimizations\Optimizations;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Nonce;
 
 /**
@@ -26,11 +26,11 @@ class Config {
 
 	public function init() {
 		add_action( 'wp_ajax_set_show_score_prompt', array( $this, 'handle_set_show_score_prompt' ) );
-		add_action( 'jetpack_boost_before_module_status_update', array( $this, 'on_module_status_change' ), 10, 2 );
+		add_action( 'jetpack_boost_module_status_updated', array( $this, 'on_module_status_change' ), 10, 2 );
 	}
 
 	public function constants() {
-		$optimizations = ( new Optimizations() )->get_status();
+		$optimizations = ( new Modules_Setup() )->get_status();
 		$internal_path = apply_filters( 'jetpack_boost_asset_internal_path', 'app/assets/dist/' );
 
 		$constants = array(
@@ -49,6 +49,7 @@ class Config {
 				'getStarted' => self::is_getting_started(),
 				'isAtomic'   => ( new Host() )->is_woa_site(),
 			),
+			'isPremium'             => Premium_Features::has_any(),
 			'preferences'           => array(
 				'prioritySupport' => Premium_Features::has_feature( Premium_Features::PRIORITY_SUPPORT ),
 			),

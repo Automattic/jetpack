@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, azaozz, batmoo, barry, beaulebens, bindlegirl, biskobe, blobaugh, bjorsch, brbrr, cainm, cena, cfinke, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, davoraltman, daniloercoli, delawski, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jblz, jasmussen, jeffgolenski, jeherve, jenhooks, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, robertbpugh, roccotripaldi, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, tmoorewp, tyxla, Viper007Bond, westi, wpkaren, yoavf, zinigor
 Tags: Security, backup, Woo, malware, scan, spam, CDN, search, social
-Stable tag: 11.8
-Requires at least: 6.0
+Stable tag: 12.0
+Requires at least: 6.1
 Requires PHP: 5.6
-Tested up to: 6.1
+Tested up to: 6.2
 
 Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
 
@@ -197,7 +197,7 @@ Blocks are the individual sections that make up a page. There are many block typ
 * Related Posts Block - The Related Posts feature scans all of your posts' contents, analyzes it, and uses that to display contextual posts your visitors might be interested in reading after they're finished with the current post.
 * Repeat Visitor Block - The Repeat Visitor block enables the author to control the visibility of its nested block(s) depending on how many times a visitor has previously visited the page.
 * Revue Block - The Revue block creates a simple signup form for readers to opt-in to receive your newsletter.
-* Slideshow Block - The Slideshow block lets you insert an image slideshow into a post or page.﻿
+* Slideshow Block - The Slideshow block lets you insert an image slideshow into a post or page.
 * Star Rating Block - The Ratings block allows any site author to add reviews to the site.
 * Subscription Form Block - The Subscription Form Block allows you to insert a subscription form within the content area of any post or page, enabling your readers to get notifications when you publish new posts.
 * Tiled Gallery Block - With Tiled Galleries you can display your image galleries in four styles: tiled mosaic, circular grid, square tiles, and tiled columns.
@@ -244,25 +244,26 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 11.9-a.3 - 2023-02-15
+### 12.1-beta - 2023-04-25
 #### Enhancements
-- Site editor: display location-aware snackbar in edit mode.
-- Stats: adds filter to hide stats widget based on user capability.
-- Stats: added a notice with a link to a survey when the new stats interface is disabled.
-- Subscriptions: updated submit messages text for subscriptions.
-- Social: visual update to social buttons.
+- Block editor: collapse Jetpack feature panels by default.
+- Dashboard: align Protect information display with Akismet.
+- Dashboard: improve the general appearance.
+- Dashboard: redesign the At a Glance page.
+- Dashboard: visually refresh the Debug page.
+- Markdown Block: add support for footnotes.
+- Publicize: improve page metadata by using attached media for the OpenGraph image.
+- Stats Widget: improve appearance of footer buttons.
+- Stats Widget: make frame sections balanced with long titles.
+- Stats Widget: make the new version of the widget available to general audience.
+- Subscriptions: Add counts in the newsletter panel to show the newsletter reach.
 
 #### Improved compatibility
-- Social: update icon font to remove support for older browsers (IE11-).
-- Themes: ensure redesigned sharing buttons look good in default themes (Twenty Nineteen, Twenty Sixteen).
+- General: remove WordPress 6.0 backwards-compatibility code, now that Jetpack requires WordPress 6.1.
 
 #### Bug fixes
-- Forms block: add filter to prevent contact-form-styles script from being concatenated.
-- Forms block: add new method to parse the form fields, fallback to old method.
-- Forms block: prevent blur effect on AMP pages.
-- Subscriptions: fix premium content block where it would only allow access to site subscribers.
-- Subscriptions: fix subscribe-block button to behave the same as in the fronted.
-- Widgets: fix GoodReads custom widget not finding the target HTML element and appending another after its script tag.
+- 3rd-party plugin support code: improve loading performance.
+- Payment Block: update the visibility setting of inner blocks on click to ensure that the inner block renders.
 
 --------
 

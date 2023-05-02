@@ -95,7 +95,7 @@ Running the script will tell you if you have your environment already set up and
 
 #### Running Tests
 
-To run PHP, JS, and coverage tests, you can use the Jetpack CLI: `jetpack test` and then choose the project and type of test you'd like to run.
+To run PHP and JS tests, you can use the Jetpack CLI: `jetpack test` and then choose the project and type of test you'd like to run.
 
 # Development Workflow
 

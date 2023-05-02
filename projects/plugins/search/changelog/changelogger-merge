@@ -1,5 +1,0 @@
-Significance: patch
-Type: added
-Comment: Minor update to changelog package that supports git merge strategy. Should not affect shipped code.
-
-

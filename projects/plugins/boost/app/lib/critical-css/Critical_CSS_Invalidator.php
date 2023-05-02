@@ -6,36 +6,44 @@
  */
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
-use Automattic\Jetpack_Boost\Features\Optimizations\Cloud_CSS\Cloud_CSS_Cron;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS_Followup;
 
+/**
+ * Handler for invalidating Critical CSS; both Cloud and Local. Watches relevant
+ * hooks and clears data when necessary. Also sends out its own action
+ * (after_critical_css_invalidate) so that the Cloud or Local implementations of
+ * Critical CSS can respond to the invalidation.
+ */
 class Critical_CSS_Invalidator {
 	/**
 	 * Register hooks.
 	 */
 	public static function init() {
 		add_action( 'jetpack_boost_deactivate', array( __CLASS__, 'clear_data' ) );
-		add_action( 'handle_environment_change', array( __CLASS__, 'handle_clear_cache' ) );
+		add_action( 'handle_environment_change', array( __CLASS__, 'handle_environment_change' ) );
 	}
 
 	/**
 	 * Clear Critical CSS data.
 	 */
 	public static function clear_data() {
-		// Mass invalidate all cached values.
-		// ^^ Not true anymore. Mass invalidate __some__ cached values.
 		$storage = new Critical_CSS_Storage();
 		$storage->clear();
-		Critical_CSS_State::reset();
-		Cloud_CSS_Cron::uninstall();
+
+		$state = new Critical_CSS_State();
+		$state->clear();
+
+		Cloud_CSS_Followup::unschedule();
 	}
 
 	/**
-	 * Clear cached data and trigger side effects.
+	 * Respond to environment changes; deciding whether or not to clear Critical CSS data.
 	 */
-	public static function handle_clear_cache( $is_major_change ) {
+	public static function handle_environment_change( $is_major_change ) {
 		if ( $is_major_change ) {
 			self::clear_data();
-			do_action( 'jetpack_boost_after_clear_cache' );
+
+			do_action( 'critical_css_invalidated' );
 		}
 	}
 

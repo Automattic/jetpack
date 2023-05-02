@@ -36,11 +36,15 @@ export type PricingCardProps = {
 	/**
 	 * The CTA callback to be called on click.
 	 */
-	onCtaClick?: Button.ButtonProps[ 'onClick' ];
+	onCtaClick?: React.ComponentProps< typeof Button >[ 'onClick' ];
 	/**
 	 * Optional informative text.
 	 */
 	infoText?: React.ReactNode;
+	/**
+	 * The TOS copy.
+	 */
+	tosText?: React.ReactNode;
 	/**
 	 * Optional Child nodes
 	 */

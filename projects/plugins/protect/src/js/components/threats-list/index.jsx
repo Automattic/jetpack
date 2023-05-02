@@ -41,8 +41,11 @@ const ThreatsList = () => {
 	const getTitle = useCallback( () => {
 		switch ( selected ) {
 			case 'all':
+				if ( list.length === 1 ) {
+					return __( 'All threats', 'jetpack-protect' );
+				}
 				return sprintf(
-					/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
+					/* translators: placeholder is the amount of threats found on the site. */
 					__( 'All %s threats', 'jetpack-protect' ),
 					list.length
 				);

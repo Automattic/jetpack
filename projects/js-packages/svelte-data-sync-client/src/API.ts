@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { ApiError } from './ApiError';
 import { JSONSchema } from './utils';
 export type RequestParams = string | JSONSchema;
 export type RequestMethods = 'GET' | 'POST' | 'DELETE';
@@ -40,7 +41,8 @@ export class API {
 		partialPathname: string,
 		method: RequestMethods = 'GET',
 		endpointNonce: string,
-		params?: RequestParams
+		params?: RequestParams,
+		abortSignal?: AbortSignal
 	) {
 		if ( ! this.isInitialized() ) {
 			console.error( 'API is not initialized', {
@@ -54,6 +56,7 @@ export class API {
 
 		const args: RequestInit = {
 			method,
+			signal: abortSignal,
 			headers: {
 				'Content-Type': 'application/json',
 				'X-WP-Nonce': this.restNonce,
@@ -63,15 +66,11 @@ export class API {
 			body: null,
 		};
 
-		if ( method === 'POST' && params ) {
+		if ( method === 'POST' ) {
 			args.body = JSON.stringify( { JSON: params } );
 		}
 
-		const result = await fetch( url, args );
-		if ( ! result.ok ) {
-			console.error( 'Failed to fetch', url, result );
-			throw new Error( `Failed to "${ method }" to ${ url }. Received ${ result.status }` );
-		}
+		const result = await this.attemptRequest( url, args );
 
 		let data;
 		const text = await result.text();
@@ -79,6 +78,7 @@ export class API {
 			data = JSON.parse( text );
 		} catch ( e ) {
 			console.error( 'Failed to parse the response\n', { url, text, result, error: e } );
+			throw new ApiError( url, 'json_parse_error', 'Failed to parse the response' );
 		}
 
 		/**
@@ -89,10 +89,23 @@ export class API {
 		 * @see https://github.com/WordPress/wordpress-develop/blob/28f10e4af559c9b4dbbd1768feff0bae575d5e78/src/wp-includes/rest-api/class-wp-rest-request.php#L701
 		 */
 		if ( ! data || data.JSON === undefined ) {
-			console.error( 'Failed to parse the response\n', { url, text, result } );
-			throw new Error( `Failed to "${ method }" to ${ url }. Received ${ result.status }` );
+			console.error( 'JSON response is empty.\n', { url, text, result } );
+			throw new ApiError( url, 'json_empty', 'JSON response is empty' );
 		}
 
 		return data.JSON;
+	}
+
+	private async attemptRequest( url: string, args: RequestInit ) {
+		try {
+			const result = await fetch( url, args );
+			if ( ! result.ok ) {
+				throw new ApiError( url, result.status, result.statusText );
+			}
+
+			return result;
+		} catch ( e ) {
+			throw new ApiError( url, 'failed_to_sync', e.message );
+		}
 	}
 }

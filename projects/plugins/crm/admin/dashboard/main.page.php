@@ -67,11 +67,48 @@ function jpcrm_render_dashboard_page() {
 		$settings_dashboard_latest_contacts = 'true';
 	}
 
+	// process data for use in sales funnel
+	$funnel_data = array();
+
+	$funnel_status_str = zeroBSCRM_getSetting( 'zbsfunnel' );
+
+	// if no setting exists, grab it from the init config
+	if ( empty( $funnel_status_str ) ) {
+		global $zeroBSCRM_Conf_Setup; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$funnel_status_str = $zeroBSCRM_Conf_Setup['conf_defaults']['zbsfunnel']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
+
+	$funnel_statuses = explode( ',', $funnel_status_str );
+
+	$backfill_count = 0;
+
+	// reverse for backfill purposes
+	foreach ( array_reverse( $funnel_statuses ) as $contact_status ) {
+
+		// number of contacts in a given status
+		$count = zeroBS_customerCountByStatus( $contact_status );
+
+		// number of contacts in this status plus later statuses
+		$backfill_count += $count;
+
+		// The funnel supports links, so we could link to the contact list filtered by statuses,
+		// for example...however, there's no predefined list of status filters and the current
+		// conversion methods indicate they're not entirely i18n-safe and/or tested.
+		$funnel_data[] = array(
+			'count'          => $count,
+			'backfill_count' => $backfill_count,
+			'contact_status' => $contact_status,
+			'link'           => false,
+		);
+	}
+
+	$funnel_data = array_reverse( $funnel_data );
+
 	?>
 
 
 <div class='zbs-dash-header'>
-	<?php // WLREMOVE ?>
+	<?php ##WLREMOVE ?>
 	<div class="ui message compact" style="
 	max-width: 400px;
 	float: right;
@@ -80,7 +117,7 @@ function jpcrm_render_dashboard_page() {
 	<div class="header">
 	</div>
 	</div>
-	<?php // /WLREMOVE ?>
+	<?php ##/WLREMOVE ?>
 
 
 </div>
@@ -164,81 +201,12 @@ function jpcrm_render_dashboard_page() {
 </div>
 
 <!-- loads summary boxes -->
+<div id="crm_summary_numbers_container">
 <div id="crm_summary_numbers" class="ui cards grid"></div>
+</div>
 
 <!--- the contacts over time comes in next - PHP below is for the funnel -->
 <div class="ui grid narrow">
-
-
-
-	<?php
-
-	$zbsFunnelStr = zeroBSCRM_getSetting( 'zbsfunnel' );
-
-	// } Defaults:
-	$zbsFunnelArr  = array();
-	$zbsFunnelArrN = array();
-
-	// } Unpack.. if present
-	if ( ! empty( $zbsFunnelStr ) ) {
-
-		if ( strpos( $zbsFunnelStr, ',' ) > -1 ) {
-
-			// csv
-			$zbsFunnelArrN = explode( ',', $zbsFunnelStr );
-			$zbsFunnelArr  = array_reverse( $zbsFunnelArrN );
-
-		} else {
-
-			// single str
-			$zbsFunnelArr  = array( $zbsFunnelStr );
-			$zbsFunnelArrN = array( $zbsFunnelStr );
-
-		}
-	}
-
-	$i   = 0;
-	$tot = 0;
-	$n   = count( $zbsFunnelArr );
-	// wh added these to stop php notices?
-	$func = array();
-	foreach ( $zbsFunnelArr as $Funnel ) {
-		// hack for demo site
-		$fun[ $i ]  = zeroBS_customerCountByStatus( $Funnel );
-		$func[ $i ] = $fun[ $i ] + $tot;
-		$tot        = $func[ $i ];
-		++$i;
-	}
-
-	$values = array_reverse( $func );
-
-	// WH note: added second set of SAME colours here - as was PHP NOTICE for users with more than 6 in setting below
-	$colors  = array( '#00a0d2', '#0073aa', '#035d88', '#333', '#222', '#000', '#00a0d2', '#0073aa', '#035d88', '#333', '#222', '#000' );
-	$colorsR = array_reverse( $colors );
-
-	$i    = 0;
-	$data = '';
-	$n    = count( $zbsFunnelArr ) - 1;
-
-	// WH added - to stop 0 0 funnels
-	$someDataInData = false;
-
-	for ( $j = $n; $j >= 0;  $j-- ) {
-
-		$val = (int) $func[ $j ];
-
-		if ( $val > 0 ) {
-			$someDataInData = true;
-		}
-
-		$data     .= '{';
-			$data .= 'value: ' . $val . ',';
-			$data .= "color: '" . $colors[ $j ] . "',";
-			$data .= "labelstr: '" . $func[ $j ] . "'";
-		$data     .= '},';
-	}
-
-	?>
 
 	<?php
 
@@ -295,44 +263,7 @@ function jpcrm_render_dashboard_page() {
 <script type="text/javascript">
 jQuery(function(){
 
-	funnel_height = jQuery('#bar-chart').height();
-	jQuery('.zbs-funnel').height(funnel_height);
 
-	jQuery('.learn')
-	.popup({
-		inline: false,
-		on:'click',
-		lastResort: 'bottom right',
-	});
-
-	<?php if ( strlen( $data ) > 0 ) { ?>
-	window.funnelData = [<?php echo $data; ?>];
-	<?php } else { ?>
-	window.funnelData = '';
-	<?php } ?>
-
-	if (funnelData != '') jQuery('#funnel-container').drawFunnel(funnelData, {
-
-
-	width: jQuery('.zbs-funnel').width() - 50, 
-	height: jQuery('.zbs-funnel').height() -50,  
-
-	// Padding between segments, in pixels
-	padding: 1, 
-
-	// Render only a half funnel
-	half: false,  
-
-	// Width of a segment can't be smaller than this, in pixels
-	minSegmentSize: 30,  
-
-	// label: function () { return "Label!"; } 
-
-
-	label: function (obj) {
-		return obj;
-	}
-	});
 
 
 // WH added: don't draw if not there :)
@@ -384,7 +315,7 @@ if (jQuery('#bar-chart').length){
 </div>
 
 <div class="ui grid narrow">
-	<div class="six wide column zbs-funnel"  id="settings_dashboard_sales_funnel_display" 
+	<div class="six wide column" id="settings_dashboard_sales_funnel_display" 
 	<?php
 	if ( $settings_dashboard_sales_funnel == 'true' ) {
 		echo "style='display:block;'";
@@ -397,36 +328,7 @@ if (jQuery('#bar-chart').length){
 		<div class="panel-heading" style="text-align:center">
 		<h4 class="panel-title text-muted font-light"><?php esc_html_e( 'Sales Funnel', 'zero-bs-crm' ); ?></h4>
 		</div>
-		<?php
-		if (
-			( is_array( $data ) && count( $data ) == 0 )
-			||
-			( is_string( $data ) && strlen( $data ) == 0 )
-			||
-			! $someDataInData
-			) {
-			?>
-		<div class='ui message blue' style="text-align:center;margin-bottom:50px;">
-				<?php esc_html_e( 'You do not have any contacts. Make sure you have contacts in each stage of your funnel.', 'zero-bs-crm' ); ?> 
-				<?php // WLREMOVE ?><br/><br/>
-			<a class="button ui blue" href="<?php echo esc_url( $zbs->urls['kbcrmdashboard'] ); ?>"><?php esc_html_e( 'Read Guide', 'zero-bs-crm' ); ?></a>
-				<?php // /WLREMOVE ?>
-		</div>
-		<?php } else { ?>
-		<div id="funnel-container"></div>
-		<?php } ?>
-
-		<div class='funnel-legend'>
-			<?php
-			$i             = 0;
-			$zbsFunnelArrR = array_reverse( $zbsFunnelArr );
-			$j             = count( $zbsFunnelArrR );
-			foreach ( $zbsFunnelArrR as $Funnel ) {
-				echo '<div class="zbs-legend" style="background:' . esc_attr( $colors[ $j - $i - 1 ] ) . '"></div><div class="zbs-label">  ' . esc_html( $Funnel ) . '</div>';
-				++$i;
-			}
-			?>
-		</div>
+		<div id="jpcrm_sales_funnel"></div>
 
 	</div>
 	</div>
@@ -441,16 +343,16 @@ if (jQuery('#bar-chart').length){
 		>
 	<div class='panel'>
 
-		<div class="panel-heading" style="text-align:center">
+		<div class="panel-heading jpcrm-revenue-chart-heading" style="text-align:center;position:relative">
 		<?php $currencyChar = zeroBSCRM_getCurrencyChr(); ?>
 		<h4 class="panel-title text-muted font-light"><?php esc_html_e( 'Revenue Chart', 'zero-bs-crm' ); ?> (<?php echo esc_html( $currencyChar ); ?>)</h4>
-		<?php // WLREMOVE ?>
+		<?php ##WLREMOVE ?>
 		<?php if ( ! zeroBSCRM_isExtensionInstalled( 'salesdash' ) ) { ?>
 			<span class='upsell'><a href="<?php echo esc_url( $zbs->urls['salesdash'] ); ?>" target="_blank"><?php esc_html_e( 'Want More?', 'zero-bs-crm' ); ?></a></span>
 		<?php } else { ?>
 			<span class='upsell'><a href="<?php echo jpcrm_esc_link( $zbs->slugs['salesdash'] ); ?>"><?php esc_html_e( 'Sales Dashboard', 'zero-bs-crm' ); ?></a></span>
 		<?php } ?>
-		<?php // /WLREMOVE ?>
+		<?php ##/WLREMOVE ?>
 		</div>
 
 
@@ -459,9 +361,9 @@ if (jQuery('#bar-chart').length){
 			?>
 		<div class='ui message blue' style="text-align:center;margin-bottom:80px;margin-top:50px;">
 				<?php esc_html_e( 'You do not have any transactions that match your chosen settings. You need transactions for your revenue chart to show. If you have transactions check your settings and then transaction statuses to include.', 'zero-bs-crm' ); ?> 
-				<?php // WLREMOVE ?><br/><br/>
+				<?php ##WLREMOVE ?><br/><br/>
 			<a class="button ui blue" href="<?php echo esc_url( $zbs->urls['kbrevoverview'] ); ?>"><?php esc_html_e( 'Read Guide', 'zero-bs-crm' ); ?></a>
-				<?php // /WLREMOVE ?>
+				<?php ##/WLREMOVE ?>
 		</div>
 		<?php } else { ?>
 		<canvas id="bar-chart" width="800" height="403"></canvas>
@@ -552,7 +454,7 @@ if (jQuery('#bar-chart').length){
 				<div class='date'><img class='ui avatar img img-rounded' alt='<?php esc_attr_e( 'Contact Image', 'zero-bs-crm' ); ?>' src='<?php echo esc_url( $avatar ); ?>'/></div>
 				<div class='content text'>
 				<span class='header'><?php echo esc_html( $logmetatype ); ?><span class='when'> (<?php echo esc_html( $diff . __( ' ago', 'zero-bs-crm' ) ); ?>)</span><span class='who'><?php echo esc_html( $logauthor ); ?></span></span>
-				<div class='description'><?php echo esc_html( $logmetashot ); ?><br/></div>
+				<div class='description'><?php echo wp_kses( $logmetashot, array( 'i' => array( 'class' => true ) ) ); ?><br/></div>
 				</div>
 			</div>
 						<?php
@@ -575,13 +477,13 @@ if (jQuery('#bar-chart').length){
 	<div class="ten wide column" id="settings_dashboard_latest_contacts_display" 
 	<?php
 	if ( $settings_dashboard_latest_contacts == 'true' ) {
-		echo "style='display:block;margin: 0;padding-left: 0;'";
+		echo "style='display:block;margin: 0;'";
 	} else {
 		echo "style='display:none;'";}
 	?>
 		>
 	<div class="panel">
-		<div class="panel-heading" style="text-align:center;position:relative">
+		<div class="panel-heading jpcrm-latest-contacts-heading" style="text-align:center;position:relative">
 			<h4 class="panel-title text-muted font-light"><?php esc_html_e( 'Latest Contacts', 'zero-bs-crm' ); ?></h4>
 			<span class='upsell'><a href="<?php echo jpcrm_esc_link( $zbs->slugs['managecontacts'] ); ?>"><?php esc_html_e( 'View All', 'zero-bs-crm' ); ?></a></span>
 		</div>
@@ -620,12 +522,13 @@ if (jQuery('#bar-chart').length){
 				<tbody>
 					<?php
 					foreach ( $latest_cust as $cust ) {
-						// phpcs:disable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- to be refactored.
-						$avatar = ( isset( $cust ) && isset( $cust['id'] ) ) ? $zbs->DAL->contacts->getContactAvatar( $cust['id'] ) : '';
-						$fname  = ( isset( $cust ) && isset( $cust['fname'] ) ) ? $cust['fname'] : '';
-						$lname  = ( isset( $cust ) && isset( $cust['lname'] ) ) ? $cust['lname'] : '';
-						$status = ( isset( $cust ) && isset( $cust['status'] ) ) ? $cust['status'] : '';
-						// phpcs:enable WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						// phpcs:disable WordPress.NamingConventions.ValidVariableName -- to be refactored.
+						$contactAvatar = $zbs->DAL->contacts->getContactAvatar( $cust['id'] );
+						$avatar        = ( isset( $cust ) && isset( $cust['id'] ) ) ? ( $contactAvatar ? $contactAvatar : zeroBSCRM_getDefaultContactAvatar() ) : '';
+						$fname         = ( isset( $cust ) && isset( $cust['fname'] ) ) ? $cust['fname'] : '';
+						$lname         = ( isset( $cust ) && isset( $cust['lname'] ) ) ? $cust['lname'] : '';
+						$status        = ( isset( $cust ) && isset( $cust['status'] ) ) ? $cust['status'] : '';
+						// phpcs:enable WordPress.NamingConventions.ValidVariableName
 						if ( empty( $status ) ) {
 							$status = __( 'None', 'zero-bs-crm' );
 						}
@@ -655,6 +558,12 @@ if (jQuery('#bar-chart').length){
 		</div>
 	</div>
 </div>
+<script>
+// build sales funnel
+let funnel_element = document.getElementById('jpcrm_sales_funnel');
+let funnel_data = <?php echo wp_json_encode( $funnel_data ); ?>;
+jpcrm_build_funnel(funnel_data,funnel_element);
+</script>
 	<?php
 
 	// First use dashboard

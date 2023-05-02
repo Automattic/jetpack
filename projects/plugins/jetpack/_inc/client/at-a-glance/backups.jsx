@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
@@ -36,12 +36,12 @@ const renderCard = props => (
 		module={ props.feature || 'backups' }
 		support={ {
 			text: __(
-				'Jetpack Backups allow you to easily restore or download a backup from a specific moment.',
+				'VaultPress Backup allows you to easily restore or download a backup from a specific moment.',
 				'jetpack'
 			),
 			link: getRedirectUrl( 'jetpack-support-backup' ),
 		} }
-		className={ props.className }
+		className={ props.className + ' dash-backups' }
 		status={ props.status }
 		pro={ true }
 		overrideContent={ props.overrideContent }
@@ -139,7 +139,7 @@ class DashBackups extends Component {
 				<>
 					<BackupUpgrade />
 					<JetpackBanner
-						callToAction={ __( 'Upgrade', 'jetpack' ) }
+						callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 						title={ __(
 							'Never worry about losing your site – automatic backups keep your content safe.',
 							'jetpack'
@@ -313,7 +313,7 @@ class DashBackups extends Component {
 						{ buildCard( message ) }
 						<Card compact key="manage-backups" className="jp-dash-item__manage-in-wpcom">
 							<div className="jp-dash-item__action-links">
-								<a
+								<ExternalLink
 									href={
 										isWoA
 											? getRedirectUrl( 'calypso-backups', {
@@ -328,8 +328,8 @@ class DashBackups extends Component {
 									onClick={ this.trackBackupsClick( 'backups-link' ) }
 								>
 									{ __( "View your site's backups", 'jetpack' ) }
-								</a>
-								<a
+								</ExternalLink>
+								<ExternalLink
 									href={ getRedirectUrl( 'calypso-activity-log', {
 										site: siteRawUrl,
 										query: 'group=rewind',
@@ -339,7 +339,7 @@ class DashBackups extends Component {
 									onClick={ this.trackBackupsClick( 'restore-points-link' ) }
 								>
 									{ __( 'View your most recent restore points', 'jetpack' ) }
-								</a>
+								</ExternalLink>
 							</div>
 						</Card>
 					</React.Fragment>

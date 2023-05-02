@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Prevented the threat tester from being identified as a threat due to containing the Akismet suspicious link URL.

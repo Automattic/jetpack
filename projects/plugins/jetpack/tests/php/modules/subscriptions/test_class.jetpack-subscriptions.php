@@ -3,11 +3,13 @@
 require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
+use function Automattic\Jetpack\Extensions\Subscriptions\register_block as register_subscription_block;
 
 define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 
@@ -31,6 +33,8 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
+		remove_all_filters( 'jetpack_subscriptions_newsletter_feature_enabled' );
+
 		parent::tear_down();
 	}
 
@@ -253,7 +257,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @param int  $subscription_end_date
 	 * @return array
 	 */
-	private function get_payload( $is_subscribed, $is_paid_subscriber, $subscription_end_date, $status ) {
+	private function get_payload( $is_subscribed, $is_paid_subscriber = false, $subscription_end_date = null, $status = null ) {
 		$subscriptions = ! $is_paid_subscriber ? array() : array(
 			$this->product_id => array(
 				'status'     => $status ? $status : 'active',
@@ -285,7 +289,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		$payload            = $this->get_payload( $is_blog_subscriber, $is_paid_subscriber, $subscription_end_date, $status );
 
 		$post_id = $this->setup_jetpack_paid_newsletters();
-		$this->setReturnedSubscriptions( $payload );
+		$this->set_returned_subscriptions( $payload );
 
 		$GLOBALS['post'] = get_post( $post_id );
 		update_post_meta( $post_id, '_jetpack_newsletter_access', $post_access_level );
@@ -325,6 +329,81 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
+	 *
+	 * @covers \Automattic\Jetpack\Extensions\Subscriptions\maybe_close_comments
+	 *
+	 * @return void
+	 */
+	public function test_comments_are_not_displaying_on_not_pages() {
+		$this->setup_jetpack_paid_newsletters();
+		register_subscription_block();
+
+		// When no post id is set, the comments should default to whatever is passed as default
+		$this->assertFalse( apply_filters( 'comments_open', false, null ) );
+		$this->assertTrue( apply_filters( 'comments_open', true, null ) );
+	}
+
+	/**
+	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
+	 *
+	 * @covers \Automattic\Jetpack\Extensions\Subscriptions\maybe_close_comments
+	 *
+	 * @return void
+	 */
+	public function test_comments_are_displaying_on_not_accessible_pages() {
+		$enable_subscriptions_callback = function ( $active ) {
+				return array_merge( $active, array( 'subscriptions' ) );
+		};
+		add_filter(
+			'jetpack_active_modules',
+			$enable_subscriptions_callback
+		);
+
+		$post_id = $this->setup_jetpack_paid_newsletters();
+		register_subscription_block();
+
+		// When post-id is passed, it should prevent access depending of the user access
+		$is_user_subscribed   = false;
+		$payload              = $this->get_payload( $is_user_subscribed );
+		$subscription_service = $this->set_returned_token( $payload );
+		$GLOBALS['post']      = get_post( $post_id );
+		$post_access_level    = 'paid_subscribers';
+		update_post_meta( $post_id, '_jetpack_newsletter_access', $post_access_level );
+
+		$this->assertFalse( $subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level ) );
+		$this->assertFalse( apply_filters( 'comments_open', true, $post_id ) );
+		remove_filter(
+			'jetpack_active_modules',
+			$enable_subscriptions_callback
+		);
+	}
+
+	/**
+	 * Tests for regression from https://github.com/Automattic/jetpack/commit/e2c3b99c39047a15de02ca82f23893185916e2d9
+	 *
+	 * @covers \Automattic\Jetpack\Extensions\Subscriptions\maybe_close_comments
+	 *
+	 * @return void
+	 */
+	public function test_comments_are_not_displaying_for_paid_subscribers_when_defaults_to_false() {
+		$post_id = $this->setup_jetpack_paid_newsletters();
+		register_subscription_block();
+
+		// When post-id is passed, it should prevent access depending of the user access
+		$payload              = $this->get_payload( true, true, null, null );
+		$post_id              = $this->setup_jetpack_paid_newsletters();
+		$subscription_service = $this->set_returned_token( $payload );
+		$GLOBALS['post']      = get_post( $post_id );
+		$post_access_level    = 'paid_subscribers';
+		update_post_meta( $post_id, '_jetpack_newsletter_access', $post_access_level );
+		$this->assertTrue( $subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level ) );
+
+		// The user has access, BUT it still does NOT display comments if defaults to false
+		$this->assertFalse( apply_filters( 'comments_open', false, $post_id ) );
+	}
+
+	/**
 	 * Setup the newsletter post
 	 *
 	 * @return mixed
@@ -336,7 +415,16 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 				'post_type' => Jetpack_Memberships::$post_type_plan,
 			)
 		);
+
+		// Connect the plan to a product and mark the plan as a "newsletter" plan
 		update_post_meta( $this->plan_id, 'jetpack_memberships_product_id', $this->product_id );
+		update_post_meta( $this->plan_id, 'jetpack_memberships_site_subscriber', true );
+
+		// Connect the site to Stripe
+		update_option( Jetpack_Memberships::$connected_account_id_option_name, 123 );
+
+		// Enable the newsletter feature
+		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
 
 		// Create a post
 		return $this->factory->post->create();
@@ -348,7 +436,7 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @param array $payload .
 	 * @return WPCOM_Online_Subscription_Service
 	 */
-	private function setReturnedSubscriptions( $payload ) {
+	private function set_returned_subscriptions( $payload ) {
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		$paid_subscriber_id = $this->paid_subscriber_id;
 		add_filter(
@@ -367,5 +455,4 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 
 		return new WPCOM_Online_Subscription_Service();
 	}
-
 }

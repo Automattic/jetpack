@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import analytics from '@automattic/jetpack-analytics';
 import {
 	isAtomicSite,
 	isSimpleSite,
@@ -13,8 +14,8 @@ import { parse } from '@wordpress/block-serialization-default-parser';
 import { createBlock, getBlockType } from '@wordpress/blocks';
 import { Button } from '@wordpress/components';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useDispatch } from '@wordpress/data';
-import { mediaUpload } from '@wordpress/editor';
+import { useDispatch, select } from '@wordpress/data';
+import { mediaUpload, store as editorStore } from '@wordpress/editor';
 import { useContext, useEffect } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
@@ -425,9 +426,8 @@ function addVideoPressCoreVideoTransform( settings, name ) {
 	}
 
 	const isVideoPressVideoBlockRegistered = getBlockType( 'videopress/video' );
-	const { available: isVideoPressVideoBlockAvailable } = getJetpackExtensionAvailability(
-		'videopress/video'
-	);
+	const { available: isVideoPressVideoBlockAvailable } =
+		getJetpackExtensionAvailability( 'videopress/video' );
 
 	// If videopress/video block is not registered or not available, do not extend transforms.
 	if ( ! isVideoPressVideoBlockRegistered || ! isVideoPressVideoBlockAvailable ) {
@@ -447,7 +447,16 @@ function addVideoPressCoreVideoTransform( settings, name ) {
 						const guidFromSrc = pickGUIDFromUrl( src );
 						return guid || guidFromSrc;
 					},
-					transform: attrs => createBlock( 'videopress/video', attrs ),
+					transform: attrs => {
+						const postId = select( editorStore ).getCurrentPostId();
+						analytics?.tracks?.recordEvent(
+							'jetpack_editor_videopress_block_manual_transform_click',
+							{
+								post_id: postId,
+							}
+						);
+						return createBlock( 'videopress/video', attrs );
+					},
 				},
 			],
 			to: [
@@ -546,9 +555,8 @@ const convertVideoBlockToVideoPressVideoBlock = createHigherOrderComponent( Bloc
 
 		const isVideoPressVideoBlockRegistered = getBlockType( 'videopress/video' );
 
-		const { available: isVideoPressVideoBlockAvailable } = getJetpackExtensionAvailability(
-			'videopress/video'
-		);
+		const { available: isVideoPressVideoBlockAvailable } =
+			getJetpackExtensionAvailability( 'videopress/video' );
 
 		const isCoreVideoBlock = name === 'core/video';
 

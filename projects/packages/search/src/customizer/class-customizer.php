@@ -236,7 +236,7 @@ class Customizer {
 		$wp_customize->add_setting(
 			$id,
 			array(
-				'default'              => is_multisite() ? '1' : '0',
+				'default'              => '1',
 				'sanitize_callback'    => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value' ),
 				'sanitize_js_callback' => array( 'Automattic\Jetpack\Search\Helper', 'sanitize_checkbox_value_for_js' ),
 				'transport'            => 'postMessage',

@@ -17,7 +17,7 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "0.4.1"
+		"automattic/wordbless": "0.4.2"
 	},
 	"autoload": {
 		"classmap": [
@@ -27,9 +27,6 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -59,9 +56,14 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autorelease": true,
+		"autotagger": {
+			"v": false
+		},
 		"mirror-repo": "Automattic/wpcom-migration",
 		"release-branch-prefix": "migration",
-		"wp-plugin-slug": "wpcom-migration"
+		"wp-plugin-slug": "wpcom-migration",
+		"wp-svn-autopublish": true
 	},
 	"config": {
 		"allow-plugins": {
@@ -69,6 +71,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_migrationⓥ0_1_0_alpha"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_migrationⓥ0_2_0_alpha"
 	}
 }

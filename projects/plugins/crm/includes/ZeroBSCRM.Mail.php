@@ -375,7 +375,7 @@ function zeroBSCRM_mailDelivery_sendMessage($mailDeliveryAccKey='',$mail=-1){
 					// NOTE: we can apply wpeditor here because the only part of zbs using this 'content' addition is mikes emails
 					//... but this does FORCE us to be using same wp_editor format unless we do a migration
 					//... for now living with that [WH 18/10/18]
-					$emailContent = zeroBSCRM_io_WPEditor_WPEditorToDB($mail['content']);
+					$emailContent = wp_kses( $mail['content'], $zbs->acceptable_html ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				}
 

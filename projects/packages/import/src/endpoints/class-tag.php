@@ -13,9 +13,21 @@ namespace Automattic\Jetpack\Import\Endpoints;
 class Tag extends \WP_REST_Terms_Controller {
 
 	/**
-	 * The Import ID add a new item to the schema.
+	 * Base class
 	 */
 	use Import;
+
+	/**
+	 * The Import ID add a new item to the schema.
+	 */
+	use Import_ID;
+
+	/**
+	 * Whether the controller supports batching. Default true.
+	 *
+	 * @var array
+	 */
+	protected $allow_batch = array( 'v1' => true );
 
 	/**
 	 * Constructor.
@@ -28,34 +40,17 @@ class Tag extends \WP_REST_Terms_Controller {
 	}
 
 	/**
-	 * Registers the routes for the objects of the controller.
+	 * Creates a tag.
 	 *
-	 * @see WP_REST_Terms_Controller::register_rest_route()
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
-	public function register_routes() {
-		register_rest_route(
-			self::$rest_namespace,
-			'/tags',
-			$this->get_route_options()
-		);
-	}
+	public function create_item( $request ) {
+		$response = parent::create_item( $request );
 
-	/**
-	 * Update the tag parent ID.
-	 *
-	 * @param int $resource_id      The resource ID.
-	 * @param int $parent_import_id The parent ID.
-	 * @return bool True if updated.
-	 */
-	protected function update_parent_id( $resource_id, $parent_import_id ) {
-		$terms = \get_terms( $this->get_import_db_query( $parent_import_id ) );
+		// Ensure that the HTTP status is a valid one.
+		$response = $this->ensure_http_status( $response, 'term_exists', 409 );
 
-		if ( is_array( $terms ) && count( $terms ) === 1 ) {
-			$parent_id = $terms[0];
-
-			return (bool) \wp_update_term( $resource_id, $this->import_id_meta_type, array( 'parent' => $parent_id ) );
-		}
-
-		return false;
+		return $this->add_import_id_metadata( $request, $response );
 	}
 }

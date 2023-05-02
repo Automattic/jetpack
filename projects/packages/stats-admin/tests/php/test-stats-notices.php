@@ -101,6 +101,7 @@ class Test_Notices extends Stats_Test_Case {
 	 */
 	public function test_opt_in_new_stats_notice_show() {
 		Stats_Options::set_option( 'enable_odyssey_stats', false );
+		Stats_Options::set_option( 'odyssey_stats_changed_at', time() - 31 * DAY_IN_SECONDS );
 		$this->assertTrue( self::$notices->get_notices_to_show()['opt_in_new_stats'] );
 	}
 

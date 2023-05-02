@@ -1,15 +1,15 @@
 const fetch = require( 'node-fetch' );
 
-/* global WebhookPayloadPullRequest */
+/* global WebhookPayloadPullRequest, WebhookPayloadIssue */
 
 /**
  * Send a message to a Slack channel using the Slack API.
  *
- * @param {string}                    message             - Message to post to Slack
- * @param {string}                    channel             - Slack channel ID.
- * @param {string}                    token               - Slack token.
- * @param {WebhookPayloadPullRequest} payload             - Pull request event payload.
- * @param {object}                    customMessageFormat - Custom message formatting. If defined, takes over from message completely.
+ * @param {string}                                        message             - Message to post to Slack
+ * @param {string}                                        channel             - Slack channel ID.
+ * @param {string}                                        token               - Slack token.
+ * @param {WebhookPayloadPullRequest|WebhookPayloadIssue} payload             - Pull request event payload.
+ * @param {object}                                        customMessageFormat - Custom message formatting. If defined, takes over from message completely.
  * @returns {Promise<boolean>} Promise resolving to a boolean, whether message was successfully posted or not.
  */
 async function sendSlackMessage( message, channel, token, payload, customMessageFormat = {} ) {
@@ -19,8 +19,8 @@ async function sendSlackMessage( message, channel, token, payload, customMessage
 	if ( Object.keys( customMessageFormat ).length > 0 ) {
 		slackMessage = customMessageFormat;
 	} else {
-		const { pull_request, repository } = payload;
-		const { html_url, title, user } = pull_request;
+		const { repository } = payload;
+		const { html_url, title, user } = payload?.pull_request ?? payload.issue;
 
 		slackMessage = {
 			channel,

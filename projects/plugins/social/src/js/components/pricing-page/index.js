@@ -8,9 +8,11 @@ import {
 	getRedirectUrl,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { useCallback } from 'react';
+import useProductInfo from '../../hooks/use-product-info';
 import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
 
@@ -20,6 +22,8 @@ const UP_TO_30 = __( 'Up to 30', 'jetpack-social' );
 const UP_TO_30_SHARES = __( 'Up to 30 shares in 30 days', 'jetpack-social' );
 
 const PricingPage = () => {
+	const [ productInfo ] = useProductInfo();
+
 	const siteSuffix = useSelect( select => select( STORE_ID ).getSiteSuffix() );
 	const updateOptions = useDispatch( STORE_ID ).updateJetpackSettings;
 
@@ -98,13 +102,25 @@ const PricingPage = () => {
 		>
 			<PricingTableColumn primary>
 				<PricingTableHeader>
-					<ProductPrice
-						price={ 30 }
-						offPrice={ 1 }
-						legend={ __( '/month, billed yearly', 'jetpack-social' ) }
-						currency="USD"
-						hidePriceFraction
-					/>
+					{ productInfo?.advanced ? (
+						<ProductPrice
+							price={ productInfo?.advanced?.price }
+							offPrice={ productInfo?.advanced?.introOffer }
+							legend={ sprintf(
+								// translators: %1$s is the currency code, %2$s is the regular monthly price
+								__(
+									'trial for the first month, then %1$s%2$s /month, billed yearly',
+									'jetpack-social'
+								),
+								productInfo?.currencyCode,
+								parseFloat( productInfo?.advanced?.price ).toFixed( 2 )
+							) }
+							currency={ productInfo?.currencyCode }
+							hidePriceFraction
+						/>
+					) : (
+						<Spinner className={ styles.spinner } />
+					) }
 					<Button
 						href={ getRedirectUrl( 'jetpack-social-advanced-plan-plugin-admin-page', {
 							site: siteSuffix,
@@ -128,13 +144,17 @@ const PricingPage = () => {
 			</PricingTableColumn>
 			<PricingTableColumn primary>
 				<PricingTableHeader>
-					<ProductPrice
-						price={ 10 }
-						offPrice={ 1 }
-						legend={ __( '/month, billed yearly', 'jetpack-social' ) }
-						currency="USD"
-						hidePriceFraction
-					/>
+					{ productInfo?.basic ? (
+						<ProductPrice
+							price={ productInfo?.basic?.price }
+							offPrice={ productInfo?.basic?.introOffer }
+							legend={ __( '/month, billed yearly', 'jetpack-social' ) }
+							currency={ productInfo?.currencyCode }
+							hidePriceFraction
+						/>
+					) : (
+						<Spinner className={ styles.spinner } />
+					) }
 					<Button
 						href={ getRedirectUrl( 'jetpack-social-basic-plan-plugin-admin-page', {
 							site: siteSuffix,
@@ -158,7 +178,12 @@ const PricingPage = () => {
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
-					<ProductPrice price={ 0 } legend="" currency="USD" hidePriceFraction />
+					<ProductPrice
+						price={ 0 }
+						legend=""
+						currency={ productInfo?.currencyCode || 'USD' }
+						hidePriceFraction
+					/>
 					<Button
 						fullWidth
 						variant="secondary"

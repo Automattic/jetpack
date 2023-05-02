@@ -22,8 +22,9 @@ function add_launchpad_options() {
 	}
 
 	$launchpad_options = array(
-		'launchpadScreenOption' => get_option( 'launchpad_screen' ),
-		'siteIntentOption'      => get_option( 'site_intent' ),
+		'launchpadScreenOption'       => get_option( 'launchpad_screen' ),
+		'siteIntentOption'            => get_option( 'site_intent' ),
+		'hasNeverPublishedPostOption' => get_option( 'has_never_published_post' ),
 	);
 	wp_add_inline_script(
 		'jetpack-blocks-editor',

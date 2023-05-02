@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Button, getRedirectUrl, Text } from '@automattic/jetpack-components';
-import { Modal } from '@wordpress/components';
+import { ExternalLink, Modal } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, external } from '@wordpress/icons';
@@ -143,7 +143,7 @@ const ManageConnectionActionCard = ( { title, onClick = () => null, link = '#', 
 const HelpFooter = ( { onClose } ) => {
 	return (
 		<div className="jp-row jp-connection__manage-dialog__actions">
-			<div className="jp-connection__manage-dialog__text-wrap lg-col-span-8 md-col-span-6 sm-col-span-3">
+			<div className="jp-connection__manage-dialog__text-wrap lg-col-span-9 md-col-span-7 sm-col-span-3">
 				<Text>
 					{ createInterpolateElement(
 						__(
@@ -153,21 +153,17 @@ const HelpFooter = ( { onClose } ) => {
 						{
 							strong: <strong></strong>,
 							connectionInfoLink: (
-								<a
+								<ExternalLink
 									href={ getRedirectUrl(
 										'why-the-wordpress-com-connection-is-important-for-jetpack'
 									) }
-									rel="noopener noreferrer"
-									target="_blank"
 									className="jp-connection__manage-dialog__link"
 									// TODO add click track
 								/>
 							),
 							supportLink: (
-								<a
+								<ExternalLink
 									href={ getRedirectUrl( 'jetpack-support' ) }
-									rel="noopener noreferrer"
-									target="_blank"
 									className="jp-connection__manage-dialog__link"
 									// TODO add click track
 								/>
@@ -176,7 +172,7 @@ const HelpFooter = ( { onClose } ) => {
 					) }
 				</Text>
 			</div>
-			<div className="jp-connection__manage-dialog__button-wrap lg-col-span-4 md-col-span-2 sm-col-span-1">
+			<div className="jp-connection__manage-dialog__button-wrap lg-col-span-3 md-col-span-1 sm-col-span-1">
 				<Button
 					weight="regular"
 					variant="secondary"

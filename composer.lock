@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fbfdcee87a9b0532a84c3dc7fbfc6e9f",
+    "content-hash": "14e1622140e1206bfb034fd826dd3546",
     "packages": [],
     "packages-dev": [
         {
@@ -13,7 +13,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/ignorefile",
-                "reference": "a70b0aab252faa30c07064b7c076ead119064127"
+                "reference": "31f201510fb6b93e6dc48d090104ecb02ab14eed"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -40,9 +40,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "test-php": [
                     "@composer phpunit"
                 ]
@@ -61,7 +58,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "fa645eb94c212a4b8b636ecc6c7a9503b4c1a521"
+                "reference": "5ab1c381b42d86c04a07d55d196bc8789d2842bb"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
@@ -99,9 +96,6 @@
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
                 ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-                ],
                 "skip-test-php": [
                     "./tests/action-skip-test-php.sh"
                 ],
@@ -123,7 +117,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/phpcs-filter",
-                "reference": "c7e65316a187ec27a41f994a55c420e5ef98719c"
+                "reference": "aa4cad3c64e699db37405b2528bc2f9dce1f7519"
             },
             "require": {
                 "automattic/ignorefile": "@dev",
@@ -147,9 +141,6 @@
             "scripts": {
                 "phpunit": [
                     "./vendor/phpunit/phpunit/phpunit --colors=always"
-                ],
-                "test-coverage": [
-                    "php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
                 ],
                 "test-php": [
                     "@composer phpunit"
@@ -736,16 +727,16 @@
         },
         {
             "name": "phpcsstandards/phpcsextra",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHPCSExtra.git",
-                "reference": "a077c4ad65b906768ed2f820701958b57f605be0"
+                "reference": "7029c051cd310e2e17c6caea3429bfbe290c41ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHPCSExtra/zipball/a077c4ad65b906768ed2f820701958b57f605be0",
-                "reference": "a077c4ad65b906768ed2f820701958b57f605be0",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHPCSExtra/zipball/7029c051cd310e2e17c6caea3429bfbe290c41ae",
+                "reference": "7029c051cd310e2e17c6caea3429bfbe290c41ae",
                 "shasum": ""
             },
             "require": {
@@ -795,20 +786,20 @@
                 "issues": "https://github.com/PHPCSStandards/PHPCSExtra/issues",
                 "source": "https://github.com/PHPCSStandards/PHPCSExtra"
             },
-            "time": "2023-01-09T22:15:31+00:00"
+            "time": "2023-03-28T17:48:27+00:00"
         },
         {
             "name": "phpcsstandards/phpcsutils",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHPCSUtils.git",
-                "reference": "4fd2e30c7465112ca2e3646037bfb9e6f0f4d4f3"
+                "reference": "e74812ac026d9f9f18a936d29880b2db3211f89d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHPCSUtils/zipball/4fd2e30c7465112ca2e3646037bfb9e6f0f4d4f3",
-                "reference": "4fd2e30c7465112ca2e3646037bfb9e6f0f4d4f3",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHPCSUtils/zipball/e74812ac026d9f9f18a936d29880b2db3211f89d",
+                "reference": "e74812ac026d9f9f18a936d29880b2db3211f89d",
                 "shasum": ""
             },
             "require": {
@@ -869,7 +860,7 @@
                 "issues": "https://github.com/PHPCSStandards/PHPCSUtils/issues",
                 "source": "https://github.com/PHPCSStandards/PHPCSUtils"
             },
-            "time": "2023-01-05T12:08:37+00:00"
+            "time": "2023-03-28T16:57:37+00:00"
         },
         {
             "name": "sirbrillig/phpcs-changed",
@@ -929,16 +920,16 @@
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
-            "version": "v2.11.10",
+            "version": "v2.11.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-variable-analysis.git",
-                "reference": "0f25a3766f26df91d6bdda0c8931303fc85499d7"
+                "reference": "dc5582dc5a93a235557af73e523c389aac9a8e88"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/0f25a3766f26df91d6bdda0c8931303fc85499d7",
-                "reference": "0f25a3766f26df91d6bdda0c8931303fc85499d7",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-variable-analysis/zipball/dc5582dc5a93a235557af73e523c389aac9a8e88",
+                "reference": "dc5582dc5a93a235557af73e523c389aac9a8e88",
                 "shasum": ""
             },
             "require": {
@@ -983,7 +974,7 @@
                 "source": "https://github.com/sirbrillig/phpcs-variable-analysis",
                 "wiki": "https://github.com/sirbrillig/phpcs-variable-analysis/wiki"
             },
-            "time": "2023-01-05T18:45:16+00:00"
+            "time": "2023-03-31T16:46:32+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
@@ -1216,7 +1207,9 @@
     },
     "prefer-stable": true,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "ext-json": "*"
+    },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"
 }
