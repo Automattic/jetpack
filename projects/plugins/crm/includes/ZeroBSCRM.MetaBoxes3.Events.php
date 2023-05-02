@@ -540,9 +540,11 @@ function zeroBSCRM_task_addEdit($taskID = -1){
 
     $html .= zeroBSCRM_task_ui_clear();
 
-    $html .= zeroBSCRM_task_ui_assignment($taskObject, $taskID);
+	$html .= jpcrm_task_ui_daterange( $taskObject ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-    $html .= zeroBSCRM_task_ui_date($taskObject);
+	$html .= zeroBSCRM_task_ui_clear();
+
+	$html .= zeroBSCRM_task_ui_assignment( $taskObject, $taskID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
     $html .= zeroBSCRM_task_ui_clear();
 
@@ -730,62 +732,61 @@ function zeroBSCRM_task_ui_for_co($taskObject = array()){
 }
 
 
-#} the date picker UI
-function zeroBSCRM_task_ui_date($taskObject = array()){
+/**
+ * Returns a string for disabling browser autocomplete
+ * Ideally we'd just use "off", but support is not complete: https://caniuse.com/input-autocomplete-onoff
+ *
+ * @param obj $task_object Object containing task details.
+ *
+ * @return string $html Contains the start/end date and time inputs.
+ */
+function jpcrm_task_ui_daterange( $task_object = array() ) {
 
-    $html = "<div class='no-task-date'><i class='ui icon calendar outline'></i> ". __('Date','zero-bs-crm') ." </div>";
+	if ( ! isset( $task_object['start'] ) ) {
 
-    if (!isset($taskObject['start'])){
+		// no task start defined yet, so use some defaults
 
-        // starting date
-        //$start_d = date('m/d/Y H') . ":00:00";
-        //$end_d =  date('m/d/Y H') . ":00:00";
-        // wh modified to now + 1hr - 2hr
-        $start_d = date('d F Y H:i:s',(time()+3600));
-        $end_d =  date('d F Y H:i:s',(time()+3600+3600));
+		// start +1 hour from now
+		$task_start = time() + 3600;
 
+		// round to 15 minutes
+		$task_start -= $task_start % 900;
 
-    } else {
+		// end +1 hour from start
+		$task_end = $task_start + 3600;
 
-		// temp pre v3.0 fix, forcing english en for this datepicker only.
-		// requires js mod: search #forcedlocaletasks
-		// (Month names are localised, causing a mismatch here (Italian etc.))
-		// ... so we translate:
-		// d F Y H:i:s (date - not locale based)
-		// https://www.php.net/manual/en/function.date.php
-		// ... into
-		// %d %B %Y %H:%M:%S (strfttime - locale based date)
-		// (https://www.php.net/manual/en/function.strftime.php)
+	} else {
 
-		// phpcs:disable Squiz.PHP.CommentedOutCode.Found
-
-		/*
-		$start_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['start']);
-		$end_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['end']);
-		*/
-		// @todo - this is to be refactored.
-		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, PHPCompatibility.FunctionUse.RemovedFunctions.strftimeDeprecated
 		zeroBSCRM_locale_setServerLocale( 'en_US' );
-		$start_d = strftime( '%d %B %Y %H:%M:%S', $taskObject['start'] );
-		$end_d   = strftime( '%d %B %Y %H:%M:%S', $taskObject['end'] );
+		$task_start = strftime( '%d %B %Y %H:%M:%S', $task_object['start'] );
+		$task_end   = strftime( '%d %B %Y %H:%M:%S', $task_object['end'] );
 		zeroBSCRM_locale_resetServerLocale();
 		// phps:enable Squiz.PHP.CommentedOutCode.Found, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, PHPCompatibility.FunctionUse.RemovedFunctions.strftimeDeprecated
 	}
 
-    $html = '<div class="no-task-date"><input type="text" id="daterange" class="form-control" name="daterange" value="' . $start_d . ' - ' . $end_d .'" autocomplete="zbs-'.time() . '-task-date" /></div>';
-    $html .= '<input type="hidden" id="zbs_from" name="zbse_start" value="' . $start_d .'"/>';
-    $html .= '<input type="hidden" id="zbs_to" name="zbse_end" value="' . $end_d . '"/>';
-    
-    return $html;
+	// For now, hack together a table so the date and time inputs line up nicely. Eventually we'll want to rework the entire UI of this page.
+	$html = '
+<table style="margin-left:20px;">
+	<tr class="wh-large">
+		<td><label>' . esc_html__( 'Start time', 'zero-bs-crm' ) . ':</label>&nbsp;</td>
+		<td>
+			<input type="date" name="jpcrm_start_datepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_start, 'Y-m-d' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />
+			@ 
+			<input type="time" name="jpcrm_start_timepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_start, 'H:i' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />
+		</td>
+	</tr>
+	<tr class="wh-large">
+		<td><label>' . esc_html__( 'End time', 'zero-bs-crm' ) . ':</label>&nbsp;</td>
+		<td>
+			<input type="date" name="jpcrm_end_datepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_end, 'Y-m-d' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />
+			@ 
+			<input type="time" name="jpcrm_end_timepart" value="' . esc_attr( jpcrm_uts_to_date_str( $task_end, 'H:i' ) ) . '" autocomplete="' . esc_attr( jpcrm_disable_browser_autocomplete() ) . '" />
+		</td>
+	</tr>
+</table>';
+
+	return $html;
 }
-
-#} save UI button
-/* replaced with action metabox now.
-function zeroBSCRM_task_ui_save($taskObject = array()){
-
-    return "<button class='ui button blue large zbs-save-event'>". __('Save','zero-bs-crm') ." </button>";
-
-} */
 
 #} UI Reminders
 function zeroBSCRM_task_ui_reminders($taskObject = array(), $taskID = -1){
