@@ -98,7 +98,7 @@ const ActionsMenu = ( { currentPage, currentView, selectedResponses, setSelected
 
 			{ currentView === TABS.spam && (
 				<Button onClick={ onActionHandler( ACTIONS.markAsNotSpam ) } variant="secondary">
-					{ __( 'Remove from spam', 'jetpack-forms' ) }
+					{ __( 'Not spam', 'jetpack-forms' ) }
 				</Button>
 			) }
 
