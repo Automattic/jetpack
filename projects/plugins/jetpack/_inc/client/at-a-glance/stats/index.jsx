@@ -242,24 +242,17 @@ export class DashStats extends Component {
 		return (
 			<div className="jp-at-a-glance__stats-inactive">
 				<div className="jp-at-a-glance__stats-inactive-icon">
-					<img
-						src={ imagePath + 'stats.svg' }
-						width="60"
-						height="60"
-						alt={ __( 'Line chart overlaid on a bar chart', 'jetpack' ) }
-						className="jp-at-a-glance__stats-icon"
-					/>
+					<JetpackLogo height={ 64 } showText={ false } />
 				</div>
 				<div className="jp-at-a-glance__stats-inactive-text">
 					{ this.props.isOfflineMode
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
-									'<Button>Activate Jetpack Stats</Button> to see page views, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+									'Activate Jetpack Stats to see page views, likes, followers, subscribers, and more! <a1>Learn More</a1>',
 									'jetpack'
 								),
 								{
-									Button: <Button className="jp-link-button" onClick={ this.activateStats } />,
 									a1: (
 										<a
 											href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
