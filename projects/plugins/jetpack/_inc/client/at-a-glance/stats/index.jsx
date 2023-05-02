@@ -1,4 +1,3 @@
-import { imagePath } from 'constants/urls';
 import { getRedirectUrl, JetpackLogo, numberFormat } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
