@@ -757,11 +757,9 @@ function jpcrm_task_ui_daterange( $task_object = array() ) {
 
 	} else {
 
-		zeroBSCRM_locale_setServerLocale( 'en_US' );
-		$task_start = strftime( '%d %B %Y %H:%M:%S', $task_object['start'] );
-		$task_end   = strftime( '%d %B %Y %H:%M:%S', $task_object['end'] );
-		zeroBSCRM_locale_resetServerLocale();
-		// phps:enable Squiz.PHP.CommentedOutCode.Found, WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, PHPCompatibility.FunctionUse.RemovedFunctions.strftimeDeprecated
+		$task_start = $task_object['start'];
+		$task_end   = $task_object['end'];
+
 	}
 
 	// For now, hack together a table so the date and time inputs line up nicely. Eventually we'll want to rework the entire UI of this page.
