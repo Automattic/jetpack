@@ -83,6 +83,8 @@ class WPCOM_Features {
 	private const JETPACK_SECURITY_T1_MONTHLY                 = 'jetpack_security_t1_monthly'; // 2017
 	private const JETPACK_SECURITY_T2_YEARLY                  = 'jetpack_security_t2_yearly'; // 2019
 	private const JETPACK_SECURITY_T2_MONTHLY                 = 'jetpack_security_t2_monthly'; // 2020
+	private const JETPACK_STARTER_YEARLY                      = 'jetpack_starter_yearly'; // 2030
+	private const JETPACK_STARTER_MONTHLY                     = 'jetpack_starter_monthly'; // 2031
 	private const JETPACK_BACKUP_DAILY                        = 'jetpack_backup_daily'; // 2100
 	private const JETPACK_BACKUP_DAILY_MONTHLY                = 'jetpack_backup_daily_monthly'; // 2101
 	private const JETPACK_BACKUP_REALTIME                     = 'jetpack_backup_realtime'; // 2102
@@ -175,6 +177,7 @@ class WPCOM_Features {
 	private const JETPACK_PREMIUM_PLANS  = array( self::JETPACK_PREMIUM, self::JETPACK_PREMIUM_MONTHLY );
 	private const JETPACK_PERSONAL_PLANS = array( self::JETPACK_PERSONAL, self::JETPACK_PERSONAL_MONTHLY );
 	private const JETPACK_COMPLETE_PLANS = array( self::JETPACK_COMPLETE, self::JETPACK_COMPLETE_MONTHLY );
+	private const JETPACK_STARTER_PLANS  = array( self::JETPACK_STARTER_YEARLY, self::JETPACK_STARTER_MONTHLY );
 
 	private const JETPACK_SECURITY_DAILY_PLANS    = array( self::JETPACK_SECURITY_DAILY, self::JETPACK_SECURITY_DAILY_MONTHLY );
 	private const JETPACK_SECURITY_REALTIME_PLANS = array( self::JETPACK_SECURITY_REALTIME, self::JETPACK_SECURITY_REALTIME_MONTHLY );
@@ -202,6 +205,7 @@ class WPCOM_Features {
 		self::JETPACK_SECURITY_REALTIME_PLANS,
 		self::JETPACK_SECURITY_T1_PLANS,
 		self::JETPACK_SECURITY_T2_PLANS,
+		self::JETPACK_STARTER_PLANS,
 	);
 	private const JETPACK_PREMIUM_AND_HIGHER  = array(
 		self::JETPACK_PREMIUM_PLANS,
