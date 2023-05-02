@@ -124,7 +124,9 @@ abstract class Product {
 			'title'                    => static::get_title(),
 			'description'              => static::get_description(),
 			'long_description'         => static::get_long_description(),
+			'tiers'                    => static::get_tiers(),
 			'features'                 => static::get_features(),
+			'features_by_tier'         => static::get_features_by_tier(),
 			'disclaimers'              => static::get_disclaimers(),
 			'status'                   => static::get_status(),
 			'pricing_for_ui'           => static::get_pricing_for_ui(),
@@ -135,6 +137,7 @@ abstract class Product {
 			'wpcom_product_slug'       => static::get_wpcom_product_slug(),
 			'requires_user_connection' => static::$requires_user_connection,
 			'has_required_plan'        => static::has_required_plan(),
+			'has_required_tier'        => static::has_required_tier(),
 			'manage_url'               => static::get_manage_url(),
 			'post_activation_url'      => static::get_post_activation_url(),
 			'standalone_plugin_info'   => static::get_standalone_info(),
@@ -172,11 +175,29 @@ abstract class Product {
 	abstract public static function get_long_description();
 
 	/**
+	 * Get the tiers for the product
+	 *
+	 * @return boolean|string[] The slugs of the tiers (i.e. [ "free", "basic", "advanced" ]), or False if the product has no tiers.
+	 */
+	public static function get_tiers() {
+		return array();
+	}
+
+	/**
 	 * Get the internationalized features list
 	 *
 	 * @return array
 	 */
 	abstract public static function get_features();
+
+	/**
+	 * Get the internationalized comparison of features grouped by each tier
+	 *
+	 * @return array
+	 */
+	public static function get_features_by_tier() {
+		return array();
+	}
 
 	/**
 	 * Get the product pricing
@@ -255,6 +276,15 @@ abstract class Product {
 	 */
 	public static function has_required_plan() {
 		return true;
+	}
+
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the tiers
+	 *
+	 * @return array Key/value pairs of tier slugs and whether they are supported or not.
+	 */
+	public static function has_required_tier() {
+		return array();
 	}
 
 	/**

@@ -4,11 +4,14 @@ import { __ } from '@wordpress/i18n';
 import { trash, inbox, moreHorizontal } from '@wordpress/icons';
 import { doBulkAction } from '../data/responses';
 import { STORE_NAME } from '../state';
-import { ACTIONS, TABS } from './constants';
+import { ACTION_TABS, ACTIONS, RESPONSES_FETCH_LIMIT, TABS } from './constants';
 
 const SingleActionsMenu = ( { id } ) => {
-	const { fetchResponses, setLoading } = useDispatch( STORE_NAME );
-	const query = useSelect( select => select( STORE_NAME ).getResponsesQuery(), [] );
+	const { addTabTotals, fetchResponses, removeResponses, setLoading } = useDispatch( STORE_NAME );
+	const [ currentPage, query ] = useSelect(
+		select => [ select( STORE_NAME ).getCurrentPage(), select( STORE_NAME ).getResponsesQuery() ],
+		[]
+	);
 	const currentTab = query.status;
 
 	const deleteLabel =
@@ -20,10 +23,21 @@ const SingleActionsMenu = ( { id } ) => {
 	const onActionHandler = action => async () => {
 		try {
 			setLoading( true );
+			removeResponses( [ id ] );
+			addTabTotals( {
+				[ currentTab ]: -1,
+				[ ACTION_TABS[ action ] ]: 1,
+			} );
 			await doBulkAction( [ id ], action );
-			fetchResponses( query );
-		} catch {
-			//TODO: Implement error handling
+
+			await fetchResponses( {
+				...query,
+				limit: RESPONSES_FETCH_LIMIT,
+				offset: ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
+			} );
+			setLoading( false );
+		} catch ( error ) {
+			setLoading( false );
 		}
 	};
 

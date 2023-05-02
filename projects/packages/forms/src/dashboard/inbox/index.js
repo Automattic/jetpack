@@ -24,6 +24,7 @@ import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
 import { STORE_NAME } from '../state';
 import BulkActionsMenu from './bulk-actions-menu';
+import { RESPONSES_FETCH_LIMIT } from './constants';
 import ExportModal from './export-modal';
 import InboxList from './list';
 import InboxResponse from './response';
@@ -32,8 +33,6 @@ import { isWpcom } from './util';
  * Style dependencies
  */
 import './style.scss';
-
-const RESPONSES_FETCH_LIMIT = 50;
 
 const TABS = [
 	{
@@ -169,8 +168,9 @@ const Inbox = () => {
 						) }
 					</>
 				),
+				disabled: loading,
 			} ) ),
-		[ tabTotals ]
+		[ loading, tabTotals ]
 	);
 
 	const monthList = useMemo( () => {
@@ -280,6 +280,7 @@ const Inbox = () => {
 							) }
 							{ showBulkActionsMenu && (
 								<BulkActionsMenu
+									currentPage={ currentPage }
 									currentView={ query.status }
 									selectedResponses={ selectedResponses }
 									setSelectedResponses={ selectResponses }
@@ -297,6 +298,7 @@ const Inbox = () => {
 								<InboxList
 									currentPage={ currentPage }
 									currentResponseId={ currentResponseId }
+									currentTab={ query.status }
 									loading={ loading }
 									pages={ Math.ceil( total / RESPONSES_FETCH_LIMIT ) }
 									responses={ responses }

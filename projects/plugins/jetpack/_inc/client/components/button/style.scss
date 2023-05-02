@@ -213,7 +213,7 @@
 	padding: rem( 8px ) rem( 24px );
 	letter-spacing: -0.01em;
 
-	font-weight: 600;
+	font-weight: 500;
 	text-align: center;
 
 	transition: all 150ms ease-in-out;
@@ -222,6 +222,7 @@
 	&.disabled {
 		background: var( --jp-gray ) !important;
 		border-color: transparent !important;
+		box-shadow: none;
 		color: var( --jp-gray-20 ) !important;
 
 		pointer-events: none;
@@ -258,6 +259,7 @@
 .dops-button.is-primary.is-rna {
   background-color: var( --jp-black );
   border-color: var( --jp-black );
+  color: var( --jp-white );
 
   -webkit-font-smoothing: antialiased;
 

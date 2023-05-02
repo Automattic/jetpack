@@ -1,4 +1,4 @@
-import fetchMock from 'fetch-mock-jest';
+import { jest } from '@jest/globals';
 import restApi from '../index';
 
 // mock out some values to make testing easier
@@ -13,36 +13,62 @@ restApi.setCacheBusterCallback( route => {
 	return parts[ 0 ] + '?' + args.join( '&' );
 } );
 
+// eslint-disable-next-line jest/prefer-spy-on -- Nothing to spy on.
+global.fetch = jest.fn();
+fetch.mockFetchResponse = function ( body, init = {} ) {
+	const status = parseInt( init.status || 200 );
+	const statusText = init.statusText || 'OK';
+
+	let rbody = body;
+	if ( typeof rbody !== 'string' ) {
+		rbody = JSON.stringify( rbody );
+	}
+	if ( status < 200 || status > 599 ) {
+		throw new Error( `Invalid status: ${ init.status }` );
+	}
+
+	this.mockResolvedValueOnce( {
+		body: rbody,
+		ok: status < 300,
+		status: status,
+		statusText: statusText,
+		json: () => Promise.resolve( JSON.parse( rbody ) ),
+	} );
+};
+beforeEach( () => {
+	global.fetch.mockReset().mockReturnValue();
+} );
+
 describe( 'restApi', () => {
 	describe( 'GET requests', () => {
-		beforeAll( () => {
-			fetchMock.mock(
-				{
-					method: 'POST',
-					url: /\/jetpack\/v4\/licensing\/attach-licenses/,
-					name: 'attach-licenses',
-				},
-				JSON.stringify( [ { activatedProductId: 1 } ] )
-			);
-			fetchMock.mock(
-				{ method: 'GET', url: /\/jetpack\/v4\/connection/, name: 'connection' },
-				JSON.stringify( 'the body' )
-			);
-		} );
-
 		it( 'returns an object with methods', () => {
 			expect( typeof restApi ).toBe( 'object' );
 			expect( restApi.setApiRoot ).toBeInstanceOf( Function );
+			expect( fetch ).not.toHaveBeenCalled();
 		} );
 
 		it( 'can fetchSiteConnectionStatus', async () => {
+			fetch.mockFetchResponse( JSON.stringify( 'the body' ) );
 			const connectionStatus = await restApi.fetchSiteConnectionStatus();
 			expect( connectionStatus ).toBe( 'the body' );
+			expect( fetch ).toHaveBeenCalledTimes( 1 );
+			expect( fetch ).toHaveBeenCalledWith(
+				'/fakeApiRoot/jetpack/v4/connection?_cacheBuster=1234',
+				{ credentials: 'same-origin', headers: { 'X-WP-Nonce': undefined } }
+			);
 		} );
 
 		it( 'can post attachLicenses', async () => {
+			fetch.mockFetchResponse( [ { activatedProductId: 1 } ] );
 			const results = await restApi.attachLicenses();
 			expect( results ).toEqual( [ { activatedProductId: 1 } ] );
+			expect( fetch ).toHaveBeenCalledTimes( 1 );
+			expect( fetch ).toHaveBeenCalledWith( '/fakeApiRoot/jetpack/v4/licensing/attach-licenses', {
+				body: '{}',
+				credentials: 'same-origin',
+				headers: { 'Content-type': 'application/json', 'X-WP-Nonce': undefined },
+				method: 'post',
+			} );
 		} );
 	} );
 } );
