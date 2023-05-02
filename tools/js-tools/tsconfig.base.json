@@ -1,12 +1,13 @@
 {
 	"compilerOptions": {
 		"allowJs": true,
+		"customConditions": [ "jetpack:src" ],
 		"esModuleInterop": true,
 		"isolatedModules": true,
 		"jsx": "react-jsx",
 		"lib": [ "DOM", "ESNext" ],
 		"module": "esnext",
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"noEmit": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,

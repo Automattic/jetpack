@@ -1,8 +1,10 @@
 @import '@automattic/jetpack-base-styles/style';
 @import '_inc/client/scss/variables/_colors.scss';
 @import '../../scss/mixin_breakpoint.scss';
+@import '../../scss/mixins/ui';
 
 .plugin-dash-item {
+	@include dashboard-card-shadow;
 
 	p {
 		font-size: var( --font-body-small );

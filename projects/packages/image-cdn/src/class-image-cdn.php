@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.1.1-alpha';
+	const PACKAGE_VERSION = '0.2.0-alpha';
 
 	/**
 	 * Singleton.
@@ -1197,36 +1197,6 @@ final class Image_CDN {
 		}
 
 		return is_array( self::$image_sizes ) ? self::$image_sizes : array();
-	}
-
-	/**
-	 * Pass og:image URLs through Photon
-	 *
-	 * @param array $tags Open graph tags.
-	 * @param array $parameters Image parameters.
-	 * @uses Image_CDN_Core::jetpack_photon_url
-	 * @return array Open graph tags.
-	 */
-	public function filter_open_graph_tags( $tags, $parameters ) {
-		if ( empty( $tags['og:image'] ) ) {
-			return $tags;
-		}
-
-		$photon_args = array(
-			'fit' => sprintf( '%d,%d', 2 * $parameters['image_width'], 2 * $parameters['image_height'] ),
-		);
-
-		if ( is_array( $tags['og:image'] ) ) {
-			$images = array();
-			foreach ( $tags['og:image'] as $image ) {
-				$images[] = Image_CDN_Core::cdn_url( $image, $photon_args );
-			}
-			$tags['og:image'] = $images;
-		} else {
-			$tags['og:image'] = Image_CDN_Core::cdn_url( $tags['og:image'], $photon_args );
-		}
-
-		return $tags;
 	}
 
 	/**

@@ -7,6 +7,14 @@
 	color: $green-primary;
 	padding: 0 0 8px 0;
 
+  	&.expired {
+	  color: $alert-red;
+
+	  ::before {
+	    background: $alert-red;
+	  }
+	}
+
   	::before {
 	  content: "";
 	  display: inline-block;
