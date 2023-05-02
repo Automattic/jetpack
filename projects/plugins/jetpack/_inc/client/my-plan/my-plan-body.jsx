@@ -129,7 +129,7 @@ class MyPlanBody extends React.Component {
 					<div className="jp-landing__plan-features-card">
 						<div className="jp-landing__plan-features-img">
 							<img
-								src={ imagePath + '/product/product-jetpack-backup.svg' }
+								src={ imagePath + '/products/product-jetpack-backup.svg' }
 								className="jp-landing__plan-features-icon"
 								alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
 							/>
