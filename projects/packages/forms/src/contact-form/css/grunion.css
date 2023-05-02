@@ -534,11 +534,6 @@ on production builds, the attributes are being reordered, causing side-effects
 	padding-right: var(--field-padding);
 }
 
-.contact-form .is-style-animated .grunion-field-checkbox-multiple-wrap,
-.contact-form .is-style-animated .grunion-field-radio-wrap {
-	background-color: var(--jetpack--contact-form--input-background);
-}
-
 .contact-form .is-style-animated .grunion-field-checkbox-multiple-wrap .grunion-checkbox-multiple-options,
 .contact-form .is-style-animated .grunion-field-radio-wrap .grunion-radio-options {
 	padding-bottom: var(--jetpack--contact-form--input-padding, 16px);

@@ -466,6 +466,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: 0.25em;
+	flex: 1;
 
 	&:empty {
 		display: none;
@@ -867,7 +868,6 @@
 			}
 
 			&.jetpack-field-multiple {
-				background-color: var(--jetpack--contact-form--input-background);
 				padding-bottom: var(--jetpack--contact-form--input-padding, 16px);
 				padding-top: 1.8em;
 
