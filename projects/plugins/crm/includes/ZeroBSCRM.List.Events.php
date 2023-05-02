@@ -283,16 +283,16 @@ function zeroBSCRM_render_eventscalendar_page(){
                                 && 
                                 isset($event['end']) && $event['end'] > 0){
 
-                                $newEvent = array(
-                                    'title' => zeroBSCRM_textExpose($event['title']),
-                                    'start' => zeroBSCRM_date_forceEN($event['start']),
-                                    'end' => zeroBSCRM_date_forceEN($event['end']),
-                                    'url' => jpcrm_esc_link('edit',$event['id'],ZBS_TYPE_EVENT),
-                                    'owner' => $event['owner'],
-                                    'avatar' => '', // default
-                                    'showonCal' => 'hide', // default
-                                    'complete' => "-1"
-                                );
+								$newEvent = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									'title'     => zeroBSCRM_textExpose( $event['title'] ),
+									'start'     => jpcrm_uts_to_datetime_str( $event['start'], 'Y-m-d H:i:s' ),
+									'end'       => jpcrm_uts_to_datetime_str( $event['end'], 'Y-m-d H:i:s' ),
+									'url'       => jpcrm_esc_link( 'edit', $event['id'], ZBS_TYPE_EVENT ),
+									'owner'     => $event['owner'],
+									'avatar'    => '', // default
+									'showonCal' => 'hide', // default
+									'complete'  => '-1',
+								);
 
                                 // avatar?
                                 if (isset($event['owner']) && $event['owner'] > 0) $newEvent['avatar'] = get_avatar_url($event['owner'], $avatar_args);
