@@ -234,8 +234,8 @@ class Launchpad_Task_Lists {
 	 * @return boolean
 	 */
 	public function is_task_disabled( $task ) {
-		if ( isset( $task['is_disabled'] ) && is_callable( $task['is_disabled'] ) ) {
-			return call_user_func( $task['is_disabled'] );
+		if ( isset( $task['is_disabled_callback'] ) && is_callable( $task['is_disabled_callback'] ) ) {
+			return call_user_func( $task['is_disabled_callback'] );
 		}
 		return false;
 	}
