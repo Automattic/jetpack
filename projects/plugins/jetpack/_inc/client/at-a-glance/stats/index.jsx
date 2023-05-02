@@ -1,5 +1,5 @@
 import { getRedirectUrl, JetpackLogo, numberFormat } from '@automattic/jetpack-components';
-import { Spinner } from '@wordpress/components';
+import { ExternalLink, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -241,19 +241,20 @@ export class DashStats extends Component {
 		return (
 			<div className="jp-at-a-glance__stats-inactive">
 				<div className="jp-at-a-glance__stats-inactive-icon">
-					<JetpackLogo height={ 64 } showText={ false } />
+					<JetpackLogo height={ 40 } showText={ false } />
 				</div>
 				<div className="jp-at-a-glance__stats-inactive-text">
 					{ this.props.isOfflineMode
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
 						: createInterpolateElement(
 								__(
-									'Activate Jetpack Stats to see page views, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+									'<h3>Activate Jetpack Stats</h3> Get insights on page views, likes, subscribers, and more! <a1>Learn More</a1>',
 									'jetpack'
 								),
 								{
+									h3: <h3 />,
 									a1: (
-										<a
+										<ExternalLink
 											href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
 											target="_blank"
 											rel="noopener noreferrer"
@@ -265,7 +266,7 @@ export class DashStats extends Component {
 				{ ! this.props.isOfflineMode && (
 					<div className="jp-at-a-glance__stats-inactive-button">
 						<Button onClick={ this.activateStats } primary>
-							{ __( 'Activate', 'jetpack' ) }
+							{ __( 'Activate Stats', 'jetpack' ) }
 						</Button>
 					</div>
 				) }
