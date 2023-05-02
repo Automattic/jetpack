@@ -248,7 +248,7 @@ function zeroBSCRM_render_eventscalendar_page(){
 
             <?php if ($showEventsUsers){ ?><div style="clear:both;height: 0px;"></div><?php } ?>
 
-            <?php if ($zbs->isDAL3()){
+		<?php
 
                     // retrieve via DAL, just getting them ALL (pretty gross, but for now, at least more performant.)
                     $args = array(
@@ -317,75 +317,6 @@ function zeroBSCRM_render_eventscalendar_page(){
 
                     // build json
                     $event_json = json_encode($events);
-
-                } else {
-
-                        global $wpdb;
-                        $query = "SELECT * FROM $wpdb->posts WHERE post_type = 'zerobs_event' AND post_status='publish'";
-
-                        if (!empty($currentEventUserID) && $currentEventUserID > 0){
-                                
-                        $query = "SELECT * FROM $wpdb->posts";
-                            $query .= " LEFT JOIN $wpdb->postmeta ON ($wpdb->posts.ID = $wpdb->postmeta.post_id AND $wpdb->postmeta.meta_key = 'zbs_owner')";
-                            $query .= " WHERE $wpdb->posts.post_type = 'zerobs_event' AND $wpdb->postmeta.meta_value = ".(int)$currentEventUserID;
-
-                        }
-                        $results = $wpdb->get_results($query);
-                        $event = array();
-                        $i=0;
-                        $avatar_args = array(
-                            'size' => 24
-                        );
-                        foreach($results as $result){
-
-                            $zbsEventMeta = get_post_meta($result->ID, 'zbs_event_meta', true);
-                            $zbsOwner = zeroBS_getOwner($result->ID);
-
-                            $zbsEventActions = get_post_meta($result->ID, 'zbs_event_actions', true);
-
-      
-    							if(isset($zbsEventMeta['from']) && isset($zbsEventMeta['to']) && $zbsEventMeta['from'] != '' && $zbsEventMeta['to'] != ''){
-                               
-                                if(!array_key_exists('title', $zbsEventMeta)){
-                                    $zbsEventMeta['title'] = esc_html($result->post_title);
-                                }
-                                
-                                $event[$i]['title'] = $zbsEventMeta['title'];
-                                $event[$i]['start'] = $zbsEventMeta['from'];
-                                $event[$i]['end'] =  $zbsEventMeta['to'];
-                                $event[$i]['url'] = admin_url('post.php?post='.$result->ID.'&action=edit');
-                                $event[$i]['owner'] = $zbsOwner['ID'];
-
-                                if($zbsOwner['ID'] == -1){
-                                    $event[$i]['avatar'] = '';
-                                }else{
-                                    $event[$i]['avatar'] = get_avatar_url($zbsOwner['ID'], $avatar_args);
-                                }
-                                //if showoncal is not set, then show it on cal (backwards compat)
-                                if(!array_key_exists('showoncal', $zbsEventMeta)){
-                                    $zbsEventMeta['showoncal'] = 'on';
-                                }
-
-
-                 
-
-                                if($zbsEventMeta['showoncal']){
-                                    $event[$i]['showonCal'] = 'show';
-                                }else{
-                                    $event[$i]['showonCal'] = 'hide';
-                                } 
-                                
-
-                                $event[$i]['complete'] =  $zbsEventActions['complete'];
-
-
-                                $i++;
-    							}
-                            
-                        }
-                        $event_json = json_encode($event);
-
-                    }
 
                 ?>
 
