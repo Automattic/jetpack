@@ -255,6 +255,12 @@ function get_task_definitions() {
 			'disabled'  => false,
 		),
 		array(
+			'id'        => 'setup_blog',
+			'title'     => __( 'Personalize your site', 'jetpack-mu-wpcom' ),
+			'completed' => true,
+			'disabled'  => false,
+		),
+		array(
 			'id'        => 'setup_general',
 			'title'     => __( 'Set up your site', 'jetpack-mu-wpcom' ),
 			'completed' => true,
