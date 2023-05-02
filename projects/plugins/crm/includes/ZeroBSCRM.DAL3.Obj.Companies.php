@@ -2765,7 +2765,7 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 				$company                            = $zbs->DAL->companies->getCompany( $res['id'], array( 'withInvoices' => true ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$deleted_invoice_details            = jpcrm_deleted_invoice_total_and_counts( $company['invoices'] );
 				$res['invoices_total']              = $obj->invoices_total - $deleted_invoice_details['total'];
-				$res['invoices_total_with_deleted'] = $deleted_invoice_details['total'];
+				$res['invoices_total_with_deleted'] = $obj->invoices_total;
 				$res['invoices_count_with_deleted'] = count( $company['invoices'] );
 				$res['invoices_count']              = $res['invoices_count_with_deleted'] - $deleted_invoice_details['count'];
 			}
