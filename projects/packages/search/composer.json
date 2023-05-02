@@ -14,7 +14,10 @@
 	"require-dev": {
 		"automattic/jetpack-changelogger": "@dev",
 		"yoast/phpunit-polyfills": "1.0.4",
-		"automattic/wordbless": "0.4.1"
+		"automattic/wordbless": "0.4.2"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -34,9 +37,6 @@
 		],
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-js": [
 			"pnpm run test"
@@ -70,7 +70,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-search/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.31.x-dev"
+			"dev-trunk": "0.36.x-dev"
 		},
 		"version-constants": {
 			"::VERSION": "src/class-package.php"

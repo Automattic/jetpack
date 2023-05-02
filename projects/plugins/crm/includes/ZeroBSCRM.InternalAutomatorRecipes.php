@@ -795,7 +795,7 @@
 
 					#} Add log
 					$newLogID = zeroBS_addUpdateLog($zbsNoteAgainstPostID,-1,-1,array(
-						'type' => 'Event Created',
+						'type'      => 'Task Created',
 						'shortdesc' => $noteShortDesc,
 						'longdesc' => $note_long_description
 					),'zerobs_customer');

@@ -1,9 +1,14 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
 	import { __, _n, sprintf } from '@wordpress/i18n';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
 	import TimeAgo from '../../../elements/TimeAgo.svelte';
-	import { criticalCssStatus, failedProviderKeyCount } from '../../../stores/critical-css-status';
+	import {
+		criticalCssProgress,
+		criticalCssState,
+		regenerateCriticalCss,
+	} from '../../../stores/critical-css-state';
+	import { criticalCssIssues } from '../../../stores/critical-css-state-errors';
+	import { modulesState } from '../../../stores/modules';
 	import InfoIcon from '../../../svg/info.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import actionLinkTemplateVar from '../../../utils/action-link-template-var';
@@ -11,36 +16,39 @@
 
 	export let generateText = '';
 	export let generateMoreText = '';
-
-	const dispatch = createEventDispatcher();
 	const { navigate } = routerHistory;
+
+	$: successCount = $criticalCssState.providers.filter(
+		provider => provider.status === 'success'
+	).length;
 </script>
 
 <div class="jb-critical-css__meta">
 	<div class="summary">
-		{#if $criticalCssStatus.success_count === 0}
+		{#if ! successCount}
 			<div class="generating">{generateText}</div>
 		{:else}
 			<div class="successes">
 				{sprintf(
 					/* translators: %d is a number of CSS Files which were successfully generated */
-					_n(
-						'%d file generated',
-						'%d files generated',
-						$criticalCssStatus.success_count,
-						'jetpack-boost'
-					),
-					$criticalCssStatus.success_count
+					_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
+					successCount
 				)}
-				{#if $criticalCssStatus.updated}
-					<TimeAgo time={new Date( $criticalCssStatus.updated * 1000 )} />.
+				{#if $criticalCssState.updated}
+					<TimeAgo time={new Date( $criticalCssState.updated * 1000 )} />.
 				{/if}
-				{#if $criticalCssStatus.progress < 100}
+				{#if ! $modulesState.cloud_css?.available}
+					{__(
+						'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
+						'jetpack-boost'
+					)}
+				{/if}
+				{#if $criticalCssProgress < 100}
 					<span>{generateMoreText}</span>
 				{/if}
 			</div>
 
-			{#if $criticalCssStatus.status !== 'requesting' && $failedProviderKeyCount > 0}
+			{#if $criticalCssState.status !== 'pending' && $criticalCssIssues.length > 0}
 				<div class="failures">
 					<InfoIcon />
 
@@ -50,10 +58,10 @@
 							_n(
 								'%d file could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize this file.',
 								'%d files could not be automatically generated. Visit the <advanced>advanced recommendations page</advanced> to optimize these files.',
-								$failedProviderKeyCount,
+								$criticalCssIssues.length,
 								'jetpack-boost'
 							),
-							$failedProviderKeyCount
+							$criticalCssIssues.length
 						)}
 						vars={{
 							...actionLinkTemplateVar( () => navigate( 'critical-css-advanced' ), 'advanced' ),
@@ -63,8 +71,8 @@
 			{/if}
 		{/if}
 	</div>
-	{#if $criticalCssStatus.status !== 'requesting'}
-		<button type="button" class="components-button is-link" on:click={() => dispatch( 'retry' )}>
+	{#if $criticalCssState.status !== 'pending'}
+		<button type="button" class="components-button is-link" on:click={regenerateCriticalCss}>
 			<RefreshIcon />
 			{__( 'Regenerate', 'jetpack-boost' )}
 		</button>

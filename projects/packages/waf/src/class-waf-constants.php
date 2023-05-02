@@ -25,6 +25,14 @@ class Waf_Constants {
 	}
 
 	/**
+	 * Compatiblity patch for cases where an outdated Waf_Constants class has been autoloaded by
+	 * the standalone bootstrap execution at the beginning of the current request.
+	 */
+	public static function initialize_constants() {
+		self::initialize_bootstrap_constants();
+	}
+
+	/**
 	 * Set the path to the WAF directory if it has not been set.
 	 *
 	 * @return void
@@ -80,6 +88,17 @@ class Waf_Constants {
 		if ( ! defined( 'JETPACK_WAF_SHARE_DATA' ) ) {
 			$share_data_option = get_option( Waf_Runner::SHARE_DATA_OPTION_NAME, false );
 			define( 'JETPACK_WAF_SHARE_DATA', $share_data_option );
+		}
+	}
+
+	/**
+	 * Set the brute force protection's API host definition if it has not been set.
+	 *
+	 * @return void
+	 */
+	public static function define_brute_force_api_host() {
+		if ( ! defined( 'JETPACK_PROTECT__API_HOST' ) ) {
+			define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 		}
 	}
 }

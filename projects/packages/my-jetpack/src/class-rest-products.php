@@ -68,6 +68,21 @@ class REST_Products {
 				),
 			)
 		);
+
+		register_rest_route(
+			'my-jetpack/v1',
+			'site/products/(?P<product>[a-z\-]+)/install-standalone',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::install_standalone',
+					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
+					'args'                => array(
+						'product' => $product_arg,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -205,4 +220,40 @@ class REST_Products {
 		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
 	}
 
+	/**
+	 * Callback for installing the standalone plugin on a Hybrid Product.
+	 *
+	 * @param \WP_REST_Request $request The request object.
+	 * @return \WP_REST_Response
+	 */
+	public static function install_standalone( $request ) {
+		$product_slug = $request->get_param( 'product' );
+		$product      = Products::get_product( $product_slug );
+		if ( ! isset( $product['class'] ) ) {
+			return new \WP_Error(
+				'not_implemented',
+				__( 'The product class handler is not implemented', 'jetpack-my-jetpack' ),
+				array( 'status' => 501 )
+			);
+		}
+
+		/**
+		 * If the product is not hybrid, there is no need to deal with a standalone plugin.
+		 */
+		if ( ! is_subclass_of( $product['class'], Hybrid_Product::class ) ) {
+			return new \WP_Error(
+				'not_hybrid',
+				__( 'This product does not have a standalone plugin to install', 'jetpack-my-jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$install_product_result = call_user_func( array( $product['class'], 'install_and_activate_standalone' ) );
+		if ( is_wp_error( $install_product_result ) ) {
+			$install_product_result->add_data( array( 'status' => 400 ) );
+			return $install_product_result;
+		}
+
+		return rest_ensure_response( Products::get_product( $product_slug ), 200 );
+	}
 }

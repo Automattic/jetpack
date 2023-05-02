@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react';
 import useMediaRestrictions, {
 	FILE_SIZE_ERROR,
 	FILE_TYPE_ERROR,
@@ -20,7 +20,12 @@ const DUMMY_CONNECTIONS = [
 	{
 		service_name: 'linkedin',
 	},
+	{
+		service_name: 'mastodon',
+	},
 ];
+
+const UNKNOWN_CONNECTION = [ { service_name: 'unknown' } ];
 
 const INVALID_TYPES = [ 'imagejpg', 'image/tgif', 'video/mp5', '', null ];
 const INVALID_LENGTH_VIDEOS = [
@@ -46,11 +51,11 @@ const ALLOWED_MEDIA_TYPES_ALL = [
 ];
 
 describe( 'useMediaRestrictions hook', () => {
-	const { result, rerender } = renderHook( connections => useMediaRestrictions( connections ), {
-		initialProps: DUMMY_CONNECTIONS,
-	} );
-
 	test( 'maxImageSize returns the best image size available', () => {
+		const { result, rerender } = renderHook( connections => useMediaRestrictions( connections ), {
+			initialProps: DUMMY_CONNECTIONS,
+		} );
+
 		const defaultMaxImageSize = result.current.maxImageSize;
 		rerender( [ { service_name: 'linkedin' } ] );
 		const linkedinMaxImageSize = result.current.maxImageSize;
@@ -60,7 +65,59 @@ describe( 'useMediaRestrictions hook', () => {
 		expect( linkedinMaxImageSize ).toBe( 20 );
 	} );
 
+	test( 'Returns default video limits for unknown service', () => {
+		const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+			initialProps: UNKNOWN_CONNECTION,
+		} );
+
+		const defaultVideoLimits = result.current.videoLimits;
+
+		expect( defaultVideoLimits ).toStrictEqual( {
+			minLength: 0,
+			minSize: 0,
+			maxSize: 100000,
+			maxLength: 100000,
+		} );
+	} );
+
+	test( 'Returns correct video limits when a service and an unknown service are defined', () => {
+		const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+			initialProps: UNKNOWN_CONNECTION.concat( [ { service_name: 'linkedin' } ] ),
+		} );
+
+		const defaultVideoLimits = result.current.videoLimits;
+
+		expect( defaultVideoLimits ).toStrictEqual( {
+			minSize: 0.075,
+			maxSize: 200,
+			maxLength: 600,
+			minLength: 3,
+		} );
+	} );
+
+	test( 'Returns default maxImageSize for unknown service', () => {
+		const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+			initialProps: UNKNOWN_CONNECTION,
+		} );
+
+		const defaultMaxImageSize = result.current.maxImageSize;
+		expect( defaultMaxImageSize ).toBe( 4 );
+	} );
+
+	test( 'Returns correct maxImageSize when a service and an unknown service are defined', () => {
+		const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+			initialProps: UNKNOWN_CONNECTION.concat( [ { service_name: 'linkedin' } ] ),
+		} );
+
+		const defaultMaxImageSize = result.current.maxImageSize;
+		expect( defaultMaxImageSize ).toBe( 4 );
+	} );
+
 	test( 'Video limits are calculated correctly', () => {
+		const { result, rerender } = renderHook( connections => useMediaRestrictions( connections ), {
+			initialProps: DUMMY_CONNECTIONS,
+		} );
+
 		const defaultVideoLimits = result.current.videoLimits;
 		rerender( [ { service_name: 'twitter' }, { service_name: 'facebook' } ] );
 		const modifiedVideoLimits = result.current.videoLimits;
@@ -68,7 +125,7 @@ describe( 'useMediaRestrictions hook', () => {
 
 		expect( defaultVideoLimits ).toStrictEqual( {
 			maxLength: 140,
-			maxSize: 200,
+			maxSize: 40,
 			minLength: 3,
 			minSize: 0.075,
 		} );
@@ -90,8 +147,19 @@ describe( 'useMediaRestrictions hook', () => {
 		);
 	} );
 
+	test( 'Returns default media types for empty connections', () => {
+		const defaultMediaTypes = getAllowedMediaTypes( [] );
+		expect( defaultMediaTypes.sort() ).toStrictEqual(
+			ALLOWED_MEDIA_TYPES_ALL.concat( [ 'video/mov' ] ).sort()
+		);
+	} );
+
 	describe( 'Validation tests', () => {
 		test( 'Too big/small media results in file size error', () => {
+			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+				initialProps: DUMMY_CONNECTIONS,
+			} );
+
 			const validationErrors = INVALID_SIZED_MEDIA.map( media =>
 				result.current.getValidationError( media )
 			);
@@ -100,6 +168,10 @@ describe( 'useMediaRestrictions hook', () => {
 		} );
 
 		test( 'Invalid file type results in file type error', () => {
+			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+				initialProps: DUMMY_CONNECTIONS,
+			} );
+
 			const validationErrors = INVALID_TYPES.map( type =>
 				result.current.getValidationError( 200, type )
 			);
@@ -108,6 +180,10 @@ describe( 'useMediaRestrictions hook', () => {
 		} );
 
 		test( 'Too short/long videos result in video length error', () => {
+			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+				initialProps: DUMMY_CONNECTIONS,
+			} );
+
 			const validationErrors = INVALID_LENGTH_VIDEOS.map( video =>
 				result.current.getValidationError( video )
 			);
@@ -118,11 +194,25 @@ describe( 'useMediaRestrictions hook', () => {
 		} );
 
 		test( 'Valid media results in no error', () => {
+			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+				initialProps: DUMMY_CONNECTIONS,
+			} );
+
 			const validationErrors = VALID_MEDIA.map( media =>
 				result.current.getValidationError( media )
 			);
 
 			expect( validationErrors.every( error => error === null ) ).toBe( true );
+		} );
+
+		test( 'No error with empty connections', () => {
+			const { result } = renderHook( connections => useMediaRestrictions( connections ), {
+				initialProps: [],
+			} );
+
+			expect( () => {
+				expect( result.current ).toBeDefined();
+			} ).not.toThrow( TypeError );
 		} );
 	} );
 } );

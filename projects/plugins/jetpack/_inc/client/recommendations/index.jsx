@@ -23,6 +23,7 @@ import {
 	updateRecommendationsStep as updateRecommendationsStepAction,
 } from 'state/recommendations';
 import { isFetchingSiteData } from 'state/site';
+import QuerySiteProducts from '../components/data/query-site-products';
 import { RECOMMENDATION_WIZARD_STEP } from './constants';
 import { ProductPurchased } from './product-purchased';
 import { FeaturePrompt } from './prompts/feature-prompt';
@@ -90,6 +91,12 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.SITE_ACCELERATOR:
 			redirectPath = '/site-accelerator';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.VAULTPRESS_BACKUP:
+			redirectPath = '/vaultpress-backup';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.VAULTPRESS_FOR_WOOCOMMERCE:
+			redirectPath = '/vaultpress-for-woocommerce';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.PUBLICIZE:
 			redirectPath = '/publicize';
 			break;
@@ -132,6 +139,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__SCAN:
 			redirectPath = '/welcome-scan';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN:
+			redirectPath = '/welcome-golden-token';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.SERVER_CREDENTIALS:
 			redirectPath = '/server-credentials';
 			break;
@@ -173,6 +183,7 @@ const RecommendationsComponent = props => {
 			<QuerySite />
 			<QuerySitePlugins />
 			<QuerySiteDiscount />
+			<QuerySiteProducts />
 			<QueryIntroOffers />
 			{ isLoading ? (
 				<div className="jp-recommendations__loading">
@@ -208,6 +219,12 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/site-accelerator">
 						<FeaturePrompt stepSlug="site-accelerator" />
+					</Route>
+					<Route path="/recommendations/vaultpress-backup">
+						<ResourcePrompt stepSlug="vaultpress-backup" />
+					</Route>
+					<Route path="/recommendations/vaultpress-for-woocommerce">
+						<ResourcePrompt stepSlug="vaultpress-for-woocommerce" />
 					</Route>
 					<Route path="/recommendations/publicize">
 						<FeaturePrompt stepSlug="publicize" isNew={ isNew( 'publicize' ) } />
@@ -248,6 +265,9 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/welcome-scan">
 						<ResourcePrompt stepSlug="welcome__scan" />
 					</Route>
+					<Route path="/recommendations/welcome-golden-token">
+						<ResourcePrompt stepSlug="welcome__golden_token" />
+					</Route>
 					<Route path="/recommendations/backup-activated">
 						<ResourcePrompt stepSlug="backup-activated" />
 					</Route>
@@ -271,27 +291,13 @@ const RecommendationsComponent = props => {
 					</Route>
 				</Switch>
 			) }
-			<div className="jp-footer">
-				<li className="jp-footer__link-item">
-					<a
-						role="button"
-						tabIndex="0"
-						className="jp-footer__link"
-						href={ getRedirectUrl( 'jetpack-support-getting-started' ) }
-					>
-						{ __( 'Learn how to get started with Jetpack', 'jetpack' ) }
-					</a>
-				</li>
-				<li className="jp-footer__link-item">
-					<a
-						role="button"
-						tabIndex="0"
-						className="jp-footer__link"
-						href={ getRedirectUrl( 'jetpack-support' ) }
-					>
-						{ __( 'Search our support site', 'jetpack' ) }
-					</a>
-				</li>
+			<div className="jp-recommendations__links">
+				<a role="button" tabIndex="0" href={ getRedirectUrl( 'jetpack-support-getting-started' ) }>
+					{ __( 'Learn how to get started with Jetpack', 'jetpack' ) }
+				</a>
+				<a role="button" tabIndex="0" href={ getRedirectUrl( 'jetpack-support' ) }>
+					{ __( 'Search our support site', 'jetpack' ) }
+				</a>
 			</div>
 		</>
 	);

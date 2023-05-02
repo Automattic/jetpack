@@ -9,14 +9,16 @@ import { useState, RawHTML, useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { name as aiParagraphBlockName } from './index';
 
-// Minimum number of characters needed in the prompt to send it to the backend
-const NUMBER_OF_CHARACTERS_NEEDED = 36;
-
 // Maximum number of characters we send from the content
-const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 240;
+export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
 
 // Creates the prompt that will eventually be sent to OpenAI. It uses the current post title, content (before the actual AI block) - or a slice of it if too long, and tags + categories names
-const createPrompt = ( postTitle, contentBeforeCurrentBlock, tagsAndCategoriesNames ) => {
+export const createPrompt = (
+	postTitle = '',
+	contentBeforeCurrentBlock = [],
+	categoriesNames = '',
+	tagsNames = ''
+) => {
 	const content = contentBeforeCurrentBlock
 		.filter( function ( block ) {
 			return block && block.attributes && block.attributes.content;
@@ -27,47 +29,41 @@ const createPrompt = ( postTitle, contentBeforeCurrentBlock, tagsAndCategoriesNa
 		.join( '\n' );
 	const shorter_content = content.slice( -1 * MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
 
-	// If title is not added, we will only complete.
-	if ( ! postTitle ) {
-		return shorter_content;
+	// We prevent a prompt if everything is empty
+	if ( ! postTitle && ! shorter_content && ! categoriesNames && ! tagsNames ) {
+		return false;
 	}
 
-	// Title, content and categories
-	if ( shorter_content && tagsAndCategoriesNames.length ) {
-		return sprintf(
-			/** translators: This will be a prompt to OpenAI to generate a post based on the post title, comma-seperated category names and the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content. */
-			__( "This is a post titled '%1$s', published in categories '%2$s':\n\n … %3$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-			postTitle,
-			tagsAndCategoriesNames,
-			shorter_content
+	let prompt = '';
+	// We will generate the content
+	if ( postTitle ) {
+		prompt = sprintf(
+			/** translators: This will be the beginning of a prompt that will be sent to OpenAI based on the post title. */
+			__( "Please help me write a short piece of a blog post titled '%1$s'", 'jetpack' ),
+			postTitle
 		);
+	} else {
+		prompt = __( 'Please help me write a short piece of a blog post', 'jetpack' );
 	}
 
-	// No content, only title and categories
-	if ( tagsAndCategoriesNames.length ) {
-		return sprintf(
-			/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and comma-seperated category names. */
-			__( "This is a post titled '%1$s', published in categories '%2$s':\n", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-			postTitle,
-			tagsAndCategoriesNames
-		);
+	if ( categoriesNames ) {
+		/** translators: This will be the follow up of a prompt that will be sent to OpenAI based on comma-seperated category names. */
+		prompt += sprintf( __( ", published in categories '%1$s'", 'jetpack' ), categoriesNames );
 	}
 
-	// Title and content
+	if ( tagsNames ) {
+		/** translators: This will be the follow up of a prompt that will be sent to OpenAI based on comma-seperated category names. */
+		prompt += sprintf( __( " and tagged '%1$s'", 'jetpack' ), tagsNames );
+	}
+
+	prompt += __( '. Please only output generated content ready for publishing.', 'jetpack' );
+
 	if ( shorter_content ) {
-		return sprintf(
-			/** translators: This will be a prompt to OpenAI to generate a post based on the post title, and the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content. */
-			__( "This is a post titled '%1$s':\n\n…%2$s", 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-			postTitle,
-			shorter_content
-		);
+		/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
+		prompt += sprintf( __( ' Please continue from here:\n\n … %s', 'jetpack' ), shorter_content ); // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
 	}
 
-	return sprintf(
-		/** translators: This will be a prompt to OpenAI to generate a post based on the post title */
-		__( 'Write content of a post titled "%s"', 'jetpack' ),
-		postTitle
-	);
+	return prompt.trim();
 };
 
 // This component displays the text word by word if show animation is true
@@ -108,8 +104,7 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
-	const [ isWaitingForPreviousBlock, setIsWaitingForPreviousBlock ] = useState( false );
-	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( 0 );
+	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( false );
 	const { tracks } = useAnalytics();
@@ -118,8 +113,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const currentPostTitle = useSelect( select =>
 		select( 'core/editor' ).getEditedPostAttribute( 'title' )
 	);
-
-	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
 	let loading = false;
 	const categories =
@@ -170,8 +163,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setIsLoadingCategories( loading );
 	}, [ loading ] );
 
-	const taxonomies = categoryObjects.filter( cat => cat.id !== 1 ).concat( tagObjects );
-	const categoryNames = taxonomies.map( ( { name } ) => name ).join( ', ' );
+	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
+	const categoryNames = categoryObjects
+		.filter( cat => cat.id !== 1 )
+		.map( ( { name } ) => name )
+		.join( ', ' );
+	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
+
 	const contentBefore = useSelect( select => {
 		const editor = select( 'core/block-editor' );
 		const index = editor.getBlockIndex( clientId );
@@ -193,14 +191,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		}
 
 		setShowRetry( false );
-		setIsWaitingForPreviousBlock( false );
 		setErrorMessage( false );
-		setNeedsMoreCharacters( 0 );
+		setNeedsMoreCharacters( false );
 		setIsLoadingCompletion( true );
 
 		const data = {
-			content: createPrompt( currentPostTitle, contentBefore, categoryNames ),
-			post_id: postId,
+			content: createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames ),
 		};
 
 		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
@@ -213,7 +209,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			data: data,
 		} )
 			.then( res => {
-				const result = res.prompts[ 0 ].text.trim().replaceAll( '\n', '<br/>' );
+				const result = res.trim().replaceAll( '\n', '<br/>' );
 				setAttributes( { content: result } );
 				setIsLoadingCompletion( false );
 			} )
@@ -241,46 +237,44 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	// We do nothing is we are waiting for stuff OR if the content is already loaded.
 	const noLogicNeeded = contentIsLoaded || isWaitingState;
 
-	if ( ! noLogicNeeded ) {
-		const prompt = createPrompt( currentPostTitle, contentBefore, categoryNames );
-		const nbCharactersNeeded = NUMBER_OF_CHARACTERS_NEEDED - prompt.length;
+	useSelect( () => {
+		if ( ! noLogicNeeded ) {
+			const prompt = createPrompt( currentPostTitle, contentBefore, categoryNames, tagNames );
 
-		if ( containsAiUntriggeredParagraph() ) {
-			if ( ! isWaitingForPreviousBlock ) {
+			if ( containsAiUntriggeredParagraph() ) {
 				setErrorMessage(
 					/** translators: This will be an error message when multiple Open AI paragraph blocks are triggered on the same page. */
 					__( 'Waiting for the previous AI paragraph block to finish', 'jetpack' )
 				);
-				setIsWaitingForPreviousBlock( true );
-			}
-		} else if (
-			prompt.length < NUMBER_OF_CHARACTERS_NEEDED &&
-			needsMoreCharacters !== nbCharactersNeeded
-		) {
-			setErrorMessage(
-				sprintf(
+			} else if ( ! prompt ) {
+				setErrorMessage(
 					/** translators: First placeholder is a number of more characters we need */
 					__(
-						'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs %1$d more characters.',
+						'Please write a longer title or a few more words in the opening preceding the AI block. Our AI model needs some content.',
 						'jetpack'
-					),
-					nbCharactersNeeded
-				)
-			);
-			setIsWaitingForPreviousBlock( false );
-			setNeedsMoreCharacters( nbCharactersNeeded );
-		} else if ( needsMoreCharacters !== 0 && prompt.length >= NUMBER_OF_CHARACTERS_NEEDED ) {
-			setErrorMessage(
-				/** translators: This is to retry to complete the text */
-				__( 'Ready to retry', 'jetpack' )
-			);
-			setShowRetry( true );
-			setIsWaitingForPreviousBlock( false );
-			setNeedsMoreCharacters( 0 );
-		} else if ( needsMoreCharacters === 0 && ! showRetry ) {
-			getSuggestionFromOpenAI();
+					)
+				);
+				setNeedsMoreCharacters( true );
+			} else if ( needsMoreCharacters ) {
+				setErrorMessage(
+					/** translators: This is to retry to complete the text */
+					__( 'Ready to retry', 'jetpack' )
+				);
+				setShowRetry( true );
+				setNeedsMoreCharacters( false );
+			} else if ( ! needsMoreCharacters && ! showRetry ) {
+				getSuggestionFromOpenAI();
+			}
 		}
-	}
+	}, [
+		currentPostTitle,
+		contentBefore,
+		categoryNames,
+		tagNames,
+		noLogicNeeded,
+		needsMoreCharacters,
+		showRetry,
+	] );
 
 	return (
 		<div { ...useBlockProps() }>

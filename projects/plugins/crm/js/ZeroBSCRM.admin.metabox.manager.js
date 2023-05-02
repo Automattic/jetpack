@@ -7,7 +7,7 @@
  *
  * Date: 29/04/18
  */
-const startedDrag = false;
+var startedDrag = false;
 jQuery( function () {
 	zerobscrmJS_bindMetaboxManager();
 
@@ -42,9 +42,9 @@ function zerobscrmJS_bindMetaboxManager() {
 	//jQuery('.zbs-metabox-checkbox').checkbox('onChange', function() {
 	jQuery( '.zbs-metabox-checkbox' ).checkbox( 'setting', 'onChange', function ( r ) {
 		// get id
-		const id = jQuery( this ).attr( 'id' );
-		const mbID = id.substr( 7 );
-		const checked = jQuery( '#' + id + ':checked' ).length; //$(this).find('input').is(':checked');//jQuery(this).checkbox('is checked');
+		var id = jQuery( this ).attr( 'id' );
+		var mbID = id.substr( 7 );
+		var checked = jQuery( '#' + id + ':checked' ).length; //$(this).find('input').is(':checked');//jQuery(this).checkbox('is checked');
 		//var disabled = jQuery('#' + id).attr('disabled');
 		//console.log(id,[mbID,checked,disabled]);
 
@@ -223,7 +223,7 @@ function zeroBSCRMJS_initialiseTabbedMetaboxes() {
 
 // this probs needs thinking how to centralise into Global.js + more common sense for out-of-metabox places use
 // NOTE: 16/8/18 wh centralised + used for tablecolumn saver in company view
-const zbsjsScreenOptsBlock = false;
+var zbsjsScreenOptsBlock = false;
 /**
  *
  */
@@ -259,7 +259,7 @@ function zeroBSCRMJS_saveScreenOptionsMetaboxes() {
  */
 function zeroBSCRMJS_buildScreenOptionsMetaboxes() {
 	// empty defaults
-	const newScreenOptions = {
+	var newScreenOptions = {
 		mb_normal: {},
 		mb_side: {},
 		mb_hidden: [],
@@ -269,14 +269,14 @@ function zeroBSCRMJS_buildScreenOptionsMetaboxes() {
 
 	// ====== METABOXES:
 
-	let tabIdx = 1;
+	var tabIdx = 1;
 
-	const mbAreas = [ 'normal', 'side' ];
+	var mbAreas = [ 'normal', 'side' ];
 
 	// for each area
 	jQuery.each( mbAreas, function ( mbAreaIndx, mbArea ) {
 		//console.log('adding ' + mbArea + ' mb');
-		const obj = {};
+		var obj = {};
 
 		// 'normal' metaboxes
 		jQuery( '#zbs-' + mbArea + '-sortables .zbs-metabox' ).each( function ( ind, ele ) {
@@ -294,13 +294,13 @@ function zeroBSCRMJS_buildScreenOptionsMetaboxes() {
 		// 'normal' - tabbed metaboxes
 		jQuery( '#zbs-' + mbArea + '-sortables .zbs-metabox-tabgroup' ).each( function ( ind, ele ) {
 			// get tabgroup id
-			let tabgroupID = jQuery( ele ).attr( 'data-tabid' );
+			var tabgroupID = jQuery( ele ).attr( 'data-tabid' );
 			if ( typeof tabgroupID === 'undefined' || tabgroupID == '' ) {
 				tabgroupID = 'tabs_' + tabIdx;
 			}
 
 			// build
-			const tabList = [];
+			var tabList = [];
 			jQuery( '.item', jQuery( ele ) ).each( function ( subInd, subEle ) {
 				// add to list (their data-tab which will be the metabox id :))
 				tabList.push( jQuery( subEle ).attr( 'data-tab' ) );
@@ -345,7 +345,7 @@ function zeroBSCRMJS_buildScreenOptionsMetaboxes() {
  *
  */
 function saveMetaBoxes() {
-	const newScreenOptions = {}; //window.zbsScreenOptions;
+	var newScreenOptions = {}; //window.zbsScreenOptions;
 
 	// get metabox order
 
@@ -369,12 +369,12 @@ function saveMetaBoxes() {
 	if ( typeof newScreenOptions.mb_normal === 'undefined' ) {
 		newScreenOptions.mb_normal = [];
 	}
-	const tabbedList = [];
+	var tabbedList = [];
 	jQuery( '#zbs-normal-sortables .zbs-metabox' ).each( function ( ind, ele ) {
 		// add to list
 		tabbedList.push( jQuery( ele ).attr( 'id' ) );
 	} );
-	const obj = {};
+	var obj = {};
 	obj.tabs_1 = tabbedList.join( ',' );
 	newScreenOptions.mb_normal.push( obj );
 
@@ -384,7 +384,7 @@ function saveMetaBoxes() {
 	}
 	jQuery( '#zbs-side-sortables .zbs-metabox' ).each( function ( ind, ele ) {
 		// add to list
-		const obj = {};
+		var obj = {};
 		obj[ jQuery( ele ).attr( 'id' ) ] = 'self';
 		newScreenOptions.mb_side.push( obj );
 	} );
@@ -426,4 +426,11 @@ function saveMetaBoxes() {
 			console.error( 'Failed to save!', r );
 		}
 	);
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { startedDrag, zbsjsScreenOptsBlock, zerobscrmJS_bindMetaboxManager,
+		zeroBSCRMJS_initialiseTabbedMetaboxes,
+		zeroBSCRMJS_saveScreenOptionsMetaboxes, zeroBSCRMJS_buildScreenOptionsMetaboxes,
+		saveMetaBoxes };
 }

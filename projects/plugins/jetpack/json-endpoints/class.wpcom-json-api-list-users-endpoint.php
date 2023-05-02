@@ -33,7 +33,7 @@ new WPCOM_JSON_API_List_Users_Endpoint(
 				'post_count'   => 'Order by number of posts published.',
 			),
 			'authors_only'    => '(bool) Set to true to fetch authors only',
-			'include_viewers' => '(bool) Set to true to include viewers for Simple sites',
+			'include_viewers' => '(bool) Set to true to include viewers for Simple sites. When you pass in this parameter, order, order_by and search_columns are ignored. Currently, `search` is limited to the first page of results.',
 			'type'            => "(string) Specify the post type to query authors for. Only works when combined with the `authors_only` flag. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 			'search'          => '(string) Find matching users.',
 			'search_columns'  => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter.",
@@ -192,8 +192,17 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 		foreach ( array_keys( $this->response_format ) as $key ) {
 			switch ( $key ) {
 				case 'found':
-					$user_count     = (int) $user_query->get_total();
-					$viewer_count   = $include_viewers ? count( $viewers ) : 0;
+					$user_count = (int) $user_query->get_total();
+
+					$viewer_count = 0;
+					if ( $include_viewers ) {
+						if ( empty( $args['search'] ) ) {
+							$viewer_count = (int) get_count_private_blog_users( $blog_id );
+						} else {
+							$viewer_count = count( $viewers );
+						}
+					}
+
 					$return[ $key ] = $user_count + $viewer_count;
 					break;
 				case 'users':

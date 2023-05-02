@@ -406,6 +406,17 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Return the list of extensions that are available.
+	 *
+	 * @since 11.9
+	 *
+	 * @return array A list of block and plugins and their availability status.
+	 */
+	public static function get_extensions() {
+		return self::$extensions;
+	}
+
+	/**
 	 * Check if an extension/block is already registered
 	 *
 	 * @since 7.2
@@ -427,6 +438,35 @@ class Jetpack_Gutenberg {
 	 */
 	public static function is_gutenberg_available() {
 		return true;
+	}
+
+	/**
+	 * Determine if Paid Newsletters is correctly configured for a site
+	 *
+	 * @since 12.0
+	 *
+	 * @return bool Determine if the Paid Newsletter is correctly configured
+	 */
+	public static function is_newsletter_configured() {
+		require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
+
+		// Jetpack has not yet been configured
+		if ( ! class_exists( '\Jetpack_Memberships' ) ) {
+			return false;
+		}
+
+		// Stripe has not yet been connected
+		if ( empty( \Jetpack_Memberships::get_connected_account_id() ) ) {
+			return false;
+		}
+
+		// Newsletter plan has not yet ben configured
+		if ( ! Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
+			return false;
+		}
+
+		/** This filter is already documented in class.jetpack-gutenberg.php */
+		return apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false );
 	}
 
 	/**
@@ -669,6 +709,27 @@ class Jetpack_Gutenberg {
 				'is_private_site'               => $status->is_private_site(),
 				'is_coming_soon'                => $status->is_coming_soon(),
 				'is_offline_mode'               => $status->is_offline_mode(),
+				'is_newsletter_feature_enabled' => (
+					/**
+					 * Enable the Paid Newsletters feature in the block editor context.
+					 *
+					 * @module subscriptions
+					 * @since 11.8
+					 *
+					 * @param bool false Enable the Paid Newsletters feature in the block editor context.
+					 */
+					apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+					&& class_exists( '\Jetpack_Memberships' )
+				),
+				/**
+				 * Show the Paid Newsletter access panel selector in every post sidebar.
+				 *
+				 * @module subscriptions
+				 * @since $$next-version$$
+				 *
+				 * @param bool false Show the Paid Newsletter access panel selector in every post sidebar.
+				 */
+				'is_newsletter_panel_active'    => apply_filters( 'jetpack_subscriptions_newsletter_show_panel', self::is_newsletter_configured() ),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
@@ -680,14 +741,6 @@ class Jetpack_Gutenberg {
 				 * @param bool true Enable the RePublicize UI in the block editor context. Defaults to true.
 				 */
 				'republicize_enabled'           => apply_filters( 'jetpack_block_editor_republicize_feature', true ),
-				/**
-				 * Enable the Paid Newsletters feature in the block editor context.
-				 *
-				 * @since $$next_version$$
-				 *
-				 * @param bool false Enable the Paid Newsletters feature in the block editor context. Defaults to false.
-				 */
-				'is_newsletter_feature_enabled' => apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false ),
 				/**
 				 * Prevent the registration of the blocks from extensions/blocks/contact-form
 				 * if the Forms package is enabled.
@@ -704,10 +757,13 @@ class Jetpack_Gutenberg {
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
 			$publicize               = publicize_init();
+			$sig_settings            = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
 			$initial_state['social'] = array(
-				'sharesData'                  => $publicize->get_publicize_shares_info( $blog_id ),
-				'hasPaidPlan'                 => $publicize->has_paid_plan(),
-				'isEnhancedPublishingEnabled' => $publicize->is_enhanced_publishing_enabled( $blog_id ),
+				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
+				'hasPaidPlan'                     => $publicize->has_paid_plan(),
+				'isEnhancedPublishingEnabled'     => $publicize->is_enhanced_publishing_enabled( $blog_id ),
+				'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
+				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 			);
 		}
 

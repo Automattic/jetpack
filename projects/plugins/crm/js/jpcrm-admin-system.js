@@ -36,3 +36,7 @@ function jpcrm_init_systempage() {
 	// accordian
 	jQuery( '.ui.accordion' ).accordion();
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm_init_systempage };
+}

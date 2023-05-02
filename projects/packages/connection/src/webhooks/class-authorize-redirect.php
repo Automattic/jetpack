@@ -42,9 +42,9 @@ class Authorize_Redirect {
 				$domains[] = 'jetpack.wordpress.com';
 				$domains[] = 'wordpress.com';
 				// Calypso envs.
-				$domains[] = 'http://calypso.localhost:3000/';
-				$domains[] = 'https://wpcalypso.wordpress.com/';
-				$domains[] = 'https://horizon.wordpress.com/';
+				$domains[] = 'calypso.localhost';
+				$domains[] = 'wpcalypso.wordpress.com';
+				$domains[] = 'horizon.wordpress.com';
 				return array_unique( $domains );
 			}
 		);
@@ -59,7 +59,7 @@ class Authorize_Redirect {
 
 		// The user is either already connected, or finished the connection process.
 		if ( $this->connection->is_connected() && $this->connection->is_user_connected() ) {
-			if ( class_exists( '\Automattic\Jetpack\Licensing' ) ) {
+			if ( class_exists( '\Automattic\Jetpack\Licensing' ) && method_exists( '\Automattic\Jetpack\Licensing', 'handle_user_connected_redirect' ) ) {
 				Licensing::instance()->handle_user_connected_redirect( $dest_url );
 			}
 

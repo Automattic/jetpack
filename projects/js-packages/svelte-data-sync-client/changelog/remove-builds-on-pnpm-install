@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Set `exports` in package.json. This will break directly requiring files from within the package in environments that respect `exports`.

@@ -7,7 +7,7 @@
  *
  * Date: 17/06/2016
  */
-const zbsCRMFormsBlocker = false;
+var zbsCRMFormsBlocker = false;
 jQuery( function () {
 	// Infobox:
 
@@ -31,8 +31,8 @@ jQuery( function () {
 
 				//get the data from this form...
 				e.preventDefault();
-				const zbs_style = jQuery( '#zbs_form_style' ).val();
-				const zbs_email = jQuery( '#zbs_email' ).val();
+				var zbs_style = jQuery( '#zbs_form_style' ).val();
+				var zbs_email = jQuery( '#zbs_email' ).val();
 
 				// Debug console.log('style is ' + zbs_style);
 
@@ -40,7 +40,7 @@ jQuery( function () {
 				// Have a variable "errors" and basically count (or add) the errors as I go, then submit at end, if legit.
 				// I've modified this to do that, for your interest
 
-				const errors = [];
+				var errors = [];
 
 				// check reCaptcha!
 				if ( typeof window.zbscrmReCaptcha !== 'undefined' ) {
@@ -154,7 +154,7 @@ function zbscrm_JS_leadformcapture( zbs_form_id, zbs_ajaxurl, t ) {
 	//capture the lead if submit is hit..  pre-process first though....
 	//action zbs_lead_form_capture
 	// Debug console.log(zbs_form_id, zbs_ajaxurl, t);
-	const zbs_form_id_l = zbs_form_id;
+	var zbs_form_id_l = zbs_form_id;
 	i = jQuery.ajax( {
 		url: zbs_ajaxurl,
 		type: 'POST',
@@ -164,7 +164,7 @@ function zbscrm_JS_leadformcapture( zbs_form_id, zbs_ajaxurl, t ) {
 	} );
 	i.done( function ( e ) {
 		// localising (this pulls the id from parent func into here, so we can use it!)
-		const zbs_form_id_l2 = zbs_form_id_l;
+		var zbs_form_id_l2 = zbs_form_id_l;
 
 		// Debug console.log('FINI!',[e,zbs_form_id_l,zbs_form_id_l2]);
 
@@ -190,7 +190,7 @@ function zbscrm_JS_leadformcapture( zbs_form_id, zbs_ajaxurl, t ) {
  * @param email
  */
 function zbscrm_JS_validateEmail( email ) {
-	const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 	return re.test( email );
 }
 
@@ -199,7 +199,7 @@ function zbscrm_JS_validateEmail( email ) {
  * @param zbs_ajaxurl
  */
 function zbscrm_JS_leadformview( zbs_form_id, zbs_ajaxurl ) {
-	const t = {
+	var t = {
 			action: 'zbs_lead_form_views',
 			id: zbs_form_id,
 		},
@@ -215,4 +215,9 @@ function zbscrm_JS_leadformview( zbs_form_id, zbs_ajaxurl ) {
 		// Debug console.log(e);
 	} ),
 		i.fail( function () {} );
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbsCRMFormsBlocker, zbscrm_JS_leadformcapture, zbscrm_JS_validateEmail,
+		zbscrm_JS_leadformview };
 }

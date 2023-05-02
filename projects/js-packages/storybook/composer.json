@@ -15,8 +15,7 @@
 	},
 	"scripts": {
 		"build-development": "pnpm run storybook:build",
-		"test-js": "pnpm run test",
-		"test-coverage": "pnpm run test-coverage"
+		"test-js": "pnpm run test"
 	},
 	"repositories": [
 		{

@@ -6,11 +6,11 @@ module.exports = {
 		},
 	},
 	rules: {
-		// Enforce the use of the jetpack-migration textdomain.
+		// Enforce the use of the wpcom-migration textdomain.
 		'@wordpress/i18n-text-domain': [
 			'error',
 			{
-				allowedTextDomain: 'jetpack-migration',
+				allowedTextDomain: 'wpcom-migration',
 			},
 		],
 	},

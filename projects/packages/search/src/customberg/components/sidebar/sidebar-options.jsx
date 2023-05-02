@@ -46,6 +46,8 @@ export default function SidebarOptions() {
 		sortEnabled = true,
 		theme,
 		trigger,
+		postDate = false,
+		setPostDate,
 	} = useSearchOptions();
 
 	const { isSaving } = useEntityRecordState();
@@ -131,6 +133,15 @@ export default function SidebarOptions() {
 					label={ __( 'Enable infinite scroll', 'jetpack-search-pkg' ) }
 					onChange={ setInfiniteScroll }
 				/>
+				{ 'expanded' === resultFormat && (
+					<ToggleControl
+						className="jp-search-configure-post-date-toggle"
+						checked={ postDate }
+						disabled={ isDisabled }
+						label={ __( 'Show post date', 'jetpack-search-pkg' ) }
+						onChange={ setPostDate }
+					/>
+				) }
 				{ ! isFreePlan && (
 					<ToggleControl
 						className="jp-search-configure-show-logo-toggle"

@@ -12,10 +12,10 @@
 // ======= Globals
 // ========================================================================
 
-const zbs_invoice = false; // stores data of this inv (post init)
-const zbs_tax = false; // ?
-const zbs_tax_table = false; // stores tax table
-const zbsInvBlocker = false; // this is a blocker... ctrl F it
+var zbs_invoice = false; // stores data of this inv (post init)
+var zbs_tax = false; // ?
+var zbs_tax_table = false; // stores tax table
+var zbsInvBlocker = false; // this is a blocker... ctrl F it
 
 // ========================================================================
 // ======= /Globals
@@ -62,7 +62,7 @@ jQuery( function () {
  */
 function zbscrm_JS_retrieve_invoice_data( id ) {
 	// get the invoice data (pass security to this once data outputs OK)
-	const data = {
+	var data = {
 		action: 'zbs_get_invoice_data',
 		sec: window.zbscrmjs_secToken,
 		invid: id,
@@ -129,7 +129,7 @@ function zbscrm_JS_draw_invoice_html() {
 		jQuery( '#zbs_loader, #zbs_invoice' ).show();
 
 		// define
-		let html = '';
+		var html = '';
 
 		// draw the HTML with this function ...
 		html = zbscrm_JS_draw_invoice_actions_html( window.zbs_invoice );
@@ -247,7 +247,7 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 		// send email button
 		// ONLY show if email template active for invoices + has valid email in billto
 		if ( typeof window.zbsJS_invEmailActive !== 'undefined' && window.zbsJS_invEmailActive == 1 ) {
-			const potentialEmail = zbscrmJS_retrieveCurrentBillToEmail();
+			var potentialEmail = zbscrmJS_retrieveCurrentBillToEmail();
 			if (
 				typeof potentialEmail !== 'undefined' &&
 				potentialEmail != '' &&
@@ -277,11 +277,11 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
  */
 function zbscrmJS_retrieveCurrentBillToEmail() {
 	// email? (if assigned)
-	let potentialEmail = jQuery( '#zbs_inv_bill' ).val();
+	var potentialEmail = jQuery( '#zbs_inv_bill' ).val();
 	// if not set already, then get from this:
 	if ( typeof potentialEmail === 'undefined' || ! zbscrm_JS_validateEmail( potentialEmail ) ) {
 		// here we allow for prefilled data via zbsprefillcust _GET param (passed by php)
-		let billTo = window.zbs_invoice.invoiceObj.bill;
+		var billTo = window.zbs_invoice.invoiceObj.bill;
 		if (
 			( billTo == null || billTo == '' ) &&
 			typeof window.zbsJS_prefillemail !== 'undefined' &&
@@ -301,7 +301,7 @@ function zbscrmJS_retrieveCurrentBillToEmail() {
  * @param res
  */
 function zbscrm_JS_draw_invoice_logo_html( res ) {
-	let html = '',
+	var html = '',
 		hide = '',
 		show = '';
 
@@ -345,8 +345,8 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 	//if (res.invoiceObj.settings.invid){
 	if ( res.invoiceObj.settings.hideid != '1' ) {
 		// Use id + id_override fields only, v3+
-		let potentialInvID = '';
-		let zbsID = -1;
+		var potentialInvID = '';
+		var zbsID = -1;
 		if ( typeof res.invoiceObj.id !== 'undefined' ) {
 			potentialInvID = res.invoiceObj.id;
 			zbsID = res.invoiceObj.id;
@@ -375,6 +375,15 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 			html += '</tr>';
 		}
 	}
+	// invoice status.
+	html +=
+	'<tr class="wh-large jpcrm-invoice-status"><th><label for="status">' +
+	zbscrm_JS_invoice_lang( 'invoice_status' ) +
+	':</label></th>';
+	html += '<td>';
+	html += generateInvoiceStatusHtml( res );
+	html += '</td>';
+	html += '</tr>';
 
 	//invoice date :-) date picker. Can we fix this for good in here now? formating etc?
 	html +=
@@ -391,7 +400,7 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 
 	//reference
 	html += '<tr class="wh-large">';
-	html += '<th><label for="ref">' + zbscrm_JS_invoice_lang( 'reference' ) + ':</label></th>';
+	html += '<th><label for="ref">' + zbscrm_JS_invoice_lang( 'reference' ) + '</label></th>';
 	html += '<td>';
 	if ( 'reftype' in res.invoiceObj.settings && res.invoiceObj.settings.reftype === 'autonumber' ) {
 		if ( res.invoiceObj.status === 'draft' ) {
@@ -425,7 +434,7 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 	} else {
 		html +=
 			'<input type="text" name="zbsi_ref" id="ref" class="form-control widetext" placeholder="" value="' +
-			res.invoiceObj.id_override +
+			jpcrm.esc_attr( res.invoiceObj.id_override ) +
 			'" autocomplete="zbsinv" />';
 	}
 	html += '</td>';
@@ -510,31 +519,57 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 	return html;
 }
 
+/**
+ * Helper function to generate the HTML for the invoice status selection dropdown.
+ *
+ * @param res
+ */
+function generateInvoiceStatusHtml( res ) {
+	let html = '<select id="invoice-status" name="invoice_status">';
+	const currentStatus = res.invoiceObj.status;
+	const allStatuses = [ 
+		[ 'Draft', 'status_draft' ],
+		[ 'Unpaid', 'status_unpaid' ],
+		[ 'Paid', 'status_paid' ],
+		[ 'Overdue', 'status_overdue'],
+		[ 'Deleted', 'status_deleted']
+	];
+	for ( const statusItem of allStatuses ) {
+		html += '<option value=' + statusItem[0];
+		if ( currentStatus === statusItem[0] ) {
+			html += ' selected';
+		}
+		html += '>' + zbscrm_JS_invoice_lang( statusItem[1] ) + '</option>';
+	}
+	html += '</select>';
+	return html;
+}
+
 //the new type-ahead function here. Gets ID based on NAME or EMAIL search of Contacts AND Companies.
 /**
  * @param res
  */
 function zbscrm_JS_draw_send_invoice_to( res ) {
-	let zbs_invoice_contact = res.invoiceObj.invoice_contact;
-	let zbs_invoice_company = res.invoiceObj.invoice_company;
+	var zbs_invoice_contact = res.invoiceObj.invoice_contact;
+	var zbs_invoice_company = res.invoiceObj.invoice_company;
 
 	// at some point we changed these to be passing the full obj
 	// ... if so, interpret
 	if (
-		typeof zbs_invoice.invoiceObj.invoice_contact === 'object' &&
-		typeof zbs_invoice.invoiceObj.invoice_contact.id !== 'undefined'
+		typeof window.zbs_invoice.invoiceObj.invoice_contact === 'object' &&
+		typeof window.zbs_invoice.invoiceObj.invoice_contact.id !== 'undefined'
 	) {
-		zbs_invoice_contact = parseInt( zbs_invoice.invoiceObj.invoice_contact.id );
+		zbs_invoice_contact = parseInt( window.zbs_invoice.invoiceObj.invoice_contact.id );
 	}
 	if (
-		typeof zbs_invoice.invoiceObj.invoice_company === 'object' &&
-		typeof zbs_invoice.invoiceObj.invoice_company.id !== 'undefined'
+		typeof window.zbs_invoice.invoiceObj.invoice_company === 'object' &&
+		typeof window.zbs_invoice.invoiceObj.invoice_company.id !== 'undefined'
 	) {
-		zbs_invoice_company = parseInt( zbs_invoice.invoiceObj.invoice_company.id );
+		zbs_invoice_company = parseInt( window.zbs_invoice.invoiceObj.invoice_company.id );
 	}
 
 	// here we allow for prefilled data via zbsprefillcust _GET param (passed by php)
-	let billTo = res.invoiceObj.bill_name;
+	var billTo = res.invoiceObj.bill_name;
 	if (
 		( billTo == null || billTo == '' ) &&
 		typeof window.zbsJS_prefillemail !== 'undefined' &&
@@ -563,7 +598,7 @@ function zbscrm_JS_draw_send_invoice_to( res ) {
 	}
 	//console.log('billto:',billTo); //prefillid
 
-	let html = '';
+	var html = '';
 	html += '<div id="billing-to">';
 
 	html += '<div class="billing-to-title">';
@@ -685,7 +720,7 @@ function zbscrm_JS_draw_line_items( res ) {
 	window.zbs_invoice_rownum = 1;
 	//window.zbsremoverow = zbscrm_JS_invoice_lang('remove_row');
 
-	let html = '';
+	var html = '';
 
 	// space for extension
 	if ( typeof window.zbscrm_JS_draw_invoiceCustomiserExtras === 'function' ) {
@@ -718,7 +753,7 @@ function zbscrm_JS_draw_line_items( res ) {
 	if ( res.invoiceObj.invoice_items == '' ) {
 		//this is if we have no ivoice items set.
 		i = 1;
-		const line = {};
+		var line = {};
 
 		//defaults
 		/* Mike's original
@@ -778,7 +813,7 @@ function zbscrm_JS_draw_line_items( res ) {
 function zbscrm_JS_draw_invoice_totals( res ) {
 	//totals (and line totals) now to be calculated via the JS (and PHP) and not needed to be stored in meta
 
-	let html = '';
+	var html = '';
 	html += '<div class="invoice-grand-total-wrapper ui grid">';
 
 	html += '<div class="col-md-6 eight wide column"></div>';
@@ -868,14 +903,14 @@ function zbscrm_JS_draw_invoice_totals( res ) {
  * @param res
  */
 function zbscrm_JS_draw_partials_table( res ) {
-	let html = '<div id="zbs-invoice-partial-payments" class = "ui grid">';
+	var html = '<div id="zbs-invoice-partial-payments" class = "ui grid">';
 
 	html += '<div class="col-md-6 eight wide column"></div>';
-	const paid_to_date = 0;
+	var paid_to_date = 0;
 	html += '<div class="col-md-6 eight wide column">';
 	window.invoice_partial = false;
 	jQuery.each( res.invoiceObj.partials, function ( i, v ) {
-		let vValue = '';
+		var vValue = '';
 
 		// debug console.log(v);
 		if ( i == 0 ) {
@@ -885,8 +920,8 @@ function zbscrm_JS_draw_partials_table( res ) {
 		}
 		html += '<div class="partial-row">';
 
-		let vTypeStr = ''; // if != 'sale' this'll add type
-		let vFailStr = ''; // if it's not 'succeeded' status will add
+		var vTypeStr = ''; // if != 'sale' this'll add type
+		var vFailStr = ''; // if it's not 'succeeded' status will add
 		if (
 			typeof v.type !== 'undefined' &&
 			typeof v.type_accounting !== 'undefined' &&
@@ -894,7 +929,7 @@ function zbscrm_JS_draw_partials_table( res ) {
 		) {
 			vTypeStr = ' (' + v.type + ')';
 		}
-		let vSymbolStart = '',
+		var vSymbolStart = '',
 			vSymbolEnd = ''; // this gets set to () if is a creditnote/refund transaction
 		if ( typeof v.type_accounting !== 'undefined' && v.type_accounting == 'credit' ) {
 			vSymbolStart = '(';
@@ -902,11 +937,11 @@ function zbscrm_JS_draw_partials_table( res ) {
 		}
 
 		// value line
-		let partial_total_value = v.total;
+		var partial_total_value = v.total;
 		vValue = vSymbolStart + v.total + vSymbolEnd;
 
 		// failed trans ignore...
-		let vStatus = zbscrm_JS_invoice_lang( 'incomplete', 'Incomplete' );
+		var vStatus = zbscrm_JS_invoice_lang( 'incomplete', 'Incomplete' );
 		if ( typeof v.status !== 'undefined' ) {
 			vStatus = v.status;
 		}
@@ -917,7 +952,7 @@ function zbscrm_JS_draw_partials_table( res ) {
 			vValue = '0.0';
 			partial_total_value = '0.0';
 		}
-		const link = zbscrm_JS_transaction_edit_URL( v.id );
+		var link = zbscrm_JS_transaction_edit_URL( v.id );
 
 		html +=
 			'<div class="zlabel half"><a href="' +
@@ -962,7 +997,7 @@ function zbscrm_JS_draw_partials_table( res ) {
 function zbscrm_JS_generate_invoice_row( res, i, v ) {
 	//console.log('drawing:',v);
 
-	let rowhtml =
+	var rowhtml =
 		'<tr class="zbs-invoice-row zbs-item-block zbs-rowid' + i + '" data-rowid="' + i + '">';
 	//title test
 	if ( v.title == null ) {
@@ -1050,7 +1085,7 @@ function zbscrm_JS_generate_invoice_row( res, i, v ) {
 function zbscrm_JS_output_tax_line( res, i, v ) {
 	// debug  console.log('tax',v); //taxes
 
-	let tax_id;
+	var tax_id;
 
 	if ( typeof v.taxes === 'undefined' || v.taxes == null ) {
 		tax_id = 0;
@@ -1105,8 +1140,8 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
  *
  */
 function zbscrm_JS_add_empty_row() {
-	let rowhtml = '';
-	const v = {}; // super funky MS! var v = jQuery();
+	var rowhtml = '';
+	var v = {}; // super funky MS! var v = jQuery();
 
 	//defaults
 	/* Mike's original
@@ -1167,7 +1202,7 @@ function zbscrm_JS_bind_row_actions() {
 	jQuery( '.remove-row' )
 		.off( 'click' )
 		.on( 'click', function ( e ) {
-			const zbsremovevar = jQuery( this ).data( 'rowid' );
+			var zbsremovevar = jQuery( this ).data( 'rowid' );
 
 			/* rather than alert if first row, now deletes + re-adds blank
 
@@ -1196,7 +1231,7 @@ function zbscrm_JS_bind_row_actions() {
 
 	//if a number has changed (i.e. item or quantity.)
 	jQuery( '.zbs-item-block input[type=number]' ).on( 'keyup mouseup', function () {
-		const zbs_row_to_up = jQuery( this ).data( 'zbsr' );
+		var zbs_row_to_up = jQuery( this ).data( 'zbsr' );
 		if ( jQuery( this ).hasClass( 'quan' ) ) {
 			quan = jQuery( this ).val();
 		}
@@ -1227,7 +1262,7 @@ function zbscrm_JS_bind_row_actions() {
 
 	// tax change
 	jQuery( '.tax-select' ).on( 'change', function () {
-		const value = jQuery( this ).val();
+		var value = jQuery( this ).val();
 		//calculate the invoice subtotal.
 		zbscrm_JS_calcTotals();
 	} );
@@ -1265,10 +1300,10 @@ function zbscrm_JS_calculate_invoice_row_subtotals() {
  *
  */
 function zbscrm_JS_calculate_invoice_subtotal() {
-	let invoice_subtotal = 0;
+	var invoice_subtotal = 0;
 	jQuery( '.row-amount' ).each( function ( ele, value ) {
 		// this check is required to stop whole thing falling over
-		let v = jQuery( this ).html();
+		var v = jQuery( this ).html();
 		if ( v == '' ) {
 			v = 0;
 		}
@@ -1287,13 +1322,13 @@ function zbscrm_JS_calculate_invoice_subtotal() {
  *
  */
 function zbscrm_JS_calculate_invoice_tax_table() {
-	const this_row_amount = [];
-	const tax_percent = [];
-	const this_shipping_tax = [];
+	var this_row_amount = [];
+	var tax_percent = [];
+	var this_shipping_tax = [];
 
 	//zbscrm_JS_pickTaxRate instead: var tax_table_index = window.zbs_invoice.tax_linesObj;
 
-	let total_amount = 0,
+	var total_amount = 0,
 		this_tax_id = -1,
 		this_row_index = -1;
 	jQuery( '.tax-select' ).each( function ( index, value ) {
@@ -1309,8 +1344,8 @@ function zbscrm_JS_calculate_invoice_tax_table() {
 			this_shipping_tax[ index ] = 1;
 		} else {
 			// line items
-			const quantity = parseFloat( jQuery( '.zbsli_quan' + this_row_index ).val() );
-			const val = parseFloat( jQuery( '.zbsli_price' + this_row_index ).val() );
+			var quantity = parseFloat( jQuery( '.zbsli_quan' + this_row_index ).val() );
+			var val = parseFloat( jQuery( '.zbsli_price' + this_row_index ).val() );
 			if ( isNaN( quantity ) || isNaN( val ) ) {
 				this_row_amount[ index ] = 0;
 			} else {
@@ -1337,7 +1372,7 @@ function zbscrm_JS_calculate_invoice_tax_table() {
  * @param id
  */
 function zbscrm_JS_pickTaxRate( id ) {
-	let ret = false;
+	var ret = false;
 
 	jQuery.each( window.zbs_invoice.tax_linesObj, function ( ind, ele ) {
 		if ( typeof ele.id !== 'undefined' && ele.id == id ) {
@@ -1355,7 +1390,7 @@ function zbscrm_JS_pickTaxRate( id ) {
  */
 function zbscrm_JS_calculate_tax_amounts( this_row_amount, tax_percent, this_shipping_tax ) {
 	//zbscrm_JS_pickTaxRate instead: var tax_table_index = window.zbs_invoice.tax_linesObj;
-	let discount_amount = parseFloat( jQuery( '#discount-value' ).html() );
+	var discount_amount = parseFloat( jQuery( '#discount-value' ).html() );
 	if ( isNaN( discount_amount ) ) {
 		discount_amount = 0;
 	}
@@ -1383,15 +1418,15 @@ function zbscrm_JS_calculate_tax_amounts( this_row_amount, tax_percent, this_shi
 			tax_amount[ i ] = 0;
 			tax_id[ i ] = 0;
 		} else {
-			const taxRateLine = zbscrm_JS_pickTaxRate( tax_percent[ i ] ); //tax_table_index[this_tax_id];
-			const taxRate = parseFloat( taxRateLine.rate );
+			var taxRateLine = zbscrm_JS_pickTaxRate( tax_percent[ i ] ); //tax_table_index[this_tax_id];
+			var taxRate = parseFloat( taxRateLine.rate );
 			tax_amount[ i ] = ( ( 1 - discount_proportion ) * this_row_amount[ i ] * taxRate ) / 100;
 			tax_id[ i ] = tax_percent[ i ];
 		}
 	}
 
 	//initialise as 0.
-	const tax_table_output = new Object();
+	var tax_table_output = new Object();
 	for ( var i = 0; i < this_row_amount.length; i++ ) {
 		tax_table_output[ tax_id[ i ] ] = 0;
 	}
@@ -1401,11 +1436,11 @@ function zbscrm_JS_calculate_tax_amounts( this_row_amount, tax_percent, this_shi
 		tax_table_output[ tax_id[ i ] ] = tax_table_output[ tax_id[ i ] ] + tax_amount[ i ];
 	}
 
-	let tax_html = '';
+	var tax_html = '';
 	jQuery.each( tax_table_output, function ( i, v ) {
 		if ( i > 0 ) {
 			//console.log(tax_table_output[i]);
-			const taxRate = zbscrm_JS_pickTaxRate( i ); //tax_table_index[this_tax_id];
+			var taxRate = zbscrm_JS_pickTaxRate( i ); //tax_table_index[this_tax_id];
 			tax_html += '<div class="total-row row">';
 			tax_html += '<div class="tax-name third zlabel">' + taxRate.name + '</div>';
 			tax_html += '<div class="tax-rate third ri">(' + taxRate.rate + '%)</div>';
@@ -1424,9 +1459,9 @@ function zbscrm_JS_calculate_tax_amounts( this_row_amount, tax_percent, this_shi
  *
  */
 function zbscrm_JS_calc_grandtotal() {
-	const debugTotalling = false; // temp debug switch
+	var debugTotalling = false; // temp debug switch
 
-	let zbs_gt_invoice_tot = 0;
+	var zbs_gt_invoice_tot = 0;
 
 	//step 1: the subtotal
 	zbs_gt_invoice_tot = zbs_gt_invoice_tot + parseFloat( jQuery( '#subtotal-value' ).html() );
@@ -1464,7 +1499,7 @@ function zbscrm_JS_calc_grandtotal() {
 	//step 4: add tax
 	if ( window.zbs_invoice.invoiceObj.settings.invtax == 1 ) {
 		jQuery( '.zbs-total-tax' ).each( function ( i, v ) {
-			const taxValue = parseFloat( jQuery( this ).html() );
+			var taxValue = parseFloat( jQuery( this ).html() );
 			if ( ! isNaN( taxValue ) ) {
 				zbs_gt_invoice_tot = zbs_gt_invoice_tot + taxValue;
 			}
@@ -1509,10 +1544,10 @@ function zbscrm_JS_calc_amount_due() {
 			//amount_due = amount_due - parseFloat(jQuery('.zbs-partial-value',this).html());
 
 			// get
-			let v = jQuery( '.zbs-partial-value', ele ).text();
+			var v = jQuery( '.zbs-partial-value', ele ).text();
 
 			// detect +-
-			let multiplier = 1; // gets turned to -1 if negotive ()
+			var multiplier = 1; // gets turned to -1 if negotive ()
 
 			// got -?
 			if ( v.indexOf( '(' ) !== -1 ) {
@@ -1573,8 +1608,8 @@ function zbscrm_JS_bind_change_actions() {
  */
 function zbscrm_JS_calculatediscount() {
 	// discount-value
-	const zbs_discount_amt = jQuery( '#invoice_discount_total' ).val();
-	const zbs_discount_type = jQuery( '#invoice_discount_type' ).val();
+	var zbs_discount_amt = jQuery( '#invoice_discount_total' ).val();
+	var zbs_discount_type = jQuery( '#invoice_discount_type' ).val();
 	if ( zbs_discount_amt != '' ) {
 		if ( zbs_discount_type == 'm' ) {
 			jQuery( '#invoice_discount_total_value' ).val(
@@ -1584,7 +1619,7 @@ function zbscrm_JS_calculatediscount() {
 				parseFloat( zbs_discount_amt ).toFixed( zbs_root.currencyOptions.noOfDecimals )
 			);
 		} else {
-			const zbs_discount_combi =
+			var zbs_discount_combi =
 				( parseFloat( jQuery( '#subtotal-value' ).html() ) * zbs_discount_amt ) / 100;
 			jQuery( '#invoice_discount_total_value' ).val(
 				parseFloat( zbs_discount_combi ).toFixed( zbs_root.currencyOptions.noOfDecimals )
@@ -1632,13 +1667,13 @@ function zbscrm_JS_invoice_typeahead_bind() {
 	} );
 
 	//sets the company and contact ID on the UI (for later storage)
-	const select = function ( e, datum, dataset ) {
+	var select = function ( e, datum, dataset ) {
 		// show zbs_invoicing_send_email if legit.
 		// in fact, these always return id, because 'select' doesn't catch empties.
 		// ... see 'change' below :)
 		jQuery( '#zbs_invoicing_send_email' ).hide();
 		if ( typeof datum.id !== 'undefined' && datum.id !== null && datum.id !== '' ) {
-			const potentialEmail = zbscrmJS_retrieveCurrentBillToEmail();
+			var potentialEmail = zbscrmJS_retrieveCurrentBillToEmail();
 			if (
 				typeof potentialEmail !== 'undefined' &&
 				potentialEmail != '' &&
@@ -1668,13 +1703,13 @@ function zbscrm_JS_invoice_typeahead_bind() {
 	};
 
 	// Catches changes to bill to. Ultimately 'select' above deals with setting, and this with unsetting.
-	const change = function ( e, datum, dataset ) {
+	var change = function ( e, datum, dataset ) {
 		// show zbs_invoicing_send_email if legit.
 		// in fact, these always return id, because 'select' doesn't catch empties.
 		// ... see 'change' below :)
 		jQuery( '#zbs_invoicing_send_email' ).hide();
 		if ( typeof datum.id !== 'undefined' && datum.id !== null && datum.id !== '' ) {
-			const potentialEmail = zbscrmJS_retrieveCurrentBillToEmail();
+			var potentialEmail = zbscrmJS_retrieveCurrentBillToEmail();
 			if (
 				typeof potentialEmail !== 'undefined' &&
 				potentialEmail != '' &&
@@ -1722,10 +1757,10 @@ function zbscrm_JS_invoice_typeahead_bind() {
 				templates: {
 					suggestion: function ( r ) {
 						ico = r.obj_type == 2 ? '<i class="building icon"></i>' : '<i class="user icon"></i>';
-						const name = r.name.trim()
+						var name = r.name.trim()
 							? r.name
 							: zeroBSCRMJS_globViewLang( 'contact' ) + ' #' + r.id;
-						const email = r.email ? r.email : '<i>' + zbscrm_JS_invoice_lang( 'noemail' ) + '</i>';
+						var email = r.email ? r.email : '<i>' + zbscrm_JS_invoice_lang( 'noemail' ) + '</i>';
 						sug =
 							'<div class="sug-wrap"><div class="ico">' +
 							ico +
@@ -1738,7 +1773,7 @@ function zbscrm_JS_invoice_typeahead_bind() {
 					},
 					empty: function ( v ) {
 						//to do - link this to the add new customer (if B2B mode should also show link to add new Company too? hmmm WH thoughts? (needs translating too)
-						let str =
+						var str =
 							'<a href="' +
 							window.zbs_invoice.invoiceObj.settings.addnewcontacturl +
 							'" target="_blank">' +
@@ -1771,22 +1806,22 @@ function zbscrm_JS_invoice_typeahead_bind() {
 
 	// BRUTALLY setup all for autocomplete to die :)
 	setTimeout( function () {
-		const utc = new Date().getTime();
+		var utc = new Date().getTime();
 		var k = jQuery( '#billing-to .typeahead' ).attr( 'data-autokey' );
 		if ( typeof k === 'undefined' ) {
 			var k = '-typeahead';
 		}
-		const ns = 'zbsobj-' + utc + '-' + k;
+		var ns = 'zbsobj-' + utc + '-' + k;
 		jQuery( '#billing-to .typeahead' ).attr( 'autocomplete', ns ).attr( 'name', ns );
 	}, 0 );
 	jQuery( this ).on( 'typeahead:open', function ( ev, suggestion ) {
 		// force all typeaheads to be NOT AUTOCOMPLETE
-		const utc = new Date().getTime();
+		var utc = new Date().getTime();
 		var k = jQuery( '#billing-to .typeahead' ).attr( 'data-autokey' );
 		if ( typeof k === 'undefined' ) {
 			var k = '-typeahead';
 		}
-		const ns = 'zbsobj-' + utc + '-' + k;
+		var ns = 'zbsobj-' + utc + '-' + k;
 		jQuery( '#billing-to .typeahead' ).attr( 'autocomplete', ns ).attr( 'name', ns );
 	} );
 }
@@ -1804,7 +1839,7 @@ function zbscrm_JS_bindInitialLearnLinks() {
 		window.zbs_invoice.invoiceObj.invoice_contact != '0' &&
 		window.zbs_invoice.invoiceObj.invoice_contact != '-1'
 	) {
-		const cID = parseInt( window.zbs_invoice.invoiceObj.invoice_contact );
+		var cID = parseInt( window.zbs_invoice.invoiceObj.invoice_contact );
 		if ( cID > 0 ) {
 			zeroBSCRMJS_showContactLinkIf( cID );
 		}
@@ -1815,7 +1850,7 @@ function zbscrm_JS_bindInitialLearnLinks() {
 		window.zbs_invoice.invoiceObj.invoice_company != '0' &&
 		window.zbs_invoice.invoiceObj.invoice_company != '-1'
 	) {
-		const coID = parseInt( window.zbs_invoice.invoiceObj.invoice_company );
+		var coID = parseInt( window.zbs_invoice.invoiceObj.invoice_company );
 		if ( coID > 0 ) {
 			zeroBSCRMJS_showCompanyLinkIf( coID );
 		}
@@ -1850,7 +1885,7 @@ function zeroBSCRMJS_showContactLinkIf( contactID ) {
 				*/
 
 			// ALSO show in header bar, if so
-			const navButton =
+			var navButton =
 				'<a target="_blank" style="margin-left:6px;" class="zbs-invoice-quicknav-contact ui icon button blue mini labeled" href="' +
 				window.zbs_invoice.invoiceObj.settings.contacturlprefix +
 				contactID +
@@ -1936,7 +1971,7 @@ function zeroBSCRMJS_showCompanyLinkIf( companyID ) {
 				*/
 
 			// ALSO show in header bar, if so
-			const navButton =
+			var navButton =
 				'<a target="_blank" style="margin-left:6px;" class="zbs-invoice-quicknav-company ui icon button blue mini labeled" href="' +
 				window.zbs_invoice.invoiceObj.settings.companyurlprefix +
 				companyID +
@@ -1972,6 +2007,7 @@ function zbscrm_JS_bind_invoice_actions() {
 			jQuery( '#wh-logo-set-img' ).attr( 'src', '' ).hide();
 			jQuery( '#zbs_invoice_logo' ).val( '' );
 			jQuery( '.wh-logo' ).removeClass( 'hide' ).show();
+			jQuery( '.wh-logo-set input' ).val( '' );
 			jQuery( '.wh-logo-set' ).hide();
 		} );
 	jQuery( '.business-info-toggle' )
@@ -2009,7 +2045,7 @@ function zbscrm_JS_bind_invoice_actions() {
 	jQuery( '.wh-logo, .wh-logo-set .zbs-update' )
 		.off( 'click' )
 		.on( 'click', function ( e ) {
-			let zbs_media_frame;
+			var zbs_media_frame;
 			e.preventDefault();
 			// Get our Parent element
 			formlabel = jQuery( this ).parent();
@@ -2029,7 +2065,7 @@ function zbscrm_JS_bind_invoice_actions() {
 			} );
 			zbs_media_frame.on( 'select', function () {
 				// Grab our attachment selection and construct a JSON representation of the model.
-				const media_attachment = zbs_media_frame.state().get( 'selection' ).first().toJSON();
+				var media_attachment = zbs_media_frame.state().get( 'selection' ).first().toJSON();
 
 				// Send the attachment URL to our custom input field via jQuery.
 
@@ -2090,8 +2126,8 @@ function zbscrm_JS_bind_invoice_actions() {
  */
 function zbscrmJS_sendInvoiceModal() {
 	// retrieve
-	let invEmail = '';
-	const potentialEmail = zbscrmJS_retrieveCurrentBillToEmail();
+	var invEmail = '';
+	var potentialEmail = zbscrmJS_retrieveCurrentBillToEmail();
 	if (
 		typeof potentialEmail !== 'undefined' &&
 		potentialEmail != '' &&
@@ -2104,7 +2140,7 @@ function zbscrmJS_sendInvoiceModal() {
 	// only if legit email
 	if ( typeof invEmail !== 'undefined' && invEmail != '' && zbscrm_JS_validateEmail( invEmail ) ) {
 		// build options html
-		let optsHTML = '<div id="zbs_invoice_email_modal_opts">';
+		var optsHTML = '<div id="zbs_invoice_email_modal_opts">';
 
 		// to
 		optsHTML += '<div class="zbs-invoice-email-modal-field">';
@@ -2170,7 +2206,7 @@ function zbscrmJS_sendInvoiceModal() {
 		} ).then( function ( result ) {
 			// this check required from swal2 6.0+
 			if ( result.value ) {
-				const invEmail = jQuery( '#zbs_invoice_email_modal_toemail' ).val();
+				var invEmail = jQuery( '#zbs_invoice_email_modal_toemail' ).val();
 				if (
 					typeof invEmail !== 'undefined' &&
 					invEmail != '' &&
@@ -2178,21 +2214,21 @@ function zbscrmJS_sendInvoiceModal() {
 					window.invoice_id > 0
 				) {
 					// get settings
-					let attachassoc = -1;
+					var attachassoc = -1;
 					if (
 						jQuery( '#zbs_invoice_email_modal_attachassoc' ).length > 0 &&
 						jQuery( '#zbs_invoice_email_modal_attachassoc' ).is( ':checked' )
 					) {
 						attachassoc = 1;
 					}
-					let attachpdf = -1;
+					var attachpdf = -1;
 					if (
 						jQuery( '#zbs_invoice_email_modal_attachaspdf' ).length > 0 &&
 						jQuery( '#zbs_invoice_email_modal_attachaspdf' ).is( ':checked' )
 					) {
 						attachpdf = 1;
 					}
-					const params = {
+					var params = {
 						id: window.invoice_id,
 						email: invEmail,
 						attachassoc: attachassoc,
@@ -2340,3 +2376,24 @@ function zbscrm_JS_invoice_lang( key, fallback, subkey ) {
 // ========================================================================
 // ======= /Helpers
 // ========================================================================
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbs_invoice, zbs_tax, zbs_tax_table, zbsInvBlocker,
+		zbscrm_JS_retrieve_invoice_data, zbscrm_JS_draw_invoice_html,
+		zbscrm_JS_draw_invoice_actions_html, zbscrmJS_retrieveCurrentBillToEmail,
+		zbscrm_JS_draw_invoice_logo_html, zbscrm_JS_draw_invoice_top_right_form, zbscrm_JS_draw_send_invoice_to,
+		zbscrm_JS_draw_customise, zbscrm_JS_draw_invoice_biz_info,
+		zbscrm_JS_draw_line_items, zbscrm_JS_draw_invoice_totals,
+		zbscrm_JS_draw_partials_table, zbscrm_JS_generate_invoice_row,
+		zbscrm_JS_output_tax_line, zbscrm_JS_add_empty_row, zbscrm_JS_bind_due_days,
+		zbscrm_JS_bind_row_actions, zbscrm_JS_calculate_invoice_row_subtotals,
+		zbscrm_JS_calculate_invoice_subtotal, zbscrm_JS_calculate_invoice_tax_table,
+		zbscrm_JS_pickTaxRate, zbscrm_JS_calculate_tax_amounts,
+		zbscrm_JS_calc_grandtotal, zbscrm_JS_calc_amount_due,
+		zbscrm_JS_bind_change_actions, zbscrm_JS_calculatediscount,
+		zbscrm_JS_invoice_typeahead_bind, zbscrm_JS_bindInitialLearnLinks,
+		zeroBSCRMJS_showContactLinkIf, zeroBSCRMJS_showCompanyLinkIf,
+		zbscrm_JS_bind_invoice_actions, zbscrmJS_sendInvoiceModal,
+		zbscrmJS_sendInvoiceEmail, zbscrm_JS_transaction_edit_URL,
+		zeroBSCRMJS_invEditLang, zbscrm_JS_calcTotals, zbscrm_JS_invoice_lang };
+}

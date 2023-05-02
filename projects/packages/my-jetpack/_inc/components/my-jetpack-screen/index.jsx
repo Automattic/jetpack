@@ -5,6 +5,7 @@ import {
 	Container,
 	Col,
 	Text,
+	ZendeskChat,
 	useBreakpointMatch,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
@@ -13,6 +14,7 @@ import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import React, { useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
+import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
 import ConnectionsSection from '../connections-section';
@@ -75,6 +77,8 @@ export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
+	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
+	const shouldShowZendeskChatWidget = ! isFetchingChatAvailability && isAvailable;
 
 	const { recordEvent } = useAnalytics();
 
@@ -114,14 +118,16 @@ export default function MyJetpackScreen() {
 
 			<AdminSection>
 				<Container horizontalSpacing={ 8 }>
-					<Col sm={ 2 } md={ 4 } lg={ 6 }>
+					<Col sm={ 4 } md={ 4 } lg={ 6 }>
 						<PlansSection />
 					</Col>
-					<Col sm={ 2 } md={ 4 } lg={ 6 }>
+					<Col sm={ 4 } md={ 4 } lg={ 6 }>
 						<ConnectionsSection />
 					</Col>
 				</Container>
 			</AdminSection>
+
+			{ shouldShowZendeskChatWidget && <ZendeskChat /> }
 		</AdminPage>
 	);
 }

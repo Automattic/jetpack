@@ -5,14 +5,14 @@ import { __, _x } from '@wordpress/i18n';
 import GetAddPaidPlanButton from './utils';
 
 function PaidPlanPanel( { hasNewsletterPlans } ) {
-	const title = __( 'Paid Newsletter', 'jetpack' );
+	const title = __( 'Newsletter', 'jetpack' );
 	const text = hasNewsletterPlans
 		? _x(
 				'Manage paid plan for readers to access your content.',
 				'unused context to distinguish translations',
 				'jetpack'
 		  )
-		: __( 'Set up paid plan for readers to access your content.', 'jetpack' );
+		: __( 'Set up a paid plan for readers to access your content.', 'jetpack' );
 
 	return (
 		<PanelBody title={ title } initialOpen={ true }>

@@ -1,6 +1,8 @@
 <script lang="ts">
+	import { getCurrencyObject } from '@automattic/format-currency';
 	import { onMount } from 'svelte';
-	import { __ } from '@wordpress/i18n';
+	import { __, sprintf } from '@wordpress/i18n';
+	import config from '../../../stores/config';
 	import RightArrow from '../../../svg/right-arrow.svg';
 	import { recordBoostEvent } from '../../../utils/analytics';
 	import routerHistory from '../../../utils/router-history';
@@ -17,14 +19,25 @@
 		recordBoostEvent( 'upsell_cta_from_settings_page_in_plugin', eventProps );
 		navigate( '/upgrade' );
 	}
+
+	$: currencyObjectAfter = getCurrencyObject(
+		$config.pricing.yearly.priceAfter / 12,
+		$config.pricing.yearly.currencyCode
+	);
 </script>
 
-<div class="jb-premium-cta" on:click={showBenefits}>
+<button class="jb-premium-cta" on:click={showBenefits}>
 	<div class="jb-premium-cta__content">
-		<p>{__( 'Save time by automatically regenerating critical CSS', 'jetpack-boost' )}</p>
-		<p class="jb-premium-cta__action-line">{__( 'Upgrade Jetpack Boost', 'jetpack-boost' )}</p>
+		<p>{__( 'Save time by upgrading to Automatic Critical CSS generation', 'jetpack-boost' )}</p>
+		<p class="jb-premium-cta__action-line">
+			{sprintf(
+				/* translators: %s is the price including the currency symbol in front. */
+				__( `Upgrade now only %s`, 'jetpack-boost' ),
+				currencyObjectAfter.symbol + currencyObjectAfter.integer + currencyObjectAfter.fraction
+			)}
+		</p>
 	</div>
 	<div class="jb-premium-cta__icon">
 		<RightArrow />
 	</div>
-</div>
+</button>

@@ -23,7 +23,7 @@ function jpcrm_segment_export_to_mailpoet( exportButton ) {
 	}
 
 	// name
-	const segment_name = jQuery( '#zbs-segment-edit-var-title' ).val();
+	var segment_name = jQuery( '#zbs-segment-edit-var-title' ).val();
 
 	// first check if this has already been exported, if so show a warning that this'll overwrite the existing:
 	exportButton.addClass( 'loading' );
@@ -74,23 +74,23 @@ function jpcrm_mailpoet_initiate_export( exportButton ) {
 		window.zbsAJAXSending = true;
 
 		// id's
-		const snameid = 'zbs-segment-edit-var-title';
-		const smatchtypeid = 'zbs-segment-edit-var-matchtype';
+		var snameid = 'zbs-segment-edit-var-title';
+		var smatchtypeid = 'zbs-segment-edit-var-matchtype';
 		//var sconditions = get_sconditions();
-		const sconditions = [];
+		var sconditions = [];
 		jQuery( '.zbs-segment-edit-condition' ).each( function ( ind, ele ) {
 			// get vars
-			const type = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ) ).val();
-			let operator = jQuery( '.zbs-segment-edit-var-condition-operator', jQuery( ele ) ).val();
-			const value1 = jQuery( '.zbs-segment-edit-var-condition-value', jQuery( ele ) ).val();
-			const value2 = jQuery( '.zbs-segment-edit-var-condition-value-2', jQuery( ele ) ).val();
+			var type = jQuery( '.zbs-segment-edit-var-condition-type', jQuery( ele ) ).val();
+			var operator = jQuery( '.zbs-segment-edit-var-condition-operator', jQuery( ele ) ).val();
+			var value1 = jQuery( '.zbs-segment-edit-var-condition-value', jQuery( ele ) ).val();
+			var value2 = jQuery( '.zbs-segment-edit-var-condition-value-2', jQuery( ele ) ).val();
 
 			// operator will be empty for those such as tagged
 			if ( typeof operator === 'undefined' || operator == 'undefined' ) {
 				operator = -1;
 			}
 
-			const condition = {
+			var condition = {
 				type: type,
 				operator: operator,
 				value: value1,
@@ -102,10 +102,10 @@ function jpcrm_mailpoet_initiate_export( exportButton ) {
 		} );
 
 		// pull through vars
-		const sname = jQuery( '#' + snameid ).val();
-		const smatchtype = jQuery( '#' + smatchtypeid ).val();
+		var sname = jQuery( '#' + snameid ).val();
+		var smatchtype = jQuery( '#' + smatchtypeid ).val();
 
-		const segment = {
+		var segment = {
 			id: window.zbsSegment.id,
 			title: sname,
 			matchtype: smatchtype,
@@ -234,7 +234,7 @@ function jpcrm_segment_batch_export( params ) {
 				jQuery( '.swal2-cancel' ).hide();
 				jQuery( '.jpcrm-export-success' ).hide();
 
-				const completeTitle = jQuery( '#jpcrm_segment_mailpoet_modal' ).attr(
+				var completeTitle = jQuery( '#jpcrm_segment_mailpoet_modal' ).attr(
 					'data-complete-title'
 				);
 				jQuery( '.swal2-title' ).text( completeTitle );
@@ -315,4 +315,9 @@ function jpcrm_mailpoet_retrieve_list_summary( list_name, callback, error_callba
 			return false;
 		},
 	} );
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm_segment_export_to_mailpoet, jpcrm_mailpoet_initiate_export,
+		jpcrm_segment_batch_export, jpcrm_mailpoet_retrieve_list_summary };
 }

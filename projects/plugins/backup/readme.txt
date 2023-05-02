@@ -1,10 +1,10 @@
 === Jetpack VaultPress Backup ===
 Contributors: automattic, bjorsch, fgiannar, initsogar, jeherve, jwebbdev, kraftbj, macbre, samiff, sermitr, williamvianas
 Tags: jetpack
-Requires at least: 6.0
+Requires at least: 6.1
 Requires PHP: 5.6
-Tested up to: 6.1
-Stable tag: 1.4.4
+Tested up to: 6.2
+Stable tag: 1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,9 +12,11 @@ VaultPress is the most proven WordPress backup plugin with over 270 million back
 
 == Description ==
 
-Jetpack VaultPress Backup is a plugin that delivers backups and restores without the other parts of Jetpack.
+Jetpack VaultPress Backup is a plugin that gives you cloud-based backups and one-click restores without needing to install the full Jetpack plugin.
 
 Note: To use this plugin you will need to have a paid Jetpack plan that includes Backup.
+
+https://videopress.com/v/VNRR7Mkj
 
 ### Restoring your site has never been easier
 
@@ -25,6 +27,16 @@ If you make money from your site, or spend hours perfecting content, you need Wo
 * Restore even if your site is offline
 * No developer required
 * Best-in-class support
+
+### If your host’s servers go down, you’re covered
+
+Host backups offer some protection but may not be sufficient to fully safeguard your valuable data. They often have limitations, such as single daily backups only, on-site storage, and clunky interfaces.
+
+Unlock the VaultPress Backup advantage:
+
+* Unmatched Security: Safeguard every change in real-time in the ultra-secure Jetpack Cloud.
+* Instant Recovery: Restore your site even when your host is down.
+* Backups built specifically for WordPress and WooCommerce sites.
 
 ### Reliability you can trust
 
@@ -160,8 +172,9 @@ No, Jetpack VaultPress Backup does not currently support split site or split hom
 2. Your site backups are stored in multiple locations on our world-class cloud infrastructure so you can recover them at any moment.
 
 == Changelog ==
-### 1.4.4 - 2023-02-07
+### 1.6 - 2023-04-04
 #### Changed
+- General: indicate full compatibility with the latest version of WordPress, 6.2.
 - Updated package dependencies.
 
 --------

@@ -12,6 +12,7 @@ describe( 'ContextualizedConnection', () => {
 		redirectTo: 'Elsewhere',
 		isSiteConnected: false,
 		title: 'Test title',
+		buttonLabel: 'Setup Jetpack',
 		setHasSeenWCConnectionModal: jest.fn(),
 	};
 
@@ -47,15 +48,21 @@ describe( 'ContextualizedConnection', () => {
 	} );
 
 	describe( 'When the user has not connected their WordPress.com account', () => {
-		it( 'renders the "Set up Jetpack" button', () => {
+		it( 'renders the connection button', () => {
 			render( <ContextualizedConnection { ...testProps } /> );
-			expect( screen.getByRole( 'button', { name: 'Connect' } ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: testProps.buttonLabel } ) ).toBeInTheDocument();
 		} );
 
-		it( 'renders the TOS', () => {
+		it( 'renders terms of service text that references the connection button label', () => {
 			render( <ContextualizedConnection { ...testProps } /> );
 			expect(
-				screen.getByText( /By clicking the button above, you agree to our/ )
+				screen.getByText(
+					( content, element ) =>
+						content !== '' && // filter out parent elements
+						element.textContent.startsWith(
+							`By clicking the ${ testProps.buttonLabel } button, you agree to our Terms of Service`
+						)
+				)
 			).toBeInTheDocument();
 		} );
 	} );

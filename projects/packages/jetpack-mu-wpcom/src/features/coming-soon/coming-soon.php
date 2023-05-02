@@ -209,7 +209,7 @@ add_action( 'update_option_blog_public', __NAMESPACE__ . '\disable_coming_soon_o
  */
 function add_option_to_new_site( $blog_id, $user_id, $domain, $path, $network_id, $meta ) {
 	if ( 0 === $meta['public']
-		&& array_key_exists( 'wpcom_public_coming_soon', $meta['options'] )
+		&& isset( $meta['options']['wpcom_public_coming_soon'] )
 		&& 1 === (int) $meta['options']['wpcom_public_coming_soon']
 	) {
 		if ( function_exists( 'add_blog_option' ) ) {
@@ -223,15 +223,17 @@ function add_option_to_new_site( $blog_id, $user_id, $domain, $path, $network_id
 add_action( 'wpmu_new_blog', __NAMESPACE__ . '\add_option_to_new_site', 10, 6 );
 
 /**
- * Decides whether to redirect to the site's coming soon page and performs
- * the redirect.
+ * Decides whether to render to the site's coming soon page and performs
+ * the render.
+ *
+ * @param string $template The template to render.
  */
-function coming_soon_page() {
+function coming_soon_page( $template ) {
 	if ( ! should_show_coming_soon_page() ) {
-		return;
+		return $template;
 	}
 
 	render_fallback_coming_soon_page();
 	die();
 }
-add_action( 'template_redirect', __NAMESPACE__ . '\coming_soon_page' );
+add_filter( 'template_include', __NAMESPACE__ . '\coming_soon_page' );

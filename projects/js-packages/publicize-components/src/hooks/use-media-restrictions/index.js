@@ -1,14 +1,10 @@
 import { useCallback, useMemo } from 'react';
-import { RESTRICTIONS } from './restrictions';
+import { DEFAULT_RESTRICTIONS, RESTRICTIONS, GLOBAL_MAX_SIZE } from './restrictions';
 
 export const FILE_TYPE_ERROR = 'FILE_TYPE_ERROR';
 export const FILE_SIZE_ERROR = 'FILE_SIZE_ERROR';
 export const VIDEO_LENGTH_TOO_LONG_ERROR = 'VIDEO_LENGTH_TOO_LONG_ERROR';
 export const VIDEO_LENGTH_TOO_SHORT_ERROR = 'VIDEO_LENGTH_TOO_SHORT_ERROR';
-
-// Global max size: 100 GB;
-const GLOBAL_MAX_SIZE = 100000;
-
 /**
  * Checks whether a media is a video.
  *
@@ -31,13 +27,12 @@ const reduceVideoLimits = ( prev, current ) => ( {
 
 const getVideoLimits = enabledConnections =>
 	enabledConnections
-		.map( connection => RESTRICTIONS[ connection.service_name ].video )
-		.reduce( reduceVideoLimits, {
-			minSize: 0,
-			maxSize: GLOBAL_MAX_SIZE,
-			maxLength: GLOBAL_MAX_SIZE,
-			minLength: 0,
-		} );
+		.map( connection =>
+			RESTRICTIONS[ connection.service_name ]
+				? RESTRICTIONS[ connection.service_name ].video
+				: DEFAULT_RESTRICTIONS.video
+		)
+		.reduce( reduceVideoLimits, [] );
 
 /**
  * Returns the currently allowed media types
@@ -46,12 +41,16 @@ const getVideoLimits = enabledConnections =>
  * @returns {Array} Array of allowed types
  */
 export const getAllowedMediaTypes = enabledConnections => {
-	const typeArrays = enabledConnections.map(
-		connection => RESTRICTIONS[ connection.service_name ].allowedMediaTypes
+	const typeArrays = enabledConnections.map( connection =>
+		RESTRICTIONS[ connection.service_name ]
+			? RESTRICTIONS[ connection.service_name ].allowedMediaTypes
+			: DEFAULT_RESTRICTIONS.allowedMediaTypes
 	);
+
 	if ( typeArrays.length === 0 ) {
-		return [];
+		return DEFAULT_RESTRICTIONS.allowedMediaTypes;
 	}
+
 	return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection
 };
 
@@ -63,7 +62,11 @@ export const getAllowedMediaTypes = enabledConnections => {
  */
 export default function useMediaRestrictions( enabledConnections ) {
 	const maxImageSize = Math.min(
-		...enabledConnections.map( connection => RESTRICTIONS[ connection.service_name ].image.maxSize )
+		...enabledConnections.map( connection =>
+			RESTRICTIONS[ connection.service_name ]
+				? RESTRICTIONS[ connection.service_name ].image.maxSize
+				: DEFAULT_RESTRICTIONS.image.maxSize
+		)
 	);
 
 	const [ videoLimits, allowedMediaTypes ] = useMemo(

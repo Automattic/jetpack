@@ -42,7 +42,7 @@ function zeroBSCRMJS_initSingleView() {
 	zeroBSCRMJS_bindGenericViewSettings();
 }
 
-const zbsCurrentlyDeleting = false;
+var zbsCurrentlyDeleting = false;
 /**
  *
  */
@@ -50,7 +50,7 @@ function zeroBSCRMJS_bindViewFiles() {
 	// delete file
 	jQuery( '.zbsDelFile' ).on( 'click', function () {
 		// get type
-		let delType = 'customer';
+		var delType = 'customer';
 		if ( jQuery( this ).attr( 'data-type' ) == 'company' ) {
 			delType = 'company';
 		}
@@ -59,9 +59,9 @@ function zeroBSCRMJS_bindViewFiles() {
 			// blocking
 			window.zbsCurrentlyDeleting = true;
 
-			const delUrl = jQuery( this ).attr( 'data-delurl' );
+			var delUrl = jQuery( this ).attr( 'data-delurl' );
 			//var lineIDtoRemove = jQuery(this).closest('.zbsFileLine').attr('id');
-			const lineToRemove = jQuery( this ).closest( 'tr' );
+			var lineToRemove = jQuery( this ).closest( 'tr' );
 
 			var objID = -1;
 			if (
@@ -73,7 +73,7 @@ function zeroBSCRMJS_bindViewFiles() {
 
 			if ( typeof delUrl !== 'undefined' && delUrl != '' && objID > 0 ) {
 				// postbag!
-				const data = {
+				var data = {
 					action: 'delFile',
 					zbsfType: delType,
 					zbsDel: delUrl, // could be csv, never used though
@@ -89,14 +89,14 @@ function zeroBSCRMJS_bindViewFiles() {
 					dataType: 'json',
 					timeout: 20000,
 					success: function ( response ) {
-						const localLineToRemove = lineToRemove,
+						var localLineToRemove = lineToRemove,
 							localDelURL = delUrl;
 
 						// visually remove
 						jQuery( localLineToRemove ).remove();
 
 						// show 'none' if none
-						const newNumber = jQuery( '#zbsFilesTable tr' ).length - 1;
+						var newNumber = jQuery( '#zbsFilesTable tr' ).length - 1;
 						if ( newNumber == 1 ) {
 							jQuery( '#zbs-no-files-msg' ).show();
 						}
@@ -160,7 +160,7 @@ function zeroBSCRMJS_viewContactInit() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// get action type (at launch, only url)
-			const actionType = jQuery( this ).attr( 'data-action' );
+			var actionType = jQuery( this ).attr( 'data-action' );
 
 			if ( typeof actionType !== 'undefined' ) {
 				switch ( actionType ) {
@@ -278,3 +278,9 @@ function zeroBSCRMJS_bindActivityStream() {
 /* ============================================================================================================
     / Generic helpers (view settings)
 ============================================================================================================ */
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbsCurrentlyDeleting, zeroBSCRMJS_initSingleView, zeroBSCRMJS_bindViewFiles,
+		zeroBSCRMJS_viewContactInit, zeroBSCRMJS_viewCompanyInit,
+		zeroBSCRMJS_bindGenericViewSettings, zeroBSCRMJS_bindActivityStream };
+}

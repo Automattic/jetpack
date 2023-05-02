@@ -17,7 +17,7 @@ jQuery( function () {
 	// on init, if customer has been selected, prefil inv list
 	if ( jQuery( '#customer' ).val() ) {
 		// any inv selected?
-		let existingInvID = false;
+		var existingInvID = false;
 		if ( jQuery( '#invoice_id' ).val() ) {
 			existingInvID = jQuery( '#invoice_id' ).val();
 		}
@@ -70,8 +70,6 @@ function zbscrmjs_transaction_unsetCompany( o ) {
  * @param obj
  */
 function zbscrmjs_transaction_setCustomer( obj ) {
-	//
-	//	console.log("Customer Chosen!",obj);
 
 	if ( typeof obj.id !== 'undefined' ) {
 		// set vals
@@ -86,7 +84,7 @@ function zbscrmjs_transaction_setCustomer( obj ) {
 	}
 
 	setTimeout( function () {
-		const lID = obj.id;
+		var lID = obj.id;
 
 		// when inv select drop down changed, show/hide quick nav
 		zeroBSCRMJS_showContactLinkIf( lID );
@@ -109,7 +107,7 @@ function zbscrmjs_transaction_setCompany( obj ) {
 	}
 
 	setTimeout( function () {
-		const lID = obj.id;
+		var lID = obj.id;
 
 		// when inv select drop down changed, show/hide quick nav
 		zeroBSCRMJS_showCompanyLinkIf( lID );
@@ -136,7 +134,7 @@ function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
 				// console.log("got list",[r,r.length]);
 
 				// wrap
-				let retHTML = '<select id="invoice_id" name="invoice_id" class="form-control">'; //form-control
+				var retHTML = '<select id="invoice_id" name="invoice_id" class="form-control">'; //form-control
 
 				// if has invoices:
 				if ( r.length > 0 ) {
@@ -155,7 +153,7 @@ function zbscrmjs_build_custInv_dropdown( custID, preSelectedInvID ) {
 					// cycle through + create
 					jQuery.each( r, function ( ind, ele ) {
 						// build a user-friendly str
-						let invStr = '',
+						var invStr = '',
 							invID = -1;
 
 						// 3.0
@@ -289,14 +287,14 @@ function zeroBSCRMJS_showInvLinkIf() {
 	jQuery( '#invoiceSelectionTitle .zbs-view-invoice' ).remove();
 
 	// see if selected
-	let inv = jQuery( '#invoiceFieldWrap select' ).val();
+	var inv = jQuery( '#invoiceFieldWrap select' ).val();
 
 	if ( typeof inv !== 'undefined' && inv !== null && inv !== '' ) {
 		inv = parseInt( inv );
 		if ( inv > 0 ) {
 			// seems like a legit inv, add
 
-			let html =
+			var html =
 				'<div class="ui right floated mini animated button zbs-view-invoice" style="margin-left:0.5em">';
 			html +=
 				'<div class="visible content">' + zeroBSCRMJS_transEditLang( 'view', 'View' ) + '</div>';
@@ -321,9 +319,9 @@ function zeroBSCRMJS_bindInvLinkIf() {
 	jQuery( '#invoiceSelectionTitle .zbs-view-invoice' )
 		.off( 'click' )
 		.on( 'click', function () {
-			const invID = parseInt( jQuery( '#invoiceFieldWrap select' ).val() ); //jQuery(this).attr('data-invid');
+			var invID = parseInt( jQuery( '#invoiceFieldWrap select' ).val() ); //jQuery(this).attr('data-invid');
 
-			const url = window.zeroBSCRMJS_transactionedit_links.editinvprefix + invID;
+			var url = window.zeroBSCRMJS_transactionedit_links.editinvprefix + invID;
 
 			// bla bla https://stackoverflow.com/questions/1574008/how-to-simulate-target-blank-in-javascript
 			window.open( url, '_parent' );
@@ -342,9 +340,9 @@ function zeroBSCRMJS_showContactLinkIf( contactID ) {
 	if ( typeof contactID !== 'undefined' && contactID !== null && contactID !== '' ) {
 		contactID = parseInt( contactID );
 		if ( contactID > 0 ) {
-			const url = window.zbsObjectViewLinkPrefixCustomer + contactID;
+			var url = window.zbsObjectViewLinkPrefixCustomer + contactID;
 
-			let html = '<div class="ui right floated mini animated button zbs-view-contact">';
+			var html = '<div class="ui right floated mini animated button zbs-view-contact">';
 			html +=
 				'<div class="visible content">' + zeroBSCRMJS_transEditLang( 'view', 'View' ) + '</div>';
 			html += '<div class="hidden content">';
@@ -355,7 +353,7 @@ function zeroBSCRMJS_showContactLinkIf( contactID ) {
 			jQuery( '#zbs-customer-title' ).prepend( html );
 
 			// ALSO show in header bar, if so
-			const navButton =
+			var navButton =
 				'<a target="_blank" style="margin-left:6px;" class="zbs-trans-quicknav-contact ui icon button blue mini labeled" href="' +
 				url +
 				'"><i class="user icon"></i> ' +
@@ -378,12 +376,12 @@ function zeroBSCRMJS_bindContactLinkIf() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// get from hidden input
-			let contactID = parseInt( jQuery( '#customer' ).val() ); //jQuery(this).attr('data-invid');
+			var contactID = parseInt( jQuery( '#customer' ).val() ); //jQuery(this).attr('data-invid');
 
 			if ( typeof contactID !== 'undefined' && contactID !== null && contactID !== '' ) {
 				contactID = parseInt( contactID );
 				if ( contactID > 0 ) {
-					const url = window.zbsObjectViewLinkPrefixCustomer + contactID;
+					var url = window.zbsObjectViewLinkPrefixCustomer + contactID;
 					window.open( url, '_parent' );
 				}
 			}
@@ -404,7 +402,7 @@ function zeroBSCRMJS_showCompanyLinkIf( companyID ) {
 		if ( companyID > 0 ) {
 			// seems like a legit inv, add
 
-			let html = '<div class="ui right floated mini animated button zbs-view-company">';
+			var html = '<div class="ui right floated mini animated button zbs-view-company">';
 			html +=
 				'<div class="visible content">' + zeroBSCRMJS_transEditLang( 'view', 'View' ) + '</div>';
 			html += '<div class="hidden content">';
@@ -415,7 +413,7 @@ function zeroBSCRMJS_showCompanyLinkIf( companyID ) {
 			jQuery( '#zbs-company-title' ).prepend( html );
 
 			// ALSO show in header bar, if so
-			const navButton =
+			var navButton =
 				'<a target="_blank" style="margin-left:6px;" class="zbs-trans-quicknav-company ui icon button blue mini labeled" href="' +
 				window.zeroBSCRMJS_transactionedit_links.editcompanyprefix +
 				companyID +
@@ -439,12 +437,12 @@ function zeroBSCRMJS_bindCompanyLinkIf() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// get from hidden input
-			let companyID = parseInt( jQuery( '#zbsct_company' ).val() ); //jQuery(this).attr('data-invid');
+			var companyID = parseInt( jQuery( '#zbsct_company' ).val() ); //jQuery(this).attr('data-invid');
 
 			if ( typeof companyID !== 'undefined' && companyID !== null && companyID !== '' ) {
 				companyID = parseInt( companyID );
 				if ( companyID > 0 ) {
-					const url = window.zeroBSCRMJS_transactionedit_links.editcompanyprefix + companyID;
+					var url = window.zeroBSCRMJS_transactionedit_links.editcompanyprefix + companyID;
 
 					// bla bla https://stackoverflow.com/questions/1574008/how-to-simulate-target-blank-in-javascript
 					window.open( url, '_parent' );
@@ -468,4 +466,14 @@ function zeroBSCRMJS_transEditLang( key, fallback ) {
 	}
 
 	return fallback;
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbscrmjs_transaction_unsetCustomer, zbscrmjs_transaction_unsetCompany,
+		zbscrmjs_transaction_setCustomer, zbscrmjs_transaction_setCompany,
+		zbscrmjs_build_custInv_dropdown, zeroBSCRMJS_bindInvSelect,
+		zeroBSCRMJS_showInvLinkIf, zeroBSCRMJS_bindInvLinkIf,
+		zeroBSCRMJS_showContactLinkIf, zeroBSCRMJS_bindContactLinkIf,
+		zeroBSCRMJS_showCompanyLinkIf, zeroBSCRMJS_bindCompanyLinkIf,
+		zeroBSCRMJS_transEditLang };
 }

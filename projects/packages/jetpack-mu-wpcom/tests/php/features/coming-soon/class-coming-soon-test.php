@@ -10,7 +10,6 @@ namespace A8C\FSE\Coming_soon;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/coming-soon/coming-soon.php';
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'tests/lib/functions-wordpress.php';
 
 /**
  * Class Coming_Soon_Test
@@ -30,8 +29,6 @@ class Coming_Soon_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Post-test suite actions.
-	 *
-	 * @afterClass
 	 */
 	public static function tear_down_after_class() {
 		self::delete_coming_soon_site_options();
@@ -39,8 +36,6 @@ class Coming_Soon_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Post-test actions.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		self::delete_preview_links_parameters();

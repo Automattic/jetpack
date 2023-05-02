@@ -31,6 +31,7 @@ if ( isCurrentUserConnected() && 'function' === typeof useBlockEditContext ) {
 			'jetpack/slideshow',
 			'jetpack/story',
 			'jetpack/tiled-gallery',
+			'videopress/video',
 		];
 
 		return allowedBlocks.indexOf( name ) > -1 && render.toString().indexOf( 'coblocks' ) === -1;

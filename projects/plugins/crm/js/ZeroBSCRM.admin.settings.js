@@ -31,7 +31,7 @@ jQuery( function () {
 function zeroBSCRM_settingsPage_bindCustomFields() {
 	console.log( '======== CUSTOM FIELDS EDITOR =============' );
 
-	const cust_field_tables = [
+	var cust_field_tables = [
 		'addresses',
 		'customers',
 		'customersfiles',
@@ -42,8 +42,8 @@ function zeroBSCRM_settingsPage_bindCustomFields() {
 	];
 
 	// build init
-	for ( let i = 0; i < cust_field_tables.length; i++ ) {
-		const table_name = cust_field_tables[ i ];
+	for ( var i = 0; i < cust_field_tables.length; i++ ) {
+		let table_name = cust_field_tables[ i ];
 		if ( typeof window.wpzbscrmCustomFields[ table_name ] !== 'undefined' ) {
 			// cycle
 			jQuery.each( window.wpzbscrmCustomFields[ table_name ], function ( ind, ele ) {
@@ -80,7 +80,7 @@ function zeroBSCRM_settingsPage_bindCustomFields() {
  * @param ele
  */
 function zbscrmJS_customFields_buildLineV3( key, ele ) {
-	let dal = 1; // assume
+	var dal = 1; // assume
 	if ( typeof window.zbs_root.dal !== 'undefined' ) {
 		dal = parseInt( window.zbs_root.dal );
 	}
@@ -127,7 +127,7 @@ function zbscrmJS_customFields_buildLineFiles( area, namestr ) {
 		namestr = zeroBSCRMJS_settingsLang( 'customfield', 'Custom Field' );
 	}
 
-	let html = '<tr class="zbscrm-cf"><td class="">';
+	var html = '<tr class="zbscrm-cf"><td class="">';
 	html +=
 		'<input type="text" class="form-control" name="wpzbscrm_cf[' +
 		area +
@@ -189,7 +189,7 @@ function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder, s
 	//'text','textarea','date','select','tel','price','numberfloat','numberint','email',
 	// select, radio, checkbox
 	// ^^ need all this except those below hidden
-	let html = '<tr class="zbscrm-cf"><td class="zbscrm-cf-n">';
+	var html = '<tr class="zbscrm-cf"><td class="zbscrm-cf-n">';
 	html +=
 		'<input type="text" class="form-control" name="wpzbscrm_cf[' +
 		area +
@@ -230,14 +230,7 @@ function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder, s
 	html += '<div class="zbscrm-cf-settings-wrap">';
 	html += '<div class="zbs-placeholder-text"></div>';
 
-	html +=
-		'<input type="text" class="form-control zbs-generic-hide zbs-generic" name="wpzbscrm_cf[' +
-		area +
-		'][placeholder][]" value="' +
-		placeholder +
-		'" placeholder="' +
-		zeroBSCRMJS_settingsLang( 'fieldplacehold', 'Field Placeholder Text' ) +
-		'" />';
+	html += '<input type="text" class="form-control zbs-generic-hide zbs-generic" name="wpzbscrm_cf[' + area + '][placeholder][]" value="' + jpcrm.esc_attr( placeholder ) + '" placeholder="' + zeroBSCRMJS_settingsLang('fieldplacehold','Field Placeholder Text') + '" />';
 
 	// encrypted (only shows if )
 	// Removed encrypted (for now), see JIRA-ZBS-738
@@ -247,11 +240,11 @@ function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder, s
 	// autonumber (only shows if )
 
 	// for autonumbers, break placeholder str into autoslots :)
-	let autonumberPrefix = '',
+	var autonumberPrefix = '',
 		autonumberNumb = 1,
 		autonumberSuffix = '';
 	if ( typestr == 'autonumber' && typeof placeholder !== 'undefined' && placeholder !== '' ) {
-		const autoNumberArray = placeholder.split( '#' );
+		var autoNumberArray = placeholder.split( '#' );
 		if ( autoNumberArray.length == 3 ) {
 			autonumberPrefix = autoNumberArray[ 0 ];
 			autonumberNumb = autoNumberArray[ 1 ];
@@ -331,21 +324,21 @@ function zbscrmJS_customFields_buildLine( area, typestr, namestr, placeholder, s
  * @param typestr
  */
 function zbscrmJS_customFields_buildSelect( area, typestr ) {
-	let selectHTML =
+	var selectHTML =
 		'<select class="form-control zbscrm-customtype" name="wpzbscrm_cf[' +
 		area +
 		'][type][]" id="wpzbscrm_cf[' +
 		area +
 		'][type][]">';
 	jQuery.each( window.wpzbscrmAcceptableTypes, function ( ind, ele ) {
-		const show = true;
+		var show = true;
 		// for v2.98.5 only allow autonumber for contacts
 		// 3+ add to other objects, but needs them to go through the "buildFields()" func in the PHP
 		// DAL3 + allow for all: if (area != 'customers' && ele == 'autonumber') show = false;
 
 		// add?
 		if ( show ) {
-			let eleStr = ucwords( ele );
+			var eleStr = ucwords( ele );
 			if ( eleStr == 'Tel' ) {
 				eleStr = zeroBSCRMJS_settingsLang( 'tel', 'Telephone' );
 			}
@@ -381,10 +374,10 @@ function zbscrmJS_customFields_buildSelect( area, typestr ) {
  * @param typestr
  */
 function zbscrmJS_customFields_buildNonSelect( area, typestr ) {
-	let html = '';
+	var html = '';
 
 	jQuery.each( window.wpzbscrmAcceptableTypes, function ( ind, ele ) {
-		let eleStr = ucwords( ele );
+		var eleStr = ucwords( ele );
 		if ( eleStr == 'Tel' ) {
 			eleStr = zeroBSCRMJS_settingsLang( 'tel', 'Telephone' );
 		}
@@ -424,7 +417,7 @@ function zbscrmJS_customFields_buildNonSelect( area, typestr ) {
  */
 function zbscrmJS_customFields_updateRow( ele ) {
 	// get type str
-	let typestr = jQuery( 'select.zbscrm-customtype, input.zbscrm-customtype', ele ).val();
+	var typestr = jQuery( 'select.zbscrm-customtype, input.zbscrm-customtype', ele ).val();
 	if ( typeof typestr === 'undefined' ) {
 		typestr = 'text';
 	}
@@ -532,3 +525,11 @@ function zeroBSCRMJS_settingsLang( key, fallback ) {
 
 	return fallback;
 }
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zeroBSCRM_settingsPage_bindCustomFields, zbscrmJS_customFields_buildLineV3,
+	zbscrmJS_customFields_buildLineFiles, zbscrmJS_customFields_buildLine,
+	zbscrmJS_customFields_buildSelect, zbscrmJS_customFields_buildNonSelect,
+	zbscrmJS_customFields_updateRow, zbscrmJS_customFields_bindRowControls,
+	zbscrmJS_customFieldTypePlaceholder, zeroBSCRMJS_settingsLang };
+	}

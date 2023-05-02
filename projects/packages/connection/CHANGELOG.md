@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.51.7] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [1.51.6] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+### Removed
+- Do not attempt to load non minified files since they are not shipped with the package anymore. [#29864]
+
+## [1.51.5] - 2023-03-29
+### Changed
+- Minor internal updates.
+
+## [1.51.4] - 2023-03-28
+### Changed
+- Minor internal updates.
+
+## [1.51.3] - 2023-03-27
+### Fixed
+- Fix redirect allow-list for Calypso domain names. [#29671]
+
+## [1.51.2] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## [1.51.1] - 2023-03-08
+### Changed
+- Improve JS code in the connection owner removal notice. [#29087]
+- Updated package dependencies. [#29216]
+
+## [1.51.0] - 2023-02-20
+### Changed
+- Moving deleting connection owner notice from JITM to Connection package. [#28516]
+
+## [1.50.1] - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
 ## [1.50.0] - 2023-02-07
 ### Added
 - Call the Licensing package for license verification.
@@ -757,6 +797,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[1.51.7]: https://github.com/Automattic/jetpack-connection/compare/v1.51.6...v1.51.7
+[1.51.6]: https://github.com/Automattic/jetpack-connection/compare/v1.51.5...v1.51.6
+[1.51.5]: https://github.com/Automattic/jetpack-connection/compare/v1.51.4...v1.51.5
+[1.51.4]: https://github.com/Automattic/jetpack-connection/compare/v1.51.3...v1.51.4
+[1.51.3]: https://github.com/Automattic/jetpack-connection/compare/v1.51.2...v1.51.3
+[1.51.2]: https://github.com/Automattic/jetpack-connection/compare/v1.51.1...v1.51.2
+[1.51.1]: https://github.com/Automattic/jetpack-connection/compare/v1.51.0...v1.51.1
+[1.51.0]: https://github.com/Automattic/jetpack-connection/compare/v1.50.1...v1.51.0
+[1.50.1]: https://github.com/Automattic/jetpack-connection/compare/v1.50.0...v1.50.1
 [1.50.0]: https://github.com/Automattic/jetpack-connection/compare/v1.49.1...v1.50.0
 [1.49.1]: https://github.com/Automattic/jetpack-connection/compare/v1.49.0...v1.49.1
 [1.49.0]: https://github.com/Automattic/jetpack-connection/compare/v1.48.1...v1.49.0

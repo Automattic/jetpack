@@ -9,7 +9,7 @@
  */
 
 // declare
-const quoteTemplateBlocker = false;
+var quoteTemplateBlocker = false;
 
 // init
 jQuery( function () {
@@ -67,7 +67,7 @@ jQuery( function () {
 
 	// on change of this, say good bad
 	jQuery( '#zbsQuoteBuilderEmailTo' ).on( 'keyup', function () {
-		const email = jQuery( '#zbsQuoteBuilderEmailTo' ).val();
+		var email = jQuery( '#zbsQuoteBuilderEmailTo' ).val();
 		if ( typeof email === 'undefined' || email == '' || ! zbscrm_JS_validateEmail( email ) ) {
 			// email issue
 			jQuery( '#zbsQuoteBuilderEmailTo' ).css( 'border', '2px solid orange' );
@@ -126,20 +126,20 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
 		window.quoteTemplateBlocker = true;
 
 		// req:
-		const custID =
+		var custID =
 			jQuery( '#zbscq_customer' ).length > 0 ? parseInt( jQuery( '#zbscq_customer' ).val() ) : -1;
-		const quoteTemplateID =
+		var quoteTemplateID =
 			jQuery( '#zbs_quote_template_id' ).length > 0
 				? parseInt( jQuery( '#zbs_quote_template_id' ).val() )
 				: -1;
 
 		// retrieve deets - <DAL3
-		const zbs_quote_title = jQuery( '#name' ).length > 0 ? jQuery( '#name' ).val() : '';
-		const zbs_quote_val = jQuery( '#val' ).length > 0 ? jQuery( '#val' ).val() : '';
-		const zbs_quote_dt = jQuery( '#date' ).length > 0 ? jQuery( '#date' ).val() : '';
+		var zbs_quote_title = jQuery( '#name' ).length > 0 ? jQuery( '#name' ).val() : '';
+		var zbs_quote_val = jQuery( '#val' ).length > 0 ? jQuery( '#val' ).val() : '';
+		var zbs_quote_dt = jQuery( '#date' ).length > 0 ? jQuery( '#date' ).val() : '';
 
 		// DAL3 + we do a more full pass of data
-		const fields = {};
+		var fields = {};
 		if ( zbscrm_JS_DAL() > 2 ) {
 			// this'll work excluding checkboxes - https://stackoverflow.com/questions/11338774/serialize-form-data-to-json
 			jQuery.map( jQuery( '#zbs-edit-form' ).serializeArray(), function ( n, i ) {
@@ -233,7 +233,7 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
 			//no customer selected
 			swal( {
 				title: 'Error!',
-				text: 'Please Choose a Customer',
+				text: 'Please Choose a Contact',
 				type: 'error',
 				confirmButtonText: 'OK',
 			} );
@@ -255,8 +255,8 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
  */
 function jpcrm_quotes_send_email_modal() {
 	// retrieve vars
-	const quotenotificationproceed = true;
-	const recipientEmail = jQuery( '#zbsQuoteBuilderEmailTo' ).val();
+	var quotenotificationproceed = true;
+	var recipientEmail = jQuery( '#zbsQuoteBuilderEmailTo' ).val();
 
 	// verify email
 	if (
@@ -265,7 +265,7 @@ function jpcrm_quotes_send_email_modal() {
 		zbscrm_JS_validateEmail( recipientEmail )
 	) {
 		// build options html
-		let optsHTML = '<div id="jpcrm_quote_email_modal_opts">';
+		var optsHTML = '<div id="jpcrm_quote_email_modal_opts">';
 
 		// to
 		optsHTML += '<div class="jpcrm-send-email-modal-field">';
@@ -324,8 +324,8 @@ function jpcrm_quotes_send_email_modal() {
 		} ).then( function ( result ) {
 			// this check required from swal2 6.0+
 			if ( result.value ) {
-				const recipientEmail = jQuery( '#jpcrm_quote_email_modal_toemail' ).val();
-				const quoteID = parseInt( jQuery( '#zbsQuoteBuilderEmailTo' ).attr( 'data-quoteid' ) );
+				var recipientEmail = jQuery( '#jpcrm_quote_email_modal_toemail' ).val();
+				var quoteID = parseInt( jQuery( '#zbsQuoteBuilderEmailTo' ).attr( 'data-quoteid' ) );
 				if (
 					typeof recipientEmail !== 'undefined' &&
 					recipientEmail != '' &&
@@ -333,21 +333,21 @@ function jpcrm_quotes_send_email_modal() {
 					quoteID > 0
 				) {
 					// get settings
-					let attachassoc = -1;
+					var attachassoc = -1;
 					if (
 						jQuery( '#jpcrm_quote_email_modal_attachassoc' ).length > 0 &&
 						jQuery( '#jpcrm_quote_email_modal_attachassoc' ).is( ':checked' )
 					) {
 						attachassoc = 1;
 					}
-					let attachpdf = -1;
+					var attachpdf = -1;
 					if (
 						jQuery( '#jpcrm_quote_email_modal_attachaspdf' ).length > 0 &&
 						jQuery( '#jpcrm_quote_email_modal_attachaspdf' ).is( ':checked' )
 					) {
 						attachpdf = 1;
 					}
-					const params = {
+					var params = {
 						id: quoteID,
 						cid: jQuery( '#zbscq_customer' ).val(),
 						email: recipientEmail,
@@ -395,7 +395,7 @@ function jpcrm_quotes_send_email( params ) {
 			zbscrm_JS_validateEmail( params.email )
 		) {
 			// postbag!
-			const data = {
+			var data = {
 				action: 'jpcrm_quotes_send_quote',
 				sec: window.zbsEditSettings.nonce,
 				// data
@@ -461,3 +461,8 @@ function jpcrm_quotes_lang( key, fallback, subkey ) {
 // ========================================================================
 // ======= /Helpers
 // ========================================================================
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { quoteTemplateBlocker, zbscrm_appendTextToEditor, zbscrm_getTemplatedQuote,
+		jpcrm_quotes_send_email_modal, jpcrm_quotes_send_email, jpcrm_quotes_lang };
+}

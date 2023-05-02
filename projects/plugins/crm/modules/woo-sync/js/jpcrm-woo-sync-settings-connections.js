@@ -18,7 +18,7 @@ jQuery( function ( $ ) {
  */
 function jpcrm_woosync_bind_add_connection() {
 	jQuery( '#jpcrm-woosync-connect-to-store' ).on( 'click', function () {
-		const swal_HTML =
+		var swal_HTML =
 			'<div style="font-size: 1.2em;padding: 0.3em;">' +
 			zeroBSCRMJS_globViewLang( 'connect-woo-site-url' ) +
 			'<br />' +
@@ -57,7 +57,7 @@ function jpcrm_woosync_bind_add_connection() {
 			customClass: 'swal-wide',
 			preConfirm: function () {
 				// get value
-				let site_url = jpcrm_strip_trailing_slashes(
+				var site_url = jpcrm_strip_trailing_slashes(
 					jQuery( '#jpcrm-connect-woocommerce-store-url' ).val()
 				);
 
@@ -108,7 +108,7 @@ function jpcrm_woosync_bind_add_connection() {
 						return false;
 					}
 					// post via AJAX to receive a new woo auth url (creates a transient to be caught)
-					const data = {
+					var data = {
 						action: 'jpcrm_woosync_get_auth_url',
 						sec: window.zbs_root.woosync_token,
 						site_url: site_url,
@@ -168,4 +168,8 @@ function jpcrm_woosync_bind_add_connection_inputchange() {
 			jQuery( '#jpcrm-woosync-connect-to-store-invalid-url' ).addClass( 'hidden' );
 		}
 	} );
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm_woosync_bind_add_connection, jpcrm_woosync_bind_add_connection_inputchange };
 }

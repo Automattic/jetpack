@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix rendering of subscriber email in .com as default value for the subscribe block input in wpcom

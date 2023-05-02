@@ -1,5 +1,0 @@
-Significance: patch
-Type: bugfix
-Comment: Changed previous and next icons to be base64 encoded vs. URLEncoded to fix a bug, which doesn't seem significant enough to add to the changelog
-
-

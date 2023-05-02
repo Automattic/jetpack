@@ -46,7 +46,7 @@ function zeroBSCRMJS_buildTags() {
  *
  */
 function zeroBSCRMJS_buildTagsInput() {
-	const finalVal = JSON.stringify( window.zbsCRMJS_currentTags );
+	var finalVal = JSON.stringify( window.zbsCRMJS_currentTags );
 
 	jQuery( '#zbs-tag-list' ).val( finalVal );
 }
@@ -56,7 +56,7 @@ function zeroBSCRMJS_buildTagsInput() {
  * @param tagID
  */
 function zbsJS_drawTag( tagStr, tagID ) {
-	const html =
+	var html =
 		'<div class="ui small basic label teal" data-id="' +
 		tagID +
 		'"><i class="window close icon zbs-remove-tag"></i> <span>' +
@@ -79,10 +79,10 @@ function zbsJS_bindTags() {
 		.off( 'click' )
 		.on( 'click', function () {
 			// get val
-			const val = jQuery( 'span', jQuery( this ).parent() ).html();
+			var val = jQuery( 'span', jQuery( this ).parent() ).html();
 
 			// remove from array (select everything except it)
-			const index = window.zbsCRMJS_currentTags.indexOf( val );
+			var index = window.zbsCRMJS_currentTags.indexOf( val );
 			if ( index > -1 ) {
 				window.zbsCRMJS_currentTags.splice( index, 1 );
 			}
@@ -173,7 +173,7 @@ function zbsJS_bindTagManagerInit() {
 	jQuery( '#zbs-add-tag-action' )
 		.off( 'click' )
 		.on( 'click', function () {
-			const newTag = jQuery( '#zbs-add-tag-value' ).val();
+			var newTag = jQuery( '#zbs-add-tag-value' ).val();
 
 			// debug console.log('adding tag',[newTag,window.zbsCRMJS_currentTags,jQuery.inArray(newTag,window.zbsCRMJS_currentTags)]);
 
@@ -185,12 +185,12 @@ function zbsJS_bindTagManagerInit() {
 						// added
 
 						// local
-						const ltag = newTag;
-						let newTagID = -1;
+						var ltag = newTag;
+						var newTagID = -1;
 						if ( typeof r.id !== 'undefined' ) {
 							newTagID = r.id;
 						}
-						let newTagSlug = ltag;
+						var newTagSlug = ltag;
 						if ( typeof r.slug !== 'undefined' ) {
 							newTagSlug = r.slug;
 						}
@@ -205,7 +205,7 @@ function zbsJS_bindTagManagerInit() {
 						jQuery( '#zbs-add-tag-value' ).val( '' );
 
 						// add to table
-						const tagTR =
+						var tagTR =
 							'<tr><td><span class="ui large blue label">' +
 							ltag +
 							'</span></td><td>' +
@@ -253,7 +253,7 @@ function zbsJS_bindTagManagerInit() {
 	} );
 }
 
-const zbsTagManagerUpdateAJAXBlocker = false;
+var zbsTagManagerUpdateAJAXBlocker = false;
 /**
  * @param tagStr
  * @param successcb
@@ -265,7 +265,7 @@ function zbsJS_addEmptyTag( tagStr, successcb, errcb ) {
 		window.zbsTagManagerUpdateAJAXBlocker = true;
 
 		// postbag!
-		const data = {
+		var data = {
 			action: 'zbs_add_tag',
 			sec: window.zbscrmjs_secToken,
 			objtype: window.zbsEditSettings.objdbname,
@@ -314,7 +314,7 @@ function zeroBSCRMJS_tagManager_bindTagEditButtons() {
 	jQuery( '.zbs-delete-tag' )
 		.off( 'click' )
 		.on( 'click', function () {
-			const tagID = parseInt( jQuery( this ).attr( 'data-tagid' ) );
+			var tagID = parseInt( jQuery( this ).attr( 'data-tagid' ) );
 
 			if ( tagID > 0 ) {
 				swal( {
@@ -329,9 +329,9 @@ function zeroBSCRMJS_tagManager_bindTagEditButtons() {
 				} ).then( function ( result ) {
 					if ( result.value ) {
 						// ajax remove
-						const lTagID = tagID;
+						var lTagID = tagID;
 
-						const data = {
+						var data = {
 							action: 'zbs_delete_tag',
 							// don't need, is unique id 'objtype': <?php echo $this->typeInt; ?>,
 							tagid: lTagID,
@@ -367,4 +367,11 @@ function zeroBSCRMJS_tagManager_bindTagEditButtons() {
 				} );
 			}
 		} );
+}
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbsTagManagerUpdateAJAXBlocker, zeroBSCRMJS_buildTags,
+		zeroBSCRMJS_buildTagsInput, zbsJS_drawTag, zbsJS_bindTags, zbsJS_bindTagsInit,
+		zbsJS_addTagAction, zbsJS_bindTagManagerInit, zbsJS_addEmptyTag,
+		zeroBSCRMJS_tagManager_bindTagEditButtons };
 }

@@ -19,9 +19,6 @@
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
-		],
 		"test-php": [
 			"@composer phpunit"
 		]
@@ -42,9 +39,13 @@
 		"autotagger": true,
 		"beta-plugin-slug": "jetpack-mu-wpcom-plugin",
 		"mirror-repo": "Automattic/jetpack-mu-wpcom-plugin",
-		"release-branch-prefix": "jetpack"
+		"release-branch-prefix": [
+			"mu-wpcom",
+			"weekly",
+			"monthly"
+		]
 	},
 	"config": {
-		"autoloader-suffix": "d9d132a783958a00a2c7cccff60ca42d_jetpack_mu_wpcom_pluginⓥ1_0_2_alpha"
+		"autoloader-suffix": "d9d132a783958a00a2c7cccff60ca42d_jetpack_mu_wpcom_pluginⓥ1_2_0_alpha"
 	}
 }

@@ -5,8 +5,12 @@
 	"license": "GPL-2.0-or-later",
 	"require": {},
 	"require-dev": {
+		"brain/monkey": "2.6.1",
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev"
+	},
+	"suggest": {
+		"automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
 	},
 	"autoload": {
 		"classmap": [
@@ -16,9 +20,6 @@
 	"scripts": {
 		"phpunit": [
 			"./vendor/phpunit/phpunit/phpunit --colors=always"
-		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit --coverage-clover \"$COVERAGE_DIR/clover.xml\""
 		],
 		"test-php": [
 			"@composer phpunit"
@@ -46,7 +47,7 @@
 		},
 		"textdomain": "jetpack-ip",
 		"version-constants": {
-			"::PACKAGE_VERSION": "src/class-ip.php"
+			"::PACKAGE_VERSION": "src/class-utils.php"
 		}
 	}
 }

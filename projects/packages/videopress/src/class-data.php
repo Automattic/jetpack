@@ -9,6 +9,7 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host;
 use WP_REST_Request;
 /**
  * The Data class.
@@ -30,11 +31,23 @@ class Data {
 	 * @return boolean If all the videos are private on the site
 	 */
 	public static function get_videopress_videos_private_for_site() {
+		/**
+		 * If it's a Simple site, returns the site privacy setting.
+		 */
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return boolval( get_blog_option( get_current_blog_id(), 'videopress_private_enabled_for_site', false ) );
-		} else {
-			return boolval( get_option( 'videopress_private_enabled_for_site', false ) );
+			return video_is_private_wpcom_blog( get_current_blog_id() );
 		}
+		/**
+		 * If it's a private Atomic site, the default setting is private as well.
+		 */
+		if ( ( new Host() )->is_woa_site() ) {
+			if ( ( intval( get_option( 'blog_public', '' ) ) === -1 ) ) {
+				return true;
+			}
+		}
+
+		/* If it's a Jetpack site or a public Atomic site, check the settings */
+		return boolval( get_option( 'videopress_private_enabled_for_site', false ) );
 	}
 
 	/**
@@ -43,8 +56,21 @@ class Data {
 	 * @return array The settings as an associative array.
 	 */
 	public static function get_videopress_settings() {
+		$site_type       = 'jetpack';
+		$site_is_private = false;
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$site_type       = 'simple';
+			$site_is_private = video_is_private_wpcom_blog( get_current_blog_id() );
+		} elseif ( ( new Host() )->is_woa_site() ) {
+			$site_type       = 'atomic';
+			$site_is_private = intval( get_option( 'blog_public', '' ) ) === -1;
+		}
+
 		return array(
 			'videopress_videos_private_for_site' => self::get_videopress_videos_private_for_site(),
+			'site_is_private'                    => $site_is_private,
+			'site_type'                          => $site_type,
 		);
 	}
 
@@ -237,15 +263,23 @@ class Data {
 		// Tweak local videos data.
 		$local_videos = array_map(
 			function ( $video ) {
+				$video              = (array) $video;
 				$id                 = $video['id'];
 				$media_details      = $video['media_details'];
 				$jetpack_videopress = $video['jetpack_videopress'];
+				$read_error         = null;
+
+				// In malformed files, the media_details or jetpack_videopress properties are not arrays.
+				if ( ! is_array( $media_details ) || ! is_array( $jetpack_videopress ) ) {
+					$media_details      = (array) $media_details;
+					$jetpack_videopress = (array) $jetpack_videopress;
+					$read_error         = Upload_Exception::ERROR_MALFORMED_FILE;
+				}
 
 				// Check if video is already uploaded to VideoPress or has some error.
 				try {
 					$uploader                  = new Uploader( $id );
 					$is_uploaded_to_videopress = $uploader->is_uploaded();
-					$read_error                = null;
 				} catch ( Upload_Exception $e ) {
 					$is_uploaded_to_videopress = false;
 					$read_error                = $e->getCode();
@@ -282,10 +316,11 @@ class Data {
 		// Tweak VideoPress videos data.
 		$videos = array_map(
 			function ( $video ) {
+				$video              = (array) $video;
 				$id                 = $video['id'];
 				$guid               = $video['jetpack_videopress_guid'];
-				$media_details      = $video['media_details'];
-				$jetpack_videopress = $video['jetpack_videopress'];
+				$media_details      = (array) $video['media_details'];
+				$jetpack_videopress = (array) $video['jetpack_videopress'];
 
 				$videopress_media_details = $media_details['videopress'];
 				$width                    = $media_details['width'];
@@ -299,15 +334,16 @@ class Data {
 				$display_embed        = $jetpack_videopress['display_embed'];
 				$privacy_setting      = $jetpack_videopress['privacy_setting'];
 				$needs_playback_token = $jetpack_videopress['needs_playback_token'];
+				$is_private           = $jetpack_videopress['is_private'];
 
 				$original      = $videopress_media_details['original'];
 				$poster        = ( ! $needs_playback_token ) ? $videopress_media_details['poster'] : null;
 				$upload_date   = $videopress_media_details['upload_date'];
 				$duration      = $videopress_media_details['duration'];
-				$is_private    = $videopress_media_details['is_private'];
 				$file_url_base = $videopress_media_details['file_url_base'];
 				$finished      = $videopress_media_details['finished'];
 				$files         = $videopress_media_details['files'];
+				$filename      = basename( $original );
 
 				if ( isset( $files['dvd']['original_img'] ) && $privacy_setting !== 1 ) {
 					$thumbnail = $file_url_base['https'] . $files['dvd']['original_img'];
@@ -338,6 +374,7 @@ class Data {
 					),
 					'thumbnail'          => $thumbnail,
 					'finished'           => $finished,
+					'filename'           => $filename,
 				);
 			},
 			$videopress_data['videos']
@@ -349,6 +386,8 @@ class Data {
 			'users'        => self::get_user_data(),
 			'siteSettings' => array(
 				'videoPressVideosPrivateForSite' => $site_settings['videopress_videos_private_for_site'],
+				'siteIsPrivate'                  => $site_settings['site_is_private'],
+				'siteType'                       => $site_settings['site_type'],
 			),
 			'videos'       => array(
 				'uploadedVideoCount'           => $videopress_data['total'],

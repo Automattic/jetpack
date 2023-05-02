@@ -137,10 +137,10 @@ echo "==========="
 echo ""
 
 checking 'Usable version of bash'
-if [[ -n "${BASH_VERSINFO}" && -n "${BASH_VERSINFO[0]}" && ${BASH_VERSINFO[0]} -ge 4 ]]; then
+if [[ -n "${BASH_VERSINFO}" && -n "${BASH_VERSINFO[0]}" && ( ${BASH_VERSINFO[0]} -gt 4 || ${BASH_VERSINFO[0]} -eq 4 && ${BASH_VERSINFO[1]} -ge 3 ) ]]; then
 	success "ok (version $BASH_VERSION)"
 else
-	failure "too old" '' "Bash at $BASH is $BASH_VERSION. Version 4 or later is required." "If you're on Mac OS, you can install an updated version of bash with ${CS}brew install bash${CE}"
+	failure "too old" '' "Bash at $BASH is $BASH_VERSION. Version 4.3 or later is required." "If you're on Mac OS, you can install an updated version of bash with ${CS}brew install bash${CE}"
 fi
 
 checking "Standard tools are available"
@@ -203,7 +203,7 @@ else
 	elif php -r "exit( version_compare( PHP_VERSION, '$PHP_VERSION', '>=' ) ? 0 : 1 );"; then
 		success "ok (version $VER)"
 	elif php -r "exit( version_compare( PHP_VERSION, '$MIN_PHP_VERSION', '>=' ) ? 0 : 1 );"; then
-		warning "ok (version $VER)" 'php' "Version $PHP_VERSION or later is recommended."
+		warning "ok (version $VER)" 'php' "Version $PHP_VERSION or later is recommended. Tooling may raise errors with earlier versions."
 	else
 		failure 'too old' 'php' "PHP at $BIN is version $VER. Version $MIN_PHP_VERSION or later is required; $PHP_VERSION or later is recommended."
 	fi

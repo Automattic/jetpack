@@ -63,6 +63,8 @@ export const UPDATE_VIDEO_POSTER = 'UPDATE_VIDEO_POSTER';
 
 export const SET_VIDEOPRESS_SETTINGS = 'SET_VIDEOPRESS_SETTINGS';
 
+export const UPDATE_VIDEO_IS_PRIVATE = 'UPDATE_VIDEO_IS_PRIVATE';
+
 /*
  * Accepted file extensions
  */
@@ -91,7 +93,8 @@ export const VIDEO_PRIVACY_LEVELS = [
  */
 export const LOCAL_VIDEO_ERROR_INVALID_ATTACHMENT_ID = 0;
 export const LOCAL_VIDEO_ERROR_FILE_NOT_FOUND = 1;
-export const ERROR_MIME_TYPE_NOT_SUPPORTED = 2;
+export const LOCAL_VIDEO_ERROR_MIME_TYPE_NOT_SUPPORTED = 2;
+export const LOCAL_VIDEO_ERROR_MALFORMED_FILE = 3;
 
 export const VIDEO_RATING_G = 'G';
 export const VIDEO_RATING_PG_13 = 'PG-13';

@@ -2,7 +2,9 @@
  * External dependencies
  */
 import { Button, Col, Container, Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Icon, info } from '@wordpress/icons';
 import classnames from 'classnames';
 /**
  * Types
@@ -51,11 +53,22 @@ export const FilterButton = ( props: {
 	);
 };
 
+const DisabledReasonTooltip = ( props: { message: string } ): JSX.Element => {
+	return (
+		<Tooltip position="middle center" text={ props.message }>
+			<span className={ styles[ 'title-adornment' ] }>
+				<Icon icon={ info } />
+			</span>
+		</Tooltip>
+	);
+};
+
 export const CheckboxCheckmark = ( props: {
 	label?: string;
 	for: string;
 	checked?: boolean;
 	disabled?: boolean;
+	disabledReason?: string;
 	onChange?: ( checked: boolean ) => void;
 } ): JSX.Element => {
 	return (
@@ -69,6 +82,7 @@ export const CheckboxCheckmark = ( props: {
 			/>
 			<span className={ styles[ 'checkbox-checkmark' ] } />
 			<Text variant="body-small">{ props.label }</Text>
+			{ props.disabledReason && <DisabledReasonTooltip message={ props.disabledReason } /> }
 		</label>
 	);
 };

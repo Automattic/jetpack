@@ -146,4 +146,125 @@ class Test_REST_Controller extends Stats_Test_Case {
 
 		$this->assertNotTrue( $response );
 	}
+
+	/**
+	 * Test '/jetpack/v4/stats-app/stats/notices' succeed.
+	 */
+	public function test_stats_notices_succeed() {
+		wp_set_current_user( $this->admin_id );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/stats-app/stats/notices' );
+		$request->set_body_params(
+			array(
+				'id'     => 'new_stats_feedback',
+				'status' => 'dismissed',
+			)
+		);
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+	}
+
+	/**
+	 * Test '/jetpack/v4/stats-app/stats/notices' failed
+	 */
+	public function test_stats_notices_illegal_params() {
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/stats-app/stats/notices' );
+		$request->set_body_params(
+			array(
+				'id' => 'new_stats_feedback',
+			)
+		);
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+	}
+
+	/**
+	 * Test filter_and_build_query_string.
+	 */
+	public function test_filter_and_build_query_string() {
+		$filter_and_build_query_string = new \ReflectionMethod( $this->rest_controller, 'filter_and_build_query_string' );
+		$filter_and_build_query_string->setAccessible( true );
+
+		$this->assertEquals(
+			'c=d&e=f',
+			$filter_and_build_query_string->invoke(
+				$this->rest_controller,
+				array(
+					'a'          => 'b',
+					'c'          => 'd',
+					'rest_route' => '/jetpack/v4/test-route',
+					'e'          => 'f',
+				),
+				array( 'a' )
+			)
+		);
+		$this->assertEquals(
+			'a=b&c=d&e=f',
+			$filter_and_build_query_string->invoke(
+				$this->rest_controller,
+				array(
+					'a'          => 'b',
+					'c'          => 'd',
+					'rest_route' => '/jetpack/v4/test-route',
+					'e'          => 'f',
+				)
+			)
+		);
+		$this->assertEquals(
+			'',
+			$filter_and_build_query_string->invoke(
+				$this->rest_controller,
+				array()
+			)
+		);
+	}
+
+	/**
+	 * Test filter_and_build_query_string.
+	 */
+	public function test_get_wp_error() {
+		$get_wp_error = new \ReflectionMethod( $this->rest_controller, 'get_wp_error' );
+		$get_wp_error->setAccessible( true );
+
+		$error = $get_wp_error->invoke(
+			$this->rest_controller,
+			array(
+				'error'   => 'err1',
+				'message' => 'msg1',
+			),
+			500
+		);
+		$this->assertEquals(
+			'err1',
+			$error->get_error_code()
+		);
+
+		$error = $get_wp_error->invoke(
+			$this->rest_controller,
+			array(
+				'code'    => 'err2',
+				'message' => 'msg1',
+			),
+			500
+		);
+		$this->assertEquals(
+			'err2',
+			$error->get_error_code()
+		);
+
+		$error = $get_wp_error->invoke(
+			$this->rest_controller,
+			array(
+				'code' => 'err2',
+			),
+			500
+		);
+		$this->assertEquals(
+			'unknown remote error',
+			$error->get_error_message()
+		);
+	}
 }

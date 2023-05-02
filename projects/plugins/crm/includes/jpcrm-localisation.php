@@ -18,6 +18,9 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) exit;
  */
 function jpcrm_uts_to_datetime_str( $timestamp, $format=false ) {
 
+	if ( $timestamp === '' ) {
+		return false;
+	}
 	// default to WP format
 	if ( !$format ) {
 		$format = get_option('date_format') . ' ' . get_option('time_format');

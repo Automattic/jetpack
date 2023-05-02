@@ -83,8 +83,20 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 		).toBeTruthy();
 	} );
 
-	await test.step( 'Skip Site Accelerator and continue to Summary', async () => {
+	await test.step( 'Skip Site Accelerator and continue to VaultPress Backup card', async () => {
 		await recommendationsPage.skipSiteAcceleratorAndContinue();
+		await recommendationsPage.reload();
+		await recommendationsPage.waitForNetworkIdle();
+		const isVaultPressBackupStep = await recommendationsPage.isTryVaultPressBackupButtonVisible();
+		expect( isVaultPressBackupStep, 'VaultPress Backup step should be visible' ).toBeTruthy();
+		expect(
+			recommendationsPage.isUrlInSyncWithStepName( 'vaultpress-backup' ),
+			'URL should be in sync with the step name'
+		).toBeTruthy();
+	} );
+
+	await test.step( 'Skip VaultPress Backup card and continue to Summary', async () => {
+		await recommendationsPage.skipVaultPressBackupAndContinue();
 		await recommendationsPage.reload();
 		await recommendationsPage.waitForNetworkIdle();
 		const isSummaryContent = await recommendationsPage.isSummaryContentVisible();

@@ -17,7 +17,7 @@ use Automattic\Jetpack\Sync\Settings as Sync_Settings;
  */
 class Blaze {
 
-	const PACKAGE_VERSION = '0.5.2-alpha';
+	const PACKAGE_VERSION = '0.5.12-alpha';
 
 	/**
 	 * Script handle for the JS file we enqueue in the post editor.
@@ -42,7 +42,7 @@ class Blaze {
 		// On the edit screen, add a row action to promote the post.
 		add_action( 'load-edit.php', array( __CLASS__, 'add_post_links_actions' ) );
 		// In the post editor, add a post-publish panel to allow promoting the post.
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_block_editor_assets' ) );
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 	}
 
 	/**
@@ -212,19 +212,25 @@ class Blaze {
 
 	/**
 	 * Enqueue block editor assets.
-	 *
-	 * @param string $hook The current admin page.
 	 */
-	public static function enqueue_block_editor_assets( $hook ) {
+	public static function enqueue_block_editor_assets() {
 		/*
-		 * We do not want (nor need) Blaze in the site editor or the widget editor, only in the post editor.
+		 * We do not want (nor need) Blaze in the site editor, or the widget editor, or the classic editor.
+		 * We only want it in the post editor.
 		 * Enqueueing the script in those editors would cause a fatal error.
 		 * See #20357 for more info.
-		 */
-		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+		*/
+		if ( ! function_exists( 'get_current_screen' ) ) { // When Gutenberg is loaded in the frontend.
 			return;
 		}
-
+		$current_screen = get_current_screen();
+		if (
+			empty( $current_screen )
+			|| $current_screen->base !== 'post'
+			|| ! $current_screen->is_block_editor()
+		) {
+			return;
+		}
 		// Bail if criteria is not met to enable Blaze features.
 		if ( ! self::should_initialize() ) {
 			return;

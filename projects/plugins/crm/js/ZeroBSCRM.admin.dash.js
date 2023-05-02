@@ -12,7 +12,7 @@
 jQuery( function ( $ ) {
 	window.dash_security = jQuery( '#zbs_dash_count_security' ).val();
 
-	const ctx = document.getElementById( 'growth-chart' );
+	var ctx = document.getElementById( 'growth-chart' );
 	// if no growth chart exists, then there's no data to process so we won't try to create a chart
 	// this whole JS file needs rework, but this is a quick fix for now
 	if ( ctx ) {
@@ -70,25 +70,22 @@ jQuery( function ( $ ) {
 		} );
 	}
 
-	funnel_height = jQuery( '#bar-chart' ).height();
-	jQuery( '.zbs-funnel' ).height( funnel_height );
-
 	jQuery( '.dashboard-customiser' ).on( 'click', function ( e ) {
 		jQuery( '.dashboard-custom-choices' ).toggle();
 	} );
 
 	jQuery( '.dashboard-custom-choices input' ).on( 'click', function ( e ) {
-		const zbs_dash_setting_id = jQuery( this ).attr( 'id' );
+		var zbs_dash_setting_id = jQuery( this ).attr( 'id' );
 		jQuery( '#' + zbs_dash_setting_id + '_display' ).toggle();
 
-		let is_checked = -1;
+		var is_checked = -1;
 		if ( jQuery( '#' + zbs_dash_setting_id ).is( ':checked' ) ) {
 			is_checked = 1;
 		}
-		const the_setting = zbs_dash_setting_id;
-		const security = jQuery( '#zbs_dash_setting_security' ).val();
+		var the_setting = zbs_dash_setting_id;
+		var security = jQuery( '#zbs_dash_setting_security' ).val();
 
-		const data = {
+		var data = {
 			action: 'zbs_dash_setting',
 			is_checked: is_checked,
 			the_setting: the_setting,
@@ -117,12 +114,12 @@ jQuery( function ( $ ) {
 				start.format( 'MMM D Y' ) + ' - ' + end.format( 'MMM D Y' )
 			);
 
-			const zbs_start_date = start.format( 'Y-MM-DD' );
-			const zbs_end_date = end.format( 'Y-MM-DD' );
+			var zbs_start_date = start.format( 'Y-MM-DD' );
+			var zbs_end_date = end.format( 'Y-MM-DD' );
 
 			jQuery( '.loading' ).css( 'color', zbsStrokeColor ).show();
 
-			const t = {
+			var t = {
 				action: 'jetpackcrm_dash_refresh',
 				start_date: zbs_start_date,
 				end_date: zbs_end_date,
@@ -144,7 +141,7 @@ jQuery( function ( $ ) {
 
 				jQuery( '#crm_summary_numbers' ).addClass( res.boxes );
 				summary_html = '';
-				for ( let i = 0; i < res.summary.length; i++ ) {
+				for ( var i = 0; i < res.summary.length; i++ ) {
 					item = res.summary[ i ];
 					summary_html +=
 						'\
@@ -219,30 +216,6 @@ function jetpackcrm_draw_contact_chart( data ) {
 	window.contactChart.update();
 }
 
-//handle window resizing + charts
-jQuery( window ).on( 'resize', function () {
-	jQuery( '#funnel-container' ).html( '' );
-
-	funnel_height = jQuery( '#bar-chart' ).height();
-	jQuery( '.zbs-funnel' ).height( funnel_height );
-
-	jQuery( '#funnel-container' ).drawFunnel( window.funnelData, {
-		width: jQuery( '.zbs-funnel' ).width() - 50,
-		height: jQuery( '.zbs-funnel' ).height() - 50,
-
-		// Padding between segments, in pixels
-		padding: 1,
-
-		// Render only a half funnel
-		half: false,
-
-		// Width of a segment can't be smaller than this, in pixels
-		minSegmentSize: 30,
-
-		// label: function () { return "Label!"; }
-
-		label: function ( obj ) {
-			return obj;
-		},
-	} );
-} );
+if ( typeof module !== 'undefined' ) {
+    module.exports = {  jetpackcrm_draw_contact_chart  };
+}

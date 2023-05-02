@@ -143,7 +143,7 @@ function zbscrm_JS_compatClasses() {
 	/* Now done in php with zeroBSCRM_bodyClassMods
 	... but Material admin for some reason ignores that, so leaving in */
 	// Material Admin check - adds class if using
-	const customAdmin = window.zbscrmjs_custom_admin;
+	var customAdmin = window.zbscrmjs_custom_admin;
 	if ( customAdmin == 'material' ) {
 		jQuery( 'body' ).addClass( 'zbs-compat-material-admin' );
 	}
@@ -167,7 +167,7 @@ function zbscrm_JS_momentInit() {
 
 	// timezone offset?
 	// Here we get the UTS offset in minutes from zbs_root
-	let offsetMins = 0;
+	var offsetMins = 0;
 	if ( typeof window.zbs_root.timezone_offset_mins !== 'undefined' ) {
 		offsetMins = parseInt( window.zbs_root.timezone_offset_mins );
 	}
@@ -175,10 +175,10 @@ function zbscrm_JS_momentInit() {
 	// any .zbs-datemoment-since
 	jQuery( '.zbs-datemoment-since' ).each( function ( ind, ele ) {
 		if ( jQuery( this ).attr( 'data-zbs-created-uts' ) ) {
-			const thisUTS = parseInt( jQuery( this ).attr( 'data-zbs-created-uts' ) );
+			var thisUTS = parseInt( jQuery( this ).attr( 'data-zbs-created-uts' ) );
 			if ( thisUTS > 0 ) {
 				// Here we create a moment instance in correct timezone(offset) using original created unix timestamp in UTC
-				const createdMoment = moment.unix( thisUTS ).utcOffset( offsetMins );
+				var createdMoment = moment.unix( thisUTS ).utcOffset( offsetMins );
 
 				// dump moment readable into html
 				jQuery( this ).html( createdMoment.fromNow() );
@@ -188,7 +188,7 @@ function zbscrm_JS_momentInit() {
 }
 
 // Mikes fancy new top drop-down-menu :)
-const zbscrmjs_adminMenuBlocker = false;
+var zbscrmjs_adminMenuBlocker = false;
 /**
  *
  */
@@ -271,7 +271,7 @@ function zbscrm_JS_fullscreenModeOn( wrapperElement ) {
 	}
 
 	// & save state
-	const data = {
+	var data = {
 		action: 'zbs_admin_top_menu_save',
 		sec: window.zbscrmjs_topMenuSecToken,
 		hide: 1,
@@ -315,7 +315,7 @@ function zbscrm_JS_fullscreenModeOff( wrapperElement ) {
 	}
 
 	// & save state
-	const data = {
+	var data = {
 		action: 'zbs_admin_top_menu_save',
 		sec: window.zbscrmjs_topMenuSecToken,
 		hide: 0,
@@ -354,13 +354,13 @@ function zbscrm_JS_initMenuPopups() {
 // watches any input with class zbs-watch-input and if they're changed from post dom, it'll flag an input with thier id_dirtyflag
 // lets you see in post if a field has changed :)
 // NOTE this is separate from zbscrm_JS_dirtyCatch(); below
-const zbscrmjsDirtyLog = {};
+var zbscrmjsDirtyLog = {};
 /**
  *
  */
 function zbscrm_JS_watchInputsAndDirty() {
 	jQuery( '.zbs-watch-input' ).each( function ( ind, ele ) {
-		const dirtyID = jQuery( ele ).attr( 'name' ) + '_dirtyflag';
+		var dirtyID = jQuery( ele ).attr( 'name' ) + '_dirtyflag';
 
 		if ( jQuery( '#' + dirtyID ).length > 0 ) {
 			// log orig
@@ -369,7 +369,7 @@ function zbscrm_JS_watchInputsAndDirty() {
 	} );
 
 	jQuery( '.zbs-watch-input' ).on( 'change', function () {
-		const dirtyID = jQuery( this ).attr( 'name' ) + '_dirtyflag';
+		var dirtyID = jQuery( this ).attr( 'name' ) + '_dirtyflag';
 
 		if ( jQuery( '#' + dirtyID ).length > 0 ) {
 			// compare to orig
@@ -386,8 +386,8 @@ function zbscrm_JS_watchInputsAndDirty() {
 
 // manages whether or not things have changed on a page that might need you to prompt before leaving
 // e.g. contact deets changed, but not saved
-const zbscrmjsPageChanges = {};
-const zbscrmjsPageData = {};
+var zbscrmjsPageChanges = {};
+var zbscrmjsPageData = {};
 /**
  *
  */
@@ -477,7 +477,7 @@ function jpcrm_js_bind_datepicker( options, callback ) {
 	// if daterangepicker
 	if ( typeof jQuery( '.jpcrm-date' ).daterangepicker === 'function' ) {
 		// default options
-		const dateRangePickerOpts = {
+		var dateRangePickerOpts = {
 			singleDatePicker: true,
 			showDropdowns: true,
 			timePicker: false,
@@ -499,7 +499,7 @@ function jpcrm_js_bind_datepicker( options, callback ) {
 
 		// Initiate Date Picker
 		jQuery( '.jpcrm-date, .zbs-date' ).each( function ( ind, ele ) {
-			const elementOptions = zbscrm_JS_clone( dateRangePickerOpts );
+			var elementOptions = zbscrm_JS_clone( dateRangePickerOpts );
 
 			// and per-date-picker we can also override the format with data-daterangepicker-format attribute:
 			if ( jQuery( ele ).attr( 'data-date-picker-format' ) ) {
@@ -550,7 +550,7 @@ function jpcrm_js_bind_daterangepicker( options, callback ) {
 	// if daterangepicker
 	if ( typeof jQuery( '.jpcrm-date' ).daterangepicker === 'function' ) {
 		// default options
-		const dateRangePickerOpts = {
+		var dateRangePickerOpts = {
 			alwaysShowCalendars: true,
 			opens: 'left',
 			showDropdowns: true,
@@ -584,7 +584,7 @@ function jpcrm_js_bind_daterangepicker( options, callback ) {
 
 		// Initiate Date Range Picker
 		jQuery( '.jpcrm-date-range, .zbs-date-range' ).each( function ( ind, ele ) {
-			const elementOptions = zbscrm_JS_clone( dateRangePickerOpts );
+			var elementOptions = zbscrm_JS_clone( dateRangePickerOpts );
 
 			// and per-date-picker we can also override the format with data-daterangepicker-format attribute:
 			if ( jQuery( ele ).attr( 'data-date-picker-format' ) ) {
@@ -608,7 +608,7 @@ function jpcrm_js_bind_datetimerangepicker( options, callback ) {
 	// if daterangepicker
 	if ( typeof jQuery( '.jpcrm-date' ).daterangepicker === 'function' ) {
 		// default options
-		const dateRangePickerOpts = {
+		var dateRangePickerOpts = {
 			timePicker: true,
 			showDropdowns: true,
 			opens: 'left',
@@ -649,7 +649,7 @@ function jpcrm_js_bind_datetimerangepicker( options, callback ) {
 
 		// Initiate Datetime Range Picker
 		jQuery( '.jpcrm-datetime-range, .zbs-datetime-range' ).each( function ( ind, ele ) {
-			const elementOptions = zbscrm_JS_clone( dateRangePickerOpts );
+			var elementOptions = zbscrm_JS_clone( dateRangePickerOpts );
 
 			// and per-date-picker we can also override the format with data-daterangepicker-format attribute:
 			if ( jQuery( ele ).attr( 'data-date-picker-format' ) ) {
@@ -673,7 +673,7 @@ function jpcrm_js_bind_datetimepicker( options, callback ) {
 	// if daterangepicker
 	if ( typeof jQuery( '.jpcrm-date' ).daterangepicker === 'function' ) {
 		// default options
-		const dateRangePickerOpts = {
+		var dateRangePickerOpts = {
 			singleDatePicker: true,
 			timePicker: true,
 			showDropdowns: true,
@@ -706,7 +706,7 @@ function jpcrm_js_bind_datetimepicker( options, callback ) {
 			.not( '.jpcrm-date-time-future' )
 			.not( '.zbs-date-time-future' )
 			.each( function ( ind, ele ) {
-				const elementOptions = zbscrm_JS_clone( dateRangePickerOpts );
+				var elementOptions = zbscrm_JS_clone( dateRangePickerOpts );
 
 				// and per-date-picker we can also override the format with data-daterangepicker-format attribute:
 				if ( jQuery( ele ).attr( 'data-date-picker-format' ) ) {
@@ -730,7 +730,7 @@ function jpcrm_js_bind_datetimepicker_future( options, callback ) {
 	// if daterangepicker
 	if ( typeof jQuery( '.jpcrm-date' ).daterangepicker === 'function' ) {
 		// default options
-		const dateRangePickerOpts = {
+		var dateRangePickerOpts = {
 			singleDatePicker: true,
 			timePicker: true,
 			showDropdowns: true,
@@ -764,7 +764,7 @@ function jpcrm_js_bind_datetimepicker_future( options, callback ) {
 			.not( '.zbs-date-time' )
 			.not( '.jpcrm-date-time' )
 			.each( function ( ind, ele ) {
-				const elementOptions = zbscrm_JS_clone( dateRangePickerOpts );
+				var elementOptions = zbscrm_JS_clone( dateRangePickerOpts );
 
 				// and per-date-picker we can also override the format with data-daterangepicker-format attribute:
 				if ( jQuery( ele ).attr( 'data-date-picker-format' ) ) {
@@ -784,7 +784,7 @@ function zbscrm_JS_bindFieldValidators() {
 	jQuery( '.numbersOnly, .jpcrm-inputmask-float' )
 		.off( 'keyup' )
 		.on( 'keyup', function () {
-			const rep = this.value.replace( /[^-0-9\.]/g, '' );
+			var rep = this.value.replace( /[^-0-9\.]/g, '' );
 			if ( this.value != rep ) {
 				this.value = rep;
 			}
@@ -793,7 +793,7 @@ function zbscrm_JS_bindFieldValidators() {
 	jQuery( '.intOnly, .jpcrm-inputmask-int' )
 		.off( 'keyup' )
 		.on( 'keyup', function () {
-			const rep = this.value.replace( /[^-0-9]/g, '' );
+			var rep = this.value.replace( /[^-0-9]/g, '' );
 			if ( this.value != rep ) {
 				this.value = rep;
 			}
@@ -806,7 +806,7 @@ function zbscrm_JS_bindFieldValidators() {
 function zbscrm_JS_infoBoxInit() {
 	jQuery( '.zbs-infobox' ).each( function ( ind, ele ) {
 		// build sub html
-		const infoHTML = jQuery( ele ).html();
+		var infoHTML = jQuery( ele ).html();
 
 		// inject new
 		jQuery( ele ).html(
@@ -816,7 +816,7 @@ function zbscrm_JS_infoBoxInit() {
 		// post render, inject
 		setTimeout( function () {
 			// localise
-			const lEle = ele;
+			var lEle = ele;
 
 			// inject orig html
 			jQuery( '.zbs-infobox-detail', jQuery( lEle ) ).html( infoHTML );
@@ -863,7 +863,7 @@ function zbscrm_JS_Bind_Typeaheads_Customers() {
 	// if any?
 	if ( jQuery( '.zbstypeaheadwrap .zbstypeahead' ).length > 0 ) {
 		// one prefetch bloodhound for all instances
-		const customers = new Bloodhound( {
+		var customers = new Bloodhound( {
 			//datumTokenizer: Bloodhound.tokenizers.whitespace,
 			datumTokenizer: function ( datum ) {
 				return Bloodhound.tokenizers.whitespace( datum.name );
@@ -941,10 +941,10 @@ function zbscrm_JS_Bind_Typeaheads_Customers() {
 					limit: 10,
 					templates: {
 						suggestion: function ( r ) {
-							const name = r.name.trim()
+							var name = r.name.trim()
 								? r.name
 								: zeroBSCRMJS_globViewLang( 'contact' ) + ' #' + r.id;
-							const email = r.email ? r.email : '<i>no email</i>';
+							var email = r.email ? r.email : '<i>no email</i>';
 							sug =
 								'<div class="sug-wrap"><div class="name">' +
 								name +
@@ -959,32 +959,32 @@ function zbscrm_JS_Bind_Typeaheads_Customers() {
 
 			// BRUTALLY setup all for autocomplete to die :)
 			setTimeout( function () {
-				const utc = new Date().getTime();
+				var utc = new Date().getTime();
 				var k = jQuery( this ).attr( 'data-autokey' );
 				if ( typeof k === 'undefined' ) {
 					var k = '-typeahead';
 				}
-				const ns = 'zbsco-' + utc + '-' + k;
+				var ns = 'zbsco-' + utc + '-' + k;
 				jQuery( '.zbstypeahead' ).attr( 'autocomplete', ns ).attr( 'name', ns );
 			}, 0 );
 			jQuery( this ).on( 'typeahead:open', function ( ev, suggestion ) {
 				// force all typeaheads to be NOT AUTOCOMPLETE
 				//jQuery('.zbstypeaheadco').attr('autocomplete','zbscontact-1518172413-addr1').attr('name','3f3g3g');
-				const utc = new Date().getTime();
+				var utc = new Date().getTime();
 				var k = jQuery( this ).attr( 'data-autokey' );
 				if ( typeof k === 'undefined' ) {
 					var k = '-typeahead';
 				}
-				const ns = 'zbsco-' + utc + '-' + k;
+				var ns = 'zbsco-' + utc + '-' + k;
 				jQuery( '.zbstypeahead' ).attr( 'autocomplete', ns ).attr( 'name', ns );
 			} );
 
 			// bind any callbacks
-			const potentalOpenCallback = jQuery( this ).attr( 'data-zbsopencallback' );
+			var potentalOpenCallback = jQuery( this ).attr( 'data-zbsopencallback' );
 
 			if ( typeof potentalOpenCallback === 'string' && potentalOpenCallback.length > 0 ) {
 				jQuery( this ).on( 'typeahead:select', function ( ev, suggestion ) {
-					const localisedCallback = potentalOpenCallback;
+					var localisedCallback = potentalOpenCallback;
 					//Debug console.log('Selection: ',suggestion);
 					if ( typeof window[ localisedCallback ] === 'function' ) {
 						window[ localisedCallback ]( suggestion );
@@ -994,10 +994,10 @@ function zbscrm_JS_Bind_Typeaheads_Customers() {
 
 			// this is a "change" callback which can be used as well as / instead of previous "select" callback
 			// e.g. this'll fire if emptied :)
-			const potentalChangeCallback = jQuery( this ).attr( 'data-zbschangecallback' );
+			var potentalChangeCallback = jQuery( this ).attr( 'data-zbschangecallback' );
 			if ( typeof potentalChangeCallback === 'string' && potentalChangeCallback.length > 0 ) {
 				jQuery( this ).on( 'typeahead:change', function ( ev, val ) {
-					const localisedCallback = potentalChangeCallback;
+					var localisedCallback = potentalChangeCallback;
 					//Debug console.log('Selection: ',suggestion);
 					if ( typeof window[ localisedCallback ] === 'function' ) {
 						window[ localisedCallback ]( val );
@@ -1025,7 +1025,7 @@ function zbscrm_JS_Bind_Typeaheads_Companies() {
 	// if any?
 	if ( jQuery( '.zbstypeaheadwrap .zbstypeaheadco' ).length > 0 ) {
 		// one prefetch bloodhound for all instances
-		const companies = new Bloodhound( {
+		var companies = new Bloodhound( {
 			//datumTokenizer: Bloodhound.tokenizers.whitespace,
 			datumTokenizer: function ( datum ) {
 				return Bloodhound.tokenizers.whitespace( datum.name );
@@ -1043,7 +1043,7 @@ function zbscrm_JS_Bind_Typeaheads_Companies() {
 				//cache: false,
 				transform: function ( response ) {
 					return jQuery.map( response, function ( obj ) {
-						const x = {
+						var x = {
 							id: obj.id,
 							name: obj.name,
 							created: obj.created,
@@ -1064,7 +1064,7 @@ function zbscrm_JS_Bind_Typeaheads_Companies() {
 				wildcard: '%QUERY',
 				transform: function ( response ) {
 					return jQuery.map( response, function ( obj ) {
-						const x = {
+						var x = {
 							id: obj.id,
 							name: obj.name,
 							created: obj.created,
@@ -1116,34 +1116,34 @@ function zbscrm_JS_Bind_Typeaheads_Companies() {
 
 			// BRUTALLY setup all for autocomplete to die :)
 			setTimeout( function () {
-				const utc = new Date().getTime();
+				var utc = new Date().getTime();
 				var k = jQuery( this ).attr( 'data-autokey' );
 				if ( typeof k === 'undefined' ) {
 					var k = '-typeahead';
 				}
-				const ns = 'zbsco-' + utc + '-' + k;
+				var ns = 'zbsco-' + utc + '-' + k;
 				jQuery( '.zbstypeaheadco' ).attr( 'autocomplete', ns ).attr( 'name', ns );
 			}, 0 );
 			jQuery( this ).on( 'typeahead:open', function ( ev, suggestion ) {
 				// force all typeaheads to be NOT AUTOCOMPLETE
 				//jQuery('.zbstypeaheadco').attr('autocomplete','zbscontact-1518172413-addr1').attr('name','3f3g3g');
-				const utc = new Date().getTime();
+				var utc = new Date().getTime();
 				var k = jQuery( this ).attr( 'data-autokey' );
 				if ( typeof k === 'undefined' ) {
 					var k = '-typeahead';
 				}
-				const ns = 'zbsco-' + utc + '-' + k;
+				var ns = 'zbsco-' + utc + '-' + k;
 				jQuery( '.zbstypeaheadco' ).attr( 'autocomplete', ns ).attr( 'name', ns );
 			} );
 
 			// bind any callbacks
 
 			// typeahead selected callback :)
-			const potentalOpenCallback = jQuery( this ).attr( 'data-zbsopencallback' );
+			var potentalOpenCallback = jQuery( this ).attr( 'data-zbsopencallback' );
 
 			if ( typeof potentalOpenCallback === 'string' && potentalOpenCallback.length > 0 ) {
 				jQuery( this ).on( 'typeahead:select', function ( ev, suggestion ) {
-					const localisedCallback = potentalOpenCallback;
+					var localisedCallback = potentalOpenCallback;
 					//Debug console.log('Selection: ',suggestion);
 					if ( typeof window[ localisedCallback ] === 'function' ) {
 						window[ localisedCallback ]( suggestion );
@@ -1153,10 +1153,10 @@ function zbscrm_JS_Bind_Typeaheads_Companies() {
 
 			// this is a "change" callback which can be used as well as / instead of previous "select" callback
 			// e.g. this'll fire if emptied :)
-			const potentalChangeCallback = jQuery( this ).attr( 'data-zbschangecallback' );
+			var potentalChangeCallback = jQuery( this ).attr( 'data-zbschangecallback' );
 			if ( typeof potentalChangeCallback === 'string' && potentalChangeCallback.length > 0 ) {
 				jQuery( this ).on( 'typeahead:change', function ( ev, val ) {
-					const localisedCallback = potentalChangeCallback;
+					var localisedCallback = potentalChangeCallback;
 					//Debug console.log('Selection: ',suggestion);
 					if ( typeof window[ localisedCallback ] === 'function' ) {
 						window[ localisedCallback ]( val );
@@ -1227,8 +1227,8 @@ function jpcrm_bind_typeaheads_placeholders() {
 	jQuery( '.jpcrm-placeholder-select' )
 		.off( 'change' )
 		.on( 'change', function () {
-			const target_id = jQuery( this ).attr( 'data-target' );
-			const val = jQuery( this ).val();
+			var target_id = jQuery( this ).attr( 'data-target' );
+			var val = jQuery( this ).val();
 			if ( val && val != -1 && jQuery( '#' + target_id ).length == 1 ) {
 				// insert at cursor
 				jQuery( '#' + target_id ).insertIntoTextArea( val );
@@ -1339,7 +1339,7 @@ function jpcrm_bind_typeaheads_placeholders() {
  */
 function zbscrm_js_uiSpinnerBlocker( spinnerHTML ) {
 	// def
-	let anyContent = '<i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>';
+	var anyContent = '<i class="fa fa-circle-o-notch fa-spin" aria-hidden="true"></i>';
 	if ( typeof spinnerHTML !== 'undefined' ) {
 		anyContent = spinnerHTML;
 	}
@@ -1363,7 +1363,7 @@ function zbscrm_js_uiSpinnerBlocker( spinnerHTML ) {
 	#==================================================
 */
 
-const zbscrm_custcache_invoices = {};
+var zbscrm_custcache_invoices = {};
 /**
  * @param cID
  * @param cb
@@ -1385,7 +1385,7 @@ function zbscrm_js_getCustInvs( cID, cb, errcb ) {
 		// ... otherwise retrieve!
 
 		// postbag!
-		const data = {
+		var data = {
 			action: 'getinvs',
 			sec: window.zbs_root.zbsnonce,
 			cid: cID,
@@ -1446,8 +1446,8 @@ function zbscrm_JS_clone( obj ) {
 	if ( null == obj || 'object' !== typeof obj ) {
 		return obj;
 	}
-	const copy = obj.constructor();
-	for ( const attr in obj ) {
+	var copy = obj.constructor();
+	for ( var attr in obj ) {
 		if ( obj.hasOwnProperty( attr ) ) {
 			copy[ attr ] = obj[ attr ];
 		}
@@ -1466,7 +1466,7 @@ function zbscrm_JS_isEmail(email) {
  * @param email
  */
 function zbscrm_JS_validateEmail( email ) {
-	const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+	var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 	return re.test( email );
 }
 
@@ -1488,7 +1488,7 @@ function zbscrmjs_prettifyLongInts( x ) {
  * @param str
  */
 function zbscrmjs_permify( str ) {
-	let str2 = zbscrmjs_replaceAll( str, ' ', '_' );
+	var str2 = zbscrmjs_replaceAll( str, ' ', '_' );
 	str2 = zbscrmjs_replaceAll( str2, ':', '_' );
 	return str2.toLowerCase();
 
@@ -1510,7 +1510,7 @@ function zbscrmjs_replaceAll( str, find, replace ) {
  * @param is_xhtml
  */
 function zbscrmjs_nl2br( str, is_xhtml ) {
-	const breakTag = is_xhtml || typeof is_xhtml === 'undefined' ? '<br />' : '<br>';
+	var breakTag = is_xhtml || typeof is_xhtml === 'undefined' ? '<br />' : '<br>';
 	return ( str + '' ).replace( /([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1' + breakTag + '$2' );
 }
 
@@ -1520,7 +1520,7 @@ function zbscrmjs_nl2br( str, is_xhtml ) {
  * @param incLinebreaks
  */
 function zbscrmjs_reversenl2br( str, incLinebreaks ) {
-	let repWith = '';
+	var repWith = '';
 	if ( typeof incLinebreaks !== 'undefined' ) {
 		repWith = '\r\n';
 	}
@@ -1658,7 +1658,7 @@ function zeroBSCRMJS_formatCurrency( c ) {
 	// adapted yours...
 	// For now just made this hodge-podge use the locale set in wp + the zbs settings
 	// ... we need to move locale to a zbs setting to be thorough here, and also add datetime settings
-	let localeStr = 'en-US';
+	var localeStr = 'en-US';
 	if ( typeof window.zbs_root !== 'undefined' && typeof window.zbs_root.locale !== 'undefined' ) {
 		localeStr = window.zbs_root.locale;
 	}
@@ -1672,7 +1672,7 @@ function zeroBSCRMJS_formatCurrency( c ) {
 		localeStr = localeStr.replace( /_/, '-' );
 
 		// Create our number formatter.
-		const formatter = new Intl.NumberFormat( localeStr, {
+		var formatter = new Intl.NumberFormat( localeStr, {
 			style: 'currency',
 			currency: window.zbs_root.currencyOptions.currencyStr,
 			minimumFractionDigits: window.zbs_root.currencyOptions.noOfDecimals,
@@ -1720,13 +1720,13 @@ function zeroBSCRMJS_number_format_i18n( number, decimals ) {
 function zeroBSCRMJS_number_format( number, decimals, dec_point, thousands_sep ) {
 	// Strip all characters but numerical ones.
 	number = ( number + '' ).replace( /[^0-9+\-Ee.]/g, '' );
-	let n = ! isFinite( +number ) ? 0 : +number,
+	var n = ! isFinite( +number ) ? 0 : +number,
 		prec = ! isFinite( +decimals ) ? 0 : Math.abs( decimals ),
 		sep = typeof thousands_sep === 'undefined' ? ',' : thousands_sep,
 		dec = typeof dec_point === 'undefined' ? '.' : dec_point,
 		s = '',
 		toFixedFix = function ( n, prec ) {
-			const k = Math.pow( 10, prec );
+			var k = Math.pow( 10, prec );
 			return '' + Math.round( n * k ) / k;
 		};
 	// Fix for IE parseFloat(0.55).toFixed(0) = 0;
@@ -1785,23 +1785,23 @@ function zeroBSCRMJS_newWindow( url, windowName, height, width ) {
  */
 function zeroBSCRMJS_newWindowCenter( url, title, w, h ) {
 	// Fixes dual-screen position                         Most browsers      Firefox
-	const dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
-	const dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+	var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+	var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
 
-	const width = window.innerWidth
+	var width = window.innerWidth
 		? window.innerWidth
 		: document.documentElement.clientWidth
 		? document.documentElement.clientWidth
 		: screen.width;
-	const height = window.innerHeight
+	var height = window.innerHeight
 		? window.innerHeight
 		: document.documentElement.clientHeight
 		? document.documentElement.clientHeight
 		: screen.height;
 
-	const left = width / 2 - w / 2 + dualScreenLeft;
-	const top = height / 2 - h / 2 + dualScreenTop;
-	const newWindow = window.open(
+	var left = width / 2 - w / 2 + dualScreenLeft;
+	var top = height / 2 - h / 2 + dualScreenTop;
+	var newWindow = window.open(
 		url,
 		title,
 		'scrollbars=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left
@@ -1818,7 +1818,7 @@ function zeroBSCRMJS_newWindowCenter( url, title, w, h ) {
  * @param src
  */
 function zeroBSCRMJS_extend( obj, src ) {
-	for ( const key in src ) {
+	for ( var key in src ) {
 		if ( src.hasOwnProperty( key ) ) {
 			obj[ key ] = src[ key ];
 		}
@@ -1831,8 +1831,8 @@ function zeroBSCRMJS_extend( obj, src ) {
  * @param str
  */
 function zeroBSCRMJS_retrieveURLS( str ) {
-	const urlRegex = /^(https?:\/\/|www\.)\w+(\.\w+)*?(\/[^\s]*)?$/g;
-	const match = urlRegex.exec( str );
+	var urlRegex = /^(https?:\/\/|www\.)\w+(\.\w+)*?(\/[^\s]*)?$/g;
+	var match = urlRegex.exec( str );
 
 	return match;
 }
@@ -1842,7 +1842,7 @@ function zeroBSCRMJS_retrieveURLS( str ) {
  * @param str
  */
 function jpcrm_looks_like_URL( str ) {
-	const res = str.match(
+	var res = str.match(
 		/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g
 	);
 	return res !== null;
@@ -1861,7 +1861,7 @@ function zeroBSCRMJS_retrieveEmails( str ) {
  * @param str
  */
 function parseDate( str ) {
-	const mdy = str.split( '/' );
+	var mdy = str.split( '/' );
 	return new Date( mdy[ 2 ], mdy[ 0 ] - 1, mdy[ 1 ] );
 }
 
@@ -1875,7 +1875,7 @@ function daydiff( first, second ) {
 
 // Select func https://stackoverflow.com/questions/4990175/array-select-in-javascript
 Array.prototype.zbsselect = function ( closure ) {
-	for ( let n = 0; n < this.length; n++ ) {
+	for ( var n = 0; n < this.length; n++ ) {
 		if ( closure( this[ n ] ) ) {
 			return this[ n ];
 		}
@@ -1897,7 +1897,7 @@ function zbsJS_semanticPercBar( perc, extraClasses, label ) {
 		var extraClasses = '';
 	}
 
-	let ret = '<div class="ui progress' + extraClasses + '"><div class="bar"';
+	var ret = '<div class="ui progress' + extraClasses + '"><div class="bar"';
 	if ( typeof perc !== 'undefined' ) {
 		ret += ' style="width:' + perc + '%"';
 	}
@@ -1934,10 +1934,10 @@ function zbsJS_uts() {
  * @param s
  */
 function jpcrm_strip_scripts( s ) {
-	const div = document.createElement( 'div' );
+	var div = document.createElement( 'div' );
 	div.innerHTML = s;
-	const scripts = div.getElementsByTagName( 'script' );
-	let i = scripts.length;
+	var scripts = div.getElementsByTagName( 'script' );
+	var i = scripts.length;
 	while ( i-- ) {
 		scripts[ i ].parentNode.removeChild( scripts[ i ] );
 	}
@@ -1963,10 +1963,10 @@ function zeroBSCRMJS_genericLoaded() {
  * @param data
  */
 function zeroBSCRMJS_genericPostData( actionUrl, method, data ) {
-	const mapForm = jQuery(
+	var mapForm = jQuery(
 		'<form id="mapform" action="' + actionUrl + '" method="' + method.toLowerCase() + '"></form>'
 	);
-	for ( const key in data ) {
+	for ( var key in data ) {
 		if ( data.hasOwnProperty( key ) ) {
 			mapForm.append(
 				'<input type="hidden" name="' + key + '" id="' + key + '" value="' + data[ key ] + '" />'
@@ -2023,7 +2023,7 @@ function zeroBSCRMJS_bindScreenOptions() {
 }
 
 // takes global js vars + saves against user + page via ajax
-const zbscrmjs_screenoptblock = false;
+var zbscrmjs_screenoptblock = false;
 /**
  * @param successcb
  * @param errcb
@@ -2032,7 +2032,7 @@ function zbsJS_updateScreenOptions( successcb, errcb ) {
 	// blocker
 	window.zbscrmjs_screenoptblock = true;
 
-	const data = {
+	var data = {
 		action: 'save_zbs_screen_options',
 		sec: window.zbscrmjs_secToken,
 		screenopts: window.zbsScreenOptions,
@@ -2067,7 +2067,7 @@ function zbsJS_updateScreenOptions( successcb, errcb ) {
 // This was adapted from zeroBSCRMJS_saveScreenOptionsMetaboxes in metabox manager
 // generically saves any table column settings (from checkboxes -> user screen options)
 // this is fired on checking a box in the screenopts div (see bindScreenOpts)
-const zbsjsScreenOptsBlock = false;
+var zbsjsScreenOptsBlock = false;
 /**
  * @param cb
  */
@@ -2129,13 +2129,13 @@ function zeroBSCRMJS_saveScreenOptions( cb ) {
 function zeroBSCRMJS_buildScreenOptionsTableColumns() {
 	// ====== Table columns:
 
-	const tabIdx = 1;
+	var tabIdx = 1;
 
-	const tcAreas = [ 'transactions' ];
+	var tcAreas = [ 'transactions' ];
 
 	// for each area
 	jQuery.each( tcAreas, function ( tcAreasIndx, tcArea ) {
-		const obj = [];
+		var obj = [];
 
 		// 'normal' metaboxes
 		jQuery( '#zbs-tablecolumns-' + tcArea + ' .zbs-tablecolumn-checkbox' ).each( function (
@@ -2165,7 +2165,7 @@ function zeroBSCRMJS_buildScreenOptionsTableColumns() {
 function zeroBSCRMJS_buildScreenOptionsGenerics() {
 	// ====== perpage
 	if ( jQuery( '#zbs-screenoptions-records-per-page' ).length > 0 ) {
-		let perPage = parseInt( jQuery( '#zbs-screenoptions-records-per-page' ).val() );
+		var perPage = parseInt( jQuery( '#zbs-screenoptions-records-per-page' ).val() );
 		if ( perPage < 1 ) {
 			perPage = 20;
 		}
@@ -2190,7 +2190,7 @@ function zeroBSCRMJS_buildScreenOptionsGenerics() {
 		AJAX REST DAL
 
  // ---------------------- */
-const zbsAJAXRestRetrieve = false;
+var zbsAJAXRestRetrieve = false;
 /**
  * @param companyID
  * @param callback
@@ -2204,7 +2204,7 @@ function zeroBSCRMJS_rest_retrieveCompany( companyID, callback, cbfail ) {
 		window.zbsAJAXRestRetrieve = true;
 
 		// url
-		const restURL = window.zbscrmBHURLCompanies + '&id=' + companyID;
+		var restURL = window.zbscrmBHURLCompanies + '&id=' + companyID;
 		jQuery.ajax( {
 			type: 'GET',
 			url: restURL,
@@ -2300,8 +2300,8 @@ function zeroBSCRMJS_bindGlobalContactFuncs() {
 
 		*/
 
-			let emailToSendTo = '';
-			let cID = '';
+			var emailToSendTo = '';
+			var cID = '';
 			if ( typeof jQuery( this ).attr( 'data-sendto' ) !== 'undefined' ) {
 				emailToSendTo = jQuery( this ).attr( 'data-sendto' );
 			}
@@ -2332,11 +2332,11 @@ function zeroBSCRMJS_bindGlobalContactFuncs() {
 				// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
 				if ( result.value ) {
 					// localise
-					const lCID = cID;
-					const lEmailToSendTo = emailToSendTo;
+					var lCID = cID;
+					var lEmailToSendTo = emailToSendTo;
 
 					// & save state
-					const data = {
+					var data = {
 						action: 'zbs_invoice_send_statement',
 						sec: window.zbs_root.zbsnonce,
 						cid: lCID,
@@ -2437,8 +2437,8 @@ function zeroBSCRMJS_bindGlobalDismiss() {
 		.off( 'click' )
 		.on( 'click', function ( ind, ele ) {
 			// retrieve attr
-			const dismissKey = jQuery( this ).attr( 'data-dismiss-key' );
-			const dismissElementID = jQuery( this ).attr( 'data-dismiss-element-id' );
+			var dismissKey = jQuery( this ).attr( 'data-dismiss-key' );
+			var dismissElementID = jQuery( this ).attr( 'data-dismiss-element-id' );
 
 			if ( dismissKey !== '' ) {
 				// ajax set transient - see also zbscrm_JS_bindCloseLogs()
@@ -2447,7 +2447,7 @@ function zeroBSCRMJS_bindGlobalDismiss() {
 					window.zbscrmjs_closeLogBlocker = true;
 
 					// postbag!
-					const data = {
+					var data = {
 						action: 'logclose',
 						sec: window.zbs_root.zbsnonce,
 						closing: dismissKey,
@@ -2462,7 +2462,7 @@ function zeroBSCRMJS_bindGlobalDismiss() {
 						timeout: 20000,
 						success: function ( response ) {
 							// localise
-							const thisEle = dismissElementID;
+							var thisEle = dismissElementID;
 
 							// remove it!
 							jQuery( '#' + thisEle ).slideUp();
@@ -2472,7 +2472,7 @@ function zeroBSCRMJS_bindGlobalDismiss() {
 						},
 						error: function ( response ) {
 							// localise
-							const thisEle = dismissElementID;
+							var thisEle = dismissElementID;
 
 							// remove it!
 							jQuery( '#' + thisEle ).slideUp();
@@ -2556,24 +2556,24 @@ function jpcrm_set_jpcrm_transient(
 }
 
 // this was the original func, though moved to zbs-dismiss for better nomencleture
-const zbscrmjs_closeLogBlocker = false;
+var zbscrmjs_closeLogBlocker = false;
 /**
  *
  */
 function zbscrm_JS_bindCloseLogs() {
 	jQuery( '.zbsCloseThisAndLog' ).on( 'click', function () {
 		// retrieve key
-		const thisCloseLog = jQuery( this ).attr( 'data-closelog' );
+		var thisCloseLog = jQuery( this ).attr( 'data-closelog' );
 
 		if ( thisCloseLog !== '' && ! window.zbscrmjs_closeLogBlocker ) {
 			// localise
-			const closeDialog = this;
+			var closeDialog = this;
 
 			// blocker
 			window.zbscrmjs_closeLogBlocker = true;
 
 			// postbag!
-			const data = {
+			var data = {
 				action: 'logclose',
 				sec: window.zbs_root.zbsnonce,
 				closing: thisCloseLog,
@@ -2588,7 +2588,7 @@ function zbscrm_JS_bindCloseLogs() {
 				timeout: 20000,
 				success: function ( response ) {
 					// localise
-					const thisEle = closeDialog;
+					var thisEle = closeDialog;
 
 					// remove it!
 					jQuery( thisEle ).parent().slideUp();
@@ -2598,7 +2598,7 @@ function zbscrm_JS_bindCloseLogs() {
 				},
 				error: function ( response ) {
 					// localise
-					const thisEle = closeDialog;
+					var thisEle = closeDialog;
 
 					// remove it!
 					jQuery( thisEle ).parent().slideUp();
@@ -2655,7 +2655,7 @@ function jpcrm_bind_licensing_modals() {
 
 	// licensing modal "you have updates" -> set transient for 1h and load updates page
 	jQuery( '.jpcrm-licensing-modal-set-transient-and-go' ).on( 'click', function () {
-		const target_url = jQuery( this ).attr( 'data-href' );
+		var target_url = jQuery( this ).attr( 'data-href' );
 
 		// set transient & close
 		jpcrm_set_jpcrm_transient(
@@ -2691,12 +2691,12 @@ function jpcrm_bind_licensing_modals() {
 function jpcrm_bind_customfield_csv_builders() {
 	jQuery( '.jpcrm-custom-field-builder span' ).on( 'click', function ( e ) {
 		// target
-		const target = jQuery( e.target ).parent().attr( 'data-target' );
-		const value = jQuery( e.target ).text();
+		var target = jQuery( e.target ).parent().attr( 'data-target' );
+		var value = jQuery( e.target ).text();
 
 		// add to csv
-		const existing_value = jQuery( '#' + target ).val();
-		let existing_keys = [],
+		var existing_value = jQuery( '#' + target ).val();
+		var existing_keys = [],
 			new_keys = [];
 
 		// process existing
@@ -2707,7 +2707,7 @@ function jpcrm_bind_customfield_csv_builders() {
 
 		// remove any dupes
 		jQuery.each( existing_keys, function ( i, el ) {
-			const new_val = el.trim();
+			var new_val = el.trim();
 			if ( jQuery.inArray( el, new_keys ) === -1 && new_val != '' ) {
 				new_keys.push( new_val );
 			}
@@ -2730,10 +2730,10 @@ function jpcrm_bind_customfield_csv_builders() {
  */
 function jpcrm_bind_generic_window_opening() {
 	jQuery( '.jpcrm-open-popup-href' ).on( 'click', function () {
-		const url = jQuery( this ).attr( 'data-href' );
-		let title = jQuery( this ).attr( 'data-title' );
-		let width = parseInt( jQuery( this ).attr( 'data-width' ) );
-		let height = parseInt( jQuery( this ).attr( 'data-height' ) );
+		var url = jQuery( this ).attr( 'data-href' );
+		var title = jQuery( this ).attr( 'data-title' );
+		var width = parseInt( jQuery( this ).attr( 'data-width' ) );
+		var height = parseInt( jQuery( this ).attr( 'data-height' ) );
 
 		if ( typeof title === 'undefined' ) {
 			title = '';
@@ -2751,7 +2751,7 @@ function jpcrm_bind_generic_window_opening() {
 	} );
 }
 
-const jpcrm = {
+var jpcrm = {
 	// essentially the same as PHP's htmlspecialchars(), which is what WP's esc_attr() primarily uses
 	// https://stackoverflow.com/a/41699140
 	esc_attr( str ) {
@@ -2762,6 +2762,8 @@ const jpcrm = {
 			'"': '&quot;',
 			"'": '&#039;',
 		};
+		// ensure it's a string
+		str = '' + str;
 		return str.replace( /[&<>"']/g, function ( m ) {
 			return map[ m ];
 		} );
@@ -2772,10 +2774,21 @@ const jpcrm = {
 	},
 };
 
-if ( module ) {
-    module.exports = { zbscrmjs_prettifyLongInts, zbscrm_JS_bindFieldValidators,  zbscrm_js_uiSpinnerBlocker, zbscrm_js_getCustInvs, zbscrm_JS_validateEmail, zbscrmjs_permify, 
+if ( typeof module !== 'undefined' ) {
+    module.exports = { jpcrm, zbscrmjs_prettifyLongInts, zbscrm_JS_bindFieldValidators,  zbscrm_js_uiSpinnerBlocker, zbscrm_js_getCustInvs, zbscrm_JS_validateEmail, zbscrmjs_permify, 
 		zbscrmjs_nl2br, zbscrmjs_reversenl2br, ucwords, jpcrm_abbreviate_str, empty, zeroBSCRMJS_telURLFromNo, zeroBSCRMJS_isArray, zeroBSCRMJS_ucwords,
-		jpcrm_strip_trailing_slashes, zeroBSCRMJS_formatCurrency, zeroBSCRMJS_extend, zeroBSCRMJS_retrieveURLS, jpcrm_looks_like_URL, 
+		jpcrm_strip_trailing_slashes, zeroBSCRMJS_formatCurrency, zeroBSCRMJS_extend, zeroBSCRMJS_retrieveURLS, jpcrm_looks_like_URL,
 		zeroBSCRMJS_retrieveEmails, zeroBSCRMJS_genericLoaded, zeroBSCRMJS_genericPostData, jpcrm_sleep, zbsJS_updateScreenOptions,
-		zeroBSCRMJS_obj_viewLink, zeroBSCRMJS_obj_editLink, jpcrm_set_jpcrm_transient, jpcrm_js_bind_daterangepicker, zeroBSCRMJS_globViewLang };
+		zeroBSCRMJS_obj_viewLink, zeroBSCRMJS_obj_editLink, jpcrm_set_jpcrm_transient, jpcrm_js_bind_daterangepicker, zeroBSCRMJS_globViewLang, 
+		jpcrm_strip_scripts, zbscrm_JS_DAL, zbscrmjs_adminMenuBlocker, zbscrmjsDirtyLog, zbscrmjsPageData, zbscrmjsPageChanges, zbscrm_custcache_invoices,
+		zbsAJAXRestRetrieve, zbscrmjs_closeLogBlocker, zbsjsScreenOptsBlock, zbscrmjs_screenoptblock, zbscrm_JS_addDirty, jpcrm_dismiss_woo_notice,
+		jpcrm_dismiss_tracking_notice, jpcrm_dismiss_feature_alert, zbscrm_JS_compatClasses, zbscrm_JS_momentInit, zbscrm_JS_adminMenuDropdown, zbscrm_JS_fullscreenModeOn,
+		zbscrm_JS_fullscreenModeOff, zbscrm_JS_initMenuPopups, zbscrm_JS_watchInputsAndDirty, zbscrm_JS_dirtyCatch, zbscrm_JS_delDirty, zbscrm_JS_bindDateRangePicker, jpcrm_js_bind_datepicker,
+		jpcrm_js_bind_datetimerangepicker,  jpcrm_js_bind_datetimepicker, jpcrm_js_bind_datetimepicker_future, zbscrm_JS_infoBoxInit, zbscrm_JS_infoBoxInit,
+		zbscrm_JS_Bind_Typeaheads, zbscrm_JS_Bind_Typeaheads_Customers, zbscrm_JS_Bind_Typeaheads_Companies, jpcrm_bind_typeaheads_placeholders, zbscrm_JS_clone,
+		zbscrmjs_replaceAll, zeroBSCRMJS_telLinkFromNo, zeroBSCRMJS_number_format_i18n, zeroBSCRMJS_number_format, zeroBSCRMJS_htmlEncode,
+		zeroBSCRMJS_htmlDecode, zeroBSCRMJS_newWindow, zeroBSCRMJS_newWindowCenter, parseDate, daydiff, zbsJS_semanticPercBar, zbsJS_uts, zeroBSCRMJS_bindScreenOptions,
+		zeroBSCRMJS_saveScreenOptions,  zeroBSCRMJS_buildScreenOptionsTableColumns, zeroBSCRMJS_buildScreenOptionsGenerics, zeroBSCRMJS_rest_retrieveCompany, 
+		zeroBSCRMJS_bindGlobalObjFuncs, zeroBSCRMJS_bindGlobalContactFuncs, zeroBSCRMJS_bindGlobalDismiss, zbscrm_JS_bindCloseLogs, zbscrm_JS_isCalypso, 
+		jpcrm_bind_licensing_modals, jpcrm_bind_customfield_csv_builders, jpcrm_bind_generic_window_opening };
 }

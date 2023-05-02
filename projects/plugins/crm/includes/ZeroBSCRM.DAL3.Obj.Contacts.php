@@ -33,308 +33,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
     protected $objectDBPrefix = 'zbsc_';
     protected $objectIncludesAddresses = true;
     protected $include_in_templating = true;
-    protected $objectModel = array(
-
-            // ID
-            'ID' => array('fieldname' => 'ID', 'format' => 'int'),
-
-            // site + team generics
-            'zbs_site' => array('fieldname' => 'zbs_site', 'format' => 'int'),
-            'zbs_team' => array('fieldname' => 'zbs_team', 'format' => 'int'),
-            'zbs_owner'=> array('fieldname' => 'zbs_owner', 'format' => 'int'),
-
-            // other fields
-            'status'            => array(
-                // db model:
-                'fieldname' => 'zbsc_status', 'format' => 'str',
-                // output model
-                'input_type' => 'select',
-                'label' => 'Status',
-                'placeholder'=>'',
-                'options'=>array('Lead','Customer','Refused','Blacklisted'),
-                'essential' => true,
-                'max_len' => 100,
-                'do_not_show_on_portal' => true
-            ),
-            'email'             => array(
-                // db model:
-                'fieldname' => 'zbsc_email', 'format' => 'str',
-                // output model
-                'input_type' => 'email',
-                'label' => 'Email',
-                'placeholder'=>'e.g. john@gmail.com',
-                'essential' => true,
-                'force_unique' => true, // must be unique. This is required and breaking if true
-                'can_be_blank' => true,
-                'max_len' => 200,
-                // removed due to some users using mobile/other as unique field? see #gh-153 
-                //'not_empty' => true,
-                'do_not_show_on_portal' => true
-            ),
-            'prefix'            => array(
-                // db model:
-                'fieldname' => 'zbsc_prefix', 'format' => 'str',
-                // output model
-                'input_type' => 'select',
-                'label' => 'Prefix',
-                'placeholder'=>'',
-                'options'=>array('Mr', 'Mrs', 'Ms', 'Miss', 'Mx', 'Dr', 'Prof','Mr & Mrs'),
-                'essential' => true,
-                'max_len' => 30
-            ),
-            'fname'             => array(
-                // db model:
-                'fieldname' => 'zbsc_fname', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'First Name',
-                'placeholder'=> 'e.g. John',
-                'essential' => true,
-                'max_len' => 100
-            ),
-            'lname'             => array(
-                // db model:
-                'fieldname' => 'zbsc_lname', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Last Name',
-                'placeholder'=> 'e.g. Doe',
-                'essential' => true,
-                'max_len' => 100
-            ),
-
-            'addr1'             => array(
-                // db model:
-                'fieldname' => 'zbsc_addr1', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Address Line 1',
-                'placeholder'=>'',
-                'area'=> 'Main Address',
-                'migrate'=>'addresses',
-                'max_len' => 200
-            ),
-            'addr2'             => array(
-                // db model:
-                'fieldname' => 'zbsc_addr2', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Address Line 2',
-                'placeholder'=>'',
-                'area'=> 'Main Address',
-                'migrate'=>'addresses',
-                'max_len' => 200
-            ),
-            'city'              => array(
-                // db model:
-                'fieldname' => 'zbsc_city', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'City',
-                'placeholder'=> 'e.g. New York',
-                'area'=> 'Main Address',
-                'migrate'=>'addresses',
-                'max_len' => 100
-            ),
-            'county'            => array(
-                // db model:
-                'fieldname' => 'zbsc_county', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'County',
-                'placeholder'=> 'e.g. Kings County',
-                'area'=> 'Main Address',
-                'migrate'=>'addresses',
-                'max_len' => 200
-            ),
-            'postcode'          => array(
-                // db model:
-                'fieldname' => 'zbsc_postcode', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Post Code',
-                'placeholder'=> 'e.g. 10019',
-                'area'=> 'Main Address',
-                'migrate'=>'addresses',
-                'max_len' => 50
-            ),
-            'country'           => array(
-                // db model:
-                'fieldname' => 'zbsc_country', 'format' => 'str',
-                // output model
-                'input_type' => 'selectcountry',
-                'label' => 'Country',
-                'placeholder'=>'',
-                'area'=> 'Main Address',
-                'migrate'=>'addresses',
-                'max_len' => 200
-            ),
-
-
-            'secaddr1'             => array(
-                // db model:
-                'fieldname' => 'zbsc_addr1', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Address Line 1',
-                'placeholder'=>'',
-                'area'=> 'Second Address',
-                'migrate'=>'addresses',
-                'opt'=>'secondaddress',
-                'max_len' => 200,
-                'dal1key' => 'secaddr_addr1' // previous field name
-            ),
-            'secaddr2'             => array(
-                // db model:
-                'fieldname' => 'zbsc_addr2', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Address Line 2',
-                'placeholder'=>'',
-                'area'=> 'Second Address',
-                'migrate'=>'addresses',
-                'opt'=>'secondaddress',
-                'max_len' => 200,
-                'dal1key' => 'secaddr_addr2' // previous field name
-            ),
-            'seccity'              => array(
-                // db model:
-                'fieldname' => 'zbsc_city', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'City',
-                'placeholder'=> 'e.g. Los Angeles',
-                'area'=> 'Second Address',
-                'migrate'=>'addresses',
-                'opt'=>'secondaddress',
-                'max_len' => 100,
-                'dal1key' => 'secaddr_city' // previous field name
-            ),
-            'seccounty'            => array(
-                // db model:
-                'fieldname' => 'zbsc_county', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'County',
-                'placeholder'=> 'e.g. Los Angeles',
-                'area'=> 'Second Address',
-                'migrate'=>'addresses',
-                'opt'=>'secondaddress',
-                'max_len' => 200,
-                'dal1key' => 'secaddr_county' // previous field name
-            ),
-            'secpostcode'          => array(
-                // db model:
-                'fieldname' => 'zbsc_postcode', 'format' => 'str',
-                // output model
-                'input_type' => 'text',
-                'label' => 'Post Code',
-                'placeholder'=> 'e.g. 90001',
-                'area'=> 'Second Address',
-                'migrate'=>'addresses',
-                'opt'=>'secondaddress',
-                'max_len' => 50,
-                'dal1key' => 'secaddr_postcode' // previous field name
-            ),
-            'seccountry'           => array(
-                // db model:
-                'fieldname' => 'zbsc_country', 'format' => 'str',
-                // output model
-                'input_type' => 'selectcountry',
-                'label' => 'Country',
-                'placeholder'=>'',
-                'area'=> 'Second Address',
-                'migrate'=>'addresses',
-                'opt'=>'secondaddress',
-                'max_len' => 200,
-                'dal1key' => 'secaddr_country' // previous field name
-            ),
-
-
-
-            'hometel'           => array(
-                // db model:
-                'fieldname' => 'zbsc_hometel', 'format' => 'str',
-                // output model
-                'input_type' => 'tel',
-                'label' => 'Home Telephone',
-                'placeholder'=> 'e.g. 877 2733049',
-                'max_len' => 40
-            ),
-            'worktel'           => array(
-                // db model:
-                'fieldname' => 'zbsc_worktel', 'format' => 'str',
-                // output model
-                'input_type' => 'tel',
-                'label' => 'Work Telephone',
-                'placeholder'=> 'e.g. 877 2733049',
-                'max_len' => 40
-            ),
-            'mobtel'            => array(
-                // db model:
-                'fieldname' => 'zbsc_mobtel', 'format' => 'str',
-                // output model
-                'input_type' => 'tel',
-                'label' => 'Mobile Telephone',
-                'placeholder'=> 'e.g. 877 2733050',
-                'max_len' => 40
-            ),
-
-            // ... just removed for DAL3 :) should be custom field anyway by this point 
-
-            'wpid'              => array(
-                // db model:
-                'fieldname' => 'zbsc_wpid', 'format' => 'int',
-                // output model
-                // NONE, not exposed via standard input
-            ),
-            'avatar'            => array(
-                // db model:
-                'fieldname' => 'zbsc_avatar', 'format' => 'str',
-                // output model
-                // NONE, not exposed via standard input
-            ),
-            'tw'                => array(
-                // db model:
-                'fieldname' => 'zbsc_tw', 'format' => 'str',
-                'max_len' => 100
-                // output model
-                // NONE, not exposed via standard input
-            ),
-            'li'                => array(
-                // db model:
-                'fieldname' => 'zbsc_li', 'format' => 'str',
-                'max_len' => 300
-                // output model
-                // NONE, not exposed via standard input
-            ),
-            'fb'                => array(
-                // db model:
-                'fieldname' => 'zbsc_fb', 'format' => 'str',
-                'max_len' => 200
-                // output model
-                // NONE, not exposed via standard input
-            ),
-            'created'           => array(
-                // db model:
-                'fieldname' => 'zbsc_created', 'format' => 'uts',
-                // output model
-                // NONE, not exposed via db
-            ),
-            'lastupdated'       => array(
-                // db model:
-                'fieldname' => 'zbsc_lastupdated', 'format' => 'uts',
-                // output model
-                // NONE, not exposed via db
-            ),
-            'lastcontacted'     => array(
-                // db model:
-                'fieldname' => 'zbsc_lastcontacted', 'format' => 'uts',
-                // output model
-                // NONE, not exposed via db
-            )
-        );
-
+	// phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase, Squiz.Commenting.VariableComment.Missing -- to be refactored.
+	protected $objectModel = array();
 
         // hardtyped list of types this object type is commonly linked to
         protected $linkedToObjectTypes = array(
@@ -343,9 +43,342 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         );
 
+		// phpcs:ignore Squiz.Commenting.FunctionComment.Missing, Squiz.Scope.MethodScope.Missing -- to be refactored.
+		function __construct( $args = array() ) {
+			// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- to be refactored.
+			$this->objectModel = array(
+				// ID
+				'ID'            => array(
+					'fieldname' => 'ID',
+					'format'    => 'int',
+				),
+				// site + team generics
+				'zbs_site'      => array(
+					'fieldname' => 'zbs_site',
+					'format'    => 'int',
+				),
+				'zbs_team'      => array(
+					'fieldname' => 'zbs_team',
+					'format'    => 'int',
+				),
+				'zbs_owner'     => array(
+					'fieldname' => 'zbs_owner',
+					'format'    => 'int',
+				),
+				// other fields
+				'status'        => array(
+					// db model:
+					'fieldname'             => 'zbsc_status',
+					'format'                => 'str',
+					// output model
+					'input_type'            => 'select',
+					'label'                 => __( 'Status', 'zero-bs-crm' ),
+					'placeholder'           => '',
+					'options'               => array( 'Lead', 'Customer', 'Refused', 'Blacklisted' ),
+					'essential'             => true,
+					'max_len'               => 100,
+					'do_not_show_on_portal' => true,
+				),
+				'email'         => array(
+					// db model:
+					'fieldname'             => 'zbsc_email',
+					'format'                => 'str',
+					// output model
+					'input_type'            => 'email',
+					'label'                 => __( 'Email', 'zero-bs-crm' ),
+					'placeholder'           => 'e.g. john@gmail.com',
+					'essential'             => true,
+					'force_unique'          => true, // must be unique. This is required and breaking if true
+					'can_be_blank'          => true,
+					'max_len'               => 200,
+					// removed due to some users using mobile/other as unique field? see #gh-153
+					// 'not_empty' => true,
+					'do_not_show_on_portal' => true,
+				),
+				'prefix'        => array(
+					// db model:
+					'fieldname'   => 'zbsc_prefix',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'select',
+					'label'       => __( 'Prefix', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'options'     => array( 'Mr', 'Mrs', 'Ms', 'Miss', 'Mx', 'Dr', 'Prof', 'Mr & Mrs' ),
+					'essential'   => true,
+					'max_len'     => 30,
+				),
+				'fname'         => array(
+					// db model:
+					'fieldname'   => 'zbsc_fname',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'First Name', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. John',
+					'essential'   => true,
+					'max_len'     => 100,
+				),
+				'lname'         => array(
+					// db model:
+					'fieldname'   => 'zbsc_lname',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Last Name', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. Doe',
+					'essential'   => true,
+					'max_len'     => 100,
+				),
 
-    function __construct($args=array()) {
+				'addr1'         => array(
+					// db model:
+					'fieldname'   => 'zbsc_addr1',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Address Line 1', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'area'        => 'Main Address',
+					'migrate'     => 'addresses',
+					'max_len'     => 200,
+				),
+				'addr2'         => array(
+					// db model:
+					'fieldname'   => 'zbsc_addr2',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Address Line 2', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'area'        => 'Main Address',
+					'migrate'     => 'addresses',
+					'max_len'     => 200,
+				),
+				'city'          => array(
+					// db model:
+					'fieldname'   => 'zbsc_city',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'City', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. New York',
+					'area'        => 'Main Address',
+					'migrate'     => 'addresses',
+					'max_len'     => 100,
+				),
+				'county'        => array(
+					// db model:
+					'fieldname'   => 'zbsc_county',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'County', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. Kings County',
+					'area'        => 'Main Address',
+					'migrate'     => 'addresses',
+					'max_len'     => 200,
+				),
+				'postcode'      => array(
+					// db model:
+					'fieldname'   => 'zbsc_postcode',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Post Code', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. 10019',
+					'area'        => 'Main Address',
+					'migrate'     => 'addresses',
+					'max_len'     => 50,
+				),
+				'country'       => array(
+					// db model:
+					'fieldname'   => 'zbsc_country',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'selectcountry',
+					'label'       => __( 'Country', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'area'        => 'Main Address',
+					'migrate'     => 'addresses',
+					'max_len'     => 200,
+				),
+				'secaddr1'      => array(
+					// db model:
+					'fieldname'   => 'zbsc_addr1',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Address Line 1', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'area'        => 'Second Address',
+					'migrate'     => 'addresses',
+					'opt'         => 'secondaddress',
+					'max_len'     => 200,
+					'dal1key'     => 'secaddr_addr1', // previous field name
+				),
+				'secaddr2'      => array(
+					// db model:
+					'fieldname'   => 'zbsc_addr2',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Address Line 2', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'area'        => 'Second Address',
+					'migrate'     => 'addresses',
+					'opt'         => 'secondaddress',
+					'max_len'     => 200,
+					'dal1key'     => 'secaddr_addr2', // previous field name
+				),
+				'seccity'       => array(
+					// db model:
+					'fieldname'   => 'zbsc_city',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'City', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. Los Angeles',
+					'area'        => 'Second Address',
+					'migrate'     => 'addresses',
+					'opt'         => 'secondaddress',
+					'max_len'     => 100,
+					'dal1key'     => 'secaddr_city', // previous field name
+				),
+				'seccounty'     => array(
+					// db model:
+					'fieldname'   => 'zbsc_county',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'County', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. Los Angeles',
+					'area'        => 'Second Address',
+					'migrate'     => 'addresses',
+					'opt'         => 'secondaddress',
+					'max_len'     => 200,
+					'dal1key'     => 'secaddr_county', // previous field name
+				),
+				'secpostcode'   => array(
+					// db model:
+					'fieldname'   => 'zbsc_postcode',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'text',
+					'label'       => __( 'Post Code', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. 90001',
+					'area'        => 'Second Address',
+					'migrate'     => 'addresses',
+					'opt'         => 'secondaddress',
+					'max_len'     => 50,
+					'dal1key'     => 'secaddr_postcode', // previous field name
+				),
+				'seccountry'    => array(
+					// db model:
+					'fieldname'   => 'zbsc_country',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'selectcountry',
+					'label'       => __( 'Country', 'zero-bs-crm' ),
+					'placeholder' => '',
+					'area'        => 'Second Address',
+					'migrate'     => 'addresses',
+					'opt'         => 'secondaddress',
+					'max_len'     => 200,
+					'dal1key'     => 'secaddr_country', // previous field name
+				),
+				'hometel'       => array(
+					// db model:
+					'fieldname'   => 'zbsc_hometel',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'tel',
+					'label'       => __( 'Home Telephone', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. 877 2733049',
+					'max_len'     => 40,
+				),
+				'worktel'       => array(
+					// db model:
+					'fieldname'   => 'zbsc_worktel',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'tel',
+					'label'       => __( 'Work Telephone', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. 877 2733049',
+					'max_len'     => 40,
+				),
+				'mobtel'        => array(
+					// db model:
+					'fieldname'   => 'zbsc_mobtel',
+					'format'      => 'str',
+					// output model
+					'input_type'  => 'tel',
+					'label'       => __( 'Mobile Telephone', 'zero-bs-crm' ),
+					'placeholder' => 'e.g. 877 2733050',
+					'max_len'     => 40,
+				),
 
+				// ... just removed for DAL3 :) should be custom field anyway by this point
+
+				'wpid'          => array(
+					// db model:
+					'fieldname' => 'zbsc_wpid',
+					'format'    => 'int',
+					// output model
+					// NONE, not exposed via standard input
+				),
+				'avatar'        => array(
+					// db model:
+					'fieldname' => 'zbsc_avatar',
+					'format'    => 'str',
+					// output model
+					// NONE, not exposed via standard input
+				),
+				'tw'            => array(
+					// db model:
+					'fieldname' => 'zbsc_tw',
+					'format'    => 'str',
+					'max_len'   => 100,
+					// output model
+					// NONE, not exposed via standard input
+				),
+				'li'            => array(
+					// db model:
+					'fieldname' => 'zbsc_li',
+					'format'    => 'str',
+					'max_len'   => 300,
+					// output model
+					// NONE, not exposed via standard input
+				),
+				'fb'            => array(
+					// db model:
+					'fieldname' => 'zbsc_fb',
+					'format'    => 'str',
+					'max_len'   => 200,
+					// output model
+					// NONE, not exposed via standard input
+				),
+				'created'       => array(
+					// db model:
+					'fieldname' => 'zbsc_created',
+					'format'    => 'uts',
+					// output model
+					// NONE, not exposed via db
+				),
+				'lastupdated'   => array(
+					// db model:
+					'fieldname' => 'zbsc_lastupdated',
+					'format'    => 'uts',
+					// output model
+					// NONE, not exposed via db
+				),
+				'lastcontacted' => array(
+					// db model:
+					'fieldname' => 'zbsc_lastcontacted',
+					'format'    => 'uts',
+					// output model
+					// NONE, not exposed via db
+				),
+			);
 
         #} =========== LOAD ARGS ==============
         $defaultArgs = array(
@@ -1596,7 +1629,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                     case 'customer':
 
                                         // hack - adapted from DAL1 (probs can be slicker)
-                                        $wheres['quickfiltercustomer'] = array('zbsc_status','LIKE','%s','Customer');
+										$wheres['quickfiltercustomer'] = array( 'zbsc_status', 'LIKE', '%s', 'Customer' );
 
                                         break;
 
@@ -2461,8 +2494,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             }
 
-            // either ext source + setting, or set by the func call
-            if ($do_not_update_blanks){
+				// either ext source + setting, or set by the func call
+				if ( $do_not_update_blanks ) {
 
                     // this setting says 'don't override filled-out data with blanks'
                     // so here we check through any passed blanks + convert to limitedFields
@@ -2505,141 +2538,152 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                     } // / if ID
 
-            } // / if do_not_update_blanks
+				} // / if do_not_update_blanks
 
-        #} ========= / OVERRIDE SETTING (Deny blank overrides) ===========
+				// ========= / OVERRIDE SETTING (Deny blank overrides) ===========
 
+				// ========= BUILD DATA ===========
 
-        #} ========= BUILD DATA ===========
+				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactoerd later.
+				$update                    = false;
+				$dataArr                   = array();
+				$typeArr                   = array();
+				$contactsPreUpdateSegments = array();
 
-            $update = false; $dataArr = array(); $typeArr = array();
+				if ( is_array( $limitedFields ) ) {
 
-            if (is_array($limitedFields)){
+					// LIMITED FIELDS
+					$update = true;
 
-                // LIMITED FIELDS
-                $update = true;
+					// cycle through
+					foreach ( $limitedFields as $field ) {
 
-                // cycle through
-                foreach ($limitedFields as $field){
+						// some weird case where getting empties, so added check
+						if ( empty( $field['key'] ) ) {
+							continue;
+						}
+						// Created date field is immutable. Skip.
+						if ( $field['key'] === 'zbsc_created' ) {
+							continue;
+						}
 
-                    // some weird case where getting empties, so added check
-                    if (!empty($field['key'])){ 
-                        $dataArr[$field['key']] = $field['val']; 
-                        $typeArr[] = $field['type'];
-                    }
+						$dataArr[ $field['key'] ] = $field['val'];
+						$typeArr[]                = $field['type'];
+					}
 
-                }
+					// add update time
+					if ( ! isset( $dataArr['zbsc_lastupdated'] ) ) {
+						$dataArr['zbsc_lastupdated'] = time();
+						$typeArr[]                   = '%d';
+					}
+				} else {
 
-                // add update time
-                if (!isset($dataArr['zbsc_lastupdated'])){ $dataArr['zbsc_lastupdated'] = time(); $typeArr[] = '%d'; }
+					// FULL UPDATE/INSERT
 
-            } else {
+					// UPDATE
+					$dataArr = array(
 
-                // FULL UPDATE/INSERT
+						'zbs_owner'        => $owner,
 
-                    // UPDATE
-                    $dataArr = array( 
+						// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- to be refactored.
+						// fields
+						'zbsc_status'      => $data['status'],
+						'zbsc_email'       => $data['email'],
+						'zbsc_prefix'      => $data['prefix'],
+						'zbsc_fname'       => $data['fname'],
+						'zbsc_lname'       => $data['lname'],
+						'zbsc_addr1'       => $data['addr1'],
+						'zbsc_addr2'       => $data['addr2'],
+						'zbsc_city'        => $data['city'],
+						'zbsc_county'      => $data['county'],
+						'zbsc_country'     => $data['country'],
+						'zbsc_postcode'    => $data['postcode'],
+						'zbsc_secaddr1'    => $data['secaddr1'],
+						'zbsc_secaddr2'    => $data['secaddr2'],
+						'zbsc_seccity'     => $data['seccity'],
+						'zbsc_seccounty'   => $data['seccounty'],
+						'zbsc_seccountry'  => $data['seccountry'],
+						'zbsc_secpostcode' => $data['secpostcode'],
+						'zbsc_hometel'     => $data['hometel'],
+						'zbsc_worktel'     => $data['worktel'],
+						'zbsc_mobtel'      => $data['mobtel'],
+						'zbsc_wpid'        => $data['wpid'],
+						'zbsc_avatar'      => $data['avatar'],
 
-                                // ownership
-                                // no need to update these (as of yet) - can't move teams etc.
-                                //'zbs_site' => zeroBSCRM_installSite(),
-                                //'zbs_team' => zeroBSCRM_installTeam(),
-                                'zbs_owner' => $owner,
+						'zbsc_tw'          => $data['tw'],
+						'zbsc_fb'          => $data['fb'],
+						'zbsc_li'          => $data['li'],
 
-                                // fields
-                                'zbsc_status' => $data['status'],
-                                'zbsc_email' => $data['email'],
-                                'zbsc_prefix' => $data['prefix'],
-                                'zbsc_fname' => $data['fname'],
-                                'zbsc_lname' => $data['lname'],
-                                'zbsc_addr1' => $data['addr1'],
-                                'zbsc_addr2' => $data['addr2'],
-                                'zbsc_city' => $data['city'],
-                                'zbsc_county' => $data['county'],
-                                'zbsc_country' => $data['country'],
-                                'zbsc_postcode' => $data['postcode'],
-                                'zbsc_secaddr1' => $data['secaddr1'],
-                                'zbsc_secaddr2' => $data['secaddr2'],
-                                'zbsc_seccity' => $data['seccity'],
-                                'zbsc_seccounty' => $data['seccounty'],
-                                'zbsc_seccountry' => $data['seccountry'],
-                                'zbsc_secpostcode' => $data['secpostcode'],
-                                'zbsc_hometel' => $data['hometel'],
-                                'zbsc_worktel' => $data['worktel'],
-                                'zbsc_mobtel' => $data['mobtel'],
-                                'zbsc_wpid' => $data['wpid'],
-                                'zbsc_avatar' => $data['avatar'],
+						'zbsc_lastupdated' => time(),
+					);
 
+						// if set.
+					if ( $data['lastcontacted'] !== -1 ) {
+						$dataArr['zbsc_lastcontacted'] = $data['lastcontacted'];
+					}
 
-                                'zbsc_tw' => $data['tw'],
-                                'zbsc_fb' => $data['fb'],
-                                'zbsc_li' => $data['li'],
+					$typeArr = array( // field data types
+						// '%d',  // site
+						// '%d',  // team
+						'%d',    // owner
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%d',
+						'%s',
+						'%s',
+						'%s',
+						'%s',
+						'%d',   // last updated
+					);
+					// if set
+					if ( $data['lastcontacted'] !== -1 ) {
+						$typeArr[] = '%d';
+					}
 
-                                //'zbsc_created' => time(),
-                                'zbsc_lastupdated' => time()
-                            );
+					if ( ! empty( $id ) && $id > 0 ) {
 
-                    // if set
-                    if ($data['lastcontacted'] !== -1) $dataArr['zbsc_lastcontacted'] = $data['lastcontacted'];
+						// is update
+						$update = true;
 
-                    $typeArr = array( // field data types
-                                //'%d',  // site
-                                //'%d',  // team
-                                '%d',    // owner
+					} else {
 
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%s',
-                                '%d',
-                                '%s',
+						// INSERT (get's few extra :D)
+						$update              = false;
+						$dataArr['zbs_site'] = zeroBSCRM_site();
+						$typeArr[]           = '%d';
+						$dataArr['zbs_team'] = zeroBSCRM_team();
+						$typeArr[]           = '%d';
 
-                                '%s',
-                                '%s',
-                                '%s',
-     
-                                '%d'   // last updated
-                            );
-                    // if set
-                    if ($data['lastcontacted'] !== -1) $typeArr[] = '%d';
+						if ( isset( $data['created'] ) && ! empty( $data['created'] ) && $data['created'] !== -1 ) {
+							$dataArr['zbsc_created'] = $data['created'];
+							$typeArr[]               = '%d';
+						} else {
+							$dataArr['zbsc_created'] = time();
+							$typeArr[]               = '%d';
+							}
 
-                if (!empty($id) && $id > 0){
-
-                    // is update
-                    $update = true;
-
-                } else {
-
-                    // INSERT (get's few extra :D)
-                    $update = false;
-                    $dataArr['zbs_site'] = zeroBSCRM_site();    $typeArr[] = '%d';
-                    $dataArr['zbs_team'] = zeroBSCRM_team();    $typeArr[] = '%d';
-                    if (isset($data['created']) && !empty($data['created']) && $data['created'] !== -1){
-                        $dataArr['zbsc_created'] = $data['created'];$typeArr[] = '%d';
-                    } else {
-                        $dataArr['zbsc_created'] = time();          $typeArr[] = '%d';
-                    }
-                    $dataArr['zbsc_lastcontacted'] = -1; $typeArr[] = '%d';
-
-                }
-
-            }
+							$dataArr['zbsc_lastcontacted'] = -1;
+							$typeArr[]                     = '%d';
+						}
+					}
         #} ========= / BUILD DATA ===========
 
         #} ============================================================
@@ -2657,32 +2701,31 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
             }
 
-            // whatever we do we check for max_len breaches and abbreviate to avoid wpdb rejections
-            $dataArr = $this->wpdbChecks($dataArr);
+					// whatever we do we check for max_len breaches and abbreviate to avoid wpdb rejections
+					$dataArr = $this->wpdbChecks( $dataArr );
             
-        #} ========= / CHECK force_uniques & not_empty ================
-        #} ============================================================ 
-            
-        #} Check if ID present
-        if ($update){
+					// CHECK force_uniques & not_empty
 
-                #} Check if obj exists (here) - for now just brutal update (will error when doesn't exist)
-                $originalStatus = $this->getContactStatus($id);
+					// Check if ID present
+					if ( $update ) {
 
-                #} get any segments (whom counts may be affected by changes)
-                $contactsPreUpdateSegments = $this->DAL()->segments->getSegmentsContainingContact($id,true);
+						// Check if obj exists (here) - for now just brutal update (will error when doesn't exist)
+						$originalStatus = $this->getContactStatus( $id );
 
-                // log any change of status
-                if (isset($dataArr['zbsc_status']) && !empty($dataArr['zbsc_status']) && !empty($originalStatus) && $dataArr['zbsc_status'] != $originalStatus){
+						// get any segments (whom counts may be affected by changes)
+						// $contactsPreUpdateSegments = $this->DAL()->segments->getSegmentsContainingContact($id,true);
 
-                    // status change
-                    $statusChange = array(
-                        'from' => $originalStatus,
-                        'to' => $dataArr['zbsc_status']
-                        );
-                }
+						// log any change of status
+						if ( isset( $dataArr['zbsc_status'] ) && ! empty( $dataArr['zbsc_status'] ) && ! empty( $originalStatus ) && $dataArr['zbsc_status'] !== $originalStatus ) {
 
-                #} Attempt update
+							// status change
+							$statusChange = array(
+								'from' => $originalStatus,
+								'to'   => $dataArr['zbsc_status'],
+							);
+						}
+
+						// Attempt update
                 if ($wpdb->update( 
                         $ZBSCRM_t['contacts'], 
                         $dataArr, 
@@ -3140,6 +3183,8 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                                         )));
 
                                 }
+								// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
 
                             }
 
@@ -3201,6 +3246,7 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
                             
                     $msg = __('DB Insert Failed','zero-bs-crm');                    
                     $zbs->DAL->addError(303,$this->objectType,$msg,$dataArr);
+					// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                     #} Failed to Insert
                     return false;

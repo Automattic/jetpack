@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.45] - 2023-05-01
+### Changed
+- Internal updates.
+
+## [0.8.44] - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+## [0.8.43] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
+## [0.8.42] - 2023-04-04
+### Changed
+- Updated package dependencies. [#29854]
+
+## [0.8.41] - 2023-04-03
+### Changed
+- Internal updates.
+
+## [0.8.40] - 2023-03-20
+### Changed
+- Updated package dependencies. [#29471]
+
+## [0.8.39] - 2023-03-08
+### Changed
+- Updated package dependencies. [#29216]
+
+## [0.8.38] - 2023-02-20
+### Changed
+- Minor internal updates.
+
+## [0.8.37] - 2023-02-15
+### Changed
+- Update to React 18. [#28710]
+
+## [0.8.36] - 2023-02-08
+### Changed
+- Updated package dependencies. [#28682]
+
 ## [0.8.35] - 2023-01-25
 ### Changed
 - Minor internal updates.
@@ -316,6 +356,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Use Connection/Urls for home_url and site_url functions migrated from Sync.
 
+[0.8.45]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.44...v0.8.45
+[0.8.44]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.43...v0.8.44
+[0.8.43]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.42...v0.8.43
+[0.8.42]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.41...v0.8.42
+[0.8.41]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.40...v0.8.41
+[0.8.40]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.39...v0.8.40
+[0.8.39]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.38...v0.8.39
+[0.8.38]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.37...v0.8.38
+[0.8.37]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.36...v0.8.37
+[0.8.36]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.35...v0.8.36
 [0.8.35]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.34...v0.8.35
 [0.8.34]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.33...v0.8.34
 [0.8.33]: https://github.com/Automattic/jetpack-identity-crisis/compare/v0.8.32...v0.8.33

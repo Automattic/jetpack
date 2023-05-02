@@ -1,8 +1,8 @@
-# Jetpack Migration
+# Move to WordPress.com
 
-Jetpack Migration plugin
+Move to WordPress.com plugin
 
-## How to install Jetpack Migration
+## How to install Move to WordPress.com
 
 ### Installation From Git Repo
 
@@ -16,5 +16,5 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 
 ## License
 
-Jetpack Migration is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
+Move to WordPress.com is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
 

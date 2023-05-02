@@ -117,6 +117,11 @@ nocache_headers();
 				height: 100vh;
 				justify-content: space-between;
 			}
+			@supports (height: 100dvh) {
+				.wpcom-coming-soon-inner {
+					height: 100dvh;
+				}
+			}
 			.wpcom-coming-soon-main,
 			.wpcom-coming-soon-marketing {
 				flex: 0 0 100%;

@@ -10,7 +10,7 @@
 
 ( function () {
 	// brutally hardtyped, later move from
-	const formStyles = [
+	var formStyles = [
 		{ text: 'Naked', value: 'naked' },
 		{ text: 'Content Grab', value: 'cgrab' },
 		{ text: 'Simple', value: 'simple' },
@@ -24,10 +24,10 @@
 
 	// needs to be set in PHP, this just builds it into a usable form for tinymce
 	if ( typeof window.zbsCRMFormList === 'undefined' ) {
-		const zbsCRMFormList = [ { text: 'No Forms Available', value: -1 } ];
+		var zbsCRMFormList = [ { text: 'No Forms Available', value: -1 } ];
 	} else {
 		// process it into a usable form
-		const formedFormList = [];
+		var formedFormList = [];
 		jQuery.each( window.zbsCRMFormList, function ( ind, ele ) {
 			// make title
 			if ( ele.title != '' ) {
@@ -36,7 +36,7 @@
 				var eleTitle = 'Form #' + ele.id;
 			}
 
-			const formObj = {
+			var formObj = {
 				text: eleTitle,
 				value: ele.id,
 			};
@@ -55,7 +55,7 @@
 	}
 
 	tinymce.PluginManager.add( 'zbsCRMForms', function ( editor, url ) {
-		let thisTitle = 'CRM Forms';
+		var thisTitle = 'CRM Forms';
 
 		if ( ! window.zbs_root ) {
 			// if no CRM env is detected, don't make a button
@@ -65,7 +65,7 @@
 			thisTitle = window.zbs_root.crmname + ' Forms';
 		}
 
-		let thisIco = window.zbs_root.root + 'i/WYSIWYG_icon.png';
+		var thisIco = window.zbs_root.root + 'i/WYSIWYG_icon.png';
 		if ( typeof window.zbs_root.crmlogo !== 'undefined' ) {
 			thisIco = window.zbs_root.root + window.zbs_root.crmlogo;
 		}

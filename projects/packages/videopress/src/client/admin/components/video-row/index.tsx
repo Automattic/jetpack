@@ -1,12 +1,17 @@
 /**
  * External dependencies
  */
-import { Text, Button, useBreakpointMatch } from '@automattic/jetpack-components';
+import {
+	Text,
+	Button,
+	useBreakpointMatch,
+	LoadingPlaceholder,
+} from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { sprintf, __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp } from '@wordpress/icons';
 import classNames from 'classnames';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -14,7 +19,6 @@ import privateIcon from '../../../components/icons/crossed-eye-icon';
 import { usePermission } from '../../hooks/use-permission';
 import useVideo from '../../hooks/use-video';
 import Checkbox from '../checkbox';
-import Placeholder from '../placeholder';
 import PublishFirstVideoPopover from '../publish-first-video-popover';
 import { ConnectVideoQuickActions } from '../video-quick-actions';
 import VideoThumbnail from '../video-thumbnail';
@@ -142,6 +146,7 @@ export const VideoRow = ( {
 	const showBottom = ! loading && ( ! isSmall || ( isSmall && expanded ) );
 	const canExpand =
 		isSmall &&
+		showActions &&
 		! loading &&
 		( showActionButton ||
 			Boolean( duration ) ||
@@ -204,6 +209,12 @@ export const VideoRow = ( {
 			handleClick( e );
 		}
 	};
+
+	useEffect( () => {
+		if ( disabled ) {
+			setExpanded( false );
+		}
+	}, [ disabled ] );
 
 	return (
 		<div
@@ -268,7 +279,7 @@ export const VideoRow = ( {
 						) }
 
 						{ loading ? (
-							<Placeholder height={ 30 } />
+							<LoadingPlaceholder height={ 30 } />
 						) : (
 							<Text
 								variant="title-small"
@@ -283,7 +294,7 @@ export const VideoRow = ( {
 						{ isSmall && (
 							<>
 								{ loading ? (
-									<Placeholder height={ 20 } width="80%" />
+									<LoadingPlaceholder height={ 20 } width="80%" />
 								) : (
 									<Text component="div">{ uploadDateFormatted }</Text>
 								) }
@@ -311,7 +322,7 @@ export const VideoRow = ( {
 							loading={ loading }
 						/>
 
-						{ isSmall && (
+						{ isSmall && showActions && (
 							<div className={ styles[ 'mobile-actions' ] }>
 								{ showActionButton && actionButton }
 								{ showQuickActions && id && <ConnectVideoQuickActions videoId={ id } /> }
@@ -333,9 +344,8 @@ export const LocalVideoRow = ( props: VideoRowProps ) => {
 };
 
 export const ConnectVideoRow = ( { id, ...restProps }: VideoRowProps ) => {
-	const { isDeleting, uploading, processing, isUpdatingPoster, data, uploadProgress } = useVideo(
-		id
-	);
+	const { isDeleting, uploading, processing, isUpdatingPoster, data, uploadProgress } =
+		useVideo( id );
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 	return (
 		<VideoRow

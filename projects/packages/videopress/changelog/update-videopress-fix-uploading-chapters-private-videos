@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-VideoPress: set isPravate attribute based also on private_enabled_for_site

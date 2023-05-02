@@ -9,7 +9,7 @@
  */
 
 // Define the tour!
-const zbsTour = {
+var zbsTour = {
 	id: 'zbs-welcome-tour',
 	steps: [
 		{
@@ -237,3 +237,7 @@ jQuery( function ( $ ) {
   }
 */
 } );
+
+if ( typeof module !== 'undefined' ) {
+    module.exports = { zbsTour };
+}

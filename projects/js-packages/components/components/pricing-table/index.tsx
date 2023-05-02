@@ -1,4 +1,3 @@
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, closeSmall } from '@wordpress/icons';
 import classnames from 'classnames';
@@ -11,9 +10,9 @@ import {
 	ReactElement,
 } from 'react';
 import React, { CSSProperties } from 'react';
-import { getRedirectUrl } from '../../../components';
 import IconTooltip from '../icon-tooltip';
 import useBreakpointMatch from '../layout/use-breakpoint-match';
+import TermsOfService from '../terms-of-service';
 import Text from '../text';
 import styles from './styles.module.scss';
 import {
@@ -22,23 +21,6 @@ import {
 	PricingTableHeaderProps,
 	PricingTableItemProps,
 } from './types';
-
-const ToS = createInterpolateElement(
-	__(
-		'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
-		'jetpack'
-	),
-	{
-		tosLink: <a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />,
-		shareDetailsLink: (
-			<a
-				href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-				rel="noopener noreferrer"
-				target="_blank"
-			/>
-		),
-	}
-);
 
 const INCLUDED_TEXT = __( 'Included', 'jetpack' );
 const NOT_INCLUDED_TEXT = __( 'Not included', 'jetpack' );
@@ -74,6 +56,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	label = null,
 	tooltipInfo,
 	tooltipTitle,
+	tooltipClassName = '',
 } ) => {
 	const [ isLg ] = useBreakpointMatch( 'lg' );
 	const item = useContext( PricingTableContext )[ index ];
@@ -104,7 +87,7 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 				<IconTooltip
 					title={ tooltipTitle ? tooltipTitle : defaultTooltipTitle }
 					iconClassName={ styles[ 'popover-icon' ] }
-					className={ styles.popover }
+					className={ classnames( styles.popover, tooltipClassName ) }
 					placement={ 'bottom-end' }
 					iconSize={ 14 }
 					offset={ 4 }
@@ -203,7 +186,7 @@ const PricingTable: React.FC< PricingTableProps > = ( {
 							) }
 						</Text>
 					) }
-					<Text variant="body-small">{ ToS }</Text>
+					<TermsOfService multipleButtons />
 				</div>
 			</div>
 		</PricingTableContext.Provider>

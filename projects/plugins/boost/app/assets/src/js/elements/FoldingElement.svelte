@@ -4,7 +4,7 @@
 	export let visible = false;
 
 	const toggle = () => ( visible = ! visible );
-	$: label = visible ? showLabel : hideLabel;
+	$: label = visible ? hideLabel : showLabel;
 </script>
 
 <button class="components-button is-link foldable-element-control" class:visible on:click={toggle}>

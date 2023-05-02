@@ -65,6 +65,7 @@ class Jetpack_Custom_CSS_Enhancements {
 			'jetpack-customizer-css',
 			$src,
 			array(
+				'jquery',
 				'customize-controls',
 				'underscore',
 			),
@@ -78,7 +79,7 @@ class Jetpack_Custom_CSS_Enhancements {
 				'_inc/build/custom-css/custom-css/js/core-customizer-css-preview.min.js',
 				'modules/custom-css/custom-css/js/core-customizer-css-preview.js'
 			),
-			array( 'customize-selective-refresh' ),
+			array( 'jquery', 'customize-selective-refresh' ),
 			JETPACK__VERSION,
 			true
 		);

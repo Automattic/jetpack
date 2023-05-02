@@ -96,6 +96,7 @@ class Jetpack_Media_Summary {
 			if ( $switched ) {
 				restore_current_blog();
 			}
+			self::$cache[ $cache_key ] = $return;
 			return $return;
 		}
 

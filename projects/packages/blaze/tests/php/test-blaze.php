@@ -30,8 +30,6 @@ class Test_Blaze extends BaseTestCase {
 
 	/**
 	 * Set up before each test.
-	 *
-	 * @before
 	 */
 	public function set_up() {
 		$this->admin_id = wp_insert_user(
@@ -56,8 +54,6 @@ class Test_Blaze extends BaseTestCase {
 
 	/**
 	 * Tear down after each test.
-	 *
-	 * @after
 	 */
 	public function tear_down() {
 		wp_dequeue_script( Blaze::SCRIPT_HANDLE );
@@ -153,7 +149,10 @@ class Test_Blaze extends BaseTestCase {
 			add_filter( 'jetpack_blaze_enabled', '__return_true' );
 		}
 
-		Blaze::enqueue_block_editor_assets( $hook );
+		// Set the current admin page.
+		set_current_screen( $hook );
+
+		Blaze::enqueue_block_editor_assets();
 
 		// Assert that our style, filter, and action has been added.
 		if ( $should_enqueue ) {
@@ -175,31 +174,31 @@ class Test_Blaze extends BaseTestCase {
 	public function get_enqueue_scenarios() {
 		return array(
 			'In site editor, Blaze enabled, site admin'  => array(
-				'site-editor.php',
+				'site-editor',
 				true,
 				true,
 				false,
 			),
 			'In post editor, Blaze disabled, site admin' => array(
-				'post.php',
+				'post',
 				false,
 				true,
 				false,
 			),
 			'In post editor, Blaze enabled, site admin'  => array(
-				'post.php',
+				'post',
 				true,
 				true,
 				true,
 			),
 			'In random admin page, Blaze enabled, site admin' => array(
-				'tools.php',
+				'tools',
 				true,
 				true,
 				false,
 			),
 			'In post editor, Blaze enabled, editor role' => array(
-				'post.php',
+				'post',
 				true,
 				false,
 				false,

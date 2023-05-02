@@ -59,11 +59,7 @@ $ok_wp_deps = array(
  * @var string[][] Keys are block names, value is an array of dependencies to not complain about.
  */
 $allowed = array(
-	'dialogue'       => array(
-		'wp-data',
-	),
-	'map'            => array(
-		'lodash',
+	'ai-chat'        => array(
 		'react',
 		'react-dom',
 		'wp-components',
@@ -82,11 +78,11 @@ $allowed = array(
 		'lodash',
 		'react',
 		'react-dom',
-		'wp-components',
 		'wp-compose',
 		'wp-data',
 		'wp-element',
 		'wp-keycodes',
+		'wp-primitives',
 	),
 );
 

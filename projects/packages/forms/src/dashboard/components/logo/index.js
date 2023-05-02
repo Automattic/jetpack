@@ -1,5 +1,12 @@
 const JetpackFormsLogo = () => (
-	<svg width="330" height="42" viewBox="0 0 330 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<svg
+		className="jp-forms__logo"
+		width="330"
+		height="42"
+		viewBox="0 0 330 42"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg"
+	>
 		<path
 			d="M21.0008 42C32.5991 42 42.0016 32.5975 42.0016 20.9992C42.0016 9.40089 32.5991 0 21.0008 0C9.40245 0 0 9.40245 0 21.0008C0 32.5991 9.40245 42 21.0008 42Z"
 			fill="#069E08"

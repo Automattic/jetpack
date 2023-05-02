@@ -22,6 +22,7 @@ import NonAdminView from 'components/non-admin-view';
 import ReconnectModal from 'components/reconnect-modal';
 import SupportCard from 'components/support-card';
 import Tracker from 'components/tracker';
+import jQuery from 'jquery';
 import analytics from 'lib/analytics';
 import MyPlan from 'my-plan/index.jsx';
 import ProductDescriptions from 'product-descriptions';
@@ -66,6 +67,7 @@ import {
 	isAtomicSite,
 	isWoASite,
 	isWooCommerceActive,
+	userIsSubscriber,
 } from 'state/initial-state';
 import {
 	updateLicensingActivationNoticeDismiss as updateLicensingActivationNoticeDismissAction,
@@ -103,6 +105,8 @@ const recommendationsRoutes = [
 	'/recommendations/backup-plan',
 	'/recommendations/boost',
 	'/recommendations/summary',
+	'/recommendations/vaultpress-backup',
+	'/recommendations/vaultpress-for-woocommerce',
 ];
 
 const dashboardRoutes = [ '/', '/dashboard', '/reconnect', '/my-plan', '/plans' ];
@@ -238,6 +242,79 @@ class Main extends React.Component {
 		this.props.setConnectionStatus( this.props.connectionStatus );
 	}
 
+	/**
+	 * Render the main navigation bar.
+	 *
+	 * @param {string} route - The current page route.
+	 * @returns {React.ReactElement|null} - The navigation component or `null` if not available.
+	 */
+	renderMainNav = route => {
+		if ( this.shouldShowWooConnectionScreen() ) {
+			return null;
+		}
+
+		if ( this.props.partnerCoupon ) {
+			const forceShow = new URLSearchParams( window.location.search ).get( 'showCouponRedemption' );
+
+			if ( ! this.props.isOfflineMode && ( ! this.props.isSiteConnected || forceShow ) ) {
+				return null;
+			}
+		}
+
+		if (
+			this.isUserConnectScreen() &&
+			( this.props.userCanManageModules || this.props.hasConnectedOwner )
+		) {
+			return null;
+		}
+
+		if ( ! this.props.userCanManageModules ) {
+			if ( ! this.props.siteConnectionStatus ) {
+				return null;
+			}
+
+			switch ( route ) {
+				case '/settings':
+				case '/writing':
+				case '/sharing':
+				case '/performance':
+					if ( ! this.props.isSubscriber ) {
+						return <NavigationSettings { ...this.props } />;
+					}
+			}
+
+			return <Navigation { ...this.props } />;
+		}
+
+		if ( this.isMainConnectScreen() ) {
+			return null;
+		}
+
+		switch ( route ) {
+			case '/settings':
+			case '/security':
+			case '/performance':
+			case '/writing':
+			case '/sharing':
+			case '/discussion':
+			case '/traffic':
+			case '/privacy':
+				return (
+					<NavigationSettings
+						routeName={ this.props.routeName }
+						siteRawUrl={ this.props.siteRawUrl }
+						siteAdminUrl={ this.props.siteAdminUrl }
+					/>
+				);
+			case '/license/activation':
+				if ( this.props.isLinked && this.props.isConnectionOwner ) {
+					return null;
+				}
+		}
+
+		return <Navigation routeName={ this.props.routeName } />;
+	};
+
 	renderMainContent = route => {
 		if ( this.shouldShowWooConnectionScreen() ) {
 			const previousPath = this.props.location.state?.previousPath;
@@ -319,6 +396,8 @@ class Main extends React.Component {
 			this.isUserConnectScreen() &&
 			( this.props.userCanManageModules || this.props.hasConnectedOwner )
 		) {
+			const searchParams = new URLSearchParams( location.search.split( '?' )[ 1 ] );
+
 			return (
 				<ConnectScreen
 					apiNonce={ this.props.apiNonce }
@@ -326,6 +405,7 @@ class Main extends React.Component {
 					apiRoot={ this.props.apiRoot }
 					images={ [ '/images/connect-right-secondary.png' ] }
 					assetBaseUrl={ this.props.pluginBaseUrl }
+					autoTrigger={ this.shouldAutoTriggerConnection() }
 					title={
 						this.props.connectingUserFeatureLabel
 							? sprintf(
@@ -337,6 +417,7 @@ class Main extends React.Component {
 					}
 					buttonLabel={ __( 'Connect your user account', 'jetpack' ) }
 					redirectUri="admin.php?page=jetpack"
+					from={ searchParams && searchParams.get( 'from' ) }
 				>
 					<ul>
 						<li>{ __( 'Receive instant downtime alerts', 'jetpack' ) }</li>
@@ -383,6 +464,8 @@ class Main extends React.Component {
 		}
 
 		if ( this.isMainConnectScreen() ) {
+			const searchParams = new URLSearchParams( location.search.split( '?' )[ 1 ] );
+
 			return (
 				<ConnectScreen
 					apiNonce={ this.props.apiNonce }
@@ -392,6 +475,7 @@ class Main extends React.Component {
 					assetBaseUrl={ this.props.pluginBaseUrl }
 					autoTrigger={ this.shouldAutoTriggerConnection() }
 					redirectUri="admin.php?page=jetpack"
+					from={ searchParams && searchParams.get( 'from' ) }
 				>
 					<p>
 						{ __(
@@ -411,21 +495,14 @@ class Main extends React.Component {
 			);
 		}
 
-		const settingsNav = (
-			<NavigationSettings
-				routeName={ this.props.routeName }
-				siteRawUrl={ this.props.siteRawUrl }
-				siteAdminUrl={ this.props.siteAdminUrl }
-			/>
-		);
-		let pageComponent,
-			navComponent = <Navigation routeName={ this.props.routeName } />;
+		let pageComponent;
 
 		switch ( route ) {
 			case '/dashboard':
 			case '/reconnect':
 			case '/disconnect':
 			case '/connect-user':
+			case '/connect-user-setup':
 			case '/woo-setup':
 			case '/setup':
 				pageComponent = (
@@ -459,7 +536,6 @@ class Main extends React.Component {
 			case '/discussion':
 			case '/traffic':
 			case '/privacy':
-				navComponent = settingsNav;
 				pageComponent = (
 					<SearchableSettings
 						siteAdminUrl={ this.props.siteAdminUrl }
@@ -472,7 +548,6 @@ class Main extends React.Component {
 				break;
 			case '/license/activation':
 				if ( this.props.isLinked && this.props.isConnectionOwner ) {
-					navComponent = null;
 					pageComponent = (
 						<ActivationScreen
 							siteRawUrl={ this.props.siteRawUrl }
@@ -503,6 +578,8 @@ class Main extends React.Component {
 			case '/recommendations/backup-plan':
 			case '/recommendations/boost':
 			case '/recommendations/summary':
+			case '/recommendations/vaultpress-backup':
+			case '/recommendations/vaultpress-for-woocommerce':
 			case '/recommendations/welcome-backup':
 			case '/recommendations/welcome-complete':
 			case '/recommendations/welcome-security':
@@ -510,6 +587,7 @@ class Main extends React.Component {
 			case '/recommendations/welcome-videopress':
 			case '/recommendations/welcome-search':
 			case '/recommendations/welcome-scan':
+			case '/recommendations/welcome-golden-token':
 			case '/recommendations/backup-activated':
 			case '/recommendations/scan-activated':
 			case '/recommendations/antispam-activated':
@@ -542,7 +620,6 @@ class Main extends React.Component {
 
 		return (
 			<div aria-live="assertive" className={ `${ this.shouldBlurMainContent() ? 'blur' : '' }` }>
-				{ navComponent }
 				{ pageComponent }
 			</div>
 		);
@@ -596,6 +673,10 @@ class Main extends React.Component {
 	}
 
 	shouldShowMasthead() {
+		if ( this.isMainConnectScreen() ) {
+			return false;
+		}
+
 		// Only show on the setup pages, dashboard, and settings page
 		return [ ...dashboardRoutes, ...recommendationsRoutes, ...settingsRoutes ].includes(
 			this.props.location.pathname
@@ -639,7 +720,10 @@ class Main extends React.Component {
 	 * @returns {boolean} Whether this is the user connection screen page.
 	 */
 	isUserConnectScreen() {
-		return '/connect-user' === this.props.location.pathname;
+		return (
+			'/connect-user' === this.props.location.pathname ||
+			'/connect-user-setup' === this.props.location.pathname
+		);
 	}
 
 	/**
@@ -683,7 +767,10 @@ class Main extends React.Component {
 	 * @returns {boolean} Whether to trigger the connection flow automatically.
 	 */
 	shouldAutoTriggerConnection() {
-		return this.props.location.pathname.startsWith( '/setup' );
+		return (
+			this.props.location.pathname.startsWith( '/setup' ) ||
+			this.props.location.pathname.startsWith( '/connect-user-setup' )
+		);
 	}
 
 	/**
@@ -720,14 +807,26 @@ class Main extends React.Component {
 			jpClasses.push( 'jp-licensing-screen' );
 		}
 
+		const mainNav = this.renderMainNav( this.props.location.pathname );
+		const showHeader = mainNav || this.shouldShowMasthead() || this.shouldShowRewindStatus();
+
 		return (
 			<div>
 				{ this.shouldShowReconnectModal() && (
 					<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
 				) }
-				{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
+
+				{ showHeader && (
+					<div className="jp-top">
+						<div className="jp-top-inside">
+							{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
+							{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
+							{ mainNav }
+						</div>
+					</div>
+				) }
+
 				<div className={ jpClasses.join( ' ' ) }>
-					{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
@@ -735,6 +834,7 @@ class Main extends React.Component {
 						when={ this.props.areThereUnsavedSettings }
 						message={ this.handleRouterWillLeave }
 					/>
+
 					{ this.renderMainContent( this.props.location.pathname ) }
 					{ this.shouldShowAgenciesCard() && (
 						<AgenciesCard path={ this.props.location.pathname } discountPercentage={ 25 } />
@@ -784,6 +884,7 @@ export default connect(
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),
 			partnerCoupon: getPartnerCoupon( state ),
 			currentRecommendationsStep: getInitialRecommendationsStep( state ),
+			isSubscriber: userIsSubscriber( state ),
 		};
 	},
 	dispatch => ( {

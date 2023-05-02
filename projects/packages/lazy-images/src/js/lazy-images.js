@@ -180,6 +180,13 @@ const jetpackLazyImagesModule = function () {
 			image.addEventListener( 'error', loadedImage, { once: true } );
 		}
 
+		// Hack for Safari: it does not respect srcset changes for img tags outside
+		// of <figure> tags. So, we need to force Safari to re-parse that bit of HTML.
+		if ( 'undefined' !== typeof safari ) {
+			// eslint-disable-next-line no-self-assign
+			image.outerHTML = image.outerHTML;
+		}
+
 		// Fire an event so that third-party code can perform actions after an image is loaded.
 		try {
 			lazyLoadedImageEvent = new Event( 'jetpack-lazy-loaded-image', {

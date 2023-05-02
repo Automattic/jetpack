@@ -92,7 +92,7 @@ if ( isset( $_GET['edit-provider'] ) && $zbs->oauth->legitimate_provider( $_GET[
 								case 'config-no-connect':
 									// just connect button
 									?>
-									<button type="button" class="jpcrm-open-popup-href ui tiny green button" data-href="<?php echo esc_url( $zbs->oauth->get_callback_url( $provider_key ) ); ?>" data-title="<?php esc_url_e( 'Connect to CRM', 'zero-bs-crm' ); ?>" data-width="600" data-height="600"><i class="plug icon"></i> <?php esc_html_e( 'Connect', 'zero-bs-crm' ); ?></button>
+									<button type="button" class="jpcrm-open-popup-href ui tiny green button" data-href="<?php echo esc_url( $zbs->oauth->get_callback_url( $provider_key ) ); ?>" data-title="<?php esc_attr_e( 'Connect to CRM', 'zero-bs-crm' ); ?>" data-width="600" data-height="600"><i class="plug icon"></i> <?php esc_html_e( 'Connect', 'zero-bs-crm' ); ?></button>
 									<?php
 
 									break;
@@ -101,7 +101,7 @@ if ( isset( $_GET['edit-provider'] ) && $zbs->oauth->legitimate_provider( $_GET[
 									// reconnect + disconnect buttons
 									?>
 									<div class="ui tiny buttons">
-										<button type="button" class="jpcrm-open-popup-href ui tiny green button" data-href="<?php echo esc_url( $zbs->oauth->get_callback_url( $provider_key ) ); ?>" data-title="<?php esc_att_e( 'Connect to CRM', 'zero-bs-crm' ); ?>" data-width="600" data-height="600"><i class="sync icon"></i> <?php esc_html_e( 'Reconnect', 'zero-bs-crm' ); ?></button>                                        
+										<button type="button" class="jpcrm-open-popup-href ui tiny green button" data-href="<?php echo esc_url( $zbs->oauth->get_callback_url( $provider_key ) ); ?>" data-title="<?php esc_attr_e( 'Connect to CRM', 'zero-bs-crm' ); ?>" data-width="600" data-height="600"><i class="sync icon"></i> <?php esc_html_e( 'Reconnect', 'zero-bs-crm' ); ?></button>                                        
 										<a href="<?php echo esc_url( wp_nonce_url( '?page=' . $zbs->slugs['settings'] . '&tab=oauth&disconnect=' . $provider_key, 'disconnect_oauth' ) ); ?>" class="ui tiny orange button"><i class="stop icon"></i> <?php esc_html_e( 'Disconnect', 'zero-bs-crm' ); ?></a>
 									</div>
 									<hr>
@@ -124,13 +124,13 @@ if ( isset( $_GET['edit-provider'] ) && $zbs->oauth->legitimate_provider( $_GET[
 		</table>
 
 		<?php
-		// WLREMOVE
+		##WLREMOVE
 		?>
 		<p style="text-align: center;padding:2em">                            
 			<a href="<?php echo esc_url( $zbs->urls['oauthdocs'] ); ?>" target="_blank" class="ui tiny button"><?php esc_html_e( 'OAuth Connection Documentation', 'zero-bs-crm' ); ?></a>
 		</p>
 		<?php
-		// /WLREMOVE
+		##/WLREMOVE
 		?>
 		<?php
 

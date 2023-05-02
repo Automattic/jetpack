@@ -5,6 +5,7 @@ import {
 	PLAN_JETPACK_VIDEOPRESS,
 	PLAN_JETPACK_ANTI_SPAM,
 	PLAN_JETPACK_BACKUP_T1_YEARLY,
+	getPlanClass,
 } from 'lib/plans/constants';
 import { assign, difference, get, isArray, isEmpty, mergeWith, union } from 'lodash';
 import {
@@ -15,6 +16,7 @@ import {
 	ONBOARDING_JETPACK_VIDEOPRESS,
 	ONBOARDING_JETPACK_SEARCH,
 	ONBOARDING_JETPACK_SCAN,
+	ONBOARDING_JETPACK_GOLDEN_TOKEN,
 	SUMMARY_SECTION_BY_ONBOARDING_NAME,
 	RECOMMENDATION_WIZARD_STEP,
 	ONBOARDING_SUPPORT_START_TIMESTAMP,
@@ -50,6 +52,7 @@ import {
 	getNewRecommendations,
 	getInitialRecommendationsStep,
 	getNewRecommendationsCount,
+	isWooCommerceActive,
 } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getSetting } from 'state/settings';
@@ -335,7 +338,9 @@ const stepToNextStepByPath = {
 		'related-posts': 'creative-mail',
 		'creative-mail': 'site-accelerator',
 		'site-accelerator': 'publicize',
-		publicize: 'summary',
+		publicize: 'vaultpress-for-woocommerce',
+		'vaultpress-for-woocommerce': 'vaultpress-backup', // falls back to vaultpress-backup so it only shows one of them
+		'vaultpress-backup': 'summary',
 		protect: 'summary',
 		'anti-spam': 'summary',
 		videopress: 'summary',
@@ -390,6 +395,12 @@ const stepToNextStepByPath = {
 			monitor: 'site-accelerator',
 			'site-accelerator': 'summary',
 		},
+		[ ONBOARDING_JETPACK_GOLDEN_TOKEN ]: {
+			welcome__golden_token: 'backup-activated',
+			'backup-activated': 'scan-activated',
+			'scan-activated': 'server-credentials',
+			'server-credentials': 'summary',
+		},
 	},
 };
 
@@ -410,6 +421,8 @@ export const stepToRoute = {
 	'backup-plan': '#/recommendations/backup-plan',
 	boost: '#/recommendations/boost',
 	summary: '#/recommendations/summary',
+	'vaultpress-backup': '#/recommendations/vaultpress-backup',
+	'vaultpress-for-woocommerce': '#/recommendations/vaultpress-for-woocommerce',
 	// new steps (September 2022)
 	welcome__backup: '#/recommendations/welcome-backup',
 	welcome__complete: '#/recommendations/welcome-complete',
@@ -418,6 +431,7 @@ export const stepToRoute = {
 	welcome__videopress: '#/recommendations/welcome-videopress',
 	welcome__search: '#/recommendations/welcome-search',
 	welcome__scan: '#/recommendations/welcome-scan',
+	welcome__golden_token: '#/recommendations/welcome-golden-token',
 	'backup-activated': '#/recommendations/backup-activated',
 	'scan-activated': '#/recommendations/scan-activated',
 	'antispam-activated': '#/recommendations/antispam-activated',
@@ -547,6 +561,13 @@ export const getProductSlugForStep = ( state, step ) => {
 	return false;
 };
 
+const shouldRecommendVaultPress = ( state, isWooCommerceRequired = false ) => {
+	const sitePlan = getSitePlan( state ).product_slug;
+	const isFree = 'is-free-plan' === getPlanClass( sitePlan );
+
+	return isFree && isWooCommerceActive( state ) === isWooCommerceRequired;
+};
+
 const isConditionalRecommendationEnabled = ( state, step ) => {
 	const conditionalRecommendations = getConditionalRecommendations( state );
 	return (
@@ -565,6 +586,10 @@ const isStepEligibleToShow = ( state, step ) => {
 			return true;
 		case 'product-suggestions':
 			return isProductSuggestionsAvailable( state );
+		case 'vaultpress-backup':
+			return shouldRecommendVaultPress( state );
+		case 'vaultpress-for-woocommerce':
+			return shouldRecommendVaultPress( state, true );
 		case 'agency':
 			return !! getDataByKey( state, 'site-type-agency' );
 		case 'woocommerce':
@@ -598,6 +623,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'welcome__search':
 		case 'welcome__scan':
 		case 'welcome__backup':
+		case 'welcome__golden_token':
 			return true;
 		case 'antispam-activated':
 		case 'videopress-activated':

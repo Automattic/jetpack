@@ -80,9 +80,9 @@ function zeroBSCRM_CSVImporterLiteadmin_menu() {
 	global $zbs,$zeroBSCRM_CSVImporterLiteslugs; // req
 
 	wp_register_style( 'zerobscrm-csvimporter-admcss', ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.csvimporter' . wp_scripts_get_suffix() . '.css', array(), $zbs->version );
-	$csvAdminPage = add_submenu_page( null, 'CSV Importer', 'CSV Importer', 'admin_zerobs_customers', $zbs->slugs['csvlite'], 'zeroBSCRM_CSVImporterLitepages_app', 1 ); // $zeroBSCRM_CSVImporterLiteslugs['app']
-	add_action( "admin_print_styles-{$csvAdminPage}", 'zeroBSCRM_CSVImporter_lite_admin_styles' );
-	add_action( "admin_print_styles-{$csvAdminPage}", 'zeroBSCRM_global_admin_styles' ); // } and this.
+	$csv_admin_page = add_submenu_page( 'jpcrm-hidden', 'CSV Importer', 'CSV Importer', 'admin_zerobs_customers', $zbs->slugs['csvlite'], 'zeroBSCRM_CSVImporterLitepages_app', 1 ); // phpcs:ignore WordPress.WP.Capabilities.Unknown
+	add_action( "admin_print_styles-{$csv_admin_page}", 'zeroBSCRM_CSVImporter_lite_admin_styles' );
+	add_action( "admin_print_styles-{$csv_admin_page}", 'zeroBSCRM_global_admin_styles' ); // } and this.
 }
 add_action( 'zerobs_admin_menu', 'zeroBSCRM_CSVImporterLiteadmin_menu' );
 
@@ -138,26 +138,26 @@ function zeroBSCRM_CSVImporterLitepages_header( $subpage = '' ) {
 				</p>
 
 				<?php
-				// WLREMOVE
+				##WLREMOVE
 				if ( ! empty( $zbs->urls['extcsvimporterpro'] ) ) {
 					?>
 
-						<p><?php esc_html_e( 'Want to import companies as well as keep a record of your imports.', 'zero-bs-crm' ); ?>
+						<p><?php esc_html_e( 'Want to import companies as well as keep a record of your imports?', 'zero-bs-crm' ); ?>
 						<a href="<?php echo esc_url( $zbs->urls['extcsvimporterpro'] ); ?>" target="_blank">
 						<?php esc_html_e( 'CSV importer PRO is the perfect tool.', 'zero-bs-crm' ); ?></a></p>
 
 					<?php
 				}
-				// /WLREMOVE
+				##/WLREMOVE
 				?>
 
 				<br/>
 				<?php
-				// WLREMOVE
+				##WLREMOVE
 				?>
 				<a href="<?php echo esc_url( $zbs->urls['kbcsvformat'] ); ?>" target="_blank" class="ui button orange"><?php esc_html_e( 'Learn More', 'zero-bs-crm' ); ?></a>
 				<?php
-				// /WLREMOVE
+				##/WLREMOVE
 				?>
 				</div>
 				<div class="video">
@@ -246,7 +246,7 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 		}
 
 		// verify file extension and MIME
-		if ( ! jpcrm_file_check_mime_extension( $csv_file_data, '.csv', array( 'text/csv', 'text/plain' ) ) ) {
+		if ( ! jpcrm_file_check_mime_extension( $csv_file_data, '.csv', array( 'text/csv', 'text/plain', 'application/csv' ) ) ) {
 			throw new Exception( __( 'Your file is not a correctly-formatted CSV file. Please check your file format. If you continue to have issues please contact support.', 'zero-bs-crm' ) );
 		}
 
@@ -286,7 +286,7 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 		// Retrieve fields
 		$field_map          = array();
 		$mapped_field_count = 0;
-		for ( $fieldI = 1; $fieldI <= 30; $fieldI++ ) {
+		for ( $fieldI = 0; $fieldI <= 30; $fieldI++ ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// Default to ignore
 			$map_to = 'ignorezbs';
@@ -311,7 +311,7 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 		if ( $mapped_field_count === 0 ) {
 			// delete the file
 			unlink( $file_path );
-			throw new Exception( __( 'No fields were mapped. You cannot import customers without at least one field mapped to a customer attribute.', 'zero-bs-crm' ) );
+			throw new Exception( __( 'No fields were mapped. You cannot import contacts without at least one field mapped to a contact attribute.', 'zero-bs-crm' ) );
 		}
 	}
 
@@ -325,18 +325,21 @@ function jpcrm_csvimporter_lite_preflight_checks( $stage ) {
 		throw new Exception( __( 'There was an error processing your CSV file. Please try again.', 'zero-bs-crm' ) );
 	}
 
-	// Get CSV data
-	$csv_data = file_get_contents( $file_path );
+	$csv_data = array();
+
+	$file = fopen( $file_path, 'r' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+	while ( ! feof( $file ) ) {
+		$csv_data[] = fgetcsv( $file );
+	}
+
+	fclose( $file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
 
 	// no lines or empty first line
 	if ( empty( $csv_data ) ) {
 		// delete the file
-		unlink( $file_path );
+		unlink( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
 		throw new Exception( __( 'We did not find any usable lines in the provided file. If you are having continued problems please contact support.', 'zero-bs-crm' ) );
 	}
-
-	$csv_data = strip_tags( $csv_data );
-	$csv_data = preg_split( "/\\r\\n|\\r|\\n/", $csv_data );
 
 	// Count lines
 	$num_lines         = count( $csv_data );
@@ -400,13 +403,13 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 			?>
 			<div class="zbscrm-csvimport-wrap">
-				<h2><?php esc_html_e( 'Map Columns from your CSV to Customer Fields', 'zero-bs-crm' ); ?></h2>
+				<h2><?php esc_html_e( 'Map columns from your CSV to contact fields', 'zero-bs-crm' ); ?></h2>
 				<?php
 				if ( isset( $stageError ) && ! empty( $stageError ) ) {
 					zeroBSCRM_html_msg( -1, $stageError ); }
 				?>
 				<div class="zbscrm-csv-map">
-					<p class="zbscrm-csv-map-help"><?php esc_html_e( 'Your CSV File has been successfully uploaded. Before we can complete your import, you\'ll need to specify which field in your CSV file matches which field in your CRM.<br />You can do so by using the drop down options below:', 'zero-bs-crm' ); ?></p>
+					<p class="zbscrm-csv-map-help"><?php esc_html_e( 'Your CSV file has been successfully uploaded. Please map your CSV columns to their corresponding CRM fields with the drop down options below.', 'zero-bs-crm' ); ?></p>
 					<form method="post" class="zbscrm-csv-map-form">
 						<input type="hidden" id="zbscrmcsvimpstage" name="zbscrmcsvimpstage" value="2" />
 						<input type="hidden" id="zbscrmcsvimpf" name="zbscrmcsvimpf" value="<?php echo esc_attr( $file_details['public_name'] ); ?>" />
@@ -415,7 +418,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						<hr />
 						<div class="zbscrm-csv-map-ignorefirst">
 							<input type="checkbox" id="zbscrmcsvimpignorefirst" name="zbscrmcsvimpignorefirst" value="1" />
-							<label for="zbscrmcsvimpignorefirst" ><?php echo esc_html__( 'Ignore first line of CSV file when running import.', 'zero-bs-crm' ) . '<br />' . esc_html__( 'Use this if you have a "header line" in your CSV file.)', 'zero-bs-crm' ); ?></label>
+							<label for="zbscrmcsvimpignorefirst" ><?php echo esc_html__( 'Ignore first line of CSV file when running import.', 'zero-bs-crm' ) . '<br />' . esc_html__( 'Use this if you have a "header line" in your CSV file.', 'zero-bs-crm' ); ?></label>
 						</div>
 						<hr />
 
@@ -424,8 +427,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 							// } Cycle through each field and display a mapping option
 							// } Using first line of import
-							$firstLine      = $file_details['csv_data'][0];
-							$firstLineParts = explode( ',', $firstLine );
+							$first_line_parts = $file_details['csv_data'][0];
 
 							// } Retrieve possible map fields from fields model
 							$possibleFields = array();
@@ -443,7 +445,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 							// } Loop
 							$indx = 1;
-						foreach ( $firstLineParts as $userField ) {
+						foreach ( $first_line_parts as $userField ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							// } Clean user field - ""
 							if ( substr( $userField, 0, 1 ) == '"' && substr( $userField, -1 ) == '"' ) {
@@ -478,7 +480,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						?>
 							<hr />
 						<div style="text-align:center">
-							<button type="submit" name="csv-map-submit" id="csv-map-submit" class="button button-primary button-large" type="submit"><?php esc_html_e( 'Continue', 'zero-bs-crm' ); ?></button>	
+							<button type="submit" name="csv-map-submit" id="csv-map-submit" class="ui button button-primary button-large green" type="submit"><?php esc_html_e( 'Continue', 'zero-bs-crm' ); ?></button>	
 						</div>
 					</form>
 				</div>
@@ -493,19 +495,22 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 			// Stolen from plugin-install.php?tab=upload
 			?>
 			<div class="zbscrm-csvimport-wrap">
-				<h2>Complete Customer Import</h2>
+				<h2>Verify field mapping</h2>
 				<?php
 				if ( isset( $stageError ) && ! empty( $stageError ) ) {
 					zeroBSCRM_html_msg( -1, $stageError ); }
 				?>
 				<div class="zbscrm-confirmimport-csv">
-					<p class="zbscrm-csv-help"><?php __( 'Ready to run the import.<br />Please confirm the following is correct <i>before</i> continuing.', 'zero-bs-crm' ); ?><br /></p>
-					<div style=""><?php echo zeroBSCRM_html_msg( 1, __( 'Note: There is no easy way to "undo" a CSV import. To remove any customers that have been added you will need to manually remove them.', 'zero-bs-crm' ) ); ?>
+					<div>
+						<?php
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						echo zeroBSCRM_html_msg( 1, esc_html__( 'Note: There is no automatic way to undo a CSV import. To remove any contacts that have been added you will need to manually remove them.', 'zero-bs-crm' ) );
+						?>
 					<form method="post" enctype="multipart/form-data" class="zbscrm-csv-import-form">
 						<input type="hidden" id="zbscrmcsvimpstage" name="zbscrmcsvimpstage" value="3" />
 						<input type="hidden" id="zbscrmcsvimpf" name="zbscrmcsvimpf" value="<?php echo esc_attr( $file_details['public_name'] ); ?>" />
 						<?php wp_nonce_field( 'zbscrm_csv_import', 'zbscrmcsvimportnonce' ); ?>
-						<h3>Import <?php echo esc_html( zeroBSCRM_prettifyLongInts( $file_details['num_lines'] ) ); ?> Customers</h3>
+						<h3>Import <?php echo esc_html( zeroBSCRM_prettifyLongInts( $file_details['num_lines'] ) ); ?> Contacts</h3>
 						<hr />
 						<?php if ( $file_details['ignore_first_line'] ) { ?>
 							<p style="font-size:16px;text-align:center;">Ignore first line of CSV <i class="fa fa-check"></i></p>
@@ -517,8 +522,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 						// Cycle through each field
 						// Using first line of import
-						$firstLine      = $file_details['csv_data'][0];
-						$firstLineParts = explode( ',', $firstLine );
+						$first_line_parts = $file_details['csv_data'][0];
 
 						foreach ( $file_details['field_map'] as $fieldID => $fieldTarget ) {
 
@@ -532,8 +536,8 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 							}
 
 							$fromStr = '';
-							if ( isset( $firstLineParts[ $fieldID - 1 ] ) ) {
-								$fromStr = $firstLineParts[ $fieldID - 1 ];
+							if ( isset( $first_line_parts[ $fieldID - 1 ] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+								$fromStr = $first_line_parts[ $fieldID - 1 ]; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							}
 
 							// Clean user field - ""
@@ -583,7 +587,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						?>
 						<hr />
 						<div style="text-align:center">
-							<button type="submit" name="csv-map-submit" id="csv-map-submit" class="button button-primary button-large" type="submit"><?php esc_html_e( 'Run Import', 'zero-bs-crm' ); ?></button>	
+							<button type="submit" name="csv-map-submit" id="csv-map-submit" class="ui button button-primary button-large green" type="submit"><?php esc_html_e( 'Run import', 'zero-bs-crm' ); ?></button>	
 						</div>
 					</form>
 				</div>
@@ -598,13 +602,18 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 			?>
 			<div class="zbscrm-csvimport-wrap">
-				<h2><?php esc_html_e( 'Running Import...', 'zero-bs-crm' ); ?></h2>
+				<h2 id="jpcrm_final_step_heading"><?php esc_html_e( 'Running import...', 'zero-bs-crm' ); ?></h2>
 				<?php
 				if ( isset( $stageError ) && ! empty( $stageError ) ) {
 					zeroBSCRM_html_msg( -1, $stageError ); }
 				?>
-				<div class="zbscrm-final-stage">
-					<div class="zbscrm-import-log">
+				<div class="zbscrm-final-stage" style="text-align: center;">
+					<p>New contacts added: <span id="jpcrm_new_contact_count">0</span></p>
+					<p>Existing contacts updated: <span id="jpcrm_update_contact_count">0</span></p>
+					<button id="jpcrm_toggle_log_button" class="ui button grey"><?php esc_html_e( 'Toggle log', 'zero-bs-crm' ); ?></button>
+					<a id="jpcrm_import_finish_button" href="<?php echo jpcrm_esc_link( $zbs->slugs['managecontacts'] ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" class="ui button green hidden"><?php esc_html_e( 'Finish', 'zero-bs-crm' ); ?></a>
+				</div>
+					<div id="jpcrm_import_log_div" class="zbscrm-import-log hidden">
 						<div class="zbscrm-import-log-line"><?php esc_html_e( 'Loading CSV File...', 'zero-bs-crm' ); ?> <i class="fa fa-check"></i></div>
 						<div class="zbscrm-import-log-line"><?php esc_html_e( 'Parsing rows...', 'zero-bs-crm' ); ?> <i class="fa fa-check"></i></div>
 						<div class="zbscrm-import-log-line"><?php echo esc_html( sprintf( __( 'Beginning Import of %s rows...', 'zero-bs-crm' ), zeroBSCRM_prettifyLongInts( $file_details['num_lines'] ) ) ); ?></div>
@@ -615,7 +624,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						$linesAdded         = 0;
 						$existingOverwrites = array();
 						$brStrs             = array( '<br>', '<BR>', '<br />', '<BR />', '<br/>', '<BR/>' );
-						foreach ( $file_details['csv_data'] as $line ) {
+						foreach ( $file_details['csv_data'] as $lineParts ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 							// } Check line
 							if ( $lineIndx === 0 && $file_details['ignore_first_line'] ) {
@@ -623,10 +632,6 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 								echo '<div class="zbscrm-import-log-line">' . esc_html__( 'Skipping header row...', 'zero-bs-crm' ) . '<i class="fa fa-check"></i></div>';
 
 							} else {
-
-								// } split
-								$lineParts = explode( ',', $line );
-								// debug echo '<pre>'; print_r(array($lineParts,$fieldMap)); echo '</pre>';
 
 								// } build arr
 								$customerFields = array();
@@ -653,18 +658,11 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 										$cleanUserField = trim( $cleanUserField );
 
-										// } Clean user field - ""
-										if ( substr( $cleanUserField, 0, 1 ) == '"' && substr( $cleanUserField, -1 ) == '"' ) {
-											$cleanUserField = substr( $cleanUserField, 1, strlen( $cleanUserField ) - 2 );
-										}
-										// } Clean user field - ''
-										if ( substr( $cleanUserField, 0, 1 ) == "'" && substr( $cleanUserField, -1 ) == "'" ) {
-											$cleanUserField = substr( $cleanUserField, 1, strlen( $cleanUserField ) - 2 );
-										}
-
 										if ( $cleanUserField == 'NULL' ) {
 											$cleanUserField = '';
 										}
+
+										$cleanUserField = sanitize_text_field( $cleanUserField ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 										// } set customer fields
 										$customerFields[ 'zbsc_' . $fieldTarget ] = $cleanUserField;
@@ -676,7 +674,8 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 								if ( count( $customerFields ) > 0 ) {
 
 									// } Try and find a unique id for this user
-									$userUniqueID = md5( $line . '#' . $file_details['public_name'] );
+									// adjusted for backward-compatibility, but this should be rewritten
+									$userUniqueID = md5( implode( ',', $lineParts ) . '#' . $file_details['public_name'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 										// } 1st use email if there
 									if ( isset( $customerFields['zbsc_email'] ) && ! empty( $customerFields['zbsc_email'] ) ) {
@@ -686,13 +685,14 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 										// } else use md5 of the line + Filename
 
 									// } If no STATUS have to add one!
+									$status_override_value = null;
 									if ( ! isset( $customerFields['zbsc_status'] ) ) {
 
 										// } Get from setting, if present
 										if ( isset( $settings['defaultcustomerstatus'] ) && ! empty( $settings['defaultcustomerstatus'] ) ) {
-											$customerFields['zbsc_status'] = $settings['defaultcustomerstatus'];
+											$status_override_value = $settings['defaultcustomerstatus'];
 										} else {
-											$customerFields['zbsc_status'] = 'Customer';
+											$status_override_value = 'Contact';
 										}
 									}
 
@@ -706,6 +706,34 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 										}
 
 										$existingOverwrites[] = $thisDupeRef;
+									}
+
+									if ( ! empty( $potentialCustomerID ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+										// We could modify `zeroBS_integrations_addOrUpdateCustomer`
+										// to touch only on the fields we are passing to the function,
+										// but that function is used in other places and this could
+										// result in unwanted side effects.
+										// Instead we are passing all original fields
+										// to the function, and overriding only the ones
+										// we want.
+										$original_contact = $zbs->DAL->contacts->getContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+											$potentialCustomerID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+											array(
+												'withCustomFields' => true,
+												'ignoreowner' => true,
+											)
+										);
+										foreach ( $original_contact as $original_key => $original_value ) {
+											// We need to prefix all fields coming from the above function, because
+											// `zeroBS_integrations_addOrUpdateCustomer` expects the fields to be prefixed
+											// (this is an older function).
+											$original_contact[ 'zbsc_' . $original_key ] = $original_value;
+											unset( $original_contact[ $original_key ] );
+										}
+										$customerFields = array_merge( $original_contact, $customerFields ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									} else {
+										// We should override the status only when adding a new contact.
+										$customerFields['zbsc_status'] = ! empty( $status_override_value ) ? $status_override_value : $customerFields['zbsc_status']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 									}
 
 									// } Add customer
@@ -748,7 +776,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 							// any of these?
 						if ( count( $existingOverwrites ) > 0 ) {
 
-							echo '<div class="zbscrm-import-log-line"><strong>' . esc_html__( 'The following customers were already in your Jetpack CRM, and were updated:', 'zero-bs-crm' ) . '</strong></div>';
+							echo '<div class="zbscrm-import-log-line"><strong>' . esc_html__( 'The following contacts were already in your Jetpack CRM, and were updated:', 'zero-bs-crm' ) . '</strong></div>';
 
 							foreach ( $existingOverwrites as $l ) {
 
@@ -763,10 +791,21 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 
 						?>
 						<hr />
-						<button type="button" class="button button-primary button-large" onclick="javascript:window.location='admin.php?page=<?php echo esc_attr( $zbs->slugs['datatools'] ); ?>';"><?php esc_html_e( 'Finish', 'zero-bs-crm' ); ?></button>
 					</div>
-				</div>
 			</div>
+			<script>
+				// these are some quick hacks for better usability until the importer rewrite
+
+				function jpcrm_toggle_csv_log() {
+					document.getElementById('jpcrm_import_log_div').classList.toggle('hidden');
+				}
+
+				document.getElementById('jpcrm_toggle_log_button').addEventListener('click',jpcrm_toggle_csv_log);
+				document.getElementById('jpcrm_final_step_heading').innerHTML = '<?php esc_html_e( 'Import complete!', 'zero-bs-crm' ); ?>';
+				document.getElementById('jpcrm_new_contact_count').innerHTML = <?php echo esc_html( $linesAdded ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>;
+				document.getElementById('jpcrm_update_contact_count').innerHTML = <?php echo esc_html( count( $existingOverwrites ) ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase */ ?>;
+				document.getElementById('jpcrm_import_finish_button').classList.remove('hidden');
+			</script>
 			<?php
 
 			break;
@@ -777,20 +816,20 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 			// } Stolen from plugin-install.php?tab=upload
 			?>
 			<div class="zbscrm-csvimport-wrap">
-				<h2><?php esc_html_e( 'Import Customers from a CSV File', 'zero-bs-crm' ); ?></h2>
+				<h2><?php esc_html_e( 'Import contacts from a CSV file', 'zero-bs-crm' ); ?></h2>
 				<?php
 				if ( isset( $stageError ) && ! empty( $stageError ) ) {
 					zeroBSCRM_html_msg( -1, $stageError ); }
 				?>
 				<div class="zbscrm-upload-csv">
-					<p class="zbscrm-csv-import-help"><?php esc_html_e( 'If you have a CSV file of customers that you would like to import into Jetpack CRM, you can start the import wizard by uploading your .CSV file here.', 'zero-bs-crm' ); ?></p>
+					<p class="zbscrm-csv-import-help"><?php esc_html_e( 'If you have a CSV file of contacts that you would like to import into Jetpack CRM, you can start the import wizard by uploading your .CSV file here.', 'zero-bs-crm' ); ?></p>
 					<form method="post" enctype="multipart/form-data" class="zbscrm-csv-import-form">
 						<input type="hidden" id="zbscrmcsvimpstage" name="zbscrmcsvimpstage" value="1" />
 						<?php wp_nonce_field( 'zbscrm_csv_import', 'zbscrmcsvimportnonce' ); ?>
 						<label class="screen-reader-text" for="zbscrmcsvfile"><?php esc_html_e( '.CSV file', 'zero-bs-crm' ); ?></label>
 						<input type="file" id="zbscrmcsvfile" name="zbscrmcsvfile">
 						<div class="csv-import__start-btn">
-							<input type="submit" name="csv-file-submit" id="csv-file-submit" class="ui button green" value="<?php esc_attr_e( 'Start CSV Import Now', 'zero-bs-crm' ); ?>">
+							<input type="submit" name="csv-file-submit" id="csv-file-submit" class="ui button green" value="<?php esc_attr_e( 'Upload CSV file', 'zero-bs-crm' ); ?>">
 						</div>
 					</form>
 				</div>
@@ -798,7 +837,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 			<?php
 
 			// } Lite upsell (remove from rebrander) but also make it translation OK.
-			// WLREMOVE
+			##WLREMOVE
 
 				// WH added: Is now polite to License-key based settings like 'entrepreneur' doesn't try and upsell
 				// this might be a bit easy to "hack out" hmmmm
@@ -828,7 +867,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 					</div>
 					<?php
 			}
-			// /WLREMOVE
+			##/WLREMOVE
 
 			break;
 

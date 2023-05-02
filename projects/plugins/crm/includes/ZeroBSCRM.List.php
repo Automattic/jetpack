@@ -532,9 +532,11 @@ class zeroBSCRM_list{
                                     <div id="zbs-list-view-filter-options-current" class="zbs-filter-manager-connected ui-sortable">
 
                                     <?php if (is_array($currentFilterButtons)) foreach ($currentFilterButtons as $filterButtonKey => $filterButton){
-
-                                        ?><div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo esc_html( $filterButton[0] ); ?></div><?php
-
+										// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactored.
+										?>
+										<div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo wp_kses( $filterButton[0], array( 'i' => array( 'class' => array() ) ) ); ?></div>
+										<?php
+										// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                                     } ?>
 
 
@@ -549,12 +551,15 @@ class zeroBSCRM_list{
                                     <div id="zbs-list-view-filter-options-available" class="zbs-filter-manager-connected ui-sortable">
 
                                     <?php foreach ($allFilterButtons as $filterButtonKey => $filterButton){
+										// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactored.
+										if ( ! array_key_exists( $filterButtonKey, $currentFilterButtons ) ) {
 
-                                                if (!array_key_exists($filterButtonKey, $currentFilterButtons)){
+											?>
+												<div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo wp_kses( $filterButton[0], array( 'i' => array( 'class' => array() ) ) ); ?></div>
+												<?php
 
-                                                    ?><div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo esc_html( $filterButton[0] ); ?></div><?php
-
-                                                }
+										}
+										// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                                     } ?>
 
@@ -914,8 +919,14 @@ class zeroBSCRM_list{
 
                             if ($buttonCount > 0) echo ',';
                             
-                            #} Hard coded, lazy
-                            echo "{namestr:'". esc_html( zeroBSCRM_slashOut($button[0],true) ) ."',fieldstr:'". esc_html( $buttonKey ) ."'}";
+							// Hard coded, lazy
+							printf(
+								"{namestr:'%s',fieldstr:'%s'}",
+								wp_kses( $button[0], array( 'i' => array( 'class' => array() ) ) ),
+								// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactored.
+								esc_html( $buttonKey )
+								// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							);
 
                             $buttonCount++;
 
@@ -1087,41 +1098,37 @@ class zeroBSCRM_list{
 
             ?>';
             var zbsClick2CallType = parseInt('<?php echo esc_url( zeroBSCRM_getSetting('clicktocalltype') ); ?>');
-            var zbsListViewLangLabels = {
 
-                'go_button': '<?php zeroBSCRM_slashOut( __( 'Go', 'zero-bs-crm' ) ); ?>',
+			<?php
+			$jpcrm_listview_lang_labels = array(
 
-                'rows_selected_x': '<?php zeroBSCRM_slashOut( __( 'Bulk actions (%s rows selected)', 'zero-bs-crm' ) ); ?>',
-                'rows_selected_1': '<?php zeroBSCRM_slashOut( __( 'Bulk actions (1 row selected)', 'zero-bs-crm') ); ?>',
-                'rows_selected_0': '<?php zeroBSCRM_slashOut( __( 'Bulk actions (no rows selected)', 'zero-bs-crm' ) ); ?>',
-                'zbs_edit': '<?php zeroBSCRM_slashOut(__('Edit',"zero-bs-crm")); ?>',
-                'today': '<?php zeroBSCRM_slashOut(__('Today',"zero-bs-crm")); ?>',
-                'days': '<?php zeroBSCRM_slashOut(__('days',"zero-bs-crm")); ?>',
-                'daysago': '<?php zeroBSCRM_slashOut(__('days ago',"zero-bs-crm")); ?>',
-                'notcontacted': '<?php zeroBSCRM_slashOut(__('Not Contacted',"zero-bs-crm")); ?>',
-                'yesterday': '<?php zeroBSCRM_slashOut(__('Yesterday',"zero-bs-crm")); ?>',
+				'go_button'          => esc_html__( 'Go', 'zero-bs-crm' ),
+				/* translators: Placeholder is the number of selected rows. */
+				'rows_selected_x'    => esc_html__( 'Bulk actions (%s rows selected)', 'zero-bs-crm' ),
+				'rows_selected_1'    => esc_html__( 'Bulk actions (1 row selected)', 'zero-bs-crm' ),
+				'rows_selected_0'    => esc_html__( 'Bulk actions (no rows selected)', 'zero-bs-crm' ),
+				'zbs_edit'           => esc_html__( 'Edit', 'zero-bs-crm' ),
+				'today'              => esc_html__( 'Today', 'zero-bs-crm' ),
+				'days'               => esc_html__( 'days', 'zero-bs-crm' ),
+				'daysago'            => esc_html__( 'days ago', 'zero-bs-crm' ),
+				'notcontacted'       => esc_html__( 'Not Contacted', 'zero-bs-crm' ),
+				'yesterday'          => esc_html__( 'Yesterday', 'zero-bs-crm' ),
+				'filteredby'         => esc_html__( 'Filtered By', 'zero-bs-crm' ),
+				'notcontactedin'     => esc_html__( 'Not Contacted in', 'zero-bs-crm' ),
+				'containing'         => esc_html__( 'Containing', 'zero-bs-crm' ),
+				'couldntupdate'      => esc_html__( 'Could not update', 'zero-bs-crm' ),
+				'couldntupdatedeets' => esc_html__( 'This record could not be updated. Please try again, if this persists please let admin know.', 'zero-bs-crm' ),
 
-                // filtered by str
-                'filteredby': '<?php zeroBSCRM_slashOut(__('Filtered By',"zero-bs-crm")); ?>',
-                'notcontactedin': '<?php zeroBSCRM_slashOut(__('Not Contacted in',"zero-bs-crm")); ?>',
-                'containing': '<?php zeroBSCRM_slashOut(__('Containing',"zero-bs-crm")); ?>',
-                
-                // for inline-edits
-                'couldntupdate': '<?php zeroBSCRM_slashOut(__('Could not update',"zero-bs-crm")); ?>',
-                'couldntupdatedeets': '<?php zeroBSCRM_slashOut(__('This record could not be updated. Please try again, if this persists please let admin know.',"zero-bs-crm")); ?>',
+			);
 
-                <?php $labelCount = 0; 
-                if (count($this->langLabels) > 0) foreach ($this->langLabels as $labelK => $labelV){
+			// add any object-specific language labels
+			if ( count( $this->langLabels ) > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-                    if ($labelCount > 0) echo ',';
+				$jpcrm_listview_lang_labels = array_merge( $jpcrm_listview_lang_labels, $this->langLabels ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-                    echo "'". esc_html( $labelK )."':'". esc_html( zeroBSCRM_slashOut($labelV,true) )."'";
-
-                    $labelCount++;
-
-                } ?>
-
-            };
+			}
+			?>
+			var zbsListViewLangLabels = <?php echo wp_json_encode( $jpcrm_listview_lang_labels ); ?>;
             var zbsTagsForBulkActions = <?php
 
                     // make simplified

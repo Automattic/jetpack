@@ -24,14 +24,9 @@
 	padding: 0 !important;
 }
 
-.tos {
-	display: block;
-	color: var( --jp-gray-50 );
-	max-width: 500px;
-
-	a {
-		color: inherit;
-	}
+.terms-of-service {
+	margin-top: calc(var(--spacing-base) * 4);
+	margin-bottom: calc(var(--spacing-base) * 3);
 }
 
 .sidebar {

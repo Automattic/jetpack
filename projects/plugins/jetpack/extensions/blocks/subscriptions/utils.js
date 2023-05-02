@@ -30,10 +30,14 @@ export const isNewsletterFeatureEnabled = () => {
 	return getJetpackData()?.jetpack?.is_newsletter_feature_enabled ?? false;
 };
 
+export const showNewsletterAccessPanel = () => {
+	return getJetpackData()?.jetpack?.is_newsletter_panel_active ?? false;
+};
+
 export default function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
 	const addPaidPlanButtonText = hasNewsletterPlans
 		? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
-		: __( 'Add paid plan', 'jetpack' );
+		: __( 'Add Payments', 'jetpack' );
 
 	if ( 'toolbar' === context ) {
 		return (

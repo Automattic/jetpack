@@ -1,28 +1,25 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, Platform } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
 import { isUserConnected as getIsUserConnected } from '../../../lib/connection';
-import getMediaToken from '../../../lib/get-media-token';
-import { MediaTokenProps } from '../../../lib/get-media-token/types';
+import { fetchVideoItem } from '../../../lib/fetch-video-item';
 /**
  * Types
  */
-import {
-	WPCOMRestAPIVideosGetEndpointRequestArguments,
-	WPCOMRestAPIVideosGetEndpointResponseProps,
-} from '../../../types';
 import { UseVideoDataProps, UseVideoDataArgumentsProps, VideoDataProps } from './types';
+
+const isNative = Platform.isNative;
 
 const debug = debugFactory( 'videopress:video:use-video-data' );
 
 const isUserConnected = getIsUserConnected();
+
 /**
  * React hook to fetch the video data from the media library.
  *
@@ -39,49 +36,43 @@ export default function useVideoData( {
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
 
 	useEffect( () => {
-		if ( ! isUserConnected ) {
-			debug( 'User is not connected ❌' );
+		// Skip check for native as only simple WordPress.com sites are supported in the current native block.
+		// We can assume that all simple WordPress.com sites are connected.
+		// TODO: Add native connection logic for Jetpack-connected sites in future iterations.
+		if ( ! isUserConnected && ! isNative ) {
+			debug( 'User is not connected' );
 			return;
 		}
-
-		let gettingTokenAttempt = 0;
 
 		/**
 		 * Fetches the video videoData from the API.
 		 *
 		 * @param {string} token - The token to use in the request.
 		 */
-		async function fetchVideoItem( token: string | null = null ) {
+		async function setFromVideo( token: string | null = null ) {
 			try {
-				const params: WPCOMRestAPIVideosGetEndpointRequestArguments = {};
+				let response;
 
-				// Try to anticipate the video privacy, based on the block attributes.
-				let tokenData: MediaTokenProps;
-				if ( maybeIsPrivate ) {
-					tokenData = await getMediaToken( 'playback', { id, guid } );
+				// Some video data is not available immediately after upload, so we retry a few times.
+				for ( let retries = 0; retries < 5; retries++ ) {
+					response = await fetchVideoItem( {
+						guid,
+						isPrivate: maybeIsPrivate,
+						token,
+						skipRatingControl,
+					} );
+
+					if ( response.duration ) {
+						debug(
+							`video duration available: ${ response.duration }, retried ${ retries } times`,
+							response
+						);
+						break;
+					}
+
+					debug( `video duration not yet available, retrying (${ retries + 1 })`, response );
+					await new Promise( resolve => setTimeout( resolve, 1500 ) );
 				}
-
-				// Add the token to the request if it exists.
-				if ( token || tokenData?.token ) {
-					params.metadata_token = token || tokenData.token;
-				}
-
-				// Add the birthdate to skip the rating check if it's required.
-				if ( skipRatingControl ) {
-					params.birth_day = '1';
-					params.birth_month = '1';
-					params.birth_year = '2000';
-				}
-
-				const requestArgs = Object.keys( params ).length
-					? `?${ new URLSearchParams( params ).toString() }`
-					: '';
-
-				const response: WPCOMRestAPIVideosGetEndpointResponseProps = await apiFetch( {
-					url: `https://public-api.wordpress.com/rest/v1.1/videos/${ guid }${ requestArgs }`,
-					credentials: 'omit',
-					global: true,
-				} );
 
 				setIsRequestingVideoData( false );
 
@@ -89,6 +80,7 @@ export default function useVideoData( {
 				const filename = response.original?.split( '/' )?.at( -1 );
 
 				setVideoData( {
+					duration: response.duration,
 					allow_download: response.allow_download,
 					post_id: response.post_id,
 					guid: response.guid,
@@ -103,24 +95,6 @@ export default function useVideoData( {
 					private_enabled_for_site: response.private_enabled_for_site,
 				} );
 			} catch ( errorData ) {
-				if ( errorData?.error === 'auth' ) {
-					gettingTokenAttempt++;
-					debug( 'Authenticating error. Trying again: %o', gettingTokenAttempt + '/3' );
-					if ( gettingTokenAttempt > 3 ) {
-						debug( 'Too many attempts to get token. Aborting.' );
-						setIsRequestingVideoData( false );
-						throw new Error( errorData?.message ?? errorData );
-					}
-
-					const tokenData = await getMediaToken( 'playback', { id, guid } );
-					if ( ! tokenData?.token ) {
-						debug( 'Token is missing. Aborting.' );
-						setIsRequestingVideoData( false );
-						return;
-					}
-					return fetchVideoItem( tokenData.token );
-				}
-
 				setIsRequestingVideoData( false );
 				throw new Error( errorData?.message ?? errorData );
 			}
@@ -128,7 +102,7 @@ export default function useVideoData( {
 
 		if ( guid ) {
 			setIsRequestingVideoData( true );
-			fetchVideoItem();
+			setFromVideo();
 		}
 	}, [ id, guid ] );
 
