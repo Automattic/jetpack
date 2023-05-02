@@ -302,7 +302,7 @@ function wpcom_register_default_launchpad_checklists() {
 			'title'    => 'Start Writing',
 			'task_ids' => array(
 				'first_post_published',
-				'setup_free',
+				'setup_blog',
 				'domain_upsell',
 				'plan_selected',
 				'blog_launched',
