@@ -32,7 +32,7 @@ function register_default_checklists() {
 		array(
 			'id'                   => 'plan_selected',
 			'title'                => __( 'Choose a plan', 'jetpack-mu-wpcom' ),
-			'subtitle'             => get_plan_selected_subtitle(),
+			'subtitle'             => 'get_plan_selected_subtitle',
 			'is_complete_callback' => '__return_true',
 		)
 	);

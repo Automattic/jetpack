@@ -199,17 +199,32 @@ class Launchpad_Task_Lists {
 	 * @return Task Task with current state.
 	 */
 	private function build_task( $task ) {
-		$keys_to_keep = array( 'id', 'title', 'isLaunchTask', 'badge_text' );
-		$built_task   = array();
-		foreach ( $keys_to_keep as $key ) {
-			if ( isset( $task[ $key ] ) ) {
-				$built_task[ $key ] = $task[ $key ];
-			}
-		}
-
-		$built_task['completed'] = $this->is_task_complete( $task );
-		$built_task['disabled']  = $this->is_task_disabled( $task );
+		$built_task                 = array(
+			'id'    => $task['id'],
+			'title' => $task['title'],
+		);
+		$built_task['completed']    = $this->is_task_complete( $task );
+		$built_task['disabled']     = $this->is_task_disabled( $task );
+		$built_task['subtitle']     = $this->load_subtitle( $task );
+		$built_task['isLaunchTask'] = isset( $task['isLaunchTask'] ) ? $task['isLaunchTask'] : false;
+		$built_task['badge_text']   = isset( $task['badge_text'] ) ? $task['badge_text'] : '';
 		return $built_task;
+	}
+
+	/**
+	 * Loads a subtitle for a task, calling the callback if it exists.
+	 *
+	 * @param Task $task A task definition.
+	 * @return string The subtitle for the task.
+	 */
+	private function load_subtitle( $task ) {
+		if ( isset( $task['subtitle'] ) ) {
+			if ( is_callable( $task['subtitle'] ) ) {
+				return call_user_func( $task['subtitle'] );
+			}
+			return $task['subtitle'];
+		}
+		return '';
 	}
 
 	/**
