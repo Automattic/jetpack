@@ -208,7 +208,7 @@ class MyPlanHeader extends React.Component {
 					...productProps,
 					details: [ activation, expiration ],
 					tagLine: __(
-						'The most powerful WordPress sites: Top-tier security bundle, enhanced search.',
+						'The ultimate toolkit for best-in-class websites: complete security, performance, and growth.',
 						'jetpack'
 					),
 					title: __( 'Jetpack Complete', 'jetpack' ),
@@ -412,6 +412,17 @@ class MyPlanHeader extends React.Component {
 						'jetpack'
 					),
 					title: __( 'Jetpack Golden Token', 'jetpack' ),
+				};
+
+			case 'is-jetpack-starter-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'Essential security tools: real-time backups and comment spam protection.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Starter', 'jetpack' ),
 				};
 
 			default:

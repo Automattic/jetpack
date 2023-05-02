@@ -1,19 +1,21 @@
 <?php
 // phpcs:ignoreFile
 // This is a temporary file only active when the flag is enabled.
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 
-function jetpack_boost_mock_api( $count ) {
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack_Boost\Data_Sync\Image_Size_Analysis_Entry;
+
+function jetpack_boost_mock_api( $count, $paged = 1 ) {
 	$image_posts    = array();
-	$offset         = 0;
 	$posts_per_page = 10;
+
 
 	while ( count( $image_posts ) < $count ) {
 		$args = array(
 			'post_type'      => 'post',
 			'post_status'    => 'publish',
 			'posts_per_page' => $posts_per_page,
-			'offset'         => $offset,
+			'paged'          => $paged,
 			'orderby'        => 'date',
 			'order'          => 'DESC',
 		);
@@ -42,13 +44,13 @@ function jetpack_boost_mock_api( $count ) {
 				$image_meta['image']['url'] = $image_url;
 
 				// Get image dimensions.
-				list( $width, $height )                        = getimagesize( $image_url );
-				$random                                        = mt_rand( 50, 90 ) / 100;
-				$image_meta['image']['dimensions']['file']     = array(
+				list( $width, $height ) = getimagesize( $image_url );
+				$random                                              = random_int( 50, 90 ) / 100;
+				$image_meta['image']['dimensions']['file']           = array(
 					'width'  => $width,
 					'height' => $height,
 				);
-				$image_meta['image']['dimensions']['expected'] = array(
+				$image_meta['image']['dimensions']['expected']       = array(
 					'width'  => $width * $random,
 					'height' => $height * $random,
 				);
@@ -67,7 +69,7 @@ function jetpack_boost_mock_api( $count ) {
 				$image_meta['page']['url']   = $permalink;
 				$image_meta['page']['title'] = get_the_title( $post->ID );
 
-				$image_meta['device_type'] = mt_rand( 1, 2 ) === 1 ? 'phone' : 'desktop';
+				$image_meta['device_type'] = random_int( 1, 2 ) === 1 ? 'phone' : 'desktop';
 
 				$image_meta['instructions'] = 'Resize the image to the expected dimensions and compress it.';
 
@@ -75,18 +77,20 @@ function jetpack_boost_mock_api( $count ) {
 			}
 		}
 
-		$offset += $posts_per_page;
 	}
 
-	return array(
-		'last_updated' => 1682419855474,
-		'images'       => $image_posts,
-	);
+	return $image_posts;
 }
 
 $image_size_analysis = Schema::as_assoc_array(
 	array(
 		'last_updated' => Schema::as_number(),
+		'pagination'   => Schema::as_assoc_array(
+			[
+				'current' => Schema::as_number(),
+				'total'   => Schema::as_number(),
+			]
+		),
 		'images'       => Schema::as_array(
 			Schema::as_assoc_array(
 				array(
@@ -137,6 +141,8 @@ $image_size_analysis = Schema::as_assoc_array(
 			)
 		),
 	)
-)->fallback( jetpack_boost_mock_api( 21 ) );
+);
 
-jetpack_boost_register_option( 'image_size_analysis', $image_size_analysis );
+
+$entry = new Image_Size_Analysis_Entry();
+jetpack_boost_register_option( 'image_size_analysis', $image_size_analysis, $entry );

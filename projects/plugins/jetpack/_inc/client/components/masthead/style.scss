@@ -83,7 +83,8 @@
 		background: $white;
 		color: $black;
 		font-weight: 600;
-		border: 1.5px solid $gray-5;
+		border: 1.5px solid $black;
+		box-shadow: none;
 
 		&:first-child {
 			border-right: 0;
