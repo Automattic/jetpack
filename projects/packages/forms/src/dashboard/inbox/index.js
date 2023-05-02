@@ -214,7 +214,7 @@ const Inbox = () => {
 	const sourceList = useMemo( () => {
 		const list = map( sourceFilter, item => ( {
 			label: item.title,
-			value: item.id,
+			value: `${ item.id }`,
 		} ) );
 
 		return [
