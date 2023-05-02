@@ -119,7 +119,8 @@ const useVideoPlayer = (
 
 	// Listen player events.
 	useEffect( () => {
-		if ( ! sandboxIFrameWindow ) {
+		const win = getIframeWindowFromRef( iFrameRef );
+		if ( ! win ) {
 			return;
 		}
 
@@ -128,13 +129,13 @@ const useVideoPlayer = (
 		}
 
 		debug( 'player is ready to listen events' );
-		sandboxIFrameWindow.addEventListener( 'message', listenEventsHandler );
+		win.addEventListener( 'message', listenEventsHandler );
 
 		return () => {
 			// Remove the listener when the component is unmounted.
-			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
+			win.removeEventListener( 'message', listenEventsHandler );
 		};
-	}, [ sandboxIFrameWindow, isRequestingPreview, wasPreviewOnHoverJustEnabled, previewOnHover ] );
+	}, [ iFrameRef, isRequestingPreview, wasPreviewOnHoverJustEnabled, previewOnHover ] );
 
 	const play = useCallback( () => {
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
