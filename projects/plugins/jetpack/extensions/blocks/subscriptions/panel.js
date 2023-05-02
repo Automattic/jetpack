@@ -55,7 +55,7 @@ function AccessLevelSelectorPanel( {
 	}
 
 	return (
-		<PluginDocumentSettingPanel title={ __( 'Newsletter', 'jetpack' ) }>
+		<PluginDocumentSettingPanel title={ __( 'Delivery settings', 'jetpack' ) }>
 			<NewsletterAccess
 				setPostMeta={ setPostMeta }
 				accessLevel={ accessLevel }
@@ -165,7 +165,7 @@ export default function SubscribePanels() {
 				initialOpen
 				title={
 					<>
-						{ __( 'Newsletter:', 'jetpack' ) }
+						{ __( 'Delivery settings', 'jetpack' ) }
 						{ accessLevel && (
 							<span className={ 'editor-post-publish-panel__link' }>
 								{ accessOptions[ accessLevel ].label }
