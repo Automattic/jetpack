@@ -5697,7 +5697,7 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 	}
 
 /**
- * Helper function calculate the number of deleted invoices or transactions and the
+ * Helper function to calculate the number of deleted invoices or transactions and the
  * total value of those invoices, for any particular contact / company.
  *
  * @param array $all_invoices An array of all invoice or transaction data for a contact / company.
