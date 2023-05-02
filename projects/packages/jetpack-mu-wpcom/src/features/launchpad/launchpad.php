@@ -54,9 +54,9 @@ function register_default_checklists() {
 
 	register_launchpad_task(
 		array(
-			'id'        => 'first_post_published_newsletter',
-			'title'     => __( 'Start writing', 'jetpack-mu-wpcom' ),
-			'completed' => get_checklist_task( 'first_post_published' ),
+			'id'     => 'first_post_published_newsletter',
+			'title'  => __( 'Start writing', 'jetpack-mu-wpcom' ),
+			'id_map' => 'first_post_published',
 		)
 	);
 
@@ -87,9 +87,10 @@ function register_default_checklists() {
 
 	register_launchpad_task(
 		array(
-			'id'     => 'link_in_bio_launched',
-			'title'  => __( 'Launch your site', 'jetpack-mu-wpcom' ),
-			'id_map' => 'site_launched',
+			'id'          => 'link_in_bio_launched',
+			'title'       => __( 'Launch your site', 'jetpack-mu-wpcom' ),
+			'id_map'      => 'site_launched',
+			'is_disabled' => 'is_link_in_bio_launch_disabled',
 		)
 	);
 
@@ -103,19 +104,20 @@ function register_default_checklists() {
 
 	register_launchpad_task(
 		array(
-			'id'     => 'videopress_upload',
-			'title'  => __( 'Upload your first video', 'jetpack-mu-wpcom' ),
-			'id_map' => 'video_uploaded',
+			'id'          => 'videopress_upload',
+			'title'       => __( 'Upload your first video', 'jetpack-mu-wpcom' ),
+			'id_map'      => 'video_uploaded',
+			'is_disabled' => 'is_videopress_upload_disabled',
 		)
 	);
 
 	register_launchpad_task(
 		array(
-			'id'       => 'videopress_launched',
-			'title'    => __( 'Launch site', 'jetpack-mu-wpcom' ),
-			'id_map'   => 'site_launched',
+			'id'          => 'videopress_launched',
+			'title'       => __( 'Launch site', 'jetpack-mu-wpcom' ),
+			'id_map'      => 'site_launched',
 			// todo figure this one out
-			'disabled' => ! get_checklist_task( 'video_uploaded' ),
+			'is_disabled' => 'is_videopress_launch_disabled',
 		)
 	);
 
@@ -283,6 +285,33 @@ function register_default_checklists() {
 }
 // Running on priority 11 will allow anything that adds hooks on init with default priority 10 to add their hooks to the `wpcom_register_launchpad_tasks` action.
 add_action( 'init', 'register_default_checklists', 11 );
+
+/**
+ * Determines whether or not the videopress upload task is enabled
+ *
+ * @return boolean True if videopress upload task is enabled
+ */
+function is_videopress_upload_disabled() {
+	return get_checklist_task( 'video_uploaded' );
+}
+
+/**
+ * Determines whether or not the videopress launch task is enabled
+ *
+ * @return boolean True if videopress launch task is enabled
+ */
+function is_videopress_launch_disabled() {
+	return ! get_checklist_task( 'video_uploaded' );
+}
+
+/**
+ * Determines whether or not the link-in-bio launch task is enabled
+ *
+ * @return boolean True if link-in-bio launch task is enabled
+ */
+function is_link_in_bio_launch_disabled() {
+	return ! get_checklist_task( 'links_edited' );
+}
 
 /**
  * Determines whether or not design selected task is enabled

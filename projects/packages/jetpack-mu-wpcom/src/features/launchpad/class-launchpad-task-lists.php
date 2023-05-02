@@ -236,7 +236,7 @@ class Launchpad_Task_Lists {
 			return call_user_func( $task['is_complete_callback'] );
 		}
 		$statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$key      = isset( $task['id_compat'] ) ? $task['id_compat'] : $task['id'];
+		$key      = isset( $task['id_map'] ) ? $task['id_map'] : $task['id'];
 		return isset( $statuses[ $key ] ) ? $statuses[ $key ] : false;
 	}
 
