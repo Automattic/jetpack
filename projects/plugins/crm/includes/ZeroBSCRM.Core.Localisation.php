@@ -597,21 +597,6 @@ function zeroBSCRM_locale_getServerLocale() {
 	// limited use, e.g. flywheel returns 'C'
 	return setlocale( LC_ALL, 0 );
 }
-// setLocale wrapper
-// https://www.php.net/manual/en/function.setlocale.php
-function zeroBSCRM_locale_setServerLocale( $localeString = 'en_US' ) {
-
-	setlocale( LC_ALL, $localeString );
-}
-// reset locale to server default
-// https://www.php.net/manual/en/locale.getdefault.php
-function zeroBSCRM_locale_resetServerLocale() {
-
-		// This only works if intl installed (not default install for a lot of servs e.g. flywheel)
-	if ( class_exists( 'Locale' ) ) {
-		setlocale( LC_ALL, Locale::getDefault() );
-	}
-}
 
 /*
 ===========================================
