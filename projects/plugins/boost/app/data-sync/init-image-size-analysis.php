@@ -78,4 +78,5 @@ jetpack_boost_register_option(
 	'image_size_analysis_ignored_images',
 	Schema::as_array(
 		Schema::as_string()
-	)
+	)->fallback( array() )
+);
