@@ -72,3 +72,10 @@ $image_size_analysis = Schema::as_assoc_array(
 
 $entry = new Image_Size_Analysis_Entry();
 jetpack_boost_register_option( 'image_size_analysis', $image_size_analysis, $entry );
+// @TODO
+// Implement using class Storage_Post_Type
+jetpack_boost_register_option(
+	'image_size_analysis_ignored_images',
+	Schema::as_array(
+		Schema::as_string()
+	)
