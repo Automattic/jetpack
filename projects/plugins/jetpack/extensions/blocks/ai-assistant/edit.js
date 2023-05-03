@@ -73,10 +73,15 @@ export const createPrompt = (
 		return expandPrompt + promptSuffix;
 	}
 
+	// TODO: add some error handling if user supplied prompts or existing content is too short.
+
 	// We prevent a prompt if everything is empty.
 	// if ( ! postTitle && ! shorter_content && ! categoriesNames && ! tagsNames && ! userPrompt ) {
 	// 	return false;
 	// }
+
+	// TODO: decide if we want to use categories and tags in the prompt now that user is supplying their own prompt default.
+	// The following was copied over from the AI Paragraph block.
 
 	// if ( categoriesNames ) {
 	// 	/** translators: This will be the follow up of a prompt that will be sent to OpenAI based on comma-seperated category names. */
@@ -91,6 +96,7 @@ export const createPrompt = (
 	// return prompt.trim();
 };
 
+// TODO: move this into a separate component or switch the API to use streaming in which case this won't be needed.
 // This component displays the text word by word if show animation is true
 function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 	// This is the HTML to be displayed.
@@ -125,6 +131,7 @@ function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
 	);
 }
 
+//TODO: move this into a separate component or hook.
 function getImagesFromOpenAI(
 	prompt,
 	setAttributes,
@@ -194,6 +201,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		select( 'core/editor' ).getEditedPostAttribute( 'title' )
 	);
 
+	//TODO: decide if we still want to load categories and tags now user is providing the prompt by default.
+	// If not the following can be removed.
 	let loading = false;
 	const categories =
 		useSelect( select => select( 'core/editor' ).getEditedPostAttribute( 'categories' ) ) || [];
@@ -255,7 +264,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		const index = editor.getBlockIndex( clientId );
 		return editor.getBlocks().slice( 0, index ) ?? [];
 	} );
-
+	//TODO: move this into a hook?
 	const getSuggestionFromOpenAI = type => {
 		if ( !! attributes.content || isLoadingCompletion ) {
 			return;
@@ -307,7 +316,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				setIsLoadingCompletion( false );
 			} );
 	};
-
+	//TODO: move this into a separate component file.
 	const ImageWithSelect = ( { image, inModal = false } ) => {
 		return (
 			<Flex direction="column">
