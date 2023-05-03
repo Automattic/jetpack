@@ -16,7 +16,7 @@ class WPCOM_API_Image_Size_Analysis {
 
 		//		sleep(2); // Simulate a slow-ish API call
 
-		return array(
+		$results = array(
 			'query' => array(
 				'page'   => $this->page,
 				'group'  => $this->group,
@@ -28,6 +28,12 @@ class WPCOM_API_Image_Size_Analysis {
 				'images'       => jetpack_boost_mock_api( 10, $this->page ),
 			),
 		);
+
+		// Visual indication that groups are working
+		if ( $this->group !== 'all' ) {
+			shuffle( $results['data']['images'] );
+		}
+		return $results;
 	}
 
 	public function set_page( $page_number ) {

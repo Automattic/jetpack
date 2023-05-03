@@ -1,32 +1,32 @@
 <script lang="ts">
-	const categories = [
-		{
+	import { imageStore } from '../ApiMock';
+
+	const groups = {
+		all: {
+			name: 'All',
+			count: 22,
+		},
+		home: {
 			name: 'Homepage',
 			count: 2,
 		},
-		{
+		pages: {
 			name: 'Pages',
 			count: 7,
 		},
-		{
+		posts: {
 			name: 'Posts',
 			count: 0,
 		},
-		{
+		other: {
 			name: 'Other Content',
 			count: 13,
 		},
-	];
-
-	categories.unshift( {
-		name: 'All',
-		count: categories.map( category => category.count ).reduce( ( a, b ) => a + b, 0 ),
-	} );
-
-	categories.push( {
-		name: 'Ignored',
-		count: 0,
-	} );
+		ignored: {
+			name: 'Ignored',
+			count: 0,
+		},
+	};
 
 	function slugify( str: string ) {
 		return str
@@ -34,17 +34,18 @@
 			.replace( /[^a-z0-9]+/g, '-' )
 			.replace( /^-|-$/g, '' );
 	}
-
-	let active = 0;
 </script>
 
 <div class="jb-tabs">
-	{#each categories as category, key}
-		<div class="jb-tab jb-tab--{slugify( category.name )}" class:active={active === key}>
+	{#each Object.entries( groups ) as [key, group]}
+		<div
+			class="jb-tab jb-tab--{slugify( group.name )}"
+			class:active={$imageStore.query.group === key}
+		>
 			<div class="jb-tab__header">
-				<button on:click={() => ( active = key )}
-					>{category.name}
-					<span>{category.count}</span>
+				<button on:click={() => ( $imageStore.query.group = key )}
+					>{group.name}
+					<span>{group.count}</span>
 				</button>
 			</div>
 		</div>

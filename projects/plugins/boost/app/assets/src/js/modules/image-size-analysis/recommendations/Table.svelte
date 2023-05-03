@@ -10,7 +10,7 @@
 		<div class="jb-table-header__device">Device</div>
 		<div class="jb-table-header__page">Page/Post</div>
 	</div>
-	{#each $imageStore.data.images as data}
+	{#each $imageStore.data.images as data (data.image.url)}
 		<TableRow {data} />
 	{/each}
 </div>
