@@ -11,25 +11,38 @@
 	export let buttonText: string;
 	export let placeholder: string;
 
-	export let value: string;
-	let inputValue = value;
+	export let value: string[];
+
+	let inputValue = prettyValue();
+	let savedValue = inputValue;
 	let isEditing = false;
 	const htmlId = `minify-meta-exclude-list-${ nextIdIndex++ }`;
 
 	const dispatch = createEventDispatcher();
 
+	/**
+	 * Helper method to format the value for display (as a comma separated list).
+	 */
+	function prettyValue() {
+		return value.join( ', ' );
+	}
+
+	/**
+	 * Save changes.
+	 */
 	function save() {
-		inputValue = inputValue
-			.split( ',' )
-			.map( v => v.trim() )
-			.join( ',' );
-		dispatch( 'save', inputValue );
-		value = inputValue;
+		// Sanitize input and save.
+		value = inputValue.split( ',' ).map( v => v.trim() );
+		dispatch( 'save', value );
 		isEditing = false;
+
+		// Beautify the input field.
+		inputValue = prettyValue();
+		savedValue = inputValue;
 	}
 
 	function handleKeyPress( e ) {
-		if ( value !== inputValue && e.key === 'Enter' ) {
+		if ( savedValue !== inputValue && e.key === 'Enter' ) {
 			save();
 		}
 	}
@@ -47,7 +60,7 @@
 				on:keypress={handleKeyPress}
 			/>
 			<div class="buttons-container">
-				<button disabled={value === inputValue} on:click={save}
+				<button disabled={savedValue === inputValue} on:click={save}
 					>{__( 'Save', 'jetpack-boost' )}</button
 				>
 				<button
@@ -64,7 +77,7 @@
 					{sprintf(
 						/* Translators: %s refers to the list of excluded items. */
 						__( 'Except: %s', 'jetpack-boost' ),
-						value
+						prettyValue()
 					)}
 				</div>
 			{/if}
