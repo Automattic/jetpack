@@ -3,6 +3,7 @@
  */
 import { Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
+import { dateI18n } from '@wordpress/date';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { times } from 'lodash';
@@ -23,19 +24,20 @@ const COLUMNS = [
 	{
 		key: 'date',
 		label: __( 'Date', 'jetpack-forms' ),
+		getValue: item => dateI18n( 'M j, Y', item.date ),
 	},
 	{
 		key: 'source',
 		label: __( 'Source', 'jetpack-forms' ),
-		component: Button,
-		getProps: item => ( {
-			href: item.entry_permalink,
-			variant: 'link',
-		} ),
+		getValue: item => (
+			<Button href={ item.entry_permalink } variant="link">
+				{ item.source }
+			</Button>
+		),
 	},
 	{
 		key: 'actions',
-		component: SingleActionsMenu,
+		getValue: item => <SingleActionsMenu id={ item.id } />,
 	},
 ];
 
@@ -65,8 +67,8 @@ const InboxList = ( {
 			const numPlaceholders = totalResponses
 				? Math.min(
 						RESPONSES_FETCH_LIMIT,
-						totalResponses - responses.length - ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
-				  )
+						totalResponses - ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT
+				  ) - responses.length
 				: 10;
 
 			return items.concat(
@@ -92,7 +94,6 @@ const InboxList = ( {
 	return (
 		<>
 			<Table
-				key={ `responses-${ currentTab }-${ currentPage }` }
 				className="jp-forms__inbox-list"
 				columns={ COLUMNS }
 				items={ tableItems }

@@ -19,7 +19,6 @@
 			.gridicon {
 				width: 1em;
 				position: relative;
-				top: 7px;
 				margin-left: 5px;
 			}
 		}
@@ -27,6 +26,18 @@
 
 	.dops-button .dashicons-no {
 		color: $black;
+	}
+
+	.dops-banner__title {
+		padding: 0 rem( 8px );
+	}
+
+	.dops-banner__description {
+		padding-left: 8px;
+
+		.jp-link-button {
+			padding: 0;
+		}
 	}
 }
 
@@ -59,14 +70,6 @@
 	}
 }
 
-.dops-banner__description {
-	padding-left: 8px;
-
-	.jp-link-button {
-		padding: 0;
-	}
-}
-
 .jp-at-a-glance__stats-empty {
 	text-align: center;
 	margin-bottom: 0;
@@ -89,18 +92,29 @@
 }
 
 .jp-at-a-glance__stats-inactive-icon {
+	padding: 0;
+	display: flex;
+	flex-grow: 0;
+
 	@include breakpoint( '<660px' ) {
 		display: none;
-	}
-
-	@include breakpoint( '>660px' ) {
-		flex-basis: 10%;
 	}
 }
 
 .jp-at-a-glance__stats-inactive-text {
 	font-size: $font-body-small;
 	line-height: 1.5;
+	letter-spacing: -0.3px;
+	color: $gray-80;
+	flex-grow: 1;
+
+	h3 {
+		margin: 0;
+		font-size: 15px;
+		font-weight: 700;
+		line-height: 136%;
+		color: $black;
+	}
 
 	@include breakpoint( '<660px' ) {
 		padding: 0 0 rem( 16px );
@@ -115,9 +129,19 @@
 .jp-at-a-glance__stats-inactive-button {
 	text-align: left;
 
+	button.dops-button.is-primary {
+		padding: 4px 20px;
+		font-size: $font-body-small;
+
+		&:focus {
+			border: 1px solid $white;
+			box-shadow: 0 0 0 1px $black;
+		}
+	}
+
 	@include breakpoint( '>660px' ) {
-		flex-basis: 40%;
-		text-align: right;
+		flex-grow: 0;
+		margin-left: 64px;
 	}
 }
 
@@ -561,7 +585,8 @@ a.jp-dash-item__manage-in-wpcom,
 .dops-banner__title a,
 .jp-connection-settings__actions a,
 .jp-dash-item a:not( .dops-button ),
-.dops-banner__description .jp-link-button {
+.dops-banner__description .jp-link-button,
+.jp-at-a-glance__stats-inactive-text a.components-external-link {
 	&, &:active, &:visited, &:hover, &:focus {
 		cursor: pointer;
 		font-weight: 400;

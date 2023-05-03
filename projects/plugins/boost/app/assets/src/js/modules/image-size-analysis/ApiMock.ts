@@ -1,6 +1,6 @@
-import { initializeClient } from '@automattic/jetpack-svelte-data-sync-client';
 import { writable } from 'svelte/store';
 import { z } from 'zod';
+import { jetpack_boost_ds } from '../../stores/data-sync-client';
 
 const Dimensions = z.object( {
 	width: z.number(),
@@ -32,10 +32,19 @@ const ImageMeta = z.object( {
 
 const ImageSizeAnalysis = z
 	.object( {
+		pagination: z.object( {
+			current: z.number().catch( 1 ),
+			total: z.number().catch( 1 ),
+		} ),
 		last_updated: z.number(),
 		images: z.array( ImageMeta ),
 	} )
+	// Prevent fatal error when this module isn't available.
 	.catch( {
+		pagination: {
+			current: 1,
+			total: 1,
+		},
 		last_updated: 0,
 		images: [],
 	} );
@@ -76,7 +85,21 @@ export const categories = writable< CategoryState[] >( [
 export type Dimensions = { width: number; height: number };
 export type ImageMeta = z.infer< typeof ImageMeta >;
 
-const client = initializeClient( 'jetpack_boost_ds' );
-const imageMeta = client.createAsyncStore( 'image_size_analysis', ImageSizeAnalysis );
+const imageMeta = jetpack_boost_ds.createAsyncStore( 'image_size_analysis', ImageSizeAnalysis );
+imageMeta.setSyncAction( async ( prevValue, value, signal ) => {
+	// Only the current page is writable.
+	if ( prevValue.pagination.current === value.pagination.current ) {
+		return prevValue;
+	}
+	// Send a request to the SET endpoint.
+	const fresh = await imageMeta.endpoint.SET( value, signal );
+	if ( signal.aborted ) {
+		return prevValue;
+	}
+	// Override store value without triggering another SET request.
+	imageMeta.store.override( fresh );
+	return fresh;
+} );
 
 export const imageStore = imageMeta.store;
+export const imagesAreLoading = imageMeta.pending;
