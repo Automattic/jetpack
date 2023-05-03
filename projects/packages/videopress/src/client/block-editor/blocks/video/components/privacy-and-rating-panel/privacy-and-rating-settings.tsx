@@ -31,7 +31,8 @@ export default function PrivacyAndRatingSettings( {
 	attributes,
 	setAttributes,
 	privateEnabledForSite,
-}: VideoControlProps ): React.ReactElement {
+	videoBelongToSite,
+}: VideoControlProps & { videoBelongToSite: boolean } ): React.ReactElement {
 	const { privacySetting, rating, allowDownload, displayEmbed } = attributes;
 
 	const privacyLabels = {
@@ -82,6 +83,7 @@ export default function PrivacyAndRatingSettings( {
 				onChange={ value => {
 					setAttributes( { rating: value } );
 				} }
+				disabled={ ! videoBelongToSite }
 			/>
 
 			<SelectControl
@@ -104,6 +106,7 @@ export default function PrivacyAndRatingSettings( {
 				} }
 				value={ String( privacySetting ) }
 				options={ [ privacyOptionSiteDefault, privacyOptionPublic, privacyOptionPrivate ] }
+				disabled={ ! videoBelongToSite }
 			/>
 
 			<ToggleControl
@@ -112,6 +115,7 @@ export default function PrivacyAndRatingSettings( {
 				onChange={ value => {
 					setAttributes( { allowDownload: value } );
 				} }
+				disabled={ ! videoBelongToSite }
 			/>
 
 			<ToggleControl
@@ -124,6 +128,7 @@ export default function PrivacyAndRatingSettings( {
 					'Gives viewers the option to share the video link and HTML embed code',
 					'jetpack-videopress-pkg'
 				) }
+				disabled={ ! videoBelongToSite }
 			/>
 		</PanelBody>
 	);
