@@ -12,12 +12,15 @@ const Group = z.object( {
 
 const image_size_analysis_groups = jetpack_boost_ds.createAsyncStore(
 	'image_size_analysis_groups',
-	z.object( {
-		home: Group,
-		pages: Group,
-		posts: Group,
-		other: Group,
-	} )
+	z
+		.object( {
+			home: Group,
+			pages: Group,
+			posts: Group,
+			other: Group,
+		} )
+		// Data unavailable when the the flag is disabled.
+		.optional()
 );
 
 export const imageDataGroupTabs = derived(
