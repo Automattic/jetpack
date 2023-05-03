@@ -19,6 +19,7 @@ jobs:
           mkdir -p ~/.ssh/
           echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
           echo "$SSH_KEY" > ~/.ssh/id_rsa
+          chmod 0600 ~/.ssh/id_rsa
 
       - name: Execute shell script
         shell: bash
