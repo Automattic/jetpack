@@ -145,8 +145,8 @@
 				$task_start -= $task_start % 900;
 			}
 
-			if ( ! $task_end ) {
-				// if unable to use task end input, set to task start time + 1 hour
+			if ( ! $task_end || $task_end < $task_start ) {
+				// set to task start time + 1 hour if end is not set or is before start
 				$task_end = $task_start + 3600;
 			}
 
