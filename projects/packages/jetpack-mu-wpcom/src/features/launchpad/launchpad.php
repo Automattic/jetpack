@@ -62,6 +62,15 @@ function wpcom_register_default_launchpad_checklists() {
 
 	wpcom_register_launchpad_task(
 		array(
+			'id'     => 'setup_paid_subscribers',
+			'title'  => __( 'PAID SUBSSSSS!!!', 'jetpack-mu-wpcom' ),
+			'id_map' => 'setup_paid_subscribers',
+			'is_disabled_callback' => '__return_false',
+		)
+	);
+
+	wpcom_register_launchpad_task(
+		array(
 			'id'                   => 'design_selected',
 			'title'                => __( 'Select a design', 'jetpack-mu-wpcom' ),
 			'is_complete_callback' => '__return_true',
@@ -241,12 +250,15 @@ function wpcom_register_default_launchpad_checklists() {
 		array(
 			'id'       => 'newsletter',
 			'title'    => 'Newsletter',
-			'task_ids' => array(
-				'setup_newsletter',
-				'plan_selected',
-				'subscribers_added',
-				'verify_email',
-				'first_post_published_newsletter',
+			'task_ids' => array_merge(
+				[
+					'setup_newsletter',
+					'plan_selected',
+					'subscribers_added',
+					'verify_email',
+				],
+				in_array( 'paid_subscribers', get_option( 'site_goals', [] ) ) ? [ 'setup_paid_subscribers' ] : [],
+				[ 'first_post_published_newsletter' ]
 			),
 		)
 	);
