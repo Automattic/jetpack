@@ -1,3 +1,4 @@
+import { InnerBlocks } from '@wordpress/block-editor';
 import { G, Path, SVG } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
@@ -34,6 +35,10 @@ export const settings = {
 		postLayout: {
 			type: 'string',
 			default: 'grid',
+		},
+		displayHeadline: {
+			type: 'boolean',
+			default: false,
 		},
 		displayDate: {
 			type: 'boolean',
@@ -84,7 +89,7 @@ export const settings = {
 
 	edit,
 
-	save: () => null,
+	save: () => <InnerBlocks.Content />,
 
 	example: {
 		attributes: {

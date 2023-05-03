@@ -4,10 +4,21 @@ import { __ } from '@wordpress/i18n';
 export const MAX_POSTS_TO_SHOW = 6;
 
 export function RelatedPostsInspectorControls( { attributes, setAttributes } ) {
-	const { displayContext, displayDate, displayThumbnails, postsToShow } = attributes;
+	const {
+		displayContext,
+		displayDate,
+		displayHeadline,
+		displayThumbnails,
+		postsToShow,
+	} = attributes;
 
 	return (
 		<PanelBody title={ __( 'Related Posts Settings', 'jetpack' ) }>
+			<ToggleControl
+				label={ __( 'Highlight related content with a heading', 'jetpack' ) }
+				checked={ displayHeadline }
+				onChange={ value => setAttributes( { displayHeadline: value } ) }
+			/>
 			<ToggleControl
 				label={ __( 'Display thumbnails', 'jetpack' ) }
 				checked={ displayThumbnails }

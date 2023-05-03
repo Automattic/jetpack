@@ -1,4 +1,4 @@
-import { BlockControls, InspectorControls } from '@wordpress/block-editor';
+import { BlockControls, InnerBlocks, InspectorControls } from '@wordpress/block-editor';
 import { Path, SVG } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { withSelect } from '@wordpress/data';
@@ -142,7 +142,14 @@ function RelatedPostsPreviewRows( props ) {
 export class RelatedPostsEdit extends Component {
 	render() {
 		const { attributes, className, posts, setAttributes, instanceId, isInSiteEditor } = this.props;
-		const { displayContext, displayDate, displayThumbnails, postLayout, postsToShow } = attributes;
+		const {
+			displayContext,
+			displayDate,
+			displayHeadline,
+			displayThumbnails,
+			postLayout,
+			postsToShow,
+		} = attributes;
 
 		// To prevent the block from crashing, we need to limit ourselves to the
 		// posts returned by the backend - so if we want 6 posts, but only 3 are
@@ -195,6 +202,21 @@ export class RelatedPostsEdit extends Component {
 
 				<div className={ className } id={ `related-posts-${ instanceId }` }>
 					<div className={ previewClassName } data-layout={ postLayout }>
+						{ displayHeadline && (
+							<InnerBlocks
+								lock={ { remove: false } }
+								template={ [
+									[
+										'core/heading',
+										{
+											className: `jp-related-posts-i2__headline`,
+											level: 3,
+											placeholder: __( 'Related Posts Title', 'jetpack' ),
+										},
+									],
+								] }
+							/>
+						) }
 						<RelatedPostsPreviewRows posts={ displayPosts } />
 					</div>
 				</div>

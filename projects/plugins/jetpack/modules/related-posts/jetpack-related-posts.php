@@ -430,10 +430,11 @@ EOT;
 	/**
 	 * Render the related posts markup.
 	 *
-	 * @param array $attributes Block attributes.
+	 * @param array  $attributes Block attributes.
+	 * @param string $content    Block default content.
 	 * @return string
 	 */
-	public function render_block( $attributes ) {
+	public function render_block( $attributes, $content ) {
 		$post_id          = get_the_ID();
 		$block_attributes = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
@@ -443,6 +444,10 @@ EOT;
 			'layout'          => isset( $attributes['postLayout'] ) && 'list' === $attributes['postLayout'] ? $attributes['postLayout'] : 'grid',
 			'size'            => ! empty( $attributes['postsToShow'] ) ? absint( $attributes['postsToShow'] ) : 3,
 		);
+
+		if ( isset( $attributes['displayHeadline'] ) && true === $attributes['displayHeadline'] ) {
+			$block_attributes['headline'] = $content;
+		}
 
 		$excludes = $this->parse_numeric_get_arg( 'relatedposts_origin' );
 
