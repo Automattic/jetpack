@@ -14,7 +14,17 @@ class WPCOM_API_Image_Size_Analysis {
 
 	public function get() {
 
-		//		sleep(2); // Simulate a slow-ish API call
+
+		// @TODO:
+		// This is going to slow down the dashboard if it's uncached and synchronous
+		// because the DataSync expects this to be available
+		// when the page is being loaded
+		// because it's using wp_localize_script under the hood
+		// so we need either a lazy DataSync option
+		// at the very least, it needs to be cached.
+
+		// Simulate a slow-ish API call
+		// sleep(2);
 
 		$results = array(
 			'query' => array(
