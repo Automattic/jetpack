@@ -9,7 +9,6 @@
 TMP_DIR=$(mktemp -d) # Temp dir where the plugin .zip files are downloaded and unpacked.
 REMOTE_DIR='/srv/htdocs/jetpack-staging' # Remote dir where the unpacked plugin files are synced to.
 PLUGINS=( "jetpack" "jetpack-mu-wpcom-plugin" ); # Plugins to update.
-declare -A PLUGIN_VERSIONS # Array used to hold fetched plugin versions.
 declare -A PLUGIN_DOWNLOAD_URLS # Array used to hold fetched plugin download URLs.
 
 SITES='{
@@ -77,7 +76,6 @@ for PLUGIN in "${PLUGINS[@]}"; do
     exit 1
   else
     echo "Returned version number for $PLUGIN: $PLUGIN_VERSION"
-    PLUGIN_VERSIONS[$PLUGIN]="$PLUGIN_VERSION"
     PLUGIN_DOWNLOAD_URLS[$PLUGIN]="$DOWNLOAD_URL"
   fi
 done
@@ -101,8 +99,6 @@ for PLUGIN in "${PLUGINS[@]}"; do
     exit 1
   else
     echo "Unpacking of $PLUGIN completed successfully."
-    # Add a version.txt file for easy curl retrieval on the MC staging-updater page.
-    echo "${PLUGIN_VERSIONS[$PLUGIN]}" > "$TMP_DIR/$PLUGIN-dev/version.txt"
   fi
 done
 
