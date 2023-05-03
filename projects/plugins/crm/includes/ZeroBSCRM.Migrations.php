@@ -77,12 +77,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	);
 
 global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
-		//'270' => array('preload'),
 		'288' => array('isDAL2','postsettings'),
-		//'3000' => array('preload','isDAL2'),
-		//'3014' => array('isDAL3','postsettings'),
-		//'3018' => array('isDAL3','postsettings'),
-		//'408'  => array('isDAL3','postsettings'),
 		'53'     => array('isDAL3','postsettings'),
 		'5402'   => array('isDAL3','postsettings'),
 		'55a'    => array( 'wp_loaded' ),
