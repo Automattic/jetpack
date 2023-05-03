@@ -1,17 +1,22 @@
+/**
+ * External dependencies
+ */
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { trash, inbox, moreHorizontal } from '@wordpress/icons';
+/**
+ * Internal dependencies
+ */
 import { doBulkAction } from '../data/responses';
 import { STORE_NAME } from '../state';
 import { ACTION_TABS, ACTIONS, RESPONSES_FETCH_LIMIT, TABS } from './constants';
+import { useFeedbackQuery } from './use-feedback-query';
 
 const SingleActionsMenu = ( { id } ) => {
 	const { addTabTotals, fetchResponses, removeResponses, setLoading } = useDispatch( STORE_NAME );
-	const [ currentPage, query ] = useSelect(
-		select => [ select( STORE_NAME ).getCurrentPage(), select( STORE_NAME ).getResponsesQuery() ],
-		[]
-	);
+	const { currentPage, query } = useFeedbackQuery();
+
 	const currentTab = query.status;
 
 	const deleteLabel =
@@ -30,13 +35,16 @@ const SingleActionsMenu = ( { id } ) => {
 			} );
 			await doBulkAction( [ id ], action );
 
-			fetchResponses( {
-				...query,
-				limit: RESPONSES_FETCH_LIMIT,
-				offset: ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
-			} );
-		} finally {
-			// Prevent getting stuck in loading state if doBulkAction fails
+			await fetchResponses(
+				{
+					...query,
+					limit: RESPONSES_FETCH_LIMIT,
+					offset: ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
+				},
+				{ append: true }
+			);
+			setLoading( false );
+		} catch ( error ) {
 			setLoading( false );
 		}
 	};
@@ -56,7 +64,7 @@ const SingleActionsMenu = ( { id } ) => {
 							iconPosition="left"
 							icon={ inbox }
 						>
-							{ __( 'Remove from spam', 'jetpack-forms' ) }
+							{ __( 'Not spam', 'jetpack-forms' ) }
 						</MenuItem>
 					) }
 
