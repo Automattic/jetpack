@@ -150,7 +150,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		// Endpoint to know if the video metadata is editable.
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/(?P<guid>\w+)/belong-to-site',
+			$this->rest_base . '/(?P<video_guid>\w+)/belong-to/(?P<post_id>\d+)/',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
@@ -196,17 +196,22 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 * @return WP_REST_Response True if the video belongs to the current site, false otherwise.
 	 */
 	public function videopress_video_belong_to_site( $request ) {
-		$guid = $request->get_param( 'guid' );
+		$post_id    = $request->get_param( 'post_id' );
+		$video_guid = $request->get_param( 'video_guid' );
 
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
-			$found_guid = get_post_meta( $guid, 'videopress_guid', true );
+			$found_guid = get_post_meta( $post_id, 'videopress_guid', true );
 		} else {
 			$blog_id    = get_current_blog_id();
-			$info       = video_get_info_by_blogpostid( $blog_id, $guid );
+			$info       = video_get_info_by_blogpostid( $blog_id, $post_id );
 			$found_guid = $info->guid;
 		}
 
-		return rest_ensure_response( (bool) $found_guid );
+		if ( ! $found_guid ) {
+			return rest_ensure_response( false );
+		}
+
+		return rest_ensure_response( $found_guid === $video_guid );
 	}
 
 	/**
