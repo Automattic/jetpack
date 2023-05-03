@@ -1,13 +1,13 @@
 <script lang="ts">
-	import { imageData } from '../store/isa-data';
+	import { isaData } from '../store/isa-data';
 	import { imageDataGroupTabs } from '../store/isa-groups';
 </script>
 
 <div class="jb-tabs">
 	{#each Object.entries( $imageDataGroupTabs ) as [key, group]}
-		<div class="jb-tab jb-tab--{key}" class:active={$imageData.query.group === key}>
+		<div class="jb-tab jb-tab--{key}" class:active={$isaData.query.group === key}>
 			<div class="jb-tab__header">
-				<button on:click={() => ( $imageData.query.group = key )}
+				<button on:click={() => ( $isaData.query.group = key )}
 					>{group.name}
 					<span>{group.issues}</span>
 				</button>

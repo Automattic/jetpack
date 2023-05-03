@@ -1,7 +1,7 @@
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
-import { imageData } from './isa-data';
+import { isaData } from './isa-data';
 
 const Group = z.object( {
 	name: z.string(),
@@ -41,11 +41,11 @@ export const imageDataGroupTabs = derived( image_size_analysis_groups.store, $gr
 } );
 
 export const imageDataActiveGroup = derived(
-	[ imageDataGroupTabs, imageData ],
+	[ imageDataGroupTabs, isaData ],
 	( [ $groups, $imageData ] ) => {
 		return $groups[ $imageData.query.group ];
 	}
 );
 
-export type ImageSizeAnalysisGroup = z.infer< typeof Group >;
-export const imageDataGroups = image_size_analysis_groups.store;
+export type ISA_Group = z.infer< typeof Group >;
+export const isaGroups = image_size_analysis_groups.store;

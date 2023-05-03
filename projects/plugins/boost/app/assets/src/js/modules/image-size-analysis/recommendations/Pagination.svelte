@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ChevronLeft from '../../../svg/chevron-left.svg';
 	import ChevronRight from '../../../svg/chevron-right.svg';
-	import { imageData } from '../store/isa-data';
+	import { isaData } from '../store/isa-data';
 	// "-1" is replaced by "..." when rendering the pagination
 	const MORE_ICON = -1;
 
@@ -42,18 +42,18 @@
 
 	function nextPage() {
 		if ( current < total ) {
-			$imageData.query.page += 1;
+			$isaData.query.page += 1;
 		}
 	}
 
 	function previousPage() {
 		if ( current > 1 ) {
-			$imageData.query.page -= 1;
+			$isaData.query.page -= 1;
 		}
 	}
 
-	$: current = $imageData.query.page;
-	$: total = $imageData.data.total_pages;
+	$: current = $isaData.query.page;
+	$: total = $isaData.data.total_pages;
 	$: pages = generatePagination( current, total );
 </script>
 
@@ -68,7 +68,7 @@
 				<button
 					class:current={page === current}
 					disabled={page === MORE_ICON}
-					on:click={() => ( $imageData.query.page = page )}
+					on:click={() => ( $isaData.query.page = page )}
 				>
 					{#if page === MORE_ICON}
 						...

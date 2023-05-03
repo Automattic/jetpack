@@ -2,11 +2,11 @@
 	import { sprintf, __ } from '@wordpress/i18n';
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
-	import { imageDataGroups } from './store/isa-groups';
+	import { isaGroups } from './store/isa-groups';
 </script>
 
 <div class="jb-multi-progress">
-	{#each Object.values( $imageDataGroups ) as group, index}
+	{#each Object.values( $isaGroups ) as group, index}
 		<div class="jb-entry">
 			<div class="jb-progress">
 				<ProgressBar progress={group.progress} />

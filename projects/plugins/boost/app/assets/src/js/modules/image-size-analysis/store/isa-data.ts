@@ -68,10 +68,12 @@ const image_size_analysis = jetpack_boost_ds.createAsyncStore(
 );
 
 /**
- * Customize the stores where necessary
+ * Only the following values are "writable":
+ * * query.page
+ * * query.group
+ * * query.search
  */
 image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
-	// Only query values are writable.
 	if (
 		prevValue.query.page === value.query.page &&
 		prevValue.query.group === value.query.group &&
@@ -92,6 +94,6 @@ image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
 /**
  * Export the stores
  */
-export type ImageSizeAnalysisData = z.infer< typeof ImageData >;
-export const imageData = image_size_analysis.store;
-export const imagesAreLoading = image_size_analysis.pending;
+export type ISA_Data = z.infer< typeof ImageData >;
+export const isaData = image_size_analysis.store;
+export const isaDataLoading = image_size_analysis.pending;

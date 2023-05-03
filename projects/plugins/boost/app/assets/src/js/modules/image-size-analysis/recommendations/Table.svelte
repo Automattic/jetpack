@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { imageData, imagesAreLoading } from '../store/isa-data';
+	import { isaData, isaDataLoading } from '../store/isa-data';
 	import TableRow from './TableRow.svelte';
 </script>
 
-<div class="jb-table" class:jb-loading={$imagesAreLoading}>
+<div class="jb-table" class:jb-loading={$isaDataLoading}>
 	<div class="jb-table-header recommendation-page-grid">
 		<div class="jb-table-header__image">Image</div>
 		<div class="jb-table-header__potential-size">Potential Size</div>
 		<div class="jb-table-header__device">Device</div>
 		<div class="jb-table-header__page">Page/Post</div>
 	</div>
-	{#each $imageData.data.images as data (data.image.url)}
+	{#each $isaData.data.images as data (data.image.url)}
 		<TableRow {data} />
 	{/each}
 </div>
