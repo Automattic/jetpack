@@ -206,6 +206,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$is_coming_soon = ( new Status() )->is_coming_soon();
 
 		$badge = '';
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			$badge .= '<span class="site__badge site__badge-staging">' . esc_html__( 'Staging', 'jetpack' ) . '</span>';
+		}
+
 		if ( ( function_exists( 'site_is_private' ) && site_is_private() ) || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',

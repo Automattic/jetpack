@@ -12,6 +12,7 @@ import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { Fragment, createInterpolateElement, useCallback } from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
+import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import PublicizeConnection from '../connection';
@@ -29,6 +30,7 @@ import styles from './styles.module.scss';
  * @param {boolean} props.isPublicizeDisabledBySitePlan - A combination of the republicize feature being enabled and/or the post not being published.
  * @param {number} props.numberOfSharesRemaining        - The number of shares remaining for the current period. Optional.
  * @param {boolean} props.isEnhancedPublishingEnabled   - Whether enhanced publishing options are available. Optional.
+ * @param {boolean} props.isSocialImageGeneratorEnabled - Whether the Social Image Generator feature is available. Optional.
  * @param {string} props.connectionsAdminUrl            - URL to the Admin connections page
  * @param {string} props.adminUrl                       - URL af the plugin's admin page to redirect to after a plan upgrade
  * @returns {object}                                    - Publicize form component.
@@ -38,13 +40,17 @@ export default function PublicizeForm( {
 	isPublicizeDisabledBySitePlan,
 	numberOfSharesRemaining = null,
 	isEnhancedPublishingEnabled = false,
+	isSocialImageGeneratorEnabled = false,
 	connectionsAdminUrl,
 	adminUrl,
 } ) {
 	const { connections, toggleById, hasConnections, enabledConnections } =
 		useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
+	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 
+	const shouldDisableMediaPicker =
+		isSocialImageGeneratorEnabled && isSocialImageGeneratorEnabledForPost;
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
 	const brokenConnections = connections.filter( connection => false === connection.is_healthy );
@@ -188,7 +194,19 @@ export default function PublicizeForm( {
 							/>
 						</>
 					) }
-					{ isEnhancedPublishingEnabled && <MediaSection /> }
+					{ isEnhancedPublishingEnabled && (
+						<MediaSection
+							disabled={ shouldDisableMediaPicker }
+							notice={
+								shouldDisableMediaPicker
+									? __(
+											'It is not possible to add an image or video when Social Image Generator is enabled.',
+											'jetpack'
+									  )
+									: null
+							}
+						/>
+					) }
 				</Fragment>
 			) }
 		</Wrapper>

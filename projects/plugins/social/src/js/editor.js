@@ -60,7 +60,7 @@ const JetpackSocialSidebar = () => {
 		isPublicizeEnabled,
 		hidePublicizeFeature,
 		isPostAlreadyShared,
-		isSocialImageGeneratorEnabled,
+		isSocialImageGeneratorAvailable,
 	} = usePublicizeConfig();
 	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
 	// Determine if the review request should show right before the post publishes
@@ -111,7 +111,7 @@ const JetpackSocialSidebar = () => {
 				<PublicizePanel>
 					<PanelDescription />
 				</PublicizePanel>
-				{ isSocialImageGeneratorEnabled && <SocialImageGeneratorPanel /> }
+				{ isSocialImageGeneratorAvailable && <SocialImageGeneratorPanel /> }
 				<PanelBody title={ __( 'Social Previews', 'jetpack-social' ) }>
 					<SocialPreviewsPanel openModal={ openModal } />
 				</PanelBody>
@@ -127,7 +127,7 @@ const JetpackSocialSidebar = () => {
 				</PublicizePanel>
 			</PluginPrePublishPanel>
 
-			{ isSocialImageGeneratorEnabled && (
+			{ isSocialImageGeneratorAvailable && (
 				<PluginPrePublishPanel
 					initialOpen
 					title={ __( 'Social Image Generator', 'jetpack-social' ) }

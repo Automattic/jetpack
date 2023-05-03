@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
+import { isInTheFuture } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, _x, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
@@ -62,10 +63,18 @@ class MyPlanHeader extends React.Component {
 					purchaseDate={ purchase.subscribed_date }
 					isRefundable={ purchase.is_refundable }
 					isGift={ containsGiftedPlanOrProduct( purchase.product_slug ) }
+					purchaseID={ purchase.ID }
 				/>
 			);
-
-			activation = purchase.active === '1' ? <ProductActivated key="product-activated" /> : null;
+			if ( purchase.active === '1' ) {
+				if ( ! isInTheFuture( purchase.expiry_date ) ) {
+					activation = <ProductActivated key="product-expired" type="product-expired" />;
+				} else {
+					activation = <ProductActivated key="product-activated" />;
+				}
+			} else {
+				activation = null;
+			}
 		}
 
 		switch ( getPlanClass( productSlug ) ) {
@@ -199,7 +208,7 @@ class MyPlanHeader extends React.Component {
 					...productProps,
 					details: [ activation, expiration ],
 					tagLine: __(
-						'The most powerful WordPress sites: Top-tier security bundle, enhanced search.',
+						'The ultimate toolkit for best-in-class websites: complete security, performance, and growth.',
 						'jetpack'
 					),
 					title: __( 'Jetpack Complete', 'jetpack' ),
@@ -405,6 +414,17 @@ class MyPlanHeader extends React.Component {
 					title: __( 'Jetpack Golden Token', 'jetpack' ),
 				};
 
+			case 'is-jetpack-starter-plan':
+				return {
+					...productProps,
+					details: [ activation, expiration ],
+					tagLine: __(
+						'Essential security tools: real-time backups and comment spam protection.',
+						'jetpack'
+					),
+					title: __( 'Jetpack Starter', 'jetpack' ),
+				};
+
 			default:
 				return {
 					...productProps,
@@ -483,6 +503,7 @@ class MyPlanHeader extends React.Component {
 								onClick={ this.trackAllPurchasesClick }
 								href={ getRedirectUrl( 'calypso-purchases' ) }
 								compact
+								rna
 							>
 								<ExternalLink>{ __( 'View all purchases', 'jetpack' ) }</ExternalLink>
 							</Button>
@@ -498,6 +519,7 @@ class MyPlanHeader extends React.Component {
 								onClick={ this.trackLicenseActivationClick }
 								primary
 								compact
+								rna
 							>
 								{ _x( 'Activate a Product', 'Navigation item.', 'jetpack' ) }
 							</Button>
@@ -506,6 +528,7 @@ class MyPlanHeader extends React.Component {
 								href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
 								onClick={ this.trackRecommendationsClick }
 								primary
+								rna
 							>
 								{ _x( 'Recommendations', 'Navigation item.', 'jetpack' ) }
 							</Button>
