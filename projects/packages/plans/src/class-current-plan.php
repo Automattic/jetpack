@@ -45,8 +45,11 @@ class Current_Plan {
 			'supports' => array(
 				'opentable',
 				'calendly',
+				'donations',
 				'premium-content/container',
+				'recurring-payments',
 				'send-a-message',
+				'simple-payments',
 				'whatsapp-button',
 				'social-previews',
 				'videopress',
@@ -68,7 +71,6 @@ class Current_Plan {
 			'supports' => array(
 				'akismet',
 				'payments',
-				'recurring-payments',
 				'videopress',
 			),
 		),
@@ -81,8 +83,6 @@ class Current_Plan {
 				'value_bundle-2y',
 			),
 			'supports' => array(
-				'donations',
-				'simple-payments',
 				'vaultpress',
 				'videopress',
 				'republicize',

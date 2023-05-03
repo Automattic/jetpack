@@ -252,7 +252,7 @@ function getPlan( type ) {
 				user_is_owner: false,
 				is_free: true,
 				features: {
-					active: [ 'akismet', 'premium-content/container' ],
+					active: [ 'akismet', 'donations', 'premium-content/container' ],
 					available: {
 						akismet: [
 							'jetpack_free',
@@ -283,6 +283,7 @@ function getPlan( type ) {
 							'jetpack_business_monthly',
 						],
 						'simple-payments': [
+							'jetpack_free',
 							'jetpack_premium',
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
@@ -407,6 +408,7 @@ function getPlan( type ) {
 							'jetpack_business_monthly',
 						],
 						'simple-payments': [
+							'jetpack_free',
 							'jetpack_premium',
 							'jetpack_business',
 							'jetpack_premium_monthly',
@@ -425,6 +427,7 @@ function getPlan( type ) {
 							'jetpack_business_monthly',
 						],
 						donations: [
+							'jetpack_free',
 							'jetpack_premium',
 							'jetpack_business',
 							'jetpack_personal',
