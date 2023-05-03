@@ -12,6 +12,9 @@
 - Remove the Mapbox API key box, when the mapping provider isn't Mapbox [#29098]
 - Whitelist the '_jetpack_newsletter_access' post meta [#30372]
 
+### Improved compatibility
+- Security: ensure blocks are always fully displayed on your site, even when using a caching plugin.
+
 ### Bug fixes
 - Make the Donation block "Connect" link the primary color [#30320]
 - Minor styling fixes for the At-a-Glance page on WooExpress. [#30403]
