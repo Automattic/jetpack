@@ -35,7 +35,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'55', // 5.5 Deletes orphaned rows linked to invoices in the objlinks table
 	'55a', // 5.5a Recompiles segments after wp_loaded
 	'551', // 5.5.1 Deletes orphaned aka rows linked to contacts since deleted
-	'560', // 5.6.0 Moves old folder structure (zbscrm-store) to new (jpcrm-stora
+	'560', // 5.6.0 Moves old folder structure (zbscrm-store) to new (jpcrm-storage)
 	);
 
 global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
