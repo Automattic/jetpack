@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { imageData } from '../datasync-image-size-analysis';
-	import { imageDataActiveGroup } from '../store/derived-groups';
+	import { imageData } from '../store/isa-data';
+	import { imageDataActiveGroup } from '../store/isa-groups';
 	const formatter = new Intl.DateTimeFormat( 'en-US', {
 		month: 'long',
 		day: 'numeric',

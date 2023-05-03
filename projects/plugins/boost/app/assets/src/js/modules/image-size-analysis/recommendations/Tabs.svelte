@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { imageData } from '../datasync-image-size-analysis';
-	import { imageDataGroupTabs } from '../store/derived-groups';
+	import { imageData } from '../store/isa-data';
+	import { imageDataGroupTabs } from '../store/isa-groups';
 </script>
 
 <div class="jb-tabs">

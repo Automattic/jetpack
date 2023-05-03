@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { jetpack_boost_ds } from '../../stores/data-sync-client';
+import { jetpack_boost_ds } from '../../../stores/data-sync-client';
 
 /**
  * Zod Types

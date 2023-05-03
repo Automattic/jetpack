@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ImageSizeAnalysisData } from '../datasync-image-size-analysis';
+	import { ImageSizeAnalysisData } from '../store/isa-data';
 	import TableRowExpanded from './TableRowExpanded.svelte';
 	import TableRowHover from './TableRowHover.svelte';
 	import Device from './components/Device.svelte';

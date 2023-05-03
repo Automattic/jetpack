@@ -1,7 +1,7 @@
 <script lang="ts">
 	import ChevronLeft from '../../../svg/chevron-left.svg';
 	import ChevronRight from '../../../svg/chevron-right.svg';
-	import { imageData } from '../datasync-image-size-analysis';
+	import { imageData } from '../store/isa-data';
 	// "-1" is replaced by "..." when rendering the pagination
 	const MORE_ICON = -1;
 

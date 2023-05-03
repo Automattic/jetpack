@@ -2,7 +2,7 @@
 	import { quadOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
 	import Button from '../../../elements/Button.svelte';
-	import { ImageSizeAnalysisData } from '../datasync-image-size-analysis';
+	import { ImageSizeAnalysisData } from '../store/isa-data';
 	export let image: ImageSizeAnalysisData[ 'image' ];
 	export let instructions: string | undefined;
 </script>

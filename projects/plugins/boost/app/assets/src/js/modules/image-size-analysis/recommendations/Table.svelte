@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { imageData, imagesAreLoading } from '../datasync-image-size-analysis';
+	import { imageData, imagesAreLoading } from '../store/isa-data';
 	import TableRow from './TableRow.svelte';
 </script>
 

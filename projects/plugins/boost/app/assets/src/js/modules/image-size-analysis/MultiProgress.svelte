@@ -2,7 +2,7 @@
 	import { sprintf, __ } from '@wordpress/i18n';
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
-	import { imageDataGroups } from './store/derived-groups';
+	import { imageDataGroups } from './store/isa-groups';
 </script>
 
 <div class="jb-multi-progress">
