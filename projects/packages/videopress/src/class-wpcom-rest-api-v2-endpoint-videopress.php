@@ -190,7 +190,8 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	}
 
 	/**
-	 * Check whether the video belongs to the current site.
+	 * Check whether the video belongs to the current site,
+	 * considering the given post_id and the video_guid.
 	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_REST_Response True if the video belongs to the current site, false otherwise.
