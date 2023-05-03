@@ -5697,33 +5697,23 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 	}
 
 /**
- * Helper function to calculate the number of deleted invoices or transactions and the
- * total value of those invoices, for any particular contact / company.
+ * Helper function to calculate the number of deleted invoices for any particular contact / company.
  *
  * @param array $all_invoices An array of all invoice or transaction data for a contact / company.
  *
- * @returns array An array with the deleted invoices total, and the deleted invoices count.
+ * @returns int An int with the deleted invoices count.
  */
-function jpcrm_deleted_invoice_total_and_counts( $all_invoices = null ) {
+function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
 	if ( empty( $all_invoices ) ) {
-		return array(
-			'total' => 0,
-			'count' => 0,
-		);
+		return 0;
 	}
 	$count_deleted = 0;
-	$total_deleted = 0;
-
 	foreach ( $all_invoices as $invoice ) {
 		if ( $invoice['status'] === __( 'Deleted', 'zero-bs-crm' ) ) {
-			$total_deleted += $invoice['total'];
 			++$count_deleted;
 		}
 	}
-	return array(
-		'total' => $total_deleted,
-		'count' => $count_deleted,
-	);
+	return $count_deleted;
 }
 
 /* ======================================================
