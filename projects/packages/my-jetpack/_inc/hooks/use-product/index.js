@@ -27,5 +27,6 @@ export function useProduct( productId ) {
 		detail,
 		isActive: detail.status === 'active',
 		isFetching: useSelect( select => select( STORE_ID ).isFetching( productId ) ),
+		stats: useSelect( select => select( STORE_ID ).getProductStats( productId ) ),
 	};
 }
