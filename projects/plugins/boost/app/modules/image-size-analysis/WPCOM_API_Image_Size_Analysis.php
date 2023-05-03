@@ -6,14 +6,11 @@ require_once __DIR__ . '/jetpack-boost-mock-api.php';
 
 class WPCOM_API_Image_Size_Analysis {
 
-
 	private $page         = 1;
 	private $group        = 'all';
 	private $search_query = '';
 
-
 	public function get() {
-
 
 		// @TODO:
 		// This is going to slow down the dashboard if it's uncached and synchronous
@@ -58,3 +55,4 @@ class WPCOM_API_Image_Size_Analysis {
 		$this->search_query = $search_query;
 	}
 }
+

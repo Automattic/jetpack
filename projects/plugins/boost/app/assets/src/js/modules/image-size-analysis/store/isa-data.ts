@@ -1,7 +1,6 @@
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
-import { imageDataActiveGroup } from './isa-groups';
 
 /**
  * Zod Types
@@ -91,7 +90,7 @@ image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
 
 	// Don't issue new requests if the group is "ignored".
 	// The derived store will handle this.
-	if( value.query.group === "ignored" ) {
+	if ( value.query.group === 'ignored' ) {
 		return prevValue;
 	}
 
@@ -109,7 +108,6 @@ export const isaFilteredImages = derived(
 	[ image_size_analysis.store, image_size_analysis_ignored_images.store ],
 	// Not sure what TS is complaining about here 🤔
 	( [ $data, $ignored ] ) => {
-		console.log($data);
 		if ( $data.query.group === 'ignored' ) {
 			return $ignored;
 		}

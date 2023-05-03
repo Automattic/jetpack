@@ -1,5 +1,6 @@
 <?php
-
+//phpcs:ignoreFile
+// This is a DEVELOPMENT ONLY file. (WIP)
 namespace Automattic\Jetpack_Boost\Modules\Image_Size_Analysis;
 
 // Temporary Mocking Function
