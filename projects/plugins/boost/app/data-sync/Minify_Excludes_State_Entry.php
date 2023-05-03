@@ -68,7 +68,7 @@ class Minify_Excludes_State_Entry implements Entry_Can_Get, Entry_Can_Set {
 	 */
 	private function sanitize_value( $value ) {
 		if ( is_array( $value ) ) {
-			$value = array_unique( array_filter( array_map( 'trim', $value ) ) );
+			$value = array_values( array_unique( array_filter( array_map( 'trim', $value ) ) ) );
 		} else {
 			$value = array();
 		}
