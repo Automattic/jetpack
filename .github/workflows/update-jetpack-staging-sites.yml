@@ -13,13 +13,13 @@ jobs:
 
       - name: Env config
         env:
+          SSH_KEY: ${{ secrets.UPDATEJETPACKSTAGING_SSH_KEY }}
           SSH_KNOWN_HOSTS: ${{ secrets.UPDATEJETPACKSTAGING_SSH_KNOWN_HOSTS }}
         run: |
           mkdir -p ~/.ssh/
           echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          echo "$SSH_KEY" > ~/.ssh/id_rsa
 
       - name: Execute shell script
         shell: bash
-        env:
-          UPDATEJETPACKSTAGING_SSH_KEY: ${{ secrets.UPDATEJETPACKSTAGING_SSH_KEY }}
         run: .github/files/update-jetpack-staging-sites.sh

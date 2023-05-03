@@ -106,10 +106,6 @@ done
 ## Sync the new Jetpack files.
 ####################################################
 
-# Write the SSH key to temp file for use in the rsync command.
-echo "$UPDATEJETPACKSTAGING_SSH_KEY" > "$TMP_DIR/ssh_key"
-chmod 0600 "$TMP_DIR/ssh_key"
-
 # Sync new plugin files to the Atomic test sites.
 EXIT_CODE=0
 for key in $(jq -r 'keys[]' <<<"$SITES"); do
@@ -120,7 +116,7 @@ for key in $(jq -r 'keys[]' <<<"$SITES"); do
   # Attempt to rsync each plugin directory files over SSH.
   for PLUGIN in "${PLUGINS[@]}"; do
     echo "Attempting to sync $PLUGIN files to $key | blog_id: $blog_id"
-    if ! rsync -az --quiet --delete -e "ssh -i $TMP_DIR/ssh_key" "$TMP_DIR/$PLUGIN-dev/" "$ssh_string:$REMOTE_DIR/$PLUGIN/"; then
+    if ! rsync -az --quiet --delete "$TMP_DIR/$PLUGIN-dev/" "$ssh_string:$REMOTE_DIR/$PLUGIN/"; then
       echo "Failed to sync $PLUGIN files to $key | blog_id: $blog_id"
       EXIT_CODE=1
     else
