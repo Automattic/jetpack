@@ -150,7 +150,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		// Endpoint to know if the video metadata is editable.
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/(?P<video_guid>\w+)/belong-to/(?P<post_id>\d+)/',
+			$this->rest_base . '/(?P<video_guid>\w+)/check-ownership/(?P<post_id>\d+)/',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
