@@ -1,4 +1,5 @@
-import { ClipboardButton } from '@wordpress/components';
+import { Button } from '@wordpress/components';
+import { useCopyToClipboard } from '@wordpress/compose';
 import Col from '../../layout/col';
 import Container from '../../layout/container';
 import ThemeProvider, { typography, colors, borders, spacing } from '../index';
@@ -46,6 +47,14 @@ export default {
 
 const noop = () => {
 	//
+};
+
+const ClipboardButton: React.FC< React.ComponentProps< typeof Button > > = ( {
+	text,
+	...buttonProps
+} ) => {
+	const ref = useCopyToClipboard( text, noop );
+	return <Button { ...buttonProps } ref={ ref } />;
 };
 
 const Section = ( { title, data, children = null } ) => (
@@ -97,13 +106,7 @@ export const Typographies = args => (
 			<div className={ styles[ 'font-instance' ] } style={ { fontSize: typography[ key ] } }>
 				{ args?.[ 'Text Instance' ] || `${ key } (${ typography[ key ] } )` }
 
-				<ClipboardButton
-					variant="tertiary"
-					text={ key }
-					isSecondary
-					onCopy={ noop }
-					className={ styles[ 'copy-button' ] }
-				>
+				<ClipboardButton variant="tertiary" text={ key } className={ styles[ 'copy-button' ] }>
 					Copy
 				</ClipboardButton>
 			</div>
@@ -130,8 +133,6 @@ export const Colors = () => (
 				<ClipboardButton
 					variant="tertiary"
 					text={ key }
-					isSecondary
-					onCopy={ noop }
 					className={ styles[ 'copy-button' ] }
 					style={ { color: getContrast( colors[ key ] ) } }
 				>

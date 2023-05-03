@@ -32,6 +32,8 @@ export const PLAN_JETPACK_BACKUP_T2_MONTHLY = 'jetpack_backup_t2_monthly';
 export const PLAN_JETPACK_SEARCH = 'jetpack_search';
 export const PLAN_JETPACK_SEARCH_FREE = 'jetpack_search_free';
 export const PLAN_JETPACK_SEARCH_MONTHLY = 'jetpack_search_monthly';
+export const PLAN_JETPACK_STARTER = 'jetpack_starter_yearly';
+export const PLAN_JETPACK_STARTER_MONTHLY = 'jetpack_starter_monthly';
 export const PLAN_JETPACK_SECURITY_T1_YEARLY = 'jetpack_security_t1_yearly';
 export const PLAN_JETPACK_SECURITY_T1_MONTHLY = 'jetpack_security_t1_monthly';
 export const PLAN_JETPACK_SECURITY_T2_YEARLY = 'jetpack_security_t2_yearly';
@@ -57,7 +59,6 @@ export const PLAN_JETPACK_SOCIAL_BASIC_MONTHLY = 'jetpack_social_basic_monthly';
 export const PLAN_JETPACK_SOCIAL_ADVANCED = 'jetpack_social_advanced_yearly';
 export const PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY = 'jetpack_social_advanced_monthly';
 export const PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME = 'jetpack_golden_token_lifetime';
-
 // DEPRECATED: Daily and Real-time variations will soon be retired.
 // Remove after all customers are migrated to new products.
 export const PLAN_JETPACK_BACKUP_DAILY = 'jetpack_backup_daily';
@@ -75,6 +76,7 @@ export const JETPACK_MONTHLY_PLANS = [
 	PLAN_JETPACK_PREMIUM_MONTHLY,
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 	PLAN_JETPACK_PERSONAL_MONTHLY,
+	PLAN_JETPACK_STARTER_MONTHLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_MONTHLY,
 	PLAN_JETPACK_COMPLETE_MONTHLY,
@@ -99,6 +101,8 @@ export const JETPACK_LEGACY_PLANS_WITH_SECURITY_FEATURES = [
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 ];
 export const JETPACK_BUNDLES = [
+	PLAN_JETPACK_STARTER,
+	PLAN_JETPACK_STARTER_MONTHLY,
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_YEARLY,
@@ -119,6 +123,8 @@ export const JETPACK_PLANS_WITH_BACKUP = [
 	PLAN_JETPACK_PREMIUM_MONTHLY,
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 	PLAN_JETPACK_PERSONAL_MONTHLY,
+	PLAN_JETPACK_STARTER,
+	PLAN_JETPACK_STARTER_MONTHLY,
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_YEARLY,
@@ -135,6 +141,8 @@ export const JETPACK_PLANS_WITH_ANTI_SPAM = [
 	PLAN_JETPACK_PREMIUM_MONTHLY,
 	PLAN_JETPACK_BUSINESS_MONTHLY,
 	PLAN_JETPACK_PERSONAL_MONTHLY,
+	PLAN_JETPACK_STARTER,
+	PLAN_JETPACK_STARTER_MONTHLY,
 	PLAN_JETPACK_SECURITY_T1_YEARLY,
 	PLAN_JETPACK_SECURITY_T1_MONTHLY,
 	PLAN_JETPACK_SECURITY_T2_YEARLY,
@@ -180,6 +188,8 @@ export const JETPACK_SECURITY_BUNDLES = [
 	PLAN_JETPACK_SECURITY_REALTIME,
 	PLAN_JETPACK_SECURITY_REALTIME_MONTHLY,
 ];
+
+const JETPACK_STARTER_BUNDLES = [ PLAN_JETPACK_STARTER, PLAN_JETPACK_STARTER_MONTHLY ];
 
 export const JETPACK_BACKUP_PRODUCTS = [
 	PLAN_JETPACK_BACKUP_T0_YEARLY,
@@ -449,6 +459,16 @@ export function isJetpackBundle( product ) {
 }
 
 /**
+ * Checks if the product slug is a Jetpack Starter bundle.
+ *
+ * @param {string} product - The product slug
+ * @returns {boolean} True if the product is Jetpack Starter bundle
+ */
+export function isJetpackStarterBundle( product ) {
+	return JETPACK_STARTER_BUNDLES.includes( product );
+}
+
+/**
  * Determine if the given product is a Security Bundle.
  *
  * @param {number} product - productId to check
@@ -522,6 +542,9 @@ export function getPlanClass( plan ) {
 		case PLAN_ECOMMERCE_MONTHLY:
 		case PLAN_PRO:
 			return 'is-business-plan';
+		case PLAN_JETPACK_STARTER:
+		case PLAN_JETPACK_STARTER_MONTHLY:
+			return 'is-jetpack-starter-plan';
 		case PLAN_JETPACK_SECURITY_T1_YEARLY:
 		case PLAN_JETPACK_SECURITY_T1_MONTHLY:
 			return 'is-security-t1-plan';
@@ -605,6 +628,8 @@ export function getMonthlyPlanByYearly( plan ) {
 			return PLAN_JETPACK_BUSINESS_MONTHLY;
 		case PLAN_JETPACK_PERSONAL:
 			return PLAN_JETPACK_PERSONAL_MONTHLY;
+		case PLAN_JETPACK_STARTER:
+			return PLAN_JETPACK_STARTER_MONTHLY;
 		case PLAN_JETPACK_SECURITY_T1_YEARLY:
 			return PLAN_JETPACK_SECURITY_T1_MONTHLY;
 		case PLAN_JETPACK_SECURITY_T2_YEARLY:
@@ -662,6 +687,7 @@ export function containsBackupRealtime( planClass ) {
 		'is-backup-t0-plan',
 		'is-backup-t1-plan',
 		'is-backup-t2-plan',
+		'is-startup-plan',
 		'is-security-t1-plan',
 		'is-security-t2-plan',
 		'is-complete-plan',
