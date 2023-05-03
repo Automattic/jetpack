@@ -42,18 +42,18 @@
 
 	function nextPage() {
 		if ( current < total ) {
-			$imageStore.pagination.current += 1;
+			$imageStore.query.page += 1;
 		}
 	}
 
 	function previousPage() {
 		if ( current > 1 ) {
-			$imageStore.pagination.current -= 1;
+			$imageStore.query.page -= 1;
 		}
 	}
 
-	$: current = $imageStore.pagination.current;
-	$: total = $imageStore.pagination.total;
+	$: current = $imageStore.query.page;
+	$: total = $imageStore.data.total_pages;
 	$: pages = generatePagination( current, total );
 </script>
 
@@ -68,7 +68,7 @@
 				<button
 					class:current={page === current}
 					disabled={page === MORE_ICON}
-					on:click={() => ( $imageStore.pagination.current = page )}
+					on:click={() => ( $imageStore.query.page = page )}
 				>
 					{#if page === MORE_ICON}
 						...

@@ -7,7 +7,7 @@ const Dimensions = z.object( {
 	height: z.number(),
 } );
 
-const ImageMeta = z.object( {
+const ImageData = z.object( {
 	thumbnail: z.string(),
 	image: z.object( {
 		url: z.string(),
@@ -32,21 +32,29 @@ const ImageMeta = z.object( {
 
 const ImageSizeAnalysis = z
 	.object( {
-		pagination: z.object( {
-			current: z.number().catch( 1 ),
-			total: z.number().catch( 1 ),
+		query: z.object( {
+			page: z.number(),
+			group: z.string(),
+			search: z.string(),
 		} ),
-		last_updated: z.number(),
-		images: z.array( ImageMeta ),
+		data: z.object( {
+			last_updated: z.number(),
+			total_pages: z.number(),
+			images: z.array( ImageData ),
+		} ),
 	} )
 	// Prevent fatal error when this module isn't available.
 	.catch( {
-		pagination: {
-			current: 1,
-			total: 1,
+		query: {
+			page: 1,
+			group: 'all',
+			search: '',
 		},
-		last_updated: 0,
-		images: [],
+		data: {
+			last_updated: 0,
+			total_pages: 0,
+			images: [],
+		},
 	} );
 
 type CategoryState = {
@@ -83,12 +91,16 @@ export const categories = writable< CategoryState[] >( [
 	},
 ] );
 export type Dimensions = { width: number; height: number };
-export type ImageMeta = z.infer< typeof ImageMeta >;
+export type ImageData = z.infer< typeof ImageData >;
 
 const imageMeta = jetpack_boost_ds.createAsyncStore( 'image_size_analysis', ImageSizeAnalysis );
 imageMeta.setSyncAction( async ( prevValue, value, signal ) => {
-	// Only the current page is writable.
-	if ( prevValue.pagination.current === value.pagination.current ) {
+	// Only query values are writable.
+	if (
+		prevValue.query.page === value.query.page &&
+		prevValue.query.group === value.query.group &&
+		prevValue.query.search === value.query.search
+	) {
 		return prevValue;
 	}
 	// Send a request to the SET endpoint.

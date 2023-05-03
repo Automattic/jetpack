@@ -10,8 +10,8 @@
 </script>
 
 <div class="jb-hero">
-	<span>Latest report as of {formatter.format( $imageStore.last_updated )}</span>
-	<h1>{$imageStore.images.length} Image Recommendations</h1>
+	<span>Latest report as of {formatter.format( $imageStore.data.last_updated )}</span>
+	<h1>{$imageStore.data.images.length} Image Recommendations</h1>
 </div>
 
 <style lang="scss">
