@@ -72,7 +72,7 @@
 		</div>
 	{:else}
 		<div class="summary">
-			{#if value}
+			{#if value.length}
 				<div class="successes">
 					{sprintf(
 						/* Translators: %s refers to the list of excluded items. */
