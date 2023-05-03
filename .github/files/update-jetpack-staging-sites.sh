@@ -68,8 +68,8 @@ for PLUGIN in "${PLUGINS[@]}"; do
     exit 1
   fi
 
-  DOWNLOAD_URL=$(echo "$RESPONSE" | jq -r ".master.download_url")
-  PLUGIN_VERSION=$(echo "$RESPONSE" | jq -r ".master.version")
+  DOWNLOAD_URL=$(jq -r ".master.download_url" <<<"$RESPONSE")
+  PLUGIN_VERSION=$(jq -r ".master.version" <<<"$RESPONSE")
 
   if [[ -z "$DOWNLOAD_URL" || -z "$PLUGIN_VERSION" ]]; then
     echo "Error: unable to extract data from Jetpack Beta Builder response for $PLUGIN."
@@ -112,10 +112,10 @@ chmod 0600 "$TMP_DIR/ssh_key"
 
 # Sync new plugin files to the Atomic test sites.
 EXIT_CODE=0
-for key in $(echo "${SITES}" | jq -r 'keys[]'); do
+for key in $(jq -r 'keys[]' <<<"$SITES"); do
   # Extract values for each site.
-  ssh_string=$(echo "${SITES}" | jq -r --arg key "$key" '.[$key].ssh_string')
-  blog_id=$(echo "${SITES}" | jq -r --arg key "$key" '.[$key].blog_id')
+  ssh_string=$(jq -r --arg key "$key" '.[$key].ssh_string' <<<"$SITES")
+  blog_id=$(jq -r --arg key "$key" '.[$key].blog_id' <<<"$SITES")
 
   # Attempt to rsync each plugin directory files over SSH.
   for PLUGIN in "${PLUGINS[@]}"; do
