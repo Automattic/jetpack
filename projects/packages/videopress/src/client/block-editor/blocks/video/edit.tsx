@@ -535,6 +535,7 @@ export default function VideoPressEdit( {
 					attributes={ attributes }
 					setAttributes={ setAttributes }
 					isGeneratingPoster={ isGeneratingPoster }
+					videoBelongToSite={ videoBelongToSite }
 				/>
 
 				<PrivacyAndRatingPanel

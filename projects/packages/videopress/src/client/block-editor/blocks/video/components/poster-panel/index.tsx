@@ -438,6 +438,7 @@ export default function PosterPanel( {
 	attributes,
 	setAttributes,
 	isGeneratingPoster,
+	videoBelongToSite,
 }: PosterPanelProps ): React.ReactElement {
 	const { poster, posterData } = attributes;
 
@@ -549,6 +550,7 @@ export default function PosterPanel( {
 				label={ __( 'Pick from video frame', 'jetpack-videopress-pkg' ) }
 				checked={ pickPosterFromFrame }
 				onChange={ switchPosterSource }
+				disabled={ ! videoBelongToSite }
 			/>
 
 			<div
