@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { imageStore, imagesAreLoading } from '../ApiMock';
+	import { imageData, imagesAreLoading } from '../datasync-image-size-analysis';
 	import TableRow from './TableRow.svelte';
 </script>
 
@@ -10,7 +10,7 @@
 		<div class="jb-table-header__device">Device</div>
 		<div class="jb-table-header__page">Page/Post</div>
 	</div>
-	{#each $imageStore.data.images as data (data.image.url)}
+	{#each $imageData.data.images as data (data.image.url)}
 		<TableRow {data} />
 	{/each}
 </div>

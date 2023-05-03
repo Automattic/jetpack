@@ -11,26 +11,25 @@ export const categories = writable< CategoryState[] >( [
 	{
 		name: 'Homepage',
 		progress: 100,
-		issues: 2,
+		issues: 22,
 		done: true,
 	},
 	{
 		name: 'Pages',
 		progress: 100,
-		issues: 0,
+		issues: 7,
 		done: true,
 	},
 	{
 		name: 'Posts',
 		progress: 37,
-		issues: 4,
+		issues: 0,
 		done: false,
 	},
 	{
-		name: 'Other',
+		name: 'Other Content',
 		progress: 0,
-		// issues: 0, leaving intentionally undefined
+		issues: 13,
 		done: false,
 	},
 ] );
-export type Dimensions = { width: number; height: number };

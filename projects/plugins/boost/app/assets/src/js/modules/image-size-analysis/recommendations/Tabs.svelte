@@ -1,51 +1,15 @@
 <script lang="ts">
-	import { imageStore } from '../ApiMock';
-
-	const groups = {
-		all: {
-			name: 'All',
-			count: 22,
-		},
-		home: {
-			name: 'Homepage',
-			count: 2,
-		},
-		pages: {
-			name: 'Pages',
-			count: 7,
-		},
-		posts: {
-			name: 'Posts',
-			count: 0,
-		},
-		other: {
-			name: 'Other Content',
-			count: 13,
-		},
-		ignored: {
-			name: 'Ignored',
-			count: 0,
-		},
-	};
-
-	function slugify( str: string ) {
-		return str
-			.toLowerCase()
-			.replace( /[^a-z0-9]+/g, '-' )
-			.replace( /^-|-$/g, '' );
-	}
+	import { imageData } from '../datasync-image-size-analysis';
+	import { imageDataGroupTabs } from '../store/derived-groups';
 </script>
 
 <div class="jb-tabs">
-	{#each Object.entries( groups ) as [key, group]}
-		<div
-			class="jb-tab jb-tab--{slugify( group.name )}"
-			class:active={$imageStore.query.group === key}
-		>
+	{#each Object.entries( $imageDataGroupTabs ) as [key, group]}
+		<div class="jb-tab jb-tab--{key}" class:active={$imageData.query.group === key}>
 			<div class="jb-tab__header">
-				<button on:click={() => ( $imageStore.query.group = key )}
+				<button on:click={() => ( $imageData.query.group = key )}
 					>{group.name}
-					<span>{group.count}</span>
+					<span>{group.issues}</span>
 				</button>
 			</div>
 		</div>

@@ -67,6 +67,9 @@ const image_size_analysis = jetpack_boost_ds.createAsyncStore(
 	ImageSizeAnalysis
 );
 
+/**
+ * Customize the stores where necessary
+ */
 image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
 	// Only query values are writable.
 	if (
@@ -89,6 +92,6 @@ image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
 /**
  * Export the stores
  */
-export type ImageData = z.infer< typeof ImageData >;
+export type ImageSizeAnalysisData = z.infer< typeof ImageData >;
 export const imageData = image_size_analysis.store;
 export const imagesAreLoading = image_size_analysis.pending;

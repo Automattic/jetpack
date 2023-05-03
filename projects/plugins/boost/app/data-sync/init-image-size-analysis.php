@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Data_Sync\Image_Size_Analysis_Entry;
+use Automattic\Jetpack_Boost\Data_Sync\Image_Size_Analysis_Groups;
 
 $image_data = Schema::as_assoc_array(
 	array(
@@ -72,6 +73,21 @@ $image_size_analysis = Schema::as_assoc_array(
 
 $entry = new Image_Size_Analysis_Entry();
 jetpack_boost_register_option( 'image_size_analysis', $image_size_analysis, $entry );
+
+$group_schema = Schema::as_assoc_array(
+	array(
+		'name'     => Schema::as_string(),
+		'progress' => Schema::as_number(),
+		'issues'   => Schema::as_number(),
+		'done'     => Schema::as_boolean(),
+	)
+);
+jetpack_boost_register_option(
+	'image_size_analysis_groups',
+	Schema::as_array( $group_schema ),
+	new Image_Size_Analysis_Groups()
+);
+
 // @TODO
 // Implement using class Storage_Post_Type
 jetpack_boost_register_option(

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ImageData } from '../ApiMock';
+	import { ImageSizeAnalysisData } from '../datasync-image-size-analysis';
 	import TableRowExpanded from './TableRowExpanded.svelte';
 	import TableRowHover from './TableRowHover.svelte';
 	import Device from './components/Device.svelte';
@@ -7,7 +7,7 @@
 	import RowTitle from './components/RowTitle.svelte';
 	import Thumbnail from './components/Thumbnail.svelte';
 
-	export let data: ImageData;
+	export let data: ImageSizeAnalysisData;
 	let expanded = false;
 	let hover = Math.random() > 0.5;
 	const title = data.image.url.split( '/' ).pop();

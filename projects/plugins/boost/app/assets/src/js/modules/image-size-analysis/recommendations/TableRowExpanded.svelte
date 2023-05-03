@@ -2,8 +2,8 @@
 	import { quadOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
 	import Button from '../../../elements/Button.svelte';
-	import { ImageData } from '../ApiMock';
-	export let image: ImageData[ 'image' ];
+	import { ImageSizeAnalysisData } from '../datasync-image-size-analysis';
+	export let image: ImageSizeAnalysisData[ 'image' ];
 	export let instructions: string | undefined;
 </script>
 

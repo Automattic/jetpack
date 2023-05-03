@@ -2,20 +2,20 @@
 	import { sprintf, __ } from '@wordpress/i18n';
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
-	import { categories } from './ApiMock';
+	import { imageDataGroups } from './store/derived-groups';
 </script>
 
 <div class="jb-multi-progress">
-	{#each $categories as category, index}
+	{#each Object.values( $imageDataGroups ) as group, index}
 		<div class="jb-entry">
 			<div class="jb-progress">
-				<ProgressBar progress={category.progress} />
+				<ProgressBar progress={group.progress} />
 			</div>
-			{#if ! category.done && category.progress > 0}
+			{#if ! group.done && group.progress > 0}
 				<Spinner />
 			{:else}
-				<span class="jb-bubble" class:done={category.done}>
-					{#if category.done}
+				<span class="jb-bubble" class:done={group.done}>
+					{#if group.done}
 						✓
 					{:else}
 						{index + 1}
@@ -23,15 +23,15 @@
 				</span>
 			{/if}
 			<div class="jb-category-name">
-				{category.name}
+				{group.name}
 			</div>
-			{#if category.done || category.issues > 0}
-				<div class="jb-status" class:has-issues={category.issues > 0}>
-					{#if category.issues > 0}
+			{#if group.done || group.issues > 0}
+				<div class="jb-status" class:has-issues={group.issues > 0}>
+					{#if group.issues > 0}
 						{sprintf(
 							/* translators: %d is the number of items in this list hidden behind this link */
 							__( '%d issues', 'jetpack-boost' ),
-							category.issues
+							group.issues
 						)}
 					{:else}
 						{__( 'No issues', 'jetpack-boost' )}

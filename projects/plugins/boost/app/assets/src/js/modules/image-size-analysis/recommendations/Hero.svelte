@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { imageStore } from '../ApiMock';
+	import { imageData } from '../datasync-image-size-analysis';
+	import { imageDataActiveGroup } from '../store/derived-groups';
 	const formatter = new Intl.DateTimeFormat( 'en-US', {
 		month: 'long',
 		day: 'numeric',
@@ -10,8 +11,8 @@
 </script>
 
 <div class="jb-hero">
-	<span>Latest report as of {formatter.format( $imageStore.data.last_updated )}</span>
-	<h1>{$imageStore.data.images.length} Image Recommendations</h1>
+	<span>Latest report as of {formatter.format( $imageData.data.last_updated )}</span>
+	<h1>{$imageDataActiveGroup.issues} Image Recommendations</h1>
 </div>
 
 <style lang="scss">
