@@ -30,8 +30,8 @@ export const isNewsletterFeatureEnabled = () => {
 	return getJetpackData()?.jetpack?.is_newsletter_feature_enabled ?? false;
 };
 
-export const isNewsletterConfigured = () => {
-	return getJetpackData()?.jetpack?.is_newsletter_configured ?? false;
+export const showNewsletterAccessPanel = () => {
+	return getJetpackData()?.jetpack?.is_newsletter_panel_active ?? false;
 };
 
 export default function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {

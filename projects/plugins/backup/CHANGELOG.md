@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## 1.7-beta - 2023-04-25
+## 1.7 - 2023-05-02
 ### Changed
 - Updated package dependencies. [#29565]
 - Update WordPress version requirements. Now requires version 6.1. [#30120]

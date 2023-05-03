@@ -41,6 +41,19 @@ module.exports = {
 		requireConfigFile: false,
 	},
 	settings: {
+		'import/resolver': {
+			// Check package.json exports. See https://github.com/import-js/eslint-plugin-import/issues/1810.
+			[ require.resolve( 'eslint-import-resolver-exports' ) ]: {
+				extensions: [ '.js', '.jsx', '.ts', '.tsx' ],
+				conditions: process.env.npm_config_jetpack_webpack_config_resolve_conditions
+					? process.env.npm_config_jetpack_webpack_config_resolve_conditions.split( ',' )
+					: [],
+			},
+			// Check normal node file resolution.
+			node: {
+				extensions: [ '.js', '.jsx', '.ts', '.tsx' ],
+			},
+		},
 		jsdoc: {
 			preferredTypes: {
 				// Override wpcalypso, we'd rather follow jsdoc and typescript in this.

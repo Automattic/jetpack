@@ -493,7 +493,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/image-cdn",
-                "reference": "6a7235d4f10d3d70016239ee89cc6f3c865cffbd"
+                "reference": "9c55f24e18cbee9dfc0c07a6e4f602aa0d288108"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -515,7 +515,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.1.x-dev"
+                    "dev-trunk": "0.2.x-dev"
                 },
                 "textdomain": "jetpack-image-cdn",
                 "version-constants": {
@@ -803,7 +803,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "564147cb2c64ef2f53c235dda82cf55df99db5b8"
+                "reference": "e7523b58e45ca1ad8e62eede5c94250db4bfad70"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -833,7 +833,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.11.x-dev"
+                    "dev-trunk": "2.12.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"

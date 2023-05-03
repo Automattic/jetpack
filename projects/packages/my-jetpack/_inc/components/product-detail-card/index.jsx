@@ -170,8 +170,8 @@ const ProductDetailCard = ( {
 
 	const clickHandler = useCallback( () => {
 		trackButtonClick();
-		onClick?.( mainCheckoutRedirect );
-	}, [ onClick, trackButtonClick, mainCheckoutRedirect ] );
+		onClick?.( mainCheckoutRedirect, detail );
+	}, [ onClick, trackButtonClick, mainCheckoutRedirect, detail ] );
 
 	const trialClickHandler = useCallback( () => {
 		trackButtonClick( wpcomFreeProductSlug );

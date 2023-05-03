@@ -4,11 +4,11 @@
 import type { Button, DropdownMenu } from '@wordpress/components';
 
 type AllowedDropdownMenuProps = Pick<
-	DropdownMenu.PropsWithControls,
+	React.ComponentProps< typeof DropdownMenu >,
 	'controls' | 'popoverProps' | 'toggleProps' | 'label'
 >;
 
-export type SplitButtonProps = Omit< Button.ButtonProps, 'controls' > &
+export type SplitButtonProps = Omit< React.ComponentProps< typeof Button >, 'controls' > &
 	AllowedDropdownMenuProps &
 	// make `controls` prop required
 	Required< Pick< AllowedDropdownMenuProps, 'controls' > >;
