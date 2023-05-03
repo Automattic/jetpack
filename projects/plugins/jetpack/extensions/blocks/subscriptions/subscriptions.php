@@ -152,6 +152,9 @@ function populate_newsletter_access_rows( $column_id, $post_id ) {
 		case Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
 			echo esc_html__( 'Subscribers', 'jetpack' );
 			break;
+		case Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY:
+			echo esc_html__( 'Everybody', 'jetpack' );
+			break;
 		default:
 			echo '';
 	}
