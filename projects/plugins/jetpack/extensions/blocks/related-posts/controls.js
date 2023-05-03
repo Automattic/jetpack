@@ -9,7 +9,7 @@ export function RelatedPostsInspectorControls( { attributes, setAttributes } ) {
 	return (
 		<PanelBody title={ __( 'General settings', 'jetpack' ) }>
 			<ToggleControl
-				label={ __( 'Display thumbnails', 'jetpack' ) }
+				label={ __( 'Display thumbnail', 'jetpack' ) }
 				checked={ displayThumbnails }
 				onChange={ value => setAttributes( { displayThumbnails: value } ) }
 			/>
