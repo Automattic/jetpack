@@ -539,7 +539,13 @@ export default function VideoPressEdit( {
 				/>
 
 				<PrivacyAndRatingPanel
-					{ ...{ attributes, setAttributes, isRequestingVideoData, privateEnabledForSite } }
+					{ ...{
+						attributes,
+						setAttributes,
+						isRequestingVideoData,
+						privateEnabledForSite,
+						videoBelongToSite,
+					} }
 				/>
 			</InspectorControls>
 

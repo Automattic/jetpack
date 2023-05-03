@@ -155,6 +155,10 @@ export type PosterPanelProps = VideoControlProps & {
 	videoBelongToSite?: boolean;
 };
 
+export type PrivacyAndRatingPanelProps = VideoControlProps & {
+	videoBelongToSite?: boolean;
+};
+
 export type VideoEditProps = VideoControlProps;
 
 export type DetailsPanelProps = VideoControlProps & {
