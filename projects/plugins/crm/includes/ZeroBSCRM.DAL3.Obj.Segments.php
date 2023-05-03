@@ -1518,9 +1518,21 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                                 return array('additionalWhereArr'=>
                                             array('emailContains'.$conditionKeySuffix=>array("zbsc_email",'LIKE','%s','%'.$condition['value'].'%'))
                                         );
+					elseif ( $condition['operator'] === 'doesnotcontain' ) {
+						return array(
+							'additionalWhereArr' =>
+							array(
+								'emailDoesNotContain' . $conditionKeySuffix => // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+								array(
+									'zbsc_email',
+									'NOT LIKE',
+									'%s',
+									'%' . $condition['value'] . '%',
+								),
+							),
+						);
+					}
                             break;
-
-
 
 
                         // TBA (When DAL2 trans etc.)
