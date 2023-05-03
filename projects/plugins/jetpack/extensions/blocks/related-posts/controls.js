@@ -39,13 +39,13 @@ export function RelatedPostsBlockControls( { attributes, setAttributes } ) {
 	const layoutControls = [
 		{
 			icon: 'grid-view',
-			title: __( 'Grid View', 'jetpack' ),
+			title: __( 'Grid view', 'jetpack' ),
 			onClick: () => setAttributes( { postLayout: 'grid' } ),
 			isActive: postLayout === 'grid',
 		},
 		{
 			icon: 'list-view',
-			title: __( 'List View', 'jetpack' ),
+			title: __( 'List view', 'jetpack' ),
 			onClick: () => setAttributes( { postLayout: 'list' } ),
 			isActive: postLayout === 'list',
 		},
