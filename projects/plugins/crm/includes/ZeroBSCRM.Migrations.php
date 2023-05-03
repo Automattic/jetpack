@@ -36,44 +36,6 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'55a', // 5.5a Recompiles segments after wp_loaded
 	'551', // 5.5.1 Deletes orphaned aka rows linked to contacts since deleted
 	'560', // 5.6.0 Moves old folder structure (zbscrm-store) to new (jpcrm-stora
-	/*
-	'123','127',
-	'216','22',
-	,'241','242','250','2531',
-	'270', // DAL 2.0
-	'275',
-	'280','281',
-	'287',
-	'2943', // 2.94.2 rebuild roles (added logs perms) + notice for mail delivery peeps (not using wp-mail)
-	'295', // 2.94 - mikes alter of sys emails table + reset user roles (Added emails)
-	'2952', // 2.95.2 - adds cron manager table silently (mc2 prep)
-	'2962', // 2.96.2 - although set to 2953 as less so will run in v2.96.1 also
-	'2964', // 2.96.4 - FIX for missing 2.96.3 extra template for 'password reset email for cp'
-	'2966',	// 2.96.6 - adds extra template for 'pdf statement'
-	'2972', // 2.97.2 - adds db performance improvements for contacts retrieved via tag (including adding indexes)
-	'2974', // 2.97.4 - fixes duplicated email templates (found on 2 installs so far)
-	'2975', // 2.97.5 - (actually included in 2.97.4) corrects borked external sources setup.
-	'2977', // 2.97.7 - Fixes an index to allow non-uniques (for user screen options)
-	'2984', // 2.98.4 - Fixes segment conditions bug
-	'2981',	// 2.98.1 - add in the invoice tax table
-	'2999', // 2.99.0 - install tables for DAL3.0	
-		'3000', // 3.0 - Migrate all the THINGS
-	'305', // 3.0.5 - catch instances where really old installs saved customer statuses as trans statuses gh-179
-	'308', // 3.0.8 - Anyone with pdf module installed already, install pdf fonts for them
-	'3012', // 3.0.12 - Remove any uploads\ directory which may have been accidentally created pre 2.96.6			
-	'3013', // 3.0.13 - Mark any wp options we've set as autoload=false, where they are not commonly needed (perf)
-	'3014', // 3.0.14 - Correct any wrongly permified transaction statuses 'to include'
-	'3017', // 3.0.17 - Change line item quantity to a decimal
-  	'3018', // 3.0.18 - Catch any Contact date custom fields (which were in date format pre v3) and convert them to UTS as v3 expects
-	'3019', // 3.0.19 - Migrate the SMTP passwords
-	'402', // 4.0.2 - Fix the transactions data
-	'407', // 4.0.7 - corrects outdated event notification template
-    '408', // 4.0.8 - Add default reference type of invoices & Update the existing template for email notifications (had old label)
-	//'4010', // 4.0.10 - Jan sale notification 
-	'450', // 4.5.0 - Adds indexing protection to directories with potentially sensitive .html files
-
-
-*/
 	);
 
 global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
