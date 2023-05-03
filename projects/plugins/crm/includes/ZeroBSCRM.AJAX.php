@@ -5349,13 +5349,18 @@ function zeroBSCRM_AJAX_previewSegment() {
 
 			// return error str
 			$error_string = $exception->get_error_code();
+			$status       = 500;
+			if ( $error_string === 'segment_condition_produces_no_args' ) {
+				$status = 400;
+			}
 
 			// return fail
 			zeroBSCRM_sendJSONError(
 				array(
 					'count' => 0,
 					'error' => $error_string,
-				)
+				),
+				$status
 			);
 			exit();
 
