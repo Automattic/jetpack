@@ -98,12 +98,16 @@ export default function useVideoData( {
 				} );
 
 				// Check if the video belongs to the current site.
-				setVideoBelongToSite(
-					await apiFetch( {
-						path: `/wpcom/v2/videopress/${ guid }/check-ownership/${ response.post_id }`,
+				try {
+					const doesBelong: { body: boolean } = await apiFetch( {
+						path: `/wpcom/v2/videopress/${ guid }/check-ownership/${ response.post_id }?_envelope`,
 						method: 'GET',
-					} )
-				);
+					} );
+
+					setVideoBelongToSite( !! doesBelong?.body );
+				} catch ( error ) {
+					debug( 'Error checking if video belongs to site', error );
+				}
 			} catch ( errorData ) {
 				setIsRequestingVideoData( false );
 				throw new Error( errorData?.message ?? errorData );
