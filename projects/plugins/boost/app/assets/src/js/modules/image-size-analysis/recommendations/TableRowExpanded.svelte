@@ -2,9 +2,9 @@
 	import { quadOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
 	import Button from '../../../elements/Button.svelte';
-	import { ISA_Data } from '../store/isa-data';
-	export let image: ISA_Data[ 'image' ];
-	export let instructions: string | undefined;
+	import { ISA_Data, isaIgnoredImages } from '../store/isa-data';
+	export let data: ISA_Data;
+	const { image, instructions } = data;
 </script>
 
 <div class="table-row-expanded" transition:slide={{ duration: 100, easing: quadOut }}>
@@ -47,7 +47,15 @@
 		<p>{instructions}</p>
 		<div class="jb-actions">
 			<Button width="auto" fill>Fix on page</Button>
-			<Button width="auto">Ignore</Button>
+			<Button
+				width="auto"
+				on:click={() => {
+					isaIgnoredImages.update( ignoredImages => {
+						ignoredImages.push( data );
+						return ignoredImages;
+					} );
+				}}>Ignore</Button
+			>
 		</div>
 	</div>
 </div>

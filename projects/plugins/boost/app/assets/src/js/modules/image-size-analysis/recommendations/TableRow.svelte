@@ -69,7 +69,7 @@
 		</div>
 	</div>
 	{#if expanded}
-		<TableRowExpanded image={data.image} instructions={data.instructions} />
+		<TableRowExpanded {data} />
 	{/if}
 </div>
 

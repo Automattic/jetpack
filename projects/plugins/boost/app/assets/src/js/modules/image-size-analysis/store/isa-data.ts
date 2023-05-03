@@ -1,5 +1,7 @@
+import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
+import { imageDataActiveGroup } from './isa-groups';
 
 /**
  * Zod Types
@@ -67,6 +69,11 @@ const image_size_analysis = jetpack_boost_ds.createAsyncStore(
 	ImageSizeAnalysis
 );
 
+const image_size_analysis_ignored_images = jetpack_boost_ds.createAsyncStore(
+	'image_size_analysis_ignored_images',
+	z.array( ImageData ).catch( [] )
+);
+
 /**
  * Only the following values are "writable":
  * * query.page
@@ -81,6 +88,13 @@ image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
 	) {
 		return prevValue;
 	}
+
+	// Don't issue new requests if the group is "ignored".
+	// The derived store will handle this.
+	if( value.query.group === "ignored" ) {
+		return prevValue;
+	}
+
 	// Send a request to the SET endpoint.
 	const fresh = await image_size_analysis.endpoint.SET( value, signal );
 	if ( signal.aborted ) {
@@ -91,9 +105,24 @@ image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
 	return fresh;
 } );
 
+export const isaFilteredImages = derived(
+	[ image_size_analysis.store, image_size_analysis_ignored_images.store ],
+	// Not sure what TS is complaining about here 🤔
+	( [ $data, $ignored ] ) => {
+		console.log($data);
+		if ( $data.query.group === 'ignored' ) {
+			return $ignored;
+		}
+		return $data.data.images.filter(
+			image => ! $ignored.find( ignore => ignore.image.url === image.image.url )
+		);
+	}
+);
+
 /**
  * Export the stores
  */
 export type ISA_Data = z.infer< typeof ImageData >;
 export const isaData = image_size_analysis.store;
 export const isaDataLoading = image_size_analysis.pending;
+export const isaIgnoredImages = image_size_analysis_ignored_images.store;

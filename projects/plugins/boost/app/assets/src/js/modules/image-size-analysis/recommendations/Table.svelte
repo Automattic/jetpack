@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { isaData, isaDataLoading } from '../store/isa-data';
+	import { isaFilteredImages, isaDataLoading } from '../store/isa-data';
 	import TableRow from './TableRow.svelte';
 </script>
 
@@ -10,7 +10,7 @@
 		<div class="jb-table-header__device">Device</div>
 		<div class="jb-table-header__page">Page/Post</div>
 	</div>
-	{#each $isaData.data.images as data (data.image.url)}
+	{#each $isaFilteredImages as data (data.image.url)}
 		<TableRow {data} />
 	{/each}
 </div>

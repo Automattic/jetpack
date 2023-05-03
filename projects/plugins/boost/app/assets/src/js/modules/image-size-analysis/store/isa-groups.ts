@@ -1,7 +1,7 @@
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
-import { isaData } from './isa-data';
+import { isaData, isaIgnoredImages } from './isa-data';
 
 const Group = z.object( {
 	name: z.string(),
@@ -20,25 +20,28 @@ const image_size_analysis_groups = jetpack_boost_ds.createAsyncStore(
 	} )
 );
 
-export const imageDataGroupTabs = derived( image_size_analysis_groups.store, $groups => {
-	const groups = {
-		...{
-			all: {
-				name: 'All',
-				issues: Object.values( $groups ).reduce( ( total, group ) => total + group.issues, 0 ),
+export const imageDataGroupTabs = derived(
+	[ image_size_analysis_groups.store, isaIgnoredImages ],
+	( [ $groups, $ignored ] ) => {
+		const groups = {
+			...{
+				all: {
+					name: 'All',
+					issues: Object.values( $groups ).reduce( ( total, group ) => total + group.issues, 0 ),
+				},
 			},
-		},
-		...$groups,
-		...{
-			ignored: {
-				name: 'Ignored',
-				issues: 0,
+			...$groups,
+			...{
+				ignored: {
+					name: 'Ignored',
+					issues: $ignored.length,
+				},
 			},
-		},
-	};
+		};
 
-	return groups;
-} );
+		return groups;
+	}
+);
 
 export const imageDataActiveGroup = derived(
 	[ imageDataGroupTabs, isaData ],
