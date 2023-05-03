@@ -50,15 +50,15 @@ const JetpackFieldControls = ( {
 
 	const inputColorLabel = isChoicesBlock
 		? __( 'Option Text', 'jetpack-forms' )
-		: __( 'Field Text', 'jetpack-forms' );
+		: __( 'Field Text', 'jetpack-forms', 0 );
 
 	const backgroundColorLabel = isChoicesBlock
 		? __( 'Background', 'jetpack-forms' )
-		: __( 'Field Background', 'jetpack-forms' );
+		: __( 'Field Background', 'jetpack-forms', 0 );
 
 	const stylesPanelTitle = isChoicesBlock
 		? __( 'Options Styles', 'jetpack-forms' )
-		: __( 'Input Field Styles', 'jetpack-forms' );
+		: __( 'Input Field Styles', 'jetpack-forms', 0 );
 
 	const colorSettings = [
 		{
