@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use WP_Error;
 use WP_REST_Controller;
@@ -394,51 +393,6 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 				'ham',
 				get_post_meta( $post_id, '_feedback_akismet_values', true )
 			);
-
-			// Maybe resend the original email
-			$email          = get_post_meta( $post_id, '_feedback_email', true );
-			$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
-
-			if ( empty( $email ) || empty( $content_fields ) ) {
-				continue;
-			}
-
-			$blog_url             = wp_parse_url( site_url() );
-			$headers              = isset( $email['headers'] ) ? $email['headers'] : false;
-			$to                   = isset( $email['to'] ) ? $email['to'] : false;
-			$comment_author_email = isset( $content_fields['_feedback_author_email'] ) ? $content_fields['_feedback_author_email'] : false;
-			$message              = isset( $email['message'] ) ? $email['message'] : false;
-			$reply_to_addr        = false;
-
-			if ( ! $headers ) {
-				$headers = 'From: "' . $content_fields['_feedback_author'] . '" <wordpress@' . $blog_url['host'] . ">\r\n";
-
-				if ( ! empty( $comment_author_email ) ) {
-					$reply_to_addr = $comment_author_email;
-				} elseif ( is_array( $to ) ) {
-					$reply_to_addr = $to[0];
-				}
-
-				if ( $reply_to_addr ) {
-					$headers .= 'Reply-To: "' . $content_fields['_feedback_author'] . '" <' . $reply_to_addr . ">\r\n";
-				}
-
-				$headers .= 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . '"';
-			}
-
-			/**
-			 * Filters the subject of the email sent after a contact form submission.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 3.0.0
-			 *
-			 * @param string $content_fields['_feedback_subject'] Feedback's subject line.
-			 * @param array $content_fields['_feedback_all_fields'] Feedback's data from old fields.
-			 */
-			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'], $content_fields['_feedback_all_fields'] );
-
-			Contact_Form::wp_mail( $to, $subject, $message, $headers );
 		}
 
 		return new \WP_REST_Response( array(), 200 );
