@@ -7,7 +7,7 @@ export function RelatedPostsInspectorControls( { attributes, setAttributes } ) {
 	const { displayContext, displayDate, displayThumbnails, postsToShow } = attributes;
 
 	return (
-		<PanelBody title={ __( 'Related Posts Settings', 'jetpack' ) }>
+		<PanelBody title={ __( 'General settings', 'jetpack' ) }>
 			<ToggleControl
 				label={ __( 'Display thumbnails', 'jetpack' ) }
 				checked={ displayThumbnails }
