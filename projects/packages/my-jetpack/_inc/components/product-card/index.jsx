@@ -109,7 +109,6 @@ const ProductCard = props => {
 	const {
 		name,
 		description,
-		icon,
 		status,
 		onActivate,
 		onAdd,
@@ -238,9 +237,8 @@ const ProductCard = props => {
 			<div className={ styles.title }>
 				<div className={ styles.name }>
 					<Text variant="title-medium">{ name }</Text>
-					{ showMenu && icon }
 				</div>
-				{ showMenu ? (
+				{ showMenu && (
 					<Menu
 						items={ menuItems }
 						showManage={ showManageOption }
@@ -250,8 +248,6 @@ const ProductCard = props => {
 						showInstall={ showInstallOption }
 						onInstall={ installStandaloneHandler }
 					/>
-				) : (
-					icon
 				) }
 			</div>
 			{
@@ -287,7 +283,6 @@ ProductCard.propTypes = {
 	children: PropTypes.node,
 	name: PropTypes.string.isRequired,
 	description: PropTypes.string.isRequired,
-	icon: PropTypes.element,
 	admin: PropTypes.bool.isRequired,
 	isFetching: PropTypes.bool,
 	isInstallingStandalone: PropTypes.bool,
@@ -308,7 +303,6 @@ ProductCard.propTypes = {
 };
 
 ProductCard.defaultProps = {
-	icon: null,
 	isFetching: false,
 	isInstallingStandalone: false,
 	onManage: () => {},
