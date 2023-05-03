@@ -36,6 +36,7 @@ global $zeroBSCRM_migrations; $zeroBSCRM_migrations = array(
 	'55a', // 5.5a Recompiles segments after wp_loaded
 	'551', // 5.5.1 Deletes orphaned aka rows linked to contacts since deleted
 	'560', // 5.6.0 Moves old folder structure (zbscrm-store) to new (jpcrm-storage)
+	'task_offset_fix', // removes task timezone offsets from database
 	);
 
 global $zeroBSCRM_migrations_requirements; $zeroBSCRM_migrations_requirements = array(
@@ -1126,6 +1127,27 @@ function zeroBSCRM_migration_560() { // phpcs:ignore WordPress.NamingConventions
 
 	// Mark as complete.
 	zeroBSCRM_migrations_markComplete( '560', array( 'updated' => 1 ) );
+}
+
+/**
+ * Removes errant task timezone offsets from database
+ */
+function zeroBSCRM_migration_task_offset_fix() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
+	global $wpdb, $ZBSCRM_t; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+	$timezone_offset_in_secs = jpcrm_get_wp_timezone_offset_in_seconds();
+
+	if ( empty( $timezone_offset_in_secs ) ) {
+		return;
+	}
+
+	// remove offset from stored event dates
+	$sql = sprintf( 'UPDATE %s SET zbse_start = zbse_start - %d;', $ZBSCRM_t['events'], $timezone_offset_in_secs ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	$sql = sprintf( 'UPDATE %s SET zbse_end = zbse_end - %d;', $ZBSCRM_t['events'], $timezone_offset_in_secs ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$wpdb->query( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+
+	zeroBSCRM_migrations_markComplete( 'task_offset_fix', array( 'updated' => 1 ) );
 }
 
 /* ======================================================
