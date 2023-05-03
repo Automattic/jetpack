@@ -18,8 +18,8 @@ class Type_Array implements Schema_Type {
 		}
 
 		$sanitized_data = array();
-		foreach ( $data as $key => $value ) {
-			$sanitized_data[ $key ] = $this->sub_schema->parse( $value );
+		foreach ( $data as $value ) {
+			$sanitized_data[] = $this->sub_schema->parse( $value );
 		}
 		return $sanitized_data;
 	}
