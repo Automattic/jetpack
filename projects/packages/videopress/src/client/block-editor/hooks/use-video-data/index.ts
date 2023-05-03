@@ -35,7 +35,7 @@ export default function useVideoData( {
 }: UseVideoDataArgumentsProps ): UseVideoDataProps {
 	const [ videoData, setVideoData ] = useState< VideoDataProps >( {} );
 	const [ isRequestingVideoData, setIsRequestingVideoData ] = useState( false );
-	const [ videoBelongToSite, setVideoBelongToSite ] = useState( false );
+	const [ videoBelongToSite, setVideoBelongToSite ] = useState( true );
 
 	useEffect( () => {
 		// Skip check for native as only simple WordPress.com sites are supported in the current native block.
