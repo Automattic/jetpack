@@ -1219,12 +1219,11 @@ final class Image_CDN {
 			'../dist/image-cdn.js',
 			__FILE__,
 			array(
+				'enqueue'    => true,
 				'nonminpath' => 'js/image-cdn.js',
 				'in_footer'  => true,
 			)
 		);
-
-		Assets::enqueue_script( 'jetpack-image-cdn' );
 	}
 
 	/**
