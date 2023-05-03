@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Don't preserve keys when parsing Arrays; if a key is missing it will be JSONified as an Object unexpectedly
