@@ -62,6 +62,15 @@ export default function DetailsPanel( {
 
 	return (
 		<PanelBody title={ __( 'Details', 'jetpack-videopress-pkg' ) }>
+			{ ! videoBelongToSite && (
+				<Notice status="warning" isDismissible={ false } className="not-belong-to-site-notice">
+					{ __(
+						'Video not owned by this site: editing not possible, yet embedding and customization are still supported.',
+						'jetpack-videopress-pkg'
+					) }
+				</Notice>
+			) }
+
 			<TextControl
 				label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 				value={ title }
