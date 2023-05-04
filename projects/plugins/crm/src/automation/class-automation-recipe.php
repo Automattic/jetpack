@@ -142,18 +142,18 @@ class Automation_Recipe {
 		while ( $step_data ) {
 			try {
 					$step_name = $step_data['name'];
-					$step_type = $step_data['type'];
-
-					$this->logger->log( 'Executing step: ' . $step_name . ' - Type: ' . $step_type );
 					
-					$step_class = $this->automation_engine->get_step_class( $step_name, $step_type );
+					$step_class = $this->automation_engine->get_step_class( $step_name );
 				
 					/** @var Step $step */
 					$step = new $step_class( $step_data );
+	
+					$this->logger->log( 'Executing step: ' . $step->get_name() . ' - Type: ' . $step->get_type() );
+					
 					$step->execute( $data );
 					$step_data = $step->get_next_step();
 
-					$this->logger->log( 'Step executed: ' . $step_name );
+					$this->logger->log( 'Step executed.' );
 					
 				if ( ! $step_data ) {
 					$this->logger->log( 'Recipe execution finished: No more steps found.' );
@@ -210,5 +210,21 @@ class Automation_Recipe {
 	 */
 	public function add_trigger( string $string ) {
 		$this->triggers[] = $string;
+	}
+	
+	/**
+	 * Set Automation Logger
+	 * @param Automation_Logger $logger
+	 */
+	public function set_logger( Automation_Logger $logger ) {
+		$this->logger = $logger;
+	}
+	
+	/**
+	 * Set Automation Engine
+	 * @param Automation_Engine $automation_engine
+	 */
+	public function set_automation_engine( Automation_Engine $automation_engine ) {
+		$this->automation_engine = $automation_engine;
 	}
 }
