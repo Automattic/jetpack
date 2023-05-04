@@ -1016,7 +1016,7 @@ table.wpsc-settings-table {
 				update_option( 'preload_cache_counter', array( 'c' => $preload_counter['c'], 't' => time() ) );
 			}
 
-			if ( is_array( $preload_counter ) && $preload_counter['c'] > 0 ) {
+			if ( ( is_array( $preload_counter ) && $preload_counter['c'] > 0 ) || get_transient( 'taxonomy_preload' ) ) {
 				$currently_preloading = true;
 				if ( @file_exists( $cache_path . 'preload_permalink.txt' ) ) {
 					$url  = file_get_contents( $cache_path . 'preload_permalink.txt' );
@@ -3263,6 +3263,7 @@ function wp_cron_preload_cache() {
 							@unlink( $cache_path . "stop_preload.txt" );
 							@unlink( $taxonomy_filename );
 							update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
+							delete_transient( 'taxonomy_preload' );
 							if ( $wp_cache_preload_email_me )
 								wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
 							return true;
