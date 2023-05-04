@@ -165,9 +165,10 @@ function wpcom_register_default_launchpad_checklists() {
 	wpcom_register_launchpad_task(
 		array(
 			'id'                   => 'domain_upsell',
+			'id_map'               => 'domain_upsell_deferred',
 			'title'                => __( 'Choose a domain', 'jetpack-mu-wpcom' ),
 			'is_complete_callback' => 'wpcom_is_domain_upsell_completed',
-			'badge_text'           => wpcom_get_domain_upsell_badge_text(),
+			'badge_text_callback'  => 'wpcom_get_domain_upsell_badge_text',
 		)
 	);
 
@@ -280,10 +281,47 @@ function wpcom_register_default_launchpad_checklists() {
 	// This is the hook that allows other plugins to register their own checklists.
 	do_action( 'wpcom_register_launchpad_tasks' );
 
-	// Here we grab all of the tasks for the site's site_intent flow and see which are active and add their listener hooks
+	wpcom_add_active_task_listener_hooks_to_correct_action();
 }
+
 // Running on priority 11 will allow anything that adds hooks on init with default priority 10 to add their hooks to the `wpcom_register_launchpad_tasks` action.
 add_action( 'init', 'wpcom_register_default_launchpad_checklists', 11 );
+
+/**
+ * Adds hooks to the correct action to add active task listeners.
+ * Handles REST API requests vs non-REST API requests.
+ *
+ * @return null
+ */
+function wpcom_add_active_task_listener_hooks_to_correct_action() {
+	$url = wp_parse_url( home_url(), PHP_URL_HOST );
+	if ( $url === 'public-api.wordpress.com' ) {
+		return add_action( 'rest_api_switched_to_blog', 'wpcom_launchpad_add_active_task_listeners' );
+	}
+
+	// If we're not deferring to REST API blog switch, just run now
+	return wpcom_launchpad_add_active_task_listeners();
+}
+
+/**
+ * Adds task-defined `add_listener_callback` hooks for incomplete tasks.
+ *
+ * @return void
+ */
+function wpcom_launchpad_add_active_task_listeners() {
+	wpcom_launchpad_checklists()->add_hooks_for_active_tasks();
+}
+
+// unhook our old mu-plugin
+add_action(
+	'plugins_loaded',
+	function () {
+		if ( class_exists( 'WPCOM_Launchpad' ) ) {
+			remove_action( 'plugins_loaded', array( WPCOM_Launchpad::get_instance(), 'init' ) );
+		}
+	},
+	9
+);
 
 /**
  * Determines whether or not the videopress upload task is enabled
@@ -291,7 +329,7 @@ add_action( 'init', 'wpcom_register_default_launchpad_checklists', 11 );
  * @return boolean True if videopress upload task is enabled
  */
 function wpcom_is_videopress_upload_disabled() {
-	return wpcom_get_checklist_task( 'video_uploaded' );
+	return wpcom_is_checklist_task_complete( 'video_uploaded' );
 }
 
 /**
@@ -300,7 +338,7 @@ function wpcom_is_videopress_upload_disabled() {
  * @return boolean True if videopress launch task is enabled
  */
 function wpcom_is_videopress_launch_disabled() {
-	return ! wpcom_get_checklist_task( 'video_uploaded' );
+	return ! wpcom_is_checklist_task_complete( 'video_uploaded' );
 }
 
 /**
@@ -309,7 +347,7 @@ function wpcom_is_videopress_launch_disabled() {
  * @return boolean True if link-in-bio launch task is enabled
  */
 function wpcom_is_link_in_bio_launch_disabled() {
-	return ! wpcom_get_checklist_task( 'links_edited' );
+	return ! wpcom_is_checklist_task_complete( 'links_edited' );
 }
 
 /**
@@ -332,15 +370,17 @@ function wpcom_is_design_step_enabled() {
 }
 
 /**
- * Determines whether or not domain upsell task is completed
+ * Determines whether or not domain upsell task is completed.
  *
- * @return boolean True if domain upsell task is completed
+ * @param array $task    The Task object.
+ * @param mixed $default The default value.
+ * @return bool True if domain upsell task is completed.
  */
-function wpcom_is_domain_upsell_completed() {
+function wpcom_is_domain_upsell_completed( $task, $default ) {
 	if ( wpcom_site_has_feature( 'custom-domain' ) ) {
 		return true;
 	}
-	return wpcom_get_checklist_task( 'domain_upsell_deferred' );
+	return $default;
 }
 
 /**
@@ -366,24 +406,20 @@ function wpcom_get_plan_selected_subtitle() {
  * @return string Badge text
  */
 function wpcom_get_domain_upsell_badge_text() {
-	return wpcom_is_domain_upsell_completed() ? '' : __( 'Upgrade plan', 'jetpack-mu-wpcom' );
+	// Never run `wpcom_is_checklist_task_complete` within a is_complete_callback unless you are fond of infinite loops.
+	return wpcom_is_checklist_task_complete( 'domain_upsell' ) ? '' : __( 'Upgrade plan', 'jetpack-mu-wpcom' );
 }
 
 /**
  * Returns launchpad checklist task by task id.
  *
- * @param string $task Task id.
+ * @param string $task_id Task id.
  *
  * @return array Associative array with task data
  *               or false if task id is not found.
  */
-function wpcom_get_checklist_task( $task ) {
-	$launchpad_checklist_tasks_statuses_option = get_option( 'launchpad_checklist_tasks_statuses' );
-	if ( is_array( $launchpad_checklist_tasks_statuses_option ) && isset( $launchpad_checklist_tasks_statuses_option[ $task ] ) ) {
-			return $launchpad_checklist_tasks_statuses_option[ $task ];
-	}
-
-	return false;
+function wpcom_is_checklist_task_complete( $task_id ) {
+	return wpcom_launchpad_checklists()->is_task_id_complete( $task_id );
 }
 
 /**

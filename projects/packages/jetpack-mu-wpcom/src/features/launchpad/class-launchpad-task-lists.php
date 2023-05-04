@@ -82,30 +82,6 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
-	 * Register a new Launchpad Task
-	 *
-	 * @param Task[] $tasks Collection of task definitions.
-	 *
-	 * @return bool True if successful, false if not.
-	 */
-	public function register_tasks( $tasks = array() ) {
-		$tasks_to_register = array();
-
-		foreach ( $tasks as $task ) {
-			// Register none of the tasks if any are invalid.
-			if ( ! $this->validate_task( $task ) ) {
-				return false;
-			}
-
-			$tasks_to_register[ $task['id'] ] = $task;
-		}
-
-		// TODO: Handle duplicate tasks
-		$this->task_registry = array_merge( $this->task_registry, $tasks_to_register );
-		return true;
-	}
-
-	/**
 	 * Unregister a Launchpad Task List
 	 *
 	 * @param string $id Task List id.
@@ -159,7 +135,7 @@ class Launchpad_Task_Lists {
 	 *
 	 * @return Task Task.
 	 */
-	protected function get_task( $id ) {
+	public function get_task( $id ) {
 		if ( ! array_key_exists( $id, $this->task_registry ) ) {
 			return array();
 		}
@@ -181,11 +157,11 @@ class Launchpad_Task_Lists {
 		// Takes a registered task list, looks at its associated task ids,
 		// and returns a collection of associated tasks.
 		foreach ( $task_list['task_ids'] as $task_id ) {
-			$task = $this->get_task( $task_id );
+			$task_definition = $this->get_task( $task_id );
 
 			// if task can't be found don't add anything
-			if ( ! empty( $task ) ) {
-				$tasks_for_task_list[] = $this->build_task( $task );
+			if ( ! empty( $task_definition ) ) {
+				$tasks_for_task_list[] = $this->build_task( $task_definition );
 			}
 		}
 
@@ -206,9 +182,25 @@ class Launchpad_Task_Lists {
 		$built_task['completed']    = $this->is_task_complete( $task );
 		$built_task['disabled']     = $this->is_task_disabled( $task );
 		$built_task['subtitle']     = $this->load_subtitle( $task );
+		$built_task['badge_text']   = $this->load_value_from_callback( $task, 'badge_text_callback' );
 		$built_task['isLaunchTask'] = isset( $task['isLaunchTask'] ) ? $task['isLaunchTask'] : false;
-		$built_task['badge_text']   = isset( $task['badge_text'] ) ? $task['badge_text'] : '';
+
 		return $built_task;
+	}
+
+	/**
+	 * Given a task definition and a possible callback, call it and return the value.
+	 *
+	 * @param Task   $task A task definition.
+	 * @param string $callback The callback to attempt to call.
+	 * @param mixed  $default The default value, passed to the callback if it exists.
+	 * @return mixed The value returned by the callback, or the default value.
+	 */
+	private function load_value_from_callback( $task, $callback, $default = '' ) {
+		if ( isset( $task[ $callback ] ) && is_callable( $task[ $callback ] ) ) {
+			return call_user_func_array( $task[ $callback ], array( $task, $default ) );
+		}
+		return $default;
 	}
 
 	/**
@@ -218,11 +210,13 @@ class Launchpad_Task_Lists {
 	 * @return string The subtitle for the task.
 	 */
 	private function load_subtitle( $task ) {
+		$subtitle = $this->load_value_from_callback( $task, 'subtitle' );
+		if ( ! empty( $subtitle ) ) {
+			return $subtitle;
+		}
+		// if it wasn't a callback, but still a string, return it.
 		if ( isset( $task['subtitle'] ) ) {
-			if ( is_callable( $task['subtitle'] ) ) {
-				return call_user_func( $task['subtitle'] );
-			}
-			return $task['subtitle'];
+			$task['subtitle'];
 		}
 		return '';
 	}
@@ -234,10 +228,7 @@ class Launchpad_Task_Lists {
 	 * @return boolean
 	 */
 	public function is_task_disabled( $task ) {
-		if ( isset( $task['is_disabled_callback'] ) && is_callable( $task['is_disabled_callback'] ) ) {
-			return call_user_func( $task['is_disabled_callback'] );
-		}
-		return false;
+		return $this->load_value_from_callback( $task, 'is_disabled_callback', false );
 	}
 
 	/**
@@ -247,12 +238,28 @@ class Launchpad_Task_Lists {
 	 * @return boolean
 	 */
 	public function is_task_complete( $task ) {
-		if ( isset( $task['is_complete_callback'] ) && is_callable( $task['is_complete_callback'] ) ) {
-			return call_user_func( $task['is_complete_callback'] );
+		// First we calculate the value from our statuses option. This will get passed to the callback, if it exists.
+		// Othewise there is the temptation for the callback to fall back to the option, which would cause infinite recursion
+		// as it continues to calculate the callback which falls back to the option: ∞.
+		$statuses    = get_option( 'launchpad_checklist_tasks_statuses', array() );
+		$key         = isset( $task['id_map'] ) ? $task['id_map'] : $task['id'];
+		$is_complete = isset( $statuses[ $key ] ) ? $statuses[ $key ] : false;
+
+		return (bool) $this->load_value_from_callback( $task, 'is_complete_callback', $is_complete );
+	}
+
+	/**
+	 * Checks if a task wight given ID is complete.
+	 *
+	 * @param string $task_id The task ID.
+	 * @return boolean
+	 */
+	public function is_task_id_complete( $task_id ) {
+		$task = $this->get_task( $task_id );
+		if ( empty( $task ) ) {
+			return false;
 		}
-		$statuses = get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$key      = isset( $task['id_map'] ) ? $task['id_map'] : $task['id'];
-		return isset( $statuses[ $key ] ) ? $statuses[ $key ] : false;
+		return $this->is_task_complete( $task );
 	}
 
 	/**
@@ -281,6 +288,36 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Adds task-defined `add_listener_callback` hooks for incomplete tasks.
+	 *
+	 * @param string $task_list_id Optional. Will default to `site_intent` option.
+	 * @return void
+	 */
+	public function add_hooks_for_active_tasks( $task_list_id = null ) {
+		// leave things alone if Launchpad is not enabled.
+		if ( ! $this->is_launchpad_enabled() ) {
+			return;
+		}
+		$task_list_id = $task_list_id ? $task_list_id : get_option( 'site_intent' );
+		if ( ! $task_list_id ) {
+			return;
+		}
+		$task_list = $this->get_task_list( $task_list_id );
+		if ( empty( $task_list ) ) {
+			return;
+		}
+		$built_tasks = $this->build( $task_list_id );
+		// filter for incomplete tasks that have a callback
+		$tasks_to_hook = wp_list_filter( $built_tasks, array( 'completed' => false ) );
+		foreach ( $tasks_to_hook as $task ) {
+			$task_definition = $this->get_task( $task['id'] );
+			if ( isset( $task_definition['add_listener_callback'] ) && is_callable( $task_definition['add_listener_callback'] ) ) {
+				call_user_func_array( $task_definition['add_listener_callback'], array( $task, $task_definition ) );
+			}
+		}
+	}
+
+	/**
 	 * Validate a Launchpad Task
 	 *
 	 * @param Task $task Task.
@@ -303,6 +340,17 @@ class Launchpad_Task_Lists {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Checks if Launchpad is enabled.
+	 *
+	 * @return boolean
+	 */
+	private function is_launchpad_enabled() {
+		$launchpad_screen = get_option( 'launchpad_screen' );
+		// todo also check for incomplete tasks
+		return 'full' === $launchpad_screen;
 	}
 
 }
