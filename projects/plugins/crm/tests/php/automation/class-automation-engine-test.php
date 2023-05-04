@@ -5,7 +5,6 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Exception;
-use Automattic\Jetpack\CRM\Automation\Automation_Logger;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/tools/class-automation-faker.php';
@@ -29,9 +28,8 @@ class Automation_Engine_Test extends BaseTestCase {
 	 */
 	public function test_automation_engine_instance() {
 		$automation_1 = Automation_Engine::instance();
-		$automation_1->set_automation_logger( Automation_Logger::instance() );
 
-		$this->assertTrue( $automation_1 instanceof Automation_Engine );
+		$this->assertTrue( ( $automation_1 && $automation_1 instanceof Automation_Engine ) );
 
 		// Test a second instance should be the same as the first one
 		$automation_2 = Automation_Engine::instance();
@@ -40,27 +38,29 @@ class Automation_Engine_Test extends BaseTestCase {
 
 	/**
 	 * @testdox Register a trigger to the automation engine
+	 * @throws Automation_Exception
 	 */
 	public function test_automation_register_trigger() {
 		$automation = Automation_Engine::instance();
-		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
 
-		// Get the map of registered trigger_name => trigger_class
-		$triggers = $automation->get_registered_triggers();
+		$automation->register_step( 'contact_created', Contact_Created_Trigger::class );
 
-		$this->assertCount( 1, $triggers );
-		$this->assertEquals( Contact_Created_Trigger::class, $triggers['contact_created'] );
+		// Get the map of registered step_name => step_class
+		$steps = $automation->get_registered_steps();
+
+		$this->assertCount( 1, $steps );
+		$this->assertEquals( Contact_Created_Trigger::class, $steps['contact_created'] );
 	}
 
 	/**
-	 * @testdox Register an invalid trigger class to the automation engine
+	 * @testdox Register an invalid step class to the automation engine
 	 */
-	public function test_automation_register_invalid_trigger() {
+	public function test_automation_register_invalid_step() {
 		$automation = Automation_Engine::instance();
 
 		$this->expectException( Automation_Exception::class );
-		$this->expectExceptionCode( Automation_Exception::TRIGGER_CLASS_NOT_FOUND );
+		$this->expectExceptionCode( Automation_Exception::STEP_CLASS_NOT_FOUND );
 
-		$automation->register_trigger( 'contact_created', 'Invalid_Trigger_Class' );
+		$automation->register_step( 'contact_created', 'Invalid_Trigger_Class' );
 	}
 }
