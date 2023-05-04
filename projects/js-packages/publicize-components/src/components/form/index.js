@@ -22,6 +22,9 @@ import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
+const checkConnectionCode = ( connection, code ) =>
+	! connection.is_healthy && code === ( connection.error_code ?? 'broken' );
+
 /**
  * The Publicize form component. It contains the connection list, and the message box.
  *
@@ -53,11 +56,11 @@ export default function PublicizeForm( {
 		isSocialImageGeneratorEnabled && isSocialImageGeneratorEnabledForPost;
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
-	const brokenConnections = connections.filter(
-		connection => false === connection.is_healthy && 'broken' === connection.error_code
+	const brokenConnections = connections.filter( connection =>
+		checkConnectionCode( connection, 'broken' )
 	);
-	const unsupportedConnections = connections.filter(
-		connection => false === connection.is_healthy && 'unsupported' === connection.error_code
+	const unsupportedConnections = connections.filter( connection =>
+		checkConnectionCode( connection, 'unsupported' )
 	);
 
 	const outOfConnections =

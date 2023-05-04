@@ -26,7 +26,7 @@ jQuery( function ( $ ) {
 			: response.data.reduce( ( count, testResult ) => {
 					if (
 						! testResult.connectionTestPassed &&
-						status === testResult.connectionTestErrorCode
+						status === ( testResult.connectionTestErrorCode ?? 'broken' )
 					) {
 						$( '#wpas-submit-' + testResult.unique_id )
 							.prop( 'checked', false )
