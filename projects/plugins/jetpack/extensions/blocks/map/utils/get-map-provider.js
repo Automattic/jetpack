@@ -19,7 +19,7 @@ const getMapProvider = props => {
 
 	if ( window && typeof window.Jetpack_Maps?.provider === 'string' ) {
 		if ( [ 'mapbox', 'mapkit' ].includes( window.Jetpack_Maps?.provider ) ) {
-			return window.map_block_settings?.provider;
+			return window.Jetpack_Maps?.provider;
 		}
 	}
 	return 'mapbox';
