@@ -2,6 +2,7 @@ import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { SearchPreview } from '@automattic/social-previews';
 import { __ } from '@wordpress/i18n';
 import FacebookPreview from '../facebook-preview';
+import TumblrPreview from '../tumblr-preview';
 import { LinkedIn } from './linkedin';
 import { Twitter } from './twitter';
 
@@ -40,7 +41,7 @@ export const AVAILABLE_SERVICES = [
 		title: __( 'Tumblr', 'jetpack' ),
 		icon: props => <SocialServiceIcon serviceName="tumblr" { ...props } />,
 		name: 'tumblr',
-		preview: () => null,
+		preview: TumblrPreview,
 	},
 	{
 		title: __( 'Mastodon', 'jetpack' ),
