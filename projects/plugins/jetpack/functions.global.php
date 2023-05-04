@@ -428,25 +428,83 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
 }
 
 /**
+ * Go through headers and get a list of Vary headers to add,
+ * including a Vary Accept header if necessary.
+ *
+ * @since $$next-version$$
+ *
+ * @param array $headers The headers to be sent.
+ *
+ * @return array $vary_header_parts Vary Headers to be sent.
+ */
+function jetpack_get_vary_headers( $headers = array() ) {
+	$vary_header_parts = array( 'accept', 'content-type' );
+
+	foreach ( $headers as $header ) {
+		// Check for a Vary header.
+		if ( 'vary:' !== substr( strtolower( $header ), 0, 5 ) ) {
+			continue;
+		}
+
+		// If the header is a wildcard, we'll return that.
+		if ( false !== strpos( $header, '*' ) ) {
+			$vary_header_parts = array( '*' );
+			break;
+		}
+
+		// Remove the Vary: part of the header.
+		$header = preg_replace( '/^vary\:\s?/i', '', $header );
+
+		// Remove spaces from the header.
+		$header = str_replace( ' ', '', $header );
+
+		// Break the header into parts.
+		$header_parts = explode( ',', strtolower( $header ) );
+
+		// Build an array with the Accept header and what was already there.
+		$vary_header_parts = array_values( array_unique( array_merge( $vary_header_parts, $header_parts ) ) );
+	}
+
+	return $vary_header_parts;
+}
+
+/**
  * Determine whether the current request is for accessing the frontend.
+ * Also update Vary headers to indicate that the response may vary by Accept header.
  *
  * @return bool True if it's a frontend request, false otherwise.
  */
 function jetpack_is_frontend() {
-	$is_frontend = true;
+	$is_frontend        = true;
+	$is_varying_request = true;
 
 	if (
-		is_admin() ||
-		wp_doing_ajax() ||
-		wp_is_json_request() ||
-		wp_is_jsonp_request() ||
-		wp_is_xml_request() ||
-		is_feed() ||
-		( defined( 'REST_REQUEST' ) && REST_REQUEST ) ||
-		( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
-		( defined( 'WP_CLI' ) && WP_CLI )
+		is_admin()
+		|| wp_doing_ajax()
+		|| wp_is_jsonp_request()
+		|| is_feed()
+		|| ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+		|| ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST )
+		|| ( defined( 'WP_CLI' ) && WP_CLI )
+	) {
+		$is_frontend        = false;
+		$is_varying_request = false;
+	} elseif (
+		wp_is_json_request()
+		|| wp_is_xml_request()
 	) {
 		$is_frontend = false;
+	}
+
+	/*
+	 * Check existing headers for the request.
+	 * If there is no existing Vary Accept header, add one.
+	 */
+	if ( $is_varying_request && ! headers_sent() ) {
+		$headers           = headers_list();
+		$vary_header_parts = jetpack_get_vary_headers( $headers );
+
+		header( 'Vary: ' . implode( ', ', $vary_header_parts ) );
 	}
 
 	/**

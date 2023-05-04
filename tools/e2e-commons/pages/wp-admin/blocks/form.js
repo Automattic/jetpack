@@ -17,6 +17,7 @@ export default class FormBlock extends EditorCanvas {
 	async selectFormVariation() {
 		logger.step( `Selecting form variation` );
 		await this.canvas().click( `button:has-text('Explore Form Patterns')` );
+		await this.click( `button[aria-label='Carousel view']` );
 		await this.click( `button:has-text('Choose')` );
 	}
 
