@@ -8,6 +8,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Image_CDN\Image_CDN;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
 /**
@@ -68,12 +69,12 @@ function jetpack_photon_banned_domains( $skip, $image_url ) {
 /**
  * Jetpack Photon - Support Text Widgets.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Image_CDN\Image_CDN_Core::support_text_widgets instead.
+ * @deprecated $$next-version$$
  * @access public
  * @param string $content Content from text widget.
  * @return string
  */
 function jetpack_photon_support_text_widgets( $content ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Image_CDN\Image_CDN_Core::support_text_widgets' );
-	return Image_CDN_Core::support_text_widgets( $content );
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+	return Image_CDN::filter_the_content( $content );
 }
