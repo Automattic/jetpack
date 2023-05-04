@@ -1,20 +1,23 @@
 import { addQueryArgs } from '@wordpress/url';
 import { VideoBlockAttributes, VideoGUID } from '../../block-editor/blocks/video/types';
 
-type VideoPressUrlOptions = Pick<
-	VideoBlockAttributes,
-	| 'autoplay'
-	| 'controls'
-	| 'loop'
-	| 'muted'
-	| 'playsinline'
-	| 'poster'
-	| 'preload'
-	| 'seekbarColor'
-	| 'seekbarPlayedColor'
-	| 'seekbarLoadingColor'
-	| 'useAverageColor'
->;
+const VIDEOPRESS_URL_ARGS = [
+	'autoplay',
+	'controls',
+	'loop',
+	'muted',
+	'playsinline',
+	'poster',
+	'preload',
+	'seekbarColor',
+	'seekbarPlayedColor',
+	'seekbarLoadingColor',
+	'useAverageColor',
+] as const;
+
+type VideoPressUrlArgsProps = typeof VIDEOPRESS_URL_ARGS;
+type VideoPressUrlArgProp = VideoPressUrlArgsProps[ number ];
+type VideoPressUrlOptions = Pick< VideoBlockAttributes, VideoPressUrlArgProp >;
 
 export const getVideoPressUrl = (
 	guid: string,
