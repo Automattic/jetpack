@@ -394,7 +394,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                         echo json_encode($zbsLogsExpose);
                     } else
                         echo json_encode(array());
-
+                // phpcs:disable Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed
                 ?>;
 
                 var zbsLogEditing = -1;
@@ -526,7 +526,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                                             // hide + clear form
                                             jQuery('#zbsAddLogFormTR').hide();
                                             jQuery('#zbscrmAddLog').show();
-                                            jQuery('#zbsAddLogType').val('Note');
+                                            jQuery('#zbsAddLogType').val('note');
                                             jQuery('#zbsAddLogMainDesc').val('');
                                             jQuery('#zbsAddLogDetailedDesc').val('');
                                             jQuery('#zbsAddLogPinNote').prop('checked', false);
@@ -1589,6 +1589,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                 }
                 
                 </script><?php
+                // phpcs:enable Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed
 
         } // / if post type
 
