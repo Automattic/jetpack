@@ -1,26 +1,33 @@
 /**
  * External dependencies
  */
-import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-import { unregisterBlockVariation } from '@wordpress/blocks';
-import domReady from '@wordpress/dom-ready';
 import { addFilter } from '@wordpress/hooks';
-import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
 import withCoreEmbedVideoPressBlock from './edit';
 
-const debug = debugFactory( 'videopress:extend:core/embed' );
-
-const extendCoreEmbedVideoPressBlock = ( settings, name ) => {
-	if ( isSimpleSite() ) {
-		return settings;
+const addCoreEmbedOverride = settings => {
+	if ( ! ( 'variations' in settings ) || 'object' !== typeof settings.variations ) {
+		return;
 	}
 
+	settings.variations.some( variation => {
+		if ( 'videopress' === variation.name ) {
+			variation.scope = [];
+			return true;
+		}
+		return false;
+	} );
+};
+
+const extendCoreEmbedVideoPressBlock = ( settings, name ) => {
 	if ( name !== 'core/embed' ) {
 		return settings;
 	}
+
+	// Hide the core/embed block, `videopress` variation.
+	addCoreEmbedOverride( settings );
 
 	return {
 		...settings,
@@ -39,11 +46,3 @@ addFilter(
 	'videopress/core-embed/handle-representation',
 	extendCoreEmbedVideoPressBlock
 );
-
-domReady( function () {
-	// @todo: horrible hack to make the unregister work
-	setTimeout( () => {
-		debug( 'unregister core/embed videopress variation' );
-		unregisterBlockVariation( 'core/embed', 'videopress' );
-	}, 0 );
-} );
