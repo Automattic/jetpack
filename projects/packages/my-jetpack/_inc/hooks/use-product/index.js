@@ -1,4 +1,10 @@
+/**
+ * External dependencies
+ */
 import { useSelect, useDispatch } from '@wordpress/data';
+/**
+ * Internal dependencies
+ */
 import { STORE_ID } from '../../state/store';
 
 /**
@@ -21,6 +27,6 @@ export function useProduct( productId ) {
 		detail,
 		isActive: detail.status === 'active',
 		isFetching: useSelect( select => select( STORE_ID ).isFetching( productId ) ),
-		status: detail.status, // shorthand. Consider to remove.
+		stats: useSelect( select => select( STORE_ID ).getProductStats( productId ) ),
 	};
 }

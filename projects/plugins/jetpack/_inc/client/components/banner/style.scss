@@ -11,6 +11,9 @@
 	.dops-banner__icon-circle {
 		background-color: $color;
 	}
+	.dops-banner__icon-wp {
+		fill: $color;
+	}
 }
 
 .dops-banner.dops-card {
@@ -51,6 +54,10 @@
 		&.is-bundle {
 			@include banner-color( $color-bundle );
 		}
+
+		&.is-jetpack-warning {
+			@include banner-color( $alert-yellow );
+		}
 	}
 
 	.dops-card__link-indicator {
@@ -70,7 +77,7 @@
 	}
 
 	@include breakpoint( '>480px' ) {
-		padding: 12px 16px;
+		padding: 16px;
 		&.is-dismissible {
 			padding-right: 16px;
 		}
@@ -134,6 +141,12 @@
 	}
 }
 
+.dops-banner__icon-wp {
+	margin-right: 16px;
+	width: 22px;
+	height: 22px;
+}
+
 .dops-banner__content {
 	align-items: center;
 	display: flex;
@@ -158,12 +171,20 @@
 
 	.dops-banner__title {
 		font-size: $font-body-small;
-		padding: 0 rem( 8px );
 	}
 
 	.dops-banner__description {
 		font-size: $font-body-extra-small;
 		margin-top: 3px;
+
+		.jp-link-button {
+			&, &:active, &:visited, &:hover, &:focus {
+				font-size: $font-body-extra-small;
+				line-height: 1.4;
+				box-shadow: none;
+				background: none;
+			}
+		}
 	}
 
 	.dops-banner__list {
@@ -193,7 +214,7 @@
 .dops-banner__action {
 	align-self: center;
 	font-size: $font-body-extra-small;
-	margin: 8px 0 0 0;
+	margin: 8px 0 0 8px;
 	text-align: left;
 	width: 100%;
 

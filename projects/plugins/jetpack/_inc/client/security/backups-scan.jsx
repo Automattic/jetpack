@@ -1,6 +1,7 @@
 import { getRedirectUrl, numberFormat } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import { info } from '@wordpress/icons';
 import Banner from 'components/banner';
 import Card from 'components/card';
 import QueryRewindStatus from 'components/data/query-rewind-status';
@@ -71,7 +72,8 @@ class BackupsScanRewind extends Component {
 			case 'awaiting_credentials':
 				return {
 					title: __( 'Awaiting credentials', 'jetpack' ),
-					icon: 'notice',
+					iconWp: info,
+					type: 'warning',
 					description: __(
 						'Enter your SSH, SFTP, or FTP credentials to enable one-click site restores and fixes',
 						'jetpack'
@@ -103,15 +105,16 @@ class BackupsScanRewind extends Component {
 			return __( 'Unavailable in Offline Mode.', 'jetpack' );
 		}
 
-		const { title, icon, description, url } = this.getRewindMessage();
+		const { title, icon, iconWp, description, type, url } = this.getRewindMessage();
 
 		return (
 			<Banner
 				title={ title }
 				icon={ icon }
+				iconWp={ iconWp }
 				feature={ 'rewind' }
 				description={ description }
-				className="is-upgrade-premium jp-banner__no-border"
+				className={ `jp-banner__no-border is-jetpack-${ type ? type : 'info' }` }
 				href={ url }
 			/>
 		);

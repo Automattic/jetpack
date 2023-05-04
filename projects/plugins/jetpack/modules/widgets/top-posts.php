@@ -12,6 +12,7 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Automattic\Jetpack\Status;
@@ -430,7 +431,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 						$post['image'] = $image['src'];
 						if ( 'blavatar' !== $image['from'] && 'gravatar' !== $image['from'] ) {
-							$post['image'] = jetpack_photon_url( $post['image'], array( 'resize' => "$width,$height" ) );
+							$post['image'] = Image_CDN_Core::cdn_url( $post['image'], array( 'resize' => "$width,$height" ) );
 						}
 					}
 				}

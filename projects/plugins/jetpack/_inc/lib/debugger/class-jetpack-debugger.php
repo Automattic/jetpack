@@ -91,15 +91,15 @@ class Jetpack_Debugger {
 								echo sprintf(
 									wp_kses(
 										/* translators: URLs to Jetpack support pages. */
-										__( 'Some themes and plugins have <a href="%1$s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%2$s" target="_blank">list</a>. (You can also browse the <a href="%3$s" target="_blank">Jetpack support pages</a> or <a href="%4$s" target="_blank">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ),
+										__( 'Some themes and plugins have <a href="%1$s" target="_blank" rel="noopener noreferrer">known conflicts</a> with Jetpack – check the list. (You can also browse the <a href="%2$s" target="_blank" rel="noopener noreferrer">Jetpack support pages</a> or <a href="%3$s" target="_blank" rel="noopener noreferrer">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ),
 										array(
 											'a' => array(
 												'href'   => array(),
 												'target' => array(),
+												'rel'    => array(),
 											),
 										)
 									),
-									esc_url( Redirect::get_url( 'jetpack-contact-support-known-issues' ) ),
 									esc_url( Redirect::get_url( 'jetpack-contact-support-known-issues' ) ),
 									esc_url( Redirect::get_url( 'jetpack-support' ) ),
 									esc_url( Redirect::get_url( 'wporg-support-plugin-jetpack' ) )
@@ -125,12 +125,12 @@ class Jetpack_Debugger {
 								<?php esc_html_e( "If this solves the problem, something in your theme is probably broken – let the theme's author know.", 'jetpack' ); ?>
 							</li>
 							<li>
-								<?php esc_html_e( 'A problem with your XMLRPC file.', 'jetpack' ); ?>
+								<?php esc_html_e( 'A problem with your XML-RPC file.', 'jetpack' ); ?>
 								<?php
 								echo sprintf(
 									wp_kses(
 										/* translators: The URL to the site's xmlrpc.php file. */
-										__( 'Load your <a href="%s">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself.', 'jetpack' ),
+										__( 'Load your <a href="%s">XML-RPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself.', 'jetpack' ),
 										array( 'a' => array( 'href' => array() ) )
 									),
 									esc_attr( site_url( 'xmlrpc.php' ) )
@@ -138,7 +138,7 @@ class Jetpack_Debugger {
 								?>
 								<ul>
 									<li><?php esc_html_e( "If it's not by itself, a theme or plugin is displaying extra characters. Try steps 2 and 3.", 'jetpack' ); ?></li>
-									<li><?php esc_html_e( 'If you get a 404 message, contact your web host. Their security may block XMLRPC.', 'jetpack' ); ?></li>
+									<li><?php esc_html_e( 'If you get a 404 message, contact your web host. Their security may block the XML-RPC file.', 'jetpack' ); ?></li>
 								</ul>
 							</li>
 
@@ -269,6 +269,10 @@ class Jetpack_Debugger {
 
 			.jetpack-debug-test-container {
 				margin: 8px 0;
+			}
+
+			#connected-user-details p strong {
+				word-break: break-all;
 			}
 
 			.jetpack-tests-succeed {

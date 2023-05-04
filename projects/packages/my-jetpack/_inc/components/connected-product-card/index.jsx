@@ -1,7 +1,13 @@
+/**
+ * External dependencies
+ */
 import { getIconBySlug } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import PropTypes from 'prop-types';
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+/**
+ * Internal dependencies
+ */
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
 import ProductCard, { PRODUCT_STATUSES } from '../product-card';
@@ -9,9 +15,10 @@ import ProductCard, { PRODUCT_STATUSES } from '../product-card';
 const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuItems = [] } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
-	const { detail, status, activate, deactivate, isFetching, installStandalonePlugin } =
-		useProduct( slug );
-	const { name, description, manageUrl, requiresUserConnection, standalonePluginInfo } = detail;
+	const { detail, activate, deactivate, isFetching, installStandalonePlugin } = useProduct( slug );
+	const { name, description, manageUrl, requiresUserConnection, standalonePluginInfo, status } =
+		detail;
+	const [ installingStandalone, setInstallingStandalone ] = useState( false );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 	const navigateToAddProductPage = useMyJetpackNavigate( `add-${ slug }` );
@@ -62,9 +69,15 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 	] );
 
 	const handleInstallStandalone = useCallback( () => {
-		installStandalonePlugin().then( () => {
-			window?.location?.reload();
-		} );
+		setInstallingStandalone( true );
+
+		installStandalonePlugin()
+			.then( () => {
+				window?.location?.reload();
+			} )
+			.catch( () => {
+				setInstallingStandalone( false );
+			} );
 	}, [ installStandalonePlugin ] );
 
 	const Icon = getIconBySlug( slug );
@@ -77,6 +90,7 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			icon={ <Icon opacity={ 0.4 } /> }
 			admin={ admin }
 			isFetching={ isFetching }
+			isInstallingStandalone={ installingStandalone }
 			onDeactivate={ deactivate }
 			slug={ slug }
 			onActivate={ handleActivate }

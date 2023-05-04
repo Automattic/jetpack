@@ -6,12 +6,12 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { isEmpty, map } from 'lodash';
+import { map } from 'lodash';
 /**
  * Internal dependencies
  */
 import SwitchTransition from '../components/switch-transition';
-import { formatFieldName, getDisplayName } from './util';
+import { formatFieldName, formatFieldValue, getDisplayName } from './util';
 
 const InboxResponse = ( { loading, response } ) => {
 	const [ emailCopied, setEmailCopied ] = useState( false );
@@ -88,7 +88,11 @@ const InboxResponse = ( { loading, response } ) => {
 					<span className="jp-forms__inbox-response-meta-key">
 						{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
 					</span>
-					<span className="jp-forms__inbox-response-meta-value">{ response.entry_permalink }</span>
+					<span className="jp-forms__inbox-response-meta-value">
+						<Button variant="link" href={ response.entry_permalink }>
+							{ response.entry_permalink }
+						</Button>
+					</span>
 				</div>
 				<div className="jp-forms__inbox-response-meta-label">
 					<span className="jp-forms__inbox-response-meta-key	">
@@ -104,9 +108,7 @@ const InboxResponse = ( { loading, response } ) => {
 				{ map( response.fields, ( value, key ) => (
 					<div key={ key } className="jp-forms__inbox-response-item">
 						<div className="jp-forms__inbox-response-data-label">{ formatFieldName( key ) }:</div>
-						<div className="jp-forms__inbox-response-data-value">
-							{ isEmpty( value ) ? '-' : value }
-						</div>
+						<div className="jp-forms__inbox-response-data-value">{ formatFieldValue( value ) }</div>
 					</div>
 				) ) }
 			</div>
