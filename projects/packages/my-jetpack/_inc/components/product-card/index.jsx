@@ -1,7 +1,7 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { moreVertical, download, check } from '@wordpress/icons';
+import { moreVertical, download } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
@@ -73,7 +73,6 @@ const Menu = ( {
 							weight="regular"
 							fullWidth
 							variant="tertiary"
-							icon={ check }
 							onClick={ () => {
 								onClose();
 								onActivate?.();
