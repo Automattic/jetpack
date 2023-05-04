@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { getIconBySlug } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
@@ -80,14 +79,11 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			} );
 	}, [ installStandalonePlugin ] );
 
-	const Icon = getIconBySlug( slug );
-
 	return (
 		<ProductCard
 			name={ name }
 			description={ description }
 			status={ status }
-			icon={ <Icon opacity={ 0.4 } /> }
 			admin={ admin }
 			isFetching={ isFetching }
 			isInstallingStandalone={ installingStandalone }
