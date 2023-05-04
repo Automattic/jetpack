@@ -129,6 +129,15 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Get all registered Launchpad Task Lists.
+	 *
+	 * @return array All registered Launchpad Task Lists.
+	 */
+	public function get_all_task_lists() {
+		return $this->task_list_registry;
+	}
+
+	/**
 	 * Get a Launchpad Task definition
 	 *
 	 * @param string $id Task id.
@@ -141,6 +150,15 @@ class Launchpad_Task_Lists {
 		}
 
 		return $this->task_registry[ $id ];
+	}
+
+	/**
+	 * Get all registered Launchpad Tasks.
+	 *
+	 * @return array All registered Launchpad Tasks.
+	 */
+	public function get_all_tasks() {
+		return $this->task_registry;
 	}
 
 	/**
@@ -242,10 +260,21 @@ class Launchpad_Task_Lists {
 		// Othewise there is the temptation for the callback to fall back to the option, which would cause infinite recursion
 		// as it continues to calculate the callback which falls back to the option: ∞.
 		$statuses    = get_option( 'launchpad_checklist_tasks_statuses', array() );
-		$key         = isset( $task['id_map'] ) ? $task['id_map'] : $task['id'];
+		$key         = $this->get_task_key( $task );
 		$is_complete = isset( $statuses[ $key ] ) ? $statuses[ $key ] : false;
 
 		return (bool) $this->load_value_from_callback( $task, 'is_complete_callback', $is_complete );
+	}
+
+	/**
+	 * Gets the task key, which is used to store and retrieve the task's status.
+	 * Either the task's id_map or id is used.
+	 *
+	 * @param Task $task Task definition.
+	 * @return string The task key to use.
+	 */
+	public function get_task_key( $task ) {
+		return isset( $task['id_map'] ) ? $task['id_map'] : $task['id'];
 	}
 
 	/**
@@ -329,7 +358,7 @@ class Launchpad_Task_Lists {
 		if ( empty( $task ) ) {
 			return false;
 		}
-		$key              = isset( $task['id_map'] ) ? $task['id_map'] : $task['id'];
+		$key              = $this->get_task_key( $task );
 		$statuses         = get_option( 'launchpad_checklist_tasks_statuses', array() );
 		$statuses[ $key ] = true;
 
