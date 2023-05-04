@@ -99,13 +99,32 @@ class MapkitBlock {
 				point.coordinates.latitude,
 				point.coordinates.longitude
 			);
-			const annotation = new this.mapkit.MarkerAnnotation( coordinate, {
+			return new this.mapkit.MarkerAnnotation( coordinate, {
 				color: this.color,
+				title: point.title,
+				callout: {
+					calloutContentForAnnotation: function ( annotation ) {
+						const element = document.createElement( 'div' );
+						const title = element.appendChild( document.createElement( 'div' ) );
+						title.style.fontSize = '17px';
+						title.style.fontWeight = '500';
+						title.style.lineHeight = '17px';
+						title.style.marginTop = '4px';
+						title.textContent = annotation.title;
+
+						const caption = element.appendChild( document.createElement( 'p' ) );
+						caption.style.fontSize = '14px';
+						caption.style.margin = '0px 0px 4px 0px';
+						caption.textContent = annotation.data?.caption;
+
+						return element;
+					},
+				},
+				calloutEnabled: true,
+				data: {
+					caption: point.caption,
+				},
 			} );
-			annotation.title = point.title;
-			annotation.callout = {};
-			annotation.calloutEnabled = true;
-			return annotation;
 		} );
 		this.map.showItems( annotations );
 	}
