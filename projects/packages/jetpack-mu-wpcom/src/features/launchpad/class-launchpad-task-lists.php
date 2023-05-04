@@ -327,7 +327,7 @@ class Launchpad_Task_Lists {
 		if ( ! $this->is_launchpad_enabled() ) {
 			return;
 		}
-		lor( 'do that shit' );
+
 		$task_list_id = $task_list_id ? $task_list_id : get_option( 'site_intent' );
 		if ( ! $task_list_id ) {
 			return;
