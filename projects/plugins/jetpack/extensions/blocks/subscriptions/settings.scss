@@ -14,3 +14,21 @@
 	padding: 1em;
 	text-align: justify;
 }
+
+.edit-post-post-visibility {
+	&__notice {
+		margin: 0px;
+	}
+
+	.components-notice__content {
+		margin-right: 0px;
+	}
+}
+
+.jetpack-newsletter-link {
+	text-decoration: none;
+}
+
+.editor-post-visibility__choice input[disabled] {
+	background-color: $gray-400;
+}
