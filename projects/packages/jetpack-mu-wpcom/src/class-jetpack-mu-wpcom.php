@@ -39,7 +39,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
 
 		// Load the Map block settings.
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_map_block_settings' ) );
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_map_block_settings' ) );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
