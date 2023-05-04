@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
+namespace Automattic\Jetpack_Boost\Lib\Minify;
 
 use WP_Scripts;
 
@@ -97,7 +97,10 @@ class Concatenate_JS extends WP_Scripts {
 
 			// Only try to concat static js files
 			if ( false !== strpos( $js_url_parsed['path'], '.js' ) ) {
-				$do_concat = jetpack_boost_page_optimize_should_concat_js();
+				// Previously, the value of this variable was determined by a function.
+				// Now, since concatenation is always enabled when the module is active,
+				// the value will always be true for static files.
+				$do_concat = true;
 			} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					echo sprintf( "\n<!-- No Concat JS %s => Maybe Not Static File %s -->\n", esc_html( $handle ), esc_html( $obj->src ) );
 			}
@@ -248,12 +251,10 @@ class Concatenate_JS extends WP_Scripts {
 				if ( isset( $href ) ) {
 					$handles = implode( ',', $js_array['handles'] );
 
-					$load_mode = jetpack_boost_page_optimize_load_mode_js();
-
 					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-						$tag = "<script data-handles='" . esc_attr( $handles ) . "' $load_mode type='text/javascript' src='$href'></script>\n";
+						$tag = "<script data-handles='" . esc_attr( $handles ) . "' type='text/javascript' src='" . esc_url( $href ) . "'></script>\n";
 					} else {
-						$tag = "<script type='text/javascript' $load_mode src='$href'></script>\n";
+						$tag = "<script type='text/javascript' src='" . esc_url( $href ) . "'></script>\n";
 					}
 
 					if ( is_array( $js_array['handles'] ) && count( $js_array['handles'] ) === 1 ) {

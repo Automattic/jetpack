@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
+namespace Automattic\Jetpack_Boost\Lib\Minify;
 
 use WP_Styles;
 
