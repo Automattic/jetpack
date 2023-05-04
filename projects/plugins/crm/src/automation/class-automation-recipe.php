@@ -16,10 +16,10 @@ class Automation_Recipe {
 	/** @var string */
 	public $category;
 	
-	/** @var Trigger[] */
+	/** @var array */
 	public $triggers;
 	
-	/** @var Step */
+	/** @var array */
 	public $initial_step;
 	
 	/** @var bool */
