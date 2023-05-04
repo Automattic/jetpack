@@ -1,9 +1,16 @@
 import { TumblrFullPreview } from '@automattic/social-previews';
-import { withSelect } from '@wordpress/data';
+import { useSelect } from '@wordpress/data';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
 const TumblrPreview = props => {
+	const { content } = useSelect( select => {
+		const { getEditedPostAttribute } = select( 'core/editor' );
+
+		return {
+			content: getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ],
+		};
+	} );
 	const { connections } = useSocialMediaConnections();
 	const { message } = useSocialMediaMessage();
 
@@ -19,18 +26,8 @@ const TumblrPreview = props => {
 	}
 
 	return (
-		<TumblrFullPreview
-			{ ...props }
-			user={ user }
-			description={ props.content }
-			customText={ message }
-		/>
+		<TumblrFullPreview { ...props } user={ user } description={ content } customText={ message } />
 	);
 };
-export default withSelect( select => {
-	const { getEditedPostAttribute } = select( 'core/editor' );
 
-	return {
-		content: getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ],
-	};
-} )( TumblrPreview );
+export default TumblrPreview;
