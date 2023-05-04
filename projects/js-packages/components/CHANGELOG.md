@@ -2,6 +2,16 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.33.0 - 2023-05-02
+### Added
+- Added "wide" variant and styled unordered lists to icon tooltip content. [#30399]
+
+### Changed
+- Updated package dependencies.
+
+### Removed
+- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now. [#29942]
+
 ## 0.32.1 - 2023-05-01
 ### Changed
 - Minor internal updates.

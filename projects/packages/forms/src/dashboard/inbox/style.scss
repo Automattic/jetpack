@@ -211,8 +211,11 @@ $action-bar-height: 88px;
 
 	.jp-forms__table-item {
 		max-height: 52px;
-		overflow: hidden;
 		transition: max-height .2s;
+
+		&.exit-active {
+			overflow: hidden;
+		}
 
 		&.exit-active,
 		&.exit-done {
@@ -542,6 +545,15 @@ $action-bar-height: 88px;
 	text-overflow: ellipsis;
 	width: 80%;
 	max-width: 0;
+
+	.is-link {
+		text-decoration: none;
+		color: inherit;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
 }
 
 .jp-forms__inbox-response-separator {

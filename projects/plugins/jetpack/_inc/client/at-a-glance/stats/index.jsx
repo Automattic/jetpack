@@ -1,6 +1,5 @@
-import { imagePath } from 'constants/urls';
 import { getRedirectUrl, JetpackLogo, numberFormat } from '@automattic/jetpack-components';
-import { Spinner } from '@wordpress/components';
+import { ExternalLink, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
@@ -242,38 +241,36 @@ export class DashStats extends Component {
 		return (
 			<div className="jp-at-a-glance__stats-inactive">
 				<div className="jp-at-a-glance__stats-inactive-icon">
-					<img
-						src={ imagePath + 'stats.svg' }
-						width="60"
-						height="60"
-						alt={ __( 'Line chart overlaid on a bar chart', 'jetpack' ) }
-						className="jp-at-a-glance__stats-icon"
-					/>
+					<JetpackLogo height={ 40 } showText={ false } />
 				</div>
 				<div className="jp-at-a-glance__stats-inactive-text">
-					{ this.props.isOfflineMode
-						? __( 'Unavailable in Offline Mode', 'jetpack' )
-						: createInterpolateElement(
+					{ this.props.isOfflineMode ? (
+						__( 'Unavailable in Offline Mode', 'jetpack' )
+					) : (
+						<>
+							<h3> { __( 'Activate Jetpack Stats', 'jetpack' ) }</h3>
+							{ createInterpolateElement(
 								__(
-									'<Button>Activate Jetpack Stats</Button> to see page views, likes, followers, subscribers, and more! <a1>Learn More</a1>',
+									'Get insights on page views, likes, subscribers, and more! <a1>Learn More</a1>',
 									'jetpack'
 								),
 								{
-									Button: <Button className="jp-link-button" onClick={ this.activateStats } />,
 									a1: (
-										<a
+										<ExternalLink
 											href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
 											target="_blank"
 											rel="noopener noreferrer"
 										/>
 									),
 								}
-						  ) }
+							) }
+						</>
+					) }
 				</div>
 				{ ! this.props.isOfflineMode && (
 					<div className="jp-at-a-glance__stats-inactive-button">
 						<Button onClick={ this.activateStats } primary>
-							{ __( 'Activate', 'jetpack' ) }
+							{ __( 'Activate Stats', 'jetpack' ) }
 						</Button>
 					</div>
 				) }
