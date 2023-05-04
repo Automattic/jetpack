@@ -39,7 +39,7 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
 
 		// Load the Map block settings.
-		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_map_block_settings' ) );
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_map_block_settings' ) );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -106,6 +106,18 @@ class Jetpack_Mu_Wpcom {
 	 * @return void
 	 */
 	public static function load_map_block_settings() {
+		if (
+			! function_exists( 'get_current_screen' )
+			|| \get_current_screen() === null
+		) {
+			return;
+		}
+
+		// Return early if we are not in the block editor.
+		if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
+			return;
+		}
+
 		$map_provider = apply_filters( 'wpcom_map_block_map_provider', 'mapbox' );
 		wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_Maps', array( 'provider' => $map_provider ) );
 	}
