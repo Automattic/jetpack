@@ -126,8 +126,11 @@ class Automation_Engine {
 	 * Init automation recipes.
 	 *
 	 * @return void
+	 * @throws Recipe_Exception
 	 */
 	public function init_recipes() {
+		
+		/** @var Automation_Recipe $recipe */
 		foreach ( $this->recipes as $recipe ) {
 			$recipe->init_triggers();
 		}
@@ -166,8 +169,14 @@ class Automation_Engine {
 	 *
 	 * @param string $trigger_name
 	 * @return string
+	 * @throws Automation_Exception
 	 */
 	public function get_trigger_class( string $trigger_name ): string {
+		
+		if ( ! isset( $this->triggers_map[ $trigger_name ] ) ) {
+			throw new Automation_Exception( sprintf( __( 'Trigger %s does not exist', 'zero-bs-crm' ), $trigger_name ), Automation_Exception::TRIGGER_CLASS_NOT_FOUND );
+		}
+		
 		return $this->triggers_map[ $trigger_name ];
 	}
 }
