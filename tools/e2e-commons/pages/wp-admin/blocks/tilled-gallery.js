@@ -20,7 +20,10 @@ export default class TiledGallery extends EditorCanvas {
 		await this.click( 'text=Openverse' );
 
 		const modal = this.page.getByRole( 'dialog' );
-		await this.waitForElementToBeHidden( 'jetpack-external-media-browser__media__placeholder' );
+		await this.waitForElementToBeHidden(
+			'jetpack-external-media-browser__media__placeholder',
+			6000
+		);
 
 		for ( let i = 0; i < numImages; i++ ) {
 			await modal.getByRole( 'checkbox' ).nth( i ).click();

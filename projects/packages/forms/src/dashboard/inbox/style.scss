@@ -94,6 +94,22 @@ $action-bar-height: 88px;
 	}
 }
 
+.jp-forms__inbox-tab-item-count {
+	align-items: center;
+	background: transparent;
+	border: 1px solid #dcdcde;
+	border-radius: 3px;
+	box-sizing: border-box;
+	color: #2C3338;
+	display: inline-flex;
+	font-size: 12px;
+	font-weight: 400;
+	height: 20px;
+	line-height: 18px;
+	margin-left: 10px;
+	padding: 0 6px;
+}
+
 .jp-forms__inbox-content {
 	box-sizing: border-box;
 	display: flex;
@@ -192,6 +208,24 @@ $action-bar-height: 88px;
 .jp-forms__inbox-list.jp-forms__table {
 	display: table;
 	min-height: unset;
+
+	.jp-forms__table-item {
+		max-height: 52px;
+		transition: max-height .2s;
+
+		&.exit-active {
+			overflow: hidden;
+		}
+
+		&.exit-active,
+		&.exit-done {
+			max-height: 0;
+		}
+
+		&.exit-active.is-loading {
+			display: none;
+		}
+	}
 
 	@media (max-width: 1024px) {
 		.jp-forms__table-item.is-active {
@@ -437,15 +471,48 @@ $action-bar-height: 88px;
 }
 
 .jp-forms__inbox-response-subtitle {
+	align-items: center;
 	color: #646970;
+	display: flex;
 	flex-shrink: 0;
 	font-size: 16px;
 	font-weight: 500;
-	margin: 4px 0 0;
+	height: 40px;
+	line-height: 40px;
+	margin: 0;
+	position: relative;
 	overflow: hidden;
 	padding: 0 32px;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+
+	.components-button {
+		background-color: #fff;
+		display: inline-block;
+		float: right;
+		height: 28px;
+		margin-left: auto;
+		padding: 4px 8px;
+		position: absolute;
+		top: 6px;
+		right: 32px;
+		z-index: 100;
+
+		@media (min-width: 1025px) {
+			display: none;
+		}
+	}
+
+	@media (min-width: 1025px) {
+		&:hover {
+			background-color: #f6f6f7;
+
+			.components-button {
+				background-color: #f6f6f7;
+				display: inline-block;
+			}
+		}
+	}
 }
 
 .jp-forms__inbox-response-meta {
@@ -456,7 +523,7 @@ $action-bar-height: 88px;
 	font-weight: 400;
 	line-height: 20px;
 	row-gap: 4px;
-	padding: 16px 32px 24px;
+	padding: 12px 32px 24px;
 }
 
 .jp-forms__inbox-response-meta-label {
@@ -478,6 +545,15 @@ $action-bar-height: 88px;
 	text-overflow: ellipsis;
 	width: 80%;
 	max-width: 0;
+
+	.is-link {
+		text-decoration: none;
+		color: inherit;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
 }
 
 .jp-forms__inbox-response-separator {

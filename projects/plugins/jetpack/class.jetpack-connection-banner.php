@@ -150,7 +150,6 @@ class Jetpack_Connection_Banner {
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
 		add_action( 'admin_print_styles', array( $this, 'admin_banner_styles' ) );
-		add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) ); // For the legacy full screen banner
 
 		if ( Jetpack::state( 'network_nag' ) ) {
 			add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
@@ -164,7 +163,7 @@ class Jetpack_Connection_Banner {
 			) {
 				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack#/woo-setup' ) );
 			} else {
-				add_action( 'admin_notices', array( $this, 'render_connect_prompt_full_screen' ) );
+				add_action( 'admin_enqueue_scripts', array( Jetpack::init(), 'activate_dialog' ) );
 			}
 			delete_transient( 'activated_jetpack' );
 		}
@@ -362,125 +361,6 @@ class Jetpack_Connection_Banner {
 							alt="">
 					</picture>
 				</div>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Renders the full-screen connection prompt.  Only shown once and on plugin activation.
-	 */
-	public static function render_connect_prompt_full_screen() {
-		$current_screen = get_current_screen();
-		if ( 'plugins' === $current_screen->base ) {
-			$bottom_connect_url_from = 'full-screen-prompt';
-		} else {
-			$bottom_connect_url_from = 'landing-page-bottom';
-		}
-
-		$has_no_owner = ! Jetpack::connection()->has_connected_owner();
-		?>
-		<div class="jp-connect-full__container <?php echo $has_no_owner ? 'jp-jetpack-connect__site_connection' : ''; ?>"><div class="jp-connect-full__container-card">
-
-				<?php if ( 'plugins' === $current_screen->base ) : ?>
-					<?php
-					$logo = new Logo();
-					echo $logo->render(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Returns SVG.
-					?>
-
-					<?php
-					if ( ! self::force_display() ) :
-						?>
-
-						<div class="jp-connect-full__dismiss">
-							<svg class="jp-connect-full__svg-dismiss" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><title>Dismiss Jetpack Connection Window</title><rect x="0" fill="none" /><g><path d="M17.705 7.705l-1.41-1.41L12 10.59 7.705 6.295l-1.41 1.41L10.59 12l-4.295 4.295 1.41 1.41L12 13.41l4.295 4.295 1.41-1.41L13.41 12l4.295-4.295z"/></g></svg>
-						</div>
-
-						<?php
-					endif;
-					?>
-
-				<?php endif; ?>
-
-				<div id="jp-connect-full__step1-header" class="jp-connect-full__step-header">
-					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Activate essential WordPress security and performance tools by setting up Jetpack', 'jetpack' ); ?></h2>
-				</div>
-
-				<div id="jp-connect-full__step2-header" class="jp-connect-full__step-header">
-					<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Jetpack is activated!', 'jetpack' ); ?><br /><?php esc_html_e( 'Unlock more amazing features by connecting a user account', 'jetpack' ); ?></h2>
-				</div>
-
-				<p class="jp-connect-full__tos-blurb">
-					<?php jetpack_render_tos_blurb(); ?>
-				</p>
-
-				<p class="jp-connect-full__button-container">
-					<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, $bottom_connect_url_from ) ); ?>"
-						class="dops-button is-primary jp-connect-button">
-						<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
-					</a>
-				</p>
-
-				<div class="jp-connect-full__row" id="jetpack-connection-cards">
-					<div class="jp-connect-full__slide">
-						<div class="jp-connect-full__slide-card illustration">
-							<img
-									src="<?php echo esc_url( plugins_url( 'images/jetpack-connection-security.svg', JETPACK__PLUGIN_FILE ) ); ?>"
-									alt="<?php esc_attr_e( 'Security & Backups', 'jetpack' ); ?>"
-							/>
-						</div>
-						<div class="jp-connect-full__slide-card">
-							<h3><?php esc_html_e( 'Always-on Security', 'jetpack' ); ?></h3>
-							<ul>
-								<li><?php esc_html_e( 'Stay one step ahead of security threats with automatic scanning, one-click fixes, and spam protection.', 'jetpack' ); ?></li>
-								<li><?php esc_html_e( 'Real-time backups save every change and one-click restores get you back online quickly.', 'jetpack' ); ?></li>
-								<li><?php esc_html_e( 'Free protection against brute force attacks and instant notifications if your site goes down.', 'jetpack' ); ?></li>
-							</ul>
-						</div>
-					</div>
-					<div class="jp-connect-full__slide">
-						<div class="jp-connect-full__slide-card illustration">
-							<img
-									src="<?php echo esc_url( plugins_url( 'images/jetpack-connection-performance.svg', JETPACK__PLUGIN_FILE ) ); ?>"
-									alt="<?php esc_attr_e( 'Built-in Performance', 'jetpack' ); ?>"
-							/>
-						</div>
-						<div class="jp-connect-full__slide-card">
-							<h3><?php esc_html_e( 'Built-in Performance', 'jetpack' ); ?></h3>
-							<ul>
-								<li><?php esc_html_e( 'Keep people on your site longer with lightning-fast page load times through our free global CDN.', 'jetpack' ); ?></li>
-								<li><?php esc_html_e( 'Speed up your mobile site and reduce bandwidth usage automatically.', 'jetpack' ); ?></li>
-								<li><?php esc_html_e( 'Improve visitor engagement and sales with a customized search experience.', 'jetpack' ); ?></li>
-							</ul>
-						</div>
-					</div>
-				</div>
-
-				<h2 class="jp-connect-full__testimonial"><?php esc_html_e( 'More than 5 million WordPress sites trust Jetpack for their website security and performance.', 'jetpack' ); ?></h2>
-
-				<?php if ( 'plugins' === $current_screen->base ) : ?>
-
-					<?php
-					if ( ! self::force_display() ) :
-						?>
-
-						<p class="jp-connect-full__dismiss-paragraph">
-							<a>
-								<?php
-								echo esc_html_x(
-									'Not now, thank you.',
-									'a link that closes the modal window that offers to connect Jetpack',
-									'jetpack'
-								);
-								?>
-							</a>
-						</p>
-
-						<?php
-						endif;
-					?>
-
-				<?php endif; ?>
 			</div>
 		</div>
 		<?php

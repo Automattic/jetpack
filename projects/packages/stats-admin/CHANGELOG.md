@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.7.3 - 2023-05-01
+### Fixed
+- Stats Admin: Cache bust the cache buster [#30374]
+
+## 0.7.2 - 2023-04-25
+### Changed
+- Stats Admin: add minify=false to avoid JS minified by WP.com [#30174]
+- Stats Admin: changed to use custom config data variable name to avoid conflicts with `configData` [#30147]
+
 ## 0.7.1 - 2023-04-17
 ### Changed
 - Stats Admin: change site locale format from only language code to real locale e.g. `en-us` [#29958]

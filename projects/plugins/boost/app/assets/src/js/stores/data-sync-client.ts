@@ -1,7 +1,7 @@
 import { initializeClient } from '@automattic/jetpack-svelte-data-sync-client';
 import { z } from 'zod';
 
-export const client = initializeClient( 'jetpack_boost_ds' );
+export const jetpack_boost_ds = initializeClient( 'jetpack_boost_ds' );
 
 /**
  * Definition for JSON types:
@@ -20,7 +20,7 @@ export const JSONSchema: z.ZodType< JSONValue > = z.lazy( () =>
 /*
  * Data Sync Stores
  */
-export const suggestRegenerateDS = client.createAsyncStore(
+export const suggestRegenerateDS = jetpack_boost_ds.createAsyncStore(
 	'critical_css_suggest_regenerate',
 	z.coerce.boolean().catch( false )
 );

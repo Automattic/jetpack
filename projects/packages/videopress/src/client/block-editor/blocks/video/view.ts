@@ -66,12 +66,16 @@ function previewOnHoverEffect(): void {
 		const iframeApi = window.VideoPressIframeApi( iFrame, () => {
 			iframeApi.status.onPlayerStatusChanged( ( oldStatus, newStatus ) => {
 				if ( oldStatus === 'ready' && newStatus === 'playing' ) {
-					// Do not pause if autoplay is enabled.
-					if ( ! previewOnHoverData.autoplay ) {
-						iframeApi.controls.pause();
-					}
-
+					iframeApi.controls.pause();
 					iframeApi.controls.seek( previewOnHoverData.previewAtTime );
+
+					iframeApi.customize?.set( {
+						bigPlayButton: true,
+						playPauseAnimation: false,
+						controlBar: false,
+						shareButton: false,
+						posterImage: true,
+					} );
 				}
 			} );
 
@@ -105,16 +109,28 @@ function previewOnHoverEffect(): void {
 				// Set the userHasInteracted flag to true.
 				userHasInteracted = true;
 
-				// Delete overlay element.
 				overlay.remove();
 
-				// Pause when user clicks on the video.
-				setTimeout( iframeApi.controls.pause, 100 ); // Hack; without this, the video will not pause.
+				iframeApi.customize?.set( {
+					bigPlayButton: false,
+					playPauseAnimation: true,
+					controlBar: true,
+					shareButton: true,
+				} );
+
+				iframeApi.controls.seek( 0 );
 			} );
 		}
 
-		overlay.addEventListener( 'mouseenter', iframeApi.controls.play );
-		overlay.addEventListener( 'mouseleave', iframeApi.controls.pause );
+		overlay.addEventListener( 'mouseenter', () => {
+			iframeApi.customize?.set( { playPauseAnimation: false, posterImage: false } );
+			iframeApi.controls.play();
+		} );
+
+		overlay.addEventListener( 'mouseleave', () => {
+			iframeApi.customize?.set( { playPauseAnimation: false, posterImage: true } );
+			iframeApi.controls.pause();
+		} );
 	} );
 }
 

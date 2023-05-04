@@ -1,14 +1,13 @@
 import { AdminPage, Button, Col, Container, Text } from '@automattic/jetpack-components';
-import { select } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React, { useCallback, useEffect } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import { useProduct } from '../../hooks/use-product';
-import { STORE_ID } from '../../state/store';
 import GoBackLink from '../go-back-link';
 import ProductDetailCard from '../product-detail-card';
+import ProductDetailTable from '../product-detail-table';
 import boostImage from './boost.png';
 import crmImage from './crm.png';
 import extrasImage from './extras.png';
@@ -39,7 +38,7 @@ export default function ProductInterstitial( {
 	children = null,
 } ) {
 	const { activate, detail } = useProduct( slug );
-	const { isUpgradableByBundle } = detail;
+	const { isUpgradableByBundle, tiers } = detail;
 
 	const { recordEvent } = useAnalytics();
 
@@ -63,27 +62,33 @@ export default function ProductInterstitial( {
 	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( '/' );
 
 	const clickHandler = useCallback(
-		checkout => {
-			const activateOrCheckout = () => ( bundle ? Promise.resolve() : activate() );
+		( checkout, product, tier ) => {
+			const activateOrCheckout = () => ( product?.isBundle ? Promise.resolve() : activate() );
 
 			activateOrCheckout().finally( () => {
-				const product = select( STORE_ID ).getProduct( slug );
-				if ( bundle ) {
+				if ( product?.isBundle ) {
 					// Get straight to the checkout page.
 					checkout?.();
 					return;
 				}
+
 				const postActivationUrl = product?.postActivationUrl;
-				const hasRequiredPlan = product?.hasRequiredPlan;
-				const isFree = product?.pricingForUi?.isFree;
+				const hasRequiredPlan = tier
+					? product?.hasRequiredTier?.[ tier ]
+					: product?.hasRequiredPlan;
+				const isFree = tier
+					? product?.pricingForUi?.tiers?.[ tier ]?.isFree
+					: product?.pricingForUi?.isFree;
 				const needsPurchase = ! isFree && ! hasRequiredPlan;
 
-				if ( postActivationUrl ) {
-					window.location.href = postActivationUrl;
-					return;
-				}
-
+				// If no purchase is needed, redirect the user to the product screen.
 				if ( ! needsPurchase ) {
+					if ( postActivationUrl ) {
+						window.location.href = postActivationUrl;
+						return;
+					}
+
+					// Fall back to the My Jetpack overview page.
 					return navigateToMyJetpackOverviewPage();
 				}
 
@@ -91,7 +96,7 @@ export default function ProductInterstitial( {
 				checkout?.();
 			} );
 		},
-		[ navigateToMyJetpackOverviewPage, activate, bundle, slug ]
+		[ navigateToMyJetpackOverviewPage, activate ]
 	);
 
 	const onClickGoBack = useCallback(
@@ -135,35 +140,44 @@ export default function ProductInterstitial( {
 					) }
 				</Col>
 				<Col>
-					<Container
-						className={ ! isUpgradableByBundle ? styles.container : null }
-						horizontalSpacing={ 0 }
-						horizontalGap={ 0 }
-						fluid
-					>
-						<Col sm={ 4 } md={ 4 } lg={ 7 }>
-							<ProductDetailCard
-								slug={ slug }
-								trackButtonClick={ trackProductClick }
-								onClick={ installsPlugin ? clickHandler : undefined }
-								className={ isUpgradableByBundle ? styles.container : null }
-								supportingInfo={ supportingInfo }
-								preferProductName={ preferProductName }
-							/>
-						</Col>
-						<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
-							{ bundle ? (
+					{ tiers && tiers.length ? (
+						<ProductDetailTable
+							slug={ slug }
+							clickHandler={ clickHandler }
+							onProductButtonClick={ clickHandler }
+							trackProductButtonClick={ trackProductClick }
+						/>
+					) : (
+						<Container
+							className={ ! isUpgradableByBundle ? styles.container : null }
+							horizontalSpacing={ 0 }
+							horizontalGap={ 0 }
+							fluid
+						>
+							<Col sm={ 4 } md={ 4 } lg={ 7 }>
 								<ProductDetailCard
-									slug={ bundle }
-									trackButtonClick={ trackBundleClick }
-									onClick={ clickHandler }
+									slug={ slug }
+									trackButtonClick={ trackProductClick }
+									onClick={ installsPlugin ? clickHandler : undefined }
 									className={ isUpgradableByBundle ? styles.container : null }
+									supportingInfo={ supportingInfo }
+									preferProductName={ preferProductName }
 								/>
-							) : (
-								children
-							) }
-						</Col>
-					</Container>
+							</Col>
+							<Col sm={ 4 } md={ 4 } lg={ 5 } className={ styles.imageContainer }>
+								{ bundle ? (
+									<ProductDetailCard
+										slug={ bundle }
+										trackButtonClick={ trackBundleClick }
+										onClick={ clickHandler }
+										className={ isUpgradableByBundle ? styles.container : null }
+									/>
+								) : (
+									children
+								) }
+							</Col>
+						</Container>
+					) }
 				</Col>
 			</Container>
 		</AdminPage>
@@ -245,7 +259,7 @@ export function ExtrasInterstitial() {
  * @returns {object} ProtectInterstitial react component.
  */
 export function ProtectInterstitial() {
-	return <ProductInterstitial slug="protect" installsPlugin={ true } bundle="security" />;
+	return <ProductInterstitial slug="protect" installsPlugin={ true } />;
 }
 
 /**
