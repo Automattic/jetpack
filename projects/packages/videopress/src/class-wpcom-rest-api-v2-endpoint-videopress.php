@@ -209,10 +209,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		}
 
 		if ( ! $found_guid ) {
-			return rest_ensure_response( false );
+			return rest_ensure_response( array( 'video-belong-to-site' => false ) );
 		}
 
-		return rest_ensure_response( $found_guid === $video_guid );
+		return rest_ensure_response( array( 'video-belong-to-site' => $found_guid === $video_guid ) );
 	}
 
 	/**
