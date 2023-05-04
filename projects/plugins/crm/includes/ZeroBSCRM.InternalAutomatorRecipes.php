@@ -818,15 +818,9 @@
 		global $zbs;
 
 		// for now hard typed
-		//$contactLogTypes = array('Call','Email','Mail','Meeting','Feedback','Invoice: Sent','Quote: Sent');
 		$contactLogTypes = $zbs->DAL->logs->contactLogTypes;
-		
-		// strtolower them
-		$contactLogTypes = array_map('strtolower', $contactLogTypes);
 
-		//debug print_r($obj); //exit();
-
-		// for now, only contcts + dal2
+		// for now, only contacts + dal2
 		if ($zbs->isDAL2()){
 
 			if (is_array($obj) && isset($obj['logagainsttype']) && ($obj['logagainsttype'] == 'zerobs_customer' || $obj['logagainsttype'] == ZBS_TYPE_CONTACT)){

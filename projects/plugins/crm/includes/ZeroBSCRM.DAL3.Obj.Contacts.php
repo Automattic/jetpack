@@ -1725,7 +1725,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                     // retrieve log types to include 
                     $contactLogTypes = $zbs->DAL->logs->contactLogTypes;
-                    $contactLogTypes = array_map('strtolower', $contactLogTypes);
 
                     // build sql
                     $contactLogSQL = ''; 
