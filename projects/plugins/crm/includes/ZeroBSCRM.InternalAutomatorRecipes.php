@@ -813,7 +813,7 @@
 	} 
 
 /**
- * Catches new logs and updates contact 'last contacted' if dal2 + is contact type log
+ * Catches new logs and updates contact 'last contacted' if contact type log
  *
  * @param arr $obj Array containing log details.
  */
@@ -821,37 +821,34 @@ function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 
 	global $zbs;
 
-	// for now, only contacts + dal2
-	if ( $zbs->isDAL2() ) {
+	// for now, only contacts
 
-		if ( is_array( $obj ) && isset( $obj['logagainsttype'] ) && ( $obj['logagainsttype'] === 'zerobs_customer' || $obj['logagainsttype'] === ZBS_TYPE_CONTACT ) ) {
+	if ( is_array( $obj ) && isset( $obj['logagainsttype'] ) && ( $obj['logagainsttype'] === 'zerobs_customer' || $obj['logagainsttype'] === ZBS_TYPE_CONTACT ) ) {
 
-			// check if 'contact' type
-			$log_type = '';
-			if ( is_array( $obj ) && isset( $obj['logtype'] ) ) {
-				$log_type = $obj['logtype'];
+		// check if 'contact' type
+		$log_type = '';
+		if ( is_array( $obj ) && isset( $obj['logtype'] ) ) {
+			$log_type = $obj['logtype'];
+		}
+
+		if ( ! empty( $log_type ) && in_array( $log_type, $zbs->DAL->logs->contact_log_types, true ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+			// checks out..proceed
+
+			// retrieve
+			$contact_id = -1;
+			if ( is_array( $obj ) && isset( $obj['logagainst'] ) ) {
+				$contact_id = (int) $obj['logagainst'];
 			}
 
-			if ( ! empty( $log_type ) && in_array( $log_type, $zbs->DAL->logs->contact_log_types, true ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			if ( ! empty( $contact_id ) && $contact_id > 0 ) {
 
-				// checks out..proceed
+				// update contact
+				$zbs->DAL->contacts->setContactLastContactUTS( $contact_id, time() ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			}
+		} // is a contact type log
 
-				// retrieve
-				$contact_id = -1;
-				if ( is_array( $obj ) && isset( $obj['logagainst'] ) ) {
-					$contact_id = (int) $obj['logagainst'];
-				}
-
-				if ( ! empty( $contact_id ) && $contact_id > 0 ) {
-
-					// update contact
-					$zbs->DAL->contacts->setContactLastContactUTS( $contact_id, time() ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				}
-			} // is a contact type log
-
-		} // is log against contact
-
-	} // is dal 2
+	} // is log against contact
 }
 
 
