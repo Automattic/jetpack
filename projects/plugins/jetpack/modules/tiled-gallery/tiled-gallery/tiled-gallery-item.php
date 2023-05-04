@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /**
  * Jetpack Tiled Gallery Item class.
  */
@@ -51,7 +53,7 @@ abstract class Jetpack_Tiled_Gallery_Item {
 		}
 		// The function will always photonoize the URL (even if Photon is
 		// not active). We need to photonize the URL to set the width/height.
-		$this->img_src = jetpack_photon_url( $this->orig_file, $img_args );
+		$this->img_src = Image_CDN_Core::cdn_url( $this->orig_file, $img_args );
 	}
 
 	/**
@@ -129,7 +131,7 @@ class Jetpack_Tiled_Gallery_Rectangular_Item extends Jetpack_Tiled_Gallery_Item 
 	 */
 	public function __construct( $attachment_image, $needs_attachment_link, $grayscale ) {
 		parent::__construct( $attachment_image, $needs_attachment_link, $grayscale );
-		$this->img_src_grayscale = jetpack_photon_url( $this->img_src, array( 'filter' => 'grayscale' ) );
+		$this->img_src_grayscale = Image_CDN_Core::cdn_url( $this->img_src, array( 'filter' => 'grayscale' ) );
 
 		$this->size = 'large';
 
@@ -152,7 +154,7 @@ class Jetpack_Tiled_Gallery_Square_Item extends Jetpack_Tiled_Gallery_Item { // 
 	 */
 	public function __construct( $attachment_image, $needs_attachment_link, $grayscale ) {
 		parent::__construct( $attachment_image, $needs_attachment_link, $grayscale );
-		$this->img_src_grayscale = jetpack_photon_url(
+		$this->img_src_grayscale = Image_CDN_Core::cdn_url(
 			$this->img_src,
 			array(
 				'filter' => 'grayscale',

@@ -211,8 +211,11 @@ $action-bar-height: 88px;
 
 	.jp-forms__table-item {
 		max-height: 52px;
-		overflow: hidden;
 		transition: max-height .2s;
+
+		&.exit-active {
+			overflow: hidden;
+		}
 
 		&.exit-active,
 		&.exit-done {

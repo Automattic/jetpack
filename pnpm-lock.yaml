@@ -1575,7 +1575,17 @@ importers:
         specifier: 4.9.1
         version: 4.9.1(webpack@5.76.0)
 
-  projects/packages/image-cdn: {}
+  projects/packages/image-cdn:
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../../js-packages/webpack-config
+      webpack:
+        specifier: 5.76.0
+        version: 5.76.0(webpack-cli@4.9.1)
+      webpack-cli:
+        specifier: 4.9.1
+        version: 4.9.1(webpack@5.76.0)
 
   projects/packages/import: {}
 

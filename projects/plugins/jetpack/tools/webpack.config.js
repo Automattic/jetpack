@@ -77,7 +77,6 @@ const supportedModules = [
 	'custom-post-types',
 	'sharedaddy',
 	'contact-form',
-	'photon',
 	'carousel',
 	'related-posts',
 	'tiled-gallery',
