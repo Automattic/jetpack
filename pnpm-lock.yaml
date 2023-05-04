@@ -652,8 +652,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-extension-utils
       '@automattic/social-previews':
-        specifier: 2.0.0-beta.0
-        version: 2.0.0-beta.0(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.0.0-beta.1
+        version: 2.0.0-beta.1(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/annotations':
         specifier: 2.32.0
         version: 2.32.0(react@18.2.0)
@@ -2687,8 +2687,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       '@automattic/social-previews':
-        specifier: 1.1.5
-        version: 1.1.5(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.0.0-beta.1
+        version: 2.0.0-beta.1(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
@@ -3905,38 +3905,8 @@ packages:
       '@automattic/popup-monitor': 1.0.2
     dev: false
 
-  /@automattic/social-previews@1.1.5(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-w0fNAeW3UC0rQ8PzOCrf+coO3ym5EAeAUh2q/ruakYK8cZCANDFjFs1dvAwB/rKL/T0WbOMI91pyouLkE5LNmw==}
-    peerDependencies:
-      '@babel/runtime': ^7
-      react: ^17.0.2 || ^18
-      react-dom: ^17.0.2 || ^18
-    peerDependenciesMeta:
-      '@babel/runtime':
-        optional: true
-    dependencies:
-      '@babel/runtime': 7.21.5
-      '@emotion/react': 11.4.1(@babel/core@7.21.5)(@types/react@18.0.27)(react@18.2.0)
-      '@wordpress/components': 23.9.0(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
-      '@wordpress/i18n': 4.32.0
-      classnames: 2.3.2
-      lodash: 4.17.21
-      moment: 2.29.4
-      prop-types: 15.8.1
-      react: 18.2.0
-      react-dom: 18.2.0(react@18.2.0)
-    transitivePeerDependencies:
-      - '@babel/core'
-      - '@babel/helper-module-imports'
-      - '@babel/types'
-      - '@types/react'
-      - aslemammad-vite-plugin-macro
-      - babel-plugin-macros
-      - vite
-    dev: false
-
-  /@automattic/social-previews@2.0.0-beta.0(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-O0NFFaZzf3c5cJHChw/2XB+hXjEa9qUn3f5FtQWDNI5cHzT9uZe+b8Nyj1mJbMLRXbMh5zaEu/cB5B2F45FG+w==}
+  /@automattic/social-previews@2.0.0-beta.1(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-6+bMhEFhe93RthXkwRKgrMrK180T2rljT1g8VaruoY24KsXs/ly7de3kdekdR9JQ/oH9O6LjfKM9rDSw8+Q1Hw==}
     peerDependencies:
       '@babel/runtime': ^7
       react: ^17.0.2 || ^18
@@ -3953,6 +3923,7 @@ packages:
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
+      tslib: 2.5.0
     transitivePeerDependencies:
       - '@babel/core'
       - '@babel/helper-module-imports'
