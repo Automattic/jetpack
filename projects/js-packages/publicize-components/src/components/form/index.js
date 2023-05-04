@@ -23,7 +23,7 @@ import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
 const checkConnectionCode = ( connection, code ) =>
-	! connection.is_healthy && code === ( connection.error_code ?? 'broken' );
+	false === connection.is_healthy && code === ( connection.error_code ?? 'broken' );
 
 /**
  * The Publicize form component. It contains the connection list, and the message box.
