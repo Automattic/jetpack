@@ -25,7 +25,8 @@ export const boostProductData = {
 					description: 'Must be done manually',
 					info: {
 						title: 'Manual Critical CSS regeneration',
-						content: `To enhance the speed of your site, with this plan you will need to optimize CSS by using the Manual Critical CSS generation feature whenever you:<br><br>
+						content: `
+							<p>To enhance the speed of your site, with this plan you will need to optimize CSS by using the Manual Critical CSS generation feature whenever you:</p>
 							<ul>
 								<li>Make theme changes.</li>
 								<li>Write a new post/page.</li>
@@ -41,8 +42,8 @@ export const boostProductData = {
 					description: 'Automatically updated',
 					info: {
 						title: 'Automatic Critical CSS regeneration',
-						content:
-							'It’s essential to regenerate Critical CSS to optimize your site speed whenever your HTML or CSS structure changes. Being on top of this can be tedious and time-consuming.<br><br>Boost’s cloud service can automatically detect when your site needs the Critical CSS regenerated, and perform this function behind the scenes without requiring you to monitor it manually.',
+						content: `<p>It’s essential to regenerate Critical CSS to optimize your site speed whenever your HTML or CSS structure changes. Being on top of this can be tedious and time-consuming.</p>
+								  <p>Boost’s cloud service can automatically detect when your site needs the Critical CSS regenerated, and perform this function behind the scenes without requiring you to monitor it manually.</p>`,
 					},
 				},
 			},
@@ -95,8 +96,8 @@ export const boostProductData = {
 		{
 			name: 'Dedicated email support',
 			info: {
-				content:
-					'Paid customers get dedicated email support from our world-class Happiness Engineers to help with any issue.<br><br>All other questions are handled by our team as quickly as we are able to go through the WordPress support forum.',
+				content: `<p>Paid customers get dedicated email support from our world-class Happiness Engineers to help with any issue.</p>
+					      <p>All other questions are handled by our team as quickly as we are able to go through the WordPress support forum.</p>`,
 			},
 			tiers: {
 				free: {
