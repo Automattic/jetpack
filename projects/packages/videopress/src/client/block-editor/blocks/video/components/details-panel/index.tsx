@@ -39,6 +39,7 @@ export default function DetailsPanel( {
 	setAttributes,
 	isRequestingVideoData,
 	updateError,
+	videoBelongToSite,
 }: DetailsPanelProps ) {
 	const { title, description } = attributes;
 	const { hasIncompleteChapters } = useChaptersLiveParsing( description );
@@ -68,7 +69,7 @@ export default function DetailsPanel( {
 					filename?.length ? `${ filename } video` : __( 'Video title', 'jetpack-videopress-pkg' )
 				}
 				onChange={ value => setAttributes( { title: value } ) }
-				disabled={ isRequestingVideoData || !! updateError }
+				disabled={ isRequestingVideoData || !! updateError || ! videoBelongToSite }
 			/>
 
 			<TextareaControl
@@ -77,7 +78,7 @@ export default function DetailsPanel( {
 				placeholder={ __( 'Video description', 'jetpack-videopress-pkg' ) }
 				onChange={ value => setAttributes( { description: value } ) }
 				rows={ descriptionControlRows }
-				disabled={ isRequestingVideoData || !! updateError }
+				disabled={ isRequestingVideoData || !! updateError || ! videoBelongToSite }
 				help={ descriptionHelp }
 			/>
 
