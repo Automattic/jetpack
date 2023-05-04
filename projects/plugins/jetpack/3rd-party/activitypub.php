@@ -4,6 +4,8 @@
  *
  * Only added if the ActivityPub plugin and its \Activitypub\Model\Post class is found.
  *
+ * @since $$next-version$$
+ *
  * @package automattic/jetpack
  */
 
@@ -14,6 +16,8 @@ use Automattic\Jetpack\Image_CDN\Image_CDN;
 if (
 	/**
 	 * Allow disabling Jetpack's image CDN for ActivityPub requests.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param bool $should_disable_photon Should the CDN be disabled for that request. Default to false.
 	 */
