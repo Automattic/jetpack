@@ -16,6 +16,7 @@ export const settings = {
 			name: 'post-publish-qr-post-panel',
 			title: __( 'QR Code', 'jetpack' ),
 			className: 'post-publish-qr-post-panel',
+			initialOpen: false,
 		};
 		const icon = <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />;
 
