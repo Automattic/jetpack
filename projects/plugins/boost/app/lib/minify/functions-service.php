@@ -238,7 +238,7 @@ function jetpack_boost_page_optimize_build_output() {
 					function ( $match ) {
 						global $pre_output;
 
-						if ( 0 === strpos( $pre_output, '@charset' ) ) {
+						if ( 0 === strpos( (string) $pre_output, '@charset' ) ) {
 							return '';
 						}
 
