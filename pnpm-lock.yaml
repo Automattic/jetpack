@@ -684,6 +684,9 @@ importers:
       '@wordpress/hooks':
         specifier: 3.32.0
         version: 3.32.0
+      '@wordpress/html-entities':
+        specifier: 3.30.0
+        version: 3.30.0
       '@wordpress/i18n':
         specifier: 4.32.0
         version: 4.32.0
@@ -9580,6 +9583,13 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.5
 
+  /@wordpress/html-entities@3.30.0:
+    resolution: {integrity: sha512-Hzqn4WSbL2gYBssMruMadJo9LTrupK+RQLMNO87Zx6sDADu1e4sSLrsfLVvX9hMNmDp3SQxUpt2CHWLxzlVf3g==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.21.5
+    dev: false
+
   /@wordpress/html-entities@3.32.0:
     resolution: {integrity: sha512-B1PK+F2pJM+0Ido9Ucti/yQxjssm4W6NtJTFcgZA6HJgyfBmRU54LRBCcBt6wCpJERpMn0bm9nFJqc0nvJSfNQ==}
     engines: {node: '>=12'}
@@ -10591,7 +10601,7 @@ packages:
   /axios@0.27.2:
     resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
     dependencies:
-      follow-redirects: 1.15.2
+      follow-redirects: 1.15.2(debug@4.3.4)
       form-data: 4.0.0
     transitivePeerDependencies:
       - debug
@@ -13522,15 +13532,6 @@ packages:
       tabbable: 5.3.3
     dev: false
 
-  /follow-redirects@1.15.2:
-    resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-
   /follow-redirects@1.15.2(debug@4.3.4):
     resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
     engines: {node: '>=4.0'}
@@ -13541,7 +13542,6 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.4
-    dev: true
 
   /for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
