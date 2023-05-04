@@ -91,8 +91,13 @@ function jpcrm_uts_to_time_str( $timestamp, $format = false ) {
 function jpcrm_datetime_str_to_uts( $datetime_str, $format = false ) {
 
 	// default to ISO
-	if ( !$format ) {
-		$format = 'Y-m-d H:i';
+	if ( ! $format ) {
+		// append seconds to provided string if not present
+		if ( substr_count( $datetime_str, ':' ) === 1 ) {
+			$datetime_str .= ':00';
+		}
+
+		$format = 'Y-m-d H:i:s';
 	}
 
 	// create DateTime object from string
