@@ -85,6 +85,42 @@ class Automation_Recipe_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @testdox Testing the recipe execution if it's not active
+	 */
+	public function test_recipe_execution_not_active() {
+		
+		$automation = Automation_Engine::instance();
+		$automation->set_automation_logger( Automation_Logger::instance() );
+		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
+		
+		$recipe_data = $this->automation_faker->recipe_without_initial_step();
+
+		// Build a PHPUnit mock Automation_Recipe
+		$recipe = $this->getMockBuilder( Automation_Recipe::class )
+			->setConstructorArgs( array( $recipe_data ) )
+			->onlyMethods( array( 'execute' ) )
+			->getMock();
+		
+		// Turn off the recipe
+		$recipe->turn_off();
+		
+		// Add and init the recipes
+		$automation->add_recipe( $recipe );
+		$automation->init_recipes();
+
+		// We don't expect the recipe to be executed
+		$recipe->expects( $this->never() )
+			   ->method( 'execute' );
+		
+		// Fake contact data
+		$contact_data = $this->automation_faker->contact_data();
+		
+		// Emit the contact_created event with the fake contact data
+		$event_emitter = Event_Emitter::instance();
+		$event_emitter->emit_event( 'contact_created', $contact_data );
+	}
+
+	/**
 	 * @testdox Test an automation recipe execution on contact_created event
 	 */
 	public function test_recipe_execution_on_contact_created() {
