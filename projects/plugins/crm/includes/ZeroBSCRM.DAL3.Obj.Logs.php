@@ -59,8 +59,7 @@ class zbsDAL_logs extends zbsDAL_ObjectLayer {
      * (These effect what updates 'last contacted' field against customer and 'latest contact log')
      * - For now hard typed  
      */
-	public $contactLogTypes = array( 'call', 'email', 'mail', 'meeting', 'feedback', 'invoice__sent', 'quote__sent', 'feedback', 'tweet', 'facebook_post', 'other_contact' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.PropertyNotSnakeCase
-
+	public $contact_log_types = array( 'call', 'email', 'mail', 'meeting', 'feedback', 'invoice__sent', 'quote__sent', 'feedback', 'tweet', 'facebook_post', 'other_contact' );
 
     function __construct($args=array()) {
 

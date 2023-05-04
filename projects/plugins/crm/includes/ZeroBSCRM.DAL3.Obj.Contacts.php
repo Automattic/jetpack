@@ -1718,57 +1718,57 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         #} ============   SORT   ==============
 
-            // latest log
-            // Latest Contact Log (as sort) needs an additional SQL where str:
-            $contactLogTypesStr = ''; $sortFunction = 'MAX'; if ($sortOrder !== 'DESC') $sortFunction = 'MIN';
-            if ($withLastLog){
+				// latest log
+				// Latest Contact Log (as sort) needs an additional SQL where str:
+				$contact_log_types_str = '';
+				$sort_function         = 'MAX';
+				if ( $sortOrder !== 'DESC' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$sort_function = 'MIN';
+				}
+				if ( $withLastLog ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                    // retrieve log types to include 
-                    $contactLogTypes = $zbs->DAL->logs->contactLogTypes;
+					// retrieve log types to include
+					$contact_log_types = $zbs->DAL->logs->contact_log_types; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-                    // build sql
-                    $contactLogSQL = ''; 
-                    if (is_array($contactLogTypes)){
+					// build sql
+					if ( is_array( $contact_log_types ) ) {
+						// create escaped csv
+						$contact_log_types_str = $this->build_csv( $contact_log_types );
+					}
+				}
 
-                        // create escaped csv
-                        $contactLogTypesStr = $this->build_csv($contactLogTypes);
+				// Mapped sorts
+				// This catches listview and other specific sort cases
+				// Note: Prefix here is a legacy leftover from the fact the AJAX List view retrieve goes through zeroBS_getCustomers() which prefixes zbsc_
+				$sort_map = array(
+					'zbsc_id'               => 'ID',
+					'zbsc_owner'            => 'zbs_owner',
+					'zbsc_zbs_owner'        => 'zbs_owner',
 
-                    }   
+					// company (name)
+					'zbsc_company'          => '(SELECT zbsco_name FROM ' . $ZBSCRM_t['companies'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_from = contact.ID) ORDER BY zbsco_name ' . $sortOrder . ' LIMIT 0,1)', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-            }
+					// sort by subquery: Logs
+					// sort by latest log is effectively 'sort by last log added'
+					'zbsc_latestlog'        => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ')', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// sort by latest contact log is effectively 'sort by last contact log added' (requires $withLastLog = true)
+					'zbsc_lastcontacted'    => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ' AND zbsl_type IN (' . $contact_log_types_str . '))', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-            // Mapped sorts
-            // This catches listview and other specific sort cases
-            // Note: Prefix here is a legacy leftover from the fact the AJAX List view retrieve goes through zeroBS_getCustomers() which prefixes zbsc_
-            $sort_map = array(
-                'zbsc_id'               => 'ID',
-                'zbsc_owner'            => 'zbs_owner',
-                'zbsc_zbs_owner'        => 'zbs_owner',   
+					// has & counts (same queries)
+					'zbsc_hasquote'         => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['quotes'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					'zbsc_hasinvoice'       => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					'zbsc_hastransaction'   => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['transactions'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					'zbsc_quotecount'       => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['quotes'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_QUOTE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					'zbsc_invoicecount'     => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['invoices'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_INVOICE . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					'zbsc_transactioncount' => '(SELECT COUNT(ID) FROM ' . $ZBSCRM_t['transactions'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_TRANSACTION . ' AND zbsol_objtype_to = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objid_to = contact.ID))', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                // company (name)
-                'zbsc_company'          => '(SELECT zbsco_name FROM '.$ZBSCRM_t['companies'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_to FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_CONTACT.' AND zbsol_objtype_to = '.ZBS_TYPE_COMPANY.' AND zbsol_objid_from = contact.ID) ORDER BY zbsco_name '.$sortOrder.' LIMIT 0,1)',
+					// following will only work if obj total value subqueries triggered above ^
+					'zbsc_totalvalue'       => '((IFNULL(invoices_total,0) + IFNULL(transactions_total,0)) - IFNULL(transactions_paid_total,0))', // custom sort by total invoice value + transaction value - paid transactions (as mimicking tidy_contact php logic into SQL)
+					'zbsc_transactiontotal' => 'transactions_total',
+					'zbsc_quotetotal'       => 'quotes_total',
+					'zbsc_invoicetotal'     => 'invoices_total',
 
-                // sort by subquery: Logs 
-                // sort by latest log is effectively 'sort by last log added'
-                'zbsc_latestlog'        => '(SELECT '.$sortFunction.'(zbsl_created) FROM '.$ZBSCRM_t['logs'].' WHERE zbsl_objid = contact.ID AND zbsl_objtype = '.ZBS_TYPE_CONTACT.')',
-                // sort by latest contact log is effectively 'sort by last contact log added' (requires $withLastLog = true)
-                'zbsc_lastcontacted'    => '(SELECT '.$sortFunction.'(zbsl_created) FROM '.$ZBSCRM_t['logs'].' WHERE zbsl_objid = contact.ID AND zbsl_objtype = '.ZBS_TYPE_CONTACT.' AND zbsl_type IN ('.$contactLogTypesStr.'))',
-
-                // has & counts (same queries)
-                'zbsc_hasquote'         => '(SELECT COUNT(ID) FROM '.$ZBSCRM_t['quotes'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_QUOTE.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_to = contact.ID))',
-                'zbsc_hasinvoice'       => '(SELECT COUNT(ID) FROM '.$ZBSCRM_t['invoices'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_INVOICE.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_to = contact.ID))',
-                'zbsc_hastransaction'   => '(SELECT COUNT(ID) FROM '.$ZBSCRM_t['transactions'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_TRANSACTION.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_to = contact.ID))',            
-                'zbsc_quotecount'       => '(SELECT COUNT(ID) FROM '.$ZBSCRM_t['quotes'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_QUOTE.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_to = contact.ID))',
-                'zbsc_invoicecount'     => '(SELECT COUNT(ID) FROM '.$ZBSCRM_t['invoices'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_INVOICE.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_to = contact.ID))',
-                'zbsc_transactioncount' => '(SELECT COUNT(ID) FROM '.$ZBSCRM_t['transactions'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_from FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_TRANSACTION.' AND zbsol_objtype_to = '.ZBS_TYPE_CONTACT.' AND zbsol_objid_to = contact.ID))',
-
-                // following will only work if obj total value subqueries triggered above ^
-                'zbsc_totalvalue'       => '((IFNULL(invoices_total,0) + IFNULL(transactions_total,0)) - IFNULL(transactions_paid_total,0))', // custom sort by total invoice value + transaction value - paid transactions (as mimicking tidy_contact php logic into SQL)
-                'zbsc_transactiontotal' => 'transactions_total',
-                'zbsc_quotetotal'       => 'quotes_total',
-                'zbsc_invoicetotal'     => 'invoices_total',
-
-            );
+				);
             
             // either from $sort_map, or multi-dimensional name search
             if ( array_key_exists( $sortByField, $sort_map ) ) {
@@ -2031,23 +2031,25 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                         if (is_array($potentialLogs) && count($potentialLogs) > 0) $resArr['lastlog'] = $potentialLogs[0];
 
-                        // CONTACT logs specificaly
-                        // doesn't return singular, for now using arr
-                        $potentialLogs = $this->DAL()->logs->getLogsForObj(array(
+								// CONTACT logs specifically
+								// doesn't return singular, for now using arr
+								$potentialLogs = $this->DAL()->logs->getLogsForObj( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									array(
 
-                                                'objtype' => ZBS_TYPE_CONTACT,
-                                                'objid' => $resDataLine->ID,
+										'objtype'     => ZBS_TYPE_CONTACT,
+										'objid'       => $resDataLine->ID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                                                'notetypes' => $zbs->DAL->logs->contactLogTypes,
-                                                
-                                                'incMeta'   => true,
+										'notetypes'   => $zbs->DAL->logs->contact_log_types, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-                                                'sortByField'   => 'zbsl_created',
-                                                'sortOrder'     => 'DESC',
-                                                'page'          => 0,
-                                                'perPage'       => 1
+										'incMeta'     => true,
 
-                                            ));
+										'sortByField' => 'zbsl_created',
+										'sortOrder'   => 'DESC',
+										'page'        => 0,
+										'perPage'     => 1,
+
+									)
+								);
 
                         if (is_array($potentialLogs) && count($potentialLogs) > 0) $resArr['lastcontactlog'] = $potentialLogs[0];
 
