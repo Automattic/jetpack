@@ -32,13 +32,10 @@ const InboxResponse = ( { loading, response } ) => {
 		setTimeout( () => setEmailCopied( false ), 3000 );
 	}, [ response, setEmailCopied ] );
 
-	const classes = classnames( 'jp-forms__inbox-response', {
-		'has-email': true,
-	} );
 	const titleClasses = classnames( 'jp-forms__inbox-response-title', {
-		'is-email': false,
-		'is-ip': false,
-		'is-name': true,
+		'is-email': response && ! response.author_name && response.author_email,
+		'is-ip': response && ! response.author_name && ! response.author_email,
+		'is-name': response && response.author_name,
 	} );
 
 	if ( ! loading && ! response ) {
@@ -49,7 +46,7 @@ const InboxResponse = ( { loading, response } ) => {
 		<SwitchTransition
 			ref={ ref }
 			activeViewKey={ response.id }
-			className={ classes }
+			className="jp-forms__inbox-response"
 			duration={ 200 }
 		>
 			<div className="jp-forms__inbox-response-avatar">
