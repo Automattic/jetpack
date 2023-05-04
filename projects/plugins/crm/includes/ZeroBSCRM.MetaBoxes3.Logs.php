@@ -41,63 +41,64 @@
   Declare Globals
    ====================================================== */
 
-    global $zeroBSCRM_logTypes; 
-    $zeroBSCRM_logTypes = array(
+global $zeroBSCRM_logTypes; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+$zeroBSCRM_logTypes = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-        'zerobs_customer' => array(
-        
-                    'note'=> array("label" => __("Note","zero-bs-crm"), "ico" => "fa-sticky-note-o"),
-                    'call'=> array("label" => __("Call","zero-bs-crm"), "ico" => "fa-phone-square"),
-                    'email'=> array("label" => __("Email","zero-bs-crm"), "ico" => "fa-envelope-o"),
-                    'mail'=> array("label" => __("Mail","zero-bs-crm"), "ico" => "fa-envelope-o"),
-                    'meeting'=> array("label" => __("Meeting","zero-bs-crm"), "ico" => "fa-users"),
-                    'quote__sent'=> array("label" => __("Quote: Sent","zero-bs-crm"), "ico" => "fa-share-square-o"),
-                    'quote__accepted'=> array("label" => __("Quote: Accepted","zero-bs-crm"), "ico" => "fa-thumbs-o-up"),
-                    'quote__refused'=> array("label" => __("Quote: Refused","zero-bs-crm"), "ico" => "fa-ban"),
-                    'invoice__sent'=> array("label" => __("Invoice: Sent","zero-bs-crm"), "ico" => "fa-share-square-o"),
-                    'invoice__part_paid'=> array("label" => __("Invoice: Part Paid","zero-bs-crm"), "ico" => "fa-money"),
-                    'invoice__paid'=> array("label" => __("Invoice: Paid","zero-bs-crm"), "ico" => "fa-money"),
-                    'invoice__refunded'=> array("label" => __("Invoice: Refunded","zero-bs-crm"), "ico" => "fa-money"),
-                    'transaction'=> array("label" => __("Transaction","zero-bs-crm"), "ico" => "fa-credit-card"),
-                    'feedback'=> array("label" => __("Feedback","zero-bs-crm"), "ico" => "fa-commenting"),
-                    'tweet'=> array("label" => __("Tweet","zero-bs-crm"), "ico" => "fa-twitter"),
-                    'facebook_post'=> array("label" => __("Facebook Post","zero-bs-crm"), "ico" => "fa-facebook-official"),
-                    'created'=> array("locked" => true, "label" => __("Created","zero-bs-crm"), "ico" => "fa-plus-circle"),
-                    'updated'=> array("locked" => true,"label" => __("Updated","zero-bs-crm"), "ico" => "fa-pencil-square-o"),
-                    'quote_created'=> array("locked" => true,"label" => __("Quote Created","zero-bs-crm"), "ico" => "fa-plus-circle"),                    
-                    'invoice_created'=> array("locked" => true,"label" => __("Invoice Created","zero-bs-crm"), "ico" => "fa-plus-circle"),
-			'event_created' => array('locked' => true, 'label' => __( 'Task Created', 'zero-bs-crm' ), 'ico' => 'fa-calendar' ), // phpcs:ignore WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound, WordPress.Arrays.MultipleStatementAlignment.DoubleArrowNotAligned
-                    'task_created'=> array("locked" => true,"label" => __("Task Created","zero-bs-crm"), "ico" => "fa-calendar"),
-                    'transaction_created'=> array("locked" => true,"label" => __("Transaction Created","zero-bs-crm"), "ico" => "fa-credit-card"),
-                    'transaction_updated'=> array("locked" => true,"label" => __("Transaction Updated","zero-bs-crm"), "ico" => "fa-credit-card"),
-                    'transaction_deleted'=> array( "locked" => true, "label" => __( "Transaction Deleted", "zero-bs-crm" ), "ico" => "fa-credit-card" ),
-                    'form_filled'=> array("locked" => true,"label" => __("Form Filled","zero-bs-crm"), "ico" => "fa-wpforms"),
-                    'api_action'=> array("locked" => true,"label" => __("API Action","zero-bs-crm"), "ico" => "fa-random"),
-                    'bulk_action__merge'=> array("locked" => true,"label" => __("Bulk Action: Merge","zero-bs-crm"), "ico" => "fa-compress"),
-                    'client_portal_user_created'=> array("locked" => true,"label" => __("Client Portal User Created","zero-bs-crm"), "ico" => "fa-id-card"),
-                    'client_portal_access_changed'=> array("locked" => true,"label" => __("Client Portal Access Changed","zero-bs-crm"), "ico" => "fa-id-card"),
-                    'status_change'=> array("locked" => true,"label" => __("Status Change","zero-bs-crm"), "ico" => "fa-random"),
-                    'contact_changed_details_via_portal'=> array("locked" => true,"label" => __("Contact Changed via Portal","zero-bs-crm"), "ico" => "fa-id-card"),
-                    'contact_changed_details_via_wpprofile'=> array("locked" => true,"label" => __("Contact Changed via WordPress Profile","zero-bs-crm"), "ico" => "fa-id-card"),
-                    'contact_changed_details_via_woomyacc'=> array("locked" => true,"label" => __("Contact Changed via WooCommerce My Account","zero-bs-crm"), "ico" => "fa-id-card"),
-                    'contact_changed_details_via_mailpoet'=> array("locked" => true,"label" => __("Contact Changed via MailPoet","zero-bs-crm"), "ico" => "fa-id-card"),
-                    'subscriber_deleted_in_mailpoet'=> array("locked" => true,"label" => __("Subscriber deleted in MailPoet","zero-bs-crm"), "ico" => "fa-times"),
-                    'contact_change_details_attempt'=> array("locked" => true,"label" => __("Attempted Contact detail change","zero-bs-crm"), "ico" => "fa-id-card")
+	// // phpcs:disable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
+	'zerobs_customer' => array(
 
-        ),
+		'note'                                  => array( 'label' => __( 'Note', 'zero-bs-crm' ), 'ico' => 'fa-sticky-note-o' ),
+		'call'                                  => array( 'label' => __( 'Call', 'zero-bs-crm' ), 'ico' => 'fa-phone-square' ),
+		'email'                                 => array( 'label' => __( 'Email', 'zero-bs-crm' ), 'ico' => 'fa-envelope-o' ),
+		'mail'                                  => array( 'label' => __( 'Mail', 'zero-bs-crm' ), 'ico' => 'fa-envelope-o' ),
+		'meeting'                               => array( 'label' => __( 'Meeting', 'zero-bs-crm' ), 'ico' => 'fa-users' ),
+		'quote__sent'                           => array( 'label' => __( 'Quote: Sent', 'zero-bs-crm' ), 'ico' => 'fa-share-square-o' ),
+		'quote__accepted'                       => array( 'label' => __( 'Quote: Accepted', 'zero-bs-crm' ), 'ico' => 'fa-thumbs-o-up' ),
+		'quote__refused'                        => array( 'label' => __( 'Quote: Refused', 'zero-bs-crm' ), 'ico' => 'fa-ban' ),
+		'invoice__sent'                         => array( 'label' => __( 'Invoice: Sent', 'zero-bs-crm' ), 'ico' => 'fa-share-square-o' ),
+		'invoice__part_paid'                    => array( 'label' => __( 'Invoice: Part Paid', 'zero-bs-crm' ), 'ico' => 'fa-money' ),
+		'invoice__paid'                         => array( 'label' => __( 'Invoice: Paid', 'zero-bs-crm' ), 'ico' => 'fa-money' ),
+		'invoice__refunded'                     => array( 'label' => __( 'Invoice: Refunded', 'zero-bs-crm' ), 'ico' => 'fa-money' ),
+		'transaction'                           => array( 'label' => __( 'Transaction', 'zero-bs-crm' ), 'ico' => 'fa-credit-card' ),
+		'feedback'                              => array( 'label' => __( 'Feedback', 'zero-bs-crm' ), 'ico' => 'fa-commenting' ),
+		'tweet'                                 => array( 'label' => __( 'Tweet', 'zero-bs-crm' ), 'ico' => 'fa-twitter' ),
+		'facebook_post'                         => array( 'label' => __( 'Facebook Post', 'zero-bs-crm' ), 'ico' => 'fa-facebook-official' ),
+		'created'                               => array( 'locked' => true, 'label' => __( 'Created', 'zero-bs-crm' ), 'ico' => 'fa-plus-circle' ),
+		'updated'                               => array( 'locked' => true, 'label' => __( 'Updated', 'zero-bs-crm' ), 'ico' => 'fa-pencil-square-o' ),
+		'quote_created'                         => array( 'locked' => true, 'label' => __( 'Quote Created', 'zero-bs-crm' ), 'ico' => 'fa-plus-circle' ),
+		'invoice_created'                       => array( 'locked' => true, 'label' => __( 'Invoice Created', 'zero-bs-crm' ), 'ico' => 'fa-plus-circle' ),
+		'event_created'                         => array('locked' => true, 'label' => __( 'Task Created', 'zero-bs-crm' ), 'ico' => 'fa-calendar' ),
+		'task_created'                          => array( 'locked' => true, 'label' => __( 'Task Created', 'zero-bs-crm' ), 'ico' => 'fa-calendar' ),
+		'transaction_created'                   => array( 'locked' => true, 'label' => __( 'Transaction Created', 'zero-bs-crm' ), 'ico' => 'fa-credit-card' ),
+		'transaction_updated'                   => array( 'locked' => true, 'label' => __( 'Transaction Updated', 'zero-bs-crm' ), 'ico' => 'fa-credit-card' ),
+		'transaction_deleted'                   => array( 'locked' => true, 'label' => __( 'Transaction Deleted', 'zero-bs-crm' ), 'ico' => 'fa-credit-card' ),
+		'form_filled'                           => array( 'locked' => true, 'label' => __( 'Form Filled', 'zero-bs-crm' ), 'ico' => 'fa-wpforms' ),
+		'api_action'                            => array( 'locked' => true, 'label' => __( 'API Action', 'zero-bs-crm' ), 'ico' => 'fa-random' ),
+		'bulk_action__merge'                    => array( 'locked' => true, 'label' => __( 'Bulk Action: Merge', 'zero-bs-crm' ), 'ico' => 'fa-compress' ),
+		'client_portal_user_created'            => array( 'locked' => true, 'label' => __( 'Client Portal User Created', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
+		'client_portal_access_changed'          => array( 'locked' => true, 'label' => __( 'Client Portal Access Changed', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
+		'status_change'                         => array( 'locked' => true, 'label' => __( 'Status Change', 'zero-bs-crm' ), 'ico' => 'fa-random' ),
+		'contact_changed_details_via_portal'    => array( 'locked' => true, 'label' => __( 'Contact Changed via Portal', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
+		'contact_changed_details_via_wpprofile' => array( 'locked' => true, 'label' => __( 'Contact Changed via WordPress Profile', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
+		'contact_changed_details_via_woomyacc'  => array( 'locked' => true, 'label' => __( 'Contact Changed via WooCommerce My Account', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
+		'contact_changed_details_via_mailpoet'  => array( 'locked' => true, 'label' => __( 'Contact Changed via MailPoet', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
+		'subscriber_deleted_in_mailpoet'        => array( 'locked' => true, 'label' => __( 'Subscriber deleted in MailPoet', 'zero-bs-crm' ), 'ico' => 'fa-times' ),
+		'contact_change_details_attempt'        => array( 'locked' => true, 'label' => __( 'Attempted Contact detail change', 'zero-bs-crm' ), 'ico' => 'fa-id-card' ),
 
-        'zerobs_company' => array(
-        
-                    'note'=> array("label" => __("Note","zero-bs-crm"), "ico" => "fa-sticky-note-o"),
-                    'call'=> array("label" => __("Call","zero-bs-crm"), "ico" => "fa-phone-square"),
-                    'email'=> array("label" => __("Email","zero-bs-crm"), "ico" => "fa-envelope-o"),
-                    'created'=> array("locked" => true,"label" => __("Created","zero-bs-crm"), "ico" => "fa-plus-circle"),
-                    'updated'=> array("locked" => true,"label" => __("Updated","zero-bs-crm"), "ico" => "fa-pencil-square-o")
+	),
 
-        ),
+	'zerobs_company'  => array(
 
-    );
-    
+		'note'    => array( 'label' => __( 'Note', 'zero-bs-crm' ), 'ico' => 'fa-sticky-note-o' ),
+		'call'    => array( 'label' => __( 'Call', 'zero-bs-crm' ), 'ico' => 'fa-phone-square' ),
+		'email'   => array( 'label' => __( 'Email', 'zero-bs-crm' ), 'ico' => 'fa-envelope-o' ),
+		'created' => array( 'locked' => true, 'label' => __( 'Created', 'zero-bs-crm' ), 'ico' => 'fa-plus-circle' ),
+		'updated' => array( 'locked' => true, 'label' => __( 'Updated', 'zero-bs-crm' ), 'ico' => 'fa-pencil-square-o' ),
+
+	),
+
+	// // phpcs:enable WordPress.Arrays.ArrayDeclarationSpacing.AssociativeArrayFound
+);
 
     function zeroBSCRM_permifyLogType($logTypeStr=''){
 
