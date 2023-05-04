@@ -101,9 +101,9 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 			if ( isset( $company['invoices_count'] ) ) {
 				$company_invoices_count = $company['invoices_count'];
 			}
-			$company_invoice_count_with_deleted = 0;
-			if ( isset( $company['invoices_count_with_deleted'] ) ) {
-				$company_invoice_count_with_deleted = $company['invoices_count_with_deleted'];
+			$company_invoice_count_inc_deleted = 0;
+			if ( isset( $company['invoices_count_inc_deleted'] ) ) {
+				$company_invoice_count_inc_deleted = $company['invoices_count_inc_deleted'];
 			}
 			$company_transactions_value = 0;
 			if ( isset( $company['transactions_total'] ) ) {
@@ -594,7 +594,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								// prep link to create a new invoice
 								$new_invoice_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_INVOICE ) . '&prefillco=' . $company['id'];
 
-								if ( $company_invoice_count_with_deleted > 0 ) {
+								if ( $company_invoice_count_inc_deleted > 0 ) {
 
 									foreach ( $company['invoices'] as $invoice ) {
 										// debugecho '<pre>'; print_r($invoice); echo '</pre><hr>';
@@ -675,7 +675,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 								</tbody>
 							</table>
-							<?php if ( $company_invoice_count_with_deleted > 0 ) : ?>
+							<?php if ( $company_invoice_count_inc_deleted > 0 ) : ?>
 								<div style="text-align: right;">
 								<a href="<?php echo esc_url( $new_invoice_url ); ?>" class="ui basic green button">
 									<i class="plus square outline icon"></i>

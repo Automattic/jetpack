@@ -3648,7 +3648,14 @@ function zeroBS___________DAL30Helpers(){return;}
 
 	}
 
-	// outdated pain, use direct calls not this plz. kthx.
+	/** // phpcs:ignore Squiz.Commenting.FunctionComment.MissingParamTag,Generic.Commenting.DocComment.MissingShort
+	 * This takes various parameters to help define what information to send back with a list of contacts,
+	 * and returns an object with companies and their data.
+	 *
+	 * @deprecated $$next-version$$ Use getCompanies() instead.
+	 *
+	 * @return object
+	 */
 	function zeroBS_getCompaniesv2(
 
 		$withFullDetails=false,
@@ -3670,6 +3677,8 @@ function zeroBS___________DAL30Helpers(){return;}
 		$withValues=false
 
 	){
+
+		_deprecated_function( __FUNCTION__, 'crm-$$next-version$$' );
 
 		// $withFullDetails = irrelevant with new DB2 (always returns)
 		// $argsOverride CAN NO LONGER WORK :)
@@ -3715,11 +3724,13 @@ function zeroBS___________DAL30Helpers(){return;}
 
 	}
 
-	// MS Cloned from getCustomers
-	// ... WH slightly cleaned
-	// ... NEEDS DB2 to wipe these out (centralise to 1 get func per type with $args)
-	// ... THIS IS A CLONE of getCompaniesv2 which just returns a TOTAL count 
-	// DAL3: Yup. DO NOT USE THIS IN NEW CODE.
+	/** // phpcs:ignore Squiz.Commenting.FunctionComment.MissingParamTag,Generic.Commenting.DocComment.MissingShort
+	 * This returns an object with copmany data specific to count related information.
+	 *
+	 * @deprecated $$next-version$$ Use getCompanies() instead and set count to true.
+	 *
+	 * @return object
+	 */
 	function zeroBS_getCompaniesv2CountIncParams(
 
 		$searchPhrase='',
@@ -3734,6 +3745,8 @@ function zeroBS___________DAL30Helpers(){return;}
 		$quickFilters=false
 
 		){
+
+		_deprecated_function( __FUNCTION__, 'crm-$$next-version$$' );
 
 		// $withFullDetails = irrelevant with new DB2 (always returns)
 		// $argsOverride CAN NO LONGER WORK :)
@@ -3751,10 +3764,10 @@ function zeroBS___________DAL30Helpers(){return;}
 				'quickFilters'  => $quickFilters,
 
 				// just count, don't need (even if passed above)
-				'count' 			=> true,
+				'count'            => true,
 				'withCustomFields'	=> false,
 				'withQuotes' 		=> false,
-				'withInvoices' 		=> false,
+				'withValues'       => false,
 				'withTransactions' 	=> false,
 				'withLogs' 			=> false,
 				'withLastLog'		=> false,

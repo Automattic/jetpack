@@ -79,9 +79,9 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 		if ( isset( $contact['invoices_count'] ) ) {
 			$contact_invoice_count = $contact['invoices_count'];
 		}
-		$contact_invoice_count_with_deleted = 0;
-		if ( isset( $contact['invoices_count_with_deleted'] ) ) {
-			$contact_invoice_count_with_deleted = $contact['invoices_count_with_deleted'];
+		$contact_invoice_count_inc_deleted = 0;
+		if ( isset( $contact['invoices_count_inc_deleted'] ) ) {
+			$contact_invoice_count_inc_deleted = $contact['invoices_count_inc_deleted'];
 		}
 		$contact_transaction_count = $zbs->DAL->specific_obj_type_count_for_assignee( $id, ZBS_TYPE_TRANSACTION ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
@@ -873,7 +873,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 							// prep link to create a new invoice
 							$new_invoice_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_INVOICE ) . '&zbsprefillcust=' . $contact['id'];
-							if ( $contact_invoice_count_with_deleted > 0 ) {
+							if ( $contact_invoice_count_inc_deleted > 0 ) {
 
 								foreach ( $contact['invoices'] as $invoice ) {
 
@@ -929,7 +929,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 								// if we have more than we're showing, communicate that
 								// Note this is defunct until we add contact filters to our object list views.
-								if ( $contact_invoice_count_with_deleted > $contact_invoice_count ) {
+								if ( $contact_invoice_count_inc_deleted > $contact_invoice_count ) {
 									?>
 							<tr>
 								<td colspan="4">

@@ -2809,7 +2809,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// now got by screenopt above $per_page = 20;
 				$page_number            = 0;
 				$possibleSearchTerm     = '';
-				$withInvoices           = false;
 				$withQuotes             = false;
 				$withTransactions       = false;
 				$argsOverride           = false;
@@ -2904,13 +2903,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				if ( in_array( 'hasquote', $columnsRequired ) || in_array( 'quotecount', $columnsRequired ) || in_array( 'quotetotal', $columnsRequired ) ) {
 
 					$withQuotes = true;
-
-				}
-
-					// } Invoices
-				if ( in_array( 'hasinvoice', $columnsRequired ) || in_array( 'invoicecount', $columnsRequired ) || in_array( 'invoicetotal', $columnsRequired ) ) {
-
-					$withInvoices = true;
 
 				}
 
@@ -3054,7 +3046,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 						'withCustomFields' => true,
 						'withQuotes'       => $withQuotes,
-						'withInvoices'     => $withInvoices,
+						'withInvoices'     => false,
 						'withTransactions' => $withTransactions,
 						'withLogs'         => false,
 						'withLastLog'      => $latestLog,
@@ -3214,11 +3206,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					$withQuote = true;
 
 				}
-				if ( in_array( 'invoicecount', $columnsRequired ) ) {
 
-					$withInvoices = true;
-
-				}
 				if ( in_array( 'transactioncount', $columnsRequired ) ) {
 
 					$withTransactions = true;
@@ -3314,16 +3302,46 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 				}
+				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				// make ARGS
+				$args = array(
+					'searchPhrase'     => $possibleSearchTerm,
+					'inArr'            => $inArray,
+					'isTagged'         => $possibleTagIDs,
+					'quickFilters'     => $possibleQuickFilters,
+					'count'            => false,
+					'withCustomFields' => true,
+					'withQuotes'       => $withQuotes,
+					'withInvoices'     => false,
+					'withTransactions' => $withTransactions,
+					'withLogs'         => false,
+					'withLastLog'      => $latestLog,
+					'withTags'         => $withTags,
+					'withOwner'        => $withAssigned,
+					'withValues'       => $withValues,
+					'page'             => $page_number,
+					'perPage'          => $per_page,
+					'ignoreowner'      => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY ),
+				);
 
-					// } Retrieve data
-					// $withFullDetails=false,$perPage=10,$page=0,$searchPhrase='',$argsOverride=false, $hasTagIDs='', $inArr = '',$withTags=false,$withAssigned=false,$withLastLog=false,$sortByField='',$sortOrder='DESC',$quickFilters=false
-					$companies = zeroBS_getCompaniesv2( true, $per_page, $page_number, $possibleSearchTerm, $argsOverride, $possibleTagIDs, $inArray, $withTags, $withAssigned, $latestLog, $sortField, $sortOrder, $possibleQuickFilters, $withTransactions, $withInvoices, $withQuotes, $withValues );
+				$companies = $zbs->DAL->companies->getCompanies( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-					// } If using pagination, also return total count
+				// If using pagination, also return total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
-					$res['objectcount'] = zeroBS_getCompaniesv2CountIncParams( $possibleSearchTerm, $argsOverride, $possibleTagIDs, $inArray, $withTags, $withAssigned, $latestLog, $sortField, $sortOrder, $possibleQuickFilters );
-
+					// make count arguments
+					$args               = array(
+						'searchPhrase' => $possibleSearchTerm,
+						'inCompany'    => $possibleCoID,
+						'inArr'        => $inArray,
+						'quickFilters' => $possibleQuickFilters,
+						'isTagged'     => $possibleTagIDs,
+						// just count
+						'count'        => true,
+						'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY ),
+					);
+					$res['objectcount'] = (int) $zbs->DAL->companies->getCompanies( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				}
 
 					// } Tidy
