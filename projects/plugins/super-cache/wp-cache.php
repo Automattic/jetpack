@@ -3609,6 +3609,12 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 		return $return;
 	} elseif ( isset( $_POST[ 'preload_now' ] ) ) {
 		wpsc_enable_preload();
+		?>
+		<div class="notice notice-warning">
+			<h4><?php esc_html_e( 'Preload has been activated', 'wp-super-cache' ); ?></h4>
+			<p><?php esc_html_e( 'It will begin caching pages in 10 seconds.', 'wp-super-cache' ); ?></p>
+		</div>
+		<?php
 		return $return;
 	}
 
