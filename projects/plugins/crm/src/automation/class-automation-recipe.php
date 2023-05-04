@@ -32,7 +32,8 @@ class Automation_Recipe {
 	private $logger;
 	
 	public function __construct( array $recipe_data ) {
-		$this->triggers     = $recipe_data['triggers']; //$this->createTriggers(  );
+		$this->id           = $recipe_data['id'];
+		$this->triggers     = $recipe_data['triggers'];
 		$this->initial_step = $recipe_data['initial_step'];
 		$this->name         = $recipe_data['name'];
 		$this->description  = $recipe_data['description'];
@@ -109,10 +110,19 @@ class Automation_Recipe {
 			'category'      => $this->category,
 			'is_active'     => $this->active,
 			'triggers'      => $this->triggers,
-			'initial_step'  => $this->initial_step->get_name(),
+			'initial_step'  => $this->initial_step,
 		);
 
 		return $recipe;
+	}
+
+	/**
+	 * Get the initial step of this recipe
+	 * 
+	 * @return array
+	 */
+	public function get_initial_step(): array {
+		return $this->initial_step;
 	}
 	
 	/**
