@@ -3349,6 +3349,7 @@ function wp_cron_preload_cache() {
 				@unlink( $mutex );
 				@unlink( $cache_path . "stop_preload.txt" );
 				update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
+				delete_transient( 'taxonomy_preload' );
 				if ( $wp_cache_preload_email_me )
 					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
 				return true;
@@ -3543,12 +3544,14 @@ function wpsc_cancel_preload() {
 	global $cache_path;
 	$next_preload = wp_next_scheduled( 'wp_cache_preload_hook' );
 	if ( $next_preload ) {
+		delete_transient( 'taxonomy_preload' );
 		wp_cache_debug( 'wpsc_cancel_preload: unscheduling wp_cache_preload_hook' );
 		update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
 		wp_unschedule_event( $next_preload, 'wp_cache_preload_hook' );
 	}
 	$next_preload = wp_next_scheduled( 'wp_cache_full_preload_hook' );
 	if ( $next_preload ) {
+		delete_transient( 'taxonomy_preload' );
 		update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
 		wp_cache_debug( 'wpsc_cancel_preload: unscheduling wp_cache_full_preload_hook' );
 		wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
@@ -3563,6 +3566,7 @@ function wpsc_enable_preload() {
 
 	delete_transient( 'taxonomy_preload' );
 	@unlink( $cache_path . "preload_mutex.tmp" );
+	wp_delete_file( $cache_path . 'stop_preload.txt' );
 	update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
 	wp_schedule_single_event( time() + 10, 'wp_cache_full_preload_hook' );
 }
