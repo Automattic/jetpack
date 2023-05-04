@@ -298,6 +298,7 @@ class Launchpad_Task_Lists {
 		if ( ! $this->is_launchpad_enabled() ) {
 			return;
 		}
+		lor( 'do that shit' );
 		$task_list_id = $task_list_id ? $task_list_id : get_option( 'site_intent' );
 		if ( ! $task_list_id ) {
 			return;
@@ -315,6 +316,25 @@ class Launchpad_Task_Lists {
 				call_user_func_array( $task_definition['add_listener_callback'], array( $task, $task_definition ) );
 			}
 		}
+	}
+
+	/**
+	 * Marks a task as complete.
+	 *
+	 * @param string $task_id The task ID.
+	 * @return bool True if successful, false if not.
+	 */
+	public function mark_task_complete( $task_id ) {
+		$task = $this->get_task( $task_id );
+		if ( empty( $task ) ) {
+			return false;
+		}
+		$key              = isset( $task['id_map'] ) ? $task['id_map'] : $task['id'];
+		$statuses         = get_option( 'launchpad_checklist_tasks_statuses', array() );
+		$statuses[ $key ] = true;
+
+		// todo This is where we can disable launchpad if all tasks are complete.
+		return update_option( 'launchpad_checklist_tasks_statuses', $statuses );
 	}
 
 	/**

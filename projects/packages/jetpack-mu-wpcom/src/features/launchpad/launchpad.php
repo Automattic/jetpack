@@ -47,16 +47,22 @@ function wpcom_register_default_launchpad_checklists() {
 
 	wpcom_register_launchpad_task(
 		array(
-			'id'    => 'first_post_published',
-			'title' => __( 'Write your first post', 'jetpack-mu-wpcom' ),
+			'id'                    => 'first_post_published',
+			'title'                 => __( 'Write your first post', 'jetpack-mu-wpcom' ),
+			'add_listener_callback' => function () {
+				add_action( 'publish_post', 'wpcom_track_publish_first_post_task' );
+			},
 		)
 	);
 
 	wpcom_register_launchpad_task(
 		array(
-			'id'     => 'first_post_published_newsletter',
-			'title'  => __( 'Start writing', 'jetpack-mu-wpcom' ),
-			'id_map' => 'first_post_published',
+			'id'                    => 'first_post_published_newsletter',
+			'title'                 => __( 'Start writing', 'jetpack-mu-wpcom' ),
+			'id_map'                => 'first_post_published',
+			'add_listener_callback' => function () {
+				add_action( 'publish_post', 'wpcom_track_publish_first_post_task' );
+			},
 		)
 	);
 
@@ -87,10 +93,11 @@ function wpcom_register_default_launchpad_checklists() {
 
 	wpcom_register_launchpad_task(
 		array(
-			'id'                   => 'link_in_bio_launched',
-			'title'                => __( 'Launch your site', 'jetpack-mu-wpcom' ),
-			'id_map'               => 'site_launched',
-			'is_disabled_callback' => 'wpcom_is_link_in_bio_launch_disabled',
+			'id'                    => 'link_in_bio_launched',
+			'title'                 => __( 'Launch your site', 'jetpack-mu-wpcom' ),
+			'id_map'                => 'site_launched',
+			'is_disabled_callback'  => 'wpcom_is_link_in_bio_launch_disabled',
+			'add_listener_callback' => 'wpcom_add_site_launch_listener',
 		)
 	);
 
@@ -104,19 +111,23 @@ function wpcom_register_default_launchpad_checklists() {
 
 	wpcom_register_launchpad_task(
 		array(
-			'id'                   => 'videopress_upload',
-			'title'                => __( 'Upload your first video', 'jetpack-mu-wpcom' ),
-			'id_map'               => 'video_uploaded',
-			'is_disabled_callback' => 'wpcom_is_videopress_upload_disabled',
+			'id'                    => 'videopress_upload',
+			'title'                 => __( 'Upload your first video', 'jetpack-mu-wpcom' ),
+			'id_map'                => 'video_uploaded',
+			'is_disabled_callback'  => 'wpcom_is_videopress_upload_disabled',
+			'add_listener_callback' => function () {
+				add_action( 'add_attachment', 'wpcom_track_video_uploaded_task' );
+			},
 		)
 	);
 
 	wpcom_register_launchpad_task(
 		array(
-			'id'                   => 'videopress_launched',
-			'title'                => __( 'Launch site', 'jetpack-mu-wpcom' ),
-			'id_map'               => 'site_launched',
-			'is_disabled_callback' => 'wpcom_is_videopress_launch_disabled',
+			'id'                    => 'videopress_launched',
+			'title'                 => __( 'Launch site', 'jetpack-mu-wpcom' ),
+			'id_map'                => 'site_launched',
+			'is_disabled_callback'  => 'wpcom_is_videopress_launch_disabled',
+			'add_listener_callback' => 'wpcom_add_site_launch_listener',
 		)
 	);
 
@@ -139,17 +150,21 @@ function wpcom_register_default_launchpad_checklists() {
 
 	wpcom_register_launchpad_task(
 		array(
-			'id'     => 'design_edited',
-			'title'  => __( 'Edit site design', 'jetpack-mu-wpcom' ),
-			'id_map' => 'site_edited',
+			'id'                    => 'design_edited',
+			'title'                 => __( 'Edit site design', 'jetpack-mu-wpcom' ),
+			'id_map'                => 'site_edited',
+			'add_listener_callback' => function () {
+				add_action( 'load-site-editor.php', 'wpcom_track_edit_site_task' );
+			},
 		)
 	);
 
 	wpcom_register_launchpad_task(
 		array(
-			'id'           => 'site_launched',
-			'title'        => __( 'Launch your site', 'jetpack-mu-wpcom' ),
-			'isLaunchTask' => true,
+			'id'                    => 'site_launched',
+			'title'                 => __( 'Launch your site', 'jetpack-mu-wpcom' ),
+			'isLaunchTask'          => true,
+			'add_listener_callback' => 'wpcom_add_site_launch_listener',
 		)
 	);
 
@@ -317,6 +332,7 @@ add_action(
 	'plugins_loaded',
 	function () {
 		if ( class_exists( 'WPCOM_Launchpad' ) ) {
+			l( 'Found old mu-plugin, removing it' );
 			remove_action( 'plugins_loaded', array( WPCOM_Launchpad::get_instance(), 'init' ) );
 		}
 	},
@@ -472,10 +488,119 @@ function wpcom_register_launchpad_task( $task ) {
 }
 
 /**
+ * Marks a task as complete.
+ *
+ * @param string $task_id The task ID.
+ * @return bool True if successful, false if not.
+ */
+function wpcom_mark_launchpad_task_complete( $task_id ) {
+	return wpcom_launchpad_checklists()->mark_task_complete( $task_id );
+}
+
+/**
  * Helper function to return a `Launchpad_Task_Lists` instance.
  *
  * @return object Launchpad_Task_Lists instance.
  */
 function wpcom_launchpad_checklists() {
 	return Launchpad_Task_Lists::get_instance();
+}
+
+/*** Update logic callbacks  ***/
+
+/**
+ * Callback for completing first post published task.
+ *
+ * @return void
+ */
+function wpcom_track_publish_first_post_task() {
+	wpcom_mark_launchpad_task_complete( 'publish_first_post' );
+}
+
+/**
+ * Callback for completing edit site task.
+ *
+ * @return void
+ */
+function wpcom_track_edit_site_task() {
+	wpcom_mark_launchpad_task_complete( 'design_edited' );
+}
+
+/**
+ * Callback that conditionally adds the site launch listener based on platform.
+ *
+ * @return void
+ */
+function wpcom_add_site_launch_listener() {
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		add_action( 'wpcom_site_launched', 'wpcom_track_site_launch_task' );
+	} else {
+		add_action( 'update_option_blog_public', 'wpcom_launch_task_listener_atomic', 10, 2 );
+	}
+}
+
+/**
+ * Callback that fires when `blog_public` is updated.
+ *
+ * @param string $old_value The updated option value.
+ * @param string $new_value The previous option value.
+ * @return void
+ */
+function wpcom_launch_task_listener_atomic( $old_value, $new_value ) {
+	$blog_public = (int) $new_value;
+	// 'blog_public' is set to '1' when a site is launched.
+	if ( $blog_public === 1 ) {
+		wpcom_track_site_launch_task();
+	}
+}
+
+/**
+ * Callback for completing site launched task.
+ *
+ * @return void
+ */
+function wpcom_track_site_launch_task() {
+	wpcom_mark_launchpad_task_complete( 'site_launched' );
+}
+
+/**
+ * Update Launchpad's video_uploaded task.
+ *
+ * Only updated for videopress flows currently.
+ *
+ * @param string $post_id The id of the post being udpated.
+ * @return void
+ */
+function wpcom_track_video_uploaded_task( $post_id ) {
+	// Not using `wp_attachment_is` because it requires the actual file
+	// which is not the case for Atomic VideoPress.
+	if ( 0 !== strpos( get_post_mime_type( $post_id ), 'video/' ) ) {
+		return;
+	}
+	wpcom_mark_launchpad_task_complete( 'video_uploaded' );
+}
+
+/**
+ * A filter for `get_option( 'launchpad_screen' )`
+ *
+ * @param mixed $value The filterable option value, retrieved from the DB.
+ * @return mixed       false if DIFM is active, the unaltered value otherwise.
+ */
+function wpcom_maybe_disable_for_difm( $value ) {
+	// If it's already false I don't care
+	if ( $value === false ) {
+		return $value;
+	}
+
+	// We want to disable for Built By Express aka DIFM, in case they've
+	// 1) Entered the Launchpad during signup, then 2) Purchased DIFM
+	if ( has_blog_sticker( 'difm-lite-in-progress' ) ) {
+		return false;
+	}
+	// Just in case, always return from a filter!
+	return $value;
+}
+// only WPCOM has blog stickers.
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	add_filter( 'option_launchpad_screen', 'wpcom_maybe_disable_for_difm' );
 }
