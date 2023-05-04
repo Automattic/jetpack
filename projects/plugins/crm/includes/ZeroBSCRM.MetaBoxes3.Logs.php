@@ -239,38 +239,6 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                                     }
                                 } 
 
-                                /*
-
-                                <!-- hard coded for first fix -->
-                                <option disabled="disabled" value="">== General ==</option>
-                                <option selected="selected">Note</option>
-                                <option disabled="disabled" value="">== Contact ==</option>
-                                <option>Call</option>
-                                <option>Email</option>
-                                <option>Meeting</option>
-                                <option disabled="disabled" value="">== Quotes ==</option>
-                                <option>Quote: Sent</option>
-                                <option>Quote: Accepted</option>
-                                <option>Quote: Refused</option>
-                                <option disabled="disabled" value="">== Invoices ==</option>
-                                <option>Invoice: Sent</option>
-                                <option>Invoice: Part Paid</option>
-                                <option>Invoice: Paid</option>
-                                <option>Invoice: Refunded</option>
-                                <option disabled="disabled" value="">== Transaction ==</option>
-                                <option>Transaction</option>
-                                <option disabled="disabled" value="">== Social Media ==</option>
-                                <option>Tweet</option>
-                                <option>Facebook Post</option>
-                                <option disabled="disabled" value="">== CRM Actions ==</option>
-                                <option>Created</option>
-                                <option>Updated</option>
-                                <option>Quote Created</option>
-                                <option>Invoice Created</option>
-                                <option>Form Filled</option>
-
-                                */
-
                                 ?>
                             </select>
 
@@ -315,36 +283,6 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                                         ?><option value="<?php echo esc_attr( $logKey ); ?>"><?php echo esc_html( $logType['label'] ); ?></option><?php 
                                     }
                                 } 
-
-                                /*
-                                <!-- hard coded for first fix -->
-                                <option disabled="disabled" value="">== General ==</option>
-                                <option>Note</option>
-                                <option disabled="disabled" value="">== Contact ==</option>
-                                <option>Call</option>
-                                <option>Email</option>
-                                <option>Meeting</option>
-                                <option disabled="disabled" value="">== Quotes ==</option>
-                                <option>Quote: Sent</option>
-                                <option>Quote: Accepted</option>
-                                <option>Quote: Refused</option>
-                                <option disabled="disabled" value="">== Invoices ==</option>
-                                <option>Invoice: Sent</option>
-                                <option>Invoice: Part Paid</option>
-                                <option>Invoice: Paid</option>
-                                <option>Invoice: Refunded</option>
-                                <option disabled="disabled" value="">== Transaction ==</option>
-                                <option>Transaction</option>
-                                <option disabled="disabled" value="">== Social Media ==</option>
-                                <option>Tweet</option>
-                                <option>Facebook Post</option>
-                                <option disabled="disabled" value="">== CRM Actions ==</option>
-                                <option>Created</option>
-                                <option>Updated</option>
-                                <option>Quote Created</option>
-                                <option>Invoice Created</option>
-                                <option>Form Filled</option>
-                                */
 
                                 ?>
                             </select>
@@ -434,31 +372,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                     echo 'var zbsLogTypes = '.json_encode($zeroBSCRM_logTypes[$this->postType]).';';
 
                 } 
-
-                /*
-                var zbsLogTypes = {
-
-                    'note': { label: 'Note', ico: 'fa-sticky-note-o' },
-                    'call': { label: 'Call', ico: 'fa-phone-square' },
-                    'email': { label: 'Email', ico: 'fa-envelope-o' },
-                    'meeting': { label: 'Meeting', ico: 'fa-users' },
-                    'quote__sent': { label: 'Quote: Sent', ico: 'fa-share-square-o' },
-                    'quote__accepted': { label: 'Quote: Accepted', ico: 'fa-thumbs-o-up' },
-                    'quote__refused': { label: 'Quote: Refused', ico: 'fa-ban' },
-                    'invoice__sent': { label: 'Invoice: Sent', ico: 'fa-share-square-o' },
-                    'invoice__part_paid': { label: 'Invoice: Part Paid', ico: 'fa-money' },
-                    'invoice__paid': { label: 'Invoice: Paid', ico: 'fa-money' },
-                    'invoice__refunded': { label: 'Invoice: Refunded', ico: 'fa-money' },
-                    'transaction': { label: 'Transaction', ico: 'fa-credit-card' },
-                    'tweet': { label: 'Tweet', ico: 'fa-twitter' },
-                    'facebook_post': { label: 'Facebook Post', ico: 'fa-facebook-official' },
-                    'created': { label: 'Created', ico: 'fa-plus-circle' },
-                    'updated': { label: 'Updated', ico: 'fa-pencil-square-o' },
-                    'quote_created': { label: 'Quote Created', ico: 'fa-plus-circle' },
-                    'invoice_created': { label: 'Invoice Created', ico: 'fa-plus-circle' },
-                    'form_filled': { label: 'Form Filled', ico: 'fa-wpforms' }
-
-                }; */ ?>
+				?>
 
                 var zbsLogIndex = <?php
 
