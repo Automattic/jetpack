@@ -242,7 +242,7 @@ export const socialProductData = {
 	slug: 'social',
 	name: 'Social',
 	title: 'Jepack Social',
-	description: 'Reach your audience on social media',
+	description: 'Write once, post anywhere',
 	long_description:
 		'Promote your content on social media by automatically publishing when you publish on your site.',
 	status: 'inactive',
@@ -464,5 +464,6 @@ export const socialProductData = {
 				},
 			},
 		},
+		show_intro_offer_disclaimer: true,
 	},
 };

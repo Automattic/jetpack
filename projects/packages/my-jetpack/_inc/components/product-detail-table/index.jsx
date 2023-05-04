@@ -189,7 +189,15 @@ const ProductDetailTable = ( { slug, onProductButtonClick, trackProductButtonCli
 	const { fileSystemWriteAccess } = window?.myJetpackInitialState ?? {};
 
 	const { detail } = useProduct( slug );
-	const { description, featuresByTier = [], pluginSlug, status, tiers = [], title } = detail;
+	const {
+		description,
+		featuresByTier = [],
+		pluginSlug,
+		pricingForUi: { showIntroOfferDisclaimer },
+		status,
+		tiers = [],
+		title,
+	} = detail;
 
 	// If the plugin can not be installed automatically, the user will have to take extra steps.
 	const cantInstallPlugin = 'plugin_absent' === status && 'no' === fileSystemWriteAccess;
@@ -239,7 +247,11 @@ const ProductDetailTable = ( { slug, onProductButtonClick, trackProductButtonCli
 		<>
 			{ cantInstallPluginNotice }
 
-			<PricingTable title={ description } items={ pricingTableItems }>
+			<PricingTable
+				title={ description }
+				items={ pricingTableItems }
+				showIntroOfferDisclaimer={ showIntroOfferDisclaimer }
+			>
 				{ tiers.map( ( tier, index ) => (
 					<ProductDetailTableColumn
 						key={ index }

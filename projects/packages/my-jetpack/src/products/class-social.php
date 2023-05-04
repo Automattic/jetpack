@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\My_Jetpack\Hybrid_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
@@ -14,6 +15,10 @@ use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
  * Class responsible for handling the Social product
  */
 class Social extends Hybrid_Product {
+
+	const FREE_TIER_SLUG     = 'free';
+	const BASIC_TIER_SLUG    = 'basic';
+	const ADVANCED_TIER_SLUG = 'advanced';
 
 	/**
 	 * The product slug
@@ -78,7 +83,7 @@ class Social extends Hybrid_Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Reach your audience on social media', 'jetpack-my-jetpack' );
+		return __( 'Write once, post anywhere', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -104,17 +109,184 @@ class Social extends Hybrid_Product {
 	}
 
 	/**
+	 * Get the product's available tiers
+	 *
+	 * @return string[] Slugs of the available tiers
+	 */
+	public static function get_tiers() {
+		return array(
+			self::ADVANCED_TIER_SLUG,
+			self::BASIC_TIER_SLUG,
+			self::FREE_TIER_SLUG,
+		);
+	}
+
+	/**
+	 * Get the internationalized comparison of free vs upgraded features
+	 *
+	 * @return array[] Protect features comparison
+	 */
+	public static function get_features_by_tier() {
+		return array(
+			array(
+				'name'  => __( 'Number of shares in 30 days', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array(
+						'included'    => true,
+						'description' => __( 'Up to 30', 'jetpack-my-jetpack' ),
+					),
+					self::BASIC_TIER_SLUG    => array(
+						'included'           => true,
+						'struck_description' => __( 'Up to 1,000', 'jetpack-my-jetpack' ),
+						'description'        => __( 'Unlimited', 'jetpack-my-jetpack' ),
+						'info'               => array(
+							'title'   => __( 'Unlimited shares', 'jetpack-my-jetpack' ),
+							'content' => __( 'We are working on exciting new features for Jetpack Social. In the meantime, enjoy unlimited shares for a limited time!', 'jetpack-my-jetpack' ),
+						),
+					),
+					self::ADVANCED_TIER_SLUG => array(
+						'included'           => true,
+						'struck_description' => __( 'Up to 1,000', 'jetpack-my-jetpack' ),
+						'description'        => __( 'Unlimited', 'jetpack-my-jetpack' ),
+						'info'               => array(
+							'title'   => __( 'Unlimited shares', 'jetpack-my-jetpack' ),
+							'content' => __( 'We are working on exciting new features for Jetpack Social. In the meantime, enjoy unlimited shares for a limited time!', 'jetpack-my-jetpack' ),
+						),
+					),
+				),
+			),
+			array(
+				'name'  => __( 'Priority support', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => false ),
+					self::BASIC_TIER_SLUG    => array( 'included' => true ),
+					self::ADVANCED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Schedule posting', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => true ),
+					self::BASIC_TIER_SLUG    => array( 'included' => true ),
+					self::ADVANCED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Twitter, Facebook, LinkedIn & Tumblr', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => true ),
+					self::BASIC_TIER_SLUG    => array( 'included' => true ),
+					self::ADVANCED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Customize publications', 'jetpack-my-jetpack' ),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => true ),
+					self::BASIC_TIER_SLUG    => array( 'included' => true ),
+					self::ADVANCED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Recycle content', 'jetpack-my-jetpack' ),
+				'info'  => array(
+					'content' => __( 'Repurpose, reuse or republish already published content.', 'jetpack-my-jetpack' ),
+				),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => true ),
+					self::BASIC_TIER_SLUG    => array( 'included' => true ),
+					self::ADVANCED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Engagement optimizer', 'jetpack-my-jetpack' ),
+				'info'  => array(
+					'content' => __( 'Enhance social media engagement with personalized posts.', 'jetpack-my-jetpack' ),
+				),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => false ),
+					self::BASIC_TIER_SLUG    => array( 'included' => false ),
+					self::ADVANCED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
+				'name'  => __( 'Video sharing', 'jetpack-my-jetpack' ),
+				'info'  => array(
+					'title'   => __( 'Coming soon', 'jetpack-my-jetpack' ),
+					'content' => __( 'Upload and share videos to your social platforms.', 'jetpack-my-jetpack' ),
+				),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => false ),
+					self::BASIC_TIER_SLUG    => array( 'included' => false ),
+					self::ADVANCED_TIER_SLUG => array(
+						'included'    => true,
+						'description' => __( 'Coming soon', 'jetpack-my-jetpack' ),
+					),
+				),
+			),
+			array(
+				'name'  => __( 'Multi-image sharing', 'jetpack-my-jetpack' ),
+				'info'  => array(
+					'title'   => __( 'Coming soon', 'jetpack-my-jetpack' ),
+					'content' => __( 'Share multiple images at once on social media platforms.', 'jetpack-my-jetpack' ),
+				),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => false ),
+					self::BASIC_TIER_SLUG    => array( 'included' => false ),
+					self::ADVANCED_TIER_SLUG => array(
+						'included'    => true,
+						'description' => __( 'Coming soon', 'jetpack-my-jetpack' ),
+					),
+				),
+			),
+			array(
+				'name'  => __( 'Image generator', 'jetpack-my-jetpack' ),
+				'info'  => array(
+					'title'   => __( 'Coming soon', 'jetpack-my-jetpack' ),
+					'content' => __( 'Automatically create custom images, saving you hours of tedious work.', 'jetpack-my-jetpack' ),
+				),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => false ),
+					self::BASIC_TIER_SLUG    => array( 'included' => false ),
+					self::ADVANCED_TIER_SLUG => array(
+						'included'    => true,
+						'description' => __( 'Coming soon', 'jetpack-my-jetpack' ),
+					),
+				),
+			),
+		);
+	}
+
+	/**
 	 * Get the product pricing details
 	 *
 	 * @return array Pricing details
 	 */
 	public static function get_pricing_for_ui() {
-		return array_merge(
-			array(
-				'available'          => true,
-				'wpcom_product_slug' => static::get_wpcom_product_slug(),
+		return array(
+			'tiers'                       => array(
+				self::FREE_TIER_SLUG     => array(
+					'available' => true,
+					'is_free'   => true,
+				),
+				self::BASIC_TIER_SLUG    => array_merge(
+					array(
+						'available'          => true,
+						'wpcom_product_slug' => 'jetpack_social_basic_yearly',
+						'call_to_action'     => __( 'Get Basic plan', 'jetpack-my-jetpack' ),
+					),
+					Wpcom_Products::get_product_pricing( 'jetpack_social_basic_yearly' )
+				),
+				self::ADVANCED_TIER_SLUG => array_merge(
+					array(
+						'available'          => true,
+						'wpcom_product_slug' => 'jetpack_social_advanced_yearly',
+						'call_to_action'     => __( 'Get Advanced plan', 'jetpack-my-jetpack' ),
+					),
+					Wpcom_Products::get_product_pricing( 'jetpack_social_advanced_yearly' )
+				),
 			),
-			Wpcom_Products::get_product_pricing( static::get_wpcom_product_slug() )
+			'show_intro_offer_disclaimer' => true,
 		);
 	}
 
@@ -142,5 +314,44 @@ class Social extends Hybrid_Product {
 		}
 
 		return admin_url( 'admin.php?page=jetpack#/settings?term=publicize' );
+	}
+
+	/**
+	 * Has Required Tier
+	 *
+	 * @return array Array of tier slugs and whether or not they are supported.
+	 */
+	public static function has_required_tier() {
+		static $has_paid_plan = null;
+		if ( ! $has_paid_plan ) {
+			$has_paid_plan = Current_Plan::supports( 'social-shares-1000' );
+		}
+
+		return array(
+			self::FREE_TIER_SLUG     => true,
+			self::BASIC_TIER_SLUG    => $has_paid_plan,
+			self::ADVANCED_TIER_SLUG => $has_paid_plan,
+		);
+	}
+
+	/**
+	 * Activates the product by installing and activating its plugin
+	 *
+	 * @param bool|WP_Error $current_result Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
+	 * @return boolean|\WP_Error
+	 */
+	public static function do_product_specific_activation( $current_result ) {
+
+		$product_activation = parent::do_product_specific_activation( $current_result );
+
+		if ( is_wp_error( $product_activation ) && 'module_activation_failed' === $product_activation->get_error_code() ) {
+			// A bundle is not a module. There's nothing in the plugin to be activated, so it's ok to fail to activate the module.
+			$product_activation = true;
+		}
+
+		// We just "got started" in My Jetpack, so skip the in-plugin experience.
+		update_option( 'jetpack-social_show_pricing_page', false );
+
+		return $product_activation;
 	}
 }

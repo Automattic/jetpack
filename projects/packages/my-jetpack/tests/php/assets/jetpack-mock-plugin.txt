@@ -52,4 +52,8 @@ class Jetpack {
 	public static function is_connection_ready() {
 		return true;
 	}
+
+	public static function get_available_modules() {
+		return array();
+	}
 }
