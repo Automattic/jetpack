@@ -252,7 +252,7 @@ function getPlan( type ) {
 				user_is_owner: false,
 				is_free: true,
 				features: {
-					active: [ 'akismet' ],
+					active: [ 'akismet', 'premium-content/container' ],
 					available: {
 						akismet: [
 							'jetpack_free',
@@ -475,6 +475,7 @@ function getPlan( type ) {
 							'jetpack_security_realtime_monthly',
 						],
 						'premium-content/container': [
+							'jetpack_free',
 							'jetpack_premium',
 							'jetpack_business',
 							'jetpack_personal',

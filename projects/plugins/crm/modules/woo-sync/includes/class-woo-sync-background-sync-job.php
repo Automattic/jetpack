@@ -846,6 +846,14 @@ class Woo_Sync_Background_Sync_Job {
 
 			$this->debug( 'Contact added/updated #' . $contact_id );
 
+			$zbs->DAL->contacts->addUpdateContactTags( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				array(
+					'id'        => $contact_id,
+					'tag_input' => $crm_object_data['contact']['tags'],
+					'mode'      => 'append',
+				)
+			);
+
 			// contact logs
 			if ( is_array( $crm_object_data['contact_logs'] ) ) {
 
@@ -1716,8 +1724,7 @@ class Woo_Sync_Background_Sync_Job {
 		// tags (contact)
 		if ( $tag_contact_with_item ) {
 
-			$data['contact']['tags']     = $order_tags;
-			$data['contact']['tag_mode'] = 'append';
+			$data['contact']['tags'] = $order_tags;
 
 		}
 

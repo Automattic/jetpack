@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Security: ensure blocks are always fully displayed on your site, even when using a caching plugin.

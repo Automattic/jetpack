@@ -34,14 +34,12 @@ export const getIframeWindowFromRef = (
  * @param {React.MutableRefObject< HTMLDivElement >} iFrameRef - useRef of the sandbox wrapper.
  * @param {boolean} isRequestingPreview                        - Whether the preview is being requested.
  * @param {UseVideoPlayerOptions} options                      - Options object.
- * @param {Function} onTimeUpdate                              - Callback function to be called when the time is updated.
  * @returns {UseVideoPlayer}                                     playerIsReady and playerState
  */
 const useVideoPlayer = (
 	iFrameRef: React.MutableRefObject< HTMLDivElement >,
 	isRequestingPreview: boolean,
-	{ autoplay, initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions,
-	onTimeUpdate?: ( currentTime: number ) => void
+	{ initialTimePosition, wrapperElement, previewOnHover }: UseVideoPlayerOptions
 ): UseVideoPlayer => {
 	const [ playerIsReady, setPlayerIsReady ] = useState( false );
 	const playerState = useRef< PlayerStateProp >( 'not-rendered' );
@@ -73,21 +71,22 @@ const useVideoPlayer = (
 			playerState.current = 'first-play';
 			debug( 'state: first-play detected' );
 
-			// Pause the video only if the autoplay is disabled.
-			if ( autoplay ) {
-				debug( 'autoplay enabled. Do not pause' );
-			} else {
+			/*
+			 * Pause and set the position at time
+			 * if the previewOnHover feature is enabled.
+			 */
+			if ( previewOnHover ) {
 				debug( 'pause video' );
 				source.postMessage( { event: 'videopress_action_pause' }, { targetOrigin: '*' } );
-			}
 
-			// Set position at time if it was provided.
-			if ( typeof initialTimePosition !== 'undefined' ) {
-				debug( 'set position at time %o ', initialTimePosition );
-				source.postMessage(
-					{ event: 'videopress_action_set_currenttime', currentTime: initialTimePosition / 1000 },
-					{ targetOrigin: '*' }
-				);
+				// Set position at time if it was provided.
+				if ( typeof initialTimePosition !== 'undefined' ) {
+					debug( 'set position at time %o ', initialTimePosition );
+					source.postMessage(
+						{ event: 'videopress_action_set_currenttime', currentTime: initialTimePosition / 1000 },
+						{ targetOrigin: '*' }
+					);
+				}
 			}
 
 			// Here we consider the video as ready to be controlled.
@@ -95,22 +94,18 @@ const useVideoPlayer = (
 			playerState.current = 'ready';
 		}
 
-		if ( eventName === 'videopress_timeupdate' ) {
+		if ( eventName === 'videopress_timeupdate' && previewOnHover ) {
 			const currentTime = eventData.currentTimeMs;
-			onTimeUpdate?.( currentTime );
-
-			if ( previewOnHover ) {
-				const startLimit = previewOnHover.atTime;
-				const endLimit = previewOnHover.atTime + previewOnHover.duration;
-				if (
-					currentTime < startLimit || // Before the start limit.
-					currentTime > endLimit // After the end limit.
-				) {
-					source.postMessage(
-						{ event: 'videopress_action_set_currenttime', currentTime: startLimit / 1000 },
-						{ targetOrigin: '*' }
-					);
-				}
+			const startLimit = previewOnHover.atTime;
+			const endLimit = previewOnHover.atTime + previewOnHover.duration;
+			if (
+				currentTime < startLimit || // Before the start limit.
+				currentTime > endLimit // After the end limit.
+			) {
+				source.postMessage(
+					{ event: 'videopress_action_set_currenttime', currentTime: startLimit / 1000 },
+					{ targetOrigin: '*' }
+				);
 			}
 		}
 	}
@@ -124,7 +119,8 @@ const useVideoPlayer = (
 
 	// Listen player events.
 	useEffect( () => {
-		if ( ! sandboxIFrameWindow ) {
+		const win = getIframeWindowFromRef( iFrameRef );
+		if ( ! win ) {
 			return;
 		}
 
@@ -133,13 +129,13 @@ const useVideoPlayer = (
 		}
 
 		debug( 'player is ready to listen events' );
-		sandboxIFrameWindow.addEventListener( 'message', listenEventsHandler );
+		win.addEventListener( 'message', listenEventsHandler );
 
 		return () => {
 			// Remove the listener when the component is unmounted.
-			sandboxIFrameWindow.removeEventListener( 'message', listenEventsHandler );
+			win.removeEventListener( 'message', listenEventsHandler );
 		};
-	}, [ sandboxIFrameWindow, isRequestingPreview, wasPreviewOnHoverJustEnabled, previewOnHover ] );
+	}, [ iFrameRef, isRequestingPreview, wasPreviewOnHoverJustEnabled, previewOnHover ] );
 
 	const play = useCallback( () => {
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {

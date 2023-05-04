@@ -5,7 +5,6 @@ import { __, _x } from '@wordpress/i18n';
 import PluginDashItem from 'components/plugin-dash-item';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import boostSvgUrl from './boost.svg';
 
 const BOOST_PLUGIN_DASH = 'admin.php?page=jetpack-boost';
 const BOOST_PLUGIN_FILES = [
@@ -22,8 +21,6 @@ class DashBoost extends Component {
 	render() {
 		return (
 			<PluginDashItem
-				iconAlt={ __( 'Plugin icon', 'jetpack' ) }
-				iconSrc={ boostSvgUrl }
 				pluginName={ _x(
 					'Boost',
 					'The Jetpack Boost product name, without the Jetpack prefix',

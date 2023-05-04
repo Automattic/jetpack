@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
+use Automattic\Jetpack\Forms\Service\Post_To_Url;
 
 /**
  * Sets up various actions, filters, post types, post statuses, shortcodes.
@@ -210,6 +211,7 @@ class Contact_Form_Plugin {
 				'map_meta_cap'          => true,
 			)
 		);
+		add_filter( 'wp_untrash_post_status', array( $this, 'untrash_feedback_status_handler' ), 10, 3 );
 
 		// Add to REST API post type allowed list.
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_feedback_rest_api_type' ) );
@@ -865,6 +867,9 @@ class Contact_Form_Plugin {
 			return $form->errors;
 		}
 
+		if ( ! empty( $form->attributes['salesforceData'] ) || ! empty( $form->attributes['postToUrl'] ) ) {
+			Post_To_Url::init();
+		}
 		// Process the form
 		return $form->process_submission();
 	}
@@ -2131,7 +2136,6 @@ class Contact_Form_Plugin {
 		}
 
 		$fields['_feedback_all_fields'] = $all_values;
-		$fields['all_fields']           = $all_values;
 
 		$post_fields[ $post_id ] = $fields;
 
@@ -2273,5 +2277,24 @@ class Contact_Form_Plugin {
 
 			return $ret;
 		}
+	}
+
+	/**
+	 * Method untrash_feedback_status_handler
+	 * wp_untrash_post filter handler.
+	 *
+	 * @param string $current_status   The status to be set.
+	 * @param int    $post_id          The post ID.
+	 * @param string $previous_status  The previous status.
+	 */
+	public function untrash_feedback_status_handler( $current_status, $post_id, $previous_status ) {
+		$post = get_post( $post_id );
+		if ( 'feedback' === $post->post_type ) {
+			if ( in_array( $previous_status, array( 'spam', 'publish' ), true ) ) {
+				return $previous_status;
+			}
+			return 'publish';
+		}
+		return $current_status;
 	}
 }

@@ -9,10 +9,30 @@ export const getProduct = ( state, productId ) => {
 	const stateProduct = getProducts( state )?.[ productId ] || {};
 
 	const product = mapObjectKeysToCamel( stateProduct, true );
+	product.standalonePluginInfo = mapObjectKeysToCamel( product.standalonePluginInfo || {}, true );
 	product.pricingForUi = mapObjectKeysToCamel( product.pricingForUi || {}, true );
 	product.pricingForUi.introductoryOffer = product.pricingForUi.isIntroductoryOffer
 		? mapObjectKeysToCamel( product.pricingForUi.introductoryOffer, true )
 		: null;
+
+	// Camelize object keys for each tier in pricingForUi
+	if ( product.pricingForUi?.tiers ) {
+		product.pricingForUi.tiers = mapObjectKeysToCamel( product.pricingForUi.tiers, true );
+		product.pricingForUi.tiers = Object.keys( product.pricingForUi.tiers ).reduce(
+			( result, tierKey ) => {
+				const tier = mapObjectKeysToCamel( product.pricingForUi.tiers[ tierKey ], true ) || {};
+				result[ tierKey ] = {
+					...tier,
+					introductoryOffer: tier?.isIntroductoryOffer
+						? mapObjectKeysToCamel( tier?.introductoryOffer, true )
+						: null,
+				};
+				return result;
+			},
+			{}
+		);
+	}
+
 	product.features = product.features || [];
 	product.supportedProducts = product.supportedProducts || [];
 
@@ -58,6 +78,11 @@ const purchasesSelectors = {
 	isRequestingPurchases: state => state.purchases?.isFetching || false,
 };
 
+const chatAvailabilitySelectors = {
+	getChatAvailability: state => state.chatAvailability.isAvailable,
+	isRequestingChatAvailability: state => state.chatAvailability.isFetching,
+};
+
 const availableLicensesSelectors = {
 	getAvailableLicenses: state => state.availableLicenses?.items || [],
 	isFetchingAvailableLicenses: state => state.availableLicenses?.isFetching || false,
@@ -83,7 +108,7 @@ const noticeSelectors = {
 };
 
 const getProductStats = ( state, productId ) => {
-	return state.stats?.items?.[ productId ] || null;
+	return state.stats?.items?.[ productId ];
 };
 
 const isFetchingProductStats = ( state, productId ) => {
@@ -98,6 +123,7 @@ const productStatsSelectors = {
 const selectors = {
 	...productSelectors,
 	...purchasesSelectors,
+	...chatAvailabilitySelectors,
 	...availableLicensesSelectors,
 	...noticeSelectors,
 	...pluginSelectors,

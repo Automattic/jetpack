@@ -7,12 +7,14 @@
 
 namespace Automattic\Jetpack\Image_CDN;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Class Image_CDN
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.1.1-alpha';
+	const PACKAGE_VERSION = '0.2.0-alpha';
 
 	/**
 	 * Singleton.
@@ -70,10 +72,11 @@ final class Image_CDN {
 	 * @return void
 	 */
 	private function setup() {
-		// Images in post content and galleries.
+		// Images in post content and galleries and widgets.
 		add_filter( 'the_content', array( __CLASS__, 'filter_the_content' ), 999999 );
 		add_filter( 'get_post_galleries', array( __CLASS__, 'filter_the_galleries' ), 999999 );
 		add_filter( 'widget_media_image_instance', array( __CLASS__, 'filter_the_image_widget' ), 999999 );
+		add_filter( 'widget_text', array( __CLASS__, 'filter_the_content' ) );
 
 		// Core image retrieval.
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
@@ -1200,36 +1203,6 @@ final class Image_CDN {
 	}
 
 	/**
-	 * Pass og:image URLs through Photon
-	 *
-	 * @param array $tags Open graph tags.
-	 * @param array $parameters Image parameters.
-	 * @uses Image_CDN_Core::jetpack_photon_url
-	 * @return array Open graph tags.
-	 */
-	public function filter_open_graph_tags( $tags, $parameters ) {
-		if ( empty( $tags['og:image'] ) ) {
-			return $tags;
-		}
-
-		$photon_args = array(
-			'fit' => sprintf( '%d,%d', 2 * $parameters['image_width'], 2 * $parameters['image_height'] ),
-		);
-
-		if ( is_array( $tags['og:image'] ) ) {
-			$images = array();
-			foreach ( $tags['og:image'] as $image ) {
-				$images[] = Image_CDN_Core::cdn_url( $image, $photon_args );
-			}
-			$tags['og:image'] = $images;
-		} else {
-			$tags['og:image'] = Image_CDN_Core::cdn_url( $tags['og:image'], $photon_args );
-		}
-
-		return $tags;
-	}
-
-	/**
 	 * Enqueue Photon helper script
 	 *
 	 * @uses wp_enqueue_script, plugins_url
@@ -1240,15 +1213,16 @@ final class Image_CDN {
 		if ( self::is_amp_endpoint() ) {
 			return;
 		}
-		wp_enqueue_script(
+
+		Assets::register_script(
 			'jetpack-photon',
-			plugins_url(
-				'js/photon.js',
-				__FILE__
-			),
-			array(),
-			20191001,
-			true
+			'../dist/image-cdn.js',
+			__FILE__,
+			array(
+				'enqueue'    => true,
+				'nonminpath' => 'js/image-cdn.js',
+				'in_footer'  => true,
+			)
 		);
 	}
 

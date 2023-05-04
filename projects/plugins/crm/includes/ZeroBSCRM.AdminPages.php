@@ -76,6 +76,13 @@ function zeroBSCRM_pages_crmresources() {
 	jpcrm_load_admin_page( 'crm-resources/main' );
 }
 
+/**
+ * Load the Support Contact page
+ */
+function jpcrm_pages_support() {
+	jpcrm_load_admin_page( 'support/main' );
+}
+
 // Email Box
 function zeroBSCRM_pages_emailbox() {
 	// load
@@ -1175,15 +1182,14 @@ function zeroBSCRM_pages_admin_system_emails() {
 							// close column and grid
 								echo '</div></div>';
 
-							$content        = esc_html( $form->zbsmail_body );
-							$editorsettings = array(
+							$content         = esc_html( $form->zbsmail_body );
+							$editor_settings = array(
 								'media_buttons' => false,
 								'editor_height' => 350,
 								'quicktags'     => false,
 								'tinymce'       => false,
 							);
-							wp_editor( htmlspecialchars_decode( $content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), 'zbscontent', $editorsettings );
-
+							wp_editor( $content, 'zbscontent', $editor_settings );
 							echo '</div>';
 							?>
 
