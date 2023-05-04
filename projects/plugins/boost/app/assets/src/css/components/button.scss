@@ -1,4 +1,4 @@
-.jb-settings .jb-button--primary {
+.jb-dashboard .jb-button--primary {
 	color: #ffffff;
 	background-color: #000000;
 	border-radius: 4px;
@@ -6,6 +6,10 @@
 	padding: 10px 24px;
 	text-decoration: none;
 	display: inline-block;
+}
+
+.components-button {
+	white-space: nowrap;
 }
 
 .components-button.components-button--back {

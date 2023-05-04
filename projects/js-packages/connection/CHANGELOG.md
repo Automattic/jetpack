@@ -2,6 +2,17 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.26.6 - 2023-05-02
+### Changed
+- Updated package dependencies.
+
+### Fixed
+- Bring back accidentally removed auto-trigger for connection screen. [#30373]
+
+## 0.26.5 - 2023-04-25
+### Changed
+- Updated package dependencies. [#30015]
+
 ## 0.26.4 - 2023-04-17
 ### Changed
 - Updated package dependencies. [#30019]

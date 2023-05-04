@@ -1,25 +1,116 @@
 .jp-dashboard-footer {
-	display: flex;
-	flex-flow: row wrap;
-	justify-content: space-between;
 	align-items: center;
-	width: 100%;
+	color: var( --jp-black );
+	display: flex;
+	flex-wrap: wrap;
+	font-size: var( --font-body-extra-small );
+	line-height: 1.333;
 	max-width: 1128px;
+	width: 100%;
 
-	color: #000;
+	a {
+		&,
+		&:link,
+		&:hover,
+		&:visited,
+		&:active {
+			color: var( --jp-black );
+			text-decoration: none;
+		}
+	}
 
-	a, a:hover, a:visited {
-		color: #000;
-		text-decoration: none;
+	&.is-md {
+		flex-direction: column;
+		align-items: flex-start;
 	}
 }
+
+.jp-dashboard-footer__logo {
+	margin-right: 32px;
+
+	.jp-dashboard-footer.is-md & {
+		margin-right: 0;
+		margin-bottom: 24px;
+	}
+
+	.jp-dashboard-footer.is-sm & {
+		margin-bottom: 48px;
+	}
+}
+
 .jp-dashboard-footer__module-name,
 .jp-dashboard-footer__jetpack-symbol {
 	vertical-align: middle;
 	display: inline-block;
 }
+
 .jp-dashboard-footer__module-name {
 	margin-left: 5px;
-	font-size: 12px;
 	font-weight: 600;
+}
+
+.jp-dashboard-footer__menu {
+	display: flex;
+
+	.jp-dashboard-footer.is-md & {
+		margin-bottom: 24px;
+	}
+
+	.jp-dashboard-footer.is-sm & {
+		flex-direction: column;
+		align-items: flex-start;
+		margin-bottom: 48px;
+
+		.jp-dashboard-footer__menu-item {
+			margin-right: 0;
+			margin-bottom: 16px;
+
+			&:last-child {
+				margin-bottom: 0;
+			}
+		}
+	}
+
+	.jp-dashboard-footer__menu-item {
+		position: relative;
+		color: var( --jp-black );
+		margin-right: 16px;
+		text-decoration: none;
+
+		&.is-external {
+			padding-right: 20px;
+		}
+	
+		&:focus {
+			border-radius: 2px;
+			outline-offset: 3px;
+			outline: 1.5px solid var( --jp-black );
+			box-shadow: none;
+		}
+	
+		&:hover {
+			text-decoration: underline;
+			text-decoration-thickness: 1.5px;
+		}
+
+		&:hover:focus {
+			text-decoration: none;
+		}
+	}
+
+	.jp-dashboard-footer__menu-item__icon {
+		width: 16px;
+		height: 16px;
+		margin-left: 4px;
+		position: absolute;
+		right: 0;
+	}
+}
+
+.jp-dashboard-footer__a8c-logo {
+	margin-left: auto;
+
+	.jp-dashboard-footer.is-md & {
+		margin-left: 0;
+	}
 }

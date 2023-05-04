@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Add is_block_theme field to the wp/v2/themes endpoint to indicate it the theme is a block-based theme.

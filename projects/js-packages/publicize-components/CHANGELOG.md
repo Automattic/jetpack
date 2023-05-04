@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.22.0] - 2023-05-02
+### Changed
+- Jetpack Social sidebar: Disable the Media Picker if Social Image Generator is enabled. [#30311]
+- Reduced the file sizes of the Social Image Generator template previews. [#30301]
+- Updated package dependencies.
+
+### Fixed
+- Jetpack Social: Render Social Image Generator panel even when SIG's default is disabled. [#30358]
+
+## [0.21.0] - 2023-04-25
+### Added
+- Added new component social-post-control for toggling Share as a Social post. [#30185]
+- Added new option for flagging a post as social post [#30179]
+
+### Changed
+- Use attached media for the OpenGraph image [#30162]
+
 ## [0.20.2] - 2023-04-17
 ### Changed
 - Updated package dependencies. [#30019]
@@ -254,6 +271,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated package dependencies. [#24470]
 
+[0.22.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.20.2...v0.21.0
 [0.20.2]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.20.1...v0.20.2
 [0.20.1]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/Automattic/jetpack-publicize-components/compare/v0.19.0...v0.20.0

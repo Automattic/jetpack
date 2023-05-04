@@ -12,12 +12,6 @@
 		<testsuite name="media">
 			<directory prefix="test" suffix=".php">tests/php/media</directory>
 		</testsuite>
-		<testsuite name="photon">
-			<file>tests/php/test_class.jetpack_photon.php</file>
-			<file>tests/php/test_functions.photon.php</file>
-			<directory prefix="test_" suffix=".php">tests/php/modules/photon</directory>
-			<file>tests/php/test_class.functions.opengraph.php</file>
-		</testsuite>
 		<testsuite name="json-api">
 			<directory prefix="test" suffix=".php">tests/php/json-api</directory>
 		</testsuite>

@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /**
  * Useful for finding an image to display alongside/in representation of a specific post.
  *
@@ -767,9 +769,9 @@ class Jetpack_PostImages {
 			);
 		}
 
-		// Use Photon magic.
-		if ( function_exists( 'jetpack_photon_url' ) ) {
-			return jetpack_photon_url( $src, array( 'resize' => "$width,$height" ) );
+		// Use image cdn magic.
+		if ( class_exists( 'Automattic\Jetpack\Image_CDN\Image_CDN_Core' ) && method_exists( Image_CDN_Core::class, 'cdn_url' ) ) {
+			return Image_CDN_Core::cdn_url( $src, array( 'resize' => "$width,$height" ) );
 		}
 
 		// Arg... no way to resize image using WordPress.com infrastructure!

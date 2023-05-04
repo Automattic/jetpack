@@ -1,11 +1,5 @@
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
 
-:root {
-	// var picked from VideoPress .jetpack-videopress-player__overlay
-	
-	--big-play-button-size: min( max( calc( 100vw / 8 ), 60px ), 90px );
-}
-
 .wp-block-jetpack-videopress {
 	position: relative;
 
@@ -18,48 +12,20 @@
 	.jetpack-videopress-player__wrapper {
 		position: relative;
 		display: flex;
-
-		&.has-controls .jetpack-videopress-player__overlay {
-			cursor: pointer;
-		}
 	}
 
 	.jetpack-videopress-player__overlay {
+		cursor: pointer;
 		position: absolute;
-		z-index: 0;
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background-color: transparent;
-		z-index: 10;
 		opacity: 1;
 		transition: opacity 300ms ease-in-out;
 
 		&:hover {
 			opacity: 0;
-		}
-	}
-
-	.jetpack-videopress-player__play-button {
-		border: none;
-		padding: 0;
-		margin: 0;
-		height: var( --big-play-button-size );
-		width: var( --big-play-button-size );
-	
-		display: block;
-		position: absolute;
-		z-index: 20;
-		top: 50%;
-		left: 50%;
-
-		transform: translate( -50%, -50% );	
-		background: url( data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjIiIGhlaWdodD0iMjIiIHZpZXdCb3g9IjAgMCAyMiAyMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KCTxwYXRoCgkJZD0iTTYuMjU3MjUgMS4wNzVDNi4xMDI3OSAwLjk3NzQ0OSA1LjkxMDQxIDAuOTc0ODg5IDUuNzUzNjUgMS4wNjgzMkM1LjU5Njg5IDEuMTYxNzQgNS41IDEuMzM2NyA1LjUgMS41MjYzMlYyMC40NzM3QzUuNSAyMC42NjMzIDUuNTk2ODkgMjAuODM4MyA1Ljc1MzY1IDIwLjkzMTdDNS45MTA0MSAyMS4wMjUxIDYuMTAyNzkgMjEuMDIyNiA2LjI1NzI1IDIwLjkyNUwyMS4yNTczIDExLjQ1MTNDMjEuNDA3OSAxMS4zNTYyIDIxLjUgMTEuMTg0OSAyMS41IDExQzIxLjUgMTAuODE1MSAyMS40MDc5IDEwLjY0MzggMjEuMjU3MyAxMC41NDg3TDYuMjU3MjUgMS4wNzVaIgoJCWZpbGw9IndoaXRlIgoJLz4KPC9zdmc+ );
-		background-size: var( --big-play-button-size ) var( --big-play-button-size );
-
-		&.is-behind {
-			z-index: 8;
 		}
 	}
 }

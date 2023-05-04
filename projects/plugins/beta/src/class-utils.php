@@ -177,6 +177,7 @@ class Utils {
 	 */
 	public static function render_markdown( Plugin $plugin, $content ) {
 		return ParsedownExt::instance()
+			->setSafeMode( true )
 			->setPRLinkFormat( "https://github.com/{$plugin->repo()}/pull/%d" )
 			->text( $content );
 	}

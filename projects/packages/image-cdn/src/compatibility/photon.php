@@ -12,19 +12,30 @@ namespace Automattic\Jetpack\Image_CDN\Compatibility;
 /**
  * Disable the unpackaged photon version living in Jetpack.
  *
- * At the time of writing, Jetpack still has the photon functionality in the Jetpack plugin. To avoid double
- * activation, we need to disable the photon functionality in Jetpack. If this package is installed via a
- * different plugin, e.g. Boost, Image CDN should be served instead of the photon module in Jetpack.
+ * Before the package, Jetpack had the photon functionality within the plugin. To avoid double
+ * activation, we need to disable the photon functionality in Jetpack to avoid potential conflicts.
+ *
+ * If this package is installed via a different plugin, e.g. Boost, Image CDN should be served instead
+ * of the photon module in Jetpack.
  */
 function jetpack_image_cdn_photon_compat() {
+	/*
+	 * Photon used have different functions names. They are later replaced by methods in
+	 * Image_CDN_Core class. And the filters are now handled by the Image_CDN_Core class itself.
+	 */
 	remove_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
 	remove_filter( 'jetpack_photon_pre_args', 'jetpack_photon_parse_wpcom_query_args', 10, 2 );
 	remove_filter( 'jetpack_photon_skip_for_url', 'jetpack_photon_banned_domains', 9, 2 );
 	remove_filter( 'widget_text', 'jetpack_photon_support_text_widgets' );
 
-	// If photon is active, fake loading the module in Jetpack itself. This will prevent jetpack from loading
-	// the photon module, and we will use the image CDN package instead.
-	if ( class_exists( 'Jetpack' ) && \Jetpack::is_module_active( 'photon' ) ) {
+	/*
+	 * If photon is active in an old version of Jetpack which is using the unpackaged photon
+	 * fake loading the module in Jetpack itself. This will prevent jetpack from loading
+	 * the photon module, and we will use the image CDN package instead.
+	 *
+	 * When this is happening, the package is likely being loaded from a different plugin, e.g. Boost.
+	 */
+	if ( class_exists( 'Jetpack' ) && defined( 'JETPACK__VERSION' ) && ( version_compare( JETPACK__VERSION, '12.1', '<=' ) ) ) {
 		do_action( 'jetpack_module_loaded_photon' );
 	}
 }

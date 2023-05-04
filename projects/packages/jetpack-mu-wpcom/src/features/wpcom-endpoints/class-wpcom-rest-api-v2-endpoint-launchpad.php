@@ -17,6 +17,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	 * Class constructor
 	 */
 	public function __construct() {
+		require_once __DIR__ . '/../launchpad/launchpad.php';
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'launchpad';
 
@@ -35,6 +36,21 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_data' ),
 					'permission_callback' => array( $this, 'can_access' ),
+					'args'                => array(
+						'checklist_slug' => array(
+							'description' => 'Checklist slug',
+							'type'        => 'string',
+							'enum'        => array(
+								'build',
+								'free',
+								'link-in-bio',
+								'link-in-bio-tld',
+								'newsletter',
+								'videopress',
+								'write',
+							),
+						),
+					),
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
@@ -45,6 +61,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 							'description'          => 'Launchpad statuses',
 							'type'                 => 'object',
 							'properties'           => array(
+								// todo: source this from the registry
 								'domain_upsell_deferred' => array(
 									'type' => 'boolean',
 								),
@@ -95,14 +112,29 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	/**
 	 * Returns Launchpad-related options.
 	 *
+	 * @param WP_REST_Request $request Full data about the request.
+	 *
 	 * @return array Associative array with `site_intent`, `launchpad_screen`,
-	 *               and `launchpad_checklist_tasks_statuses` as `checklist`.
+	 *               `launchpad_checklist_tasks_statuses` as `checklist_statuses`,
+	 *               and `checklist`.
 	 */
-	public function get_data() {
+	public function get_data( $request ) {
+		$checklist_slug = isset( $request['checklist_slug'] ) ? $request['checklist_slug'] : get_option( 'site_intent' );
+
+		// deploy-time compat, remove me later.
+		if ( function_exists( 'get_launchpad_checklist_by_checklist_slug' ) ) {
+			$checklist = get_launchpad_checklist_by_checklist_slug( $checklist_slug );
+		} elseif ( function_exists( 'wpcom_get_launchpad_checklist_by_checklist_slug' ) ) {
+			$checklist = wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug );
+		} else {
+			$checklist = array();
+		}
+
 		return array(
 			'site_intent'        => get_option( 'site_intent' ),
 			'launchpad_screen'   => get_option( 'launchpad_screen' ),
 			'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
+			'checklist'          => $checklist,
 		);
 	}
 

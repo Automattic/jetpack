@@ -13,7 +13,7 @@ window.jetpackModules.models = ( function( window, $, _, Backbone ) {
 		 * modules.raw data, as well as any filters or sorting that may be in effect.
 		 */
 		filter_and_sort: function() {
-			var subsubsub = $( '.subsubsub .current' ),
+			var subsubsub = $( '.subsubsub .current a' ),
 				items = this.get( 'raw' ),
 				m_filter = $( '.button-group.filter-active .active' ),
 				m_sort = $( '.button-group.sort .active' ),

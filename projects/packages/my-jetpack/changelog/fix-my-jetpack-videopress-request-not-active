@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Add check for product status before requesting stats
