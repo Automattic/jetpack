@@ -3,10 +3,6 @@
  */
 import { getBlockType } from '@wordpress/blocks';
 import { addFilter } from '@wordpress/hooks';
-/**
- * Internal dependencies
- */
-import withCoreEmbedVideoPressBlock from './edit';
 
 const addCoreEmbedOverride = settings => {
 	// Bail if the block doesn't have variations.
@@ -37,16 +33,7 @@ const extendCoreEmbedVideoPressBlock = ( settings, name ) => {
 	// Hide the core/embed block, `videopress` variation.
 	addCoreEmbedOverride( settings );
 
-	return {
-		...settings,
-		attributes: {
-			...settings.attributes,
-			keepUsingOEmbedVariation: {
-				type: 'boolean',
-			},
-		},
-		edit: withCoreEmbedVideoPressBlock( settings.edit ),
-	};
+	return settings;
 };
 
 addFilter(
