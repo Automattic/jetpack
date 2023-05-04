@@ -99,14 +99,21 @@ export default function useVideoData( {
 
 				// Check if the video belongs to the current site.
 				try {
-					const doesBelong: { body: boolean } = await apiFetch( {
+					const doesBelong: {
+						'video-belong-to-site'?: boolean;
+						body?: {
+							'video-belong-to-site'?: boolean;
+						};
+					} = await apiFetch( {
 						path: `/wpcom/v2/videopress/${ guid }/check-ownership/${ response.post_id }`,
 						method: 'GET',
 					} );
 
 					// Response shape can change depending on the envelope mode.
 					setVideoBelongToSite(
-						typeof doesBelong === 'boolean' ? doesBelong : !! doesBelong?.body
+						typeof doesBelong?.[ 'video-belong-to-site' ] === 'boolean'
+							? doesBelong[ 'video-belong-to-site' ]
+							: !! doesBelong?.body?.[ 'video-belong-to-site' ]
 					);
 				} catch ( error ) {
 					debug( 'Error checking if video belongs to site', error );
