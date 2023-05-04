@@ -22,7 +22,6 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
  * @return string The raw final URL. You should run this through esc_url() before displaying it.
  */
 function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url' );
 	return Image_CDN_Core::cdn_url( $image_url, $args, $scheme );
 }
 
@@ -35,7 +34,6 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
  * @return array|string Args for Photon to use for the URL.
  */
 function jetpack_photon_parse_wpcom_query_args( $args, $image_url ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Image_CDN\Image_CDN_Core::parse_wpcom_query_args' );
 	return Image_CDN_Core::parse_wpcom_query_args( $args, $image_url );
 }
 
