@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Super Cache: make preload faster and more robust on slower hosts.
