@@ -18,6 +18,11 @@ export default function PrivacyAndRatingPanel( {
 	attributes,
 	setAttributes,
 	privateEnabledForSite,
+	videoBelongToSite,
 }: PrivacyAndRatingPanelProps ): React.ReactElement {
-	return <PrivacyAndRatingSettings { ...{ attributes, setAttributes, privateEnabledForSite } } />;
+	return (
+		<PrivacyAndRatingSettings
+			{ ...{ attributes, setAttributes, privateEnabledForSite, videoBelongToSite } }
+		/>
+	);
 }
