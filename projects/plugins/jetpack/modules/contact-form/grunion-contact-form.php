@@ -3229,6 +3229,17 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 		}
 
+		/**
+		 * This filter allows a site owner to customize the response to be emailed, by adding their own HTML around it for example.
+		 *
+		 * @module contact-form
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $compiled_form the form response to be filtered
+		 * @param int $feedback_id the ID of the feedback form
+		 * @param Contact_Form $form a copy of this object
+		 */
 		$updated_compiled_form = apply_filters( 'jetpack_forms_response_email', $compiled_form, $feedback_id, $form );
 		if ( $updated_compiled_form !== $compiled_form ) {
 			$compiled_form = $updated_compiled_form;
@@ -3932,6 +3943,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 */
 		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this->fields, $is_spam, $entry_values );
 
+		/**
+		 * Filter the title used in the response email.
+		 *
+		 * @module contact-form
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string the title of the email
+		 */
 		$title   = apply_filters( 'jetpack_forms_response_email_title', __( 'You got a new response!', 'jetpack' ) );
 		$message = self::get_compiled_form_for_email( $post_id, $this );
 
@@ -3947,6 +3967,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$footer = join(
 			'',
+			/**
+			 * Filter the footer used in the response email.
+			 *
+			 * @module contact-form
+			 *
+			 * @since $$next-version$$
+			 *
+			 * @param array the lines of the footer, one line per array element.
+			 */
 			apply_filters(
 				'jetpack_forms_response_email_footer',
 				array(
@@ -3965,8 +3994,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$response_link = admin_url( 'edit.php?post_type=feedback' );
 
-		$message = join( '', apply_filters( 'jetpack_forms_response_email_message', $message ) );
-
 		/**
 		 * Filters the message sent via email after a successful form submission.
 		 *
@@ -3975,8 +4002,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * @since 1.3.1
 		 *
 		 * @param string $message Feedback email message.
+		 * @param string $message Feedback email message as an array
 		 */
-		$message = apply_filters( 'contact_form_message', $message );
+		$message = apply_filters( 'contact_form_message', join( '', $message ), $message );
 
 		// This is called after `contact_form_message`, in order to preserve back-compat
 		$message = self::wrap_message_in_html_tags( $title, $response_link, $url, $message, $footer );
@@ -4189,6 +4217,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				"\t",
 				'',
 				apply_filters(
+					/**
+					 * Filter the template HTML surrounding the response email
+					 *
+					 * @module contact-form
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param string the HTML template. It should have positional parameters (%1$s, %2$s, etc) for the following variables: $title, $body, $response_link, $form_link, $footer.
+					 */
 					'jetpack_forms_respone_email_template',
 					'
 					<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
