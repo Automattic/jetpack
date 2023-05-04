@@ -25,22 +25,22 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 
 	/* Menu Handling */
 	const hasStandalonePlugin = standalonePluginInfo?.hasStandalonePlugin;
-	const isConnected = isRegistered && isUserConnected;
 	const isStandaloneInstalled = standalonePluginInfo?.isStandaloneInstalled;
 	const isStandaloneActive = standalonePluginInfo?.isStandaloneActive;
+	const showActivateOption = hasStandalonePlugin && isStandaloneInstalled && ! isStandaloneActive;
+	const showInstallOption = hasStandalonePlugin && ! isStandaloneInstalled;
+	const isConnected = isRegistered && isUserConnected;
 	const isAbsent =
 		status === PRODUCT_STATUSES.ABSENT || status === PRODUCT_STATUSES.ABSENT_WITH_PLAN;
-	const installOrActivateStandalone =
-		hasStandalonePlugin && ( ! isStandaloneInstalled || ! isStandaloneActive );
 
 	const menuIsActive =
 		showMenu && // The menu is enabled for the product AND
 		! isAbsent && // product status is not absent AND
 		status !== PRODUCT_STATUSES.ERROR && // product status is not error AND
 		isConnected && // the site is connected AND
-		( status === PRODUCT_STATUSES.ACTIVE || // product is active, show at least the Manage option
-			menuItems?.length > 0 || // Show custom menus, if present
-			installOrActivateStandalone ); // Show install | activate options for standalone plugin
+		( menuItems?.length > 0 || // Show custom menus, if present
+			showActivateOption || // Show install | activate options for standalone plugin
+			showInstallOption );
 	/* End Menu Handling */
 
 	/*
@@ -99,9 +99,8 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			onFixConnection={ navigateToConnectionPage }
 			showMenu={ menuIsActive }
 			menuItems={ menuItems }
-			showManageOption={ status === PRODUCT_STATUSES.ACTIVE }
-			showActivateOption={ hasStandalonePlugin && isStandaloneInstalled && ! isStandaloneActive }
-			showInstallOption={ hasStandalonePlugin && ! isStandaloneInstalled }
+			showActivateOption={ showActivateOption }
+			showInstallOption={ showInstallOption }
 			onInstallStandalone={ handleInstallStandalone }
 			onActivateStandalone={ handleInstallStandalone }
 		>
