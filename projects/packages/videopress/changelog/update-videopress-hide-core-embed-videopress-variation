@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: hide core/embed core, VideoPress variation, when video block is available
