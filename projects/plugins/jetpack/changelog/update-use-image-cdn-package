@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Replace photon implementation with the image-cdn package

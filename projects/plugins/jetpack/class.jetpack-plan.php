@@ -43,6 +43,7 @@ class Jetpack_Plan {
 			'supports' => array(
 				'opentable',
 				'calendly',
+				'premium-content/container',
 				'send-a-message',
 				'whatsapp-button',
 				'social-previews',
@@ -68,7 +69,6 @@ class Jetpack_Plan {
 				'akismet',
 				'payments',
 				'recurring-payments',
-				'premium-content/container',
 				'videopress',
 			),
 		),

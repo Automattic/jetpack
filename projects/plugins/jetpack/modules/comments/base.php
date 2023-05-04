@@ -4,6 +4,9 @@
  *
  * @package automattic/jetpack
  */
+
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /**
  * All the code shared between WP.com Highlander and Jetpack Highlander
  */
@@ -321,6 +324,6 @@ class Highlander_Comments_Base {
 	protected function photon_avatar( $url, $size ) {
 		$size = (int) $size;
 
-		return jetpack_photon_url( $url, array( 'resize' => "$size,$size" ) );
+		return Image_CDN_Core::cdn_url( $url, array( 'resize' => "$size,$size" ) );
 	}
 }

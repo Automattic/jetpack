@@ -1,4 +1,4 @@
-import { Fragment, forwardRef, useCallback } from '@wordpress/element';
+import { forwardRef, useCallback } from '@wordpress/element';
 import classnames from 'classnames';
 import { kebabCase, map } from 'lodash';
 
@@ -31,14 +31,8 @@ const TableItem = ( { columns, item, isSelected, onSelectChange }, ref ) => {
 				</div>
 			) }
 
-			{ map( columns, ( { additionalClassNames, component, getProps, key }, index ) => {
-				let Wrapper = Fragment;
-				let props = {};
-
-				if ( component ) {
-					Wrapper = component;
-					props = getProps ? getProps( item ) : item;
-				}
+			{ map( columns, ( { additionalClassNames, getValue, key }, index ) => {
+				const value = getValue ? getValue( item ) : item[ key ];
 
 				const cellClasses = classnames(
 					'jp-forms__table-cell',
@@ -52,7 +46,7 @@ const TableItem = ( { columns, item, isSelected, onSelectChange }, ref ) => {
 
 				return (
 					<div key={ `table-${ key }-${ item.id }` } className={ cellClasses }>
-						<Wrapper { ...props }>{ item[ key ] }</Wrapper>
+						{ value }
 					</div>
 				);
 			} ) }
