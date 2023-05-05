@@ -1291,13 +1291,13 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		// flatten all values.
+		// flatten and decode all values.
 		$result = array();
 		foreach ( $md as $key => $value ) {
 			if ( is_array( $value ) ) {
 				$value = implode( ', ', $value );
 			}
-			$result[ $key ] = $value;
+			$result[ $key ] = html_entity_decode( $value );
 		}
 
 		return $result;
