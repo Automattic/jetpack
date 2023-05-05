@@ -354,7 +354,7 @@ function wpcom_is_videopress_launch_disabled() {
  * @return boolean True if link-in-bio launch task is enabled
  */
 function wpcom_is_link_in_bio_launch_disabled() {
-	return ! wpcom_is_checklist_task_complete( 'links_edited' );
+	return ! wpcom_is_checklist_task_complete( 'links_added' );
 }
 
 /**
