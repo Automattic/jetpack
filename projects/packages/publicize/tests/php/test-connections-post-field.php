@@ -25,7 +25,7 @@ class Test_Connections_Post_Field  extends TestCase {
 	private static $user_id = 0;
 
 	/**
-	 * Connection IDs.
+	 * Token IDs.
 	 *
 	 * @var array
 	 */
@@ -255,7 +255,7 @@ class Test_Connections_Post_Field  extends TestCase {
 					'id_number' => array(
 						'connection_data' => array(
 							'user_id'  => self::$user_id,
-							'id'       => '456',
+							'id'       => 'test-unique-id456',
 							'token_id' => 'test-unique-id456',
 							'meta'     => array(
 								'display_name' => 'test-display-name456',
@@ -268,7 +268,7 @@ class Test_Connections_Post_Field  extends TestCase {
 					'id_number' => array(
 						'connection_data' => array(
 							'user_id'  => 0,
-							'id'       => '123',
+							'id'       => 'test-unique-id123',
 							'token_id' => 'test-unique-id123',
 							'meta'     => array(
 								'display_name' => 'test-display-name123',
@@ -316,7 +316,7 @@ class Test_Connections_Post_Field  extends TestCase {
 			array(
 				'jetpack_publicize_connections' => array(
 					array(
-						'id'      => '123',
+						'id'      => 'test-unique-id123',
 						'enabled' => false,
 					),
 				),
@@ -328,7 +328,7 @@ class Test_Connections_Post_Field  extends TestCase {
 		$this->assertNotEmpty( $data['jetpack_publicize_connections'] );
 
 		foreach ( $data['jetpack_publicize_connections'] as $connection ) {
-			$this->assertSame( 'test-unique-id123' !== $connection->token_id, $connection->enabled );
+			$this->assertSame( 'test-unique-id123' !== $connection->id, $connection->enabled );
 		}
 	}
 
@@ -384,7 +384,7 @@ class Test_Connections_Post_Field  extends TestCase {
 		$this->server->dispatch( $request );
 
 		foreach ( self::$connection_ids as $unique_id ) {
-			$skip_key = $this->publicize->POST_SKIP . $unique_id;
+			$skip_key = $this->publicize->POST_SKIP_PUBLICIZE . $unique_id;
 			$this->assertNotEmpty( get_post_meta( $this->draft_id, $skip_key, true ) );
 		}
 
