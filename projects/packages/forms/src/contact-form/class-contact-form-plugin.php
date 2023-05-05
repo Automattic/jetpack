@@ -1291,7 +1291,16 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		return $md;
+		// flatten all values.
+		$result = array();
+		foreach ( $md as $key => $value ) {
+			if ( is_array( $value ) ) {
+				$value = implode( ', ', $value );
+			}
+			$result[ $key ] = $value;
+		}
+
+		return $result;
 	}
 
 	/**
