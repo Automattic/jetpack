@@ -33,13 +33,14 @@
 		margin: 0;
 	}
 
-	button.button-primary {
+	button.button.button-primary {
 		background-color: var(--jp-forms-black);
 		border: none;
 		color: var(--jp-forms-white);
 		line-height: 24px;
 		padding: 8px 32px;
 		font-weight: 600;
+		font-size: 16px;
 
 		&:hover {
 			background-color: var(--jp-forms-black);
