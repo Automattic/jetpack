@@ -2,22 +2,40 @@ import { addQueryArgs } from '@wordpress/url';
 import { VideoBlockAttributes, VideoGUID } from '../../block-editor/blocks/video/types';
 
 const VIDEOPRESS_URL_ARGS = [
-	'autoplay',
+	'autoPlay',
+	'cover',
 	'controls',
+	'hd',
 	'loop',
 	'muted',
+	'persistVolume',
 	'playsinline',
-	'poster',
-	'preload',
-	'seekbarColor',
-	'seekbarPlayedColor',
-	'seekbarLoadingColor',
+	'posterUrl',
+	'preloadContent',
+	'sbc',
+	'sbpc',
+	'sblc',
+	'resizeToParent',
 	'useAverageColor',
 ] as const;
 
-type VideoPressUrlArgsProps = typeof VIDEOPRESS_URL_ARGS;
-type VideoPressUrlArgProp = VideoPressUrlArgsProps[ number ];
-type VideoPressUrlOptions = Pick< VideoBlockAttributes, VideoPressUrlArgProp >;
+const ARG_TO_ATTRIBUTE_MAP = {
+	autoPlay: 'autoplay',
+	cover: 'cover',
+	controls: 'controls',
+	hd: 'hd',
+	loop: 'loop',
+	muted: 'muted',
+	persistVolume: 'persistVolume',
+	playsinline: 'playsinline',
+	posterUrl: 'poster',
+	preloadContent: 'preload',
+	sbc: 'seekbarColor',
+	sbpc: 'seekbarPlayedColor',
+	sblc: 'seekbarLoadingColor',
+	resizeToParent: 'resizeToParent',
+	useAverageColor: 'useAverageColor',
+};
 
 export const getVideoPressUrl = (
 	guid: string,
@@ -33,7 +51,7 @@ export const getVideoPressUrl = (
 		seekbarPlayedColor,
 		seekbarLoadingColor,
 		useAverageColor,
-	}: VideoPressUrlOptions
+	}: VideoBlockAttributes
 ) => {
 	if ( ! guid ) {
 		return null;
@@ -117,12 +135,12 @@ type BuildVideoPressURLProps = {
  * The function returns an { url, guid } object, or false.
  *
  * @param {string | VideoGUID} value        - The VideoPress GUID or URL.
- * @param {VideoPressUrlOptions} attributes - The VideoPress URL options.
+ * @param {VideoBlockAttributes} attributes - The VideoPress URL options.
  * @returns {false | string}                  VideoPress URL if the string is valid, false otherwise.
  */
 export function buildVideoPressURL(
 	value: string | VideoGUID,
-	attributes?: VideoPressUrlOptions
+	attributes?: VideoBlockAttributes
 ): BuildVideoPressURLProps {
 	const isGuidValue = isVideoPressGuid( value );
 	if ( isGuidValue ) {
@@ -171,4 +189,53 @@ export function isVideoPressUrl( url: string ): boolean {
 	const pattern =
 		/^https?:\/\/(?:(?:v(?:ideo)?\.wordpress\.com|videopress\.com)\/(?:v|embed)|v\.wordpress\.com)\/([a-z\d]{8})(\/|\b)/i;
 	return pattern.test( url );
+}
+
+/**
+ * Pick and map VideoPress block attributes from a VideoPress URL.
+ *
+ * @param {string} url             - The VideoPress URL.
+ * @returns {VideoBlockAttributes}   VideoPress block attributes.
+ */
+export function pickVideoBlockAttributesFromUrl( url: string ): VideoBlockAttributes {
+	let queryParams: URLSearchParams;
+	try {
+		queryParams = new URLSearchParams( new URL( url ).search );
+	} catch ( e ) {
+		return {};
+	}
+
+	const parseBoolean = value => {
+		if ( value === '1' || value === 'true' ) {
+			return true;
+		}
+		if ( value === '0' || value === 'false' ) {
+			return false;
+		}
+		return null;
+	};
+
+	const videoParams = VIDEOPRESS_URL_ARGS.reduce( ( accumulator, key ) => {
+		const value = queryParams.get( key );
+		if ( value !== null ) {
+			const attributeName = ARG_TO_ATTRIBUTE_MAP[ key ];
+			accumulator[ attributeName ] = [
+				'autoPlay',
+				'cover',
+				'controls',
+				'hd',
+				'loop',
+				'muted',
+				'persistVolume',
+				'playsinline',
+				'resizeToParent',
+				'useAverageColor',
+			].includes( key )
+				? parseBoolean( value )
+				: value;
+		}
+		return accumulator;
+	}, {} );
+
+	return videoParams;
 }
