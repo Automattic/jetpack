@@ -14,7 +14,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import './panel.scss';
 import { getSubscriberCounts } from './api';
-import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
+import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
 import {
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessPrePublishSettings,

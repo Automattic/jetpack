@@ -16,28 +16,11 @@ import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
+import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
 import { getPaidPlanLink } from './utils';
 
 import './settings.scss';
 
-export const accessOptions = {
-	everybody: {
-		key: 'everybody',
-		label: __( 'Everybody', 'jetpack' ),
-		info: __( 'Visible to everyone.', 'jetpack' ),
-	},
-	subscribers: {
-		key: 'subscribers',
-		label: __( 'All subscribers', 'jetpack' ),
-		info: __( 'Anyone subscribed to your newsletter.', 'jetpack' ),
-	},
-	paid_subscribers: {
-		key: 'paid_subscribers',
-		label: __( 'Paid subscribers', 'jetpack' ),
-		info: __( 'Only for paid subscribers.', 'jetpack' ),
-	},
-};
 
 function Link( { slug, children } ) {
 	return (
