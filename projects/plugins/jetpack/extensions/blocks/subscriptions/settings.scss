@@ -18,6 +18,10 @@
 .edit-post-post-visibility {
 	&__notice {
 		margin: 0;
+		// General notice
+		&.is-info {
+			background: #e9eff5; // Found using color picker on figma.
+		}
 	}
 
 	.components-notice__content {
