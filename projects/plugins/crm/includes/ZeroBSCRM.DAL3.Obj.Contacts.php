@@ -1735,45 +1735,44 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
         #} ============   SORT   ==============
 
-            // latest log
-            // Latest Contact Log (as sort) needs an additional SQL where str:
-            $contactLogTypesStr = ''; $sortFunction = 'MAX'; if ($sortOrder !== 'DESC') $sortFunction = 'MIN';
-            if ($withLastLog){
+				// latest log
+				// Latest Contact Log (as sort) needs an additional SQL where str:
+				$contact_log_types_str = '';
+				$sort_function         = 'MAX';
+				if ( $sortOrder !== 'DESC' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$sort_function = 'MIN';
+				}
+				if ( $withLastLog ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                    // retrieve log types to include 
-                    $contactLogTypes = $zbs->DAL->logs->contactLogTypes;
-                    $contactLogTypes = array_map('strtolower', $contactLogTypes);
+					// retrieve log types to include
+					$contact_log_types = $zbs->DAL->logs->contact_log_types; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-                    // build sql
-                    $contactLogSQL = ''; 
-                    if (is_array($contactLogTypes)){
-
-                        // create escaped csv
-                        $contactLogTypesStr = $this->build_csv($contactLogTypes);
-
-                    }   
-
-            }
+					// build sql
+					if ( is_array( $contact_log_types ) ) {
+						// create escaped csv
+						$contact_log_types_str = $this->build_csv( $contact_log_types );
+					}
+				}
 
 				// include invoices without deleted status in the total value for invoices_total_inc_deleted:
 				$inv_status_query_add = $this->DAL()->invoices->get_invoice_status_except_deleted_for_query();
 
-            // Mapped sorts
-            // This catches listview and other specific sort cases
-            // Note: Prefix here is a legacy leftover from the fact the AJAX List view retrieve goes through zeroBS_getCustomers() which prefixes zbsc_
-            $sort_map = array(
-                'zbsc_id'               => 'ID',
-                'zbsc_owner'            => 'zbs_owner',
-                'zbsc_zbs_owner'        => 'zbs_owner',   
+				// Mapped sorts
+				// This catches listview and other specific sort cases
+				// Note: Prefix here is a legacy leftover from the fact the AJAX List view retrieve goes through zeroBS_getCustomers() which prefixes zbsc_
+				$sort_map = array(
+					'zbsc_id'               => 'ID',
+					'zbsc_owner'            => 'zbs_owner',
+					'zbsc_zbs_owner'        => 'zbs_owner',
 
-                // company (name)
-                'zbsc_company'          => '(SELECT zbsco_name FROM '.$ZBSCRM_t['companies'].' WHERE ID IN (SELECT DISTINCT zbsol_objid_to FROM '.$ZBSCRM_t['objlinks'].' WHERE zbsol_objtype_from = '.ZBS_TYPE_CONTACT.' AND zbsol_objtype_to = '.ZBS_TYPE_COMPANY.' AND zbsol_objid_from = contact.ID) ORDER BY zbsco_name '.$sortOrder.' LIMIT 0,1)',
+					// company (name)
+					'zbsc_company'          => '(SELECT zbsco_name FROM ' . $ZBSCRM_t['companies'] . ' WHERE ID IN (SELECT DISTINCT zbsol_objid_to FROM ' . $ZBSCRM_t['objlinks'] . ' WHERE zbsol_objtype_from = ' . ZBS_TYPE_CONTACT . ' AND zbsol_objtype_to = ' . ZBS_TYPE_COMPANY . ' AND zbsol_objid_from = contact.ID) ORDER BY zbsco_name ' . $sortOrder . ' LIMIT 0,1)', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                // sort by subquery: Logs 
-                // sort by latest log is effectively 'sort by last log added'
-                'zbsc_latestlog'        => '(SELECT '.$sortFunction.'(zbsl_created) FROM '.$ZBSCRM_t['logs'].' WHERE zbsl_objid = contact.ID AND zbsl_objtype = '.ZBS_TYPE_CONTACT.')',
-                // sort by latest contact log is effectively 'sort by last contact log added' (requires $withLastLog = true)
-                'zbsc_lastcontacted'    => '(SELECT '.$sortFunction.'(zbsl_created) FROM '.$ZBSCRM_t['logs'].' WHERE zbsl_objid = contact.ID AND zbsl_objtype = '.ZBS_TYPE_CONTACT.' AND zbsl_type IN ('.$contactLogTypesStr.'))',
+					// sort by subquery: Logs
+					// sort by latest log is effectively 'sort by last log added'
+					'zbsc_latestlog'        => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ')', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// sort by latest contact log is effectively 'sort by last contact log added' (requires $withLastLog = true)
+					'zbsc_lastcontacted'    => '(SELECT ' . $sort_function . '(zbsl_created) FROM ' . $ZBSCRM_t['logs'] . ' WHERE zbsl_objid = contact.ID AND zbsl_objtype = ' . ZBS_TYPE_CONTACT . ' AND zbsl_type IN (' . $contact_log_types_str . '))', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
                 // has & counts (same queries)
 				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -2069,23 +2068,25 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                         if (is_array($potentialLogs) && count($potentialLogs) > 0) $resArr['lastlog'] = $potentialLogs[0];
 
-                        // CONTACT logs specificaly
-                        // doesn't return singular, for now using arr
-                        $potentialLogs = $this->DAL()->logs->getLogsForObj(array(
+								// CONTACT logs specifically
+								// doesn't return singular, for now using arr
+								$potentialLogs = $this->DAL()->logs->getLogsForObj( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									array(
 
-                                                'objtype' => ZBS_TYPE_CONTACT,
-                                                'objid' => $resDataLine->ID,
+										'objtype'     => ZBS_TYPE_CONTACT,
+										'objid'       => $resDataLine->ID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                                                'notetypes' => $zbs->DAL->logs->contactLogTypes,
-                                                
-                                                'incMeta'   => true,
+										'notetypes'   => $zbs->DAL->logs->contact_log_types, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-                                                'sortByField'   => 'zbsl_created',
-                                                'sortOrder'     => 'DESC',
-                                                'page'          => 0,
-                                                'perPage'       => 1
+										'incMeta'     => true,
 
-                                            ));
+										'sortByField' => 'zbsl_created',
+										'sortOrder'   => 'DESC',
+										'page'        => 0,
+										'perPage'     => 1,
+
+									)
+								);
 
                         if (is_array($potentialLogs) && count($potentialLogs) > 0) $resArr['lastcontactlog'] = $potentialLogs[0];
 

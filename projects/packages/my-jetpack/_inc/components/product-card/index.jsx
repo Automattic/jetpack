@@ -1,7 +1,7 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { external, moreVertical, download, check } from '@wordpress/icons';
+import { moreVertical, download } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
@@ -20,8 +20,6 @@ const PRODUCT_STATUSES_LABELS = {
 /* eslint-disable react/jsx-no-bind */
 const Menu = ( {
 	items = [],
-	showManage = false,
-	onManage,
 	showInstall = false,
 	onInstall,
 	showActivate = false,
@@ -56,20 +54,6 @@ const Menu = ( {
 							{ item?.label }
 						</Button>
 					) ) }
-					{ showManage && (
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ external }
-							onClick={ () => {
-								onClose();
-								onManage?.();
-							} }
-						>
-							{ __( 'Manage', 'jetpack-my-jetpack' ) }
-						</Button>
-					) }
 					{ showInstall && (
 						<Button
 							weight="regular"
@@ -89,7 +73,6 @@ const Menu = ( {
 							weight="regular"
 							fullWidth
 							variant="tertiary"
-							icon={ check }
 							onClick={ () => {
 								onClose();
 								onActivate?.();
@@ -109,7 +92,6 @@ const ProductCard = props => {
 	const {
 		name,
 		description,
-		icon,
 		status,
 		onActivate,
 		onAdd,
@@ -121,7 +103,6 @@ const ProductCard = props => {
 		children,
 		// Menu Related
 		showMenu = false,
-		showManageOption = false,
 		showActivateOption = false,
 		showInstallOption = false,
 		menuItems = [],
@@ -238,20 +219,15 @@ const ProductCard = props => {
 			<div className={ styles.title }>
 				<div className={ styles.name }>
 					<Text variant="title-medium">{ name }</Text>
-					{ showMenu && icon }
 				</div>
-				{ showMenu ? (
+				{ showMenu && (
 					<Menu
 						items={ menuItems }
-						showManage={ showManageOption }
-						onManage={ onManage }
 						showActivate={ showActivateOption }
 						onActivate={ activateStandaloneHandler }
 						showInstall={ showInstallOption }
 						onInstall={ installStandaloneHandler }
 					/>
-				) : (
-					icon
 				) }
 			</div>
 			{
@@ -287,7 +263,6 @@ ProductCard.propTypes = {
 	children: PropTypes.node,
 	name: PropTypes.string.isRequired,
 	description: PropTypes.string.isRequired,
-	icon: PropTypes.element,
 	admin: PropTypes.bool.isRequired,
 	isFetching: PropTypes.bool,
 	isInstallingStandalone: PropTypes.bool,
@@ -308,7 +283,6 @@ ProductCard.propTypes = {
 };
 
 ProductCard.defaultProps = {
-	icon: null,
 	isFetching: false,
 	isInstallingStandalone: false,
 	onManage: () => {},

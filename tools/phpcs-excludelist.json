@@ -172,7 +172,6 @@
 	"projects/plugins/crm/includes/ZeroBSCRM.PluginAdminNotices.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.PluginUpdates.ImminentRelease.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.PluginUpdates.php",
-	"projects/plugins/crm/includes/ZeroBSCRM.QuoteBuilder.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.REST.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.ReWriteRules.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.ScreenOptions.php",

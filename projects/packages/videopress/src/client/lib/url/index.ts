@@ -157,3 +157,15 @@ export function getVideoUrlBasedOnPrivacy( guid: VideoGUID, isPrivate: boolean )
 
 	return `https://videopress.com/v/${ guid }`;
 }
+
+/**
+ * Determines if a given URL is a VideoPress URL.
+ *
+ * @param {string} url - The URL to check.
+ * @returns {boolean}    bool True if the URL is a VideoPress URL, false otherwise.
+ */
+export function isVideoPressUrl( url: string ): boolean {
+	const pattern =
+		/^https?:\/\/(?:(?:v(?:ideo)?\.wordpress\.com|videopress\.com)\/(?:v|embed)|v\.wordpress\.com)\/([a-z\d]{8})(\/|\b)/i;
+	return pattern.test( url );
+}

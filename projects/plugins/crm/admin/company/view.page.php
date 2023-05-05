@@ -599,53 +599,33 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									foreach ( $company['invoices'] as $invoice ) {
 										// debugecho '<pre>'; print_r($invoice); echo '</pre><hr>';
 
-										$idRefStr = '';
-										// DAL3 change of field name
-										if ( $zbs->isDAL3() ) {
+										$id_ref_str = '';
 
-											// 3.0
-											if ( isset( $invoice['id'] ) ) {
-												$idRefStr = '#' . $invoice['id'];
+										if ( isset( $invoice['id'] ) ) {
+											$id_ref_str = '#' . $invoice['id'];
+										}
+										if ( isset( $invoice['id_override'] ) && ! empty( $invoice['id_override'] ) ) {
+											if ( ! empty( $id_ref_str ) ) {
+												$id_ref_str .= ' -';
 											}
-											if ( isset( $invoice['id_override'] ) ) {
-												if ( ! empty( $idRefStr ) ) {
-													$idRefStr .= ' -';
-												}
-												$idRefStr .= ' ' . $invoice['id_override'];
-											}
-
-											$invoiceURL = jpcrm_esc_link( 'edit', $invoice['id'], ZBS_TYPE_INVOICE );
-
-											$invoiceVal = $invoice['total'];
-
-											$invoiceStatus = $invoice['status'];
-
-										} else {
-
-											// <3.0
-											if ( isset( $invoice['zbsid'] ) ) {
-												$idRefStr = '#' . $invoice['zbsid'];
-											}
-											if ( isset( $invoice['meta'] ) && isset( $invoice['meta']['ref'] ) ) {
-												if ( ! empty( $idRefStr ) ) {
-													$idRefStr .= ' -';
-												}
-												$idRefStr .= ' ' . $invoice['meta']['ref'];
-											}
-
-											$invoiceURL = jpcrm_esc_link( 'edit', $invoice['id'], ZBS_TYPE_INVOICE );// admin_url('post.php?action=edit&post='.$invoice['id']);
-
-											$invoiceVal = $invoice['meta']['val'];
-
-											$invoiceStatus = $invoice['meta']['status'];
-
+											$id_ref_str .= ' ' . $invoice['id_override'];
+										}
+										$invoice_date = '';
+										if ( isset( $invoice['date_date'] ) ) {
+											$invoice_date = $invoice['date_date'];
 										}
 
+										$invoice_url = jpcrm_esc_link( 'edit', $invoice['id'], ZBS_TYPE_INVOICE );
+
+										$invoice_val = $invoice['total'];
+
+										$invoice_status = $invoice['status'];
+
 										echo '<tr>';
-										echo '<td><a href="' . esc_url( $invoiceURL ) . '">' . esc_html( $idRefStr ) . '</a></td>';
-										echo '<td>' . esc_html( zeroBSCRM_html_InvoiceDate( $invoice ) ) . '</td>';
-										echo '<td>' . esc_html( zeroBSCRM_formatCurrency( $invoiceVal ) ) . '</td>';
-										echo "<td><span class='" . esc_attr( zeroBSCRM_html_invoiceStatusLabel( $invoice ) ) . "'>" . esc_html( ucfirst( $invoiceStatus ) ) . '</span></td>';
+										echo '<td><a href="' . esc_url( $invoice_url ) . '">' . esc_html( $id_ref_str ) . '</a></td>';
+										echo '<td>' . esc_html( $invoice_date ) . '</td>';
+										echo '<td>' . esc_html( zeroBSCRM_formatCurrency( $invoice_val ) ) . '</td>';
+										echo "<td><span class='" . esc_attr( zeroBSCRM_html_invoiceStatusLabel( $invoice ) ) . "'>" . esc_html( ucfirst( $invoice_status ) ) . '</span></td>';
 										echo '</tr>';
 									}
 								} else {

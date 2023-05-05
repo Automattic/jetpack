@@ -1,5 +1,6 @@
 <?php
 
+require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-amp-support.php';
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {

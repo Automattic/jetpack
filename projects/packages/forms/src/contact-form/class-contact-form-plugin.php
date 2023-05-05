@@ -2289,7 +2289,7 @@ class Contact_Form_Plugin {
 	 */
 	public function untrash_feedback_status_handler( $current_status, $post_id, $previous_status ) {
 		$post = get_post( $post_id );
-		if ( 'feedback' !== $post->post_type ) {
+		if ( 'feedback' === $post->post_type ) {
 			if ( in_array( $previous_status, array( 'spam', 'publish' ), true ) ) {
 				return $previous_status;
 			}

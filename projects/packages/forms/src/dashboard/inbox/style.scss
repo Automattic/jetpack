@@ -196,7 +196,7 @@ $action-bar-height: 88px;
 .jp-forms__inbox-list,
 .jp-forms__inbox-response {
 	border: 1px solid #dcdcde;
-	border-radius: 5px;
+	border-radius: 8px;
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
@@ -211,8 +211,11 @@ $action-bar-height: 88px;
 
 	.jp-forms__table-item {
 		max-height: 52px;
-		overflow: hidden;
 		transition: max-height .2s;
+
+		&.exit-active {
+			overflow: hidden;
+		}
 
 		&.exit-active,
 		&.exit-done {
@@ -270,10 +273,10 @@ $action-bar-height: 88px;
 		.is-link {
 			cursor: pointer;
 			display: inline-block;
+			max-width: 100%;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
-			width: 100%;
 			text-decoration: none;
 
 			 &:hover {
@@ -459,7 +462,8 @@ $action-bar-height: 88px;
 	margin: 24px 0 0;
 	padding: 0 32px;
 
-	&.is-email {
+	&.is-email,
+	&.is-ip {
 		font-size: 24px;
 		overflow: hidden;
 		text-overflow: ellipsis;

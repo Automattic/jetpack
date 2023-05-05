@@ -850,28 +850,6 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 
 	}
 
-	function zeroBSCRM_html_QuoteDate($quote=array()){
-
-		// v3.0:
-		if (isset($quote['date_date'])) return "<span class='zbs-action'><strong>" . $quote['date_date'] . "</strong></span>";
-
-		// <3.0
-		if (isset($quote['meta']) && isset($quote['meta']['date'])){
-
-			// wh fix, we're now saving this in format, no need to get it then resave it
-			// also, with 22/06/18 it's in a format DateTime can't get.
-			// use DateTime::createFromFormat('!'.zeroBSCRM_date_defaultFormat(), $dateInFormat)->getTimestamp();
-			//$d = new DateTime($quote['meta']['date']);
-			//$formatted_date = $d->format(zeroBSCRM_getDateFormat());  
-			$formatted_date = $quote['meta']['date'];
-
-			return "<span class='zbs-action'><strong>" . $formatted_date . "</strong></span>";
-
-		}
-
-		return '-';
-	}
-
 /* ======================================================
   /	Quotes
    ====================================================== */
@@ -911,32 +889,6 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 
 	}
 
-	function zeroBSCRM_html_invoiceDate($inv=array()){
-
-		if (isset($inv['date_date'])){
-
-			return "<span class='zbs-action'><strong>" . $inv['date_date'] . "</strong></span>";
-
-		}
-
-		// else <3.0
-
-		if (isset($inv['meta']) && isset($inv['meta']['date'])){
-
-			// wh fix, MS, you're saving this in format, no need to get it then resave it
-			// also, with 22/06/18 it's in a format DateTime can't get.
-			// use DateTime::createFromFormat('!'.zeroBSCRM_date_defaultFormat(), $dateInFormat)->getTimestamp();
-			//$d = new DateTime($inv['meta']['date']);
-			//$formatted_date = $d->format(zeroBSCRM_getDateFormat());  
-			$formatted_date = $inv['meta']['date'];
-
-			return "<span class='zbs-action'><strong>" . $formatted_date . "</strong></span>";
-
-		}
-
-		return '-';
-	}
-
 /* ======================================================
   /	Invoices
    ====================================================== */
@@ -974,28 +926,6 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 		
 		return 'ui grey label';
 	}
-
-function zeroBSCRM_html_transactionDate($transaction){
-
-	// v3 no need for any of the below
-	if (isset($transaction['date_date'])){
-
-		return "<span class='zbs-action'><strong>" . $transaction['date_date']  . "</strong></span>";
-
-	}
-
-	// <3.0
-
-	// saved in format, no need
-	  //$d = new DateTime($transaction['created']);
-		//$formatted_date = $d->format(zeroBSCRM_getDateFormat());  
-	// zeroBSCRM_date_i18n('H:i', $log['createduts'], true, false);
-
-	//transaction created in $post->post_date_gmt so will be the correct UTS for the below
-	$transaction_uts = strtotime($transaction['created']);
-	$formatted_date = zeroBSCRM_date_i18n(zeroBSCRM_getDateFormat() . " " . zeroBSCRM_getTimeFormat(), $transaction_uts, true, false);
-  return "<span class='zbs-action'><strong>" . $formatted_date  . "</strong></span>";
-}
 
 /* ======================================================
   /	Transactions
@@ -1901,7 +1831,9 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 						$ret = '<a href="'.$linkOpen.'" class="ui button basic small">'. __('Edit','zero-bs-crm') . "</a>";
 						break;
 					case 'date':
-						$ret = zeroBSCRM_html_transactionDate($obj);
+				if ( isset( $obj['date_date'] ) ) {
+					$ret = $obj['date_date'];
+				}
 						break;
 					case 'item':
 						$itemStr = ''; 

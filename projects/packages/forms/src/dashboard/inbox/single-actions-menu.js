@@ -35,11 +35,14 @@ const SingleActionsMenu = ( { id } ) => {
 			} );
 			await doBulkAction( [ id ], action );
 
-			await fetchResponses( {
-				...query,
-				limit: RESPONSES_FETCH_LIMIT,
-				offset: ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
-			} );
+			await fetchResponses(
+				{
+					...query,
+					limit: RESPONSES_FETCH_LIMIT,
+					offset: ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
+				},
+				{ append: true }
+			);
 			setLoading( false );
 		} catch ( error ) {
 			setLoading( false );
