@@ -15,6 +15,7 @@ class WPCOM_Features {
 	/*
 	 * Private const for every mapped purchase, sorted by product_id.
 	 */
+	private const SPACE_1GB                                   = 'wordpress_com_1gb_space_addon_yearly';
 	private const SPACE_10GB                                  = '1gb_space_upgrade'; // 9
 	private const SPACE_25GB                                  = '5gb_space_upgrade'; // 10
 	private const SPACE_50GB                                  = '10gb_space_upgrade'; // 11
@@ -326,6 +327,7 @@ class WPCOM_Features {
 	public const UPGRADED_UPLOAD_FILETYPES        = 'upgraded_upload_filetypes';
 	public const UPLOAD_AUDIO_FILES               = 'upload-audio-files';
 	public const UPLOAD_PLUGINS                   = 'upload-plugins';
+	public const UPLOAD_SPACE_1GB                 = 'upload-space-1gb-addon';
 	public const UPLOAD_SPACE_3GB                 = 'upload-space-3gb';
 	public const UPLOAD_SPACE_10GB                = 'upload-space-10gb';
 	public const UPLOAD_SPACE_25GB                = 'upload-space-25gb';
@@ -860,6 +862,7 @@ class WPCOM_Features {
 			self::BUNDLE_SUPER,
 			self::BUNDLE_ENTERPRISE,
 			self::WP_P2_PLUS_MONTHLY,
+			self::SPACE_1GB,
 			self::SPACE_3GB,
 			self::SPACE_10GB,
 			self::SPACE_25GB,
@@ -887,6 +890,7 @@ class WPCOM_Features {
 			self::JETPACK_PERSONAL_AND_HIGHER,
 		),
 		self::UPGRADED_UPLOAD_FILETYPES        => array(
+			self::SPACE_1GB,
 			self::SPACE_3GB,
 			self::SPACE_10GB,
 			self::SPACE_25GB,
@@ -903,6 +907,9 @@ class WPCOM_Features {
 		self::UPLOAD_PLUGINS                   => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 			self::WPCOM_PRO_PLANS,
+		),
+		self::UPLOAD_SPACE_1GB                 => array(
+			self::SPACE_1GB,
 		),
 		self::UPLOAD_SPACE_3GB                 => array(
 			self::SPACE_3GB,
