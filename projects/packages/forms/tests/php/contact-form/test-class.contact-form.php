@@ -1167,6 +1167,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'get_parsed_field_contents_of_post',
 					'get_post_content_for_csv_export',
 					'map_parsed_field_contents_of_post_to_field_names',
+					'has_json_data',
 				)
 			)
 			->disableOriginalConstructor()
@@ -1242,6 +1243,10 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'map_parsed_field_contents_of_post_to_field_names' )
 			->will( $this->returnValueMap( $mapped_fields_contents_map ) );
+
+		$mock->expects( $this->exactly( 2 ) )
+			->method( 'has_json_data' )
+			->will( $this->returnValue( false ) );
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
