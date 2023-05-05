@@ -23,7 +23,9 @@ const Menu = ( {
 	showInstall = false,
 	onInstall,
 	showActivate = false,
+	showDeactivate = false,
 	onActivate,
+	onDeactivate,
 } ) => {
 	return (
 		<Dropdown
@@ -81,12 +83,48 @@ const Menu = ( {
 							{ __( 'Activate Plugin', 'jetpack-my-jetpack' ) }
 						</Button>
 					) }
+					{ showDeactivate && (
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							onClick={ () => {
+								onClose();
+								onDeactivate?.();
+							} }
+						>
+							{ __( 'Deactivate Plugin', 'jetpack-my-jetpack' ) }
+						</Button>
+					) }
 				</>
 			) }
 		/>
 	);
 };
 /* eslint-enable react/jsx-no-bind */
+
+Menu.propTypes = {
+	onActivate: PropTypes.func,
+	onDeactivate: PropTypes.func,
+	showActivate: PropTypes.bool,
+	showDeactivate: PropTypes.bool,
+	showInstall: PropTypes.bool,
+	items: PropTypes.arrayOf(
+		PropTypes.shape( {
+			label: PropTypes.string,
+			icon: PropTypes.node,
+			onClick: PropTypes.func,
+		} )
+	),
+	onInstall: PropTypes.func,
+};
+
+Menu.defaultProps = {
+	onActivate: () => {},
+	onDeactivate: () => {},
+	showActivate: false,
+	showDeactivate: false,
+};
 
 const ProductCard = props => {
 	const {
@@ -104,10 +142,12 @@ const ProductCard = props => {
 		// Menu Related
 		showMenu = false,
 		showActivateOption = false,
+		showDeactivateOption = false,
 		showInstallOption = false,
 		menuItems = [],
 		onInstallStandalone,
 		onActivateStandalone,
+		onDeactivateStandalone,
 	} = props;
 
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
@@ -204,6 +244,16 @@ const ProductCard = props => {
 		onActivateStandalone();
 	}, [ slug, onActivateStandalone, recordEvent ] );
 
+	/**
+	 * Use a Tracks event to count a standalone plugin deactivation menu click
+	 */
+	const deactivateStandaloneHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_deactivate_standalone_plugin_click', {
+			product: slug,
+		} );
+		onDeactivateStandalone();
+	}, [ slug, onDeactivateStandalone, recordEvent ] );
+
 	const CardWrapper = isAbsent
 		? ( { children: wrapperChildren, ...cardProps } ) => (
 				<a { ...cardProps } href="#" onClick={ addHandler }>
@@ -224,7 +274,9 @@ const ProductCard = props => {
 					<Menu
 						items={ menuItems }
 						showActivate={ showActivateOption }
+						showDeactivate={ showDeactivateOption }
 						onActivate={ activateStandaloneHandler }
+						onDeactivate={ deactivateStandaloneHandler }
 						showInstall={ showInstallOption }
 						onInstall={ installStandaloneHandler }
 					/>
@@ -271,6 +323,20 @@ ProductCard.propTypes = {
 	onActivate: PropTypes.func,
 	onAdd: PropTypes.func,
 	slug: PropTypes.string.isRequired,
+	showMenu: PropTypes.bool,
+	showActivateOption: PropTypes.bool,
+	showDeactivateOption: PropTypes.bool,
+	showInstallOption: PropTypes.bool,
+	menuItems: PropTypes.arrayOf(
+		PropTypes.shape( {
+			label: PropTypes.string,
+			icon: PropTypes.node,
+			onClick: PropTypes.func,
+		} )
+	),
+	onInstallStandalone: PropTypes.func,
+	onActivateStandalone: PropTypes.func,
+	onDeactivateStandalone: PropTypes.func,
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,
@@ -289,6 +355,11 @@ ProductCard.defaultProps = {
 	onFixConnection: () => {},
 	onActivate: () => {},
 	onAdd: () => {},
+	showMenu: false,
+	showActivateOption: false,
+	showDeactivateOption: false,
+	showInstallOption: false,
+	menuItems: [],
 };
 
 export { PRODUCT_STATUSES };

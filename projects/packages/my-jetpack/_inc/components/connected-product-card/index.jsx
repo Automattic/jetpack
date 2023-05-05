@@ -12,6 +12,7 @@ import { useProduct } from '../../hooks/use-product';
 import ProductCard, { PRODUCT_STATUSES } from '../product-card';
 
 const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuItems = [] } ) => {
+	const { pluginsUrl } = window?.myJetpackInitialState ?? {};
 	const { isRegistered, isUserConnected } = useConnection();
 
 	const { detail, activate, deactivate, isFetching, installStandalonePlugin } = useProduct( slug );
@@ -27,6 +28,7 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 	const isStandaloneInstalled = standalonePluginInfo?.isStandaloneInstalled;
 	const isStandaloneActive = standalonePluginInfo?.isStandaloneActive;
 	const showActivateOption = hasStandalonePlugin && isStandaloneInstalled && ! isStandaloneActive;
+	const showDeactivateOption = hasStandalonePlugin && isStandaloneInstalled && isStandaloneActive;
 	const showInstallOption = hasStandalonePlugin && ! isStandaloneInstalled;
 	const isConnected = isRegistered && isUserConnected;
 	const isAbsent =
@@ -39,6 +41,7 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 		isConnected && // the site is connected AND
 		( menuItems?.length > 0 || // Show custom menus, if present
 			showActivateOption || // Show install | activate options for standalone plugin
+			showDeactivateOption || // Show deactivate option for standalone plugin
 			showInstallOption );
 	/* End Menu Handling */
 
@@ -79,6 +82,10 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			} );
 	}, [ installStandalonePlugin ] );
 
+	const handleDeactivateStandalone = useCallback( () => {
+		window.location = pluginsUrl;
+	}, [ pluginsUrl ] );
+
 	return (
 		<ProductCard
 			name={ name }
@@ -96,9 +103,11 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			showMenu={ menuIsActive }
 			menuItems={ menuItems }
 			showActivateOption={ showActivateOption }
+			showDeactivateOption={ showDeactivateOption }
 			showInstallOption={ showInstallOption }
 			onInstallStandalone={ handleInstallStandalone }
 			onActivateStandalone={ handleInstallStandalone }
+			onDeactivateStandalone={ handleDeactivateStandalone }
 		>
 			{ children }
 		</ProductCard>
