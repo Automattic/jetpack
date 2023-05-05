@@ -1666,7 +1666,7 @@ class Contact_Form_Plugin {
 			 * Whether the feedback post has JSON data or not.
 			 * This is used as optional parameter on legacy functions.
 			 */
-			$post_has_json_data = self::has_json_data( $post_id );
+			$post_has_json_data = $this->has_json_data( $post_id );
 
 			/**
 			 * If `$post_real_data` is not an array or there is no `_feedback_subject` set,
@@ -2103,7 +2103,7 @@ class Contact_Form_Plugin {
 	 * @param int $post_id The feedback post ID to check.
 	 * @return bool
 	 */
-	public static function has_json_data( $post_id ) {
+	public function has_json_data( $post_id ) {
 		$post_content = get_post_field( 'post_content', $post_id );
 		$content      = explode( "\nJSON_DATA", $post_content );
 		if ( empty( $content[1] ) ) {
