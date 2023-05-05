@@ -1297,7 +1297,7 @@ class Contact_Form_Plugin {
 			if ( is_array( $value ) ) {
 				$value = implode( ', ', $value );
 			}
-			$result[ $key ] = html_entity_decode( $value );
+			$result[ $key ] = html_entity_decode( $value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 		}
 
 		return $result;
