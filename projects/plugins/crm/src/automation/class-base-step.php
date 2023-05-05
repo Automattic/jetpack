@@ -37,9 +37,9 @@ abstract class Base_Step implements Step {
 	/**
 	 * @var array Step data.
 	 */
-	protected $data;
+	protected $attributes;
 	/**
-	 * @var Step|null Next linked step.
+	 * @var array|null Next linked step.
 	 */
 	protected $next_step;
 
@@ -107,8 +107,8 @@ abstract class Base_Step implements Step {
 	 *
 	 * @return array
 	 */
-	public function get_data(): array {
-		return $this->data;
+	public function get_attributes(): array {
+		return $this->attributes;
 	}
 
 	/**

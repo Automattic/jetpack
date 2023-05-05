@@ -17,7 +17,7 @@ class Dummy_Step extends Base_Step {
 		$this->type = 'dummy';
 		$this->category = 'testing';
 		
-		$this->data = [
+		$this->attributes = [
 			'name' => 'dummy_step',
 			'title' => 'Dummy Step',
 			'description' => 'Dummy step for testing purposes',
