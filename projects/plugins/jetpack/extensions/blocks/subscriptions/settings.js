@@ -242,11 +242,11 @@ function NewsletterAccessRadioButtons( {
 						{ accessOptions[ key ].label }
 
 						{ /* Do not show subscriber numbers in the PrePublish panel */ }
-						{ ! isPrePublishPanel && '(' }
-						{ ! isPrePublishPanel &&
-							getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers, socialFollowers ) }
-						{ ! isPrePublishPanel && key === accessOptions.everybody.key ? '+' : '' }
-						{ ! isPrePublishPanel && ')' }
+						{ ! isPrePublishPanel && '(' +
+							getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers, socialFollowers ) +
+							( key === accessOptions.everybody.key ? '+' : '' ) +
+							')'
+						}
 					</label>
 					<p
 						id={ `editor-post-${ key }-${ instanceId }-description` }
