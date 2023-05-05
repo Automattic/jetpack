@@ -50,6 +50,24 @@ class Automation_Recipe_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @testdox Automation recipe with no triggers
+	 */
+	public function test_automation_recipe_set_initial_step() {
+		$recipe_data = $this->automation_faker->recipe_without_initial_step();
+
+		$recipe = new Automation_Recipe( $recipe_data );
+		
+		$recipe->set_initial_step( array(
+			'name' => 'dummy_step_123',
+			'class_name' => Dummy_Step::class,
+		) );
+		
+		$automation_result = $recipe->execute( new Contact_Created_Trigger(), array() );
+		
+		$this->assertTrue( $automation_result );
+	}
+
+	/**
 	 * @testdox Automation recipe with multiple triggers
 	 */
 	public function test_recipe_triggers() {
