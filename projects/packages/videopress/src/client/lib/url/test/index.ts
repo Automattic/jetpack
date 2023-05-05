@@ -115,7 +115,7 @@ describe( 'pickVideoBlockAttributesFromUrl', () => {
 		expect( attributes ).toStrictEqual( {} );
 	} );
 
-	it( 'should return the poster imahge URL', () => {
+	it( 'should return the poster image URL', () => {
 		const attributes = pickVideoBlockAttributesFromUrl(
 			'https://videopress.com/embed/7GMaYckU?cover=1&autoPlay=1&loop=1&muted=1&persistVolume=0&playsinline=1&posterUrl=http%3A%2F%2Flocalhost%2Fwp-content%2Fuploads%2F2023%2F04%2Fpexels-photo-2693212.jpg&preloadContent=metadata&sbc=%23cf2e2e&sbpc=%23fcb900&sblc=%239b51e0&hd=1'
 		);

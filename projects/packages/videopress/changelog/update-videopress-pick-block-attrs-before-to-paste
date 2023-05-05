@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: pick video block attrs from URL when pasting/inserting
