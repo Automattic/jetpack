@@ -31,7 +31,7 @@ class Automation_Recipe {
 	/** @var Automation_Logger */
 	private $logger;
 	
-	public function __construct( array $recipe_data ) {
+	public function __construct( array $recipe_data, Automation_Engine $automation_engine ) {
 		$this->id           = $recipe_data['id'] ?? null;
 		$this->triggers     = $recipe_data['triggers'] ?? array();
 		$this->initial_step = $recipe_data['initial_step'] ?? array();
@@ -40,8 +40,8 @@ class Automation_Recipe {
 		$this->category     = $recipe_data['category'] ?? '';
 		$this->active       = $recipe_data['is_active'] ?? true;
 		
-		$this->automation_engine = Automation_Engine::instance();
-		$this->logger            = Automation_Logger::instance();
+		$this->automation_engine = $automation_engine;
+		$this->logger            = $automation_engine->get_logger() ?? Automation_Logger::instance();
 	}
 	
 	/**
@@ -152,12 +152,12 @@ class Automation_Recipe {
 					/** @var Step $step */
 					$step = new $step_class( $step_data );
 	
-					$this->logger->log( 'Executing step: ' . $step->get_name() . ' - Type: ' . $step->get_type() );
+					$this->logger->log( '[' . $step->get_name() . '] Executing step. Type: ' . $step->get_type() );
 					
 					$step->execute( $data );
 					$step_data = $step->get_next_step();
 
-					$this->logger->log( 'Step executed.' );
+					$this->logger->log( '[' . $step->get_name() . '] Step executed!' );
 					
 				if ( ! $step_data ) {
 					$this->logger->log( 'Recipe execution finished: No more steps found.' );
@@ -220,7 +220,7 @@ class Automation_Recipe {
 	 * Set Automation Logger
 	 * @param Automation_Logger $logger
 	 */
-	public function set_logger( Automation_Logger $logger ) {
+	public function set_automation_logger(Automation_Logger $logger ) {
 		$this->logger = $logger;
 	}
 	
