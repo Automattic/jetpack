@@ -189,6 +189,13 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			$query[ $current_query ]->posts
 		);
 
+		$posts = new \WP_Query(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => array( 'publish', 'draft', 'spam', 'trash' ),
+			)
+		);
+
 		return rest_ensure_response(
 			array(
 				'responses'         => $responses,
@@ -211,6 +218,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 						$source_ids
 					),
 				),
+				'hasResponses'      => $posts->found_posts > 0,
 			)
 		);
 	}

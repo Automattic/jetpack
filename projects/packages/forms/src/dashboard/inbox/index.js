@@ -67,7 +67,7 @@ const Inbox = () => {
 		sourceFilter,
 		loading,
 		isFirstLoadCompleted,
-		isEmptyResponses,
+		hasNoResponses,
 		responses,
 		selectedResponses,
 		tabTotals,
@@ -79,7 +79,7 @@ const Inbox = () => {
 			select( STORE_NAME ).getSourceFilter(),
 			select( STORE_NAME ).isFetchingResponses(),
 			select( STORE_NAME ).isFirstLoadCompleted(),
-			select( STORE_NAME ).isEmptyResponses(),
+			select( STORE_NAME ).hasNoResponses(),
 			select( STORE_NAME ).getResponses(),
 			select( STORE_NAME ).getSelectedResponseIds(),
 			select( STORE_NAME ).getTabTotals(),
@@ -109,10 +109,10 @@ const Inbox = () => {
 	}, [ currentPage, fetchResponses, query ] );
 
 	useEffect( () => {
-		if ( isFirstLoadCompleted && isEmptyResponses ) {
+		if ( isFirstLoadCompleted && hasNoResponses ) {
 			navigate( '/landing' );
 		}
-	}, [ isFirstLoadCompleted, isEmptyResponses, navigate ] );
+	}, [ isFirstLoadCompleted, hasNoResponses, navigate ] );
 
 	useEffect( () => {
 		if (

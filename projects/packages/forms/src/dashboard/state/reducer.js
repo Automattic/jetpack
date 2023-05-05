@@ -70,6 +70,14 @@ const responses = ( state = [], action ) => {
 	return state;
 };
 
+const hasResponses = ( state = undefined, action ) => {
+	if ( action.type === RESPONSES_FETCH_RECEIVE ) {
+		return action.hasResponses;
+	}
+
+	return state;
+};
+
 const query = ( state = {}, action ) => {
 	if ( action.type === RESPONSES_FETCH ) {
 		return action.query;
@@ -126,6 +134,7 @@ const currentSelection = ( state = [], action ) => {
 export default combineReducers( {
 	currentSelection,
 	filters,
+	hasResponses,
 	loading,
 	loaded,
 	query,
