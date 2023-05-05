@@ -2,6 +2,42 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.33.0 - 2023-05-02
+### Added
+- Added "wide" variant and styled unordered lists to icon tooltip content. [#30399]
+
+### Changed
+- Updated package dependencies.
+
+### Removed
+- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now. [#29942]
+
+## 0.32.1 - 2023-05-01
+### Changed
+- Minor internal updates.
+
+## 0.32.0 - 2023-04-25
+### Added
+- Add a Toggle component. [#30166]
+- Add Status component. [#30166]
+
+### Fixed
+- RNA: Fix button box-shadow radius on Linux build of Firefox [#30249]
+
+## 0.31.6 - 2023-04-19
+### Changed
+- Updated package dependencies. [#30015]
+
+### Removed
+- Remove WordPress 6.0 backwards-compatibility code. [#30126]
+
+## 0.31.5 - 2023-04-17
+### Changed
+- Updated package dependencies. [#30019]
+
+### Fixed
+- Set Term of service links whitespace to no wrap. [#29683]
+
 ## 0.31.4 - 2023-04-04
 ### Changed
 - Updated package dependencies. [#29854]

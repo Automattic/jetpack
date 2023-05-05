@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0] - 2023-05-02
+### Added
+- Added a 'Copy' button for emails on the Jetpack forms dashboard response tab. [#30256]
+
+### Changed
+- Rows in the forms dashboard will now be dynamically removed and appended when performing bulk actions. [#30213]
+- Updated package dependencies.
+
+### Fixed
+- Ensure IP address can be properly displayed for all form submissions. [#29491]
+- Fixed an issue causing the forms dashboard view setting not to be saved on WP.com. [#30258]
+- Fixed buggy behavior of loading placeholders in the forms dashboard. [#30353]
+- Fixed invalid totals being reported for different tabs in the forms dashboard. [#30354]
+- Forms: Fix Forms dashboard Multiple Choice response format. [#30370]
+
+## [0.14.1] - 2023-05-01
+### Changed
+- Internal updates.
+
+## [0.14.0] - 2023-04-25
+### Added
+- Added an animation for the responses tab on the forms dashboard. [#30152]
+- Added counters on the tabs in the Jetpack Forms dashboard [#30252]
+- Reinstate salesforce integration with a generic post-to-url hook [#30191]
+
+### Fixed
+- Fixed html entities not displaying correctly in the forms dashboard [#30257]
+
+## [0.13.0] - 2023-04-17
+### Added
+- Added a 'Check for spam' button to the new feedback dashboard. [#29963]
+- Added style overrides for the forms dashboard on WP.com [#29915]
+
+### Changed
+- Forms: Update Forms child blocks to allow any transformation between the blocks [#29978]
+- Forms: Update forms dashboard body font-size to 14px [#29956]
+- Updated package dependencies. [#30019]
+
+### Fixed
+- Forms: Fix Forms styles when inside Cover blocks [#30075]
+- Forms: Prevent response details meta values line breaking [#30017]
+
 ## [0.12.0] - 2023-04-10
 ### Added
 - Add Jetpack Autoloader package suggestion. [#29988]
@@ -161,6 +203,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.15.0]: https://github.com/automattic/jetpack-forms/compare/v0.14.1...v0.15.0
+[0.14.1]: https://github.com/automattic/jetpack-forms/compare/v0.14.0...v0.14.1
+[0.14.0]: https://github.com/automattic/jetpack-forms/compare/v0.13.0...v0.14.0
+[0.13.0]: https://github.com/automattic/jetpack-forms/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/automattic/jetpack-forms/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/automattic/jetpack-forms/compare/v0.10.2...v0.11.0
 [0.10.2]: https://github.com/automattic/jetpack-forms/compare/v0.10.1...v0.10.2

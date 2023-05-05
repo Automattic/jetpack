@@ -1,31 +1,60 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 // eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
 import { __experimentalInspectorPopoverHeader as InspectorPopoverHeader } from '@wordpress/block-editor';
-import { Flex, FlexBlock, Button, PanelRow, Dropdown, VisuallyHidden } from '@wordpress/components';
+import {
+	Flex,
+	FlexBlock,
+	Button,
+	PanelRow,
+	Dropdown,
+	VisuallyHidden,
+	ToolbarButton,
+	ExternalLink,
+	Spinner,
+} from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck } from '@wordpress/editor';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import InspectorNotice from '../../shared/components/inspector-notice';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
+import { getPaidPlanLink } from './utils';
 
 import './settings.scss';
 
 export const accessOptions = {
 	everybody: {
+		string: 'everybody',
 		label: __( 'Everybody', 'jetpack' ),
 		info: __( 'Visible to everyone.', 'jetpack' ),
 	},
 	subscribers: {
+		string: 'subscribers',
 		label: __( 'All subscribers', 'jetpack' ),
 		info: __( 'Visible to everyone that subscribes to your site.', 'jetpack' ),
 	},
 	paid_subscribers: {
+		string: 'paid_subscribers',
 		label: __( 'Paid subscribers', 'jetpack' ),
 		info: __( 'Visible to everyone that purchases a paid plan on your site.', 'jetpack' ),
 	},
 };
+
+function getReachForAccessLevel( key, emailSubscribers, paidSubscribers, socialFollowers ) {
+	if ( emailSubscribers === null || paidSubscribers === null || socialFollowers === null ) {
+		return '';
+	}
+
+	switch ( accessOptions[ key ] ) {
+		case accessOptions.everybody:
+			return '(' + ( emailSubscribers + socialFollowers ) + '+)';
+		case accessOptions.subscribers:
+			return '(' + emailSubscribers + ')';
+		case accessOptions.paid_subscribers:
+			return '(' + paidSubscribers + ')';
+		default:
+	}
+}
 
 export function MisconfigurationWarning( { accessLevel } ) {
 	return (
@@ -43,7 +72,13 @@ export function MisconfigurationWarning( { accessLevel } ) {
 	);
 }
 
-function NewsletterAccessChoices( { accessLevel, onChange } ) {
+function NewsletterAccessChoices( {
+	accessLevel,
+	onChange,
+	socialFollowers,
+	emailSubscribers,
+	paidSubscribers,
+} ) {
 	const instanceId = useInstanceId( NewsletterAccessChoices );
 	return (
 		<fieldset className="editor-post-visibility__fieldset">
@@ -68,7 +103,8 @@ function NewsletterAccessChoices( { accessLevel, onChange } ) {
 						htmlFor={ `editor-post-${ key }-${ instanceId }` }
 						className="editor-post-visibility__label"
 					>
-						{ accessOptions[ key ].label }
+						{ accessOptions[ key ].label }{ ' ' }
+						{ getReachForAccessLevel( key, emailSubscribers, paidSubscribers, socialFollowers ) }
 					</label>
 					<p
 						id={ `editor-post-${ key }-${ instanceId }-description` }
@@ -82,18 +118,72 @@ function NewsletterAccessChoices( { accessLevel, onChange } ) {
 	);
 }
 
-export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true } ) {
+export function NewsletterAccess( {
+	accessLevel,
+	setPostMeta,
+	socialFollowers,
+	emailSubscribers,
+	paidSubscribers,
+	withModal = true,
+} ) {
 	if ( ! accessLevel || ! Object.keys( accessOptions ).includes( accessLevel ) ) {
 		accessLevel = Object.keys( accessOptions )[ 0 ];
 	}
 	const accessLabel = accessOptions[ accessLevel ]?.label;
 
+	const { newsletterPlans, isLoading } = useSelect( select => {
+		const { getProducts, isApiStateLoading } = select( 'jetpack/membership-products' );
+
+		return {
+			isLoading: isApiStateLoading(),
+			newsletterPlans: getProducts()?.filter( product => product.subscribe_as_site_subscriber ),
+		};
+	} );
+
 	// Can be “private”, “password”, or “public”.
 	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
 	const postVisibilityIsPublic = postVisibility === 'public';
 
-	const showVisibilityRestrictedMessage = ! postVisibilityIsPublic && accessLevel === 'everybody';
-	const showMisconfigurationMessage = ! postVisibilityIsPublic && accessLevel !== 'everybody';
+	const showVisibilityRestrictedMessage =
+		! postVisibilityIsPublic && accessLevel === accessOptions.everybody.string;
+	const showMisconfigurationMessage =
+		! postVisibilityIsPublic && accessLevel !== accessOptions.everybody.string;
+
+	if ( isLoading ) {
+		return (
+			<Flex direction="column" align="center">
+				<Spinner />
+			</Flex>
+		);
+	}
+
+	if ( ! newsletterPlans || newsletterPlans.length === 0 ) {
+		return (
+			<>
+				<PanelRow>
+					{ __( 'Set up a paid plan for readers to access your content.', 'jetpack' ) }
+				</PanelRow>
+				<PanelRow>
+					<ToolbarButton variant="primary" href={ getPaidPlanLink( false ) } target="_blank">
+						{ __( 'Add Payments', 'jetpack' ) }
+					</ToolbarButton>
+				</PanelRow>
+				<PanelRow>
+					<small spanClass={ 'jetpack-subscribe-info' }>
+						{ /* translators: basic information about the newsletter visibility */ }
+						{ __( 'Restrict your post to subscribers.', 'jetpack' ) }
+						<ExternalLink
+							href={ getRedirectUrl( 'paid-newsletter-info', {
+								anchor: 'memberships-and-subscriptions',
+							} ) }
+						>
+							{ __( 'Learn More', 'jetpack' ) }
+						</ExternalLink>
+					</small>
+				</PanelRow>
+			</>
+		);
+	}
 
 	return (
 		<PostVisibilityCheck
@@ -156,6 +246,9 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 												/>
 												<NewsletterAccessChoices
 													accessLevel={ accessLevel }
+													socialFollowers={ socialFollowers }
+													emailSubscribers={ emailSubscribers }
+													paidSubscribers={ paidSubscribers }
 													onChange={ setPostMeta }
 												/>
 											</div>
@@ -166,28 +259,28 @@ export function NewsletterAccess( { accessLevel, setPostMeta, withModal = true }
 
 							{ ! showVisibilityRestrictedMessage && ! withModal && canEdit && (
 								<FlexBlock>
-									<NewsletterAccessChoices accessLevel={ accessLevel } onChange={ setPostMeta } />
+									<NewsletterAccessChoices
+										accessLevel={ accessLevel }
+										socialFollowers={ socialFollowers }
+										emailSubscribers={ emailSubscribers }
+										paidSubscribers={ paidSubscribers }
+										onChange={ setPostMeta }
+									/>
 								</FlexBlock>
 							) }
 						</Flex>
 						{ withModal && (
 							<FlexBlock>
 								<small spanClass={ 'jetpack-subscribe-info' }>
-									{ createInterpolateElement(
-										/* translators: basic information about the newsletter visibility */
-										__( 'Restrict your post to subscribers. <a>Learn more</a>.', 'jetpack' ),
-										{
-											a: (
-												<a
-													href={ getRedirectUrl( 'paid-newsletter-info', {
-														anchor: 'memberships-and-subscriptions',
-													} ) }
-													rel="noopener noreferrer"
-													target="_blank"
-												/>
-											),
-										}
-									) }
+									{ /* translators: basic information about the newsletter visibility */ }
+									{ __( 'Restrict your post to subscribers. ', 'jetpack' ) }
+									<ExternalLink
+										href={ getRedirectUrl( 'paid-newsletter-info', {
+											anchor: 'memberships-and-subscriptions',
+										} ) }
+									>
+										{ __( 'Learn More', 'jetpack' ) }
+									</ExternalLink>
 								</small>
 							</FlexBlock>
 						) }

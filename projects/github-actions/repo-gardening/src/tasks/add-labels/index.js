@@ -228,7 +228,7 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 			/^(projects\/plugins\/boost\/compatibility|projects\/plugins\/jetpack\/3rd-party)\//
 		);
 		if ( compat ) {
-			keywords.add( 'Compatibility' );
+			keywords.add( '[Focus] Compatibility' );
 		}
 
 		// E2E tests.
@@ -242,12 +242,19 @@ async function getLabelsToAdd( octokit, owner, repo, number, isDraft ) {
 		if ( anyTestFile ) {
 			keywords.add( '[Tests] Includes Tests' );
 		}
-
-		// Add '[Status] In Progress' for draft PRs
-		if ( isDraft ) {
-			keywords.add( '[Status] In Progress' );
-		}
 	} );
+
+	// The Image CDN was previously named "Photon".
+	// If we're touching that package, let's add the Photon label too
+	// so we can keep track of changes to the feature.
+	if ( keywords.has( '[Package] Image Cdn' ) ) {
+		keywords.add( 'Photon' );
+	}
+
+	// Add '[Status] In Progress' for draft PRs
+	if ( isDraft ) {
+		keywords.add( '[Status] In Progress' );
+	}
 
 	return [ ...keywords ];
 }

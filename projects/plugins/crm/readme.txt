@@ -2,7 +2,7 @@
 Contributors: automattic, woodyhayday, mikemayhem3030
 Tags: CRM, Invoice, Woocommerce CRM, Clients, Lead Generation, contacts, customers, billing, email marketing, Marketing Automation, contact form, automations
 Tested up to: 6.2
-Stable tag: 5.6.0
+Stable tag: 5.7.0
 Requires at least: 5.0
 Requires PHP: 7.2
 License: GPLv2
@@ -399,7 +399,61 @@ We offer a full, no-hassle refund within 14 days. You can read more about that, 
 
 
 == Changelog ==
-### 5.6.0 - 2023-03-23
+### 5.7.0 - 2023-04-19
+#### Added
+- Menus: Add back to list button on add and edit pages for companies, transactions, invoices, and quotes
+- Settings: Remove 'Restore default settings' from the General Settings page, add to settings page menu
+- Support Page: Add new support page for customers to submit support requests
+
+#### Changed
+- API: Add optional parameter to the API to set the external service name, and replace hyphens from the json response to underscores
+- Companies: Move status select from Actions to main edit section underneath ID
+- Contacts: Change location of save button and add Contact Actions metabox for contacts
+- Onboarding: Change onboarding wizard company name description to remove 'as shown below'
+- Quotes: Move Quote Status underneath Quote ID
+- Menus: Swap the stacked logo to the horizontal one
+- CSV Importer: Various UI/UX tweaks
+- Dashboard: Align the Latest Contacts and Revenue Chart buttons
+- Dashboard: Make spacing between panels more consistent
+- Invoices: Fix overflow issue in the edit invoice page
+- Invoices: Move status select HTML from Invoice Actions to main edit section under ID
+- OAuth: Dependencies are now downloaded to wp-content/jpcrm-storage/packages
+- Onboarding: Make all hint styles consistent
+- Transactions: Change location of import sub-menu item when CSV Pro is installed and active
+- Transactions: Move status select HTML from Transaction Actions to main edit section underneath ID
+
+#### Removed
+- Onboarding: Remove company name preview from onboarding wizard
+
+#### Fixed
+- UI: Change fonts to smaller size, and different font family
+- UI: Change form placeholder colors to a lighter shade of gray
+- Contacts: Fix 403 error if file was uploaded via Client Portal Pro using Apache web server
+- Menus: Remove border from top menu
+- Dashboard: Adjustments to first-use modals
+- Dashboard: Various fixes for the sales funnel
+- Email: Caught PHP notices if recipient was deleted
+- Exports: Catch PHP notice when exporting a subset of objects
+- UI: Fix content overflowing in contact view page
+- Support: Fix the Give Feedback link so that it sends to the reviews page on .org
+- General: Fix various corrupt JS files
+- Onboarding: Get updates (mailing list) changed from opt-out to opt-in in the onboarding wizard
+- Importer: Allow import of application/csv mime type
+- Importer: Better parsing of CSV fields
+- General: Improved compatibility with PHP 8.1
+- Invoices: Fix ability to remove logo from invoice edit page
+- Invoices: Fix PHP notice when sending contact an invoice via email
+- General: Fix broken link in bulk actions function in list view
+- Mailpoet Sync: Fix an issue where contact images would disappear after synchronization
+- Onboarding: Remove outdated YouTube video from welcome overlay
+- Quotes: Use current date if quote date is blank
+- Settings: Fix broken link on white label installs
+- Settings: Allow new tax rates to be added
+- Onboarding: Usage tracking changed from opt-out to opt-in in the onboarding wizard
+- WooSync: Tag existing contacts with new orders
+
+v5.6.0 - 23 March 2023
+-------------------------
 #### Changed
 - Contacts: Change customer references to contact in all but Woo and commerce contexts
 - Compatibility: Indicate full compatibility with the latest version of WordPress, 6.2

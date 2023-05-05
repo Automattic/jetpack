@@ -376,7 +376,7 @@ function zeroBSCRM_global_admin_styles(){
 		wp_enqueue_script( 'zerobsjsmodal');
 
 		// moment everywhere (from 2.98)
-		wp_enqueue_script('wh-moment-v2-8-1-js', untrailingslashit(ZEROBSCRM_URL) .'/js/lib/moment-with-locales.min.js', array('jquery'), $zbs->version );
+		wp_enqueue_script( 'jpcrm-moment-v2-29-4', untrailingslashit( ZEROBSCRM_URL ) . '/js/lib/moment-with-locales.min.js', array( 'jquery' ), $zbs->version, false );
 
 		// semantic everywhere (on our pages)
 		wp_enqueue_style( 'zbs-wp-semanticui' );  
@@ -438,9 +438,7 @@ function zeroBSCRM_admin_styles_ui2_listview(){
 
 	// our list view css
 	wp_enqueue_script( 'zerobscrmlistviewjs');
-	
-	// 2.97.9 - wh updated moment
-	//wp_enqueue_script('wh-moment-v2-1-3-js', ZEROBSCRM_URL .'/js/lib/moment.min.js', array('jquery'));
+
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
 
 	// hook to allow modules etc. to add list view stylesheets
@@ -459,8 +457,7 @@ function zeroBSCRM_admin_styles_ui2_editview(){
 			wp_enqueue_script( 'zerobscrmeditviewjs');
 			wp_enqueue_script( 'zerobscrmtagmetaboxjs');
 			wp_enqueue_script( 'zerobscrmmm'); // metabox manager
-			//wp_enqueue_script('wh-moment-v2-1-3-js', ZEROBSCRM_URL .'/js/lib/moment.min.js', array('jquery'));
-			
+
 			// daterange + moment
 			zeroBSCRM_enqueue_libs_js_momentdatepicker();
 
@@ -580,17 +577,15 @@ function zeroBSCRM_calendar_admin_styles(){
 
 	global $zbs;
 
-	//2.97.9 WH updated moment
-	//wp_enqueue_script('wh-moment-v2-1-3-js', ZEROBSCRM_URL .'js/lib/moment.min.js', array('jquery'));
 	zeroBSCRM_enqueue_libs_js_momentdatepicker();
 
 
 	wp_register_style('zerobscrm-events', ZEROBSCRM_URL .'css/ZeroBSCRM.admin.events'.wp_scripts_get_suffix().'.css', array(), $zbs->version );
 
-	wp_register_script('zerobscrm-calendar-js' , ZEROBSCRM_URL .'js/lib/fullcalendar.mod'.wp_scripts_get_suffix().'.js', array('jquery','wh-moment-v2-8-1-js'), $zbs->version );//2.97.9 upgraded moment array('jquery','wh-moment-v2-1-3-js'));
+	wp_register_script( 'zerobscrm-calendar-js', ZEROBSCRM_URL . 'js/lib/fullcalendar.mod' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment-v2-29-4' ), $zbs->version, false );
 	wp_register_style('zerobscrm-calendar', ZEROBSCRM_URL .'css/lib/fullcalendar.min.css', array(), $zbs->version );
 	wp_register_style('zerobscrm-calendar-print', ZEROBSCRM_URL .'css/lib/fullcalendar.print.min.css', array(), $zbs->version );
-	wp_register_script('zerobscrm-events-js' , ZEROBSCRM_URL .'js/ZeroBSCRM.admin.task'.wp_scripts_get_suffix().'.js', array('jquery','wh-moment-v2-8-1-js','zerobscrm-calendar-js'), $zbs->version );
+	wp_register_script( 'zerobscrm-events-js', ZEROBSCRM_URL . 'js/ZeroBSCRM.admin.task' . wp_scripts_get_suffix() . '.js', array( 'jquery', 'jpcrm-moment-v2-29-4', 'zerobscrm-calendar-js' ), $zbs->version, false );
 	
 
 	// LOCALE Specific
@@ -850,6 +845,15 @@ function jpcrm_crm_resources_page_styles_scripts() {
 
 }
 
+/**
+ * Styles and scripts for support page
+ */
+function jpcrm_support_page_styles_scripts() {
+
+	global $zbs;
+
+	wp_enqueue_style( 'jpcrm-support-page', plugins_url( 'css/jpcrm.admin.support-page' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs->version );
+}
 
 // used in form templates & shortcode outputted forms.
 // https://wordpress.stackexchange.com/questions/165754/enqueue-scripts-styles-when-shortcode-is-present
