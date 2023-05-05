@@ -29,7 +29,7 @@ const LandingPage = () => {
 	};
 
 	return (
-		<Layout className="jp-forms__landing">
+		<Layout className="jp-forms__landing" showFooter>
 			<section className="jp-forms__landing-section bg-white-off">
 				<div className="jp-forms__landing-content">
 					<h1 className="mb-2">{ __( 'Building forms made easy', 'jetpack-forms' ) }</h1>
