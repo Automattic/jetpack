@@ -761,6 +761,10 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 											}
 											$idRefStr .= ' ' . $quote['title'];
 										}
+										$quote_date = '';
+										if ( isset( $quote['date_date'] ) ) {
+											$quote_date = $quote['date_date'];
+										}
 
 										$quoteURL    = jpcrm_esc_link( 'edit', $quote['id'], ZBS_TYPE_QUOTE );
 										$quoteValue  = $quote['value'];
@@ -791,7 +795,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 									echo '<tr>';
 									echo '<td><a href="' . esc_url( $quoteURL ) . '">' . esc_html( $idRefStr ) . '</a></td>';
-									echo '<td>' . esc_html( zeroBSCRM_QuoteDate( $quote ) ) . '</td>';
+									echo '<td>' . esc_html( $quote_date ) . '</td>';
 									echo '<td>' . esc_html( $quoteValue ) . '</td>';
 									echo "<td><span class='" . esc_attr( zeroBSCRM_html_quoteStatusLabel( $quote ) ) . "'>" . wp_kses( zeroBS_getQuoteStatus( $quote, false ), $zbs->acceptable_restricted_html ) . '</span></td>';
 									echo '</tr>';
@@ -885,6 +889,10 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 											}
 											$idRefStr .= ' ' . $invoice['id_override'];
 										}
+										$invoice_date = '';
+										if ( isset( $invoice['date_date'] ) ) {
+											$invoice_date = $invoice['date_date'];
+										}
 
 										$invoiceURL = jpcrm_esc_link( 'edit', $invoice['id'], ZBS_TYPE_INVOICE );
 
@@ -915,7 +923,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 									echo '<tr>';
 									echo '<td><a href="' . esc_url( $invoiceURL ) . '">' . esc_html( $idRefStr ) . '</a></td>';
-									echo '<td>' . esc_html( zeroBSCRM_InvoiceDate( $invoice ) ) . '</td>';
+									echo '<td>' . esc_html( $invoice_date ) . '</td>';
 									echo '<td>' . esc_html( zeroBSCRM_formatCurrency( $invoiceVal ) ) . '</td>';
 									echo "<td><span class='" . esc_attr( zeroBSCRM_html_invoiceStatusLabel( $invoice ) ) . "'>" . esc_html( ucfirst( $invoiceStatus ) ) . '</span></td>';
 									echo '</tr>';

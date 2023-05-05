@@ -599,11 +599,15 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 											if ( isset( $invoice['id'] ) ) {
 												$idRefStr = '#' . $invoice['id'];
 											}
-											if ( isset( $invoice['id_override'] ) ) {
+											if ( isset( $invoice['id_override'] ) && ! empty( $invoice['id_override'] ) ) {
 												if ( ! empty( $idRefStr ) ) {
 													$idRefStr .= ' -';
 												}
 												$idRefStr .= ' ' . $invoice['id_override'];
+											}
+											$invoice_date = '';
+											if ( isset( $invoice['date_date'] ) ) {
+												$invoice_date = $invoice['date_date'];
 											}
 
 											$invoiceURL = jpcrm_esc_link( 'edit', $invoice['id'], ZBS_TYPE_INVOICE );
@@ -635,7 +639,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 										echo '<tr>';
 										echo '<td><a href="' . esc_url( $invoiceURL ) . '">' . esc_html( $idRefStr ) . '</a></td>';
-										echo '<td>' . esc_html( zeroBSCRM_InvoiceDate( $invoice ) ) . '</td>';
+										echo '<td>' . esc_html( $invoice_date ) . '</td>';
 										echo '<td>' . esc_html( zeroBSCRM_formatCurrency( $invoiceVal ) ) . '</td>';
 										echo "<td><span class='" . esc_attr( zeroBSCRM_html_invoiceStatusLabel( $invoice ) ) . "'>" . esc_html( ucfirst( $invoiceStatus ) ) . '</span></td>';
 										echo '</tr>';
