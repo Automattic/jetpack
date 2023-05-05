@@ -85,9 +85,12 @@ function wpcom_register_default_launchpad_checklists() {
 
 	wpcom_register_launchpad_task(
 		array(
-			'id'     => 'links_added',
-			'title'  => __( 'Add links', 'jetpack-mu-wpcom' ),
-			'id_map' => 'links_edited',
+			'id'                    => 'links_added',
+			'title'                 => __( 'Add links', 'jetpack-mu-wpcom' ),
+			'id_map'                => 'links_edited',
+			'add_listener_callback' => function () {
+				add_action( 'load-site-editor.php', 'wpcom_track_edit_site_task' );
+			},
 		)
 	);
 
@@ -517,6 +520,7 @@ function wpcom_track_publish_first_post_task() {
  * @return void
  */
 function wpcom_track_edit_site_task() {
+	wpcom_mark_launchpad_task_complete( 'links_added' );
 	wpcom_mark_launchpad_task_complete( 'design_edited' );
 }
 
