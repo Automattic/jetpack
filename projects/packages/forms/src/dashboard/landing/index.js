@@ -36,7 +36,7 @@ const LandingPage = () => {
 					<h4 className="mb-8">
 						{ __( 'Free, flexible, fast and it works out of the box.', 'jetpack-forms' ) }
 					</h4>
-					<button className="button button-primary mb-8" onClick={ onButtonClickHandler( false ) }>
+					<button className="button button-primary mb-10" onClick={ onButtonClickHandler( false ) }>
 						{ __( 'Create your first form', 'jetpack-forms' ) }
 					</button>
 					<img
@@ -138,7 +138,7 @@ const LandingPage = () => {
 					<h1 className="jp-forms__wp-sites mb-8">
 						{ __( 'Trusted by more than 5 million WordPress sites.', 'jetpack-forms' ) }
 					</h1>
-					<button className="button button-primary">
+					<button className="button button-primary" onClick={ onButtonClickHandler( false ) }>
 						{ __( 'Get started with Jetpack Forms', 'jetpack-forms' ) }
 					</button>
 				</div>
