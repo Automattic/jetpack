@@ -9,6 +9,8 @@ class Automation_Logger {
 	private $log = array();
 	
 	private $output = false;
+	
+	private $is_active = true;
 
 	/**
 	 * Initialize the logger
@@ -19,6 +21,14 @@ class Automation_Logger {
 		}
 		
 		return self::$instance;
+	}
+	
+	public function turn_on() {
+		$this->is_active = true;
+	}
+	
+	public function turn_off() {
+		$this->is_active = false;
 	}
 
 	/**
@@ -48,5 +58,12 @@ class Automation_Logger {
 		
 		$log = array( date( 'Y-m-d H:i' ), $message );
 		$this->log[] = $log;
+	}
+
+	/**
+	 * Reset the log
+	 */
+	public function reset_log() {
+		$this->log = array();
 	}
 }
