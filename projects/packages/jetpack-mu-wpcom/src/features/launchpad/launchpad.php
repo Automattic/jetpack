@@ -502,6 +502,10 @@ function wpcom_launchpad_checklists() {
  * @return void
  */
 function wpcom_track_publish_first_post_task() {
+	// Ensure that Headstart posts don't mark this as complete
+	if ( defined( 'HEADSTART' ) && HEADSTART ) {
+		return;
+	}
 	// Since we share the same callback for generic first post and newsletter-specific, we mark both.
 	wpcom_mark_launchpad_task_complete( 'first_post_published' );
 	wpcom_mark_launchpad_task_complete( 'first_post_published_newsletter' );

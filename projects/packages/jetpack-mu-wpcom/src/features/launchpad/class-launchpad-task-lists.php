@@ -382,7 +382,6 @@ class Launchpad_Task_Lists {
 		// Ensure that the task is an active one
 		$active_tasks_by_task_id = wp_list_filter( $this->get_active_tasks(), array( 'id' => $task_id ) );
 		if ( empty( $active_tasks_by_task_id ) ) {
-			l( 'didnnot find task: ' . $task_id . ' in active tasks' );
 			return false;
 		}
 
