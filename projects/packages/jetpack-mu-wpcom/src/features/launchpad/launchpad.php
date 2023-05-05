@@ -192,9 +192,9 @@ function wpcom_register_default_launchpad_checklists() {
 
 	wpcom_register_launchpad_task(
 		array(
-			'id'                   => 'verify_email',
-			'title'                => __( 'Confirm email (check your inbox)', 'jetpack-mu-wpcom' ),
-			'is_disabled_callback' => '__return_true',
+			'id'                  => 'verify_email',
+			'title'               => __( 'Confirm email (check your inbox)', 'jetpack-mu-wpcom' ),
+			'is_visible_callback' => 'wpcom_launchpad_is_email_unverified',
 		)
 	);
 
@@ -580,6 +580,20 @@ function wpcom_track_video_uploaded_task( $post_id ) {
 		return;
 	}
 	wpcom_mark_launchpad_task_complete( 'video_uploaded' );
+}
+
+/**
+ * Callback for email verification visibility.
+ *
+ * @return bool True if email is unverified, false otherwise.
+ */
+function wpcom_launchpad_is_email_unverified() {
+	// TODO: handle the edge case where an Atomic user can be unverified.
+	if ( ! class_exists( 'Email_Verification' ) ) {
+		return false;
+	}
+
+	return Email_Verification::is_email_unverified();
 }
 
 //

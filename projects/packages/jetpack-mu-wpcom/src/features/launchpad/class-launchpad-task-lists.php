@@ -178,12 +178,27 @@ class Launchpad_Task_Lists {
 			$task_definition = $this->get_task( $task_id );
 
 			// if task can't be found don't add anything
-			if ( ! empty( $task_definition ) ) {
+			if ( $this->is_visible( $task_definition ) ) {
 				$tasks_for_task_list[] = $this->build_task( $task_definition );
 			}
 		}
 
 		return $tasks_for_task_list;
+	}
+
+	/**
+	 * Allows a function to be called to determine if a task should be visible.
+	 * For instance: we don't even want to show the verify_email task if it's already done.
+	 *
+	 * @param Task $task_definition A task definition.
+	 * @return boolean True if task is visible, false if not.
+	 */
+	protected function is_visible( $task_definition ) {
+		if ( empty( $task_definition ) ) {
+			return false;
+		}
+
+		return $this->load_value_from_callback( $task_definition, 'is_visible_callback', true );
 	}
 
 	/**
