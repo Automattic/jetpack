@@ -29,4 +29,7 @@
 	<rule ref="PHPCompatibility.FunctionDeclarations.NewNullableTypes.returnTypeFound">
 		<severity>0</severity>
 	</rule>
+	<rule ref="PHPCompatibility.Operators.NewOperators.t_coalesceFound">
+		<severity>0</severity>
+	</rule>
 </ruleset>
