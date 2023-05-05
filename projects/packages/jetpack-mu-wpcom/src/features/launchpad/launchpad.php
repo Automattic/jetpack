@@ -583,6 +583,29 @@ function wpcom_track_video_uploaded_task( $post_id ) {
 }
 
 /**
+ * The `/rest/v1.1/video-uploads` endpoint operates without calling the `rest_api_switched_to_blog` hook.
+ * Which prevents our listeners from being added.
+ * This mimics the legacy mu-plugin logic of always adding the listener.
+ *
+ * @param int $post_id The attachment ID.
+ * @return void
+ */
+function wpcom_hacky_track_video_uploaded_task( $post_id ) {
+	if ( get_option( 'site_intent' ) !== 'videopress' ) {
+		return;
+	}
+	if ( get_option( 'launchpad_screen' ) !== 'full' ) {
+		return;
+	}
+	if ( has_action( 'add_attachment', 'wpcom_track_video_uploaded_task' ) ) {
+		return;
+	}
+
+	wpcom_track_video_uploaded_task( $post_id );
+}
+add_action( 'add_attachment', 'wpcom_hacky_track_video_uploaded_task' );
+
+/**
  * Callback for email verification visibility.
  *
  * @return bool True if email is unverified, false otherwise.
