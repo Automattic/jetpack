@@ -580,6 +580,10 @@ function wpcom_track_video_uploaded_task( $post_id ) {
 	wpcom_mark_launchpad_task_complete( 'video_uploaded' );
 }
 
+//
+// Misc other Launchpad-related functionality below.
+//
+
 /**
  * A filter for `get_option( 'launchpad_screen' )`
  *
@@ -603,4 +607,60 @@ function wpcom_maybe_disable_for_difm( $value ) {
 // only WPCOM has blog stickers.
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	add_filter( 'option_launchpad_screen', 'wpcom_maybe_disable_for_difm' );
+}
+
+add_action( 'wp_head', 'wpcom_maybe_preview_with_no_interactions', PHP_INT_MAX );
+/**
+ * Add CSS that disallows interaction with the Launchpad preview.
+ *
+ * @return void|string
+ */
+function wpcom_maybe_preview_with_no_interactions() {
+	// phpcs:ignore
+	if ( empty( $_GET['do_preview_no_interactions'] ) || $_GET['do_preview_no_interactions'] !== 'true' ) {
+		return;
+	}
+
+	?>
+		<style type="text/css">
+				body {
+					pointer-events: none !important;
+				}
+		</style>
+	<?php
+}
+
+// Temporarily log information to debug intermittent launchpad errors for e2e tests
+if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+	add_action( 'add_option_launchpad_screen', 'wpcom_log_launchpad_being_enabled_for_test_sites', 10, 2 );
+}
+
+/**
+ * Logs data when e2eflowtesting5.wordpress.com has launchpad enabled
+ *
+ * @param string $option The previous option value.
+ * @param string $value The new option value.
+ * @return void
+ */
+function wpcom_log_launchpad_being_enabled_for_test_sites( $option, $value ) {
+	// e2eflowtesting5.wordpress.com
+	if ( get_current_blog_id() !== 208860881 || $value !== 'full' ) {
+		return;
+	}
+
+	require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+	require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
+	$current_plan = WPCOM_Store_API::get_current_plan( get_current_blog_id() );
+	$extra        = array(
+		'is_free'     => $current_plan['is_free'],
+		'site_intent' => get_option( 'site_intent' ),
+	);
+
+	log2logstash(
+		array(
+			'feature' => 'launchpad',
+			'message' => 'Launchpad enabled for e2e test site.',
+			'extra'   => wp_json_encode( $extra ),
+		)
+	);
 }
