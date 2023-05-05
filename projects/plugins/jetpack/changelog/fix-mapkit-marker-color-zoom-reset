@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix zoom being reset when changing map marker color

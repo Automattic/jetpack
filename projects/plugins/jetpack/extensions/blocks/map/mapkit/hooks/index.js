@@ -145,12 +145,10 @@ const useMapkitType = mapStyle => {
 
 const useMapkitZoom = ( zoom, setZoom ) => {
 	const { mapkit, map, points } = useMapkit();
-
 	useEffect( () => {
 		if ( mapkit && map ) {
 			if ( points && points.length <= 1 ) {
 				const defaultCameraDistance = convertZoomLevelToCameraDistance( 13, map.center.latitude );
-
 				if ( zoom ) {
 					const cameraDistance = convertZoomLevelToCameraDistance( zoom, map.center.latitude );
 					if ( cameraDistance !== map.cameraDistance ) {
@@ -193,11 +191,20 @@ const useMapkitPoints = ( points, markerColor, callOutElement = null, onSelect =
 
 	useEffect( () => {
 		if ( loaded ) {
-			map.removeAnnotations( map.annotations );
 			const annotations = points.map( point => {
+				const currentAnnotation = map.annotations.find(
+					annotation => annotation.data.id === point.id
+				);
+				if ( currentAnnotation ) {
+					// update the current annotation
+					currentAnnotation.title = point.title;
+					currentAnnotation.color = markerColor;
+					return currentAnnotation;
+				}
+
 				const marker = new mapkit.MarkerAnnotation(
 					new mapkit.Coordinate( point.coordinates.latitude, point.coordinates.longitude ),
-					{ color: markerColor }
+					{ color: markerColor, data: { id: point.id } }
 				);
 				marker.calloutEnabled = true;
 				marker.title = point.title;
@@ -211,7 +218,9 @@ const useMapkitPoints = ( points, markerColor, callOutElement = null, onSelect =
 				}
 				return marker;
 			} );
-			map.showItems( annotations );
+			if ( map.annotations.length !== annotations.length ) {
+				map.showItems( annotations );
+			}
 		}
 	}, [ points, loaded, map, mapkit, markerColor, callOutElementRef, onSelectRef ] );
 };
