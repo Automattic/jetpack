@@ -9,6 +9,7 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Blaze\Dashboard as Blaze_Dashboard;
+use Automattic\Jetpack\Blaze\REST_Controller as Blaze_REST_Controller;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Jetpack_Connection;
@@ -33,7 +34,8 @@ class Blaze {
 	public static $script_path = '../build/editor.js';
 
 	/**
-	 * The configuration method that is called from the jetpack-config package.
+	 * Initializer.
+	 * Used to configure the stats package, eg when called via the Config package.
 	 *
 	 * @return void
 	 */
@@ -44,6 +46,8 @@ class Blaze {
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 		// Add a Blaze Menu.
 		add_action( 'admin_menu', array( __CLASS__, 'enable_blaze_menu' ), 999 );
+		// Adds Blaze rest API
+		add_action( 'rest_api_init', array( new Blaze_REST_Controller(), 'register_rest_routes' ) );
 	}
 
 	/**

@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack\Blaze;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Responsible for adding a Blaze dashboard menu to wp-admin.
  * The screen content itself is rendered remotely.
@@ -88,7 +90,7 @@ class Dashboard {
 				// we intercept on all anchor tags and change it to hashbang style.
 				$("#wpcom").on('click', 'a', function (e) {
 					const link = e && e.currentTarget && e.currentTarget.attributes && e.currentTarget.attributes.href && e.currentTarget.attributes.href.value;
-					if( link && link.startsWith( '/stats' ) ) {
+					if( link && link.startsWith( '/jetpack-blaze' ) ) {
 						location.hash = `#!${link}`;
 						return false;
 					}
@@ -111,22 +113,35 @@ class Dashboard {
 	public function load_admin_scripts() {
 		$asset_handle = self::SCRIPT_HANDLE;
 		$asset_name   = 'build.min';
-		$css_url      = $asset_name . ( is_rtl() ? '.rtl' : '' ) . '.css';
-		$css_handle   = $asset_handle . '-style';
 
-		wp_enqueue_script(
+		$config_data = ( new Config_Data() )->get_data();
+
+		if ( file_exists( __DIR__ . "/../dist/{$asset_name}.js" ) ) {
+			// Load local assets for the convenience of development.
+			Assets::register_script(
+				$asset_handle,
+				"../dist/{$asset_name}.js",
+				__FILE__,
+				array(
+					'enqueue'    => true,
+					'in_footer'  => true,
+					'textdomain' => 'jetpack-blaze',
+				)
+			);
+		} else {
+			$css_url    = $asset_name . ( is_rtl() ? '.rtl' : '' ) . '.css';
+			$css_handle = $asset_handle . '-style';
+
+			wp_register_script( $asset_handle, sprintf( self::CDN_URL, self::BLAZEDASH_VERSION, "{$asset_name}.js" ), self::JS_DEPENDENCIES, $this->get_cdn_asset_cache_buster(), true );
+			wp_register_style( $css_handle, sprintf( self::CDN_URL, self::BLAZEDASH_VERSION, $css_url ), array(), $this->get_cdn_asset_cache_buster() );
+			wp_enqueue_script( $asset_handle );
+			wp_enqueue_style( $css_handle );
+		}
+
+		wp_add_inline_script(
 			$asset_handle,
-			sprintf( self::CDN_URL, self::BLAZEDASH_VERSION, "{$asset_name}.js" ),
-			self::JS_DEPENDENCIES,
-			$this->get_cdn_asset_cache_buster(),
-			true
-		);
-
-		wp_enqueue_style(
-			$css_handle,
-			sprintf( self::CDN_URL, self::BLAZEDASH_VERSION, $css_url ),
-			array(),
-			$this->get_cdn_asset_cache_buster()
+			( new Config_Data() )->get_js_config_data( $config_data ),
+			'before'
 		);
 	}
 
