@@ -66,9 +66,9 @@ interface Step {
 	public function get_category(): string;
 
 	/**
-	 * Get the data of the step
+	 * Get the attributes of the step
 	 *
 	 * @return array
 	 */
-	public function get_data(): array;
+	public function get_attributes(): array;
 }

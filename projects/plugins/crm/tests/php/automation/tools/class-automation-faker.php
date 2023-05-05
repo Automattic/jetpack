@@ -35,7 +35,7 @@ class Automation_Faker {
 				'name'        => 'send_email_action',
 				'title'       => 'Send welcome email',
 				'description' => 'Send welcome email to new contact',
-				'data'        => array(
+				'attributes'  => array(
 					'to'       => 'admin@example.com',
 					'template' => 'send_welcome_email',
 				),
