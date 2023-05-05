@@ -123,6 +123,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			'launchpad_screen'   => get_option( 'launchpad_screen' ),
 			'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
 			'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug ),
+			'is_enabled'         => wpcom_launchpad_checklists()->is_launchpad_enabled(),
 		);
 	}
 
@@ -145,6 +146,8 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					if ( update_option( 'launchpad_checklist_tasks_statuses', $launchpad_checklist_tasks_statuses_option ) ) {
 						$updated[ $key ] = $value;
 					}
+					// This will check if we have completed all the tasks and disable Launchpad if so.
+					wpcom_launchpad_checklists()->maybe_disable_launchpad();
 					break;
 
 				default:

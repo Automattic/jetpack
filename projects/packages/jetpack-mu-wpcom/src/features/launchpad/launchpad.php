@@ -502,7 +502,9 @@ function wpcom_launchpad_checklists() {
  * @return void
  */
 function wpcom_track_publish_first_post_task() {
-	wpcom_mark_launchpad_task_complete( 'publish_first_post' );
+	// Since we share the same callback for generic first post and newsletter-specific, we mark both.
+	wpcom_mark_launchpad_task_complete( 'first_post_published' );
+	wpcom_mark_launchpad_task_complete( 'first_post_published_newsletter' );
 }
 
 /**
@@ -548,7 +550,11 @@ function wpcom_launch_task_listener_atomic( $old_value, $new_value ) {
  * @return void
  */
 function wpcom_track_site_launch_task() {
+	// it would be ideal if the registry was smart enough to map based on id_map but it isn't.
+	// So we mark them all. We'd avoid this if we had dedicated callbacks for each task.
 	wpcom_mark_launchpad_task_complete( 'site_launched' );
+	wpcom_mark_launchpad_task_complete( 'link_in_bio_launched' );
+	wpcom_mark_launchpad_task_complete( 'videopress_launched' );
 }
 
 /**

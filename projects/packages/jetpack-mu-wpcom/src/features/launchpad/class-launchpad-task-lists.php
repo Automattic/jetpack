@@ -317,6 +317,36 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Get currently active tasks.
+	 *
+	 * @param string $task_list_id Optional. Will default to `site_intent` option.
+	 * @return array Array of active tasks.
+	 */
+	private function get_active_tasks( $task_list_id = null ) {
+		$task_list_id = $task_list_id ? $task_list_id : get_option( 'site_intent' );
+		if ( ! $task_list_id ) {
+			return array();
+		}
+		$task_list = $this->get_task_list( $task_list_id );
+		if ( empty( $task_list ) ) {
+			return array();
+		}
+		$built_tasks = $this->build( $task_list_id );
+		// filter for incomplete tasks
+		return wp_list_filter( $built_tasks, array( 'completed' => false ) );
+	}
+
+	/**
+	 * Checks if there are any active tasks.
+	 *
+	 * @param string|null $task_list_id Optional. Will default to `site_intent` option.
+	 * @return boolean True if there are active tasks, false if not.
+	 */
+	private function has_active_tasks( $task_list_id = null ) {
+		return ! empty( $this->get_active_tasks( $task_list_id ) );
+	}
+
+	/**
 	 * Adds task-defined `add_listener_callback` hooks for incomplete tasks.
 	 *
 	 * @param string $task_list_id Optional. Will default to `site_intent` option.
@@ -328,18 +358,8 @@ class Launchpad_Task_Lists {
 			return;
 		}
 
-		$task_list_id = $task_list_id ? $task_list_id : get_option( 'site_intent' );
-		if ( ! $task_list_id ) {
-			return;
-		}
-		$task_list = $this->get_task_list( $task_list_id );
-		if ( empty( $task_list ) ) {
-			return;
-		}
-		$built_tasks = $this->build( $task_list_id );
-		// filter for incomplete tasks that have a callback
-		$tasks_to_hook = wp_list_filter( $built_tasks, array( 'completed' => false ) );
-		foreach ( $tasks_to_hook as $task ) {
+		$active_tasks = $this->get_active_tasks( $task_list_id );
+		foreach ( $active_tasks as $task ) {
 			$task_definition = $this->get_task( $task['id'] );
 			if ( isset( $task_definition['add_listener_callback'] ) && is_callable( $task_definition['add_listener_callback'] ) ) {
 				call_user_func_array( $task_definition['add_listener_callback'], array( $task, $task_definition ) );
@@ -358,12 +378,34 @@ class Launchpad_Task_Lists {
 		if ( empty( $task ) ) {
 			return false;
 		}
+
+		// Ensure that the task is an active one
+		$active_tasks_by_task_id = wp_list_filter( $this->get_active_tasks(), array( 'id' => $task_id ) );
+		if ( empty( $active_tasks_by_task_id ) ) {
+			l( 'didnnot find task: ' . $task_id . ' in active tasks' );
+			return false;
+		}
+
 		$key              = $this->get_task_key( $task );
 		$statuses         = get_option( 'launchpad_checklist_tasks_statuses', array() );
 		$statuses[ $key ] = true;
+		$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
 
-		// todo This is where we can disable launchpad if all tasks are complete.
-		return update_option( 'launchpad_checklist_tasks_statuses', $statuses );
+		$this->maybe_disable_launchpad();
+
+		return $result;
+	}
+
+	/**
+	 * Disables Launchpad if all tasks are complete.
+	 *
+	 * @return void
+	 */
+	public function maybe_disable_launchpad() {
+		if ( $this->has_active_tasks() ) {
+			return;
+		}
+		$this->disable_launchpad();
 	}
 
 	/**
@@ -396,10 +438,21 @@ class Launchpad_Task_Lists {
 	 *
 	 * @return boolean
 	 */
-	private function is_launchpad_enabled() {
+	public function is_launchpad_enabled() {
 		$launchpad_screen = get_option( 'launchpad_screen' );
-		// todo also check for incomplete tasks
-		return 'full' === $launchpad_screen;
+		if ( 'full' !== $launchpad_screen ) {
+			return false;
+		}
+
+		return $this->has_active_tasks();
+	}
+	/**
+	 * Disables Launchpad by setting the `launchpad_screen` option to `off`.
+	 *
+	 * @return bool True if successful, false if not.
+	 */
+	private function disable_launchpad() {
+		return update_option( 'launchpad_screen', 'off' );
 	}
 
 }
