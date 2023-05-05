@@ -77,7 +77,7 @@ const useMapkitInit = ( mapkit, loaded, mapRef ) => {
 	const [ map, setMap ] = useState( null );
 	useEffect( () => {
 		if ( mapkit && loaded ) {
-			setMap( new mapkit.Map( mapRef.current ) );
+			setMap( new mapkit.Map( mapRef.current, { showsMapTypeControl: false } ) );
 		}
 	}, [ mapkit, loaded, mapRef ] );
 	return { map };
