@@ -1250,24 +1250,29 @@ class Contact_Form_Plugin {
 	/**
 	 * Get `_feedback_extra_fields` field from post meta data.
 	 *
-	 * @param int $post_id Id of the post to fetch meta data for.
+	 * @param int  $post_id Id of the post to fetch meta data for.
+	 * @param bool $has_json_data Whether the post has JSON data or not, defaults to false for backwards compatibility.
 	 *
 	 * @return mixed
 	 */
-	public function get_post_meta_for_csv_export( $post_id ) {
-		$md                     = get_post_meta( $post_id, '_feedback_extra_fields', true );
+	public function get_post_meta_for_csv_export( $post_id, $has_json_data = false ) {
+		$content_fields = self::parse_fields_from_content( $post_id );
+		$all_fields     = isset( $content_fields['_feedback_all_fields'] ) ? $content_fields['_feedback_all_fields'] : array();
+		$md             = $has_json_data
+			? array_diff_key( $all_fields, array_flip( array( 'entry_title', 'email_marketing_consent', 'entry_permalink', 'feedback_id' ) ) )
+			: get_post_meta( $post_id, '_feedback_extra_fields', true );
+
 		$md['-3_response_date'] = get_the_date( 'Y-m-d H:i:s', $post_id );
-		$content_fields         = self::parse_fields_from_content( $post_id );
 		$md['93_ip_address']    = ( isset( $content_fields['_feedback_ip'] ) ) ? $content_fields['_feedback_ip'] : 0;
 
 		// add the email_marketing_consent to the post meta.
 		$md['90_consent'] = 0;
-		if ( isset( $content_fields['_feedback_all_fields'] ) ) {
-			$all_fields = $content_fields['_feedback_all_fields'];
+		if ( ! empty( $all_fields ) ) {
 			// check if the email_marketing_consent field exists.
 			if ( isset( $all_fields['email_marketing_consent'] ) ) {
 				$md['90_consent'] = $all_fields['email_marketing_consent'];
 			}
+
 			// check if the feedback entry has a title.
 			if ( isset( $all_fields['entry_title'] ) ) {
 				$md['-9_title'] = $all_fields['entry_title'];
@@ -1286,7 +1291,16 @@ class Contact_Form_Plugin {
 			}
 		}
 
-		return $md;
+		// flatten and decode all values.
+		$result = array();
+		foreach ( $md as $key => $value ) {
+			if ( is_array( $value ) ) {
+				$value = implode( ', ', $value );
+			}
+			$result[ $key ] = html_entity_decode( $value, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+		}
+
+		return $result;
 	}
 
 	/**
@@ -1307,12 +1321,15 @@ class Contact_Form_Plugin {
 	 * to names, that are similar to those of the post meta.
 	 *
 	 * @param array $parsed_post_content Parsed post content.
+	 * @param bool  $use_main_comment Whether to use the main comment from the post_content or not.
+	 *                                Defaults to true for backwards compatibility. New JSON format
+	 *                                does not have a main comment and instead has all fields in the parsed content.
 	 *
 	 * @see parse_fields_from_content for how the input data is generated.
 	 *
 	 * @return array Mapped fields.
 	 */
-	public function map_parsed_field_contents_of_post_to_field_names( $parsed_post_content ) {
+	public function map_parsed_field_contents_of_post_to_field_names( $parsed_post_content, $use_main_comment = true ) {
 
 		$mapped_fields = array();
 
@@ -1322,9 +1339,12 @@ class Contact_Form_Plugin {
 			'_feedback_author'       => '1_Name',
 			'_feedback_author_email' => '2_Email',
 			'_feedback_author_url'   => '3_Website',
-			'_feedback_main_comment' => '4_Comment',
 			'_feedback_ip'           => '93_ip_address',
 		);
+
+		if ( $use_main_comment ) {
+			$field_mapping['_feedback_main_comment'] = '4_Comment';
+		}
 
 		foreach ( $field_mapping as $parsed_field_name => $field_name ) {
 			if (
@@ -1643,6 +1663,12 @@ class Contact_Form_Plugin {
 			$post_real_data = $this->get_parsed_field_contents_of_post( $post_id );
 
 			/**
+			 * Whether the feedback post has JSON data or not.
+			 * This is used as optional parameter on legacy functions.
+			 */
+			$post_has_json_data = $this->has_json_data( $post_id );
+
+			/**
 			 * If `$post_real_data` is not an array or there is no `_feedback_subject` set,
 			 * then something must be wrong with the feedback post. Skip it.
 			 */
@@ -1662,12 +1688,12 @@ class Contact_Form_Plugin {
 			/**
 			 * Map parsed fields to proper field names
 			 */
-			$mapped_fields = $this->map_parsed_field_contents_of_post_to_field_names( $post_real_data );
+			$mapped_fields = $this->map_parsed_field_contents_of_post_to_field_names( $post_real_data, ! $post_has_json_data );
 
 			/**
 			 * Fetch post meta data.
 			 */
-			$post_meta_data = $this->get_post_meta_for_csv_export( $post_id );
+			$post_meta_data = $this->get_post_meta_for_csv_export( $post_id, $post_has_json_data );
 
 			/**
 			 * If `$post_meta_data` is not an array or if it is empty, then there is no
@@ -2069,6 +2095,22 @@ class Contact_Form_Plugin {
 		$all_fields = array_unique( $all_fields );
 
 		return $all_fields;
+	}
+
+	/**
+	 * Returns if the feedback post has JSON data
+	 *
+	 * @param int $post_id The feedback post ID to check.
+	 * @return bool
+	 */
+	public function has_json_data( $post_id ) {
+		$post_content = get_post_field( 'post_content', $post_id );
+		$content      = explode( "\nJSON_DATA", $post_content );
+		if ( empty( $content[1] ) ) {
+			return false;
+		}
+		$json_data = json_decode( $content[1], true );
+		return is_array( $json_data ) && ! empty( $json_data );
 	}
 
 	/**
