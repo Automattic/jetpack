@@ -1321,12 +1321,15 @@ class Contact_Form_Plugin {
 	 * to names, that are similar to those of the post meta.
 	 *
 	 * @param array $parsed_post_content Parsed post content.
+	 * @param bool  $use_main_comment Whether to use the main comment from the post_content or not.
+	 *                                Defaults to true for backwards compatibility. New JSON format
+	 *                                does not have a main comment and instead has all fields in the parsed content.
 	 *
 	 * @see parse_fields_from_content for how the input data is generated.
 	 *
 	 * @return array Mapped fields.
 	 */
-	public function map_parsed_field_contents_of_post_to_field_names( $parsed_post_content ) {
+	public function map_parsed_field_contents_of_post_to_field_names( $parsed_post_content, $use_main_comment = true ) {
 
 		$mapped_fields = array();
 
@@ -1336,9 +1339,12 @@ class Contact_Form_Plugin {
 			'_feedback_author'       => '1_Name',
 			'_feedback_author_email' => '2_Email',
 			'_feedback_author_url'   => '3_Website',
-			'_feedback_main_comment' => '4_Comment',
 			'_feedback_ip'           => '93_ip_address',
 		);
+
+		if ( $use_main_comment ) {
+			$field_mapping['_feedback_main_comment'] = '4_Comment';
+		}
 
 		foreach ( $field_mapping as $parsed_field_name => $field_name ) {
 			if (
@@ -1682,7 +1688,7 @@ class Contact_Form_Plugin {
 			/**
 			 * Map parsed fields to proper field names
 			 */
-			$mapped_fields = $this->map_parsed_field_contents_of_post_to_field_names( $post_real_data );
+			$mapped_fields = $this->map_parsed_field_contents_of_post_to_field_names( $post_real_data, ! $post_has_json_data );
 
 			/**
 			 * Fetch post meta data.
