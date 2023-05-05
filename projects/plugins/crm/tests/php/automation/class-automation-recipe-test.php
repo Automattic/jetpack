@@ -33,7 +33,7 @@ class Automation_Recipe_Test extends BaseTestCase {
 
 		$recipe_data = $this->automation_faker->basic_recipe();
 
-		$recipe = new Automation_Recipe( $recipe_data );
+		$recipe = new Automation_Recipe( $recipe_data, Automation_Engine::instance() );
 
 		$this->assertEquals( 'Recipe Test', $recipe->name );
 	}
@@ -44,18 +44,18 @@ class Automation_Recipe_Test extends BaseTestCase {
 	public function test_automation_recipe_no_triggers() {
 		$recipe_data = $this->automation_faker->empty_recipe();
 
-		$recipe = new Automation_Recipe( $recipe_data );
+		$recipe = new Automation_Recipe( $recipe_data, Automation_Engine::instance() );
 
 		$this->assertCount( 0, $recipe->get_triggers() );
 	}
 
 	/**
-	 * @testdox Automation recipe with no triggers
+	 * @testdox Automation recipe set initial step
 	 */
 	public function test_automation_recipe_set_initial_step() {
 		$recipe_data = $this->automation_faker->recipe_without_initial_step();
 
-		$recipe = new Automation_Recipe( $recipe_data );
+		$recipe = new Automation_Recipe( $recipe_data, Automation_Engine::instance() );
 
 		$recipe->set_initial_step(
 			array(
@@ -75,7 +75,7 @@ class Automation_Recipe_Test extends BaseTestCase {
 	public function test_recipe_triggers() {
 		$recipe_data = $this->automation_faker->basic_recipe();
 
-		$recipe = new Automation_Recipe( $recipe_data );
+		$recipe = new Automation_Recipe( $recipe_data, Automation_Engine::instance() );
 
 		$recipe->add_trigger( 'contact_updated' );
 		$recipe->add_trigger( 'contact_deleted' );
@@ -95,7 +95,7 @@ class Automation_Recipe_Test extends BaseTestCase {
 	public function test_recipe_turn_on_off() {
 		$recipe_data = $this->automation_faker->basic_recipe();
 
-		$recipe = new Automation_Recipe( $recipe_data );
+		$recipe = new Automation_Recipe( $recipe_data, Automation_Engine::instance() );
 
 		$recipe->turn_on();
 		$this->assertTrue( $recipe->is_active() );
@@ -109,7 +109,7 @@ class Automation_Recipe_Test extends BaseTestCase {
 	 */
 	public function test_recipe_execution_not_active() {
 
-		$automation = Automation_Engine::instance();
+		$automation = new Automation_Engine();
 		$automation->set_automation_logger( Automation_Logger::instance() );
 		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
 
@@ -117,7 +117,7 @@ class Automation_Recipe_Test extends BaseTestCase {
 
 		// Build a PHPUnit mock Automation_Recipe
 		$recipe = $this->getMockBuilder( Automation_Recipe::class )
-			->setConstructorArgs( array( $recipe_data ) )
+			->setConstructorArgs( array( $recipe_data, $automation ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -145,15 +145,17 @@ class Automation_Recipe_Test extends BaseTestCase {
 	 */
 	public function test_recipe_execution_on_contact_created() {
 
-		$automation = Automation_Engine::instance();
-		$automation->set_automation_logger( Automation_Logger::instance() );
+		$logger = Automation_Logger::instance( true );
+		
+		$automation = new Automation_Engine();
+		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
 
 		$recipe_data = $this->automation_faker->recipe_without_initial_step();
 
 		// Build a PHPUnit mock Automation_Recipe
 		$recipe = $this->getMockBuilder( Automation_Recipe::class )
-			->setConstructorArgs( array( $recipe_data ) )
+			->setConstructorArgs( array( $recipe_data, $automation ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
@@ -189,17 +191,18 @@ class Automation_Recipe_Test extends BaseTestCase {
 	 */
 	public function test_recipe_execution_with_dummy_action() {
 
-		$logger = Automation_Logger::instance();
+		$logger = Automation_Logger::instance( true );
 		//$logger->with_output( true );
 
-		$automation = Automation_Engine::instance();
+		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
 		$automation->register_step( 'dummy_action', Dummy_Step::class );
 
 		$recipe_data = $this->automation_faker->recipe_without_initial_step();
 
-		$recipe = new Automation_Recipe( $recipe_data );
+		$recipe = new Automation_Recipe( $recipe_data, $automation );
+		$recipe->set_automation_logger( $logger );
 		$recipe->set_initial_step(
 			array(
 				'name' => 'dummy_action',
@@ -221,14 +224,14 @@ class Automation_Recipe_Test extends BaseTestCase {
 		$log       = $logger->get_log();
 		$total_log = count( $log );
 
-		$this->assertGreaterThan( 3, $total_log );
+		$this->assertGreaterThan( 4, $total_log );
 
 		$this->assertEquals( 'Recipe execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
 		$this->assertEquals( 'Dummy step executed', $log[ $total_log - 3 ][1] );
 	}
 
 	/**
-	 * @testdox Test an automation recipe execution with condition
+	 * @testdox Test an automation recipe execution with condition => true
 	 */
 	public function test_recipe_execution_with_condition() {
 		$logger = Automation_Logger::instance();
