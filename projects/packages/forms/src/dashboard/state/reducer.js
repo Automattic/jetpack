@@ -40,6 +40,14 @@ const loading = ( state = false, action ) => {
 	return state;
 };
 
+const loaded = ( state = false, action ) => {
+	if ( action.type === RESPONSES_FETCH_RECEIVE || action.type === RESPONSES_FETCH_FAIL ) {
+		return true;
+	}
+
+	return state;
+};
+
 const responses = ( state = [], action ) => {
 	if ( action.type === RESPONSES_FETCH && ! action.append ) {
 		return [];
@@ -119,6 +127,7 @@ export default combineReducers( {
 	currentSelection,
 	filters,
 	loading,
+	loaded,
 	query,
 	responses,
 	tabTotals,

@@ -6,6 +6,10 @@ import { getPath } from '../inbox/util';
 
 export const isFetchingResponses = state => state.loading;
 
+export const isEmptyResponses = state => state.loaded && true; //state.responses.length === 0;
+
+export const isFirstLoadCompleted = state => state.loaded;
+
 export const getResponses = state =>
 	map( state.responses, response => {
 		return {

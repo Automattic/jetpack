@@ -3,11 +3,12 @@
  */
 import { render } from '@wordpress/element';
 import { get } from 'lodash';
-import { BrowserRouter } from 'react-router-dom';
+import { createHashRouter, RouterProvider } from 'react-router-dom';
 /**
  * Internal dependencies
  */
 import Inbox from './inbox';
+import LandingPage from './landing';
 import './style.scss';
 
 let settings = {};
@@ -20,10 +21,16 @@ window.addEventListener( 'load', () => {
 	settings = JSON.parse( unescape( container.dataset.config ) );
 	delete container.dataset.config;
 
-	render(
-		<BrowserRouter>
-			<Inbox />
-		</BrowserRouter>,
-		container
-	);
+	const router = createHashRouter( [
+		{
+			path: '/',
+			element: <Inbox />,
+		},
+		{
+			path: '/landing',
+			element: <LandingPage />,
+		},
+	] );
+
+	render( <RouterProvider router={ router } />, container );
 } );

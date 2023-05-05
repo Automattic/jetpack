@@ -16,6 +16,7 @@ import { __ } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
 import { find, findIndex, includes, isEqual, join, keys, map, pick } from 'lodash';
+import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -58,13 +59,15 @@ const Inbox = () => {
 	const [ responseAnimationDirection, setResponseAnimationDirection ] = useState( 1 );
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ isSticky, setSticky ] = useState( false );
-
+	const navigate = useNavigate();
 	const { fetchResponses, selectResponses } = useDispatch( STORE_NAME );
 	const [
 		currentQuery,
 		monthFilter,
 		sourceFilter,
 		loading,
+		isFirstLoadCompleted,
+		isEmptyResponses,
 		responses,
 		selectedResponses,
 		tabTotals,
@@ -75,6 +78,8 @@ const Inbox = () => {
 			select( STORE_NAME ).getMonthFilter(),
 			select( STORE_NAME ).getSourceFilter(),
 			select( STORE_NAME ).isFetchingResponses(),
+			select( STORE_NAME ).isFirstLoadCompleted(),
+			select( STORE_NAME ).isEmptyResponses(),
 			select( STORE_NAME ).getResponses(),
 			select( STORE_NAME ).getSelectedResponseIds(),
 			select( STORE_NAME ).getTabTotals(),
@@ -102,6 +107,12 @@ const Inbox = () => {
 			...query,
 		} );
 	}, [ currentPage, fetchResponses, query ] );
+
+	useEffect( () => {
+		if ( isFirstLoadCompleted && isEmptyResponses ) {
+			navigate( '/landing' );
+		}
+	}, [ isFirstLoadCompleted, isEmptyResponses, navigate ] );
 
 	useEffect( () => {
 		if (
@@ -271,6 +282,10 @@ const Inbox = () => {
 			</a>
 		</>
 	);
+
+	if ( ! isFirstLoadCompleted ) {
+		return null;
+	}
 
 	return (
 		<Layout title={ title } className={ classes }>
