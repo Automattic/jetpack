@@ -33,7 +33,7 @@ class Jetpack_Mu_Wpcom {
 		// Coming Soon feature.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
 
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );

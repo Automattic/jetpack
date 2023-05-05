@@ -327,18 +327,6 @@ function wpcom_launchpad_add_active_task_listeners() {
 	wpcom_launchpad_checklists()->add_hooks_for_active_tasks();
 }
 
-// unhook our old mu-plugin
-add_action(
-	'plugins_loaded',
-	function () {
-		if ( class_exists( 'WPCOM_Launchpad' ) ) {
-			l( 'Found old mu-plugin, removing it' );
-			remove_action( 'plugins_loaded', array( WPCOM_Launchpad::get_instance(), 'init' ) );
-		}
-	},
-	9
-);
-
 /**
  * Determines whether or not the videopress upload task is enabled
  *
@@ -663,4 +651,9 @@ function wpcom_log_launchpad_being_enabled_for_test_sites( $option, $value ) {
 			'extra'   => wp_json_encode( $extra ),
 		)
 	);
+}
+
+// Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
+if ( class_exists( 'WPCOM_Launchpad' ) ) {
+	remove_action( 'plugins_loaded', array( WPCOM_Launchpad::get_instance(), 'init' ) );
 }
