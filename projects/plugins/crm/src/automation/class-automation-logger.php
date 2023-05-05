@@ -14,9 +14,12 @@ class Automation_Logger {
 
 	/**
 	 * Initialize the logger
+	 * 
+	 * @param bool $force Force a new instance
+	 * @return Automation_Logger
 	 */
-	public static function instance(): Automation_Logger {
-		if ( ! self::$instance ) {
+	public static function instance( bool $force = false ): Automation_Logger {
+		if ( ! self::$instance || $force ) {
 			self::$instance = new self();
 		}
 		
