@@ -2,6 +2,8 @@
 
 namespace Automattic\Jetpack\CRM\Automation\Tests;
 
+use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Condition;
+
 require_once __DIR__ . '/class-event-emitter.php';
 
 class Automation_Faker {
@@ -57,7 +59,6 @@ class Automation_Faker {
 			'triggers'     => array(
 				'contact_created',
 			),
-			'initial_step' => null,
 		);
 	}
 
@@ -99,25 +100,17 @@ class Automation_Faker {
 				'contact_created',
 			),
 			'initial_step' => array(
-				'type'        => 'condition',
-				'name'        => 'contact_status_is',
-				'title'       => 'Check the contact status',
-				'description' => 'Check if the contact has a specific status',
-				'data'        => array(
-					'field' => 'status',
-					'is'    => array( 'customer' ),
+				'name'        => 'contact_status_condition',
+				'class_name'  => Contact_Condition::class,
+				'attributes'  => array(
+					'field'     => 'status',
+					'operator'  => 'is',
+					'value'     => 'lead',
 				),
-				'next_step'   => array(
-					'type'        => 'action',
-					'name'        => 'send_welcome_email',
-					'title'       => 'Send welcome email',
-					'description' => 'Send welcome email to new contact',
-					'data'        => array(
-						'from'     => 'hello@example.com',
-						'template' => 'welcome_email',
-					),
-					'next_step'   => null,
+				'next_step_true' => array(
+					'name' => 'dummy_action',
 				),
+				'next_step_false' => null,
 			),
 		);
 	}
@@ -141,9 +134,10 @@ class Automation_Faker {
 
 	public function contact_data() {
 		return array(
-			'id'    => 1,
-			'name'  => 'John Doe',
-			'email' => 'johndoe@example.com',
+			'id'     => 1,
+			'name'   => 'John Doe',
+			'email'  => 'johndoe@example.com',
+			'status' => 'lead',
 		);
 	}
 
@@ -153,11 +147,7 @@ class Automation_Faker {
 	 */
 	public function empty_recipe(): array {
 		return array(
-			'name'         => 'Empty recipe Test',
-			'description'  => 'Test: the description of the empty recipe, without triggers and initial step',
-			'category'     => 'Test',
-			'triggers'     => array(),
-			'initial_step' => null,
+			'name' => 'Empty recipe Test',
 		);
 	}
 }
