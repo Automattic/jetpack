@@ -125,11 +125,11 @@ class Contact_Condition extends Base_Condition {
 		switch ( $operator ) {
 			case 'is':
 				$this->condition_met = $data[ $field ] === $value;
-				$this->logger->log( 'Condition met?: ' . $this->condition_met ? 'true' : 'false' );
+				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				return;
 			case 'is_not':
 				$this->condition_met = $data[ $field ] !== $value;
-				$this->logger->log( 'Condition met?: ' . $this->condition_met ? 'true' : 'false' );
+				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				return;
 		}
 		
