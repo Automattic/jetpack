@@ -1,3 +1,4 @@
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import Details from '../components/details';
 import Layout from '../components/layout';
@@ -8,13 +9,12 @@ import CloseSVG from './close-svg';
 import ExportSVG from './export-svg';
 import NotificationsSVG from './notifications-svg';
 import WordpressSVG from './wordpress-svg';
-
 import './style.scss';
 
 const LandingPage = () => {
 	const ASSETS_URL = config( 'pluginAssetsURL' );
 
-	const onCreateFormClickHandler = showPatterns => async () => {
+	const onButtonClickHandler = showPatterns => async () => {
 		const data = new FormData();
 
 		data.append( 'action', 'create_new_form' );
@@ -36,10 +36,7 @@ const LandingPage = () => {
 					<h4 className="mb-8">
 						{ __( 'Free, flexible, fast and it works out of the box.', 'jetpack-forms' ) }
 					</h4>
-					<button
-						className="button button-primary mb-6"
-						onClick={ onCreateFormClickHandler( false ) }
-					>
+					<button className="button button-primary mb-6" onClick={ onButtonClickHandler( false ) }>
 						{ __( 'Create your first form', 'jetpack-forms' ) }
 					</button>
 					<img
@@ -63,10 +60,10 @@ const LandingPage = () => {
 						</div>
 						<div className="jp-forms__pattern-item">
 							<img
-								src={ `${ ASSETS_URL }/images/booking-form.png` }
-								alt={ __( 'Booking Form', 'jetpack-forms' ) }
+								src={ `${ ASSETS_URL }/images/registration-form.png` }
+								alt={ __( 'Registration Form', 'jetpack-forms' ) }
 							/>
-							<span>{ __( 'Booking/Appointments form', 'jetpack-forms' ) }</span>
+							<span>{ __( 'Registration and login forms', 'jetpack-forms' ) }</span>
 						</div>
 						<div className="jp-forms__pattern-item">
 							<img
@@ -75,29 +72,8 @@ const LandingPage = () => {
 							/>
 							<span>{ __( 'Feedback form', 'jetpack-forms' ) }</span>
 						</div>
-						<div className="jp-forms__pattern-item">
-							<img
-								src={ `${ ASSETS_URL }/images/newsletter-form.png` }
-								alt={ __( 'Newsletter Form', 'jetpack-forms' ) }
-							/>
-							<span>{ __( 'Newsletter subscription form', 'jetpack-forms' ) }</span>
-						</div>
-						<div className="jp-forms__pattern-item">
-							<img
-								src={ `${ ASSETS_URL }/images/quote-form.png` }
-								alt={ __( 'Quote Form', 'jetpack-forms' ) }
-							/>
-							<span>{ __( 'Quote form', 'jetpack-forms' ) }</span>
-						</div>
-						<div className="jp-forms__pattern-item">
-							<img
-								src={ `${ ASSETS_URL }/images/registration-form.png` }
-								alt={ __( 'Registration Form', 'jetpack-forms' ) }
-							/>
-							<span>{ __( 'Registration and login forms', 'jetpack-forms' ) }</span>
-						</div>
 					</div>
-					<button className="button button-primary" onClick={ onCreateFormClickHandler( true ) }>
+					<button className="button button-primary" onClick={ onButtonClickHandler( true ) }>
 						{ __( 'Explore more patterns', 'jetpack-forms' ) }
 					</button>
 				</div>
@@ -172,44 +148,51 @@ const LandingPage = () => {
 					<h1 className="mb-6">{ __( 'Frequently Asked Questions', 'jetpack-forms' ) }</h1>
 					<Details summary={ __( 'What do I need to use Jetpack Forms?', 'jetpack-forms' ) }>
 						{ __(
-							'You simply need to add a Jetpack form to one of your pages or posts to start collecting data.',
+							'Jetpack Forms is activated by default, so it\'s already fully functional. To get started, simply open the WordPress editor and search for the "Form" block in the block library. You can then add the form block and its corresponding child blocks, such as the text input field or multiple choice block, to your website. You can easily manage incoming form responses within the WP-Admin area.',
 							'jetpack-forms'
 						) }
 					</Details>
 					<Details summary={ __( 'How much does Jetpack Forms cost?', 'jetpack-forms' ) }>
 						{ __(
-							'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lacus turpis, dignissim in urna et, egestas consectetur nibh. Praesent in neque placerat, varius sapien eu, sollicitudin arcu. Suspendisse justo nibh, gravida vitae efficitur non, hendrerit non velit.',
-							'jetpack-forms'
-						) }
-					</Details>
-					<Details summary={ __( 'Where is my data stored?', 'jetpack-forms' ) }>
-						{ __(
-							'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lacus turpis, dignissim in urna et, egestas consectetur nibh. Praesent in neque placerat, varius sapien eu, sollicitudin arcu. Suspendisse justo nibh, gravida vitae efficitur non, hendrerit non velit.',
+							'Jetpack Forms is currently free and comes by default with your Jetpack plugin.',
 							'jetpack-forms'
 						) }
 					</Details>
 					<Details summary={ __( 'Is Jetpack Forms GDPR compliant?', 'jetpack-forms' ) }>
-						{ __(
-							'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lacus turpis, dignissim in urna et, egestas consectetur nibh. Praesent in neque placerat, varius sapien eu, sollicitudin arcu. Suspendisse justo nibh, gravida vitae efficitur non, hendrerit non velit.',
-							'jetpack-forms'
-						) }
-					</Details>
-					<Details summary={ __( 'Do I need coding skills to connect my data?', 'jetpack-forms' ) }>
-						{ __(
-							'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lacus turpis, dignissim in urna et, egestas consectetur nibh. Praesent in neque placerat, varius sapien eu, sollicitudin arcu. Suspendisse justo nibh, gravida vitae efficitur non, hendrerit non velit.',
-							'jetpack-forms'
+						{ createInterpolateElement(
+							__(
+								'Jetpack and its parent company Automattic take data privacy and the GDPR very seriously. We respect the GDPR’s principles of minimizing the amount of data we collect, being transparent about what data we collect and how we use it, complying with EU law in regards to any data that is transferred to non-EU countries, and not keeping data longer than we need it for the purpose it was collected. You can read more about the data we collect, how data is used and shared, and how long data is retained in <a>our Privacy Policy</a>.',
+								'jetpack-forms'
+							),
+							{
+								a: (
+									<a
+										href="https://automattic.com/privacy/"
+										rel="noreferrer noopener"
+										target="_blank"
+									/>
+								),
+							}
 						) }
 					</Details>
 					<Details summary={ __( 'Is there a form responses limit?', 'jetpack-forms' ) }>
-						{ __(
-							'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lacus turpis, dignissim in urna et, egestas consectetur nibh. Praesent in neque placerat, varius sapien eu, sollicitudin arcu. Suspendisse justo nibh, gravida vitae efficitur non, hendrerit non velit.',
-							'jetpack-forms'
-						) }
+						{ __( 'No.', 'jetpack-forms' ) }
 					</Details>
 					<Details summary={ __( 'What if I would need some help?', 'jetpack-forms' ) }>
-						{ __(
-							'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur lacus turpis, dignissim in urna et, egestas consectetur nibh. Praesent in neque placerat, varius sapien eu, sollicitudin arcu. Suspendisse justo nibh, gravida vitae efficitur non, hendrerit non velit.',
-							'jetpack-forms'
+						{ createInterpolateElement(
+							__(
+								'If you have more specific questions about Jetpack and Forms feel free to <a>reach out to us</a> and we’ll be happy to help.',
+								'jetpack-forms'
+							),
+							{
+								a: (
+									<a
+										href="https://jetpack.com/contact-support/"
+										rel="noreferrer noopener"
+										target="_blank"
+									/>
+								),
+							}
 						) }
 					</Details>
 				</div>
