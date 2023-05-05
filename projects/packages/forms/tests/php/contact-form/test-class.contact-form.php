@@ -1176,6 +1176,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$get_post_meta_for_csv_export_map = array(
 			array(
 				15,
+				false,
 				array(
 					'key1' => 'value1',
 					'key2' => 'value2',
@@ -1186,6 +1187,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			),
 			array(
 				16,
+				false,
 				array(
 					'key3' => 'value3',
 					'key4' => 'value4',
@@ -1211,6 +1213,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj1',
 					'_feedback_main_comment' => 'This is my test 15',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj1',
 					'4_Comment'    => 'This is my test 15',
@@ -1221,6 +1224,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj2',
 					'_feedback_main_comment' => 'This is my test 16',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj2',
 					'4_Comment'    => 'This is my test 16',
@@ -1289,9 +1293,10 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			->getMock();
 
 		$get_post_meta_for_csv_export_map = array(
-			array( 15, null ),
+			array( 15, false, null ),
 			array(
 				16,
+				false,
 				array(
 					'key3' => 'value3',
 					'key4' => 'value4',
@@ -1317,6 +1322,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj1',
 					'_feedback_main_comment' => 'This is my test 15',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj1',
 					'Comment'      => 'This is my test 15',
@@ -1327,6 +1333,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj2',
 					'_feedback_main_comment' => 'This is my test 16',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj2',
 					'Comment'      => 'This is my test 16',
@@ -1391,8 +1398,8 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			->getMock();
 
 		$get_post_meta_for_csv_export_map = array(
-			array( 15, null ),
-			array( 16, null ),
+			array( 15, false, null ),
+			array( 16, false, null ),
 		);
 
 		$get_parsed_field_contents_of_post_map = array(
@@ -1411,6 +1418,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj1',
 					'_feedback_main_comment' => 'This is my test 15',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj1',
 					'Comment'      => 'This is my test 15',
@@ -1421,6 +1429,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj2',
 					'_feedback_main_comment' => 'This is my test 16',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj2',
 					'Comment'      => 'This is my test 16',
@@ -1481,6 +1490,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$get_post_meta_for_csv_export_map = array(
 			array(
 				15,
+				false,
 				array(
 					'key1' => 'value1',
 					'key2' => 'value2',
@@ -1491,6 +1501,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			),
 			array(
 				16,
+				false,
 				array(
 					'key3' => 'value3',
 					'key4' => 'value4',
@@ -1516,6 +1527,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj1',
 					'_feedback_main_comment' => 'This is my test 15',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj1',
 					'Comment'      => 'This is my test 15',
@@ -1526,6 +1538,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj2',
 					'_feedback_main_comment' => 'This is my test 16',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj2',
 					'Comment'      => 'This is my test 16',
