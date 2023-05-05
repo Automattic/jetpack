@@ -15,11 +15,7 @@ import { __ } from '@wordpress/i18n';
 import './panel.scss';
 import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
-import {
-	NewsletterAccessDocumentSettings,
-	NewsletterAccessPrePublishSettings,
-	accessOptions,
-} from './settings';
+import { NewsletterAccessDocumentSettings, NewsletterAccessPrePublishSettings } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
 import { name } from './';
 
@@ -149,9 +145,13 @@ export default function SubscribePanels() {
 	const [ postMeta = [], setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 
 	// Set the accessLevel to "everybody" when one is not defined
-	const accessLevel =
-		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ??
-		accessOptions.paid_subscribers.everybody;
+	let accessLevel =
+		postMeta[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] ?? accessOptions.everybody.key;
+
+	// If accessLevel is ''
+	if ( ! accessLevel ) {
+		accessLevel = accessOptions.everybody.key;
+	}
 
 	useEffect( () => {
 		if ( ! isModuleActive ) {
