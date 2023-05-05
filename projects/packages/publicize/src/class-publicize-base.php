@@ -781,8 +781,7 @@ abstract class Publicize_Base {
 				$connection_meta = $this->get_connection_meta( $connection );
 				$connection_data = $connection_meta['connection_data'];
 				$unique_id       = $this->get_connection_unique_id( $connection );
-				$connection_id   = $connection_data['id'];
-
+				$connection_id   = $this->get_connection_id( $connection );
 				// Was this connection (OR, old-format service) already Publicized to?
 				$done = ! empty( $post ) && (
 					// Flags based on token_id
@@ -1279,29 +1278,28 @@ abstract class Publicize_Base {
 					continue;
 				}
 
-				$connection_id = $connection_data['id'];
-
 				// This was a wp-admin request, so we need to check the state of checkboxes.
 				if ( $from_web ) {
+					$connection_id = $this->get_connection_id( $connection );
 					// Delete stray service-based post meta.
 					delete_post_meta( $post_id, $this->POST_SKIP . $service_name );
 
 					// We *unchecked* this stream from the admin page, or it's set to readonly, or it's a new addition.
-					if ( empty( $admin_page['submit'][ $unique_id ] ) ) {
+					if ( empty( $admin_page['submit'][ $connection_id ] ) ) {
 						// Also make sure that the service-specific input isn't there.
 						// If the user connected to a new service 'in-page' then a hidden field with the service
 						// name is added, so we just assume they wanted to Publicize to that service.
 						if ( empty( $admin_page['submit'][ $service_name ] ) ) {
 							// Nothing seems to be checked, so we're going to mark this one to be skipped.
-							update_post_meta( $post_id, $this->POST_SKIP_DONE . $connection_id, 1 );
+							update_post_meta( $post_id, $this->POST_DONE . $connection_id, 1 );
 							continue;
 						} else {
 							// Clean up any stray post meta.
-							delete_post_meta( $post_id, $this->POST_SKIP_DONE . $connection_id );
+							delete_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id );
 						}
 					} else {
 						// The checkbox for this connection is explicitly checked -- make sure we DON'T skip it.
-						delete_post_meta( $post_id, $this->POST_SKIP_DONE . $connection_id );
+						delete_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id );
 					}
 				}
 
