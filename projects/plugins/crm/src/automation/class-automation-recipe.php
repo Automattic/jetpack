@@ -32,13 +32,13 @@ class Automation_Recipe {
 	private $logger;
 	
 	public function __construct( array $recipe_data ) {
-		$this->id           = $recipe_data['id'];
-		$this->triggers     = $recipe_data['triggers'];
-		$this->initial_step = $recipe_data['initial_step'];
+		$this->id           = $recipe_data['id'] ?? null;
+		$this->triggers     = $recipe_data['triggers'] ?? array();
+		$this->initial_step = $recipe_data['initial_step'] ?? array();
 		$this->name         = $recipe_data['name'];
-		$this->description  = $recipe_data['description'];
-		$this->category     = $recipe_data['category'];
-		$this->active       = $recipe_data['is_active'];
+		$this->description  = $recipe_data['description'] ?? '';
+		$this->category     = $recipe_data['category'] ?? '';
+		$this->active       = $recipe_data['is_active'] ?? true;
 		
 		$this->automation_engine = Automation_Engine::instance();
 		$this->logger            = Automation_Logger::instance();
@@ -143,7 +143,11 @@ class Automation_Recipe {
 			try {
 					$step_name = $step_data['name'];
 					
-					$step_class = $this->automation_engine->get_step_class( $step_name );
+					$step_class = $step_data['class_name'] ?? $this->automation_engine->get_step_class( $step_name );
+					
+					if ( ! class_exists( $step_class ) ) {
+						throw new Automation_Exception( sprintf( __( 'The step class %s does not exist.', 'zero-bs-crm' ), $step_class ), Automation_Exception::STEP_CLASS_NOT_FOUND );
+					}
 				
 					/** @var Step $step */
 					$step = new $step_class( $step_data );

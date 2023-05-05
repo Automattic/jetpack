@@ -19,6 +19,10 @@ abstract class Base_Step implements Step {
 	 */
 	protected $name;
 	/**
+	 * @var string Class name
+	 */
+	protected $class_name;
+	/**
 	 * @var string Step type.
 	 */
 	protected $type;
@@ -50,11 +54,12 @@ abstract class Base_Step implements Step {
 	 */
 	public function __construct( array $step_data ) {
 		$this->name        = $step_data['name'];
-		$this->title       = $step_data['title'];
-		$this->type        = $step_data['type'];
-		$this->category    = $step_data['category'];
-		$this->description = $step_data['description'];
-		$this->data        = $step_data['data'];
+		$this->class_name  = $step_data['class_name'] ?? '';
+		$this->title       = $step_data['title'] ?? '';
+		$this->type        = $step_data['type'] ?? '';
+		$this->category    = $step_data['category'] ?? '';
+		$this->description = $step_data['description'] ?? '';
+		$this->attributes  = $step_data['attributes'] ?? array();
 	}
 
 	/**
