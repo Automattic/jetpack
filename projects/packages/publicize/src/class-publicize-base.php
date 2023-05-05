@@ -1421,13 +1421,6 @@ abstract class Publicize_Base {
 		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
 			// services have multiple connections.
 			foreach ( $connections as $connection ) {
-				$unique_id = '';
-				if ( ! empty( $connection->unique_id ) ) {
-					$unique_id = $connection->unique_id;
-				} elseif ( ! empty( $connection['connection_data']['token_id'] ) ) {
-					$unique_id = $connection['connection_data']['token_id'];
-				}
-
 				$connection_id = $this->get_connection_id( $connection );
 				// Did we skip this connection?
 				if ( get_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id, true ) ) {
