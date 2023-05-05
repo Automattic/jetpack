@@ -2811,7 +2811,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				$possibleSearchTerm     = '';
 				$withQuotes             = false;
 				$withTransactions       = false;
-				$argsOverride           = false;
 				$possibleCoID           = '';
 				$possibleTagIDs         = '';
 				$possibleQuickFilters   = '';
@@ -3138,7 +3137,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// now got by screenopt above $per_page = 20;
 				$page_number          = 0;
 				$possibleSearchTerm   = '';
-				$argsOverride         = false;
 				$possibleTagIDs       = '';
 				$possibleQuickFilters = '';
 				$withTags             = false;
@@ -3365,7 +3363,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// now got by screenopt above $per_page = 20;
 				$page_number          = 0;
 				$possibleSearchTerm   = '';
-				$argsOverride         = false;
 				$possibleQuickFilters = '';
 				$possibleTagIDs       = '';
 				$inArray              = '';
@@ -3497,7 +3494,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// } Build query
 				// now got by screenopt above $per_page = 20;
 				$page_number          = 0;
-				$argsOverride         = false;
 				$possibleCoID         = '';
 				$possibleQuickFilters = '';
 				$possibleSearchTerm   = '';
@@ -3634,7 +3630,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// now got by screenopt above $per_page = 20;
 				$page_number          = 0;
 				$possibleSearchTerm   = '';
-				$argsOverride         = false;
 				$possibleCoID         = '';
 				$possibleTagIDs       = '';
 				$possibleQuickFilters = '';
@@ -3781,7 +3776,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				$withInvoices         = false;
 				$withQuotes           = false;
 				$withTransactions     = false;
-				$argsOverride         = false;
 				$possibleCoID         = '';
 				$possibleTagIDs       = '';
 				$possibleQuickFilters = '';
@@ -3909,7 +3903,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				$ownerID            = -99;
 				$possibleSearchTerm = '';
 				$withAudienceCount  = false;
-				$argsOverride       = false;
 				$inArray            = '';
 
 				// } Sorting
@@ -4039,7 +4032,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				$withInvoices         = false;
 				$withQuotes           = false;
 				$withTransactions     = false;
-				$argsOverride         = false;
 				$possibleCoID         = '';
 				$possibleTagIDs       = '';
 				$possibleQuickFilters = '';
@@ -4133,7 +4125,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// build query
 				$page_number          = 0;
 				$possibleSearchTerm   = '';
-				$argsOverride         = false;
 				$possibleTagIDs       = '';
 				$possibleQuickFilters = array();
 				$inArray              = '';
