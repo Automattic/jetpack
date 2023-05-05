@@ -8,6 +8,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Image_CDN\Image_CDN;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
 /**
@@ -22,7 +23,6 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
  * @return string The raw final URL. You should run this through esc_url() before displaying it.
  */
 function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Image_CDN\Image_CDN_Core::cdn_url' );
 	return Image_CDN_Core::cdn_url( $image_url, $args, $scheme );
 }
 
@@ -35,7 +35,6 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
  * @return array|string Args for Photon to use for the URL.
  */
 function jetpack_photon_parse_wpcom_query_args( $args, $image_url ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Image_CDN\Image_CDN_Core::parse_wpcom_query_args' );
 	return Image_CDN_Core::parse_wpcom_query_args( $args, $image_url );
 }
 
@@ -70,12 +69,12 @@ function jetpack_photon_banned_domains( $skip, $image_url ) {
 /**
  * Jetpack Photon - Support Text Widgets.
  *
- * @deprecated $$next-version$$ Use Automattic\Jetpack\Image_CDN\Image_CDN_Core::support_text_widgets instead.
+ * @deprecated $$next-version$$
  * @access public
  * @param string $content Content from text widget.
  * @return string
  */
 function jetpack_photon_support_text_widgets( $content ) {
-	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Image_CDN\Image_CDN_Core::support_text_widgets' );
-	return Image_CDN_Core::support_text_widgets( $content );
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$' );
+	return Image_CDN::filter_the_content( $content );
 }

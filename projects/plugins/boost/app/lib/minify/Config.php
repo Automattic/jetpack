@@ -1,6 +1,6 @@
 <?php
 
-namespace Automattic\Jetpack_Boost\Modules\Optimizations\Minify;
+namespace Automattic\Jetpack_Boost\Lib\Minify;
 
 class Config {
 
@@ -38,9 +38,5 @@ class Config {
 		}
 
 		return $path;
-	}
-
-	public static function get_cron_cache_cleanup_hook() {
-		return 'page_optimize_cron_cache_cleanup';
 	}
 }

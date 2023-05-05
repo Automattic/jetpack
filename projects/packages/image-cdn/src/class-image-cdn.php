@@ -1215,7 +1215,7 @@ final class Image_CDN {
 		}
 
 		Assets::register_script(
-			'jetpack-image-cdn',
+			'jetpack-photon',
 			'../dist/image-cdn.js',
 			__FILE__,
 			array(
