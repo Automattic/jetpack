@@ -890,7 +890,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 								// if we have more than we're showing, communicate that
 								// Note this is defunct until we add contact filters to our object list views.
-								if ( $contact_invoice_count_inc_deleted > $contact_invoice_count ) {
+								if ( count( $contact['invoices'] ) > $contact_invoice_count_inc_deleted ) {
 									?>
 							<tr>
 								<td colspan="4">
