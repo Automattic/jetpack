@@ -3319,6 +3319,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					'withTags'         => $withTags,
 					'withOwner'        => $withAssigned,
 					'withValues'       => $withValues,
+					'sortByField'      => $sortField,
+					'sortOrder'        => $sortOrder,
 					'page'             => $page_number,
 					'perPage'          => $per_page,
 					'ignoreowner'      => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY ),
