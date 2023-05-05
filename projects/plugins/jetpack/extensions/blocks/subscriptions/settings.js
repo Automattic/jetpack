@@ -21,15 +21,9 @@ import { getPaidPlanLink } from './utils';
 
 import './settings.scss';
 
-
-function Link( { slug, children } ) {
+function Link( { href, children } ) {
 	return (
-		<a
-			target="_blank"
-			rel="noopener noreferrer"
-			href={ getRedirectUrl( slug ) }
-			className="jetpack-newsletter-link"
-		>
+		<a target="_blank" rel="noopener noreferrer" href={ href } className="jetpack-newsletter-link">
 			{ children }
 		</a>
 	);
@@ -68,7 +62,7 @@ function NewsletterLearnMore() {
 				{
 					learnMoreLink: (
 						<Link
-							slug={ getRedirectUrl( 'paid-newsletter-info', {
+							href={ getRedirectUrl( 'paid-newsletter-info', {
 								anchor: 'memberships-and-subscriptions',
 							} ) }
 						/>
@@ -99,14 +93,10 @@ function NewsletterNotice( { accessLevel, socialFollowers, emailSubscribers, pai
 						),
 						{
 							importingLink: (
-								<Link
-									slug={
-										'https://wordpress.com/support/launch-a-newsletter/import-subscribers-to-a-newsletter/'
-									}
-								/>
+								<Link href={ getRedirectUrl( 'paid-newsletter-import-subscribers' ) } />
 							),
 							thisGuideLink: (
-								<Link slug={ 'https://wordpress.com/support/category/grow-your-audience' } />
+								<Link href={ getRedirectUrl( 'paid-newsletter-guide-grow-audience' ) } />
 							),
 						}
 					) }
@@ -135,8 +125,8 @@ function NewsletterNotice( { accessLevel, socialFollowers, emailSubscribers, pai
 	);
 }
 
-function NewsletterAccessSetupNudge( { connectUrl, isStripeConnected, hasNewsletterPlans } ) {
-	const paidLink = getPaidPlanLink( hasNewsletterPlans );
+function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasNewsletterPlans } ) {
+	const paidLink = getPaidPlanLink( true );
 
 	if ( ! hasNewsletterPlans && ! isStripeConnected ) {
 		return (
@@ -147,8 +137,8 @@ function NewsletterAccessSetupNudge( { connectUrl, isStripeConnected, hasNewslet
 						'jetpack'
 					),
 					{
-						stripeAccountLink: <Link slug={ '#' } />,
-						paidPlanLink: <Link slug={ paidLink } />,
+						stripeAccountLink: <Link href={ stripeConnectUrl } />,
+						paidPlanLink: <Link href={ paidLink } />,
 					}
 				) }
 			</div>
@@ -159,9 +149,9 @@ function NewsletterAccessSetupNudge( { connectUrl, isStripeConnected, hasNewslet
 		return (
 			<div className="editor-post-visibility__info">
 				{ createInterpolateElement(
-					__( 'Click here to <paidPlanLink>add a paid plan.</paidPlanLink>', 'jetpack' ),
+					__( '<paidPlanLink>Set up a paid plan</paidPlanLink> to enable this option', 'jetpack' ),
 					{
-						paidPlanLink: <Link slug={ paidLink } />,
+						paidPlanLink: <Link href={ paidLink } />,
 					}
 				) }
 			</div>
@@ -177,7 +167,7 @@ function NewsletterAccessSetupNudge( { connectUrl, isStripeConnected, hasNewslet
 						'jetpack'
 					),
 					{
-						stripeAccountLink: <Link slug={ connectUrl } />,
+						stripeAccountLink: <Link href={ stripeConnectUrl } />,
 					}
 				) }
 			</div>
@@ -225,11 +215,16 @@ function NewsletterAccessRadioButtons( {
 						{ accessOptions[ key ].label }
 
 						{ /* Do not show subscriber numbers in the PrePublish panel */ }
-						{ ! isPrePublishPanel && '(' +
-							getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers, socialFollowers ) +
-							( key === accessOptions.everybody.key ? '+' : '' ) +
-							')'
-						}
+						{ ! isPrePublishPanel &&
+							'(' +
+								getReachForAccessLevelKey(
+									key,
+									emailSubscribers,
+									paidSubscribers,
+									socialFollowers
+								) +
+								( key === accessOptions.everybody.key ? '+' : '' ) +
+								')' }
 					</label>
 					<p
 						id={ `editor-post-${ key }-${ instanceId }-description` }
