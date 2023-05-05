@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Fixes a bug on WP installations that are not fully updated to 6.2.0 yet.
