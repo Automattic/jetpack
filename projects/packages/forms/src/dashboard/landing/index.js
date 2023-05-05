@@ -36,7 +36,7 @@ const LandingPage = () => {
 		const { post_url } = await response.json();
 
 		if ( post_url ) {
-			window.open( `${ post_url }${ showPatterns ? '&showPatterns' : '' }` );
+			window.open( `${ post_url }${ showPatterns ? '&showJetpackFormsPatterns' : '' }` );
 		}
 	};
 

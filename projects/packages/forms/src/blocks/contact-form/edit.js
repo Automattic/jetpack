@@ -145,7 +145,7 @@ export const JetpackContactFormEdit = forwardRef(
 				! hasInnerBlocks &&
 				registerBlockVariation &&
 				! isPatternsModalOpen &&
-				window.location.search.indexOf( 'showPatterns' ) !== -1
+				window.location.search.indexOf( 'showJetpackFormsPatterns' ) !== -1
 			) {
 				setIsPatternsModalOpen( true );
 			}
