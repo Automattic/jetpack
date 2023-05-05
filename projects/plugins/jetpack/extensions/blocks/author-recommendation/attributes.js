@@ -1,3 +1,9 @@
 export default {
-	// @TODO - Add block attributes here
+	recommendations: {
+		type: 'array',
+		items: {
+			type: 'object',
+		},
+		default: [],
+	},
 };

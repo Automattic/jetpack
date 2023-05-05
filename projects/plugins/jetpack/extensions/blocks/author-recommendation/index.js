@@ -41,6 +41,18 @@ export const settings = {
 		multiple: true,
 		// When false, the block won't be available to be converted into a reusable block.
 		reusable: true,
+		color: {
+			link: true,
+			gradients: true,
+		},
+		spacing: {
+			padding: true,
+			margin: true,
+		},
+		typography: {
+			fontSize: true,
+			lineHeight: true,
+		},
 	},
 	edit,
 	/* @TODO Write the block editor output */

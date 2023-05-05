@@ -23,7 +23,23 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 function register_block() {
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
-		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+		array(
+			'render_callback' => __NAMESPACE__ . '\load_assets',
+			'supports'        => array(
+				'color'      => array(
+					'gradients' => true,
+					'link'      => true,
+				),
+				'spacing'    => array(
+					'margin'  => true,
+					'padding' => true,
+				),
+				'typography' => array(
+					'fontSize'   => true,
+					'lineHeight' => true,
+				),
+			),
+		)
 	);
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
@@ -42,9 +58,25 @@ function load_assets( $attr, $content ) {
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
+	$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
+
+	foreach ( $attr['recommendations'] as $recommendation ) {
+		$name      = empty( $recommendation['name'] ) ? '' : esc_html( $recommendation['name'] );
+		$url       = empty( $recommendation['URL'] ) ? '' : esc_attr( $recommendation['URL'] );
+		$site_icon = empty( $recommendation['site_icon'] ) ? '' : esc_attr( $recommendation['site_icon'] );
+
+		$icon_image = $site_icon ? "<img src={$site_icon} />" : '';
+
+		$content .= "<div class='recommendation-row'>
+						<div>{$icon_image}</div>
+						<div><a href='{$url}'>{$name}</a></div>
+					</div>";
+	}
+
 	return sprintf(
-		'<div class="%1$s">%2$s</div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
+		'<div class="%s"%s>%s</div>',
+		! empty( $wrapper_attributes['class'] ) ? esc_attr( $wrapper_attributes['class'] ) : '',
+		! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
 		$content
 	);
 }
