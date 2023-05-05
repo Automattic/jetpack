@@ -3139,10 +3139,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				$page_number          = 0;
 				$possibleSearchTerm   = '';
 				$argsOverride         = false;
-				$possibleCoID         = '';
 				$possibleTagIDs       = '';
 				$possibleQuickFilters = '';
-				$inArray              = '';
 				$withTags             = false;
 				$withAssigned         = false;
 				$latestLog            = false;
@@ -3306,10 +3304,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// make ARGS
 				$args = array(
 					'searchPhrase'     => $possibleSearchTerm,
-					'inArr'            => $inArray,
 					'isTagged'         => $possibleTagIDs,
 					'quickFilters'     => $possibleQuickFilters,
-					'count'            => false,
 					'withCustomFields' => true,
 					'withQuotes'       => $withQuotes,
 					'withInvoices'     => false,
@@ -3334,8 +3330,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					// make count arguments
 					$args               = array(
 						'searchPhrase' => $possibleSearchTerm,
-						'inCompany'    => $possibleCoID,
-						'inArr'        => $inArray,
 						'quickFilters' => $possibleQuickFilters,
 						'isTagged'     => $possibleTagIDs,
 						// just count
