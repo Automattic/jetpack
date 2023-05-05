@@ -141,6 +141,7 @@ class Dashboard {
 		$config = array(
 			'blogId'                  => get_current_blog_id(),
 			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
+			'newFormNonce'            => wp_create_nonce( 'create_new_form' ),
 			'gdriveConnection'        => $jetpack_connected && Google_Drive::has_valid_connection( $user_id ),
 			'gdriveConnectURL'        => esc_url( Redirect::get_url( 'jetpack-forms-responses-connect' ) ),
 			'gdriveConnectSupportURL' => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
