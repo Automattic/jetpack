@@ -1,5 +1,12 @@
+/**
+ * External dependencies
+ */
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import Details from '../components/details';
 import Layout from '../components/layout';
 import { config } from '../index';
@@ -9,10 +16,15 @@ import CloseSVG from './svg/close-svg';
 import ExportSVG from './svg/export-svg';
 import NotificationsSVG from './svg/notifications-svg';
 import WordpressSVG from './svg/wordpress-svg';
+/**
+ * Style dependencies
+ */
 import './style.scss';
 
 const LandingPage = () => {
 	const ASSETS_URL = config( 'pluginAssetsURL' );
+	const TEASER_IMG_PATH =
+		isAtomicSite() || isSimpleSite() ? 'responses-inbox-wp-com.png' : 'responses-inbox.png';
 
 	const onButtonClickHandler = showPatterns => async () => {
 		const data = new FormData();
@@ -40,7 +52,7 @@ const LandingPage = () => {
 						{ __( 'Create your first form', 'jetpack-forms' ) }
 					</button>
 					<img
-						src={ `${ ASSETS_URL }/images/responses-inbox.png` }
+						src={ `${ ASSETS_URL }/images/${ TEASER_IMG_PATH }` }
 						className="jp-forms__teaser-image"
 						alt={ __( 'Jetpack Forms teaser video', 'jetpack-forms' ) }
 					/>
