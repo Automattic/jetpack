@@ -635,7 +635,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 										echo '<tr>';
 										echo '<td><a href="' . esc_url( $invoiceURL ) . '">' . esc_html( $idRefStr ) . '</a></td>';
-										echo '<td>' . esc_html( zeroBSCRM_html_InvoiceDate( $invoice ) ) . '</td>';
+										echo '<td>' . esc_html( zeroBSCRM_InvoiceDate( $invoice ) ) . '</td>';
 										echo '<td>' . esc_html( zeroBSCRM_formatCurrency( $invoiceVal ) ) . '</td>';
 										echo "<td><span class='" . esc_attr( zeroBSCRM_html_invoiceStatusLabel( $invoice ) ) . "'>" . esc_html( ucfirst( $invoiceStatus ) ) . '</span></td>';
 										echo '</tr>';
