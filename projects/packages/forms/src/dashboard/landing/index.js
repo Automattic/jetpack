@@ -3,12 +3,12 @@ import { __ } from '@wordpress/i18n';
 import Details from '../components/details';
 import Layout from '../components/layout';
 import { config } from '../index';
-import AkismetSVG from './akismet-svg';
-import CheckSVG from './check-svg';
-import CloseSVG from './close-svg';
-import ExportSVG from './export-svg';
-import NotificationsSVG from './notifications-svg';
-import WordpressSVG from './wordpress-svg';
+import AkismetSVG from './svg/akismet-svg';
+import CheckSVG from './svg/check-svg';
+import CloseSVG from './svg/close-svg';
+import ExportSVG from './svg/export-svg';
+import NotificationsSVG from './svg/notifications-svg';
+import WordpressSVG from './svg/wordpress-svg';
 import './style.scss';
 
 const LandingPage = () => {
@@ -36,12 +36,12 @@ const LandingPage = () => {
 					<h4 className="mb-8">
 						{ __( 'Free, flexible, fast and it works out of the box.', 'jetpack-forms' ) }
 					</h4>
-					<button className="button button-primary mb-6" onClick={ onButtonClickHandler( false ) }>
+					<button className="button button-primary mb-8" onClick={ onButtonClickHandler( false ) }>
 						{ __( 'Create your first form', 'jetpack-forms' ) }
 					</button>
 					<img
 						src={ `${ ASSETS_URL }/images/responses-inbox.png` }
-						className="jp-forms__teaser-video"
+						className="jp-forms__teaser-image"
 						alt={ __( 'Jetpack Forms teaser video', 'jetpack-forms' ) }
 					/>
 				</div>

@@ -5,8 +5,8 @@
 	color: var(--jp-forms-black);
 
 	@media (max-width: 600px) {
-		--section-spacing-horizontal: 48px;
-		--section-spacing-vertical: 64px;
+		--section-spacing-horizontal: 32px;
+		--section-spacing-vertical: 40px;
 	}
 
 	.jp-forms__logo-wrapper {
@@ -98,9 +98,11 @@
 	}
 }
 
-.jp-forms__teaser-video {
+.jp-forms__teaser-image {
+	border-radius: 8px 8px 0 0;
+	filter: drop-shadow(0px 4px 44px rgba(0, 0, 0, 0.25));
 	display: flex;
-	margin: 0 auto -84px;
+	margin: 0 auto calc(var(--section-spacing-vertical) * -1);
 	max-width: 100%;
 }
 
@@ -117,10 +119,19 @@
 	}
 
 	@media (max-width: 860px) {
+		box-sizing: border-box;
 		grid-template-columns: repeat(auto-fill, 350px);
 		grid-auto-flow: column;
 		grid-auto-columns: 350px;
 		overflow-x: auto;
+		margin-left: calc(var(--section-spacing-horizontal) * -1);
+		padding: 0 var(--section-spacing-horizontal);
+		width: calc(100% + var(--section-spacing-horizontal) + var(--section-spacing-horizontal));
+	}
+
+	@media (max-width: 480px) {
+		grid-template-columns: repeat(auto-fill, calc(100vw - 108px));
+		grid-auto-columns: calc(100vw - 108px);
 	}
 }
 
@@ -152,10 +163,19 @@
 	grid-template-columns: repeat(12, 1fr);
 
 	@media (max-width: 860px) {
+		box-sizing: border-box;
 		grid-template-columns: repeat(auto-fill, 350px);
 		grid-auto-flow: column;
 		grid-auto-columns: 350px;
+		margin-left: calc(var(--section-spacing-horizontal) * -1);
 		overflow-x: auto;
+		padding: 0 var(--section-spacing-horizontal);
+		width: calc(100% + var(--section-spacing-horizontal) + var(--section-spacing-horizontal));
+	}
+
+	@media (max-width: 480px) {
+		grid-template-columns: repeat(auto-fill, calc(100vw - 108px));
+		grid-auto-columns: calc(100vw - 108px);
 	}
 }
 
@@ -265,7 +285,7 @@
 		}
 
 		&.feature-validation {
-			grid-column: 5 / span 4;
+			display: none;
 		}
 	}
 
@@ -294,7 +314,7 @@
 		}
 
 		&.feature-dependencies {
-			grid-column: 3 / span 4;
+			display: none;
 		}
 
 		&.feature-validation {
@@ -305,14 +325,20 @@
 	@media (max-width: 860px) {
 		grid-column: auto !important;
 
-		h4 {
-			font-size: 32px !important;
+		h1, h4 {
+			font-size: 28px !important;
+			line-height: 32px;
+			font-weight: 700;
 		}
 
 		&.feature-validation {
 			.jp-forms__feature-image-wrapper {
 				margin-bottom: 0;
 			}
+		}
+
+		&.feature-dependencies, &.feature-validation {
+			display: flex;
 		}
 	}
 }
