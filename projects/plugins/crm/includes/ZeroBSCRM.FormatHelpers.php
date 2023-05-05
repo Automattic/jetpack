@@ -872,9 +872,8 @@ function zeroBSCRM_QuoteDate( $quote = array() ) {
 		// use DateTime::createFromFormat('!'.zeroBSCRM_date_defaultFormat(), $dateInFormat)->getTimestamp();
 		//$d = new DateTime($quote['meta']['date']);
 		//$formatted_date = $d->format(zeroBSCRM_getDateFormat());
-		$formatted_date = $quote['meta']['date'];
 
-		return $formatted_date;
+		return $quote['meta']['date'];
 
 	}
 
@@ -944,9 +943,8 @@ function zeroBSCRM_invoiceDate( $inv = array() ) {
 		// use DateTime::createFromFormat('!'.zeroBSCRM_date_defaultFormat(), $dateInFormat)->getTimestamp();
 		//$d = new DateTime($inv['meta']['date']);
 		//$formatted_date = $d->format(zeroBSCRM_getDateFormat());
-		$formatted_date = $inv['meta']['date'];
 
-		return $formatted_date;
+		return $inv['meta']['date'];
 
 	}
 
