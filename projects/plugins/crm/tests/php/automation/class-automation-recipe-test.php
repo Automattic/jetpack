@@ -233,21 +233,20 @@ class Automation_Recipe_Test extends BaseTestCase {
 	/**
 	 * @testdox Test an automation recipe execution with condition => true
 	 */
-	public function test_recipe_execution_with_condition() {
-		$logger = Automation_Logger::instance();
-
+	public function test_recipe_execution_with_condition_true() {
+		$logger = Automation_Logger::instance( true );
 		$logger->reset_log();
 
 		//$logger->with_output( true );
 
-		$automation = Automation_Engine::instance();
+		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
 		$automation->register_step( 'dummy_action', Dummy_Step::class );
 
 		$recipe_data = $this->automation_faker->recipe_with_condition_action();
 
-		$recipe = new Automation_Recipe( $recipe_data );
+		$recipe = new Automation_Recipe( $recipe_data, $automation );
 
 		$automation->add_recipe( $recipe );
 		$automation->init_recipes();
@@ -259,9 +258,53 @@ class Automation_Recipe_Test extends BaseTestCase {
 		$event_emitter = Event_Emitter::instance();
 		$event_emitter->emit_event( 'contact_created', $contact_data );
 
-		$log = $logger->get_log();
-		error_log( print_r( $log, true ) );
+		// Check the execution log
+		$log       = $logger->get_log();
+		$total_log = count( $log );
 
-		$this->assertTrue( true );
+		$this->assertGreaterThan( 10, $total_log );
+
+		$this->assertEquals( 'Condition met?: true', $log[ $total_log - 6 ][1] );
+		$this->assertEquals( 'Dummy step executed', $log[ $total_log - 3 ][1] );
+		$this->assertEquals( 'Recipe execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
+	}
+
+	/**
+	 * @testdox Test an automation recipe execution with condition => false
+	 */
+	public function test_recipe_execution_with_condition_false() {
+		$logger = Automation_Logger::instance( true );
+		$logger->reset_log();
+
+		//$logger->with_output( true );
+
+		$automation = new Automation_Engine();
+		$automation->set_automation_logger( $logger );
+		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
+		$automation->register_step( 'dummy_action', Dummy_Step::class );
+
+		$recipe_data = $this->automation_faker->recipe_with_condition_action();
+
+		$recipe = new Automation_Recipe( $recipe_data, $automation );
+
+		$automation->add_recipe( $recipe );
+		$automation->init_recipes();
+
+		// Fake event data. Set status to customer to make the condition false
+		$contact_data = $this->automation_faker->contact_data();
+		$contact_data['status'] = 'customer';   
+
+		// Emit the contact_created event with the fake contact data
+		$event_emitter = Event_Emitter::instance();
+		$event_emitter->emit_event( 'contact_created', $contact_data );
+
+		// Check the execution log
+		$log       = $logger->get_log();
+		$total_log = count( $log );
+
+		$this->assertGreaterThan( 8, $total_log );
+
+		$this->assertEquals( 'Recipe execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
+		$this->assertEquals( 'Condition met?: false', $log[ $total_log - 3 ][1] );
 	}
 }
