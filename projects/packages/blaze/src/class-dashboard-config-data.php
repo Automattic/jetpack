@@ -11,11 +11,11 @@ use Automattic\Jetpack\Modules;
 use Jetpack_Options;
 
 /**
- * Class Config_Data
+ * Class Dashboard_Config_Data
  *
  * @package automattic/jetpack-blaze
  */
-class Config_Data {
+class Dashboard_Config_Data {
 	/**
 	 * Set configData to window.configData.
 	 *
@@ -34,31 +34,28 @@ class Config_Data {
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$empty_object = json_decode( '{}' );
 		return array(
-			'admin_page_base'                => $this->get_admin_path(),
-			'api_root'                       => esc_url_raw( rest_url() ),
-			'blog_id'                        => Jetpack_Options::get_option( 'id' ),
-			'enable_all_sections'            => false,
-			'env_id'                         => 'production',
-			'google_analytics_key'           => 'UA-10673494-15',
-			'google_maps_and_places_api_key' => '',
-			'hostname'                       => wp_parse_url( get_site_url(), PHP_URL_HOST ),
-			'i18n_default_locale_slug'       => 'en',
-			'i18n_locale_slug'               => $this->get_site_locale(),
-			'mc_analytics_enabled'           => false,
-			'meta'                           => array(),
-			'nonce'                          => wp_create_nonce( 'wp_rest' ),
-			'site_name'                      => \get_bloginfo( 'name' ),
-			'sections'                       => array(),
-			// Features are inlined @see https://github.com/Automattic/wp-calypso/pull/70122
-			'features'                       => array(),
-			// Intended for apps that do not use redux.
-			'gmt_offset'                     => $this->get_gmt_offset(),
-			'intial_state'                   => array(
+			'admin_page_base'          => $this->get_admin_path(),
+			'api_root'                 => esc_url_raw( rest_url() ),
+			'blog_id'                  => Jetpack_Options::get_option( 'id' ),
+			'enable_all_sections'      => false,
+			'env_id'                   => 'production',
+			'google_analytics_key'     => 'UA-10673494-15',
+			'hostname'                 => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+			'i18n_default_locale_slug' => 'en',
+			'mc_analytics_enabled'     => false,
+			'meta'                     => array(),
+			'nonce'                    => wp_create_nonce( 'wp_rest' ),
+			'site_name'                => \get_bloginfo( 'name' ),
+			'sections'                 => array(),
+			// Features are inlined in Calypso Blaze app (wp-calypso/apps/blaze-dashboard)
+			'features'                 => array(),
+			'intial_state'             => array(
 				'currentUser' => array(
 					'id'           => 1000,
 					'user'         => array(
-						'ID'       => 1000,
-						'username' => 'no-user',
+						'ID'         => 1000,
+						'username'   => 'no-user',
+						'localeSlug' => $this->get_site_locale(),
 					),
 					'capabilities' => array(
 						"$blog_id" => $this->get_current_user_capabilities(),

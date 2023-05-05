@@ -1,7 +1,7 @@
 <?php
 /**
  * The Blaze Rest Controller class.
- * Registers the REST routes for Odyssey Blaze.
+ * Registers the REST routes for Blaze Dashboard.
  *
  * @package automattic/jetpack-blaze
  */
@@ -14,10 +14,10 @@ use WP_Error;
 use WP_REST_Server;
 
 /**
- * Registers the REST routes for Blaze.
+ * Registers the REST routes for Blaze Dashboard.
  * It bascially forwards the requests to the WordPress.com REST API.
  */
-class REST_Controller {
+class Dashboard_REST_Controller {
 	/**
 	 * Namespace for the REST API.
 	 *
@@ -26,9 +26,9 @@ class REST_Controller {
 	public static $namespace = 'jetpack/v4/blaze-app';
 
 	/**
-	 * Registers the REST routes for Odyssey Blaze.
+	 * Registers the REST routes for Blaze Dashboard.
 	 *
-	 * Odyssey Blaze is built from `wp-calypso`, which leverages the `public-api.wordpress.com` API.
+	 * Blaze Dashboard is built from `wp-calypso`, which leverages the `public-api.wordpress.com` API.
 	 * The current Site ID is added as part of the route, so that the front end doesn't have to handle the differences.
 	 *
 	 * @access public

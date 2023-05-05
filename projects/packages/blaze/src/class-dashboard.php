@@ -114,7 +114,9 @@ class Dashboard {
 		$asset_handle = self::SCRIPT_HANDLE;
 		$asset_name   = 'build.min';
 
-		$config_data = ( new Config_Data() )->get_data();
+		$dashboard_config = new Dashboard_Config_Data();
+
+		$config_data = $dashboard_config->get_data();
 
 		if ( file_exists( __DIR__ . "/../dist/{$asset_name}.js" ) ) {
 			// Load local assets for the convenience of development.
@@ -140,7 +142,7 @@ class Dashboard {
 
 		wp_add_inline_script(
 			$asset_handle,
-			( new Config_Data() )->get_js_config_data( $config_data ),
+			$dashboard_config->get_js_config_data( $config_data ),
 			'before'
 		);
 	}
