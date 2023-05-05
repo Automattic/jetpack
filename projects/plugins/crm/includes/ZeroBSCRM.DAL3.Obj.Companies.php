@@ -1527,23 +1527,25 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
 
                         if (is_array($potentialLogs) && count($potentialLogs) > 0) $resArr['lastlog'] = $potentialLogs[0];
 
-                        // CONTACT logs specificaly
-                        // doesn't return singular, for now using arr
-                        $potentialLogs = $this->DAL()->logs>getLogsForObj(array(
+								// COMPANY logs specifically
+								// doesn't return singular, for now using arr
+								$potentialLogs = $this->DAL()->logs->getLogsForObj( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									array(
 
-                                                'objtype' => ZBS_TYPE_COMPANY,
-                                                'objid' => $resDataLine->ID,
+										'objtype'     => ZBS_TYPE_COMPANY,
+										'objid'       => $resDataLine->ID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-                                                'notetypes' => $zbs->DAL->logs->contactLogTypes,
-                                                
-                                                'incMeta'   => true,
+										'notetypes'   => $zbs->DAL->logs->contact_log_types, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-                                                'sortByField'   => 'zbsl_created',
-                                                'sortOrder'     => 'DESC',
-                                                'page'          => 0,
-                                                'perPage'       => 1
+										'incMeta'     => true,
 
-                                            ));
+										'sortByField' => 'zbsl_created',
+										'sortOrder'   => 'DESC',
+										'page'        => 0,
+										'perPage'     => 1,
+
+									)
+								);
 
                         if (is_array($potentialLogs) && count($potentialLogs) > 0) $resArr['lastcontactlog'] = $potentialLogs[0];
 
