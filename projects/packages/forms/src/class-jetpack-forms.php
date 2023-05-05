@@ -47,7 +47,7 @@ class Jetpack_Forms {
 	}
 
 	/**
-	 * Get the plugin URL.
+	 * Get the assets URL.
 	 */
 	public static function assets_url() {
 		return plugin_dir_url( __DIR__ ) . 'assets';
