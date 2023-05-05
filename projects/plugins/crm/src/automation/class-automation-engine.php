@@ -179,4 +179,13 @@ class Automation_Engine {
 		
 		return $this->triggers_map[ $trigger_name ];
 	}
+
+	/**
+	 * Get Automation logger
+	 * 
+	 * @return Automation_Logger
+	 */
+	public function get_logger(): ?Automation_Logger {
+		return $this->automation_logger;
+	}
 }
