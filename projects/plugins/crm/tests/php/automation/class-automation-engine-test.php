@@ -41,7 +41,7 @@ class Automation_Engine_Test extends BaseTestCase {
 	 * @throws Automation_Exception
 	 */
 	public function test_automation_register_trigger() {
-		$automation = Automation_Engine::instance();
+		$automation = new Automation_Engine();
 
 		$automation->register_step( 'contact_created', Contact_Created_Trigger::class );
 
@@ -56,7 +56,7 @@ class Automation_Engine_Test extends BaseTestCase {
 	 * @testdox Register an invalid step class to the automation engine
 	 */
 	public function test_automation_register_invalid_step() {
-		$automation = Automation_Engine::instance();
+		$automation = new Automation_Engine();
 
 		$this->expectException( Automation_Exception::class );
 		$this->expectExceptionCode( Automation_Exception::STEP_CLASS_NOT_FOUND );
