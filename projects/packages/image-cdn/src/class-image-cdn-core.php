@@ -23,6 +23,9 @@ class Image_CDN_Core {
 		// Add photon compatibility.
 		require_once __DIR__ . '/compatibility/photon.php';
 
+		// Add ActivityPub compatibility.
+		require_once __DIR__ . '/compatibility/activitypub.php';
+
 		/**
 		 * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
 		 *
