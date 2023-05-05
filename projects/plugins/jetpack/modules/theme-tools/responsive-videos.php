@@ -74,15 +74,8 @@ function jetpack_responsive_videos_embed_html( $html ) {
 			'in_footer'  => true,
 			'enqueue'    => true,
 			'textdomain' => 'jetpack',
+			'css_path'   => '_inc/build/theme-tools/responsive-videos/responsive-videos.css',
 		)
-	);
-
-	// Enqueue CSS to ensure compatibility with all themes
-	wp_enqueue_style(
-		'jetpack-responsive-videos-style',
-		plugins_url( 'responsive-videos/responsive-videos.css', __FILE__ ),
-		array(),
-		JETPACK__VERSION
 	);
 
 	return '<div class="jetpack-video-wrapper">' . $html . '</div>';

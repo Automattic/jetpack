@@ -94,7 +94,6 @@ class Jetpack {
 		'presentations',
 		'quiz',
 		'jetpack-subscriptions',
-		'jetpack-responsive-videos-style',
 		'jetpack-social-menu',
 		'tiled-gallery',
 		'jetpack_display_posts_widget',
