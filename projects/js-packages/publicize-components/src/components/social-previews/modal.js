@@ -6,6 +6,7 @@
 
 import { Modal, TabPanel, Button } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
+import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { AVAILABLE_SERVICES } from './constants';
@@ -22,6 +23,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 	isTweetStorm,
 	tweets,
 	media,
+	siteTitle,
 } ) {
 	return (
 		<Modal
@@ -51,6 +53,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 							isTweetStorm={ isTweetStorm }
 							tweets={ tweets }
 							media={ media }
+							siteTitle={ siteTitle }
 						/>
 					</div>
 				) }
@@ -60,7 +63,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 };
 
 export default withSelect( select => {
-	const { getMedia, getUser } = select( 'core' );
+	const { getMedia, getUser, getEntityRecord } = select( 'core' );
 	const { getCurrentPost, getEditedPostAttribute } = select( 'core/editor' );
 	const { getTweetTemplate, getTweetStorm, getShareMessage, isTweetStorm } =
 		select( 'jetpack/publicize' );
@@ -82,6 +85,7 @@ export default withSelect( select => {
 		url: getEditedPostAttribute( 'link' ),
 		author: user?.name,
 		image: ( !! featuredImageId && getMediaSourceUrl( media ) ) || '',
+		siteTitle: decodeEntities( getEntityRecord( 'root', 'site' ).title ),
 	};
 
 	let tweets = [];

@@ -1,5 +1,5 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
-import { SearchPreview } from '@automattic/social-previews';
+import { GoogleSearchPreview } from '@automattic/social-previews';
 import { __ } from '@wordpress/i18n';
 import FacebookPreview from '../facebook-preview';
 import TumblrPreview from '../tumblr-preview';
@@ -11,7 +11,7 @@ export const AVAILABLE_SERVICES = [
 		title: __( 'Google Search', 'jetpack' ),
 		icon: props => <SocialServiceIcon serviceName="google" { ...props } />,
 		name: 'google',
-		preview: SearchPreview,
+		preview: GoogleSearchPreview,
 	},
 	{
 		title: __( 'Twitter', 'jetpack' ),
