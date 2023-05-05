@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix IP allow list updates on Atomic sites.
