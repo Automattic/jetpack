@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { FacebookPreview, TwitterPreview, SearchPreview } from '@automattic/social-previews';
+import { FacebookPreview, TwitterPreview, GoogleSearchPreview } from '@automattic/social-previews';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import classNames from 'classnames';
 import Button from 'components/button';
@@ -65,7 +65,7 @@ export const SEO = withModuleSettingsFormHelpers(
 		};
 
 		SocialPreviewGoogle = siteData => (
-			<SearchPreview
+			<GoogleSearchPreview
 				title={ siteData.title }
 				url={ siteData.url }
 				description={ siteData.frontPageMetaDescription }
