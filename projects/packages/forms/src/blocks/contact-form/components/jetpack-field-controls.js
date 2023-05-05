@@ -19,7 +19,6 @@ import {
 import { __ } from '@wordpress/i18n';
 import { useFormStyle, FORM_STYLE } from '../util/form';
 import renderMaterialIcon from '../util/render-material-icon';
-import JetpackFieldCss from './jetpack-field-css';
 import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
@@ -86,6 +85,11 @@ const JetpackFieldControls = ( {
 			label: __( 'Border', 'jetpack-forms' ),
 		} );
 	}
+
+	const setId = value => {
+		const newValue = value.replace( /[^a-zA-Z0-9_-]/g, '' );
+		setAttributes( { id: newValue } );
+	};
 
 	return (
 		<>
@@ -206,7 +210,15 @@ const JetpackFieldControls = ( {
 			</InspectorControls>
 
 			<InspectorAdvancedControls>
-				<JetpackFieldCss setAttributes={ setAttributes } id={ id } />
+				<TextControl
+					label={ __( 'Name/ID', 'jetpack-forms' ) }
+					value={ id || '' }
+					onChange={ setId }
+					help={ __(
+						"Customize the input's name/ID. Only alphanumeric, dash and underscore characters are allowed",
+						'jetpack-forms'
+					) }
+				/>
 			</InspectorAdvancedControls>
 		</>
 	);
