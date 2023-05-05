@@ -273,10 +273,10 @@ $action-bar-height: 88px;
 		.is-link {
 			cursor: pointer;
 			display: inline-block;
+			max-width: 100%;
 			overflow: hidden;
 			text-overflow: ellipsis;
 			white-space: nowrap;
-			width: 100%;
 			text-decoration: none;
 
 			 &:hover {
