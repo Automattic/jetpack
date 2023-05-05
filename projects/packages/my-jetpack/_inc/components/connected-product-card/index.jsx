@@ -12,13 +12,20 @@ import { useProduct } from '../../hooks/use-product';
 import ProductCard, { PRODUCT_STATUSES } from '../product-card';
 
 const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuItems = [] } ) => {
-	const { pluginsUrl } = window?.myJetpackInitialState ?? {};
 	const { isRegistered, isUserConnected } = useConnection();
 
-	const { detail, activate, deactivate, isFetching, installStandalonePlugin } = useProduct( slug );
+	const {
+		detail,
+		activate,
+		deactivate,
+		isFetching,
+		installStandalonePlugin,
+		deactivateStandalonePlugin,
+	} = useProduct( slug );
 	const { name, description, manageUrl, requiresUserConnection, standalonePluginInfo, status } =
 		detail;
 	const [ installingStandalone, setInstallingStandalone ] = useState( false );
+	const [ deactivatingStandalone, setDeactivatingStandalone ] = useState( false );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 	const navigateToAddProductPage = useMyJetpackNavigate( `add-${ slug }` );
@@ -83,8 +90,16 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 	}, [ installStandalonePlugin ] );
 
 	const handleDeactivateStandalone = useCallback( () => {
-		window.location = pluginsUrl;
-	}, [ pluginsUrl ] );
+		setDeactivatingStandalone( true );
+
+		deactivateStandalonePlugin()
+			.then( () => {
+				window?.location?.reload();
+			} )
+			.catch( () => {
+				setDeactivatingStandalone( false );
+			} );
+	}, [ deactivateStandalonePlugin ] );
 
 	return (
 		<ProductCard
@@ -94,6 +109,7 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			admin={ admin }
 			isFetching={ isFetching }
 			isInstallingStandalone={ installingStandalone }
+			isDeactivatingStandalone={ deactivatingStandalone }
 			onDeactivate={ deactivate }
 			slug={ slug }
 			onActivate={ handleActivate }

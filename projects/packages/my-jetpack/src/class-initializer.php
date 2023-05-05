@@ -163,7 +163,6 @@ class Initializer {
 				),
 				'plugins'               => Plugins_Installer::get_plugins(),
 				'myJetpackUrl'          => admin_url( 'admin.php?page=my-jetpack' ),
-				'pluginsUrl'            => admin_url( 'plugins.php' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 				'siteSuffix'            => ( new Status() )->get_site_suffix(),
 				'myJetpackVersion'      => self::PACKAGE_VERSION,

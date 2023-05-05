@@ -137,6 +137,7 @@ const ProductCard = props => {
 		onManage,
 		isFetching,
 		isInstallingStandalone,
+		isDeactivatingStandalone,
 		slug,
 		children,
 		// Menu Related
@@ -172,7 +173,7 @@ const ProductCard = props => {
 		[ styles.active ]: isActive,
 		[ styles.inactive ]: isInactive || isPurchaseRequired,
 		[ styles.error ]: isError,
-		[ styles[ 'is-fetching' ] ]: isFetching || isInstallingStandalone,
+		[ styles[ 'is-fetching' ] ]: isFetching || isInstallingStandalone || isDeactivatingStandalone,
 	} );
 
 	const { recordEvent } = useAnalytics();
@@ -318,6 +319,7 @@ ProductCard.propTypes = {
 	admin: PropTypes.bool.isRequired,
 	isFetching: PropTypes.bool,
 	isInstallingStandalone: PropTypes.bool,
+	isDeactivatingStandalone: PropTypes.bool,
 	onManage: PropTypes.func,
 	onFixConnection: PropTypes.func,
 	onActivate: PropTypes.func,
@@ -351,6 +353,7 @@ ProductCard.propTypes = {
 ProductCard.defaultProps = {
 	isFetching: false,
 	isInstallingStandalone: false,
+	isDeactivatingStandalone: false,
 	onManage: () => {},
 	onFixConnection: () => {},
 	onActivate: () => {},
