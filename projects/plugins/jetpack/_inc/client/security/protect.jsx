@@ -12,6 +12,7 @@ import analytics from 'lib/analytics';
 import { includes } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import { getSetting } from '../state/settings';
 import { getWafIpAllowListInputState, updateWafIpAllowList } from '../state/waf';
 
@@ -85,10 +86,11 @@ const ProtectComponent = class extends Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
-				module="protect"
+				module="any"
 				header={ _x( 'Brute force protection', 'Settings header', 'jetpack' ) }
 				saveDisabled={ this.props.isSavingAnyOption( 'jetpack_waf_ip_allow_list' ) }
 			>
+				{ isProtectActive && <QueryWafSettings /> }
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
@@ -173,7 +175,7 @@ export const Protect = connect(
 			allowListInputState:
 				null !== allowListInputState
 					? allowListInputState
-					: getSetting( state, 'jetpack_waf_ip_allow_list' ),
+					: getSetting( state, 'jetpack_waf_ip_allow_list', 'waf' ),
 		};
 	},
 	dispatch => {
