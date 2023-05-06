@@ -34,6 +34,9 @@ class Waf_Initializer {
 		// Ensure backwards compatibility
 		Waf_Compatibility::add_compatibility_hooks();
 
+		// Register REST routes.
+		add_action( 'rest_api_init', array( new REST_Controller(), 'register_rest_routes' ) );
+
 		// Run the WAF on supported environments
 		if ( Waf_Runner::is_supported_environment() ) {
 			// Update the WAF after installing or upgrading a relevant Jetpack plugin
