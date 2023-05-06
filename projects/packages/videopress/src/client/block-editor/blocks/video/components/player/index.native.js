@@ -6,10 +6,11 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { requestEmbedFullscreenPreview } from '@wordpress/react-native-bridge';
 /**
  * External dependencies
  */
-import { View, Text, Platform } from 'react-native';
+import { View, Text, Platform, Pressable } from 'react-native';
 /**
  * Internal dependencies
  */
@@ -22,7 +23,7 @@ import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 const DEFAULT_PLAYER_ASPECT_RATIO = 16 / 9; // This is the observed default aspect ratio from VideoPress embeds.
-
+const IS_ANDROID = Platform.OS === 'android';
 /**
  * VideoPlayer react component
  *
@@ -130,7 +131,7 @@ export default function Player( { isSelected, attributes } ) {
 	// Android does not receive a 'videopress_ready' event,
 	// so we need to set the player as ready when the WebView loads.
 	const onLoadEnd = useCallback( () => {
-		Platform.OS === 'android' && setIsPlayerReady( true );
+		IS_ANDROID && setIsPlayerReady( true );
 	}, [] );
 
 	const loadingOverlay = (
@@ -144,6 +145,22 @@ export default function Player( { isSelected, attributes } ) {
 		</View>
 	);
 
+	let overlay = ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } />;
+
+	// On Android render an overlay to send the embed markup to a native WebView.
+	if ( isSelected && IS_ANDROID ) {
+		overlay = (
+			<View style={ style[ 'videopress-player__overlay' ] }>
+				<Pressable
+					style={ { width: '100%', height: '100%' } }
+					onPress={ () => {
+						requestEmbedFullscreenPreview( html, preview.title );
+					} }
+				/>
+			</View>
+		);
+	}
+
 	// Show the loading overlay when:
 	// 1. Player is not ready
 	// 2. Player is loaded but preview is not ready
@@ -151,7 +168,7 @@ export default function Player( { isSelected, attributes } ) {
 
 	return (
 		<View style={ [ style[ 'videopress-player' ], { aspectRatio } ] }>
-			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
+			{ overlay }
 			{ showLoadingOverlay && loadingOverlay }
 			{ html && (
 				<SandBox
