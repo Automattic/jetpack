@@ -12,6 +12,8 @@ use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+use Automattic\Jetpack\Image_CDN\Image_CDN_Image;
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
@@ -33,8 +35,12 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_minimal_state() {
 		return array(
-			'WP_API_root'  => esc_url_raw( rest_url() ),
-			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
+			'pluginBaseUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			/* This filter is documented in class.jetpack-connection-banner.php */
+			'preConnectionHelpers' => apply_filters( 'jetpack_pre_connection_prompt_helpers', false ),
+			'registrationNonce'    => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'WP_API_root'          => esc_url_raw( rest_url() ),
+			'WP_API_nonce'         => wp_create_nonce( 'wp_rest' ),
 		);
 	}
 
@@ -277,10 +283,9 @@ class Jetpack_Redux_State_Helper {
 
 		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
 		if ( ! empty( $post_thumbnail ) ) {
-			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-photon-image.php';
-			$photon_image = new Jetpack_Photon_Image(
+			$photon_image = new Image_CDN_Image(
 				array(
-					'file'   => jetpack_photon_url( $post_thumbnail['URL'] ),
+					'file'   => Image_CDN_Core::cdn_url( $post_thumbnail['URL'] ),
 					'width'  => $post_thumbnail['width'],
 					'height' => $post_thumbnail['height'],
 				),

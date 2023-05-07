@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ensure Map block settings get hooked to existing block bbubundle.

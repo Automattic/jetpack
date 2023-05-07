@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+We will not be re-sending emails when marking items as not-spam in the new forms dashboard.

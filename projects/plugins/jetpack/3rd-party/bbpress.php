@@ -49,9 +49,9 @@ function jetpack_bbpress_compat() {
 	 *
 	 * @since 4.9.0
 	 */
-	if ( class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) ) {
-		add_filter( 'bbp_get_topic_content', array( 'Jetpack_Photon', 'filter_the_content' ), 999999 );
-		add_filter( 'bbp_get_reply_content', array( 'Jetpack_Photon', 'filter_the_content' ), 999999 );
+	if ( class_exists( 'Automattic\Jetpack\Image_CDN\Image_CDN' ) && Jetpack::is_module_active( 'photon' ) ) {
+		add_filter( 'bbp_get_topic_content', array( Image_CDN::class, 'filter_the_content' ), 999999 );
+		add_filter( 'bbp_get_reply_content', array( Image_CDN::class, 'filter_the_content' ), 999999 );
 	}
 }
 

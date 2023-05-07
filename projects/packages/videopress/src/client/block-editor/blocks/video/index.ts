@@ -14,6 +14,9 @@ import transforms from './transforms';
 import videoPressBlockExampleImage from './videopress-block-example-image.jpg';
 import './style.scss';
 
+// Extend the core/embed block
+import '../../extend/core-embed';
+
 export const { name, title, description, attributes } = metadata;
 
 registerBlockType( name, {

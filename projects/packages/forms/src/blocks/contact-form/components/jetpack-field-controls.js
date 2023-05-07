@@ -17,21 +17,26 @@ import {
 	RangeControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { useFormStyle, FORM_STYLE } from '../util/form';
 import renderMaterialIcon from '../util/render-material-icon';
-import JetpackFieldCss from './jetpack-field-css';
 import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldControls = ( {
 	attributes,
+	clientId,
 	id,
 	placeholder,
 	placeholderField = 'placeholder',
 	hidePlaceholder,
 	required,
 	setAttributes,
+	type,
 	width,
 } ) => {
+	const formStyle = useFormStyle( clientId );
+	const isChoicesBlock = [ 'radio', 'checkbox' ].includes( type );
+
 	const setNumberAttribute =
 		( key, parse = parseInt ) =>
 		value => {
@@ -42,6 +47,18 @@ const JetpackFieldControls = ( {
 			} );
 		};
 
+	const inputColorLabel = isChoicesBlock
+		? __( 'Option Text', 'jetpack-forms' )
+		: __( 'Field Text', 'jetpack-forms', 0 );
+
+	const backgroundColorLabel = isChoicesBlock
+		? __( 'Background', 'jetpack-forms' )
+		: __( 'Field Background', 'jetpack-forms', 0 );
+
+	const stylesPanelTitle = isChoicesBlock
+		? __( 'Options Styles', 'jetpack-forms' )
+		: __( 'Input Field Styles', 'jetpack-forms', 0 );
+
 	const colorSettings = [
 		{
 			value: attributes.labelColor,
@@ -51,19 +68,28 @@ const JetpackFieldControls = ( {
 		{
 			value: attributes.inputColor,
 			onChange: value => setAttributes( { inputColor: value } ),
-			label: __( 'Field Text', 'jetpack-forms' ),
+			label: inputColorLabel,
 		},
-		{
+	];
+
+	if ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) {
+		colorSettings.push( {
 			value: attributes.fieldBackgroundColor,
 			onChange: value => setAttributes( { fieldBackgroundColor: value } ),
-			label: __( 'Field Background', 'jetpack-forms' ),
-		},
-		{
+			label: backgroundColorLabel,
+		} );
+
+		colorSettings.push( {
 			value: attributes.borderColor,
 			onChange: value => setAttributes( { borderColor: value } ),
 			label: __( 'Border', 'jetpack-forms' ),
-		},
-	];
+		} );
+	}
+
+	const setId = value => {
+		const newValue = value.replace( /[^a-zA-Z0-9_-]/g, '' );
+		setAttributes( { id: newValue } );
+	};
 
 	return (
 		<>
@@ -121,7 +147,7 @@ const JetpackFieldControls = ( {
 					initialOpen={ false }
 					colorSettings={ colorSettings }
 				/>
-				<PanelBody title={ __( 'Input Field Styles', 'jetpack-forms' ) } initialOpen={ false }>
+				<PanelBody title={ stylesPanelTitle } initialOpen={ false }>
 					<BaseControl>
 						<FontSizePicker
 							withReset={ true }
@@ -140,22 +166,26 @@ const JetpackFieldControls = ( {
 							size="__unstable-large"
 						/>
 					</BaseControl>
-					<RangeControl
-						label={ __( 'Border Width', 'jetpack-forms' ) }
-						value={ attributes.borderWidth }
-						initialPosition={ 1 }
-						onChange={ setNumberAttribute( 'borderWidth' ) }
-						min={ 0 }
-						max={ 100 }
-					/>
-					<RangeControl
-						label={ __( 'Border Radius', 'jetpack-forms' ) }
-						value={ attributes.borderRadius }
-						initialPosition={ 0 }
-						onChange={ setNumberAttribute( 'borderRadius' ) }
-						min={ 0 }
-						max={ 100 }
-					/>
+					{ ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) && (
+						<>
+							<RangeControl
+								label={ __( 'Border Width', 'jetpack-forms' ) }
+								value={ attributes.borderWidth }
+								initialPosition={ 1 }
+								onChange={ setNumberAttribute( 'borderWidth' ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+							<RangeControl
+								label={ __( 'Border Radius', 'jetpack-forms' ) }
+								value={ attributes.borderRadius }
+								initialPosition={ 0 }
+								onChange={ setNumberAttribute( 'borderRadius' ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+						</>
+					) }
 				</PanelBody>
 				<PanelBody title={ __( 'Label Styles', 'jetpack-forms' ) } initialOpen={ false }>
 					<BaseControl>
@@ -180,7 +210,15 @@ const JetpackFieldControls = ( {
 			</InspectorControls>
 
 			<InspectorAdvancedControls>
-				<JetpackFieldCss setAttributes={ setAttributes } id={ id } />
+				<TextControl
+					label={ __( 'Name/ID', 'jetpack-forms' ) }
+					value={ id || '' }
+					onChange={ setId }
+					help={ __(
+						"Customize the input's name/ID. Only alphanumeric, dash and underscore characters are allowed",
+						'jetpack-forms'
+					) }
+				/>
 			</InspectorAdvancedControls>
 		</>
 	);

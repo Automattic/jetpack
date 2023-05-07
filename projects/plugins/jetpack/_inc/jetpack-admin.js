@@ -43,7 +43,7 @@
 
 		// Toggle all checkboxes
 		$( '.checkall' ).on( 'click', function () {
-			$( '.table-bordered' ).find( ':checkbox' ).prop( 'checked', this.checked );
+			$( '.table-bordered' ).find( ':checkbox' ).not( ':disabled' ).prop( 'checked', this.checked );
 		} );
 
 		// Clicking outside modal, or close X closes modal

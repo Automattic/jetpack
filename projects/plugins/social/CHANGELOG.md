@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.10.0 - 2023-05-02
+### Added
+- Social: Updating plugin version. [#30158]
+
+### Changed
+- Added dynamic pricing to Social admin page. [#30105]
+- Updated package dependencies. [#29565, #29854, #29857, #30019]
+- Update WordPress version requirements. Now requires version 6.1. [#30120]
+
+### Fixed
+- Dashboard: ensure the link to the post editor works, even when WordPress is installed in a subdirectory. [#30159]
+- Jetpack Social: Render Social Image Generator panel even when SIG's default is disabled [#30358]
+- Temporarily removed review prompts to fix the plugin's UI state. [#30101]
+
 ## 1.9.1 - 2023-04-06
 ### Fixed
 - Reinstated is_social_image_generator_enabled for backwards compatibility. [#29952]

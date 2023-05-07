@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.12.0] - 2023-05-02
+### Added
+- Add API to query Zendesk chat availability and use it to conditionally display zendesk chat. [#29942]
+- Add pricing table interstitial view for Jetpack Protect. [#29930]
+- My Jetpack: Add product detail table component for comparing product tiers. [#29759]
+
+### Changed
+- My Jetpack: Move logic out of Product Card component. [#30274]
+- Updated package dependencies.
+
+### Fixed
+- Fix activation and layout on Protect interstatial page. [#29525]
+- My Jetpack: Keep product card action button disabled while installing standalone plugin. [#30346]
+
+## [2.11.0] - 2023-05-01
+### Added
+- Added Jetpack Starter bundle post-activation screen and plan header [#30368]
+
+## [2.10.3] - 2023-04-25
+### Added
+- My Jetpack: Add flags field in initial state [#30241]
+- My Jetpack: Add Install/Activate menu actions based on the standalone plugin status. [#30153]
+- My Jetpack: Add neutral color in contextual card [#30250]
+- My Jetpack: Add side-effect action to request the standalone plugin installation on the backend. [#30143]
+- My Jetpack: Add stats to VideoPress card [#30197]
+- My Jetpack: Enable menu for all hybrid products [#30247]
+- My Jetpack: Reload page after standalone action [#30221]
+
+### Changed
+- My Jetpack: Connect the standalone plugin menu options so they trigger the installation and activation when clicked. [#30168]
+- MyJetpack: set the Social standalone page as the default admin one [#30193]
+- MyJetpack: Try to activate the product module after installing the standalone plugin [#30215]
+- Updated package dependencies. [#30015]
+
 ## [2.10.2] - 2023-04-17
 ### Added
 - Ad missing TOS in Jetpack interstitial. [#29683]
@@ -821,6 +855,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[2.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.11.0...2.12.0
+[2.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.3...2.11.0
+[2.10.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.2...2.10.3
 [2.10.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.1...2.10.2
 [2.10.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.0...2.10.1
 [2.10.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.9.2...2.10.0
