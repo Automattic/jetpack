@@ -769,8 +769,8 @@ abstract class Publicize_Base {
 			foreach ( $connections as $connection ) {
 				$connection_meta = $this->get_connection_meta( $connection );
 				$connection_data = $connection_meta['connection_data'];
-
-				$unique_id = $this->get_connection_unique_id( $connection );
+				$connection_id   = $this->get_connection_id( $connection );
+				$unique_id       = $this->get_connection_unique_id( $connection );
 
 				// Was this connection (OR, old-format service) already Publicized to?
 				$done = ! empty( $post ) && (
@@ -866,6 +866,7 @@ abstract class Publicize_Base {
 
 				$connection_list[] = array(
 					'unique_id'       => $unique_id,
+					'id'              => $connection_id,
 					'service_name'    => $service_name,
 					'service_label'   => $this->get_service_label( $service_name ),
 					'display_name'    => $this->get_display_name( $service_name, $connection ),

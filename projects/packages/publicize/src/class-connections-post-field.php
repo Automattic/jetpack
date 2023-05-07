@@ -189,7 +189,7 @@ class Connections_Post_Field {
 				}
 			}
 
-			$output_connection['id'] = (string) $connection['unique_id'];
+			$output_connection['id'] = (string) $connection['id'];
 
 			$output_connections[] = $output_connection;
 		}

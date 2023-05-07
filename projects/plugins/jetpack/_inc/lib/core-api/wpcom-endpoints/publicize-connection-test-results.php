@@ -106,6 +106,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 			'can_refresh'  => 'userCanRefresh',
 			'refresh_text' => 'refreshText',
 			'refresh_url'  => 'refreshURL',
+			'id'           => 'connectionID',
 		);
 
 		foreach ( $items as &$item ) {
