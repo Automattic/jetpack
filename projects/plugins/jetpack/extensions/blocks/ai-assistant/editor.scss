@@ -25,10 +25,22 @@
 .jetpack-ai-assistant__input-wrapper {
 	display: flex;
 	align-items: top;
-
+	padding: 4px 0;
+	box-shadow: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px;
 	.jetpack-ai-assistant__input {
 		flex-grow: 1;
 		margin-right: 12px;
+
+		.components-base-control__field {
+			margin-bottom: 0;
+		}
+
+		textarea {
+			display: block;
+			resize: none;
+			border: none;
+			box-shadow: none;
+		}
 	}
 }
 

@@ -326,68 +326,16 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		} );
 	};
 
+	const handleInputEnter = event => {
+		if ( event.key === 'Enter' && ! event.shiftKey ) {
+			event.preventDefault();
+			handleGetSuggestion();
+			//setUserPrompt( '' );
+		}
+	};
+
 	return (
 		<div { ...useBlockProps() }>
-			{ ! contentIsLoaded && (
-				<div>
-					{ showRetry && (
-						<Button variant="primary" onClick={ () => handleGetSuggestion() }>
-							{ __( 'Retry', 'jetpack' ) }
-						</Button>
-					) }
-					<div className="jetpack-ai-assistant__input-wrapper">
-						<TextareaControl
-							onChange={ value => setUserPrompt( value ) }
-							rows="1"
-							placeholder={ placeholder }
-							className="jetpack-ai-assistant__input"
-						/>
-						<ToggleGroupControl
-							__nextHasNoMarginBottom={ true }
-							label={ __( 'Type of AI assistance needed', 'jetpack' ) }
-							hideLabelFromVision
-							value={ aiType }
-							onChange={ newType => setAiType( newType ) }
-							isBlock
-							size="2"
-							className="jetpack-ai-assistant__input-toggle"
-						>
-							<ToggleGroupControlOption value="text" label={ __( 'Text', 'jetpack' ) } />
-							<ToggleGroupControlOption value="image" label={ __( 'Images', 'jetpack' ) } />
-						</ToggleGroupControl>
-					</div>
-					<div className="jetpack-ai-assistant__controls">
-						<Button
-							variant="primary"
-							onClick={ () => handleGetSuggestion() }
-							disabled={ isWaitingState }
-							label={ __( 'Do some magic!', 'jetpack' ) }
-						>
-							<Icon icon={ pencil } />
-						</Button>
-						{ aiType === 'text' && (
-							<DropdownMenu
-								icon={ moreVertical }
-								label={ __( 'Other options', 'jetpack' ) }
-								controls={ [
-									{
-										title: __( 'Write a summary based on title', 'jetpack' ),
-										onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
-										isDisabled: isWaitingState,
-									},
-									{
-										title: __( 'Expand on preceding content', 'jetpack' ),
-										onClick: () => getSuggestionFromOpenAI( 'expandPreceding' ),
-										isDisabled: isWaitingState,
-									},
-								] }
-							/>
-						) }
-						{ ( ( ! attributes.content && isWaitingState ) || loadingImages ) && <Loading /> }
-					</div>
-				</div>
-			) }
-
 			{ contentIsLoaded && (
 				<>
 					<ShowLittleByLittle
@@ -408,6 +356,26 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					) }
 				</>
 			) }
+			<div>
+				{ showRetry && (
+					<Button variant="primary" onClick={ () => handleGetSuggestion() }>
+						{ __( 'Retry', 'jetpack' ) }
+					</Button>
+				) }
+				<AIControl
+					aiType={ aiType }
+					content={ attributes.content }
+					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+					handleGetSuggestions={ handleGetSuggestion }
+					handleInputEnter={ handleInputEnter }
+					isWaitingState={ isWaitingState }
+					loadingImages={ loadingImages }
+					placeholder={ placeholder }
+					setAiType={ setAiType }
+					setUserPrompt={ setUserPrompt }
+				/>
+			</div>
+
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
 					<FlexBlock
@@ -442,3 +410,71 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		</div>
 	);
 }
+const AIControl = ( {
+	aiType,
+	content,
+	getSuggestionFromOpenAI,
+	handleGetSuggestion,
+	handleInputEnter,
+	isWaitingState,
+	loadingImages,
+	placeholder,
+	setAiType,
+	setUserPrompt,
+} ) => {
+	return (
+		<>
+			<div className="jetpack-ai-assistant__input-wrapper">
+				<TextareaControl
+					onChange={ value => setUserPrompt( value ) }
+					onKeyPress={ handleInputEnter }
+					rows="1"
+					placeholder={ placeholder }
+					className="jetpack-ai-assistant__input"
+				/>
+				<ToggleGroupControl
+					__nextHasNoMarginBottom={ true }
+					label={ __( 'Type of AI assistance needed', 'jetpack' ) }
+					hideLabelFromVision
+					value={ aiType }
+					onChange={ newType => setAiType( newType ) }
+					isBlock
+					size="2"
+					className="jetpack-ai-assistant__input-toggle"
+				>
+					<ToggleGroupControlOption value="text" label={ __( 'Text', 'jetpack' ) } />
+					<ToggleGroupControlOption value="image" label={ __( 'Images', 'jetpack' ) } />
+				</ToggleGroupControl>
+			</div>
+			<div className="jetpack-ai-assistant__controls">
+				<Button
+					variant="primary"
+					onClick={ () => handleGetSuggestion() }
+					disabled={ isWaitingState }
+					label={ __( 'Do some magic!', 'jetpack' ) }
+				>
+					<Icon icon={ pencil } />
+				</Button>
+				{ aiType === 'text' && (
+					<DropdownMenu
+						icon={ moreVertical }
+						label={ __( 'Other options', 'jetpack' ) }
+						controls={ [
+							{
+								title: __( 'Write a summary based on title', 'jetpack' ),
+								onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
+								isDisabled: isWaitingState,
+							},
+							{
+								title: __( 'Expand on preceding content', 'jetpack' ),
+								onClick: () => getSuggestionFromOpenAI( 'expandPreceding' ),
+								isDisabled: isWaitingState,
+							},
+						] }
+					/>
+				) }
+				{ ( ( ! content && isWaitingState ) || loadingImages ) && <Loading /> }
+			</div>
+		</>
+	);
+};
