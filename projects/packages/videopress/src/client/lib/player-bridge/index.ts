@@ -5,8 +5,11 @@ import debugFactory from 'debug';
 /**
  * Types
  */
-import { VideoPressApiIframeInstance } from '../../block-editor/global';
-import type { VideoGUID } from '../../block-editor/blocks/video/types';
+import type {
+	CustomizeOptionsProps,
+	VideoGUID,
+	VideoPressApiIframeInstanceProps,
+} from '../../block-editor/blocks/video/types';
 
 type Origin = 'https://videopress.com' | 'https://video.wordpress.com';
 
@@ -14,7 +17,7 @@ const debug = debugFactory( 'videopress:player-bridge' );
 
 declare global {
 	interface Window {
-		iframeApiInstance: VideoPressApiIframeInstance;
+		iframeApiInstance: VideoPressApiIframeInstanceProps;
 	}
 }
 
@@ -39,10 +42,10 @@ const VIDEOPRESS_ALLOWED_EMITTING_EVENTS = [
 	'videopress_action_set_volume',
 
 	/*
-	 * The following events are not handled by the PostMessageAPI,
-	 * but internally mapped to the IFrame API.
+	 * Internal -> IFrame API events.
 	 */
 	'videopress_action_set_mute',
+	'videopress_customize_set',
 ] as const;
 
 type VideoPressEvent =
@@ -128,6 +131,10 @@ export async function playerBridgeHandler(
 		const iframeApiInstance = window.iframeApiInstance;
 
 		debug( 'emit (mapped) %o event - %o', eventName, data );
+
+		if ( eventName === 'videopress_customize_set' ) {
+			iframeApiInstance.customize?.set( data as CustomizeOptionsProps );
+		}
 
 		if ( eventName === 'videopress_action_set_mute' ) {
 			iframeApiInstance.controls.mute( data.muted );
