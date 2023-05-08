@@ -1626,8 +1626,6 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return array The Twitter card data.
 	 */
 	public static function generate_cards( $urls ) {
-		global $wp_version;
-
 		$validator = new Twitter_Validator();
 
 		$requests = array_map(
@@ -1649,7 +1647,7 @@ class Jetpack_Tweetstorm_Helper {
 		$requests = array_filter( $requests );
 
 		// Remove this check once WordPress 6.2 is the minimum supported version.
-		if ( version_compare( $wp_version, '6.2-alpha', '<' ) ) {
+		if ( ! class_exists( '\WpOrg\Requests\Hooks' ) ) {
 			$hooks = new Requests_Hooks();
 		} else {
 			$hooks = new \WpOrg\Requests\Hooks();
@@ -1661,9 +1659,9 @@ class Jetpack_Tweetstorm_Helper {
 		);
 
 		// Remove this check once WordPress 6.2 is the minimum supported version.
-		$results = version_compare( $wp_version, '6.2-alpha', '<' )
-			? Requests::request_multiple( $requests, array( 'hooks' => $hooks ) )
-			: \WpOrg\Requests\Requests::request_multiple( $requests, array( 'hooks' => $hooks ) );
+		$results = class_exists( '\WpOrg\Requests\Requests' )
+			? \WpOrg\Requests\Requests::request_multiple( $requests, array( 'hooks' => $hooks ) )
+			: Requests::request_multiple( $requests, array( 'hooks' => $hooks ) );
 
 		foreach ( $results as $result ) {
 			if ( $result instanceof Requests_Exception || $result instanceof \WpOrg\Requests\Exception ) {
@@ -1740,11 +1738,9 @@ class Jetpack_Tweetstorm_Helper {
 	 * @return void
 	 */
 	public static function validate_redirect_url( $redirect_url ) {
-		global $wp_version;
-
 		if ( ! wp_http_validate_url( $redirect_url ) ) {
 			// Remove this check once WordPress 6.2 is the minimum supported version.
-			if ( version_compare( $wp_version, '6.2-alpha', '<' ) ) {
+			if ( ! class_exists( '\WpOrg\Requests\Exception' ) ) {
 				throw new Requests_Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );
 			}
 			throw new \WpOrg\Requests\Exception( __( 'A valid URL was not provided.', 'jetpack' ), 'wp_http.redirect_failed_validation' );

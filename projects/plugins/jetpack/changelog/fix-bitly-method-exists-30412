@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Bit.ly: avoid errors when using non-official Bit.ly  plugins alongside Jetpack.

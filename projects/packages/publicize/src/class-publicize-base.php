@@ -628,6 +628,21 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Parse the error code returned by the XML-RPC API call.
+	 *
+	 * @param string $code Error code in numerical format.
+	 *
+	 * @return string Error code.
+	 */
+	public function parse_connection_error_code( $code ) {
+		if ( 1 === $code ) {
+			return 'unsupported';
+		}
+
+		return 'broken';
+	}
+
+	/**
 	 * Run connection tests on all Connections
 	 *
 	 * @return array {
@@ -651,11 +666,12 @@ abstract class Publicize_Base {
 
 				$id = $this->get_connection_id( $connection );
 
-				$connection_test_passed  = true;
-				$connection_test_message = __( 'This connection is working correctly.', 'jetpack-publicize-pkg' );
-				$user_can_refresh        = false;
-				$refresh_text            = '';
-				$refresh_url             = '';
+				$connection_test_error_code = '';
+				$connection_test_passed     = true;
+				$connection_test_message    = __( 'This connection is working correctly.', 'jetpack-publicize-pkg' );
+				$user_can_refresh           = false;
+				$refresh_text               = '';
+				$refresh_url                = '';
 
 				$connection_test_result = true;
 				if ( method_exists( $this, 'test_connection' ) ) {
@@ -666,10 +682,12 @@ abstract class Publicize_Base {
 					$connection_test_passed  = false;
 					$connection_test_message = $connection_test_result->get_error_message();
 					$error_data              = $connection_test_result->get_error_data();
+					$error_code              = $connection_test_result->get_error_code();
 
-					$user_can_refresh = $error_data['user_can_refresh'];
-					$refresh_text     = $error_data['refresh_text'];
-					$refresh_url      = $error_data['refresh_url'];
+					$user_can_refresh           = $error_data['user_can_refresh'];
+					$refresh_text               = $error_data['refresh_text'];
+					$refresh_url                = $error_data['refresh_url'];
+					$connection_test_error_code = $connection_test_passed ? '' : $this->parse_connection_error_code( $error_code );
 				}
 				// Mark Facebook profiles as deprecated.
 				if ( 'facebook' === $service_name ) {
@@ -696,14 +714,15 @@ abstract class Publicize_Base {
 				}
 
 				$test_results[] = array(
-					'connectionID'          => $id,
-					'serviceName'           => $service_name,
-					'connectionTestPassed'  => $connection_test_passed,
-					'connectionTestMessage' => esc_attr( $connection_test_message ),
-					'userCanRefresh'        => $user_can_refresh,
-					'refreshText'           => esc_attr( $refresh_text ),
-					'refreshURL'            => $refresh_url,
-					'unique_id'             => $unique_id,
+					'connectionID'            => $id,
+					'serviceName'             => $service_name,
+					'connectionTestPassed'    => $connection_test_passed,
+					'connectionTestErrorCode' => $connection_test_error_code,
+					'connectionTestMessage'   => esc_attr( $connection_test_message ),
+					'userCanRefresh'          => $user_can_refresh,
+					'refreshText'             => esc_attr( $refresh_text ),
+					'refreshURL'              => $refresh_url,
+					'unique_id'               => $unique_id,
 				);
 			}
 		}
