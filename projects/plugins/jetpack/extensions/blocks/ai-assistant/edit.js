@@ -17,12 +17,13 @@ import {
 	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useState, RawHTML, useEffect } from '@wordpress/element';
+import { useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, pencil, moreVertical } from '@wordpress/icons';
 import MarkdownIt from 'markdown-it';
 import ImageWithSelect from './image-with-select';
 import Loading from './loading';
+import ShowLittleByLittle from './show-little-by-little';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
@@ -95,41 +96,6 @@ export const createPrompt = (
 
 	// return prompt.trim();
 };
-
-// TODO: move this into a separate component or switch the API to use streaming in which case this won't be needed.
-// This component displays the text word by word if show animation is true
-function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
-	// This is the HTML to be displayed.
-	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
-
-	useEffect(
-		() => {
-			// That will only happen once
-			if ( showAnimation ) {
-				// This is to animate text input. I think this will give an idea of a "better" AI.
-				// At this point this is an established pattern.
-				const tokens = html.split( ' ' );
-				for ( let i = 1; i < tokens.length; i++ ) {
-					const output = tokens.slice( 0, i ).join( ' ' );
-					setTimeout( () => setDisplayedRawHTML( output ), 50 * i );
-				}
-				setTimeout( () => {
-					setDisplayedRawHTML( html );
-					onAnimationDone();
-				}, 50 * tokens.length );
-			} else {
-				setDisplayedRawHTML( html );
-			}
-		},
-		// eslint-disable-next-line
-		[]
-	);
-	return (
-		<div className="jetpack-ai-assistant__content">
-			<RawHTML>{ displayedRawHTML }</RawHTML>
-		</div>
-	);
-}
 
 //TODO: move this into a separate component or hook.
 function getImagesFromOpenAI(
