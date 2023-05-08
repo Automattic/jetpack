@@ -5,16 +5,22 @@
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';
+	import { isaLazyLoad } from './store/isa-data';
+	const initialLoad = isaLazyLoad();
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
 	<Header />
 	<div class="recommendations-page jb-container jb-section--alt">
-		<Hero />
-		<Tabs />
-		<Table />
-		<Pagination />
-		<Footer />
+		{#await initialLoad}
+			<h1>Loading...</h1>
+		{:then}
+			<Hero />
+			<Tabs />
+			<Table />
+			<Pagination />
+			<Footer />
+		{/await}
 	</div>
 </div>
 
