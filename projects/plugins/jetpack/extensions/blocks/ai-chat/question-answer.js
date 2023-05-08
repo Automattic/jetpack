@@ -10,61 +10,21 @@ import { __ } from '@wordpress/i18n';
 import Loading from './loading';
 import useSubmitQuestion from './use-submit-question';
 
-// This component displays the text word by word if show animation is true
-function ShowLittleByLittle( { html, showAnimation, onAnimationDone } ) {
-	// This is the HTML to be displayed.
-	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
-
-	useEffect(
-		() => {
-			// That will only happen once
-			if ( showAnimation && html ) {
-				// This is to animate text input. I think this will give an idea of a "better" AI.
-				// At this point this is an established pattern.
-				const tokens = html.split( ' ' );
-				for ( let i = 1; i < tokens.length; i++ ) {
-					const output = tokens.slice( 0, i ).join( ' ' );
-					setTimeout( () => setDisplayedRawHTML( output ), 50 * i );
-				}
-				setTimeout( () => {
-					setDisplayedRawHTML( html );
-					onAnimationDone();
-				}, 50 * tokens.length );
-			} else {
-				setDisplayedRawHTML( html );
-			}
-		},
-		// eslint-disable-next-line
-		[]
-	);
-
-	return (
-		<div className="content">
-			<RawHTML>{ displayedRawHTML }</RawHTML>
-		</div>
-	);
-}
 export default function QuestionAnswer() {
-	const {
-		question,
-		setQuestion,
-		answer,
-		isLoading,
-		submitQuestion,
-		references,
-		waitString,
-		error,
-	} = useSubmitQuestion();
+	const [ answer, setAnswer ] = useState( '' );
+	const [ aiResponse, setAiResponse ] = useState( '' );
 
-	const [ animationDone, setAnimationDone ] = useState( false );
+	useEffect( () => {
+		if ( aiResponse !== '' && aiResponse !== undefined ) {
+			setAnswer( `${ answer }${ aiResponse }` );
+		}
+	}, [ aiResponse ] );
+
+	const { question, setQuestion, isLoading, submitQuestion, references, waitString, error } =
+		useSubmitQuestion( setAiResponse );
 
 	const handleSubmitQuestion = () => {
-		setAnimationDone( false );
 		submitQuestion();
-	};
-
-	const handleSetAnimationDone = () => {
-		setAnimationDone( true );
 	};
 
 	return (
@@ -97,12 +57,9 @@ export default function QuestionAnswer() {
 							{ <div className="jetpack-ai-chat-wait-string">{ waitString } </div> }
 						</>
 					) : (
-						// eslint-disable-next-line react/no-danger
-						<ShowLittleByLittle
-							showAnimation={ ! animationDone }
-							onAnimationDone={ handleSetAnimationDone }
-							html={ answer }
-						/>
+						<div className="content">
+							<RawHTML>{ answer }</RawHTML>
+						</div>
 					) }
 				</div>
 				{ references && references.length > 0 && (
