@@ -8,10 +8,10 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import MarkdownIt from 'markdown-it';
+import AIControl from './ai-control';
 import ImageWithSelect from './image-with-select';
 import { getImagesFromOpenAI } from './lib';
 import ShowLittleByLittle from './show-little-by-little';
-import AIControl from './ai-control';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
@@ -64,9 +64,7 @@ export const createPrompt = (
 		return expandPrompt + promptSuffix;
 	}
 
-
 	if ( type === 'continue' ) {
-		console.log( 'continue' );
 		const content = contentBeforeCurrentBlock
 			.filter( function ( block ) {
 				return block && block.attributes && block.attributes.content;
@@ -75,7 +73,6 @@ export const createPrompt = (
 				return block.attributes.content.replaceAll( '<br/>', '\n' );
 			} )
 			.join( '\n' );
-			console.log(content)
 		const shorter_content = content.slice( -1 * MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
 
 		const expandPrompt = sprintf(
@@ -349,25 +346,23 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 					/>
 				</>
 			) }
-			<div>
-				<AIControl
-					aiType={ aiType }
-					animationDone={ animationDone }
-					content={ attributes.content }
-					contentIsLoaded={ contentIsLoaded }
-					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
-					handleAcceptContent={ handleAcceptContent }
-					handleGetSuggestion={ handleGetSuggestion }
-					isSelected={ isSelected }
-					isWaitingState={ isWaitingState }
-					loadingImages={ loadingImages }
-					placeholder={ placeholder }
-					retry={ retry }
-					showRetry={ showRetry }
-					setAiType={ setAiType }
-					setUserPrompt={ setUserPrompt }
-				/>
-			</div>
+			<AIControl
+				aiType={ aiType }
+				animationDone={ animationDone }
+				content={ attributes.content }
+				contentIsLoaded={ contentIsLoaded }
+				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+				handleAcceptContent={ handleAcceptContent }
+				handleGetSuggestion={ handleGetSuggestion }
+				isSelected={ isSelected }
+				isWaitingState={ isWaitingState }
+				loadingImages={ loadingImages }
+				placeholder={ placeholder }
+				retry={ retry }
+				showRetry={ showRetry }
+				setAiType={ setAiType }
+				setUserPrompt={ setUserPrompt }
+			/>
 
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
