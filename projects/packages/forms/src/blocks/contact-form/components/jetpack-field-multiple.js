@@ -68,6 +68,7 @@ function JetpackFieldMultiple( props ) {
 			</div>
 
 			<JetpackFieldControls
+				blockClassNames={ classes }
 				clientId={ clientId }
 				id={ id }
 				required={ required }
@@ -92,6 +93,9 @@ export default compose(
 		'inputColor',
 		'labelColor',
 		'fieldBackgroundColor',
+		'buttonBackgroundColor',
+		'buttonBorderRadius',
+		'buttonBorderWidth',
 		'borderColor',
 	] ),
 	withInstanceId

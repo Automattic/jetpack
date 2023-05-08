@@ -690,12 +690,12 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form input.grunion-field.is-style-button:checked,
 .contact-form input.grunion-field.is-style-button:checked + .grunion-field-text {
-	color: var(--jetpack--contact-form--button-primary--color);
+	color: var(--jetpack--contact-form--button-outline--background-color);
 }
 
 .contact-form input.grunion-field.is-style-button:checked + .grunion-field-text::before {
-	background: var(--jetpack--contact-form--button-primary--background-color);
-	border-color: var(--jetpack--contact-form--button-primary--background-color);
+	background: var(--jetpack--contact-form--button-outline--text-color);
+	border-color: var(--jetpack--contact-form--button-outline--text-color);
 }
 
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio {

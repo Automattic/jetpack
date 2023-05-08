@@ -91,6 +91,9 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 				'id'                     => null,
 				'style'                  => null,
 				'fieldbackgroundcolor'   => null,
+				'buttonbackgroundcolor'  => null,
+				'buttonborderradius'     => null,
+				'buttonborderwidth'      => null,
 				'textcolor'              => null,
 				'default'                => null,
 				'values'                 => null,
@@ -305,12 +308,23 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 		}
 		if ( ! empty( $this->get_attribute( 'inputcolor' ) ) ) {
 			$this->block_styles  .= '--jetpack--contact-form--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
+			$this->block_styles  .= '--jetpack--contact-form--button-outline--text-color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
 			$this->field_styles  .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
 			$this->option_styles .= 'color: ' . esc_attr( $this->get_attribute( 'inputcolor' ) ) . ';';
 		}
 		if ( ! empty( $this->get_attribute( 'fieldbackgroundcolor' ) ) ) {
 			$this->block_styles .= '--jetpack--contact-form--input-background: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
 			$this->field_styles .= 'background-color: ' . esc_attr( $this->get_attribute( 'fieldbackgroundcolor' ) ) . ';';
+		}
+		if ( ! empty( $this->get_attribute( 'buttonbackgroundcolor' ) ) ) {
+			$this->block_styles .= '--jetpack--contact-form--button-outline--background-color: ' . esc_attr( $this->get_attribute( 'buttonbackgroundcolor' ) ) . ';';
+		}
+		if ( is_numeric( $this->get_attribute( 'buttonborderradius' ) ) ) {
+			$this->block_styles .= '--jetpack--contact-form--button-outline--border-radius: ' . esc_attr( $this->get_attribute( 'buttonborderradius' ) ) . 'px;';
+		}
+		if ( is_numeric( $this->get_attribute( 'buttonborderwidth' ) ) ) {
+			$this->block_styles .= '--jetpack--contact-form--button-outline--border-size: ' . esc_attr( $this->get_attribute( 'buttonborderwidth' ) ) . 'px;';
+
 		}
 		if ( ! empty( $this->get_attribute( 'fieldfontsize' ) ) ) {
 			$this->block_styles  .= '--jetpack--contact-form--font-size: ' . esc_attr( $this->get_attribute( 'fieldfontsize' ) ) . ';';

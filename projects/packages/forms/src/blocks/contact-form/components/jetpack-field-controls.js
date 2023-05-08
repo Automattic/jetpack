@@ -17,13 +17,14 @@ import {
 	RangeControl,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useFormStyle, FORM_STYLE } from '../util/form';
+import { useFormStyle, FORM_STYLE, getBlockStyle } from '../util/form';
 import renderMaterialIcon from '../util/render-material-icon';
 import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldControls = ( {
 	attributes,
+	blockClassNames,
 	clientId,
 	id,
 	placeholder,
@@ -35,6 +36,7 @@ const JetpackFieldControls = ( {
 	width,
 } ) => {
 	const formStyle = useFormStyle( clientId );
+	const blockStyle = getBlockStyle( blockClassNames );
 	const isChoicesBlock = [ 'radio', 'checkbox' ].includes( type );
 
 	const setNumberAttribute =
@@ -47,8 +49,13 @@ const JetpackFieldControls = ( {
 			} );
 		};
 
+	const optionColorLabel =
+		blockStyle === 'button'
+			? __( 'Button Text', 'jetpack-forms' )
+			: __( 'Option Text', 'jetpack-forms', 0 );
+
 	const inputColorLabel = isChoicesBlock
-		? __( 'Option Text', 'jetpack-forms' )
+		? optionColorLabel
 		: __( 'Field Text', 'jetpack-forms', 0 );
 
 	const backgroundColorLabel = isChoicesBlock
@@ -71,6 +78,14 @@ const JetpackFieldControls = ( {
 			label: inputColorLabel,
 		},
 	];
+
+	if ( isChoicesBlock && blockStyle === 'button' ) {
+		colorSettings.push( {
+			value: attributes.buttonBackgroundColor,
+			onChange: value => setAttributes( { buttonBackgroundColor: value } ),
+			label: __( 'Button Background', 'jetpack-forms' ),
+		} );
+	}
 
 	if ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) {
 		colorSettings.push( {
@@ -166,6 +181,26 @@ const JetpackFieldControls = ( {
 							size="__unstable-large"
 						/>
 					</BaseControl>
+					{ ( isChoicesBlock || blockStyle === 'button' ) && (
+						<>
+							<RangeControl
+								label={ __( 'Button Border Width', 'jetpack-forms' ) }
+								value={ attributes.buttonBorderWidth }
+								initialPosition={ 1 }
+								onChange={ setNumberAttribute( 'buttonBorderWidth' ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+							<RangeControl
+								label={ __( 'Button Border Radius', 'jetpack-forms' ) }
+								value={ attributes.buttonBorderRadius }
+								initialPosition={ 0 }
+								onChange={ setNumberAttribute( 'buttonBorderRadius' ) }
+								min={ 0 }
+								max={ 100 }
+							/>
+						</>
+					) }
 					{ ( ! isChoicesBlock || formStyle === FORM_STYLE.OUTLINED ) && (
 						<>
 							<RangeControl

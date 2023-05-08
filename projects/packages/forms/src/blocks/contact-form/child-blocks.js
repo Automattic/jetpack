@@ -82,6 +82,17 @@ const FieldDefaults = {
 		fieldBackgroundColor: {
 			type: 'string',
 		},
+		buttonBackgroundColor: {
+			type: 'string',
+		},
+		buttonBorderRadius: {
+			type: 'number',
+			default: '',
+		},
+		buttonBorderWidth: {
+			type: 'number',
+			default: '',
+		},
 		borderColor: {
 			type: 'string',
 		},
