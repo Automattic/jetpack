@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync\Endpoints;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Delete;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 
@@ -133,15 +134,20 @@ class Endpoint {
 	 * @param \WP_REST_Request $request - The request object.
 	 */
 	private function handler( $request, $entry_method = 'get' ) {
-		$available_methods = array( 'get', 'set', 'merge', 'delete' );
-		if ( ! in_array( $entry_method, $available_methods, true ) ) {
+		$available_methods = array(
+			'get'    => Entry_Can_Get::class,
+			'set'    => Entry_Can_Set::class,
+			'merge'  => Entry_Can_Merge::class,
+			'delete' => Entry_Can_Delete::class,
+		);
+		if ( ! isset( $available_methods[ $entry_method ] ) ) {
 			// Set status 400 because an unsupported method was used.
 			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method.', array( 'status' => 400 ) ) );
 		}
 
-		if ( ! $this->entry->is( $entry_method ) ) {
+		if ( ! $this->entry->is( $available_methods[$entry_method] ) ) {
 			// Set Status 500 because the method is valid but is missing in Data_Sync_Entry.
-			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method. ' . $entry_method, array( 'status' => 500 ) ) );
+			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method. "' . $entry_method . '" ', array( 'status' => 500 ) ) );
 		}
 
 		try {
