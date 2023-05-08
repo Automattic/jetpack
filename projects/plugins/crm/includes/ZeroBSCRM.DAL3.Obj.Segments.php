@@ -1436,30 +1436,23 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                     global $zbs,$wpdb,$ZBSCRM_t;
 
 					$advanced_segments_active = defined( 'JPCRM_ADVANCED_SEGMENTS_ROOTFILE' );
-					$core_fallback            = false;
 
-					// If the Advanced Segments plugin is active, we want to use the logic defined there instead.
+			// If the Advanced Segments plugin is active, we want to use the logic defined there instead.
 			if ( ! empty( $condition['type'] ) && $advanced_segments_active ) {
-						$filter_tag     = $this->makeSlug( $condition['type'] ) . '_zbsSegmentArgumentBuild';
-						$potential_args = apply_filters( $filter_tag, false, $condition, $conditionKeySuffix ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-						// got anything back?
+				$filter_tag = $this->makeSlug( $condition['type'] ) . '_zbsSegmentArgumentBuild';
+				if ( substr( $condition['type'], 0, 5 ) === 'zbsc_' ) {
+					$filter_tag = $this->makeSlug( substr( $condition['type'], 5 ) ) . '_zbsSegmentArgumentBuild';
+				}
+
+				$potential_args = apply_filters( $filter_tag, false, $condition, $conditionKeySuffix ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				// got anything back?
 
 				if ( $potential_args !== false ) {
 					return $potential_args;
-				} elseif ( substr( $condition['type'], 0, 5 ) === 'zbsc_' ) { // to support cases where we prefix with `zbsc_` (Adv Segments), here we remove if present
-					$filter_tag     = $this->makeSlug( substr( $condition['type'], 5 ) ) . '_zbsSegmentArgumentBuild';
-					$potential_args = apply_filters( $filter_tag, false, $condition, $conditionKeySuffix ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
-					if ( $potential_args !== false ) {
-						return $potential_args;
-					}
 				}
-				$core_fallback = true;
 			}
 
-			if ( $core_fallback ) {
-
-				switch ( $condition['type'] ) {
+			switch ( $condition['type'] ) {
 
                         case 'status':
                         case 'zbsc_status':
@@ -1690,12 +1683,11 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                                         ); 
                             break;
 
-					default:
-						break;
+				default:
+					break;
 
-				}
 			}
-                }
+		}
 
                 // if we get here we've failed to create any arguments for this condiition
                 // ... to avoid scenarios such as mail campaigns going out to 'less filtered than intended' audiences
