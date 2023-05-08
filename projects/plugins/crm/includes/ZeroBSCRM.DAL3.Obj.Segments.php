@@ -1435,7 +1435,28 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
 
                     global $zbs,$wpdb,$ZBSCRM_t;
 
-                    switch ( $condition['type'] ){
+					$advanced_segments_active = defined( 'JPCRM_ADVANCED_SEGMENTS_ROOTFILE' );
+
+					// If the Advanced Segments plugin is active, we want to use the logic defined there instead.
+			if ( ! empty( $condition['type'] ) && $advanced_segments_active ) {
+
+						$filter_tag     = $this->makeSlug( $condition['type'] ) . '_zbsSegmentArgumentBuild';
+						$potential_args = apply_filters( $filter_tag, false, $condition, $conditionKeySuffix ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+						// got anything back?
+				if ( $potential_args !== false ) {
+					return $potential_args;
+				} elseif ( substr( $condition['type'], 0, 5 ) === 'zbsc_' ) { // to support cases where we prefix with `zbsc_` (Adv Segments), here we remove if present
+					$filter_tag     = $this->makeSlug( substr( $condition['type'], 5 ) ) . '_zbsSegmentArgumentBuild';
+					$potential_args = apply_filters( $filter_tag, false, $condition, $conditionKeySuffix ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+					if ( $potential_args !== false ) {
+						return $potential_args;
+					}
+				}
+			} else {
+
+				switch ( $condition['type'] ) {
 
                         case 'status':
                         case 'zbsc_status':
@@ -1518,20 +1539,7 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                                 return array('additionalWhereArr'=>
                                             array('emailContains'.$conditionKeySuffix=>array("zbsc_email",'LIKE','%s','%'.$condition['value'].'%'))
                                         );
-					elseif ( $condition['operator'] === 'doesnotcontain' ) {
-						return array(
-							'additionalWhereArr' =>
-							array(
-								'emailDoesNotContain' . $conditionKeySuffix => // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-								array(
-									'zbsc_email',
-									'NOT LIKE',
-									'%s',
-									'%' . $condition['value'] . '%',
-								),
-							),
-						);
-					}
+
                             break;
 
 
@@ -1679,46 +1687,11 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                                         ); 
                             break;
 
-                        default:
+					default:
+						break;
 
-                            // Allow for custom segmentArgument builders
-                            if (!empty($condition['type'])){
-
-                                $filterTag = $this->makeSlug( $condition['type'] ) . '_zbsSegmentArgumentBuild';
-                                $potentialArgs = apply_filters( $filterTag, false, $condition,$conditionKeySuffix );
-
-                                // got anything back? 
-                                if ( $potentialArgs !== false ) {
-                                    
-                                    return $potentialArgs;
-
-                                } else {
-
-                                    // fallbacks
-                                    // to support cases where we prefix with `zbsc_` (Adv Segments), here we remove if present
-                                    if ( substr( $condition['type'], 0, 5 ) == 'zbsc_' ){
-
-                                        $filterTag = $this->makeSlug( substr( $condition['type'], 5 ) ) . '_zbsSegmentArgumentBuild';
-                                        $potentialArgs = apply_filters( $filterTag, false, $condition,$conditionKeySuffix );
-
-                                        if ( $potentialArgs !== false ) {
-                                            
-                                            return $potentialArgs;
-
-                                        }
-
-                                    }
-                                }
-                            }
-
-                            break;
-
-
-
-                    }
-
-
-
+				}
+			}
                 }
 
                 // if we get here we've failed to create any arguments for this condiition
