@@ -125,7 +125,7 @@ const PRODUCT_ICON_MAP = {
 	[ PLAN_JETPACK_SOCIAL_BASIC_MONTHLY ]: '/products/product-jetpack-social.svg',
 	[ PLAN_JETPACK_SOCIAL_ADVANCED ]: '/products/product-jetpack-social.svg',
 	[ PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY ]: '/products/product-jetpack-social.svg',
-	[ PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME ]: '/plans/jetpack.svg',
+	[ PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME ]: '/plans/jetpack-golden-token.svg',
 
 	// DEPRECATED: Daily and Real-time variations will soon be retired.
 	// Remove after all customers are migrated to new products.
@@ -213,6 +213,7 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_SOCIAL_BASIC_MONTHLY,
 		PLAN_JETPACK_SOCIAL_ADVANCED,
 		PLAN_JETPACK_SOCIAL_ADVANCED_MONTHLY,
+		PLAN_JETPACK_GOLDEN_TOKEN_LIFETIME,
 
 		// DEPRECATED: Daily and Real-time variations will soon be retired.
 		// Remove after all customers are migrated to new products.

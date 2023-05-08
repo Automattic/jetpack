@@ -10,6 +10,11 @@
 		flex-flow: row nowrap;
 		justify-content: space-between;
 	}
+
+	&.plan-golden-token .my-plan-card__icon img {
+		max-width: 80px;
+		max-height: 80px;
+	}
 }
 
 .my-plan-card__primary {
@@ -62,6 +67,9 @@
 	width: 99px;
 	height: 99px;
 	margin: 0 16px 0 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .my-plan-card__icon {

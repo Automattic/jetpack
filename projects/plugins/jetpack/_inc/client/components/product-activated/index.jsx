@@ -12,9 +12,15 @@ const ProductActivated = ( { type } ) => {
 		);
 	}
 	return (
-		<div className="jp-product-activated-label">
+		<div
+			className={
+				'jp-product-activated-label' + ( type === 'never-expires' ? ' never-expires' : '' )
+			}
+		>
 			<span className="jp-product-activated-label__text">
-				{ __( 'Subscription active', 'jetpack' ) }
+				{ type === 'never-expires'
+					? __( 'Never expires', 'jetpack' )
+					: __( 'Subscription active', 'jetpack' ) }
 			</span>
 		</div>
 	);
