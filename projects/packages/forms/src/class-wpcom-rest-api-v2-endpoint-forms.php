@@ -179,7 +179,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 					\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::parse_fields_from_content( $response->ID )
 				);
 
-				$all_fields = array_merge( $base_fields, empty( $data['_feedback_all_fields'] ) ? array() : $data['_feedback_all_fields'] );
+				$all_fields = array_merge( $base_fields, $data['_feedback_all_fields'] );
 				return array(
 					'id'                      => $response->ID,
 					'uid'                     => $all_fields['feedback_id'],
@@ -194,7 +194,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 					'entry_permalink'         => $all_fields['entry_permalink'],
 					'subject'                 => $data['_feedback_subject'],
 					'fields'                  => array_diff_key(
-						empty( $data['_feedback_all_fields'] ) ? array() : $data['_feedback_all_fields'],
+						$all_fields,
 						$base_fields
 					),
 				);
