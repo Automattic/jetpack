@@ -1,5 +1,6 @@
-import './editor.scss';
-
+/**
+ * External dependencies
+ */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
@@ -21,13 +22,22 @@ import { useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, pencil, moreVertical } from '@wordpress/icons';
 import MarkdownIt from 'markdown-it';
+/**
+ * Internal dependencies
+ */
 import ImageWithSelect from './image-with-select';
 import { getImagesFromOpenAI } from './lib';
 import Loading from './loading';
 import ShowLittleByLittle from './show-little-by-little';
+import './editor.scss';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
+
+export const PROMPT_SUFFIX = __(
+	'. Please always output the generated content in markdown format. Do not include a top level heading by default. Please only output generated content ready for publishing.',
+	'jetpack'
+);
 
 // Creates the prompt that will eventually be sent to OpenAI. It uses the current post title, content (before the actual AI block) - or a slice of it if too long, and tags + categories names
 export const createPrompt = (
@@ -40,13 +50,8 @@ export const createPrompt = (
 	userPrompt = '',
 	type = 'userPrompt'
 ) => {
-	const promptSuffix = __(
-		'. Please always output the generated content in markdown format. Do not include a top level heading by default. Please only output generated content ready for publishing.',
-		'jetpack'
-	);
-
 	if ( type === 'userPrompt' ) {
-		return userPrompt + promptSuffix;
+		return userPrompt + PROMPT_SUFFIX;
 	}
 
 	if ( type === 'titleSummary' ) {
@@ -55,7 +60,7 @@ export const createPrompt = (
 			__( "Please help me write a short piece of a blog post titled '%1$s'", 'jetpack' ),
 			postTitle
 		);
-		return titlePrompt + promptSuffix;
+		return titlePrompt + PROMPT_SUFFIX;
 	}
 
 	if ( type === 'expandPreceding' ) {
@@ -74,7 +79,7 @@ export const createPrompt = (
 			__( ' Please continue from here:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
 			shorter_content
 		);
-		return expandPrompt + promptSuffix;
+		return expandPrompt + PROMPT_SUFFIX;
 	}
 
 	// TODO: add some error handling if user supplied prompts or existing content is too short.
