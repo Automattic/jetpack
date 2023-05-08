@@ -252,7 +252,13 @@ function getPlan( type ) {
 				user_is_owner: false,
 				is_free: true,
 				features: {
-					active: [ 'akismet', 'donations', 'premium-content/container' ],
+					active: [
+						'akismet',
+						'donations',
+						'recurring-payments',
+						'premium-content/container',
+						'simple-payments',
+					],
 					available: {
 						akismet: [
 							'jetpack_free',
@@ -318,9 +324,12 @@ function getPlan( type ) {
 						'social-previews',
 						'donations',
 						'core/audio',
-						'premium-content/container',
 						'support',
 						'wordads-jetpack',
+						'donations',
+						'recurring-payments',
+						'premium-content/container',
+						'simple-payments',
 					],
 					available: {
 						akismet: [
