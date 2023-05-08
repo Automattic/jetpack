@@ -46,10 +46,7 @@ class Current_Plan {
 				'opentable',
 				'calendly',
 				'donations',
-				'premium-content/container',
-				'recurring-payments',
 				'send-a-message',
-				'simple-payments',
 				'whatsapp-button',
 				'social-previews',
 				'videopress',
@@ -350,6 +347,11 @@ class Current_Plan {
 
 		// As of Q3 2021 - a videopress free tier is available to all plans.
 		if ( 'videopress' === $feature ) {
+			return true;
+		}
+
+		// As of 05 2023 - all plans support Earn features
+		if ( in_array( $feature, array( 'donations', 'recurring-payments', 'premium-content/container', 'simple-payments' ), true ) ) {
 			return true;
 		}
 
