@@ -144,6 +144,15 @@ function wpcom_register_default_launchpad_checklists() {
 
 	wpcom_register_launchpad_task(
 		array(
+			'id'                   => 'setup_blog',
+			'title'                => __( 'Name your blog', 'jetpack-mu-wpcom' ),
+			'is_complete_callback' => '__return_false',
+			'is_disabled_callback' => '__return_false',
+		)
+	);
+
+	wpcom_register_launchpad_task(
+		array(
 			'id'                   => 'setup_general',
 			'title'                => __( 'Set up your site', 'jetpack-mu-wpcom' ),
 			'is_complete_callback' => '__return_true',
@@ -166,6 +175,15 @@ function wpcom_register_default_launchpad_checklists() {
 		array(
 			'id'                    => 'site_launched',
 			'title'                 => __( 'Launch your site', 'jetpack-mu-wpcom' ),
+			'isLaunchTask'          => true,
+			'add_listener_callback' => 'wpcom_add_site_launch_listener',
+		)
+	);
+
+	wpcom_register_launchpad_task(
+		array(
+			'id'                    => 'blog_launched',
+			'title'                 => __( 'Launch your blog', 'jetpack-mu-wpcom' ),
 			'isLaunchTask'          => true,
 			'add_listener_callback' => 'wpcom_add_site_launch_listener',
 		)
