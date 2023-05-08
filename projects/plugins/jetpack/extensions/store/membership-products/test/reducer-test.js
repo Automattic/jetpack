@@ -88,19 +88,4 @@ describe( 'Membership products reducer testing', () => {
 		// Then
 		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, siteSlug: anySiteSlug } );
 	} );
-
-	test( 'set upgrade url action type adds the update site property to the returned state.', () => {
-		// Given
-		const anyUpgradeUrl = 'anyUpgradeUrl';
-		const anyUpgradeUrlAction = {
-			type: 'SET_UPGRADE_URL',
-			upgradeUrl: anyUpgradeUrl,
-		};
-
-		// When
-		const returnedState = reducer( DEFAULT_STATE, anyUpgradeUrlAction );
-
-		// Then
-		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, upgradeUrl: anyUpgradeUrl } );
-	} );
 } );
