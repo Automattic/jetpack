@@ -1536,8 +1536,7 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                                             array('emailContains'.$conditionKeySuffix=>array("zbsc_email",'LIKE','%s','%'.$condition['value'].'%'))
                                         );
 
-                            break;
-
+							break;
 
                         // TBA (When DAL2 trans etc.)
                         case 'totalval': // 'equal','notequal','larger','less','floatrange'
