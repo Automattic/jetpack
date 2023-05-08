@@ -386,18 +386,21 @@ class Launchpad_Task_Lists {
 	 * Marks a task as complete.
 	 *
 	 * @param string $task_id The task ID.
+	 * @param bool   $force     Optional. Force task completion, even if it's not active.
+	 *                          (This will will be the case in most non-REST API switch_to_blog operations).
 	 * @return bool True if successful, false if not.
 	 */
-	public function mark_task_complete( $task_id ) {
+	public function mark_task_complete( $task_id, $force = false ) {
 		$task = $this->get_task( $task_id );
 		if ( empty( $task ) ) {
 			return false;
 		}
-
-		// Ensure that the task is an active one
-		$active_tasks_by_task_id = wp_list_filter( $this->get_active_tasks(), array( 'id' => $task_id ) );
-		if ( empty( $active_tasks_by_task_id ) ) {
-			return false;
+		if ( ! $force ) {
+			// Ensure that the task is an active one
+			$active_tasks_by_task_id = wp_list_filter( $this->get_active_tasks(), array( 'id' => $task_id ) );
+			if ( empty( $active_tasks_by_task_id ) ) {
+				return false;
+			}
 		}
 
 		$key              = $this->get_task_key( $task );
