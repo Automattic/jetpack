@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Change post_type comparison on untrash filter to only affect feedback posts

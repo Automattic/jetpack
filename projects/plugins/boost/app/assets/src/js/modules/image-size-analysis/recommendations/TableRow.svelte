@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ImageMeta } from '../ApiMock';
+	import { ISA_Data } from '../store/isa-data';
 	import TableRowExpanded from './TableRowExpanded.svelte';
 	import TableRowHover from './TableRowHover.svelte';
 	import Device from './components/Device.svelte';
@@ -7,7 +7,7 @@
 	import RowTitle from './components/RowTitle.svelte';
 	import Thumbnail from './components/Thumbnail.svelte';
 
-	export let data: ImageMeta;
+	export let data: ISA_Data;
 	let expanded = false;
 	let hover = Math.random() > 0.5;
 	const title = data.image.url.split( '/' ).pop();
@@ -69,7 +69,7 @@
 		</div>
 	</div>
 	{#if expanded}
-		<TableRowExpanded image={data.image} instructions={data.instructions} />
+		<TableRowExpanded {data} />
 	{/if}
 </div>
 
