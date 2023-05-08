@@ -1,14 +1,23 @@
-# forms
+# Jetpack Forms
 
-Jetpack Forms
+All things forms. This package currently contains them implementation for Jetpack's Contact Form module, Contact Form Gutenberg blocks and the new Jetpack Forms feedback dashboard.
 
-## How to install forms
+## Hierarchy
 
-### Installation From Git Repo
+```
+.
+├── src/
+│   ├── blocks/                                      - Contact form Gutenberg blocks.
+│   ├── contact-form/                                - Contact form module implementation.
+│   ├── dashboard/                                   - Implementation for the new forms dashboard.
+│   ├── service/                                     - Helpers for 3rd-party service integrations.
+│   ├── class-jetpack-forms.php                      - Package entrypoint.
+│   └── class-wpcom-rest-api-v2-endpoint-forms.php   - WP.com REST API endpoints definition.
+│
+└── tools/                                           - Webpack configuration for all bundles in the package.
+```
 
-## Contribute
-
-## Get Help
+See the individual subdirectories for more information.
 
 ## Using this package in your WordPress plugin
 
@@ -21,4 +30,3 @@ Need to report a security vulnerability? Go to [https://automattic.com/security/
 ## License
 
 forms is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt)
-
