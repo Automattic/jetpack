@@ -430,7 +430,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$response_link = 'http://example.com/wp-admin/admin.php?page=feedback';
 		$form_link     = 'http://example.com/contact-us/';
 		$result        = $form->wrap_message_in_html_tags( $title, $response_link, $form_link, $body, $footer );
-		error_log( "result: $result", 3, '/tmp/grunion.log' );
+
 		$this->assertStringContainsString( $title, $result );
 		$this->assertStringContainsString( $body, $result );
 		$this->assertStringContainsString( $footer, $result );
