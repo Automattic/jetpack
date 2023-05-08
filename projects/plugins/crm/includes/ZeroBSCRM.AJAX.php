@@ -3142,7 +3142,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				$withTags             = false;
 				$withAssigned         = false;
 				$latestLog            = false;
-				$withQuotes           = false;
 				$withInvoices         = false;
 				$withTransactions     = false;
 				$withValues           = false;
@@ -3195,11 +3194,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				if ( in_array( 'assigned', $columnsRequired ) ) {
 
 					$withAssigned = true;
-
-				}
-				if ( in_array( 'quotecount', $columnsRequired ) ) {
-
-					$withQuote = true;
 
 				}
 
@@ -3305,7 +3299,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					'isTagged'         => $possibleTagIDs,
 					'quickFilters'     => $possibleQuickFilters,
 					'withCustomFields' => true,
-					'withQuotes'       => $withQuotes,
 					'withInvoices'     => false,
 					'withTransactions' => $withTransactions,
 					'withLogs'         => false,
