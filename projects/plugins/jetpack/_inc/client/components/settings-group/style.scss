@@ -51,10 +51,9 @@
 	}
 
 	.jp-support-info {
-		@include breakpoint( "<480px" ) {
-			right: rem( 16px );
-			top: rem( 20px );
-		}
+		top: rem( 18px );
+		right: rem( 28px );
+
 		& + p {
 			margin-top: 2px;
 		}

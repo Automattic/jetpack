@@ -125,6 +125,7 @@ class CommentsComponent extends React.Component {
 										'jetpack_comment_form_color_scheme',
 										'comments'
 									) }
+									rna
 								/>
 							</FormLabel>
 						</FormFieldset>

@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: Add a wpcom/v2/videopress `check-ownership` endpoint

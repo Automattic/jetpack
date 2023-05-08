@@ -1197,6 +1197,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'get_parsed_field_contents_of_post',
 					'get_post_content_for_csv_export',
 					'map_parsed_field_contents_of_post_to_field_names',
+					'has_json_data',
 				)
 			)
 			->disableOriginalConstructor()
@@ -1205,6 +1206,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$get_post_meta_for_csv_export_map = array(
 			array(
 				15,
+				false,
 				array(
 					'key1' => 'value1',
 					'key2' => 'value2',
@@ -1215,6 +1217,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			),
 			array(
 				16,
+				false,
 				array(
 					'key3' => 'value3',
 					'key4' => 'value4',
@@ -1240,6 +1243,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj1',
 					'_feedback_main_comment' => 'This is my test 15',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj1',
 					'4_Comment'    => 'This is my test 15',
@@ -1250,6 +1254,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj2',
 					'_feedback_main_comment' => 'This is my test 16',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj2',
 					'4_Comment'    => 'This is my test 16',
@@ -1272,6 +1277,10 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$mock->expects( $this->exactly( 2 ) )
 			->method( 'map_parsed_field_contents_of_post_to_field_names' )
 			->will( $this->returnValueMap( $mapped_fields_contents_map ) );
+
+		$mock->expects( $this->exactly( 2 ) )
+			->method( 'has_json_data' )
+			->will( $this->returnValue( false ) );
 
 		$result = $mock->get_export_data_for_posts( array( 15, 16 ) );
 
@@ -1314,9 +1323,10 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			->getMock();
 
 		$get_post_meta_for_csv_export_map = array(
-			array( 15, null ),
+			array( 15, false, null ),
 			array(
 				16,
+				false,
 				array(
 					'key3' => 'value3',
 					'key4' => 'value4',
@@ -1342,6 +1352,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj1',
 					'_feedback_main_comment' => 'This is my test 15',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj1',
 					'Comment'      => 'This is my test 15',
@@ -1352,6 +1363,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj2',
 					'_feedback_main_comment' => 'This is my test 16',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj2',
 					'Comment'      => 'This is my test 16',
@@ -1416,8 +1428,8 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			->getMock();
 
 		$get_post_meta_for_csv_export_map = array(
-			array( 15, null ),
-			array( 16, null ),
+			array( 15, false, null ),
+			array( 16, false, null ),
 		);
 
 		$get_parsed_field_contents_of_post_map = array(
@@ -1436,6 +1448,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj1',
 					'_feedback_main_comment' => 'This is my test 15',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj1',
 					'Comment'      => 'This is my test 15',
@@ -1446,6 +1459,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj2',
 					'_feedback_main_comment' => 'This is my test 16',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj2',
 					'Comment'      => 'This is my test 16',
@@ -1506,6 +1520,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 		$get_post_meta_for_csv_export_map = array(
 			array(
 				15,
+				false,
 				array(
 					'key1' => 'value1',
 					'key2' => 'value2',
@@ -1516,6 +1531,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 			),
 			array(
 				16,
+				false,
 				array(
 					'key3' => 'value3',
 					'key4' => 'value4',
@@ -1541,6 +1557,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj1',
 					'_feedback_main_comment' => 'This is my test 15',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj1',
 					'Comment'      => 'This is my test 15',
@@ -1551,6 +1568,7 @@ class WP_Test_Contact_Form extends BaseTestCase {
 					'_feedback_subject'      => 'subj2',
 					'_feedback_main_comment' => 'This is my test 16',
 				),
+				true,
 				array(
 					'Contact Form' => 'subj2',
 					'Comment'      => 'This is my test 16',

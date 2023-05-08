@@ -171,6 +171,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 
 	.jp-forms__inbox-list.jp-forms__table {
 		background-color: #fdfdfd;
+		border-radius: 5px;
 
 		@media (min-width: 1025px) {
 			min-height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px));
@@ -194,6 +195,7 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 
 	.jp-forms__inbox-response {
 		background-color: #fff;
+		border-radius: 5px;
 
 		@media (min-width: 1025px) {
 			height: calc(100vh - calc(var(--wp-admin--admin-bar--height) + #{$tabs-height} + #{$action-bar-height} + 48px));

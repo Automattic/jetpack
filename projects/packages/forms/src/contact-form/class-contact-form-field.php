@@ -604,7 +604,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 									. checked( $option, $value, false ) . ' '
 									. ( $required ? "required aria-required='true'" : '' )
 									. '/> ';
-				$field .= esc_html( $option ) . "</label>\n";
+				$field .= "<span class='grunion-field-text'>" . esc_html( $option ) . '</span>';
+				$field .= '</label>';
 			}
 		}
 		$field .= '</div>';
@@ -678,7 +679,8 @@ class Contact_Form_Field extends Contact_Form_Shortcode {
 			if ( is_string( $option ) && $option !== '' ) {
 				$field .= "\t\t<label {$field_style} class='grunion-checkbox-multiple-label checkbox-multiple " . ( $this->is_error() ? ' form-error' : '' ) . "'>";
 				$field .= "<input type='checkbox' name='" . esc_attr( $id ) . "[]' value='" . esc_attr( $this->get_option_value( $this->get_attribute( 'values' ), $option_index, $option ) ) . "' " . $class . checked( in_array( $option, (array) $value, true ), true, false ) . ' /> ';
-				$field .= esc_html( $option ) . "</label>\n";
+				$field .= "<span class='grunion-field-text'>" . esc_html( $option ) . '</span>';
+				$field .= "</label>\n";
 			}
 		}
 		$field .= '</div>';
