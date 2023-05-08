@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Internationalization: add necessary context to the word "Trash" in the Contact Form interface.
