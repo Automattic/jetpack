@@ -1436,14 +1436,14 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                     global $zbs,$wpdb,$ZBSCRM_t;
 
 					$advanced_segments_active = defined( 'JPCRM_ADVANCED_SEGMENTS_ROOTFILE' );
+					$core_fallback            = false;
 
 					// If the Advanced Segments plugin is active, we want to use the logic defined there instead.
 			if ( ! empty( $condition['type'] ) && $advanced_segments_active ) {
-
 						$filter_tag     = $this->makeSlug( $condition['type'] ) . '_zbsSegmentArgumentBuild';
 						$potential_args = apply_filters( $filter_tag, false, $condition, $conditionKeySuffix ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
 						// got anything back?
+
 				if ( $potential_args !== false ) {
 					return $potential_args;
 				} elseif ( substr( $condition['type'], 0, 5 ) === 'zbsc_' ) { // to support cases where we prefix with `zbsc_` (Adv Segments), here we remove if present
@@ -1454,7 +1454,10 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
 						return $potential_args;
 					}
 				}
-			} else {
+				$core_fallback = true;
+			}
+
+			if ( $core_fallback ) {
 
 				switch ( $condition['type'] ) {
 
