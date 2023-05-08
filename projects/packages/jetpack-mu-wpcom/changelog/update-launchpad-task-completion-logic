@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Allow Launchpad tasks to be marked complete even if the registry doesn't think they're active
