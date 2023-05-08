@@ -4,46 +4,6 @@
 @import '../../../shared/styles/jetpack-variables.scss';
 @import './variables.scss';
 
-$spinner-size: 16px;
-// This used to be imported from @wordpress/components, but that was updated to use
-// @emotion so original scss copied here.
-.components-spinner {
-	width: $spinner-size;
-	height: $spinner-size;
-	display: inline-block;
-	margin: 5px 11px 0;
-	position: relative;
-	color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #3858e9 ) );
-	overflow: visible;
-	opacity: 1;
-	background-color: transparent;
-
-	&::before {
-		/* rtl:begin:ignore */
-		content: "";
-		position: absolute;
-		background-color: $white;
-		top: ( $spinner-size - ( $spinner-size *  math.div(2, 3) ) ) * 0.5;
-		left: ( $spinner-size - ( $spinner-size *  math.div(2, 3) ) ) * 0.5;
-		width: math.div($spinner-size, 4.5);
-		height: math.div($spinner-size, 4.5);
-		border-radius: 100%;
-		transform-origin: math.div($spinner-size, 3) math.div($spinner-size, 3);
-		animation: components-spinner__animation 1s infinite linear;
-		/* rtl:end:ignore */
-	}
-}
-
-@keyframes components-spinner__animation {
-	from {
-		transform: rotate(0deg);
-	}
-	to {
-		transform: rotate(360deg);
-	}
-}
-// end of deprecated @wordpress/component scss
-
 .wp-story-display-contents {
 	display: contents;
 }
