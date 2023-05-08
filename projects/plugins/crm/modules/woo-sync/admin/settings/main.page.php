@@ -326,28 +326,28 @@ function jpcrm_settings_page_html_woosync_main() {
 									?>
 									<tr class="jpcrm_woosync_order_status_map">
 										<td><?php echo esc_html( $woo_order_value ); ?></td>
-										<?php 
-											foreach ( $woo_order_mapping_types as $map_type_value ) :
-												$selected    = '';
-												$mapping_key = $map_type_value['prefix'] . $woo_order_key;
+										<?php
+										foreach ( $woo_order_mapping_types as $map_type_value ) :
+											$selected    = '';
+											$mapping_key = $map_type_value['prefix'] . $woo_order_key;
 
-												if ( is_array( $settings ) && isset( $settings[ $mapping_key ] ) ) {
-													$selected = $settings[ $mapping_key ];
-												}
+											if ( is_array( $settings ) && isset( $settings[ $mapping_key ] ) ) {
+												$selected = $settings[ $mapping_key ];
+											}
 
-										?>
+											?>
 											<td>
 												<select class="winput" style="width: 90%;" name="<?php echo esc_attr( $mapping_key ); ?>" id="<?php echo esc_attr( $mapping_key ); ?>">
 													<option value="-1"><?php esc_html_e( 'Default', 'zero-bs-crm' ); ?></option>
 													<?php
-														foreach ( $map_type_value['statuses'] as $status ) {
-															printf( '<option value="%s" %s>%s</option>', esc_attr( $status ), ( $selected === $status ? 'selected' : '' ), esc_html( $status ) );
-														}
+													foreach ( $map_type_value['statuses'] as $status ) {
+														printf( '<option value="%s" %s>%s</option>', esc_attr( $status ), ( $selected === $status ? 'selected' : '' ), esc_html( $status ) );
+													}
 													?>
 												</select>
 											</td>
-										<?php
-											endforeach;
+											<?php
+										endforeach;
 										?>
 									</tr>
 									<?php
