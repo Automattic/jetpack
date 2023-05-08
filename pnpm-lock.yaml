@@ -3646,8 +3646,8 @@ importers:
         specifier: 2.6.7
         version: 2.6.7
       pm2:
-        specifier: 5.2.0
-        version: 5.2.0
+        specifier: 5.3.0
+        version: 5.3.0
       shell-escape:
         specifier: 0.2.0
         version: 0.2.0
@@ -12028,6 +12028,10 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.5
 
+  /dayjs@1.11.7:
+    resolution: {integrity: sha512-+Yw9U6YO5TQohxLcIkrXBeY73WP3ejHWVvx8XCk3gxvQDCTEmS48ZrSZCKciI7Bhl/uCMyxYtE9UqRILmFphkQ==}
+    dev: true
+
   /dayjs@1.8.36:
     resolution: {integrity: sha512-3VmRXEtw7RZKAf+4Tv1Ym9AGeo8r8+CjDi26x+7SYQil1UqtqdaokhzoEJohqlzt0m5kacJSDhJQkG/LWhpRBw==}
     dev: true
@@ -17493,8 +17497,8 @@ packages:
     dev: true
     optional: true
 
-  /pm2@5.2.0:
-    resolution: {integrity: sha512-PO5hMVhQ85cTszFM++6v07Me9hPJMkFbHjkFigtMMk+La8ty2wCi2dlBTeZYJDhPUSjK8Ccltpq2buNRcyMOTw==}
+  /pm2@5.3.0:
+    resolution: {integrity: sha512-xscmQiAAf6ArVmKhjKTeeN8+Td7ZKnuZFFPw1DGkdFPR/0Iyx+m+1+OpCdf9+HQopX3VPc9/wqPQHqVOfHum9w==}
     engines: {node: '>=10.0.0'}
     hasBin: true
     dependencies:
@@ -17509,7 +17513,7 @@ packages:
       cli-tableau: 2.0.1
       commander: 2.15.1
       croner: 4.1.97
-      dayjs: 1.8.36
+      dayjs: 1.11.7
       debug: 4.3.4
       enquirer: 2.3.6
       eventemitter2: 5.0.1
@@ -17523,7 +17527,7 @@ packages:
       pm2-multimeter: 0.1.2
       promptly: 2.2.0
       semver: 7.3.5
-      source-map-support: 0.5.19
+      source-map-support: 0.5.21
       sprintf-js: 1.1.2
       vizion: 2.2.1
       yamljs: 0.3.0
@@ -19712,13 +19716,6 @@ packages:
 
   /source-map-support@0.5.13:
     resolution: {integrity: sha512-SHSKFHadjVA5oR4PPqhtAVdcBWwRYVd6g6cAXnIbRiIwc2EhPrTuKUBdSLvlEKyIP3GCf89fltvcZiP9MMFA1w==}
-    dependencies:
-      buffer-from: 1.1.2
-      source-map: 0.6.1
-    dev: true
-
-  /source-map-support@0.5.19:
-    resolution: {integrity: sha512-Wonm7zOCIJzBGQdB+thsPar0kYuCIzYvxZwlBa87yi/Mdjv7Tip2cyVbLj5o0cFPN4EVkuTwb3GDDyUx2DGnGw==}
     dependencies:
       buffer-from: 1.1.2
       source-map: 0.6.1
