@@ -11,19 +11,14 @@ import edit from './edit';
  */
 import './editor.scss';
 
-export const name = 'ai-image';
-export const title = __( 'AI Image (Experimental)', 'jetpack' );
+export const name = 'ai-assistant';
+export const title = __( 'AI Assistant', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,
 	description: (
 		<Fragment>
-			<p>
-				{ __(
-					'Automatically generate an illustration for your post, powered by AI magic.',
-					'jetpack'
-				) }
-			</p>
+			<p>{ __( 'Automatically generate and modify content, powered by AI magic.', 'jetpack' ) }</p>
 			<p>
 				{ __(
 					'We are experimenting with this feature and can tweak or remove it at any point.',
@@ -39,27 +34,16 @@ export const settings = {
 		src: 'superhero',
 		foreground: getIconColor(),
 	},
-	category: 'media',
+	category: 'text',
 	keywords: [
 		_x( 'AI', 'block search term', 'jetpack' ),
+		_x( 'GPT', 'block search term', 'jetpack' ),
 		_x( 'AL', 'block search term', 'jetpack' ),
-		_x( 'DALLe', 'block search term', 'jetpack' ),
-		_x( 'Diffusion', 'block search term', 'jetpack' ),
 		_x( 'Magic', 'block search term', 'jetpack' ),
+		_x( 'help', 'block search term', 'jetpack' ),
+		_x( 'assistant', 'block search term', 'jetpack' ),
 	],
 	supports: {
-		// Support for block's alignment (left, center, right, wide, full). When true, it adds block controls to change block’s alignment.
-		align: false /* if set to true, the 'align' option below can be used*/,
-		// Pick which alignment options to display.
-		/*align: [ 'left', 'right', 'full' ],*/
-		// Support for wide alignment, that requires additional support in themes.
-		alignWide: false,
-		// When true, a new field in the block sidebar allows to define an id for the block and a button to copy the direct link.
-		anchor: false,
-		// When true, a new field in the block sidebar allows to define a custom className for the block’s wrapper.
-		customClassName: false,
-		// When false, Gutenberg won't add a class like .wp-block-your-block-name to the root element of your saved markup
-		className: true,
 		// Setting this to false suppress the ability to edit a block’s markup individually. We often set this to false in Jetpack blocks.
 		html: false,
 		// Passing false hides this block in Gutenberg's visual inserter.
@@ -68,15 +52,14 @@ export const settings = {
 		multiple: true,
 		// When false, the block won't be available to be converted into a reusable block.
 		reusable: false,
-		inserter: false,
 	},
 	edit,
-	/* @TODO Write the block editor output */
-	save: () => '',
+	save: () => null,
 	attributes,
+	transforms: {},
 	example: {
 		attributes: {
-			// @TODO: Add default values for block attributes, for generating the block preview.
+			content: __( "I'm afraid I can't do that, Dave.", 'jetpack' ),
 		},
 	},
 };
