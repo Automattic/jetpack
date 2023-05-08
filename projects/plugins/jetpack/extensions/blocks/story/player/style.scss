@@ -4,18 +4,19 @@
 @import '../../../shared/styles/jetpack-variables.scss';
 @import './variables.scss';
 
-$spinner-size: 18px;
+$spinner-size: 16px;
 // This used to be imported from @wordpress/components, but that was updated to use
 // @emotion so original scss copied here.
 .components-spinner {
-	display: inline-block;
-	background-color: #7e8993;
 	width: $spinner-size;
 	height: $spinner-size;
-	opacity: 0.7;
+	display: inline-block;
 	margin: 5px 11px 0;
-	border-radius: 100%;
 	position: relative;
+	color: var( --wp-components-color-accent, var( --wp-admin-theme-color, #3858e9 ) );
+	overflow: visible;
+	opacity: 1;
+	background-color: transparent;
 
 	&::before {
 		/* rtl:begin:ignore */
