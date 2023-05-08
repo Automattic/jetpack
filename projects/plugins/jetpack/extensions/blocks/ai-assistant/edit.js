@@ -22,9 +22,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Icon, pencil, moreVertical } from '@wordpress/icons';
 import MarkdownIt from 'markdown-it';
 import ImageWithSelect from './image-with-select';
+import { getImagesFromOpenAI } from './lib';
 import Loading from './loading';
 import ShowLittleByLittle from './show-little-by-little';
-import { getImagesFromOpenAI } from './lib';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
@@ -33,7 +33,9 @@ export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
 export const createPrompt = (
 	postTitle = '',
 	contentBeforeCurrentBlock = [],
+	// eslint-disable-next-line no-unused-vars
 	categoriesNames = '',
+	// eslint-disable-next-line no-unused-vars
 	tagsNames = '',
 	userPrompt = '',
 	type = 'userPrompt'
@@ -101,10 +103,10 @@ export const createPrompt = (
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
-	const [ needsMoreCharacters, setNeedsMoreCharacters ] = useState( false );
+	const [ , setNeedsMoreCharacters ] = useState( false );
 	const [ userPrompt, setUserPrompt ] = useState();
 	const [ showRetry, setShowRetry ] = useState( false );
-	const [ errorMessage, setErrorMessage ] = useState( false );
+	const [ , setErrorMessage ] = useState( false );
 	const [ aiType, setAiType ] = useState( 'text' );
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
