@@ -100,7 +100,7 @@ info "Listing commits from $DS to <$DE"
 # Collect renovate entries for special reporting, and record the lines that would otherwise be printed as "seen" so they don't get printed in other sections.
 RENOVATE=()
 while IFS= read -r LINE; do
-	SEEN[$(fmt <<<"$LINE")]=1
+	SEEN["$(fmt <<<"$LINE")"]=1
 	RENOVATE+=( "$(sed -E -e 's/^Update (dependency )?//' -e 's/ to .* (\(#[0-9]+\))$/ \1/' <<<"$LINE" | fmt | sed -e 's!^\* !!')" )
 done < <( git log --format='%s' --since "$DS 00:00:00 UTC" --until "$DE 00:00:00 UTC" --author='sysops+ghmatticbot@automattic.com' )
 
