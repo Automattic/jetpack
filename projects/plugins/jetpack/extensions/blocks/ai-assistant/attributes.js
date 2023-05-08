@@ -3,8 +3,4 @@ export default {
 		type: 'string',
 		source: 'html',
 	},
-	animationDone: {
-		type: 'boolean',
-		default: false,
-	},
 };

@@ -108,6 +108,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ , setErrorMessage ] = useState( false );
 	const [ aiType, setAiType ] = useState( 'text' );
+	const [ animationDone, setAnimationDone ] = useState( false );
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
 	const [ imageModal, setImageModal ] = useState( null );
@@ -390,14 +391,14 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 			{ contentIsLoaded && (
 				<>
 					<ShowLittleByLittle
-						showAnimation={ ! attributes.animationDone }
+						showAnimation={ ! animationDone }
 						onAnimationDone={ () => {
-							setAttributes( { animationDone: true } );
+							setAnimationDone( true );
 						} }
 						clientId={ clientId }
 						html={ attributes.content }
 					/>
-					{ contentIsLoaded && attributes.animationDone && (
+					{ contentIsLoaded && animationDone && (
 						<div className="jetpack-ai-assistant__accept">
 							<Button variant="primary" onClick={ handleAcceptContent }>
 								{ __( 'Accept', 'jetpack' ) }

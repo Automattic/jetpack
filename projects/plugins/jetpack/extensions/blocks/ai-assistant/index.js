@@ -60,7 +60,6 @@ export const settings = {
 	transforms: {},
 	example: {
 		attributes: {
-			animationDone: false,
 			content: __( "I'm afraid I can't do that, Dave.", 'jetpack' ),
 		},
 	},
