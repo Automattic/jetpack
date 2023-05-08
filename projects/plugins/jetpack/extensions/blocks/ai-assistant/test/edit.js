@@ -1,4 +1,8 @@
-import { createPrompt, MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT } from '../edit';
+import {
+	createPrompt,
+	MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT,
+	PROMPT_SUFFIX,
+} from '../edit';
 
 describe( 'AIParagraphEdit', () => {
 	test( 'createPrompt', () => {
@@ -16,23 +20,26 @@ describe( 'AIParagraphEdit', () => {
 		expect( createPrompt() ).toBeFalsy();
 		expect( createPrompt( '', [], '', '' ) ).toBeFalsy();
 
-		// Test contents
-		expect( createPrompt( 'title', [], '', '' ) ).toBe(
-			"Please help me write a short piece of a blog post titled 'title'. Please only output generated content ready for publishing."
+		// Test Title summary - no blocks
+		expect( createPrompt( 'title', [], '', '', '', 'titleSummary' ) ).toBe(
+			"Please help me write a short piece of a blog post titled 'title'" + PROMPT_SUFFIX
 		);
+
+		// Test Expand preceding - with blocks
 		expect(
-			createPrompt( 'title', [ fakeBlock, { attributes: { whatever: 'content' } } ], '', '' )
-		).toBe(
-			"Please help me write a short piece of a blog post titled 'title'. Please only output generated content ready for publishing. Please continue from here:\n\n … content"
-		);
+			createPrompt(
+				'title',
+				[ fakeBlock, { attributes: { whatever: 'content' } } ],
+				'',
+				'',
+				'',
+				'expandPreceding'
+			)
+		).toBe( ' Please continue from here:\n\n … content' + PROMPT_SUFFIX );
 
 		// Test that <BR/> are being translated. And content trimmed
-		expect( createPrompt( 'title', [ fakeBlockWithBr ], '', '' ) ).toBe(
-			"Please help me write a short piece of a blog post titled 'title'. Please only output generated content ready for publishing. Please continue from here:\n\n … content\ncontent2"
-		);
-
-		expect( createPrompt( 'title', [ fakeBlock, fakeBlock ], 'cat 1', '' ) ).toBe(
-			"Please help me write a short piece of a blog post titled 'title', published in categories 'cat 1'. Please only output generated content ready for publishing. Please continue from here:\n\n … content\ncontent"
+		expect( createPrompt( 'title', [ fakeBlockWithBr ], '', '', '', 'expandPreceding' ) ).toBe(
+			' Please continue from here:\n\n … content\ncontent2' + PROMPT_SUFFIX
 		);
 
 		// Test MAX content length
@@ -40,6 +47,12 @@ describe( 'AIParagraphEdit', () => {
 			"Please help me write a short piece of a blog post titled 'title'. Please only output generated content ready for publishing. Please continue from here:\n\n … " +
 				longContent.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT )
 		);
+
+		/* @todo: Uncommment once tags and categories are supported
+
+		// expect( createPrompt( 'title', [ fakeBlock, fakeBlock ], 'cat 1', '' ) ).toBe(
+		// 	"Please help me write a short piece of a blog post titled 'title', published in categories 'cat 1'. Please only output generated content ready for publishing. Please continue from here:\n\n … content\ncontent"
+		// );
 
 		// Test only cats
 		expect( createPrompt( '', [ fakeBlock ], 'cat1', 'tag1' ) ).toBe(
@@ -54,5 +67,6 @@ describe( 'AIParagraphEdit', () => {
 		expect( createPrompt( 'title', [], 'cat1, cat2', 'tag1' ) ).toBe(
 			"Please help me write a short piece of a blog post titled 'title', published in categories 'cat1, cat2' and tagged 'tag1'. Please only output generated content ready for publishing."
 		);
+		*/
 	} );
 } );

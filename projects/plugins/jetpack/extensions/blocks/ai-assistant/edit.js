@@ -39,7 +39,21 @@ export const PROMPT_SUFFIX = __(
 	'jetpack'
 );
 
-// Creates the prompt that will eventually be sent to OpenAI. It uses the current post title, content (before the actual AI block) - or a slice of it if too long, and tags + categories names
+/*
+ * Creates the prompt that will eventually be sent to OpenAI.
+ * It uses the current post title, content (before the actual AI block)
+ * - or a slice of it if too long, and tags + categories names
+ * to create a prompt.
+ *
+ * @param {string} postTitle                - The current post title.
+ * @param {Array} contentBeforeCurrentBlock - The content before the current block.
+ * @param {string} categoriesNames          - The categories names.
+ * @param {string} tagsNames                - The tags names.
+ * @param {string} userPrompt               - The user prompt.
+ * @param {string} type                     - The type of prompt to create.
+ *
+ * @return {string} The prompt.
+ */
 export const createPrompt = (
 	postTitle = '',
 	contentBeforeCurrentBlock = [],
@@ -50,6 +64,10 @@ export const createPrompt = (
 	userPrompt = '',
 	type = 'userPrompt'
 ) => {
+	if ( ! postTitle?.length ) {
+		return '';
+	}
+
 	if ( type === 'userPrompt' ) {
 		return userPrompt + PROMPT_SUFFIX;
 	}
