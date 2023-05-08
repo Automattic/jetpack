@@ -648,6 +648,15 @@ function wpcom_launchpad_is_email_unverified() {
 	return Email_Verification::is_email_unverified();
 }
 
+/**
+ * If the site has a paid-subscriber goal.
+ *
+ * @return bool True if the site has a paid-subscriber goal, false otherwise.
+ */
+function wpcom_has_goal_paid_subscribers() {
+	return in_array( 'paid-subscribers', get_option( 'site_goals', array() ), true );
+}
+
 //
 // Misc other Launchpad-related functionality below.
 //
