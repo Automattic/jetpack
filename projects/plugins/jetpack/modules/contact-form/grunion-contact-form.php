@@ -4210,6 +4210,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			return $body;
 		}
 
+		$template = '';
+
 		/**
 		 * Filter the filename of the template HTML surrounding the response email. The PHP file will return the template in a variable called $template.
 		 *
@@ -4219,14 +4221,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @param string the filename of the HTML template used for response emails to the form owner.
 		 */
-		include_once apply_filters( 'jetpack_forms_respone_email_template', __DIR__ . '/grunion-response-email-template.php' );
+		require apply_filters( 'jetpack_forms_respone_email_template', __DIR__ . '/grunion-response-email-template.php' );
 		$html_message = sprintf(
 			// The tabs are just here so that the raw code is correctly formatted for developers
 			// They're removed so that they don't affect the final message sent to users
 			str_replace(
 				"\t",
 				'',
-				$template // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- defined in the template file
+				$template
 			),
 			$title,
 			$body,
