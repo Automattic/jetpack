@@ -44,7 +44,6 @@ describe( 'MembershipsButtonEdit', () => {
 		connect_url: '',
 		connected_account_id: 1,
 		products: [],
-		should_upgrade_to_access_memberships: false,
 		site_slug: 'test',
 		upgrade_url: 'https://wordpress.com/checkout/test/jetpack_security_daily_monthly',
 	};
@@ -119,9 +118,7 @@ describe( 'MembershipsButtonEdit', () => {
 
 	describe( 'when the site requires an upgrade', () => {
 		test.skip( 'the upgrade nudge does not display if the block is part of a Premium Content block', async () => {
-			window.fetch.mockReturnValue(
-				getApiResponse( { should_upgrade_to_access_memberships: true } )
-			);
+			window.fetch.mockReturnValue( getApiResponse() );
 			const props = { ...defaultProps, context: { isPremiumContentChild: true } };
 			render( <Edit { ...props } /> );
 

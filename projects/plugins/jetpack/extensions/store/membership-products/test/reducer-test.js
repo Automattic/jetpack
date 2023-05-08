@@ -74,21 +74,6 @@ describe( 'Membership products reducer testing', () => {
 		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, apiState: anyApiState } );
 	} );
 
-	test( 'set should upgrade action type adds the should upgrade property to the returned state.', () => {
-		// Given
-		const anyShouldUpgrade = 'anyUpgrade';
-		const anySetShouldUpgradeAction = {
-			type: 'SET_SHOULD_UPGRADE',
-			shouldUpgrade: anyShouldUpgrade,
-		};
-
-		// When
-		const returnedState = reducer( DEFAULT_STATE, anySetShouldUpgradeAction );
-
-		// Then
-		expect( returnedState ).toStrictEqual( { ...DEFAULT_STATE, shouldUpgrade: anyShouldUpgrade } );
-	} );
-
 	test( 'set site slug action type adds the update site property to the returned state.', () => {
 		// Given
 		const anySiteSlug = 'anySiteSlug';
