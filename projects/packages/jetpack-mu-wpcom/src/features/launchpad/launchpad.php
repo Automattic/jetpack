@@ -384,11 +384,19 @@ function wpcom_is_link_in_bio_launch_disabled() {
  * Helper functions for Launchpad callbacks.
  */
 function wpcom_launchpad_is_stripe_connected_complete() {
-	return wpcom_is_checklist_task_complete( 'stripe_connected' );
+	if ( class_exists( 'Jetpack_Memberships' ) ) {
+		return ! empty( get_option( Jetpack_Memberships::$connected_account_id_option_name, false ) );
+	} else {
+		return false;
+	}
 }
 
 function wpcom_launchpad_is_newsletter_plan_created_complete() {
-	return wpcom_is_checklist_task_complete( 'newsletter_plan_created' );
+	if ( class_exists( 'Memberships_Product' ) ) {
+		return ! empty( Memberships_Product::get_product_list( get_current_blog_id(), 'all' ) );
+	} else {
+		return false;
+	}
 }
 
 /**
