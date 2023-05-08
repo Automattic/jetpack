@@ -29,7 +29,14 @@ class Test_Connections_Post_Field  extends TestCase {
 	 *
 	 * @var array
 	 */
-	private static $connection_ids = array( 'test-unique-id456', 'test-unique-id123' );
+	private static $connection_ids = array( '456', '123' );
+
+	/**
+	 * Connection IDs.
+	 *
+	 * @var array
+	 */
+	private static $token_ids = array( 'test-unique-id456', 'test-unique-id123' );
 
 	/**
 	 * Draft ID.
@@ -255,6 +262,7 @@ class Test_Connections_Post_Field  extends TestCase {
 					'id_number' => array(
 						'connection_data' => array(
 							'user_id'  => self::$user_id,
+							'id'       => '456',
 							'token_id' => 'test-unique-id456',
 							'meta'     => array(
 								'display_name' => 'test-display-name456',
@@ -267,6 +275,7 @@ class Test_Connections_Post_Field  extends TestCase {
 					'id_number' => array(
 						'connection_data' => array(
 							'user_id'  => 0,
+							'id'       => '123',
 							'token_id' => 'test-unique-id123',
 							'meta'     => array(
 								'display_name' => 'test-display-name123',
@@ -314,7 +323,7 @@ class Test_Connections_Post_Field  extends TestCase {
 			array(
 				'jetpack_publicize_connections' => array(
 					array(
-						'id'      => 'test-unique-id123',
+						'id'      => '123',
 						'enabled' => false,
 					),
 				),
@@ -381,7 +390,7 @@ class Test_Connections_Post_Field  extends TestCase {
 		$request = new WP_REST_Request( 'POST', sprintf( '/wp/v2/posts/%d', $this->draft_id ) );
 		$this->server->dispatch( $request );
 
-		foreach ( self::$connection_ids as $unique_id ) {
+		foreach ( self::$token_ids as $unique_id ) {
 			$skip_key = $this->publicize->POST_SKIP . $unique_id;
 			$this->assertNotEmpty( get_post_meta( $this->draft_id, $skip_key, true ) );
 		}
