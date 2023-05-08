@@ -1,4 +1,4 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import React from 'react';
 
 import './style.scss';
@@ -19,8 +19,8 @@ const ProductActivated = ( { type } ) => {
 		>
 			<span className="jp-product-activated-label__text">
 				{ type === 'never-expires'
-					? __( 'Never expires', 'jetpack' )
-					: __( 'Subscription active', 'jetpack' ) }
+					? _x( 'Never expires', 'Label for a subscription that never expires', 'jetpack' )
+					: _x( 'Subscription active', 'Label for an active subscription', 'jetpack' ) }
 			</span>
 		</div>
 	);
