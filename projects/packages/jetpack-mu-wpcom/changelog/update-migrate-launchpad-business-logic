@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Migrates Launchpad business logic from the mu-plugin to being defined by tasks
