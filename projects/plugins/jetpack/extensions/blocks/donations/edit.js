@@ -60,8 +60,7 @@ const Edit = props => {
 			return;
 		}
 
-		// Set fake products when plan should be upgraded or there is no connection to Stripe so users can still try the
-		// block in the editor.
+		// Set fake products when there is no connection to Stripe so users can still try the block in the editor.
 		if ( result.connect_url ) {
 			setProducts( {
 				'one-time': -1,

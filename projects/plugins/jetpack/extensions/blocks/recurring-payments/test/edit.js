@@ -45,7 +45,6 @@ describe( 'MembershipsButtonEdit', () => {
 		connected_account_id: 1,
 		products: [],
 		site_slug: 'test',
-		upgrade_url: 'https://wordpress.com/checkout/test/jetpack_security_daily_monthly',
 	};
 
 	const defaultApiResponse = Promise.resolve( {
@@ -87,6 +86,7 @@ describe( 'MembershipsButtonEdit', () => {
 	 * @param {object} overrides - Data overrides.
 	 * @returns {Promise} Promise resolving to an API response.
 	 */
+	// eslint-disable-next-line no-unused-vars
 	function getApiResponse( overrides ) {
 		const data = {
 			...defaultFetchData,
@@ -108,18 +108,6 @@ describe( 'MembershipsButtonEdit', () => {
 					url: 'https://anyposturl.com/?recurring_payments=1',
 				},
 			};
-			render( <Edit { ...props } /> );
-
-			await waitFor( () =>
-				expect( screen.queryByText( 'Upgrade your plan' ) ).not.toBeInTheDocument()
-			);
-		} );
-	} );
-
-	describe( 'when the site requires an upgrade', () => {
-		test.skip( 'the upgrade nudge does not display if the block is part of a Premium Content block', async () => {
-			window.fetch.mockReturnValue( getApiResponse() );
-			const props = { ...defaultProps, context: { isPremiumContentChild: true } };
 			render( <Edit { ...props } /> );
 
 			await waitFor( () =>

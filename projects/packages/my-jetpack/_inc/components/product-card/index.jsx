@@ -1,7 +1,7 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { Dropdown } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { external, moreVertical, download, check } from '@wordpress/icons';
+import { moreVertical, download } from '@wordpress/icons';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
@@ -20,12 +20,12 @@ const PRODUCT_STATUSES_LABELS = {
 /* eslint-disable react/jsx-no-bind */
 const Menu = ( {
 	items = [],
-	showManage = false,
-	onManage,
 	showInstall = false,
 	onInstall,
 	showActivate = false,
+	showDeactivate = false,
 	onActivate,
+	onDeactivate,
 } ) => {
 	return (
 		<Dropdown
@@ -56,20 +56,6 @@ const Menu = ( {
 							{ item?.label }
 						</Button>
 					) ) }
-					{ showManage && (
-						<Button
-							weight="regular"
-							fullWidth
-							variant="tertiary"
-							icon={ external }
-							onClick={ () => {
-								onClose();
-								onManage?.();
-							} }
-						>
-							{ __( 'Manage', 'jetpack-my-jetpack' ) }
-						</Button>
-					) }
 					{ showInstall && (
 						<Button
 							weight="regular"
@@ -89,13 +75,25 @@ const Menu = ( {
 							weight="regular"
 							fullWidth
 							variant="tertiary"
-							icon={ check }
 							onClick={ () => {
 								onClose();
 								onActivate?.();
 							} }
 						>
 							{ __( 'Activate Plugin', 'jetpack-my-jetpack' ) }
+						</Button>
+					) }
+					{ showDeactivate && (
+						<Button
+							weight="regular"
+							fullWidth
+							variant="tertiary"
+							onClick={ () => {
+								onClose();
+								onDeactivate?.();
+							} }
+						>
+							{ __( 'Deactivate Plugin', 'jetpack-my-jetpack' ) }
 						</Button>
 					) }
 				</>
@@ -105,11 +103,33 @@ const Menu = ( {
 };
 /* eslint-enable react/jsx-no-bind */
 
+Menu.propTypes = {
+	onActivate: PropTypes.func,
+	onDeactivate: PropTypes.func,
+	showActivate: PropTypes.bool,
+	showDeactivate: PropTypes.bool,
+	showInstall: PropTypes.bool,
+	items: PropTypes.arrayOf(
+		PropTypes.shape( {
+			label: PropTypes.string,
+			icon: PropTypes.node,
+			onClick: PropTypes.func,
+		} )
+	),
+	onInstall: PropTypes.func,
+};
+
+Menu.defaultProps = {
+	onActivate: () => {},
+	onDeactivate: () => {},
+	showActivate: false,
+	showDeactivate: false,
+};
+
 const ProductCard = props => {
 	const {
 		name,
 		description,
-		icon,
 		status,
 		onActivate,
 		onAdd,
@@ -117,16 +137,18 @@ const ProductCard = props => {
 		onManage,
 		isFetching,
 		isInstallingStandalone,
+		isDeactivatingStandalone,
 		slug,
 		children,
 		// Menu Related
 		showMenu = false,
-		showManageOption = false,
 		showActivateOption = false,
+		showDeactivateOption = false,
 		showInstallOption = false,
 		menuItems = [],
 		onInstallStandalone,
 		onActivateStandalone,
+		onDeactivateStandalone,
 	} = props;
 
 	const isActive = status === PRODUCT_STATUSES.ACTIVE;
@@ -151,7 +173,7 @@ const ProductCard = props => {
 		[ styles.active ]: isActive,
 		[ styles.inactive ]: isInactive || isPurchaseRequired,
 		[ styles.error ]: isError,
-		[ styles[ 'is-fetching' ] ]: isFetching || isInstallingStandalone,
+		[ styles[ 'is-fetching' ] ]: isFetching || isInstallingStandalone || isDeactivatingStandalone,
 	} );
 
 	const { recordEvent } = useAnalytics();
@@ -223,6 +245,16 @@ const ProductCard = props => {
 		onActivateStandalone();
 	}, [ slug, onActivateStandalone, recordEvent ] );
 
+	/**
+	 * Use a Tracks event to count a standalone plugin deactivation menu click
+	 */
+	const deactivateStandaloneHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_product_card_deactivate_standalone_plugin_click', {
+			product: slug,
+		} );
+		onDeactivateStandalone();
+	}, [ slug, onDeactivateStandalone, recordEvent ] );
+
 	const CardWrapper = isAbsent
 		? ( { children: wrapperChildren, ...cardProps } ) => (
 				<a { ...cardProps } href="#" onClick={ addHandler }>
@@ -238,20 +270,17 @@ const ProductCard = props => {
 			<div className={ styles.title }>
 				<div className={ styles.name }>
 					<Text variant="title-medium">{ name }</Text>
-					{ showMenu && icon }
 				</div>
-				{ showMenu ? (
+				{ showMenu && (
 					<Menu
 						items={ menuItems }
-						showManage={ showManageOption }
-						onManage={ onManage }
 						showActivate={ showActivateOption }
+						showDeactivate={ showDeactivateOption }
 						onActivate={ activateStandaloneHandler }
+						onDeactivate={ deactivateStandaloneHandler }
 						showInstall={ showInstallOption }
 						onInstall={ installStandaloneHandler }
 					/>
-				) : (
-					icon
 				) }
 			</div>
 			{
@@ -287,15 +316,29 @@ ProductCard.propTypes = {
 	children: PropTypes.node,
 	name: PropTypes.string.isRequired,
 	description: PropTypes.string.isRequired,
-	icon: PropTypes.element,
 	admin: PropTypes.bool.isRequired,
 	isFetching: PropTypes.bool,
 	isInstallingStandalone: PropTypes.bool,
+	isDeactivatingStandalone: PropTypes.bool,
 	onManage: PropTypes.func,
 	onFixConnection: PropTypes.func,
 	onActivate: PropTypes.func,
 	onAdd: PropTypes.func,
 	slug: PropTypes.string.isRequired,
+	showMenu: PropTypes.bool,
+	showActivateOption: PropTypes.bool,
+	showDeactivateOption: PropTypes.bool,
+	showInstallOption: PropTypes.bool,
+	menuItems: PropTypes.arrayOf(
+		PropTypes.shape( {
+			label: PropTypes.string,
+			icon: PropTypes.node,
+			onClick: PropTypes.func,
+		} )
+	),
+	onInstallStandalone: PropTypes.func,
+	onActivateStandalone: PropTypes.func,
+	onDeactivateStandalone: PropTypes.func,
 	status: PropTypes.oneOf( [
 		PRODUCT_STATUSES.ACTIVE,
 		PRODUCT_STATUSES.INACTIVE,
@@ -308,13 +351,18 @@ ProductCard.propTypes = {
 };
 
 ProductCard.defaultProps = {
-	icon: null,
 	isFetching: false,
 	isInstallingStandalone: false,
+	isDeactivatingStandalone: false,
 	onManage: () => {},
 	onFixConnection: () => {},
 	onActivate: () => {},
 	onAdd: () => {},
+	showMenu: false,
+	showActivateOption: false,
+	showDeactivateOption: false,
+	showInstallOption: false,
+	menuItems: [],
 };
 
 export { PRODUCT_STATUSES };
