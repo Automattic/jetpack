@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+theme-tools: Removed jQuery dependency from responsive-videos script.
