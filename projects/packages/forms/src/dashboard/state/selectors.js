@@ -1,14 +1,10 @@
 /**
  * External dependencies
  */
-import { isNil, map } from 'lodash';
+import { map } from 'lodash';
 import { getPath } from '../inbox/util';
 
 export const isFetchingResponses = state => state.loading;
-
-export const hasNoResponses = state => ! isNil( state.hasResponses ) && ! state.hasResponses;
-
-export const isFirstLoadCompleted = state => state.loaded;
 
 export const getResponses = state =>
 	map( state.responses, response => {

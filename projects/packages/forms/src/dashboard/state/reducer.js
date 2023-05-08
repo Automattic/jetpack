@@ -40,14 +40,6 @@ const loading = ( state = false, action ) => {
 	return state;
 };
 
-const loaded = ( state = false, action ) => {
-	if ( action.type === RESPONSES_FETCH_RECEIVE || action.type === RESPONSES_FETCH_FAIL ) {
-		return true;
-	}
-
-	return state;
-};
-
 const responses = ( state = [], action ) => {
 	if ( action.type === RESPONSES_FETCH && ! action.append ) {
 		return [];
@@ -65,14 +57,6 @@ const responses = ( state = [], action ) => {
 
 	if ( action.type === RESPONSES_REMOVE ) {
 		return state.filter( response => action.responseIds.indexOf( response.id ) < 0 );
-	}
-
-	return state;
-};
-
-const hasResponses = ( state = undefined, action ) => {
-	if ( action.type === RESPONSES_FETCH_RECEIVE ) {
-		return action.hasResponses;
 	}
 
 	return state;
@@ -134,9 +118,7 @@ const currentSelection = ( state = [], action ) => {
 export default combineReducers( {
 	currentSelection,
 	filters,
-	hasResponses,
 	loading,
-	loaded,
 	query,
 	responses,
 	tabTotals,

@@ -20,6 +20,7 @@ import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import { config } from '../';
 import DropdownFilter from '../components/dropdown-filter';
 import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
@@ -66,8 +67,6 @@ const Inbox = () => {
 		monthFilter,
 		sourceFilter,
 		loading,
-		isFirstLoadCompleted,
-		hasNoResponses,
 		responses,
 		selectedResponses,
 		tabTotals,
@@ -78,8 +77,6 @@ const Inbox = () => {
 			select( STORE_NAME ).getMonthFilter(),
 			select( STORE_NAME ).getSourceFilter(),
 			select( STORE_NAME ).isFetchingResponses(),
-			select( STORE_NAME ).isFirstLoadCompleted(),
-			select( STORE_NAME ).hasNoResponses(),
 			select( STORE_NAME ).getResponses(),
 			select( STORE_NAME ).getSelectedResponseIds(),
 			select( STORE_NAME ).getTabTotals(),
@@ -101,18 +98,20 @@ const Inbox = () => {
 	} = useFeedbackQuery();
 
 	useEffect( () => {
+		if ( config( 'hasFeedback' ) ) {
+			return;
+		}
+
+		navigate( '/landing' );
+	}, [ navigate ] );
+
+	useEffect( () => {
 		fetchResponses( {
 			limit: RESPONSES_FETCH_LIMIT,
 			offset: ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
 			...query,
 		} );
 	}, [ currentPage, fetchResponses, query ] );
-
-	useEffect( () => {
-		if ( isFirstLoadCompleted && hasNoResponses ) {
-			navigate( '/landing' );
-		}
-	}, [ isFirstLoadCompleted, hasNoResponses, navigate ] );
 
 	useEffect( () => {
 		if (
@@ -282,10 +281,6 @@ const Inbox = () => {
 			</a>
 		</>
 	);
-
-	if ( ! isFirstLoadCompleted ) {
-		return null;
-	}
 
 	return (
 		<Layout title={ title } className={ classes }>

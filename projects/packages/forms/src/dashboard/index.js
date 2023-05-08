@@ -3,7 +3,7 @@
  */
 import { render } from '@wordpress/element';
 import { get } from 'lodash';
-import { createHashRouter, RouterProvider } from 'react-router-dom';
+import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -23,12 +23,16 @@ window.addEventListener( 'load', () => {
 
 	const router = createHashRouter( [
 		{
-			path: '/',
+			path: '/landing',
+			element: <LandingPage />,
+		},
+		{
+			path: '/responses',
 			element: <Inbox />,
 		},
 		{
-			path: '/landing',
-			element: <LandingPage />,
+			path: '/',
+			element: <Navigate to="/responses" />,
 		},
 	] );
 

@@ -47,7 +47,6 @@ export function* fetchResponses( query, options = {} ) {
 			total: data.totals[ query.status || 'inbox' ],
 			tabTotals: data.totals,
 			filters: data.filters_available,
-			hasResponses: data.hasResponses,
 			append: options.append,
 		};
 	} catch ( error ) {

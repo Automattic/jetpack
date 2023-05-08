@@ -147,9 +147,26 @@ class Dashboard {
 			'gdriveConnectSupportURL' => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
 			'checkForSpamNonce'       => wp_create_nonce( 'grunion_recheck_queue' ),
 			'pluginAssetsURL'         => Jetpack_Forms::assets_url(),
+			'hasFeedback'             => $this->has_feedback(),
 		);
 		?>
 		<div id="jp-forms-dashboard" style="min-height: calc(100vh - 100px);" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>
 		<?php
+	}
+
+	/**
+	 * Returns true if there are any feedback posts on the site.
+	 *
+	 * @return boolean
+	 */
+	private function has_feedback() {
+		$posts = new \WP_Query(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => array( 'publish', 'draft', 'spam', 'trash' ),
+			)
+		);
+
+		return $posts->found_posts > 0;
 	}
 }
