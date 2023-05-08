@@ -1,13 +1,13 @@
 # Jetpack Forms
 
-All things forms. This package currently contains them implementation for Jetpack's Contact Form module, Contact Form Gutenberg blocks and the new Jetpack Forms feedback dashboard.
+All things forms. This package currently contains the implementation for Jetpack's Contact Form module, Form blocks, and the new Jetpack Forms feedback dashboard.
 
 ## Hierarchy
 
 ```
 .
 ├── src/
-│   ├── blocks/                                      - Contact form Gutenberg blocks.
+│   ├── blocks/                                      - Form blocks.
 │   ├── contact-form/                                - Contact form module implementation.
 │   ├── dashboard/                                   - Implementation for the new forms dashboard.
 │   ├── service/                                     - Helpers for 3rd-party service integrations.
