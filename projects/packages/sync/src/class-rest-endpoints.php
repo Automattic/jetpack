@@ -353,7 +353,7 @@ class REST_Endpoints {
 				$modules['users'] = 'initial';
 			} elseif ( is_array( $request->get_param( $module_name ) ) ) {
 				$ids = $request->get_param( $module_name );
-				if ( count( $ids ) > 0 ) {
+				if ( is_countable( $ids ) && count( $ids ) > 0 ) {
 					$modules[ $module_name ] = $ids;
 				}
 			}

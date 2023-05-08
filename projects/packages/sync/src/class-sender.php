@@ -531,7 +531,7 @@ class Sender {
 			}
 			$encoded_item = $this->codec->encode( $item );
 			$upload_size += strlen( $encoded_item );
-			if ( $upload_size > $this->upload_max_bytes && count( $items_to_send ) > 0 ) {
+			if ( $upload_size > $this->upload_max_bytes && array() !== $items_to_send ) {
 				break;
 			}
 			$items_to_send[ $key ] = $encode ? $encoded_item : $item;
@@ -565,6 +565,7 @@ class Sender {
 	 * @return boolean|WP_Error True if this sync sending was successful, error object otherwise.
 	 */
 	public function do_sync_for_queue( $queue ) {
+		$wp_error = null;
 		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
 		if ( $queue->size() === 0 ) {
 			return new WP_Error( 'empty_queue_' . $queue->id );
@@ -645,7 +646,7 @@ class Sender {
 					$wp_error = array_pop( $processed_item_ids );
 				}
 				// Also checkin any items that were skipped.
-				if ( count( $skipped_items_ids ) > 0 ) {
+				if ( is_countable( $skipped_items_ids ) && count( $skipped_items_ids ) > 0 ) {
 					$processed_item_ids = array_merge( $processed_item_ids, $skipped_items_ids );
 				}
 				$processed_items = array_intersect_key( $items, array_flip( $processed_item_ids ) );
