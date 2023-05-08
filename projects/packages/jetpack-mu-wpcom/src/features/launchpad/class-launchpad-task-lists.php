@@ -391,7 +391,6 @@ class Launchpad_Task_Lists {
 				// Small optimization to not run `is_complete_callback` as often.
 				$task = $this->build_task( $task_definition );
 				if ( ! $task['completed'] ) {
-					// var_dump( 'adding hook for ' . $task_id  );
 					call_user_func_array( $task_definition['add_listener_callback'], array( $task, $task_definition ) );
 				}
 			}
