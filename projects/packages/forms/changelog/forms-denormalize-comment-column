@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Do not normalize feedback posts main comment when possible, allowing fexports to not guess which is the Comment and simply adding a column with the input's label
