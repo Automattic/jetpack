@@ -1,6 +1,6 @@
 import {
 	createPrompt,
-	MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT,
+	// MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT,
 	PROMPT_SUFFIX,
 } from '../edit';
 
@@ -8,13 +8,13 @@ describe( 'AIParagraphEdit', () => {
 	test( 'createPrompt', () => {
 		const fakeBlock = { attributes: { content: 'content' } };
 		const fakeBlockWithBr = { attributes: { content: 'content<br/>content2' } };
-		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-		const charactersLength = characters.length;
-		let longContent = '';
-		for ( let i = 0; i < MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT + 10; i++ ) {
-			longContent += characters.charAt( Math.floor( Math.random() * charactersLength ) );
-		}
-		const fakeBlockWithVeryLongContent = { attributes: { content: longContent } };
+		// const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		// const charactersLength = characters.length;
+		// let longContent = '';
+		// for ( let i = 0; i < MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT + 10; i++ ) {
+		// 	longContent += characters.charAt( Math.floor( Math.random() * charactersLength ) );
+		// }
+		// const fakeBlockWithVeryLongContent = { attributes: { content: longContent } };
 
 		// Test empty posts get falsy
 		expect( createPrompt() ).toBeFalsy();
