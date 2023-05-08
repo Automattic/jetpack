@@ -27,7 +27,7 @@
 		"@rollup/plugin-commonjs": "19.0.2",
 		"@rollup/plugin-json": "4.1.0",
 		"@rollup/plugin-node-resolve": "13.3.0",
-		"@rollup/plugin-replace": "4.0.0",
+		"@rollup/plugin-replace": "5.0.2",
 		"@rollup/plugin-terser": "0.4.1",
 		"@rollup/plugin-typescript": "8.3.3",
 		"@types/jquery": "3.5.14",

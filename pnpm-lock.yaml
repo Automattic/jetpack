@@ -2449,8 +2449,8 @@ importers:
         specifier: 13.3.0
         version: 13.3.0(rollup@2.56.3)
       '@rollup/plugin-replace':
-        specifier: 4.0.0
-        version: 4.0.0(rollup@2.56.3)
+        specifier: 5.0.2
+        version: 5.0.2(rollup@2.56.3)
       '@rollup/plugin-terser':
         specifier: 0.4.1
         version: 0.4.1(rollup@2.56.3)
@@ -6609,13 +6609,17 @@ packages:
       rollup: 2.56.3
     dev: true
 
-  /@rollup/plugin-replace@4.0.0(rollup@2.56.3):
-    resolution: {integrity: sha512-+rumQFiaNac9y64OHtkHGmdjm7us9bo1PlbgQfdihQtuNxzjpaB064HbRnewUOggLQxVCCyINfStkgmBeQpv1g==}
+  /@rollup/plugin-replace@5.0.2(rollup@2.56.3):
+    resolution: {integrity: sha512-M9YXNekv/C/iHHK+cvORzfRYfPbq0RDD8r0G+bMiTXjNGKulPnCT9O3Ss46WfhI6ZOCgApOP7xAdmCQJ+U2LAA==}
+    engines: {node: '>=14.0.0'}
     peerDependencies:
-      rollup: ^1.20.0 || ^2.0.0
+      rollup: ^1.20.0||^2.0.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
     dependencies:
-      '@rollup/pluginutils': 3.1.0(rollup@2.56.3)
-      magic-string: 0.25.9
+      '@rollup/pluginutils': 5.0.2(rollup@2.56.3)
+      magic-string: 0.27.0
       rollup: 2.56.3
     dev: true
 
@@ -6670,6 +6674,21 @@ packages:
     dependencies:
       estree-walker: 2.0.2
       picomatch: 2.2.3
+    dev: true
+
+  /@rollup/pluginutils@5.0.2(rollup@2.56.3):
+    resolution: {integrity: sha512-pTd9rIsP92h+B6wWwFbW8RkZv4hiR/xKsqre4SIuAOaOEQRxi0lqLke9k2/7WegC85GgUs9pjmOjCUi3In4vwA==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0||^3.0.0
+    peerDependenciesMeta:
+      rollup:
+        optional: true
+    dependencies:
+      '@types/estree': 1.0.1
+      estree-walker: 2.0.2
+      picomatch: 2.3.1
+      rollup: 2.56.3
     dev: true
 
   /@rushstack/eslint-patch@1.1.4:
