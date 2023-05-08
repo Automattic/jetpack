@@ -2,15 +2,27 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry_Adapter;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Delete;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Modifiers\Decorate_With_Default;
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Type;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 
-final class Data_Sync_Entry implements Data_Sync_Entry_Adapter {
+/**
+ * Data Sync Entry Adapter:
+ * ========================
+ * This class takes in any instance that subscribes to one or more "Entry_Can_*" interfaces
+ * and adapts it to give it a predictable interface.
+ *
+ * This makes it possible to have an Entry class that only subscribes to "Entry_Can_Get"
+ * yet still have all the other methods (set/merge/delete) available.
+ *
+ * Entry Adapter will infer whether an object is able to perform actions (get,set,merge,delete)
+ * based on whether the object is an instance of the corresponding interface (Entry_Can_*).
+ */
+final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 
 	/**
 	 * @var (Entry_Can_Get & (Entry_Can_Set | Entry_Can_Merge | Entry_Can_Delete)) - The data sync entry.
@@ -18,13 +30,18 @@ final class Data_Sync_Entry implements Data_Sync_Entry_Adapter {
 	private $entry;
 
 	/**
-	 * @var Schema_Type $schema - The schema for the data sync entry.
+	 * @var Parser $schema - The schema for the data sync entry.
 	 */
 	private $schema;
 
 	/**
+	 * For more explanation, see the class docblock.
+	 * @see Data_Sync_Entry_Adapter
+	 * The constructor accepts any entry that subscribes to at least "Entry_Can_Get", but can also
+	 * subscribe to any of the other Entry_Can_* interfaces.
+	 *
 	 * @param $entry  (Entry_Can_Get & (Entry_Can_Set | Entry_Can_Merge | Entry_Can_Delete)) - The data sync entry.
-	 * @param $schema Validation_Rule - The schema for the data sync entry.
+	 * @param $schema Parser - The schema for the data sync entry.
 	 */
 	public function __construct( $entry, $schema ) {
 		$this->entry  = $entry;

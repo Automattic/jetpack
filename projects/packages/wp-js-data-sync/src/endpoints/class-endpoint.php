@@ -7,12 +7,12 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Endpoints;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry_Adapter;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 
 class Endpoint {
 
 	/**
-	 * @var Data_Sync_Entry_Adapter $entry - The data sync entry to register the endpoint for.
+	 * @var Data_Sync_Entry $entry - The data sync entry to register the endpoint for.
 	 */
 	private $entry;
 
@@ -32,9 +32,9 @@ class Endpoint {
 	private $nonce;
 
 	/**
-	 * @param string                  $namespace - The namespace for the REST API endpoint.
-	 * @param string                  $route     - The route for the REST API endpoint.
-	 * @param Data_Sync_Entry_Adapter $entry     The data sync entry to register the endpoint for.
+	 * @param string          $namespace - The namespace for the REST API endpoint.
+	 * @param string          $route     - The route for the REST API endpoint.
+	 * @param Data_Sync_Entry $entry     The data sync entry to register the endpoint for.
 	 */
 	public function __construct( $namespace, $key, $entry ) {
 		$this->entry          = $entry;

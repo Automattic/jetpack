@@ -1,7 +1,7 @@
 <?php
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
-use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
+use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry_Adapter;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
@@ -18,7 +18,7 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
  *
  * @param $key    string - The key for this option.
  * @param $schema Schema - The schema for this option.
- * @param $entry  Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry_Adapter|null - The entry handler for this option.
+ * @param $entry  Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry|null - The entry handler for this option.
  */
 function jetpack_boost_register_option( $key, $schema, $entry = null ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
@@ -28,7 +28,7 @@ function jetpack_boost_register_option( $key, $schema, $entry = null ) {
 /**
  * @param $key
  *
- * @return Data_Sync_Entry
+ * @return Data_Sync_Entry_Adapter
  */
 function jetpack_boost_ds_entry( $key ) {
 	return Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
