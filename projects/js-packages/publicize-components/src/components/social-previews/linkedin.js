@@ -39,7 +39,7 @@ export function LinkedIn( props ) {
 					name={ name }
 					profileImage={ profileImage }
 					title={ title }
-					text={ `${ autoSharedText } ${ url }` }
+					description={ `${ autoSharedText } ${ url }` }
 				/>
 			</section>
 			<section>
