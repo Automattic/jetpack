@@ -287,11 +287,10 @@ class Jetpack_Memberships {
 			$is_premium_content_child = (int) $block->context['isPremiumContentChild'];
 		}
 
-		return (
-			$is_premium_content_child &&
-			$user_can_edit &&
-			( $requires_upgrade || $requires_stripe_connection )
-		);
+		return $is_premium_content_child &&
+				$user_can_edit &&
+				$requires_stripe_connection &&
+				$jetpack_ready;
 	}
 
 	/**
