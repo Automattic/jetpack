@@ -34,7 +34,7 @@ jQuery( function ( $ ) {
 			? 0
 			: response.data.reduce( ( brokenCount, testResult ) => {
 					if ( ! testResult.connectionTestPassed ) {
-						$( '#wpas-submit-' + testResult.unique_id )
+						$( '#wpas-submit-' + testResult.id )
 							.prop( 'checked', false )
 							.prop( 'disabled', true );
 						return brokenCount + 1;
