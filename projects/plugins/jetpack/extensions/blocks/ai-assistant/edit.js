@@ -302,7 +302,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const placeholder =
 		aiType === 'text'
 			? __( 'Write a paragraph about …', 'jetpack' )
-			: __( 'What would you like to see?', 'jetpack' );
+			: __( 'What would you like to see?', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
 	const handleGetSuggestion = () => {
 		if ( aiType === 'text' ) {
