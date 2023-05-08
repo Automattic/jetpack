@@ -64,6 +64,7 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 
 final class Data_Sync {
@@ -119,10 +120,15 @@ final class Data_Sync {
 			),
 		);
 		foreach ( $this->registry->all() as $key => $entry ) {
+
 			$data[ $key ] = array(
-				'value' => $entry->get(),
+				'value' => $entry->is( Lazy_Entry::class) ? null : $entry->get(),
 				'nonce' => $this->registry->get_endpoint( $key )->create_nonce(),
 			);
+
+			if( $entry->is( Lazy_Entry::class) ) {
+				$data[ $key ]['lazy'] = true;
+			}
 		}
 
 		wp_localize_script( $this->script_handle, $this->namespace, $data );

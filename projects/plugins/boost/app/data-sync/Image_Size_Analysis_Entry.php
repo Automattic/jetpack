@@ -4,9 +4,10 @@ namespace Automattic\Jetpack_Boost\Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\WPCOM_API_Image_Size_Analysis;
 
-class Image_Size_Analysis_Entry implements Entry_Can_Get, Entry_Can_Set {
+class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_Set {
 	/**
 	 * @var WPCOM_API_Image_Size_Analysis
 	 */
@@ -17,6 +18,8 @@ class Image_Size_Analysis_Entry implements Entry_Can_Get, Entry_Can_Set {
 	}
 
 	public function get() {
+		// Testing a slow API call.
+		sleep(3);
 		return $this->api->get();
 	}
 
