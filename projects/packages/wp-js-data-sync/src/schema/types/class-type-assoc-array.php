@@ -26,6 +26,7 @@ class Type_Assoc_Array implements Parser {
 	 * and pull the value based on that key from the $data array.
 	 *
 	 * @param $input_value mixed[]
+	 * @throws \Error - If the $data passed to it is not an associative array.
 	 *
 	 * @return array
 	 */
