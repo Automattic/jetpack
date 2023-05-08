@@ -1291,7 +1291,7 @@ abstract class Publicize_Base {
 						// name is added, so we just assume they wanted to Publicize to that service.
 						if ( empty( $admin_page['submit'][ $service_name ] ) ) {
 							// Nothing seems to be checked, so we're going to mark this one to be skipped.
-							update_post_meta( $post_id, $this->POST_DONE . $connection_id, 1 );
+							update_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id, 1 );
 							continue;
 						} else {
 							// Clean up any stray post meta.
