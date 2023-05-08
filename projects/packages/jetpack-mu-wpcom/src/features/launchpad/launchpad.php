@@ -198,6 +198,22 @@ function wpcom_register_default_launchpad_checklists() {
 		)
 	);
 
+	wpcom_register_launchpad_task(
+		array(
+			'id'                  => 'set_up_payments',
+			'title'               => __( 'Set up payment method', 'jetpack-mu-wpcom' ),
+			'is_visible_callback' => 'wpcom_has_goal_paid_subscribers',
+		)
+	);
+
+	wpcom_register_launchpad_task(
+		array(
+			'id'                  => 'set_up_paid_newsletter',
+			'title'               => __( 'Create paid Newsletter', 'jetpack-mu-wpcom' ),
+			'is_visible_callback' => 'wpcom_has_goal_paid_subscribers',
+		)
+	);
+
 	// Tasks registered, now onto the checklists.
 	wpcom_register_launchpad_task_list(
 		array(
@@ -265,6 +281,8 @@ function wpcom_register_default_launchpad_checklists() {
 				'plan_selected',
 				'subscribers_added',
 				'verify_email',
+				'set_up_payments',
+				'set_up_paid_newsletter',
 				'first_post_published_newsletter',
 			),
 		)
