@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+wpcom/v3/blogging-prompts endpoint: add param to force prompt dates to be a specific year

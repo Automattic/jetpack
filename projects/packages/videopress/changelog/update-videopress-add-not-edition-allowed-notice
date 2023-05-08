@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress: add a Notice when trying to edit a video that doesn't belong to the site

@@ -57,4 +57,79 @@ class WP_Test_Functions_Global extends WP_UnitTestCase {
 			),
 		);
 	}
+
+	/**
+	 * Test jetpack_get_vary_headers.
+	 *
+	 * @dataProvider get_test_headers
+	 * @covers ::jetpack_get_vary_headers
+	 *
+	 * @param array $headers  Array of headers.
+	 * @param array $expected Expected array of headers, to be used as Vary header.
+	 */
+	public function test_jetpack_get_vary_headers( $headers, $expected ) {
+		$vary_header_parts = jetpack_get_vary_headers( $headers );
+
+		$this->assertEquals( $expected, $vary_header_parts );
+	}
+
+	/**
+	 * Data provider for the test_jetpack_get_vary_headers() test.
+	 *
+	 * @return array
+	 */
+	public function get_test_headers() {
+		return array(
+			'no headers'                             => array(
+				array(),
+				array( 'accept', 'content-type' ),
+			),
+			'Single Vary Encoding header'            => array(
+				array(
+					'Vary: Accept-Encoding',
+				),
+				array( 'accept', 'content-type', 'accept-encoding' ),
+			),
+			'Double Vary: Accept-Encoding & Accept'  => array(
+				array(
+					'Vary: Accept, Accept-Encoding',
+				),
+				array( 'accept', 'content-type', 'accept-encoding' ),
+			),
+			'vary header'                            => array(
+				array(
+					'Cache-Control: no-cache, must-revalidate, max-age=0',
+					'Content-Type: text/html; charset=UTF-8',
+					'Vary: Accept',
+				),
+				array( 'accept', 'content-type' ),
+			),
+			'Wildcard Vary header'                   => array(
+				array(
+					'Cache-Control: no-cache, must-revalidate, max-age=0',
+					'Content-Type: text/html; charset=UTF-8',
+					'Vary: *',
+				),
+				array( '*' ),
+			),
+			'Multiple Vary headers'                  => array(
+				array(
+					'Cache-Control: no-cache, must-revalidate, max-age=0',
+					'Content-Type: text/html; charset=UTF-8',
+					'Vary: Accept',
+					'Vary: Accept-Encoding',
+				),
+				array( 'accept', 'content-type', 'accept-encoding' ),
+			),
+			'Multiple Vary headers, with a wildcard' => array(
+				array(
+					'Cache-Control: no-cache, must-revalidate, max-age=0',
+					'Content-Type: text/html; charset=UTF-8',
+					'Vary: *',
+					'Vary: Accept-Encoding',
+				),
+				array( '*' ),
+			),
+		);
+	}
 }

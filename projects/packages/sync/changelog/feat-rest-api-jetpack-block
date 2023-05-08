@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Use Jetpack Constants to check the value of REST_API_REQUEST in Settings:is_syncing function so we're able to overwrite the value and render some jetpack blocks via the rest api endpoint
