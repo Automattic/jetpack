@@ -577,13 +577,13 @@ jQuery( function($) {
 
 			<li>
 				<label
-					for="wpas-submit-<?php echo esc_attr( $connection_data['unique_id'] ); ?>"
+					for="wpas-submit-<?php echo esc_attr( $connection_data['id'] ); ?>"
 					<?php echo ! $connection_data['toggleable'] ? 'class="wpas-disabled"' : ''; ?>
 				>
 					<input
 						type="checkbox"
-						name="wpas[submit][<?php echo esc_attr( $connection_data['unique_id'] ); ?>]"
-						id="wpas-submit-<?php echo esc_attr( $connection_data['unique_id'] ); ?>"
+						name="wpas[submit][<?php echo esc_attr( $connection_data['id'] ); ?>]"
+						id="wpas-submit-<?php echo esc_attr( $connection_data['id'] ); ?>"
 						class="wpas-submit-<?php echo esc_attr( $connection_data['service_name'] ); ?>"
 						value="1"
 					<?php
@@ -594,7 +594,7 @@ jQuery( function($) {
 				<?php if ( $connection_data['enabled'] && $connection_healthy && ! $connection_data['toggleable'] ) : // Need to submit a value to force a global connection to POST. ?>
 					<input
 						type="hidden"
-						name="wpas[submit][<?php echo esc_attr( $connection_data['unique_id'] ); ?>]"
+						name="wpas[submit][<?php echo esc_attr( $connection_data['id'] ); ?>]"
 						value="1"
 					/>
 				<?php endif; ?>
