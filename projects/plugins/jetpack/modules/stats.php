@@ -275,9 +275,9 @@ function stats_reports_load() {
 	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
 	Jetpack_Stats_Upgrade_Nudges::init();
 
-	wp_enqueue_script( 'jquery' );
-	wp_enqueue_script( 'postbox' );
-	wp_enqueue_script( 'underscore' );
+	jetpack_enqueue_script( 'jquery' );
+	jetpack_enqueue_script( 'postbox' );
+	jetpack_enqueue_script( 'underscore' );
 
 	Jetpack_Admin_Page::load_wrapper_styles();
 	add_action( 'admin_print_styles', 'stats_reports_css' );

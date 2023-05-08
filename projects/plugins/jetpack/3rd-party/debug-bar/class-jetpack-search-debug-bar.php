@@ -60,13 +60,13 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 			return;
 		}
 
-		wp_enqueue_style(
+		jetpack_enqueue_style(
 			'jetpack-search-debug-bar',
 			plugins_url( '3rd-party/debug-bar/debug-bar.css', JETPACK__PLUGIN_FILE ),
 			array(),
 			JETPACK__VERSION
 		);
-		wp_enqueue_script(
+		jetpack_enqueue_script(
 			'jetpack-search-debug-bar',
 			plugins_url( '3rd-party/debug-bar/debug-bar.js', JETPACK__PLUGIN_FILE ),
 			array( 'jquery' ),

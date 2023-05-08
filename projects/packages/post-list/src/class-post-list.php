@@ -60,7 +60,7 @@ class Post_List {
 	 */
 	public function enqueue_scripts( $hook ) {
 		if ( 'edit.php' === $hook ) {
-			wp_enqueue_style(
+			jetpack_enqueue_style(
 				'jetpack_posts_list_ui_style',
 				plugin_dir_url( __DIR__ ) . './src/style.css',
 				array(),

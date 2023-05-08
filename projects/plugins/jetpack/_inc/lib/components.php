@@ -21,7 +21,7 @@ class Jetpack_Components {
 	public static function render_component( $name, $props ) {
 
 		$rtl = is_rtl() ? '.rtl' : '';
-		wp_enqueue_style( 'jetpack-components', plugins_url( "_inc/blocks/components{$rtl}.css", JETPACK__PLUGIN_FILE ), array( 'wp-components' ), JETPACK__VERSION );
+		jetpack_enqueue_style( 'jetpack-components', plugins_url( "_inc/blocks/components{$rtl}.css", JETPACK__PLUGIN_FILE ), array( 'wp-components' ), JETPACK__VERSION );
 
 		ob_start();
 		// `include` fails gracefully and throws a warning, but doesn't halt execution.

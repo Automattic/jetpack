@@ -216,7 +216,7 @@ function render_player( $player_data, $attributes ) {
 	 * Enqueue necessary scripts and styles.
 	 */
 	if ( ! $is_amp ) {
-		wp_enqueue_style( 'wp-mediaelement' );
+		jetpack_enqueue_style( 'wp-mediaelement' );
 	}
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'mediaelement' ) );
 

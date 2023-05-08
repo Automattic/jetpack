@@ -402,7 +402,7 @@ class Jetpack_Carousel {
 	 */
 	public function enqueue_assets() {
 		if ( $this->first_run ) {
-			wp_enqueue_script(
+			jetpack_enqueue_script(
 				'jetpack-carousel',
 				Assets::get_file_url_for_environment(
 					'_inc/build/carousel/jetpack-carousel.min.js',
@@ -505,13 +505,13 @@ class Jetpack_Carousel {
 			 */
 			$localize_strings = apply_filters( 'jp_carousel_localize_strings', $localize_strings );
 			wp_localize_script( 'jetpack-carousel', 'jetpackCarouselStrings', $localize_strings );
-			wp_enqueue_style(
+			jetpack_enqueue_style(
 				'jetpack-carousel-swiper-css',
 				plugins_url( 'swiper-bundle.css', __FILE__ ),
 				array(),
 				$this->asset_version( JETPACK__VERSION )
 			);
-			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( JETPACK__VERSION ) );
+			jetpack_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( JETPACK__VERSION ) );
 			wp_style_add_data( 'jetpack-carousel', 'rtl', 'replace' );
 
 			/**

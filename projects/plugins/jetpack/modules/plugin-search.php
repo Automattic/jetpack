@@ -232,7 +232,7 @@ class Jetpack_Plugin_Search {
 	 * Load the search scripts and CSS for PSH.
 	 */
 	public function load_plugins_search_script() {
-		wp_enqueue_script( self::$slug, plugins_url( 'modules/plugin-search/plugin-search.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
+		jetpack_enqueue_script( self::$slug, plugins_url( 'modules/plugin-search/plugin-search.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
 		wp_localize_script(
 			self::$slug,
 			'jetpackPluginSearch',
@@ -259,7 +259,7 @@ class Jetpack_Plugin_Search {
 			)
 		);
 
-		wp_enqueue_style( self::$slug, plugins_url( 'modules/plugin-search/plugin-search.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		jetpack_enqueue_style( self::$slug, plugins_url( 'modules/plugin-search/plugin-search.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 	}
 
 	/**

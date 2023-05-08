@@ -523,10 +523,10 @@ class The_Neverending_Home_Page {
 		}
 
 		// Add our scripts.
-		wp_enqueue_script( 'the-neverending-homepage' );
+		jetpack_enqueue_script( 'the-neverending-homepage' );
 
 		// Add our default styles.
-		wp_enqueue_style( 'the-neverending-homepage' );
+		jetpack_enqueue_style( 'the-neverending-homepage' );
 
 		add_action( 'wp_footer', array( $this, 'action_wp_footer_settings' ), 2 );
 
@@ -553,7 +553,7 @@ class The_Neverending_Home_Page {
 			true
 		);
 
-		wp_enqueue_script( 'the-neverending-homepage-customizer' );
+		jetpack_enqueue_script( 'the-neverending-homepage-customizer' );
 	}
 
 	/**

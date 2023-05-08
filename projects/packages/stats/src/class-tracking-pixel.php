@@ -98,7 +98,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 			return;
 		}
 
-		wp_enqueue_script(
+		jetpack_enqueue_script(
 			'jetpack-stats',
 			'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js',
 			array(),

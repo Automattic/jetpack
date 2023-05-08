@@ -264,6 +264,6 @@ function get_attribute( $attributes, $attribute_name ) {
 function enqueue_existing_button_style_dependency( $block_name ) {
 	$existing_block = \WP_Block_Type_Registry::get_instance()->get_registered( $block_name );
 	if ( isset( $existing_block ) && ! empty( $existing_block->style ) ) {
-		wp_enqueue_style( $existing_block->style );
+		jetpack_enqueue_style( $existing_block->style );
 	}
 }

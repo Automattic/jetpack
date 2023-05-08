@@ -77,7 +77,7 @@ class Jetpack_Gallery_Settings {
 			);
 		}
 
-		wp_enqueue_script( 'jetpack-gallery-settings' );
+		jetpack_enqueue_script( 'jetpack-gallery-settings' );
 	}
 
 	/**

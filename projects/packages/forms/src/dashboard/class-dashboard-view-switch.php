@@ -82,7 +82,7 @@ class Dashboard_View_Switch {
 			array(),
 			JETPACK__VERSION
 		);
-		wp_enqueue_style( 'jetpack-forms-dashboard-switch' );
+		jetpack_enqueue_style( 'jetpack-forms-dashboard-switch' );
 
 		wp_add_inline_style(
 			'jetpack-forms-dashboard-switch',

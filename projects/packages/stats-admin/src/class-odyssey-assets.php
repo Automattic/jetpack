@@ -56,8 +56,8 @@ class Odyssey_Assets {
 			$css_handle = $asset_handle . '-style';
 			wp_register_script( $asset_handle, sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, "{$asset_name}.js" ), self::JS_DEPENDENCIES, $this->get_cdn_asset_cache_buster(), true );
 			wp_register_style( $css_handle, sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, $css_url ), array(), $this->get_cdn_asset_cache_buster() );
-			wp_enqueue_script( $asset_handle );
-			wp_enqueue_style( $css_handle );
+			jetpack_enqueue_script( $asset_handle );
+			jetpack_enqueue_style( $css_handle );
 		}
 
 		wp_add_inline_script(

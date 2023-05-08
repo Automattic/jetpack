@@ -261,10 +261,10 @@ function grofiles_attach_cards() {
 	}
 
 	if ( class_exists( 'Jetpack_AMP_Support' ) && Jetpack_AMP_Support::is_amp_request() ) {
-		wp_enqueue_style( 'gravatar-hovercard-style', plugins_url( '/gravatar/gravatar-hovercards-amp.css', __FILE__ ), array(), JETPACK__VERSION );
+		jetpack_enqueue_style( 'gravatar-hovercard-style', plugins_url( '/gravatar/gravatar-hovercards-amp.css', __FILE__ ), array(), JETPACK__VERSION );
 	} else {
-		wp_enqueue_script( 'grofiles-cards', 'https://secure.gravatar.com/js/gprofiles.js', array(), GROFILES__CACHE_BUSTER, true );
-		wp_enqueue_script( 'wpgroho', plugins_url( 'wpgroho.js', __FILE__ ), array( 'grofiles-cards' ), JETPACK__VERSION, true );
+		jetpack_enqueue_script( 'grofiles-cards', 'https://secure.gravatar.com/js/gprofiles.js', array(), GROFILES__CACHE_BUSTER, true );
+		jetpack_enqueue_script( 'wpgroho', plugins_url( 'wpgroho.js', __FILE__ ), array( 'grofiles-cards' ), JETPACK__VERSION, true );
 		if ( is_user_logged_in() ) {
 			$cu      = wp_get_current_user();
 			$my_hash = md5( $cu->user_email );

@@ -191,7 +191,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	 * Javascript logic specific to the list table
 	 */
 	public function page_admin_scripts() {
-		wp_enqueue_script(
+		jetpack_enqueue_script(
 			'jetpack-admin-js',
 			Assets::get_file_url_for_environment( '_inc/build/jetpack-admin.min.js', '_inc/jetpack-admin.js' ),
 			array( 'jquery' ),

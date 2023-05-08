@@ -66,7 +66,7 @@ class Jetpack_Connection_Widget {
 	 * Included the needed styles
 	 */
 	public function admin_banner_styles() {
-		wp_enqueue_style(
+		jetpack_enqueue_style(
 			'jetpack-connection-widget',
 			Assets::get_file_url_for_environment(
 				'css/jetpack-connection-widget.min.css',

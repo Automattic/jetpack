@@ -184,7 +184,7 @@ abstract class Jetpack_Admin_Page {
 	public function admin_styles() {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
-		wp_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
+		jetpack_enqueue_style( 'jetpack-admin', plugins_url( "css/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
 		wp_style_add_data( 'jetpack-admin', 'rtl', 'replace' );
 		wp_style_add_data( 'jetpack-admin', 'suffix', $min );
 	}
@@ -271,8 +271,8 @@ abstract class Jetpack_Admin_Page {
 	 */
 	public static function load_wrapper_styles() {
 		$rtl = is_rtl() ? '.rtl' : '';
-		wp_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin{$rtl}.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		wp_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min{$rtl}.css", JETPACK__PLUGIN_FILE ), array( 'wp-components' ), JETPACK__VERSION );
+		jetpack_enqueue_style( 'dops-css', plugins_url( "_inc/build/admin{$rtl}.css", JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		jetpack_enqueue_style( 'components-css', plugins_url( "_inc/build/style.min{$rtl}.css", JETPACK__PLUGIN_FILE ), array( 'wp-components' ), JETPACK__VERSION );
 		$custom_css = '
 			#wpcontent {
 				padding-left: 0 !important;

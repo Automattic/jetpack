@@ -231,7 +231,7 @@ function load_assets( $attr, $content ) {
 			return '';
 		}
 
-		wp_enqueue_script( 'pinterest-pinit', 'https://assets.pinterest.com/js/pinit.js', array(), JETPACK__VERSION, true );
+		jetpack_enqueue_script( 'pinterest-pinit', 'https://assets.pinterest.com/js/pinit.js', array(), JETPACK__VERSION, true );
 		return sprintf(
 			'
 			<div class="%1$s">

@@ -113,7 +113,7 @@ class Assets {
 	public static function enqueue_async_script( $handle, $min_path, $non_min_path, $deps = array(), $ver = false, $in_footer = true ) {
 		$assets_instance = self::instance();
 		$assets_instance->add_async_script( $handle );
-		wp_enqueue_script( $handle, self::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
+		jetpack_enqueue_script( $handle, self::get_file_url_for_environment( $min_path, $non_min_path ), $deps, $ver, $in_footer );
 	}
 
 	// endregion .
@@ -423,9 +423,9 @@ class Assets {
 	 * @param string $handle       Name of the script. Should be unique across both scripts and styles.
 	 */
 	public static function enqueue_script( $handle ) {
-		wp_enqueue_script( $handle );
+		jetpack_enqueue_script( $handle );
 		if ( wp_scripts()->get_data( $handle, 'Jetpack::Assets::hascss' ) ) {
-			wp_enqueue_style( $handle );
+			jetpack_enqueue_style( $handle );
 		}
 	}
 

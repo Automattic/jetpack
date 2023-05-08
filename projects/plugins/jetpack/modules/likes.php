@@ -158,7 +158,7 @@ class Jetpack_Likes {
 	 * Load scripts and styles for front end.
 	 */
 	public function load_styles_register_scripts() {
-		wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
+		jetpack_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_register_script(
 			'jetpack_likes_queuehandler',
 			Assets::get_file_url_for_environment(
@@ -335,7 +335,7 @@ class Jetpack_Likes {
 	 */
 	public function enqueue_admin_scripts() {
 		if ( empty( $_GET['post_type'] ) || 'post' === $_GET['post_type'] || 'page' === $_GET['post_type'] ) { //phpcs:ignore WordPress.Security.NonceVerification.Recommended
-			wp_enqueue_script(
+			jetpack_enqueue_script(
 				'likes-post-count',
 				Assets::get_file_url_for_environment(
 					'_inc/build/likes/post-count.min.js',
@@ -345,7 +345,7 @@ class Jetpack_Likes {
 				JETPACK__VERSION,
 				$in_footer = false
 			);
-			wp_enqueue_script(
+			jetpack_enqueue_script(
 				'likes-post-count-jetpack',
 				Assets::get_file_url_for_environment(
 					'_inc/build/likes/post-count-jetpack.min.js',
@@ -444,7 +444,7 @@ class Jetpack_Likes {
 		$html .= '</div>';
 
 		// Let's make sure that the script is enqueued.
-		wp_enqueue_script( 'jetpack_likes_queuehandler' );
+		jetpack_enqueue_script( 'jetpack_likes_queuehandler' );
 
 		return $content . $html;
 	}

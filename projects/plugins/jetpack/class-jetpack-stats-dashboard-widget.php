@@ -70,7 +70,7 @@ class Jetpack_Stats_Dashboard_Widget {
 					$widget_title,
 					array( __CLASS__, 'render_widget' )
 				);
-				wp_enqueue_style(
+				jetpack_enqueue_style(
 					'jetpack-dashboard-widget',
 					Assets::get_file_url_for_environment(
 						'css/dashboard-widget.min.css',

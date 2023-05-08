@@ -1248,7 +1248,7 @@ class Jetpack_Photon {
 		if ( self::is_amp_endpoint() ) {
 			return;
 		}
-		wp_enqueue_script(
+		jetpack_enqueue_script(
 			'jetpack-photon',
 			Assets::get_file_url_for_environment(
 				'_inc/build/photon/photon.min.js',

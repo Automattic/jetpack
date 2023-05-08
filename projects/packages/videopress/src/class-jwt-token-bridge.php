@@ -76,7 +76,7 @@ class Jwt_Token_Bridge {
 	 * @return bool True if the script was successfully localized, false otherwise.
 	 */
 	public static function enqueue_script( $handle = self::SCRIPT_HANDLE ) {
-		return wp_enqueue_script(
+		return jetpack_enqueue_script(
 			$handle,
 			self::get_bridge_url(),
 			array(),

@@ -52,7 +52,7 @@ function jetpack_deprecated_function( $function, $replacement, $version ) { // p
 	) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			sprintf(
-				/* Translators: 1. Function name. 2. Jetpack version number. */
+			/* Translators: 1. Function name. 2. Jetpack version number. */
 				__( 'The %1$s function will be removed from the Jetpack plugin in version %2$s.', 'jetpack' ),
 				$function,
 				$removed_version
@@ -61,6 +61,7 @@ function jetpack_deprecated_function( $function, $replacement, $version ) { // p
 
 	}
 }
+
 add_action( 'deprecated_function_run', 'jetpack_deprecated_function', 10, 3 );
 
 /**
@@ -92,7 +93,7 @@ function jetpack_deprecated_file( $file, $replacement, $version, $message ) { //
 	) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			sprintf(
-				/* Translators: 1. File name. 2. Jetpack version number. */
+			/* Translators: 1. File name. 2. Jetpack version number. */
 				__( 'The %1$s file will be removed from the Jetpack plugin in version %2$s.', 'jetpack' ),
 				$file,
 				$removed_version
@@ -101,6 +102,7 @@ function jetpack_deprecated_file( $file, $replacement, $version, $message ) { //
 
 	}
 }
+
 add_action( 'deprecated_file_included', 'jetpack_deprecated_file', 10, 4 );
 
 /**
@@ -147,13 +149,13 @@ function jetpack_get_future_removed_version( $version ) {
 /**
  * Determine if this site is an WoA site or not by looking for presence of the wpcomsh plugin.
  *
- * @since 4.8.1
- * @deprecated 10.3.0
- *
+ * @since      4.8.1
  * @return bool
+ * @deprecated 10.3.0
  */
 function jetpack_is_atomic_site() {
 	jetpack_deprecated_function( __FUNCTION__, 'Automattic/Jetpack/Status/Host::is_woa_site', 'jetpack-10.3.0' );
+
 	return ( new Host() )->is_woa_site();
 }
 
@@ -181,7 +183,7 @@ function jetpack_register_migration_post_type() {
  *
  * @since 12.0
  *
- * @param string $option_name  Option name.
+ * @param string $option_name Option name.
  *
  * @return WP_Post|bool
  */
@@ -257,12 +259,12 @@ function jetpack_get_migration_data( $option_name ) {
  *
  * @since 5.3
  *
- * @echo string
+ * @echo  string
  */
 function jetpack_render_tos_blurb() {
 	printf(
 		wp_kses(
-			/* Translators: placeholders are links. */
+		/* Translators: placeholders are links. */
 			__( 'By clicking the <strong>Set up Jetpack</strong> button, you agree to our <a href="%1$s" target="_blank" rel="noopener noreferrer">Terms of Service</a> and to <a href="%2$s" target="_blank" rel="noopener noreferrer">share details</a> with WordPress.com.', 'jetpack' ),
 			array(
 				'a'      => array(
@@ -311,8 +313,10 @@ function jetpack_theme_update( $preempt, $r, $url ) {
 		if ( 200 !== wp_remote_retrieve_response_code( $result ) ) {
 			return new WP_Error( 'problem_fetching_theme', esc_html__( 'Problem downloading theme', 'jetpack' ) );
 		}
+
 		return $result;
 	}
+
 	return $preempt;
 }
 
@@ -327,6 +331,7 @@ function jetpack_theme_update( $preempt, $r, $url ) {
  */
 function jetpack_upgrader_pre_download( $reply ) {
 	add_filter( 'pre_http_request', 'jetpack_theme_update', 10, 3 );
+
 	return $reply;
 }
 
@@ -335,14 +340,13 @@ add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
 /**
  * Wraps data in a way so that we can distinguish between objects and array and also prevent object recursion.
  *
- * @since 6.1.0
-
- * @deprecated Automattic\Jetpack\Sync\Functions::json_wrap
+ * @since      6.1.0
  *
  * @param array|obj $any        Source data to be cleaned up.
  * @param array     $seen_nodes Built array of nodes.
  *
  * @return array
+ * @deprecated Automattic\Jetpack\Sync\Functions::json_wrap
  */
 function jetpack_json_wrap( &$any, $seen_nodes = array() ) {
 	_deprecated_function( __METHOD__, 'jetpack-9.5', 'Automattic\Jetpack\Sync\Functions' );
@@ -390,7 +394,7 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
 	/**
 	 * Filter the list of supported mime types for media sideloading.
 	 *
-	 * @since 4.0.0
+	 * @since  4.0.0
 	 *
 	 * @module json-api
 	 *
@@ -436,15 +440,15 @@ function jetpack_is_frontend() {
 	$is_frontend = true;
 
 	if (
-		is_admin() ||
-		wp_doing_ajax() ||
-		wp_is_json_request() ||
-		wp_is_jsonp_request() ||
-		wp_is_xml_request() ||
-		is_feed() ||
-		( defined( 'REST_REQUEST' ) && REST_REQUEST ) ||
-		( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
-		( defined( 'WP_CLI' ) && WP_CLI )
+		is_admin()
+		|| wp_doing_ajax()
+		|| wp_is_json_request()
+		|| wp_is_jsonp_request()
+		|| wp_is_xml_request()
+		|| is_feed()
+		|| ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+		|| ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST )
+		|| ( defined( 'WP_CLI' ) && WP_CLI )
 	) {
 		$is_frontend = false;
 	}
@@ -485,11 +489,66 @@ function jetpack_mastodon_get_instance_list() {
 	/**
 	 * Filter the list of Mastodon instances.
 	 *
-	 * @since 11.8
+	 * @since  11.8
 	 *
 	 * @module widgets, theme-tools
 	 *
 	 * @param array $mastodon_instance_list Array of Mastodon instances.
 	 */
 	return (array) apply_filters( 'jetpack_mastodon_instance_list', $mastodon_instance_list );
+}
+
+/**
+ * Enqueue a script to Jetpacks script loader.
+ *
+ * @param string           $handle    Name of the script. Should be unique.
+ * @param string           $src       Full URL of the script, or path of the script relative to the WordPress root directory.
+ *                                    Default empty.
+ * @param string[]         $deps      Optional. An array of registered script handles this script depends on. Default empty array.
+ * @param string|bool|null $ver       Optional. String specifying script version number, if it has one, which is added to the URL
+ *                                    as a query string for cache busting purposes. If version is set to false, a version
+ *                                    number is automatically added equal to current installed WordPress version.
+ *                                    If set to null, no version is added.
+ * @param bool             $in_footer Optional. Whether to enqueue the script before `</body>` instead of in the `<head>`.
+ *                                    Default 'false'.
+ */
+function jetpack_enqueue_script( $handle, $src = '', $deps = array(), $ver = false, $in_footer = false ) {
+	static $concat;
+	if ( ! $concat ) {
+		$concat = new Jetpack_Concat();
+	}
+	wp_register_script( $handle, $src, $deps, $ver, $in_footer );
+	if ( is_admin() ) {
+		wp_enqueue_script( $handle, $src, $deps, $ver, $in_footer );
+	} else {
+		$concat->add_script( $handle );
+	}
+}
+
+/**
+ * Enqueue a script to Jetpacks script loader.
+ *
+ * @param string           $handle Name of the stylesheet. Should be unique.
+ * @param string           $src    Full URL of the stylesheet, or path of the stylesheet relative to the WordPress root directory.
+ *                                 Default empty.
+ * @param string[]         $deps   Optional. An array of registered stylesheet handles this stylesheet depends on. Default empty array.
+ * @param string|bool|null $ver    Optional. String specifying stylesheet version number, if it has one, which is added to the URL
+ *                                 as a query string for cache busting purposes. If version is set to false, a version
+ *                                 number is automatically added equal to current installed WordPress version.
+ *                                 If set to null, no version is added.
+ * @param string           $media  Optional. The media for which this stylesheet has been defined.
+ *                                 Default 'all'. Accepts media types like 'all', 'print' and 'screen', or media queries like
+ *                                 '(orientation: portrait)' and '(max-width: 640px)'.
+ */
+function jetpack_enqueue_style( $handle, $src = '', $deps = array(), $ver = false, $media = 'all' ) {
+	static $concat;
+	if ( ! $concat ) {
+		$concat = new Jetpack_Concat();
+	}
+	wp_register_style( $handle, $src, $deps, $ver, $media );
+	if ( is_admin() ) {
+		wp_enqueue_style( $handle, $src, $deps, $ver, $media );
+	} else {
+		$concat->add_style( $handle );
+	}
 }

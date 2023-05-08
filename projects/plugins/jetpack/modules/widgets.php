@@ -68,7 +68,7 @@ jetpack_load_widgets();
  * @since 4.4.0
  */
 function jetpack_widgets_customizer_assets_preview() {
-	wp_enqueue_script(
+	jetpack_enqueue_script(
 		'jetpack-customizer-widget-utils',
 		plugins_url( '/widgets/customizer-utils.js', __FILE__ ),
 		array( 'jquery', 'customize-base' ),
@@ -84,7 +84,7 @@ add_action( 'customize_preview_init', 'jetpack_widgets_customizer_assets_preview
  * @since 4.4.0
  */
 function jetpack_widgets_customizer_assets_controls() {
-	wp_enqueue_style(
+	jetpack_enqueue_style(
 		'jetpack-customizer-widget-controls',
 		plugins_url( '/widgets/customizer-controls.css', __FILE__ ),
 		array( 'customize-widgets' ),

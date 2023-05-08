@@ -374,7 +374,7 @@ function render_block( $attributes ) {
 		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
 		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 		if ( ! wp_style_is( 'enqueued' ) ) {
-			wp_enqueue_style( 'thickbox' );
+			jetpack_enqueue_style( 'thickbox' );
 		}
 	} else {
 		Jetpack_Gutenberg::load_styles_as_required( FEATURE_NAME );

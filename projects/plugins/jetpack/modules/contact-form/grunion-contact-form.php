@@ -2830,7 +2830,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			// Enqueue the style here instead of printing it, because if some other plugin has run the_post()+rewind_posts(),
 			// (like VideoPress does), the style tag gets "printed" the first time and discarded, leaving the contact form unstyled.
 			// when WordPress does the real loop.
-			wp_enqueue_style( 'grunion.css' );
+			jetpack_enqueue_style( 'grunion.css' );
 		}
 
 		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );
@@ -4957,16 +4957,16 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		}
 		$field .= "\t</select>\n";
 
-		wp_enqueue_style(
+		jetpack_enqueue_style(
 			'jquery-ui-selectmenu',
 			plugins_url( 'css/jquery-ui-selectmenu.css', __FILE__ ),
 			array(),
 			'1.13.2'
 		);
 
-		wp_enqueue_script( 'jquery-ui-selectmenu' );
+		jetpack_enqueue_script( 'jquery-ui-selectmenu' );
 
-		wp_enqueue_script(
+		jetpack_enqueue_script(
 			'contact-form-dropdown',
 			plugins_url( 'js/dropdown.js', __FILE__ ),
 			array( 'jquery', 'jquery-ui-selectmenu' ),
@@ -5005,7 +5005,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			);
 		}
 
-		wp_enqueue_script(
+		jetpack_enqueue_script(
 			'grunion-frontend',
 			Assets::get_file_url_for_environment(
 				'_inc/build/contact-form/js/grunion-frontend.min.js',
@@ -5015,7 +5015,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			JETPACK__VERSION,
 			false
 		);
-		wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( 'css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
+		jetpack_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( 'css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
 
 		// Using Core's built-in datepicker localization routine
 		wp_localize_jquery_ui_datepicker();

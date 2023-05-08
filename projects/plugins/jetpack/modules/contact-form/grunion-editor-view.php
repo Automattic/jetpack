@@ -90,9 +90,9 @@ class Grunion_Editor_View {
 		add_filter( 'mce_external_plugins', array( __CLASS__, 'mce_external_plugins' ) );
 		add_filter( 'mce_buttons', array( __CLASS__, 'mce_buttons' ) );
 
-		wp_enqueue_style( 'grunion-editor-ui', plugins_url( 'css/editor-ui.css', __FILE__ ), array(), JETPACK__VERSION );
+		jetpack_enqueue_style( 'grunion-editor-ui', plugins_url( 'css/editor-ui.css', __FILE__ ), array(), JETPACK__VERSION );
 		wp_style_add_data( 'grunion-editor-ui', 'rtl', 'replace' );
-		wp_enqueue_script(
+		jetpack_enqueue_script(
 			'grunion-editor-view',
 			Assets::get_file_url_for_environment(
 				'_inc/build/contact-form/js/editor-view.min.js',

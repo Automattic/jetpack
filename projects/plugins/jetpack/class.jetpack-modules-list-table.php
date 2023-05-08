@@ -95,7 +95,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			)
 		);
 
-		wp_enqueue_script( 'jetpack-modules-list-table' );
+		jetpack_enqueue_script( 'jetpack-modules-list-table' );
 
 		/**
 		 * Filters the js_templates callback value.

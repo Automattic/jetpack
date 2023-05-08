@@ -37,7 +37,7 @@ class Jetpack_Iframe_Embed {
 
 		$ver = sprintf( '%s-%s', gmdate( 'oW' ), defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '' );
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			wp_enqueue_script(
+			jetpack_enqueue_script(
 				'jetpack-iframe-embed',
 				WPMU_PLUGIN_URL . '/jetpack-iframe-embed/jetpack-iframe-embed.js',
 				array( 'jquery' ),
@@ -45,7 +45,7 @@ class Jetpack_Iframe_Embed {
 				false
 			);
 		} else {
-			wp_enqueue_script(
+			jetpack_enqueue_script(
 				'jetpack-iframe-embed',
 				'//s0.wp.com/wp-content/mu-plugins/jetpack-iframe-embed/jetpack-iframe-embed.js',
 				array( 'jquery' ),

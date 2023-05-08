@@ -266,7 +266,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// Enqueue the style here instead of printing it, because if some other plugin has run the_post()+rewind_posts(),
 			// (like VideoPress does), the style tag gets "printed" the first time and discarded, leaving the contact form unstyled.
 			// when WordPress does the real loop.
-			wp_enqueue_style( 'grunion.css' );
+			jetpack_enqueue_style( 'grunion.css' );
 		}
 
 		$container_classes        = array( 'wp-block-jetpack-contact-form-container' );

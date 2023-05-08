@@ -444,7 +444,7 @@ class Jetpack_AMP_Support {
 			&& self::is_amp_request()
 			&& ! self::is_amp_legacy()
 		) {
-			wp_enqueue_style( 'sharedaddy-amp', plugin_dir_url( __DIR__ ) . 'modules/sharedaddy/amp-sharing.css', array( 'social-logos' ), JETPACK__VERSION );
+			jetpack_enqueue_style( 'sharedaddy-amp', plugin_dir_url( __DIR__ ) . 'modules/sharedaddy/amp-sharing.css', array( 'social-logos' ), JETPACK__VERSION );
 		}
 	}
 

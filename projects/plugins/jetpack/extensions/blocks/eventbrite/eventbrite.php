@@ -117,7 +117,7 @@ function render_embed_block( $widget_id, $is_amp, $attr ) {
 	} else {
 		$embed = $direct_link;
 
-		wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
+		jetpack_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
 		// Add CSS to hide direct link.
 		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
@@ -206,7 +206,7 @@ function render_modal_block( $widget_id, $is_amp, $attr, $content ) {
 		return $content;
 	}
 
-	wp_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
+	jetpack_enqueue_script( 'eventbrite-widget', 'https://www.eventbrite.com/static/widgets/eb_widgets.js', array(), JETPACK__VERSION, true );
 
 	// Show the modal version.
 	wp_add_inline_script(

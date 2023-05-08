@@ -546,7 +546,7 @@ class Jetpack_Gutenberg {
 				// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
 				echo '<link rel="stylesheet" id="jetpack-block-' . esc_attr( $type ) . '" href="' . esc_attr( $view_style ) . '&amp;ver=' . esc_attr( $style_version ) . '" media="all">';
 			} else {
-				wp_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
+				jetpack_enqueue_style( 'jetpack-block-' . $type, $view_style, array(), $style_version );
 			}
 		}
 	}
@@ -583,7 +583,7 @@ class Jetpack_Gutenberg {
 			$view_script    = add_query_arg( 'minify', 'false', $view_script );
 
 			// Enqueue dependencies.
-			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
+			jetpack_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
 
 			// If this is a customizer preview, enqueue the dependencies and render the script directly to the preview after autosave.
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -650,7 +650,7 @@ class Jetpack_Gutenberg {
 
 		// Required for Analytics. See _inc/lib/admin-pages/class.jetpack-admin-page.php.
 		if ( ! $status->is_offline_mode() && Jetpack::is_connection_ready() ) {
-			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+			jetpack_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
 		$blocks_dir       = self::get_blocks_directory();
