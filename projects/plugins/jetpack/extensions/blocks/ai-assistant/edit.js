@@ -9,7 +9,6 @@ import {
 	DropdownMenu,
 	Flex,
 	FlexBlock,
-	FlexItem,
 	Modal,
 	TextareaControl,
 	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
@@ -22,6 +21,7 @@ import { useState, RawHTML, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, pencil, moreVertical } from '@wordpress/icons';
 import MarkdownIt from 'markdown-it';
+import ImageWithSelect from './image-with-select';
 import Loading from './loading';
 
 // Maximum number of characters we send from the content
@@ -316,39 +316,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				setIsLoadingCompletion( false );
 			} );
 	};
-	//TODO: move this into a separate component file.
-	const ImageWithSelect = ( { image, inModal = false } ) => {
-		return (
-			<Flex direction="column">
-				{ inModal && (
-					<FlexItem style={ { 'text-align': 'center' } }>
-						<Button variant="primary" onClick={ () => saveImage( image ) }>
-							{ __( 'Use this image', 'jetpack' ) }
-						</Button>
-					</FlexItem>
-				) }
-				<FlexBlock>
-					<img
-						className="wp-block-ai-image-image"
-						src={ image }
-						alt=""
-						onClick={ () => setImageModal( image ) }
-					/>
-				</FlexBlock>
-				{ ! inModal && (
-					<FlexBlock>
-						<Flex direction="column" style={ { 'align-items': 'center' } }>
-							<FlexItem>
-								<Button variant="primary" onClick={ () => saveImage( image ) }>
-									{ __( 'Use this image', 'jetpack' ) }
-								</Button>
-							</FlexItem>
-						</Flex>
-					</FlexBlock>
-				) }
-			</Flex>
-		);
-	};
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
@@ -526,14 +493,23 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					</FlexBlock>
 					<Flex direction="row" wrap={ true }>
 						{ resultImages.map( image => (
-							<ImageWithSelect image={ image } />
+							<ImageWithSelect
+								setImageModal={ setImageModal }
+								saveImage={ saveImage }
+								image={ image }
+							/>
 						) ) }
 					</Flex>
 				</Flex>
 			) }
 			{ ! loadingImages && imageModal && (
 				<Modal onRequestClose={ () => setImageModal( null ) }>
-					<ImageWithSelect image={ imageModal } inModal={ true } />
+					<ImageWithSelect
+						saveImage={ saveImage }
+						setImageModal={ setImageModal }
+						image={ imageModal }
+						inModal={ true }
+					/>
 				</Modal>
 			) }
 		</div>
