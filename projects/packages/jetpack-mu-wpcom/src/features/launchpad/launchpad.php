@@ -67,6 +67,26 @@ function wpcom_register_default_launchpad_checklists() {
 	);
 
 	wpcom_register_launchpad_task(
+			array(
+					'id'                   => 'set_up_payments',
+					'title'                => __( 'Set up payment method', 'jetpack-mu-wpcom' ),
+					'is_complete_callback' => 'wpcom_launchpad_is_stripe_connected_complete',
+					'is_disabled_callback' => '__return_false',
+					'is_visible_callback'  => 'wpcom_has_goal_paid_subscribers',
+			)
+	);
+
+	wpcom_register_launchpad_task(
+			array(
+					'id'                   => 'set_up_paid_newsletter',
+					'title'                => __( 'Create paid Newsletter', 'jetpack-mu-wpcom' ),
+					'is_complete_callback' => 'wpcom_launchpad_is_newsletter_plan_created_complete',
+					'is_disabled_callback' => '__return_false',
+					'is_visible_callback'  => 'wpcom_has_goal_paid_subscribers',
+			)
+	);
+
+	wpcom_register_launchpad_task(
 		array(
 			'id'                   => 'design_selected',
 			'title'                => __( 'Select a design', 'jetpack-mu-wpcom' ),
@@ -265,6 +285,8 @@ function wpcom_register_default_launchpad_checklists() {
 				'plan_selected',
 				'subscribers_added',
 				'verify_email',
+				'set_up_payments',
+				'set_up_paid_newsletter',
 				'first_post_published_newsletter',
 			),
 		)
@@ -355,6 +377,18 @@ function wpcom_is_videopress_launch_disabled() {
  */
 function wpcom_is_link_in_bio_launch_disabled() {
 	return ! wpcom_is_checklist_task_complete( 'links_added' );
+}
+
+
+/**
+ * Helper functions for Launchpad callbacks.
+ */
+function wpcom_launchpad_is_stripe_connected_complete() {
+	return wpcom_is_checklist_task_complete( 'stripe_connected' );
+}
+
+function wpcom_launchpad_is_newsletter_plan_created_complete() {
+	return wpcom_is_checklist_task_complete( 'newsletter_plan_created' );
 }
 
 /**
@@ -617,6 +651,15 @@ function wpcom_launchpad_is_email_unverified() {
 	}
 
 	return Email_Verification::is_email_unverified();
+}
+
+/**
+ * Check if current site has paid-subscribers goal.
+ *
+ * @return bool True if current site has goal paid-subscribers.
+ */
+function wpcom_launchpad_has_goal_paid_subscribers() {
+	return in_array( 'paid-subscribers', get_option( 'site_goals', array() ) );
 }
 
 //
