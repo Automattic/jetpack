@@ -12,7 +12,8 @@ const ImageWithSelect = ( { image, inModal = false, saveImage, setImageModal } )
 				</FlexItem>
 			) }
 			<FlexBlock>
-				<img
+				<input
+					type="image"
 					className="wp-block-ai-image-image"
 					src={ image }
 					alt=""
