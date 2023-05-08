@@ -401,6 +401,44 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Tests that the response template is generated correctly
+	 */
+	public function test_wrap_message_in_html_tags() {
+		// Fill field values.
+		$this->add_field_values(
+			array(
+				'name'     => 'John Doe',
+				'dropdown' => 'First option',
+				'radio'    => 'Second option',
+				'text'     => 'Texty text',
+			)
+		);
+
+		// Initialize a form with name, dropdown and radiobutton (first, second
+		// and third option), text field.
+		$form = new Grunion_Contact_Form(
+			array(
+				'to'      => 'john@example.com, jane@example.com',
+				'subject' => 'Hello there!',
+			),
+			"[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]"
+		);
+
+		$title         = 'You got a new response!';
+		$body          = 'Here are the details:';
+		$footer        = 'This is the footer';
+		$response_link = 'http://example.com/wp-admin/admin.php?page=feedback';
+		$form_link     = 'http://example.com/contact-us/';
+		$result        = $form->wrap_message_in_html_tags( $title, $response_link, $form_link, $body, $footer );
+		error_log( "result: $result", 3, '/tmp/grunion.log' );
+		$this->assertStringContainsString( $title, $result );
+		$this->assertStringContainsString( $body, $result );
+		$this->assertStringContainsString( $footer, $result );
+		$this->assertStringContainsString( $response_link, $result );
+		$this->assertStringContainsString( $form_link, $result );
+	}
+
+	/**
 	 * Tests that the form subussion sends the correct multiple emails.
 	 *
 	 * @author tonykova
