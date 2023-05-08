@@ -24,6 +24,7 @@ import MarkdownIt from 'markdown-it';
 import ImageWithSelect from './image-with-select';
 import Loading from './loading';
 import ShowLittleByLittle from './show-little-by-little';
+import { getImagesFromOpenAI } from './lib';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
@@ -96,49 +97,6 @@ export const createPrompt = (
 
 	// return prompt.trim();
 };
-
-//TODO: move this into a separate component or hook.
-function getImagesFromOpenAI(
-	prompt,
-	setAttributes,
-	setLoadingImages,
-	setResultImages,
-	setErrorMessage,
-	postId
-) {
-	setLoadingImages( true );
-	setErrorMessage( null );
-	setAttributes( { requestedPrompt: prompt } ); // This will prevent double submitting.
-
-	apiFetch( {
-		path: '/wpcom/v2/jetpack-ai/images/generations',
-		method: 'POST',
-		data: {
-			prompt,
-			post_id: postId,
-		},
-	} )
-		.then( res => {
-			setLoadingImages( false );
-			const images = res.data.map( image => {
-				return 'data:image/png;base64,' + image.b64_json;
-			} );
-			setResultImages( images );
-		} )
-		.catch( e => {
-			if ( e.message ) {
-				setErrorMessage( e.message ); // Message was already translated by the backend
-			} else {
-				setErrorMessage(
-					__(
-						'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
-						'jetpack'
-					)
-				);
-			}
-			setLoadingImages( false );
-		} );
-}
 
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
