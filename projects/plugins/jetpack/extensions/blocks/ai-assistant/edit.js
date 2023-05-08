@@ -106,7 +106,7 @@ export const createPrompt = (
 	// return prompt.trim();
 };
 
-export default function Edit( { attributes, setAttributes, clientId, isSelected } ) {
+export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ , setNeedsMoreCharacters ] = useState( false );
@@ -354,7 +354,6 @@ export default function Edit( { attributes, setAttributes, clientId, isSelected 
 				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 				handleAcceptContent={ handleAcceptContent }
 				handleGetSuggestion={ handleGetSuggestion }
-				isSelected={ isSelected }
 				isWaitingState={ isWaitingState }
 				loadingImages={ loadingImages }
 				placeholder={ placeholder }

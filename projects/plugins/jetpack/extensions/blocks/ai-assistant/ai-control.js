@@ -1,13 +1,12 @@
+import { BlockControls } from '@wordpress/block-editor';
 import {
 	Button,
 	Icon,
-	MenuGroup,
-	MenuItem,
-	NavigableMenu,
-	Popover,
 	TextareaControl,
+	ToolbarButton,
+	ToolbarDropdownMenu,
+	ToolbarGroup,
 } from '@wordpress/components';
-import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
 	arrowRight,
@@ -15,9 +14,9 @@ import {
 	image,
 	pencil,
 	postContent,
-    postExcerpt,
+	postExcerpt,
 	title,
-	undo,
+	update,
 } from '@wordpress/icons';
 import Loading from './loading';
 
@@ -29,11 +28,9 @@ const AIControl = ( {
 	getSuggestionFromOpenAI,
 	handleAcceptContent,
 	handleGetSuggestion,
-	isSelected,
 	isWaitingState,
 	loadingImages,
 	placeholder,
-	retry,
 	setAiType,
 	setUserPrompt,
 	showRetry,
@@ -53,9 +50,20 @@ const AIControl = ( {
 		}
 	};
 
-	const popoverContainer = useRef( null );
 	return (
 		<>
+			{ ! isWaitingState && (
+				<ToolbarControls
+					aiType={ aiType }
+					animationDone={ animationDone }
+					contentIsLoaded={ contentIsLoaded }
+					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+					handleAcceptContent={ handleAcceptContent }
+					handleGetSuggestion={ handleGetSuggestion }
+					showRetry={ showRetry }
+					toggleAIType={ toggleAIType }
+				/>
+			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
 				{ ( ( ! content && isWaitingState ) || loadingImages ) && <Loading /> }
 				<TextareaControl
@@ -76,89 +84,83 @@ const AIControl = ( {
 					</Button>
 				</div>
 			</div>
-			<div ref={ popoverContainer } style={ { marginTop: '8px' } }>
-				{ isSelected && ! isWaitingState && (
-					<Popover flip={false} anchor={ popoverContainer.current } placement="bottom-start">
-						<div className="components-dropdown">
-							<NavigableMenu className="components-dropdown-menu__menu">
-								{ ! showRetry && aiType === 'text' && contentIsLoaded && animationDone && (
-									<MenuGroup>
-										<MenuItem icon={ check } iconPosition="left" onClick={ handleAcceptContent }>
-											{ __( 'Done', 'jetpack' ) }
-										</MenuItem>
-										<MenuItem
-											icon={ pencil }
-											iconPosition="left"
-											onClick={ () => getSuggestionFromOpenAI( 'continue' ) }
-										>
-											{ __( 'Continue writing', 'jetpack' ) }
-										</MenuItem>
-									</MenuGroup>
-								) }
-								{ showRetry && (
-									<MenuGroup>
-										<MenuItem icon={ undo } iconPosition="left" onClick={ handleGetSuggestion }>
-											{ __( 'Retry', 'jetpack' ) }
-										</MenuItem>
-									</MenuGroup>
-								) }
-								{ ! contentIsLoaded && aiType === 'text' && (
-									<MenuGroup label={ __( 'Ask AI to write', 'jetpack' ) }>
-										<MenuItem
-											icon={ pencil }
-											iconPosition="left"
-											onClick={ () => getSuggestionFromOpenAI( 'continue' ) }
-										>
-											{ __( 'Continue writing', 'jetpack' ) }
-										</MenuItem>
-									</MenuGroup>
-								) }
-								{ ! contentIsLoaded && aiType === 'text' && (
-									<MenuGroup label={ __( 'Ask AI to generate images', 'jetpack' ) }>
-										<MenuItem icon={ image } iconPosition="left" onClick={ () => toggleAIType() }>
-											{ __( 'Ask AI for an image', 'jetpack' ) }
-										</MenuItem>
-									</MenuGroup>
-								) }
-								{ ! contentIsLoaded && aiType === 'image' && (
-									<MenuGroup label={ __( 'Ask AI to write', 'jetpack' ) }>
-										<MenuItem icon={ pencil } iconPosition="left" onClick={ () => toggleAIType() }>
-											{ __( 'Ask AI to write', 'jetpack' ) }
-										</MenuItem>
-									</MenuGroup>
-								) }
-								{ ! contentIsLoaded && aiType === 'text' && (
-									<MenuGroup label={ __( 'Generate from content', 'jetpack' ) }>
-										<MenuItem
-											icon={ postExcerpt }
-											iconPosition="left"
-											onClick={ () => getSuggestionFromOpenAI( 'summarize' ) }
-										>
-											{ __( 'Summarize', 'jetpack' ) }
-										</MenuItem>
-										<MenuItem
-											icon={ title }
-											iconPosition="left"
-											onClick={ () => getSuggestionFromOpenAI( 'titleSummary' ) }
-										>
-											{ __( 'Write a summary based on title', 'jetpack' ) }
-										</MenuItem>
-										<MenuItem
-											icon={ postContent }
-											iconPosition="left"
-											onClick={ () => getSuggestionFromOpenAI( 'continue' ) }
-										>
-											{ __( 'Expand on preceding content', 'jetpack' ) }
-										</MenuItem>
-									</MenuGroup>
-								) }
-							</NavigableMenu>
-						</div>
-					</Popover>
-				) }
-			</div>
 		</>
 	);
 };
 
 export default AIControl;
+
+const ToolbarControls = ( {
+	aiType,
+	animationDone,
+	contentIsLoaded,
+	getSuggestionFromOpenAI,
+	handleAcceptContent,
+	handleGetSuggestion,
+	showRetry,
+	toggleAIType,
+} ) => {
+	return (
+		<BlockControls>
+			{ aiType === 'text' && (
+				// Text controls
+				<ToolbarGroup>
+					{ ! showRetry && contentIsLoaded && animationDone && (
+						<>
+							<ToolbarButton icon={ check } onClick={ handleAcceptContent }>
+								{ __( 'Done', 'jetpack' ) }
+							</ToolbarButton>
+						</>
+					) }
+					{ ! showRetry && ! contentIsLoaded && (
+						<ToolbarButton icon={ pencil } onClick={ () => getSuggestionFromOpenAI( 'continue' ) }>
+							{ __( 'Continue writing', 'jetpack' ) }
+						</ToolbarButton>
+					) }
+					{ ! showRetry && ! contentIsLoaded && (
+						<ToolbarDropdownMenu
+							label="Generate from content"
+							controls={ [
+								{
+									title: __( 'Summarize', 'jetpack' ),
+									icon: postExcerpt,
+									onClick: () => getSuggestionFromOpenAI( 'summarize' ),
+								},
+								{
+									title: __( 'Write a summary based on title', 'jetpack' ),
+									icon: title,
+									onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
+								},
+								{
+									title: __( 'Expand on preceding content', 'jetpack' ),
+									icon: postContent,
+									onClick: () => getSuggestionFromOpenAI( 'continue' ),
+								},
+							] }
+						/>
+					) }
+					{ showRetry && (
+						<ToolbarButton icon={ update } onClick={ handleGetSuggestion }>
+							{ __( 'Retry', 'jetpack' ) }
+						</ToolbarButton>
+					) }
+				</ToolbarGroup>
+			) }
+			{ ! showRetry && ! contentIsLoaded && (
+				// Image/text toggle
+				<ToolbarGroup>
+					{ aiType === 'text' && (
+						<ToolbarButton icon={ image } onClick={ toggleAIType }>
+							{ __( 'Ask AI for an image', 'jetpack' ) }
+						</ToolbarButton>
+					) }
+					{ aiType === 'image' && (
+						<ToolbarButton icon={ pencil } onClick={ toggleAIType }>
+							{ __( 'Ask AI to write', 'jetpack' ) }
+						</ToolbarButton>
+					) }
+				</ToolbarGroup>
+			) }
+		</BlockControls>
+	);
+};
