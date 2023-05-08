@@ -53,9 +53,9 @@ window.plugin_name = {
 
 And will also create a REST API endpoints that can be used to update the data:
 ```
-// GET, POST: 		/wp-json/plugin-name/widget-status
-// POST: 			/wp-json/plugin-name/widget-status/set
-// POST, DELETE: 	/wp-json/plugin-name/widget-status/delete
+// GET, POST:    /wp-json/plugin-name/widget-status
+// POST:         /wp-json/plugin-name/widget-status/set
+// POST, DELETE: /wp-json/plugin-name/widget-status/delete
 ```
 
 
@@ -140,10 +140,10 @@ class Favorite_Posts implements Entry_Can_Get {
 Now that the entries are registered, just like in [Usage](#usage) section, you can interact with the data via REST API or the Entry object.
 
 ```
-// GET, POST: 		/wp-json/jetpack-favorites/enabled
-// POST: 			/wp-json/jetpack-favorites/enabled/set
-// POST, DELETE: 	/wp-json/jetpack-favorites/enabled/delete
-// GET: 			/wp-json/jetpack-favorites/favorite-posts
+// GET, POST:    /wp-json/jetpack-favorites/enabled
+// POST:         /wp-json/jetpack-favorites/enabled/set
+// POST, DELETE: /wp-json/jetpack-favorites/enabled/delete
+// GET:          /wp-json/jetpack-favorites/favorite-posts
 ```
 
 Or change the values via the Entry object in PHP:
