@@ -185,15 +185,16 @@ final class Data_Sync {
 		 * This `register` method is inteded to be a shorthand for the most common use case.
 		 *
 		 * Custom entries can implement various interfaces depending on whether they can set, merge, delete, etc.
-		 * However, the Registry expects and object that implements Data_Sync_Entry.
-		 *
+		 * However, the Registry expects an object that implements Data_Sync_Entry.
 		 * That's why we wrap the Entry in an Adapter - giving it a guaranteed interface.
 		 *
 		 * ## Customization
-		 * By default, entries can be flexible because they're wrapped in an Adapter.
-		 * But you can also create a class that implements Data_Sync_Entry if you need to.
+		 * Entries can be flexible because they're wrapped in an Adapter.
+		 * But you can also create a class that implements `Data_Sync_Entry` directly if you need to.
 		 * In that case, you'd need to use:
-		 * `$Data_Sync->get_registry->register()` instead of `$Data_Sync->register()`.
+		 * ```php
+		 *      $Data_Sync->get_registry()->register(...)` instead of `$Data_Sync->register(...)
+		 * ```
 		 */
 		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $schema );
 		$this->registry->register( $key, $entry_adapter );
