@@ -338,7 +338,7 @@ export default function VideoPressEdit( {
 
 	// Render uploading block view
 	if ( isUploadingFile ) {
-		const handleDoneUpload = newVideoData => {
+		const handleDoneUpload = ( newVideoData: VideoBlockAttributes ) => {
 			setIsUploadingFile( false );
 			if ( isReplacingFile.isReplacing ) {
 				const newBlockAttributes = {
@@ -354,7 +354,7 @@ export default function VideoPressEdit( {
 				return;
 			}
 
-			setAttributes( { id: newVideoData.id, guid: newVideoData.guid, title: newVideoData.title } );
+			setAttributes( newVideoData );
 		};
 
 		return (
@@ -535,10 +535,17 @@ export default function VideoPressEdit( {
 					attributes={ attributes }
 					setAttributes={ setAttributes }
 					isGeneratingPoster={ isGeneratingPoster }
+					videoBelongToSite={ videoBelongToSite }
 				/>
 
 				<PrivacyAndRatingPanel
-					{ ...{ attributes, setAttributes, isRequestingVideoData, privateEnabledForSite } }
+					{ ...{
+						attributes,
+						setAttributes,
+						isRequestingVideoData,
+						privateEnabledForSite,
+						videoBelongToSite,
+					} }
 				/>
 			</InspectorControls>
 

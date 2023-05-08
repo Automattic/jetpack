@@ -12,7 +12,7 @@ import {
 	useState,
 	useRef,
 } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
 import { find, findIndex, includes, isEqual, join, keys, map, pick } from 'lodash';
@@ -50,7 +50,7 @@ const TABS = [
 	},
 	{
 		name: 'trash',
-		title: __( 'Trash', 'jetpack-forms' ),
+		title: _x( 'Trash', 'noun', 'jetpack-forms' ),
 		className: 'jp-forms__inbox-tab-item',
 	},
 ];
