@@ -107,7 +107,7 @@ class Schema implements Parser {
 
 	/**
 	 * ==================================================================================
-	 *      Static Utilities
+	 *      Static Utilities below:
 	 *      This section defines the static methods for creating instances quickly.
 	 * ==================================================================================
 	 */
