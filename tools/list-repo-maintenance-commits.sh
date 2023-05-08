@@ -77,8 +77,8 @@ declare -A SEEN
 function seen {
 	while IFS= read -r LINE; do
 		if [[ -n "$LINE" ]]; then
-			[[ -n "${SEEN[$LINE]}" ]] && continue
-			SEEN[$LINE]=1
+			[[ -n "${SEEN["$LINE"]}" ]] && continue
+			SEEN["$LINE"]=1
 		fi
 		echo "$LINE"
 	done
