@@ -8,18 +8,18 @@ import debugFactory from 'debug';
 import type {
 	CustomizeOptionsProps,
 	VideoGUID,
-	VideoPressApiIframeInstanceProps,
+	VideoPressApiIFrameProps,
 } from '../../block-editor/blocks/video/types';
 
 type Origin = 'https://videopress.com' | 'https://video.wordpress.com';
 
 const debug = debugFactory( 'videopress:player-bridge' );
 
-declare global {
-	interface Window {
-		iframeApiInstance: VideoPressApiIframeInstanceProps;
-	}
-}
+// declare global {
+// 	interface Window {
+// 		iframeApiInstance: VideoPressApiIFrameProps;
+// 	}
+// }
 
 const VIDEOPRESS_ALLOWED_LISTENING_EVENTS = [
 	'videopress_playing',

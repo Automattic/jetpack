@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { VideoPressApiIFrameProps } from './blocks/video/types';
 import { VideoPressExtensionsProps } from './extensions/types';
 declare global {
 	interface Window {

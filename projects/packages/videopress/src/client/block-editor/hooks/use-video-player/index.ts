@@ -87,6 +87,18 @@ const useVideoPlayer = (
 						{ targetOrigin: '*' }
 					);
 				}
+
+				sandboxIFrameWindow.postMessage(
+					{
+						event: 'videopress_customize_set',
+						bigPlayButton: true,
+						playPauseAnimation: false,
+						controlBar: false,
+						shareButton: false,
+						showPoster: true,
+					},
+					{ targetOrigin: '*' }
+				);
 			}
 
 			// Here we consider the video as ready to be controlled.
@@ -154,6 +166,14 @@ const useVideoPlayer = (
 			return;
 		}
 
+		sandboxIFrameWindow.postMessage(
+			{
+				event: 'videopress_customize_set',
+				showPoster: false,
+			},
+			{ targetOrigin: '*' }
+		);
+
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_play' }, '*' );
 	}, [ iFrameWrapperRef, playerIsReady, sandboxIFrameWindow ] );
 
@@ -161,6 +181,14 @@ const useVideoPlayer = (
 		if ( ! sandboxIFrameWindow || ! playerIsReady ) {
 			return;
 		}
+
+		sandboxIFrameWindow.postMessage(
+			{
+				event: 'videopress_customize_set',
+				showPoster: true,
+			},
+			{ targetOrigin: '*' }
+		);
 
 		sandboxIFrameWindow.postMessage( { event: 'videopress_action_pause' }, '*' );
 	}, [ iFrameWrapperRef, playerIsReady, sandboxIFrameWindow ] );
@@ -194,6 +222,14 @@ const useVideoPlayer = (
 			{ event: 'videopress_action_set_currenttime', currentTime: previewOnHover.atTime / 1000 },
 			{ targetOrigin: '*' }
 		);
+
+		sandboxIFrameWindow.postMessage(
+			{
+				event: 'videopress_customize_set',
+				showPoster: true,
+			},
+			{ targetOrigin: '*' }
+		);
 	}, [ previewOnHover?.atTime, playerIsReady, sandboxIFrameWindow ] );
 
 	// Move the video to the "duration" when it changes.
@@ -210,6 +246,14 @@ const useVideoPlayer = (
 			{
 				event: 'videopress_action_set_currenttime',
 				currentTime: ( previewOnHover.atTime + previewOnHover.duration ) / 1000,
+			},
+			{ targetOrigin: '*' }
+		);
+
+		sandboxIFrameWindow.postMessage(
+			{
+				event: 'videopress_customize_set',
+				showPoster: true,
 			},
 			{ targetOrigin: '*' }
 		);
