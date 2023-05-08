@@ -112,14 +112,11 @@ function NewsletterNotice( { accessLevel, socialFollowers, emailSubscribers, pai
 	return (
 		<FlexBlock>
 			<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
-				{ __( 'This will be sent to ', 'jetpack' ) }
-				<strong>
-					{ sprintf(
-						// translators: %s: The newsletter reach based on the access level
-						__( '%s subscribers.', 'jetpack' ),
-						reachCount
-					) }
-				</strong>
+				{ sprintf(
+					/* translators: %s is the number of subscribers in numerical format */
+					__( 'This will be sent to <strong>%s subscribers</strong>.', 'jetpack' ),
+					reachCount
+				) }
 			</Notice>
 		</FlexBlock>
 	);
