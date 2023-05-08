@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Sync;
 
+use Automattic\Jetpack\Constants;
+
 /**
  * Class to manage the sync settings.
  */
@@ -508,7 +510,7 @@ class Settings {
 	 * @return boolean Whether we are currently syncing.
 	 */
 	public static function is_syncing() {
-		return (bool) self::$is_syncing || ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST );
+		return (bool) self::$is_syncing || Constants::is_true( 'REST_API_REQUEST' );
 	}
 
 	/**

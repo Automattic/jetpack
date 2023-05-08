@@ -16,11 +16,11 @@ import { __ } from '@wordpress/i18n';
 import ChaptersLearnMoreHelper from '../../../../../components/chapters-learn-more-helper';
 import IncompleteChaptersNotice from '../../../../../components/incomplete-chapters-notice';
 import useChaptersLiveParsing from '../../../../../hooks/use-chapters-live-parsing';
-import { DetailsPanelProps } from '../../types';
 import './styles.scss';
 /**
  * Types
  */
+import type { DetailsPanelProps } from '../../types';
 import type React from 'react';
 
 const CHARACTERS_PER_LINE = 31;
@@ -62,6 +62,15 @@ export default function DetailsPanel( {
 
 	return (
 		<PanelBody title={ __( 'Details', 'jetpack-videopress-pkg' ) }>
+			{ ! videoBelongToSite && (
+				<Notice status="warning" isDismissible={ false } className="not-belong-to-site-notice">
+					{ __(
+						'This video is not owned by this site. You can still embed it and customize the player, but you won’t be able to edit the video.',
+						'jetpack-videopress-pkg'
+					) }
+				</Notice>
+			) }
+
 			<TextControl
 				label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 				value={ title }
