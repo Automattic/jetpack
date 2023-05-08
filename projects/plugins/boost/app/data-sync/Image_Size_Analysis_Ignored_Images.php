@@ -16,19 +16,18 @@ class Image_Size_Analysis_Ignored_Images implements Entry_Can_Get, Entry_Can_Set
 	 */
 	private $storage;
 
-
 	public function __construct() {
 		$this->storage = new Data_Sync_Option( 'jetpack_boost_isa_ignored_images' );
 	}
 
 	public function get() {
-		return $this->storage->get( [] );
+		return $this->storage->get( array() );
 	}
 
 	public function set( $value ) {
 		$this->storage->set( $value );
 	}
 
-
-
 }
+
+

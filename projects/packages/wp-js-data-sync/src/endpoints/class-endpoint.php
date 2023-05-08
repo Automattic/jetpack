@@ -134,6 +134,7 @@ class Endpoint {
 	 * @param \WP_REST_Request $request - The request object.
 	 */
 	private function handler( $request, $entry_method = 'get' ) {
+
 		$available_methods = array(
 			'get'    => Entry_Can_Get::class,
 			'set'    => Entry_Can_Set::class,
@@ -145,7 +146,7 @@ class Endpoint {
 			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method.', array( 'status' => 400 ) ) );
 		}
 
-		if ( ! $this->entry->is( $available_methods[$entry_method] ) ) {
+		if ( ! $this->entry->is( $available_methods[ $entry_method ] ) ) {
 			// Set Status 500 because the method is valid but is missing in Data_Sync_Entry.
 			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method. "' . $entry_method . '" ', array( 'status' => 500 ) ) );
 		}
