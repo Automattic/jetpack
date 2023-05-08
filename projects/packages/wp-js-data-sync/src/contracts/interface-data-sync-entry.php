@@ -14,10 +14,10 @@ interface Data_Sync_Entry {
 	/**
 	 * Checks if the implementing class supports the specified method.
 	 *
-	 * @param string $method The name of the method to check (get, set, merge, delete).
+	 * @param string $interface_reference The name of the method to check (get, set, merge, delete).
 	 * @return bool True if the method is supported, false otherwise.
 	 */
-	public function can( $method );
+	public function is( $interface_reference );
 
 	/**
 	 * Retrieves the current value of the data sync entry.

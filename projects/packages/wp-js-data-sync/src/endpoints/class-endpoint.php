@@ -8,6 +8,9 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Endpoints;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Delete;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Merge;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 
 class Endpoint {
 
@@ -55,7 +58,7 @@ class Endpoint {
 			)
 		);
 
-		if ( $this->entry->can( 'set' ) ) {
+		if ( $this->entry->is( Entry_Can_Set::class ) ) {
 			register_rest_route(
 				$this->rest_namespace,
 				$this->route_base . '/set',
@@ -67,7 +70,7 @@ class Endpoint {
 			);
 		}
 
-		if ( $this->entry->can( 'merge' ) ) {
+		if ( $this->entry->is( Entry_Can_Merge::class ) ) {
 			register_rest_route(
 				$this->rest_namespace,
 				$this->route_base . '/merge',
@@ -79,7 +82,7 @@ class Endpoint {
 			);
 		}
 
-		if ( $this->entry->can( 'delete' ) ) {
+		if ( $this->entry->is( Entry_Can_Delete::class ) ) {
 			register_rest_route(
 				$this->rest_namespace,
 				$this->route_base . '/delete',
@@ -136,7 +139,7 @@ class Endpoint {
 			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method.', array( 'status' => 400 ) ) );
 		}
 
-		if ( ! $this->entry->can( $entry_method ) ) {
+		if ( ! $this->entry->is( $entry_method ) ) {
 			// Set Status 500 because the method is valid but is missing in Data_Sync_Entry.
 			return rest_ensure_response( new \WP_Error( 'invalid_method', 'Invalid method. ' . $entry_method, array( 'status' => 500 ) ) );
 		}

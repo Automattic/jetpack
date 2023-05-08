@@ -48,19 +48,8 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 		$this->schema = $schema;
 	}
 
-	public function can( $method ) {
-		$interface_map = array(
-			'get'    => Entry_Can_Get::class,
-			'set'    => Entry_Can_Set::class,
-			'merge'  => Entry_Can_Merge::class,
-			'delete' => Entry_Can_Delete::class,
-		);
-
-		if ( isset( $interface_map[ $method ] ) ) {
-			return $this->entry instanceof $interface_map[ $method ] && method_exists( $this->entry, $method );
-		}
-
-		return false;
+	public function is( $interface_reference ) {
+		return $this->entry instanceof $interface_reference;
 	}
 
 	public function get() {
@@ -73,7 +62,7 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 	}
 
 	public function set( $value ) {
-		if ( $this->can( 'set' ) ) {
+		if ( $this->is( Entry_Can_Set::class ) ) {
 			$parsed_value = $this->schema->parse( $value );
 			$this->entry->set( $parsed_value );
 		}
@@ -81,7 +70,7 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 	}
 
 	public function merge( $partial_value ) {
-		if ( $this->can( 'merge' ) ) {
+		if ( $this->is( Entry_Can_Merge::class ) ) {
 			$updated_value = $this->entry->merge( $this->entry->get(), $partial_value );
 			$this->set( $updated_value );
 		}
@@ -89,7 +78,7 @@ final class Data_Sync_Entry_Adapter implements Data_Sync_Entry {
 	}
 
 	public function delete() {
-		if ( $this->can( 'delete' ) ) {
+		if ( $this->is( Entry_Can_Delete::class ) ) {
 			$this->entry->delete();
 		}
 		return $this->get();
