@@ -3142,7 +3142,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				$withTags             = false;
 				$withAssigned         = false;
 				$latestLog            = false;
-				$withInvoices         = false;
 				$withTransactions     = false;
 				$withValues           = false;
 
@@ -3766,7 +3765,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// now got by screenopt above $per_page = 20;
 				$page_number          = 0;
 				$possibleSearchTerm   = '';
-				$withInvoices         = false;
 				$withQuotes           = false;
 				$withTransactions     = false;
 				$possibleCoID         = '';
@@ -3852,7 +3850,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				}
 
 				// } Retrieve data
-				// ($withFullDetails=false,$perPage=10,$page=0,$withInvoices=false,$withQuotes=false,$searchPhrase='',$withTransactions=false,$argsOverride=false,$companyID=false, $hasTagIDs='', $inArr = '')
+				// ($withFullDetails=false,$perPage=10,$page=0,$withQuotes=false,$searchPhrase='',$withTransactions=false,$argsOverride=false,$companyID=false, $hasTagIDs='', $inArr = '')
 
 				// } Retrieve data
 				// old
@@ -4022,7 +4020,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// now got by screenopt above $per_page = 20;
 				$page_number          = 0;
 				$possibleSearchTerm   = '';
-				$withInvoices         = false;
 				$withQuotes           = false;
 				$withTransactions     = false;
 				$possibleCoID         = '';
