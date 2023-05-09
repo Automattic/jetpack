@@ -261,7 +261,11 @@ class Queue {
 
 		$items = $this->fetch_items( $buffer_size );
 
-		if ( ! is_countable( $items ) || count( $items ) === 0 ) {
+		if ( ! is_countable( $items ) ) {
+			return false;
+		}
+
+		if ( count( $items ) === 0 ) {
 			return false;
 		}
 
@@ -342,7 +346,11 @@ class Queue {
 			OBJECT
 		);
 
-		if ( ! is_countable( $items_with_size ) || count( $items_with_size ) === 0 ) {
+		if ( ! is_countable( $items_with_size ) ) {
+			return false;
+		}
+
+		if ( count( $items_with_size ) === 0 ) {
 			return false;
 		}
 
@@ -375,7 +383,8 @@ class Queue {
 			// @codingStandardsIgnoreEnd
 		}
 
-		if ( ! is_countable( $items ) || count( $items ) === 0 ) {
+		$items_count = is_countable( $items ) ? count( $items ) : 0;
+		if ( $items_count === 0 ) {
 			$this->delete_checkout_id();
 			return false;
 		}
