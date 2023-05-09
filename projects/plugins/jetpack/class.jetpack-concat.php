@@ -276,7 +276,7 @@ class Jetpack_Concat {
 				$this->build_cache( 'style' );
 			}
 			wp_register_style( $hash, $this->get_style_url(), array(), filemtime( $path ) );
-			wp_enqueue_style( $hash, $this->get_style_url() );
+			wp_enqueue_style( $hash );
 			$styles->do_item( $hash );
 			$this->enqueued_styles = array();
 		}
