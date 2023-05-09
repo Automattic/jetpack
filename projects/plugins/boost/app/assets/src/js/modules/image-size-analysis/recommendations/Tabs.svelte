@@ -34,14 +34,15 @@
 		&.active {
 			border-bottom: 1px solid black;
 		}
-		&:hover,
-		// Accessibility: focus when tabbing to buttons
-		&:has( button:focus ) {
-			border-bottom: 1px solid var( --gray-40 );
-		}
 	}
+
 	.jb-tab--ignored {
 		margin-left: auto;
+	}
+
+	.jb-tab:hover,
+	.jb-tab:focus-within {
+		border-bottom: 1px solid var( --gray-40 );
 	}
 
 	.jb-tabs :global( .jb-navigator-link ) {
@@ -56,6 +57,7 @@
 		align-items: center;
 		justify-content: center;
 		outline: 0;
+		box-shadow: none;
 	}
 	.jb-tab span {
 		padding: 2px 8px;
