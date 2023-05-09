@@ -18,8 +18,7 @@ class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 	}
 
 	public function get() {
-		// Testing a slow API call.
-		sleep( 3 );
+		// sleep( 3 ); // to test out a slow API call.
 		return $this->api->get();
 	}
 
