@@ -1,3 +1,6 @@
+import apiFetch from '@wordpress/api-fetch';
+import { useBlockProps } from '@wordpress/block-editor';
+import { CheckboxControl, Flex, FlexBlock, FlexItem } from '@wordpress/components';
 import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
 import {
 	CheckboxControl,
@@ -19,7 +22,8 @@ export function AuthorRecommendationEdit( {
 	setAttributes,
 	isSelected,
 } ) {
-	const [ subscriptions ] = useState( [] );
+	// eslint-disable-next-line no-unused-vars
+	const [ subscriptions, setSubscriptions ] = useState( [] );
 	const [ selectedSubscriptions, setSelectedSubscriptions ] = useState( [] );
 	const { recommendations } = attributes;
 
@@ -27,6 +31,16 @@ export function AuthorRecommendationEdit( {
 		setSelectedSubscriptions( recommendations.map( ( { ID } ) => ID ) );
 		// TODO fetch the sites the user is subscribed to
 
+
+		apiFetch( { path: '/wpcom/v2/following/mine' } )
+			.then( data => {
+				// eslint-disable-next-line no-console
+				console.log( 'response', data );
+			} )
+			.catch( error => {
+				// eslint-disable-next-line no-console
+				console.log( 'error', error );
+			} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
