@@ -2,14 +2,12 @@
  * External dependencies
  */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { rawHandler, createBlock } from '@wordpress/blocks';
 import { Flex, FlexBlock, Modal } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useState, useEffect } from '@wordpress/element';
+import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import MarkdownIt from 'markdown-it';
 /**
  * Internal dependencies
  */
@@ -17,6 +15,7 @@ import AIControl from './ai-control';
 import ImageWithSelect from './image-with-select';
 import { getImagesFromOpenAI } from './lib';
 import ShowLittleByLittle from './show-little-by-little';
+import useSuggestionsFromOpenAI from './use-suggestions-from-openai';
 import './editor.scss';
 
 // Maximum number of characters we send from the content
@@ -133,11 +132,7 @@ export const createPrompt = (
 };
 
 export default function Edit( { attributes, setAttributes, clientId } ) {
-	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
-	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
-	const [ , setNeedsMoreCharacters ] = useState( false );
 	const [ userPrompt, setUserPrompt ] = useState();
-	const [ showRetry, setShowRetry ] = useState( false );
 	const [ , setErrorMessage ] = useState( false );
 	const [ aiType, setAiType ] = useState( 'text' );
 	const [ animationDone, setAnimationDone ] = useState( false );
@@ -145,6 +140,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const [ resultImages, setResultImages ] = useState( [] );
 	const [ imageModal, setImageModal ] = useState( null );
 	const { tracks } = useAnalytics();
+	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
 	const { replaceBlocks, replaceBlock } = useDispatch( blockEditorStore );
 	const { mediaUpload } = useSelect( select => {
@@ -155,127 +151,16 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		};
 	}, [] );
 
-	// Let's grab post data so that we can do something smart.
-	const currentPostTitle = useSelect( select =>
-		select( 'core/editor' ).getEditedPostAttribute( 'title' )
-	);
-
-	//TODO: decide if we still want to load categories and tags now user is providing the prompt by default.
-	// If not the following can be removed.
-	let loading = false;
-	const categories =
-		useSelect( select => select( 'core/editor' ).getEditedPostAttribute( 'categories' ) ) || [];
-
-	const categoryObjects = useSelect(
-		select => {
-			return categories
-				.map( categoryId => {
-					const category = select( 'core' ).getEntityRecord( 'taxonomy', 'category', categoryId );
-
-					if ( ! category ) {
-						// Data is not yet loaded
-						loading = true;
-						return;
-					}
-
-					return category;
-				} )
-				.filter( Boolean ); // Remove undefined values
-		},
-		[ categories ]
-	);
-
-	const tags =
-		useSelect( select => select( 'core/editor' ).getEditedPostAttribute( 'tags' ), [] ) || [];
-
-	const tagObjects = useSelect(
-		select => {
-			return tags
-				.map( tagId => {
-					const tag = select( 'core' ).getEntityRecord( 'taxonomy', 'post_tag', tagId );
-
-					if ( ! tag ) {
-						// Data is not yet loaded
-						loading = true;
-						return;
-					}
-
-					return tag;
-				} )
-				.filter( Boolean ); // Remove undefined values
-		},
-		[ tags ]
-	);
-
-	useEffect( () => {
-		setIsLoadingCategories( loading );
-	}, [ loading ] );
-
-	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
-	const categoryNames = categoryObjects
-		.filter( cat => cat.id !== 1 )
-		.map( ( { name } ) => name )
-		.join( ', ' );
-	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
-
-	const contentBefore = useSelect( select => {
-		const editor = select( 'core/block-editor' );
-		const index = editor.getBlockIndex( clientId );
-		return editor.getBlocks().slice( 0, index ) ?? [];
-	} );
-
-	//TODO: move this into a hook?
-	const getSuggestionFromOpenAI = type => {
-		if ( !! attributes.content || isLoadingCompletion ) {
-			return;
-		}
-
-		setShowRetry( false );
-		setErrorMessage( false );
-		setNeedsMoreCharacters( false );
-		setIsLoadingCompletion( true );
-
-		const data = {
-			content: createPrompt(
-				currentPostTitle,
-				contentBefore,
-				categoryNames,
-				tagNames,
-				userPrompt,
-				type
-			),
-		};
-
-		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
-			post_id: postId,
+	const { isLoadingCategories, isLoadingCompletion, getSuggestionFromOpenAI, showRetry } =
+		useSuggestionsFromOpenAI( {
+			clientId,
+			content: attributes.content,
+			createPrompt,
+			setAttributes,
+			setErrorMessage,
+			tracks,
+			userPrompt,
 		} );
-
-		apiFetch( {
-			path: '/wpcom/v2/jetpack-ai/completions',
-			method: 'POST',
-			data: data,
-		} )
-			.then( res => {
-				const result = res.trim();
-				const markdownConverter = new MarkdownIt();
-				setAttributes( { content: result.length ? markdownConverter.render( result ) : '' } );
-				setIsLoadingCompletion( false );
-			} )
-			.catch( e => {
-				if ( e.message ) {
-					setErrorMessage( e.message ); // Message was already translated by the backend
-				} else {
-					setErrorMessage(
-						__(
-							'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
-							'jetpack'
-						)
-					);
-				}
-				setShowRetry( true );
-				setIsLoadingCompletion( false );
-			} );
-	};
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
