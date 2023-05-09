@@ -44,6 +44,7 @@ export default function Player( { isSelected, attributes } ) {
 		seekbarColor,
 		seekbarLoadingColor,
 		seekbarPlayedColor,
+		title,
 	} = attributes;
 
 	const iconStyle = style[ 'videopress-player__loading-icon' ];
@@ -154,7 +155,7 @@ export default function Player( { isSelected, attributes } ) {
 				<Pressable
 					style={ style[ 'videopress-player__open-embed-button' ] }
 					onPress={ () => {
-						requestEmbedFullscreenPreview( html, preview.title );
+						requestEmbedFullscreenPreview( html, title );
 					} }
 				/>
 			</View>
