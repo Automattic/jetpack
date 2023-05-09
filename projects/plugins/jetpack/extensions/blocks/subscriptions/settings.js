@@ -228,7 +228,7 @@ function NewsletterAccessRadioButtons( {
 
 						{ /* Do not show subscriber numbers in the PrePublish panel */ }
 						{ ! isPrePublishPanel &&
-							'(' +
+							' (' +
 								getReachForAccessLevelKey(
 									key,
 									emailSubscribers,
