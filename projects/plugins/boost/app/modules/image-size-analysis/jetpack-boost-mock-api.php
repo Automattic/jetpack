@@ -3,8 +3,30 @@
 // This is a DEVELOPMENT ONLY file. (WIP)
 namespace Automattic\Jetpack_Boost\Modules\Image_Size_Analysis;
 
+
+function consistent_shuffle_array(&$array, $seed_string) {
+	// Generate a seed from the input string using a hash function
+	$seed = hexdec(substr(hash('sha256', $seed_string), 0, 15));
+
+	// Seed the random number generator
+	mt_srand($seed);
+
+	// Fisher-Yates shuffle algorithm
+	for ($i = count($array) - 1; $i > 0; $i--) {
+		$j = mt_rand(0, $i);
+		$temp = $array[$i];
+		$array[$i] = $array[$j];
+		$array[$j] = $temp;
+	}
+
+	// Reset the random number generator seed to a random value
+	mt_srand();
+}
+
+
+
 // Temporary Mocking Function
-function jetpack_boost_mock_api( $count, $paged = 1 ) {
+function jetpack_boost_mock_api( $count, $group = 'all', $paged = 1 ) {
 	$image_posts    = array();
 	$posts_per_page = 10;
 
@@ -91,6 +113,6 @@ function jetpack_boost_mock_api( $count, $paged = 1 ) {
 			}
 		}
 	}
-
+	consistent_shuffle_array( $image_posts, "{$group}_{$paged}" );
 	return $image_posts;
 }
