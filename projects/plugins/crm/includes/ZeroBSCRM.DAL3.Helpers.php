@@ -3571,24 +3571,6 @@ function zeroBS___________DAL30Helpers(){return;}
 
 	}
 
-	#} This is deprecated v3.0+ - no need to separately get the meta, is all one obj now :)
-	function zeroBS_getCompanyMeta($coID=-1){
-
-		zeroBSCRM_DEPRECATEDMSG('CRM Function Deprecated in v3.0+. Please use zeroBS_getCompanyMeta()');
-
-		if (!empty($coID)){
-
-			global $zbs;
-
-			return $zbs->DAL->companies->getCompany($coID,array());
-
-		}
-
-		return false;
-
-	}
-
-
 	// get co with name? legacy shiz
 	function zeroBS_getCompanyIDWithName($coName=''){
 
@@ -3724,7 +3706,6 @@ function zeroBS___________DAL30Helpers(){return;}
 				if ($coID > 0){
 
 					#} Build "existing meta" to pass, (so we only update fields pushed here)
-					//$existingMeta = zeroBS_getCompanyMeta($postID);
 					$existingMeta = $zbs->DAL->companies->getCompany($coID,array());
 
 					#} need to check the dates here. If a date is passed which is BEFORE the current "created" date then overwrite the date with the new date. If a date is passed which is AFTER the current "created" date, then do not update the date..
