@@ -23,7 +23,7 @@ import styles from './style.module.scss';
  * @returns {React.Component} The `ActionButton` component.
  */
 const ActionButton = props => {
-	const { label, onClick, isLoading, displayError, errorMessage } = props;
+	const { label, onClick, isLoading, isDisabled, displayError, errorMessage } = props;
 
 	return (
 		<>
@@ -33,7 +33,7 @@ const ActionButton = props => {
 					label={ label }
 					onClick={ onClick }
 					variant="primary"
-					disabled={ isLoading }
+					disabled={ isLoading || isDisabled }
 				>
 					{ isLoading ? <Spinner /> : label }
 				</Button>
@@ -53,10 +53,12 @@ ActionButton.propTypes = {
 	onClick: PropTypes.func,
 	/** Will disable the button and display a spinner if set to true. */
 	isLoading: PropTypes.bool,
+	/** Will disable the button with no spinner. */
+	isDisabled: PropTypes.bool,
 	/** Displays an error message */
 	displayError: PropTypes.bool,
 	/** The error message string */
-	errorMessage: PropTypes.string,
+	errorMessage: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 };
 
 ActionButton.defaultProps = {
