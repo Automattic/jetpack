@@ -45,6 +45,8 @@ const useSuggestionsFromOpenAI = ( {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
+	const [ , setLastPrompt ] = useState( '' );
+
 	// Let's grab post data so that we can do something smart.
 
 	const currentPostTitle = useSelect( select =>
@@ -117,20 +119,22 @@ const useSuggestionsFromOpenAI = ( {
 		setErrorMessage( false );
 		setIsLoadingCompletion( true );
 
-		const data = {
-			content: createPrompt(
-				currentPostTitle,
-				getPartialContentToBlock( clientId ),
-				categoryNames,
-				tagNames,
-				userPrompt,
-				type
-			),
-		};
+		const prompt = createPrompt(
+			currentPostTitle,
+			getPartialContentToBlock( clientId ),
+			categoryNames,
+			tagNames,
+			userPrompt,
+			type
+		);
+
+		const data = { content: prompt };
 
 		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
 			post_id: postId,
 		} );
+
+		setLastPrompt( prompt );
 
 		apiFetch( {
 			path: '/wpcom/v2/jetpack-ai/completions',
