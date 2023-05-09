@@ -26,6 +26,7 @@ const AIControl = ( {
 	setAiType,
 	setUserPrompt,
 	showRetry,
+	contentBefore,
 } ) => {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
@@ -55,6 +56,7 @@ const AIControl = ( {
 					handleTryAgain={ handleTryAgain }
 					showRetry={ showRetry }
 					toggleAIType={ toggleAIType }
+					contentBefore={ contentBefore }
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
@@ -93,6 +95,7 @@ const ToolbarControls = ( {
 	handleGetSuggestion,
 	showRetry,
 	toggleAIType,
+	contentBefore,
 } ) => {
 	return (
 		<BlockControls>
@@ -109,11 +112,13 @@ const ToolbarControls = ( {
 							</ToolbarButton>
 						</>
 					) }
-					{ ! showRetry && ! contentIsLoaded && (
+
+					{ ! showRetry && ! contentIsLoaded && contentBefore?.length && (
 						<ToolbarButton icon={ pencil } onClick={ () => getSuggestionFromOpenAI( 'continue' ) }>
 							{ __( 'Continue writing', 'jetpack' ) }
 						</ToolbarButton>
 					) }
+
 					{ ! showRetry && ! contentIsLoaded && (
 						<ToolbarDropdownMenu
 							label="More"

@@ -38,15 +38,20 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		};
 	}, [] );
 
-	const { isLoadingCategories, isLoadingCompletion, getSuggestionFromOpenAI, showRetry } =
-		useSuggestionsFromOpenAI( {
-			clientId,
-			content: attributes.content,
-			setAttributes,
-			setErrorMessage,
-			tracks,
-			userPrompt,
-		} );
+	const {
+		isLoadingCategories,
+		isLoadingCompletion,
+		getSuggestionFromOpenAI,
+		showRetry,
+		contentBefore,
+	} = useSuggestionsFromOpenAI( {
+		clientId,
+		content: attributes.content,
+		setAttributes,
+		setErrorMessage,
+		tracks,
+		userPrompt,
+	} );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
@@ -159,6 +164,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				showRetry={ showRetry }
 				setAiType={ setAiType }
 				setUserPrompt={ setUserPrompt }
+				contentBefore={ contentBefore }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
