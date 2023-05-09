@@ -5,35 +5,22 @@ import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { rawHandler, createBlock } from '@wordpress/blocks';
-import {
-	Button,
-	DropdownMenu,
-	Flex,
-	FlexBlock,
-	Modal,
-	TextareaControl,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalToggleGroupControl as ToggleGroupControl,
-	// eslint-disable-next-line wpcalypso/no-unsafe-wp-apis
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption,
-} from '@wordpress/components';
+import { Flex, FlexBlock, Modal } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, pencil, moreVertical } from '@wordpress/icons';
 import MarkdownIt from 'markdown-it';
 /**
  * Internal dependencies
  */
+import AIControl from './ai-control';
 import ImageWithSelect from './image-with-select';
 import { getImagesFromOpenAI } from './lib';
-import Loading from './loading';
 import ShowLittleByLittle from './show-little-by-little';
 import './editor.scss';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
-
 export const PROMPT_SUFFIX = __(
 	'. Please always output the generated content in markdown format. Do not include a top level heading by default. Please only output generated content ready for publishing.',
 	'jetpack'
@@ -78,10 +65,31 @@ export const createPrompt = (
 			__( "Please help me write a short piece of a blog post titled '%1$s'", 'jetpack' ),
 			postTitle
 		);
+
 		return titlePrompt + PROMPT_SUFFIX;
 	}
 
-	if ( type === 'expandPreceding' ) {
+	if ( type === 'summarize' ) {
+		const content = contentBeforeCurrentBlock
+			.filter( function ( block ) {
+				return block && block.attributes && block.attributes.content;
+			} )
+			.map( function ( block ) {
+				return block.attributes.content.replaceAll( '<br/>', '\n' );
+			} )
+			.join( '\n' );
+		const shorter_content = content.slice( -1 * MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
+
+		const expandPrompt = sprintf(
+			/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
+			__( 'Summarize this:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+			shorter_content
+		);
+
+		return expandPrompt + PROMPT_SUFFIX;
+	}
+
+	if ( type === 'continue' ) {
 		const content = contentBeforeCurrentBlock
 			.filter( function ( block ) {
 				return block && block.attributes && block.attributes.content;
@@ -97,6 +105,7 @@ export const createPrompt = (
 			__( ' Please continue from here:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
 			shorter_content
 		);
+
 		return expandPrompt + PROMPT_SUFFIX;
 	}
 
@@ -214,6 +223,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		const index = editor.getBlockIndex( clientId );
 		return editor.getBlocks().slice( 0, index ) ?? [];
 	} );
+
 	//TODO: move this into a hook?
 	const getSuggestionFromOpenAI = type => {
 		if ( !! attributes.content || isLoadingCompletion ) {
@@ -351,66 +361,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 
 	return (
 		<div { ...useBlockProps() }>
-			{ ! contentIsLoaded && (
-				<div>
-					{ showRetry && (
-						<Button variant="primary" onClick={ () => handleGetSuggestion() }>
-							{ __( 'Retry', 'jetpack' ) }
-						</Button>
-					) }
-					<div className="jetpack-ai-assistant__input-wrapper">
-						<TextareaControl
-							onChange={ value => setUserPrompt( value ) }
-							rows="1"
-							placeholder={ placeholder }
-							className="jetpack-ai-assistant__input"
-						/>
-						<ToggleGroupControl
-							__nextHasNoMarginBottom={ true }
-							label={ __( 'Type of AI assistance needed', 'jetpack' ) }
-							hideLabelFromVision
-							value={ aiType }
-							onChange={ newType => setAiType( newType ) }
-							isBlock
-							size="2"
-							className="jetpack-ai-assistant__input-toggle"
-						>
-							<ToggleGroupControlOption value="text" label={ __( 'Text', 'jetpack' ) } />
-							<ToggleGroupControlOption value="image" label={ __( 'Images', 'jetpack' ) } />
-						</ToggleGroupControl>
-					</div>
-					<div className="jetpack-ai-assistant__controls">
-						<Button
-							variant="primary"
-							onClick={ () => handleGetSuggestion() }
-							disabled={ isWaitingState }
-							label={ __( 'Do some magic!', 'jetpack' ) }
-						>
-							<Icon icon={ pencil } />
-						</Button>
-						{ aiType === 'text' && (
-							<DropdownMenu
-								icon={ moreVertical }
-								label={ __( 'Other options', 'jetpack' ) }
-								controls={ [
-									{
-										title: __( 'Write a summary based on title', 'jetpack' ),
-										onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
-										isDisabled: isWaitingState,
-									},
-									{
-										title: __( 'Expand on preceding content', 'jetpack' ),
-										onClick: () => getSuggestionFromOpenAI( 'expandPreceding' ),
-										isDisabled: isWaitingState,
-									},
-								] }
-							/>
-						) }
-						{ ( ( ! attributes.content && isWaitingState ) || loadingImages ) && <Loading /> }
-					</div>
-				</div>
-			) }
-
 			{ contentIsLoaded && (
 				<>
 					<ShowLittleByLittle
@@ -421,16 +371,24 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 						clientId={ clientId }
 						html={ attributes.content }
 					/>
-					{ contentIsLoaded && animationDone && (
-						<div className="jetpack-ai-assistant__accept">
-							<Button variant="primary" onClick={ handleAcceptContent }>
-								{ __( 'Accept', 'jetpack' ) }
-							</Button>
-							<Button onClick={ retry }>{ __( 'Retry', 'jetpack' ) }</Button>
-						</div>
-					) }
 				</>
 			) }
+			<AIControl
+				aiType={ aiType }
+				animationDone={ animationDone }
+				content={ attributes.content }
+				contentIsLoaded={ contentIsLoaded }
+				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+				handleAcceptContent={ handleAcceptContent }
+				handleGetSuggestion={ handleGetSuggestion }
+				isWaitingState={ isWaitingState }
+				loadingImages={ loadingImages }
+				placeholder={ placeholder }
+				retry={ retry }
+				showRetry={ showRetry }
+				setAiType={ setAiType }
+				setUserPrompt={ setUserPrompt }
+			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
 					<FlexBlock

@@ -33,12 +33,12 @@ describe( 'AIParagraphEdit', () => {
 				'',
 				'',
 				'',
-				'expandPreceding'
+				'continue'
 			)
 		).toBe( ' Please continue from here:\n\n … content' + PROMPT_SUFFIX );
 
 		// Test that <BR/> are being translated. And content trimmed
-		expect( createPrompt( 'title', [ fakeBlockWithBr ], '', '', '', 'expandPreceding' ) ).toBe(
+		expect( createPrompt( 'title', [ fakeBlockWithBr ], '', '', '', 'continue' ) ).toBe(
 			' Please continue from here:\n\n … content\ncontent2' + PROMPT_SUFFIX
 		);
 
