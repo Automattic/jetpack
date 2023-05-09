@@ -1728,14 +1728,12 @@ class Woo_Sync_Background_Sync_Job {
 
 		}
 
-		// Transactions have a "Hold" status by default, not "On-hold"
-		$transaction_status = ( $order_status == "on-hold" ? "Hold" : ucfirst( $order_status ) );
-		
 		if ( $is_status_mapping_enabled ) {
-			$candidate_transaction_status = ! empty( $settings[ $order_status_to_transaction_settings[ $order_status ] ] ) ? $settings[ $order_status_to_transaction_settings[ $order_status ] ] : -1;
-
-			// Make sure that the user-defined transaction status mapping is still in the list of allowed transaction statuses.
-			$transaction_status = in_array( $candidate_transaction_status, $valid_transaction_statuses ) ? $candidate_transaction_status : $transaction_status;
+			// use status mapping logic
+			$transaction_status = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_TRANSACTION, $order_status );
+		} else {
+			// use default mapping, which is essentially order status
+			$transaction_status = $this->woosync()->get_default_woo_order_status_mapping_for_obj_type( ZBS_TYPE_TRANSACTION, $order_status );
 		}
 
 		// fill out transaction header (object)
