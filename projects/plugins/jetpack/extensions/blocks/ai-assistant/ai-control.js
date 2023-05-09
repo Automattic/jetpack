@@ -8,7 +8,7 @@ import {
 	ToolbarGroup,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { arrowRight, check, image, pencil, update, undo } from '@wordpress/icons';
+import { arrowRight, check, image, pencil, update, title, undo } from '@wordpress/icons';
 import Loading from './loading';
 
 const AIControl = ( {
