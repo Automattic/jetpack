@@ -1,9 +1,38 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useSelect } from '@wordpress/data';
+import { useSelect, select as selectData } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MarkdownIt from 'markdown-it';
 import { createPrompt } from './create-prompt';
+
+/**
+ * Returns partial content from the beginning of the post
+ * to the current block (clientId)
+ *
+ * @param {string} clientId - The current block clientId.
+ * @returns {string}          The partial content.
+ */
+export function getPartialContentToBlock( clientId ) {
+	if ( ! clientId ) {
+		return '';
+	}
+
+	const editor = selectData( 'core/block-editor' );
+	const index = editor.getBlockIndex( clientId );
+	const blocks = editor.getBlocks().slice( 0, index ) ?? [];
+	if ( ! blocks?.length ) {
+		return '';
+	}
+
+	return blocks
+		.filter( function ( block ) {
+			return block && block.attributes && block.attributes.content;
+		} )
+		.map( function ( block ) {
+			return block.attributes.content.replaceAll( '<br/>', '\n' );
+		} )
+		.join( '\n' );
+}
 
 const useSuggestionsFromOpenAI = ( {
 	clientId,
@@ -79,12 +108,6 @@ const useSuggestionsFromOpenAI = ( {
 		.join( ', ' );
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
-	const contentBefore = useSelect( select => {
-		const editor = select( 'core/block-editor' );
-		const index = editor.getBlockIndex( clientId );
-		return editor.getBlocks().slice( 0, index ) ?? [];
-	} );
-
 	const getSuggestionFromOpenAI = type => {
 		if ( !! content || isLoadingCompletion ) {
 			return;
@@ -97,7 +120,7 @@ const useSuggestionsFromOpenAI = ( {
 		const data = {
 			content: createPrompt(
 				currentPostTitle,
-				contentBefore,
+				getPartialContentToBlock( clientId ),
 				categoryNames,
 				tagNames,
 				userPrompt,
