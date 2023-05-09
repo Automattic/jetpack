@@ -149,14 +149,13 @@ const useSuggestionsFromOpenAI = ( {
 					currentPostTitle,
 					getPartialContentToBlock( clientId ),
 					getContentFromBlocks(),
-					categoryNames,
-					tagNames,
 					userPrompt,
-					type
+					type,
+					categoryNames,
+					tagNames
 			  );
 
 		const data = { content: prompt };
-
 		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
 			post_id: postId,
 		} );
