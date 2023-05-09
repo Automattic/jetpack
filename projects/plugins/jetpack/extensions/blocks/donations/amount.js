@@ -16,12 +16,14 @@ const Amount = ( {
 	const [ editedValue, setEditedValue ] = useState(
 		formatCurrency( value, currency, { symbol: '' } )
 	);
+	// const [ previousCurrency, setPreviousCurrency ] = useState( currency );
 	const [ isFocused, setIsFocused ] = useState( false );
 	const [ isInvalid, setIsInvalid ] = useState( false );
 	const richTextRef = useRef( null );
 
 	const setAmount = useCallback(
 		amount => {
+			console.log( 'amount(setAmount)', amount, currency, onChange );
 			setEditedValue( amount );
 
 			if ( ! onChange ) {
@@ -30,9 +32,11 @@ const Amount = ( {
 
 			const parsedAmount = parseAmount( amount, currency );
 			if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
+				console.log( 'not invalid', parsedAmount );
 				onChange( parsedAmount );
 				setIsInvalid( false );
 			} else if ( amount ) {
+				console.log( ' is invalid', parsedAmount );
 				setIsInvalid( true );
 			}
 		},
@@ -50,6 +54,7 @@ const Amount = ( {
 
 	// Tracks when user clicks out the input. Cannot be done with an `onBlur` prop because `RichText` does not support it.
 	useEffect( () => {
+		console.log( 'add blur event listener' );
 		if ( ! richTextRef.current ) {
 			return;
 		}
@@ -63,6 +68,7 @@ const Amount = ( {
 			return;
 		}
 
+		console.log( 'call setAmount', defaultValue, currency );
 		setAmount( formatCurrency( defaultValue, currency, { symbol: '' } ) );
 	}, [ currency, defaultValue, editedValue, isFocused, setAmount ] );
 
@@ -71,7 +77,8 @@ const Amount = ( {
 		if ( isFocused || isInvalid ) {
 			return;
 		}
-		setEditedValue( formatCurrency( value, currency, { symbol: '' } ) );
+		console.log( 'call setEditedValue (effect)', value, currency );
+		// setEditedValue( formatCurrency( value, currency, { symbol: '' } ) );
 	}, [ currency, isFocused, isInvalid, setAmount, value ] );
 
 	return (

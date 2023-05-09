@@ -52,11 +52,11 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 		}
 		setPreviousCurrency( currency );
 
-		setAttributes( {
-			oneTimeDonation: { ...oneTimeDonation, amounts: defaultAmounts },
-			monthlyDonation: { ...monthlyDonation, amounts: defaultAmounts },
-			annualDonation: { ...annualDonation, amounts: defaultAmounts },
-		} );
+		// setAttributes( {
+		// 	oneTimeDonation: { ...oneTimeDonation, amounts: defaultAmounts },
+		// 	monthlyDonation: { ...monthlyDonation, amounts: defaultAmounts },
+		// 	annualDonation: { ...annualDonation, amounts: defaultAmounts },
+		// } );
 	}, [
 		currency,
 		previousCurrency,
