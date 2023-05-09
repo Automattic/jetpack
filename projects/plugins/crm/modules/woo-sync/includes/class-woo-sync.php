@@ -1599,45 +1599,36 @@ class Woo_Sync {
 	 *
 	 * @return string contact status
 	 */
-	public function woocommerce_order_status_to_contact_status( $order_status ){
+	public function woocommerce_order_status_to_contact_status( $order_status ) {
 
-	    // $order_status is the WooCommerce order status
+		// $order_status is the WooCommerce order status
 		$settings = $this->get_settings();
 
-	    // retrieve default status
-	    $default_status = zeroBSCRM_getSetting( 'defaultstatus' );
+		// retrieve default status
+		$default_status = zeroBSCRM_getSetting( 'defaultstatus' );
 
-	    // retrieve contact_statuses to ensure we are getting a valid one
-	    $contact_statuses = zeroBSCRM_getCustomerStatuses( true );
+		// retrieve contact_statuses to ensure we are getting a valid one
+		$contact_statuses = zeroBSCRM_getCustomerStatuses( true );
 
-	    // mappings
-	    $woo_order_status_mapping = $this->woo_order_status_mapping( 'contact' );
+		// mappings
+		$woo_order_status_mapping = $this->woo_order_status_mapping( 'contact' );
 
-	    // get the mapping setting from woocommerce
-	    if ( 
-	        array_key_exists( $order_status, $woo_order_status_mapping ) 
-	        && isset( $settings[ $woo_order_status_mapping[ $order_status ] ] )
-	        && in_array( $settings[ $woo_order_status_mapping[ $order_status ] ], $contact_statuses )
-	    ) {
+		// get the mapping setting from woocommerce
+		if (
+			array_key_exists( $order_status, $woo_order_status_mapping )
+			&& isset( $settings[ $woo_order_status_mapping[ $order_status ] ] )
+			&& in_array( $settings[ $woo_order_status_mapping[ $order_status ] ], $contact_statuses, true )
+		) {
+			$order_status = $settings[ $woo_order_status_mapping[ $order_status ] ];
+		} else {
+			$order_status = $default_status;
+		}
 
-	        $order_status = $settings[ $woo_order_status_mapping[ $order_status ] ];
-
-	    } else {
-
-	        $order_status = $default_status;
-
-	    }
-
-	    if ( ! isset( $order_status ) || $order_status == -1 ) {
-
-	        return $default_status;
-
-	    } else {
-
-	        return $order_status;
-
-	    }
-
+		if ( ! isset( $order_status ) || $order_status === -1 ) {
+			return $default_status;
+		} else {
+			return $order_status;
+		}
 	}
 
 
