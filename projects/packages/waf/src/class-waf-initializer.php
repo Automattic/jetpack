@@ -43,13 +43,17 @@ class Waf_Initializer {
 			add_action( 'upgrader_process_complete', __CLASS__ . '::update_waf_after_plugin_upgrade', 10, 2 );
 			add_action( 'admin_init', __CLASS__ . '::check_for_waf_update' );
 
-			// Activation/Deactivation hooks
-			add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_activation' );
-			add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_deactivation' );
+			// WAF activation/deactivation hooks
+			add_action( 'jetpack_activate_module_waf', __CLASS__ . '::on_waf_activation' );
+			add_action( 'jetpack_deactivate_module_waf', __CLASS__ . '::on_waf_deactivation' );
 
 			// Run the WAF
 			Waf_Runner::initialize();
 		}
+
+		// Brute force protection activation/deactivation hooks
+		add_action( 'jetpack_activate_module_protect', __CLASS__ . '::on_brute_force_protection_activation' );
+		add_action( 'jetpack_deactivate_module_protect', __CLASS__ . '::on_brute_force_protection_deactivation' );
 
 		// Run brute force protection
 		Brute_Force_Protection::initialize();
@@ -60,7 +64,7 @@ class Waf_Initializer {
 	 *
 	 * @return bool|WP_Error True if the WAF activation is successful, WP_Error otherwise.
 	 */
-	public static function on_activation() {
+	public static function on_waf_activation() {
 		update_option( Waf_Runner::MODE_OPTION_NAME, 'normal' );
 		add_option( Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME, false );
 
@@ -71,6 +75,15 @@ class Waf_Initializer {
 			return $e->get_wp_error();
 		}
 
+		return true;
+	}
+
+	/**
+	 * Activate the Brute force protection on module activation.
+	 *
+	 * @return bool True if the Brute force protection activation is successful
+	 */
+	public static function on_brute_force_protection_activation() {
 		$brute_force_protection = Brute_Force_Protection::instance();
 		$brute_force_protection->on_activation();
 
@@ -82,13 +95,22 @@ class Waf_Initializer {
 	 *
 	 * @return bool|WP_Error True if the WAF deactivation is successful, WP_Error otherwise.
 	 */
-	public static function on_deactivation() {
+	public static function on_waf_deactivation() {
 		try {
 			Waf_Runner::deactivate();
 		} catch ( Waf_Exception $e ) {
 			return $e->get_wp_error();
 		}
 
+		return true;
+	}
+
+	/**
+	 * Deactivate the Brute force protection on module deactivation.
+	 *
+	 * @return bool True if the Brute force protection deactivation is successful.
+	 */
+	public static function on_brute_force_protection_deactivation() {
 		$brute_force_protection = Brute_Force_Protection::instance();
 		$brute_force_protection->on_deactivation();
 
