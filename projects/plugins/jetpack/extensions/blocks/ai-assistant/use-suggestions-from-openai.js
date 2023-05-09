@@ -34,6 +34,30 @@ export function getPartialContentToBlock( clientId ) {
 		.join( '\n' );
 }
 
+/**
+ * Returns content from all blocks,
+ * by inspecting the blocks `content` attributes
+ *
+ * @returns {string} The content.
+ */
+export function getContentFromBlocks() {
+	const editor = selectData( 'core/block-editor' );
+	const blocks = editor.getBlocks();
+
+	if ( ! blocks?.length ) {
+		return '';
+	}
+
+	return blocks
+		.filter( function ( block ) {
+			return block && block.attributes && block.attributes.content;
+		} )
+		.map( function ( block ) {
+			return block.attributes.content.replaceAll( '<br/>', '\n' );
+		} )
+		.join( '\n' );
+}
+
 const useSuggestionsFromOpenAI = ( {
 	clientId,
 	content,
@@ -124,6 +148,7 @@ const useSuggestionsFromOpenAI = ( {
 			: createPrompt(
 					currentPostTitle,
 					getPartialContentToBlock( clientId ),
+					getContentFromBlocks(),
 					categoryNames,
 					tagNames,
 					userPrompt,
