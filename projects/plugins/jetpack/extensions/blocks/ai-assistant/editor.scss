@@ -23,13 +23,37 @@
 .jetpack-ai-assistant__input-wrapper {
 	display: flex;
 	padding: 4px 4px;
-	box-shadow: var(--wp--preset--color--cyan-bluish-gray) 0px 0px 0px 1px, var(--wp--preset--color--cyan-bluish-gray) 0px 3px 6px, var(--wp--preset--color--cyan-bluish-gray) 0px 9px 24px;
+	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 3px 6px, var( --wp--preset--color--cyan-bluish-gray ) 0px 9px 24px;
+
+	textarea {
+		width: 100%;
+		padding: 6px 8px;
+		font-size: 16px;
+		line-height: normal;
+		transition: box-shadow 0.1s linear 0s;
+		border-radius: 2px;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+
+		@media (min-width: 600px) {
+			font-size: 13px;
+		}
+
+		&::placeholder {
+			text-overflow:ellipsis;
+			white-space: nowrap;
+		}
+	}
 
 	textarea.jetpack-ai-assistant__input {
 		flex-grow: 1;
-		margin-right: 12px;
-		margin-left: 4px;
+		margin: 1px 12px 1px 0px;
 		resize: none !important;
+		border: none;
+		box-shadow: none;
+
+		&:focus {
+			box-shadow: none;
+		}
 	}
 }
 
