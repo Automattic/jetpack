@@ -42,7 +42,7 @@ export const createPrompt = (
 	}
 
 	// When type is not defined,
-	// let's set it based on the title, content,and userPrompt.
+	// let's set it based on the title, content, and userPrompt.
 	if ( ! type ) {
 		if ( userPrompt?.length ) {
 			type = 'userPrompt';
@@ -60,7 +60,7 @@ export const createPrompt = (
 	contentBefore = contentBefore.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
 
 	if ( type === 'titleSummary' ) {
-		const additionalContextPromp = contentBefore?.length
+		const additionalContextPrompt = contentBefore?.length
 			? sprintf(
 					/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
 					__( '. Additional context:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
@@ -72,7 +72,7 @@ export const createPrompt = (
 			/** translators: This will be the beginning of a prompt that will be sent to OpenAI based on the post title. */
 			__( "Please help me write a short piece of a blog post titled '%1$s'%2$s", 'jetpack' ),
 			postTitle,
-			additionalContextPromp
+			additionalContextPrompt
 		);
 		return titlePrompt + PROMPT_SUFFIX;
 	}
