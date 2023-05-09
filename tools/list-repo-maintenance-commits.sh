@@ -1,9 +1,10 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Quick script to output commits from the most recent full week (Monday to Sunday) that are probably "maintenance" commits.
 
 cd $(dirname "${BASH_SOURCE[0]}")/..
 source tools/includes/chalk-lite.sh
+source tools/includes/check-osx-bash-version.sh
 
 # Email addresses of people who often author maintenance PRs.
 # Note the renovate bot is handled separately.
