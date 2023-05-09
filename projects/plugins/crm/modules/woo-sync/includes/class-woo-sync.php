@@ -241,29 +241,71 @@ class Woo_Sync {
 	}
 
 	/**
+	 * Retrieve default mapped order status for a given object type
+	 *
+	 * @param int $obj_type_id Object type (e.g. ZBS_TYPE_CONTACT, ZBS_TYPE_INVOICE, or ZBS_TYPE_TRANSACTION).
+	 * @param str $order_status Woo order status.
+	 *
+	 * @return str|bool Status string to use for object
+	 */
+	public function get_default_woo_order_status_mapping_for_obj_type( $obj_type_id, $order_status ) {
+		global $zbs;
+
+		$status = false;
+
+		if ( $obj_type_id === ZBS_TYPE_CONTACT ) {
+			// default contact status is configured in CRM settings
+			$status = $zbs->settings->get( 'defaultstatus' );
+		} elseif ( $obj_type_id === ZBS_TYPE_INVOICE ) {
+			// reasonable default paid mapping based on Woo status descriptions:
+			// https://woocommerce.com/document/managing-orders/#order-statuses
+			$paid_statuses = array(
+				__( 'Pending', 'zero-bs-crm' ),
+				__( 'Processing', 'zero-bs-crm' ),
+			);
+
+			if ( in_array( $order_status, $paid_statuses, true ) ) {
+				$status = __( 'Paid', 'zero-bs-crm' );
+			} else {
+				$status = __( 'Unpaid', 'zero-bs-crm' );
+			}
+		} elseif ( $obj_type_id === ZBS_TYPE_TRANSACTION ) {
+			// default transaction status is the same as the Woo order status
+			$status = $order_status;
+
+			// weird legacy mapping fix
+			if ( $status === __( 'On hold', 'zero-bs-crm' ) ) {
+				$status = __( 'Hold', 'zero-bs-crm' );
+			}
+		}
+
+		return $status;
+	}
+
+	/**
 	 * Retrieve available WooCommerce Order mapping to different CRM fields.
 	 * This mapping is stored in the settings in the settings, more specifically
 	 * in $settings[ $type_prefix . $woo_order_status_key ].
-	 * 
+	 *
 	 * @return array Array with mapping types for contacts, invoices and transactions.
 	 */
-	function get_woo_order_mapping_types() {
+	public function get_woo_order_mapping_types() {
 		$contact_statuses     = zeroBSCRM_getCustomerStatuses( true );
 		$invoice_statuses     = zeroBSCRM_getInvoicesStatuses();
 		$transaction_statuses = zeroBSCRM_getTransactionsStatuses( true );
 		return array(
 			'contact' => array(
-				'label'    => __( 'Contact status', 'zero-bs-crm' ), 
+				'label'    => __( 'Contact status', 'zero-bs-crm' ),
 				'prefix'   => 'order_contact_map_',
 				'statuses' => $contact_statuses,
 			),
 			'invoice' => array(
-				'label'    => __( 'Invoice status', 'zero-bs-crm' ), 
+				'label'    => __( 'Invoice status', 'zero-bs-crm' ),
 				'prefix'   => 'order_invoice_map_',
 				'statuses' => $invoice_statuses,
 			),
 			'transaction' => array(
-				'label'    => __( 'Transaction status', 'zero-bs-crm' ), 
+				'label'    => __( 'Transaction status', 'zero-bs-crm' ),
 				'prefix'   => 'order_transaction_map_',
 				'statuses' => $transaction_statuses,
 			),
