@@ -1,4 +1,6 @@
-import { ActionButton, TermsOfService } from '@automattic/jetpack-components';
+import { ActionButton, getRedirectUrl, TermsOfService } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
 import ConnectScreenLayout from '../layout';
@@ -23,7 +25,20 @@ const ConnectScreenVisual = props => {
 		displayButtonError,
 		buttonIsLoading,
 		footer,
+		isOfflineMode,
 	} = props;
+
+	const errorMessage = isOfflineMode
+		? createInterpolateElement( __( 'Unavailable in <a>Offline Mode</a>', 'jetpack' ), {
+				a: (
+					<a
+						href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
+		  } )
+		: null;
 
 	return (
 		<ConnectScreenLayout
@@ -46,8 +61,10 @@ const ConnectScreenVisual = props => {
 						<ActionButton
 							label={ buttonLabel }
 							onClick={ handleButtonClick }
-							displayError={ displayButtonError }
+							displayError={ displayButtonError || isOfflineMode }
+							errorMessage={ errorMessage }
 							isLoading={ buttonIsLoading }
+							isDisabled={ isOfflineMode }
 						/>
 					</>
 				) }
@@ -79,6 +96,8 @@ ConnectScreenVisual.propTypes = {
 	buttonIsLoading: PropTypes.bool,
 	/** Node that will be rendered after ToS */
 	footer: PropTypes.node,
+	/** Whether the site is in offline mode. */
+	isOfflineMode: PropTypes.bool,
 };
 
 ConnectScreenVisual.defaultProps = {
@@ -88,6 +107,7 @@ ConnectScreenVisual.defaultProps = {
 	displayButtonError: false,
 	handleButtonClick: () => {},
 	footer: null,
+	isOfflineMode: false,
 };
 
 export default ConnectScreenVisual;
