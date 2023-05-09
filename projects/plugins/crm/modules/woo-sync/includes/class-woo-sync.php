@@ -228,14 +228,14 @@ class Woo_Sync {
 	 */
 	public function get_woo_order_statuses() {
 		$woo_order_statuses = array(
-			'wcpending'       => __( 'Pending', 'zero-bs-crm' ),
-			'wcprocessing'    => __( 'Processing', 'zero-bs-crm' ),
-			'wconhold'        => __( 'On hold', 'zero-bs-crm' ),
-			'wccompleted'     => __( 'Completed', 'zero-bs-crm' ),
-			'wccancelled'     => __( 'Cancelled', 'zero-bs-crm' ),
-			'wcrefunded'      => __( 'Refunded', 'zero-bs-crm' ),
-			'wcfailed'        => __( 'Failed', 'zero-bs-crm' ),
-			'wccheckoutdraft' => __( 'Draft', 'zero-bs-crm' ),
+			'pending'        => __( 'Pending', 'zero-bs-crm' ),
+			'processing'     => __( 'Processing', 'zero-bs-crm' ),
+			'on-hold'        => __( 'On hold', 'zero-bs-crm' ),
+			'completed'      => __( 'Completed', 'zero-bs-crm' ),
+			'cancelled'      => __( 'Cancelled', 'zero-bs-crm' ),
+			'refunded'       => __( 'Refunded', 'zero-bs-crm' ),
+			'failed'         => __( 'Failed', 'zero-bs-crm' ),
+			'checkout-draft' => __( 'Draft', 'zero-bs-crm' ),
 		);
 		return apply_filters( 'zbs-woo-additional-status', $woo_order_statuses );
 	}
@@ -260,22 +260,24 @@ class Woo_Sync {
 			// reasonable default paid mapping based on Woo status descriptions:
 			// https://woocommerce.com/document/managing-orders/#order-statuses
 			$paid_statuses = array(
-				__( 'Pending', 'zero-bs-crm' ),
-				__( 'Processing', 'zero-bs-crm' ),
+				'pending',
+				'processing',
 			);
 
 			if ( in_array( $order_status, $paid_statuses, true ) ) {
 				$status = __( 'Paid', 'zero-bs-crm' );
+			} elseif ( $order_status === 'checkout-draft' ) {
+				$status = __( 'Draft', 'zero-bs-crm' );
 			} else {
 				$status = __( 'Unpaid', 'zero-bs-crm' );
 			}
 		} elseif ( $obj_type_id === ZBS_TYPE_TRANSACTION ) {
-			// default transaction status is the same as the Woo order status
-			$status = $order_status;
-
 			// weird legacy mapping fix
-			if ( $status === __( 'On hold', 'zero-bs-crm' ) ) {
+			if ( $order_status === 'on-hold' ) {
 				$status = __( 'Hold', 'zero-bs-crm' );
+			} else {
+				// default transaction status is the same as the Woo order status
+				$status = ucfirst( $order_status );
 			}
 		}
 

@@ -38,8 +38,8 @@ function jpcrm_settings_page_html_woosync_main() {
 		$updatedSettings['enable_woo_status_mapping'] = empty( $_POST['jpcrm_enable_woo_status_mapping'] ) ? 0 : 1;
 
 		foreach ( $woo_order_mapping_types as $map_type_value ) {
-			foreach ( $woo_order_statuses as $woo_order_status_key => $woo_order_status_value ) {
-				$mapping_key                     = $map_type_value['prefix'] . $woo_order_status_key;
+			foreach ( $woo_order_statuses as $woo_order_status => $woo_order_status_value ) {
+				$mapping_key                     = $map_type_value['prefix'] . 'wc' . str_replace( '-', '', $woo_order_status );
 				$updatedSettings[ $mapping_key ] = ! empty( $_POST[ $mapping_key ] ) ? sanitize_text_field( $_POST[ $mapping_key ] ) : '';
 			}
 		}
@@ -322,20 +322,20 @@ function jpcrm_settings_page_html_woosync_main() {
 								</tr>
 								<?php
 
-								foreach ( $woo_order_statuses as $woo_order_key => $woo_order_value ) {
+								foreach ( $woo_order_statuses as $woo_order_status => $woo_order_value ) {
 									?>
 									<tr class="jpcrm_woosync_order_status_map">
 										<td><?php echo esc_html( $woo_order_value ); ?></td>
 										<?php
 										foreach ( $woo_order_mapping_types as $obj_type => $map_type_value ) :
 											$selected    = '';
-											$mapping_key = $map_type_value['prefix'] . $woo_order_key;
+											$mapping_key = $map_type_value['prefix'] . 'wc' . str_replace( '-', '', $woo_order_status );
 
 											$obj_type_id = $zbs->DAL->objTypeID( $obj_type ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 											if ( ! isset( $settings[ $mapping_key ] ) || $settings[ $mapping_key ] === '-1' ) {
 												// use default mapping as fallback
-												$selected = $zbs->modules->woosync->get_default_woo_order_status_mapping_for_obj_type( $obj_type_id, $woo_order_value );
+												$selected = $zbs->modules->woosync->get_default_woo_order_status_mapping_for_obj_type( $obj_type_id, $woo_order_status );
 											} else {
 												// select mapping from settings
 												$selected = $settings[ $mapping_key ];
