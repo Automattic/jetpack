@@ -152,7 +152,7 @@ export default function Player( { isSelected, attributes } ) {
 		overlay = (
 			<View style={ style[ 'videopress-player__overlay' ] }>
 				<Pressable
-					style={ { width: '100%', height: '100%' } }
+					style={ style[ 'videopress-player__open-embed-button' ] }
 					onPress={ () => {
 						requestEmbedFullscreenPreview( html, preview.title );
 					} }
