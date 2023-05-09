@@ -8,16 +8,7 @@ import {
 	ToolbarGroup,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import {
-	arrowRight,
-	check,
-	image,
-	pencil,
-	postContent,
-	postExcerpt,
-	title,
-	update,
-} from '@wordpress/icons';
+import { arrowRight, check, image, pencil, update } from '@wordpress/icons';
 import Loading from './loading';
 
 const AIControl = ( {
@@ -119,21 +110,18 @@ const ToolbarControls = ( {
 					) }
 					{ ! showRetry && ! contentIsLoaded && (
 						<ToolbarDropdownMenu
-							label="Generate from content"
+							label="More"
 							controls={ [
 								{
 									title: __( 'Summarize', 'jetpack' ),
-									icon: postExcerpt,
 									onClick: () => getSuggestionFromOpenAI( 'summarize' ),
 								},
 								{
 									title: __( 'Write a summary based on title', 'jetpack' ),
-									icon: title,
 									onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
 								},
 								{
 									title: __( 'Expand on preceding content', 'jetpack' ),
-									icon: postContent,
 									onClick: () => getSuggestionFromOpenAI( 'continue' ),
 								},
 							] }
