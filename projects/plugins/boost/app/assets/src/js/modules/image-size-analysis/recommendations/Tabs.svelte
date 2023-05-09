@@ -7,7 +7,11 @@
 	{#each Object.entries( $imageDataGroupTabs ) as [key, group]}
 		<div class="jb-tab jb-tab--{key}" class:active={$isaData.query.group === key}>
 			<div class="jb-tab__header">
-				<button on:click={() => ( $isaData.query.group = key )}
+				<button
+					on:click={() => {
+						$isaData.query.group = key;
+						$isaData.query.page = 1;
+					}}
 					>{group.name}
 					<span>{group.issues}</span>
 				</button>
