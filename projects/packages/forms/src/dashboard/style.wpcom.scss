@@ -16,13 +16,13 @@ body.toplevel_page_jetpack-forms.toplevel_page_jetpack-forms {
 		width: 100%;
 	}
 
-	&.wp-core-ui #jp-forms-dashboard .button {
+	&.wp-core-ui #jp-forms-dashboard .jp-forms__inbox .button {
 		font-size: 14px;
 		height: 48px;
 		padding: 0 calc( var( --jp-forms-spacing-base ) * 2 );
 	}
 
-	.jp-forms__logo {
+	.jp-forms__inbox .jp-forms__logo {
 		display: none;
 	}
 
