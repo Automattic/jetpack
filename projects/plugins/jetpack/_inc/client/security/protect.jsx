@@ -86,7 +86,7 @@ const ProtectComponent = class extends Component {
 		return (
 			<SettingsCard
 				{ ...this.props }
-				module="any"
+				module="protect"
 				header={ _x( 'Brute force protection', 'Settings header', 'jetpack' ) }
 				saveDisabled={ this.props.isSavingAnyOption( 'jetpack_waf_ip_allow_list' ) }
 			>
@@ -175,7 +175,7 @@ export const Protect = connect(
 			allowListInputState:
 				null !== allowListInputState
 					? allowListInputState
-					: getSetting( state, 'jetpack_waf_ip_allow_list', 'waf' ),
+					: getSetting( state, 'jetpack_waf_ip_allow_list' ),
 		};
 	},
 	dispatch => {
