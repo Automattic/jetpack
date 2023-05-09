@@ -305,6 +305,7 @@ export function NewsletterAccessDocumentSettings( {
 			render={ ( { canEdit } ) => (
 				<PanelRow className="edit-post-post-visibility">
 					<Flex direction="column">
+						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
 						<Flex direction="row" justify="flex-start">
 							<span>{ __( 'Access', 'jetpack' ) }</span>
 							{ canEdit && (

@@ -16,7 +16,7 @@ import './panel.scss';
 import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
 import { NewsletterAccessDocumentSettings, NewsletterAccessPrePublishSettings } from './settings';
-import { isNewsletterFeatureEnabled, MisconfigurationWarning } from './utils';
+import { isNewsletterFeatureEnabled } from './utils';
 import { name } from './';
 
 const SubscriptionsPanelPlaceholder = ( { children } ) => {
@@ -56,7 +56,6 @@ function NewsletterEditorSettingsPanel( {
 			title={ __( 'Newsletter access', 'jetpack' ) }
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
-			{ showMisconfigurationWarning && <MisconfigurationWarning /> }
 			<NewsletterAccessDocumentSettings
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
