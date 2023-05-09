@@ -93,6 +93,9 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 	 */
 	protected function render_content() {
 		$post_types = get_post_types( array( 'exclude_from_search' => false ), 'objects' );
+		if ( ! is_countable( $post_types ) ) {
+			return;
+		}
 		if ( count( $post_types ) === 0 ) {
 			return;
 		}
@@ -115,7 +118,11 @@ class Excluded_Post_Types_Control extends WP_Customize_Control {
 			/>
 		<?php
 
-		$is_only_one_unchecked = ( count( $post_types ) - 1 ) === count( $this->get_arrayed_value() );
+		if ( ! is_countable( $post_types ) ) {
+			$is_only_one_unchecked = false;
+		} else {
+			$is_only_one_unchecked = ( count( $post_types ) - 1 ) === count( $this->get_arrayed_value() );
+		}
 
 		foreach ( $post_types as $post_type ) {
 			$input_id = Helper::generate_post_type_customizer_id( $post_type );

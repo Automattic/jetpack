@@ -438,6 +438,10 @@ class Helper {
 					}
 
 					if ( 'filters' === $k ) {
+						if ( ! is_countable( $new_instance['filters'] ) || ! is_countable( $old_instance['filters'] ) ) {
+							continue;
+						}
+
 						if ( count( $new_instance['filters'] ) !== count( $old_instance['filters'] ) ) {
 							$widget = $new_instance;
 							break;
@@ -877,7 +881,7 @@ class Helper {
 			'isWpcom'               => $is_wpcom,
 
 			// widget info.
-			'hasOverlayWidgets'     => count( $overlay_widget_ids ) > 0,
+			'hasOverlayWidgets'     => is_countable( $overlay_widget_ids ) ? count( $overlay_widget_ids ) > 0 : false,
 			'widgets'               => array_values( $widgets ),
 			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
 			'hasNonSearchWidgets'   => $has_non_search_widgets,
