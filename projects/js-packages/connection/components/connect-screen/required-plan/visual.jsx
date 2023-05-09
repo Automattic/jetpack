@@ -1,4 +1,9 @@
-import { ActionButton, PricingCard, TermsOfService } from '@automattic/jetpack-components';
+import {
+	ActionButton,
+	getRedirectUrl,
+	PricingCard,
+	TermsOfService,
+} from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
@@ -31,6 +36,7 @@ const ConnectScreenRequiredPlanVisual = props => {
 		displayButtonError,
 		buttonIsLoading,
 		logo,
+		isOfflineMode,
 	} = props;
 
 	debug( 'props are %o', props );
@@ -47,6 +53,18 @@ const ConnectScreenRequiredPlanVisual = props => {
 			),
 		}
 	);
+
+	const errorMessage = isOfflineMode
+		? createInterpolateElement( __( 'Unavailable in <a>Offline Mode</a>', 'jetpack' ), {
+				a: (
+					<a
+						href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
+		  } )
+		: null;
 
 	return (
 		<ConnectScreenLayout
@@ -74,15 +92,17 @@ const ConnectScreenRequiredPlanVisual = props => {
 								<ActionButton
 									label={ buttonLabel }
 									onClick={ handleButtonClick }
-									displayError={ displayButtonError }
+									displayError={ displayButtonError || isOfflineMode }
+									errorMessage={ errorMessage }
 									isLoading={ buttonIsLoading }
+									isDisabled={ isOfflineMode }
 								/>
 							</>
 						) }
 					</PricingCard>
 				</div>
 
-				{ showConnectButton && (
+				{ showConnectButton && ! isOfflineMode && (
 					<div className="jp-connection__connect-screen-required-plan__with-subscription">
 						{ withSubscription }
 					</div>
@@ -119,6 +139,8 @@ ConnectScreenRequiredPlanVisual.propTypes = {
 	buttonIsLoading: PropTypes.bool,
 	/** The logo to display at the top of the component. */
 	logo: PropTypes.element,
+	/** Whether the site is in offline mode. */
+	isOfflineMode: PropTypes.bool,
 };
 
 ConnectScreenRequiredPlanVisual.defaultProps = {

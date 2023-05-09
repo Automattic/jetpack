@@ -53,6 +53,11 @@
 			margin: 24px 0px 32px;
 			justify-content: center;
 			align-items: center;
+
+			&:disabled {
+				background: var(--jp-gray)  !important;
+				color: var(--jp-gray-20)  !important;
+			}
 		}
 
 		.terms-of-service {
