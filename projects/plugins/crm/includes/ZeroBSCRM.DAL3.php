@@ -632,7 +632,7 @@ class zbsDAL {
     // ===============================================================================
     // ===========  OWNERSHIP HELPERS  ===============================================
 
-    // This func is a side-switch alternative to zeroBS_checkOwner
+	// This func is a side-switch alternative to now-removed zeroBS_checkOwner
     public function checkObjectOwner($args=array()){
 
         #} =========== LOAD ARGS ==============
