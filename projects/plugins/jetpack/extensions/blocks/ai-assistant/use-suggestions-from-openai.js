@@ -136,7 +136,9 @@ const useSuggestionsFromOpenAI = ( {
 			post_id: postId,
 		} );
 
-		setLastPrompt( prompt );
+		if ( ! retryRequest ) {
+			setLastPrompt( prompt );
+		}
 
 		apiFetch( {
 			path: '/wpcom/v2/jetpack-ai/completions',
