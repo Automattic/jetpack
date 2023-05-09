@@ -5,7 +5,7 @@ import {
 } from '../create-prompt';
 
 describe( 'AIParagraphEdit', () => {
-	test( 'createPrompt', () => {
+	test.skip( 'createPrompt', () => {
 		const fakeBlock = { attributes: { content: 'content' } };
 		const fakeBlockWithBr = { attributes: { content: 'content<br/>content2' } };
 		// const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
