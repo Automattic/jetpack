@@ -28,11 +28,8 @@ const AIControl = ( {
 	setUserPrompt,
 	showRetry,
 	contentBefore,
-<<<<<<< HEAD
 	postTitle,
-=======
 	wholeContent,
->>>>>>> 5eef1a0095 ([not verified] disable summarize when no content)
 } ) => {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
@@ -104,11 +101,8 @@ const ToolbarControls = ( {
 	showRetry,
 	toggleAIType,
 	contentBefore,
-<<<<<<< HEAD
 	hasPostTitle,
-=======
 	wholeContent,
->>>>>>> 5eef1a0095 ([not verified] disable summarize when no content)
 } ) => {
 	return (
 		<BlockControls>
