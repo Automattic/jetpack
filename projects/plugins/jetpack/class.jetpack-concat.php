@@ -42,12 +42,27 @@ class Jetpack_Concat {
 	 * Constructor.
 	 */
 	public function __construct() {
-		add_action( 'wp_footer', array( $this, 'do_script_enqueue' ), 100 );
-		add_action( 'wp_enqueue_scripts', array( $this, 'do_style_enqueue' ), 100 );
+		add_action( 'wp_print_footer_scripts', array( $this, 'do_script_enqueue' ), 0 );
+		add_action( 'wp_head', array( $this, 'do_style_enqueue' ), 1000 ); // Do Late to allow registration of header styles.
+		add_action( 'print_late_styles', array( $this, 'do_style_enqueue' ), 1000 ); // Late / On-demand styles.
 		$this->cache_folder = WP_CONTENT_DIR . '/jetpack-cache';
 		if ( ! file_exists( $this->cache_folder ) ) {
 			wp_mkdir_p( $this->cache_folder );
 		}
+	}
+
+	/**
+	 * Get the instance.
+	 *
+	 * @return Jetpack_Concat
+	 */
+	public static function get_instance() {
+		static $instance;
+		if ( empty( $instance ) ) {
+			$instance = new self();
+		}
+
+		return $instance;
 	}
 
 	/**
@@ -105,9 +120,17 @@ class Jetpack_Concat {
 	 */
 	public function add_script( $handle ) {
 		$wp_scripts = wp_scripts();
+
 		if ( empty( $wp_scripts->registered[ $handle ] ) ) {
 			return;
 		}
+
+		if ( ! $this->is_local( $wp_scripts->registered[ $handle ]->src ) ) {
+			wp_enqueue_script( $handle );
+
+			return;
+		}
+
 		if ( ! empty( $wp_scripts->registered[ $handle ]->deps ) ) {
 			$this->add_script_deps( $wp_scripts->registered[ $handle ] );
 		}
@@ -125,14 +148,20 @@ class Jetpack_Concat {
 		if ( empty( $wp_styles->registered[ $handle ] ) ) {
 			return;
 		}
+		// Check if src is remote.
+		if ( ! $this->is_local( $wp_styles->registered[ $handle ]->src ) ) {
+			wp_enqueue_style( $handle );
+
+			return;
+		}
 		if ( ! empty( $wp_styles->registered[ $handle ]->deps ) ) {
-			$this->add_script_deps( $wp_styles->registered[ $handle ] );
+			$this->add_style_deps( $wp_styles->registered[ $handle ] );
 		}
 		$this->enqueued_styles[ $handle ] = $wp_styles->registered[ $handle ];
 	}
 
 	/**
-	 * Handle a sscripts dependancies.
+	 * Handle a scripts dependancies.
 	 *
 	 * @param _WP_Dependency $object The script object.
 	 */
@@ -141,12 +170,22 @@ class Jetpack_Concat {
 		$deps       = $object->deps;
 		foreach ( $deps as $dep ) {
 			if ( isset( $wp_scripts->registered[ $dep ] ) && empty( $this->enqueued_scripts[ $dep ] ) ) {
-				$dependancy = $wp_scripts->registered[ $dep ];
+				$this->add_script( $dep );
+			}
+		}
+	}
 
-				if ( ! empty( $dependancy->deps ) ) {
-					$this->add_script_deps( $dependancy );
-				}
-				$this->enqueued_scripts[ $dep ] = $dependancy;
+	/**
+	 * Handle a styles dependancies.
+	 *
+	 * @param _WP_Dependency $object The style object.
+	 */
+	protected function add_style_deps( $object ) {
+		$wp_styles = wp_styles();
+		$deps      = $object->deps;
+		foreach ( $deps as $dep ) {
+			if ( isset( $wp_styles->registered[ $dep ] ) && empty( $this->enqueued_styles[ $dep ] ) ) {
+				$this->add_style( $dep );
 			}
 		}
 	}
@@ -192,15 +231,36 @@ class Jetpack_Concat {
 	public function do_script_enqueue() {
 
 		if ( ! empty( $this->enqueued_scripts ) ) {
+
 			$path = $this->get_script_path();
+			$hash = $this->get_script_hash();
 			if ( ! file_exists( $path ) ) {
 				$this->build_cache( 'script' );
 			}
-			if ( ! empty( $this->inline_data ) ) {
-				wp_add_inline_script( $this->get_script_hash(), $this->inline_data, 'before' );
+			wp_register_script( $hash, $this->get_script_url(), array(), filemtime( $path ), true );
+
+			foreach ( $this->enqueued_scripts as $script ) {
+				$this->prep_inlines( $script );
 			}
-			wp_enqueue_script( $this->get_script_hash(), $this->get_script_url() );
+			wp_enqueue_script( $hash );
 			$this->enqueued_scripts = array();
+		}
+	}
+
+	/**
+	 * Prepare inline scripts.
+	 *
+	 * @param \_WP_Dependency $script The script dependency.
+	 */
+	protected function prep_inlines( $script ) {
+		$hash = $this->get_script_hash();
+		if ( ! empty( $script->extra['data'] ) ) {
+			wp_add_inline_script( $hash, $script->extra['data'], 'before' );
+		}
+		if ( ! empty( $script->extra['after'] ) ) {
+			foreach ( (array) $script->extra['after'] as $after ) {
+				wp_add_inline_script( $hash, $after );
+			}
 		}
 	}
 
@@ -209,12 +269,33 @@ class Jetpack_Concat {
 	 */
 	public function do_style_enqueue() {
 		if ( ! empty( $this->enqueued_styles ) ) {
-			$path = $this->get_style_path();
+			$styles = wp_styles();
+			$path   = $this->get_style_path();
+			$hash   = $this->get_style_hash();
 			if ( ! file_exists( $path ) ) {
 				$this->build_cache( 'style' );
 			}
-			wp_enqueue_style( $this->get_style_hash(), $this->get_style_url() );
+			wp_register_style( $hash, $this->get_style_url(), array(), filemtime( $path ) );
+			wp_enqueue_style( $hash, $this->get_style_url() );
+			$styles->do_item( $hash );
 			$this->enqueued_styles = array();
 		}
+	}
+
+	/**
+	 * Check if the url is local or not.
+	 *
+	 * @param string $url The url to check.
+	 *
+	 * @return bool
+	 */
+	protected function is_local( $url ) {
+		static $host;
+		if ( ! $host ) {
+			$host = wp_parse_url( home_url(), PHP_URL_HOST );
+		}
+		$has_host = wp_parse_url( $url, PHP_URL_HOST );
+
+		return empty( $has_host ) || $has_host === $host;
 	}
 }

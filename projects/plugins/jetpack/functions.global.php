@@ -515,7 +515,7 @@ function jetpack_mastodon_get_instance_list() {
 function jetpack_enqueue_script( $handle, $src = '', $deps = array(), $ver = false, $in_footer = false ) {
 	static $concat;
 	if ( ! $concat ) {
-		$concat = new Jetpack_Concat();
+		$concat = Jetpack_Concat::get_instance();
 	}
 	wp_register_script( $handle, $src, $deps, $ver, $in_footer );
 	if ( is_admin() ) {
@@ -543,7 +543,7 @@ function jetpack_enqueue_script( $handle, $src = '', $deps = array(), $ver = fal
 function jetpack_enqueue_style( $handle, $src = '', $deps = array(), $ver = false, $media = 'all' ) {
 	static $concat;
 	if ( ! $concat ) {
-		$concat = new Jetpack_Concat();
+		$concat = Jetpack_Concat::get_instance();
 	}
 	wp_register_style( $handle, $src, $deps, $ver, $media );
 	if ( is_admin() ) {
