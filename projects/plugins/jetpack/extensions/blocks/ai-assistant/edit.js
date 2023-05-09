@@ -44,6 +44,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		getSuggestionFromOpenAI,
 		showRetry,
 		contentBefore,
+		postTitle,
 	} = useSuggestionsFromOpenAI( {
 		clientId,
 		content: attributes.content,
@@ -165,6 +166,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				setAiType={ setAiType }
 				setUserPrompt={ setUserPrompt }
 				contentBefore={ contentBefore }
+				postTitle={ postTitle }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
