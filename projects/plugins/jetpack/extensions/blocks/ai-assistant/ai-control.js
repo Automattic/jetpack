@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { BlockControls, PlainText } from '@wordpress/block-editor';
 import {
 	Button,
@@ -8,6 +11,9 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { arrowRight, check, image, pencil, update, title, undo } from '@wordpress/icons';
+/**
+ * Internal dependencies
+ */
 import Loading from './loading';
 
 const AIControl = ( {
@@ -111,7 +117,7 @@ const ToolbarControls = ( {
 						</>
 					) }
 
-					{ ! showRetry && ! contentIsLoaded && contentBefore?.length && (
+					{ ! showRetry && ! contentIsLoaded && !! contentBefore?.length && (
 						<ToolbarButton icon={ pencil } onClick={ () => getSuggestionFromOpenAI( 'continue' ) }>
 							{ __( 'Continue writing', 'jetpack' ) }
 						</ToolbarButton>
@@ -145,6 +151,7 @@ const ToolbarControls = ( {
 							] }
 						/>
 					) }
+
 					{ showRetry && (
 						<ToolbarButton icon={ update } onClick={ handleGetSuggestion }>
 							{ __( 'Retry', 'jetpack' ) }
