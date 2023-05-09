@@ -3,8 +3,12 @@
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 
-// @todo - refactor this. Dump of functions from page optimize.
-
+/**
+ * Cleanup the given cache folder, removing all files older than $file_age seconds.
+ *
+ * @param string $cache_folder The path to the cache folder to cleanup.
+ * @param int $file_age The age of files to purge, in seconds.
+ */
 function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file_age = DAY_IN_SECONDS ) {
 	if ( ! is_dir( $cache_folder ) ) {
 		return;
@@ -17,6 +21,7 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 	if ( ! $using_cache ) {
 		$file_age = 0;
 	}
+
 	// If the cache folder changed since queueing, purge it
 	if ( $using_cache && $cache_folder !== $defined_cache_dir ) {
 		$file_age = 0;
@@ -37,7 +42,9 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 	}
 }
 
-// Unschedule cache cleanup, and purge cache directory
+/**
+ * Plugin deactivation hook - unschedule cronjobs and purge cache.
+ */
 function jetpack_boost_page_optimize_deactivate() {
 	$cache_folder = Config::get_cache_dir_path();
 
@@ -46,6 +53,9 @@ function jetpack_boost_page_optimize_deactivate() {
 	wp_clear_scheduled_hook( 'jetpack_boost_minify_cron_cache_cleanup', array( $cache_folder ) );
 }
 
+/**
+ * Plugin uninstall hook - cleanup options.
+ */
 function jetpack_boost_page_optimize_uninstall() {
 	// Run cleanup on uninstall. You can uninstall an active plugin w/o deactivation.
 	jetpack_boost_page_optimize_deactivate();
@@ -71,28 +81,18 @@ function jetpack_boost_init_filesystem() {
 	}
 }
 
+/**
+ * Get the list of JS slugs to exclude from minification.
+ */
 function jetpack_boost_page_optimize_js_exclude_list() {
 	return jetpack_boost_ds_get( 'minify_js_excludes' );
 }
 
+/**
+ * Get the list of CSS slugs to exclude from minification.
+ */
 function jetpack_boost_page_optimize_css_exclude_list() {
 	return jetpack_boost_ds_get( 'minify_css_excludes' );
-}
-
-function jetpack_boost_page_optimize_sanitize_exclude_field( $value ) {
-	if ( empty( $value ) ) {
-		return '';
-	}
-
-	$excluded_strings = explode( ',', sanitize_text_field( $value ) );
-	$sanitized_values = array();
-	foreach ( $excluded_strings as $excluded_string ) {
-		if ( ! empty( $excluded_string ) ) {
-			$sanitized_values[] = trim( $excluded_string );
-		}
-	}
-
-	return implode( ',', $sanitized_values );
 }
 
 /**
@@ -147,6 +147,9 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
 	return '/page-optimize-resource-outside-base-path/' . basename( $original_fs_path );
 }
 
+/**
+ * Schedule a cronjob for cache cleanup, if one isn't already scheduled.
+ */
 function jetpack_boost_page_optimize_schedule_cache_cleanup() {
 	$cache_folder = Config::get_cache_dir_path();
 	$args         = array( $cache_folder );
@@ -201,7 +204,9 @@ function jetpack_boost_page_optimize_bail() {
 	return $should_bail;
 }
 
-// Taken from utils.php/Jetpack_Boost_Page_Optimize_Utils
+/**
+ * Return a URL with a cache-busting query string based on the file's mtime.
+ */
 function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 	static $dependency_path_mapping;
 
