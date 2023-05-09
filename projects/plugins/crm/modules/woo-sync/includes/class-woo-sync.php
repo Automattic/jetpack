@@ -1595,40 +1595,35 @@ class Woo_Sync {
 	 * Translates a WooCommerce order status to a CRM contact resultant status
 	 *  previously `apply_status`
 	 *
-	 * @param string $order_status
+	 * @param string $obj_type_id Object type ID.
+	 * @param string $order_status Status from WooCommerce order (e.g. 'processing').
 	 *
 	 * @return string contact status
 	 */
-	public function woocommerce_order_status_to_contact_status( $order_status ) {
+	public function translate_order_status_to_obj_status( $obj_type_id, $order_status ) {
+		global $zbs;
 
-		// $order_status is the WooCommerce order status
 		$settings = $this->get_settings();
 
-		// retrieve default status
-		$default_status = zeroBSCRM_getSetting( 'defaultstatus' );
-
-		// retrieve contact_statuses to ensure we are getting a valid one
-		$contact_statuses = zeroBSCRM_getCustomerStatuses( true );
+		// get default object status for given Woo order status
+		$default_status = $this->get_default_woo_order_status_mapping_for_obj_type( $obj_type_id, $order_status );
 
 		// mappings
 		$woo_order_status_mapping = $this->woo_order_status_mapping( 'contact' );
 
-		// get the mapping setting from woocommerce
 		if (
-			array_key_exists( $order_status, $woo_order_status_mapping )
-			&& isset( $settings[ $woo_order_status_mapping[ $order_status ] ] )
-			&& in_array( $settings[ $woo_order_status_mapping[ $order_status ] ], $contact_statuses, true )
+			! empty( $settings[ $woo_order_status_mapping[ $order_status ] ] )
+			&& $zbs->DAL->is_valid_obj_status( $obj_type_id, $settings[ $woo_order_status_mapping[ $order_status ] ] ) // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		) {
-			$order_status = $settings[ $woo_order_status_mapping[ $order_status ] ];
-		} else {
-			$order_status = $default_status;
+			// there's a valid mapping in settings, so use that
+			return $settings[ $woo_order_status_mapping[ $order_status ] ];
+		} elseif ( $default_status ) {
+			// there's a default object mapping for this order status, so use that
+			return $default_status;
 		}
 
-		if ( ! isset( $order_status ) || $order_status === -1 ) {
-			return $default_status;
-		} else {
-			return $order_status;
-		}
+		// use provided order status as fallback contact status (though this should never occur)
+		return $order_status;
 	}
 
 
