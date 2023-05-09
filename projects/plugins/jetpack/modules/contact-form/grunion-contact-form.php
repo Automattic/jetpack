@@ -4002,7 +4002,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * @since 1.3.1
 		 *
 		 * @param string $message Feedback email message.
-		 * @param string $message Feedback email message as an array
+		 * @param array $message Feedback email message as an array
 		 */
 		$message = apply_filters( 'contact_form_message', join( '', $message ), $message );
 
