@@ -840,7 +840,7 @@ class Helper {
 		);
 		$unexcluded_post_types = array_diff( $post_types, $excluded_post_types );
 		// NOTE: If all post types are being excluded, ignore the option value.
-		if ( count( $unexcluded_post_types ) === 0 ) {
+		if ( array() === $unexcluded_post_types ) {
 			$excluded_post_types = array();
 		}
 
