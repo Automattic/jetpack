@@ -7,16 +7,7 @@ import {
 	ToolbarGroup,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import {
-	arrowRight,
-	check,
-	image,
-	pencil,
-	postContent,
-	postExcerpt,
-	title,
-	update,
-} from '@wordpress/icons';
+import { arrowRight, check, image, pencil, update, title, undo } from '@wordpress/icons';
 import Loading from './loading';
 
 const AIControl = ( {
@@ -26,6 +17,7 @@ const AIControl = ( {
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	handleAcceptContent,
+	handleTryAgain,
 	handleGetSuggestion,
 	isWaitingState,
 	loadingImages,
@@ -33,6 +25,7 @@ const AIControl = ( {
 	setAiType,
 	setUserPrompt,
 	showRetry,
+	contentBefore,
 } ) => {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
@@ -59,8 +52,10 @@ const AIControl = ( {
 					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 					handleAcceptContent={ handleAcceptContent }
 					handleGetSuggestion={ handleGetSuggestion }
+					handleTryAgain={ handleTryAgain }
 					showRetry={ showRetry }
 					toggleAIType={ toggleAIType }
+					contentBefore={ contentBefore }
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
@@ -94,9 +89,11 @@ const ToolbarControls = ( {
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	handleAcceptContent,
+	handleTryAgain,
 	handleGetSuggestion,
 	showRetry,
 	toggleAIType,
+	contentBefore,
 } ) => {
 	return (
 		<BlockControls>
@@ -108,30 +105,41 @@ const ToolbarControls = ( {
 							<ToolbarButton icon={ check } onClick={ handleAcceptContent }>
 								{ __( 'Done', 'jetpack' ) }
 							</ToolbarButton>
+							<ToolbarButton icon={ undo } onClick={ handleTryAgain }>
+								{ __( 'Try Again', 'jetpack' ) }
+							</ToolbarButton>
 						</>
 					) }
-					{ ! showRetry && ! contentIsLoaded && (
+
+					{ ! showRetry && ! contentIsLoaded && contentBefore?.length && (
 						<ToolbarButton icon={ pencil } onClick={ () => getSuggestionFromOpenAI( 'continue' ) }>
 							{ __( 'Continue writing', 'jetpack' ) }
 						</ToolbarButton>
 					) }
+
+					{ ! showRetry && ! contentIsLoaded && ! contentBefore?.length && (
+						<ToolbarButton
+							icon={ title }
+							onClick={ () => getSuggestionFromOpenAI( 'titleSummary' ) }
+						>
+							{ __( 'Write a summary based on title', 'jetpack' ) }
+						</ToolbarButton>
+					) }
+
 					{ ! showRetry && ! contentIsLoaded && (
 						<ToolbarDropdownMenu
-							label="Generate from content"
+							label="More"
 							controls={ [
 								{
 									title: __( 'Summarize', 'jetpack' ),
-									icon: postExcerpt,
 									onClick: () => getSuggestionFromOpenAI( 'summarize' ),
 								},
 								{
 									title: __( 'Write a summary based on title', 'jetpack' ),
-									icon: title,
 									onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
 								},
 								{
 									title: __( 'Expand on preceding content', 'jetpack' ),
-									icon: postContent,
 									onClick: () => getSuggestionFromOpenAI( 'continue' ),
 								},
 							] }

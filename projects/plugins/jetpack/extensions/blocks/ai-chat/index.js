@@ -47,7 +47,6 @@ export const settings = {
 		multiple: false,
 		// When false, the block won't be available to be converted into a reusable block.
 		reusable: false,
-		inserter: false,
 	},
 	edit,
 	save: () => {},
