@@ -211,7 +211,7 @@ function NewsletterAccessRadioButtons( {
 						checked={ key === accessLevel }
 						className="editor-post-visibility__radio"
 						id={ `editor-post-${ key }-${ instanceId }` }
-						name={ `editor-post-visibility__setting-${ instanceId }` }
+						name={ `editor-newsletter-access__setting-${ instanceId }` }
 						aria-describedby={ `editor-post-${ key }-${ instanceId }-description` }
 						disabled={ key === accessOptions.paid_subscribers.key && ! isStripeConnected }
 						onChange={ event => {
