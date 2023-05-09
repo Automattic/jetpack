@@ -16,7 +16,7 @@ import './panel.scss';
 import { getSubscriberCounts } from './api';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
 import { NewsletterAccessDocumentSettings, NewsletterAccessPrePublishSettings } from './settings';
-import { isNewsletterFeatureEnabled } from './utils';
+import { isNewsletterFeatureEnabled, MisconfigurationWarning } from './utils';
 import { name } from './';
 
 const SubscriptionsPanelPlaceholder = ( { children } ) => {
@@ -44,6 +44,7 @@ function NewsletterEditorSettingsPanel( {
 	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
+	showMisconfigurationWarning,
 } ) {
 	// Only show the panels when the corresponding filter is enabled
 	if ( ! isNewsletterFeatureEnabled() ) {
@@ -55,12 +56,14 @@ function NewsletterEditorSettingsPanel( {
 			title={ __( 'Newsletter access', 'jetpack' ) }
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
+			{ showMisconfigurationWarning && <MisconfigurationWarning /> }
 			<NewsletterAccessDocumentSettings
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
 				socialFollowers={ socialFollowers }
 				emailSubscribers={ emailSubscribers }
 				paidSubscribers={ paidSubscribers }
+				showMisconfigurationWarning={ showMisconfigurationWarning }
 			/>
 		</PluginDocumentSettingPanel>
 	);
@@ -73,6 +76,7 @@ function NewsletterPrePublishSettingsPanel( {
 	emailSubscribers,
 	paidSubscribers,
 	isModuleActive,
+	showMisconfigurationWarning,
 } ) {
 	const { tracks } = useAnalytics();
 	const { changeStatus, isLoadingModules, isChangingStatus } = useModuleStatus( name );
@@ -111,6 +115,7 @@ function NewsletterPrePublishSettingsPanel( {
 					socialFollowers={ socialFollowers }
 					emailSubscribers={ emailSubscribers }
 					paidSubscribers={ paidSubscribers }
+					showMisconfigurationWarning={ showMisconfigurationWarning }
 				/>
 			) }
 
@@ -164,6 +169,9 @@ export default function SubscribePanels() {
 		} );
 	}, [ isModuleActive ] );
 
+	// Can be “private”, “password”, or “public”.
+	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
+
 	// Subscriptions will not be triggered on private sites ( on WordPress.com simple and WoA ),
 	// nor on sites that have not been launched yet.
 	if ( isPrivateSite() || isComingSoon() ) {
@@ -176,6 +184,9 @@ export default function SubscribePanels() {
 		return null;
 	}
 
+	const showMisconfigurationWarning =
+		postVisibility !== 'public' && accessLevel !== accessOptions.everybody.key;
+
 	return (
 		<>
 			<NewsletterEditorSettingsPanel
@@ -184,6 +195,7 @@ export default function SubscribePanels() {
 				socialFollowers={ socialFollowers }
 				emailSubscribers={ emailSubscribers }
 				paidSubscribers={ paidSubscribers }
+				showMisconfigurationWarning={ showMisconfigurationWarning }
 			/>
 			<NewsletterPrePublishSettingsPanel
 				accessLevel={ accessLevel }
@@ -192,6 +204,7 @@ export default function SubscribePanels() {
 				emailSubscribers={ emailSubscribers }
 				paidSubscribers={ paidSubscribers }
 				isModuleActive={ isModuleActive }
+				showMisconfigurationWarning={ showMisconfigurationWarning }
 			/>
 		</>
 	);

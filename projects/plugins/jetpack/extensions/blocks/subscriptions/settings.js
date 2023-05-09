@@ -17,7 +17,7 @@ import { PostVisibilityCheck } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
-import { getPaidPlanLink } from './utils';
+import { getPaidPlanLink, MisconfigurationWarning } from './utils';
 
 import './settings.scss';
 
@@ -73,7 +73,13 @@ function NewsletterLearnMore() {
 	);
 }
 
-function NewsletterNotice( { accessLevel, socialFollowers, emailSubscribers, paidSubscribers } ) {
+function NewsletterNotice( {
+	accessLevel,
+	socialFollowers,
+	emailSubscribers,
+	paidSubscribers,
+	showMisconfigurationWarning,
+} ) {
 	// Get the reach count for the access level
 	let reachCount = getReachForAccessLevelKey(
 		accessLevel,
@@ -81,6 +87,11 @@ function NewsletterNotice( { accessLevel, socialFollowers, emailSubscribers, pai
 		paidSubscribers,
 		socialFollowers
 	);
+
+	// If there is a misconfiguration, we do not show the NewsletterNotice
+	if ( showMisconfigurationWarning ) {
+		return;
+	}
 
 	if ( 0 === reachCount ) {
 		return (
@@ -112,16 +123,14 @@ function NewsletterNotice( { accessLevel, socialFollowers, emailSubscribers, pai
 	return (
 		<FlexBlock>
 			<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
-				{
-					createInterpolateElement(
-						sprintf(
-							/* translators: %s is the number of subscribers in numerical format */
-							__( 'This will be sent to <strong>%s subscribers</strong>.', 'jetpack' ),
-							reachCount
-						),
-						{ strong: <strong /> }
-					)
-				}
+				{ createInterpolateElement(
+					sprintf(
+						/* translators: %s is the number of subscribers in numerical format */
+						__( 'This will be sent to <strong>%s subscribers</strong>.', 'jetpack' ),
+						reachCount
+					),
+					{ strong: <strong /> }
+				) }
 			</Notice>
 		</FlexBlock>
 	);
@@ -186,6 +195,7 @@ function NewsletterAccessRadioButtons( {
 	hasNewsletterPlans,
 	stripeConnectUrl,
 	isPrePublishPanel = false,
+	showMisconfigurationWarning,
 } ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const instanceId = useInstanceId( NewsletterAccessRadioButtons );
@@ -243,6 +253,7 @@ function NewsletterAccessRadioButtons( {
 								socialFollowers={ socialFollowers }
 								emailSubscribers={ emailSubscribers }
 								paidSubscribers={ paidSubscribers }
+								showMisconfigurationWarning={ showMisconfigurationWarning }
 							/>
 						</p>
 					) }
@@ -263,6 +274,7 @@ export function NewsletterAccessDocumentSettings( {
 	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
+	showMisconfigurationWarning,
 } ) {
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
 		const { getProducts, getConnectUrl, isApiStateLoading } = select(
@@ -329,6 +341,7 @@ export function NewsletterAccessDocumentSettings( {
 												paidSubscribers={ paidSubscribers }
 												stripeConnectUrl={ stripeConnectUrl }
 												hasNewsletterPlans={ hasNewsletterPlans }
+												showMisconfigurationWarning={ showMisconfigurationWarning }
 											/>
 										</div>
 									) }
@@ -344,6 +357,7 @@ export function NewsletterAccessDocumentSettings( {
 							socialFollowers={ socialFollowers }
 							emailSubscribers={ emailSubscribers }
 							paidSubscribers={ paidSubscribers }
+							showMisconfigurationWarning={ showMisconfigurationWarning }
 						/>
 
 						<FlexBlock>
@@ -362,6 +376,7 @@ export function NewsletterAccessPrePublishSettings( {
 	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
+	showMisconfigurationWarning,
 } ) {
 	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
 		const { getProducts, getConnectUrl, isApiStateLoading } = select(
@@ -392,6 +407,7 @@ export function NewsletterAccessPrePublishSettings( {
 			render={ ( { canEdit } ) => (
 				<PanelRow className="edit-post-post-visibility">
 					<Flex direction="column">
+						{ showMisconfigurationWarning && MisconfigurationWarning() }
 						{ canEdit && (
 							<>
 								<FlexBlock>
@@ -404,6 +420,7 @@ export function NewsletterAccessPrePublishSettings( {
 										stripeConnectUrl={ stripeConnectUrl }
 										hasNewsletterPlans={ hasNewsletterPlans }
 										isPrePublishPanel={ true }
+										showMisconfigurationWarning={ showMisconfigurationWarning }
 									/>
 								</FlexBlock>
 							</>
