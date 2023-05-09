@@ -691,7 +691,7 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form input.grunion-field.is-style-button:checked,
 .contact-form input.grunion-field.is-style-button:checked + .grunion-field-text {
-	color: var(--jetpack--contact-form--button-outline--background-color);
+	color: var(--jetpack--contact-form--button-outline--background-color-fallback);
 }
 
 .contact-form input.grunion-field.is-style-button:checked + .grunion-field-text::before {
