@@ -335,7 +335,7 @@ function jpcrm_settings_page_html_woosync_main() {
 
 											if ( ! isset( $settings[ $mapping_key ] ) || $settings[ $mapping_key ] === '-1' ) {
 												// use default mapping as fallback
-												$selected = $zbs->modules->woosync->get_default_woo_order_status_mapping_for_obj_type( $obj_type_id, $woo_order_status );
+												$selected = $zbs->modules->woosync->get_default_status_for_order_obj( $obj_type_id, $woo_order_status );
 											} else {
 												// select mapping from settings
 												$selected = $settings[ $mapping_key ];

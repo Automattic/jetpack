@@ -248,7 +248,7 @@ class Woo_Sync {
 	 *
 	 * @return str|bool Status string to use for object
 	 */
-	public function get_default_woo_order_status_mapping_for_obj_type( $obj_type_id, $order_status ) {
+	public function get_default_status_for_order_obj( $obj_type_id, $order_status ) {
 		global $zbs;
 
 		$status = false;
@@ -1606,7 +1606,7 @@ class Woo_Sync {
 		$settings = $this->get_settings();
 
 		// get default object status for given Woo order status
-		$default_status = $this->get_default_woo_order_status_mapping_for_obj_type( $obj_type_id, $order_status );
+		$default_status = $this->get_default_status_for_order_obj( $obj_type_id, $order_status );
 
 		// if status mapping is disabled, return default status
 		$is_status_mapping_enabled = ( isset( $settings['enable_woo_status_mapping'] ) ? ( (int) $settings['enable_woo_status_mapping'] === 1 ) : true );
