@@ -11,6 +11,8 @@
  * @package automattic/jetpack
  */
 
+$text_dir = is_rtl() ? 'rtl' : 'ltr';
+
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- used in class-contact-form.php
 $template = '
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -184,7 +186,7 @@ $template = '
 			}
 		</style>
 	</head>
-	<body style="-webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; height: 100%%; font-size: 1em; margin: 0; padding: 0; background: #DCDCDE; font-family: \'Helvetica Neue\', \'Helvetica\', Helvetica, Arial, sans-serif; direction: ltr; width: 100%%; clear: both;">
+	<body style="-webkit-font-smoothing: antialiased; -webkit-text-size-adjust: none; height: 100%%; font-size: 1em; margin: 0; padding: 0; background: #DCDCDE; font-family: \'Helvetica Neue\', \'Helvetica\', Helvetica, Arial, sans-serif; direction: ' . $text_dir . '; width: 100%%; clear: both;">
 		<span class="preheader" style="color: #DCDCDE; font-size: 1px; display:none;">' . esc_html__( 'Export your form responses to Google Sheets with just one click', 'jetpack-forms' ) . '</span>
 		<table id="table_body" cellspacing="0" role="presentation" style="border-collapse: collapse; width: 100%%; padding: 0; margin: 15px 0; background: #DCDCDE; border: 0;">
 			<tbody>
@@ -209,10 +211,10 @@ $template = '
 								</tr>
 								<tr>
 									<td class="build-your-own-jetpack-new-section" align="left" style="border-collapse: collapse; background-color: #F9F9F6; font-family: \'SF Pro Display\', Helvetica, Arial, sans-serif; padding: 32px 24px;">
-										<span class="build-your-own-jetpack-new-section-eyebrow" style="color: #008710; font-weight: 600; line-height: 1.8; font-size: 16px;">' . esc_html__( 'Did you know?', 'jetpack-forms' ) . '</span>
-										<h2 class="build-your-own-jetpack-new-section-header-text" style="font-size: 26px; font-weight: 600; line-height: 1.2; margin: 16px 0;">' . esc_html__( 'Export your form responses to Google Sheets with just one click', 'jetpack-forms' ) . '</h2>
+										<span class="build-your-own-jetpack-new-section-eyebrow" style="direction: ' . $text_dir . '; color: #008710; font-weight: 600; line-height: 1.8; font-size: 16px;">' . esc_html__( 'Did you know?', 'jetpack-forms' ) . '</span>
+										<h2 class="build-your-own-jetpack-new-section-header-text" style="direction: ' . $text_dir . '; font-size: 26px; font-weight: 600; line-height: 1.2; margin: 16px 0;">' . esc_html__( 'Export your form responses to Google Sheets with just one click', 'jetpack-forms' ) . '</h2>
 										<img alt class="jetpack-onboarding-hero-image" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/jetpack-forms-google-sheets-hero.jpg" width="500" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none; display: inline-block; max-width: 100%%;">
-										<p class="build-your-own-jetpack-new-section-body-text" style="direction: ltr; letter-spacing: -0.02em; line-height: 1.5; margin-bottom: 24px; font-size: 16px;">' . esc_html__( 'Exporting form responses to Google Sheets allows you to easily manage and analyze the data collected through your forms. This feature can be useful for analysing customer feedback, conducting market research, or organizing event registration information.', 'jetpack-forms' ) . '</p>
+										<p class="build-your-own-jetpack-new-section-body-text" style="direction: ' . $text_dir . '; letter-spacing: -0.02em; line-height: 1.5; margin-bottom: 24px; font-size: 16px;">' . esc_html__( 'Exporting form responses to Google Sheets allows you to easily manage and analyze the data collected through your forms. This feature can be useful for analysing customer feedback, conducting market research, or organizing event registration information.', 'jetpack-forms' ) . '</p>
 
 										<a class="build-your-own-jetpack-new-section-link" href="https://jetpack.com/support/jetpack-blocks/contact-form/#export-form-responses" style="background-color: #000; border-radius: 4px; display: inline-block; box-sizing: border-box; color: #fff; font-weight: 600; letter-spacing: -0.02em;line-height: 24px; padding: 12px 24px; text-decoration: none; font-size: 16px;">' . esc_html__( 'Learn more', 'jetpack-forms' ) . '</a>
 									</td>
@@ -227,9 +229,9 @@ $template = '
 											</tr>
 											<tr>
 												<td align="left" style="border-collapse: collapse;">
-												<h2 class="footer-november-2022-header-text" style="color: #101517; font-size: 16px; line-height: 1.2; margin-bottom: 8px; margin-top: 0;">' . esc_html__( 'Get Jetpack on the go', 'jetpack-forms' ) . '</h2>
+												<h2 class="footer-november-2022-header-text" style="direction: ' . $text_dir . '; color: #101517; font-size: 16px; line-height: 1.2; margin-bottom: 8px; margin-top: 0;">' . esc_html__( 'Get Jetpack on the go', 'jetpack-forms' ) . '</h2>
 
-													<p class="footer-november-2022-body-text" style="direction: ltr; color: #3c434a; font-size: 14px; line-height: 1.4; margin-bottom: 16px; margin-top: 0;">' . esc_html__( 'View site activity and stats, get notifications when your site is down, fix malware threats, and restore your site from anywhere.', 'jetpack-forms' ) . '</p>
+													<p class="footer-november-2022-body-text" style="direction: ' . $text_dir . '; color: #3c434a; font-size: 14px; line-height: 1.4; margin-bottom: 16px; margin-top: 0;">' . esc_html__( 'View site activity and stats, get notifications when your site is down, fix malware threats, and restore your site from anywhere.', 'jetpack-forms' ) . '</p>
 												</td>
 											</tr>
 											<tr>
@@ -250,15 +252,15 @@ $template = '
 											</tr>
 											<tr>
 												<td align="left" style="border-collapse: collapse;">
-													<p class="footer-november-2022-address-text" style="direction: ltr; color: #101517; font-size: 12px; line-height: 1.5; margin-bottom: 10px; margin-top: 24px;">
+													<p class="footer-november-2022-address-text" style="direction: ' . $text_dir . '; color: #101517; font-size: 12px; line-height: 1.5; margin-bottom: 10px; margin-top: 24px;">
 													<b style="font-weight: 600;">Automattic, Inc.</b> - 60 29th St. #343, San Francisco, CA 94110</b>
 													</p>
 												</td>
 											</tr>
 											<tr>
 												<td align="left" style="border-collapse: collapse;">
-													<p class="footer-november-2022-unsub-text" style="direction: ltr; color: #101517; font-size: 12px; line-height: 1.5;">
-													<b style="font-weight: 600;">' . esc_html__( "Don\'t want these emails?", 'jetpack-forms' ) . '</b>
+													<p class="footer-november-2022-unsub-text" style="direction: ' . $text_dir . '; color: #101517; font-size: 12px; line-height: 1.5;">
+													<b style="font-weight: 600;">' . esc_html__( 'Don\'t want these emails?', 'jetpack-forms' ) . '</b>
 													<a href="%4$s" class="unsub" style="text-decoration: none; color: #101517;">' . esc_html__( 'Change the email address on your form', 'jetpack-forms' ) . '</a>.
 													</p>
 												</td>
