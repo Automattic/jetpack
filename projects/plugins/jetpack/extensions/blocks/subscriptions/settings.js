@@ -144,7 +144,7 @@ function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasN
 			<div className="editor-post-visibility__info">
 				{ createInterpolateElement(
 					__(
-						"You'll need a <paidPlanLink>paid plan</paidPlanLink> and a <stripeAccountLink>Stripe account</stripeAccountLink> to collect payments.",
+						"You'll need to connect <stripeAccountLink>Stripe</stripeAccountLink> and add a <paidPlanLink>paid plan</paidPlanLink> to collect payments.",
 						'jetpack'
 					),
 					{
