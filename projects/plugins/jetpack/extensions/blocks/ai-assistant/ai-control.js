@@ -28,7 +28,11 @@ const AIControl = ( {
 	setUserPrompt,
 	showRetry,
 	contentBefore,
+<<<<<<< HEAD
 	postTitle,
+=======
+	wholeContent,
+>>>>>>> 5eef1a0095 ([not verified] disable summarize when no content)
 } ) => {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
@@ -61,6 +65,7 @@ const AIControl = ( {
 					toggleAIType={ toggleAIType }
 					contentBefore={ contentBefore }
 					hasPostTitle={ !! postTitle?.length }
+					wholeContent={ wholeContent }
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
@@ -99,7 +104,11 @@ const ToolbarControls = ( {
 	showRetry,
 	toggleAIType,
 	contentBefore,
+<<<<<<< HEAD
 	hasPostTitle,
+=======
+	wholeContent,
+>>>>>>> 5eef1a0095 ([not verified] disable summarize when no content)
 } ) => {
 	return (
 		<BlockControls>
@@ -139,6 +148,7 @@ const ToolbarControls = ( {
 								{
 									title: __( 'Summarize', 'jetpack' ),
 									onClick: () => getSuggestionFromOpenAI( 'summarize' ),
+									isDisabled: ! wholeContent?.length,
 								},
 								{
 									title: __( 'Write a summary based on title', 'jetpack' ),

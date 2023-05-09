@@ -192,7 +192,6 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 	};
 	return {
-		getSuggestionFromOpenAI,
 		isLoadingCategories,
 		isLoadingCompletion,
 		setIsLoadingCategories,
@@ -200,6 +199,9 @@ const useSuggestionsFromOpenAI = ( {
 		showRetry,
 		postTitle: currentPostTitle,
 		contentBefore: getPartialContentToBlock( clientId ),
+		wholeContent: getContentFromBlocks( clientId ),
+
+		getSuggestionFromOpenAI,
 		retryRequest: () => getSuggestionFromOpenAI( '', true ),
 	};
 };
