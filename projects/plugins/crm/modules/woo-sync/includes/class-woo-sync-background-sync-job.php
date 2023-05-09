@@ -1594,13 +1594,7 @@ class Woo_Sync_Background_Sync_Job {
 			$transaction_paid_date_uts = $order_data['date_paid']->date( 'U' );
 		}
 
-		if ( $is_status_mapping_enabled ) {
-			// use status mapping logic
-			$invoice_status = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_INVOICE, $order_status );
-		} else {
-			// use default mapping
-			$invoice_status = $this->woosync()->get_default_woo_order_status_mapping_for_obj_type( ZBS_TYPE_INVOICE, $order_status );
-		}
+		$invoice_status = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_INVOICE, $order_status );
 
 		// retrieve completed date, where available
 		if ( array_key_exists( 'date_completed', $order_data ) && !empty( $order_data['date_completed'] ) ) {
@@ -1726,13 +1720,7 @@ class Woo_Sync_Background_Sync_Job {
 
 		}
 
-		if ( $is_status_mapping_enabled ) {
-			// use status mapping logic
-			$transaction_status = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_TRANSACTION, $order_status );
-		} else {
-			// use default mapping, which is essentially order status
-			$transaction_status = $this->woosync()->get_default_woo_order_status_mapping_for_obj_type( ZBS_TYPE_TRANSACTION, $order_status );
-		}
+		$transaction_status = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_TRANSACTION, $order_status );
 
 		// fill out transaction header (object)
 		$data['transaction'] = array(
