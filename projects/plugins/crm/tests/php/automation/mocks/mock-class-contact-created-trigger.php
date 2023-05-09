@@ -3,25 +3,19 @@
 namespace Automatic\Jetpack\CRM\Automation\Tests\Mocks;
 
 use Automattic\Jetpack\CRM\Automation\Automation_Recipe;
+use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 use Automattic\Jetpack\CRM\Automation\Tests\Event_Emitter;
-use Automattic\Jetpack\CRM\Automation\Trigger;
 
-class Contact_Created_Trigger implements Trigger {
+class Contact_Created_Trigger extends Base_Trigger {
 
-	public function get_name(): string {
-		return 'contact_created';
-	}
-
-	public function get_title(): string {
-		return 'Contact Created';
-	}
-
-	public function get_description(): ?string {
-		return 'Triggered when a contact is created';
-	}
-
-	public function get_category(): string {
-		return 'contact';
+	public function __construct() {
+		$trigger_data = array(
+			'name'        => 'contact_created',
+			'title'       => 'Contact Created',
+			'description' => 'Triggered when a contact is created',
+			'category'    => 'contact',
+		);
+		parent::__construct( $trigger_data );
 	}
 
 	public function init( Automation_Recipe $recipe ) {
