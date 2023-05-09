@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Brute force protection activation when WAF unset
