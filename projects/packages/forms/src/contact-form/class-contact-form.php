@@ -450,7 +450,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
 			$message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
 		} else {
-			$message = '<p>' . join( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>';
+			$message = '<p>' . implode( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>';
 		}
 
 		return wp_kses(
@@ -1404,7 +1404,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$sent_by_text = '<br />' . __( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '<br />';
 		}
 
-		$footer = join(
+		$footer = implode(
 			'',
 			/**
 			 * Filter the footer used in the response email.
@@ -1443,7 +1443,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param string $message Feedback email message.
 		 * @param string $message Feedback email message as an array
 		 */
-		$message = apply_filters( 'contact_form_message', join( '', $message ), $message );
+		$message = apply_filters( 'contact_form_message', implode( '', $message ), $message );
 
 		// This is called after `contact_form_message`, in order to preserve back-compat
 		$message = self::wrap_message_in_html_tags( $title, $response_link, $url, $message, $footer );
