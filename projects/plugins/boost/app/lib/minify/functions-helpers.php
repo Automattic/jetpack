@@ -244,12 +244,12 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 }
 
 /**
- * Initializes the cache service for minification in Jetpack Boost.
+ * Detects requests within the `/_static/` directory, and serves minified content.
  *
  * @return void
  */
-function jetpack_boost_minify_init_cache_service() {
-	// TODO: Make concat URL dir configurable
+function jetpack_boost_minify_serve_concatenated() {
+	// Potential improvement: Make concat URL dir configurable
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	if ( isset( $_SERVER['REQUEST_URI'] ) && '/_static/' === substr( wp_unslash( $_SERVER['REQUEST_URI'] ), 0, 9 ) ) {
 		require_once __DIR__ . '/functions-service.php';
@@ -272,8 +272,8 @@ function jetpack_boost_minify_setup() {
 	}
 	$setup_done = true;
 
-	// Handle cache service requests.
-	jetpack_boost_minify_init_cache_service();
+	// Handle requests for minified / concatenated content.
+	jetpack_boost_minify_serve_concatenated();
 
 	// Hook up deactivation and uninstall cleanup paths.
 	register_deactivation_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_deactivate' );
