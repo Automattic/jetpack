@@ -59,21 +59,20 @@ export const createPrompt = (
 	contentBefore = contentBefore?.length ? contentBefore.replace( /<br\s*\/?>/gi, '\n' ) : '';
 	contentBefore = contentBefore.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
 
-	const continuePrompt = contentBefore?.length
-		? sprintf(
-				/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
-				__( 'Please continue from here:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-				contentBefore
-		  )
-		: '';
-
 	if ( type === 'titleSummary' ) {
-		const continueFromHere = continuePrompt.length ? '. ' + continuePrompt : '';
+		const additionalContextPromp = contentBefore?.length
+			? sprintf(
+					/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
+					__( '. Additional context:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+					contentBefore
+			  )
+			: '';
+
 		const titlePrompt = sprintf(
 			/** translators: This will be the beginning of a prompt that will be sent to OpenAI based on the post title. */
 			__( "Please help me write a short piece of a blog post titled '%1$s'%2$s", 'jetpack' ),
 			postTitle,
-			continueFromHere
+			additionalContextPromp
 		);
 		return titlePrompt + PROMPT_SUFFIX;
 	}

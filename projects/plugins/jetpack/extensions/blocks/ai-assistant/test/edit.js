@@ -38,14 +38,14 @@ describe( 'AIParagraphEdit', () => {
 
 		// Generated based on `title` and `content`.
 		expect( createPrompt( 'The story of my life', 'This story is obout hate and love...' ) ).toBe(
-			"Please help me write a short piece of a blog post titled 'The story of my life'. Please continue from here:\n\n … " +
+			"Please help me write a short piece of a blog post titled 'The story of my life'. Additional context:\n\n … " +
 				'This story is obout hate and love...' +
 				PROMPT_SUFFIX
 		);
 
 		// Generated based on `title` and (long) `content`.
 		expect( createPrompt( 'The story of my life', longContent ) ).toBe(
-			"Please help me write a short piece of a blog post titled 'The story of my life'. Please continue from here:\n\n … " +
+			"Please help me write a short piece of a blog post titled 'The story of my life'. Additional context:\n\n … " +
 				longContent.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT ) +
 				PROMPT_SUFFIX
 		);
