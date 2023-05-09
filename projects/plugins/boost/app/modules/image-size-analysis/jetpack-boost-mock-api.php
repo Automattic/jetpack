@@ -12,6 +12,8 @@ function jetpack_boost_mock_api( $count, $paged = 1 ) {
 	// phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found
 	$iteration = 0;
 	$id = 1;
+	$ignored_images = jetpack_boost_ds_get('image_size_analysis_ignored_images', array());
+	$ignored_ids = wp_list_pluck( $ignored_images, 'id' );
 	while ( count( $image_posts ) < $count ) {
 		if( $iteration++ > 250 ) {
 			break;
@@ -48,6 +50,9 @@ function jetpack_boost_mock_api( $count, $paged = 1 ) {
 				// Since this is a fake API, set a temporoary unique
 				// ID to avoid duplicate keys when in development mode
 				$image_id = md5($image_url . $id++);
+				if( $image_id && in_array( $image_id, $ignored_ids ) ) {
+					continue;
+				}
 				$image_meta['id'] = $image_id;
 				$image_meta['thumbnail']    = $image_url;
 				$image_meta['image']['url'] = $image_url;
