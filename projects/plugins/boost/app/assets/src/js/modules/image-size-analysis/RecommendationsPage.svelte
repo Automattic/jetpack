@@ -2,6 +2,7 @@
 	import { useParams } from 'svelte-navigator';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
+	import debounce from '../../utils/debounce';
 	import Hero from './recommendations/Hero.svelte';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
@@ -11,10 +12,15 @@
 
 	const params = useParams();
 
-	$: {
-		$isaData.query.group = $params.group;
-		$isaData.query.page = parseInt( $params.page );
+	function updateQuery( group, page ) {
+		$isaData.query.group = group;
+		$isaData.query.page = page;
 	}
+
+	// Debouncing because,
+	// Params update multiple times when URL changes
+	const debouncedUpdateQuery = debounce( updateQuery, 1 );
+	$: debouncedUpdateQuery( $params.group, $params.page );
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
