@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Use native embed WebView for the VideoPress editor preview on Android
