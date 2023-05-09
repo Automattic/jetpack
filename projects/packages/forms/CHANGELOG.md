@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.16.0] - 2023-05-08
+### Added
+- Added URL-based navigation support for the new forms dashboard [#30367]
+- Add inspector ID/name settings for form fields [#30260]
+
+### Changed
+- Do not normalize feedback posts main comment when possible, allowing fexports to not guess which is the Comment and simply adding a column with the input's label [#30475]
+- Forms: Introduce Multiple Choice and Single Choice style variations [#30319]
+- Forms: Update Multiple Choice and Single Choice fields Sidebar style settings [#30437]
+- Updated border radius on forms dashboard cards [#30466]
+- Update Forms pattern modal default view to Grid [#28906]
+- We will not be re-sending emails when marking items as not-spam in the new forms dashboard. [#30356]
+
+### Fixed
+- Add necessary context to the word "Trash". [#30507]
+- Change post_type comparison on untrash filter to only affect feedback posts [#30464]
+- Ensure array is provided to array_diff_key to avoid warnings [#30317]
+- Fix dropdown menu not working due to some CSS issues [#30409]
+- Fixed class names for the response on the JP Forms dashboard. [#30468]
+- Fixed the hitbox for the source link on the forms dashboard response list. [#30469]
+- Forms: Fix Forms response meta date value [#30189]
+
 ## [0.15.0] - 2023-05-02
 ### Added
 - Added a 'Copy' button for emails on the Jetpack forms dashboard response tab. [#30256]
@@ -203,6 +225,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.16.0]: https://github.com/automattic/jetpack-forms/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/automattic/jetpack-forms/compare/v0.14.1...v0.15.0
 [0.14.1]: https://github.com/automattic/jetpack-forms/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/automattic/jetpack-forms/compare/v0.13.0...v0.14.0

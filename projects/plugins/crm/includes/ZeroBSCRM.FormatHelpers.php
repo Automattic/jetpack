@@ -1063,56 +1063,30 @@ function zeroBSCRM_print_backtolist_html( $slug ) {
 
 	}
 
-	function zeroBSCRM_html_taskDate($task=array()){
+/**
+ * Returns a task datetime range string
+ *
+ * @param arr $task Task array.
+ *
+ * @return str datetime range string
+ */
+function zeroBSCRM_html_taskDate( $task = array() ) {
 
-	    if (!isset($task['start'])){
+	if ( ! isset( $task['start'] ) ) {
 
-	        // starting date
-	        //$start_d = date('m/d/Y H') . ":00:00";
-	        //$end_d =  date('m/d/Y H') . ":00:00";
-	        // wh modified to now + 1hr - 2hr
-	        $start_d = date('d F Y H:i:s',(time()+3600));
-	        $end_d =  date('d F Y H:i:s',(time()+3600+3600));
+		// task doesn't have start date...not sure why this would ever happen
+		$task_start = jpcrm_uts_to_datetime_str( time() + 3600 );
+		$task_end   = jpcrm_uts_to_datetime_str( $task_start + 3600 );
 
+	} else {
 
-	    } else {
+		$task_start = jpcrm_uts_to_datetime_str( $task['start'] );
+		$task_end   = jpcrm_uts_to_datetime_str( $task['end'] );
 
-			// Note: Because this continued to be use for task scheduler workaround (before we got to rewrite the locale timestamp saving)
-			// ... we functionised in Core.Localisation.php to keep it DRY
-
-			// temp pre v3.0 fix, forcing english en for this datepicker only.
-			// requires js mod: search #forcedlocaletasks
-			// (Month names are localised, causing a mismatch here (Italian etc.))
-			// ... so we translate:
-			// d F Y H:i:s (date - not locale based)
-			// https://www.php.net/manual/en/function.date.php
-			// ... into
-			// %d %B %Y %H:%M:%S (strfttime - locale based date)
-			// (https://www.php.net/manual/en/function.strftime.php)
-
-			// phpcs:disable Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.BlockComment.NoCapital
-
-			/*
-			$start_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['start']);
-			$end_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['end']);
-			*/
-
-			/*
-			@todo - this is to be refactored.
-			zeroBSCRM_locale_setServerLocale('en_US');
-			$start_d = strftime("%d %B %Y %H:%M:%S",$task['start']);
-			$end_d =  strftime("%d %B %Y %H:%M:%S",$task['end']);
-			zeroBSCRM_locale_resetServerLocale();
-			*/
-			// phpcs:enable Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.BlockComment.NoCapital
-
-	        $start_d = zeroBSCRM_date_forceEN($task['start']);
-	        $end_d = zeroBSCRM_date_forceEN($task['end']);
-
-	    }
-
-	    return $start_d . ' - ' . $end_d;
 	}
+
+	return $task_start . ' - ' . $task_end;
+}
 
 /* ======================================================
   /	Tasks
