@@ -45,6 +45,9 @@ class Jetpack_Concat {
 		add_action( 'wp_print_footer_scripts', array( $this, 'do_script_enqueue' ), 0 );
 		add_action( 'wp_head', array( $this, 'do_style_enqueue' ), 1000 ); // Do Late to allow registration of header styles.
 		add_action( 'print_late_styles', array( $this, 'do_style_enqueue' ), 1000 ); // Late / On-demand styles.
+		add_action( 'jetpack_pre_activate_module', array( $this, 'flush_cache' ) );
+		add_action( 'jetpack_pre_deactivate_module', array( $this, 'flush_cache' ) );
+
 		$this->cache_folder = WP_CONTENT_DIR . '/jetpack-cache';
 		if ( ! file_exists( $this->cache_folder ) ) {
 			wp_mkdir_p( $this->cache_folder );
@@ -134,7 +137,6 @@ class Jetpack_Concat {
 		if ( ! empty( $wp_scripts->registered[ $handle ]->deps ) ) {
 			$this->add_script_deps( $wp_scripts->registered[ $handle ] );
 		}
-		vdump( $handle, false );
 		$this->enqueued_scripts[ $handle ] = $wp_scripts->registered[ $handle ];
 	}
 
@@ -297,5 +299,17 @@ class Jetpack_Concat {
 		$has_host = wp_parse_url( $url, PHP_URL_HOST );
 
 		return empty( $has_host ) || $has_host === $host;
+	}
+
+	/**
+	 * Clear all cache files when activating a module.
+	 */
+	public function flush_cache() {
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
+		}
+		$wp_filesystem->delete( $this->cache_folder, true );
 	}
 }
