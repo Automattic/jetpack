@@ -51,6 +51,10 @@ export const createPrompt = (
 	userPrompt = '',
 	type = 'userPrompt'
 ) => {
+	if ( ! postTitle?.length ) {
+		return '';
+	}
+
 	if ( type === 'userPrompt' ) {
 		return userPrompt + PROMPT_SUFFIX;
 	}
