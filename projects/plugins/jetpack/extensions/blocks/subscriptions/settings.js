@@ -247,7 +247,7 @@ function NewsletterAccessRadioButtons( {
 
 					{ /* Only show the notice below each access radio buttons in the PrePublish panel  */ }
 					{ isPrePublishPanel && key === accessLevel && (
-						<p>
+						<p className="pre-public-panel-notice-reach">
 							<NewsletterNotice
 								accessLevel={ accessLevel }
 								socialFollowers={ socialFollowers }
