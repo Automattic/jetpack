@@ -1,12 +1,20 @@
 <script lang="ts">
+	import { useParams } from 'svelte-navigator';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import Hero from './recommendations/Hero.svelte';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';
-	import { isaLazyLoad } from './store/isa-data';
+	import { isaData, isaLazyLoad } from './store/isa-data';
 	const initialLoad = isaLazyLoad();
+
+	const params = useParams();
+
+	$: {
+		$isaData.query.group = $params.group;
+		$isaData.query.page = parseInt( $params.page );
+	}
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">

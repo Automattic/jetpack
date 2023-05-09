@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ChevronLeft from '../../../svg/chevron-left.svg';
 	import ChevronRight from '../../../svg/chevron-right.svg';
+	import { Link } from '../../../utils/router';
 	import { isaData } from '../store/isa-data';
 	// "-1" is replaced by "..." when rendering the pagination
 	const MORE_ICON = -1;
@@ -57,7 +58,7 @@
 	$: pages = generatePagination( current, total );
 </script>
 
-<div>
+<div class="jb-pagination">
 	<button class="jb-chevron" class:inactive={current === 1} on:click={previousPage}>
 		<ChevronLeft />
 	</button>
@@ -65,31 +66,29 @@
 	<ul>
 		{#each pages as page}
 			<li>
-				<button
-					class:current={page === current}
-					disabled={page === MORE_ICON}
-					on:click={() => ( $isaData.query.page = page )}
-				>
+				<span class="jb-pagination__page" class:jb-pagination__current={page === current}>
 					{#if page === MORE_ICON}
 						...
 					{:else}
-						{page}
+						<Link to="/image-size-analysis/{$isaData.query.group}/{page}">
+							{page}
+						</Link>
 					{/if}
-				</button>
+				</span>
 			</li>
 		{/each}
 	</ul>
 
-	<button class="jb-chevron" class:inactive={current === total} on:click={nextPage}>
+	<button class="jb-chevron" class:jb-pagination__inactive={current === total} on:click={nextPage}>
 		<ChevronRight />
 	</button>
 </div>
 
 <style lang="scss">
-	div {
+	.jb-pagination {
 		padding: 48px;
 	}
-	div,
+	.jb-pagination,
 	ul {
 		display: flex;
 		align-items: center;
@@ -99,15 +98,9 @@
 		list-style-type: none;
 		margin: 0;
 	}
-	.current {
-		background-color: #000;
-		border-radius: var( --border-radius );
-		color: #fff;
-		cursor: pointer;
-		border: 0;
-	}
 
-	button {
+	button,
+	.jb-pagination__page {
 		background-color: transparent;
 		border: 0;
 		cursor: pointer;
@@ -117,14 +110,27 @@
 		font-size: 13px;
 		font-weight: 600;
 
+		:global( a ) {
+			text-decoration: none;
+		}
+
 		&[disabled] {
 			cursor: default;
 			color: #000;
 		}
 
-		&.inactive {
+		&.jb-pagination__inactive {
 			opacity: 0.25;
 			cursor: not-allowed;
+		}
+		&.jb-pagination__current {
+			background-color: #000;
+			border-radius: var( --border-radius );
+			cursor: pointer;
+			border: 0;
+			:global( a ) {
+				color: #fff;
+			}
 		}
 	}
 </style>

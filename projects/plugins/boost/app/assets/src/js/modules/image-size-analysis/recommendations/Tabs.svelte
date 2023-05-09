@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { Link } from '../../../utils/router';
 	import { isaData } from '../store/isa-data';
 	import { imageDataGroupTabs } from '../store/isa-groups';
 </script>
@@ -7,14 +8,10 @@
 	{#each Object.entries( $imageDataGroupTabs ) as [key, group]}
 		<div class="jb-tab jb-tab--{key}" class:active={$isaData.query.group === key}>
 			<div class="jb-tab__header">
-				<button
-					on:click={() => {
-						$isaData.query.group = key;
-						$isaData.query.page = 1;
-					}}
-					>{group.name}
+				<Link class="jb-navigator-link" to="/image-size-analysis/{key}/1">
+					{group.name}
 					<span>{group.issues}</span>
-				</button>
+				</Link>
 			</div>
 		</div>
 	{/each}
@@ -46,11 +43,13 @@
 	.jb-tab--ignored {
 		margin-left: auto;
 	}
-	button {
+
+	.jb-tabs :global( .jb-navigator-link ) {
 		background: none;
 		padding: 10px 16px;
 		border: 0;
 		cursor: pointer;
+		text-decoration: none;
 
 		display: flex;
 		gap: 10px;

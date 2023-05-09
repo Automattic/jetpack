@@ -30,7 +30,7 @@
 	<Route path="purchase-successful" component={PurchaseSuccess} />
 	<Route path="getting-started" component={GettingStarted} />
 	{#if $modulesState.image_size_analysis.available && $modulesState.image_size_analysis.active}
-		<Route path="image-size-analysis" component={RecommendationsPage} />
+		<Route path="image-size-analysis/:group/:page" component={RecommendationsPage} />
 	{/if}
 	<Route component={Settings} />
 </Router>
