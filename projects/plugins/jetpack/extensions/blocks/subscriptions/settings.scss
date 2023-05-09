@@ -18,6 +18,10 @@
 .edit-post-post-visibility {
 	&__notice {
 		margin: 0;
+		// General notice
+		&.is-info {
+			background: var(--color-primary-0, #e9f0f5);
+		}
 	}
 
 	.components-notice__content {
