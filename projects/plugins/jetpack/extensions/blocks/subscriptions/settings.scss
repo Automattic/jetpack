@@ -20,7 +20,7 @@
 		margin: 0;
 		// General notice
 		&.is-info {
-			background: #e9eff5; // Found using color picker on figma.
+			background: var(--color-primary-0, #e9f0f5);
 		}
 	}
 
