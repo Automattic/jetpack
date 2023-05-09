@@ -1324,7 +1324,7 @@ class Woo_Sync_Background_Sync_Job {
 				$contact_id = zeroBS_getCustomerIDWithEmail( $contact_email );
 				// If this is a new contact or the current status equals the first status (CRM's default value is 'Lead'), we are allowed to change it.
 				if ( empty( $contact_id ) || $zbs->DAL->contacts->getContactStatus( $contact_id ) === $contact_statuses[0] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					$data['contact']['status'] = $this->woosync()->woocommerce_order_status_to_contact_status( $order_status );
+					$data['contact']['status'] = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_CONTACT, $order_status );
 				}
 			}
 			$data['contact']['created']         = $contact_creation_date_uts;
