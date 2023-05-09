@@ -39,7 +39,12 @@ export const createPrompt = (
 	// eslint-disable-next-line no-unused-vars
 	tagsNames = ''
 ) => {
-	if ( ! postTitle?.length && ! contentBefore?.length && ! userPrompt?.length ) {
+	if (
+		! postTitle?.length &&
+		! contentBefore?.length &&
+		! userPrompt?.length &&
+		! content?.length
+	) {
 		return '';
 	}
 
@@ -84,6 +89,9 @@ export const createPrompt = (
 	}
 
 	if ( type === 'summarize' ) {
+		content = content?.length ? content.replace( /<br\s*\/?>/gi, '\n' ) : '';
+		content = content.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
+
 		const expandPrompt = sprintf(
 			/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
 			__( 'Summarize this:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace

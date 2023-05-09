@@ -54,7 +54,7 @@ describe( 'AIAssistanceEdit', () => {
 		);
 
 		// Summarize
-		expect( createPrompt( '', longContent, '', '', 'summarize' ) ).toBe(
+		expect( createPrompt( '', '', longContent, '', 'summarize' ) ).toBe(
 			'Summarize this:\n\n … ' +
 				longContent.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT ) +
 				PROMPT_SUFFIX
