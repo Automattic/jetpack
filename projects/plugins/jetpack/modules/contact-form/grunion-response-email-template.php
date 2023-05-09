@@ -241,11 +241,11 @@ $template = '
 											</tr>
 											<tr>
 												<td align="left" class="footer-november-2022-socials-section" style="border-collapse: collapse;">
-													<a href="https://twitter.com/jetpack" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right: 22px;"><img aria-label="jetpack twitter page" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/twitter-dark.png" width="20" height="20" style="height: auto; line-height: 100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
+													<a href="https://twitter.com/jetpack" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right: 22px;"><img aria-label="' . esc_html__( 'jetpack twitter page', 'jetpack' ) . '" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/twitter-dark.png" width="20" height="20" style="height: auto; line-height: 100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
 
-													<a href="https://www.facebook.com/jetpackme" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right:22px;"><img aria-label="jetpack facebook page" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/facebook-dark.png" width="20" height="20" style="height: auto; line-height:100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
+													<a href="https://www.facebook.com/jetpackme" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right:22px;"><img aria-label="' . esc_html__( 'jetpack facebook page', 'jetpack' ) . '" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/facebook-dark.png" width="20" height="20" style="height: auto; line-height:100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
 
-													<a href="https://www.linkedin.com/company/jetpack-for-wordpress/" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right: 22px;"><img aria-label="jetpack linkedin page" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/linkedin-dark.png" width="20" height="20" style="height: auto; line-height:100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
+													<a href="https://www.linkedin.com/company/jetpack-for-wordpress/" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right: 22px;"><img aria-label="' . esc_html__( 'jetpack linkedin page', 'jetpack' ) . '" src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/linkedin-dark.png" width="20" height="20" style="height: auto; line-height:100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
 												</td>
 											</tr>
 											<tr>
