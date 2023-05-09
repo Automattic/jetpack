@@ -58,7 +58,7 @@ const AIControl = ( {
 					showRetry={ showRetry }
 					toggleAIType={ toggleAIType }
 					contentBefore={ contentBefore }
-					hasPostTitle={ postTitle?.length }
+					hasPostTitle={ !! postTitle?.length }
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
@@ -116,13 +116,13 @@ const ToolbarControls = ( {
 						</>
 					) }
 
-					{ ! showRetry && ! contentIsLoaded && contentBefore?.length && (
+					{ ! showRetry && ! contentIsLoaded && !! contentBefore?.length && (
 						<ToolbarButton icon={ pencil } onClick={ () => getSuggestionFromOpenAI( 'continue' ) }>
 							{ __( 'Continue writing', 'jetpack' ) }
 						</ToolbarButton>
 					) }
 
-					{ ! showRetry && ! contentIsLoaded && ! contentBefore?.length && (
+					{ ! showRetry && ! contentIsLoaded && ! contentBefore?.length && hasPostTitle && (
 						<ToolbarButton
 							icon={ title }
 							onClick={ () => getSuggestionFromOpenAI( 'titleSummary' ) }
