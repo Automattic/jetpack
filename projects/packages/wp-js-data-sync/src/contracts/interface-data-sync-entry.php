@@ -6,13 +6,11 @@ namespace Automattic\Jetpack\WP_JS_Data_Sync\Contracts;
  * Data Sync Entry Interface:
  * ==========================
  * This interface defines what is a Data Sync Entry.
- *
- * The "can" method is used to determine if the class implementing this interface supports a specific operation.
  */
 interface Data_Sync_Entry {
 
 	/**
-	 * Checks if the implementing class supports the specified method.
+	 * Checks if this Data Sync Entry implements a specific interface.
 	 *
 	 * @param string $interface_reference The name of the method to check (get, set, merge, delete).
 	 * @return bool True if the method is supported, false otherwise.
