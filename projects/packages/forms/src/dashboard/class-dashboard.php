@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Forms\Dashboard;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Forms\Service\Google_Drive;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
@@ -140,13 +141,32 @@ class Dashboard {
 		$config = array(
 			'blogId'                  => get_current_blog_id(),
 			'exportNonce'             => wp_create_nonce( 'feedback_export' ),
+			'newFormNonce'            => wp_create_nonce( 'create_new_form' ),
 			'gdriveConnection'        => $jetpack_connected && Google_Drive::has_valid_connection( $user_id ),
 			'gdriveConnectURL'        => esc_url( Redirect::get_url( 'jetpack-forms-responses-connect' ) ),
 			'gdriveConnectSupportURL' => esc_url( Redirect::get_url( 'jetpack-support-contact-form-export' ) ),
 			'checkForSpamNonce'       => wp_create_nonce( 'grunion_recheck_queue' ),
+			'pluginAssetsURL'         => Jetpack_Forms::assets_url(),
+			'hasFeedback'             => $this->has_feedback(),
 		);
 		?>
 		<div id="jp-forms-dashboard" style="min-height: calc(100vh - 100px);" data-config="<?php echo esc_attr( wp_json_encode( $config, JSON_FORCE_OBJECT ) ); ?>"></div>
 		<?php
+	}
+
+	/**
+	 * Returns true if there are any feedback posts on the site.
+	 *
+	 * @return boolean
+	 */
+	private function has_feedback() {
+		$posts = new \WP_Query(
+			array(
+				'post_type'   => 'feedback',
+				'post_status' => array( 'publish', 'draft', 'spam', 'trash' ),
+			)
+		);
+
+		return $posts->found_posts > 0;
 	}
 }

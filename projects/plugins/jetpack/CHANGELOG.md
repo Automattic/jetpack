@@ -2,6 +2,9 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.2-a.5 - 2023-05-08
+- Extends release `12.2-a.3` with a fix for the Payments block. [#30524]
+
 ## 12.2-a.3 - 2023-05-08
 ### Enhancements
 - Add newsletter access level to the post edit page [#30172]
