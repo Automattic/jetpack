@@ -208,7 +208,7 @@ function wpcom_register_default_launchpad_checklists() {
 
 	wpcom_register_launchpad_task(
 		array(
-			'id'                  => 'set_up_paid_newsletter',
+			'id'                  => 'newsletter_plan_created',
 			'title'               => __( 'Create paid Newsletter', 'jetpack-mu-wpcom' ),
 			'is_visible_callback' => 'wpcom_has_goal_paid_subscribers',
 		)
@@ -282,7 +282,7 @@ function wpcom_register_default_launchpad_checklists() {
 				'subscribers_added',
 				'verify_email',
 				'set_up_payments',
-				'set_up_paid_newsletter',
+				'newsletter_plan_created',
 				'first_post_published_newsletter',
 			),
 		)
