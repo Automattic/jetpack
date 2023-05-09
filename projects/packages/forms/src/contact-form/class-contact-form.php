@@ -1404,6 +1404,13 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$sent_by_text = '<br />' . esc_html__( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '<br />';
 		}
 
+		// translators: Time: [time]
+		$footer_time = sprintf( '%1$s: %2$s', esc_html__( 'Time', 'jetpack-forms' ), $time );
+		// translators: IP Address: [ip address]
+		$footer_ip = sprintf( '%1$s: %2$s', esc_html__( 'IP Address', 'jetpack-forms' ), $comment_author_IP ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// translators: Source URL: [url]
+		$footer_url = sprintf( '%1$s: %2$s', esc_html__( 'Source URL', 'jetpack-forms' ), $url );
+
 		$footer = implode(
 			'',
 			/**
@@ -1421,9 +1428,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 					'<br />',
 					'<hr />',
 					'<span style="font-size: 12px">',
-					__( 'Time:', 'jetpack-forms' ) . ' ' . $time . '<br />',
-					__( 'IP Address:', 'jetpack-forms' ) . ' ' . $comment_author_IP . '<br />', // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-					__( 'Source URL:', 'jetpack-forms' ) . ' ' . $url . '<br />',
+					$footer_time . '<br />',
+					$footer_ip . '<br />',
+					$footer_url . '<br />',
 					$sent_by_text,
 					'</span>',
 					'<hr />',
