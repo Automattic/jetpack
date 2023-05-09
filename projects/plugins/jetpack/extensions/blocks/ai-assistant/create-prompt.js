@@ -19,7 +19,7 @@ export const PROMPT_SUFFIX = __(
  * to create a prompt.
  *
  * @param {string} postTitle       - The current post title.
- * @param {string} content         - The content before the current block.
+ * @param {string} contentBefore   - The content before the current block.
  * @param {string} categoriesNames - The categories names.
  * @param {string} tagsNames       - The tags names.
  * @param {string} userPrompt      - The user prompt.
@@ -29,7 +29,7 @@ export const PROMPT_SUFFIX = __(
  */
 export const createPrompt = (
 	postTitle = '',
-	content = '',
+	contentBefore = '',
 	// eslint-disable-next-line no-unused-vars
 	categoriesNames = '',
 	// eslint-disable-next-line no-unused-vars
@@ -37,7 +37,7 @@ export const createPrompt = (
 	userPrompt = '',
 	type = ''
 ) => {
-	if ( ! postTitle?.length && ! content?.length && ! userPrompt?.length ) {
+	if ( ! postTitle?.length && ! contentBefore?.length && ! userPrompt?.length ) {
 		return '';
 	}
 
@@ -56,14 +56,14 @@ export const createPrompt = (
 	}
 
 	// Sanitize content and trim it to the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters.
-	content = content?.length ? content.replace( /<br\s*\/?>/gi, '\n' ) : '';
-	content = content.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
+	contentBefore = contentBefore?.length ? contentBefore.replace( /<br\s*\/?>/gi, '\n' ) : '';
+	contentBefore = contentBefore.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
 
-	const continuePrompt = content?.length
+	const continuePrompt = contentBefore?.length
 		? sprintf(
 				/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
 				__( 'Please continue from here:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-				content
+				contentBefore
 		  )
 		: '';
 
@@ -82,7 +82,7 @@ export const createPrompt = (
 		const expandPrompt = sprintf(
 			/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
 			__( 'Summarize this:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-			content
+			contentBefore
 		);
 
 		return expandPrompt + PROMPT_SUFFIX;
@@ -92,7 +92,7 @@ export const createPrompt = (
 		const expandPrompt = sprintf(
 			/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
 			__( ' Please continue from here:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-			content
+			contentBefore
 		);
 
 		return expandPrompt + PROMPT_SUFFIX;
