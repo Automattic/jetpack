@@ -10,6 +10,7 @@ import {
 	SET_AUTHORIZATION_URL,
 	SET_CONNECTED_PLUGINS,
 	SET_CONNECTION_ERRORS,
+	SET_IS_OFFLINE_MODE,
 } from './actions';
 
 const connectionStatus = ( state = {}, action ) => {
@@ -95,6 +96,15 @@ const connectionErrors = ( state = {}, action ) => {
 	return state;
 };
 
+const isOfflineMode = ( state = false, action ) => {
+	switch ( action.type ) {
+		case SET_IS_OFFLINE_MODE:
+			return action.isConnecting;
+	}
+
+	return state;
+};
+
 const reducers = combineReducers( {
 	connectionStatus,
 	connectionStatusIsFetching,
@@ -105,6 +115,7 @@ const reducers = combineReducers( {
 	userConnectionData,
 	connectedPlugins,
 	connectionErrors,
+	isOfflineMode,
 } );
 
 export default reducers;
