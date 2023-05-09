@@ -24,6 +24,7 @@ const AIControl = ( {
 	loadingImages,
 	placeholder,
 	setAiType,
+	userPrompt,
 	setUserPrompt,
 	showRetry,
 	contentBefore,
@@ -72,7 +73,7 @@ const AIControl = ( {
 					<Button
 						onClick={ () => handleGetSuggestion() }
 						isSmall={ true }
-						disabled={ isWaitingState }
+						disabled={ isWaitingState || ! userPrompt?.length }
 						label={ __( 'Do some magic!', 'jetpack' ) }
 					>
 						<Icon icon={ arrowRight } />
