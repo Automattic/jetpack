@@ -7,7 +7,7 @@ import {
 	createPrompt,
 } from '../create-prompt';
 
-describe( 'AIParagraphEdit', () => {
+describe( 'AIAssistanceEdit', () => {
 	test( 'createPrompt', () => {
 		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 		const charactersLength = characters.length;
@@ -18,7 +18,7 @@ describe( 'AIParagraphEdit', () => {
 
 		// Test empty posts get falsy
 		expect( createPrompt() ).toBeFalsy();
-		expect( createPrompt( '', [], '', '' ) ).toBeFalsy();
+		expect( createPrompt( '', '', '' ) ).toBeFalsy();
 
 		// Test Title summary - with content but no title
 		expect( createPrompt( '', 'some content', '', '', '', 'titleSummary' ) ).toBeFalsy();
@@ -31,12 +31,12 @@ describe( 'AIParagraphEdit', () => {
 
 		// Test `continue` preceding - with content
 		expect(
-			createPrompt( 'The story of my life', 'whatver the post content is', '', '', '', 'continue' )
+			createPrompt( 'The story of my life', 'whatver the post content is', '', '', 'continue' )
 		).toBe( ' Please continue from here:\n\n … whatver the post content is' + PROMPT_SUFFIX );
 
 		// Test that <BR/> are being translated. And content trimmed
 		expect(
-			createPrompt( 'The story of my life', 'content<br/>content2', '', '', '', 'continue' )
+			createPrompt( 'The story of my life', 'content<br/>content2', '', '', 'continue' )
 		).toBe( ' Please continue from here:\n\n … content\ncontent2' + PROMPT_SUFFIX );
 
 		// Generated based on `title` and `content`.
@@ -54,7 +54,7 @@ describe( 'AIParagraphEdit', () => {
 		);
 
 		// Summarize
-		expect( createPrompt( '', longContent, '', '', '', 'summarize' ) ).toBe(
+		expect( createPrompt( '', longContent, '', '', 'summarize' ) ).toBe(
 			'Summarize this:\n\n … ' +
 				longContent.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT ) +
 				PROMPT_SUFFIX
