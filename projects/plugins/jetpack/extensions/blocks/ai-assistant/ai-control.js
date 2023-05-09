@@ -113,7 +113,7 @@ const ToolbarControls = ( {
 						</>
 					) }
 
-					{ ! showRetry && ! contentIsLoaded && contentBefore?.length && (
+					{ !! ( ! showRetry && ! contentIsLoaded && contentBefore?.length ) && (
 						<ToolbarButton icon={ pencil } onClick={ () => getSuggestionFromOpenAI( 'continue' ) }>
 							{ __( 'Continue writing', 'jetpack' ) }
 						</ToolbarButton>
