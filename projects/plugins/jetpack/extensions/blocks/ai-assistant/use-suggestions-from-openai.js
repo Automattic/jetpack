@@ -45,7 +45,7 @@ const useSuggestionsFromOpenAI = ( {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
-	const [ , setLastPrompt ] = useState( '' );
+	const [ lastPrompt, setLastPrompt ] = useState( '' );
 
 	// Let's grab post data so that we can do something smart.
 
@@ -110,7 +110,7 @@ const useSuggestionsFromOpenAI = ( {
 		.join( ', ' );
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
-	const getSuggestionFromOpenAI = type => {
+	const getSuggestionFromOpenAI = ( type, retryRequest = false ) => {
 		if ( !! content || isLoadingCompletion ) {
 			return;
 		}
@@ -119,14 +119,16 @@ const useSuggestionsFromOpenAI = ( {
 		setErrorMessage( false );
 		setIsLoadingCompletion( true );
 
-		const prompt = createPrompt(
-			currentPostTitle,
-			getPartialContentToBlock( clientId ),
-			categoryNames,
-			tagNames,
-			userPrompt,
-			type
-		);
+		const prompt = retryRequest
+			? lastPrompt
+			: createPrompt(
+					currentPostTitle,
+					getPartialContentToBlock( clientId ),
+					categoryNames,
+					tagNames,
+					userPrompt,
+					type
+			  );
 
 		const data = { content: prompt };
 
@@ -171,6 +173,7 @@ const useSuggestionsFromOpenAI = ( {
 		showRetry,
 		postTitle: currentPostTitle,
 		contentBefore: getPartialContentToBlock( clientId ),
+		retryRequest: () => getSuggestionFromOpenAI( '', true ),
 	};
 };
 
