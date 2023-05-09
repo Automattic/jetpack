@@ -8,7 +8,7 @@ import {
 	ToolbarGroup,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { arrowRight, check, image, pencil, update } from '@wordpress/icons';
+import { arrowRight, check, image, pencil, update, undo } from '@wordpress/icons';
 import Loading from './loading';
 
 const AIControl = ( {
@@ -18,6 +18,7 @@ const AIControl = ( {
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	handleAcceptContent,
+	handleTryAgain,
 	handleGetSuggestion,
 	isWaitingState,
 	loadingImages,
@@ -51,6 +52,7 @@ const AIControl = ( {
 					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 					handleAcceptContent={ handleAcceptContent }
 					handleGetSuggestion={ handleGetSuggestion }
+					handleTryAgain={ handleTryAgain }
 					showRetry={ showRetry }
 					toggleAIType={ toggleAIType }
 				/>
@@ -87,6 +89,7 @@ const ToolbarControls = ( {
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	handleAcceptContent,
+	handleTryAgain,
 	handleGetSuggestion,
 	showRetry,
 	toggleAIType,
@@ -100,6 +103,9 @@ const ToolbarControls = ( {
 						<>
 							<ToolbarButton icon={ check } onClick={ handleAcceptContent }>
 								{ __( 'Done', 'jetpack' ) }
+							</ToolbarButton>
+							<ToolbarButton icon={ undo } onClick={ handleTryAgain }>
+								{ __( 'Try Again', 'jetpack' ) }
 							</ToolbarButton>
 						</>
 					) }
