@@ -1594,14 +1594,12 @@ class Woo_Sync_Background_Sync_Job {
 			$transaction_paid_date_uts = $order_data['date_paid']->date( 'U' );
 		}
 
-		$invoice_status = __( 'Unpaid', 'zero-bs-crm' );
-
-		// Look for a custom user-defined status mapping value, otherwise we keep using the default value.
 		if ( $is_status_mapping_enabled ) {
-			$candidate_invoice_status = ! empty( $settings[ $order_status_to_invoice_settings[ $order_status ] ] ) ? $settings[ $order_status_to_invoice_settings[ $order_status ] ] : -1;
-
-			// Make sure that the user-defined invoice status mapping is still in the list of allowed Contact statuses.
-			$invoice_status = in_array( $candidate_invoice_status, $valid_invoice_statuses ) ? $candidate_invoice_status : $invoice_status;
+			// use status mapping logic
+			$invoice_status = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_INVOICE, $order_status );
+		} else {
+			// use default mapping
+			$invoice_status = $this->woosync()->get_default_woo_order_status_mapping_for_obj_type( ZBS_TYPE_INVOICE, $order_status );
 		}
 
 		// retrieve completed date, where available
