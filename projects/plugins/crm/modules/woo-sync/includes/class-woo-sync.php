@@ -272,13 +272,13 @@ class Woo_Sync {
 				$status = __( 'Unpaid', 'zero-bs-crm' );
 			}
 		} elseif ( $obj_type_id === ZBS_TYPE_TRANSACTION ) {
-			// weird legacy mapping fix
+			// note that transaction statuses aren't translated, as they're user-configurable
 			if ( $order_status === 'on-hold' ) {
-				// transaction statuses aren't translated, as they're user-configurable
+				// weird legacy mapping fix
 				$status = 'Hold';
 			} elseif ( $order_status === 'checkout-draft' ) {
 				// for lack of a better status
-				$status = 'Hold';
+				$status = 'Draft';
 			} else {
 				// default transaction status is the same as the Woo order status
 				$status = ucfirst( $order_status );
