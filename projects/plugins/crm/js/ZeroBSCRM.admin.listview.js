@@ -2839,7 +2839,7 @@ function zeroBSCRMJS_listView_generic_quotecount( dataLine ) {
  */
 function zeroBSCRMJS_listView_generic_invoicecount( dataLine ) {
 	return (
-		'<td>' + ( typeof dataLine.invoices !== 'undefined' ? dataLine.invoices.length : '' ) + '</td>'
+		'<td>' + ( typeof dataLine.invoices_count !== 'undefined' ? dataLine.invoices_count : '' ) + '</td>'
 	);
 }
 
