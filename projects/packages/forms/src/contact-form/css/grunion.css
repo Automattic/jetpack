@@ -622,6 +622,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	box-sizing: border-box;
 	content: ' ';
 	display: flex;
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
 	font-weight: bold;
 	height: var(--jetpack--contact-form--font-size);
 	justify-content: center;
@@ -723,6 +724,7 @@ on production builds, the attributes are being reordered, causing side-effects
 	background: unset;
 	content: "✓";
 	display: block;
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
 	font-size: 1em;
 	height: auto;
 	margin: -0.2em 0 0;
