@@ -1,3 +1,4 @@
+import { onMount } from 'svelte';
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
@@ -124,3 +125,15 @@ export type ISA_Data = z.infer< typeof ImageData >;
 export const isaData = image_size_analysis.store;
 export const isaDataLoading = image_size_analysis.pending;
 export const isaIgnoredImages = image_size_analysis_ignored_images.store;
+
+/**
+ * Image Size Analysis is lazy loaded.
+ * Use this method to populate the store.
+ */
+export const isaLazyLoad = () =>
+	new Promise( resolve => {
+		onMount( async () => {
+			const data = await image_size_analysis.refresh();
+			resolve( data );
+		} );
+	} );
