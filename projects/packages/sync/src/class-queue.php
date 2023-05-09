@@ -377,13 +377,16 @@ class Queue {
 		);
 
 		$items = $wpdb->get_results( $query, OBJECT ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-		foreach ( $items as $item ) {
-			// @codingStandardsIgnoreStart
-			$item->value = @unserialize( $item->value );
-			// @codingStandardsIgnoreEnd
+		$items_count = is_countable( $items ) ? count( $items ) : 0;
+
+		if ( $items_count > 0 ) {
+			foreach ( $items as $item ) {
+				// @codingStandardsIgnoreStart
+				$item->value = @unserialize( $item->value );
+				// @codingStandardsIgnoreEnd
+			}
 		}
 
-		$items_count = is_countable( $items ) ? count( $items ) : 0;
 		if ( $items_count === 0 ) {
 			$this->delete_checkout_id();
 			return false;
