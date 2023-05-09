@@ -2,7 +2,7 @@ import {
 	createPrompt,
 	// MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT,
 	PROMPT_SUFFIX,
-} from '../edit';
+} from '../create-prompt';
 
 describe( 'AIParagraphEdit', () => {
 	test( 'createPrompt', () => {
