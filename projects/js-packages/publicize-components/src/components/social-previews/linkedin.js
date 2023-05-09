@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { LinkedInPreview, FEED_TEXT_MAX_LENGTH } from '@automattic/social-previews';
+import { LinkedInPreview } from '@automattic/social-previews';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
@@ -19,29 +19,8 @@ export function LinkedIn( props ) {
 
 	const { message: text } = useSocialMediaMessage();
 
-	const autoSharedText = text
-		.substring( 0, FEED_TEXT_MAX_LENGTH )
-		// Subtract the length of the URL and the space before it.
-		.slice( 0, -( url.length + 1 ) );
-
 	return (
 		<div className="linked-preview-tab">
-			<section>
-				<header>
-					<h2>{ __( 'Auto-shared', 'jetpack' ) }</h2>
-					<p className="description">
-						{ __( 'This is how it will look like when auto-shared', 'jetpack' ) }
-					</p>
-				</header>
-				<LinkedInPreview
-					jobTitle="Job Title (Company Name)"
-					image={ image }
-					name={ name }
-					profileImage={ profileImage }
-					title={ title }
-					description={ `${ autoSharedText } ${ url }` }
-				/>
-			</section>
 			<section>
 				<header>
 					<h2>{ __( 'Your post', 'jetpack' ) }</h2>
