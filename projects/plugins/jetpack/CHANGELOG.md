@@ -2,6 +2,30 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.2-a.3 - 2023-05-08
+### Enhancements
+- Add newsletter access level to the post edit page [#30172]
+- Forms: Introduce Multiple Choice and Single Choice style variations [#30319]
+- Make Donation block free for all and charge a 10% commission for free plans [#30275]
+- Remove upgrade nudge for premium block [#30398]
+- Replace photon implementation with the image-cdn package [#30050]
+- theme-tools: Removed jQuery dependency from responsive-videos script. [#30420]
+- Update Forms pattern modal default view to Grid [#28906]
+
+### Improved compatibility
+- Added support for flagging unsupported connections in the editor UI [#30280]
+- Bit.ly: avoid errors when using non-official Bit.ly  plugins alongside Jetpack. [#30415]
+- Internationalization: add necessary context to the word "Trash" in the Contact Form interface. [#30507]
+- Security: ensure blocks are always fully displayed on your site, even when using a caching plugin. [#30413]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Fixes a bug on WP.com Simple, which is not fully updated to 6.2 yet. [#30485]
+- Fixes to integration with image-cdn [#30445]
+- Hotfix for a typo in the map provider code [#30451]
+- Updated package dependencies.
+- Use contact form implementation from automattic/jetpack-forms by default [#28791]
+- wpcom/v3/blogging-prompts endpoint: add param to force prompt dates to be a specific year [#30255]
+
 ## 12.2-a.1 - 2023-05-02
 ### Enhancements
 - Add Mapkit maps [#29098]

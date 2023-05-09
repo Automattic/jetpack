@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+The new Jetpack Forms feedback WP Admin page is now enabled. The old page remains the default for the time being and all users can opt-in to see the new interface by using the 'view' swtich in the top right corner.

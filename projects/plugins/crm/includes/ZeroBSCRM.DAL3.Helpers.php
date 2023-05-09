@@ -3564,134 +3564,6 @@ function zeroBS___________DAL30Helpers(){return;}
 
 	}
 
-	// outdated pain, use direct calls not this plz. kthx.
-	function zeroBS_getCompaniesv2(
-
-		$withFullDetails=false,
-		$perPage=10,
-		$page=0,
-		$searchPhrase='',
-		$argsOverride=false,
-		$hasTagIDs='',
-		$inArr = '',
-		$withTags=false,
-		$withAssigned=false,
-		$withLastLog=false,
-		$sortByField='',
-		$sortOrder='DESC',
-		$quickFilters=false,
-		$withTransactions=false,
-		$withInvoices=false,
-		$withQuotes=false,
-		$withValues=false
-
-	){
-
-		// $withFullDetails = irrelevant with new DB2 (always returns)
-		// $argsOverride CAN NO LONGER WORK :)
-		if ($argsOverride !== false) zeroBSCRM_DEPRECATEDMSG('Use of $argsOverride in zeroBS_getCompaniesv2 is no longer relevant (DAL3.0)');
-
-		global $zbs;			
-
-			// legacy from dal1
-			$actualPage = $page;
-			if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
-			if ($actualPage < 0) $actualPage = 0;
-
-			// make ARGS
-			$args = array(				
-
-				// Search/Filtering (leave as false to ignore)
-				'searchPhrase' 	=> $searchPhrase,
-				'inArr'			=> $inArr,
-				'isTagged'		=> $hasTagIDs,
-				'quickFilters'  => $quickFilters,
-
-				'withCustomFields'	=> true,
-				'withQuotes' 		=> $withQuotes,
-				'withInvoices' 		=> $withInvoices,
-				'withTransactions' 	=> $withTransactions,
-				'withLogs' 			=> false,
-				'withLastLog'		=> $withLastLog,
-				'withTags' 			=> $withTags,
-				'withOwner' 		=> $withAssigned,
-				'withValues'		=> $withValues,
-
-				'sortByField' 	=> $sortByField,
-				'sortOrder' 	=> $sortOrder,
-				'page'			=> $actualPage,
-				'perPage'		=> $perPage,
-
-				'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_COMPANY)
-
-
-			);
-
-			return $zbs->DAL->companies->getCompanies($args);
-
-	}
-
-	// MS Cloned from getCustomers
-	// ... WH slightly cleaned
-	// ... NEEDS DB2 to wipe these out (centralise to 1 get func per type with $args)
-	// ... THIS IS A CLONE of getCompaniesv2 which just returns a TOTAL count 
-	// DAL3: Yup. DO NOT USE THIS IN NEW CODE.
-	function zeroBS_getCompaniesv2CountIncParams(
-
-		$searchPhrase='',
-		$argsOverride=false,
-		$hasTagIDs='',
-		$inArr = '',
-		$withTags=false,
-		$withAssigned=false,
-		$withLastLog=false,
-		$sortByField='',
-		$sortOrder='DESC',
-		$quickFilters=false
-
-		){
-
-		// $withFullDetails = irrelevant with new DB2 (always returns)
-		// $argsOverride CAN NO LONGER WORK :)
-		if ($argsOverride !== false) zeroBSCRM_DEPRECATEDMSG('Use of $argsOverride in zeroBS_getCompaniesv2CountIncParams is no longer relevant (DAL3.0)');
-
-		global $zbs;			
-
-			// make ARGS
-			$args = array(				
-
-				// Search/Filtering (leave as false to ignore)
-				'searchPhrase' 	=> $searchPhrase,
-				'inArr'			=> $inArr,
-				'isTagged'		=> $hasTagIDs,
-				'quickFilters'  => $quickFilters,
-
-				// just count, don't need (even if passed above)
-				'count' 			=> true,
-				'withCustomFields'	=> false,
-				'withQuotes' 		=> false,
-				'withInvoices' 		=> false,
-				'withTransactions' 	=> false,
-				'withLogs' 			=> false,
-				'withLastLog'		=> false,
-				'withTags' 			=> false,
-				'withOwner' 		=> false,
-
-				//'sortByField' 	=> $sortByField,
-				//'sortOrder' 	=> $sortOrder,
-				'page'			=> -1,
-				'perPage'		=> -1,
-
-				'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_COMPANY)
-
-
-			);
-
-			return $zbs->DAL->companies->getCompanies($args);
-
-
-	}
-
 	// returns email for a company
 	function zeroBS_companyEmail($companyID='',$companyArr=false){
 		
@@ -5612,6 +5484,25 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 		return false;
 	}
 
+/**
+ * Helper function to calculate the number of deleted invoices for any particular contact / company.
+ *
+ * @param array $all_invoices An array of all invoice or transaction data for a contact / company.
+ *
+ * @returns int An int with the deleted invoices count.
+ */
+function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
+	if ( empty( $all_invoices ) ) {
+		return 0;
+	}
+	$count_deleted = 0;
+	foreach ( $all_invoices as $invoice ) {
+		if ( $invoice['status'] === __( 'Deleted', 'zero-bs-crm' ) ) {
+			++$count_deleted;
+		}
+	}
+	return $count_deleted;
+}
 
 /* ======================================================
   	/ Invoice helpers

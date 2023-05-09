@@ -43,6 +43,8 @@ export const settings = {
 		_x( 'images', 'block search term', 'jetpack' ),
 		_x( 'photos', 'block search term', 'jetpack' ),
 		_x( 'pictures', 'block search term', 'jetpack' ),
+		_x( 'help', 'block search term', 'jetpack' ),
+		_x( 'assistant', 'block search term', 'jetpack' ),
 	],
 	supports: {
 		// Setting this to false suppress the ability to edit a block’s markup individually. We often set this to false in Jetpack blocks.
