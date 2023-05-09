@@ -22,7 +22,7 @@ const ImageWithSelect = ( { image, inModal = false, saveImage, setImageModal } )
 			</FlexBlock>
 			{ ! inModal && (
 				<FlexBlock>
-					<Flex direction="column" style={ { 'align-items': 'center' } }>
+					<Flex direction="column" style={ { alignItems: 'center' } }>
 						<FlexItem>
 							<Button variant="primary" onClick={ () => saveImage( image ) }>
 								{ __( 'Use this image', 'jetpack' ) }
