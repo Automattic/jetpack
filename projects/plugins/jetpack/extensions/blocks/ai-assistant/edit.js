@@ -99,7 +99,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		replaceBlocks( clientId, rawHandler( { HTML: attributes.content } ) );
 	};
 
-	const retry = () => {
+	const handleTryAgain = () => {
 		setAttributes( { content: undefined } );
 	};
 
@@ -152,10 +152,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 				handleAcceptContent={ handleAcceptContent }
 				handleGetSuggestion={ handleGetSuggestion }
+				handleTryAgain={ handleTryAgain }
 				isWaitingState={ isWaitingState }
 				loadingImages={ loadingImages }
 				placeholder={ placeholder }
-				retry={ retry }
 				showRetry={ showRetry }
 				setAiType={ setAiType }
 				setUserPrompt={ setUserPrompt }
