@@ -160,6 +160,9 @@ class Dashboard {
 	 * @return boolean
 	 */
 	private function has_feedback() {
+		// We want to hold the redirection logic a bit for now
+		return true;
+
 		$posts = new \WP_Query(
 			array(
 				'post_type'   => 'feedback',
