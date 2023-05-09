@@ -1,8 +1,7 @@
-import { BlockControls } from '@wordpress/block-editor';
+import { BlockControls, PlainText } from '@wordpress/block-editor';
 import {
 	Button,
 	Icon,
-	TextareaControl,
 	ToolbarButton,
 	ToolbarDropdownMenu,
 	ToolbarGroup,
@@ -66,10 +65,9 @@ const AIControl = ( {
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
 				{ ( ( ! content && isWaitingState ) || loadingImages ) && <Loading /> }
-				<TextareaControl
+				<PlainText
 					onChange={ value => setUserPrompt( value ) }
 					onKeyPress={ handleInputEnter }
-					rows="1"
 					placeholder={ isWaitingState ? __( 'AI writing', 'jetpack' ) : placeholder }
 					className="jetpack-ai-assistant__input"
 				/>

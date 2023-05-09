@@ -22,24 +22,14 @@
 
 .jetpack-ai-assistant__input-wrapper {
 	display: flex;
-	align-items: top;
 	padding: 4px 4px;
 	box-shadow: var(--wp--preset--color--cyan-bluish-gray) 0px 0px 0px 1px, var(--wp--preset--color--cyan-bluish-gray) 0px 3px 6px, var(--wp--preset--color--cyan-bluish-gray) 0px 9px 24px;
 
-	.jetpack-ai-assistant__input {
+	textarea.jetpack-ai-assistant__input {
 		flex-grow: 1;
 		margin-right: 12px;
-
-		.components-base-control__field {
-			margin-bottom: 0;
-		}
-
-		textarea {
-			display: block;
-			resize: none;
-			border: none;
-			box-shadow: none;
-		}
+		margin-left: 4px;
+		resize: none !important;
 	}
 }
 
