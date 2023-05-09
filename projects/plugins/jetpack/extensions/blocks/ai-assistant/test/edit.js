@@ -53,7 +53,6 @@ describe( 'AIParagraphEdit', () => {
 		// expect( createPrompt( 'title', [ fakeBlock, fakeBlock ], 'cat 1', '' ) ).toBe(
 		// 	"Please help me write a short piece of a blog post titled 'title', published in categories 'cat 1'. Please only output generated content ready for publishing. Please continue from here:\n\n … content\ncontent"
 		// );
->>>>>>> trunk
 
 		// Test only cats
 		expect( createPrompt( '', [ fakeBlock ], 'cat1', 'tag1' ) ).toBe(
