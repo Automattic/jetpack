@@ -1572,12 +1572,17 @@ class Woo_Sync {
 	/**
 	 * Translates a WooCommerce order status to the equivalent settings key
 	 *
-	 * @param string $crm_type The type of CRM object: [ 'contact', 'invoice', 'transaction' ]
+	 * @param string $obj_type_id Object type ID.
 	 *
 	 * @return array The associated settings key array [ $order_status => $settings_key ]
 	 */
-	public function woo_order_status_mapping( $crm_type ) {
-		$setting_prefix = $this->get_woo_order_mapping_types()[ $crm_type ]['prefix'];
+	public function woo_order_status_mapping( $obj_type_id ) {
+		global $zbs;
+
+		// convert to key for use in legacy setting name
+		$obj_type_key = $zbs->DAL->objTypeKey( $obj_type_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+		$setting_prefix = $this->get_woo_order_mapping_types()[ $obj_type_key ]['prefix'];
 
 		return array(
 			'completed'      => $setting_prefix . 'wccompleted',
@@ -1615,7 +1620,7 @@ class Woo_Sync {
 		}
 
 		// mappings
-		$woo_order_status_mapping = $this->woo_order_status_mapping( 'contact' );
+		$woo_order_status_mapping = $this->woo_order_status_mapping( $obj_type_id );
 
 		if (
 			! empty( $settings[ $woo_order_status_mapping[ $order_status ] ] )
@@ -1628,7 +1633,7 @@ class Woo_Sync {
 			return $default_status;
 		}
 
-		// use provided order status as fallback contact status (though this should never occur)
+		// use provided order status as fallback status
 		return $order_status;
 	}
 
