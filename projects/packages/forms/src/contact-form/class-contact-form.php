@@ -1397,11 +1397,11 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( is_user_logged_in() ) {
 			$sent_by_text = sprintf(
 				// translators: the name of the site.
-				'<br />' . __( 'Sent by a verified %s user.', 'jetpack-forms' ) . '<br />',
+				'<br />' . esc_html__( 'Sent by a verified %s user.', 'jetpack-forms' ) . '<br />',
 				isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ? $GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
 			);
 		} else {
-			$sent_by_text = '<br />' . __( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '<br />';
+			$sent_by_text = '<br />' . esc_html__( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '<br />';
 		}
 
 		$footer = implode(
