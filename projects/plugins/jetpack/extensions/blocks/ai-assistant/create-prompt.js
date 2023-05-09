@@ -32,15 +32,15 @@ export const createPrompt = (
 	userPrompt = '',
 	type = 'userPrompt'
 ) => {
-	if ( ! postTitle?.length ) {
-		return '';
-	}
-
 	if ( type === 'userPrompt' ) {
 		return userPrompt + PROMPT_SUFFIX;
 	}
 
 	if ( type === 'titleSummary' ) {
+		if ( ! postTitle?.length ) {
+			return '';
+		}
+
 		const titlePrompt = sprintf(
 			/** translators: This will be the beginning of a prompt that will be sent to OpenAI based on the post title. */
 			__( "Please help me write a short piece of a blog post titled '%1$s'", 'jetpack' ),
