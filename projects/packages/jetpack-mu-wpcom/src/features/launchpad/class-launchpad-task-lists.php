@@ -395,14 +395,6 @@ class Launchpad_Task_Lists {
 				}
 			}
 		}
-
-		$active_tasks = wp_list_filter( $this->get_active_tasks( $task_list_id ), array( 'add_listener_callback' => true ) );
-		foreach ( $active_tasks as $task ) {
-			$task_definition = $this->get_task( $task['id'] );
-			if ( isset( $task_definition['add_listener_callback'] ) && is_callable( $task_definition['add_listener_callback'] ) ) {
-				call_user_func_array( $task_definition['add_listener_callback'], array( $task, $task_definition ) );
-			}
-		}
 	}
 
 	/**
