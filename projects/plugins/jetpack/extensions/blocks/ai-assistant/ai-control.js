@@ -119,6 +119,15 @@ const ToolbarControls = ( {
 						</ToolbarButton>
 					) }
 
+					{ ! showRetry && ! contentIsLoaded && ! contentBefore?.length && (
+						<ToolbarButton
+							icon={ title }
+							onClick={ () => getSuggestionFromOpenAI( 'titleSummary' ) }
+						>
+							{ __( 'Write a summary based on title', 'jetpack' ) }
+						</ToolbarButton>
+					) }
+
 					{ ! showRetry && ! contentIsLoaded && (
 						<ToolbarDropdownMenu
 							label="More"
