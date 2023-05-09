@@ -4,6 +4,7 @@
 import { Button, TextControl, KeyboardShortcuts, ExternalLink } from '@wordpress/components';
 import { RawHTML, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import MarkdownIt from 'markdown-it';
 /**
  * Internal dependencies
  */
@@ -14,9 +15,15 @@ export default function QuestionAnswer() {
 	const [ answer, setAnswer ] = useState( '' );
 	const [ aiResponse, setAiResponse ] = useState( '' );
 
+	const markdownConverter = new MarkdownIt( { html: true } );
+
 	useEffect( () => {
 		if ( aiResponse !== '' && aiResponse !== undefined ) {
-			setAnswer( `${ answer }${ aiResponse }` );
+			if ( aiResponse === '[DONE]' ) {
+				setAnswer( markdownConverter.render( `${ answer }` ) );
+			} else {
+				setAnswer( markdownConverter.renderInline( `${ answer }${ aiResponse }` ) );
+			}
 		}
 	}, [ aiResponse ] );
 
@@ -24,6 +31,7 @@ export default function QuestionAnswer() {
 		useSubmitQuestion( setAiResponse );
 
 	const handleSubmitQuestion = () => {
+		setAnswer( '' );
 		submitQuestion();
 	};
 

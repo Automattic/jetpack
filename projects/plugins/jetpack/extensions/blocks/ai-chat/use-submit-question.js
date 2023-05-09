@@ -47,6 +47,7 @@ export default function useSubmitQuestion( setAiResponse ) {
 
 			source.addEventListener( 'message', e => {
 				if ( e.data === '[DONE]' ) {
+					setAiResponse( '[DONE]' );
 					source.close();
 					setCallOpenAI( false );
 					return;
