@@ -122,11 +122,11 @@ final class Data_Sync {
 		foreach ( $this->registry->all() as $key => $entry ) {
 
 			$data[ $key ] = array(
-				'value' => $entry->is( Lazy_Entry::class) ? null : $entry->get(),
+				'value' => $entry->is( Lazy_Entry::class ) ? null : $entry->get(),
 				'nonce' => $this->registry->get_endpoint( $key )->create_nonce(),
 			);
 
-			if( $entry->is( Lazy_Entry::class) ) {
+			if ( $entry->is( Lazy_Entry::class ) ) {
 				$data[ $key ]['lazy'] = true;
 			}
 		}
