@@ -11,6 +11,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Redirect;
+
 $text_dir = is_rtl() ? 'rtl' : 'ltr';
 
 // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- used in class-contact-form.php
@@ -236,9 +238,9 @@ $template = '
 											</tr>
 											<tr>
 												<td align="left" class="footer-november-2022-app-links" style="border-collapse: collapse;">
-													<a href="https://play.google.com/store/apps/details?id=com.jetpack.android" style="color: #00AADC; text-decoration: none; width: 115px; display: inline-block; margin-bottom: 64px;"><img src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/play-store-badge.png" class="footer-november-2022-app-image" width="115" height="33" style="line-height: 100%%;outline: none; text-decoration: none; border: 0 none; display: inline-block; height: 33px;"></a>
+													<a href="' . esc_url( Redirect::get_url( 'jetpack-android' ) ) . '" style="color: #00AADC; text-decoration: none; width: 115px; display: inline-block; margin-bottom: 64px;"><img src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/play-store-badge.png" class="footer-november-2022-app-image" width="115" height="33" style="line-height: 100%%;outline: none; text-decoration: none; border: 0 none; display: inline-block; height: 33px;"></a>
 
-													<a href="https://apps.apple.com/us/app/jetpack-website-builder/id1565481562" style="color: #00AADC; text-decoration: none; width: 115px; display: inline-block; margin-bottom: 64px;"><img src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/app-store-badge.png" class="footer-november-2022-app-image" width="115" height="33" style="line-height: 100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block; height: 33px;"></a>
+													<a href="' . esc_url( Redirect::get_url( 'jetpack-ios' ) ) . '" style="color: #00AADC; text-decoration: none; width: 115px; display: inline-block; margin-bottom: 64px;"><img src="https://s0.wp.com/wp-content/mu-plugins/html-emails/themes/jetpack/images/app-store-badge.png" class="footer-november-2022-app-image" width="115" height="33" style="line-height: 100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block; height: 33px;"></a>
 												</td>
 											</tr>
 											<tr>
