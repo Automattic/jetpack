@@ -46,7 +46,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 				'withExternalSourcesGrouped' => true,
 
 				// but we limit to the top 20 (quotes, invs, trans etc.)
-				// note that this means we have to add calls to contactHasCountObjType, but it protects against contacts with 1000 objs etc.
+				// note that this means we have to add calls to specific_obj_type_count_for_assignee, but it protects against contacts with 1000 objs etc.
 				// Note this is defunct until we add contact filters to our object list views.
 				// 'withObjLimit' => 20,
 
@@ -74,10 +74,16 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 		}
 
 		// contact obj counts
-		$contact_quote_count       = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_QUOTE );
-		$contact_invoice_count     = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_INVOICE );
-		$contact_transaction_count = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_TRANSACTION );
-		$contact_task_count        = $zbs->DAL->contacts->contactHasCountObjType( $id, ZBS_TYPE_EVENT );
+		$contact_quote_count   = $zbs->DAL->specific_obj_type_count_for_assignee( $id, ZBS_TYPE_QUOTE, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$contact_invoice_count = 0;
+		if ( isset( $contact['invoices_count'] ) ) {
+			$contact_invoice_count = $contact['invoices_count'];
+		}
+		$contact_invoice_count_inc_deleted = 0;
+		if ( isset( $contact['invoices_count_inc_deleted'] ) ) {
+			$contact_invoice_count_inc_deleted = $contact['invoices_count_inc_deleted'];
+		}
+		$contact_transaction_count = $zbs->DAL->specific_obj_type_count_for_assignee( $id, ZBS_TYPE_TRANSACTION ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 		// socials
 		global $zbsSocialAccountTypes;
@@ -297,17 +303,17 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 				}
 
 				// values - DAL3 we get them passed all nicely :)
-				$contactTotalValue = 0;
+				$contact_total_value = 0;
 				if ( isset( $contact['total_value'] ) ) {
-					$contactTotalValue = $contact['total_value'];
+					$contact_total_value = $contact['total_value'];
 				}
 				$contactQuotesValue = 0;
 				if ( isset( $contact['quotes_total'] ) ) {
 					$contactQuotesValue = $contact['quotes_total'];
 				}
-				$contactInvoicesValue = 0;
+				$contact_invoices_value = 0;
 				if ( isset( $contact['invoices_total'] ) ) {
-					$contactInvoicesValue = $contact['invoices_total'];
+					$contact_invoices_value = $contact['invoices_total'];
 				}
 				$contactTransactionsValue = 0;
 				if ( isset( $contact['transactions_total'] ) ) {
@@ -374,8 +380,8 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						<tbody>
 						<?php if ( $useInvoices == '1' || $useTrans == '1' ) : ?>
 						<tr class="zbs-view-vital-totalvalue">
-							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( 'Total Value is all transaction types and any unpaid invoices', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
-							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $contactTotalValue ) ); ?></strong></td>
+							<td class="zbs-view-vital-label"><strong><?php esc_html_e( 'Total Value', 'zero-bs-crm' ); ?><i class="circle info icon link" data-content="<?php esc_attr_e( 'Total Value is all transaction types and any unpaid invoices (excluding deleted status invoices).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></strong></td>
+							<td><strong><?php echo esc_html( zeroBSCRM_formatCurrency( $contact_total_value ) ); ?></strong></td>
 						</tr>
 						<?php endif; ?>
 						<?php if ( $useQuotes == '1' ) { ?>
@@ -394,11 +400,11 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						<?php } ?>
 							<?php if ( $useInvoices == '1' ) { ?>
 						<tr class="zbs-view-vital-invoices">
-							<td class="zbs-view-vital-label"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Invoices: This shows the total sum of your invoices & count.', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
+							<td class="zbs-view-vital-label"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?> <i class="circle info icon link" data-content="<?php esc_attr_e( 'Invoices: This shows the total sum of your invoices & count (excluding deleted status invoices).', 'zero-bs-crm' ); ?>" data-position="bottom center"></i></td>
 							<td>
 								<?php
 								if ( $contact_invoice_count > 0 ) {
-									echo esc_html( zeroBSCRM_formatCurrency( $contactInvoicesValue ) . ' (' . zeroBSCRM_prettifyLongInts( $contact_invoice_count ) . ')' );
+									echo esc_html( zeroBSCRM_formatCurrency( $contact_invoices_value ) . ' (' . zeroBSCRM_prettifyLongInts( $contact_invoice_count ) . ')' );
 								} else {
 									esc_html_e( 'None', 'zero-bs-crm' );
 								}
@@ -848,7 +854,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 							// prep link to create a new invoice
 							$new_invoice_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_INVOICE ) . '&zbsprefillcust=' . $contact['id'];
-							if ( count( $contact['invoices'] ) > 0 ) {
+							if ( $contact_invoice_count_inc_deleted > 0 ) {
 
 								foreach ( $contact['invoices'] as $invoice ) {
 
@@ -884,7 +890,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 
 								// if we have more than we're showing, communicate that
 								// Note this is defunct until we add contact filters to our object list views.
-								if ( count( $contact['invoices'] ) > $contact_invoice_count ) {
+								if ( count( $contact['invoices'] ) > $contact_invoice_count_inc_deleted ) {
 									?>
 							<tr>
 								<td colspan="4">

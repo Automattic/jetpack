@@ -9,7 +9,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * External dependencies
  */
-import { View, Text } from 'react-native';
+import { View, Text, Platform } from 'react-native';
 /**
  * Internal dependencies
  */
@@ -115,6 +115,7 @@ export default function Player( { isSelected, attributes } ) {
 		return () => clearTimeout( previewCheckTimer.current );
 	}, [ preview, isPlayerLoaded, isRequestingEmbedPreview, previewCheckAttempts ] );
 
+	// Handle events from the embed
 	const onSandboxMessage = useCallback( message => {
 		switch ( message.event ) {
 			case 'videopress_ready':
@@ -124,6 +125,12 @@ export default function Player( { isSelected, attributes } ) {
 				setIsPlayerLoaded( message?.state === 'loaded' );
 				break;
 		}
+	}, [] );
+
+	// Android does not receive a 'videopress_ready' event,
+	// so we need to set the player as ready when the WebView loads.
+	const onLoadEnd = useCallback( () => {
+		Platform.OS === 'android' && setIsPlayerReady( true );
 	}, [] );
 
 	const loadingOverlay = (
@@ -151,6 +158,7 @@ export default function Player( { isSelected, attributes } ) {
 					html={ html }
 					onWindowEvents={ { message: onSandboxMessage } }
 					viewportProps="user-scalable=0"
+					onLoadEnd={ onLoadEnd }
 				/>
 			) }
 		</View>
