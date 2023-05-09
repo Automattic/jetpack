@@ -45,6 +45,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		showRetry,
 		contentBefore,
 		postTitle,
+		retryRequest,
 	} = useSuggestionsFromOpenAI( {
 		clientId,
 		content: attributes.content,
@@ -116,7 +117,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	const handleGetSuggestion = () => {
 		if ( aiType === 'text' ) {
-			getSuggestionFromOpenAI();
+			retryRequest();
 			return;
 		}
 
