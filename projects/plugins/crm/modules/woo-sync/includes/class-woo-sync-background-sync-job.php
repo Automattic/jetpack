@@ -1170,10 +1170,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	    }
 
-	    $order_status_to_invoice_settings     = $this->woosync()->woo_order_status_mapping( 'invoice' );
-	    $order_status_to_transaction_settings = $this->woosync()->woo_order_status_mapping( 'transaction' );
-	    $valid_transaction_statuses           = zeroBSCRM_getTransactionsStatuses( true );
-	    $valid_invoice_statuses               = zeroBSCRM_getInvoicesStatuses();
 	    // pre-processing from the $order_data
 	    $order_status   = $order_data['status'];
 	    $order_currency = $order_data['currency'];
