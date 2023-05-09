@@ -213,7 +213,10 @@ function NewsletterAccessRadioButtons( {
 						id={ `editor-post-${ key }-${ instanceId }` }
 						name={ `editor-newsletter-access__setting-${ instanceId }` }
 						aria-describedby={ `editor-post-${ key }-${ instanceId }-description` }
-						disabled={ key === accessOptions.paid_subscribers.key && ! isStripeConnected }
+						disabled={
+							key === accessOptions.paid_subscribers.key &&
+							( ! isStripeConnected || ! hasNewsletterPlans )
+						}
 						onChange={ event => {
 							const obj = {};
 							obj[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] = event?.target?.value;
