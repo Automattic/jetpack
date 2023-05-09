@@ -262,7 +262,7 @@ CSS
 	public function get_preferred_view() {
 		$preferred_view = get_user_option( 'jetpack_forms_admin_preferred_view' );
 
-		return in_array( $preferred_view, array( self::CLASSIC_VIEW, self::MODERN_VIEW ), true ) ? $preferred_view : self::MODERN_VIEW;
+		return in_array( $preferred_view, array( self::CLASSIC_VIEW, self::MODERN_VIEW ), true ) ? $preferred_view : self::CLASSIC_VIEW;
 	}
 
 	/**

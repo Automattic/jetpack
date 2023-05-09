@@ -7,7 +7,7 @@ use Automattic\Jetpack_Boost\Lib\Minify\Concatenate_CSS;
 
 class Minify_CSS implements Pluggable {
 
-	public static $default_excludes = array( 'admin-bar', 'dashicons' );
+	public static $default_excludes = array( 'admin-bar', 'dashicons', 'elementor-app' );
 
 	public function setup() {
 		require_once JETPACK_BOOST_DIR_PATH . '/app/lib/minify/functions-helpers.php';

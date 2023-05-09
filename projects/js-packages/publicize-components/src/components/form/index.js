@@ -22,6 +22,9 @@ import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
+const checkConnectionCode = ( connection, code ) =>
+	false === connection.is_healthy && code === ( connection.error_code ?? 'broken' );
+
 /**
  * The Publicize form component. It contains the connection list, and the message box.
  *
@@ -53,7 +56,12 @@ export default function PublicizeForm( {
 		isSocialImageGeneratorEnabled && isSocialImageGeneratorEnabledForPost;
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
-	const brokenConnections = connections.filter( connection => false === connection.is_healthy );
+	const brokenConnections = connections.filter( connection =>
+		checkConnectionCode( connection, 'broken' )
+	);
+	const unsupportedConnections = connections.filter( connection =>
+		checkConnectionCode( connection, 'unsupported' )
+	);
 
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
@@ -74,6 +82,39 @@ export default function PublicizeForm( {
 			}
 		},
 		[ autosave, isEditedPostDirty ]
+	);
+
+	const renderNotices = () => (
+		<>
+			{ brokenConnections.length > 0 && (
+				<Notice type={ 'error' }>
+					{ createInterpolateElement(
+						_n(
+							'One of your social connections is broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
+							'Some of your social connections are broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
+							brokenConnections.length,
+							'jetpack'
+						),
+						{
+							fixLink: <ExternalLink href={ connectionsAdminUrl } />,
+						}
+					) }
+				</Notice>
+			) }
+			{ unsupportedConnections.length > 0 && (
+				<Notice type={ 'error' }>
+					{ createInterpolateElement(
+						__(
+							'Twitter is not supported anymore. <moreInfo>Learn more here</moreInfo>.',
+							'jetpack'
+						),
+						{
+							moreInfo: <ExternalLink href={ connectionsAdminUrl } />,
+						}
+					) }
+				</Notice>
+			) }
+		</>
 	);
 
 	return (
@@ -133,21 +174,7 @@ export default function PublicizeForm( {
 							</Notice>
 						</PanelRow>
 					) }
-					{ brokenConnections.length > 0 && (
-						<Notice type={ 'error' }>
-							{ createInterpolateElement(
-								_n(
-									'One of your social connections is broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
-									'Some of your social connections are broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
-									brokenConnections.length,
-									'jetpack'
-								),
-								{
-									fixLink: <ExternalLink href={ connectionsAdminUrl } />,
-								}
-							) }
-						</Notice>
-					) }
+					{ renderNotices() }
 					<PanelRow>
 						<ul className={ styles[ 'connections-list' ] }>
 							{ connections.map(

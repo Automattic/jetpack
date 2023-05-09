@@ -745,7 +745,7 @@ class Jetpack_Gutenberg {
 				 * Prevent the registration of the blocks from extensions/blocks/contact-form
 				 * if the Forms package is enabled.
 				 */
-				'is_form_package_enabled'       => apply_filters( 'jetpack_contact_form_use_package', false ),
+				'is_form_package_enabled'       => apply_filters( 'jetpack_contact_form_use_package', true ),
 			),
 			'siteFragment'     => $status->get_site_suffix(),
 			'adminUrl'         => esc_url( admin_url() ),
