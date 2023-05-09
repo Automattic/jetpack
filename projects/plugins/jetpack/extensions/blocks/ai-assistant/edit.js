@@ -115,9 +115,9 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			? __( 'Write a paragraph about …', 'jetpack' )
 			: __( 'What would you like to see?', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
-	const handleGetSuggestion = () => {
+	const handleGetSuggestion = type => {
 		if ( aiType === 'text' ) {
-			retryRequest();
+			getSuggestionFromOpenAI( type );
 			return;
 		}
 
