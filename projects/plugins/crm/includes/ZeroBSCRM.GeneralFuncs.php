@@ -1584,11 +1584,11 @@ function jpcrm_generate_pdf( $html, $pdf_filename ) {
 }
 
 /**
-* Returns a string for disabling browser autocomplete
-* Ideally we'd just use "off", but support is not complete: https://caniuse.com/input-autocomplete-onoff
-*
-* @return string A randomish string.
-*/
+ * Returns a string for disabling browser autocomplete
+ * Ideally we'd just use "off", but support is not complete: https://caniuse.com/input-autocomplete-onoff
+ *
+ * @return string A randomish string.
+ */
 function jpcrm_disable_browser_autocomplete() {
 	return time() . '-' . wp_rand( 0, 100 );
 }
