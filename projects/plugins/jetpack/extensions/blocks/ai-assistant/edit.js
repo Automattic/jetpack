@@ -167,6 +167,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				setUserPrompt={ setUserPrompt }
 				contentBefore={ contentBefore }
 				postTitle={ postTitle }
+				userPrompt={ userPrompt }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
