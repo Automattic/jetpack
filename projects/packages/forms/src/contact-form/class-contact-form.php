@@ -1396,7 +1396,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( is_user_logged_in() ) {
 			$sent_by_text = sprintf(
-				// translators: the the name of the site.
+				// translators: the name of the site.
 				'<br />' . __( 'Sent by a verified %s user.', 'jetpack-forms' ) . '<br />',
 				isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ? $GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
 			);
