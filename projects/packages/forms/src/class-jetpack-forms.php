@@ -47,6 +47,13 @@ class Jetpack_Forms {
 	}
 
 	/**
+	 * Get the assets URL.
+	 */
+	public static function assets_url() {
+		return plugin_dir_url( __DIR__ ) . 'assets';
+	}
+
+	/**
 	 * Returns true if the feedback dashboard is enabled.
 	 *
 	 * @return boolean
