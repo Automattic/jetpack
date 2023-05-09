@@ -283,8 +283,11 @@ function jetpack_boost_minify_setup() {
 	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
 	jetpack_boost_page_optimize_schedule_cache_cleanup();
 
-	// Disable Jetpack Site Accelerator CDN for static JS/CSS, if we're minifying this page.
 	if ( ! jetpack_boost_page_optimize_bail() ) {
+		// Disable Jetpack Site Accelerator CDN for static JS/CSS, if we're minifying this page.
 		add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
+
+		// Setup wp_filesystem for use.
+		jetpack_boost_init_filesystem();
 	}
 }

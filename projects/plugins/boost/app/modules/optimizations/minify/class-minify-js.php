@@ -18,8 +18,6 @@ class Minify_JS implements Pluggable {
 			return;
 		}
 
-		jetpack_boost_init_filesystem();
-
 		add_action( 'init', array( $this, 'init_minify' ) );
 	}
 
