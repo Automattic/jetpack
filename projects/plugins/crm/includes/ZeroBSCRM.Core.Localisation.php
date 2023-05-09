@@ -302,105 +302,6 @@ function zeroBSCRM_date_defaultFormat() {
 	return $format;
 }
 
-function zeroBSCRM_date_forceEN( $time = -1 ) {
-
-	if ( $time > 0 ) {
-
-		// Note: Because this continued to be use for task scheduler workaround (before we got to rewrite the locale timestamp saving)
-		// ... we functionised in Core.Localisation.php to keep it DRY
-
-		// temp pre v3.0 fix, forcing english en for this datepicker only.
-		// requires js mod: search #forcedlocaletasks
-		// (Month names are localised, causing a mismatch here (Italian etc.))
-		// ... so we translate:
-		// d F Y H:i:s (date - not locale based)
-		// https://www.php.net/manual/en/function.date.php
-		// ... into
-		// dd MMMM yyyy HH:mm:ss (IntlDateFormatter - locale based date)
-		// (https://www.php.net/manual/en/class.intldateformatter.php)
-
-		// @todo - this is to be refactored.
-		zeroBSCRM_locale_setServerLocale( 'en_US' );
-		// phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.strftimeDeprecated
-		$r = strftime( '%d %B %Y %H:%M:%S', $time );
-		zeroBSCRM_locale_resetServerLocale();
-
-		return $r;
-
-	}
-
-	return false;
-}
-
-// https://stackoverflow.com/questions/16702398/convert-a-php-date-format-to-a-jqueryui-datepicker-date-format
-// We need this to take WP locale -> datetimepicker
-/*
- * Matches each symbol of PHP date format standard
- * with jQuery equivalent codeword
- * @author Tristan Jahier
- */
-/*
-this one didn't work, see next
-function zeroBSCRM_date_tojQueryUI($php_format='')
-{
-	$SYMBOLS_MATCHING = array(
-		// Day
-		'd' => 'dd',
-		'D' => 'D',
-		'j' => 'd',
-		'l' => 'DD',
-		'N' => '',
-		'S' => '',
-		'w' => '',
-		'z' => 'o',
-		// Week
-		'W' => '',
-		// Month
-		'F' => 'MM',
-		'm' => 'mm',
-		'M' => 'M',
-		'n' => 'm',
-		't' => '',
-		// Year
-		'L' => '',
-		'o' => '',
-		'Y' => 'yy',
-		'y' => 'y',
-		// Time
-		'a' => '',
-		'A' => '',
-		'B' => '',
-		'g' => '',
-		'G' => '',
-		'h' => '',
-		'H' => '',
-		'i' => '',
-		's' => '',
-		'u' => ''
-	);
-	$jqueryui_format = "";
-	$escaping = false;
-	for($i = 0; $i < strlen($php_format); $i++)
-	{
-		$char = $php_format[$i];
-		if($char === '\\') // PHP date format escaping character
-		{
-			$i++;
-			if($escaping) $jqueryui_format .= $php_format[$i];
-			else $jqueryui_format .= '\'' . $php_format[$i];
-			$escaping = true;
-		}
-		else
-		{
-			if($escaping) { $jqueryui_format .= "'"; $escaping = false; }
-			if(isset($SYMBOLS_MATCHING[$char]))
-				$jqueryui_format .= $SYMBOLS_MATCHING[$char];
-			else
-				$jqueryui_format .= $char;
-		}
-	}
-	return $jqueryui_format;
-} */
 // https://stackoverflow.com/questions/16702398/convert-a-php-date-format-to-a-jqueryui-datepicker-date-format
 // further down
 // We need this to take WP locale -> datetimepicker
@@ -695,21 +596,6 @@ function zeroBSCRM_locale_getServerLocale() {
 	// https://stackoverflow.com/questions/29932843/php-get-current-locale
 	// limited use, e.g. flywheel returns 'C'
 	return setlocale( LC_ALL, 0 );
-}
-// setLocale wrapper
-// https://www.php.net/manual/en/function.setlocale.php
-function zeroBSCRM_locale_setServerLocale( $localeString = 'en_US' ) {
-
-	setlocale( LC_ALL, $localeString );
-}
-// reset locale to server default
-// https://www.php.net/manual/en/locale.getdefault.php
-function zeroBSCRM_locale_resetServerLocale() {
-
-		// This only works if intl installed (not default install for a lot of servs e.g. flywheel)
-	if ( class_exists( 'Locale' ) ) {
-		setlocale( LC_ALL, Locale::getDefault() );
-	}
 }
 
 /*

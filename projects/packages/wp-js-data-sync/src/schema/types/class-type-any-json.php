@@ -2,9 +2,9 @@
 
 namespace Automattic\Jetpack\WP_JS_Data_Sync\Schema\Types;
 
-use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema_Type;
+use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Parser;
 
-class Type_Any_JSON implements Schema_Type {
+class Type_Any_JSON implements Parser {
 	public function parse( $json_data ) {
 
 		if ( ! is_array( $json_data ) ) {

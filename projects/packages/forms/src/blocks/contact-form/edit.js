@@ -141,6 +141,18 @@ export const JetpackContactFormEdit = forwardRef(
 		} );
 
 		useEffect( () => {
+			if (
+				! hasInnerBlocks &&
+				registerBlockVariation &&
+				! isPatternsModalOpen &&
+				window.location.search.indexOf( 'showJetpackFormsPatterns' ) !== -1
+			) {
+				setIsPatternsModalOpen( true );
+			}
+			// eslint-disable-next-line react-hooks/exhaustive-deps
+		}, [] );
+
+		useEffect( () => {
 			if ( to === undefined && postAuthorEmail ) {
 				setAttributes( { to: postAuthorEmail } );
 			}
