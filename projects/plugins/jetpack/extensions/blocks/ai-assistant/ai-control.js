@@ -16,6 +16,7 @@ const AIControl = ( {
 	content,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
+	retryRequest,
 	handleAcceptContent,
 	handleTryAgain,
 	handleGetSuggestion,
@@ -32,7 +33,7 @@ const AIControl = ( {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
 			event.preventDefault();
-			handleGetSuggestion();
+			handleGetSuggestion( 'userPrompt' );
 		}
 	};
 
@@ -52,6 +53,7 @@ const AIControl = ( {
 					animationDone={ animationDone }
 					contentIsLoaded={ contentIsLoaded }
 					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+					retryRequest={ retryRequest }
 					handleAcceptContent={ handleAcceptContent }
 					handleGetSuggestion={ handleGetSuggestion }
 					handleTryAgain={ handleTryAgain }
@@ -71,7 +73,7 @@ const AIControl = ( {
 				/>
 				<div className="jetpack-ai-assistant__controls">
 					<Button
-						onClick={ () => handleGetSuggestion() }
+						onClick={ () => handleGetSuggestion( 'userPrompt' ) }
 						isSmall={ true }
 						disabled={ isWaitingState || ! userPrompt?.length }
 						label={ __( 'Do some magic!', 'jetpack' ) }
@@ -91,9 +93,9 @@ const ToolbarControls = ( {
 	animationDone,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
+	retryRequest,
 	handleAcceptContent,
 	handleTryAgain,
-	handleGetSuggestion,
 	showRetry,
 	toggleAIType,
 	contentBefore,
@@ -151,7 +153,7 @@ const ToolbarControls = ( {
 						/>
 					) }
 					{ showRetry && (
-						<ToolbarButton icon={ update } onClick={ handleGetSuggestion }>
+						<ToolbarButton icon={ update } onClick={ retryRequest }>
 							{ __( 'Retry', 'jetpack' ) }
 						</ToolbarButton>
 					) }

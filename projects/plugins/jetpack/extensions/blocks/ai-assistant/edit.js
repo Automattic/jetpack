@@ -157,6 +157,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				content={ attributes.content }
 				contentIsLoaded={ contentIsLoaded }
 				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+				retryRequest={ retryRequest }
 				handleAcceptContent={ handleAcceptContent }
 				handleGetSuggestion={ handleGetSuggestion }
 				handleTryAgain={ handleTryAgain }
