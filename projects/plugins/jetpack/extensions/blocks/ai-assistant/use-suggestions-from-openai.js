@@ -165,6 +165,7 @@ const useSuggestionsFromOpenAI = ( {
 		setIsLoadingCategories,
 		setShowRetry,
 		showRetry,
+		postTitle: currentPostTitle,
 		contentBefore: getPartialContentToBlock( clientId ),
 	};
 };
