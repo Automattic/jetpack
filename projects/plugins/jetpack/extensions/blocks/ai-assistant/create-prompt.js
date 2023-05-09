@@ -60,6 +60,10 @@ export const createPrompt = (
 	contentBefore = contentBefore.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
 
 	if ( type === 'titleSummary' ) {
+		if ( ! postTitle?.length ) {
+			return '';
+		}
+
 		const additionalContextPrompt = contentBefore?.length
 			? sprintf(
 					/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/

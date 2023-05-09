@@ -20,6 +20,9 @@ describe( 'AIParagraphEdit', () => {
 		expect( createPrompt() ).toBeFalsy();
 		expect( createPrompt( '', [], '', '' ) ).toBeFalsy();
 
+		// Test Title summary - with content but no title
+		expect( createPrompt( '', 'some content', '', '', '', 'titleSummary' ) ).toBeFalsy();
+
 		// Test Title summary - no content
 		expect( createPrompt( 'The story of my life', '', '', '', '', 'titleSummary' ) ).toBe(
 			"Please help me write a short piece of a blog post titled 'The story of my life'" +
