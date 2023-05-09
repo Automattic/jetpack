@@ -258,7 +258,7 @@ $template = '
 											<tr>
 												<td align="left" style="border-collapse: collapse;">
 													<p class="footer-november-2022-unsub-text" style="direction: ltr; color: #101517; font-size: 12px; line-height: 1.5;">
-													<b style="font-weight: 600;">' . esc_html__( "Don\'t want these emails?", 'jetpack' ) . '</b>
+													<b style="font-weight: 600;">' . esc_html__( 'Don’t want these emails?', 'jetpack' ) . '</b>
 													<a href="%4$s" class="unsub" style="text-decoration: none; color: #101517;">' . esc_html__( 'Change the email address on your form', 'jetpack' ) . '</a>.
 													</p>
 												</td>
