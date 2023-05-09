@@ -11,8 +11,9 @@ function jetpack_boost_mock_api( $count, $paged = 1 ) {
 	// This is fine 🔥
 	// phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found
 	$iteration = 0;
+	$id = 1;
 	while ( count( $image_posts ) < $count ) {
-		if( $iteration++ > 50 ) {
+		if( $iteration++ > 250 ) {
 			break;
 		}
 		$args = array(
@@ -44,6 +45,10 @@ function jetpack_boost_mock_api( $count, $paged = 1 ) {
 
 				// Get the image URL.
 				$image_url                  = wp_get_attachment_url( $attachment->ID );
+				// Since this is a fake API, set a temporoary unique
+				// ID to avoid duplicate keys when in development mode
+				$image_id = md5($image_url . $id++);
+				$image_meta['id'] = $image_id;
 				$image_meta['thumbnail']    = $image_url;
 				$image_meta['image']['url'] = $image_url;
 

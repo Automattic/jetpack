@@ -12,6 +12,7 @@ const Dimensions = z.object( {
 } );
 
 const ImageData = z.object( {
+	id: z.string(),
 	thumbnail: z.string(),
 	image: z.object( {
 		url: z.string(),
@@ -107,14 +108,11 @@ image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
 
 export const isaFilteredImages = derived(
 	[ image_size_analysis.store, image_size_analysis_ignored_images.store ],
-	// Not sure what TS is complaining about here 🤔
 	( [ $data, $ignored ] ) => {
 		if ( $data.query.group === 'ignored' ) {
 			return $ignored;
 		}
-		return $data.data.images.filter(
-			image => ! $ignored.find( ignore => ignore.image.url === image.image.url )
-		);
+		return $data.data.images.filter( image => ! $ignored.find( ignore => ignore.id === image.id ) );
 	}
 );
 

@@ -7,6 +7,7 @@ use Automattic\Jetpack_Boost\Data_Sync\Image_Size_Analysis_Ignored_Images;
 
 $image_data = Schema::as_assoc_array(
 	array(
+		'id'          => Schema::as_string(),
 		'thumbnail'    => Schema::as_string(),
 		'image'        => Schema::as_assoc_array(
 			array(

@@ -10,7 +10,7 @@
 		<div class="jb-table-header__device">Device</div>
 		<div class="jb-table-header__page">Page/Post</div>
 	</div>
-	{#each $isaFilteredImages as data (data.image.url)}
+	{#each $isaFilteredImages as data (data.id)}
 		<TableRow {data} />
 	{/each}
 </div>
