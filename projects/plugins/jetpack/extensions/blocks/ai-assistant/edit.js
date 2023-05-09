@@ -176,6 +176,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 								setImageModal={ setImageModal }
 								saveImage={ saveImage }
 								image={ image }
+								key={ image }
 							/>
 						) ) }
 					</Flex>

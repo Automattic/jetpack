@@ -5,7 +5,7 @@ const ImageWithSelect = ( { image, inModal = false, saveImage, setImageModal } )
 	return (
 		<Flex direction="column">
 			{ inModal && (
-				<FlexItem style={ { 'text-align': 'center' } }>
+				<FlexItem style={ { textAlign: 'center' } }>
 					<Button variant="primary" onClick={ () => saveImage( image ) }>
 						{ __( 'Use this image', 'jetpack' ) }
 					</Button>
@@ -22,7 +22,7 @@ const ImageWithSelect = ( { image, inModal = false, saveImage, setImageModal } )
 			</FlexBlock>
 			{ ! inModal && (
 				<FlexBlock>
-					<Flex direction="column" style={ { 'align-items': 'center' } }>
+					<Flex direction="column" style={ { alignItems: 'center' } }>
 						<FlexItem>
 							<Button variant="primary" onClick={ () => saveImage( image ) }>
 								{ __( 'Use this image', 'jetpack' ) }
