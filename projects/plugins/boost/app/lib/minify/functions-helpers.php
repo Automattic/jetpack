@@ -171,6 +171,12 @@ function jetpack_boost_page_optimize_bail() {
 
 	$should_bail = false;
 
+	// Bail if this is an admin page
+	if ( is_admin() ) {
+		$should_bail = true;
+		return true;
+	}
+
 	// Bail if we're in customizer
 	global $wp_customize;
 	if ( isset( $wp_customize ) ) {
@@ -253,33 +259,32 @@ function jetpack_boost_minify_init_cache_service() {
 }
 
 /**
- * Handles cache service initialization, scheduling of cache cleanup,
- * and disabling of Jetpack photon-cdn for static JS/CSS.
+ * Handles cache service initialization, scheduling of cache cleanup, and disabling of
+ * Jetpack photon-cdn for static JS/CSS. Automatically ensures that we don't setup
+ * the cache service more than once per request.
  *
- * @return bool True if the setup was complete, and minification is possible.
+ * @return void
  */
 function jetpack_boost_minify_setup() {
-	static $setup_done;
+	static $setup_done = false;
 	if ( $setup_done ) {
-		return $setup_done;
+		return;
 	}
+	$setup_done = true;
 
+	// Handle cache service requests.
 	jetpack_boost_minify_init_cache_service();
 
-	if ( jetpack_boost_page_optimize_bail() ) {
-		return false;
-	}
-
-	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
+	// Hook up deactivation and uninstall cleanup paths.
 	register_deactivation_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_deactivate' );
 	register_uninstall_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_uninstall' );
 
+	// Schedule cache cleanup.
+	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
 	jetpack_boost_page_optimize_schedule_cache_cleanup();
 
-	// Disable Jetpack photon-cdn for static JS/CSS.
-	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
-
-	$setup_done = true;
-
-	return $setup_done;
+	// Disable Jetpack Site Accelerator CDN for static JS/CSS, if we're minifying this page.
+	if ( ! jetpack_boost_page_optimize_bail() ) {
+		add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
+	}
 }
