@@ -327,18 +327,35 @@ function jpcrm_settings_page_html_woosync_main() {
 									<tr class="jpcrm_woosync_order_status_map">
 										<td><?php echo esc_html( $woo_order_value ); ?></td>
 										<?php
-										foreach ( $woo_order_mapping_types as $map_type_value ) :
+										foreach ( $woo_order_mapping_types as $obj_type => $map_type_value ) :
 											$selected    = '';
 											$mapping_key = $map_type_value['prefix'] . $woo_order_key;
 
-											if ( is_array( $settings ) && isset( $settings[ $mapping_key ] ) ) {
+											$obj_type_id = $zbs->DAL->objTypeID( $obj_type ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+											if ( ! isset( $settings[ $mapping_key ] ) || $settings[ $mapping_key ] === '-1' ) {
+												// use default mapping as fallback
+												$selected = $zbs->modules->woosync->get_default_woo_order_status_mapping_for_obj_type( $obj_type_id, $woo_order_value );
+											} else {
+												// select mapping from settings
 												$selected = $settings[ $mapping_key ];
+											}
+
+											if ( ! $zbs->DAL->is_valid_obj_status( $obj_type_id, $selected ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+												$selected = false;
 											}
 
 											?>
 											<td>
 												<select class="winput" style="width: 90%;" name="<?php echo esc_attr( $mapping_key ); ?>" id="<?php echo esc_attr( $mapping_key ); ?>">
-													<option value="-1"><?php esc_html_e( 'Default', 'zero-bs-crm' ); ?></option>
+													<?php
+													// if there's no default match, make user select one
+													if ( ! $selected ) {
+														?>
+														<option value="-1" selected disabled>-- <?php esc_html_e( 'Select mapped status', 'zero-bs-crm' ); ?> --</option>
+														<?php
+													}
+													?>
 													<?php
 													foreach ( $map_type_value['statuses'] as $status ) {
 														printf( '<option value="%s" %s>%s</option>', esc_attr( $status ), ( $selected === $status ? 'selected' : '' ), esc_html( $status ) );
