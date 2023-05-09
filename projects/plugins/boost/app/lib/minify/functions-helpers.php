@@ -157,27 +157,42 @@ function jetpack_boost_page_optimize_schedule_cache_cleanup() {
 	}
 }
 
-// Cases when we don't want to concat
+/**
+ * Check whether it's safe to minify for the duration of this HTTP request. Checks
+ * for things like page-builder editors, etc.
+ *
+ * @return bool True if we don't want to minify/concatenate CSS/JS for this request.
+ */
 function jetpack_boost_page_optimize_bail() {
+	static $should_bail = null;
+	if ( null !== $should_bail ) {
+		return $should_bail;
+	}
+
+	$should_bail = false;
+
 	// Bail if we're in customizer
 	global $wp_customize;
 	if ( isset( $wp_customize ) ) {
+		$should_bail = true;
 		return true;
 	}
 
 	// Bail if Divi theme is active, and we're in the Divi Front End Builder
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( ! empty( $_GET['et_fb'] ) && 'Divi' === wp_get_theme()->get_template() ) {
+		$should_bail = true;
 		return true;
 	}
 
 	// Bail if we're editing pages in Brizy Editor
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( class_exists( 'Brizy_Editor' ) && method_exists( 'Brizy_Editor', 'prefix' ) && ( isset( $_GET[ Brizy_Editor::prefix( '-edit-iframe' ) ] ) || isset( $_GET[ Brizy_Editor::prefix( '-edit' ) ] ) ) ) {
+		$should_bail = true;
 		return true;
 	}
 
-	return false;
+	return $should_bail;
 }
 
 // Taken from utils.php/Jetpack_Boost_Page_Optimize_Utils
@@ -236,11 +251,12 @@ function jetpack_boost_minify_init_cache_service() {
 		exit;
 	}
 }
+
 /**
  * Handles cache service initialization, scheduling of cache cleanup,
  * and disabling of Jetpack photon-cdn for static JS/CSS.
  *
- * @return void
+ * @return bool True if the setup was complete, and minification is possible.
  */
 function jetpack_boost_minify_setup() {
 	static $setup_done;
