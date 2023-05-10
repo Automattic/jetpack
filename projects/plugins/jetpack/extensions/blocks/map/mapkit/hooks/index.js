@@ -191,6 +191,12 @@ const useMapkitPoints = ( points, markerColor, callOutElement = null, onSelect =
 
 	useEffect( () => {
 		if ( loaded ) {
+			// remove deleted annotations
+			const annotationsToRemove = map.annotations.filter(
+				annotation => ! points.find( point => point.id === annotation.data.id )
+			);
+			annotationsToRemove.forEach( annotation => map.removeAnnotation( annotation ) );
+
 			const annotations = points.map( point => {
 				const currentAnnotation = map.annotations.find(
 					annotation => annotation.data.id === point.id
