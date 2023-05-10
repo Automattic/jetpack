@@ -150,7 +150,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			{ contentIsLoaded && (
 				<>
 					<div className="jetpack-ai-assistant__content">
-						<RawHTML>{ attributes.content }</RawHTML>
+						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
 					</div>
 				</>
 			) }
