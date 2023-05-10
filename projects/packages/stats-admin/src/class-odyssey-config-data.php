@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
 /**
@@ -33,8 +34,12 @@ class Odyssey_Config_Data {
 	 * Return the config for the app.
 	 */
 	public function get_data() {
+		global $wp_version;
+
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$empty_object = json_decode( '{}' );
+		$host         = new Host();
+
 		return array(
 			'admin_page_base'                => $this->get_admin_path(),
 			'api_root'                       => esc_url_raw( rest_url() ),
@@ -55,8 +60,9 @@ class Odyssey_Config_Data {
 			'features'                       => array(),
 			// Intended for apps that do not use redux.
 			'gmt_offset'                     => $this->get_gmt_offset(),
-			// TODO: check whether this works with Pressable.
 			'odyssey_stats_base_url'         => admin_url( 'admin.php?page=stats' ),
+			'stats_admin_version'            => Main::VERSION,
+			'wp_version'                     => $wp_version,
 			'intial_state'                   => array(
 				'currentUser' => array(
 					'id'           => 1000,
@@ -71,19 +77,21 @@ class Odyssey_Config_Data {
 				'sites'       => array(
 					'items'    => array(
 						"$blog_id" => array(
-							'ID'            => $blog_id,
-							'URL'           => site_url(),
-							'jetpack'       => true,
-							'visible'       => true,
-							'capabilities'  => $empty_object,
-							'products'      => array(),
-							'plan'          => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
-							'options'       => array(
+							'ID'              => $blog_id,
+							'URL'             => site_url(),
+							'is_wpcom_atomic' => $host->is_woa_site(),
+							'is_vip'          => $host->is_vip_site(),
+							'jetpack'         => true,
+							'visible'         => true,
+							'capabilities'    => $empty_object,
+							'products'        => array(),
+							'plan'            => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
+							'options'         => array(
 								'wordads'    => ( new Modules() )->is_active( 'wordads' ),
 								'admin_url'  => admin_url(),
 								'gmt_offset' => $this->get_gmt_offset(),
 							),
-							'stats_notices' => ( new Notices() )->get_notices_to_show(),
+							'stats_notices'   => ( new Notices() )->get_notices_to_show(),
 						),
 					),
 					'features' => array( "$blog_id" => array( 'data' => $this->get_plan_features() ) ),
