@@ -1804,90 +1804,6 @@ function zeroBSCRM_mergeCustomers($dominantID=-1,$slaveID=-1){
 
 }
 
-/* 
-
-	Raw first func, not to be used DIRECTLY... use wrapper if writing extension - see docs there 
-
-	#} Needs fully formed cFields array with prefix to cfields zbsc_ e.g. "zbsc_status" or "zbsc_fname"
-	#} Passing it an ID will update rather than insert
-	#} Passing it a non correct Post type will crap it out... not exposable function... for WOODY only for now.. lol. Use extension function above not this.
-
-	
-	#} RE: FallbackLogs
-		Passing an array like this:
-
-			array(
-				'type' => 'Form Filled',#'form_filled',
-				'shortdesc' => 'Dude filled out the form x on y',
-				'longdesc' => ''
-			)
-			
-		(Long desc is optional)
-
-	#} CURRENT Note Types: 
-
-        'note': { label: 'Note', ico: 'fa-sticky-note-o' },
-        'call': { label: 'Call', ico: 'fa-phone-square' },
-        'email': { label: 'Email', ico: 'fa-envelope-o' },
-        'meeting': { label: 'Meeting', ico: 'fa-users' },
-        'quote__sent': { label: 'Quote: Sent', ico: 'fa-share-square-o' },
-        'quote__accepted': { label: 'Quote: Accepted', ico: 'fa-thumbs-o-up' },
-        'quote__refused': { label: 'Quote: Refused', ico: 'fa-ban' },
-        'invoice__sent': { label: 'Invoice: Sent', ico: 'fa-share-square-o' },
-        'invoice__part_paid': { label: 'Invoice: Part Paid', ico: 'fa-money' },
-        'invoice__paid': { label: 'Invoice: Paid', ico: 'fa-money' },
-        'invoice__refunded': { label: 'Invoice: Refunded', ico: 'fa-money' },
-        'transaction': { label: 'Transaction', ico: 'fa-credit-card' },
-        'tweet': { label: 'Tweet', ico: 'fa-twitter' },
-        'facebook_post': { label: 'Facebook Post', ico: 'fa-facebook-official' },
-        'created': { label: 'Created', ico: 'fa-plus-circle' },
-        'updated': { label: 'Updated', ico: 'fa-pencil-square-o' },
-        'quote_created': { label: 'Quote Created', ico: 'fa-plus-circle' },
-        'invoice_created': { label: 'Invoice Created', ico: 'fa-plus-circle' },
-        'form_filled': { label: 'Form Filled', ico: 'fa-wpforms'}
-
-
-	#} RE: $extraMeta (This isn't used anywhere yet, talk to WH before using)
-
-		... this is a key value array passable to add extra values to customers
-		... should look like:
-
-		$extraMeta = array(
-
-			array('key_here',12345),
-			array('another','what')
-
-		)
-
-		... which will add the following meta to a customer:
-
-		zbs_customer_extra_key_here = 12345
-		zbs_customer_extra_another = what
-
-		... BRUTALLY - no checking, just overwrites! (so be careful)
-
-
-
-	#} Re: $automatorPassthrough
-
-		... adding anything here allows it to be passed through to the internal automator (which currently sets notes)
-		... this means you can pass an array with note str overrides... e.g.
-
-		array(
-
-			'note_override' => array(
-		
-						'type' => 'Form Filled',#'form_filled',
-						'shortdesc' => 'Dude filled out the form x on y',
-						'longdesc' => ''					
-
-			)
-
-		)
-
-		... see recipes to see what's useful :)
-
-*/
 function zeroBS_addUpdateCustomer(
 
 		$cID = -1,
@@ -3642,134 +3558,6 @@ function zeroBS___________DAL30Helpers(){return;}
 				$args['ignoreowner'] = false;
 
 			}
-
-			return $zbs->DAL->companies->getCompanies($args);
-
-
-	}
-
-	// outdated pain, use direct calls not this plz. kthx.
-	function zeroBS_getCompaniesv2(
-
-		$withFullDetails=false,
-		$perPage=10,
-		$page=0,
-		$searchPhrase='',
-		$argsOverride=false,
-		$hasTagIDs='',
-		$inArr = '',
-		$withTags=false,
-		$withAssigned=false,
-		$withLastLog=false,
-		$sortByField='',
-		$sortOrder='DESC',
-		$quickFilters=false,
-		$withTransactions=false,
-		$withInvoices=false,
-		$withQuotes=false,
-		$withValues=false
-
-	){
-
-		// $withFullDetails = irrelevant with new DB2 (always returns)
-		// $argsOverride CAN NO LONGER WORK :)
-		if ($argsOverride !== false) zeroBSCRM_DEPRECATEDMSG('Use of $argsOverride in zeroBS_getCompaniesv2 is no longer relevant (DAL3.0)');
-
-		global $zbs;			
-
-			// legacy from dal1
-			$actualPage = $page;
-			if ($zbs->isDAL1()) $actualPage = $page-1;  // only DAL1 needed this
-			if ($actualPage < 0) $actualPage = 0;
-
-			// make ARGS
-			$args = array(				
-
-				// Search/Filtering (leave as false to ignore)
-				'searchPhrase' 	=> $searchPhrase,
-				'inArr'			=> $inArr,
-				'isTagged'		=> $hasTagIDs,
-				'quickFilters'  => $quickFilters,
-
-				'withCustomFields'	=> true,
-				'withQuotes' 		=> $withQuotes,
-				'withInvoices' 		=> $withInvoices,
-				'withTransactions' 	=> $withTransactions,
-				'withLogs' 			=> false,
-				'withLastLog'		=> $withLastLog,
-				'withTags' 			=> $withTags,
-				'withOwner' 		=> $withAssigned,
-				'withValues'		=> $withValues,
-
-				'sortByField' 	=> $sortByField,
-				'sortOrder' 	=> $sortOrder,
-				'page'			=> $actualPage,
-				'perPage'		=> $perPage,
-
-				'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_COMPANY)
-
-
-			);
-
-			return $zbs->DAL->companies->getCompanies($args);
-
-	}
-
-	// MS Cloned from getCustomers
-	// ... WH slightly cleaned
-	// ... NEEDS DB2 to wipe these out (centralise to 1 get func per type with $args)
-	// ... THIS IS A CLONE of getCompaniesv2 which just returns a TOTAL count 
-	// DAL3: Yup. DO NOT USE THIS IN NEW CODE.
-	function zeroBS_getCompaniesv2CountIncParams(
-
-		$searchPhrase='',
-		$argsOverride=false,
-		$hasTagIDs='',
-		$inArr = '',
-		$withTags=false,
-		$withAssigned=false,
-		$withLastLog=false,
-		$sortByField='',
-		$sortOrder='DESC',
-		$quickFilters=false
-
-		){
-
-		// $withFullDetails = irrelevant with new DB2 (always returns)
-		// $argsOverride CAN NO LONGER WORK :)
-		if ($argsOverride !== false) zeroBSCRM_DEPRECATEDMSG('Use of $argsOverride in zeroBS_getCompaniesv2CountIncParams is no longer relevant (DAL3.0)');
-
-		global $zbs;			
-
-			// make ARGS
-			$args = array(				
-
-				// Search/Filtering (leave as false to ignore)
-				'searchPhrase' 	=> $searchPhrase,
-				'inArr'			=> $inArr,
-				'isTagged'		=> $hasTagIDs,
-				'quickFilters'  => $quickFilters,
-
-				// just count, don't need (even if passed above)
-				'count' 			=> true,
-				'withCustomFields'	=> false,
-				'withQuotes' 		=> false,
-				'withInvoices' 		=> false,
-				'withTransactions' 	=> false,
-				'withLogs' 			=> false,
-				'withLastLog'		=> false,
-				'withTags' 			=> false,
-				'withOwner' 		=> false,
-
-				//'sortByField' 	=> $sortByField,
-				//'sortOrder' 	=> $sortOrder,
-				'page'			=> -1,
-				'perPage'		=> -1,
-
-				'ignoreowner'		=> zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_COMPANY)
-
-
-			);
 
 			return $zbs->DAL->companies->getCompanies($args);
 
@@ -5696,6 +5484,25 @@ function zeroBSCRM_invoicing_getInvoiceData( $invID = -1 ) {
 		return false;
 	}
 
+/**
+ * Helper function to calculate the number of deleted invoices for any particular contact / company.
+ *
+ * @param array $all_invoices An array of all invoice or transaction data for a contact / company.
+ *
+ * @returns int An int with the deleted invoices count.
+ */
+function jpcrm_deleted_invoice_counts( $all_invoices = null ) {
+	if ( empty( $all_invoices ) ) {
+		return 0;
+	}
+	$count_deleted = 0;
+	foreach ( $all_invoices as $invoice ) {
+		if ( $invoice['status'] === __( 'Deleted', 'zero-bs-crm' ) ) {
+			++$count_deleted;
+		}
+	}
+	return $count_deleted;
+}
 
 /* ======================================================
   	/ Invoice helpers

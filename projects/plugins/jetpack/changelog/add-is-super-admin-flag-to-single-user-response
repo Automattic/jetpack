@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fixes issue with missing "Super Admin" in edit user form

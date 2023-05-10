@@ -850,28 +850,6 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 
 	}
 
-	function zeroBSCRM_html_QuoteDate($quote=array()){
-
-		// v3.0:
-		if (isset($quote['date_date'])) return "<span class='zbs-action'><strong>" . $quote['date_date'] . "</strong></span>";
-
-		// <3.0
-		if (isset($quote['meta']) && isset($quote['meta']['date'])){
-
-			// wh fix, we're now saving this in format, no need to get it then resave it
-			// also, with 22/06/18 it's in a format DateTime can't get.
-			// use DateTime::createFromFormat('!'.zeroBSCRM_date_defaultFormat(), $dateInFormat)->getTimestamp();
-			//$d = new DateTime($quote['meta']['date']);
-			//$formatted_date = $d->format(zeroBSCRM_getDateFormat());  
-			$formatted_date = $quote['meta']['date'];
-
-			return "<span class='zbs-action'><strong>" . $formatted_date . "</strong></span>";
-
-		}
-
-		return '-';
-	}
-
 /* ======================================================
   /	Quotes
    ====================================================== */
@@ -911,32 +889,6 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 
 	}
 
-	function zeroBSCRM_html_invoiceDate($inv=array()){
-
-		if (isset($inv['date_date'])){
-
-			return "<span class='zbs-action'><strong>" . $inv['date_date'] . "</strong></span>";
-
-		}
-
-		// else <3.0
-
-		if (isset($inv['meta']) && isset($inv['meta']['date'])){
-
-			// wh fix, MS, you're saving this in format, no need to get it then resave it
-			// also, with 22/06/18 it's in a format DateTime can't get.
-			// use DateTime::createFromFormat('!'.zeroBSCRM_date_defaultFormat(), $dateInFormat)->getTimestamp();
-			//$d = new DateTime($inv['meta']['date']);
-			//$formatted_date = $d->format(zeroBSCRM_getDateFormat());  
-			$formatted_date = $inv['meta']['date'];
-
-			return "<span class='zbs-action'><strong>" . $formatted_date . "</strong></span>";
-
-		}
-
-		return '-';
-	}
-
 /* ======================================================
   /	Invoices
    ====================================================== */
@@ -974,28 +926,6 @@ function zeroBSCRM_html_companyTimeline($companyID=-1,$logs=false,$companyObj=fa
 		
 		return 'ui grey label';
 	}
-
-function zeroBSCRM_html_transactionDate($transaction){
-
-	// v3 no need for any of the below
-	if (isset($transaction['date_date'])){
-
-		return "<span class='zbs-action'><strong>" . $transaction['date_date']  . "</strong></span>";
-
-	}
-
-	// <3.0
-
-	// saved in format, no need
-	  //$d = new DateTime($transaction['created']);
-		//$formatted_date = $d->format(zeroBSCRM_getDateFormat());  
-	// zeroBSCRM_date_i18n('H:i', $log['createduts'], true, false);
-
-	//transaction created in $post->post_date_gmt so will be the correct UTS for the below
-	$transaction_uts = strtotime($transaction['created']);
-	$formatted_date = zeroBSCRM_date_i18n(zeroBSCRM_getDateFormat() . " " . zeroBSCRM_getTimeFormat(), $transaction_uts, true, false);
-  return "<span class='zbs-action'><strong>" . $formatted_date  . "</strong></span>";
-}
 
 /* ======================================================
   /	Transactions
@@ -1133,56 +1063,30 @@ function zeroBSCRM_print_backtolist_html( $slug ) {
 
 	}
 
-	function zeroBSCRM_html_taskDate($task=array()){
+/**
+ * Returns a task datetime range string
+ *
+ * @param arr $task Task array.
+ *
+ * @return str datetime range string
+ */
+function zeroBSCRM_html_taskDate( $task = array() ) {
 
-	    if (!isset($task['start'])){
+	if ( ! isset( $task['start'] ) ) {
 
-	        // starting date
-	        //$start_d = date('m/d/Y H') . ":00:00";
-	        //$end_d =  date('m/d/Y H') . ":00:00";
-	        // wh modified to now + 1hr - 2hr
-	        $start_d = date('d F Y H:i:s',(time()+3600));
-	        $end_d =  date('d F Y H:i:s',(time()+3600+3600));
+		// task doesn't have start date...not sure why this would ever happen
+		$task_start = jpcrm_uts_to_datetime_str( time() + 3600 );
+		$task_end   = jpcrm_uts_to_datetime_str( $task_start + 3600 );
 
+	} else {
 
-	    } else {
+		$task_start = jpcrm_uts_to_datetime_str( $task['start'] );
+		$task_end   = jpcrm_uts_to_datetime_str( $task['end'] );
 
-			// Note: Because this continued to be use for task scheduler workaround (before we got to rewrite the locale timestamp saving)
-			// ... we functionised in Core.Localisation.php to keep it DRY
-
-			// temp pre v3.0 fix, forcing english en for this datepicker only.
-			// requires js mod: search #forcedlocaletasks
-			// (Month names are localised, causing a mismatch here (Italian etc.))
-			// ... so we translate:
-			// d F Y H:i:s (date - not locale based)
-			// https://www.php.net/manual/en/function.date.php
-			// ... into
-			// %d %B %Y %H:%M:%S (strfttime - locale based date)
-			// (https://www.php.net/manual/en/function.strftime.php)
-
-			// phpcs:disable Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.BlockComment.NoCapital
-
-			/*
-			$start_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['start']);
-			$end_d = zeroBSCRM_date_i18n('d F Y H:i:s', $taskObject['end']);
-			*/
-
-			/*
-			@todo - this is to be refactored.
-			zeroBSCRM_locale_setServerLocale('en_US');
-			$start_d = strftime("%d %B %Y %H:%M:%S",$task['start']);
-			$end_d =  strftime("%d %B %Y %H:%M:%S",$task['end']);
-			zeroBSCRM_locale_resetServerLocale();
-			*/
-			// phpcs:enable Squiz.PHP.CommentedOutCode.Found, Squiz.Commenting.BlockComment.NoCapital
-
-	        $start_d = zeroBSCRM_date_forceEN($task['start']);
-	        $end_d = zeroBSCRM_date_forceEN($task['end']);
-
-	    }
-
-	    return $start_d . ' - ' . $end_d;
 	}
+
+	return $task_start . ' - ' . $task_end;
+}
 
 /* ======================================================
   /	Tasks
@@ -1901,7 +1805,9 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 						$ret = '<a href="'.$linkOpen.'" class="ui button basic small">'. __('Edit','zero-bs-crm') . "</a>";
 						break;
 					case 'date':
-						$ret = zeroBSCRM_html_transactionDate($obj);
+				if ( isset( $obj['date_date'] ) ) {
+					$ret = $obj['date_date'];
+				}
 						break;
 					case 'item':
 						$itemStr = ''; 

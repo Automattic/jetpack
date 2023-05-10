@@ -45,7 +45,6 @@ class Current_Plan {
 			'supports' => array(
 				'opentable',
 				'calendly',
-				'premium-content/container',
 				'send-a-message',
 				'whatsapp-button',
 				'social-previews',
@@ -68,7 +67,6 @@ class Current_Plan {
 			'supports' => array(
 				'akismet',
 				'payments',
-				'recurring-payments',
 				'videopress',
 			),
 		),
@@ -81,8 +79,6 @@ class Current_Plan {
 				'value_bundle-2y',
 			),
 			'supports' => array(
-				'donations',
-				'simple-payments',
 				'vaultpress',
 				'videopress',
 				'republicize',
@@ -350,6 +346,11 @@ class Current_Plan {
 
 		// As of Q3 2021 - a videopress free tier is available to all plans.
 		if ( 'videopress' === $feature ) {
+			return true;
+		}
+
+		// As of 05 2023 - all plans support Earn features
+		if ( in_array( $feature, array( 'donations', 'recurring-payments', 'premium-content/container', 'simple-payments' ), true ) ) {
 			return true;
 		}
 
