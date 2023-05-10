@@ -7,7 +7,16 @@ import {
 	ToolbarGroup,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { arrowRight, check, image, pencil, update, title, undo } from '@wordpress/icons';
+import {
+	arrowRight,
+	check,
+	chevronDown,
+	image,
+	pencil,
+	update,
+	title,
+	undo,
+} from '@wordpress/icons';
 import Loading from './loading';
 
 const AIControl = ( {
@@ -132,6 +141,7 @@ const ToolbarControls = ( {
 
 					{ ! showRetry && ! contentIsLoaded && (
 						<ToolbarDropdownMenu
+							icon={ chevronDown }
 							label="More"
 							controls={ [
 								{
