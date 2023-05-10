@@ -117,7 +117,7 @@ export const createPrompt = (
 		}
 
 		const simplifyPrompt = sprintf(
-			'The selected text should be simplified to use words and phrases that are easier to understand. Output in the same language as the user%1$s. Selected text:\n\n%2$s',
+			'The selected text should be simplified to use words and phrases that are easier to understand for non-technical people. Output in the same language as the user%1$s. Selected text:\n\n%2$s',
 			PROMPT_SUFFIX,
 			contentBefore
 		);
