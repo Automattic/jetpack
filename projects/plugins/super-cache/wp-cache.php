@@ -3177,6 +3177,16 @@ function wp_cron_preload_cache() {
 		return true;
 	}
 
+	/*
+	 * The mutex file is used to prevent multiple preload processes from running at the same time.
+	 * If the mutex file is found, the preload process will wait 3-8 seconds and then check again.
+	 * If the mutex file is still found, the preload process will abort.
+	 * If the mutex file is not found, the preload process will create the mutex file and continue.
+	 * The mutex file is deleted at the end of the preload process.
+	 * The mutex file is deleted if it is more than 10 minutes old.
+	 * The mutex file should only be deleted by the preload process that created it.
+	 * If the mutex file is deleted by another process, another preload process may start.
+	 */
 	$mutex = $cache_path . "preload_mutex.tmp";
 	if ( @file_exists( $mutex ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		sleep( 3 + wp_rand( 1, 5 ) );
@@ -3272,15 +3282,10 @@ function wp_cron_preload_cache() {
 						}
 						wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
 						wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
+
 						if ( @file_exists( $cache_path . "stop_preload.txt" ) ) {
 							wp_cache_debug( 'wp_cron_preload_cache: cancelling preload. stop_preload.txt found.', 5 );
-							@unlink( $mutex );
-							@unlink( $cache_path . "stop_preload.txt" );
-							@unlink( $taxonomy_filename );
-							update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
-							delete_transient( 'taxonomy_preload' );
-							if ( $wp_cache_preload_email_me )
-								wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
+							wpsc_reset_preload_settings();
 							return true;
 						}
 					}
@@ -3370,16 +3375,13 @@ function wp_cron_preload_cache() {
 				@fwrite( $fp, $count . " " . $url );
 				@fclose( $fp );
 			}
+
 			if ( @file_exists( $cache_path . "stop_preload.txt" ) ) {
 				wp_cache_debug( 'wp_cron_preload_cache: cancelling preload. stop_preload.txt found.', 5 );
-				@unlink( $mutex );
-				@unlink( $cache_path . "stop_preload.txt" );
-				update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
-				delete_transient( 'taxonomy_preload' );
-				if ( $wp_cache_preload_email_me )
-					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
+				wpsc_reset_preload_settings();
 				return true;
 			}
+
 			$msg .= "$url\n";
 			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
 			wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
@@ -3394,7 +3396,7 @@ function wp_cron_preload_cache() {
 		wpsc_delete_files( get_supercache_dir() );
 	} else {
 		$msg = '';
-		update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
+		wpsc_reset_preload_counter();
 		if ( (int)$wp_cache_preload_interval && defined( 'DOING_CRON' ) ) {
 			if ( $wp_cache_preload_email_me )
 				$msg = sprintf( __( 'Scheduling next preload refresh in %d minutes.', 'wp-super-cache' ), (int)$wp_cache_preload_interval );
@@ -3566,19 +3568,63 @@ function supercache_admin_bar_render() {
 	wpsc_admin_bar_render( $wp_admin_bar );
 }
 
+/*
+ * This function will reset the preload cache counter
+ */
+function wpsc_reset_preload_counter() {
+	update_option(
+		'preload_cache_counter',
+		array(
+			'c' => 0,
+			't' => time(),
+		)
+	);
+}
+
+/*
+ * This function will reset all preload settings
+ */
+function wpsc_reset_preload_settings() {
+	global $cache_path, $wp_cache_preload_email_me;
+
+	$mutex = $cache_path . 'preload_mutex.tmp';
+	wp_delete_file( $mutex );
+	wp_delete_file( $cache_path . 'stop_preload.txt' );
+	delete_transient( 'taxonomy_preload' );
+	wpsc_reset_preload_counter();
+
+	$taxonomies = apply_filters(
+		'wp_cache_preload_taxonomies',
+		array(
+			'post_tag' => 'tag',
+			'category' => 'category',
+		)
+	);
+
+	foreach ( $taxonomies as $taxonomy => $path ) {
+		$taxonomy_filename = $cache_path . 'taxonomy_' . $taxonomy . '.txt';
+		wp_delete_file( $taxonomy_filename );
+	}
+
+	if ( $wp_cache_preload_email_me ) {
+		// translators: Home URL of website
+		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
+	}
+}
+
 function wpsc_cancel_preload() {
 	global $cache_path;
 	$next_preload = wp_next_scheduled( 'wp_cache_preload_hook' );
 	if ( $next_preload ) {
 		delete_transient( 'taxonomy_preload' );
 		wp_cache_debug( 'wpsc_cancel_preload: unscheduling wp_cache_preload_hook' );
-		update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
+		wpsc_reset_preload_counter();
 		wp_unschedule_event( $next_preload, 'wp_cache_preload_hook' );
 	}
 	$next_preload = wp_next_scheduled( 'wp_cache_full_preload_hook' );
 	if ( $next_preload ) {
 		delete_transient( 'taxonomy_preload' );
-		update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
+		wpsc_reset_preload_counter();
 		wp_cache_debug( 'wpsc_cancel_preload: unscheduling wp_cache_full_preload_hook' );
 		wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
 	}
@@ -3593,7 +3639,7 @@ function wpsc_enable_preload() {
 	delete_transient( 'taxonomy_preload' );
 	@unlink( $cache_path . "preload_mutex.tmp" );
 	wp_delete_file( $cache_path . 'stop_preload.txt' );
-	update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
+	wpsc_reset_preload_counter();
 	wp_schedule_single_event( time() + 10, 'wp_cache_full_preload_hook' );
 }
 
@@ -3707,13 +3753,7 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 	// If forcing a reschedule, or preload is disabled, clear the next scheduled event.
 	if ( $next_preload && ( ! $should_schedule || $force_preload_reschedule ) ) {
 		wp_cache_debug( 'Clearing old preload event' );
-		update_option(
-			'preload_cache_counter',
-			array(
-				'c' => 0,
-				't' => time(),
-			)
-		);
+		wpsc_reset_preload_counter();
 
 		add_option( 'preload_cache_stop', 1 );
 		wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
