@@ -1435,10 +1435,7 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
 
                     global $zbs,$wpdb,$ZBSCRM_t;
 
-					$advanced_segments_active = defined( 'JPCRM_ADVANCED_SEGMENTS_ROOTFILE' );
-
-			// If the Advanced Segments plugin is active, we want to use the logic defined there instead.
-			if ( ! empty( $condition['type'] ) && $advanced_segments_active ) {
+			if ( ! empty( $condition['type'] ) ) {
 				$filter_tag = $this->makeSlug( $condition['type'] ) . '_zbsSegmentArgumentBuild';
 				if ( substr( $condition['type'], 0, 5 ) === 'zbsc_' ) {
 					$filter_tag = $this->makeSlug( substr( $condition['type'], 5 ) ) . '_zbsSegmentArgumentBuild';
