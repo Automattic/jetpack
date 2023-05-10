@@ -61,7 +61,7 @@
 		<h4>How to fix</h4>
 		<p>{instructions}</p>
 		<div class="jb-actions">
-			<Button width="auto" fill>Fix on page</Button>
+			<Button width="auto" href={data.edit_url} fill>Fix on page</Button>
 			<Button width="auto" on:click={handleIgnoreClick}>
 				{#if isIgnored}
 					Don't Ignore

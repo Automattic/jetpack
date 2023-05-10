@@ -76,6 +76,7 @@ function jetpack_boost_mock_api( $count, $group = 'all', $paged = 1 ) {
 					continue;
 				}
 				$image_meta['id'] = $image_id;
+				$image_meta['edit_url'] = get_edit_post_link( $post->ID );
 				$image_meta['thumbnail']    = $image_url;
 				$image_meta['image']['url'] = $image_url;
 

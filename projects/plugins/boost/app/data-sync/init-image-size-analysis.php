@@ -9,6 +9,16 @@ $image_data = Schema::as_assoc_array(
 	array(
 		'id'          => Schema::as_string(),
 		'thumbnail'    => Schema::as_string(),
+		'device_type'  => Schema::enum( array( 'phone', 'desktop' ) ),
+		'instructions' => Schema::as_string(),
+		'edit_url'     => Schema::as_string(),
+		'page'         => Schema::as_assoc_array(
+			array(
+				'id'    => Schema::as_number(),
+				'url'   => Schema::as_string(),
+				'title' => Schema::as_string(),
+			)
+		),
 		'image'        => Schema::as_assoc_array(
 			array(
 				'url'        => Schema::as_string(),
@@ -42,15 +52,7 @@ $image_data = Schema::as_assoc_array(
 				),
 			)
 		),
-		'page'         => Schema::as_assoc_array(
-			array(
-				'id'    => Schema::as_number(),
-				'url'   => Schema::as_string(),
-				'title' => Schema::as_string(),
-			)
-		),
-		'device_type'  => Schema::enum( array( 'phone', 'desktop' ) ),
-		'instructions' => Schema::as_string(),
+
 	)
 );
 
