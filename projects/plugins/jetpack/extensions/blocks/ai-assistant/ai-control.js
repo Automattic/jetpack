@@ -38,6 +38,7 @@ const AIControl = ( {
 	showRetry,
 	contentBefore,
 	postTitle,
+	wholeContent,
 } ) => {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
@@ -70,6 +71,7 @@ const AIControl = ( {
 					toggleAIType={ toggleAIType }
 					contentBefore={ contentBefore }
 					hasPostTitle={ !! postTitle?.length }
+					wholeContent={ wholeContent }
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
@@ -109,6 +111,7 @@ const ToolbarControls = ( {
 	toggleAIType,
 	contentBefore,
 	hasPostTitle,
+	wholeContent,
 } ) => {
 	return (
 		<BlockControls>
@@ -149,6 +152,7 @@ const ToolbarControls = ( {
 								{
 									title: __( 'Summarize', 'jetpack' ),
 									onClick: () => getSuggestionFromOpenAI( 'summarize' ),
+									isDisabled: ! wholeContent?.length,
 								},
 								{
 									title: __( 'Write a summary based on title', 'jetpack' ),

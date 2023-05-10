@@ -34,6 +34,30 @@ export function getPartialContentToBlock( clientId ) {
 		.join( '\n' );
 }
 
+/**
+ * Returns content from all blocks,
+ * by inspecting the blocks `content` attributes
+ *
+ * @returns {string} The content.
+ */
+export function getContentFromBlocks() {
+	const editor = selectData( 'core/block-editor' );
+	const blocks = editor.getBlocks();
+
+	if ( ! blocks?.length ) {
+		return '';
+	}
+
+	return blocks
+		.filter( function ( block ) {
+			return block && block.attributes && block.attributes.content;
+		} )
+		.map( function ( block ) {
+			return block.attributes.content.replaceAll( '<br/>', '\n' );
+		} )
+		.join( '\n' );
+}
+
 const useSuggestionsFromOpenAI = ( {
 	clientId,
 	content,
@@ -124,14 +148,14 @@ const useSuggestionsFromOpenAI = ( {
 			: createPrompt(
 					currentPostTitle,
 					getPartialContentToBlock( clientId ),
-					categoryNames,
-					tagNames,
+					getContentFromBlocks(),
 					userPrompt,
-					type
+					type,
+					categoryNames,
+					tagNames
 			  );
 
 		const data = { content: prompt };
-
 		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
 			post_id: postId,
 		} );
@@ -167,7 +191,6 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 	};
 	return {
-		getSuggestionFromOpenAI,
 		isLoadingCategories,
 		isLoadingCompletion,
 		setIsLoadingCategories,
@@ -175,6 +198,9 @@ const useSuggestionsFromOpenAI = ( {
 		showRetry,
 		postTitle: currentPostTitle,
 		contentBefore: getPartialContentToBlock( clientId ),
+		wholeContent: getContentFromBlocks( clientId ),
+
+		getSuggestionFromOpenAI,
 		retryRequest: () => getSuggestionFromOpenAI( '', true ),
 	};
 };

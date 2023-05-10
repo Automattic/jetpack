@@ -46,6 +46,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		contentBefore,
 		postTitle,
 		retryRequest,
+		wholeContent,
 	} = useSuggestionsFromOpenAI( {
 		clientId,
 		content: attributes.content,
@@ -170,6 +171,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				contentBefore={ contentBefore }
 				postTitle={ postTitle }
 				userPrompt={ userPrompt }
+				wholeContent={ wholeContent }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
