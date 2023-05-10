@@ -145,11 +145,12 @@ const DEFAULT_SIZE = 32;
 export default class PlanIcon extends Component {
 	render() {
 		const { className, alt, plan } = this.props;
+		const icon = PRODUCT_ICON_MAP[ plan ] || PRODUCT_ICON_MAP[ PLAN_FREE ];
 
 		return (
 			<img
 				className={ className }
-				src={ imagePath + PRODUCT_ICON_MAP[ plan ] }
+				src={ imagePath + icon }
 				width={ DEFAULT_SIZE }
 				height={ DEFAULT_SIZE }
 				alt={ alt || '' }
