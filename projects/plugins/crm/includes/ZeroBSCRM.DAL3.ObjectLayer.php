@@ -540,8 +540,6 @@ class zbsDAL_ObjectLayer {
 
     /**
      * Helper to retrieve Custom Fields with Data for an object
-     * Replace's zeroBS_getContactCustomFields()
-     *
      *
      * @return array summarised custom fields including values, for object
      */
