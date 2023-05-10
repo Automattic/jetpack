@@ -11,7 +11,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Redirect;
 
 $text_dir = is_rtl() ? 'rtl' : 'ltr';
@@ -199,7 +198,7 @@ $template = '
 							<tbody>
 								<tr>
 									<td align="left" class="jetpack-header" style="border-collapse: collapse; padding: 48px 24px 0px 24px;">
-										<img alt height="32" src="' . Jetpack_Forms::plugin_url() . 'images/jetpack-logo-horizontal-dark-green.png" width="117" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none; display: inline-block;">
+										<img alt height="32" src="' . esc_url( plugins_url( 'images/jetpack-logo-horizontal-dark-green.png', __DIR__ ) ) . '" width="117" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none; display: inline-block;">
 									</td>
 								</tr>
 								<tr class="jetpack-new-onboarding" style="font-family: \'SF Pro Display\', Helvetica, Arial, sans-serif;">
@@ -216,7 +215,7 @@ $template = '
 									<td class="build-your-own-jetpack-new-section" align="left" style="border-collapse: collapse; background-color: #F9F9F6; font-family: \'SF Pro Display\', Helvetica, Arial, sans-serif; padding: 32px 24px;">
 										<span class="build-your-own-jetpack-new-section-eyebrow" style="direction: ' . $text_dir . '; color: #008710; font-weight: 600; line-height: 1.8; font-size: 16px;">' . esc_html__( 'Did you know?', 'jetpack-forms' ) . '</span>
 										<h2 class="build-your-own-jetpack-new-section-header-text" style="direction: ' . $text_dir . '; font-size: 26px; font-weight: 600; line-height: 1.2; margin: 16px 0;">' . esc_html__( 'Export your form responses to Google Sheets with just one click', 'jetpack-forms' ) . '</h2>
-										<img alt class="jetpack-onboarding-hero-image" src="' . Jetpack_Forms::plugin_url() . 'images/jetpack-forms-google-sheets-hero.jpg" width="500" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none; display: inline-block; max-width: 100%%;">
+										<img alt class="jetpack-onboarding-hero-image" src="' . esc_url( plugins_url( 'images/jetpack-forms-google-sheets-hero.jpg', __DIR__ ) ) . '" width="500" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none; display: inline-block; max-width: 100%%;">
 										<p class="build-your-own-jetpack-new-section-body-text" style="direction: ' . $text_dir . '; letter-spacing: -0.02em; line-height: 1.5; margin-bottom: 24px; font-size: 16px;">' . esc_html__( 'Exporting form responses to Google Sheets allows you to easily manage and analyze the data collected through your forms. This feature can be useful for analysing customer feedback, conducting market research, or organizing event registration information.', 'jetpack-forms' ) . '</p>
 
 										<a class="build-your-own-jetpack-new-section-link" href="https://jetpack.com/support/jetpack-blocks/contact-form/#export-form-responses" style="background-color: #000; border-radius: 4px; display: inline-block; box-sizing: border-box; color: #fff; font-weight: 600; letter-spacing: -0.02em;line-height: 24px; padding: 12px 24px; text-decoration: none; font-size: 16px;">' . esc_html__( 'Learn more', 'jetpack-forms' ) . '</a>
@@ -227,7 +226,7 @@ $template = '
 										<table style="border-collapse: collapse; width: 100%%;">
 											<tr>
 												<td style="border-collapse: collapse;">
-													<img src="' . Jetpack_Forms::plugin_url() . 'images/jetpack-icon.png" class="footer-november-2022-jetpack-icon" width="20" height="20" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none; display: inline-block; margin-bottom: 16px;">
+													<img src="' . esc_url( plugins_url( 'images/jetpack-icon.png', __DIR__ ) ) . '" class="footer-november-2022-jetpack-icon" width="20" height="20" style="border: 0 none; height: auto; line-height: 100%%; outline: none; text-decoration: none; display: inline-block; margin-bottom: 16px;">
 												</td>
 											</tr>
 											<tr>
@@ -239,18 +238,18 @@ $template = '
 											</tr>
 											<tr>
 												<td align="left" class="footer-november-2022-app-links" style="border-collapse: collapse;">
-													<a href="' . esc_url( Redirect::get_url( 'jetpack-android' ) ) . '" style="color: #00AADC; text-decoration: none; width: 115px; display: inline-block; margin-bottom: 64px;"><img src="' . Jetpack_Forms::plugin_url() . 'images/play-store-badge.png" class="footer-november-2022-app-image" width="115" height="33" style="line-height: 100%%;outline: none; text-decoration: none; border: 0 none; display: inline-block; height: 33px;"></a>
+													<a href="' . esc_url( Redirect::get_url( 'jetpack-android' ) ) . '" style="color: #00AADC; text-decoration: none; width: 115px; display: inline-block; margin-bottom: 64px;"><img src="' . esc_url( plugins_url( 'images/play-store-badge.png', __DIR__ ) ) . '" class="footer-november-2022-app-image" width="115" height="33" style="line-height: 100%%;outline: none; text-decoration: none; border: 0 none; display: inline-block; height: 33px;"></a>
 
-													<a href="' . esc_url( Redirect::get_url( 'jetpack-ios' ) ) . '" style="color: #00AADC; text-decoration: none; width: 115px; display: inline-block; margin-bottom: 64px;"><img src="' . Jetpack_Forms::plugin_url() . 'images/app-store-badge.png" class="footer-november-2022-app-image" width="115" height="33" style="line-height: 100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block; height: 33px;"></a>
+													<a href="' . esc_url( Redirect::get_url( 'jetpack-ios' ) ) . '" style="color: #00AADC; text-decoration: none; width: 115px; display: inline-block; margin-bottom: 64px;"><img src="' . esc_url( plugins_url( 'images/app-store-badge.png', __DIR__ ) ) . '" class="footer-november-2022-app-image" width="115" height="33" style="line-height: 100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block; height: 33px;"></a>
 												</td>
 											</tr>
 											<tr>
 												<td align="left" class="footer-november-2022-socials-section" style="border-collapse: collapse;">
-													<a href="https://twitter.com/jetpack" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right: 22px;"><img aria-label="' . esc_html__( 'jetpack twitter page', 'jetpack-forms' ) . '" src="' . Jetpack_Forms::plugin_url() . 'images/twitter-dark.png" width="20" height="20" style="height: auto; line-height: 100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
+													<a href="https://twitter.com/jetpack" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right: 22px;"><img aria-label="' . esc_html__( 'jetpack twitter page', 'jetpack-forms' ) . '" src="' . esc_url( plugins_url( 'images/twitter-dark.png', __DIR__ ) ) . '" width="20" height="20" style="height: auto; line-height: 100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
 
-													<a href="https://www.facebook.com/jetpackme" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right:22px;"><img aria-label="' . esc_html__( 'jetpack facebook page', 'jetpack-forms' ) . '" src="' . Jetpack_Forms::plugin_url() . 'images/facebook-dark.png" width="20" height="20" style="height: auto; line-height:100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
+													<a href="https://www.facebook.com/jetpackme" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right:22px;"><img aria-label="' . esc_html__( 'jetpack facebook page', 'jetpack-forms' ) . '" src="' . esc_url( plugins_url( 'images/facebook-dark.png', __DIR__ ) ) . '" width="20" height="20" style="height: auto; line-height:100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
 
-													<a href="https://www.linkedin.com/company/jetpack-for-wordpress/" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right: 22px;"><img aria-label="' . esc_html__( 'jetpack linkedin page', 'jetpack-forms' ) . '" src="' . Jetpack_Forms::plugin_url() . 'images/linkedin-dark.png" width="20" height="20" style="height: auto; line-height:100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
+													<a href="https://www.linkedin.com/company/jetpack-for-wordpress/" style="color: #00AADC; text-decoration: none; display: inline-block; padding-right: 22px;"><img aria-label="' . esc_html__( 'jetpack linkedin page', 'jetpack-forms' ) . '" src="' . esc_url( plugins_url( 'images/linkedin-dark.png', __DIR__ ) ) . '" width="20" height="20" style="height: auto; line-height:100%%; outline: none; text-decoration: none; border: 0 none; display: inline-block;"></a>
 												</td>
 											</tr>
 											<tr>
