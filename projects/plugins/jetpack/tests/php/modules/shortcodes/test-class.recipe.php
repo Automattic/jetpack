@@ -87,12 +87,12 @@ class WP_Test_Jetpack_Shortcodes_Recipe extends WP_UnitTestCase {
 	 * @since 8.0.0
 	 */
 	public function test_shortcodes_recipe_exists() {
-		$this->assertEquals( shortcode_exists( 'recipe' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-notes' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-ingredients' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-directions' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-nutrition' ), true );
-		$this->assertEquals( shortcode_exists( 'recipe-image' ), true );
+		$this->assertTrue( shortcode_exists( 'recipe' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-notes' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-ingredients' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-directions' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-nutrition' ) );
+		$this->assertTrue( shortcode_exists( 'recipe-image' ) );
 	}
 
 	/**

@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_Medium extends WP_UnitTestCase {
 	 * @since  7.4.0
 	 */
 	public function test_shortcodes_medium_exists() {
-		$this->assertEquals( shortcode_exists( 'medium' ), true );
+		$this->assertTrue( shortcode_exists( 'medium' ) );
 	}
 
 	/**

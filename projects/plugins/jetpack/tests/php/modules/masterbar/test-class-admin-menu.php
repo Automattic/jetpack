@@ -407,7 +407,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][0][4] );
 		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][2][4] );
 
-		$this->assertEquals( $submenu['options-general.php'][3], array( '', 'read', 'test-slug', '' ) );
+		$this->assertEquals( array( '', 'read', 'test-slug', '' ), $submenu['options-general.php'][3] );
 
 		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][5][4] );
 

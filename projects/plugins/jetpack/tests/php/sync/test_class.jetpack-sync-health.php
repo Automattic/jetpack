@@ -7,13 +7,13 @@ class WP_Test_Jetpack_Sync_Health extends WP_Test_Jetpack_Sync_Base {
 	public function test_update_status_should_default_to_unknown() {
 		// When an invalid status is used, we should default to an unknown status.
 		Health::update_status( 'some-status' );
-		$this->assertEquals( Health::get_status(), Health::STATUS_UNKNOWN );
+		$this->assertEquals( Health::STATUS_UNKNOWN, Health::get_status() );
 	}
 
 	public function test_update_status_should_set_correct_status() {
 		// The status should be saved if a valid status is used.
 		Health::update_status( Health::STATUS_IN_SYNC );
-		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
+		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
 	}
 
 	public function test_is_status_defined_should_be_true() {
@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Sync_Health extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public function test_initialization_status_on_activation() {
 		Jetpack::plugin_activation( false );
-		$this->assertEquals( Health::get_status(), Health::STATUS_UNKNOWN );
+		$this->assertEquals( Health::STATUS_UNKNOWN, Health::get_status() );
 	}
 
 	/**
@@ -40,10 +40,10 @@ class WP_Test_Jetpack_Sync_Health extends WP_Test_Jetpack_Sync_Base {
 	 */
 	public function test_initialization_status_disabled_on_activation() {
 		Health::update_status( Health::STATUS_IN_SYNC );
-		$this->assertEquals( Health::get_status(), Health::STATUS_IN_SYNC );
+		$this->assertEquals( Health::STATUS_IN_SYNC, Health::get_status() );
 		Settings::update_settings( array( 'disable' => true ) );
 		Jetpack::plugin_activation( false );
-		$this->assertEquals( Health::get_status(), Health::STATUS_DISABLED );
+		$this->assertEquals( Health::STATUS_DISABLED, Health::get_status() );
 	}
 
 	/**
@@ -53,7 +53,7 @@ class WP_Test_Jetpack_Sync_Health extends WP_Test_Jetpack_Sync_Base {
 	public function test_initialization_status_ignored_on_activation() {
 		Health::update_status( Health::STATUS_IN_SYNC );
 		Jetpack::plugin_activation( false );
-		$this->assertEquals( Health::get_status(), Health::STATUS_UNKNOWN );
+		$this->assertEquals( Health::STATUS_UNKNOWN, Health::get_status() );
 	}
 
 	public function test_update_returns_false_if_status_not_changed() {

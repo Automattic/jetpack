@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_MailChimp extends WP_UnitTestCase {
 	 * @since  4.5.0
 	 */
 	public function test_shortcodes_mailchimp_exists() {
-		$this->assertEquals( shortcode_exists( 'mailchimp_subscriber_popup' ), true );
+		$this->assertTrue( shortcode_exists( 'mailchimp_subscriber_popup' ) );
 	}
 
 	/**
