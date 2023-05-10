@@ -14,7 +14,7 @@ use Automattic\Jetpack\Assets;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.2.0-alpha';
+	const PACKAGE_VERSION = '0.2.0';
 
 	/**
 	 * Singleton.
@@ -1215,7 +1215,7 @@ final class Image_CDN {
 		}
 
 		Assets::register_script(
-			'jetpack-image-cdn',
+			'jetpack-photon',
 			'../dist/image-cdn.js',
 			__FILE__,
 			array(

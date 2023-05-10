@@ -26,21 +26,18 @@ export default function ProductManagementControls( {
 			),
 		[]
 	);
-	const { connectUrl, isApiConnected, isSelectedProductInvalid, shouldUpgrade } = useSelect(
-		select => {
-			const { getConnectUrl, getShouldUpgrade, isApiStateConnected, isInvalidProduct } =
-				select( membershipProductsStore );
-			return {
-				connectUrl: getConnectUrl(),
-				isApiConnected: isApiStateConnected(),
-				isSelectedProductInvalid: isInvalidProduct( selectedProductId ),
-				shouldUpgrade: getShouldUpgrade(),
-			};
-		}
-	);
+	const { connectUrl, isApiConnected, isSelectedProductInvalid } = useSelect( select => {
+		const { getConnectUrl, isApiStateConnected, isInvalidProduct } =
+			select( membershipProductsStore );
+		return {
+			connectUrl: getConnectUrl(),
+			isApiConnected: isApiStateConnected(),
+			isSelectedProductInvalid: isInvalidProduct( selectedProductId ),
+		};
+	} );
 
 	// Don't display this on free sites with Stripe disconnected.
-	if ( shouldUpgrade && ! isApiConnected ) {
+	if ( ! isApiConnected ) {
 		return null;
 	}
 

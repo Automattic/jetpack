@@ -7,6 +7,9 @@ use WP_Styles;
 // Disable complaints about enqueuing stylesheets, as this class alters the way enqueuing them works.
 // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedStylesheet
 
+/**
+ * Replacement for, and subclass of WP_Styles - used to control the way that styles are enqueued and output.
+ */
 class Concatenate_CSS extends WP_Styles {
 	private $dependency_path_mapping;
 	private $old_styles;
