@@ -289,8 +289,7 @@ class Jetpack_Admin_Menu extends Admin_Menu {
 
 		// Attempt to get last position.
 		ksort( $menu );
-		end( $menu );
-		$position = key( $menu );
+		$position = array_key_last( $menu );
 
 		$this->add_admin_menu_separator( ++$position );
 		add_menu_page( __( 'WP Admin', 'jetpack' ), __( 'WP Admin', 'jetpack' ), 'read', 'index.php', null, 'dashicons-wordpress-alt', $position );
