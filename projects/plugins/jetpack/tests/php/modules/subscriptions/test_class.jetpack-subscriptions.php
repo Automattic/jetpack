@@ -25,14 +25,14 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		Jetpack_Subscriptions::init();
-		add_filter( 'test_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
+		add_filter( 'jetpack_is_connection_ready', '__return_true' );
 		$this->set_up_users();
 	}
 
 	public function tear_down() {
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
-		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
+		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'jetpack_subscriptions_newsletter_feature_enabled' );
 
 		parent::tear_down();

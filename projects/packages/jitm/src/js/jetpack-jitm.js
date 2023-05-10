@@ -283,7 +283,16 @@ jQuery( document ).ready( function ( $ ) {
 
 	$( window ).on( 'hashchange', function ( e ) {
 		const newURL = e.originalEvent.newURL;
-		const isJetpackPage = newURL.indexOf( 'jetpack#/' ) >= 0 || newURL.indexOf( 'my-jetpack' ) >= 0;
+		const isJetpackPage = [
+			'jetpack',
+			'my-jetpack',
+			'jetpack-backup',
+			'jetpack-boost',
+			'jetpack-protect',
+			'jetpack-search',
+			'jetpack-social',
+			'jetpack-videopress',
+		].some( str => newURL.includes( `admin.php?page=${ str }` ) );
 
 		if ( isJetpackPage ) {
 			var jitm_card = document.querySelector( '.jitm-card' );

@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  */
 import useResumableUploader from '../../../../../hooks/use-resumable-uploader';
 import { uploadFromLibrary } from '../../../../../hooks/use-uploader';
-import { buildVideoPressURL } from '../../../../../lib/url';
+import { buildVideoPressURL, pickVideoBlockAttributesFromUrl } from '../../../../../lib/url';
 import { VIDEOPRESS_VIDEO_ALLOWED_MEDIA_TYPES } from '../../constants';
 import { PlaceholderWrapper } from '../../edit';
 import { description, title } from '../../index';
@@ -113,7 +113,8 @@ const VideoPressUploader = ( {
 			return;
 		}
 
-		handleDoneUpload( { guid: guidFromSource, src: srcFromSource, id } );
+		const attrs = pickVideoBlockAttributesFromUrl( srcFromSource );
+		handleDoneUpload( { ...attrs, guid: guidFromSource, id } );
 	}
 
 	const startUpload = file => {
