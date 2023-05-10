@@ -2,6 +2,13 @@ import debugFactory from 'debug';
 
 const debug = debugFactory( 'jetpack:ai-assistant' );
 
+/**
+ *
+ * askJetpack exists just for debugging purposes
+ *
+ * @param {string} question - The query to send to the API
+ * @returns {string} The event source
+ */
 export async function askJetpack( question ) {
 	let fullMessage;
 	let source;

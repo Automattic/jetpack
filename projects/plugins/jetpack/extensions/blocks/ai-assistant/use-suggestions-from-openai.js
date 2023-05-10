@@ -5,13 +5,16 @@ import apiFetch from '@wordpress/api-fetch';
 import { useSelect, select as selectData } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import debugFactory from 'debug';
 import MarkdownIt from 'markdown-it';
 /**
  * Internal dependencies
  */
 import { createPrompt } from './create-prompt';
-import { askJetpack } from './get-suggestion-with-stream';
+import { askJetpack, askQuestion } from './get-suggestion-with-stream';
 import tellWhatToDoNext from './prompt/tell-what-to-do-next';
+
+const debug = debugFactory( 'jetpack:ai-assistant' );
 
 /**
  * Returns partial content from the beginning of the post
@@ -213,6 +216,85 @@ const useSuggestionsFromOpenAI = ( {
 				setIsLoadingCompletion( false );
 			} );
 	};
+
+	const getStreamedSuggestionFromOpenAI = async ( type, retryRequest = false ) => {
+		if ( isLoadingCompletion ) {
+			return;
+		}
+
+		setShowRetry( false );
+		setErrorMessage( false );
+
+		let prompt = lastPrompt;
+
+		if ( ! retryRequest ) {
+			// If there is a content already, let's iterate over it.
+			if ( content?.length && userPrompt?.length ) {
+				prompt = tellWhatToDoNext( userPrompt, content );
+			} else {
+				prompt = createPrompt(
+					currentPostTitle,
+					getPartialContentToBlock( clientId ),
+					content?.length ? content : getContentFromBlocks(),
+					userPrompt,
+					type,
+					categoryNames,
+					tagNames
+				);
+			}
+		}
+
+		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
+			post_id: postId,
+		} );
+
+		if ( ! retryRequest ) {
+			setLastPrompt( prompt );
+		}
+		let source;
+		let fullMessage = '';
+		try {
+			setIsLoadingCompletion( true );
+			source = await askQuestion( prompt );
+		} catch ( err ) {
+			if ( err.message ) {
+				setErrorMessage( err.message ); // Message was already translated by the backend
+			} else {
+				setErrorMessage(
+					__(
+						'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
+						'jetpack'
+					)
+				);
+			}
+			setShowRetry( true );
+			setIsLoadingCompletion( false );
+		}
+		const markdownConverter = new MarkdownIt();
+
+		source.addEventListener( 'message', e => {
+			if ( e.data === '[DONE]' ) {
+				source.close();
+				setIsLoadingCompletion( false );
+				setAttributes( {
+					content: markdownConverter.render( fullMessage ),
+				} );
+				debug( 'Done. Full message: ' + fullMessage );
+				return;
+			}
+
+			const data = JSON.parse( e.data );
+			const chunk = data.choices[ 0 ].delta.content;
+			if ( chunk ) {
+				fullMessage += chunk;
+				setAttributes( {
+					content: markdownConverter.render( fullMessage ),
+				} );
+				debug( markdownConverter.render( fullMessage ) );
+				// debug( chunk );
+			}
+		} );
+	};
 	return {
 		isLoadingCategories,
 		isLoadingCompletion,
@@ -223,11 +305,15 @@ const useSuggestionsFromOpenAI = ( {
 		contentBefore: getPartialContentToBlock( clientId ),
 		wholeContent: getContentFromBlocks( clientId ),
 
-		getSuggestionFromOpenAI,
+		getSuggestionFromOpenAI: getStreamedSuggestionFromOpenAI,
+		getStreamedSuggestionFromOpenAI,
 		retryRequest: () => getSuggestionFromOpenAI( '', true ),
 	};
 };
 
 export default useSuggestionsFromOpenAI;
 
+/**
+ * askJetpack is exposed just for debugging purposes
+ */
 window.askJetpack = askJetpack;
