@@ -2,11 +2,9 @@ import apiFetch from '@wordpress/api-fetch';
 import { useSelect, select as selectData } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import debugFactory from 'debug';
 import MarkdownIt from 'markdown-it';
 import { createPrompt } from './create-prompt';
-
-const debug = debugFactory( 'jetpack:ai-assistant' );
+import { askJetpack } from './get-suggestion-with-stream';
 /**
  * Returns partial content from the beginning of the post
  * to the current block (clientId)
@@ -208,67 +206,5 @@ const useSuggestionsFromOpenAI = ( {
 };
 
 export default useSuggestionsFromOpenAI;
-
-export function askJetpack( question ) {
-	askQuestion( question ).catch( err => debug( 'Error', err ) );
-}
-
-/**
- * Leaving this here to make it easier to debug the streaming API calls for now
- *
- * @param {string} question - The query to send to the API
- */
-async function askQuestion( question ) {
-	const { blogId, token } = await requestToken();
-
-	const url = new URL(
-		'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/jetpack-openai-query'
-	);
-	url.searchParams.append( 'question', question );
-	url.searchParams.append( 'token', token );
-
-	const source = new EventSource( url.toString() );
-	let fullMessage = '';
-
-	source.addEventListener( 'error', err => {
-		debug( 'Error', err );
-	} );
-
-	source.addEventListener( 'message', e => {
-		if ( e.data === '[DONE]' ) {
-			source.close();
-			debug( 'Done. Full message: ' + fullMessage );
-			return;
-		}
-
-		const data = JSON.parse( e.data );
-		const chunk = data.choices[ 0 ].delta.content;
-		if ( chunk ) {
-			fullMessage += chunk;
-			debug( chunk );
-		}
-	} );
-}
-
-async function requestToken() {
-	const apiNonce = window.JP_CONNECTION_INITIAL_STATE.apiNonce;
-
-	const request = await fetch( '/wp-json/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(), {
-		credentials: 'same-origin',
-		headers: {
-			'X-WP-Nonce': apiNonce,
-		},
-	} );
-
-	if ( ! request.ok ) {
-		throw new Error( 'JWT request failed' );
-	}
-
-	const data = await request.json();
-	return {
-		token: data.token,
-		blogId: data.blog_id,
-	};
-}
 
 window.askJetpack = askJetpack;
