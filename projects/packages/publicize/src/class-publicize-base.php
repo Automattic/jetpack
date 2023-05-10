@@ -70,15 +70,26 @@ abstract class Publicize_Base {
 	 */
 	const POST_JETPACK_SOCIAL_OPTIONS = '_wpas_options';
 
+	// Skip meta keys. We used to rely on _wpas_skip_ appended with the token_id to skip posts. But to support
+	// multiple connections for the same token, we are going to use the _wpas_skip_publicize_ which
+	// will be appended with the connection_id.
 	/**
-	 * Connection ID appended to indicate that a connection should NOT be publicized to.
+	 * Token ID appended to indicate that a connection should NOT be publicized to.
 	 *
 	 * @var string
 	 */
 	public $POST_SKIP = '_wpas_skip_';
 
 	/**
-	 * Connection ID appended to indicate a connection has already been publicized to.
+	 * Connection ID appended to indicate that a connection should NOT be publicized to.
+	 *
+	 * @var string
+	 */
+	public $POST_SKIP_PUBLICIZE = '_wpas_skip_publicize_';
+
+	// Done meta keys.
+	/**
+	 * Token ID appended to indicate a connection has already been publicized to.
 	 *
 	 * @var string
 	 */
@@ -788,12 +799,11 @@ abstract class Publicize_Base {
 			foreach ( $connections as $connection ) {
 				$connection_meta = $this->get_connection_meta( $connection );
 				$connection_data = $connection_meta['connection_data'];
-
-				$unique_id = $this->get_connection_unique_id( $connection );
-
+				$unique_id       = $this->get_connection_unique_id( $connection );
+				$connection_id   = $this->get_connection_id( $connection );
 				// Was this connection (OR, old-format service) already Publicized to?
 				$done = ! empty( $post ) && (
-					// New flags.
+					// Flags based on token_id
 					1 === (int) get_post_meta( $post->ID, $this->POST_DONE . $unique_id, true )
 					||
 					// Old flags.
@@ -824,8 +834,11 @@ abstract class Publicize_Base {
 						in_array( $post->post_status, array( 'publish', 'draft', 'future' ), true )
 						&&
 						(
-							// New flags.
+							// Flags based on token_id.
 							get_post_meta( $post->ID, $this->POST_SKIP . $unique_id, true )
+							||
+							// Flags based on  the connection_id.
+							get_post_meta( $post->ID, $this->POST_SKIP_PUBLICIZE . $connection_id, true )
 							||
 							// Old flags.
 							get_post_meta( $post->ID, $this->POST_SKIP . $service_name )
@@ -884,6 +897,7 @@ abstract class Publicize_Base {
 				}
 
 				$connection_list[] = array(
+					'id'              => $connection_id,
 					'unique_id'       => $unique_id,
 					'service_name'    => $service_name,
 					'service_label'   => $this->get_service_label( $service_name ),
@@ -1283,33 +1297,28 @@ abstract class Publicize_Base {
 					continue;
 				}
 
-				if ( ! empty( $connection->unique_id ) ) {
-					$unique_id = $connection->unique_id;
-				} elseif ( ! empty( $connection['connection_data']['token_id'] ) ) {
-					$unique_id = $connection['connection_data']['token_id'];
-				}
-
 				// This was a wp-admin request, so we need to check the state of checkboxes.
 				if ( $from_web ) {
+					$connection_id = $this->get_connection_id( $connection );
 					// Delete stray service-based post meta.
 					delete_post_meta( $post_id, $this->POST_SKIP . $service_name );
 
 					// We *unchecked* this stream from the admin page, or it's set to readonly, or it's a new addition.
-					if ( empty( $admin_page['submit'][ $unique_id ] ) ) {
+					if ( empty( $admin_page['submit'][ $connection_id ] ) ) {
 						// Also make sure that the service-specific input isn't there.
 						// If the user connected to a new service 'in-page' then a hidden field with the service
 						// name is added, so we just assume they wanted to Publicize to that service.
 						if ( empty( $admin_page['submit'][ $service_name ] ) ) {
 							// Nothing seems to be checked, so we're going to mark this one to be skipped.
-							update_post_meta( $post_id, $this->POST_SKIP . $unique_id, 1 );
+							update_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id, 1 );
 							continue;
 						} else {
 							// Clean up any stray post meta.
-							delete_post_meta( $post_id, $this->POST_SKIP . $unique_id );
+							delete_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id );
 						}
 					} else {
 						// The checkbox for this connection is explicitly checked -- make sure we DON'T skip it.
-						delete_post_meta( $post_id, $this->POST_SKIP . $unique_id );
+						delete_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id );
 					}
 				}
 
@@ -1429,15 +1438,9 @@ abstract class Publicize_Base {
 		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
 			// services have multiple connections.
 			foreach ( $connections as $connection ) {
-				$unique_id = '';
-				if ( ! empty( $connection->unique_id ) ) {
-					$unique_id = $connection->unique_id;
-				} elseif ( ! empty( $connection['connection_data']['token_id'] ) ) {
-					$unique_id = $connection['connection_data']['token_id'];
-				}
-
+				$connection_id = $this->get_connection_id( $connection );
 				// Did we skip this connection?
-				if ( get_post_meta( $post_id, $this->POST_SKIP . $unique_id, true ) ) {
+				if ( get_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id, true ) ) {
 					continue;
 				}
 				$services[ $this->get_service_label( $service_name ) ][] = $this->get_display_name( $service_name, $connection );
