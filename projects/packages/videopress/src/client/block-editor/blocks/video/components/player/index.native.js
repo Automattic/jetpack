@@ -4,10 +4,9 @@
 import { SandBox, Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
-import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
+import { useState, useEffect, useRef, useCallback, Platform } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { requestEmbedFullscreenPreview } from '@wordpress/react-native-bridge';
-import { Platform } from '@wordpress/element';
 /**
  * External dependencies
  */
