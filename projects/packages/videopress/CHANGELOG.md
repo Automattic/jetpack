@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.1] - 2023-05-08
+### Added
+- VideoPress: add a Notice when trying to edit a video that doesn't belong to the site [#30443]
+- VideoPress: Add a wpcom/v2/videopress `check-ownership` endpoint [#30427]
+- VideoPress: create VideoPress video block when pasting URLs [#30463]
+- VideoPress: dont allow editing video data when the video doesn't belong to the site [#30438]
+- VideoPress: introduce helper function to get VideoPress video block attributes from URL [#30484]
+
+### Changed
+- VideoPress: hide core/embed core, VideoPress variation, when video block is available [#30467]
+- VideoPress: pick video block attrs from URL when pasting/inserting [#30488]
+
+### Fixed
+- VideoPress: fix disabling Privacy and rating panel [#30471]
+- VideoPress: Fix JITM layout on video edit page [#30465]
+
 ## [0.14.0] - 2023-05-02
 ### Added
 - Adds Divi Builder Compatibility for VideoPress. [#28193]
@@ -986,6 +1002,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.14.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.10...v0.14.0
 [0.13.10]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.9...v0.13.10
 [0.13.9]: https://github.com/Automattic/jetpack-videopress/compare/v0.13.8...v0.13.9

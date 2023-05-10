@@ -8,7 +8,12 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import { buildVideoPressURL, isVideoPressUrl, pickGUIDFromUrl } from '../../../../lib/url';
+import {
+	buildVideoPressURL,
+	isVideoPressUrl,
+	pickGUIDFromUrl,
+	pickVideoBlockAttributesFromUrl,
+} from '../../../../lib/url';
 /**
  * Types
  */
@@ -103,11 +108,12 @@ const transformFromPastingVideoPressURL = {
 
 		const url = textContent.trim();
 		const guid = pickGUIDFromUrl( url );
+		const attrs = pickVideoBlockAttributesFromUrl( url );
 		if ( ! guid ) {
 			return false;
 		}
 
-		return createBlock( 'videopress/video', { guid } );
+		return createBlock( 'videopress/video', { guid, ...attrs } );
 	},
 };
 

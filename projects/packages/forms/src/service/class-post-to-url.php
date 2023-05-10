@@ -91,7 +91,7 @@ class Post_To_Url {
 	 *
 	 * @return null|void
 	 */
-	private function feedback_post_hook( $post_id, $form, $is_spam, $entry_values ) {
+	public function feedback_post_hook( $post_id, $form, $is_spam, $entry_values ) {
 		if ( ! is_a( $form, 'Automattic\Jetpack\Forms\ContactForm\Contact_Form' ) ) {
 			return;
 		}
