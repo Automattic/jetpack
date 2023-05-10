@@ -22,7 +22,6 @@ import Loading from './loading';
 const AIControl = ( {
 	aiType,
 	animationDone,
-	content,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
@@ -75,7 +74,7 @@ const AIControl = ( {
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
-				{ ( ( ! content && isWaitingState ) || loadingImages ) && <Loading /> }
+				{ ( isWaitingState || loadingImages ) && <Loading /> }
 				<PlainText
 					onChange={ value => setUserPrompt( value ) }
 					onKeyPress={ handleInputEnter }
