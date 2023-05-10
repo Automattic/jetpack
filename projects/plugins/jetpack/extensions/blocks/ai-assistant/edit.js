@@ -45,11 +45,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		showRetry,
 		contentBefore,
 		postTitle,
-<<<<<<< HEAD
 		retryRequest,
-=======
 		wholeContent,
->>>>>>> e5b867e863 ([not verified] disable summarize when no content)
 	} = useSuggestionsFromOpenAI( {
 		clientId,
 		content: attributes.content,
