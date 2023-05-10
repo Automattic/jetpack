@@ -1,0 +1,32 @@
+{
+	"private": true,
+	"name": "@automattic/jetpack-videopress-resumable-uploader",
+	"version": "0.1.0-alpha",
+	"description": "VideoPress Resumable Uploader, Based On Tus.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/videopress-resumable-uploader/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Videopress Resumable Uploader"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/js-packages/videopress-resumable-uploader"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"scripts": {
+		"test": "jest tests"
+	},
+	"devDependencies": {
+		"jest": "*"
+	},
+	"engines": {
+		"node": "^18.13.0",
+		"yarn": "use pnpm instead - see docs/yarn-upgrade.md"
+	},
+	"exports": {
+		".": "./index.jsx",
+		"./state": "./src/state",
+		"./action-types": "./src/state/action-types"
+	}
+}
