@@ -3207,6 +3207,16 @@ function wp_cron_preload_cache() {
 	if ( $wp_cache_preload_email_me && $c == 0 )
 		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), home_url(), '' ), ' ' );
 
+	/*
+	 * Preload taxonomies first.
+	 *
+	 * The transient variable "taxonomy_preload" is used as a flag to indicate
+	 * that preloading of taxonomies is ongoing. It is deleted when the preload
+	 * is complete or the site owner cancels the preload.
+	 * If this flag is not set, and if a file containing a list of taxonomies
+	 * exists from a previous preload exists, it will be deleted and a new list
+	 * generated for a brand new preload.
+	 */
 	if ( $wp_cache_preload_posts == 'all' || $c < $wp_cache_preload_posts ) {
 		wp_cache_debug( 'wp_cron_preload_cache: doing taxonomy preload.', 5 );
 		$permalink_counter_msg = $cache_path . "preload_permalink.txt";
@@ -3296,6 +3306,17 @@ function wp_cron_preload_cache() {
 		}
 	}
 
+	/*
+	 *
+	 * Preload posts now.
+	 *
+	 * The preload_cache_counter has two values:
+	 * c = the number of posts we've preloaded after this loop.
+	 * t = the time we started preloading in the current loop.
+	 *
+	 * $c is set to the value of preload_cache_counter['c'] at the start of the function
+	 * before it is incremented by 10 here.
+	 */
 	update_option(
 		'preload_cache_counter',
 		array(
