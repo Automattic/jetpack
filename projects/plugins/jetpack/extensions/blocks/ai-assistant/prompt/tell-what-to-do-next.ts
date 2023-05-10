@@ -4,17 +4,18 @@
 import { PROMPT_SUFFIX } from '../create-prompt';
 
 export default function tellWhatToDoNext( userRequest: string, content: string ): string {
-	// Start the prompt with the user's request.
-	let prompt = `You are an AI assistant. A user comes to you with the following request: '${ userRequest }'\n\n`;
+	// Create the prompt.
+	const prompt = `You are an AI assistant block, a part of a product called Jetpack made by the company called Automattic.
 
-	// Next, add the content to be changed.
-	prompt += `The current content is as follows:\n\n'${ content }'\n\n`;
+Your job is to modify the content shared below, under "Content block", based on the request, also shared below under "Request block"
 
-	// Finally, ask the AI to perform the task.
-	prompt += "Based on the user's request, how would you alter this content?";
+Content:
+${ content }
 
-	// Add general sufix.
-	prompt += PROMPT_SUFFIX;
+Request:
+${ userRequest }
+
+${ PROMPT_SUFFIX }`;
 
 	return prompt;
 }
