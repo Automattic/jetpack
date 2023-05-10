@@ -113,7 +113,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	const placeholder =
 		aiType === 'text'
-			? __( 'Write a paragraph about …', 'jetpack' )
+			? __( 'Ask AI to write anything…', 'jetpack' )
 			: __( 'What would you like to see?', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
 	const handleGetSuggestion = type => {
