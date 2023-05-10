@@ -72,6 +72,9 @@ final class Image_CDN {
 	 * @return void
 	 */
 	private function setup() {
+		// Let other plugins know that we're setting up image CDN module.
+		do_action( 'jetpack_image_cdn_setup' );
+
 		// Images in post content and galleries and widgets.
 		add_filter( 'the_content', array( __CLASS__, 'filter_the_content' ), 999999 );
 		add_filter( 'get_post_galleries', array( __CLASS__, 'filter_the_galleries' ), 999999 );
