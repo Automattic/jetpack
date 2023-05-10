@@ -69,6 +69,7 @@ export const usePlan = (): usePlanProps => {
 		'value_bundle',
 		'value_bundle_monthly',
 		'value_bundle-2y',
+		'value_bundle-3y',
 
 		// WPCOM PRO plans
 		'pro-plan',
