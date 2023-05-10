@@ -7,6 +7,9 @@ use WP_Scripts;
 // Disable complaints about enqueuing scripts, as this class alters the way enqueuing them works.
 // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 
+/**
+ * Replacement for, and subclass of WP_Scripts - used to control the way that scripts are enqueued and output.
+ */
 class Concatenate_JS extends WP_Scripts {
 	private $dependency_path_mapping;
 	private $old_scripts;
@@ -55,6 +58,9 @@ class Concatenate_JS extends WP_Scripts {
 		return false;
 	}
 
+	/**
+	 * Override for WP_Scripts::do_item() - this is the method that actually outputs the scripts.
+	 */
 	public function do_items( $handles = false, $group = false ) {
 		global $wp_filesystem;
 
