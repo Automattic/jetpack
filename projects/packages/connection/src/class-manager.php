@@ -204,6 +204,9 @@ class Manager {
 			// active Jetpack connection, so that additional users can link their account.
 			$callback = array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' );
 
+			// We need 'jetpack.verifyRegistration' here as well, to handle an edge case where the blog token is missing but
+			// there are leftover user tokens.
+			new XMLRPC_Connector( $this );
 		} else {
 			// Any other unsigned request should expose the bootstrap methods.
 			$callback = array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' );
