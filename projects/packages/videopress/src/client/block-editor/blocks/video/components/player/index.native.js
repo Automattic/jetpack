@@ -7,10 +7,11 @@ import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { requestEmbedFullscreenPreview } from '@wordpress/react-native-bridge';
+import { Platform } from '@wordpress/element';
 /**
  * External dependencies
  */
-import { View, Text, Platform, Pressable } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 /**
  * Internal dependencies
  */
@@ -23,7 +24,7 @@ import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 const DEFAULT_PLAYER_ASPECT_RATIO = 16 / 9; // This is the observed default aspect ratio from VideoPress embeds.
-const IS_ANDROID = Platform.OS === 'android';
+const IS_ANDROID = Platform.isAndroid;
 /**
  * VideoPlayer react component
  *
