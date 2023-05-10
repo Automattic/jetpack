@@ -76,8 +76,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		 * Also give me permissions that aren't awful.
 		 */
 		register_rest_route(
-			'jetpack/hack',
-			'get-openai-jwt',
+			'jetpack/v4',
+			'jetpack-ai-jwt',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_openai_jwt',

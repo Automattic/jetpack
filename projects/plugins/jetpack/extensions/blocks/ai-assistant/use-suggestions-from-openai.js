@@ -213,15 +213,12 @@ export function askJetpack( question ) {
 	const apiNonce = window.JP_CONNECTION_INITIAL_STATE.apiNonce;
 
 	async function requestToken() {
-		const request = await fetch(
-			'/wp-json/jetpack/hack/get-openai-jwt?_cacheBuster=' + Date.now(),
-			{
-				credentials: 'same-origin',
-				headers: {
-					'X-WP-Nonce': apiNonce,
-				},
-			}
-		);
+		const request = await fetch( '/wp-json/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(), {
+			credentials: 'same-origin',
+			headers: {
+				'X-WP-Nonce': apiNonce,
+			},
+		} );
 
 		if ( ! request.ok ) {
 			throw new Error( 'JWT request failed' );
