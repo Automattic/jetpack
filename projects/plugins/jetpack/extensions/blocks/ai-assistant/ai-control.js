@@ -15,7 +15,6 @@ import Loading from './loading';
 
 const AIControl = ( {
 	aiType,
-	animationDone,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
@@ -75,7 +74,7 @@ const AIControl = ( {
 			{ ! isWaitingState && (
 				<ToolbarControls
 					aiType={ aiType }
-					animationDone={ animationDone }
+					isWaitingState={ isWaitingState }
 					contentIsLoaded={ contentIsLoaded }
 					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 					retryRequest={ retryRequest }
@@ -119,7 +118,6 @@ export default AIControl;
 
 const ToolbarControls = ( {
 	aiType,
-	animationDone,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
@@ -136,7 +134,7 @@ const ToolbarControls = ( {
 			{ aiType === 'text' && (
 				// Text controls
 				<ToolbarGroup>
-					{ ! showRetry && contentIsLoaded && animationDone && (
+					{ ! showRetry && contentIsLoaded && (
 						<>
 							<ToolbarButton onClick={ handleAcceptContent }>
 								{ __( 'Done', 'jetpack' ) }
