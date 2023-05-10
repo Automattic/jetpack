@@ -210,42 +210,44 @@ const useSuggestionsFromOpenAI = ( {
 export default useSuggestionsFromOpenAI;
 
 export function askJetpack( question ) {
-	/**
-	 * Leaving this here to make it easier to debug the streaming API calls for now
-	 */
-	async function askQuestion() {
-		const { blogId, token } = await requestToken();
+	askQuestion( question ).catch( err => debug( 'Error', err ) );
+}
 
-		const url = new URL(
-			'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/jetpack-openai-query'
-		);
-		url.searchParams.append( 'question', question );
-		url.searchParams.append( 'token', token );
+/**
+ * Leaving this here to make it easier to debug the streaming API calls for now
+ *
+ * @param {string} question - The query to send to the API
+ */
+async function askQuestion( question ) {
+	const { blogId, token } = await requestToken();
 
-		const source = new EventSource( url.toString() );
-		let fullMessage = '';
+	const url = new URL(
+		'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/jetpack-openai-query'
+	);
+	url.searchParams.append( 'question', question );
+	url.searchParams.append( 'token', token );
 
-		source.addEventListener( 'error', err => {
-			debug( 'Error', err );
-		} );
+	const source = new EventSource( url.toString() );
+	let fullMessage = '';
 
-		source.addEventListener( 'message', e => {
-			if ( e.data === '[DONE]' ) {
-				source.close();
-				debug( 'Done. Full message: ' + fullMessage );
-				return;
-			}
+	source.addEventListener( 'error', err => {
+		debug( 'Error', err );
+	} );
 
-			const data = JSON.parse( e.data );
-			const chunk = data.choices[ 0 ].delta.content;
-			if ( chunk ) {
-				fullMessage += chunk;
-				debug( chunk );
-			}
-		} );
-	}
+	source.addEventListener( 'message', e => {
+		if ( e.data === '[DONE]' ) {
+			source.close();
+			debug( 'Done. Full message: ' + fullMessage );
+			return;
+		}
 
-	askQuestion().catch( err => debug( 'Error', err ) );
+		const data = JSON.parse( e.data );
+		const chunk = data.choices[ 0 ].delta.content;
+		if ( chunk ) {
+			fullMessage += chunk;
+			debug( chunk );
+		}
+	} );
 }
 
 async function requestToken() {
