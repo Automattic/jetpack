@@ -414,7 +414,17 @@ class Launchpad_Task_Lists {
 		$statuses[ $key ] = true;
 		$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
 
-		$this->maybe_disable_launchpad();
+		if ( isset( $task['isLaunchTask'] ) && $task['isLaunchTask'] ) {
+			$this->disable_launchpad();
+		}
+		// Also check if this is the last task, it implicitly disables Launchpad.
+		$task_list = $this->get_task_list( get_option( 'site_intent' ) );
+		if ( ! empty( $task_list ) && isset( $task_list['task_ids'] ) ) {
+			$last_id = array_pop( $task_list['task_ids'] );
+			if ( $last_id === $task_id ) {
+				$this->disable_launchpad();
+			}
+		}
 
 		return $result;
 	}
@@ -437,15 +447,38 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
-	 * Disables Launchpad if all tasks are complete.
+	 * Disables Launchpad if all the launch task has been completed, or the last task.
 	 *
 	 * @return void
 	 */
 	public function maybe_disable_launchpad() {
-		if ( $this->has_active_tasks() ) {
+		// This is being called by the endpoint which is currently updating the option directly, so the `isLaunchTask` check there fails.
+		// @todo Refactor the `/launchpad` endpoint to use `wpcom_mark_task_complete` instead, remove this function entirely.
+
+		$task_list_id = get_option( 'site_intent' );
+		$task_list    = $this->get_task_list( $task_list_id );
+		if ( empty( $task_list ) || ! isset( $task_list['task_ids'] ) ) {
 			return;
 		}
-		$this->disable_launchpad();
+
+		foreach ( $task_list['task_ids'] as $task_id ) {
+			$task_definition = $this->get_task( $task_id );
+			if ( ! isset( $task_definition['isLaunchTask'] ) || ! $task_definition['isLaunchTask'] ) {
+				continue;
+			}
+			$built_task = $this->build_task( $task_definition );
+			if ( $built_task['completed'] ) {
+				return $this->disable_launchpad();
+			}
+		}
+
+		// Fall back to last task logic.
+		$last_id    = array_pop( $task_list['task_ids'] );
+		$task       = $this->get_task( $last_id );
+		$built_task = $this->build_task( $task );
+		if ( $built_task['completed'] ) {
+			return $this->disable_launchpad();
+		}
 	}
 
 	/**
