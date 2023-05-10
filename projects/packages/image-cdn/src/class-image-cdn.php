@@ -89,10 +89,10 @@ final class Image_CDN {
 	 * @return void
 	 */
 	private function setup() {
-		/*
+		/**
 		 * Add a filter to easily apply image CDN urls without applying all `the_content` filters to any content.
 		 *
-		 * Since this is only applied if the module is active in Jetpack or any other plugin, it's safe to use without checking if the module is active.
+		 * Since this is only applied if the module is active in Jetpack or any other plugin, it's a safe option to apply photon urls to any content.
 		 */
 		add_filter( 'jetpack_image_cdn_content', array( __CLASS__, 'filter_the_content' ), 10 );
 
