@@ -3329,6 +3329,7 @@ function wp_cron_preload_cache() {
 	 *
 	 * $c is set to the value of preload_cache_counter['c'] at the start of the function
 	 * before it is incremented by WPSC_PRELOAD_POST_COUNT here.
+	 * The time is used to check if preloading has stalled in check_up_on_preloading().
 	 */
 	update_option(
 		'preload_cache_counter',
