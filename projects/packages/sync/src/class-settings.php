@@ -246,7 +246,7 @@ class Settings {
 	 * @return string SQL WHERE clause.
 	 */
 	public static function get_blacklisted_post_types_sql() {
-		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_types_blacklist' ) ) ) . '\')';
+		return 'post_type NOT IN (\'' . implode( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_types_blacklist' ) ) ) . '\')';
 	}
 
 	/**
@@ -276,7 +276,7 @@ class Settings {
 	 * @return string SQL WHERE clause.
 	 */
 	public static function get_blacklisted_taxonomies_sql() {
-		return "taxonomy NOT IN ('" . join( "', '", array_map( 'esc_sql', self::get_setting( 'taxonomies_blacklist' ) ) ) . "')";
+		return "taxonomy NOT IN ('" . implode( "', '", array_map( 'esc_sql', self::get_setting( 'taxonomies_blacklist' ) ) ) . "')";
 	}
 
 	/**
@@ -289,7 +289,7 @@ class Settings {
 	 * @return string SQL WHERE clause.
 	 */
 	public static function get_whitelisted_post_meta_sql() {
-		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_meta_whitelist' ) ) ) . '\')';
+		return 'meta_key IN (\'' . implode( '\', \'', array_map( 'esc_sql', self::get_setting( 'post_meta_whitelist' ) ) ) . '\')';
 	}
 
 	/**
@@ -357,7 +357,7 @@ class Settings {
 	 * @return string SQL WHERE clause.
 	 */
 	public static function get_whitelisted_comment_meta_sql() {
-		return 'meta_key IN (\'' . join( '\', \'', array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ) ) . '\')';
+		return 'meta_key IN (\'' . implode( '\', \'', array_map( 'esc_sql', self::get_setting( 'comment_meta_whitelist' ) ) ) . '\')';
 	}
 
 	/**

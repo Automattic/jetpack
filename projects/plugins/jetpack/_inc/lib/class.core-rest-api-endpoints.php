@@ -71,6 +71,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_endpoint          = new Jetpack_Core_API_Site_Endpoint();
 		$widget_endpoint        = new Jetpack_Core_API_Widget_Endpoint();
 
+		/**
+		 * TODO: Move me somewhere that makes more sense.
+		 * Also give me permissions that aren't awful.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'jetpack-ai-jwt',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_openai_jwt',
+				'permission_callback' => function () {
+					return ( new Connection_Manager( 'jetpack' ) )->is_user_connected() && current_user_can( 'edit_posts' );
+				},
+			)
+		);
+
 		register_rest_route(
 			'jetpack/v4',
 			'plans',
@@ -749,6 +765,40 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'callback'            => __CLASS__ . '::get_intro_offers',
 				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
+		);
+	}
+
+	/**
+	 * Ask WPCOM for a JWT token to use for OpenAI conversations.
+	 * TODO: Clean me up. This is ugly hack code.
+	 */
+	public static function get_openai_jwt() {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+
+		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+			"/sites/$blog_id/jetpack-openai-query/jwt",
+			'2',
+			array(
+				'method'  => 'POST',
+				'headers' => array( 'Content-Type' => 'application/json; charset=utf-8' ),
+			),
+			wp_json_encode( array() ),
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$json = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( ! isset( $json->token ) ) {
+			return new WP_Error( 'no-token', 'No token returned from WPCOM' );
+		}
+
+		return array(
+			'token'   => $json->token,
+			'blog_id' => $blog_id,
 		);
 	}
 
