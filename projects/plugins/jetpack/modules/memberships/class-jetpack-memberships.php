@@ -280,18 +280,17 @@ class Jetpack_Memberships {
 		$user_can_edit              = $this->user_can_edit();
 		$requires_stripe_connection = ! $this->get_connected_account_id();
 
-		$requires_upgrade = ! self::is_supported_jetpack_recurring_payments();
+		$jetpack_ready = ! self::is_enabled_jetpack_recurring_payments();
 
 		$is_premium_content_child = false;
 		if ( isset( $block ) && isset( $block->context['isPremiumContentChild'] ) ) {
 			$is_premium_content_child = (int) $block->context['isPremiumContentChild'];
 		}
 
-		return (
-			$is_premium_content_child &&
-			$user_can_edit &&
-			( $requires_upgrade || $requires_stripe_connection )
-		);
+		return $is_premium_content_child &&
+				$user_can_edit &&
+				$requires_stripe_connection &&
+				$jetpack_ready;
 	}
 
 	/**
@@ -492,23 +491,8 @@ class Jetpack_Memberships {
 	 * @return bool
 	 */
 	public static function is_enabled_jetpack_recurring_payments() {
-		return (
-			self::is_supported_jetpack_recurring_payments() ||
-			(
-				Jetpack::is_connection_ready() &&
-				/** This filter is documented in class.jetpack-gutenberg.php */
-				! apply_filters( 'jetpack_block_editor_enable_upgrade_nudge', false )
-			)
-		);
-	}
-
-	/**
-	 * Whether the site's plan supports the Recurring Payments block.
-	 */
-	public static function is_supported_jetpack_recurring_payments() {
-		$api_available     = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() );
-		$supported_in_plan = Jetpack_Plan::supports( 'recurring-payments' );
-		return apply_filters( 'test_jetpack_is_supported_jetpack_recurring_payments', $api_available && $supported_in_plan );
+		$api_available = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() );
+		return $api_available;
 	}
 
 	/**
@@ -519,7 +503,7 @@ class Jetpack_Memberships {
 	 * @return bool
 	 */
 	public static function has_configured_plans_jetpack_recurring_payments( $type = '' ) {
-		if ( ! self::is_supported_jetpack_recurring_payments() ) {
+		if ( ! self::is_enabled_jetpack_recurring_payments() ) {
 			return false;
 		}
 		$query = array(
@@ -543,7 +527,7 @@ class Jetpack_Memberships {
 	 * @return array
 	 */
 	public static function get_all_plans_id_jetpack_recurring_payments() {
-		if ( ! self::is_supported_jetpack_recurring_payments() ) {
+		if ( ! self::is_enabled_jetpack_recurring_payments() ) {
 			return array();
 		}
 		return get_posts(

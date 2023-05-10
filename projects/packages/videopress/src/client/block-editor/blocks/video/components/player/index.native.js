@@ -177,6 +177,7 @@ export default function Player( { isSelected, attributes } ) {
 					html={ html }
 					onWindowEvents={ { message: onSandboxMessage } }
 					viewportProps="user-scalable=0"
+					testID="videopress-player"
 					onLoadEnd={ onLoadEnd }
 				/>
 			) }

@@ -18,7 +18,7 @@ import ShowLittleByLittle from './show-little-by-little';
 import useSuggestionsFromOpenAI from './use-suggestions-from-openai';
 import './editor.scss';
 
-export default function Edit( { attributes, setAttributes, clientId } ) {
+export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
 	const [ , setErrorMessage ] = useState( false );
 	const [ aiType, setAiType ] = useState( 'text' );
@@ -38,15 +38,23 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		};
 	}, [] );
 
-	const { isLoadingCategories, isLoadingCompletion, getSuggestionFromOpenAI, showRetry } =
-		useSuggestionsFromOpenAI( {
-			clientId,
-			content: attributes.content,
-			setAttributes,
-			setErrorMessage,
-			tracks,
-			userPrompt,
-		} );
+	const {
+		isLoadingCategories,
+		isLoadingCompletion,
+		getSuggestionFromOpenAI,
+		showRetry,
+		contentBefore,
+		postTitle,
+		retryRequest,
+		wholeContent,
+	} = useSuggestionsFromOpenAI( {
+		clientId,
+		content: attributes.content,
+		setAttributes,
+		setErrorMessage,
+		tracks,
+		userPrompt,
+	} );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
@@ -99,18 +107,18 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		replaceBlocks( clientId, rawHandler( { HTML: attributes.content } ) );
 	};
 
-	const retry = () => {
+	const handleTryAgain = () => {
 		setAttributes( { content: undefined } );
 	};
 
 	const placeholder =
 		aiType === 'text'
-			? __( 'Write a paragraph about …', 'jetpack' )
+			? __( 'Ask AI to write anything…', 'jetpack' )
 			: __( 'What would you like to see?', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
-	const handleGetSuggestion = () => {
+	const handleGetSuggestion = type => {
 		if ( aiType === 'text' ) {
-			getSuggestionFromOpenAI();
+			getSuggestionFromOpenAI( type );
 			return;
 		}
 
@@ -150,15 +158,20 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				content={ attributes.content }
 				contentIsLoaded={ contentIsLoaded }
 				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+				retryRequest={ retryRequest }
 				handleAcceptContent={ handleAcceptContent }
 				handleGetSuggestion={ handleGetSuggestion }
+				handleTryAgain={ handleTryAgain }
 				isWaitingState={ isWaitingState }
 				loadingImages={ loadingImages }
 				placeholder={ placeholder }
-				retry={ retry }
 				showRetry={ showRetry }
 				setAiType={ setAiType }
 				setUserPrompt={ setUserPrompt }
+				contentBefore={ contentBefore }
+				postTitle={ postTitle }
+				userPrompt={ userPrompt }
+				wholeContent={ wholeContent }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>

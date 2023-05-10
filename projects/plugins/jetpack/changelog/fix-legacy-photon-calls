@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix compatibility issue in simple sites due to image CDN package
