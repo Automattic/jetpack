@@ -128,6 +128,11 @@ export type ISA_Data = z.infer< typeof ImageData >;
 export const isaData = image_size_analysis.store;
 export const isaDataLoading = derived(
 	[ image_size_analysis.pending, isaData ],
-	( [ $pending, $data ] ) => $pending || $data.data.images.length === 0
+	( [ $pending, $data ] ) => {
+		// Special case for ignored since that's currently handled by a different store.
+		// Ultimately, I think "ignored" is going back to the main store.
+		// because it too is stored over the network.
+		return $data.query.group !== 'ignored' && ( $pending || $data.data.images.length === 0 );
+	}
 );
 export const isaIgnoredImages = image_size_analysis_ignored_images.store;
