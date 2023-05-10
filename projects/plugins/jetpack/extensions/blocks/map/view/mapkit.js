@@ -105,6 +105,8 @@ class MapkitBlock {
 				callout: {
 					calloutContentForAnnotation: function ( annotation ) {
 						const element = document.createElement( 'div' );
+						element.style.width = annotation.element.parentElement.offsetWidth / 2 + 'px';
+
 						const title = element.appendChild( document.createElement( 'div' ) );
 						title.style.fontSize = '17px';
 						title.style.fontWeight = '500';
