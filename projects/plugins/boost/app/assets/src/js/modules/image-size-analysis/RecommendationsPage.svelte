@@ -7,8 +7,7 @@
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';
-	import { isaData, isaLazyLoad } from './store/isa-data';
-	const initialLoad = isaLazyLoad();
+	import { isaData, isaDataLoading } from './store/isa-data';
 
 	const params = useParams();
 
@@ -34,15 +33,15 @@
 <div id="jb-dashboard" class="jb-dashboard">
 	<Header />
 	<div class="recommendations-page jb-container jb-section--alt">
-		{#await initialLoad}
+		{#if $isaDataLoading}
 			<h1>Loading...</h1>
-		{:then}
+		{:else}
 			<Hero />
 			<Tabs />
 			<Table />
 			<Pagination />
 			<Footer />
-		{/await}
+		{/if}
 	</div>
 </div>
 

@@ -56,8 +56,8 @@ const ImageSizeAnalysis = z
 	// Prevent fatal error when this module isn't available.
 	.catch( {
 		query: {
-			page: 1,
-			group: 'all',
+			page: 0,
+			group: '',
 			search: '',
 		},
 		data: {
@@ -126,17 +126,8 @@ export const isaFilteredImages = derived(
  */
 export type ISA_Data = z.infer< typeof ImageData >;
 export const isaData = image_size_analysis.store;
-export const isaDataLoading = image_size_analysis.pending;
+export const isaDataLoading = derived(
+	[ image_size_analysis.pending, isaData ],
+	( [ $pending, $data ] ) => $pending || $data.data.images.length === 0
+);
 export const isaIgnoredImages = image_size_analysis_ignored_images.store;
-
-/**
- * Image Size Analysis is lazy loaded.
- * Use this method to populate the store.
- */
-export const isaLazyLoad = () =>
-	new Promise( resolve => {
-		onMount( async () => {
-			const data = await image_size_analysis.refresh();
-			resolve( data );
-		} );
-	} );
