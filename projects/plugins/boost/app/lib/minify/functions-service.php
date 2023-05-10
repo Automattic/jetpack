@@ -11,6 +11,9 @@ function jetpack_boost_page_optimize_types() {
 	);
 }
 
+/**
+ * Handle serving a minified / concatenated file from the virtual _static dir.
+ */
 function jetpack_boost_page_optimize_service_request() {
 	global $wp_filesystem;
 
@@ -18,6 +21,8 @@ function jetpack_boost_page_optimize_service_request() {
 
 	$cache_dir = Config::get_cache_dir_path();
 	$use_cache = ! empty( $cache_dir );
+
+	// Ensure the cache directory exists.
 	if ( $use_cache && ! is_dir( $cache_dir ) && ! $wp_filesystem->mkdir( $cache_dir, 0775, true ) ) {
 		$use_cache = false;
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -32,6 +37,7 @@ function jetpack_boost_page_optimize_service_request() {
 		}
 	}
 
+	// Ensure the cache directory is writable.
 	if ( $use_cache && ( ! is_dir( $cache_dir ) || ! $wp_filesystem->is_writable( $cache_dir ) || ! is_executable( $cache_dir ) ) ) {
 		$use_cache = false;
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
@@ -53,6 +59,7 @@ function jetpack_boost_page_optimize_service_request() {
 		$cache_file       = $cache_dir . "/page-optimize-cache-$request_uri_hash";
 		$cache_file_meta  = $cache_dir . "/page-optimize-cache-meta-$request_uri_hash";
 
+		// Serve an existing file.
 		if ( file_exists( $cache_file ) ) {
 			if ( isset( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
 				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -82,6 +89,7 @@ function jetpack_boost_page_optimize_service_request() {
 		}
 	}
 
+	// Existing file not available; generate new content.
 	$output  = jetpack_boost_page_optimize_build_output();
 	$content = $output['content'];
 	$headers = $output['headers'];
@@ -95,6 +103,7 @@ function jetpack_boost_page_optimize_service_request() {
 
 	echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We need to trust this unfortunately.
 
+	// Cache the generated data, if available.
 	if ( $use_cache ) {
 		$wp_filesystem->put_contents( $cache_file, $content );
 		$wp_filesystem->put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ) ) );
@@ -103,6 +112,9 @@ function jetpack_boost_page_optimize_service_request() {
 	die();
 }
 
+/**
+ * Generate a combined and minified output for the current request.
+ */
 function jetpack_boost_page_optimize_build_output() {
 	global $wp_filesystem;
 
@@ -119,8 +131,9 @@ function jetpack_boost_page_optimize_build_output() {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
 
+	// Ensure the path follows one of these forms:
 	// /_static/??/foo/bar.css,/foo1/bar/baz.css?m=293847g
-	// or
+	// -- or --
 	// /_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
@@ -131,9 +144,8 @@ function jetpack_boost_page_optimize_build_output() {
 
 	$args = substr( $args, strpos( $args, '?' ) + 1 );
 
-	// /foo/bar.css,/foo1/bar/baz.css?m=293847g
-	// or
-	// -eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
+	// Detect paths with - in their filename - this implies a base64 encoded gzipped string for the file list.
+	// e.g.: /_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
 	if ( '-' === $args[0] ) {
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		$args = @gzuncompress( base64_decode( substr( $args, 1 ) ) );
@@ -144,6 +156,7 @@ function jetpack_boost_page_optimize_build_output() {
 		}
 	}
 
+	// Handle comma separated list of files. e.g.:
 	// /foo/bar.css,/foo1/bar/baz.css?m=293847g
 	$version_string_pos = strpos( $args, '?' );
 	if ( false !== $version_string_pos ) {
@@ -235,9 +248,7 @@ function jetpack_boost_page_optimize_build_output() {
 			if ( 0 === strpos( $buf, '@charset' ) ) {
 				preg_replace_callback(
 					'/(?P<charset_rule>@charset\s+[\'"][^\'"]+[\'"];)/i',
-					function ( $match ) {
-						global $pre_output;
-
+					function ( $match ) use ( &$pre_output ) {
 						if ( 0 === strpos( $pre_output, '@charset' ) ) {
 							return '';
 						}
@@ -255,9 +266,7 @@ function jetpack_boost_page_optimize_build_output() {
 			if ( false !== strpos( $buf, '@import' ) ) {
 				$buf = preg_replace_callback(
 					'/(?P<pre_path>@import\s+(?:url\s*\()?[\'"\s]*)(?P<path>[^\'"\s](?:https?:\/\/.+\/?)?.+?)(?P<post_path>[\'"\s\)]*;)/i',
-					function ( $match ) use ( $dirpath ) {
-						global $pre_output;
-
+					function ( $match ) use ( $dirpath, &$pre_output ) {
 						if ( 0 !== strpos( $match['path'], 'http' ) && '/' !== $match['path'][0] ) {
 							$pre_output .= $match['pre_path'] . ( $dirpath === '/' ? '/' : $dirpath . '/' ) .
 											$match['path'] . $match['post_path'] . "\n";

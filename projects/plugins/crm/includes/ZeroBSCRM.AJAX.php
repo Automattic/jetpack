@@ -1520,12 +1520,12 @@ function jpcrm_ajax_quote_send_email() {
 	if ( $attachAsPDF ) {
 
 		// make pdf.
-		$pdf_file = jpcrm_quote_generate_pdf( $quoteID );
+		$pdf_path = jpcrm_quote_generate_pdf( $quoteID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// attach it
-		if ( $pdf_file !== false ) {
+		if ( $pdf_path !== false ) {
 
-			$attachments[] = array( $pdf_file, 'quote.pdf' );
+			$attachments[] = array( $pdf_path );
 
 		}
 
@@ -1591,10 +1591,10 @@ function jpcrm_ajax_quote_send_email() {
 		$sent = zeroBSCRM_mailDelivery_sendMessage( $mailDeliveryMethod, $mailArray );
 
 		// delete any gen'd pdf's
-		if ( $attachAsPDF && $pdf_file !== false ) {
+		if ( $attachAsPDF && $pdf_path !== false ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// delete the PDF file once it's been read (i.e. emailed)
-			unlink( $pdf_file );
+			wp_delete_file( $pdf_path );
 
 		}
 
@@ -2809,10 +2809,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// now got by screenopt above $per_page = 20;
 				$page_number            = 0;
 				$possibleSearchTerm     = '';
-				$withInvoices           = false;
 				$withQuotes             = false;
 				$withTransactions       = false;
-				$argsOverride           = false;
 				$possibleCoID           = '';
 				$possibleTagIDs         = '';
 				$possibleQuickFilters   = '';
@@ -2904,13 +2902,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				if ( in_array( 'hasquote', $columnsRequired ) || in_array( 'quotecount', $columnsRequired ) || in_array( 'quotetotal', $columnsRequired ) ) {
 
 					$withQuotes = true;
-
-				}
-
-					// } Invoices
-				if ( in_array( 'hasinvoice', $columnsRequired ) || in_array( 'invoicecount', $columnsRequired ) || in_array( 'invoicetotal', $columnsRequired ) ) {
-
-					$withInvoices = true;
 
 				}
 
@@ -3054,7 +3045,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 						'withCustomFields' => true,
 						'withQuotes'       => $withQuotes,
-						'withInvoices'     => $withInvoices,
+						'withInvoices'     => false,
 						'withTransactions' => $withTransactions,
 						'withLogs'         => false,
 						'withLastLog'      => $latestLog,
@@ -3146,16 +3137,11 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// now got by screenopt above $per_page = 20;
 				$page_number          = 0;
 				$possibleSearchTerm   = '';
-				$argsOverride         = false;
-				$possibleCoID         = '';
 				$possibleTagIDs       = '';
 				$possibleQuickFilters = '';
-				$inArray              = '';
 				$withTags             = false;
 				$withAssigned         = false;
 				$latestLog            = false;
-				$withQuotes           = false;
-				$withInvoices         = false;
 				$withTransactions     = false;
 				$withValues           = false;
 
@@ -3209,16 +3195,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					$withAssigned = true;
 
 				}
-				if ( in_array( 'quotecount', $columnsRequired ) ) {
 
-					$withQuote = true;
-
-				}
-				if ( in_array( 'invoicecount', $columnsRequired ) ) {
-
-					$withInvoices = true;
-
-				}
 				if ( in_array( 'transactioncount', $columnsRequired ) ) {
 
 					$withTransactions = true;
@@ -3314,16 +3291,43 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 						}
 					}
 				}
+				// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				// make ARGS
+				$args = array(
+					'searchPhrase'     => $possibleSearchTerm,
+					'isTagged'         => $possibleTagIDs,
+					'quickFilters'     => $possibleQuickFilters,
+					'withCustomFields' => true,
+					'withInvoices'     => false,
+					'withTransactions' => $withTransactions,
+					'withLogs'         => false,
+					'withLastLog'      => $latestLog,
+					'withTags'         => $withTags,
+					'withOwner'        => $withAssigned,
+					'withValues'       => $withValues,
+					'sortByField'      => $sortField,
+					'sortOrder'        => $sortOrder,
+					'page'             => $page_number,
+					'perPage'          => $per_page,
+					'ignoreowner'      => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY ),
+				);
 
-					// } Retrieve data
-					// $withFullDetails=false,$perPage=10,$page=0,$searchPhrase='',$argsOverride=false, $hasTagIDs='', $inArr = '',$withTags=false,$withAssigned=false,$withLastLog=false,$sortByField='',$sortOrder='DESC',$quickFilters=false
-					$companies = zeroBS_getCompaniesv2( true, $per_page, $page_number, $possibleSearchTerm, $argsOverride, $possibleTagIDs, $inArray, $withTags, $withAssigned, $latestLog, $sortField, $sortOrder, $possibleQuickFilters, $withTransactions, $withInvoices, $withQuotes, $withValues );
+				$companies = $zbs->DAL->companies->getCompanies( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-					// } If using pagination, also return total count
+				// If using pagination, also return total count
 				if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
-					$res['objectcount'] = zeroBS_getCompaniesv2CountIncParams( $possibleSearchTerm, $argsOverride, $possibleTagIDs, $inArray, $withTags, $withAssigned, $latestLog, $sortField, $sortOrder, $possibleQuickFilters );
-
+					// make count arguments
+					$args               = array(
+						'searchPhrase' => $possibleSearchTerm,
+						'quickFilters' => $possibleQuickFilters,
+						'isTagged'     => $possibleTagIDs,
+						// just count
+						'count'        => true,
+						'ignoreowner'  => zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_COMPANY ),
+					);
+					$res['objectcount'] = (int) $zbs->DAL->companies->getCompanies( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				}
 
 					// } Tidy
@@ -3351,7 +3355,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// now got by screenopt above $per_page = 20;
 				$page_number          = 0;
 				$possibleSearchTerm   = '';
-				$argsOverride         = false;
 				$possibleQuickFilters = '';
 				$possibleTagIDs       = '';
 				$inArray              = '';
@@ -3483,7 +3486,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// } Build query
 				// now got by screenopt above $per_page = 20;
 				$page_number          = 0;
-				$argsOverride         = false;
 				$possibleCoID         = '';
 				$possibleQuickFilters = '';
 				$possibleSearchTerm   = '';
@@ -3620,7 +3622,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// now got by screenopt above $per_page = 20;
 				$page_number          = 0;
 				$possibleSearchTerm   = '';
-				$argsOverride         = false;
 				$possibleCoID         = '';
 				$possibleTagIDs       = '';
 				$possibleQuickFilters = '';
@@ -3764,10 +3765,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// now got by screenopt above $per_page = 20;
 				$page_number          = 0;
 				$possibleSearchTerm   = '';
-				$withInvoices         = false;
 				$withQuotes           = false;
 				$withTransactions     = false;
-				$argsOverride         = false;
 				$possibleCoID         = '';
 				$possibleTagIDs       = '';
 				$possibleQuickFilters = '';
@@ -3851,7 +3850,7 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				}
 
 				// } Retrieve data
-				// ($withFullDetails=false,$perPage=10,$page=0,$withInvoices=false,$withQuotes=false,$searchPhrase='',$withTransactions=false,$argsOverride=false,$companyID=false, $hasTagIDs='', $inArr = '')
+				// ($withFullDetails=false,$perPage=10,$page=0,$withQuotes=false,$searchPhrase='',$withTransactions=false,$argsOverride=false,$companyID=false, $hasTagIDs='', $inArr = '')
 
 				// } Retrieve data
 				// old
@@ -3895,7 +3894,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				$ownerID            = -99;
 				$possibleSearchTerm = '';
 				$withAudienceCount  = false;
-				$argsOverride       = false;
 				$inArray            = '';
 
 				// } Sorting
@@ -4022,10 +4020,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// now got by screenopt above $per_page = 20;
 				$page_number          = 0;
 				$possibleSearchTerm   = '';
-				$withInvoices         = false;
 				$withQuotes           = false;
 				$withTransactions     = false;
-				$argsOverride         = false;
 				$possibleCoID         = '';
 				$possibleTagIDs       = '';
 				$possibleQuickFilters = '';
@@ -4119,7 +4115,6 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 				// build query
 				$page_number          = 0;
 				$possibleSearchTerm   = '';
-				$argsOverride         = false;
 				$possibleTagIDs       = '';
 				$possibleQuickFilters = array();
 				$inArray              = '';
@@ -5965,12 +5960,12 @@ function zeroBSCRM_AJAX_sendInvoiceEmail_v3( $email = '', $invoiceID = -1, $atta
 			// make pdf.
 
 			// generate the PDF
-			$pdfFileLocation = zeroBSCRM_generateInvoicePDFFile( $invoiceID );
+			$pdf_path = jpcrm_invoice_generate_pdf( $invoiceID ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-			if ( $pdfFileLocation !== false ) {
+			if ( $pdf_path !== false ) {
 
 				// attach inv
-				$attachments[] = array( $pdfFileLocation, 'invoice.pdf' );
+				$attachments[] = array( $pdf_path );
 
 			}
 
@@ -6036,10 +6031,10 @@ function zeroBSCRM_AJAX_sendInvoiceEmail_v3( $email = '', $invoiceID = -1, $atta
 			$sent = zeroBSCRM_mailDelivery_sendMessage( $mailDeliveryMethod, $mailArray );
 
 			// delete any gen'd pdf's
-			if ( $attachAsPDF && $pdfFileLocation !== false ) {
+			if ( $attachAsPDF && $pdf_path !== false ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				// delete the PDF file once it's been read (i.e. emailed)
-				unlink( $pdfFileLocation );
+				wp_delete_file( $pdf_path );
 
 			}
 
