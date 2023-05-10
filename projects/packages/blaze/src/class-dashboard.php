@@ -28,7 +28,7 @@ class Dashboard {
 	 *
 	 * @var array
 	 */
-	const JS_DEPENDENCIES = array( 'wp-polyfill' );
+	const JS_DEPENDENCIES = array( 'lodash', 'react', 'react-dom', 'wp-components', 'wp-compose', 'wp-i18n', 'wp-is-shallow-equal', 'wp-primitives', 'wp-url', 'moment' );
 
 	/**
 	 * URL where we load the Blaze dashboard remotely.
