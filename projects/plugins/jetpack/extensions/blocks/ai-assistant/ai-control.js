@@ -58,10 +58,19 @@ const AIControl = ( {
 		? __( 'Ask AI to write anything…', 'jetpack' )
 		: __( 'Tell AI what to do next…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
-	const placeholder =
-		aiType === 'text'
-			? textPlaceholder
-			: __( 'What would you like to see?', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+	let placeholder = '';
+
+	if ( isWaitingState ) {
+		placeholder = __( 'AI writing', 'jetpack' );
+	} else if ( aiType === 'text' ) {
+		placeholder = textPlaceholder;
+	} else {
+		placeholder = __(
+			'What would you like to see?',
+			'jetpack',
+			/* dummy arg to avoid bad minification */ 0
+		);
+	}
 
 	return (
 		<>
@@ -87,7 +96,7 @@ const AIControl = ( {
 				<PlainText
 					onChange={ value => setUserPrompt( value ) }
 					onKeyPress={ handleInputEnter }
-					placeholder={ isWaitingState ? __( 'AI writing', 'jetpack' ) : placeholder }
+					placeholder={ placeholder }
 					className="jetpack-ai-assistant__input"
 				/>
 
