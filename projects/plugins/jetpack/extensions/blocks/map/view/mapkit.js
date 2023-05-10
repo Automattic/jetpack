@@ -109,9 +109,9 @@ class MapkitBlock {
 
 						const title = element.appendChild( document.createElement( 'div' ) );
 						title.style.fontSize = '17px';
-						title.style.fontWeight = '500';
-						title.style.lineHeight = '17px';
-						title.style.marginTop = '4px';
+						title.style.fontWeight = '600';
+						title.style.lineHeight = '19px';
+						title.style.marginTop = '8px';
 						title.textContent = annotation.title;
 
 						const caption = element.appendChild( document.createElement( 'p' ) );
