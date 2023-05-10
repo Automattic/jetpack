@@ -2,27 +2,15 @@ import debugFactory from 'debug';
 
 const debug = debugFactory( 'jetpack:ai-assistant' );
 
-export function askJetpack( question ) {
-	askQuestion( question ).catch( err => debug( 'Error', err ) );
-}
-
-/**
- * Leaving this here to make it easier to debug the streaming API calls for now
- *
- * @param {string} question - The query to send to the API
- */
-export async function askQuestion( question ) {
-	const { blogId, token } = await requestToken();
-
-	const url = new URL(
-		'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/jetpack-openai-query'
-	);
-	url.searchParams.append( 'question', question );
-	url.searchParams.append( 'token', token );
-
-	const source = new EventSource( url.toString() );
-	let fullMessage = '';
-
+export async function askJetpack( question ) {
+	let fullMessage;
+	let source;
+	try {
+		source = await askQuestion( question );
+	} catch ( err ) {
+		debug( 'Error', err );
+		return source;
+	}
 	source.addEventListener( 'error', err => {
 		debug( 'Error', err );
 	} );
@@ -41,6 +29,25 @@ export async function askQuestion( question ) {
 			debug( chunk );
 		}
 	} );
+	return source;
+}
+
+/**
+ * Leaving this here to make it easier to debug the streaming API calls for now
+ *
+ * @param {string} question - The query to send to the API
+ */
+export async function askQuestion( question ) {
+	const { blogId, token } = await requestToken();
+
+	const url = new URL(
+		'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/jetpack-openai-query'
+	);
+	url.searchParams.append( 'question', question );
+	url.searchParams.append( 'token', token );
+
+	const source = new EventSource( url.toString() );
+	return source;
 }
 
 export async function requestToken() {
