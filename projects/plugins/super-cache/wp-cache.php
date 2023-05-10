@@ -3204,8 +3204,13 @@ function wp_cron_preload_cache() {
 		$wp_cache_preload_email_me = 0;
 		wp_cache_setting( 'wp_cache_preload_email_me', 0 );
 	}
-	if ( $wp_cache_preload_email_me && $c == 0 )
+	if (
+		$wp_cache_preload_email_me &&
+		$c === 0 &&
+		! get_transient( 'taxonomy_preload' )
+	) {
 		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), home_url(), '' ), ' ' );
+	}
 
 	/*
 	 * Preload taxonomies first.
