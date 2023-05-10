@@ -3301,12 +3301,7 @@ function wp_cron_preload_cache() {
 			}
 
 			if ( $preload_more_taxonomies === true ) {
-				if ( defined( 'DOING_CRON' ) ) {
-					wp_cache_debug( 'wp_cron_preload_cache: scheduling the next taxonomy preload in 3 seconds.' );
-					wp_schedule_single_event( time() + 3, 'wp_cache_preload_hook' );
-					wp_delete_file( $mutex );
-					return;
-				}
+				wpsc_schedule_next_preload();
 			}
 		}
 	}
@@ -3390,10 +3385,8 @@ function wp_cron_preload_cache() {
 			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] %2$d posts refreshed', 'wp-super-cache' ), home_url(), ( $c + WPSC_PRELOAD_POST_COUNT ) ), __( 'Refreshed the following posts:', 'wp-super-cache' ) . "\n$msg" );
 		}
 
-		if ( defined( 'DOING_CRON' ) ) {
-			wp_cache_debug( 'wp_cron_preload_cache: scheduling the next preload in 3 seconds.' );
-			wp_schedule_single_event( time() + 3, 'wp_cache_preload_hook' );
-		}
+		wpsc_schedule_next_preload();
+
 		wpsc_delete_files( get_supercache_dir() );
 	} else {
 		$msg = '';
@@ -3422,6 +3415,22 @@ function wp_cron_preload_cache() {
 add_action( 'wp_cache_preload_hook', 'wp_cron_preload_cache' );
 add_action( 'wp_cache_full_preload_hook', 'wp_cron_preload_cache' );
 
+/*
+ * Schedule the next preload event without resetting the preload counter.
+ * This happens when the next loop of an active preload is scheduled.
+ */
+function wpsc_schedule_next_preload() {
+	global $cache_path;
+
+	if ( defined( 'DOING_CRON' ) ) {
+		wp_cache_debug( 'wp_cron_preload_cache: scheduling the next preload in 3 seconds.' );
+		wp_schedule_single_event( time() + 3, 'wp_cache_preload_hook' );
+	}
+
+	// we always want to delete the mutex file, even if we're not using cron
+	$mutex = $cache_path . 'preload_mutex.tmp';
+	wp_delete_file( $mutex );
+}
 function next_preload_message( $hook, $text, $limit = 0 ) {
 	global $currently_preloading, $wp_cache_preload_interval;
 	if ( $next_preload = wp_next_scheduled( $hook ) ) {
