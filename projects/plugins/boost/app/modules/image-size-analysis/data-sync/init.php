@@ -7,7 +7,7 @@ use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync\Image_Size_An
 
 $image_data = Schema::as_assoc_array(
 	array(
-		'id'          => Schema::as_string(),
+		'id'           => Schema::as_string(),
 		'thumbnail'    => Schema::as_string(),
 		'device_type'  => Schema::enum( array( 'phone', 'desktop' ) ),
 		'instructions' => Schema::as_string(),
