@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { BlockControls, PlainText } from '@wordpress/block-editor';
 import {
 	Button,
@@ -21,7 +24,6 @@ const AIControl = ( {
 	handleGetSuggestion,
 	isWaitingState,
 	loadingImages,
-	placeholder,
 	setAiType,
 	userPrompt,
 	setUserPrompt,
@@ -29,6 +31,7 @@ const AIControl = ( {
 	contentBefore,
 	postTitle,
 	wholeContent,
+	content,
 } ) => {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
@@ -44,6 +47,28 @@ const AIControl = ( {
 			setAiType( 'text' );
 		}
 	};
+
+	const textPlaceholder = ! content?.length
+		? __( 'Ask AI to write anything…', 'jetpack' )
+		: __( 'Tell AI what to do next…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+
+	let placeholder = '';
+
+	if ( isWaitingState ) {
+		if ( userPrompt?.length ) {
+			placeholder = userPrompt;
+		} else {
+			placeholder = __( 'AI writing', 'jetpack' );
+		}
+	} else if ( aiType === 'text' ) {
+		placeholder = textPlaceholder;
+	} else {
+		placeholder = __(
+			'What would you like to see?',
+			'jetpack',
+			/* dummy arg to avoid bad minification */ 0
+		);
+	}
 
 	return (
 		<>
@@ -67,11 +92,14 @@ const AIControl = ( {
 			<div className="jetpack-ai-assistant__input-wrapper">
 				{ ( isWaitingState || loadingImages ) && <Loading /> }
 				<PlainText
+					value={ isWaitingState ? '' : userPrompt }
 					onChange={ value => setUserPrompt( value ) }
 					onKeyPress={ handleInputEnter }
-					placeholder={ isWaitingState ? __( 'AI writing', 'jetpack' ) : placeholder }
+					placeholder={ placeholder }
 					className="jetpack-ai-assistant__input"
+					disabled={ isWaitingState || loadingImages }
 				/>
+
 				<div className="jetpack-ai-assistant__controls">
 					<Button
 						onClick={ () => handleGetSuggestion( 'userPrompt' ) }
