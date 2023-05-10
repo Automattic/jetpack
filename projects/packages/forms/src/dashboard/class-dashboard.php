@@ -160,6 +160,10 @@ class Dashboard {
 	 * @return boolean
 	 */
 	private function has_feedback() {
+		// We want to hold the redirection logic a bit for now
+		return true;
+
+		// phpcs:disable Squiz.PHP.NonExecutableCode.Unreachable
 		$posts = new \WP_Query(
 			array(
 				'post_type'   => 'feedback',
@@ -168,5 +172,6 @@ class Dashboard {
 		);
 
 		return $posts->found_posts > 0;
+		// phpcs:enable
 	}
 }

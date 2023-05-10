@@ -6522,35 +6522,18 @@ function zeroBSCRM_ajax_mark_task_complete() {
 		$way    = sanitize_text_field( $_POST['way'] );
 		$taskID = (int) sanitize_text_field( $_POST['taskID'] );
 
-		if ( $zbs->isDAL3() ) {
+		if ( $way === 'complete' ) {
+			$new_status = 1;
+		}
+		if ( $way === 'incomplete' ) {
+			$new_status = -1;
+		}
 
-			// 3.0
-			if ( $way == 'complete' ) {
-				$newStatus = 1;
-			}
-			if ( $way == 'incomplete' ) {
-				$newStatus = -1;
-			}
-
-			if ( isset( $newStatus ) ) {
-				$zbs->DAL->events->setEventCompleteness( $taskID, $newStatus );
-			} else {
-				zeroBSCRM_sendJSONError( array( 'nostatus' => 1 ) );
-				exit();
-			}
+		if ( isset( $new_status ) ) {
+			$zbs->DAL->events->setEventCompleteness( $taskID, $new_status ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		} else {
-
-			// <3.0
-			$task_meta = zeroBSCRM_task_getMeta( $taskID );
-
-			if ( $way == 'complete' ) {
-				$task_meta['complete'] = 1;
-			}
-			if ( $way == 'incomplete' ) {
-				$task_meta['complete'] = -1;
-			}
-			zeroBSCRM_task_updateMeta( $taskID, $task_meta );
-
+			zeroBSCRM_sendJSONError( array( 'nostatus' => 1 ) );
+			exit();
 		}
 
 		$m['message'] = 'Marked ' . $way;

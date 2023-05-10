@@ -1212,7 +1212,7 @@ class Woo_Sync {
 
 		$source_args = array(
 			'externalSource'    => 'woo',
-			'externalSourceUID' => $order_id,
+			'externalSourceUID' => $order_num,
 			'origin'            => $origin,
 		);
 

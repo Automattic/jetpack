@@ -1,9 +1,62 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useSelect } from '@wordpress/data';
+import { useSelect, select as selectData } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MarkdownIt from 'markdown-it';
 import { createPrompt } from './create-prompt';
+
+/**
+ * Returns partial content from the beginning of the post
+ * to the current block (clientId)
+ *
+ * @param {string} clientId - The current block clientId.
+ * @returns {string}          The partial content.
+ */
+export function getPartialContentToBlock( clientId ) {
+	if ( ! clientId ) {
+		return '';
+	}
+
+	const editor = selectData( 'core/block-editor' );
+	const index = editor.getBlockIndex( clientId );
+	const blocks = editor.getBlocks().slice( 0, index ) ?? [];
+	if ( ! blocks?.length ) {
+		return '';
+	}
+
+	return blocks
+		.filter( function ( block ) {
+			return block && block.attributes && block.attributes.content;
+		} )
+		.map( function ( block ) {
+			return block.attributes.content.replaceAll( '<br/>', '\n' );
+		} )
+		.join( '\n' );
+}
+
+/**
+ * Returns content from all blocks,
+ * by inspecting the blocks `content` attributes
+ *
+ * @returns {string} The content.
+ */
+export function getContentFromBlocks() {
+	const editor = selectData( 'core/block-editor' );
+	const blocks = editor.getBlocks();
+
+	if ( ! blocks?.length ) {
+		return '';
+	}
+
+	return blocks
+		.filter( function ( block ) {
+			return block && block.attributes && block.attributes.content;
+		} )
+		.map( function ( block ) {
+			return block.attributes.content.replaceAll( '<br/>', '\n' );
+		} )
+		.join( '\n' );
+}
 
 const useSuggestionsFromOpenAI = ( {
 	clientId,
@@ -16,6 +69,8 @@ const useSuggestionsFromOpenAI = ( {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
+	const [ lastPrompt, setLastPrompt ] = useState( '' );
+
 	// Let's grab post data so that we can do something smart.
 
 	const currentPostTitle = useSelect( select =>
@@ -79,13 +134,7 @@ const useSuggestionsFromOpenAI = ( {
 		.join( ', ' );
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
-	const contentBefore = useSelect( select => {
-		const editor = select( 'core/block-editor' );
-		const index = editor.getBlockIndex( clientId );
-		return editor.getBlocks().slice( 0, index ) ?? [];
-	} );
-
-	const getSuggestionFromOpenAI = type => {
+	const getSuggestionFromOpenAI = ( type, retryRequest = false ) => {
 		if ( !! content || isLoadingCompletion ) {
 			return;
 		}
@@ -94,20 +143,26 @@ const useSuggestionsFromOpenAI = ( {
 		setErrorMessage( false );
 		setIsLoadingCompletion( true );
 
-		const data = {
-			content: createPrompt(
-				currentPostTitle,
-				contentBefore,
-				categoryNames,
-				tagNames,
-				userPrompt,
-				type
-			),
-		};
+		const prompt = retryRequest
+			? lastPrompt
+			: createPrompt(
+					currentPostTitle,
+					getPartialContentToBlock( clientId ),
+					getContentFromBlocks(),
+					userPrompt,
+					type,
+					categoryNames,
+					tagNames
+			  );
 
+		const data = { content: prompt };
 		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
 			post_id: postId,
 		} );
+
+		if ( ! retryRequest ) {
+			setLastPrompt( prompt );
+		}
 
 		apiFetch( {
 			path: '/wpcom/v2/jetpack-ai/completions',
@@ -136,12 +191,17 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 	};
 	return {
-		getSuggestionFromOpenAI,
 		isLoadingCategories,
 		isLoadingCompletion,
 		setIsLoadingCategories,
 		setShowRetry,
 		showRetry,
+		postTitle: currentPostTitle,
+		contentBefore: getPartialContentToBlock( clientId ),
+		wholeContent: getContentFromBlocks( clientId ),
+
+		getSuggestionFromOpenAI,
+		retryRequest: () => getSuggestionFromOpenAI( '', true ),
 	};
 };
 

@@ -1,7 +1,12 @@
+/**
+ * External dependencies
+ */
 import { __, sprintf } from '@wordpress/i18n';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
+
+// Suffix to add to the prompt
 export const PROMPT_SUFFIX = __(
 	'. Please always output the generated content in markdown format. Do not include a top level heading by default. Please only output generated content ready for publishing.',
 	'jetpack'
@@ -13,78 +18,94 @@ export const PROMPT_SUFFIX = __(
  * - or a slice of it if too long, and tags + categories names
  * to create a prompt.
  *
- * @param {string} postTitle                - The current post title.
- * @param {Array} contentBeforeCurrentBlock - The content before the current block.
- * @param {string} categoriesNames          - The categories names.
- * @param {string} tagsNames                - The tags names.
- * @param {string} userPrompt               - The user prompt.
- * @param {string} type                     - The type of prompt to create.
+ * @param {string} postTitle       - The current post title.
+ * @param {string} contentBefore   - The content before the current block.
+ * @param {string} content         - The whole content.
+ * @param {string} userPrompt      - The user prompt.
+ * @param {string} type            - The type of prompt to create.
+ * @param {string} categoriesNames - The categories names.
+ * @param {string} tagsNames       - The tags names.
  *
  * @return {string} The prompt.
  */
 export const createPrompt = (
 	postTitle = '',
-	contentBeforeCurrentBlock = [],
+	contentBefore = '',
+	content = '',
+	userPrompt = '',
+	type = '',
 	// eslint-disable-next-line no-unused-vars
 	categoriesNames = '',
 	// eslint-disable-next-line no-unused-vars
-	tagsNames = '',
-	userPrompt = '',
-	type = 'userPrompt'
+	tagsNames = ''
 ) => {
+	if (
+		! postTitle?.length &&
+		! contentBefore?.length &&
+		! userPrompt?.length &&
+		! content?.length
+	) {
+		return '';
+	}
+
+	// When type is not defined,
+	// let's set it based on the title, content, and userPrompt.
+	if ( ! type ) {
+		if ( userPrompt?.length ) {
+			type = 'userPrompt';
+		} else if ( postTitle?.length ) {
+			type = 'titleSummary';
+		}
+	}
+
 	if ( type === 'userPrompt' ) {
 		return userPrompt + PROMPT_SUFFIX;
 	}
+
+	// Sanitize content and trim it to the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters.
+	contentBefore = contentBefore?.length ? contentBefore.replace( /<br\s*\/?>/gi, '\n' ) : '';
+	contentBefore = contentBefore.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
 
 	if ( type === 'titleSummary' ) {
 		if ( ! postTitle?.length ) {
 			return '';
 		}
 
+		const continueFromHere = contentBefore?.length
+			? sprintf(
+					/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
+					__( '. Additional context:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
+					contentBefore
+			  )
+			: '';
+
 		const titlePrompt = sprintf(
 			/** translators: This will be the beginning of a prompt that will be sent to OpenAI based on the post title. */
-			__( "Please help me write a short piece of a blog post titled '%1$s'", 'jetpack' ),
-			postTitle
+			__( "Please help me write a short piece of a blog post titled '%1$s'%2$s", 'jetpack' ),
+			postTitle,
+			continueFromHere
 		);
-
 		return titlePrompt + PROMPT_SUFFIX;
 	}
 
 	if ( type === 'summarize' ) {
-		const content = contentBeforeCurrentBlock
-			.filter( function ( block ) {
-				return block && block.attributes && block.attributes.content;
-			} )
-			.map( function ( block ) {
-				return block.attributes.content.replaceAll( '<br/>', '\n' );
-			} )
-			.join( '\n' );
-		const shorter_content = content.slice( -1 * MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
+		content = content?.length ? content.replace( /<br\s*\/?>/gi, '\n' ) : '';
+		content = content.slice( -MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
 
 		const expandPrompt = sprintf(
 			/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
 			__( 'Summarize this:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-			shorter_content
+			content
 		);
 
 		return expandPrompt + PROMPT_SUFFIX;
 	}
 
 	if ( type === 'continue' ) {
-		const content = contentBeforeCurrentBlock
-			.filter( function ( block ) {
-				return block && block.attributes && block.attributes.content;
-			} )
-			.map( function ( block ) {
-				return block.attributes.content.replaceAll( '<br/>', '\n' );
-			} )
-			.join( '\n' );
-		const shorter_content = content.slice( -1 * MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT );
-
 		const expandPrompt = sprintf(
 			/** translators: This will be the end of a prompt that will be sent to OpenAI with the last MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT characters of content.*/
 			__( ' Please continue from here:\n\n … %s', 'jetpack' ), // eslint-disable-line @wordpress/i18n-no-collapsible-whitespace
-			shorter_content
+			contentBefore
 		);
 
 		return expandPrompt + PROMPT_SUFFIX;
