@@ -44,6 +44,7 @@ class Test_Initial_State extends TestCase {
 			'wpVersion'          => $wp_version,
 			'siteSuffix'         => ( new Status() )->get_site_suffix(),
 			'connectionErrors'   => Error_Handler::get_instance()->get_verified_errors(),
+			'isOfflineMode'      => ( new Status() )->is_offline_mode(),
 		);
 		$expected_value = 'var JP_CONNECTION_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $expected_state ) ) . '"));';
 
