@@ -390,7 +390,7 @@ class Launchpad_Task_Lists {
 				// We only need to know the built completion status if the task has an `add_listener_callback` property.
 				// Small optimization to not run `is_complete_callback` as often.
 				$task = $this->build_task( $task_definition );
-				if ( ! $task['completed'] && is_callable( $task_definition['add_listener_callback'] ) ) {
+				if ( ! $task['completed'] ) {
 					call_user_func_array( $task_definition['add_listener_callback'], array( $task, $task_definition ) );
 				}
 			}
