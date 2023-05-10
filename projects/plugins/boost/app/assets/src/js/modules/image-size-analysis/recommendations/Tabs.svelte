@@ -8,10 +8,17 @@
 	{#each Object.entries( $imageDataGroupTabs ) as [key, group]}
 		<div class="jb-tab jb-tab--{key}" class:active={$isaData.query.group === key}>
 			<div class="jb-tab__header">
-				<Link class="jb-navigator-link" to="/image-size-analysis/{key}/1">
-					{group.name}
-					<span>{group.issues}</span>
-				</Link>
+				{#if group.issues > 0}
+					<Link class="jb-navigator-link" to="/image-size-analysis/{key}/1">
+						{group.name}
+						<span>{group.issues}</span>
+					</Link>
+				{:else}
+					<div class="jb-navigator-link jb-navigator-link--inactive">
+						{group.name}
+						<span>{group.issues}</span>
+					</div>
+				{/if}
 			</div>
 		</div>
 	{/each}
@@ -58,6 +65,10 @@
 		justify-content: center;
 		outline: 0;
 		box-shadow: none;
+	}
+	.jb-navigator-link--inactive {
+		opacity: 0.5;
+		cursor: default;
 	}
 	.jb-tab span {
 		padding: 2px 8px;
