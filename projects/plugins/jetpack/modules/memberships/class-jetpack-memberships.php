@@ -492,7 +492,7 @@ class Jetpack_Memberships {
 	 */
 	public static function is_enabled_jetpack_recurring_payments() {
 		$api_available = ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() );
-		return apply_filters( 'test_jetpack_is_supported_jetpack_recurring_payments', $api_available );
+		return $api_available;
 	}
 
 	/**
