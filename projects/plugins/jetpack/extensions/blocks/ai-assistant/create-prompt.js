@@ -7,11 +7,10 @@ import { __, sprintf } from '@wordpress/i18n';
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
 
 // Suffix to add to the prompt
-export const PROMPT_SUFFIX = __(
-	'. Please always output the generated content in markdown format. Do not include a top level heading by default. Please only output generated content ready for publishing.',
-	'jetpack'
-);
-
+export const PROMPT_INTERNAL_OPTIONS =
+	'Please always output the generated content in markdown format, do not include a top level heading by default and only output generated content ready for publishing';
+export const PROMPT_SUFFIX = `. ${ PROMPT_INTERNAL_OPTIONS }.`;
+export const PROMPT_MID_CONTENT = `, and ${ PROMPT_INTERNAL_OPTIONS.toLowerCase() }`;
 /*
  * Creates the prompt that will eventually be sent to OpenAI.
  * It uses the current post title, content (before the actual AI block)
@@ -123,6 +122,19 @@ export const createPrompt = (
 		);
 
 		return simplifyPrompt;
+	}
+
+	if ( type === 'correctSpelling' ) {
+		if ( ! contentBefore?.length ) {
+			return '';
+		}
+
+		const expandPrompt = sprintf(
+			'Please correct any spelling and grammar mistakes from the following text%1$s:\n\n%2$s\n\n',
+			PROMPT_MID_CONTENT,
+			contentBefore
+		);
+		return expandPrompt;
 	}
 
 	// TODO: add some error handling if user supplied prompts or existing content is too short.

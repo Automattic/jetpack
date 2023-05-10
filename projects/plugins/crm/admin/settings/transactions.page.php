@@ -278,7 +278,7 @@ if ( isset( $sbupdated ) ) {
 
 								?>
 								<input type="text" name="jpcrm-status-transactions" id="jpcrm-status-transactions" value="<?php echo esc_attr( $jpcrmTranStatusStr ); ?>" class="form-control" />
-								<p style="margin-top:4px"><?php esc_html_e( 'Default is', 'zero-bs-crm' ); ?>:<br /><span style="background:#ceeaea;padding:0 4px">Succeeded,Completed,Failed,Refunded,Processing,Pending,Hold,Cancelled,Deleted</span></p>
+								<p style="margin-top:4px"><?php esc_html_e( 'Default is', 'zero-bs-crm' ); ?>:<br /><span style="background:#ceeaea;padding:0 4px">Succeeded,Completed,Failed,Refunded,Processing,Pending,Hold,Cancelled,Deleted,Draft</span></p>
 							</td>
 						</tr>
 

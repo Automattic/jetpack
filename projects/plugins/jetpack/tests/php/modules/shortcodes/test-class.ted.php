@@ -101,7 +101,7 @@ BODY;
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_exists() {
-		$this->assertEquals( shortcode_exists( 'ted' ), true );
+		$this->assertTrue( shortcode_exists( 'ted' ) );
 	}
 
 	/**

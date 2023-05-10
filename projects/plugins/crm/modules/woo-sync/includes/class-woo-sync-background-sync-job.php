@@ -1170,10 +1170,6 @@ class Woo_Sync_Background_Sync_Job {
 
 	    }
 
-	    $order_status_to_invoice_settings     = $this->woosync()->woo_order_status_mapping( 'invoice' );
-	    $order_status_to_transaction_settings = $this->woosync()->woo_order_status_mapping( 'transaction' );
-	    $valid_transaction_statuses           = zeroBSCRM_getTransactionsStatuses( true );
-	    $valid_invoice_statuses               = zeroBSCRM_getInvoicesStatuses();
 	    // pre-processing from the $order_data
 	    $order_status   = $order_data['status'];
 	    $order_currency = $order_data['currency'];
@@ -1324,7 +1320,7 @@ class Woo_Sync_Background_Sync_Job {
 				$contact_id = zeroBS_getCustomerIDWithEmail( $contact_email );
 				// If this is a new contact or the current status equals the first status (CRM's default value is 'Lead'), we are allowed to change it.
 				if ( empty( $contact_id ) || $zbs->DAL->contacts->getContactStatus( $contact_id ) === $contact_statuses[0] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-					$data['contact']['status'] = $this->woosync()->woocommerce_order_status_to_contact_status( $order_status );
+					$data['contact']['status'] = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_CONTACT, $order_status );
 				}
 			}
 			$data['contact']['created']         = $contact_creation_date_uts;
@@ -1594,15 +1590,7 @@ class Woo_Sync_Background_Sync_Job {
 			$transaction_paid_date_uts = $order_data['date_paid']->date( 'U' );
 		}
 
-		$invoice_status = __( 'Unpaid', 'zero-bs-crm' );
-
-		// Look for a custom user-defined status mapping value, otherwise we keep using the default value.
-		if ( $is_status_mapping_enabled ) {
-			$candidate_invoice_status = ! empty( $settings[ $order_status_to_invoice_settings[ $order_status ] ] ) ? $settings[ $order_status_to_invoice_settings[ $order_status ] ] : -1;
-
-			// Make sure that the user-defined invoice status mapping is still in the list of allowed Contact statuses.
-			$invoice_status = in_array( $candidate_invoice_status, $valid_invoice_statuses ) ? $candidate_invoice_status : $invoice_status;
-		}
+		$invoice_status = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_INVOICE, $order_status );
 
 		// retrieve completed date, where available
 		if ( array_key_exists( 'date_completed', $order_data ) && !empty( $order_data['date_completed'] ) ) {
@@ -1728,15 +1716,7 @@ class Woo_Sync_Background_Sync_Job {
 
 		}
 
-		// Transactions have a "Hold" status by default, not "On-hold"
-		$transaction_status = ( $order_status == "on-hold" ? "Hold" : ucfirst( $order_status ) );
-		
-		if ( $is_status_mapping_enabled ) {
-			$candidate_transaction_status = ! empty( $settings[ $order_status_to_transaction_settings[ $order_status ] ] ) ? $settings[ $order_status_to_transaction_settings[ $order_status ] ] : -1;
-
-			// Make sure that the user-defined transaction status mapping is still in the list of allowed transaction statuses.
-			$transaction_status = in_array( $candidate_transaction_status, $valid_transaction_statuses ) ? $candidate_transaction_status : $transaction_status;
-		}
+		$transaction_status = $this->woosync()->translate_order_status_to_obj_status( ZBS_TYPE_TRANSACTION, $order_status );
 
 		// fill out transaction header (object)
 		$data['transaction'] = array(
