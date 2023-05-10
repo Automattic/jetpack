@@ -527,7 +527,7 @@ export function getPlanClass( plan ) {
 			return 'is-free-plan';
 		case PLAN_PERSONAL:
 		case PLAN_PERSONAL_2_YEARS:
-			case PLAN_PERSONAL_3_YEARS:
+		case PLAN_PERSONAL_3_YEARS:
 		case PLAN_PERSONAL_MONTHLY:
 		case PLAN_STARTER:
 		case PLAN_JETPACK_PERSONAL:
@@ -535,20 +535,20 @@ export function getPlanClass( plan ) {
 			return 'is-personal-plan';
 		case PLAN_PREMIUM:
 		case PLAN_PREMIUM_2_YEARS:
-			case PLAN_PREMIUM_3_YEARS:
+		case PLAN_PREMIUM_3_YEARS:
 		case PLAN_PREMIUM_MONTHLY:
 		case PLAN_JETPACK_PREMIUM:
 		case PLAN_JETPACK_PREMIUM_MONTHLY:
 			return 'is-premium-plan';
 		case PLAN_BUSINESS:
 		case PLAN_BUSINESS_2_YEARS:
-			case PLAN_BUSINESS_3_YEARS:
+		case PLAN_BUSINESS_3_YEARS:
 		case PLAN_BUSINESS_MONTHLY:
 		case PLAN_JETPACK_BUSINESS:
 		case PLAN_JETPACK_BUSINESS_MONTHLY:
 		case PLAN_ECOMMERCE:
 		case PLAN_ECOMMERCE_2_YEARS:
-			case PLAN_ECOMMERCE_3_YEARS:
+		case PLAN_ECOMMERCE_3_YEARS:
 		case PLAN_ECOMMERCE_MONTHLY:
 		case PLAN_PRO:
 			return 'is-business-plan';
