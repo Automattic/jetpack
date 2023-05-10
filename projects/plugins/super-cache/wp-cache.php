@@ -1012,9 +1012,6 @@ table.wpsc-settings-table {
 			$currently_preloading = false;
 
 			$preload_counter = get_option( 'preload_cache_counter' );
-			if ( isset( $preload_counter['first'] ) ) { // converted from int to array
-				update_option( 'preload_cache_counter', array( 'c' => $preload_counter['c'], 't' => time() ) );
-			}
 
 			if ( ( is_array( $preload_counter ) && $preload_counter['c'] > 0 ) || get_transient( 'taxonomy_preload' ) ) {
 				$currently_preloading = true;
@@ -3203,11 +3200,6 @@ function wp_cron_preload_cache() {
 	@fclose( $fp );
 
 	$counter = get_option( 'preload_cache_counter' );
-	if ( is_array( $counter ) == false ) {
-		wp_cache_debug( 'wp_cron_preload_cache: setting up preload for the first time!', 5 );
-		$counter = array( 'c' => 0, 't' => time() );
-		update_option( 'preload_cache_counter', $counter );
-	}
 	$c = $counter[ 'c' ];
 
 	if ( $wp_cache_preload_email_volume == 'none' && $wp_cache_preload_email_me == 1 ) {
@@ -3451,11 +3443,13 @@ function next_preload_message( $hook, $text, $limit = 0 ) {
 
 function option_preload_cache_counter( $value ) {
 	if ( false == is_array( $value ) ) {
-		$ret = array( 'c' => $value, 't' => time(), 'first' => 1 );
-		return $ret;
+		return array(
+			'c' => 0,
+			't' => time(),
+		);
+	} else {
+		return $value;
 	}
-
-	return $value;
 }
 add_filter( 'option_preload_cache_counter', 'option_preload_cache_counter' );
 
