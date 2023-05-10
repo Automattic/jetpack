@@ -138,8 +138,7 @@ class WPCOM_JSON_API_Add_Widgets_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		if ( empty( $args['sidebar'] ) ) {
 			$active_sidebars = Jetpack_Widgets::get_active_sidebars();
-			reset( $active_sidebars );
-			$args['sidebar'] = key( $active_sidebars );
+			$args['sidebar'] = array_key_first( $active_sidebars );
 		}
 
 		return Jetpack_Widgets::activate_widget( $args['id_base'], $args['sidebar'], $args['position'], $args['settings'] );
