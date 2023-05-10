@@ -59,29 +59,35 @@
 </script>
 
 <div class="jb-pagination">
-	<button class="jb-chevron" class:inactive={current === 1} on:click={previousPage}>
-		<ChevronLeft />
-	</button>
+	{#if total > 1}
+		<button class="jb-chevron" class:inactive={current === 1} on:click={previousPage}>
+			<ChevronLeft />
+		</button>
 
-	<ul>
-		{#each pages as page}
-			<li>
-				<span class="jb-pagination__page" class:jb-pagination__current={page === current}>
-					{#if page === MORE_ICON}
-						...
-					{:else}
-						<Link to="/image-size-analysis/{$isaData.query.group}/{page}">
-							{page}
-						</Link>
-					{/if}
-				</span>
-			</li>
-		{/each}
-	</ul>
+		<ul>
+			{#each pages as page}
+				<li>
+					<span class="jb-pagination__page" class:jb-pagination__current={page === current}>
+						{#if page === MORE_ICON}
+							...
+						{:else}
+							<Link to="/image-size-analysis/{$isaData.query.group}/{page}">
+								{page}
+							</Link>
+						{/if}
+					</span>
+				</li>
+			{/each}
+		</ul>
 
-	<button class="jb-chevron" class:jb-pagination__inactive={current === total} on:click={nextPage}>
-		<ChevronRight />
-	</button>
+		<button
+			class="jb-chevron"
+			class:jb-pagination__inactive={current === total}
+			on:click={nextPage}
+		>
+			<ChevronRight />
+		</button>
+	{/if}
 </div>
 
 <style lang="scss">
