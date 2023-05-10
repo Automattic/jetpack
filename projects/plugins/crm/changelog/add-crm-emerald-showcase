@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Add the Emerald Showcase as an internal page that won't interfere with the CRM. It merely adds a page that can be accessed by typing the URL directly.
+
+
