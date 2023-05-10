@@ -46,6 +46,15 @@ final class Image_CDN {
 	private static $image_sizes = null;
 
 	/**
+	 * Weather Image CDN is enabled or not.
+	 *
+	 * This class will be instantiated if any plugin has activated image CDN module. Keeping this variable to check if module is active or not.
+	 *
+	 * @var bool Weather Image CDN is enabled or not.
+	 */
+	private static $is_enabled = false;
+
+	/**
 	 * Singleton implementation
 	 *
 	 * @return object
@@ -54,6 +63,7 @@ final class Image_CDN {
 		if ( ! is_a( self::$instance, self::class ) ) {
 			self::$instance = new self();
 			self::$instance->setup();
+			self::$is_enabled = true;
 		}
 
 		return self::$instance;
@@ -65,6 +75,13 @@ final class Image_CDN {
 	private function __construct() {}
 
 	/**
+	 * Check if image CDN is enabled as a module from Jetpack or any other plugin.
+	 */
+	public static function is_enabled() {
+		return self::$is_enabled;
+	}
+
+	/**
 	 * Register actions and filters, but only if basic Photon functions are available.
 	 * The basic functions are found in ./functions.photon.php.
 	 *
@@ -72,8 +89,12 @@ final class Image_CDN {
 	 * @return void
 	 */
 	private function setup() {
-		// Let other plugins know that we're setting up image CDN module.
-		do_action( 'jetpack_image_cdn_setup' );
+		/*
+		 * Add a filter to easily apply image CDN urls without applying all `the_content` filters to any content.
+		 *
+		 * Since this is only applied if the module is active in Jetpack or any other plugin, it's safe to use without checking if the module is active.
+		 */
+		add_filter( 'jetpack_image_cdn_content', array( __CLASS__, 'filter_the_content' ), 10 );
 
 		// Images in post content and galleries and widgets.
 		add_filter( 'the_content', array( __CLASS__, 'filter_the_content' ), 999999 );
