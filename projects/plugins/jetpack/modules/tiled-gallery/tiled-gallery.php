@@ -218,7 +218,7 @@ class Jetpack_Tiled_Gallery {
 			$gallery       = new $gallery_class( $attachments, $this->atts['link'], $this->atts['grayscale'], (int) $this->atts['columns'] );
 			$gallery_html  = $gallery->HTML();
 
-			if ( $gallery_html && class_exists( 'Jetpack' ) && class_exists( 'Automattic\Jetpack\Image_CDN\Image_CDN' ) ) {
+			if ( $gallery_html && class_exists( 'Jetpack' ) && class_exists( Image_CDN::class ) ) {
 				// Tiled Galleries in Jetpack require that Photon be active.
 				// If it's not active, run it just on the gallery output.
 				if ( ! Image_CDN::is_enabled() && ! ( new Status() )->is_offline_mode() ) {
