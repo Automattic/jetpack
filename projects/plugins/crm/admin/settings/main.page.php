@@ -121,6 +121,10 @@ $tab_page_map = array(
 		'title'    => __( 'WooCommerce Sync', 'zero-bs-crm' ),
 		'function' => 'Automattic\JetpackCRM\jpcrm_settings_page_html_woosync',
 	),
+	'emerald'      => array(
+		'page'  => 'emerald',
+		'title' => __( 'Emerald Showcase', 'zero-bs-crm' ),
+	),
 );
 
 /**
