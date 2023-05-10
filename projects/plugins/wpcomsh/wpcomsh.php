@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 3.12.3
+ * Version: 3.12.4
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
@@ -10,7 +10,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '3.12.3' );
+define( 'WPCOMSH_VERSION', '3.12.4' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -127,6 +127,7 @@ require_once __DIR__ . '/notices/plan-notices.php';
 require_once __DIR__ . '/notices/storage-notices.php';
 require_once __DIR__ . '/notices/php-version-notices.php';
 require_once __DIR__ . '/notices/media-library-private-site-cdn-notice.php';
+require_once __DIR__ . '/notices/anyone-can-register-notice.php';
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once __DIR__ . '/class-wpcomsh-cli-commands.php';
