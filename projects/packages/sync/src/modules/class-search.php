@@ -1766,7 +1766,7 @@ class Search extends Module {
 	 * @return array Updated post meta whitelist.
 	 */
 	public function add_search_post_meta_whitelist( $list ) {
-		return array_merge( $list, $this->get_all_postmeta_keys() );
+		return array_merge( $list, static::get_all_postmeta_keys() );
 	}
 
 	/**
@@ -1776,7 +1776,7 @@ class Search extends Module {
 	 * @return array Updated options whitelist.
 	 */
 	public function add_search_options_whitelist( $list ) {
-		return array_merge( $list, $this->get_all_option_keys() );
+		return array_merge( $list, static::get_all_option_keys() );
 	}
 
 	//
