@@ -210,27 +210,6 @@ const useSuggestionsFromOpenAI = ( {
 export default useSuggestionsFromOpenAI;
 
 export function askJetpack( question ) {
-	const apiNonce = window.JP_CONNECTION_INITIAL_STATE.apiNonce;
-
-	async function requestToken() {
-		const request = await fetch( '/wp-json/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(), {
-			credentials: 'same-origin',
-			headers: {
-				'X-WP-Nonce': apiNonce,
-			},
-		} );
-
-		if ( ! request.ok ) {
-			throw new Error( 'JWT request failed' );
-		}
-
-		const data = await request.json();
-		return {
-			token: data.token,
-			blogId: data.blog_id,
-		};
-	}
-
 	/**
 	 * Leaving this here to make it easier to debug the streaming API calls for now
 	 */
@@ -267,6 +246,27 @@ export function askJetpack( question ) {
 	}
 
 	askQuestion().catch( err => debug( 'Error', err ) );
+}
+
+async function requestToken() {
+	const apiNonce = window.JP_CONNECTION_INITIAL_STATE.apiNonce;
+
+	const request = await fetch( '/wp-json/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(), {
+		credentials: 'same-origin',
+		headers: {
+			'X-WP-Nonce': apiNonce,
+		},
+	} );
+
+	if ( ! request.ok ) {
+		throw new Error( 'JWT request failed' );
+	}
+
+	const data = await request.json();
+	return {
+		token: data.token,
+		blogId: data.blog_id,
+	};
 }
 
 window.askJetpack = askJetpack;
