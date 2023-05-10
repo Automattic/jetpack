@@ -51,7 +51,7 @@ export const imageDataGroupTabs = derived(
 
 export const imageDataActiveGroup = derived(
 	[ imageDataGroupTabs, isaData ],
-	( [ $groups, $imageData ] ) => {
+	( [ $groups, $imageData ] ): z.infer< typeof Group > => {
 		return $groups[ $imageData.query.group ];
 	}
 );
