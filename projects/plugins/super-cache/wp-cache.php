@@ -3303,6 +3303,7 @@ function wp_cron_preload_cache() {
 
 			if ( $preload_more_taxonomies === true ) {
 				wpsc_schedule_next_preload();
+				return true;
 			}
 		}
 	}
