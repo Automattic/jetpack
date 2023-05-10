@@ -3264,9 +3264,12 @@ function wp_cron_preload_cache() {
 					$details = explode( "\n", file_get_contents( $taxonomy_filename ) );
 				}
 				if ( count( $details ) != 1 && $details[ 0 ] != '' ) {
-					$rows = array_splice( $details, 0, 10 );
-					if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume == 'many' )
-						wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), home_url(), $taxonomy, $c, ($c+100) ), 'Refreshing: ' . print_r( $rows, 1 ) );
+					$rows = array_splice( $details, 0, WPSC_PRELOAD_POST_COUNT );
+					if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume === 'many' ) {
+						// translators: 1: Site URL, 2: Taxonomy name, 3: Number of posts done, 4: Number of posts to preload
+						wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), home_url(), $taxonomy, $c, ( $c + WPSC_PRELOAD_POST_COUNT ) ), 'Refreshing: ' . print_r( $rows, 1 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+					}
+
 					foreach( (array)$rows as $url ) {
 						set_time_limit( 60 );
 						if ( $url == '' )
@@ -3325,20 +3328,20 @@ function wp_cron_preload_cache() {
 	 * t = the time we started preloading in the current loop.
 	 *
 	 * $c is set to the value of preload_cache_counter['c'] at the start of the function
-	 * before it is incremented by 10 here.
+	 * before it is incremented by WPSC_PRELOAD_POST_COUNT here.
 	 */
 	update_option(
 		'preload_cache_counter',
 		array(
-			'c' => ( $c + 10 ),
+			'c' => ( $c + WPSC_PRELOAD_POST_COUNT ),
 			't' => time(),
 		)
 	);
 
 	if ( $wp_cache_preload_posts == 'all' || $c < $wp_cache_preload_posts ) {
 		$types = wpsc_get_post_types();
-		$posts = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type IN ( $types ) ) AND post_status = 'publish' ORDER BY ID DESC LIMIT %d, 10", $c ) ); // phpcs:ignore
-		wp_cache_debug( "wp_cron_preload_cache: got 10 posts from position $c." );
+		$posts = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type IN ( $types ) ) AND post_status = 'publish' ORDER BY ID DESC LIMIT %d," . WPSC_PRELOAD_POST_COUNT, $c ) ); // phpcs:ignore
+		wp_cache_debug( 'wp_cron_preload_cache: got ' . WPSC_PRELOAD_POST_COUNT . ' posts from position ' . $c );
 	} else {
 		wp_cache_debug( "wp_cron_preload_cache: no more posts to get. Limit ($wp_cache_preload_posts) reached.", 5 );
 		$posts = false;
@@ -3353,9 +3356,10 @@ function wp_cron_preload_cache() {
 		} else {
 			$page_on_front = $page_for_posts = 0;
 		}
-		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume == 'many' )
-		/* translators: 1: home url, 2: start post id, 3: end post id */
-			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing posts from %2$d to %3$d', 'wp-super-cache' ), home_url(), $c, ( $c + 10 ) ), ' ' );
+		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume === 'many' ) {
+			/* translators: 1: home url, 2: start post id, 3: end post id */
+			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing posts from %2$d to %3$d', 'wp-super-cache' ), home_url(), $c, ( $c + WPSC_PRELOAD_POST_COUNT ) ), ' ' );
+		}
 		$msg = '';
 		$count = $c + 1;
 		$permalink_counter_msg = $cache_path . "preload_permalink.txt";
@@ -3387,8 +3391,12 @@ function wp_cron_preload_cache() {
 			wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
 			++$count;
 		}
-		if ( $wp_cache_preload_email_me && ( $wp_cache_preload_email_volume == 'medium' || $wp_cache_preload_email_volume == 'many' ) )
-			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] %2$d posts refreshed', 'wp-super-cache' ), home_url(), ($c+100) ), __( "Refreshed the following posts:", 'wp-super-cache' ) . "\n$msg" );
+
+		if ( $wp_cache_preload_email_me && ( $wp_cache_preload_email_volume === 'medium' || $wp_cache_preload_email_volume === 'many' ) ) {
+			// translators: 1: home url, 2: number of posts refreshed
+			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] %2$d posts refreshed', 'wp-super-cache' ), home_url(), ( $c + WPSC_PRELOAD_POST_COUNT ) ), __( 'Refreshed the following posts:', 'wp-super-cache' ) . "\n$msg" );
+		}
+
 		if ( defined( 'DOING_CRON' ) ) {
 			wp_cache_debug( 'wp_cron_preload_cache: scheduling the next preload in 3 seconds.' );
 			wp_schedule_single_event( time() + 3, 'wp_cache_preload_hook' );

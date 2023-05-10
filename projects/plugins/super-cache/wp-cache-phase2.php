@@ -1,4 +1,11 @@
 <?php
+/*
+ * WP Super Cache Phase 2 file.
+ * This file is included by the files wp-cache.php and wp-cache-phase1.php
+ * It has all the code for caching and serving requests.
+ */
+
+define( 'WPSC_PRELOAD_POST_COUNT', 10 );
 
 function gzip_accepted() {
 	if ( 1 == ini_get( 'zlib.output_compression' ) || 'on' == strtolower( ini_get( 'zlib.output_compression' ) ) ) { // don't compress WP-Cache data files when PHP is already doing it
