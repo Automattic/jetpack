@@ -9,18 +9,12 @@
 
 	export let data: ISA_Data;
 	let expanded = false;
-	let hover = Math.random() > 0.5;
 	const title = data.image.url.split( '/' ).pop();
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <div class="jb-table-row-container" class:expanded>
-	<div
-		class="jb-table-row recommendation-page-grid"
-		on:mouseenter={() => ( hover = true )}
-		on:mouseleave={() => ( hover = false )}
-		on:click={() => ( expanded = ! expanded )}
-	>
+	<div class="jb-table-row recommendation-page-grid" on:click={() => ( expanded = ! expanded )}>
 		<div class="jb-table-row__thumbnail">
 			<Thumbnail {title} url={data.image.url} width={65} height={65} />
 		</div>
