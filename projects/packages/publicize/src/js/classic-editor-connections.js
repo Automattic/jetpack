@@ -1,4 +1,4 @@
-import { _n } from '@wordpress/i18n';
+import { _n, __ } from '@wordpress/i18n';
 import jQuery from 'jquery';
 
 const { ajaxUrl, connectionsUrl } = window.jetpackSocialClassicEditorConnections;
@@ -20,6 +20,23 @@ jQuery( function ( $ ) {
 		timer = setTimeout( publicizeConnTestStart, 2000 );
 	} );
 
+	const countConnectionsBy = ( status, response ) => {
+		return ! response.data
+			? 0
+			: response.data.reduce( ( count, testResult ) => {
+					if (
+						! testResult.connectionTestPassed &&
+						status === ( testResult.connectionTestErrorCode ?? 'broken' )
+					) {
+						$( '#wpas-submit-' + testResult.unique_id )
+							.prop( 'checked', false )
+							.prop( 'disabled', true );
+						return count + 1;
+					}
+					return count;
+			  }, 0 );
+	};
+
 	const publicizeConnTestComplete = function ( response ) {
 		fetchingConnTest = false;
 		const testsSelector = $( '#pub-connection-tests' );
@@ -30,17 +47,9 @@ jQuery( function ( $ ) {
 			.removeClass( 'publicize-token-refresh-message' )
 			.html( '' );
 
-		const brokenConnections = ! response.data
-			? 0
-			: response.data.reduce( ( brokenCount, testResult ) => {
-					if ( ! testResult.connectionTestPassed ) {
-						$( '#wpas-submit-' + testResult.unique_id )
-							.prop( 'checked', false )
-							.prop( 'disabled', true );
-						return brokenCount + 1;
-					}
-					return brokenCount;
-			  }, 0 );
+		const brokenConnections = countConnectionsBy( 'broken', response );
+		const unsupportedConnections = countConnectionsBy( 'unsupported', response );
+
 		if ( brokenConnections ) {
 			/* translators: %s is the link to the connections page in Calypso */
 			const msg = _n(
@@ -55,6 +64,25 @@ jQuery( function ( $ ) {
 				.addClass( 'error' )
 				.addClass( 'publicize-token-refresh-message' )
 				.append( msg.replace( '%s', connectionsUrl ) );
+		}
+
+		if ( unsupportedConnections ) {
+			/* translators: %s is the link to the connections page in Calypso */
+			const msg = __(
+				'Twitter is not supported anymore. <a href="%s" rel="noopener noreferrer" target="_blank">Learn more here</a>.',
+				'jetpack-publicize-pkg'
+			);
+
+			if ( brokenConnections ) {
+				testsSelector.append( '<hr />' );
+			} else {
+				testsSelector
+					.addClass( 'below-h2' )
+					.addClass( 'error' )
+					.addClass( 'publicize-token-refresh-message' );
+			}
+
+			testsSelector.append( msg.replace( '%s', connectionsUrl ) );
 		}
 	};
 

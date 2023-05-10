@@ -153,6 +153,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 						'id_number' => array(
 							'connection_data' => array(
 								'user_id'  => self::$user_id,
+								'id'       => '456',
 								'token_id' => 'test-unique-id456',
 								'meta'     => array(
 									'display_name' => 'test-display-name456',
@@ -165,6 +166,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 						'id_number' => array(
 							'connection_data' => array(
 								'user_id'  => 0,
+								'id'       => '123',
 								'token_id' => 'test-unique-id123',
 								'meta'     => array(
 									'display_name' => 'test-display-name123',
@@ -377,7 +379,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 			array(
 				'jetpack_publicize_connections' => array(
 					array(
-						'id'      => 'test-unique-id123',
+						'id'      => '123',
 						'enabled' => false,
 					),
 				),

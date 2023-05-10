@@ -8,7 +8,15 @@ import classnames from 'classnames';
 /**
  * Internal dependencies
  */
-import { buildVideoPressURL, pickGUIDFromUrl } from '../../../../lib/url';
+import {
+	buildVideoPressURL,
+	isVideoPressUrl,
+	pickGUIDFromUrl,
+	pickVideoBlockAttributesFromUrl,
+} from '../../../../lib/url';
+/**
+ * Types
+ */
 import { CoreEmbedVideoPressVariationBlockAttributes, VideoBlockAttributes } from '../types';
 
 const transformFromCoreEmbed = {
@@ -82,7 +90,34 @@ const transformToCoreEmbed = {
 	},
 };
 
-const from = [ transformFromCoreEmbed ];
+const transformFromPastingVideoPressURL = {
+	type: 'raw',
+	isMatch: ( node: HTMLDivElement ) => {
+		const { textContent } = node;
+		if ( ! textContent ) {
+			return false;
+		}
+
+		return isVideoPressUrl( textContent.trim() );
+	},
+	transform: ( node: HTMLDivElement ) => {
+		const { textContent } = node;
+		if ( ! textContent ) {
+			return false;
+		}
+
+		const url = textContent.trim();
+		const guid = pickGUIDFromUrl( url );
+		const attrs = pickVideoBlockAttributesFromUrl( url );
+		if ( ! guid ) {
+			return false;
+		}
+
+		return createBlock( 'videopress/video', { guid, ...attrs } );
+	},
+};
+
+const from = [ transformFromCoreEmbed, transformFromPastingVideoPressURL ];
 const to = [ transformToCoreEmbed ];
 
 export default { from, to };

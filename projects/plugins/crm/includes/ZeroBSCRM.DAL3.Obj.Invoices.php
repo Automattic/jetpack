@@ -2681,6 +2681,23 @@ class zbsDAL_invoices extends zbsDAL_ObjectLayer {
         
     }
 
+		/**
+		 * Returns an SQL query addition which will allow filtering of invoices
+		 * that should be included in "total value" fields, excluding 'deleted' status invoices.
+		 *
+		 * @param str $table_alias_sql - if using a table alias pass that here, e.g. `invoices.`.
+		 * @return array
+		 */
+		public function get_invoice_status_except_deleted_for_query( $table_alias_sql = '' ) {
+
+			$invoice_statuses_except_deleted = array( 'Draft', 'Unpaid', 'Paid', 'Overdue' );
+
+			$inv_statuses_str = $this->build_csv( $invoice_statuses_except_deleted );
+
+			$query_addition = ' AND ' . $table_alias_sql . 'zbsi_status IN (' . $inv_statuses_str . ')';
+
+			return $query_addition;
+		}
 
     /**
      * Returns an hash against a invoice

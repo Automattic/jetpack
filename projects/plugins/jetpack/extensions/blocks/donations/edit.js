@@ -17,7 +17,7 @@ const Edit = props => {
 
 	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' );
 	const post = useSelect( select => select( 'core/editor' ).getCurrentPost(), [] );
-	const { setShouldUpgrade, setConnectUrl } = useDispatch( MEMBERSHIPS_PRODUCTS_STORE );
+	const { setConnectUrl } = useDispatch( MEMBERSHIPS_PRODUCTS_STORE );
 	useEffect( () => {
 		setAttributes( { fallbackLinkUrl: post.link } );
 	}, [ post.link, setAttributes ] );
@@ -50,7 +50,6 @@ const Edit = props => {
 			setLoadingError( __( 'Could not load data from WordPress.com.', 'jetpack' ) );
 			return;
 		}
-		setShouldUpgrade( result.should_upgrade_to_access_memberships );
 		setConnectUrl( getConnectUrl( post.id, result.connect_url ) );
 
 		const filteredProducts = filterProducts( result.products );
@@ -61,9 +60,8 @@ const Edit = props => {
 			return;
 		}
 
-		// Set fake products when plan should be upgraded or there is no connection to Stripe so users can still try the
-		// block in the editor.
-		if ( result.should_upgrade_to_access_memberships || result.connect_url ) {
+		// Set fake products when there is no connection to Stripe so users can still try the block in the editor.
+		if ( result.connect_url ) {
 			setProducts( {
 				'one-time': -1,
 				'1 month': -1,

@@ -1,10 +1,13 @@
 <?php
 
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
-use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
+use Automattic\Jetpack_Boost\Data_Sync\Minify_Excludes_State_Entry;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Image_Size_Analysis;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 
 if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
 	define( 'JETPACK_BOOST_DATASYNC_NAMESPACE', 'jetpack_boost_ds' );
@@ -15,7 +18,7 @@ if ( ! defined( 'JETPACK_BOOST_DATASYNC_NAMESPACE' ) ) {
  *
  * @param $key    string - The key for this option.
  * @param $schema Schema - The schema for this option.
- * @param $entry  Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry_Adapter|null - The entry handler for this option.
+ * @param $entry  Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Data_Sync_Entry|null - The entry handler for this option.
  */
 function jetpack_boost_register_option( $key, $schema, $entry = null ) {
 	Data_Sync::get_instance( JETPACK_BOOST_DATASYNC_NAMESPACE )
@@ -142,3 +145,11 @@ jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
 if ( Image_Size_Analysis::is_available() ) {
 	require_once __DIR__ . '/app/data-sync/init-image-size-analysis.php';
 }
+
+/**
+ * Register Minify Excludes stores.
+ */
+$js_excludes_entry  = new Minify_Excludes_State_Entry( 'minify_js_excludes' );
+$css_excludes_entry = new Minify_Excludes_State_Entry( 'minify_css_excludes' );
+jetpack_boost_register_option( 'minify_js_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_JS::$default_excludes ), $js_excludes_entry );
+jetpack_boost_register_option( 'minify_css_excludes', Schema::as_array( Schema::as_string() )->fallback( Minify_CSS::$default_excludes ), $css_excludes_entry );

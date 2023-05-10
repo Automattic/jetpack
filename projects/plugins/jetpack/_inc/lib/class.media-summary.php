@@ -5,6 +5,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /**
  * Class Jetpack_Media_Summary
  *
@@ -310,7 +312,7 @@ class Jetpack_Media_Summary {
 		if ( false !== strpos( $url, 'files.wordpress.com' ) ) {
 			return self::https( $url );
 		} else {
-			return self::https( jetpack_photon_url( $url ) );
+			return self::https( Image_CDN_Core::cdn_url( $url ) );
 		}
 	}
 

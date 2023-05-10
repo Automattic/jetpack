@@ -571,6 +571,57 @@ class zbsDAL {
 
     }
 
+	/**
+	 * Returns a count of objects of a type which are associated with an assignee (eg. company or contact)
+	 * Supports Quotes, Invoices, Transactions, Events currently
+	 *
+	 * @param int $assignee_id The assignee ID (for example company / contact ID).
+	 * @param int $obj_type_id The type constant being checked (eg ZBS_TYPE_QUOTE).
+	 * @param int $zbs_type The assigne type, for example ZBS_TYPE_COMPANY, ZBS_TYPE_CONTACT (default contact).
+	 *
+	 * @return int The count of relevant objects of the given type.
+	 */
+	public function specific_obj_type_count_for_assignee( $assignee_id, $obj_type_id, $zbs_type = ZBS_TYPE_CONTACT ) {
+		// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		global $ZBSCRM_t;
+		global $wpdb;
+
+		switch ( $obj_type_id ) {
+			case ZBS_TYPE_QUOTE:
+				$table_name = $ZBSCRM_t['quotes'];
+				break;
+
+			case ZBS_TYPE_INVOICE:
+				$table_name = $ZBSCRM_t['invoices'];
+				break;
+
+			case ZBS_TYPE_TRANSACTION:
+				$table_name = $ZBSCRM_t['transactions'];
+				break;
+
+			case ZBS_TYPE_EVENT:
+				$table_name = $ZBSCRM_t['events'];
+				break;
+
+			default:
+				// For any unsupported objtype.
+				return -1;
+		}
+
+		$obj_query = 'SELECT COUNT(obj_table.id) FROM ' . $table_name . ' obj_table'
+			. ' INNER JOIN ' . $ZBSCRM_t['objlinks'] . ' obj_links'
+			. ' ON obj_table.id = obj_links.zbsol_objid_from'
+			. ' WHERE obj_links.zbsol_objtype_from = ' . $obj_type_id
+			. ' AND obj_links.zbsol_objtype_to = ' . $zbs_type
+			. ' AND obj_links.zbsol_objid_to = %d';
+
+		// Counting objs with objlinks to this assignee, ignoring ownership.
+		$query = $this->prepare( $obj_query, $assignee_id );
+		$count = (int) $wpdb->get_var( $query ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching -- To be refactored.
+
+		return $count;
+		// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	}
 
     // =========== / HELPER/GET FUNCS ================================================
     // ===============================================================================
@@ -581,7 +632,7 @@ class zbsDAL {
     // ===============================================================================
     // ===========  OWNERSHIP HELPERS  ===============================================
 
-    // This func is a side-switch alternative to zeroBS_checkOwner
+	// This func is a side-switch alternative to now-removed zeroBS_checkOwner
     public function checkObjectOwner($args=array()){
 
         #} =========== LOAD ARGS ==============

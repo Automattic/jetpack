@@ -16,11 +16,11 @@ import { __ } from '@wordpress/i18n';
 import ChaptersLearnMoreHelper from '../../../../../components/chapters-learn-more-helper';
 import IncompleteChaptersNotice from '../../../../../components/incomplete-chapters-notice';
 import useChaptersLiveParsing from '../../../../../hooks/use-chapters-live-parsing';
-import { DetailsPanelProps } from '../../types';
 import './styles.scss';
 /**
  * Types
  */
+import type { DetailsPanelProps } from '../../types';
 import type React from 'react';
 
 const CHARACTERS_PER_LINE = 31;
@@ -39,6 +39,7 @@ export default function DetailsPanel( {
 	setAttributes,
 	isRequestingVideoData,
 	updateError,
+	videoBelongToSite,
 }: DetailsPanelProps ) {
 	const { title, description } = attributes;
 	const { hasIncompleteChapters } = useChaptersLiveParsing( description );
@@ -61,6 +62,15 @@ export default function DetailsPanel( {
 
 	return (
 		<PanelBody title={ __( 'Details', 'jetpack-videopress-pkg' ) }>
+			{ ! videoBelongToSite && (
+				<Notice status="warning" isDismissible={ false } className="not-belong-to-site-notice">
+					{ __(
+						'This video is not owned by this site. You can still embed it and customize the player, but you won’t be able to edit the video.',
+						'jetpack-videopress-pkg'
+					) }
+				</Notice>
+			) }
+
 			<TextControl
 				label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 				value={ title }
@@ -68,7 +78,7 @@ export default function DetailsPanel( {
 					filename?.length ? `${ filename } video` : __( 'Video title', 'jetpack-videopress-pkg' )
 				}
 				onChange={ value => setAttributes( { title: value } ) }
-				disabled={ isRequestingVideoData || !! updateError }
+				disabled={ isRequestingVideoData || !! updateError || ! videoBelongToSite }
 			/>
 
 			<TextareaControl
@@ -77,7 +87,7 @@ export default function DetailsPanel( {
 				placeholder={ __( 'Video description', 'jetpack-videopress-pkg' ) }
 				onChange={ value => setAttributes( { description: value } ) }
 				rows={ descriptionControlRows }
-				disabled={ isRequestingVideoData || !! updateError }
+				disabled={ isRequestingVideoData || !! updateError || ! videoBelongToSite }
 				help={ descriptionHelp }
 			/>
 

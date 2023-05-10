@@ -7,12 +7,14 @@
 
 namespace Automattic\Jetpack\Image_CDN;
 
+use Automattic\Jetpack\Assets;
+
 /**
  * Class Image_CDN
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.2.0-alpha';
+	const PACKAGE_VERSION = '0.2.1-alpha';
 
 	/**
 	 * Singleton.
@@ -44,6 +46,15 @@ final class Image_CDN {
 	private static $image_sizes = null;
 
 	/**
+	 * Whether Image CDN is enabled or not.
+	 *
+	 * This class will be instantiated if any plugin has activated image CDN module. Keeping this variable to check if module is active or not.
+	 *
+	 * @var bool Whether Image CDN is enabled or not.
+	 */
+	private static $is_enabled = false;
+
+	/**
 	 * Singleton implementation
 	 *
 	 * @return object
@@ -52,6 +63,7 @@ final class Image_CDN {
 		if ( ! is_a( self::$instance, self::class ) ) {
 			self::$instance = new self();
 			self::$instance->setup();
+			self::$is_enabled = true;
 		}
 
 		return self::$instance;
@@ -63,6 +75,13 @@ final class Image_CDN {
 	private function __construct() {}
 
 	/**
+	 * Check if image CDN is enabled as a module from Jetpack or any other plugin.
+	 */
+	public static function is_enabled() {
+		return self::$is_enabled;
+	}
+
+	/**
 	 * Register actions and filters, but only if basic Photon functions are available.
 	 * The basic functions are found in ./functions.photon.php.
 	 *
@@ -70,10 +89,18 @@ final class Image_CDN {
 	 * @return void
 	 */
 	private function setup() {
-		// Images in post content and galleries.
+		/**
+		 * Add a filter to easily apply image CDN urls without applying all `the_content` filters to any content.
+		 *
+		 * Since this is only applied if the module is active in Jetpack or any other plugin, it's a safe option to apply photon urls to any content.
+		 */
+		add_filter( 'jetpack_image_cdn_content', array( __CLASS__, 'filter_the_content' ), 10 );
+
+		// Images in post content and galleries and widgets.
 		add_filter( 'the_content', array( __CLASS__, 'filter_the_content' ), 999999 );
 		add_filter( 'get_post_galleries', array( __CLASS__, 'filter_the_galleries' ), 999999 );
 		add_filter( 'widget_media_image_instance', array( __CLASS__, 'filter_the_image_widget' ), 999999 );
+		add_filter( 'widget_text', array( __CLASS__, 'filter_the_content' ) );
 
 		// Core image retrieval.
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
@@ -1210,15 +1237,16 @@ final class Image_CDN {
 		if ( self::is_amp_endpoint() ) {
 			return;
 		}
-		wp_enqueue_script(
+
+		Assets::register_script(
 			'jetpack-photon',
-			plugins_url(
-				'js/photon.js',
-				__FILE__
-			),
-			array(),
-			20191001,
-			true
+			'../dist/image-cdn.js',
+			__FILE__,
+			array(
+				'enqueue'    => true,
+				'nonminpath' => 'js/image-cdn.js',
+				'in_footer'  => true,
+			)
 		);
 	}
 

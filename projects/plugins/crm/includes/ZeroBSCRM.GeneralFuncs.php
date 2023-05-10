@@ -1504,11 +1504,6 @@ function jetpackcrm_create_zeros_array($start, $end, $zbs_steps = 86400){
    / Dashboard Helpers
    ====================================================== */
 
-
-/* ======================================================
-     YouTube Helpers
-   ====================================================== */
-
 /*
  * Returns a YouTube thumbnail URL of a video
  *
@@ -1557,6 +1552,43 @@ function jpcrm_youtube_url_to_video_id( $video_url ) {
 
 }
 
-/* ======================================================
-   / YouTube Helpers
-   ====================================================== */
+/**
+ * Generates a PDF from provided HTML and returns path to PDF
+ *
+ * @param string $html HTML used for PDF content.
+ * @param string $pdf_filename Name of file where PDF will be stored.
+ *
+ * @returns string|boolean
+ */
+function jpcrm_generate_pdf( $html, $pdf_filename ) {
+	global $zbs;
+
+	$temp_dir = zeroBSCRM_privatisedDirCheckWorks();
+
+	// if tmp dir doesn't exist, die
+	if ( ! $temp_dir ) {
+		return false;
+	}
+
+	$pdf_path = $temp_dir['path'] . '/' . $pdf_filename;
+
+	// build PDF
+	$dompdf = $zbs->pdf_engine();
+	$dompdf->loadHtml( $html, 'UTF-8' );
+	$dompdf->render();
+
+	// save the pdf file on the server
+	file_put_contents( $pdf_path, $dompdf->output() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+	return $pdf_path;
+}
+
+/**
+ * Returns a string for disabling browser autocomplete
+ * Ideally we'd just use "off", but support is not complete: https://caniuse.com/input-autocomplete-onoff
+ *
+ * @return string A randomish string.
+ */
+function jpcrm_disable_browser_autocomplete() {
+	return time() . '-' . wp_rand( 0, 100 );
+}

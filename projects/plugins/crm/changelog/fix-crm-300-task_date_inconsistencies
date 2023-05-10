@@ -1,0 +1,9 @@
+Significance: minor
+Type: fixed
+
+Tasks: start and end times now show correctly throughout the CRM
+Tasks: new migration to remove timezone offset from database
+Tasks: removed reliance on strftime for better PHP 8.1 compatibility
+Tasks: switch to native browser date and time inputs
+Tasks: catch moment.js notice due to using fallback date format
+Tasks: fix ##TASK-BODY## placeholder

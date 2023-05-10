@@ -2,6 +2,8 @@
 
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /**
  * Jetpack_Internet_Defense_League_Widget main class.
  */
@@ -129,7 +131,7 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 				$instance['badge'] = $this->defaults['badge'];
 			}
 			$badge_url        = esc_url( 'https://www.internetdefenseleague.org/images/badges/final/' . $instance['badge'] . '.png' );
-			$photon_badge_url = jetpack_photon_url( $badge_url );
+			$photon_badge_url = Image_CDN_Core::cdn_url( $badge_url );
 			$alt_text         = esc_html__( 'Member of The Internet Defense League', 'jetpack' );
 			echo $args['before_widget']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo '<p><a href="https://www.internetdefenseleague.org/"><img src="' . esc_url( $photon_badge_url ) . '" alt="' . esc_attr( $alt_text ) . '" style="max-width: 100%; height: auto;" /></a></p>';

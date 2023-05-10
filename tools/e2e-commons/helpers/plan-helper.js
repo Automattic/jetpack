@@ -252,7 +252,13 @@ function getPlan( type ) {
 				user_is_owner: false,
 				is_free: true,
 				features: {
-					active: [ 'akismet' ],
+					active: [
+						'akismet',
+						'donations',
+						'recurring-payments',
+						'premium-content/container',
+						'simple-payments',
+					],
 					available: {
 						akismet: [
 							'jetpack_free',
@@ -283,6 +289,7 @@ function getPlan( type ) {
 							'jetpack_business_monthly',
 						],
 						'simple-payments': [
+							'jetpack_free',
 							'jetpack_premium',
 							'jetpack_premium_monthly',
 							'jetpack_business_monthly',
@@ -317,9 +324,12 @@ function getPlan( type ) {
 						'social-previews',
 						'donations',
 						'core/audio',
-						'premium-content/container',
 						'support',
 						'wordads-jetpack',
+						'donations',
+						'recurring-payments',
+						'premium-content/container',
+						'simple-payments',
 					],
 					available: {
 						akismet: [
@@ -407,6 +417,7 @@ function getPlan( type ) {
 							'jetpack_business_monthly',
 						],
 						'simple-payments': [
+							'jetpack_free',
 							'jetpack_premium',
 							'jetpack_business',
 							'jetpack_premium_monthly',
@@ -425,6 +436,7 @@ function getPlan( type ) {
 							'jetpack_business_monthly',
 						],
 						donations: [
+							'jetpack_free',
 							'jetpack_premium',
 							'jetpack_business',
 							'jetpack_personal',
@@ -475,6 +487,7 @@ function getPlan( type ) {
 							'jetpack_security_realtime_monthly',
 						],
 						'premium-content/container': [
+							'jetpack_free',
 							'jetpack_premium',
 							'jetpack_business',
 							'jetpack_personal',

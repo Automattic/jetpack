@@ -61,7 +61,7 @@ class WPCOM_Migration {
 			},
 			1
 		);
-
+		\Jetpack_Backup::initialize();
 		My_Jetpack_Initializer::init();
 	}
 
