@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Spinner from '../../../elements/Spinner.svelte';
 	import { isaFilteredImages, isaDataLoading } from '../store/isa-data';
 	import TableRow from './TableRow.svelte';
 </script>
@@ -10,15 +11,35 @@
 		<div class="jb-table-header__device">Device</div>
 		<div class="jb-table-header__page">Page/Post</div>
 	</div>
+
+	<div class="jb-loading-spinner">
+		<Spinner size="3rem" lineWidth="4px" />
+	</div>
+
 	{#each $isaFilteredImages as data (data.id)}
 		<TableRow {data} />
 	{/each}
 </div>
 
 <style lang="scss">
+	.jb-table {
+		will-change: opacity, filter;
+		transition: opacity 0.3s ease-in-out, filter 0.3s ease-in-out;
+	}
 	.jb-loading {
 		filter: grayscale( 0.5 );
-		opacity: 0.5;
+		opacity: 0.2;
+		position: relative;
+	}
+	:not( .jb-loading ) .jb-loading-spinner {
+		display: none;
+	}
+	.jb-loading .jb-loading-spinner {
+		position: absolute;
+		top: 25%;
+		left: 50%;
+		transform: translate( -50%, -50% );
+		z-index: 9000;
 	}
 	.jb-table-header {
 		font-size: 0.875rem;
