@@ -46,11 +46,6 @@ function NewsletterEditorSettingsPanel( {
 	paidSubscribers,
 	showMisconfigurationWarning,
 } ) {
-	// Only show the panels when the corresponding filter is enabled
-	if ( ! isNewsletterFeatureEnabled() ) {
-		return null;
-	}
-
 	return (
 		<PluginDocumentSettingPanel
 			title={ __( 'Newsletter access', 'jetpack' ) }
@@ -107,16 +102,14 @@ function NewsletterPrePublishSettingsPanel( {
 			className="jetpack-subscribe-pre-publish-panel"
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
-			{ isNewsletterFeatureEnabled() && (
-				<NewsletterAccessPrePublishSettings
-					accessLevel={ accessLevel }
-					setPostMeta={ setPostMeta }
-					socialFollowers={ socialFollowers }
-					emailSubscribers={ emailSubscribers }
-					paidSubscribers={ paidSubscribers }
-					showMisconfigurationWarning={ showMisconfigurationWarning }
-				/>
-			) }
+			<NewsletterAccessPrePublishSettings
+				accessLevel={ accessLevel }
+				setPostMeta={ setPostMeta }
+				socialFollowers={ socialFollowers }
+				emailSubscribers={ emailSubscribers }
+				paidSubscribers={ paidSubscribers }
+				showMisconfigurationWarning={ showMisconfigurationWarning }
+			/>
 
 			{ shouldLoadSubscriptionPlaceholder && (
 				<SubscriptionsPanelPlaceholder>
@@ -185,6 +178,11 @@ export default function SubscribePanels() {
 
 	const showMisconfigurationWarning =
 		postVisibility !== 'public' && accessLevel !== accessOptions.everybody.key;
+
+	// Only show the panels when the corresponding filter is enabled
+	if ( ! isNewsletterFeatureEnabled() ) {
+		return null;
+	}
 
 	return (
 		<>
