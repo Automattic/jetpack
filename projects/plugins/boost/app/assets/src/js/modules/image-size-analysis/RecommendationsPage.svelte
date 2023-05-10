@@ -33,15 +33,11 @@
 <div id="jb-dashboard" class="jb-dashboard">
 	<Header />
 	<div class="recommendations-page jb-container jb-section--alt">
-		{#if $isaDataLoading}
-			<h1>Loading...</h1>
-		{:else}
-			<Hero />
-			<Tabs />
-			<Table />
-			<Pagination />
-			<Footer />
-		{/if}
+		<Hero />
+		<Tabs />
+		<Table />
+		<Pagination />
+		<Footer />
 	</div>
 </div>
 

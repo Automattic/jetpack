@@ -2,6 +2,7 @@ import { onMount } from 'svelte';
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
+import { getPreloadingImages } from './preloading-image';
 
 /**
  * Zod Types
@@ -63,7 +64,7 @@ const ImageSizeAnalysis = z
 		data: {
 			last_updated: 0,
 			total_pages: 0,
-			images: [],
+			images: getPreloadingImages( 10 ),
 		},
 	} );
 
