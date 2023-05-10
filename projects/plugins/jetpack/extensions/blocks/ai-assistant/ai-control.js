@@ -158,6 +158,7 @@ const ToolbarControls = ( {
 								{
 									title: __( 'Expand on preceding content', 'jetpack' ),
 									onClick: () => getSuggestionFromOpenAI( 'continue' ),
+									isDisabled: ! contentBefore?.length,
 								},
 							] }
 						/>
