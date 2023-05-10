@@ -11,22 +11,26 @@ msgstr ""
 "Language: lv\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:213
+#: notices/media-library-private-site-cdn-notice.php:20
+msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
+msgstr ""
+
+#: frontend-notices/gifting-banner/gifting-banner.php:232
 msgid "Gift the author a WordPress.com plan."
 msgstr "Uzdāviniet autoram WordPress.com plānu."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:201
+#: frontend-notices/gifting-banner/gifting-banner.php:220
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "Uzdāviniet autoram WordPress.com plānu, pirms tas beidzas pēc %d dienas."
 msgstr[1] "Uzdāviniet autoram WordPress.com plānu, pirms tas beidzas pēc %d dienām."
 msgstr[2] "Uzdāviniet autoram WordPress.com plānu, pirms tas beidzas pēc %d dienām."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:209
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "Uzdāviniet autoram WordPress.com jauninājumu."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:163
+#: frontend-notices/gifting-banner/gifting-banner.php:182
 msgid "This site's plan has expired."
 msgstr "Šīs vietnes plāns ir beidzies."
 
@@ -102,12 +106,12 @@ msgstr "Personīgais plāns <strong>%3$s</strong> beidzas %2$s. <a href=\"%1$s\"
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "Jūs pašlaik izmantojat PHP <strong>%1$s</strong>, kas vairs nesaņems drošības atjauninājumus no %2$s. Lūdzu, jauniniet uz PHP %3$s vai jaunāku versiju, mainot <a href=\"%4$s\">mitināšanas konfigurāciju</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:102
-#: frontend-notices/gifting-banner/gifting-banner.php:124
+#: frontend-notices/gifting-banner/gifting-banner.php:118
+#: frontend-notices/gifting-banner/gifting-banner.php:143
 msgid "Gift"
 msgstr "Dāvana"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:169
+#: frontend-notices/gifting-banner/gifting-banner.php:188
 msgid "Enjoy this site?"
 msgstr "Vai jums patīk šī vietne?"
 
@@ -141,11 +145,11 @@ msgstr "Sākumlapa"
 msgid "Blog"
 msgstr "Emuārs"
 
-#: feature-plugins/hooks.php:140
+#: feature-plugins/hooks.php:182
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "Tikai starpniekserveris: Jūs varat to redzēt, jo esat starpniekservera lietotājs. Neizmantojiet to, ja nezināt, kāpēc esat šeit."
 
-#: feature-plugins/hooks.php:129
+#: feature-plugins/hooks.php:171
 msgid "You do not have permission to access this page."
 msgstr "Jums nav atļaujas piekļūt šai lapai."
 
@@ -170,9 +174,9 @@ msgstr "WordPress.com nodrošināja funkcionalitāti un rīkus, kas iepriekš in
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: feature-plugins/managed-plugins.php:482
-#: feature-plugins/managed-plugins.php:493
-#: feature-plugins/managed-plugins.php:504
+#: feature-plugins/managed-plugins.php:499
+#: feature-plugins/managed-plugins.php:510
+#: feature-plugins/managed-plugins.php:521
 msgid "Updates managed by WordPress.com"
 msgstr "Jauninājumus pārvalda WordPress.com"
 
@@ -469,27 +473,27 @@ msgstr "Veidojiet bezmaksas vietni vai emuāru vietnē WordPress.com"
 msgid "Create a free website at WordPress.com"
 msgstr "Veidojiet bezmaksas vietni vietnē WordPress.com"
 
-#: footer-credit/footer-credit/footer-credit.php:101
+#: footer-credit/footer-credit/footer-credit.php:100
 msgid "Powered by WordPress.com"
 msgstr "Darbojas ar WordPress.com"
 
-#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
-#: footer-credit/footer-credit/footer-credit.php:98
+#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
+#: footer-credit/footer-credit/footer-credit.php:97
 #: footer-credit/theme-optimizations.php:30
 #: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
 msgstr "WordPress.com blogs"
 
-#: footer-credit/footer-credit/footer-credit.php:97
+#: footer-credit/footer-credit/footer-credit.php:96
 msgid "A WordPress.com Website"
 msgstr "WordPress.com vietne"
 
-#: footer-credit/footer-credit/footer-credit.php:96
+#: footer-credit/footer-credit/footer-credit.php:95
 msgid "WordPress.com Logo"
 msgstr "WordPress.com logotips"
 
-#: footer-credit/footer-credit/footer-credit.php:41
-#: footer-credit/footer-credit/footer-credit.php:205
+#: footer-credit/footer-credit/footer-credit.php:40
+#: footer-credit/footer-credit/footer-credit.php:204
 msgid "Create a website or blog at WordPress.com"
 msgstr "Veidojiet bezmaksas vietni vai emuāru vietnē WordPress.com"
 

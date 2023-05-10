@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2022-12-24 02:10:05+0000\n"
+"PO-Revision-Date: 2023-02-22 14:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,20 +11,24 @@ msgstr ""
 "Language: ko_KR\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:213
+#: notices/media-library-private-site-cdn-notice.php:20
+msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
+msgstr "사이트가 비공개로 표시되어서 이미지 CDN이 비활성화되었습니다. 이미지 썸네일이 미디어 라이브러리에 표시되지 않으면 공개 예정 모드로 전환할 수 있습니다.  <a href=\"%1$s\" target=_blank>자세히 알아보세요</a>."
+
+#: frontend-notices/gifting-banner/gifting-banner.php:232
 msgid "Gift the author a WordPress.com plan."
 msgstr "글쓴이에게 워드프레스닷컴 요금제를 선물합니다."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:201
+#: frontend-notices/gifting-banner/gifting-banner.php:220
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "글쓴이에게 워드프레스닷컴 요금제를 %d일 후에 만료되기 전에 선물합니다."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:209
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "글쓴이에게 워드프레스닷컴 업그레이드를 선물합니다."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:163
+#: frontend-notices/gifting-banner/gifting-banner.php:182
 msgid "This site's plan has expired."
 msgstr "이 사이트의 요금제가 만료되었습니다."
 
@@ -100,12 +104,12 @@ msgstr "<strong>%3$s</strong>의 개인 요금제가 %2$s에 만료됩니다. <a
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "%2$s부터 보안 업데이트가 수신되지 않는 PHP <strong>%1$s</strong>을(를) 현재 사용 중이십니다. <a href=\"%4$s\">호스팅 구성</a>을 변경하여 PHP %3$s 이상으로 업데이트하세요."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:102
-#: frontend-notices/gifting-banner/gifting-banner.php:124
+#: frontend-notices/gifting-banner/gifting-banner.php:118
+#: frontend-notices/gifting-banner/gifting-banner.php:143
 msgid "Gift"
 msgstr "선물"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:169
+#: frontend-notices/gifting-banner/gifting-banner.php:188
 msgid "Enjoy this site?"
 msgstr "이 사이트가 마음에 드시나요?"
 
@@ -139,11 +143,11 @@ msgstr "홈"
 msgid "Blog"
 msgstr "블로그"
 
-#: feature-plugins/hooks.php:140
+#: feature-plugins/hooks.php:182
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "프록시 설정됨에만 해당: 프록시가 설정되어서 이 내용을 볼 수 있습니다. 여기로 이동한 이유를 모르면 사용하지 마세요."
 
-#: feature-plugins/hooks.php:129
+#: feature-plugins/hooks.php:171
 msgid "You do not have permission to access this page."
 msgstr "이 페이지에 접근할 권한이 없습니다."
 
@@ -168,9 +172,9 @@ msgstr "모든 Atomic 사이트에 사전 설치되고 활성화된 기능과 �
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: feature-plugins/managed-plugins.php:482
-#: feature-plugins/managed-plugins.php:493
-#: feature-plugins/managed-plugins.php:504
+#: feature-plugins/managed-plugins.php:499
+#: feature-plugins/managed-plugins.php:510
+#: feature-plugins/managed-plugins.php:521
 msgid "Updates managed by WordPress.com"
 msgstr "업데이트 관리: 워드프레스닷컴"
 
@@ -467,27 +471,27 @@ msgstr "WordPress.com에서 무료 웹사이트 또는 블로그 만들기"
 msgid "Create a free website at WordPress.com"
 msgstr "WordPress.com에서 무료 웹사이트 만들기"
 
-#: footer-credit/footer-credit/footer-credit.php:101
+#: footer-credit/footer-credit/footer-credit.php:100
 msgid "Powered by WordPress.com"
 msgstr "Powered by 워드프레스닷컴"
 
-#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
-#: footer-credit/footer-credit/footer-credit.php:98
+#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
+#: footer-credit/footer-credit/footer-credit.php:97
 #: footer-credit/theme-optimizations.php:30
 #: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
 msgstr "WordPress.com 제공"
 
-#: footer-credit/footer-credit/footer-credit.php:97
+#: footer-credit/footer-credit/footer-credit.php:96
 msgid "A WordPress.com Website"
 msgstr "워드프레스닷컴 웹사이트"
 
-#: footer-credit/footer-credit/footer-credit.php:96
+#: footer-credit/footer-credit/footer-credit.php:95
 msgid "WordPress.com Logo"
 msgstr "WordPress.com 로고"
 
-#: footer-credit/footer-credit/footer-credit.php:41
-#: footer-credit/footer-credit/footer-credit.php:205
+#: footer-credit/footer-credit/footer-credit.php:40
+#: footer-credit/footer-credit/footer-credit.php:204
 msgid "Create a website or blog at WordPress.com"
 msgstr "워드프레스닷컴에서 웹사이트 또는 블로그 만들기"
 

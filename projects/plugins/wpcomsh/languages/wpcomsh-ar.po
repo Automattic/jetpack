@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-01-29 09:10:51+0000\n"
+"PO-Revision-Date: 2023-02-21 13:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,11 +11,15 @@ msgstr ""
 "Language: ar\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:213
+#: notices/media-library-private-site-cdn-notice.php:20
+msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
+msgstr "تم تعطيل CDN الخاص بالصورة نظرًا إلى وضع علامة على موقعك بأنه \"خاص\". إذا لم تظهر الصور المصغّرة للصور في مكتبة الوسائط لديك، فيمكنك التبديل إلى وضع \"قريبًا\".  <a href=\"%1$s\" target=_blank>تعرَّف على المزيد.</a>"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:232
 msgid "Gift the author a WordPress.com plan."
 msgstr "قم بإهداء المؤلف خطة ووردبريس.كوم."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:201
+#: frontend-notices/gifting-banner/gifting-banner.php:220
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "أهدِ المؤلف خطة ووردبريس.كوم قبل انتهاء صلاحيتها اليوم."
@@ -25,11 +29,11 @@ msgstr[3] "أهدِ المؤلف خطة ووردبريس.كوم قبل انته�
 msgstr[4] "أهدِ المؤلف خطة ووردبريس.كوم قبل انتهاء صلاحيتها بعد %d يوما."
 msgstr[5] "أهدِ المؤلف خطة ووردبريس.كوم قبل انتهاء صلاحيتها بعد %d يوما."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:209
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "قم بإهداء المؤلف ترقية ووردبريس.كوم."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:163
+#: frontend-notices/gifting-banner/gifting-banner.php:182
 msgid "This site's plan has expired."
 msgstr "انتهت صلاحية خطة الموقع هذه."
 
@@ -105,12 +109,12 @@ msgstr "تنتهي صلاحية الخطة الشخصية لـ <strong>%3$s</str
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "تستخدم الآن PHP <strong>%1$s</strong> التي لا تتلقى تحديثات الأمان بعد الآن بدءًا من %2$s. يرجى التحديث إلى PHP ⁦%3$s⁩ أو أعلى من خلال تغيير <a href=\"%4$s\">تكوينات الاستضافة</a> لديك."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:102
-#: frontend-notices/gifting-banner/gifting-banner.php:124
+#: frontend-notices/gifting-banner/gifting-banner.php:118
+#: frontend-notices/gifting-banner/gifting-banner.php:143
 msgid "Gift"
 msgstr "هدية"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:169
+#: frontend-notices/gifting-banner/gifting-banner.php:188
 msgid "Enjoy this site?"
 msgstr "هل تستمتع بهذا الموقع؟"
 
@@ -144,11 +148,11 @@ msgstr "الصفحة الرئيسية"
 msgid "Blog"
 msgstr "المدونة"
 
-#: feature-plugins/hooks.php:140
+#: feature-plugins/hooks.php:182
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "تم إنشاء وكيل فقط: يمكنك رؤية ذلك نظرًا إلى إنشاء وكيل لك. لا تستخدم ذلك إذا كنت لا تعرف سبب وجودك هنا."
 
-#: feature-plugins/hooks.php:129
+#: feature-plugins/hooks.php:171
 msgid "You do not have permission to access this page."
 msgstr "ليس لديك الصلاحيات الكافية للوصول إلى هذه الصفحة."
 
@@ -173,9 +177,9 @@ msgstr "قدم ووردبريس.كوم وظائف وأدوات مثبتة مسب
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: feature-plugins/managed-plugins.php:482
-#: feature-plugins/managed-plugins.php:493
-#: feature-plugins/managed-plugins.php:504
+#: feature-plugins/managed-plugins.php:499
+#: feature-plugins/managed-plugins.php:510
+#: feature-plugins/managed-plugins.php:521
 msgid "Updates managed by WordPress.com"
 msgstr "التحديثات المُدارة بواسطة ووردبريس.كوم"
 
@@ -472,27 +476,27 @@ msgstr "أنشئ موقعاً أو مدونة مجانية على ووردبري
 msgid "Create a free website at WordPress.com"
 msgstr "إنشاء موقع مجاني على وردبرس.كوم"
 
-#: footer-credit/footer-credit/footer-credit.php:101
+#: footer-credit/footer-credit/footer-credit.php:100
 msgid "Powered by WordPress.com"
 msgstr "يعمل من خلال WordPress.com"
 
-#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
-#: footer-credit/footer-credit/footer-credit.php:98
+#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
+#: footer-credit/footer-credit/footer-credit.php:97
 #: footer-credit/theme-optimizations.php:30
 #: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
 msgstr "المدونة لدى وردبرس.كوم"
 
-#: footer-credit/footer-credit/footer-credit.php:97
+#: footer-credit/footer-credit/footer-credit.php:96
 msgid "A WordPress.com Website"
 msgstr "موقع ووردبريس.كوم على الويب"
 
-#: footer-credit/footer-credit/footer-credit.php:96
+#: footer-credit/footer-credit/footer-credit.php:95
 msgid "WordPress.com Logo"
 msgstr "شعار وردبرس.كوم"
 
-#: footer-credit/footer-credit/footer-credit.php:41
-#: footer-credit/footer-credit/footer-credit.php:205
+#: footer-credit/footer-credit/footer-credit.php:40
+#: footer-credit/footer-credit/footer-credit.php:204
 msgid "Create a website or blog at WordPress.com"
 msgstr "إنشاء موقع على الويب أو مدونة على ووردبريس.كوم"
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP.com Site Helper\n"
 "Report-Msgid-Bugs-To: help@wordpress.com\n"
-"POT-Creation-Date: 2023-02-15 10:41-0800\n"
+"POT-Creation-Date: 2023-05-10 11:18+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -49,6 +49,18 @@ msgstr ""
 msgid "Save Settings"
 msgstr ""
 
+#: endpoints/class-github-hosting-webhook-response.php:354
+msgid "Failed to save zipball in tmp folder."
+msgstr ""
+
+#: endpoints/class-github-hosting-webhook-response.php:378
+msgid "The ZIP file could not be opened."
+msgstr ""
+
+#: endpoints/class-github-hosting-webhook-response.php:387
+msgid "The ZIP file could not be extracted."
+msgstr ""
+
 #: feature-plugins/additional-css.php:38 feature-plugins/additional-css.php:41
 msgid "CSS"
 msgstr ""
@@ -84,11 +96,11 @@ msgid ""
 "settings."
 msgstr ""
 
-#: feature-plugins/hooks.php:171
+#: feature-plugins/hooks.php:233
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: feature-plugins/hooks.php:182
+#: feature-plugins/hooks.php:244
 msgid ""
 "Proxied only: You can see this because you are proxied. Do not use this if "
 "you don't know why you are here."
@@ -117,6 +129,10 @@ msgstr ""
 
 #: feature-plugins/masterbar.php:90
 msgid "Set your color scheme on WordPress.com."
+msgstr ""
+
+#: feature-plugins/site-logs.php:41
+msgid "Site Logs"
 msgstr ""
 
 #: footer-credit/footer-credit-optimizations.php:114
@@ -233,6 +249,49 @@ msgstr ""
 msgid "Create logo"
 msgstr ""
 
+#: notices/anyone-can-register-notice.php:28
+#, php-format
+msgid ""
+"The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. "
+"The current default role is %1$s. %4$s <a href=\"%3$s\">Please consider "
+"disabling this option</a>."
+msgstr ""
+
+#: notices/anyone-can-register-notice.php:32
+#, php-format
+msgid ""
+"The <a href=\"%2$s\">\"Anyone can register\" option</a> is currently active. "
+"The current default role is %1$s. %4$s Please consider disabling this option."
+msgstr ""
+
+#: notices/anyone-can-register-notice.php:40
+msgid "It allows a user full control over your site and its contents."
+msgstr ""
+
+#: notices/anyone-can-register-notice.php:45
+msgid "It allows a user control over your orders and products."
+msgstr ""
+
+#: notices/anyone-can-register-notice.php:50
+msgid "It allows a user to post/modify/delete all content."
+msgstr ""
+
+#: notices/anyone-can-register-notice.php:55
+msgid "It allows a user to post content."
+msgstr ""
+
+#: notices/anyone-can-register-notice.php:60
+msgid "It allows a user to create but not post content."
+msgstr ""
+
+#: notices/anyone-can-register-notice.php:65
+msgid "It could result in spam users."
+msgstr ""
+
+#: notices/anyone-can-register-notice.php:70
+msgid "This may pose a security risk to your site."
+msgstr ""
+
 #: notices/media-library-private-site-cdn-notice.php:20
 #, php-format
 msgid ""
@@ -249,7 +308,7 @@ msgid ""
 "changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr ""
 
-#: notices/plan-notices.php:85
+#: notices/plan-notices.php:88
 #, php-format
 msgid ""
 "The Personal plan for <strong>%3$s</strong> expires on %2$s. <a "
@@ -257,7 +316,7 @@ msgid ""
 "GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr ""
 
-#: notices/plan-notices.php:90
+#: notices/plan-notices.php:93
 #, php-format
 msgid ""
 "The Premium plan for <strong>%3$s</strong> expires on %2$s. <a "
@@ -265,7 +324,7 @@ msgid ""
 "site monetization, VideoPress, and Google Analytics support."
 msgstr ""
 
-#: notices/plan-notices.php:95
+#: notices/plan-notices.php:98
 #, php-format
 msgid ""
 "The Business plan for <strong>%3$s</strong> expires on %2$s. <a "
@@ -273,7 +332,7 @@ msgid ""
 "custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
-#: notices/plan-notices.php:100
+#: notices/plan-notices.php:103
 #, php-format
 msgid ""
 "The eCommerce plan for <strong>%3$s</strong> expires on %2$s. <a "
@@ -281,7 +340,7 @@ msgid ""
 "custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
-#: notices/plan-notices.php:105
+#: notices/plan-notices.php:108
 #, php-format
 msgid ""
 "The Pro plan for <strong>%3$s</strong> expires on %2$s. <a "
@@ -289,7 +348,7 @@ msgid ""
 "plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
-#: notices/plan-notices.php:116
+#: notices/plan-notices.php:119
 #, php-format
 msgid ""
 "The Personal plan for <strong>%3$s</strong> expired on %2$s. <a "
@@ -297,7 +356,7 @@ msgid ""
 "as 6 GB storage space, no WordPress.com ads, and Subscriber-only content."
 msgstr ""
 
-#: notices/plan-notices.php:121
+#: notices/plan-notices.php:124
 #, php-format
 msgid ""
 "The Premium plan for <strong>%3$s</strong> expired on %2$s. <a "
@@ -305,7 +364,7 @@ msgid ""
 "as site monetization, VideoPress, and Google Analytics support."
 msgstr ""
 
-#: notices/plan-notices.php:126
+#: notices/plan-notices.php:129
 #, php-format
 msgid ""
 "The Business plan for <strong>%3$s</strong> expired on %2$s. <a "
@@ -313,7 +372,7 @@ msgid ""
 "as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
-#: notices/plan-notices.php:131
+#: notices/plan-notices.php:134
 #, php-format
 msgid ""
 "The eCommerce plan for <strong>%3$s</strong> expired on %2$s. <a "
@@ -321,7 +380,7 @@ msgid ""
 "such as custom plugins and themes, SFTP, and phpMyAdmin access."
 msgstr ""
 
-#: notices/plan-notices.php:136
+#: notices/plan-notices.php:139
 #, php-format
 msgid ""
 "The Pro plan for <strong>%3$s</strong> expired on %2$s. <a "
@@ -414,43 +473,47 @@ msgstr ""
 msgid "Switch user"
 msgstr ""
 
-#: private-site/logged-in-banner.php:64
+#: private-site/logged-in-banner.php:81
 msgid "Update visibility"
 msgstr ""
 
-#: private-site/logged-in-banner.php:65
+#: private-site/logged-in-banner.php:82
 msgid "Update"
 msgstr ""
 
-#: private-site/logged-in-banner.php:68
+#: private-site/logged-in-banner.php:85
 msgid "Launch site"
 msgstr ""
 
-#: private-site/logged-in-banner.php:69
+#: private-site/logged-in-banner.php:86
 msgid "Launch"
 msgstr ""
 
-#: private-site/logged-in-banner.php:95
+#: private-site/logged-in-banner.php:112
 msgid "Edit"
 msgstr ""
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:113
 msgid "Edit post"
 msgstr ""
 
-#: private-site/logged-in-banner.php:96
+#: private-site/logged-in-banner.php:113
 msgid "Edit page"
 msgstr ""
 
-#: private-site/logged-in-banner.php:109
+#: private-site/logged-in-banner.php:126
 msgid "Change"
 msgstr ""
 
-#: private-site/logged-in-banner.php:110
+#: private-site/logged-in-banner.php:127
 msgid "Change theme"
 msgstr ""
 
-#: private-site/logged-in-banner.php:146
+#: private-site/logged-in-banner.php:163
+msgid "Next steps"
+msgstr ""
+
+#: private-site/logged-in-banner.php:163
 msgid "My Home"
 msgstr ""
 
@@ -604,7 +667,7 @@ msgstr ""
 #: widgets/class-gravatar-widget.php:157
 #: widgets/class-jetpack-i-voted-widget.php:69
 #: widgets/class-jetpack-posts-i-like-widget.php:85
-#: widgets/class-jetpack-widget-twitter.php:387
+#: widgets/class-jetpack-widget-twitter.php:145
 #: widgets/class-music-player-widget.php:82 widgets/class-pd-top-rated.php:134
 #: widgets/class-widget-authors-grid.php:115
 #: widgets/class-widget-top-clicks.php:47
@@ -705,70 +768,40 @@ msgid ""
 "href=\"%s\">Posts I Like</a> widget will display them."
 msgstr ""
 
-#: widgets/class-jetpack-widget-twitter.php:25
+#: widgets/class-jetpack-widget-twitter.php:37
 msgid "Twitter"
 msgstr ""
 
-#: widgets/class-jetpack-widget-twitter.php:28
+#: widgets/class-jetpack-widget-twitter.php:40
 msgid "Display your Tweets from Twitter"
 msgstr ""
 
-#: widgets/class-jetpack-widget-twitter.php:50
+#. translators: %s is the URL to the widgets page
+#: widgets/class-jetpack-widget-twitter.php:58
 #, php-format
 msgid ""
 "Please configure your Twitter username for the <a href=\"%s\">Twitter "
 "Widget</a>."
 msgstr ""
 
-#: widgets/class-jetpack-widget-twitter.php:60
+#: widgets/class-jetpack-widget-twitter.php:67
 msgid "Twitter Updates"
 msgstr ""
 
-#: widgets/class-jetpack-widget-twitter.php:285
-#: widgets/class-jetpack-widget-twitter.php:301
-#: widgets/class-jetpack-widget-twitter.php:322
-msgid ""
-"Error: Twitter did not respond. Please wait a few minutes and refresh this "
-"page."
-msgstr ""
-
-#: widgets/class-jetpack-widget-twitter.php:315
+#. translators: %s is the Twitter account name
+#: widgets/class-jetpack-widget-twitter.php:74
 #, php-format
-msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgid "Tweets by %s"
 msgstr ""
 
-#: widgets/class-jetpack-widget-twitter.php:383
+#: widgets/class-jetpack-widget-twitter.php:141
 msgid ""
 "Please switch to the 'Twitter Timeline' widget. This widget will be going "
 "away in the future and the new widget allows for more customization."
 msgstr ""
 
-#: widgets/class-jetpack-widget-twitter.php:394
+#: widgets/class-jetpack-widget-twitter.php:152
 msgid "Twitter username:"
-msgstr ""
-
-#: widgets/class-jetpack-widget-twitter.php:401
-msgid "Maximum number of Tweets to show:"
-msgstr ""
-
-#: widgets/class-jetpack-widget-twitter.php:417
-msgid "Hide replies"
-msgstr ""
-
-#: widgets/class-jetpack-widget-twitter.php:424
-msgid "Hide Tweets pushed by Publicize"
-msgstr ""
-
-#: widgets/class-jetpack-widget-twitter.php:431
-msgid "Include retweets"
-msgstr ""
-
-#: widgets/class-jetpack-widget-twitter.php:438
-msgid "Display Follow Button"
-msgstr ""
-
-#: widgets/class-jetpack-widget-twitter.php:444
-msgid "Text to display between Tweet and timestamp:"
 msgstr ""
 
 #: widgets/class-music-player-widget.php:17

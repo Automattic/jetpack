@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the WordPress.com - Site Helper package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2023-02-14 18:06:06+0000\n"
+"PO-Revision-Date: 2023-02-21 09:54:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,20 +11,24 @@ msgstr ""
 "Language: zh_CN\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:213
+#: notices/media-library-private-site-cdn-notice.php:20
+msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
+msgstr "图像 CDN 已被禁用，因为您的站点已标记为“私密”。 如果您的“媒体库”中不显示图像缩略图，则可以切换至“即将推出”模式。  <a href=\"%1$s\" target=_blank>了解更多</a>。"
+
+#: frontend-notices/gifting-banner/gifting-banner.php:232
 msgid "Gift the author a WordPress.com plan."
 msgstr "向作者赠送 WordPress.com 套餐。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:201
+#: frontend-notices/gifting-banner/gifting-banner.php:220
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "在 WordPress.com 套餐到期前 %d 天向作者赠送套餐。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:209
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "向作者赠送 WordPress.com 升级。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:163
+#: frontend-notices/gifting-banner/gifting-banner.php:182
 msgid "This site's plan has expired."
 msgstr "此站点的套餐已到期。"
 
@@ -100,12 +104,12 @@ msgstr "<strong>%3$s</strong> 的个人套餐将于 %2$s到期。 <a href=\"%1$s
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "您当前使用的是 PHP <strong>%1$s</strong>，自 %2$s起将不再接收安全更新。 请通过更改<a href=\"%4$s\">托管服务配置</a>，更新到 PHP %3$s 或更高版本。"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:102
-#: frontend-notices/gifting-banner/gifting-banner.php:124
+#: frontend-notices/gifting-banner/gifting-banner.php:118
+#: frontend-notices/gifting-banner/gifting-banner.php:143
 msgid "Gift"
 msgstr "礼品"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:169
+#: frontend-notices/gifting-banner/gifting-banner.php:188
 msgid "Enjoy this site?"
 msgstr "喜欢这个站点？"
 
@@ -139,11 +143,11 @@ msgstr "首页"
 msgid "Blog"
 msgstr "博客"
 
-#: feature-plugins/hooks.php:140
+#: feature-plugins/hooks.php:182
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "仅限代理：您可以看到此选项是因为您使用了代理。 如果您不知道自己为什么会到此，请不要使用。"
 
-#: feature-plugins/hooks.php:129
+#: feature-plugins/hooks.php:171
 msgid "You do not have permission to access this page."
 msgstr "您无权查看此页面。"
 
@@ -168,9 +172,9 @@ msgstr "WordPress.com 在所有 Atomic 站点上均提供已进行预安装并�
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: feature-plugins/managed-plugins.php:482
-#: feature-plugins/managed-plugins.php:493
-#: feature-plugins/managed-plugins.php:504
+#: feature-plugins/managed-plugins.php:499
+#: feature-plugins/managed-plugins.php:510
+#: feature-plugins/managed-plugins.php:521
 msgid "Updates managed by WordPress.com"
 msgstr "更新由 WordPress.com 进行管理"
 
@@ -467,27 +471,27 @@ msgstr "通过访问 WordPress.com 创建免费网站或博客"
 msgid "Create a free website at WordPress.com"
 msgstr "通过访问 WordPress.com 创建免费网站"
 
-#: footer-credit/footer-credit/footer-credit.php:101
+#: footer-credit/footer-credit/footer-credit.php:100
 msgid "Powered by WordPress.com"
 msgstr "由 WordPress.com 提供支持"
 
-#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
-#: footer-credit/footer-credit/footer-credit.php:98
+#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
+#: footer-credit/footer-credit/footer-credit.php:97
 #: footer-credit/theme-optimizations.php:30
 #: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
 msgstr "在WordPress.com的博客"
 
-#: footer-credit/footer-credit/footer-credit.php:97
+#: footer-credit/footer-credit/footer-credit.php:96
 msgid "A WordPress.com Website"
 msgstr "WordPress.com 站点"
 
-#: footer-credit/footer-credit/footer-credit.php:96
+#: footer-credit/footer-credit/footer-credit.php:95
 msgid "WordPress.com Logo"
 msgstr "WordPress.com 徽标"
 
-#: footer-credit/footer-credit/footer-credit.php:41
-#: footer-credit/footer-credit/footer-credit.php:205
+#: footer-credit/footer-credit/footer-credit.php:40
+#: footer-credit/footer-credit/footer-credit.php:204
 msgid "Create a website or blog at WordPress.com"
 msgstr "在 WordPress.com 上创建免费网站或博客"
 

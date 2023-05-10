@@ -11,21 +11,25 @@ msgstr ""
 "Language: sq_AL\n"
 "Project-Id-Version: WordPress.com - Site Helper\n"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:213
+#: notices/media-library-private-site-cdn-notice.php:20
+msgid "The image CDN is disabled because your site is marked Private. If image thumbnails do not display in your Media Library, you can switch to Coming Soon mode.  <a href=\"%1$s\" target=_blank>Learn more</a>."
+msgstr ""
+
+#: frontend-notices/gifting-banner/gifting-banner.php:232
 msgid "Gift the author a WordPress.com plan."
 msgstr "Dhurojini autorit një plan WordPress.com."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:201
+#: frontend-notices/gifting-banner/gifting-banner.php:220
 msgid "Gift the author a WordPress.com plan before it expires in %d day."
 msgid_plural "Gift the author a WordPress.com plan before it expires in %d days."
 msgstr[0] "Dhurojini autorit një plan WordPress.com, para se të skadojë për %d ditë."
 msgstr[1] "Dhurojini autorit një plan WordPress.com, para se të skadojë për %d ditë."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:190
+#: frontend-notices/gifting-banner/gifting-banner.php:209
 msgid "Gift the author a WordPress.com upgrade."
 msgstr "Dhurojini autorit një përmirësim në WordPress.com."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:163
+#: frontend-notices/gifting-banner/gifting-banner.php:182
 msgid "This site's plan has expired."
 msgstr "Plani i këtij sajti ka skaduar."
 
@@ -101,12 +105,12 @@ msgstr "Plani Personal për <strong>%3$s</strong> skadon më %2$s. <a href=\"%1$
 msgid "You are currently using PHP <strong>%1$s</strong> which will no longer receive security updates as of %2$s. Please update to PHP %3$s or higher by changing your <a href=\"%4$s\">hosting configuration</a>."
 msgstr "Aktualisht po përdorni PHP <strong>%1$s</strong>, që s’do të përfitojë më përditësime sigurie pas %2$s. Ju lutemi, përditësojeni me PHP %3$s ose më sipër, duke ndryshuar <a href=\"%4$s\">formësimin e strehimit tuaj</a>."
 
-#: frontend-notices/gifting-banner/gifting-banner.php:102
-#: frontend-notices/gifting-banner/gifting-banner.php:124
+#: frontend-notices/gifting-banner/gifting-banner.php:118
+#: frontend-notices/gifting-banner/gifting-banner.php:143
 msgid "Gift"
 msgstr "Dhuratë"
 
-#: frontend-notices/gifting-banner/gifting-banner.php:169
+#: frontend-notices/gifting-banner/gifting-banner.php:188
 msgid "Enjoy this site?"
 msgstr "Po kënaqeni me këtë sajt?"
 
@@ -140,11 +144,11 @@ msgstr "Kreu"
 msgid "Blog"
 msgstr "Blog"
 
-#: feature-plugins/hooks.php:140
+#: feature-plugins/hooks.php:182
 msgid "Proxied only: You can see this because you are proxied. Do not use this if you don't know why you are here."
 msgstr "Vetëm përmes ndërmjetësi: Mundeni ta shihni këtë ngaqë jeni kaluar përmes ndërmjetësi. Mos e përdorni këtë, nëse s’e dini pse gjendeni këtu."
 
-#: feature-plugins/hooks.php:129
+#: feature-plugins/hooks.php:171
 msgid "You do not have permission to access this page."
 msgstr "S’keni leje për të hyrë në këtë faqe."
 
@@ -169,9 +173,9 @@ msgstr "Funksione & mjete të furnizuara nga WordPress.com të instaluara parapr
 #. debugging purposes.
 #. translators: Information about how a managed theme is updated, for debugging
 #. purposes.
-#: feature-plugins/managed-plugins.php:482
-#: feature-plugins/managed-plugins.php:493
-#: feature-plugins/managed-plugins.php:504
+#: feature-plugins/managed-plugins.php:499
+#: feature-plugins/managed-plugins.php:510
+#: feature-plugins/managed-plugins.php:521
 msgid "Updates managed by WordPress.com"
 msgstr "Përditësime të administruara nga WordPress.com"
 
@@ -468,27 +472,27 @@ msgstr "Krijoni një sajt ose blog falas te WordPress.com"
 msgid "Create a free website at WordPress.com"
 msgstr "Krijoni një sajt falas te WordPress.com"
 
-#: footer-credit/footer-credit/footer-credit.php:101
+#: footer-credit/footer-credit/footer-credit.php:100
 msgid "Powered by WordPress.com"
 msgstr "Bazuar në WordPress.com"
 
-#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:81
-#: footer-credit/footer-credit/footer-credit.php:98
+#: block-theme-footer-credits/class-wpcom-block-theme-footer-credits.php:87
+#: footer-credit/footer-credit/footer-credit.php:97
 #: footer-credit/theme-optimizations.php:30
 #: footer-credit/theme-optimizations.php:35
 msgid "Blog at WordPress.com"
 msgstr "Blog te WordPress.com"
 
-#: footer-credit/footer-credit/footer-credit.php:97
+#: footer-credit/footer-credit/footer-credit.php:96
 msgid "A WordPress.com Website"
 msgstr "Një Sajt WordPress.com"
 
-#: footer-credit/footer-credit/footer-credit.php:96
+#: footer-credit/footer-credit/footer-credit.php:95
 msgid "WordPress.com Logo"
 msgstr "Stema e WordPress.com-it"
 
-#: footer-credit/footer-credit/footer-credit.php:41
-#: footer-credit/footer-credit/footer-credit.php:205
+#: footer-credit/footer-credit/footer-credit.php:40
+#: footer-credit/footer-credit/footer-credit.php:204
 msgid "Create a website or blog at WordPress.com"
 msgstr "Krijoni një sajt ose blog te WordPress.com"
 
