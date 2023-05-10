@@ -54,13 +54,13 @@ const AIControl = ( {
 		}
 	};
 
-	const textPLaceholder = ! content?.length
+	const textPlaceholder = ! content?.length
 		? __( 'Ask AI to write anything…', 'jetpack' )
 		: __( 'Tell AI what to do next…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
 	const placeholder =
 		aiType === 'text'
-			? textPLaceholder
+			? textPlaceholder
 			: __( 'What would you like to see?', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
 	return (
