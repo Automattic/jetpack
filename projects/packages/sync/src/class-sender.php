@@ -643,7 +643,7 @@ class Sender {
 				$had_wp_error = is_wp_error( end( $processed_item_ids ) );
 				$wp_error     = $had_wp_error ? array_pop( $processed_item_ids ) : null;
 				// Also checkin any items that were skipped.
-				if ( array() !== $skipped_items_ids && count( $skipped_items_ids ) > 0 ) {
+				if ( array() !== $skipped_items_ids ) {
 					$processed_item_ids = array_merge( $processed_item_ids, $skipped_items_ids );
 				}
 				$processed_items = array_intersect_key( $items, array_flip( $processed_item_ids ) );
