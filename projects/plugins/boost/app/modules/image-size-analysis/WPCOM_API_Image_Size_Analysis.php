@@ -31,7 +31,7 @@ class WPCOM_API_Image_Size_Analysis {
 			),
 			'data'  => array(
 				'last_updated' => 1682419855474,
-				'total_pages'  => 3,
+				'total_pages'  => random_int(1,15),
 				'images'       => jetpack_boost_mock_api( 10, $this->group, $this->page ),
 			),
 		);
