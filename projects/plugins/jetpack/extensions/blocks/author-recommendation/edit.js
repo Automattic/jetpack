@@ -11,7 +11,6 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import './editor.scss';
 import icon from './icon';
-import data from './mock_data.json';
 
 function AuthorRecommendationEdit( {
 	className,
@@ -26,10 +25,8 @@ function AuthorRecommendationEdit( {
 
 	useEffect( () => {
 		setSelectedSubscriptions( recommendations.map( ( { ID } ) => ID ) );
-
 		// TODO fetch the sites the user is subscribed to
-		setSubscriptions( data );
-
+		setSubscriptions( [] );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
