@@ -112,9 +112,10 @@ class Themes extends Module {
 	 */
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$all_enabled_theme_slugs = array_keys( $value );
+		$old_value_count         = is_countable( $old_value ) ? count( $old_value ) : 0;
+		$value_count             = is_countable( $value ) ? count( $value ) : 0;
 
-		if ( count( $old_value ) > count( $value ) ) {
-
+		if ( $old_value_count > $value_count ) {
 			// Suppress jetpack_network_disabled_themes sync action when theme is deleted.
 			$delete_theme_call = $this->get_delete_theme_call();
 			if ( ! empty( $delete_theme_call ) ) {
