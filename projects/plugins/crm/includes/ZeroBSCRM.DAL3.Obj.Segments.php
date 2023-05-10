@@ -1436,10 +1436,9 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                     global $zbs,$wpdb,$ZBSCRM_t;
 
 			if ( ! empty( $condition['type'] ) ) {
-				$filter_tag = $this->makeSlug( $condition['type'] ) . '_zbsSegmentArgumentBuild';
-				if ( substr( $condition['type'], 0, 5 ) === 'zbsc_' ) {
-					$filter_tag = $this->makeSlug( substr( $condition['type'], 5 ) ) . '_zbsSegmentArgumentBuild';
-				}
+				// normalise type string
+				$condition_type  = preg_replace( '/^zbsc_/', '', $condition['type'] );
+				$filter_tag = $this->makeSlug( $condition_type ) . '_zbsSegmentArgumentBuild';
 
 				$potential_args = apply_filters( $filter_tag, false, $condition, $conditionKeySuffix ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				// got anything back?
