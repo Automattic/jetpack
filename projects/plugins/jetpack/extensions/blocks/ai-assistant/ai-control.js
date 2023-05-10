@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { BlockControls, PlainText } from '@wordpress/block-editor';
 import {
 	Button,
@@ -61,7 +64,11 @@ const AIControl = ( {
 	let placeholder = '';
 
 	if ( isWaitingState ) {
-		placeholder = __( 'AI writing', 'jetpack' );
+		if ( userPrompt?.length ) {
+			placeholder = userPrompt;
+		} else {
+			placeholder = __( 'AI writing', 'jetpack' );
+		}
 	} else if ( aiType === 'text' ) {
 		placeholder = textPlaceholder;
 	} else {
@@ -94,10 +101,12 @@ const AIControl = ( {
 			<div className="jetpack-ai-assistant__input-wrapper">
 				{ ( isWaitingState || loadingImages ) && <Loading /> }
 				<PlainText
+					value={ isWaitingState ? '' : userPrompt }
 					onChange={ value => setUserPrompt( value ) }
 					onKeyPress={ handleInputEnter }
 					placeholder={ placeholder }
 					className="jetpack-ai-assistant__input"
+					disabled={ isWaitingState || loadingImages }
 				/>
 
 				<div className="jetpack-ai-assistant__controls">
