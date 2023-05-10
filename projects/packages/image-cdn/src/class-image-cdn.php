@@ -46,7 +46,7 @@ final class Image_CDN {
 	private static $image_sizes = null;
 
 	/**
-	 * Weather Image CDN is enabled or not.
+	 * Whether Image CDN is enabled or not.
 	 *
 	 * This class will be instantiated if any plugin has activated image CDN module. Keeping this variable to check if module is active or not.
 	 *
