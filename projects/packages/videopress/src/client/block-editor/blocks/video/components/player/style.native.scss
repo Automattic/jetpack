@@ -11,8 +11,19 @@
 	z-index: 1;
 }
 
+.videopress-player__overlay--age-restricted {
+	background-color: #000000;
+}
+
 .videopress-player__open-embed-button {
 	flex-grow: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.videopress-player__open-embed-button-text {
+	color: $white;
 }
 
 .videopress-player__loading {

@@ -45,6 +45,7 @@ export default function Player( { isSelected, attributes } ) {
 		seekbarLoadingColor,
 		seekbarPlayedColor,
 		title,
+		rating,
 	} = attributes;
 
 	const iconStyle = style[ 'videopress-player__loading-icon' ];
@@ -96,6 +97,13 @@ export default function Player( { isSelected, attributes } ) {
 	const isPreviewReady = !! preview?.height || previewCheckAttempts > VIDEO_PREVIEW_ATTEMPTS_LIMIT;
 
 	const aspectRatio = preview?.width / preview?.height || DEFAULT_PLAYER_ASPECT_RATIO;
+
+	const isAgeRestricted = rating?.toLowerCase().includes( 'r' );
+
+	// Try regenerating the preview if the age restriction changes.
+	useEffect( () => {
+		invalidatePreview();
+	}, [ isAgeRestricted ] );
 
 	// Fetch the preview until it's ready
 	useEffect( () => {
@@ -149,15 +157,31 @@ export default function Player( { isSelected, attributes } ) {
 	let overlay = ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } />;
 
 	// On Android render an overlay to send the embed markup to a native WebView.
-	if ( isSelected && IS_ANDROID ) {
+	if ( ( isSelected && IS_ANDROID ) || ( isAgeRestricted && ! isSelected ) ) {
 		overlay = (
-			<View style={ style[ 'videopress-player__overlay' ] }>
+			<View
+				style={ [
+					style[ 'videopress-player__overlay' ],
+					isAgeRestricted && style[ 'videopress-player__overlay--age-restricted' ],
+				] }
+			>
 				<Pressable
 					style={ style[ 'videopress-player__open-embed-button' ] }
 					onPress={ () => {
 						requestEmbedFullscreenPreview( html, title );
 					} }
-				/>
+				>
+					{ isAgeRestricted && (
+						<>
+							<Text style={ style[ 'videopress-player__open-embed-button-text' ] }>
+								{ __( 'This video might display mature content', 'jetpack-videopress-pkg' ) }
+							</Text>
+							<Text style={ style[ 'videopress-player__open-embed-button-text' ] }>
+								{ __( 'Tap to enter your birth date.', 'jetpack-videopress-pkg' ) }
+							</Text>
+						</>
+					) }
+				</Pressable>
 			</View>
 		);
 	}
