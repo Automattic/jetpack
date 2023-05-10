@@ -7,7 +7,7 @@
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';
-	import { isaData, isaDataLoading } from './store/isa-data';
+	import { isaData } from './store/isa-data';
 
 	const params = useParams();
 

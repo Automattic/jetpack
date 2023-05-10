@@ -1,4 +1,3 @@
-import { onMount } from 'svelte';
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
