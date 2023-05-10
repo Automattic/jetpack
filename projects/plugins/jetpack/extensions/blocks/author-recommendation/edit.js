@@ -1,14 +1,21 @@
-import { useBlockProps } from '@wordpress/block-editor';
-import { CheckboxControl, Flex, FlexBlock, FlexItem } from '@wordpress/components';
+import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
+import {
+	CheckboxControl,
+	Flex,
+	FlexBlock,
+	FlexItem,
+	Placeholder,
+	Icon,
+} from '@wordpress/components';
 import { useState, useEffect, useCallback } from '@wordpress/element';
-// import { __ } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import './editor.scss';
-// import icon from './icon';
+import icon from './icon';
 import data from './mock_data.json';
 
 function AuthorRecommendationEdit( {
-	// className,
-	// noticeUI,
+	className,
+	noticeUI,
 	attributes,
 	setAttributes,
 	isSelected,
@@ -19,7 +26,10 @@ function AuthorRecommendationEdit( {
 
 	useEffect( () => {
 		setSelectedSubscriptions( recommendations.map( ( { ID } ) => ID ) );
+
+		// TODO fetch the sites the user is subscribed to
 		setSubscriptions( data );
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
@@ -50,7 +60,19 @@ function AuthorRecommendationEdit( {
 	 */
 
 	return (
-		<div { ...useBlockProps() }>
+		<div { ...useBlockProps() } className={ className }>
+			{ ! selectedSubscriptions.length && (
+				<Placeholder
+					label={ __( 'Author-recommendation', 'jetpack' ) }
+					icon={ <BlockIcon icon={ icon } /> }
+					instructions={ __(
+						'Recommend sites to your users. Select the sites you want to recommend from the list below.',
+						'jetpack'
+					) }
+					notices={ noticeUI }
+				/>
+			) }
+
 			<Flex gap={ 2 } justify="space-between" direction="column">
 				{ subscriptions.map( subscription => {
 					const isSubscriptionSelected = selectedSubscriptions.includes( subscription.ID );
@@ -65,9 +87,15 @@ function AuthorRecommendationEdit( {
 						>
 							<Flex gap={ 4 } justify="space-between">
 								<FlexItem>
-									{ /* TODO add placeholder image */ }
+									{ ! subscription.site_icon && (
+										<Icon icon="admin-site" className="icon" size={ 36 } />
+									) }
 									{ subscription.site_icon && (
-										<img src={ subscription.site_icon } alt={ subscription.name } />
+										<img
+											className="icon"
+											src={ subscription.site_icon }
+											alt={ subscription.name }
+										/>
 									) }
 								</FlexItem>
 								<FlexBlock>{ subscription.name }</FlexBlock>
@@ -84,17 +112,6 @@ function AuthorRecommendationEdit( {
 					);
 				} ) }
 			</Flex>
-
-			{ /*
-				TODO bring back placeholder
-				<Placeholder
-				label={ __( 'Author-recommendation', 'jetpack' ) }
-				instructions={ __( 'Instructions go here.', 'jetpack' ) }
-				icon={ <BlockIcon icon={ icon } /> }
-				notices={ noticeUI }
-			>
-				{ __( 'User input goes here?', 'jetpack' ) }
-			</Placeholder> */ }
 		</div>
 	);
 }
