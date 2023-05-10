@@ -3277,6 +3277,7 @@ function wp_cron_preload_cache() {
 						}
 						wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
 						wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
+						sleep( 1 );
 
 						if ( @file_exists( $cache_path . "stop_preload.txt" ) ) {
 							wp_cache_debug( 'wp_cron_preload_cache: cancelling preload. stop_preload.txt found.', 5 );
@@ -3378,6 +3379,7 @@ function wp_cron_preload_cache() {
 			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
 			wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
 			++$count;
+			sleep( 1 );
 		}
 
 		if ( $wp_cache_preload_email_me && ( $wp_cache_preload_email_volume === 'medium' || $wp_cache_preload_email_volume === 'many' ) ) {
