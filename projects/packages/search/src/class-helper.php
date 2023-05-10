@@ -881,7 +881,7 @@ class Helper {
 			'isWpcom'               => $is_wpcom,
 
 			// widget info.
-			'hasOverlayWidgets'     => is_countable( $overlay_widget_ids ) ? count( $overlay_widget_ids ) > 0 : false,
+			'hasOverlayWidgets'     => is_countable( $overlay_widget_ids ) && count( $overlay_widget_ids ) > 0,
 			'widgets'               => array_values( $widgets ),
 			'widgetsOutsideOverlay' => array_values( $widgets_outside_overlay ),
 			'hasNonSearchWidgets'   => $has_non_search_widgets,
