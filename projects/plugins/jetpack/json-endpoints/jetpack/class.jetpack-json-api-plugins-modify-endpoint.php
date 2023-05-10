@@ -153,6 +153,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	 * @return bool|WP_Error
 	 */
 	public function callback( $path = '', $blog_id = 0, $object = null ) {
+		$args = $this->input();
+
 		Jetpack_JSON_API_Endpoint::validate_input( $object );
 		switch ( $this->action ) {
 			case 'delete':
