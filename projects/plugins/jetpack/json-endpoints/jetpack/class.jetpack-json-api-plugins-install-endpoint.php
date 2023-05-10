@@ -90,6 +90,10 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 			}
 		}
 
+		if ( ! $result ) {
+			return new WP_Error( 'plugin_install_failed', __( 'Plugin install failed because the result was invalid.', 'jetpack' ) );
+		}
+
 		if ( is_wp_error( $result ) ) {
 			return $result;
 		}
