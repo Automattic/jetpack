@@ -4,7 +4,6 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 import { getTweetTemplate } from '../../store/selectors';
-import { getAutoSharedTweetText } from './utils';
 
 /**
  * The twitter tab component.
@@ -20,27 +19,8 @@ export function Twitter( { isTweetStorm, tweets, media } ) {
 
 	const linkTweet = { ...tweets[ 0 ], ...template, text: '' };
 
-	const autoSharedTweet = {
-		...tweets[ 0 ],
-		media,
-		card: undefined,
-		text: getAutoSharedTweetText( { ...tweets[ 0 ], ...tweets[ 0 ]?.card } ),
-	};
-
 	return (
 		<div className="twitter-preview-tab">
-			<section>
-				<header>
-					<h2>{ __( 'Auto-shared', 'jetpack' ) }</h2>
-					<p className="description">
-						{ __( 'This is how it will look like when auto-shared', 'jetpack' ) }
-					</p>
-				</header>
-				<TwitterPreview
-					isTweetStorm={ isTweetStorm }
-					tweets={ isTweetStorm ? tweets : [ autoSharedTweet ] }
-				/>
-			</section>
 			<section>
 				<header>
 					<h2>{ __( 'Your post', 'jetpack' ) }</h2>
@@ -48,7 +28,7 @@ export function Twitter( { isTweetStorm, tweets, media } ) {
 						{ __( 'This is what your social post will look like on Twitter', 'jetpack' ) }
 					</p>
 				</header>
-				<TwitterPreview tweets={ [ tweets[ 0 ] ] } />
+				<TwitterPreview isTweetStorm={ isTweetStorm } tweets={ tweets } media={ media } />
 			</section>
 			<section>
 				<header>
