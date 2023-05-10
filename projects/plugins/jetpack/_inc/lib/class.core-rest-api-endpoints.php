@@ -81,7 +81,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_openai_jwt',
-				'permission_callback' => '__return_true',
+				'permission_callback' => function () {
+					return ( new Connection_Manager( 'jetpack' ) )->is_user_connected() && current_user_can( 'edit_posts' );
+				},
 			)
 		);
 
