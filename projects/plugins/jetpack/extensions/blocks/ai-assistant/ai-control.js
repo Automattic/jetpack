@@ -168,6 +168,11 @@ const ToolbarControls = ( {
 									onClick: () => getSuggestionFromOpenAI( 'correctSpelling' ),
 									isDisabled: ! contentBefore?.length,
 								},
+								{
+									title: __( 'Simplify preceding content', 'jetpack' ),
+									onClick: () => getSuggestionFromOpenAI( 'simplify' ),
+									isDisabled: ! contentBefore?.length,
+								},
 							] }
 						/>
 					) }

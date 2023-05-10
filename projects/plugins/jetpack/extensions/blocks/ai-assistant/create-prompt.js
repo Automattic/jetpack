@@ -110,6 +110,20 @@ export const createPrompt = (
 		return expandPrompt + PROMPT_SUFFIX;
 	}
 
+	if ( type === 'simplify' ) {
+		if ( ! contentBefore?.length ) {
+			return '';
+		}
+
+		const simplifyPrompt = sprintf(
+			'The selected text should be simplified to use words and phrases that are easier to understand for non-technical people. Output in the same language as the user%1$s. Selected text:\n\n%2$s',
+			PROMPT_SUFFIX,
+			contentBefore
+		);
+
+		return simplifyPrompt;
+	}
+
 	if ( type === 'correctSpelling' ) {
 		if ( ! contentBefore?.length ) {
 			return '';
