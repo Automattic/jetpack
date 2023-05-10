@@ -428,6 +428,34 @@ class zbsDAL {
 
     }
 
+	/**
+	 * Check if a given status is valid for the given object
+	 *
+	 * @param int $obj_type_id Object type ID.
+	 * @param str $obj_status  Object status string.
+	 */
+	public function is_valid_obj_status( $obj_type_id, $obj_status ) {
+		switch ( $obj_type_id ) {
+			case ZBS_TYPE_CONTACT:
+				$valid_statuses = zeroBSCRM_getCustomerStatuses( true );
+				break;
+			case ZBS_TYPE_COMPANY:
+				$valid_statuses = zeroBSCRM_getCompanyStatuses();
+				break;
+			case ZBS_TYPE_INVOICE:
+				$valid_statuses = zeroBSCRM_getInvoicesStatuses();
+				break;
+			case ZBS_TYPE_TRANSACTION:
+				$valid_statuses = zeroBSCRM_getTransactionsStatuses( true );
+				break;
+			default:
+				return false;
+		}
+
+		// if required, check if default status is a valid one
+		return in_array( $obj_status, $valid_statuses, true );
+	}
+
     // takes in an obj type str (e.g. 'contact') and returns DEFINED KEY ID = 1
     public function objTypeID($objTypeStr=''){
 
