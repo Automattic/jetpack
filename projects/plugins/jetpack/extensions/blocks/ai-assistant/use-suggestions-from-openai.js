@@ -4,7 +4,7 @@ import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MarkdownIt from 'markdown-it';
 import { createPrompt } from './create-prompt';
-
+import { askJetpack } from './get-suggestion-with-stream';
 /**
  * Returns partial content from the beginning of the post
  * to the current block (clientId)
@@ -206,3 +206,5 @@ const useSuggestionsFromOpenAI = ( {
 };
 
 export default useSuggestionsFromOpenAI;
+
+window.askJetpack = askJetpack;
