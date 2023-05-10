@@ -27,7 +27,9 @@ export default function JetpackPaymentsIntroEdit( { name, clientId, className } 
 
 	const maybeMakeBlockVisible = useCallback(
 		blockName => {
-			if ( ! settings?.allowedBlockTypes?.includes( blockName ) ) {
+			const isBlockAllowed =
+				settings?.allowedBlockTypes === true || settings?.allowedBlockTypes?.includes( blockName );
+			if ( ! isBlockAllowed ) {
 				// Add the block to the allowed block list before rendering
 				updateSettings( {
 					...settings,

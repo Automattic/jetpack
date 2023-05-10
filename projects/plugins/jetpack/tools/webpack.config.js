@@ -88,11 +88,12 @@ const supportedModules = [
 	'lazy-images',
 	'scan',
 	'wordads',
+	'theme-tools/responsive-videos',
 ];
 
 const moduleSources = [
 	...glob.sync( '_inc/*.js' ),
-	...glob.sync( `modules/@(${ supportedModules.join( '|' ) })/**/*.js` ),
+	...supportedModules.map( dir => glob.sync( `modules/${ dir }/**/*.js` ) ).flat(),
 ].filter( name => ! name.endsWith( '.min.js' ) && name.indexOf( '/test/' ) < 0 );
 
 // Library definitions for certain modules.

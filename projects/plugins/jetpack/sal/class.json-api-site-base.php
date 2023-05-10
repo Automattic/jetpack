@@ -478,18 +478,6 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Detect whether a site is WordPress.com Staging Site.
-	 *
-	 * @return bool
-	 */
-	public function is_wpcom_staging_site() {
-		if ( function_exists( 'is_blog_wpcom_staging' ) ) {
-			return is_blog_wpcom_staging( $this->blog_id );
-		}
-		return false;
-	}
-
-	/**
 	 * Detect whether a site is an automated transfer site and WooCommerce is active.
 	 *
 	 * @see /wpcom/public.api/rest/sal/class.json-api-site-jetpack-shadow.php.
@@ -1483,6 +1471,13 @@ abstract class SAL_Site {
 
 		return array();
 	}
+
+	/**
+	 * Detect whether a site is WordPress.com Staging Site.
+	 *
+	 * @see class.json-api-site-jetpack.php for implementation.
+	 */
+	abstract public function is_wpcom_staging_site();
 
 	/**
 	 * Get site option for the production blog id (if is a WP.com Staging Site).
