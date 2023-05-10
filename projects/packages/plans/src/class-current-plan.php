@@ -45,7 +45,6 @@ class Current_Plan {
 			'supports' => array(
 				'opentable',
 				'calendly',
-				'donations',
 				'send-a-message',
 				'whatsapp-button',
 				'social-previews',
