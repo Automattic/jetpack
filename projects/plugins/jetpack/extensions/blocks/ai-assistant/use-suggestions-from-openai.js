@@ -1,10 +1,18 @@
+/**
+ * External dependencies
+ */
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect, select as selectData } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MarkdownIt from 'markdown-it';
+/**
+ * Internal dependencies
+ */
 import { createPrompt } from './create-prompt';
 import { askJetpack } from './get-suggestion-with-stream';
+import tellWhatToDoNext from './prompt/tell-what-to-do-next';
+
 /**
  * Returns partial content from the beginning of the post
  * to the current block (clientId)
@@ -135,7 +143,7 @@ const useSuggestionsFromOpenAI = ( {
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
 	const getSuggestionFromOpenAI = ( type, retryRequest = false ) => {
-		if ( !! content || isLoadingCompletion ) {
+		if ( isLoadingCompletion ) {
 			return;
 		}
 
@@ -143,17 +151,24 @@ const useSuggestionsFromOpenAI = ( {
 		setErrorMessage( false );
 		setIsLoadingCompletion( true );
 
-		const prompt = retryRequest
-			? lastPrompt
-			: createPrompt(
+		let prompt = lastPrompt;
+
+		if ( ! retryRequest ) {
+			// If there is a content already, let's iterate over it.
+			if ( content?.length && userPrompt?.length ) {
+				prompt = tellWhatToDoNext( userPrompt, content );
+			} else {
+				prompt = createPrompt(
 					currentPostTitle,
 					getPartialContentToBlock( clientId ),
-					getContentFromBlocks(),
+					content?.length ? content : getContentFromBlocks(),
 					userPrompt,
 					type,
 					categoryNames,
 					tagNames
-			  );
+				);
+			}
+		}
 
 		const data = { content: prompt };
 		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
