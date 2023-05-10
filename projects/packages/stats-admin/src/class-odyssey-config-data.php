@@ -61,8 +61,6 @@ class Odyssey_Config_Data {
 			// Intended for apps that do not use redux.
 			'gmt_offset'                     => $this->get_gmt_offset(),
 			'odyssey_stats_base_url'         => admin_url( 'admin.php?page=stats' ),
-			'stats_admin_version'            => Main::VERSION,
-			'wp_version'                     => $wp_version,
 			'intial_state'                   => array(
 				'currentUser' => array(
 					'id'           => 1000,
@@ -92,6 +90,8 @@ class Odyssey_Config_Data {
 								'is_wpcom_atomic'       => $host->is_woa_site(),
 								'is_vip'                => $host->is_vip_site(),
 								'jetpack_version'       => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
+								'stats_admin_version'   => Main::VERSION,
+								'software_version'      => $wp_version,
 							),
 							'stats_notices' => ( new Notices() )->get_notices_to_show(),
 						),
