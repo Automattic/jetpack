@@ -62,6 +62,7 @@ class Jetpack_Plan {
 				'personal-bundle',
 				'personal-bundle-monthly',
 				'personal-bundle-2y',
+				'personal-bundle-3y',
 				'starter-plan',
 			),
 			'supports' => array(
@@ -77,6 +78,7 @@ class Jetpack_Plan {
 				'value_bundle',
 				'value_bundle-monthly',
 				'value_bundle-2y',
+				'value_bundle-3y',
 			),
 			'supports' => array(
 				'vaultpress',
@@ -104,9 +106,11 @@ class Jetpack_Plan {
 				'business-bundle',
 				'business-bundle-monthly',
 				'business-bundle-2y',
+				'business-bundle-3y',
 				'ecommerce-bundle',
 				'ecommerce-bundle-monthly',
 				'ecommerce-bundle-2y',
+				'ecommerce-bundle-3y',
 				'pro-plan',
 			),
 			'supports' => array(),

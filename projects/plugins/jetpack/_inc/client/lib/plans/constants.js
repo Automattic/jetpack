@@ -3,15 +3,19 @@ import { includes } from 'lodash';
 // plans constants
 export const PLAN_BUSINESS = 'business-bundle';
 export const PLAN_BUSINESS_2_YEARS = 'business-bundle-2y';
+export const PLAN_BUSINESS_3_YEARS = 'business-bundle-3y';
 export const PLAN_BUSINESS_MONTHLY = 'business-bundle-monthly';
 export const PLAN_ECOMMERCE = 'ecommerce-bundle';
 export const PLAN_ECOMMERCE_2_YEARS = 'ecommerce-bundle-2y';
+export const PLAN_ECOMMERCE_3_YEARS = 'ecommerce-bundle-3y';
 export const PLAN_ECOMMERCE_MONTHLY = 'ecommerce-bundle-monthly';
 export const PLAN_PREMIUM = 'value_bundle';
 export const PLAN_PREMIUM_2_YEARS = 'value_bundle-2y';
+export const PLAN_PREMIUM_3_YEARS = 'value_bundle-3y';
 export const PLAN_PREMIUM_MONTHLY = 'value_bundle-monthly';
 export const PLAN_PERSONAL = 'personal-bundle';
 export const PLAN_PERSONAL_2_YEARS = 'personal-bundle-2y';
+export const PLAN_PERSONAL_3_YEARS = 'personal-bundle-3y';
 export const PLAN_PERSONAL_MONTHLY = 'personal-bundle-monthly';
 export const PLAN_STARTER = 'starter-plan';
 export const PLAN_PRO = 'pro-plan';
@@ -171,9 +175,11 @@ export const JETPACK_SECURITY_BUNDLES = [
 	// WoA plans.
 	PLAN_BUSINESS,
 	PLAN_BUSINESS_2_YEARS,
+	PLAN_BUSINESS_3_YEARS,
 	PLAN_BUSINESS_MONTHLY,
 	PLAN_ECOMMERCE,
 	PLAN_ECOMMERCE_2_YEARS,
+	PLAN_ECOMMERCE_3_YEARS,
 	PLAN_ECOMMERCE_MONTHLY,
 	PLAN_PRO,
 
@@ -521,6 +527,7 @@ export function getPlanClass( plan ) {
 			return 'is-free-plan';
 		case PLAN_PERSONAL:
 		case PLAN_PERSONAL_2_YEARS:
+			case PLAN_PERSONAL_3_YEARS:
 		case PLAN_PERSONAL_MONTHLY:
 		case PLAN_STARTER:
 		case PLAN_JETPACK_PERSONAL:
@@ -528,17 +535,20 @@ export function getPlanClass( plan ) {
 			return 'is-personal-plan';
 		case PLAN_PREMIUM:
 		case PLAN_PREMIUM_2_YEARS:
+			case PLAN_PREMIUM_3_YEARS:
 		case PLAN_PREMIUM_MONTHLY:
 		case PLAN_JETPACK_PREMIUM:
 		case PLAN_JETPACK_PREMIUM_MONTHLY:
 			return 'is-premium-plan';
 		case PLAN_BUSINESS:
 		case PLAN_BUSINESS_2_YEARS:
+			case PLAN_BUSINESS_3_YEARS:
 		case PLAN_BUSINESS_MONTHLY:
 		case PLAN_JETPACK_BUSINESS:
 		case PLAN_JETPACK_BUSINESS_MONTHLY:
 		case PLAN_ECOMMERCE:
 		case PLAN_ECOMMERCE_2_YEARS:
+			case PLAN_ECOMMERCE_3_YEARS:
 		case PLAN_ECOMMERCE_MONTHLY:
 		case PLAN_PRO:
 			return 'is-business-plan';
