@@ -303,6 +303,14 @@ export function NewsletterAccessDocumentSettings( {
 	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
 	const accessLabel = accessOptions[ _accessLevel ]?.label;
 
+	// Immediately close the dropdown dialog after setting the post meta.
+	const setPostMetaAndClose = onClose => {
+		return meta => {
+			setPostMeta( meta );
+			onClose();
+		};
+	};
+
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => (
@@ -338,7 +346,7 @@ export function NewsletterAccessDocumentSettings( {
 												help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
 											/>
 											<NewsletterAccessRadioButtons
-												onChange={ setPostMeta }
+												onChange={ setPostMetaAndClose( onClose ) }
 												accessLevel={ _accessLevel }
 												socialFollowers={ socialFollowers }
 												emailSubscribers={ emailSubscribers }
