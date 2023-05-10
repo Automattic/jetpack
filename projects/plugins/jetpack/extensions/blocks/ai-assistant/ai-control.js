@@ -7,16 +7,7 @@ import {
 	ToolbarGroup,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import {
-	arrowRight,
-	check,
-	chevronDown,
-	image,
-	pencil,
-	update,
-	title,
-	undo,
-} from '@wordpress/icons';
+import { arrowRight, chevronDown, image, pencil, update, title } from '@wordpress/icons';
 import Loading from './loading';
 
 const AIControl = ( {
@@ -119,10 +110,10 @@ const ToolbarControls = ( {
 				<ToolbarGroup>
 					{ ! showRetry && contentIsLoaded && animationDone && (
 						<>
-							<ToolbarButton icon={ check } onClick={ handleAcceptContent }>
+							<ToolbarButton onClick={ handleAcceptContent }>
 								{ __( 'Done', 'jetpack' ) }
 							</ToolbarButton>
-							<ToolbarButton icon={ undo } onClick={ handleTryAgain }>
+							<ToolbarButton onClick={ handleTryAgain }>
 								{ __( 'Try Again', 'jetpack' ) }
 							</ToolbarButton>
 						</>
