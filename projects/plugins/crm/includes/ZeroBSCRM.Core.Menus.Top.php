@@ -342,7 +342,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		<!---  // mobile only menu -->
 
 
-		<div id="zbs-hide-main-menu" class="ui stackable menu inverted zbs-admin-main-menu mobile tablet hidden" style="z-index:5">
+		<div id="zbs-hide-main-menu" class="ui stackable menu inverted zbs-admin-main-menu mobile tablet hidden" style="z-index:5; flex-direction: column; align-items: flex-start;">
 
 		<div class="item <?php echo esc_attr( $admin_menu_state ); ?> mobile hidden" id="zbs-main-logo-wrap">
 			<div class="zbs-cube" id="zbs-main-logo-cube-wrap">
@@ -370,7 +370,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 
 		?>
 
-		<div class="right menu ui inverted zbs-admin-bg-menu mobile hidden" style="z-index:5">
+		<div class="menu ui inverted zbs-admin-bg-menu mobile hidden" style="z-index:5">
 
 
 			<a class="item<?php esc_attr( zeroBS_menu_active( $zbs->slugs['dash'] ) ); ?>" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['dash'] ) ); ?>"><?php esc_html_e( 'Dashboard', 'zero-bs-crm' ); ?></a>
