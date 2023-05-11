@@ -150,6 +150,33 @@ const ToolbarControls = ( {
 						onChange={ tone => getSuggestionFromOpenAI( 'change-tone', { tone } ) }
 						disabled={ contentIsLoaded }
 					/>
+
+					<ToolbarDropdownMenu
+						icon={ pencil }
+						label="More"
+						controls={ [
+							{
+								title: __( 'Summarize', 'jetpack' ),
+								onClick: () => getSuggestionFromOpenAI( 'summarize' ),
+							},
+							{
+								title: __( 'Make longer', 'jetpack' ),
+								onClick: () => getSuggestionFromOpenAI( 'makeLonger' ),
+							},
+							{
+								title: __( 'Make shorter', 'jetpack' ),
+								onClick: () => getSuggestionFromOpenAI( 'makeShorter' ),
+							},
+							{
+								title: __( 'Correct spelling and grammar', 'jetpack' ),
+								onClick: () => getSuggestionFromOpenAI( 'correctSpelling' ),
+							},
+							{
+								title: __( 'Generate a post title', 'jetpack' ),
+								onClick: () => getSuggestionFromOpenAI( 'generateTitle' ),
+							},
+						] }
+					/>
 				</BlockControls>
 			) }
 
