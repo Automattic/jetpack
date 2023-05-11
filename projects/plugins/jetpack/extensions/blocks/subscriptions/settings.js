@@ -73,12 +73,13 @@ function NewsletterLearnMore() {
 	);
 }
 
-function NewsletterNotice( {
+export function NewsletterNotice( {
 	accessLevel,
 	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	showMisconfigurationWarning,
+	isPostPublishPanel = false,
 } ) {
 	// Get the reach count for the access level
 	let reachCount = getReachForAccessLevelKey(
@@ -125,8 +126,9 @@ function NewsletterNotice( {
 			<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
 				{ createInterpolateElement(
 					sprintf(
-						/* translators: %s is the number of subscribers in numerical format */
-						__( 'This will be sent to <strong>%s subscribers</strong>.', 'jetpack' ),
+						/* translators: 1 Changes the phrase to be future tense or past tense, 2 Number of subscribers */
+						__( 'This post %1$s sent to <strong>%2$s subscribers</strong>.', 'jetpack' ),
+						isPostPublishPanel ? 'was' : 'will be',
 						reachCount
 					),
 					{ strong: <strong /> }
