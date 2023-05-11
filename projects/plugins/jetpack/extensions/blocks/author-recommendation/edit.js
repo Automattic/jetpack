@@ -12,21 +12,21 @@ import { __ } from '@wordpress/i18n';
 import './editor.scss';
 import icon from './icon';
 
-function AuthorRecommendationEdit( {
+export function AuthorRecommendationEdit( {
 	className,
 	noticeUI,
 	attributes,
 	setAttributes,
 	isSelected,
 } ) {
-	const [ subscriptions, setSubscriptions ] = useState( [] );
+	const [ subscriptions ] = useState( [] );
 	const [ selectedSubscriptions, setSelectedSubscriptions ] = useState( [] );
 	const { recommendations } = attributes;
 
 	useEffect( () => {
 		setSelectedSubscriptions( recommendations.map( ( { ID } ) => ID ) );
 		// TODO fetch the sites the user is subscribed to
-		setSubscriptions( [] );
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
@@ -58,14 +58,21 @@ function AuthorRecommendationEdit( {
 
 	return (
 		<div { ...useBlockProps() } className={ className }>
-			{ ! selectedSubscriptions.length && (
+			{ ( ! selectedSubscriptions.length || ! subscriptions.length ) && (
 				<Placeholder
 					label={ __( 'Author-recommendation', 'jetpack' ) }
 					icon={ <BlockIcon icon={ icon } /> }
-					instructions={ __(
-						'Recommend sites to your users. Select the sites you want to recommend from the list below.',
-						'jetpack'
-					) }
+					instructions={
+						! subscriptions.length
+							? __(
+									'No subscriptions to display. You need to follow some sites in order to see results here.',
+									'jetpack'
+							  )
+							: __(
+									'Recommend sites to your users. Select the sites you want to recommend from the list below.',
+									'jetpack'
+							  )
+					}
 					notices={ noticeUI }
 				/>
 			) }
