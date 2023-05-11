@@ -1404,12 +1404,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$sent_by_text = '<br />' . esc_html__( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '<br />';
 		}
 
-		// translators: Time: [time]
-		$footer_time = sprintf( '%1$s: %2$s', esc_html__( 'Time', 'jetpack-forms' ), $time );
-		// translators: IP Address: [ip address]
-		$footer_ip = sprintf( '%1$s: %2$s', esc_html__( 'IP Address', 'jetpack-forms' ), $comment_author_IP ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		// translators: Source URL: [url]
-		$footer_url = sprintf( '%1$s: %2$s', esc_html__( 'Source URL', 'jetpack-forms' ), $url );
+		$footer_time = sprintf(
+			/* translators: Placeholder is the date and time when a form was submitted. */
+			esc_html__( 'Time: %1$s', 'jetpack-forms' ),
+			$time
+		);
+		$footer_ip = sprintf(
+			/* translators: Placeholder is the IP address of the person who submitted a form. */
+			esc_html__( 'IP Address: %1$s', 'jetpack-forms' ),
+			$comment_author_IP // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		);
+		$footer_url = sprintf(
+			/* translators: Placeholder is the URL of the page where a form was submitted. */
+			__( 'Source URL: %1$s', 'jetpack-forms' ),
+			esc_url( $url )
+		);
 
 		$footer = implode(
 			'',
