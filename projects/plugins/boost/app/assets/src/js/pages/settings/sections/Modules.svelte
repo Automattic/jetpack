@@ -15,10 +15,12 @@
 		regenerateCriticalCss,
 	} from '../../../stores/critical-css-state';
 	import { suggestRegenerateDS } from '../../../stores/data-sync-client';
+	import { minifyJsExcludesStore, minifyCssExcludesStore } from '../../../stores/minify';
 	import { startPollingCloudStatus, stopPollingCloudCssStatus } from '../../../utils/cloud-css';
 	import externalLinkTemplateVar from '../../../utils/external-link-template-var';
 	import CloudCssMeta from '../elements/CloudCssMeta.svelte';
 	import CriticalCssMeta from '../elements/CriticalCssMeta.svelte';
+	import MinifyMeta from '../elements/MinifyMeta.svelte';
 	import Module from '../elements/Module.svelte';
 	import PremiumCTA from '../elements/PremiumCTA.svelte';
 	import PremiumTooltip from '../elements/PremiumTooltip.svelte';
@@ -28,7 +30,6 @@
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
 	const lazyLoadLink = getRedirectUrl( 'jetpack-boost-lazy-load' );
-	const minifyCssLink = getRedirectUrl( 'jetpack-boost-minify-css' );
 
 	// svelte-ignore unused-export-let - Ignored values supplied by svelte-navigator.
 	export let location, navigate;
@@ -184,17 +185,44 @@
 		</Module>
 	</div>
 
-	<Module slug="minify">
-		<h3 slot="title">{__( 'Minify', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
+	<Module slug="minify_js">
+		<h3 slot="title">{__( 'Concatenate JS', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
 		<p slot="description">
-			<TemplatedString
-				template={__(
-					`Minimize code and markup in your web pages and script files, reducing file sizes and speeding up your site. Read more on <link>web.dev</link>.`,
-					'jetpack-boost'
-				)}
-				vars={externalLinkTemplateVar( minifyCssLink )}
-			/>
+			{__(
+				'Scripts are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
+				'jetpack-boost'
+			)}
 		</p>
+
+		<div slot="meta">
+			<MinifyMeta
+				inputLabel={__( 'Exclude JS Strings:', 'jetpack-boost' )}
+				buttonText={__( 'Exclude JS Strings', 'jetpack-boost' )}
+				placeholder={__( 'Comma separated list of JS scripts to exclude', 'jetpack-boost' )}
+				value={$minifyJsExcludesStore}
+				on:save={e => ( $minifyJsExcludesStore = e.detail )}
+			/>
+		</div>
+	</Module>
+
+	<Module slug="minify_css">
+		<h3 slot="title">{__( 'Concatenate CSS', 'jetpack-boost' )}<span class="beta">Beta</span></h3>
+		<p slot="description">
+			{__(
+				'Styles are grouped by their original placement, concatenated and minified to reduce site loading time and reduce the number of requests.',
+				'jetpack-boost'
+			)}
+		</p>
+
+		<div slot="meta">
+			<MinifyMeta
+				inputLabel={__( 'Exclude CSS Strings:', 'jetpack-boost' )}
+				buttonText={__( 'Exclude CSS Strings', 'jetpack-boost' )}
+				placeholder={__( 'Comma separated list of CSS stylesheets to exclude', 'jetpack-boost' )}
+				value={$minifyCssExcludesStore}
+				on:save={e => ( $minifyCssExcludesStore = e.detail )}
+			/>
+		</div>
 	</Module>
 
 	<Module slug="image_size_analysis">
