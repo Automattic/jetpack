@@ -58,12 +58,12 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "5ab1c381b42d86c04a07d55d196bc8789d2842bb"
+                "reference": "1426905bbd23ab8a3dd04a96de95400fd55a8162"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
                 "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
-                "mediawiki/mediawiki-codesniffer": "^40.0",
+                "mediawiki/mediawiki-codesniffer": "^41.0",
                 "phpcompatibility/phpcompatibility-wp": "^2.1",
                 "sirbrillig/phpcs-variable-analysis": "^2.10",
                 "wp-coding-standards/wpcs": "^2.3"
@@ -444,16 +444,16 @@
         },
         {
             "name": "mediawiki/mediawiki-codesniffer",
-            "version": "v40.0.1",
+            "version": "v41.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wikimedia/mediawiki-tools-codesniffer.git",
-                "reference": "e7f3cf56e5afcb626cbbc99069746c028ca27231"
+                "reference": "0ccdbc10ad819e86d7872175e1649037a3352000"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/e7f3cf56e5afcb626cbbc99069746c028ca27231",
-                "reference": "e7f3cf56e5afcb626cbbc99069746c028ca27231",
+                "url": "https://api.github.com/repos/wikimedia/mediawiki-tools-codesniffer/zipball/0ccdbc10ad819e86d7872175e1649037a3352000",
+                "reference": "0ccdbc10ad819e86d7872175e1649037a3352000",
                 "shasum": ""
             },
             "require": {
@@ -462,7 +462,7 @@
                 "ext-json": "*",
                 "ext-mbstring": "*",
                 "php": ">=7.4.0",
-                "squizlabs/php_codesniffer": "3.7.1",
+                "squizlabs/php_codesniffer": "3.7.2",
                 "symfony/polyfill-php80": "^1.26.0"
             },
             "require-dev": {
@@ -470,7 +470,7 @@
                 "mediawiki/minus-x": "1.1.1",
                 "php-parallel-lint/php-console-highlighter": "1.0.0",
                 "php-parallel-lint/php-parallel-lint": "1.3.2",
-                "phpunit/phpunit": "^9.5"
+                "phpunit/phpunit": "9.5.28"
             },
             "type": "phpcodesniffer-standard",
             "autoload": {
@@ -490,9 +490,9 @@
                 "mediawiki"
             ],
             "support": {
-                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v40.0.1"
+                "source": "https://github.com/wikimedia/mediawiki-tools-codesniffer/tree/v41.0.0"
             },
-            "time": "2022-11-01T20:02:35+00:00"
+            "time": "2023-02-25T22:10:21+00:00"
         },
         {
             "name": "php-parallel-lint/php-parallel-lint",
@@ -978,16 +978,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.7.1",
+            "version": "3.7.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/PHP_CodeSniffer",
-                "reference": "1ca0780d9347aa161d63fc7329357fd4c09328f3"
+                "reference": "b9fab064392e48a9a377f36e5afc944635f42e4d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/1ca0780d9347aa161d63fc7329357fd4c09328f3",
-                "reference": "1ca0780d9347aa161d63fc7329357fd4c09328f3",
+                "url": "https://api.github.com/repos/Automattic/PHP_CodeSniffer/zipball/b9fab064392e48a9a377f36e5afc944635f42e4d",
+                "reference": "b9fab064392e48a9a377f36e5afc944635f42e4d",
                 "shasum": ""
             },
             "require": {
@@ -1022,7 +1022,8 @@
             "homepage": "https://github.com/squizlabs/PHP_CodeSniffer",
             "keywords": [
                 "phpcs",
-                "standards"
+                "standards",
+                "static analysis"
             ],
             "support": {
                 "issues": "https://github.com/squizlabs/PHP_CodeSniffer/issues",

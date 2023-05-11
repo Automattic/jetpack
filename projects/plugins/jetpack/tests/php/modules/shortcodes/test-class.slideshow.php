@@ -70,7 +70,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_slideshow_exists() {
-		$this->assertEquals( shortcode_exists( 'slideshow' ), true );
+		$this->assertTrue( shortcode_exists( 'slideshow' ) );
 	}
 
 	/**

@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import { BlockControls, PlainText } from '@wordpress/block-editor';
 import {
 	Button,
@@ -7,22 +10,12 @@ import {
 	ToolbarGroup,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import {
-	arrowRight,
-	check,
-	chevronDown,
-	image,
-	pencil,
-	update,
-	title,
-	undo,
-} from '@wordpress/icons';
+import { arrowRight, chevronDown, image, pencil, update, title } from '@wordpress/icons';
 import Loading from './loading';
 
 const AIControl = ( {
 	aiType,
 	animationDone,
-	content,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
@@ -31,7 +24,6 @@ const AIControl = ( {
 	handleGetSuggestion,
 	isWaitingState,
 	loadingImages,
-	placeholder,
 	setAiType,
 	userPrompt,
 	setUserPrompt,
@@ -39,6 +31,7 @@ const AIControl = ( {
 	contentBefore,
 	postTitle,
 	wholeContent,
+	content,
 } ) => {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
@@ -54,6 +47,28 @@ const AIControl = ( {
 			setAiType( 'text' );
 		}
 	};
+
+	const textPlaceholder = ! content?.length
+		? __( 'Ask AI to write anything…', 'jetpack' )
+		: __( 'Tell AI what to do next…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+
+	let placeholder = '';
+
+	if ( isWaitingState ) {
+		if ( userPrompt?.length ) {
+			placeholder = userPrompt;
+		} else {
+			placeholder = __( 'AI writing', 'jetpack' );
+		}
+	} else if ( aiType === 'text' ) {
+		placeholder = textPlaceholder;
+	} else {
+		placeholder = __(
+			'What would you like to see?',
+			'jetpack',
+			/* dummy arg to avoid bad minification */ 0
+		);
+	}
 
 	return (
 		<>
@@ -75,13 +90,16 @@ const AIControl = ( {
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
-				{ ( ( ! content && isWaitingState ) || loadingImages ) && <Loading /> }
+				{ ( isWaitingState || loadingImages ) && <Loading /> }
 				<PlainText
+					value={ isWaitingState ? '' : userPrompt }
 					onChange={ value => setUserPrompt( value ) }
 					onKeyPress={ handleInputEnter }
-					placeholder={ isWaitingState ? __( 'AI writing', 'jetpack' ) : placeholder }
+					placeholder={ placeholder }
 					className="jetpack-ai-assistant__input"
+					disabled={ isWaitingState || loadingImages }
 				/>
+
 				<div className="jetpack-ai-assistant__controls">
 					<Button
 						onClick={ () => handleGetSuggestion( 'userPrompt' ) }
@@ -120,10 +138,10 @@ const ToolbarControls = ( {
 				<ToolbarGroup>
 					{ ! showRetry && contentIsLoaded && animationDone && (
 						<>
-							<ToolbarButton icon={ check } onClick={ handleAcceptContent }>
+							<ToolbarButton onClick={ handleAcceptContent }>
 								{ __( 'Done', 'jetpack' ) }
 							</ToolbarButton>
-							<ToolbarButton icon={ undo } onClick={ handleTryAgain }>
+							<ToolbarButton onClick={ handleTryAgain }>
 								{ __( 'Try Again', 'jetpack' ) }
 							</ToolbarButton>
 						</>
@@ -162,6 +180,16 @@ const ToolbarControls = ( {
 								{
 									title: __( 'Expand on preceding content', 'jetpack' ),
 									onClick: () => getSuggestionFromOpenAI( 'continue' ),
+									isDisabled: ! contentBefore?.length,
+								},
+								{
+									title: __( 'Correct spelling and grammar of preceding content', 'jetpack' ),
+									onClick: () => getSuggestionFromOpenAI( 'correctSpelling' ),
+									isDisabled: ! contentBefore?.length,
+								},
+								{
+									title: __( 'Simplify preceding content', 'jetpack' ),
+									onClick: () => getSuggestionFromOpenAI( 'simplify' ),
 									isDisabled: ! contentBefore?.length,
 								},
 							] }
