@@ -165,8 +165,8 @@ const useSuggestionsFromOpenAI = ( {
 			switch ( type ) {
 				case 'changeTone':
 					prompt = buildPromptTemplate( {
+						request: `Please, rewrite the given content with a ${ options.tone } tone`,
 						content,
-						rules: [ `Please, do this with a ${ options.tone } tone` ],
 					} );
 					break;
 
