@@ -145,7 +145,7 @@ const useSuggestionsFromOpenAI = ( {
 
 	const getSuggestionFromOpenAI = ( type, options = {} ) => {
 		options = {
-			retry: false,
+			retryRequest: false,
 			tone: DEFAULT_PROMPT_TONE,
 			...options,
 		};
@@ -237,7 +237,7 @@ const useSuggestionsFromOpenAI = ( {
 		wholeContent: getContentFromBlocks( clientId ),
 
 		getSuggestionFromOpenAI,
-		retryRequest: () => getSuggestionFromOpenAI( '', { retry: true } ),
+		retryRequest: () => getSuggestionFromOpenAI( '', { retryRequest: true } ),
 	};
 };
 
