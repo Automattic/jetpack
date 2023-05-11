@@ -69,11 +69,11 @@ export class SyncedStore< T > {
 			 *
 			 * ## The Problem
 			 * In Svelte.js, whenever you call `$store.objectProperty = value`,
-			 * it's going to immediately update the store value using `set`.
+			 * it's going to immediately update the store value and trigger `.subscribe()` callbacks.
 			 *
 			 * If two properties in an object are updated one after the other, they'll trigger
 			 * multiple store updates. This means that `prevValue` is going to change twice,
-			 * and by the time `abortableSynchronize` runs, some of the properties have changes
+			 * and by the time `abortableSynchronize` runs, some of the properties that have changes
 			 * will actually appear unchanged in the callback.
 			 *
 			 * For example:
@@ -97,12 +97,12 @@ export class SyncedStore< T > {
 			 * Before setting the actual value of the store.
 			 *
 			 * ## Side Quest (Optional)
-			 * If you're looking at this closely, you might be wondering - isn't this just delaying
-			 * when the store is set? This will still cause `store.set` to be called twice with the same value, right?
+			 * If you're looking at this closely, you might be wondering - this is just delaying when the store is set!
+			 * This will still cause `store.set` to be called twice with the same value, right?
 			 *
-			 * Yes, it will. But that's okay, because Svelte isn't going to trigger the reactive
-			 * callbacks, the second time it's called because it will compare the value
-			 * to the previous value it has stored as well.
+			 * Yes, it will. But that's okay.
+			 * Svelte isn't going to trigger the reactive callbacks twice, if the value
+			 * is unchanged between `$store.set()` calls.
 			 */
 			// Since we already have `isPrimitive` available, there's no point debouncing primitive value changes.
 			if ( isPrimitive ) {
