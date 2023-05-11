@@ -195,7 +195,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'mark_referrer_spam' ),
-				'permission_callback' => array( $this, 'can_user_view_wordads_stats_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 				'args'                => array(
 					'domain' => array(
 						'required'    => true,
@@ -213,7 +213,7 @@ class REST_Controller {
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'unmark_referrer_spam' ),
-				'permission_callback' => array( $this, 'can_user_view_wordads_stats_callback' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 				'args'                => array(
 					'domain' => array(
 						'required'    => true,
