@@ -197,7 +197,7 @@ class Waf_Initializer {
 	}
 
 	/**
-	 * Disables the WAF module when on an supported platform.
+	 * Disables the WAF module when on an supported platform in Jetpack.
 	 *
 	 * @param array $modules Filterable value for `jetpack_get_available_modules`.
 	 *
@@ -212,6 +212,13 @@ class Waf_Initializer {
 		return $modules;
 	}
 
+	/**
+	 * Disables the WAF module when on an supported platform in a standalone plugin.
+	 *
+	 * @param array $modules Filterable value for `jetpack_get_available_standalone_modules`.
+	 *
+	 * @return array Array of module slugs.
+	 */
 	public static function remove_standalone_module_on_unsupported_environments( $modules ) {
 		if ( ! Waf_Runner::is_supported_environment() ) {
 			// WAF should never be available on unsupported platforms.
