@@ -165,14 +165,28 @@ const useSuggestionsFromOpenAI = ( {
 			switch ( type ) {
 				case 'changeTone':
 					prompt = buildPromptTemplate( {
-						request: `Please, rewrite the given content with a ${ options.tone } tone`,
+						request: `Please, rewrite the given content with a ${ options.tone } tone.`,
 						content,
 					} );
 					break;
 
 				case 'summarize':
 					prompt = buildPromptTemplate( {
-						request: 'Summarize the given content',
+						request: 'Summarize the given content.',
+						content,
+					} );
+					break;
+
+				case 'makeLonger':
+					prompt = buildPromptTemplate( {
+						request: 'Make the given content longer.',
+						content,
+					} );
+					break;
+
+				case 'makeShorter':
+					prompt = buildPromptTemplate( {
+						request: 'Make the given content shoter.',
 						content,
 					} );
 					break;
