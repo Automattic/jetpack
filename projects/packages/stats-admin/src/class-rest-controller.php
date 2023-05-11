@@ -187,8 +187,6 @@ class REST_Controller {
 				),
 			)
 		);
-		// https://public-api.wordpress.com/rest/v1.1/sites/189825737/stats/referrers/spam/delete?http_envelope=1&domain=sogou.com%2Fweb%3Fquery%3Dsite%253Ablog.kangzj.net
-		// https://public-api.wordpress.com/rest/v1.1/sites/189825737/stats/referrers/spam/new?http_envelope=1&domain=sogou.com%2Fweb%3Fquery%3Dsite%253Ablog.kangzj.net
 
 		// Mark referrer spam.
 		register_rest_route(
