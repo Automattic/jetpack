@@ -9,9 +9,10 @@ import MarkdownIt from 'markdown-it';
 /**
  * Internal dependencies
  */
-import { createPrompt } from './create-prompt';
+import { buildPromptTemplate, createPrompt } from './create-prompt';
 import { askJetpack } from './get-suggestion-with-stream';
 import tellWhatToDoNext from './prompt/tell-what-to-do-next';
+import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
 /**
  * Returns partial content from the beginning of the post
@@ -142,7 +143,13 @@ const useSuggestionsFromOpenAI = ( {
 		.join( ', ' );
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
-	const getSuggestionFromOpenAI = ( type, retryRequest = false ) => {
+	const getSuggestionFromOpenAI = ( type, options = {} ) => {
+		options = {
+			retryRequest: false,
+			tone: DEFAULT_PROMPT_TONE,
+			...options,
+		};
+
 		if ( isLoadingCompletion ) {
 			return;
 		}
@@ -153,9 +160,14 @@ const useSuggestionsFromOpenAI = ( {
 
 		let prompt = lastPrompt;
 
-		if ( ! retryRequest ) {
+		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
-			if ( content?.length && userPrompt?.length ) {
+			if ( type === 'change-tone' ) {
+				prompt = buildPromptTemplate( {
+					content,
+					rules: [ `Please, do this with a ${ options.tone } tone` ],
+				} );
+			} else if ( content?.length && userPrompt?.length ) {
 				prompt = tellWhatToDoNext( userPrompt, content );
 			} else {
 				prompt = createPrompt(
@@ -175,7 +187,7 @@ const useSuggestionsFromOpenAI = ( {
 			post_id: postId,
 		} );
 
-		if ( ! retryRequest ) {
+		if ( ! options.retryRequest ) {
 			setLastPrompt( prompt );
 			setAttributes( { promptType: type } );
 		}
@@ -225,7 +237,7 @@ const useSuggestionsFromOpenAI = ( {
 		wholeContent: getContentFromBlocks( clientId ),
 
 		getSuggestionFromOpenAI,
-		retryRequest: () => getSuggestionFromOpenAI( '', true ),
+		retryRequest: () => getSuggestionFromOpenAI( '', { retryRequest: true } ),
 	};
 };
 
