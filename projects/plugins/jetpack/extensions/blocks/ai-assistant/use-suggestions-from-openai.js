@@ -170,6 +170,13 @@ const useSuggestionsFromOpenAI = ( {
 					} );
 					break;
 
+				case 'summarize':
+					prompt = buildPromptTemplate( {
+						request: 'Summarize the given content',
+						content,
+					} );
+					break;
+
 				default:
 					if ( content?.length && userPrompt?.length ) {
 						prompt = tellWhatToDoNext( userPrompt, content );
