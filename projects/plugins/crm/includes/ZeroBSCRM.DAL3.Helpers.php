@@ -2965,7 +2965,7 @@ function zeroBS___________DAL30Helpers(){return;}
 						case 'date':
 							$safe_text = sanitize_text_field( $arraySource[ $fieldPrefix . $fK ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-							$retArray[ $outputPrefix . $fK ] = jpcrm_date_str_to_uts( $safe_text ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+							$retArray[ $outputPrefix . $fK ] = jpcrm_date_str_to_uts( $safe_text, '!Y-m-d', true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							break;
 
 		                    case 'datetime':

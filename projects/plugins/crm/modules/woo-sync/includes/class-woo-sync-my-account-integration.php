@@ -297,7 +297,7 @@ class Woo_Sync_My_Account_Integration {
 
 								$date_value = '';
 								if ( ! empty( $value ) && $value !== -99) {
-									$date_value = jpcrm_uts_to_date_str( $value, 'Y-m-d' );
+									$date_value = jpcrm_uts_to_date_str( $value, 'Y-m-d', true );
 								}
 							?>
 								<p>

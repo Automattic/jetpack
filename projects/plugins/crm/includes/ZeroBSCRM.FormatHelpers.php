@@ -1372,7 +1372,7 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 				$datevalue = '';
 
 				if ( $value !== -99 ) {
-					$datevalue = jpcrm_uts_to_date_str( $value, 'Y-m-d' );
+					$datevalue = jpcrm_uts_to_date_str( $value, 'Y-m-d', true );
 				}
 
 				// if this is a custom field, and is unset, we let it get passed as empty (gh-56)

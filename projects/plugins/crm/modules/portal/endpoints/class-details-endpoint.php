@@ -181,7 +181,7 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 		}
 		$date_value = '';
 		if ( ! empty( $value ) && $value !== -99) {
-			$date_value = jpcrm_uts_to_date_str( $value, 'Y-m-d' );
+			$date_value = jpcrm_uts_to_date_str( $value, 'Y-m-d', true );
 		}
 		?>
 			<p>
