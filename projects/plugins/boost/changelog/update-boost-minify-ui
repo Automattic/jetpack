@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Update minify feature to have two separate toggles - one for JS and one for CSS.
