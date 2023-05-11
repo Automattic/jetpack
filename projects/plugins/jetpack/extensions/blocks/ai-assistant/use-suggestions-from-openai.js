@@ -162,23 +162,58 @@ const useSuggestionsFromOpenAI = ( {
 
 		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
-			if ( type === 'change-tone' ) {
-				prompt = buildPromptTemplate( {
-					content,
-					rules: [ `Please, do this with a ${ options.tone } tone` ],
-				} );
-			} else if ( content?.length && userPrompt?.length ) {
-				prompt = tellWhatToDoNext( userPrompt, content );
-			} else {
-				prompt = createPrompt(
-					currentPostTitle,
-					getPartialContentToBlock( clientId ),
-					content?.length ? content : getContentFromBlocks(),
-					userPrompt,
-					type,
-					categoryNames,
-					tagNames
-				);
+			switch ( type ) {
+				case 'changeTone':
+					prompt = buildPromptTemplate( {
+						request: `Please, rewrite with a ${ options.tone } tone.`,
+						content,
+					} );
+					break;
+
+				case 'summarize':
+					prompt = buildPromptTemplate( {
+						request: 'Summarize the content below.',
+						content: content?.length ? content : getContentFromBlocks(),
+					} );
+					break;
+
+				case 'makeLonger':
+					prompt = buildPromptTemplate( {
+						request: 'Make the content below longer.',
+						content,
+					} );
+					break;
+
+				case 'makeShorter':
+					prompt = buildPromptTemplate( {
+						request: 'Make the content below shorter.',
+						content,
+					} );
+					break;
+
+				case 'generateTitle':
+					prompt = buildPromptTemplate( {
+						request: 'Generate a title for this blog post',
+						rules: [ 'Only output the raw title, without any prefix or quotes' ],
+						content: content?.length ? content : getContentFromBlocks(),
+					} );
+					break;
+
+				default:
+					if ( content?.length && userPrompt?.length ) {
+						prompt = tellWhatToDoNext( userPrompt, content );
+					} else {
+						prompt = createPrompt(
+							currentPostTitle,
+							getPartialContentToBlock( clientId ),
+							content?.length ? content : getContentFromBlocks(),
+							userPrompt,
+							type,
+							categoryNames,
+							tagNames
+						);
+					}
+					break;
 			}
 		}
 
