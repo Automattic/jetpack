@@ -9,9 +9,10 @@ import MarkdownIt from 'markdown-it';
 /**
  * Internal dependencies
  */
-import { createPrompt } from './create-prompt';
+import { buildPromptTemplate, createPrompt } from './create-prompt';
 import { askJetpack } from './get-suggestion-with-stream';
 import tellWhatToDoNext from './prompt/tell-what-to-do-next';
+import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
 /**
  * Returns partial content from the beginning of the post
@@ -146,7 +147,7 @@ const useSuggestionsFromOpenAI = ( {
 		options = {
 			...options,
 			retry: false,
-			tone: 'neutral',
+			tone: DEFAULT_PROMPT_TONE,
 		};
 
 		if ( isLoadingCompletion ) {
@@ -161,7 +162,12 @@ const useSuggestionsFromOpenAI = ( {
 
 		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
-			if ( content?.length && userPrompt?.length ) {
+			if ( type === 'change-tone' ) {
+				prompt = buildPromptTemplate( {
+					content,
+					rules: [ `Please, do this with a ${ options.tone } tone` ],
+				} );
+			} else if ( content?.length && userPrompt?.length ) {
 				prompt = tellWhatToDoNext( userPrompt, content );
 			} else {
 				prompt = createPrompt(
