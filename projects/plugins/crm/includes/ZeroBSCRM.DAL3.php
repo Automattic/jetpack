@@ -4211,6 +4211,7 @@ class zbsDAL {
     public function addUpdateTagObjLinks($args=array()){
 
         global $ZBSCRM_t,$wpdb;
+		global $zbs;
 
         #} ============ LOAD ARGS =============
         $defaultArgs = array(
@@ -4244,6 +4245,9 @@ class zbsDAL {
 
             // mode
             if (gettype($mode) != 'string' || !in_array($mode, array('replace','append','remove'))) return false;
+
+			// Retrieving segment information in order to update them with tag changes later.
+			$segments = $zbs->DAL->segments->getSegments( $owner, 1000, 0, true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
         #} ========= / CHECK FIELDS ===========
 
@@ -4327,7 +4331,12 @@ class zbsDAL {
 
 						}
 
-					}
+				}
+
+				foreach ( $segments as $segment ) {
+					$zbs->DAL->segments->compileSegment( $segment['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				}
+
 					return true;
 
 					break;
@@ -4355,6 +4364,10 @@ class zbsDAL {
 
 
 					}
+
+				foreach ( $segments as $segment ) {
+					$zbs->DAL->segments->compileSegment( $segment['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				}
 
 					return true;
 
