@@ -142,7 +142,13 @@ const useSuggestionsFromOpenAI = ( {
 		.join( ', ' );
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
-	const getSuggestionFromOpenAI = ( type, retryRequest = false ) => {
+	const getSuggestionFromOpenAI = ( type, options = {} ) => {
+		options = {
+			...options,
+			retry: false,
+			tone: 'neutral',
+		};
+
 		if ( isLoadingCompletion ) {
 			return;
 		}
@@ -153,7 +159,7 @@ const useSuggestionsFromOpenAI = ( {
 
 		let prompt = lastPrompt;
 
-		if ( ! retryRequest ) {
+		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
 			if ( content?.length && userPrompt?.length ) {
 				prompt = tellWhatToDoNext( userPrompt, content );
@@ -175,7 +181,7 @@ const useSuggestionsFromOpenAI = ( {
 			post_id: postId,
 		} );
 
-		if ( ! retryRequest ) {
+		if ( ! options.retryRequest ) {
 			setLastPrompt( prompt );
 			setAttributes( { promptType: type } );
 		}
@@ -225,7 +231,7 @@ const useSuggestionsFromOpenAI = ( {
 		wholeContent: getContentFromBlocks( clientId ),
 
 		getSuggestionFromOpenAI,
-		retryRequest: () => getSuggestionFromOpenAI( '', true ),
+		retryRequest: () => getSuggestionFromOpenAI( '', { retry: true } ),
 	};
 };
 
