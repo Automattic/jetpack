@@ -144,17 +144,18 @@ const ToolbarControls = ( {
 				<ToolbarGroup>
 					{ ! showRetry && contentIsLoaded && animationDone && (
 						<>
-							<ToolbarButton onClick={ handleAcceptContent }>
-								{ __( 'Done', 'jetpack' ) }
-							</ToolbarButton>
-							<ToolbarButton onClick={ handleTryAgain }>
-								{ __( 'Try again', 'jetpack' ) }
-							</ToolbarButton>
-							{ promptType === 'generateTitle' && (
+							{ promptType === 'generateTitle' ? (
 								<ToolbarButton onClick={ handleAcceptTitle }>
 									{ __( 'Accept title', 'jetpack' ) }
 								</ToolbarButton>
+							) : (
+								<ToolbarButton onClick={ handleAcceptContent }>
+									{ __( 'Done', 'jetpack' ) }
+								</ToolbarButton>
 							) }
+							<ToolbarButton onClick={ handleTryAgain }>
+								{ __( 'Try again', 'jetpack' ) }
+							</ToolbarButton>
 						</>
 					) }
 
