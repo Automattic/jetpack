@@ -148,17 +148,28 @@ export default function Player( { isSelected, attributes } ) {
 
 	let overlay = ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } />;
 
-	// On Android render an overlay to send the embed markup to a native WebView.
-	if ( isSelected && IS_ANDROID ) {
-		overlay = (
-			<View style={ style[ 'videopress-player__overlay' ] }>
-				<Pressable
-					style={ style[ 'videopress-player__open-embed-button' ] }
-					onPress={ () => {
-						requestEmbedFullscreenPreview( html, title );
-					} }
-				/>
-			</View>
+	let sandbox = (
+		<SandBox
+			html={ html }
+			onWindowEvents={ { message: onSandboxMessage } }
+			viewportProps="user-scalable=0"
+			testID="videopress-player"
+			onLoadEnd={ onLoadEnd }
+		/>
+	);
+
+	// On Android, we need to open the embed preview in a Native WebView
+	if ( IS_ANDROID ) {
+		sandbox = (
+			<Pressable
+				style={ style[ 'videopress-player__open-embed-button' ] }
+				onPress={ () => {
+					requestEmbedFullscreenPreview( html, title );
+				} }
+			>
+				<View style={ style[ 'videopress-player__overlay' ] } />
+				{ sandbox }
+			</Pressable>
 		);
 	}
 
@@ -171,15 +182,7 @@ export default function Player( { isSelected, attributes } ) {
 		<View style={ [ style[ 'videopress-player' ], { aspectRatio } ] }>
 			{ overlay }
 			{ showLoadingOverlay && loadingOverlay }
-			{ html && (
-				<SandBox
-					html={ html }
-					onWindowEvents={ { message: onSandboxMessage } }
-					viewportProps="user-scalable=0"
-					testID="videopress-player"
-					onLoadEnd={ onLoadEnd }
-				/>
-			) }
+			{ html && sandbox }
 		</View>
 	);
 }
