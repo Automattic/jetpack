@@ -187,11 +187,13 @@ class REST_Controller {
 				),
 			)
 		);
+		// https://public-api.wordpress.com/rest/v1.1/sites/189825737/stats/referrers/spam/delete?http_envelope=1&domain=sogou.com%2Fweb%3Fquery%3Dsite%253Ablog.kangzj.net
+		// https://public-api.wordpress.com/rest/v1.1/sites/189825737/stats/referrers/spam/new?http_envelope=1&domain=sogou.com%2Fweb%3Fquery%3Dsite%253Ablog.kangzj.net
 
 		// Mark referrer spam.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/referrers/spam/new', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/referrers/spam/new', Jetpack_Options::get_option( 'id' ) ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'mark_referrer_spam' ),
@@ -209,7 +211,7 @@ class REST_Controller {
 		// Unmark referrer spam.
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/referrers/spam/delete', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/stats/referrers/spam/delete', Jetpack_Options::get_option( 'id' ) ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'unmark_referrer_spam' ),
@@ -526,7 +528,7 @@ class REST_Controller {
 	public function mark_referrer_spam( $req ) {
 		return $this->request_as_blog_cached(
 			sprintf(
-				'/sites/%d/referrers/spam/new?%s',
+				'/sites/%d/stats/referrers/spam/new?%s',
 				Jetpack_Options::get_option( 'id' ),
 				$this->filter_and_build_query_string(
 					$req->get_params()
@@ -537,6 +539,7 @@ class REST_Controller {
 				'timeout' => 5,
 				'method'  => 'POST',
 			),
+			null,
 			'rest',
 			false
 		);
@@ -551,7 +554,7 @@ class REST_Controller {
 	public function unmark_referrer_spam( $req ) {
 		return $this->request_as_blog_cached(
 			sprintf(
-				'/sites/%d/referrers/spam/delete?%s',
+				'/sites/%d/stats/referrers/spam/delete?%s',
 				Jetpack_Options::get_option( 'id' ),
 				$this->filter_and_build_query_string(
 					$req->get_params()
@@ -562,6 +565,7 @@ class REST_Controller {
 				'timeout' => 5,
 				'method'  => 'POST',
 			),
+			null,
 			'rest',
 			false
 		);
