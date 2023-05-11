@@ -163,7 +163,7 @@ const useSuggestionsFromOpenAI = ( {
 		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
 			switch ( type ) {
-				case 'titleSummary':
+				case 'changeTone':
 					prompt = buildPromptTemplate( {
 						content,
 						rules: [ `Please, do this with a ${ options.tone } tone` ],
