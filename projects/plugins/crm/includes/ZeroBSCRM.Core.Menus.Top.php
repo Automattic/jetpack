@@ -342,7 +342,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		<!---  // mobile only menu -->
 
 
-		<div id="zbs-hide-main-menu" class="ui stackable menu inverted zbs-admin-main-menu mobile tablet hidden" style="z-index:5; flex-direction: column; align-items: flex-start;">
+		<div id="zbs-hide-main-menu" class="ui stackable menu inverted zbs-admin-main-menu mobile tablet hidden" style="z-index:5; flex-direction: column; align-items: flex-start; padding: 20px 0 0 30px !important;">
 
 		<div class="item <?php echo esc_attr( $admin_menu_state ); ?> mobile hidden" id="zbs-main-logo-wrap">
 			<div class="zbs-cube" id="zbs-main-logo-cube-wrap">
