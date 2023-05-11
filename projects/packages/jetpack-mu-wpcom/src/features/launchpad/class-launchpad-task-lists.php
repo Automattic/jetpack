@@ -172,6 +172,10 @@ class Launchpad_Task_Lists {
 		$task_list           = $this->get_task_list( $id );
 		$tasks_for_task_list = array();
 
+		if ( empty( $task_list['task_ids'] ) ) {
+			return $tasks_for_task_list;
+		}
+
 		// Takes a registered task list, looks at its associated task ids,
 		// and returns a collection of associated tasks.
 		foreach ( $task_list['task_ids'] as $task_id ) {
