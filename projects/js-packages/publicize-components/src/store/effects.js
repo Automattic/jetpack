@@ -33,7 +33,9 @@ export async function refreshConnectionTestResults() {
 		 * in order to refresh or update current connections.
 		 */
 		for ( const freshConnection of freshConnections ) {
-			const prevConnection = prevConnections.find( conn => conn.id === freshConnection.id );
+			const prevConnection = prevConnections.find(
+				conn => conn.connection_id === freshConnection.connection_id
+			);
 			const { done, enabled, toggleable } = prevConnection ?? defaults;
 			const connection = {
 				display_name: freshConnection.display_name,
