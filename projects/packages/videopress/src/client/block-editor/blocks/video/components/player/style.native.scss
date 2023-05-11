@@ -31,3 +31,47 @@
 .videopress-player__loading-icon {
 	size: 100;
 }
+
+.videopress-player-unavailable__container {
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-end;
+}
+
+.videopress-player-unavailable__sheet-icon {
+	width: 36;
+	height: 36;
+	fill: $light-quaternary;
+}
+
+.videopress-player-unavailable__sheet-icon--dark {
+	fill: $gray-20;
+}
+
+.videopress-player-unavailable__sheet-title {
+	font-weight: 600;
+	font-size: 20;
+	line-height: 28px;
+	text-align: center;
+	color: $gray-90;
+
+	padding-top: 8;
+	padding-bottom: 8;
+}
+
+.videopress-player-unavailable__sheet-title--dark {
+	color: $white;
+}
+
+.videopress-player-unavailable__sheet-description {
+	font-size: 16;
+	line-height: 24px;
+	text-align: center;
+	color: $gray-50;
+
+	padding-bottom: 24;
+}
+
+.videopress-player-unavailable__sheet-description--dark {
+	color: $gray-20;
+}
