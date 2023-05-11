@@ -56,10 +56,22 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 
 	/**
 	 * Gets the sites the user is following
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
 	 */
-	public function get_response() {
+	public function get_response( $request ) {
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_once WP_CONTENT_DIR . '/lib/wpcom-user-following.php';
+
+			$remove_user_blogs = $request->get_param( 'remove_user_blogs' );
+			$remove_user_blogs = ! empty( $remove_user_blogs ) && $remove_user_blogs === 'true';
+
+			return get_user_followed_blogs( get_current_user_id(), $remove_user_blogs );
+		}
+
 		$body = Client::wpcom_json_api_request_as_user(
-			'/user/following',
+			'/me/following',
 			'2',
 			array(
 				'method'  => 'GET',

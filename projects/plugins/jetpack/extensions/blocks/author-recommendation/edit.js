@@ -1,6 +1,4 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useBlockProps } from '@wordpress/block-editor';
-import { CheckboxControl, Flex, FlexBlock, FlexItem } from '@wordpress/components';
 import { BlockIcon, useBlockProps } from '@wordpress/block-editor';
 import {
 	CheckboxControl,
@@ -22,21 +20,15 @@ export function AuthorRecommendationEdit( {
 	setAttributes,
 	isSelected,
 } ) {
-	// eslint-disable-next-line no-unused-vars
 	const [ subscriptions, setSubscriptions ] = useState( [] );
 	const [ selectedSubscriptions, setSelectedSubscriptions ] = useState( [] );
 	const { recommendations } = attributes;
 
 	useEffect( () => {
-		setSelectedSubscriptions( recommendations.map( ( { ID } ) => ID ) );
-		// TODO fetch the sites the user is subscribed to
-
+		setSelectedSubscriptions( recommendations.map( ( { blog_id } ) => blog_id ) );
 
 		apiFetch( { path: '/wpcom/v2/following/mine' } )
-			.then( data => {
-				// eslint-disable-next-line no-console
-				console.log( 'response', data );
-			} )
+			.then( setSubscriptions )
 			.catch( error => {
 				// eslint-disable-next-line no-console
 				console.log( 'error', error );
@@ -47,7 +39,7 @@ export function AuthorRecommendationEdit( {
 	useEffect( () => {
 		setAttributes( {
 			recommendations: subscriptions.filter( subscription =>
-				selectedSubscriptions.includes( subscription.ID )
+				selectedSubscriptions.includes( subscription.blog_id )
 			),
 		} );
 	}, [ selectedSubscriptions, setAttributes, subscriptions ] );
@@ -92,11 +84,11 @@ export function AuthorRecommendationEdit( {
 
 			<Flex gap={ 2 } justify="space-between" direction="column">
 				{ subscriptions.map( subscription => {
-					const isSubscriptionSelected = selectedSubscriptions.includes( subscription.ID );
+					const isSubscriptionSelected = selectedSubscriptions.includes( subscription.blog_id );
 
 					return (
 						<FlexItem
-							key={ subscription.ID }
+							key={ subscription.blog_id }
 							style={ {
 								padding: '10px',
 								display: ! isSubscriptionSelected && ! isSelected ? 'none' : '',
@@ -120,7 +112,7 @@ export function AuthorRecommendationEdit( {
 									{ isSelected && (
 										<CheckboxControl
 											checked={ isSubscriptionSelected }
-											onChange={ () => handleChecked( subscription.ID ) }
+											onChange={ () => handleChecked( subscription.blog_id ) }
 										/>
 									) }
 								</FlexItem>
