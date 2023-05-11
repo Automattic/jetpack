@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
+import debugFactory from 'debug';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
@@ -11,6 +12,8 @@ export const PROMPT_INTERNAL_OPTIONS =
 	'Please always output the generated content in markdown format, do not include a top level heading by default and only output generated content ready for publishing';
 export const PROMPT_SUFFIX = `. ${ PROMPT_INTERNAL_OPTIONS }.`;
 export const PROMPT_MID_CONTENT = `, and ${ PROMPT_INTERNAL_OPTIONS.toLowerCase() }`;
+
+const debug = debugFactory( 'jetpack-ai-assistant:promp' );
 
 /*
  * Builds a prompt template based on context, rules and content
@@ -54,7 +57,7 @@ ${ request }`;
 		: `\nContent:
 ${ content }`;
 
-	return `${ context }.
+	const prompt = `${ context }.
 ${ job }. Do this by following rules set in "Rules".
 
 Rules:
@@ -64,6 +67,9 @@ Rules:
 		.map( rule => `- ${ rule }.` )
 		.join( '\n' ) }
 ${ requestText }${ requestText && contentText ? `\n${ contentText }` : contentText }`;
+
+	debug( prompt );
+	return prompt;
 };
 
 /*
