@@ -1,9 +1,17 @@
+/**
+ * External dependencies
+ */
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect, select as selectData } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MarkdownIt from 'markdown-it';
+/**
+ * Internal dependencies
+ */
 import { createPrompt } from './create-prompt';
+import { askJetpack } from './get-suggestion-with-stream';
+import tellWhatToDoNext from './prompt/tell-what-to-do-next';
 
 /**
  * Returns partial content from the beginning of the post
@@ -20,6 +28,30 @@ export function getPartialContentToBlock( clientId ) {
 	const editor = selectData( 'core/block-editor' );
 	const index = editor.getBlockIndex( clientId );
 	const blocks = editor.getBlocks().slice( 0, index ) ?? [];
+	if ( ! blocks?.length ) {
+		return '';
+	}
+
+	return blocks
+		.filter( function ( block ) {
+			return block && block.attributes && block.attributes.content;
+		} )
+		.map( function ( block ) {
+			return block.attributes.content.replaceAll( '<br/>', '\n' );
+		} )
+		.join( '\n' );
+}
+
+/**
+ * Returns content from all blocks,
+ * by inspecting the blocks `content` attributes
+ *
+ * @returns {string} The content.
+ */
+export function getContentFromBlocks() {
+	const editor = selectData( 'core/block-editor' );
+	const blocks = editor.getBlocks();
+
 	if ( ! blocks?.length ) {
 		return '';
 	}
@@ -111,7 +143,7 @@ const useSuggestionsFromOpenAI = ( {
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
 	const getSuggestionFromOpenAI = ( type, retryRequest = false ) => {
-		if ( !! content || isLoadingCompletion ) {
+		if ( isLoadingCompletion ) {
 			return;
 		}
 
@@ -119,19 +151,26 @@ const useSuggestionsFromOpenAI = ( {
 		setErrorMessage( false );
 		setIsLoadingCompletion( true );
 
-		const prompt = retryRequest
-			? lastPrompt
-			: createPrompt(
+		let prompt = lastPrompt;
+
+		if ( ! retryRequest ) {
+			// If there is a content already, let's iterate over it.
+			if ( content?.length && userPrompt?.length ) {
+				prompt = tellWhatToDoNext( userPrompt, content );
+			} else {
+				prompt = createPrompt(
 					currentPostTitle,
 					getPartialContentToBlock( clientId ),
-					categoryNames,
-					tagNames,
+					content?.length ? content : getContentFromBlocks(),
 					userPrompt,
-					type
-			  );
+					type,
+					categoryNames,
+					tagNames
+				);
+			}
+		}
 
 		const data = { content: prompt };
-
 		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
 			post_id: postId,
 		} );
@@ -147,8 +186,16 @@ const useSuggestionsFromOpenAI = ( {
 		} )
 			.then( res => {
 				const result = res.trim();
-				const markdownConverter = new MarkdownIt();
-				setAttributes( { content: result.length ? markdownConverter.render( result ) : '' } );
+
+				/*
+				 * Hack to udpate the content.
+				 * @todo: maybe we should not pass the setAttributes function
+				 */
+				setAttributes( { content: '' } );
+				setTimeout( () => {
+					const markdownConverter = new MarkdownIt();
+					setAttributes( { content: result.length ? markdownConverter.render( result ) : '' } );
+				}, 10 );
 				setIsLoadingCompletion( false );
 			} )
 			.catch( e => {
@@ -167,7 +214,6 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 	};
 	return {
-		getSuggestionFromOpenAI,
 		isLoadingCategories,
 		isLoadingCompletion,
 		setIsLoadingCategories,
@@ -175,8 +221,13 @@ const useSuggestionsFromOpenAI = ( {
 		showRetry,
 		postTitle: currentPostTitle,
 		contentBefore: getPartialContentToBlock( clientId ),
+		wholeContent: getContentFromBlocks( clientId ),
+
+		getSuggestionFromOpenAI,
 		retryRequest: () => getSuggestionFromOpenAI( '', true ),
 	};
 };
 
 export default useSuggestionsFromOpenAI;
+
+window.askJetpack = askJetpack;

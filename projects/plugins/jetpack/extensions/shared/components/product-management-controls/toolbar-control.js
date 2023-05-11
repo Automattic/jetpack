@@ -101,11 +101,10 @@ function NewProduct( { onClose } ) {
 export default function ProductManagementToolbarControl() {
 	const { products, productType, selectedProductId } = useProductManagementContext();
 
-	const { selectedProduct, shouldUpgrade } = useSelect( select => {
-		const { getProduct, getShouldUpgrade } = select( membershipProductsStore );
+	const { selectedProduct } = useSelect( select => {
+		const { getProduct } = select( membershipProductsStore );
 		return {
 			selectedProduct: getProduct( selectedProductId ),
-			shouldUpgrade: getShouldUpgrade(),
 		};
 	} );
 
@@ -135,11 +134,11 @@ export default function ProductManagementToolbarControl() {
 								<Product key={ product.id } onClose={ onClose } product={ product } />
 							) ) }
 						</MenuGroup>
-						{ ! shouldUpgrade && (
+						{
 							<MenuGroup>
 								<NewProduct onClose={ onClose } />
 							</MenuGroup>
-						) }
+						}
 					</>
 				) }
 			</ToolbarDropdownMenu>

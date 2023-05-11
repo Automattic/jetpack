@@ -94,7 +94,7 @@ class Settings_Test extends BaseTestCase {
 	 * Test that it returns the default template if a template is not set.
 	 */
 	public function test_returns_default_template_if_not_set() {
-		$this->assertEquals( $this->settings->get_default_template(), Templates::DEFAULT_TEMPLATE );
+		$this->assertEquals( Templates::DEFAULT_TEMPLATE, $this->settings->get_default_template() );
 	}
 
 	/**
