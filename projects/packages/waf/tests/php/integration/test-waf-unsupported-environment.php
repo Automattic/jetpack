@@ -67,15 +67,10 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	 * Test WAF init in a supported environment.
 	 */
 	public function testInitSupportedEnvironment() {
-		// Waf_Runner::enable();
-		// Brute_Force_Protection::enable();
-
 		$available_modules = ( new Modules() )->get_available();
 
 		$this->assertContains( 'waf', $available_modules );
 		$this->assertContains( 'protect', $available_modules );
-		// $this->assertTrue( Waf_Runner::is_enabled() );
-		// $this->assertTrue( Brute_Force_Protection::is_enabled() );
 	}
 
 	/**
@@ -84,15 +79,10 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	public function testInitWpcomEnvironment() {
 		Constants::set_constant( 'IS_WPCOM', true );
 
-		// Waf_Runner::enable();
-		// Brute_Force_Protection::enable();
-
 		$available_modules = ( new Modules() )->get_available();
 
 		$this->assertNotContains( 'waf', $available_modules );
 		$this->assertContains( 'protect', $available_modules );
-		// $this->assertFalse( Waf_Runner::is_enabled() );
-		// $this->assertTrue( Brute_Force_Protection::is_enabled() );
 	}
 
 	/**
@@ -102,15 +92,10 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', 999 );
 		Constants::set_constant( 'ATOMIC_SITE_ID', 999 );
 
-		// Waf_Runner::enable();
-		// Brute_Force_Protection::enable();
-
 		$available_modules = ( new Modules() )->get_available();
 
 		$this->assertNotContains( 'waf', $available_modules );
 		$this->assertContains( 'protect', $available_modules );
-		// $this->assertFalse( Waf_Runner::is_enabled() );
-		// $this->assertTrue( Brute_Force_Protection::is_enabled() );
 	}
 
 	/**
@@ -119,14 +104,9 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	public function testInitVipEnvironment() {
 		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
 
-		// Waf_Runner::enable();
-		// Brute_Force_Protection::enable();
-
 		$available_modules = ( new Modules() )->get_available();
 
 		$this->assertNotContains( 'waf', $available_modules );
 		$this->assertContains( 'protect', $available_modules );
-		// $this->assertFalse( Waf_Runner::is_enabled() );
-		// $this->assertTrue( Brute_Force_Protection::is_enabled() );
 	}
 }
