@@ -32,7 +32,7 @@ const IS_ANDROID = Platform.isAndroid;
  * @param {boolean} props.isSelected - Whether the block is selected.
  * @returns {import('react').ReactElement} - React component.
  */
-export default function Player( { isSelected, attributes } ) {
+export default function Player( { isSelected, attributes, source } ) {
 	const {
 		controls,
 		guid,

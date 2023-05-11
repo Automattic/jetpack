@@ -90,7 +90,7 @@ export default function VideoPressEdit( {
 	);
 
 	const { videoData } = useSyncMedia( attributes, setAttributes );
-	const { private_enabled_for_site: privateEnabledForSite } = videoData;
+	const { private_enabled_for_site: privateEnabledForSite, original: originalVideo } = videoData;
 
 	const handleDoneUpload = useCallback(
 		newVideoData => {
@@ -222,7 +222,7 @@ export default function VideoPressEdit( {
 				</InspectorControls>
 			) }
 
-			<Player { ...{ attributes, isSelected } } />
+			<Player source={ originalVideo } { ...{ attributes, isSelected } } />
 
 			<BlockCaption
 				clientId={ clientId }
