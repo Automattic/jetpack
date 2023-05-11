@@ -20,6 +20,7 @@ const AIControl = ( {
 	getSuggestionFromOpenAI,
 	retryRequest,
 	handleAcceptContent,
+	handleAcceptTitle,
 	handleTryAgain,
 	handleGetSuggestion,
 	isWaitingState,
@@ -32,6 +33,7 @@ const AIControl = ( {
 	postTitle,
 	wholeContent,
 	content,
+	promptType,
 } ) => {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
@@ -80,6 +82,7 @@ const AIControl = ( {
 					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 					retryRequest={ retryRequest }
 					handleAcceptContent={ handleAcceptContent }
+					handleAcceptTitle={ handleAcceptTitle }
 					handleGetSuggestion={ handleGetSuggestion }
 					handleTryAgain={ handleTryAgain }
 					showRetry={ showRetry }
@@ -87,6 +90,7 @@ const AIControl = ( {
 					contentBefore={ contentBefore }
 					hasPostTitle={ !! postTitle?.length }
 					wholeContent={ wholeContent }
+					promptType={ promptType }
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
@@ -124,12 +128,14 @@ const ToolbarControls = ( {
 	getSuggestionFromOpenAI,
 	retryRequest,
 	handleAcceptContent,
+	handleAcceptTitle,
 	handleTryAgain,
 	showRetry,
 	toggleAIType,
 	contentBefore,
 	hasPostTitle,
 	wholeContent,
+	promptType,
 } ) => {
 	return (
 		<BlockControls>
@@ -138,11 +144,17 @@ const ToolbarControls = ( {
 				<ToolbarGroup>
 					{ ! showRetry && contentIsLoaded && animationDone && (
 						<>
-							<ToolbarButton onClick={ handleAcceptContent }>
-								{ __( 'Done', 'jetpack' ) }
-							</ToolbarButton>
+							{ promptType === 'generateTitle' ? (
+								<ToolbarButton onClick={ handleAcceptTitle }>
+									{ __( 'Accept title', 'jetpack' ) }
+								</ToolbarButton>
+							) : (
+								<ToolbarButton onClick={ handleAcceptContent }>
+									{ __( 'Done', 'jetpack' ) }
+								</ToolbarButton>
+							) }
 							<ToolbarButton onClick={ handleTryAgain }>
-								{ __( 'Try Again', 'jetpack' ) }
+								{ __( 'Try again', 'jetpack' ) }
 							</ToolbarButton>
 						</>
 					) }
@@ -191,6 +203,11 @@ const ToolbarControls = ( {
 									title: __( 'Simplify preceding content', 'jetpack' ),
 									onClick: () => getSuggestionFromOpenAI( 'simplify' ),
 									isDisabled: ! contentBefore?.length,
+								},
+								{
+									title: __( 'Generate a post title', 'jetpack' ),
+									onClick: () => getSuggestionFromOpenAI( 'generateTitle' ),
+									isDisabled: ! wholeContent?.length,
 								},
 							] }
 						/>

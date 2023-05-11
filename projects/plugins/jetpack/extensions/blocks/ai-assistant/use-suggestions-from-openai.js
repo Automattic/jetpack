@@ -177,6 +177,7 @@ const useSuggestionsFromOpenAI = ( {
 
 		if ( ! retryRequest ) {
 			setLastPrompt( prompt );
+			setAttributes( { promptType: type } );
 		}
 
 		apiFetch( {
