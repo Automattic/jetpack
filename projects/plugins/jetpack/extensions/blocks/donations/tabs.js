@@ -39,7 +39,7 @@ const Tabs = props => {
 				annualDonation: { ...annualDonation, planId: products[ '1 year' ] },
 			} ),
 		} );
-	}, [ oneTimeDonation, monthlyDonation, annualDonation, setAttributes, products ] );
+	}, [ oneTimeDonation, monthlyDonation, annualDonation, products ] );
 
 	// Activates the one-time tab if the interval of the current active tab is disabled.
 	useEffect( () => {

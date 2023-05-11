@@ -15,11 +15,16 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
-import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
+import {
+	getDefaultAmountsForCurrency,
+	minimumTransactionAmountForCurrency,
+	SUPPORTED_CURRENCIES,
+} from '../../shared/currencies';
 
 const Controls = props => {
 	const { attributes, setAttributes } = props;
-	const { currency, monthlyDonation, annualDonation, showCustomAmount } = attributes;
+	const { currency, oneTimeDonation, monthlyDonation, annualDonation, showCustomAmount } =
+		attributes;
 
 	const toggleDonation = ( interval, show ) => {
 		const donationAttributes = {
@@ -75,7 +80,14 @@ const Controls = props => {
 											<MenuItem
 												isSelected={ ccy === currency }
 												onClick={ () => {
-													setAttributes( { currency: ccy } );
+													const defaultAmounts = getDefaultAmountsForCurrency( currency );
+
+													setAttributes( {
+														currency: ccy,
+														oneTimeDonation: { ...oneTimeDonation, amounts: defaultAmounts },
+														monthlyDonation: { ...monthlyDonation, amounts: defaultAmounts },
+														annualDonation: { ...annualDonation, amounts: defaultAmounts },
+													} );
 													onClose();
 												} }
 												key={ `jetpack-donations-currency-${ ccy }` }

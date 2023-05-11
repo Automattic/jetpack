@@ -60,6 +60,15 @@ export function minimumTransactionAmountForCurrency( currency_code ) {
 	return SUPPORTED_CURRENCIES[ currency_code ];
 }
 
+export function getDefaultAmountsForCurrency( currency_code ) {
+	const minAmount = minimumTransactionAmountForCurrency( currency_code );
+	return [
+		minAmount * 10, // 1st tier (USD 5)
+		minAmount * 30, // 2nd tier (USD 15)
+		minAmount * 200, // 3rd tier (USD 100)
+	];
+}
+
 /**
  * True if the price is a number and at least the minimum allowed amount.
  *

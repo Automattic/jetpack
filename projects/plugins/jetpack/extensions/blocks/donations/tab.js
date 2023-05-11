@@ -2,7 +2,10 @@ import { RichText } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useState, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { minimumTransactionAmountForCurrency } from '../../shared/currencies';
+import {
+	getDefaultAmountsForCurrency,
+	minimumTransactionAmountForCurrency,
+} from '../../shared/currencies';
 import Amount from './amount';
 
 const Tab = ( { activeTab, attributes, setAttributes } ) => {
@@ -23,7 +26,6 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 	};
 
 	const getDonationValue = key => attributes[ donationAttributes[ activeTab ] ][ key ];
-
 	const setDonationValue = ( key, value ) => {
 		const donationAttribute = donationAttributes[ activeTab ];
 		const donation = attributes[ donationAttribute ];
@@ -68,6 +70,7 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 	] );
 
 	const amounts = getDonationValue( 'amounts' );
+	const defaultAmounts = getDefaultAmountsForCurrency( currency );
 
 	const setAmount = ( amount, tier ) => {
 		const newAmounts = [ ...amounts ];
