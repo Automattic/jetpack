@@ -47,6 +47,10 @@ export async function refreshConnectionTestResults() {
 				error_code: freshConnection.error_code,
 			};
 
+			if ( 'connection_id' in freshConnection ) {
+				connection.connection_id = freshConnection.connection_id;
+			}
+
 			connections.push( connection );
 		}
 
@@ -74,7 +78,13 @@ export async function toggleConnectionById( { connectionId } ) {
 	 */
 	const updatedConnections = connections.map( connection => ( {
 		...connection,
-		enabled: connection.id === connectionId ? ! connection.enabled : connection.enabled,
+		enabled: (
+			connection.connection_id
+				? connection.connection_id === connectionId
+				: connection.id === connectionId
+		)
+			? ! connection.enabled
+			: connection.enabled,
 	} ) );
 
 	// Update post metadata.
