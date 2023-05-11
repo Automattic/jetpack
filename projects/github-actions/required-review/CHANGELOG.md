@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [3.1.0] - 2023-05-11
 ### Added
 - Added feature where if a review requirement is not met, then request the review.
+
+### Changed
 - Updates misspelling
 
 ## [3.0.2] - 2023-02-07
