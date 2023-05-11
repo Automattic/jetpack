@@ -36,8 +36,7 @@ export function AuthorRecommendationEdit( {
 				selectedSubscriptions.includes( subscription.ID )
 			),
 		} );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ selectedSubscriptions ] );
+	}, [ selectedSubscriptions, setAttributes, subscriptions ] );
 
 	const handleChecked = useCallback(
 		subscriptionId => {
@@ -60,7 +59,7 @@ export function AuthorRecommendationEdit( {
 		<div { ...useBlockProps() } className={ className }>
 			{ ( ! selectedSubscriptions.length || ! subscriptions.length ) && (
 				<Placeholder
-					label={ __( 'Author-recommendation', 'jetpack' ) }
+					label={ __( 'Author Recommendation', 'jetpack' ) }
 					icon={ <BlockIcon icon={ icon } /> }
 					instructions={
 						! subscriptions.length
