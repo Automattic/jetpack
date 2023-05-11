@@ -2,7 +2,6 @@
 	import { useParams } from 'svelte-navigator';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
-	import debounce from '../../utils/debounce';
 	import Hero from './recommendations/Hero.svelte';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
@@ -10,24 +9,12 @@
 	import { isaData } from './store/isa-data';
 
 	const params = useParams();
-
-	function updateQuery( group: string, page: number ) {
-		// It's important to issue only a single store update here
-		// because the store update will trigger an asynchronous callback
-		// to sync the data with the server.
-		// If the same store changes rapidly, it will trigger multiple changes
-		// and the prevValue !== value comparisons will break.
-		$isaData.query = {
-			group,
-			page,
-			search: '',
-		};
-	}
-
-	// Debouncing because,
-	// Params update multiple times when URL changes
-	const debouncedUpdateQuery = debounce( updateQuery, 10 );
-	$: debouncedUpdateQuery( $params.group, parseInt( $params.page ) );
+	$: $isaData.query = {
+		group: $params.group,
+		page: parseInt( $params.page ),
+		// Reset the search query when the page changes.
+		search: '',
+	};
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
