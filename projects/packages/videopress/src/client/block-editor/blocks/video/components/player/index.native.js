@@ -6,7 +6,8 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useRef, useCallback, Platform } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { requestEmbedFullscreenPreview } from '@wordpress/react-native-bridge';
+import { requestImageFullscreenPreview } from '@wordpress/react-native-bridge';
+import { addQueryArgs } from '@wordpress/url';
 /**
  * External dependencies
  */
@@ -30,6 +31,7 @@ const IS_ANDROID = Platform.isAndroid;
  * @param {object} props - Component props.
  * @param {object} props.attributes - Block attributes.
  * @param {boolean} props.isSelected - Whether the block is selected.
+ * @param {string} [props.source] - Source video URL.
  * @returns {import('react').ReactElement} - React component.
  */
 export default function Player( { isSelected, attributes, source } ) {
@@ -44,7 +46,6 @@ export default function Player( { isSelected, attributes, source } ) {
 		seekbarColor,
 		seekbarLoadingColor,
 		seekbarPlayedColor,
-		title,
 	} = attributes;
 
 	const iconStyle = style[ 'videopress-player__loading-icon' ];
@@ -146,30 +147,17 @@ export default function Player( { isSelected, attributes, source } ) {
 		</View>
 	);
 
-	let overlay = ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } />;
-
-	// On Android render an overlay to send the embed markup to a native WebView.
-	if ( isSelected && IS_ANDROID ) {
-		overlay = (
-			<View style={ style[ 'videopress-player__overlay' ] }>
-				<Pressable
-					style={ style[ 'videopress-player__open-embed-button' ] }
-					onPress={ () => {
-						requestEmbedFullscreenPreview( html, title );
-					} }
-				/>
-			</View>
-		);
-	}
-
 	// Show the loading overlay when:
 	// 1. Player is not ready
 	// 2. Player is loaded but preview is not ready
 	const showLoadingOverlay = ! isPlayerReady || ( isPlayerLoaded && ! isPreviewReady );
 
-	return (
-		<View style={ [ style[ 'videopress-player' ], { aspectRatio } ] }>
-			{ overlay }
+	const player = (
+		<View
+			style={ [ style[ 'videopress-player' ], { aspectRatio } ] }
+			pointerEvents={ IS_ANDROID ? 'none' : 'auto' }
+		>
+			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
 			{ showLoadingOverlay && loadingOverlay }
 			{ html && (
 				<SandBox
@@ -181,5 +169,18 @@ export default function Player( { isSelected, attributes, source } ) {
 				/>
 			) }
 		</View>
+	);
+
+	return IS_ANDROID ? (
+		<Pressable
+			disabled={ ! isSelected || ! source }
+			onPress={ () =>
+				requestImageFullscreenPreview( addQueryArgs( source, { metadata_token: token } ) )
+			}
+		>
+			{ player }
+		</Pressable>
+	) : (
+		player
 	);
 }
