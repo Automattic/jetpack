@@ -46,10 +46,11 @@ export async function askJetpack( question ) {
  * @param {string} question - The query to send to the API
  */
 export async function askQuestion( question ) {
+	const siteSuffix = window.JP_CONNECTION_INITIAL_STATE.siteSuffix;
 	const { blogId, token } = await requestToken();
 
 	const url = new URL(
-		'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/jetpack-openai-query'
+		'https://public-api.wordpress.com/wpcom/v2/sites/' + siteSuffix + '/jetpack-openai-query'
 	);
 	url.searchParams.append( 'question', question );
 	url.searchParams.append( 'token', token );
