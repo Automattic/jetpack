@@ -148,11 +148,11 @@ const ToolbarControls = ( {
 								{ __( 'Done', 'jetpack' ) }
 							</ToolbarButton>
 							<ToolbarButton onClick={ handleTryAgain }>
-								{ __( 'Try Again', 'jetpack' ) }
+								{ __( 'Try again', 'jetpack' ) }
 							</ToolbarButton>
 							{ promptType === 'generateTitle' && (
 								<ToolbarButton onClick={ handleAcceptTitle }>
-									{ __( 'Accept Title', 'jetpack' ) }
+									{ __( 'Accept title', 'jetpack' ) }
 								</ToolbarButton>
 							) }
 						</>
