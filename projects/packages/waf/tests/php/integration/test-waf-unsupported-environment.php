@@ -15,7 +15,7 @@ use Automattic\Jetpack\Waf\Waf_Initializer;
  */
 final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestCase {
 	/**
-	 * Mock data for the 'available_modules' option
+	 * Mock data for the available modules
 	 *
 	 * @var array
 	 */
