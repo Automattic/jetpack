@@ -236,8 +236,8 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 					$output_connection[ $property ] = $connection[ $property ];
 				}
 			}
-
-			$output_connection['id'] = (string) $connection['id'];
+			$output_connection['id']            = (string) $connection['unique_id'];
+			$output_connection['connection_id'] = (string) $connection['id'];
 
 			$output_connections[] = $output_connection;
 		}

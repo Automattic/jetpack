@@ -105,13 +105,13 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 		}
 
 		$mapping = array(
-			'test_success' => 'connectionTestPassed',
-			'test_message' => 'connectionTestMessage',
-			'error_code'   => 'connectionTestErrorCode',
-			'can_refresh'  => 'userCanRefresh',
-			'refresh_text' => 'refreshText',
-			'refresh_url'  => 'refreshURL',
-			'id'           => 'connectionID',
+			'test_success'  => 'connectionTestPassed',
+			'test_message'  => 'connectionTestMessage',
+			'error_code'    => 'connectionTestErrorCode',
+			'can_refresh'   => 'userCanRefresh',
+			'refresh_text'  => 'refreshText',
+			'refresh_url'   => 'refreshURL',
+			'connection_id' => 'connectionID',
 		);
 
 		foreach ( $items as &$item ) {
