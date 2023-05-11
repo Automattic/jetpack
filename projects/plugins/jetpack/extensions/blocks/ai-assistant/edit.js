@@ -149,7 +149,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 							setAnimationDone( true );
 						} }
 						clientId={ clientId }
-						html={ attributes.content }
+						markdown={ attributes.content }
 					/>
 				</>
 			) }

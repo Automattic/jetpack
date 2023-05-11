@@ -7,7 +7,7 @@ const markdownConverter = new MarkdownIt( {
 
 // TODO: Switch the API to use streaming in which case this won't be needed.
 // This component displays the text word by word if show animation is true
-const ShowLittleByLittle = ( { html, showAnimation, onAnimationDone } ) => {
+const ShowLittleByLittle = ( { markdown, showAnimation, onAnimationDone } ) => {
 	// This is the HTML to be displayed.
 	const [ displayedRawHTML, setDisplayedRawHTML ] = useState( '' );
 
@@ -17,17 +17,17 @@ const ShowLittleByLittle = ( { html, showAnimation, onAnimationDone } ) => {
 			if ( showAnimation ) {
 				// This is to animate text input. I think this will give an idea of a "better" AI.
 				// At this point this is an established pattern.
-				const tokens = html.split( ' ' );
+				const tokens = markdown.split( ' ' );
 				for ( let i = 1; i < tokens.length; i++ ) {
 					const output = tokens.slice( 0, i ).join( ' ' );
 					setTimeout( () => setDisplayedRawHTML( markdownConverter.render( output ), 50 * i ) );
 				}
 				setTimeout( () => {
-					setDisplayedRawHTML( markdownConverter.render( html ) );
+					setDisplayedRawHTML( markdownConverter.render( markdown ) );
 					onAnimationDone();
 				}, 50 * tokens.length );
 			} else {
-				setDisplayedRawHTML( markdownConverter.render( html ) );
+				setDisplayedRawHTML( markdownConverter.render( markdown ) );
 			}
 		},
 		// eslint-disable-next-line
