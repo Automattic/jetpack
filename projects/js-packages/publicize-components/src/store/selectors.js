@@ -107,7 +107,7 @@ export function getTweetStorm( state ) {
 			media: tweet.media,
 			tweet: tweet.tweet,
 			urls: tweet.urls,
-			card: getTwitterCardForURLs( state, tweet.urls ),
+			...getTwitterCardForURLs( state, tweet.urls ),
 		} ) ),
 	];
 
@@ -146,17 +146,15 @@ export function getFirstTweet( state ) {
 		...tweetTemplate,
 		text: getShareMessage() + ` ${ url }`,
 		urls: [ url ],
-		card: {
-			title: getEditedPostAttribute( 'title' ),
-			description:
-				getEditedPostAttribute( 'meta' )?.advanced_seo_description ||
-				getEditedPostAttribute( 'excerpt' ) ||
-				getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
-				__( 'Visit the post for more.', 'jetpack' ),
-			url,
-			image,
-			type: image ? 'summary_large_image' : 'summary',
-		},
+		title: getEditedPostAttribute( 'title' ),
+		description:
+			getEditedPostAttribute( 'meta' )?.advanced_seo_description ||
+			getEditedPostAttribute( 'excerpt' ) ||
+			getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
+			__( 'Visit the post for more.', 'jetpack' ),
+		url,
+		image,
+		cardType: image ? 'summary_large_image' : 'summary',
 	};
 }
 

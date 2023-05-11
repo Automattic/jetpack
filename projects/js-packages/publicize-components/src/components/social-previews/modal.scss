@@ -81,10 +81,6 @@ $highlight-color: #3858e9;
 		}
 	}
 
-	.twitter-preview__summary {
-		max-width: 100%;
-	}
-
 	@media ( min-width: $break-small ) {
 		width: calc( 100vw - 40px );
 	}
@@ -189,25 +185,3 @@ $highlight-color: #3858e9;
 	}
 }
 
-.twitter-preview-tab {
-	header{
-		padding-inline-start: 37px;
-		padding-inline-end: 20px;
-		width: 635px;
-	}
-	p.description {
-		font-size: 1rem;
-	}
-}
-
-.linked-preview-tab {
-	header {
-		width: 555px;
-	}
-	p.description {
-		font-size: 1rem;
-	}
-	.linkedin-preview {
-		margin: 1.25rem 0 3rem;
-	}
-}
