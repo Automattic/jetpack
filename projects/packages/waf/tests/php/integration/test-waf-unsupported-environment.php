@@ -15,7 +15,9 @@ use Automattic\Jetpack\Waf\Waf_Initializer;
  */
 final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestCase {
 	/**
-	 * Mock data for the 'available_modules' option.
+	 * Mock data for the 'available_modules' option
+	 *
+	 * @var array
 	 */
 	private static $test_available_modules;
 
@@ -57,7 +59,9 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	 * @return array The available modules, including "waf" and "protect".
 	 */
 	public function add_modules_to_available_modules( $modules ) {
-		return self::$test_available_modules;
+		$modules = array_merge( $modules, self::$test_available_modules );
+
+		return $modules;
 	}
 
 	/**
