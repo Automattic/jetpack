@@ -42,6 +42,16 @@
 
 .editor-post-visibility__choice input[disabled] {
 	background-color: $gray-400;
+	cursor:no-drop;
+
+	&+label{
+		cursor:no-drop;
+		color: $gray-600;
+
+		&+p{
+			color: $gray-600;
+		}
+	}
 }
 
 .pre-public-panel-notice-reach{
