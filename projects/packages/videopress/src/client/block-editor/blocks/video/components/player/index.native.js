@@ -6,7 +6,6 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useRef, useCallback, Platform } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { requestEmbedFullscreenPreview } from '@wordpress/react-native-bridge';
 /**
  * External dependencies
  */
@@ -19,6 +18,7 @@ import { getVideoPressUrl } from '../../../../../lib/url';
 import { usePreview } from '../../../../hooks/use-preview';
 import addTokenIntoIframeSource from '../../../../utils/add-token-iframe-source';
 import { VideoPressIcon } from '../icons';
+import PlayerUnavailable from './player-unavailable';
 import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
@@ -44,7 +44,6 @@ export default function Player( { isSelected, attributes } ) {
 		seekbarColor,
 		seekbarLoadingColor,
 		seekbarPlayedColor,
-		title,
 	} = attributes;
 
 	const iconStyle = style[ 'videopress-player__loading-icon' ];
@@ -54,6 +53,7 @@ export default function Player( { isSelected, attributes } ) {
 	const [ isPlayerReady, setIsPlayerReady ] = useState( false );
 	const [ token, setToken ] = useState();
 	const [ previewCheckAttempts, setPreviewCheckAttempts ] = useState( 0 );
+	const [ isSheetVisible, setIsSheetVisible ] = useState( false );
 	const previewCheckTimer = useRef();
 
 	// Fetch token for a VideoPress GUID
@@ -135,6 +135,14 @@ export default function Player( { isSelected, attributes } ) {
 		IS_ANDROID && setIsPlayerReady( true );
 	}, [] );
 
+	const onPressPlayer = () => {
+		setIsSheetVisible( true );
+	};
+
+	const onCloseSheet = () => {
+		setIsSheetVisible( false );
+	};
+
 	const loadingOverlay = (
 		<View style={ style[ 'videopress-player__overlay' ] }>
 			<View style={ loadingViewStyle }>
@@ -146,30 +154,17 @@ export default function Player( { isSelected, attributes } ) {
 		</View>
 	);
 
-	let overlay = ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } />;
-
-	// On Android render an overlay to send the embed markup to a native WebView.
-	if ( isSelected && IS_ANDROID ) {
-		overlay = (
-			<View style={ style[ 'videopress-player__overlay' ] }>
-				<Pressable
-					style={ style[ 'videopress-player__open-embed-button' ] }
-					onPress={ () => {
-						requestEmbedFullscreenPreview( html, title );
-					} }
-				/>
-			</View>
-		);
-	}
-
 	// Show the loading overlay when:
 	// 1. Player is not ready
 	// 2. Player is loaded but preview is not ready
 	const showLoadingOverlay = ! isPlayerReady || ( isPlayerLoaded && ! isPreviewReady );
 
-	return (
-		<View style={ [ style[ 'videopress-player' ], { aspectRatio } ] }>
-			{ overlay }
+	const player = (
+		<View
+			style={ [ style[ 'videopress-player' ], { aspectRatio } ] }
+			pointerEvents={ IS_ANDROID ? 'box-only' : 'auto' }
+		>
+			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
 			{ showLoadingOverlay && loadingOverlay }
 			{ html && (
 				<SandBox
@@ -181,5 +176,16 @@ export default function Player( { isSelected, attributes } ) {
 				/>
 			) }
 		</View>
+	);
+
+	// The player is disabled on Android due to issues with the WebView.
+	// A warning message is displayed when the user taps on the player.
+	return IS_ANDROID ? (
+		<Pressable disabled={ ! isSelected || ! html || showLoadingOverlay } onPress={ onPressPlayer }>
+			{ player }
+			<PlayerUnavailable isSheetVisible={ isSheetVisible } onCloseSheet={ onCloseSheet } />
+		</Pressable>
+	) : (
+		player
 	);
 }
