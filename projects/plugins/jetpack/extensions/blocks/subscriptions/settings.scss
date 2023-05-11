@@ -22,9 +22,11 @@
 	&__notice {
 		margin: 0;
 
-		// General notice background color
+		// General notice background color.
+		// Colors are forced as per instructions: https://github.com/Automattic/jetpack/pull/30446#issuecomment-1543510120
 		&.is-info {
-			background: var(--color-primary-0, #e9f0f5);
+			background: #e9f0f5;
+			border-left-color: #007cba;
 		}
 	}
 
