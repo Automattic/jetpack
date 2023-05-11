@@ -95,6 +95,7 @@ export default function useVideoData( {
 					tracks: response.tracks,
 					is_private: response.is_private,
 					private_enabled_for_site: response.private_enabled_for_site,
+					original: response.original,
 				} );
 
 				// Check if the video belongs to the current site.
