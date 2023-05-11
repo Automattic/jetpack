@@ -117,7 +117,8 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 	 * @param  {Object} $attrs - `attrs` parameter sent from the client in the request body.
 	 */
 	private function update_by_attrs_parameter( $media_id, $attrs ) {
-		$insert = array();
+		$post_update_action = null;
+		$insert             = array();
 
 		// Attributes: Title, Caption, Description.
 		if ( isset( $attrs['title'] ) ) {

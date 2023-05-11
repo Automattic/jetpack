@@ -44,6 +44,7 @@ export async function refreshConnectionTestResults() {
 				enabled,
 				toggleable,
 				is_healthy: freshConnection.test_success,
+				error_code: freshConnection.error_code,
 			};
 
 			connections.push( connection );

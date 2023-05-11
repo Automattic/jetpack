@@ -47,6 +47,7 @@
 			"v": false
 		},
 		"changelogger": {
+			"link-template": "https://github.com/Automattic/jetpack-backup-plugin/compare/${old}...${new}",
 			"versioning": "wordpress"
 		},
 		"release-branch-prefix": [

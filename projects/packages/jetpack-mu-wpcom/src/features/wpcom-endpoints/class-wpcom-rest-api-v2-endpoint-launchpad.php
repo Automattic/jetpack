@@ -40,15 +40,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 						'checklist_slug' => array(
 							'description' => 'Checklist slug',
 							'type'        => 'string',
-							'enum'        => array(
-								'build',
-								'free',
-								'link-in-bio',
-								'link-in-bio-tld',
-								'newsletter',
-								'videopress',
-								'write',
-							),
+							'enum'        => $this->get_checklist_slug_enums(),
 						),
 					),
 				),
@@ -60,33 +52,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 						'checklist_statuses' => array(
 							'description'          => 'Launchpad statuses',
 							'type'                 => 'object',
-							'properties'           => array(
-								// todo: source this from the registry
-								'domain_upsell_deferred' => array(
-									'type' => 'boolean',
-								),
-								'links_edited'           => array(
-									'type' => 'boolean',
-								),
-								'site_edited'            => array(
-									'type' => 'boolean',
-								),
-								'site_launched'          => array(
-									'type' => 'boolean',
-								),
-								'first_post_published'   => array(
-									'type' => 'boolean',
-								),
-								'video_uploaded'         => array(
-									'type' => 'boolean',
-								),
-								'publish_first_course'   => array(
-									'type' => 'boolean',
-								),
-								'plan_completed'         => array(
-									'type' => 'boolean',
-								),
-							),
+							'properties'           => $this->get_checklist_statuses_properties(),
 							'additionalProperties' => false,
 						),
 						'launchpad_screen'   => array(
@@ -98,6 +64,37 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Returns all available checklist slugs.
+	 *
+	 * @return array Array of checklist slugs.
+	 */
+	public function get_checklist_slug_enums() {
+		$checklists = wpcom_launchpad_checklists()->get_all_task_lists();
+		return array_keys( $checklists );
+	}
+
+	/**
+	 * Returns all registered checklist statuses.
+	 *
+	 * @return array Associative array of checklist status properties for the REST API.
+	 */
+	public function get_checklist_statuses_properties() {
+		$tasks            = wpcom_launchpad_checklists()->get_all_tasks();
+		$allowed_task_ids = array();
+		foreach ( $tasks as $task ) {
+			$allowed_task_ids[] = wpcom_launchpad_checklists()->get_task_key( $task );
+		}
+		$allowed_task_ids = array_unique( $allowed_task_ids );
+		$properties       = array();
+		foreach ( $allowed_task_ids as $task_id ) {
+			$properties[ $task_id ] = array(
+				'type' => 'boolean',
+			);
+		}
+		return $properties;
 	}
 
 	/**
@@ -121,20 +118,12 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	public function get_data( $request ) {
 		$checklist_slug = isset( $request['checklist_slug'] ) ? $request['checklist_slug'] : get_option( 'site_intent' );
 
-		// deploy-time compat, remove me later.
-		if ( function_exists( 'get_launchpad_checklist_by_checklist_slug' ) ) {
-			$checklist = get_launchpad_checklist_by_checklist_slug( $checklist_slug );
-		} elseif ( function_exists( 'wpcom_get_launchpad_checklist_by_checklist_slug' ) ) {
-			$checklist = wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug );
-		} else {
-			$checklist = array();
-		}
-
 		return array(
 			'site_intent'        => get_option( 'site_intent' ),
 			'launchpad_screen'   => get_option( 'launchpad_screen' ),
 			'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
-			'checklist'          => $checklist,
+			'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug ),
+			'is_enabled'         => wpcom_launchpad_checklists()->is_launchpad_enabled(),
 		);
 	}
 
@@ -157,6 +146,8 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 					if ( update_option( 'launchpad_checklist_tasks_statuses', $launchpad_checklist_tasks_statuses_option ) ) {
 						$updated[ $key ] = $value;
 					}
+					// This will check if we have completed all the tasks and disable Launchpad if so.
+					wpcom_launchpad_checklists()->maybe_disable_launchpad();
 					break;
 
 				default:

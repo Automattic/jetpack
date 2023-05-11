@@ -1,16 +1,16 @@
 <script lang="ts">
-	import { imageStore, imagesAreLoading } from '../ApiMock';
+	import { isaFilteredImages, isaDataLoading } from '../store/isa-data';
 	import TableRow from './TableRow.svelte';
 </script>
 
-<div class="jb-table" class:jb-loading={$imagesAreLoading}>
+<div class="jb-table" class:jb-loading={$isaDataLoading}>
 	<div class="jb-table-header recommendation-page-grid">
 		<div class="jb-table-header__image">Image</div>
 		<div class="jb-table-header__potential-size">Potential Size</div>
 		<div class="jb-table-header__device">Device</div>
 		<div class="jb-table-header__page">Page/Post</div>
 	</div>
-	{#each $imageStore.images as data}
+	{#each $isaFilteredImages as data (data.image.url)}
 		<TableRow {data} />
 	{/each}
 </div>

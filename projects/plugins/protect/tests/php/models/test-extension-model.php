@@ -52,7 +52,7 @@ class Test_Extension_Model extends BaseTestCase {
 		foreach ( $test_extensions as $extension ) {
 			foreach ( $extension->threats as $loop_index => $threat ) {
 				// Validate the threat data is converted into Threat_Models
-				$this->assertSame( get_class( $threat ), 'Automattic\Jetpack\Protect\Threat_Model' );
+				$this->assertSame( 'Automattic\Jetpack\Protect\Threat_Model', get_class( $threat ) );
 
 				// Validate the threat data is set properly
 				foreach ( self::get_sample_threat( $loop_index ) as $key => $value ) {
