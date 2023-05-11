@@ -1,3 +1,4 @@
+import apiFetch from '@wordpress/api-fetch';
 import debugFactory from 'debug';
 
 const debug = debugFactory( 'jetpack:ai-assistant' );
@@ -58,8 +59,25 @@ export async function askQuestion( question ) {
 }
 
 export async function requestToken() {
-	const apiNonce = window.JP_CONNECTION_INITIAL_STATE.apiNonce;
+	const siteSuffix = window.JP_CONNECTION_INITIAL_STATE.siteSuffix;
 
+	try {
+		const request = await apiFetch( {
+			path: '/wpcom/v2/sites/' + siteSuffix + '/jetpack-openai-query/jwt',
+			method: 'POST',
+		} );
+
+		console.log( request );
+
+		return {
+			token: request.token,
+			blogId: request.blog_id,
+		};
+	} catch ( e ) {
+		throw new Error( 'JWT request failed' );
+	}
+
+	/*
 	const request = await fetch( '/wp-json/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(), {
 		credentials: 'same-origin',
 		headers: {
@@ -76,4 +94,5 @@ export async function requestToken() {
 		token: data.token,
 		blogId: data.blog_id,
 	};
+	*/
 }
