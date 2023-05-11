@@ -234,6 +234,16 @@ const useSuggestionsFromOpenAI = ( {
 					} );
 					break;
 
+				/**
+				 * Correct grammar and spelling
+				 */
+				case 'correctSpelling':
+					prompt = buildPromptTemplate( {
+						request: 'Correct any spelling and grammar mistakes from the content below.',
+						content: content?.length ? content : getContentFromBlocks(),
+					} );
+					break;
+
 				default:
 					if ( content?.length && userPrompt?.length ) {
 						prompt = tellWhatToDoNext( userPrompt, content );
