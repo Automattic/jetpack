@@ -143,7 +143,7 @@ const ToolbarControls = ( {
 } ) => {
 	return (
 		<>
-			{ ! showRetry && contentIsLoaded && animationDone && (
+			{ contentIsLoaded && animationDone && (
 				<BlockControls group="block">
 					<ToneDropdownControl
 						value="neutral"
