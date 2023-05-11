@@ -13,10 +13,10 @@ export const PROMPT_SUFFIX = `. ${ PROMPT_INTERNAL_OPTIONS }.`;
 export const PROMPT_MID_CONTENT = `, and ${ PROMPT_INTERNAL_OPTIONS.toLowerCase() }`;
 
 /*
- * Builds a prompt template based on tone, rules and content
+ * Builds a prompt template based on context, rules and content
  *
- * @param {object} options - The prompt options.
- * @param {string} options.tone    - The expected tone to the prompt, e.g. "You are...".
+ * @param {object} options         - The prompt options.
+ * @param {string} options.context - The expected context to the prompt, e.g. "You are...".
  * @param {array} options.rules    - An array of rules to be followed.
  * @param {string} options.request - The prompt request.
  * @param {string} options.content - The content to be modified.
@@ -24,7 +24,7 @@ export const PROMPT_MID_CONTENT = `, and ${ PROMPT_INTERNAL_OPTIONS.toLowerCase(
  * @return {string} The prompt.
  */
 export const buildPromptTemplate = ( {
-	tone = 'You are an AI assistant block, a part of a product called Jetpack made by the company called Automattic',
+	context = 'You are an AI assistant block, a part of a product called Jetpack made by the company called Automattic',
 	rules = [],
 	request = null,
 	content = null,
@@ -54,7 +54,7 @@ ${ request }`;
 		: `\nContent:
 ${ content }`;
 
-	return `${ tone }.
+	return `${ context }.
 ${ job }. Do this by following rules set in "Rules".
 
 Rules:
