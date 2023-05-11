@@ -351,7 +351,7 @@ class Sharing_Service {
 		$blog = apply_filters( 'sharing_services_enabled', $blog );
 
 		// Add CSS for NASCAR
-		if ( count( $blog['visible'] ) || count( $blog['hidden'] ) ) {
+		if ( ( is_countable( $blog['visible'] ) && count( $blog['visible'] ) ) || ( is_countable( $blog['hidden'] ) && count( $blog['hidden'] ) ) ) {
 			add_filter( 'post_flair_block_css', 'post_flair_service_enabled_sharing' );
 		}
 
@@ -900,7 +900,7 @@ function sharing_add_header() {
 		$service->display_header();
 	}
 
-	if ( count( $enabled['all'] ) > 0 && sharing_maybe_enqueue_scripts() ) {
+	if ( is_countable( $enabled['all'] ) && ( count( $enabled['all'] ) > 0 ) && sharing_maybe_enqueue_scripts() ) {
 		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) . 'sharing.css', array(), JETPACK__VERSION );
 		wp_enqueue_style( 'social-logos' );
 	}
@@ -1085,7 +1085,7 @@ function sharing_display( $text = '', $echo = false ) {
 		 */
 		$enabled = apply_filters( 'sharing_enabled', $sharer->get_blog_services() );
 
-		if ( count( $enabled['all'] ) > 0 ) {
+		if ( is_countable( $enabled['all'] ) && ( count( $enabled['all'] ) > 0 ) ) {
 			$dir = get_option( 'text_direction' );
 
 			// Wrapper.
@@ -1123,10 +1123,12 @@ function sharing_display( $text = '', $echo = false ) {
 				$visible .= '<li class="' . implode( ' ', $klasses ) . '">' . $service->get_display( $post ) . '</li>';
 			}
 
-			$parts   = array();
-			$parts[] = $visible;
-			if ( count( $enabled['hidden'] ) > 0 ) {
-				if ( count( $enabled['visible'] ) > 0 ) {
+			$parts         = array();
+			$parts[]       = $visible;
+			$count_hidden  = is_countable( $enabled['hidden'] ) ? count( $enabled['hidden'] ) : 0;
+			$count_visible = is_countable( $enabled['visible'] ) ? count( $enabled['visible'] ) : 0;
+			if ( $count_hidden > 0 ) {
+				if ( $count_visible > 0 ) {
 					$expand = __( 'More', 'jetpack' );
 				} else {
 					$expand = __( 'Share', 'jetpack' );
@@ -1150,16 +1152,16 @@ function sharing_display( $text = '', $echo = false ) {
 				}
 			}
 
-			if ( count( $enabled['hidden'] ) > 0 ) {
+			if ( $count_hidden > 0 ) {
 				$sharing_content .= '<div class="sharing-hidden"><div class="inner" style="display: none;';
 
-				if ( count( $enabled['hidden'] ) === 1 ) {
+				if ( $count_hidden === 1 ) {
 					$sharing_content .= 'width:150px;';
 				}
 
 				$sharing_content .= '">';
 
-				if ( count( $enabled['hidden'] ) === 1 ) {
+				if ( $count_hidden === 1 ) {
 					$sharing_content .= '<ul style="background-image:none;">';
 				} else {
 					$sharing_content .= '<ul>';
