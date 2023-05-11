@@ -5,7 +5,6 @@ import apiFetch from '@wordpress/api-fetch';
 import { useSelect, select as selectData } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import MarkdownIt from 'markdown-it';
 /**
  * Internal dependencies
  */
@@ -210,7 +209,7 @@ const useSuggestionsFromOpenAI = ( {
 					const markdownConverter = new MarkdownIt();
 					setAttributes( {
 						rawContent: result.length ? result : '',
-						content: result.length ? markdownConverter.render( result ) : '',
+						content: result.length ?  result : '',
 					} );
 				}, 10 );
 
