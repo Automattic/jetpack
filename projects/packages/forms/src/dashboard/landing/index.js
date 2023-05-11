@@ -46,7 +46,7 @@ const LandingPage = () => {
 				<div className="jp-forms__landing-content">
 					<h1 className="mb-2">{ __( 'Building forms made easy', 'jetpack-forms' ) }</h1>
 					<h4 className="mb-8">
-						{ __( 'Free, flexible, fast and it works out of the box.', 'jetpack-forms' ) }
+						{ __( 'Free, flexible, fast, and it works out of the box.', 'jetpack-forms' ) }
 					</h4>
 					<button className="button button-primary mb-10" onClick={ onButtonClickHandler( false ) }>
 						{ __( 'Create your first form', 'jetpack-forms' ) }
