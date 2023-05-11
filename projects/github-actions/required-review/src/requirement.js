@@ -3,6 +3,7 @@ const core = require( '@actions/core' );
 const { SError } = require( 'error' );
 const picomatch = require( 'picomatch' );
 const fetchTeamMembers = require( './team-members.js' );
+const requestReview = require( './request-review.js' );
 
 class RequirementError extends SError {}
 
@@ -31,9 +32,13 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 		const team = teamConfig;
 		return async function ( reviewers ) {
 			const members = await fetchTeamMembers( team );
+			reviewSatisfied = reviewers.filter( reviewer => members.includes( reviewer ));
+			if (reviewSatisfied.length === 0) {
+				await requestReview( team );
+			};
 			return printSet(
 				`${ indent }Members of ${ team }:`,
-				reviewers.filter( reviewer => members.includes( reviewer ) )
+				reviewSatisfied
 			);
 		};
 	}
