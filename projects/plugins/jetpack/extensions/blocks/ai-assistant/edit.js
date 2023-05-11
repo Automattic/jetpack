@@ -18,7 +18,7 @@ import ShowLittleByLittle from './show-little-by-little';
 import useSuggestionsFromOpenAI from './use-suggestions-from-openai';
 import './editor.scss';
 
-export default function Edit( { attributes, setAttributes, clientId } ) {
+export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
 	const [ , setErrorMessage ] = useState( false );
 	const [ aiType, setAiType ] = useState( 'text' );
@@ -45,6 +45,8 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		showRetry,
 		contentBefore,
 		postTitle,
+		retryRequest,
+		wholeContent,
 	} = useSuggestionsFromOpenAI( {
 		clientId,
 		content: attributes.content,
@@ -109,14 +111,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setAttributes( { content: undefined } );
 	};
 
-	const placeholder =
-		aiType === 'text'
-			? __( 'Write a paragraph about …', 'jetpack' )
-			: __( 'What would you like to see?', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
-
-	const handleGetSuggestion = () => {
+	const handleGetSuggestion = type => {
 		if ( aiType === 'text' ) {
-			getSuggestionFromOpenAI();
+			getSuggestionFromOpenAI( type );
 			return;
 		}
 
@@ -124,7 +121,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		setResultImages( [] );
 		setErrorMessage( null );
 		getImagesFromOpenAI(
-			userPrompt.trim() === '' ? placeholder : userPrompt,
+			userPrompt.trim() === '' ? __( 'What would you like to see?', 'jetpack' ) : userPrompt,
 			setAttributes,
 			setLoadingImages,
 			setResultImages,
@@ -156,18 +153,19 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				content={ attributes.content }
 				contentIsLoaded={ contentIsLoaded }
 				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+				retryRequest={ retryRequest }
 				handleAcceptContent={ handleAcceptContent }
 				handleGetSuggestion={ handleGetSuggestion }
 				handleTryAgain={ handleTryAgain }
 				isWaitingState={ isWaitingState }
 				loadingImages={ loadingImages }
-				placeholder={ placeholder }
 				showRetry={ showRetry }
 				setAiType={ setAiType }
 				setUserPrompt={ setUserPrompt }
 				contentBefore={ contentBefore }
 				postTitle={ postTitle }
 				userPrompt={ userPrompt }
+				wholeContent={ wholeContent }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
