@@ -78,6 +78,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			return new WP_Error( 'invalid_input', 'No media provided in input.' );
 		}
 
+		$jetpack_sync    = null;
 		$is_jetpack_site = false;
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			// For jetpack sites, we send the media via a different method, because the sync is very different.
