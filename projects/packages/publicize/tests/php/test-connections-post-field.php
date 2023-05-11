@@ -262,7 +262,7 @@ class Test_Connections_Post_Field  extends TestCase {
 					'id_number' => array(
 						'connection_data' => array(
 							'user_id'  => self::$user_id,
-							'id'       => 'test-unique-id456',
+							'id'       => '456',
 							'token_id' => 'test-unique-id456',
 							'meta'     => array(
 								'display_name' => 'test-display-name456',
@@ -275,7 +275,7 @@ class Test_Connections_Post_Field  extends TestCase {
 					'id_number' => array(
 						'connection_data' => array(
 							'user_id'  => 0,
-							'id'       => 'test-unique-id123',
+							'id'       => '123',
 							'token_id' => 'test-unique-id123',
 							'meta'     => array(
 								'display_name' => 'test-display-name123',
@@ -335,7 +335,11 @@ class Test_Connections_Post_Field  extends TestCase {
 		$this->assertNotEmpty( $data['jetpack_publicize_connections'] );
 
 		foreach ( $data['jetpack_publicize_connections'] as $connection ) {
-			$this->assertSame( 'test-unique-id123' !== $connection->id, $connection->enabled );
+			if ( $connection->id === '123' ) {
+				$this->assertFalse( $connection->enabled );
+			} else {
+				$this->assertTrue( $connection->enabled );
+			}
 		}
 	}
 
