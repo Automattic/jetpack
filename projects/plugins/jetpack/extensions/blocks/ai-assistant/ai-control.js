@@ -143,13 +143,15 @@ const ToolbarControls = ( {
 } ) => {
 	return (
 		<>
-			<BlockControls group="block">
-				<ToneDropdownControl
-					value="neutral"
-					onChange={ tone => getSuggestionFromOpenAI( 'change-tone', { tone } ) }
-					disabled={ contentIsLoaded }
-				/>
-			</BlockControls>
+			{ ! showRetry && contentIsLoaded && animationDone && (
+				<BlockControls group="block">
+					<ToneDropdownControl
+						value="neutral"
+						onChange={ tone => getSuggestionFromOpenAI( 'change-tone', { tone } ) }
+						disabled={ contentIsLoaded }
+					/>
+				</BlockControls>
+			) }
 
 			<BlockControls>
 				{ aiType === 'text' && (
