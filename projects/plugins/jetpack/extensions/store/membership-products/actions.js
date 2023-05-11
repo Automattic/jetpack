@@ -22,19 +22,9 @@ export const setApiState = apiState => ( {
 	apiState,
 } );
 
-export const setShouldUpgrade = shouldUpgrade => ( {
-	type: 'SET_SHOULD_UPGRADE',
-	shouldUpgrade,
-} );
-
 export const setSiteSlug = siteSlug => ( {
 	type: 'SET_SITE_SLUG',
 	siteSlug,
-} );
-
-export const setUpgradeUrl = upgradeUrl => ( {
-	type: 'SET_UPGRADE_URL',
-	upgradeUrl,
 } );
 
 export const saveProduct =

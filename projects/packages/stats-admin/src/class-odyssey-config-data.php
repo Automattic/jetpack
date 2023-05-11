@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
 /**
@@ -33,8 +34,12 @@ class Odyssey_Config_Data {
 	 * Return the config for the app.
 	 */
 	public function get_data() {
+		global $wp_version;
+
 		$blog_id      = Jetpack_Options::get_option( 'id' );
 		$empty_object = json_decode( '{}' );
+		$host         = new Host();
+
 		return array(
 			'admin_page_base'                => $this->get_admin_path(),
 			'api_root'                       => esc_url_raw( rest_url() ),
@@ -55,7 +60,6 @@ class Odyssey_Config_Data {
 			'features'                       => array(),
 			// Intended for apps that do not use redux.
 			'gmt_offset'                     => $this->get_gmt_offset(),
-			// TODO: check whether this works with Pressable.
 			'odyssey_stats_base_url'         => admin_url( 'admin.php?page=stats' ),
 			'intial_state'                   => array(
 				'currentUser' => array(
@@ -79,9 +83,15 @@ class Odyssey_Config_Data {
 							'products'      => array(),
 							'plan'          => $empty_object, // we need this empty object, otherwise the front end would crash on insight page.
 							'options'       => array(
-								'wordads'    => ( new Modules() )->is_active( 'wordads' ),
-								'admin_url'  => admin_url(),
-								'gmt_offset' => $this->get_gmt_offset(),
+								'wordads'               => ( new Modules() )->is_active( 'wordads' ),
+								'admin_url'             => admin_url(),
+								'gmt_offset'            => $this->get_gmt_offset(),
+								'is_automated_transfer' => $host->is_woa_site(),
+								'is_wpcom_atomic'       => $host->is_woa_site(),
+								'is_vip'                => $host->is_vip_site(),
+								'jetpack_version'       => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
+								'stats_admin_version'   => Main::VERSION,
+								'software_version'      => $wp_version,
 							),
 							'stats_notices' => ( new Notices() )->get_notices_to_show(),
 						),

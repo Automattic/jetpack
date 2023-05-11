@@ -11,8 +11,8 @@ class WP_Test_Jetpack_Shortcodes_Ustream extends WP_UnitTestCase {
 	 * @since  4.5.0
 	 */
 	public function test_shortcodes_ustream_exists() {
-		$this->assertEquals( shortcode_exists( 'ustream' ), true );
-		$this->assertEquals( shortcode_exists( 'ustreamsocial' ), true );
+		$this->assertTrue( shortcode_exists( 'ustream' ) );
+		$this->assertTrue( shortcode_exists( 'ustreamsocial' ) );
 	}
 
 	/**

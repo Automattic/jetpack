@@ -340,12 +340,12 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$environment                             = Jetpack_SSO_Helpers::get_json_api_auth_environment();
 		$this->assertIsArray( $environment );
 		$this->assertSame(
-			$environment,
 			array(
 				'action'                          => 'jetpack_json_api_authorization',
 				'token'                           => 'my-token',
 				'jetpack_json_api_original_query' => $original_request,
-			)
+			),
+			$environment
 		);
 	}
 

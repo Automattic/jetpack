@@ -198,6 +198,22 @@ function wpcom_register_default_launchpad_checklists() {
 		)
 	);
 
+	wpcom_register_launchpad_task(
+		array(
+			'id'                  => 'set_up_payments',
+			'title'               => __( 'Set up payment method', 'jetpack-mu-wpcom' ),
+			'is_visible_callback' => 'wpcom_has_goal_paid_subscribers',
+		)
+	);
+
+	wpcom_register_launchpad_task(
+		array(
+			'id'                  => 'newsletter_plan_created',
+			'title'               => __( 'Create paid Newsletter', 'jetpack-mu-wpcom' ),
+			'is_visible_callback' => 'wpcom_has_goal_paid_subscribers',
+		)
+	);
+
 	// Tasks registered, now onto the checklists.
 	wpcom_register_launchpad_task_list(
 		array(
@@ -265,6 +281,8 @@ function wpcom_register_default_launchpad_checklists() {
 				'plan_selected',
 				'subscribers_added',
 				'verify_email',
+				'set_up_payments',
+				'newsletter_plan_created',
 				'first_post_published_newsletter',
 			),
 		)
@@ -336,7 +354,7 @@ function wpcom_launchpad_add_active_task_listeners() {
  * @return boolean True if videopress upload task is enabled
  */
 function wpcom_is_videopress_upload_disabled() {
-	return wpcom_is_checklist_task_complete( 'video_uploaded' );
+	return wpcom_is_checklist_task_complete( 'videopress_upload' );
 }
 
 /**
@@ -345,7 +363,7 @@ function wpcom_is_videopress_upload_disabled() {
  * @return boolean True if videopress launch task is enabled
  */
 function wpcom_is_videopress_launch_disabled() {
-	return ! wpcom_is_checklist_task_complete( 'video_uploaded' );
+	return ! wpcom_is_checklist_task_complete( 'videopress_upload' );
 }
 
 /**
@@ -489,6 +507,17 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
 }
 
 /**
+ * Marks a task as complete if it is active for this site. This is a bit of a hacky way to be able to share a callback
+ * among several tasks, calling several completion IDs from the same callback.
+ *
+ * @param string $task_id The task ID.
+ * @return bool True if successful, false if not.
+ */
+function wpcom_mark_launchpad_task_complete_if_active( $task_id ) {
+	return wpcom_launchpad_checklists()->mark_task_complete_if_active( $task_id );
+}
+
+/**
  * Helper function to return a `Launchpad_Task_Lists` instance.
  *
  * @return object Launchpad_Task_Lists instance.
@@ -510,8 +539,8 @@ function wpcom_track_publish_first_post_task() {
 		return;
 	}
 	// Since we share the same callback for generic first post and newsletter-specific, we mark both.
-	wpcom_mark_launchpad_task_complete( 'first_post_published' );
-	wpcom_mark_launchpad_task_complete( 'first_post_published_newsletter' );
+	wpcom_mark_launchpad_task_complete_if_active( 'first_post_published' );
+	wpcom_mark_launchpad_task_complete_if_active( 'first_post_published_newsletter' );
 }
 
 /**
@@ -520,8 +549,8 @@ function wpcom_track_publish_first_post_task() {
  * @return void
  */
 function wpcom_track_edit_site_task() {
-	wpcom_mark_launchpad_task_complete( 'links_added' );
-	wpcom_mark_launchpad_task_complete( 'design_edited' );
+	wpcom_mark_launchpad_task_complete_if_active( 'links_added' );
+	wpcom_mark_launchpad_task_complete_if_active( 'design_edited' );
 }
 
 /**
@@ -560,9 +589,9 @@ function wpcom_launch_task_listener_atomic( $old_value, $new_value ) {
 function wpcom_track_site_launch_task() {
 	// it would be ideal if the registry was smart enough to map based on id_map but it isn't.
 	// So we mark them all. We'd avoid this if we had dedicated callbacks for each task.
-	wpcom_mark_launchpad_task_complete( 'site_launched' );
-	wpcom_mark_launchpad_task_complete( 'link_in_bio_launched' );
-	wpcom_mark_launchpad_task_complete( 'videopress_launched' );
+	wpcom_mark_launchpad_task_complete_if_active( 'site_launched' );
+	wpcom_mark_launchpad_task_complete_if_active( 'link_in_bio_launched' );
+	wpcom_mark_launchpad_task_complete_if_active( 'videopress_launched' );
 }
 
 /**
@@ -579,7 +608,7 @@ function wpcom_track_video_uploaded_task( $post_id ) {
 	if ( 0 !== strpos( get_post_mime_type( $post_id ), 'video/' ) ) {
 		return;
 	}
-	wpcom_mark_launchpad_task_complete( 'video_uploaded' );
+	wpcom_mark_launchpad_task_complete( 'videopress_upload' );
 }
 
 /**
@@ -617,6 +646,15 @@ function wpcom_launchpad_is_email_unverified() {
 	}
 
 	return Email_Verification::is_email_unverified();
+}
+
+/**
+ * If the site has a paid-subscriber goal.
+ *
+ * @return bool True if the site has a paid-subscriber goal, false otherwise.
+ */
+function wpcom_has_goal_paid_subscribers() {
+	return in_array( 'paid-subscribers', get_option( 'site_goals', array() ), true );
 }
 
 //

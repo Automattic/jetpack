@@ -141,7 +141,7 @@ abstract class Product {
 			'manage_url'               => static::get_manage_url(),
 			'post_activation_url'      => static::get_post_activation_url(),
 			'standalone_plugin_info'   => static::get_standalone_info(),
-			'class'                    => get_called_class(),
+			'class'                    => static::class,
 			'post_checkout_url'        => static::get_post_checkout_url(),
 		);
 	}

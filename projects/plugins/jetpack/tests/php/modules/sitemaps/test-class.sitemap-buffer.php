@@ -47,11 +47,11 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 		$buffer->append( 'foo' );
 		$buffer->append( 'bar' );
 		$this->assertEquals(
-			$buffer->contents(),
 			'<?xml version="1.0" encoding="UTF-8"?>'
 			. PHP_EOL
 			. '<dummy>foobar</dummy>'
-			. PHP_EOL
+			. PHP_EOL,
+			$buffer->contents()
 		);
 	}
 
@@ -81,11 +81,11 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 		$buffer->append( 'foo' );
 		$buffer->append( 'bar' );
 		$this->assertEquals(
-			$buffer->contents(),
 			'<?xml version="1.0" encoding="UTF-8"?>'
 			. PHP_EOL
 			. '<dummy>foo</dummy>'
-			. PHP_EOL
+			. PHP_EOL,
+			$buffer->contents()
 		);
 	}
 
@@ -101,11 +101,11 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 		$buffer->append( 'foobarbazxyzzy' );
 		$buffer->append( 'quux' );
 		$this->assertEquals(
-			$buffer->contents(),
 			'<?xml version="1.0" encoding="UTF-8"?>'
 			. PHP_EOL
 			. '<dummy>foobarbazxyzzy</dummy>'
-			. PHP_EOL
+			. PHP_EOL,
+			$buffer->contents()
 		);
 	}
 
@@ -121,11 +121,11 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 		$buffer->append( 'foobarbazquux' );
 		$buffer->append( 'crunchly' );
 		$this->assertEquals(
-			$buffer->contents(),
 			'<?xml version="1.0" encoding="UTF-8"?>'
 			. PHP_EOL
 			. '<dummy>foobarbazquux</dummy>'
-			. PHP_EOL
+			. PHP_EOL,
+			$buffer->contents()
 		);
 	}
 

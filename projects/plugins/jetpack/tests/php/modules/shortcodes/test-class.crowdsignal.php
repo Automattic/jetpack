@@ -25,8 +25,8 @@ class WP_Test_Jetpack_Shortcodes_CrowdSignal extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_crowdsignal_exists() {
-		$this->assertEquals( shortcode_exists( 'crowdsignal' ), true );
-		$this->assertEquals( shortcode_exists( 'polldaddy' ), true );
+		$this->assertTrue( shortcode_exists( 'crowdsignal' ) );
+		$this->assertTrue( shortcode_exists( 'polldaddy' ) );
 	}
 
 	/**

@@ -373,11 +373,26 @@ class Launchpad_Task_Lists {
 			return;
 		}
 
-		$active_tasks = $this->get_active_tasks( $task_list_id );
-		foreach ( $active_tasks as $task ) {
-			$task_definition = $this->get_task( $task['id'] );
+		$task_list_id = $task_list_id ? $task_list_id : get_option( 'site_intent' );
+		// Sites without a `site_intent` option will not have any tasks.
+		if ( ! $task_list_id ) {
+			return;
+		}
+
+		$task_list = $this->get_task_list( $task_list_id );
+		if ( empty( $task_list ) || ! isset( $task_list['task_ids'] ) ) {
+			return;
+		}
+
+		foreach ( $task_list['task_ids'] as $task_id ) {
+			$task_definition = $this->get_task( $task_id );
 			if ( isset( $task_definition['add_listener_callback'] ) && is_callable( $task_definition['add_listener_callback'] ) ) {
-				call_user_func_array( $task_definition['add_listener_callback'], array( $task, $task_definition ) );
+				// We only need to know the built completion status if the task has an `add_listener_callback` property.
+				// Small optimization to not run `is_complete_callback` as often.
+				$task = $this->build_task( $task_definition );
+				if ( ! $task['completed'] && is_callable( $task_definition['add_listener_callback'] ) ) {
+					call_user_func_array( $task_definition['add_listener_callback'], array( $task, $task_definition ) );
+				}
 			}
 		}
 	}
@@ -394,12 +409,6 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
-		// Ensure that the task is an active one
-		$active_tasks_by_task_id = wp_list_filter( $this->get_active_tasks(), array( 'id' => $task_id ) );
-		if ( empty( $active_tasks_by_task_id ) ) {
-			return false;
-		}
-
 		$key              = $this->get_task_key( $task );
 		$statuses         = get_option( 'launchpad_checklist_tasks_statuses', array() );
 		$statuses[ $key ] = true;
@@ -408,6 +417,23 @@ class Launchpad_Task_Lists {
 		$this->maybe_disable_launchpad();
 
 		return $result;
+	}
+
+	/**
+	 * Marks a task as complete if it is active for this site. This is a bit of a hacky way to be able to share a callback
+	 * among several tasks, calling several completion IDs from the same callback.
+	 *
+	 * @param string $task_id The task ID.
+	 * @return bool True if successful, false if not.
+	 */
+	public function mark_task_complete_if_active( $task_id ) {
+		// Ensure that the task is an active one
+		$active_tasks_by_task_id = wp_list_filter( $this->get_active_tasks(), array( 'id' => $task_id ) );
+		if ( empty( $active_tasks_by_task_id ) ) {
+			return false;
+		}
+
+		return $this->mark_task_complete( $task_id );
 	}
 
 	/**
