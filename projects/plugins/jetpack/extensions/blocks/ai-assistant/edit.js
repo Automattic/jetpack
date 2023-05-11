@@ -111,11 +111,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		setAttributes( { content: undefined } );
 	};
 
-	const placeholder =
-		aiType === 'text'
-			? __( 'Ask AI to write anything…', 'jetpack' )
-			: __( 'What would you like to see?', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
-
 	const handleGetSuggestion = type => {
 		if ( aiType === 'text' ) {
 			getSuggestionFromOpenAI( type );
@@ -126,7 +121,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		setResultImages( [] );
 		setErrorMessage( null );
 		getImagesFromOpenAI(
-			userPrompt.trim() === '' ? placeholder : userPrompt,
+			userPrompt.trim() === '' ? __( 'What would you like to see?', 'jetpack' ) : userPrompt,
 			setAttributes,
 			setLoadingImages,
 			setResultImages,
@@ -164,7 +159,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				handleTryAgain={ handleTryAgain }
 				isWaitingState={ isWaitingState }
 				loadingImages={ loadingImages }
-				placeholder={ placeholder }
 				showRetry={ showRetry }
 				setAiType={ setAiType }
 				setUserPrompt={ setUserPrompt }

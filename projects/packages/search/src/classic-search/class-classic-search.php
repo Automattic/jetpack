@@ -474,6 +474,9 @@ class Classic_Search {
 		}
 
 		// If no results, nothing to do.
+		if ( ! is_countable( $this->search_result['results']['hits'] ) ) {
+			return array();
+		}
 		if ( ! count( $this->search_result['results']['hits'] ) ) {
 			return array();
 		}
