@@ -4333,13 +4333,7 @@ class zbsDAL {
 
 				}
 
-				foreach ( $segments as $segment ) {
-					foreach ( $segment['conditions'] as $condition ) {
-						if ( $condition['type'] === 'tagged' ) {
-							$zbs->DAL->segments->compileSegment( $segment['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						}
-					}
-				}
+				$this->compile_segments_from_tagIDs( $tagIDs, $segments ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 					return true;
 
@@ -4369,13 +4363,7 @@ class zbsDAL {
 
 					}
 
-				foreach ( $segments as $segment ) {
-					foreach ( $segment['conditions'] as $condition ) {
-						if ( $condition['type'] === 'tagged' ) {
-							$zbs->DAL->segments->compileSegment( $segment['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-						}
-					}
-				}
+					$this->compile_segments_from_tagIDs( $tagIDs, $segments ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 					return true;
 
@@ -4388,6 +4376,23 @@ class zbsDAL {
         return false;
 
     }
+
+	/**
+	 * Compiles segments based on an array of given tag IDs
+	 *
+	 * @param array  $tagIDs An array of tag IDs.
+	 * @param object $segments An object containing all segments.
+	 */
+	public function compile_segments_from_tagIDs( $tagIDs, $segments ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		global $zbs;
+		foreach ( $segments as $segment ) {
+			foreach ( $segment['conditions'] as $condition ) {
+				if ( $condition['type'] === 'tagged' && in_array( $condition['value'], $tagIDs, true ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$zbs->DAL->segments->compileSegment( $segment['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				}
+			}
+		}
+	}
 
      /**
      * deletes a tag object link
