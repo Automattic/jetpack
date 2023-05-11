@@ -899,7 +899,6 @@ abstract class Publicize_Base {
 				$connection_list[] = array(
 					'id'              => $connection_id,
 					'unique_id'       => $unique_id,
-					'id'              => $connection_id,
 					'service_name'    => $service_name,
 					'service_label'   => $this->get_service_label( $service_name ),
 					'display_name'    => $this->get_display_name( $service_name, $connection ),
