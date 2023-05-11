@@ -29,7 +29,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
-	const { replaceBlocks, replaceBlock } = useDispatch( blockEditorStore );
+	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( blockEditorStore );
+	const { editPost } = useDispatch( 'core/editor' );
 	const { mediaUpload } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
 		const settings = getSettings();
@@ -107,6 +108,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		replaceBlocks( clientId, rawHandler( { HTML: attributes.content } ) );
 	};
 
+	const handleAcceptTitle = () => {
+		editPost( { title: attributes.content.trim() } );
+		removeBlock( clientId );
+	};
+
 	const handleTryAgain = () => {
 		setAttributes( { content: undefined } );
 	};
@@ -155,6 +161,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 				retryRequest={ retryRequest }
 				handleAcceptContent={ handleAcceptContent }
+				handleAcceptTitle={ handleAcceptTitle }
 				handleGetSuggestion={ handleGetSuggestion }
 				handleTryAgain={ handleTryAgain }
 				isWaitingState={ isWaitingState }
@@ -166,6 +173,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				postTitle={ postTitle }
 				userPrompt={ userPrompt }
 				wholeContent={ wholeContent }
+				lastPromptType={ attributes.lastPromptType }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>

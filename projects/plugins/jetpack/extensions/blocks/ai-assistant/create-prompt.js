@@ -192,6 +192,18 @@ export const createPrompt = (
 		return expandPrompt;
 	}
 
+	if ( type === 'generateTitle' ) {
+		if ( ! content.length ) {
+			return '';
+		}
+
+		return buildPromptTemplate( {
+			request: 'Generate a title for this blog post',
+			rules: [ 'Only output the raw title, without any prefix or quotes' ],
+			content,
+		} );
+	}
+
 	// TODO: add some error handling if user supplied prompts or existing content is too short.
 
 	// We prevent a prompt if everything is empty.
