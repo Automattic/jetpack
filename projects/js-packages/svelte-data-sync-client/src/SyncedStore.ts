@@ -59,7 +59,7 @@ export class SyncedStore< T > {
 			this.abortableSynchronize( prevValue, value );
 
 			/**
-			 * ⚠️ EDGE CASE: Delay object updating until the next microtask. ⚠️§
+			 * ⚠️ EDGE CASE: Delay object updating until the next microtask. ⚠️
 			 * --
 			 * ## Background:
 			 * SyncedStore is a wrapper around Svelte's writable store.
