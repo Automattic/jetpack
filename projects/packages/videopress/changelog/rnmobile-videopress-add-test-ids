@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+VideoPress block: Add test IDs to query elements in integration tests

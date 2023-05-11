@@ -184,6 +184,9 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( $the_user && ! is_wp_error( $the_user ) ) {
 			$userdata        = get_userdata( $user_id );
 			$the_user->roles = ! is_wp_error( $userdata ) ? array_values( $userdata->roles ) : array();
+			if ( is_multisite() ) {
+				$the_user->is_super_admin = user_can( $the_user->ID, 'manage_network' );
+			}
 		}
 
 		return $the_user;

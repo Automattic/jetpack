@@ -64,6 +64,7 @@
 namespace Automattic\Jetpack\WP_JS_Data_Sync;
 
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Get;
+use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 
 final class Data_Sync {
@@ -119,10 +120,15 @@ final class Data_Sync {
 			),
 		);
 		foreach ( $this->registry->all() as $key => $entry ) {
+
 			$data[ $key ] = array(
-				'value' => $entry->get(),
+				'value' => $entry->is( Lazy_Entry::class ) ? null : $entry->get(),
 				'nonce' => $this->registry->get_endpoint( $key )->create_nonce(),
 			);
+
+			if ( $entry->is( Lazy_Entry::class ) ) {
+				$data[ $key ]['lazy'] = true;
+			}
 		}
 
 		wp_localize_script( $this->script_handle, $this->namespace, $data );
@@ -151,8 +157,13 @@ final class Data_Sync {
 	}
 
 	/**
-	 * Register a new entry.
-	 * If the entry is not an instance of Entry_Can_Get, a new Data_Sync_Option will be created.
+	 * DataSync entries have to be registered before they can be used.
+	 *
+	 * Typically, entries are stored in WP Options, so this method
+	 * is will default to registering entries as Data_Sync_Option.
+	 *
+	 * However, you can provide an `$entry` instance that subscribes Entry_Can_* methods.
+	 * If you do, `Entry_Can_Get` interface is required, and all other Entry_Can_* interfaces are optional.
 	 *
 	 * @param $key    string - The key to register the entry under.
 	 * @param $schema Schema - The schema to use for the entry.
@@ -160,12 +171,33 @@ final class Data_Sync {
 	 *
 	 * @return void
 	 */
-	public function register( $key, $schema, $entry = null ) {
-		if ( ! $entry instanceof Entry_Can_Get ) {
-			$option_key = $this->namespace . '_' . $key;
-			$entry      = new Data_Sync_Option( $option_key );
-		}
-		$this->registry->register( $key, new Data_Sync_Entry( $entry, $schema ) );
+	public function register( $key, $schema, $custom_entry_instance = null ) {
+		$option_key = $this->namespace . '_' . $key;
+
+		// If a custom entry instance is provided, and it implements Entry_Can_Get, use that.
+		// Otherwise, this Entry will store data using Data_Sync_Option (wp_options).
+		$entry = ( $custom_entry_instance instanceof Entry_Can_Get )
+			? $custom_entry_instance
+			: new Data_Sync_Option( $option_key );
+
+		/*
+		 * ## Adapter
+		 * This `register` method is inteded to be a shorthand for the most common use case.
+		 *
+		 * Custom entries can implement various interfaces depending on whether they can set, merge, delete, etc.
+		 * However, the Registry expects an object that implements Data_Sync_Entry.
+		 * That's why we wrap the Entry in an Adapter - giving it a guaranteed interface.
+		 *
+		 * ## Customization
+		 * Entries can be flexible because they're wrapped in an Adapter.
+		 * But you can also create a class that implements `Data_Sync_Entry` directly if you need to.
+		 * In that case, you'd need to use:
+		 * ```php
+		 *      $Data_Sync->get_registry()->register(...)` instead of `$Data_Sync->register(...)
+		 * ```
+		 */
+		$entry_adapter = new Data_Sync_Entry_Adapter( $entry, $schema );
+		$this->registry->register( $key, $entry_adapter );
 	}
 
 }

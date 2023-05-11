@@ -17,7 +17,7 @@ export const StripeNudge = ( { blockName } ) => {
 			block: blockName,
 		} );
 
-	if ( store.getShouldUpgrade() || ! stripeConnectUrl ) {
+	if ( ! stripeConnectUrl ) {
 		return null;
 	}
 

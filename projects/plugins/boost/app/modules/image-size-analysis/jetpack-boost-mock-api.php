@@ -10,7 +10,11 @@ function jetpack_boost_mock_api( $count, $paged = 1 ) {
 
 	// This is fine 🔥
 	// phpcs:ignore Squiz.PHP.DisallowSizeFunctionsInLoops.Found
+	$iteration = 0;
 	while ( count( $image_posts ) < $count ) {
+		if( $iteration++ > 50 ) {
+			break;
+		}
 		$args = array(
 			'post_type'      => 'post',
 			'post_status'    => 'publish',
