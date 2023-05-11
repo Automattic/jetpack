@@ -162,23 +162,29 @@ const useSuggestionsFromOpenAI = ( {
 
 		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
-			if ( type === 'changeTone' ) {
-				prompt = buildPromptTemplate( {
-					content,
-					rules: [ `Please, do this with a ${ options.tone } tone` ],
-				} );
-			} else if ( content?.length && userPrompt?.length ) {
-				prompt = tellWhatToDoNext( userPrompt, content );
-			} else {
-				prompt = createPrompt(
-					currentPostTitle,
-					getPartialContentToBlock( clientId ),
-					content?.length ? content : getContentFromBlocks(),
-					userPrompt,
-					type,
-					categoryNames,
-					tagNames
-				);
+			switch ( type ) {
+				case 'titleSummary':
+					prompt = buildPromptTemplate( {
+						content,
+						rules: [ `Please, do this with a ${ options.tone } tone` ],
+					} );
+					break;
+
+				default:
+					if ( content?.length && userPrompt?.length ) {
+						prompt = tellWhatToDoNext( userPrompt, content );
+					} else {
+						prompt = createPrompt(
+							currentPostTitle,
+							getPartialContentToBlock( clientId ),
+							content?.length ? content : getContentFromBlocks(),
+							userPrompt,
+							type,
+							categoryNames,
+							tagNames
+						);
+					}
+					break;
 			}
 		}
 
