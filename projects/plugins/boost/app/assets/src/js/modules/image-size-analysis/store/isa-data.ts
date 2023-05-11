@@ -31,11 +31,7 @@ const ImageData = z.object( {
 		url: z.string(),
 		title: z.string(),
 	} ),
-	edit_url: z
-		.string()
-		.url()
-		// Not sure where &amp; is coming from, but it's breaking the link.
-		.transform( url => url.replace( '&amp;', '&' ) ),
+	edit_url: z.string().url(),
 	device_type: z.enum( [ 'phone', 'desktop' ] ),
 	instructions: z.string(),
 } );
