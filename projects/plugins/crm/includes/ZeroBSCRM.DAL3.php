@@ -4334,7 +4334,11 @@ class zbsDAL {
 				}
 
 				foreach ( $segments as $segment ) {
-					$zbs->DAL->segments->compileSegment( $segment['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					foreach ( $segment['conditions'] as $condition ) {
+						if ( $condition['type'] === 'tagged' ) {
+							$zbs->DAL->segments->compileSegment( $segment['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						}
+					}
 				}
 
 					return true;
@@ -4366,7 +4370,11 @@ class zbsDAL {
 					}
 
 				foreach ( $segments as $segment ) {
-					$zbs->DAL->segments->compileSegment( $segment['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					foreach ( $segment['conditions'] as $condition ) {
+						if ( $condition['type'] === 'tagged' ) {
+							$zbs->DAL->segments->compileSegment( $segment['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						}
+					}
 				}
 
 					return true;
