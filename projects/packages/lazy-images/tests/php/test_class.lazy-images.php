@@ -275,7 +275,7 @@ class WP_Test_Lazy_Images extends BaseTestCase {
 	 * @dataProvider get_process_image_attributes_data
 	 */
 	public function test_process_image_attributes( $input, $expected_output ) {
-		$this->assertSame( Jetpack_Lazy_Images::process_image_attributes( $input ), $expected_output );
+		$this->assertSame( $expected_output, Jetpack_Lazy_Images::process_image_attributes( $input ) );
 	}
 
 	/**

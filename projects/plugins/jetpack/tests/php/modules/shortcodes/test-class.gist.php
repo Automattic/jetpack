@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Shortcodes_Gist extends WP_UnitTestCase {
 	 * @since 6.6.0
 	 */
 	public function test_shortcodes_gist_exists() {
-		$this->assertEquals( shortcode_exists( 'gist' ), true );
+		$this->assertTrue( shortcode_exists( 'gist' ) );
 	}
 
 	/**

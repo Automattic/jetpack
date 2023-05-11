@@ -1905,48 +1905,7 @@ final class ZeroBSCRM {
 
 					} // / is edit page
 
-				} else {
-
-					// BEFORE DAL3 this could only ever be co/company edit page
-
-						// } Not allowed to side-assign (if are, then allow to view others too..)
-					if ( zeroBSCRM_is_existingcustomer_edit_page() || zeroBSCRM_is_existingcompany_edit_page() ) {
-
-						// } Get post id
-						if ( isset( $_GET['post'] ) && ! empty( $_GET['post'] ) ) {
-							$postID = (int) $_GET['post'];
-						}
-
-						if ( isset( $postID ) && $postID > 0 ) {
-
-							// } Admin sees all (dealt with above anyhow)
-							if ( ! current_user_can( 'administrator' ) ) {
-
-								// } If user ! has rights, redir
-								if ( ! zeroBS_checkOwner( $postID, get_current_user_id(), true ) ) {
-
-									// echo 'Checked owner: '.$postID.' against '.get_current_user_id().' result: '.zeroBS_checkOwner($postID,get_current_user_id()).'!';
-									// exit();
-
-									$postType = 'zbs_customer';
-									if ( isset( $_GET['post'] ) ) {
-										$postType = get_post_type( $_GET['post'] );
-									}
-
-									// } Redirect to our "no rights" page
-									header( 'Location: admin.php?post_type=' . $postType . '&page=' . $this->slugs['zbs-noaccess'] . '&id=' . $postID );
-									exit();
-
-								} // / no rights.
-
-							} // / not admin
-
-						} // / post id
-
-					} // / is edit page
-
-				} // is ! DAL 3
-
+				}
 			} // / is setting usercangiveownership
 
 		} // / !is admin

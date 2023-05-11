@@ -3,8 +3,12 @@
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
 
-// @todo - refactor this. Dump of functions from page optimize.
-
+/**
+ * Cleanup the given cache folder, removing all files older than $file_age seconds.
+ *
+ * @param string $cache_folder The path to the cache folder to cleanup.
+ * @param int $file_age The age of files to purge, in seconds.
+ */
 function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file_age = DAY_IN_SECONDS ) {
 	if ( ! is_dir( $cache_folder ) ) {
 		return;
@@ -17,6 +21,7 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 	if ( ! $using_cache ) {
 		$file_age = 0;
 	}
+
 	// If the cache folder changed since queueing, purge it
 	if ( $using_cache && $cache_folder !== $defined_cache_dir ) {
 		$file_age = 0;
@@ -37,7 +42,9 @@ function jetpack_boost_page_optimize_cache_cleanup( $cache_folder = false, $file
 	}
 }
 
-// Unschedule cache cleanup, and purge cache directory
+/**
+ * Plugin deactivation hook - unschedule cronjobs and purge cache.
+ */
 function jetpack_boost_page_optimize_deactivate() {
 	$cache_folder = Config::get_cache_dir_path();
 
@@ -46,6 +53,9 @@ function jetpack_boost_page_optimize_deactivate() {
 	wp_clear_scheduled_hook( 'jetpack_boost_minify_cron_cache_cleanup', array( $cache_folder ) );
 }
 
+/**
+ * Plugin uninstall hook - cleanup options.
+ */
 function jetpack_boost_page_optimize_uninstall() {
 	// Run cleanup on uninstall. You can uninstall an active plugin w/o deactivation.
 	jetpack_boost_page_optimize_deactivate();
@@ -71,28 +81,18 @@ function jetpack_boost_init_filesystem() {
 	}
 }
 
+/**
+ * Get the list of JS slugs to exclude from minification.
+ */
 function jetpack_boost_page_optimize_js_exclude_list() {
 	return jetpack_boost_ds_get( 'minify_js_excludes' );
 }
 
+/**
+ * Get the list of CSS slugs to exclude from minification.
+ */
 function jetpack_boost_page_optimize_css_exclude_list() {
 	return jetpack_boost_ds_get( 'minify_css_excludes' );
-}
-
-function jetpack_boost_page_optimize_sanitize_exclude_field( $value ) {
-	if ( empty( $value ) ) {
-		return '';
-	}
-
-	$excluded_strings = explode( ',', sanitize_text_field( $value ) );
-	$sanitized_values = array();
-	foreach ( $excluded_strings as $excluded_string ) {
-		if ( ! empty( $excluded_string ) ) {
-			$sanitized_values[] = trim( $excluded_string );
-		}
-	}
-
-	return implode( ',', $sanitized_values );
 }
 
 /**
@@ -147,6 +147,9 @@ function jetpack_boost_page_optimize_remove_concat_base_prefix( $original_fs_pat
 	return '/page-optimize-resource-outside-base-path/' . basename( $original_fs_path );
 }
 
+/**
+ * Schedule a cronjob for cache cleanup, if one isn't already scheduled.
+ */
 function jetpack_boost_page_optimize_schedule_cache_cleanup() {
 	$cache_folder = Config::get_cache_dir_path();
 	$args         = array( $cache_folder );
@@ -157,30 +160,53 @@ function jetpack_boost_page_optimize_schedule_cache_cleanup() {
 	}
 }
 
-// Cases when we don't want to concat
+/**
+ * Check whether it's safe to minify for the duration of this HTTP request. Checks
+ * for things like page-builder editors, etc.
+ *
+ * @return bool True if we don't want to minify/concatenate CSS/JS for this request.
+ */
 function jetpack_boost_page_optimize_bail() {
+	static $should_bail = null;
+	if ( null !== $should_bail ) {
+		return $should_bail;
+	}
+
+	$should_bail = false;
+
+	// Bail if this is an admin page
+	if ( is_admin() ) {
+		$should_bail = true;
+		return true;
+	}
+
 	// Bail if we're in customizer
 	global $wp_customize;
 	if ( isset( $wp_customize ) ) {
+		$should_bail = true;
 		return true;
 	}
 
 	// Bail if Divi theme is active, and we're in the Divi Front End Builder
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( ! empty( $_GET['et_fb'] ) && 'Divi' === wp_get_theme()->get_template() ) {
+		$should_bail = true;
 		return true;
 	}
 
 	// Bail if we're editing pages in Brizy Editor
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	if ( class_exists( 'Brizy_Editor' ) && method_exists( 'Brizy_Editor', 'prefix' ) && ( isset( $_GET[ Brizy_Editor::prefix( '-edit-iframe' ) ] ) || isset( $_GET[ Brizy_Editor::prefix( '-edit' ) ] ) ) ) {
+		$should_bail = true;
 		return true;
 	}
 
-	return false;
+	return $should_bail;
 }
 
-// Taken from utils.php/Jetpack_Boost_Page_Optimize_Utils
+/**
+ * Return a URL with a cache-busting query string based on the file's mtime.
+ */
 function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 	static $dependency_path_mapping;
 
@@ -223,12 +249,12 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 }
 
 /**
- * Initializes the cache service for minification in Jetpack Boost.
+ * Detects requests within the `/_static/` directory, and serves minified content.
  *
  * @return void
  */
-function jetpack_boost_minify_init_cache_service() {
-	// TODO: Make concat URL dir configurable
+function jetpack_boost_minify_serve_concatenated() {
+	// Potential improvement: Make concat URL dir configurable
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	if ( isset( $_SERVER['REQUEST_URI'] ) && '/_static/' === substr( wp_unslash( $_SERVER['REQUEST_URI'] ), 0, 9 ) ) {
 		require_once __DIR__ . '/functions-service.php';
@@ -236,34 +262,37 @@ function jetpack_boost_minify_init_cache_service() {
 		exit;
 	}
 }
+
 /**
- * Handles cache service initialization, scheduling of cache cleanup,
- * and disabling of Jetpack photon-cdn for static JS/CSS.
+ * Handles cache service initialization, scheduling of cache cleanup, and disabling of
+ * Jetpack photon-cdn for static JS/CSS. Automatically ensures that we don't setup
+ * the cache service more than once per request.
  *
  * @return void
  */
 function jetpack_boost_minify_setup() {
-	static $setup_done;
+	static $setup_done = false;
 	if ( $setup_done ) {
-		return $setup_done;
+		return;
 	}
+	$setup_done = true;
 
-	jetpack_boost_minify_init_cache_service();
+	// Handle requests for minified / concatenated content.
+	jetpack_boost_minify_serve_concatenated();
 
-	if ( jetpack_boost_page_optimize_bail() ) {
-		return false;
-	}
-
-	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
+	// Hook up deactivation and uninstall cleanup paths.
 	register_deactivation_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_deactivate' );
 	register_uninstall_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_uninstall' );
 
+	// Schedule cache cleanup.
+	add_action( 'jetpack_boost_minify_cron_cache_cleanup', 'jetpack_boost_page_optimize_cache_cleanup' );
 	jetpack_boost_page_optimize_schedule_cache_cleanup();
 
-	// Disable Jetpack photon-cdn for static JS/CSS.
-	add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
+	if ( ! jetpack_boost_page_optimize_bail() ) {
+		// Disable Jetpack Site Accelerator CDN for static JS/CSS, if we're minifying this page.
+		add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
 
-	$setup_done = true;
-
-	return $setup_done;
+		// Setup wp_filesystem for use.
+		jetpack_boost_init_filesystem();
+	}
 }

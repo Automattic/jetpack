@@ -6,8 +6,6 @@
  * First Introduced: 1.2
  */
 
-use Automattic\Jetpack\Image_CDN\Image_CDN;
-
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 add_action( 'widgets_init', 'jetpack_image_widget_init', 11 );
@@ -100,9 +98,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 			}
 			$output .= '/>';
 
-			if ( class_exists( 'Automattic\Jetpack\Image_CDN\Image_CDN' ) && Jetpack::is_module_active( 'photon' ) ) {
-				$output = Image_CDN::filter_the_content( $output );
-			}
+			$output = apply_filters( 'jetpack_image_cdn_content', $output );
 
 			if ( $instance['link'] ) {
 				$target = ! empty( $instance['link_target_blank'] )

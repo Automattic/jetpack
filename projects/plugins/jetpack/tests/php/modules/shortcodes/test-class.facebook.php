@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_facebook_exists() {
-		$this->assertEquals( shortcode_exists( 'facebook' ), true );
+		$this->assertTrue( shortcode_exists( 'facebook' ) );
 	}
 
 	/**
