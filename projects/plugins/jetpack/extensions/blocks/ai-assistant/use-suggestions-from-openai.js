@@ -5,7 +5,6 @@ import apiFetch from '@wordpress/api-fetch';
 import { useSelect, select as selectData } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import MarkdownIt from 'markdown-it';
 /**
  * Internal dependencies
  */
@@ -239,13 +238,11 @@ const useSuggestionsFromOpenAI = ( {
 				 * Hack to udpate the content.
 				 * @todo: maybe we should not pass the setAttributes function
 				 */
-				setAttributes( { content: '', rawContent: '' } );
+				setAttributes( { content: '' } );
 
 				setTimeout( () => {
-					const markdownConverter = new MarkdownIt();
 					setAttributes( {
-						rawContent: result.length ? result : '',
-						content: result.length ? markdownConverter.render( result ) : '',
+						content: result.length ? result : '',
 					} );
 				}, 10 );
 
