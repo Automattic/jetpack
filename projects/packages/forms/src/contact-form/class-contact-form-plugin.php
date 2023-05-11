@@ -169,6 +169,7 @@ class Contact_Form_Plugin {
 		// Export to CSV feature
 		if ( is_admin() ) {
 			add_action( 'wp_ajax_feedback_export', array( $this, 'download_feedback_as_csv' ) );
+			add_action( 'wp_ajax_create_new_form', array( $this, 'create_new_form' ) );
 		}
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'current_screen', array( $this, 'unread_count' ) );
@@ -1949,6 +1950,32 @@ class Contact_Form_Plugin {
 
 		$this->record_tracks_event( 'forms_export_responses', array( 'format' => 'csv' ) );
 		exit();
+	}
+
+	/**
+	 * Create a new post with a Form block
+	 */
+	public function create_new_form() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => esc_html__( 'Jetpack Forms', 'jetpack-forms' ),
+				'post_content' => '
+					<!-- wp:jetpack/contact-form -->
+					<div class="wp-block-jetpack-contact-form"></div>
+					<!-- /wp:jetpack/contact-form -->
+				',
+			)
+		);
+
+		if ( ! is_wp_error( $post_id ) ) {
+			$array_result = array(
+				'post_url' => admin_url( 'post.php?post=' . intval( $post_id ) . '&action=edit' ),
+			);
+
+			wp_send_json( $array_result );
+		}
+
+		wp_die();
 	}
 
 	/**

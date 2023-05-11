@@ -244,47 +244,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 4. Promote your newest posts, pages, and products across your social media channels.
 
 == Changelog ==
-### 12.1 - 2023-05-02
-#### Enhancements
-- Block editor: collapse Jetpack feature panels by default.
-- Dashboard: added Jetpack Starter bundle post-activation screen and plan header.
-- Dashboard: add link to renew expired subscription.
-- Dashboard: align Protect information display with Akismet.
-- Dashboard: improve the general appearance.
-- Dashboard: redesign the At a Glance page.
-- Dashboard: Remove a confusing "Click to view" link from the stats call to action screen.
-- Dashboard: update the links to the Mobile apps to allow opening links in the appropriate app store right away.
-- Dashboard: use the latest version of the Jetpack logo.
-- Dashboard: visually refresh the Debug page.
-- Forms: Update Forms child blocks to allow any transformation between the blocks.
-- Jetpack Visual Refresh: "At A Glance" Dashboard adjustments.
-- Markdown Block: add support for footnotes.
-- Newsletters: display the correct locked content text for newsletters when Stripe is disconnected.
-- Newsletters: display the correct locked content text for paid newsletters.
-- Publicize: improve page metadata by using attached media for the OpenGraph image.
-- Search: implemented a "tabbed" variation for static filters, adding tabs on top of the results for each filter group.
-- Stats Widget: improve appearance of footer buttons.
-- Stats Widget: make frame sections balanced with long titles.
-- Stats Widget: make the new version of the widget available to general audience.
-- Subscriptions: add counts in the newsletter panel to show the newsletter reach.
-
-#### Improved compatibility
-- General: Jetpack now requires WordPress version 6.1.
-- General: remove WordPress 6.0 backwards-compatibility code, now that Jetpack requires WordPress 6.1.
-- Security: ensure blocks are always fully displayed on your site, even when using a caching plugin.
-
-#### Bug fixes
-- 3rd-party plugin support code: improve loading performance.
-- Assets: avoid fatal errors with plugins that use outdated Jetpack package versions.
-- Button Block: ensure no borders are added by default browser styles.
-- Cookie Consent Block: return fresh HTML when the user revists after accepting cookies.
-- Dashboard: fix a link on the stats chart.
-- Dashboard: improve contrast for the Stats chart tooltip.
-- Dashboard: improve upgrade description for users with Akismet already installed and active.
-- Forms: Fix Forms styles when inside Cover blocks.
-- Jetpack Social: Render Social Image Generator panel even when its default one is disabled.
-- Newsletters: properly gate the feature based on the configuration of the site.
-- Payment Block: update the visibility setting of inner blocks on click to ensure that the inner block renders.
+### 12.2-a.5 - 2023-05-08
+- Extends release `12.2-a.3` with a fix for the Payments block.
 
 --------
 

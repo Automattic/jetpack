@@ -218,10 +218,8 @@ class Jetpack_Simple_Payments {
 			return false;
 		}
 
-		return (
-			( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack::is_connection_ready() ) &&
-			Jetpack_Plan::supports( 'simple-payments' )
-		);
+		return ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			|| Jetpack::is_connection_ready();
 	}
 
 	/**

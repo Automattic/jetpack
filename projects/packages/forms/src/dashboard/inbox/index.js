@@ -16,9 +16,11 @@ import { __, _x } from '@wordpress/i18n';
 import { arrowLeft } from '@wordpress/icons';
 import classnames from 'classnames';
 import { find, findIndex, includes, isEqual, join, keys, map, pick } from 'lodash';
+import { useNavigate } from 'react-router-dom';
 /**
  * Internal dependencies
  */
+import { config } from '../';
 import DropdownFilter from '../components/dropdown-filter';
 import Layout from '../components/layout';
 import SearchForm from '../components/search-form';
@@ -58,7 +60,7 @@ const Inbox = () => {
 	const [ responseAnimationDirection, setResponseAnimationDirection ] = useState( 1 );
 	const [ showExportModal, setShowExportModal ] = useState( false );
 	const [ isSticky, setSticky ] = useState( false );
-
+	const navigate = useNavigate();
 	const { fetchResponses, selectResponses } = useDispatch( STORE_NAME );
 	const [
 		currentQuery,
@@ -94,6 +96,14 @@ const Inbox = () => {
 		setStatusQuery,
 		query,
 	} = useFeedbackQuery();
+
+	useEffect( () => {
+		if ( config( 'hasFeedback' ) ) {
+			return;
+		}
+
+		navigate( '/landing' );
+	}, [ navigate ] );
 
 	useEffect( () => {
 		fetchResponses( {
