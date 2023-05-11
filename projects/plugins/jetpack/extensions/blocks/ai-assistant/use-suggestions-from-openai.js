@@ -145,9 +145,9 @@ const useSuggestionsFromOpenAI = ( {
 
 	const getSuggestionFromOpenAI = ( type, options = {} ) => {
 		options = {
-			...options,
 			retry: false,
 			tone: DEFAULT_PROMPT_TONE,
+			...options,
 		};
 
 		if ( isLoadingCompletion ) {
