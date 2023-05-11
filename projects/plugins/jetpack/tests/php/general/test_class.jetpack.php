@@ -926,11 +926,11 @@ EXPECTED;
 	}
 
 	/**
-	 * Tests the setup of the xmlrpc methods when the site is active and the request is not signed.
+	 * Tests the setup of the xmlrpc methods when the site has a connected owner and the request is not signed.
 	 *
 	 * @group xmlrpc
 	 */
-	public function test_classic_xmlrpc_when_active_and_not_signed() {
+	public function test_classic_xmlrpc_when_connected_owner_exists_and_not_signed() {
 		$this->mocked_setup_xmlrpc_handlers( array( 'for' => 'jetpack' ), true, false );
 
 		$methods = apply_filters( 'xmlrpc_methods', array( 'test.test' => '__return_true' ) );
@@ -938,6 +938,7 @@ EXPECTED;
 		$required = array(
 			'jetpack.remoteAuthorize',
 			'jetpack.remoteRegister',
+			'jetpack.verifyRegistration',
 		);
 
 		// Nothing else is allowed.
