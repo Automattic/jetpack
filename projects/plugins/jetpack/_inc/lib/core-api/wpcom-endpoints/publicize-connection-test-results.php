@@ -101,7 +101,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 		$test_results              = $publicize->get_publicize_conns_test_results();
 		$test_results_by_unique_id = array();
 		foreach ( $test_results as $test_result ) {
-			$test_results_by_unique_id[ $test_result['unique_id'] ] = $test_result;
+			$test_results_by_unique_id[ $test_result['connectionID'] ] = $test_result;
 		}
 
 		$mapping = array(
@@ -115,7 +115,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 		);
 
 		foreach ( $items as &$item ) {
-			$test_result = $test_results_by_unique_id[ $item['id'] ];
+			$test_result = $test_results_by_unique_id[ $item['connection_id'] ];
 
 			foreach ( $mapping as $field => $test_result_field ) {
 				$item[ $field ] = $test_result[ $test_result_field ];
