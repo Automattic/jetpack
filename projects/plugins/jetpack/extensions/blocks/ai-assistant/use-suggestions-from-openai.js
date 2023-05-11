@@ -204,11 +204,16 @@ const useSuggestionsFromOpenAI = ( {
 				 * Hack to udpate the content.
 				 * @todo: maybe we should not pass the setAttributes function
 				 */
-				setAttributes( { content: '' } );
+				setAttributes( { content: '', rawContent: '' } );
+
 				setTimeout( () => {
 					const markdownConverter = new MarkdownIt();
-					setAttributes( { content: result.length ? markdownConverter.render( result ) : '' } );
+					setAttributes( {
+						rawContent: result.length ? result : '',
+						content: result.length ? markdownConverter.render( result ) : '',
+					} );
 				}, 10 );
+
 				setIsLoadingCompletion( false );
 			} )
 			.catch( e => {
