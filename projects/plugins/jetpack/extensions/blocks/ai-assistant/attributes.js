@@ -2,7 +2,7 @@ export default {
 	content: {
 		type: 'string',
 	},
-	lastPromptType: {
+	promptType: {
 		type: 'string',
 	},
 };

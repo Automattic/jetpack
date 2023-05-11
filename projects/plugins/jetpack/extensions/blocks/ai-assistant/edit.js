@@ -173,7 +173,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				postTitle={ postTitle }
 				userPrompt={ userPrompt }
 				wholeContent={ wholeContent }
-				lastPromptType={ attributes.lastPromptType }
+				promptType={ attributes.promptType }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>

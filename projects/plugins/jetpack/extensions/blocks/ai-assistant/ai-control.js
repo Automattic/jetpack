@@ -33,7 +33,7 @@ const AIControl = ( {
 	postTitle,
 	wholeContent,
 	content,
-	lastPromptType,
+	promptType,
 } ) => {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
@@ -90,7 +90,7 @@ const AIControl = ( {
 					contentBefore={ contentBefore }
 					hasPostTitle={ !! postTitle?.length }
 					wholeContent={ wholeContent }
-					lastPromptType={ lastPromptType }
+					promptType={ promptType }
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
@@ -135,7 +135,7 @@ const ToolbarControls = ( {
 	contentBefore,
 	hasPostTitle,
 	wholeContent,
-	lastPromptType,
+	promptType,
 } ) => {
 	return (
 		<BlockControls>
@@ -150,7 +150,7 @@ const ToolbarControls = ( {
 							<ToolbarButton onClick={ handleTryAgain }>
 								{ __( 'Try Again', 'jetpack' ) }
 							</ToolbarButton>
-							{ lastPromptType === 'generateTitle' && (
+							{ promptType === 'generateTitle' && (
 								<ToolbarButton onClick={ handleAcceptTitle }>
 									{ __( 'Accept Title', 'jetpack' ) }
 								</ToolbarButton>
