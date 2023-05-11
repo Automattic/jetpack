@@ -66,7 +66,7 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	/**
 	 * Test WAF init in a supported environment.
 	 */
-	public function testInitSupportedEnvironment() {
+	public function testWafInitSupportedEnvironment() {
 		$available_modules = ( new Modules() )->get_available();
 
 		$this->assertContains( 'waf', $available_modules );
@@ -76,7 +76,7 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	/**
 	 * Test WAF init in a WPcom environment.
 	 */
-	public function testInitWpcomEnvironment() {
+	public function testWafInitWpcomEnvironment() {
 		Constants::set_constant( 'IS_WPCOM', true );
 
 		$available_modules = ( new Modules() )->get_available();
@@ -88,7 +88,7 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	/**
 	 * Test WAF init in an Atomic environment.
 	 */
-	public function testInitAtomicEnvironment() {
+	public function testWafInitAtomicEnvironment() {
 		Constants::set_constant( 'ATOMIC_CLIENT_ID', 999 );
 		Constants::set_constant( 'ATOMIC_SITE_ID', 999 );
 
@@ -101,7 +101,7 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 	/**
 	 * Test WAF init in a VIP environment.
 	 */
-	public function testInitVipEnvironment() {
+	public function testWafInitVipEnvironment() {
 		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
 
 		$available_modules = ( new Modules() )->get_available();
