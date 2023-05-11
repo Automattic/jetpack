@@ -109,7 +109,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleAcceptTitle = () => {
-		editPost( { title: attributes.rawContent.trim() } );
+		editPost( { title: attributes.content.trim() } );
 		removeBlock( clientId );
 	};
 
