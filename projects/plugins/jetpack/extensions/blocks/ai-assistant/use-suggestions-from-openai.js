@@ -163,12 +163,19 @@ const useSuggestionsFromOpenAI = ( {
 		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
 			switch ( type ) {
+				/*
+				 * Continue generating from the content below.
+				 */
 				case 'continue':
 					prompt = buildPromptTemplate( {
 						request: 'Please continue from the content below.',
 						content: getPartialContentToBlock( clientId ),
 					} );
 					break;
+
+				/*
+				 * Change the tone of the content.
+				 */
 				case 'changeTone':
 					prompt = buildPromptTemplate( {
 						request: `Please, rewrite with a ${ options.tone } tone.`,
@@ -176,6 +183,9 @@ const useSuggestionsFromOpenAI = ( {
 					} );
 					break;
 
+				/*
+				 * Summarize the content.
+				 */
 				case 'summarize':
 					prompt = buildPromptTemplate( {
 						request: 'Summarize the content below.',
@@ -183,6 +193,9 @@ const useSuggestionsFromOpenAI = ( {
 					} );
 					break;
 
+				/*
+				 * Make the content longer.
+				 */
 				case 'makeLonger':
 					prompt = buildPromptTemplate( {
 						request: 'Make the content below longer.',
@@ -190,6 +203,9 @@ const useSuggestionsFromOpenAI = ( {
 					} );
 					break;
 
+				/*
+				 * Make the content shorter.
+				 */
 				case 'makeShorter':
 					prompt = buildPromptTemplate( {
 						request: 'Make the content below shorter.',
@@ -197,10 +213,23 @@ const useSuggestionsFromOpenAI = ( {
 					} );
 					break;
 
+				/*
+				 * Generate a title for this blog post, based on the content.
+				 */
 				case 'generateTitle':
 					prompt = buildPromptTemplate( {
 						request: 'Generate a title for this blog post',
 						rules: [ 'Only output the raw title, without any prefix or quotes' ],
+						content: content?.length ? content : getContentFromBlocks(),
+					} );
+					break;
+
+				/*
+				 * Simplify the content.
+				 */
+				case 'simplify':
+					prompt = buildPromptTemplate( {
+						request: 'Simplify the content below.',
 						content: content?.length ? content : getContentFromBlocks(),
 					} );
 					break;
