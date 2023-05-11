@@ -70,6 +70,13 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
+
+	@include breakpoint( '<660px' ) {
+		order: 99;
+		width: 80px;
+		height: 80px;
+		margin: 0 0 0 16px;
+	}
 }
 
 .my-plan-card__icon {
