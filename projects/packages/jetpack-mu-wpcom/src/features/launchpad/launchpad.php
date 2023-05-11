@@ -325,7 +325,7 @@ function wpcom_register_default_launchpad_checklists() {
 				'plan_selected',
 				'blog_launched',
 			),
-		),
+		)
 	);
 
 	// This is the hook that allows other plugins to register their own checklists.
