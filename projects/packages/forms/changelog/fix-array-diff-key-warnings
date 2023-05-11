@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Ensure array is provided to array_diff_key to avoid warnings

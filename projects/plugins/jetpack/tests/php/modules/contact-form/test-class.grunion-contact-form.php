@@ -1082,7 +1082,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				if ( 0 === $i ) {
 					$this->assertEquals( 'selected', $option->getAttribute( 'selected' ), 'Input is not selected' );
 				} else {
-					$this->assertNotEquals( $option->getAttribute( 'selected' ), 'selected', 'Input is selected' );
+					$this->assertNotEquals( 'selected', $option->getAttribute( 'selected' ), 'Input is selected' );
 				}
 				//phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				$this->assertEquals( $option->nodeValue, $attributes['options'][ $i ], 'Input does not match the option' );
@@ -1111,7 +1111,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 				if ( 0 === $i ) {
 					$this->assertEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 				} else {
-					$this->assertNotEquals( $input->getAttribute( 'checked' ), 'checked', 'Input checked doesn\'t match' );
+					$this->assertNotEquals( 'checked', $input->getAttribute( 'checked' ), 'Input checked doesn\'t match' );
 				}
 			}
 		}

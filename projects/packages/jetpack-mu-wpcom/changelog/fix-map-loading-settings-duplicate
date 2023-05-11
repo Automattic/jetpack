@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid hooking Map settings multiple times.

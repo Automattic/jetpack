@@ -222,7 +222,7 @@ class Woo_Sync_Woo_Admin_Integration {
 							// retrieve contact
 							$crm_contact = $zbs->DAL->contacts->getContact( $contact_id );
 							$contact_name = $zbs->DAL->contacts->getContactFullNameEtc( $contact_id, $crm_contact, array( false, false ) );
-							$contact_transaction_count = $zbs->DAL->contacts->contactHasCountObjType( $contact_id, ZBS_TYPE_TRANSACTION );
+							$contact_transaction_count = $zbs->DAL->specific_obj_type_count_for_assignee( $contact_id, ZBS_TYPE_TRANSACTION, ZBS_TYPE_CONTACT ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 							// check avatar mode
 							$avatar = '';

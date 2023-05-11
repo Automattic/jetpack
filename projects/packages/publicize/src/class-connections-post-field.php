@@ -188,7 +188,6 @@ class Connections_Post_Field {
 					$output_connection[ $property ] = $connection[ $property ];
 				}
 			}
-
 			$output_connection['id'] = (string) $connection['unique_id'];
 
 			$output_connections[] = $output_connection;
@@ -279,10 +278,10 @@ class Connections_Post_Field {
 		$changed_connections = array();
 
 		// Build lookup mappings.
-		$available_connections_by_unique_id    = array();
-		$available_connections_by_service_name = array();
+		$available_connections_by_connection_id = array();
+		$available_connections_by_service_name  = array();
 		foreach ( $available_connections as $available_connection ) {
-			$available_connections_by_unique_id[ $available_connection['unique_id'] ] = $available_connection;
+			$available_connections_by_connection_id[ $available_connection['id'] ] = $available_connection;
 
 			if ( ! isset( $available_connections_by_service_name[ $available_connection['service_name'] ] ) ) {
 				$available_connections_by_service_name[ $available_connection['service_name'] ] = array();
@@ -302,7 +301,7 @@ class Connections_Post_Field {
 			}
 
 			foreach ( $available_connections_by_service_name[ $requested_connection['service_name'] ] as $available_connection ) {
-				$changed_connections[ $available_connection['unique_id'] ] = $requested_connection['enabled'];
+				$changed_connections[ $available_connection['id'] ] = $requested_connection['enabled'];
 			}
 		}
 
@@ -313,7 +312,7 @@ class Connections_Post_Field {
 				continue;
 			}
 
-			if ( ! isset( $available_connections_by_unique_id[ $requested_connection['id'] ] ) ) {
+			if ( ! isset( $available_connections_by_connection_id[ $requested_connection['id'] ] ) ) {
 				continue;
 			}
 
@@ -321,23 +320,23 @@ class Connections_Post_Field {
 		}
 
 		// Set all changed connections to their new value.
-		foreach ( $changed_connections as $unique_id => $enabled ) {
-			$connection = $available_connections_by_unique_id[ $unique_id ];
+		foreach ( $changed_connections as $id => $enabled ) {
+			$connection = $available_connections_by_connection_id[ $id ];
 
 			if ( $connection['done'] || ! $connection['toggleable'] ) {
 				continue;
 			}
 
-			$available_connections_by_unique_id[ $unique_id ]['enabled'] = $enabled;
+			$available_connections_by_connection_id[ $id ]['enabled'] = $enabled;
 		}
 
 		$meta_to_update = array();
 		// For all connections, ensure correct post_meta.
-		foreach ( $available_connections_by_unique_id as $unique_id => $available_connection ) {
+		foreach ( $available_connections_by_connection_id as $connection_id => $available_connection ) {
 			if ( $available_connection['enabled'] ) {
-				$meta_to_update[ $publicize->POST_SKIP . $unique_id ] = null; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$meta_to_update[ $publicize->POST_SKIP_PUBLICIZE . $connection_id ] = null; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			} else {
-				$meta_to_update[ $publicize->POST_SKIP . $unique_id ] = 1; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$meta_to_update[ $publicize->POST_SKIP_PUBLICIZE . $connection_id ] = 1; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			}
 		}
 
