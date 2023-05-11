@@ -147,7 +147,7 @@ const ToolbarControls = ( {
 				<BlockControls group="block">
 					<ToneDropdownControl
 						value="neutral"
-						onChange={ tone => getSuggestionFromOpenAI( 'change-tone', { tone } ) }
+						onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
 						disabled={ contentIsLoaded }
 					/>
 
