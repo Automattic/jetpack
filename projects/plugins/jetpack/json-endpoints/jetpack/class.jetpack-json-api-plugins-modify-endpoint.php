@@ -153,7 +153,6 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	 * @return bool|WP_Error
 	 */
 	public function callback( $path = '', $blog_id = 0, $object = null ) {
-		$args = $this->input();
 
 		Jetpack_JSON_API_Endpoint::validate_input( $object );
 		switch ( $this->action ) {
@@ -169,7 +168,9 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				break;
 		}
 
-		if ( isset( $args['autoupdate'] ) || isset( $args['autoupdate_translations'] ) ) {
+		$args = $this->input();
+
+		if ( is_array( $args ) && ( isset( $args['autoupdate'] ) || isset( $args['autoupdate_translations'] ) ) ) {
 			$this->needed_capabilities = 'update_plugins';
 		}
 
