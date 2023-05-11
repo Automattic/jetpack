@@ -5,4 +5,7 @@ export default {
 	promptType: {
 		type: 'string',
 	},
+	rawContent: {
+		type: 'string',
+	},
 };
