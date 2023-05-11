@@ -163,6 +163,12 @@ const useSuggestionsFromOpenAI = ( {
 		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
 			switch ( type ) {
+				case 'continue':
+					prompt = buildPromptTemplate( {
+						request: 'Please continue from the content below.',
+						content: getPartialContentToBlock( clientId ),
+					} );
+					break;
 				case 'changeTone':
 					prompt = buildPromptTemplate( {
 						request: `Please, rewrite with a ${ options.tone } tone.`,
