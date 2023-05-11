@@ -400,7 +400,7 @@ class Test_WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WP_Test_Je
 		$this->assertNotEmpty( $data['jetpack_publicize_connections'] );
 
 		foreach ( $data['jetpack_publicize_connections'] as $connection ) {
-			if ( $connection->id === 123 ) {
+			if ( $connection->id === '123' ) {
 				$this->assertSame( false, $connection->enabled );
 			} else {
 				$this->assertSame( true, $connection->enabled );
