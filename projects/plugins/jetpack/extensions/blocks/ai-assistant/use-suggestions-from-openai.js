@@ -191,6 +191,14 @@ const useSuggestionsFromOpenAI = ( {
 					} );
 					break;
 
+				case 'generateTitle':
+					prompt = buildPromptTemplate( {
+						request: 'Generate a title for this blog post',
+						rules: [ 'Only output the raw title, without any prefix or quotes' ],
+						content: content?.length ? content : getContentFromBlocks(),
+					} );
+					break;
+
 				default:
 					if ( content?.length && userPrompt?.length ) {
 						prompt = tellWhatToDoNext( userPrompt, content );
