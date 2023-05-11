@@ -37,7 +37,6 @@ final class WafUnsupportedEnvironmentIntegrationTest extends WorDBless\BaseTestC
 		Jetpack_Options::update_option( 'id', 1234 );
 
 		// Add the WAF and Brute force protection module to the available modules.
-		add_filter( 'jetpack_get_available_modules', array( $this, 'add_modules_to_available_modules' ), 10, 1 );
 		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_modules_to_available_modules' ), 10, 1 );
 
 		// Initialize the firewall.
