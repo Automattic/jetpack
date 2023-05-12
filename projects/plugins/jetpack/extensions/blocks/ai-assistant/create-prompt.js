@@ -2,6 +2,7 @@
  * External dependencies
  */
 import debugFactory from 'debug';
+import { defaultLanguage, defaultLocale } from './i18n-dropdown-control';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
@@ -24,16 +25,15 @@ export const buildPromptTemplate = ( {
 	rules = [],
 	request = null,
 	content = null,
-	lang = null,
-	location = null,
+	lang = defaultLanguage,
+	locale = defaultLocale,
 } ) => {
 	if ( ! request && ! content ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
 
 	let langLocationRule = lang ? `- Write in the language: ${ lang }.` : '';
-	langLocationRule =
-		langLocationRule.length && location ? ` location: ${ location }.` : langLocationRule;
+	langLocationRule = langLocationRule.length && locale ? ` locale: ${ locale }.` : langLocationRule;
 
 	let job = 'Your job is to ';
 

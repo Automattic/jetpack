@@ -38,8 +38,9 @@ type LanguageDropdownControlProps = {
 const defaultLanguageLocale =
 	window?.Jetpack_Editor_Initial_State?.siteLocale || navigator?.language;
 
-export const defaultPromptLanguage = ( defaultLanguageLocale?.split( '-' )[ 0 ] ||
-	'en' ) as LanguageProp;
+export const defaultLanguage = ( defaultLanguageLocale?.split( '-' )[ 0 ] || 'en' ) as LanguageProp;
+
+export const defaultLocale = defaultLanguageLocale?.split( '-' )?.[ 1 ] || null;
 
 const LANGUAGE_MAP = {
 	en: {
@@ -108,13 +109,13 @@ const LANGUAGE_MAP = {
 };
 
 export default function I18nDropdownControl( {
-	value = defaultPromptLanguage,
+	value = defaultLanguage,
 	onChange,
 }: LanguageDropdownControlProps ) {
 	// Move the default language to the top of the list.
 	const languageList = [
-		defaultPromptLanguage,
-		...LANGUAGE_LIST.filter( language => language !== defaultPromptLanguage ),
+		defaultLanguage,
+		...LANGUAGE_LIST.filter( language => language !== defaultLanguage ),
 	];
 
 	return (

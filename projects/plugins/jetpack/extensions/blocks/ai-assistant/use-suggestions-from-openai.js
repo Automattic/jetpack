@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { buildPromptTemplate } from './create-prompt';
 import { askJetpack } from './get-suggestion-with-stream';
-import { defaultPromptLanguage } from './i18n-dropdown-control';
+import { defaultLanguage } from './i18n-dropdown-control';
 import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
 /**
@@ -148,7 +148,7 @@ const useSuggestionsFromOpenAI = ( {
 		options = {
 			retryRequest: false,
 			tone: DEFAULT_PROMPT_TONE,
-			language: defaultPromptLanguage,
+			language: defaultLanguage,
 			...options,
 		};
 
