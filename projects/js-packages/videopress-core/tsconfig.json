@@ -1,4 +1,3 @@
-// Config for a JS-using project. If using typescript, rename this to "tsconfig.json".
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"include": [ "./src/*" ],
