@@ -5,10 +5,14 @@ import {
 	useModuleStatus,
 	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
-import { Button, ExternalLink, Flex, FlexItem } from '@wordpress/components';
+import { Button, ExternalLink, Flex, FlexItem, Notice } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { PluginPrePublishPanel, PluginDocumentSettingPanel } from '@wordpress/edit-post';
+import {
+	PluginPrePublishPanel,
+	PluginDocumentSettingPanel,
+	PluginPostPublishPanel,
+} from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -62,6 +66,35 @@ function NewsletterEditorSettingsPanel( {
 		</PluginDocumentSettingPanel>
 	);
 }
+
+const NewsletterDisabledNotice = () => (
+	<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
+		{ __( 'You will be able to send newsletters once the site is published', 'jetpack' ) }
+	</Notice>
+);
+
+const NewsletterDisabledPanels = () => (
+	<>
+		<PluginDocumentSettingPanel
+			title={ __( 'Newsletter access', 'jetpack' ) }
+			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+		>
+			<NewsletterDisabledNotice />
+		</PluginDocumentSettingPanel>
+		<PluginPrePublishPanel
+			title={ __( 'Newsletter access', 'jetpack' ) }
+			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+		>
+			<NewsletterDisabledNotice />
+		</PluginPrePublishPanel>
+		<PluginPostPublishPanel
+			title={ __( 'Newsletter access', 'jetpack' ) }
+			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
+		>
+			<NewsletterDisabledNotice />
+		</PluginPostPublishPanel>
+	</>
+);
 
 function NewsletterPrePublishSettingsPanel( {
 	accessLevel,
@@ -164,12 +197,6 @@ export default function SubscribePanels() {
 	// Can be “private”, “password”, or “public”.
 	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
 
-	// Subscriptions will not be triggered on private sites ( on WordPress.com simple and WoA ),
-	// nor on sites that have not been launched yet.
-	if ( isPrivateSite() || isComingSoon() ) {
-		return null;
-	}
-
 	// Subscriptions are only available for posts. Additionally, we will allow access level selector for pages.
 	// TODO: Make it available for pages later.
 	if ( postType !== 'post' ) {
@@ -182,6 +209,12 @@ export default function SubscribePanels() {
 	// Only show the panels when the corresponding filter is enabled
 	if ( ! isNewsletterFeatureEnabled() ) {
 		return null;
+	}
+
+	// Subscriptions will not be triggered on private sites ( on WordPress.com simple and WoA ),
+	// nor on sites that have not been launched yet.
+	if ( isPrivateSite() || isComingSoon() ) {
+		return <NewsletterDisabledPanels />;
 	}
 
 	return (
