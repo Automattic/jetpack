@@ -146,8 +146,6 @@ export default function Player( { isSelected, attributes } ) {
 		</View>
 	);
 
-	let overlay = ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } />;
-
 	let sandbox = (
 		<SandBox
 			html={ html }
@@ -179,8 +177,10 @@ export default function Player( { isSelected, attributes } ) {
 	const showLoadingOverlay = ! isPlayerReady || ( isPlayerLoaded && ! isPreviewReady );
 
 	return (
-		<View style={ [ style[ 'videopress-player' ], { aspectRatio } ] }>
-			{ overlay }
+		<View
+			style={ [ style[ 'videopress-player' ], { aspectRatio } ] }
+			pointerEvents={ isSelected ? 'auto' : 'none' }
+		>
 			{ showLoadingOverlay && loadingOverlay }
 			{ html && sandbox }
 		</View>
