@@ -926,7 +926,7 @@ EXPECTED;
 	}
 
 	/**
-	 * Tests the setup of the xmlrpc methods when the site is active  and the request is not signed.
+	 * Tests the setup of the xmlrpc methods when the site is active and the request is not signed.
 	 *
 	 * @group xmlrpc
 	 */
