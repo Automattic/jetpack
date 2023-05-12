@@ -49,11 +49,9 @@ export async function refreshConnectionTestResults() {
 				toggleable,
 				is_healthy: freshConnection.test_success,
 				error_code: freshConnection.error_code,
+				connection_id: freshConnection.connection_id,
 			};
 
-			if ( 'connection_id' in freshConnection ) {
-				connection.connection_id = freshConnection.connection_id;
-			}
 			connections.push( connection );
 		}
 
