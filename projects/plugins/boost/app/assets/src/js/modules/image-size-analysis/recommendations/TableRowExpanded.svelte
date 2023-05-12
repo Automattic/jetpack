@@ -2,7 +2,8 @@
 	import { quadOut } from 'svelte/easing';
 	import { slide } from 'svelte/transition';
 	import Button from '../../../elements/Button.svelte';
-	import { ISA_Data, isaIgnoredImages } from '../store/isa-data';
+	import { ISA_Data } from '../store/isa-data';
+	import { isaIgnoredImages } from '../store/isa-ignored-images';
 	export let data: ISA_Data;
 	const { image, instructions } = data;
 

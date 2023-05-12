@@ -1,6 +1,7 @@
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
+import { isaIgnoredImages } from './isa-ignored-images';
 import { ImageData, ImageSizeAnalysis } from './zod-types';
 
 /**
@@ -9,11 +10,6 @@ import { ImageData, ImageSizeAnalysis } from './zod-types';
 const image_size_analysis = jetpack_boost_ds.createAsyncStore(
 	'image_size_analysis',
 	ImageSizeAnalysis
-);
-
-const image_size_analysis_ignored_images = jetpack_boost_ds.createAsyncStore(
-	'image_size_analysis_ignored_images',
-	z.array( ImageData ).catch( [] )
 );
 
 /**
@@ -48,7 +44,7 @@ image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
 } );
 
 export const isaFilteredImages = derived(
-	[ image_size_analysis.store, image_size_analysis_ignored_images.store ],
+	[ image_size_analysis.store, isaIgnoredImages ],
 	( [ $data, $ignored ] ) => {
 		if ( $data.query.group === 'ignored' ) {
 			return $ignored;
@@ -71,4 +67,3 @@ export const isaDataLoading = derived(
 		return $data.query.group !== 'ignored' && ( $pending || $data.data.images.length === 0 );
 	}
 );
-export const isaIgnoredImages = image_size_analysis_ignored_images.store;
