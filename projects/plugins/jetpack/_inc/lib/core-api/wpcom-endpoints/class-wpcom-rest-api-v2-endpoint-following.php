@@ -50,6 +50,12 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 					'callback'            => array( $this, 'get_response' ),
 					'permission_callback' => 'is_user_logged_in',
 				),
+				'args' => array(
+					'remove_user_blogs' => array(
+						'type'    => 'boolean',
+						'default' => false,
+					),
+				),
 			)
 		);
 	}
@@ -60,18 +66,15 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 	 * @param WP_REST_Request $request Full details about the request.
 	 */
 	public function get_response( $request ) {
+		$remove_user_blogs = $request->get_param( 'remove_user_blogs' );
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			require_once WP_CONTENT_DIR . '/lib/wpcom-user-following.php';
-
-			$remove_user_blogs = $request->get_param( 'remove_user_blogs' );
-			$remove_user_blogs = ! empty( $remove_user_blogs ) && $remove_user_blogs === 'true';
-
 			return get_user_followed_blogs( get_current_user_id(), $remove_user_blogs );
 		}
 
 		$body = Client::wpcom_json_api_request_as_user(
-			'/me/following',
+			'/me/following?remove_user_blogs=' . (int) $remove_user_blogs,
 			'2',
 			array(
 				'method'  => 'GET',

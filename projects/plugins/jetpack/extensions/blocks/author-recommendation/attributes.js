@@ -6,4 +6,8 @@ export default {
 		},
 		default: [],
 	},
+	remove_user_blogs: {
+		type: 'boolean',
+		default: false,
+	},
 };
