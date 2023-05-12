@@ -647,6 +647,7 @@ function wpcom_track_site_launch_task() {
 	wpcom_mark_launchpad_task_complete_if_active( 'site_launched' );
 	wpcom_mark_launchpad_task_complete_if_active( 'link_in_bio_launched' );
 	wpcom_mark_launchpad_task_complete_if_active( 'videopress_launched' );
+	wpcom_mark_launchpad_task_complete_if_active( 'blog_launched' );
 }
 
 /**
