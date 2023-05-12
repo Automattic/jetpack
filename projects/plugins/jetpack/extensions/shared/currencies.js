@@ -66,7 +66,7 @@ export function minimumTransactionAmountForCurrency( currency_code ) {
  * @param {string} currency_code - three character currency code to get default amounts for
  * @returns {number[]} Default amounts for the given currency_code
  */
-export function getDefaultAmountsForCurrency( currency_code ) {
+export function getDefaultDonationAmountsForCurrency( currency_code ) {
 	const minAmount = minimumTransactionAmountForCurrency( currency_code );
 	return [
 		minAmount * 10, // 1st tier (USD 5)

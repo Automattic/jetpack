@@ -2,7 +2,7 @@ import { RichText } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import {
-	getDefaultAmountsForCurrency,
+	getDefaultDonationAmountsForCurrency,
 	minimumTransactionAmountForCurrency,
 } from '../../shared/currencies';
 import Amount from './amount';
@@ -37,7 +37,7 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 	};
 
 	// Updates the amounts whenever there are new defaults due to a currency change.
-	const defaultAmounts = getDefaultAmountsForCurrency( currency );
+	const defaultAmounts = getDefaultDonationAmountsForCurrency( currency );
 	const amounts = getDonationValue( 'amounts' );
 
 	const setAmount = ( amount, tier ) => {
