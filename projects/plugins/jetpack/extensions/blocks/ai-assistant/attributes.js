@@ -1,6 +1,8 @@
 export default {
 	content: {
 		type: 'string',
-		source: 'html',
+	},
+	promptType: {
+		type: 'string',
 	},
 };

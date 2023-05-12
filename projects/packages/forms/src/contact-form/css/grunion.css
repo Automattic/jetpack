@@ -622,7 +622,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	box-sizing: border-box;
 	content: ' ';
 	display: flex;
-	font-weight: bold;
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+	font-weight: 400;
 	height: var(--jetpack--contact-form--font-size);
 	justify-content: center;
 	width: var(--jetpack--contact-form--font-size);
@@ -690,12 +691,12 @@ on production builds, the attributes are being reordered, causing side-effects
 
 .contact-form input.grunion-field.is-style-button:checked,
 .contact-form input.grunion-field.is-style-button:checked + .grunion-field-text {
-	color: var(--jetpack--contact-form--button-primary--color);
+	color: var(--jetpack--contact-form--button-outline--background-color-fallback);
 }
 
 .contact-form input.grunion-field.is-style-button:checked + .grunion-field-text::before {
-	background: var(--jetpack--contact-form--button-primary--background-color);
-	border-color: var(--jetpack--contact-form--button-primary--background-color);
+	background: var(--jetpack--contact-form--button-outline--text-color);
+	border-color: var(--jetpack--contact-form--button-outline--text-color);
 }
 
 .contact-form .grunion-field-wrap.is-style-button-wrap .grunion-field.radio {
@@ -723,6 +724,8 @@ on production builds, the attributes are being reordered, causing side-effects
 	background: unset;
 	content: "✓";
 	display: block;
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
+	font-weight: 400;
 	font-size: 1em;
 	height: auto;
 	margin: -0.2em 0 0;

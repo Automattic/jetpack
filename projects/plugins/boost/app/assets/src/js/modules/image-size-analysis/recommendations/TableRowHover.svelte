@@ -1,12 +1,14 @@
 <script lang="ts">
 	import Button from '../../../elements/Button.svelte';
+	import type { ISA_Data } from '../store/isa-data';
+	export let data: ISA_Data;
 </script>
 
 <div class="hover">
 	<p>Resize this image to match the size of the screen dimensions.</p>
 
 	<div class="button-container">
-		<Button small fill>Edit Page</Button>
+		<Button small fill href={data.edit_url}>Edit Page</Button>
 	</div>
 </div>
 
