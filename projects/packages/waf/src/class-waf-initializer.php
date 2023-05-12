@@ -197,7 +197,7 @@ class Waf_Initializer {
 	}
 
 	/**
-	 * Disables the WAF module when on an supported platform in Jetpack.
+	 * Disables the WAF module when on an unsupported platform in Jetpack.
 	 *
 	 * @param array $modules Filterable value for `jetpack_get_available_modules`.
 	 *
@@ -213,7 +213,7 @@ class Waf_Initializer {
 	}
 
 	/**
-	 * Disables the WAF module when on an supported platform in a standalone plugin.
+	 * Disables the WAF module when on an unsupported platform in a standalone plugin.
 	 *
 	 * @param array $modules Filterable value for `jetpack_get_available_standalone_modules`.
 	 *
