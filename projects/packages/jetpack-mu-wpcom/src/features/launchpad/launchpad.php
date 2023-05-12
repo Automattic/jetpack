@@ -155,8 +155,7 @@ function wpcom_register_default_launchpad_checklists() {
 		array(
 			'id'                   => 'setup_blog',
 			'title'                => __( 'Name your blog', 'jetpack-mu-wpcom' ),
-			'is_complete_callback' => 'wpcom_is_setup_blog_completed',
-			'is_disabled_callback' => 'wpcom_is_task_option_completed',
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		)
 	);
 
