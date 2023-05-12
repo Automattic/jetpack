@@ -12,13 +12,13 @@ const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 /*
  * Builds a prompt template based on context, rules and content
  *
- * @param {object} options         - The prompt options.
- * @param {string} options.context - The expected context to the prompt, e.g. "You are...".
- * @param {array} options.rules    - An array of rules to be followed.
- * @param {string} options.request - The prompt request.
- * @param {string} options.content - The content to be modified.
- * @param {string} options.lang    - The language of the content.
- * @param {string} options.locale  - The locale of the content.
+ * @param {object} options          - The prompt options.
+ * @param {string} options.context  - The expected context to the prompt, e.g. "You are...".
+ * @param {array} options.rules     - An array of rules to be followed.
+ * @param {string} options.request  - The prompt request.
+ * @param {string} options.content  - The content to be modified.
+ * @param {string} options.language - The language of the content.
+ * @param {string} options.locale   - The locale of the content.
  *
  * @return {string} The prompt.
  */
@@ -27,16 +27,16 @@ export const buildPromptTemplate = ( {
 	rules = [],
 	request = null,
 	content = null,
-	lang = null,
+	language = null,
 	locale = null,
 } ) => {
 	if ( ! request && ! content ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
 
-	let langLocationRule = lang
-		? `- Write in the language: ${ lang }(${
-				LANGUAGE_MAP[ lang ] ? ` (${ LANGUAGE_MAP[ lang ] }).` : '.'
+	let langLocationRule = language
+		? `- Write in the language: ${ language }(${
+				LANGUAGE_MAP[ language ] ? ` (${ LANGUAGE_MAP[ language ] }).` : '.'
 		  }).`
 		: '';
 	langLocationRule = langLocationRule.length && locale ? ` locale: ${ locale }.` : langLocationRule;
