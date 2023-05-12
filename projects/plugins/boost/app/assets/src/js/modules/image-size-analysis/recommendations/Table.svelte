@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Spinner from '../../../elements/Spinner.svelte';
-	import { isaData, isaDataLoading } from '../store/isa-data';
+	import { ISA_Data, isaData, isaDataLoading } from '../store/isa-data';
+	import { getPreloadingImages } from '../store/preloading-image';
 	import TableRow from './TableRow.svelte';
 	$: activeFilter = $isaData.query.group === 'ignored' ? 'ignored' : 'active';
 
@@ -14,6 +15,26 @@
 		isLoading = loading;
 	}
 	$: delayedLoadingUpdate( $isaDataLoading );
+
+	const preloadingImages = getPreloadingImages( 10 );
+
+	function getActiveImages( images: ISA_Data[], loading: boolean ) {
+		// If the global store has no images right now, we're fetching them from wpcom
+		if ( images.length === 0 ) {
+			return preloadingImages;
+		}
+
+		// If the user is switching between tabs, we want to show the images that are already loaded
+		const filteredImages = images.filter( image => image.status === activeFilter );
+		if ( filteredImages.length === 0 && loading ) {
+			return images;
+		}
+
+		// Show filtered images
+		return filteredImages;
+	}
+
+	$: activeImages = getActiveImages( $isaData.data.images, isLoading );
 </script>
 
 <div class="jb-loading-spinner" class:active={isLoading}>
@@ -27,26 +48,28 @@
 		<div class="jb-table-header__page">Page/Post</div>
 	</div>
 
-	{#each $isaData.data.images as image (image.id)}
-		{#if image.status === activeFilter}
-			<TableRow
-				title={image.image.url.split( '/' ).pop()}
-				image_url={image.image.url}
-				page_url={image.page.url}
-				weight={image.image.weight}
-				device_type={image.device_type}
-				page_title={image.page.title}
-				dimensions={image.image.dimensions}
-				edit_url={image.page.url}
-				instructions={image.instructions}
-				status={image.status}
-				on:clickIgnore={() => {
-					ignoreStatusUpdated = true;
-					// Toggle the status
-					image.status = image.status === 'ignored' ? 'active' : 'ignored';
-				}}
-			/>
-		{/if}
+	{#each activeImages as image (image.id)}
+		<TableRow
+			enableTransition={$isaData.data.images.length > 0}
+			title={image.image.url.split( '/' ).pop()}
+			image_url={image.image.url}
+			page_url={image.page.url}
+			weight={image.image.weight}
+			device_type={image.device_type}
+			page_title={image.page.title}
+			dimensions={image.image.dimensions}
+			edit_url={image.page.url}
+			instructions={image.instructions}
+			status={image.status}
+			on:clickIgnore={() => {
+				ignoreStatusUpdated = true;
+				isaData.update( store => {
+					const target = store.data.images.find( i => i.id === image.id );
+					target.status = target.status === 'ignored' ? 'active' : 'ignored';
+					return store;
+				} );
+			}}
+		/>
 	{/each}
 </div>
 

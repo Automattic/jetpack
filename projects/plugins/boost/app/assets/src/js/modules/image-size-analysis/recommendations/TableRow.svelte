@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { quadOut } from 'svelte/easing';
-	import { slide } from 'svelte/transition';
+	import { fade, slide } from 'svelte/transition';
 	import { ISA_Data } from '../store/isa-data';
 	import TableRowExpanded from './TableRowExpanded.svelte';
 	import TableRowHover from './TableRowHover.svelte';
@@ -19,6 +19,7 @@
 	export let dimensions: ISA_Data[ 'image' ][ 'dimensions' ];
 	export let edit_url: string;
 	export let instructions: string;
+	export let enableTransition: boolean;
 
 	let expanded = false;
 	function toggleExpand( e ) {
@@ -31,7 +32,11 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="jb-table-row-container" out:slide={{ duration: 200, easing: quadOut }} class:expanded>
+<div
+	class="jb-table-row-container"
+	out:slide={{ duration: enableTransition ? 250 : 0, easing: quadOut }}
+	class:expanded
+>
 	<div class="jb-table-row recommendation-page-grid" on:click={toggleExpand}>
 		<div class="jb-table-row__thumbnail">
 			<Thumbnail {title} url={image_url} width={65} height={65} />

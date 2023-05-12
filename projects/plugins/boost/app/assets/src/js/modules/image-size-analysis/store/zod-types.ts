@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { getPreloadingImages } from './preloading-image';
 /**
  * Zod Types
  */
@@ -57,6 +56,6 @@ export const ImageSizeAnalysis = z
 		data: {
 			last_updated: 0,
 			total_pages: 0,
-			images: getPreloadingImages( 10 ),
+			images: [],
 		},
 	} );

@@ -14,7 +14,7 @@
 	const dispatch = createEventDispatcher();
 </script>
 
-<div class="table-row-expanded" transition:slide={{ duration: 100, easing: quadOut }}>
+<div class="table-row-expanded" transition:slide|local={{ duration: 100, easing: quadOut }}>
 	<div class="image-details">
 		<h4>Image Details</h4>
 
