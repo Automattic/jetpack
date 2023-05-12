@@ -424,7 +424,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'Congratulations, you’ve just unlocked the full power of the Jetpack suite; all of our Security, Performance, Growth, and Design tools.',
 					'jetpack'
 				),
-				ctaText: __( 'Setup your new tools', 'jetpack' ),
+				ctaText: __( 'Set up your new tools', 'jetpack' ),
 				hasNoAction: true,
 				illustration: 'assistant-complete-welcome',
 			};
@@ -435,7 +435,17 @@ export const getStepContent = ( state, stepSlug ) => {
 					'Congratulations, you’ve just unlocked comprehensive WordPress site security, including backups, malware scanning, and spam protection.',
 					'jetpack'
 				),
-				ctaText: __( 'Setup your new tools', 'jetpack' ),
+				ctaText: __( 'Set up your new tools', 'jetpack' ),
+				hasNoAction: true,
+			};
+		case 'welcome__starter':
+			return {
+				question: __( 'Welcome to Jetpack Starter!', 'jetpack' ),
+				description: __(
+					'Congratulations! You’ve unlocked essential security tools for your site including real-time backups and spam protection for comments and forms. Let’s get everything set up. It will only take a minute.',
+					'jetpack'
+				),
+				ctaText: __( 'Set up Jetpack Starter', 'jetpack' ),
 				hasNoAction: true,
 			};
 		case 'welcome__antispam':
@@ -498,7 +508,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					__( 'Jetpack VaultPress Backup', 'jetpack' ),
 					__( 'Jetpack Scan', 'jetpack' ),
 				],
-				ctaText: __( 'Setup your new powers', 'jetpack' ),
+				ctaText: __( 'Set up your new powers', 'jetpack' ),
 				hasNoAction: true,
 				illustration: 'assistant-golden-token-welcome',
 			};
