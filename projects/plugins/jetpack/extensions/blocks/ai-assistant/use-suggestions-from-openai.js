@@ -5,13 +5,13 @@ import apiFetch from '@wordpress/api-fetch';
 import { useSelect, select as selectData } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import MarkdownIt from 'markdown-it';
 /**
  * Internal dependencies
  */
-import { createPrompt } from './create-prompt';
+import { buildPromptTemplate, createPrompt } from './create-prompt';
 import { askJetpack } from './get-suggestion-with-stream';
 import tellWhatToDoNext from './prompt/tell-what-to-do-next';
+import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
 /**
  * Returns partial content from the beginning of the post
@@ -142,7 +142,13 @@ const useSuggestionsFromOpenAI = ( {
 		.join( ', ' );
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
-	const getSuggestionFromOpenAI = ( type, retryRequest = false ) => {
+	const getSuggestionFromOpenAI = ( type, options = {} ) => {
+		options = {
+			retryRequest: false,
+			tone: DEFAULT_PROMPT_TONE,
+			...options,
+		};
+
 		if ( isLoadingCompletion ) {
 			return;
 		}
@@ -153,20 +159,105 @@ const useSuggestionsFromOpenAI = ( {
 
 		let prompt = lastPrompt;
 
-		if ( ! retryRequest ) {
+		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
-			if ( content?.length && userPrompt?.length ) {
-				prompt = tellWhatToDoNext( userPrompt, content );
-			} else {
-				prompt = createPrompt(
-					currentPostTitle,
-					getPartialContentToBlock( clientId ),
-					content?.length ? content : getContentFromBlocks(),
-					userPrompt,
-					type,
-					categoryNames,
-					tagNames
-				);
+			switch ( type ) {
+				/*
+				 * Continue generating from the content below.
+				 */
+				case 'continue':
+					prompt = buildPromptTemplate( {
+						request: 'Please continue from the content below.',
+						content: getPartialContentToBlock( clientId ),
+					} );
+					break;
+
+				/*
+				 * Change the tone of the content.
+				 */
+				case 'changeTone':
+					prompt = buildPromptTemplate( {
+						request: `Please, rewrite with a ${ options.tone } tone.`,
+						content,
+					} );
+					break;
+
+				/*
+				 * Summarize the content.
+				 */
+				case 'summarize':
+					prompt = buildPromptTemplate( {
+						request: 'Summarize the content below.',
+						content: content?.length ? content : getContentFromBlocks(),
+					} );
+					break;
+
+				/*
+				 * Make the content longer.
+				 */
+				case 'makeLonger':
+					prompt = buildPromptTemplate( {
+						request: 'Make the content below longer.',
+						content,
+					} );
+					break;
+
+				/*
+				 * Make the content shorter.
+				 */
+				case 'makeShorter':
+					prompt = buildPromptTemplate( {
+						request: 'Make the content below shorter.',
+						content,
+					} );
+					break;
+
+				/*
+				 * Generate a title for this blog post, based on the content.
+				 */
+				case 'generateTitle':
+					prompt = buildPromptTemplate( {
+						request: 'Generate a title for this blog post',
+						rules: [ 'Only output the raw title, without any prefix or quotes' ],
+						content: content?.length ? content : getContentFromBlocks(),
+					} );
+					break;
+
+				/*
+				 * Simplify the content.
+				 */
+				case 'simplify':
+					prompt = buildPromptTemplate( {
+						request: 'Simplify the content below.',
+						content: content?.length ? content : getContentFromBlocks(),
+					} );
+					break;
+
+				/**
+				 * Correct grammar and spelling
+				 */
+				case 'correctSpelling':
+					prompt = buildPromptTemplate( {
+						request: 'Correct any spelling and grammar mistakes from the content below.',
+						content: content?.length ? content : getContentFromBlocks(),
+					} );
+					break;
+
+				default:
+					if ( content?.length && userPrompt?.length ) {
+						prompt = tellWhatToDoNext( userPrompt, content );
+					} else {
+						prompt = createPrompt(
+							currentPostTitle,
+							getPartialContentToBlock( clientId ),
+							content?.length ? content : getContentFromBlocks(),
+							userPrompt,
+							type,
+							categoryNames,
+							tagNames
+						);
+					}
+					break;
 			}
 		}
 
@@ -175,8 +266,9 @@ const useSuggestionsFromOpenAI = ( {
 			post_id: postId,
 		} );
 
-		if ( ! retryRequest ) {
+		if ( ! options.retryRequest ) {
 			setLastPrompt( prompt );
+			setAttributes( { promptType: type } );
 		}
 
 		apiFetch( {
@@ -192,10 +284,13 @@ const useSuggestionsFromOpenAI = ( {
 				 * @todo: maybe we should not pass the setAttributes function
 				 */
 				setAttributes( { content: '' } );
+
 				setTimeout( () => {
-					const markdownConverter = new MarkdownIt();
-					setAttributes( { content: result.length ? markdownConverter.render( result ) : '' } );
+					setAttributes( {
+						content: result.length ? result : '',
+					} );
 				}, 10 );
+
 				setIsLoadingCompletion( false );
 			} )
 			.catch( e => {
@@ -224,7 +319,7 @@ const useSuggestionsFromOpenAI = ( {
 		wholeContent: getContentFromBlocks( clientId ),
 
 		getSuggestionFromOpenAI,
-		retryRequest: () => getSuggestionFromOpenAI( '', true ),
+		retryRequest: () => getSuggestionFromOpenAI( '', { retryRequest: true } ),
 	};
 };
 

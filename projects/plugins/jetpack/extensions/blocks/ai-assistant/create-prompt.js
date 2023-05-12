@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
+import debugFactory from 'debug';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
@@ -11,6 +12,66 @@ export const PROMPT_INTERNAL_OPTIONS =
 	'Please always output the generated content in markdown format, do not include a top level heading by default and only output generated content ready for publishing';
 export const PROMPT_SUFFIX = `. ${ PROMPT_INTERNAL_OPTIONS }.`;
 export const PROMPT_MID_CONTENT = `, and ${ PROMPT_INTERNAL_OPTIONS.toLowerCase() }`;
+
+const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
+
+/*
+ * Builds a prompt template based on context, rules and content
+ *
+ * @param {object} options         - The prompt options.
+ * @param {string} options.context - The expected context to the prompt, e.g. "You are...".
+ * @param {array} options.rules    - An array of rules to be followed.
+ * @param {string} options.request - The prompt request.
+ * @param {string} options.content - The content to be modified.
+ *
+ * @return {string} The prompt.
+ */
+export const buildPromptTemplate = ( {
+	context = 'You are an AI assistant block, a part of a product called Jetpack made by the company called Automattic',
+	rules = [],
+	request = null,
+	content = null,
+} ) => {
+	if ( ! request && ! content ) {
+		throw new Error( 'You must provide either a request or content' );
+	}
+
+	let job = 'Your job is to ';
+
+	if ( !! request && ! content ) {
+		job += 'respond to the request below, under "Request"';
+	} else if ( ! request && !! content ) {
+		job += 'modify the content below, under "Content"';
+	} else {
+		job +=
+			'modify the content shared below, under "Content", based on the request below, under "Request"';
+	}
+
+	const requestText = ! request
+		? ''
+		: `\nRequest:
+${ request }`;
+
+	const contentText = ! content
+		? ''
+		: `\nContent:
+${ content }`;
+
+	const prompt = `${ context }.
+${ job }. Do this by following rules set in "Rules".
+
+Rules:
+- Output the generated content in markdown format.
+- Do not include a top level heading by default.
+- Only output generated content ready for publishing.${ rules.length ? '\n' : '' }${ rules
+		.map( rule => `- ${ rule }.` )
+		.join( '\n' ) }
+${ requestText }${ requestText && contentText ? `\n${ contentText }` : contentText }`;
+
+	debug( prompt );
+	return prompt;
+};
+
 /*
  * Creates the prompt that will eventually be sent to OpenAI.
  * It uses the current post title, content (before the actual AI block)
@@ -135,6 +196,18 @@ export const createPrompt = (
 			contentBefore
 		);
 		return expandPrompt;
+	}
+
+	if ( type === 'generateTitle' ) {
+		if ( ! content.length ) {
+			return '';
+		}
+
+		return buildPromptTemplate( {
+			request: 'Generate a title for this blog post',
+			rules: [ 'Only output the raw title, without any prefix or quotes' ],
+			content,
+		} );
 	}
 
 	// TODO: add some error handling if user supplied prompts or existing content is too short.
