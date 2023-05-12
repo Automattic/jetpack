@@ -34,13 +34,20 @@ export const buildPromptTemplate = ( {
 		throw new Error( 'You must provide either a request or content' );
 	}
 
-	// Langiage and Locale
-	let langLocationRule = language
+	// Language and Locale
+	let langLocatePromptPart = language
 		? `- Write in the language: ${ language }${
 				LANGUAGE_MAP[ language ]?.label ? ` (${ LANGUAGE_MAP[ language ].label })` : ''
 		  }.`
 		: '';
-	langLocationRule += langLocationRule.length && locale ? ` locale: ${ locale }.` : '';
+	langLocatePromptPart += langLocatePromptPart.length && locale ? ` locale: ${ locale }.` : '';
+	langLocatePromptPart += langLocatePromptPart.length ? '\n' : '';
+
+	// Rules
+	let extraRulePromptPart = '';
+	if ( rules?.length ) {
+		extraRulePromptPart = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
+	}
 
 	let job = 'Your job is to ';
 
@@ -53,7 +60,7 @@ export const buildPromptTemplate = ( {
 			'modify the content shared below, under "Content", based on the request below, under "Request"';
 	}
 
-	const requestText = ! request
+	const requestPromptBlock = ! request
 		? ''
 		: `\nRequest:
 ${ request }`;
@@ -63,15 +70,22 @@ ${ request }`;
 		: `\nContent:
 ${ content }`;
 
-	const prompt = `${ context }.
+	// Context content
+	const contextPromptPart = requestPromptBlock && contentText ? `\n${ contentText }` : contentText;
+
+	const prompt =
+		`${ context }.
 ${ job }. Do this by following rules set in "Rules".
 
 Rules:
 - Output the generated content in markdown format.
 - Do not include a top level heading by default.
 - Only output generated content ready for publishing.
-${ langLocationRule }${ rules.map( rule => `- ${ rule }.` ).join( '\n' ) }
-${ requestText }${ requestText && contentText ? `\n${ contentText }` : contentText }`;
+` +
+		langLocatePromptPart +
+		extraRulePromptPart +
+		requestPromptBlock +
+		contextPromptPart;
 
 	debug( prompt );
 	return prompt;
