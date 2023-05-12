@@ -121,7 +121,7 @@ class Keyring_Helper {
 			$url = add_query_arg( array( 'service' => $service ), $url );
 		}
 
-		if ( count( $params ) ) {
+		if ( array() !== $params ) {
 			$url = add_query_arg( $params, $url );
 		}
 
