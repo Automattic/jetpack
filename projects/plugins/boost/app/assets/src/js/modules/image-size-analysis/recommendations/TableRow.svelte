@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { quadOut } from 'svelte/easing';
-	import { fade, slide } from 'svelte/transition';
+	import { slide } from 'svelte/transition';
 	import { ISA_Data } from '../store/isa-data';
 	import TableRowExpanded from './TableRowExpanded.svelte';
 	import TableRowHover from './TableRowHover.svelte';

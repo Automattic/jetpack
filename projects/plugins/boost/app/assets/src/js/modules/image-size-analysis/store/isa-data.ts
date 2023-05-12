@@ -79,7 +79,7 @@ async function maybeRefreshStore( prevValue: ISA, value: ISA, signal?: AbortSign
 	image_size_analysis.store.override( fresh );
 }
 
-async function maybeIgnoreImage( prevValue: ISA, value: ISA, signal?: AbortSignal ) {
+async function maybeIgnoreImage( prevValue: ISA, value: ISA, _signal?: AbortSignal ) {
 	// Find which value status has changed (if the user clicked ignore)
 	const changedImage = value.data.images.find( image => {
 		const prevImage = prevValue.data.images.find( prev => prev.id === image.id );
