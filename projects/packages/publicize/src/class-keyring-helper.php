@@ -192,6 +192,8 @@ class Keyring_Helper {
 	 */
 	public static function admin_page_load() {
 		if ( isset( $_GET['action'] ) ) {
+			$service_name = null;
+
 			if ( isset( $_GET['service'] ) ) {
 				$service_name = filter_var( wp_unslash( $_GET['service'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We verify below.
 			}

@@ -1625,6 +1625,7 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	protected static function build_sprintf( $args ) {
+		$string  = null;
 		$search  = array();
 		$replace = array();
 		foreach ( $args as $k => $arg ) {
