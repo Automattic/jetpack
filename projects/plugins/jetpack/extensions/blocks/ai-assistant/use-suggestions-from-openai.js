@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { buildPromptTemplate } from './create-prompt';
 import { askJetpack } from './get-suggestion-with-stream';
+import { DEFAULT_PROMPT_LANGUAGE } from './i18n-dropdown-control';
 import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
 /**
@@ -147,6 +148,7 @@ const useSuggestionsFromOpenAI = ( {
 		options = {
 			retryRequest: false,
 			tone: DEFAULT_PROMPT_TONE,
+			langiuage: DEFAULT_PROMPT_LANGUAGE,
 			...options,
 		};
 
@@ -257,6 +259,16 @@ const useSuggestionsFromOpenAI = ( {
 				case 'correctSpelling':
 					prompt = buildPromptTemplate( {
 						request: 'Correct any spelling and grammar mistakes from the content below.',
+						content: content?.length ? content : getContentFromBlocks(),
+					} );
+					break;
+
+				/**
+				 * Change the language, based on options.language
+				 */
+				case 'changeLanguage':
+					prompt = buildPromptTemplate( {
+						request: `Please, rewrite in the following language: ${ options.language }`,
 						content: content?.length ? content : getContentFromBlocks(),
 					} );
 					break;
