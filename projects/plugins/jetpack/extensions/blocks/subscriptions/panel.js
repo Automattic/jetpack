@@ -5,7 +5,7 @@ import {
 	useModuleStatus,
 	useAnalytics,
 } from '@automattic/jetpack-shared-extension-utils';
-import { Button, ExternalLink, Flex, FlexItem, Notice } from '@wordpress/components';
+import { Button, ExternalLink, Flex, FlexItem } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import {
