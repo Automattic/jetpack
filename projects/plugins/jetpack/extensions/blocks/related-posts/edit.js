@@ -68,6 +68,8 @@ function PlaceholderPostEdit( props ) {
 }
 
 function RelatedPostsEditItem( props ) {
+	const blockContext = props.post.bcon;
+	const contextHasLink = blockContext.link !== '';
 	return (
 		<div
 			className="jp-related-posts-i2__post"
@@ -101,7 +103,8 @@ function RelatedPostsEditItem( props ) {
 			) }
 			{ props.displayContext && (
 				<div className="jp-related-posts-i2__post-context has-small-font-size">
-					{ props.post.context }
+					{ contextHasLink && <a href={ blockContext.link }>{ blockContext.text }</a> }
+					{ contextHasLink === false && blockContext.text }
 				</div>
 			) }
 		</div>

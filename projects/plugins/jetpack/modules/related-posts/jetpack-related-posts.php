@@ -395,12 +395,22 @@ EOT;
 			$item_markup .= $date_tag;
 		}
 
-		if ( ( $block_attributes['show_context'] ) && ! empty( $related_post['context'] ) ) {
-			$context_tag = sprintf(
-				'<li class="jp-related-posts-i2__post-context">%1$s</li>',
-				esc_html( $related_post['context'] )
-			);
-
+		if ( ( $block_attributes['show_context'] ) && ! empty( $related_post['bcon'] ) ) {
+			// New render logic, ignoring original context.
+			$context_tag   = '';
+			$block_context = $related_post['bcon'];
+			if ( ! empty( $block_context['link'] ) ) {
+				$context_tag = sprintf(
+					'<li class="jp-related-posts-i2__post-context"><a href="%1$s">%2$s</a></li>',
+					$block_context['link'],
+					$block_context['text']
+				);
+			} else {
+				$context_tag = sprintf(
+					'<li class="jp-related-posts-i2__post-context">%1$s</li>',
+					$block_context['text'],
+				);
+			}
 			$item_markup .= $context_tag;
 		}
 
@@ -1339,6 +1349,7 @@ EOT;
 				$this->to_utf8( $this->generate_related_post_context( $post->ID ) ),
 				$post->ID
 			),
+			'bcon'     => $this->generate_related_post_context_block( $post->ID ),
 			'img'      => $this->generate_related_post_image_params( $post->ID ),
 			/**
 			 * Filter the post css classes added on HTML markup.
@@ -1664,6 +1675,56 @@ EOT;
 			}
 		}
 		return $filtered;
+	}
+
+	protected function generate_related_post_context_block( $post_id ) {
+		error_log( 'xxx - generate_related_post_context_block() with ID: ' . strval( $post_id ) );
+		$categories = get_the_category( $post_id );
+		if ( is_array( $categories ) ) {
+			foreach ( $categories as $category ) {
+				error_log( 'xxx - category info: ' . json_encode( $category ) );
+				$cat_link = get_category_link( $category );
+				error_log( 'xxx - category link: ' . $cat_link );
+				if ( 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
+					return array(
+						'text' => trim( $category->name ),
+						'link' => $cat_link,
+					);
+				}
+			}
+		}
+		$tags = get_the_terms( $post_id, 'post_tag' );
+		if ( is_array( $tags ) ) {
+			foreach ( $tags as $tag ) {
+				error_log( 'xxx - tag info: ' . json_encode( $tag ) );
+				$tag_link = get_tag_link( $tag );
+				error_log( 'xxx - tag link: ' . $tag_link );
+				if ( '' !== trim( $tag->name ) ) {
+					return array(
+						'text' => trim( $tag->name ),
+						'link' => $tag_link,
+					);
+				}
+			}
+		}
+		$comment_count = get_comments_number( $post_id );
+		if ( $comment_count > 0 ) {
+			$comments_string = sprintf(
+				// Translators: amount of comments.
+				_n( 'With %s comment', 'With %s comments', $comment_count, 'jetpack' ),
+				number_format_i18n( $comment_count )
+			);
+			$comments_link = get_comments_link( $post_id );
+			return array(
+				'text' => $comments_string,
+				'link' => $comments_link,
+			);
+		}
+		$fallback_string = __( 'Similar post', 'jetpack' );
+		return array(
+			'text' => $fallback_string,
+			'link' => '',
+		);
 	}
 
 	/**
