@@ -25,20 +25,26 @@ const image_size_analysis_groups = jetpack_boost_ds.createAsyncStore(
 		.optional()
 );
 
+export const isaGroups = image_size_analysis_groups.store;
+
 export const imageDataGroupTabs = derived(
-	[ image_size_analysis_groups.store, isaIgnoredImages ],
-	( [ $groups, $ignored ] ) => {
+	[ isaGroups, isaIgnoredImages ],
+	( [ $isaGroups, $isaIgnoredImages ] ) => {
+		const all = {
+			name: 'All',
+			issues:
+				Object.values( $isaGroups )
+					.map( group => group.issues )
+					.reduce( ( a, b ) => a + b, 0 ) - $isaIgnoredImages.length,
+		};
+
 		const groups = {
-			...{
-				all: {
-					name: 'All',
-					issues:
-						Object.values( $groups )
-							.map( group => group.issues )
-							.reduce( ( a, b ) => a + b, 0 ) - $ignored.length,
-				},
+			all,
+			...$isaGroups,
+			ignored: {
+				...$isaGroups.ignored,
+				issues: $isaGroups.ignored.issues + $isaIgnoredImages.length,
 			},
-			...$groups,
 		};
 
 		return groups;
@@ -53,4 +59,3 @@ export const imageDataActiveGroup = derived(
 );
 
 export type ISA_Group = z.infer< typeof Group >;
-export const isaGroups = image_size_analysis_groups.store;
