@@ -57,7 +57,62 @@ export class SyncedStore< T > {
 			// Synchronize is called without await here. This is intentional!
 			// This way the store can be updated immediately without waiting for the API.
 			this.abortableSynchronize( prevValue, value );
-			store.set( value );
+
+			/**
+			 * ⚠️ EDGE CASE: Delay object updating until the next microtask. ⚠️
+			 * --
+			 * ## Background:
+			 * SyncedStore is a wrapper around Svelte's writable store.
+			 * The writable store will attempt to synchronize the value asynchronously with WordPress.
+			 * `abortableSynchronize` (or custom callback actions) can compare the values to
+			 * reduce requests issued to the API.
+			 *
+			 * ## The Problem
+			 * In Svelte.js, whenever you call `$store.objectProperty = value`,
+			 * it's going to immediately update the store value and trigger `.subscribe()` callbacks.
+			 *
+			 * If two properties in an object are updated one after the other, they'll trigger
+			 * multiple store updates. This means that `prevValue` is going to change twice,
+			 * and by the time `abortableSynchronize` runs, some of the properties that have changes
+			 * will actually appear unchanged in the callback.
+			 *
+			 * For example:
+			 * ```ts
+			 * $store = writable({ a: 1, b: 2, c: 3 });
+			 * $store.a = 10;
+			 * $store.b = 20;
+			 * ```
+			 *
+			 * `abortableSynchronize` is asynchronous and it debounces itself, so it will receive:
+			 * ```ts
+			 * prevValue = { a: 10, b: 2, c: 3 };
+			 * value = { a: 10, b: 20, c: 3 };
+			 * ```
+			 * Note the value of `$store.a`: by the time `abortableSynchronize` runs, it's already 10
+			 * and so determining if the value has changed is impossible.
+			 *
+			 * ## The Solution
+			 * To solve this, we can delay updating the actual value of the store until the next microtask,
+			 * that way giving time for both `$store.a` and `$store.b` to be updated.
+			 * Before setting the actual value of the store.
+			 *
+			 * ## Side Quest (Optional)
+			 * If you're looking at this closely, you might be wondering - this is just delaying when the store is set!
+			 * This will still cause `store.set` to be called twice with the same value, right?
+			 *
+			 * Yes, it will. But that's okay.
+			 * Svelte isn't going to trigger the reactive callbacks twice, if the value
+			 * is unchanged between `$store.set()` calls.
+			 */
+			// Since we already have `isPrimitive` available, there's no point debouncing primitive value changes.
+			if ( isPrimitive ) {
+				store.set( value );
+			} else {
+				// @see https://developer.mozilla.org/en-US/docs/Web/API/queueMicrotask
+				queueMicrotask( () => {
+					store.set( value );
+				} );
+			}
 		};
 
 		// Update is an useful utility function in Svelte for updating a value
