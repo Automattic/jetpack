@@ -243,7 +243,7 @@ class Test_Connections_Post_Field  extends TestCase {
 
 		$this->assertArrayHasKey( 'jetpack_publicize_connections', $data );
 		$this->assertTrue( true, gettype( $data['jetpack_publicize_connections'] ) === 'array' );
-		$this->assertSame( self::$connection_ids, wp_list_pluck( $data['jetpack_publicize_connections'], 'id' ) );
+		$this->assertSame( self::$token_ids, wp_list_pluck( $data['jetpack_publicize_connections'], 'id' ) );
 
 		$this->assertArrayHasKey( 'meta', $data );
 		$this->assertArrayHasKey( 'jetpack_publicize_message', $data['meta'] );
@@ -261,10 +261,11 @@ class Test_Connections_Post_Field  extends TestCase {
 				'facebook' => array(
 					'id_number' => array(
 						'connection_data' => array(
-							'user_id'  => self::$user_id,
-							'id'       => '456',
-							'token_id' => 'test-unique-id456',
-							'meta'     => array(
+							'user_id'       => self::$user_id,
+							'id'            => '456',
+							'connection_id' => '4560',
+							'token_id'      => 'test-unique-id456',
+							'meta'          => array(
 								'display_name' => 'test-display-name456',
 							),
 						),
@@ -274,10 +275,11 @@ class Test_Connections_Post_Field  extends TestCase {
 				'tumblr'   => array(
 					'id_number' => array(
 						'connection_data' => array(
-							'user_id'  => 0,
-							'id'       => '123',
-							'token_id' => 'test-unique-id123',
-							'meta'     => array(
+							'user_id'       => 0,
+							'id'            => '123',
+							'connection_id' => '1230',
+							'token_id'      => 'test-unique-id123',
+							'meta'          => array(
 								'display_name' => 'test-display-name123',
 							),
 						),
@@ -352,8 +354,9 @@ class Test_Connections_Post_Field  extends TestCase {
 			array(
 				'jetpack_publicize_connections' => array(
 					array(
-						'service_name' => 'facebook',
-						'enabled'      => false,
+						'service_name'  => 'facebook',
+						'enabled'       => false,
+						'connection_id' => '4560',
 					),
 				),
 			)
@@ -364,7 +367,12 @@ class Test_Connections_Post_Field  extends TestCase {
 		$this->assertNotEmpty( $data['jetpack_publicize_connections'] );
 
 		foreach ( $data['jetpack_publicize_connections'] as $connection ) {
-			$this->assertSame( 'facebook' !== $connection->service_name, $connection->enabled );
+			if ( $connection->connection_id === '4560' ) {
+				$this->assertFalse( $connection->enabled );
+			} else {
+				$this->assertTrue( $connection->enabled );
+
+			}
 		}
 	}
 
