@@ -143,7 +143,7 @@ class Jetpack_Custom_CSS_Enhancements {
 	 */
 	public static function wp_post_revision_fields( $fields, $post ) {
 		// None of the fields in $post are required to be passed in this filter.
-		if ( ! isset( $post['post_type'], $post['ID'] ) ) {
+		if ( ! isset( $post['post_type'] ) || ! isset( $post['ID'] ) ) {
 			return $fields;
 		}
 

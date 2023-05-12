@@ -1692,9 +1692,9 @@ JS;
 			"#[\n\r\t]#",
 			'',
 			sprintf( $js_code,
-				join( '|', array_keys( $whitelist ) ),
-				join( ',', array_keys( $random ) ),
-				join( '+"")+(', $chars )
+				implode( '|', array_keys( $whitelist ) ),
+				implode( ',', array_keys( $random ) ),
+				implode( '+"")+(', $chars )
 			)
 		);
 		echo $code;
