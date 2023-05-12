@@ -1,8 +1,7 @@
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
-import { isaData } from './isa-data';
-import { isaIgnoredImages } from './isa-ignored-images';
+import { isaIgnoredImages, isaData } from './isa-data';
 
 const Group = z.object( {
 	name: z.string(),

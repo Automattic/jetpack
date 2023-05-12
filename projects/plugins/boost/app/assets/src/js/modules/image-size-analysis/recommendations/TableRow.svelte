@@ -7,9 +7,16 @@
 	import RowTitle from './components/RowTitle.svelte';
 	import Thumbnail from './components/Thumbnail.svelte';
 
-	export let data: ISA_Data;
-
-	const title = data.image.url.split( '/' ).pop();
+	export let status: ISA_Data[ 'status' ];
+	export let title: string;
+	export let image_url: string;
+	export let page_url: string;
+	export let weight: ISA_Data[ 'image' ][ 'weight' ];
+	export let device_type: ISA_Data[ 'device_type' ];
+	export let page_title: string;
+	export let dimensions: ISA_Data[ 'image' ][ 'dimensions' ];
+	export let edit_url: string;
+	export let instructions: string;
 
 	let expanded = false;
 	function toggleExpand( e ) {
@@ -25,33 +32,33 @@
 <div class="jb-table-row-container" class:expanded>
 	<div class="jb-table-row recommendation-page-grid" on:click={toggleExpand}>
 		<div class="jb-table-row__thumbnail">
-			<Thumbnail {title} url={data.image.url} width={65} height={65} />
+			<Thumbnail {title} url={image_url} width={65} height={65} />
 		</div>
 
 		<div class="jb-table-row__title">
-			<RowTitle {title} url={data.page.url} />
+			<RowTitle {title} url={page_url} />
 		</div>
 
 		<div class="jb-table-row__potential-size">
 			<Pill color="#facfd2">
-				{Math.round( data.image.weight.current )} KB
+				{Math.round( weight.current )} KB
 			</Pill>
 			<div class="jb-arrow">→</div>
 			<Pill color="#d0e6b8">
-				{Math.round( data.image.weight.potential )} KB
+				{Math.round( weight.potential )} KB
 			</Pill>
 		</div>
 
 		<div class="jb-table-row__hover-content">
-			<TableRowHover {data} />
+			<TableRowHover {edit_url} {instructions} />
 		</div>
 
 		<div class="jb-table-row__device">
-			<Device device={data.device_type} />
+			<Device device={device_type} />
 		</div>
 
 		<div class="jb-table-row__page">
-			<a href={data.page.url}>{data.page.title}</a>
+			<a href={page_url}>{page_title}</a>
 		</div>
 
 		<!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -72,7 +79,7 @@
 		</div>
 	</div>
 	{#if expanded}
-		<TableRowExpanded {data} />
+		<TableRowExpanded {...{ status, dimensions, edit_url, instructions }} on:clickIgnore />
 	{/if}
 </div>
 

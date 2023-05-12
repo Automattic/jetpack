@@ -1,10 +1,25 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import Spinner from '../../../elements/Spinner.svelte';
-	import { isaFilteredImages, isaDataLoading } from '../store/isa-data';
+	import { isaData, isaDataLoading } from '../store/isa-data';
 	import TableRow from './TableRow.svelte';
+	$: activeFilter = $isaData.query.group === 'ignored' ? 'ignored' : 'active';
+
+	let isLoading = false;
+	let preventIsLoading = false;
+	async function delayedLoadingUpdate() {
+		await tick();
+		if ( preventIsLoading ) {
+			preventIsLoading = false;
+			return;
+		}
+		isLoading = $isaDataLoading;
+	}
+	// eslint-disable-next-line no-unused-expressions
+	$: $isaDataLoading, delayedLoadingUpdate();
 </script>
 
-<div class="jb-table" class:jb-loading={$isaDataLoading}>
+<div class="jb-table" class:jb-loading={isLoading}>
 	<div class="jb-table-header recommendation-page-grid">
 		<div class="jb-table-header__image">Image</div>
 		<div class="jb-table-header__potential-size">Potential Size</div>
@@ -16,8 +31,26 @@
 		<Spinner size="3rem" lineWidth="4px" />
 	</div>
 
-	{#each $isaFilteredImages as data (data.id)}
-		<TableRow {data} />
+	{#each $isaData.data.images as image (image.id)}
+		{#if image.status === activeFilter}
+			<TableRow
+				title={image.image.url.split( '/' ).pop()}
+				image_url={image.image.url}
+				page_url={image.page.url}
+				weight={image.image.weight}
+				device_type={image.device_type}
+				page_title={image.page.title}
+				dimensions={image.image.dimensions}
+				edit_url={image.page.url}
+				instructions={image.instructions}
+				status={image.status}
+				on:clickIgnore={() => {
+					preventIsLoading = true;
+					// Toggle the status
+					image.status = image.status === 'ignored' ? 'active' : 'ignored';
+				}}
+			/>
+		{/if}
 	{/each}
 </div>
 

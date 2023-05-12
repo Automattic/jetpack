@@ -10,6 +10,7 @@ const Dimensions = z.object( {
 
 export const ImageData = z.object( {
 	id: z.string(),
+	status: z.enum( [ 'active', 'ignored' ] ).default( 'active' ),
 	thumbnail: z.string(),
 	image: z.object( {
 		url: z.string(),
