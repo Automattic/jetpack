@@ -3,14 +3,13 @@
 use Automattic\Jetpack\WP_JS_Data_Sync\Schema\Schema;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync\Image_Size_Analysis_Entry;
 use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync\Image_Size_Analysis_Groups;
-use Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\Data_Sync\Image_Size_Analysis_Ignored_Images;
 
 $image_data = Schema::as_assoc_array(
 	array(
 		'id'           => Schema::as_string(),
 		'thumbnail'    => Schema::as_string(),
 		'device_type'  => Schema::enum( array( 'phone', 'desktop' ) ),
-		'status'      => Schema::enum( array( 'active', 'ignored' ) )->fallback('active'),
+		'status'       => Schema::enum( array( 'active', 'ignored' ) )->fallback( 'active' ),
 		'instructions' => Schema::as_string(),
 		'edit_url'     => Schema::as_string(),
 		'page'         => Schema::as_assoc_array(
