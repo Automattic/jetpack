@@ -8,9 +8,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { buildPromptTemplate, createPrompt } from './create-prompt';
+import { buildPromptTemplate } from './create-prompt';
 import { askJetpack } from './get-suggestion-with-stream';
-import tellWhatToDoNext from './prompt/tell-what-to-do-next';
+import { defaultPromptLanguage } from './i18n-dropdown-control';
 import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
 /**
@@ -136,16 +136,19 @@ const useSuggestionsFromOpenAI = ( {
 	}, [ loading ] );
 
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
+	// eslint-disable-next-line no-unused-vars
 	const categoryNames = categoryObjects
 		.filter( cat => cat.id !== 1 )
 		.map( ( { name } ) => name )
 		.join( ', ' );
+	// eslint-disable-next-line no-unused-vars
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
 	const getSuggestionFromOpenAI = ( type, options = {} ) => {
 		options = {
 			retryRequest: false,
 			tone: DEFAULT_PROMPT_TONE,
+			language: defaultPromptLanguage,
 			...options,
 		};
 
@@ -163,11 +166,23 @@ const useSuggestionsFromOpenAI = ( {
 			// If there is a content already, let's iterate over it.
 			switch ( type ) {
 				/*
+				 * Generate content from title.
+				 */
+				case 'titleSummary':
+					prompt = buildPromptTemplate( {
+						request:
+							'Please help me write a short piece for a blog post based on the content below',
+						content: currentPostTitle,
+					} );
+					break;
+
+				/*
 				 * Continue generating from the content below.
 				 */
 				case 'continue':
 					prompt = buildPromptTemplate( {
-						request: 'Please continue from the content below.',
+						request: 'Please continue writing from the content below.',
+						rules: [ 'Only output the continuation of the content, without repeating it' ],
 						content: getPartialContentToBlock( clientId ),
 					} );
 					break;
@@ -229,6 +244,11 @@ const useSuggestionsFromOpenAI = ( {
 				case 'simplify':
 					prompt = buildPromptTemplate( {
 						request: 'Simplify the content below.',
+						rules: [
+							'Use words and phrases that are easier to understand for non-technical people',
+							'Output in the same language of the content',
+							'Use as much of the original language as possible',
+						],
 						content: content?.length ? content : getContentFromBlocks(),
 					} );
 					break;
@@ -243,20 +263,21 @@ const useSuggestionsFromOpenAI = ( {
 					} );
 					break;
 
+				/**
+				 * Change the language, based on options.language
+				 */
+				case 'changeLanguage':
+					prompt = buildPromptTemplate( {
+						request: `Please, rewrite in the following language: ${ options.language }`,
+						content: content?.length ? content : getContentFromBlocks(),
+					} );
+					break;
+
 				default:
-					if ( content?.length && userPrompt?.length ) {
-						prompt = tellWhatToDoNext( userPrompt, content );
-					} else {
-						prompt = createPrompt(
-							currentPostTitle,
-							getPartialContentToBlock( clientId ),
-							content?.length ? content : getContentFromBlocks(),
-							userPrompt,
-							type,
-							categoryNames,
-							tagNames
-						);
-					}
+					prompt = buildPromptTemplate( {
+						request: userPrompt,
+						content,
+					} );
 					break;
 			}
 		}
