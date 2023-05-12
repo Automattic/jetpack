@@ -766,7 +766,7 @@ final class Image_CDN {
 					// for an image that was uploaded before the custom image was added to the theme.  Try to determine the size manually.
 					$image_meta = wp_get_attachment_metadata( $attachment_id );
 
-					if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
+					if ( isset( $image_meta['width'] ) && isset( $image_meta['height'] ) ) {
 						$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $image_args['width'], $image_args['height'], $image_args['crop'] );
 						if ( $image_resized ) { // This could be false when the requested image size is larger than the full-size image.
 							$image_meta['width']  = $image_resized[6];
@@ -775,7 +775,7 @@ final class Image_CDN {
 					}
 				}
 
-				if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
+				if ( isset( $image_meta['width'] ) && isset( $image_meta['height'] ) ) {
 					$image_args['width']  = (int) $image_meta['width'];
 					$image_args['height'] = (int) $image_meta['height'];
 
@@ -796,7 +796,7 @@ final class Image_CDN {
 				} else {
 					$image_meta = wp_get_attachment_metadata( $attachment_id );
 					if ( ( 'resize' === $transform ) && $image_meta ) {
-						if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
+						if ( isset( $image_meta['width'] ) && isset( $image_meta['height'] ) ) {
 							// Lets make sure that we don't upscale images since wp never upscales them as well.
 							$smaller_width  = ( ( $image_meta['width'] < $image_args['width'] ) ? $image_meta['width'] : $image_args['width'] );
 							$smaller_height = ( ( $image_meta['height'] < $image_args['height'] ) ? $image_meta['height'] : $image_args['height'] );
@@ -848,7 +848,7 @@ final class Image_CDN {
 				}
 
 				$image_meta = wp_get_attachment_metadata( $attachment_id );
-				if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
+				if ( isset( $image_meta['width'] ) && isset( $image_meta['height'] ) ) {
 					$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $width, $height );
 
 					if ( $image_resized ) { // This could be false when the requested image size is larger than the full-size image.
