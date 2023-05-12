@@ -412,7 +412,11 @@ function render_block( $attributes ) {
 		return '';
 	}
 
-	if ( Jetpack_Gutenberg::is_newsletter_configured() ) {
+	if (
+		/** This filter is documented in class.jetpack-gutenberg.php */
+		apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+		&& class_exists( '\Jetpack_Memberships' )
+	) {
 		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
 		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 		if ( ! wp_style_is( 'enqueued' ) ) {
