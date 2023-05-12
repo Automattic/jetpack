@@ -11,7 +11,6 @@ import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components'
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
 import React from 'react';
-import { useCallback } from 'react';
 
 const LANGUAGE_LIST = [
 	'en',
@@ -118,24 +117,6 @@ export default function I18nDropdownControl( {
 		...LANGUAGE_LIST.filter( language => language !== defaultPromptLanguage ),
 	];
 
-	// Set the `<html lang>` attribute to the selected language.
-	const changeLanguage = useCallback(
-		( language: string, label: string ) => {
-			/*
-			 * If the selected language doesn’t match the site language,
-			 * set <html lang=“” />
-			 */
-			if ( language === defaultPromptLanguage ) {
-				document.documentElement.lang = defaultLanguageLocale;
-			} else {
-				document.documentElement.lang = '';
-			}
-
-			onChange( language + ' (' + label + ')' );
-		},
-		[ onChange ]
-	);
-
 	return (
 		<ToolbarDropdownMenu
 			icon={ globe }
@@ -151,7 +132,7 @@ export default function I18nDropdownControl( {
 							return (
 								<MenuItem
 									key={ `key-${ language }` }
-									onClick={ () => changeLanguage( language, LANGUAGE_MAP[ language ].label ) }
+									onClick={ () => onChange( language + ' (' + LANGUAGE_MAP[ language ] + ')' ) }
 									isSelected={ value === language }
 								>
 									{ LANGUAGE_MAP[ language ].label }
