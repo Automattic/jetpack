@@ -1,6 +1,6 @@
 import { RichText } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-import { useEffect, useState, useMemo } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	getDefaultAmountsForCurrency,
@@ -38,39 +38,8 @@ const Tab = ( { activeTab, attributes, setAttributes } ) => {
 	};
 
 	// Updates the amounts whenever there are new defaults due to a currency change.
-	const [ previousCurrency, setPreviousCurrency ] = useState( currency );
-	const minAmount = minimumTransactionAmountForCurrency( currency );
-	const defaultAmounts = useMemo(
-		() => [
-			minAmount * 10, // 1st tier (USD 5)
-			minAmount * 30, // 2nd tier (USD 15)
-			minAmount * 200, // 3rd tier (USD 100)
-		],
-		[ minAmount ]
-	);
-	useEffect( () => {
-		if ( previousCurrency === currency ) {
-			return;
-		}
-		setPreviousCurrency( currency );
-
-		// setAttributes( {
-		// 	oneTimeDonation: { ...oneTimeDonation, amounts: defaultAmounts },
-		// 	monthlyDonation: { ...monthlyDonation, amounts: defaultAmounts },
-		// 	annualDonation: { ...annualDonation, amounts: defaultAmounts },
-		// } );
-	}, [
-		currency,
-		previousCurrency,
-		defaultAmounts,
-		oneTimeDonation,
-		monthlyDonation,
-		annualDonation,
-		setAttributes,
-	] );
-
-	const amounts = getDonationValue( 'amounts' );
 	const defaultAmounts = getDefaultAmountsForCurrency( currency );
+	const amounts = getDonationValue( 'amounts' );
 
 	const setAmount = ( amount, tier ) => {
 		const newAmounts = [ ...amounts ];

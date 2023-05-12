@@ -15,11 +15,7 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { DOWN } from '@wordpress/keycodes';
-import {
-	getDefaultAmountsForCurrency,
-	minimumTransactionAmountForCurrency,
-	SUPPORTED_CURRENCIES,
-} from '../../shared/currencies';
+import { getDefaultAmountsForCurrency, SUPPORTED_CURRENCIES } from '../../shared/currencies';
 
 const Controls = props => {
 	const { attributes, setAttributes } = props;
@@ -80,7 +76,7 @@ const Controls = props => {
 											<MenuItem
 												isSelected={ ccy === currency }
 												onClick={ () => {
-													const defaultAmounts = getDefaultAmountsForCurrency( currency );
+													const defaultAmounts = getDefaultAmountsForCurrency( ccy );
 
 													setAttributes( {
 														currency: ccy,

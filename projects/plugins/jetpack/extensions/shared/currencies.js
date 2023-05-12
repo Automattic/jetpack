@@ -60,6 +60,12 @@ export function minimumTransactionAmountForCurrency( currency_code ) {
 	return SUPPORTED_CURRENCIES[ currency_code ];
 }
 
+/**
+ * Returns the default amounts for the given currency.
+ *
+ * @param {string} currency_code - three character currency code to get default amounts for
+ * @returns {number[]} Default amounts for the given currency_code
+ */
 export function getDefaultAmountsForCurrency( currency_code ) {
 	const minAmount = minimumTransactionAmountForCurrency( currency_code );
 	return [
