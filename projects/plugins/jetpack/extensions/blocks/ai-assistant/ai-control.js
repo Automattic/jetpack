@@ -14,6 +14,7 @@ import { arrowRight, chevronDown, image, pencil, update, title } from '@wordpres
 /*
  * Internal dependencies
  */
+import I18nDropdownControl from './i18n-dropdown-control';
 import Loading from './loading';
 import ToneDropdownControl from './tone-dropdown-control';
 
@@ -148,6 +149,12 @@ const ToolbarControls = ( {
 					<ToneDropdownControl
 						value="neutral"
 						onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
+						disabled={ contentIsLoaded }
+					/>
+
+					<I18nDropdownControl
+						value="en"
+						onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
 						disabled={ contentIsLoaded }
 					/>
 
