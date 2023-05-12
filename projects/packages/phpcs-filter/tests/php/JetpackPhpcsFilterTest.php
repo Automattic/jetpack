@@ -1,16 +1,16 @@
 <?php
 /**
- * Tests for PhpcsFilter.php.
+ * Tests for JetpackPhpcsFilter.php.
  *
  * @package automattic/jetpack-phpcs-filter
  */
 
 namespace Automattic\Jetpack\PhpcsFilter\Tests;
 
-use Automattic\Jetpack\PhpcsFilter;
 use PHP_CodeSniffer\Config;
 use PHP_CodeSniffer\Files\FileList;
 use PHP_CodeSniffer\Files\LocalFile;
+use PHP_CodeSniffer\Filters\Automattic\JetpackPhpcsFilter;
 use PHP_CodeSniffer\Ruleset;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -18,9 +18,9 @@ use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
 /**
- * Tests for PhpcsFilter.php.
+ * Tests for JetpackPhpcsFilter.php.
  */
-class PhpcsFilterTest extends TestCase {
+class JetpackPhpcsFilterTest extends TestCase {
 
 	/**
 	 * Old CWD to restore after the test.
@@ -71,13 +71,13 @@ class PhpcsFilterTest extends TestCase {
 		// When run from the base of the repo, it reads tests/fixtures/.phpcsignore and so ignores everything.
 		chdir( __DIR__ . '/../../' );
 		$di     = new RecursiveDirectoryIterator( 'tests/fixtures/phpcsignore', RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::FOLLOW_SYMLINKS );
-		$filter = new RecursiveIteratorIterator( new PhpcsFilter( $di, 'tests/fixtures/phpcsignore', $config, new Ruleset( $config ) ) );
+		$filter = new RecursiveIteratorIterator( new JetpackPhpcsFilter( $di, 'tests/fixtures/phpcsignore', $config, new Ruleset( $config ) ) );
 		$this->assertSame( array(), array_keys( iterator_to_array( $filter ) ) );
 
 		// When run from the fixture dir, it reads only .phpcsignore in that dir and below.
 		chdir( __DIR__ . '/../../tests/fixtures/phpcsignore' );
 		$di     = new RecursiveDirectoryIterator( '.', RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::FOLLOW_SYMLINKS );
-		$filter = new RecursiveIteratorIterator( new PhpcsFilter( $di, '.', $config, new Ruleset( $config ) ) );
+		$filter = new RecursiveIteratorIterator( new JetpackPhpcsFilter( $di, '.', $config, new Ruleset( $config ) ) );
 		$files  = array();
 		foreach ( $filter as $file ) {
 			$this->assertInstanceOf( LocalFile::class, $file );
@@ -90,7 +90,7 @@ class PhpcsFilterTest extends TestCase {
 		chdir( __DIR__ . '/../../' );
 		Config::setConfigData( 'jetpack-filter-basedir', 'tests/fixtures/phpcsignore', true );
 		$di     = new RecursiveDirectoryIterator( 'tests/fixtures/phpcsignore', RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::FOLLOW_SYMLINKS );
-		$filter = new RecursiveIteratorIterator( new PhpcsFilter( $di, 'tests/fixtures/phpcsignore', $config, new Ruleset( $config ) ) );
+		$filter = new RecursiveIteratorIterator( new JetpackPhpcsFilter( $di, 'tests/fixtures/phpcsignore', $config, new Ruleset( $config ) ) );
 		$files  = array();
 		foreach ( $filter as $file ) {
 			$this->assertInstanceOf( LocalFile::class, $file );
@@ -108,7 +108,7 @@ class PhpcsFilterTest extends TestCase {
 
 		chdir( __DIR__ . '/../../tests/fixtures/phpcsignore' );
 		$di     = new RecursiveDirectoryIterator( '.', RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::FOLLOW_SYMLINKS );
-		$filter = new RecursiveIteratorIterator( new PhpcsFilter( $di, '.', $config, new Ruleset( $config ) ) );
+		$filter = new RecursiveIteratorIterator( new JetpackPhpcsFilter( $di, '.', $config, new Ruleset( $config ) ) );
 		$files  = array();
 		foreach ( $filter as $file ) {
 			$this->assertInstanceOf( LocalFile::class, $file );
@@ -143,7 +143,7 @@ class PhpcsFilterTest extends TestCase {
 
 		chdir( __DIR__ . '/../../tests/fixtures/phpcsignore' );
 		$di     = new RecursiveDirectoryIterator( '.', RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::FOLLOW_SYMLINKS );
-		$filter = new RecursiveIteratorIterator( new PhpcsFilter( $di, '.', $config, new Ruleset( $config ) ) );
+		$filter = new RecursiveIteratorIterator( new JetpackPhpcsFilter( $di, '.', $config, new Ruleset( $config ) ) );
 		$files  = array();
 		foreach ( $filter as $file ) {
 			$this->assertInstanceOf( LocalFile::class, $file );
@@ -197,7 +197,7 @@ class PhpcsFilterTest extends TestCase {
 		$this->assertIsArray( $expect, 'expect.json contains a JSON object' );
 
 		$config         = new Config();
-		$config->filter = __DIR__ . '/../../src/PhpcsFilter.php';
+		$config->filter = 'Automattic\\JetpackPhpcsFilter';
 		$config->files  = array( $path );
 		$ruleset        = new Ruleset( $config );
 		$files          = new FileList( $config, $ruleset );

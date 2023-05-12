@@ -6,12 +6,13 @@
  */
 
 use PHP_CodeSniffer\Files\LocalFile;
+use PHP_CodeSniffer\Filters\Automattic\JetpackPhpcsFilter;
 use PHP_CodeSniffer\Util;
 
 /**
  * Filter for PHPCS to exclude files in bin/phpcs-excludelist.json.
  */
-class Jetpack_Phpcs_Exclude_Filter extends Automattic\Jetpack\PhpcsFilter {
+class Jetpack_Phpcs_Exclude_Filter extends JetpackPhpcsFilter {
 	/**
 	 * Files to exclude.
 	 *
