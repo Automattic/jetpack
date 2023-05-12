@@ -119,7 +119,7 @@ export default function I18nDropdownControl( {
 									onClick={ () => onChange( language ) }
 									isSelected={ value === language }
 								>
-									{ `${ LANGUAGE_MAP[ language ].flag } ${ LANGUAGE_MAP[ language ].label }` }
+									{ LANGUAGE_MAP[ language ].label }
 								</MenuItem>
 							);
 						} ) }
