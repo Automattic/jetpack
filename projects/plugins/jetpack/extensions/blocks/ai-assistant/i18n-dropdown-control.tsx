@@ -42,7 +42,7 @@ export const defaultLanguage = ( defaultLanguageLocale?.split( '-' )[ 0 ] || 'en
 
 export const defaultLocale = defaultLanguageLocale?.split( '-' )?.[ 1 ] || null;
 
-const LANGUAGE_MAP = {
+export const LANGUAGE_MAP = {
 	en: {
 		label: __( 'English', 'jetpack' ),
 		flag: '🇬🇧',

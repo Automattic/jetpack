@@ -2,7 +2,7 @@
  * External dependencies
  */
 import debugFactory from 'debug';
-import { defaultLanguage, defaultLocale } from './i18n-dropdown-control';
+import { LANGUAGE_MAP } from './i18n-dropdown-control';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
@@ -17,6 +17,8 @@ const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
  * @param {array} options.rules    - An array of rules to be followed.
  * @param {string} options.request - The prompt request.
  * @param {string} options.content - The content to be modified.
+ * @param {string} options.lang    - The language of the content.
+ * @param {string} options.locale  - The locale of the content.
  *
  * @return {string} The prompt.
  */
@@ -25,14 +27,18 @@ export const buildPromptTemplate = ( {
 	rules = [],
 	request = null,
 	content = null,
-	lang = defaultLanguage,
-	locale = defaultLocale,
+	lang = null,
+	locale = null,
 } ) => {
 	if ( ! request && ! content ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
 
-	let langLocationRule = lang ? `- Write in the language: ${ lang }.` : '';
+	let langLocationRule = lang
+		? `- Write in the language: ${ lang }(${
+				LANGUAGE_MAP[ lang ] ? ` (${ LANGUAGE_MAP[ lang ] }).` : '.'
+		  }).`
+		: '';
 	langLocationRule = langLocationRule.length && locale ? ` locale: ${ locale }.` : langLocationRule;
 
 	let job = 'Your job is to ';
