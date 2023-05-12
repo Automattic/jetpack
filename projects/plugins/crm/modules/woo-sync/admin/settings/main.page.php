@@ -308,7 +308,7 @@ function jpcrm_settings_page_html_woosync_main() {
 							<div style="margin-top:10px;">
 								<a style="margin-top:10px;" href="<?php echo esc_url( $zbs->urls['woomanagingorders'] ); ?>" target="_blank">
 									<?php esc_html_e( 'Learn more about the WooCommerce order statuses', 'zero-bs-crm' ); ?>
-									<img class="jpcrm-external-link-icon" style="width:1em" src="<?php echo esc_url( ZEROBSCRM_URL ); ?>i/external-link.svg" />
+									<img class="jpcrm-external-link-icon" style="margin-bottom:2px" src="<?php echo esc_url( ZEROBSCRM_URL ); ?>i/external-link.svg" />
 								</a>
 							</div>
 							<br/>
