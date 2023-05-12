@@ -222,7 +222,9 @@
 				$available_statuses = zeroBSCRM_getTransactionsStatuses( true );
 
 				// if current status is not a valid one, add it to statuses array
-				if ( ! $zbs->DAL->is_valid_obj_status( ZBS_TYPE_TRANSACTION, $transaction['status'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				if ( empty( $transaction['status'] ) ) {
+					$transaction['status'] = $available_statuses[0];
+				} elseif ( ! $zbs->DAL->is_valid_obj_status( ZBS_TYPE_TRANSACTION, $transaction['status'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 					$available_statuses[] = $transaction['status'];
 				}
 
