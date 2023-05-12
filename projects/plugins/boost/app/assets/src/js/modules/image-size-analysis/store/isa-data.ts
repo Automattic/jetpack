@@ -1,4 +1,5 @@
 import { derived } from 'svelte/store';
+import { useParams } from 'svelte-navigator';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
 import { isaIgnoredImages } from './isa-ignored-images';
@@ -52,6 +53,31 @@ export const isaFilteredImages = derived(
 		return $data.data.images.filter( image => ! $ignored.find( ignore => ignore.id === image.id ) );
 	}
 );
+
+export function updateIsaQuery( group: string, page = 1, search = '' ) {
+	image_size_analysis.store.update( value => {
+		return {
+			...value,
+			query: {
+				group,
+				page,
+				search,
+			},
+		};
+	} );
+}
+
+/**
+ * Initialize the query params when the Recommendations Page component loads.
+ * This is wrapped in a function because useParams() expects to be loaded from a component.
+ */
+export function initializeIsaData() {
+	// Hook into the router to update the query params.
+	const queryParams = useParams();
+	queryParams.subscribe( $params => {
+		updateIsaQuery( $params.group, parseInt( $params.page ), $params.search );
+	} );
+}
 
 /**
  * Export the stores
