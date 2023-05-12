@@ -8,6 +8,7 @@ import { Flex, FlexBlock, Modal } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import MarkdownIt from 'markdown-it';
 /**
  * Internal dependencies
  */
@@ -17,6 +18,10 @@ import { getImagesFromOpenAI } from './lib';
 import ShowLittleByLittle from './show-little-by-little';
 import useSuggestionsFromOpenAI from './use-suggestions-from-openai';
 import './editor.scss';
+
+const markdownConverter = new MarkdownIt( {
+	breaks: true,
+} );
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
@@ -105,7 +110,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const contentIsLoaded = !! attributes.content;
 
 	const handleAcceptContent = () => {
-		replaceBlocks( clientId, rawHandler( { HTML: attributes.content } ) );
+		replaceBlocks(
+			clientId,
+			rawHandler( { HTML: markdownConverter.render( attributes.content ) } )
+		);
 	};
 
 	const handleAcceptTitle = () => {
