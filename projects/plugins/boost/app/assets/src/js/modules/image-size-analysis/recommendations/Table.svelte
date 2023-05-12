@@ -6,17 +6,16 @@
 	$: activeFilter = $isaData.query.group === 'ignored' ? 'ignored' : 'active';
 
 	let isLoading = false;
-	let preventIsLoading = false;
-	async function delayedLoadingUpdate() {
-		await tick();
-		if ( preventIsLoading ) {
-			preventIsLoading = false;
+	let ignoreStatusUpdated = false;
+	async function delayedLoadingUpdate( loading: boolean ) {
+		if ( ignoreStatusUpdated ) {
+			ignoreStatusUpdated = false;
 			return;
 		}
-		isLoading = $isaDataLoading;
+		isLoading = loading;
 	}
 	// eslint-disable-next-line no-unused-expressions
-	$: $isaDataLoading, delayedLoadingUpdate();
+	$: delayedLoadingUpdate( $isaDataLoading );
 </script>
 
 <div class="jb-table" class:jb-loading={isLoading}>
@@ -45,7 +44,7 @@
 				instructions={image.instructions}
 				status={image.status}
 				on:clickIgnore={() => {
-					preventIsLoading = true;
+					ignoreStatusUpdated = true;
 					// Toggle the status
 					image.status = image.status === 'ignored' ? 'active' : 'ignored';
 				}}
