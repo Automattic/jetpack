@@ -1,3 +1,9 @@
+declare global {
+	interface Window {
+		Jetpack_Editor_Initial_State: { siteLocale: string };
+	}
+}
+
 /*
  * External dependencies
  */
@@ -21,6 +27,10 @@ const LANGUAGE_LIST = [
 	'ko',
 	// more languages here...
 ] as const;
+
+const navigatorLanguage = navigator.language.split( '-' )[ 0 ];
+const siteLanguage = window.Jetpack_Editor_Initial_State.siteLocale.split( '-' )[ 0 ];
+const defaultLanguage = siteLanguage || navigatorLanguage;
 
 export const DEFAULT_PROMPT_LANGUAGE = 'en';
 
@@ -101,6 +111,12 @@ export default function I18nDropdownControl( {
 	value = DEFAULT_PROMPT_LANGUAGE,
 	onChange,
 }: LanguageDropdownControlProps ) {
+	// Move the default language to the top of the list.
+	const languageList = [
+		defaultLanguage,
+		...LANGUAGE_LIST.filter( language => language !== defaultLanguage ),
+	];
+
 	return (
 		<ToolbarDropdownMenu
 			icon={ globe }
@@ -112,7 +128,7 @@ export default function I18nDropdownControl( {
 			{ () => {
 				return (
 					<MenuGroup label={ __( 'Select language', 'jetpack' ) }>
-						{ LANGUAGE_LIST.map( language => {
+						{ languageList.map( language => {
 							return (
 								<MenuItem
 									key={ `key-${ language }` }
