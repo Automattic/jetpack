@@ -78,6 +78,7 @@ class MapkitBlock {
 		this.map = new this.mapkit.Map( this.container, {
 			center,
 			mapType,
+			showsMapTypeControl: false,
 		} );
 
 		if ( this.points.length < 2 && this.zoom ) {
