@@ -16,16 +16,15 @@
 	$: delayedLoadingUpdate( $isaDataLoading );
 </script>
 
+<div class="jb-loading-spinner" class:active={isLoading}>
+	<Spinner size="3rem" lineWidth="4px" />
+</div>
 <div class="jb-table" class:jb-loading={isLoading}>
 	<div class="jb-table-header recommendation-page-grid">
 		<div class="jb-table-header__image">Image</div>
 		<div class="jb-table-header__potential-size">Potential Size</div>
 		<div class="jb-table-header__device">Device</div>
 		<div class="jb-table-header__page">Page/Post</div>
-	</div>
-
-	<div class="jb-loading-spinner">
-		<Spinner size="3rem" lineWidth="4px" />
 	</div>
 
 	{#each $isaData.data.images as image (image.id)}
@@ -61,15 +60,15 @@
 		opacity: 0.2;
 		position: relative;
 	}
-	:not( .jb-loading ) .jb-loading-spinner {
-		display: none;
-	}
-	.jb-loading .jb-loading-spinner {
-		position: absolute;
-		top: 25%;
+	.jb-loading-spinner {
+		position: fixed;
+		top: 50%;
 		left: 50%;
 		transform: translate( -50%, -50% );
 		z-index: 9000;
+		&:not( .active ) {
+			display: none;
+		}
 	}
 	.jb-table-header {
 		font-size: 0.875rem;
