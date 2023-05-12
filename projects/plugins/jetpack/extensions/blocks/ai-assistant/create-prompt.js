@@ -24,10 +24,16 @@ export const buildPromptTemplate = ( {
 	rules = [],
 	request = null,
 	content = null,
+	lang = null,
+	location = null,
 } ) => {
 	if ( ! request && ! content ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
+
+	let langLocationRule = lang ? `- Write in the language: ${ lang }.` : '';
+	langLocationRule =
+		langLocationRule.length && location ? ` location: ${ location }.` : langLocationRule;
 
 	let job = 'Your job is to ';
 
@@ -56,9 +62,9 @@ ${ job }. Do this by following rules set in "Rules".
 Rules:
 - Output the generated content in markdown format.
 - Do not include a top level heading by default.
-- Only output generated content ready for publishing.${ rules.length ? '\n' : '' }${ rules
-		.map( rule => `- ${ rule }.` )
-		.join( '\n' ) }
+- Only output generated content ready for publishing.${ langLocationRule }${
+		rules.length ? '\n' : ''
+	}${ rules.map( rule => `- ${ rule }.` ).join( '\n' ) }
 ${ requestText }${ requestText && contentText ? `\n${ contentText }` : contentText }`;
 
 	debug( prompt );
