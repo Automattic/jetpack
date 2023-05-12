@@ -149,7 +149,6 @@ const useSuggestionsFromOpenAI = ( {
 			retryRequest: false,
 			tone: DEFAULT_PROMPT_TONE,
 			language: DEFAULT_PROMPT_LANGUAGE,
-			...options,
 		};
 
 		if ( isLoadingCompletion ) {
