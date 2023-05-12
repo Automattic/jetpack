@@ -41,6 +41,12 @@ class Image_Size_Analysis_Groups implements Entry_Can_Get {
 				'issues'   => 13,
 				'done'     => false,
 			),
+			'ignored' => array(
+				'name'     => 'Ignored',
+				'progress' => 0,
+				'issues'   => 789,
+				'done'     => false,
+			),
 		);
 	}
 }

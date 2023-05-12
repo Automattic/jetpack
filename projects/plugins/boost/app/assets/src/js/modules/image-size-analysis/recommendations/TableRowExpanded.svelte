@@ -3,7 +3,7 @@
 	import { slide } from 'svelte/transition';
 	import Button from '../../../elements/Button.svelte';
 	import { ISA_Data } from '../store/isa-data';
-	import { isaIgnoredImages } from '../store/isa-ignored-images';
+	import { isaIgnoredImages, ignoreImage, unignoreImage } from '../store/isa-ignored-images';
 	export let data: ISA_Data;
 	const { image, instructions } = data;
 
@@ -11,14 +11,9 @@
 
 	function handleIgnoreClick() {
 		if ( isIgnored ) {
-			isaIgnoredImages.update( ignoredImages => {
-				return ignoredImages.filter( ignoredImage => ignoredImage.id !== data.id );
-			} );
+			unignoreImage( data.id );
 		} else {
-			isaIgnoredImages.update( ignoredImages => {
-				ignoredImages.push( data );
-				return ignoredImages;
-			} );
+			ignoreImage( data.id );
 		}
 	}
 </script>

@@ -19,6 +19,7 @@ const image_size_analysis_groups = jetpack_boost_ds.createAsyncStore(
 			pages: Group,
 			posts: Group,
 			other: Group,
+			ignored: Group,
 		} )
 		// Data unavailable when the the flag is disabled.
 		.optional()
@@ -38,12 +39,6 @@ export const imageDataGroupTabs = derived(
 				},
 			},
 			...$groups,
-			...{
-				ignored: {
-					name: 'Ignored',
-					issues: $ignored.length,
-				},
-			},
 		};
 
 		return groups;
