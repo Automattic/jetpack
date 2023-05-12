@@ -4,7 +4,8 @@
 		"name": "jetpack/author-recommendation",
 		"isValid": true,
 		"attributes": {
-			"recommendations": []
+			"recommendations": [],
+			"remove_user_blogs": false
 		},
 		"innerBlocks": [],
 		"originalContent": ""
