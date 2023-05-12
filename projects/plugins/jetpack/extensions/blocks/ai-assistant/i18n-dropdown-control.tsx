@@ -29,11 +29,18 @@ const LANGUAGE_LIST = [
 	// more languages here...
 ] as const;
 
-const navigatorLanguage = navigator.language.split( '-' )[ 0 ];
-const siteLanguage = window.Jetpack_Editor_Initial_State.siteLocale.split( '-' )[ 0 ];
-const defaultLanguage = siteLanguage || navigatorLanguage;
+export type LanguageProp = ( typeof LANGUAGE_LIST )[ number ];
 
-export const DEFAULT_PROMPT_LANGUAGE = 'en';
+type LanguageDropdownControlProps = {
+	value: LanguageProp;
+	onChange: ( value: string ) => void;
+};
+
+const defaultLanguageLocale =
+	window?.Jetpack_Editor_Initial_State?.siteLocale || navigator?.language;
+
+export const defaultPromptLanguage = ( defaultLanguageLocale?.split( '-' )[ 0 ] ||
+	'en' ) as LanguageProp;
 
 const LANGUAGE_MAP = {
 	en: {
@@ -101,37 +108,30 @@ const LANGUAGE_MAP = {
 	},
 };
 
-export type LanguageProp = ( typeof LANGUAGE_LIST )[ number ];
-
-type LanguageDropdownControlProps = {
-	value: LanguageProp;
-	onChange: ( value: string ) => void;
-};
-
 export default function I18nDropdownControl( {
-	value = DEFAULT_PROMPT_LANGUAGE,
+	value = defaultPromptLanguage,
 	onChange,
 }: LanguageDropdownControlProps ) {
 	// Move the default language to the top of the list.
 	const languageList = [
-		defaultLanguage,
-		...LANGUAGE_LIST.filter( language => language !== defaultLanguage ),
+		defaultPromptLanguage,
+		...LANGUAGE_LIST.filter( language => language !== defaultPromptLanguage ),
 	];
 
 	// Set the `<html lang>` attribute to the selected language.
 	const changeLanguage = useCallback(
-		( language: string ) => {
+		( language: string, label: string ) => {
 			/*
 			 * If the selected language doesn’t match the site language,
 			 * set <html lang=“” />
 			 */
-			if ( language !== defaultLanguage ) {
-				document.documentElement.lang = language;
+			if ( language === defaultPromptLanguage ) {
+				document.documentElement.lang = defaultLanguageLocale;
 			} else {
 				document.documentElement.lang = '';
 			}
 
-			onChange( language );
+			onChange( language + ' (' + label + ')' );
 		},
 		[ onChange ]
 	);
@@ -151,7 +151,7 @@ export default function I18nDropdownControl( {
 							return (
 								<MenuItem
 									key={ `key-${ language }` }
-									onClick={ () => changeLanguage( language ) }
+									onClick={ () => changeLanguage( language, LANGUAGE_MAP[ language ].label ) }
 									isSelected={ value === language }
 								>
 									{ LANGUAGE_MAP[ language ].label }
