@@ -123,7 +123,7 @@ export function NewsletterNotice( {
 
 	/* translators: %s is the number of subscribers in numerical format */
 	let numberOfSubscribersText = __(
-		'This will be sent to <strong>%s subscribers</strong>.',
+		'This will be sent to <br/><strong>%s subscribers</strong>.',
 		'jetpack'
 	);
 
@@ -136,6 +136,7 @@ export function NewsletterNotice( {
 		<FlexBlock>
 			<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
 				{ createInterpolateElement( sprintf( numberOfSubscribersText, reachCount ), {
+					br: <br />,
 					strong: <strong />,
 				} ) }
 			</Notice>
