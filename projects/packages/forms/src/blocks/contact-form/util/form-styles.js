@@ -78,6 +78,9 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		lineHeight: buttonOutlineLineHeight,
 	} = window.getComputedStyle( buttonOutlineNode );
 
+	const buttonOutlineBackgroundColorFallback =
+		window.jetpackForms.getBackgroundColor( buttonOutlineNode );
+
 	const {
 		color: textColor,
 		padding: inputPadding,
@@ -119,6 +122,8 @@ window.jetpackForms.generateStyleVariables = function ( formNode ) {
 		'--jetpack--contact-form--button-outline--padding': buttonOutlinePadding,
 		'--jetpack--contact-form--button-outline--border': buttonOutlineBorder,
 		'--jetpack--contact-form--button-outline--background-color': buttonOutlineBackgroundColor,
+		'--jetpack--contact-form--button-outline--background-color-fallback':
+			buttonOutlineBackgroundColorFallback,
 		'--jetpack--contact-form--button-outline--border-size': buttonOutlineBorderSize,
 		'--jetpack--contact-form--button-outline--border-radius': buttonOutlineBorderRadius,
 		'--jetpack--contact-form--button-outline--text-color': buttonOutlineTextColor,

@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Shortcodes_Mixcloud extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_shortcodes_mixcloud_exists() {
-		$this->assertEquals( shortcode_exists( 'mixcloud' ), true );
+		$this->assertTrue( shortcode_exists( 'mixcloud' ) );
 	}
 
 	/**

@@ -770,7 +770,7 @@ class Jetpack_PostImages {
 		}
 
 		// Use image cdn magic.
-		if ( class_exists( 'Automattic\Jetpack\Image_CDN\Image_CDN_Core' ) && method_exists( Image_CDN_Core::class, 'cdn_url' ) ) {
+		if ( class_exists( Image_CDN_Core::class ) && method_exists( Image_CDN_Core::class, 'cdn_url' ) ) {
 			return Image_CDN_Core::cdn_url( $src, array( 'resize' => "$width,$height" ) );
 		}
 

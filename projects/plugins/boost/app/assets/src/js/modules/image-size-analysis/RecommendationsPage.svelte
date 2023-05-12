@@ -1,26 +1,30 @@
 <script lang="ts">
+	import { useParams } from 'svelte-navigator';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import Hero from './recommendations/Hero.svelte';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';
-	import { isaLazyLoad } from './store/isa-data';
-	const initialLoad = isaLazyLoad();
+	import { isaData } from './store/isa-data';
+
+	const params = useParams();
+	$: $isaData.query = {
+		group: $params.group,
+		page: parseInt( $params.page ),
+		// Reset the search query when the page changes.
+		search: '',
+	};
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
 	<Header />
 	<div class="recommendations-page jb-container jb-section--alt">
-		{#await initialLoad}
-			<h1>Loading...</h1>
-		{:then}
-			<Hero />
-			<Tabs />
-			<Table />
-			<Pagination />
-			<Footer />
-		{/await}
+		<Hero />
+		<Tabs />
+		<Table />
+		<Pagination />
+		<Footer />
 	</div>
 </div>
 
