@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { buildPromptTemplate } from './create-prompt';
 import { askJetpack } from './get-suggestion-with-stream';
-import { defaultLanguage } from './i18n-dropdown-control';
+import { defaultLanguage, defaultLocale } from './i18n-dropdown-control';
 import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
 /**
@@ -148,7 +148,6 @@ const useSuggestionsFromOpenAI = ( {
 		options = {
 			retryRequest: false,
 			tone: DEFAULT_PROMPT_TONE,
-			language: defaultLanguage,
 			...options,
 		};
 
@@ -173,6 +172,8 @@ const useSuggestionsFromOpenAI = ( {
 						request:
 							'Please help me write a short piece for a blog post based on the content below',
 						content: currentPostTitle,
+						language: defaultLanguage,
+						locale: defaultLocale,
 					} );
 					break;
 
@@ -268,7 +269,7 @@ const useSuggestionsFromOpenAI = ( {
 				 */
 				case 'changeLanguage':
 					prompt = buildPromptTemplate( {
-						request: `Please, rewrite in the following language: ${ options.language }.`,
+						request: `Please, rewrite the content below in the ontent following language: ${ options.language }.`,
 						content: content?.length ? content : getContentFromBlocks(),
 					} );
 					break;

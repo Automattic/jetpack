@@ -40,7 +40,7 @@ export const buildPromptTemplate = ( {
 				LANGUAGE_MAP[ language ]?.label ? ` (${ LANGUAGE_MAP[ language ].label })` : ''
 		  }.`
 		: '';
-	langLocationRule = langLocationRule.length && locale ? ` locale: ${ locale }.` : langLocationRule;
+	langLocationRule += langLocationRule.length && locale ? ` locale: ${ locale }.` : '';
 
 	let job = 'Your job is to ';
 
