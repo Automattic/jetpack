@@ -66,47 +66,6 @@ Describe a dog in 10 words or less.`;
 			} );
 		} );
 
-		describe( 'when there is language', () => {
-			it( 'should return the correct template', () => {
-				const content = 'Writing a WordPress blog post';
-				const language = 'pt';
-				const expectedTemplate = `You are an AI assistant block, a part of a product called Jetpack made by the company called Automattic.
-Your job is to modify the content below, under "Content". Do this by following rules set in "Rules".
-
-Rules:
-- Output the generated content in markdown format.
-- Do not include a top level heading by default.
-- Only output generated content ready for publishing.
-- Write in the language: pt (Portuguese).
-
-Content:
-Writing a WordPress blog post`;
-
-				expect( buildPromptTemplate( { content, language } ) ).toEqual( expectedTemplate );
-			} );
-		} );
-
-		describe( 'when there are language and locale', () => {
-			it( 'should return the correct template', () => {
-				const content = 'Writing a WordPress blog post';
-				const language = 'pt';
-				const locale = 'BR';
-				const expectedTemplate = `You are an AI assistant block, a part of a product called Jetpack made by the company called Automattic.
-Your job is to modify the content below, under "Content". Do this by following rules set in "Rules".
-
-Rules:
-- Output the generated content in markdown format.
-- Do not include a top level heading by default.
-- Only output generated content ready for publishing.
-- Write in the language: pt (Portuguese). locale: BR.
-
-Content:
-Writing a WordPress blog post`;
-
-				expect( buildPromptTemplate( { content, language, locale } ) ).toEqual( expectedTemplate );
-			} );
-		} );
-
 		describe( 'when there neither a request nor content', () => {
 			it( 'should throw an error', () => {
 				expect( () => buildPromptTemplate( {} ) ).toThrow(

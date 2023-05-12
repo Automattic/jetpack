@@ -10,7 +10,6 @@ import { __ } from '@wordpress/i18n';
  */
 import { buildPromptTemplate } from './create-prompt';
 import { askJetpack } from './get-suggestion-with-stream';
-import { defaultLanguage, defaultLocale } from './i18n-dropdown-control';
 import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
 /**
@@ -172,8 +171,6 @@ const useSuggestionsFromOpenAI = ( {
 						request:
 							'Please help me write a short piece for a blog post based on the content below',
 						content: currentPostTitle,
-						language: defaultLanguage,
-						locale: defaultLocale,
 					} );
 					break;
 
