@@ -31,7 +31,11 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 		setIsLoading( true );
 		setErrorMessage( null );
 
-		apiFetch( { path: `/wpcom/v2/following/mine?remove_user_blogs=${ remove_user_blogs }` } )
+		apiFetch( {
+			path: `/wpcom/v2/following/mine?remove_user_blogs=${ remove_user_blogs }`,
+			global: true,
+			method: 'GET',
+		} )
 			.then( setSubscriptions )
 			.catch( error => {
 				if ( error.message ) {
