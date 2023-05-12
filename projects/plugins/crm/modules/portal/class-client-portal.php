@@ -57,7 +57,7 @@ class Client_Portal {
 		// Custom login redirect hook (this one is in our $router).
 		add_action( 'login_redirect', array( $this->router, 'redirect_contacts_upon_login' ), 10, 3 );
 		// Initializes all endpoints (including the ones from external plugins).
-		add_action( 'init', array( $this, 'init_endpoints' ) );
+		$this->init_endpoints();
 		// this catches failed logins, checks if from our page, then redirs
 		// From mr pippin https://pippinsplugins.com/redirect-to-custom-login-page-on-failed-login/
 		add_action( 'wp_login_failed', array( $this, 'portal_login_fail_redirect' ) );  // hook failed login
