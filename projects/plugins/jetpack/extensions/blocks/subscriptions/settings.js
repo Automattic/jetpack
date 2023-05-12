@@ -121,18 +121,23 @@ export function NewsletterNotice( {
 		reachCount = reachCount + '+'; // Concat "+"
 	}
 
+	/* translators: %s is the number of subscribers in numerical format */
+	let numberOfSubscribersText = __(
+		'This will be sent to <strong>%s subscribers</strong>.',
+		'jetpack'
+	);
+
+	if ( isPostPublishPanel ) {
+		/* translators: %s is the number of subscribers in numerical format */
+		numberOfSubscribersText = __( 'This was sent to <strong>%s subscribers</strong>.', 'jetpack' );
+	}
+
 	return (
 		<FlexBlock>
 			<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
-				{ createInterpolateElement(
-					sprintf(
-						/* translators: 1 Changes the phrase to be future tense or past tense, 2 Number of subscribers */
-						__( 'This post %1$s sent to <strong>%2$s subscribers</strong>.', 'jetpack' ),
-						isPostPublishPanel ? 'was' : 'will be',
-						reachCount
-					),
-					{ strong: <strong /> }
-				) }
+				{ createInterpolateElement( sprintf( numberOfSubscribersText, reachCount ), {
+					strong: <strong />,
+				} ) }
 			</Notice>
 		</FlexBlock>
 	);
