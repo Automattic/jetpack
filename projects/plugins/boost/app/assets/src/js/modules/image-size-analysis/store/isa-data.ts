@@ -23,12 +23,6 @@ export const isaIgnoredImages = derived( [ isaData ], ( [ $data ] ) => {
 	return $data.data.images.filter( image => image.status === 'ignored' ).map( image => image.id );
 } );
 
-export const isaFilteredImages = derived( [ image_size_analysis.store ], ( [ $data ] ) => {
-	// Filter depends on whether viewing the "ignored" group or not.
-	const filter = $data.query.group === 'ignored' ? 'ignored' : 'active';
-	return $data.data.images.filter( image => image.status === filter );
-} );
-
 export function updateIsaQuery( group: string, page = 1, search = '' ) {
 	image_size_analysis.store.update( value => {
 		return {
