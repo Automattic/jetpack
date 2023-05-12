@@ -268,7 +268,7 @@ const useSuggestionsFromOpenAI = ( {
 				 */
 				case 'changeLanguage':
 					prompt = buildPromptTemplate( {
-						language: options.language,
+						request: `Please, rewrite in the following language: ${ options.language }.`,
 						content: content?.length ? content : getContentFromBlocks(),
 					} );
 					break;
