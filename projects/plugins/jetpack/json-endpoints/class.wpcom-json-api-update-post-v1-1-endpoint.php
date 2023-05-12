@@ -259,6 +259,9 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 	 * @param int    $post_id Post ID.
 	 */
 	public function write_post( $path, $blog_id, $post_id ) {
+		$delete_featured_image = null;
+		$media_results         = array();
+		$post                  = null;
 		global $wpdb;
 
 		$new  = $this->api->ends_with( $path, '/new' );
@@ -744,7 +747,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
 				}
 			}
-		} elseif ( is_array( $publicize ) && ( count( $publicize ) > 0 ) ) {
+		} elseif ( is_array( $publicize ) && ( $publicize !== array() ) ) {
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				/*
 				 * We support both indexed and associative arrays:

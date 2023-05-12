@@ -182,6 +182,8 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 	 * @param int    $post_id Post ID.
 	 */
 	public function write_post( $path, $blog_id, $post_id ) {
+		$delete_featured_image = null;
+		$media_results         = array();
 		global $wpdb;
 
 		$new  = $this->api->ends_with( $path, '/new' );
