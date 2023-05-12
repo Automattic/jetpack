@@ -1593,7 +1593,7 @@ function wp_cache_time_update() {
 
 function wp_cache_sanitize_value($text, & $array) {
 	$text = esc_html(strip_tags($text));
-	$array = preg_split("/[\s,]+/", rtrim($text));
+	$array = preg_split( '/[\s,]+/', rtrim( $text ) );
 	$text = var_export($array, true);
 	$text = preg_replace('/[\s]+/', ' ', $text);
 	return $text;
@@ -2221,6 +2221,7 @@ function wp_cache_create_advanced_cache() {
 	$file = file_get_contents( $wpsc_advanced_cache_dist_filename );
 	$fp = @fopen( $wpsc_advanced_cache_filename, 'w' );
 	if( $fp ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
 		fwrite( $fp, $file );
 		fclose( $fp );
 	} else {
