@@ -71,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial release
 
+[3.1.0]: https://github.com/Automattic/action-required-review/compare/v3.0.2...v3.1.0
 [3.0.2]: https://github.com/Automattic/action-required-review/compare/v3.0.1...v3.0.2
 [3.0.1]: https://github.com/Automattic/action-required-review/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/Automattic/action-required-review/compare/v2.2.2...v3.0.0
