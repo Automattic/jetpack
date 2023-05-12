@@ -391,7 +391,7 @@ class JPCRM_Fonts {
 
 				$dest = $dompdf->getOptions()->get('fontDir') . '/' . basename($src);
 
-				if ( !is_writeable(dirname($dest)) ) {
+				if ( !is_writable(dirname($dest)) ) {
 					throw new Exception("Unable to write to destination '$dest'.");
 				}
 

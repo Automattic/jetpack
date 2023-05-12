@@ -309,7 +309,7 @@ class Themes extends Module {
 		}
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writeable
-		if ( ! is_writeable( $real_file ) ) {
+		if ( ! is_writable( $real_file ) ) {
 			return;
 		}
 

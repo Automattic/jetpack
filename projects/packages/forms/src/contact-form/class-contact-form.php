@@ -450,7 +450,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
 			$message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
 		} else {
-			$message = '<p>' . join( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>';
+			$message = '<p>' . implode( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>';
 		}
 
 		return wp_kses(
@@ -1384,7 +1384,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			array_push( $message, '<p>' . __( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '</p>' );
 		}
 
-		$message = join( '', $message );
+		$message = implode( '', $message );
 
 		/**
 		 * Filters the message sent via email after a successful form submission.
