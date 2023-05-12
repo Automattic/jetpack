@@ -13,7 +13,7 @@ export const PROMPT_INTERNAL_OPTIONS =
 export const PROMPT_SUFFIX = `. ${ PROMPT_INTERNAL_OPTIONS }.`;
 export const PROMPT_MID_CONTENT = `, and ${ PROMPT_INTERNAL_OPTIONS.toLowerCase() }`;
 
-const debug = debugFactory( 'jetpack-ai-assistant:promp' );
+const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 
 /*
  * Builds a prompt template based on context, rules and content
