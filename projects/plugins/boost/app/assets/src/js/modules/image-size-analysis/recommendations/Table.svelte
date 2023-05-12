@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { tick } from 'svelte';
 	import Spinner from '../../../elements/Spinner.svelte';
 	import { isaData, isaDataLoading } from '../store/isa-data';
 	import TableRow from './TableRow.svelte';
@@ -14,7 +13,6 @@
 		}
 		isLoading = loading;
 	}
-	// eslint-disable-next-line no-unused-expressions
 	$: delayedLoadingUpdate( $isaDataLoading );
 </script>
 

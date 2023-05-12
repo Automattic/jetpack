@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { quadOut } from 'svelte/easing';
+	import { slide } from 'svelte/transition';
 	import { ISA_Data } from '../store/isa-data';
 	import TableRowExpanded from './TableRowExpanded.svelte';
 	import TableRowHover from './TableRowHover.svelte';
@@ -29,7 +31,7 @@
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
-<div class="jb-table-row-container" class:expanded>
+<div class="jb-table-row-container" out:slide={{ duration: 200, easing: quadOut }} class:expanded>
 	<div class="jb-table-row recommendation-page-grid" on:click={toggleExpand}>
 		<div class="jb-table-row__thumbnail">
 			<Thumbnail {title} url={image_url} width={65} height={65} />
