@@ -308,8 +308,8 @@ class Themes extends Module {
 			}
 		}
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writeable
-		if ( ! is_writeable( $real_file ) ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+		if ( ! is_writable( $real_file ) ) {
 			return;
 		}
 

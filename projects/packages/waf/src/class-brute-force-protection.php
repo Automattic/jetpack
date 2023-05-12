@@ -823,7 +823,7 @@ class Brute_Force_Protection {
 	 */
 	public function kill_login() {
 		if (
-			isset( $_GET['action'], $_GET['_wpnonce'] ) &&
+			isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) &&
 			'logout' === $_GET['action'] &&
 			wp_verify_nonce( $_GET['_wpnonce'], 'log-out' ) && // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
 			wp_get_current_user()
