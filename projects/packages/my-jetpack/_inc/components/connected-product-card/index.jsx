@@ -14,10 +14,18 @@ import ProductCard, { PRODUCT_STATUSES } from '../product-card';
 const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuItems = [] } ) => {
 	const { isRegistered, isUserConnected } = useConnection();
 
-	const { detail, activate, deactivate, isFetching, installStandalonePlugin } = useProduct( slug );
+	const {
+		detail,
+		activate,
+		deactivate,
+		isFetching,
+		installStandalonePlugin,
+		deactivateStandalonePlugin,
+	} = useProduct( slug );
 	const { name, description, manageUrl, requiresUserConnection, standalonePluginInfo, status } =
 		detail;
 	const [ installingStandalone, setInstallingStandalone ] = useState( false );
+	const [ deactivatingStandalone, setDeactivatingStandalone ] = useState( false );
 
 	const navigateToConnectionPage = useMyJetpackNavigate( '/connection' );
 	const navigateToAddProductPage = useMyJetpackNavigate( `add-${ slug }` );
@@ -27,6 +35,7 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 	const isStandaloneInstalled = standalonePluginInfo?.isStandaloneInstalled;
 	const isStandaloneActive = standalonePluginInfo?.isStandaloneActive;
 	const showActivateOption = hasStandalonePlugin && isStandaloneInstalled && ! isStandaloneActive;
+	const showDeactivateOption = hasStandalonePlugin && isStandaloneInstalled && isStandaloneActive;
 	const showInstallOption = hasStandalonePlugin && ! isStandaloneInstalled;
 	const isConnected = isRegistered && isUserConnected;
 	const isAbsent =
@@ -39,6 +48,7 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 		isConnected && // the site is connected AND
 		( menuItems?.length > 0 || // Show custom menus, if present
 			showActivateOption || // Show install | activate options for standalone plugin
+			showDeactivateOption || // Show deactivate option for standalone plugin
 			showInstallOption );
 	/* End Menu Handling */
 
@@ -79,6 +89,18 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			} );
 	}, [ installStandalonePlugin ] );
 
+	const handleDeactivateStandalone = useCallback( () => {
+		setDeactivatingStandalone( true );
+
+		deactivateStandalonePlugin()
+			.then( () => {
+				window?.location?.reload();
+			} )
+			.catch( () => {
+				setDeactivatingStandalone( false );
+			} );
+	}, [ deactivateStandalonePlugin ] );
+
 	return (
 		<ProductCard
 			name={ name }
@@ -87,6 +109,7 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			admin={ admin }
 			isFetching={ isFetching }
 			isInstallingStandalone={ installingStandalone }
+			isDeactivatingStandalone={ deactivatingStandalone }
 			onDeactivate={ deactivate }
 			slug={ slug }
 			onActivate={ handleActivate }
@@ -96,9 +119,11 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			showMenu={ menuIsActive }
 			menuItems={ menuItems }
 			showActivateOption={ showActivateOption }
+			showDeactivateOption={ showDeactivateOption }
 			showInstallOption={ showInstallOption }
 			onInstallStandalone={ handleInstallStandalone }
 			onActivateStandalone={ handleInstallStandalone }
+			onDeactivateStandalone={ handleDeactivateStandalone }
 		>
 			{ children }
 		</ProductCard>

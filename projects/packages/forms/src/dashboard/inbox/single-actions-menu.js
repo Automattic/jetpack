@@ -3,7 +3,7 @@
  */
 import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { trash, inbox, moreHorizontal } from '@wordpress/icons';
 /**
  * Internal dependencies
@@ -21,7 +21,7 @@ const SingleActionsMenu = ( { id } ) => {
 
 	const deleteLabel =
 		currentTab !== TABS.trash
-			? __( 'Trash', 'jetpack-forms' )
+			? _x( 'Trash', 'verb', 'jetpack-forms' )
 			: __( 'Delete permanently', 'jetpack-forms' );
 	const deleteAction = currentTab !== TABS.trash ? ACTIONS.moveToTrash : ACTIONS.delete;
 

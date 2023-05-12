@@ -431,7 +431,7 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
  * Go through headers and get a list of Vary headers to add,
  * including a Vary Accept header if necessary.
  *
- * @since $$next-version$$
+ * @since 12.2
  *
  * @param array $headers The headers to be sent.
  *

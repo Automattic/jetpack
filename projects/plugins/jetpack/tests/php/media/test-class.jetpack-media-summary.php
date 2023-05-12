@@ -29,7 +29,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 		$content  = 'http://' . WP_TESTS_DOMAIN . '/';
 		$expected = 'https://' . WP_TESTS_DOMAIN . '/';
 
-		$this->assertEquals( Jetpack_Media_Summary::https( $content ), $expected );
+		$this->assertEquals( $expected, Jetpack_Media_Summary::https( $content ) );
 	}
 
 	/**
@@ -41,7 +41,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 		$content  = 'http://' . WP_TESTS_DOMAIN . '/';
 		$expected = 'https://' . WP_TESTS_DOMAIN . '/';
 
-		$this->assertEquals( Jetpack_Media_Summary::ssl_img( $content ), $expected );
+		$this->assertEquals( $expected, Jetpack_Media_Summary::ssl_img( $content ) );
 	}
 
 	/**
@@ -53,7 +53,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 		$content  = 'http://files.wordpress.com/';
 		$expected = 'https://files.wordpress.com/';
 
-		$this->assertEquals( Jetpack_Media_Summary::ssl_img( $content ), $expected );
+		$this->assertEquals( $expected, Jetpack_Media_Summary::ssl_img( $content ) );
 	}
 
 	/**
@@ -78,7 +78,7 @@ class WP_Test_Jetpack_MediaSummary extends WP_UnitTestCase {
 
 		$content = '[' . $shortcode . '] <a href="' . WP_TESTS_DOMAIN . '">test</a>';
 
-		$this->assertEquals( Jetpack_Media_Summary::clean_text( $content ), 'test' );
+		$this->assertEquals( 'test', Jetpack_Media_Summary::clean_text( $content ) );
 	}
 
 	public function shortcode_nop() { }

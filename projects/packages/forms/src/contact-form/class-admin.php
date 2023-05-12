@@ -888,9 +888,9 @@ class Admin {
 			);
 			$actions['trash'] = sprintf(
 				'<a class="submitdelete" title="%s" href="%s">%s</a>',
-				esc_attr__( 'Trash', 'jetpack-forms' ),
+				esc_attr_x( 'Trash', 'verb', 'jetpack-forms' ),
 				get_delete_post_link( $post->ID ),
-				esc_html__( 'Trash', 'jetpack-forms' )
+				esc_html_x( 'Trash', 'verb', 'jetpack-forms' )
 			);
 		} elseif ( $post->post_status === 'spam' ) {
 			$actions['unspam unapprove'] = sprintf(
@@ -1193,7 +1193,7 @@ class Admin {
 				$status_html .= ' class="current"';
 			}
 
-			$status_html .= '>' . __( 'Trash', 'jetpack-forms' ) . ' <span class="count">';
+			$status_html .= '>' . _x( 'Trash', 'noun', 'jetpack-forms' ) . ' <span class="count">';
 			$status_html .= '(' . number_format( $status['trash'] ) . ')';
 			$status_html .= '</span></a>';
 			if ( isset( $status['spam'] ) ) {

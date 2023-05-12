@@ -58,6 +58,10 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 					'description' => __( 'Did the Jetpack Social connection test pass?', 'jetpack' ),
 					'type'        => 'boolean',
 				),
+				'error_code'   => array(
+					'description' => __( 'Jetpack Social connection error code', 'jetpack' ),
+					'type'        => 'string',
+				),
 				'test_message' => array(
 					'description' => __( 'Jetpack Social connection success or error message', 'jetpack' ),
 					'type'        => 'string',
@@ -103,6 +107,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connection_Test_Results extends 
 		$mapping = array(
 			'test_success' => 'connectionTestPassed',
 			'test_message' => 'connectionTestMessage',
+			'error_code'   => 'connectionTestErrorCode',
 			'can_refresh'  => 'userCanRefresh',
 			'refresh_text' => 'refreshText',
 			'refresh_url'  => 'refreshURL',
