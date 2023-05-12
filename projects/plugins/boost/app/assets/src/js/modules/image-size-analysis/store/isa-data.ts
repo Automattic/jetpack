@@ -48,27 +48,19 @@ export function initializeIsaData() {
 	} );
 }
 
-/**
- * Only the following values are "writable":
- * * query.page
- * * query.group
- * * query.search
- */
-image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
+type ISA = z.infer< typeof ImageSizeAnalysis >;
+
+async function maybeRefreshStore( prevValue: ISA, value: ISA, signal?: AbortSignal ) {
 	if (
 		prevValue.query.page === value.query.page &&
 		prevValue.query.group === value.query.group &&
 		prevValue.query.search === value.query.search
 	) {
-		return prevValue;
+		return;
 	}
 
 	// Send a request to the SET endpoint.
 	const fresh = await image_size_analysis.endpoint.SET( value, signal );
-
-	if ( signal.aborted ) {
-		return prevValue;
-	}
 
 	// MOCKING:
 	// Special case: If the querying the "ignored" group, pretend we got
@@ -79,7 +71,44 @@ image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
 		}
 	}
 
+	// If the request was aborted, return the original value.
+	if ( signal.aborted ) {
+		return value;
+	}
 	// Override store value without triggering another SET request.
 	image_size_analysis.store.override( fresh );
-	return fresh;
+}
+
+async function maybeIgnoreImage( prevValue: ISA, value: ISA, signal?: AbortSignal ) {
+	// Find which value status has changed (if the user clicked ignore)
+	const changedImage = value.data.images.find( image => {
+		const prevImage = prevValue.data.images.find( prev => prev.id === image.id );
+		return prevImage && prevImage.status !== image.status;
+	} );
+
+	if ( ! changedImage ) {
+		return;
+	}
+
+	// @TODO: Ignore the image in the API.
+	const prevImage = prevValue.data.images.find( prev => prev.id === changedImage.id );
+	// eslint-disable-next-line no-console
+	console.log(
+		`Changing image status from "${ prevImage.status }" to "${ changedImage.status }" for image ID: ${ changedImage.id }`
+	);
+	// await fetch(.........);
+	// There's no need to update the store after this, because
+	// the element is already hidden in the UI.
+}
+
+image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
+	// See if the query changed, if it did, update the store.
+	await maybeRefreshStore( prevValue, value, signal );
+
+	// See if any images were ignored, if they were, send a request to the API.
+	await maybeIgnoreImage( prevValue, value, signal );
+
+	// SyncedStore expects a return value, but I think it needs a refactor,
+	// because it's not really used anywhere.
+	return value;
 } );
