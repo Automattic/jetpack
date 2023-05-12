@@ -148,7 +148,7 @@ const useSuggestionsFromOpenAI = ( {
 		options = {
 			retryRequest: false,
 			tone: DEFAULT_PROMPT_TONE,
-			langiuage: DEFAULT_PROMPT_LANGUAGE,
+			language: DEFAULT_PROMPT_LANGUAGE,
 			...options,
 		};
 
