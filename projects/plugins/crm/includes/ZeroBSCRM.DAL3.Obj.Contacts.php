@@ -820,23 +820,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                     }
 
-                    #} use sql instead #DB1LEGACY (TOMOVE)
-                    /* Needs writing for DAL3 
-    
-                        - note. I've left this here (4/2/19) because I believe the following/DAL3 generally might be
-                        ... such a performance hike that this is irrelevant.
-                        ... can later homogenise the following/these *WITHX* stuffs into 1 query, though not sure it'll produce 
-                        ... much perf gains.if ($withInvoices && $withQuotes && $withTransactions){
-
-                        $custDeets = zeroBS_getCustomerExtrasViaSQL($potentialRes->ID);
-                        $res['quotes'] = $custDeets['quotes'];
-                        $res['invoices'] = $custDeets['invoices'];
-                        $res['transactions'] = $custDeets['transactions'];
-
-
-                    } else { */
-
-
                         // Objects: return all, unless $with_obj_limit
                         $objs_page = -1;
                         $objs_per_page = -1;
@@ -2121,24 +2104,6 @@ class zbsDAL_contacts extends zbsDAL_ObjectLayer {
 
                     
                     }
-
-                    #} use sql instead #DB1LEGACY (TOMOVE)
-                    /* Needs writing for DAL3 
-    
-                        - note. I've left this here (4/2/19) because I believe the following/DAL3 generally might be
-                        ... such a performance hike that this is irrelevant.
-                        ... can later homogenise the following/these *WITHX* stuffs into 1 query, though not sure it'll produce 
-                        ... much perf gains.
-                        
-                    if ($withInvoices && $withQuotes && $withTransactions){
-
-                        $custDeets = zeroBS_getCustomerExtrasViaSQL($resDataLine->ID);
-                        $resArr['quotes'] = $custDeets['quotes'];
-                        $resArr['invoices'] = $custDeets['invoices'];
-                        $resArr['transactions'] = $custDeets['transactions'];
-
-
-                    } else { */
 
                             if ($withInvoices){
                             

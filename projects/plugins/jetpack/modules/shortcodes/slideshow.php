@@ -130,7 +130,7 @@ class Jetpack_Slideshow_Shortcode {
 			)
 		);
 
-		if ( count( $attachments ) < 1 ) {
+		if ( ! is_countable( $attachments ) || count( $attachments ) < 1 ) {
 			return false;
 		}
 

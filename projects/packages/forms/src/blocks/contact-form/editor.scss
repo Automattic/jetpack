@@ -380,8 +380,10 @@
 
 		&.is-style-button {
 			.jetpack-field-option {
+				background: var(--jetpack--contact-form--button-outline--background-color);
 				color: var(--jetpack--contact-form--button-outline--text-color);
 				border: var(--jetpack--contact-form--button-outline--border);
+				border-width: var(--jetpack--contact-form--button-outline--border-size);
 				border-color: currentColor;
 				border-radius: var(--jetpack--contact-form--button-outline--border-radius);
 				padding: var(--jetpack--contact-form--button-outline--padding);

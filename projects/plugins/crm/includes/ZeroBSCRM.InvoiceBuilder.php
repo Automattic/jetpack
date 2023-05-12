@@ -17,37 +17,6 @@
   / Breaking Checks
    ====================================================== */
 
-
-// Centralised date processing for invoices,
-// DAL2 will thankfully do away with this? (timezone sensitive?)
-function zeroBSCRM_invoiceBuilder_dateMetaToDate($zbs_inv_meta=array(),$plusDays=0,$returnAsUTS=false){
-
-    $inv_date = '';
-    if (isset($zbs_inv_meta['date']) && $zbs_inv_meta['date'] != 'Invalid Date'){
-        $dt = zeroBSCRM_locale_dateToUTS($zbs_inv_meta['date']);
-        // this only happens when people have $date in one format, but their settings match a diff setting                                
-    // NOTE there is NO TIME used here, so we use post_date_gmt + 'true' for isGMT in  zeroBSCRM_date_i18n
-        if ($dt !== false) {
-            if ($plusDays !== 0) $dt += ($plusDays*86400);  
-
-            // return as uts?
-            if ($returnAsUTS) return $dt;
-            // or date?
-            $inv_date = zeroBSCRM_date_i18n(-1,$dt,false,true);
-        }
-    }else{
-
-        $dt = time();
-        if ($plusDays !== 0) $dt += ($plusDays*86400);    
-        // return as uts?
-        if ($returnAsUTS) return $dt;
-        // or date?    
-        $inv_date = zeroBSCRM_date_i18n(-1,$dt);
-    }
-
-    return $inv_date;
-}
-
 // takes inv meta and works out if due
 // now v3.0 friendly!
 function zeroBSCRM_invoiceBuilder_isInvoiceDue($zbsInvoice=array()){

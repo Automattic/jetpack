@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ensure calling Launchpad_Task_Lists::list() with an empty ID doesn't result in a PHP warning.
