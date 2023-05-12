@@ -534,7 +534,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 			$media_urls      = ! empty( $input['media_urls'] ) ? $input['media_urls'] : array();
 			$media_attrs     = ! empty( $input['media_attrs'] ) ? $input['media_attrs'] : array();
 			$media_results   = $this->handle_media_creation_v1_1( $media_files, $media_urls, $media_attrs );
-			$media_id_string = join( ',', array_filter( array_map( 'absint', $media_results['media_ids'] ) ) );
+			$media_id_string = implode( ',', array_filter( array_map( 'absint', $media_results['media_ids'] ) ) );
 		}
 
 		$is_dtp_fb_post = false;

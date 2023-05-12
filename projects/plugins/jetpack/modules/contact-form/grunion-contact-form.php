@@ -2539,7 +2539,7 @@ class Crunion_Contact_Form_Shortcode {
 			$value = $this->esc_attr( $value );
 
 			if ( is_array( $value ) ) {
-				$value = join( ',', $value );
+				$value = implode( ',', $value );
 			}
 
 			if ( false === strpos( $value, "'" ) ) {
@@ -3011,7 +3011,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
 			$message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
 		} else {
-			$message = '<p>' . join( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>';
+			$message = '<p>' . implode( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>';
 		}
 
 		return wp_kses(
@@ -3945,7 +3945,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			array_push( $message, '<p>' . __( 'Sent by an unverified visitor to your site.', 'jetpack' ) . '</p>' );
 		}
 
-		$message = join( '', $message );
+		$message = implode( '', $message );
 
 		/**
 		 * Filters the message sent via email after a successful form submission.

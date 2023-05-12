@@ -1283,7 +1283,7 @@ function stats_dashboard_widget_content() {
 	}
 
 	// Cache.
-	get_posts( array( 'include' => join( ',', array_unique( $post_ids ) ) ) );
+	get_posts( array( 'include' => implode( ',', array_unique( $post_ids ) ) ) );
 
 	$searches     = array();
 	$search_terms = stats_get_csv( 'searchterms', "days=$options[search]$csv_args[search]" );
