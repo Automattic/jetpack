@@ -132,7 +132,9 @@ export default function I18nDropdownControl( {
 							return (
 								<MenuItem
 									key={ `key-${ language }` }
-									onClick={ () => onChange( language + ' (' + LANGUAGE_MAP[ language ] + ')' ) }
+									onClick={ () =>
+										onChange( language + ' (' + LANGUAGE_MAP[ language ].label + ')' )
+									}
 									isSelected={ value === language }
 								>
 									{ LANGUAGE_MAP[ language ].label }
