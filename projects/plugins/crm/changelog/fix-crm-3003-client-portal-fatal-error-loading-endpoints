@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix a Client Portal faltal error initializationg the endpoints
+Client Portal: Fix a fatal error initializing endpoints and shortcodes.
