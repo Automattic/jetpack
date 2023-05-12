@@ -168,7 +168,8 @@ const useSuggestionsFromOpenAI = ( {
 				 */
 				case 'titleSummary':
 					prompt = buildPromptTemplate( {
-						request: 'Please help me write a short piece for a blog post based on the title below',
+						request:
+							'Please help me write a short piece for a blog post based on the content below',
 						content: currentPostTitle,
 					} );
 					break;
