@@ -50,7 +50,7 @@ const addVideoPressSupport = ( settings, name ) => {
 			source: 'attribute',
 			selector: 'video',
 			attribute: 'playsinline',
-		},		
+		},
 		poster: {
 			type: 'string',
 		},
