@@ -1,6 +1,5 @@
 import { RichText } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	getDefaultAmountsForCurrency,
