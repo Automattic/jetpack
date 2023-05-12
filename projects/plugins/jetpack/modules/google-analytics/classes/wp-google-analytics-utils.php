@@ -42,7 +42,7 @@ class Jetpack_Google_Analytics_Utils {
 					$out[] = $category->name;
 				}
 			}
-			$line = join( '/', $out );
+			$line = implode( '/', $out );
 		}
 		return $line;
 	}
