@@ -16,7 +16,7 @@ foreach ( $context['rows'] as $row ) : // phpcs:ignore VariableAnalysis.CodeAnal
 	>
 	<?php foreach ( $row->groups as $group ) : ?>
 		<div
-			class="gallery-group images-<?php echo esc_attr( count( $group->images ) ); ?>"
+			class="gallery-group images-<?php echo esc_attr( is_countable( $group->images ) ? count( $group->images ) : 0 ); ?>"
 			style="width: <?php echo esc_attr( $group->width ); ?>px; height: <?php echo esc_attr( $group->height ); ?>px;"
 			data-original-width="<?php echo esc_attr( $group->width ); ?>"
 			data-original-height="<?php echo esc_attr( $group->height ); ?>"
