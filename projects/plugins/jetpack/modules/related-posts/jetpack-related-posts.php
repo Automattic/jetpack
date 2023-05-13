@@ -1689,13 +1689,10 @@ EOT;
 	 * @return string
 	 */
 	protected function generate_related_post_context_block( $post_id ) {
-		error_log( 'xxx - generate_related_post_context_block() with ID: ' . strval( $post_id ) );
 		$categories = get_the_category( $post_id );
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
-				error_log( 'xxx - category info: ' . json_encode( $category ) );
 				$cat_link = get_category_link( $category );
-				error_log( 'xxx - category link: ' . $cat_link );
 				if ( 'uncategorized' !== $category->slug && '' !== trim( $category->name ) ) {
 					return array(
 						'text' => trim( $category->name ),
@@ -1707,9 +1704,7 @@ EOT;
 		$tags = get_the_terms( $post_id, 'post_tag' );
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
-				error_log( 'xxx - tag info: ' . json_encode( $tag ) );
 				$tag_link = get_tag_link( $tag );
-				error_log( 'xxx - tag link: ' . $tag_link );
 				if ( '' !== trim( $tag->name ) ) {
 					return array(
 						'text' => trim( $tag->name ),
