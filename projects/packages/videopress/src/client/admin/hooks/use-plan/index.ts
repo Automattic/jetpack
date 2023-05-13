@@ -69,6 +69,7 @@ export const usePlan = (): usePlanProps => {
 		'value_bundle',
 		'value_bundle_monthly',
 		'value_bundle-2y',
+		'value_bundle-3y',
 
 		// WPCOM PRO plans
 		'pro-plan',
@@ -79,11 +80,13 @@ export const usePlan = (): usePlanProps => {
 		'business-bundle',
 		'business-bundle-monthly',
 		'business-bundle-2y',
+		'business-bundle-3y',
 
 		// WPCOM eCommerce plans
 		'ecommerce-bundle',
 		'ecommerce-bundle-monthly',
 		'ecommerce-bundle-2y',
+		'ecommerce-bundle-3y',
 	].some( plan => hasPurchase( plan ) );
 
 	return {

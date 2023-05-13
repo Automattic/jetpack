@@ -463,7 +463,7 @@ class WPCOM_JSON_API {
 				$endpoint_path = untrailingslashit( $endpoint_path );
 				if ( $is_help ) {
 					// Truncate path at help depth.
-					$endpoint_path = join( '/', array_slice( explode( '/', $endpoint_path ), 0, $depth ) );
+					$endpoint_path = implode( '/', array_slice( explode( '/', $endpoint_path ), 0, $depth ) );
 				}
 
 				// Generate regular expression from sprintf().
@@ -501,7 +501,7 @@ class WPCOM_JSON_API {
 				$allowed_methods[] = $matching_endpoint[0]->method;
 			}
 
-			header( 'Allow: ' . strtoupper( join( ',', array_unique( $allowed_methods ) ) ) );
+			header( 'Allow: ' . strtoupper( implode( ',', array_unique( $allowed_methods ) ) ) );
 			return $this->output(
 				405,
 				array(

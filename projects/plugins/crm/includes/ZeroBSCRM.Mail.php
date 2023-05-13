@@ -1661,7 +1661,7 @@ function jpcrm_mail_delivery_send_via_gmail_oauth( $args ){
                             $array = explode('/', $filePath);
                             $finfo = finfo_open( FILEINFO_MIME_TYPE );
                             $mimeType = finfo_file( $finfo, $filePath );
-                            $fileName = $array[ sizeof( $array ) - 1 ];
+							$fileName = $array[ count( $array ) - 1 ]; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- Needs a lot of refactoring to fix.
                             $fileData = base64_encode( file_get_contents( $filePath ) );
 
                             $raw_message .= "\r\n--{$boundary}\r\n";
