@@ -28,7 +28,7 @@ class Identity_Crisis {
 	/**
 	 * Package Version
 	 */
-	const PACKAGE_VERSION = '0.8.46';
+	const PACKAGE_VERSION = '0.8.47-alpha';
 
 	/**
 	 * Instance of the object.
@@ -144,14 +144,14 @@ class Identity_Crisis {
 		foreach ( (array) $processed_items as $item ) {
 
 			// First, is this item a jetpack_sync_callable action? If so, then proceed.
-			$callable_args = ( is_array( $item ) && isset( $item[0], $item[1] ) && 'jetpack_sync_callable' === $item[0] )
+			$callable_args = ( is_array( $item ) && isset( $item[0] ) && isset( $item[1] ) && 'jetpack_sync_callable' === $item[0] )
 				? $item[1]
 				: null;
 
 			// Second, if $callable_args is set, check if the callable was home_url or site_url. If so,
 			// clear the migrate option.
 			if (
-				isset( $callable_args, $callable_args[0] )
+				isset( $callable_args[0] )
 				&& ( 'home_url' === $callable_args[0] || 'site_url' === $callable_args[1] )
 			) {
 				Jetpack_Options::delete_option( 'migrate_for_idc' );
@@ -168,7 +168,7 @@ class Identity_Crisis {
 	public function wordpress_init() {
 		if ( current_user_can( 'jetpack_disconnect' ) ) {
 			if (
-					isset( $_GET['jetpack_idc_clear_confirmation'], $_GET['_wpnonce'] ) &&
+					isset( $_GET['jetpack_idc_clear_confirmation'] ) && isset( $_GET['_wpnonce'] ) &&
 					wp_verify_nonce( $_GET['_wpnonce'], 'jetpack_idc_clear_confirmation' ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
 			) {
 				Jetpack_Options::delete_option( 'safe_mode_confirmed' );

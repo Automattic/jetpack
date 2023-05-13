@@ -6,30 +6,34 @@ import { useBlockProps, store as blockEditorStore } from '@wordpress/block-edito
 import { rawHandler, createBlock } from '@wordpress/blocks';
 import { Flex, FlexBlock, Modal } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import MarkdownIt from 'markdown-it';
 /**
  * Internal dependencies
  */
 import AIControl from './ai-control';
 import ImageWithSelect from './image-with-select';
 import { getImagesFromOpenAI } from './lib';
-import ShowLittleByLittle from './show-little-by-little';
 import useSuggestionsFromOpenAI from './use-suggestions-from-openai';
 import './editor.scss';
+
+const markdownConverter = new MarkdownIt( {
+	breaks: true,
+} );
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
 	const [ , setErrorMessage ] = useState( false );
 	const [ aiType, setAiType ] = useState( 'text' );
-	const [ animationDone, setAnimationDone ] = useState( false );
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
 	const [ imageModal, setImageModal ] = useState( null );
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
-	const { replaceBlocks, replaceBlock } = useDispatch( blockEditorStore );
+	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( blockEditorStore );
+	const { editPost } = useDispatch( 'core/editor' );
 	const { mediaUpload } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
 		const settings = getSettings();
@@ -104,7 +108,15 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const contentIsLoaded = !! attributes.content;
 
 	const handleAcceptContent = () => {
-		replaceBlocks( clientId, rawHandler( { HTML: attributes.content } ) );
+		replaceBlocks(
+			clientId,
+			rawHandler( { HTML: markdownConverter.render( attributes.content ) } )
+		);
+	};
+
+	const handleAcceptTitle = () => {
+		editPost( { title: attributes.content.trim() } );
+		removeBlock( clientId );
 	};
 
 	const handleTryAgain = () => {
@@ -137,24 +149,19 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		<div { ...useBlockProps() }>
 			{ contentIsLoaded && (
 				<>
-					<ShowLittleByLittle
-						showAnimation={ ! animationDone }
-						onAnimationDone={ () => {
-							setAnimationDone( true );
-						} }
-						clientId={ clientId }
-						html={ attributes.content }
-					/>
+					<div className="jetpack-ai-assistant__content">
+						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
+					</div>
 				</>
 			) }
 			<AIControl
 				aiType={ aiType }
-				animationDone={ animationDone }
 				content={ attributes.content }
 				contentIsLoaded={ contentIsLoaded }
 				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 				retryRequest={ retryRequest }
 				handleAcceptContent={ handleAcceptContent }
+				handleAcceptTitle={ handleAcceptTitle }
 				handleGetSuggestion={ handleGetSuggestion }
 				handleTryAgain={ handleTryAgain }
 				isWaitingState={ isWaitingState }
@@ -166,6 +173,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				postTitle={ postTitle }
 				userPrompt={ userPrompt }
 				wholeContent={ wholeContent }
+				promptType={ attributes.promptType }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>

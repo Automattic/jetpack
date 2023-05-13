@@ -12,7 +12,7 @@ use WP_REST_Server;
  * @package automattic/jetpack-stats-admin
  */
 class Test_REST_Controller extends Stats_Test_Case {
-	const SUPPORTED_ROUTES = array(
+	const SUPPORTED_GET_ROUTES = array(
 		'/jetpack/v4/stats-app/sites/999/stats/visits',
 		'/jetpack/v4/stats-app/sites/999/stats/highlights',
 		'/jetpack/v4/stats-app/sites/999/stats',
@@ -37,6 +37,11 @@ class Test_REST_Controller extends Stats_Test_Case {
 		'/jetpack/v4/stats-app/sites/999/stats/post/1',
 		'/jetpack/v4/stats-app/sites/999/stats/video/1',
 		'/jetpack/v4/stats-app/sites/999/site-has-never-published-post',
+	);
+
+	const SUPPORTED_POST_ROUTES = array(
+		'/jetpack/v4/stats-app/sites/999/stats/referrers/spam/new',
+		'/jetpack/v4/stats-app/sites/999/stats/referrers/spam/delete',
 	);
 
 	const UNSUPPORTED_ROUTES = array(
@@ -91,12 +96,22 @@ class Test_REST_Controller extends Stats_Test_Case {
 	}
 
 	/**
-	 * Test /stats exists.
+	 * Test GET routes exists.
 	 */
-	public function test_blog_stats_endpoints_exists() {
+	public function test_blog_stats_get_endpoints_exists() {
 		wp_set_current_user( $this->admin_id );
-		foreach ( self::SUPPORTED_ROUTES as $route ) {
-			$this->assert_route_exists( $route );
+		foreach ( self::SUPPORTED_GET_ROUTES as $route ) {
+			$this->assert_get_route_exists( $route );
+		}
+	}
+
+	/**
+	 * Test POST routes exists.
+	 */
+	public function test_blog_stats_post_endpoints_exists() {
+		wp_set_current_user( $this->admin_id );
+		foreach ( self::SUPPORTED_POST_ROUTES as $route ) {
+			$this->assert_post_route_exists( $route );
 		}
 	}
 
@@ -115,12 +130,25 @@ class Test_REST_Controller extends Stats_Test_Case {
 	 *
 	 * @param string $route The route to check.
 	 */
-	public function assert_route_exists( $route ) {
+	public function assert_get_route_exists( $route ) {
 		$request = new WP_REST_Request( 'GET', $route );
 		$request->set_header( 'content-type', 'application/json' );
 		$response = $this->server->dispatch( $request );
 
-		$this->assertEquals( 200, $response->get_status() );
+		$this->assertNotEquals( 404, $response->get_status() );
+	}
+
+	/**
+	 * Ensure required routes exists
+	 *
+	 * @param string $route The route to check.
+	 */
+	public function assert_post_route_exists( $route ) {
+		$request = new WP_REST_Request( 'POST', $route );
+		$request->set_header( 'content-type', 'application/json' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertNotEquals( 404, $response->get_status() );
 	}
 
 	/**

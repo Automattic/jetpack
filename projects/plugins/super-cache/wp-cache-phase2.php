@@ -1,5 +1,8 @@
 <?php
 
+// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_is_writable -- TODO: Fix or determine for sure that these should not be fixed.
+// phpcs:disable WordPress.WP.AlternativeFunctions.file_system_operations_fwrite -- TODO: Fix or determine for sure that these should not be fixed.
+
 function gzip_accepted() {
 	if ( 1 == ini_get( 'zlib.output_compression' ) || 'on' == strtolower( ini_get( 'zlib.output_compression' ) ) ) { // don't compress WP-Cache data files when PHP is already doing it
 		return false;
@@ -1322,7 +1325,7 @@ function is_writeable_ACLSafe( $path ) {
 		stristr( PHP_OS, 'DAR' ) ||
 		! stristr( PHP_OS, 'WIN' )
 	) {
-		return is_writeable( $path );
+		return is_writable( $path );
 	}
 
 	// PHP's is_writable does not work with Win32 NTFS
@@ -1433,19 +1436,19 @@ function wp_cache_replace_line( $old, $new, $my_file ) {
 	if ( $found ) {
 		foreach ( (array) $lines as $line ) {
 			if ( ! preg_match( "/$old/", $line ) ) {
-				fputs( $fd, $line );
+				fwrite( $fd, $line );
 			} elseif ( $new != '' ) {
-				fputs( $fd, "$new\n" );
+				fwrite( $fd, "$new\n" );
 			}
 		}
 	} else {
 		$done = false;
 		foreach ( (array) $lines as $line ) {
 			if ( $done || ! preg_match( '/^(if\ \(\ \!\ )?define|\$|\?>/', $line ) ) {
-				fputs( $fd, $line );
+				fwrite( $fd, $line );
 			} else {
-				fputs( $fd, "$new\n" );
-				fputs( $fd, $line );
+				fwrite( $fd, "$new\n" );
+				fwrite( $fd, $line );
 				$done = true;
 			}
 		}
@@ -2397,11 +2400,11 @@ function wp_cache_get_ob( &$buffer ) {
 		if ( $fr ) { // wpcache caching
 			wp_cache_debug( 'Writing dynamic buffer to wpcache file.' );
 			wp_cache_add_to_buffer( $buffer, 'Dynamic WPCache Super Cache' );
-			fputs( $fr, '<?php die(); ?>' . $buffer );
+			fwrite( $fr, '<?php die(); ?>' . $buffer );
 		} elseif ( isset( $fr2 ) ) { // supercache active
 			wp_cache_debug( 'Writing dynamic buffer to supercache file.' );
 			wp_cache_add_to_buffer( $buffer, 'Dynamic Super Cache' );
-			fputs( $fr2, $buffer );
+			fwrite( $fr2, $buffer );
 		}
 		$wp_cache_meta['dynamic'] = true;
 		if ( $wp_cache_mfunc_enabled == 1 && do_cacheaction( 'wpsc_cachedata_safety', 0 ) === 1 ) {
@@ -2437,16 +2440,16 @@ function wp_cache_get_ob( &$buffer ) {
 			// Return uncompressed data & store compressed for later use
 			if ( $fr ) {
 				wp_cache_debug( 'Writing gzipped buffer to wp-cache cache file.', 5 );
-				fputs( $fr, '<?php die(); ?>' . $gzdata );
+				fwrite( $fr, '<?php die(); ?>' . $gzdata );
 			}
 		} elseif ( $fr ) { // no compression
 			wp_cache_debug( 'Writing non-gzipped buffer to wp-cache cache file.' );
-			fputs( $fr, '<?php die(); ?>' . $buffer );
+			fwrite( $fr, '<?php die(); ?>' . $buffer );
 		}
 		if ( $fr2 ) {
 			wp_cache_debug( 'Writing non-gzipped buffer to supercache file.' );
 			wp_cache_add_to_buffer( $buffer, 'super cache' );
-			fputs( $fr2, $buffer );
+			fwrite( $fr2, $buffer );
 		}
 		if ( isset( $gzdata ) && $gz ) {
 			wp_cache_debug( 'Writing gzipped buffer to supercache file.' );
@@ -2903,7 +2906,7 @@ function wp_cache_shutdown_callback() {
 			$final_meta_filename = $dir . 'meta-' . $meta_file;
 			$fr                  = @fopen( $tmp_meta_filename, 'w' );
 			if ( $fr ) {
-				fputs( $fr, $serial );
+				fwrite( $fr, $serial );
 				fclose( $fr );
 				@chmod( $tmp_meta_filename, 0666 & ~umask() );
 				if ( ! @rename( $tmp_meta_filename, $final_meta_filename ) ) {

@@ -11,15 +11,20 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { arrowRight, chevronDown, image, pencil, update, title } from '@wordpress/icons';
+/*
+ * Internal dependencies
+ */
+import I18nDropdownControl from './i18n-dropdown-control';
 import Loading from './loading';
+import ToneDropdownControl from './tone-dropdown-control';
 
 const AIControl = ( {
 	aiType,
-	animationDone,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
 	handleAcceptContent,
+	handleAcceptTitle,
 	handleTryAgain,
 	handleGetSuggestion,
 	isWaitingState,
@@ -32,6 +37,7 @@ const AIControl = ( {
 	postTitle,
 	wholeContent,
 	content,
+	promptType,
 } ) => {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
@@ -75,11 +81,12 @@ const AIControl = ( {
 			{ ! isWaitingState && (
 				<ToolbarControls
 					aiType={ aiType }
-					animationDone={ animationDone }
+					isWaitingState={ isWaitingState }
 					contentIsLoaded={ contentIsLoaded }
 					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 					retryRequest={ retryRequest }
 					handleAcceptContent={ handleAcceptContent }
+					handleAcceptTitle={ handleAcceptTitle }
 					handleGetSuggestion={ handleGetSuggestion }
 					handleTryAgain={ handleTryAgain }
 					showRetry={ showRetry }
@@ -87,6 +94,7 @@ const AIControl = ( {
 					contentBefore={ contentBefore }
 					hasPostTitle={ !! postTitle?.length }
 					wholeContent={ wholeContent }
+					promptType={ promptType }
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
@@ -119,104 +127,163 @@ export default AIControl;
 
 const ToolbarControls = ( {
 	aiType,
-	animationDone,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
 	handleAcceptContent,
+	handleAcceptTitle,
 	handleTryAgain,
 	showRetry,
 	toggleAIType,
 	contentBefore,
 	hasPostTitle,
 	wholeContent,
+	promptType,
 } ) => {
 	return (
-		<BlockControls>
-			{ aiType === 'text' && (
-				// Text controls
-				<ToolbarGroup>
-					{ ! showRetry && contentIsLoaded && animationDone && (
-						<>
-							<ToolbarButton onClick={ handleAcceptContent }>
-								{ __( 'Done', 'jetpack' ) }
-							</ToolbarButton>
-							<ToolbarButton onClick={ handleTryAgain }>
-								{ __( 'Try Again', 'jetpack' ) }
-							</ToolbarButton>
-						</>
-					) }
+		<>
+			{ contentIsLoaded && (
+				<BlockControls group="block">
+					<ToneDropdownControl
+						value="neutral"
+						onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
+						disabled={ contentIsLoaded }
+					/>
 
-					{ !! ( ! showRetry && ! contentIsLoaded && contentBefore?.length ) && (
-						<ToolbarButton icon={ pencil } onClick={ () => getSuggestionFromOpenAI( 'continue' ) }>
-							{ __( 'Continue writing', 'jetpack' ) }
-						</ToolbarButton>
-					) }
+					<I18nDropdownControl
+						value="en"
+						onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
+						disabled={ contentIsLoaded }
+					/>
 
-					{ ! showRetry && ! contentIsLoaded && ! contentBefore?.length && hasPostTitle && (
-						<ToolbarButton
-							icon={ title }
-							onClick={ () => getSuggestionFromOpenAI( 'titleSummary' ) }
-						>
-							{ __( 'Write a summary based on title', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-
-					{ ! showRetry && ! contentIsLoaded && (
-						<ToolbarDropdownMenu
-							icon={ chevronDown }
-							label="More"
-							controls={ [
-								{
-									title: __( 'Summarize', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'summarize' ),
-									isDisabled: ! wholeContent?.length,
-								},
-								{
-									title: __( 'Write a summary based on title', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
-									isDisabled: ! hasPostTitle,
-								},
-								{
-									title: __( 'Expand on preceding content', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'continue' ),
-									isDisabled: ! contentBefore?.length,
-								},
-								{
-									title: __( 'Correct spelling and grammar of preceding content', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'correctSpelling' ),
-									isDisabled: ! contentBefore?.length,
-								},
-								{
-									title: __( 'Simplify preceding content', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'simplify' ),
-									isDisabled: ! contentBefore?.length,
-								},
-							] }
-						/>
-					) }
-					{ showRetry && (
-						<ToolbarButton icon={ update } onClick={ retryRequest }>
-							{ __( 'Retry', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-				</ToolbarGroup>
+					<ToolbarDropdownMenu
+						icon={ pencil }
+						label="More"
+						controls={ [
+							{
+								title: __( 'Summarize', 'jetpack' ),
+								onClick: () => getSuggestionFromOpenAI( 'summarize' ),
+							},
+							{
+								title: __( 'Make longer', 'jetpack' ),
+								onClick: () => getSuggestionFromOpenAI( 'makeLonger' ),
+							},
+							{
+								title: __( 'Make shorter', 'jetpack' ),
+								onClick: () => getSuggestionFromOpenAI( 'makeShorter' ),
+							},
+							{
+								title: __( 'Correct spelling and grammar', 'jetpack' ),
+								onClick: () => getSuggestionFromOpenAI( 'correctSpelling' ),
+							},
+							{
+								title: __( 'Generate a post title', 'jetpack' ),
+								onClick: () => getSuggestionFromOpenAI( 'generateTitle' ),
+							},
+						] }
+					/>
+				</BlockControls>
 			) }
-			{ ! showRetry && ! contentIsLoaded && (
-				// Image/text toggle
-				<ToolbarGroup>
-					{ aiType === 'text' && (
-						<ToolbarButton icon={ image } onClick={ toggleAIType }>
-							{ __( 'Ask AI for an image', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-					{ aiType === 'image' && (
-						<ToolbarButton icon={ pencil } onClick={ toggleAIType }>
-							{ __( 'Ask AI to write', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-				</ToolbarGroup>
-			) }
-		</BlockControls>
+
+			<BlockControls>
+				{ aiType === 'text' && (
+					// Text controls
+					<ToolbarGroup>
+						{ ! showRetry && contentIsLoaded && (
+							<>
+								{ promptType === 'generateTitle' ? (
+									<ToolbarButton onClick={ handleAcceptTitle }>
+										{ __( 'Accept title', 'jetpack' ) }
+									</ToolbarButton>
+								) : (
+									<ToolbarButton onClick={ handleAcceptContent }>
+										{ __( 'Done', 'jetpack' ) }
+									</ToolbarButton>
+								) }
+								<ToolbarButton onClick={ handleTryAgain }>
+									{ __( 'Try Again', 'jetpack' ) }
+								</ToolbarButton>
+							</>
+						) }
+
+						{ !! ( ! showRetry && ! contentIsLoaded && contentBefore?.length ) && (
+							<ToolbarButton
+								icon={ pencil }
+								onClick={ () => getSuggestionFromOpenAI( 'continue' ) }
+							>
+								{ __( 'Continue writing', 'jetpack' ) }
+							</ToolbarButton>
+						) }
+
+						{ ! showRetry && ! contentIsLoaded && ! contentBefore?.length && hasPostTitle && (
+							<ToolbarButton
+								icon={ title }
+								onClick={ () => getSuggestionFromOpenAI( 'titleSummary' ) }
+							>
+								{ __( 'Write a summary based on title', 'jetpack' ) }
+							</ToolbarButton>
+						) }
+						{ ! showRetry && ! contentIsLoaded && (
+							<ToolbarDropdownMenu
+								icon={ chevronDown }
+								label="More"
+								controls={ [
+									{
+										title: __( 'Summarize', 'jetpack' ),
+										onClick: () => getSuggestionFromOpenAI( 'summarize' ),
+										isDisabled: ! wholeContent?.length,
+									},
+									{
+										title: __( 'Write a summary based on title', 'jetpack' ),
+										onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
+										isDisabled: ! hasPostTitle,
+									},
+									{
+										title: __( 'Expand on preceding content', 'jetpack' ),
+										onClick: () => getSuggestionFromOpenAI( 'continue' ),
+										isDisabled: ! contentBefore?.length,
+									},
+									{
+										title: __( 'Correct spelling and grammar of preceding content', 'jetpack' ),
+										onClick: () => getSuggestionFromOpenAI( 'correctSpelling' ),
+										isDisabled: ! contentBefore?.length,
+									},
+									{
+										title: __( 'Simplify preceding content', 'jetpack' ),
+										onClick: () => getSuggestionFromOpenAI( 'simplify' ),
+										isDisabled: ! contentBefore?.length,
+									},
+									{
+										title: __( 'Generate a post title', 'jetpack' ),
+										onClick: () => getSuggestionFromOpenAI( 'generateTitle' ),
+										isDisabled: ! wholeContent?.length,
+									},
+								] }
+							/>
+						) }
+						{ showRetry && (
+							<ToolbarButton icon={ update } onClick={ retryRequest }>
+								{ __( 'Retry', 'jetpack' ) }
+							</ToolbarButton>
+						) }
+					</ToolbarGroup>
+				) }
+				{ ! showRetry && ! contentIsLoaded && (
+					// Image/text toggle
+					<ToolbarGroup>
+						{ aiType === 'text' && (
+							<ToolbarButton icon={ image } onClick={ toggleAIType }>
+								{ __( 'Ask AI for an image', 'jetpack' ) }
+							</ToolbarButton>
+						) }
+						{ aiType === 'image' && (
+							<ToolbarButton icon={ pencil } onClick={ toggleAIType }>
+								{ __( 'Ask AI to write', 'jetpack' ) }
+							</ToolbarButton>
+						) }
+					</ToolbarGroup>
+				) }
+			</BlockControls>
+		</>
 	);
 };

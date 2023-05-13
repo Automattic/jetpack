@@ -84,7 +84,7 @@
 		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-crm",
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-crm/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/jetpack-crm/compare/${old}...${new}"
 		},
 		"release-branch-prefix": "crm",
 		"wp-plugin-slug": "zero-bs-crm",

@@ -63,7 +63,7 @@ class WPCOM_JSON_API_Render_Shortcode_Endpoint extends WPCOM_JSON_API_Render_End
 		// Make sure only one shortcode is being rendered at a time
 		$pattern = get_shortcode_regex();
 		preg_match_all( "/$pattern/s", $shortcode, $matches );
-		if ( count( $matches[0] ) > 1 ) {
+		if ( is_countable( $matches[0] ) && count( $matches[0] ) > 1 ) {
 			return new WP_Error( 'invalid_shortcode', 'Only one shortcode can be rendered at a time.', 400 );
 		}
 

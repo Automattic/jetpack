@@ -1463,7 +1463,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function view_jetpack_connection_test_check() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- This is verifying the trusted caller via a shared private key and timestamp.
-		if ( ! isset( $_GET['signature'], $_GET['timestamp'], $_GET['url'] ) ) {
+		if ( ! isset( $_GET['signature'] ) || ! isset( $_GET['timestamp'] ) || ! isset( $_GET['url'] ) ) {
 			return false;
 		}
 		$signature = base64_decode( wp_unslash( $_GET['signature'] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -3250,7 +3250,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					/* Translators: first variable is the name of a parameter passed to endpoint holding the role that will be checked, the second is a list of roles allowed to see stats. The parameter is checked against this list. */
 					esc_html__( '%1$s must be %2$s.', 'jetpack' ),
 					$param,
-					join( ', ', self::$stats_roles )
+					implode( ', ', self::$stats_roles )
 				)
 			);
 		}
@@ -3287,7 +3287,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					/* Translators: first variable is the name of a parameter passed to endpoint holding the post type where Sharing will be displayed, the second is a list of post types where Sharing can be displayed */
 					esc_html__( '%1$s must be %2$s.', 'jetpack' ),
 					$param,
-					join( ', ', $views )
+					implode( ', ', $views )
 				)
 			);
 		}
@@ -3343,7 +3343,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					/* Translators: placeholder 1 is a parameter holding the services passed to endpoint, placeholder 2 is a list of all Jetpack Sharing services */
 					esc_html__( '%1$s visible and hidden items must be a list of %2$s.', 'jetpack' ),
 					$param,
-					join( ', ', $services )
+					implode( ', ', $services )
 				)
 			);
 		}
