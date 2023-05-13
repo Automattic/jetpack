@@ -1677,6 +1677,17 @@ EOT;
 		return $filtered;
 	}
 
+	/**
+	 * Generates a context for the related content (second line in related post output).
+	 * Order of importance:
+	 *   - First category (Not 'Uncategorized')
+	 *   - First post tag
+	 *   - Number of comments
+	 *
+	 * @param int $post_id - the post ID.
+	 * @uses get_the_category, get_the_terms, get_comments_number, number_format_i18n, __, _n
+	 * @return string
+	 */
 	protected function generate_related_post_context_block( $post_id ) {
 		error_log( 'xxx - generate_related_post_context_block() with ID: ' . strval( $post_id ) );
 		$categories = get_the_category( $post_id );
