@@ -408,7 +408,7 @@ EOT;
 			} else {
 				$context_tag = sprintf(
 					'<li class="jp-related-posts-i2__post-context">%1$s</li>',
-					$block_context['text'],
+					$block_context['text']
 				);
 			}
 			$item_markup .= $context_tag;
