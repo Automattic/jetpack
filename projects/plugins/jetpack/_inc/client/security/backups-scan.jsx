@@ -17,6 +17,7 @@ import { connect } from 'react-redux';
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
 import { showBackups } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
+import { isFetchingRewindStatus } from 'state/rewind';
 import { siteHasFeature } from 'state/site';
 
 class LoadingCard extends Component {
@@ -152,7 +153,6 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 					false
 				),
 				scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
-			let cardText = '';
 
 			if ( this.props.isOfflineMode ) {
 				return __( 'Unavailable in Offline Mode.', 'jetpack' );
@@ -195,18 +195,14 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 				return __( 'Your site is connected to VaultPress for backups.', 'jetpack' );
 			}
 
-			// Nothing is enabled. We can show upgrade/setup text now.
-			cardText = __( "You have paid for backups but they're not yet active.", 'jetpack' );
-			if ( this.props.hasScan ) {
-				cardText = __(
-					'You have paid for backups and security scanning but they’re not yet active.',
-					'jetpack'
-				);
+			if ( this.props.isFetchingRewindStatus ) {
+				return __( 'Loading…', 'jetpack' );
 			}
 
-			cardText += ' ' + __( 'Click "Set Up" to finish installation.', 'jetpack' );
-
-			return cardText;
+			return __(
+				'The Jetpack Backup and Scan status could not be retrieved at this time.',
+				'jetpack'
+			);
 		}
 
 		render() {
@@ -280,5 +276,6 @@ export default connect( state => {
 		hasThreats: getVaultPressScanThreatCount( state ),
 		vaultPressActive: isModuleActivated( state, 'vaultpress' ),
 		showBackups: showBackups( state ),
+		isFetchingRewindStatus: isFetchingRewindStatus( state ),
 	};
 } )( BackupsScan );
