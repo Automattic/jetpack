@@ -64,7 +64,7 @@ const ConnectScreenRequiredPlanVisual = props => {
 					/>
 				),
 		  } )
-		: null;
+		: undefined;
 
 	return (
 		<ConnectScreenLayout
