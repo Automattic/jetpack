@@ -38,7 +38,7 @@ const ConnectScreenVisual = props => {
 					/>
 				),
 		  } )
-		: null;
+		: undefined;
 
 	return (
 		<ConnectScreenLayout
