@@ -1580,6 +1580,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @return array            Associative array with keys expected by core.
 	 */
 	public function _internal_personal_data_eraser( $email, $page = 1, $per_page = 250 ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore -- this is called in other files.
+		$post_id      = null;
 		$removed      = false;
 		$retained     = false;
 		$messages     = array();
@@ -1977,7 +1978,7 @@ class Grunion_Contact_Form_Plugin {
 		/**
 		 * Count how many rows will be exported.
 		 */
-		$row_count = count( reset( $data ) );
+		$row_count = is_countable( $data ) ? count( reset( $data ) ) : 0;
 
 		// Forces the download of the CSV instead of echoing
 		header( 'Content-Disposition: attachment; filename=' . $filename );
@@ -2730,10 +2731,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$this->parse_content( $default_form );
 
 			// Store the shortcode.
-			$this->store_shortcode( $default_form, $attributes, $this->hash );
+			static::store_shortcode( $default_form, $attributes, $this->hash );
 		} else {
 			// Store the shortcode.
-			$this->store_shortcode( $content, $attributes, $this->hash );
+			static::store_shortcode( $content, $attributes, $this->hash );
 		}
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
@@ -5191,7 +5192,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				$field .= $this->render_textarea_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
 			case 'radio':
-				$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text );
 				break;
 			case 'checkbox':
 				$field .= $this->render_checkbox_field( $id, $label, $value, $field_class, $required, $required_field_text );
@@ -5323,7 +5324,7 @@ function grunion_delete_old_spam() {
 	}
 
 	// if we hit the max then schedule another run
-	if ( count( $post_ids ) >= $grunion_delete_limit ) {
+	if ( is_countable( $post_ids ) && count( $post_ids ) >= $grunion_delete_limit ) {
 		wp_schedule_single_event( time() + 700, 'grunion_scheduled_delete' );
 	}
 }
