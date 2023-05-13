@@ -411,6 +411,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return mixed
 	 */
 	public function input( $return_default_values = true, $cast_and_filter = true ) {
+		$return       = null;
 		$input        = trim( (string) $this->api->post_body );
 		$content_type = (string) $this->api->content_type;
 		if ( $content_type ) {
@@ -1127,7 +1128,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		</td>
 	</tr>
 
-			<?php endforeach; ?>
+<?php endforeach; ?>
 </tbody>
 </table>
 </section>
@@ -1227,8 +1228,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 					if ( 'response_format' !== $_property ) {
 						// hack - don't show "(default)" in response format.
-						reset( $description );
-						$description_key                 = key( $description );
+						$description_key                 = array_key_first( $description );
 						$description[ $description_key ] = "(default) {$description[$description_key]}";
 					}
 				} else {
@@ -1365,6 +1365,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 * @return object
 	 */
 	public function get_author( $author, $show_email_and_ip = false ) {
+		$is_jetpack = null;
+		$login      = null;
+		$email      = null;
+		$name       = null;
+		$first_name = null;
+		$last_name  = null;
+		$nice       = null;
+		$url        = null;
 		$ip_address = isset( $author->comment_author_IP ) ? $author->comment_author_IP : '';
 
 		if ( isset( $author->comment_author_email ) ) {
