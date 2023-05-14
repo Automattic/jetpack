@@ -42,7 +42,7 @@ class WPCOM_API_Request_Tracker_Module {
 	 */
 	public function enqueue_scripts() {
 		wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . 'inc/css/wpcom-api-request-tracker.css', array(), JETPACK_DEBUG_HELPER_VERSION );
-		wp_enqueue_script( 'broken_token_script', plugin_dir_url( __FILE__ ) . 'inc/js/wpcom-api-request-tracker.js', array( 'jquery' ), JETPACK_DEBUG_HELPER_VERSION );
+		wp_enqueue_script( 'broken_token_script', plugin_dir_url( __FILE__ ) . 'inc/js/wpcom-api-request-tracker.js', array( 'jquery' ), JETPACK_DEBUG_HELPER_VERSION, true );
 	}
 
 	/**
