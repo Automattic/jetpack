@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Refactor Pressable component for the Android embed overlay

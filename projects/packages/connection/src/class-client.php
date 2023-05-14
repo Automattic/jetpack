@@ -206,7 +206,7 @@ class Client {
 		$request['headers'] = array_merge(
 			$args['headers'],
 			array(
-				'Authorization' => 'X_JETPACK ' . join( ' ', $header_pieces ),
+				'Authorization' => 'X_JETPACK ' . implode( ' ', $header_pieces ),
 			)
 		);
 
