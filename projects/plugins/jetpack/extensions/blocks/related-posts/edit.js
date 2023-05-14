@@ -68,8 +68,9 @@ function PlaceholderPostEdit( props ) {
 }
 
 function RelatedPostsEditItem( props ) {
-	const blockContext = props.post.bcon;
-	const contextHasLink = blockContext?.link !== '' || false;
+	const contextText = props.post?.bcon?.text || '';
+	const contextLink = props.post?.bcon?.link || '';
+	const contextHasLink = contextLink !== '';
 	return (
 		<div
 			className="jp-related-posts-i2__post"
@@ -103,8 +104,8 @@ function RelatedPostsEditItem( props ) {
 			) }
 			{ props.displayContext && (
 				<div className="jp-related-posts-i2__post-context has-small-font-size">
-					{ contextHasLink && <a href={ blockContext.link }>{ blockContext.text }</a> }
-					{ contextHasLink === false && blockContext.text }
+					{ contextHasLink && <a href={ contextLink }>{ contextText }</a> }
+					{ contextHasLink === false && contextText }
 				</div>
 			) }
 		</div>
