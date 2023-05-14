@@ -40,12 +40,12 @@ const test = baseTest.extend( {
 } );
 
 test.beforeEach( async () => {
-	await execWpCommand( 'wp transient delete wpcom_request_counter' );
+	await execWpCommand( 'transient delete wpcom_request_counter' );
 } );
 
 test.afterEach( async () => {
-	const wpcomRequestCount = await execWpCommand( 'wp transient get wpcom_request_counter' );
-	allure.addParameter( 'Requests to WPCOM API:', parseInt( wpcomRequestCount ) );
+	const wpcomRequestCount = await execWpCommand( 'transient get wpcom_request_counter' );
+	allure.addParameter( 'Requests to WPCOM API:', parseInt( wpcomRequestCount ) || 0 );
 } );
 
 export { test };
