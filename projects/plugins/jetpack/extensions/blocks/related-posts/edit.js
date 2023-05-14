@@ -69,7 +69,7 @@ function PlaceholderPostEdit( props ) {
 
 function RelatedPostsEditItem( props ) {
 	const blockContext = props.post.bcon;
-	const contextHasLink = blockContext.link !== '';
+	const contextHasLink = blockContext?.link !== '' || false;
 	return (
 		<div
 			className="jp-related-posts-i2__post"
