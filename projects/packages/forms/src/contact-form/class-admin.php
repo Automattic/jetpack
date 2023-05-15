@@ -1387,7 +1387,7 @@ class Admin {
 
 		$query = 'post_type=feedback&post_status=publish';
 
-		if ( isset( $_POST['limit'], $_POST['offset'] ) ) {
+		if ( isset( $_POST['limit'] ) && isset( $_POST['offset'] ) ) {
 			$query .= '&posts_per_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
 		}
 

@@ -114,7 +114,7 @@ class WordAds_California_Privacy {
 			'N', // Signatory to IAB Limited Service Provider Agreement.
 		);
 
-		return join( $values );
+		return implode( $values );
 	}
 
 	/**
