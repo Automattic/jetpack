@@ -143,7 +143,7 @@ $entry = new Modules_State_Entry();
 jetpack_boost_register_option( 'modules_state', $modules_state_schema, $entry );
 
 if ( Image_Size_Analysis::is_available() ) {
-	require_once __DIR__ . '/app/data-sync/init-image-size-analysis.php';
+	require_once __DIR__ . '/app/modules/image-size-analysis/data-sync/init.php';
 }
 
 /**

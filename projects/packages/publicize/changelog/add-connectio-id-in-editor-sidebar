@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Get Jetpack to use connection_id as the uninque identifier of the editor elements on the sidebar

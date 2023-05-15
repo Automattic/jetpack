@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Segments: adding a doesnotcontain condition for email segments, for better compatibility with Advanced Segments

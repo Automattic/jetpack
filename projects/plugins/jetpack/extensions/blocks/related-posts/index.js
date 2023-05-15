@@ -16,6 +16,7 @@ export const icon = (
 
 export const settings = {
 	title: __( 'Related Posts', 'jetpack' ),
+	description: __( 'Display a list of related posts.', 'jetpack' ),
 
 	icon: {
 		src: icon,

@@ -50,7 +50,7 @@ class Jetpack_Sitemap_Buffer_Page extends Jetpack_Sitemap_Buffer_Fallback {
 				'</urlset>',
 			);
 
-			$this->byte_capacity -= strlen( join( '', $this->root ) );
+			$this->byte_capacity -= strlen( implode( '', $this->root ) );
 		}
 
 		return $this->root;

@@ -15,6 +15,14 @@
 	  }
 	}
 
+	&.never-expires {
+		color: #AB8D16;
+
+		::before {
+			background: #AB8D16;
+		}
+	}
+
   	::before {
 	  content: "";
 	  display: inline-block;

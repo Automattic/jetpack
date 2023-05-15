@@ -263,7 +263,8 @@ class zeroBS__Metabox_Invoice extends zeroBS__Metabox {
 			$invoice['discount'] = empty( $_POST['invoice_discount_total'] ) ? 0 : (float)sanitize_text_field( $_POST['invoice_discount_total'] );
 			$invoice['discount_type'] = empty( $_POST['invoice_discount_type'] ) ? 0 : sanitize_text_field( $_POST['invoice_discount_type'] );
 			$invoice['shipping'] = empty( $_POST['invoice_postage_total'] ) ? 0 : (float)sanitize_text_field( $_POST['invoice_postage_total'] );
-			$invoice['shipping_tax'] = empty( $_POST['zbsli_tax_ship'] ) ? 0 : (float)sanitize_text_field( $_POST['zbsli_tax_ship'] );
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$invoice['shipping_taxes'] = empty( $_POST['zbsli_tax_ship'] ) ? 0 : (float) sanitize_text_field( wp_unslash( $_POST['zbsli_tax_ship'] ) );
 			// or shipping_taxes (not set by MS script)
 
 			// ... js pass through :o Will be overwritten on php calc on addUpdate, actually, v3.0+

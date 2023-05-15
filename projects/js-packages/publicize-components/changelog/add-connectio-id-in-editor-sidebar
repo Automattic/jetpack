@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Support both connection_id and token_id in publicize connection test results repsponse.
