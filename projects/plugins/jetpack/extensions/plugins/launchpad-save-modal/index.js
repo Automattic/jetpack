@@ -2,6 +2,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
+import { useEntityProp } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useRef, useState } from '@wordpress/element';
@@ -142,6 +143,15 @@ export const settings = {
 			! dontShowAgain &&
 			isModalOpen;
 
+		const [ launchpadScreen, setLaunchpadScreen ] = useEntityProp( 'root', 'site', 'launchpad_screen' );
+
+		function updateLaunchpadScreen( checked ) {
+			if ( ! checked ) {
+				return;
+			}
+			setLaunchpadScreen( 'off' );
+		}
+
 		return (
 			showModal && (
 				<Modal
@@ -174,6 +184,7 @@ export const settings = {
 									variant="secondary"
 									onClick={ () => {
 										setDontShowAgain( isChecked );
+										updateLaunchpadScreen( isChecked );
 										setIsModalOpen( false );
 										recordTracksEvent( 'jetpack_launchpad_save_modal_back_to_edit' );
 									} }
@@ -183,7 +194,11 @@ export const settings = {
 								<Button
 									variant="primary"
 									href={ actionButtonHref }
-									onClick={ () => recordTracksEvent( actionButtonTracksEvent ) }
+									onClick={ () => {
+											updateLaunchpadScreen( isChecked );
+											recordTracksEvent( actionButtonTracksEvent );
+										}
+									}
 									target="_top"
 								>
 									{ actionButtonText }
