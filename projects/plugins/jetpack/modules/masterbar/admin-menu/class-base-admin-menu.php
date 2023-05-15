@@ -444,7 +444,7 @@ abstract class Base_Admin_Menu {
 			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 			$menu[ $idx ] = $menu_item;
 		}
-		if ( $svg_items !== [] ) {
+		if ( $svg_items !== array() ) {
 			$styles = '.menu-svg-icon .wp-menu-image { background-repeat: no-repeat; background-position: center center } ';
 			foreach ( $svg_items as $svg_item ) {
 				$styles .= sprintf( '#%s .wp-menu-image { background-image: url( "%s" ) }', $svg_item['id'], $svg_item['icon'] );
