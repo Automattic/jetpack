@@ -22,7 +22,7 @@ class Automation_Engine {
 	private $automation_logger;
 
 	/** @var array */
-	private $recipes = array();
+	private $workflows = array();
 
 	/**
 	 *  Instance singleton object
@@ -92,47 +92,47 @@ class Automation_Engine {
 	}
 
 	/**
-	 * Add a recipe
+	 * Add a workflow
 	 *
-	 * @param Automation_Recipe $recipe
-	 * @param bool              $init_recipe
+	 * @param Automation_Workflow $workflow
+	 * @param bool              $init_workflow
 	 * @return void
-	 * @throws Recipe_Exception
+	 * @throws Workflow_Exception
 	 */
-	public function add_recipe( Automation_Recipe $recipe, bool $init_recipe = false ) {
-		$this->recipes[] = $recipe;
+	public function add_workflow( Automation_Workflow $workflow, bool $init_workflow = false ) {
+		$this->workflows[] = $workflow;
 
-		if ( $init_recipe ) {
-			$recipe->init_triggers();
+		if ( $init_workflow ) {
+			$workflow->init_triggers();
 		}
 	}
 
 	/**
-	 * Build and add a recipe
+	 * Build and add a workflow
 	 *
-	 * @param array $recipe_data
-	 * @param bool $init_recipe
-	 * @return Automation_Recipe
-	 * @throws Recipe_Exception
+	 * @param array $workflow_data
+	 * @param bool $init_workflow
+	 * @return Automation_Workflow
+	 * @throws Workflow_Exception
 	 */
-	public function build_add_recipe( array $recipe_data, bool $init_recipe = false ): Automation_Recipe {
-		$recipe = new Automation_Recipe( $recipe_data );
-		$this->add_recipe( $recipe, $init_recipe );
+	public function build_add_workflow( array $workflow_data, bool $init_workflow = false ): Automation_Workflow {
+		$workflow = new Automation_Workflow( $workflow_data );
+		$this->add_workflow( $workflow, $init_workflow );
 
-		return $recipe;
+		return $workflow;
 	}
 
 	/**
-	 * Init automation recipes.
+	 * Init automation workflows.
 	 *
 	 * @return void
-	 * @throws Recipe_Exception
+	 * @throws Workflow_Exception
 	 */
-	public function init_recipes() {
+	public function init_workflows() {
 		
-		/** @var Automation_Recipe $recipe */
-		foreach ( $this->recipes as $recipe ) {
-			$recipe->init_triggers();
+		/** @var Automation_Workflow $workflow */
+		foreach ( $this->workflows as $workflow ) {
+			$workflow->init_triggers();
 		}
 	}
 

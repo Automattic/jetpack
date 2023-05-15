@@ -45,8 +45,8 @@ interface Trigger {
 	/**
 	 * Init the trigger. Listen to the desired event
 	 *
-	 * @param Automation_Recipe $recipe The recipe to which the trigger belongs.
+	 * @param Automation_Workflow $workflow The workflow to which the trigger belongs.
 	 */
-	public function init( Automation_Recipe $recipe );
+	public function init( Automation_Workflow $workflow );
 
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Interface to define Step in a automation recipe.
+ * Interface to define Step in a automation workflow.
  *
  * @package Automattic\Jetpack\CRM\Automation
  */

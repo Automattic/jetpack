@@ -74,7 +74,7 @@ abstract class Base_Trigger implements Trigger {
 	/**
 	 * Initialize the trigger
 	 *
-	 * @param Automation_Recipe $recipe The recipe to execute.
+	 * @param Automation_Workflow $workflow The workflow to execute.
 	 */
-	abstract public function init( Automation_Recipe $recipe );
+	abstract public function init( Automation_Workflow $workflow );
 }
