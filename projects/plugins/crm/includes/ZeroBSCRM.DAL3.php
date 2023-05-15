@@ -4239,7 +4239,6 @@ class zbsDAL {
     public function addUpdateTagObjLinks($args=array()){
 
         global $ZBSCRM_t,$wpdb;
-		global $zbs;
 
         #} ============ LOAD ARGS =============
         $defaultArgs = array(
@@ -4273,9 +4272,6 @@ class zbsDAL {
 
             // mode
             if (gettype($mode) != 'string' || !in_array($mode, array('replace','append','remove'))) return false;
-
-			// Retrieving segment information in order to update them with tag changes later.
-			$segments = $zbs->DAL->segments->getSegments( $owner, 1000, 0, true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
         #} ========= / CHECK FIELDS ===========
 
@@ -4361,7 +4357,7 @@ class zbsDAL {
 
 				}
 
-				$this->compile_segments_from_tagIDs( $tagIDs, $segments ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+				$this->compile_segments_from_tagIDs( $tagIDs, $owner ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 					return true;
 
@@ -4391,7 +4387,7 @@ class zbsDAL {
 
 					}
 
-					$this->compile_segments_from_tagIDs( $tagIDs, $segments ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+					$this->compile_segments_from_tagIDs( $tagIDs, $owner ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
 					return true;
 
@@ -4408,14 +4404,16 @@ class zbsDAL {
 	/**
 	 * Compiles segments based on an array of given tag IDs
 	 *
-	 * @param array  $tagIDs An array of tag IDs.
-	 * @param object $segments An object containing all segments.
+	 * @param array $tagIDs An array of tag IDs.
+	 * @param ID    $owner An ID representing the owner of the current tagID.
 	 */
-	public function compile_segments_from_tagIDs( $tagIDs, $segments ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	public function compile_segments_from_tagIDs( $tagIDs, $owner ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		global $zbs;
+		// Retrieving segment information in order to update them with tag changes later.
+		$segments = $zbs->DAL->segments->getSegments( $owner, 1000, 0, true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		foreach ( $segments as $segment ) {
 			foreach ( $segment['conditions'] as $condition ) {
-				if ( $condition['type'] === 'tagged' && in_array( $condition['value'], $tagIDs, true ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				if ( $condition['type'] === 'tagged' && in_array( $condition['value'], $tagIDs ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.PHP.StrictInArray.MissingTrueStrict
 					$zbs->DAL->segments->compileSegment( $segment['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				}
 			}
