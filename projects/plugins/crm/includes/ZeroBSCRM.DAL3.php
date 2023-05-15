@@ -4409,7 +4409,6 @@ class zbsDAL {
 	 */
 	public function compile_segments_from_tagIDs( $tagIDs, $owner ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		global $zbs;
-		// Retrieving segment information in order to update them with tag changes later.
 		$segments = $zbs->DAL->segments->getSegments( $owner, 1000, 0, true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		foreach ( $segments as $segment ) {
 			foreach ( $segment['conditions'] as $condition ) {
