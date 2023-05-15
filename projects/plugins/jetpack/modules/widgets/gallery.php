@@ -259,7 +259,6 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 * @return string String of HTML representing a slideshow gallery
 	 */
 	public function slideshow_widget( $args, $instance ) {
-		$attr = array();
 		global $content_width;
 
 		require_once plugin_dir_path( realpath( __DIR__ . '/../shortcodes/slideshow.php' ) ) . 'slideshow.php';
