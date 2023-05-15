@@ -120,7 +120,7 @@ function jetpack_get_future_removed_version( $version ) {
 	 */
 	preg_match( '#(([0-9]+\.([0-9]+))(?:\.[0-9]+)*)#', $version, $matches );
 
-	if ( isset( $matches[2], $matches[3] ) ) {
+	if ( isset( $matches[2] ) && isset( $matches[3] ) ) {
 		$deprecated_version = (float) $matches[2];
 		$deprecated_minor   = (float) $matches[3];
 

@@ -30,7 +30,10 @@ export const imageDataGroupTabs = derived(
 			...{
 				all: {
 					name: 'All',
-					issues: Object.values( $groups ).reduce( ( total, group ) => total + group.issues, 0 ),
+					issues:
+						Object.values( $groups )
+							.map( group => group.issues )
+							.reduce( ( a, b ) => a + b, 0 ) - $ignored.length,
 				},
 			},
 			...$groups,
@@ -48,7 +51,7 @@ export const imageDataGroupTabs = derived(
 
 export const imageDataActiveGroup = derived(
 	[ imageDataGroupTabs, isaData ],
-	( [ $groups, $imageData ] ) => {
+	( [ $groups, $imageData ] ): z.infer< typeof Group > => {
 		return $groups[ $imageData.query.group ];
 	}
 );

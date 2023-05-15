@@ -228,10 +228,10 @@ function shortcode_handler_bandcamp( $atts ) {
 	}
 
 	if ( $is_video ) {
-		$url         = '//bandcamp.com/VideoEmbed?' . join( '&', $argparts );
+		$url         = '//bandcamp.com/VideoEmbed?' . implode( '&', $argparts );
 		$extra_attrs = " mozallowfullscreen='1' webkitallowfullscreen='1' allowfullscreen='1'";
 	} else {
-		$url         = '//bandcamp.com/EmbeddedPlayer/v=2/' . join( '/', $argparts ) . '/';
+		$url         = '//bandcamp.com/EmbeddedPlayer/v=2/' . implode( '/', $argparts ) . '/';
 		$extra_attrs = '';
 	}
 

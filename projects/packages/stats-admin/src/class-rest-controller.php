@@ -187,6 +187,42 @@ class REST_Controller {
 				),
 			)
 		);
+
+		// Mark referrer spam.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/stats/referrers/spam/new', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'mark_referrer_spam' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+				'args'                => array(
+					'domain' => array(
+						'required'    => true,
+						'type'        => 'string',
+						'description' => 'Domain of the referrer',
+					),
+				),
+			)
+		);
+
+		// Unmark referrer spam.
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/stats/referrers/spam/delete', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( $this, 'unmark_referrer_spam' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+				'args'                => array(
+					'domain' => array(
+						'required'    => true,
+						'type'        => 'string',
+						'description' => 'Domain of the referrer',
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -482,6 +518,52 @@ class REST_Controller {
 	}
 
 	/**
+	 * Mark a referrer as spam.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function mark_referrer_spam( $req ) {
+		return $this->request_as_blog_cached(
+			sprintf(
+				'/sites/%d/stats/referrers/spam/new?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_params()
+				)
+			),
+			'v1.1',
+			array(
+				'timeout' => 5,
+				'method'  => 'POST',
+			)
+		);
+	}
+
+	/**
+	 * Unmark a referrer as spam.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function unmark_referrer_spam( $req ) {
+		return $this->request_as_blog_cached(
+			sprintf(
+				'/sites/%d/stats/referrers/spam/delete?%s',
+				Jetpack_Options::get_option( 'id' ),
+				$this->filter_and_build_query_string(
+					$req->get_params()
+				)
+			),
+			'v1.1',
+			array(
+				'timeout' => 5,
+				'method'  => 'POST',
+			)
+		);
+	}
+
+	/**
 	 * Query the WordPress.com REST API using the blog token
 	 *
 	 * @param String $path The API endpoint relative path.
@@ -493,6 +575,9 @@ class REST_Controller {
 	 * @return array|WP_Error $response Data.
 	 */
 	protected function request_as_blog_cached( $path, $version = '1.1', $args = array(), $body = null, $base_api_path = 'rest', $use_cache = true ) {
+		// Only allow caching GET requests.
+		$use_cache = $use_cache && ! ( isset( $args['method'] ) && strtoupper( $args['method'] ) !== 'GET' );
+
 		// Arrays are serialized without considering the order of objects, but it's okay atm.
 		$cache_key = 'STATS_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args ), wp_json_encode( $body ), $base_api_path ) ) );
 
@@ -519,12 +604,15 @@ class REST_Controller {
 		$response_body_content = wp_remote_retrieve_body( $response );
 		$response_body         = json_decode( $response_body_content, true );
 
-		if ( 200 !== $response_code ) {
-			return $this->get_wp_error( $response_body, $response_code );
+		$error = $this->get_wp_error( $response_body, (int) $response_code );
+		if ( is_wp_error( $error ) ) {
+			return $error;
 		}
 
-		// Cache the successful JSON response for 5 minutes.
-		set_transient( $cache_key, $response_body_content, 5 * MINUTE_IN_SECONDS );
+		if ( $use_cache ) {
+			// Cache the successful JSON response for 5 minutes.
+			set_transient( $cache_key, $response_body_content, 5 * MINUTE_IN_SECONDS );
+		}
 		return $response_body;
 	}
 
@@ -568,8 +656,8 @@ class REST_Controller {
 	 * @param int   $response_code Http response code.
 	 * @return WP_Error
 	 */
-	protected function get_wp_error( $response_body, $response_code = 500 ) {
-		$error_code = 'remote-error';
+	protected function get_wp_error( $response_body, $response_code = 200 ) {
+		$error_code = null;
 		foreach ( array( 'code', 'error' ) as $error_code_key ) {
 			if ( isset( $response_body[ $error_code_key ] ) ) {
 				$error_code = $response_body[ $error_code_key ];
@@ -577,12 +665,16 @@ class REST_Controller {
 			}
 		}
 
-		$error_message = isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error';
+		// Sometimes the response code could be 200 but the response body still contains an error.
+		if ( $error_code !== null || $response_code !== 200 ) {
+			return new WP_Error(
+				$error_code,
+				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				array( 'status' => $response_code )
+			);
+		}
 
-		return new WP_Error(
-			$error_code,
-			$error_message,
-			array( 'status' => $response_code )
-		);
+		// No error.
+		return null;
 	}
 }
