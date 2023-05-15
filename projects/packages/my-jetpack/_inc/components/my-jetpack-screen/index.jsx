@@ -1,3 +1,6 @@
+/*
+ * External dependencies
+ */
 import {
 	AdminSection,
 	AdminSectionHero,
@@ -12,8 +15,12 @@ import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-c
 import { Icon, Notice, Path, SVG } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+/*
+ * Internal dependencies
+ */
 import useAnalytics from '../../hooks/use-analytics';
+import useChatAvailability from '../../hooks/use-chat-availability';
 import useConnectionWatcher from '../../hooks/use-connection-watcher';
 import useGlobalNotice from '../../hooks/use-notice';
 import ConnectionsSection from '../connections-section';
@@ -76,12 +83,27 @@ export default function MyJetpackScreen() {
 	useConnectionWatcher();
 	const { message, options, clean } = useGlobalNotice();
 	const { hasConnectionError } = useConnectionErrorNotice();
+	const { isAvailable, isFetchingChatAvailability } = useChatAvailability();
+	const shouldShowZendeskChatWidget = ! isFetchingChatAvailability && isAvailable;
 
 	const { recordEvent } = useAnalytics();
+	const [ reloading, setReloading ] = useState( false );
 
 	useEffect( () => {
 		recordEvent( 'jetpack_myjetpack_page_view' );
 	}, [ recordEvent ] );
+
+	if ( window.location.hash.includes( '?reload=true' ) ) {
+		// Clears the query string and reloads the page.
+		window.history.replaceState( null, '', window.location.href.replace( '?reload=true', '' ) );
+		window.location.reload();
+
+		setReloading( true );
+	}
+
+	if ( reloading ) {
+		return null;
+	}
 
 	return (
 		<AdminPage>
@@ -92,7 +114,7 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 				<Container horizontalSpacing={ 5 } horizontalGap={ message ? 3 : 6 }>
-					<Col sm={ 4 } md={ 7 } lg={ 6 }>
+					<Col sm={ 4 } md={ 8 } lg={ 12 }>
 						<Text variant="headline-small">
 							{ __( 'Manage your Jetpack products', 'jetpack-my-jetpack' ) }
 						</Text>
@@ -123,7 +145,8 @@ export default function MyJetpackScreen() {
 					</Col>
 				</Container>
 			</AdminSection>
-			<ZendeskChat />
+
+			{ shouldShowZendeskChatWidget && <ZendeskChat /> }
 		</AdminPage>
 	);
 }

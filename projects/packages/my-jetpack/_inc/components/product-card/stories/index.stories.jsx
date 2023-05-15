@@ -1,6 +1,4 @@
 /* eslint-disable react/react-in-jsx-scope */
-
-import { BackupIcon } from '@automattic/jetpack-components';
 import { arrowUp } from '@wordpress/icons';
 import React from 'react';
 import { initStore } from '../../../state/store';
@@ -35,11 +33,6 @@ export default {
 		),
 	],
 	argTypes: {
-		icon: {
-			table: {
-				disable: true,
-			},
-		},
 		menuItems: {
 			table: {
 				disable: true,
@@ -85,7 +78,6 @@ const Template = args => <ProductCard { ...args } />;
 const DefaultArgs = {
 	name: 'Backup',
 	description: 'Save every change',
-	icon: <BackupIcon />,
 	status: PRODUCT_STATUSES.ACTIVE,
 	admin: true,
 	slug: 'backup',

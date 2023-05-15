@@ -31,6 +31,10 @@ const ProductLink = props => {
 			text: __( 'View latest backup', 'jetpack' ),
 			redirectSource: 'jetpack-license-activation-success-backup',
 		},
+		jetpack_starter: {
+			text: __( 'View latest backup', 'jetpack' ),
+			redirectSource: 'jetpack-license-activation-success-backup',
+		},
 		default: null,
 	};
 

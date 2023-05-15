@@ -49,8 +49,10 @@
 		"videopress/video"
 	],
 	"beta": [
+		"ai-assistant",
 		"ai-chat",
 		"amazon",
+		"author-recommendation",
 		"conversation",
 		"dialogue",
 		"google-docs-embed",

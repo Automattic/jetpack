@@ -168,6 +168,7 @@ class SelectDropdown extends Component {
 			'is-compact': this.props.compact,
 			'is-open': this.state.isOpen,
 			'is-disabled': this.props.disabled,
+			'is-rna': this.props.rna,
 		};
 
 		if ( this.props.className ) {
@@ -364,6 +365,7 @@ SelectDropdown.defaultProps = {
 	onToggle: noop,
 	disabled: false,
 	style: {},
+	rna: false,
 };
 
 SelectDropdown.propTypes = {
@@ -384,6 +386,7 @@ SelectDropdown.propTypes = {
 			path: PropTypes.string,
 		} )
 	),
+	rna: PropTypes.bool,
 };
 
 // statics

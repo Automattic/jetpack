@@ -3,7 +3,7 @@
  */
 import type { Popover } from '@wordpress/components';
 
-export type ActionPopoverProps = Popover.Props & {
+export type ActionPopoverProps = React.ComponentProps< typeof Popover > & {
 	anchor?: Element;
 	offset?: number;
 } & {

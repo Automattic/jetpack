@@ -2,6 +2,7 @@ import { isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import { Path } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { compact } from 'lodash';
+import { salesforceLeadFormVariation } from './components/jetpack-salesforce-lead-form/jetpack-salesforce-lead-form-settings';
 import { getIconColor } from './util/block-icons';
 import renderMaterialIcon from './util/render-material-icon';
 
@@ -366,6 +367,7 @@ const variations = compact( [
 			subject: __( 'New feedback received from your website', 'jetpack-forms' ),
 		},
 	},
+	salesforceLeadFormVariation,
 ] );
 
 export default variations;

@@ -9,11 +9,14 @@ import styles from './styles.module.scss';
  *
  * @param {object} props           - Component props.
  * @param {Function} props.onClick - A callback to execute on click
+ * @param {boolean} props.reload   - Whether to reload the page after going back
  * @returns {object}                 GoBackLink component.
  */
-function GoBackLink( { onClick } ) {
+function GoBackLink( { onClick, reload } ) {
+	const to = reload ? '/?reload=true' : '/';
+
 	return (
-		<Link to="/" className={ styles.link } onClick={ onClick }>
+		<Link to={ to } className={ styles.link } onClick={ onClick }>
 			<Icon icon={ arrowLeft } className={ styles.icon } />
 			{ __( 'Go back', 'jetpack-my-jetpack' ) }
 		</Link>

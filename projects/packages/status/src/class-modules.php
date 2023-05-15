@@ -426,7 +426,7 @@ class Modules {
 						}
 					}
 					if ( $deactivated ) {
-						$state->state( 'deactivated_plugins', join( ',', $deactivated ) );
+						$state->state( 'deactivated_plugins', implode( ',', $deactivated ) );
 						wp_safe_redirect( add_query_arg( 'jetpack_restate', 1 ) );
 						exit;
 					}

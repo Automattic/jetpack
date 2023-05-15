@@ -2,6 +2,89 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.2-a.5 - 2023-05-08
+- Extends release `12.2-a.3` with a fix for the Payments block. [#30524]
+
+## 12.2-a.3 - 2023-05-08
+### Enhancements
+- Add newsletter access level to the post edit page [#30172]
+- Forms: Introduce Multiple Choice and Single Choice style variations [#30319]
+- Make Donation block free for all and charge a 10% commission for free plans [#30275]
+- Remove upgrade nudge for premium block [#30398]
+- Replace photon implementation with the image-cdn package [#30050]
+- theme-tools: Removed jQuery dependency from responsive-videos script. [#30420]
+- Update Forms pattern modal default view to Grid [#28906]
+
+### Improved compatibility
+- Added support for flagging unsupported connections in the editor UI [#30280]
+- Bit.ly: avoid errors when using non-official Bit.ly  plugins alongside Jetpack. [#30415]
+- Internationalization: add necessary context to the word "Trash" in the Contact Form interface. [#30507]
+- Security: ensure blocks are always fully displayed on your site, even when using a caching plugin. [#30413]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Fixes a bug on WP.com Simple, which is not fully updated to 6.2 yet. [#30485]
+- Fixes to integration with image-cdn [#30445]
+- Hotfix for a typo in the map provider code [#30451]
+- Updated package dependencies.
+- Use contact form implementation from automattic/jetpack-forms by default [#28791]
+- wpcom/v3/blogging-prompts endpoint: add param to force prompt dates to be a specific year [#30255]
+
+## 12.2-a.1 - 2023-05-02
+### Enhancements
+- Add Mapkit maps [#29098]
+- Adds a 'Staging' badge to the wp-admin nav menu when the site is a WordPress.com staging site. [#30296]
+- Editor support for Mapkit in the Map block [#29098]
+- Hide Mapbox specific options when using Mapkit [#29098]
+- Modules list: Update to current styles. Visual refresh, if you will.. [#30282]
+- Remove the Mapbox API key box, when the mapping provider isn't Mapbox [#29098]
+- Whitelist the '_jetpack_newsletter_access' post meta [#30372]
+
+### Bug fixes
+- Make the Donation block "Connect" link the primary color [#30320]
+- Minor styling fixes for the At-a-Glance page on WooExpress. [#30403]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add initial scaffold for new blogroll block [#30363]
+- Add Mapkit geocoder for use on WPCOM. [#29098]
+- Adds useMapkitSetup hook [#29098]
+- Adds util functions for mapkit that allow converting zoom levels to camera distance, and back [#29098]
+- Admin dashboard: fixing typo in file path [#30401]
+- Amended changelogs. [#30405]
+- Mapkit support for the address attribute [#29098]
+- Move logic to getMapProvider [#29098]
+- Only add mapkit.js once [#29098]
+- Recenter map after closing marker. [#29098]
+- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now [#29942]
+- Remove the special treatment for wpcom sites in Tweet shortcode. This removes the need for Twitter API access when using this shortcode. [#30291]
+- Remove unused method used to update images in Open Graph Meta tags. [#30338]
+- Show error message when fetching Mapkit API key fails [#29098]
+- Support latitude & longitude next to lat/lng [#29098]
+- Updated package dependencies.
+
+## 12.1 - 2023-05-02
+### Enhancements
+- Dashboard: added Jetpack Starter bundle post-activation screen and plan header. [#30368]
+- Dashboard: add link to renew expired subscription. [#30357]
+- Dashboard: Remove a confusing "Click to view" link from the stats call to action screen. [#30343]
+- Jetpack Visual Refresh: "At A Glance" Dashboard adjustments. [#30324]
+
+### Improved compatibility
+- Security: ensure blocks are always fully displayed on your site, even when using a caching plugin.
+
+### Bug fixes
+- Dashboard: fix a link on the stats chart. [#30341]
+- Dashboard: improve contrast for the Stats chart tooltip. [#30321]
+- Jetpack Social: Render Social Image Generator panel even when its default one is disabled. [#30358]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Connection banner: support existing filter to disable dismisasals. [#30334]
+- Dashboard: fix CSS styles for visual refresh project. [#30293]
+- Dashboard: hide Akismet 'learn more' link for Atomic sites. [#30326]
+- Dashboard: link user to Calypso for atomic sites. [#30322]
+- Dashboard: update styles in At A Glance cards. [#30336]
+- Minor changes on the Jetpack debugger page content. [#30360]
+- Minor CSS updates for visual refresh project. [#30359]
+
 ## 12.1-beta - 2023-04-25
 ### Enhancements
 - Block editor: collapse Jetpack feature panels by default. [#30140]

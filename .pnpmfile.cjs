@@ -100,6 +100,12 @@ function fixDeps( pkg ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6';
 	}
 
+	// Outdated dependency.
+	// No upstream bug link yet.
+	if ( pkg.name === 'svelte-navigator' && pkg.dependencies.svelte2tsx === '^0.1.151' ) {
+		pkg.dependencies.svelte2tsx = '^0.6.10';
+	}
+
 	return pkg;
 }
 

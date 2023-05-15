@@ -365,9 +365,12 @@
 
 // Chart tooltip
 
-.dops-chart__tooltip {
+.dops-chart__tooltip.dops-chart__tooltip {
 
 	.dops-popover__inner {
+		color: var(--color-text-inverted);
+		background: var(--color-neutral-100);
+
 		width: 230px;
 		text-align: left;
 
@@ -380,7 +383,7 @@
 			li {
 				font-size: 11px;
 				text-transform: uppercase;
-				font-weight: 100;
+				font-weight: 500;
 				height: 24px;
 				letter-spacing: 0.1em;
 				border: 0;
@@ -397,7 +400,7 @@
 					text-align: right;
 					float: right;
 					min-width: 22px;
-					color: lighten( $gray, 20% );
+					color: inherit;
 				}
 
 				.label {

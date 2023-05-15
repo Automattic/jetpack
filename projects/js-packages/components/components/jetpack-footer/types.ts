@@ -1,3 +1,13 @@
+type JetpackFooterMenuItem = {
+	href: string;
+	label: string;
+	onClick?: () => void;
+	onKeyDown?: () => void;
+	target?: string;
+	title?: string;
+	role?: 'button';
+};
+
 export type JetpackFooterProps = {
 	/**
 	 * Link for 'An Automattic Airline'.
@@ -18,4 +28,9 @@ export type JetpackFooterProps = {
 	 * Link that the Module name will link to (optional).
 	 */
 	moduleNameHref?: string;
+
+	/**
+	 * Navigation menu to display in the footer.
+	 */
+	menu?: JetpackFooterMenuItem[];
 };

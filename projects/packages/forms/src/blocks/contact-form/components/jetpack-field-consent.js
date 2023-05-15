@@ -1,19 +1,13 @@
-import {
-	InspectorAdvancedControls,
-	InspectorControls,
-	PanelColorSettings,
-} from '@wordpress/block-editor';
+import { InspectorControls, PanelColorSettings } from '@wordpress/block-editor';
 import { BaseControl, PanelBody, SelectControl, ToggleControl } from '@wordpress/components';
 import { compose, withInstanceId } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { withSharedFieldAttributes } from '../util/with-shared-field-attributes';
-import JetpackFieldCss from './jetpack-field-css';
 import JetpackFieldLabel from './jetpack-field-label';
 import JetpackFieldWidth from './jetpack-field-width';
 import JetpackManageResponsesSettings from './jetpack-manage-responses-settings';
 
 const JetpackFieldConsent = ( {
-	id,
 	instanceId,
 	width,
 	consentType,
@@ -71,11 +65,6 @@ const JetpackFieldConsent = ( {
 						},
 					] }
 				/>
-			</InspectorControls>
-			<InspectorAdvancedControls>
-				<JetpackFieldCss setAttributes={ setAttributes } id={ id } />
-			</InspectorAdvancedControls>
-			<InspectorControls>
 				<PanelBody title={ __( 'Consent Settings', 'jetpack-forms' ) }>
 					<BaseControl>
 						<SelectControl

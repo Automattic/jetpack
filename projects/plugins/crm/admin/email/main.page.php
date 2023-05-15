@@ -159,7 +159,7 @@ function jpcrm_render_emailbox() {
 				// echo '<img class="ui avatar image" src="/images/avatar/small/helen.jpg">';
 					echo '<div class="content">';
 					echo '<div class="header">' . esc_html( $email->zbsmail_subject ) . '</div>';
-						echo '<div class="the_content">' . esc_html( zeroBSCRM_io_WPEditor_DBToHTMLExcerpt( $email->zbsmail_content, 200 ) ) . '</div>';
+						echo '<div class="the_content">' . esc_html( wp_html_excerpt( $email->zbsmail_content, 200 ) ) . '</div>';
 
 				if ( $email->zbsmail_starred == 1 ) {
 					echo "<i class='ui icon star yellow zbs-list-fav zbs-list-fav-" . esc_attr( $email->zbsmail_sender_thread ) . "'></i>";
@@ -202,7 +202,7 @@ function jpcrm_render_emailbox() {
 				// echo '<img class="ui avatar image" src="/images/avatar/small/helen.jpg">';
 					echo '<div class="content">';
 					echo '<div class="header">' . esc_html( $email->zbsmail_subject ) . '</div>';
-						echo '<div class="the_content">' . esc_html( zeroBSCRM_io_WPEditor_DBToHTMLExcerpt( $email->zbsmail_content, 200 ) ) . '</div>';
+						echo '<div class="the_content">' . esc_html( wp_html_excerpt( $email->zbsmail_content, 200 ) ) . '</div>';
 
 				if ( $email->zbsmail_starred == 1 ) {
 					echo "<i class='ui icon star yellow zbs-list-fav zbs-list-fav-" . esc_attr( $email->zbsmail_sender_thread ) . "'></i>";
@@ -247,7 +247,7 @@ function jpcrm_render_emailbox() {
 				// echo '<img class="ui avatar image" src="/images/avatar/small/helen.jpg">';
 					echo '<div class="content">';
 					echo '<div class="header">' . esc_html( $email->zbsmail_subject ) . '</div>';
-					echo '<div class="the_content">' . esc_html( zeroBSCRM_io_WPEditor_DBToHTMLExcerpt( $email->zbsmail_content, 200 ) ) . '</div>';
+					echo '<div class="the_content">' . esc_html( wp_html_excerpt( $email->zbsmail_content, 200 ) ) . '</div>';
 
 				if ( $email->zbsmail_starred == 1 ) {
 					echo "<i class='ui icon star yellow zbs-list-fav zbs-list-fav-" . esc_attr( $email->zbsmail_sender_thread ) . "'></i>";
@@ -291,8 +291,7 @@ function jpcrm_render_emailbox() {
 				do_action( 'zbs_email_canned_reply' );
 			?>
 			<?php
-				$content        = '';
-				$editorSettings = array(
+				$editor_settings = array(
 					'media_buttons' => false,
 					'quicktags'     => false,
 					'tinymce'       => array(
@@ -300,7 +299,7 @@ function jpcrm_render_emailbox() {
 					),
 					'editor_class'  => 'ui textarea zbs-email-thread',
 				);
-				wp_editor( htmlspecialchars_decode( $content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), 'zbs_send_email_thread', $editorSettings );
+				wp_editor( '', 'zbs_send_email_thread', $editor_settings );
 				?>
 			  
 			<?php
@@ -545,8 +544,7 @@ function zeroBSCRM_pages_admin_sendmail() {
 				do_action( 'zbs_email_canned_reply_single' );
 			?>
 			<?php
-				$content        = '';
-				$editorSettings = array(
+				$editor_settings = array(
 					'media_buttons' => false,
 					'editor_height' => 220,
 					'quicktags'     => false,
@@ -555,7 +553,7 @@ function zeroBSCRM_pages_admin_sendmail() {
 					),
 					'editor_class'  => 'ui textarea',
 				);
-				wp_editor( htmlspecialchars_decode( $content, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), 'zbs_send_email_content', $editorSettings );
+				wp_editor( '', 'zbs_send_email_content', $editor_settings );
 
 				?>
 			<br/>

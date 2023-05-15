@@ -1085,7 +1085,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'80',
 			'/xmlrpc.php',
 		);
-		$normalize                 = join( "\n", $normalized_request_pieces ) . "\n";
+		$normalize                 = implode( "\n", $normalized_request_pieces ) . "\n";
 
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', $normalize, 'secret', true ) );
 
@@ -1197,7 +1197,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	 * @return void
 	 */
 	public function test_get_hosting_provider_callable_with_unknown_host() {
-		$this->assertEquals( Functions::get_hosting_provider(), 'unknown' );
+		$this->assertEquals( 'unknown', Functions::get_hosting_provider() );
 	}
 
 	/**

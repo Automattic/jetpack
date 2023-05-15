@@ -90,46 +90,6 @@
 
     }
 
-    // takes WP Editor content + applies WP conversion (adds <p> and deals with <b> as if was wp post)
-    // KSES = Strips evil scripts
-    // NOTE: html strings saved in this way should be output via
-    function zeroBSCRM_io_WPEditor_WPEditorToDB( $string = '' ){
-
-        global $zbs;
-
-        return wp_kses( $string, $zbs->acceptable_html );
-
-    }
-
-    // This takes Database saved HTML and puts it back out in the wp editor
-    function zeroBSCRM_io_WPEditor_DBToWPEditor( $string = '' ){
-
-        // See https://wordpress.stackexchange.com/questions/245201/how-to-save-html-and-text-in-the-database
-        return wp_specialchars_decode( $string, $quote_style = ENT_QUOTES );
-
-    }
-
-    // This takes Database saved HTML (from wp_editor via zeroBSCRM_io_WPEditor_WPEditorToDB)
-    // .. and returns raw HTML (with paragraphs) (e.g. for output in quote portal page)
-    function zeroBSCRM_io_WPEditor_DBToHTML($string=''){
-
-        // MS original
-        //return html_entity_decode(nl2br(stripslashes($string)));
-
-        // See https://wordpress.stackexchange.com/questions/245201/how-to-save-html-and-text-in-the-database
-        return wpautop(html_entity_decode(stripslashes($string), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401));
-
-    }
-
-    // This takes Database saved HTML (from wp_editor via zeroBSCRM_io_WPEditor_WPEditorToDB)
-    // .. and returns first X characters, no tags
-    function zeroBSCRM_io_WPEditor_DBToHTMLExcerpt($string='',$len=200){
-
-        $string = strip_tags(html_entity_decode(stripslashes($string), ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401));
-        return substr($string , 0, $len);
-        
-    }
-
 /* MS quick fix, superceded by above
 
     //new one for WP editor input
