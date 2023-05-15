@@ -37,7 +37,6 @@ export const settings = {
 		const [ isInitialPostPublish, setIsInitialPostPublish ] = useState( false );
 
 		const [ isModalOpen, setIsModalOpen ] = useState( false );
-		const [ dontShowAgain, setDontShowAgain ] = useState( false );
 		const [ isChecked, setIsChecked ] = useState( false );
 
 		const { launchpadScreenOption, hasNeverPublishedPostOption, siteIntentOption } =
@@ -52,6 +51,15 @@ export const settings = {
 			query: `siteSlug=${ siteFragment }`,
 		} );
 		const { tracks } = useAnalytics();
+
+		const [ launchpadModalOff, setLaunchpadModalOff ] = useEntityProp( 'root', 'site', 'launchpad_modal_status' );
+
+		function updateLaunchpadModalStatus( checked ) {
+			if ( ! checked ) {
+				return;
+			}
+			return setLaunchpadModalOff( true );
+		}
 
 		const recordTracksEvent = eventName =>
 			tracks.recordEvent( eventName, {
@@ -140,17 +148,8 @@ export const settings = {
 		const showModal =
 			( ( isInsidePostEditor && isCurrentPostPublished ) || isInsideSiteEditor ) &&
 			launchpadScreenOption === 'full' &&
-			! dontShowAgain &&
+			! launchpadModalOff &&
 			isModalOpen;
-
-		const [ launchpadScreen, setLaunchpadScreen ] = useEntityProp( 'root', 'site', 'launchpad_screen' );
-
-		function updateLaunchpadScreen( checked ) {
-			if ( ! checked ) {
-				return;
-			}
-			setLaunchpadScreen( 'off' );
-		}
 
 		return (
 			showModal && (
@@ -164,7 +163,7 @@ export const settings = {
 							return;
 						}
 						setIsModalOpen( false );
-						setDontShowAgain( isChecked );
+						updateLaunchpadModalStatus( isChecked );
 						recordTracksEvent( 'jetpack_launchpad_save_modal_close' );
 					} }
 				>
@@ -183,8 +182,7 @@ export const settings = {
 								<Button
 									variant="secondary"
 									onClick={ () => {
-										setDontShowAgain( isChecked );
-										updateLaunchpadScreen( isChecked );
+										updateLaunchpadModalStatus( isChecked );
 										setIsModalOpen( false );
 										recordTracksEvent( 'jetpack_launchpad_save_modal_back_to_edit' );
 									} }
@@ -195,7 +193,7 @@ export const settings = {
 									variant="primary"
 									href={ actionButtonHref }
 									onClick={ () => {
-											updateLaunchpadScreen( isChecked );
+											updateLaunchpadModalStatus( isChecked );
 											recordTracksEvent( actionButtonTracksEvent );
 										}
 									}
