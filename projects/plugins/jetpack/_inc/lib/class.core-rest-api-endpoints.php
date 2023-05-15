@@ -71,6 +71,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_endpoint          = new Jetpack_Core_API_Site_Endpoint();
 		$widget_endpoint        = new Jetpack_Core_API_Widget_Endpoint();
 
+		/**
+		 * TODO: Move me somewhere that makes more sense.
+		 * Also give me permissions that aren't awful.
+		 */
+		register_rest_route(
+			'jetpack/v4',
+			'jetpack-ai-jwt',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_openai_jwt',
+				'permission_callback' => function () {
+					return ( new Connection_Manager( 'jetpack' ) )->is_user_connected() && current_user_can( 'edit_posts' );
+				},
+			)
+		);
+
 		register_rest_route(
 			'jetpack/v4',
 			'plans',
@@ -753,6 +769,40 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Ask WPCOM for a JWT token to use for OpenAI conversations.
+	 * TODO: Clean me up. This is ugly hack code.
+	 */
+	public static function get_openai_jwt() {
+		$blog_id = \Jetpack_Options::get_option( 'id' );
+
+		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
+			"/sites/$blog_id/jetpack-openai-query/jwt",
+			'2',
+			array(
+				'method'  => 'POST',
+				'headers' => array( 'Content-Type' => 'application/json; charset=utf-8' ),
+			),
+			wp_json_encode( array() ),
+			'wpcom'
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$json = json_decode( wp_remote_retrieve_body( $response ) );
+
+		if ( ! isset( $json->token ) ) {
+			return new WP_Error( 'no-token', 'No token returned from WPCOM' );
+		}
+
+		return array(
+			'token'   => $json->token,
+			'blog_id' => $blog_id,
+		);
+	}
+
+	/**
 	 * Get the data for the recommendations
 	 *
 	 * @return array Recommendations data
@@ -1413,7 +1463,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 */
 	public static function view_jetpack_connection_test_check() {
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- This is verifying the trusted caller via a shared private key and timestamp.
-		if ( ! isset( $_GET['signature'], $_GET['timestamp'], $_GET['url'] ) ) {
+		if ( ! isset( $_GET['signature'] ) || ! isset( $_GET['timestamp'] ) || ! isset( $_GET['url'] ) ) {
 			return false;
 		}
 		$signature = base64_decode( wp_unslash( $_GET['signature'] ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -3200,7 +3250,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					/* Translators: first variable is the name of a parameter passed to endpoint holding the role that will be checked, the second is a list of roles allowed to see stats. The parameter is checked against this list. */
 					esc_html__( '%1$s must be %2$s.', 'jetpack' ),
 					$param,
-					join( ', ', self::$stats_roles )
+					implode( ', ', self::$stats_roles )
 				)
 			);
 		}
@@ -3237,7 +3287,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					/* Translators: first variable is the name of a parameter passed to endpoint holding the post type where Sharing will be displayed, the second is a list of post types where Sharing can be displayed */
 					esc_html__( '%1$s must be %2$s.', 'jetpack' ),
 					$param,
-					join( ', ', $views )
+					implode( ', ', $views )
 				)
 			);
 		}
@@ -3293,7 +3343,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 					/* Translators: placeholder 1 is a parameter holding the services passed to endpoint, placeholder 2 is a list of all Jetpack Sharing services */
 					esc_html__( '%1$s visible and hidden items must be a list of %2$s.', 'jetpack' ),
 					$param,
-					join( ', ', $services )
+					implode( ', ', $services )
 				)
 			);
 		}

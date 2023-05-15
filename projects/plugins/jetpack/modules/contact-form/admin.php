@@ -510,9 +510,9 @@ function grunion_manage_post_row_actions( $actions ) {
 		);
 		$actions['trash'] = sprintf(
 			'<a class="submitdelete" title="%s" href="%s">%s</a>',
-			esc_attr__( 'Trash', 'jetpack' ),
+			esc_attr_x( 'Trash', 'verb', 'jetpack' ),
 			get_delete_post_link( $post->ID ),
-			esc_html__( 'Trash', 'jetpack' )
+			esc_html_x( 'Trash', 'verb', 'jetpack' )
 		);
 	} elseif ( $post->post_status === 'spam' ) {
 		$actions['unspam unapprove'] = sprintf(
@@ -819,7 +819,7 @@ function grunion_ajax_spam() {
 			$status_html .= ' class="current"';
 		}
 
-		$status_html .= '>' . __( 'Trash', 'jetpack' ) . ' <span class="count">';
+		$status_html .= '>' . _x( 'Trash', 'noun', 'jetpack' ) . ' <span class="count">';
 		$status_html .= '(' . number_format( $status['trash'] ) . ')';
 		$status_html .= '</span></a>';
 		if ( isset( $status['spam'] ) ) {

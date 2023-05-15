@@ -98,7 +98,7 @@ function jetpack_preg_replace_outside_tags( $pattern, $replacement, $content, $s
 		$element = preg_replace( $pattern, $replacement, $element );
 	}
 
-	return join( $textarr );
+	return implode( $textarr );
 }
 
 /**
@@ -126,7 +126,7 @@ function jetpack_preg_replace_callback_outside_tags( $pattern, $callback, $conte
 		$element = preg_replace_callback( $pattern, $callback, $element );
 	}
 
-	return join( $textarr );
+	return implode( $textarr );
 }
 
 if ( ! function_exists( 'jetpack_shortcode_get_wpvideo_id' ) ) {

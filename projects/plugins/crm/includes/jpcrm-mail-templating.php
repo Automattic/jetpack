@@ -871,7 +871,7 @@ function zeroBSCRM_Event_generateNotificationHTML( $return = true, $email = fals
 		// replacements
 		$replacements['title']            = __( 'Your Task is starting soon', 'zero-bs-crm' );
 		$replacements['task-title']       = '<h2>' . $event['title'] . '</h2>';
-		$replacements['task-desc']        = $eventHTML; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		$replacements['task-body']        = $eventHTML; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		$replacements['task-link-button'] = '<div style="text-align:center;margin:1em;margin-top:2em">' . __( 'You can view your task at the following URL: ', 'zero-bs-crm' ) . '<br />' . zeroBSCRM_mailTemplate_emailSafeButton( $eventURL, __( 'View Task', 'zero-bs-crm' ) ) . '</div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 		// replacements

@@ -2,19 +2,18 @@
  * External dependencies
  */
 import { numberFormat } from '@automattic/jetpack-components';
-import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
 /**
  * Internal dependencies
  */
-import { STORE_ID } from '../../state/store';
+import { useProduct } from '../../hooks/use-product';
 import ProductCard from '../connected-product-card';
 import { SingleContextualInfo, ChangePercentageContext } from './contextual-card-info';
 
 const useVideoPressStats = () => {
-	const stats = useSelect( select => select( STORE_ID ).getProductStats( 'videopress' ) );
+	const { stats } = useProduct( 'videopress' );
 
 	const loading = stats === undefined;
 	const hasError = stats === null;

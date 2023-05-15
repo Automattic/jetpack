@@ -29,8 +29,9 @@
 		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-google-fonts-provider": "@dev",
 		"automattic/jetpack-identity-crisis": "@dev",
-		"automattic/jetpack-ip": "@dev",
+		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-import": "@dev",
+		"automattic/jetpack-ip": "@dev",
 		"automattic/jetpack-jitm": "@dev",
 		"automattic/jetpack-lazy-images": "@dev",
 		"automattic/jetpack-licensing": "@dev",
@@ -101,7 +102,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_2_a_2",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ12_2_a_6",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

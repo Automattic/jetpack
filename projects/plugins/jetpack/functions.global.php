@@ -120,7 +120,7 @@ function jetpack_get_future_removed_version( $version ) {
 	 */
 	preg_match( '#(([0-9]+\.([0-9]+))(?:\.[0-9]+)*)#', $version, $matches );
 
-	if ( isset( $matches[2], $matches[3] ) ) {
+	if ( isset( $matches[2] ) && isset( $matches[3] ) ) {
 		$deprecated_version = (float) $matches[2];
 		$deprecated_minor   = (float) $matches[3];
 
@@ -431,7 +431,7 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
  * Go through headers and get a list of Vary headers to add,
  * including a Vary Accept header if necessary.
  *
- * @since $$next-version$$
+ * @since 12.2
  *
  * @param array $headers The headers to be sent.
  *

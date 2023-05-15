@@ -559,7 +559,7 @@ class Instant_Search extends Classic_Search {
 			return $block_pattern;
 		}
 		$blocks = ( new WP_Block_Parser() )->parse( $block_pattern );
-		if ( 1 === count( $blocks ) && 'core/pattern' === $blocks[0]['blockName'] ) {
+		if ( is_countable( $blocks ) && 1 === count( $blocks ) && 'core/pattern' === $blocks[0]['blockName'] ) {
 			$slug     = $blocks[0]['attrs']['slug'];
 			$registry = WP_Block_Patterns_Registry::get_instance();
 			if ( $registry->is_registered( $slug ) ) {
@@ -741,7 +741,7 @@ class Instant_Search extends Classic_Search {
 		if ( ! empty( $enabled_post_types ) ) {
 			$post_types_to_disable = array_diff( $post_types, $enabled_post_types );
 			// better to use `add_option` which wouldn't override option value if exists.
-			add_option( Options::OPTION_PREFIX . 'excluded_post_types', join( ',', $post_types_to_disable ) );
+			add_option( Options::OPTION_PREFIX . 'excluded_post_types', implode( ',', $post_types_to_disable ) );
 		}
 	}
 

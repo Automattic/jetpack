@@ -56,7 +56,7 @@
 		"wp-plugin-slug": "jetpack-search",
 		"wp-svn-autopublish": true,
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-search-plugin/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/jetpack-search-plugin/compare/${old}...${new}"
 		},
 		"version-constants": {
 			"JETPACK_SEARCH_PLUGIN__VERSION": "jetpack-search.php"

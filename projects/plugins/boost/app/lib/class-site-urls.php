@@ -32,6 +32,7 @@ class Site_Urls {
 			$urls['front_page'] = array(
 				'url'      => get_permalink( $front_page ),
 				'modified' => get_post_modified_time( 'Y-m-d H:i:s', false, $front_page ),
+				'group'    => 'front_page',
 			);
 		}
 
@@ -40,6 +41,7 @@ class Site_Urls {
 			$urls['posts_page'] = array(
 				'url'      => get_permalink( $posts_page ),
 				'modified' => get_post_modified_time( 'Y-m-d H:i:s', false, $posts_page ),
+				'group'    => 'posts_page',
 			);
 		}
 
@@ -47,6 +49,7 @@ class Site_Urls {
 			$urls['posts_page'] = array(
 				'url'      => home_url( '/' ),
 				'modified' => current_time( 'Y-m-d H:i:s' ),
+				'group'    => 'front_page',
 			);
 		}
 
@@ -83,6 +86,7 @@ class Site_Urls {
 			$urls[ 'post_id_' . $result->ID ] = array(
 				'url'      => get_permalink( $result->ID ),
 				'modified' => get_post_modified_time( 'Y-m-d H:i:s', false, $result ),
+				'group'    => get_post_type( $result->ID ),
 			);
 		}
 
