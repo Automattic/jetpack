@@ -2014,7 +2014,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'title'            => $title,
 					'underscoredSlug'  => str_replace( '-', '_', $slug ),
 					'underscoredTitle' => str_replace( ' ', '_', $title ),
-				)),
+				)
+			),
 			"$path/index.js"      => self::render_block_file(
 				'block-index-js',
 				array(
@@ -2033,22 +2034,25 @@ class Jetpack_CLI extends WP_CLI_Command {
 					)
 					: '',
 					'hasKeywords' => $has_keywords,
-				)),
-			"$path/editor.js"     => self::render_block_file('block-editor-js'),
+				)
+			),
+			"$path/editor.js"     => self::render_block_file( 'block-editor-js' ),
 			"$path/editor.scss"   => self::render_block_file(
 				'block-editor-scss',
 				array(
 					'slug'  => $slug,
 					'title' => $title,
-				)),
+				)
+			),
 			"$path/edit.js"       => self::render_block_file(
 				'block-edit-js',
 				array(
 					'title'     => $title,
 					'className' => str_replace( ' ', '', ucwords( str_replace( '-', ' ', $slug ) ) ),
-				)),
-			"$path/icon.js"       => self::render_block_file('block-icon-js'),
-			"$path/attributes.js" => self::render_block_file('block-attributes-js'),
+				)
+			),
+			"$path/icon.js"       => self::render_block_file( 'block-icon-js' ),
+			"$path/attributes.js" => self::render_block_file( 'block-attributes-js' ),
 		);
 
 		$files_written = array();
