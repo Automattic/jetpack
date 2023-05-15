@@ -1,14 +1,14 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import apiFetchMock from '@wordpress/api-fetch';
 import { AuthorRecommendationEdit } from '../edit';
+import mockUserSubscription from '../use-subscriptions';
 
 jest.mock( '@wordpress/block-editor', () => ( {
 	...jest.requireActual( '@wordpress/block-editor' ),
 	useBlockProps: jest.fn(),
 } ) );
 
-jest.mock( '@wordpress/api-fetch' );
+jest.mock( '../use-subscriptions' );
 
 const mockResponse = [
 	{
@@ -33,6 +33,11 @@ describe( 'AuthorRecommendationEdit Edit', () => {
 		attributes: defaultAttributes,
 		setAttributes: jest.fn(),
 	};
+	const propsWithSelected = {
+		...{ ...defaultProps, isSelected: true },
+	};
+
+	const getPlaceholderButton = () => screen.getByText( 'Select recommendations', { exact: false } );
 
 	beforeEach( () => {
 		setAttributes.mockClear();
@@ -42,22 +47,21 @@ describe( 'AuthorRecommendationEdit Edit', () => {
 		jest.resetAllMocks();
 	} );
 
-	test( 'Displays empty subscriptions', async () => {
-		apiFetchMock.mockResolvedValueOnce( [] );
+	test( 'Displays placeholder button', async () => {
+		mockUserSubscription.mockReturnValue( { subscriptions: [], isLoading: false } );
 
 		render( <AuthorRecommendationEdit { ...defaultProps } /> );
 
 		await waitFor( () => {
-			expect(
-				screen.getByText( 'No subscriptions to display', { exact: false } )
-			).toBeInTheDocument();
+			expect( getPlaceholderButton() ).toBeInTheDocument();
 		} );
 	} );
 
 	test( 'Displays users subscriptions', async () => {
-		apiFetchMock.mockResolvedValueOnce( mockResponse );
+		mockUserSubscription.mockReturnValue( { subscriptions: mockResponse, isLoading: false } );
 
-		render( <AuthorRecommendationEdit { ...defaultProps } /> );
+		render( <AuthorRecommendationEdit { ...propsWithSelected } /> );
+		await userEvent.click( getPlaceholderButton() );
 
 		await waitFor( () => {
 			expect( screen.getAllByRole( 'img' ) ).toHaveLength( 2 );
@@ -67,10 +71,11 @@ describe( 'AuthorRecommendationEdit Edit', () => {
 		expect( screen.getByText( 'test2', { exact: false } ) ).toBeInTheDocument();
 	} );
 
-	test( 'Displays users subscriptions and checkboxes when isSelected', async () => {
-		apiFetchMock.mockResolvedValueOnce( mockResponse );
+	test( 'Displays users subscriptions and checkboxes after placeholder button is clicked', async () => {
+		mockUserSubscription.mockReturnValue( { subscriptions: mockResponse, isLoading: false } );
 
-		render( <AuthorRecommendationEdit { ...{ ...defaultProps, isSelected: true } } /> );
+		render( <AuthorRecommendationEdit { ...propsWithSelected } /> );
+		await userEvent.click( getPlaceholderButton() );
 
 		await waitFor( () => {
 			expect( screen.getAllByRole( 'checkbox' ) ).toHaveLength( mockResponse.length );
@@ -78,8 +83,10 @@ describe( 'AuthorRecommendationEdit Edit', () => {
 	} );
 
 	test( 'Updates recommendations when checkbox is clicked', async () => {
-		apiFetchMock.mockResolvedValueOnce( mockResponse );
-		render( <AuthorRecommendationEdit { ...{ ...defaultProps, isSelected: true } } /> );
+		mockUserSubscription.mockReturnValue( { subscriptions: mockResponse, isLoading: false } );
+
+		render( <AuthorRecommendationEdit { ...propsWithSelected } /> );
+		await userEvent.click( getPlaceholderButton() );
 
 		const firstCheckbox = await waitFor( () => screen.getAllByRole( 'checkbox' )[ 0 ] );
 

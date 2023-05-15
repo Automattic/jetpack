@@ -1,5 +1,6 @@
 import { BlockIcon, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
+	Button,
 	CheckboxControl,
 	Flex,
 	FlexBlock,
@@ -19,8 +20,10 @@ import useSubscriptions from './use-subscriptions';
 
 export function AuthorRecommendationEdit( { className, attributes, setAttributes, isSelected } ) {
 	const [ selectedSubscriptions, setSelectedSubscriptions ] = useState( [] );
+	const [ showSubscriptions, setShowSubscriptions ] = useState( false );
 	const { recommendations, remove_user_blogs } = attributes;
 	const { isLoading, errorMessage, subscriptions } = useSubscriptions( { remove_user_blogs } );
+	const showPlaceholder = ! selectedSubscriptions.length && ( ! showSubscriptions || ! isSelected );
 
 	useEffect( () => {
 		setSelectedSubscriptions( recommendations.map( ( { blog_id } ) => blog_id ) );
@@ -54,19 +57,19 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 
 	return (
 		<div { ...useBlockProps() } className={ className }>
-			<Placeholder
-				label={ __( 'Author Recommendation', 'jetpack' ) }
-				icon={ <BlockIcon icon={ icon } /> }
-				instructions={ __(
-					'Recommend sites to your users. Select the sites you want to recommend from the list below.',
-					'jetpack'
-				) }
-			/>
-
-			{ isLoading && (
-				<FlexBlock style={ { padding: '10px', textAlign: 'center' } }>
-					<Spinner />
-				</FlexBlock>
+			{ showPlaceholder && (
+				<Placeholder
+					label={ __( 'Author Recommendation', 'jetpack' ) }
+					icon={ <BlockIcon icon={ icon } /> }
+					instructions={ __(
+						'Recommend sites to your users. Select the sites you want to recommend from the list below.',
+						'jetpack'
+					) }
+				>
+					<Button variant="primary" onClick={ () => setShowSubscriptions( true ) }>
+						{ __( 'Select Recommendations', 'jetpack' ) }
+					</Button>
+				</Placeholder>
 			) }
 
 			{ errorMessage && (
@@ -75,51 +78,10 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 				</Notice>
 			) }
 
-			{ ! isLoading && ! subscriptions.length && (
-				<Notice status="info" isDismissible={ false }>
-					<p>
-						{ __(
-							'No subscriptions to display. You need to follow some sites in order to see results here.',
-							'jetpack'
-						) }
-					</p>
-				</Notice>
-			) }
-
-			{ ! isLoading && (
-				<Flex gap={ 2 } justify="space-between" direction="column">
-					{ subscriptions.map( subscription => {
-						const isSubscriptionSelected = selectedSubscriptions.includes( subscription.blog_id );
-
-						return (
-							<FlexItem key={ subscription.blog_id } style={ { padding: '10px' } }>
-								<Flex gap={ 4 } justify="space-between">
-									<FlexItem style={ { maxHeight: 36, minWidth: 36 } }>
-										{ ! subscription.site_icon && (
-											<Icon icon="admin-site" className="icon" size={ 36 } />
-										) }
-										{ subscription.site_icon && (
-											<img
-												className="icon"
-												src={ subscription.site_icon }
-												alt={ subscription.name }
-											/>
-										) }
-									</FlexItem>
-									<FlexBlock>{ subscription.name }</FlexBlock>
-									<FlexItem>
-										{ isSelected && (
-											<CheckboxControl
-												checked={ isSubscriptionSelected }
-												onChange={ () => handleChecked( subscription.blog_id ) }
-											/>
-										) }
-									</FlexItem>
-								</Flex>
-							</FlexItem>
-						);
-					} ) }
-				</Flex>
+			{ ! showPlaceholder && (
+				<AuthorRecommendationContent
+					{ ...{ isLoading, subscriptions, selectedSubscriptions, handleChecked, isSelected } }
+				/>
 			) }
 
 			<InspectorControls>
@@ -132,6 +94,60 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 				</PanelBody>
 			</InspectorControls>
 		</div>
+	);
+}
+
+function AuthorRecommendationContent( {
+	isLoading,
+	subscriptions,
+	selectedSubscriptions,
+	handleChecked,
+	isSelected,
+} ) {
+	if ( isLoading ) {
+		return (
+			<FlexBlock style={ { padding: '10px', textAlign: 'center' } }>
+				<Spinner />
+			</FlexBlock>
+		);
+	}
+
+	return (
+		<Flex gap={ 2 } justify="space-between" direction="column">
+			{ subscriptions.map( subscription => {
+				const isSubscriptionSelected = selectedSubscriptions.includes( subscription.blog_id );
+
+				return (
+					<FlexItem
+						key={ subscription.blog_id }
+						style={ {
+							padding: '10px',
+							display: ! isSubscriptionSelected && ! isSelected ? 'none' : '',
+						} }
+					>
+						<Flex gap={ 4 } justify="space-between">
+							<FlexItem style={ { maxHeight: 36, minWidth: 36 } }>
+								{ ! subscription.site_icon && (
+									<Icon icon="admin-site" className="icon" size={ 36 } />
+								) }
+								{ subscription.site_icon && (
+									<img className="icon" src={ subscription.site_icon } alt={ subscription.name } />
+								) }
+							</FlexItem>
+							<FlexBlock>{ subscription.name }</FlexBlock>
+							<FlexItem>
+								{ isSelected && (
+									<CheckboxControl
+										checked={ isSubscriptionSelected }
+										onChange={ () => handleChecked( subscription.blog_id ) }
+									/>
+								) }
+							</FlexItem>
+						</Flex>
+					</FlexItem>
+				);
+			} ) }
+		</Flex>
 	);
 }
 

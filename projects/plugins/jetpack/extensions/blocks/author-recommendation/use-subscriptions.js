@@ -17,7 +17,17 @@ export default function useSubscriptions( { remove_user_blogs } ) {
 			global: true,
 			method: 'GET',
 		} )
-			.then( setSubscriptions )
+			.then( response => {
+				if ( ! response.length ) {
+					setErrorMessage(
+						__(
+							'No subscriptions found. You need to follow some sites in order to see results.',
+							'jetpack'
+						)
+					);
+				}
+				setSubscriptions( response );
+			} )
 			.catch( error => {
 				if ( error.message ) {
 					setErrorMessage( error.message ); // Message was already translated by the backend
