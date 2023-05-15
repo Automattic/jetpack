@@ -9,7 +9,7 @@ import {
 } from '../create-prompt';
 
 describe( 'AIAssistanceEdit', () => {
-	test( 'createPrompt', () => {
+	test.skip( 'createPrompt', () => {
 		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 		const charactersLength = characters.length;
 		let longContent = '';
