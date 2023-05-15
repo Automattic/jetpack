@@ -14,12 +14,12 @@ import { arrowRight, chevronDown, image, pencil, update, title } from '@wordpres
 /*
  * Internal dependencies
  */
+import I18nDropdownControl from './i18n-dropdown-control';
 import Loading from './loading';
 import ToneDropdownControl from './tone-dropdown-control';
 
 const AIControl = ( {
 	aiType,
-	animationDone,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
@@ -81,7 +81,7 @@ const AIControl = ( {
 			{ ! isWaitingState && (
 				<ToolbarControls
 					aiType={ aiType }
-					animationDone={ animationDone }
+					isWaitingState={ isWaitingState }
 					contentIsLoaded={ contentIsLoaded }
 					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 					retryRequest={ retryRequest }
@@ -127,7 +127,6 @@ export default AIControl;
 
 const ToolbarControls = ( {
 	aiType,
-	animationDone,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
@@ -143,11 +142,17 @@ const ToolbarControls = ( {
 } ) => {
 	return (
 		<>
-			{ contentIsLoaded && animationDone && (
+			{ contentIsLoaded && (
 				<BlockControls group="block">
 					<ToneDropdownControl
 						value="neutral"
 						onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
+						disabled={ contentIsLoaded }
+					/>
+
+					<I18nDropdownControl
+						value="en"
+						onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
 						disabled={ contentIsLoaded }
 					/>
 
@@ -184,7 +189,7 @@ const ToolbarControls = ( {
 				{ aiType === 'text' && (
 					// Text controls
 					<ToolbarGroup>
-						{ ! showRetry && contentIsLoaded && animationDone && (
+						{ ! showRetry && contentIsLoaded && (
 							<>
 								{ promptType === 'generateTitle' ? (
 									<ToolbarButton onClick={ handleAcceptTitle }>

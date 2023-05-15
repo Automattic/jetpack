@@ -441,35 +441,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Determine if Paid Newsletters is correctly configured for a site
-	 *
-	 * @since 12.0
-	 *
-	 * @return bool Determine if the Paid Newsletter is correctly configured
-	 */
-	public static function is_newsletter_configured() {
-		require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
-
-		// Jetpack has not yet been configured
-		if ( ! class_exists( '\Jetpack_Memberships' ) ) {
-			return false;
-		}
-
-		// Stripe has not yet been connected
-		if ( empty( \Jetpack_Memberships::get_connected_account_id() ) ) {
-			return false;
-		}
-
-		// Newsletter plan has not yet ben configured
-		if ( ! Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
-			return false;
-		}
-
-		/** This filter is already documented in class.jetpack-gutenberg.php */
-		return apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false );
-	}
-
-	/**
 	 * Check whether conditions indicate Gutenberg Extensions (blocks and plugins) should be loaded
 	 *
 	 * Loading blocks and plugins is enabled by default and may be disabled via filter:
@@ -721,15 +692,6 @@ class Jetpack_Gutenberg {
 					apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
 					&& class_exists( '\Jetpack_Memberships' )
 				),
-				/**
-				 * Show the Paid Newsletter access panel selector in every post sidebar.
-				 *
-				 * @module subscriptions
-				 * @since 12.2
-				 *
-				 * @param bool false Show the Paid Newsletter access panel selector in every post sidebar.
-				 */
-				'is_newsletter_panel_active'    => apply_filters( 'jetpack_subscriptions_newsletter_show_panel', self::is_newsletter_configured() ),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
