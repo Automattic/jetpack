@@ -103,6 +103,10 @@ export function buildPrompt( {
 } ) {
 	switch ( type ) {
 		/*
+		 * Non-interactive types
+		 */
+
+		/*
 		 * Generate content from title.
 		 */
 		case 'titleSummary':
@@ -124,22 +128,31 @@ export function buildPrompt( {
 			break;
 
 		/*
+		 * Simplify the content.
+		 */
+		case 'simplify':
+			prompt = buildPromptTemplate( {
+				request: 'Simplify the content below.',
+				rules: [
+					'Use words and phrases that are easier to understand for non-technical people',
+					'Output in the same language of the content',
+					'Use as much of the original language as possible',
+				],
+				content: postContentAbove,
+			} );
+			break;
+
+		/*
+		 * Interactive only types
+		 */
+
+		/*
 		 * Change the tone of the content.
 		 */
 		case 'changeTone':
 			prompt = buildPromptTemplate( {
 				request: `Please, rewrite with a ${ options.tone } tone.`,
 				content: generatedContent,
-			} );
-			break;
-
-		/*
-		 * Summarize the content.
-		 */
-		case 'summarize':
-			prompt = buildPromptTemplate( {
-				request: 'Summarize the content below.',
-				content: generatedContent?.length ? generatedContent : allPostContent,
 			} );
 			break;
 
@@ -164,28 +177,16 @@ export function buildPrompt( {
 			break;
 
 		/*
-		 * Generate a title for this blog post, based on the content.
+		 * Types that can be interactive or non-interactive
 		 */
-		case 'generateTitle':
-			prompt = buildPromptTemplate( {
-				request: 'Generate a title for this blog post',
-				rules: [ 'Only output the raw title, without any prefix or quotes' ],
-				content: generatedContent?.length ? generatedContent : allPostContent,
-			} );
-			break;
 
 		/*
-		 * Simplify the content.
+		 * Summarize the content.
 		 */
-		case 'simplify':
+		case 'summarize':
 			prompt = buildPromptTemplate( {
-				request: 'Simplify the content below.',
-				rules: [
-					'Use words and phrases that are easier to understand for non-technical people',
-					'Output in the same language of the content',
-					'Use as much of the original language as possible',
-				],
-				content: generatedContent?.length ? generatedContent : allPostContent,
+				request: 'Summarize the content below.',
+				content: options.contentType === 'generated' ? generatedContent : allPostContent,
 			} );
 			break;
 
@@ -195,7 +196,18 @@ export function buildPrompt( {
 		case 'correctSpelling':
 			prompt = buildPromptTemplate( {
 				request: 'Correct any spelling and grammar mistakes from the content below.',
-				content: generatedContent?.length ? generatedContent : allPostContent,
+				content: options.contentType === 'generated' ? generatedContent : postContentAbove,
+			} );
+			break;
+
+		/*
+		 * Generate a title for this blog post, based on the content.
+		 */
+		case 'generateTitle':
+			prompt = buildPromptTemplate( {
+				request: 'Generate a title for this blog post',
+				rules: [ 'Only output the raw title, without any prefix or quotes' ],
+				content: options.contentType === 'generated' ? generatedContent : allPostContent,
 			} );
 			break;
 
@@ -205,7 +217,7 @@ export function buildPrompt( {
 		case 'changeLanguage':
 			prompt = buildPromptTemplate( {
 				request: `Please, rewrite the content below in the following language: ${ options.language }.`,
-				content: generatedContent?.length ? generatedContent : allPostContent,
+				content: options.contentType === 'generated' ? generatedContent : allPostContent,
 			} );
 			break;
 

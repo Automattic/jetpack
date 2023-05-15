@@ -146,13 +146,17 @@ const ToolbarControls = ( {
 				<BlockControls group="block">
 					<ToneDropdownControl
 						value="neutral"
-						onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
+						onChange={ tone =>
+							getSuggestionFromOpenAI( 'changeTone', { tone, contentType: 'generated' } )
+						}
 						disabled={ contentIsLoaded }
 					/>
 
 					<I18nDropdownControl
 						value="en"
-						onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
+						onChange={ language =>
+							getSuggestionFromOpenAI( 'changeLanguage', { language, contentType: 'generated' } )
+						}
 						disabled={ contentIsLoaded }
 					/>
 
@@ -163,23 +167,27 @@ const ToolbarControls = ( {
 							// Interactive controls
 							{
 								title: __( 'Summarize', 'jetpack' ),
-								onClick: () => getSuggestionFromOpenAI( 'summarize' ),
+								onClick: () => getSuggestionFromOpenAI( 'summarize', { contentType: 'generated' } ),
 							},
 							{
 								title: __( 'Make longer', 'jetpack' ),
-								onClick: () => getSuggestionFromOpenAI( 'makeLonger' ),
+								onClick: () =>
+									getSuggestionFromOpenAI( 'makeLonger', { contentType: 'generated' } ),
 							},
 							{
 								title: __( 'Make shorter', 'jetpack' ),
-								onClick: () => getSuggestionFromOpenAI( 'makeShorter' ),
+								onClick: () =>
+									getSuggestionFromOpenAI( 'makeShorter', { contentType: 'generated' } ),
 							},
 							{
 								title: __( 'Correct spelling and grammar', 'jetpack' ),
-								onClick: () => getSuggestionFromOpenAI( 'correctSpelling' ),
+								onClick: () =>
+									getSuggestionFromOpenAI( 'correctSpelling', { contentType: 'generated' } ),
 							},
 							{
 								title: __( 'Generate a post title', 'jetpack' ),
-								onClick: () => getSuggestionFromOpenAI( 'generateTitle' ),
+								onClick: () =>
+									getSuggestionFromOpenAI( 'generateTitle', { contentType: 'generated' } ),
 							},
 						] }
 					/>
