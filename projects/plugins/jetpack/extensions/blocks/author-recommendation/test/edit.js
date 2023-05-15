@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetchMock from '@wordpress/api-fetch';
 import { AuthorRecommendationEdit } from '../edit';
 
@@ -30,7 +31,7 @@ describe( 'AuthorRecommendationEdit Edit', () => {
 	const setAttributes = jest.fn();
 	const defaultProps = {
 		attributes: defaultAttributes,
-		setAttributes,
+		setAttributes: jest.fn(),
 	};
 
 	beforeEach( () => {
@@ -64,5 +65,30 @@ describe( 'AuthorRecommendationEdit Edit', () => {
 
 		expect( screen.getByText( 'test1', { exact: false } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'test2', { exact: false } ) ).toBeInTheDocument();
+	} );
+
+	test( 'Displays users subscriptions and checkboxes when isSelected', async () => {
+		apiFetchMock.mockResolvedValueOnce( mockResponse );
+
+		render( <AuthorRecommendationEdit { ...{ ...defaultProps, isSelected: true } } /> );
+
+		await waitFor( () => {
+			expect( screen.getAllByRole( 'checkbox' ) ).toHaveLength( mockResponse.length );
+		} );
+	} );
+
+	test( 'Updates recommendations when checkbox is clicked', async () => {
+		apiFetchMock.mockResolvedValueOnce( mockResponse );
+		render( <AuthorRecommendationEdit { ...{ ...defaultProps, isSelected: true } } /> );
+
+		const firstCheckbox = await waitFor( () => screen.getAllByRole( 'checkbox' )[ 0 ] );
+
+		await userEvent.click( firstCheckbox );
+		expect( defaultProps.setAttributes ).toHaveBeenLastCalledWith( {
+			recommendations: [ mockResponse[ 0 ] ],
+		} );
+
+		await userEvent.click( firstCheckbox );
+		expect( defaultProps.setAttributes ).toHaveBeenLastCalledWith( { recommendations: [] } );
 	} );
 } );
