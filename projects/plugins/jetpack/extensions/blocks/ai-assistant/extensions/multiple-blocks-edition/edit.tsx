@@ -1,9 +1,14 @@
 /**
  * External dependencies
  */
-import { store as blockEditorStore } from '@wordpress/block-editor';
+import { store as blockEditorStore, InspectorControls } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
 import React from 'react';
+/**
+ * Internal dependencies
+ */
+import GeneratePanel from './generate-panel';
+import './style.scss'
 
 /*
  * Extend the withMultipleBlocksEdition function of the block
@@ -24,7 +29,15 @@ export const withMultipleBlocksEdition = BlockEdit => props => {
 		return <BlockEdit { ...props } />;
 	}
 
-	return <BlockEdit { ...props } />;
+	return (
+		<>
+			<InspectorControls>
+				<GeneratePanel { ...props } />
+			</InspectorControls>
+
+			<BlockEdit { ...props } />
+		</>
+	);
 };
 
 export default withMultipleBlocksEdition;
