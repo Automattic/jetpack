@@ -5,6 +5,21 @@
 	import { ISA_Data, isaIgnoredImages } from '../store/isa-data';
 	export let data: ISA_Data;
 	const { image, instructions } = data;
+
+	const isIgnored = $isaIgnoredImages.find( ignoredImage => ignoredImage.id === data.id );
+
+	function handleIgnoreClick() {
+		if ( isIgnored ) {
+			isaIgnoredImages.update( ignoredImages => {
+				return ignoredImages.filter( ignoredImage => ignoredImage.id !== data.id );
+			} );
+		} else {
+			isaIgnoredImages.update( ignoredImages => {
+				ignoredImages.push( data );
+				return ignoredImages;
+			} );
+		}
+	}
 </script>
 
 <div class="table-row-expanded" transition:slide={{ duration: 100, easing: quadOut }}>
@@ -46,16 +61,14 @@
 		<h4>How to fix</h4>
 		<p>{instructions}</p>
 		<div class="jb-actions">
-			<Button width="auto" fill>Fix on page</Button>
-			<Button
-				width="auto"
-				on:click={() => {
-					isaIgnoredImages.update( ignoredImages => {
-						ignoredImages.push( data );
-						return ignoredImages;
-					} );
-				}}>Ignore</Button
-			>
+			<Button width="auto" href={data.edit_url} fill>Fix on page</Button>
+			<Button width="auto" on:click={handleIgnoreClick}>
+				{#if isIgnored}
+					Don't Ignore
+				{:else}
+					Ignore
+				{/if}
+			</Button>
 		</div>
 	</div>
 </div>

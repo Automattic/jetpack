@@ -5,7 +5,7 @@ Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
 Tested up to: 6.2
 Requires PHP: 7.0
-Stable tag: 1.7.0
+Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -178,34 +178,23 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.8.0-beta - 2023-04-06
+### 1.9.0-beta - 2023-05-11
 #### Added
-- Critical CSS: Added a notice to regenerate Critical CSS to the Boost dashboard.
-- General: Added a link to activate a license key.
-- Image CDN: Added image CDN to Boost.
-- Image Guide: Added information about the Image Guide to the readme.
+- New Feature: Added JS and CSS file minification
 
 #### Changed
-- Critical CSS: Added clearer explanations of the feature, and when to regenerate CSS.
-- General: Faster "Getting Started" flow, bypassing the first connection screen.
-- General: Revised Jetpack connection agreement text to comply with our User Agreement.
-- General: Switch to a more stable internal data sync package.
-- General: Updated contributors list.
-- General: Updated to React 18.
+- Image CDN: Improved Image CDN description
+- User Experience: Removed back button from purchase success page
+- General: Improved the way modules are toggled internally
+- General: Updated package dependencies
 
 #### Fixed
-- Critical CSS: Added Internal schema validation for improved stability.
-- Critical CSS: Expanded the set of site changes which can trigger a regeneration.
-- Critical CSS: Fixed a minor UI glitch caused by a missing close tag.
-- Critical CSS: Fixed PHP warning when deleting stored Critical CSS
-- Critical CSS: Unified the internal structure of Cloud and Critical CSS, ensuring a smoother experience when switching between the two.
-- Lazy Loading: Fixed images sometimes failing to Lazy-load in Safari.
-- General: Fixed incorrect font sizes and weights in various screens.
-- General: Fixed incorrect GET parameters used during purchase flow, which leading to inconsistent behaviour.
-- Deferred JS: Fixed some compatibility issues with page-builders by turning off Deferred JS in the customizer preview.
-- General: Fixed triggers for optimization initialization sometimes firing on the wrong hook.
-- General: Fixed "Undefined array key: post" warning.
-- General: Fixed stats tracking by using the correct casing for Tracks event properties.
+- Deferred JS: Fixed some extremely short pages (such as WooCommerce Box Office tickets being printed) from resulting in a blank page
+- Cloud CSS: Don't run local regenerate automagically when using cloud css
+- Cloud CSS: Fixed a mismatch in cloud-css key
+- Critical CSS: Fixed Critical CSS from making redundant requests on page load
+- User Experience: Fixed some language choices around Boost popups
+- General: Fixed some PHP 8.2 Warnings
 
 --------
 

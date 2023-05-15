@@ -1453,7 +1453,20 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
 
                     global $zbs,$wpdb,$ZBSCRM_t;
 
-                    switch ( $condition['type'] ){
+			if ( ! empty( $condition['type'] ) ) {
+				// normalise type string
+				$condition_type  = preg_replace( '/^zbsc_/', '', $condition['type'] );
+				$filter_tag = $this->makeSlug( $condition_type ) . '_zbsSegmentArgumentBuild';
+
+				$potential_args = apply_filters( $filter_tag, false, $condition, $conditionKeySuffix ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				// got anything back?
+
+				if ( $potential_args !== false ) {
+					return $potential_args;
+				}
+			}
+
+			switch ( $condition['type'] ) {
 
                         case 'status':
                         case 'zbsc_status':
@@ -1536,10 +1549,8 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                                 return array('additionalWhereArr'=>
                                             array('emailContains'.$conditionKeySuffix=>array("zbsc_email",'LIKE','%s','%'.$condition['value'].'%'))
                                         );
-                            break;
 
-
-
+							break;
 
                         // TBA (When DAL2 trans etc.)
                         case 'totalval': // 'equal','notequal','larger','less','floatrange'
@@ -1685,47 +1696,11 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                                         ); 
                             break;
 
-                        default:
+				default:
+					break;
 
-                            // Allow for custom segmentArgument builders
-                            if (!empty($condition['type'])){
-
-                                $filterTag = $this->makeSlug( $condition['type'] ) . '_zbsSegmentArgumentBuild';
-                                $potentialArgs = apply_filters( $filterTag, false, $condition,$conditionKeySuffix );
-
-                                // got anything back? 
-                                if ( $potentialArgs !== false ) {
-                                    
-                                    return $potentialArgs;
-
-                                } else {
-
-                                    // fallbacks
-                                    // to support cases where we prefix with `zbsc_` (Adv Segments), here we remove if present
-                                    if ( substr( $condition['type'], 0, 5 ) == 'zbsc_' ){
-
-                                        $filterTag = $this->makeSlug( substr( $condition['type'], 5 ) ) . '_zbsSegmentArgumentBuild';
-                                        $potentialArgs = apply_filters( $filterTag, false, $condition,$conditionKeySuffix );
-
-                                        if ( $potentialArgs !== false ) {
-                                            
-                                            return $potentialArgs;
-
-                                        }
-
-                                    }
-                                }
-                            }
-
-                            break;
-
-
-
-                    }
-
-
-
-                }
+			}
+		}
 
                 // if we get here we've failed to create any arguments for this condiition
                 // ... to avoid scenarios such as mail campaigns going out to 'less filtered than intended' audiences

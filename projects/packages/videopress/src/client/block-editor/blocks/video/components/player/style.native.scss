@@ -11,6 +11,10 @@
 	z-index: 1;
 }
 
+.videopress-player__open-embed-button {
+	flex-grow: 1;
+}
+
 .videopress-player__loading {
 	display: flex;
 	justify-content: space-evenly;

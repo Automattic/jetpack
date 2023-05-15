@@ -7,9 +7,9 @@ export function RelatedPostsInspectorControls( { attributes, setAttributes } ) {
 	const { displayContext, displayDate, displayThumbnails, postsToShow } = attributes;
 
 	return (
-		<PanelBody title={ __( 'Related Posts Settings', 'jetpack' ) }>
+		<PanelBody title={ __( 'General settings', 'jetpack' ) }>
 			<ToggleControl
-				label={ __( 'Display thumbnails', 'jetpack' ) }
+				label={ __( 'Display thumbnail', 'jetpack' ) }
 				checked={ displayThumbnails }
 				onChange={ value => setAttributes( { displayThumbnails: value } ) }
 			/>
@@ -39,13 +39,13 @@ export function RelatedPostsBlockControls( { attributes, setAttributes } ) {
 	const layoutControls = [
 		{
 			icon: 'grid-view',
-			title: __( 'Grid View', 'jetpack' ),
+			title: __( 'Grid view', 'jetpack' ),
 			onClick: () => setAttributes( { postLayout: 'grid' } ),
 			isActive: postLayout === 'grid',
 		},
 		{
 			icon: 'list-view',
-			title: __( 'List View', 'jetpack' ),
+			title: __( 'List view', 'jetpack' ),
 			onClick: () => setAttributes( { postLayout: 'list' } ),
 			isActive: postLayout === 'list',
 		},

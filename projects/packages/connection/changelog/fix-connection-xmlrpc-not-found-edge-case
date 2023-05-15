@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fixed an edge case where 'jetpack.verifyRegistration' XML-RPC method was missing because of leftover user tokens and no blog token.
+
+
