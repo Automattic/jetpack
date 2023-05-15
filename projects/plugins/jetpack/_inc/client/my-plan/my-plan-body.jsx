@@ -98,7 +98,7 @@ class MyPlanBody extends React.Component {
 				<div className="jp-landing__plan-features-card">
 					<div className="jp-landing__plan-features-img">
 						<img
-							src={ imagePath + '/products/product-jetpack-backup.svg' }
+							src={ imagePath + 'products/product-jetpack-backup.svg' }
 							className="jp-landing__plan-features-icon"
 							alt={ __( 'A Jetpack Site securely backed up with Jetpack Backup', 'jetpack' ) }
 						/>
@@ -129,7 +129,7 @@ class MyPlanBody extends React.Component {
 					<div className="jp-landing__plan-features-card">
 						<div className="jp-landing__plan-features-img">
 							<img
-								src={ imagePath + '/products/product-jetpack-backup.svg' }
+								src={ imagePath + 'products/product-jetpack-backup.svg' }
 								className="jp-landing__plan-features-icon"
 								alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
 							/>
@@ -186,7 +186,7 @@ class MyPlanBody extends React.Component {
 				<div className="jp-landing__plan-features-card">
 					<div className="jp-landing__plan-features-img">
 						<img
-							src={ imagePath + '/product/product-jetpack-protect.svg' }
+							src={ imagePath + 'products/product-jetpack-protect.svg' }
 							className="jp-landing__plan-features-icon"
 							alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
 						/>
@@ -263,7 +263,7 @@ class MyPlanBody extends React.Component {
 				<div className="jp-landing__plan-features-card">
 					<div className="jp-landing__plan-features-img">
 						<img
-							src={ imagePath + '/products/product-jetpack-search.svg' }
+							src={ imagePath + 'products/product-jetpack-search.svg' }
 							className="jp-landing__plan-features-icon"
 							alt={ __( 'A Jetpack Site with the power of Jetpack Search', 'jetpack' ) }
 						/>
@@ -313,7 +313,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/products/product-jetpack-boost.svg' }
+									src={ imagePath + 'products/product-jetpack-boost.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __( 'A fast and performant website', 'jetpack' ) }
 								/>
@@ -342,7 +342,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/products/product-jetpack-anti-spam.svg' }
+									src={ imagePath + 'products/product-jetpack-anti-spam.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __( 'A folder holding real comments', 'jetpack' ) }
 								/>
@@ -383,7 +383,7 @@ class MyPlanBody extends React.Component {
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
 										<img
-											src={ imagePath + '/products/product-jetpack-videopress.svg' }
+											src={ imagePath + 'products/product-jetpack-videopress.svg' }
 											className="jp-landing__plan-features-icon"
 											alt={ __(
 												'A cloud with multiple types of content floating around it',
@@ -427,7 +427,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/plans/jetpack.svg' }
+									src={ imagePath + 'plans/jetpack.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __(
 										'Interface showing a chronological list of changes and updates in a site',
@@ -460,7 +460,7 @@ class MyPlanBody extends React.Component {
 							<div className="jp-landing__plan-features-card">
 								<div className="jp-landing__plan-features-img">
 									<img
-										src={ imagePath + '/plans/jetpack.svg' }
+										src={ imagePath + 'plans/jetpack.svg' }
 										className="jp-landing__plan-features-icon"
 										alt={ __( 'A chart showing an healthy increase in earnings', 'jetpack' ) }
 									/>
@@ -505,7 +505,7 @@ class MyPlanBody extends React.Component {
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
 										<img
-											src={ imagePath + '/plans/jetpack.svg' }
+											src={ imagePath + 'plans/jetpack.svg' }
 											className="jp-landing__plan-features-icon"
 											alt={ __(
 												'Charts depicting an evolution in traffic and engagement',
@@ -555,7 +555,7 @@ class MyPlanBody extends React.Component {
 								<div className="jp-landing__plan-features-card">
 									<div className="jp-landing__plan-features-img">
 										<img
-											src={ imagePath + '/products/product-jetpack-social.svg' }
+											src={ imagePath + 'products/product-jetpack-social.svg' }
 											className="jp-landing__plan-features-icon"
 											alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
 										/>
@@ -617,7 +617,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/products/product-jetpack-protect.svg' }
+									src={ imagePath + 'products/product-jetpack-protect.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __( 'A secure site, locked and protected by Jetpack', 'jetpack' ) }
 								/>
@@ -648,7 +648,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/products/product-jetpack-boost.svg' }
+									src={ imagePath + 'products/product-jetpack-boost.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __( 'A fast and performant website', 'jetpack' ) }
 								/>
@@ -677,7 +677,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/plans/jetpack.svg' }
+									src={ imagePath + 'plans/jetpack.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __( 'A wide variety of themes and tools to customize a site', 'jetpack' ) }
 								/>
@@ -706,7 +706,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/products/product-jetpack-social.svg' }
+									src={ imagePath + 'products/product-jetpack-social.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __(
 										'Jetpack Stats showing an evolution in traffic and engagement',
@@ -753,7 +753,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/plans/jetpack.svg' }
+									src={ imagePath + 'plans/jetpack.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __(
 										'Interface showing a chronological list of changes and updates in a site',
@@ -785,7 +785,7 @@ class MyPlanBody extends React.Component {
 						<div className="jp-landing__plan-features-card">
 							<div className="jp-landing__plan-features-img">
 								<img
-									src={ imagePath + '/plans/jetpack.svg' }
+									src={ imagePath + 'plans/jetpack.svg' }
 									className="jp-landing__plan-features-icon"
 									alt={ __( 'Chat bubbles representing getting in touch with support', 'jetpack' ) }
 								/>
