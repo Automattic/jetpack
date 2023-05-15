@@ -686,7 +686,7 @@ class Sharing_Admin {
 		<?php
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- we handle the nonce on the PHP side.
 		if (
-			isset( $_GET['create_new_service'], $_GET['name'], $_GET['url'], $_GET['icon'] )
+			isset( $_GET['create_new_service'] ) && isset( $_GET['name'] ) && isset( $_GET['url'] ) && isset( $_GET['icon'] )
 			&& 'true' == $_GET['create_new_service'] // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 		) :
 			?>
