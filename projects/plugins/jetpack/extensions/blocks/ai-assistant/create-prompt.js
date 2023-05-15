@@ -2,6 +2,7 @@
  * External dependencies
  */
 import debugFactory from 'debug';
+import { LANGUAGE_MAP } from './i18n-dropdown-control';
 
 // Maximum number of characters we send from the content
 export const MAXIMUM_NUMBER_OF_CHARACTERS_SENT_FROM_CONTENT = 1024;
@@ -11,11 +12,13 @@ const debug = debugFactory( 'jetpack-ai-assistant:prompt' );
 /*
  * Builds a prompt template based on context, rules and content
  *
- * @param {object} options         - The prompt options.
- * @param {string} options.context - The expected context to the prompt, e.g. "You are...".
- * @param {array} options.rules    - An array of rules to be followed.
- * @param {string} options.request - The prompt request.
- * @param {string} options.content - The content to be modified.
+ * @param {object} options          - The prompt options.
+ * @param {string} options.context  - The expected context to the prompt, e.g. "You are...".
+ * @param {array} options.rules     - An array of rules to be followed.
+ * @param {string} options.request  - The prompt request.
+ * @param {string} options.content  - The content to be modified.
+ * @param {string} options.language - The language of the content.
+ * @param {string} options.locale   - The locale of the content.
  *
  * @return {string} The prompt.
  */
@@ -24,9 +27,26 @@ export const buildPromptTemplate = ( {
 	rules = [],
 	request = null,
 	content = null,
+	language = null,
+	locale = null,
 } ) => {
 	if ( ! request && ! content ) {
 		throw new Error( 'You must provide either a request or content' );
+	}
+
+	// Language and Locale
+	let langLocatePromptPart = language
+		? `- Write in the language: ${ language }${
+				LANGUAGE_MAP[ language ]?.label ? ` (${ LANGUAGE_MAP[ language ].label })` : ''
+		  }.`
+		: '';
+	langLocatePromptPart += langLocatePromptPart.length && locale ? ` locale: ${ locale }.` : '';
+	langLocatePromptPart += langLocatePromptPart.length ? '\n' : '';
+
+	// Rules
+	let extraRulePromptPart = '';
+	if ( rules?.length ) {
+		extraRulePromptPart = rules.map( rule => `- ${ rule }.` ).join( '\n' ) + '\n';
 	}
 
 	let job = 'Your job is to ';
@@ -40,7 +60,7 @@ export const buildPromptTemplate = ( {
 			'modify the content shared below, under "Content", based on the request below, under "Request"';
 	}
 
-	const requestText = ! request
+	const requestPromptBlock = ! request
 		? ''
 		: `\nRequest:
 ${ request }`;
@@ -50,16 +70,22 @@ ${ request }`;
 		: `\nContent:
 ${ content }`;
 
-	const prompt = `${ context }.
+	// Context content
+	const contextPromptPart = requestPromptBlock && contentText ? `\n${ contentText }` : contentText;
+
+	const prompt =
+		`${ context }.
 ${ job }. Do this by following rules set in "Rules".
 
 Rules:
 - Output the generated content in markdown format.
 - Do not include a top level heading by default.
-- Only output generated content ready for publishing.${ rules.length ? '\n' : '' }${ rules
-		.map( rule => `- ${ rule }.` )
-		.join( '\n' ) }
-${ requestText }${ requestText && contentText ? `\n${ contentText }` : contentText }`;
+- Only output generated content ready for publishing.
+` +
+		langLocatePromptPart +
+		extraRulePromptPart +
+		requestPromptBlock +
+		contextPromptPart;
 
 	debug( prompt );
 	return prompt;
@@ -178,7 +204,7 @@ export function buildPrompt( {
 		 */
 		case 'changeLanguage':
 			prompt = buildPromptTemplate( {
-				request: `Please, rewrite in the following language: ${ options.language }`,
+				request: `Please, rewrite the content below in the following language: ${ options.language }.`,
 				content: content?.length ? content : contentFromBlocks,
 			} );
 			break;

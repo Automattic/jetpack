@@ -11,7 +11,6 @@ import debugFactory from 'debug';
  */
 import { buildPrompt } from './create-prompt';
 import { askJetpack, askQuestion } from './get-suggestion-with-stream';
-import { defaultPromptLanguage } from './i18n-dropdown-control';
 import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
 const debug = debugFactory( 'jetpack:ai-assistant' );
@@ -151,7 +150,6 @@ const useSuggestionsFromOpenAI = ( {
 		options = {
 			retryRequest: false,
 			tone: DEFAULT_PROMPT_TONE,
-			language: defaultPromptLanguage,
 			...options,
 		};
 
@@ -231,7 +229,6 @@ const useSuggestionsFromOpenAI = ( {
 		options = {
 			retryRequest: false,
 			tone: DEFAULT_PROMPT_TONE,
-			language: defaultPromptLanguage,
 			...options,
 		};
 
