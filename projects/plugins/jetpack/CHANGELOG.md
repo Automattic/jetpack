@@ -2,7 +2,64 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.2-a.7 - 2023-05-15
+### Enhancements
+- Add misconfiguration warning functionality. Also added various design fixes. [#30446]
+- Adds a new AI Assistant block as a proposed replacement for the AI Paragraph and AI Image blocks. [#30444]
+- AI Assistance: add some predef options when generating content [#30658]
+- AI Assistance: edit generated content before to accept it [#30615]
+- AI Assistance: swtich default option depending on previous-block content [#30545]
+- AI Assistant: allow changing the `tone` when generating content [#30645]
+- AI Assistant: Disable request button when not user prompt provided [#30565]
+- AI Assistant: disable `Summarize` when no content [#30561]
+- AI Assistant: introduce internationalization dropdown when generating content [#30677]
+- AI Assistant: Re-organize the prompt generation. [#30689]
+- AI Assistant: move and improve prompt types [#30665]
+- AI Assistant: reduce tones list [#30691]
+- AI Assistant: remove icons from toolbar buttons [#30585]
+- AI Assistant: update input placeholder text depending on the type of request [#30623]
+- Changed the way we skip a post from being publicized. [#30479]
+- Get Jetpack to use connection_id as the uninque identifier of the editor elements on the sidebar [#30492]
+- Golden token styling in My Plan. [#30519]
+- Jetpack AI: Add try again option [#30552]
+- Jetpack AI: iterate over createPrompt() function [#30531]
+- Jetpack AI: Update UX from ai assistant block [#30498]
+- Refactor and update Paid Newsletter user experience [#30446]
+- Related Posts: Updated labels for consistency with core [#30425]
+
+### Improved compatibility
+- ActivityPub: allow disabling Jetpack's Image CDN in requests made for the ActivityPub plugin. [#30298]
+- PHP8 compatibility updates, mostly focusing on Jetpack. [#30650]
+- PHP8 compatibility updates. [#30607]
+
+### Bug fixes
+- AI Assistant: store last prompt to be able to retry the request [#30559]
+- Change the "Add payments" to "Set up a paid plan" [#30671]
+- Fix compatibility issue in simple sites due to image CDN package [#30582]
+- Fixes issue with missing "Super Admin" in edit user form [#30496]
+- Fixes the Plugins_Modify endpoint to correct declare $args [#30608]
+- Fix zoom being reset when changing map marker color [#30482]
+- Load wpcom block editor styles [#30574]
+- Remove the map style control [#30478]
+- Show labels on Mapkit markers [#30459]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add option to correct previous content [#30609]
+- AI Assistant: Add option to simplify preceding content. [#30611]
+- AI Assistant: Disable content expansion when there is no previous content [#30586]
+- AI Assistant: Fix generated title [#30657]
+- AI Assistant: make the block content persistent [#30604]
+- AI Assistant: Remove createPrompt temporary function [#30683]
+- AI Assistant: Remove title summary option when there is no title on the post [#30560]
+- Blocks: remove unused files [#30462]
+- Delete implementation of is_wpcom_staging_site() as we are moving it to trait [#30418]
+- Make chat AI block visible on editor [#30537]
+- Make Earn products free for all Jetpack plans [#30432]
+- QR Code panel: remove Jetpack logo. [#30139]
+- Story Block: remove custom spinner styles. [#30494]
+
 ## 12.2-a.5 - 2023-05-08
+
 - Extends release `12.2-a.3` with a fix for the Payments block. [#30524]
 
 ## 12.2-a.3 - 2023-05-08
