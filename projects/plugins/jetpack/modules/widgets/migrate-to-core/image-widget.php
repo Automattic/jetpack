@@ -89,7 +89,7 @@ function jetpack_migrate_image_widget() {
 			)
 		);
 
-		if ( count( $non_allowed_keys ) > 0 ) {
+		if ( $non_allowed_keys !== array() ) {
 			// skipping the widget in question.
 			continue;
 		}
