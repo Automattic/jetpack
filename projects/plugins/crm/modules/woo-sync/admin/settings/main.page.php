@@ -305,7 +305,9 @@ function jpcrm_settings_page_html_woosync_main() {
 						<td class="wfieldname" colspan="2">
 							<label><?php esc_html_e( 'Order status map', 'zero-bs-crm' ); ?>:</label><br />
 							<?php esc_html_e( 'Here you can choose how you want to map WooCommerce order statuses to CRM statuses (if the above setting is enabled)', 'zero-bs-crm' ); ?>
-							<br/>
+							<div style="margin-top:10px;">
+								<a style="margin-top:10px;" href="<?php echo esc_url( $zbs->urls['woomanagingorders'] ); ?>" target="_blank"><?php esc_html_e( 'Learn more about the WooCommerce order statuses', 'zero-bs-crm' ); ?><img class="jpcrm-external-link-icon" style="margin-bottom:2px" src="<?php echo esc_url( ZEROBSCRM_URL ); ?>i/external-link.svg" /></a>
+							</div>
 							<br/>
 
 							<table style="width:100%;border-spacing: 0 15px;border-collapse: separate;table-layout: fixed;">

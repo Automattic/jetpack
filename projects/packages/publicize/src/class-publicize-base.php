@@ -900,7 +900,7 @@ abstract class Publicize_Base {
 					'id'              => $connection_id,
 					'unique_id'       => $unique_id,
 					'service_name'    => $service_name,
-					'service_label'   => $this->get_service_label( $service_name ),
+					'service_label'   => static::get_service_label( $service_name ),
 					'display_name'    => $this->get_display_name( $service_name, $connection ),
 					'profile_picture' => $this->get_profile_picture( $connection ),
 					'enabled'         => $enabled,
@@ -950,7 +950,7 @@ abstract class Publicize_Base {
 		foreach ( $available_services as $service_name => $service ) {
 			$available_service_data[] = array(
 				'name'  => $service_name,
-				'label' => $this->get_service_label( $service_name ),
+				'label' => static::get_service_label( $service_name ),
 				'url'   => $this->connect_url( $service_name ),
 			);
 		}
@@ -1443,7 +1443,7 @@ abstract class Publicize_Base {
 				if ( get_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id, true ) ) {
 					continue;
 				}
-				$services[ $this->get_service_label( $service_name ) ][] = $this->get_display_name( $service_name, $connection );
+				$services[ static::get_service_label( $service_name ) ][] = $this->get_display_name( $service_name, $connection );
 			}
 		}
 
@@ -1625,6 +1625,7 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	protected static function build_sprintf( $args ) {
+		$string  = null;
 		$search  = array();
 		$replace = array();
 		foreach ( $args as $k => $arg ) {

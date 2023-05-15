@@ -530,7 +530,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					$out[] = $category->name;
 				}
 			}
-			$line = join( '/', $out );
+			$line = implode( '/', $out );
 		}
 		return $line;
 	}

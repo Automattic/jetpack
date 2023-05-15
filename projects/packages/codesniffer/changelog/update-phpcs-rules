@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Added MediaWiki.Usage.ForbiddenFunctions rule to use preferred functions
