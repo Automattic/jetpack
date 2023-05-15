@@ -63,9 +63,7 @@ export async function requestToken() {
 	const siteSuffix = window.JP_CONNECTION_INITIAL_STATE.siteSuffix;
 	const isJetpackSite = ! window.wpcomFetch;
 	let data;
-	/**
-	 * TODO: Make both endpoints be POST requests
-	 */
+
 	if ( isJetpackSite ) {
 		data = await apiFetch( {
 			path: '/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(),
@@ -73,6 +71,7 @@ export async function requestToken() {
 			headers: {
 				'X-WP-Nonce': apiNonce,
 			},
+			method: 'POST',
 		} );
 	} else {
 		data = await apiFetch( {
