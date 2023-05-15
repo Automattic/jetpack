@@ -278,7 +278,7 @@ class Error_Handler {
 
 		// Let's store a maximum of 5 different user ids for each error code.
 		$error_code_count = is_countable( $stored_errors[ $error_code ] ) ? count( $stored_errors[ $error_code ] ) : 0;
-		if ( count( $error_code_count ) > 5 ) {
+		if ( $error_code_count > 5 ) {
 			// array_shift will destroy keys here because they are numeric, so manually remove first item.
 			$keys = array_keys( $stored_errors[ $error_code ] );
 			unset( $stored_errors[ $error_code ][ $keys[0] ] );
