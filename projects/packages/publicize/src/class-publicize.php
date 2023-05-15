@@ -784,7 +784,7 @@ class Publicize extends Publicize_Base {
 								<span class="category"><?php echo esc_html( $page['category'] ); ?></span>
 							</label>
 						</td>
-						<?php if ( ( $i % 2 ) || ( count( $pages ) - 1 === $i ) ) : ?>
+						<?php if ( ( $i % 2 ) || ( is_countable( $pages ) && ( count( $pages ) - 1 === $i ) ) ) : ?>
 							</tr>
 						<?php endif; ?>
 					<?php endforeach; ?>
