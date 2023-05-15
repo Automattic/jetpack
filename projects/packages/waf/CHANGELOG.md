@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.5] - 2023-05-15
+### Changed
+- Internal updates.
+
 ## [0.11.4] - 2023-04-27
 ### Added
 - Fix hardblock issue if user only has Protect installed [#30278]
@@ -193,6 +197,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.11.5]: https://github.com/Automattic/jetpack-waf/compare/v0.11.4...v0.11.5
 [0.11.4]: https://github.com/Automattic/jetpack-waf/compare/v0.11.3...v0.11.4
 [0.11.3]: https://github.com/Automattic/jetpack-waf/compare/v0.11.2...v0.11.3
 [0.11.2]: https://github.com/Automattic/jetpack-waf/compare/v0.11.1...v0.11.2

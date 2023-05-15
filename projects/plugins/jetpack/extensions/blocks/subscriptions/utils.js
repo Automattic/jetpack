@@ -52,7 +52,7 @@ export const MisconfigurationWarning = () => (
 export default function GetAddPaidPlanButton( { context = 'other', hasNewsletterPlans } ) {
 	const addPaidPlanButtonText = hasNewsletterPlans
 		? _x( 'Manage plans', 'unused context to distinguish translations', 'jetpack' )
-		: __( 'Add Payments', 'jetpack' );
+		: __( 'Set up a paid plan', 'jetpack' );
 
 	if ( 'toolbar' === context ) {
 		return (
