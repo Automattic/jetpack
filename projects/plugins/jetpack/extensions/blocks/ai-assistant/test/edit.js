@@ -1,5 +1,5 @@
 /**
- * External dependencies
+ * Internal dependencies
  */
 import { buildPromptTemplate } from '../create-prompt';
 
@@ -66,7 +66,7 @@ Describe a dog in 10 words or less.`;
 			} );
 		} );
 
-		describe( 'when there neither a request nor content', () => {
+		describe( 'when there is neither a request nor content', () => {
 			it( 'should throw an error', () => {
 				expect( () => buildPromptTemplate( {} ) ).toThrow(
 					'You must provide either a request or content'

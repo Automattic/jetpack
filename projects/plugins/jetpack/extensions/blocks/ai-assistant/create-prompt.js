@@ -92,16 +92,20 @@ Rules:
 };
 
 export function buildPrompt( {
-	content,
-	contentFromBlocks,
+	generatedContent,
+	allPostContent,
+	postContentAbove,
 	currentPostTitle,
-	partialContentAsBlock,
 	options,
 	prompt,
 	type,
 	userPrompt,
 } ) {
 	switch ( type ) {
+		/*
+		 * Non-interactive types
+		 */
+
 		/*
 		 * Generate content from title.
 		 */
@@ -119,58 +123,7 @@ export function buildPrompt( {
 			prompt = buildPromptTemplate( {
 				request: 'Please continue writing from the content below.',
 				rules: [ 'Only output the continuation of the content, without repeating it' ],
-				content: partialContentAsBlock,
-			} );
-			break;
-
-		/*
-		 * Change the tone of the content.
-		 */
-		case 'changeTone':
-			prompt = buildPromptTemplate( {
-				request: `Please, rewrite with a ${ options.tone } tone.`,
-				content,
-			} );
-			break;
-
-		/*
-		 * Summarize the content.
-		 */
-		case 'summarize':
-			prompt = buildPromptTemplate( {
-				request: 'Summarize the content below.',
-				content: content?.length ? content : contentFromBlocks,
-			} );
-			break;
-
-		/*
-		 * Make the content longer.
-		 */
-		case 'makeLonger':
-			prompt = buildPromptTemplate( {
-				request: 'Make the content below longer.',
-				content,
-			} );
-			break;
-
-		/*
-		 * Make the content shorter.
-		 */
-		case 'makeShorter':
-			prompt = buildPromptTemplate( {
-				request: 'Make the content below shorter.',
-				content,
-			} );
-			break;
-
-		/*
-		 * Generate a title for this blog post, based on the content.
-		 */
-		case 'generateTitle':
-			prompt = buildPromptTemplate( {
-				request: 'Generate a title for this blog post',
-				rules: [ 'Only output the raw title, without any prefix or quotes' ],
-				content: content?.length ? content : contentFromBlocks,
+				content: postContentAbove,
 			} );
 			break;
 
@@ -185,7 +138,55 @@ export function buildPrompt( {
 					'Output in the same language of the content',
 					'Use as much of the original language as possible',
 				],
-				content: content?.length ? content : contentFromBlocks,
+				content: postContentAbove,
+			} );
+			break;
+
+		/*
+		 * Interactive only types
+		 */
+
+		/*
+		 * Change the tone of the content.
+		 */
+		case 'changeTone':
+			prompt = buildPromptTemplate( {
+				request: `Please, rewrite with a ${ options.tone } tone.`,
+				content: generatedContent,
+			} );
+			break;
+
+		/*
+		 * Make the content longer.
+		 */
+		case 'makeLonger':
+			prompt = buildPromptTemplate( {
+				request: 'Make the content below longer.',
+				content: generatedContent,
+			} );
+			break;
+
+		/*
+		 * Make the content shorter.
+		 */
+		case 'makeShorter':
+			prompt = buildPromptTemplate( {
+				request: 'Make the content below shorter.',
+				content: generatedContent,
+			} );
+			break;
+
+		/*
+		 * Types that can be interactive or non-interactive
+		 */
+
+		/*
+		 * Summarize the content.
+		 */
+		case 'summarize':
+			prompt = buildPromptTemplate( {
+				request: 'Summarize the content below.',
+				content: options.contentType === 'generated' ? generatedContent : allPostContent,
 			} );
 			break;
 
@@ -195,7 +196,18 @@ export function buildPrompt( {
 		case 'correctSpelling':
 			prompt = buildPromptTemplate( {
 				request: 'Correct any spelling and grammar mistakes from the content below.',
-				content: content?.length ? content : contentFromBlocks,
+				content: options.contentType === 'generated' ? generatedContent : postContentAbove,
+			} );
+			break;
+
+		/*
+		 * Generate a title for this blog post, based on the content.
+		 */
+		case 'generateTitle':
+			prompt = buildPromptTemplate( {
+				request: 'Generate a title for this blog post',
+				rules: [ 'Only output the raw title, without any prefix or quotes' ],
+				content: options.contentType === 'generated' ? generatedContent : allPostContent,
 			} );
 			break;
 
@@ -205,14 +217,14 @@ export function buildPrompt( {
 		case 'changeLanguage':
 			prompt = buildPromptTemplate( {
 				request: `Please, rewrite the content below in the following language: ${ options.language }.`,
-				content: content?.length ? content : contentFromBlocks,
+				content: options.contentType === 'generated' ? generatedContent : allPostContent,
 			} );
 			break;
 
 		default:
 			prompt = buildPromptTemplate( {
 				request: userPrompt,
-				content,
+				content: generatedContent,
 			} );
 			break;
 	}
