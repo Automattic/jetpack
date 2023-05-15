@@ -86,7 +86,7 @@ class Odyssey_Config_Data {
 								'wordads'               => ( new Modules() )->is_active( 'wordads' ),
 								'admin_url'             => admin_url(),
 								'gmt_offset'            => $this->get_gmt_offset(),
-								'is_automated_transfer' => $host->is_woa_site(),
+								'is_automated_transfer' => $this->is_automated_transfer( $blog_id ),
 								'is_wpcom_atomic'       => $host->is_woa_site(),
 								'is_vip'                => $host->is_vip_site(),
 								'jetpack_version'       => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
@@ -99,6 +99,33 @@ class Odyssey_Config_Data {
 					'features' => array( "$blog_id" => array( 'data' => $this->get_plan_features() ) ),
 				),
 			),
+		);
+	}
+
+	/**
+	 * Defines a filter to set whether a site is an automated_transfer site or not.
+	 *
+	 * Default is false. On Atomic, this is set to true by `wpcomsh`.
+	 *
+	 * @param int $blog_id Blog ID.
+	 *
+	 * @return bool
+	 */
+	public function is_automated_transfer( $blog_id ) {
+		/**
+		 * Filter if a site is an automated-transfer site.
+		 *
+		 * @module json-api
+		 *
+		 * @since 6.4.0
+		 *
+		 * @param bool is_automated_transfer( $this->blog_id )
+		 * @param int  $blog_id Blog identifier.
+		 */
+		return apply_filters(
+			'jetpack_site_automated_transfer',
+			false,
+			$blog_id
 		);
 	}
 

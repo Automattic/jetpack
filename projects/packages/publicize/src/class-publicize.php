@@ -513,6 +513,7 @@ class Publicize extends Publicize_Base {
 			'twitter'  => array(),
 			'linkedin' => array(),
 			'tumblr'   => array(),
+			'mastodon' => array(),
 		);
 
 		if ( 'all' === $filter ) {

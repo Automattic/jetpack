@@ -34,7 +34,7 @@ class Jetpack_Sitemap_Buffer_Master extends Jetpack_Sitemap_Buffer_Fallback {
 				'</sitemapindex>',
 			);
 
-			$this->byte_capacity -= strlen( join( '', $this->root ) );
+			$this->byte_capacity -= strlen( implode( '', $this->root ) );
 		}
 
 		return $this->root;

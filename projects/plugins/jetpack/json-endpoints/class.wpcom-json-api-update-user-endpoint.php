@@ -120,7 +120,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$domains = $this->domain_subscriptions_for_site_owned_by_user( $user_id );
 			if ( ! empty( $domains ) ) {
-				$error = new WP_Error( 'user_owns_domain_subscription', join( ', ', $domains ) );
+				$error = new WP_Error( 'user_owns_domain_subscription', implode( ', ', $domains ) );
 				$error->add_data( $domains, 'additional_data' );
 				return $error;
 			}
