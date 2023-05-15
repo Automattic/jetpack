@@ -1228,7 +1228,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 					if ( 'response_format' !== $_property ) {
 						// hack - don't show "(default)" in response format.
-						$description_key                 = array_key_first( $description );
+						reset( $description );
+						$description_key                 = key( $description );
 						$description[ $description_key ] = "(default) {$description[$description_key]}";
 					}
 				} else {
