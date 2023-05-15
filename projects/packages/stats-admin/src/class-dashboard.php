@@ -105,10 +105,17 @@ class Dashboard {
 				// we intercept on all anchor tags and change it to hashbang style.
 				$("#wpcom").on('click', 'a', function (e) {
 					const link = e && e.currentTarget && e.currentTarget.attributes && e.currentTarget.attributes.href && e.currentTarget.attributes.href.value;
-					if( link && link.startsWith( '/stats' ) ) {
-						location.hash = `#!${link}`;
+					const allowedParentRoutes = [ '/stats', '/video' ];
+					for( allowedParentRoute of allowedParentRoutes ){
+						if( link && link.startsWith( allowedParentRoute ) ) {
+							location.hash = `#!${link}`;
+							return false;
+						}
+						// Other WordPress.com routes.
+						locaton.href = 'https://wordpress.com'  + link;
 						return false;
 					}
+
 				});
 			});
 		</script>
