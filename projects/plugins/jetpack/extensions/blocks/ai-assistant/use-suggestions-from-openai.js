@@ -164,10 +164,10 @@ const useSuggestionsFromOpenAI = ( {
 		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
 			prompt = buildPrompt( {
-				content,
+				generatedContent: content,
+				allPostContent: getContentFromBlocks(),
+				postContentAbove: getPartialContentToBlock( clientId ),
 				currentPostTitle,
-				contentFromBlocks: getContentFromBlocks(),
-				partialContentAsBlock: getPartialContentToBlock( clientId ),
 				options,
 				prompt,
 				userPrompt,

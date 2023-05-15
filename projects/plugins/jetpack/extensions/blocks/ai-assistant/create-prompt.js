@@ -92,10 +92,10 @@ Rules:
 };
 
 export function buildPrompt( {
-	content,
-	contentFromBlocks,
+	generatedContent,
+	allPostContent,
+	postContentAbove,
 	currentPostTitle,
-	partialContentAsBlock,
 	options,
 	prompt,
 	type,
@@ -119,7 +119,7 @@ export function buildPrompt( {
 			prompt = buildPromptTemplate( {
 				request: 'Please continue writing from the content below.',
 				rules: [ 'Only output the continuation of the content, without repeating it' ],
-				content: partialContentAsBlock,
+				content: postContentAbove,
 			} );
 			break;
 
@@ -129,7 +129,7 @@ export function buildPrompt( {
 		case 'changeTone':
 			prompt = buildPromptTemplate( {
 				request: `Please, rewrite with a ${ options.tone } tone.`,
-				content,
+				content: generatedContent,
 			} );
 			break;
 
@@ -139,7 +139,7 @@ export function buildPrompt( {
 		case 'summarize':
 			prompt = buildPromptTemplate( {
 				request: 'Summarize the content below.',
-				content: content?.length ? content : contentFromBlocks,
+				content: generatedContent?.length ? generatedContent : allPostContent,
 			} );
 			break;
 
@@ -149,7 +149,7 @@ export function buildPrompt( {
 		case 'makeLonger':
 			prompt = buildPromptTemplate( {
 				request: 'Make the content below longer.',
-				content,
+				content: generatedContent,
 			} );
 			break;
 
@@ -159,7 +159,7 @@ export function buildPrompt( {
 		case 'makeShorter':
 			prompt = buildPromptTemplate( {
 				request: 'Make the content below shorter.',
-				content,
+				content: generatedContent,
 			} );
 			break;
 
@@ -170,7 +170,7 @@ export function buildPrompt( {
 			prompt = buildPromptTemplate( {
 				request: 'Generate a title for this blog post',
 				rules: [ 'Only output the raw title, without any prefix or quotes' ],
-				content: content?.length ? content : contentFromBlocks,
+				content: generatedContent?.length ? generatedContent : allPostContent,
 			} );
 			break;
 
@@ -185,7 +185,7 @@ export function buildPrompt( {
 					'Output in the same language of the content',
 					'Use as much of the original language as possible',
 				],
-				content: content?.length ? content : contentFromBlocks,
+				content: generatedContent?.length ? generatedContent : allPostContent,
 			} );
 			break;
 
@@ -195,7 +195,7 @@ export function buildPrompt( {
 		case 'correctSpelling':
 			prompt = buildPromptTemplate( {
 				request: 'Correct any spelling and grammar mistakes from the content below.',
-				content: content?.length ? content : contentFromBlocks,
+				content: generatedContent?.length ? generatedContent : allPostContent,
 			} );
 			break;
 
@@ -205,14 +205,14 @@ export function buildPrompt( {
 		case 'changeLanguage':
 			prompt = buildPromptTemplate( {
 				request: `Please, rewrite the content below in the following language: ${ options.language }.`,
-				content: content?.length ? content : contentFromBlocks,
+				content: generatedContent?.length ? generatedContent : allPostContent,
 			} );
 			break;
 
 		default:
 			prompt = buildPromptTemplate( {
 				request: userPrompt,
-				content,
+				content: generatedContent,
 			} );
 			break;
 	}
