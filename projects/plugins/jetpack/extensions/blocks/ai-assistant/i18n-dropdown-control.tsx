@@ -33,10 +33,13 @@ export type LanguageProp = ( typeof LANGUAGE_LIST )[ number ];
 type LanguageDropdownControlProps = {
 	value: LanguageProp;
 	onChange: ( value: string ) => void;
+	label: string;
 };
 
 const defaultLanguageLocale =
 	window?.Jetpack_Editor_Initial_State?.siteLocale || navigator?.language;
+
+const defaultLabel = __( 'Language', 'jetpack' );
 
 export const defaultLanguage = ( defaultLanguageLocale?.split( '-' )[ 0 ] || 'en' ) as LanguageProp;
 
@@ -110,6 +113,7 @@ export const LANGUAGE_MAP = {
 
 export default function I18nDropdownControl( {
 	value = defaultLanguage,
+	label = defaultLabel,
 	onChange,
 }: LanguageDropdownControlProps ) {
 	// Move the default language to the top of the list.
@@ -121,7 +125,7 @@ export default function I18nDropdownControl( {
 	return (
 		<ToolbarDropdownMenu
 			icon={ globe }
-			label={ __( 'Language', 'jetpack' ) }
+			label={ label }
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
