@@ -2007,13 +2007,17 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$has_keywords = isset( $assoc_args['keywords'] );
 
 		$files = array(
-			"$path/$slug.php"     => self::render_block_file('block-register-php', array(
+			"$path/$slug.php"     => self::render_block_file(
+				'block-register-php',
+				array(
 					'slug'             => $slug,
 					'title'            => $title,
 					'underscoredSlug'  => str_replace( '-', '_', $slug ),
 					'underscoredTitle' => str_replace( ' ', '_', $title ),
 				)),
-			"$path/index.js"      => self::render_block_file('block-index-js', array(
+			"$path/index.js"      => self::render_block_file(
+				'block-index-js',
+				array(
 					'slug'        => $slug,
 					'title'       => $title,
 					'description' => isset( $assoc_args['description'] )
@@ -2031,11 +2035,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'hasKeywords' => $has_keywords,
 				)),
 			"$path/editor.js"     => self::render_block_file('block-editor-js'),
-			"$path/editor.scss"   => self::render_block_file('block-editor-scss', array(
+			"$path/editor.scss"   => self::render_block_file(
+				'block-editor-scss',
+				array(
 					'slug'  => $slug,
 					'title' => $title,
 				)),
-			"$path/edit.js"       => self::render_block_file('block-edit-js', array(
+			"$path/edit.js"       => self::render_block_file(
+				'block-edit-js',
+				array(
 					'title'     => $title,
 					'className' => str_replace( ' ', '', ucwords( str_replace( '-', ' ', $slug ) ) ),
 				)),
