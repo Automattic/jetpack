@@ -8,7 +8,7 @@ import React from 'react';
  * Internal dependencies
  */
 import GeneratePanel from './generate-panel';
-import './style.scss'
+import './style.scss';
 
 /*
  * Extend the withMultipleBlocksEdition function of the block
@@ -32,7 +32,7 @@ export const withMultipleBlocksEdition = BlockEdit => props => {
 	return (
 		<>
 			<InspectorControls>
-				<GeneratePanel { ...props } />
+				<GeneratePanel { ...props } blocksIds={ selectedBlocks } />
 			</InspectorControls>
 
 			<BlockEdit { ...props } />

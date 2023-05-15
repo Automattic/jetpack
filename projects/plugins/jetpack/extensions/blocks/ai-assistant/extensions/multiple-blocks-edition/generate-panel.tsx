@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import { createBlock } from '@wordpress/blocks';
 import {
 	PanelBody,
 	PanelRow,
@@ -8,12 +10,15 @@ import {
 	ToggleControl,
 	Button,
 } from '@wordpress/components';
-import { useState } from '@wordpress/element';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { useState, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import React from 'react';
 /**
  * Internal dependencies
  */
+import { buildPromptTemplate } from '../../create-prompt';
+import { askQuestion } from '../../get-suggestion-with-stream';
 import { LANGUAGE_MAP, defaultLanguage } from '../../i18n-dropdown-control';
 import { DEFAULT_PROMPT_TONE, PROMPT_TONES_MAP } from '../../tone-dropdown-control';
 
@@ -35,11 +40,115 @@ export const langOptions = Object.keys( LANGUAGE_MAP ).map( key => {
 } );
 const defaultLang = langOptions.find( option => option.key === defaultLanguage );
 
-export default function GenerateContentPanel( { title, setAttributes } ) {
+/**
+ * Hola
+ *
+ * @param {object}   props           - Component props
+ * @param {string[]} props.blocksIds - Blocks to generate content from
+ * @returns {React.ReactElement}       The component's elements.
+ */
+export default function GenerateContentPanel( { blocksIds } ) {
 	const [ tone, setTone ] = useState( defaultTone );
 	const [ lang, setLang ] = useState( defaultLang );
-	const [ action, setAction ] = useState( 'summarize' );
+	const [ action, setAction ] = useState< { key: string; name: string; prompt: string } >( {} );
 	const [ combineBlocks, setCombineBlocks ] = useState( false );
+
+	const { replaceBlocks, updateBlockAttributes, insertBlock } = useDispatch( blockEditorStore );
+
+	const blocks = useSelect(
+		select => {
+			const { getBlocksByClientId } = select( blockEditorStore );
+			return getBlocksByClientId( blocksIds );
+		},
+		[ blocksIds ]
+	);
+
+	const lastBlockIndex = useSelect(
+		select => {
+			const { getBlockIndex } = select( blockEditorStore );
+			return getBlockIndex( blocksIds[ blocksIds.length - 1 ] );
+		},
+		[ blocksIds ]
+	);
+
+	const getContentFromSelectedBlocks = useCallback( () => {
+		return blocks
+			.map( block => {
+				return block.attributes.content;
+			} )
+			.join( '\n' );
+	}, [ blocks ] );
+
+	const generateContent = useCallback( async () => {
+		// Prompt content
+		const content = getContentFromSelectedBlocks();
+
+		// Additonal rules, based on language, tone and action.
+		const rules: string[] = [];
+		if ( tone?.key ) {
+			rules.push( `Write with a ${ tone.key } language` );
+		}
+
+		if ( lang?.key ) {
+			rules.push( `Language to use is: ${ lang.key } - (${ LANGUAGE_MAP[ lang.key ].label })` );
+		}
+
+		if ( action?.key ) {
+			rules.push( action.prompt );
+		}
+
+		const prompt = buildPromptTemplate( {
+			request: 'Please help me combine content belog into a single, coherent text.',
+			content,
+			rules,
+		} );
+
+		let source: EventSource;
+		try {
+			source = await askQuestion( prompt );
+		} catch ( error ) {
+			return;
+		}
+
+		let fullMessage = '';
+
+		const generatedBlock = createBlock( 'core/paragraph', {
+			content: '',
+		} );
+
+		if ( combineBlocks ) {
+			replaceBlocks( blocksIds, [ generatedBlock ] );
+		} else {
+			insertBlock( generatedBlock, lastBlockIndex + 1 );
+		}
+
+		source.addEventListener( 'message', e => {
+			if ( e.data === '[DONE]' ) {
+				source.close();
+				return;
+			}
+
+			const data = JSON.parse( e.data );
+			const chunk = data.choices[ 0 ].delta.content;
+			if ( chunk ) {
+				fullMessage += chunk;
+				updateBlockAttributes( generatedBlock.clientId, {
+					content: fullMessage,
+				} );
+			}
+		} );
+	}, [
+		getContentFromSelectedBlocks,
+		tone?.key,
+		lang?.key,
+		action,
+		combineBlocks,
+		replaceBlocks,
+		blocksIds,
+		insertBlock,
+		lastBlockIndex,
+		updateBlockAttributes,
+	] );
 
 	return (
 		<PanelBody
@@ -72,22 +181,22 @@ export default function GenerateContentPanel( { title, setAttributes } ) {
 						{
 							key: 'summarize',
 							name: __( 'Summarize', 'jetpack' ),
+							prompt: 'Finally, please, summarize the content',
 						},
 						{
 							key: 'make-longer',
 							name: __( 'Make longer', 'jetpack' ),
+							prompt: 'Finally, please, make the content longer',
 						},
 						{
 							key: 'make-shorter',
 							name: __( 'Make shorter', 'jetpack' ),
+							prompt: 'Finally, please, make the content shorter',
 						},
 						{
-							key: 'make-more-formal',
+							key: 'spelling-and-grammar',
 							name: __( 'Correct spelling and grammar', 'jetpack' ),
-						},
-						{
-							key: 'make-more-informal',
-							name: __( 'Generate a post title', 'jetpack' ),
+							prompt: 'Finally, please, correct spelling and grammar of the content',
 						},
 					] }
 					onChange={ ( { selectedItem } ) => setAction( selectedItem ) }
@@ -102,7 +211,7 @@ export default function GenerateContentPanel( { title, setAttributes } ) {
 			</PanelRow>
 
 			<PanelRow>
-				<Button isPrimary onClick={ console.log( 'generate...' ) }>
+				<Button isPrimary onClick={ generateContent }>
 					{ __( 'Generate', 'jetpack' ) }
 				</Button>
 			</PanelRow>
