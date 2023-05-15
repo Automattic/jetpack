@@ -186,6 +186,7 @@ export default function PublicizeForm( {
 									toggleable,
 									profile_picture,
 									is_healthy,
+									connection_id,
 								} ) => (
 									<PublicizeConnection
 										disabled={
@@ -194,8 +195,8 @@ export default function PublicizeForm( {
 											false === is_healthy
 										}
 										enabled={ enabled && ! isPublicizeDisabledBySitePlan && false !== is_healthy }
-										key={ id }
-										id={ id }
+										key={ connection_id ? connection_id : id }
+										id={ connection_id ? connection_id : id }
 										label={ display_name }
 										name={ service_name }
 										toggleConnection={ toggleById }

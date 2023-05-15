@@ -224,6 +224,15 @@ const ToolbarControls = ( {
 								{ __( 'Write a summary based on title', 'jetpack' ) }
 							</ToolbarButton>
 						) }
+
+						{ ! showRetry && ! contentIsLoaded && !! wholeContent?.length && (
+							<I18nDropdownControl
+								value="en"
+								label={ __( 'Translate', 'jetpack' ) }
+								onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
+							/>
+						) }
+
 						{ ! showRetry && ! contentIsLoaded && (
 							<ToolbarDropdownMenu
 								icon={ chevronDown }
