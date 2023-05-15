@@ -20,13 +20,13 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return a basic recipe
+	 * Return a basic workflow
 	 * @return array
 	 */
-	public function basic_recipe(): array {
+	public function basic_workflow(): array {
 		return array(
-			'name'         => 'Recipe Test',
-			'description'  => 'Test: the description of the recipe',
+			'name'         => 'Workflow Test',
+			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
 			'is_active'    => true,
 			'triggers'     => array(
@@ -47,13 +47,13 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return a basic recipe with a trigger and without initial step
+	 * Return a basic workflow with a trigger and without initial step
 	 * @return array
 	 */
-	public function recipe_without_initial_step(): array {
+	public function workflow_without_initial_step(): array {
 		return array(
-			'name'         => 'Recipe Test',
-			'description'  => 'Test: the description of the recipe',
+			'name'         => 'Workflow Test',
+			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
 			'is_active'    => true,
 			'triggers'     => array(
@@ -87,13 +87,13 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return a recipe with a condition and an action
+	 * Return a workflow with a condition and an action
 	 * @return array
 	 */
-	public function recipe_with_condition_action(): array {
+	public function workflow_with_condition_action(): array {
 		return array(
-			'name'         => 'Recipe Test',
-			'description'  => 'Test: the description of the recipe',
+			'name'         => 'Workflow Test',
+			'description'  => 'Test: the description of the workflow',
 			'category'     => 'Test',
 			'is_active'    => true,
 			'triggers'     => array(
@@ -142,12 +142,12 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return a empty recipe, without triggers and initial step
+	 * Return a empty workflow, without triggers and initial step
 	 * @return array
 	 */
-	public function empty_recipe(): array {
+	public function empty_workflow(): array {
 		return array(
-			'name' => 'Empty recipe Test',
+			'name' => 'Empty workflow Test',
 		);
 	}
 }

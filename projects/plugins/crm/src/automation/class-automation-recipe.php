@@ -2,7 +2,7 @@
 
 namespace Automattic\Jetpack\CRM\Automation;
 
-class Automation_Recipe {
+class Automation_Workflow {
 	
 	/** @var int */
 	private $id;
@@ -31,21 +31,21 @@ class Automation_Recipe {
 	/** @var Automation_Logger */
 	private $logger;
 	
-	public function __construct( array $recipe_data, Automation_Engine $automation_engine ) {
-		$this->id           = $recipe_data['id'] ?? null;
-		$this->triggers     = $recipe_data['triggers'] ?? array();
-		$this->initial_step = $recipe_data['initial_step'] ?? array();
-		$this->name         = $recipe_data['name'];
-		$this->description  = $recipe_data['description'] ?? '';
-		$this->category     = $recipe_data['category'] ?? '';
-		$this->active       = $recipe_data['is_active'] ?? true;
+	public function __construct( array $workflow_data, Automation_Engine $automation_engine ) {
+		$this->id           = $workflow_data['id'] ?? null;
+		$this->triggers     = $workflow_data['triggers'] ?? array();
+		$this->initial_step = $workflow_data['initial_step'] ?? array();
+		$this->name         = $workflow_data['name'];
+		$this->description  = $workflow_data['description'] ?? '';
+		$this->category     = $workflow_data['category'] ?? '';
+		$this->active       = $workflow_data['is_active'] ?? true;
 		
 		$this->automation_engine = $automation_engine;
 		$this->logger            = $automation_engine->get_logger() ?? Automation_Logger::instance();
 	}
 	
 	/**
-	 * Get the id of this recipe
+	 * Get the id of this workflow
 	 * 
 	 * @return int
 	 */
@@ -58,7 +58,7 @@ class Automation_Recipe {
 	}
 
 	/**
-	 * Get the trigger names of this recipe
+	 * Get the trigger names of this workflow
 	 * 
 	 * @return array
 	 */
@@ -67,8 +67,8 @@ class Automation_Recipe {
 	}
 
 	/**
-	 * Instance the triggers of this recipe
-	 * @throws Recipe_Exception
+	 * Instance the triggers of this workflow
+	 * @throws Workflow_Exception
 	 */
 	public function init_triggers() {
 		
@@ -85,13 +85,13 @@ class Automation_Recipe {
 				$trigger->init( $this );
 				
 			} catch ( Automation_Exception $e ) {
-				throw new Recipe_Exception( sprintf( __( 'An error happened initializing the trigger. %s', 'zero-bs-crm' ),  $e->getMessage() ) );
+				throw new Workflow_Exception( sprintf( __( 'An error happened initializing the trigger. %s', 'zero-bs-crm' ),  $e->getMessage() ) );
 			}
 		}
 	}
 	
 	/** 
-	 * Set initial step of this recipe
+	 * Set initial step of this workflow
 	 * @param array $step_data
 	 */
 	public function set_initial_step( array $step_data ) {
@@ -99,12 +99,12 @@ class Automation_Recipe {
 	}
 
 	/**
-	 * Get the recipe as an array
+	 * Get the workflow as an array
 	 * @return array
 	 */
-	public function get_recipe_array() {
+	public function get_workflow_array() {
 		
-		$recipe = array(
+		$workflow = array(
 			'name'          => $this->name,
 			'description'   => $this->description,
 			'category'      => $this->category,
@@ -113,11 +113,11 @@ class Automation_Recipe {
 			'initial_step'  => $this->initial_step,
 		);
 
-		return $recipe;
+		return $workflow;
 	}
 
 	/**
-	 * Get the initial step of this recipe
+	 * Get the initial step of this workflow
 	 * 
 	 * @return array
 	 */
@@ -126,7 +126,7 @@ class Automation_Recipe {
 	}
 	
 	/**
-	 * Start the recipe execution once a trigger is activated
+	 * Start the workflow execution once a trigger is activated
 	 * 
 	 * @param Trigger $trigger
 	 * @param array $data
@@ -135,7 +135,7 @@ class Automation_Recipe {
 	 */
 	public function execute( Trigger $trigger, array $data ): bool {
 		$this->logger->log( 'Trigger activated: ' . $trigger->get_name() );
-		$this->logger->log( 'Executing recipe: ' . $this->name );
+		$this->logger->log( 'Executing workflow: ' . $this->name );
 		
 		$step_data = $this->initial_step;
 		
@@ -160,12 +160,12 @@ class Automation_Recipe {
 					$this->logger->log( '[' . $step->get_name() . '] Step executed!' );
 					
 				if ( ! $step_data ) {
-					$this->logger->log( 'Recipe execution finished: No more steps found.' );
+					$this->logger->log( 'Workflow execution finished: No more steps found.' );
 					return true;
 				}
 			} catch ( Automation_Exception $automation_exception ) {
 
-				$this->logger->log( 'Error executing the recipe on step: ' . $step_name . ' - ' . $automation_exception->getMessage() );
+				$this->logger->log( 'Error executing the workflow on step: ' . $step_name . ' - ' . $automation_exception->getMessage() );
 				
 				throw $automation_exception;
 			}
@@ -187,21 +187,21 @@ class Automation_Recipe {
 	}
 	
 	/**
-	 * Turn on the recipe
+	 * Turn on the workflow
 	 */
 	public function turn_on() {
 		$this->active = true;
 	}
 	
 	/**
-	 * Turn off the recipe
+	 * Turn off the workflow
 	 */
 	public function turn_off() {
 		$this->active = false;
 	}
 	
 	/**
-	 * Check if the recipe is active
+	 * Check if the workflow is active
 	 * @return bool
 	 */
 	public function is_active(): bool {
@@ -209,7 +209,7 @@ class Automation_Recipe {
 	}
 
 	/**
-	 * Add a trigger to this recipe
+	 * Add a trigger to this workflow
 	 * @param string $string
 	 */
 	public function add_trigger( string $string ) {

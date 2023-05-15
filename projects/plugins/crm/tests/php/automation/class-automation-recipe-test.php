@@ -5,7 +5,7 @@ namespace Automattic\Jetpack\CRM\Automation\Tests;
 use Automatic\Jetpack\CRM\Automation\Tests\Mocks\Contact_Created_Trigger;
 use Automattic\Jetpack\CRM\Automation\Automation_Engine;
 use Automattic\Jetpack\CRM\Automation\Automation_Logger;
-use Automattic\Jetpack\CRM\Automation\Automation_Recipe;
+use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Tests\Mocks\Dummy_Step;
 use Automattic\Jetpack\CRM\Automation\Trigger;
 use WorDBless\BaseTestCase;
@@ -13,11 +13,11 @@ use WorDBless\BaseTestCase;
 require_once __DIR__ . '/tools/class-automation-faker.php';
 
 /**
- * Test Automation Recipe functionalities
+ * Test Automation Workflow functionalities
  *
  * @covers Automattic\Jetpack\CRM\Automation
  */
-class Automation_Recipe_Test extends BaseTestCase {
+class Automation_Workflow_Test extends BaseTestCase {
 
 	private $automation_faker;
 
@@ -27,109 +27,109 @@ class Automation_Recipe_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @testdox Automation recipe initialization
+	 * @testdox Automation workflow initialization
 	 */
-	public function test_automation_recipe_init() {
+	public function test_automation_workflow_init() {
 
-		$recipe_data = $this->automation_faker->basic_recipe();
+		$workflow_data = $this->automation_faker->basic_workflow();
 
-		$recipe = new Automation_Recipe( $recipe_data, Automation_Engine::instance() );
+		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
 
-		$this->assertEquals( 'Recipe Test', $recipe->name );
+		$this->assertEquals( 'Workflow Test', $workflow->name );
 	}
 
 	/**
-	 * @testdox Automation recipe with no triggers
+	 * @testdox Automation workflow with no triggers
 	 */
-	public function test_automation_recipe_no_triggers() {
-		$recipe_data = $this->automation_faker->empty_recipe();
+	public function test_automation_workflow_no_triggers() {
+		$workflow_data = $this->automation_faker->empty_workflow();
 
-		$recipe = new Automation_Recipe( $recipe_data, Automation_Engine::instance() );
+		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
 
-		$this->assertCount( 0, $recipe->get_triggers() );
+		$this->assertCount( 0, $workflow->get_triggers() );
 	}
 
 	/**
-	 * @testdox Automation recipe set initial step
+	 * @testdox Automation workflow set initial step
 	 */
-	public function test_automation_recipe_set_initial_step() {
-		$recipe_data = $this->automation_faker->recipe_without_initial_step();
+	public function test_automation_workflow_set_initial_step() {
+		$workflow_data = $this->automation_faker->workflow_without_initial_step();
 
-		$recipe = new Automation_Recipe( $recipe_data, Automation_Engine::instance() );
+		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
 
-		$recipe->set_initial_step(
+		$workflow->set_initial_step(
 			array(
 				'name'       => 'dummy_step_123',
 				'class_name' => Dummy_Step::class,
 			)
 		);
 
-		$automation_result = $recipe->execute( new Contact_Created_Trigger(), array() );
+		$automation_result = $workflow->execute( new Contact_Created_Trigger(), array() );
 
 		$this->assertTrue( $automation_result );
 	}
 
 	/**
-	 * @testdox Automation recipe with multiple triggers
+	 * @testdox Automation workflow with multiple triggers
 	 */
-	public function test_recipe_triggers() {
-		$recipe_data = $this->automation_faker->basic_recipe();
+	public function test_workflow_triggers() {
+		$workflow_data = $this->automation_faker->basic_workflow();
 
-		$recipe = new Automation_Recipe( $recipe_data, Automation_Engine::instance() );
+		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
 
-		$recipe->add_trigger( 'contact_updated' );
-		$recipe->add_trigger( 'contact_deleted' );
+		$workflow->add_trigger( 'contact_updated' );
+		$workflow->add_trigger( 'contact_deleted' );
 
-		$this->assertCount( 3, $recipe->get_triggers() );
+		$this->assertCount( 3, $workflow->get_triggers() );
 
 		// Check if the triggers are added
-		$triggers = $recipe->get_triggers();
+		$triggers = $workflow->get_triggers();
 		$this->assertEquals( 'contact_created', $triggers[0] );
 		$this->assertEquals( 'contact_updated', $triggers[1] );
 		$this->assertEquals( 'contact_deleted', $triggers[2] );
 	}
 
 	/**
-	 * @testdox Testing turn on/off the recipe, to activate/deactivate it
+	 * @testdox Testing turn on/off the workflow, to activate/deactivate it
 	 */
-	public function test_recipe_turn_on_off() {
-		$recipe_data = $this->automation_faker->basic_recipe();
+	public function test_workflow_turn_on_off() {
+		$workflow_data = $this->automation_faker->basic_workflow();
 
-		$recipe = new Automation_Recipe( $recipe_data, Automation_Engine::instance() );
+		$workflow = new Automation_Workflow( $workflow_data, Automation_Engine::instance() );
 
-		$recipe->turn_on();
-		$this->assertTrue( $recipe->is_active() );
+		$workflow->turn_on();
+		$this->assertTrue( $workflow->is_active() );
 
-		$recipe->turn_off();
-		$this->assertFalse( $recipe->is_active() );
+		$workflow->turn_off();
+		$this->assertFalse( $workflow->is_active() );
 	}
 
 	/**
-	 * @testdox Testing the recipe execution if it's not active
+	 * @testdox Testing the workflow execution if it's not active
 	 */
-	public function test_recipe_execution_not_active() {
+	public function test_workflow_execution_not_active() {
 
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( Automation_Logger::instance() );
 		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
 
-		$recipe_data = $this->automation_faker->recipe_without_initial_step();
+		$workflow_data = $this->automation_faker->workflow_without_initial_step();
 
-		// Build a PHPUnit mock Automation_Recipe
-		$recipe = $this->getMockBuilder( Automation_Recipe::class )
-			->setConstructorArgs( array( $recipe_data, $automation ) )
+		// Build a PHPUnit mock Automation_Workflow
+		$workflow = $this->getMockBuilder( Automation_Workflow::class )
+			->setConstructorArgs( array( $workflow_data, $automation ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
-		// Turn off the recipe
-		$recipe->turn_off();
+		// Turn off the workflow
+		$workflow->turn_off();
 
-		// Add and init the recipes
-		$automation->add_recipe( $recipe );
-		$automation->init_recipes();
+		// Add and init the workflows
+		$automation->add_workflow( $workflow );
+		$automation->init_workflows();
 
-		// We don't expect the recipe to be executed
-		$recipe->expects( $this->never() )
+		// We don't expect the workflow to be executed
+		$workflow->expects( $this->never() )
 				->method( 'execute' );
 
 		// Fake contact data
@@ -141,9 +141,9 @@ class Automation_Recipe_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @testdox Test an automation recipe execution on contact_created event
+	 * @testdox Test an automation workflow execution on contact_created event
 	 */
-	public function test_recipe_execution_on_contact_created() {
+	public function test_workflow_execution_on_contact_created() {
 
 		$logger = Automation_Logger::instance( true );
 		
@@ -151,23 +151,23 @@ class Automation_Recipe_Test extends BaseTestCase {
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
 
-		$recipe_data = $this->automation_faker->recipe_without_initial_step();
+		$workflow_data = $this->automation_faker->workflow_without_initial_step();
 
-		// Build a PHPUnit mock Automation_Recipe
-		$recipe = $this->getMockBuilder( Automation_Recipe::class )
-			->setConstructorArgs( array( $recipe_data, $automation ) )
+		// Build a PHPUnit mock Automation_Workflow
+		$workflow = $this->getMockBuilder( Automation_Workflow::class )
+			->setConstructorArgs( array( $workflow_data, $automation ) )
 			->onlyMethods( array( 'execute' ) )
 			->getMock();
 
-		// Add and init the recipes
-		$automation->add_recipe( $recipe );
-		$automation->init_recipes();
+		// Add and init the workflows
+		$automation->add_workflow( $workflow );
+		$automation->init_workflows();
 
 		// Fake event data
 		$contact_data = $this->automation_faker->contact_data();
 
-		// We expect the recipe to be executed on contact_created event with the contact data
-		$recipe->expects( $this->once() )
+		// We expect the workflow to be executed on contact_created event with the contact data
+		$workflow->expects( $this->once() )
 			->method( 'execute' )
 			->with(
 				$this->logicalAnd(
@@ -187,9 +187,9 @@ class Automation_Recipe_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @testdox Test an automation recipe execution with a dummy action
+	 * @testdox Test an automation workflow execution with a dummy action
 	 */
-	public function test_recipe_execution_with_dummy_action() {
+	public function test_workflow_execution_with_dummy_action() {
 
 		$logger = Automation_Logger::instance( true );
 		//$logger->with_output( true );
@@ -199,19 +199,19 @@ class Automation_Recipe_Test extends BaseTestCase {
 		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
 		$automation->register_step( 'dummy_action', Dummy_Step::class );
 
-		$recipe_data = $this->automation_faker->recipe_without_initial_step();
+		$workflow_data = $this->automation_faker->workflow_without_initial_step();
 
-		$recipe = new Automation_Recipe( $recipe_data, $automation );
-		$recipe->set_automation_logger( $logger );
-		$recipe->set_initial_step(
+		$workflow = new Automation_Workflow( $workflow_data, $automation );
+		$workflow->set_automation_logger( $logger );
+		$workflow->set_initial_step(
 			array(
 				'name' => 'dummy_action',
 			)
 		);
 
-		// Add and init the recipes
-		$automation->add_recipe( $recipe );
-		$automation->init_recipes();
+		// Add and init the workflows
+		$automation->add_workflow( $workflow );
+		$automation->init_workflows();
 
 		// Fake event data
 		$contact_data = $this->automation_faker->contact_data();
@@ -226,14 +226,14 @@ class Automation_Recipe_Test extends BaseTestCase {
 
 		$this->assertGreaterThan( 4, $total_log );
 
-		$this->assertEquals( 'Recipe execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
+		$this->assertEquals( 'Workflow execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
 		$this->assertEquals( 'Dummy step executed', $log[ $total_log - 3 ][1] );
 	}
 
 	/**
-	 * @testdox Test an automation recipe execution with condition => true
+	 * @testdox Test an automation workflow execution with condition => true
 	 */
-	public function test_recipe_execution_with_condition_true() {
+	public function test_workflow_execution_with_condition_true() {
 		$logger = Automation_Logger::instance( true );
 		$logger->reset_log();
 
@@ -244,12 +244,12 @@ class Automation_Recipe_Test extends BaseTestCase {
 		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
 		$automation->register_step( 'dummy_action', Dummy_Step::class );
 
-		$recipe_data = $this->automation_faker->recipe_with_condition_action();
+		$workflow_data = $this->automation_faker->workflow_with_condition_action();
 
-		$recipe = new Automation_Recipe( $recipe_data, $automation );
+		$workflow = new Automation_Workflow( $workflow_data, $automation );
 
-		$automation->add_recipe( $recipe );
-		$automation->init_recipes();
+		$automation->add_workflow( $workflow );
+		$automation->init_workflows();
 
 		// Fake event data
 		$contact_data = $this->automation_faker->contact_data();
@@ -266,13 +266,13 @@ class Automation_Recipe_Test extends BaseTestCase {
 
 		$this->assertEquals( 'Condition met?: true', $log[ $total_log - 6 ][1] );
 		$this->assertEquals( 'Dummy step executed', $log[ $total_log - 3 ][1] );
-		$this->assertEquals( 'Recipe execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
+		$this->assertEquals( 'Workflow execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
 	}
 
 	/**
-	 * @testdox Test an automation recipe execution with condition => false
+	 * @testdox Test an automation workflow execution with condition => false
 	 */
-	public function test_recipe_execution_with_condition_false() {
+	public function test_workflow_execution_with_condition_false() {
 		$logger = Automation_Logger::instance( true );
 		$logger->reset_log();
 
@@ -283,12 +283,12 @@ class Automation_Recipe_Test extends BaseTestCase {
 		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
 		$automation->register_step( 'dummy_action', Dummy_Step::class );
 
-		$recipe_data = $this->automation_faker->recipe_with_condition_action();
+		$workflow_data = $this->automation_faker->workflow_with_condition_action();
 
-		$recipe = new Automation_Recipe( $recipe_data, $automation );
+		$workflow = new Automation_Workflow( $workflow_data, $automation );
 
-		$automation->add_recipe( $recipe );
-		$automation->init_recipes();
+		$automation->add_workflow( $workflow );
+		$automation->init_workflows();
 
 		// Fake event data. Set status to customer to make the condition false
 		$contact_data = $this->automation_faker->contact_data();
@@ -304,7 +304,7 @@ class Automation_Recipe_Test extends BaseTestCase {
 
 		$this->assertGreaterThan( 8, $total_log );
 
-		$this->assertEquals( 'Recipe execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
+		$this->assertEquals( 'Workflow execution finished: No more steps found.', $log[ $total_log - 1 ][1] );
 		$this->assertEquals( 'Condition met?: false', $log[ $total_log - 3 ][1] );
 	}
 }

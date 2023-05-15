@@ -2,7 +2,7 @@
 
 namespace Automatic\Jetpack\CRM\Automation\Tests\Mocks;
 
-use Automattic\Jetpack\CRM\Automation\Automation_Recipe;
+use Automattic\Jetpack\CRM\Automation\Automation_Workflow;
 use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 use Automattic\Jetpack\CRM\Automation\Tests\Event_Emitter;
 
@@ -18,14 +18,14 @@ class Contact_Created_Trigger extends Base_Trigger {
 		parent::__construct( $trigger_data );
 	}
 
-	public function init( Automation_Recipe $recipe ) {
+	public function init( Automation_Workflow $workflow ) {
 
 		$event_emitter = Event_Emitter::instance();
 
 		$event_emitter->on(
 			'contact_created',
-			function ( $event_data ) use ( $recipe ) {
-				$recipe->execute( $this, $event_data );
+			function ( $event_data ) use ( $workflow ) {
+				$workflow->execute( $this, $event_data );
 			}
 		);
 	}
