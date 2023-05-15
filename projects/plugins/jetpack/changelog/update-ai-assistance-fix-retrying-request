@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-AI Assistant: store last prompt to be able to retry the request
