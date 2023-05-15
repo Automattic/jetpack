@@ -5,6 +5,7 @@ import { useSelect, select as selectData } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
+import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
@@ -13,6 +14,8 @@ import { askJetpack, askQuestion } from './get-suggestion-with-stream';
 import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
 const debug = debugFactory( 'jetpack:ai-assistant' );
+
+const turndownService = new TurndownService();
 
 /**
  * Returns partial content from the beginning of the post
@@ -33,14 +36,16 @@ export function getPartialContentToBlock( clientId ) {
 		return '';
 	}
 
-	return blocks
-		.filter( function ( block ) {
-			return block && block.attributes && block.attributes.content;
-		} )
-		.map( function ( block ) {
-			return block.attributes.content.replaceAll( '<br/>', '\n' );
-		} )
-		.join( '\n' );
+	return turndownService.turndown(
+		blocks
+			.filter( function ( block ) {
+				return block && block.attributes && block.attributes.content;
+			} )
+			.map( function ( block ) {
+				return block.attributes.content.replaceAll( '<br/>', '\n' );
+			} )
+			.join( '\n' )
+	);
 }
 
 /**
@@ -57,14 +62,16 @@ export function getContentFromBlocks() {
 		return '';
 	}
 
-	return blocks
-		.filter( function ( block ) {
-			return block && block.attributes && block.attributes.content;
-		} )
-		.map( function ( block ) {
-			return block.attributes.content.replaceAll( '<br/>', '\n' );
-		} )
-		.join( '\n' );
+	return turndownService.turndown(
+		blocks
+			.filter( function ( block ) {
+				return block && block.attributes && block.attributes.content;
+			} )
+			.map( function ( block ) {
+				return block.attributes.content.replaceAll( '<br/>', '\n' );
+			} )
+			.join( '\n' )
+	);
 }
 
 const useSuggestionsFromOpenAI = ( {
