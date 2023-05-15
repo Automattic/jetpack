@@ -89,9 +89,7 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 			return $body;
 		}
 
-		$response = json_decode( wp_remote_retrieve_body( $body ) );
-
-		return $response;
+		return json_decode( wp_remote_retrieve_body( $body ) );
 	}
 
 }

@@ -1,4 +1,3 @@
-import apiFetch from '@wordpress/api-fetch';
 import { BlockIcon, InspectorControls, useBlockProps } from '@wordpress/block-editor';
 import {
 	CheckboxControl,
@@ -16,41 +15,17 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import './editor.scss';
 import icon from './icon';
+import useSubscriptions from './use-subscriptions';
 
 export function AuthorRecommendationEdit( { className, attributes, setAttributes, isSelected } ) {
-	const [ isLoading, setIsLoading ] = useState( false );
-	const [ errorMessage, setErrorMessage ] = useState( null );
-
-	const [ subscriptions, setSubscriptions ] = useState( [] );
 	const [ selectedSubscriptions, setSelectedSubscriptions ] = useState( [] );
 	const { recommendations, remove_user_blogs } = attributes;
+	const { isLoading, errorMessage, subscriptions } = useSubscriptions( { remove_user_blogs } );
 
 	useEffect( () => {
 		setSelectedSubscriptions( recommendations.map( ( { blog_id } ) => blog_id ) );
-
-		setIsLoading( true );
-		setErrorMessage( null );
-
-		apiFetch( {
-			path: `/wpcom/v2/following/mine?remove_user_blogs=${ remove_user_blogs }`,
-			global: true,
-			method: 'GET',
-		} )
-			.then( setSubscriptions )
-			.catch( error => {
-				if ( error.message ) {
-					setErrorMessage( error.message ); // Message was already translated by the backend
-				} else {
-					setErrorMessage(
-						__( 'Whoops, we have encountered an error. Please try again later.', 'jetpack' )
-					);
-				}
-			} )
-			.finally( () => {
-				setIsLoading( false );
-			} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ remove_user_blogs ] );
+	}, [] );
 
 	useEffect( () => {
 		setAttributes( {
@@ -117,13 +92,7 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 						const isSubscriptionSelected = selectedSubscriptions.includes( subscription.blog_id );
 
 						return (
-							<FlexItem
-								key={ subscription.blog_id }
-								style={ {
-									padding: '10px',
-									// display: ! isSubscriptionSelected && ! isSelected ? 'none' : '',
-								} }
-							>
+							<FlexItem key={ subscription.blog_id } style={ { padding: '10px' } }>
 								<Flex gap={ 4 } justify="space-between">
 									<FlexItem style={ { maxHeight: 36, minWidth: 36 } }>
 										{ ! subscription.site_icon && (
@@ -154,7 +123,7 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 			) }
 
 			<InspectorControls>
-				<PanelBody title={ 'Author Recommendation Settings' }>
+				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<ToggleControl
 						label={ __( 'Hide user blogs', 'jetpack' ) }
 						checked={ !! remove_user_blogs }
