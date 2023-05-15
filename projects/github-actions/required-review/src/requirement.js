@@ -33,7 +33,8 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 		return async function ( reviewers ) {
 			const members = await fetchTeamMembers( team );
 			const reviewSatisfied = reviewers.filter( reviewer => members.includes( reviewer ) );
-			if ( reviewSatisfied.length === 0 ) {
+			const request = core.getInput('request-reviews')
+			if ( reviewSatisfied.length === 0 && request == 'true' ) {
 				await requestReview( team );
 			}
 			return printSet( `${ indent }Members of ${ team }:`, reviewSatisfied );
