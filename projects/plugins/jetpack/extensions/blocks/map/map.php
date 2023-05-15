@@ -138,9 +138,9 @@ function load_assets( $attr, $content ) {
  */
 function render_single_block_page() {
 	// phpcs:ignore WordPress.Security.NonceVerification
-	$map_block_counter = isset( $_GET, $_GET['map-block-counter'] ) ? absint( $_GET['map-block-counter'] ) : null;
+	$map_block_counter = isset( $_GET['map-block-counter'] ) ? absint( $_GET['map-block-counter'] ) : null;
 	// phpcs:ignore WordPress.Security.NonceVerification
-	$map_block_post_id = isset( $_GET, $_GET['map-block-post-id'] ) ? absint( $_GET['map-block-post-id'] ) : null;
+	$map_block_post_id = isset( $_GET['map-block-post-id'] ) ? absint( $_GET['map-block-post-id'] ) : null;
 
 	if ( ! $map_block_counter || ! $map_block_post_id ) {
 		return;
