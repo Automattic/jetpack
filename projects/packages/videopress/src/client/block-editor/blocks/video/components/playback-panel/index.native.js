@@ -30,7 +30,10 @@ export default function PlaybackPanel( { attributes, setAttributes } ) {
 		setShowSubSheet( true );
 	}, [] );
 
-	const { autoplay, loop, muted, controls, playsinline, preload } = attributes;
+	const { autoplay, loop, muted, controls, playsinline, preload, posterData } = attributes;
+
+	// Is Preview On Hover effect enabled?
+	const isPreviewOnHoverEnabled = posterData?.previewOnHover;
 
 	const handleAttributeChange = useCallback(
 		( attributeName, attributeValue ) => {
@@ -40,6 +43,41 @@ export default function PlaybackPanel( { attributes, setAttributes } ) {
 		},
 		[ setAttributes ]
 	);
+
+	const AutoplayHelp = () => {
+		/*
+		 * If the preview on hover effect is enabled,
+		 * we want to let the user know that the autoplay
+		 * option is not available.
+		 */
+		if ( isPreviewOnHoverEnabled ) {
+			return (
+				<Text>
+					{ __(
+						'Autoplay is turned off as the preview on hover is active.',
+						'jetpack-videopress-pkg'
+					) }
+				</Text>
+			);
+		}
+
+		return (
+			<>
+				<Text>
+					{ __( 'Start playing the video as soon as the page loads.', 'jetpack-videopress-pkg' ) }
+				</Text>
+				{ autoplay && (
+					<Text>
+						{ '\n\n' +
+							__(
+								'Note: Autoplaying videos may cause usability issues for some visitors.',
+								'jetpack-videopress-pkg'
+							) }
+					</Text>
+				) }
+			</>
+		);
+	};
 
 	return (
 		<BottomSheet.SubSheet
@@ -66,26 +104,9 @@ export default function PlaybackPanel( { attributes, setAttributes } ) {
 					<ToggleControl
 						label={ __( 'Autoplay', 'jetpack-videopress-pkg' ) }
 						onChange={ handleAttributeChange( 'autoplay' ) }
-						checked={ autoplay }
-						help={
-							<>
-								<Text>
-									{ __(
-										'Start playing the video as soon as the page loads.',
-										'jetpack-videopress-pkg'
-									) }
-								</Text>
-								{ autoplay && (
-									<Text>
-										{ '\n\n' +
-											__(
-												'Note: Autoplaying videos may cause usability issues for some visitors.',
-												'jetpack-videopress-pkg'
-											) }
-									</Text>
-								) }
-							</>
-						}
+						checked={ autoplay && ! isPreviewOnHoverEnabled }
+						disabled={ isPreviewOnHoverEnabled }
+						help={ <AutoplayHelp /> }
 					/>
 
 					<ToggleControl

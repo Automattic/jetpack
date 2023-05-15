@@ -39,6 +39,15 @@ function wpcom_register_default_launchpad_checklists() {
 
 	wpcom_register_launchpad_task(
 		array(
+			'id'                   => 'plan_completed',
+			'title'                => __( 'Choose a plan', 'jetpack-mu-wpcom' ),
+			'subtitle'             => 'wpcom_get_plan_completed_subtitle',
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
+		)
+	);
+
+	wpcom_register_launchpad_task(
+		array(
 			'id'                   => 'subscribers_added',
 			'title'                => __( 'Add subscribers', 'jetpack-mu-wpcom' ),
 			'is_complete_callback' => '__return_true',
@@ -146,8 +155,7 @@ function wpcom_register_default_launchpad_checklists() {
 		array(
 			'id'                   => 'setup_blog',
 			'title'                => __( 'Name your blog', 'jetpack-mu-wpcom' ),
-			'is_complete_callback' => '__return_false',
-			'is_disabled_callback' => '__return_false',
+			'is_complete_callback' => 'wpcom_is_task_option_completed',
 		)
 	);
 
@@ -340,7 +348,7 @@ function wpcom_register_default_launchpad_checklists() {
 				'first_post_published',
 				'setup_blog',
 				'domain_upsell',
-				'plan_selected',
+				'plan_completed',
 				'blog_launched',
 			),
 		)
@@ -438,6 +446,20 @@ function wpcom_is_domain_upsell_completed( $task, $default ) {
 		return true;
 	}
 	return $default;
+}
+
+/**
+ * Returns the option value for a task and false if no option exists.
+ *
+ * @param array $task The Task object.
+ * @return bool True if the blog was named.
+ */
+function wpcom_is_task_option_completed( $task ) {
+	$checklist = get_option( 'launchpad_checklist_tasks_statuses', array() );
+	if ( ! empty( $checklist[ $task['id'] ] ) ) {
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -624,6 +646,7 @@ function wpcom_track_site_launch_task() {
 	wpcom_mark_launchpad_task_complete_if_active( 'site_launched' );
 	wpcom_mark_launchpad_task_complete_if_active( 'link_in_bio_launched' );
 	wpcom_mark_launchpad_task_complete_if_active( 'videopress_launched' );
+	wpcom_mark_launchpad_task_complete_if_active( 'blog_launched' );
 }
 
 /**

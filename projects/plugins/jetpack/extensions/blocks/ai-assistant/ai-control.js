@@ -20,7 +20,6 @@ import ToneDropdownControl from './tone-dropdown-control';
 
 const AIControl = ( {
 	aiType,
-	animationDone,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
@@ -82,7 +81,7 @@ const AIControl = ( {
 			{ ! isWaitingState && (
 				<ToolbarControls
 					aiType={ aiType }
-					animationDone={ animationDone }
+					isWaitingState={ isWaitingState }
 					contentIsLoaded={ contentIsLoaded }
 					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 					retryRequest={ retryRequest }
@@ -128,7 +127,6 @@ export default AIControl;
 
 const ToolbarControls = ( {
 	aiType,
-	animationDone,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
@@ -144,7 +142,7 @@ const ToolbarControls = ( {
 } ) => {
 	return (
 		<>
-			{ contentIsLoaded && animationDone && (
+			{ contentIsLoaded && (
 				<BlockControls group="block">
 					<ToneDropdownControl
 						value="neutral"
@@ -191,7 +189,7 @@ const ToolbarControls = ( {
 				{ aiType === 'text' && (
 					// Text controls
 					<ToolbarGroup>
-						{ ! showRetry && contentIsLoaded && animationDone && (
+						{ ! showRetry && contentIsLoaded && (
 							<>
 								{ promptType === 'generateTitle' ? (
 									<ToolbarButton onClick={ handleAcceptTitle }>
