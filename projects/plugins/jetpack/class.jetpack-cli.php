@@ -545,7 +545,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 */
 	public function module( $args, $assoc_args ) {
 		$module_slug = null;
-		$action = isset( $args[0] ) ? $args[0] : 'list';
+		$action      = isset( $args[0] ) ? $args[0] : 'list';
 
 		if ( isset( $args[1] ) ) {
 			$module_slug = $args[1];
