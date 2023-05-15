@@ -160,6 +160,7 @@ const ToolbarControls = ( {
 						icon={ pencil }
 						label="More"
 						controls={ [
+							// Interactive controls
 							{
 								title: __( 'Summarize', 'jetpack' ),
 								onClick: () => getSuggestionFromOpenAI( 'summarize' ),

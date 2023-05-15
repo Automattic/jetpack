@@ -307,6 +307,7 @@ const useSuggestionsFromOpenAI = ( {
 			}
 		} );
 	};
+
 	return {
 		isLoadingCategories,
 		isLoadingCompletion,
