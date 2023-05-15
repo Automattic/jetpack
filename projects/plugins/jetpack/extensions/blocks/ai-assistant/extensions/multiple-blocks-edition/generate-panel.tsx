@@ -83,24 +83,22 @@ export default function GenerateContentPanel( { blocksIds } ) {
 		// Prompt content
 		const content = getContentFromSelectedBlocks();
 
-		// Additonal rules, based on language, tone and action.
-		const rules: string[] = [];
+		let request = 'Please help me combine the content belog into a single, coherent text.';
 		if ( tone?.key ) {
-			rules.push( `Write with a ${ tone.key } language` );
+			request += ` Write with a \`${ tone.key }\` tone.`;
 		}
 
 		if ( lang?.key ) {
-			rules.push( `Language to use is: ${ lang.key } - (${ LANGUAGE_MAP[ lang.key ].label })` );
+			request += ` Write in \`${ lang.key }\` - (${ LANGUAGE_MAP[ lang.key ].label }) language.`;
 		}
 
 		if ( action?.key ) {
-			rules.push( action.prompt );
+			request += ' ' + action.prompt;
 		}
 
 		const prompt = buildPromptTemplate( {
-			request: 'Please help me combine content belog into a single, coherent text.',
+			request,
 			content,
-			rules,
 		} );
 
 		let source: EventSource;
@@ -181,22 +179,22 @@ export default function GenerateContentPanel( { blocksIds } ) {
 						{
 							key: 'summarize',
 							name: __( 'Summarize', 'jetpack' ),
-							prompt: 'Finally, please, summarize the content',
+							prompt: 'Finally, please, summarize the content.',
 						},
 						{
 							key: 'make-longer',
 							name: __( 'Make longer', 'jetpack' ),
-							prompt: 'Finally, please, make the content longer',
+							prompt: 'Finally, please, make the content longer.',
 						},
 						{
 							key: 'make-shorter',
 							name: __( 'Make shorter', 'jetpack' ),
-							prompt: 'Finally, please, make the content shorter',
+							prompt: 'Finally, please, make the content shorter.',
 						},
 						{
 							key: 'spelling-and-grammar',
 							name: __( 'Correct spelling and grammar', 'jetpack' ),
-							prompt: 'Finally, please, correct spelling and grammar of the content',
+							prompt: 'Finally, please, correct spelling and grammar of the content.',
 						},
 					] }
 					onChange={ ( { selectedItem } ) => setAction( selectedItem ) }
