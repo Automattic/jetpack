@@ -1,7 +1,7 @@
 const core = require( '@actions/core' );
 const github = require( '@actions/github' );
-const getUsername = require( './get-username.js' );
 const { WError } = require( 'error' );
+const getUsername = require( './get-username.js' );
 
 const cache = {};
 

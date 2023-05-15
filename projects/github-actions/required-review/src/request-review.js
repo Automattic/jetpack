@@ -23,10 +23,10 @@ async function requestReviewer( team ) {
 				owner: owner,
 				repo: repo,
 				pull_number: pr,
-				reviewers: [ login ]
-			} )
+				reviewers: [ login ],
+			} );
 		} catch ( err ) {
-			throw new Error( `Unable to request review.\n  Error: ${err}` );
+			throw new Error( `Unable to request review.\n  Error: ${ err }` );
 		}
 	} else {
 		try {
@@ -35,10 +35,10 @@ async function requestReviewer( team ) {
 				owner: owner,
 				repo: repo,
 				pull_number: pr,
-				team_reviewers: [team]
+				team_reviewers: [ team ],
 			} );
 		} catch ( err ) {
-			throw new Error( `Unable to request review.\n  Error: ${err}` );
+			throw new Error( `Unable to request review.\n  Error: ${ err }` );
 		}
 	}
 }
