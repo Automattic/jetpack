@@ -96,8 +96,8 @@ class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		// otherwise the one with the > number of capabilities comes first.
-		$a_cap_count = count( $a->capabilities );
-		$b_cap_count = count( $b->capabilities );
+		$a_cap_count = is_countable( $a->capabilities ) ? count( $a->capabilities ) : 0;
+		$b_cap_count = is_countable( $b->capabilities ) ? count( $b->capabilities ) : 0;
 
 		if ( $a_cap_count === $b_cap_count ) {
 			return 0;

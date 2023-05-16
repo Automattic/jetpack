@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Provide default data sets for responses data to avoid PHP warnings on undefined array keys

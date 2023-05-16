@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-ActivityPub: allow disabling Jetpack's Image CDN in requests made for the ActivityPub plugin.

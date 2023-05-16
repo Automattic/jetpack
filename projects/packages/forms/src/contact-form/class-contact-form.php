@@ -290,7 +290,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( isset( $_GET['contact-form-id'] )
 			&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
-			&& isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
+			&& isset( $_GET['contact-form-sent'] ) && isset( $_GET['contact-form-hash'] )
 			&& is_string( $_GET['contact-form-hash'] )
 			&& hash_equals( $form->hash, wp_unslash( $_GET['contact-form-hash'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			// The contact form was submitted.  Show the success message/results.
@@ -450,7 +450,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		if ( 'message' === $form->get_attribute( 'customThankyou' ) ) {
 			$message = wpautop( $form->get_attribute( 'customThankyouMessage' ) );
 		} else {
-			$message = '<p>' . join( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>';
+			$message = '<p>' . implode( '</p><p>', self::get_compiled_form( $feedback_id, $form ) ) . '</p>';
 		}
 
 		return wp_kses(
@@ -1357,7 +1357,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param boolean $is_spam Whether the form submission has been identified as spam.
 		 * @param array   $entry_values The feedback entry values.
 		 */
-		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this, $is_spam, $entry_values );
+		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this->fields, $is_spam, $entry_values );
 
 		$message = self::get_compiled_form_for_email( $post_id, $this );
 
@@ -1384,7 +1384,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			array_push( $message, '<p>' . __( 'Sent by an unverified visitor to your site.', 'jetpack-forms' ) . '</p>' );
 		}
 
-		$message = join( '', $message );
+		$message = implode( '', $message );
 
 		/**
 		 * Filters the message sent via email after a successful form submission.

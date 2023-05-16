@@ -565,7 +565,7 @@ if (
 							$auto_src = esc_url( "https://{$domain}.survey.fm/{$id}" );
 							$auto_src = wp_parse_url( $auto_src );
 
-							if ( ! is_array( $auto_src ) || 0 === count( $auto_src ) ) {
+							if ( ! is_array( $auto_src ) || array() === $auto_src ) {
 								return '<!-- no crowdsignal output -->';
 							}
 

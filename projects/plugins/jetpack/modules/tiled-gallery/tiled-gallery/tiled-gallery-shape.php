@@ -19,7 +19,7 @@ class Jetpack_Tiled_Gallery_Shape {
 	 */
 	public function __construct( $images ) {
 		$this->images      = $images;
-		$this->images_left = count( $images );
+		$this->images_left = is_countable( $images ) ? count( $images ) : 0;
 	}
 
 	/**

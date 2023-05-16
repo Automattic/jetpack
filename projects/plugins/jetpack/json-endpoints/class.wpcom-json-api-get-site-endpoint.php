@@ -392,7 +392,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	private function has_blog_access( $token_details ) {
 		$token_details = (array) $token_details;
-		if ( ! isset( $token_details['access'], $token_details['auth'], $token_details['blog_id'] ) ) {
+		if ( ! isset( $token_details['access'] ) || ! isset( $token_details['auth'] ) || ! isset( $token_details['blog_id'] ) ) {
 			return false;
 		}
 
