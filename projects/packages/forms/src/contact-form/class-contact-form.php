@@ -290,7 +290,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 		if ( isset( $_GET['contact-form-id'] )
 			&& (int) $_GET['contact-form-id'] === (int) self::$last->get_attribute( 'id' )
-			&& isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
+			&& isset( $_GET['contact-form-sent'] ) && isset( $_GET['contact-form-hash'] )
 			&& is_string( $_GET['contact-form-hash'] )
 			&& hash_equals( $form->hash, wp_unslash( $_GET['contact-form-hash'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 			// The contact form was submitted.  Show the success message/results.
@@ -1380,7 +1380,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 * @param boolean $is_spam Whether the form submission has been identified as spam.
 		 * @param array   $entry_values The feedback entry values.
 		 */
-		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this, $is_spam, $entry_values );
+		do_action( 'grunion_after_feedback_post_inserted', $post_id, $this->fields, $is_spam, $entry_values );
 
 		/**
 		 * Filter the title used in the response email.

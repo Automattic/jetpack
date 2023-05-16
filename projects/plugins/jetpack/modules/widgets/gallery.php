@@ -299,9 +299,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			$max_width = min( (int) $content_width, $max_width );
 		}
 
-		$color     = Jetpack_Options::get_option( 'slideshow_background_color', 'black' );
-		$autostart = isset( $attr['autostart'] ) ? $attr['autostart'] : true; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- Todo: should read off the $instance? Also not sure if slideshow_widget() is used still.
-
+		$color   = Jetpack_Options::get_option( 'slideshow_background_color', 'black' );
 		$js_attr = array(
 			'gallery'   => $gallery,
 			'selector'  => $gallery_instance,
@@ -309,7 +307,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			'height'    => $max_height,
 			'trans'     => 'fade',
 			'color'     => $color,
-			'autostart' => $autostart,
+			'autostart' => true,
 		);
 
 		$html = $slideshow->slideshow_js( $js_attr );

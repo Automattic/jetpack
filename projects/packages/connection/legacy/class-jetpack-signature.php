@@ -257,7 +257,7 @@ class Jetpack_Signature {
 		}
 		$normalized_request_pieces = $flat_normalized_request_pieces;
 
-		$normalized_request_string = join( "\n", $normalized_request_pieces ) . "\n";
+		$normalized_request_string = implode( "\n", $normalized_request_pieces ) . "\n";
 
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		return base64_encode( hash_hmac( 'sha1', $normalized_request_string, $this->secret, true ) );

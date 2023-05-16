@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Fix: Edge case when updating multiple properties of a writable store object sequentially.

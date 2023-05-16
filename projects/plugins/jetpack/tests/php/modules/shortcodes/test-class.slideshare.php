@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshare extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_slideshare_exists() {
-		$this->assertEquals( shortcode_exists( 'slideshare' ), true );
+		$this->assertTrue( shortcode_exists( 'slideshare' ) );
 	}
 
 	/**

@@ -67,10 +67,17 @@ class MyPlanHeader extends React.Component {
 				/>
 			);
 			if ( purchase.active === '1' ) {
-				if ( ! isInTheFuture( purchase.expiry_date ) ) {
+				// Purchases might not have an expiration date, so we need to check
+				// for their existence (e.g.: lifetime plan like Golden Token).
+				if ( ! isInTheFuture( purchase.expiry_date ) && purchase.expiry_date !== null ) {
 					activation = <ProductActivated key="product-expired" type="product-expired" />;
 				} else {
-					activation = <ProductActivated key="product-activated" />;
+					activation = (
+						<ProductActivated
+							key="product-activated"
+							type={ purchase.expiry_date === null ? 'never-expires' : '' }
+						/>
+					);
 				}
 			} else {
 				activation = null;
@@ -412,6 +419,7 @@ class MyPlanHeader extends React.Component {
 						'jetpack'
 					),
 					title: __( 'Jetpack Golden Token', 'jetpack' ),
+					cardClassNames: [ 'plan-golden-token' ],
 				};
 
 			case 'is-jetpack-starter-plan':

@@ -1,6 +1,7 @@
 import { derived } from 'svelte/store';
 import { z } from 'zod';
 import { jetpack_boost_ds } from '../../../stores/data-sync-client';
+import { getPreloadingImages } from './preloading-image';
 
 /**
  * Zod Types
@@ -11,6 +12,7 @@ const Dimensions = z.object( {
 } );
 
 const ImageData = z.object( {
+	id: z.string(),
 	thumbnail: z.string(),
 	image: z.object( {
 		url: z.string(),
@@ -29,6 +31,7 @@ const ImageData = z.object( {
 		url: z.string(),
 		title: z.string(),
 	} ),
+	edit_url: z.string().url(),
 	device_type: z.enum( [ 'phone', 'desktop' ] ),
 	instructions: z.string(),
 } );
@@ -49,14 +52,14 @@ const ImageSizeAnalysis = z
 	// Prevent fatal error when this module isn't available.
 	.catch( {
 		query: {
-			page: 1,
-			group: 'all',
+			page: 0,
+			group: '',
 			search: '',
 		},
 		data: {
 			last_updated: 0,
 			total_pages: 0,
-			images: [],
+			images: getPreloadingImages( 10 ),
 		},
 	} );
 
@@ -106,14 +109,11 @@ image_size_analysis.setSyncAction( async ( prevValue, value, signal ) => {
 
 export const isaFilteredImages = derived(
 	[ image_size_analysis.store, image_size_analysis_ignored_images.store ],
-	// Not sure what TS is complaining about here 🤔
 	( [ $data, $ignored ] ) => {
 		if ( $data.query.group === 'ignored' ) {
 			return $ignored;
 		}
-		return $data.data.images.filter(
-			image => ! $ignored.find( ignore => ignore.image.url === image.image.url )
-		);
+		return $data.data.images.filter( image => ! $ignored.find( ignore => ignore.id === image.id ) );
 	}
 );
 
@@ -122,5 +122,13 @@ export const isaFilteredImages = derived(
  */
 export type ISA_Data = z.infer< typeof ImageData >;
 export const isaData = image_size_analysis.store;
-export const isaDataLoading = image_size_analysis.pending;
+export const isaDataLoading = derived(
+	[ image_size_analysis.pending, isaData ],
+	( [ $pending, $data ] ) => {
+		// Special case for ignored since that's currently handled by a different store.
+		// Ultimately, I think "ignored" is going back to the main store.
+		// because it too is stored over the network.
+		return $data.query.group !== 'ignored' && ( $pending || $data.data.images.length === 0 );
+	}
+);
 export const isaIgnoredImages = image_size_analysis_ignored_images.store;

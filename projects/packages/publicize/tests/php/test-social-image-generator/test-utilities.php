@@ -69,7 +69,7 @@ class Utilities_Test extends BaseTestCase {
 	 */
 	public function test_image_url_returns_empty_string_if_no_token_set() {
 		$this->update_image_generator_settings( array( 'enabled' => true ) );
-		$this->assertEquals( get_image_url( $this->post_id ), '' );
+		$this->assertSame( '', get_image_url( $this->post_id ) );
 	}
 
 	/**
@@ -83,6 +83,6 @@ class Utilities_Test extends BaseTestCase {
 				'enabled' => false,
 			)
 		);
-		$this->assertEquals( get_image_url( $this->post_id ), '' );
+		$this->assertSame( '', get_image_url( $this->post_id ) );
 	}
 }

@@ -242,7 +242,7 @@ _stq.push([ "clickTrackerInit", "%2$s", "%3$s" ]);',
 		foreach ( $kvs as $k => $v ) {
 			$jskvs[] = "$k:'$v'";
 		}
-		return join( ',', $jskvs );
+		return implode( ',', $jskvs );
 	}
 
 	/**

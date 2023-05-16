@@ -2,7 +2,7 @@ jQuery( document ).ready( function () {
 	load_preload_status();
 	setInterval( function () {
 		load_preload_status();
-	}, 1000 );
+	}, 3000 );
 } );
 
 /**
