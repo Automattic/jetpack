@@ -129,7 +129,11 @@ function is_wpcom() {
 function add_newsletter_access_column( $columns ) {
 	$position   = array_search( 'title', array_keys( $columns ), true );
 	$new_column = array( NEWSLETTER_COLUMN_ID => '<span>' . __( 'Newsletter', 'jetpack' ) . '</span>' );
-	return array_merge( array_slice( $columns, 1, $position ), $new_column, array_slice( $columns, $position ) );
+	return array_merge(
+		array_slice( $columns, 0, $position + 1, true ),
+		$new_column,
+		array_slice( $columns, $position, null, true )
+	);
 }
 
 /**
@@ -139,6 +143,7 @@ function add_newsletter_access_column( $columns ) {
  * @param int    $post_id The current post ID.
  */
 function populate_newsletter_access_rows( $column_id, $post_id ) {
+function render_newsletter_access_rows( $column_id, $post_id ) {
 	if ( NEWSLETTER_COLUMN_ID !== $column_id ) {
 		return;
 	}
