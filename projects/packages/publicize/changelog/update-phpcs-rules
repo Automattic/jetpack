@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Standardize on certain PHP function aliases over others, e.g. `implode` rather than `join`.
-
-
