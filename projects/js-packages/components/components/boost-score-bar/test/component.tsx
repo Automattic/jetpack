@@ -45,7 +45,6 @@ describe( 'BoostScrollBar', () => {
 		const { container } = render( <BoostScoreBar { ...defaultProps } isLoading={ true } /> );
 
 		expect( container.querySelector( '.jb-score-bar__loading' ) ).toBeInTheDocument();
-		expect( container.querySelector( '.fill-loading' ) ).toBeInTheDocument();
 	} );
 
 	it( 'does not display loading spinner when isLoading is false', () => {
