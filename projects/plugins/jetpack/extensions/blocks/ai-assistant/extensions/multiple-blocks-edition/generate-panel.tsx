@@ -22,7 +22,7 @@ import { askQuestion } from '../../get-suggestion-with-stream';
 import { LANGUAGE_MAP, defaultLanguage } from '../../i18n-dropdown-control';
 import { DEFAULT_PROMPT_TONE, PROMPT_TONES_MAP } from '../../tone-dropdown-control';
 
-// Create a Tone Array ob object with `key` and `name` keys
+// Create a Tone Array of objects with `key` and `name` keys
 export const toneOptions = Object.keys( PROMPT_TONES_MAP ).map( key => {
 	return {
 		key,
@@ -31,7 +31,7 @@ export const toneOptions = Object.keys( PROMPT_TONES_MAP ).map( key => {
 } );
 const defaultTone = toneOptions.find( option => option.key === DEFAULT_PROMPT_TONE );
 
-// Create a Language Array ob object with `key` and `name` keys
+// Create a Language Array of objects with `key` and `name` keys
 export const langOptions = Object.keys( LANGUAGE_MAP ).map( key => {
 	return {
 		key,
