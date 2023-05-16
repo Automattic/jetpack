@@ -196,7 +196,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 			}
 
 			if ( this.props.isFetchingRewindStatus ) {
-				return __( 'Loading…', 'jetpack' );
+				return __( 'Checking site status…', 'jetpack' );
 			}
 
 			return __(
