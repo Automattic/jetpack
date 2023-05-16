@@ -59,7 +59,6 @@ function wpcom_register_default_launchpad_checklists() {
 			'id'                    => 'first_post_published',
 			'title'                 => __( 'Write your first post', 'jetpack-mu-wpcom' ),
 			'add_listener_callback' => function () {
-				error_log(print_r('callbacks added', true));
 				add_action( 'publish_post', 'wpcom_track_publish_first_post_task' );
 				add_action( 'transition_post_status', 'wpcom_track_schedule_first_post_task' );
 			},
