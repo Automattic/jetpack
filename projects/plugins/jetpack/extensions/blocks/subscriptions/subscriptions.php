@@ -106,8 +106,8 @@ function register_block() {
 	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
 
 	// Add a 'Newsletter access' column to the Edit posts page
-	add_action( 'manage_posts_columns', __NAMESPACE__ . '\add_newsletter_access_column' );
-	add_action( 'manage_posts_custom_column', __NAMESPACE__ . '\populate_newsletter_access_rows', 10, 2 );
+	add_action( 'manage_posts_columns', __NAMESPACE__ . '\register_newsletter_access_column' );
+	add_action( 'manage_posts_custom_column', __NAMESPACE__ . '\render_newsletter_access_rows', 10, 2 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
@@ -126,7 +126,7 @@ function is_wpcom() {
  * @param array $columns An array of column names.
  * @return array An array of column names.
  */
-function add_newsletter_access_column( $columns ) {
+function register_newsletter_access_column( $columns ) {
 	$position   = array_search( 'title', array_keys( $columns ), true );
 	$new_column = array( NEWSLETTER_COLUMN_ID => '<span>' . __( 'Newsletter', 'jetpack' ) . '</span>' );
 	return array_merge(
@@ -142,7 +142,6 @@ function add_newsletter_access_column( $columns ) {
  * @param string $column_id The ID of the column to display.
  * @param int    $post_id The current post ID.
  */
-function populate_newsletter_access_rows( $column_id, $post_id ) {
 function render_newsletter_access_rows( $column_id, $post_id ) {
 	if ( NEWSLETTER_COLUMN_ID !== $column_id ) {
 		return;
