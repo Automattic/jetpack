@@ -24,7 +24,7 @@ import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
-const CONNECTIONS_NEED_MEDIA = [ 'instagram' ];
+const CONNECTIONS_NEED_MEDIA = [ 'facebook' ];
 
 const checkConnectionCode = ( connection, code ) =>
 	false === connection.is_healthy && code === ( connection.error_code ?? 'broken' );
@@ -227,20 +227,11 @@ export default function PublicizeForm( {
 					{ connections.some( ( { service_name } ) => isConnectionNeedMedia( service_name ) ) &&
 						! postHasValidImage && (
 							<Notice type={ 'warning' }>
-								{ createInterpolateElement(
-									__(
-										'You need a valid image in your post to share to Instagram.<br/><fixLink>Learn more</fixLink>',
-										'jetpack'
-									),
-									{
-										br: <br />,
-										fixLink: (
-											<ExternalLink
-												href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }
-											/>
-										),
-									}
-								) }
+								{ __( 'You need a valid image in your post to share to Instagram.', 'jetpack' ) }
+								<br />
+								<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+									{ __( 'Learn more', 'jetpack' ) }
+								</ExternalLink>
 							</Notice>
 						) }
 				</>
