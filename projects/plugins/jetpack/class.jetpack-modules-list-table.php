@@ -168,7 +168,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 		$format = '<a href="%3$s" %4$s data-title="%1$s">%1$s</a> <span class="count">(%2$s)</span>';
 		$title  = __( 'All', 'jetpack' );
-		$count  = count( $modules );
+		$count  = is_countable( $modules ) ? count( $modules ) : 0;
 		$url    = esc_url( remove_query_arg( 'module_tag' ) );
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, not a model or controller.
 		$views = array(

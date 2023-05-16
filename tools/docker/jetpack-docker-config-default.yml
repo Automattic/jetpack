@@ -63,3 +63,4 @@ e2e:
     tools/e2e-commons/plugins/e2e-waf-data-interceptor.php: /var/www/html/wp-content/plugins/e2e-waf-data-interceptor.php
     projects/plugins/boost/tests/e2e/plugins/e2e-mock-speed-score-api.php: /var/www/html/wp-content/plugins/e2e-mock-speed-score-api.php
     tools/e2e-commons/plugins/e2e-search-test-helper.php: /var/www/html/wp-content/plugins/e2e-search-test-helper.php
+    tools/e2e-commons/plugins/e2e-wpcom-request-interceptor.php: /var/www/html/wp-content/plugins/e2e-wpcom-request-interceptor.php

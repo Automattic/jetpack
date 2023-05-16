@@ -97,6 +97,11 @@ const manuallyUpdatedContext = (
 	</span>
 );
 
+const concatenateContext = __(
+	'Boost your website performance by merging and compressing JavaScript and CSS files, reducing site loading time and number of requests.',
+	'jetpack-boost'
+);
+
 export const BoostPricingTable = ( {
 	pricing,
 	onPremiumCTA,
@@ -136,6 +141,10 @@ export const BoostPricingTable = ( {
 					tooltipInfo: imageCdnContext,
 				},
 				{
+					name: __( 'Concatenate JS and CSS', 'jetpack-boost' ),
+					tooltipInfo: concatenateContext,
+				},
+				{
 					name: __( 'Dedicated email support', 'jetpack-boost' ),
 					tooltipInfo: <span dangerouslySetInnerHTML={ { __html: supportContext } }></span>,
 				},
@@ -171,6 +180,7 @@ export const BoostPricingTable = ( {
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
@@ -197,6 +207,7 @@ export const BoostPricingTable = ( {
 					tooltipInfo={ manuallyUpdatedContext }
 					tooltipClassName="wide-tooltip"
 				/>
+				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Delete implementation of is_wpcom_staging_site() as we are moving it to trait
