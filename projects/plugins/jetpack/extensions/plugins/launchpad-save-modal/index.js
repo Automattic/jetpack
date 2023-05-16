@@ -52,15 +52,18 @@ export const settings = {
 		} );
 		const { tracks } = useAnalytics();
 
-		const [ launchpadModalStatus, setLaunchpadModalStatus ] = useEntityProp( 'root', 'site', 'launchpad_save_modal_status' );
-		console.log(launchpadModalStatus);
+		const [ launchpadModalStatus, setLaunchpadModalStatus ] =
+			useEntityProp(
+				'root',
+				'site',
+				'launchpad_save_modal_status'
+			);
 
-		function updateLaunchpadModalStatus( checked ) {
-			console.log( "I clicked the modal!" );
-			console.log( launchpadModalStatus );
+		const updateLaunchpadModalStatus = ( checked ) => {
 			if ( ! checked ) {
 				return;
 			}
+			
 			return setLaunchpadModalStatus( 'off' );
 		}
 
@@ -151,7 +154,7 @@ export const settings = {
 		const showModal =
 			( ( isInsidePostEditor && isCurrentPostPublished ) || isInsideSiteEditor ) &&
 			launchpadScreenOption === 'full' &&
-			! launchpadModalStatus === 'off' &&
+			launchpadModalStatus !== 'off' &&
 			isModalOpen;
 
 		return (
