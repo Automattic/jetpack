@@ -14,7 +14,6 @@ const JWT_TOKEN_EXPIRATION_TIME = 2 * 60 * 1000;
  * @returns {string} The event source
  */
 export async function askJetpack( question ) {
-	let fullMessage;
 	let source;
 	try {
 		source = await askQuestion( question );
@@ -26,19 +25,8 @@ export async function askJetpack( question ) {
 		debug( 'Error', err );
 	} );
 
-	source.addEventListener( 'message', e => {
-		if ( e.data === '[DONE]' ) {
-			source.close();
-			debug( 'Done. Full message: ' + fullMessage );
-			return;
-		}
-
-		const data = JSON.parse( e.data );
-		const chunk = data.choices[ 0 ].delta.content;
-		if ( chunk ) {
-			fullMessage += chunk;
-			debug( chunk );
-		}
+	source.addEventListener( 'suggestion', e => {
+		debug( 'fullMessage', e );
 	} );
 	return source;
 }
