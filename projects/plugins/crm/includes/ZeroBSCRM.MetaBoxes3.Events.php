@@ -645,7 +645,12 @@ function zeroBSCRM_task_ui_for($taskObject = array()){
         if (isset($taskContact['id'])) $custID = $taskContact['id'];
         $custName = $zbs->DAL->contacts->getContactNameWithFallback( $custID );
     }else{
-        if(isset($_GET['zbsprefillcust']) && !empty($_GET['zbsprefillcust'])){
+		if (
+			isset( $_GET['zbsprefillcust'] )
+			&& ! empty( $_GET['zbsprefillcust'] )
+			&& isset( $_GET['jpcrmtaskurlnonce'] )
+			&& wp_verify_nonce( sanitize_key( $_GET['jpcrmtaskurlnonce'] ), 'jpcrm_task_url_nonce' )
+			) {
             $custID = (int)$_GET['zbsprefillcust'];
             $custName = $zbs->DAL->contacts->getContactNameWithFallback( $custID );
         }
@@ -684,8 +689,13 @@ function zeroBSCRM_task_ui_for_co($taskObject = array()){
 
             if (isset($taskCompany['id'])) $coID = $taskCompany['id'];
             if (isset($taskCompany['name'])) $coName = $taskCompany['name'];
-		} elseif ( isset( $_GET['zbsprefillco'] ) && ! empty( $_GET['zbsprefillco'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-				$co_id   = (int) $_GET['zbsprefillco']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		} elseif (
+			isset( $_GET['zbsprefillco'] )
+			&& ! empty( $_GET['zbsprefillco'] )
+			&& isset( $_GET['jpcrmtaskurlnonce'] )
+			&& wp_verify_nonce( sanitize_key( $_GET['jpcrmtaskurlnonce'] ), 'jpcrm_task_url_nonce' )
+			) {
+				$co_id   = (int) $_GET['zbsprefillco'];
 				$co_name = $zbs->DAL->companies->getCompanyNameEtc( $co_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		}
 
