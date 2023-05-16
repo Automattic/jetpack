@@ -175,29 +175,20 @@ class Details_Endpoint extends Client_Portal_Endpoint {
 	}
 
 	function render_date_field( $field_key, $field_value, $value ) {
-		$extra_attributes = "";
+		$extra_attributes = '';
 		if ( isset( $field_value[ 'read_only' ] ) && $field_value[ 'read_only' ] ) {
-			$extra_attributes .= ' readonly disabled ';
+			$extra_attributes .= ' readonly disabled';
 		}
 		$date_value = '';
 		if ( ! empty( $value ) && $value !== -99) {
-			$date_value = zeroBSCRM_date_i18n( -1, $value, false, true );
-		} 
+			$date_value = jpcrm_uts_to_date_str( $value, 'Y-m-d', true );
+		}
 		?>
 			<p>
 				<label class='label' for="<?php echo esc_attr( $field_key ); ?>">
 					<?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?>:
 				</label>
-				<input 
-				   <?php echo esc_attr( $extra_attributes ); ?> 
-					type="text"
-					name="zbsc_<?php echo esc_attr( $field_key ); ?>"
-					id="zbsc_<?php echo esc_attr( $field_key ); ?>"
-					class="form-control widetext zbs-date zbs-empty-start zbs-dc"
-					placeholder="<?php if ( isset( $field_value[2] ) ) echo esc_attr( __( $field_value[2], 'zero-bs-crm' ) ); ?>"
-					value="<?php echo esc_attr( $date_value ); ?>"
-					autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_html( $field_key ); ?>"
-				/>
+				<input<?php echo esc_attr( $extra_attributes ); ?> type="date" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="zbsc_<?php echo esc_attr( $field_key ); ?>" placeholder="yyyy-mm-dd" value="<?php echo esc_attr( $date_value ); ?>"/>
 			</p>
 		<?php
 	}
