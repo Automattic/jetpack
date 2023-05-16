@@ -55,14 +55,14 @@ const StorageHelpPopover = ( { className, forecastInDays } ) => {
 	return (
 		<span className={ className }>
 			<Button
-				icon="info-outline"
 				size="small"
-				iconSize={ 18 }
 				variant="tertiary"
 				className="backup-storage-space__toggle-popover"
 				onClick={ toggleHelpPopover }
 				ref={ popover }
-			/>
+			>
+				<Gridicon icon="info-outline" size={ 20 } />
+			</Button>
 			{ isPopoverVisible && (
 				<Popover
 					className="backup-storage-space__popover"

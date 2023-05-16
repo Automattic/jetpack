@@ -1,8 +1,15 @@
 .backup-storage-space {
+	
+    &__help-popover {
+        line-height: 28px;
+        vertical-align: top;
+        display: inline-block;
+    }
+
 	&__popover.components-popover {
 		.components-popover__content {
 			padding: 24px;
-			color: var(--studio-gray-70);
+			color: var(--jp-gray-70);
 			background: #fff;
 			border-radius: 2px;
 			box-shadow: 0 12px 20px rgba(0, 0, 0, 0.08);
@@ -16,7 +23,7 @@
 
 			p {
 				font-size: 1rem;
-				color: var(--studio-gray-80);
+				color: var(--jp-gray-80);
 			}
 
 			hr {
@@ -30,22 +37,21 @@
 	}
 
 	&__toggle-popover {
-		vertical-align: middle;
-
 		&.components-button {
-			padding: 0;
-			height: 20px;
+			padding: 0px 4px !important;
+			height: auto !important;
 			box-shadow: none !important;
-            background: transparent;
+			background: transparent;
 
 			.gridicon {
-				color: var(--studio-gray-30);
+				color: var(--jp-gray-30);
 			}
 		}
 
 		&.components-button:focus {
 			box-shadow: none !important;
-        }
+            background: transparent;
+		}
 	}
 
 	&__close-popover {
@@ -57,7 +63,7 @@
 			height: 24px;
 			width: 24px;
 			padding: 0 !important;
-			color: var(--studio-gray-50);
+			color: var(--jp-gray-50);
 			box-shadow: none !important;
 
 			span {
