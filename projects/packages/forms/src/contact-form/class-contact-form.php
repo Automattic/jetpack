@@ -82,9 +82,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	public function __construct( $attributes, $content = null ) {
 		global $post;
 
-		$this->hash                 = sha1( wp_json_encode( $attributes ) . $content );
-		self::$forms[ $this->hash ] = $this;
-
 		// Set up the default subject and recipient for this form.
 		$default_to      = '';
 		$default_subject = '[' . get_option( 'blogname' ) . ']';
@@ -118,6 +115,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$post_author      = get_userdata( $post->post_author );
 			$default_to      .= $post_author->user_email;
 		}
+
+		$this->hash                 = sha1( wp_json_encode( $attributes ) );
+		self::$forms[ $this->hash ] = $this;
 
 		// Keep reference to $this for parsing form fields.
 		self::$current_form = $this;
