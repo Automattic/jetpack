@@ -6,7 +6,6 @@
 
 import { Modal, TabPanel, Button } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
-import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import { AVAILABLE_SERVICES } from './constants';
@@ -19,11 +18,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 	title,
 	description,
 	url,
-	author,
-	isTweetStorm,
-	tweets,
-	media,
-	siteTitle,
+	initialTabName,
 } ) {
 	return (
 		<Modal
@@ -40,20 +35,16 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 			<TabPanel
 				className="jetpack-social-previews__modal-previews"
 				tabs={ AVAILABLE_SERVICES }
-				initialTabName={ isTweetStorm ? 'twitter' : null }
+				initialTabName={ initialTabName }
 			>
 				{ tab => (
 					<div>
 						<tab.preview
+							// pass only the props that are common to all previews
 							title={ title }
 							description={ description }
 							url={ url }
-							author={ author }
 							image={ image }
-							isTweetStorm={ isTweetStorm }
-							tweets={ tweets }
-							media={ media }
-							siteTitle={ siteTitle }
 						/>
 					</div>
 				) }
@@ -63,18 +54,14 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 };
 
 export default withSelect( select => {
-	const { getMedia, getUser, getEntityRecord } = select( 'core' );
-	const { getCurrentPost, getEditedPostAttribute } = select( 'core/editor' );
-	const { getTweetTemplate, getTweetStorm, getShareMessage, isTweetStorm } =
-		select( 'jetpack/publicize' );
+	const { getMedia } = select( 'core' );
+	const { getEditedPostAttribute } = select( 'core/editor' );
+	const { isTweetStorm } = select( 'jetpack/publicize' );
 
 	const featuredImageId = getEditedPostAttribute( 'featured_media' );
-	const authorId = getEditedPostAttribute( 'author' );
-	const user = authorId && getUser( authorId );
 	const media = getMedia( featuredImageId );
 
-	const postData = {
-		post: getCurrentPost(),
+	return {
 		title:
 			getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title || getEditedPostAttribute( 'title' ),
 		description:
@@ -83,37 +70,7 @@ export default withSelect( select => {
 			getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
 			__( 'Visit the post for more.', 'jetpack' ),
 		url: getEditedPostAttribute( 'link' ),
-		author: user?.name,
 		image: ( !! featuredImageId && getMediaSourceUrl( media ) ) || '',
-		siteTitle: decodeEntities( getEntityRecord( 'root', 'site' ).title ),
-	};
-
-	let tweets = [];
-	if ( isTweetStorm() ) {
-		tweets = getTweetStorm();
-	} else {
-		tweets.push( {
-			...getTweetTemplate(),
-			text: getShareMessage(),
-			card: {
-				...postData,
-				type: postData.image ? 'summary_large_image' : 'summary',
-			},
-		} );
-	}
-
-	return {
-		...postData,
-		tweets,
-		media: media
-			? [
-					{
-						type: media.mime_type,
-						url: getMediaSourceUrl( media ),
-						alt: media.alt_text,
-					},
-			  ]
-			: null,
-		isTweetStorm: isTweetStorm(),
+		initialTabName: isTweetStorm() ? 'twitter' : null,
 	};
 } )( SocialPreviewsModal );

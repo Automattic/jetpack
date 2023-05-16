@@ -1,23 +1,23 @@
 import { SocialServiceIcon } from '@automattic/jetpack-components';
-import { GoogleSearchPreview } from '@automattic/social-previews';
 import { __ } from '@wordpress/i18n';
-import FacebookPreview from '../facebook-preview';
-import TumblrPreview from '../tumblr-preview';
+import FacebookPreview from './facebook';
+import GoogleSearch from './google-search';
 import { LinkedIn } from './linkedin';
-import { Twitter } from './twitter';
+import TumblrPreview from './tumblr';
+import Twitter from './twitter';
 
 export const AVAILABLE_SERVICES = [
 	{
 		title: __( 'Google Search', 'jetpack' ),
 		icon: props => <SocialServiceIcon serviceName="google" { ...props } />,
 		name: 'google',
-		preview: GoogleSearchPreview,
+		preview: GoogleSearch,
 	},
 	{
 		title: __( 'Twitter', 'jetpack' ),
 		icon: props => <SocialServiceIcon serviceName="twitter" { ...props } />,
 		name: 'twitter',
-		preview: props => <Twitter { ...props } />,
+		preview: Twitter,
 	},
 	{
 		title: __( 'Facebook', 'jetpack' ),
@@ -25,17 +25,17 @@ export const AVAILABLE_SERVICES = [
 		name: 'facebook',
 		preview: FacebookPreview,
 	},
-	{
+	/* {
 		title: __( 'Instagram', 'jetpack' ),
 		icon: props => <SocialServiceIcon serviceName="instagram" { ...props } />,
 		name: 'instagram',
 		preview: () => null,
-	},
+	}, */
 	{
 		title: __( 'LinkedIn', 'jetpack' ),
 		icon: props => <SocialServiceIcon serviceName="linkedin" { ...props } />,
 		name: 'linkedin',
-		preview: props => <LinkedIn { ...props } />,
+		preview: LinkedIn,
 	},
 	{
 		title: __( 'Tumblr', 'jetpack' ),
@@ -43,10 +43,10 @@ export const AVAILABLE_SERVICES = [
 		name: 'tumblr',
 		preview: TumblrPreview,
 	},
-	{
+	/* {
 		title: __( 'Mastodon', 'jetpack' ),
 		icon: props => <SocialServiceIcon serviceName="mastodon" { ...props } />,
 		name: 'mastadon',
 		preview: () => null,
-	},
+	}, */
 ];

@@ -1,4 +1,4 @@
-import { FacebookPreview as Preview } from '@automattic/social-previews';
+import { FacebookPreviews as Previews } from '@automattic/social-previews';
 import { withSelect } from '@wordpress/data';
 import useAttachedMedia from '../../hooks/use-attached-media';
 import useMediaDetails from '../../hooks/use-media-details';
@@ -31,7 +31,7 @@ const FacebookPreview = props => {
 	}
 
 	return (
-		<Preview
+		<Previews
 			{ ...props }
 			type="article"
 			user={ user }

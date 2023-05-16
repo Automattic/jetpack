@@ -1,14 +1,18 @@
-import { TumblrFullPreview } from '@automattic/social-previews';
+import { TumblrPreviews } from '@automattic/social-previews';
 import { useSelect } from '@wordpress/data';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 
 const TumblrPreview = props => {
-	const { content } = useSelect( select => {
+	const { content, author } = useSelect( select => {
+		const { getUser } = select( 'core' );
 		const { getEditedPostAttribute } = select( 'core/editor' );
+		const authorId = getEditedPostAttribute( 'author' );
+		const user = authorId && getUser( authorId );
 
 		return {
 			content: getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ],
+			author: user?.name,
 		};
 	} );
 	const { connections } = useSocialMediaConnections();
@@ -20,13 +24,13 @@ const TumblrPreview = props => {
 
 	if ( connection ) {
 		user = {
-			displayName: props.author,
+			displayName: author,
 			avatarUrl: connection.profile_picture,
 		};
 	}
 
 	return (
-		<TumblrFullPreview { ...props } user={ user } description={ content } customText={ message } />
+		<TumblrPreviews { ...props } user={ user } description={ content } customText={ message } />
 	);
 };
 
