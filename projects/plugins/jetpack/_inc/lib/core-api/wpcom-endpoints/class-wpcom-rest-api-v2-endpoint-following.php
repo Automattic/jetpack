@@ -3,7 +3,7 @@
  * REST API endpoint for the Jetpack author recommendations block.
  *
  * @package automattic/jetpack
- * @since 11.8
+ * @since $$next-version$$
  */
 
 use Automattic\Jetpack\Connection\Client;
@@ -48,16 +48,24 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_response' ),
-					'permission_callback' => 'is_user_logged_in',
-				),
-				'args' => array(
-					'remove_user_blogs' => array(
-						'type'    => 'boolean',
-						'default' => false,
+					'permission_callback' => array( $this, 'permission_check' ),
+					'args'                => array(
+						'remove_user_blogs' => array(
+							'type' => 'boolean',
+						),
 					),
 				),
 			)
 		);
+	}
+
+	/**
+	 * Check if user has edit post permission.
+	 *
+	 * @return true|WP_Error True if the request has access to create items, WP_Error object otherwise.
+	 */
+	public function permission_check() {
+		return current_user_can( 'edit_posts' );
 	}
 
 	/**
@@ -74,7 +82,7 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 		}
 
 		$body = Client::wpcom_json_api_request_as_user(
-			'/me/following?remove_user_blogs=' . (int) $remove_user_blogs,
+			sprintf( '/me/following%s', $remove_user_blogs ? '?remove_user_blogs=1' : '' ),
 			'2',
 			array(
 				'method'  => 'GET',
