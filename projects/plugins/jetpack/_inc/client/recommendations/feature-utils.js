@@ -442,7 +442,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			return {
 				question: __( 'Welcome to Jetpack Starter!', 'jetpack' ),
 				description: __(
-					'Congratulations! You’ve unlocked essential security tools for your site including real-time backups and spam protection for comments and forms. Let’s get everything set up. It will only take a minute.',
+					'Congratulations! You’ve unlocked essential security tools for your site, including real-time backups and spam protection for comments and forms. Let’s get everything set up. It will only take a minute.',
 					'jetpack'
 				),
 				ctaText: __( 'Set up Jetpack Starter', 'jetpack' ),
