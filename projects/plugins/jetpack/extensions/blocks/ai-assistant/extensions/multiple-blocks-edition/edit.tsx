@@ -31,11 +31,10 @@ export const withMultipleBlocksEdition = BlockEdit => props => {
 
 	return (
 		<>
+			<BlockEdit { ...props } />
 			<InspectorControls>
 				<GeneratePanel { ...props } blocksIds={ selectedBlocks } />
 			</InspectorControls>
-
-			<BlockEdit { ...props } />
 		</>
 	);
 };
