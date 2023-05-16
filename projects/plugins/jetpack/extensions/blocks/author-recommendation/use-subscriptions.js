@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
 
-export default function useSubscriptions( { remove_user_blogs } ) {
+export default function useSubscriptions( { ignore_user_blogs } ) {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( null );
 	const [ subscriptions, setSubscriptions ] = useState( [] );
@@ -21,7 +21,7 @@ export default function useSubscriptions( { remove_user_blogs } ) {
 			typeof AbortController === 'undefined' ? undefined : new AbortController();
 
 		apiFetch( {
-			path: addQueryArgs( '/wpcom/v2/following/mine', { remove_user_blogs } ),
+			path: addQueryArgs( '/wpcom/v2/following/mine', { ignore_user_blogs } ),
 			global: true,
 			method: 'GET',
 			signal: abortControllerRef.current?.signal,
@@ -55,7 +55,7 @@ export default function useSubscriptions( { remove_user_blogs } ) {
 				setIsLoading( false );
 			} );
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ remove_user_blogs ] );
+	}, [ ignore_user_blogs ] );
 
 	return { isLoading, errorMessage, subscriptions };
 }

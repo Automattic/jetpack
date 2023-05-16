@@ -21,8 +21,8 @@ import useSubscriptions from './use-subscriptions';
 export function AuthorRecommendationEdit( { className, attributes, setAttributes, isSelected } ) {
 	const [ selectedSubscriptions, setSelectedSubscriptions ] = useState( [] );
 	const [ showSubscriptions, setShowSubscriptions ] = useState( false );
-	const { recommendations, remove_user_blogs } = attributes;
-	const { isLoading, errorMessage, subscriptions } = useSubscriptions( { remove_user_blogs } );
+	const { recommendations, ignore_user_blogs } = attributes;
+	const { isLoading, errorMessage, subscriptions } = useSubscriptions( { ignore_user_blogs } );
 	const showPlaceholder = ! selectedSubscriptions.length && ( ! showSubscriptions || ! isSelected );
 
 	useEffect( () => {
@@ -88,8 +88,8 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 				<PanelBody title={ __( 'Settings', 'jetpack' ) }>
 					<ToggleControl
 						label={ __( 'Hide user blogs', 'jetpack' ) }
-						checked={ !! remove_user_blogs }
-						onChange={ () => setAttributes( { remove_user_blogs: ! remove_user_blogs } ) }
+						checked={ !! ignore_user_blogs }
+						onChange={ () => setAttributes( { ignore_user_blogs: ! ignore_user_blogs } ) }
 					/>
 				</PanelBody>
 			</InspectorControls>
