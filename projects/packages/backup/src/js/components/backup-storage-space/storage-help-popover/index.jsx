@@ -1,5 +1,5 @@
 import { Button, Gridicon, getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { Popover } from '@wordpress/components';
+import { ExternalLink, Popover } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -25,7 +25,9 @@ const StorageHelpPopover = ( { className, forecastInDays } ) => {
 
 	const { tracks } = useAnalytics();
 	const trackUpgradeStorageClick = useCallback( () => {
-		tracks.recordEvent( 'jetpack_backup_upgrade_storage_prompt_cta', { site: siteSlug } );
+		tracks.recordEvent( 'jetpack_backup_upgrade_storage_prompt_from_popover_cta', {
+			site: siteSlug,
+		} );
 	}, [ tracks, siteSlug ] );
 
 	const toggleHelpPopover = useCallback(
@@ -92,11 +94,7 @@ const StorageHelpPopover = ( { className, forecastInDays } ) => {
 							),
 							{
 								link: (
-									<a
-										href="https://jetpack.com/support/backup/jetpack-vaultpress-backup-storage-and-retention/#reduce-storage-size"
-										target="_blank"
-										rel="external noreferrer noopener"
-									/>
+									<ExternalLink href="https://jetpack.com/support/backup/jetpack-vaultpress-backup-storage-and-retention/#reduce-storage-size" />
 								),
 							}
 						) }
