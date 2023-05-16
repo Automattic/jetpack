@@ -53,8 +53,11 @@ export const settings = {
 		const { tracks } = useAnalytics();
 
 		const [ launchpadModalStatus, setLaunchpadModalStatus ] = useEntityProp( 'root', 'site', 'launchpad_save_modal_status' );
+		console.log(launchpadModalStatus);
 
 		function updateLaunchpadModalStatus( checked ) {
+			console.log( "I clicked the modal!" );
+			console.log( launchpadModalStatus );
 			if ( ! checked ) {
 				return;
 			}
