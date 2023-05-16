@@ -1,10 +1,9 @@
 .backup-storage-space {
-	
-    &__help-popover {
-        line-height: 28px;
-        vertical-align: top;
-        display: inline-block;
-    }
+	&__help-popover {
+		line-height: 28px;
+		vertical-align: top;
+		display: inline-block;
+	}
 
 	&__popover.components-popover {
 		.components-popover__content {
@@ -50,7 +49,7 @@
 
 		&.components-button:focus {
 			box-shadow: none !important;
-            background: transparent;
+			background: transparent;
 		}
 	}
 
