@@ -58,7 +58,7 @@
             "dist": {
                 "type": "path",
                 "url": "projects/packages/codesniffer",
-                "reference": "e7ca87b416d56f9ad0cc74f132e004ffaccb7063"
+                "reference": "c2fd1a3b3cedde89e766eeabaae1dc7a7180d5a1"
             },
             "require": {
                 "automattic/vipwpcs": "^2.3",
@@ -110,6 +110,7 @@
             "keywords": [
                 "codesniffer",
                 "dev",
+                "jetpack",
                 "phpcs",
                 "standards",
                 "testing"
