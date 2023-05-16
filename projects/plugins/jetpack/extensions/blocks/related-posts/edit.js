@@ -58,6 +58,11 @@ function PlaceholderPostEdit( props ) {
 					{ __( 'August 3, 2018', 'jetpack' ) }
 				</div>
 			) }
+			{ props.displayAuthor && (
+				<div className="jp-related-posts-i2__post-context has-small-font-size">
+					{ __( 'by John Doe', 'jetpack' ) }
+				</div>
+			) }
 			{ props.displayContext && (
 				<div className="jp-related-posts-i2__post-context has-small-font-size">
 					{ __( 'In “Uncategorized”', 'jetpack' ) }
@@ -68,6 +73,7 @@ function PlaceholderPostEdit( props ) {
 }
 
 function RelatedPostsEditItem( props ) {
+	const authorPlaceholder = 'by Jane Doe';
 	return (
 		<div
 			className="jp-related-posts-i2__post"
@@ -97,6 +103,11 @@ function RelatedPostsEditItem( props ) {
 			{ props.displayDate && (
 				<div className="jp-related-posts-i2__post-date has-small-font-size">
 					{ props.post.date }
+				</div>
+			) }
+			{ props.displayAuthor && (
+				<div className="jp-related-posts-i2__post-context has-small-font-size">
+					{ authorPlaceholder }
 				</div>
 			) }
 			{ props.displayContext && (
@@ -142,7 +153,14 @@ function RelatedPostsPreviewRows( props ) {
 export class RelatedPostsEdit extends Component {
 	render() {
 		const { attributes, className, posts, setAttributes, instanceId, isInSiteEditor } = this.props;
-		const { displayContext, displayDate, displayThumbnails, postLayout, postsToShow } = attributes;
+		const {
+			displayAuthor,
+			displayContext,
+			displayDate,
+			displayThumbnails,
+			postLayout,
+			postsToShow,
+		} = attributes;
 
 		// To prevent the block from crashing, we need to limit ourselves to the
 		// posts returned by the backend - so if we want 6 posts, but only 3 are
@@ -164,6 +182,7 @@ export class RelatedPostsEdit extends Component {
 						displayThumbnails={ displayThumbnails }
 						displayDate={ displayDate }
 						displayContext={ displayContext }
+						displayAuthor={ displayAuthor }
 					/>
 				);
 			} else {
@@ -175,6 +194,7 @@ export class RelatedPostsEdit extends Component {
 						displayDate={ displayDate }
 						displayContext={ displayContext }
 						isInSiteEditor={ isInSiteEditor }
+						displayAuthor={ displayAuthor }
 					/>
 				);
 			}
