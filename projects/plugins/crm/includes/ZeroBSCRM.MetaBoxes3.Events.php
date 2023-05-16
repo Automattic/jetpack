@@ -661,7 +661,7 @@ function zeroBSCRM_task_ui_for($taskObject = array()){
 }
 
 function zeroBSCRM_task_ui_for_co($taskObject = array()){
-
+	global $zbs;
     $html = "";
 
     if(zeroBSCRM_getSetting('companylevelcustomers') == "1"){
@@ -669,7 +669,8 @@ function zeroBSCRM_task_ui_for_co($taskObject = array()){
         $html .= "<div class='no-contact zbs-task-for-who'><div class='zbs-task-for-help'><i class='ui icon building outline'></i> " . jpcrm_label_company() . "</div>";
 
         //need UI for selecting who the task is for (company, then contact)
-        $coName = ''; $coID = '';
+		$co_name = '';
+		$co_id   = '';
 
         if (isset($taskObject['company']) && is_array($taskObject['company'])){
 
@@ -683,12 +684,15 @@ function zeroBSCRM_task_ui_for_co($taskObject = array()){
 
             if (isset($taskCompany['id'])) $coID = $taskCompany['id'];
             if (isset($taskCompany['name'])) $coName = $taskCompany['name'];
-        }
-        
+		} elseif ( isset( $_GET['zbsprefillco'] ) && ! empty( $_GET['zbsprefillco'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$co_id   = (int) $_GET['zbsprefillco']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$co_name = $zbs->DAL->companies->getCompanyNameEtc( $co_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		}
+
         #} Output
-        $html .= '<div class="zbs-task-for-company">' . zeroBSCRM_CompanyTypeList('zbscrmjs_events_setCompany',$coName,true,'zbscrmjs_events_changeCompany') . "</div>";
-        $html .= '<input type="hidden" name="zbse_company" id="zbse_company" value="' .$coID .'" />';    
-        $html .= "<div class='clear'></div></div>";
+		$html .= '<div class="zbs-task-for-company">' . zeroBSCRM_CompanyTypeList( 'zbscrmjs_events_setCompany', $co_name, true, 'zbscrmjs_events_changeCompany' ) . '</div>';
+		$html .= '<input type="hidden" name="zbse_company" id="zbse_company" value="' . $co_id . '" />';
+		$html .= '<div class="clear"></div></div>';
 
     }
 
