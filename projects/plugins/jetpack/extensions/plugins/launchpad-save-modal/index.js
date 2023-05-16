@@ -52,13 +52,13 @@ export const settings = {
 		} );
 		const { tracks } = useAnalytics();
 
-		const [ launchpadModalOff, setLaunchpadModalOff ] = useEntityProp( 'root', 'site', 'launchpad_modal_status' );
+		const [ launchpadModalStatus, setLaunchpadModalStatus ] = useEntityProp( 'root', 'site', 'launchpad_save_modal_status' );
 
 		function updateLaunchpadModalStatus( checked ) {
 			if ( ! checked ) {
 				return;
 			}
-			return setLaunchpadModalOff( true );
+			return setLaunchpadModalStatus( 'off' );
 		}
 
 		const recordTracksEvent = eventName =>
@@ -148,7 +148,7 @@ export const settings = {
 		const showModal =
 			( ( isInsidePostEditor && isCurrentPostPublished ) || isInsideSiteEditor ) &&
 			launchpadScreenOption === 'full' &&
-			! launchpadModalOff &&
+			! launchpadModalStatus === 'off' &&
 			isModalOpen;
 
 		return (
