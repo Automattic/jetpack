@@ -15,6 +15,7 @@ Rules:
 - Output the generated content in markdown format.
 - Do not include a top level heading by default.
 - Only output generated content ready for publishing.
+- Segment the content into paragraphs as deemed suitable.
 
 Request:
 Describe a dog in 10 words or less.`;
@@ -37,6 +38,7 @@ Rules:
 - Output the generated content in markdown format.
 - Do not include a top level heading by default.
 - Only output generated content ready for publishing.
+- Segment the content into paragraphs as deemed suitable.
 - The output should be translated to Brazilian Portuguese.
 - The output should be in the caipira accent.
 
@@ -58,6 +60,7 @@ Rules:
 - Output the generated content in markdown format.
 - Do not include a top level heading by default.
 - Only output generated content ready for publishing.
+- Segment the content into paragraphs as deemed suitable.
 
 Request:
 Describe a dog in 10 words or less.`;

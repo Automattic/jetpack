@@ -81,9 +81,7 @@ Rules:
 - Output the generated content in markdown format.
 - Do not include a top level heading by default.
 - Only output generated content ready for publishing.
-- Add boldface to proper nouns.
-- Create some paragraphs when you consider it appropriate.
-
+- Segment the content into paragraphs as deemed suitable.
 ` +
 		langLocatePromptPart +
 		extraRulePromptPart +
