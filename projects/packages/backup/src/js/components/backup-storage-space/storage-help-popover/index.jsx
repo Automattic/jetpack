@@ -8,7 +8,9 @@ import { STORE_ID } from '../../../store';
 import './style.scss';
 
 const StorageHelpPopover = ( { className, forecastInDays } ) => {
-	const [ isPopoverVisible, setPopoverVisible ] = useState( true );
+	const STORAGE_USAGE_HELP_POPOVER_STATE_KEY = 'storage_usage_help_popover_state';
+	const popoverState = null === localStorage.getItem( STORAGE_USAGE_HELP_POPOVER_STATE_KEY );
+	const [ isPopoverVisible, setPopoverVisible ] = useState( popoverState );
 	const addonSlug = useSelect( select => select( STORE_ID ).getStorageAddonOfferSlug() );
 	const siteSlug = useSelect( select => select( STORE_ID ).getCalypsoSlug() );
 	const adminUrl = useSelect( select => select( STORE_ID ).getSiteData().adminUrl );
@@ -29,14 +31,12 @@ const StorageHelpPopover = ( { className, forecastInDays } ) => {
 	const toggleHelpPopover = useCallback(
 		event => {
 			setPopoverVisible( ! isPopoverVisible );
+			localStorage.setItem( STORAGE_USAGE_HELP_POPOVER_STATE_KEY, 'shown' );
 			// when the info popover inside a button, we don't want clicking it to propagate up
 			event.stopPropagation();
 		},
 		[ isPopoverVisible ]
 	);
-	const closeHelpPopover = useCallback( () => {
-		setPopoverVisible( false );
-	}, [] );
 
 	if ( ! forecastInDays ) {
 		return null;
@@ -79,7 +79,7 @@ const StorageHelpPopover = ( { className, forecastInDays } ) => {
 							size="small"
 							variant="tertiary"
 							className="backup-storage-space__close-popover"
-							onClick={ closeHelpPopover }
+							onClick={ toggleHelpPopover }
 						>
 							<Gridicon icon="cross" size={ 18 } />
 						</Button>
