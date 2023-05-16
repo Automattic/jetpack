@@ -150,7 +150,7 @@ export default function GenerateContentPanel( { blocksIds } ) {
 
 	return (
 		<PanelBody
-			title={ __( 'Edit content', 'jetpack' ) }
+			title={ __( 'Ask Assistant to edit', 'jetpack' ) }
 			className="jetpack-ai-assistant__multiple-blocks-edition-panel"
 		>
 			<PanelRow>
@@ -209,7 +209,7 @@ export default function GenerateContentPanel( { blocksIds } ) {
 			</PanelRow>
 
 			<PanelRow>
-				<Button isPrimary onClick={ generateContent }>
+				<Button variant="primary" onClick={ generateContent }>
 					{ __( 'Generate', 'jetpack' ) }
 				</Button>
 			</PanelRow>
