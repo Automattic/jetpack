@@ -34,7 +34,8 @@ class Client_Portal {
 		$this->router = new Client_Portal_Router();
 		$this->render = new Client_Portal_Render_Helper( $this );
 
-		$this->init();
+		// Initializes it later. Priority 10
+		add_action( 'init', array( $this, 'init' ) );
 	}
 
 	/**
