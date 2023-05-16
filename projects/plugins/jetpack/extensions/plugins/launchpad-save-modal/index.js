@@ -2,8 +2,8 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { Modal, Button, CheckboxControl } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
-import { useEntityProp } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { useEntityProp, store } from '@wordpress/core-data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -52,6 +52,7 @@ export const settings = {
 		} );
 		const { tracks } = useAnalytics();
 
+		const { saveEntityRecord } = useDispatch( store );
 		const [ launchpadModalStatus, setLaunchpadModalStatus ] =
 			useEntityProp(
 				'root',
@@ -63,8 +64,9 @@ export const settings = {
 			if ( ! checked ) {
 				return;
 			}
-			
-			return setLaunchpadModalStatus( 'off' );
+
+			setLaunchpadModalStatus( 'off' );
+			return saveEntityRecord( 'root', 'site', { launchpad_save_modal_status: 'off' } );
 		}
 
 		const recordTracksEvent = eventName =>
