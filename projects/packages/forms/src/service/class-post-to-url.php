@@ -85,14 +85,22 @@ class Post_To_Url {
 	 * Hook on `grunion_after_feedback_post_inserted` action to send form data to specified URL.
 	 *
 	 * @param int   $post_id - the post_id for the CPT that is created.
-	 * @param array $form - Automattic\Jetpack\Forms\ContactForm\Contact_Form instance.
+	 * @param array $fields - a collection of Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field instances.
 	 * @param bool  $is_spam - marked as spam by Akismet(?).
 	 * @param array $entry_values - extra fields added to from the contact form.
 	 *
 	 * @return null|void
 	 */
-	public function feedback_post_hook( $post_id, $form, $is_spam, $entry_values ) {
-		if ( ! is_a( $form, 'Automattic\Jetpack\Forms\ContactForm\Contact_Form' ) ) {
+	public function feedback_post_hook( $post_id, $fields, $is_spam, $entry_values ) {
+		// Try and get the form from any of the fields
+		$form = null;
+		foreach ( $fields as $field ) {
+			if ( ! empty( $field->form ) ) {
+				$form = $field->form;
+				break;
+			}
+		}
+		if ( ! $form || ! is_a( $form, 'Automattic\Jetpack\Forms\ContactForm\Contact_Form' ) ) {
 			return;
 		}
 

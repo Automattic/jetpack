@@ -125,7 +125,7 @@ class Jetpack_Tiled_Gallery_Grouper {
 	 * @return array
 	 */
 	public function get_current_row_size() {
-		$images_left = count( $this->images );
+		$images_left = is_countable( $this->images ) ? count( $this->images ) : 0;
 		if ( $images_left < 3 ) {
 			return array_fill( 0, $images_left, 1 );
 		}
@@ -207,7 +207,8 @@ class Jetpack_Tiled_Gallery_Grouper {
 	public function apply_content_width( $width ) {
 		foreach ( $this->grouped_images as $row ) {
 			$row->width      = $width;
-			$row->raw_height = 1 / $row->ratio * ( $width - $this->margin * ( count( $row->groups ) - $row->weighted_ratio ) );
+			$group_count     = is_countable( $row->groups ) ? count( $row->groups ) : 0;
+			$row->raw_height = 1 / $row->ratio * ( $width - $this->margin * ( $group_count - $row->weighted_ratio ) );
 			$row->height     = round( $row->raw_height );
 
 			$this->calculate_group_sizes( $row );
@@ -225,8 +226,9 @@ class Jetpack_Tiled_Gallery_Grouper {
 		$group_widths_array = array();
 		foreach ( $row->groups as $group ) {
 			$group->height = $row->height;
+			$image_count   = is_countable( $group->images ) ? count( $group->images ) : 0;
 			// Storing the raw calculations in a separate property to prevent rounding errors from cascading down and for diagnostics
-			$group->raw_width     = ( $row->raw_height - $this->margin * count( $group->images ) ) * $group->ratio + $this->margin;
+			$group->raw_width     = ( $row->raw_height - $this->margin * $image_count ) * $group->ratio + $this->margin;
 			$group_widths_array[] = $group->raw_width;
 		}
 		$rounded_group_widths_array = Jetpack_Constrained_Array_Rounding::get_rounded_constrained_array( $group_widths_array, $row->width );
@@ -299,7 +301,8 @@ class Jetpack_Tiled_Gallery_Row {
 	public function get_weighted_ratio() {
 		$weighted_ratio = 0;
 		foreach ( $this->groups as $group ) {
-			$weighted_ratio += $group->ratio * count( $group->images );
+			$image_count     = is_countable( $group->images ) ? count( $group->images ) : 0;
+			$weighted_ratio += $group->ratio * $image_count;
 		}
 		return $weighted_ratio > 0 ? $weighted_ratio : 1;
 	}

@@ -97,7 +97,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( function_exists( '\get_blog_count_for_user' ) ) {
 			return \get_blog_count_for_user( get_current_user_id() );
 		}
-		return count( get_blogs_of_user( get_current_user_id() ) );
+
+		$blogs = get_blogs_of_user( get_current_user_id() );
+		return is_countable( $blogs ) ? count( $blogs ) : 0;
 	}
 
 	/**
