@@ -167,19 +167,18 @@ $no_boost_score_size: 28px;
 	}
 
 	.fill-loading {
-		background-color: white;
-		//min-width: 50px;
+		background-color: var(--jp-white);
 	}
 
 	.fill-good {
-		background-color: #069e08;
+		background-color: var(--jp-green);
 	}
 
 	.fill-mediocre {
-		background-color: #faa754;
+		background-color: var(--jp-orange-20);
 	}
 
 	.fill-bad {
-		background-color: #d63638;
+		background-color: var(--jp-red-50);
 	}
 }

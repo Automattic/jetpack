@@ -32,7 +32,9 @@ export const BoostScoreBar: FunctionComponent< BoostScoreBarProps > = ( {
 	};
 
 	const getFillColor = () => {
-		if ( isLoading ) {
+		// This shows the loading color unless a score already exists.
+		// In that case, shows the color based on the current score while refreshing.
+		if ( isLoading && ! score ) {
 			return 'fill-loading';
 		}
 
