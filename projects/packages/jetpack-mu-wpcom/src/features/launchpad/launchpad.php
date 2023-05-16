@@ -59,8 +59,9 @@ function wpcom_register_default_launchpad_checklists() {
 			'id'                    => 'first_post_published',
 			'title'                 => __( 'Write your first post', 'jetpack-mu-wpcom' ),
 			'add_listener_callback' => function () {
+				error_log(print_r('callbacks added', true));
 				add_action( 'publish_post', 'wpcom_track_publish_first_post_task' );
-				add_action( 'future_to_publish', 'wpcom_track_schedule_first_post_task' );
+				add_action( 'transition_post_status', 'wpcom_track_schedule_first_post_task' );
 			},
 		)
 	);
@@ -601,16 +602,17 @@ function wpcom_track_publish_first_post_task() {
 /**
  * Callback for completing first post published task if post is scheduled.
  *
+ * @param string $new_status the new status of the post.
  * @return void
  */
-function wpcom_track_schedule_first_post_task() {
+function wpcom_track_schedule_first_post_task( $new_status ) {
 	// Ensure that Headstart posts don't mark this as complete.
 	if ( defined( 'HEADSTART' ) && HEADSTART ) {
 		return;
 	}
 
-	// Only mark scheduled posts complete for the 'start-writing' flow.
-	if ( get_option( 'site_intent' ) === 'start-writing' ) {
+	// Mark scheduled posts complete for the 'start-writing' flow.
+	if ( get_option( 'site_intent' ) === 'start-writing' && 'future' === $new_status ) {
 		wpcom_mark_launchpad_task_complete_if_active( 'first_post_published' );
 	}
 }
