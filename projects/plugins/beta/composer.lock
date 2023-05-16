@@ -71,7 +71,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "46e8df227c3deee5a1fb0e8f43fa4191e3db323a"
+                "reference": "682f8d74d35fc246fea37e9e77f6f305e3f7d2ae"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -112,6 +112,13 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
+            "keywords": [
+                "autoload",
+                "autoloader",
+                "composer",
+                "dev",
+                "plugin"
+            ],
             "transport-options": {
                 "relative": true
             }
@@ -255,7 +262,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "6cf3c9cec0a7d620c0389859b50867317301ebba"
+                "reference": "6e45a8dd0df385b87369efa5d74afe338e505dc9"
             },
             "require": {
                 "php": ">=5.6",
@@ -314,6 +321,12 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
+            "keywords": [
+                "changelog",
+                "cli",
+                "dev",
+                "keepachangelog"
+            ],
             "transport-options": {
                 "relative": true
             }
