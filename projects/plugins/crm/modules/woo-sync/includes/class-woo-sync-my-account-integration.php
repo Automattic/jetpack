@@ -180,15 +180,8 @@ class Woo_Sync_My_Account_Integration {
 		$account_page_id = get_option('woocommerce_myaccount_page_id');
 
 		if ( is_page( $account_page_id ) ) {
-			global $zbs;
 			wp_enqueue_style( 'jpcrm-woo-sync-my-account' );
-			wp_enqueue_style( 'jpcrm-woo-sync-fa'	);
-			wp_enqueue_script( 'jpcrm-moment-v2-29-4', untrailingslashit( ZEROBSCRM_URL ) . '/js/lib/moment-with-locales.min.js', array( 'jquery' ), $zbs->version, false );
-			zeroBSCRM_enqueue_libs_js_momentdatepicker();
-			// Adds the public portal script with the daterangepicker locale inline (it retrieves the locale from our core function)
-			$locale_opt_for_daterangepicker = json_encode( zeroBSCRM_date_localeForDaterangePicker() );
-			wp_enqueue_script( 'jpcrm-public-bind-daterange-js', plugins_url( '/js/jpcrm-public-bind-daterange'.wp_scripts_get_suffix() . '.js', ZBS_ROOTFILE ), $zbs->version, true );
-			wp_add_inline_script( 'jpcrm-public-bind-daterange-js', 'var JPCRM_PUBLIC_LOCALE_OPT_FOR_DATERANGEPICKER = ' . $locale_opt_for_daterangepicker . ';', 'before' );
+			wp_enqueue_style( 'jpcrm-woo-sync-fa' );
 		}
 
 	}
@@ -304,22 +297,14 @@ class Woo_Sync_My_Account_Integration {
 
 								$date_value = '';
 								if ( ! empty( $value ) && $value !== -99) {
-									$date_value = zeroBSCRM_date_i18n( -1, $value, false, true );
+									$date_value = jpcrm_uts_to_date_str( $value, 'Y-m-d', true );
 								}
 							?>
 								<p>
 									<label class='label' for="<?php echo esc_attr( $field_key ); ?>">
 										<?php esc_html_e( $field_value[1], 'zero-bs-crm' ); ?>:
 									</label>
-									<input
-										type="text"
-										name="zbsc_<?php echo esc_attr( $field_key ); ?>"
-										id="zbsc_<?php echo esc_attr( $field_key ); ?>"
-										class="form-control widetext zbs-date zbs-empty-start zbs-dc"
-										placeholder="<?php if ( isset( $field_value[2] ) ) echo esc_attr__( $field_value[2], 'zero-bs-crm' ); ?>"
-										value="<?php echo esc_attr( $date_value ); ?>"
-										autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $field_key ); ?>"
-									/>
+									<input type="date" name="zbsc_<?php echo esc_attr( $field_key ); ?>" id="zbsc_<?php echo esc_attr( $field_key ); ?>" placeholder="yyyy-mm-dd" value="<?php echo esc_attr( $date_value ); ?>"/>
 								</p>
 							<?php
 								break;

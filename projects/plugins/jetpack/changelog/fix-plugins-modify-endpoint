@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fixes the Plugins_Modify endpoint to correct declare $args

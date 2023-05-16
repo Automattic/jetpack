@@ -12,12 +12,13 @@ if ( ! defined( 'ZEROBSCRM_PATH' ) ) {
 /**
  * Creates a timezone-aware datetime string
  *
- * @param int $timestamp Unix timestamp.
- * @param str $format DateTime formatting string (e.g. 'Y-m-d H:i').
+ * @param int  $timestamp Unix timestamp.
+ * @param str  $format DateTime formatting string (e.g. 'Y-m-d H:i').
+ * @param bool $use_utc Output in UTC timezone or WP timezone.
  *
  * @return str formatted datetime string
  */
-function jpcrm_uts_to_datetime_str( $timestamp, $format = false ) {
+function jpcrm_uts_to_datetime_str( $timestamp, $format = false, $use_utc = false ) {
 
 	if ( $timestamp === '' ) {
 		return false;
@@ -36,7 +37,14 @@ function jpcrm_uts_to_datetime_str( $timestamp, $format = false ) {
 	}
 
 	// set timezone for object
-	$date_obj->setTimezone( new DateTimeZone( wp_timezone_string() ) );
+	if ( $use_utc ) {
+		// output date as if in UTC
+		$timezone = new DateTimeZone( 'UTC' );
+	} else {
+		// output date using WP timezone
+		$timezone = new DateTimeZone( wp_timezone_string() );
+	}
+	$date_obj->setTimezone( $timezone );
 
 	// return formatted string
 	return $date_obj->format( $format );
@@ -46,19 +54,20 @@ function jpcrm_uts_to_datetime_str( $timestamp, $format = false ) {
  * Creates a timezone-aware date string
  * This is a wrapper of jpcrm_uts_to_datetime_str()
  *
- * @param int $timestamp Unix timestamp.
- * @param str $format DateTime formatting string (e.g. 'Y-m-d').
+ * @param int  $timestamp Unix timestamp.
+ * @param str  $format DateTime formatting string (e.g. 'Y-m-d').
+ * @param bool $use_utc Output in UTC timezone or WP timezone.
  *
  * @return string formatted date string
  */
-function jpcrm_uts_to_date_str( $timestamp, $format = false ) {
+function jpcrm_uts_to_date_str( $timestamp, $format = false, $use_utc = false ) {
 
 	// default to WP format
 	if ( ! $format ) {
 		$format = get_option( 'date_format' );
 	}
 
-	return jpcrm_uts_to_datetime_str( $timestamp, $format );
+	return jpcrm_uts_to_datetime_str( $timestamp, $format, $use_utc );
 }
 
 /**
@@ -83,12 +92,13 @@ function jpcrm_uts_to_time_str( $timestamp, $format = false ) {
 /**
  * Creates a UTS from a date time string
  *
- * @param str $datetime_str String containing date and time (in WP timezone).
- * @param str $format DateTime formatting string (e.g. 'Y-m-d H:i:s').
+ * @param str  $datetime_str String containing date and time (in WP timezone).
+ * @param str  $format DateTime formatting string (e.g. 'Y-m-d H:i:s').
+ * @param bool $use_utc Treat input as UTC timezone or WP timezone.
  *
  * @return int $uts
  */
-function jpcrm_datetime_str_to_uts( $datetime_str, $format = false ) {
+function jpcrm_datetime_str_to_uts( $datetime_str, $format = false, $use_utc = false ) {
 
 	// default to ISO
 	if ( ! $format ) {
@@ -100,8 +110,17 @@ function jpcrm_datetime_str_to_uts( $datetime_str, $format = false ) {
 		$format = 'Y-m-d H:i:s';
 	}
 
+	// set timezone
+	if ( $use_utc ) {
+		// output date as if in UTC
+		$timezone = new DateTimeZone( 'UTC' );
+	} else {
+		// output date using WP timezone
+		$timezone = new DateTimeZone( wp_timezone_string() );
+	}
+
 	// create DateTime object from string
-	$date_obj = DateTime::createFromFormat( $format, $datetime_str, new DateTimeZone( wp_timezone_string() ) );
+	$date_obj = DateTime::createFromFormat( $format, $datetime_str, $timezone );
 
 	// something's wrong, so abort
 	if ( ! $date_obj ) {
@@ -151,18 +170,19 @@ function jpcrm_datetime_str_wp_format_to_uts( $datetime_str ) {
  * Creates a UTS from a date string (midnight timestamp)
  * This is a wrapper of jpcrm_datetime_str_to_uts()
  *
- * @param str $date_str String containing date (in WP timezone).
- * @param str $format DateTime formatting string (e.g. 'Y-m-d').
+ * @param str  $date_str String containing date (in WP timezone).
+ * @param str  $format DateTime formatting string (e.g. 'Y-m-d').
+ * @param bool $use_utc Treat input as UTC timezone or WP timezone.
  *
  * @return int $uts
  */
-function jpcrm_date_str_to_uts( $date_str, $format = false ) {
+function jpcrm_date_str_to_uts( $date_str, $format = false, $use_utc = false ) {
 	if ( ! $format ) {
 		// Using ! ensures object is created with midnight timestamp instead of system time
 		$format = '!Y-m-d';
 	}
 
-	return jpcrm_datetime_str_to_uts( $date_str, $format );
+	return jpcrm_datetime_str_to_uts( $date_str, $format, $use_utc );
 }
 
 /**
