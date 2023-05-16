@@ -123,30 +123,37 @@ export const BoostPricingTable = ( {
 				{
 					name: __( 'Optimize CSS Loading', 'jetpack-boost' ),
 					tooltipInfo: cssOptimizationContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Defer non-essential JavaScript', 'jetpack-boost' ),
 					tooltipInfo: deferJSContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Lazy image loading', 'jetpack-boost' ),
 					tooltipInfo: lazyLoadingContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Image guide', 'jetpack-boost' ),
 					tooltipInfo: imageGuideContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Image CDN', 'jetpack-boost' ),
 					tooltipInfo: imageCdnContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Concatenate JS and CSS', 'jetpack-boost' ),
 					tooltipInfo: concatenateContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Dedicated email support', 'jetpack-boost' ),
 					tooltipInfo: <span dangerouslySetInnerHTML={ { __html: supportContext } }></span>,
+					tooltipPlacement: 'bottom-start',
 				},
 			] }
 		>
