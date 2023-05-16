@@ -185,8 +185,6 @@ const useSuggestionsFromOpenAI = ( {
 		}
 
 		let source;
-		let fullMessage = '';
-
 		try {
 			setIsLoadingCompletion( true );
 			source = await askQuestion( prompt, postId );
@@ -205,36 +203,23 @@ const useSuggestionsFromOpenAI = ( {
 			setIsLoadingCompletion( false );
 		}
 
-		source.addEventListener( 'message', e => {
-			if ( e.data === '[DONE]' ) {
-				source.close();
-				setIsLoadingCompletion( false );
-				setAttributes( {
-					content: fullMessage,
-				} );
-				debug( 'Done. Full message: ' + fullMessage );
-				return;
-			}
-
-			const data = JSON.parse( e.data );
-			const chunk = data.choices[ 0 ].delta.content;
-			if ( chunk ) {
-				fullMessage += chunk;
-				debug( fullMessage );
-
-				if ( fullMessage.startsWith( '__JETPACK_AI_ERROR__' ) ) {
-					// The error is confirmed
-					source.close();
-					setIsLoadingCompletion( false );
-					setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
-				} else if ( ! '__JETPACK_AI_ERROR__'.startsWith( fullMessage ) ) {
-					// Confirmed to be a valid response
-					setAttributes( {
-						content: fullMessage,
-					} );
-				}
-			}
+		source.addEventListener( 'done', e => {
+			source.close();
+			setIsLoadingCompletion( false );
+			setAttributes( { content: e.detail } );
+			return;
 		} );
+		source.addEventListener( 'error_unclear_prompt', () => {
+			source.close();
+			setIsLoadingCompletion( false );
+			setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
+			return;
+		} );
+		source.addEventListener( 'suggestion', e => {
+			debug( 'fullMessage', e );
+			setAttributes( { content: e.detail } );
+		} );
+		return source;
 	};
 
 	return {
