@@ -62,7 +62,7 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 					label={ __( 'Author Recommendation', 'jetpack' ) }
 					icon={ <BlockIcon icon={ icon } /> }
 					instructions={ __(
-						'Recommend sites to your users. Select the sites you want to recommend from the list below.',
+						'Recommend sites that you like and follow. Select the sites you want to recommend to your visitors.',
 						'jetpack'
 					) }
 				>
