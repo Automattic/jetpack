@@ -6,6 +6,7 @@
 	padding-top: $padding;
 	padding-bottom: $padding;
 	isolation: isolate;
+	z-index: 10;
 
 	.jetpack-boost-jitm-card .jitm-card {
 		margin: 0 0 2.5rem auto;
