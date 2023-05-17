@@ -272,7 +272,7 @@ class Jetpack_Sitemap_Librarian {
 		foreach ( (array) $post_types as $i => $post_type ) {
 			$post_types[ $i ] = $wpdb->prepare( '%s', $post_type );
 		}
-		$post_types_list = join( ',', $post_types );
+		$post_types_list = implode( ',', $post_types );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(
@@ -413,7 +413,7 @@ class Jetpack_Sitemap_Librarian {
 			$post_types[ $i ] = $wpdb->prepare( '%s', $post_type );
 		}
 
-		$post_types_list = join( ',', $post_types );
+		$post_types_list = implode( ',', $post_types );
 
 		// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.QuotedSimplePlaceholder,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- WPCS: db call ok; no-cache ok.
 		return $wpdb->get_results(

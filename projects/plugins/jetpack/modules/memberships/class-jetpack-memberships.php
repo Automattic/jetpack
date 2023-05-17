@@ -229,7 +229,7 @@ class Jetpack_Memberships {
 	public function allow_sync_post_meta( $post_meta ) {
 		$meta_keys = array_map(
 			array( $this, 'return_meta' ),
-			$this->get_plan_property_mapping()
+			self::get_plan_property_mapping()
 		);
 		return array_merge( $post_meta, array_values( $meta_keys ) );
 	}
@@ -277,8 +277,8 @@ class Jetpack_Memberships {
 	 * @return boolean
 	 */
 	public function should_render_button_preview( $block ) {
-		$user_can_edit              = $this->user_can_edit();
-		$requires_stripe_connection = ! $this->get_connected_account_id();
+		$user_can_edit              = static::user_can_edit();
+		$requires_stripe_connection = ! static::get_connected_account_id();
 
 		$jetpack_ready = ! self::is_enabled_jetpack_recurring_payments();
 
@@ -518,7 +518,7 @@ class Jetpack_Memberships {
 		}
 
 		$plans = get_posts( $query );
-		return ( count( $plans ) > 0 );
+		return ( is_countable( $plans ) && count( $plans ) > 0 );
 	}
 
 	/**

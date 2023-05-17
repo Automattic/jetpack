@@ -57,7 +57,7 @@ $plugins = Plugin::get_all_plugins( true );
 		);
 
 		?>
-		<div data-plugin="<?php echo esc_attr( $slug ); ?>" class="<?php echo esc_attr( join( ' ', $classes ) ); ?>">
+		<div data-plugin="<?php echo esc_attr( $slug ); ?>" class="<?php echo esc_attr( implode( ' ', $classes ) ); ?>">
 			<div class="dops-foldable-card__header has-border" >
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">

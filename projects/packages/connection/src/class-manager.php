@@ -203,7 +203,6 @@ class Manager {
 			// The jetpack.authorize method should be available for unauthenticated users on a site with an
 			// active Jetpack connection, so that additional users can link their account.
 			$callback = array( $this->xmlrpc_server, 'authorize_xmlrpc_methods' );
-
 		} else {
 			// Any other unsigned request should expose the bootstrap methods.
 			$callback = array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' );
@@ -1046,6 +1045,11 @@ class Manager {
 	 * @return true|WP_Error The error object.
 	 */
 	public function register( $api_endpoint = 'register' ) {
+		// Clean-up leftover tokens just in-case.
+		// This fixes an edge case that was preventing users to register when the blog token was missing but
+		// there were still leftover user tokens present.
+		$this->delete_all_connection_tokens( true );
+
 		add_action( 'pre_update_jetpack_option_register', array( '\\Jetpack_Options', 'delete_option' ) );
 		$secrets = ( new Secrets() )->generate( 'register', get_current_user_id(), 600 );
 
@@ -1125,7 +1129,7 @@ class Manager {
 			'timeout' => $timeout,
 		);
 
-		$args['body'] = $this->apply_activation_source_to_args( $args['body'] );
+		$args['body'] = static::apply_activation_source_to_args( $args['body'] );
 
 		// TODO: fix URLs for bad hosts.
 		$response = Client::_wp_remote_request(
@@ -1686,7 +1690,6 @@ class Manager {
 		( new Tracking() )->record_user_event( 'restore_connection_reconnect' );
 
 		$this->disconnect_site_wpcom( true );
-		$this->delete_all_connection_tokens( true );
 
 		return $this->register();
 	}
@@ -1887,7 +1890,7 @@ class Manager {
 			)
 		);
 
-		$body = $this->apply_activation_source_to_args( urlencode_deep( $body ) );
+		$body = static::apply_activation_source_to_args( urlencode_deep( $body ) );
 
 		$api_url = $this->api_url( 'authorize' );
 
