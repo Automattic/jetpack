@@ -4,7 +4,7 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { rawHandler, createBlock } from '@wordpress/blocks';
-import { Flex, FlexBlock, Modal } from '@wordpress/components';
+import { Flex, FlexBlock, Modal, Notice } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -24,7 +24,7 @@ const markdownConverter = new MarkdownIt( {
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
-	const [ , setErrorMessage ] = useState( false );
+	const [ errorMessage, setErrorMessage ] = useState( false );
 	const [ aiType, setAiType ] = useState( 'text' );
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
@@ -147,6 +147,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	return (
 		<div { ...useBlockProps() }>
+			{ errorMessage && (
+				<Notice status="warning" className="jetpack-ai-assistant__error">
+					{ errorMessage }
+				</Notice>
+			) }
 			{ contentIsLoaded && (
 				<>
 					<div className="jetpack-ai-assistant__content">

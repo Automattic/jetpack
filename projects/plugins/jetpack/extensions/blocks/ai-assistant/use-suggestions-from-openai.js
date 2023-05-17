@@ -12,7 +12,7 @@ import { buildPrompt } from './create-prompt';
 import { askJetpack, askQuestion } from './get-suggestion-with-stream';
 import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
-const debug = debugFactory( 'jetpack:ai-assistant' );
+const debug = debugFactory( 'jetpack-ai-assistant' );
 
 /**
  * Returns partial content from the beginning of the post
@@ -186,6 +186,8 @@ const useSuggestionsFromOpenAI = ( {
 
 		let source;
 		let fullMessage = '';
+		let initialBuffer = '';
+
 		try {
 			setIsLoadingCompletion( true );
 			source = await askQuestion( prompt, postId );
@@ -218,12 +220,35 @@ const useSuggestionsFromOpenAI = ( {
 			const data = JSON.parse( e.data );
 			const chunk = data.choices[ 0 ].delta.content;
 			if ( chunk ) {
-				fullMessage += chunk;
-				setAttributes( {
-					content: fullMessage,
-				} );
-				debug( fullMessage );
-				// debug( chunk );
+				// Check if the first chunks form the error marker by buffering them until we know for sure
+				if ( ! fullMessage ) {
+					initialBuffer += chunk;
+					debug( initialBuffer );
+
+					if ( initialBuffer.startsWith( '__JETPACK_AI_ERROR__' ) ) {
+						source.close();
+						setIsLoadingCompletion( false );
+						setErrorMessage(
+							__(
+								"I'm sorry, I don't understand what you're asking for. Could you please provide me with clear instructions on what you want me to do? Thank you.",
+								'jetpack'
+							)
+						);
+					} else if ( ! '__JETPACK_AI_ERROR__'.startsWith( initialBuffer ) ) {
+						fullMessage = initialBuffer;
+
+						setAttributes( {
+							content: fullMessage,
+						} );
+					}
+				} else {
+					fullMessage += chunk;
+					debug( fullMessage );
+
+					setAttributes( {
+						content: fullMessage,
+					} );
+				}
 			}
 		} );
 	};
