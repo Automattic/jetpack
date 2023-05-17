@@ -92,7 +92,7 @@ export default function GenerateContentPanel( { blocksIds } ) {
 		}
 
 		if ( lang?.key ) {
-			request += ` Write in \`${ lang.key }\` - (${ LANGUAGE_MAP[ lang.key ].label }) language.`;
+			request += ` Write in \`${ lang.key }\` (${ LANGUAGE_MAP[ lang.key ].label }) language.`;
 		}
 
 		if ( action?.key ) {
