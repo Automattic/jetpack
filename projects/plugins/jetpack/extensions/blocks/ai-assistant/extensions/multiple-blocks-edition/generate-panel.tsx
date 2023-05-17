@@ -41,7 +41,7 @@ export const langOptions = Object.keys( LANGUAGE_MAP ).map( key => {
 const defaultLang = langOptions.find( option => option.key === defaultLanguage );
 
 /**
- * Hola
+ * Block edit panel to generate content from multiple blocks.
  *
  * @param {object}   props           - Component props
  * @param {string[]} props.blocksIds - Blocks to generate content from
