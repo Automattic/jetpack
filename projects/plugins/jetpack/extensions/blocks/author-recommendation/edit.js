@@ -10,6 +10,7 @@ import {
 	PanelBody,
 	Placeholder,
 	Spinner,
+	SearchControl,
 	ToggleControl,
 } from '@wordpress/components';
 import { useState, useEffect, useCallback } from '@wordpress/element';
@@ -31,6 +32,7 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 	}, [] );
 
 	useEffect( () => {
+		// Update recommendations when selectedSubscriptions changes
 		setAttributes( {
 			recommendations: subscriptions.filter( subscription =>
 				selectedSubscriptions.includes( subscription.blog_id )
@@ -104,6 +106,23 @@ function AuthorRecommendationContent( {
 	handleChecked,
 	isSelected,
 } ) {
+	const [ searchQuery, setSearchQuery ] = useState( '' );
+	const [ filteredSubscriptions, setFilteredSubscriptions ] = useState( subscriptions );
+
+	useEffect( () => {
+		setSearchQuery( '' );
+		setFilteredSubscriptions( subscriptions );
+	}, [ subscriptions, setFilteredSubscriptions, setSearchQuery ] );
+
+	const handleSearchInputChange = value => {
+		const query = value.toLowerCase();
+		const filtered = subscriptions.filter( subscription =>
+			subscription.name.toLowerCase().includes( query )
+		);
+		setFilteredSubscriptions( filtered );
+		setSearchQuery( query );
+	};
+
 	if ( isLoading ) {
 		return (
 			<FlexBlock style={ { padding: '10px', textAlign: 'center' } }>
@@ -114,7 +133,17 @@ function AuthorRecommendationContent( {
 
 	return (
 		<Flex gap={ 2 } justify="space-between" direction="column">
-			{ subscriptions.map( subscription => {
+			{ isSelected && (
+				<SearchControl
+					value={ searchQuery }
+					onChange={ handleSearchInputChange }
+					placeholder={ __( 'Search subscriptions…', 'jetpack' ) }
+				/>
+			) }
+
+			{ ! filteredSubscriptions.length && <p>{ __( 'No results found', 'jetpack' ) }</p> }
+
+			{ filteredSubscriptions.map( subscription => {
 				const isSubscriptionSelected = selectedSubscriptions.includes( subscription.blog_id );
 
 				return (
