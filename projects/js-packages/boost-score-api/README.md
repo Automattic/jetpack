@@ -4,11 +4,7 @@ A package to get the Jetpack Boost score of a site
 
 ## How to install boost-score-api
 
-### Installation From Git Repo
-
-## Contribute
-
-## Get Help
+Add `"@automattic/jetpack-boost-score-api": "workspace:*",` to your project's `package.json` and run `pnpm install` (or `yarn` if your project uses yarn)
 
 ## Using this package in your WordPress plugin
 
