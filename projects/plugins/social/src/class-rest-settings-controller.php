@@ -135,13 +135,19 @@ class REST_Settings_Controller extends WP_REST_Controller {
 					}
 					break;
 				case 'show_pricing_page':
-					if ( ! update_option( Jetpack_Social::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, (int) $params[ $name ] ) ) {
-						return new WP_Error(
-							'rest_cannot_edit',
-							__( 'Failed to update the show_pricing_page', 'jetpack-social' ),
-							array( 'status' => 500 )
-						);
+					$old_value = get_option( Jetpack_Social::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION );
+
+					if ( (int) $old_value !== (int) $params[ $name ] ) {
+						$updated = update_option( Jetpack_Social::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, (int) $params[ $name ] );
+						if ( ! $updated ) {
+							return new WP_Error(
+								'rest_cannot_edit',
+								__( 'Failed to update the show_pricing_page', 'jetpack-social' ),
+								array( 'status' => 500 )
+							);
+						}
 					}
+
 					break;
 			}
 		}

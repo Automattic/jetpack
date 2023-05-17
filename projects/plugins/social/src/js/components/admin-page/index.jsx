@@ -7,6 +7,7 @@ import {
 } from '@automattic/jetpack-components';
 import { useConnection } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
+import { useState, useCallback } from '@wordpress/element';
 import React from 'react';
 import { STORE_ID } from '../../store';
 import PricingPage from '../pricing-page';
@@ -23,6 +24,16 @@ import './styles.module.scss';
 const Admin = () => {
 	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
+	const [ manuallyShowPricingPage, setManuallyShowPricingPage ] = useState( false );
+
+	const onUpgradeToggle = useCallback(
+		() => setManuallyShowPricingPage( true ),
+		[ setManuallyShowPricingPage ]
+	);
+	const onPricingPageDismiss = useCallback(
+		() => setManuallyShowPricingPage( false ),
+		[ setManuallyShowPricingPage ]
+	);
 
 	const {
 		isModuleEnabled,
@@ -31,7 +42,6 @@ const Admin = () => {
 		isShareLimitEnabled,
 		pluginVersion,
 		isSocialImageGeneratorAvailable,
-		dismissedNotices,
 	} = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
@@ -41,7 +51,6 @@ const Admin = () => {
 			isShareLimitEnabled: store.isShareLimitEnabled(),
 			pluginVersion: store.getPluginVersion(),
 			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
-			dismissedNotices: store.getDismissedNotices(),
 		};
 	} );
 
@@ -61,11 +70,11 @@ const Admin = () => {
 
 	return (
 		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
-			{ isShareLimitEnabled && ! hasPaidPlan && showPricingPage ? (
+			{ ( isShareLimitEnabled && ! hasPaidPlan && showPricingPage ) || manuallyShowPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
-							<PricingPage />
+							<PricingPage onDismiss={ onPricingPageDismiss } />
 						</Col>
 					</Container>
 				</AdminSectionHero>
@@ -75,9 +84,7 @@ const Admin = () => {
 						<Header />
 					</AdminSectionHero>
 					<AdminSection>
-						{ dismissedNotices && ! dismissedNotices.includes( 'instagram' ) && (
-							<InstagramNotice />
-						) }
+						<InstagramNotice onUpgrade={ onUpgradeToggle } />
 						<SocialModuleToggle />
 						{ isModuleEnabled && isSocialImageGeneratorAvailable && <SocialImageGeneratorToggle /> }
 					</AdminSection>
