@@ -86,7 +86,7 @@ export default function GenerateContentPanel( { blocksIds } ) {
 		// Prompt content
 		const content = getContentFromSelectedBlocks();
 
-		let request = 'Please help me combine the content belog into a single, coherent text.';
+		let request = 'Combine the content below based on mentioned rules above.';
 		if ( tone?.key ) {
 			request += ` Write with a \`${ tone.key }\` tone.`;
 		}
