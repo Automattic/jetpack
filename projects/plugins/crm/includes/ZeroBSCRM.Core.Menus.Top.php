@@ -73,64 +73,6 @@ function zeroBSCRM_admin_menu_settings() {
 				<script type="text/javascript">jQuery(function(){ jQuery('body').addClass('zbs-fullscreen'); jQuery('#wpcontent').addClass('zbs-menu-open'); });</script>
 				<?php
 		}
-
-		/*
-		This is now all done with CSS classes :)
-		if($hiding_wp){
-
-		if($zbs_custom_admin == 'material_admin'){
-			?><style>
-				#wpcontent{
-					margin-left: -10px;
-					margin-top: -50px;
-				}
-				#wpadminbar, #adminmenuback, #adminmenuwrap{
-					display:none;
-				}
-				#zbs-admin-top-bar {
-					margin-right: 0px !important;
-				}
-				.zbs-admin-main-menu, .zbs-dash-header {
-					margin-left: -30px !important;
-				}
-			</style>
-			<?php
-		}else{
-			?><style>
-				#wpcontent{
-					margin-left: 0px;
-					margin-top: -32px;
-				}
-				#wpadminbar, #adminmenuback, #adminmenuwrap{
-					display:none;
-				}
-			</style>
-			<script>
-				var zbscrmjs_custom_admin = 'none';
-			</script>
-			<?php
-		}
-		}else{
-		if($zbs_custom_admin == 'material_admin'){
-			?>
-			<style>
-				#zbs-admin-top-bar {
-					margin-right: 0px !important;
-				}
-				.zbs-admin-main-menu, .zbs-dash-header {
-					margin-left: -30px !important;
-				}
-			</style>
-			<script>
-				var zbscrmjs_custom_admin = 'material';
-			</script>
-			<?php
-		}
-		.update-nag{
-			display:none;
-		}
-		</style>
-		*/
 	}
 }
 add_action( 'admin_head', 'zeroBSCRM_admin_menu_settings' );
@@ -354,21 +296,6 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 				</div>
 			</div>
 		</div>
-		<?php
-
-		/*
-		don't check here as of 24/9/19
-		// Dev mode? add ui label
-		if (zeroBSCRM_isLocal()){
-
-		//remove the label top left for developer mode.
-
-		// no id etc. to stop people hiding with css
-		?><div class="item"><?php _e('Developer Mode','zero-bs-crm'); ?></div><?php
-
-		} */
-
-		?>
 
 		<div class="menu ui inverted zbs-admin-bg-menu mobile hidden" style="z-index:5">
 
