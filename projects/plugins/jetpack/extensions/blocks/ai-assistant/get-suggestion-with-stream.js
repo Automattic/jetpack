@@ -76,10 +76,12 @@ export async function requestToken() {
 	const token = localStorage.getItem( JWT_TOKEN_ID );
 	let tokenData;
 
-	try {
-		tokenData = JSON.parse( token );
-	} catch ( err ) {
-		debugToken( 'Error parsing token', err );
+	if ( token ) {
+		try {
+			tokenData = JSON.parse( token );
+		} catch ( err ) {
+			debugToken( 'Error parsing token', err );
+		}
 	}
 
 	if ( tokenData && tokenData?.expire > Date.now() ) {
