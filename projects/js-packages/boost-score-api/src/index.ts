@@ -44,8 +44,8 @@ export async function requestSpeedScores(
 	// Request metrics
 	const response = parseResponse(
 		await api.post(
-			force ? '/speed-scores/refresh' : '/speed-scores',
 			rootUrl,
+			force ? '/speed-scores/refresh' : '/speed-scores',
 			{ url: siteUrl },
 			nonce
 		)
@@ -132,7 +132,7 @@ async function pollRequest(
 		timeoutError: __( 'Timed out while waiting for speed-score.', 'boost-score-api' ),
 		callback: async resolve => {
 			const response = parseResponse(
-				await api.post( '/speed-scores', rootUrl, { url: siteUrl }, nonce )
+				await api.post( rootUrl, '/speed-scores', { url: siteUrl }, nonce )
 			);
 
 			if ( response.scores ) {
