@@ -164,7 +164,7 @@ const PricingTable: React.FC< PricingTableProps > = ( {
 										title={ item.tooltipTitle }
 										iconClassName={ styles[ 'popover-icon' ] }
 										className={ styles.popover }
-										placement={ 'bottom-end' }
+										placement={ item.tooltipPlacement ? item.tooltipPlacement : 'bottom-end' }
 										iconSize={ 14 }
 										offset={ 4 }
 									>
