@@ -50,11 +50,9 @@ const defaultLang = langOptions.find( option => option.key === defaultLanguage )
 export default function GenerateContentPanel( { blocksIds } ) {
 	const [ tone, setTone ] = useState( defaultTone );
 	const [ lang, setLang ] = useState( defaultLang );
-	const [ action, setAction ] = useState< { key: ToneProp; name: string; prompt: string } >( {
-		key: 'formal',
-		name: __( 'Summarize', 'jetpack' ),
-		prompt: '',
-	} );
+	const [ action, setAction ] = useState< { key?: ToneProp; name?: string; prompt?: string } >(
+		{}
+	);
 
 	const [ combineBlocks, setCombineBlocks ] = useState( false );
 
