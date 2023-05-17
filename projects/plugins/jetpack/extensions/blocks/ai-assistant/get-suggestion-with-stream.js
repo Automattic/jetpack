@@ -44,8 +44,9 @@ export async function askJetpack( question ) {
  * Leaving this here to make it easier to debug the streaming API calls for now
  *
  * @param {string} question - The query to send to the API
+ * @param {number} postId - The post where this completion is being requested, if available
  */
-export async function askQuestion( question ) {
+export async function askQuestion( question, postId = null ) {
 	const { blogId, token } = await requestToken();
 
 	const url = new URL(
@@ -53,6 +54,10 @@ export async function askQuestion( question ) {
 	);
 	url.searchParams.append( 'question', question );
 	url.searchParams.append( 'token', token );
+
+	if ( postId ) {
+		url.searchParams.append( 'post_id', postId );
+	}
 
 	const source = new EventSource( url.toString() );
 	return source;
