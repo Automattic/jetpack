@@ -1252,8 +1252,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 							<?php
 
 							// prep link to create a new task
-							$nonce        = wp_create_nonce( 'jpcrm_task_url_nonce' );
-							$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&zbsprefillcust=' . $contact['id'] . '&jpcrmtaskurlnonce=' . $nonce;
+							$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&zbsprefillcust=' . $contact['id'];
 
 							if ( isset( $contact['tasks'] ) && is_array( $contact['tasks'] ) && count( $contact['tasks'] ) > 0 ) {
 
