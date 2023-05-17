@@ -139,6 +139,15 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 			}
 		}
 
+		$items[] = array(
+			'id'              => '12346',
+			'connection_id'   => '12345',
+			'service_name'    => 'instagram',
+			'display_name'    => '@testinstahipster',
+			'profile_picture' => 'https://abs.twimg.com/sticky/default_profile_images/default_profile.png',
+			'global'          => false,
+		);
+
 		return $items;
 	}
 

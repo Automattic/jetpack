@@ -738,6 +738,18 @@ abstract class Publicize_Base {
 			}
 		}
 
+		$test_results[] = array(
+			'connectionID'            => '12345',
+			'serviceName'             => 'instagram',
+			'connectionTestPassed'    => true,
+			'connectionTestErrorCode' => '',
+			'connectionTestMessage'   => 'This connection is working correctly.',
+			'userCanRefresh'          => false,
+			'refreshText'             => '',
+			'refreshURL'              => '',
+			'unique_id'               => '12346',
+		);
+
 		return $test_results;
 	}
 

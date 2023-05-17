@@ -201,7 +201,19 @@ class Connections_Post_Field {
 			return $is_valid;
 		}
 
-		$context = ! empty( $request['context'] ) ? $request['context'] : 'view';
+		$context              = ! empty( $request['context'] ) ? $request['context'] : 'view';
+		$output_connections[] = array(
+			'id'              => '12345',
+			'unique_id'       => '12346',
+			'service_name'    => 'instagram',
+			'service_label'   => 'Instagram',
+			'display_name'    => '@testinstahipster',
+			'profile_picture' => 'https://abs.twimg.com/sticky/default_profile_images/default_profile.png',
+			'enabled'         => true,
+			'done'            => false,
+			'toggleable'      => true,
+			'global'          => false,
+		);
 		return $this->filter_response_by_context( $output_connections, $full_schema, $context );
 	}
 
