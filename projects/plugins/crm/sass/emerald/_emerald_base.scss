@@ -12,6 +12,7 @@ jpcrm-top-menu {
 	.logo-cube {
 		cursor:pointer;
 		height: 40px;
+		width: 200px;
 		line-height: 1;
 		transition: transform 0.33s;
 		transform-style: preserve-3d;
@@ -23,7 +24,6 @@ jpcrm-top-menu {
 		
 		.cube-side {
 			height: 40px;
-			width: 200px;
 			background-color: white;
 			text-align: center;
 
