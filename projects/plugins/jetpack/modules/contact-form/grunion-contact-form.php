@@ -1196,11 +1196,12 @@ class Grunion_Contact_Form_Plugin {
 	 * @return array feedback array with additional data ready for submission to Akismet.
 	 */
 	public function prepare_for_akismet( $form ) {
-		$form['comment_type'] = 'contact_form';
-		$form['user_ip']      = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$form['user_agent']   = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
-		$form['referrer']     = isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
-		$form['blog']         = get_option( 'home' );
+		$form['comment_type']     = 'contact_form';
+		$form['user_ip']          = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$form['user_agent']       = isset( $_SERVER['HTTP_USER_AGENT'] ) ? filter_var( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
+		$form['referrer']         = isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) : '';
+		$form['blog']             = get_option( 'home' );
+		$form['comment_date_gmt'] = gmdate( DATE_ATOM, time() ); // ISO 8601 format. See https://www.php.net/manual/en/class.datetimeinterface.php#datetimeinterface.constants.types
 
 		foreach ( $_SERVER as $key => $value ) {
 			if ( ! is_string( $value ) ) {
@@ -1580,6 +1581,7 @@ class Grunion_Contact_Form_Plugin {
 	 * @return array            Associative array with keys expected by core.
 	 */
 	public function _internal_personal_data_eraser( $email, $page = 1, $per_page = 250 ) { // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore -- this is called in other files.
+		$post_id      = null;
 		$removed      = false;
 		$retained     = false;
 		$messages     = array();
@@ -1977,7 +1979,7 @@ class Grunion_Contact_Form_Plugin {
 		/**
 		 * Count how many rows will be exported.
 		 */
-		$row_count = count( reset( $data ) );
+		$row_count = is_countable( $data ) ? count( reset( $data ) ) : 0;
 
 		// Forces the download of the CSV instead of echoing
 		header( 'Content-Disposition: attachment; filename=' . $filename );
@@ -2730,10 +2732,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$this->parse_content( $default_form );
 
 			// Store the shortcode.
-			$this->store_shortcode( $default_form, $attributes, $this->hash );
+			static::store_shortcode( $default_form, $attributes, $this->hash );
 		} else {
 			// Store the shortcode.
-			$this->store_shortcode( $content, $attributes, $this->hash );
+			static::store_shortcode( $content, $attributes, $this->hash );
 		}
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
@@ -5284,7 +5286,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				$field .= $this->render_textarea_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
 				break;
 			case 'radio':
-				$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text, $field_placeholder );
+				$field .= $this->render_radio_field( $id, $label, $value, $field_class, $required, $required_field_text );
 				break;
 			case 'checkbox':
 				$field .= $this->render_checkbox_field( $id, $label, $value, $field_class, $required, $required_field_text );
@@ -5416,7 +5418,7 @@ function grunion_delete_old_spam() {
 	}
 
 	// if we hit the max then schedule another run
-	if ( count( $post_ids ) >= $grunion_delete_limit ) {
+	if ( is_countable( $post_ids ) && count( $post_ids ) >= $grunion_delete_limit ) {
 		wp_schedule_single_event( time() + 700, 'grunion_scheduled_delete' );
 	}
 }
