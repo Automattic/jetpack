@@ -84,6 +84,8 @@ function zeroBSCRM_bodyClassMods( $classes = '' ) {
 	$hiding_wp = get_user_meta( get_current_user_id(), 'zbs-hide-wp-menus', true );
 	if ( zeroBSCRM_isAdminPage() ) {
 
+		$classes .= ' jpcrm-admin';
+
 		// if hiding, append class to body
 		if ( $hiding_wp ) {
 			$classes .= ' zbs-fullscreen ';
@@ -282,18 +284,13 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		})
 		</script>
 		<!---  // mobile only menu -->
-
-
-		<div id="zbs-hide-main-menu" class="ui stackable menu inverted zbs-admin-main-menu mobile tablet hidden" style="z-index:5; flex-direction: column; align-items: flex-start; padding: 20px 0 0 30px !important;">
-
-		<div class="item <?php echo esc_attr( $admin_menu_state ); ?> mobile hidden" id="zbs-main-logo-wrap">
-			<div class="zbs-cube" id="zbs-main-logo-cube-wrap">
-				<div class="zbs-face1">
-					<img id="zbs-main-logo" alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>" style="cursor:pointer;">
-				</div>
-				<div class="zbs-face2">
-					<i class="expand icon fa-flip-horizontal"></i>
-				</div>
+	<jpcrm-top-menu>
+		<div class="logo-cube <?php echo esc_attr( $admin_menu_state ); ?>">
+			<div class="cube-side side1">
+				<img alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>">
+			</div>
+			<div class="cube-side side2">
+				<i class="expand icon fa-flip-horizontal"></i>
 			</div>
 		</div>
 
@@ -301,7 +298,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 
 
 			<a class="item<?php esc_attr( zeroBS_menu_active( $zbs->slugs['dash'] ) ); ?>" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['dash'] ) ); ?>"><?php esc_html_e( 'Dashboard', 'zero-bs-crm' ); ?></a>
-			<div class="ui simple dropdown item select<?php esc_attr( zeroBS_menu_active_type( 'contact' ) ); ?>" id="zbs-contacts-topmenu" style="min-width:114px;z-index:2">
+			<div class="ui simple dropdown item select<?php esc_attr( zeroBS_menu_active_type( 'contact' ) ); ?>" id="zbs-contacts-topmenu" style="min-width:114px;z-index:5">
 				<span class="text"><?php esc_html_e( 'Contacts', 'zero-bs-crm' ); ?></span>
 				<i class="dropdown icon"></i>
 				<div class="menu ui inverted zbs-admin-bg-menu zbs-dropdown">
@@ -680,7 +677,8 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			</div>
 
 		</div>
-	</div>
+
+	</jpcrm-top-menu>
 		<?php
 
 	}

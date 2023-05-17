@@ -46,7 +46,7 @@
     box-shadow: none !important;
 }
 
- .zbs-admin-main-menu, .zbs-admin-bg-menu{
+ .zbs-admin-bg-menu{
 	background: $nav_bg;
  }
 
@@ -62,11 +62,6 @@
     border-bottom: 1px solid #CCC;
 	background: #f6f7f7 !important;
  }
-
- .zbs-admin-main-menu, #zbs-hide-main-menu{
-	 background: $nav_bg !important;
-	 border-bottom: 1px $bottom_border solid !important;
- } 
 
  #zbs-list-top-bar{
 	.zbs-white{
