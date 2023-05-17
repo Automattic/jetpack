@@ -254,10 +254,13 @@ export default function PublicizeForm( {
 							onDismiss={ onDismissInstagramNotice }
 							type={ 'highlight' }
 							actions={ [
-								<Button href={ connectionsAdminUrl } variant="primary">
+								<Button key="connect" href={ connectionsAdminUrl } variant="primary">
 									{ __( 'Connect now', 'jetpack' ) }
 								</Button>,
-								<Button href={ getRedirectUrl( 'jetpack-social-connecting-to-social-networks' ) }>
+								<Button
+									key="learn-more"
+									href={ getRedirectUrl( 'jetpack-social-connecting-to-social-networks' ) }
+								>
 									{ __( 'Learn more', 'jetpack' ) }
 								</Button>,
 							] }
