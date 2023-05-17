@@ -306,7 +306,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "c1d5678cddebb86d6b6067440d537521452223d8"
+                "reference": "745ab65622365b8ea2ce1d1906d5eeac6fa1fc5c"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -351,7 +351,6 @@
                 "autoload",
                 "autoloader",
                 "composer",
-                "dev",
                 "jetpack",
                 "plugin",
                 "wordpress"
@@ -621,7 +620,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "4b6edb27ebe4edcb019c4060b59320072c626a08"
+                "reference": "3774f7f0a289b29d5d6c88212aed5c634fbc56ac"
             },
             "require": {
                 "composer-plugin-api": "^2.1.0"
@@ -663,7 +662,6 @@
             "description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
             "keywords": [
                 "composer",
-                "dev",
                 "i18n",
                 "jetpack",
                 "plugin"

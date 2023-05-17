@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "c1d5678cddebb86d6b6067440d537521452223d8"
+                "reference": "745ab65622365b8ea2ce1d1906d5eeac6fa1fc5c"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -57,7 +57,6 @@
                 "autoload",
                 "autoloader",
                 "composer",
-                "dev",
                 "jetpack",
                 "plugin",
                 "wordpress"

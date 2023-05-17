@@ -9,8 +9,7 @@
 		"composer",
 		"plugin",
 		"jetpack",
-		"wordpress",
-		"dev"
+		"wordpress"
 	],
 	"require": {
 		"composer-plugin-api": "^1.1 || ^2.0"
