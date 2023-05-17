@@ -2,7 +2,7 @@ import { _n, __ } from '@wordpress/i18n';
 import jQuery from 'jquery';
 
 const { ajaxUrl, connectionsUrl } = window.jetpackSocialClassicEditorConnections;
-const CONNECTIONS_NEED_MEDIA = [ 'facebook' ];
+const CONNECTIONS_NEED_MEDIA = [ 'instagram' ];
 
 const validateFeaturedMedia = ( $, connectionsNeedValidation ) => {
 	const featuredImage = window.wp.media.featuredImage.get();
