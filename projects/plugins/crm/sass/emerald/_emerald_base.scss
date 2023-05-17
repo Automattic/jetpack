@@ -4,7 +4,7 @@ body.jpcrm-admin #wpcontent {
 }
 
 jpcrm-top-menu {
-	padding: 20px;
+	padding: 20px 20px 0px 20px;
 	display: block;
 	background-color: white;
 
@@ -41,6 +41,16 @@ jpcrm-top-menu {
 				-webkit-transform: rotateX(-90deg) translateZ(-20px);
 				transform: rotateX(-90deg) translateZ(-20px);
 			}
+		}
+	}
+
+	menu-bar {
+		margin-top: 10px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		menu-section {
 		}
 	}
 }

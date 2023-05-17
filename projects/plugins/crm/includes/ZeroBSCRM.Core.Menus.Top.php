@@ -294,9 +294,9 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			</div>
 		</div>
 
-		<div class="menu ui inverted zbs-admin-bg-menu mobile hidden" style="z-index:5">
+		<menu-bar>
 
-
+			<menu-section class="menu ui inverted zbs-admin-bg-menu">
 			<a class="item<?php esc_attr( zeroBS_menu_active( $zbs->slugs['dash'] ) ); ?>" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['dash'] ) ); ?>"><?php esc_html_e( 'Dashboard', 'zero-bs-crm' ); ?></a>
 			<div class="ui simple dropdown item select<?php esc_attr( zeroBS_menu_active_type( 'contact' ) ); ?>" id="zbs-contacts-topmenu" style="min-width:114px;z-index:5">
 				<span class="text"><?php esc_html_e( 'Contacts', 'zero-bs-crm' ); ?></span>
@@ -541,11 +541,18 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 				<?php
 			}
 
-			// } this puts in the NOTICIATION BELL (or pending notifications count)
+			?>
+
+
+		</menu-section>
+
+		<menu-section class="menu ui inverted zbs-admin-bg-menu">
+			<?php
+
 			do_action( 'zbs-crm-notify' );
 			?>
 
-			<div class="ui simple dropdown item" id="zbs-user-menu-item">
+		<div class="ui simple dropdown item" id="zbs-user-menu-item">
 			<span class="text">
 			<?php
 			$uid = get_current_user_id();
@@ -675,8 +682,8 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 				</div>
 				</div>
 			</div>
-
-		</div>
+		</menu-section>
+		</menu-bar><!-- end .menu-bar -->
 
 	</jpcrm-top-menu>
 		<?php
