@@ -142,6 +142,40 @@ importers:
         specifier: 4.23.0
         version: 4.23.0
 
+  projects/js-packages/boost-score-api:
+    dependencies:
+      '@wordpress/i18n':
+        specifier: 4.32.0
+        version: 4.32.0
+      zod:
+        specifier: 3.20.2
+        version: 3.20.2
+    devDependencies:
+      '@automattic/jetpack-webpack-config':
+        specifier: workspace:*
+        version: link:../webpack-config
+      '@typescript-eslint/parser':
+        specifier: 5.59.0
+        version: 5.59.0(eslint@8.39.0)(typescript@5.0.4)
+      eslint:
+        specifier: 8.39.0
+        version: 8.39.0
+      jest:
+        specifier: 29.5.0
+        version: 29.5.0
+      ts-loader:
+        specifier: 9.4.2
+        version: 9.4.2(typescript@5.0.4)(webpack@5.76.0)
+      typescript:
+        specifier: 5.0.4
+        version: 5.0.4
+      webpack:
+        specifier: 5.76.0
+        version: 5.76.0(webpack-cli@4.9.1)
+      webpack-cli:
+        specifier: 4.9.1
+        version: 4.9.1(webpack@5.76.0)
+
   projects/js-packages/components:
     dependencies:
       '@automattic/format-currency':
@@ -10482,7 +10516,7 @@ packages:
     engines: {node: '>= 8'}
     dependencies:
       normalize-path: 3.0.0
-      picomatch: 2.2.3
+      picomatch: 2.3.1
 
   /app-root-dir@1.0.2:
     resolution: {integrity: sha512-jlpIfsOoNoafl92Sz//64uQHGSyMrD2vYG5d8o2a4qGvyNCvXur7bzIsWtAC/6flI2RYAp3kv8rsfBtaLm7w0g==}
@@ -15403,7 +15437,7 @@ packages:
       chalk: 4.1.2
       ci-info: 3.8.0
       graceful-fs: 4.2.11
-      picomatch: 2.2.3
+      picomatch: 2.3.1
 
   /jest-validate@29.5.0:
     resolution: {integrity: sha512-pC26etNIi+y3HV8A+tUGr/lph9B18GnzSRAkPaaZJIE1eFdiYm6/CewuiJQ8/RlfHd1u/8Ioi8/sJ+CmbA+zAQ==}
@@ -15470,6 +15504,26 @@ packages:
 
   /jest@29.4.3:
     resolution: {integrity: sha512-XvK65feuEFGZT8OO0fB/QAQS+LGHvQpaadkH5p47/j3Ocqq3xf2pK9R+G0GzgfuhXVxEv76qCOOcMb5efLk6PA==}
+    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+    hasBin: true
+    peerDependencies:
+      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
+    peerDependenciesMeta:
+      node-notifier:
+        optional: true
+    dependencies:
+      '@jest/core': 29.5.0
+      '@jest/types': 29.5.0
+      import-local: 3.1.0
+      jest-cli: 29.5.0
+    transitivePeerDependencies:
+      - '@types/node'
+      - supports-color
+      - ts-node
+    dev: true
+
+  /jest@29.5.0:
+    resolution: {integrity: sha512-juMg3he2uru1QoXX078zTa7pO85QyB9xajZc6bU+d9yEGwrKX6+vGmJQ3UdVZsvTEUARIdObzH68QItim6OSSQ==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     hasBin: true
     peerDependencies:
@@ -20504,7 +20558,7 @@ packages:
       chalk: 4.1.2
       enhanced-resolve: 5.13.0
       micromatch: 4.0.5
-      semver: 7.3.5
+      semver: 7.5.0
       typescript: 5.0.4
       webpack: 5.76.0(webpack-cli@4.9.1)
     dev: true
@@ -21143,7 +21197,7 @@ packages:
       '@webassemblyjs/wasm-parser': 1.11.1
       acorn: 8.8.2
       acorn-import-assertions: 1.8.0(acorn@8.8.2)
-      browserslist: 4.20.4
+      browserslist: 4.21.5
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.13.0
       es-module-lexer: 0.9.3
