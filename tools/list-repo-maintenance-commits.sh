@@ -16,6 +16,11 @@ AUTHORS=(
 # Paths outside of projects/ to ignore.
 PATHS=(
 	:!pnpm-lock.yaml
+	:!tools/phpcs-excludelist.json
+	:!tools/eslint-excludelist.json
+	':!*/composer.lock'
+	':!*/changelog/*'
+	':!*/CHANGELOG.md'
 )
 
 # Projects to NOT ignore.
