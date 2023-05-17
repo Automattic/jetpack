@@ -19,9 +19,4 @@
 
 .notice {
 	grid-column: 1 / -1;
-	// display: grid;
-	// grid-template-columns: auto 1fr;
-	// grid-template-rows: repeat( 2, auto );
-	// column-gap: calc( var( --spacing-base ) * 3 );
-	// row-gap: calc( var( --spacing-base ) * 2 );
 }
