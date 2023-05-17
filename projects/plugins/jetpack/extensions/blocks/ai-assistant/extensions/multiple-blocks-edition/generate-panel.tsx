@@ -87,16 +87,16 @@ export default function GenerateContentPanel( { blocksIds } ) {
 		const content = getContentFromSelectedBlocks();
 
 		let request = 'Combine the content below based on mentioned rules above.';
+		if ( action?.key ) {
+			request += ' ' + action.prompt;
+		}
+
 		if ( tone?.key ) {
 			request += ` Write with a \`${ tone.key }\` tone.`;
 		}
 
 		if ( lang?.key ) {
 			request += ` Write in \`${ lang.key }\` (${ LANGUAGE_MAP[ lang.key ].label }) language.`;
-		}
-
-		if ( action?.key ) {
-			request += ' ' + action.prompt;
 		}
 
 		const prompt = buildPromptTemplate( {
@@ -112,8 +112,7 @@ export default function GenerateContentPanel( { blocksIds } ) {
 		}
 
 		let fullMessage = '';
-
-		const generatedBlock = createBlock( 'core/paragraph', {
+		const generatedBlock = createBlock( 'jetpack/ai-assistant', {
 			content: '',
 		} );
 
@@ -182,22 +181,22 @@ export default function GenerateContentPanel( { blocksIds } ) {
 						{
 							key: 'summarize',
 							name: __( 'Summarize', 'jetpack' ),
-							prompt: 'Finally, please, summarize the content.',
+							prompt: 'Summarize the content.',
 						},
 						{
 							key: 'make-longer',
 							name: __( 'Make longer', 'jetpack' ),
-							prompt: 'Finally, please, make the content longer.',
+							prompt: 'Make the content longer.',
 						},
 						{
 							key: 'make-shorter',
 							name: __( 'Make shorter', 'jetpack' ),
-							prompt: 'Finally, please, make the content shorter.',
+							prompt: 'Make the content shorter.',
 						},
 						{
 							key: 'spelling-and-grammar',
 							name: __( 'Correct spelling and grammar', 'jetpack' ),
-							prompt: 'Finally, please, correct spelling and grammar of the content.',
+							prompt: 'Correct spelling and grammar of the content.',
 						},
 					] }
 					onChange={ ( { selectedItem } ) => setAction( selectedItem ) }
