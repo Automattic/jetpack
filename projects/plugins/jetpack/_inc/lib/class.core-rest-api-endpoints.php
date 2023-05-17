@@ -2352,7 +2352,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_string',
 				'sanitize_callback' => 'esc_textarea',
-				'jp_group'          => 'waf',
+				'jp_group'          => 'settings',
 			),
 			'jetpack_waf_share_data'               => array(
 				'description'       => esc_html__( 'Share data with Jetpack.', 'jetpack' ),

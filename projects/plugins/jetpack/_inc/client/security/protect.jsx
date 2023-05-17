@@ -12,6 +12,7 @@ import analytics from 'lib/analytics';
 import { includes } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import QueryWafSettings from '../components/data/query-waf-bootstrap-path';
 import { getSetting } from '../state/settings';
 import { getWafIpAllowListInputState, updateWafIpAllowList } from '../state/waf';
 
@@ -89,6 +90,7 @@ const ProtectComponent = class extends Component {
 				header={ _x( 'Brute force protection', 'Settings header', 'jetpack' ) }
 				saveDisabled={ this.props.isSavingAnyOption( 'jetpack_waf_ip_allow_list' ) }
 			>
+				{ isProtectActive && <QueryWafSettings /> }
 				<SettingsGroup
 					hasChild
 					disableInOfflineMode
