@@ -226,12 +226,7 @@ const useSuggestionsFromOpenAI = ( {
 					// The error is confirmed
 					source.close();
 					setIsLoadingCompletion( false );
-					setErrorMessage(
-						__(
-							"I'm sorry, I don't understand what you're asking for. Could you please provide me with clear instructions on what you want me to do? Thank you.",
-							'jetpack'
-						)
-					);
+					setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
 				} else if ( ! '__JETPACK_AI_ERROR__'.startsWith( fullMessage ) ) {
 					// Confirmed to be a valid response
 					setAttributes( {
