@@ -12,7 +12,7 @@ import { Text, View } from 'react-native';
 /**
  * Internal dependencies
  */
-import styles from './styles';
+import styles from './styles.scss';
 
 /**
  * React component that renders the details settings panel.
