@@ -3861,7 +3861,23 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		/** This filter is already documented in modules/contact-form/admin.php */
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
-		$url     = $block_template || $block_template_part || $widget ? home_url( '/' ) : get_permalink( $post->ID );
+
+		/*
+		 * Links to the feedback and the post.
+		 */
+		if ( $block_template || $block_template_part || $widget ) {
+			$url        = home_url( '/' );
+			$url_editor = home_url( '/' );
+		} else {
+			$url        = get_permalink( $post->ID );
+			$url_editor = add_query_arg(
+				array(
+					'action' => 'edit',
+					'post'   => $post->ID,
+				),
+				admin_url( 'post.php' )
+			);
+		}
 
 		// translators: the time of the form submission.
 		$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack' );
@@ -4023,7 +4039,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$message = apply_filters( 'contact_form_message', implode( '', $message ), $message );
 
 		// This is called after `contact_form_message`, in order to preserve back-compat
-		$message = self::wrap_message_in_html_tags( $title, $response_link, $url, $message, $footer );
+		$message = self::wrap_message_in_html_tags( $title, $response_link, $url_editor, $message, $footer );
 
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
