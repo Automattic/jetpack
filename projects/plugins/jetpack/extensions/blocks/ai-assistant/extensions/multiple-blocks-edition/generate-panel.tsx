@@ -20,7 +20,7 @@ import React from 'react';
 import { buildPromptTemplate } from '../../create-prompt';
 import { askQuestion } from '../../get-suggestion-with-stream';
 import { LANGUAGE_MAP, defaultLanguage } from '../../i18n-dropdown-control';
-import { DEFAULT_PROMPT_TONE, PROMPT_TONES_MAP } from '../../tone-dropdown-control';
+import { DEFAULT_PROMPT_TONE, PROMPT_TONES_MAP, ToneProp } from '../../tone-dropdown-control';
 
 // Create a Tone Array of objects with `key` and `name` keys
 export const toneOptions = Object.keys( PROMPT_TONES_MAP ).map( key => {
@@ -50,7 +50,12 @@ const defaultLang = langOptions.find( option => option.key === defaultLanguage )
 export default function GenerateContentPanel( { blocksIds } ) {
 	const [ tone, setTone ] = useState( defaultTone );
 	const [ lang, setLang ] = useState( defaultLang );
-	const [ action, setAction ] = useState< { key: string; name: string; prompt: string } >( {} );
+	const [ action, setAction ] = useState< { key: ToneProp; name: string; prompt: string } >( {
+		key: 'formal',
+		name: __( 'Summarize', 'jetpack' ),
+		prompt: '',
+	} );
+
 	const [ combineBlocks, setCombineBlocks ] = useState( false );
 
 	const { replaceBlocks, updateBlockAttributes, insertBlock } = useDispatch( blockEditorStore );
