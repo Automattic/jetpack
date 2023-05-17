@@ -142,7 +142,7 @@ const UploaderProgress = ( { file, onDone, onReset, isInteractionDisabled } ) =>
 										<Text style={ retryUploadTextStyle }>{ retryMessage }</Text>
 									</>
 								) : (
-									<View style={ videoPressIconContainerStyle }>
+									<View style={ videoPressIconContainerStyle } testID="videopress-uploading-video">
 										<Icon icon={ VideoPressIcon } { ...iconStyle } />
 									</View>
 								) }

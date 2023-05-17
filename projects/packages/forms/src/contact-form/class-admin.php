@@ -665,12 +665,12 @@ class Admin {
 	public function grunion_manage_post_column_from( $post ) {
 		$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post->ID );
 
-		if ( isset( $content_fields['_feedback_author'] ) ) {
+		if ( ! empty( $content_fields['_feedback_author'] ) ) {
 			echo esc_html( $content_fields['_feedback_author'] );
 			return;
 		}
 
-		if ( isset( $content_fields['_feedback_author_email'] ) ) {
+		if ( ! empty( $content_fields['_feedback_author_email'] ) ) {
 			printf(
 				"<a href='%1\$s' target='_blank'>%2\$s</a><br />",
 				esc_url( 'mailto:' . $content_fields['_feedback_author_email'] ),
@@ -679,8 +679,8 @@ class Admin {
 			return;
 		}
 
-		if ( isset( $content_fields['_feedback_ip'] ) ) {
-			echo esc_html( $content_fields['feedback_ip'] );
+		if ( ! empty( $content_fields['_feedback_ip'] ) ) {
+			echo esc_html( $content_fields['_feedback_ip'] );
 			return;
 		}
 
@@ -717,7 +717,7 @@ class Admin {
 
 		if ( empty( $response_fields ) ) {
 			$chunks = explode( "\nArray", $content );
-			if ( $chunks[1] ) {
+			if ( ! empty( $chunks[1] ) ) {
 				// re-construct the array string
 				$array = 'Array' . $chunks[1];
 				// re-construct the array
@@ -888,9 +888,9 @@ class Admin {
 			);
 			$actions['trash'] = sprintf(
 				'<a class="submitdelete" title="%s" href="%s">%s</a>',
-				esc_attr__( 'Trash', 'jetpack-forms' ),
+				esc_attr_x( 'Trash', 'verb', 'jetpack-forms' ),
 				get_delete_post_link( $post->ID ),
-				esc_html__( 'Trash', 'jetpack-forms' )
+				esc_html_x( 'Trash', 'verb', 'jetpack-forms' )
 			);
 		} elseif ( $post->post_status === 'spam' ) {
 			$actions['unspam unapprove'] = sprintf(
@@ -1193,7 +1193,7 @@ class Admin {
 				$status_html .= ' class="current"';
 			}
 
-			$status_html .= '>' . __( 'Trash', 'jetpack-forms' ) . ' <span class="count">';
+			$status_html .= '>' . _x( 'Trash', 'noun', 'jetpack-forms' ) . ' <span class="count">';
 			$status_html .= '(' . number_format( $status['trash'] ) . ')';
 			$status_html .= '</span></a>';
 			if ( isset( $status['spam'] ) ) {
@@ -1387,7 +1387,7 @@ class Admin {
 
 		$query = 'post_type=feedback&post_status=publish';
 
-		if ( isset( $_POST['limit'], $_POST['offset'] ) ) {
+		if ( isset( $_POST['limit'] ) && isset( $_POST['offset'] ) ) {
 			$query .= '&posts_per_page=' . (int) $_POST['limit'] . '&offset=' . (int) $_POST['offset'];
 		}
 

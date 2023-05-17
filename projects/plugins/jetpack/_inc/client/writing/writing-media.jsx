@@ -119,6 +119,7 @@ function WritingMedia( props ) {
 							}
 							{ ...props }
 							validValues={ props.validValues( 'carousel_background_color', 'carousel' ) }
+							rna
 						/>
 					</FormLabel>
 				</FormFieldset>

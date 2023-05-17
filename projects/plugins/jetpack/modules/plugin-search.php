@@ -214,7 +214,7 @@ class Jetpack_Plugin_Search {
 	 * @return bool True if $hint should be displayed.
 	 */
 	protected function should_display_hint( $hint ) {
-		$dismissed_hints = $this->get_dismissed_hints();
+		$dismissed_hints = static::get_dismissed_hints();
 		// If more than 2 hints have been dismissed, then show no more.
 		if ( 2 < count( $dismissed_hints ) ) {
 			return false;

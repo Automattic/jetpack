@@ -284,12 +284,12 @@ function grunion_manage_post_column_date() {
 function grunion_manage_post_column_from( $post ) {
 	$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post->ID );
 
-	if ( isset( $content_fields['_feedback_author'] ) ) {
+	if ( ! empty( $content_fields['_feedback_author'] ) ) {
 		echo esc_html( $content_fields['_feedback_author'] );
 		return;
 	}
 
-	if ( isset( $content_fields['_feedback_author_email'] ) ) {
+	if ( ! empty( $content_fields['_feedback_author_email'] ) ) {
 		printf(
 			"<a href='%1\$s' target='_blank'>%2\$s</a><br />",
 			esc_url( 'mailto:' . $content_fields['_feedback_author_email'] ),
@@ -298,8 +298,8 @@ function grunion_manage_post_column_from( $post ) {
 		return;
 	}
 
-	if ( isset( $content_fields['_feedback_ip'] ) ) {
-		echo esc_html( $content_fields['feedback_ip'] );
+	if ( ! empty( $content_fields['_feedback_ip'] ) ) {
+		echo esc_html( $content_fields['_feedback_ip'] );
 		return;
 	}
 
@@ -510,9 +510,9 @@ function grunion_manage_post_row_actions( $actions ) {
 		);
 		$actions['trash'] = sprintf(
 			'<a class="submitdelete" title="%s" href="%s">%s</a>',
-			esc_attr__( 'Trash', 'jetpack' ),
+			esc_attr_x( 'Trash', 'verb', 'jetpack' ),
 			get_delete_post_link( $post->ID ),
-			esc_html__( 'Trash', 'jetpack' )
+			esc_html_x( 'Trash', 'verb', 'jetpack' )
 		);
 	} elseif ( $post->post_status === 'spam' ) {
 		$actions['unspam unapprove'] = sprintf(
@@ -819,7 +819,7 @@ function grunion_ajax_spam() {
 			$status_html .= ' class="current"';
 		}
 
-		$status_html .= '>' . __( 'Trash', 'jetpack' ) . ' <span class="count">';
+		$status_html .= '>' . _x( 'Trash', 'noun', 'jetpack' ) . ' <span class="count">';
 		$status_html .= '(' . number_format( $status['trash'] ) . ')';
 		$status_html .= '</span></a>';
 		if ( isset( $status['spam'] ) ) {

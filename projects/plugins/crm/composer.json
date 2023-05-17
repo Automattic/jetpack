@@ -48,7 +48,7 @@
 		"platform": {
 			"php": "7.2"
 		},
-		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_7_1_alpha",
+		"autoloader-suffix": "06c775433a83ed276f0a1d8ac25f93ba_crmⓥ5_8_0_alpha",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true,
@@ -58,9 +58,10 @@
 	"require": {
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-forms": "@dev",
 		"automattic/woocommerce": "^3.0",
-		"dompdf/dompdf": "2.0.3",
-		"automattic/jetpack-composer-plugin": "@dev"
+		"dompdf/dompdf": "2.0.3"
 	},
 	"repositories": [
 		{
@@ -84,7 +85,7 @@
 		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-crm",
 		"changelogger": {
-			"link-template": "https://github.com/Automattic/jetpack-crm/compare/v${old}...v${new}"
+			"link-template": "https://github.com/Automattic/jetpack-crm/compare/${old}...${new}"
 		},
 		"release-branch-prefix": "crm",
 		"wp-plugin-slug": "zero-bs-crm",

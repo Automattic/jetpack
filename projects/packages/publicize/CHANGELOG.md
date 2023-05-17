@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.0] - 2023-05-15
+### Added
+- Added Mastodon to list of supported services [#30661]
+
+### Changed
+- Changed how we update the publicize skip meta. [#30479]
+- Get Jetpack to use connection_id as the uninque identifier of the editor elements on the sidebar [#30492]
+- PHP 8 Compatibility fixes [#30692]
+
+## [0.27.0] - 2023-05-08
+### Added
+- Added support for flagging unsupported connections in the editor UI [#30280]
+
+## [0.26.0] - 2023-05-02
+### Changed
+- Updated package dependencies. [#30375]
+
+## [0.25.1] - 2023-05-01
+### Fixed
+- Jetpack Social: Render Social Image Generator panel even when SIG's default is disabled [#30358]
+
 ## [0.25.0] - 2023-04-25
 ### Added
 - Added new option for flagging a post as social post [#30179]
@@ -287,6 +308,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.28.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.27.0...v0.28.0
+[0.27.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.26.0...v0.27.0
+[0.26.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.25.1...v0.26.0
+[0.25.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.25.0...v0.25.1
 [0.25.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.24.2...v0.25.0
 [0.24.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.24.1...v0.24.2
 [0.24.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.24.0...v0.24.1

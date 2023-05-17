@@ -35,7 +35,6 @@ function register_block() {
 			FEATURE_NAME,
 			array(
 				'render_callback' => __NAMESPACE__ . '\render_block',
-				'plan_check'      => true,
 				'attributes'      => array(
 					'isPremiumContentChild' => array(
 						'type'    => 'boolean',
@@ -65,11 +64,8 @@ function render_block( $attributes, $content ) {
 		return '';
 	}
 
-	if (
-		! membership_checks()
-		// Only display Stripe nudge if Upgrade nudge isn't displaying.
-		&& required_plan_checks()
-	) {
+	// Render the Stripe nudge when Stripe is unconnected
+	if ( ! membership_checks() ) {
 		$stripe_nudge = render_stripe_nudge();
 		return $stripe_nudge . $content;
 	}

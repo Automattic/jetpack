@@ -865,6 +865,7 @@ function zbscrm_JS_draw_invoice_totals( res ) {
 	shipping = res.invoiceObj.totals;
 	//this will be the setting for what tax rate to apply to shipping (not stored (yet) in the data)
 	shipping.taxes = res.invoiceObj.shipping_taxes;
+	shipping.tax = res.invoiceObj.shipping_tax;
 
 	if ( res.invoiceObj.settings.invpandp == 1 && res.invoiceObj.settings.invtax == 1 ) {
 		//tax on shipping (select)
@@ -1087,7 +1088,7 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 
 	var tax_id;
 
-	if ( typeof v.taxes === 'undefined' || v.taxes == null ) {
+	if ( typeof v.taxes === 'undefined' || v.taxes == null || v.taxes == '' ) {
 		tax_id = 0;
 	} else {
 		tax_id = parseInt( v.taxes ); // fine while we have 1 tax, if multi-select on tax, this'll be a CSV, e.g. "130,132"
@@ -1108,7 +1109,7 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 			i +
 			'">';
 	}
-
+	
 	selected = '';
 	if ( tax_id == 0 ) {
 		selected = 'selected';
@@ -1130,6 +1131,7 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 		taxhtml +=
 			'<option value="' + t.id + '" ' + selected + '>' + t.name + ' : ' + t.rate + '%</option>';
 	} );
+	
 	taxhtml += '</optgroup>';
 	taxhtml += '</select>';
 
@@ -1357,8 +1359,16 @@ function zbscrm_JS_calculate_invoice_tax_table() {
 		total_amount = total_amount + this_row_amount[ index ];
 
 		if ( this_tax_id > 0 ) {
-			this_tax_line_data = zbscrm_JS_pickTaxRate( this_tax_id ); //tax_table_index[this_tax_id];
-			tax_percent[ index ] = this_tax_line_data.id;
+			const selectedOption = this.options[this.selectedIndex];
+
+			// Check if the tax is the absolute amount
+			if ( selectedOption.classList.contains( 'zbs-fixed-tax' ) ) {
+				this_tax_amount = this_tax_id;
+				tax_percent[ index ] = this_tax_amount / this_row_amount[ index ]; 
+			} else {
+				this_tax_line_data = zbscrm_JS_pickTaxRate( this_tax_id ); //tax_table_index[this_tax_id];
+				tax_percent[ index ] = this_tax_line_data.id;
+			}
 		} else {
 			tax_percent[ index ] = 0;
 		}

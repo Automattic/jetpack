@@ -69,7 +69,7 @@ class Stats {
 
 		$data = $response['data'];
 
-		if ( ! $data || ! isset( $data['days'] ) || count( $data['days'] ) === 0 ) {
+		if ( ! $data || ! isset( $data['days'] ) || ! is_countable( $data['days'] ) || count( $data['days'] ) === 0 ) {
 			return new WP_Error(
 				'videopress_stats_error',
 				__( 'Could not find any stats from the service', 'jetpack-videopress-pkg' )

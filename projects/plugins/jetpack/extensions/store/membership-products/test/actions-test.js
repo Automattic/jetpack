@@ -2,15 +2,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../../shared/components/product-management-controls/constants';
 import * as message from '../../../shared/components/product-management-controls/utils';
 import * as currencies from '../../../shared/currencies';
-import {
-	saveProduct,
-	setApiState,
-	setConnectUrl,
-	setProducts,
-	setShouldUpgrade,
-	setSiteSlug,
-	setUpgradeUrl,
-} from '../actions';
+import { saveProduct, setApiState, setConnectUrl, setProducts, setSiteSlug } from '../actions';
 import * as utils from '../utils';
 
 const ANY_VALID_DATA = {
@@ -72,20 +64,6 @@ describe( 'Membership Products Actions', () => {
 		expect( result ).toStrictEqual( anyValidApiStateWithType );
 	} );
 
-	test( 'Set shouldUpgrade works as expected', () => {
-		// Given
-		const anyValidShouldUpgradeWithType = {
-			type: 'SET_SHOULD_UPGRADE',
-			shouldUpgrade: ANY_VALID_DATA,
-		};
-
-		// When
-		const result = setShouldUpgrade( ANY_VALID_DATA );
-
-		// Then
-		expect( result ).toStrictEqual( anyValidShouldUpgradeWithType );
-	} );
-
 	test( 'setSiteSlug works as expected', () => {
 		// Given
 		const anyValidSiteSlugWithType = {
@@ -95,20 +73,6 @@ describe( 'Membership Products Actions', () => {
 
 		// When
 		const result = setSiteSlug( ANY_VALID_DATA );
-
-		// Then
-		expect( result ).toStrictEqual( anyValidSiteSlugWithType );
-	} );
-
-	test( 'setUpgradeUrl works as expected', () => {
-		// Given
-		const anyValidSiteSlugWithType = {
-			type: 'SET_UPGRADE_URL',
-			upgradeUrl: ANY_VALID_DATA,
-		};
-
-		// When
-		const result = setUpgradeUrl( ANY_VALID_DATA );
 
 		// Then
 		expect( result ).toStrictEqual( anyValidSiteSlugWithType );

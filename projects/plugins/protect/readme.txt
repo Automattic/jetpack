@@ -40,6 +40,14 @@ If a bad actor detects a vulnerability on your site, they can exploit it to acce
 
 That’s why it’s essential to use a reputable and reliable vulnerability & malware site scanner like Jetpack Protect to safeguard your site.
 
+= Can I use Jetpack Scan to fix a site that is already infected? =
+
+Jetpack Protect (Scan) detects and prevents attacks, but is not designed to fully clean up sites infected before it was active. If your site has malware, take immediate action to clean it up and remove the malicious code.
+
+To clean up your site, we suggest using a malware removal tool, or if possible restore from a backup taken before the infection. We recommend using Jetpack VaultPress Backup in conjunction with Jetpack Scan to secure your website.
+
+[Learn more about cleaning your site](https://jetpack.com/support/scan/how-to-clean-your-hacked-wordpress-site/)
+
 == UPGRADE PROTECT TO REMOVE MALWARE IN ONE CLICK AND BE PROTECTED BY OUR WAF ==
 By upgrading Protect, you unlock total site security from WordPress experts:
 - Automated daily malware scanning in addition to vulnerability checks

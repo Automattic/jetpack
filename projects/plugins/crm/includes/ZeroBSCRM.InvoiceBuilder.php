@@ -17,37 +17,6 @@
   / Breaking Checks
    ====================================================== */
 
-
-// Centralised date processing for invoices,
-// DAL2 will thankfully do away with this? (timezone sensitive?)
-function zeroBSCRM_invoiceBuilder_dateMetaToDate($zbs_inv_meta=array(),$plusDays=0,$returnAsUTS=false){
-
-    $inv_date = '';
-    if (isset($zbs_inv_meta['date']) && $zbs_inv_meta['date'] != 'Invalid Date'){
-        $dt = zeroBSCRM_locale_dateToUTS($zbs_inv_meta['date']);
-        // this only happens when people have $date in one format, but their settings match a diff setting                                
-    // NOTE there is NO TIME used here, so we use post_date_gmt + 'true' for isGMT in  zeroBSCRM_date_i18n
-        if ($dt !== false) {
-            if ($plusDays !== 0) $dt += ($plusDays*86400);  
-
-            // return as uts?
-            if ($returnAsUTS) return $dt;
-            // or date?
-            $inv_date = zeroBSCRM_date_i18n(-1,$dt,false,true);
-        }
-    }else{
-
-        $dt = time();
-        if ($plusDays !== 0) $dt += ($plusDays*86400);    
-        // return as uts?
-        if ($returnAsUTS) return $dt;
-        // or date?    
-        $inv_date = zeroBSCRM_date_i18n(-1,$dt);
-    }
-
-    return $inv_date;
-}
-
 // takes inv meta and works out if due
 // now v3.0 friendly!
 function zeroBSCRM_invoiceBuilder_isInvoiceDue($zbsInvoice=array()){
@@ -260,91 +229,83 @@ function zeroBSCRM_invoice_generatePortalInvoiceHTML_v3($invoiceID=-1,$return=tr
 
 function zbs_invoice_generate_pdf(){
 
-    global $zbs;
+	// download flag
+	if ( isset( $_POST['zbs_invoicing_download_pdf'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-    #} download flag
-    if ( isset($_POST['zbs_invoicing_download_pdf'])  ) {
+		// THIS REALLLY needs nonces! For now (1.1.19) added this for you...
+		if ( ! zeroBSCRM_permsInvoices() ) {
+			exit();
+		}
 
-        #} THIS REALLLY needs nonces! For now (1.1.19) added this for you...
-        if (!zeroBSCRM_permsInvoices()) exit();
+		// Check ID
+		$invoice_id = -1;
+		if ( ! empty( $_POST['zbs_invoice_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$invoice_id = (int) $_POST['zbs_invoice_id']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		}
+		if ( $invoice_id <= 0 ) {
+			exit();
+		}
 
-        #} Check ID
-        $invoiceID = -1;
-        if (isset($_POST['zbs_invoice_id']) && !empty($_POST['zbs_invoice_id'])) $invoiceID = (int)sanitize_text_field($_POST['zbs_invoice_id']);
-        if ($invoiceID <= 0) exit();
+		// generate the PDF
+		$pdf_path = jpcrm_invoice_generate_pdf( $invoice_id );
 
-        // generate the PDF
-        $pdfFileLocation = zeroBSCRM_generateInvoicePDFFile($invoiceID);
+		if ( $pdf_path !== false ) {
 
-        if ($pdfFileLocation !== false){
+			$pdf_filename = basename( $pdf_path );
 
-            $invoice = $zbs->DAL->invoices->getInvoice( $invoiceID );
-            $ref = $invoice[ 'id_override' ];
+			// print the pdf file to the screen for saving
+			header( 'Content-type: application/pdf' );
+			header( 'Content-Disposition: attachment; filename="' . $pdf_filename . '"' );
+			header( 'Content-Transfer-Encoding: binary' );
+			header( 'Content-Length: ' . filesize( $pdf_path ) );
+			header( 'Accept-Ranges: bytes' );
+			readfile( $pdf_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
 
-            if ( empty( $ref ) ) {
-                $ref = $invoiceID;
-            }
+			// delete the PDF file once it's been read (i.e. downloaded)
+			wp_delete_file( $pdf_path );
 
-            //print the pdf file to the screen for saving
-            header('Content-type: application/pdf');
-            header('Content-Disposition: attachment; filename="invoice-' . $ref . '.pdf"' );
-            header('Content-Transfer-Encoding: binary');
-            header('Content-Length: ' . filesize($pdfFileLocation));
-            header('Accept-Ranges: bytes');
-            readfile($pdfFileLocation);
+		}
 
-            //delete the PDF file once it's been read (i.e. downloaded)
-            unlink($pdfFileLocation); 
-
-        }
-
-        exit();
-    }
-
+		exit();
+	}
 }
-#} This fires post ZBS init
-add_action('zerobscrm_post_init','zbs_invoice_generate_pdf');
+// This fires post ZBS init
+add_action( 'zerobscrm_post_init', 'zbs_invoice_generate_pdf' );
 
-#} V3.0 can generate invoice pdf files without sending them
-#} ... used for attaching pdf's to emails etc.
-function zeroBSCRM_generateInvoicePDFFile( $invoice_id = -1 ) {
+/**
+ * Generate PDF file for an invoice
+ *
+ * @param int $invoice_id Invoice ID.
+ * @return str path to PDF file
+ */
+function jpcrm_invoice_generate_pdf( $invoice_id = -1 ) {
 
-    global $zbs;
+	// brutal.
+	if ( ! zeroBSCRM_permsInvoices() ) {
+		return false;
+	}
 
-    // brutal.
-    if ( !zeroBSCRM_permsInvoices() ){
-        return false;
-    }
+	// If user has no perms, or id not present, die
+	if ( $invoice_id <= 0 ) {
+		return false;
+	}
 
-    // If user has no perms, or id not present, die
-    if ( $invoice_id <= 0 ){
-        
-        return false;
-        
-    }
+	// Generate html
+	$html = zeroBSCRM_invoice_generateInvoiceHTML( $invoice_id );
 
-    // Generate html
-    $html = zeroBSCRM_invoice_generateInvoiceHTML( $invoice_id );
+	global $zbs;
+	$invoice = $zbs->DAL->invoices->getInvoice( $invoice_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-    // build PDF
-    $dompdf = $zbs->pdf_engine();
-    $dompdf->loadHtml( $html, 'UTF-8' );
-    $dompdf->render();
+	// if invoice has reference number, use instead of ID
+	if ( ! empty( $invoice['id_override'] ) ) {
+		$invoice_id = $invoice['id_override'];
+	}
 
-    $upload_dir = wp_upload_dir();        
-    $zbsInvoiceDir = $upload_dir['basedir'].'/invoices/';
+	// normalise translated text to alphanumeric, resulting in a filename like `invoice-321.pdf`
+	$pdf_filename = sanitize_title( __( 'Invoice', 'zero-bs-crm' ) . '-' . $invoice_id ) . '.pdf';
 
-    if ( ! file_exists( $zbsInvoiceDir ) ) {
-        wp_mkdir_p( $zbsInvoiceDir );
-    }
-    
-    $file_to_save = $zbsInvoiceDir . $invoice_id . '.pdf';
-
-    // save the pdf file on the server
-    file_put_contents( $file_to_save, $dompdf->output() ); 
-    
-    return $file_to_save;
-
+	// return PDF filename if successful, false if not
+	return jpcrm_generate_pdf( $html, $pdf_filename );
 }
 
 // LEGACY, should now be using zeroBSCRM_invoice_generateInvoiceHTML

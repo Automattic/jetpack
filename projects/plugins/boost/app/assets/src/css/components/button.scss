@@ -8,6 +8,10 @@
 	display: inline-block;
 }
 
+.components-button {
+	white-space: nowrap;
+}
+
 .components-button.components-button--back {
 	color: $gray_90;
 	font-size: 14pt;

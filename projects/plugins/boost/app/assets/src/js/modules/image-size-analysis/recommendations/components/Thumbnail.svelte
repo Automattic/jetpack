@@ -5,11 +5,21 @@
 	export let height: number;
 </script>
 
-<img src={url} alt={title} {width} {height} />
+{#if url && title}
+	<img src={url} alt={title} {width} {height} />
+{:else}
+	<div class="jb-thumbnail-placeholder" style:--thumbnail-size="{width}px" />
+{/if}
 
 <style lang="scss">
 	img {
 		display: block;
+		border-radius: 3px;
+	}
+	.jb-thumbnail-placeholder {
+		width: var( --thumbnail-size );
+		height: var( --thumbnail-size );
+		background-color: var( --gray-5 );
 		border-radius: 3px;
 	}
 </style>

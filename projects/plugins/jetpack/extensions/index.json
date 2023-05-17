@@ -51,6 +51,7 @@
 	"beta": [
 		"ai-chat",
 		"amazon",
+		"author-recommendation",
 		"conversation",
 		"dialogue",
 		"google-docs-embed",
@@ -60,7 +61,7 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters"
 	],
-	"experimental": [ "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],
+	"experimental": [ "ai-assistant", "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",

@@ -142,7 +142,7 @@ function jetpack_migrate_gallery_widget_upgrade_widget( $widget ) {
 	// Not all widgets have conditions, so lets add it in.
 	$widget_copy      = array_merge( array( 'conditions' => null ), $widget );
 	$non_allowed_keys = array_diff_key( $widget_copy, $allowed_keys );
-	if ( count( $non_allowed_keys ) > 0 ) {
+	if ( $non_allowed_keys !== array() ) {
 		jetpack_migrate_gallery_widget_bump_stats( 'extra-key' );
 
 		// Log the names of the keys not in our allowed list.

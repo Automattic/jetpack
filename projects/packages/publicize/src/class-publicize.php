@@ -513,6 +513,7 @@ class Publicize extends Publicize_Base {
 			'twitter'  => array(),
 			'linkedin' => array(),
 			'tumblr'   => array(),
+			'mastodon' => array(),
 		);
 
 		if ( 'all' === $filter ) {
@@ -600,6 +601,7 @@ class Publicize extends Publicize_Base {
 
 		$xml_response            = $xml->getResponse();
 		$connection_test_message = $xml_response['faultString'];
+		$connection_error_code   = $xml_response['faultCode'];
 
 		// Set up refresh if the user can.
 		$user_can_refresh = current_user_can( $this->GLOBAL_CAP ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -615,7 +617,7 @@ class Publicize extends Publicize_Base {
 			'refresh_url'      => $refresh_url,
 		);
 
-		$this->test_connection_results[ $id ] = new \WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );
+		$this->test_connection_results[ $id ] = new \WP_Error( $connection_error_code, $connection_test_message, $error_data );
 
 		return $this->test_connection_results[ $id ];
 	}
@@ -782,7 +784,7 @@ class Publicize extends Publicize_Base {
 								<span class="category"><?php echo esc_html( $page['category'] ); ?></span>
 							</label>
 						</td>
-						<?php if ( ( $i % 2 ) || ( count( $pages ) - 1 === $i ) ) : ?>
+						<?php if ( ( $i % 2 ) || ( is_countable( $pages ) && ( count( $pages ) - 1 === $i ) ) ) : ?>
 							</tr>
 						<?php endif; ?>
 					<?php endforeach; ?>

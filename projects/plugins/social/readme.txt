@@ -91,7 +91,17 @@ The easiest way is to use the Custom Message option in the publishing options bo
 4. Manage your Jetpack Social and other Jetpack plugins from My Jetpack.
 
 == Changelog ==
-### 1.9.1 - 2023-04-06
+### 1.10.0 - 2023-05-02
+#### Added
+- Social: Updating plugin version.
+
+#### Changed
+- Added dynamic pricing to Social admin page.
+- Updated package dependencies.
+- Update WordPress version requirements. Now requires version 6.1.
+
 #### Fixed
-- Reinstated is_social_image_generator_enabled for backwards compatibility.
+- Dashboard: ensure the link to the post editor works, even when WordPress is installed in a subdirectory.
+- Jetpack Social: Render Social Image Generator panel even when SIG's default is disabled.
+- Temporarily removed review prompts to fix the plugin's UI state.
 

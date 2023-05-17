@@ -35,12 +35,12 @@ CURRENT_HASH=
 PREVIOUS_HASH=
 PREVIOUS_VERSION=
 while IFS=' ' read -r HASH VER; do
-	if [[ "$VER" == *-* || "$VER" == *+* ]]; then
-		# Skip any prerelease or postrelease versions.
-		continue
-	elif [[ -z "$CURRENT_HASH" && "$VER" == "$CURRENT_VERSION" ]]; then
+	if [[ -z "$CURRENT_HASH" && "$VER" == "$CURRENT_VERSION" ]]; then
 		# Keep the latest hash that matches CURRENT_VERSION.
 		CURRENT_HASH=$HASH
+	elif [[ "$VER" == *-* || "$VER" == *+* ]]; then
+		# Skip any prerelease or postrelease versions when looking for the previous version.
+		continue
 	elif [[ -n "$CURRENT_HASH" && -z "$PREVIOUS_VERSION" && "$VER" != "$CURRENT_VERSION" ]]; then
 		# Keep the first version after that as PREVIOUS_VERSION.
 		PREVIOUS_HASH=$HASH
@@ -52,7 +52,7 @@ while IFS=' ' read -r HASH VER; do
 		# Once we find the next version after PREVIOUS_VERSION, we can stop looking.
 		break
 	fi
-done < <( for h in $(git log --format='%H' projects/plugins/jetpack/CHANGELOG.md); do printf "%s %s\n" "$h" "$(git show "$h:projects/plugins/jetpack/CHANGELOG.md" | sed -n -E -e 's/^## \[?([0-9.]+(-[a-zA-Z0-9.+-]*)?)\]? - .*$/\1/p' -e 'T' -e 'q')"; done )
+done < <( for h in $(git log --format='%H' "projects/$1/CHANGELOG.md"); do printf "%s %s\n" "$h" "$(git show "$h:projects/$1/CHANGELOG.md" | sed -n -E -e 's/^## \[?([0-9.]+(-[a-zA-Z0-9.+-]*)?)\]? - .*$/\1/p' -e 'tq' -e 'd' -e ':q' -e 'q')"; done )
 [[ -n "$CURRENT_HASH" ]] || die "Version $CURRENT_VERSION was not found."
 [[ -n "$PREVIOUS_HASH" ]] || die "No versions found before $CURRENT_VERSION."
 

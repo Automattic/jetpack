@@ -518,7 +518,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$old_pages = $pages;
 		$old_page  = $page;
 
-		$content = join( "\n\n", $pages );
+		$content = implode( "\n\n", $pages );
 		$content = preg_replace( '/<!--more(.*?)?-->/', '', $content );
 		$pages   = array( $content ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$page    = 1; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited

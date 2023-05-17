@@ -68,4 +68,9 @@ export type IconTooltipProps = {
 	 * Force the Popover to show without an event trigger.
 	 */
 	forceShow?: boolean;
+
+	/**
+	 * Uses a wider content area when enabled.
+	 */
+	wide?: boolean;
 };
