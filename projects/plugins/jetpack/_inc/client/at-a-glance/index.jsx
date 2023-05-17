@@ -29,6 +29,7 @@ import {
 import { getModuleOverride } from 'state/modules';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
 import DashActivity from './activity';
+import DashJetpackAi from './ai';
 import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashBoost from './boost';
@@ -202,6 +203,15 @@ class AtAGlance extends Component {
 							cards={ performanceCards }
 						/>
 						{ connections }
+						<Section
+							header={ <DashSectionHeader label={ __( 'Artificial Intelligence', 'jetpack' ) } /> }
+							cards={ [
+								<DashJetpackAi
+									{ ...settingsProps }
+									trackUpgradeButtonView={ this.trackUpgradeButtonView( 'ai' ) }
+								/>,
+							] }
+						/>
 					</div>
 				</ThemeProvider>
 			);
