@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Assistant: Send the post ID on every text completion so it can be logger and tracked on the backend.
