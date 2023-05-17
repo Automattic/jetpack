@@ -9,6 +9,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MarkdownIt from 'markdown-it';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -29,6 +30,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
 	const [ imageModal, setImageModal ] = useState( null );
+	const [ errorDismissed, setErrorDismissed ] = useState( null );
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
@@ -59,6 +61,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		tracks,
 		userPrompt,
 	} );
+
+	useEffect( () => {
+		if ( errorMessage ) {
+			setErrorDismissed( false );
+		}
+	}, [ errorMessage ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
@@ -147,8 +155,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	return (
 		<div { ...useBlockProps() }>
-			{ errorMessage && (
-				<Notice status="warning" className="jetpack-ai-assistant__error">
+			{ errorMessage && ! errorDismissed && (
+				<Notice status="info" isDismissible={ false } className="jetpack-ai-assistant__error">
 					{ errorMessage }
 				</Notice>
 			) }
@@ -179,6 +187,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				userPrompt={ userPrompt }
 				wholeContent={ wholeContent }
 				promptType={ attributes.promptType }
+				onChange={ () => setErrorDismissed( true ) }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
