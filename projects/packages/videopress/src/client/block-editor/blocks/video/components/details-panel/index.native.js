@@ -48,7 +48,6 @@ export default function DetailsPanel( { attributes, setAttributes, videoBelongTo
 
 	return (
 		<PanelBody title={ __( 'Details', 'jetpack-videopress-pkg' ) }>
-			{ ! videoBelongToSite && videoNotOwnedMessage }
 			<TextControl
 				value={ title || '' }
 				onChange={ value => setAttributes( { title: value } ) }
@@ -63,6 +62,7 @@ export default function DetailsPanel( { attributes, setAttributes, videoBelongTo
 				label={ __( 'Description', 'jetpack-videopress-pkg' ) }
 				disabled={ ! videoBelongToSite }
 			/>
+			{ ! videoBelongToSite && videoNotOwnedMessage }
 		</PanelBody>
 	);
 }
