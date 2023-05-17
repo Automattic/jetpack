@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.2-a.9 - 2023-05-17
+### Bug fixes
+- Correctly enable AI Assistant block on WordPress.com.
+
 ## 12.2-a.7 - 2023-05-15
 ### Enhancements
 - Add misconfiguration warning functionality. Also added various design fixes. [#30446]
