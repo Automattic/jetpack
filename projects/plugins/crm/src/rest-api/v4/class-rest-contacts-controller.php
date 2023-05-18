@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  * REST contacts controller.
  *
  * @package Automattic\Jetpack_CRM
- * @since TBD
+ * @since $$next-version$$
  */
 final class REST_Contacts_Controller extends REST_Base_Objects_Controller {
 
@@ -36,7 +36,7 @@ final class REST_Contacts_Controller extends REST_Base_Objects_Controller {
 	/**
 	 * Registers the routes for the objects of the controller.
 	 *
-	 * @since TBD
+	 * @since $$next-version$$
 	 * @see register_rest_route()
 	 *
 	 * @return void
@@ -78,6 +78,8 @@ final class REST_Contacts_Controller extends REST_Base_Objects_Controller {
 	/**
 	 * Get a contact.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_Error|WP_REST_Response
 	 */
@@ -112,6 +114,8 @@ final class REST_Contacts_Controller extends REST_Base_Objects_Controller {
 	/**
 	 * Checks if a given request has access to get a specific item.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @param WP_REST_Request $request Full details about the request.
 	 * @return true|WP_Error True if the request has read access for the item, WP_Error object otherwise.
 	 */
@@ -139,9 +143,10 @@ final class REST_Contacts_Controller extends REST_Base_Objects_Controller {
 	/**
 	 * Prepares the item for the REST response.
 	 *
+	 * @since $$next-version$$
 	 * @todo Implement item schema and only output fields that are part of the schema.
 	 *
-	 * @param array           $item WordPress representation of the item.
+	 * @param array           $item WordPress' representation of the item.
 	 * @param WP_REST_Request $request The request object.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
@@ -158,7 +163,7 @@ final class REST_Contacts_Controller extends REST_Base_Objects_Controller {
 		/**
 		 * Filters the REST API response for a contact.
 		 *
-		 * @since TBD
+		 * @since $$next-version$$
 		 *
 		 * @param WP_REST_Response $response The response object.
 		 * @param array $item The raw contact data.
@@ -169,6 +174,8 @@ final class REST_Contacts_Controller extends REST_Base_Objects_Controller {
 
 	/**
 	 * Get contacts service.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return zbsDAL_contacts
 	 */

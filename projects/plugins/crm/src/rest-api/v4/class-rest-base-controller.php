@@ -15,12 +15,14 @@ defined( 'ABSPATH' ) || exit;
  * Abstract base controller class.
  *
  * @package Automattic\Jetpack_CRM
- * @since TBD
+ * @since $$next-version$$
  */
 abstract class REST_Base_Controller extends WP_REST_Controller {
 
 	/**
 	 * Constructor.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function __construct() {
 		$this->namespace = 'jetpack-crm/v4';

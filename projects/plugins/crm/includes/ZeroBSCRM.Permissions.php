@@ -695,7 +695,7 @@
 /**
  * Determine if a user is allowed to manage contacts.
  *
- * @since TBD
+ * @since $$next-version$$
  *
  * @param WP_User $user The WP User to check permission access for.
  * @return bool Returns a bool representing a user permission state.
@@ -704,7 +704,7 @@ function jpcrm_can_user_manage_contacts( WP_User $user ) {
 	/**
 	 * Allow third party plugins to modify the permission conditions for contacts.
 	 *
-	 * @since TBD
+	 * @since $$next-version$$
 	 *
 	 * @param boolean $allowed A boolean that represents the permission state.
 	 * @param WP_User $user The WP User to check permission access for.
@@ -719,7 +719,7 @@ function jpcrm_can_user_manage_contacts( WP_User $user ) {
 /**
  * Determine if the current user is allowed to manage contacts.
  *
- * @deprecated TBD Use jpcrm_can_user_manage_contacts()
+ * @deprecated $$next-version$$ Use jpcrm_can_user_manage_contacts()
  *
  * @return bool
  *

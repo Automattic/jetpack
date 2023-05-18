@@ -101,7 +101,7 @@ add_action( 'rest_api_init', function () {
 	 * Feature flag to conditionally load in development API.
 	 *
 	 * @ignore
-	 * @since TBD
+	 * @since $$next-version$$
 	 *
 	 * @param bool Determine if we should initialize the new REST APIs.
 	 */
