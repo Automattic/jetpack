@@ -2,17 +2,11 @@
  * WordPress dependencies
  */
 import { PanelBody, TextControl, BottomSheetTextControl } from '@wordpress/components';
-import { usePreferredColorSchemeStyle } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { Icon, warning } from '@wordpress/icons';
-/**
- * External dependencies
- */
-import { Text, View } from 'react-native';
 /**
  * Internal dependencies
  */
-import styles from './styles.scss';
+import VideoNotOwnedWarning from '../video-not-owned-warning';
 
 /**
  * React component that renders the details settings panel.
@@ -25,26 +19,6 @@ import styles from './styles.scss';
  */
 export default function DetailsPanel( { attributes, setAttributes, videoBelongToSite } ) {
 	const { title, description } = attributes;
-
-	const msgStyle = usePreferredColorSchemeStyle(
-		styles[ 'video-not-owned-notice__message' ],
-		styles[ 'video-not-owned-notice__message--dark' ]
-	);
-	const iconStyle = usePreferredColorSchemeStyle(
-		styles[ 'video-not-owned-notice__icon' ],
-		styles[ 'video-not-owned-notice__icon--dark' ]
-	);
-	const videoNotOwnedMessage = (
-		<View style={ styles[ 'video-not-owned-notice__container' ] }>
-			<Icon style={ iconStyle } icon={ warning } />
-			<Text style={ msgStyle }>
-				{ __(
-					'This video is not owned by this site. You can still embed it and customize the player, but you won’t be able to edit the video.',
-					'jetpack-videopress-pkg'
-				) }
-			</Text>
-		</View>
-	);
 
 	return (
 		<PanelBody title={ __( 'Details', 'jetpack-videopress-pkg' ) }>
@@ -62,7 +36,7 @@ export default function DetailsPanel( { attributes, setAttributes, videoBelongTo
 				label={ __( 'Description', 'jetpack-videopress-pkg' ) }
 				disabled={ ! videoBelongToSite }
 			/>
-			{ ! videoBelongToSite && videoNotOwnedMessage }
+			{ ! videoBelongToSite && <VideoNotOwnedWarning /> }
 		</PanelBody>
 	);
 }
