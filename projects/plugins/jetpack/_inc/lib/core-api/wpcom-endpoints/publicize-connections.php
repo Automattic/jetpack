@@ -128,6 +128,7 @@ class WPCOM_REST_API_V2_Endpoint_List_Publicize_Connections extends WP_REST_Cont
 
 				$items[] = array(
 					'id'                   => (string) $publicize->get_connection_unique_id( $connection ),
+					'connection_id'        => (string) $publicize->get_connection_id( $connection ),
 					'service_name'         => $service_name,
 					'display_name'         => $publicize->get_display_name( $service_name, $connection ),
 					'profile_display_name' => ! empty( $connection_meta['profile_display_name'] ) ? $connection_meta['profile_display_name'] : '',

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Change hook parameter to what it was before (fields collection). Modify Post_To_Url hook to handle such collection instead of a form instance

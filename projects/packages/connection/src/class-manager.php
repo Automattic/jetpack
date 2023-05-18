@@ -1129,7 +1129,7 @@ class Manager {
 			'timeout' => $timeout,
 		);
 
-		$args['body'] = $this->apply_activation_source_to_args( $args['body'] );
+		$args['body'] = static::apply_activation_source_to_args( $args['body'] );
 
 		// TODO: fix URLs for bad hosts.
 		$response = Client::_wp_remote_request(
@@ -1890,7 +1890,7 @@ class Manager {
 			)
 		);
 
-		$body = $this->apply_activation_source_to_args( urlencode_deep( $body ) );
+		$body = static::apply_activation_source_to_args( urlencode_deep( $body ) );
 
 		$api_url = $this->api_url( 'authorize' );
 

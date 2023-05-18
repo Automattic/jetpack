@@ -157,7 +157,7 @@ class Jetpack_Gutenberg {
 	 * @return boolean True if $a and $b share at least one item
 	 */
 	protected static function share_items( $a, $b ) {
-		return count( array_intersect( $a, $b ) ) > 0;
+		return array_intersect( $a, $b ) !== array();
 	}
 
 	/**

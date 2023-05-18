@@ -14,8 +14,9 @@ const MyPlanCard = ( {
 	tagLine,
 	title,
 	isPlan,
+	cardClassNames = [],
 } ) => {
-	const cardClassNames = classNames( 'my-plan-card', {
+	cardClassNames = classNames( 'my-plan-card', ...cardClassNames, {
 		'is-placeholder': isPlaceholder,
 		'is-plan': isPlan,
 		'has-action-only': action && ! details && ! isPlaceholder,
@@ -51,6 +52,7 @@ MyPlanCard.propTypes = {
 	details: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),
 	tagLine: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),
 	title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node, PropTypes.element ] ),
+	classNames: PropTypes.array,
 };
 
 export default MyPlanCard;

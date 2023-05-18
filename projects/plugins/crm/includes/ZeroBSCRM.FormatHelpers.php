@@ -1368,34 +1368,26 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 	                break;
 
 
-	            case 'date':
+			case 'date':
+				$datevalue = '';
 
-								$datevalue = '';
-								if ($value !== -99) {
-									$datevalue = $value;
-								}
+				if ( $value !== -99 ) {
+					$datevalue = jpcrm_uts_to_date_str( $value, 'Y-m-d', true );
+				}
 
-								// if DAL3 we need to use translated dates here :)
-								if ( $zbs->isDAL3() && $value != -99 ) {
-									$datevalue = zeroBSCRM_date_i18n( -1, $datevalue, false, true );
-								}
-
-	            	// if this is a custom field, and is unset, we let it get passed as empty (gh-56)
-	            	if ( isset( $fieldVal['custom-field'] ) && ( $value === -99 || $value === '' ) ) {
-	            		$datevalue = '';
-	            	}
-								// if already blank, allow it to be blank
-								else if ( $value === -99 ) {
-									$inputClasses = ' zbs-empty-start';
-	            	}
-								
-
-	                ?><tr class="wh-large"><th><label for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e($fieldVal[1],"zero-bs-crm"); ?>:</label></th>
-	                <td>
-	                    <input type="text" name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>" id="<?php echo esc_attr( $fieldKey ); ?>" class="form-control jpcrm-date zbs-dc<?php echo esc_attr( $inputClasses ); ?>" placeholder="<?php if (isset($fieldVal[2])) echo esc_attr__($fieldVal[2],'zero-bs-crm'); ?>" value="<?php echo esc_attr( $datevalue ); ?>" autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldKey ); ?>" />
-	                </td></tr><?php
-
-	                break;
+				// if this is a custom field, and is unset, we let it get passed as empty (gh-56)
+				if ( isset( $fieldVal['custom-field'] ) && ( $value === -99 || $value === '' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$datevalue = '';
+				}
+				// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				?>
+				<tr class="wh-large"><th><label for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); ?>:</label></th>
+				<td>
+				<input type="date" name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>" id="<?php echo esc_attr( $fieldKey ); ?>" placeholder="yyyy-mm-dd" value="<?php echo esc_attr( $datevalue ); ?>"/>
+				</td></tr>
+				<?php
+				// phpcs:enable WordPress.WP.I18n.NonSingularStringLiteralText,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				break;
 
 
 	            case 'datetime':

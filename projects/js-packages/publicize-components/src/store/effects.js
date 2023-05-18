@@ -33,7 +33,11 @@ export async function refreshConnectionTestResults() {
 		 * in order to refresh or update current connections.
 		 */
 		for ( const freshConnection of freshConnections ) {
-			const prevConnection = prevConnections.find( conn => conn.id === freshConnection.id );
+			const prevConnection = prevConnections.find( conn =>
+				conn.connection_id
+					? conn.connection_id === freshConnection.connection_id
+					: conn.id === freshConnection.id
+			);
 			const { done, enabled, toggleable } = prevConnection ?? defaults;
 			const connection = {
 				display_name: freshConnection.display_name,
@@ -45,6 +49,7 @@ export async function refreshConnectionTestResults() {
 				toggleable,
 				is_healthy: freshConnection.test_success,
 				error_code: freshConnection.error_code,
+				connection_id: freshConnection.connection_id,
 			};
 
 			connections.push( connection );
@@ -74,7 +79,13 @@ export async function toggleConnectionById( { connectionId } ) {
 	 */
 	const updatedConnections = connections.map( connection => ( {
 		...connection,
-		enabled: connection.id === connectionId ? ! connection.enabled : connection.enabled,
+		enabled: (
+			connection.connection_id
+				? connection.connection_id === connectionId
+				: connection.id === connectionId
+		)
+			? ! connection.enabled
+			: connection.enabled,
 	} ) );
 
 	// Update post metadata.
