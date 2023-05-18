@@ -70,7 +70,7 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 		if ( ! $data ) {
 			return false;
 		}
-		return isset( $data['follower_list_id'], $data['keyring_id'] );
+		return isset( $data['follower_list_id'] ) && isset( $data['keyring_id'] );
 	}
 
 	/**

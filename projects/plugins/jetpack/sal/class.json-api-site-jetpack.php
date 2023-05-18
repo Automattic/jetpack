@@ -643,6 +643,17 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	}
 
 	/**
+	 * Detect whether a site is WordPress.com Staging Site. Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return false
+	 */
+	public function is_wpcom_staging_site() {
+		return false;
+	}
+
+	/**
 	 * Get site option for the production blog id (if is a WP.com Staging Site). Not used in Jetpack.
 	 *
 	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.

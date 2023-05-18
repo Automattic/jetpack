@@ -905,7 +905,7 @@ class Jetpack_Portfolio {
 						}
 
 						if ( $atts['display_author'] ) {
-							echo self::get_project_author( $post_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in method.
+							echo self::get_project_author(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in method.
 						}
 						?>
 						</div>

@@ -271,7 +271,7 @@ class Jetpack_Connection_Banner {
 				</span>
 			</div>
 			<?php
-			if ( ! $this->force_display() ) :
+			if ( ! static::force_display() ) :
 				?>
 					<span
 						class="notice-dismiss jp-connection-banner__dismiss"

@@ -2,6 +2,7 @@ const siteBackupSelectors = {
 	// Size
 	isFetchingBackupSize: state => state.siteBackupSize.isFetching ?? null,
 	getBackupSize: state => state.siteBackupSize.size ?? null,
+	getLastBackupSize: state => state.siteBackupSize.lastBackupSize ?? null,
 	getMinDaysOfBackupsAllowed: state => state.siteBackupSize.minDaysOfBackupsAllowed ?? null,
 	getDaysOfBackupsAllowed: state => state.siteBackupSize.daysOfBackupsAllowed ?? null,
 	getDaysOfBackupsSaved: state => state.siteBackupSize.daysOfBackupsSaved ?? null,

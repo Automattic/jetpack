@@ -28,7 +28,7 @@ jQuery( function ( $ ) {
 						! testResult.connectionTestPassed &&
 						status === ( testResult.connectionTestErrorCode ?? 'broken' )
 					) {
-						$( '#wpas-submit-' + testResult.unique_id )
+						$( '#wpas-submit-' + testResult.id )
 							.prop( 'checked', false )
 							.prop( 'disabled', true );
 						return count + 1;

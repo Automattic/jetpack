@@ -4,12 +4,13 @@
 import { SandBox, Icon } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
-import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
+import { useState, useEffect, useRef, useCallback, Platform } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { requestEmbedFullscreenPreview } from '@wordpress/react-native-bridge';
 /**
  * External dependencies
  */
-import { View, Text, Platform } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 /**
  * Internal dependencies
  */
@@ -22,7 +23,7 @@ import style from './style.scss';
 
 const VIDEO_PREVIEW_ATTEMPTS_LIMIT = 10;
 const DEFAULT_PLAYER_ASPECT_RATIO = 16 / 9; // This is the observed default aspect ratio from VideoPress embeds.
-
+const IS_ANDROID = Platform.isAndroid;
 /**
  * VideoPlayer react component
  *
@@ -43,6 +44,7 @@ export default function Player( { isSelected, attributes } ) {
 		seekbarColor,
 		seekbarLoadingColor,
 		seekbarPlayedColor,
+		title,
 	} = attributes;
 
 	const iconStyle = style[ 'videopress-player__loading-icon' ];
@@ -130,7 +132,7 @@ export default function Player( { isSelected, attributes } ) {
 	// Android does not receive a 'videopress_ready' event,
 	// so we need to set the player as ready when the WebView loads.
 	const onLoadEnd = useCallback( () => {
-		Platform.OS === 'android' && setIsPlayerReady( true );
+		IS_ANDROID && setIsPlayerReady( true );
 	}, [] );
 
 	const loadingOverlay = (
@@ -144,23 +146,43 @@ export default function Player( { isSelected, attributes } ) {
 		</View>
 	);
 
+	let sandbox = (
+		<SandBox
+			html={ html }
+			onWindowEvents={ { message: onSandboxMessage } }
+			viewportProps="user-scalable=0"
+			testID="videopress-player"
+			onLoadEnd={ onLoadEnd }
+		/>
+	);
+
+	// On Android, we need to open the embed preview in a Native WebView
+	if ( IS_ANDROID ) {
+		sandbox = (
+			<Pressable
+				style={ style[ 'videopress-player__open-embed-button' ] }
+				onPress={ () => {
+					requestEmbedFullscreenPreview( html, title );
+				} }
+			>
+				<View style={ style[ 'videopress-player__overlay' ] } />
+				{ sandbox }
+			</Pressable>
+		);
+	}
+
 	// Show the loading overlay when:
 	// 1. Player is not ready
 	// 2. Player is loaded but preview is not ready
 	const showLoadingOverlay = ! isPlayerReady || ( isPlayerLoaded && ! isPreviewReady );
 
 	return (
-		<View style={ [ style[ 'videopress-player' ], { aspectRatio } ] }>
-			{ ! isSelected && <View style={ style[ 'videopress-player__overlay' ] } /> }
+		<View
+			style={ [ style[ 'videopress-player' ], { aspectRatio } ] }
+			pointerEvents={ isSelected ? 'auto' : 'none' }
+		>
 			{ showLoadingOverlay && loadingOverlay }
-			{ html && (
-				<SandBox
-					html={ html }
-					onWindowEvents={ { message: onSandboxMessage } }
-					viewportProps="user-scalable=0"
-					onLoadEnd={ onLoadEnd }
-				/>
-			) }
+			{ html && sandbox }
 		</View>
 	);
 }

@@ -428,6 +428,34 @@ class zbsDAL {
 
     }
 
+	/**
+	 * Check if a given status is valid for the given object
+	 *
+	 * @param int $obj_type_id Object type ID.
+	 * @param str $obj_status  Object status string.
+	 */
+	public function is_valid_obj_status( $obj_type_id, $obj_status ) {
+		switch ( $obj_type_id ) {
+			case ZBS_TYPE_CONTACT:
+				$valid_statuses = zeroBSCRM_getCustomerStatuses( true );
+				break;
+			case ZBS_TYPE_COMPANY:
+				$valid_statuses = zeroBSCRM_getCompanyStatuses();
+				break;
+			case ZBS_TYPE_INVOICE:
+				$valid_statuses = zeroBSCRM_getInvoicesStatuses();
+				break;
+			case ZBS_TYPE_TRANSACTION:
+				$valid_statuses = zeroBSCRM_getTransactionsStatuses( true );
+				break;
+			default:
+				return false;
+		}
+
+		// if required, check if default status is a valid one
+		return in_array( $obj_status, $valid_statuses, true );
+	}
+
     // takes in an obj type str (e.g. 'contact') and returns DEFINED KEY ID = 1
     public function objTypeID($objTypeStr=''){
 
@@ -632,7 +660,7 @@ class zbsDAL {
     // ===============================================================================
     // ===========  OWNERSHIP HELPERS  ===============================================
 
-    // This func is a side-switch alternative to zeroBS_checkOwner
+	// This func is a side-switch alternative to now-removed zeroBS_checkOwner
     public function checkObjectOwner($args=array()){
 
         #} =========== LOAD ARGS ==============
@@ -4327,7 +4355,10 @@ class zbsDAL {
 
 						}
 
-					}
+				}
+
+				$this->compile_segments_from_tagIDs( $tagIDs, $owner ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
 					return true;
 
 					break;
@@ -4356,6 +4387,8 @@ class zbsDAL {
 
 					}
 
+					$this->compile_segments_from_tagIDs( $tagIDs, $owner ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
 					return true;
 
                     break;
@@ -4367,6 +4400,24 @@ class zbsDAL {
         return false;
 
     }
+
+	/**
+	 * Compiles segments based on an array of given tag IDs
+	 *
+	 * @param array $tagIDs An array of tag IDs.
+	 * @param ID    $owner An ID representing the owner of the current tagID.
+	 */
+	public function compile_segments_from_tagIDs( $tagIDs, $owner ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		global $zbs;
+		$segments = $zbs->DAL->segments->getSegments( $owner, 1000, 0, true ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		foreach ( $segments as $segment ) {
+			foreach ( $segment['conditions'] as $condition ) {
+				if ( $condition['type'] === 'tagged' && in_array( $condition['value'], $tagIDs ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.PHP.StrictInArray.MissingTrueStrict
+					$zbs->DAL->segments->compileSegment( $segment['id'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				}
+			}
+		}
+	}
 
      /**
      * deletes a tag object link

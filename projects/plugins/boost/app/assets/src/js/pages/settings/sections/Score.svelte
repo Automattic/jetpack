@@ -106,7 +106,7 @@
 					{:else if loadError}
 						{__( 'Whoops, something went wrong', 'jetpack-boost' )}
 					{:else}
-						{__( 'Overall score', 'jetpack-boost' )}: {scoreLetter}
+						{__( 'Overall Score', 'jetpack-boost' )}: {scoreLetter}
 					{/if}
 				</h2>
 				{#if ! isLoading && ! loadError}

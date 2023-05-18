@@ -1,0 +1,12 @@
+[
+	{
+		"clientId": "_clientId_0",
+		"name": "jetpack/author-recommendation",
+		"isValid": true,
+		"attributes": {
+			"recommendations": []
+		},
+		"innerBlocks": [],
+		"originalContent": ""
+	}
+]
