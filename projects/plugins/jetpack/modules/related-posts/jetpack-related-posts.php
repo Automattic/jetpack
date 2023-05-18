@@ -244,13 +244,10 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
-		/*
-		 * Do not output Related Posts on requests for other types of JSON requests
-		 * e.g. ActivityPub requests.
-		 */
+		// Do not output Likes on requests for ActivityPub requests.
 		if (
-			! empty( $_SERVER['HTTP_ACCEPT'] )
-			&& false !== stripos( filter_var( wp_unslash( $_SERVER['HTTP_ACCEPT'] ) ), 'json' )
+			function_exists( '\Activitypub\is_activitypub_request' )
+			&& \Activitypub\is_activitypub_request()
 		) {
 			return $content;
 		}
