@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Previous implementation would remove buklk-edition checkbox from the posts list. This is now fixed.

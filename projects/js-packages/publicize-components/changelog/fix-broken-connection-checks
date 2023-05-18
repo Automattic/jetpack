@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Publicize: Update the UI logic to properly cope with broken connections
