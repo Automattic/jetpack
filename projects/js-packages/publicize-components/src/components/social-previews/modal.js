@@ -75,9 +75,21 @@ export default withSelect( select => {
 
 	const sigImageUrl = sigSettings.enabled ? getSigImageUrl( sigSettings.token ) : '';
 
+	const attachedMedia = getAttachedMedia();
+
 	// If we have a SIG token, use it to generate the image URL.
 	if ( sigImageUrl ) {
 		image = sigImageUrl;
+	} else if ( attachedMedia?.[ 0 ]?.id ) {
+		// If we don't have a SIG image, use the first image in the attached media.
+		const [ firstMedia ] = attachedMedia;
+		const isImage = firstMedia.id
+			? getMedia( firstMedia.id )?.mime_type?.startsWith( 'image/' )
+			: false;
+
+		if ( isImage && firstMedia.url ) {
+			image = firstMedia.url;
+		}
 	}
 
 	const media = [];
@@ -91,7 +103,7 @@ export default withSelect( select => {
 				alt: '',
 			} );
 		} else {
-			for ( const { id } of getAttachedMedia() ) {
+			for ( const { id } of attachedMedia ) {
 				const mediaItem = getMedia( id );
 
 				if ( mediaItem ) {
