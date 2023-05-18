@@ -27,6 +27,7 @@ export const PLAN_JETPACK_PERSONAL = 'jetpack_personal';
 export const PLAN_JETPACK_PREMIUM_MONTHLY = 'jetpack_premium_monthly';
 export const PLAN_JETPACK_BUSINESS_MONTHLY = 'jetpack_business_monthly';
 export const PLAN_JETPACK_PERSONAL_MONTHLY = 'jetpack_personal_monthly';
+export const PLAN_JETPACK_AI_MONTHLY = 'jetpack_ai_monthly';
 export const PLAN_JETPACK_BACKUP_T0_YEARLY = 'jetpack_backup_t0_yearly';
 export const PLAN_JETPACK_BACKUP_T0_MONTHLY = 'jetpack_backup_t0_monthly';
 export const PLAN_JETPACK_BACKUP_T1_YEARLY = 'jetpack_backup_t1_yearly';
@@ -303,6 +304,7 @@ export const FEATURE_WORDADS_JETPACK = 'wordads-jetpack';
 export const FEATURE_GOOGLE_ANALYTICS_JETPACK = 'google-analytics-jetpack';
 export const FEATURE_SEARCH_JETPACK = 'search-jetpack';
 export const FEATURE_VIDEOPRESS = 'videopress-jetpack';
+export const FEATURE_AI_ASSISTANT = 'ai-assistant';
 
 // Upsells
 export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
@@ -316,6 +318,7 @@ export const JETPACK_FEATURE_PRODUCT_UPSELL_MAP = {
 	[ FEATURE_GOOGLE_ANALYTICS_JETPACK ]: PLAN_JETPACK_SECURITY_T1_YEARLY,
 	[ FEATURE_SPAM_AKISMET_PLUS ]: PLAN_JETPACK_ANTI_SPAM,
 	[ FEATURE_VIDEOPRESS ]: PLAN_JETPACK_VIDEOPRESS,
+	[ FEATURE_AI_ASSISTANT ]: PLAN_JETPACK_AI_MONTHLY,
 };
 
 /**
