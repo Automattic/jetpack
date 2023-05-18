@@ -202,7 +202,6 @@ class AtAGlance extends Component {
 							header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
 							cards={ performanceCards }
 						/>
-						{ connections }
 						<Section
 							header={ <DashSectionHeader label={ __( 'Artificial Intelligence', 'jetpack' ) } /> }
 							cards={ [
@@ -212,6 +211,7 @@ class AtAGlance extends Component {
 								/>,
 							] }
 						/>
+						{ connections }
 					</div>
 				</ThemeProvider>
 			);

@@ -1,10 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import Button from 'components/button';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
-import { getJetpackProductUpsellByFeature, FEATURE_VIDEOPRESS } from 'lib/plans/constants';
+import { getJetpackProductUpsellByFeature, FEATURE_AI_ASSISTANT } from 'lib/plans/constants';
 import { noop } from 'lodash';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
 import PropTypes from 'prop-types';
@@ -38,10 +36,10 @@ class DashJetpackAi extends Component {
 
 		const support = {
 			text: __(
-				'Engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. With Jetpack VideoPress, you can customize your video player to deliver your message without the distraction.',
+				'Your AI-Powered assistant helps you with smart text generation, dynamic image creation, content translation and more. Seamlessly integrated with WordPress.',
 				'jetpack'
 			),
-			link: getRedirectUrl( 'jetpack-support-ai' ),
+			link: getRedirectUrl( 'jetpack' ), // TODO: Add jetpack ai support link
 		};
 
 		const {
@@ -80,7 +78,7 @@ class DashJetpackAi extends Component {
 							<div className="dops-card jp-dash-item__card">
 								<p className="jp-dash-item__description">
 									{ __(
-										'VideoPress is enabled and will optimize your videos for smooth playback on any device. To add a new video, upload it to the Media Library or Post Editor.',
+										'Jetpack AI is enabled and will empower your content creation with smart text generation, dynamic image creation and more. Check it in your Post Editor.',
 										'jetpack'
 									) }
 								</p>
@@ -91,11 +89,11 @@ class DashJetpackAi extends Component {
 									callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 									title={ bannerText }
 									disableHref="false"
-									eventFeature="videopress"
+									eventFeature="ai"
 									noIcon
 									path={ 'dashboard' }
-									plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
-									feature="jetpack_videopress"
+									plan={ getJetpackProductUpsellByFeature( FEATURE_AI_ASSISTANT ) }
+									feature="ai"
 									href={ upgradeUrl }
 									trackBannerDisplay={ this.props.trackUpgradeButtonView }
 								/>
@@ -119,15 +117,14 @@ class DashJetpackAi extends Component {
 						<JetpackBanner
 							callToAction={ __( 'Connect', 'jetpack' ) }
 							title={ __(
-								'Connect your WordPress.com account to enable high-quality, ad-free video.',
+								'Connect your WordPress.com account to enable AI-Powered WordPress Assistant.',
 								'jetpack'
 							) }
 							disableHref="false"
 							onClick={ this.props.connectUser }
-							eventFeature="videopress"
+							eventFeature="ai"
 							path="dashboard"
-							plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
-							icon="video"
+							plan={ getJetpackProductUpsellByFeature( FEATURE_AI_ASSISTANT ) }
 						/>
 					)
 				}
@@ -135,14 +132,9 @@ class DashJetpackAi extends Component {
 				<p className="jp-dash-item__description">
 					{ isOffline
 						? __( 'Unavailable in Offline Mode', 'jetpack' )
-						: createInterpolateElement(
-								__(
-									'<Button>Activate</Button> to engage your visitors with high-resolution, ad-free video. Save time by uploading videos directly through the WordPress editor. Try it for free.',
-									'jetpack'
-								),
-								{
-									Button: <Button className="jp-link-button" onClick={ this.activateVideoPress } />,
-								}
+						: __(
+								'Empower your content creation with your AI-Powered WordPress Assistant. Generate text, images, translate your content and more.',
+								'jetpack'
 						  ) }
 				</p>
 			</DashItem>
