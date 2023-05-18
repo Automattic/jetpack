@@ -30,6 +30,7 @@ class Waf_Initializer {
 	public static function init() {
 		// Do not run in unsupported environments
 		add_action( 'jetpack_get_available_modules', __CLASS__ . '::remove_module_on_unsupported_environments' );
+		add_action( 'jetpack_get_available_standalone_modules', __CLASS__ . '::remove_standalone_module_on_unsupported_environments' );
 
 		// Ensure backwards compatibility
 		Waf_Compatibility::add_compatibility_hooks();
@@ -196,7 +197,7 @@ class Waf_Initializer {
 	}
 
 	/**
-	 * Disables the WAF module when on an supported platform.
+	 * Disables the WAF module when on an unsupported platform in Jetpack.
 	 *
 	 * @param array $modules Filterable value for `jetpack_get_available_modules`.
 	 *
@@ -206,6 +207,28 @@ class Waf_Initializer {
 		if ( ! Waf_Runner::is_supported_environment() ) {
 			// WAF should never be available on unsupported platforms.
 			unset( $modules['waf'] );
+		}
+
+		return $modules;
+	}
+
+	/**
+	 * Disables the WAF module when on an unsupported platform in a standalone plugin.
+	 *
+	 * @param array $modules Filterable value for `jetpack_get_available_standalone_modules`.
+	 *
+	 * @return array Array of module slugs.
+	 */
+	public static function remove_standalone_module_on_unsupported_environments( $modules ) {
+		if ( ! Waf_Runner::is_supported_environment() ) {
+			// WAF should never be available on unsupported platforms.
+			$modules = array_filter(
+				$modules,
+				function ( $module ) {
+					return $module !== 'waf';
+				}
+			);
+
 		}
 
 		return $modules;
