@@ -1,5 +1,4 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-boost-score-api",
 	"version": "0.1.0-alpha",
 	"description": "A package to get the Jetpack Boost score of a site",
