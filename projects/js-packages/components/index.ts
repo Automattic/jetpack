@@ -51,6 +51,7 @@ export {
 	PricingTableHeader,
 	PricingTableItem,
 } from './components/pricing-table';
+export { default as BoostScoreBar } from './components/boost-score-bar';
 export { default as ProductPrice } from './components/product-price';
 export { default as ProductOffer, IconsCard } from './components/product-offer';
 export { default as Dialog } from './components/dialog';

@@ -305,7 +305,11 @@ const addVideoPressSupport = ( settings, name ) => {
 
 		return {
 			...settings,
-			attributes: attributesDefinition,
+			attributes: {
+				// Keep the original attributes to avoid breaking the block when its video is not a VideoPress video.
+				...settings.attributes,
+				...attributesDefinition,
+			},
 
 			transforms: {
 				...transforms,
