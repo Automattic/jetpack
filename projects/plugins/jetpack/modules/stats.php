@@ -69,6 +69,8 @@ function stats_load() {
 
 	require_once __DIR__ . '/stats/class-jetpack-stats-upgrade-nudges.php';
 	add_action( 'updating_jetpack_version', array( 'Jetpack_Stats_Upgrade_Nudges', 'unset_nudges_setting' ) );
+
+	require_once __DIR__ . '/stats/stats-wpcom-reader-settings.php';
 }
 
 /**
