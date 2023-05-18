@@ -79,7 +79,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'jetpack/v4',
 			'jetpack-ai-jwt',
 			array(
-				'methods'             => WP_REST_Server::READABLE,
+				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::get_openai_jwt',
 				'permission_callback' => function () {
 					return ( new Connection_Manager( 'jetpack' ) )->is_user_connected() && current_user_can( 'edit_posts' );
@@ -2352,7 +2352,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => '',
 				'validate_callback' => __CLASS__ . '::validate_string',
 				'sanitize_callback' => 'esc_textarea',
-				'jp_group'          => 'waf',
+				'jp_group'          => 'settings',
 			),
 			'jetpack_waf_share_data'               => array(
 				'description'       => esc_html__( 'Share data with Jetpack.', 'jetpack' ),

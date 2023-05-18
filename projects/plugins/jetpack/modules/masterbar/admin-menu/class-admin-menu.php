@@ -107,7 +107,7 @@ class Admin_Menu extends Base_Admin_Menu {
 		);
 
 		// Ordered links by ID descending, check if the first ID is more than $max_default_id.
-		if ( count( $link_manager_links ) > 0 && $link_manager_links[0]->link_id > $max_default_id ) {
+		if ( is_countable( $link_manager_links ) && count( $link_manager_links ) > 0 && $link_manager_links[0]->link_id > $max_default_id ) {
 			return false;
 		}
 

@@ -440,7 +440,8 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 					if ( $is_eligible_for_page_handle && $return['posts'] ) {
 						$last_post = end( $return['posts'] );
 						reset( $return['posts'] );
-						if ( ( $return['found'] > count( $return['posts'] ) ) && $last_post ) {
+						$post_count = is_countable( $return['posts'] ) ? count( $return['posts'] ) : 0;
+						if ( ( $return['found'] > $post_count ) && $last_post ) {
 							if ( ! isset( $return[ $key ] ) ) {
 								$return[ $key ] = (object) array();
 							}

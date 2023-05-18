@@ -4,11 +4,12 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { rawHandler, createBlock } from '@wordpress/blocks';
-import { Flex, FlexBlock, Modal } from '@wordpress/components';
+import { Flex, FlexBlock, Modal, Notice } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MarkdownIt from 'markdown-it';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -24,11 +25,12 @@ const markdownConverter = new MarkdownIt( {
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
-	const [ , setErrorMessage ] = useState( false );
+	const [ errorMessage, setErrorMessage ] = useState( false );
 	const [ aiType, setAiType ] = useState( 'text' );
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
 	const [ imageModal, setImageModal ] = useState( null );
+	const [ errorDismissed, setErrorDismissed ] = useState( null );
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
@@ -59,6 +61,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		tracks,
 		userPrompt,
 	} );
+
+	useEffect( () => {
+		if ( errorMessage ) {
+			setErrorDismissed( false );
+		}
+	}, [ errorMessage ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
@@ -147,6 +155,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	return (
 		<div { ...useBlockProps() }>
+			{ errorMessage && ! errorDismissed && (
+				<Notice status="info" isDismissible={ false } className="jetpack-ai-assistant__error">
+					{ errorMessage }
+				</Notice>
+			) }
 			{ contentIsLoaded && (
 				<>
 					<div className="jetpack-ai-assistant__content">
@@ -174,6 +187,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				userPrompt={ userPrompt }
 				wholeContent={ wholeContent }
 				promptType={ attributes.promptType }
+				onChange={ () => setErrorDismissed( true ) }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>

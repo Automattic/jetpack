@@ -16,6 +16,8 @@
  * @param array $atts Shortcode attributes.
  */
 function shortcode_handler_bandcamp( $atts ) {
+	$csswidth  = null;
+	$cssheight = null;
 	// there are no default values, but specify here anyway to explicitly list supported atts.
 	$attributes = shortcode_atts(
 		array(

@@ -183,7 +183,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/autoloader",
-                "reference": "46e8df227c3deee5a1fb0e8f43fa4191e3db323a"
+                "reference": "745ab65622365b8ea2ce1d1906d5eeac6fa1fc5c"
             },
             "require": {
                 "composer-plugin-api": "^1.1 || ^2.0"
@@ -224,6 +224,14 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Creates a custom autoloader for a plugin or theme.",
+            "keywords": [
+                "autoload",
+                "autoloader",
+                "composer",
+                "jetpack",
+                "plugin",
+                "wordpress"
+            ],
             "transport-options": {
                 "relative": true
             }
@@ -234,7 +242,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/composer-plugin",
-                "reference": "aa7328bf97fb2ec9ef69857b79ad16215da07f8c"
+                "reference": "3774f7f0a289b29d5d6c88212aed5c634fbc56ac"
             },
             "require": {
                 "composer-plugin-api": "^2.1.0"
@@ -274,6 +282,12 @@
                 "GPL-2.0-or-later"
             ],
             "description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
+            "keywords": [
+                "composer",
+                "i18n",
+                "jetpack",
+                "plugin"
+            ],
             "transport-options": {
                 "relative": true
             }
@@ -803,7 +817,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/my-jetpack",
-                "reference": "4fea57b68e108ba13b2652967f389dea6f36a23e"
+                "reference": "ebcda0c43475dece868ad5b79f88af134bf0e699"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -833,7 +847,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "2.13.x-dev"
+                    "dev-trunk": "2.14.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-initializer.php"
@@ -1442,7 +1456,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "6cf3c9cec0a7d620c0389859b50867317301ebba"
+                "reference": "6e45a8dd0df385b87369efa5d74afe338e505dc9"
             },
             "require": {
                 "php": ">=5.6",
@@ -1501,6 +1515,12 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Jetpack Changelogger tool. Allows for managing changelogs by dropping change files into a changelog directory with each PR.",
+            "keywords": [
+                "changelog",
+                "cli",
+                "dev",
+                "keepachangelog"
+            ],
             "transport-options": {
                 "relative": true
             }
