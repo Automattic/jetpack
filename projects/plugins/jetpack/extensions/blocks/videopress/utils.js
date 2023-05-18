@@ -65,7 +65,7 @@ export const removeFileNameExtension = name => {
 };
 
 export const pickGUIDFromUrl = url => {
-	if ( ! url ) {
+	if ( ! url || typeof url !== 'string' ) {
 		return null;
 	}
 

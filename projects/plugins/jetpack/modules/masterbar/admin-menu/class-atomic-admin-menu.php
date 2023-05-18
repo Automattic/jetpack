@@ -69,7 +69,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		parent::reregister_menu_items();
 
 		$this->add_my_home_menu();
-		$this->add_inbox_menu();
+		$this->remove_gutenberg_menu();
+
+		if ( ! get_option( 'wpcom_is_staging_site' ) ) {
+			$this->add_inbox_menu();
+		}
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -202,6 +206,11 @@ class Atomic_Admin_Menu extends Admin_Menu {
 		$is_coming_soon = ( new Status() )->is_coming_soon();
 
 		$badge = '';
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			$badge .= '<span class="site__badge site__badge-staging">' . esc_html__( 'Staging', 'jetpack' ) . '</span>';
+		}
+
 		if ( ( function_exists( 'site_is_private' ) && site_is_private() ) || $is_coming_soon ) {
 			$badge .= sprintf(
 				'<span class="site__badge site__badge-private">%s</span>',
@@ -310,6 +319,10 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	 * @param string $plan The current WPCOM plan of the blog.
 	 */
 	public function add_upgrades_menu( $plan = null ) {
+
+		if ( get_option( 'wpcom_is_staging_site' ) ) {
+			return;
+		}
 		$products = Jetpack_Plan::get();
 		if ( array_key_exists( 'product_name_short', $products ) ) {
 			$plan = $products['product_name_short'];
@@ -366,6 +379,27 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	}
 
 	/**
+	 * Adds Tools menu entries.
+	 */
+	public function add_tools_menu() {
+		parent::add_tools_menu();
+
+		/**
+		 * Whether to show the WordPress.com Site Logs submenu under the main Tools menu.
+		 *
+		 * @use add_filter( 'jetpack_show_wpcom_site_logs_menu', '__return_true' );
+		 * @module masterbar
+		 *
+		 * @since 12.0
+		 *
+		 * @param bool $show_wpcom_site_logs_menu Load the WordPress.com Site Logs submenu item. Default to false.
+		 */
+		if ( apply_filters( 'jetpack_show_wpcom_site_logs_menu', false ) ) {
+			add_submenu_page( 'tools.php', esc_attr__( 'Site Logs', 'jetpack' ), __( 'Site Logs', 'jetpack' ), 'manage_options', 'https://wordpress.com/site-logs/' . $this->domain, null, 7 );
+		}
+	}
+
+	/**
 	 * Override the global submenu_file for theme-install.php page so the WP Admin menu item gets highlighted correctly.
 	 *
 	 * @param string $submenu_file The current pages $submenu_file global variable value.
@@ -383,10 +417,9 @@ class Atomic_Admin_Menu extends Admin_Menu {
 	/**
 	 * Also remove the Gutenberg plugin menu.
 	 */
-	public function add_gutenberg_menus() {
+	public function remove_gutenberg_menu() {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
-		parent::add_gutenberg_menus();
 	}
 
 	/**

@@ -2,31 +2,28 @@ const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 const RemoveAssetWebpackPlugin = require( '@automattic/remove-asset-webpack-plugin' );
 const glob = require( 'glob' );
-
-const sassPattern = '**/sass/**/*.scss';
-const jsPattern = '**/js/**/*.js';
-const welcomeZBSCSSPattern = '**/css/welcome-to-zbs/*.css';
-
-const alwaysIgnoredFiles = [
-	'**/js/**/*.min.js',
-	'**/sass/**/_*.scss',
-	'**/node_modules/**',
-	'**/vendor/**',
-	'**/tests/**',
-	'**/lib/**',
-	'**/welcome-to-zbs/*.min.css',
-];
+const doNotMinify = false;
 
 /**
- * Returns an array the full list of our '.js' files in the form:
- * [ './full/path/file' => './full/path/file.js'].
- * This list is generated using the above defined jsPattern and alwaysIgnoredFiles.
+ * Return an array with a list of our legacy '.js' files.
+ *
+ * Format: [ './full/path/file' => './full/path/file.js'].
  *
  * @returns {Array} The list of js files that must be minified.
  */
-function getJsEntries() {
+function getLegacyJsEntries() {
+	const patterns = [
+		'js/**/*.js',
+		'modules/**/js/*.js',
+	];
+	const ignorePatterns = [
+		'**/js/**/*.min.js',
+		// The js/lib directory contains directly "hosted" 3. party libraries.
+		'**/lib/**',
+	];
+
 	const entries = {};
-	glob.sync( jsPattern, { ignore: alwaysIgnoredFiles } ).forEach( file => {
+	glob.sync( `{${ patterns.join( ',' ) }}`, { ignore: ignorePatterns } ).forEach( file => {
 		entries[ './' + file.substring( 0, file.length - '.js'.length ) ] = './' + file;
 	} );
 
@@ -34,40 +31,86 @@ function getJsEntries() {
 }
 
 /**
- * Returns an array the full list of our '.scss' files in the form:
- * [ './full/path/file' => './full/path/file.scss'].
- * This list is generated using the above defined sassPattern and alwaysIgnoredFiles.
+ * Return an array with a list of our legacy '.scss' files.
+ *
+ * Format: [ './full/path/file' => './full/path/file.scss'].
+ *
+ * @param boolean minification Whether or not the scss should be minified.
  *
  * @returns {Array} The list of scss files that must be compiled and minified.
  */
-function getSassEntries() {
+function getLegacySassEntries( minification = true ) {
+	const patterns = [
+		'sass/**/*.scss',
+		'modules/**/sass/**/*.scss',
+	];
+	const ignorePatterns = [
+		'**/sass/**/_*.scss',
+		/*
+		 * All Welcome to ZBS styling is handled separately.
+		 * @see getLegacyWelcomeZBSCSSEntries()
+		 */
+		'**/welcome-to-zbs/**',
+	];
+
 	const entries = {};
-	glob.sync( sassPattern, { ignore: alwaysIgnoredFiles } ).forEach( file => {
+	glob.sync( `{${ patterns.join( ',' ) }}`, { ignore: ignorePatterns } ).forEach( file => {
 		const newPath = file.replace( 'sass', 'css' );
+		if ( minification ) {
 		entries[ './' + newPath.substring( 0, newPath.length - '.scss'.length ) + '.min' ] =
 			'./' + file;
+		}
+		else {
+			entries[ './' + newPath.substring( 0, newPath.length - '.scss'.length ) ] =
+			'./' + file;
+		}
 	} );
 	return entries;
 }
 
 /**
- * Returns an array the full list of our 'css' files from the 'welcome-to-zbs' directory in the form:
- * [ './full/path/file' => './full/path/file.css'].
- * This list is generated using the above defined welcomeZBSCSSPattern and alwaysIgnoredFiles.
+ * Return array with a list of our legacy 'welcome-to-zbs' 'css' file structure.
+ *
+ * Format: [ './full/path/file' => './full/path/file.css'].
  *
  * @returns {Array} The list of css files that must be minified.
  */
-function getWelcomeZBSCSSEntries() {
+function getLegacyWelcomeZBSCSSEntries() {
+	const ignorePatterns = [
+		'**/welcome-to-zbs/*.min.css',
+	];
+
 	const entries = {};
-	glob.sync( welcomeZBSCSSPattern, { ignore: alwaysIgnoredFiles } ).forEach( file => {
+	glob.sync( 'css/welcome-to-zbs/*.css', { ignore: ignorePatterns } ).forEach( file => {
 		entries[ './' + file.substring( 0, file.length - '.css'.length ) + '.min' ] = './' + file;
 	} );
 	return entries;
 }
 
+/**
+ * Return object with React component view file mapping.
+ *
+ * We look for "view.{js,jsx,ts,tsx}" files in React component directories to determine
+ * if we should build the component or not. This is useful for bootstrap/app components
+ * that import other components.
+ *
+ * @returns {object} An object with a build path and a corresponding file path.
+ */
+function getReactComponentViewMapping() {
+	const entries = {};
+
+	glob.sync( 'src/js/components/**/view.{js,jsx,ts,tsx}' ).forEach( file => {
+		const pathDetails = path.parse( file );
+		const directoryName = pathDetails.dir.substring( pathDetails.dir.lastIndexOf( '/' ) + 1 );
+		entries[ `${ directoryName }/index` ] = './' + file;
+	} );
+
+	return entries;
+}
+
 const crmWebpackConfig = {
 	mode: jetpackWebpackConfig.mode,
-	devtool: jetpackWebpackConfig.isDevelopment ? 'source-map' : false,
+	devtool: false,
 	output: {
 		...jetpackWebpackConfig.output,
 		path: path.resolve( __dirname, '.' ),
@@ -89,7 +132,7 @@ const crmWebpackConfig = {
 		rules: [
 			// Transpile JavaScript.
 			jetpackWebpackConfig.TranspileRule( {
-				exclude: [ /node_modules\//, /vendor\//, /tests\//, /lib\//, /sass\//, /min.js/ ],
+				exclude: [ /node_modules\//, /vendor\//, /tests\// ],
 			} ),
 
 			// Transpile @automattic/jetpack-* in node_modules too.
@@ -111,7 +154,7 @@ const crmWebpackConfig = {
 module.exports = [
 	{
 		...crmWebpackConfig,
-		entry: getJsEntries(),
+		entry: getLegacyJsEntries(),
 		output: {
 			...crmWebpackConfig.output,
 			filename: '[name].min.js',
@@ -122,6 +165,7 @@ module.exports = [
 		},
 		optimization: {
 			...crmWebpackConfig.optimization,
+			minimize: true,
 			minimizer: [
 				jetpackWebpackConfig.TerserPlugin( {
 					terserOptions: {
@@ -130,13 +174,14 @@ module.exports = [
 							keep_classnames: true,
 						},
 					},
+					extractComments: jetpackWebpackConfig.isProduction,
 				} ),
 			],
 		},
 	},
 	{
 		...crmWebpackConfig,
-		entry: getSassEntries(),
+		entry: getLegacySassEntries(),
 		module: {
 			...crmWebpackConfig.module,
 			rules: [
@@ -161,7 +206,46 @@ module.exports = [
 	},
 	{
 		...crmWebpackConfig,
-		entry: getWelcomeZBSCSSEntries(),
+		mode: 'production',
+		entry: getLegacySassEntries( doNotMinify ),
+		optimization: {
+			...crmWebpackConfig.optimization,
+			minimize: false,
+		},
+		module: {
+			...crmWebpackConfig.module,
+			rules: [
+				...crmWebpackConfig.module.rules,
+				// // Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [ 
+						{
+							loader: 'sass-loader',
+							options: {
+								sassOptions: {
+									outputStyle: 'expanded',
+								},
+							},
+						},
+					],
+					CssLoader: {
+						url: false,
+					},
+				} ),
+			],
+		},
+		plugins: [
+			...crmWebpackConfig.plugins,
+			// Delete the dummy JS files Webpack would otherwise create.
+			new RemoveAssetWebpackPlugin( {
+				assets: /\.js(\.map)?$/,
+			} ),
+		],
+	},
+	{
+		...crmWebpackConfig,
+		entry: getLegacyWelcomeZBSCSSEntries(),
 		output: {
 			...crmWebpackConfig.output,
 		},
@@ -185,5 +269,33 @@ module.exports = [
 				assets: /\.js(\.map)?$/,
 			} ),
 		],
+	},
+	{
+		...crmWebpackConfig,
+		entry: getReactComponentViewMapping(),
+		output: {
+			...jetpackWebpackConfig.output,
+			path: path.resolve( './build' ),
+		},
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: { injectPolyfill: true },
+			} ),
+		],
+		module: {
+			...crmWebpackConfig.module,
+			rules: [
+				...crmWebpackConfig.module.rules,
+
+				// Handle CSS.
+				jetpackWebpackConfig.CssRule( {
+					extensions: [ 'css', 'sass', 'scss' ],
+					extraLoaders: [ 'sass-loader' ],
+				} ),
+
+				// Handle images.
+				jetpackWebpackConfig.FileRule(),
+			],
+		},
 	},
 ];

@@ -74,7 +74,7 @@ ul#adminmenu a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:a
 // http://cssdeck.com/labs/css3-flipping-cube
 /* Container box to set the sides relative to */
 .zbs-cube {
-	width: 30px;
+	width: 50px;
 	text-align: center;
 	margin: 0 auto;
 	height: 30px;
@@ -86,7 +86,7 @@ ul#adminmenu a.wp-has-current-submenu:after, ul#adminmenu>li.current>a.current:a
 	transform-style: preserve-3d; /* <-NB */
 }
 .zbs-cube img {
-	max-width:30px;
+	max-width:50px;
 }
 .zbs-cube .fa, .zbs-cube .icon {
 	height:30px;width:30px;font-size:30px;

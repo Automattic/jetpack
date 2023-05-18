@@ -65,17 +65,33 @@ function zeroBSCRM_improvedPostMsgsCustomers( $messages ) {
 
 	$messages['post'] = array(
 		0  => '', // Unused. Messages start at index 1.
-		1  => sprintf( __( 'Customer updated. <a href="%s">Back to Customers</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' ) ), // get_permalink($post_ID) ) ),
-		2  => __( 'Customer updated.', 'zero-bs-crm' ),
-		3  => __( 'Customer field deleted.', 'zero-bs-crm' ),
-		4  => __( 'Customer updated.', 'zero-bs-crm' ),
+		1  => sprintf(
+			/* Translators: %s: link to the main Contacts page */
+			__( 'Contact updated. <a href="%s">Back to Contacts</a>', 'zero-bs-crm' ),
+			esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' )
+		),
+		2  => __( 'Contact updated.', 'zero-bs-crm' ),
+		3  => __( 'Contact field deleted.', 'zero-bs-crm' ),
+		4  => __( 'Contact updated.', 'zero-bs-crm' ),
 		/* translators: %s: date and time of the revision */
-		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Customer restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) sanitize_text_field( $_GET['revision'] ), false ) ) : false,
-		6  => sprintf( __( 'Customer added. <a href="%s">Back to Customers</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' ) ), // get_permalink($post_ID) ) ),//esc_url( get_permalink($post_ID) ) ),
-		7  => __( 'Customer saved.', 'zero-bs-crm' ),
-		8  => sprintf( __( 'Customer submitted. <a target="_blank" href="%s">Back to Customers</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' ) ), // esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
-		9  => '', // sprintf( ), //get_permalink($post_ID) ) ),//esc_url( get_permalink($post_ID) ) ),
-		10 => sprintf( __( 'Customer draft updated. <a target="_blank" href="%s">Back to Customers</a>', 'zero-bs-crm' ), esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' ) ), // get_permalink($post_ID) ) ),//esc_url( add_query_arg( 'preview', 'true', get_permalink($post_ID) ) ) ),
+		5  => isset( $_GET['revision'] ) ? sprintf( __( 'Contact restored to revision from %s', 'zero-bs-crm' ), wp_post_revision_title( (int) sanitize_text_field( $_GET['revision'] ), false ) ) : false, // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		6  => sprintf(
+			/* Translators: %s: link to the main Contacts page */
+			__( 'Contact added. <a href="%s">Back to Contacts</a>', 'zero-bs-crm' ),
+			esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' )
+		),
+		7  => __( 'Contact saved.', 'zero-bs-crm' ),
+		8  => sprintf(
+			/* Translators: %s: link to the main Contacts page */
+			__( 'Contact submitted. <a target="_blank" href="%s">Back to Contacts</a>', 'zero-bs-crm' ),
+			esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' )
+		),
+		9  => '',
+		10 => sprintf(
+			/* Translators: %s: link to the main Contacts page */
+			__( 'Contact draft updated. <a target="_blank" href="%s">Back to Contacts</a>', 'zero-bs-crm' ),
+			esc_url( 'edit.php?post_type=zerobs_customer&page=manage-customers' )
+		),
 	);
 
 	return $messages;
@@ -185,13 +201,13 @@ function jpcrm_footer_credit_thanks( $content ) {
 		return $content;
 	}
 
-	// WLREMOVE
+	##WLREMOVE
 	global $zbs;
 	$showpoweredby_admin = $zbs->settings->get( 'showpoweredby_admin' ) === 1 ? true : false;
 	if ( $showpoweredby_admin ) {
 		return '<span id="footer-thankyou">' . sprintf( __( 'Thank you for using <a href="%s">Jetpack CRM</a>.', 'zero-bs-crm' ), $zbs->urls['home'] ) . '</span>';
 	}
-	// /WLREMOVE
+	##/WLREMOVE
 
 	// return blank if disabled or white label
 	return '';
@@ -205,13 +221,13 @@ function jpcrm_footer_credit_version( $content ) {
 		return $content;
 	}
 
-	// WLREMOVE
+	##WLREMOVE
 	global $zbs;
 	$showpoweredby_admin = $zbs->settings->get( 'showpoweredby_admin' ) === 1 ? true : false;
 	if ( $showpoweredby_admin ) {
 		return sprintf( 'Jetpack CRM v%s', $zbs->version );
 	}
-	// /WLREMOVE
+	##/WLREMOVE
 
 	// return blank if disabled or white label
 	return '';
@@ -400,7 +416,7 @@ function zeroBSCRM_CustomisedLogin_logo_url_title() {
 }
 add_filter( 'login_headertext', 'zeroBSCRM_CustomisedLogin_logo_url_title' );
 
-// WLREMOVE
+##WLREMOVE
 // add powered by Jetpack CRM to WP login footer if "override all" mode and public credits are enabled
 function jpcrm_wplogin_footer() {
 
@@ -413,7 +429,7 @@ function jpcrm_wplogin_footer() {
 	}
 }
 add_action( 'login_footer', 'jpcrm_wplogin_footer' );
-// /WLREMOVE
+##/WLREMOVE
 
 // } For (if shown mobile) - restrict things shown
 add_action( 'admin_bar_menu', 'remove_wp_items', 100 );

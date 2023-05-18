@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\My_Jetpack\Products\Backup;
+use Automattic\Jetpack\Redirect;
 use Jetpack_Options;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
@@ -82,7 +83,7 @@ class Test_Backup_Product extends TestCase {
 	 */
 	public function test_if_jetpack_active_return_false() {
 		activate_plugin( 'jetpack/jetpack.php' );
-		$this->assertFalse( Backup::is_plugin_active() );
+		$this->assertTrue( Backup::is_plugin_active() );
 	}
 
 	/**
@@ -118,7 +119,7 @@ class Test_Backup_Product extends TestCase {
 	public function test_backup_manage_url_with_jetpack() {
 		activate_plugins( 'jetpack/jetpack.php' );
 		deactivate_plugins( Backup::get_installed_plugin_filename() );
-		$this->assertSame( null, Backup::get_manage_url() );
+		$this->assertSame( Redirect::get_url( 'my-jetpack-manage-backup' ), Backup::get_manage_url() );
 	}
 
 	/**

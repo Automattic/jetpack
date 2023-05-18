@@ -58,3 +58,18 @@
 	fill: var( --jp-green-40 );
 	transition: transform 0.1s ease-out;
 }
+
+.iconContainer {
+	margin: 0 0 0 calc( var( --spacing-base ) / 3);
+	display: inline;
+	vertical-align: middle;
+	
+	svg {
+		z-index: 10;
+		position: relative;
+	}
+}
+
+.description {
+	display: inline;
+}

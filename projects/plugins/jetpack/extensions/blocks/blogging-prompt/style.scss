@@ -3,15 +3,16 @@
 .jetpack-blogging-prompt {
 	border: 1px solid $gray-300;
 	border-radius: 2px;
+	box-sizing: border-box;
 	padding: 24px;
 
 	&__label {
 		background: no-repeat url('./icon.svg');
-		background-position: left;
+		background-position: -5px center;
 		background-size: 24px 24px;
 		font-size: 14px;
 		margin-bottom: $grid-unit-20;
-		padding-left: 26px;
+		padding-left: 22px;
 	}
 
 	&__text {
@@ -36,6 +37,10 @@
 		vertical-align: middle;
 		width: 24px;
 
+		&:first-child {
+			margin-left: -2px;
+		}
+
 		&:not(:first-child) {
 			margin-left: -15px;
 		}
@@ -43,6 +48,13 @@
 
 	&__spinner {
 		text-align: center;
+	}
+
+	&.is-style-quote {
+		border: none;
+		border-left: 4px solid $gray-800;
+		margin-bottom: $grid-unit-20;
+		padding: 0 24px;
 	}
 
 	@media only email {

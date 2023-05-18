@@ -40,7 +40,7 @@ test( 'Deactivating the plugin should clear Critical CSS and Dismissed Recommend
 	// TODO: Also should make sure that a Critical CSS recommendation is dismissed to check that the options does not exist after deactivation of the plugin.
 	await boostPrerequisitesBuilder( page )
 		.withCleanEnv( true )
-		.withActiveModules( [ 'critical-css' ] )
+		.withActiveModules( [ 'critical_css' ] )
 		.build();
 	const jetpackBoostPage = await JetpackBoostPage.visit( page );
 	expect(

@@ -1,11 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent, { PointerEventsCheckLevel } from '@testing-library/user-event';
-// this is necessary because block editor store becomes unregistered during jest initialization
-import { store as blockEditorStore } from '@wordpress/block-editor';
-import { register } from '@wordpress/data';
 import { SimplePaymentsEdit } from '../edit';
-
-register( blockEditorStore );
 
 const setAttributes = jest.fn();
 const intlNumberFormatSpy = jest.spyOn( Intl, 'NumberFormat' );

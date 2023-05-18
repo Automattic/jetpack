@@ -424,7 +424,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					'Congratulations, you’ve just unlocked the full power of the Jetpack suite; all of our Security, Performance, Growth, and Design tools.',
 					'jetpack'
 				),
-				ctaText: __( 'Setup your new tools', 'jetpack' ),
+				ctaText: __( 'Set up your new tools', 'jetpack' ),
 				hasNoAction: true,
 				illustration: 'assistant-complete-welcome',
 			};
@@ -435,7 +435,17 @@ export const getStepContent = ( state, stepSlug ) => {
 					'Congratulations, you’ve just unlocked comprehensive WordPress site security, including backups, malware scanning, and spam protection.',
 					'jetpack'
 				),
-				ctaText: __( 'Setup your new tools', 'jetpack' ),
+				ctaText: __( 'Set up your new tools', 'jetpack' ),
+				hasNoAction: true,
+			};
+		case 'welcome__starter':
+			return {
+				question: __( 'Welcome to Jetpack Starter!', 'jetpack' ),
+				description: __(
+					'Congratulations! You’ve unlocked essential security tools for your site, including real-time backups and spam protection for comments and forms. Let’s get everything set up. It will only take a minute.',
+					'jetpack'
+				),
+				ctaText: __( 'Set up Jetpack Starter', 'jetpack' ),
 				hasNoAction: true,
 			};
 		case 'welcome__antispam':
@@ -486,6 +496,21 @@ export const getStepContent = ( state, stepSlug ) => {
 				ctaLink: getJetpackCloudUrl( state, 'scan' ),
 				illustration: 'assistant-backup-welcome',
 				skipText: __( 'Next', 'jetpack' ),
+			};
+		case 'welcome__golden_token':
+			return {
+				question: __( 'Congratulations, you have been gifted a Jetpack Golden Token!', 'jetpack' ),
+				description: __(
+					'Congratulations, your Jetpack Golden Token provides a lifetime license for this website and includes the following products:',
+					'jetpack'
+				),
+				descriptionList: [
+					__( 'Jetpack VaultPress Backup', 'jetpack' ),
+					__( 'Jetpack Scan', 'jetpack' ),
+				],
+				ctaText: __( 'Set up your new powers', 'jetpack' ),
+				hasNoAction: true,
+				illustration: 'assistant-golden-token-welcome',
 			};
 		case 'backup-activated':
 			return {

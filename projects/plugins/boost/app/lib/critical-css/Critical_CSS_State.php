@@ -22,6 +22,10 @@ class Critical_CSS_State {
 		$this->state = jetpack_boost_ds_get( 'critical_css_state' );
 	}
 
+	public function clear() {
+		jetpack_boost_ds_delete( 'critical_css_state' );
+	}
+
 	public function save() {
 		$this->state['updated'] = microtime( true );
 		jetpack_boost_ds_set( 'critical_css_state', $this->state );
@@ -39,6 +43,82 @@ class Critical_CSS_State {
 		$this->state['status']       = self::GENERATION_STATES['error'];
 
 		return $this;
+	}
+
+	/**
+	 * Update a provider's state. The provider must already exist in the state to be updated.
+	 *
+	 * @param string $provider_key The provider key.
+	 * @param array  $state        An array to overlay over the current state.
+	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 */
+	private function update_provider_state( $provider_key, $state ) {
+		if ( empty( $this->state['providers'] ) ) {
+			return new \WP_Error( 'invalid_provider_key', 'No providers exist' );
+		}
+
+		$provider_index = array_search( $provider_key, array_column( $this->state['providers'], 'key' ), true );
+		if ( $provider_index === false ) {
+			return new \WP_Error( 'invalid_provider_key', 'Invalid provider key' );
+		}
+
+		$this->state['providers'][ $provider_index ] = array_merge(
+			$this->state['providers'][ $provider_index ],
+			$state
+		);
+
+		$this->maybe_set_generated();
+
+		return true;
+	}
+
+	/**
+	 * Set a provider's state to error.
+	 *
+	 * @param string $provider_key The provider key.
+	 * @param array $errors        A list of errors to store with this provider.
+	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 */
+	public function set_provider_errors( $provider_key, $errors ) {
+		return $this->update_provider_state(
+			$provider_key,
+			array(
+				'status' => self::PROVIDER_STATES['error'],
+				'errors' => $errors,
+			)
+		);
+	}
+
+	/**
+	 * Set a provider's state to success.
+	 *
+	 * @param string $provider_key The provider key.
+	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 */
+	public function set_provider_success( $provider_key ) {
+		return $this->update_provider_state(
+			$provider_key,
+			array(
+				'status' => self::PROVIDER_STATES['success'],
+			)
+		);
+	}
+
+	/**
+	 * Set the state to generated if all providers are done. Should be called wherever
+	 * a provider's state is updated.
+	 */
+	private function maybe_set_generated() {
+		if ( empty( $this->state['providers'] ) ) {
+			return;
+		}
+
+		$provider_states = array_column( $this->state['providers'], 'status' );
+		$is_done         = ! in_array( self::GENERATION_STATES['pending'], $provider_states, true );
+
+		if ( $is_done ) {
+			$this->state['status'] = self::GENERATION_STATES['generated'];
+		}
 	}
 
 	public function has_errors() {
@@ -70,5 +150,24 @@ class Critical_CSS_State {
 
 	public function get() {
 		return $this->state;
+	}
+
+	public function has_pending_provider( $needles = array() ) {
+		if ( empty( $this->state['providers'] ) ) {
+			return false;
+		}
+
+		$providers = $this->state['providers'];
+		foreach ( $providers as $provider ) {
+			if (
+				! empty( $provider['key'] )
+				&& ! empty( $provider['status'] )
+				&& self::PROVIDER_STATES['pending'] === $provider['status']
+				&& in_array( $provider['key'], $needles, true )
+			) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

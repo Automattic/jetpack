@@ -1,9 +1,11 @@
 import { __ } from '@wordpress/i18n';
+import { Icon, external } from '@wordpress/icons';
 import classnames from 'classnames';
 import React from 'react';
 import AutomatticBylineLogo from '../automattic-byline-logo';
 import './style.scss';
 import JetpackLogo from '../jetpack-logo';
+import useBreakpointMatch from '../layout/use-breakpoint-match';
 import type { JetpackFooterProps } from './types';
 
 /**
@@ -17,11 +19,25 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 	moduleName = __( 'Jetpack', 'jetpack' ),
 	className,
 	moduleNameHref = 'https://jetpack.com',
+	menu,
 	...otherProps
 } ) => {
+	const [ isSm ] = useBreakpointMatch( 'sm', '<=' );
+	const [ isMd ] = useBreakpointMatch( 'md', '<=' );
+
 	return (
-		<div className={ classnames( 'jp-dashboard-footer', className ) } { ...otherProps }>
-			<div className="jp-dashboard-footer__footer-left">
+		<div
+			className={ classnames(
+				'jp-dashboard-footer',
+				{
+					'is-sm': isSm,
+					'is-md': isMd,
+				},
+				className
+			) }
+			{ ...otherProps }
+		>
+			<div className="jp-dashboard-footer__logo">
 				<JetpackLogo
 					logoColor="#000"
 					showText={ false }
@@ -39,11 +55,38 @@ const JetpackFooter: React.FC< JetpackFooterProps > = ( {
 					) }
 				</span>
 			</div>
-			<div className="jp-dashboard-footer__footer-right">
-				<a href={ a8cLogoHref } aria-label={ __( 'An Automattic Airline', 'jetpack' ) }>
-					<AutomatticBylineLogo />
-				</a>
-			</div>
+			{ menu && (
+				<div className="jp-dashboard-footer__menu">
+					{ menu.map( item => (
+						<a
+							key={ item.label }
+							href={ item.href }
+							title={ item.title }
+							target={ item.target }
+							onClick={ item.onClick }
+							onKeyDown={ item.onKeyDown }
+							className={ classnames( 'jp-dashboard-footer__menu-item', {
+								'is-external': item.target === '_blank',
+							} ) }
+							role={ item.role }
+							rel="noopener noreferrer"
+							tabIndex={ item.role === 'button' ? 0 : undefined }
+						>
+							{ item.label }
+							{ item.target === '_blank' && (
+								<Icon className="jp-dashboard-footer__menu-item__icon" icon={ external } />
+							) }
+						</a>
+					) ) }
+				</div>
+			) }
+			<a
+				className="jp-dashboard-footer__a8c-logo"
+				href={ a8cLogoHref }
+				aria-label={ __( 'An Automattic Airline', 'jetpack' ) }
+			>
+				<AutomatticBylineLogo />
+			</a>
 		</div>
 	);
 };

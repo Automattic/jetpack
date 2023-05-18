@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Waf;
 
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection;
 
 /**
  * Executes the WAF.
@@ -160,6 +161,7 @@ class Waf_Runner {
 			self::SHARE_DATA_OPTION_NAME                 => get_option( self::SHARE_DATA_OPTION_NAME ),
 			'bootstrap_path'                             => self::get_bootstrap_file_path(),
 			'automatic_rules_available'                  => (bool) self::automatic_rules_available(),
+			'brute_force_protection'                     => (bool) Brute_Force_Protection::is_enabled(),
 		);
 	}
 

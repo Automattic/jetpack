@@ -16,7 +16,7 @@ use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Premium_Pricing;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Info;
-use Automattic\Jetpack_Boost\Modules\Modules;
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
 
 class Admin {
 
@@ -46,7 +46,7 @@ class Admin {
 	 */
 	private $config;
 
-	public function __construct( Modules $modules ) {
+	public function __construct( Modules_Setup $modules ) {
 		$this->modules     = $modules;
 		$this->speed_score = new Speed_Score( $modules );
 		Environment_Change_Detector::init();

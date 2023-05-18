@@ -76,6 +76,12 @@ const ConnectedPricingTable = ( { onScanAdd } ) => {
 				name: __( 'Daily automated scans', 'jetpack-protect' ),
 			},
 			{
+				name: __( 'Web Application Firewall', 'jetpack-protect' ),
+			},
+			{
+				name: __( 'Brute force protection', 'jetpack-protect' ),
+			},
+			{
 				name: __( 'Access to scan on Cloud', 'jetpack-protect' ),
 			},
 			{
@@ -119,6 +125,13 @@ const ConnectedPricingTable = ( { onScanAdd } ) => {
 						isIncluded={ true }
 						label={ <strong>{ __( 'Plus on-demand manual scans', 'jetpack-protect' ) }</strong> }
 					/>
+					<PricingTableItem
+						isIncluded={ true }
+						label={
+							<strong>{ __( 'Automatic protection and rule updates', 'jetpack-protect' ) }</strong>
+						}
+					/>
+					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ true } />
@@ -150,6 +163,11 @@ const ConnectedPricingTable = ( { onScanAdd } ) => {
 					<PricingTableItem
 						isIncluded={ true }
 						label={ __( 'Check items against database', 'jetpack-protect' ) }
+					/>
+					<PricingTableItem isIncluded={ true } />
+					<PricingTableItem
+						isIncluded={ true }
+						label={ __( 'Manual rules only', 'jetpack-protect' ) }
 					/>
 					<PricingTableItem isIncluded={ true } />
 					<PricingTableItem isIncluded={ false } />

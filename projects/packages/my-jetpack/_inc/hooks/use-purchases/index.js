@@ -7,5 +7,17 @@ import { STORE_ID } from '../../state/store';
  * @returns {object} site purchases data
  */
 export default function usePurchases() {
-	return useSelect( select => select( STORE_ID ).getPurchases() );
+	const { purchases, isFetchingPurchases } = useSelect( select => {
+		const { getPurchases, isRequestingPurchases } = select( STORE_ID );
+
+		return {
+			purchases: getPurchases(),
+			isFetchingPurchases: isRequestingPurchases(),
+		};
+	} );
+
+	return {
+		purchases,
+		isFetchingPurchases,
+	};
 }

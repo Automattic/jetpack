@@ -120,8 +120,8 @@ export function initializeClient( namespace: string ) {
 		 * For example,
 		 * ```js
 		 *	const client = initializeClient( 'jetpack_favorites' );
-		 *	client.setCallback( 'status', ( value ) => {
-		 *		client.endpoint.status.POST( value.replace("a", "b") );
+		 *	client.setSyncAction( ( preValue, value, abortSignal ) => {
+		 *		return client.status.endpoint.SET( value, abortSignal );
 		 *	} );
 		 */
 		endpoint.nonce = nonce;
@@ -130,11 +130,18 @@ export function initializeClient( namespace: string ) {
 		// Only expose selected public methods:
 		const store = syncedStore.getPublicInterface();
 
-		store.setCallback( endpoint.POST );
+		store.setSyncAction( ( prevValue, newValue, abortController ) =>
+			endpoint.SET( newValue, abortController )
+		);
 
 		const client = {
 			endpoint,
 			...store,
+			refresh: async () => {
+				const response = await endpoint.GET();
+				store.store.set( response );
+				return response;
+			},
 		};
 
 		if ( opts.hideFromGlobalErrors !== true ) {

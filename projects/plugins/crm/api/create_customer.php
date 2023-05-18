@@ -123,24 +123,34 @@ if ( is_array( $tags ) && count( $tags ) > 0 ) {
 			// } DEFAULTS
 				// } Existing user updated by API
 				$existingUserAPISourceShort = __( 'Updated by API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-				$existingUserAPISourceLong  = __( 'API Action fired to update customer', 'zero-bs-crm' );
+				$existingUserAPISourceLong  = __( 'API Action fired to update contact', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				// } New User from API
 				$newUserAPISourceShort = __( 'Created from API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-				$newUserAPISourceLong  = __( 'API Action fired to create customer', 'zero-bs-crm' );
+				$newUserAPISourceLong  = __( 'API Action fired to create contact', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-			// } Here we catch "HTTP_USER_AGENT": "Zapier" ;)
-if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && $_SERVER['HTTP_USER_AGENT'] == 'Zapier' ) {
-
-	// } Just means this was probs fired by ZAP APP
-	// } So pretty up msgs :)
-	$existingUserAPISourceShort = __( 'Updated by Zapier (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-	$existingUserAPISourceLong  = __( 'Zapier fired an API Action to update this customer', 'zero-bs-crm' );
-
-	// } New User from api
-	$newUserAPISourceShort = __( 'Created by Zapier (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-	$newUserAPISourceLong  = __( 'Zapier fired an API Action to create this customer', 'zero-bs-crm' );
-
+$external_api_name = jpcrm_api_process_external_api_name();
+if ( $external_api_name !== false ) {
+	$existingUserAPISourceShort = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// Translators: %s is a dynamic service name invoking the API.
+		__( 'Updated by %s (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>',
+		$external_api_name
+	);
+	$existingUserAPISourceLong = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// Translators: %s is a dynamic service name invoking the API.
+		__( '%s fired an API Action to update this contact', 'zero-bs-crm' ),
+		$external_api_name
+	);
+	$newUserAPISourceShort = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// Translators: %s is a dynamic service name invoking the API.
+		__( 'Created by %s (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>',
+		$external_api_name
+	);
+	$newUserAPISourceLong = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		// Translators: %s is a dynamic service name invoking the API.
+		__( '%s fired an API Action to create this contact', 'zero-bs-crm' ),
+		$external_api_name
+	);
 }
 
 				// } Actual log var passed

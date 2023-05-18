@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use snake_case for tracks event props

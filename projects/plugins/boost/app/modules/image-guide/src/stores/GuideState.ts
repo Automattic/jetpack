@@ -37,13 +37,11 @@ export const guideState: CyclableStore = {
 	set,
 	update,
 	cycle: () => {
-		update(
-			( value ): State => {
-				const keys = Object.keys( store );
-				const index = keys.indexOf( value );
-				return keys[ ( index + 1 ) % keys.length ] as State;
-			}
-		);
+		update( ( value ): State => {
+			const keys = Object.keys( store );
+			const index = keys.indexOf( value );
+			return keys[ ( index + 1 ) % keys.length ] as State;
+		} );
 	},
 };
 

@@ -24,7 +24,7 @@ class CLI {
 	 */
 	private $jetpack_boost;
 
-	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical-css', 'lazy-images', 'render-blocking-js' );
+	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'lazy_images', 'render_blocking_js' );
 
 	/**
 	 * CLI constructor.
@@ -53,8 +53,8 @@ class CLI {
 	 *
 	 * ## EXAMPLES
 	 *
-	 * wp jetpack-boost module activate critical-css
-	 * wp jetpack-boost module deactivate critical-css
+	 * wp jetpack-boost module activate critical_css
+	 * wp jetpack-boost module deactivate critical_css
 	 *
 	 * @param array $args Command arguments.
 	 */
@@ -112,6 +112,7 @@ class CLI {
 	 */
 	private function set_module_status( $module_slug, $status ) {
 		( new Status( $module_slug ) )->update( $status );
+
 		$status_label = $status ? __( 'activated', 'jetpack-boost' ) : __( 'deactivated', 'jetpack-boost' );
 
 		/* translators: The %1$s refers to the module slug, %2$s refers to the module state (either activated or deactivated)*/

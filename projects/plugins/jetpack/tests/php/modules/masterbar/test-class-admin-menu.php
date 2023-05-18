@@ -387,32 +387,6 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Tests add_gutenberg_menus
-	 *
-	 * @covers ::add_gutenberg_menus
-	 */
-	public function test_add_gutenberg_menus() {
-		global $menu;
-		static::$admin_menu->add_gutenberg_menus();
-
-		// FSE is no longer where it was put by default.
-		$this->assertArrayNotHasKey( 100, $menu );
-		$this->assertArrayHasKey( 59, $menu );
-
-		$fse_link = 'https://wordpress.com/site-editor/' . static::$domain;
-		$fse_menu = array(
-			'Site Editor <span class="awaiting-mod">beta</span>',
-			'edit_theme_options',
-			$fse_link,
-			'Site Editor (beta)',
-			'menu-top toplevel_page_gutenberg-edit-site',
-			'toplevel_page_gutenberg-edit-site',
-			'dashicons-layout',
-		);
-		$this->assertSame( $menu[59], $fse_menu );
-	}
-
-	/**
 	 * Check if the hidden menus are at the end of the submenu.
 	 */
 	public function test_if_the_hidden_menus_are_at_the_end_of_submenu() {
@@ -433,7 +407,7 @@ class Test_Admin_Menu extends WP_UnitTestCase {
 		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][0][4] );
 		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][2][4] );
 
-		$this->assertEquals( $submenu['options-general.php'][3], array( '', 'read', 'test-slug', '' ) );
+		$this->assertEquals( array( '', 'read', 'test-slug', '' ), $submenu['options-general.php'][3] );
 
 		$this->assertNotEquals( Base_Admin_Menu::HIDE_CSS_CLASS, $submenu['options-general.php'][5][4] );
 

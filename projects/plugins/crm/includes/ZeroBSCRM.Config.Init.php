@@ -165,19 +165,14 @@ $zeroBSCRM_Conf_Def = array(
 
 	/* === Field Sorts === */
 	'fieldsorts'                         => array(
-		'address'      => false,
-		'customers'    => false,
-		'quotes'       => false,
-		'invoices'     => false,
-		'transactions' => false,
+		'address'  => array(),
+		'customer' => array(),
+		'company'  => array(),
 	),
 	'fieldhides'                         => array(
-		'address'      => false,
-		'customers'    => false,
-		'company'      => false,
-		'quotes'       => false,
-		'invoices'     => false,
-		'transactions' => false,
+		'address'  => array(),
+		'customer' => array(),
+		'company'  => array(),
 	),
 
 	/*
@@ -257,7 +252,7 @@ $zeroBSCRM_Conf_Def = array(
 	// 'customisedfields' contains additional settings spread across multiple tabs
 	'shippingfortransactions'            => -1,
 	'paiddatestransaction'               => -1,
-	'transinclude_status'                => array( 'Succeeded', 'Completed', 'Failed', 'Refunded', 'Processing', 'Pending', 'Hold' ),
+	'transinclude_status'                => array( 'Succeeded', 'Completed', 'Failed', 'Refunded', 'Processing', 'Pending', 'Hold', 'Draft' ),
 	'transaction_fee'                    => -1,
 	'transaction_tax'                    => -1,
 	'transaction_discount'               => -1,
@@ -329,7 +324,7 @@ $zeroBSCRM_Conf_Def = array(
 			// Note: Changes here should be reflected in `transinclude_status` as well
 			'status' => array(
 				1,
-				'Succeeded,Completed,Failed,Refunded,Processing,Pending,Hold,Cancelled,Deleted',
+				'Succeeded,Completed,Failed,Refunded,Processing,Pending,Hold,Cancelled,Deleted,Draft',
 			),
 		),
 
@@ -401,7 +396,7 @@ $zeroBSCRM_Conf_Def = array(
 		'quote'               => array(
 			'id'       => array( 'ID' ),
 			'title'    => array( 'Quote Title' ),
-			'customer' => array( 'Customer' ),
+			'customer' => array( 'Contact' ),
 			'status'   => array( 'Status' ),
 			'value'    => array( __( 'Quote Value', 'zero-bs-crm' ) ),
 			'editlink' => array( __( 'Edit', 'zero-bs-crm' ) ),
@@ -410,7 +405,7 @@ $zeroBSCRM_Conf_Def = array(
 		'invoice'             => array(
 			'id'       => array( 'ID' ),
 			'ref'      => array( 'Reference' ),
-			'customer' => array( 'Customer' ),
+			'customer' => array( 'Contact' ),
 			'status'   => array( 'Status' ),
 			'value'    => array( __( 'Value', 'zero-bs-crm' ) ),
 			'editlink' => array( __( 'Edit', 'zero-bs-crm' ) ),
@@ -439,7 +434,7 @@ $zeroBSCRM_Conf_Def = array(
 
 		'transaction'         => array(
 			'id'       => array( 'ID' ),
-			'customer' => array( __( 'Customer', 'zero-bs-crm' ) ),
+			'customer' => array( __( 'Contact', 'zero-bs-crm' ) ),
 			'status'   => array( __( 'Status', 'zero-bs-crm' ) ),
 			'total'    => array( __( 'Value', 'zero-bs-crm' ) ),
 			'item'     => array( __( 'Item', 'zero-bs-crm' ) ),

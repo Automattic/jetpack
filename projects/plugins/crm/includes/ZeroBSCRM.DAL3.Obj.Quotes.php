@@ -1116,6 +1116,10 @@ class zbsDAL_quotes extends zbsDAL_ObjectLayer {
 			// if owner = -1, add current
 			if (!isset($owner) || $owner === -1) { $owner = zeroBSCRM_user(); }
 
+			// if no date is passed, use current date
+			if ( empty( $data['date'] ) ) {
+				$data['date'] = time(); // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			}
 
 			if (is_array($limitedFields)){ 
 

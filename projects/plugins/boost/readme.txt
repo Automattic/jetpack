@@ -5,7 +5,7 @@ Tags: performance, speed, pagespeed, web vitals, critical css, optimize, defer
 Requires at least: 5.5
 Tested up to: 6.2
 Requires PHP: 7.0
-Stable tag: 1.6.0
+Stable tag: 1.8.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -48,6 +48,8 @@ Currently, the plugin has 3 performance modules available:
 3. *Lazy Image Loading* only loads the images the user can see. As the user scrolls, images are loaded just before they show up on the page. This simple optimization makes websites faster and saves bandwidth for your host and your customers.
 
    Read more about lazy image loading at [web.dev](https://jetpack.com/redirect/?source=jetpack-boost-lazy-load)
+
+4. *Image Guide* is a must-have feature for anyone who wants to optimize the images on their website. With this guide, you can ensure that the images on your site are the right size and dimensions, which is critical for improving user experience, page speed, and site ranking. Following the tips and best practices outlined in the guide, you can reduce image file sizes and speed up your site. Check out our [support page](https://jetpack.com/support/jetpack-boost/image-performance-guide/) to learn more about this feature and how it can help you achieve a faster and smoother website experience for your users.
 
  Google PageSpeed API is used to measure the performance score of a site. It's important to look at the Page Speed score because Core Web Vitals are going to be used as a ranking factor in search engines which means improving your SERP listing and increase your website visitors.
 
@@ -176,19 +178,23 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.7.0 - 2023-01-17
+### 1.9.0-beta - 2023-05-11
 #### Added
-- New Feature: Jetpack Boost Image Guide.
-- General: Add a notification bubble next to Boost in the WP-admin sidebar.
-- General: Added new tracks events.
-- User Experience: Add redirect to Boost dashboard after activating Boost plugin.
+- New Feature: Added JS and CSS file minification
+
+#### Changed
+- Image CDN: Improved Image CDN description
+- User Experience: Removed back button from purchase success page
+- General: Improved the way modules are toggled internally
+- General: Updated package dependencies
 
 #### Fixed
-- Admin notices: only display regeneration notice to admins.
-- Compatibility: Improve critical CSS compatibility with older Safari browsers.
-- General: Don't let analytics failures prevent features from functioning.
-- Critical CSS: Fixed an issue where notices to regenerate critical CSS were showing unnecessarily.
-- General: Fix woocommerce deprecation warning.
+- Deferred JS: Fixed some extremely short pages (such as WooCommerce Box Office tickets being printed) from resulting in a blank page
+- Cloud CSS: Don't run local regenerate automagically when using cloud css
+- Cloud CSS: Fixed a mismatch in cloud-css key
+- Critical CSS: Fixed Critical CSS from making redundant requests on page load
+- User Experience: Fixed some language choices around Boost popups
+- General: Fixed some PHP 8.2 Warnings
 
 --------
 

@@ -284,6 +284,7 @@ const EditVideoDetails = () => {
 				moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
 				header={
 					<>
+						<div id="jp-admin-notices" className={ styles[ 'jetpack-videopress-jitm-card' ] } />
 						<GoBackLink />
 						<Header
 							onSaveChanges={ handleSaveChanges }
@@ -340,7 +341,7 @@ const EditVideoDetails = () => {
 										prefix={
 											// Casting for unknown since allowing only a string is a mistake
 											// at WP Components
-											( (
+											(
 												<div className={ styles[ 'privacy-icon' ] }>
 													<Icon
 														icon={
@@ -353,7 +354,7 @@ const EditVideoDetails = () => {
 														}
 													/>
 												</div>
-											 ) as unknown ) as string
+											 ) as unknown as string
 										}
 										options={ [
 											{

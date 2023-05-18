@@ -38,7 +38,7 @@ class Jetpack_Protect {
 	 *
 	 * @var string
 	 */
-	const JETPACK_SCAN_PRODUCT_IDS          = array(
+	const JETPACK_SCAN_PRODUCT_IDS                   = array(
 		2010, // JETPACK_SECURITY_DAILY.
 		2011, // JETPACK_SECURITY_DAILY_MOTNHLY.
 		2012, // JETPACK_SECURITY_REALTIME.
@@ -54,8 +54,9 @@ class Jetpack_Protect {
 		2108, // JETPACK_SCAN_REALTIME.
 		2109, // JETPACK_SCAN_REALTIME_MONTHLY.
 	);
-	const JETPACK_WAF_MODULE_SLUG           = 'waf';
-	const JETPACK_PROTECT_ACTIVATION_OPTION = JETPACK_PROTECT_SLUG . '_activated';
+	const JETPACK_WAF_MODULE_SLUG                    = 'waf';
+	const JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG = 'protect';
+	const JETPACK_PROTECT_ACTIVATION_OPTION          = JETPACK_PROTECT_SLUG . '_activated';
 
 	/**
 	 * Constructor.
@@ -260,16 +261,17 @@ class Jetpack_Protect {
 	 */
 	public static function do_plugin_activation_activities() {
 		if ( get_option( self::JETPACK_PROTECT_ACTIVATION_OPTION ) && ( new Connection_Manager() )->is_connected() ) {
-			self::activate_module();
+			self::activate_modules();
 		}
 	}
 
 	/**
-	 * Activates the Publicize module and disables the activation option
+	 * Activates the waf and brute force protection modules and disables the activation option
 	 */
-	public static function activate_module() {
+	public static function activate_modules() {
 		delete_option( self::JETPACK_PROTECT_ACTIVATION_OPTION );
 		( new Modules() )->activate( self::JETPACK_WAF_MODULE_SLUG, false, false );
+		( new Modules() )->activate( self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG, false, false );
 	}
 
 	/**
@@ -319,13 +321,13 @@ class Jetpack_Protect {
 	}
 
 	/**
-	 * Adds module to the list of available modules
+	 * Adds modules to the list of available modules
 	 *
 	 * @param array $modules The available modules.
 	 * @return array
 	 */
 	public function protect_filter_available_modules( $modules ) {
-		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG ), $modules );
+		return array_merge( array( self::JETPACK_WAF_MODULE_SLUG, self::JETPACK_BRUTE_FORCE_PROTECTION_MODULE_SLUG ), $modules );
 	}
 
 	/**

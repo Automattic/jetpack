@@ -27,10 +27,8 @@ const reduceVideoLimits = ( prev, current ) => ( {
 
 const getVideoLimits = enabledConnections =>
 	enabledConnections
-		.map( connection =>
-			RESTRICTIONS[ connection.service_name ]
-				? RESTRICTIONS[ connection.service_name ].video
-				: DEFAULT_RESTRICTIONS.video
+		.map(
+			connection => RESTRICTIONS[ connection.service_name ]?.video || DEFAULT_RESTRICTIONS.video
 		)
 		.reduce( reduceVideoLimits, [] );
 
@@ -48,7 +46,7 @@ export const getAllowedMediaTypes = enabledConnections => {
 	);
 
 	if ( typeArrays.length === 0 ) {
-		return [];
+		return DEFAULT_RESTRICTIONS.allowedMediaTypes;
 	}
 
 	return typeArrays.reduce( ( a, b ) => a.filter( c => b.includes( c ) ) ); // Intersection

@@ -191,14 +191,14 @@ if ( isset( $sbupdated ) ) {
 			<td class="wfieldname"><label for="wpzbs_linkedin"><?php esc_html_e( 'LinkedIn ID', 'zero-bs-crm' ); ?>:</label></td>
 			<td style="width:540px"><input type="text" class="winput form-control" name="wpzbs_linkedin" id="wpzbs_linkedin" value="<?php echo empty( $settings['linkedin'] ) ? '' : esc_attr( $settings['linkedin'] ); ?>" placeholder="e.g. linkedinco" /></td>
 		</tr>
-		<?php // WLREMOVE ?>
+		<?php ##WLREMOVE ?>
 		<tr>
 			<th colspan="2" style="text-align:center;padding:1em">
 				<strong><?php esc_html_e( "... and don't forget to follow Jetpack CRM on Twitter!", 'zero-bs-crm' ); ?></strong><br /><br />
 				<a href="<?php echo esc_url( $zbs->urls['twitter'] ); ?>" class="ui green button" target="_blank"><i class="twitter icon"></i> @jetpackcrm</a><br /><br />
 			</th>
 		</tr>
-		<?php // /WLREMOVE ?>
+		<?php ##/WLREMOVE ?>
 
 		</tbody>
 

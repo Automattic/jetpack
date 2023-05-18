@@ -789,12 +789,16 @@ function zeroBSCRM_wpb_lastlogin($uid ) {
 	    return json_decode(trim($jsonp,'();'), $assoc);
 	}
 
-	// used by DAL2 settings 
-	// https://stackoverflow.com/questions/6041741/fastest-way-to-check-if-a-string-is-json-in-php
-	function zeroBSCRM_isJson($str) {
-	    $json = json_decode($str);
-	    return $json && $str != $json;
+// used by DAL2 settings
+// https://stackoverflow.com/questions/6041741/fastest-way-to-check-if-a-string-is-json-in-php
+// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+function zeroBSCRM_isJson( $str ) {
+	if ( $str === null ) {
+		return false;
 	}
+	$json = json_decode( $str );
+	return $json && $str != $json; // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+}
 
 	// return placeholder img :) DAL2 friendly
 	function zeroBSCRM_getDefaultContactAvatar(){
@@ -1422,6 +1426,8 @@ function jpcrm_create_and_secure_dir_from_external_access( $directory_path = '',
 			'file'    => '.htaccess',
 			'content' => 'DirectoryIndex index.php index.html' . PHP_EOL . 'deny from all',
 		);
+	} elseif ( file_exists( trailingslashit( $directory_path ) . '.htaccess' ) ) {
+		wp_delete_file( trailingslashit( $directory_path ) . '.htaccess' );
 	}
 
 	foreach ( $files as $file ) {
@@ -1498,11 +1504,6 @@ function jetpackcrm_create_zeros_array($start, $end, $zbs_steps = 86400){
    / Dashboard Helpers
    ====================================================== */
 
-
-/* ======================================================
-     YouTube Helpers
-   ====================================================== */
-
 /*
  * Returns a YouTube thumbnail URL of a video
  *
@@ -1551,6 +1552,43 @@ function jpcrm_youtube_url_to_video_id( $video_url ) {
 
 }
 
-/* ======================================================
-   / YouTube Helpers
-   ====================================================== */
+/**
+ * Generates a PDF from provided HTML and returns path to PDF
+ *
+ * @param string $html HTML used for PDF content.
+ * @param string $pdf_filename Name of file where PDF will be stored.
+ *
+ * @returns string|boolean
+ */
+function jpcrm_generate_pdf( $html, $pdf_filename ) {
+	global $zbs;
+
+	$temp_dir = zeroBSCRM_privatisedDirCheckWorks();
+
+	// if tmp dir doesn't exist, die
+	if ( ! $temp_dir ) {
+		return false;
+	}
+
+	$pdf_path = $temp_dir['path'] . '/' . $pdf_filename;
+
+	// build PDF
+	$dompdf = $zbs->pdf_engine();
+	$dompdf->loadHtml( $html, 'UTF-8' );
+	$dompdf->render();
+
+	// save the pdf file on the server
+	file_put_contents( $pdf_path, $dompdf->output() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+
+	return $pdf_path;
+}
+
+/**
+ * Returns a string for disabling browser autocomplete
+ * Ideally we'd just use "off", but support is not complete: https://caniuse.com/input-autocomplete-onoff
+ *
+ * @return string A randomish string.
+ */
+function jpcrm_disable_browser_autocomplete() {
+	return time() . '-' . wp_rand( 0, 100 );
+}

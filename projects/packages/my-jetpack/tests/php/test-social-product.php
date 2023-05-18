@@ -82,7 +82,7 @@ class Test_Social_Product extends TestCase {
 	 */
 	public function test_if_jetpack_active_return_false() {
 		activate_plugin( 'jetpack/jetpack.php' );
-		$this->assertFalse( Social::is_plugin_active() );
+		$this->assertTrue( Social::is_plugin_active() );
 	}
 
 	/**
@@ -118,7 +118,7 @@ class Test_Social_Product extends TestCase {
 	public function test_social_manage_url_with_jetpack() {
 		activate_plugins( 'jetpack/jetpack.php' );
 		deactivate_plugins( Social::get_installed_plugin_filename() );
-		$this->assertSame( null, Social::get_manage_url() );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack#/settings?term=publicize' ), Social::get_manage_url() );
 	}
 
 	/**
@@ -127,7 +127,7 @@ class Test_Social_Product extends TestCase {
 	public function test_social_post_activation_url_with_jetpack_disconnected() {
 		activate_plugins( 'jetpack/jetpack.php' );
 		deactivate_plugins( Social::get_installed_plugin_filename() );
-		$this->assertSame( null, Social::get_post_activation_url() );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack#/settings?term=publicize' ), Social::get_post_activation_url() );
 	}
 
 	/**
@@ -150,7 +150,7 @@ class Test_Social_Product extends TestCase {
 
 		activate_plugins( 'jetpack/jetpack.php' );
 		deactivate_plugins( Social::get_installed_plugin_filename() );
-		$this->assertSame( null, Social::get_post_activation_url() );
+		$this->assertSame( admin_url( 'admin.php?page=jetpack#/settings?term=publicize' ), Social::get_post_activation_url() );
 	}
 
 	/**

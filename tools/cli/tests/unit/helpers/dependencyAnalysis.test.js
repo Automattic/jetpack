@@ -68,6 +68,19 @@ describe( 'dependencyAnalysis', () => {
 			} );
 		} );
 
+		test( 'monorepo, no dev deps', async () => {
+			const ret = await getDependencies( dataDir + '/monorepo', null, true );
+			expect( ret ).toMatchDeps( {
+				monorepo: [ 'packages/a' ],
+				'packages/a': [],
+				'packages/b': [ 'packages/a' ],
+				'packages/c': [ 'js-packages/d', 'packages/a' ],
+				'js-packages/d': [],
+				'js-packages/e': [],
+				'js-packages/f': [],
+			} );
+		} );
+
 		test( 'monorepo, build deps', async () => {
 			const ret = await getDependencies( dataDir + '/monorepo', 'build' );
 			expect( ret ).toMatchDeps( {

@@ -4,7 +4,7 @@
 import { ThemeProvider } from '@automattic/jetpack-components';
 import * as WPElement from '@wordpress/element';
 import React, { useEffect } from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router-dom';
 /**
  * Internal dependencies
  */
@@ -17,12 +17,14 @@ import {
 	BoostInterstitial,
 	CRMInterstitial,
 	ExtrasInterstitial,
+	JetpackAIInterstitial,
 	ProtectInterstitial,
 	ScanInterstitial,
 	SocialInterstitial,
 	SearchInterstitial,
 	VideoPressInterstitial,
 } from './components/product-interstitial';
+import RedeemTokenScreen from './components/redeem-token-screen';
 import { initStore } from './state/store';
 import './style.module.scss';
 
@@ -47,10 +49,13 @@ const MyJetpack = () => (
 			<Routes>
 				<Route path="/" element={ <MyJetpackScreen /> } />
 				<Route path="/connection" element={ <ConnectionScreen /> } />
-				<Route path="/add-anti-spam" element={ <AntiSpamInterstitial /> } />
+				<Route path="/add-akismet" element={ <AntiSpamInterstitial /> } />
+				{ /* Redirect the old route for Anti Spam */ }
+				<Route path="/add-anti-spam" element={ <Navigate replace to="/add-akismet" /> } />
 				<Route path="/add-backup" element={ <BackupInterstitial /> } />
 				<Route path="/add-boost" element={ <BoostInterstitial /> } />
 				<Route path="/add-crm" element={ <CRMInterstitial /> } />
+				<Route path="/add-jetpack-ai" element={ <JetpackAIInterstitial /> } />
 				<Route path="/add-extras" element={ <ExtrasInterstitial /> } />
 				<Route path="/add-protect" element={ <ProtectInterstitial /> } />
 				<Route path="/add-scan" element={ <ScanInterstitial /> } />
@@ -60,6 +65,7 @@ const MyJetpack = () => (
 				{ window?.myJetpackInitialState?.loadAddLicenseScreen && (
 					<Route path="/add-license" element={ <AddLicenseScreen /> } />
 				) }
+				<Route path="/redeem-token" element={ <RedeemTokenScreen /> } />
 			</Routes>
 		</HashRouter>
 	</ThemeProvider>

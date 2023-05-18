@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Code cleanup: Cleaning up WP Editor helper functions and wp_editor usage

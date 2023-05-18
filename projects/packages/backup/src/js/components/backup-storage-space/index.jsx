@@ -12,8 +12,14 @@ const BackupStorageSpace = () => {
 	const [ connectionStatus ] = useConnection();
 	const isFetchingPolicies = useSelect( select => select( STORE_ID ).isFetchingBackupPolicies() );
 	const isFetchingSize = useSelect( select => select( STORE_ID ).isFetchingBackupSize() );
+	const hasBackupSizeLoaded = useSelect( select => select( STORE_ID ).hasBackupSizeLoaded() );
+	const hasBackupPoliciesLoaded = useSelect( select =>
+		select( STORE_ID ).hasBackupPoliciesLoaded()
+	);
 	const storageLimit = useSelect( select => select( STORE_ID ).getBackupStorageLimit() );
 	const storageSize = useSelect( select => select( STORE_ID ).getBackupSize() );
+	const lastBackupSize = useSelect( select => select( STORE_ID ).getLastBackupSize() );
+
 	const planRetentionDays = useSelect( select => select( STORE_ID ).getActivityLogLimitDays() );
 	const minDaysOfBackupsAllowed = useSelect( select =>
 		select( STORE_ID ).getMinDaysOfBackupsAllowed()
@@ -35,20 +41,20 @@ const BackupStorageSpace = () => {
 			return;
 		}
 
-		if ( ! isFetchingPolicies && ! storageLimit ) {
+		if ( ! isFetchingPolicies && ! hasBackupPoliciesLoaded ) {
 			dispatch.getSitePolicies();
 		}
 
-		if ( ! isFetchingSize && ! storageSize ) {
+		if ( ! isFetchingSize && ! hasBackupSizeLoaded ) {
 			dispatch.getSiteSize();
 		}
 	}, [
 		connectionStatus,
 		dispatch,
+		hasBackupPoliciesLoaded,
+		hasBackupSizeLoaded,
 		isFetchingPolicies,
 		isFetchingSize,
-		storageLimit,
-		storageSize,
 	] );
 
 	useEffect( () => {
@@ -97,7 +103,13 @@ const BackupStorageSpace = () => {
 					storageLimit={ storageLimit }
 					usageLevel={ usageLevel }
 				/>
-				<StorageUsageDetails storageUsed={ storageSize } storageLimit={ storageLimit } />
+				<StorageUsageDetails
+					storageUsed={ storageSize }
+					storageLimit={ storageLimit }
+					lastBackupSize={ lastBackupSize }
+					usageLevel={ usageLevel }
+					planRetentionDays={ planRetentionDays }
+				/>
 
 				{ usageLevel !== StorageUsageLevels.Normal && (
 					<StorageAddonUpsellPrompt usageLevel={ usageLevel } />

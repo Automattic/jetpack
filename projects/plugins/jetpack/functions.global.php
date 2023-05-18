@@ -120,7 +120,7 @@ function jetpack_get_future_removed_version( $version ) {
 	 */
 	preg_match( '#(([0-9]+\.([0-9]+))(?:\.[0-9]+)*)#', $version, $matches );
 
-	if ( isset( $matches[2], $matches[3] ) ) {
+	if ( isset( $matches[2] ) && isset( $matches[3] ) ) {
 		$deprecated_version = (float) $matches[2];
 		$deprecated_minor   = (float) $matches[3];
 
@@ -177,6 +177,37 @@ function jetpack_register_migration_post_type() {
 }
 
 /**
+ * Checks whether the Post DB threat currently exists on the site.
+ *
+ * @since 12.0
+ *
+ * @param string $option_name  Option name.
+ *
+ * @return WP_Post|bool
+ */
+function jetpack_migration_post_exists( $option_name ) {
+	$query = new WP_Query(
+		array(
+			'post_type'              => 'jetpack_migration',
+			'title'                  => $option_name,
+			'post_status'            => 'all',
+			'posts_per_page'         => 1,
+			'no_found_rows'          => true,
+			'ignore_sticky_posts'    => true,
+			'update_post_term_cache' => false,
+			'update_post_meta_cache' => false,
+			'orderby'                => 'post_date ID',
+			'order'                  => 'ASC',
+		)
+	);
+	if ( ! empty( $query->post ) ) {
+		return $query->post;
+	}
+
+	return false;
+}
+
+/**
  * Stores migration data in the database.
  *
  * @since 5.2
@@ -196,10 +227,9 @@ function jetpack_store_migration_data( $option_name, $option_value ) {
 		'post_date'             => gmdate( 'Y-m-d H:i:s', time() ),
 	);
 
-	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
-
-	if ( null !== $post ) {
-		$insert['ID'] = $post->ID;
+	$migration_post = jetpack_migration_post_exists( $option_name );
+	if ( $migration_post ) {
+		$insert['ID'] = $migration_post->ID;
 	}
 
 	return wp_insert_post( $insert, true );
@@ -215,7 +245,7 @@ function jetpack_store_migration_data( $option_name, $option_value ) {
  * @return mixed|null
  */
 function jetpack_get_migration_data( $option_name ) {
-	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
+	$post = jetpack_migration_post_exists( $option_name );
 
 	return null !== $post ? maybe_unserialize( $post->post_content_filtered ) : null;
 }
@@ -398,25 +428,83 @@ function jetpack_is_file_supported_for_sideloading( $file ) {
 }
 
 /**
+ * Go through headers and get a list of Vary headers to add,
+ * including a Vary Accept header if necessary.
+ *
+ * @since 12.2
+ *
+ * @param array $headers The headers to be sent.
+ *
+ * @return array $vary_header_parts Vary Headers to be sent.
+ */
+function jetpack_get_vary_headers( $headers = array() ) {
+	$vary_header_parts = array( 'accept', 'content-type' );
+
+	foreach ( $headers as $header ) {
+		// Check for a Vary header.
+		if ( 'vary:' !== substr( strtolower( $header ), 0, 5 ) ) {
+			continue;
+		}
+
+		// If the header is a wildcard, we'll return that.
+		if ( false !== strpos( $header, '*' ) ) {
+			$vary_header_parts = array( '*' );
+			break;
+		}
+
+		// Remove the Vary: part of the header.
+		$header = preg_replace( '/^vary\:\s?/i', '', $header );
+
+		// Remove spaces from the header.
+		$header = str_replace( ' ', '', $header );
+
+		// Break the header into parts.
+		$header_parts = explode( ',', strtolower( $header ) );
+
+		// Build an array with the Accept header and what was already there.
+		$vary_header_parts = array_values( array_unique( array_merge( $vary_header_parts, $header_parts ) ) );
+	}
+
+	return $vary_header_parts;
+}
+
+/**
  * Determine whether the current request is for accessing the frontend.
+ * Also update Vary headers to indicate that the response may vary by Accept header.
  *
  * @return bool True if it's a frontend request, false otherwise.
  */
 function jetpack_is_frontend() {
-	$is_frontend = true;
+	$is_frontend        = true;
+	$is_varying_request = true;
 
 	if (
-		is_admin() ||
-		wp_doing_ajax() ||
-		wp_is_json_request() ||
-		wp_is_jsonp_request() ||
-		wp_is_xml_request() ||
-		is_feed() ||
-		( defined( 'REST_REQUEST' ) && REST_REQUEST ) ||
-		( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
-		( defined( 'WP_CLI' ) && WP_CLI )
+		is_admin()
+		|| wp_doing_ajax()
+		|| wp_is_jsonp_request()
+		|| is_feed()
+		|| ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+		|| ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST )
+		|| ( defined( 'WP_CLI' ) && WP_CLI )
+	) {
+		$is_frontend        = false;
+		$is_varying_request = false;
+	} elseif (
+		wp_is_json_request()
+		|| wp_is_xml_request()
 	) {
 		$is_frontend = false;
+	}
+
+	/*
+	 * Check existing headers for the request.
+	 * If there is no existing Vary Accept header, add one.
+	 */
+	if ( $is_varying_request && ! headers_sent() ) {
+		$headers           = headers_list();
+		$vary_header_parts = jetpack_get_vary_headers( $headers );
+
+		header( 'Vary: ' . implode( ', ', $vary_header_parts ) );
 	}
 
 	/**

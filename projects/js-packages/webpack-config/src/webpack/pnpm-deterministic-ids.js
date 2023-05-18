@@ -12,7 +12,8 @@ const {
 } = require( 'webpack/lib/ids/IdHelpers' );
 const { compareModulesByPreOrderIndexOrIdentifier } = require( 'webpack/lib/util/comparators' );
 
-const PNPM_PATH_REGEXP = /(?<=^|[|!])(?:\.\.\/)*node_modules\/\.pnpm\/[^/]*\/node_modules\/([^|!]+)/g;
+const PNPM_PATH_REGEXP =
+	/(?<=^|[|!])(?:\.\.\/)*node_modules\/\.pnpm\/[^/]*\/node_modules\/([^|!]+)/g;
 
 /**
  * Replace pnpm store paths in an identifier.

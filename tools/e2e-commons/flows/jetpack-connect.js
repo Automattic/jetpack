@@ -4,13 +4,11 @@ import {
 	JetpackPage,
 	JetpackMyPlanPage,
 	RecommendationsPage,
-	JetpackDashboardPage,
 } from '../pages/wp-admin/index.js';
 import {
 	AuthorizePage,
 	PickAPlanPage,
 	CheckoutPage,
-	CompletePage,
 	ThankYouPage,
 	LoginPage,
 } from '../pages/wpcom/index.js';
@@ -27,10 +25,9 @@ export async function doClassicConnection( page, plan = 'free' ) {
 	await ( await AuthorizePage.init( page ) ).approve();
 
 	if ( plan === 'free' ) {
-		await ( await CompletePage.init( page ) ).select( 'free' );
-		await JetpackDashboardPage.init( page );
+		await ( await PickAPlanPage.init( page ) ).select( 'free' );
+		await RecommendationsPage.init( page );
 	} else {
-		await ( await CompletePage.init( page ) ).viewProducts();
 		await ( await PickAPlanPage.init( page ) ).select( plan );
 		await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 		await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();

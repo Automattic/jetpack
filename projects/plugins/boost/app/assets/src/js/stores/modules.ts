@@ -1,95 +1,69 @@
-import { get, writable, derived } from 'svelte/store';
-import api from '../api/api';
-import { setModuleState } from '../api/modules';
-import config from './config';
+import { z } from 'zod';
+import { jetpack_boost_ds } from './data-sync-client';
+import type { SyncedStoreCallback } from '@automattic/jetpack-svelte-data-sync-client';
 
 export type Optimizations = {
 	[ slug: string ]: boolean;
 };
 
-export type ModulesState = {
-	[ slug: string ]: {
-		enabled: boolean;
-		synced?: boolean;
-	};
-};
-
-const { subscribe, update, set } = writable< ModulesState >(
-	buildModuleState( get( config ).optimizations )
+const modulesStateSchema = z.record(
+	z.string().min( 1 ),
+	z.object( {
+		active: z.boolean(),
+		available: z.boolean(),
+	} )
 );
 
-// Keep a subscribed copy for quick reading.
-let currentState: ModulesState;
-subscribe( value => ( currentState = value ) );
+type ModulesState = z.infer< typeof modulesStateSchema >;
+const modulesStateClient = jetpack_boost_ds.createAsyncStore( 'modules_state', modulesStateSchema );
 
 /**
- * Given a set of optimizations and their on/off booleans, convert them to a ModulesState object,
- * ready for use in the modules datastore.
- *
- * @param {Optimizations} optmizations - Set of optimizations and their on/off booleans.
- * @return {ModulesState} - Object ready for use in the modules store.
+ * This function creates an SyncedStoreCallback.
+ * It's wrapped in a function so that pendingValues can be scoped to this function.
  */
-function buildModuleState( optmizations: Optimizations ): ModulesState {
-	const state = {};
+function createModulesSyncAction() {
+	// Keep track of the pending values
+	const pendingValues = new Map< string, ModulesState[ string ] >();
 
-	for ( const [ name, value ] of Object.entries( optmizations ) ) {
-		state[ name ] = {
-			enabled: value,
-		};
-	}
+	const action: SyncedStoreCallback< ModulesState > = async (
+		prevValue,
+		newValue,
+		abortSignal
+	) => {
+		// Extract the keys that have changed
+		const changedKeys = Object.keys( newValue ).filter(
+			key => prevValue[ key ].active !== newValue[ key ].active
+		);
 
-	return state;
+		// Update the pending values that have changed
+		for ( const key of changedKeys ) {
+			pendingValues.set( key, newValue[ key ] );
+		}
+
+		// Reconstruct an object with only the changed keys
+		const updatedValue = Object.fromEntries( pendingValues.entries() );
+
+		// Attempt to merge the pending values
+		const result = await modulesStateClient.endpoint.MERGE( updatedValue, abortSignal );
+
+		// If the request is aborted,
+		// MERGE is going to throw an error that is caught by SyncedStore
+		// Which means that if we get this far, the request was successful
+		// so we can clear the pending values
+		pendingValues.clear();
+		return result;
+	};
+
+	return action;
 }
 
-/**
- * Fetch the current state of the modules from the server.
- */
-export async function reloadModulesState() {
-	set( buildModuleState( await api.get( '/optimizations/status' ) ) );
-}
+modulesStateClient.setSyncAction( createModulesSyncAction() );
 
-export async function updateModuleState( slug: string, state: boolean ): Promise< boolean > {
-	// Do not enable a module that isn't available.
-	if ( typeof currentState[ slug ] === 'undefined' ) {
-		return false;
-	}
-
-	const originalState = currentState[ slug ] && currentState[ slug ].enabled;
-	let finalState = state;
-
-	// Tentatively set requested state, undo if the API fails or denies it.
-	setEnabled( slug, state );
-
-	// Run it by the API properly.
-	try {
-		finalState = await setModuleState( slug, state );
-		setEnabled( slug, finalState, true );
-	} catch ( err ) {
-		// On error, bounce back to original state and rethrow error.
-		setEnabled( slug, originalState, true );
-		throw err;
-	}
-
-	return finalState;
-}
-
-function setEnabled( slug: string, enabled: boolean, synced = false ) {
-	update( state => ( {
-		...state,
-		[ slug ]: {
-			...state[ slug ],
-			enabled,
-			synced,
-		},
-	} ) );
-}
-
-export const modules = {
-	subscribe,
-	updateModuleState,
+export const reloadModulesState = async () => {
+	const result = await modulesStateClient.endpoint.GET();
+	modulesStateClient.store.override( result );
+	return result;
 };
 
-export const isModuleEnabledStore = ( slug: string ) =>
-	derived( modules, $modules => $modules[ slug ] && $modules[ slug ].enabled );
-export const isModuleAvailableStore = ( slug: string ) =>
-	derived( modules, $modules => typeof $modules[ slug ] !== 'undefined' );
+export const modulesState = modulesStateClient.store;
+export const modulesStatePending = modulesStateClient.pending;

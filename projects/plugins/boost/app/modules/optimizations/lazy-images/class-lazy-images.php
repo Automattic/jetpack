@@ -12,7 +12,7 @@ class Lazy_Images implements Pluggable {
 	}
 
 	public static function get_slug() {
-		return 'lazy-images';
+		return 'lazy_images';
 	}
 
 	public static function is_available() {

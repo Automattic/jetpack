@@ -1,3 +1,5 @@
+import jQuery from 'jquery';
+
 jQuery( function ( $ ) {
 	const state = window.jetpackSocialClassicEditorInitialState ?? {};
 	const form = $( '#publicize-form' );

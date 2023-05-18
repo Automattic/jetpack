@@ -2,11 +2,12 @@ import { __experimentalGetSpacingClassesAndStyles as getSpacingClassesAndStyles 
 import { RawHTML } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import MarkdownIt from 'markdown-it';
+import footnote_plugin from 'markdown-it-footnote';
 
 /**
  * Module variables
  */
-const markdownConverter = new MarkdownIt();
+const markdownConverter = new MarkdownIt().use( footnote_plugin );
 const handleLinkClick = event => {
 	if ( event.target.nodeName === 'A' ) {
 		const hasConfirmed = window.confirm(

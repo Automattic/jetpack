@@ -127,6 +127,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__SECURITY:
 			redirectPath = '/welcome-security';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__STARTER:
+			redirectPath = '/welcome-starter';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__ANTISPAM:
 			redirectPath = '/welcome-antispam';
 			break;
@@ -138,6 +141,9 @@ const RecommendationsComponent = props => {
 			break;
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__SCAN:
 			redirectPath = '/welcome-scan';
+			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__GOLDEN_TOKEN:
+			redirectPath = '/welcome-golden-token';
 			break;
 		case RECOMMENDATION_WIZARD_STEP.SERVER_CREDENTIALS:
 			redirectPath = '/server-credentials';
@@ -247,6 +253,9 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/welcome-complete">
 						<ResourcePrompt stepSlug="welcome__complete" />
 					</Route>
+					<Route path="/recommendations/welcome-starter">
+						<ResourcePrompt stepSlug="welcome__starter" />
+					</Route>
 					<Route path="/recommendations/welcome-security">
 						<ResourcePrompt stepSlug="welcome__security" />
 					</Route>
@@ -261,6 +270,9 @@ const RecommendationsComponent = props => {
 					</Route>
 					<Route path="/recommendations/welcome-scan">
 						<ResourcePrompt stepSlug="welcome__scan" />
+					</Route>
+					<Route path="/recommendations/welcome-golden-token">
+						<ResourcePrompt stepSlug="welcome__golden_token" />
 					</Route>
 					<Route path="/recommendations/backup-activated">
 						<ResourcePrompt stepSlug="backup-activated" />
@@ -285,27 +297,13 @@ const RecommendationsComponent = props => {
 					</Route>
 				</Switch>
 			) }
-			<div className="jp-footer">
-				<li className="jp-footer__link-item">
-					<a
-						role="button"
-						tabIndex="0"
-						className="jp-footer__link__recommended"
-						href={ getRedirectUrl( 'jetpack-support-getting-started' ) }
-					>
-						{ __( 'Learn how to get started with Jetpack', 'jetpack' ) }
-					</a>
-				</li>
-				<li className="jp-footer__link-item">
-					<a
-						role="button"
-						tabIndex="0"
-						className="jp-footer__link__recommended"
-						href={ getRedirectUrl( 'jetpack-support' ) }
-					>
-						{ __( 'Search our support site', 'jetpack' ) }
-					</a>
-				</li>
+			<div className="jp-recommendations__links">
+				<a role="button" tabIndex="0" href={ getRedirectUrl( 'jetpack-support-getting-started' ) }>
+					{ __( 'Learn how to get started with Jetpack', 'jetpack' ) }
+				</a>
+				<a role="button" tabIndex="0" href={ getRedirectUrl( 'jetpack-support' ) }>
+					{ __( 'Search our support site', 'jetpack' ) }
+				</a>
 			</div>
 		</>
 	);

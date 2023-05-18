@@ -9,7 +9,7 @@
  * Plugin Name:       Jetpack Boost
  * Plugin URI:        https://jetpack.com/boost
  * Description:       Boost your WordPress site's performance, from the creators of Jetpack
- * Version: 1.8.0-alpha
+ * Version: 1.9.1-alpha
  * Author:            Automattic - Jetpack Site Speed team
  * Author URI:        https://jetpack.com/boost/
  * License:           GPL-2.0+
@@ -29,7 +29,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define( 'JETPACK_BOOST_VERSION', '1.8.0-alpha' );
+define( 'JETPACK_BOOST_VERSION', '1.9.1-alpha' );
 define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
 
 if ( ! defined( 'JETPACK_BOOST_CLIENT_NAME' ) ) {
@@ -150,6 +150,19 @@ function jetpack_boost_plugin_activation( $plugin ) {
 }
 
 /**
+ * Extra tweaks to make Jetpack Boost work better with others, that need to be loaded early.
+ */
+function include_compatibility_files_early() {
+	// Since Page Optimize allows its functionality to be disabled on plugins_loaded (10)
+	// we need to do this earlier.
+	if ( function_exists( 'page_optimize_init' ) ) {
+		require_once __DIR__ . '/compatibility/page-optimize.php';
+	}
+}
+
+add_action( 'plugins_loaded', __NAMESPACE__ . '\include_compatibility_files_early', 1 );
+
+/**
  * Extra tweaks to make Jetpack Boost work better with others.
  */
 function include_compatibility_files() {
@@ -193,5 +206,4 @@ function jetpack_boost_uninstall() {
  * Previous version compatibility files
  */
 require_once __DIR__ . '/compatibility/boost-1.3.1.php';
-require_once __DIR__ . '/compatibility/boost-1.8.0.php';
 require_once __DIR__ . '/wp-js-data-sync.php';

@@ -50,14 +50,27 @@ export function getFilterKeys(
 /**
  * Get a list of provided static filters.
  *
+ * @param {'sidebar'|'tabbed'|undefined} variation - the filter variation to get (tabbed or sidebar), defaults to none (returns every variation).
  * @returns {Array} list of available static filters.
  */
-export function getAvailableStaticFilters() {
+export function getAvailableStaticFilters( variation ) {
 	if ( ! window[ SERVER_OBJECT_NAME ]?.staticFilters ) {
 		return [];
 	}
 
-	return window[ SERVER_OBJECT_NAME ].staticFilters;
+	return window[ SERVER_OBJECT_NAME ].staticFilters.filter( filter => {
+		// this check makes the function backwards compatible (it didn't have variation as an argument before)
+		if ( ! variation ) {
+			// if variation is not provided, return all filters
+			return true;
+		}
+		if ( variation === 'sidebar' && ! filter.variation ) {
+			return true; // filters default variation is `sidebar`
+		}
+		if ( variation && filter.variation ) {
+			return filter.variation === variation;
+		}
+	} );
 }
 
 /**

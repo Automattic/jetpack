@@ -110,14 +110,16 @@ function* registerSite( { registrationNonce, redirectUri } ) {
  *
  * @returns {Promise} - Promise which resolves when the product status is activated.
  */
-const refreshConnectedPlugins = () => async ( { dispatch } ) => {
-	return await new Promise( resolve => {
-		return restApi.fetchConnectedPlugins().then( data => {
-			dispatch( setConnectedPlugins( data ) );
-			resolve( data );
+const refreshConnectedPlugins =
+	() =>
+	async ( { dispatch } ) => {
+		return await new Promise( resolve => {
+			return restApi.fetchConnectedPlugins().then( data => {
+				dispatch( setConnectedPlugins( data ) );
+				resolve( data );
+			} );
 		} );
-	} );
-};
+	};
 
 const actions = {
 	setConnectionStatus,

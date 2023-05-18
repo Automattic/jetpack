@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add the legacy Photon label for PRs that make changes to the Image CDN package.

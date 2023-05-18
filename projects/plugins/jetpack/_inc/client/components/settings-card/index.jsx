@@ -115,6 +115,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEO_HOSTING_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
+						rna
 					/>
 				);
 
@@ -131,6 +132,7 @@ export const SettingsCard = props => {
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.adsUpgradeUrl }
+						rna
 					/>
 				) : (
 					<JetpackBanner
@@ -142,6 +144,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_WORDADS_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
+						rna
 					/>
 				);
 
@@ -162,6 +165,7 @@ export const SettingsCard = props => {
 							feature={ feature }
 							onClick={ handleClickForTracking( feature ) }
 							href={ props.securityUpgradeUrl }
+							rna
 						/>
 					) : (
 						<JetpackBanner
@@ -173,6 +177,7 @@ export const SettingsCard = props => {
 							callToAction={ connectLabel }
 							feature={ feature }
 							onClick={ handleConnectClick( feature ) }
+							rna
 						/>
 					);
 				}
@@ -188,6 +193,7 @@ export const SettingsCard = props => {
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.scanUpgradeUrl }
+						rna
 					/>
 				) : (
 					<JetpackBanner
@@ -199,6 +205,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SECURITY_SCANNING_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
+						rna
 					/>
 				);
 
@@ -215,6 +222,7 @@ export const SettingsCard = props => {
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.gaUpgradeUrl }
+						rna
 					/>
 				) : (
 					<JetpackBanner
@@ -226,6 +234,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_GOOGLE_ANALYTICS_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
+						rna
 					/>
 				);
 
@@ -239,7 +248,7 @@ export const SettingsCard = props => {
 						callToAction={
 							isSearchNewPricingLaunched202208()
 								? __( 'Start for free', 'jetpack' )
-								: __( 'Upgrade', 'jetpack' )
+								: _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' )
 						}
 						title={ __(
 							'Help visitors quickly find answers with highly relevant instant search results and powerful filtering.',
@@ -249,6 +258,7 @@ export const SettingsCard = props => {
 						feature={ feature }
 						onClick={ handleClickForTracking( feature ) }
 						href={ props.searchUpgradeUrl }
+						rna
 					/>
 				) : (
 					<JetpackBanner
@@ -260,6 +270,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SEARCH_JETPACK ) }
 						feature={ feature }
 						onClick={ handleConnectClick( feature ) }
+						rna
 					/>
 				);
 
@@ -275,6 +286,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 						feature={ feature }
 						href={ props.spamUpgradeUrl }
+						rna
 					/>
 				) : (
 					<JetpackBanner
@@ -286,6 +298,7 @@ export const SettingsCard = props => {
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SPAM_AKISMET_PLUS ) }
 						feature={ feature }
 						onclick={ props.doConnectUser }
+						rna
 					/>
 				);
 
@@ -385,7 +398,7 @@ export const SettingsCard = props => {
 			>
 				<SectionHeader label={ header }>
 					{ ! props.hideButton && (
-						<Button primary compact type="submit" disabled={ isSaving || ! props.isDirty() }>
+						<Button primary rna compact type="submit" disabled={ isSaving || ! props.isDirty() }>
 							{ isSaving
 								? _x( 'Saving…', 'Button caption', 'jetpack' )
 								: _x(

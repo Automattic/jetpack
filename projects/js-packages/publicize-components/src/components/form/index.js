@@ -12,8 +12,11 @@ import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { Fragment, createInterpolateElement, useCallback } from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
+import useAttachedMedia from '../../hooks/use-attached-media';
+import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import useValidateFeaturedImage from '../../hooks/use-validate-featured-image';
 import PublicizeConnection from '../connection';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
@@ -21,6 +24,12 @@ import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
+const CONNECTIONS_NEED_MEDIA = [ 'instagram' ];
+
+const checkConnectionCode = ( connection, code ) =>
+	false === connection.is_healthy && code === ( connection.error_code ?? 'broken' );
+
+const isConnectionNeedMedia = connectionName => CONNECTIONS_NEED_MEDIA.includes( connectionName );
 /**
  * The Publicize form component. It contains the connection list, and the message box.
  *
@@ -29,6 +38,7 @@ import styles from './styles.module.scss';
  * @param {boolean} props.isPublicizeDisabledBySitePlan - A combination of the republicize feature being enabled and/or the post not being published.
  * @param {number} props.numberOfSharesRemaining        - The number of shares remaining for the current period. Optional.
  * @param {boolean} props.isEnhancedPublishingEnabled   - Whether enhanced publishing options are available. Optional.
+ * @param {boolean} props.isSocialImageGeneratorEnabled - Whether the Social Image Generator feature is available. Optional.
  * @param {string} props.connectionsAdminUrl            - URL to the Admin connections page
  * @param {string} props.adminUrl                       - URL af the plugin's admin page to redirect to after a plan upgrade
  * @returns {object}                                    - Publicize form component.
@@ -38,20 +48,32 @@ export default function PublicizeForm( {
 	isPublicizeDisabledBySitePlan,
 	numberOfSharesRemaining = null,
 	isEnhancedPublishingEnabled = false,
+	isSocialImageGeneratorEnabled = false,
 	connectionsAdminUrl,
 	adminUrl,
 } ) {
-	const {
-		connections,
-		toggleById,
-		hasConnections,
-		enabledConnections,
-	} = useSocialMediaConnections();
+	const { connections, toggleById, hasConnections, enabledConnections } =
+		useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
+	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 
+	const shouldDisableMediaPicker =
+		isSocialImageGeneratorEnabled && isSocialImageGeneratorEnabledForPost;
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
-	const brokenConnections = connections.filter( connection => false === connection.is_healthy );
+	const brokenConnections = connections.filter( connection =>
+		checkConnectionCode( connection, 'broken' )
+	);
+	const unsupportedConnections = connections.filter( connection =>
+		checkConnectionCode( connection, 'unsupported' )
+	);
+
+	const { attachedMedia } = useAttachedMedia();
+	const { isFeaturedImageValid } = useValidateFeaturedImage(
+		CONNECTIONS_NEED_MEDIA.map( conn => ( { service_name: conn } ) )
+	);
+	const postHasValidImage =
+		isFeaturedImageValid || attachedMedia.length > 0 || isSocialImageGeneratorEnabledForPost;
 
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
@@ -72,6 +94,39 @@ export default function PublicizeForm( {
 			}
 		},
 		[ autosave, isEditedPostDirty ]
+	);
+
+	const renderNotices = () => (
+		<>
+			{ brokenConnections.length > 0 && (
+				<Notice type={ 'error' }>
+					{ createInterpolateElement(
+						_n(
+							'One of your social connections is broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
+							'Some of your social connections are broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
+							brokenConnections.length,
+							'jetpack'
+						),
+						{
+							fixLink: <ExternalLink href={ connectionsAdminUrl } />,
+						}
+					) }
+				</Notice>
+			) }
+			{ unsupportedConnections.length > 0 && (
+				<Notice type={ 'error' }>
+					{ createInterpolateElement(
+						__(
+							'Twitter is not supported anymore. <moreInfo>Learn more here</moreInfo>.',
+							'jetpack'
+						),
+						{
+							moreInfo: <ExternalLink href={ connectionsAdminUrl } />,
+						}
+					) }
+				</Notice>
+			) }
+		</>
 	);
 
 	return (
@@ -131,21 +186,7 @@ export default function PublicizeForm( {
 							</Notice>
 						</PanelRow>
 					) }
-					{ brokenConnections.length > 0 && (
-						<Notice type={ 'error' }>
-							{ createInterpolateElement(
-								_n(
-									'One of your social connections is broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
-									'Some of your social connections are broken. Reconnect them on the <fixLink>connection management</fixLink> page.',
-									brokenConnections.length,
-									'jetpack'
-								),
-								{
-									fixLink: <ExternalLink href={ connectionsAdminUrl } />,
-								}
-							) }
-						</Notice>
-					) }
+					{ renderNotices() }
 					<PanelRow>
 						<ul className={ styles[ 'connections-list' ] }>
 							{ connections.map(
@@ -157,16 +198,23 @@ export default function PublicizeForm( {
 									toggleable,
 									profile_picture,
 									is_healthy,
+									connection_id,
 								} ) => (
 									<PublicizeConnection
 										disabled={
 											! isPublicizeEnabled ||
 											( ! enabled && toggleable && outOfConnections ) ||
-											false === is_healthy
+											false === is_healthy ||
+											( isConnectionNeedMedia( service_name ) && ! postHasValidImage )
 										}
-										enabled={ enabled && ! isPublicizeDisabledBySitePlan && false !== is_healthy }
-										key={ id }
-										id={ id }
+										enabled={
+											enabled &&
+											! isPublicizeDisabledBySitePlan &&
+											false !== is_healthy &&
+											( postHasValidImage || ! isConnectionNeedMedia( service_name ) )
+										}
+										key={ connection_id ? connection_id : id }
+										id={ connection_id ? connection_id : id }
 										label={ display_name }
 										name={ service_name }
 										toggleConnection={ toggleById }
@@ -176,6 +224,16 @@ export default function PublicizeForm( {
 							) }
 						</ul>
 					</PanelRow>
+					{ connections.some( ( { service_name } ) => isConnectionNeedMedia( service_name ) ) &&
+						! postHasValidImage && (
+							<Notice type={ 'warning' }>
+								{ __( 'You need a valid image in your post to share to Instagram.', 'jetpack' ) }
+								<br />
+								<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+									{ __( 'Learn more', 'jetpack' ) }
+								</ExternalLink>
+							</Notice>
+						) }
 				</>
 			) }
 
@@ -185,13 +243,25 @@ export default function PublicizeForm( {
 
 					{ isPublicizeEnabled && connections.some( connection => connection.enabled ) && (
 						<>
-							{ isEnhancedPublishingEnabled && <MediaSection /> }
 							<MessageBoxControl
 								maxLength={ maxLength }
 								onChange={ updateMessage }
 								message={ message }
 							/>
 						</>
+					) }
+					{ isEnhancedPublishingEnabled && (
+						<MediaSection
+							disabled={ shouldDisableMediaPicker }
+							notice={
+								shouldDisableMediaPicker
+									? __(
+											'It is not possible to add an image or video when Social Image Generator is enabled.',
+											'jetpack'
+									  )
+									: null
+							}
+						/>
 					) }
 				</Fragment>
 			) }

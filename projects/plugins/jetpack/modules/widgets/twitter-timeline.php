@@ -168,7 +168,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		}
 
 		if ( ! empty( $instance['chrome'] ) && is_array( $instance['chrome'] ) ) {
-			$data_attrs .= ' data-chrome="' . esc_attr( join( ' ', $instance['chrome'] ) ) . '"';
+			$data_attrs .= ' data-chrome="' . esc_attr( implode( ' ', $instance['chrome'] ) ) . '"';
 		}
 
 		$timeline_placeholder = __( 'My Tweets', 'jetpack' );

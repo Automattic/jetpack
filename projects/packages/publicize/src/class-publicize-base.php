@@ -70,15 +70,26 @@ abstract class Publicize_Base {
 	 */
 	const POST_JETPACK_SOCIAL_OPTIONS = '_wpas_options';
 
+	// Skip meta keys. We used to rely on _wpas_skip_ appended with the token_id to skip posts. But to support
+	// multiple connections for the same token, we are going to use the _wpas_skip_publicize_ which
+	// will be appended with the connection_id.
 	/**
-	 * Connection ID appended to indicate that a connection should NOT be publicized to.
+	 * Token ID appended to indicate that a connection should NOT be publicized to.
 	 *
 	 * @var string
 	 */
 	public $POST_SKIP = '_wpas_skip_';
 
 	/**
-	 * Connection ID appended to indicate a connection has already been publicized to.
+	 * Connection ID appended to indicate that a connection should NOT be publicized to.
+	 *
+	 * @var string
+	 */
+	public $POST_SKIP_PUBLICIZE = '_wpas_skip_publicize_';
+
+	// Done meta keys.
+	/**
+	 * Token ID appended to indicate a connection has already been publicized to.
 	 *
 	 * @var string
 	 */
@@ -217,7 +228,7 @@ abstract class Publicize_Base {
 
 		// Default checkbox state for each Connection.
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 2 );
-		add_filter( 'jetpack_open_graph_tags', array( $this, 'get_sig_image_for_post' ), 10, 1 );
+		add_filter( 'jetpack_open_graph_tags', array( $this, 'add_jetpack_social_og_images' ), 12, 1 ); // $priority = 12, to run after Jetpack adds the tags in the Jetpack_Twitter_Cards class.
 
 		// Alter the "Post Publish" admin notice to mention the Connections we Publicized to.
 		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
@@ -628,6 +639,21 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Parse the error code returned by the XML-RPC API call.
+	 *
+	 * @param string $code Error code in numerical format.
+	 *
+	 * @return string Error code.
+	 */
+	public function parse_connection_error_code( $code ) {
+		if ( 1 === $code ) {
+			return 'unsupported';
+		}
+
+		return 'broken';
+	}
+
+	/**
 	 * Run connection tests on all Connections
 	 *
 	 * @return array {
@@ -651,11 +677,12 @@ abstract class Publicize_Base {
 
 				$id = $this->get_connection_id( $connection );
 
-				$connection_test_passed  = true;
-				$connection_test_message = __( 'This connection is working correctly.', 'jetpack-publicize-pkg' );
-				$user_can_refresh        = false;
-				$refresh_text            = '';
-				$refresh_url             = '';
+				$connection_test_error_code = '';
+				$connection_test_passed     = true;
+				$connection_test_message    = __( 'This connection is working correctly.', 'jetpack-publicize-pkg' );
+				$user_can_refresh           = false;
+				$refresh_text               = '';
+				$refresh_url                = '';
 
 				$connection_test_result = true;
 				if ( method_exists( $this, 'test_connection' ) ) {
@@ -666,10 +693,14 @@ abstract class Publicize_Base {
 					$connection_test_passed  = false;
 					$connection_test_message = $connection_test_result->get_error_message();
 					$error_data              = $connection_test_result->get_error_data();
+					$error_code              = $connection_test_result->get_error_code();
 
-					$user_can_refresh = $error_data['user_can_refresh'];
-					$refresh_text     = $error_data['refresh_text'];
-					$refresh_url      = $error_data['refresh_url'];
+					if ( ! empty( $error_data ) ) {
+						$user_can_refresh = $error_data['user_can_refresh'];
+						$refresh_text     = $error_data['refresh_text'];
+						$refresh_url      = $error_data['refresh_url'];
+					}
+					$connection_test_error_code = $connection_test_passed ? '' : $this->parse_connection_error_code( $error_code );
 				}
 				// Mark Facebook profiles as deprecated.
 				if ( 'facebook' === $service_name ) {
@@ -696,14 +727,15 @@ abstract class Publicize_Base {
 				}
 
 				$test_results[] = array(
-					'connectionID'          => $id,
-					'serviceName'           => $service_name,
-					'connectionTestPassed'  => $connection_test_passed,
-					'connectionTestMessage' => esc_attr( $connection_test_message ),
-					'userCanRefresh'        => $user_can_refresh,
-					'refreshText'           => esc_attr( $refresh_text ),
-					'refreshURL'            => $refresh_url,
-					'unique_id'             => $unique_id,
+					'connectionID'            => $id,
+					'serviceName'             => $service_name,
+					'connectionTestPassed'    => $connection_test_passed,
+					'connectionTestErrorCode' => $connection_test_error_code,
+					'connectionTestMessage'   => esc_attr( $connection_test_message ),
+					'userCanRefresh'          => $user_can_refresh,
+					'refreshText'             => esc_attr( $refresh_text ),
+					'refreshURL'              => $refresh_url,
+					'unique_id'               => $unique_id,
 				);
 			}
 		}
@@ -769,12 +801,11 @@ abstract class Publicize_Base {
 			foreach ( $connections as $connection ) {
 				$connection_meta = $this->get_connection_meta( $connection );
 				$connection_data = $connection_meta['connection_data'];
-
-				$unique_id = $this->get_connection_unique_id( $connection );
-
+				$unique_id       = $this->get_connection_unique_id( $connection );
+				$connection_id   = $this->get_connection_id( $connection );
 				// Was this connection (OR, old-format service) already Publicized to?
 				$done = ! empty( $post ) && (
-					// New flags.
+					// Flags based on token_id
 					1 === (int) get_post_meta( $post->ID, $this->POST_DONE . $unique_id, true )
 					||
 					// Old flags.
@@ -805,8 +836,11 @@ abstract class Publicize_Base {
 						in_array( $post->post_status, array( 'publish', 'draft', 'future' ), true )
 						&&
 						(
-							// New flags.
+							// Flags based on token_id.
 							get_post_meta( $post->ID, $this->POST_SKIP . $unique_id, true )
+							||
+							// Flags based on  the connection_id.
+							get_post_meta( $post->ID, $this->POST_SKIP_PUBLICIZE . $connection_id, true )
 							||
 							// Old flags.
 							get_post_meta( $post->ID, $this->POST_SKIP . $service_name )
@@ -865,9 +899,10 @@ abstract class Publicize_Base {
 				}
 
 				$connection_list[] = array(
+					'id'              => $connection_id,
 					'unique_id'       => $unique_id,
 					'service_name'    => $service_name,
-					'service_label'   => $this->get_service_label( $service_name ),
+					'service_label'   => static::get_service_label( $service_name ),
 					'display_name'    => $this->get_display_name( $service_name, $connection ),
 					'profile_picture' => $this->get_profile_picture( $connection ),
 					'enabled'         => $enabled,
@@ -917,7 +952,7 @@ abstract class Publicize_Base {
 		foreach ( $available_services as $service_name => $service ) {
 			$available_service_data[] = array(
 				'name'  => $service_name,
-				'label' => $this->get_service_label( $service_name ),
+				'label' => static::get_service_label( $service_name ),
 				'url'   => $this->connect_url( $service_name ),
 			);
 		}
@@ -1061,13 +1096,18 @@ abstract class Publicize_Base {
 			'type'          => 'object',
 			'description'   => __( 'Post options related to Jetpack Social.', 'jetpack-publicize-pkg' ),
 			'single'        => true,
-			'default'       => array(),
+			'default'       => array(
+				'image_generator_settings' => array(
+					'template' => ( new Social_Image_Generator\Settings() )->get_default_template(),
+					'enabled'  => false,
+				),
+			),
 			'show_in_rest'  => array(
 				'name'   => 'jetpack_social_options',
 				'schema' => array(
 					'type'       => 'object',
 					'properties' => array(
-						'attached_media'           => array(
+						'attached_media'               => array(
 							'type'  => 'array',
 							'items' => array(
 								'type'       => 'object',
@@ -1081,7 +1121,10 @@ abstract class Publicize_Base {
 								),
 							),
 						),
-						'image_generator_settings' => array(
+						'should_upload_attached_media' => array(
+							'type' => 'boolean',
+						),
+						'image_generator_settings'     => array(
 							'type'       => 'object',
 							'properties' => array(
 								'enabled'     => array(
@@ -1094,8 +1137,13 @@ abstract class Publicize_Base {
 									'type' => 'string',
 								),
 								'image_id'    => array(
-									'type'    => 'number',
-									'default' => 0,
+									'type' => 'number',
+								),
+								'template'    => array(
+									'type' => 'string',
+								),
+								'token'       => array(
+									'type' => 'string',
 								),
 							),
 						),
@@ -1251,33 +1299,28 @@ abstract class Publicize_Base {
 					continue;
 				}
 
-				if ( ! empty( $connection->unique_id ) ) {
-					$unique_id = $connection->unique_id;
-				} elseif ( ! empty( $connection['connection_data']['token_id'] ) ) {
-					$unique_id = $connection['connection_data']['token_id'];
-				}
-
 				// This was a wp-admin request, so we need to check the state of checkboxes.
 				if ( $from_web ) {
+					$connection_id = $this->get_connection_id( $connection );
 					// Delete stray service-based post meta.
 					delete_post_meta( $post_id, $this->POST_SKIP . $service_name );
 
 					// We *unchecked* this stream from the admin page, or it's set to readonly, or it's a new addition.
-					if ( empty( $admin_page['submit'][ $unique_id ] ) ) {
+					if ( empty( $admin_page['submit'][ $connection_id ] ) ) {
 						// Also make sure that the service-specific input isn't there.
 						// If the user connected to a new service 'in-page' then a hidden field with the service
 						// name is added, so we just assume they wanted to Publicize to that service.
 						if ( empty( $admin_page['submit'][ $service_name ] ) ) {
 							// Nothing seems to be checked, so we're going to mark this one to be skipped.
-							update_post_meta( $post_id, $this->POST_SKIP . $unique_id, 1 );
+							update_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id, 1 );
 							continue;
 						} else {
 							// Clean up any stray post meta.
-							delete_post_meta( $post_id, $this->POST_SKIP . $unique_id );
+							delete_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id );
 						}
 					} else {
 						// The checkbox for this connection is explicitly checked -- make sure we DON'T skip it.
-						delete_post_meta( $post_id, $this->POST_SKIP . $unique_id );
+						delete_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id );
 					}
 				}
 
@@ -1397,18 +1440,12 @@ abstract class Publicize_Base {
 		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
 			// services have multiple connections.
 			foreach ( $connections as $connection ) {
-				$unique_id = '';
-				if ( ! empty( $connection->unique_id ) ) {
-					$unique_id = $connection->unique_id;
-				} elseif ( ! empty( $connection['connection_data']['token_id'] ) ) {
-					$unique_id = $connection['connection_data']['token_id'];
-				}
-
+				$connection_id = $this->get_connection_id( $connection );
 				// Did we skip this connection?
-				if ( get_post_meta( $post_id, $this->POST_SKIP . $unique_id, true ) ) {
+				if ( get_post_meta( $post_id, $this->POST_SKIP_PUBLICIZE . $connection_id, true ) ) {
 					continue;
 				}
-				$services[ $this->get_service_label( $service_name ) ][] = $this->get_display_name( $service_name, $connection );
+				$services[ static::get_service_label( $service_name ) ][] = $this->get_display_name( $service_name, $connection );
 			}
 		}
 
@@ -1477,23 +1514,104 @@ abstract class Publicize_Base {
 	}
 
 	/**
-	 * Adds the sig image to the meta tags array.
+	 * Get the attached image for a post.
+	 *
+	 * @param int $post_id ID of the post to get attached media for.
+	 * @return array {
+	 *     Array of image data, or empty array if no image is available.
+	 *
+	 *     @type string $url Image source URL.
+	 *     @type int    $width Image width in pixels.
+	 *     @type int    $height Image height in pixels.
+	 * }
+	 */
+	public function get_attached_media_image( $post_id ) {
+		$options = get_post_meta( $post_id, self::POST_JETPACK_SOCIAL_OPTIONS, true );
+
+		if ( ! is_array( $options ) || empty( $options['attached_media'] ) || empty( $options['attached_media'][0]['id'] ) ) {
+			return array();
+		}
+
+		$media_id = $options['attached_media'][0]['id'];
+
+		if ( ! wp_attachment_is_image( $media_id ) ) {
+			return array();
+		}
+
+		$image = wp_get_attachment_image_src( $media_id, array( 1200 ) );
+
+		if ( ! $image ) {
+			return array();
+		}
+
+		return array(
+			'url'    => $image[0],
+			'width'  => $image[1],
+			'height' => $image[2],
+		);
+	}
+
+	/**
+	 * Get the OpenGraph image for a post.
+	 *
+	 * @param int $post_id ID of the post to get OpenGraph image for.
+	 * @return array {
+	 *     Array of image data, or empty array if no image is available.
+	 *
+	 *     @type string $url Image source URL.
+	 *     @type int    $width Image width in pixels.
+	 *     @type int    $height Image height in pixels.
+	 * }
+	 */
+	public function get_social_opengraph_image( $post_id ) {
+		$generated_image_url = Social_Image_Generator\get_image_url( $post_id );
+
+		if ( ! empty( $generated_image_url ) ) {
+			return array(
+				'url'    => $generated_image_url,
+				'width'  => 1200,
+				'height' => 630,
+			);
+		}
+
+		$attached_media = $this->get_attached_media_image( $post_id );
+
+		if ( $attached_media ) {
+			return $attached_media;
+		}
+
+		return array();
+	}
+
+	/**
+	 * Add the Jetpack Social images (attached media, SIG image) to the OpenGraph tags.
 	 *
 	 * @param array $tags Current tags.
 	 */
-	public function get_sig_image_for_post( $tags ) {
-		$generated_image_url = Social_Image_Generator\get_image_url( get_the_ID() );
-		if ( ! empty( $generated_image_url ) ) {
-			$tags = array_merge(
-				$tags,
-				array(
-					'og:image'        => $generated_image_url,
-					'og:image:width'  => 1200,
-					'og:image:height' => 630,
-				)
-			);
+	public function add_jetpack_social_og_images( $tags ) {
+		$opengraph_image = $this->get_social_opengraph_image( get_the_ID() );
+
+		if ( empty( $opengraph_image ) ) {
+			return $tags;
 		}
-		return $tags;
+
+		// If this code is running in Jetpack, we need to add Twitter cards.
+		// Some active plugins disable Jetpack's Twitter Cards, so we need
+		// to check if the class was instantiated before adding the cards.
+		$needs_twitter_cards = class_exists( 'Jetpack_Twitter_Cards' );
+
+		return array_merge(
+			$tags,
+			array(
+				'og:image'        => $opengraph_image['url'],
+				'og:image:width'  => $opengraph_image['width'],
+				'og:image:height' => $opengraph_image['height'],
+			),
+			$needs_twitter_cards ? array(
+				'twitter:image' => $opengraph_image['url'],
+				'twitter:card'  => 'summary_large_image',
+			) : array()
+		);
 	}
 
 	/**
@@ -1509,6 +1627,7 @@ abstract class Publicize_Base {
 	 * @return string
 	 */
 	protected static function build_sprintf( $args ) {
+		$string  = null;
 		$search  = array();
 		$replace = array();
 		foreach ( $args as $k => $arg ) {
@@ -1609,17 +1728,21 @@ abstract class Publicize_Base {
 	/**
 	 * Check if the social image generator is enabled.
 	 *
+	 * @deprecated 0.24.2 use Automattic\Jetpack\Publicize\Publicize_Base\has_social_image_generator_feature instead.
 	 * @param int $blog_id The blog ID for the current blog.
 	 * @return bool
 	 */
-	public function is_social_image_generator_enabled( $blog_id ) {
-		$data = $this->get_api_data( $blog_id );
+	public function is_social_image_generator_enabled( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return $this->has_social_image_generator_feature();
+	}
 
-		if ( empty( $data ) ) {
-			return false;
-		}
-
-		return ! empty( $data['is_social_image_generator_enabled'] );
+	/**
+	 * Check if the social image generator is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_social_image_generator_feature() {
+		return Current_Plan::supports( 'social-image-generator' );
 	}
 
 	/**

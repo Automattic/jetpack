@@ -12,7 +12,7 @@ BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
 # Print help and exit.
 function usage {
 	cat <<-EOH
-		usage: $0 [-v] [-p] [-H] [-a|-b|-r <version>] <slug>
+		usage: $0 [-v] [-p] [-R] [-a|-b|-r <version>] <slug>
 
 		Prepare a release of the specified project and everything it depends on.
 		 - Run \`changelogger write\`
@@ -23,7 +23,7 @@ function usage {
 		Pass \`-a\` to prepare a developer release by passing \`--prerelease=a.N\` to changelogger.
 		Pass \`-b\` to prepare a beta release by passing \`--prerelease=beta\` to changelogger.
 		Pass \`-r <version>\` to prepare a release for a specific version number, passing \`--use-version=<version>\` to changelogger.
-		Pass \`-H\` if doing a hard-way package release on a plugin release branch.
+		Pass \`-R\` if doing a package release on a plugin release branch.
 	EOH
 	exit 1
 }
@@ -36,8 +36,8 @@ fi
 VERBOSE=
 ADDPRNUM=
 ALPHABETA=
-HARDWAY=
-while getopts ":vpabhHr:" opt; do
+RELEASEBRANCH=
+while getopts ":vpabhHRr:" opt; do
 	case ${opt} in
 		v)
 			if [[ -n "$VERBOSE" ]]; then
@@ -58,8 +58,9 @@ while getopts ":vpabhHr:" opt; do
 		r)
 			ALPHABETA=$OPTARG
 			;;
-		H)
-			HARDWAY=-H
+		H|R)
+			# -H is an old name, kept for back compat.
+			RELEASEBRANCH=-R
 			;;
 		h)
 			usage
@@ -194,11 +195,11 @@ TEMP=$(mktemp "${TMPDIR%/}/changelogger-release-XXXXXXXX")
 
 for DEPENDENCY_SLUG in "${SLUGS[@]}"; do
 	if [[ -n "${RELEASED[$DEPENDENCY_SLUG]}" ]]; then
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -U $DEPENDENCY_SLUG"
-		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -U "$DEPENDENCY_SLUG"
+		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U $DEPENDENCY_SLUG"
+		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -U "$DEPENDENCY_SLUG"
 	else
-		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -u $DEPENDENCY_SLUG"
-		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $HARDWAY -u "$DEPENDENCY_SLUG"
+		debug "  tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -u $DEPENDENCY_SLUG"
+		PACKAGE_VERSIONS_CACHE="$TEMP" tools/check-intra-monorepo-deps.sh $VERBOSE $RELEASEBRANCH -u "$DEPENDENCY_SLUG"
 	fi
 done
 

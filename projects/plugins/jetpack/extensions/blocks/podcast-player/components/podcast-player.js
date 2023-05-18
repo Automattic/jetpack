@@ -244,16 +244,8 @@ export class PodcastPlayer extends Component {
 	}
 
 	render() {
-		const {
-			playerId,
-			title,
-			link,
-			cover,
-			tracks,
-			attributes,
-			currentTime,
-			playerState,
-		} = this.props;
+		const { playerId, title, link, cover, tracks, attributes, currentTime, playerState } =
+			this.props;
 		const {
 			itemsToShow,
 			primaryColor,

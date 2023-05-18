@@ -120,7 +120,7 @@ abstract class Jetpack_JSON_API_Modules_Endpoint extends Jetpack_JSON_API_Endpoi
 		$module['introduced']        = $module_data['introduced'];
 		$module['changed']           = $module_data['changed'];
 		$module['free']              = $module_data['free'];
-		$module['module_tags']       = $module_data['module_tags'];
+		$module['module_tags']       = array_map( 'jetpack_get_module_i18n_tag', $module_data['module_tags'] );
 
 		$overrides_instance = Jetpack_Modules_Overrides::instance();
 		$module['override'] = $overrides_instance->get_module_override( $module_slug );

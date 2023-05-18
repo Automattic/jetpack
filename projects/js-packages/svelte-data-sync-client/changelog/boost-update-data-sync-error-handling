@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Added an error store to help track errors that happen during syncing.

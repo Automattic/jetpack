@@ -375,6 +375,15 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 			html += '</tr>';
 		}
 	}
+	// invoice status.
+	html +=
+	'<tr class="wh-large jpcrm-invoice-status"><th><label for="status">' +
+	zbscrm_JS_invoice_lang( 'invoice_status' ) +
+	':</label></th>';
+	html += '<td>';
+	html += generateInvoiceStatusHtml( res );
+	html += '</td>';
+	html += '</tr>';
 
 	//invoice date :-) date picker. Can we fix this for good in here now? formating etc?
 	html +=
@@ -391,7 +400,7 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 
 	//reference
 	html += '<tr class="wh-large">';
-	html += '<th><label for="ref">' + zbscrm_JS_invoice_lang( 'reference' ) + ':</label></th>';
+	html += '<th><label for="ref">' + zbscrm_JS_invoice_lang( 'reference' ) + '</label></th>';
 	html += '<td>';
 	if ( 'reftype' in res.invoiceObj.settings && res.invoiceObj.settings.reftype === 'autonumber' ) {
 		if ( res.invoiceObj.status === 'draft' ) {
@@ -507,6 +516,32 @@ function zbscrm_JS_draw_invoice_top_right_form( res ) {
 	html += '</table></div>';
 	html += '<div class="clear"></div>';
 
+	return html;
+}
+
+/**
+ * Helper function to generate the HTML for the invoice status selection dropdown.
+ *
+ * @param res
+ */
+function generateInvoiceStatusHtml( res ) {
+	let html = '<select id="invoice-status" name="invoice_status">';
+	const currentStatus = res.invoiceObj.status;
+	const allStatuses = [ 
+		[ 'Draft', 'status_draft' ],
+		[ 'Unpaid', 'status_unpaid' ],
+		[ 'Paid', 'status_paid' ],
+		[ 'Overdue', 'status_overdue'],
+		[ 'Deleted', 'status_deleted']
+	];
+	for ( const statusItem of allStatuses ) {
+		html += '<option value=' + statusItem[0];
+		if ( currentStatus === statusItem[0] ) {
+			html += ' selected';
+		}
+		html += '>' + zbscrm_JS_invoice_lang( statusItem[1] ) + '</option>';
+	}
+	html += '</select>';
 	return html;
 }
 
@@ -830,6 +865,7 @@ function zbscrm_JS_draw_invoice_totals( res ) {
 	shipping = res.invoiceObj.totals;
 	//this will be the setting for what tax rate to apply to shipping (not stored (yet) in the data)
 	shipping.taxes = res.invoiceObj.shipping_taxes;
+	shipping.tax = res.invoiceObj.shipping_tax;
 
 	if ( res.invoiceObj.settings.invpandp == 1 && res.invoiceObj.settings.invtax == 1 ) {
 		//tax on shipping (select)
@@ -1052,7 +1088,7 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 
 	var tax_id;
 
-	if ( typeof v.taxes === 'undefined' || v.taxes == null ) {
+	if ( typeof v.taxes === 'undefined' || v.taxes == null || v.taxes == '' ) {
 		tax_id = 0;
 	} else {
 		tax_id = parseInt( v.taxes ); // fine while we have 1 tax, if multi-select on tax, this'll be a CSV, e.g. "130,132"
@@ -1073,7 +1109,7 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 			i +
 			'">';
 	}
-
+	
 	selected = '';
 	if ( tax_id == 0 ) {
 		selected = 'selected';
@@ -1095,6 +1131,7 @@ function zbscrm_JS_output_tax_line( res, i, v ) {
 		taxhtml +=
 			'<option value="' + t.id + '" ' + selected + '>' + t.name + ' : ' + t.rate + '%</option>';
 	} );
+	
 	taxhtml += '</optgroup>';
 	taxhtml += '</select>';
 
@@ -1322,8 +1359,16 @@ function zbscrm_JS_calculate_invoice_tax_table() {
 		total_amount = total_amount + this_row_amount[ index ];
 
 		if ( this_tax_id > 0 ) {
-			this_tax_line_data = zbscrm_JS_pickTaxRate( this_tax_id ); //tax_table_index[this_tax_id];
-			tax_percent[ index ] = this_tax_line_data.id;
+			const selectedOption = this.options[this.selectedIndex];
+
+			// Check if the tax is the absolute amount
+			if ( selectedOption.classList.contains( 'zbs-fixed-tax' ) ) {
+				this_tax_amount = this_tax_id;
+				tax_percent[ index ] = this_tax_amount / this_row_amount[ index ]; 
+			} else {
+				this_tax_line_data = zbscrm_JS_pickTaxRate( this_tax_id ); //tax_table_index[this_tax_id];
+				tax_percent[ index ] = this_tax_line_data.id;
+			}
 		} else {
 			tax_percent[ index ] = 0;
 		}
@@ -1972,6 +2017,7 @@ function zbscrm_JS_bind_invoice_actions() {
 			jQuery( '#wh-logo-set-img' ).attr( 'src', '' ).hide();
 			jQuery( '#zbs_invoice_logo' ).val( '' );
 			jQuery( '.wh-logo' ).removeClass( 'hide' ).show();
+			jQuery( '.wh-logo-set input' ).val( '' );
 			jQuery( '.wh-logo-set' ).hide();
 		} );
 	jQuery( '.business-info-toggle' )

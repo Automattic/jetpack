@@ -233,7 +233,7 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
 			//no customer selected
 			swal( {
 				title: 'Error!',
-				text: 'Please Choose a Customer',
+				text: 'Please Choose a Contact',
 				type: 'error',
 				confirmButtonText: 'OK',
 			} );

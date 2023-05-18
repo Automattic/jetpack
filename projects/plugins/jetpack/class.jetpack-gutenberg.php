@@ -157,7 +157,7 @@ class Jetpack_Gutenberg {
 	 * @return boolean True if $a and $b share at least one item
 	 */
 	protected static function share_items( $a, $b ) {
-		return count( array_intersect( $a, $b ) ) > 0;
+		return array_intersect( $a, $b ) !== array();
 	}
 
 	/**
@@ -441,34 +441,6 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Check if the Newsletter feature should be enabled
-	 *
-	 * @since $$next_version$$
-	 *
-	 * @return bool
-	 */
-	public static function is_newsletter_enabled() {
-		require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
-
-		// Jetpack has not yet been configured
-		if ( ! class_exists( '\Jetpack_Memberships' ) ) {
-			return false;
-		}
-
-		// Stripe has not yet been connected
-		if ( empty( \Jetpack_Memberships::get_connected_account_id() ) ) {
-			return false;
-		}
-
-		// Newsletter plan has not yet ben configured
-		if ( ! Jetpack_Memberships::has_configured_plans_jetpack_recurring_payments( 'newsletter' ) ) {
-			return false;
-		}
-
-		return apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false );
-	}
-
-	/**
 	 * Check whether conditions indicate Gutenberg Extensions (blocks and plugins) should be loaded
 	 *
 	 * Loading blocks and plugins is enabled by default and may be disabled via filter:
@@ -708,14 +680,18 @@ class Jetpack_Gutenberg {
 				'is_private_site'               => $status->is_private_site(),
 				'is_coming_soon'                => $status->is_coming_soon(),
 				'is_offline_mode'               => $status->is_offline_mode(),
-				/**
-				 * Enable the Paid Newsletters feature in the block editor context.
-				 *
-				 * @since $$next_version$$
-				 *
-				 * @param bool false Enable the Paid Newsletters feature in the block editor context.
-				 */
-				'is_newsletter_feature_enabled' => self::is_newsletter_enabled(),
+				'is_newsletter_feature_enabled' => (
+					/**
+					 * Enable the Paid Newsletters feature in the block editor context.
+					 *
+					 * @module subscriptions
+					 * @since 11.8
+					 *
+					 * @param bool false Enable the Paid Newsletters feature in the block editor context.
+					 */
+					apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+					&& class_exists( '\Jetpack_Memberships' )
+				),
 				/**
 				 * Enable the RePublicize UI in the block editor context.
 				 *
@@ -731,7 +707,7 @@ class Jetpack_Gutenberg {
 				 * Prevent the registration of the blocks from extensions/blocks/contact-form
 				 * if the Forms package is enabled.
 				 */
-				'is_form_package_enabled'       => apply_filters( 'jetpack_contact_form_use_package', false ),
+				'is_form_package_enabled'       => apply_filters( 'jetpack_contact_form_use_package', true ),
 			),
 			'siteFragment'     => $status->get_site_suffix(),
 			'adminUrl'         => esc_url( admin_url() ),
@@ -743,11 +719,13 @@ class Jetpack_Gutenberg {
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
 			$publicize               = publicize_init();
+			$sig_settings            = new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings();
 			$initial_state['social'] = array(
-				'sharesData'                    => $publicize->get_publicize_shares_info( $blog_id ),
-				'hasPaidPlan'                   => $publicize->has_paid_plan(),
-				'isEnhancedPublishingEnabled'   => $publicize->is_enhanced_publishing_enabled( $blog_id ),
-				'isSocialImageGeneratorEnabled' => $publicize->is_social_image_generator_enabled( $blog_id ),
+				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
+				'hasPaidPlan'                     => $publicize->has_paid_plan(),
+				'isEnhancedPublishingEnabled'     => $publicize->is_enhanced_publishing_enabled( $blog_id ),
+				'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
+				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 			);
 		}
 

@@ -3,7 +3,7 @@ import React from 'react';
 import ProductCard from '../connected-product-card';
 
 const BackupCard = ( { admin } ) => {
-	return <ProductCard admin={ admin } slug="backup" />;
+	return <ProductCard admin={ admin } slug="backup" showMenu />;
 };
 
 BackupCard.propTypes = {

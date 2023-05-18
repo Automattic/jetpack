@@ -135,13 +135,13 @@ const videos = ( state, action ) => {
 		}
 
 		case SET_VIDEO: {
-			const { video } = action;
+			const { video, addAtEnd = false } = action;
 			const items = [ ...( state.items ?? [] ) ]; // Clone the array, to avoid mutating the state.
 			const videoIndex = items.findIndex( item => item.id === video.id );
 
 			if ( videoIndex === -1 ) {
-				// Add video when not found at beginning of the list.
-				items.unshift( video );
+				// Add video to the list when not found, at the end or at the beginning by default
+				addAtEnd ? items.push( video ) : items.unshift( video );
 			} else {
 				// Update video when found
 				items[ videoIndex ] = {

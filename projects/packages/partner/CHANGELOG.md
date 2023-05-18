@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.23] - 2023-04-10
+### Added
+- Add Jetpack Autoloader package suggestion. [#29988]
+
 ## [1.7.22] - 2023-02-20
 ### Changed
 - Minor internal updates.
@@ -212,6 +216,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add partner subsidiary id to upgrade URLs.
 
+[1.7.23]: https://github.com/Automattic/jetpack-partner/compare/v1.7.22...v1.7.23
 [1.7.22]: https://github.com/Automattic/jetpack-partner/compare/v1.7.21...v1.7.22
 [1.7.21]: https://github.com/Automattic/jetpack-partner/compare/v1.7.20...v1.7.21
 [1.7.20]: https://github.com/Automattic/jetpack-partner/compare/v1.7.19...v1.7.20

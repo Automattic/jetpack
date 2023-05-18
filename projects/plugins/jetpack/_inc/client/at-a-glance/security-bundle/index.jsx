@@ -1,5 +1,4 @@
-import { getRedirectUrl, getIconBySlug } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import Button from 'components/button';
@@ -12,6 +11,7 @@ import {
 	isFetchingSitePurchases as getIsFetchingSitePurchases,
 	hasActiveSecurityPurchase as getHasActiveSecurityPurchase,
 } from 'state/site';
+import Gridicon from '../../components/gridicon';
 import bundleImageUrl from './shield-with-check.svg';
 
 import './style.scss';
@@ -24,46 +24,6 @@ class DashSecurityBundle extends Component {
 			feature: 'security',
 		} );
 	};
-
-	renderFeatures() {
-		const features = [
-			{
-				id: 'backup',
-				text: _x(
-					'VaultPress Backup',
-					'The Jetpack VaultPress Backup product name, without the Jetpack prefix',
-					'jetpack'
-				),
-			},
-			{
-				id: 'scan',
-				text: _x( 'Scan', 'The Jetpack Scan product name, without the Jetpack prefix', 'jetpack' ),
-			},
-			{
-				id: 'anti-spam',
-				text: __( 'Akismet Anti-spam', 'jetpack' ),
-			},
-		];
-
-		return (
-			<div className="dash-security-bundle--content-info-features">
-				{ features.map( ( { id, text } ) => {
-					const Icon = getIconBySlug( id );
-
-					return (
-						<div
-							key={ id }
-							id={ id }
-							className="dash-security-bundle--content-info-features-single-feature"
-						>
-							<Icon size={ 16 } />
-							<p>{ text }</p>
-						</div>
-					);
-				} ) }
-			</div>
-		);
-	}
 
 	render() {
 		const { hasActiveSecurityPurchase, isFetchingSitePurchases } = this.props;
@@ -90,31 +50,33 @@ class DashSecurityBundle extends Component {
 						<p>
 							{ createInterpolateElement(
 								__(
-									'Total protection for your site, including VaultPress Backup, Scan, and Akismet Anti-spam. <ExternalLink>Learn More</ExternalLink>',
+									'Total protection for your site, including<br /> VaultPress Backup, Scan, and Akismet Anti-spam.',
 									'jetpack'
 								),
 								{
-									ExternalLink: (
-										<ExternalLink
-											href={ getRedirectUrl( 'jetpack-features-security' ) }
-											rel="noopener noreferrer"
-											target="_blank"
-										></ExternalLink>
-									),
+									br: <br />,
 								}
 							) }
 						</p>
-						{ this.renderFeatures() }
 					</div>
 					<div className="dash-security-bundle--content-cta">
 						<Button
 							className="dash-security-bundle--content-cta-button"
 							href={ this.props.productDescriptionUrl }
 							onClick={ this.trackUpgradeClick }
-							compact
 							primary
 						>
-							{ __( 'Upgrade', 'jetpack' ) }
+							{ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
+						</Button>
+
+						<Button
+							className="dash-security-bundle--content-cta-button"
+							href={ getRedirectUrl( 'jetpack-features-security' ) }
+							rel="noopener noreferrer"
+							target="_blank"
+						>
+							{ _x( 'Learn more', 'Learn more about the new plan', 'jetpack' ) }
+							<Gridicon className="dops-card__link-indicator" icon="external" />
 						</Button>
 					</div>
 				</div>

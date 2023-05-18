@@ -16,8 +16,9 @@ export const settings = {
 			name: 'post-publish-qr-post-panel',
 			title: __( 'QR Code', 'jetpack' ),
 			className: 'post-publish-qr-post-panel',
-			icon: <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />,
+			initialOpen: false,
 		};
+		const icon = <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" />;
 
 		const isPostPublished = useSelect(
 			select => select( editorStore ).isCurrentPostPublished(),
@@ -42,7 +43,7 @@ export const settings = {
 
 		return (
 			<>
-				<PluginPostPublishPanel { ...panelBodyProps }>
+				<PluginPostPublishPanel { ...panelBodyProps } icon={ icon }>
 					<QRPostPanelBodyContent />
 				</PluginPostPublishPanel>
 

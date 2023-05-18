@@ -31,7 +31,7 @@ const LibraryType = {
 	Grid: 'grid',
 } as const;
 
-type LibraryType = typeof LibraryType[ keyof typeof LibraryType ];
+type LibraryType = ( typeof LibraryType )[ keyof typeof LibraryType ];
 
 const VideoLibraryWrapper = ( {
 	children,
@@ -124,6 +124,12 @@ const VideoLibraryWrapper = ( {
 export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibraryProps ) => {
 	const history = useHistory();
 	const { search } = useVideos();
+	const videosToDisplay = [
+		// First comes the videos that are uploading
+		...videos.filter( video => video.uploading ),
+		// Then the videos that are not uploading, at most 6
+		...videos.filter( video => ! video.uploading ).slice( 0, 6 ),
+	];
 
 	const libraryTypeFromLocalStorage = localStorage.getItem(
 		LIBRARY_TYPE_LOCALSORAGE_KEY
@@ -150,14 +156,14 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 	const library =
 		libraryType === LibraryType.Grid ? (
 			<VideoGrid
-				videos={ videos }
+				videos={ videosToDisplay }
 				onVideoDetailsClick={ handleClickEditDetails }
 				loading={ loading }
-				count={ uploading ? videos.length : 6 }
+				count={ uploading ? videosToDisplay.length : 6 }
 			/>
 		) : (
 			<VideoList
-				videos={ videos }
+				videos={ videosToDisplay }
 				onVideoDetailsClick={ handleClickEditDetails }
 				hidePlays
 				loading={ loading }
@@ -171,7 +177,7 @@ export const VideoPressLibrary = ( { videos, totalVideos, loading }: VideoLibrar
 			libraryType={ libraryType }
 			title={ __( 'Your VideoPress library', 'jetpack-videopress-pkg' ) }
 		>
-			{ videos.length > 0 || loading ? (
+			{ videosToDisplay.length > 0 || loading ? (
 				library
 			) : (
 				<Text>

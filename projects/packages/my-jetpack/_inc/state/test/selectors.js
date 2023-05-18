@@ -10,7 +10,9 @@ describe( 'requests selectors', () => {
 
 		it( 'should return False when no requesting according to state tree', () => {
 			const state = {
-				isRequestingPurchases: false,
+				purchases: {
+					isFetching: false,
+				},
 			};
 
 			const output = selectors.isRequestingPurchases( state );
@@ -19,7 +21,9 @@ describe( 'requests selectors', () => {
 
 		it( 'should return True when requesting according to state tree', () => {
 			const state = {
-				isRequestingPurchases: true,
+				purchases: {
+					isFetching: true,
+				},
 			};
 
 			const output = selectors.isRequestingPurchases( state );

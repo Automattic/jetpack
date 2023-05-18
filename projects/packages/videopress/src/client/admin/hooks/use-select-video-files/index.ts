@@ -97,12 +97,12 @@ const useSelectVideoFiles = ( {
 
 	if ( dropElement ) {
 		useEffect( () => {
-			dropElement.addEventListener( 'drop', ( handleDropEvent as unknown ) as EventListener );
+			dropElement.addEventListener( 'drop', handleDropEvent as unknown as EventListener );
 			dropElement.addEventListener( 'dragover', handleDragOverEvent );
 			dropElement.addEventListener( 'dragleave', handleDragLeaveEvent );
 
 			return () => {
-				dropElement.removeEventListener( 'drop', ( handleDropEvent as unknown ) as EventListener );
+				dropElement.removeEventListener( 'drop', handleDropEvent as unknown as EventListener );
 				dropElement.removeEventListener( 'dragover', handleDragOverEvent );
 				dropElement.removeEventListener( 'dragleave', handleDragLeaveEvent );
 			};

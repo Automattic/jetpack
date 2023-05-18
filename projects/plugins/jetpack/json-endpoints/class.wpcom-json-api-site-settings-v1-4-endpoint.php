@@ -50,7 +50,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'instant_search_enabled'                  => '(bool) Enable the new Jetpack Instant Search interface',
 			'jetpack_search_enabled'                  => '(bool) Enable Jetpack Search',
 			'jetpack_search_supported'                => '(bool) Jetpack Search supported',
-			'jetpack_protect_whitelist'               => '(array) List of IP addresses to whitelist',
+			'jetpack_protect_whitelist'               => '(array) List of IP addresses to always allow',
 			'infinite_scroll'                         => '(bool) Support infinite scroll of posts?',
 			'default_category'                        => '(int) Default post category',
 			'default_post_format'                     => '(string) Default post format',

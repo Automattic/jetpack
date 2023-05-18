@@ -21,7 +21,10 @@ import type React from 'react';
  * @returns {React.ReactElement}      Playback block sidebar panel
  */
 export default function PlaybackPanel( { attributes, setAttributes }: VideoControlProps ) {
-	const { autoplay, loop, muted, controls, playsinline, preload } = attributes;
+	const { autoplay, loop, muted, controls, playsinline, preload, posterData } = attributes;
+
+	// Is Preview On Hover effect enabled?
+	const isPreviewOnHoverEnabled = posterData?.previewOnHover;
 
 	const handleAttributeChange = useCallback(
 		( attributeName: string, attributeValue?: string ) => {
@@ -32,30 +35,48 @@ export default function PlaybackPanel( { attributes, setAttributes }: VideoContr
 		[ setAttributes ]
 	);
 
+	const AutoplayHelp = () => {
+		/*
+		 * If the preview on hover effect is enabled,
+		 * we want to let the user know that the autoplay
+		 * option is not available.
+		 */
+		if ( isPreviewOnHoverEnabled ) {
+			return (
+				<span className={ styles[ 'help-message' ] }>
+					{ __(
+						'Autoplay is turned off as the preview on hover is active.',
+						'jetpack-videopress-pkg'
+					) }
+				</span>
+			);
+		}
+
+		return (
+			<>
+				<span className={ styles[ 'help-message' ] }>
+					{ __( 'Start playing the video as soon as the page loads.', 'jetpack-videopress-pkg' ) }
+				</span>
+				{ autoplay && (
+					<span className={ styles[ 'help-message' ] }>
+						{ __(
+							'Note: Autoplaying videos may cause usability issues for some visitors.',
+							'jetpack-videopress-pkg'
+						) }
+					</span>
+				) }
+			</>
+		);
+	};
+
 	return (
 		<PanelBody title={ __( 'Playback', 'jetpack-videopress-pkg' ) }>
 			<ToggleControl
 				label={ __( 'Autoplay', 'jetpack-videopress-pkg' ) }
 				onChange={ handleAttributeChange( 'autoplay' ) }
-				checked={ autoplay }
-				help={
-					<>
-						<span className={ styles[ 'help-message' ] }>
-							{ __(
-								'Start playing the video as soon as the page loads.',
-								'jetpack-videopress-pkg'
-							) }
-						</span>
-						{ autoplay && (
-							<span className={ styles[ 'help-message' ] }>
-								{ __(
-									'Note: Autoplaying videos may cause usability issues for some visitors.',
-									'jetpack-videopress-pkg'
-								) }
-							</span>
-						) }
-					</>
-				}
+				checked={ autoplay && ! isPreviewOnHoverEnabled }
+				disabled={ isPreviewOnHoverEnabled }
+				help={ <AutoplayHelp /> }
 			/>
 
 			<ToggleControl

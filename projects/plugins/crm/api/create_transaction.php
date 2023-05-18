@@ -57,20 +57,21 @@ if ( empty( $customer ) ) {
 
 				// } New User from API
 				$newUserAPISourceShort = __( 'Created from API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-				$newUserAPISourceLong  = __( 'API Action fired to create customer (New Transaction)', 'zero-bs-crm' );
+				$newUserAPISourceLong  = __( 'API Action fired to create contact (New Transaction)', 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-				// } Here we catch "HTTP_USER_AGENT": "Zapier" ;)
-	if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && $_SERVER['HTTP_USER_AGENT'] == 'Zapier' ) {
-
-		// } Just means this was probs fired by ZAP APP
-		// } So pretty up msgs :)
-
-		// } New User from trans
-		$newUserAPISourceShort = __( 'Created by Zapier (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-		$newUserAPISourceLong  = __( 'Zapier fired an API Action to create this customer (New Transaction)', 'zero-bs-crm' );
-
+	$external_api_name = jpcrm_api_process_external_api_name();
+	if ( $external_api_name !== false ) {
+		$newUserAPISourceShort = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			// Translators: %s is a dynamic service name invoking the API.
+			__( 'Created by %s (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>',
+			$external_api_name
+		);
+		$newUserAPISourceLong = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			// Translators: %s is a dynamic service name invoking the API.
+			__( '%s fired an API Action to create this transaction', 'zero-bs-crm' ),
+			$external_api_name
+		);
 	}
-
 				// } Actual log var passed- SHOULD NEVER HAPPEN HERE... this is new cust
 				$fallBackLog = array();
 
@@ -172,20 +173,35 @@ if ( isset( $new_trans['rate'] ) ) {
 					$newTransactionAPISourceShort = __( 'Transaction Created from API Action', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
 					$newTransactionAPISourceLong  = __( 'API Action fired to create a transaction', 'zero-bs-crm' ) . ': #' . $orderid . ' for ' . zeroBSCRM_getCurrencyChr() . $total . ' (Status: ' . $status . ')';
 
-				// } Here we catch "HTTP_USER_AGENT": "Zapier" ;)
-			if ( isset( $_SERVER['HTTP_USER_AGENT'] ) && $_SERVER['HTTP_USER_AGENT'] == 'Zapier' ) {
-
-				// } Just means this was probs fired by ZAP APP
-				// } So pretty up msgs :)
-				$existingTransactionAPISourceShort = __( 'Transaction Updated by Zapier', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-				$existingTransactionAPISourceLong  = __( 'Zapier fired an API Action to update a transaction', 'zero-bs-crm' ) . ': #' . $orderid . ' for ' . zeroBSCRM_getCurrencyChr() . $total . ' (Status: ' . $status . ')';
-
-				// } New Transaction from api
-				$newTransactionAPISourceShort = __( 'Transaction Added by Zapier', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>';
-				$newTransactionAPISourceLong  = __( 'Zapier fired an API Action to add a transaction', 'zero-bs-crm' ) . ': #' . $orderid . ' for ' . zeroBSCRM_getCurrencyChr() . $total . ' (Status: ' . $status . ')';
-
+			$external_api_name = jpcrm_api_process_external_api_name();
+			if ( $external_api_name !== false ) {
+				$existingTransactionAPISourceShort = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// Translators: %s is a dynamic service name invoking the API.
+					__( 'Transaction Updated by %s (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>',
+					$external_api_name
+				);
+				$existingTransactionAPISourceLong = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// Translators: %1$s is a dynamic service name invoking the API, %2$s is the transaction ID, %3$s is the currency/value, %4$s is the status string.
+					__( '%1$s fired an API Action to update a transaction: #%2$s for %3$s (Status: %4$s)', 'zero-bs-crm' ),
+					$external_api_name,
+					$orderid,
+					zeroBSCRM_getCurrencyChr() . $total,
+					$status
+				);
+				$newTransactionAPISourceShort = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// Translators: %s is a dynamic service name invoking the API.
+					__( 'Transaction Added by %s (API)', 'zero-bs-crm' ) . ' <i class="fa fa-random"></i>',
+					$external_api_name
+				);
+				$newTransactionAPISourceLong = sprintf( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					// Translators: %1$s is a dynamic service name invoking the API, %2$s is the transaction ID, %3$s is the currency/value, %4$s is the status string.
+					__( '%1$s fired an API Action to add a transaction: #%2$s for %3$s (Status: %4$s)', 'zero-bs-crm' ),
+					$external_api_name,
+					$orderid,
+					zeroBSCRM_getCurrencyChr() . $total,
+					$status
+				);
 			}
-
 					// } Actual log var passed
 					$fallBackLog = array(
 						'type'      => 'API Action',

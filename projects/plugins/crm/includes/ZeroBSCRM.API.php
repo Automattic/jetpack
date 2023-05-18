@@ -61,6 +61,26 @@ function jpcrm_api_process_search() {
 }
 
 /**
+ * If there is a `replace_hyphens_with_underscores_in_json_keys` parameter in
+ * the request, it is returned as an int. Otherwise returns 0.
+ *
+ * @return int Parameter `replace_hyphens_with_underscores_in_json_keys` from request. 0 if it isn't set.
+ */
+function jpcrm_api_process_replace_hyphens_in_json_keys() {
+	return ( isset( $_GET['replace_hyphens_with_underscores_in_json_keys'] ) ? (int) $_GET['replace_hyphens_with_underscores_in_json_keys'] : 0 ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+}
+
+/**
+ * If there is a `external_api_name` parameter in
+ * the request, it is returned as a string. Otherwise returns the bool false.
+ *
+ * @return string|bool Parameter `external_api_name` from request. Returns false if it isn't set.
+ */
+function jpcrm_api_process_external_api_name() {
+	return ( isset( $_GET['external_api_name'] ) ? sanitize_text_field( wp_unslash( $_GET['external_api_name'] ) ) : false ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+}
+
+/**
  * Generate API invalid request error
  */
 function jpcrm_api_invalid_request() {
@@ -436,4 +456,30 @@ function zeroBSCRM_getAPISecret() {
 
 	global $zbs;
 	return $zbs->DAL->setting( 'api_secret' );
+}
+
+/**
+ * Replaces hyphens in key identifiers from a json array with underscores.
+ * Some services do not accept hyphens in their key identifiers, e.g. Zapier:
+ * https://github.com/zapier/zapier-platform/blob/master/packages/schema/docs/build/schema.md#keyschema
+ *
+ * If we expand use of this, we should consider making it recursive.
+ *
+ * @param array $input_array The array with keys needing to be changed, e.g.: [ { "id":"1", "custom-price":"10" }, { "id":"2", "custom-price":"20" }, ].
+ * @return array Array with changed keys, e.g.: [ { "id":"1", "custom_price":"10" }, { "id":"2", "custom_price":"20" }, ].
+ */
+function jpcrm_api_replace_hyphens_in_json_keys_with_underscores( $input_array ) {
+	$new_array = array();
+	foreach ( $input_array as $original_item ) {
+		$new_array[] = array_combine(
+			array_map(
+				function ( $key ) {
+					return str_replace( '-', '_', $key );
+				},
+				array_keys( $original_item )
+			),
+			$original_item
+		);
+	}
+	return $new_array;
 }

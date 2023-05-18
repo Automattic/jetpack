@@ -3,7 +3,7 @@ import React from 'react';
 import ProductCard from '../connected-product-card';
 
 const SocialCard = ( { admin } ) => {
-	return <ProductCard admin={ admin } slug="social" />;
+	return <ProductCard admin={ admin } slug="social" showMenu />;
 };
 
 SocialCard.propTypes = {

@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Adds the `is_wpcom_staging_site` attribute in a few more contexts

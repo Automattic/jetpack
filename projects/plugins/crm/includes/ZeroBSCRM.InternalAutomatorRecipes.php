@@ -795,7 +795,7 @@
 
 					#} Add log
 					$newLogID = zeroBS_addUpdateLog($zbsNoteAgainstPostID,-1,-1,array(
-						'type' => 'Event Created',
+						'type'      => 'Task Created',
 						'shortdesc' => $noteShortDesc,
 						'longdesc' => $note_long_description
 					),'zerobs_customer');
@@ -812,50 +812,44 @@
 
 	} 
 
-	#} Catches new logs and updates contact 'last contacted' if dal2 + is contact type log
-	function zeroBSCRM_IA_NewLogCatchContactsDB2($obj=array()){
+/**
+ * Catches new logs and updates contact 'last contacted' if contact type log
+ *
+ * @param arr $obj Array containing log details.
+ */
+function zeroBSCRM_IA_NewLogCatchContactsDB2( $obj = array() ) {
 
-		global $zbs;
+	global $zbs;
 
-		// for now hard typed
-		//$contactLogTypes = array('Call','Email','Mail','Meeting','Feedback','Invoice: Sent','Quote: Sent');
-		$contactLogTypes = $zbs->DAL->logs->contactLogTypes;
-		
-		// strtolower them
-		$contactLogTypes = array_map('strtolower', $contactLogTypes);
+	// for now, only contacts
 
-		//debug print_r($obj); //exit();
+	if ( is_array( $obj ) && isset( $obj['logagainsttype'] ) && ( $obj['logagainsttype'] === 'zerobs_customer' || $obj['logagainsttype'] === ZBS_TYPE_CONTACT ) ) {
 
-		// for now, only contcts + dal2
-		if ($zbs->isDAL2()){
+		// check if 'contact' type
+		$log_type = '';
+		if ( is_array( $obj ) && isset( $obj['logtype'] ) ) {
+			$log_type = $obj['logtype'];
+		}
 
-			if (is_array($obj) && isset($obj['logagainsttype']) && ($obj['logagainsttype'] == 'zerobs_customer' || $obj['logagainsttype'] == ZBS_TYPE_CONTACT)){
+		if ( ! empty( $log_type ) && in_array( $log_type, $zbs->DAL->logs->contact_log_types, true ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-				// check if 'contact' type
-				$logType = ''; if (is_array($obj) && isset($obj['logtype'])) $logType = $obj['logtype'];
+			// checks out..proceed
 
-				if (!empty($logType) && in_array($logType, $contactLogTypes)){
+			// retrieve
+			$contact_id = -1;
+			if ( is_array( $obj ) && isset( $obj['logagainst'] ) ) {
+				$contact_id = (int) $obj['logagainst'];
+			}
 
-					// checks out..proceed
-					
-					// retrieve
-					$contactID = -1; if (is_array($obj) && isset($obj['logagainst'])) $contactID = (int)$obj['logagainst'];
+			if ( ! empty( $contact_id ) && $contact_id > 0 ) {
 
-					if (!empty($contactID) && $contactID > 0){
+				// update contact
+				$zbs->DAL->contacts->setContactLastContactUTS( $contact_id, time() ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			}
+		} // is a contact type log
 
-						// update contact
-						$zbs->DAL->contacts->setContactLastContactUTS($contactID,time());
-
-					}
-
-
-				} // is a contact type log
-
-			} // is log against contact
-
-		} // is dal 2
-
-	}
+	} // is log against contact
+}
 
 
 	#} Adds a "created" log to customer (if setting)

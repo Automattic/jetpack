@@ -44,6 +44,7 @@ const FirewallPage = () => {
 			jetpackWafIpBlockList,
 			jetpackWafIpAllowList,
 			automaticRulesAvailable,
+			bruteForceProtection,
 		},
 		isEnabled,
 		isSeen,
@@ -54,6 +55,7 @@ const FirewallPage = () => {
 		stats,
 		toggleAutomaticRules,
 		toggleManualRules,
+		toggleBruteForceProtection,
 		toggleWaf,
 		updateConfig,
 	} = useWafData();
@@ -63,7 +65,7 @@ const FirewallPage = () => {
 		productSlug: JETPACK_SCAN_SLUG,
 		redirectUrl: `${ ADMIN_URL }#/firewall`,
 	} );
-	const { recordEventHandler } = useAnalyticsTracks();
+	const { recordEventHandler, recordEvent } = useAnalyticsTracks();
 
 	const canToggleAutomaticRules = isEnabled && ( hasRequiredPlan || automaticRulesAvailable );
 
@@ -84,6 +86,7 @@ const FirewallPage = () => {
 		jetpack_waf_ip_list: jetpackWafIpList,
 		jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 		jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
+		brute_force_protection: bruteForceProtection,
 	} );
 
 	/**
@@ -221,6 +224,11 @@ const FirewallPage = () => {
 								/* dummy arg to avoid bad minification */ 0
 						  ),
 				} );
+				recordEvent(
+					newValue
+						? 'jetpack_protect_automatic_rules_enabled'
+						: 'jetpack_protect_automatic_rules_disabled'
+				);
 			} )
 			.then( () => {
 				if ( ! upgradeIsSeen ) {
@@ -237,10 +245,48 @@ const FirewallPage = () => {
 		formState,
 		toggleAutomaticRules,
 		setNotice,
+		recordEvent,
 		upgradeIsSeen,
 		setWafUpgradeIsSeen,
 		handleApiError,
 	] );
+
+	/**
+	 * Handle Automatic Rules Change
+	 *
+	 * Toggles the WAF's automatic rules option.
+	 *
+	 * @returns void
+	 */
+	const handleBruteForceProtectionChange = useCallback( () => {
+		setFormIsSubmitting( true );
+		const newValue = ! formState.brute_force_protection;
+		setFormState( {
+			...formState,
+			brute_force_protection: newValue,
+		} );
+		toggleBruteForceProtection()
+			.then( () => {
+				setNotice( {
+					type: 'success',
+					duration: SUCCESS_NOTICE_DURATION,
+					message: newValue
+						? __( `Brute force protection is enabled.`, 'jetpack-protect' )
+						: __(
+								`Brute force protection is disabled.`,
+								'jetpack-protect',
+								/* dummy arg to avoid bad minification */ 0
+						  ),
+				} );
+				recordEvent(
+					newValue
+						? 'jetpack_protect_brute_force_protection_enabled'
+						: 'jetpack_protect_brute_force_protection_disabled'
+				);
+			} )
+			.catch( handleApiError )
+			.finally( () => setFormIsSubmitting( false ) );
+	}, [ formState, toggleBruteForceProtection, handleApiError, setNotice, recordEvent ] );
 
 	/**
 	 * Handle Manual Rules Change
@@ -254,7 +300,7 @@ const FirewallPage = () => {
 		setFormIsSubmitting( true );
 		setFormState( { ...formState, jetpack_waf_ip_list: newManualRulesStatus } );
 		toggleManualRules()
-			.then( () =>
+			.then( () => {
 				setNotice( {
 					type: 'success',
 					duration: SUCCESS_NOTICE_DURATION,
@@ -265,11 +311,16 @@ const FirewallPage = () => {
 								'jetpack-protect',
 								/* dummy arg to avoid bad minification */ 0
 						  ),
-				} )
-			)
+				} );
+				recordEvent(
+					newManualRulesStatus
+						? 'jetpack_protect_manual_rules_enabled'
+						: 'jetpack_protect_manual_rules_disabled'
+				);
+			} )
 			.catch( handleApiError )
 			.finally( () => setFormIsSubmitting( false ) );
-	}, [ formState, toggleManualRules, handleApiError, setNotice ] );
+	}, [ formState, toggleManualRules, handleApiError, setNotice, recordEvent ] );
 
 	/**
 	 * Handle Show Manual Rules Click
@@ -304,6 +355,7 @@ const FirewallPage = () => {
 				jetpack_waf_ip_list: jetpackWafIpList,
 				jetpack_waf_ip_block_list: jetpackWafIpBlockList,
 				jetpack_waf_ip_allow_list: jetpackWafIpAllowList,
+				brute_force_protection: bruteForceProtection,
 			} );
 		}
 	}, [
@@ -311,6 +363,7 @@ const FirewallPage = () => {
 		jetpackWafIpBlockList,
 		jetpackWafIpAllowList,
 		jetpackWafAutomaticRules,
+		bruteForceProtection,
 		isUpdating,
 	] );
 
@@ -501,6 +554,27 @@ const FirewallPage = () => {
 					/>
 				</div>
 			) }
+			<div className={ styles[ 'toggle-section' ] }>
+				<div className={ styles[ 'toggle-section__control' ] }>
+					<FormToggle
+						id="brute_force_protection"
+						checked={ formState.brute_force_protection }
+						onChange={ handleBruteForceProtectionChange }
+						disabled={ formIsSubmitting }
+					/>
+				</div>
+				<div className={ styles[ 'toggle-section__content' ] }>
+					<Text variant="title-medium" mb={ 2 }>
+						{ __( 'Enable brute force protection', 'jetpack-protect' ) }
+					</Text>
+					<Text>
+						{ __(
+							'Prevent bots and hackers from attempting to log in to your website with common username and password combinations.',
+							'jetpack-protect'
+						) }
+					</Text>
+				</div>
+			</div>
 			<div
 				className={ `${ styles[ 'toggle-section' ] } ${
 					! isEnabled ? styles[ 'toggle-section--disabled' ] : ''
@@ -603,7 +677,7 @@ const FirewallPage = () => {
 			</Text>
 			<Text mb={ 4 }>
 				{ __(
-					'Add manual rules for what IP traffic the Jetpack Firewall should block or allow.',
+					'Add manual rules for what IP traffic the Jetpack Firewall and brute force protection should block or allow.',
 					'jetpack-protect'
 				) }
 			</Text>

@@ -28,10 +28,8 @@ export default function MediaPicker( {
 	onChange,
 	allowedMediaTypes,
 } ) {
-	const {
-		mediaData: { width, height, sourceUrl } = {},
-		metaData: { mime, length = null } = {},
-	} = mediaDetails;
+	const { mediaData: { width, height, sourceUrl } = {}, metaData: { mime, length = null } = {} } =
+		mediaDetails;
 
 	const isImageLoading = ! sourceUrl || ! width || ! height || ! mime;
 

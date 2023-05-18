@@ -1,7 +1,7 @@
 import ProgressBar from '@automattic/components/dist/esm/progress-bar';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import Button from 'components/button';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
@@ -103,11 +103,11 @@ class DashVideoPress extends Component {
 							{ shouldDisplayBanner && (
 								<JetpackBanner
 									className="media__videopress-upgrade"
-									callToAction={ __( 'Upgrade', 'jetpack' ) }
+									callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 									title={ bannerText }
 									disableHref="false"
 									eventFeature="videopress"
-									icon="video"
+									noIcon
 									path={ 'dashboard' }
 									plan={ getJetpackProductUpsellByFeature( FEATURE_VIDEOPRESS ) }
 									feature="jetpack_videopress"

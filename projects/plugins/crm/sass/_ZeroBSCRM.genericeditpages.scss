@@ -17,11 +17,11 @@
 
 /* large options */
 tr.wh-large label {
-    font-size:20px;
+    font-size: 14px;
 }
 tr.wh-large select, tr.wh-large input {
-    font-size:20px;    
-    height: 36px;
+    font-size:14px;    
+    line-height: 1.4em;
 }
 // fixes radio buttons + checkbox heights (which above breaks!)
 tr.wh-large input[type="radio"] {
@@ -63,7 +63,7 @@ span.wh-info {
 }
 
 .zbs-prominent {
-  font-size: 22px;
+  font-size: 14px;
     color: green;
 }
 .widetext {
@@ -195,7 +195,7 @@ textarea.form-control{
 
 // id fields + autonumbers
 .zbs-field-id {
-  font-size: 20px !important;
+  font-size: 14px !important;
   color: green !important;
   vertical-align: top !important;
 }

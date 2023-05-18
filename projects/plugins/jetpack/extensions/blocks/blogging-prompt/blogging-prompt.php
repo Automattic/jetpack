@@ -44,9 +44,5 @@ function load_assets( $attr, $content ) {
 	 */
 	Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME );
 
-	return sprintf(
-		'<div class="%1$s">%2$s</div>',
-		esc_attr( Blocks::classes( FEATURE_NAME, $attr ) ),
-		$content
-	);
+	return $content;
 }

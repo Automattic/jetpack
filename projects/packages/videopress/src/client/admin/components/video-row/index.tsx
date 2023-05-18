@@ -344,9 +344,8 @@ export const LocalVideoRow = ( props: VideoRowProps ) => {
 };
 
 export const ConnectVideoRow = ( { id, ...restProps }: VideoRowProps ) => {
-	const { isDeleting, uploading, processing, isUpdatingPoster, data, uploadProgress } = useVideo(
-		id
-	);
+	const { isDeleting, uploading, processing, isUpdatingPoster, data, uploadProgress } =
+		useVideo( id );
 	const loading = ( isDeleting || restProps?.loading ) && ! uploading && ! processing;
 	return (
 		<VideoRow

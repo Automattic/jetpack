@@ -6,7 +6,7 @@ import { extractVideoChapters } from '../extract-video-chapters';
  * @param {number} milliseconds - The duration in milliseconds
  * @returns {string}             - The formatted time
  */
-function millisecondsToClockTime( milliseconds: number ) {
+function millisecondsToClockTime( milliseconds: number ): string {
 	const hours = Math.floor( milliseconds / 3600000 );
 	let remaining = milliseconds - hours * 3600000;
 

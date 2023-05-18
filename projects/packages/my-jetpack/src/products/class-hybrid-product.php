@@ -12,13 +12,6 @@ use Automattic\Jetpack\Plugins_Installer;
 use WP_Error;
 
 /**
- *
- * DEPRECATED: This class is deprecated and will be removed in a future version.
- *
- * All product classes have been moved out of the hybrid class concept
- *
- * @deprecated 2.7.2
- *
  * Class responsible for handling the hybrid products
  *
  * Hybrid products are those that may work both as a stand-alone plugin or with the Jetpack plugin.
@@ -30,12 +23,28 @@ use WP_Error;
 abstract class Hybrid_Product extends Product {
 
 	/**
+	 * All hybrid products have a standalone plugin
+	 *
+	 * @var bool
+	 */
+	public static $has_standalone_plugin = true;
+
+	/**
 	 * Checks whether the Product is active
 	 *
 	 * @return boolean
 	 */
 	public static function is_plugin_active() {
 		return parent::is_plugin_active() || parent::is_jetpack_plugin_active();
+	}
+
+	/**
+	 * Checks whether the standalone plugin for this product is active
+	 *
+	 * @return boolean
+	 */
+	public static function is_standalone_plugin_active() {
+		return parent::is_plugin_active();
 	}
 
 	/**
@@ -129,4 +138,55 @@ abstract class Hybrid_Product extends Product {
 		return true;
 	}
 
+	/**
+	 * Install and activate the standalone plugin in the case it's missing.
+	 *
+	 * @return boolean|WP_Error
+	 */
+	final public static function install_and_activate_standalone() {
+		/**
+		 * Check for the presence of the standalone plugin, ignoring Jetpack presence.
+		 *
+		 * If the standalone plugin is not installed and the user can install plugins, proceed with the installation.
+		 */
+		if ( ! parent::is_plugin_installed() ) {
+			/**
+			 * Check for permissions
+			 */
+			if ( ! current_user_can( 'install_plugins' ) ) {
+				return new WP_Error( 'not_allowed', __( 'You are not allowed to install plugins on this site.', 'jetpack-my-jetpack' ) );
+			}
+
+			/**
+			 * Install the plugin
+			 */
+			$installed = Plugins_Installer::install_plugin( static::get_plugin_slug() );
+			if ( is_wp_error( $installed ) ) {
+				return $installed;
+			}
+		}
+
+		/**
+		 * Activate the installed plugin
+		 */
+		$result = static::activate_plugin();
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		/**
+		 * Activate the module as well, if the user has a plan
+		 * or the product does not require a plan to work
+		 */
+		if ( static::has_required_plan() ) {
+			$module_activation = ( new Modules() )->activate( static::$module_name, false, false );
+
+			if ( ! $module_activation ) {
+				return new WP_Error( 'module_activation_failed', __( 'Error activating Jetpack module', 'jetpack-my-jetpack' ) );
+			}
+		}
+
+		return true;
+	}
 }

@@ -4,7 +4,7 @@
 	import JetpackIcon from '../svg/jetpack.svg';
 </script>
 
-<footer class="jb-settings-footer">
+<footer class="jb-dashboard-footer">
 	<div class="jb-signature--jetpack">
 		<JetpackIcon />
 		{__( 'Jetpack Boost', 'jetpack-boost' )}

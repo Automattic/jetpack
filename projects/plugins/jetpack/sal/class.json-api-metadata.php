@@ -53,6 +53,11 @@ class WPCOM_JSON_API_Metadata {
 			return false;
 		}
 
+		// We want to always return the `_jetpack_newsletter_access` key to display the correct newsletter access in Calypso.
+		if ( $key === '_jetpack_newsletter_access' ) {
+			return false;
+		}
+
 		if ( 0 === strpos( $key, '_jetpack_' ) ) {
 			return true;
 		}

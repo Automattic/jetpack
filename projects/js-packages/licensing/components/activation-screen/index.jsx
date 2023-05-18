@@ -1,11 +1,13 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
+import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useState } from 'react';
 import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
 import ActivationScreenSuccessInfo from '../activation-screen-success-info';
+import GoldenTokenModal from '../golden-token-modal';
 import lockImage from '../jetpack-license-activation-with-lock.png';
 import successImage from '../jetpack-license-activation-with-success.png';
 
@@ -49,6 +51,7 @@ const parseAttachLicensesResult = result => {
  * @param {string?} props.startingLicense -- pre-fill the license value
  * @param {string} props.siteAdminUrl -- URL of the Jetpack Site Admin
  * @param {string} props.currentRecommendationsStep -- The current recommendation step.
+ * @param {string} props.currentUser -- Current wpcom user info.
  * @returns {React.Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
@@ -60,6 +63,7 @@ const ActivationScreen = props => {
 		siteAdminUrl,
 		siteRawUrl,
 		startingLicense,
+		displayName = '',
 	} = props;
 
 	const [ license, setLicense ] = useState( startingLicense ?? '' );
@@ -97,8 +101,29 @@ const ActivationScreen = props => {
 				jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_activation_success' );
 			} )
 			.catch( error => {
-				setLicenseError( error.message );
 				jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_activation_error' );
+
+				const cannotManageLicenses =
+					error.response?.code === 'invalid_permission_manage_user_licenses';
+				if ( cannotManageLicenses ) {
+					setLicenseError(
+						createInterpolateElement(
+							__(
+								'You either do not have permissions to perform this action or a user account needs to be connected. <connectLink>Click here to connect your user account</connectLink> or contact your administrator.',
+								'jetpack'
+							),
+							{
+								connectLink: (
+									<a href="admin.php?page=my-jetpack#/connection?returnTo=add-license" />
+								),
+							}
+						)
+					);
+
+					return;
+				}
+
+				setLicenseError( error.message );
 			} )
 			.finally( () => {
 				setIsSaving( false );
@@ -133,6 +158,14 @@ const ActivationScreen = props => {
 		</div>
 	);
 
+	const renderGoldenTokenModal = () => {
+		return <GoldenTokenModal tokenRedeemed={ true } displayName={ displayName } />;
+	};
+
+	if ( null !== activatedProduct && license.startsWith( 'jetpack-golden-token' ) ) {
+		return renderGoldenTokenModal();
+	}
+
 	return null !== activatedProduct ? renderActivationSuccess() : renderActivationControl();
 };
 
@@ -144,6 +177,7 @@ ActivationScreen.propTypes = {
 	siteAdminUrl: PropTypes.string.isRequired,
 	siteRawUrl: PropTypes.string.isRequired,
 	startingLicense: PropTypes.string,
+	displayName: PropTypes.string,
 };
 
 export default ActivationScreen;

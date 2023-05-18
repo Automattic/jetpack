@@ -94,6 +94,7 @@ export default function usePublicizeConfig() {
 		numberOfSharesRemaining: sharesData.shares_remaining,
 		hasPaidPlan: !! getJetpackData()?.social?.hasPaidPlan,
 		isEnhancedPublishingEnabled: !! getJetpackData()?.social?.isEnhancedPublishingEnabled,
+		isSocialImageGeneratorAvailable: !! getJetpackData()?.social?.isSocialImageGeneratorAvailable,
 		isSocialImageGeneratorEnabled: !! getJetpackData()?.social?.isSocialImageGeneratorEnabled,
 		connectionsAdminUrl: connectionsRootUrl + getSiteFragment(),
 		adminUrl: getJetpackData()?.social?.adminUrl,

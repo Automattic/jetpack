@@ -46,6 +46,7 @@ class WPcom_Admin_Menu extends Admin_Menu {
 
 		$this->add_my_home_menu();
 		$this->add_inbox_menu();
+		$this->remove_gutenberg_menu();
 
 		// Not needed outside of wp-admin.
 		if ( ! $this->is_api_request ) {
@@ -96,7 +97,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 		if ( function_exists( '\get_blog_count_for_user' ) ) {
 			return \get_blog_count_for_user( get_current_user_id() );
 		}
-		return count( get_blogs_of_user( get_current_user_id() ) );
+
+		$blogs = get_blogs_of_user( get_current_user_id() );
+		return is_countable( $blogs ) ? count( $blogs ) : 0;
 	}
 
 	/**
@@ -359,10 +362,9 @@ class WPcom_Admin_Menu extends Admin_Menu {
 	/**
 	 * Also remove the Gutenberg plugin menu.
 	 */
-	public function add_gutenberg_menus() {
+	public function remove_gutenberg_menu() {
 		// Always remove the Gutenberg menu.
 		remove_menu_page( 'gutenberg' );
-		parent::add_gutenberg_menus();
 	}
 
 	/**

@@ -32,6 +32,11 @@ class Salesforce_Lead_Form {
 	 * @return null|void
 	 */
 	public static function process_salesforce_form( $post_id, $fields, $is_spam, $entry_values ) {
+		if ( ! is_array( $fields ) ) {
+			// nothing to do, also prevent hook from processing actions triggered with different args
+			return;
+		}
+
 		// if spam (hinted by akismet?), don't process
 		if ( $is_spam ) {
 			return;

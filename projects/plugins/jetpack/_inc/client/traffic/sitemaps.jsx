@@ -4,7 +4,6 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import classNames from 'classnames';
 import ClipboardButtonInput from 'components/clipboard-button-input';
-import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
@@ -73,31 +72,27 @@ export class Sitemaps extends React.Component {
 					</ModuleToggle>
 					{ this.props.isSiteVisibleToSearchEngines ? (
 						this.props.getOptionValue( 'sitemaps' ) && (
-							<FormFieldset>
-								<p className="jp-form-setting-explanation">
-									{ __(
-										'Good news: Jetpack is sending your sitemap automatically to all major search engines for indexing.',
-										'jetpack'
-									) }
-									{ this.renderSitemapRow( sitemap_url, 'sitemap-url-link' ) }
-									{ this.renderSitemapRow( news_sitemap_url, 'sitemap-news-url-link' ) }
-								</p>
-							</FormFieldset>
+							<p className="jp-form-setting-explanation">
+								{ __(
+									'Good news: Jetpack is sending your sitemap automatically to all major search engines for indexing.',
+									'jetpack'
+								) }
+								{ this.renderSitemapRow( sitemap_url, 'sitemap-url-link' ) }
+								{ this.renderSitemapRow( news_sitemap_url, 'sitemap-news-url-link' ) }
+							</p>
 						)
 					) : (
-						<FormFieldset>
-							<p className={ searchEngineVisibilityClasses }>
-								{ createInterpolateElement(
-									__(
-										'Search engines can’t access your site at the moment. If you’d like to make your site accessible, check your <a>Reading settings</a> and switch "Search Engine Visibility" on.',
-										'jetpack'
-									),
-									{
-										a: <a href={ this.props.siteAdminUrl + 'options-reading.php' } />,
-									}
-								) }
-							</p>
-						</FormFieldset>
+						<p className={ searchEngineVisibilityClasses }>
+							{ createInterpolateElement(
+								__(
+									'Search engines can’t access your site at the moment. If you’d like to make your site accessible, check your <a>Reading settings</a> and switch "Search Engine Visibility" on.',
+									'jetpack'
+								),
+								{
+									a: <a href={ this.props.siteAdminUrl + 'options-reading.php' } />,
+								}
+							) }
+						</p>
 					) }
 				</SettingsGroup>
 			</SettingsCard>

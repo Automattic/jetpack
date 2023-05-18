@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import Card from 'components/card';
 import QuerySite from 'components/data/query-site';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -50,17 +49,14 @@ export class Discussion extends React.Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Discussion Settings', 'jetpack' ) }</h1>
-				<Card
-					title={
-						this.props.searchTerm
-							? __( 'Discussion', 'jetpack' )
-							: __(
-									'Manage advanced comment settings and grow your audience with email subscriptions.',
-									'jetpack'
-							  )
-					}
-					className="jp-settings-description"
-				/>
+				<h2 className="jp-settings__section-title">
+					{ this.props.searchTerm
+						? __( 'Discussion', 'jetpack' )
+						: __(
+								'Manage advanced comment settings and grow your audience with email subscriptions.',
+								'jetpack'
+						  ) }
+				</h2>
 				<Comments
 					{ ...commonProps }
 					isModuleFound={ this.props.isModuleFound }

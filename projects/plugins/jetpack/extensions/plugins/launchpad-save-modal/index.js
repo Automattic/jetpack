@@ -12,14 +12,21 @@ export const name = 'launchpad-save-modal';
 
 export const settings = {
 	render: function LaunchpadSaveModal() {
-		const { isSavingSite, isSavingPost, isPublishingPost, isCurrentPostPublished } = useSelect(
-			selector => ( {
-				isSavingSite: selector( editorStore ).isSavingNonPostEntityChanges(),
-				isSavingPost: selector( editorStore ).isSavingPost(),
-				isPublishingPost: selector( editorStore ).isPublishingPost(),
-				isCurrentPostPublished: selector( editorStore ).isCurrentPostPublished(),
-			} )
-		);
+		const {
+			isSavingSite,
+			isSavingPost,
+			isPublishingPost,
+			isCurrentPostPublished,
+			postLink,
+			postType,
+		} = useSelect( selector => ( {
+			isSavingSite: selector( editorStore ).isSavingNonPostEntityChanges(),
+			isSavingPost: selector( editorStore ).isSavingPost(),
+			isPublishingPost: selector( editorStore ).isPublishingPost(),
+			isCurrentPostPublished: selector( editorStore ).isCurrentPostPublished(),
+			postLink: selector( editorStore ).getPermalink(),
+			postType: selector( editorStore ).getCurrentPostType(),
+		} ) );
 
 		const prevIsSavingSite = usePrevious( isSavingSite );
 		const prevIsSavingPost = usePrevious( isSavingPost );
@@ -39,10 +46,10 @@ export const settings = {
 		const prevHasNeverPublishedPostOption = useRef( hasNeverPublishedPostOption );
 
 		const siteFragment = getSiteFragment();
-		const launchPadUrl = getRedirectUrl( `wpcom-launchpad-setup-${ siteIntentOption }`, {
+		const launchPadUrl = getRedirectUrl( 'wpcom-launchpad-setup', {
+			path: siteIntentOption,
 			query: `siteSlug=${ siteFragment }`,
 		} );
-
 		const { tracks } = useAnalytics();
 
 		const recordTracksEvent = eventName =>
@@ -52,6 +59,39 @@ export const settings = {
 				dont_show_again: isChecked,
 				editor_type: isInsideSiteEditor ? 'site' : 'post',
 			} );
+
+		function getModalContent() {
+			const modalContent = {
+				title: __( 'Great progress!', 'jetpack' ),
+				body: __(
+					'You are one step away from bringing your site to life. Check out the next steps that will help you to launch your site.',
+					'jetpack'
+				),
+				actionButtonHref: launchPadUrl,
+				actionButtonTracksEvent: 'jetpack_launchpad_save_modal_next_steps',
+				actionButtonText: __( 'Next Steps', 'jetpack' ),
+			};
+
+			if ( siteIntentOption === 'newsletter' ) {
+				if ( postType === 'post' ) {
+					modalContent.title = __( 'Your first post is published!', 'jetpack' );
+					modalContent.body = __(
+						'Congratulations! You did it. View your post to see how it will look on your site.',
+						'jetpack'
+					);
+					modalContent.actionButtonHref = postLink;
+					modalContent.actionButtonTracksEvent = 'jetpack_launchpad_save_modal_view_post';
+					modalContent.actionButtonText = __( 'View Post', 'jetpack' );
+				} else {
+					modalContent.body = __(
+						'You are one step away from bringing your site to life. Check out the next steps that will help you to setup your newsletter.',
+						'jetpack'
+					);
+				}
+			}
+
+			return modalContent;
+		}
 
 		useEffect( () => {
 			// We want to prevent the launchpad modal from rendering on top of the first
@@ -93,6 +133,9 @@ export const settings = {
 			}
 		}, [ isCurrentPostPublished ] );
 
+		const { title, body, actionButtonHref, actionButtonTracksEvent, actionButtonText } =
+			getModalContent();
+
 		const showModal =
 			( ( isInsidePostEditor && isCurrentPostPublished ) || isInsideSiteEditor ) &&
 			launchpadScreenOption === 'full' &&
@@ -117,15 +160,8 @@ export const settings = {
 				>
 					<div className="launchpad__save-modal-body">
 						<div className="launchpad__save-modal-text">
-							<h1 className="launchpad__save-modal-heading">
-								{ __( 'Great progress!', 'jetpack' ) }
-							</h1>
-							<p className="launchpad__save-modal-message">
-								{ __(
-									'You are one step away from bringing your site to life. Check out the next steps that will help you to launch your site.',
-									'jetpack'
-								) }
-							</p>
+							<h1 className="launchpad__save-modal-heading">{ title }</h1>
+							<p className="launchpad__save-modal-message">{ body }</p>
 						</div>
 						<div className="launchpad__save-modal-controls">
 							<CheckboxControl
@@ -146,11 +182,11 @@ export const settings = {
 								</Button>
 								<Button
 									variant="primary"
-									href={ launchPadUrl }
-									onClick={ () => recordTracksEvent( 'jetpack_launchpad_save_modal_next_steps' ) }
+									href={ actionButtonHref }
+									onClick={ () => recordTracksEvent( actionButtonTracksEvent ) }
 									target="_top"
 								>
-									{ __( 'Next Steps', 'jetpack' ) }
+									{ actionButtonText }
 								</Button>
 							</div>
 						</div>

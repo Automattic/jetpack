@@ -23,9 +23,10 @@ function extractSingleChapter( line: string ): VideoPressChapter | null {
 	const blockIndex = line.indexOf( timeBlock );
 	const remainingLength = line.length - timeBlock.length;
 
-	const title = ( blockIndex < remainingLength / 2
-		? line.substring( blockIndex + timeBlock.length, line.length )
-		: line.substring( 0, blockIndex )
+	const title = (
+		blockIndex < remainingLength / 2
+			? line.substring( blockIndex + timeBlock.length, line.length )
+			: line.substring( 0, blockIndex )
 	)
 		.trim()
 		.replace( /(\s-$)|(^-\s)/, '' );

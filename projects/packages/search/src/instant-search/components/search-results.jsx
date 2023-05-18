@@ -13,6 +13,7 @@ import SearchControls from './search-controls';
 import SearchForm from './search-form';
 import SearchResult from './search-result';
 import SearchSidebar from './sidebar';
+import TabbedSearchFilters from './tabbed-search-filters';
 
 import './search-results.scss';
 
@@ -79,29 +80,37 @@ class SearchResults extends Component {
 				corrected_query
 			);
 		} else if ( isMultiSite ) {
-			const group = getAvailableStaticFilters().filter( item => item.filter_id === 'group_id' );
-			const allP2 =
-				group.length === 1 && group[ 0 ].values
-					? group[ 0 ].values.filter( item => item.value !== MULTISITE_NO_GROUP_VALUE )
-					: {};
-			const p2Name = allP2[ 0 ]?.name ? allP2[ 0 ].name : __( 'All P2', 'jetpack-search-pkg' );
-			return sprintf(
-				/* translators: %1$s: number of results. - %2$s: site name. */
-				_n(
-					'Found %1$s result in %2$s',
-					'Found %1$s results in %2$s',
-					total,
-					'jetpack-search-pkg'
-				),
-				num,
-				p2Name
-			);
-		} else if ( hasQuery ) {
+			const group = getAvailableStaticFilters().find( item => item.filter_id === 'group_id' );
+			const filterKey = group?.filter_id;
+
+			// This is the filter's value selected by the user.
+			const userSelectedValue = this.props.staticFilters[ filterKey ];
+			// group.selected is the filter's default value set in the options object.
+			const defaultValue = group?.selected;
+			// failover to the first item if any.
+			const firstItem = group?.values?.[ 0 ];
+
+			const selectedValue = userSelectedValue || defaultValue || firstItem?.value;
+
+			const selectedItem = group?.values?.find?.( item => item.value === selectedValue );
+
+			if ( selectedItem?.name ) {
+				return sprintf(
+					/* translators: %1$s: number of results. - %2$s: site name. */
+					_n(
+						'Found %1$s result in %2$s',
+						'Found %1$s results in %2$s',
+						total,
+						'jetpack-search-pkg'
+					),
+					num,
+					selectedItem?.name
+				);
+			}
 			return sprintf(
 				/* translators: %s: number of results. */
 				_n( 'Found %s result', 'Found %s results', total, 'jetpack-search-pkg' ),
-				num,
-				this.props.searchQuery
+				num
 			);
 		}
 
@@ -135,6 +144,8 @@ class SearchResults extends Component {
 						`,
 					} }
 				/>
+				<TabbedSearchFilters />
+
 				<h2 className="jetpack-instant-search__search-results-title">{ this.getSearchTitle() }</h2>
 
 				{ hasResults && hasCorrectedQuery && (

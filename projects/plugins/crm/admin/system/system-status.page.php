@@ -616,9 +616,9 @@ function zeroBSCRM_render_systemstatus_page() {
 
 												$message = __( 'No Extensions Detected', 'zero-bs-crm' );
 												// upsell/connect if not wl
-												// WLREMOVE
+												##WLREMOVE
 												$message .= '<br /><a href="' . $zbs->urls['products'] . '">' . __( 'Purchase Extensions', 'zero-bs-crm' ) . '</a> or <a href="' . $zbs->slugs['settings'] . '&tab=license">' . __( 'Add License Key', 'zero-bs-crm' ) . '</a>';
-												// /WLREMOVE
+												##/WLREMOVE
 
 							?>
 						</div></td></tr>

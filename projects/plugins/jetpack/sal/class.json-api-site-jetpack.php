@@ -641,4 +641,37 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	public function get_user_interactions() {
 		return null;
 	}
+
+	/**
+	 * Detect whether a site is WordPress.com Staging Site. Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return false
+	 */
+	public function is_wpcom_staging_site() {
+		return false;
+	}
+
+	/**
+	 * Get site option for the production blog id (if is a WP.com Staging Site). Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return null
+	 */
+	public function get_wpcom_production_blog_id() {
+		return null;
+	}
+
+	/**
+	 * Get site option for the staging blog ids (if it has them). Not used in Jetpack.
+	 *
+	 * @see /wpcom/public.api/rest/sal/trait.json-api-site-wpcom.php.
+	 *
+	 * @return null
+	 */
+	public function get_wpcom_staging_blog_ids() {
+		return null;
+	}
 }

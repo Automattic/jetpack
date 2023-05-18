@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Makes the tsconfig.js follow Prettier formatting rules to avoid other PRs having to upinclude it if they correct trunk merge cconflicts
-
-

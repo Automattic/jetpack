@@ -125,7 +125,6 @@ class Tracking {
 				'dependencies' => array( 'jp-tracks' ),
 				'enqueue'      => $enqueue,
 				'in_footer'    => true,
-				'nonmin_path'  => 'js/tracks-callables.js',
 			)
 		);
 	}
@@ -142,7 +141,6 @@ class Tracking {
 				'dependencies' => array( 'jquery' ),
 				'enqueue'      => true,
 				'in_footer'    => true,
-				'nonmin_path'  => 'js/tracks-ajax.js',
 			)
 		);
 

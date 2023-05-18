@@ -25,14 +25,14 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		Jetpack_Subscriptions::init();
-		add_filter( 'test_jetpack_is_supported_jetpack_recurring_payments', '__return_true' );
+		add_filter( 'jetpack_is_connection_ready', '__return_true' );
 		$this->set_up_users();
 	}
 
 	public function tear_down() {
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
-		remove_all_filters( 'test_jetpack_is_supported_jetpack_recurring_payments' );
+		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'jetpack_subscriptions_newsletter_feature_enabled' );
 
 		parent::tear_down();
@@ -352,6 +352,14 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_comments_are_displaying_on_not_accessible_pages() {
+		$enable_subscriptions_callback = function ( $active ) {
+				return array_merge( $active, array( 'subscriptions' ) );
+		};
+		add_filter(
+			'jetpack_active_modules',
+			$enable_subscriptions_callback
+		);
+
 		$post_id = $this->setup_jetpack_paid_newsletters();
 		register_subscription_block();
 
@@ -365,6 +373,10 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 
 		$this->assertFalse( $subscription_service->visitor_can_view_content( array( $this->plan_id ), $post_access_level ) );
 		$this->assertFalse( apply_filters( 'comments_open', true, $post_id ) );
+		remove_filter(
+			'jetpack_active_modules',
+			$enable_subscriptions_callback
+		);
 	}
 
 	/**

@@ -2,6 +2,7 @@ import { RichText } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import classnames from 'classnames';
 import { first } from 'lodash';
 import { useParentAttributes } from '../util/use-parent-attributes';
 import { useJetpackFieldStyles } from './use-jetpack-field-styles';
@@ -23,6 +24,8 @@ export const JetpackFieldOptionEdit = props => {
 
 	const type = name.replace( 'jetpack/field-option-', '' );
 
+	const classes = classnames( 'jetpack-field-option', `field-option-${ type }` );
+
 	const handleSplit = label =>
 		createBlock( name, {
 			...attributes,
@@ -39,7 +42,7 @@ export const JetpackFieldOptionEdit = props => {
 	};
 
 	return (
-		<div className="jetpack-field-option">
+		<div className={ classes } style={ optionStyle }>
 			<input type={ type } className="jetpack-option__type" tabIndex="-1" />
 			<RichText
 				allowedFormats={ [] }
@@ -53,7 +56,6 @@ export const JetpackFieldOptionEdit = props => {
 				preserveWhiteSpace={ false }
 				withoutInteractiveFormatting
 				value={ attributes.label }
-				style={ optionStyle }
 			/>
 		</div>
 	);

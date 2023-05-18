@@ -170,8 +170,9 @@ export default class DomEventHandler extends Component {
 
 		// handleInput didn't respawn the overlay. Do it manually -- form submission must spawn an overlay.
 		if ( ! this.props.isVisible ) {
-			const value = event.target.querySelector( this.props.themeOptions.searchInputSelector )
-				?.value;
+			const value = event.target.querySelector(
+				this.props.themeOptions.searchInputSelector
+			)?.value;
 			// Don't do a falsy check; empty string is an allowed value.
 			typeof value === 'string' && this.props.setSearchQuery( value );
 			this.props.showResults();

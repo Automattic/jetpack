@@ -143,7 +143,7 @@ if ( isset( $_POST['editwplf'] ) && zeroBSCRM_isZBSAdminOrAdmin() ) {
 
 }
 
-// WLREMOVE
+##WLREMOVE
 if ( current_user_can( 'admin_zerobs_manage_options' ) && ! zeroBSCRM_isExtensionInstalled( 'clientportalpro' ) ) {
 
 	// upsell button
@@ -152,7 +152,7 @@ if ( current_user_can( 'admin_zerobs_manage_options' ) && ! zeroBSCRM_isExtensio
 	<?php
 
 }
-// /WLREMOVE
+##/WLREMOVE
 
 ?>
 
@@ -188,9 +188,9 @@ if ( isset( $sbupdated ) ) {
 
 			<tr>
 				<td class="wfieldname"><label for="wpzbscrm_portalpage"><?php esc_html_e( 'Client Portal page', 'zero-bs-crm' ); ?></label><br /><?php esc_html_e( 'Select the page with your client portal shortcode.', 'zero-bs-crm' ); ?>
-					<?php // WLREMOVE ?>
+					<?php ##WLREMOVE ?>
 					<a href="<?php echo esc_url( $zbs->urls['kbclientportal'] ); ?>" target="_blank"><?php esc_html_e( 'Learn More', 'zero-bs-crm' ); ?></a>
-					<?php // /WLREMOVE ?>
+					<?php ##/WLREMOVE ?>
 				</td>
 				<td>
 					<?php
@@ -249,9 +249,9 @@ if ( isset( $sbupdated ) ) {
 
 			<tr>
 				<td class="wfieldname"><label for="wpzbscrm_easyaccesslinks"><?php esc_html_e( 'Allow Easy-Access links', 'zero-bs-crm' ); ?></label><br /><?php esc_html_e( 'Tick to allow logged-out users to view quotes and invoices via a secure hash URL.', 'zero-bs-crm' ); ?>
-					<?php // WLREMOVE ?>
+					<?php ##WLREMOVE ?>
 					<a href="<?php echo esc_url( $zbs->urls['kbeasyaccess'] ); ?>" target="_blank"><?php esc_html_e( 'Learn More', 'zero-bs-crm' ); ?></a>
-					<?php // /WLREMOVE ?>
+					<?php ##/WLREMOVE ?>
 				</td>
 				<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_easyaccesslinks" id="wpzbscrm_easyaccesslinks" value="1"
 				<?php
@@ -303,9 +303,9 @@ if ( isset( $sbupdated ) ) {
 
 			<tr>
 				<td class="wfieldname"><label for="wpzbscrm_portalusers"><?php esc_html_e( 'Generate WordPress users for new contacts', 'zero-bs-crm' ); ?></label><br /><?php esc_html_e( "By default this will automatically email the new contact a welcome email as soon as they're added. If you prefer to not have this email sent, you can disable this email template.", 'zero-bs-crm' ); ?>
-					<?php // WLREMOVE ?>
+					<?php ##WLREMOVE ?>
 					<a href="<?php echo esc_url( $zbs->urls['kbdisablewelcome'] ); ?>" target="_blank"><?php esc_html_e( 'Learn More', 'zero-bs-crm' ); ?></a>
-					<?php // /WLREMOVE ?>
+					<?php ##/WLREMOVE ?>
 				</td>
 				<td style="width:540px"><input type="checkbox" class="winput form-control" name="wpzbscrm_portalusers" id="wpzbscrm_portalusers" value="1"
 				<?php

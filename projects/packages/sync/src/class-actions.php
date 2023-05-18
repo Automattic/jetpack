@@ -171,7 +171,7 @@ class Actions {
 			self::should_initialize_sender()
 		) ) {
 			self::initialize_sender();
-			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
+			add_action( 'shutdown', array( self::$sender, 'do_sync' ), 9998 );
 			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ), 9999 );
 		}
 	}

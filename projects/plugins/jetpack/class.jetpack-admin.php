@@ -278,6 +278,7 @@ class Jetpack_Admin {
 				$module_array['short_description']  = $short_desc_trunc;
 				$module_array['configure_url']      = Jetpack::module_configuration_url( $module );
 				$module_array['override']           = $overrides->get_module_override( $module );
+				$module_array['disabled']           = $is_available ? '' : 'disabled="disabled"';
 
 				ob_start();
 				/**
@@ -568,7 +569,7 @@ class Jetpack_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			die( '-1' );
 		}
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'debugger_page' ) );
+		Jetpack_Admin_Page::wrap_ui( array( $this, 'debugger_page' ), array( 'is-wide' => true ) );
 	}
 
 	/**

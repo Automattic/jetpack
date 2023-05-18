@@ -17,37 +17,6 @@
   / Breaking Checks
    ====================================================== */
 
-
-// Centralised date processing for invoices,
-// DAL2 will thankfully do away with this? (timezone sensitive?)
-function zeroBSCRM_invoiceBuilder_dateMetaToDate($zbs_inv_meta=array(),$plusDays=0,$returnAsUTS=false){
-
-    $inv_date = '';
-    if (isset($zbs_inv_meta['date']) && $zbs_inv_meta['date'] != 'Invalid Date'){
-        $dt = zeroBSCRM_locale_dateToUTS($zbs_inv_meta['date']);
-        // this only happens when people have $date in one format, but their settings match a diff setting                                
-    // NOTE there is NO TIME used here, so we use post_date_gmt + 'true' for isGMT in  zeroBSCRM_date_i18n
-        if ($dt !== false) {
-            if ($plusDays !== 0) $dt += ($plusDays*86400);  
-
-            // return as uts?
-            if ($returnAsUTS) return $dt;
-            // or date?
-            $inv_date = zeroBSCRM_date_i18n(-1,$dt,false,true);
-        }
-    }else{
-
-        $dt = time();
-        if ($plusDays !== 0) $dt += ($plusDays*86400);    
-        // return as uts?
-        if ($returnAsUTS) return $dt;
-        // or date?    
-        $inv_date = zeroBSCRM_date_i18n(-1,$dt);
-    }
-
-    return $inv_date;
-}
-
 // takes inv meta and works out if due
 // now v3.0 friendly!
 function zeroBSCRM_invoiceBuilder_isInvoiceDue($zbsInvoice=array()){
@@ -260,91 +229,83 @@ function zeroBSCRM_invoice_generatePortalInvoiceHTML_v3($invoiceID=-1,$return=tr
 
 function zbs_invoice_generate_pdf(){
 
-    global $zbs;
+	// download flag
+	if ( isset( $_POST['zbs_invoicing_download_pdf'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
 
-    #} download flag
-    if ( isset($_POST['zbs_invoicing_download_pdf'])  ) {
+		// THIS REALLLY needs nonces! For now (1.1.19) added this for you...
+		if ( ! zeroBSCRM_permsInvoices() ) {
+			exit();
+		}
 
-        #} THIS REALLLY needs nonces! For now (1.1.19) added this for you...
-        if (!zeroBSCRM_permsInvoices()) exit();
+		// Check ID
+		$invoice_id = -1;
+		if ( ! empty( $_POST['zbs_invoice_id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			$invoice_id = (int) $_POST['zbs_invoice_id']; // phpcs:ignore WordPress.Security.NonceVerification.Missing
+		}
+		if ( $invoice_id <= 0 ) {
+			exit();
+		}
 
-        #} Check ID
-        $invoiceID = -1;
-        if (isset($_POST['zbs_invoice_id']) && !empty($_POST['zbs_invoice_id'])) $invoiceID = (int)sanitize_text_field($_POST['zbs_invoice_id']);
-        if ($invoiceID <= 0) exit();
+		// generate the PDF
+		$pdf_path = jpcrm_invoice_generate_pdf( $invoice_id );
 
-        // generate the PDF
-        $pdfFileLocation = zeroBSCRM_generateInvoicePDFFile($invoiceID);
+		if ( $pdf_path !== false ) {
 
-        if ($pdfFileLocation !== false){
+			$pdf_filename = basename( $pdf_path );
 
-            $invoice = $zbs->DAL->invoices->getInvoice( $invoiceID );
-            $ref = $invoice[ 'id_override' ];
+			// print the pdf file to the screen for saving
+			header( 'Content-type: application/pdf' );
+			header( 'Content-Disposition: attachment; filename="' . $pdf_filename . '"' );
+			header( 'Content-Transfer-Encoding: binary' );
+			header( 'Content-Length: ' . filesize( $pdf_path ) );
+			header( 'Accept-Ranges: bytes' );
+			readfile( $pdf_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
 
-            if ( empty( $ref ) ) {
-                $ref = $invoiceID;
-            }
+			// delete the PDF file once it's been read (i.e. downloaded)
+			wp_delete_file( $pdf_path );
 
-            //print the pdf file to the screen for saving
-            header('Content-type: application/pdf');
-            header('Content-Disposition: attachment; filename="invoice-' . $ref . '.pdf"' );
-            header('Content-Transfer-Encoding: binary');
-            header('Content-Length: ' . filesize($pdfFileLocation));
-            header('Accept-Ranges: bytes');
-            readfile($pdfFileLocation);
+		}
 
-            //delete the PDF file once it's been read (i.e. downloaded)
-            unlink($pdfFileLocation); 
-
-        }
-
-        exit();
-    }
-
+		exit();
+	}
 }
-#} This fires post ZBS init
-add_action('zerobscrm_post_init','zbs_invoice_generate_pdf');
+// This fires post ZBS init
+add_action( 'zerobscrm_post_init', 'zbs_invoice_generate_pdf' );
 
-#} V3.0 can generate invoice pdf files without sending them
-#} ... used for attaching pdf's to emails etc.
-function zeroBSCRM_generateInvoicePDFFile( $invoice_id = -1 ) {
+/**
+ * Generate PDF file for an invoice
+ *
+ * @param int $invoice_id Invoice ID.
+ * @return str path to PDF file
+ */
+function jpcrm_invoice_generate_pdf( $invoice_id = -1 ) {
 
-    global $zbs;
+	// brutal.
+	if ( ! zeroBSCRM_permsInvoices() ) {
+		return false;
+	}
 
-    // brutal.
-    if ( !zeroBSCRM_permsInvoices() ){
-        return false;
-    }
+	// If user has no perms, or id not present, die
+	if ( $invoice_id <= 0 ) {
+		return false;
+	}
 
-    // If user has no perms, or id not present, die
-    if ( $invoice_id <= 0 ){
-        
-        return false;
-        
-    }
+	// Generate html
+	$html = zeroBSCRM_invoice_generateInvoiceHTML( $invoice_id );
 
-    // Generate html
-    $html = zeroBSCRM_invoice_generateInvoiceHTML( $invoice_id );
+	global $zbs;
+	$invoice = $zbs->DAL->invoices->getInvoice( $invoice_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-    // build PDF
-    $dompdf = $zbs->pdf_engine();
-    $dompdf->loadHtml( $html, 'UTF-8' );
-    $dompdf->render();
+	// if invoice has reference number, use instead of ID
+	if ( ! empty( $invoice['id_override'] ) ) {
+		$invoice_id = $invoice['id_override'];
+	}
 
-    $upload_dir = wp_upload_dir();        
-    $zbsInvoiceDir = $upload_dir['basedir'].'/invoices/';
+	// normalise translated text to alphanumeric, resulting in a filename like `invoice-321.pdf`
+	$pdf_filename = sanitize_title( __( 'Invoice', 'zero-bs-crm' ) . '-' . $invoice_id ) . '.pdf';
 
-    if ( ! file_exists( $zbsInvoiceDir ) ) {
-        wp_mkdir_p( $zbsInvoiceDir );
-    }
-    
-    $file_to_save = $zbsInvoiceDir . $invoice_id . '.pdf';
-
-    // save the pdf file on the server
-    file_put_contents( $file_to_save, $dompdf->output() ); 
-    
-    return $file_to_save;
-
+	// return PDF filename if successful, false if not
+	return jpcrm_generate_pdf( $html, $pdf_filename );
 }
 
 // LEGACY, should now be using zeroBSCRM_invoice_generateInvoiceHTML
@@ -432,942 +393,970 @@ function zeroBSCRM_invoicing_generateStatementPDF( $contactID = -1, $returnPDF =
     ZBS Invoicing - STATEMENT HTML GENERATOR
    ====================================================== */
 
-#} Generates the HTML of an invoice based on the template in templates/invoices/statement-pdf.html
-#} if $return, it'll return, otherwise it'll echo + exit
-function zeroBSCRM_invoicing_generateStatementHTML($contactID=-1,$return=true){
+// phpcs:ignore Squiz.Commenting.FunctionComment.MissingParamTag
+/**
+ * Generates the HTML of an invoice based on the template in templates/invoices/statement-pdf.html
+ * if $return, it'll return, otherwise it'll echo + exit
+ **/
+function zeroBSCRM_invoicing_generateStatementHTML( $contact_id = -1, $return = true ) {
 
-    global $zbs;
+	if ( ! empty( $contact_id ) && $contact_id > 0 ) {
 
-    if (!empty($contactID) && $contactID > 0){
+		// Discern template and retrieve
+		$global_statement_pdf_template = zeroBSCRM_getSetting( 'statement_pdf_template' );
+		if ( ! empty( $global_statement_pdf_template ) ) {
+			$templated_html = jpcrm_retrieve_template( $global_statement_pdf_template, false );
+		}
 
-        // Discern template and retrieve    
-        $global_statement_pdf_template = zeroBSCRM_getSetting( 'statement_pdf_template' );
-        if ( !empty( $global_statement_pdf_template ) ){
-            $templatedHTML = jpcrm_retrieve_template( $global_statement_pdf_template, false );
-        }
+		// fallback to default template
+		if ( ! isset( $templated_html ) || empty( $templated_html ) ) {
+			// template failed as setting potentially holds out of date (removed) template
+			// so use the default
+			$templated_html = jpcrm_retrieve_template( 'invoices/statement-pdf.html', false );
+		}
 
-        // fallback to default template
-        if ( !isset( $templatedHTML ) || empty( $templatedHTML ) ){
+		// Act
+		if ( ! empty( $templated_html ) ) {
+			return zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id, $return, $templated_html );
+		}
+	}
 
-            // template failed as setting potentially holds out of date (removed) template
-            // so use the default
-            $templatedHTML = jpcrm_retrieve_template( 'invoices/statement-pdf.html', false );
-
-        }
-
-        #} Act
-        if (!empty($templatedHTML)){
-
-            global $zbs;
-
-            return zeroBSCRM_invoicing_generateStatementHTML_v3($contactID,$return,$templatedHTML);
-
-        }
-
-    } 
-
-    #} Empty inv id
-    return false;
+	// Empty inv id
+	return false;
 }
 
 // 3.0+ (could now run off contact or company, but that's not written in yet)
-function zeroBSCRM_invoicing_generateStatementHTML_v3($contactID=-1,$return=true,$templatedHTML=''){
-
-    if ($contactID > 0 && $templatedHTML !== ''){
-
-        global $zbs,$wpdb;
-
-        #} Globals
-        $bizName = zeroBSCRM_getSetting('businessname');
-        $bizContactName =  zeroBSCRM_getSetting('businessyourname');
-        $bizContactEmail =  zeroBSCRM_getSetting('businessyouremail');
-        $bizURL =  zeroBSCRM_getSetting('businessyoururl');
-        $bizExtra = zeroBSCRM_getSetting('businessextra');
-        $bizTel = zeroBSCRM_getSetting('businesstel');
-        $statementExtra = zeroBSCRM_getSetting('statementextra');
-        $logoURL = zeroBSCRM_getSetting('invoicelogourl');
-
-        // invoices          
-        $invoices = $zbs->DAL->invoices->getInvoices(array(
-
-            'assignedContact'   => $contactID, // assigned to contact id (int)
-            'assignedCompany'   => false, // assigned to company id (int)
-
-            // returns
-            'withLineItems'     => true,
-            'withCustomFields'  => true,
-            'withTransactions'  => true, // partials
-            'withTags'          => false,
-
-            // sort
-            'sortByField'   => 'ID',
-            'sortOrder'     => 'ASC',
-
-        ));
-
-        // statement table wrapper
-        $statementTable = '<table id="zbs-statement-table" border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;background-color:#FFF;width:100%;">';
-
-            // logo header
-            if (!empty($logoURL)) $statementTable .= '<tr><td colspan="3" style="text-align:right"><img src="'.$logoURL.'" alt="'.$bizName.'" style="max-width:200px;max-height:140px" /></td></tr>';
-
-
-            // title
-            $statementTable .= '<tr><td colspan="3"><h2 class="zbs-statement">'.__('STATEMENT','zero-bs-crm').'</h2></td></tr>';
-
-
-            // address | dates | biz deets line
-            $statementTable .= '<tr>';
-
-                // contact address
-
-                    // get co addr
-                    $coAddr = '';
-                        // v3.0
-                        $contactDetails = $zbs->DAL->contacts->getContact($contactID,array(
-                            'withCustomFields'  => true,
-                            // anything else?
-                            'withQuotes'        => false,
-                            'withInvoices'      => false,
-                            'withTransactions'  => false,
-                            'withLogs'          => false,
-                            'withLastLog'       => false,
-                            'withTags'          => false,
-                            'withCompanies'     => false,
-                            'withOwner'         => false,
-                            'withValues'        => false
-                        ));
-                    if (is_array($contactDetails) && isset($contactDetails['fname'])){
-                        $invoice_customer_info_table_html = '<div class="zbs-line-info zbs-line-info-title">'.$contactDetails['fname'].' ' .$contactDetails['lname'] . '</div>';
-                        if (isset($contactDetails['addr1']) && !empty($contactDetails['addr1'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$contactDetails['addr1'].'</div>';
-                        if (isset($contactDetails['addr2']) && !empty($contactDetails['addr2'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$contactDetails['addr2'].'</div>';
-                        if (isset($contactDetails['city']) && !empty($contactDetails['city'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$contactDetails['city'].'</div>';
-                        if (isset($contactDetails['county']) && !empty($contactDetails['county'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$contactDetails['county'].'</div>';
-                        if (isset($contactDetails['postcode']) && !empty($contactDetails['postcode'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$contactDetails['postcode'].'</div>';
-                    }
-
-                    // add
-                    $statementTable .= '<td><div style="text-align:left">'.$invoice_customer_info_table_html.'</div></td>';
-
-                // Dates
-                $statementTable .= '<td>';
-                    $statementTable .= '<div class="zbs-statement-date"><strong>'.__('Statement Date','zero-bs-crm').'</strong><br />'.zeroBSCRM_locale_utsToDate(time()).'</div>';
-                    // VAT NUMBER? Not req. in quote of 23/10/2018 $statementTable .= '<div class=""><strong>'.__('Statement Date','zero-bs-crm').'<strong><br />'.zeroBSCRM_locale_utsToDate(time()).'</div>';
-                $statementTable .= '</td>';
+// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+function zeroBSCRM_invoicing_generateStatementHTML_v3( $contact_id = -1, $return = true, $templated_html = '' ) {
+
+	if ( $contact_id > 0 && $templated_html !== '' ) {
+
+		global $zbs;
+
+		// Globals
+		$biz_name          = zeroBSCRM_getSetting( 'businessname' );
+		$biz_contact_name  = zeroBSCRM_getSetting( 'businessyourname' );
+		$biz_contact_email = zeroBSCRM_getSetting( 'businessyouremail' );
+		$biz_url           = zeroBSCRM_getSetting( 'businessyoururl' );
+		$biz_extra         = zeroBSCRM_getSetting( 'businessextra' );
+		$biz_tel           = zeroBSCRM_getSetting( 'businesstel' );
+		$statement_extra   = zeroBSCRM_getSetting( 'statementextra' );
+		$logo_url          = zeroBSCRM_getSetting( 'invoicelogourl' );
+
+		// invoices
+		$invoices = $zbs->DAL->invoices->getInvoices( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+
+				'assignedContact'  => $contact_id, // assigned to contact id (int)
+				'assignedCompany'  => false, // assigned to company id (int)
+
+				// returns
+				'withLineItems'    => true,
+				'withCustomFields' => true,
+				'withTransactions' => true, // partials
+				'withTags'         => false,
+
+				// sort
+				'sortByField'      => 'ID',
+				'sortOrder'        => 'ASC',
+
+			)
+		);
+
+		// statement table wrapper
+		$statement_table = '<table id="zbs-statement-table" border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;background-color:#FFF;width:100%;">';
+
+		// logo header
+		if ( ! empty( $logo_url ) ) {
+			$statement_table .= '<tr><td colspan="3" style="text-align:right"><img src="' . esc_url( $logo_url ) . '" alt="' . esc_attr( $biz_name ) . '" style="max-width:200px;max-height:140px" /></td></tr>';
+		}
+
+		// title
+		$statement_table .= '<tr><td colspan="3"><h2 class="zbs-statement">' . esc_html__( 'STATEMENT', 'zero-bs-crm' ) . '</h2></td></tr>';
+
+		// address | dates | biz deets line
+		$statement_table .= '<tr>';
+
+		// contact address
+
+		// v3.0
+		$contact_details = $zbs->DAL->contacts->getContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$contact_id,
+			array(
+				'withCustomFields' => true,
+				'withQuotes'       => false,
+				'withInvoices'     => false,
+				'withTransactions' => false,
+				'withLogs'         => false,
+				'withLastLog'      => false,
+				'withTags'         => false,
+				'withCompanies'    => false,
+				'withOwner'        => false,
+				'withValues'       => false,
+			)
+		);
+		if ( is_array( $contact_details ) && isset( $contact_details['fname'] ) ) {
+			$invoice_customer_info_table_html = '<div class="zbs-line-info zbs-line-info-title">' . esc_html( $contact_details['fname'] ) . ' ' . esc_html( $contact_details['lname'] ) . '</div>';
+			if ( isset( $contact_details['addr1'] ) && ! empty( $contact_details['addr1'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['addr1'] ) . '</div>';
+			}
+			if ( isset( $contact_details['addr2'] ) && ! empty( $contact_details['addr2'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['addr2'] ) . '</div>';
+			}
+			if ( isset( $contact_details['city'] ) && ! empty( $contact_details['city'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['city'] ) . '</div>';
+			}
+			if ( isset( $contact_details['county'] ) && ! empty( $contact_details['county'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['county'] ) . '</div>';
+			}
+			if ( isset( $contact_details['postcode'] ) && ! empty( $contact_details['postcode'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $contact_details['postcode'] ) . '</div>';
+			}
+		}
+
+		// add
+		$statement_table .= '<td><div style="text-align:left">' . $invoice_customer_info_table_html . '</div></td>';
+
+		// Dates
+		$statement_table .= '<td>';
+		$statement_table .= '<div class="zbs-statement-date"><strong>' . esc_html__( 'Statement Date', 'zero-bs-crm' ) . '</strong><br />' . esc_html( zeroBSCRM_locale_utsToDate( time() ) ) . '</div>';
+		$statement_table .= '</td>';
+
+		// Biz deets
+
+		// get biz deets
+		$biz_info_table = '<div class="zbs-line-info zbs-line-info-title">' . esc_html( $biz_name ) . '</div>';
+		if ( ! empty( $biz_contact_name ) ) {
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $biz_contact_name ) . '</div>';
+		}
+		if ( ! empty( $biz_extra ) ) {
+			$biz_info_table .= '<div class="zbs-line-info">' . nl2br( esc_html( $biz_extra ) ) . '</div>';
+		}
+		if ( ! empty( $biz_contact_email ) ) {
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $biz_contact_email ) . '</div>';
+		}
+		if ( ! empty( $biz_url ) ) {
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $biz_url ) . '</div>';
+		}
+		if ( ! empty( $biz_tel ) ) {
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $biz_tel ) . '</div>';
+		}
+
+		// add
+		$statement_table .= '<td><div class="zbs-biz-info">' . $biz_info_table . '</div></td>';
 
-                // Biz deets
+		$statement_table .= '</tr>';
 
-                    // get biz deets
-                    $bizInfoTable = '<div class="zbs-line-info zbs-line-info-title">'.$bizName.'</div>';
-                    if (!empty($bizContactName)) $bizInfoTable .= '<div class="zbs-line-info">'.$bizContactName.'</div>';
-                    if (!empty($bizExtra)) $bizInfoTable .= '<div class="zbs-line-info">'.zeroBSCRM_textExpose(nl2br($bizExtra)).'</div>';
-                    if (!empty($bizContactEmail)) $bizInfoTable .= '<div class="zbs-line-info">'.$bizContactEmail.'</div>';
-                    if (!empty($bizURL)) $bizInfoTable .= '<div class="zbs-line-info">'.$bizURL.'</div>';
-                    if (!empty($bizTel)) $bizInfoTable .= '<div class="zbs-line-info">'.$bizTel.'</div>';
-
-                    // add
-                    $statementTable .= '<td><div class="zbs-biz-info">'.$bizInfoTable.'</div></td>';
+		// STATEMENT table
+
+		// start
+		$s_table = '<table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;background-color:#FFF;width:100%">';
+
+		// header
+		$s_table .= '<tr><th cellpadding="0" cellspacing="0" >' . esc_html__( 'Date', 'zero-bs-crm' ) . '</th>';
+		$s_table .= '<th cellpadding="0" cellspacing="0" >' . esc_html( $zbs->settings->get( 'reflabel' ) ) . '</th>';
+		$s_table .= '<th cellpadding="0" cellspacing="0" >' . esc_html__( 'Due date', 'zero-bs-crm' ) . '</th>';
+		$s_table .= '<th class="zbs-accountant-td" style="text-align:right">' . esc_html__( 'Amount', 'zero-bs-crm' ) . '</th>';
+		$s_table .= '<th class="zbs-accountant-td" style="text-align:right">' . esc_html__( 'Payments', 'zero-bs-crm' ) . '</th>';
+		$s_table .= '<th class="zbs-accountant-td" style="text-align:right">' . esc_html__( 'Balance', 'zero-bs-crm' ) . '</th></tr>';
+
+		// should be all of em so can do 'outstanding balance' from this
+		$balance_due = 0.00;
+
+		// rows. (all invs for this contact)
+		if ( is_array( $invoices ) && count( $invoices ) > 0 ) {
+
+			foreach ( $invoices as $invoice ) {
+
+				// number
+				$invoice_reference = $invoice['id'];
+				if ( isset( $invoice['id_override'] ) && ! empty( $invoice['id_override'] ) ) {
+					$invoice_reference = $invoice['id_override'];
+				}
+
+				// date
+				$invoice_date = $invoice['date_date'];
+
+				// due
+				if ( $invoice['due_date'] <= 0 ) {
+
+					//no due date;
+					$due_date_str = __( 'No due date', 'zero-bs-crm' );
 
-            $statementTable .= '</tr>';
+				} else {
 
-        // STATEMENT table
+					$due_date_str = $invoice['due_date_date'];
 
-            // start
-            $sTable = '<table border="0" cellpadding="0" cellspacing="0" class="body" style="border-collapse:collapse;mso-table-lspace:0pt;mso-table-rspace:0pt;background-color:#FFF;width:100%">';
+					// is it due?
+					if ( zeroBSCRM_invoiceBuilder_isInvoiceDue( $invoice ) ) {
+						$due_date_str .= ' [' . esc_html__( 'Due', 'zero-bs-crm' ) . ']';
+					}
+				}
 
-                // header
-                $sTable .= '<tr><th cellpadding="0" cellspacing="0" >'.__('Date','zero-bs-crm').'</th>';
-                $sTable .= '<th cellpadding="0" cellspacing="0" >' . $zbs->settings->get('reflabel') . '</th>';
-                $sTable .= '<th cellpadding="0" cellspacing="0" >'.__('Due date','zero-bs-crm').'</th>';
-                $sTable .= '<th class="zbs-accountant-td" style="text-align:right">'.__('Amount','zero-bs-crm').'</th>';
-                $sTable .= '<th class="zbs-accountant-td" style="text-align:right">'.__('Payments','zero-bs-crm').'</th>';
-                $sTable .= '<th class="zbs-accountant-td" style="text-align:right">'.__('Balance','zero-bs-crm').'</th></tr>';
+				// partials = transactions associated in v3.0 model
+				$partials = $invoice['transactions'];
 
-                // should be all of em so can do 'outstanding balance' from this
-                $balanceDue = 0.00;
+				// ================= / DATA RETRIEVAL ===================================
 
-                // rows. (all invs for this contact)
-                if (is_array($invoices) && count($invoices) > 0){
+				// total etc.
+				$total    = 0.00;
+				$payments = 0.00;
+				$balance  = 0.00;
+				if ( isset( $invoice['total'] ) && $invoice['total'] > 0 ) {
+					$total   = $invoice['total'];
+					$balance = $total;
+				}
 
-                    foreach ($invoices as $invoice){
+				// 2 ways here - if marked 'paid', then assume balance
+				// ... if not, then trans allocation check
+				if ( isset( $invoice['status'] ) && $invoice['status'] === __( 'Paid', 'zero-bs-crm' ) ) {
 
-                            // number
-                            $invoiceReference = $invoice['id'];
-                            if (isset($invoice['id_override']) && !empty($invoice['id_override'])) {
-                                $invoiceReference = $invoice['id_override'];
-                            }
+					// assume fully paid
+					$balance  = 0.00;
+					$payments = $total;
 
-                            // date
-                            $invoiceDate = $invoice['date_date'];
+				} elseif ( is_array( $partials ) ) {
 
-                            // due
-                            if ($invoice['due_date'] <= 0){
-                                
-                                //no due date;
-                                $dueDateStr = __("No due date", "zero-bs-crm");
+					foreach ( $partials as $partial ) {
 
-                            } else {
+						// ignore if status_bool (non-completed status)
+						$partial['status_bool'] = (int) $partial['status_bool'];
+						if ( isset( $partial ) && $partial['status_bool'] == 1 && isset( $partial['total'] ) && $partial['total'] > 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
 
-                                $dueDateStr = $invoice['due_date_date'];
+							// v3.0+ has + or - partials. Account for that:
+							if ( $partial['type_accounting'] === 'credit' ) {
 
-                                // is it due?
-                                if (zeroBSCRM_invoiceBuilder_isInvoiceDue($invoice)) $dueDateStr .= ' ['.__('Due','zero-bs-crm').']';
-                            
-                            }
+								// credit note, or refund
+								$balance = $balance + $partial['total'];
+								// add to payments
+								$payments += $partial['total'];
 
-                            // status
-                            if (!isset($invoice['status'])) 
-                                $zbs_stat = __('Draft','zero-bs-crm');
-                            else
-                                $zbs_stat = $invoice['status'];     
+							} else {
 
-                            // inv lines
-                            $invlines = $invoice['lineitems'];
+								// assume debit
+								$balance = $balance - $partial['total'];
 
-                            // is this stored same format?
-                            $zbsInvoiceHorQ = $invoice['hours_or_quantity'];
+								// add to payments
+								$payments += $partial['total'];
+							}
+						}
+					} // /foreach
 
-                            // partials = transactions associated in v3.0 model
-                            $partials = $invoice['transactions'];
+				} // if is array
 
-                            // ================= / DATA RETRIEVAL ===================================
+				// now we add any outstanding bal to the total bal for table
+				if ( $balance > 0 ) {
+					$balance_due += $balance;
+				}
 
+				// output
+				$s_table .= '<tr><td>' . esc_html( $invoice_date ) . '</td>';
+				$s_table .= '<td>' . esc_html( $invoice_reference ) . '</td>';
+				$s_table .= '<td>' . esc_html( $due_date_str ) . '</td>';
+				$s_table .= '<td class="zbs-accountant-td">' . esc_html( zeroBSCRM_formatCurrency( $total ) ) . '</td>';
+				$s_table .= '<td class="zbs-accountant-td">' . esc_html( zeroBSCRM_formatCurrency( $payments ) ) . '</td>';
+				$s_table .= '<td class="zbs-accountant-td">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</td></tr>';
+			}
+		} else {
 
-                        // total etc.
-                        $total = 0.00; $payments = 0.00; $balance = 0.00;
-                        if (isset($invoice['total']) && $invoice['total'] > 0) {
-                            $total = $invoice['total'];
-                            $balance = $total;
-                        }
+			// No invoices?
+			$s_table .= '<tr><td colspan="6" style="text-align:center;font-size:14px;font-weight:bold;padding:2em">' . esc_html__( 'No Activity', 'zero-bs-crm' ) . '</td></tr>';
+		}
 
-                        // 2 ways here - if marked 'paid', then assume balance
-                        // ... if not, then trans allocation check
-                        if (isset($invoice['status']) && $invoice['status'] == __('Paid','zero-bs-crm')) {
+		// footer
+		$s_table .= '<tr class="zbs-statement-footer"><td colspan="6">' . esc_html__( 'BALANCE DUE', 'zero-bs-crm' ) . ' ' . esc_html( zeroBSCRM_formatCurrency( $balance_due ) ) . '</td></tr>';
 
-                            // assume fully paid
-                            $balance = 0.00;
-                            $payments = $total;
+		// close table
+		$s_table .= '</table>';
 
-                        } else {
+		// add
+		$statement_table .= '<tr><td colspan="3">' . $s_table . '</td></tr>';
 
-                            // cycle through partial trans + calc
-                            if (is_array($partials)){
+		// Extra Info
+		$statement_table .= '<tr><td colspan="3" style="text-align:left;padding: 30px;">' . nl2br( esc_html( $statement_extra ) ) . '</td></tr>';
 
-                                foreach ($partials as $partial){ 
+		// close table
+		$statement_table .= '</table>';
 
-                                    // ignore if status_bool (non-completed status)
-                                    $partial['status_bool'] = (int)$partial['status_bool'];
-                                    if (isset($partial) && $partial['status_bool'] == 1 && isset($partial['total']) && $partial['total'] > 0){
+		// load templating
+		$placeholder_templating = $zbs->get_templating();
 
-                                        // v3.0+ has + or - partials. Account for that:
-                                        if ($partial['type_accounting'] == 'credit'){
-                                            
-                                            // credit note, or refund
-                                            $balance = $balance + $partial['total'];
-                                            // add to payments
-                                            $payments += $partial['total'];  
+		// main content build
+		$html = $placeholder_templating->replace_single_placeholder( 'invoice-statement-html', $statement_table, $templated_html );
 
-                                        } else {
+		// return
+		if ( ! $return ) {
 
-                                            // assume debit
-                                            $balance = $balance - $partial['total']; 
+			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			exit();
 
-                                            // add to payments
-                                            $payments += $partial['total'];
-                                        }
-                                
-                                    }
+		}
 
-                                } // /foreach 
+		return $html;
 
-                            } // if is array
+	} // /if anything
 
-                        }
-
-                        // now we add any outstanding bal to the total bal for table
-                        if ($balance > 0) $balanceDue += $balance;
-
-
-                        // output
-                        $sTable .= '<tr><td>'.$invoiceDate.'</td>';
-                        $sTable .= '<td>'.$invoiceReference.'</td>';
-                        $sTable .= '<td>'.$dueDateStr.'</td>';
-                        $sTable .= '<td class="zbs-accountant-td">'.zeroBSCRM_formatCurrency($total).'</td>';
-                        $sTable .= '<td class="zbs-accountant-td">'.zeroBSCRM_formatCurrency($payments).'</td>';
-                        $sTable .= '<td class="zbs-accountant-td">'.zeroBSCRM_formatCurrency($balance).'</td></tr>';
-
-
-                    }
-                
-                } else {
-
-                    // No invoices?           
-                    $sTable .= '<tr><td colspan="6" style="text-align:center;font-size:14px;font-weight:bold;padding:2em">'.__('No Activity','zero-bs-crm').'</td></tr>';
-
-                }
-
-
-                // footer                  
-                $sTable .= '<tr class="zbs-statement-footer"><td colspan="6">'.__('BALANCE DUE','zero-bs-crm').' '.zeroBSCRM_formatCurrency($balanceDue).'</td></tr>';
-
-
-            // close table
-            $sTable .= '</table>';
-
-            // add
-            $statementTable .= '<tr><td colspan="3">'.$sTable.'</td></tr>';
-
-
-        // Extra Info
-        $statementTable .= '<tr><td colspan="3" style="text-align:left;padding: 30px;">'.zeroBSCRM_textExpose(nl2br($statementExtra)).'</td></tr>';
-
-        // close table
-        $statementTable .= '</table>';
-
-        // load templating
-        $placeholder_templating = $zbs->get_templating();
-
-        // main content build
-        $html = $placeholder_templating->replace_single_placeholder( 'invoice-statement-html', $statementTable, $templatedHTML );
-
-        // return
-        if ( !$return ){
-            
-            echo $html; 
-            exit(); 
-            
-        }
-
-        return $html;
-
-    } // /if anything
-
-    return false;
+	return false;
 }
 
-
-// Generate an invoice as html (where the actual holder-html is passed)
-// ... this is a refactor of what was being replicated 3 places 
-// ... 1) Invoice PDF Gen (zeroBSCRM_invoice_generateInvoiceHTML)
-// ... 2) Invoice Portal Gen (zeroBSCRM_invoice_generatePortalInvoiceHTML)
-// ... 3) Invoice email notification Gen (zeroBSCRM_invoice_generateNotificationHTML in mail-templating.php)
-// ... now the generic element of the above are all wired through here :) 
-// Note:
-// $template is crucial. pdf | portal | notification *currently v3.0
-function zeroBSCRM_invoicing_generateInvoiceHTML($invoiceID=-1,$template='pdf',$html=''){
-
-    global $zbs;
-
-    // load templating
-    $placeholder_templating = $zbs->get_templating();
-
-    // need this.
-    if ($invoiceID <= 0 || $html == '') return '';
-
-    // for v3.0 WH split out the data-retrieval from scattering amongst this func, unified here:
-    // translated the below cpt way into dal / v3.0:
-
-    // ================== DATA RETRIEVAL ===================================
-
-    $invoice = $zbs->DAL->invoices->getInvoice($invoiceID,array(
-
-        // we want all this:
-        'withLineItems'     => true,
-        'withCustomFields'  => true,
-        'withTransactions'  => true, // gets trans associated with inv as well
-        'withAssigned'      => true, // return ['contact'] & ['company'] objs if has link
-        'withTags'          => true,
-        'withOwner'         => true,
-        'withTotals'        => true
-
-    ));
-
-    #} retrieve
-    $zbsCustomerID = -1; if (is_array($invoice) && isset($invoice['contact']) && is_array($invoice['contact']) && count($invoice['contact']) > 0) $zbsCustomerID = $invoice['contact'][0]['id'];
-    $zbsCompanyID = -1;  if (is_array($invoice) && isset($invoice['company']) && is_array($invoice['company']) && count($invoice['company']) > 0) $zbsCompanyID = $invoice['company'][0]['id'];                
-
-    // date
-        // can use this: (04/16/2019)
-        //$invDateStr = $invoice['date_date'];
-        // or this (for WP format):
-        $invDateStr = jpcrm_uts_to_date_str( $invoice['date'] );
-    
-
-    // due
-    if ($invoice['due_date'] <= 0){
-        
-        //no due date;
-        $dueDateStr = __("No due date", "zero-bs-crm");
-
-    } else {
-
-        // can use this: (04/16/2019)
-        //$dueDateStr = $invoice['due_date_date'];
-        // or this (for WP format):
-        $dueDateStr = jpcrm_uts_to_date_str( $invoice['due_date'] );
-    }
-
-    // Custom fields
-    $invoice_custom_fields_html = jpcrm_invoicing_generate_invoice_custom_fields_lines( $invoice, $template );
-
-    // status
-    if (!isset($invoice['status'])) 
-        $zbs_stat = __('Draft','zero-bs-crm');
-    else
-        $zbs_stat = $invoice['status'];     
-
-    // status html:
-    if ( $template == 'portal' ){
-
-        // portal version: Includes status label and amount (shown at top of portal invoice)
-        $topStatus = '<div class="zbs-portal-label">';
-        $topStatus .= $zbs_stat;
-        $topStatus .= '</div>';
-        // WH added quickly to get around fact this is sometimes empty, please tidy when you address currency formatting :)
-        $invGTotal = ''; if (isset($invoice["total"])) $invGTotal = zeroBSCRM_formatCurrency($invoice["total"]);
-        $topStatus .= '<h1 class="zbs-portal-value">' . $invGTotal . '</h1>';
-        if ($zbs_stat == __('Paid','zero-bs-crm')){
-            $topStatus .= '<div class="zbs-invoice-paid"><i class="fa fa-check"></i>' . esc_html__("Paid",'zero-bs-crm') . '</div>';
-        }
-
-    } elseif ( $template == 'pdf' ){
-
-        // pdf status
-        if ( $zbs_stat == __( 'Paid', 'zero-bs-crm' ) ){
-            
-            $topStatus = '<div class="jpcrm-invoice-status jpcrm-invoice-paid">' . esc_html__( 'Paid', 'zero-bs-crm' ) . '</div>';
-
-        } else {
-
-            $topStatus = '<div class="jpcrm-invoice-status">' . esc_html( $zbs_stat ) . '</div>';
-
-        }
-    }
-
-    // inv lines
-    $invlines = $invoice['lineitems'];
-
-    #} SET all new invoices to unpaid
-    if (
-        #} Not set, but inv exists
-        (isset($invoice) && is_array($invoice) && (!isset($invoice['status']) || empty($invoice['status']))) ||
-        #} No inv exists
-        (!isset($invoice) || !is_array($invoice))
-        ) $invoice['status'] = __('Draft','zero-bs-crm');   //moved to draft. Unpaid will be set once the invoice has been sent. 
-
-
-    // switch for Company if set...
-    // v3.0 changes this if(isset($invoice['add_com_con']) && $invoice['add_com_con'] == 'com'){
-    if ($zbsCompanyID > 0){
-
-        $invTo = zeroBS_getCompany($zbsCompanyID);
-        if (is_array($invTo) && (isset($invTo['name']) || isset($invTo['coname']))){
-
-            if (isset($invTo['name']))      $invTo['fname'] = $invTo['name']; // DAL3
-            if (isset($invTo['coname']))    $invTo['fname'] = $invTo['coname']; // DAL2
-            $invTo['lname'] = '';
-
-        } else {
-
-            $invTo = array('fname' => '', 'lname' => '');
-        }
-
-        // object type flag used downstream, I wonder if we should put these in at the DAL level..
-        $invTo['objtype'] = ZBS_TYPE_COMPANY;
-
-    } else {
-
-        $invTo = $zbs->DAL->contacts->getContact($zbsCustomerID);
-
-        // object type flag used downstream, I wonder if we should put these in at the DAL level..
-        $invTo['objtype'] = ZBS_TYPE_CONTACT;
-
-    }
-
-    // is this stored same format?
-    $zbsInvoiceHorQ = $invoice['hours_or_quantity'];
-
-    // partials = transactions associated in v3.0 model
-    $partials = $invoice['transactions'];
-
-    // ================= / DATA RETRIEVAL ===================================
-
-
-
-    // ================= CONTENT BUILDING ===================================
-
-    #} Globals
-    $currencyChar = zeroBSCRM_getCurrencyChr();
-    global $zbs; $invsettings = $zbs->settings->getAll();
-    $b2b = zeroBSCRM_getSetting('companylevelcustomers');
-    $allowInvNoChange = zeroBSCRM_getSetting('invallowoverride');
-    global $zbsCustomerInvoiceFields, $zbs;
-    $fields = $zbsCustomerInvoiceFields;
-    $cssURL = ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.invoicepreview'.wp_scripts_get_suffix().'.css';
-    $ref_label = $zbs->settings->get('reflabel');
-
-    #} Mikes previous invoice.php worked into vars:
-
-        //default logo?
-        $logoURL = '';
-        if (isset($invoice['logo_url'])){
-            
-            if (isset($invoice['logo_url'])) $logoURL = $invoice['logo_url'];
-
-        }else{
-
-            //check for default
-            if(isset($invsettings['invoicelogourl']) && $invsettings['invoicelogourl'] != ''){
-                $logoURL = $invsettings['invoicelogourl'];
-            }
-
-        }
-
-
-        if($logoURL != '' && isset($invoice['logo_url'])){
-            $logoClass = 'show';
-            #not used? $logo_s = 'hide';
-            $logoURL = $invoice['logo_url'];
-            $bizInfoClass = '';
-        }else{
-            $logoClass = '';
-            #not used? $logo_s = '';
-            $logoURL = '';
-            $bizInfoClass = 'biz-up';
-        }
-
-
-        // Invoice Number or Reference     
-        // Reference, falling back to ID   
-        $invIDStyles = ''; $invRefStyles = 'display:none;'; // none initially
-
-            // ID
-            $thisInvReference = $invoice['id']; 
-
-            // ID - Portal
-            if ($template == 'portal') $thisInvReference = __('Invoice #','zero-bs-crm').' '.$thisInvReference;
-            
-            // Reference
-            if (isset($invoice['id_override']) && !empty($invoice['id_override'])) {
-                
-                // Ref
-                $thisInvReference = $invoice['id_override'];
-
-                // Ref - Portal
-                if ($template == 'portal') $thisInvReference = $ref_label . ' ' . $thisInvReference;
-                
-                // and we don't show ID, do show ref label:
-                $invIDStyles = 'display:none;'; $invRefStyles = '';
-
-            }
-
-            // replacement str
-            $invNoStr = $thisInvReference;
-
-            // Portal
-            if ($template == 'portal') $invNoStr = '<div class="zbs-normal">'.$thisInvReference.'</div>';
-            
-
-             
-
-        // == Build biz info table.
-
-        $bizInfoTable = '';
-
-        //the business info from the settings
-        $zbs_biz_name =  zeroBSCRM_getSetting('businessname');
-        $zbs_biz_yourname =  zeroBSCRM_getSetting('businessyourname');
-
-        $zbs_biz_extra =  zeroBSCRM_getSetting('businessextra');
-
-        $zbs_biz_youremail =  zeroBSCRM_getSetting('businessyouremail');
-        $zbs_biz_yoururl =  zeroBSCRM_getSetting('businessyoururl');
-        $zbs_settings_slug = admin_url("admin.php?page=" . $zbs->slugs['settings']) . "&tab=invbuilder";
-        
-        // generate a templated biz info table
-        $bizInfoTable = zeroBSCRM_invoicing_generateInvPart_bizTable(array(
-
-                'zbs_biz_name' => $zbs_biz_name,
-                'zbs_biz_yourname' => $zbs_biz_yourname,
-                'zbs_biz_extra' => $zbs_biz_extra,
-                'zbs_biz_youremail' => $zbs_biz_youremail,
-                'zbs_biz_yoururl' => $zbs_biz_yoururl,
-
-                'template' => $template
-
-            ));
-
-        // generate a templated customer info table
-        $invoice_customer_info_table_html = zeroBSCRM_invoicing_generateInvPart_custTable($invTo,$template);
-
-
-        // == Lineitem table > Column headers
-        // generate a templated customer info table
-        $tableHeaders = zeroBSCRM_invoicing_generateInvPart_tableHeaders($zbsInvoiceHorQ,$template);
-     
-        // == Lineitem table > Line items            
-        // generate a templated lineitems
-        $lineItems = zeroBSCRM_invoicing_generateInvPart_lineitems($invlines,$template);
-
-
-        // == Lineitem table > Totals
-        // due to withTotals parameter on get above, we now don't need ot calc anything here, just expose
-        $totalsTable = '';
-
-            $totalsTable .= '<table id="invoice_totals" class="table-totals zebra" style="width: 100%;"><tbody>';
-                if($invsettings['invtax'] != 0 || $invsettings['invpandp'] != 0 || $invsettings['invdis'] != 0 ){
-                    $totalsTable .= '<tr class="total-top">';
-                        $totalsTable .= '<td  class="bord bord-l" style="text-align:right; width: 80%; text-transform: uppercase;">'.__("Subtotal","zero-bs-crm").'</td>';
-                        $totalsTable .= '<td class="bord row-amount" class="bord" style="text-align:right; "><span class="zbs-totals">';
-                            if(isset($invoice["net"]) && !empty($invoice["net"])){ $totalsTable .= zeroBSCRM_formatCurrency($invoice["net"]); }else{ $totalsTable .= zeroBSCRM_formatCurrency(0); } 
-                        $totalsTable .= '</span></td>';
-                    $totalsTable .= '</tr>';
-                }
-
-
-                // discount
-                if (isset($invoice["discount"]) && !empty($invoice["discount"])) {
-
-                    if ($invsettings['invdis'] == 1 && isset($invoice['totals']) && is_array($invoice['totals']) && isset($invoice['totals']['discount'])){
-                        $invoice_percent = '';
-                        if ( $invoice['discount_type'] == '%' && $invoice['discount'] != 0 ) {
-                            $invoice_percent = (float)$invoice['discount'] . '% ';
-                        }
-                        $totalsTable .= '<tr class="discount">
-                            <td class="bord bord-l" style="text-align:right; text-transform: uppercase;">'.$invoice_percent.__("Discount","zero-bs-crm").'</td>
-                            <td class="bord row-amount" id="zbs_discount_combi" style="text-align:right"><span class="zbs-totals">';
-
-                                $totalsTable .= '-'.zeroBSCRM_formatCurrency($invoice['totals']['discount']);
-
-                            $totalsTable .= '</td>';
-                        $totalsTable .= '</tr>';
-                    }
-                }
-
-                // shipping
-                if ($invsettings['invpandp'] == 1){ 
-                    $totalsTable .= '<tr class="postage_and_pack">
-                    <td class="bord bord-l" style="text-align:right; text-transform: uppercase;">'.__("Postage and packaging","zero-bs-crm").'</td>
-                    <td class="bord row-amount" id="pandptotal" style="text-align:right;"><span class="zbs-totals">';
-                            if(isset($invoice["shipping"]) && !empty($invoice["shipping"])){ $totalsTable .= zeroBSCRM_formatCurrency($invoice["shipping"]); }else{ $totalsTable .= zeroBSCRM_formatCurrency(0); }
-                        $totalsTable .= '</td>';
-                    $totalsTable .= '</tr>';
-                }
-
-
-                // tax
-                if ($invsettings['invtax'] == 1){
-                            
-                            // this output's tax in 1 number
-                            //if(isset($invoice["tax"]) && !empty($invoice["tax"])){ $totalsTable .= zeroBSCRM_formatCurrency($invoice["tax"]); }else{ $totalsTable .= zeroBSCRM_formatCurrency(0); }
-                            // ... but local taxes need splitting, so recalc & display by lineitems.
-                            $taxLines = false; if (isset($invoice['totals']) && is_array($invoice['totals']) && isset($invoice['totals']['taxes'])){
-
-                                // now calc'd in DAL
-                                $taxLines = $invoice['totals']['taxes'];
-
-                            }
-
-                            if (isset($taxLines) && is_array($taxLines) && count($taxLines) > 0) {
-
-                                foreach ($taxLines as $tax){
-
-                                    $taxName = __("Tax","zero-bs-crm");
-                                    if (isset($tax['name'])) $taxName = $tax['name'];
-
-                                    $totalsTable .= '<tr class="ttclass">
-                                        <td class="bord bord-l" style="text-align:right">'.$taxName.'</td>
-                                        <td class="bord bord-l row-amount zbs-tax-total-span" style="text-align:right"><span class="zbs-totals">';
-                                        if(isset($tax["value"]) && !empty($tax["value"])){ $totalsTable .= zeroBSCRM_formatCurrency($tax["value"]); }else{ $totalsTable .= zeroBSCRM_formatCurrency(0); }
-                                        $totalsTable .= '</td>';
-                                    $totalsTable .= '</tr>';
-
-                                }
-
-                            } else {
-
-                                // simple fallback
-                                $totalsTable .= '<tr class="ttclass">
-                                    <td class="bord bord-l" style="text-align:right">'.__("Tax","zero-bs-crm").'</td>
-                                    <td class="bord bord-l row-amount zbs-tax-total-span" style="text-align:right"><span class="zbs-totals">';
-                                    if(isset($invoice["tax"]) && !empty($invoice["tax"])){ $totalsTable .= zeroBSCRM_formatCurrency($invoice["tax"]); }else{ $totalsTable .= zeroBSCRM_formatCurrency(0); }
-                                    $totalsTable .= '</td>';
-                                $totalsTable .= '</tr>';
-                            }
-
-                } 
-
-                $totalsTable .= '<tr class="zbs_grand_total" style="line-height:30px;">
-                <td class="bord-l"  style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-total">'.__("Total","zero-bs-crm").'</span></td>
-                <td class="row-amount" style="text-align:right; font-weight:bold; border: 3px double #111!important; "><span class="zbs-total">';
-                        if(isset($invoice["total"]) && !empty($invoice["total"])){ $totalsTable .= zeroBSCRM_formatCurrency($invoice["total"]); }else{ $totalsTable .= zeroBSCRM_formatCurrency(0); } 
-                    $totalsTable .= '</span></td>';
-                $totalsTable .= '</tr>';
-
-            $totalsTable .= '</table>';
-
-            // == Partials (Transactions against Invs)
-            $partialsTable = '';
-
-                if ($invoice["total"] == 0){
-                   $partialsTable .= '<table id="partials" class="hide table-totals zebra">';
-                } else {
-                    $partialsTable .= '<table id="partials" class="table-totals zebra">';
-                }
-
-                $balance = $invoice["total"];
-
-                if (is_array($partials) && count($partials) > 0){
-
-                    // header
-                    $partialsTable .= '<tr><td colspan="2" style="text-align:center;font-weight:bold;  border-radius: 0px;"><span class="zbs-total">'.__('Payments','zero-bs-crm').'</span></td></tr>';
-
-                    $subtotalhide = '';
-                    foreach ($partials as $partial){ 
-
-                        // ignore if status_bool (non-completed status)
-                        $partial['status_bool'] = (int)$partial['status_bool'];
-                        if (isset($partial) && $partial['status_bool'] == 1){
-
-                            // v3.0+ has + or - partials. Account for that:
-                            if ($partial['type_accounting'] == 'credit')
-                                // credit note, or refund
-                                $balance = $balance + $partial['total'];                
-                            else
-                                // assume debit
-                                $balance = $balance - $partial['total'];                
-
-                            $partialsTable .= '<tr class="total-top '.$subtotalhide.'">';
-                                $partialsTable .= '<td class="bord bord-l" style="text-align:right">'.__("Payment","zero-bs-crm").'<br/>('.$partial['ref'].')</td>';
-                                $partialsTable .= '<td class="bord row-amount"><span class="zbs-partial-value">';
-                                    if(!empty($partial['total'])){ $partialsTable .=  zeroBSCRM_formatCurrency($partial['total']); }else{ $partialsTable .=  zeroBSCRM_formatCurrency(0); }
-                                $partialsTable .= '</span></td>';
-                            $partialsTable .= '</tr>';
-
-                        }
-                
-                    } 
-                }
-
-                if($balance == $invoice["total"])
-                    $balance_hide = 'hide';
-                else
-                    $balance_hide = '';
-
-                $partialsTable .= '<tr class="zbs_grand_total'.$balance_hide.'">';
-                    $partialsTable .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">'.__("Amount due","zero-bs-crm").'</td>';
-                    $partialsTable .= '<td class="bord row-amount"><span class="zbs-subtotal-value">'.zeroBSCRM_formatCurrency($balance).'</span></td>';
-                $partialsTable .= '</tr>';
-                $partialsTable .= '</table>';
-
-            
-            // generate a templated paybutton (depends on template :))
-            $potentialPayButton = zeroBSCRM_invoicing_generateInvPart_payButton($invoiceID,$zbs_stat,$template);
-
-            // == Payment terms, thanks etc. will only replace when present in template, so safe to generically check
-            $payThanks = '';
-            if ($zbs_stat == __('Paid','zero-bs-crm')) {
-                $payThanks = '<div class="deets"><h3>' . __("Thank You", "zero-bs-crm") . '</h3>';
-                    $payThanks .= '<div>'. nl2br(zeroBSCRM_getSetting('paythanks')) . '</div>';
-                $payThanks .= '</div>';
-            }
-            $payDeets = zeroBSCRM_getSetting('paymentinfo');            
-            $payDetails = '<div class="deets"><h2>' . __("Payment Details", "zero-bs-crm") . '</h2>';
-                    $payDetails .= '<div class="deets-line"><span class="deets-content">'.nl2br($payDeets).'</span></div>';
-                    $payDetails .= '<div class="deets-line"><span class="deets-title">' . __('Payment Reference:', "zero-bs-crm") . '</span> <span>' . $invNoStr . '</span></div>';
-                $payDetails .= '</div>';
-
-
-    #} == Template -> HTML build
-
-            // powered by
-            $powered_by = zeroBSCRM_mailTemplate_poweredByHTML();
-
-            $view_in_portal_link = '';
-            $view_in_portal_button = '';
-
-            // got portal?
-            if (zeroBSCRM_isExtensionInstalled('portal')){
-              $view_in_portal_link = zeroBSCRM_portal_linkObj($invoiceID,ZBS_TYPE_INVOICE); //zeroBS_portal_link('invoices',$invoiceID);
-              $view_in_portal_button = '<div style="text-align:center;margin:1em;margin-top:2em">'.zeroBSCRM_mailTemplate_emailSafeButton($view_in_portal_link,__('View Invoice','zero-bs-crm')).'</div>';
-            }
-
-            // build replacements array
-            $replacements = array(
-
-                // invoice specific
-                'invoice-title'                 => __('Invoice','zero-bs-crm'),
-                'css'                           => $cssURL,
-                'logo-class'                    => $logoClass,
-                'logo-url'                      => esc_url( $logoURL ),
-                'invoice-number'                => $invNoStr,
-                'invoice-date'                  => $invDateStr,
-                'invoice-id-styles'             => $invIDStyles,
-                'invoice-ref'                   => $invNoStr,
-                'invoice-ref-styles'            => $invRefStyles,
-                'invoice-due-date'              => $dueDateStr,
-                'invoice-custom-fields'         => $invoice_custom_fields_html,
-                'invoice-biz-class'             => $bizInfoClass,
-                'invoice-customer-info'         => $invoice_customer_info_table_html,
-                'invoice-html-status'           => $topStatus,
-                'invoice-table-headers'         => $tableHeaders,
-                'invoice-line-items'            => $lineItems,
-                'invoice-totals-table'          => $totalsTable,
-                'invoice-partials-table'        => $partialsTable,
-                'invoice-pay-button'            => $potentialPayButton,
-                'pre-invoice-payment-details'   => '',
-                'invoice-payment-details'       => $payDetails,
-                'invoice-pay-thanks'            => $payThanks,
-
-                // client portal
-                'portal-view-button'            => $view_in_portal_button,
-                'portal-link'                   => $view_in_portal_link,
-
-                // language
-                'invoice-label-inv-number'      => __( 'Invoice number', 'zero-bs-crm' ) . ':',
-                'invoice-label-inv-date'        => __( 'Invoice date', 'zero-bs-crm' ) . ':',
-                'invoice-label-inv-ref'         => $zbs->settings->get('reflabel'),
-                'invoice-label-status'          => __( 'Status:', 'zero-bs-crm' ),
-                'invoice-label-from'            => __( 'From', 'zero-bs-crm' ) . ':',
-                'invoice-label-to'              => __( 'To', 'zero-bs-crm' ) . ':',
-                'invoice-label-due-date'        => __( 'Due date', 'zero-bs-crm' ) . ':',
-                'invoice-pay-terms'             => __( 'Payment terms', 'zero-bs-crm' ) . ': ' . __( 'Due', 'zero-bs-crm' ) . ' ',
-
-                // global
-                'biz-info'                      => $bizInfoTable,
-                'powered-by'                    => $powered_by,
-
-            );
-
-            // Switch. If partials, put the payment deets on the left next to the partials,
-            // rather than in it's own line:
-            if ( !empty( $partialsTable )){
-
-                // partials, split to two columns
-                $replacements['pre-invoice-payment-details'] = $payDetails;
-                $replacements['invoice-payment-details'] = ''; 
-
-            }
-
-            // replace vars
-            $html = $placeholder_templating->replace_placeholders( array( 'invoice', 'global', 'contact', 'company' ), $html, $replacements, array( ZBS_TYPE_INVOICE => $invoice, $invTo['objtype'] => $invTo ) );
-
-    // ================= / CONTENT BUILDING =================================
-
-    return $html;
-
+// phpcs:ignore Squiz.Commenting.FunctionComment.MissingParamTag,Generic.Commenting.DocComment.MissingShort
+/**
+ *
+ * Generate an invoice as html (where the actual holder-html is passed)
+ * ... this is a refactor of what was being replicated 3 places
+ * ... 1) Invoice PDF Gen (zeroBSCRM_invoice_generateInvoiceHTML)
+ * ... 2) Invoice Portal Gen (zeroBSCRM_invoice_generatePortalInvoiceHTML)
+ * ... 3) Invoice email notification Gen (zeroBSCRM_invoice_generateNotificationHTML in mail-templating.php)
+ * ... now the generic element of the above are all wired through here :)
+ * Note:
+ * $template is crucial. pdf | portal | notification *currently v3.0
+ **/
+function zeroBSCRM_invoicing_generateInvoiceHTML( $invoice_id = -1, $template = 'pdf', $html = '' ) {
+
+	global $zbs;
+
+	// load templating
+	$placeholder_templating = $zbs->get_templating();
+
+	// need this.
+	if ( $invoice_id <= 0 || $html == '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		return '';
+	}
+
+	// for v3.0 WH split out the data-retrieval from scattering amongst this func, unified here:
+	// translated the below cpt way into dal / v3.0:
+
+	// ================== DATA RETRIEVAL ===================================
+
+	$invoice = $zbs->DAL->invoices->getInvoice( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$invoice_id,
+		array(
+
+			// we want all this:
+			'withLineItems'    => true,
+			'withCustomFields' => true,
+			'withTransactions' => true, // gets trans associated with inv as well
+			'withAssigned'     => true, // return arrays of assigned contact and companies objects
+			'withTags'         => true,
+			'withOwner'        => true,
+			'withTotals'       => true,
+
+		)
+	);
+
+	// retrieve
+	$zbs_customer_id = -1;
+	if ( is_array( $invoice ) && isset( $invoice['contact'] ) && is_array( $invoice['contact'] ) && count( $invoice['contact'] ) > 0 ) {
+		$zbs_customer_id = $invoice['contact'][0]['id'];
+	}
+	$zbs_company_id = -1;
+	if ( is_array( $invoice ) && isset( $invoice['company'] ) && is_array( $invoice['company'] ) && count( $invoice['company'] ) > 0 ) {
+		$zbs_company_id = $invoice['company'][0]['id'];
+	}
+
+	// date
+	$inv_date_str = jpcrm_uts_to_date_str( $invoice['date'] );
+
+	// due
+	if ( $invoice['due_date'] <= 0 ) {
+
+		//no due date
+		$due_date_str = __( 'No due date', 'zero-bs-crm' );
+
+	} else {
+
+		$due_date_str = jpcrm_uts_to_date_str( $invoice['due_date'] );
+	}
+
+	// Custom fields
+	$invoice_custom_fields_html = jpcrm_invoicing_generate_invoice_custom_fields_lines( $invoice, $template );
+
+	// status
+	if ( ! isset( $invoice['status'] ) ) {
+		$zbs_stat = __( 'Draft', 'zero-bs-crm' );
+	} else {
+		$zbs_stat = $invoice['status'];
+	}
+
+	// status html:
+	if ( $template === 'portal' ) {
+
+		// portal version: Includes status label and amount (shown at top of portal invoice)
+		$top_status  = '<div class="zbs-portal-label">';
+		$top_status .= esc_html( $zbs_stat );
+		$top_status .= '</div>';
+		// WH added quickly to get around fact this is sometimes empty, please tidy when you address currency formatting :)
+		$inv_g_total = '';
+		if ( isset( $invoice['total'] ) ) {
+			$inv_g_total = zeroBSCRM_formatCurrency( $invoice['total'] );
+		}
+		$top_status .= '<h1 class="zbs-portal-value">' . esc_html( $inv_g_total ) . '</h1>';
+		if ( $zbs_stat === __( 'Paid', 'zero-bs-crm' ) ) {
+			$top_status .= '<div class="zbs-invoice-paid"><i class="fa fa-check"></i>' . esc_html__( 'Paid', 'zero-bs-crm' ) . '</div>';
+		}
+	} elseif ( $template === 'pdf' ) {
+
+		// pdf status
+		if ( $zbs_stat === __( 'Paid', 'zero-bs-crm' ) ) {
+
+			$top_status = '<div class="jpcrm-invoice-status jpcrm-invoice-paid">' . esc_html__( 'Paid', 'zero-bs-crm' ) . '</div>';
+
+		} else {
+
+			$top_status = '<div class="jpcrm-invoice-status">' . esc_html( $zbs_stat ) . '</div>';
+
+		}
+	} elseif ( $template === 'notification' ) {
+		// sent to contact via email
+		$top_status = esc_html( $zbs_stat );
+	}
+
+	// inv lines
+	$invlines = $invoice['lineitems'];
+
+	// SET all new invoices to unpaid
+	if (
+		// Not set, but inv exists
+		( isset( $invoice ) && is_array( $invoice ) && ( ! isset( $invoice['status'] ) || empty( $invoice['status'] ) ) ) ||
+		// No inv exists
+		( ! isset( $invoice ) || ! is_array( $invoice ) )
+	) {
+		$invoice['status'] = __( 'Draft', 'zero-bs-crm' ); //moved to draft. Unpaid will be set once the invoice has been sent.
+	}
+
+	// switch for Company if set...
+	if ( $zbs_company_id > 0 ) {
+
+		$inv_to = zeroBS_getCompany( $zbs_company_id );
+		if ( is_array( $inv_to ) && ( isset( $inv_to['name'] ) || isset( $inv_to['coname'] ) ) ) {
+
+			if ( isset( $inv_to['name'] ) ) {
+				$inv_to['fname'] = $inv_to['name']; // DAL3
+			}
+			if ( isset( $inv_to['coname'] ) ) {
+				$inv_to['fname'] = $inv_to['coname']; // DAL2
+			}
+			$inv_to['lname'] = '';
+
+		} else {
+
+			$inv_to = array(
+				'fname' => '',
+				'lname' => '',
+			);
+		}
+
+		// object type flag used downstream, I wonder if we should put these in at the DAL level..
+		$inv_to['objtype'] = ZBS_TYPE_COMPANY;
+	} else {
+
+		$inv_to = $zbs->DAL->contacts->getContact( $zbs_customer_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+		// object type flag used downstream, I wonder if we should put these in at the DAL level..
+		$inv_to['objtype'] = ZBS_TYPE_CONTACT;
+	}
+
+	// is this stored same format?
+	$zbs_invoice_hours_or_quantity = $invoice['hours_or_quantity'];
+
+	// partials = transactions associated in v3.0 model
+	$partials = $invoice['transactions'];
+
+	// ================= / DATA RETRIEVAL ===================================
+
+	// ================= CONTENT BUILDING ===================================
+
+	// Globals
+	$invsettings = $zbs->settings->getAll();
+	$css_url     = ZEROBSCRM_URL . 'css/ZeroBSCRM.admin.invoicepreview' . wp_scripts_get_suffix() . '.css';
+	$ref_label   = $zbs->settings->get( 'reflabel' );
+
+	$logo_url = '';
+	if ( isset( $invoice['logo_url'] ) ) {
+
+		if ( isset( $invoice['logo_url'] ) ) {
+			$logo_url = $invoice['logo_url'];
+		}
+	} elseif ( isset( $invsettings['invoicelogourl'] ) && $invsettings['invoicelogourl'] != '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+		$logo_url = $invsettings['invoicelogourl'];
+	}
+
+	if ( $logo_url != '' && isset( $invoice['logo_url'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+		$logo_class     = 'show';
+		$logo_url       = $invoice['logo_url'];
+		$biz_info_class = '';
+	} else {
+		$logo_class     = '';
+		$logo_url       = '';
+		$biz_info_class = 'biz-up';
+	}
+
+	// Invoice Number or Reference
+	// Reference, falling back to ID
+	$inv_id_styles  = '';
+	$inv_ref_styles = 'display:none;'; // none initially
+
+	// ID
+	$this_inv_reference = $invoice['id'];
+
+	// ID - Portal
+	if ( $template === 'portal' ) {
+		$this_inv_reference = __( 'Invoice #', 'zero-bs-crm' ) . ' ' . $this_inv_reference;
+	}
+
+	// Reference
+	if ( isset( $invoice['id_override'] ) && ! empty( $invoice['id_override'] ) ) {
+
+		// Ref
+		$this_inv_reference = $invoice['id_override'];
+
+		// Ref - Portal
+		if ( $template === 'portal' ) {
+			$this_inv_reference = $ref_label . ' ' . $this_inv_reference;
+		}
+
+		// and we don't show ID, do show ref label:
+		$inv_id_styles  = 'display:none;';
+		$inv_ref_styles = '';
+
+	}
+
+	// replacement str
+	$inv_no_str = $this_inv_reference;
+
+	// Portal
+	if ( $template === 'portal' ) {
+		$inv_no_str = '<div class="zbs-normal">' . esc_html( $this_inv_reference ) . '</div>';
+	}
+
+	// == Build biz info table.
+
+	//the business info from the settings
+	$zbs_biz_name      = zeroBSCRM_getSetting( 'businessname' );
+	$zbs_biz_yourname  = zeroBSCRM_getSetting( 'businessyourname' );
+	$zbs_biz_extra     = zeroBSCRM_getSetting( 'businessextra' );
+	$zbs_biz_youremail = zeroBSCRM_getSetting( 'businessyouremail' );
+	$zbs_biz_yoururl   = zeroBSCRM_getSetting( 'businessyoururl' );
+
+	// generate a templated biz info table
+	$biz_info_table = zeroBSCRM_invoicing_generateInvPart_bizTable(
+		array(
+			'zbs_biz_name'      => $zbs_biz_name,
+			'zbs_biz_yourname'  => $zbs_biz_yourname,
+			'zbs_biz_extra'     => $zbs_biz_extra,
+			'zbs_biz_youremail' => $zbs_biz_youremail,
+			'zbs_biz_yoururl'   => $zbs_biz_yoururl,
+			'template'          => $template,
+		)
+	);
+
+	// generate a templated customer info table
+	$invoice_customer_info_table_html = zeroBSCRM_invoicing_generateInvPart_custTable( $inv_to, $template );
+
+	// == Lineitem table > Column headers
+	// generate a templated customer info table
+	$table_headers = zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbs_invoice_hours_or_quantity, $template );
+
+	// == Lineitem table > Line items
+	// generate a templated lineitems
+	$line_items = zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines, $template );
+
+	// == Lineitem table > Totals
+	// due to withTotals parameter on get above, we now don't need ot calc anything here, just expose
+	$totals_table = '';
+
+	$totals_table .= '<table id="invoice_totals" class="table-totals zebra" style="width: 100%;"><tbody>';
+	if ( $invsettings['invtax'] != 0 || $invsettings['invpandp'] != 0 || $invsettings['invdis'] != 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+		$totals_table .= '<tr class="total-top">';
+		$totals_table .= '<td  class="bord bord-l" style="text-align:right; width: 80%; text-transform: uppercase;">' . esc_html__( 'Subtotal', 'zero-bs-crm' ) . '</td>';
+		$totals_table .= '<td class="bord row-amount" class="bord" style="text-align:right; "><span class="zbs-totals">';
+		if ( isset( $invoice['net'] ) && ! empty( $invoice['net'] ) ) {
+			$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['net'] ) );
+		} else {
+			$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
+		}
+		$totals_table .= '</span></td>';
+		$totals_table .= '</tr>';
+	}
+
+	// discount
+	if ( isset( $invoice['discount'] ) && ! empty( $invoice['discount'] ) ) {
+
+		if ( $invsettings['invdis'] == 1 && isset( $invoice['totals'] ) && is_array( $invoice['totals'] ) && isset( $invoice['totals']['discount'] ) ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			$invoice_percent = '';
+			if ( $invoice['discount_type'] == '%' && $invoice['discount'] != 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual,Universal.Operators.StrictComparisons.LooseNotEqual
+				$invoice_percent = (float) $invoice['discount'] . '% ';
+			}
+			$totals_table .= '<tr class="discount">
+				<td class="bord bord-l" style="text-align:right; text-transform: uppercase;">' . esc_html( $invoice_percent . __( 'Discount', 'zero-bs-crm' ) ) . '</td>
+				<td class="bord row-amount" id="zbs_discount_combi" style="text-align:right"><span class="zbs-totals">';
+
+			$totals_table .= '-' . esc_html( zeroBSCRM_formatCurrency( $invoice['totals']['discount'] ) );
+
+			$totals_table .= '</td>';
+			$totals_table .= '</tr>';
+		}
+	}
+
+	// shipping
+	if ( $invsettings['invpandp'] == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		$totals_table .= '<tr class="postage_and_pack">
+			<td class="bord bord-l" style="text-align:right; text-transform: uppercase;">' . esc_html__( 'Postage and packaging', 'zero-bs-crm' ) . '</td>
+			<td class="bord row-amount" id="pandptotal" style="text-align:right;"><span class="zbs-totals">';
+		if ( isset( $invoice['shipping'] ) && ! empty( $invoice['shipping'] ) ) {
+			$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['shipping'] ) );
+		} else {
+			$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
+		}
+		$totals_table .= '</td>';
+		$totals_table .= '</tr>';
+	}
+
+	// tax
+	if ( $invsettings['invtax'] == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+
+		$tax_lines = false;
+		if ( isset( $invoice['totals'] ) && is_array( $invoice['totals'] ) && isset( $invoice['totals']['taxes'] ) ) {
+			// now calc'd in DAL
+			$tax_lines = $invoice['totals']['taxes'];
+		}
+
+		if ( isset( $tax_lines ) && is_array( $tax_lines ) && count( $tax_lines ) > 0 ) {
+
+			foreach ( $tax_lines as $tax ) {
+
+				$tax_name = __( 'Tax', 'zero-bs-crm' );
+				if ( isset( $tax['name'] ) ) {
+					$tax_name = $tax['name'];
+				}
+
+				$totals_table .= '<tr class="ttclass">
+					<td class="bord bord-l" style="text-align:right">' . esc_html( $tax_name ) . '</td>
+					<td class="bord bord-l row-amount zbs-tax-total-span" style="text-align:right"><span class="zbs-totals">';
+				if ( isset( $tax['value'] ) && ! empty( $tax['value'] ) ) {
+					$totals_table .= esc_html( zeroBSCRM_formatCurrency( $tax['value'] ) );
+				} else {
+					$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
+				}
+				$totals_table .= '</td>';
+				$totals_table .= '</tr>';
+			}
+		} else {
+
+			// simple fallback
+			$totals_table .= '<tr class="ttclass">
+				<td class="bord bord-l" style="text-align:right">' . esc_html__( 'Tax', 'zero-bs-crm' ) . '</td>
+				<td class="bord bord-l row-amount zbs-tax-total-span" style="text-align:right"><span class="zbs-totals">';
+			if ( isset( $invoice['tax'] ) && ! empty( $invoice['tax'] ) ) {
+				$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['tax'] ) );
+			} else {
+				$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
+			}
+			$totals_table .= '</td>';
+			$totals_table .= '</tr>';
+		}
+	}
+
+	$totals_table .= '<tr class="zbs_grand_total" style="line-height:30px;">
+		<td class="bord-l"  style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-total">' . __( 'Total', 'zero-bs-crm' ) . '</span></td>
+		<td class="row-amount" style="text-align:right; font-weight:bold; border: 3px double #111!important; "><span class="zbs-total">';
+	if ( isset( $invoice['total'] ) && ! empty( $invoice['total'] ) ) {
+		$totals_table .= esc_html( zeroBSCRM_formatCurrency( $invoice['total'] ) );
+	} else {
+		$totals_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
+	}
+	$totals_table .= '</span></td>';
+	$totals_table .= '</tr>';
+
+	$totals_table .= '</table>';
+
+	// == Partials (Transactions against Invs)
+	$partials_table = '';
+
+	if ( $invoice['total'] == 0 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		$partials_table .= '<table id="partials" class="hide table-totals zebra">';
+	} else {
+		$partials_table .= '<table id="partials" class="table-totals zebra">';
+	}
+
+	$balance = $invoice['total'];
+
+	if ( is_array( $partials ) && count( $partials ) > 0 ) {
+
+		// header
+		$partials_table .= '<tr><td colspan="2" style="text-align:center;font-weight:bold;  border-radius: 0px;"><span class="zbs-total">' . esc_html__( 'Payments', 'zero-bs-crm' ) . '</span></td></tr>';
+
+		foreach ( $partials as $partial ) {
+
+			// ignore if status_bool (non-completed status)
+			$partial['status_bool'] = (int) $partial['status_bool'];
+			if ( isset( $partial ) && $partial['status_bool'] == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+
+				// v3.0+ has + or - partials. Account for that:
+				if ( $partial['type_accounting'] === 'credit' ) {
+					// credit note, or refund
+					$balance = $balance + $partial['total'];
+				} else {
+					// assume debit
+					$balance = $balance - $partial['total'];
+				}
+
+				$partials_table .= '<tr class="total-top">';
+				$partials_table .= '<td class="bord bord-l" style="text-align:right">' . esc_html__( 'Payment', 'zero-bs-crm' ) . '<br/>(' . esc_html( $partial['ref'] ) . ')</td>';
+				$partials_table .= '<td class="bord row-amount"><span class="zbs-partial-value">';
+				if ( ! empty( $partial['total'] ) ) {
+					$partials_table .= esc_html( zeroBSCRM_formatCurrency( $partial['total'] ) );
+				} else {
+					$partials_table .= esc_html( zeroBSCRM_formatCurrency( 0 ) );
+				}
+				$partials_table .= '</span></td>';
+				$partials_table .= '</tr>';
+			}
+		}
+	}
+
+	if ( $balance == $invoice['total'] ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+		$balance_hide = 'hide';
+	} else {
+		$balance_hide = '';
+	}
+
+	$partials_table .= '<tr class="zbs_grand_total' . $balance_hide . '">';
+	$partials_table .= '<td class="bord bord-l" style="text-align:right; font-weight:bold;  border-radius: 0px;"><span class="zbs-minitotal">' . esc_html__( 'Amount due', 'zero-bs-crm' ) . '</td>';
+	$partials_table .= '<td class="bord row-amount"><span class="zbs-subtotal-value">' . esc_html( zeroBSCRM_formatCurrency( $balance ) ) . '</span></td>';
+	$partials_table .= '</tr>';
+	$partials_table .= '</table>';
+
+	// generate a templated paybutton (depends on template :))
+	$potential_pay_button = zeroBSCRM_invoicing_generateInvPart_payButton( $invoice_id, $zbs_stat, $template );
+
+	// == Payment terms, thanks etc. will only replace when present in template, so safe to generically check
+	$pay_thanks = '';
+	if ( $zbs_stat === __( 'Paid', 'zero-bs-crm' ) ) {
+		$pay_thanks  = '<div class="deets"><h3>' . esc_html__( 'Thank You', 'zero-bs-crm' ) . '</h3>';
+		$pay_thanks .= '<div>' . nl2br( esc_html( zeroBSCRM_getSetting( 'paythanks' ) ) ) . '</div>';
+		$pay_thanks .= '</div>';
+	}
+	$payment_info_text = zeroBSCRM_getSetting( 'paymentinfo' );
+
+	$pay_details  = '<div class="deets"><h2>' . esc_html__( 'Payment Details', 'zero-bs-crm' ) . '</h2>';
+	$pay_details .= '<div class="deets-line"><span class="deets-content">' . nl2br( esc_html( $payment_info_text ) ) . '</span></div>';
+	$pay_details .= '<div class="deets-line"><span class="deets-title">' . esc_html__( 'Payment Reference:', 'zero-bs-crm' ) . '</span> <span>' . $inv_no_str . '</span></div>';
+	$pay_details .= '</div>';
+
+	// == Template -> HTML build
+
+	// powered by
+	$powered_by = zeroBSCRM_mailTemplate_poweredByHTML();
+
+	$view_in_portal_link   = '';
+	$view_in_portal_button = '';
+
+	// got portal?
+	if ( zeroBSCRM_isExtensionInstalled( 'portal' ) ) {
+		$view_in_portal_link   = zeroBSCRM_portal_linkObj( $invoice_id, ZBS_TYPE_INVOICE );
+		$view_in_portal_button = '<div style="text-align:center;margin:1em;margin-top:2em">' . zeroBSCRM_mailTemplate_emailSafeButton( $view_in_portal_link, esc_html__( 'View Invoice', 'zero-bs-crm' ) ) . '</div>';
+	}
+
+	// build replacements array
+	$replacements = array(
+
+		// invoice specific
+		'invoice-title'               => __( 'Invoice', 'zero-bs-crm' ),
+		'css'                         => $css_url,
+		'logo-class'                  => $logo_class,
+		'logo-url'                    => esc_url( $logo_url ),
+		'invoice-number'              => $inv_no_str,
+		'invoice-date'                => $inv_date_str,
+		'invoice-id-styles'           => $inv_id_styles,
+		'invoice-ref'                 => $inv_no_str,
+		'invoice-ref-styles'          => $inv_ref_styles,
+		'invoice-due-date'            => $due_date_str,
+		'invoice-custom-fields'       => $invoice_custom_fields_html,
+		'invoice-biz-class'           => $biz_info_class,
+		'invoice-customer-info'       => $invoice_customer_info_table_html,
+		'invoice-html-status'         => $top_status,
+		'invoice-table-headers'       => $table_headers,
+		'invoice-line-items'          => $line_items,
+		'invoice-totals-table'        => $totals_table,
+		'invoice-partials-table'      => $partials_table,
+		'invoice-pay-button'          => $potential_pay_button,
+		'pre-invoice-payment-details' => '',
+		'invoice-payment-details'     => $pay_details,
+		'invoice-pay-thanks'          => $pay_thanks,
+
+		// client portal
+		'portal-view-button'          => $view_in_portal_button,
+		'portal-link'                 => $view_in_portal_link,
+
+		// language
+		'invoice-label-inv-number'    => __( 'Invoice number', 'zero-bs-crm' ) . ':',
+		'invoice-label-inv-date'      => __( 'Invoice date', 'zero-bs-crm' ) . ':',
+		'invoice-label-inv-ref'       => $zbs->settings->get( 'reflabel' ),
+		'invoice-label-status'        => __( 'Status:', 'zero-bs-crm' ),
+		'invoice-label-from'          => __( 'From', 'zero-bs-crm' ) . ':',
+		'invoice-label-to'            => __( 'To', 'zero-bs-crm' ) . ':',
+		'invoice-label-due-date'      => __( 'Due date', 'zero-bs-crm' ) . ':',
+		'invoice-pay-terms'           => __( 'Payment terms', 'zero-bs-crm' ) . ': ' . __( 'Due', 'zero-bs-crm' ) . ' ',
+
+		// global
+		'biz-info'                    => $biz_info_table,
+		'powered-by'                  => $powered_by,
+
+	);
+
+	// Switch. If partials, put the payment deets on the left next to the partials,
+	// rather than in it's own line:
+	if ( ! empty( $partials_table ) ) {
+		// partials, split to two columns
+		$replacements['pre-invoice-payment-details'] = $pay_details;
+		$replacements['invoice-payment-details']     = '';
+	}
+
+	// replace vars
+	$html = $placeholder_templating->replace_placeholders(
+		array( 'invoice', 'global', 'contact', 'company' ),
+		$html,
+		$replacements,
+		array(
+			ZBS_TYPE_INVOICE   => $invoice,
+			$inv_to['objtype'] => $inv_to,
+		)
+	);
+
+	// ================= / CONTENT BUILDING =================================
+
+	return $html;
 }
 
 // Used to generate specific part of invoice pdf: Biz table (Pay To)
 function zeroBSCRM_invoicing_generateInvPart_bizTable($args=array()){
 
-    #} =========== LOAD ARGS ==============
-    $defaultArgs = array(
+	#} =========== LOAD ARGS ==============
+	$defaultArgs = array( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
-        'zbs_biz_name' => '',
-        'zbs_biz_yourname' => '',
-        'zbs_biz_extra' => '',
-        'zbs_biz_youremail' => '',
-        'zbs_biz_yoururl' => '',
+		'zbs_biz_name'      => '',
+		'zbs_biz_yourname'  => '',
+		'zbs_biz_extra'     => '',
+		'zbs_biz_youremail' => '',
+		'zbs_biz_yoururl'   => '',
 
-        'template' => 'pdf' // this'll choose between the html output variants below, e.g. pdf, portal, notification
+		'template'          => 'pdf', // this'll choose between the html output variants below, e.g. pdf, portal, notification
 
     ); foreach ($defaultArgs as $argK => $argV){ $$argK = $argV; if (is_array($args) && isset($args[$argK])) {  if (is_array($args[$argK])){ $newData = $$argK; if (!is_array($newData)) $newData = array(); foreach ($args[$argK] as $subK => $subV){ $newData[$subK] = $subV; }$$argK = $newData;} else { $$argK = $args[$argK]; } } }
-    #} =========== / LOAD ARGS =============
+	#} =========== / LOAD ARGS =============
 
-    $bizInfoTable = '';
+	$biz_info_table = '';
 
-        switch ($template){
+	switch ( $template ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
 
-            case 'pdf':
-            case 'notification':
+		case 'pdf':
+		case 'notification':
+			$biz_info_table  = '<div class="zbs-line-info zbs-line-info-title">' . esc_html( $zbs_biz_name ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $zbs_biz_yourname ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div class="zbs-line-info">' . nl2br( esc_html( $zbs_biz_extra ) ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $zbs_biz_youremail ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div class="zbs-line-info">' . esc_html( $zbs_biz_yoururl ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			break;
 
-                $bizInfoTable = '<div class="zbs-line-info zbs-line-info-title">'.$zbs_biz_name.'</div>';
-                $bizInfoTable .= '<div class="zbs-line-info">'.$zbs_biz_yourname.'</div>';
-                $bizInfoTable .= '<div class="zbs-line-info">'.nl2br($zbs_biz_extra).'</div>';
-                $bizInfoTable .= '<div class="zbs-line-info">'.$zbs_biz_youremail.'</div>';
-                $bizInfoTable .= '<div class="zbs-line-info">'.$zbs_biz_yoururl.'</div>'; 
+		case 'portal':
+			$biz_info_table  = '<div class="pay-to">';
+			$biz_info_table .= '<div class="zbs-portal-label">' . esc_html__( 'Pay To', 'zero-bs-crm' ) . '</div>';
+			$biz_info_table .= '<div class="zbs-portal-biz">';
+			$biz_info_table .= '<div class="pay-to-name">' . esc_html( $zbs_biz_name ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div>' . esc_html( $zbs_biz_yourname ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div>' . nl2br( esc_html( $zbs_biz_extra ) ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div>' . esc_html( $zbs_biz_youremail ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '<div>' . esc_html( $zbs_biz_yoururl ) . '</div>'; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+			$biz_info_table .= '</div>';
+			$biz_info_table .= '</div>';
+			break;
 
-            break;
+	}
 
-            case 'portal':
-    
-                $bizInfoTable = '<div class="pay-to">';
-                    $bizInfoTable .= '<div class="zbs-portal-label">' . __('Pay To', 'zero-bs-crm') . '</div>';
-                    $bizInfoTable .= '<div class="zbs-portal-biz">';
-                        $bizInfoTable .= '<div class="pay-to-name">'.$zbs_biz_name.'</div>';
-                        $bizInfoTable .= '<div>'.$zbs_biz_yourname.'</div>';
-                        $bizInfoTable .= '<div>'.nl2br($zbs_biz_extra).'</div>';
-                        $bizInfoTable .= '<div>'.$zbs_biz_youremail.'</div>';
-                        $bizInfoTable .= '<div>'.$zbs_biz_yoururl.'</div>';
-                    $bizInfoTable .= '</div>';
-                $bizInfoTable .= '</div>';
-
-            break;
-
-        }
-
-    return $bizInfoTable;
+	return $biz_info_table;
 }
-// Used to generate specific part of invoice pdf: (Customer table)
-function zeroBSCRM_invoicing_generateInvPart_custTable($invTo=array(),$template='pdf'){
+/** // phpcs:ignore Squiz.Commenting.FunctionComment.MissingParamTag,Generic.Commenting.DocComment.MissingShort
+ * Used to generate specific part of invoice pdf: (Customer table)
+ **/
+function zeroBSCRM_invoicing_generateInvPart_custTable( $inv_to = array(), $template = 'pdf' ) {
 
-    $invoice_customer_info_table_html = '<div class="customer-info-wrapped">';
+	$invoice_customer_info_table_html = '<div class="customer-info-wrapped">';
 
-        switch ($template){
+	switch ( $template ) {
+		case 'pdf':
+		case 'notification':
+			if ( isset( $inv_to['fname'] ) && isset( $inv_to['fname'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info zbs-line-info-title">' . esc_html( $inv_to['fname'] ) . ' ' . esc_html( $inv_to['lname'] ) . '</div>';
+			}
+			if ( isset( $inv_to['addr1'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $inv_to['addr1'] ) . '</div>';
+			}
+			if ( isset( $inv_to['addr2'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $inv_to['addr2'] ) . '</div>';
+			}
+			if ( isset( $inv_to['city'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $inv_to['city'] ) . '</div>';
+			}
+			if ( isset( $inv_to['county'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $inv_to['county'] ) . '</div>';
+			}
+			if ( isset( $inv_to['postcode'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $inv_to['postcode'] ) . '</div>';
+			}
+			if ( isset( $inv_to['country'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="zbs-line-info">' . esc_html( $inv_to['country'] ) . '</div>';
+			}
 
-            case 'pdf':
-            case 'notification':
+			// Append custom fields if specified in settings
+			$invoice_customer_info_table_html .= jpcrm_invoicing_generate_customer_custom_fields_lines( $inv_to, $template );
 
-                if (isset($invTo['fname']) && isset($invTo['fname'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info zbs-line-info-title">'.$invTo['fname'].' ' .$invTo['lname'] . '</div>';
-                if (isset($invTo['addr1'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$invTo['addr1'].'</div>';
-                if (isset($invTo['addr2'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$invTo['addr2'].'</div>';
-                if (isset($invTo['city'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$invTo['city'].'</div>';
-                if (isset($invTo['county'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$invTo['county'].'</div>';
-                if (isset($invTo['postcode'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$invTo['postcode'].'</div>';
-                if (isset($invTo['country'])) $invoice_customer_info_table_html .= '<div class="zbs-line-info">'.$invTo['country'].'</div>';
+			// the abilty to add in extra info to the customer info area.
+			$extra_cust_info = '';
+			$extra_cust_info = apply_filters( 'zbs_invoice_customer_info_line', $extra_cust_info );
 
-                // Append custom fields if specified in settings
-                $invoice_customer_info_table_html .= jpcrm_invoicing_generate_customer_custom_fields_lines( $invTo, $template );
+			$invoice_customer_info_table_html .= $extra_cust_info;
+			break;
 
-                // the abilty to add in extra info to the customer info area.
-                $extraCustInfo = '';
-                $extraCustInfo = apply_filters('zbs_invoice_customer_info_line', $extraCustInfo);
-                $invoice_customer_info_table_html .= $extraCustInfo;
+		case 'portal':
+			$invoice_customer_info_table_html .= '<div class="pay-to">';
+			$invoice_customer_info_table_html .= '<div class="zbs-portal-label">' . esc_html__( 'Invoice To', 'zero-bs-crm' ) . '</div><div style="margin-top:18px;">&nbsp;</div>';
+			$invoice_customer_info_table_html .= '<div class="zbs-portal-biz">';
+			if ( isset( $inv_to['fname'] ) && isset( $inv_to['fname'] ) ) {
+				$invoice_customer_info_table_html .= '<div class="pay-to-name">' . esc_html( $inv_to['fname'] ) . ' ' . esc_html( $inv_to['lname'] ) . '</div>';
+			}
+			if ( isset( $inv_to['addr1'] ) ) {
+				$invoice_customer_info_table_html .= '<div>' . esc_html( $inv_to['addr1'] ) . '</div>';
+			}
+			if ( isset( $inv_to['addr2'] ) ) {
+				$invoice_customer_info_table_html .= '<div>' . esc_html( $inv_to['addr2'] ) . '</div>';
+			}
+			if ( isset( $inv_to['city'] ) ) {
+				$invoice_customer_info_table_html .= '<div>' . esc_html( $inv_to['city'] ) . '</div>';
+			}
+			if ( isset( $inv_to['postcode'] ) ) {
+				$invoice_customer_info_table_html .= '<div>' . esc_html( $inv_to['postcode'] ) . '</div>';
+			}
 
-            break;
+			// Append custom fields if specified in settings
+			$invoice_customer_info_table_html .= jpcrm_invoicing_generate_customer_custom_fields_lines( $inv_to, $template );
 
-            case 'portal':
-                
-                $invoice_customer_info_table_html .= '<div class="pay-to">';
-                    $invoice_customer_info_table_html .= '<div class="zbs-portal-label">' . __('Invoice To', 'zero-bs-crm') . '</div><div style="margin-top:18px;">&nbsp;</div>';
-                    $invoice_customer_info_table_html .= '<div class="zbs-portal-biz">';
-                        if (isset($invTo['fname']) && isset($invTo['fname'])) $invoice_customer_info_table_html .= '<div class="pay-to-name">'.$invTo['fname'].' ' .$invTo['lname'] . '</div>';
-                        if (isset($invTo['addr1'])) $invoice_customer_info_table_html .= '<div>'.$invTo['addr1'].'</div>';
-                        if (isset($invTo['addr2'])) $invoice_customer_info_table_html .= '<div>'.$invTo['addr2'].'</div>';
-                        if (isset($invTo['city'])) $invoice_customer_info_table_html .= '<div>'.$invTo['city'].'</div>';
-                        if (isset($invTo['postcode'])) $invoice_customer_info_table_html .= '<div>'.$invTo['postcode'].'</div>';
+			// the abilty to add in extra info to the customer info area.
+			$extra_cust_info = apply_filters( 'zbs_invoice_customer_info_line', '' );
 
-                        // Append custom fields if specified in settings
-                        $invoice_customer_info_table_html .= jpcrm_invoicing_generate_customer_custom_fields_lines( $invTo, $template );
+			$invoice_customer_info_table_html .= $extra_cust_info;
+			$invoice_customer_info_table_html .= '</div>';
+			$invoice_customer_info_table_html .= '</div>';
+			break;
 
-                        // the abilty to add in extra info to the customer info area.
-                        $extraCustInfo = apply_filters('zbs_invoice_customer_info_line', '');
-                        $invoice_customer_info_table_html .= $extraCustInfo;
+	}
 
-                    $invoice_customer_info_table_html .= '</div>';
-                $invoice_customer_info_table_html .= '</div>';
+		$invoice_customer_info_table_html .= '</div>';
 
-            break;
+		//filter the whole thing if you really want to modify it
+		$invoice_customer_info_table_html = apply_filters( 'zbs_invoice_customer_info_table', $invoice_customer_info_table_html );
 
-        }
-
-    $invoice_customer_info_table_html .= '</div>';
-
-    //filter the whole thing if you really want to modify it
-    $invoice_customer_info_table_html = apply_filters('zbs_invoice_customer_info_table', $invoice_customer_info_table_html);
-
-    return $invoice_customer_info_table_html;
+		return $invoice_customer_info_table_html;
 }
 
 
@@ -1437,32 +1426,28 @@ function jpcrm_invoicing_generate_customer_custom_fields_lines( $customer, $temp
 
                 }
 
-                // skip empties
-                if ( empty( $custom_field_str ) ) {
-                    continue;
-                }
+				// skip empties
+				if ( empty( $custom_field_str ) ) {
+						continue;
+				}
 
-                switch ( $template ){
+				switch ( $template ) {
 
-                    case 'pdf':
-                    case 'notification':
-                        $customer_custom_fields_html .= '<div class="zbs-line-info">' . $field_info[1] . ': ' . $custom_field_str . '</div>';
-                        break;
+					case 'pdf':
+					case 'notification':
+						$customer_custom_fields_html .= '<div class="zbs-line-info">' . esc_html( $field_info[1] ) . ': ' . esc_html( $custom_field_str ) . '</div>';
+						break;
 
-                    case 'portal':
-                        $customer_custom_fields_html .= '<div><strong>' . $field_info[1] . ':</strong> ' . $custom_field_str . '</div>';
-                        break;
+					case 'portal':
+						$customer_custom_fields_html .= '<div><strong>' . esc_html( $field_info[1] ) . ':</strong> ' . esc_html( $custom_field_str ) . '</div>';
+						break;
 
-                }
+				}
+			}
+		}
+	}
 
-            }
-
-        }     
-
-    }
-
-    return $customer_custom_fields_html;
-
+	return $customer_custom_fields_html;
 }
 
 
@@ -1512,139 +1497,116 @@ function jpcrm_invoicing_generate_invoice_custom_fields_lines( $invoice, $templa
                     }
                 }
 
-                // skip empties
-                if ( empty( $custom_field_str ) ) {
-                    continue;
-                }
+				// skip empties
+				if ( empty( $custom_field_str ) ) {
+						continue;
+				}
 
-                switch ( $template ){
+				switch ( $template ) {
 
-                    case 'pdf':
-                    case 'notification':
+					case 'pdf':
+					case 'notification':
+						$invoice_custom_fields_html .= '<tr class="zbs-top-right-box-line">';
+						$invoice_custom_fields_html .= '    <td><label for="' . esc_attr( $field_key ) . '">' . esc_html( $field_info[1] ) . ':</label></td>';
+						$invoice_custom_fields_html .= '    <td style="text-align:right;">' . esc_html( $custom_field_str ) . '</td>';
+						$invoice_custom_fields_html .= '</tr>';
+						break;
 
-                        $invoice_custom_fields_html .= '<tr class="zbs-top-right-box-line">';
-                        $invoice_custom_fields_html .= '    <td><label for="' . $field_key . '">' . $field_info[1] . ':</label></td>';
-                        $invoice_custom_fields_html .= '    <td style="text-align:right;">' . $custom_field_str . '</td>';
-                        $invoice_custom_fields_html .= '</tr>';
-                        break;
+					case 'portal':
+						$invoice_custom_fields_html .= '<div><strong>' . esc_html( $field_info[1] ) . ':</strong> ' . esc_html( $custom_field_str ) . '</div>';
+						break;
+				}
+			}
+		}
+	}
 
-                    case 'portal':
-
-                        $invoice_custom_fields_html .= '<div><strong>' . $field_info[1] . ':</strong> ' . $custom_field_str . '</div>';
-                        break;
-
-                }
-
-            }
-
-        }     
-
-    }
-
-    return $invoice_custom_fields_html;
-
+	return $invoice_custom_fields_html;
 }
 
 
 // Used to generate specific part of invoice pdf: (Lineitem row in inv table)
-function zeroBSCRM_invoicing_generateInvPart_lineitems($invlines=array(),$template='pdf'){
+// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+function zeroBSCRM_invoicing_generateInvPart_lineitems( $invlines = array(), $template = 'pdf' ) {
 
-    $lineItemHTML = '';
+	$line_item_html = '';
 
+	switch ( $template ) {
 
-        switch ($template){
+		case 'pdf':
+			if ( $invlines != '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+				$i = 1;
+				foreach ( $invlines as $invline ) {
 
-            case 'pdf':
+					$line_item_html .=
+						'<tr>
+						<td style="width:55%;"><div class="item-name">' . esc_html( $invline['title'] ) . '</div><div class="item-description">' . nl2br( esc_html( $invline['desc'] ) ) . '</div></td>
+						<td style="width:15%;text-align:center;" class="cen">' . esc_html( zeroBSCRM_format_quantity( $invline['quantity'] ) ) . '</td>
+						<td style="width:15%;text-align:center;" class="cen">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
+						<td style="width:15%;text-align:right;" class="row-amount">' . esc_html( zeroBSCRM_formatCurrency( $invline['net'] ) ) . '</td>
+						</tr>';
 
-                if ($invlines != ''){
-                    $i=1;
-                    foreach($invlines as $invline){
+					++$i;
 
-                        $lineItemHTML .= 
-                        '<tr>
-                                    <td style="width:55%;"><div class="item-name">'.$invline['title'].'</div><div class="item-description">'.nl2br($invline['desc']).'</div></td>
-                                    <td style="width:15%;text-align:center;" class="cen">'.zeroBSCRM_format_quantity( $invline['quantity'] ).'</td>
-                                    <td style="width:15%;text-align:center;" class="cen">'. zeroBSCRM_formatCurrency($invline['price']).'</td>
-                                    <td style="width:15%;text-align:right;" class="row-amount">' . zeroBSCRM_formatCurrency($invline['net']).'</td>
-                        </tr>'; 
+				}
+			}
 
-                        $i++;
+			break;
 
-                    }
-                }
+		case 'portal':
+			if ( $invlines != '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+				$i = 1;
+				foreach ( $invlines as $invline ) {
 
+					$line_item_html .=
+						'<tbody class="zbs-item-block" data-tableid="' . esc_attr( $i ) . '" id="tblock' . esc_attr( $i ) . '">
+						<tr class="top-row">
+						<td style="width:50%">' . esc_html( $invline['title'] ) . '<br/><span class="dz">' . nl2br( esc_html( $invline['desc'] ) ) . '</span></td>
+						<td style="width:15%;text-align:center;" rowspan="3" class="cen">' . esc_html( zeroBSCRM_format_quantity( $invline['quantity'] ) ) . '</td>
+						<td style="width:15%;text-align:center;" rowspan="3"class="cen">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
+						<td style="width:15%;text-align:right;" rowspan="3" class="row-amount">' . esc_html( zeroBSCRM_formatCurrency( $invline['net'] ) ) . '</td>
+						</tr>
+						</tbody>';
 
-            break;
+					++$i;
+				}
+			}
 
-            case 'portal':
+			break;
 
-                if ($invlines != ''){
-                    $i=1;
-                    foreach($invlines as $invline){
-                                
-                        // Note for MS: I've approximately changed these fields to match those in DAL3.Obj.Lineitems
-                        // ... however some extras (tax) will need to be added?
-                        /* WH: this isn't used anywhere? 
-                        $zbs_extra_li = "";
-                        if ($i == 1){
-                            $zbs_extra_li  = '<td class="row-1-pad" colspan="2"></td>';
-                        } */
-                        $lineItemHTML .= 
-                        '<tbody class="zbs-item-block" data-tableid="'.$i.'" id="tblock'.$i.'">
-                                <tr class="top-row">
-                                    <td style="width:50%">'.$invline['title'].'<br/><span class="dz">'.nl2br($invline['desc']).'</span></td>
-                                    <td style="width:15%;text-align:center;" rowspan="3" class="cen">'.zeroBSCRM_format_quantity( $invline['quantity'] ).'</td>
-                                    <td style="width:15%;text-align:center;" rowspan="3"class="cen">'. zeroBSCRM_formatCurrency($invline['price']) .'</td>
-                                    <td style="width:15%;text-align:right;" rowspan="3" class="row-amount">' . zeroBSCRM_formatCurrency($invline['net']) .'</td>
-                                </tr>
-                        </tbody>'; 
+		case 'notification':
+			if ( $invlines != '' ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual
+				$i = 1;
+				foreach ( $invlines as $invline ) {
 
-                        $i++;
+					$line_item_html = '<tbody class="zbs-item-block" data-tableid="' . esc_attr( $i ) . '" id="tblock' . esc_attr( $i ) . '">';
+					foreach ( $invlines as $invline ) {
 
-                    }
-                }  
+						$line_item_html .= '
+							<tr class="top-row">
+							<td style="width:70%;font-weight:bold">' . esc_html( $invline['title'] ) . '</td>
+							<td style="width:7.5%;text-align:center;" rowspan="3" class="cen">' . esc_html( $invline['quantity'] ) . '</td>
+							<td style="width:7.5%;text-align:center;" rowspan="3"class="cen">' . esc_html( zeroBSCRM_formatCurrency( $invline['price'] ) ) . '</td>
+							<td style="width:7.5%;text-align:right;" rowspan="3" class="row-amount">' . esc_html( zeroBSCRM_formatCurrency( $invline['net'] ) ) . '</td>
+							</tr>
+							<tr class="bottom-row">
+							<td colspan="4" class="tapad">' . esc_html( $invline['desc'] ) . '</td>
+							</tr>
+							<tr class="add-row"></tr>';
 
-            break;
+						++$i;
+					}
 
-            case 'notification':
+					$line_item_html .= '</tbody>';
 
-                if ($invlines != ''){
-                    $i=1;
-                    foreach($invlines as $invline){
+					++$i;
+				}
+			}
 
-                        // Note for MS: I've approximately changed these fields to match those in DAL3.Obj.Lineitems
-                        // ... however some extras (tax) will need to be added?                        
-                        $lineItemHTML = '<tbody class="zbs-item-block" data-tableid="'.$i.'" id="tblock'.$i.'">';
-                        foreach($invlines as $invline){
+			break;
 
-                            $lineItemHTML .= '
-                                    <tr class="top-row">
-                                        <td style="width:70%;font-weight:bold">'.$invline['title'].'</td>
-                                        <td style="width:7.5%;text-align:center;" rowspan="3" class="cen">'.$invline['quantity'].'</td>
-                                        <td style="width:7.5%;text-align:center;" rowspan="3"class="cen">'. zeroBSCRM_formatCurrency($invline['price']) .'</td>
-                                        <td style="width:7.5%;text-align:right;" rowspan="3" class="row-amount">' . zeroBSCRM_formatCurrency($invline['net']) .'</td>
-                                    </tr>
-                                    <tr class="bottom-row">
-                                        <td colspan="4" class="tapad">'.$invline['desc'].'</td>     
-                                    </tr>
-                                    <tr class="add-row"></tr>';
-                            
+	}
 
-                            $i++;
-                        }
-
-                        $lineItemHTML .= '</tbody>';  
-
-                        $i++;
-
-                    }
-                }
-
-            break;
-
-        }
-
-    return $lineItemHTML;
+	return $line_item_html;
 }
 // Used to generate specific part of invoice pdf: (pay button)
 function zeroBSCRM_invoicing_generateInvPart_payButton($invoiceID=-1,$zbs_stat='',$template='pdf'){
@@ -1702,60 +1664,51 @@ function zeroBSCRM_invoicing_generateInvPart_payButton($invoiceID=-1,$zbs_stat='
     return $potentialPayButton;
 }
 // Used to generate specific part of invoice pdf: (table headers)
-function zeroBSCRM_invoicing_generateInvPart_tableHeaders($zbsInvoiceHorQ = 1,$template='pdf'){
+// phpcs:ignore Squiz.Commenting.FunctionComment.Missing
+function zeroBSCRM_invoicing_generateInvPart_tableHeaders( $zbs_invoice_hours_or_quantity = 1, $template = 'pdf' ) {
 
-    $tableHeaders = '';
+	$table_headers = '';
 
-        switch ($template){
+	switch ( $template ) {
 
-            case 'pdf':
-    
-                $tableHeaders = '<th style="text-align:left;"><span class="table-title">'.__('Description','zero-bs-crm').'</span></th>';
+		case 'pdf':
+			$table_headers = '<th style="text-align:left;"><span class="table-title">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</span></th>';
 
-                     if($zbsInvoiceHorQ == 1){ 
-                        $tableHeaders .= '<th id="zbs_inv_qoh"><span class="table-title">'.__("Quantity","zero-bs-crm").'</th>';
-                        $tableHeaders .= '<th id="zbs_inv_por"><span class="table-title">'.__("Price","zero-bs-crm").'</th>';
-                     }else{ 
-                        $tableHeaders .= '<th id="zbs_inv_qoh"><span class="table-title">'.__("Hours","zero-bs-crm").'</th>';
-                        $tableHeaders .= '<th id="zbs_inv_por"><span class="table-title">'.__("Rate","zero-bs-crm").'</th>';
-                     }
-                $tableHeaders .= '<th style="text-align: right;"><span class="table-title">'.__("Amount","zero-bs-crm").'</span></th>';
+			if ( $zbs_invoice_hours_or_quantity == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				$table_headers .= '<th id="zbs_inv_qoh"><span class="table-title">' . esc_html__( 'Quantity', 'zero-bs-crm' ) . '</th>';
+				$table_headers .= '<th id="zbs_inv_por"><span class="table-title">' . esc_html__( 'Price', 'zero-bs-crm' ) . '</th>';
+			} else {
+				$table_headers .= '<th id="zbs_inv_qoh"><span class="table-title">' . esc_html__( 'Hours', 'zero-bs-crm' ) . '</th>';
+				$table_headers .= '<th id="zbs_inv_por"><span class="table-title">' . esc_html__( 'Rate', 'zero-bs-crm' ) . '</th>';
+			}
+			$table_headers .= '<th style="text-align: right;"><span class="table-title">' . esc_html__( 'Amount', 'zero-bs-crm' ) . '</span></th>';
 
-            break;
+			break;
 
-            case 'portal':
+		case 'portal':
+			$table_headers = '<th class="left">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</th>';
 
-                $tableHeaders = '<th class="left">'.__('Description','zero-bs-crm').'</th>';
+			if ( $zbs_invoice_hours_or_quantity == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+					$table_headers .= '<th class="cen" id="zbs_inv_qoh">' . esc_html__( 'Quantity', 'zero-bs-crm' ) . '</th>';
+					$table_headers .= '<th class="cen" id="zbs_inv_por">' . esc_html__( 'Price', 'zero-bs-crm' ) . '</th>';
+			} else {
+					$table_headers .= '<th class="cen" id="zbs_inv_qoh"> ' . esc_html__( 'Hours', 'zero-bs-crm' ) . '</th>';
+					$table_headers .= '<th class="cen" id="zbs_inv_por">' . esc_html__( 'Rate', 'zero-bs-crm' ) . '</th>';
+			}
 
-                if($zbsInvoiceHorQ == 1){
-                    $tableHeaders .= '<th class="cen" id="zbs_inv_qoh">'.__("Quantity","zero-bs-crm").'</th>';
-                    $tableHeaders .= '<th class="cen" id="zbs_inv_por">'.__("Price","zero-bs-crm").'</th>';
-                }else{
-                    $tableHeaders .= '<th class="cen" id="zbs_inv_qoh">'.__("Hours","zero-bs-crm").'</th>';
-                    $tableHeaders .= '<th class="cen" id="zbs_inv_por">'.__("Rate","zero-bs-crm").'</th>';
-                }
+			$table_headers .= '<th class="ri">' . esc_html__( 'Amount', 'zero-bs-crm' ) . '</th>';
 
-                $tableHeaders .= '<th class="ri">'.__("Amount","zero-bs-crm").'</th>';
-                // v3.0 rc2 - doesn't seem to be needed: $tableHeaders .= '<th class="ri">'.__("Net","zero-bs-crm").'</th>';
+			break;
 
-            break;
+		case 'notification':
+			if ( $zbs_invoice_hours_or_quantity == 1 ) { // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+				$table_headers = '<th class="left">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Quantity', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Price', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Total', 'zero-bs-crm' ) . '</th>';
+			} else {
+				$table_headers = '<th class="left">' . esc_html__( 'Description', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Hours', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Rate', 'zero-bs-crm' ) . '</th><th>' . esc_html__( 'Total', 'zero-bs-crm' ) . '</th>';
+			}
 
-            case 'notification':
+			break;
+	}
 
-
-                        if($zbsInvoiceHorQ == 1){ 
-                        
-                            $tableHeaders = '<th class="left">'.__("Description",'zero-bs-crm').'</th><th>'.__("Quantity",'zero-bs-crm').'</th><th>'.__("Price",'zero-bs-crm').'</th><th>'.__("Total",'zero-bs-crm').'</th>';
-
-                        }else{ 
-
-                            $tableHeaders = '<th class="left">'.__("Description",'zero-bs-crm').'</th><th>'.__("Hours",'zero-bs-crm').'</th><th>'.__("Rate",'zero-bs-crm').'</th><th>'.__("Total",'zero-bs-crm').'</th>';
-
-                        }
-
-            break;
-
-        }
-
-    return $tableHeaders;
-}    
+	return $table_headers;
+}

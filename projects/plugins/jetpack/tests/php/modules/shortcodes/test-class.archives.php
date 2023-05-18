@@ -1,5 +1,6 @@
 <?php
 
+require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-amp-support.php';
 require_once __DIR__ . '/trait.http-request-cache.php';
 
 class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
@@ -11,7 +12,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_exists() {
-		$this->assertEquals( shortcode_exists( 'archives' ), true );
+		$this->assertTrue( shortcode_exists( 'archives' ) );
 	}
 
 	/**
@@ -105,7 +106,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 		$archives = archives_shortcode( $attr );
 
-		$this->assertEquals( substr( $archives, 0, 3 ), '<ul' );
+		$this->assertEquals( '<ul', substr( $archives, 0, 3 ) );
 	}
 
 	/**

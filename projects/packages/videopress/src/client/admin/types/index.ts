@@ -240,7 +240,7 @@ export type VideoPressSettings = {
 
 export type VideopressSelectors = {
 	isFetchingPurchases: () => boolean;
-	getVideo: ( id: number | string ) => VideoPressVideo;
+	getVideo: ( id: number | string, addAtEnd: boolean ) => VideoPressVideo;
 	getVideoStateMetadata: ( id: number | string ) => MetadataVideo; // @todo use specific type
 	getVideos: () => VideoPressVideo[];
 	getUploadedVideoCount: () => number;

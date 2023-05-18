@@ -83,13 +83,8 @@ const PosterActions = ( { hasPoster, onSelectPoster, onRemovePoster } ) => {
 };
 
 const UploadingEditor = props => {
-	const {
-		file,
-		onSelectPoster,
-		onRemovePoster,
-		videoPosterImageData,
-		onVideoFrameSelected,
-	} = props;
+	const { file, onSelectPoster, onRemovePoster, videoPosterImageData, onVideoFrameSelected } =
+		props;
 
 	return (
 		<div className="uploading-editor">

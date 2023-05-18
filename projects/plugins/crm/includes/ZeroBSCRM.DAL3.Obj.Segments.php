@@ -635,106 +635,124 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                 return $this->getSegmentAudience( $segmentID, $page, $perPage, $sortByField, $sortOrder, $onlyCount, $withDND );
             }
 
-           /**
-             * Runs a filtered search on customers based on a segment's condition
-             * returns array or count ($onlyCount)
-             */
-            public function getSegmentAudience(
-                $segmentID = -1,
-                $page = 0,
-                $perPage = 20,
-                $sortByField = 'ID',
-                $sortOrder = 'DESC',
-                $onlyCount = false,
-                $withDND = false,
-                $limited_fields = false
-            ){
+	/**
+	 * Runs a filtered search on customers based on a segment's condition
+	 *
+	 * @param int $segment_id ID of segment.
+	 * @param int $page Page number.
+	 * @param int $per_page Number of objects per page.
+	 * @param int $sort_by_field Field to sort by.
+	 * @param int $sort_order Sort order.
+	 * @param int $only_count Only return counts.
+	 * @param int $with_dnd Return DND info.
+	 * @param int $limited_fields Only return specific fields.
+	 *
+	 * @return array or count ($onlyCount)
+	 */
+	public function getSegmentAudience(
+		$segment_id = -1,
+		$page = 0,
+		$per_page = 20,
+		$sort_by_field = 'ID',
+		$sort_order = 'DESC',
+		$only_count = false,
+		$with_dnd = false,
+		$limited_fields = false
+	) {
 
+		// assumes sensible paging + sort vars... no checking of them
 
-                // assumes sensible paging + sort vars... no checking of them
+		if ( $segment_id > 0 ) {
 
-                if ($segmentID > 0){
+			#} Retrieve segment + conditions
+			$segment = $this->getSegment( $segment_id, true );
 
-                    #} Retrieve segment + conditions
-                    $segment = $this->getSegment($segmentID,true);
-                    $conditions = array(); if (isset($segment['conditions'])) $conditions = $segment['conditions'];
-                    $matchType = 'all'; if (isset($segment['matchtype'])) $matchType = $segment['matchtype'];
+			$conditions = array();
+			if ( isset( $segment['conditions'] ) ) {
+				$conditions = $segment['conditions'];
+			}
 
-                    try {
+			$match_type = 'all';
+			if ( isset( $segment['matchtype'] ) ) {
+				$match_type = $segment['matchtype'];
+			}
 
-                        // retrieve getContacts arguments from a list of segment conditions
-                        $contactGetArgs = $this->segmentConditionsToArgs($conditions,$matchType);
+			try {
 
-                        // Remove any segment area error notice
-                        $this->remove_segment_error( $segmentID );
+				// retrieve getContacts arguments from a list of segment conditions
+				$contact_get_args = $this->segmentConditionsToArgs( $conditions, $match_type );
 
-                    } catch ( Segment_Condition_Exception $exception ){
+				// Remove any segment area error notice
+				$this->remove_segment_error( $segment_id );
 
-                        // We're missing the condition class for one or more of this segment's conditions.
-                        $this->segment_error_condition_missing( $segmentID, $exception );
+			} catch ( Segment_Condition_Exception $exception ) {
 
-                        // return fail
-                        return false;
-                        
-                    }
+				// We're missing the condition class for one or more of this segment's conditions.
+				$this->segment_error_condition_missing( $segment_id, $exception );
 
-                        // needs to be ownerless for now
-                        $contactGetArgs['ignoreowner'] = zeroBSCRM_DAL2_ignoreOwnership(ZBS_TYPE_CONTACT);
+				// return fail
+				return false;
 
-                        // add paging params
-                        $contactGetArgs['sortByField'] = $sortByField;
-                        $contactGetArgs['sortOrder'] = $sortOrder;
-                        $contactGetArgs['page'] = $page;
-                        if ($perPage !== -1)
-                            $contactGetArgs['perPage'] = $perPage; // over 100k? :o
-                        else { 
-                            // no limits
-                            $contactGetArgs['page'] = -1;
-                            $contactGetArgs['perPage'] = -1;
-                        }
+			}
 
-                        // count ver
-                        if ($onlyCount){
-                            $contactGetArgs = $contactGetArgs;
-                            $contactGetArgs['page'] = -1;
-                            $contactGetArgs['perPage'] = -1;
-                            $contactGetArgs['count'] = true;
+			// needs to be ownerless for now
+			$contact_get_args['ignoreowner'] = zeroBSCRM_DAL2_ignoreOwnership( ZBS_TYPE_CONTACT );
 
-                            $count = $this->DAL()->contacts->getContacts($contactGetArgs);
+			// add paging params
+			$contact_get_args['sortByField'] = $sort_by_field;
+			$contact_get_args['sortOrder']   = $sort_order;
+			$contact_get_args['page']        = $page;
 
-                                // effectively a compile, so update compiled no on record
-                                $this->updateSegmentCompiled($segmentID,$count,time());
+			if ( $per_page !== -1 ) {
+				$contact_get_args['perPage'] = $per_page; // over 100k? :o
+			} else {
+				// no limits
+				$contact_get_args['page']    = -1;
+				$contact_get_args['perPage'] = -1;
+			}
 
-                            return $count;
-                        }
+			// count ver
+			if ( $only_count ) {
+				$contact_get_args['page']    = -1;
+				$contact_get_args['perPage'] = -1;
+				$contact_get_args['count']   = true;
 
-                        // got dnd?
-                        if ( $withDND ){
-                            $contactGetArgs['withDND'] = true;
-                        }
+				$count = $this->DAL()->contacts->getContacts( $contact_get_args );
 
-                        // limited fields?
-                        if ( is_array( $limited_fields ) ){
-                            $contactGetArgs['onlyColumns'] = $limited_fields;
-                        }
+				// effectively a compile, so update compiled no on record
+				$this->updateSegmentCompiled( $segment_id, $count, time() );
 
-                        $contacts = $this->DAL()->contacts->getContacts( $contactGetArgs );
+				return $count;
+			}
 
-                        // if no limits, update compile record (effectively a compile)
-                        if ($contactGetArgs['page'] == -1 && $contactGetArgs['perPage'] == -1){
+			// got dnd?
+			if ( $with_dnd ) {
+				$contact_get_args['withDND'] = true;
+			}
 
-                            $this->updateSegmentCompiled($segmentID,count($contacts),time());
+			// limited fields?
+			if ( is_array( $limited_fields ) ) {
+				$contact_get_args['onlyColumns'] = $limited_fields;
+			}
 
-                        }
-           
-                        // Retrieve
-                        return $contacts;
+			$contact_get_args['withAssigned'] = true;
 
-                }
+			$contacts = $this->DAL()->contacts->getContacts( $contact_get_args );
 
-                return false;
+			// if no limits, update compile record (effectively a compile)
+			if ( $contact_get_args['page'] === -1 && $contact_get_args['perPage'] === -1 ) {
 
-           }
+				$this->updateSegmentCompiled( $segment_id, count( $contacts ), time() );
+
+			}
+
+			// Retrieve
+			return $contacts;
+
+		}
+
+		return false;
+	}
 
            /**
              * checks all segments against a contact
@@ -1435,7 +1453,20 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
 
                     global $zbs,$wpdb,$ZBSCRM_t;
 
-                    switch ( $condition['type'] ){
+			if ( ! empty( $condition['type'] ) ) {
+				// normalise type string
+				$condition_type  = preg_replace( '/^zbsc_/', '', $condition['type'] );
+				$filter_tag = $this->makeSlug( $condition_type ) . '_zbsSegmentArgumentBuild';
+
+				$potential_args = apply_filters( $filter_tag, false, $condition, $conditionKeySuffix ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				// got anything back?
+
+				if ( $potential_args !== false ) {
+					return $potential_args;
+				}
+			}
+
+			switch ( $condition['type'] ) {
 
                         case 'status':
                         case 'zbsc_status':
@@ -1518,10 +1549,8 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                                 return array('additionalWhereArr'=>
                                             array('emailContains'.$conditionKeySuffix=>array("zbsc_email",'LIKE','%s','%'.$condition['value'].'%'))
                                         );
-                            break;
 
-
-
+							break;
 
                         // TBA (When DAL2 trans etc.)
                         case 'totalval': // 'equal','notequal','larger','less','floatrange'
@@ -1667,47 +1696,11 @@ class zbsDAL_segments extends zbsDAL_ObjectLayer {
                                         ); 
                             break;
 
-                        default:
+				default:
+					break;
 
-                            // Allow for custom segmentArgument builders
-                            if (!empty($condition['type'])){
-
-                                $filterTag = $this->makeSlug( $condition['type'] ) . '_zbsSegmentArgumentBuild';
-                                $potentialArgs = apply_filters( $filterTag, false, $condition,$conditionKeySuffix );
-
-                                // got anything back? 
-                                if ( $potentialArgs !== false ) {
-                                    
-                                    return $potentialArgs;
-
-                                } else {
-
-                                    // fallbacks
-                                    // to support cases where we prefix with `zbsc_` (Adv Segments), here we remove if present
-                                    if ( substr( $condition['type'], 0, 5 ) == 'zbsc_' ){
-
-                                        $filterTag = $this->makeSlug( substr( $condition['type'], 5 ) ) . '_zbsSegmentArgumentBuild';
-                                        $potentialArgs = apply_filters( $filterTag, false, $condition,$conditionKeySuffix );
-
-                                        if ( $potentialArgs !== false ) {
-                                            
-                                            return $potentialArgs;
-
-                                        }
-
-                                    }
-                                }
-                            }
-
-                            break;
-
-
-
-                    }
-
-
-
-                }
+			}
+		}
 
                 // if we get here we've failed to create any arguments for this condiition
                 // ... to avoid scenarios such as mail campaigns going out to 'less filtered than intended' audiences

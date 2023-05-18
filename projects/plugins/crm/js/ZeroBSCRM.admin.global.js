@@ -2755,13 +2755,15 @@ var jpcrm = {
 	// essentially the same as PHP's htmlspecialchars(), which is what WP's esc_attr() primarily uses
 	// https://stackoverflow.com/a/41699140
 	esc_attr( str ) {
-		var map = {
+		const map = {
 			'&': '&amp;',
 			'<': '&lt;',
 			'>': '&gt;',
 			'"': '&quot;',
 			"'": '&#039;',
 		};
+		// ensure it's a string
+		str = '' + str;
 		return str.replace( /[&<>"']/g, function ( m ) {
 			return map[ m ];
 		} );

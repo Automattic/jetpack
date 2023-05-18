@@ -1,4 +1,10 @@
+/**
+ * External dependencies
+ */
 import { useSelect, useDispatch } from '@wordpress/data';
+/**
+ * Internal dependencies
+ */
 import { STORE_ID } from '../../state/store';
 
 /**
@@ -9,16 +15,23 @@ import { STORE_ID } from '../../state/store';
  * @returns {object}         - Site product data.
  */
 export function useProduct( productId ) {
-	const { activateProduct, deactivateProduct } = useDispatch( STORE_ID );
+	const {
+		activateProduct,
+		deactivateProduct,
+		installStandalonePluginForProduct,
+		deactivateStandalonePluginForProduct,
+	} = useDispatch( STORE_ID );
 	const detail = useSelect( select => select( STORE_ID ).getProduct( productId ) );
 
 	return {
 		activate: () => activateProduct( productId ),
 		deactivate: () => deactivateProduct( productId ),
+		deactivateStandalonePlugin: () => deactivateStandalonePluginForProduct( productId ),
+		installStandalonePlugin: () => installStandalonePluginForProduct( productId ),
 		productsList: useSelect( select => select( STORE_ID ).getProducts() ),
 		detail,
 		isActive: detail.status === 'active',
 		isFetching: useSelect( select => select( STORE_ID ).isFetching( productId ) ),
-		status: detail.status, // shorthand. Consider to remove.
+		stats: useSelect( select => select( STORE_ID ).getProductStats( productId ) ),
 	};
 }

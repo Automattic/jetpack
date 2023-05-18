@@ -19,9 +19,9 @@ jpcrm_render_reminders_page();
  */
 function jpcrm_render_reminders_page() {
 
-	// WLREMOVE
+	##WLREMOVE
 	do_action( 'zbs_reminders_promo' );
-	// /WLREMOVE
+	##/WLREMOVE
 	do_action( 'zbs_reminders_pro' );
 }
 

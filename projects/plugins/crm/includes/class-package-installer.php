@@ -30,34 +30,39 @@ class Package_Installer {
 	/*
 	* Init
 	*/
-	public function __construct( ) {
+	public function __construct() { // phpcs:ignore Squiz.Commenting.FunctionComment.WrongStyle
+
+		$root_storage_info = jpcrm_storage_dir_info();
+
+		if ( ! $root_storage_info ) {
+			throw new Exception( 'Jetpack CRM data folder could not be created!' );
+		}
 
 		// set $package_dir
-		$this->package_dir = dirname( ZEROBSCRM_PATH ) . '/jpcrm-data/packages/';
+		$this->package_dir = $root_storage_info['path'] . '/packages/';
 
 		// define packages
 		$this->packages = array(
 
-					'oauth_dependencies' => array(
+			'oauth_dependencies' => array(
 
-						'title'              => __( 'OAuth Connection dependencies', 'zero-bs-crm' ),
-						'version'            => 1.0,
-						'target_dir'         => $this->package_dir,
-						'install_method'     => 'unzip',
-						'post_install_call'  => '',
+				'title'             => __( 'OAuth Connection dependencies', 'zero-bs-crm' ),
+				'version'           => 1.0,
+				'target_dir'        => $this->package_dir,
+				'install_method'    => 'unzip',
+				'post_install_call' => '',
 
-					)
+			),
 
 		);
 
 		// does the working directory exist? If not create
-		if ( !file_exists( $this->package_dir ) ){ 
-			
+		if ( ! file_exists( $this->package_dir ) ) {
+
 			wp_mkdir_p( $this->package_dir );
-			//chmod( $this->package_dir, 0777 );
 
 			// double check
-			if ( !file_exists( $this->package_dir ) ){ 
+			if ( ! file_exists( $this->package_dir ) ) {
 
 				// we're going to struggle to install packages
 				// Add admin notification
@@ -66,11 +71,8 @@ class Package_Installer {
 			} else {
 				jpcrm_create_and_secure_dir_from_external_access( $this->package_dir, true );
 			}
-
 		}
-
 	}
-
 
 	/*
 	* Returns a list of packages available via our CDN

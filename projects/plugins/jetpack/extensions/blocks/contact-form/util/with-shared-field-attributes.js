@@ -60,25 +60,23 @@ export const useSharedFieldAttributes = ( {
 	);
 };
 
-export const withSharedFieldAttributes = sharedAttributes => WrappedComponent => ( {
-	attributes,
-	clientId,
-	setAttributes,
-	...props
-} ) => {
-	const syncAttributes = useSharedFieldAttributes( {
-		attributes,
-		clientId,
-		setAttributes,
-		sharedAttributes,
-	} );
+export const withSharedFieldAttributes =
+	sharedAttributes =>
+	WrappedComponent =>
+	( { attributes, clientId, setAttributes, ...props } ) => {
+		const syncAttributes = useSharedFieldAttributes( {
+			attributes,
+			clientId,
+			setAttributes,
+			sharedAttributes,
+		} );
 
-	return (
-		<WrappedComponent
-			attributes={ attributes }
-			clientId={ clientId }
-			setAttributes={ syncAttributes }
-			{ ...props }
-		/>
-	);
-};
+		return (
+			<WrappedComponent
+				attributes={ attributes }
+				clientId={ clientId }
+				setAttributes={ syncAttributes }
+				{ ...props }
+			/>
+		);
+	};

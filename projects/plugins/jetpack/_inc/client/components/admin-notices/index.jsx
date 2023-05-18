@@ -1,3 +1,4 @@
+import jQuery from 'jquery';
 import React from 'react';
 
 class AdminNotices extends React.Component {

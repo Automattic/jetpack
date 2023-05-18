@@ -180,18 +180,36 @@
                     </td></tr>
                     <?php } ?>
 
-                    <?php /* if (has_post_thumbnail( $post->ID ) ): ?>
-                      <?php $image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'single-post-thumbnail' ); ?>
-                      <tr class="wh-large"><th><label><?php echo $this->coOrgLabel; ?> Image:</label></th>
-                                    <td>
-                                        <a href="<?php echo $image[0]; ?>" target="_blank"><img src="<?php echo $image[0]; ?>" alt="<?php echo $this->coOrgLabel; ?> Image" style="max-width:300px;border:0" /></a>
-                                    </td></tr>
-                    <?php endif; */ ?>
+					<?php
+					$potential_statuses = zeroBSCRM_getCompanyStatuses();
+					$current_status     = '';
+					if ( is_array( $company ) && isset( $company['status'] ) ) {
+						$current_status = $company['status'];
+					}
+					?>
+							<tr class="wh-large">
+							<th>
+								<label for="zbsco_status"><?php echo esc_html( $this->coOrgLabel ) . ' ' . esc_html__( 'Status', 'zero-bs-crm' ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase ?>: </label>
+							</th>
+							<td>
+								<select id="zbsco_status" name="zbsco_status">
+					<?php
+					foreach ( $potential_statuses as $status ) {
+						$sel = $status === $current_status ? ' selected' : '';
+						echo '<option value="' .
+						esc_attr( $status ) .
+						'"' .
+						esc_attr( $sel ) .
+						'>' .
+						esc_html( $status ) .
+						'</option>';
+					}
+					?>
+								</select>
+							</td>
+							</tr>
 
-                    <?php /*<tr><td><pre><?php print_r($fields); ?></pre></td></tr> */
-
-            
-
+							<?php
                     #} This global holds "enabled/disabled" for specific fields... ignore unless you're WH or ask
                     global $zbsFieldsEnabled; if ($showSecondAddress == '1') $zbsFieldsEnabled['secondaddress'] = true;
                     
@@ -1121,26 +1139,6 @@ class zeroBS__Metabox_CompanyTags extends zeroBS__Metabox_Tags{
 
             // localise ID & content
             $companyID = -1; if (is_array($company) && isset($company['id'])) $companyID = (int)$company['id'];
-            
-                #} Status either way
-                $potentialStatuses = zeroBSCRM_getCompanyStatuses();
-
-                $status = ''; if (is_array($company) && isset($company['status'])) $status = $company['status'];
-
-                ?>
-                <div>
-                    <label for="zbsco_status"><?php echo esc_html($this->coOrgLabel).' '.esc_html__('Status',"zero-bs-crm"); ?>: </label>
-                    <select id="zbsco_status" name="zbsco_status">
-                            <?php foreach($potentialStatuses as $z){
-                                if($z == $status){$sel = ' selected'; }else{ $sel = '';}
-                                echo '<option value="'. esc_attr( $z ) .'"'. esc_attr( $sel ) .'>'.esc_html__($z,"zero-bs-crm").'</option>';
-                            } ?>
-                    </select>
-                </div>
-
-                <div class="clear"></div>
-                <?php
-
 
                 #} if a saved post...
                 //if (isset($post->post_status) && $post->post_status != "auto-draft"){

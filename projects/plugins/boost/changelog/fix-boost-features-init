@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix feature/optimization initialization happening always on plugins_loaded, due to setup_trigger not getting respected.

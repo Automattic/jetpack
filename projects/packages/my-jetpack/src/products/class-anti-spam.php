@@ -87,7 +87,6 @@ class Anti_Spam extends Product {
 	public static function get_features() {
 		return array(
 			_x( 'Comment and form spam protection', 'Anti-Spam Product Feature', 'jetpack-my-jetpack' ),
-			_x( 'Powered by Akismet', 'Anti-Spam Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Block spam without CAPTCHAs', 'Anti-Spam Product Feature', 'jetpack-my-jetpack' ),
 			_x( 'Advanced stats', 'Anti-Spam Product Feature', 'jetpack-my-jetpack' ),
 		);

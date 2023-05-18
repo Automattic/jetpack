@@ -26,6 +26,11 @@
 		</properties>
 	</rule>
 
+	<!-- This is being removed primarily because of White Label comment styles for now -->
+	<rule ref="Squiz.Commenting.InlineComment.WrongStyle">
+		<severity>0</severity> 
+	</rule>
+
 	<!-- Ideally we'd just configure PHPCompatibility with the right PHP version, but it uses <config> rather than <properties>. Sigh. -->
 	<!-- So instead we have to manually disable certain sniffs. -->
 	<rule ref="PHPCompatibility.FunctionDeclarations.NewReturnTypeDeclarations">

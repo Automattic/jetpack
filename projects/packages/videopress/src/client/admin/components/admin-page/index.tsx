@@ -45,16 +45,8 @@ import styles from './styles.module.scss';
 
 const useDashboardVideos = () => {
 	const { uploadVideo, uploadVideoFromLibrary, setVideosQuery } = useDispatch( STORE_ID );
-	const {
-		items,
-		uploading,
-		uploadedVideoCount,
-		isFetching,
-		search,
-		page,
-		itemsPerPage,
-		total,
-	} = useVideos();
+	const { items, uploading, uploadedVideoCount, isFetching, search, page, itemsPerPage, total } =
+		useVideos();
 	const { items: localVideos, uploadedLocalVideoCount } = useLocalVideos();
 	const { hasVideoPressPurchase } = usePlan();
 
@@ -181,16 +173,12 @@ const Admin = () => {
 
 	const canUpload = ( hasVideoPressPurchase || ! hasVideos ) && canPerformAction;
 
-	const {
-		isDraggingOver,
-		inputRef,
-		handleFileInputChangeEvent,
-		filterVideoFiles,
-	} = useSelectVideoFiles( {
-		canDrop: canUpload && ! loading,
-		dropElement: document,
-		onSelectFiles: handleFilesUpload,
-	} );
+	const { isDraggingOver, inputRef, handleFileInputChangeEvent, filterVideoFiles } =
+		useSelectVideoFiles( {
+			canDrop: canUpload && ! loading,
+			dropElement: document,
+			onSelectFiles: handleFilesUpload,
+		} );
 
 	useAnalyticsTracks( { pageViewEventName: 'jetpack_videopress_admin_page_view' } );
 
@@ -230,7 +218,7 @@ const Admin = () => {
 					<AdminSectionHero>
 						<Container horizontalSpacing={ 0 }>
 							<Col>
-								<div id="jp-admin-notices" className="jetpack-videopress-jitm-card" />
+								<div id="jp-admin-notices" className={ styles[ 'jetpack-videopress-jitm-card' ] } />
 							</Col>
 						</Container>
 

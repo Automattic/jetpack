@@ -572,6 +572,15 @@ export function getAttachedMedia() {
 }
 
 /**
+ * Checks if the post is a social post.
+ *
+ * @returns {boolean} Whether the post is a social post.
+ */
+export function shouldUploadAttachedMedia() {
+	return getJetpackSocialOptions()?.should_upload_attached_media ?? false;
+}
+
+/**
  * Get a list of all image generator settings for a post.
  *
  * @returns {Array} An array of image generator settings.

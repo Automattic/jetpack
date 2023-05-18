@@ -1,6 +1,4 @@
 import AtAGlance from 'at-a-glance/index.jsx';
-import Navigation from 'components/navigation';
-import NavigationSettings from 'components/navigation-settings';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -22,8 +20,8 @@ class NonAdminView extends React.Component {
 	}
 
 	renderMainContent = route => {
-		let pageComponent,
-			navComponent = <Navigation { ...this.props } />;
+		let pageComponent;
+
 		switch ( route ) {
 			case '/dashboard':
 			default:
@@ -35,7 +33,6 @@ class NonAdminView extends React.Component {
 			case '/sharing':
 			case '/performance':
 				if ( ! this.props.isSubscriber ) {
-					navComponent = <NavigationSettings { ...this.props } />;
 					pageComponent = (
 						<SearchableSettings
 							siteAdminUrl={ this.props.siteAdminUrl }
@@ -50,12 +47,7 @@ class NonAdminView extends React.Component {
 
 		window.wpNavMenuClassChange();
 
-		return (
-			<div>
-				{ navComponent }
-				{ pageComponent }
-			</div>
-		);
+		return <div>{ pageComponent }</div>;
 	};
 
 	render() {

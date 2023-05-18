@@ -14,7 +14,7 @@ namespace Automattic\Jetpack;
  */
 class Jetpack_Mu_Wpcom {
 
-	const PACKAGE_VERSION = '1.1.3-alpha';
+	const PACKAGE_VERSION = '2.2.1-alpha';
 	const PKG_DIR         = __DIR__ . '/../';
 
 	/**
@@ -33,6 +33,13 @@ class Jetpack_Mu_Wpcom {
 		// Coming Soon feature.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
+
+		// Unified navigation fix for changes in WordPress 6.2.
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
+
+		// Load the Map block settings.
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'load_map_block_settings' ) );
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -67,6 +74,13 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Load the Launchpad feature.
+	 */
+	public static function load_launchpad() {
+		require_once __DIR__ . '/features/launchpad/launchpad.php';
+	}
+
+	/**
 	 * Load WP REST API plugins for wpcom
 	 */
 	public static function load_wpcom_rest_api_endpoints() {
@@ -84,5 +98,36 @@ class Jetpack_Mu_Wpcom {
 		foreach ( array_filter( $plugins, 'is_file' ) as $plugin ) {
 			require_once $plugin;
 		}
+	}
+
+	/**
+	 * Adds a global variable containing the map provider in a map_block_settings object to the window object
+	 *
+	 * @return void
+	 */
+	public static function load_map_block_settings() {
+		if (
+			! function_exists( 'get_current_screen' )
+			|| \get_current_screen() === null
+		) {
+			return;
+		}
+
+		// Return early if we are not in the block editor.
+		if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
+			return;
+		}
+
+		$map_provider = apply_filters( 'wpcom_map_block_map_provider', 'mapbox' );
+		wp_localize_script( 'jetpack-blocks-editor', 'Jetpack_Maps', array( 'provider' => $map_provider ) );
+	}
+
+	/**
+	 * Unbinds focusout event handler on #wp-admin-bar-menu-toggle introduced in WordPress 6.2.
+	 *
+	 * The focusout event handler is preventing the unified navigation from being closed on mobile.
+	 */
+	public static function unbind_focusout_on_wp_admin_bar_menu_toggle() {
+		wp_add_inline_script( 'common', '(function($){ $(document).on("wp-responsive-activate", function(){ $(".is-nav-unification #wp-admin-bar-menu-toggle, .is-nav-unification #adminmenumain").off("focusout"); } ); }(jQuery) );' );
 	}
 }

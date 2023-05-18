@@ -33,6 +33,11 @@ const lazyLoadingContext = createInterpolateElement( lazyLoadingContextTemplate,
 	link: <a href={ getRedirectUrl( 'jetpack-boost-lazy-load' ) } target="_blank" rel="noreferrer" />,
 } );
 
+const imageGuideContext = __(
+	'Discover and fix images with a suboptimal resolution, aspect ratio, or file size, improving user experience and page speed.',
+	'jetpack-boost'
+);
+
 const supportContext = __(
 	`Paid customers get dedicated email support from our world-class Happiness Engineers to help with any issue.<br><br>All other questions are handled by our team as quickly as we are able to go through the WordPress support forum.`,
 	'jetpack-boost'
@@ -51,6 +56,11 @@ const automaticallyUpdatedContext = (
 			'jetpack-boost'
 		) }
 	</span>
+);
+
+const imageCdnContext = __(
+	`Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.`,
+	'jetpack-boost'
 );
 
 const manuallyUpdatedContext = (
@@ -87,6 +97,11 @@ const manuallyUpdatedContext = (
 	</span>
 );
 
+const concatenateContext = __(
+	'Boost your website performance by merging and compressing JavaScript and CSS files, reducing site loading time and number of requests.',
+	'jetpack-boost'
+);
+
 export const BoostPricingTable = ( {
 	pricing,
 	onPremiumCTA,
@@ -108,18 +123,37 @@ export const BoostPricingTable = ( {
 				{
 					name: __( 'Optimize CSS Loading', 'jetpack-boost' ),
 					tooltipInfo: cssOptimizationContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Defer non-essential JavaScript', 'jetpack-boost' ),
 					tooltipInfo: deferJSContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Lazy image loading', 'jetpack-boost' ),
 					tooltipInfo: lazyLoadingContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
+					name: __( 'Image guide', 'jetpack-boost' ),
+					tooltipInfo: imageGuideContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
+					name: __( 'Image CDN', 'jetpack-boost' ),
+					tooltipInfo: imageCdnContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
+					name: __( 'Concatenate JS and CSS', 'jetpack-boost' ),
+					tooltipInfo: concatenateContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Dedicated email support', 'jetpack-boost' ),
 					tooltipInfo: <span dangerouslySetInnerHTML={ { __html: supportContext } }></span>,
+					tooltipPlacement: 'bottom-start',
 				},
 			] }
 		>
@@ -151,6 +185,9 @@ export const BoostPricingTable = ( {
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
@@ -177,6 +214,9 @@ export const BoostPricingTable = ( {
 					tooltipInfo={ manuallyUpdatedContext }
 					tooltipClassName="wide-tooltip"
 				/>
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ false } label={ __( 'Not included', 'jetpack-boost' ) } />

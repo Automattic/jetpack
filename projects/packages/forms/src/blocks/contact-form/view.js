@@ -14,14 +14,17 @@ window.addEventListener( 'load', () => {
 } );
 
 function handleFormStyles() {
-	const styleVariables = generateStyleVariables( FRONTEND_SELECTOR );
+	const formNodes = document.querySelectorAll( FRONTEND_SELECTOR );
 
-	if ( ! styleVariables ) {
-		return;
-	}
+	for ( const formNode of formNodes ) {
+		const styleVariables = generateStyleVariables( formNode );
 
-	const outputContainer = document.querySelector( FRONTEND_SELECTOR );
-	for ( const styleVariablesKey in styleVariables ) {
-		outputContainer.style.setProperty( styleVariablesKey, styleVariables[ styleVariablesKey ] );
+		if ( ! styleVariables ) {
+			return;
+		}
+
+		for ( const styleVariablesKey in styleVariables ) {
+			formNode.style.setProperty( styleVariablesKey, styleVariables[ styleVariablesKey ] );
+		}
 	}
 }

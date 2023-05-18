@@ -506,8 +506,12 @@ class Mailpoet_Background_Sync_Job {
 		//$this->debug( 'Add/Update contact: <pre>' . var_export( $contact_args ) . '</pre>' );
 
 		// Add/update the contact & return id
-		return $zbs->DAL->contacts->addUpdateContact( $contact_args );
-
+		return $zbs->DAL->contacts->addUpdateContact( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'data'                 => $contact_args['data'],
+				'do_not_update_blanks' => true,
+			)
+		);
 	}
 
 

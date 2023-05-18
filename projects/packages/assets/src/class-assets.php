@@ -75,8 +75,9 @@ class Assets {
 	 *
 	 * @param string $script_handle Script handle.
 	 */
-	public function add_async_script( $script_handle ) {
-		$this->defer_script_handles[] = $script_handle;
+	public static function add_async_script( $script_handle ) {
+		$assets_instance                         = self::instance();
+		$assets_instance->defer_script_handles[] = $script_handle;
 	}
 
 	/**
@@ -281,7 +282,7 @@ class Assets {
 				++$i;
 			}
 		}
-		$ret .= join( '/', $pp );
+		$ret .= implode( '/', $pp );
 
 		$ret .= isset( $parts['query'] ) ? '?' . $parts['query'] : '';
 		$ret .= isset( $parts['fragment'] ) ? '#' . $parts['fragment'] : '';

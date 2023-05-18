@@ -30,8 +30,7 @@ class Jwt_Token_Bridge {
 			return;
 		}
 
-		// Expose the VideoPress token to the Block Editor context, including the front-end editor.
-		add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_jwt_token_bridge' ), 1 );
+		// Expose the VideoPress token to the Block Editor context.
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_jwt_token_bridge' ), 1 );
 
 		// Expose the VideoPress token to the WPAdmin context.

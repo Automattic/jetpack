@@ -27,8 +27,7 @@ const APP_STORE_BADGE_URLS = {
 	},
 	android: {
 		defaultSrc: imagePath + '/get-apps-google-play.png',
-		src:
-			'https://play.google.com/intl/en_us/badges/images/generic/{localeSlug}_badge_web_generic.png',
+		src: 'https://play.google.com/intl/en_us/badges/images/generic/{localeSlug}_badge_web_generic.png',
 		tracksEvent: 'calypso_app_download_android_click',
 		getStoreLink: (
 			utm_source,
@@ -109,15 +108,8 @@ class AppsBadge extends PureComponent {
 	};
 
 	render() {
-		const {
-			altText,
-			titleText,
-			storeLink,
-			storeName,
-			utm_source,
-			utm_medium,
-			utm_campaign,
-		} = this.props;
+		const { altText, titleText, storeLink, storeName, utm_source, utm_medium, utm_campaign } =
+			this.props;
 		const { imageSrc, hasExternalImageLoaded } = this.state;
 
 		const figureClassNames = classNames( 'apps-badge', {

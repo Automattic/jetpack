@@ -1,7 +1,6 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import Card from 'components/card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -60,7 +59,6 @@ function Search( props ) {
 
 	const togglingModule = !! props.isSavingAnyOption( 'search' );
 	const togglingInstantSearch = !! props.isSavingAnyOption( 'instant_search_enabled' );
-	const isSavingEitherOption = togglingModule || togglingInstantSearch;
 	return (
 		<SettingsCard { ...props } module="search" feature={ FEATURE_SEARCH_JETPACK } hideButton>
 			<SettingsGroup
@@ -83,31 +81,29 @@ function Search( props ) {
 						<ModuleToggle
 							activated={ isModuleEnabled }
 							compact
-							disabled={ isSavingEitherOption }
+							toggling={ togglingModule }
 							slug="search"
 							toggleModule={ toggleSearchModule }
-							toggling={ togglingModule }
 						>
 							{ __( 'Enable Search', 'jetpack' ) }
 						</ModuleToggle>
 
 						<FormFieldset>
-							<CompactFormToggle
+							<ToggleControl
 								checked={ isModuleEnabled && isInstantSearchEnabled }
-								disabled={ isSavingEitherOption || ! props.hasInstantSearch }
-								onChange={ toggleInstantSearch }
+								disabled={ togglingModule || ! props.hasInstantSearch }
 								toggling={ togglingInstantSearch }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
-							<p className="jp-form-setting-explanation jp-form-search-setting-explanation">
-								{ __(
-									'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
-									'jetpack'
-								) }
-							</p>
+								onChange={ toggleInstantSearch }
+								label={ __( 'Enable instant search experience (recommended)', 'jetpack' ) }
+								help={
+									<span className="jp-form-setting-explanation jp-form-search-setting-explanation">
+										{ __(
+											'Instant search will allow your visitors to get search results as soon as they start typing. If deactivated, Jetpack Search will still optimize your search results but visitors will have to submit a search query before seeing any results.',
+											'jetpack'
+										) }
+									</span>
+								}
+							/>
 						</FormFieldset>
 					</Fragment>
 				) }

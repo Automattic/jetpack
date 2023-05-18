@@ -1,6 +1,7 @@
 import restApi from '@automattic/jetpack-api';
 import { __, sprintf } from '@wordpress/i18n';
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
+import jQuery from 'jquery';
 import { forEach, some } from 'lodash';
 import {
 	JETPACK_MODULES_LIST_FETCH,

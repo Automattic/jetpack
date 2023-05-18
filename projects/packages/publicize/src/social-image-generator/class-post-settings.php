@@ -40,10 +40,13 @@ class Post_Settings {
 	/**
 	 * Get the SIG settings.
 	 *
+	 * @param bool $raw Whether to get the raw settings, skipping the defaults.
 	 * @return array
 	 */
-	public function get_settings() {
-		$social_options = get_post_meta( $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
+	public function get_settings( $raw = false ) {
+		$social_options = $raw
+			? get_metadata_raw( 'post', $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true )
+			: get_post_meta( $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
 
 		if ( ! is_array( $social_options ) || empty( $social_options['image_generator_settings'] ) ) {
 			return array();
@@ -57,6 +60,7 @@ class Post_Settings {
 	 *
 	 * @param string $key The key to update.
 	 * @param mixed  $value The value to set for the key.
+	 * @return bool True if the update was successful.
 	 */
 	public function update_setting( $key, $value ) {
 		$social_options = get_post_meta( $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
@@ -67,7 +71,13 @@ class Post_Settings {
 
 		$updated_options = array_replace_recursive( $social_options, array( 'image_generator_settings' => array( $key => $value ) ) );
 
-		update_post_meta( $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, $updated_options );
+		$updated = update_post_meta( $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, $updated_options );
+
+		if ( $updated ) {
+			$this->settings = $updated_options['image_generator_settings'];
+		}
+
+		return (bool) $updated;
 	}
 
 	/**
@@ -138,6 +148,19 @@ class Post_Settings {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * Get the template to use for the generated image.
+	 *
+	 * @return string
+	 */
+	public function get_template() {
+		if ( ! empty( $this->settings['template'] ) ) {
+			return $this->settings['template'];
+		}
+
+		return Templates::DEFAULT_TEMPLATE;
 	}
 
 	/**

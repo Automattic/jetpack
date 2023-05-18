@@ -102,7 +102,7 @@ if ( isset( $sbupdated ) ) {
 			<tbody>
 
 			<tr>
-				<td class="wfieldname"><label for="wpzbscrm_emailtracking"><?php esc_html_e( 'Track Open Statistics', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Include tracking pixels in all outbound system emails<br/>(e.g. Welcome to the Client Portal)', 'zero-bs-crm' ); ?>.</td>
+				<td class="wfieldname"><label for="wpzbscrm_emailtracking"><?php esc_html_e( 'Track Open Statistics', 'zero-bs-crm' ); ?>:</label><br /><?php esc_html_e( 'Include tracking pixels in all outbound system emails (e.g. "Welcome to the Client Portal")', 'zero-bs-crm' ); ?>.</td>
 				<td style="width:200px"><input type="checkbox" class="winput form-control" name="wpzbscrm_emailtracking" id="wpzbscrm_emailtracking" value="1"
 				<?php
 				if ( isset( $settings['emailtracking'] ) && $settings['emailtracking'] == '1' ) {
