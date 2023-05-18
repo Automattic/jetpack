@@ -152,7 +152,7 @@ abstract class Jetpack_Display_Posts_Widget__Base extends WP_Widget {
 		 * Show only as much posts as we need. If we have less than configured amount,
 		 * we must show only that much posts.
 		 */
-		$number_of_posts = min( $instance['number_of_posts'], count( $posts_list ) );
+		$number_of_posts = min( $instance['number_of_posts'], is_countable( $posts_list ) ? count( $posts_list ) : 0 );
 
 		for ( $i = 0; $i < $number_of_posts; $i++ ) {
 			$single_post = $posts_list[ $i ];

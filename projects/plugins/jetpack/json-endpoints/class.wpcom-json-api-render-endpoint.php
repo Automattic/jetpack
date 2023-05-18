@@ -64,7 +64,7 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public function add_assets( $return, $loaded_scripts, $loaded_styles ) {
 		global $wp_scripts, $wp_styles;
 		// scripts first, just cuz
-		if ( count( $loaded_scripts ) > 0 ) {
+		if ( $loaded_scripts !== array() ) {
 			$scripts = array();
 			foreach ( $loaded_scripts as $handle ) {
 				if ( ! isset( $wp_scripts->registered[ $handle ] ) ) {
@@ -92,7 +92,7 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$return['scripts'] = $scripts;
 		}
 		// now styles
-		if ( count( $loaded_styles ) > 0 ) {
+		if ( $loaded_styles !== array() ) {
 			$styles = array();
 			foreach ( $loaded_styles as $handle ) {
 				if ( ! isset( $wp_styles->registered[ $handle ] ) ) {

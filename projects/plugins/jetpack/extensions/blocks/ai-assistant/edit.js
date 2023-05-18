@@ -4,32 +4,38 @@
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { useBlockProps, store as blockEditorStore } from '@wordpress/block-editor';
 import { rawHandler, createBlock } from '@wordpress/blocks';
-import { Flex, FlexBlock, Modal } from '@wordpress/components';
+import { Flex, FlexBlock, Modal, Notice } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
-import { useState } from '@wordpress/element';
+import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import MarkdownIt from 'markdown-it';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
 import AIControl from './ai-control';
 import ImageWithSelect from './image-with-select';
 import { getImagesFromOpenAI } from './lib';
-import ShowLittleByLittle from './show-little-by-little';
 import useSuggestionsFromOpenAI from './use-suggestions-from-openai';
 import './editor.scss';
 
+const markdownConverter = new MarkdownIt( {
+	breaks: true,
+} );
+
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
-	const [ , setErrorMessage ] = useState( false );
+	const [ errorMessage, setErrorMessage ] = useState( false );
 	const [ aiType, setAiType ] = useState( 'text' );
-	const [ animationDone, setAnimationDone ] = useState( false );
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
 	const [ imageModal, setImageModal ] = useState( null );
+	const [ errorDismissed, setErrorDismissed ] = useState( null );
 	const { tracks } = useAnalytics();
 	const postId = useSelect( select => select( 'core/editor' ).getCurrentPostId() );
 
-	const { replaceBlocks, replaceBlock } = useDispatch( blockEditorStore );
+	const { replaceBlocks, replaceBlock, removeBlock } = useDispatch( blockEditorStore );
+	const { editPost } = useDispatch( 'core/editor' );
 	const { mediaUpload } = useSelect( select => {
 		const { getSettings } = select( blockEditorStore );
 		const settings = getSettings();
@@ -55,6 +61,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		tracks,
 		userPrompt,
 	} );
+
+	useEffect( () => {
+		if ( errorMessage ) {
+			setErrorDismissed( false );
+		}
+	}, [ errorMessage ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
@@ -104,21 +116,20 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const contentIsLoaded = !! attributes.content;
 
 	const handleAcceptContent = () => {
-		replaceBlocks( clientId, rawHandler( { HTML: attributes.content } ) );
+		replaceBlocks(
+			clientId,
+			rawHandler( { HTML: markdownConverter.render( attributes.content ) } )
+		);
+	};
+
+	const handleAcceptTitle = () => {
+		editPost( { title: attributes.content.trim() } );
+		removeBlock( clientId );
 	};
 
 	const handleTryAgain = () => {
 		setAttributes( { content: undefined } );
 	};
-
-	const textPLaceholder = ! attributes?.content?.length
-		? __( 'Ask AI to write anything…', 'jetpack' )
-		: __( 'Tell AI what to do next…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
-
-	const placeholder =
-		aiType === 'text'
-			? textPLaceholder
-			: __( 'What would you like to see?', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 
 	const handleGetSuggestion = type => {
 		if ( aiType === 'text' ) {
@@ -130,7 +141,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		setResultImages( [] );
 		setErrorMessage( null );
 		getImagesFromOpenAI(
-			userPrompt.trim() === '' ? placeholder : userPrompt,
+			userPrompt.trim() === '' ? __( 'What would you like to see?', 'jetpack' ) : userPrompt,
 			setAttributes,
 			setLoadingImages,
 			setResultImages,
@@ -144,31 +155,30 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	return (
 		<div { ...useBlockProps() }>
+			{ errorMessage && ! errorDismissed && (
+				<Notice status="info" isDismissible={ false } className="jetpack-ai-assistant__error">
+					{ errorMessage }
+				</Notice>
+			) }
 			{ contentIsLoaded && (
 				<>
-					<ShowLittleByLittle
-						showAnimation={ ! animationDone }
-						onAnimationDone={ () => {
-							setAnimationDone( true );
-						} }
-						clientId={ clientId }
-						html={ attributes.content }
-					/>
+					<div className="jetpack-ai-assistant__content">
+						<RawHTML>{ markdownConverter.render( attributes.content ) }</RawHTML>
+					</div>
 				</>
 			) }
 			<AIControl
 				aiType={ aiType }
-				animationDone={ animationDone }
 				content={ attributes.content }
 				contentIsLoaded={ contentIsLoaded }
 				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 				retryRequest={ retryRequest }
 				handleAcceptContent={ handleAcceptContent }
+				handleAcceptTitle={ handleAcceptTitle }
 				handleGetSuggestion={ handleGetSuggestion }
 				handleTryAgain={ handleTryAgain }
 				isWaitingState={ isWaitingState }
 				loadingImages={ loadingImages }
-				placeholder={ placeholder }
 				showRetry={ showRetry }
 				setAiType={ setAiType }
 				setUserPrompt={ setUserPrompt }
@@ -176,6 +186,8 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				postTitle={ postTitle }
 				userPrompt={ userPrompt }
 				wholeContent={ wholeContent }
+				promptType={ attributes.promptType }
+				onChange={ () => setErrorDismissed( true ) }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>

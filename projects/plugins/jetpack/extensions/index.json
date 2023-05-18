@@ -49,9 +49,9 @@
 		"videopress/video"
 	],
 	"beta": [
-		"ai-assistant",
 		"ai-chat",
 		"amazon",
+		"author-recommendation",
 		"conversation",
 		"dialogue",
 		"google-docs-embed",
@@ -59,10 +59,9 @@
 		"post-publish-promote-post-panel",
 		"recipe",
 		"v6-video-frame-poster",
-		"videopress/video-chapters",
-		"author-recommendation"
+		"videopress/video-chapters"
 	],
-	"experimental": [ "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],
+	"experimental": [ "ai-assistant", "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",

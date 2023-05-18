@@ -313,6 +313,7 @@ function grunion_manage_post_column_from( $post ) {
  * @return void
  */
 function grunion_manage_post_column_response( $post ) {
+	$content_fields     = array();
 	$non_printable_keys = array(
 		'email_marketing_consent',
 		'entry_title',
@@ -567,6 +568,7 @@ function grunion_sort_objects( $a, $b ) {
  * returns both the shortcode form, and HTML markup representing a preview of the form
  */
 function grunion_ajax_shortcode() {
+	$field_shortcodes = array();
 	check_ajax_referer( 'grunion_shortcode' );
 
 	if ( ! current_user_can( 'edit_posts' ) ) {
@@ -1061,7 +1063,7 @@ function grunion_recheck_queue() {
 
 	wp_send_json(
 		array(
-			'processed' => count( $approved_feedbacks ),
+			'processed' => is_countable( $approved_feedbacks ) ? count( $approved_feedbacks ) : 0,
 		)
 	);
 }
@@ -1299,7 +1301,7 @@ class Grunion_Admin {
 		$export_data = $grunion->get_feedback_entries_from_post();
 
 		$fields    = array_keys( $export_data );
-		$row_count = count( reset( $export_data ) );
+		$row_count = is_countable( $export_data ) ? count( reset( $export_data ) ) : 0;
 
 		$sheet_data = array( $fields );
 

@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.8.0 - 2023-05-15
+### Added
+- Stats Admin: adds rest api for marking and unmarking referrers as spam [#30625]
+- Stats Admin: adds versions and platform info to Odyssey config data [#30573]
+
+### Fixed
+- Stats Admin: align is_automated_transfer with other places [#30622]
+
 ## 0.7.3 - 2023-05-01
 ### Fixed
 - Stats Admin: Cache bust the cache buster [#30374]

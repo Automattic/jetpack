@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.18.0] - 2023-05-18
+### Added
+- Akismet: include current gmt time to assist in spam detection [#30755]
+- Jetpack Forms: improving the styling of response emails [#30088]
+
+### Fixed
+- Change hook parameter to what it was before (fields collection). Modify Post_To_Url hook to handle such collection instead of a form instance [#30744]
+
+## [0.17.0] - 2023-05-15
+### Added
+- Forms: Add style customization options for the MC/SC field buttons style [#30526]
+- Forms: Create dashboard landing page [#30161]
+- The new Jetpack Forms feedback WP Admin page is now enabled. The old page remains the default for the time being and all users can opt-in to see the new interface by using the 'view' swtich in the top right corner. [#30515]
+
+### Changed
+- Forms: Enable Forms landing page redirection logic [#30605]
+- Forms: Remove Forms landing page redirection logic [#30548]
+- Provide default data sets for responses data to avoid PHP warnings on undefined array keys [#30520]
+
+### Fixed
+- Add salesforce form variation alongside default variations for better discoverability. Fix private method for action trigger [#30562]
+
 ## [0.16.0] - 2023-05-08
 ### Added
 - Added URL-based navigation support for the new forms dashboard [#30367]
@@ -225,6 +247,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[0.18.0]: https://github.com/automattic/jetpack-forms/compare/v0.17.0...v0.18.0
+[0.17.0]: https://github.com/automattic/jetpack-forms/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/automattic/jetpack-forms/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/automattic/jetpack-forms/compare/v0.14.1...v0.15.0
 [0.14.1]: https://github.com/automattic/jetpack-forms/compare/v0.14.0...v0.14.1
