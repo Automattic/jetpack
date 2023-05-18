@@ -155,12 +155,18 @@ function AuthorRecommendationContent( {
 						} }
 					>
 						<Flex gap={ 4 } justify="space-between">
-							<FlexItem style={ { maxHeight: 36, minWidth: 36 } }>
+							<FlexItem>
 								{ ! subscription.site_icon && (
 									<Icon icon="admin-site" className="icon" size={ 36 } />
 								) }
 								{ subscription.site_icon && (
-									<img className="icon" src={ subscription.site_icon } alt={ subscription.name } />
+									<img
+										className="icon"
+										src={ subscription.site_icon }
+										alt={ subscription.name }
+										height={ 36 }
+										width={ 36 }
+									/>
 								) }
 							</FlexItem>
 							<FlexBlock>{ subscription.name }</FlexBlock>
