@@ -47,11 +47,9 @@ export async function askJetpack( question ) {
  * @param {number} postId - The post where this completion is being requested, if available
  */
 export async function askQuestion( question, postId = null ) {
-	const { blogId, token } = await requestToken();
+	const { token } = await requestToken();
 
-	const url = new URL(
-		'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/jetpack-openai-query'
-	);
+	const url = new URL( 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query' );
 	url.searchParams.append( 'question', question );
 	url.searchParams.append( 'token', token );
 
