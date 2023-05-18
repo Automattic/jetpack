@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Fix race condition bug in the Plugin update endpoint.
