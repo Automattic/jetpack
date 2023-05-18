@@ -684,6 +684,9 @@ importers:
       '@wordpress/hooks':
         specifier: 3.32.0
         version: 3.32.0
+      '@wordpress/html-entities':
+        specifier: ^3.33.0
+        version: 3.33.0
       '@wordpress/i18n':
         specifier: 4.32.0
         version: 4.32.0
@@ -8924,7 +8927,7 @@ packages:
       '@wordpress/element': 5.9.0
       '@wordpress/escape-html': 2.32.0
       '@wordpress/hooks': 3.32.0
-      '@wordpress/html-entities': 3.32.0
+      '@wordpress/html-entities': 3.33.0
       '@wordpress/i18n': 4.32.0
       '@wordpress/icons': 9.23.0
       '@wordpress/is-shallow-equal': 4.32.0
@@ -8985,7 +8988,7 @@ packages:
       '@wordpress/element': 5.9.0
       '@wordpress/escape-html': 2.32.0
       '@wordpress/hooks': 3.32.0
-      '@wordpress/html-entities': 3.32.0
+      '@wordpress/html-entities': 3.33.0
       '@wordpress/i18n': 4.32.0
       '@wordpress/icons': 9.23.0
       '@wordpress/is-shallow-equal': 4.32.0
@@ -9048,7 +9051,7 @@ packages:
       '@wordpress/element': 5.9.0
       '@wordpress/escape-html': 2.32.0
       '@wordpress/hooks': 3.32.0
-      '@wordpress/html-entities': 3.32.0
+      '@wordpress/html-entities': 3.33.0
       '@wordpress/i18n': 4.32.0
       '@wordpress/icons': 9.23.0
       '@wordpress/keycodes': 3.32.0
@@ -9106,7 +9109,7 @@ packages:
       '@wordpress/element': 5.9.0
       '@wordpress/escape-html': 2.32.0
       '@wordpress/hooks': 3.32.0
-      '@wordpress/html-entities': 3.32.0
+      '@wordpress/html-entities': 3.33.0
       '@wordpress/i18n': 4.32.0
       '@wordpress/icons': 9.23.0
       '@wordpress/keycodes': 3.32.0
@@ -9161,7 +9164,7 @@ packages:
       '@wordpress/dom': 3.32.0
       '@wordpress/element': 5.9.0
       '@wordpress/hooks': 3.32.0
-      '@wordpress/html-entities': 3.32.0
+      '@wordpress/html-entities': 3.33.0
       '@wordpress/i18n': 4.32.0
       '@wordpress/is-shallow-equal': 4.32.0
       '@wordpress/private-apis': 0.14.0
@@ -9426,7 +9429,7 @@ packages:
       '@wordpress/data': 9.2.0(react@18.2.0)
       '@wordpress/deprecated': 3.32.0
       '@wordpress/element': 5.9.0
-      '@wordpress/html-entities': 3.32.0
+      '@wordpress/html-entities': 3.33.0
       '@wordpress/i18n': 4.32.0
       '@wordpress/is-shallow-equal': 4.32.0
       '@wordpress/url': 3.33.0
@@ -9645,7 +9648,7 @@ packages:
       '@wordpress/dom': 3.32.0
       '@wordpress/element': 5.9.0
       '@wordpress/hooks': 3.32.0
-      '@wordpress/html-entities': 3.32.0
+      '@wordpress/html-entities': 3.33.0
       '@wordpress/i18n': 4.32.0
       '@wordpress/icons': 9.23.0
       '@wordpress/keyboard-shortcuts': 4.9.0(react@18.2.0)
@@ -9698,7 +9701,7 @@ packages:
       '@wordpress/dom': 3.32.0
       '@wordpress/element': 5.9.0
       '@wordpress/hooks': 3.32.0
-      '@wordpress/html-entities': 3.32.0
+      '@wordpress/html-entities': 3.33.0
       '@wordpress/i18n': 4.32.0
       '@wordpress/icons': 9.23.0
       '@wordpress/keyboard-shortcuts': 4.9.0(react@18.2.0)
@@ -9823,7 +9826,7 @@ packages:
       '@wordpress/compose': 6.9.0(react@18.2.0)
       '@wordpress/data': 9.2.0(react@18.2.0)
       '@wordpress/element': 5.9.0
-      '@wordpress/html-entities': 3.32.0
+      '@wordpress/html-entities': 3.33.0
       '@wordpress/i18n': 4.32.0
       '@wordpress/icons': 9.23.0
       '@wordpress/rich-text': 6.9.0(react@18.2.0)
@@ -9847,6 +9850,12 @@ packages:
 
   /@wordpress/html-entities@3.32.0:
     resolution: {integrity: sha512-B1PK+F2pJM+0Ido9Ucti/yQxjssm4W6NtJTFcgZA6HJgyfBmRU54LRBCcBt6wCpJERpMn0bm9nFJqc0nvJSfNQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.21.5
+
+  /@wordpress/html-entities@3.33.0:
+    resolution: {integrity: sha512-qZ98FcpEc3xwGoqfYQLwQ4wpkREFqpo9KKwvevrRT3gyHc98fnbbyD6SKisv7pMdXfDDqg70nREcUB1xwMf6jw==}
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.21.5
