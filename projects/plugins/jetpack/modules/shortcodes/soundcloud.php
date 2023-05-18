@@ -241,7 +241,7 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 
 			unset( $args['url'] );
 			$params = 'params="';
-			if ( count( $args ) > 0 ) {
+			if ( is_countable( $args ) && count( $args ) > 0 ) {
 				foreach ( $args as $key => $value ) {
 					$params .= esc_html( $key ) . '=' . esc_html( $value ) . '&amp;';
 				}
