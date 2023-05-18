@@ -8,6 +8,8 @@ import { Modal, TabPanel, Button } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
+import { getImageGeneratorPostSettings } from '../../store/selectors';
+import { getSigImageUrl } from '../generated-image-preview/utils';
 import { AVAILABLE_SERVICES } from './constants';
 import { getMediaSourceUrl } from './utils';
 import './modal.scss';
@@ -59,7 +61,18 @@ export default withSelect( select => {
 	const { isTweetStorm } = select( 'jetpack/publicize' );
 
 	const featuredImageId = getEditedPostAttribute( 'featured_media' );
-	const media = getMedia( featuredImageId );
+
+	// Use the featured image by default, if it's available.
+	let image = featuredImageId ? getMediaSourceUrl( getMedia( featuredImageId ) ) : '';
+
+	const sigSettings = getImageGeneratorPostSettings();
+
+	const sigImageUrl = sigSettings.enabled ? getSigImageUrl( sigSettings.token ) : '';
+
+	// If we have a SIG token, use it to generate the image URL.
+	if ( sigImageUrl ) {
+		image = sigImageUrl;
+	}
 
 	return {
 		title:
@@ -70,7 +83,7 @@ export default withSelect( select => {
 			getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
 			__( 'Visit the post for more.', 'jetpack' ),
 		url: getEditedPostAttribute( 'link' ),
-		image: ( !! featuredImageId && getMediaSourceUrl( media ) ) || '',
+		image,
 		initialTabName: isTweetStorm() ? 'twitter' : null,
 	};
 } )( SocialPreviewsModal );

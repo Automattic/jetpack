@@ -588,7 +588,7 @@ export function getJetpackSocialPostAlreadyShared() {
 /**
  * Get a list of all attached media.
  *
- * @returns {Array} An array of media IDs.
+ * @returns {Array<{id: string; url: string}>} An array of media IDs.
  */
 export function getAttachedMedia() {
 	return get( getJetpackSocialOptions(), [ 'attached_media' ], [] );
@@ -604,10 +604,10 @@ export function shouldUploadAttachedMedia() {
 }
 
 /**
- * Get a list of all image generator settings for a post.
+ * Get the image generator settings for a post.
  *
- * @returns {Array} An array of image generator settings.
+ * @returns {object} An object of image generator settings.
  */
 export function getImageGeneratorPostSettings() {
-	return getJetpackSocialOptions()?.image_generator_settings ?? [];
+	return getJetpackSocialOptions()?.image_generator_settings ?? {};
 }
