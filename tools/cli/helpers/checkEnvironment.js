@@ -1,5 +1,6 @@
 import child_process from 'child_process';
 import fs from 'fs';
+import process from 'node:process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
@@ -30,6 +31,19 @@ export async function getComposerVersion() {
 	}
 	composerString = composerString.toString().trim();
 	const composerVersion = composerString.match( /\d+\.\d+\.\d+/ );
+	// Verify that we have a valid composer version.
+	if ( ! composerVersion ) {
+		console.log(
+			chalk.yellow(
+				`Composer version is not valid! This may cause issues when working with monorepo tooling. Please run "composer --version" to determine if there are any errors.`
+			),
+			chalk.yellow(
+				`Additionally, running "tools/check-development-environment.sh" may help identify other issues impacting your dev environment. The full output of "composer --version" is below:`
+			),
+			composerString
+		);
+		process.exit( 1 );
+	}
 	return composerVersion[ 0 ];
 }
 
