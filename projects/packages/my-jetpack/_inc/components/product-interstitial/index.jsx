@@ -261,7 +261,7 @@ export function ExtrasInterstitial() {
  */
 export function JetpackAIInterstitial() {
 	return (
-		<ProductInterstitial slug="jetpack-ai" installsPlugin={ false }>
+		<ProductInterstitial slug="jetpack-ai" installsPlugin={ true }>
 			<img src={ jetpackAiImage } alt="Jetpack AI" />
 		</ProductInterstitial>
 	);

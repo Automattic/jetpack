@@ -189,6 +189,7 @@ class Wpcom_Products {
 			'discount_price'        => $discount_price,
 			'is_introductory_offer' => $is_introductory_offer,
 			'introductory_offer'    => $introductory_offer,
+			'product_term'          => $product->product_term,
 		);
 
 		return self::populate_with_discount( $product, $pricing, $discount_price );
