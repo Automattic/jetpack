@@ -13,6 +13,7 @@ import analytics from 'lib/analytics';
 import {
 	containsGiftedPlanOrProduct,
 	getPlanClass,
+	PLAN_JETPACK_FREE,
 	JETPACK_BACKUP_PRODUCTS,
 	JETPACK_SCAN_PRODUCTS,
 } from 'lib/plans/constants';
@@ -436,17 +437,19 @@ class MyPlanHeader extends React.Component {
 	}
 
 	renderPlan() {
+		// Hide "My Plan" card if there are active products.
+		if ( ! isEmpty( this.props.activeProducts ) && this.props.plan === PLAN_JETPACK_FREE ) {
+			return null;
+		}
+
 		return (
-			<>
-				{ this.renderLicensingActions() }
-				<Card compact>
-					{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
-					<MyPlanCard
-						{ ...this.getProductProps( this.props.plan, this.props.activeProducts ) }
-						isPlan
-					/>
-				</Card>
-			</>
+			<Card compact>
+				{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
+				<MyPlanCard
+					{ ...this.getProductProps( this.props.plan, this.props.activeProducts ) }
+					isPlan
+				/>
+			</Card>
 		);
 	}
 
@@ -572,6 +575,7 @@ class MyPlanHeader extends React.Component {
 	render() {
 		return (
 			<div className="jp-landing__plans">
+				{ this.renderLicensingActions() }
 				{ this.renderPlan() }
 				{ this.renderProducts() }
 				{ this.renderFooter() }
