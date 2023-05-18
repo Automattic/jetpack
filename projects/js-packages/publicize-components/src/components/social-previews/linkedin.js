@@ -10,7 +10,7 @@ import { getLinkedInDetails } from '../../store/selectors';
  * @returns {React.ReactNode} The linkedin tab component.
  */
 export function LinkedIn( props ) {
-	const { title, url, image } = props;
+	const { title, url, image, description, media } = props;
 
 	const { name, profileImage } = getLinkedInDetails();
 
@@ -23,8 +23,10 @@ export function LinkedIn( props ) {
 			name={ name }
 			profileImage={ profileImage }
 			title={ title }
+			description={ description }
 			text={ text }
 			url={ url }
+			media={ media }
 		/>
 	);
 }
