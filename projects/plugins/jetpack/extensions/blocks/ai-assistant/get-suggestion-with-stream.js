@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
 import debugFactory from 'debug';
 
-const debug = debugFactory( 'jetpack:ai-assistant' );
+const debug = debugFactory( 'jetpack-ai-assistant' );
 
 /**
  *
