@@ -12,6 +12,7 @@ import {
 	ONBOARDING_JETPACK_BACKUP,
 	ONBOARDING_JETPACK_COMPLETE,
 	ONBOARDING_JETPACK_SECURITY,
+	ONBOARDING_JETPACK_STARTER,
 	ONBOARDING_JETPACK_ANTI_SPAM,
 	ONBOARDING_JETPACK_VIDEOPRESS,
 	ONBOARDING_JETPACK_SEARCH,
@@ -367,6 +368,13 @@ const stepToNextStepByPath = {
 			'site-accelerator': 'server-credentials',
 			'server-credentials': 'summary',
 		},
+		[ ONBOARDING_JETPACK_STARTER ]: {
+			welcome__starter: 'backup-activated',
+			'backup-activated': 'monitor',
+			monitor: 'site-accelerator',
+			'site-accelerator': 'server-credentials',
+			'server-credentials': 'summary',
+		},
 		[ ONBOARDING_JETPACK_BACKUP ]: {
 			welcome__backup: 'monitor',
 			monitor: 'site-accelerator',
@@ -427,6 +435,7 @@ export const stepToRoute = {
 	welcome__backup: '#/recommendations/welcome-backup',
 	welcome__complete: '#/recommendations/welcome-complete',
 	welcome__security: '#/recommendations/welcome-security',
+	welcome__starter: '#/recommendations/welcome-starter',
 	welcome__antispam: '#/recommendations/welcome-antispam',
 	welcome__videopress: '#/recommendations/welcome-videopress',
 	welcome__search: '#/recommendations/welcome-search',
@@ -618,6 +627,7 @@ const isStepEligibleToShow = ( state, step ) => {
 		case 'search-activated':
 		case 'welcome__complete':
 		case 'welcome__security':
+		case 'welcome__starter':
 		case 'welcome__antispam':
 		case 'welcome__videopress':
 		case 'welcome__search':
