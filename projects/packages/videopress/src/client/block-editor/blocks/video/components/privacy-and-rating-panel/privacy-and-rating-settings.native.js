@@ -15,6 +15,7 @@ import {
 	VIDEO_RATING_PG_13,
 	VIDEO_RATING_R_17,
 } from '../../../../../state/constants';
+import VideoNotOwnedWarning from '../video-not-owned-warning';
 
 /**
  * React component that renders the settings within the privacy and ratings panel.
@@ -126,6 +127,8 @@ export default function PrivacyAndRatingSettings( {
 				) }
 				disabled={ ! videoBelongToSite }
 			/>
+
+			{ ! videoBelongToSite && <VideoNotOwnedWarning /> }
 		</PanelBody>
 	);
 }
