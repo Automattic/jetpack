@@ -75,7 +75,7 @@ export default function GeneratedImagePreview() {
 						template,
 					},
 				} );
-				setToken( sig_token );
+				setToken?.( sig_token );
 				const url = getSigImageUrl( sig_token );
 				// If the URL turns out to be the same, we set the loading state to false,
 				// as the <img> onLoad event will not fire if the src is the same.
