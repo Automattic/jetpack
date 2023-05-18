@@ -342,9 +342,9 @@ function zbscrm_JS_fullscreenModeOff( wrapperElement ) {
  *
  */
 function zbscrm_JS_initMenuPopups() {
-	if ( typeof jQuery( '#zbs-user-menu-item' ).popup !== 'undefined' ) {
-		jQuery( '#zbs-user-menu-item' ).popup( {
-			popup: jQuery( '#zbs-user-menu' ),
+	if ( typeof jQuery( '#jpcrm-user-menu-item' ).popup !== 'undefined' ) {
+		jQuery( '#jpcrm-user-menu-item' ).popup( {
+			popup: jQuery( '#jpcrm-user-menu' ),
 			position: 'bottom center',
 			hoverable: true,
 			on: 'hover',

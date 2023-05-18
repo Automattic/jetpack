@@ -10,7 +10,6 @@
 
 
  // variables
- $nav_bg: white;
  $body_bg: #f1f1f1;
  $page_title: #2a323c;
  $menu_hover: #f7f7f7;
@@ -46,10 +45,6 @@
     box-shadow: none !important;
 }
 
- .zbs-admin-bg-menu{
-	background: $nav_bg;
- }
-
  #wpcontent, body{
 	 background: $body_bg !important;
  }
@@ -68,32 +63,6 @@
 		color: $page_title;
 	}
  }
-
-
-.ui.menu .ui.dropdown .menu>.item:hover {
-    background:  $menu_hover !important;
-    color: $page_title!important;
-}
-
-
- .zbs-currently-browsing {
-    background: $nav_bg !important;
-    border-radius: 0px;
-    color:  $page_title;
-    border-bottom: 2px solid  $page_title;
-}
-
-.zbs-admin-bg-menu.ui.menu {
-
-	.item {
-	    background: #FFF !important;
-		color: #000 !important;
-	}
-	.ui.dropdown .menu>.item {
-		color: #000 !important;
-	}
-
-}
 
 // buttons
 

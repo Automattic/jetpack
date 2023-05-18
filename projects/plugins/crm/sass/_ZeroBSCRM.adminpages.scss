@@ -561,10 +561,6 @@
 
  }
 
-#zbs-main-logo-wrap, .zbs-admin-bg-menu {
-    //z-index:1000 !important; // WH - essential to stop bleedover from screenoptions!
-}
-
  .zbs-white{
     font-size: 18px;
     line-height: 35px;
@@ -591,23 +587,6 @@ div.ui.learn.button {
 	}
 	margin-left:-25px;
 	padding-left:25px;
-}
-
-.zbs-admin-bg-menu{
-    background: #2e3133;
-}
-
-.ui.menu .ui.dropdown .menu > .item:hover {
-    background: rgb(63, 67, 71) !important;
-    color: #bdbdbd !important;
-    font-size:14px !important;
-}
-.ui.menu{
-    font-size:14px !important;
-}
-
-.zbs-dropdown .item{
-	color: #bdbdbd !important;
 }
 
 .item:focus{

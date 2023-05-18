@@ -284,7 +284,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 		})
 		</script>
 		<!---  // mobile only menu -->
-	<jpcrm-top-menu>
+	<jpcrm-top-menu id="jpcrm-top-menu">
 		<div class="logo-cube <?php echo esc_attr( $admin_menu_state ); ?>">
 			<div class="cube-side side1">
 				<img alt="Jetpack CRM logo" src="<?php echo esc_url( jpcrm_get_logo( false ) ); ?>">
@@ -296,12 +296,12 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 
 		<menu-bar>
 
-			<menu-section class="menu ui inverted zbs-admin-bg-menu">
+			<menu-section>
 			<a class="item<?php esc_attr( zeroBS_menu_active( $zbs->slugs['dash'] ) ); ?>" href="<?php echo esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['dash'] ) ); ?>"><?php esc_html_e( 'Dashboard', 'zero-bs-crm' ); ?></a>
 			<div class="ui simple dropdown item select<?php esc_attr( zeroBS_menu_active_type( 'contact' ) ); ?>" id="zbs-contacts-topmenu" style="min-width:114px;z-index:5">
 				<span class="text"><?php esc_html_e( 'Contacts', 'zero-bs-crm' ); ?></span>
 				<i class="dropdown icon"></i>
-				<div class="menu ui inverted zbs-admin-bg-menu zbs-dropdown">
+				<div class="menu ui">
 
 				<?php
 				if ( zeroBSCRM_permsCustomers() ) { // ADD CUSTOMER //esc_url( 'post-new.php?post_type=zerobs_customer'.$alsoCo )
@@ -325,7 +325,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 
 					<div class="ui simple dropdown item " id="zbs-companies-topmenu">
 						<?php echo esc_html( jpcrm_label_company( true ) ); ?><i class="dropdown icon zbs-subsub-ico"></i>
-						<div class="menu ui inverted zbs-admin-bg-menu zbs-dropdown">
+						<div class="menu ui">
 							<?php
 							if ( zeroBSCRM_permsCustomers() ) {
 								echo ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_company', false ) . '" class="item"><i class="icon plus"></i> ' . esc_html__( 'Add New', 'zero-bs-crm' ) . '</a>';
@@ -392,7 +392,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			<div class="ui simple dropdown item select<?php zeroBS_menu_active_type( 'quote' ); ?>" id="zbs-quotes-topmenu" style="z-index:5">
 				<span class="text"><?php esc_html_e( 'Quotes', 'zero-bs-crm' ); ?></span>
 				<i class="dropdown icon"></i>
-				<div class="menu ui inverted zbs-admin-bg-menu zbs-dropdown">
+				<div class="menu ui">
 						<?php
 						if ( zeroBSCRM_permsQuotes() ) {
 							echo ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_quote', false ) . $alsoCo . '" class="item"><i class="icon plus"></i> ' . esc_html__( 'Add New', 'zero-bs-crm' ) . '</a>';
@@ -439,7 +439,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			<div class="ui simple dropdown item select<?php zeroBS_menu_active_type( 'invoice' ); ?>" id="zbs-invoices-topmenu" style="z-index:5">
 				<span class="text"><?php esc_html_e( 'Invoices', 'zero-bs-crm' ); ?></span>
 				<i class="dropdown icon"></i>
-				<div class="menu ui inverted zbs-admin-bg-menu zbs-dropdown">
+				<div class="menu ui">
 					<?php
 					if ( zeroBSCRM_permsInvoices() ) {
 						echo ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_invoice', false ) . $alsoCo . '" class="item"><i class="icon plus"></i> ' . esc_html__( 'Add New', 'zero-bs-crm' ) . '</a>';
@@ -480,7 +480,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			<div class="ui simple dropdown item select<?php zeroBS_menu_active_type( 'transaction' ); ?>" id="zbs-transactions-topmenu" style="z-index:5">
 				<span class="text"><?php esc_html_e( 'Transactions', 'zero-bs-crm' ); ?></span>
 				<i class="dropdown icon"></i>
-				<div class="menu ui inverted zbs-admin-bg-menu zbs-dropdown">
+				<div class="menu ui">
 					<?php
 					if ( zeroBSCRM_permsTransactions() ) {
 						echo ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_transaction', false ) . $alsoCo . '" class="item"><i class="icon plus"></i> ' . esc_html__( 'Add New', 'zero-bs-crm' ) . '</a>';
@@ -529,7 +529,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			<div class="ui simple dropdown item" id="top-bar-tools-menu">
 			<span class="text"><?php esc_html_e( 'Tools', 'zero-bs-crm' ); ?></span>
 			<i class="dropdown icon"></i>
-			<div class="menu ui inverted zbs-admin-bg-menu zbs-dropdown">
+			<div class="menu ui">
 
 					<?php
 					foreach ( $toolsMenu as $menuItem ) {
@@ -546,13 +546,13 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 
 		</menu-section>
 
-		<menu-section class="menu ui inverted zbs-admin-bg-menu">
+		<menu-section>
 			<?php
 
 			do_action( 'zbs-crm-notify' );
 			?>
 
-		<div class="ui simple dropdown item" id="zbs-user-menu-item">
+		<div class="ui simple dropdown item" id="jpcrm-user-menu-item">
 			<span class="text">
 			<?php
 			$uid = get_current_user_id();
@@ -600,7 +600,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			}
 
 			?>
-			<div class="ui popup" id="zbs-user-menu">
+			<div class="ui popup" id="jpcrm-user-menu">
 				<?php
 				switch ( count( $popout_menu ) ) {
 					case 3:
@@ -692,37 +692,37 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 }
 
 // dumps out 'active' class if slug matches loaded page
-// note 'active' seems to open drop downs, so now using: zbs-currently-browsing
+// note 'active' seems to open drop downs, so now using: current_menu_item
 function zeroBS_menu_active( $slug = '' ) {
 
 	if ( ( isset( $_GET['page'] ) && $_GET['page'] == $slug ) || ( isset( $_GET['zbsslug'] ) && $_GET['zbsslug'] == $slug ) ) {
-		echo ' zbs-currently-browsing';
+		echo ' current_menu_item';
 	}
 }
 // dumps out 'active' class if slug is within a 'section'
-// note 'active' seems to open drop downs, so now using: zbs-currently-browsing
+// note 'active' seems to open drop downs, so now using: current_menu_item
 function zeroBS_menu_active_type( $type = '' ) {
 
 	switch ( $type ) {
 
 		case 'contact':
 			if ( zeroBSCRM_isAnyContactPage() ) {
-				echo ' zbs-currently-browsing';
+				echo ' current_menu_item';
 			}
 			break;
 		case 'quote':
 			if ( zeroBSCRM_isAnyQuotePage() ) {
-				echo ' zbs-currently-browsing';
+				echo ' current_menu_item';
 			}
 			break;
 		case 'invoice':
 			if ( zeroBSCRM_isAnyInvoicePage() ) {
-				echo ' zbs-currently-browsing';
+				echo ' current_menu_item';
 			}
 			break;
 		case 'transaction':
 			if ( zeroBSCRM_isAnyTransactionPage() ) {
-				echo ' zbs-currently-browsing';
+				echo ' current_menu_item';
 			}
 			break;
 
