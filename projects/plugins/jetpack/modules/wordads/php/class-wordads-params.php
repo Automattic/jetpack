@@ -13,6 +13,69 @@ use Automattic\Jetpack\Status;
  * Sets parameters for WordAds.
  */
 class WordAds_Params {
+	/**
+	 * WordAds options
+	 *
+	 * @access public
+	 * @var array
+	 */
+	public $options;
+
+	/**
+	 * Current URL
+	 *
+	 * @access public
+	 * @var string
+	 */
+	public $url;
+
+	/**
+	 * Is this site served by CloudFlare?
+	 *
+	 * @access public
+	 * @var bool
+	 */
+	public $cloudflare;
+
+	/**
+	 * Jetpack Blog ID
+	 *
+	 * @access public
+	 * @var mixed
+	 */
+	public $blog_id;
+
+	/**
+	 * Determine if the current User Agent is a mobile device
+	 *
+	 * @access public
+	 * @var bool
+	 */
+	public $mobile_device;
+
+	/**
+	 * WordAds targeting tags
+	 *
+	 * @access public
+	 * @var array
+	 */
+	public $targeting_tags;
+
+	/**
+	 * Type of page that is being loaded
+	 *
+	 * @access public
+	 * @var string
+	 */
+	public $page_type;
+
+	/**
+	 * Page type code for IPW config
+	 *
+	 * @access public
+	 * @var int
+	 */
+	public $page_type_ipw;
 
 	/**
 	 * Setup parameters for serving the ads
