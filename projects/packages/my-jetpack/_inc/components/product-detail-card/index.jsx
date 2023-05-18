@@ -164,17 +164,9 @@ const ProductDetailCard = ( {
 			price
 		);
 	} else if ( productTerm === 'year' ) {
-		priceDescription = __(
-			'/month, paid yearly',
-			'jetpack-my-jetpack',
-			/* dummy arg to avoid bad minification */ 0
-		);
+		priceDescription = __( '/month, paid yearly', 'jetpack-my-jetpack' );
 	} else {
-		priceDescription = __(
-			'/month',
-			'jetpack-my-jetpack',
-			/* dummy arg to avoid bad minification */ 0
-		);
+		priceDescription = __( '/month', 'jetpack-my-jetpack' );
 	}
 	const clickHandler = useCallback( () => {
 		trackButtonClick();
