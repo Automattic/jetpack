@@ -434,7 +434,7 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
-		$wrapper_attributes = [];
+		$wrapper_attributes = array();
 		$post_id            = get_the_ID();
 		$block_attributes   = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
