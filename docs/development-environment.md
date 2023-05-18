@@ -130,8 +130,8 @@ You'll need all the tools below to work in the Jetpack monorepo.
 
 		And then install Composer:
 
-		```
-		sh brew install composer
+		```sh
+		brew install composer
 		```
 
 	 * ##### Installing Composer on other systems
