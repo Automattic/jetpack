@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Jetpack_Options;
+use WP_Error;
 
 /**
  * Class responsible for handling the Jetpack AI product
