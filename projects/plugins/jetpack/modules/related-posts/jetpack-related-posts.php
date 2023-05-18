@@ -1309,6 +1309,7 @@ EOT;
 				'position' => $position,
 			),
 			'title'    => $this->to_utf8( $this->get_title( $post->post_title, $post->post_content, $post->ID ) ),
+			'author'   => $this->generate_related_post_display_author( $post->ID ),
 			'date'     => get_the_date( '', $post->ID ),
 			'format'   => get_post_format( $post->ID ),
 			'excerpt'  => html_entity_decode( $this->to_utf8( $this->get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
@@ -1664,6 +1665,22 @@ EOT;
 			}
 		}
 		return $filtered;
+	}
+
+	/**
+	 * Generates the author byline for the related post.
+	 *
+	 * @param int $post_id - the post ID.
+	 * @uses get_post_field, get_the_author_meta
+	 * @return string
+	 */
+	protected function generate_related_post_display_author( $post_id ) {
+		$post_author         = get_post_field( 'post_author', $post_id );
+		$author_display_name = get_the_author_meta( 'display_name', $post_author );
+		if ( isset( $author_display_name ) && ! empty( $author_display_name ) ) {
+			return $author_display_name;
+		}
+		return '';
 	}
 
 	/**
