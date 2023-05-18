@@ -345,6 +345,7 @@ function zbscrm_JS_initMenuPopups() {
 	if ( typeof jQuery( '#zbs-user-menu-item' ).popup !== 'undefined' ) {
 		jQuery( '#zbs-user-menu-item' ).popup( {
 			popup: jQuery( '#zbs-user-menu' ),
+			position: 'bottom center',
 			hoverable: true,
 			on: 'hover',
 		} );

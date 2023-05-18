@@ -600,7 +600,7 @@ function zeroBSCRM_admin_top_menu( $branding = 'zero-bs-crm', $page = 'dash' ) {
 			}
 
 			?>
-			<div class="ui popup bottom left transition hidden" id="zbs-user-menu">
+			<div class="ui popup" id="zbs-user-menu">
 				<?php
 				switch ( count( $popout_menu ) ) {
 					case 3:
