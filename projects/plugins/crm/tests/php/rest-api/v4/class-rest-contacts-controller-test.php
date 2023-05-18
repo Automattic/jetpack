@@ -12,7 +12,7 @@ require_once __DIR__ . '/../class-rest-base-test-case.php';
 /**
  * Route_Scope class.
  *
- * @covers \Automattic\Jetpack_CRM\REST_API\V4\REST_Contacts_Controller
+ * @covers \Automattic\Jetpack\CRM\REST_API\V4\REST_Contacts_Controller
  */
 class REST_Contacts_Controller_Test extends REST_Base_Test_Case {
 

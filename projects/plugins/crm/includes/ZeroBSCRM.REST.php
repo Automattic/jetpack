@@ -106,7 +106,7 @@ add_action( 'rest_api_init', function () {
 	 * @param bool Determine if we should initialize the new REST APIs.
 	 */
 	if ( apply_filters( 'jetpack_crm_feature_flag_api_v4', false ) ) {
-		$controller = new Automattic\Jetpack_CRM\REST_API\V4\REST_Contacts_Controller();
+		$controller = new Automattic\Jetpack\CRM\REST_API\V4\REST_Contacts_Controller();
 		$controller->register_routes();
 	}
 });

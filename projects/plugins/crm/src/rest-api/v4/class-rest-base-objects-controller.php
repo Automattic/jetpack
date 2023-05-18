@@ -5,7 +5,7 @@
  * @package Automattic\Jetpack_CRM
  */
 
-namespace Automattic\Jetpack_CRM\REST_API\V4;
+namespace Automattic\Jetpack\CRM\REST_API\V4;
 
 use zbsDAL_ObjectLayer;
 

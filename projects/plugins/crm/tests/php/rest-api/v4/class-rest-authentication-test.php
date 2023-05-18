@@ -10,7 +10,7 @@ require_once __DIR__ . '/../class-rest-base-test-case.php';
 /**
  * Authentication test.
  *
- * @covers \Automattic\Jetpack_CRM\REST_API\V4\REST_Contacts_Controller
+ * @covers \Automattic\Jetpack\CRM\REST_API\V4\REST_Contacts_Controller
  */
 class REST_Authentication_Test extends REST_Base_Test_Case {
 
