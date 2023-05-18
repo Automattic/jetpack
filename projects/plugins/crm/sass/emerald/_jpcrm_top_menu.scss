@@ -1,0 +1,51 @@
+jpcrm-top-menu {
+	padding: 20px 20px 0px 20px;
+	display: block;
+	background-color: white;
+
+	/* handle top menu logo cube */
+	.logo-cube {
+		cursor:pointer;
+		height: 40px;
+		width: 200px;
+		line-height: 1;
+		transition: transform 0.33s;
+		transform-style: preserve-3d;
+
+		&:hover {
+			-webkit-transform: rotateX(90deg);
+			transform: rotateX(90deg); /* Text bleed at 90º */
+		}
+		
+		.cube-side {
+			height: 40px;
+			background-color: white;
+			text-align: center;
+
+			&.side1 {
+				-webkit-transform: translateZ(20px);
+				transform: translateZ(20px);
+
+				img {
+					max-width: 100%;
+				}
+			}
+
+			&.side2 {
+				font-size: 40px;
+				-webkit-transform: rotateX(-90deg) translateZ(-20px);
+				transform: rotateX(-90deg) translateZ(-20px);
+			}
+		}
+	}
+
+	menu-bar {
+		margin-top: 10px;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		menu-section {
+		}
+	}
+}
