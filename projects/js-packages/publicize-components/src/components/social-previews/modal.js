@@ -8,7 +8,11 @@ import { Modal, TabPanel, Button } from '@wordpress/components';
 import { withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
-import { getImageGeneratorPostSettings } from '../../store/selectors';
+import {
+	getAttachedMedia,
+	getImageGeneratorPostSettings,
+	shouldUploadAttachedMedia,
+} from '../../store/selectors';
 import { getSigImageUrl } from '../generated-image-preview/utils';
 import { AVAILABLE_SERVICES } from './constants';
 import { getMediaSourceUrl } from './utils';
@@ -17,6 +21,7 @@ import './modal.scss';
 const SocialPreviewsModal = function SocialPreviewsModal( {
 	onClose,
 	image,
+	media,
 	title,
 	description,
 	url,
@@ -47,6 +52,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 							description={ description }
 							url={ url }
 							image={ image }
+							media={ media }
 						/>
 					</div>
 				) }
@@ -74,6 +80,31 @@ export default withSelect( select => {
 		image = sigImageUrl;
 	}
 
+	const media = [];
+
+	// Attach media only if "Share as a social post" option is enabled.
+	if ( shouldUploadAttachedMedia() ) {
+		if ( sigImageUrl ) {
+			media.push( {
+				type: 'image/jpeg',
+				url: sigImageUrl,
+				alt: '',
+			} );
+		} else {
+			for ( const { id } of getAttachedMedia() ) {
+				const mediaItem = getMedia( id );
+
+				if ( mediaItem ) {
+					media.push( {
+						type: mediaItem.mime_type,
+						url: getMediaSourceUrl( mediaItem ),
+						alt: mediaItem.alt_text,
+					} );
+				}
+			}
+		}
+	}
+
 	return {
 		title:
 			getEditedPostAttribute( 'meta' )?.jetpack_seo_html_title || getEditedPostAttribute( 'title' ),
@@ -84,6 +115,7 @@ export default withSelect( select => {
 			__( 'Visit the post for more.', 'jetpack' ),
 		url: getEditedPostAttribute( 'link' ),
 		image,
+		media,
 		initialTabName: isTweetStorm() ? 'twitter' : null,
 	};
 } )( SocialPreviewsModal );
