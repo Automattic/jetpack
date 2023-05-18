@@ -1057,8 +1057,8 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 		),
 		self::WORDADS                          => array(
-			self::WPCOM_ALL_SITES,
-			self::JETPACK_ALL_SITES,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
 
 		/*
@@ -1067,8 +1067,8 @@ class WPCOM_Features {
 		 * @see https://github.com/Automattic/jetpack/blob/c4f8fe120e1286e85f49e20e0f7fe22e44641449/projects/plugins/jetpack/class.jetpack-plan.php#L330.
 		 */
 		self::WORDADS_JETPACK                  => array(
-			self::WPCOM_ALL_SITES,
-			self::JETPACK_ALL_SITES,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
 	);
 
