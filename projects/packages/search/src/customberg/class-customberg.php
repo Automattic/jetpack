@@ -26,6 +26,14 @@ class Customberg {
 	protected static $instance;
 
 	/**
+	 * Search Plan class.
+	 *
+	 * @access public
+	 * @var Plan
+	 */
+	public $plan;
+
+	/**
 	 * Get the singleton instance of the class.
 	 *
 	 * @return Customberg

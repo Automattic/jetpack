@@ -14,6 +14,13 @@ use WP_Customize_Color_Control;
  * Class to customize search on the site.
  */
 class Customizer {
+	/**
+	 * Search Plan class.
+	 *
+	 * @access public
+	 * @var Plan
+	 */
+	public $plan;
 
 	/**
 	 * Class initialization.

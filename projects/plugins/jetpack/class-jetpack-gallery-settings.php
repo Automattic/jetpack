@@ -12,6 +12,14 @@ use Automattic\Jetpack\Assets;
  */
 class Jetpack_Gallery_Settings {
 	/**
+	 * Available gallery types.
+	 *
+	 * @access public
+	 * @var array
+	 */
+	public $gallery_types;
+
+	/**
 	 * The constructor.
 	 */
 	public function __construct() {

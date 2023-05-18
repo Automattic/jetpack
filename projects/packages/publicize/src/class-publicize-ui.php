@@ -14,6 +14,14 @@ use Automattic\Jetpack\Assets;
  */
 class Publicize_UI {
 	/**
+	 * If Publicize is executing within Jetpack.
+	 *
+	 * @access public
+	 * @var bool
+	 */
+	public $in_jetpack;
+
+	/**
 	 * Contains an instance of class 'Publicize' which loads Keyring, sets up services, etc.
 	 *
 	 * @var Publicize Instance of Publicize

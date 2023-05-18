@@ -18,6 +18,22 @@ require_once __DIR__ . '/tiled-gallery/tiled-gallery-circle.php';
  */
 class Jetpack_Tiled_Gallery {
 	/**
+	 * Shortcode attributes.
+	 *
+	 * @access public
+	 * @var array
+	 */
+	public $atts;
+
+	/**
+	 * Text direction (right or left).
+	 *
+	 * @access public
+	 * @var string
+	 */
+	public $float;
+
+	/**
 	 * Supported gallery design types.
 	 *
 	 * @var array

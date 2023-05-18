@@ -14,6 +14,14 @@ use Automattic\Jetpack\Status;
  */
 abstract class Jetpack_Admin_Page {
 	/**
+	 * Jetpack Object.
+	 *
+	 * @access public
+	 * @var Jetpack
+	 */
+	public $jetpack;
+
+	/**
 	 * Add page specific actions given the page hook.
 	 *
 	 * @param string $hook Hook of current page.
