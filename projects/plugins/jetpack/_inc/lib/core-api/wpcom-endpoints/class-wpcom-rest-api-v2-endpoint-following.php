@@ -10,7 +10,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Status\Visitor;
 
 /**
- * Class WPCOM_REST_API_V2_Endpoint_AI
+ * Class WPCOM_REST_API_V2_Endpoint_Following
  */
 class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 	/**
@@ -28,11 +28,11 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 	public $rest_base = 'following';
 
 	/**
-	 * WPCOM_REST_API_V2_Endpoint_AI constructor.
+	 * Constructor.
 	 */
 	public function __construct() {
 		$this->wpcom_is_wpcom_only_endpoint    = true;
-		$this->wpcom_is_site_specific_endpoint = false;
+		$this->wpcom_is_site_specific_endpoint = true;
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
@@ -72,12 +72,13 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 	 * Gets the sites the user is following
 	 *
 	 * @param WP_REST_Request $request Full details about the request.
+	 * @return array|WP_Error list of followed sites, WP_Error otherwise
 	 */
 	public function get_response( $request ) {
 		$ignore_user_blogs = $request->get_param( 'ignore_user_blogs' );
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			require_once WP_CONTENT_DIR . '/lib/wpcom-user-following.php';
+			require_once WP_CONTENT_DIR . '/lib/wpcom-get-user-followed-blogs.php';
 			return get_user_followed_blogs( get_current_user_id(), $ignore_user_blogs );
 		}
 
