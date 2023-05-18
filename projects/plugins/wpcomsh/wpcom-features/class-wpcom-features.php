@@ -806,8 +806,8 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS_NO_TRIAL,
 		),
 		self::SIMPLE_PAYMENTS                  => array(
-			self::WPCOM_ALL_SITES,
-			self::JETPACK_ALL_SITES,
+			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::JETPACK_PREMIUM_AND_HIGHER,
 		),
 		self::SITE_PREVIEW_LINKS               => array(
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
