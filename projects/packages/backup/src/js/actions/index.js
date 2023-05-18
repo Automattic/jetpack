@@ -24,6 +24,7 @@ const getSiteSize =
 
 				const payload = {
 					size: res.size,
+					lastBackupSize: res.last_backup_size,
 					minDaysOfBackupsAllowed: res.min_days_of_backups_allowed,
 					daysOfBackupsAllowed: res.days_of_backups_allowed,
 					daysOfBackupsSaved: res.days_of_backups_saved,

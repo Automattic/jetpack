@@ -1,5 +1,5 @@
 /**
- * External dependencies
+ * Internal dependencies
  */
 import { buildPromptTemplate } from '../create-prompt';
 
@@ -15,6 +15,8 @@ Rules:
 - Output the generated content in markdown format.
 - Do not include a top level heading by default.
 - Only output generated content ready for publishing.
+- Segment the content into paragraphs as deemed suitable.
+- If you do not understand the request, please prefix your answer with __JETPACK_AI_ERROR__.
 
 Request:
 Describe a dog in 10 words or less.`;
@@ -37,6 +39,8 @@ Rules:
 - Output the generated content in markdown format.
 - Do not include a top level heading by default.
 - Only output generated content ready for publishing.
+- Segment the content into paragraphs as deemed suitable.
+- If you do not understand the request, please prefix your answer with __JETPACK_AI_ERROR__.
 - The output should be translated to Brazilian Portuguese.
 - The output should be in the caipira accent.
 
@@ -58,6 +62,8 @@ Rules:
 - Output the generated content in markdown format.
 - Do not include a top level heading by default.
 - Only output generated content ready for publishing.
+- Segment the content into paragraphs as deemed suitable.
+- If you do not understand the request, please prefix your answer with __JETPACK_AI_ERROR__.
 
 Request:
 Describe a dog in 10 words or less.`;
@@ -66,7 +72,7 @@ Describe a dog in 10 words or less.`;
 			} );
 		} );
 
-		describe( 'when there neither a request nor content', () => {
+		describe( 'when there is neither a request nor content', () => {
 			it( 'should throw an error', () => {
 				expect( () => buildPromptTemplate( {} ) ).toThrow(
 					'You must provide either a request or content'

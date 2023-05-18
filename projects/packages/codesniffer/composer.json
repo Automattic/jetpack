@@ -3,6 +3,14 @@
 	"description": "Jetpack Coding Standards. Based on the WordPress Coding Standards, with some additions.",
 	"type": "phpcodesniffer-standard",
 	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"phpcs",
+		"codesniffer",
+		"standards",
+		"jetpack",
+		"dev",
+		"testing"
+	],
 	"require": {
 		"dealerdirect/phpcodesniffer-composer-installer": "^0.7",
 		"mediawiki/mediawiki-codesniffer": "^41.0",

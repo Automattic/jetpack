@@ -2,6 +2,13 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.34.0 - 2023-05-18
+### Added
+- Add a new component for the Boost Score Bar used in the Boost plugin and later, in the Jetpack plugin [#30037]
+
+### Changed
+- Update pricing table tooltip to allow its position to be configurable from pricing table. [#30751]
+
 ## 0.33.0 - 2023-05-02
 ### Added
 - Added "wide" variant and styled unordered lists to icon tooltip content. [#30399]

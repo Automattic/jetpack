@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { useSelect, select as selectData } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -13,7 +12,7 @@ import { buildPrompt } from './create-prompt';
 import { askJetpack, askQuestion } from './get-suggestion-with-stream';
 import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
-const debug = debugFactory( 'jetpack:ai-assistant' );
+const debug = debugFactory( 'jetpack-ai-assistant' );
 
 /**
  * Returns partial content from the beginning of the post
@@ -146,85 +145,6 @@ const useSuggestionsFromOpenAI = ( {
 	// eslint-disable-next-line no-unused-vars
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
-	const getSuggestionFromOpenAI = ( type, options = {} ) => {
-		options = {
-			retryRequest: false,
-			tone: DEFAULT_PROMPT_TONE,
-			...options,
-		};
-
-		if ( isLoadingCompletion ) {
-			return;
-		}
-
-		setShowRetry( false );
-		setErrorMessage( false );
-		setIsLoadingCompletion( true );
-
-		let prompt = lastPrompt;
-
-		if ( ! options.retryRequest ) {
-			// If there is a content already, let's iterate over it.
-			prompt = buildPrompt( {
-				content,
-				currentPostTitle,
-				contentFromBlocks: getContentFromBlocks(),
-				partialContentAsBlock: getPartialContentToBlock( clientId ),
-				options,
-				prompt,
-				userPrompt,
-				type,
-			} );
-		}
-
-		const data = { content: prompt };
-		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
-			post_id: postId,
-		} );
-
-		if ( ! options.retryRequest ) {
-			setLastPrompt( prompt );
-			setAttributes( { promptType: type } );
-		}
-
-		apiFetch( {
-			path: '/wpcom/v2/jetpack-ai/completions',
-			method: 'POST',
-			data: data,
-		} )
-			.then( res => {
-				const result = res.trim();
-
-				/*
-				 * Hack to udpate the content.
-				 * @todo: maybe we should not pass the setAttributes function
-				 */
-				setAttributes( { content: '' } );
-
-				setTimeout( () => {
-					setAttributes( {
-						content: result.length ? result : '',
-					} );
-				}, 10 );
-
-				setIsLoadingCompletion( false );
-			} )
-			.catch( e => {
-				if ( e.message ) {
-					setErrorMessage( e.message ); // Message was already translated by the backend
-				} else {
-					setErrorMessage(
-						__(
-							'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
-							'jetpack'
-						)
-					);
-				}
-				setShowRetry( true );
-				setIsLoadingCompletion( false );
-			} );
-	};
-
 	const getStreamedSuggestionFromOpenAI = async ( type, options = {} ) => {
 		options = {
 			retryRequest: false,
@@ -244,10 +164,10 @@ const useSuggestionsFromOpenAI = ( {
 		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
 			prompt = buildPrompt( {
-				content,
+				generatedContent: content,
+				allPostContent: getContentFromBlocks(),
+				postContentAbove: getPartialContentToBlock( clientId ),
 				currentPostTitle,
-				contentFromBlocks: getContentFromBlocks(),
-				partialContentAsBlock: getPartialContentToBlock( clientId ),
 				options,
 				prompt,
 				userPrompt,
@@ -266,9 +186,10 @@ const useSuggestionsFromOpenAI = ( {
 
 		let source;
 		let fullMessage = '';
+
 		try {
 			setIsLoadingCompletion( true );
-			source = await askQuestion( prompt );
+			source = await askQuestion( prompt, postId );
 		} catch ( err ) {
 			if ( err.message ) {
 				setErrorMessage( err.message ); // Message was already translated by the backend
@@ -299,14 +220,23 @@ const useSuggestionsFromOpenAI = ( {
 			const chunk = data.choices[ 0 ].delta.content;
 			if ( chunk ) {
 				fullMessage += chunk;
-				setAttributes( {
-					content: fullMessage,
-				} );
 				debug( fullMessage );
-				// debug( chunk );
+
+				if ( fullMessage.startsWith( '__JETPACK_AI_ERROR__' ) ) {
+					// The error is confirmed
+					source.close();
+					setIsLoadingCompletion( false );
+					setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
+				} else if ( ! '__JETPACK_AI_ERROR__'.startsWith( fullMessage ) ) {
+					// Confirmed to be a valid response
+					setAttributes( {
+						content: fullMessage,
+					} );
+				}
 			}
 		} );
 	};
+
 	return {
 		isLoadingCategories,
 		isLoadingCompletion,
@@ -318,8 +248,6 @@ const useSuggestionsFromOpenAI = ( {
 		wholeContent: getContentFromBlocks( clientId ),
 
 		getSuggestionFromOpenAI: getStreamedSuggestionFromOpenAI,
-		oldgetSuggestionFromOpenAI: getSuggestionFromOpenAI,
-		getStreamedSuggestionFromOpenAI,
 		retryRequest: () => getStreamedSuggestionFromOpenAI( '', { retryRequest: true } ),
 	};
 };
