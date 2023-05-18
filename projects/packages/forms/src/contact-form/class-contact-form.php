@@ -673,7 +673,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since $$next-version$$
+		 * @since 0.18.0
 		 *
 		 * @param array $compiled_form the form response to be filtered
 		 * @param int $feedback_id the ID of the feedback form
@@ -1403,7 +1403,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since $$next-version$$
+		 * @since 0.18.0
 		 *
 		 * @param string the title of the email
 		 */
@@ -1443,7 +1443,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 			 *
 			 * @module contact-form
 			 *
-			 * @since $$next-version$$
+			 * @since 0.18.0
 			 *
 			 * @param array the lines of the footer, one line per array element.
 			 */
@@ -1688,7 +1688,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since $$next-version$$
+		 * @since 0.18.0
 		 *
 		 * @param string the filename of the HTML template used for response emails to the form owner.
 		 */
