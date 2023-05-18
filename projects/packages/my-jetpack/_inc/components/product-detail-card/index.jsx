@@ -104,6 +104,7 @@ const ProductDetailCard = ( {
 		wpcomProductSlug,
 		wpcomFreeProductSlug,
 		introductoryOffer,
+		productTerm,
 	} = pricingForUi;
 
 	const { recordEvent } = useAnalytics();
@@ -155,19 +156,26 @@ const ProductDetailCard = ( {
 				} )
 		: null;
 
-	const priceDescription =
-		introductoryOffer?.intervalUnit === 'month' && introductoryOffer?.intervalCount === 1
-			? sprintf(
-					// translators: %s is the monthly price for a product
-					__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-my-jetpack' ),
-					price
-			  )
-			: __(
-					'/month, paid yearly',
-					'jetpack-my-jetpack',
-					/* dummy arg to avoid bad minification */ 0
-			  );
-
+	let priceDescription;
+	if ( introductoryOffer?.intervalUnit === 'month' && introductoryOffer?.intervalCount === 1 ) {
+		priceDescription = sprintf(
+			// translators: %s is the monthly price for a product
+			__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-my-jetpack' ),
+			price
+		);
+	} else if ( productTerm === 'year' ) {
+		priceDescription = __(
+			'/month, paid yearly',
+			'jetpack-my-jetpack',
+			/* dummy arg to avoid bad minification */ 0
+		);
+	} else {
+		priceDescription = __(
+			'/month',
+			'jetpack-my-jetpack',
+			/* dummy arg to avoid bad minification */ 0
+		);
+	}
 	const clickHandler = useCallback( () => {
 		trackButtonClick();
 		onClick?.( mainCheckoutRedirect, detail );
