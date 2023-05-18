@@ -104,7 +104,6 @@ class Jetpack_Publicize {
 				}
 			}
 		);
-		$publicize_ui->in_jetpack = $this->in_jetpack;
 	}
 }
 
