@@ -121,21 +121,24 @@ export function NewsletterNotice( {
 		reachCount = reachCount + '+'; // Concat "+"
 	}
 
-	/* translators: %s is the number of subscribers in numerical format */
-	let numberOfSubscribersText = __(
-		'This will be sent to <br/><strong>%s subscribers</strong>.',
-		'jetpack'
+	let numberOfSubscribersText = sprintf(
+		/* translators: %s is the number of subscribers in numerical format */
+		__( 'This will be sent to <br/><strong>%s subscribers</strong>.', 'jetpack' ),
+		reachCount
 	);
 
 	if ( isPostPublishPanel ) {
-		/* translators: %s is the number of subscribers in numerical format */
-		numberOfSubscribersText = __( 'This was sent to <strong>%s subscribers</strong>.', 'jetpack' );
+		numberOfSubscribersText = sprintf(
+			/* translators: %s is the number of subscribers in numerical format */
+			__( 'This was sent to <strong>%s subscribers</strong>.', 'jetpack' ),
+			reachCount
+		);
 	}
 
 	return (
 		<FlexBlock>
 			<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
-				{ createInterpolateElement( sprintf( numberOfSubscribersText, reachCount ), {
+				{ createInterpolateElement( numberOfSubscribersText, {
 					br: <br />,
 					strong: <strong />,
 				} ) }
