@@ -59,7 +59,7 @@ function PlaceholderPostEdit( props ) {
 				</div>
 			) }
 			{ props.displayAuthor && (
-				<div className="jp-related-posts-i2__post-context has-small-font-size">
+				<div className="jp-related-posts-i2__post-author has-small-font-size">
 					{ __( 'by John Doe', 'jetpack' ) }
 				</div>
 			) }
@@ -73,7 +73,6 @@ function PlaceholderPostEdit( props ) {
 }
 
 function RelatedPostsEditItem( props ) {
-	const authorPlaceholder = 'by Jane Doe';
 	return (
 		<div
 			className="jp-related-posts-i2__post"
@@ -106,8 +105,8 @@ function RelatedPostsEditItem( props ) {
 				</div>
 			) }
 			{ props.displayAuthor && (
-				<div className="jp-related-posts-i2__post-context has-small-font-size">
-					{ authorPlaceholder }
+				<div className="jp-related-posts-i2__post-author has-small-font-size">
+					{ props.post.author }
 				</div>
 			) }
 			{ props.displayContext && (
