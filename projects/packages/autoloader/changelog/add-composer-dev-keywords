@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Set keywords to have `composer require` prompt for `--dev` on installation.
