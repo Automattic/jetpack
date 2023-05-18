@@ -32,7 +32,7 @@ class WPCOM_REST_API_V2_Endpoint_Following extends WP_REST_Controller {
 	 */
 	public function __construct() {
 		$this->wpcom_is_wpcom_only_endpoint    = true;
-		$this->wpcom_is_site_specific_endpoint = true;
+		$this->wpcom_is_site_specific_endpoint = false;
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
