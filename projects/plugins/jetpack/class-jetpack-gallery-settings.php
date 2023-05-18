@@ -14,7 +14,6 @@ class Jetpack_Gallery_Settings {
 	/**
 	 * Available gallery types.
 	 *
-	 * @access public
 	 * @var array
 	 */
 	public $gallery_types;

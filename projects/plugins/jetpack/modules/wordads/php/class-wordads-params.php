@@ -16,7 +16,6 @@ class WordAds_Params {
 	/**
 	 * WordAds options
 	 *
-	 * @access public
 	 * @var array
 	 */
 	public $options;
@@ -40,7 +39,6 @@ class WordAds_Params {
 	/**
 	 * Jetpack Blog ID
 	 *
-	 * @access public
 	 * @var mixed
 	 */
 	public $blog_id;
@@ -48,7 +46,6 @@ class WordAds_Params {
 	/**
 	 * Determine if the current User Agent is a mobile device
 	 *
-	 * @access public
 	 * @var bool
 	 */
 	public $mobile_device;
@@ -56,7 +53,6 @@ class WordAds_Params {
 	/**
 	 * WordAds targeting tags
 	 *
-	 * @access public
 	 * @var array
 	 */
 	public $targeting_tags;
@@ -64,7 +60,6 @@ class WordAds_Params {
 	/**
 	 * Type of page that is being loaded
 	 *
-	 * @access public
 	 * @var string
 	 */
 	public $page_type;
@@ -72,7 +67,6 @@ class WordAds_Params {
 	/**
 	 * Page type code for IPW config
 	 *
-	 * @access public
 	 * @var int
 	 */
 	public $page_type_ipw;

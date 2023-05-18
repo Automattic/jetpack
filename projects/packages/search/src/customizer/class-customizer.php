@@ -17,7 +17,6 @@ class Customizer {
 	/**
 	 * Search Plan class.
 	 *
-	 * @access public
 	 * @var Plan
 	 */
 	public $plan;

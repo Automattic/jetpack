@@ -28,7 +28,6 @@ class Customberg {
 	/**
 	 * Search Plan class.
 	 *
-	 * @access public
 	 * @var Plan
 	 */
 	public $plan;

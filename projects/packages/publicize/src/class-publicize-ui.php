@@ -16,7 +16,6 @@ class Publicize_UI {
 	/**
 	 * If Publicize is executing within Jetpack.
 	 *
-	 * @access public
 	 * @var bool
 	 */
 	public $in_jetpack;

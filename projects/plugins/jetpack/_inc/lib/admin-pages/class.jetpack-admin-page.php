@@ -16,7 +16,6 @@ abstract class Jetpack_Admin_Page {
 	/**
 	 * Jetpack Object.
 	 *
-	 * @access public
 	 * @var Jetpack
 	 */
 	public $jetpack;

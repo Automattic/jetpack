@@ -24,7 +24,6 @@ class Jetpack_Publicize {
 	/**
 	 * Current status about Jetpack modules.
 	 *
-	 * @access public
 	 * @var Modules
 	 */
 	public $modules;

@@ -20,7 +20,6 @@ class Jetpack_Tiled_Gallery {
 	/**
 	 * Shortcode attributes.
 	 *
-	 * @access public
 	 * @var array
 	 */
 	public $atts;
@@ -28,7 +27,6 @@ class Jetpack_Tiled_Gallery {
 	/**
 	 * Text direction (right or left).
 	 *
-	 * @access public
 	 * @var string
 	 */
 	public $float;
