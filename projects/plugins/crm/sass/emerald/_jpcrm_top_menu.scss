@@ -43,17 +43,19 @@ jpcrm-top-menu#jpcrm-top-menu {
 		margin-top: 10px;
 		display: flex;
 		justify-content: space-between;
-		align-items: bottom;
+		align-items: end;
 
 		menu-section {
 
 			font-size: 14px;
 			font-family: "Lato", "Helvetica Neue", Arial, Helvetica, sans-serif;
 			display: flex;
+			align-items: center;
 
 			.item {
 				color: var(--jp-black);
 				padding: 1em;
+				line-height: 1;
 
 				&.current_menu_item {
 					border-bottom: 2px solid var(--jp-black);
