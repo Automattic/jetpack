@@ -395,6 +395,15 @@ EOT;
 			$item_markup .= $date_tag;
 		}
 
+		if ( $block_attributes['show_author'] ) {
+			$author_tag = sprintf(
+				'<li class="jp-related-posts-i2__post-author">%1$s</li>',
+				esc_html( $related_post['author'] )
+			);
+
+			$item_markup .= $author_tag;
+		}
+
 		if ( ( $block_attributes['show_context'] ) && ! empty( $related_post['context'] ) ) {
 			$context_tag = sprintf(
 				'<li class="jp-related-posts-i2__post-context">%1$s</li>',
@@ -438,6 +447,7 @@ EOT;
 		$block_attributes = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
+			'show_author'     => isset( $attributes['displayAuthor'] ) ? (bool) $attributes['displayAuthor'] : true,
 			'show_date'       => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
 			'show_context'    => isset( $attributes['displayContext'] ) && $attributes['displayContext'],
 			'layout'          => isset( $attributes['postLayout'] ) && 'list' === $attributes['postLayout'] ? $attributes['postLayout'] : 'grid',
