@@ -5,6 +5,7 @@ import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
+import Icon from './icon';
 
 /**
  * Style dependencies
@@ -31,7 +32,7 @@ export const settings = {
 		</Fragment>
 	),
 	icon: {
-		src: 'superhero',
+		src: Icon,
 		foreground: getIconColor(),
 	},
 	category: 'text',
