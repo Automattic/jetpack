@@ -38,6 +38,7 @@ const AIControl = ( {
 	wholeContent,
 	content,
 	promptType,
+	onChange,
 } ) => {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
@@ -101,7 +102,10 @@ const AIControl = ( {
 				{ ( isWaitingState || loadingImages ) && <Loading /> }
 				<PlainText
 					value={ isWaitingState ? '' : userPrompt }
-					onChange={ value => setUserPrompt( value ) }
+					onChange={ value => {
+						setUserPrompt( value );
+						onChange?.();
+					} }
 					onKeyPress={ handleInputEnter }
 					placeholder={ placeholder }
 					className="jetpack-ai-assistant__input"

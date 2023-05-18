@@ -114,6 +114,12 @@ export const RESTRICTIONS = {
 			minLength: 3,
 		},
 	},
+	instagram: {
+		allowedMediaTypes: [ 'image/jpg', 'image/jpeg' ],
+		image: {
+			maxSize: 4,
+		},
+	},
 	mastodon: {
 		allowedMediaTypes: mastodonImageTypes.concat( [ ...mastodonVideoTypes, MP4, VIDEOPRESS ] ),
 		image: {

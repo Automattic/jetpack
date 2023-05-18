@@ -12,7 +12,7 @@ import { buildPrompt } from './create-prompt';
 import { askJetpack, askQuestion } from './get-suggestion-with-stream';
 import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
-const debug = debugFactory( 'jetpack:ai-assistant' );
+const debug = debugFactory( 'jetpack-ai-assistant' );
 
 /**
  * Returns partial content from the beginning of the post
@@ -186,9 +186,10 @@ const useSuggestionsFromOpenAI = ( {
 
 		let source;
 		let fullMessage = '';
+
 		try {
 			setIsLoadingCompletion( true );
-			source = await askQuestion( prompt );
+			source = await askQuestion( prompt, postId );
 		} catch ( err ) {
 			if ( err.message ) {
 				setErrorMessage( err.message ); // Message was already translated by the backend
@@ -219,11 +220,19 @@ const useSuggestionsFromOpenAI = ( {
 			const chunk = data.choices[ 0 ].delta.content;
 			if ( chunk ) {
 				fullMessage += chunk;
-				setAttributes( {
-					content: fullMessage,
-				} );
 				debug( fullMessage );
-				// debug( chunk );
+
+				if ( fullMessage.startsWith( '__JETPACK_AI_ERROR__' ) ) {
+					// The error is confirmed
+					source.close();
+					setIsLoadingCompletion( false );
+					setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
+				} else if ( ! '__JETPACK_AI_ERROR__'.startsWith( fullMessage ) ) {
+					// Confirmed to be a valid response
+					setAttributes( {
+						content: fullMessage,
+					} );
+				}
 			}
 		} );
 	};

@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Composer: Added jetpack-forms as a required dependency to fix a Jetpack form compat issue

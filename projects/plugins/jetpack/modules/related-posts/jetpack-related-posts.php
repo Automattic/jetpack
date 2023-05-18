@@ -434,8 +434,9 @@ EOT;
 	 * @return string
 	 */
 	public function render_block( $attributes ) {
-		$post_id          = get_the_ID();
-		$block_attributes = array(
+		$wrapper_attributes = array();
+		$post_id            = get_the_ID();
+		$block_attributes   = array(
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
 			'show_date'       => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
@@ -1233,7 +1234,8 @@ EOT;
 			);
 
 			// If we don't have enough, fetch posts without featured image.
-			$more = $options['size'] - count( $with_post_thumbnails );
+			$count_post_with_thumbnails = is_countable( $with_post_thumbnails ) ? count( $with_post_thumbnails ) : 0;
+			$more                       = $options['size'] - $count_post_with_thumbnails;
 			if ( 0 < $more ) {
 				$no_post_thumbnails = get_posts(
 					array(
@@ -1546,6 +1548,7 @@ EOT;
 	 * @return array
 	 */
 	protected function get_related_post_ids( $post_id, $size, array $filters ) {
+		$transient_name = null;
 		$now_ts         = time();
 		$cache_meta_key = '_jetpack_related_posts_cache';
 

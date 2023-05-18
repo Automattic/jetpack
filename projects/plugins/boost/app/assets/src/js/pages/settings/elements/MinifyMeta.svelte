@@ -32,7 +32,10 @@
 	 */
 	function save() {
 		// Sanitize input and save.
-		value = inputValue.split( ',' ).map( v => v.trim() );
+		value = inputValue
+			.split( ',' )
+			.map( v => v.trim() )
+			.filter( Boolean );
 		dispatch( 'save', value );
 		isEditing = false;
 

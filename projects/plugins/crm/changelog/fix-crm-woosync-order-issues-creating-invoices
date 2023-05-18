@@ -1,7 +1,0 @@
-Significance: patch
-Type: fixed
-
-WooSync: Fix the fee amount from a WooCommerce order is not added to the invoice
-WooSync: Fix shipping tax and discount amounts from Woocommerce orders are not calculated in invoices
-WooSync: Fix the subtotal amount from WooCommerce orders is not calculated in invoices
-Invoices: On invoice update the shipping tax selected is removed resulting on incorrect total amount

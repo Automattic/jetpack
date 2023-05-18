@@ -5,6 +5,7 @@ import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
 import attributes from './attributes';
 import edit from './edit';
+import Icon from './icon';
 
 /**
  * Style dependencies
@@ -12,7 +13,7 @@ import edit from './edit';
 import './editor.scss';
 
 export const name = 'ai-assistant';
-export const title = __( 'AI Assistant', 'jetpack' );
+export const title = __( 'AI Assistant (Experimental)', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,
@@ -31,7 +32,7 @@ export const settings = {
 		</Fragment>
 	),
 	icon: {
-		src: 'superhero',
+		src: Icon,
 		foreground: getIconColor(),
 	},
 	category: 'text',
