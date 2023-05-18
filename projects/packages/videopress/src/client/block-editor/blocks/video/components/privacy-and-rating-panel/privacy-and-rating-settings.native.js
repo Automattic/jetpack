@@ -23,12 +23,14 @@ import {
  * @param {object} props.attributes - Block attributes.
  * @param {Function} props.setAttributes - Function to set block attributes.
  * @param {boolean} props.privateEnabledForSite - True if the site's privacy is set to Private.
+ * @param {boolean} props.videoBelongToSite - Determines if the video belongs to the current site.
  * @returns {import('react').ReactElement} - Settings to change video's privacy and ratings.
  */
 export default function PrivacyAndRatingSettings( {
 	attributes,
 	setAttributes,
 	privateEnabledForSite,
+	videoBelongToSite,
 } ) {
 	const { privacySetting, rating, allowDownload, displayEmbed } = attributes;
 
@@ -80,6 +82,7 @@ export default function PrivacyAndRatingSettings( {
 				onChange={ value => {
 					setAttributes( { rating: value } );
 				} }
+				disabled={ ! videoBelongToSite }
 			/>
 
 			<SelectControl
@@ -99,6 +102,7 @@ export default function PrivacyAndRatingSettings( {
 				} }
 				value={ String( privacySetting ) }
 				options={ [ privacyOptionSiteDefault, privacyOptionPublic, privacyOptionPrivate ] }
+				disabled={ ! videoBelongToSite }
 			/>
 
 			<ToggleControl
@@ -107,6 +111,7 @@ export default function PrivacyAndRatingSettings( {
 				onChange={ value => {
 					setAttributes( { allowDownload: value } );
 				} }
+				disabled={ ! videoBelongToSite }
 			/>
 
 			<ToggleControl
@@ -119,6 +124,7 @@ export default function PrivacyAndRatingSettings( {
 					'Gives viewers the option to share the video link and HTML embed code',
 					'jetpack-videopress-pkg'
 				) }
+				disabled={ ! videoBelongToSite }
 			/>
 		</PanelBody>
 	);

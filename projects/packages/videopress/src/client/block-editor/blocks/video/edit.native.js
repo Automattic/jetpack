@@ -217,7 +217,9 @@ export default function VideoPressEdit( {
 					<PanelBody title={ __( 'More', 'jetpack-videopress-pkg' ) }>
 						<PlaybackPanel { ...{ attributes, setAttributes } } />
 						<ColorPanel { ...{ attributes, setAttributes } } />
-						<PrivacyAndRatingPanel { ...{ attributes, setAttributes, privateEnabledForSite } } />
+						<PrivacyAndRatingPanel
+							{ ...{ attributes, setAttributes, privateEnabledForSite, videoBelongToSite } }
+						/>
 					</PanelBody>
 				</InspectorControls>
 			) }
