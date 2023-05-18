@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Multisite: avoid errors when the package is used in the Protect plugin instead of the Jetpack plugin.
