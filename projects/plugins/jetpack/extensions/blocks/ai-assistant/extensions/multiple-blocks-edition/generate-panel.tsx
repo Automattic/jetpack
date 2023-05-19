@@ -31,10 +31,10 @@ export const toneOptions = Object.keys( PROMPT_TONES_MAP ).map( key => {
 	};
 } );
 
-toneOptions.unshift( {
-	key: '',
-	name: '',
-} );
+// toneOptions.unshift( {
+// 	key: '',
+// 	name: '',
+// } );
 
 // Create a Language Array of objects with `key` and `name` keys
 export const langOptions = Object.keys( LANGUAGE_MAP ).map( key => {
@@ -44,10 +44,10 @@ export const langOptions = Object.keys( LANGUAGE_MAP ).map( key => {
 	};
 } );
 
-langOptions.unshift( {
-	key: '',
-	name: '',
-} );
+// langOptions.unshift( {
+// 	key: '',
+// 	name: '',
+// } );
 
 /**
  * Block edit panel to generate content from multiple blocks.
@@ -193,7 +193,7 @@ export default function GenerateContentPanel( { blocksIds } ) {
 			<PanelRow>
 				<CustomSelectControl
 					label={ __( 'Tone', 'jetpack' ) }
-					value={ toneOptions.find( option => option.key === tone?.key ) }
+					value={ tone }
 					options={ toneOptions }
 					onChange={ ( { selectedItem } ) => setTone( selectedItem ) }
 				/>
@@ -202,7 +202,7 @@ export default function GenerateContentPanel( { blocksIds } ) {
 			<PanelRow>
 				<CustomSelectControl
 					label={ __( 'Language', 'jetpack' ) }
-					value={ toneOptions.find( option => option.key === lang?.key ) }
+					value={ lang }
 					options={ langOptions }
 					onChange={ ( { selectedItem } ) => setLang( selectedItem ) }
 				/>
@@ -246,7 +246,11 @@ export default function GenerateContentPanel( { blocksIds } ) {
 			</PanelRow>
 
 			<PanelRow>
-				<Button variant="primary" onClick={ generateContent }>
+				<Button
+					variant="primary"
+					onClick={ generateContent }
+					disabled={ ! ( tone.key.length + lang.key.length + action.prompt.length ) }
+				>
 					{ __( 'Generate', 'jetpack' ) }
 				</Button>
 			</PanelRow>
