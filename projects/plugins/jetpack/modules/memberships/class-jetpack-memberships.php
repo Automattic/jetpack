@@ -476,10 +476,13 @@ class Jetpack_Memberships {
 	 * @return bool Whether the post can be viewed
 	 */
 	public static function user_can_view_post_nocache() {
-		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-
 		$newsletter_access_level = self::get_newsletter_access_level();
-		$paywall                 = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		if ( empty( $newsletter_access_level ) || 'everybody' === $newsletter_access_level ) {
+			return true;
+		}
+
+		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+		$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level );
 	}
 

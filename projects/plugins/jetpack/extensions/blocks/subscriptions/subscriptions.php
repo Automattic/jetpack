@@ -788,7 +788,7 @@ function maybe_close_comments( $default_comments_open, $post_id ) {
  * @return string
  */
 function maybe_gate_existing_comments( $comment ) {
-	if ( empty( $comment ) ) {
+	if ( empty( $comment ) || 'everybody' === get_post_access_level() ) {
 		return $comment;
 	}
 
