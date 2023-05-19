@@ -84,11 +84,11 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			'jetpack-modules-list-table',
 			'jetpackModulesData',
 			array(
-				'modules'   => Jetpack::get_translated_modules( $this->all_items ),
+				'modules'   => Jetpack::get_translated_modules( $this->items ),
 				'i18n'      => array(
 					'search_placeholder' => __( 'Search modules…', 'jetpack' ),
 				),
-				'modalinfo' => $this->module_info_check( $modal_info, $this->all_items ),
+				'modalinfo' => $this->module_info_check( $modal_info, $this->items ),
 				'nonces'    => array(
 					'bulk' => wp_create_nonce( 'bulk-jetpack_page_jetpack_modules' ),
 				),
