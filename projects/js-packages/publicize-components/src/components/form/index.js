@@ -59,8 +59,9 @@ export default function PublicizeForm( {
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 	const { dismissedNotices, dismissNotice } = useDismissNotice();
 
-	const hasInstagramConnection =
-		connections.filter( connection => connection.service_name === 'instagram' ).length > 0;
+	const hasInstagramConnection = connections.some(
+		connection => connection.service_name === 'instagram'
+	);
 	const [ shouldShowInstagramNotice, setShouldShowInstagramNotice ] = useState(
 		! hasInstagramConnection
 	);
