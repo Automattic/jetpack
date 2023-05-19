@@ -52,7 +52,15 @@ export async function askQuestion( question, postId = null ) {
 		url.searchParams.append( 'post_id', postId );
 	}
 
-	return new SuggestionsEventSource( url.toString() );
+	const source = new SuggestionsEventSource( url.toString() );
+
+	source.addEventListener( 'error', () => {
+		// Clean from the localStorage when we get an error
+		localStorage.removeItem( JWT_TOKEN_ID );
+		debugToken( 'Error. Removing token from localStorage' );
+	} );
+
+	return source;
 }
 
 /**
@@ -142,6 +150,7 @@ export class SuggestionsEventSource extends EventSource {
 		super( url, options );
 		this.fullMessage = '';
 		this.addEventListener( 'message', this.processEvent );
+		this.addEventListener( 'error', this.processErrorEvent );
 	}
 
 	processEvent( e ) {
