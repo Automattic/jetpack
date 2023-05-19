@@ -150,7 +150,6 @@ export class SuggestionsEventSource extends EventSource {
 		const chunk = data.choices[ 0 ].delta.content;
 		if ( chunk ) {
 			this.fullMessage += chunk;
-			debug( this.fullMessage );
 
 			if ( this.fullMessage.startsWith( '__JETPACK_AI_ERROR__' ) ) {
 				// The error is confirmed

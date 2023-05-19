@@ -207,16 +207,14 @@ const useSuggestionsFromOpenAI = ( {
 			source.close();
 			setIsLoadingCompletion( false );
 			setAttributes( { content: e.detail } );
-			return;
 		} );
 		source.addEventListener( 'error_unclear_prompt', () => {
 			source.close();
 			setIsLoadingCompletion( false );
 			setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
-			return;
 		} );
 		source.addEventListener( 'suggestion', e => {
-			debug( 'fullMessage', e );
+			debug( 'fullMessage', e.detail );
 			setAttributes( { content: e.detail } );
 		} );
 		return source;
