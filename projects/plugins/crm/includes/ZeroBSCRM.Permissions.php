@@ -698,21 +698,24 @@
  * @since $$next-version$$
  *
  * @param WP_User $user The WP User to check permission access for.
+ * @param int     $contact_id (Optional) The ID of the CRM contact.
  * @return bool Returns a bool representing a user permission state.
  */
-function jpcrm_can_user_manage_contacts( WP_User $user ) {
+function jpcrm_can_user_manage_contacts( WP_User $user, $contact_id = null ) {
 	/**
 	 * Allow third party plugins to modify the permission conditions for contacts.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param boolean $allowed A boolean that represents the permission state.
-	 * @param WP_User $user The WP User to check permission access for.
+	 * @param boolean  $allowed A boolean that represents the permission state.
+	 * @param WP_User  $user The WP User to check permission access for.
+	 * @param int|null $contact_id (Optional) The ID of the CRM contact.
 	 */
 	return (bool) apply_filters(
 		'jpcrm_can_user_manage_contacts',
 		$user->has_cap( 'admin_zerobs_customers' ),
-		$user
+		$user,
+		$contact_id
 	);
 }
 
