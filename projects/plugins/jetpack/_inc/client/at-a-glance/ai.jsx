@@ -1,5 +1,5 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { __, _x } from '@wordpress/i18n';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import DashItem from 'components/dash-item';
 import JetpackBanner from 'components/jetpack-banner';
 import { getJetpackProductUpsellByFeature, FEATURE_AI_ASSISTANT } from 'lib/plans/constants';
@@ -23,13 +23,12 @@ class DashJetpackAi extends Component {
 		isOffline: PropTypes.bool.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
 		trackUpgradeButtonView: PropTypes.func,
+		aiAvailableRequests: PropTypes.number,
 	};
 
 	static defaultProps = {
 		trackUpgradeButtonView: noop,
 	};
-
-	activateVideoPress = () => this.props.updateOptions( { videopress: true } );
 
 	getContent() {
 		const labelName = __( 'Jetpack AI', 'jetpack' );
@@ -48,19 +47,20 @@ class DashJetpackAi extends Component {
 			isFetching,
 			isOffline,
 			upgradeUrl,
-			videoPressStorageUsed,
+			aiAvailableRequests,
 		} = this.props;
 
 		const shouldDisplayBanner = hasConnectedOwner && ! hasAiFeature && ! isOffline && ! isFetching;
 
 		const bannerText =
-			! hasAiFeature && null !== videoPressStorageUsed && 0 === videoPressStorageUsed
-				? __(
-						'1 free video available. Upgrade now to unlock more videos and 1TB of storage.',
-						'jetpack'
+			! hasAiFeature && null !== aiAvailableRequests && aiAvailableRequests > 0
+				? sprintf(
+						/* translators: %s is the number of requests available */
+						__( '%s requests available. Upgrade now to unlock unlimited AI requests.', 'jetpack' ),
+						aiAvailableRequests
 				  )
 				: __(
-						'You have used your free video. Upgrade now to unlock more videos and 1TB of storage.',
+						'You have used your free requests. Upgrade now to unlock unlimited requests.',
 						'jetpack',
 						/* dummy arg to avoid bad minification */ 0
 				  );
@@ -68,7 +68,6 @@ class DashJetpackAi extends Component {
 		if ( this.props.getOptionValue( 'ai' ) && hasConnectedOwner ) {
 			return (
 				<DashItem
-					className="jp-dash-item__videopress"
 					label={ labelName }
 					module="ai"
 					support={ support }
@@ -85,7 +84,6 @@ class DashJetpackAi extends Component {
 							</div>
 							{ shouldDisplayBanner && (
 								<JetpackBanner
-									className="media__videopress-upgrade"
 									callToAction={ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
 									title={ bannerText }
 									disableHref="false"
@@ -155,6 +153,7 @@ export default connect(
 		isFetching: isFetchingSitePurchases( state ),
 		sitePlan: getSitePlan( state ),
 		upgradeUrl: getProductDescriptionUrl( state, 'ai' ),
+		aiAvailableRequests: 20, // TODO: Implement available requests logic
 	} ),
 	dispatch => ( {
 		connectUser: () => {
