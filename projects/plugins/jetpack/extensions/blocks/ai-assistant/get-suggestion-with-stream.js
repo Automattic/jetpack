@@ -14,7 +14,6 @@ const JWT_TOKEN_EXPIRATION_TIME = 2 * 60 * 1000;
  * @returns {string} The event source
  */
 export async function askJetpack( question ) {
-	let fullMessage;
 	let source;
 	try {
 		source = await askQuestion( question );
@@ -26,19 +25,8 @@ export async function askJetpack( question ) {
 		debug( 'Error', err );
 	} );
 
-	source.addEventListener( 'message', e => {
-		if ( e.data === '[DONE]' ) {
-			source.close();
-			debug( 'Done. Full message: ' + fullMessage );
-			return;
-		}
-
-		const data = JSON.parse( e.data );
-		const chunk = data.choices[ 0 ].delta.content;
-		if ( chunk ) {
-			fullMessage += chunk;
-			debug( chunk );
-		}
+	source.addEventListener( 'suggestion', e => {
+		debug( 'fullMessage', e );
 	} );
 	return source;
 }
@@ -60,8 +48,7 @@ export async function askQuestion( question, postId = null ) {
 		url.searchParams.append( 'post_id', postId );
 	}
 
-	const source = new EventSource( url.toString() );
-	return source;
+	return new SuggestionsEventSource( url.toString() );
 }
 
 /**
@@ -126,4 +113,54 @@ export async function requestToken() {
 	localStorage.setItem( JWT_TOKEN_ID, JSON.stringify( newTokenData ) );
 
 	return newTokenData;
+}
+
+/**
+ * SuggestionsEventSource is a wrapper around EventSource that emits
+ * a 'chunk' event for each chunk of data received, and a 'done' event
+ * when the stream is closed.
+ * It also emits a 'suggestion' event with the full suggestion received so far
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/EventSource
+ * @param {string} url - The URL to connect to
+ * @param {object} options - Options to pass to EventSource
+ * @returns {EventSource} The event source
+ * @fires suggestion - The full suggestion has been received so far
+ * @fires message - A message has been received
+ * @fires chunk - A chunk of data has been received
+ * @fires done - The stream has been closed. No more data will be received
+ * @fires error - An error has occurred
+ */
+export class SuggestionsEventSource extends EventSource {
+	constructor( url, options ) {
+		super( url, options );
+		this.fullMessage = '';
+		this.addEventListener( 'message', this.processEvent );
+	}
+
+	processEvent( e ) {
+		if ( e.data === '[DONE]' ) {
+			// Dispatch an event with the full content
+			this.dispatchEvent( new CustomEvent( 'done', { detail: this.fullMessage } ) );
+			debug( 'Done. Full message: ' + this.fullMessage );
+			return;
+		}
+
+		const data = JSON.parse( e.data );
+		const chunk = data.choices[ 0 ].delta.content;
+		if ( chunk ) {
+			this.fullMessage += chunk;
+
+			if ( this.fullMessage.startsWith( '__JETPACK_AI_ERROR__' ) ) {
+				// The error is confirmed
+				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
+			} else if ( ! '__JETPACK_AI_ERROR__'.startsWith( this.fullMessage ) ) {
+				// Confirmed to be a valid response
+				// Dispatch an event with the chunk
+				this.dispatchEvent( new CustomEvent( 'chunk', { detail: chunk } ) );
+				// Dispatch an event with the full message
+				this.dispatchEvent( new CustomEvent( 'suggestion', { detail: this.fullMessage } ) );
+			}
+		}
+	}
 }
