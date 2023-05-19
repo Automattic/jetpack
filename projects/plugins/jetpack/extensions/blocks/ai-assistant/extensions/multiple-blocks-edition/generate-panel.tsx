@@ -122,6 +122,8 @@ export default function GenerateContentPanel( { blocksIds } ) {
 		}
 
 		const prompt = buildPromptTemplate( {
+			context:
+				'You are an AI translation assistant block. Please modify the content below, making sure that you stick to the following rules:',
 			content,
 			rules,
 		} );
