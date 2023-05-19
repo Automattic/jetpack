@@ -135,42 +135,34 @@ export default function GenerateContentPanel( { blocksIds } ) {
 			return;
 		}
 
-		let fullMessage = '';
 		const generatedBlock = createBlock( 'jetpack/ai-assistant', {
 			content: '',
 		} );
 
 		let newBlockJustCreated = false;
-		source.addEventListener( 'message', e => {
-			if ( e.data === '[DONE]' ) {
-				source.close();
-				return;
-			}
 
-			const data = JSON.parse( e.data );
-			const chunk = data.choices[ 0 ].delta.content;
+		source.addEventListener( 'done', () => {
+			source.close();
+		} );
 
-			if ( chunk ) {
-				fullMessage += chunk;
-				if ( fullMessage.startsWith( '__JETPACK_AI_ERROR__' ) ) {
-					// The error is confirmed
-					setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
-					source.close();
-				} else if ( ! '__JETPACK_AI_ERROR__'.startsWith( fullMessage ) ) {
-					if ( ! newBlockJustCreated ) {
-						if ( combineBlocks ) {
-							replaceBlocks( blocksIds, [ generatedBlock ] );
-						} else {
-							insertBlock( generatedBlock, lastBlockIndex + 1 );
-						}
-						newBlockJustCreated = true;
-					}
+		source.addEventListener( 'error_unclear_prompt', () => {
+			setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
+			source.close();
+		} );
 
-					updateBlockAttributes( generatedBlock.clientId, {
-						content: fullMessage,
-					} );
+		source.addEventListener( 'suggestion', e => {
+			if ( ! newBlockJustCreated ) {
+				if ( combineBlocks ) {
+					replaceBlocks( blocksIds, [ generatedBlock ] );
+				} else {
+					insertBlock( generatedBlock, lastBlockIndex + 1 );
 				}
+				newBlockJustCreated = true;
 			}
+
+			updateBlockAttributes( generatedBlock.clientId, {
+				content: e.detail as string,
+			} );
 		} );
 	}, [
 		getContentFromSelectedBlocks,
