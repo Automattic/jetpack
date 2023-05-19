@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Constants;
 
 if ( ! class_exists( 'WP_List_Table' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
@@ -230,6 +231,12 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			if ( ! in_array( $module_tag, array_map( 'jetpack_get_module_i18n_tag', $module['module_tags'] ), true ) ) {
 				return false;
 			}
+		}
+
+		// Check module visibility based on flag.
+		if ( $module['module'] === 'ai' ) {
+			$jetpack_ai_enabled = Constants::is_true( 'JETPACK_AI_ENABLED' );
+			return $jetpack_ai_enabled;
 		}
 
 		// If nothing rejected it, include it!
