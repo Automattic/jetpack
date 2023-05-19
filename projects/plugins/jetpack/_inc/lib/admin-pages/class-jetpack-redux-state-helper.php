@@ -184,6 +184,7 @@ class Jetpack_Redux_State_Helper {
 				'showRecommendations'        => Jetpack_Recommendations::is_enabled(),
 				/** This filter is documented in my-jetpack/src/class-initializer.php */
 				'showMyJetpack'              => My_Jetpack_Initializer::should_initialize(),
+				'showJetpackAi'              => Constants::is_true( 'JETPACK_AI_ENABLED' ),
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
 			),
