@@ -17,6 +17,7 @@ import { arrowRight, chevronDown, image, pencil, update, title } from '@wordpres
 import I18nDropdownControl from './i18n-dropdown-control';
 import Loading from './loading';
 import ToneDropdownControl from './tone-dropdown-control';
+import UpgradePrompt from './upgrade-prompt';
 
 const AIControl = ( {
 	aiType,
@@ -79,6 +80,7 @@ const AIControl = ( {
 
 	return (
 		<>
+			{ false && <UpgradePrompt /> }
 			{ ! isWaitingState && (
 				<ToolbarControls
 					aiType={ aiType }
