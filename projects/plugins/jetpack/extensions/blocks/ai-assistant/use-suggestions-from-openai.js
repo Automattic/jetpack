@@ -187,7 +187,13 @@ const useSuggestionsFromOpenAI = ( {
 		let source;
 		try {
 			setIsLoadingCompletion( true );
-			source = await askQuestion( prompt, postId );
+			source = await askQuestion( prompt, postId, err => {
+				if ( err.message ) {
+					setErrorMessage( err.message );
+				}
+				setShowRetry( true );
+				setIsLoadingCompletion( false );
+			} );
 		} catch ( err ) {
 			if ( err.message ) {
 				setErrorMessage( err.message ); // Message was already translated by the backend

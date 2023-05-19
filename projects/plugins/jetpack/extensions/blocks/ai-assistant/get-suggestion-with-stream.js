@@ -38,10 +38,11 @@ export async function askJetpack( question ) {
 /**
  * Leaving this here to make it easier to debug the streaming API calls for now
  *
- * @param {string} question - The query to send to the API
- * @param {number} postId - The post where this completion is being requested, if available
+ * @param {string} question  - The query to send to the API
+ * @param {number} postId    - The post where this completion is being requested, if available
+ * @param {Function} onError - The function to call when we get a response
  */
-export async function askQuestion( question, postId = null ) {
+export async function askQuestion( question, postId = null, onError ) {
 	const { token } = await requestToken();
 
 	const url = new URL( 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query' );
@@ -58,6 +59,9 @@ export async function askQuestion( question, postId = null ) {
 		// Clean from the localStorage when we get an error
 		localStorage.removeItem( JWT_TOKEN_ID );
 		debugToken( 'Error. Removing token from localStorage' );
+		requestToken( true ).catch( error => {
+			onError?.( error );
+		} );
 	} );
 
 	return source;
@@ -66,24 +70,29 @@ export async function askQuestion( question, postId = null ) {
 /**
  * Request a token from the Jetpack site to use with the OpenAI API
  *
+ * @param {boolean} forceFresh                         - Whether to force the token request
  * @returns {Promise<{token: string, blogId: string}>} The token and the blogId
  */
-export async function requestToken() {
+export async function requestToken( forceFresh = false ) {
 	// Trying to pick the token from localStorage
 	const token = localStorage.getItem( JWT_TOKEN_ID );
 	let tokenData;
 
-	if ( token ) {
-		try {
-			tokenData = JSON.parse( token );
-		} catch ( err ) {
-			debugToken( 'Error parsing token', err );
+	if ( ! forceFresh ) {
+		if ( token ) {
+			try {
+				tokenData = JSON.parse( token );
+			} catch ( err ) {
+				debugToken( 'Error parsing token', err );
+			}
 		}
-	}
 
-	if ( tokenData && tokenData?.expire > Date.now() ) {
-		debugToken( 'Using cached token' );
-		return tokenData;
+		if ( tokenData && tokenData?.expire > Date.now() ) {
+			debugToken( 'Using cached token' );
+			return tokenData;
+		}
+	} else {
+		debugToken( 'Forcing fresh token' );
 	}
 
 	const apiNonce = window.JP_CONNECTION_INITIAL_STATE.apiNonce;
