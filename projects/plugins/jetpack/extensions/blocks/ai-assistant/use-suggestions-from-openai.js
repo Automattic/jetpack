@@ -201,6 +201,7 @@ const useSuggestionsFromOpenAI = ( {
 			}
 			setShowRetry( true );
 			setIsLoadingCompletion( false );
+			return;
 		}
 
 		source.addEventListener( 'done', e => {
