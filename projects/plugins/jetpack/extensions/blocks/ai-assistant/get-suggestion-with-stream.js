@@ -76,10 +76,10 @@ export async function requestToken() {
 
 	const apiNonce = window.JP_CONNECTION_INITIAL_STATE.apiNonce;
 	const siteSuffix = window.JP_CONNECTION_INITIAL_STATE.siteSuffix;
-	const isJetpackSite = ! window.wpcomFetch;
+	const hasWPComFetch = ! window.wpcomFetch;
 	let data;
 
-	if ( isJetpackSite ) {
+	if ( hasWPComFetch ) {
 		data = await apiFetch( {
 			path: '/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(),
 			credentials: 'same-origin',
@@ -100,7 +100,7 @@ export async function requestToken() {
 		/**
 		 * TODO: make sure we return id from the .com token acquisition endpoint too
 		 */
-		blogId: isJetpackSite ? data.blog_id : siteSuffix,
+		blogId: hasWPComFetch ? data.blog_id : siteSuffix,
 
 		/**
 		 * Let's expire the token in 2 minutes
