@@ -26,6 +26,8 @@ final class REST_Contacts_Controller extends REST_Base_Objects_Controller {
 
 	/**
 	 * Constructor.
+	 *
+	 * @since $$next-version$$
 	 */
 	public function __construct() {
 		parent::__construct();
