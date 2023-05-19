@@ -254,8 +254,11 @@ class REST_Controller {
 			$dismissed_notices = array();
 		}
 
-		$dismissed_notices = array_unique( array_merge( $dismissed_notices, array( $notice ) ) );
+		if ( in_array( $notice, $dismissed_notices, true ) ) {
+			return rest_ensure_response( array( 'success' => true ) );
+		}
 
+		array_push( $dismissed_notices, $notice );
 		update_option( Publicize::OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES, $dismissed_notices );
 
 		return rest_ensure_response( array( 'success' => true ) );
