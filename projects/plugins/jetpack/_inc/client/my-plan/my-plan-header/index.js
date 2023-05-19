@@ -437,7 +437,7 @@ class MyPlanHeader extends React.Component {
 	}
 
 	renderPlan() {
-		// Hide "My Plan" card if there are active products.
+		// Hide "My Plan" card if there are active products and no paid plan.
 		if ( ! isEmpty( this.props.activeProducts ) && this.props.plan === PLAN_JETPACK_FREE ) {
 			return null;
 		}
