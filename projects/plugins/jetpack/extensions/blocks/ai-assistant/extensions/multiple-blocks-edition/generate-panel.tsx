@@ -19,8 +19,8 @@ import React from 'react';
  */
 import { buildPromptTemplate } from '../../create-prompt';
 import { askQuestion } from '../../get-suggestion-with-stream';
-import { LANGUAGE_MAP, defaultLanguage } from '../../i18n-dropdown-control';
-import { DEFAULT_PROMPT_TONE, PROMPT_TONES_MAP, ToneProp } from '../../tone-dropdown-control';
+import { LANGUAGE_MAP } from '../../i18n-dropdown-control';
+import { PROMPT_TONES_MAP, ToneProp } from '../../tone-dropdown-control';
 
 // Create a Tone Array of objects with `key` and `name` keys
 export const toneOptions = Object.keys( PROMPT_TONES_MAP ).map( key => {
@@ -29,7 +29,11 @@ export const toneOptions = Object.keys( PROMPT_TONES_MAP ).map( key => {
 		name: `${ PROMPT_TONES_MAP[ key ].emoji } ${ PROMPT_TONES_MAP[ key ].label }`,
 	};
 } );
-const defaultTone = toneOptions.find( option => option.key === DEFAULT_PROMPT_TONE );
+
+toneOptions.unshift( {
+	key: '',
+	name: '',
+} );
 
 // Create a Language Array of objects with `key` and `name` keys
 export const langOptions = Object.keys( LANGUAGE_MAP ).map( key => {
@@ -38,7 +42,11 @@ export const langOptions = Object.keys( LANGUAGE_MAP ).map( key => {
 		name: LANGUAGE_MAP[ key ].label,
 	};
 } );
-const defaultLang = langOptions.find( option => option.key === defaultLanguage );
+
+langOptions.unshift( {
+	key: '',
+	name: '',
+} );
 
 /**
  * Block edit panel to generate content from multiple blocks.
@@ -48,8 +56,14 @@ const defaultLang = langOptions.find( option => option.key === defaultLanguage )
  * @returns {React.ReactElement}       The component's elements.
  */
 export default function GenerateContentPanel( { blocksIds } ) {
-	const [ tone, setTone ] = useState( defaultTone );
-	const [ lang, setLang ] = useState( defaultLang );
+	const [ tone, setTone ] = useState( {
+		key: '',
+		name: '',
+	} );
+	const [ lang, setLang ] = useState( {
+		key: '',
+		name: '',
+	} );
 	const [ action, setAction ] = useState< { key?: ToneProp; name?: string; prompt?: string } >(
 		{}
 	);
