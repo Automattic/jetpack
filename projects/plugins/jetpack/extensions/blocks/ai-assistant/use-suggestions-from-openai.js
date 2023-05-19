@@ -1,17 +1,18 @@
 /**
  * External dependencies
  */
-import apiFetch from '@wordpress/api-fetch';
 import { useSelect, select as selectData } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import debugFactory from 'debug';
 /**
  * Internal dependencies
  */
-import { buildPromptTemplate } from './create-prompt';
-import { askJetpack } from './get-suggestion-with-stream';
-import { defaultPromptLanguage } from './i18n-dropdown-control';
+import { buildPrompt } from './create-prompt';
+import { askJetpack, askQuestion } from './get-suggestion-with-stream';
 import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
+
+const debug = debugFactory( 'jetpack-ai-assistant' );
 
 /**
  * Returns partial content from the beginning of the post
@@ -144,11 +145,10 @@ const useSuggestionsFromOpenAI = ( {
 	// eslint-disable-next-line no-unused-vars
 	const tagNames = tagObjects.map( ( { name } ) => name ).join( ', ' );
 
-	const getSuggestionFromOpenAI = ( type, options = {} ) => {
+	const getStreamedSuggestionFromOpenAI = async ( type, options = {} ) => {
 		options = {
 			retryRequest: false,
 			tone: DEFAULT_PROMPT_TONE,
-			language: defaultPromptLanguage,
 			...options,
 		};
 
@@ -158,132 +158,24 @@ const useSuggestionsFromOpenAI = ( {
 
 		setShowRetry( false );
 		setErrorMessage( false );
-		setIsLoadingCompletion( true );
 
 		let prompt = lastPrompt;
 
 		if ( ! options.retryRequest ) {
 			// If there is a content already, let's iterate over it.
-			switch ( type ) {
-				/*
-				 * Generate content from title.
-				 */
-				case 'titleSummary':
-					prompt = buildPromptTemplate( {
-						request:
-							'Please help me write a short piece for a blog post based on the content below',
-						content: currentPostTitle,
-					} );
-					break;
-
-				/*
-				 * Continue generating from the content below.
-				 */
-				case 'continue':
-					prompt = buildPromptTemplate( {
-						request: 'Please continue writing from the content below.',
-						rules: [ 'Only output the continuation of the content, without repeating it' ],
-						content: getPartialContentToBlock( clientId ),
-					} );
-					break;
-
-				/*
-				 * Change the tone of the content.
-				 */
-				case 'changeTone':
-					prompt = buildPromptTemplate( {
-						request: `Please, rewrite with a ${ options.tone } tone.`,
-						content,
-					} );
-					break;
-
-				/*
-				 * Summarize the content.
-				 */
-				case 'summarize':
-					prompt = buildPromptTemplate( {
-						request: 'Summarize the content below.',
-						content: content?.length ? content : getContentFromBlocks(),
-					} );
-					break;
-
-				/*
-				 * Make the content longer.
-				 */
-				case 'makeLonger':
-					prompt = buildPromptTemplate( {
-						request: 'Make the content below longer.',
-						content,
-					} );
-					break;
-
-				/*
-				 * Make the content shorter.
-				 */
-				case 'makeShorter':
-					prompt = buildPromptTemplate( {
-						request: 'Make the content below shorter.',
-						content,
-					} );
-					break;
-
-				/*
-				 * Generate a title for this blog post, based on the content.
-				 */
-				case 'generateTitle':
-					prompt = buildPromptTemplate( {
-						request: 'Generate a title for this blog post',
-						rules: [ 'Only output the raw title, without any prefix or quotes' ],
-						content: content?.length ? content : getContentFromBlocks(),
-					} );
-					break;
-
-				/*
-				 * Simplify the content.
-				 */
-				case 'simplify':
-					prompt = buildPromptTemplate( {
-						request: 'Simplify the content below.',
-						rules: [
-							'Use words and phrases that are easier to understand for non-technical people',
-							'Output in the same language of the content',
-							'Use as much of the original language as possible',
-						],
-						content: content?.length ? content : getContentFromBlocks(),
-					} );
-					break;
-
-				/**
-				 * Correct grammar and spelling
-				 */
-				case 'correctSpelling':
-					prompt = buildPromptTemplate( {
-						request: 'Correct any spelling and grammar mistakes from the content below.',
-						content: content?.length ? content : getContentFromBlocks(),
-					} );
-					break;
-
-				/**
-				 * Change the language, based on options.language
-				 */
-				case 'changeLanguage':
-					prompt = buildPromptTemplate( {
-						request: `Please, rewrite in the following language: ${ options.language }`,
-						content: content?.length ? content : getContentFromBlocks(),
-					} );
-					break;
-
-				default:
-					prompt = buildPromptTemplate( {
-						request: userPrompt,
-						content,
-					} );
-					break;
-			}
+			prompt = buildPrompt( {
+				generatedContent: content,
+				allPostContent: getContentFromBlocks(),
+				postContentAbove: getPartialContentToBlock( clientId ),
+				currentPostTitle,
+				options,
+				prompt,
+				userPrompt,
+				type,
+			} );
 		}
 
-		const data = { content: prompt };
-		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
+		tracks.recordEvent( 'jetpack_ai_chat_completion', {
 			post_id: postId,
 		} );
 
@@ -292,43 +184,59 @@ const useSuggestionsFromOpenAI = ( {
 			setAttributes( { promptType: type } );
 		}
 
-		apiFetch( {
-			path: '/wpcom/v2/jetpack-ai/completions',
-			method: 'POST',
-			data: data,
-		} )
-			.then( res => {
-				const result = res.trim();
+		let source;
+		let fullMessage = '';
 
-				/*
-				 * Hack to udpate the content.
-				 * @todo: maybe we should not pass the setAttributes function
-				 */
-				setAttributes( { content: '' } );
+		try {
+			setIsLoadingCompletion( true );
+			source = await askQuestion( prompt, postId );
+		} catch ( err ) {
+			if ( err.message ) {
+				setErrorMessage( err.message ); // Message was already translated by the backend
+			} else {
+				setErrorMessage(
+					__(
+						'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
+						'jetpack'
+					)
+				);
+			}
+			setShowRetry( true );
+			setIsLoadingCompletion( false );
+		}
 
-				setTimeout( () => {
+		source.addEventListener( 'message', e => {
+			if ( e.data === '[DONE]' ) {
+				source.close();
+				setIsLoadingCompletion( false );
+				setAttributes( {
+					content: fullMessage,
+				} );
+				debug( 'Done. Full message: ' + fullMessage );
+				return;
+			}
+
+			const data = JSON.parse( e.data );
+			const chunk = data.choices[ 0 ].delta.content;
+			if ( chunk ) {
+				fullMessage += chunk;
+				debug( fullMessage );
+
+				if ( fullMessage.startsWith( '__JETPACK_AI_ERROR__' ) ) {
+					// The error is confirmed
+					source.close();
+					setIsLoadingCompletion( false );
+					setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
+				} else if ( ! '__JETPACK_AI_ERROR__'.startsWith( fullMessage ) ) {
+					// Confirmed to be a valid response
 					setAttributes( {
-						content: result.length ? result : '',
+						content: fullMessage,
 					} );
-				}, 10 );
-
-				setIsLoadingCompletion( false );
-			} )
-			.catch( e => {
-				if ( e.message ) {
-					setErrorMessage( e.message ); // Message was already translated by the backend
-				} else {
-					setErrorMessage(
-						__(
-							'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
-							'jetpack'
-						)
-					);
 				}
-				setShowRetry( true );
-				setIsLoadingCompletion( false );
-			} );
+			}
+		} );
 	};
+
 	return {
 		isLoadingCategories,
 		isLoadingCompletion,
@@ -339,11 +247,14 @@ const useSuggestionsFromOpenAI = ( {
 		contentBefore: getPartialContentToBlock( clientId ),
 		wholeContent: getContentFromBlocks( clientId ),
 
-		getSuggestionFromOpenAI,
-		retryRequest: () => getSuggestionFromOpenAI( '', { retryRequest: true } ),
+		getSuggestionFromOpenAI: getStreamedSuggestionFromOpenAI,
+		retryRequest: () => getStreamedSuggestionFromOpenAI( '', { retryRequest: true } ),
 	};
 };
 
 export default useSuggestionsFromOpenAI;
 
+/**
+ * askJetpack is exposed just for debugging purposes
+ */
 window.askJetpack = askJetpack;

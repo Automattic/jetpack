@@ -422,7 +422,7 @@ class Sharing_Admin {
 					<td class="services" id="share-drop-target">
 							<h2 id="drag-instructions"
 							<?php
-							if ( count( $enabled['visible'] ) > 0 ) {
+							if ( is_countable( $enabled['visible'] ) && count( $enabled['visible'] ) > 0 ) {
 								echo ' style="display: none"';}
 							?>
 							><?php esc_html_e( 'Drag and drop available services here.', 'jetpack' ); ?></h2>
@@ -454,9 +454,9 @@ class Sharing_Admin {
 						<h3><?php esc_html_e( 'Live Preview', 'jetpack' ); ?></h3>
 					</td>
 					<td class="services">
-						<h2 <?php echo ( count( $enabled['all'] ) > 0 ) ? ' style="display: none"' : ''; ?>><?php esc_html_e( 'Sharing is off. Add services above to enable.', 'jetpack' ); ?></h2>
+						<h2 <?php echo ( is_countable( $enabled['all'] ) && count( $enabled['all'] ) > 0 ) ? ' style="display: none"' : ''; ?>><?php esc_html_e( 'Sharing is off. Add services above to enable.', 'jetpack' ); ?></h2>
 						<div class="sharedaddy sd-sharing-enabled">
-							<?php if ( count( $enabled['all'] ) > 0 ) : ?>
+							<?php if ( is_countable( $enabled['all'] ) && count( $enabled['all'] ) > 0 ) : ?>
 							<h3 class="sd-title"><?php echo esc_html( $global['sharing_label'] ); ?></h3>
 							<?php endif; ?>
 							<div class="sd-content">
@@ -465,12 +465,12 @@ class Sharing_Admin {
 										<?php $this->output_preview( $service ); ?>
 									<?php endforeach; ?>
 
-									<?php if ( count( $enabled['hidden'] ) > 0 ) : ?>
+									<?php if ( is_countable( $enabled['hidden'] ) && count( $enabled['hidden'] ) > 0 ) : ?>
 									<li class="advanced"><a href="#" class="sharing-anchor sd-button share-more"><span><?php esc_html_e( 'More', 'jetpack' ); ?></span></a></li>
 									<?php endif; ?>
 								</ul>
 
-								<?php if ( count( $enabled['hidden'] ) > 0 ) : ?>
+								<?php if ( is_countable( $enabled['hidden'] ) && count( $enabled['hidden'] ) > 0 ) : ?>
 								<div class="sharing-hidden">
 									<div class="inner" style="display: none; <?php echo count( $enabled['hidden'] ) === 1 ? 'width:150px;' : ''; ?>">
 										<?php if ( count( $enabled['hidden'] ) === 1 ) : ?>

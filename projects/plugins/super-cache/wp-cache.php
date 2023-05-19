@@ -1012,12 +1012,8 @@ table.wpsc-settings-table {
 			$currently_preloading = false;
 
 			$preload_counter = get_option( 'preload_cache_counter' );
-			if ( isset( $preload_counter['first'] ) ) { // converted from int to array
-				update_option( 'preload_cache_counter', array( 'c' => $preload_counter['c'], 't' => time() ) );
-			}
 
-			if ( is_array( $preload_counter ) && $preload_counter['c'] > 0 ) {
-				$msg .= '<p>' . sprintf( esc_html__( 'Currently caching from post %d to %d.', 'wp-super-cache' ), ( $preload_counter['c'] - 100 ), $preload_counter['c'] ) . '</p>';
+			if ( ( is_array( $preload_counter ) && $preload_counter['c'] > 0 ) || get_transient( 'taxonomy_preload' ) ) {
 				$currently_preloading = true;
 				if ( @file_exists( $cache_path . 'preload_permalink.txt' ) ) {
 					$url  = file_get_contents( $cache_path . 'preload_permalink.txt' );
@@ -3179,10 +3175,21 @@ function wp_cron_preload_cache() {
 		return true;
 	}
 
+	/*
+	 * The mutex file is used to prevent multiple preload processes from running at the same time.
+	 * If the mutex file is found, the preload process will wait 3-8 seconds and then check again.
+	 * If the mutex file is still found, the preload process will abort.
+	 * If the mutex file is not found, the preload process will create the mutex file and continue.
+	 * The mutex file is deleted at the end of the preload process.
+	 * The mutex file is deleted if it is more than 10 minutes old.
+	 * The mutex file should only be deleted by the preload process that created it.
+	 * If the mutex file is deleted by another process, another preload process may start.
+	 */
 	$mutex = $cache_path . "preload_mutex.tmp";
-	sleep( 3 + mt_rand( 1, 5 ) );
-	if ( @file_exists( $mutex ) ) {
-		if ( @filemtime( $mutex ) > ( time() - 600 ) ) {
+	if ( @file_exists( $mutex ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		sleep( 3 + wp_rand( 1, 5 ) );
+		// check again just in case another preload process is still running.
+		if ( @file_exists( $mutex ) && @filemtime( $mutex ) > ( time() - 600 ) ) { // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 			wp_cache_debug( 'wp_cron_preload_cache: preload mutex found and less than 600 seconds old. Aborting preload.', 1 );
 			return true;
 		} else {
@@ -3194,31 +3201,45 @@ function wp_cron_preload_cache() {
 	@fclose( $fp );
 
 	$counter = get_option( 'preload_cache_counter' );
-	if ( is_array( $counter ) == false ) {
-		wp_cache_debug( 'wp_cron_preload_cache: setting up preload for the first time!', 5 );
-		$counter = array( 'c' => 0, 't' => time() );
-		update_option( 'preload_cache_counter', $counter );
-	}
 	$c = $counter[ 'c' ];
-
-	update_option( 'preload_cache_counter', array( 'c' => ( $c + 100 ), 't' => time() ) );
 
 	if ( $wp_cache_preload_email_volume == 'none' && $wp_cache_preload_email_me == 1 ) {
 		$wp_cache_preload_email_me = 0;
 		wp_cache_setting( 'wp_cache_preload_email_me', 0 );
 	}
-	if ( $wp_cache_preload_email_me && $c == 0 )
+	if (
+		$wp_cache_preload_email_me &&
+		$c === 0 &&
+		! get_transient( 'taxonomy_preload' )
+	) {
 		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), home_url(), '' ), ' ' );
+	}
 
+	/*
+	 * Preload taxonomies first.
+	 *
+	 * The transient variable "taxonomy_preload" is used as a flag to indicate
+	 * that preloading of taxonomies is ongoing. It is deleted when the preload
+	 * is complete or the site owner cancels the preload.
+	 * If this flag is not set, and if a file containing a list of taxonomies
+	 * exists from a previous preload exists, it will be deleted and a new list
+	 * generated for a brand new preload.
+	 */
 	if ( $wp_cache_preload_posts == 'all' || $c < $wp_cache_preload_posts ) {
 		wp_cache_debug( 'wp_cron_preload_cache: doing taxonomy preload.', 5 );
 		$permalink_counter_msg = $cache_path . "preload_permalink.txt";
 		if ( isset( $wp_cache_preload_taxonomies ) && $wp_cache_preload_taxonomies ) {
 			$taxonomies = apply_filters( 'wp_cache_preload_taxonomies', array( 'post_tag' => 'tag', 'category' => 'category' ) );
+
+			$preload_more_taxonomies = false;
+
 			foreach( $taxonomies as $taxonomy => $path ) {
 				$taxonomy_filename = $cache_path . "taxonomy_" . $taxonomy . ".txt";
-				if ( $c == 0 )
+
+				if ( ! get_transient( 'taxonomy_preload' ) ) {
 					@unlink( $taxonomy_filename );
+				}
+				set_transient( 'taxonomy_preload', 1, 600 );
 
 				if ( false == @file_exists( $taxonomy_filename ) ) {
 					$out = '';
@@ -3236,9 +3257,12 @@ function wp_cron_preload_cache() {
 					$details = explode( "\n", file_get_contents( $taxonomy_filename ) );
 				}
 				if ( count( $details ) != 1 && $details[ 0 ] != '' ) {
-					$rows = array_splice( $details, 0, 50 );
-					if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume == 'many' )
-						wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), home_url(), $taxonomy, $c, ($c+100) ), 'Refreshing: ' . print_r( $rows, 1 ) );
+					$rows = array_splice( $details, 0, WPSC_PRELOAD_POST_COUNT );
+					if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume === 'many' ) {
+						// translators: 1: Site URL, 2: Taxonomy name, 3: Number of posts done, 4: Number of posts to preload
+						wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), home_url(), $taxonomy, $c, ( $c + WPSC_PRELOAD_POST_COUNT ) ), 'Refreshing: ' . print_r( $rows, 1 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+					}
+
 					foreach( (array)$rows as $url ) {
 						set_time_limit( 60 );
 						if ( $url == '' )
@@ -3255,14 +3279,10 @@ function wp_cron_preload_cache() {
 						wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
 						wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
 						sleep( 1 );
+
 						if ( @file_exists( $cache_path . "stop_preload.txt" ) ) {
 							wp_cache_debug( 'wp_cron_preload_cache: cancelling preload. stop_preload.txt found.', 5 );
-							@unlink( $mutex );
-							@unlink( $cache_path . "stop_preload.txt" );
-							@unlink( $taxonomy_filename );
-							update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
-							if ( $wp_cache_preload_email_me )
-								wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
+							wpsc_reset_preload_settings();
 							return true;
 						}
 					}
@@ -3272,14 +3292,47 @@ function wp_cron_preload_cache() {
 						fclose( $fp );
 					}
 				}
+
+				if (
+					$preload_more_taxonomies === false &&
+					count( $details ) !== 1 &&
+					$details[0] !== ''
+				) {
+					$preload_more_taxonomies = true;
+				}
+			}
+
+			if ( $preload_more_taxonomies === true ) {
+				wpsc_schedule_next_preload();
+				return true;
 			}
 		}
 	}
 
+	/*
+	 *
+	 * Preload posts now.
+	 *
+	 * The preload_cache_counter has two values:
+	 * c = the number of posts we've preloaded after this loop.
+	 * t = the time we started preloading in the current loop.
+	 *
+	 * $c is set to the value of preload_cache_counter['c'] at the start of the function
+	 * before it is incremented by WPSC_PRELOAD_POST_COUNT here.
+	 * The time is used to check if preloading has stalled in check_up_on_preloading().
+	 */
+	update_option(
+		'preload_cache_counter',
+		array(
+			'c' => ( $c + WPSC_PRELOAD_POST_COUNT ),
+			't' => time(),
+		)
+	);
+
 	if ( $wp_cache_preload_posts == 'all' || $c < $wp_cache_preload_posts ) {
 		$types = wpsc_get_post_types();
-		$posts = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type IN ( $types ) ) AND post_status = 'publish' ORDER BY ID DESC LIMIT %d, 100", $c ) );
-		wp_cache_debug( "wp_cron_preload_cache: got 100 posts from position $c.", 5 );
+		$posts = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type IN ( $types ) ) AND post_status = 'publish' ORDER BY ID DESC LIMIT %d," . WPSC_PRELOAD_POST_COUNT, $c ) ); // phpcs:ignore
+		wp_cache_debug( 'wp_cron_preload_cache: got ' . WPSC_PRELOAD_POST_COUNT . ' posts from position ' . $c );
 	} else {
 		wp_cache_debug( "wp_cron_preload_cache: no more posts to get. Limit ($wp_cache_preload_posts) reached.", 5 );
 		$posts = false;
@@ -3294,8 +3347,10 @@ function wp_cron_preload_cache() {
 		} else {
 			$page_on_front = $page_for_posts = 0;
 		}
-		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume == 'many' )
-			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing posts from %2$d to %3$d', 'wp-super-cache' ), home_url(), $c, ($c+100) ), ' ' );
+		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume === 'many' ) {
+			/* translators: 1: home url, 2: start post id, 3: end post id */
+			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing posts from %2$d to %3$d', 'wp-super-cache' ), home_url(), $c, ( $c + WPSC_PRELOAD_POST_COUNT ) ), ' ' );
+		}
 		$msg = '';
 		$count = $c + 1;
 		$permalink_counter_msg = $cache_path . "preload_permalink.txt";
@@ -3315,31 +3370,31 @@ function wp_cron_preload_cache() {
 				@fwrite( $fp, $count . " " . $url );
 				@fclose( $fp );
 			}
+
 			if ( @file_exists( $cache_path . "stop_preload.txt" ) ) {
 				wp_cache_debug( 'wp_cron_preload_cache: cancelling preload. stop_preload.txt found.', 5 );
-				@unlink( $mutex );
-				@unlink( $cache_path . "stop_preload.txt" );
-				update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
-				if ( $wp_cache_preload_email_me )
-					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
+				wpsc_reset_preload_settings();
 				return true;
 			}
+
 			$msg .= "$url\n";
 			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
 			wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
-			sleep( 1 );
 			++$count;
+			sleep( 1 );
 		}
-		if ( $wp_cache_preload_email_me && ( $wp_cache_preload_email_volume == 'medium' || $wp_cache_preload_email_volume == 'many' ) )
-			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] %2$d posts refreshed', 'wp-super-cache' ), home_url(), ($c+100) ), __( "Refreshed the following posts:", 'wp-super-cache' ) . "\n$msg" );
-		if ( defined( 'DOING_CRON' ) ) {
-			wp_cache_debug( 'wp_cron_preload_cache: scheduling the next preload in 30 seconds.', 5 );
-			wp_schedule_single_event( time() + 30, 'wp_cache_preload_hook' );
+
+		if ( $wp_cache_preload_email_me && ( $wp_cache_preload_email_volume === 'medium' || $wp_cache_preload_email_volume === 'many' ) ) {
+			// translators: 1: home url, 2: number of posts refreshed
+			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] %2$d posts refreshed', 'wp-super-cache' ), home_url(), ( $c + WPSC_PRELOAD_POST_COUNT ) ), __( 'Refreshed the following posts:', 'wp-super-cache' ) . "\n$msg" );
 		}
+
+		wpsc_schedule_next_preload();
+
 		wpsc_delete_files( get_supercache_dir() );
 	} else {
 		$msg = '';
-		update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
+		wpsc_reset_preload_counter();
 		if ( (int)$wp_cache_preload_interval && defined( 'DOING_CRON' ) ) {
 			if ( $wp_cache_preload_email_me )
 				$msg = sprintf( __( 'Scheduling next preload refresh in %d minutes.', 'wp-super-cache' ), (int)$wp_cache_preload_interval );
@@ -3364,6 +3419,22 @@ function wp_cron_preload_cache() {
 add_action( 'wp_cache_preload_hook', 'wp_cron_preload_cache' );
 add_action( 'wp_cache_full_preload_hook', 'wp_cron_preload_cache' );
 
+/*
+ * Schedule the next preload event without resetting the preload counter.
+ * This happens when the next loop of an active preload is scheduled.
+ */
+function wpsc_schedule_next_preload() {
+	global $cache_path;
+
+	if ( defined( 'DOING_CRON' ) ) {
+		wp_cache_debug( 'wp_cron_preload_cache: scheduling the next preload in 3 seconds.' );
+		wp_schedule_single_event( time() + 3, 'wp_cache_preload_hook' );
+	}
+
+	// we always want to delete the mutex file, even if we're not using cron
+	$mutex = $cache_path . 'preload_mutex.tmp';
+	wp_delete_file( $mutex );
+}
 function next_preload_message( $hook, $text, $limit = 0 ) {
 	global $currently_preloading, $wp_cache_preload_interval;
 	if ( $next_preload = wp_next_scheduled( $hook ) ) {
@@ -3385,11 +3456,13 @@ function next_preload_message( $hook, $text, $limit = 0 ) {
 
 function option_preload_cache_counter( $value ) {
 	if ( false == is_array( $value ) ) {
-		$ret = array( 'c' => $value, 't' => time(), 'first' => 1 );
-		return $ret;
+		return array(
+			'c' => 0,
+			't' => time(),
+		);
+	} else {
+		return $value;
 	}
-
-	return $value;
 }
 add_filter( 'option_preload_cache_counter', 'option_preload_cache_counter' );
 
@@ -3511,17 +3584,63 @@ function supercache_admin_bar_render() {
 	wpsc_admin_bar_render( $wp_admin_bar );
 }
 
+/*
+ * This function will reset the preload cache counter
+ */
+function wpsc_reset_preload_counter() {
+	update_option(
+		'preload_cache_counter',
+		array(
+			'c' => 0,
+			't' => time(),
+		)
+	);
+}
+
+/*
+ * This function will reset all preload settings
+ */
+function wpsc_reset_preload_settings() {
+	global $cache_path, $wp_cache_preload_email_me;
+
+	$mutex = $cache_path . 'preload_mutex.tmp';
+	wp_delete_file( $mutex );
+	wp_delete_file( $cache_path . 'stop_preload.txt' );
+	delete_transient( 'taxonomy_preload' );
+	wpsc_reset_preload_counter();
+
+	$taxonomies = apply_filters(
+		'wp_cache_preload_taxonomies',
+		array(
+			'post_tag' => 'tag',
+			'category' => 'category',
+		)
+	);
+
+	foreach ( $taxonomies as $taxonomy => $path ) {
+		$taxonomy_filename = $cache_path . 'taxonomy_' . $taxonomy . '.txt';
+		wp_delete_file( $taxonomy_filename );
+	}
+
+	if ( $wp_cache_preload_email_me ) {
+		// translators: Home URL of website
+		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
+	}
+}
+
 function wpsc_cancel_preload() {
 	global $cache_path;
 	$next_preload = wp_next_scheduled( 'wp_cache_preload_hook' );
 	if ( $next_preload ) {
+		delete_transient( 'taxonomy_preload' );
 		wp_cache_debug( 'wpsc_cancel_preload: unscheduling wp_cache_preload_hook' );
-		update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
+		wpsc_reset_preload_counter();
 		wp_unschedule_event( $next_preload, 'wp_cache_preload_hook' );
 	}
 	$next_preload = wp_next_scheduled( 'wp_cache_full_preload_hook' );
 	if ( $next_preload ) {
-		update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
+		delete_transient( 'taxonomy_preload' );
+		wpsc_reset_preload_counter();
 		wp_cache_debug( 'wpsc_cancel_preload: unscheduling wp_cache_full_preload_hook' );
 		wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
 	}
@@ -3533,8 +3652,10 @@ function wpsc_cancel_preload() {
 function wpsc_enable_preload() {
 	global $cache_path;
 
+	delete_transient( 'taxonomy_preload' );
 	@unlink( $cache_path . "preload_mutex.tmp" );
-	update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
+	wp_delete_file( $cache_path . 'stop_preload.txt' );
+	wpsc_reset_preload_counter();
 	wp_schedule_single_event( time() + 10, 'wp_cache_full_preload_hook' );
 }
 
@@ -3576,6 +3697,12 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 		return $return;
 	} elseif ( isset( $_POST[ 'preload_now' ] ) ) {
 		wpsc_enable_preload();
+		?>
+		<div class="notice notice-warning">
+			<h4><?php esc_html_e( 'Preload has been activated', 'wp-super-cache' ); ?></h4>
+			<p><?php esc_html_e( 'It will begin caching pages in 10 seconds.', 'wp-super-cache' ); ?></p>
+		</div>
+		<?php
 		return $return;
 	}
 
@@ -3642,13 +3769,7 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 	// If forcing a reschedule, or preload is disabled, clear the next scheduled event.
 	if ( $next_preload && ( ! $should_schedule || $force_preload_reschedule ) ) {
 		wp_cache_debug( 'Clearing old preload event' );
-		update_option(
-			'preload_cache_counter',
-			array(
-				'c' => 0,
-				't' => time(),
-			)
-		);
+		wpsc_reset_preload_counter();
 
 		add_option( 'preload_cache_stop', 1 );
 		wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );

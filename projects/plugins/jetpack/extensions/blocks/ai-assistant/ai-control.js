@@ -20,7 +20,6 @@ import ToneDropdownControl from './tone-dropdown-control';
 
 const AIControl = ( {
 	aiType,
-	animationDone,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
@@ -39,6 +38,7 @@ const AIControl = ( {
 	wholeContent,
 	content,
 	promptType,
+	onChange,
 } ) => {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
@@ -82,7 +82,7 @@ const AIControl = ( {
 			{ ! isWaitingState && (
 				<ToolbarControls
 					aiType={ aiType }
-					animationDone={ animationDone }
+					isWaitingState={ isWaitingState }
 					contentIsLoaded={ contentIsLoaded }
 					getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 					retryRequest={ retryRequest }
@@ -102,7 +102,10 @@ const AIControl = ( {
 				{ ( isWaitingState || loadingImages ) && <Loading /> }
 				<PlainText
 					value={ isWaitingState ? '' : userPrompt }
-					onChange={ value => setUserPrompt( value ) }
+					onChange={ value => {
+						setUserPrompt( value );
+						onChange?.();
+					} }
 					onKeyPress={ handleInputEnter }
 					placeholder={ placeholder }
 					className="jetpack-ai-assistant__input"
@@ -128,7 +131,6 @@ export default AIControl;
 
 const ToolbarControls = ( {
 	aiType,
-	animationDone,
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
 	retryRequest,
@@ -144,17 +146,21 @@ const ToolbarControls = ( {
 } ) => {
 	return (
 		<>
-			{ contentIsLoaded && animationDone && (
+			{ contentIsLoaded && (
 				<BlockControls group="block">
 					<ToneDropdownControl
 						value="neutral"
-						onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
+						onChange={ tone =>
+							getSuggestionFromOpenAI( 'changeTone', { tone, contentType: 'generated' } )
+						}
 						disabled={ contentIsLoaded }
 					/>
 
 					<I18nDropdownControl
 						value="en"
-						onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
+						onChange={ language =>
+							getSuggestionFromOpenAI( 'changeLanguage', { language, contentType: 'generated' } )
+						}
 						disabled={ contentIsLoaded }
 					/>
 
@@ -162,25 +168,30 @@ const ToolbarControls = ( {
 						icon={ pencil }
 						label="More"
 						controls={ [
+							// Interactive controls
 							{
 								title: __( 'Summarize', 'jetpack' ),
-								onClick: () => getSuggestionFromOpenAI( 'summarize' ),
+								onClick: () => getSuggestionFromOpenAI( 'summarize', { contentType: 'generated' } ),
 							},
 							{
 								title: __( 'Make longer', 'jetpack' ),
-								onClick: () => getSuggestionFromOpenAI( 'makeLonger' ),
+								onClick: () =>
+									getSuggestionFromOpenAI( 'makeLonger', { contentType: 'generated' } ),
 							},
 							{
 								title: __( 'Make shorter', 'jetpack' ),
-								onClick: () => getSuggestionFromOpenAI( 'makeShorter' ),
+								onClick: () =>
+									getSuggestionFromOpenAI( 'makeShorter', { contentType: 'generated' } ),
 							},
 							{
 								title: __( 'Correct spelling and grammar', 'jetpack' ),
-								onClick: () => getSuggestionFromOpenAI( 'correctSpelling' ),
+								onClick: () =>
+									getSuggestionFromOpenAI( 'correctSpelling', { contentType: 'generated' } ),
 							},
 							{
 								title: __( 'Generate a post title', 'jetpack' ),
-								onClick: () => getSuggestionFromOpenAI( 'generateTitle' ),
+								onClick: () =>
+									getSuggestionFromOpenAI( 'generateTitle', { contentType: 'generated' } ),
 							},
 						] }
 					/>
@@ -191,7 +202,7 @@ const ToolbarControls = ( {
 				{ aiType === 'text' && (
 					// Text controls
 					<ToolbarGroup>
-						{ ! showRetry && contentIsLoaded && animationDone && (
+						{ ! showRetry && contentIsLoaded && (
 							<>
 								{ promptType === 'generateTitle' ? (
 									<ToolbarButton onClick={ handleAcceptTitle }>
@@ -225,6 +236,15 @@ const ToolbarControls = ( {
 								{ __( 'Write a summary based on title', 'jetpack' ) }
 							</ToolbarButton>
 						) }
+
+						{ ! showRetry && ! contentIsLoaded && !! wholeContent?.length && (
+							<I18nDropdownControl
+								value="en"
+								label={ __( 'Translate', 'jetpack' ) }
+								onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
+							/>
+						) }
+
 						{ ! showRetry && ! contentIsLoaded && (
 							<ToolbarDropdownMenu
 								icon={ chevronDown }

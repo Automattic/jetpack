@@ -3,6 +3,10 @@
 	"description": "Analyze differences between Jetpack versions",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"jetpack",
+		"static analysis"
+	],
 	"require": {
 		"nikic/php-parser": "4.13.2"
 	},

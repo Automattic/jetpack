@@ -2,7 +2,7 @@
 /**
  * Compatibility functions for the ActivityPub plugin.
  *
- * @since $$next-version$$
+ * @since 0.2.2
  *
  * @package automattic/jetpack-image-cdn
  */
@@ -14,7 +14,7 @@ use Automattic\Jetpack\Image_CDN\Image_CDN;
 /**
  * Hook the compatibility functions into ActivityPub filters if necessary.
  *
- * @since $$next-version$$
+ * @since 0.2.2
  *
  * @return void
  */
@@ -23,7 +23,7 @@ function load_activitypub_compat() {
 		/**
 		 * Allow disabling Jetpack's image CDN for ActivityPub requests.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.2.2
 		 *
 		 * @param bool $should_disable_photon Should the CDN be disabled for that request. Default to false.
 		 */
