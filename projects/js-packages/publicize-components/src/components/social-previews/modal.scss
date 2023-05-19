@@ -15,6 +15,7 @@ $highlight-color: #3858e9;
 
 	.components-modal__content {
 		padding: 0;
+		overflow: hidden;
 	}
 }
 
@@ -87,7 +88,6 @@ $highlight-color: #3858e9;
 
 	@media ( min-width: $break-large ) {
 		width: calc( #{$break-large} - 40px );
-		min-height: 500px;
 
 		.components-tab-panel__tabs {
 
