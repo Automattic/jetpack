@@ -122,8 +122,6 @@ export default function GenerateContentPanel( { blocksIds } ) {
 		}
 
 		const prompt = buildPromptTemplate( {
-			context:
-				'You are an AI translation assistant block. Please modify the content below, making sure that you stick to the following rules:',
 			content,
 			rules,
 		} );
@@ -154,11 +152,17 @@ export default function GenerateContentPanel( { blocksIds } ) {
 
 			const data = JSON.parse( e.data );
 			const chunk = data.choices[ 0 ].delta.content;
+
 			if ( chunk ) {
 				fullMessage += chunk;
-				updateBlockAttributes( generatedBlock.clientId, {
-					content: fullMessage,
-				} );
+				if ( fullMessage.startsWith( '__JETPACK_AI_ERROR__' ) ) {
+					// The error is confirmed
+					source.close();
+				} else if ( ! '__JETPACK_AI_ERROR__'.startsWith( fullMessage ) ) {
+					updateBlockAttributes( generatedBlock.clientId, {
+						content: fullMessage,
+					} );
+				}
 			}
 		} );
 	}, [
