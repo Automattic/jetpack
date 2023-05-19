@@ -480,7 +480,7 @@ class Jetpack_Memberships {
 		}
 
 		$post_access_level = self::get_post_access_level();
-		if ( 'everybody' === get_post_access_level() ) {
+		if ( 'everybody' === $post_access_level ) {
 			self::$user_can_view_post_cache[ $cache_key ] = true;
 			return true;
 		}
