@@ -24,16 +24,10 @@ import './styles.module.scss';
 const Admin = () => {
 	const { isUserConnected, isRegistered } = useConnection();
 	const showConnectionCard = ! isRegistered || ! isUserConnected;
-	const [ manuallyShowPricingPage, setManuallyShowPricingPage ] = useState( false );
+	const [ forceDisplayPricingPage, setForceDisplayPricingPage ] = useState( false );
 
-	const onUpgradeToggle = useCallback(
-		() => setManuallyShowPricingPage( true ),
-		[ setManuallyShowPricingPage ]
-	);
-	const onPricingPageDismiss = useCallback(
-		() => setManuallyShowPricingPage( false ),
-		[ setManuallyShowPricingPage ]
-	);
+	const onUpgradeToggle = useCallback( () => setForceDisplayPricingPage( true ), [] );
+	const onPricingPageDismiss = useCallback( () => setForceDisplayPricingPage( false ), [] );
 
 	const {
 		isModuleEnabled,
@@ -70,7 +64,7 @@ const Admin = () => {
 
 	return (
 		<AdminPage moduleName={ moduleName } header={ <AdminPageHeader /> }>
-			{ ( isShareLimitEnabled && ! hasPaidPlan && showPricingPage ) || manuallyShowPricingPage ? (
+			{ ( isShareLimitEnabled && ! hasPaidPlan && showPricingPage ) || forceDisplayPricingPage ? (
 				<AdminSectionHero>
 					<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 						<Col>
