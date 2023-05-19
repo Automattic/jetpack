@@ -123,7 +123,7 @@ final class REST_Contacts_Controller extends REST_Base_Objects_Controller {
 		// Technically, we should always have a current user at this point, so we
 		// do not have to check if current user is a WP_User object or wrap this in
 		// a try/catch since it's an actual fatal error if something weird happens.
-		$can_user_manage_contacts = jpcrm_can_user_manage_contacts( wp_get_current_user() );
+		$can_user_manage_contacts = jpcrm_can_user_manage_contacts( wp_get_current_user(), $request->get_param( 'id' ) );
 
 		if ( is_wp_error( $can_user_manage_contacts ) ) {
 			return $can_user_manage_contacts;
