@@ -61,8 +61,10 @@ export default function PublicizeForm( {
 		isSocialImageGeneratorEnabled && isSocialImageGeneratorEnabledForPost;
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
-	const brokenConnections = connections.filter( connection =>
-		checkConnectionCode( connection, 'broken' )
+	const brokenConnections = connections.filter(
+		connection =>
+			checkConnectionCode( connection, 'broken' ) ||
+			checkConnectionCode( connection, 'must-disconnect' )
 	);
 	const unsupportedConnections = connections.filter( connection =>
 		checkConnectionCode( connection, 'unsupported' )
