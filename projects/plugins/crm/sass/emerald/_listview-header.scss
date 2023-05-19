@@ -1,0 +1,74 @@
+jpcrm-listview-header {
+
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-wrap: wrap;
+	height: 30px;
+	font-size: 14px;
+
+	header-item {
+		display: flex;
+		gap: 6px;
+		align-items: center;
+
+		button {
+			background: none;
+			color: inherit;
+			border: none;
+			padding: 0;
+			font: inherit;
+			cursor: pointer;
+			line-height: 20px;
+
+			&.dashicons:before {
+				font-family: dashicons;
+				font-size: 14px;
+				display: flex;
+				padding-left: 3px;
+			}
+		}
+
+		.jpcrm-current-filter:not(.hidden) {
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			overflow: hidden;
+			margin: 0 1px;
+			padding: 4px 10px;
+			box-sizing: border-box;
+			font-weight: 600;
+			vertical-align: middle;
+			display: inline-block;
+			border: 1px solid var(--jp-gray-10);
+			border-radius: 2px;
+			height: 100%;
+			width: 200px;
+		}
+
+		.table-options {
+			margin: 0 1px;
+			padding: 4px 10px;
+			box-sizing: border-box;
+			font-weight: 600;
+			vertical-align: middle;
+			border: 1px solid var(--jp-gray-10);
+			border-radius: 2px;
+			height: 100%;
+		}
+
+	}
+
+	input, select {
+		box-sizing: border-box;
+		border: 1px solid var(--jp-gray-10);
+		vertical-align: middle;
+		border-radius: 2px;
+		line-height: 16px;
+		height: 100%;
+		width: 200px;
+	}
+
+	input[type="search"] {
+		/* padding-left:30px; */
+	}
+}

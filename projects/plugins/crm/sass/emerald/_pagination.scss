@@ -1,0 +1,40 @@
+jpcrm-pagination {
+	padding: 0 5px;
+	display: inline-flex;
+	font-size: 16px;
+	gap: 0rem;
+	align-items: center;
+	text-align: center;
+	background: #FFFFFF;
+	border: 1px solid var(--jp-gray-5);
+	border-radius: 3px;
+
+	.active {
+		margin: 0 5px;
+		background: #000000;
+		border: 1px solid #000000;
+		color: var(--jp-white);
+	}
+
+	.disabled {
+		color: var(--jp-gray-20);
+	}
+
+	a {
+		color: var(--jp-gray-80);
+		text-decoration: none;
+		display: flex;
+	}
+
+	a:not(:first-child):not(:last-child) {
+		padding: 5px 8px;
+	}
+
+	a:hover {
+		color: var(--jp-gray-50);
+	}
+
+	a.active:hover {
+		color: var(--jp-gray-5);
+	}
+}
