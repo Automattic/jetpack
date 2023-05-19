@@ -479,30 +479,18 @@ class Jetpack_Memberships {
 			return self::$user_can_view_post_cache[ $cache_key ];
 		}
 
-		if ( 'everybody' === self::get_post_access_level() ) {
+		$post_access_level = self::get_post_access_level();
+		if ( 'everybody' === get_post_access_level() ) {
 			self::$user_can_view_post_cache[ $cache_key ] = true;
 			return true;
 		}
 
-		$value                                        = self::user_can_view_post_nocache();
-		self::$user_can_view_post_cache[ $cache_key ] = $value;
-		return $value;
-	}
-
-	/**
-	 * Determines whether the post can be viewed based on the newsletter access level
-	 *
-	 * @return bool Whether the post can be viewed
-	 */
-	public static function user_can_view_post_nocache() {
-		$post_access_level = self::get_post_access_level();
-		if ( 'everybody' === $post_access_level ) {
-			return true;
-		}
-
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
-		$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $post_access_level );
+		$paywall           = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+		$post_access_level = $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $post_access_level );
+
+		self::$user_can_view_post_cache[ $cache_key ] = $post_access_level;
+		return $post_access_level;
 	}
 
 	/**
