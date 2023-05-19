@@ -1,12 +1,19 @@
+/**
+ * External dependencies
+ */
 import { AntiSpamIcon } from '@automattic/jetpack-components';
 import { Button, Spinner } from '@wordpress/components';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
 import { config } from '../';
 import { doBulkAction } from '../data/responses';
 import { STORE_NAME } from '../state';
-import { ACTIONS, TABS } from './constants';
+import { ACTION_TABS, ACTIONS, RESPONSES_FETCH_LIMIT, TABS } from './constants';
+import { useFeedbackQuery } from './use-feedback-query';
 
 /**
  * Custom temporary handler for check-for-spam action based on grunion_check_for_spam.
@@ -40,8 +47,8 @@ const checkForSpam = ( offset = 0 ) => {
 const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } ) => {
 	const [ checkingForSpam, setCheckingForSpam ] = useState( false );
 
-	const { fetchResponses, setLoading } = useDispatch( STORE_NAME );
-	const query = useSelect( select => select( STORE_NAME ).getResponsesQuery(), [] );
+	const { addTabTotals, fetchResponses, removeResponses, setLoading } = useDispatch( STORE_NAME );
+	const { currentPage, query } = useFeedbackQuery();
 
 	const handleCheckForSpam = useCallback( () => {
 		setCheckingForSpam( true );
@@ -54,11 +61,25 @@ const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } )
 	const onActionHandler = action => async () => {
 		try {
 			setLoading( true );
-			await doBulkAction( selectedResponses, action );
-			fetchResponses( query );
 			setSelectedResponses( [] );
-		} catch {
-			//TODO: Implement error handling
+			removeResponses( selectedResponses );
+			addTabTotals( {
+				[ currentView ]: -selectedResponses.length,
+				[ ACTION_TABS[ action ] ]: selectedResponses.length,
+			} );
+			await doBulkAction( selectedResponses, action );
+
+			await fetchResponses(
+				{
+					...query,
+					limit: RESPONSES_FETCH_LIMIT,
+					offset: ( currentPage - 1 ) * RESPONSES_FETCH_LIMIT,
+				},
+				{ append: true }
+			);
+			setLoading( false );
+		} catch ( error ) {
+			setLoading( false );
 		}
 	};
 
@@ -84,7 +105,7 @@ const ActionsMenu = ( { currentView, selectedResponses, setSelectedResponses } )
 
 			{ currentView === TABS.spam && (
 				<Button onClick={ onActionHandler( ACTIONS.markAsNotSpam ) } variant="secondary">
-					{ __( 'Remove from spam', 'jetpack-forms' ) }
+					{ __( 'Not spam', 'jetpack-forms' ) }
 				</Button>
 			) }
 

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add API to query Zendesk chat availability and use it to conditionally display zendesk chat

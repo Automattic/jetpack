@@ -3,6 +3,12 @@
 	"description": "A custom installer plugin for Composer to move Jetpack packages out of `vendor/` so WordPress's translation infrastructure will find their strings.",
 	"type": "composer-plugin",
 	"license": "GPL-2.0-or-later",
+	"keywords": [
+		"jetpack",
+		"composer",
+		"plugin",
+		"i18n"
+	],
 	"require": {
 		"composer-plugin-api": "^2.1.0"
 	},

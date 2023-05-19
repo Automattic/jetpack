@@ -32,6 +32,7 @@ class Site_Urls {
 			$urls['front_page'] = array(
 				'url'      => get_permalink( $front_page ),
 				'modified' => get_post_modified_time( 'Y-m-d H:i:s', false, $front_page ),
+				'group'    => 'front_page',
 			);
 		}
 
@@ -40,6 +41,7 @@ class Site_Urls {
 			$urls['posts_page'] = array(
 				'url'      => get_permalink( $posts_page ),
 				'modified' => get_post_modified_time( 'Y-m-d H:i:s', false, $posts_page ),
+				'group'    => 'posts_page',
 			);
 		}
 
@@ -47,6 +49,7 @@ class Site_Urls {
 			$urls['posts_page'] = array(
 				'url'      => home_url( '/' ),
 				'modified' => current_time( 'Y-m-d H:i:s' ),
+				'group'    => 'front_page',
 			);
 		}
 
@@ -83,6 +86,7 @@ class Site_Urls {
 			$urls[ 'post_id_' . $result->ID ] = array(
 				'url'      => get_permalink( $result->ID ),
 				'modified' => get_post_modified_time( 'Y-m-d H:i:s', false, $result ),
+				'group'    => self::get_post_group( $result ),
 			);
 		}
 
@@ -126,5 +130,21 @@ class Site_Urls {
 				'is_post_type_viewable'
 			)
 		);
+	}
+
+	/**
+	 * Returns the group for the post.
+	 *
+	 * @param $p Post object.
+	 *
+	 * @return string
+	 */
+	private static function get_post_group( $p ) {
+		$post_type = get_post_type( $p->ID );
+		if ( 'post' === $post_type || 'page' === $post_type ) {
+			return $post_type;
+		}
+
+		return 'other';
 	}
 }

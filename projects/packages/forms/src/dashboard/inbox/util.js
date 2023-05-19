@@ -1,4 +1,5 @@
 import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isArray, isEmpty, join } from 'lodash';
 
 export const getDisplayName = response => {
 	if ( response.author_name ) {
@@ -13,9 +14,12 @@ export const getDisplayName = response => {
 };
 
 export const getPath = response => {
-	const url = new URL( response.entry_permalink );
-
-	return url.pathname;
+	try {
+		const url = new URL( response.entry_permalink );
+		return url.pathname;
+	} catch ( error ) {
+		return '';
+	}
 };
 
 export const formatFieldName = fieldName => {
@@ -26,6 +30,16 @@ export const formatFieldName = fieldName => {
 	}
 
 	return fieldName;
+};
+
+export const formatFieldValue = fieldValue => {
+	if ( isEmpty( fieldValue ) ) {
+		return '-';
+	} else if ( isArray( fieldValue ) ) {
+		return join( fieldValue, ', ' );
+	}
+
+	return fieldValue;
 };
 
 export const isWpcom = () => isAtomicSite() || isSimpleSite();

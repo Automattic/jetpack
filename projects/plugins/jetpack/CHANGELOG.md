@@ -2,6 +2,150 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.2-a.9 - 2023-05-17
+### Bug fixes
+- Correctly enable AI Assistant block on WordPress.com.
+
+## 12.2-a.7 - 2023-05-15
+### Enhancements
+- Add misconfiguration warning functionality. Also added various design fixes. [#30446]
+- Adds a new AI Assistant block as a proposed replacement for the AI Paragraph and AI Image blocks. [#30444]
+- AI Assistance: add some predef options when generating content [#30658]
+- AI Assistance: edit generated content before to accept it [#30615]
+- AI Assistance: swtich default option depending on previous-block content [#30545]
+- AI Assistant: allow changing the `tone` when generating content [#30645]
+- AI Assistant: Disable request button when not user prompt provided [#30565]
+- AI Assistant: disable `Summarize` when no content [#30561]
+- AI Assistant: introduce internationalization dropdown when generating content [#30677]
+- AI Assistant: Re-organize the prompt generation. [#30689]
+- AI Assistant: move and improve prompt types [#30665]
+- AI Assistant: reduce tones list [#30691]
+- AI Assistant: remove icons from toolbar buttons [#30585]
+- AI Assistant: update input placeholder text depending on the type of request [#30623]
+- Changed the way we skip a post from being publicized. [#30479]
+- Get Jetpack to use connection_id as the uninque identifier of the editor elements on the sidebar [#30492]
+- Golden token styling in My Plan. [#30519]
+- Jetpack AI: Add try again option [#30552]
+- Jetpack AI: iterate over createPrompt() function [#30531]
+- Jetpack AI: Update UX from ai assistant block [#30498]
+- Refactor and update Paid Newsletter user experience [#30446]
+- Related Posts: Updated labels for consistency with core [#30425]
+
+### Improved compatibility
+- ActivityPub: allow disabling Jetpack's Image CDN in requests made for the ActivityPub plugin. [#30298]
+- PHP8 compatibility updates, mostly focusing on Jetpack. [#30650]
+- PHP8 compatibility updates. [#30607]
+
+### Bug fixes
+- AI Assistant: store last prompt to be able to retry the request [#30559]
+- Change the "Add payments" to "Set up a paid plan" [#30671]
+- Fix compatibility issue in simple sites due to image CDN package [#30582]
+- Fixes issue with missing "Super Admin" in edit user form [#30496]
+- Fixes the Plugins_Modify endpoint to correct declare $args [#30608]
+- Fix zoom being reset when changing map marker color [#30482]
+- Load wpcom block editor styles [#30574]
+- Remove the map style control [#30478]
+- Show labels on Mapkit markers [#30459]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add option to correct previous content [#30609]
+- AI Assistant: Add option to simplify preceding content. [#30611]
+- AI Assistant: Disable content expansion when there is no previous content [#30586]
+- AI Assistant: Fix generated title [#30657]
+- AI Assistant: make the block content persistent [#30604]
+- AI Assistant: Remove createPrompt temporary function [#30683]
+- AI Assistant: Remove title summary option when there is no title on the post [#30560]
+- Blocks: remove unused files [#30462]
+- Delete implementation of is_wpcom_staging_site() as we are moving it to trait [#30418]
+- Make chat AI block visible on editor [#30537]
+- Make Earn products free for all Jetpack plans [#30432]
+- QR Code panel: remove Jetpack logo. [#30139]
+- Story Block: remove custom spinner styles. [#30494]
+
+## 12.2-a.5 - 2023-05-08
+
+- Extends release `12.2-a.3` with a fix for the Payments block. [#30524]
+
+## 12.2-a.3 - 2023-05-08
+### Enhancements
+- Add newsletter access level to the post edit page [#30172]
+- Forms: Introduce Multiple Choice and Single Choice style variations [#30319]
+- Make Donation block free for all and charge a 10% commission for free plans [#30275]
+- Remove upgrade nudge for premium block [#30398]
+- Replace photon implementation with the image-cdn package [#30050]
+- theme-tools: Removed jQuery dependency from responsive-videos script. [#30420]
+- Update Forms pattern modal default view to Grid [#28906]
+
+### Improved compatibility
+- Added support for flagging unsupported connections in the editor UI [#30280]
+- Bit.ly: avoid errors when using non-official Bit.ly  plugins alongside Jetpack. [#30415]
+- Internationalization: add necessary context to the word "Trash" in the Contact Form interface. [#30507]
+- Security: ensure blocks are always fully displayed on your site, even when using a caching plugin. [#30413]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Fixes a bug on WP.com Simple, which is not fully updated to 6.2 yet. [#30485]
+- Fixes to integration with image-cdn [#30445]
+- Hotfix for a typo in the map provider code [#30451]
+- Updated package dependencies.
+- Use contact form implementation from automattic/jetpack-forms by default [#28791]
+- wpcom/v3/blogging-prompts endpoint: add param to force prompt dates to be a specific year [#30255]
+
+## 12.2-a.1 - 2023-05-02
+### Enhancements
+- Add Mapkit maps [#29098]
+- Adds a 'Staging' badge to the wp-admin nav menu when the site is a WordPress.com staging site. [#30296]
+- Editor support for Mapkit in the Map block [#29098]
+- Hide Mapbox specific options when using Mapkit [#29098]
+- Modules list: Update to current styles. Visual refresh, if you will.. [#30282]
+- Remove the Mapbox API key box, when the mapping provider isn't Mapbox [#29098]
+- Whitelist the '_jetpack_newsletter_access' post meta [#30372]
+
+### Bug fixes
+- Make the Donation block "Connect" link the primary color [#30320]
+- Minor styling fixes for the At-a-Glance page on WooExpress. [#30403]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add initial scaffold for new blogroll block [#30363]
+- Add Mapkit geocoder for use on WPCOM. [#29098]
+- Adds useMapkitSetup hook [#29098]
+- Adds util functions for mapkit that allow converting zoom levels to camera distance, and back [#29098]
+- Admin dashboard: fixing typo in file path [#30401]
+- Amended changelogs. [#30405]
+- Mapkit support for the address attribute [#29098]
+- Move logic to getMapProvider [#29098]
+- Only add mapkit.js once [#29098]
+- Recenter map after closing marker. [#29098]
+- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now [#29942]
+- Remove the special treatment for wpcom sites in Tweet shortcode. This removes the need for Twitter API access when using this shortcode. [#30291]
+- Remove unused method used to update images in Open Graph Meta tags. [#30338]
+- Show error message when fetching Mapkit API key fails [#29098]
+- Support latitude & longitude next to lat/lng [#29098]
+- Updated package dependencies.
+
+## 12.1 - 2023-05-02
+### Enhancements
+- Dashboard: added Jetpack Starter bundle post-activation screen and plan header. [#30368]
+- Dashboard: add link to renew expired subscription. [#30357]
+- Dashboard: Remove a confusing "Click to view" link from the stats call to action screen. [#30343]
+- Jetpack Visual Refresh: "At A Glance" Dashboard adjustments. [#30324]
+
+### Improved compatibility
+- Security: ensure blocks are always fully displayed on your site, even when using a caching plugin.
+
+### Bug fixes
+- Dashboard: fix a link on the stats chart. [#30341]
+- Dashboard: improve contrast for the Stats chart tooltip. [#30321]
+- Jetpack Social: Render Social Image Generator panel even when its default one is disabled. [#30358]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Connection banner: support existing filter to disable dismisasals. [#30334]
+- Dashboard: fix CSS styles for visual refresh project. [#30293]
+- Dashboard: hide Akismet 'learn more' link for Atomic sites. [#30326]
+- Dashboard: link user to Calypso for atomic sites. [#30322]
+- Dashboard: update styles in At A Glance cards. [#30336]
+- Minor changes on the Jetpack debugger page content. [#30360]
+- Minor CSS updates for visual refresh project. [#30359]
+
 ## 12.1-beta - 2023-04-25
 ### Enhancements
 - Block editor: collapse Jetpack feature panels by default. [#30140]

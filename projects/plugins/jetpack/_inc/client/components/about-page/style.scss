@@ -200,6 +200,10 @@ $color__back-link: #787c82;
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	grid-gap: 24px;
+
+	@include breakpoint( "<960px" ) {
+	  display: block;
+	}
 }
 
 .jetpack-about__plugin {
@@ -256,5 +260,9 @@ $color__back-link: #787c82;
 				margin-bottom: 0;
 			}
 		}
+	}
+
+	@include breakpoint( "<960px" ) {
+	  margin-bottom: 24px;
 	}
 }

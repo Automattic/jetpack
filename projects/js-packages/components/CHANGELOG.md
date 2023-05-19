@@ -2,6 +2,27 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## 0.34.0 - 2023-05-18
+### Added
+- Add a new component for the Boost Score Bar used in the Boost plugin and later, in the Jetpack plugin [#30037]
+
+### Changed
+- Update pricing table tooltip to allow its position to be configurable from pricing table. [#30751]
+
+## 0.33.0 - 2023-05-02
+### Added
+- Added "wide" variant and styled unordered lists to icon tooltip content. [#30399]
+
+### Changed
+- Updated package dependencies.
+
+### Removed
+- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now. [#29942]
+
+## 0.32.1 - 2023-05-01
+### Changed
+- Minor internal updates.
+
 ## 0.32.0 - 2023-04-25
 ### Added
 - Add a Toggle component. [#30166]

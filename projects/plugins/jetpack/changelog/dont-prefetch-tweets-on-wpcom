@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Remove the special treatment for wpcom sites in Tweet shortcode. This removes the need for Twitter API access when using this shortcode.

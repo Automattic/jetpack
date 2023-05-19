@@ -66,32 +66,34 @@ const AgenciesCard: FC< Props > = ( {
 		<div className={ classes }>
 			<Card className="jp-agencies-card__wrapper">
 				<div className="jp-agencies-card__contact">
-					<div className="jp-agencies-card-text">
-						<h3 className="jp-agencies-card__header">
-							{ __( 'Manage your clients’ sites with ease', 'jetpack' ) }
-						</h3>
-						<p className="jp-agencies-card__description">
-							{ sprintf(
-								/* translators: %s is the percentage discount the users get in the agencies portal */
-								__(
-									'Manage your clients’ sites with ease and get a %s discount with the Jetpack licensing platform.',
-									'jetpack'
-								),
-								`${ discountPercentage }%`
-							) }
-						</p>
-					</div>
-					<div className="jp-agencies-card__link-button">
-						<Button
-							onClick={ handleClick }
-							primary
-							href={ getRedirectUrl( 'jitm-jetpack_agencies_ad' ) }
-							target="_blank"
-							rel="noreferrer"
-						>
-							{ __( 'Learn More', 'jetpack' ) }
-							<Gridicon className="dops-card__link-indicator" icon="external" />
-						</Button>
+					<div className="jp-agencies-card__content">
+						<div className="jp-agencies-card-text">
+							<h3 className="jp-agencies-card__header">
+								{ __( 'Manage your clients’ sites with ease', 'jetpack' ) }
+							</h3>
+							<p className="jp-agencies-card__description">
+								{ sprintf(
+									/* translators: %s is the percentage discount the users get in the agencies portal */
+									__(
+										'Manage your clients’ sites with ease and get a %s discount with the Jetpack licensing platform.',
+										'jetpack'
+									),
+									`${ discountPercentage }%`
+								) }
+							</p>
+						</div>
+						<div className="jp-agencies-card__link-button">
+							<Button
+								onClick={ handleClick }
+								primary
+								href={ getRedirectUrl( 'jitm-jetpack_agencies_ad' ) }
+								target="_blank"
+								rel="noreferrer"
+							>
+								{ __( 'Learn More', 'jetpack' ) }
+								<Gridicon className="dops-card__link-indicator" icon="external" />
+							</Button>
+						</div>
 					</div>
 					<Button
 						borderless

@@ -33,6 +33,7 @@ export default function BlockNudge( {
 						onClick={ handleClick }
 						target="_top"
 						variant="secondary"
+						className="jetpack-stripe-nudge__link"
 					>
 						{ buttonLabel }
 					</Button>,

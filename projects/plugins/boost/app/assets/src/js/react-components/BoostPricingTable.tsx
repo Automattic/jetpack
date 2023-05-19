@@ -97,6 +97,11 @@ const manuallyUpdatedContext = (
 	</span>
 );
 
+const concatenateContext = __(
+	'Boost your website performance by merging and compressing JavaScript and CSS files, reducing site loading time and number of requests.',
+	'jetpack-boost'
+);
+
 export const BoostPricingTable = ( {
 	pricing,
 	onPremiumCTA,
@@ -118,26 +123,37 @@ export const BoostPricingTable = ( {
 				{
 					name: __( 'Optimize CSS Loading', 'jetpack-boost' ),
 					tooltipInfo: cssOptimizationContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Defer non-essential JavaScript', 'jetpack-boost' ),
 					tooltipInfo: deferJSContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Lazy image loading', 'jetpack-boost' ),
 					tooltipInfo: lazyLoadingContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Image guide', 'jetpack-boost' ),
 					tooltipInfo: imageGuideContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Image CDN', 'jetpack-boost' ),
 					tooltipInfo: imageCdnContext,
+					tooltipPlacement: 'bottom-start',
+				},
+				{
+					name: __( 'Concatenate JS and CSS', 'jetpack-boost' ),
+					tooltipInfo: concatenateContext,
+					tooltipPlacement: 'bottom-start',
 				},
 				{
 					name: __( 'Dedicated email support', 'jetpack-boost' ),
 					tooltipInfo: <span dangerouslySetInnerHTML={ { __html: supportContext } }></span>,
+					tooltipPlacement: 'bottom-start',
 				},
 			] }
 		>
@@ -171,6 +187,7 @@ export const BoostPricingTable = ( {
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
+				<PricingTableItem isIncluded={ true } />
 			</PricingTableColumn>
 			<PricingTableColumn>
 				<PricingTableHeader>
@@ -197,6 +214,7 @@ export const BoostPricingTable = ( {
 					tooltipInfo={ manuallyUpdatedContext }
 					tooltipClassName="wide-tooltip"
 				/>
+				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />
 				<PricingTableItem isIncluded={ true } />

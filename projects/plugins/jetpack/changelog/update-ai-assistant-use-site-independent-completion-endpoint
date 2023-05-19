@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: Use site-independent completion endpoint to prevent request failures for private WPCOM sites.

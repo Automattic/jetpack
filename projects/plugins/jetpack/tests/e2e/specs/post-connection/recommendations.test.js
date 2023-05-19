@@ -122,7 +122,8 @@ test( 'Recommendations (Jetpack Assistant)', async ( { page } ) => {
 
 	await test.step( 'Verify Creative Mail and Site Accelerator are disabled', async () => {
 		const isCreativeMailFeatureEnabled = await recommendationsPage.isCreativeMailFeatureEnabled();
-		const isSiteAcceleratorFeatureEnabled = await recommendationsPage.isSiteAcceleratorFeatureEnabled();
+		const isSiteAcceleratorFeatureEnabled =
+			await recommendationsPage.isSiteAcceleratorFeatureEnabled();
 		expect(
 			isCreativeMailFeatureEnabled && isSiteAcceleratorFeatureEnabled,
 			'Creative Mail and Site Accelerator should be enabled'

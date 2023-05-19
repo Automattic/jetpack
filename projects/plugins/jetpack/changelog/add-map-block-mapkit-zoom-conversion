@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Adds util functions for mapkit that allow converting zoom levels to camera distance, and back

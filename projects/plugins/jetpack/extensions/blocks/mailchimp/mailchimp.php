@@ -181,7 +181,7 @@ function verify_connection() {
 	if ( ! $data ) {
 		return false;
 	}
-	return isset( $data['follower_list_id'], $data['keyring_id'] );
+	return isset( $data['follower_list_id'] ) && isset( $data['keyring_id'] );
 }
 
 /**

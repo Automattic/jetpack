@@ -1,4 +1,8 @@
+@import '../../scss/mixins/ui';
+
 .jp-support-card {
+	@include dashboard-card-shadow;
+
 	margin-top: rem( 16px );
 	margin-bottom: 0;
 }

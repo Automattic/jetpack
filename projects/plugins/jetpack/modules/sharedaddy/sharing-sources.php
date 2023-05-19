@@ -1194,7 +1194,7 @@ class Share_Twitter extends Sharing_Source {
 	 * @return string
 	 */
 	public function get_display( $post ) {
-		$via = $this->sharing_twitter_via( $post );
+		$via = static::sharing_twitter_via( $post );
 
 		if ( $via ) {
 			$via = 'data-via="' . esc_attr( $via ) . '"';
@@ -1202,7 +1202,7 @@ class Share_Twitter extends Sharing_Source {
 			$via = '';
 		}
 
-		$related = $this->get_related_accounts( $post );
+		$related = static::get_related_accounts( $post );
 		if ( ! empty( $related ) && $related !== $via ) {
 			$related = 'data-related="' . esc_attr( $related ) . '"';
 		} else {
@@ -1260,8 +1260,8 @@ class Share_Twitter extends Sharing_Source {
 			$substr = 'substr';
 		}
 
-		$via     = $this->sharing_twitter_via( $post );
-		$related = $this->get_related_accounts( $post );
+		$via     = static::sharing_twitter_via( $post );
+		$related = static::get_related_accounts( $post );
 		if ( $via ) {
 			$sig = " via @$via";
 			if ( $related === $via ) {

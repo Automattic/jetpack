@@ -7,6 +7,22 @@
 	color: $green-primary;
 	padding: 0 0 8px 0;
 
+  	&.expired {
+	  color: $alert-red;
+
+	  ::before {
+	    background: $alert-red;
+	  }
+	}
+
+	&.never-expires {
+		color: #AB8D16;
+
+		::before {
+			background: #AB8D16;
+		}
+	}
+
   	::before {
 	  content: "";
 	  display: inline-block;

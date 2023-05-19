@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Extensions\Subscriptions;
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
@@ -103,6 +104,10 @@ function register_block() {
 
 	// Gate the excerpt for a post
 	add_filter( 'get_the_excerpt', __NAMESPACE__ . '\jetpack_filter_excerpt_for_newsletter', 10, 2 );
+
+	// Add a 'Newsletter access' column to the Edit posts page
+	add_action( 'manage_posts_columns', __NAMESPACE__ . '\register_newsletter_access_column' );
+	add_action( 'manage_posts_custom_column', __NAMESPACE__ . '\render_newsletter_access_rows', 10, 2 );
 }
 add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
 
@@ -113,6 +118,50 @@ add_action( 'init', __NAMESPACE__ . '\register_block', 9 );
  */
 function is_wpcom() {
 	return defined( 'IS_WPCOM' ) && IS_WPCOM;
+}
+
+/**
+ * Adds a 'Newsletter' column after the 'Title' column
+ *
+ * @param array $columns An array of column names.
+ * @return array An array of column names.
+ */
+function register_newsletter_access_column( $columns ) {
+	$position   = array_search( 'title', array_keys( $columns ), true );
+	$new_column = array( NEWSLETTER_COLUMN_ID => '<span>' . __( 'Newsletter', 'jetpack' ) . '</span>' );
+	return array_merge(
+		array_slice( $columns, 0, $position + 1, true ),
+		$new_column,
+		array_slice( $columns, $position, null, true )
+	);
+}
+
+/**
+ * Displays the newsletter access level.
+ *
+ * @param string $column_id The ID of the column to display.
+ * @param int    $post_id The current post ID.
+ */
+function render_newsletter_access_rows( $column_id, $post_id ) {
+	if ( NEWSLETTER_COLUMN_ID !== $column_id ) {
+		return;
+	}
+
+	$access_level = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
+
+	switch ( $access_level ) {
+		case Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS:
+			echo esc_html__( 'Paid Subscribers', 'jetpack' );
+			break;
+		case Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS:
+			echo esc_html__( 'Subscribers', 'jetpack' );
+			break;
+		case Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY:
+			echo esc_html__( 'Everybody', 'jetpack' );
+			break;
+		default:
+			echo '';
+	}
 }
 
 /**
@@ -265,9 +314,9 @@ function get_element_class_names_from_attributes( $attributes ) {
 	);
 
 	return array(
-		'block_wrapper' => join( ' ', array_keys( $block_wrapper_classes ) ),
-		'email_field'   => join( ' ', array_keys( $email_field_classes ) ),
-		'submit_button' => join( ' ', array_keys( $submit_button_classes ) ),
+		'block_wrapper' => implode( ' ', array_keys( $block_wrapper_classes ) ),
+		'email_field'   => implode( ' ', array_keys( $email_field_classes ) ),
+		'submit_button' => implode( ' ', array_keys( $submit_button_classes ) ),
 	);
 }
 
@@ -367,7 +416,11 @@ function render_block( $attributes ) {
 		return '';
 	}
 
-	if ( Jetpack_Gutenberg::is_newsletter_configured() ) {
+	if (
+		/** This filter is documented in class.jetpack-gutenberg.php */
+		apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+		&& class_exists( '\Jetpack_Memberships' )
+	) {
 		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
 		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
 		if ( ! wp_style_is( 'enqueued' ) ) {

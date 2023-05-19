@@ -6,12 +6,12 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
-import { isEmpty, map } from 'lodash';
+import { map } from 'lodash';
 /**
  * Internal dependencies
  */
 import SwitchTransition from '../components/switch-transition';
-import { formatFieldName, getDisplayName } from './util';
+import { formatFieldName, formatFieldValue, getDisplayName } from './util';
 
 const InboxResponse = ( { loading, response } ) => {
 	const [ emailCopied, setEmailCopied ] = useState( false );
@@ -32,13 +32,10 @@ const InboxResponse = ( { loading, response } ) => {
 		setTimeout( () => setEmailCopied( false ), 3000 );
 	}, [ response, setEmailCopied ] );
 
-	const classes = classnames( 'jp-forms__inbox-response', {
-		'has-email': true,
-	} );
 	const titleClasses = classnames( 'jp-forms__inbox-response-title', {
-		'is-email': false,
-		'is-ip': false,
-		'is-name': true,
+		'is-email': response && ! response.author_name && response.author_email,
+		'is-ip': response && ! response.author_name && ! response.author_email,
+		'is-name': response && response.author_name,
 	} );
 
 	if ( ! loading && ! response ) {
@@ -49,7 +46,7 @@ const InboxResponse = ( { loading, response } ) => {
 		<SwitchTransition
 			ref={ ref }
 			activeViewKey={ response.id }
-			className={ classes }
+			className="jp-forms__inbox-response"
 			duration={ 200 }
 		>
 			<div className="jp-forms__inbox-response-avatar">
@@ -88,7 +85,11 @@ const InboxResponse = ( { loading, response } ) => {
 					<span className="jp-forms__inbox-response-meta-key">
 						{ __( 'Source:', 'jetpack-forms' ) }&nbsp;
 					</span>
-					<span className="jp-forms__inbox-response-meta-value">{ response.entry_permalink }</span>
+					<span className="jp-forms__inbox-response-meta-value">
+						<Button variant="link" href={ response.entry_permalink }>
+							{ response.entry_permalink }
+						</Button>
+					</span>
 				</div>
 				<div className="jp-forms__inbox-response-meta-label">
 					<span className="jp-forms__inbox-response-meta-key	">
@@ -104,9 +105,7 @@ const InboxResponse = ( { loading, response } ) => {
 				{ map( response.fields, ( value, key ) => (
 					<div key={ key } className="jp-forms__inbox-response-item">
 						<div className="jp-forms__inbox-response-data-label">{ formatFieldName( key ) }:</div>
-						<div className="jp-forms__inbox-response-data-value">
-							{ isEmpty( value ) ? '-' : value }
-						</div>
+						<div className="jp-forms__inbox-response-data-value">{ formatFieldValue( value ) }</div>
 					</div>
 				) ) }
 			</div>

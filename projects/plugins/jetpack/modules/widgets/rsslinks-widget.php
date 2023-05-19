@@ -221,6 +221,10 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 	 * @param array  $args Widget arguments.
 	 */
 	private function rss_link( $type, $args ) {
+		$link_text    = null;
+		$rss_type     = null;
+		$subscribe_to = null;
+
 		if ( 'posts' === $type ) {
 			$subscribe_to = esc_html__( 'Subscribe to posts', 'jetpack' );
 			$link_text    = esc_html__( 'RSS - Posts', 'jetpack' );
@@ -246,7 +250,8 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			$link_target = '_self';
 		}
 
-		$format = $args['format'];
+		$link_contents = null;
+		$format        = $args['format'];
 		if ( 'image' === $format ) {
 			$link_contents = $this->get_image_tag( $args );
 		} elseif ( 'text-image' === $format ) {
