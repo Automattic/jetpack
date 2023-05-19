@@ -395,6 +395,16 @@ export function showMyJetpack( state ) {
 }
 
 /**
+ * Determines if shows Jetpack AI related content.
+ *
+ * @param {object} state - Global state tree
+ * @returns {boolean} True if Jetpack AI is visible, false otherwise.
+ */
+export function showJetpackAi( state ) {
+	return get( state.jetpack.initialState.siteData, 'showJetpackAi', false );
+}
+
+/**
  * Get an array of new recommendations for this site
  *
  * @param {object} state - Global state tree
