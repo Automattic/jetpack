@@ -83,27 +83,22 @@ export async function requestToken() {
 	const hasWPComFetch = ! window.wpcomFetch;
 	let data;
 
-	try {
-		if ( ! isSimpleSite() && ! isAtomicSite() ) {
-			// Jetpack sites
-			data = await apiFetch( {
-				path: '/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(),
-				credentials: 'same-origin',
-				headers: {
-					'X-WP-Nonce': apiNonce,
-				},
-				method: 'POST',
-			} );
-		} else {
-			// Simple and Atomic sites
-			data = await apiFetch( {
-				path: '/wpcom/v2/sites/' + siteSuffix + '/jetpack-openai-query/jwt',
-				method: 'POST',
-			} );
-		}
-	} catch ( err ) {
-		debugToken( 'Error fetching token', err );
-		throw err;
+	if ( ! isSimpleSite() && ! isAtomicSite() && hasWPComFetch ) {
+		// Jetpack sites
+		data = await apiFetch( {
+			path: '/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(),
+			credentials: 'same-origin',
+			headers: {
+				'X-WP-Nonce': apiNonce,
+			},
+			method: 'POST',
+		} );
+	} else {
+		// Simple and Atomic sites
+		data = await apiFetch( {
+			path: '/wpcom/v2/sites/' + siteSuffix + '/jetpack-openai-query/jwt',
+			method: 'POST',
+		} );
 	}
 
 	const newTokenData = {
