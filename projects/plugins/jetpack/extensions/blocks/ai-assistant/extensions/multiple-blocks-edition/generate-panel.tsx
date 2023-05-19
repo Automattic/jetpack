@@ -31,11 +31,6 @@ export const toneOptions = Object.keys( PROMPT_TONES_MAP ).map( key => {
 	};
 } );
 
-// toneOptions.unshift( {
-// 	key: '',
-// 	name: '',
-// } );
-
 // Create a Language Array of objects with `key` and `name` keys
 export const langOptions = Object.keys( LANGUAGE_MAP ).map( key => {
 	return {
