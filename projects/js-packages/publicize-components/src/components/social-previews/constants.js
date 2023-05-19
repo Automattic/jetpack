@@ -4,6 +4,7 @@ import FacebookPreview from './facebook';
 import GoogleSearch from './google-search';
 import { LinkedIn } from './linkedin';
 import TumblrPreview from './tumblr';
+import Twitter from './twitter';
 
 export const AVAILABLE_SERVICES = [
 	{
@@ -12,12 +13,12 @@ export const AVAILABLE_SERVICES = [
 		name: 'google',
 		preview: GoogleSearch,
 	},
-	/* {
+	{
 		title: __( 'Twitter', 'jetpack' ),
 		icon: props => <SocialServiceIcon serviceName="twitter" { ...props } />,
 		name: 'twitter',
 		preview: Twitter,
-	}, */
+	},
 	{
 		title: __( 'Facebook', 'jetpack' ),
 		icon: props => <SocialServiceIcon serviceName="facebook" { ...props } />,
