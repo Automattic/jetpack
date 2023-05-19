@@ -7,7 +7,7 @@
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
-	import ImageSizeAnalysisView from '../../../modules/image-size-analysis/ModuleView.svelte';
+	import RecommendationsPreview from '../../../modules/image-size-analysis/RecommendationsPreview.svelte';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
 	import {
 		criticalCssState,
@@ -236,7 +236,7 @@
 			)}
 		</p>
 		<svelte:fragment slot="meta">
-			<ImageSizeAnalysisView />
+			<RecommendationsPreview />
 		</svelte:fragment>
 	</Module>
 

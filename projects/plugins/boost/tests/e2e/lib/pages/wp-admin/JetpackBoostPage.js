@@ -164,7 +164,7 @@ export default class JetpackBoostPage extends WpPage {
 		return (
 			( await this.getSpeedScore( 'mobile' ) ) > 0 &&
 			( await this.getSpeedScore( 'desktop' ) ) > 0 &&
-			( await this.currentPageTitleIs( /Overall score: [A-Z]/ ) )
+			( await this.currentPageTitleIs( /Overall Score: [A-Z]/i ) )
 		);
 	}
 }

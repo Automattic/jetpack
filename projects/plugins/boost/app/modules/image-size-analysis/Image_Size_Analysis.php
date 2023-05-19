@@ -7,7 +7,7 @@ use Automattic\Jetpack_Boost\Contracts\Pluggable;
 class Image_Size_Analysis implements Pluggable {
 
 	public function setup() {
-		// Hello World, I shall setup myself some day.
+		// noop
 	}
 
 	public static function is_available() {
