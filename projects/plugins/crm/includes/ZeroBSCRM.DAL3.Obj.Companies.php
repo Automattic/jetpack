@@ -2167,6 +2167,8 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                 #} Check if obj exists (here) - for now just brutal update (will error when doesn't exist)
                 $originalStatus = $this->getCompanyStatus($id);
 
+				$previous_company_obj = $this->getCompany( $id );
+
                 // log any change of status
                 if (isset($dataArr['zbsco_status']) && !empty($dataArr['zbsco_status']) && !empty($originalStatus) && $dataArr['zbsco_status'] != $originalStatus){
 
@@ -2394,7 +2396,8 @@ class zbsDAL_companies extends zbsDAL_ObjectLayer {
                                 zeroBSCRM_FireInternalAutomator('company.update',array(
                                     'id'=>$id,
                                     'againstid' => $id,
-                                    'data'=> $dataArr
+									'data'         => $dataArr, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+									'prev_company' => $previous_company_obj,
                                     ));
 
                                 

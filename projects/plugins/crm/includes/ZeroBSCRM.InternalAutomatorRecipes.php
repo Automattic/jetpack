@@ -61,6 +61,8 @@
 	zeroBSCRM_AddInternalAutomatorRecipe('contact.delete','zeroBSCRM_IA_DeleteCustomerWPHook',array());
 	zeroBSCRM_AddInternalAutomatorRecipe('company.new','zeroBSCRM_IA_NewCompanyWPHook',array());
 	zeroBSCRM_AddInternalAutomatorRecipe('company.delete','zeroBSCRM_IA_DeleteCompanyWPHook',array());
+	zeroBSCRM_AddInternalAutomatorRecipe( 'company.update', 'zeroBSCRM_IA_EditCompanyWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'company.status.update', 'zeroBSCRM_IA_EditCompanyWPHook', array() );
 	zeroBSCRM_AddInternalAutomatorRecipe('quote.new','zeroBSCRM_IA_NewQuoteWPHook',array());
 	zeroBSCRM_AddInternalAutomatorRecipe('quote.accepted','zeroBSCRM_IA_AcceptedQuoteWPHook',array());
 	zeroBSCRM_AddInternalAutomatorRecipe('quote.delete','zeroBSCRM_IA_DeleteQuoteWPHook',array());
@@ -1377,18 +1379,53 @@ function zeroBSCRM_IA_DeleteCustomerWPHook( $obj = array() ) {
 
 	}
 
-   	#} Fires on 'company.new' IA 
-	function zeroBSCRM_IA_NewCompanyWPHook($obj=array()){
+/**
+ * Fires on 'company.update' and 'company.status.update IA.
+ *
+ * @param array $obj An array holding company object data.
+ */
+function zeroBSCRM_IA_EditCompanyWPHook( $obj = array() ) {
 
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_new_company', $obj['id']);
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+
+		do_action( 'jpcrm_automation_company_update', $obj );
+
+		// If the company status has changed.
+		if ( isset( $obj['from'] ) && ! empty( $obj['from'] ) ) {
+			do_action( 'jpcrm_automation_company_status_update', $obj );
+		}
+	}
+}
+
+/**
+ * Fires on 'company.new' IA.
+ *
+ * @param array $obj An array holding company object data.
+ */
+function zeroBSCRM_IA_NewCompanyWPHook( $obj = array() ) {
+
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+
+		do_action( 'jpcrm_automation_company_new', $obj );
+		// Legacy:
+		do_action( 'zbs_new_company', $obj['id'] );
 
 	}
-   	#} Fires on 'company.delete' IA 
-	function zeroBSCRM_IA_DeleteCompanyWPHook($obj=array()){
+}
 
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_delete_company', $obj['id']);
+/**
+ * Fires on 'company.delete' IA.
+ *
+ * @param array $obj An array holding company object data.
+ */
+function zeroBSCRM_IA_DeleteCompanyWPHook( $obj = array() ) {
 
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+		do_action( 'jpcrm_automation_company_delete', $obj );
+		// Legacy:
+		do_action( 'zbs_delete_company', $obj['id'] );
 	}
+}
    	#} Fires on 'quote.new' IA 
 	function zeroBSCRM_IA_NewQuoteWPHook($obj=array()){
 
