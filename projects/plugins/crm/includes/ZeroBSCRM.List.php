@@ -111,13 +111,9 @@ class zeroBSCRM_list{
 
         global $zbs;
 
-        // if not DAL3, this has to be contact:
         if ($this->objTypeID == false){
 
-            if ($zbs->isDAL3()) // translate it from 'transaction' in objType
-                $this->objTypeID = $zbs->DAL->objTypeID($this->objType);
-            else
-                $this->objTypeID = ZBS_TYPE_CONTACT;
+			$this->objTypeID = $zbs->DAL->objTypeID( $this->objType ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
         }
 
@@ -137,35 +133,12 @@ class zeroBSCRM_list{
         $listViewFilters = array(); if (isset($_GET['zbs_tag'])){
 
             $possibleTag = (int)sanitize_text_field($_GET['zbs_tag']);
-            // deal with tags diff in DAL2+ // DAL/2+ switch:
-            if (
-                // DAL2 has tags only for contacts
-                $zbs->isDAL2() && $this->tag == 'zerobscrm_customertag'
-                ||
-                // DAL3 has them for everything with a list view :D
-                $zbs->isDAL3()
-                ){
 
-                $possibleTagObj = $zbs->DAL->getTag($possibleTag,array('objtype'=>$this->objTypeID));
+			$possibleTagObj = $zbs->DAL->getTag( $possibleTag, array( 'objtype' => $this->objTypeID ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-                if (isset($possibleTagObj['id'])){
-
-                    $listViewFilters['tags'] = array($possibleTagObj);
-
-                }
-
-
-            } else {
-
-                $possibleTagObj = get_term_by('id',$possibleTag,$this->tag);
-
-                if (isset($possibleTagObj->term_id)){
-
-                    $listViewFilters['tags'] = array($possibleTagObj);
-
-                }
-            }
-
+			if ( isset( $possibleTagObj['id'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$listViewFilters['tags'] = array( $possibleTagObj ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			}
         }
         if (isset($_GET['s']) && !empty($_GET['s'])){
 
@@ -222,24 +195,14 @@ class zeroBSCRM_list{
         if ($currentFilterButtons == false) $currentFilterButtons = $defaultFilterButtons;
         $allFilterButtons = $GLOBALS[ $filterVar ]['all'];
 
-
-
-        // DAL2 contacts sortable
-        // DAL3 makes everything sortable
-        if (
-            ($zbs->isDAL2() && $this->objType == 'customer')
-            || 
-            $zbs->isDAL3()
-        ){
-
-            // add all columns to sortables :)
-            if ( is_array( $currentColumns ) ) {
-                foreach ($currentColumns as $col => $var){
-                    if (!in_array($col, $this->unsortables) && !in_array($col,$this->sortables)) $this->sortables[] = $col;
-                }
-            }
-
-        }
+		// add all columns to sortables :)
+		if ( is_array( $currentColumns ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			foreach ( $currentColumns as $col => $var ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				if ( ! in_array( $col, $this->unsortables, true ) && ! in_array( $col, $this->sortables, true ) ) {
+					$this->sortables[] = $col;
+				}
+			}
+		}
 
         #} Refresh 2
         ?>
@@ -577,15 +540,6 @@ class zeroBSCRM_list{
                         
                         <?php 
 
-                        // DAL/2+ switch:
-                        if (
-                            // DAL2 has tags only for contacts
-                            $zbs->isDAL2() && $this->tag == 'zerobscrm_customertag'
-                            ||
-                            // DAL3 has them for everything with a list view :D
-                            $zbs->isDAL3()
-                            ){
-
                             // DAL2+
                             $terms = $zbs->DAL->getTagsForObjType(array(
                                     'objtypeid'=>$this->objTypeID,
@@ -675,85 +629,7 @@ class zeroBSCRM_list{
                                 <div id="jpcrm-listview-totals-box"></div><?php
 
                             }
-
-                        
-
-
-                        } else {
-
-                            // DAL1
-
-                            // get tags ahead of time + only show if not empty :)
-                            if (!empty($this->tag)) {
-                                    $terms = get_terms( $this->tag, array(
-                                    'hide_empty' => false,
-                                    'orderby'    => 'count',
-                                    'order' => 'ASC'
-                                ) );
-                            } else $terms = array();
-
-                            if (is_array($terms) && count($terms) > 0){ ?>
-                            <div class="ui divider"></div>
-                            <!-- Tagged box -->
-                                <div class="">
-                                    
-                                    <h4><?php esc_html_e("Tagged","zero-bs-crm");?></h4>
-                            
-                                    <div id="zbs-list-tags">
-                                        <?php 
-                                        
-                                        $tagIndex = array();
-                                        
-                                        // inefficient - but hacky
-                                        if (isset($listViewFilters['tags']) && is_array($listViewFilters['tags']) && count($listViewFilters['tags']) > 0){
-
-                                            foreach ($listViewFilters['tags'] as $tag){
-                                                $tagIndex[] = $tag->term_id;
-                                            }
-                                        }
-
-                                            // zbs_prettyprint($terms);
-                                            $i = 1;
-                                            foreach($terms as $term){
-                                                $zbsurl = get_admin_url('','edit.php?post_type='.$this->postType.'&page='.$this->postPage) ."&zbs_tag=".$term->term_id;
-                                                $zbstermc = zeroBSCRM_prettifyLongInts($term->count);
-                                                if($i==1){
-                                                    echo "<div class='first-ten-tags'>";
-                                                }
-                                                // check
-                                                if (in_array($term->term_id, $tagIndex))
-                                                    $tagColor = 'blue';
-                                                else
-                                                    $tagColor = 'teal';
-
-                                                // handle super long tag names
-                                                echo '<a title="' . esc_attr( $term->name ) . '" href="'. esc_url( $zbsurl ).'" class="ui button tiny '. esc_attr( $tagColor ) .'">'. esc_html( $term->name ) . " (<span class='sub-count'>" . esc_html( $zbstermc ) . "</span>)</a>";
-                                            
-
-                                                if($i == 6){
-                                                    echo "</div>"; //end first 10 tags
-                                                        #} tags UI for showing all
-                                                        echo "<div class='show-more-tags ui button olive tiny'>";
-                                                            esc_html_e("Show all tags","zero-bs-crm");
-                                                        echo "</div>";
-                                                    echo "<div class='more-tags'>";
-                                                }
-
-                                                $i++;
-
-                                            }
-                                            if($i >= 6){
-                                                echo "</div>"; //close the more tags
-                                            }
-                                        ?>
-
-                                    </div>
-
-                                </div>
-                            <!-- / Tagged box -->
-                            <?php } 
-
-                        } // DAL 1 ?>
+						?>
 
                         <div class="ui divider"></div>
                         <?php ##WLREMOVE ?>
