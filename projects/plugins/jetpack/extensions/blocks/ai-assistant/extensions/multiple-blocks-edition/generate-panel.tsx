@@ -20,7 +20,7 @@ import React from 'react';
 import { buildPromptTemplate } from '../../create-prompt';
 import { askQuestion } from '../../get-suggestion-with-stream';
 import { LANGUAGE_MAP } from '../../i18n-dropdown-control';
-import { PROMPT_TONES_MAP, ToneProp } from '../../tone-dropdown-control';
+import { PROMPT_TONES_MAP } from '../../tone-dropdown-control';
 
 // Create a Tone Array of objects with `key` and `name` keys
 export const toneOptions = Object.keys( PROMPT_TONES_MAP ).map( key => {
@@ -64,9 +64,16 @@ export default function GenerateContentPanel( { blocksIds } ) {
 		key: '',
 		name: '',
 	} );
-	const [ action, setAction ] = useState< { key?: ToneProp; name?: string; prompt?: string } >(
-		{}
-	);
+
+	const [ action, setAction ] = useState< {
+		key: 'summarize' | 'make-longer' | 'make-shorter' | 'spelling-and-grammar' | '';
+		name: string;
+		prompt: string;
+	} >( {
+		key: '',
+		name: '',
+		prompt: '',
+	} );
 
 	const [ combineBlocks, setCombineBlocks ] = useState( false );
 
@@ -97,25 +104,26 @@ export default function GenerateContentPanel( { blocksIds } ) {
 	}, [ blocks ] );
 
 	const generateContent = useCallback( async () => {
-		// Prompt content
 		const content = getContentFromSelectedBlocks();
+		const rules: string[] = [];
 
-		let request = 'Combine the content below based on mentioned rules above.';
-		if ( action?.key ) {
-			request += ' ' + action.prompt;
+		if ( tone.key.length ) {
+			rules.push( `Set the tone to \`${ tone.key }\`` );
 		}
 
-		if ( tone?.key ) {
-			request += ` Write with a \`${ tone.key }\` tone.`;
+		if ( lang.key.length ) {
+			rules.push(
+				`Translate the content to \`${ lang.key }\` (${ LANGUAGE_MAP[ lang.key ].label })`
+			);
 		}
 
-		if ( lang?.key ) {
-			request += ` Write in \`${ lang.key }\` (${ LANGUAGE_MAP[ lang.key ].label }) language.`;
+		if ( action.key.length ) {
+			rules.push( action.prompt );
 		}
 
 		const prompt = buildPromptTemplate( {
-			request,
 			content,
+			rules,
 		} );
 
 		let source: EventSource;
@@ -195,22 +203,22 @@ export default function GenerateContentPanel( { blocksIds } ) {
 						{
 							key: 'summarize',
 							name: __( 'Summarize', 'jetpack' ),
-							prompt: 'Summarize the content.',
+							prompt: 'Summarize the content',
 						},
 						{
 							key: 'make-longer',
 							name: __( 'Make longer', 'jetpack' ),
-							prompt: 'Make the content longer.',
+							prompt: 'Make the content longer',
 						},
 						{
 							key: 'make-shorter',
 							name: __( 'Make shorter', 'jetpack' ),
-							prompt: 'Make the content shorter.',
+							prompt: 'Make the content shorter',
 						},
 						{
 							key: 'spelling-and-grammar',
 							name: __( 'Correct spelling and grammar', 'jetpack' ),
-							prompt: 'Correct spelling and grammar of the content.',
+							prompt: 'Correct spelling and grammar of the content',
 						},
 					] }
 					onChange={ ( { selectedItem } ) => setAction( selectedItem ) }
