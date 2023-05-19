@@ -9,6 +9,7 @@ import {
 	CustomSelectControl,
 	ToggleControl,
 	Button,
+	Notice,
 } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useState, useCallback } from '@wordpress/element';
@@ -76,7 +77,7 @@ export default function GenerateContentPanel( { blocksIds } ) {
 	} );
 
 	const [ combineBlocks, setCombineBlocks ] = useState( false );
-
+	const [ errorMessage, setErrorMessage ] = useState( '' );
 	const { replaceBlocks, updateBlockAttributes, insertBlock } = useDispatch( blockEditorStore );
 
 	const blocks = useSelect(
@@ -129,6 +130,7 @@ export default function GenerateContentPanel( { blocksIds } ) {
 		let source: EventSource;
 		try {
 			source = await askQuestion( prompt );
+			setErrorMessage( '' );
 		} catch ( error ) {
 			return;
 		}
@@ -138,12 +140,7 @@ export default function GenerateContentPanel( { blocksIds } ) {
 			content: '',
 		} );
 
-		if ( combineBlocks ) {
-			replaceBlocks( blocksIds, [ generatedBlock ] );
-		} else {
-			insertBlock( generatedBlock, lastBlockIndex + 1 );
-		}
-
+		let newBlockJustCreated = false;
 		source.addEventListener( 'message', e => {
 			if ( e.data === '[DONE]' ) {
 				source.close();
@@ -157,8 +154,18 @@ export default function GenerateContentPanel( { blocksIds } ) {
 				fullMessage += chunk;
 				if ( fullMessage.startsWith( '__JETPACK_AI_ERROR__' ) ) {
 					// The error is confirmed
+					setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
 					source.close();
 				} else if ( ! '__JETPACK_AI_ERROR__'.startsWith( fullMessage ) ) {
+					if ( ! newBlockJustCreated ) {
+						if ( combineBlocks ) {
+							replaceBlocks( blocksIds, [ generatedBlock ] );
+						} else {
+							insertBlock( generatedBlock, lastBlockIndex + 1 );
+						}
+						newBlockJustCreated = true;
+					}
+
 					updateBlockAttributes( generatedBlock.clientId, {
 						content: fullMessage,
 					} );
@@ -243,6 +250,14 @@ export default function GenerateContentPanel( { blocksIds } ) {
 					{ __( 'Generate', 'jetpack' ) }
 				</Button>
 			</PanelRow>
+
+			{ !! errorMessage.length && (
+				<PanelRow>
+					<Notice status="warning" isDismissible={ false } className="jetpack-ai-assistant__error">
+						{ errorMessage }
+					</Notice>
+				</PanelRow>
+			) }
 		</PanelBody>
 	);
 }
