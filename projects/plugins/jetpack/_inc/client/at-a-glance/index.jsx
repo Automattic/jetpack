@@ -25,6 +25,7 @@ import {
 	userCanManagePlugins,
 	userCanViewStats,
 	userIsSubscriber,
+	showJetpackAi,
 } from 'state/initial-state';
 import { getModuleOverride } from 'state/modules';
 import { getScanStatus, isFetchingScanStatus } from 'state/scan';
@@ -202,15 +203,19 @@ class AtAGlance extends Component {
 							header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
 							cards={ performanceCards }
 						/>
-						<Section
-							header={ <DashSectionHeader label={ __( 'Artificial Intelligence', 'jetpack' ) } /> }
-							cards={ [
-								<DashJetpackAi
-									{ ...settingsProps }
-									trackUpgradeButtonView={ this.trackUpgradeButtonView( 'ai' ) }
-								/>,
-							] }
-						/>
+						{ this.props.showJetpackAi && (
+							<Section
+								header={
+									<DashSectionHeader label={ __( 'Artificial Intelligence', 'jetpack' ) } />
+								}
+								cards={ [
+									<DashJetpackAi
+										{ ...settingsProps }
+										trackUpgradeButtonView={ this.trackUpgradeButtonView( 'ai' ) }
+									/>,
+								] }
+							/>
+						) }
 						{ connections }
 					</div>
 				</ThemeProvider>
@@ -264,6 +269,7 @@ export default connect( state => {
 		apiRoot: getApiRootUrl( state ),
 		apiNonce: getApiNonce( state ),
 		registrationNonce: getRegistrationNonce( state ),
+		showJetpackAi: showJetpackAi( state ),
 	};
 } )( withModuleSettingsFormHelpers( AtAGlance ) );
 
