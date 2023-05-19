@@ -12,7 +12,6 @@ use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Sub
 use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
-use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
 
 require_once __DIR__ . '/constants.php';
@@ -478,28 +477,6 @@ function render_block( $attributes ) {
 }
 
 /**
- * Generates the source parameter to pass to the iframe
- *
- * @return string the actual post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
- */
-function get_post_access_level() {
-	if ( ! is_singular() ) {
-		// There is no "actual" current post.
-		return 'everybody';
-	}
-
-	$post_id = get_the_ID();
-	if ( ! $post_id ) {
-		return 'everybody';
-	}
-	$meta = get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
-	if ( empty( $meta ) ) {
-		$meta = 'everybody';
-	}
-	return $meta;
-}
-
-/**
  * Renders the WP.com version of the subscriptions block.
  *
  * @param array $data    Array containing block view data.
@@ -522,7 +499,7 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
-	$post_access_level = get_post_access_level();
+	$post_access_level = \Jetpack_Memberships::get_post_access_level();
 
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
@@ -642,7 +619,7 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	);
 
 	$blog_id           = \Jetpack_Options::get_option( 'id' );
-	$post_access_level = get_post_access_level();
+	$post_access_level = \Jetpack_Memberships::get_post_access_level();
 
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
@@ -756,12 +733,12 @@ function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
 function maybe_get_locked_content( $the_content ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
-	if ( Jetpack_Memberships::user_can_view_post() ) {
+	if ( \Jetpack_Memberships::user_can_view_post() ) {
 		return $the_content;
 	}
 
-	$newsletter_access_level = Jetpack_Memberships::get_newsletter_access_level();
-	return get_locked_content_placeholder_text( $newsletter_access_level );
+	$post_access_level = \Jetpack_Memberships::get_post_access_level();
+	return get_locked_content_placeholder_text( $post_access_level );
 }
 
 /**
@@ -776,8 +753,9 @@ function maybe_close_comments( $default_comments_open, $post_id ) {
 	if ( ! $default_comments_open || ! $post_id ) {
 		return $default_comments_open;
 	}
+
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
-	return Jetpack_Memberships::user_can_view_post();
+	return \Jetpack_Memberships::user_can_view_post();
 }
 
 /**
@@ -788,12 +766,12 @@ function maybe_close_comments( $default_comments_open, $post_id ) {
  * @return string
  */
 function maybe_gate_existing_comments( $comment ) {
-	if ( empty( $comment ) || 'everybody' === get_post_access_level() ) {
+	if ( empty( $comment ) ) {
 		return $comment;
 	}
 
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
-	if ( Jetpack_Memberships::user_can_view_post() ) {
+	if ( \Jetpack_Memberships::user_can_view_post() ) {
 		return $comment;
 	}
 	return '';
