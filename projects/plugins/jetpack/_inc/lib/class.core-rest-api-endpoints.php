@@ -791,8 +791,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		$json = json_decode( wp_remote_retrieve_body( $response ) );
-
 		if ( ! isset( $json->token ) ) {
+			/**
+			 * Check for errors in the response.
+			 * If there is a code and message, return a WP_Error.
+			 */
+			if ( isset( $json->code ) && isset( $json->message ) ) {
+				return new WP_Error( $json->code, $json->message, isset( $json->data ) ? $json->data : 500 );
+			}
+
 			return new WP_Error( 'no-token', 'No token returned from WPCOM' );
 		}
 
