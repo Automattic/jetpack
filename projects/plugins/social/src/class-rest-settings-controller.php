@@ -137,7 +137,7 @@ class REST_Settings_Controller extends WP_REST_Controller {
 				case 'show_pricing_page':
 					$old_value = get_option( Jetpack_Social::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION );
 
-					if ( (int) $old_value !== (int) $params[ $name ] ) {
+					if ( $old_value === false || (int) $old_value !== (int) $params[ $name ] ) {
 						$updated = update_option( Jetpack_Social::JETPACK_SOCIAL_SHOW_PRICING_PAGE_OPTION, (int) $params[ $name ] );
 						if ( ! $updated ) {
 							return new WP_Error(
