@@ -88,7 +88,8 @@ ${ extraRulePromptPart }- Do not include a top level heading by default.
 		` +
 		requestPromptBlock +
 		contextPromptPart +
-		`-----------`;
+		`
+-----------`;
 
 	debug( prompt );
 	return prompt;
