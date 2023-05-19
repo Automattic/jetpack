@@ -8,6 +8,7 @@ export const PRODUCT_DESCRIPTION_PRODUCTS = {
 	JETPACK_SECURITY: 'security',
 	JETPACK_SOCIAL: 'social',
 	JETPACK_VIDEOPRESS: 'videopress',
+	JETPACK_AI: 'jetpack-ai',
 };
 
 export const productDescriptionRoutes = [
@@ -26,6 +27,7 @@ export const myJetpackRoutes = [
 	`/add-${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SEARCH }`,
 	`/add-${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_SOCIAL }`,
 	`/add-${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_VIDEOPRESS }`,
+	`/add-${ PRODUCT_DESCRIPTION_PRODUCTS.JETPACK_AI }`,
 ];
 
 export const productIllustrations = {

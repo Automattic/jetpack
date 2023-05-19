@@ -152,7 +152,7 @@ export default connect(
 		isOffline: isOfflineMode( state ),
 		isFetching: isFetchingSitePurchases( state ),
 		sitePlan: getSitePlan( state ),
-		upgradeUrl: getProductDescriptionUrl( state, 'ai' ),
+		upgradeUrl: getProductDescriptionUrl( state, 'jetpack-ai' ),
 		aiAvailableRequests: 20, // TODO: Implement available requests logic
 	} ),
 	dispatch => ( {
