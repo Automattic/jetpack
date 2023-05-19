@@ -395,6 +395,7 @@ EOT;
 			$item_markup .= $date_tag;
 		}
 
+		// TODO: Remove filtered context from block rendering.
 		if ( ( $block_attributes['show_context'] ) && ! empty( $related_post['context'] ) ) {
 			$context_tag = sprintf(
 				'<li class="jp-related-posts-i2__post-context">%1$s</li>',
