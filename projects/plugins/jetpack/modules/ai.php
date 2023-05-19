@@ -5,6 +5,7 @@
  * First Introduced: 12.2
  * Sort Order: 20
  * Requires Connection: Yes
+ * Requires User Connection: Yes
  * Auto Activate: No
  * Module Tags: AI, Recommended
  * Feature: Writing
