@@ -80,7 +80,13 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 				</Notice>
 			) }
 
-			{ ! showPlaceholder && (
+			{ isLoading && (
+				<FlexBlock style={ { padding: '10px', textAlign: 'center' } }>
+					<Spinner />
+				</FlexBlock>
+			) }
+
+			{ ! isLoading && ! showPlaceholder && (
 				<AuthorRecommendationContent
 					{ ...{ isLoading, subscriptions, selectedSubscriptions, handleChecked, isSelected } }
 				/>
@@ -100,7 +106,6 @@ export function AuthorRecommendationEdit( { className, attributes, setAttributes
 }
 
 function AuthorRecommendationContent( {
-	isLoading,
 	subscriptions,
 	selectedSubscriptions,
 	handleChecked,
@@ -110,9 +115,11 @@ function AuthorRecommendationContent( {
 	const [ filteredSubscriptions, setFilteredSubscriptions ] = useState( subscriptions );
 
 	useEffect( () => {
-		setSearchQuery( '' );
-		setFilteredSubscriptions( subscriptions );
-	}, [ subscriptions, setFilteredSubscriptions, setSearchQuery ] );
+		if ( ! isSelected ) {
+			setSearchQuery( '' );
+			setFilteredSubscriptions( subscriptions );
+		}
+	}, [ subscriptions, setFilteredSubscriptions, setSearchQuery, isSelected ] );
 
 	const handleSearchInputChange = value => {
 		const query = value.toLowerCase();
@@ -122,14 +129,6 @@ function AuthorRecommendationContent( {
 		setFilteredSubscriptions( filtered );
 		setSearchQuery( query );
 	};
-
-	if ( isLoading ) {
-		return (
-			<FlexBlock style={ { padding: '10px', textAlign: 'center' } }>
-				<Spinner />
-			</FlexBlock>
-		);
-	}
 
 	return (
 		<Flex gap={ 2 } justify="space-between" direction="column">
