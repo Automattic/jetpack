@@ -12,6 +12,7 @@ use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Sub
 use Automattic\Jetpack\Status;
 use Jetpack;
 use Jetpack_Gutenberg;
+use Jetpack_Memberships;
 use Jetpack_Subscriptions_Widget;
 
 require_once __DIR__ . '/constants.php';
@@ -65,7 +66,7 @@ function register_block() {
 	if (
 		/** This filter is documented in class.jetpack-gutenberg.php */
 		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
-		|| ! class_exists( '\Jetpack_Memberships' )
+		|| ! class_exists( 'Jetpack_Memberships' )
 	) {
 		return;
 	}
@@ -418,7 +419,7 @@ function render_block( $attributes ) {
 	if (
 		/** This filter is documented in class.jetpack-gutenberg.php */
 		apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
-		&& class_exists( '\Jetpack_Memberships' )
+		&& class_exists( 'Jetpack_Memberships' )
 	) {
 		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
 		Jetpack_Gutenberg::load_assets_as_required( FEATURE_NAME, array( 'thickbox' ) );
@@ -499,7 +500,7 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
-	$post_access_level = \Jetpack_Memberships::get_post_access_level();
+	$post_access_level = Jetpack_Memberships::get_post_access_level();
 
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
@@ -619,7 +620,7 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	);
 
 	$blog_id           = \Jetpack_Options::get_option( 'id' );
-	$post_access_level = \Jetpack_Memberships::get_post_access_level();
+	$post_access_level = Jetpack_Memberships::get_post_access_level();
 
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
@@ -733,11 +734,11 @@ function jetpack_filter_excerpt_for_newsletter( $excerpt, $post = null ) {
 function maybe_get_locked_content( $the_content ) {
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 
-	if ( \Jetpack_Memberships::user_can_view_post() ) {
+	if ( Jetpack_Memberships::user_can_view_post() ) {
 		return $the_content;
 	}
 
-	$post_access_level = \Jetpack_Memberships::get_post_access_level();
+	$post_access_level = Jetpack_Memberships::get_post_access_level();
 	return get_locked_content_placeholder_text( $post_access_level );
 }
 
@@ -755,7 +756,7 @@ function maybe_close_comments( $default_comments_open, $post_id ) {
 	}
 
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
-	return \Jetpack_Memberships::user_can_view_post();
+	return Jetpack_Memberships::user_can_view_post();
 }
 
 /**
@@ -771,7 +772,7 @@ function maybe_gate_existing_comments( $comment ) {
 	}
 
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
-	if ( \Jetpack_Memberships::user_can_view_post() ) {
+	if ( Jetpack_Memberships::user_can_view_post() ) {
 		return $comment;
 	}
 	return '';
@@ -790,7 +791,7 @@ function get_locked_content_placeholder_text( $newsletter_access_level ) {
 	// Only display this text when Stripe is connected and the post is marked for paid subscribers
 	if (
 		$newsletter_access_level === 'paid_subscribers'
-		&& ! empty( \Jetpack_Memberships::get_connected_account_id() )
+		&& ! empty( Jetpack_Memberships::get_connected_account_id() )
 	) {
 		$access_level = __( 'paid subscribers', 'jetpack' );
 	}
