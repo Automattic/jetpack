@@ -766,7 +766,9 @@ class CSSmin {
 	 */
 	private function normalize_int( $size ) {
 		if ( is_string( $size ) ) {
-			switch ( substr( $size, -1 ) ) {
+			$letter = substr( $size, -1 );
+			$size   = intval( $size );
+			switch ( $letter ) {
 				case 'M':
 				case 'm':
 					return $size * 1048576;
