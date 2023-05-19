@@ -481,7 +481,7 @@ class Jetpack_Memberships {
 
 		$newsletter_access_level = self::get_newsletter_access_level();
 
-		if ( null === $newsletter_access_level || Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $newsletter_access_level ) {
+		if ( ! $newsletter_access_level || Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $newsletter_access_level ) {
 			// The post is not gated, we return early
 			return true;
 		}

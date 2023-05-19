@@ -48,7 +48,7 @@ class WPCOM_Offline_Subscription_Service extends WPCOM_Online_Subscription_Servi
 
 		$access_level = get_post_meta( $post_id, '_jetpack_newsletter_access', true );
 
-		if ( null === $access_level || self::POST_ACCESS_LEVEL_EVERYBODY === $access_level ) {
+		if ( ! $access_level || self::POST_ACCESS_LEVEL_EVERYBODY === $access_level ) {
 			// The post is not gated, we return early
 			return true;
 		}
