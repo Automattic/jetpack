@@ -80,7 +80,7 @@ const AIControl = ( {
 
 	return (
 		<>
-			{ false && <UpgradePrompt /> }
+			{ <UpgradePrompt /> }
 			{ ! isWaitingState && (
 				<ToolbarControls
 					aiType={ aiType }
