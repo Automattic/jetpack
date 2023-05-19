@@ -7,6 +7,8 @@ use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Entry_Can_Set;
 use Automattic\Jetpack\WP_JS_Data_Sync\Contracts\Lazy_Entry;
 use function Automattic\Jetpack_Boost\Modules\Image_Size_Analysis\jetpack_boost_mock_api;
 
+require_once dirname( __DIR__ ) . '/jetpack-boost-mock-api.php';
+
 class Image_Size_Analysis_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_Set {
 
 	private $page         = 1;
