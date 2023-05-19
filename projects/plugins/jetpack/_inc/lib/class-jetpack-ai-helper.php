@@ -8,6 +8,8 @@
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 
 /**
@@ -67,22 +69,14 @@ class Jetpack_AI_Helper {
 	 * Currently, it's limited to WPCOM Simple and Atomic.
 	 */
 	public static function is_enabled() {
-		$default = false;
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$default = true;
-		} elseif ( ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
-			$default = true;
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) { // Active on Simple.
+			return true;
+		} elseif ( ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) { // Active on Atomic.
+			return true;
+		} else { // Active on Jetpack sites with AI module and flag.
+			// TODO: Remove this flag once we release.
+			return ( new Modules() )->is_active( 'ai' ) && Constants::is_true( 'JETPACK__AI__ENABLED' );
 		}
-
-		/**
-		 * Filter whether the AI features are enabled in the Jetpack plugin.
-		 *
-		 * @since 11.8
-		 *
-		 * @param bool $default Are AI features enabled? Defaults to false.
-		 */
-		return apply_filters( 'jetpack_ai_enabled', $default );
 	}
 
 	/**
