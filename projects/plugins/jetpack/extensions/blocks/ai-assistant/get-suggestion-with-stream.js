@@ -1,3 +1,7 @@
+/**
+ * External dependencies
+ */
+import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
 import debugFactory from 'debug';
 
@@ -79,7 +83,8 @@ export async function requestToken() {
 	const hasWPComFetch = ! window.wpcomFetch;
 	let data;
 
-	if ( hasWPComFetch ) {
+	if ( ! isSimpleSite() && ! isAtomicSite() ) {
+		// Jetpack sites
 		data = await apiFetch( {
 			path: '/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(),
 			credentials: 'same-origin',
