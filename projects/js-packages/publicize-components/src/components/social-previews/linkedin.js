@@ -10,11 +10,14 @@ import { getLinkedInDetails } from '../../store/selectors';
  * @returns {React.ReactNode} The linkedin tab component.
  */
 export function LinkedIn( props ) {
-	const { title, url, image, description, media } = props;
+	const { title, url, image, media } = props;
 
 	const { name, profileImage } = getLinkedInDetails();
 
 	const { message: text } = useSocialMediaMessage();
+
+	// Add the URL to the description if there is media
+	const description = `${ text || title } ${ media.length ? url : '' }`.trim();
 
 	return (
 		<LinkedInPreviews
@@ -24,7 +27,6 @@ export function LinkedIn( props ) {
 			profileImage={ profileImage }
 			title={ title }
 			description={ description }
-			text={ text }
 			url={ url }
 			media={ media }
 		/>
