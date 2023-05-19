@@ -175,7 +175,7 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 		}
 
-		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
+		tracks.recordEvent( 'jetpack_ai_chat_completion', {
 			post_id: postId,
 		} );
 
