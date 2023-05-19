@@ -1310,6 +1310,7 @@ function zeroBSCRM_IA_EditCustomerWPHook( $obj = array() ) {
 
 	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
 
+		do_action( 'jpcrm_automation_contact_update', $obj );
 		do_action( 'jpcrm_after_contact_update', $obj['id'] );
 
 		// legacy, use `jpcrm_after_contact_update` from 5.3+
@@ -1318,12 +1319,13 @@ function zeroBSCRM_IA_EditCustomerWPHook( $obj = array() ) {
 		// If the contact status has changed.
 		if ( isset( $obj['from'] ) && ! empty( $obj['from'] ) ) {
 			do_action( 'jpcrm_automation_contact_status_update', $obj );
-		} elseif ( isset( $obj['userMeta']['zbsc_email'] ) && $obj['prev_contact']['email'] !== $obj['userMeta']['zbsc_email'] ) {  // If the contact email has changed.
-			do_action( 'jpcrm_automation_contact_email_update', $obj );
-		} else { // Fallback if any other contact field has changed.
-			do_action( 'jpcrm_automation_contact_update', $obj );
 		}
-
+		// If the contact email has changed.
+		if ( isset( $obj['userMeta']['zbsc_email'] ) && isset( $obj['prev_contact'] ) ) {
+			if ( $obj['prev_contact']['email'] !== $obj['userMeta']['zbsc_email'] ) {
+				do_action( 'jpcrm_automation_contact_email_update', $obj );
+			}
+		}
 	}
 }
 
