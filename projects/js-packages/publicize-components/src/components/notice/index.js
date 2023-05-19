@@ -17,7 +17,7 @@ const Notice = ( { children, type = 'default', actions = [], onDismiss } ) => {
 					<Icon icon={ closeSmall } />
 				</button>
 			) }
-			{ actions.length && (
+			{ actions && actions.length > 0 && (
 				<div className={ styles.actions }>{ actions.map( action => action ) }</div>
 			) }
 		</div>
