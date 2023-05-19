@@ -44,11 +44,6 @@ export const langOptions = Object.keys( LANGUAGE_MAP ).map( key => {
 	};
 } );
 
-// langOptions.unshift( {
-// 	key: '',
-// 	name: '',
-// } );
-
 /**
  * Block edit panel to generate content from multiple blocks.
  *
