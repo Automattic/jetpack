@@ -75,7 +75,7 @@ server.on( 'request', ( req, res ) => {
 	}
 
 	// Make remote request.
-	const upstreamUrl = new URL( req.url, upstreamHost );
+	const upstreamUrl = upstreamHost + req.url.replace( /^\//, '' );
 	console.log( `!![${ reqid }] Proxying to ${ upstreamUrl }` );
 	const upstreamReq = https.request( upstreamUrl, {
 		method: req.method,
