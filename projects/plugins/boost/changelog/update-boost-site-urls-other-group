@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update site urls rest api endpoint, to return 'other' for custom post type posts.

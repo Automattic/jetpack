@@ -132,7 +132,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		$after_widget  = isset( $args['after_widget'] ) ? $args['after_widget'] : '';
 		$before_widget = isset( $args['before_widget'] ) ? $args['before_widget'] : '';
-		$instance      = wp_parse_args( (array) $instance, $this->defaults() );
+		$instance      = wp_parse_args( (array) $instance, static::defaults() );
 
 		echo $before_widget; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
@@ -493,7 +493,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				if ( $subscribe_text && ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Non-sensitive informational output.
 					?>
 					<div id="subscribe-text"><?php echo wp_kses( wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total ), $subscribe_text ) ), 'post' ); ?></div>
-														<?php
+					<?php
 				}
 
 				if ( ! isset( $_GET['subscribe'] ) || 'success' !== $_GET['subscribe'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Display of unsubmitted form.
@@ -716,7 +716,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	 * @param array $instance Widget instance.
 	 */
 	public function form( $instance ) {
-		$instance               = wp_parse_args( (array) $instance, $this->defaults() );
+		$instance               = wp_parse_args( (array) $instance, static::defaults() );
 		$show_subscribers_total = checked( $instance['show_subscribers_total'], true, false );
 
 		if ( self::is_wpcom() ) {

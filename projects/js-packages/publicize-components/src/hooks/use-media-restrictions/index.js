@@ -27,10 +27,8 @@ const reduceVideoLimits = ( prev, current ) => ( {
 
 const getVideoLimits = enabledConnections =>
 	enabledConnections
-		.map( connection =>
-			RESTRICTIONS[ connection.service_name ]
-				? RESTRICTIONS[ connection.service_name ].video
-				: DEFAULT_RESTRICTIONS.video
+		.map(
+			connection => RESTRICTIONS[ connection.service_name ]?.video || DEFAULT_RESTRICTIONS.video
 		)
 		.reduce( reduceVideoLimits, [] );
 
