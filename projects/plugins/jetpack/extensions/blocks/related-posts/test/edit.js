@@ -3,7 +3,7 @@ import { RelatedPostsEdit } from '../edit';
 
 const posts = [
 	{
-		bcon: {
+		block_context: {
 			link: 'https://test.com',
 			text: 'Some text',
 		},
@@ -28,7 +28,7 @@ const posts = [
 		},
 	},
 	{
-		bcon: {
+		block_context: {
 			link: 'https://test.com',
 			text: 'Some text',
 		},
