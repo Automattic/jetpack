@@ -24,7 +24,7 @@ import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
-const CONNECTIONS_NEED_MEDIA = [ 'instagram' ];
+const CONNECTIONS_NEED_MEDIA = [ 'instagram-business' ];
 
 const checkConnectionCode = ( connection, code ) =>
 	false === connection.is_healthy && code === ( connection.error_code ?? 'broken' );
