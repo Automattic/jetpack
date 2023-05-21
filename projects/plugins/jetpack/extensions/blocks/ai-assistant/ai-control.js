@@ -17,6 +17,7 @@ import { arrowRight, chevronDown, image, pencil, update, title } from '@wordpres
 import I18nDropdownControl from './i18n-dropdown-control';
 import Loading from './loading';
 import ToneDropdownControl from './tone-dropdown-control';
+import UpgradePrompt from './upgrade-prompt';
 
 const AIControl = ( {
 	aiType,
@@ -38,6 +39,7 @@ const AIControl = ( {
 	wholeContent,
 	content,
 	promptType,
+	onChange,
 } ) => {
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
@@ -78,6 +80,7 @@ const AIControl = ( {
 
 	return (
 		<>
+			{ false && <UpgradePrompt /> }
 			{ ! isWaitingState && (
 				<ToolbarControls
 					aiType={ aiType }
@@ -101,7 +104,10 @@ const AIControl = ( {
 				{ ( isWaitingState || loadingImages ) && <Loading /> }
 				<PlainText
 					value={ isWaitingState ? '' : userPrompt }
-					onChange={ value => setUserPrompt( value ) }
+					onChange={ value => {
+						setUserPrompt( value );
+						onChange?.();
+					} }
 					onKeyPress={ handleInputEnter }
 					placeholder={ placeholder }
 					className="jetpack-ai-assistant__input"

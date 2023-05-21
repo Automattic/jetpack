@@ -12,9 +12,11 @@ import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { Fragment, createInterpolateElement, useCallback } from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
+import useAttachedMedia from '../../hooks/use-attached-media';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
+import useValidateFeaturedImage from '../../hooks/use-validate-featured-image';
 import PublicizeConnection from '../connection';
 import MediaSection from '../media-section';
 import MessageBoxControl from '../message-box-control';
@@ -22,9 +24,12 @@ import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
+const CONNECTIONS_NEED_MEDIA = [ 'instagram' ];
+
 const checkConnectionCode = ( connection, code ) =>
 	false === connection.is_healthy && code === ( connection.error_code ?? 'broken' );
 
+const isConnectionNeedMedia = connectionName => CONNECTIONS_NEED_MEDIA.includes( connectionName );
 /**
  * The Publicize form component. It contains the connection list, and the message box.
  *
@@ -62,6 +67,13 @@ export default function PublicizeForm( {
 	const unsupportedConnections = connections.filter( connection =>
 		checkConnectionCode( connection, 'unsupported' )
 	);
+
+	const { attachedMedia } = useAttachedMedia();
+	const { isFeaturedImageValid } = useValidateFeaturedImage(
+		CONNECTIONS_NEED_MEDIA.map( conn => ( { service_name: conn } ) )
+	);
+	const postHasValidImage =
+		isFeaturedImageValid || attachedMedia.length > 0 || isSocialImageGeneratorEnabledForPost;
 
 	const outOfConnections =
 		numberOfSharesRemaining !== null && numberOfSharesRemaining <= enabledConnections.length;
@@ -192,9 +204,15 @@ export default function PublicizeForm( {
 										disabled={
 											! isPublicizeEnabled ||
 											( ! enabled && toggleable && outOfConnections ) ||
-											false === is_healthy
+											false === is_healthy ||
+											( isConnectionNeedMedia( service_name ) && ! postHasValidImage )
 										}
-										enabled={ enabled && ! isPublicizeDisabledBySitePlan && false !== is_healthy }
+										enabled={
+											enabled &&
+											! isPublicizeDisabledBySitePlan &&
+											false !== is_healthy &&
+											( postHasValidImage || ! isConnectionNeedMedia( service_name ) )
+										}
 										key={ connection_id ? connection_id : id }
 										id={ connection_id ? connection_id : id }
 										label={ display_name }
@@ -206,6 +224,16 @@ export default function PublicizeForm( {
 							) }
 						</ul>
 					</PanelRow>
+					{ connections.some( ( { service_name } ) => isConnectionNeedMedia( service_name ) ) &&
+						! postHasValidImage && (
+							<Notice type={ 'warning' }>
+								{ __( 'You need a valid image in your post to share to Instagram.', 'jetpack' ) }
+								<br />
+								<ExternalLink href={ getRedirectUrl( 'jetpack-social-media-support-information' ) }>
+									{ __( 'Learn more', 'jetpack' ) }
+								</ExternalLink>
+							</Notice>
+						) }
 				</>
 			) }
 

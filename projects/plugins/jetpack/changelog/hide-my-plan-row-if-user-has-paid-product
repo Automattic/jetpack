@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Hides the "My Plan" on My Plan page if user has a paid project and a free plan. This way, users won't have much or conflicting information on that page.

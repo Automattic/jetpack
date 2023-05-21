@@ -31,7 +31,7 @@ const LANGUAGE_LIST = [
 export type LanguageProp = ( typeof LANGUAGE_LIST )[ number ];
 
 type LanguageDropdownControlProps = {
-	value: LanguageProp;
+	value?: LanguageProp;
 	onChange: ( value: string ) => void;
 	label: string;
 };

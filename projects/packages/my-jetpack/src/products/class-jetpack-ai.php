@@ -7,8 +7,11 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
+use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Jetpack_Options;
+use WP_Error;
 
 /**
  * Class responsible for handling the Jetpack AI product
@@ -104,6 +107,71 @@ class Jetpack_Ai extends Module_Product {
 	}
 
 	/**
+	 * Gets the site purchases from WPCOM.
+	 *
+	 * @todo Maybe add caching.
+	 *
+	 * @return Object|WP_Error
+	 */
+	private static function get_site_current_purchases() {
+		static $purchases = null;
+
+		if ( $purchases !== null ) {
+			return $purchases;
+		}
+
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		$response = Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/purchases', $site_id ),
+			'1.1',
+			array(
+				'method' => 'GET',
+			)
+		);
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'purchases_state_fetch_failed' );
+		}
+
+		$body      = wp_remote_retrieve_body( $response );
+		$purchases = json_decode( $body );
+		return $purchases;
+	}
+
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * @return boolean
+	 */
+	public static function has_required_plan() {
+		$purchases_data = static::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if (
+					0 === strpos( $purchase->product_slug, static::get_wpcom_product_slug() )
+				) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Checks whether the Product is active
+	 *
+	 * Jetpack AI is not actually a module.
+	 *
+	 * @return boolean
+	 */
+	public static function is_active() {
+		return static::is_jetpack_plugin_active() && static::has_required_plan();
+	}
+
+	/**
 	 * Checks whether the Jetpack module is active
 	 *
 	 * This is a bundle and not a product. We should not use this information for anything
@@ -111,7 +179,7 @@ class Jetpack_Ai extends Module_Product {
 	 * @return bool
 	 */
 	public static function is_module_active() {
-		return false;
+		return true;
 	}
 
 	/**

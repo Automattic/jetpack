@@ -3,8 +3,17 @@ import { ExternalLink } from '@wordpress/components';
 import { Fragment } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
 import { getIconColor } from '../../shared/block-icons';
+/**
+ * Internal dependencies
+ */
 import attributes from './attributes';
 import edit from './edit';
+import Icon from './icon';
+/**
+ * Extend:
+ * - blocks (Multiple-blocks edition)
+ */
+import './extensions/multiple-blocks-edition';
 
 /**
  * Style dependencies
@@ -12,7 +21,7 @@ import edit from './edit';
 import './editor.scss';
 
 export const name = 'ai-assistant';
-export const title = __( 'AI Assistant', 'jetpack' );
+export const title = __( 'AI Assistant (Experimental)', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,
@@ -31,7 +40,7 @@ export const settings = {
 		</Fragment>
 	),
 	icon: {
-		src: 'superhero',
+		src: Icon,
 		foreground: getIconColor(),
 	},
 	category: 'text',
