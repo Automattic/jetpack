@@ -395,10 +395,10 @@ EOT;
 			$item_markup .= $date_tag;
 		}
 
-		if ( ( $block_attributes['show_context'] ) && ! empty( $related_post['bcon'] ) ) {
+		if ( ( $block_attributes['show_context'] ) && ! empty( $related_post['block_context'] ) ) {
 			// New render logic, ignoring original context.
 			$context_tag   = '';
-			$block_context = $related_post['bcon'];
+			$block_context = $related_post['block_context'];
 			if ( ! empty( $block_context['link'] ) ) {
 				$context_tag = sprintf(
 					'<li class="jp-related-posts-i2__post-context"><a href="%1$s">%2$s</a></li>',
@@ -1314,16 +1314,16 @@ EOT;
 	public function get_related_post_data_for_post( $post_id, $position, $origin ) {
 		$post = get_post( $post_id );
 		return array(
-			'id'       => $post->ID,
-			'url'      => get_permalink( $post->ID ),
-			'url_meta' => array(
+			'id'            => $post->ID,
+			'url'           => get_permalink( $post->ID ),
+			'url_meta'      => array(
 				'origin'   => $origin,
 				'position' => $position,
 			),
-			'title'    => $this->to_utf8( $this->get_title( $post->post_title, $post->post_content, $post->ID ) ),
-			'date'     => get_the_date( '', $post->ID ),
-			'format'   => get_post_format( $post->ID ),
-			'excerpt'  => html_entity_decode( $this->to_utf8( $this->get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
+			'title'         => $this->to_utf8( $this->get_title( $post->post_title, $post->post_content, $post->ID ) ),
+			'date'          => get_the_date( '', $post->ID ),
+			'format'        => get_post_format( $post->ID ),
+			'excerpt'       => html_entity_decode( $this->to_utf8( $this->get_excerpt( $post->post_excerpt, $post->post_content ) ), ENT_QUOTES, 'UTF-8' ),
 			/**
 			 * Filters the rel attribute for the Related Posts' links.
 			 *
@@ -1335,7 +1335,7 @@ EOT;
 			 * @param string $link_rel Link rel attribute for Related Posts' link. Default is empty.
 			 * @param int    $post->ID Post ID.
 			 */
-			'rel'      => apply_filters( 'jetpack_relatedposts_filter_post_link_rel', '', $post->ID ),
+			'rel'           => apply_filters( 'jetpack_relatedposts_filter_post_link_rel', '', $post->ID ),
 			/**
 			 * Filter the context displayed below each Related Post.
 			 *
@@ -1346,13 +1346,13 @@ EOT;
 			 * @param string $this->to_utf8( $this->generate_related_post_context( $post->ID ) ) Context displayed below each related post.
 			 * @param int $post_id Post ID of the post for which we are retrieving Related Posts.
 			 */
-			'context'  => apply_filters(
+			'context'       => apply_filters(
 				'jetpack_relatedposts_filter_post_context',
 				$this->to_utf8( $this->generate_related_post_context( $post->ID ) ),
 				$post->ID
 			),
-			'bcon'     => $this->generate_related_post_context_block( $post->ID ),
-			'img'      => $this->generate_related_post_image_params( $post->ID ),
+			'block_context' => $this->generate_related_post_context_block( $post->ID ),
+			'img'           => $this->generate_related_post_image_params( $post->ID ),
 			/**
 			 * Filter the post css classes added on HTML markup.
 			 *
@@ -1363,7 +1363,7 @@ EOT;
 			 * @param array array() CSS classes added on post HTML markup.
 			 * @param string $post_id Post ID.
 			 */
-			'classes'  => apply_filters(
+			'classes'       => apply_filters(
 				'jetpack_relatedposts_filter_post_css_classes',
 				array(),
 				$post->ID

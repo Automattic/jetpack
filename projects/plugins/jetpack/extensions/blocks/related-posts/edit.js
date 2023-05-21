@@ -68,8 +68,8 @@ function PlaceholderPostEdit( props ) {
 }
 
 function RelatedPostsEditItem( props ) {
-	const contextText = props.post?.bcon?.text || '';
-	const contextLink = props.post?.bcon?.link || '';
+	const contextText = props.post?.block_context?.text || '';
+	const contextLink = props.post?.block_context?.link || '';
 	const contextHasLink = contextLink !== '';
 	return (
 		<div
