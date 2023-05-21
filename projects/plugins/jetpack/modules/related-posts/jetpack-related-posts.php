@@ -396,7 +396,9 @@ EOT;
 		}
 
 		if ( ( $block_attributes['show_context'] ) && ! empty( $related_post['block_context'] ) ) {
-			// New render logic, ignoring original context.
+			// Note: The original 'context' value is not used when rendering the block.
+			// It is still generated and available for the legacy rendering code path though.
+			// See './related-posts.js' for that usage.
 			$context_tag   = '';
 			$block_context = $related_post['block_context'];
 			if ( ! empty( $block_context['link'] ) ) {
@@ -1339,6 +1341,9 @@ EOT;
 			/**
 			 * Filter the context displayed below each Related Post.
 			 *
+			 * This context is used when rendering the legacy 'widget' version of Related Posts.
+			 * It is not used when rendering the block-based version. See 'block_context' below for that.
+			 *
 			 * @module related-posts
 			 *
 			 * @since 3.0.0
@@ -1351,6 +1356,7 @@ EOT;
 				$this->to_utf8( $this->generate_related_post_context( $post->ID ) ),
 				$post->ID
 			),
+			// The context used when rendering as a Block. No filtering applied.
 			'block_context' => $this->generate_related_post_context_block( $post->ID ),
 			'img'           => $this->generate_related_post_image_params( $post->ID ),
 			/**
