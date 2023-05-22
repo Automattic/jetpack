@@ -59,6 +59,19 @@ if ( ! defined( 'JETPACK__WPCOM_JSON_API_BASE' ) ) {
 if ( ! defined( 'JETPACK_BOOST_PLUGINS_DIR_URL' ) ) {
 	define( 'JETPACK_BOOST_PLUGINS_DIR_URL', plugin_dir_url( __FILE__ ) );
 }
+
+/**
+ * Setup Minify service.
+ */
+// Potential improvement: Make concat URL dir configurable
+// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+if ( isset( $_SERVER['REQUEST_URI'] ) && '/_static/' === substr( wp_unslash( $_SERVER['REQUEST_URI'] ), 0, 9 ) ) {
+	define( 'JETPACK_BOOST_CONCAT_USE_WP', true );
+
+	require_once JETPACK_BOOST_DIR_PATH . '/serve-minified-content.php';
+	exit;
+}
+
 /**
  * Setup autoloading
  */
