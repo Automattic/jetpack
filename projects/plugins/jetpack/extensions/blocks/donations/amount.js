@@ -16,7 +16,6 @@ const Amount = ( {
 	const [ editedValue, setEditedValue ] = useState(
 		formatCurrency( value, currency, { symbol: '' } )
 	);
-	// const [ previousCurrency, setPreviousCurrency ] = useState( currency );
 	const [ isFocused, setIsFocused ] = useState( false );
 	const [ isInvalid, setIsInvalid ] = useState( false );
 	const richTextRef = useRef( null );
