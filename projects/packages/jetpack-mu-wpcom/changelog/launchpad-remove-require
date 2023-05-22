@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Remove unnecessary duplicated require of Launchpad plugin.
