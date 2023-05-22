@@ -500,12 +500,16 @@ function zeroBSCRMJS_drawListView() {
 					window.zbsDrawListViewBlocker = false;
 
 					jQuery( '#zbsCantLoadData' ).hide();
+					jQuery( 'jpcrm-listview-footer' ).show();
 					jQuery( '#zbs-list-table-wrap' ).show();
+					jQuery( '#jpcrm-listview-totals-box' ).show();
 				},
 				function ( errd ) {
 					// err callback? show msg (prefilled by php)
 					jQuery( '#zbsCantLoadData' ).show();
 					jQuery( '#zbs-list-table-wrap' ).hide();
+					jQuery( 'jpcrm-listview-footer' ).hide();
+					jQuery( '#jpcrm-listview-totals-box' ).hide();
 					//update counts in footer
 					jpcrm_update_listview_counts();
 

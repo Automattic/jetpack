@@ -399,31 +399,6 @@ class zeroBSCRM_list{
 
             </div>
 
-            <div id="zbs-list-warnings-wrap">
-                <?php #} Pre-loaded msgs, because I wrote the helpers in php first... should move helpers to js and fly these 
-
-                echo zeroBSCRM_UI2_messageHTML('warning hidden',sprintf(__('Error retrieving %s','zero-bs-crm'),$this->plural),sprintf(__('There has been a problem retrieving your %s. If this issue persists, please contact support.','zero-bs-crm'),$this->plural),'disabled warning sign','zbsCantLoadData');
-                echo zeroBSCRM_UI2_messageHTML('warning hidden',sprintf(__('Error updating columns %s','zero-bs-crm'),$this->plural),__('There has been a problem saving your column configuration. If this issue persists, please contact support.','zero-bs-crm'),'disabled warning sign','zbsCantSaveCols');
-                echo zeroBSCRM_UI2_messageHTML('warning hidden',sprintf(__('Error updating columns %s','zero-bs-crm'),$this->plural),__('There has been a problem saving your filter button configuration. If this issue persists, please contact support.','zero-bs-crm'),'disabled warning sign','zbsCantSaveButtons');
-                echo zeroBSCRM_UI2_messageHTML('info hidden',sprintf(__('No %s Found',"zero-bs-crm"),$this->plural),sprintf( __( 'There are no %s here. Do you want to <a href="%s">create one</a>?', 'zero-bs-crm' ), $this->plural, jpcrm_esc_link('create',-1,$this->postType) ),'disabled warning sign','zbsNoResults');
-
-                // any additional messages?
-                if (isset($this->messages) && is_array($this->messages) && count($this->messages) > 0){
-
-                    //echo '<div id="zbs-list-view-messages">';
-
-                        foreach ($this->messages as $message){
-                            // $message needs to match this func :)
-                            echo zeroBSCRM_UI2_messageHTML($message[0],$message[1],$message[2],$message[3],$message[4]);
-                        }
-
-                    //echo '</div>';
-
-                }
-
-                ?>
-            </div>
-
 				<div id="zbs-list-wrap">
 
 					<div class="jpcrm-listview">
@@ -435,6 +410,25 @@ class zeroBSCRM_list{
 							<!-- Drawn by Javascript -->
 						</div>
 						<?php $this->draw_listview_footer(); ?>
+						<div id="zbs-list-warnings-wrap">
+							<?php
+							// Preloaded error messages
+							// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.WP.I18n.MissingTranslatorsComment,WordPress.WP.I18n.UnorderedPlaceholdersText
+							echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error retrieving %s', 'zero-bs-crm' ), $this->plural ), sprintf( __( 'There has been a problem retrieving your %s. If this issue persists, please contact support.', 'zero-bs-crm' ), $this->plural ), 'disabled warning sign', 'zbsCantLoadData' );
+							echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your column configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveCols' );
+							echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your filter button configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveButtons' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+							echo zeroBSCRM_UI2_messageHTML( 'info hidden', sprintf( __( 'No %s Found', 'zero-bs-crm' ), $this->plural ), sprintf( __( 'There are no %s here. Do you want to <a href="%s">create one</a>?', 'zero-bs-crm' ), $this->plural, jpcrm_esc_link( 'create', -1, $this->postType ) ), 'disabled warning sign', 'zbsNoResults' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+							// any additional messages?
+							if ( isset( $this->messages ) && is_array( $this->messages ) && count( $this->messages ) > 0 ) {
+								foreach ( $this->messages as $message ) {
+									// $message needs to match this func :)
+									echo zeroBSCRM_UI2_messageHTML( $message[0], $message[1], $message[2], $message[3], $message[4] );
+								}
+							}
+							// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.WP.I18n.MissingTranslatorsComment,WordPress.WP.I18n.UnorderedPlaceholdersText
+							?>
+						</div>
 					</div>
 					<?php
 
