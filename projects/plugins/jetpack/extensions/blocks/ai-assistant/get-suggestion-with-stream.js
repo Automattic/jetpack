@@ -34,15 +34,20 @@ export async function askJetpack( question ) {
 /**
  * Leaving this here to make it easier to debug the streaming API calls for now
  *
- * @param {string} question - The query to send to the API
- * @param {number} postId - The post where this completion is being requested, if available
+ * @param {string} question   - The query to send to the API
+ * @param {number} postId     - The post where this completion is being requested, if available
+ * @param {boolean} fromCache - Get a cached response. False by default.
  */
-export async function askQuestion( question, postId = null ) {
+export async function askQuestion( question, postId = null, fromCache = false ) {
 	const { token } = await requestToken();
 
 	const url = new URL( 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query' );
 	url.searchParams.append( 'question', question );
 	url.searchParams.append( 'token', token );
+
+	if ( fromCache ) {
+		url.searchParams.append( 'stream_cache', 'true' );
+	}
 
 	if ( postId ) {
 		url.searchParams.append( 'post_id', postId );
