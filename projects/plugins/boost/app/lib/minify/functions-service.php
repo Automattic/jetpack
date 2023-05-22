@@ -16,6 +16,7 @@ function jetpack_boost_page_optimize_types() {
  * Handle serving a minified / concatenated file from the virtual _static dir.
  */
 function jetpack_boost_page_optimize_service_request() {
+	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
 	$utils  = new Utils( $use_wp );
 
 	$cache_dir = Config::get_cache_dir_path();
@@ -121,6 +122,7 @@ function jetpack_boost_page_optimize_service_request() {
  * Generate a combined and minified output for the current request.
  */
 function jetpack_boost_page_optimize_build_output() {
+	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
 	$utils  = new Utils( $use_wp );
 
 	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
