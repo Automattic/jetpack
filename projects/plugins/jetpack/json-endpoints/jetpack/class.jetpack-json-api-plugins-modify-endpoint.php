@@ -386,7 +386,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		if ( isset( $query_args['autoupdate'] ) && $query_args['autoupdate'] ) {
 			Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 		}
-		wp_clean_plugins_cache();
+		wp_clean_plugins_cache( false );
 		ob_start();
 		wp_update_plugins(); // Check for Plugin updates
 		ob_end_clean();
@@ -487,7 +487,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
 		// Clear the cache.
-		wp_clean_plugins_cache();
+		wp_clean_plugins_cache( false );
 		ob_start();
 		wp_update_plugins(); // Check for Plugin updates
 		ob_end_clean();

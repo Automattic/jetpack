@@ -39,6 +39,7 @@ const ConnectScreenRequiredPlan = props => {
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
+		isOfflineMode,
 	} = useConnection( {
 		registrationNonce,
 		redirectUri,
@@ -76,6 +77,7 @@ const ConnectScreenRequiredPlan = props => {
 			displayButtonError={ displayButtonError }
 			buttonIsLoading={ buttonIsLoading }
 			logo={ logo }
+			isOfflineMode={ isOfflineMode }
 		>
 			{ children }
 		</ConnectScreenRequiredPlanVisual>

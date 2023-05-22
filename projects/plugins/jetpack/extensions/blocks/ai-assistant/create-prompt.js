@@ -77,17 +77,20 @@ ${ content }`;
 		`${ context }.
 ${ job }. Do this by following rules set in "Rules".
 
+-------------
 Rules:
-- Output the generated content in markdown format.
-- Do not include a top level heading by default.
+${ extraRulePromptPart }- Do not include a top level heading by default.
 - Only output generated content ready for publishing.
 - Segment the content into paragraphs as deemed suitable.
-- If you do not understand the request, please prefix your answer with __JETPACK_AI_ERROR__.
+- If you do not understand the "Request" or the "Content", please prefix your answer with __JETPACK_AI_ERROR__.
 ` +
 		langLocatePromptPart +
-		extraRulePromptPart +
+		`-----------
+		` +
 		requestPromptBlock +
-		contextPromptPart;
+		contextPromptPart +
+		`
+-----------`;
 
 	debug( prompt );
 	return prompt;

@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 
 require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
 
@@ -479,7 +480,13 @@ class Jetpack_Memberships {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
 		$newsletter_access_level = self::get_newsletter_access_level();
-		$paywall                 = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+
+		if ( ! $newsletter_access_level || Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $newsletter_access_level ) {
+			// The post is not gated, we return early
+			return true;
+		}
+
+		$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level );
 	}
 
