@@ -3283,6 +3283,11 @@ function wp_cron_preload_cache() {
 						if ( @file_exists( $cache_path . "stop_preload.txt" ) ) {
 							wp_cache_debug( 'wp_cron_preload_cache: cancelling preload. stop_preload.txt found.', 5 );
 							wpsc_reset_preload_settings();
+
+							if ( $wp_cache_preload_email_me ) {
+								// translators: Home URL of website
+								wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
+							}
 							return true;
 						}
 					}
@@ -3374,6 +3379,11 @@ function wp_cron_preload_cache() {
 			if ( @file_exists( $cache_path . "stop_preload.txt" ) ) {
 				wp_cache_debug( 'wp_cron_preload_cache: cancelling preload. stop_preload.txt found.', 5 );
 				wpsc_reset_preload_settings();
+
+				if ( $wp_cache_preload_email_me ) {
+					// translators: Home URL of website
+					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
+				}
 				return true;
 			}
 
@@ -3413,6 +3423,7 @@ function wp_cron_preload_cache() {
 			wp_cache_debug( "wp_cron_preload_cache: clean expired cache files older than $cache_max_time seconds.", 5 );
 			wp_cache_phase2_clean_expired( $file_prefix, true ); // force cleanup of old files.
 		}
+		wpsc_reset_preload_settings();
 	}
 	@unlink( $mutex );
 }
@@ -3601,7 +3612,7 @@ function wpsc_reset_preload_counter() {
  * This function will reset all preload settings
  */
 function wpsc_reset_preload_settings() {
-	global $cache_path, $wp_cache_preload_email_me;
+	global $cache_path;
 
 	$mutex = $cache_path . 'preload_mutex.tmp';
 	wp_delete_file( $mutex );
@@ -3620,11 +3631,6 @@ function wpsc_reset_preload_settings() {
 	foreach ( $taxonomies as $taxonomy => $path ) {
 		$taxonomy_filename = $cache_path . 'taxonomy_' . $taxonomy . '.txt';
 		wp_delete_file( $taxonomy_filename );
-	}
-
-	if ( $wp_cache_preload_email_me ) {
-		// translators: Home URL of website
-		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
 	}
 }
 
