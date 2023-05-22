@@ -13,7 +13,7 @@ import { buildPrompt } from './create-prompt';
 import { askJetpack, askQuestion } from './get-suggestion-with-stream';
 import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
-const debug = debugFactory( 'jetpack:ai-assistant' );
+const debug = debugFactory( 'jetpack-ai-assistant' );
 
 const turndownService = new TurndownService();
 
@@ -182,7 +182,7 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 		}
 
-		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
+		tracks.recordEvent( 'jetpack_ai_chat_completion', {
 			post_id: postId,
 		} );
 
@@ -192,10 +192,9 @@ const useSuggestionsFromOpenAI = ( {
 		}
 
 		let source;
-		let fullMessage = '';
 		try {
 			setIsLoadingCompletion( true );
-			source = await askQuestion( prompt );
+			source = await askQuestion( prompt, postId );
 		} catch ( err ) {
 			if ( err.message ) {
 				setErrorMessage( err.message ); // Message was already translated by the backend
@@ -211,28 +210,21 @@ const useSuggestionsFromOpenAI = ( {
 			setIsLoadingCompletion( false );
 		}
 
-		source.addEventListener( 'message', e => {
-			if ( e.data === '[DONE]' ) {
-				source.close();
-				setIsLoadingCompletion( false );
-				setAttributes( {
-					content: fullMessage,
-				} );
-				debug( 'Done. Full message: ' + fullMessage );
-				return;
-			}
-
-			const data = JSON.parse( e.data );
-			const chunk = data.choices[ 0 ].delta.content;
-			if ( chunk ) {
-				fullMessage += chunk;
-				setAttributes( {
-					content: fullMessage,
-				} );
-				debug( fullMessage );
-				// debug( chunk );
-			}
+		source.addEventListener( 'done', e => {
+			source.close();
+			setIsLoadingCompletion( false );
+			setAttributes( { content: e.detail } );
 		} );
+		source.addEventListener( 'error_unclear_prompt', () => {
+			source.close();
+			setIsLoadingCompletion( false );
+			setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
+		} );
+		source.addEventListener( 'suggestion', e => {
+			debug( 'fullMessage', e.detail );
+			setAttributes( { content: e.detail } );
+		} );
+		return source;
 	};
 
 	return {

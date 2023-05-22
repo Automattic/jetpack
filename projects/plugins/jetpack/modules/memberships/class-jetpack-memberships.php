@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 
 require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
 
@@ -229,7 +230,7 @@ class Jetpack_Memberships {
 	public function allow_sync_post_meta( $post_meta ) {
 		$meta_keys = array_map(
 			array( $this, 'return_meta' ),
-			$this->get_plan_property_mapping()
+			self::get_plan_property_mapping()
 		);
 		return array_merge( $post_meta, array_values( $meta_keys ) );
 	}
@@ -277,8 +278,8 @@ class Jetpack_Memberships {
 	 * @return boolean
 	 */
 	public function should_render_button_preview( $block ) {
-		$user_can_edit              = $this->user_can_edit();
-		$requires_stripe_connection = ! $this->get_connected_account_id();
+		$user_can_edit              = static::user_can_edit();
+		$requires_stripe_connection = ! static::get_connected_account_id();
 
 		$jetpack_ready = ! self::is_enabled_jetpack_recurring_payments();
 
@@ -479,7 +480,13 @@ class Jetpack_Memberships {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 
 		$newsletter_access_level = self::get_newsletter_access_level();
-		$paywall                 = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
+
+		if ( ! $newsletter_access_level || Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $newsletter_access_level ) {
+			// The post is not gated, we return early
+			return true;
+		}
+
+		$paywall = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
 		return $paywall->visitor_can_view_content( self::get_all_plans_id_jetpack_recurring_payments(), $newsletter_access_level );
 	}
 
@@ -518,7 +525,7 @@ class Jetpack_Memberships {
 		}
 
 		$plans = get_posts( $query );
-		return ( count( $plans ) > 0 );
+		return ( is_countable( $plans ) && count( $plans ) > 0 );
 	}
 
 	/**

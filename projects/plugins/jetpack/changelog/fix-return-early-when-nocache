@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Return early when possible to prevent spamming DB

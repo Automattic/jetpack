@@ -22,6 +22,7 @@ const connectionSelectors = {
 	getUserConnectionData: state => state.userConnectionData || false,
 	getConnectedPlugins: state => state.connectedPlugins || [],
 	getConnectionErrors: state => state.connectionErrors || [],
+	getIsOfflineMode: state => state.isOfflineMode || false,
 
 	getWpcomUser,
 	getBlogId,

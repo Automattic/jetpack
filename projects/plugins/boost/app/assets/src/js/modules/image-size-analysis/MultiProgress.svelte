@@ -3,10 +3,13 @@
 	import ProgressBar from '../../elements/ProgressBar.svelte';
 	import Spinner from '../../elements/Spinner.svelte';
 	import { isaGroups } from './store/isa-groups';
+
+	// Limit which groups are shown in the multi-progress
+	$: groups = [ $isaGroups.home, $isaGroups.pages, $isaGroups.posts, $isaGroups.other ];
 </script>
 
 <div class="jb-multi-progress">
-	{#each Object.values( $isaGroups ) as group, index}
+	{#each groups as group, index}
 		<div class="jb-entry">
 			<div class="jb-progress">
 				<ProgressBar progress={group.progress} />

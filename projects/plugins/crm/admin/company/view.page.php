@@ -592,7 +592,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								<tbody>
 								<?php
 								// prep link to create a new invoice
-								$new_invoice_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_INVOICE ) . '&prefillco=' . $company['id'];
+								$new_invoice_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_INVOICE ) . '&zbsprefillco=' . $company['id'];
 
 								if ( $company_invoice_count_inc_deleted > 0 ) {
 
@@ -708,7 +708,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									<?php
 
 									// prep link to create a new transaction
-									$new_transaction_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION ) . '&prefillco=' . $company['id'];
+									$new_transaction_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION ) . '&zbsprefillco=' . $company['id'];
 
 									if ( count( $company['transactions'] ) > 0 ) {
 
@@ -880,7 +880,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								<tbody>
 									<?php
 									// prep link to create a new task
-									$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&prefillco=' . $company['id'];
+									$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&zbsprefillco=' . $company['id'];
 
 									if ( isset( $company['tasks'] ) && is_array( $company['tasks'] ) && count( $company['tasks'] ) > 0 ) {
 

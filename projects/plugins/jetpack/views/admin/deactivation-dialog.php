@@ -20,10 +20,10 @@
 				_n(
 					'The Jetpack Connection is also used by %d other plugin, and it will lose connection.',
 					'The Jetpack Connection is also used by %d other plugins, and they will lose connection.',
-					count( $data ),
+					is_countable( $data ) ? count( $data ) : 0,
 					'jetpack'
 				),
-				count( $data )
+				is_countable( $data ) ? count( $data ) : 0
 			)
 		);
 		?>
