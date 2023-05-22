@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Attempt to fix Forms hash generation. This has been ported from package on #30764

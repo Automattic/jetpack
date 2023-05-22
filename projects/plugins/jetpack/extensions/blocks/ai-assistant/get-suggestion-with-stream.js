@@ -140,7 +140,24 @@ export class SuggestionsEventSource extends EventSource {
 	constructor( url, options ) {
 		super( url, options );
 		this.fullMessage = '';
+		this.isPromptClear = false;
 		this.addEventListener( 'message', this.processEvent );
+	}
+
+	checkForUnclearPrompt() {
+		if ( ! this.isPromptClear ) {
+			// Sometimes the first token of the message is not received, so we check only for JETPACK_AI_ERROR, ignoring the first underscores
+			if ( this.fullMessage.replace( '__', '' ).startsWith( 'JETPACK_AI_ERROR' ) ) {
+				// The unclear prompt marker was found, so we dispatch an error event
+				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
+			} else if ( 'JETPACK_AI_ERROR'.startsWith( this.fullMessage.replace( '__', '' ) ) ) {
+				// Partial unclear prompt marker was found, so we wait for more data and print a debug message without dispatching an event
+				debug( this.fullMessage );
+			} else {
+				// Mark the prompt as clear
+				this.isPromptClear = true;
+			}
+		}
 	}
 
 	processEvent( e ) {
@@ -155,12 +172,9 @@ export class SuggestionsEventSource extends EventSource {
 		const chunk = data.choices[ 0 ].delta.content;
 		if ( chunk ) {
 			this.fullMessage += chunk;
+			this.checkForUnclearPrompt();
 
-			if ( this.fullMessage.startsWith( '__JETPACK_AI_ERROR__' ) ) {
-				// The error is confirmed
-				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
-			} else if ( ! '__JETPACK_AI_ERROR__'.startsWith( this.fullMessage ) ) {
-				// Confirmed to be a valid response
+			if ( this.isPromptClear ) {
 				// Dispatch an event with the chunk
 				this.dispatchEvent( new CustomEvent( 'chunk', { detail: chunk } ) );
 				// Dispatch an event with the full message
