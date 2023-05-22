@@ -13,6 +13,7 @@
 	fill: $gray-700;
 	&.facebook {
 		fill: var( --color-facebook );
+		border-radius: 50% !important;
 	}
 	&.instagram {
 		fill: var( --color-instagram );
