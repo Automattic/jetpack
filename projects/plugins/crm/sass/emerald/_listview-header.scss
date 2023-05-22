@@ -5,7 +5,6 @@ jpcrm-listview-header#jpcrm-listview-header {
 	align-items: center;
 	flex-wrap: wrap;
 	height: 30px;
-	font-size: 14px;
 
 	header-item {
 		display: flex;
@@ -17,15 +16,15 @@ jpcrm-listview-header#jpcrm-listview-header {
 			color: inherit;
 			border: none;
 			padding: 0;
+			margin-left: 5px;;
 			font: inherit;
 			cursor: pointer;
-			line-height: 20px;
 
 			&.dashicons:before {
 				font-family: dashicons;
-				font-size: 14px;
+				font-size: inherit;
 				display: flex;
-				padding-left: 3px;
+				width: 16px;
 			}
 		}
 
@@ -67,7 +66,6 @@ jpcrm-listview-header#jpcrm-listview-header {
 		border: 1px solid var(--jp-gray-10);
 		vertical-align: middle;
 		border-radius: 2px;
-		line-height: 16px;
 		height: 100%;
 		width: 200px;
 	}
