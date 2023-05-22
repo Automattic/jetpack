@@ -8,6 +8,7 @@ import { Flex, FlexBlock, Modal, Notice } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import MarkdownIt from 'markdown-it';
 import { useEffect } from 'react';
 /**
@@ -47,6 +48,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
+		wasCompletionJustRequested,
 		getSuggestionFromOpenAI,
 		showRetry,
 		contentBefore,
@@ -154,7 +156,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	return (
-		<div { ...useBlockProps() }>
+		<div
+			{ ...useBlockProps( {
+				className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
+			} ) }
+		>
 			{ errorMessage && ! errorDismissed && (
 				<Notice status="info" isDismissible={ false } className="jetpack-ai-assistant__error">
 					{ errorMessage }
