@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## 0.27.0 - 2023-05-22
+### Added
+- Offline Mode handling. [#30570]
+
 ## 0.26.6 - 2023-05-02
 ### Changed
 - Updated package dependencies.
