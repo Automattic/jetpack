@@ -95,7 +95,7 @@ Jetpack is updated monthly to ensure seamless integration with top WordPress plu
 * Other tech integrations: Instagram, Creative Mail, Mailchimp, Calendly, Whatsapp, Pinterest, Revue, and more.
 
 = FLY HIGHER WITH INDIVIDUAL PLUGINS = 
-Want industry leading performance and finer control over what features you install
+Want industry leading performance and finer control over what features you install? Install our stand-alone plugins to take your site to the next level.
 
 * [Akismet Anti-Spam](https://wordpress.org/plugins/akismet/)
 * [Jetpack VaultPress Backup](https://wordpress.org/plugins/jetpack-backup/) 
