@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Replace API code for boost scores with the Boost Score API package
