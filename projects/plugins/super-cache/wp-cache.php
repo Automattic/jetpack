@@ -3256,7 +3256,7 @@ function wp_cron_preload_cache() {
 				} else {
 					$details = explode( "\n", file_get_contents( $taxonomy_filename ) );
 				}
-				if ( count( $details ) != 1 && $details[ 0 ] != '' ) {
+				if ( count( $details ) > 0 && $details[0] !== '' ) {
 					$rows = array_splice( $details, 0, WPSC_PRELOAD_POST_COUNT );
 					if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume === 'many' ) {
 						// translators: 1: Site URL, 2: Taxonomy name, 3: Number of posts done, 4: Number of posts to preload
@@ -3295,7 +3295,7 @@ function wp_cron_preload_cache() {
 
 				if (
 					$preload_more_taxonomies === false &&
-					count( $details ) !== 1 &&
+					count( $details ) > 0 &&
 					$details[0] !== ''
 				) {
 					$preload_more_taxonomies = true;

@@ -183,7 +183,8 @@ while ( ( $line = fgets( $pipes[1] ) ) ) {
 		continue;
 	}
 	if ( $parts[3] === $changelogger_projects[ $slug ]['changelog'] ) {
-		debug( 'Ignoring changelog file %s.', $line );
+		debug( 'PR touches changelog file %s, marking %s as having a change file.', $line, $slug );
+		$ok_projects[ $slug ] = true;
 		continue;
 	}
 	if ( $parts[3] === $changelogger_projects[ $slug ]['changes-dir'] ) {
