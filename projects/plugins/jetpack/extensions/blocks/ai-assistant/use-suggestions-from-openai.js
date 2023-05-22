@@ -77,6 +77,7 @@ const useSuggestionsFromOpenAI = ( {
 } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
+	const [ wasCompletionJustRequested, setWasCompletionJustRequested ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
 
@@ -187,6 +188,7 @@ const useSuggestionsFromOpenAI = ( {
 		let source;
 		try {
 			setIsLoadingCompletion( true );
+			setWasCompletionJustRequested( true );
 			source = await askQuestion( prompt, postId );
 		} catch ( err ) {
 			if ( err.message ) {
@@ -201,19 +203,23 @@ const useSuggestionsFromOpenAI = ( {
 			}
 			setShowRetry( true );
 			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
 		}
 
 		source.addEventListener( 'done', e => {
 			source.close();
 			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
 			setAttributes( { content: e.detail } );
 		} );
 		source.addEventListener( 'error_unclear_prompt', () => {
 			source.close();
 			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
 			setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
 		} );
 		source.addEventListener( 'suggestion', e => {
+			setWasCompletionJustRequested( false );
 			debug( 'fullMessage', e.detail );
 			setAttributes( { content: e.detail } );
 		} );
@@ -223,6 +229,7 @@ const useSuggestionsFromOpenAI = ( {
 	return {
 		isLoadingCategories,
 		isLoadingCompletion,
+		wasCompletionJustRequested,
 		setIsLoadingCategories,
 		setShowRetry,
 		showRetry,

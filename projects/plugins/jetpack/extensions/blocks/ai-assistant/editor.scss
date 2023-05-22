@@ -15,6 +15,16 @@
 	margin: 10px;
 }
 
+.wp-block-jetpack-ai-assistant {
+	.jetpack-ai-assistant__content {
+		opacity: 1;
+		transition: opacity 0.2s ease-in-out;
+	}
+	&.is-waiting-response .jetpack-ai-assistant__content {
+		opacity: 0.5;
+	}
+}
+
 .jetpack-ai-assistant__error {
 	margin: 0 0 8px 0;
 }
