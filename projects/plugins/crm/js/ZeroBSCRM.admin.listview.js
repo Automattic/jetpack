@@ -5546,40 +5546,74 @@ function jpcrm_get_contact_meta( contact_id ) {
 
 
 function jpcrm_add_listview_filter() {
+	// hide dropdown
 	this.classList.add('hidden');
+
+	// update and show current filter info
 	let current_filter_span = this.nextElementSibling.lastElementChild;
 	current_filter_span.textContent = this.options[this.selectedIndex].textContent;
 	this.nextElementSibling.classList.remove('hidden');
+
+	// update listview filter settings
 	if (this.dataset.filtertype === 'quickfilters') {
 		zbsListViewParams.filters.quickfilters = [this.value];
 	} else if (this.dataset.filtertype === 'tags') {
 		zbsListViewParams.filters.tags = [{id:this.value}];
 	}
-	this.selectedIndex = 0;
+
+	// reset pagination
+	zbsListViewParams.paged = 1;
+
+	// update address bar
 	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
+
+	// draw new listview
 	zeroBSCRMJS_drawListView();
 }
 
 function jpcrm_remove_listview_filter() {
+	// hide current filter info
 	this.parentElement.classList.add('hidden');
-	this.nextElementSibling.textContent = '';
+
 	let dropdown = this.parentElement.previousElementSibling;
+
+	// reset dropdown and show it
+	dropdown.selectedIndex = 0;
 	dropdown.classList.remove('hidden');
+
+	// update listview filter settings
 	if (dropdown.dataset.filtertype === 'quickfilters') {
 		zbsListViewParams.filters.quickfilters = [];
 	} else if (dropdown.dataset.filtertype === 'tags') {
 		zbsListViewParams.filters.tags = [];
 	}
+
+	// reset pagination
+	zbsListViewParams.paged = 1;
+
+	// update address bar
 	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
+
+	// draw new listview
 	zeroBSCRMJS_drawListView();
 }
 
 function jpcrm_do_search_filter( event ) {
+	// only trigger if Enter is pressed
 	if (event.keyCode !== 13 ) {
 		return;
 	}
+
+	// update listview filter settings
 	zbsListViewParams.filters.s = this.value;
+
+	// reset pagination
+	zbsListViewParams.paged = 1;
+
+	// update address bar
 	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
+
+	// draw new listview
 	zeroBSCRMJS_drawListView();
 }
 
