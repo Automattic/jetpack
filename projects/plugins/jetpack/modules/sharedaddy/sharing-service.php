@@ -964,7 +964,7 @@ function sharing_display( $text = '', $echo = false ) {
 		return $text;
 	}
 
-	// Do not output Likes on requests for ActivityPub requests.
+	// Do not output sharing buttons for ActivityPub requests.
 	if (
 		function_exists( '\Activitypub\is_activitypub_request' )
 		&& \Activitypub\is_activitypub_request()
