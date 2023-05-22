@@ -96,6 +96,19 @@ importers:
         specifier: 13.2.9
         version: 13.2.9
 
+  projects/js-packages/ai-client:
+    dependencies:
+      '@wordpress/api-fetch':
+        specifier: 6.29.0
+        version: 6.29.0
+      debug:
+        specifier: 4.3.4
+        version: 4.3.4
+    devDependencies:
+      jest:
+        specifier: '*'
+        version: 29.5.0
+
   projects/js-packages/analytics:
     devDependencies:
       debug:
