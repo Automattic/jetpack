@@ -13,7 +13,6 @@ import Icon from './icon';
  * Extend:
  * - blocks (Multiple-blocks edition)
  */
-import './extensions/multiple-blocks-edition';
 
 /**
  * Style dependencies
