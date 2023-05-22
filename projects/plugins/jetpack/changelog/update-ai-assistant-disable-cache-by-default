@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Assistant: handle stream_cache query endpoint param
