@@ -116,6 +116,7 @@ const AIControl = ( {
 
 				<div className="jetpack-ai-assistant__controls">
 					<Button
+						className="jetpack-ai-assistant__prompt_button"
 						onClick={ () => handleGetSuggestion( 'userPrompt' ) }
 						isSmall={ true }
 						disabled={ isWaitingState || ! userPrompt?.length }
