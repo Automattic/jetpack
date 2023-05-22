@@ -139,6 +139,22 @@ export class SuggestionsEventSource extends EventSource {
 		this.addEventListener( 'message', this.processEvent );
 	}
 
+	checkForUnclearPrompt() {
+		if ( ! this.isPromptClear ) {
+			// Sometimes the first token of the message is not received, so we check only for JETPACK_AI_ERROR, ignoring the first underscores
+			if ( this.fullMessage.replace( '__', '' ).startsWith( 'JETPACK_AI_ERROR' ) ) {
+				// The unclear prompt marker was found, so we dispatch an error event
+				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
+			} else if ( 'JETPACK_AI_ERROR'.startsWith( this.fullMessage.replace( '__', '' ) ) ) {
+				// Partial unclear prompt marker was found, so we wait for more data and print a debug message without dispatching an event
+				debug( this.fullMessage );
+			} else {
+				// Mark the prompt as clear
+				this.isPromptClear = true;
+			}
+		}
+	}
+
 	processEvent( e ) {
 		if ( e.data === '[DONE]' ) {
 			// Dispatch an event with the full content
@@ -151,20 +167,7 @@ export class SuggestionsEventSource extends EventSource {
 		const chunk = data.choices[ 0 ].delta.content;
 		if ( chunk ) {
 			this.fullMessage += chunk;
-
-			if ( ! this.isPromptClear ) {
-				// Sometimes the first token of the message is not received, so we check only for JETPACK_AI_ERROR, ignoring the first underscores
-				if ( this.fullMessage.replace( '__', '' ).startsWith( 'JETPACK_AI_ERROR' ) ) {
-					// The unclear prompt marker was found, so we dispatch an error event
-					this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
-				} else if ( 'JETPACK_AI_ERROR'.startsWith( this.fullMessage.replace( '__', '' ) ) ) {
-					// Partial unclear prompt marker was found, so we wait for more data and print a debug message without dispatching an event
-					debug( this.fullMessage );
-				} else {
-					// Mark the prompt as clear
-					this.isPromptClear = true;
-				}
-			}
+			this.checkForUnclearPrompt();
 
 			if ( this.isPromptClear ) {
 				// Dispatch an event with the chunk
