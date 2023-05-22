@@ -151,7 +151,6 @@ class Jetpack_Plugin_Compatibility {
 		'pexlechris-adminer/pexlechris-adminer.php'        => '"pexlechris-adminer" is not supported on WordPress.com.',
 		'porn-embed/Porn-Embed.php'                        => '"porn-embed" is not supported on WordPress.com.',
 		'really-simple-ssl/rlrsssl-really-simple-ssl.php'  => '"really-simple-ssl" is not supported on WordPress.com.',
-		'robo-gallery/robogallery.php'                     => '"robo-gallery" is not supported on WordPress.com.',
 		'speed-contact-bar/speed-contact-bar.php'          => '"speed-contact-bar" is not supported on WordPress.com.',
 		'trafficzion/trafficzion.php'                      => '"trafficzion" is not supported on WordPress.com.',
 		'tubeace/tubeace.php'                              => '"tubeace" is not supported on WordPress.com.',
