@@ -1,4 +1,4 @@
-jpcrm-listview-header {
+jpcrm-listview-header#jpcrm-listview-header {
 
 	display: flex;
 	justify-content: space-between;
@@ -34,7 +34,7 @@ jpcrm-listview-header {
 			white-space: nowrap;
 			overflow: hidden;
 			margin: 0 1px;
-			padding: 4px 10px;
+			padding: 4px 4px;
 			box-sizing: border-box;
 			font-weight: 600;
 			vertical-align: middle;
@@ -54,6 +54,10 @@ jpcrm-listview-header {
 			border: 1px solid var(--jp-gray-10);
 			border-radius: 2px;
 			height: 100%;
+
+			&:hover {
+				background-color: var(--jp-gray-0);
+			}
 		}
 
 	}

@@ -1,5 +1,4 @@
 jpcrm-pagination {
-	padding: 0 5px;
 	display: inline-flex;
 	font-size: 16px;
 	gap: 0rem;
@@ -9,10 +8,12 @@ jpcrm-pagination {
 	border: 1px solid var(--jp-gray-5);
 	border-radius: 3px;
 
+	* {
+		line-height: 2;
+	}
+
 	.active {
-		margin: 0 5px;
-		background: #000000;
-		border: 1px solid #000000;
+		background-color: var(--jp-black);
 		color: var(--jp-white);
 	}
 
@@ -27,14 +28,29 @@ jpcrm-pagination {
 	}
 
 	a:not(:first-child):not(:last-child) {
-		padding: 5px 8px;
+		padding: 0 8px;
+	}
+
+	& > :first-child, & > :last-child {
+		padding: 0 5px;
+	}
+
+	& > :first-child.disabled, & > :last-child.disabled {
+		padding: 0;
+		margin: 0 5px;
 	}
 
 	a:hover {
-		color: var(--jp-gray-50);
+		background-color: var(--jp-gray-0);
+		color: var(--jp-gray-80);
 	}
 
 	a.active:hover {
-		color: var(--jp-gray-5);
+		background-color: var(--jp-gray-80);
+		color: var(--jp-white);
+	}
+
+	.ellipsis {
+		padding: 0 3px;
 	}
 }
