@@ -10,6 +10,7 @@ use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Sender;
 
@@ -136,39 +137,49 @@ class Jetpack_Debug_Data {
 		$debug_info = array();
 
 		/* Add various important Jetpack options */
-		$debug_info['site_id']        = array(
+		$debug_info['site_id']                  = array(
 			'label'   => 'Jetpack Site ID',
 			'value'   => Jetpack_Options::get_option( 'id' ),
 			'private' => false,
 		);
-		$debug_info['ssl_cert']       = array(
+		$debug_info['ssl_cert']                 = array(
 			'label'   => 'Jetpack SSL Verfication Bypass',
 			'value'   => ( Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) ? 'Yes' : 'No',
 			'private' => false,
 		);
-		$debug_info['time_diff']      = array(
+		$debug_info['time_diff']                = array(
 			'label'   => "Offset between Jetpack server's time and this server's time.",
 			'value'   => Jetpack_Options::get_option( 'time_diff' ),
 			'private' => false,
 		);
-		$debug_info['version_option'] = array(
+		$debug_info['version_option']           = array(
 			'label'   => 'Current Jetpack Version Option',
 			'value'   => Jetpack_Options::get_option( 'version' ),
 			'private' => false,
 		);
-		$debug_info['old_version']    = array(
+		$debug_info['old_version']              = array(
 			'label'   => 'Previous Jetpack Version',
 			'value'   => Jetpack_Options::get_option( 'old_version' ),
 			'private' => false,
 		);
-		$debug_info['public']         = array(
+		$debug_info['public']                   = array(
 			'label'   => 'Jetpack Site Public',
 			'value'   => ( Jetpack_Options::get_option( 'public' ) ) ? 'Public' : 'Private',
 			'private' => false,
 		);
-		$debug_info['master_user']    = array(
+		$debug_info['master_user']              = array(
 			'label'   => 'Jetpack Master User',
 			'value'   => self::human_readable_master_user(), // Only ID number and user name.
+			'private' => false,
+		);
+		$debug_info['is_offline_mode']          = array(
+			'label'   => 'Jetpack Offline Mode',
+			'value'   => ( new Status() )->is_offline_mode() ? 'on' : 'off',
+			'private' => false,
+		);
+		$debug_info['is_offline_mode_constant'] = array(
+			'label'   => 'JETPACK_DEV_DEBUG Constant',
+			'value'   => ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) ? 'on' : 'off',
 			'private' => false,
 		);
 

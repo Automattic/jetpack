@@ -45,6 +45,7 @@ const ConnectScreen = ( {
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
+		isOfflineMode,
 	} = useConnection( {
 		registrationNonce,
 		redirectUri,
@@ -70,6 +71,7 @@ const ConnectScreen = ( {
 			displayButtonError={ displayButtonError }
 			buttonIsLoading={ buttonIsLoading }
 			footer={ footer }
+			isOfflineMode={ isOfflineMode }
 		>
 			{ children }
 		</ConnectScreenVisual>

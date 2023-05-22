@@ -107,9 +107,9 @@
             white-space: pre-wrap;
         }
 
-        #zbs-hide-main-menu{
-            display:none;
-        }
+		jpcrm-top-menu {
+			display:none;
+		}
 
         .grid{
             max-width:100%;
@@ -245,11 +245,6 @@
     //need to hide learn on mobile
     #learn{
         display:none;
-    }
-
-    //main navigation menu - going to need "some" tweaks here
-    .zbs-admin-main-menu{
-        padding-top:50px !important;
     }
     
     .zbs-dash-header{
@@ -485,11 +480,6 @@
     //need to hide learn on mobile
     #learn{
         display:none;
-    }
-
-    //main navigation menu - going to need "some" tweaks here
-    .zbs-admin-main-menu{
-        padding-top:50px !important;
     }
     
     .zbs-dash-header{

@@ -2648,9 +2648,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	public function __construct( $attributes, $content = null ) {
 		global $post;
 
-		$this->hash                 = sha1( wp_json_encode( $attributes ) . $content );
-		self::$forms[ $this->hash ] = $this;
-
 		// Set up the default subject and recipient for this form.
 		$default_to      = '';
 		$default_subject = '[' . get_option( 'blogname' ) . ']';
@@ -2684,6 +2681,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$post_author      = get_userdata( $post->post_author );
 			$default_to      .= isset( $post_author->user_email ) ? $post_author->user_email : '';
 		}
+
+		$this->hash                 = sha1( wp_json_encode( $attributes ) );
+		self::$forms[ $this->hash ] = $this;
 
 		// Keep reference to $this for parsing form fields.
 		self::$current_form = $this;
@@ -3236,7 +3236,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since $$next-version$$
+		 * @since 12.2
 		 *
 		 * @param array $compiled_form the form response to be filtered
 		 * @param int $feedback_id the ID of the feedback form
@@ -3966,7 +3966,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since $$next-version$$
+		 * @since 12.2
 		 *
 		 * @param string the title of the email
 		 */
@@ -4006,7 +4006,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 *
 			 * @module contact-form
 			 *
-			 * @since $$next-version$$
+			 * @since 12.2
 			 *
 			 * @param array the lines of the footer, one line per array element.
 			 */
@@ -4251,7 +4251,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since $$next-version$$
+		 * @since 12.2
 		 *
 		 * @param string the filename of the HTML template used for response emails to the form owner.
 		 */
