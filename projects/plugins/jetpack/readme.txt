@@ -6,7 +6,7 @@ Requires at least: 6.1
 Requires PHP: 5.6
 Tested up to: 6.2
 
-Improve your WP security with powerful one-click tools like backup and malware scan. Get essential free tools including stats, CDN and social sharing.
+Improve your WP security with powerful one-click tools like backup, WAF, and malware scan. Get essential free tools including stats, CDN and social sharing.
 
 == Description ==
 
@@ -20,14 +20,14 @@ We guard your site so you can run your site or business. Jetpack Security provid
 * Back up your site automatically in real time and restore to any point with one click. Cloud storage starts at 10GB, which is more than enough for most sites, with additional storage options available if needed. Great for eCommerce stores especially Woo.
 * Manage migration to a new host, migrate theme files and plugins to a new database, easily duplicate websites, create full database backups, clone websites, repair broken websites by restoring older backups or easily set up a test site by creating a duplicate of your existing WP website.
 * See every site change and who made it with the activity log, great for coordination, debug, maintenance, or troubleshooting.
+* Examine incoming traffic to your WordPress site with our WAF (Web Application Firewall) and decide to allow or block it based on various rules.
+* Add an important layer of protection to your site with our WAF (Web Application Firewall), particularly when attackers actively exploit unpatched vulnerabilities.
 * Automatically perform malware scans and security scans for other code threats. One click fix to restore your site for malware.
 * Block spam comments and form responses with anti spam features powered by Akismet.
 * Brute force attack protection to protect your WordPress login page from attacks.
 * Monitor your site uptime / downtime and get an instant alert of any change by email.
 * Secure WordPress.com powered login used by millions of sites with optional 2FA (two factor authentication) for extra protection.
 * Auto update individual plugins for easy site maintenance and management.
-* Jetpack Firewall examines incoming traffic to a WordPress site and decides to allow or block it based on various rules. 
-* Jetpack Firewall adds an important layer of protection to your site, particularly when attackers actively exploit unpatched vulnerabilities.
 
 You can purchase all of Jetpack’s security features in our [Security bundle](https://cloud.jetpack.com/pricing#jetpack_security_t1_yearly), or [VaultPress Backup](https://cloud.jetpack.com/pricing#jetpack_backup_t1_yearly), [Scan](https://cloud.jetpack.com/pricing#jetpack_scan), and [Akismet Anti-spam](https://cloud.jetpack.com/pricing#jetpack_anti_spam) can each be purchased individually.
 
@@ -46,15 +46,10 @@ Create and customize your WordPress site, optimize it for visitors and revenue, 
 * Auto publish blog posts and products to social media by simply using our tools to connect to Facebook, Tumblr, and LinkedIn.
 * Easily share Instagram posts on your pages and blog posts.
 * Collect a payment or donation, sell a product, service, or membership with simple integrations with PayPal and Stripe.
-* Grow traffic with SEO tools for Google, Bing, Twitter, Facebook, and WordPress.com. XML sitemap created automatically.
+* Grow traffic with SEO tools for Google, Bing, Facebook, and WordPress.com. XML sitemap created automatically.
 * Advertise on your site to generate revenue. The ad network automatically does the work for you to find high-quality ads that are placed on your site.
 * Manage Jetpack features from anywhere with the official WordPress mobile app, available for Apple iOS (iPhone or iPad) and Google Android.
 * Looking for Customer Relationship Management? Check out the [Jetpack CRM plugin](https://jetpackcrm.com) which works alongside Jetpack to give you a simple and practical way to build relationships with your customers and leads.
-
-= PROMOTE YOUR CONTENT EASILY = 
-Find new fans by promoting your posts and pages across millions of sites in the WordPress.com and Tumblr ad network.
-* Create your ad. Choose your audience. Set your budget. It's that easy.
-* Amplify your reach for just a few dollars.
 
 = POWERFUL STATS TO GROW YOUR SITE =
 With Jetpack Stats, you don’t need to be a data scientist to see how your site is performing.
@@ -69,6 +64,12 @@ With Jetpack Stats, you don’t need to be a data scientist to see how your site
 * Get detailed insights on the referrers that bring traffic to your site.
 * Discover what countries your visitors are coming from.
 * Measure link clicks, video plays, and file downloads within your site.
+
+= PROMOTE YOUR CONTENT EASILY WITH JETPACK BLAZE =
+Find new fans by promoting your posts and pages across millions of sites in the WordPress.com and Tumblr ad network.
+
+* Create your ad. Choose your audience. Set your budget. It's that easy.
+* Amplify your reach for just a few dollars.
 
 
 = EASY DESIGN TOOLS =
@@ -94,17 +95,17 @@ Jetpack is updated monthly to ensure seamless integration with top WordPress plu
 * Contact form: Anti-spam (Powered by Akismet) blocks spam comments for Jetpack forms, Contact Form 7, Ninja Forms, Gravity Forms, Formidable Forms, and more.
 * Other tech integrations: Instagram, Creative Mail, Mailchimp, Calendly, Whatsapp, Pinterest, Revue, and more.
 
-= FLY HIGHER WITH INDIVIDUAL PLUGINS = 
-Want industry leading performance and finer control over what features you install? Install our standalone plugins to take your site to the next level.
+= FLY HIGHER WITH INDIVIDUAL PLUGINS =
+Ever wish you could have just one feature of Jetpack in its own plugin? Now you can. Check out our individual plugins and install only what you need.
 
-* [Akismet Anti-Spam](https://wordpress.org/plugins/akismet/)
-* [Jetpack VaultPress Backup](https://wordpress.org/plugins/jetpack-backup/) 
+* [Jetpack VaultPress Backup](https://wordpress.org/plugins/jetpack-backup/)
 * [Jetpack Boost](https://wordpress.org/plugins/jetpack-boost/)
 * [Jetpack CRM](https://wordpress.org/plugins/zero-bs-crm/)
 * [Jetpack Protect](https://wordpress.org/plugins/jetpack-protect/)
 * [Jetpack Search](https://wordpress.org/plugins/jetpack-search/)
 * [Jetpack Social](https://wordpress.org/plugins/jetpack-social/)
 * [Jetpack VideoPress](https://wordpress.org/plugins/jetpack-videopress/)
+* [Akismet Anti-Spam](https://wordpress.org/plugins/akismet/)
 * [WP Super Cache](https://wordpress.org/plugins/wp-super-cache/)
 
 
@@ -171,7 +172,7 @@ Jetpack is the ultimate toolkit for WP for both the classic editor and the block
 * Custom Content Types — Adds custom post types (CPTs) to your site.
 * Downtime Monitor — Alerts you via electronic mail if your site goes down to ensure you keep uptime.
 * Enhanced Distribution — Increase your reach by allowing your content to be included in the WordPress.com “firehose” of public blog content.
-* Extra Sidebar Widgets — Extra widgets you can add to your blog, including RSS Links, Twitter Timelines, and Facebook Like Boxes.
+* Extra Sidebar Widgets — Extra widgets you can add to your blog, including RSS Links and Facebook Like Boxes.
 * Gravatar Hovercards — Make your Gravatar profile visible to those viewing your blog.
 * Google Analytics (GA) — Track your WordPress site statistics thanks to Google Analytics.
 * Infinite Scroll — Pulls the next posts automatically into view when the reader approaches the bottom of the page.
@@ -192,7 +193,7 @@ Jetpack is the ultimate toolkit for WP for both the classic editor and the block
 * Search — A powerful replacement for WordPress’ built-in search, powered by Elasticsearch in the WordPress.com cloud
 * SEO Tools — Optimize your site for search engines by taking advantage of our SEO tools.
 * Sharing — Adds sharing buttons to your blog posts so readers can easily share your content.
-* Shortcode Embeds — Embed videos from YouTube, tweets from Twitter, and other media across the web.
+* Shortcode Embeds — Embed videos from YouTube and other media across the web.
 * Site Backup — Automatically back up your entire site. Duplicate, clone, migrate, transfer to a new host, and easily restore. Previously known as VaultPress.
 * Site Stats — View site visits by date, as well as most popular Pages and Posts.
 * Site Verification — Verify your site for use with Google, Bing, and Pinterest and their tools.
@@ -240,7 +241,6 @@ Blocks are the individual sections that make up a page. There are many block typ
 
 Jetpack has also created extensions for some WordPress core blocks:
 
-* Unrolling Tweet Threads – This extension to the Twitter block allows you to import an entire Tweet thread into the editor as native blocks.
 * Social Previews – This extension of the Block Editor allows you to preview what your post / page will look like on search engines and social media.
 
 = Do I need an SSL certificate? =
@@ -279,6 +279,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 5. Incredibly powerful and customizable, help your visitors instantly find the right content – right when they need it.
 6. See what’s working with content performance metrics. Simple, yet powerful stats to grow your site.
 7. Stunning‑quality video with none of the hassle. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
+
 
 == Changelog ==
 ### 12.2-a.5 - 2023-05-08
