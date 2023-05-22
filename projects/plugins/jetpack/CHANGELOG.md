@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.2-a.13 - 2023-05-22
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Internal updates.
+
 ## 12.2-a.11 - 2023-05-22
 ### Enhancements
 - Add Jetpack Starter post-purchase flow to recommendations [#30680]
