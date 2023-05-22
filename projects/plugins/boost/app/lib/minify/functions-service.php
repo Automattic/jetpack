@@ -15,15 +15,22 @@ function jetpack_boost_page_optimize_types() {
  * Handle serving a minified / concatenated file from the virtual _static dir.
  */
 function jetpack_boost_page_optimize_service_request() {
-	global $wp_filesystem;
-
-	jetpack_boost_init_filesystem();
+	$file_system = jetpack_boost_init_filesystem();
+	if ( ! $file_system ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log(
+				__( 'Disabling page-optimize cache. Unable to initialize file system.', 'jetpack-boost' )
+			);
+		}
+		return false;
+	}
 
 	$cache_dir = Config::get_cache_dir_path();
 	$use_cache = ! empty( $cache_dir );
 
 	// Ensure the cache directory exists.
-	if ( $use_cache && ! is_dir( $cache_dir ) && ! $wp_filesystem->mkdir( $cache_dir, 0775, true ) ) {
+	if ( $use_cache && ! is_dir( $cache_dir ) && ! $file_system->mkdir( $cache_dir, 0775, true ) ) {
 		$use_cache = false;
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -38,7 +45,7 @@ function jetpack_boost_page_optimize_service_request() {
 	}
 
 	// Ensure the cache directory is writable.
-	if ( $use_cache && ( ! is_dir( $cache_dir ) || ! $wp_filesystem->is_writable( $cache_dir ) || ! is_executable( $cache_dir ) ) ) {
+	if ( $use_cache && ( ! is_dir( $cache_dir ) || ! $file_system->is_writable( $cache_dir ) || ! is_executable( $cache_dir ) ) ) {
 		$use_cache = false;
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -70,7 +77,7 @@ function jetpack_boost_page_optimize_service_request() {
 			}
 
 			if ( file_exists( $cache_file_meta ) ) {
-				$meta = json_decode( $wp_filesystem->get_contents( $cache_file_meta ) );
+				$meta = json_decode( $file_system->get_contents( $cache_file_meta ) );
 				if ( null !== $meta && isset( $meta->headers ) ) {
 					foreach ( $meta->headers as $header ) {
 						header( $header );
@@ -78,13 +85,13 @@ function jetpack_boost_page_optimize_service_request() {
 				}
 			}
 
-			$etag = '"' . md5( $wp_filesystem->get_contents( $cache_file ) ) . '"';
+			$etag = '"' . md5( $file_system->get_contents( $cache_file ) ) . '"';
 
 			header( 'X-Page-Optimize: cached' );
 			header( 'Cache-Control: max-age=' . 31536000 );
 			header( 'ETag: ' . $etag );
 
-			echo $wp_filesystem->get_contents( $cache_file ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We need to trust this unfortunately.
+			echo $file_system->get_contents( $cache_file ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We need to trust this unfortunately.
 			die();
 		}
 	}
@@ -105,8 +112,8 @@ function jetpack_boost_page_optimize_service_request() {
 
 	// Cache the generated data, if available.
 	if ( $use_cache ) {
-		$wp_filesystem->put_contents( $cache_file, $content );
-		$wp_filesystem->put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ) ) );
+		$file_system->put_contents( $cache_file, $content );
+		$file_system->put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ) ) );
 	}
 
 	die();

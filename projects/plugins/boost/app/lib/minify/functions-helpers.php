@@ -77,8 +77,13 @@ function jetpack_boost_init_filesystem() {
 
 	if ( empty( $wp_filesystem ) ) {
 		require_once ABSPATH . 'wp-admin/includes/file.php';
-		\WP_Filesystem();
+		$file_system = \WP_Filesystem();
+		if ( ! $file_system ) {
+			return false;
+		}
 	}
+
+	return $wp_filesystem;
 }
 
 /**
@@ -268,12 +273,12 @@ function jetpack_boost_minify_serve_concatenated() {
  * Jetpack photon-cdn for static JS/CSS. Automatically ensures that we don't setup
  * the cache service more than once per request.
  *
- * @return void
+ * @return bool|WP_Error
  */
 function jetpack_boost_minify_setup() {
 	static $setup_done = false;
 	if ( $setup_done ) {
-		return;
+		return $setup_done;
 	}
 	$setup_done = true;
 
@@ -293,6 +298,10 @@ function jetpack_boost_minify_setup() {
 		add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
 
 		// Setup wp_filesystem for use.
-		jetpack_boost_init_filesystem();
+		$file_system = jetpack_boost_init_filesystem();
+		if ( ! $file_system ) {
+			$setup_done = new WP_Error( 'file-system-error', __( 'Unable to initialize file system.', 'jetpack-boost' ) );
+			return $setup_done;
+		}
 	}
 }
