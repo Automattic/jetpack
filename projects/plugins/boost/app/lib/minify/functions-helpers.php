@@ -70,23 +70,6 @@ function jetpack_boost_page_optimize_uninstall() {
 }
 
 /**
- * Ensure that WP_Filesystem is ready to use.
- */
-function jetpack_boost_init_filesystem() {
-	global $wp_filesystem;
-
-	if ( empty( $wp_filesystem ) ) {
-		require_once ABSPATH . 'wp-admin/includes/file.php';
-		$file_system = \WP_Filesystem();
-		if ( ! $file_system ) {
-			return false;
-		}
-	}
-
-	return $wp_filesystem;
-}
-
-/**
  * Get the list of JS slugs to exclude from minification.
  */
 function jetpack_boost_page_optimize_js_exclude_list() {
@@ -296,12 +279,5 @@ function jetpack_boost_minify_setup() {
 	if ( ! jetpack_boost_page_optimize_bail() ) {
 		// Disable Jetpack Site Accelerator CDN for static JS/CSS, if we're minifying this page.
 		add_filter( 'jetpack_force_disable_site_accelerator', '__return_true' );
-
-		// Setup wp_filesystem for use.
-		$file_system = jetpack_boost_init_filesystem();
-		if ( ! $file_system ) {
-			$setup_done = new WP_Error( 'file-system-error', __( 'Unable to initialize file system.', 'jetpack-boost' ) );
-			return $setup_done;
-		}
 	}
 }
