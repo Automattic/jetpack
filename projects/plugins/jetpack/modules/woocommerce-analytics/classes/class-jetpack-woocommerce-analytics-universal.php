@@ -259,6 +259,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	public function capture_product_view() {
 		global $product;
+		if ( ! $product instanceof WC_Product ) {
+			return;
+		}
+
 		$this->record_event(
 			'woocommerceanalytics_product_view',
 			$product->get_id()
@@ -304,7 +308,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			*/
 			$product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 
-			if ( ! $product ) {
+			if ( ! $product || ! $product instanceof WC_Product ) {
 				continue;
 			}
 
@@ -333,7 +337,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 				        var properties = {$properties};
 				        properties.express_checkout = args.paymentRequestType;
 				        _wca.push(properties);
-						cartItem_{$cart_item_key}_logged = true;	
+						cartItem_{$cart_item_key}_logged = true;
 				    });
 				"
 				);
@@ -361,6 +365,13 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 */
 	public function order_process( $order_id ) {
 		$order = wc_get_order( $order_id );
+
+		if (
+			! $order
+			|| ! $order instanceof WC_Order
+		) {
+			return;
+		}
 
 		$payment_option = $order->get_payment_method();
 
