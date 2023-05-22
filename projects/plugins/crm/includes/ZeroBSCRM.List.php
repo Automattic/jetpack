@@ -406,7 +406,7 @@ class zeroBSCRM_list{
 						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 						$this->draw_listview_header( $listViewFilters );
 						?>
-						<div class="jpcrm-listview-table-container" id="zbs-list-table-wrap">
+						<div class="jpcrm-listview-table-container">
 							<!-- Drawn by Javascript -->
 						</div>
 						<?php $this->draw_listview_footer(); ?>

@@ -60,27 +60,6 @@
 	border-top: 2px solid #a2a2a2;
 }
 
-// fix for overflowing tables (peeps adding many columns)
-#zbs-list-table-wrap {
-
-	// this squashes table:
-	// https://github.com/Semantic-Org/Semantic-UI/issues/1914
-  	// table { table-layout: fixed }
-
-	// or just show scroll bar ... 
-	overflow-x: auto;
-
-	padding-right: 30px;
-
-	table td a.ui.label {
-		margin-bottom:3px;
-	}
-
-	table td, table th {
-		vertical-align: middle;
-	}
-}
-
 // ==========  bulk actions bits
 
 // this corrects a glitch in labels + checkboxes

@@ -427,13 +427,19 @@ function zeroBSCRMJS_drawListView() {
 		window.zbsDrawListViewBlocker = true;
 
 		// empty table, show loading
-		jQuery( '#zbs-list-table-wrap' ).html( window.zbsDrawListLoadingBoxHTML );
+		jQuery( '.jpcrm-listview-table-container' ).html( window.zbsDrawListLoadingBoxHTML );
 
 		// check data + retrieve if empty
 		if ( ! window.zbsListViewParams.retrieved ) {
+
+			// hide extras until listview is loaded
+			jQuery( 'jpcrm-listview-footer' ).hide();
+			jQuery( '#jpcrm-listview-totals-box' ).hide();
+
 			// retrieve data
 			zeroBSCRMJS_retrieveListViewData(
 				function ( d ) {
+
 					// holds event flags to fire post-draw
 					var postHTML = {};
 
@@ -475,7 +481,7 @@ function zeroBSCRMJS_drawListView() {
 					listViewHTML += '</table>';
 
 					// draw
-					jQuery( '#zbs-list-table-wrap' ).html( listViewHTML );
+					jQuery( '.jpcrm-listview-table-container' ).html( listViewHTML );
 
 					//update counts in footer
 					jpcrm_update_listview_counts();
@@ -500,16 +506,15 @@ function zeroBSCRMJS_drawListView() {
 					window.zbsDrawListViewBlocker = false;
 
 					jQuery( '#zbsCantLoadData' ).hide();
+					jQuery( '.jpcrm-listview-table-container' ).show();
 					jQuery( 'jpcrm-listview-footer' ).show();
-					jQuery( '#zbs-list-table-wrap' ).show();
 					jQuery( '#jpcrm-listview-totals-box' ).show();
 				},
 				function ( errd ) {
 					// err callback? show msg (prefilled by php)
 					jQuery( '#zbsCantLoadData' ).show();
-					jQuery( '#zbs-list-table-wrap' ).hide();
-					jQuery( 'jpcrm-listview-footer' ).hide();
-					jQuery( '#jpcrm-listview-totals-box' ).hide();
+					jQuery( '.jpcrm-listview-table-container' ).hide();
+
 					//update counts in footer
 					jpcrm_update_listview_counts();
 
