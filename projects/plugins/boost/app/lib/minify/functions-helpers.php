@@ -256,12 +256,12 @@ function jetpack_boost_minify_serve_concatenated() {
  * Jetpack photon-cdn for static JS/CSS. Automatically ensures that we don't setup
  * the cache service more than once per request.
  *
- * @return bool|WP_Error
+ * @return void
  */
 function jetpack_boost_minify_setup() {
 	static $setup_done = false;
 	if ( $setup_done ) {
-		return $setup_done;
+		return;
 	}
 	$setup_done = true;
 
