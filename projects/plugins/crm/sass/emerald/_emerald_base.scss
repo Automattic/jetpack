@@ -1,14 +1,15 @@
 /* Remove left padding from WP page content */
 body.jpcrm-admin {
-	#wpcontent {
-		padding-left: 0;
-		max-width: 1551px;
-		background: var(--jp-white-off);
-		font-family: "Lato", "Helvetica Neue", Arial, Helvetica, sans-serif;
-	}
+	background: var(--jp-white-off);
+	font-family: "Lato", "Helvetica Neue", Arial, Helvetica, sans-serif;
 
 	/* Shows weird arrow if using an input with a list attribute */
 	::-webkit-calendar-picker-indicator {
 		display:none !important;
+	}
+
+	#wpcontent {
+		padding-left: 0;
+		max-width: 1551px;
 	}
 }
