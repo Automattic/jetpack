@@ -10,7 +10,7 @@ Improve your WP security with powerful one-click tools like backup and malware s
 
 == Description ==
 
-= The most popular WordPress plugin for just about everything. =
+= Safer. Faster. More traffic. =
 
 WordPress security, performance, marketing, and design tools — Jetpack is made by WordPress experts to make WP sites safer and faster, and help you grow your traffic.
 
@@ -26,14 +26,15 @@ We guard your site so you can run your site or business. Jetpack Security provid
 * Monitor your site uptime / downtime and get an instant alert of any change by email.
 * Secure WordPress.com powered login used by millions of sites with optional 2FA (two factor authentication) for extra protection.
 * Auto update individual plugins for easy site maintenance and management.
+* Jetpack Firewall examines incoming traffic to a WordPress site and decides to allow or block it based on various rules. 
+* Jetpack Firewall adds an important layer of protection to your site, particularly when attackers actively exploit unpatched vulnerabilities.
 
-You can purchase all of Jetpack’s security features in our Security bundle, or VaultPress Backup, Scan, and Akismet Anti-spam can each be purchased individually.
+You can purchase all of Jetpack’s security features in our [Security bundle](https://cloud.jetpack.com/pricing#jetpack_security_t1_yearly), or [VaultPress Backup](https://cloud.jetpack.com/pricing#jetpack_backup_t1_yearly), [Scan](https://cloud.jetpack.com/pricing#jetpack_scan), and [Akismet Anti-spam](https://cloud.jetpack.com/pricing#jetpack_anti_spam) can each be purchased individually.
 
 = PEAK SPEED AND PERFORMANCE =
-Get blazing fast site speed with Jetpack, the premier WP plugin built to leverage the power of AMP, a tool that helps optimize your site on mobile devices. Jetpack’s free CDN (content delivery network) auto optimizes your images. Watch your page load times decrease — we’ll optimize your images and serve them from our own powerful global network, and speed up your site on mobile devices to reduce bandwidth usage and save money!
+Get blazing fast site speed with Jetpack. Jetpack’s free CDN (content delivery network) auto optimizes your images. Watch your page load times decrease — we’ll optimize your images and serve them from our own powerful global network, and speed up your site on mobile devices to reduce bandwidth usage and save money!
 
-* Jetpack has partnered with Google AMP to create the best, highest performance all-in-one toolkit for WordPress. By using Jetpack and AMP together, you get all the features you need to build a beautiful, fast, modern website with no coding required.
-* Image CDN for images and static files, like CSS and JavaScript, served from our servers, not yours, which saves you money and bandwidth.
+* Image CDN for images and core static files, like CSS and JavaScript, served from our servers, not yours, which saves you money and bandwidth.
 * Lazy load images for a super fast experience, even on mobile. Jetpack’s lazy loading automatically delays the loading of media on your posts and pages until your visitors scroll down to where they appear on the page.
 * Unlimited, high speed, ad free video hosting keeps the focus on your content, not on ads or recommendations that lead people off site.
 * Custom site search is incredibly powerful and customizable. Helps your visitors instantly find the right content so they read and buy more. Works great with WooCommerce / eCommerce sites to help filter products so customers get what they want on your site faster.
@@ -42,8 +43,7 @@ Get blazing fast site speed with Jetpack, the premier WP plugin built to leverag
 = POWERFUL TOOLS FOR GROWTH =
 Create and customize your WordPress site, optimize it for visitors and revenue, and enjoy watching your stats tick up. Build it, share it, and watch it grow.
 
-* Advanced site stats and analytics to help you understand your audience.
-* Auto publish blog posts and products to social media by simply using our tools to connect to Facebook, Twitter, and Linkedin.
+* Auto publish blog posts and products to social media by simply using our tools to connect to Facebook, Tumblr, and LinkedIn.
 * Easily share Instagram posts on your pages and blog posts.
 * Collect a payment or donation, sell a product, service, or membership with simple integrations with PayPal and Stripe.
 * Grow traffic with SEO tools for Google, Bing, Twitter, Facebook, and WordPress.com. XML sitemap created automatically.
@@ -51,10 +51,30 @@ Create and customize your WordPress site, optimize it for visitors and revenue, 
 * Manage Jetpack features from anywhere with the official WordPress mobile app, available for Apple iOS (iPhone or iPad) and Google Android.
 * Looking for Customer Relationship Management? Check out the [Jetpack CRM plugin](https://jetpackcrm.com) which works alongside Jetpack to give you a simple and practical way to build relationships with your customers and leads.
 
+= PROMOTE YOUR CONTENT EASILY = 
+Find new fans by promoting your posts and pages across millions of sites in the WordPress.com and Tumblr ad network.
+* Create your ad. Choose your audience. Set your budget. It's that easy.
+* Amplify your reach for just a few dollars.
+
+= POWERFUL STATS TO GROW YOUR SITE =
+With Jetpack Stats, you don’t need to be a data scientist to see how your site is performing.
+
+* Advanced site stats and analytics to help you understand your audience.
+* Discover your top performing posts & pages.
+* See who is creating the most popular content on your team with our author metrics.
+* Easily keep track of your content creation habits & trends over the years.
+* View weekly and yearly trends with 7-day Highlights and Year in Review.
+* See what popular social networks your content is being shared to the most.
+* Explore real-time data on visitors, likes, and comments.
+* Get detailed insights on the referrers that bring traffic to your site.
+* Discover what countries your visitors are coming from.
+* Measure link clicks, video plays, and file downloads within your site.
+
+
 = EASY DESIGN TOOLS =
 Quickly customize your site to make it stand out — no coding needed.
 
-* Themes — Simple themes to get started or pick a professional theme to make your site stand out.
+* Themes — Simple WordPress themes to get started on your site.
 * Related posts — Keep visitors on your site by automatically showing them related content they will be interested in.
 * Gallery and Slideshow tools — Image galleries, carousel slider, and slideshows for WP sites and stores.
 * Subscriptions — Make it easy for visitors to sign up to receive notifications of your latest posts and comments.
@@ -67,12 +87,26 @@ Jetpack is updated monthly to ensure seamless integration with top WordPress plu
 * Built for WooCommerce: Jetpack and WooCommerce are both made by Automattic. Backup, Scan, Anti-spam, integrate perfectly for Woo / eComm stores.
 * Jetpack is fully compatible with v2.0 of the official AMP plugin for WordPress.
 * Better understand your customers and marketing with Google Analytics (GA) integration.
-* Social media platforms: Instagram, Facebook, Twitter, LinkedIn.
+* Social media platforms: Instagram, Facebook, Tumblr, LinkedIn.
 * Simple Blocks to customize your site: Pinterest, Whatsapp, Podcast player, GIFs, maps, tiled gallery, slideshow.
 * Payment processors: easily collect payments or donations and sell products through Stripe and PayPal.
 * Site speed and performance plugins: Works great with WP Super Cache by Automattic and Cloudflare.
 * Contact form: Anti-spam (Powered by Akismet) blocks spam comments for Jetpack forms, Contact Form 7, Ninja Forms, Gravity Forms, Formidable Forms, and more.
 * Other tech integrations: Instagram, Creative Mail, Mailchimp, Calendly, Whatsapp, Pinterest, Revue, and more.
+
+= FLY HIGHER WITH INDIVIDUAL PLUGINS = 
+Want industry leading performance and finer control over what features you install? Install our standalone plugins to take your site to the next level.
+
+* [Akismet Anti-Spam](https://wordpress.org/plugins/akismet/)
+* [Jetpack VaultPress Backup](https://wordpress.org/plugins/jetpack-backup/) 
+* [Jetpack Boost](https://wordpress.org/plugins/jetpack-boost/)
+* [Jetpack CRM](https://wordpress.org/plugins/zero-bs-crm/)
+* [Jetpack Protect](https://wordpress.org/plugins/jetpack-protect/)
+* [Jetpack Search](https://wordpress.org/plugins/jetpack-search/)
+* [Jetpack Social](https://wordpress.org/plugins/jetpack-social/)
+* [Jetpack VideoPress](https://wordpress.org/plugins/jetpack-videopress/)
+* [WP Super Cache](https://wordpress.org/plugins/wp-super-cache/)
+
 
 = EXPERT SUPPORT =
 We have a global team of Happiness Engineers ready to provide incredible support. Ask your questions in the support forum or [contact us directly](https://jetpack.com/contact-support).
@@ -242,6 +276,9 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 2. Save every change with real-time backups and get back online quickly with one-click restores.
 3. Automated malware scanning and one-click fixes keep your site one step ahead of security threats.
 4. Promote your newest posts, pages, and products across your social media channels.
+5. Incredibly powerful and customizable, help your visitors instantly find the right content – right when they need it.
+6. See what’s working with content performance metrics. Simple, yet powerful stats to grow your site.
+7. Stunning‑quality video with none of the hassle. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
 
 == Changelog ==
 ### 12.2-a.5 - 2023-05-08
