@@ -317,6 +317,8 @@ class WPCOM_Features {
 	public const SOCIAL_PREVIEWS                  = 'social-previews';
 	public const SOCIAL_SHARES_1000               = 'social-shares-1000';
 	public const SOCIAL_ENHANCED_PUBLISHING       = 'social-enhanced-publishing';
+	public const SOCIAL_MASTODON_CONNECTION       = 'social-mastodon-connection';
+	public const SOCIAL_INSTAGRAM_CONNECTION      = 'social-instagram-connection';
 	public const SPACE                            = 'space';
 	public const SPACE_UPGRADED_STORAGE           = 'space-upgraded-storage';
 	public const SSH                              = 'ssh';
@@ -838,6 +840,22 @@ class WPCOM_Features {
 			self::JETPACK_SOCIAL_ADVANCED_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 			self::BUNDLE_ENTERPRISE,
+		),
+		self::SOCIAL_MASTODON_CONNECTION       => array(
+			array(
+				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
+				'before' => '1900-01-01',
+				self::WPCOM_ALL_SITES,
+				self::JETPACK_ALL_SITES,
+			),
+		),
+		self::SOCIAL_INSTAGRAM_CONNECTION      => array(
+			array(
+				// This feature isn't launched yet, so we're ensuring that it's not available on any plans.
+				'before' => '1900-01-01',
+				self::WPCOM_ALL_SITES,
+				self::JETPACK_ALL_SITES,
+			),
 		),
 		self::SOCIAL_IMAGE_GENERATOR           => array(
 			array(
