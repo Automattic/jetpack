@@ -369,7 +369,6 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		if (
 			! $order
 			|| ! $order instanceof WC_Order
-			|| ! $order instanceof WC_Order_Refund
 		) {
 			return;
 		}
