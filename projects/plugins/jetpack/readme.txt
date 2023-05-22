@@ -32,7 +32,7 @@ We guard your site so you can run your site or business. Jetpack Security provid
 You can purchase all of Jetpack’s security features in our [Security bundle](https://cloud.jetpack.com/pricing#jetpack_security_t1_yearly), or [VaultPress Backup](https://cloud.jetpack.com/pricing#jetpack_backup_t1_yearly), [Scan](https://cloud.jetpack.com/pricing#jetpack_scan), and [Akismet Anti-spam](https://cloud.jetpack.com/pricing#jetpack_anti_spam) can each be purchased individually.
 
 = PEAK SPEED AND PERFORMANCE =
-Get blazing fast site speed with Jetpack a tool that helps optimize your site on mobile devices. Jetpack’s free CDN (content delivery network) auto optimizes your images. Watch your page load times decrease — we’ll optimize your images and serve them from our own powerful global network, and speed up your site on mobile devices to reduce bandwidth usage and save money!
+Get blazing fast site speed with Jetpack. Jetpack’s free CDN (content delivery network) auto optimizes your images. Watch your page load times decrease — we’ll optimize your images and serve them from our own powerful global network, and speed up your site on mobile devices to reduce bandwidth usage and save money!
 
 * Image CDN for images and core static files, like CSS and JavaScript, served from our servers, not yours, which saves you money and bandwidth.
 * Lazy load images for a super fast experience, even on mobile. Jetpack’s lazy loading automatically delays the loading of media on your posts and pages until your visitors scroll down to where they appear on the page.
