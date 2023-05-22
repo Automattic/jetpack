@@ -170,7 +170,7 @@ export default function GenerateContentPanel( { blocksIds } ) {
 
 	return (
 		<PanelBody
-			title={ __( 'Ask Assistant to edit', 'jetpack' ) }
+			title={ __( 'AI Assistant', 'jetpack' ) }
 			className="jetpack-ai-assistant__multiple-blocks-edition-panel"
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
