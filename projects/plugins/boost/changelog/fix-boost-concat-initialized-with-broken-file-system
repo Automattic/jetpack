@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed concat service initializing when there was a problem with the WP File System.
