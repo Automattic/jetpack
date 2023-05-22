@@ -5,9 +5,8 @@
 		getScoreLetter,
 		requestSpeedScores,
 		didScoresChange,
-		scoreChangeModal,
-		ScoreChangeMessage,
-	} from '../../../api/speed-scores';
+	} from '@automattic/jetpack-boost-score-api';
+	import { scoreChangeModal, ScoreChangeMessage } from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import { criticalCssState, isGenerating } from '../../../stores/critical-css-state';
@@ -64,7 +63,12 @@
 		loadError = undefined;
 
 		try {
-			scores = await requestSpeedScores( force );
+			scores = await requestSpeedScores(
+				force,
+				wpApiSettings.root,
+				Jetpack_Boost.site.url,
+				wpApiSettings.nonce
+			);
 			scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
 			showPrevScores = didScoresChange( scores ) && ! scores.isStale;
 		} catch ( err ) {

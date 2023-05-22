@@ -20,6 +20,7 @@
 	"devDependencies": {
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-image-guide": "workspace:*",
+		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@babel/core": "7.21.5",
 		"@babel/preset-env": "7.21.5",
 		"@babel/preset-react": "7.18.6",
