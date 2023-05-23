@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Added a failsafe check for error codes
