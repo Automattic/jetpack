@@ -3271,8 +3271,8 @@ function wp_cron_preload_cache() {
 						$dir = get_supercache_dir() . $url_info[ 'path' ];
 						wp_cache_debug( "wp_cron_preload_cache: delete $dir", 5 );
 						wpsc_delete_files( $dir );
-						prune_super_cache( $dir . 'feed/', true );
-						prune_super_cache( $dir . 'page/', true );
+						prune_super_cache( trailingslashit( $dir ) . 'feed/', true );
+						prune_super_cache( trailingslashit( $dir ) . 'page/', true );
 						$fp = @fopen( $permalink_counter_msg, 'w' );
 						if ( $fp ) {
 							@fwrite( $fp, "$taxonomy: $url" );
