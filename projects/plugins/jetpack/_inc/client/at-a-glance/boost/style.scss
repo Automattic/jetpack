@@ -1,0 +1,73 @@
+@import '../../scss/calypso-colors.scss';
+
+$border: 1px solid $gray-5;
+
+.dash-boost-speed-score {
+    background-color: $white;
+    border: $border;
+    color: $gray-80;
+    border-radius: 0.25rem;
+
+    .dops-card {
+        margin-bottom: 0;
+    }
+
+    .dops-banner__title {
+        line-height: 1.57;
+        color: $gray-80;
+    }
+
+    .jb-score-bar {
+        margin: 0;
+    }
+
+    .jb-score-bar__label {
+        background-color: $gray-0;
+    }
+
+    .jb-score-bar__filler.fill-loading {
+        background-color: $gray-0;
+    }
+
+    .warning {
+        color: $orange-warning;
+    }
+
+    &__score-bars,
+    &__summary {
+        border-bottom: $border;
+    }
+
+    &__summary {
+        display: flex;
+        justify-content: space-between;
+        
+        padding: 1rem;
+    }
+
+    &__score-text {
+        margin: 0;
+        line-height: 1.57;
+        font-size: 0.875rem;
+    }
+
+    &__last-tested {
+        color: $gray-30;
+    }
+
+    &__summary-grade {
+        display: block;
+        font-weight: bold;
+        font-size: 1.125rem;
+        line-height: 1.17;
+        margin-bottom: 0.25rem;
+    }
+
+    &__score-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        padding: 1.5rem 1rem;
+    }
+}
