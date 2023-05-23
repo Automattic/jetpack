@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e45759416956464874d4acc573873615",
+    "content-hash": "6e30fa5d15e84d7d1b6ebc2f896c929c",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -208,20 +208,20 @@
         },
         {
             "name": "automattic/jetpack-mu-wpcom",
-            "version": "v2.2.0",
+            "version": "v2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-mu-wpcom.git",
-                "reference": "e812cc563eb4828521ab022984db319477417ad8"
+                "reference": "ee429783e2c7c9109fd64ea34671f1c6b9e507d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/e812cc563eb4828521ab022984db319477417ad8",
-                "reference": "e812cc563eb4828521ab022984db319477417ad8",
+                "url": "https://api.github.com/repos/Automattic/jetpack-mu-wpcom/zipball/ee429783e2c7c9109fd64ea34671f1c6b9e507d5",
+                "reference": "ee429783e2c7c9109fd64ea34671f1c6b9e507d5",
                 "shasum": ""
             },
             "require-dev": {
-                "automattic/jetpack-changelogger": "^3.3.3",
+                "automattic/jetpack-changelogger": "^3.3.4",
                 "automattic/wordbless": "0.4.2",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
@@ -254,9 +254,9 @@
             ],
             "description": "Enhances your site with features powered by WordPress.com",
             "support": {
-                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v2.2.0"
+                "source": "https://github.com/Automattic/jetpack-mu-wpcom/tree/v2.2.1"
             },
-            "time": "2023-05-12T20:12:08+00:00"
+            "time": "2023-05-22T14:27:46+00:00"
         },
         {
             "name": "automattic/jetpack-post-list",
