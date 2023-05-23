@@ -6,6 +6,7 @@
         "attributes": {
             "postLayout": "list",
             "displayDate": false,
+            "displayAuthor": false,
             "displayThumbnails": true,
             "displayContext": true,
             "postsToShow": 4
