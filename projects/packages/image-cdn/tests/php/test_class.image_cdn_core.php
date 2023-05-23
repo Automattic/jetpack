@@ -57,12 +57,12 @@ class WP_Test_Image_CDN_Core extends BaseTestCase {
 	 * @since $$next-version$$
 	 */
 	public function test_photon_url_with_query_parameters() {
-		add_filter( 'jetpack_photon_add_query_string_to_domain', '__return_true' );
 		$args = array(
 			'a' => 2,
 			'b' => 3,
 		);
 
+		add_filter( 'jetpack_photon_add_query_string_to_domain', '__return_true' );
 		$url = Image_CDN_Core::cdn_url( 'https://example.com/images/photon.jpg?t=1', $args );
 		remove_filter( 'jetpack_photon_add_query_string_to_domain', '__return_true' );
 
