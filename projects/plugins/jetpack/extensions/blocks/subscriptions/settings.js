@@ -81,6 +81,10 @@ export function NewsletterNotice( {
 	showMisconfigurationWarning,
 	isPostPublishPanel = false,
 } ) {
+	const hasPostBeenPublished = useSelect( select =>
+		select( 'core/editor' ).isCurrentPostPublished()
+	);
+
 	// Get the reach count for the access level
 	let reachCount = getReachForAccessLevelKey(
 		accessLevel,
@@ -127,7 +131,7 @@ export function NewsletterNotice( {
 		reachCount
 	);
 
-	if ( isPostPublishPanel ) {
+	if ( isPostPublishPanel || hasPostBeenPublished ) {
 		numberOfSubscribersText = sprintf(
 			/* translators: %s is the number of subscribers in numerical format */
 			__( 'This was sent to <strong>%s subscribers</strong>.', 'jetpack' ),
