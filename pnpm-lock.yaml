@@ -2705,6 +2705,9 @@ importers:
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../../js-packages/api
+      '@automattic/jetpack-boost-score-api':
+        specifier: workspace:*
+        version: link:../../js-packages/boost-score-api
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
