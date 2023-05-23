@@ -142,52 +142,52 @@ const DashBoost = ( {
 	return (
 		<div className="dash-boost-speed-score">
 			{ shouldShowScoreBars ? (
-				<div className="dash-boost-speed-score__summary">
-					<div>
-						<span className="dash-boost-speed-score__summary-grade">
-							{ sprintf(
-								// translators: %s is the letter grade of the site's speed performance.
-								__( 'Your site’s speed performance score: %s', 'jetpack' ),
-								speedLetterGrade
-							) }
-						</span>
+				<>
+					<div className="dash-boost-speed-score__summary">
+						<div>
+							<span className="dash-boost-speed-score__summary-grade">
+								{ sprintf(
+									// translators: %s is the letter grade of the site's speed performance.
+									__( 'Your site’s speed performance score: %s', 'jetpack' ),
+									speedLetterGrade
+								) }
+							</span>
 
-						<p
-							className={ classnames(
-								'dash-boost-speed-score__score-text',
-								[ 'C', 'D', 'F' ].includes( speedLetterGrade ) ? 'warning' : ''
-							) }
-						>
-							{ getSpeedScoreText() }
-						</p>
+							<p
+								className={ classnames(
+									'dash-boost-speed-score__score-text',
+									[ 'C', 'D', 'F' ].includes( speedLetterGrade ) ? 'warning' : ''
+								) }
+							>
+								{ getSpeedScoreText() }
+							</p>
+						</div>
+
+						<div>
+							<p className="dash-boost-speed-score__last-tested">{ getSinceTestedText() }</p>
+						</div>
 					</div>
 
-					<div>
-						<p className="dash-boost-speed-score__last-tested">{ getSinceTestedText() }</p>
+					<div className="dash-boost-speed-score__score-bars">
+						<BoostScoreBar
+							score={ mobileSpeedScore }
+							active={ true }
+							isLoading={ isLoading }
+							showPrevScores={ false }
+							scoreBarType="mobile"
+						/>
+
+						<BoostScoreBar
+							score={ desktopSpeedScore }
+							active={ true }
+							isLoading={ isLoading }
+							showPrevScores={ false }
+							scoreBarType="desktop"
+						/>
 					</div>
-				</div>
+				</>
 			) : (
 				<SectionHeader className="dash-boost-speed-score__section-header" label={ pluginName } />
-			) }
-
-			{ shouldShowScoreBars && (
-				<div className="dash-boost-speed-score__score-bars">
-					<BoostScoreBar
-						score={ mobileSpeedScore }
-						active={ true }
-						isLoading={ isLoading }
-						showPrevScores={ false }
-						scoreBarType="mobile"
-					/>
-
-					<BoostScoreBar
-						score={ desktopSpeedScore }
-						active={ true }
-						isLoading={ isLoading }
-						showPrevScores={ false }
-						scoreBarType="desktop"
-					/>
-				</div>
 			) }
 
 			<div>
