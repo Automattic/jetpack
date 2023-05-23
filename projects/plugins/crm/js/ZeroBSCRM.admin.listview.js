@@ -433,6 +433,7 @@ function zeroBSCRMJS_drawListView() {
 		if ( ! window.zbsListViewParams.retrieved ) {
 
 			// hide extras until listview is loaded
+			document.querySelector('.bulk-actions-dropdown').classList.add('hidden');
 			jQuery( 'jpcrm-listview-footer' ).hide();
 			jQuery( '#jpcrm-listview-totals-box' ).hide();
 
