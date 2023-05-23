@@ -167,7 +167,7 @@ const ToolbarControls = ( {
 
 					<ToolbarDropdownMenu
 						icon={ pencil }
-						label="More"
+						label={ __( 'Improve', 'jetpack' ) }
 						controls={ [
 							// Interactive controls
 							{
