@@ -355,18 +355,18 @@ function wpcom_register_default_launchpad_checklists() {
 	);
 
 	wpcom_register_launchpad_task_list(
-			array(
-					'id'       => 'design-first',
-					'title'    => 'Pick a Design',
-					'task_ids' => array(
-							'design_selected',
-							'setup_blog',
-							'domain_upsell',
-							'plan_completed',
-							'first_post_published',
-							'blog_launched',
-					),
-			)
+		array(
+			'id'       => 'design-first',
+			'title'    => 'Pick a Design',
+			'task_ids' => array(
+				'design_selected',
+				'setup_blog',
+				'domain_upsell',
+				'plan_completed',
+				'first_post_published',
+				'blog_launched',
+			),
+		)
 	);
 
 	// This is the hook that allows other plugins to register their own checklists.
