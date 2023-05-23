@@ -1,4 +1,5 @@
 @import '../../scss/calypso-colors.scss';
+@import '../../scss/mixin_breakpoint.scss';
 
 $border: 1px solid $gray-5;
 
@@ -21,12 +22,13 @@ $border: 1px solid $gray-5;
         margin: 0;
     }
 
-    .jb-score-bar__label {
-        background-color: $gray-0;
-    }
-
+    .jb-score-bar__label,
     .jb-score-bar__filler.fill-loading {
         background-color: $gray-0;
+
+        @include breakpoint( "<782px" ) {
+            background-color: $white;
+        }
     }
 
     .warning {
@@ -43,6 +45,10 @@ $border: 1px solid $gray-5;
         justify-content: space-between;
         
         padding: 1rem;
+
+        @include breakpoint( "<660px" ) {
+            flex-direction: column;
+        }
     }
 
     &__section-header {
