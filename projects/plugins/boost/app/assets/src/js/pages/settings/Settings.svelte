@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { derived } from 'svelte/store';
-	import ReRouter from '../../elements/ReRouter.svelte';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import config from '../../stores/config';
@@ -15,9 +14,13 @@
 	const shouldGetStarted = derived( [ config, connection ], ( [ $config, $connection ] ) => {
 		return $config.site.getStarted || ( ! $connection.connected && $config.site.online );
 	} );
+
+	$: if ( $shouldGetStarted ) {
+		window.location.href = './admin.php?page=my-jetpack#/add-boost';
+	}
 </script>
 
-<ReRouter to="/getting-started" when={$shouldGetStarted}>
+{#if ! $shouldGetStarted}
 	<div id="jb-dashboard" class="jb-dashboard jb-dashboard--main">
 		<Header />
 
@@ -38,4 +41,4 @@
 
 		<Footer />
 	</div>
-</ReRouter>
+{/if}

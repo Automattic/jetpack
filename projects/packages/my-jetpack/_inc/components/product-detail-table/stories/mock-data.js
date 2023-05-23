@@ -94,6 +94,36 @@ export const boostProductData = {
 			},
 		},
 		{
+			name: 'Image CDN',
+			info: {
+				content:
+					"Deliver images from Jetpack's Content Delivery Network. Automatically resizes your images to an appropriate size, converts them to modern efficient formats like WebP, and serves them from a worldwide network of servers.",
+			},
+			tiers: {
+				free: {
+					included: true,
+				},
+				upgraded: {
+					included: true,
+				},
+			},
+		},
+		{
+			name: 'Concatenate JS and CSS',
+			info: {
+				content:
+					'Boost your website performance by merging and compressing JavaScript and CSS files, reducing site loading time and number of requests.',
+			},
+			tiers: {
+				free: {
+					included: true,
+				},
+				upgraded: {
+					included: true,
+				},
+			},
+		},
+		{
 			name: 'Dedicated email support',
 			info: {
 				content: `<p>Paid customers get dedicated email support from our world-class Happiness Engineers to help with any issue.</p>

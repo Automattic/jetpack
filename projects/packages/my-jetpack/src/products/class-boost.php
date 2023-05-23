@@ -221,6 +221,19 @@ class Boost extends Product {
 				),
 			),
 			array(
+				'name'  => __( 'Concatenate JS and CSS', 'jetpack-my-jetpack' ),
+				'info'  => array(
+					'content' => __(
+						'Boost your website performance by merging and compressing JavaScript and CSS files, reducing site loading time and number of requests.',
+						'jetpack-my-jetpack'
+					),
+				),
+				'tiers' => array(
+					self::FREE_TIER_SLUG     => array( 'included' => true ),
+					self::UPGRADED_TIER_SLUG => array( 'included' => true ),
+				),
+			),
+			array(
 				'name'  => __( 'Dedicated email support', 'jetpack-my-jetpack' ),
 				'info'  => array(
 					'content' => __(
