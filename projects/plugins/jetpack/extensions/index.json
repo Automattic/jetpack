@@ -23,6 +23,7 @@
 		"payments",
 		"pinterest",
 		"podcast-player",
+		"premium-content",
 		"publicize",
 		"rating-star",
 		"recurring-payments",
@@ -61,7 +62,7 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters"
 	],
-	"experimental": [ "ai-assistant", "ai-image", "ai-paragraph", "anchor-fm", "premium-content" ],
+	"experimental": [ "ai-assistant", "ai-image", "ai-paragraph", "anchor-fm" ],
 	"no-post-editor": [
 		"business-hours",
 		"button",
