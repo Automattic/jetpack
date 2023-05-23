@@ -79,7 +79,7 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 		add_filter( 'pre_http_request', array( $this, 'return_sample_response' ) );
 
 		// Initialize the firewall.
-		$activated = Waf_Initializer::on_activation();
+		$activated = Waf_Initializer::on_waf_activation();
 
 		// Ensure the WAF was activated successfully.
 		$this->assertTrue( $activated );
@@ -106,7 +106,7 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 	 * Test WAF deactivation.
 	 */
 	public function testDeactivation() {
-		$deactivated = Waf_Initializer::on_deactivation();
+		$deactivated = Waf_Initializer::on_waf_deactivation();
 
 		// Ensure the WAF was deactivated successfully.
 		$this->assertTrue( $deactivated );
@@ -130,7 +130,7 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 		add_filter( 'filesystem_method', array( $this, 'return_invalid_filesystem_method' ) );
 
 		// Initialize the firewall.
-		$activated = Waf_Initializer::on_activation();
+		$activated = Waf_Initializer::on_waf_activation();
 
 		// Validate the error.
 		$this->assertTrue( is_wp_error( $activated ) );
@@ -149,7 +149,7 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 		add_filter( 'filesystem_method', array( $this, 'return_invalid_filesystem_method' ) );
 
 		// Deactivate the firewall.
-		$deactivated = Waf_Initializer::on_deactivation();
+		$deactivated = Waf_Initializer::on_waf_deactivation();
 
 		// Validate the error.
 		$this->assertTrue( is_wp_error( $deactivated ) );
@@ -167,7 +167,7 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 		add_filter( 'pre_http_request', array( $this, 'return_503_response' ) );
 
 		// Initialize the firewall.
-		$activated = Waf_Initializer::on_activation();
+		$activated = Waf_Initializer::on_waf_activation();
 
 		// Validate the error.
 		$this->assertTrue( is_wp_error( $activated ) );

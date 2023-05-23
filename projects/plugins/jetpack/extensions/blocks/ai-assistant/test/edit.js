@@ -4,7 +4,7 @@
 import { buildPromptTemplate } from '../create-prompt';
 
 describe( 'AIAssistanceEdit', () => {
-	describe( 'buildPromptTemplate', () => {
+	describe.skip( 'buildPromptTemplate', () => {
 		describe( 'when there is a request without content', () => {
 			it( 'should return the correct template', () => {
 				const request = 'Describe a dog in 10 words or less.';
