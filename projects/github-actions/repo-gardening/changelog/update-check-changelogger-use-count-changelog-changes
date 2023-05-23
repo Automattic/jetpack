@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Don't complain about missing a changelog entry if the changelog itself is being changed.

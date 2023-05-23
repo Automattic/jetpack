@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Sharing / Likes / Related Posts: do not display them in JSON requests available when using the ActivityPub plugin.
