@@ -404,13 +404,13 @@ EOT;
 			if ( ! empty( $block_context['link'] ) ) {
 				$context_tag = sprintf(
 					'<li class="jp-related-posts-i2__post-context"><a href="%1$s">%2$s</a></li>',
-					$block_context['link'],
-					$block_context['text']
+					esc_url( $block_context['link'] ),
+					esc_html( $block_context['text'] )
 				);
 			} else {
 				$context_tag = sprintf(
 					'<li class="jp-related-posts-i2__post-context">%1$s</li>',
-					$block_context['text']
+					esc_html( $block_context['text'] )
 				);
 			}
 			$item_markup .= $context_tag;
