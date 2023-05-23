@@ -225,7 +225,7 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
 	return affectedProjects.reduce( ( acc, project ) => {
 		const composerFile = `${ baseDir }/projects/${ project }/composer.json`;
 		const json = JSON.parse( fs.readFileSync( composerFile ) );
-		// Changelog directory could customized via .extra.changelogger.changes-dir in composer.json. Lets check for it.
+		// Changelog directory could be customized via .extra.changelogger.changes-dir in composer.json. Lets check for it.
 		const changelogDir =
 			path.relative(
 				baseDir,
@@ -235,7 +235,16 @@ async function getChangelogEntries( octokit, owner, repo, number ) {
 						'changelog'
 				)
 			) + '/';
-		const found = files.find( file => file.startsWith( changelogDir ) );
+		// Changelog file could also be customized via .extra.changelogger.changelog in composer.json. Lets check for it.
+		const changelogFile = path.relative(
+			baseDir,
+			path.resolve(
+				`${ baseDir }/projects/${ project }`,
+				( json.extra && json.extra.changelogger && json.extra.changelogger.changelog ) ||
+					'CHANGELOG.md'
+			)
+		);
+		const found = files.find( file => file === changelogFile || file.startsWith( changelogDir ) );
 		if ( ! found ) {
 			acc.push( `projects/${ project }` );
 		}

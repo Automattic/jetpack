@@ -1,10 +1,46 @@
 <script lang="ts">
 	import Spinner from '../../../elements/Spinner.svelte';
-	import { isaFilteredImages, isaDataLoading } from '../store/isa-data';
+	import { ISA_Data, isaData, isaDataLoading } from '../store/isa-data';
+	import { getPreloadingImages } from '../store/preloading-image';
 	import TableRow from './TableRow.svelte';
+	$: activeFilter = $isaData.query.group === 'ignored' ? 'ignored' : 'active';
+
+	let isLoading = false;
+	let ignoreStatusUpdated = false;
+	async function delayedLoadingUpdate( loading: boolean ) {
+		if ( ignoreStatusUpdated ) {
+			ignoreStatusUpdated = false;
+			return;
+		}
+		isLoading = loading;
+	}
+	$: delayedLoadingUpdate( $isaDataLoading );
+
+	const preloadingImages = getPreloadingImages( 10 );
+
+	function getActiveImages( images: ISA_Data[], loading: boolean ) {
+		// If the global store has no images right now, we're fetching them from wpcom
+		if ( images.length === 0 ) {
+			return preloadingImages;
+		}
+
+		// If the user is switching between tabs, we want to show the images that are already loaded
+		const filteredImages = images.filter( image => image.status === activeFilter );
+		if ( filteredImages.length === 0 && loading ) {
+			return images;
+		}
+
+		// Show filtered images
+		return filteredImages;
+	}
+
+	$: activeImages = getActiveImages( $isaData.data.images, isLoading );
 </script>
 
-<div class="jb-table" class:jb-loading={$isaDataLoading}>
+<div class="jb-loading-spinner" class:active={isLoading}>
+	<Spinner size="3rem" lineWidth="4px" />
+</div>
+<div class="jb-table" class:jb-loading={isLoading}>
 	<div class="jb-table-header recommendation-page-grid">
 		<div class="jb-table-header__image">Image</div>
 		<div class="jb-table-header__potential-size">Potential Size</div>
@@ -12,12 +48,28 @@
 		<div class="jb-table-header__page">Page/Post</div>
 	</div>
 
-	<div class="jb-loading-spinner">
-		<Spinner size="3rem" lineWidth="4px" />
-	</div>
-
-	{#each $isaFilteredImages as data (data.id)}
-		<TableRow {data} />
+	{#each activeImages as image (image.id)}
+		<TableRow
+			enableTransition={$isaData.data.images.length > 0}
+			title={image.image.url.split( '/' ).pop()}
+			image_url={image.image.url}
+			page_url={image.page.url}
+			weight={image.image.weight}
+			device_type={image.device_type}
+			page_title={image.page.title}
+			dimensions={image.image.dimensions}
+			edit_url={image.page.url}
+			instructions={image.instructions}
+			status={image.status}
+			on:clickIgnore={() => {
+				ignoreStatusUpdated = true;
+				isaData.update( store => {
+					const target = store.data.images.find( i => i.id === image.id );
+					target.status = target.status === 'ignored' ? 'active' : 'ignored';
+					return store;
+				} );
+			}}
+		/>
 	{/each}
 </div>
 
@@ -31,15 +83,15 @@
 		opacity: 0.2;
 		position: relative;
 	}
-	:not( .jb-loading ) .jb-loading-spinner {
-		display: none;
-	}
-	.jb-loading .jb-loading-spinner {
-		position: absolute;
-		top: 25%;
+	.jb-loading-spinner {
+		position: fixed;
+		top: 50%;
 		left: 50%;
 		transform: translate( -50%, -50% );
 		z-index: 9000;
+		&:not( .active ) {
+			display: none;
+		}
 	}
 	.jb-table-header {
 		font-size: 0.875rem;

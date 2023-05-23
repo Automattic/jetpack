@@ -14,7 +14,6 @@ const JWT_TOKEN_EXPIRATION_TIME = 2 * 60 * 1000;
  * @returns {string} The event source
  */
 export async function askJetpack( question ) {
-	let fullMessage;
 	let source;
 	try {
 		source = await askQuestion( question );
@@ -26,19 +25,8 @@ export async function askJetpack( question ) {
 		debug( 'Error', err );
 	} );
 
-	source.addEventListener( 'message', e => {
-		if ( e.data === '[DONE]' ) {
-			source.close();
-			debug( 'Done. Full message: ' + fullMessage );
-			return;
-		}
-
-		const data = JSON.parse( e.data );
-		const chunk = data.choices[ 0 ].delta.content;
-		if ( chunk ) {
-			fullMessage += chunk;
-			debug( chunk );
-		}
+	source.addEventListener( 'suggestion', e => {
+		debug( 'fullMessage', e );
 	} );
 	return source;
 }
@@ -46,22 +34,26 @@ export async function askJetpack( question ) {
 /**
  * Leaving this here to make it easier to debug the streaming API calls for now
  *
- * @param {string} question - The query to send to the API
- * @param {number} postId - The post where this completion is being requested, if available
+ * @param {string} question   - The query to send to the API
+ * @param {number} postId     - The post where this completion is being requested, if available
+ * @param {boolean} fromCache - Get a cached response. False by default.
  */
-export async function askQuestion( question, postId = null ) {
+export async function askQuestion( question, postId = null, fromCache = false ) {
 	const { token } = await requestToken();
 
 	const url = new URL( 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query' );
 	url.searchParams.append( 'question', question );
 	url.searchParams.append( 'token', token );
 
+	if ( fromCache ) {
+		url.searchParams.append( 'stream_cache', 'true' );
+	}
+
 	if ( postId ) {
 		url.searchParams.append( 'post_id', postId );
 	}
 
-	const source = new EventSource( url.toString() );
-	return source;
+	return new SuggestionsEventSource( url.toString() );
 }
 
 /**
@@ -126,4 +118,68 @@ export async function requestToken() {
 	localStorage.setItem( JWT_TOKEN_ID, JSON.stringify( newTokenData ) );
 
 	return newTokenData;
+}
+
+/**
+ * SuggestionsEventSource is a wrapper around EventSource that emits
+ * a 'chunk' event for each chunk of data received, and a 'done' event
+ * when the stream is closed.
+ * It also emits a 'suggestion' event with the full suggestion received so far
+ *
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/EventSource
+ * @param {string} url - The URL to connect to
+ * @param {object} options - Options to pass to EventSource
+ * @returns {EventSource} The event source
+ * @fires suggestion - The full suggestion has been received so far
+ * @fires message - A message has been received
+ * @fires chunk - A chunk of data has been received
+ * @fires done - The stream has been closed. No more data will be received
+ * @fires error - An error has occurred
+ */
+export class SuggestionsEventSource extends EventSource {
+	constructor( url, options ) {
+		super( url, options );
+		this.fullMessage = '';
+		this.isPromptClear = false;
+		this.addEventListener( 'message', this.processEvent );
+	}
+
+	checkForUnclearPrompt() {
+		if ( ! this.isPromptClear ) {
+			// Sometimes the first token of the message is not received, so we check only for JETPACK_AI_ERROR, ignoring the first underscores
+			if ( this.fullMessage.replace( '__', '' ).startsWith( 'JETPACK_AI_ERROR' ) ) {
+				// The unclear prompt marker was found, so we dispatch an error event
+				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
+			} else if ( 'JETPACK_AI_ERROR'.startsWith( this.fullMessage.replace( '__', '' ) ) ) {
+				// Partial unclear prompt marker was found, so we wait for more data and print a debug message without dispatching an event
+				debug( this.fullMessage );
+			} else {
+				// Mark the prompt as clear
+				this.isPromptClear = true;
+			}
+		}
+	}
+
+	processEvent( e ) {
+		if ( e.data === '[DONE]' ) {
+			// Dispatch an event with the full content
+			this.dispatchEvent( new CustomEvent( 'done', { detail: this.fullMessage } ) );
+			debug( 'Done. Full message: ' + this.fullMessage );
+			return;
+		}
+
+		const data = JSON.parse( e.data );
+		const chunk = data.choices[ 0 ].delta.content;
+		if ( chunk ) {
+			this.fullMessage += chunk;
+			this.checkForUnclearPrompt();
+
+			if ( this.isPromptClear ) {
+				// Dispatch an event with the chunk
+				this.dispatchEvent( new CustomEvent( 'chunk', { detail: chunk } ) );
+				// Dispatch an event with the full message
+				this.dispatchEvent( new CustomEvent( 'suggestion', { detail: this.fullMessage } ) );
+			}
+		}
+	}
 }

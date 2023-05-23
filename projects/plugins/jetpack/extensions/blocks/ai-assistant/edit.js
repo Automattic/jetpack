@@ -8,6 +8,7 @@ import { Flex, FlexBlock, Modal, Notice } from '@wordpress/components';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { RawHTML, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import classNames from 'classnames';
 import MarkdownIt from 'markdown-it';
 import { useEffect } from 'react';
 /**
@@ -26,7 +27,6 @@ const markdownConverter = new MarkdownIt( {
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
 	const [ errorMessage, setErrorMessage ] = useState( false );
-	const [ aiType, setAiType ] = useState( 'text' );
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
 	const [ imageModal, setImageModal ] = useState( null );
@@ -47,6 +47,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	const {
 		isLoadingCategories,
 		isLoadingCompletion,
+		wasCompletionJustRequested,
 		getSuggestionFromOpenAI,
 		showRetry,
 		contentBefore,
@@ -56,7 +57,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	} = useSuggestionsFromOpenAI( {
 		clientId,
 		content: attributes.content,
-		setAttributes,
 		setErrorMessage,
 		tracks,
 		userPrompt,
@@ -132,14 +132,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleGetSuggestion = type => {
-		if ( aiType === 'text' ) {
-			getSuggestionFromOpenAI( type );
-			return;
-		}
+		getSuggestionFromOpenAI( type );
+		return;
+	};
 
-		setLoadingImages( false );
+	const handleImageRequest = () => {
 		setResultImages( [] );
 		setErrorMessage( null );
+
 		getImagesFromOpenAI(
 			userPrompt.trim() === '' ? __( 'What would you like to see?', 'jetpack' ) : userPrompt,
 			setAttributes,
@@ -148,13 +148,18 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 			setErrorMessage,
 			postId
 		);
+
 		tracks.recordEvent( 'jetpack_ai_dalle_generation', {
 			post_id: postId,
 		} );
 	};
 
 	return (
-		<div { ...useBlockProps() }>
+		<div
+			{ ...useBlockProps( {
+				className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
+			} ) }
+		>
 			{ errorMessage && ! errorDismissed && (
 				<Notice status="info" isDismissible={ false } className="jetpack-ai-assistant__error">
 					{ errorMessage }
@@ -168,7 +173,6 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				</>
 			) }
 			<AIControl
-				aiType={ aiType }
 				content={ attributes.content }
 				contentIsLoaded={ contentIsLoaded }
 				getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
@@ -176,11 +180,11 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				handleAcceptContent={ handleAcceptContent }
 				handleAcceptTitle={ handleAcceptTitle }
 				handleGetSuggestion={ handleGetSuggestion }
+				handleImageRequest={ handleImageRequest }
 				handleTryAgain={ handleTryAgain }
 				isWaitingState={ isWaitingState }
 				loadingImages={ loadingImages }
 				showRetry={ showRetry }
-				setAiType={ setAiType }
 				setUserPrompt={ setUserPrompt }
 				contentBefore={ contentBefore }
 				postTitle={ postTitle }

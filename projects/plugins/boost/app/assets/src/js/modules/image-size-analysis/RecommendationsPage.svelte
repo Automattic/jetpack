@@ -1,20 +1,12 @@
 <script lang="ts">
-	import { useParams } from 'svelte-navigator';
 	import Footer from '../../sections/Footer.svelte';
 	import Header from '../../sections/Header.svelte';
 	import Hero from './recommendations/Hero.svelte';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
 	import Tabs from './recommendations/Tabs.svelte';
-	import { isaData } from './store/isa-data';
-
-	const params = useParams();
-	$: $isaData.query = {
-		group: $params.group,
-		page: parseInt( $params.page ),
-		// Reset the search query when the page changes.
-		search: '',
-	};
+	import { initializeIsaData } from './store/isa-data';
+	initializeIsaData();
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">

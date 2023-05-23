@@ -11,9 +11,9 @@
  //wrap all in our page bodyclass so to not clash anywhere else. Is also only enqueue on that one page
 
 .admin_page_zerobscrm-plugin{
-    #zbs-hide-main-menu{
-    display:none;
-    }
+	jpcrm-top-menu {
+		display:none;
+	}
     .top-bar-welcome{
     height:5px;
     background: #17b0fb;
