@@ -39,7 +39,7 @@
 	
 	.jetpack-ai-assistant__input-icon {
 		// Brand green regardless of theme
-		color: #069E08; // jp-green-40
+		color: var( --jp-green-40 );
 	}
 	
 	.jetpack-ai-assistant__input-loader-icon {
