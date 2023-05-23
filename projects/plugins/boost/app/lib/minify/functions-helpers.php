@@ -198,6 +198,12 @@ function jetpack_boost_page_optimize_bail() {
 function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 	static $dependency_path_mapping;
 
+	// Absolute paths should dump the path component of siteurl.
+	if ( substr( $path, 0, 1 ) === '/' ) {
+		$parts   = wp_parse_url( $siteurl );
+		$siteurl = $parts['scheme'] . '://' . $parts['host'];
+	}
+
 	$url = $siteurl . $path;
 
 	if ( strpos( $url, '?m=' ) ) {

@@ -65,11 +65,15 @@ if ( ! defined( 'JETPACK_BOOST_PLUGINS_DIR_URL' ) ) {
  */
 // Potential improvement: Make concat URL dir configurable
 // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-if ( isset( $_SERVER['REQUEST_URI'] ) && '/_static/' === substr( wp_unslash( $_SERVER['REQUEST_URI'] ), 0, 9 ) ) {
-	define( 'JETPACK_BOOST_CONCAT_USE_WP', true );
+if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];
+	if ( '/_static/' === substr( $request_path, -9, 9 ) ) {
+		define( 'JETPACK_BOOST_CONCAT_USE_WP', true );
 
-	require_once JETPACK_BOOST_DIR_PATH . '/serve-minified-content.php';
-	exit;
+		require_once JETPACK_BOOST_DIR_PATH . '/serve-minified-content.php';
+		exit;
+	}
 }
 
 /**
