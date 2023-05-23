@@ -15,8 +15,19 @@
 	margin: 10px;
 }
 
+.wp-block-jetpack-ai-assistant {
+	.jetpack-ai-assistant__content {
+		opacity: 1;
+		transition: opacity 0.2s ease-in-out;
+	}
+	&.is-waiting-response .jetpack-ai-assistant__content {
+		opacity: 0.5;
+	}
+}
+
 .jetpack-ai-assistant__error {
 	margin: 0 0 8px 0;
+	color: var( --wp--preset--color--black );
 }
 
 .jetpack-ai-assistant__loading-spinner {
@@ -27,7 +38,7 @@
 .jetpack-ai-assistant__input-wrapper {
 	display: flex;
 	padding: 4px 4px;
-	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 3px 6px, var( --wp--preset--color--cyan-bluish-gray ) 0px 9px 24px;
+	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 8px;
 
 	textarea {
 		width: 100%;
@@ -45,6 +56,8 @@
 		&::placeholder {
 			text-overflow:ellipsis;
 			white-space: nowrap;
+			color: var( --wp--preset--color--foreground );
+			opacity: 0.75;
 		}
 	}
 
@@ -64,6 +77,14 @@
 .jetpack-ai-assistant__controls {
 	display: flex;
 	align-items: center;
+
+	.jetpack-ai-assistant__prompt_button {
+		color: var( --wp--preset--color--foreground );
+
+		&:hover {
+			color: var( --wp-components-color-accent, var( --wp-admin-theme-color ) );
+		}
+	}
 }
 
 .jetpack-ai-assistant__accept {
