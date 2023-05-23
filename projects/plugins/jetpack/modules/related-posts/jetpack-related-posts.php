@@ -1698,7 +1698,7 @@ EOT;
 	protected function generate_related_post_display_author( $post_id ) {
 		$post_author         = get_post_field( 'post_author', $post_id );
 		$author_display_name = get_the_author_meta( 'display_name', $post_author );
-		if ( isset( $author_display_name ) && ! empty( $author_display_name ) ) {
+		if ( ! empty( $author_display_name ) ) {
 			return $author_display_name;
 		}
 		return '';
