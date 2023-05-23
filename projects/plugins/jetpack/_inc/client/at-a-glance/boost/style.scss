@@ -45,6 +45,11 @@ $border: 1px solid $gray-5;
         padding: 1rem;
     }
 
+    &__section-header {
+        width: 100%;
+        margin-bottom: 0;
+    }
+
     &__score-text {
         margin: 0;
         line-height: 1.57;

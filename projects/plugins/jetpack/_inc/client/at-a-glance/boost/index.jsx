@@ -8,6 +8,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
 import PluginInstallSection from 'components/plugin-install-section';
+import SectionHeader from 'components/section-header';
 import PropTypes from 'prop-types';
 import { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
@@ -61,10 +62,6 @@ const DashBoost = ( {
 		getSpeedScores();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
-
-	if ( ( isBoostInstalled && isBoostActive ) || fetchingPluginsData ) {
-		return null;
-	}
 
 	const getSpeedScoreText = () => {
 		switch ( speedLetterGrade ) {
@@ -130,66 +127,72 @@ const DashBoost = ( {
 		}
 	};
 
+	// Don't show score bars until we know if they already have boost install, the site is online, and we have the scores.
+	const shouldShowScoreBars =
+		( ! isBoostActive || ! isBoostInstalled ) &&
+		! isSiteOffline &&
+		! isLoading &&
+		! fetchingPluginsData;
+	const pluginName = _x(
+		'Boost',
+		'The Jetpack Boost product name, without the Jetpack prefix',
+		'jetpack'
+	);
+
 	return (
 		<div className="dash-boost-speed-score">
-			<div className="dash-boost-speed-score__summary">
-				<div>
-					{ isLoading ? (
-						<>
-							<span className="dash-boost-speed-score__summary-grade">
-								{ sprintf(
-									// translators: %s is the letter grade of the site's speed performance.
-									__( 'Your site’s speed performance score: %s', 'jetpack' ),
-									speedLetterGrade
-								) }
-							</span>
-
-							<p
-								className={ classnames(
-									'dash-boost-speed-score__score-text',
-									[ 'C', 'D', 'F' ].includes( speedLetterGrade ) ? 'warning' : ''
-								) }
-							>
-								{ getSpeedScoreText() }
-							</p>
-						</>
-					) : (
+			{ shouldShowScoreBars ? (
+				<div className="dash-boost-speed-score__summary">
+					<div>
 						<span className="dash-boost-speed-score__summary-grade">
-							{ __( 'Loading…', 'jetpack' ) }
+							{ sprintf(
+								// translators: %s is the letter grade of the site's speed performance.
+								__( 'Your site’s speed performance score: %s', 'jetpack' ),
+								speedLetterGrade
+							) }
 						</span>
-					) }
+
+						<p
+							className={ classnames(
+								'dash-boost-speed-score__score-text',
+								[ 'C', 'D', 'F' ].includes( speedLetterGrade ) ? 'warning' : ''
+							) }
+						>
+							{ getSpeedScoreText() }
+						</p>
+					</div>
+
+					<div>
+						<p className="dash-boost-speed-score__last-tested">{ getSinceTestedText() }</p>
+					</div>
 				</div>
+			) : (
+				<SectionHeader className="dash-boost-speed-score__section-header" label={ pluginName } />
+			) }
 
-				<div>
-					<p className="dash-boost-speed-score__last-tested">{ getSinceTestedText() }</p>
+			{ shouldShowScoreBars && (
+				<div className="dash-boost-speed-score__score-bars">
+					<BoostScoreBar
+						score={ mobileSpeedScore }
+						active={ true }
+						isLoading={ isLoading }
+						showPrevScores={ false }
+						scoreBarType="mobile"
+					/>
+
+					<BoostScoreBar
+						score={ desktopSpeedScore }
+						active={ true }
+						isLoading={ isLoading }
+						showPrevScores={ false }
+						scoreBarType="desktop"
+					/>
 				</div>
-			</div>
-
-			<div className="dash-boost-speed-score__score-bars">
-				<BoostScoreBar
-					score={ mobileSpeedScore }
-					active={ true }
-					isLoading={ isLoading }
-					showPrevScores={ false }
-					scoreBarType="mobile"
-				/>
-
-				<BoostScoreBar
-					score={ desktopSpeedScore }
-					active={ true }
-					isLoading={ isLoading }
-					showPrevScores={ false }
-					scoreBarType="desktop"
-				/>
-			</div>
+			) }
 
 			<div>
 				<PluginInstallSection
-					pluginName={ _x(
-						'Boost',
-						'The Jetpack Boost product name, without the Jetpack prefix',
-						'jetpack'
-					) }
+					pluginName={ pluginName }
 					pluginSlug={ BOOST_PLUGIN_SLUG }
 					pluginFiles={ BOOST_PLUGIN_FILES }
 					pluginLink={ siteAdminUrl + BOOST_PLUGIN_DASH }
