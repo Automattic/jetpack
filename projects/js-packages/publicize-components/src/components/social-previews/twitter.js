@@ -9,8 +9,8 @@ import React from 'react';
  * @param {object[]} props.tweets - The tweets.
  * @returns {React.ReactNode} The twitter tab component.
  */
-export function Twitter( { tweets } ) {
-	return <TwitterPreviews tweets={ tweets } />;
+function Twitter( { tweets } ) {
+	return <TwitterPreviews tweets={ tweets } hidePostPreview />;
 }
 
 export default withSelect( ( select, { title, description, image, url, media } ) => {

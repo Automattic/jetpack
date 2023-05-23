@@ -103,16 +103,26 @@ export default withSelect( select => {
 				alt: '',
 			} );
 		} else {
-			for ( const { id } of attachedMedia ) {
+			const getMediaDetails = id => {
 				const mediaItem = getMedia( id );
-
-				if ( mediaItem ) {
-					media.push( {
-						type: mediaItem.mime_type,
-						url: getMediaSourceUrl( mediaItem ),
-						alt: mediaItem.alt_text,
-					} );
+				if ( ! mediaItem ) {
+					return null;
 				}
+				return {
+					type: mediaItem.mime_type,
+					url: getMediaSourceUrl( mediaItem ),
+					alt: mediaItem.alt_text,
+				};
+			};
+
+			for ( const { id } of attachedMedia ) {
+				const mediaDetails = getMediaDetails( id );
+				if ( mediaDetails ) {
+					media.push( mediaDetails );
+				}
+			}
+			if ( 0 === media.length && featuredImageId ) {
+				media.push( getMediaDetails( featuredImageId ) );
 			}
 		}
 	}
