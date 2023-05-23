@@ -167,7 +167,7 @@ const ToolbarControls = ( {
 
 					<ToolbarDropdownMenu
 						icon={ pencil }
-						label="More"
+						label={ __( 'Improve', 'jetpack' ) }
 						controls={ [
 							// Interactive controls
 							{
@@ -245,7 +245,7 @@ const ToolbarControls = ( {
 					{ ! showRetry && ! contentIsLoaded && (
 						<ToolbarDropdownMenu
 							icon={ chevronDown }
-							label="More"
+							label={ __( 'Generate and improve', 'jetpack' ) }
 							controls={ [
 								{
 									title: __( 'Summarize', 'jetpack' ),
