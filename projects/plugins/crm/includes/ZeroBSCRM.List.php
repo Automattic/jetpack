@@ -207,8 +207,6 @@ class zeroBSCRM_list{
         #} Refresh 2
         ?>
 
-
-        <div class="zbs-semantic wrap">
             <!-- title + edit ico -->
 
             <!-- col editor -->
@@ -399,52 +397,49 @@ class zeroBSCRM_list{
 
             </div>
 
-				<div id="zbs-list-wrap">
-
-					<div class="jpcrm-listview">
-						<?php
-						// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-						$this->draw_listview_header( $listViewFilters );
-						?>
-						<div class="jpcrm-listview-table-container">
-							<!-- Drawn by Javascript -->
-						</div>
-						<?php $this->draw_listview_footer(); ?>
-						<div id="zbs-list-warnings-wrap">
-							<?php
-							// Preloaded error messages
-							// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.WP.I18n.MissingTranslatorsComment,WordPress.WP.I18n.UnorderedPlaceholdersText
-							echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error retrieving %s', 'zero-bs-crm' ), $this->plural ), sprintf( __( 'There has been a problem retrieving your %s. If this issue persists, please contact support.', 'zero-bs-crm' ), $this->plural ), 'disabled warning sign', 'zbsCantLoadData' );
-							echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your column configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveCols' );
-							echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your filter button configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveButtons' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-							echo zeroBSCRM_UI2_messageHTML( 'info hidden', sprintf( __( 'No %s Found', 'zero-bs-crm' ), $this->plural ), sprintf( __( 'There are no %s here. Do you want to <a href="%s">create one</a>?', 'zero-bs-crm' ), $this->plural, jpcrm_esc_link( 'create', -1, $this->postType ) ), 'disabled warning sign', 'zbsNoResults' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-
-							// any additional messages?
-							if ( isset( $this->messages ) && is_array( $this->messages ) && count( $this->messages ) > 0 ) {
-								foreach ( $this->messages as $message ) {
-									// $message needs to match this func :)
-									echo zeroBSCRM_UI2_messageHTML( $message[0], $message[1], $message[2], $message[3], $message[4] );
-								}
-							}
-							// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.WP.I18n.MissingTranslatorsComment,WordPress.WP.I18n.UnorderedPlaceholdersText
-							?>
-						</div>
-					</div>
+			<div class="jpcrm-listview">
+				<?php
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$this->draw_listview_header( $listViewFilters );
+				?>
+				<div class="jpcrm-listview-table-container">
+					<!-- Drawn by Javascript -->
+				</div>
+				<?php $this->draw_listview_footer(); ?>
+				<div id="zbs-list-warnings-wrap">
 					<?php
+					// Preloaded error messages
+					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.WP.I18n.MissingTranslatorsComment,WordPress.WP.I18n.UnorderedPlaceholdersText
+					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error retrieving %s', 'zero-bs-crm' ), $this->plural ), sprintf( __( 'There has been a problem retrieving your %s. If this issue persists, please contact support.', 'zero-bs-crm' ), $this->plural ), 'disabled warning sign', 'zbsCantLoadData' );
+					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your column configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveCols' );
+					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your filter button configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveButtons' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					echo zeroBSCRM_UI2_messageHTML( 'info hidden', sprintf( __( 'No %s Found', 'zero-bs-crm' ), $this->plural ), sprintf( __( 'There are no %s here. Do you want to <a href="%s">create one</a>?', 'zero-bs-crm' ), $this->plural, jpcrm_esc_link( 'create', -1, $this->postType ) ), 'disabled warning sign', 'zbsNoResults' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-					// if totals, show the wrapper
-					if ( $zbs->settings->get( 'show_totals_table' ) === 1 ) {
-						?>
-						<div id="jpcrm-listview-totals-box"></div>
-						<?php
+					// any additional messages?
+					if ( isset( $this->messages ) && is_array( $this->messages ) && count( $this->messages ) > 0 ) {
+						foreach ( $this->messages as $message ) {
+							// $message needs to match this func :)
+							echo zeroBSCRM_UI2_messageHTML( $message[0], $message[1], $message[2], $message[3], $message[4] );
+						}
 					}
-					##WLREMOVE
-					// e.g. upsell boxes
-					echo $this->extraBoxes; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.Security.EscapeOutput.OutputNotEscaped
-					##/WLREMOVE
-
+					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.WP.I18n.MissingTranslatorsComment,WordPress.WP.I18n.UnorderedPlaceholdersText
 					?>
 				</div>
+			</div>
+			<?php
+
+			// if totals, show the wrapper
+			if ( $zbs->settings->get( 'show_totals_table' ) === 1 ) {
+				?>
+				<div id="jpcrm-listview-totals-box"></div>
+				<?php
+			}
+			##WLREMOVE
+			// e.g. upsell boxes
+			echo $this->extraBoxes; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.Security.EscapeOutput.OutputNotEscaped
+			##/WLREMOVE
+
+			?>
 
         <script type="text/javascript">
 					<?php
@@ -848,7 +843,6 @@ class zeroBSCRM_list{
 					// phpcs:enable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
 					?>
 
-        </div><!-- // .wrap -->
         <?php
 
     } // /draw func

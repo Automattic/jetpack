@@ -138,7 +138,7 @@
 }
 
 // avatar's fixed size 
-#zbs-list-wrap {
+.jpcrm-listview-table {
 
 	.zbs-co-img img, 
 	.name-and-avatar-list h4.ui.image.header img {
@@ -152,14 +152,6 @@
 	.name-and-avatar-list h4.ui.header {
 		   font-weight: normal;
 	}
-}
-// trans specific
-#zbs-list-wrap.zbs-list-view-transaction {
-
-	.name-and-avatar-list {
-		padding-top:1em;
-	}
-	
 }
 
 // err msg fix
@@ -188,12 +180,12 @@
 /* 
 		INLINE Editing
 */
-#zbs-list-wrap td.zbs-inline-edit:hover {
+.jpcrm-listview-table td.zbs-inline-edit:hover {
      border-bottom: 2px dashed #8bb7de;
      cursor:pointer;
 }
 // when editing:
-#zbs-list-wrap td.zbs-inline-editing {
+.jpcrm-listview-table td.zbs-inline-editing {
 	border-bottom: 2px dashed orange;
 	text-align: center;
 	padding-top: 0.6em;

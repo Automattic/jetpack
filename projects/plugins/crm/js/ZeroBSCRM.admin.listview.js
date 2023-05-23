@@ -5232,7 +5232,7 @@ function zeroBSCRMJS_logTypeStr( typeKey ) {
  *
  */
 function zeroBSCRMJS_bindInlineEditing() {
-	jQuery( '#zbs-list-wrap td.zbs-inline-edit' )
+	jQuery( '.jpcrm-listview-table td.zbs-inline-edit' )
 		.off( 'click' )
 		.on( 'click', function () {
 			// clicked on an edit
