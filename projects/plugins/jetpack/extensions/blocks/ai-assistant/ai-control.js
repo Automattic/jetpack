@@ -15,7 +15,8 @@ import { arrowRight, chevronDown, image, pencil, update, title } from '@wordpres
  * Internal dependencies
  */
 import I18nDropdownControl from './i18n-dropdown-control';
-import Loading from './loading';
+import AIAssistantIcon from './icons/ai-assistant';
+import LoadingIcon from './icons/loading';
 import ToneDropdownControl from './tone-dropdown-control';
 import UpgradePrompt from './upgrade-prompt';
 
@@ -85,7 +86,21 @@ const AIControl = ( {
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
-				{ ( isWaitingState || loadingImages ) && <Loading /> }
+				<div className="jetpack-ai-assistant__input-icon-wrapper">
+					{ isWaitingState || loadingImages ? (
+						<Icon
+							icon={ LoadingIcon }
+							size={ 24 }
+							className="jetpack-ai-assistant__input-loader-icon"
+						/>
+					) : (
+						<Icon
+							icon={ AIAssistantIcon }
+							size={ 24 }
+							className="jetpack-ai-assistant__input-icon"
+						/>
+					) }
+				</div>
 				<PlainText
 					value={ isWaitingState ? '' : userPrompt }
 					onChange={ value => {
