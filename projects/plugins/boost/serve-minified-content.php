@@ -17,7 +17,3 @@ require_once __DIR__ . '/app/lib/minify/functions-helpers.php';
 require_once __DIR__ . '/app/lib/minify/functions-service.php';
 
 jetpack_boost_page_optimize_service_request();
-
-// Todo:
-// replace all wp_filesystem calls with own
-// replace all wp_ calls with own
