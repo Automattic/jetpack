@@ -1757,6 +1757,15 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Check if Instagram connection is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_instagram_connection_feature() {
+		return Current_Plan::supports( 'social-instagram-connection' );
+	}
+
+	/**
 	 * Call the WPCOM REST API to calculate the scheduled shares.
 	 *
 	 * @param string $blog_id The blog_id.

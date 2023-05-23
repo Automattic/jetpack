@@ -6,6 +6,7 @@ const jetpackSettingSelectors = {
 	hasPaidPlan: state => ! ( state.jetpackSettings?.showNudge ?? true ),
 	hasAdvancedPlan: state => state.jetpackSettings?.hasAdvancedPlan,
 	getDismissedNotices: state => state.jetpackSettings?.dismissedNotices,
+	isInstagramConnectionSupported: state => state.jetpackSettings?.isInstagramConnectionSupported,
 };
 
 export default jetpackSettingSelectors;

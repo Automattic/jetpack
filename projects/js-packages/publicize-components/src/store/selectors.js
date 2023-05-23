@@ -1,3 +1,4 @@
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { select } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
@@ -610,4 +611,13 @@ export function shouldUploadAttachedMedia() {
  */
 export function getImageGeneratorPostSettings() {
 	return getJetpackSocialOptions()?.image_generator_settings ?? {};
+}
+
+/**
+ * Checks if the Instagram connection is supported.
+ *
+ * @returns {boolean} Whether the Instagram connection is supported
+ */
+export function isInstagramConnectionSupported() {
+	return !! getJetpackData()?.social?.isInstagramConnectionSupported;
 }

@@ -26,6 +26,7 @@ import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
 const CONNECTIONS_NEED_MEDIA = [ 'instagram' ];
+const PUBLICIZE_STORE_ID = 'jetpack/publicize';
 
 const checkConnectionCode = ( connection, code ) =>
 	false === connection.is_healthy && code === ( connection.error_code ?? 'broken' );
@@ -59,11 +60,15 @@ export default function PublicizeForm( {
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 	const { dismissedNotices, dismissNotice } = useDismissNotice();
 
+	const { isInstagramConnectionSupported } = useSelect( select => ( {
+		isInstagramConnectionSupported: select( PUBLICIZE_STORE_ID ).isInstagramConnectionSupported(),
+	} ) );
+
 	const hasInstagramConnection = connections.some(
 		connection => connection.service_name === 'instagram'
 	);
 	const [ shouldShowInstagramNotice, setShouldShowInstagramNotice ] = useState(
-		! hasInstagramConnection
+		! hasInstagramConnection && isInstagramConnectionSupported
 	);
 	const onDismissInstagramNotice = useCallback( () => {
 		dismissNotice( 'instagram' );

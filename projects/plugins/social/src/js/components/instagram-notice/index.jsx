@@ -24,20 +24,27 @@ const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
 	const [ showNotice, setShowNotice ] = useState( true );
 	const { dismissedNotices, dismissNotice } = useDismissNotice();
 
-	const { connectionsAdminUrl, hasAdvancedPlan } = useSelect( select => {
-		const store = select( STORE_ID );
-		return {
-			connectionsAdminUrl: store.getConnectionsAdminUrl(),
-			hasAdvancedPlan: store.hasAdvancedPlan(),
-		};
-	} );
+	const { connectionsAdminUrl, hasAdvancedPlan, isInstagramConnectionSupported } = useSelect(
+		select => {
+			const store = select( STORE_ID );
+			return {
+				connectionsAdminUrl: store.getConnectionsAdminUrl(),
+				hasAdvancedPlan: store.hasAdvancedPlan(),
+				isInstagramConnectionSupported: store.isInstagramConnectionSupported(),
+			};
+		}
+	);
 
 	const handleDismiss = useCallback( () => {
 		dismissNotice( 'instagram' );
 		setShowNotice( false );
 	}, [ dismissNotice, setShowNotice ] );
 
-	if ( ! showNotice || dismissedNotices.includes( 'instagram' ) ) {
+	if (
+		! showNotice ||
+		! isInstagramConnectionSupported ||
+		dismissedNotices.includes( 'instagram' )
+	) {
 		return null;
 	}
 

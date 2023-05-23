@@ -234,11 +234,12 @@ class Jetpack_Social {
 				$state,
 				array(
 					'jetpackSettings'              => array(
-						'publicize_active'  => self::is_publicize_active(),
-						'show_pricing_page' => self::should_show_pricing_page(),
-						'showNudge'         => ! $publicize->has_paid_plan( true ),
-						'hasAdvancedPlan'   => $publicize->has_advanced_plan(),
-						'dismissedNotices'  => $publicize->get_dismissed_notices(),
+						'publicize_active'               => self::is_publicize_active(),
+						'show_pricing_page'              => self::should_show_pricing_page(),
+						'showNudge'                      => ! $publicize->has_paid_plan( true ),
+						'hasAdvancedPlan'                => $publicize->has_advanced_plan(),
+						'dismissedNotices'               => $publicize->get_dismissed_notices(),
+						'isInstagramConnectionSupported' => $publicize->has_instagram_connection_feature(),
 					),
 					'connectionData'               => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
