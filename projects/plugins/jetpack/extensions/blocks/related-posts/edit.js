@@ -70,6 +70,7 @@ function PlaceholderPostEdit( props ) {
 function RelatedPostsEditItem( props ) {
 	const contextText = props.post?.block_context?.text || '';
 	const contextLink = props.post?.block_context?.link || '';
+	const contextHasText = contextText !== '';
 	const contextHasLink = contextLink !== '';
 	return (
 		<div
@@ -102,7 +103,7 @@ function RelatedPostsEditItem( props ) {
 					{ props.post.date }
 				</div>
 			) }
-			{ props.displayContext && (
+			{ props.displayContext && contextHasText && (
 				<div className="jp-related-posts-i2__post-context has-small-font-size">
 					{ contextHasLink && <a href={ contextLink }>{ contextText }</a> }
 					{ contextHasLink === false && contextText }
