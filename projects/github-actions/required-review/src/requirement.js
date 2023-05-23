@@ -7,6 +7,10 @@ const fetchTeamMembers = require( './team-members.js' );
 
 class RequirementError extends SError {}
 
+const outstandingTeams = new Set();
+
+let tempAnyOf = [];
+
 /**
  * Prints a result set, then returns it.
  *
@@ -23,6 +27,7 @@ function printSet( label, items ) {
  * Build a reviewer team membership filter.
  *
  * @param {object} config - Requirements configuration object being processed.
+ * @param {string} op - whether in an all or any of block
  * @param {Array|string|object} teamConfig - Team name, or single-key object with a list of teams/objects, or array of such.
  * @param {string} indent - String for indentation.
  * @returns {Function} Function to filter an array of reviewers by membership in the team(s).
@@ -33,10 +38,13 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 		return async function ( reviewers ) {
 			const members = await fetchTeamMembers( team );
 			const reviewSatisfied = reviewers.filter( reviewer => members.includes( reviewer ) );
-			const request = core.getInput('request-reviews')
-			if ( reviewSatisfied.length === 0 && request == 'true' ) {
-				await requestReview( team );
-			}
+			if ( reviewSatisfied.length === 0 ) {
+				if ( op == 'all-of' ) {
+					outstandingTeams.add(team)
+				} else {
+					tempAnyOf.push( team );
+				};
+			};
 			return printSet( `${ indent }Members of ${ team }:`, reviewSatisfied );
 		};
 	}
@@ -71,7 +79,7 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 					value: teamConfig,
 				} );
 			}
-			arg = arg.map( t => buildReviewerFilter( config, t, `${ indent }  ` ) );
+			arg = arg.map( t => buildReviewerFilter( config, op, t, `${ indent }  ` ) );
 			break;
 
 		default:
@@ -84,11 +92,15 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 	if ( op === 'any-of' ) {
 		return async function ( reviewers ) {
 			core.info( `${ indent }Union of these:` );
-			return printSet( `${ indent }=>`, [
-				...new Set(
-					( await Promise.all( arg.map( f => f( reviewers, `${ indent }  ` ) ) ) ).flat( 1 )
-				),
-			] );
+			anyOfReviews = new Set(
+				( await Promise.all( arg.map( f => f( reviewers, `${ indent }  ` ) ) ) ).flat( 1 )
+			);
+			if ( [ ...anyOfReviews ] == '' ) {
+				for ( var i = 0; i < tempAnyOf.length; i++ ) {
+					outstandingTeams.add( tempAnyOf[ i ] );
+				}
+			} else { tempAnyOf = [] }
+			return printSet( `${ indent }=>`, [ ...anyOfReviews, ] );
 		};
 	}
 
@@ -166,7 +178,7 @@ class Requirement {
 			);
 		}
 
-		this.reviewerFilter = buildReviewerFilter( config, { 'any-of': config.teams }, '  ' );
+		this.reviewerFilter = buildReviewerFilter( config, 'any-of', { 'any-of': config.teams }, '  ' );
 		this.consume = !! config.consume;
 	}
 
@@ -221,6 +233,15 @@ class Requirement {
 	async isSatisfied( reviewers ) {
 		core.info( 'Checking reviewers...' );
 		return ( await this.reviewerFilter( reviewers ) ).length > 0;
+	}
+
+	/**
+	 * returns the outstanding required teams
+	 *
+	 * @returns {Set} Set of required teams still outstanding
+	 */
+	async fetchOutstandingTeams() {
+		return [ ...outstandingTeams ].sort()
 	}
 }
 
