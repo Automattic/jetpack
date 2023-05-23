@@ -731,40 +731,18 @@
 
         }
 
+			// add segments to quickfilters if setting enabled
+			if ( zeroBSCRM_getSetting( 'filtersfromsegments' ) === 1 ) {
+				$segments = $zbs->DAL->segments->getSegments( -1, 100, 0, false, '', '', 'zbsseg_name', 'ASC' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-
-      // Auto-add segment filters DAL2 only
-      if ($zbs->isDAL2()){
-
-          // if setting on, append these :) - temp fix really :)
-          #} 2.17 - filters from status
-          if (zeroBSCRM_getSetting('filtersfromsegments') == "1"){
-
-              // get segments
-              if ($zbs->isDAL3())
-                $segments = $zbs->DAL->segments->getSegments(-1,100,0,false,'','','zbsseg_name','ASC');
-              else
-                $segments = $zbs->DAL->getSegments(-1,100,0,false,'','','zbsseg_name','ASC');
-
-
-              // add one for each :)
-              foreach ($segments as $s){
-
-                if (
-                    // if isn't already directly set
-                      !isset($zeroBSCRM_filterbuttons_customer['all']['segment_'.strtolower($s['slug'])])
-                    ) {
-
-                      // add it
-                      $zeroBSCRM_filterbuttons_customer['all']['segment_'.strtolower($s['slug'])] = array('<i class="pie chart icon"></i>'.$s['name']);
-
-                }
-              }
-
-          }
-
-      } // quickfilters for segments - dal2 only
-
+				// add one for each :)
+				foreach ( $segments as $s ) {
+					// add if it doesn't already exist
+					if ( ! isset( $zeroBSCRM_filterbuttons_customer['all'][ 'segment_' . strtolower( $s['slug'] ) ] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$zeroBSCRM_filterbuttons_customer['all'][ 'segment_' . strtolower( $s['slug'] ) ] = array( $s['name'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					}
+				}
+			}
 
       // ALL FIELD TYPES
       global $zeroBSCRM_columns_customer, $zbsCustomerFields;

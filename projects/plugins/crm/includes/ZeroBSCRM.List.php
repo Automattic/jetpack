@@ -111,13 +111,9 @@ class zeroBSCRM_list{
 
         global $zbs;
 
-        // if not DAL3, this has to be contact:
         if ($this->objTypeID == false){
 
-            if ($zbs->isDAL3()) // translate it from 'transaction' in objType
-                $this->objTypeID = $zbs->DAL->objTypeID($this->objType);
-            else
-                $this->objTypeID = ZBS_TYPE_CONTACT;
+			$this->objTypeID = $zbs->DAL->objTypeID( $this->objType ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
         }
 
@@ -137,35 +133,12 @@ class zeroBSCRM_list{
         $listViewFilters = array(); if (isset($_GET['zbs_tag'])){
 
             $possibleTag = (int)sanitize_text_field($_GET['zbs_tag']);
-            // deal with tags diff in DAL2+ // DAL/2+ switch:
-            if (
-                // DAL2 has tags only for contacts
-                $zbs->isDAL2() && $this->tag == 'zerobscrm_customertag'
-                ||
-                // DAL3 has them for everything with a list view :D
-                $zbs->isDAL3()
-                ){
 
-                $possibleTagObj = $zbs->DAL->getTag($possibleTag,array('objtype'=>$this->objTypeID));
+			$possibleTagObj = $zbs->DAL->getTag( $possibleTag, array( 'objtype' => $this->objTypeID ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase,WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
-                if (isset($possibleTagObj['id'])){
-
-                    $listViewFilters['tags'] = array($possibleTagObj);
-
-                }
-
-
-            } else {
-
-                $possibleTagObj = get_term_by('id',$possibleTag,$this->tag);
-
-                if (isset($possibleTagObj->term_id)){
-
-                    $listViewFilters['tags'] = array($possibleTagObj);
-
-                }
-            }
-
+			if ( isset( $possibleTagObj['id'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$listViewFilters['tags'] = array( $possibleTagObj ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			}
         }
         if (isset($_GET['s']) && !empty($_GET['s'])){
 
@@ -222,35 +195,18 @@ class zeroBSCRM_list{
         if ($currentFilterButtons == false) $currentFilterButtons = $defaultFilterButtons;
         $allFilterButtons = $GLOBALS[ $filterVar ]['all'];
 
-
-
-        // DAL2 contacts sortable
-        // DAL3 makes everything sortable
-        if (
-            ($zbs->isDAL2() && $this->objType == 'customer')
-            || 
-            $zbs->isDAL3()
-        ){
-
-            // add all columns to sortables :)
-            if ( is_array( $currentColumns ) ) {
-                foreach ($currentColumns as $col => $var){
-                    if (!in_array($col, $this->unsortables) && !in_array($col,$this->sortables)) $this->sortables[] = $col;
-                }
-            }
-
-        }
+		// add all columns to sortables :)
+		if ( is_array( $currentColumns ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			foreach ( $currentColumns as $col => $var ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				if ( ! in_array( $col, $this->unsortables, true ) && ! in_array( $col, $this->sortables, true ) ) {
+					$this->sortables[] = $col;
+				}
+			}
+		}
 
         #} Refresh 2
         ?>
-        <style>
-            #zbs-toggle-sidebar{
-                background:white !important;
-            }
-        </style>
 
-
-        <div class="zbs-semantic wrap">
             <!-- title + edit ico -->
 
             <!-- col editor -->
@@ -441,385 +397,57 @@ class zeroBSCRM_list{
 
             </div>
 
-            <!-- main view: segments -->
-            <div id="zbs-list-segments" style="display:none"></div>
-
-            <div id="zbs-list-warnings-wrap">
-                <?php #} Pre-loaded msgs, because I wrote the helpers in php first... should move helpers to js and fly these 
-
-                echo zeroBSCRM_UI2_messageHTML('warning hidden',sprintf(__('Error retrieving %s','zero-bs-crm'),$this->plural),sprintf(__('There has been a problem retrieving your %s. If this issue persists, please contact support.','zero-bs-crm'),$this->plural),'disabled warning sign','zbsCantLoadData');
-                echo zeroBSCRM_UI2_messageHTML('warning hidden',sprintf(__('Error updating columns %s','zero-bs-crm'),$this->plural),__('There has been a problem saving your column configuration. If this issue persists, please contact support.','zero-bs-crm'),'disabled warning sign','zbsCantSaveCols');
-                echo zeroBSCRM_UI2_messageHTML('warning hidden',sprintf(__('Error updating columns %s','zero-bs-crm'),$this->plural),__('There has been a problem saving your filter button configuration. If this issue persists, please contact support.','zero-bs-crm'),'disabled warning sign','zbsCantSaveButtons');
-                echo zeroBSCRM_UI2_messageHTML('info hidden',sprintf(__('No %s Found',"zero-bs-crm"),$this->plural),sprintf( __( 'There are no %s here. Do you want to <a href="%s">create one</a>?', 'zero-bs-crm' ), $this->plural, jpcrm_esc_link('create',-1,$this->postType) ),'disabled warning sign','zbsNoResults');
-
-                // any additional messages?
-                if (isset($this->messages) && is_array($this->messages) && count($this->messages) > 0){
-
-                    //echo '<div id="zbs-list-view-messages">';
-
-                        foreach ($this->messages as $message){
-                            // $message needs to match this func :)
-                            echo zeroBSCRM_UI2_messageHTML($message[0],$message[1],$message[2],$message[3],$message[4]);
-                        }
-
-                    //echo '</div>';
-
-                }
-
-                ?>
-            </div>
-            <!-- main view: list + sidebar -->
-            <div id="zbs-list-wrap" class="ui divided grid zbs-list-view-<?php echo esc_attr( $this->objType ); ?>">
-
-                <div class="row">
-
-
-                    <!-- record list -->
-                    <div class="twelve wide column" id="zbs-list-table-wrap">
-                        <?php #} Drawn by Javascript :) ?>
-                    </div>
-                    <!-- side bar -->
-                    <div class="four wide column" id="zbs-list-sidebar-wrap">
-
-                        <!-- search box -->
-                        <div class="">
-                            <div class="ui fluid action input">
-                                <input type="text" name="s" id="zbs-listview-search" placeholder="<?php esc_attr_e('Search...',"zero-bs-crm"); ?>">
-                                <button class="ui icon button green" id="zbs-listview-runsearch">
-                                    <i class="search icon"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <!-- / search box -->
-
-                        <?php #got filters?
-                        if (is_array($allFilterButtons) && count($allFilterButtons) > 0){ ?>
-                        <div class="ui divider"></div>
-
-                        <!-- Filters box -->
-                        <div class="">
-                            <?php if (current_user_can('administrator')){ ?>
-                                <button class="ui right floated compact icon button zbs-list-view-edit-button" id="zbs-list-view-edit-filters"><i class="options icon"></i></button>
-                            <?php } ?>
-                            <h4><span id="zbs-list-filters-edit-title" class="hidden"><?php esc_html_e('Edit',"zero-bs-crm");?> </span><?php esc_html_e("Filters","zero-bs-crm");?></h4>
-                    
-                            <div id="zbs-list-filters"><?php
-
-                            /* just let the js draw these actually... else not DRY (maintaining 2 funcs php + js)
-                                if (is_array($currentFilterButtons)) foreach ($currentFilterButtons as $buttonKey => $button){
-                                        
-                                    $zbsurl = get_admin_url('','edit.php?post_type=zerobs_customer&page=manage-customers') ."&quickfilters=".$buttonKey;
-                                    ?><a href="<?php echo $zbsurl; ?>" class="ui olive button tiny"><?php echo $button[0]; ?></a><?php
-
-                                }
-                                */
-
-                            ?>
-                            </div>
-
-                            <?php if (current_user_can('administrator') && is_array($allFilterButtons) && count($allFilterButtons) > 0){ ?>
-                            <!-- edit box -->
-                            <div id="zbs-list-view-edit-filters-wrap" class="hidden">
-
-                                <div class="ui active inverted dimmer hidden" id="zbs-filter-button-manager-loading" style="display:none">
-                                    <div class="ui text loader"><?php esc_html_e("Loading","zero-bs-crm");?></div>
-                                  </div>
-
-                                <div  class="ui segment">
-
-                                    <h5><?php esc_html_e('Current Filters',"zero-bs-crm"); ?></h5>
-
-                                    <div id="zbs-list-view-filter-options-current" class="zbs-filter-manager-connected ui-sortable">
-
-                                    <?php if (is_array($currentFilterButtons)) foreach ($currentFilterButtons as $filterButtonKey => $filterButton){
-										// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactored.
-										?>
-										<div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo wp_kses( $filterButton[0], array( 'i' => array( 'class' => array() ) ) ); ?></div>
-										<?php
-										// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-                                    } ?>
-
-
-                                    </div>
-
-                                </div>
-
-                                <div class="ui segment">
-
-                                    <h5><?php esc_html_e('Available Filters',"zero-bs-crm"); ?></h5>
-
-                                    <div id="zbs-list-view-filter-options-available" class="zbs-filter-manager-connected ui-sortable">
-
-                                    <?php foreach ($allFilterButtons as $filterButtonKey => $filterButton){
-										// phpcs:disable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase -- to be refactored.
-										if ( ! array_key_exists( $filterButtonKey, $currentFilterButtons ) ) {
-
-											?>
-												<div id="zbs-filter-manager-button-<?php echo esc_attr( $filterButtonKey ); ?>" class="ui basic button tiny zbs-filter-button-manager-button" data-key="<?php echo esc_attr( $filterButtonKey ); ?>"><?php echo wp_kses( $filterButton[0], array( 'i' => array( 'class' => array() ) ) ); ?></div>
-												<?php
-
-										}
-										// phpcs:enable WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-
-                                    } ?>
-
-                                    </div>
-
-                                </div>
-
-                            </div><?php } ?>
-
-
-
-                        </div>
-                        <!-- / Filters box --><?php } ?>
-
-                        
-                        <?php 
-
-                        // DAL/2+ switch:
-                        if (
-                            // DAL2 has tags only for contacts
-                            $zbs->isDAL2() && $this->tag == 'zerobscrm_customertag'
-                            ||
-                            // DAL3 has them for everything with a list view :D
-                            $zbs->isDAL3()
-                            ){
-
-                            // DAL2+
-                            $terms = $zbs->DAL->getTagsForObjType(array(
-                                    'objtypeid'=>$this->objTypeID,
-                                    'withCount'=>true,
-                                    // we need empty for bulk, which also uses this list, so don't exclude empty '
-                                    // 'excludeEmpty'=>true,
-                                    // but do in ui below :)
-                                    'excludeEmpty' => false,
-                                    'ignoreowner' => true));
-
-                            if (is_array($terms) && count($terms) > 0){ ?>
-                            <div class="ui divider"></div>
-                            <!-- Tagged box -->
-                                <div class="" id="jpcrm-listview-tagged-box">
-                                    
-                                    <h4><?php esc_html_e("Tagged","zero-bs-crm"); ?></h4>
-                            
-                                    <div id="zbs-list-tags">
-                                        <?php 
-                                        
-                                        $tagIndex = array();
-                                        
-                                        // inefficient - but hacky
-                                        if (isset($listViewFilters['tags']) && is_array($listViewFilters['tags']) && count($listViewFilters['tags']) > 0){
-
-                                            foreach ($listViewFilters['tags'] as $tag){
-                                                $tagIndex[] = $tag['id'];
-                                            }
-                                        }
-
-                                        // if over 12 tags, use mini
-                                        $tagClass = 'tiny'; if (count($terms) > 12) $tagClass = 'mini';
-
-                                            // zbs_prettyprint($terms);
-                                            $i = 1;
-                                            $total_tags = count($terms);
-                                            foreach($terms as $term){
-
-                                                // exclude empties here :) 
-                                                if ($term['count'] > 0){
-
-                                                    $zbsurl = jpcrm_esc_link('listtagged',-1,$this->objTypeID,-1,$term['id']);//get_admin_url('','admin.php?page='.$this->postPage ."&zbs_tag=".$term['id']);
-                                                    $zbstermc = zeroBSCRM_prettifyLongInts($term['count']);
-                                                    if($i==1){
-                                                        echo "<div class='first-ten-tags'>";
-                                                    }
-                                                    // check
-                                                    if (in_array($term['id'], $tagIndex))
-                                                        $tagColor = 'blue';
-                                                    else
-                                                        $tagColor = 'teal';
-
-                                                    // handle super long tag names
-
-                                                    echo '<a title="' . esc_attr( $term['name'] ) . '" href="'. esc_url( $zbsurl ).'" class="ui button '.esc_attr( $tagClass.' '.$tagColor ) .'">' . esc_html( $term['name'] ) . ' (<span class="sub-count">' . esc_html( $zbstermc ) . '</span>)</a>';
-                                                
-
-                                                    if($i == 6 && $total_tags > 6){
-                                                        echo "</div>"; //end first 10 tags
-                                                            #} tags UI for showing all
-                                                            echo "<div class='show-more-tags ui button olive tiny'>";
-                                                                esc_html_e("Show all tags","zero-bs-crm");
-                                                            echo "</div>";
-                                                        echo "<div class='more-tags'>";
-                                                    }
-
-                                                    $i++;
-
-                                                } // / if not zero count
-
-                                            }
-                                            if($i >= 6 && $total_tags > 6){
-                                                echo "</div>"; //close the more tags
-                                            }
-                                        ?>
-
-                                    </div>
-
-                                </div>
-                            <!-- / Tagged box -->
-                            <?php } 
-
-                            // if totals, show the wrapper
-                            if ( $zbs->settings->get('show_totals_table') == 1 ){
-
-                                ?><div class="ui divider jpcrm-listview-totals-box-divider" style="display:none"></div>
-                                <div id="jpcrm-listview-totals-box"></div><?php
-
-                            }
-
-                        
-
-
-                        } else {
-
-                            // DAL1
-
-                            // get tags ahead of time + only show if not empty :)
-                            if (!empty($this->tag)) {
-                                    $terms = get_terms( $this->tag, array(
-                                    'hide_empty' => false,
-                                    'orderby'    => 'count',
-                                    'order' => 'ASC'
-                                ) );
-                            } else $terms = array();
-
-                            if (is_array($terms) && count($terms) > 0){ ?>
-                            <div class="ui divider"></div>
-                            <!-- Tagged box -->
-                                <div class="">
-                                    
-                                    <h4><?php esc_html_e("Tagged","zero-bs-crm");?></h4>
-                            
-                                    <div id="zbs-list-tags">
-                                        <?php 
-                                        
-                                        $tagIndex = array();
-                                        
-                                        // inefficient - but hacky
-                                        if (isset($listViewFilters['tags']) && is_array($listViewFilters['tags']) && count($listViewFilters['tags']) > 0){
-
-                                            foreach ($listViewFilters['tags'] as $tag){
-                                                $tagIndex[] = $tag->term_id;
-                                            }
-                                        }
-
-                                            // zbs_prettyprint($terms);
-                                            $i = 1;
-                                            foreach($terms as $term){
-                                                $zbsurl = get_admin_url('','edit.php?post_type='.$this->postType.'&page='.$this->postPage) ."&zbs_tag=".$term->term_id;
-                                                $zbstermc = zeroBSCRM_prettifyLongInts($term->count);
-                                                if($i==1){
-                                                    echo "<div class='first-ten-tags'>";
-                                                }
-                                                // check
-                                                if (in_array($term->term_id, $tagIndex))
-                                                    $tagColor = 'blue';
-                                                else
-                                                    $tagColor = 'teal';
-
-                                                // handle super long tag names
-                                                echo '<a title="' . esc_attr( $term->name ) . '" href="'. esc_url( $zbsurl ).'" class="ui button tiny '. esc_attr( $tagColor ) .'">'. esc_html( $term->name ) . " (<span class='sub-count'>" . esc_html( $zbstermc ) . "</span>)</a>";
-                                            
-
-                                                if($i == 6){
-                                                    echo "</div>"; //end first 10 tags
-                                                        #} tags UI for showing all
-                                                        echo "<div class='show-more-tags ui button olive tiny'>";
-                                                            esc_html_e("Show all tags","zero-bs-crm");
-                                                        echo "</div>";
-                                                    echo "<div class='more-tags'>";
-                                                }
-
-                                                $i++;
-
-                                            }
-                                            if($i >= 6){
-                                                echo "</div>"; //close the more tags
-                                            }
-                                        ?>
-
-                                    </div>
-
-                                </div>
-                            <!-- / Tagged box -->
-                            <?php } 
-
-                        } // DAL 1 ?>
-
-                        <div class="ui divider"></div>
-                        <?php ##WLREMOVE ?>
-                        <?php echo $this->extraBoxes; ?>
-                        <?php ##/WLREMOVE ?>
-                    </div>
-                </div>
-
-                <!-- could use this for mobile variant?) 
-                <div class="two column mobile only row" style="display:none"></div>
-                -->
-            </div> <!-- / mainlistview wrap -->
-        
+			<div class="jpcrm-listview">
+				<?php
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+				$this->draw_listview_header( $listViewFilters );
+				?>
+				<div class="jpcrm-listview-table-container">
+					<!-- Drawn by Javascript -->
+				</div>
+				<?php $this->draw_listview_footer(); ?>
+				<div id="zbs-list-warnings-wrap">
+					<?php
+					// Preloaded error messages
+					// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.WP.I18n.MissingTranslatorsComment,WordPress.WP.I18n.UnorderedPlaceholdersText
+					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error retrieving %s', 'zero-bs-crm' ), $this->plural ), sprintf( __( 'There has been a problem retrieving your %s. If this issue persists, please contact support.', 'zero-bs-crm' ), $this->plural ), 'disabled warning sign', 'zbsCantLoadData' );
+					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your column configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveCols' );
+					echo zeroBSCRM_UI2_messageHTML( 'warning hidden', sprintf( __( 'Error updating columns %s', 'zero-bs-crm' ), $this->plural ), __( 'There has been a problem saving your filter button configuration. If this issue persists, please contact support.', 'zero-bs-crm' ), 'disabled warning sign', 'zbsCantSaveButtons' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					echo zeroBSCRM_UI2_messageHTML( 'info hidden', sprintf( __( 'No %s Found', 'zero-bs-crm' ), $this->plural ), sprintf( __( 'There are no %s here. Do you want to <a href="%s">create one</a>?', 'zero-bs-crm' ), $this->plural, jpcrm_esc_link( 'create', -1, $this->postType ) ), 'disabled warning sign', 'zbsNoResults' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+
+					// any additional messages?
+					if ( isset( $this->messages ) && is_array( $this->messages ) && count( $this->messages ) > 0 ) {
+						foreach ( $this->messages as $message ) {
+							// $message needs to match this func :)
+							echo zeroBSCRM_UI2_messageHTML( $message[0], $message[1], $message[2], $message[3], $message[4] );
+						}
+					}
+					// phpcs:enable WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.WP.I18n.MissingTranslatorsComment,WordPress.WP.I18n.UnorderedPlaceholdersText
+					?>
+				</div>
+			</div>
+			<?php
+
+			// if totals, show the wrapper
+			if ( $zbs->settings->get( 'show_totals_table' ) === 1 ) {
+				?>
+				<div id="jpcrm-listview-totals-box"></div>
+				<?php
+			}
+			##WLREMOVE
+			// e.g. upsell boxes
+			echo $this->extraBoxes; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase,WordPress.Security.EscapeOutput.OutputNotEscaped
+			##/WLREMOVE
+
+			?>
 
         <script type="text/javascript">
-
+					<?php
+					// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
+					// phpcs:disable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
+					?>
             // expose log types (For columns)
             var zbsLogTypes = <?php global $zeroBSCRM_logTypes; echo json_encode($zeroBSCRM_logTypes); ?>;
-
-            jQuery(function($){
-
-
-            /* WH causes error on load...
-            jQuery('.learn')
-              .popup({
-                inline: false,
-                on:'click',
-                lastResort: 'bottom right',
-            }); */
-
-              jQuery('.show-more-tags').on("click",function(e){
-                jQuery('.more-tags').show();
-                jQuery(this).hide();
-              });
-
-            /* sticky? sidebar */   
-            var $sidebar   = jQuery("#zbs-list-sidebar-wrap"), 
-                $window    = jQuery(window),
-                offset     = $sidebar.offset(),
-                topPadding = 38;
-
-                //does not work great on mobile / narrow
-                if(window.outerWidth > 992){
-                    $window.on( 'scroll', function() {
-                        if(window.outerWidth > 992){
-                            if ($window.scrollTop() > offset.top) {
-                                $sidebar.stop().animate({
-                                    marginTop: $window.scrollTop() - offset.top + topPadding
-                                });
-                            } else {
-                                $sidebar.stop().animate({
-                                    marginTop: 0
-                                });
-                            }
-                        } else {
-                            // reset
-                            jQuery("#zbs-list-sidebar-wrap").css('margin-top','0');
-                        }
-                    });
-                } else {
-                    // reset
-                    jQuery("#zbs-list-sidebar-wrap").css('margin-top','0');
-                }
-
-
-            });
 
             <?php
 
@@ -891,7 +519,9 @@ class zeroBSCRM_list{
                 'count' => (int)$per_page,
                 'pagination' => true,
                 'paged' => (int)$currentPage,
-                'filters' => $listViewFilters,
+
+				// cast to object so an empty array is {} instead of [] when encoded as JSON
+				'filters'    => (object) $listViewFilters, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
                 'sort' => ( !empty( $sort ) ? esc_html( $sort ) : false ),
                 'sortorder' => ( !empty( $sortOrder ) ?  esc_html( $sortOrder ) : 'desc' ),
 
@@ -971,16 +601,7 @@ class zeroBSCRM_list{
             var zbsDrawListViewColUpdateBlocker = false;
             var zbsDrawListViewColUpdateAJAXBlocker = false;
             var zbsDrawListLoadingBoxHTML = '<?php echo zeroBSCRM_UI2_loadingSegmentIncTextHTML(); ?>';
-            var zbsObjectEditLinkPrefix = '<?php echo esc_html( admin_url('post.php?action=edit&post=') ); ?>';
-            var zbsObjectViewLinkPrefix = '<?php 
 
-                // mike started rolling out a "view" (as well as edit),but only applies to customers for now
-                if ($this->postType == 'zerobs_customer') 
-                    echo jpcrm_esc_link( 'view', -1, 'zerobs_customer', true );
-                else
-                    echo esc_url( admin_url('post.php?action=edit&post=') );
-
-            ?>';
             var zbsObjectEmailLinkPrefix = '<?php 
 
                 // this assumes is contact for now, just sends to prefill - perhaps later add mailto: optional (wh wants lol)
@@ -1006,13 +627,10 @@ class zeroBSCRM_list{
             var zbsObjectEditLinkPrefixSegment = '<?php echo jpcrm_esc_link( 'edit',-1,ZBS_TYPE_SEGMENT,true ); ?>';
 
             var jpcrm_segment_export_url_prefix = '<?php echo jpcrm_esc_link( $zbs->slugs['export-tools'] . '&segment-id=' ); ?>';
-            
-            var zbsListViewLink = '<?php echo esc_url( admin_url('admin.php?page='.$this->postPage) ); ?>';
+
+						var zbsListViewLink = '<?php echo esc_url( admin_url( 'admin.php?page=' . $this->postPage ) ); /* phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase */ ?>';
             var zbsExportPostURL = '<?php echo esc_url( zeroBSCRM_getAdminURL($zbs->slugs['export-tools']) ); ?>';
-            var zbsListViewTagFilterAffix = '&zbs_tag=';
-            var zbsListViewQuickFilterAffix = '&quickfilters=';
-            var zbsTagSkipLinkPrefix = zbsListViewLink + zbsListViewTagFilterAffix;
-            var zbsListViewSearchFilterAffix = '&s=';
+						var zbsTagSkipLinkPrefix = zbsListViewLink + '&zbs_tag=';
             var zbsListViewObjName = '<?php
 
                 switch ($this->postType){
@@ -1104,9 +722,9 @@ class zeroBSCRM_list{
 
 				'go_button'          => esc_html__( 'Go', 'zero-bs-crm' ),
 				/* translators: Placeholder is the number of selected rows. */
-				'rows_selected_x'    => esc_html__( 'Bulk actions (%s rows selected)', 'zero-bs-crm' ),
-				'rows_selected_1'    => esc_html__( 'Bulk actions (1 row selected)', 'zero-bs-crm' ),
-				'rows_selected_0'    => esc_html__( 'Bulk actions (no rows selected)', 'zero-bs-crm' ),
+				'rows_selected_x'    => esc_html__( 'Bulk actions (%s rows)', 'zero-bs-crm' ),
+				'rows_selected_1'    => esc_html__( 'Bulk actions (1 row)', 'zero-bs-crm' ),
+				'rows_selected_0'    => esc_html__( 'Bulk actions (no rows)', 'zero-bs-crm' ),
 				'zbs_edit'           => esc_html__( 'Edit', 'zero-bs-crm' ),
 				'today'              => esc_html__( 'Today', 'zero-bs-crm' ),
 				'days'               => esc_html__( 'days', 'zero-bs-crm' ),
@@ -1118,6 +736,8 @@ class zeroBSCRM_list{
 				'containing'         => esc_html__( 'Containing', 'zero-bs-crm' ),
 				'couldntupdate'      => esc_html__( 'Could not update', 'zero-bs-crm' ),
 				'couldntupdatedeets' => esc_html__( 'This record could not be updated. Please try again, if this persists please let admin know.', 'zero-bs-crm' ),
+				/* translators: Placeholders are the range of the current record result and the total object count. */
+				'listview_counts'    => esc_html__( 'Showing %s of %s items', 'zero-bs-crm' ), // phpcs:ignore WordPress.WP.I18n.UnorderedPlaceholdersText
 
 			);
 
@@ -1129,23 +749,35 @@ class zeroBSCRM_list{
 			}
 			?>
 			var zbsListViewLangLabels = <?php echo wp_json_encode( $jpcrm_listview_lang_labels ); ?>;
-            var zbsTagsForBulkActions = <?php
+			var zbsTagsForBulkActions = <?php
+				// the linter was having issues with these indents, so disabling for this block
+				// phpcs:disable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect
+				$tags = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					array(
+						'objtypeid'    => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+						'withCount'    => true,
+						'excludeEmpty' => false,
+						'ignoreowner'  => true,
+					)
+				);
 
-                    // make simplified
-                    $simpleTerms = array();
-                    if ( is_array( $terms ) && count( $terms ) > 0 ) {
-                        foreach ( $terms as $t ) {
-                            $simpleTerms[] = array(
-                                'id'   =>$t['id'],
-                                'name' =>$t['name'],
-                                'slug' =>$t['slug'],
-                            );
-                        }
-                    }
+				// make simplified
+				$simple_tags = array();
+				if ( is_array( $tags ) && count( $tags ) > 0 ) {
+					foreach ( $tags as $t ) {
+						$simple_tags[] = array(
+							'id'   => $t['id'],
+							'name' => $t['name'],
+							'slug' => $t['slug'],
+						);
+					}
+				}
 
-                    $zbsTagsForBulkActions = json_encode( $simpleTerms );
-                    echo ( $zbsTagsForBulkActions ? $zbsTagsForBulkActions: '[]' );
-            ?>;
+				$zbs_tags_for_bulk_actions = wp_json_encode( $simple_tags );
+				echo ( $zbs_tags_for_bulk_actions ? $zbs_tags_for_bulk_actions : '[]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+
+				// phpcs:enable Generic.WhiteSpace.ScopeIndent.IncorrectExact,Generic.WhiteSpace.ScopeIndent.Incorrect
+										?>;
             var zbsListViewIcos = {
 
                     // bulk action label icos
@@ -1206,9 +838,101 @@ class zeroBSCRM_list{
             
             ?></script>
 
-        </div><!-- // .wrap -->
+					<?php
+					// phpcs:enable Squiz.PHP.EmbeddedPhp.ContentBeforeOpen
+					// phpcs:enable Squiz.PHP.EmbeddedPhp.ContentAfterEnd
+					?>
+
         <?php
 
     } // /draw func
 
+	/**
+	 * Draws listview header that contains search, bulk actions, and filter dropdowns
+	 *
+	 * @param array $listview_filters Array of current listview filters.
+	 */
+	public function draw_listview_header( $listview_filters ) {
+		global $zbs;
+
+		$filter_var       = 'zeroBSCRM_filterbuttons_' . $this->objType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$all_quickfilters = $GLOBALS[ $filter_var ]['all'];
+		$all_tags         = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			array(
+				'objtypeid'    => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				'excludeEmpty' => false,
+			)
+		);
+
+		$current_quickfilter       = ( ! empty( $listview_filters['quickfilters'][0] ) ? $listview_filters['quickfilters'][0] : '' );
+		$current_quickfilter_label = ( ! empty( $current_quickfilter ) ? $all_quickfilters[ $current_quickfilter ][0] : '' );
+		$current_tag               = ( ! empty( $listview_filters['tags'][0] ) ? $listview_filters['tags'][0]['name'] : '' );
+		$current_search            = ( ! empty( $listview_filters['s'] ) ? $listview_filters['s'] : '' );
+		?>
+
+		<jpcrm-listview-header id="jpcrm-listview-header">
+			<header-item>
+				<input type="search"  value="<?php echo esc_attr( $current_search ); ?>" placeholder="<?php echo esc_attr__( 'Search...', 'zero-bs-crm' ); ?>" autocomplete="<?php echo esc_attr( jpcrm_disable_browser_autocomplete() ); ?>"/>
+				<select class="bulk-actions-dropdown hidden">
+					<option><?php echo esc_html__( 'Bulk actions (no rows)', 'zero-bs-crm' ); ?></option>
+				</select>
+			</header-item>
+			<header-item>
+				<?php
+				// add quickfilters filter if current object has quickfilters
+				if ( count( $all_quickfilters ) > 0 ) {
+					echo '<select class="filter-dropdown' . ( ! empty( $current_quickfilter ) ? ' hidden' : '' ) . '" data-filtertype="quickfilters">';
+					echo '<option disabled selected>' . esc_html__( 'Select filter', 'zero-bs-crm' ) . '</option>';
+					foreach ( $all_quickfilters as $filter_slug => $filter_data ) {
+						echo '<option value="' . esc_attr( $filter_slug ) . '">' . esc_html( $filter_data[0] ) . '</option>';
+					}
+					echo '</select>';
+					echo '<div class="jpcrm-current-filter' . ( empty( $current_quickfilter ) ? ' hidden' : '' ) . '">';
+					echo '<button class="dashicons dashicons-remove" title="' . esc_attr__( 'Remove filter', 'zero-bs-crm' ) . '"></button>';
+					echo esc_html__( 'Filter', 'zero-bs-crm' ) . ': ';
+					echo '<span>' . esc_html( $current_quickfilter_label ) . '</span>';
+					echo '</div>';
+				}
+
+				// add tags filter if current object has tags
+				if ( count( $all_tags ) > 0 ) {
+					echo '<select class="filter-dropdown' . ( ! empty( $current_tag ) ? ' hidden' : '' ) . '" data-filtertype="tags">';
+					echo '<option disabled selected>' . esc_html__( 'Select tag', 'zero-bs-crm' ) . '</option>';
+					foreach ( $all_tags as $tag ) {
+						echo '<option value="' . esc_attr( $tag['id'] ) . '">' . esc_html( $tag['name'] ) . '</option>';
+					}
+					echo '</select>';
+					echo '<div class="jpcrm-current-filter' . ( empty( $current_tag ) ? ' hidden' : '' ) . '">';
+					echo '<button class="dashicons dashicons-remove" title="' . esc_attr__( 'Remove tag', 'zero-bs-crm' ) . '"></button>';
+					echo esc_html__( 'Tag', 'zero-bs-crm' ) . ': ';
+					echo '<span>' . esc_html( $current_tag ) . '</span>';
+					echo '</div>';
+				}
+
+				echo '<button class="table-options" id="open-table-options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '</button>';
+				?>
+			</header-item>
+		</jpcrm-listview-header>
+		<?php
+	}
+
+	/**
+	 * Draws a listview footer and its containers for JS to use
+	 */
+	public function draw_listview_footer() {
+		?>
+		<jpcrm-listview-footer>
+			<footer-left>
+				<div class= "jpcrm-listview-counts-container">
+					<!-- drawn by JS -->
+				</div>
+			</footer-left>
+			<footer-right>
+				<div class= "jpcrm-pagination-container">
+					<!-- drawn by JS -->
+				</div>
+			</footer-right>
+		</jpcrm-listview-footer>
+		<?php
+	}
 } // class

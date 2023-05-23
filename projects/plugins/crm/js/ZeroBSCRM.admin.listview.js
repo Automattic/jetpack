@@ -7,8 +7,6 @@
  *
  * Date: 11/08/2017
  */
-var zbscrmjs_sidebarState = 1;
-var zbscrmjs_sidebarChangeBlocker = false;
 
 // catch nulls passed here
 if ( typeof window.zbsListViewCount === 'undefined' || window.zbsListViewCount === null ) {
@@ -27,6 +25,20 @@ jQuery( function () {
  *
  */
 function zeroBSCRMJS_initListView() {
+
+
+	let filters = document.querySelectorAll('jpcrm-listview-header .filter-dropdown');
+	filters.forEach( f => {
+		f.addEventListener('change', jpcrm_add_listview_filter);
+	} );
+
+	let filter_removes = document.querySelectorAll('jpcrm-listview-header .jpcrm-current-filter button');
+	filter_removes.forEach( f => {
+		f.addEventListener('click', jpcrm_remove_listview_filter);
+	} );
+
+	document.querySelector('jpcrm-listview-header input[type="search"]').addEventListener('keypress', jpcrm_do_search_filter);
+
 	// custom screen options (in column manager ui)
 	jQuery( '#zbs-screenoptions-records-per-page' )
 		.off( 'change' )
@@ -56,11 +68,11 @@ function zeroBSCRMJS_initListView() {
 
 			// close this
 			// (lazy sim click ;) )
-			jQuery( '#zbs-open-column-manager' ).trigger( 'click' );
+			jQuery( 'jpcrm-listview-header #open-table-options' ).trigger( 'click' );
 		} );
 
 	// open/shut column manager
-	jQuery( '#zbs-open-column-manager' )
+	jQuery( 'jpcrm-listview-header #open-table-options' )
 		.off( 'click' )
 		.on( 'click', function () {
 			//jQuery('#zbs-list-col-editor').toggle();
@@ -74,71 +86,6 @@ function zeroBSCRMJS_initListView() {
 				jQuery( '#zbs-list-col-editor' ).show();
 			}
 		} );
-	// open/shut sidebar
-	jQuery( '#zbs-toggle-sidebar' ).on( 'click', function () {
-		if ( ! window.zbscrmjs_sidebarChangeBlocker ) {
-			window.zbscrmjs_sidebarChangeBlocker = true;
-
-			// get state
-			if ( window.zbscrmjs_sidebarState == 1 ) {
-				// close
-
-				// hide sidebar
-				jQuery( '#zbs-list-sidebar-wrap' ).hide();
-
-				// shrink left col -> sixteen wide column
-				jQuery( '#zbs-list-table-wrap' ).removeClass().addClass( 'sixteen wide column' );
-
-				// ico
-				jQuery( this ).html( '<i class="toggle on icon"></i>' );
-
-				// flip switch
-				window.zbscrmjs_sidebarState = -1;
-			} else {
-				// open
-
-				// show sidebar
-				jQuery( '#zbs-list-sidebar-wrap' ).show();
-
-				// shrink left col -> twelve wide column
-				jQuery( '#zbs-list-table-wrap' ).removeClass().addClass( 'twelve wide column' );
-
-				// ico
-				jQuery( this ).html( '<i class="toggle off icon"></i>' );
-
-				// flip switch
-				window.zbscrmjs_sidebarState = 1;
-			}
-
-			setTimeout( function () {
-				window.zbscrmjs_sidebarChangeBlocker = false;
-			}, 0 );
-		}
-	} );
-
-	// Using Filters?
-	if (
-		typeof window.zbsListViewSettings !== 'undefined' &&
-		typeof window.zbsListViewSettings.filters !== 'undefined' &&
-		window.zbsListViewSettings.filters
-	) {
-		// open/shut filter button manager
-		jQuery( '#zbs-list-view-edit-filters' ).on( 'click', function () {
-			jQuery(
-				'#zbs-list-view-edit-filters-wrap, #zbs-list-filters, #zbs-list-filters-edit-title'
-			).toggle();
-			setTimeout( function () {
-				if ( jQuery( '#zbs-list-view-edit-filters' ).hasClass( 'active' ) ) {
-					jQuery( '#zbs-list-view-edit-filters' ).removeClass( 'active' );
-				} else {
-					jQuery( '#zbs-list-view-edit-filters' ).addClass( 'active' );
-				}
-			}, 0 );
-		} );
-
-		// draw quickfilter Buttons
-		zeroBSCRMJS_drawFilterButtons();
-	}
 
 	// drag drop columns
 	jQuery(
@@ -204,318 +151,43 @@ function zeroBSCRMJS_initListView() {
 
 	// draw table
 	zeroBSCRMJS_drawListView();
-
-	// bind (Sidebar)
-	zeroBSCRMJS_bindSideBar();
-
-	// Using Filters?
-	if ( window.zbsListViewSettings.filters ) {
-		// filter button sortables
-		jQuery( '#zbs-list-view-filter-options-current, #zbs-list-view-filter-options-available' )
-			.sortable( {
-				connectWith: '.zbs-filter-manager-connected',
-				stop: function ( event, ui ) {
-					// save changes to local var
-					zeroBSCRMJS_updateFilterButtonsVar(
-						function ( d ) {
-							// show loading
-							jQuery( '#zbs-filter-button-manager-loading' ).show();
-
-							// hide: could not save cols
-							jQuery( '#zbsCantSaveCols' ).hide();
-
-							// columns changed, save via ajax then redraw
-							zeroBSCRMJS_updateListViewFilterButtons(
-								function ( d2 ) {
-									// successfully saved
-
-									// hide loading
-									jQuery( '#zbs-filter-button-manager-loading' ).hide();
-
-									// redraw buttons list
-									zeroBSCRMJS_drawFilterButtons();
-								},
-								function ( d2 ) {
-									// hide loading
-									jQuery( '#zbs-filter-button-manager-loading' ).hide();
-
-									// could not save buttons
-									jQuery( '#zbsCantSaveButtons' ).show();
-								}
-							);
-						},
-						function ( d ) {
-							// no change, do nothing
-						}
-					);
-				},
-			} )
-			.disableSelection();
-	} // / if using filters
-}
-
-/**
- *
- */
-function zeroBSCRMJS_bindSideBar() {
-	// search click
-	jQuery( '#zbs-listview-runsearch' )
-		.off( 'click' )
-		.on( 'click', function () {
-			zeroBSCRMJS_fireSearch();
-		} );
-	jQuery( '#zbs-listview-search' ).on( 'keypress', function ( e ) {
-		var key = e.which;
-		if ( key == 13 ) {
-			// the enter key code
-			zeroBSCRMJS_fireSearch();
-			return false;
-		}
-	} );
-}
-
-/**
- *
- */
-function zeroBSCRMJS_fireSearch() {
-	var searchTerm = jQuery( '#zbs-listview-search' ).val();
-
-	if ( searchTerm != '' ) {
-		// has search term, apply + redraw :)
-		zeroBSCRMJS_updateFilterOptionSearch( searchTerm );
-	} else {
-		// empty search term, could do with op
-	}
 }
 
 // takes current filters from local var and generates the url that'd load those...
 /**
- * @param withoutSort
- * @param withoutQuickFilters
+ * @param withoutSort only show sort params in URL if necessary
  */
-function zeroBSCRMJS_listview_generateCurrentFilterURL( withoutSort, withoutQuickFilters ) {
-	var url = window.zbsListViewLink,
-		tagStr = '',
-		quickFilterStr = '',
-		searchTerm = '';
+function jpcrm_listview_generate_current_filter_url( withoutSort ) {
 
-	// Using Tags?
-	if ( window.zbsListViewSettings.tags ) {
-		// got tags?
-		var tagStr = '';
-		if (
-			typeof window.zbsListViewParams.filters.tags !== 'undefined' &&
-			window.zbsListViewParams.filters.tags.length > 0
-		) {
-			// build a csv
-			jQuery.each( window.zbsListViewParams.filters.tags, function ( ind, ele ) {
-				if ( tagStr != '' ) {
-					tagStr += ',';
-				}
+	let cur_search = (zbsListViewParams.filters.s ? zbsListViewParams.filters.s : false);
+	let cur_tag = (zbsListViewParams.filters.tags && zbsListViewParams.filters.tags.length > 0 ? zbsListViewParams.filters.tags[0].id : false);
+	let cur_quickfilter = (zbsListViewParams.filters.quickfilters && zbsListViewParams.filters.quickfilters.length > 0  ? zbsListViewParams.filters.quickfilters[0] : false);
+	let cur_sort = (zbsListViewParams.sort ? zbsListViewParams.sort : false);
+	let cur_sort_dir = (zbsListViewParams.sortorder ? zbsListViewParams.sortorder : false);
 
-				// db1
-				if ( typeof ele.term_id !== 'undefined' ) {
-					tagStr += ele.term_id;
-				}
-				// db2
-				else if ( typeof ele.id !== 'undefined' ) {
-					tagStr += ele.id;
-				}
-			} );
+	let url = zbsListViewLink;
+
+	if (cur_search) {
+		url += '&s=' + encodeURIComponent(cur_search);
+	}
+
+	if (cur_tag) {
+		url += '&zbs_tag=' + cur_tag;
+	}
+
+	if (cur_quickfilter) {
+		url += '&quickfilters=' + cur_quickfilter;
+	}
+
+	if (cur_sort && !withoutSort) {
+		url += '&sort=' + cur_sort;
+
+		if (cur_sort_dir) {
+			url += '&sortdirection=' + cur_sort_dir;
 		}
 	}
-
-	// Using Filters?
-	if ( window.zbsListViewSettings.filters ) {
-		// got quickfilters?
-		var quickFilterStr = '';
-		if (
-			typeof window.zbsListViewParams.filters.quickfilters !== 'undefined' &&
-			window.zbsListViewParams.filters.quickfilters.length > 0
-		) {
-			// build a csv
-			jQuery.each( window.zbsListViewParams.filters.quickfilters, function ( ind, ele ) {
-				if ( quickFilterStr != '' ) {
-					quickFilterStr += ',';
-				}
-				quickFilterStr += ele;
-			} );
-		}
-	}
-
-	// Using Search?
-	if ( window.zbsListViewSettings.search ) {
-		// got search?
-		var searchTerm = '';
-		if (
-			typeof window.zbsListViewParams.filters.s !== 'undefined' &&
-			window.zbsListViewParams.filters.s != ''
-		) {
-			searchTerm = window.zbsListViewParams.filters.s;
-		}
-	}
-
-	// build url
-	if ( tagStr != '' && tagStr != 'undefined' ) {
-		url += window.zbsListViewTagFilterAffix + tagStr;
-	} //&zbs_tag=1,2,3
-	if ( searchTerm != '' && searchTerm != 'undefined' ) {
-		url += window.zbsListViewSearchFilterAffix + encodeURIComponent( searchTerm );
-	} //&s=ahahah
-
-	if ( typeof withoutQuickFilters === 'undefined' || ! withoutQuickFilters ) {
-		if ( quickFilterStr != '' ) {
-			url += window.zbsListViewQuickFilterAffix + quickFilterStr;
-		} //&quickfilter=1,2,3
-	}
-
-	if ( typeof withoutSort === 'undefined' || ! withoutSort ) {
-		if ( typeof window.zbsListViewParams.sort !== 'undefined' ) {
-			url += '&sort=' + window.zbsListViewParams.sort;
-
-			if (
-				typeof window.zbsListViewParams.sortorder !== 'undefined' &&
-				window.zbsListViewParams.sortorder == 'asc'
-			) {
-				url += '&sortdirection=asc';
-			}
-		} // if is sort
-	} // / if withSort
 
 	return url;
-}
-
-// takes a new search term, updates local param + re-searches
-/**
- * @param s
- */
-function zeroBSCRMJS_updateFilterOptionSearch( s ) {
-	var prev = -1;
-	if ( typeof window.zbsListViewParams.filters.s !== 'undefined' ) {
-		prev = window.zbsListViewParams.filters.s;
-	}
-
-	// is set?
-	// meh, actually... if (typeof window.zbsListViewParams.filters.s != "undefined")
-	window.zbsListViewParams.filters.s = s;
-
-	// catch a bug here - somehow php seems to like to json_encode an array with just search as ARRAY, but with search + tags as OBJECT
-	// so force it here..
-	if ( zeroBSCRMJS_isArray( window.zbsListViewParams.filters ) ) {
-		var newObj = { s: s };
-		// any tags?
-		if ( typeof window.zbsListViewParams.filters.tags !== 'undefined' ) {
-			newObj.tags = window.zbsListViewParams.filters.tags;
-		}
-
-		window.zbsListViewParams.filters = newObj;
-	}
-
-	// change?
-	if ( prev == -1 || prev != s ) {
-		// then redraw :)
-
-		// mark data needs refresh:
-		window.zbsListViewParams.retrieved = false;
-
-		// redraw table
-		zeroBSCRMJS_drawListView();
-	}
-}
-
-// writes any filter sentence out e.g. "tagged xyz"
-/**
- *
- */
-function zeroBSCRMJS_writeFilterSentence() {
-	var newSentence = '';
-
-	if (
-		typeof window.zbsListViewParams.filters.s !== 'undefined' &&
-		window.zbsListViewParams.filters.s != ''
-	) {
-		newSentence +=
-			zeroBSCRMJS_listViewLang( 'containing', 'Containing' ) +
-			' "<span>' +
-			window.zbsListViewParams.filters.s +
-			'</span>"';
-	}
-
-	if (
-		typeof window.zbsListViewParams.filters.tags !== 'undefined' &&
-		window.zbsListViewParams.filters.tags.length > 0
-	) {
-		if ( newSentence != '' ) {
-			newSentence += ' and ';
-		}
-		newSentence += 'Tagged ';
-		var taggedSentence = '';
-		jQuery.each( window.zbsListViewParams.filters.tags, function ( ind, ele ) {
-			if ( taggedSentence != '' ) {
-				taggedSentence += ', ';
-			}
-			taggedSentence += '"<span>' + ele.name + '</span>"';
-		} );
-		newSentence += taggedSentence;
-	}
-
-	// got quickfilters?
-	if (
-		typeof window.zbsListViewParams.filters.quickfilters !== 'undefined' &&
-		window.zbsListViewParams.filters.quickfilters.length > 0
-	) {
-		if ( newSentence != '' ) {
-			newSentence += ' and ';
-		}
-		// newSentence += 'Filtered by: ';
-		newSentence += zeroBSCRMJS_listViewLang( 'filteredby', 'Filtered by' ) + ': ';
-		var quickFilterStr = '';
-
-		// add to sentence
-		jQuery.each( window.zbsListViewParams.filters.quickfilters, function ( ind, ele ) {
-			if ( quickFilterStr != '' ) {
-				quickFilterStr += ',';
-			}
-
-			if ( ele.substr( 0, 14 ) == 'notcontactedin' ) {
-				// catch these.
-				var dStr = ele.substr( 14 );
-				//quickFilterStr += 'Not Contacted in ' + dStr + ' days';
-				quickFilterStr +=
-					zeroBSCRMJS_listViewLang( 'notcontactedin', 'Not Contacted in' ) +
-					' ' +
-					dStr +
-					' ' +
-					zeroBSCRMJS_listViewLang( 'days', 'days' );
-			} else {
-				// default
-				//quickFilterStr += zeroBSCRMJS_ucwords(ele); // hacky use of ucwords for now
-				// 2.17 added statuses as default, adding some more processing:
-				var eleS = ele.replace( /_/g, ' ' );
-				quickFilterStr += zeroBSCRMJS_ucwords( eleS ); // hacky use of ucwords for now
-			}
-		} );
-		newSentence += quickFilterStr;
-	}
-
-	if ( newSentence != '' ) {
-		newSentence = '<h5 class="ui header blue"><i class="filter icon"></i>' + newSentence + '</h5>';
-	}
-
-	jQuery( '#zbs-listview-biline' ).html( newSentence );
-	if ( newSentence != '' ) {
-		// show it
-		jQuery( '#zbs-listview-biline' ).show();
-		// show clear filters button // and filters sentence
-		jQuery( '#zbs-listview-clearfilters, #zbs-listview-biline' )
-			.removeClass( 'zbs-hide' )
-			.removeClass( 'hidden' );
-	} else {
-		jQuery( '#zbs-listview-biline' ).hide();
-		jQuery( '#zbs-listview-clearfilters, #zbs-listview-biline' )
-			.addClass( 'zbs-hide' )
-			.addClass( 'hidden' );
-	}
 }
 
 // update data obj to match UI (takes UI and updates obj)
@@ -641,7 +313,7 @@ function zeroBSCRMJS_retrieveListViewData( successcb, errcb ) {
 		// Send
 		jQuery.ajax( {
 			type: 'POST',
-			url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
+			url: ajaxurl,
 			data: data,
 			dataType: 'json',
 			timeout: 20000,
@@ -755,31 +427,33 @@ function zeroBSCRMJS_drawListView() {
 		window.zbsDrawListViewBlocker = true;
 
 		// empty table, show loading
-		jQuery( '#zbs-list-table-wrap' ).html( window.zbsDrawListLoadingBoxHTML );
+		jQuery( '.jpcrm-listview-table-container' ).html( window.zbsDrawListLoadingBoxHTML );
 
 		// check data + retrieve if empty
 		if ( ! window.zbsListViewParams.retrieved ) {
+
+			// hide extras until listview is loaded
+			document.querySelector('.bulk-actions-dropdown').classList.add('hidden');
+			jQuery( 'jpcrm-listview-footer' ).hide();
+			jQuery( '#jpcrm-listview-totals-box' ).hide();
+
 			// retrieve data
 			zeroBSCRMJS_retrieveListViewData(
 				function ( d ) {
+
 					// holds event flags to fire post-draw
 					var postHTML = {};
 
 					// success callback
-
 					var listViewHTML = '';
 
-					// bulk actions dropdown and pagination
-					listViewHTML += '<div class="jpcrm-listview-actions">';
-					listViewHTML += zeroBSCRMJS_listViewBulkActions();
-					listViewHTML += zeroBSCRMJS_listViewPagination();
-					listViewHTML += '</div>';
+					listViewHTML += jpcrm_listview_header();
 
 					// build table
-					listViewHTML += '<table class="ui celled table unstackable">';
+					listViewHTML += '<table class="jpcrm-listview-table">';
 
 					// header
-					listViewHTML += zeroBSCRMJS_listViewHeader();
+					listViewHTML += jpcrm_listview_table_header();
 					listViewHTML += '<tbody>';
 
 					// per line
@@ -805,49 +479,48 @@ function zeroBSCRMJS_drawListView() {
 
 					listViewHTML += '</tbody>';
 
-					// footer
-					listViewHTML += zeroBSCRMJS_listViewFooter();
-
 					listViewHTML += '</table>';
 
-					// don't clutter the UI too much
-					if ( zbsListViewData.length > 9 ) {
-						// second bulk actions dropdown and pagination
-						listViewHTML += '<div class="jpcrm-listview-actions">';
-						listViewHTML += zeroBSCRMJS_listViewBulkActions();
-						listViewHTML += zeroBSCRMJS_listViewPagination();
-						listViewHTML += '</div>';
-					}
-
 					// draw
-					jQuery( '#zbs-list-table-wrap' ).html( listViewHTML );
+					jQuery( '.jpcrm-listview-table-container' ).html( listViewHTML );
+
+					//update counts in footer
+					jpcrm_update_listview_counts();
+
+					// update pagination
+					jpcrm_update_listview_pagination();
 
 					// catch any post-html events
-					setTimeout( function () {
-						var lPostHTML = postHTML;
+					var lPostHTML = postHTML;
 
-						// empty result set.
-						if ( typeof lPostHTML.nores ) {
-							jQuery( '#zbsNoResults' ).appendTo( '#zbs-no-results-wrap' ).removeClass( 'hidden' );
-						}
+					// empty result set.
+					if ( typeof lPostHTML.nores ) {
+						jQuery( '#zbsNoResults' ).appendTo( '#zbs-no-results-wrap' ).removeClass( 'hidden' );
+					}
 
-						// bind any post-render (e.g. bulk action)
-						zeroBSCRMJS_listViewBinds();
-					}, 0 );
-
-					// update semantic filter setence:
-					zeroBSCRMJS_writeFilterSentence();
+					// bind any post-render (e.g. bulk action)
+					zeroBSCRMJS_listViewBinds();
 
 					// draw totals tables, if data
 					zeroBSCRMJS_listView_draw_totals_tables();
-
 					// fini, remove blocker
 					window.zbsDrawListViewBlocker = false;
+
+					jQuery( '#zbsCantLoadData' ).hide();
+					jQuery( '.jpcrm-listview-table-container' ).show();
+					jQuery( 'jpcrm-listview-footer' ).show();
+					jQuery( '#jpcrm-listview-totals-box' ).show();
 				},
 				function ( errd ) {
 					// err callback? show msg (prefilled by php)
 					jQuery( '#zbsCantLoadData' ).show();
-					jQuery( '#zbs-list-table-wrap, #zbs-list-sidebar-wrap' ).hide();
+					jQuery( '.jpcrm-listview-table-container' ).hide();
+
+					//update counts in footer
+					jpcrm_update_listview_counts();
+
+					// update pagination
+					jpcrm_update_listview_pagination();
 
 					// fini, remove blocker
 					window.zbsDrawListViewBlocker = false;
@@ -857,57 +530,50 @@ function zeroBSCRMJS_drawListView() {
 	}
 }
 
-/**
- *
- */
-function zeroBSCRMJS_listViewBulkActions() {
-	// return if bulk actions aren't supported on current page
-	if ( ! zbsBulkActions || zbsBulkActions.length == 0 ) {
-		return '';
+function jpcrm_update_listview_counts() {
+	let listview_count_els = document.querySelectorAll('.jpcrm-listview-counts-container');
+
+	let first_record = zbsListViewParams.count * (zbsListViewParams.paged - 1) + 1
+	let last_record = Math.min(zbsListViewCount, zbsListViewParams.count * zbsListViewParams.paged);
+	let current_range = first_record + '-' + last_record;
+
+	// don't show if no results or out of range
+	if ( zbsListViewCount === 0 || first_record > zbsListViewCount ) {
+		listview_count_els.forEach((element) => element.textContent = '');
+		return;
 	}
 
-	html =
-		'<div class="jpcrm-bulk-actions">\
-                        <select class="jpcrm-bulk-actions-dropdown" disabled>\
-                            <option>' +
-		zeroBSCRMJS_listViewLang( 'rows_selected_0' ) +
-		'</option>\
-                        </select>\
-                        <button disabled class="jpcrm-bulk-actions-button ui tiny button primary" style="margin-left:0.4em">' +
-		zeroBSCRMJS_listViewLang( 'go_button' ) +
-		'</button>\
-                    </div>';
-	return html;
+	let html = zeroBSCRMJS_listViewLang( 'listview_counts' );
+	html = html.replace('%s',current_range);
+	html = html.replace('%s',zbsListViewCount);
+	listview_count_els.forEach((element) => element.textContent = html);
 }
 
-/**
- *
- */
-function zeroBSCRMJS_listViewPagination() {
-	var total_pages = Math.ceil( zbsListViewCount / zbsListViewParams.count );
+function jpcrm_update_listview_pagination() {
+	let pagination_els = document.querySelectorAll('.jpcrm-pagination-container');
 
-	// no need for pagination
-	if ( total_pages <= 1 ) {
-		return '';
+	let cur_page = zbsListViewParams.paged;
+	let total_pages = Math.ceil( zbsListViewCount / zbsListViewParams.count );
+
+	// don't show if few results or out of range
+	if ( total_pages <= 1 || cur_page > total_pages ) {
+		pagination_els.forEach((element) => element.textContent = '');
+		return;
 	}
 
-	var list_view_pagination_HTML = '';
-	var cur_page = zbsListViewParams.paged;
-
 	// this takes filters and makes an url that'll prefix our pagination
-	var cur_base_URL = zeroBSCRMJS_listview_generateCurrentFilterURL();
-
-	pages_to_add = [];
+	let cur_base_URL = jpcrm_listview_generate_current_filter_url();
+	let pages_to_add = [];
 
 	// not very many: show all pages
 	if ( total_pages < 9 ) {
 		pages_to_add = Array.from( Array( total_pages ), ( e, i ) => i + 1 );
 	}
-	// toward the beginning: show first five, triple dot, and last
+	// toward the beginning: show first five, ellipsis, and last
 	else if ( cur_page <= 4 ) {
 		pages_to_add = [ 1, 2, 3, 4, 5, '...', total_pages ];
 	}
-	// toward the end: show first, triple dot, and last five
+	// toward the end: show first, ellipsis, and last five
 	else if ( cur_page > total_pages - 4 ) {
 		pages_to_add = [
 			1,
@@ -919,31 +585,28 @@ function zeroBSCRMJS_listViewPagination() {
 			total_pages,
 		];
 	}
-	// somewhere in the middle: show first, triple dot, three, triple dot, and last
+	// somewhere in the middle: show first, ellipsis, three, ellipsis, and last
 	else {
 		pages_to_add = [ 1, '...', cur_page - 1, cur_page, cur_page + 1, '...', total_pages ];
 	}
 
-	list_view_pagination_HTML += '<div class="ui right floated pagination menu">';
+	let html = '<jpcrm-pagination>';
 
 	// link previous if available
-	if ( cur_page > 1 ) {
-		list_view_pagination_HTML +=
-			'<a class="icon item" href="' + cur_base_URL + '&paged=' + ( cur_page - 1 ) + '">';
+	if ( cur_page === 1 ) {
+		html += '<span class="disabled dashicons dashicons-arrow-left-alt2"></span>';
 	} else {
-		list_view_pagination_HTML += '<a class="icon item disabled">';
+		html += '<a href="' + cur_base_URL + '&paged=' + ( cur_page - 1 ) + '"><span class="dashicons dashicons-arrow-left-alt2"></span></a>';
 	}
-	list_view_pagination_HTML += '<i class="left chevron icon"></i>';
-	list_view_pagination_HTML += '</a>';
 
 	for ( var i = 0; i < pages_to_add.length; i++ ) {
-		if ( pages_to_add[ i ] == '...' ) {
-			list_view_pagination_HTML += '<a class="item disabled">...</a>';
+		if ( pages_to_add[ i ] === '...' ) {
+			html += '<span class="ellipsis">...</span>';
 		} else {
-			list_view_pagination_HTML +=
-				'<a class="item' +
-				( pages_to_add[ i ] == cur_page ? ' active' : '' ) +
-				'" href="' +
+			html +=
+				'<a' +
+				( pages_to_add[ i ] === cur_page ? ' class="active"' : '' ) +
+				' href="' +
 				cur_base_URL +
 				'&paged=' +
 				pages_to_add[ i ] +
@@ -954,24 +617,27 @@ function zeroBSCRMJS_listViewPagination() {
 	}
 
 	// link next if available
-	if ( total_pages > cur_page ) {
-		list_view_pagination_HTML +=
-			'<a class="icon item" href="' + cur_base_URL + '&paged=' + ( cur_page + 1 ) + '">';
+	if ( total_pages === cur_page ) {
+		html += '<span class="disabled dashicons dashicons-arrow-right-alt2"></span>';
 	} else {
-		list_view_pagination_HTML += '<a class="icon item disabled">';
+		html += '<a href="' + cur_base_URL + '&paged=' + ( cur_page + 1 ) + '"><span class="dashicons dashicons-arrow-right-alt2"></span></a>'
 	}
-	list_view_pagination_HTML += '<i class="right chevron icon"></i>';
-	list_view_pagination_HTML += '</a>';
 
-	list_view_pagination_HTML += '</div>';
+	html += '</jpcrm-pagination>';
 
-	return list_view_pagination_HTML;
+	pagination_els.forEach((element) => element.innerHTML = html);
+}
+
+function jpcrm_listview_header() {
+	let listview_header_html = `
+`;
+	return listview_header_html;
 }
 
 /**
  *
  */
-function zeroBSCRMJS_listViewHeader() {
+function jpcrm_listview_table_header() {
 	var listViewHeaderHTML = '';
 
 	if ( window.zbsListViewParams.columns.length > 0 ) {
@@ -983,7 +649,7 @@ function zeroBSCRMJS_listViewHeader() {
 		// only if there's any bulk actions to use!
 		if ( typeof window.zbsBulkActions !== 'undefined' && window.zbsBulkActions.length > 0 ) {
 			listViewHeaderHTML +=
-				'<th class="zbs-listview-bulk-hd"><div class="ui fitted checkbox"><input type="checkbox" id="jpcrm-bulk-select" /><label for="jpcrm-bulk-select"></label></div></th>';
+				'<th><input type="checkbox" id="jpcrm-bulk-select" /></th>';
 		}
 
 		jQuery.each( window.zbsListViewParams.columns, function ( lvhInd, lvhEle ) {
@@ -1013,7 +679,7 @@ function zeroBSCRMJS_listViewHeader() {
 
 					tdStr +=
 						' <a href="' +
-						zeroBSCRMJS_listview_generateCurrentFilterURL( true ) +
+						jpcrm_listview_generate_current_filter_url( true ) +
 						'&sort=' +
 						lvhEle.fieldstr +
 						'&sortdirection=' +
@@ -1025,7 +691,7 @@ function zeroBSCRMJS_listViewHeader() {
 					// use name as sort link, always defaults to desc
 					tdStr =
 						' <a href="' +
-						zeroBSCRMJS_listview_generateCurrentFilterURL( true ) +
+						jpcrm_listview_generate_current_filter_url( true ) +
 						'&sort=' +
 						lvhEle.fieldstr +
 						'" title="Click to Sort">' +
@@ -1062,13 +728,10 @@ function zeroBSCRMJS_listViewLine( data ) {
 		// only if there's any bulk actions to use!
 		if ( typeof window.zbsBulkActions !== 'undefined' && window.zbsBulkActions.length > 0 ) {
 			lineHTML +=
-				'<td class="zbs-listview-bulk"><div class="ui fitted checkbox"><input type="checkbox" id="zbsbulk' +
-				data.id +
+				'<td class="zbs-listview-bulk"><input type="checkbox"' +
 				'" data-entityid="' +
 				data.id +
-				'" class="zbsbulkcb" /><label for="zbsbulk' +
-				data.id +
-				'"></label></div></td>';
+				'" class="zbsbulkcb" /></td>';
 		}
 
 		jQuery.each( window.zbsListViewParams.columns, function ( lvhInd, lvhEle ) {
@@ -1128,51 +791,26 @@ function zeroBSCRMJS_listViewLine( data ) {
 /**
  *
  */
-function zeroBSCRMJS_listViewFooter() {
-	var listViewFooterHTML = '';
-
-	listViewFooterHTML +=
-		'<tfoot><tr><th colspan="' + ( window.zbsListViewParams.columns.length + 1 ) + '">';
-
-	// draw count
-	var objStrName = window.zbsListViewObjName;
-	//var incS = ''; if (window.zbsListViewCount > 1 || window.zbsListViewCount == 0) incS = 's';
-	if ( window.zbsListViewCount > 1 || window.zbsListViewCount == 0 ) {
-		objStrName = window.zbsListViewObjNamePlural;
-	}
-	listViewFooterHTML +=
-		'<div id="zbs-listview-footer-count">' +
-		zbscrmjs_prettifyLongInts( window.zbsListViewCount ) +
-		' ' +
-		objStrName +
-		'</div>';
-
-	/// close
-	listViewFooterHTML += '</th>';
-	listViewFooterHTML += '</tr></tfoot>';
-
-	return listViewFooterHTML;
-}
-
-/**
- *
- */
 function zeroBSCRMJS_listViewBinds() {
-	// https://stackoverflow.com/a/17902476
+
+	let row_checkboxes = document.querySelectorAll('.jpcrm-listview-table td input[type="checkbox"]');
+
+	// handle bulk select
 	jQuery( '#jpcrm-bulk-select' ).on( 'change', function () {
-		// tick all checkboxes
-		jQuery( '.zbs-listview-bulk input:checkbox' ).prop(
-			'checked',
-			jQuery( this ).prop( 'checked' )
-		);
+		row_checkboxes.forEach( el => {
+			el.checked = this.checked;
+			el.parentElement.parentElement.classList.toggle('selected', this.checked);
+		} );
 		// update any bulk actions strs etc.
 		zeroBSCRMJS_listView_bulkActionsUpdate();
 	} );
 
-	// any individual checkboxes:
-	jQuery( '.zbs-listview-bulk input:checkbox' ).on( 'click', function () {
-		// update any bulk actions strs etc.
-		zeroBSCRMJS_listView_bulkActionsUpdate();
+	// handle individual select
+	row_checkboxes.forEach( el => {
+		el.addEventListener('click', function() {
+			el.parentElement.parentElement.classList.toggle('selected', el.checked);
+			zeroBSCRMJS_listView_bulkActionsUpdate();
+		});
 	} );
 
 	// inline editing
@@ -1208,10 +846,7 @@ function zeroBSCRMJS_listViewBinds() {
 function zeroBSCRMJS_listView_bulkActionsUpdate() {
 	var rows_selected = zeroBSCRMJS_listView_bulkActionsGetChecked();
 
-	var rows_selected_pretty = zeroBSCRMJS_listViewLang( 'rows_selected_x' ).replace(
-		'%s',
-		rows_selected.length
-	);
+	var rows_selected_pretty = zeroBSCRMJS_listViewLang( 'rows_selected_x' ).replace('%s', rows_selected.length);
 	if ( rows_selected.length == 1 ) {
 		rows_selected_pretty = zeroBSCRMJS_listViewLang( 'rows_selected_1' );
 	} else if ( rows_selected.length == 0 ) {
@@ -1254,31 +889,26 @@ function zeroBSCRMJS_listView_bulkActionsUpdate() {
 		opt_html += '<option value="' + action_name + '">' + optnamehtml + '</option>';
 	} );
 
-	jQuery( '.jpcrm-bulk-actions-dropdown' ).html( opt_html );
+	jQuery( '.bulk-actions-dropdown' ).html( opt_html );
 
-	bulk_actions_els = document.querySelectorAll(
-		'.jpcrm-bulk-actions-dropdown, .jpcrm-bulk-actions-button'
-	);
-	for ( var i = 0; i < bulk_actions_els.length; i++ ) {
-		bulk_actions_els[ i ].disabled = rows_selected.length == 0;
-	}
+	document.querySelector( '.bulk-actions-dropdown' ).classList.toggle('hidden', rows_selected.length === 0);
 
 	// bind
 	setTimeout( function () {
-		jQuery( '.jpcrm-bulk-actions-button' )
-			.off( 'click' )
-			.on( 'click', function () {
+		jQuery( '.bulk-actions-dropdown' )
+			.off( 'change' )
+			.on( 'change', function () {
 				// fire a gatherer func (allows for SWAL between click + fire (e.g. leave orphans, are you sure, choose tag))
 
 				// get action from the clicked button's sibling dropdown...a bit hackish for now
-				var cur_action = this.parentElement.querySelector(
-					'.jpcrm-bulk-actions-dropdown option:checked'
-				).value;
+				var cur_action = this.parentElement.querySelector('.bulk-actions-dropdown option:checked').value;
 
 				// no action (e.g. "bulk actions" option)
 				if ( cur_action == '' ) {
 					return;
 				}
+
+				this.parentElement.querySelector('.bulk-actions-dropdown').selectedIndex = 0;
 
 				// generic bulkAction support, if available:
 				// e.g. zeroBSCRMJS_listView_generic_bulkActionFire_addtag
@@ -1406,79 +1036,42 @@ function zeroBSCRMJS_listView_bulkActionsGetCheckedIncNames() {
  * @param id
  */
 function zeroBSCRMJS_listView_editURL( id ) {
-	/* refactored
-            if (typeof id != "undefined" && id > 0){
-                if (window.zbsListViewParams.listtype == 'customer') || window.zbsListViewParams.listtype == 'transaction' || window.zbsListViewParams.listtype == 'form' || window.zbsListViewParams.listtype == 'quote' || window.zbsListViewParams.listtype == 'company' || window.zbsListViewParams.listtype == 'invoice')
-                    return window.zbsObjectEditLinkPrefix + '?post=' + id + '&action=edit';
-                else
-                    return window.zbsObjectEditLinkPrefix + id;
-            } else
-                return '#notfound';
-        */
 
-	// PRE DAL3 we do diff
-	if ( zbscrm_JS_DAL() > 2 ) {
-		// DAL 3
-		if ( typeof id !== 'undefined' && id > 0 ) {
-			switch ( window.zbsListViewParams.listtype ) {
-				case 'customer':
-					return window.zbsObjectEditLinkPrefixCustomer + id;
-					break;
+	if ( typeof id !== 'undefined' && id > 0 ) {
+		switch ( window.zbsListViewParams.listtype ) {
+			case 'customer':
+				return window.zbsObjectEditLinkPrefixCustomer + id;
+				break;
 
-				case 'company':
-					return window.zbsObjectEditLinkPrefixCompany + id;
-					break;
+			case 'company':
+				return window.zbsObjectEditLinkPrefixCompany + id;
+				break;
 
-				case 'quote':
-					return window.zbsObjectEditLinkPrefixQuote + id;
-					break;
+			case 'quote':
+				return window.zbsObjectEditLinkPrefixQuote + id;
+				break;
 
-				case 'invoice':
-					return window.zbsObjectEditLinkPrefixInvoice + id;
-					break;
+			case 'invoice':
+				return window.zbsObjectEditLinkPrefixInvoice + id;
+				break;
 
-				case 'transaction':
-					return window.zbsObjectEditLinkPrefixTransaction + id;
-					break;
+			case 'transaction':
+				return window.zbsObjectEditLinkPrefixTransaction + id;
+				break;
 
-				case 'segment':
-					return window.zbsObjectEditLinkPrefixSegment + id;
-					break;
+			case 'segment':
+				return window.zbsObjectEditLinkPrefixSegment + id;
+				break;
 
-				case 'form':
-					return window.zbsObjectEditLinkPrefixForm + id;
-					break;
+			case 'form':
+				return window.zbsObjectEditLinkPrefixForm + id;
+				break;
 
-				case 'quotetemplate':
-					return window.zbsObjectEditLinkPrefixQuoteTemplate + id;
-					break;
-
-				// nothing?
-				default:
-					return window.zbsObjectEditLinkPrefix + id; //'?post=' + id + '&action=edit';//window.zbsObjectEditLinkPrefix + id;
-					break;
-			}
+			case 'quotetemplate':
+				return window.zbsObjectEditLinkPrefixQuoteTemplate + id;
+				break;
 		}
-	} else {
-		// <DAL3
-
-		if ( typeof id !== 'undefined' && id > 0 ) {
-			switch ( window.zbsListViewParams.listtype ) {
-				case 'customer':
-					return window.zbsObjectEditLinkPrefixCustomer + id;
-					break;
-
-				case 'segment':
-					return window.zbsObjectEditLinkPrefixCustomer + id + '&zbstype=segment';
-					break;
-
-				// all non-contacts atm
-				default:
-					return window.zbsObjectEditLinkPrefix + id; //'?post=' + id + '&action=edit';//window.zbsObjectEditLinkPrefix + id;
-					break;
-			}
-		}
-	} // / <DAL3
+	}
 
 	return '#notfound';
 }
@@ -1487,83 +1080,41 @@ function zeroBSCRMJS_listView_editURL( id ) {
  * @param id
  */
 function zeroBSCRMJS_listView_viewURL( id ) {
-	/* refactored
-            if (typeof id != "undefined" && id > 0){
+	if ( typeof id !== 'undefined' && id > 0 ) {
+		switch ( window.zbsListViewParams.listtype ) {
+			case 'customer':
+				return window.zbsObjectViewLinkPrefixCustomer + id;
+				break;
 
-                // co doesn't seem to work?  window.zbsListViewParams.listtype == 'company'
-                // quo doesn't either window.zbsListViewParams.listtype == 'quote' ||
-                // } || window.zbsListViewParams.listtype == 'transaction' || window.zbsListViewParams.listtype == 'form' || window.zbsListViewParams.listtype == 'invoice')
-                if (window.zbsListViewParams.listtype == 'customer')
-                    return zeroBSCRMJS_listView_viewURL_customer(id); //window.zbsObjectViewLinkPrefix + id;
-                else
-                    return window.zbsObjectEditLinkPrefix + '&post=' + id ;
-            } else
-                return '#notfound';
-        */
+			case 'company':
+				return window.zbsObjectViewLinkPrefixCompany + id;
+				break;
 
-	// PRE DAL3 we do diff
-	if ( zbscrm_JS_DAL() > 2 ) {
-		// DAL 3
-		if ( typeof id !== 'undefined' && id > 0 ) {
-			switch ( window.zbsListViewParams.listtype ) {
-				case 'customer':
-					return window.zbsObjectViewLinkPrefixCustomer + id;
-					break;
+			case 'quote':
+				return window.zbsObjectViewLinkPrefixQuote + id;
+				break;
 
-				case 'company':
-					return window.zbsObjectViewLinkPrefixCompany + id;
-					break;
+			case 'invoice':
+				return window.zbsObjectViewLinkPrefixInvoice + id;
+				break;
 
-				case 'quote':
-					return window.zbsObjectViewLinkPrefixQuote + id;
-					break;
+			case 'transaction':
+				return window.zbsObjectViewLinkPrefixTransaction + id;
+				break;
 
-				case 'invoice':
-					return window.zbsObjectViewLinkPrefixInvoice + id;
-					break;
+			case 'segment':
+				return window.zbsObjectViewLinkPrefixSegment + id;
+				break;
 
-				case 'transaction':
-					return window.zbsObjectViewLinkPrefixTransaction + id;
-					break;
+			case 'form':
+				return window.zbsObjectViewLinkPrefixForm + id;
+				break;
 
-				case 'segment':
-					return window.zbsObjectViewLinkPrefixSegment + id;
-					break;
-
-				case 'form':
-					return window.zbsObjectViewLinkPrefixForm + id;
-					break;
-
-				case 'event':
-					return window.zbsObjectViewLinkPrefixEvent + id;
-					break;
-
-				// nothing?
-				default:
-					return window.zbsObjectEditLinkPrefix + id; //'?post=' + id; //return window.zbsObjectEditLinkPrefix + '&post=' + id ;
-					break;
-			}
+			case 'event':
+				return window.zbsObjectViewLinkPrefixEvent + id;
+				break;
 		}
-	} else {
-		// <DAL3
-
-		if ( typeof id !== 'undefined' && id > 0 ) {
-			switch ( window.zbsListViewParams.listtype ) {
-				case 'customer':
-					return window.zbsObjectViewLinkPrefixCustomer + id;
-					break;
-
-				case 'company':
-					return window.zbsObjectViewLinkPrefixCompany + id;
-					break;
-
-				// all non-contacts atm
-				default:
-					return window.zbsObjectEditLinkPrefix + id; //'?post=' + id; //return window.zbsObjectEditLinkPrefix + '&post=' + id ;
-					break;
-			}
-		}
-	} // / <DAL3
+	}
 
 	return '#notfound';
 }
@@ -1617,150 +1168,6 @@ function zeroBSCRMJS_listView_url_export_segment( id ) {
 	return '#notfound';
 }
 
-// filter button stuff
-var zbsDrawFilterButtonUpdateBlocker = false;
-var zbsDrawFilterButtonUpdateAJAXBlocker = false;
-
-// update data obj to match UI (takes UI and updates obj)
-/**
- * @param changecb
- * @param nochangecb
- */
-function zeroBSCRMJS_updateFilterButtonsVar( changecb, nochangecb ) {
-	// blocked?
-	if ( ! window.zbsDrawFilterButtonUpdateBlocker ) {
-		// set blocker
-		window.zbsDrawFilterButtonUpdateBlocker = true;
-
-		// get buttons
-		var buttons = [];
-		jQuery( '#zbs-list-view-filter-options-current .zbs-filter-button-manager-button' ).each(
-			function ( ind, ele ) {
-				// add data-key from each present
-				buttons.push( {
-					fieldstr: jQuery( ele ).attr( 'data-key' ),
-					namestr: jQuery( ele ).html(),
-				} );
-			}
-		);
-
-		// update obj
-
-		// compare via json string comparison, see if has changed
-		var changed = false;
-		var lastButtons = JSON.stringify( window.zbsFilterButtons );
-		var newButtons = JSON.stringify( buttons );
-		if ( lastButtons !== newButtons ) {
-			changed = true;
-		}
-
-		if ( changed ) {
-			window.zbsFilterButtons = buttons;
-
-			// callbacks (this'll reload data or do whatever it needs to)
-			if ( typeof changecb === 'function' ) {
-				changecb( buttons );
-			}
-		} else {
-			// callback (no change)
-			if ( typeof nochangecb === 'function' ) {
-				nochangecb( buttons );
-			}
-		}
-
-		// unset blocker
-		window.zbsDrawFilterButtonUpdateBlocker = false;
-	}
-}
-
-// update column sort from data obj
-/**
- * @param successcb
- * @param errcb
- */
-function zeroBSCRMJS_updateListViewFilterButtons( successcb, errcb ) {
-	if ( ! window.zbsDrawFilterButtonUpdateAJAXBlocker ) {
-		// set blocker
-		window.zbsDrawFilterButtonUpdateAJAXBlocker = true;
-
-		// postbag!
-		var data = {
-			action: 'updateListViewFilterButtons',
-			sec: window.zbscrmjs_secToken,
-			listtype: window.zbsListViewParams.listtype,
-			new_filter_buttons: window.zbsFilterButtons,
-		};
-
-		// Send
-		jQuery.ajax( {
-			type: 'POST',
-			url: ajaxurl, // admin side is just ajaxurl not wptbpAJAX.ajaxurl,
-			data: data,
-			dataType: 'json',
-			timeout: 20000,
-			success: function ( response ) {
-				// store updated in object
-				window.zbsFilterButtons = response;
-
-				// any success callback?
-				if ( typeof successcb === 'function' ) {
-					successcb( response );
-				}
-
-				// unset blocker
-				window.zbsDrawFilterButtonUpdateAJAXBlocker = false;
-			},
-			error: function ( response ) {
-				// debug
-				console.error( 'Column Data update Error: ', response );
-
-				// any error callback?
-				if ( typeof errcb === 'function' ) {
-					errcb( response );
-				}
-
-				// unset blocker
-				window.zbsDrawFilterButtonUpdateAJAXBlocker = false;
-			},
-		} );
-	} // / not blocked
-}
-
-/**
- *
- */
-function zeroBSCRMJS_drawFilterButtons() {
-	var newHTML = '';
-
-	jQuery.each( window.zbsFilterButtons, function ( ind, ele ) {
-		// if not selected
-		var colorClasses = 'olive';
-		var withoutQuickFilterURLParam = false;
-		var addQuickFilterURLParam = '&quickfilters=' + ele.fieldstr;
-		// if selected..
-		if (
-			typeof window.zbsListViewParams.filters.quickfilters !== 'undefined' &&
-			window.zbsListViewParams.filters.quickfilters.indexOf( ele.fieldstr ) > -1
-		) {
-			colorClasses = 'green';
-			withoutQuickFilterURLParam = true; // allows click to reset
-			addQuickFilterURLParam = '';
-		}
-
-		newHTML +=
-			'<a href="' +
-			zeroBSCRMJS_listview_generateCurrentFilterURL( true, withoutQuickFilterURLParam ) +
-			addQuickFilterURLParam +
-			'" class="ui ' +
-			colorClasses +
-			' button tiny">' +
-			ele.namestr +
-			'</a>';
-	} );
-
-	jQuery( '#zbs-list-filters' ).html( newHTML );
-}
-
 /*
  * Draw totals table, if data present
  */
@@ -1774,7 +1181,6 @@ function zeroBSCRMJS_listView_draw_totals_tables() {
 	if ( typeof window.jpcrm_totals_table !== 'undefined' && window.jpcrm_totals_table !== null ) {
 		var table_body_html = '';
 		var table_footer_html = '';
-		jQuery( '.jpcrm-listview-totals-box-divider' ).show();
 
 		if (
 			typeof window.jpcrm_totals_table.quotes_total_formatted !== 'undefined' &&
@@ -1834,8 +1240,6 @@ function zeroBSCRMJS_listView_draw_totals_tables() {
 					'</table>'
 			);
 		}
-	} else {
-		jQuery( '.jpcrm-listview-totals-box-divider' ).hide();
 	}
 }
 
@@ -2711,31 +2115,17 @@ function zeroBSCRMJS_listView_generic_tagged( dataLine ) {
 	var tagStr = '';
 	if ( typeof dataLine.tags !== 'undefined' && dataLine.tags.length > 0 ) {
 		jQuery.each( dataLine.tags, function ( ind, ele ) {
-			//if (tagStr != '') tagStr += ', ';
-
-			//https://codex.wordpress.org/Function_Reference/wp_get_post_tags
 			// ui choices: https://semantic-ui.com/elements/label.html
 			// ui tag
 			// ui basic
 			// ui horizontal
-			if ( typeof ele.term_id !== 'undefined' ) {
-				tagStr +=
-					'<a href="' +
-					window.zbsTagSkipLinkPrefix +
-					ele.term_id +
-					'" title="View all with this tag" class="ui small basic label teal">' +
-					ele.name +
-					'</a>';
-			} else if ( typeof ele.id !== 'undefined' ) {
-				// DAL2
-				tagStr +=
-					'<a href="' +
-					window.zbsTagSkipLinkPrefix +
-					ele.id +
-					'" title="View all with this tag" class="ui small basic label teal">' +
-					ele.name +
-					'</a>';
-			}
+			tagStr +=
+				'<a href="' +
+				window.zbsTagSkipLinkPrefix +
+				ele.id +
+				'" title="View all with this tag" class="ui small basic label teal">' +
+				ele.name +
+				'</a>';
 		} );
 	}
 
@@ -3259,32 +2649,17 @@ function zeroBSCRMJS_listView_customer_tagged( dataLine ) {
 	var tagStr = '';
 	if ( typeof dataLine.tags !== 'undefined' && dataLine.tags.length > 0 ) {
 		jQuery.each( dataLine.tags, function ( ind, ele ) {
-			//if (tagStr != '') tagStr += ', ';
-
-			// DAL1
-			//https://codex.wordpress.org/Function_Reference/wp_get_post_tags
 			// ui choices: https://semantic-ui.com/elements/label.html
 			// ui tag
 			// ui basic
 			// ui horizontal
-			if ( typeof ele.term_id !== 'undefined' ) {
-				tagStr +=
-					'<a href="' +
-					window.zbsTagSkipLinkPrefix +
-					ele.term_id +
-					'" title="View all with this tag" class="ui small basic label teal">' +
-					ele.name +
-					'</a>';
-			} else if ( typeof ele.id !== 'undefined' ) {
-				// DAL2
-				tagStr +=
-					'<a href="' +
-					window.zbsTagSkipLinkPrefix +
-					ele.id +
-					'" title="View all with this tag" class="ui small basic label teal">' +
-					ele.name +
-					'</a>';
-			}
+			tagStr +=
+				'<a href="' +
+				window.zbsTagSkipLinkPrefix +
+				ele.id +
+				'" title="View all with this tag" class="ui small basic label teal">' +
+				ele.name +
+				'</a>';
 		} );
 	}
 
@@ -5836,44 +5211,6 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markincomplete() {
 ============== / Bulk actions - Pre-checks - Event ====================================
 ==================================================================================== */
 
-/* Not used - use generic :)
-
-        // Draw <td> for  edit link
-        function zeroBSCRMJS_listView_customer_editlink(dataLine){
-            // return '<td class="center aligned"><a href="' + zeroBSCRMJS_listView_editURL(dataLine['id']) + '" class="ui basic button"><i class="icon edit"></i>' + window.zbs_lang.zbs_edit + '</a></td>';
-
-            return '<td class="center aligned"><a href="' + zeroBSCRMJS_listView_viewURL(dataLine['id']) + '" class="ui basic button"><i class="icon eye"></i>' + window.zbs_lang.zbs_view + '</a></td>';
-
-        }
-        // Draw <td> for  edit link
-        function zeroBSCRMJS_listView_company_editlink(dataLine){
-            // return '<td class="center aligned"><a href="' + zeroBSCRMJS_listView_editURL(dataLine['id']) + '" class="ui basic button"><i class="icon edit"></i>' + window.zbs_lang.zbs_edit + '</a></td>';
-
-            return '<td class="center aligned"><a href="' + zeroBSCRMJS_listView_viewURL(dataLine['id']) + '" class="ui basic button"><i class="icon eye"></i>' + window.zbs_lang.zbs_view + '</a></td>';
-
-        }
-        // Draw <td> for  edit link
-        function zeroBSCRMJS_listView_quote_editlink(dataLine){
-            // return '<td class="center aligned"><a href="' + zeroBSCRMJS_listView_editURL(dataLine['id']) + '" class="ui basic button"><i class="icon edit"></i>' + window.zbs_lang.zbs_edit + '</a></td>';
-
-            return '<td class="center aligned"><a href="' + zeroBSCRMJS_listView_viewURL(dataLine['id']) + '" class="ui basic button"><i class="icon eye"></i>' + window.zbs_lang.zbs_view + '</a></td>';
-
-        }
-        function zeroBSCRMJS_listView_invoice_editlink(dataLine){
-            return '<td class="center aligned"><a href="' + zeroBSCRMJS_listView_viewURL(dataLine['id']) + '" class="ui basic button"><i class="icon eye"></i>' + window.zbs_lang.zbs_edit + '</a></td>';
-
-        }
-        // Draw <td> for  edit link
-        function zeroBSCRMJS_listView_transaction_editlink(dataLine){
-
-            return '<td class="center aligned"><a href="' + zeroBSCRMJS_listView_viewURL(dataLine['id']) + '" class="ui basic button"><i class="icon eye"></i>' + window.zbs_lang.zbs_view + '</a></td>';
-
-        }
-        function zeroBSCRMJS_listView_form_editlink(dataLine){
-            return '<td class="center aligned"><a href="' + zeroBSCRMJS_listView_viewURL(dataLine['id']) + '" class="ui basic button"><i class="icon eye"></i>' + window.zbs_lang.zbs_edit + '</a></td>';
-
-        }*/
-
 /**
  * @param typeKey
  */
@@ -5896,7 +5233,7 @@ function zeroBSCRMJS_logTypeStr( typeKey ) {
  *
  */
 function zeroBSCRMJS_bindInlineEditing() {
-	jQuery( '#zbs-list-wrap td.zbs-inline-edit' )
+	jQuery( '.jpcrm-listview-table td.zbs-inline-edit' )
 		.off( 'click' )
 		.on( 'click', function () {
 			// clicked on an edit
@@ -6208,27 +5545,97 @@ function jpcrm_get_contact_meta( contact_id ) {
 	return false;
 }
 
+
+function jpcrm_add_listview_filter() {
+	// hide dropdown
+	this.classList.add('hidden');
+
+	// update and show current filter info
+	let current_filter_span = this.nextElementSibling.lastElementChild;
+	current_filter_span.textContent = this.options[this.selectedIndex].textContent;
+	this.nextElementSibling.classList.remove('hidden');
+
+	// update listview filter settings
+	if (this.dataset.filtertype === 'quickfilters') {
+		zbsListViewParams.filters.quickfilters = [this.value];
+	} else if (this.dataset.filtertype === 'tags') {
+		zbsListViewParams.filters.tags = [{id:this.value}];
+	}
+
+	// reset pagination
+	zbsListViewParams.paged = 1;
+
+	// update address bar
+	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
+
+	// draw new listview
+	zeroBSCRMJS_drawListView();
+}
+
+function jpcrm_remove_listview_filter() {
+	// hide current filter info
+	this.parentElement.classList.add('hidden');
+
+	let dropdown = this.parentElement.previousElementSibling;
+
+	// reset dropdown and show it
+	dropdown.selectedIndex = 0;
+	dropdown.classList.remove('hidden');
+
+	// update listview filter settings
+	if (dropdown.dataset.filtertype === 'quickfilters') {
+		zbsListViewParams.filters.quickfilters = [];
+	} else if (dropdown.dataset.filtertype === 'tags') {
+		zbsListViewParams.filters.tags = [];
+	}
+
+	// reset pagination
+	zbsListViewParams.paged = 1;
+
+	// update address bar
+	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
+
+	// draw new listview
+	zeroBSCRMJS_drawListView();
+}
+
+function jpcrm_do_search_filter( event ) {
+	// only trigger if Enter is pressed
+	if (event.keyCode !== 13 ) {
+		return;
+	}
+
+	// update listview filter settings
+	zbsListViewParams.filters.s = this.value;
+
+	// reset pagination
+	zbsListViewParams.paged = 1;
+
+	// update address bar
+	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
+
+	// draw new listview
+	zeroBSCRMJS_drawListView();
+}
+
 if ( typeof module !== 'undefined' ) {
-    module.exports = { zbscrmjs_sidebarState, zbscrmjs_sidebarChangeBlocker,
-		zbsDrawFilterButtonUpdateBlocker, zbsDrawFilterButtonUpdateAJAXBlocker,
+	module.exports = {
 		zbListViewInlineEditorAJAXBlocker, zeroBSCRMJS_initListView,
-		zeroBSCRMJS_bindSideBar, zeroBSCRMJS_fireSearch,
-		zeroBSCRMJS_listview_generateCurrentFilterURL,
-		zeroBSCRMJS_updateFilterOptionSearch, zeroBSCRMJS_writeFilterSentence,
+		jpcrm_listview_generate_current_filter_url,
 		zeroBSCRMJS_updateListViewColumnsVar, zeroBSCRMJS_updateListViewColumns,
 		zeroBSCRMJS_retrieveListViewData, zeroBSCRMJS_listViewLang,
 		zeroBSCRMJS_listViewIco, zeroBSCRMJS_drawListView,
-		zeroBSCRMJS_listViewBulkActions, zeroBSCRMJS_listViewPagination,
-		zeroBSCRMJS_listViewHeader, zeroBSCRMJS_listViewLine,
-		zeroBSCRMJS_listViewFooter, zeroBSCRMJS_listViewBinds,
+		jpcrm_update_listview_counts, jpcrm_update_listview_pagination,
+		jpcrm_listview_header,
+		jpcrm_listview_table_header, zeroBSCRMJS_listViewLine,
+		zeroBSCRMJS_listViewBinds,
 		zeroBSCRMJS_listView_bulkActionsUpdate, zeroBSCRMJS_enactBulkAction,
 		zeroBSCRMJS_listView_bulkActionsGetChecked,
 		zeroBSCRMJS_listView_bulkActionsGetCheckedIncNames,
 		zeroBSCRMJS_listView_editURL, zeroBSCRMJS_listView_viewURL,
 		zeroBSCRMJS_listView_viewURL_customer, zeroBSCRMJS_listView_viewURL_company,
 		zeroBSCRMJS_listView_emailURL_contact, zeroBSCRMJS_listView_url_export_segment,
-		zeroBSCRMJS_updateFilterButtonsVar, zeroBSCRMJS_updateListViewFilterButtons,
-		zeroBSCRMJS_drawFilterButtons, zeroBSCRMJS_listView_draw_totals_tables,
+		zeroBSCRMJS_listView_draw_totals_tables,
 		zeroBSCRMJS_listView_generic_bulkActionFire_addtag,
 		zeroBSCRMJS_listView_generic_bulkActionFire_removetag,
 		zeroBSCRMJS_listView_generic_bulkActionFire_export,
@@ -6350,5 +5757,7 @@ if ( typeof module !== 'undefined' ) {
 		zeroBSCRMJS_listView_tdAttr, zeroBSCRMJS_listView_bindInlineEditSave,
 		zeroBSCRMJS_listView_saveInlineEdit,
 		zeroBSCRMJS_listView_customer_edit_status,
-		zeroBSCRMJS_listView_generic_edit_assigned, jpcrm_get_contact_meta };
+		zeroBSCRMJS_listView_generic_edit_assigned, jpcrm_get_contact_meta,
+		jpcrm_add_listview_filter, jpcrm_remove_listview_filter, jpcrm_do_search_filter
+	};
 }

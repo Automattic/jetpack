@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Allow Premium content block to production and prevent potential issue on self-hosted installations

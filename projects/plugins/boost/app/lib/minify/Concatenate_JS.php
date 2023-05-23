@@ -62,8 +62,6 @@ class Concatenate_JS extends WP_Scripts {
 	 * Override for WP_Scripts::do_item() - this is the method that actually outputs the scripts.
 	 */
 	public function do_items( $handles = false, $group = false ) {
-		global $wp_filesystem;
-
 		$handles     = false === $handles ? $this->queue : (array) $handles;
 		$javascripts = array();
 		$siteurl     = apply_filters( 'page_optimize_site_url', $this->base_url );
@@ -145,7 +143,8 @@ class Concatenate_JS extends WP_Scripts {
 				}
 				$do_concat        = false;
 				$script_is_strict = true;
-			} elseif ( $do_concat && preg_match_all( '/^[\',"]use strict[\',"];/Uims', $wp_filesystem->get_contents( $js_realpath ), $matches ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			} elseif ( $do_concat && preg_match_all( '/^[\',"]use strict[\',"];/Uims', file_get_contents( $js_realpath ), $matches ) ) {
 				// Skip third-party scripts that use Strict Mode
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					echo sprintf( "\n<!-- No Concat JS %s => Has Strict Mode (Third-Party) -->\n", esc_html( $handle ) );
