@@ -30,9 +30,21 @@
 	color: var( --wp--preset--color--black );
 }
 
-.jetpack-ai-assistant__loading-spinner {
-	margin: auto 0;
-	padding-left: 4px;
+.jetpack-ai-assistant__input-icon-wrapper {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 4px 0 8px;
+	
+	.jetpack-ai-assistant__input-icon {
+		// Brand green regardless of theme
+		color: #069E08; // jp-green-40
+	}
+	
+	.jetpack-ai-assistant__input-loader-icon {
+		color: var( --wp--preset--color--foreground );
+	}
 }
 
 .jetpack-ai-assistant__input-wrapper {
