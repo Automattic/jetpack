@@ -178,14 +178,6 @@
             padding-right:0px;
         }
 
-        #zbs-list-table-wrap{
-            position:relative;
-        }
-        #zbs-list-table-wrap, #zbs-list-sidebar-wrap{
-            padding-right: 0;
-        }
-
-
         #zbs-customer-panel .three.wide.column img {
             max-width: 100%;
             width: 95% !important;
@@ -221,13 +213,9 @@
 
 
     //sort the padding out - semantic really should do this out the box!!
-    #zbs-list-table-wrap, #zbs-list-sidebar-wrap, #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
+    #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
         width:100% !important;
         overflow:hidden;
-    }
-
-    #zbs-list-sidebar-wrap{
-        margin-top:10px;
     }
 
     #zbs-edit-master-wrap{
@@ -256,11 +244,6 @@
     .auto-fold #adminmenu a.menu-top {
         height: inherit !important;
     }
-
-    .zbs-listview-bulk-hd .ui.fitted.checkbox, .zbs-listview-bulk .ui.fitted.checkbox {
-        padding-left: 13px !important;
-    }
-
 
     //invoice 
     .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper input, .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper select{
@@ -418,14 +401,6 @@
             padding-right:0px;
         }
 
-        #zbs-list-table-wrap{
-            position:relative;
-        }
-
-        #zbs-list-table-wrap, #zbs-list-sidebar-wrap{
-            padding-right: 0;
-        }
-
         #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap, #zbs-side-sortables{
             padding-right:0px !important;
         }
@@ -456,13 +431,9 @@
 
 
     //sort the padding out - semantic really should do this out the box!!
-    #zbs-list-table-wrap, #zbs-list-sidebar-wrap, #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
+    #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
         width:100% !important;
         overflow:hidden;
-    }
-
-    #zbs-list-sidebar-wrap{
-        margin-top:10px;
     }
 
     #zbs-edit-master-wrap{
@@ -491,11 +462,6 @@
     .auto-fold #adminmenu a.menu-top {
         height: inherit !important;
     }
-
-    .zbs-listview-bulk-hd .ui.fitted.checkbox, .zbs-listview-bulk .ui.fitted.checkbox {
-        padding-left: 13px !important;
-    }
-
 
     //invoice 
     .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper input, .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper select{
