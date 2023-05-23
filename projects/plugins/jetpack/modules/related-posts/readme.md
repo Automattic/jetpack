@@ -15,7 +15,7 @@ For the block-based version:
 
 ## Prerequisites
 
-If using a FSE-enabled theme, the site-wide Related Posts setting will be ignored. For other themes, the site-wide setting is honoured as long as a Related Posts block or shortcode is not found on the page. The Related Posts code paths will only output once per page.
+If using a block theme, the site-wide Related Posts setting will be ignored. For other themes, the site-wide setting is honored as long as a Related Posts block or shortcode is not found on the page. The Related Posts code paths will only output once per page.
 
 In both cases, the feature needs to be turned on in the Jetpack settings. This makes sense for the legacy widget but can be a bit confusing for the block. It will not be visible in the block "picker" until enabled.
 
@@ -31,6 +31,6 @@ Note the data used in rendering is all generated locally once the post IDs have 
 
 ## Block Source
 
-The source for the Gutenburg block lives separately at:
+The source for the Gutenberg block lives separately at:
 
 `projects/plugins/jetpack/extensions/blocks/related-posts/`
