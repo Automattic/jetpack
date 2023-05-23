@@ -30,6 +30,9 @@ function zeroBSCRM_scriptStyles_initStyleRegister(){
 			wp_register_style('zerobscrmadmcss', 	plugins_url('/css/ZeroBSCRM.admin.global'.wp_scripts_get_suffix().'.css',ZBS_ROOTFILE),array('zbs-wp-semanticui'), $zbs->version );
 			wp_enqueue_script('zerobscrmadmjs', plugins_url('/js/ZeroBSCRM.admin.global'.wp_scripts_get_suffix().'.js',ZBS_ROOTFILE), array( 'jquery' ), $zbs->version );
 
+			// emerald styles
+			wp_register_style( 'jpcrm-emerald', plugins_url( '/css/jpcrm-emerald' . wp_scripts_get_suffix() . '.css', ZBS_ROOTFILE ), array(), $zbs->version );
+
 		// ================ / Global  ================
 		// ===========================================
 
@@ -374,6 +377,9 @@ function zeroBSCRM_global_admin_styles(){
 		wp_enqueue_style( 'jpcrm-fontawesome-v4-4-0-core-css'	);
 		wp_enqueue_style( 'zerobscrmswa' );
 		wp_enqueue_script( 'zerobsjsmodal');
+
+		// emerald styles
+		wp_enqueue_style( 'jpcrm-emerald' );
 
 		// moment everywhere (from 2.98)
 		wp_enqueue_script( 'jpcrm-moment-v2-29-4', untrailingslashit( ZEROBSCRM_URL ) . '/js/lib/moment-with-locales.min.js', array( 'jquery' ), $zbs->version, false );

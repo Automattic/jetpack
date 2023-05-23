@@ -31,7 +31,7 @@ const LANGUAGE_LIST = [
 export type LanguageProp = ( typeof LANGUAGE_LIST )[ number ];
 
 type LanguageDropdownControlProps = {
-	value: LanguageProp;
+	value?: LanguageProp;
 	onChange: ( value: string ) => void;
 	label: string;
 };
@@ -39,7 +39,7 @@ type LanguageDropdownControlProps = {
 const defaultLanguageLocale =
 	window?.Jetpack_Editor_Initial_State?.siteLocale || navigator?.language;
 
-const defaultLabel = __( 'Language', 'jetpack' );
+const defaultLabel = __( 'Translate', 'jetpack' );
 
 export const defaultLanguage = ( defaultLanguageLocale?.split( '-' )[ 0 ] || 'en' ) as LanguageProp;
 
