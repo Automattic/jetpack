@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Token_Subscription_Service;
 
 require_once __DIR__ . '/../../extensions/blocks/subscriptions/constants.php';
 
@@ -438,17 +439,17 @@ class Jetpack_Memberships {
 	public static function get_post_access_level() {
 		if ( ! is_singular() ) {
 			// There is no "actual" current post.
-			return 'everybody';
+			return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
 		$post_id = get_the_ID();
 		if ( ! $post_id ) {
-			return 'everybody';
+			return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
 		$post_access_level = get_post_meta( $post_id, self::$post_access_level_meta_name, true );
 		if ( empty( $post_access_level ) ) {
-			$post_access_level = 'everybody';
+			$post_access_level = Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 		return $post_access_level;
 	}
@@ -480,7 +481,7 @@ class Jetpack_Memberships {
 		}
 
 		$post_access_level = self::get_post_access_level();
-		if ( 'everybody' === $post_access_level ) {
+		if ( Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $post_access_level ) {
 			self::$user_can_view_post_cache[ $cache_key ] = true;
 			return true;
 		}
