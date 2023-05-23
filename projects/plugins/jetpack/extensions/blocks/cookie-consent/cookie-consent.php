@@ -86,6 +86,37 @@ function load_assets( $attr, $content ) {
 }
 
 /**
+ * Render the cookie consent template-part.
+ *
+ * @since 12.0
+ */
+function render_cookie_consent_template() {
+
+	if ( is_admin() ) {
+		return;
+	}
+
+	$template_part_name = 'cookie-consent';
+
+	// Check whether block theme functions exist.
+	if ( ! function_exists( 'get_block_template' ) ) {
+		return;
+	}
+
+	$active_theme     = wp_get_theme()->get_stylesheet();
+	$template_part_id = "{ $active_theme }//{ $template_part_name }";
+	$template_part    = get_block_template( $template_part_id, 'wp_template_part' );
+
+	if ( is_wp_error( $template_part ) || empty( $template_part ) || empty( $template_part->content ) ) {
+		return;
+	}
+
+	echo do_blocks( $template_part->content ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+}
+
+add_action( 'wp_footer', __NAMESPACE__ . '\render_cookie_consent_template' );
+
+/**
  * Batcache busting: since the cookie consent is part of the cached response HTML, it can still render even when the cookie is set (when it shouldn't).
  * Because, by default, the cache doesn't vary around the cookie's value. This makes the cookie value part of the cache key.
  *
