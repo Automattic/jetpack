@@ -68,20 +68,7 @@ function jpcrm_contactlist_learn_menu(){
     $content      = $zbs->learn_menu->get_content_body( 'managecontacts' );
     $links        = $zbs->learn_menu->get_content_urls( 'managecontacts' );	
 
-
-    // filter strings
-    $filterStr = '<a href="' . jpcrm_esc_link( $zbs->slugs['managecontacts'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden zbs-hide"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
-
-    #} And allow peeps also to toggl side bar:
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-    #} Admins can change columns! (globally - should each person have own views?
-    // Now everyone can see this menu (2.95.3+) - but can only edit count per page
-    //if (zeroBSCRM_isZBSAdminOrAdmin()){ 
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-    //} 
-
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
+	$zbs->learn_menu->render_generic_learn_menu( $title, $addNew, '', true, $title, $content, $links['learn'], $links['img'], $links['vid'], '' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 }
 
 
@@ -227,25 +214,15 @@ function jpcrm_formlist_learn_menu(){
 	#} ? Yup ?
     $hopscotchCustomJS = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:11")) {hopscotch.startTour(window.zbsTour);}';
 
-    #} Filters
-	$filterStr = '<a href="' .admin_url('admin.php?page='.$zbs->slugs['manageformscrm'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden zbs-hide"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
-        
-    #} And allow peeps also to toggl side bar:
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-
-    if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-
-    	// Column manager
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-
-        // Settings link
-        $settingLink = zeroBSCRM_getAdminURL($zbs->slugs['settings']) . '&tab=forms';
-        $filterStr .= '<a href="' . $settingLink . '" class="ui icon button right floated" title="'.__( 'Forms settings','zero-bs-crm').'"><i class="cogs icon"></i></a>';
-    }
+	$filter_str = '';
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		// Settings link
+		$setting_link = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=forms';
+		$filter_str   = '<a href="' . $setting_link . '" class="ui icon button right floated" title="' . esc_attr__( 'Forms settings', 'zero-bs-crm' ) . '"><i class="cogs icon"></i></a>';
+	}
 
 	// output
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,$hideLearn,$title,$content,$links['learn'],$links['img'],$links['vid'],$hopscotchCustomJS);
+	$zbs->learn_menu->render_generic_learn_menu( $title, $addNew, $filter_str, $hideLearn, $title, $content, $links['learn'], $links['img'], $links['vid'], $hopscotchCustomJS ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 }
 
@@ -278,14 +255,7 @@ function jpcrm_tasklistview_learn_menu(){
 	$content    = $zbs->learn_menu->get_content_body( 'manage-events-list' );
     $links      = $zbs->learn_menu->get_content_urls( 'manage-events-list' );
 
-
-    // And allow peeps also to toggl side bar:
-    $filterStr = '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-    // Admins can change columns
-    $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-    
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
+	$zbs->learn_menu->render_generic_learn_menu( $title, $addNew, '', true, $title, $content, $links['learn'], $links['img'], $links['vid'], '' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 }
 
@@ -327,23 +297,15 @@ function jpcrm_quotelist_learn_menu(){
 	#} ? Yup ?
     $hopscotchCustomJS = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:11")) {hopscotch.startTour(window.zbsTour);}';
 
-    #} Filters
-	$filterStr = '<a href="' .admin_url('admin.php?page='.$zbs->slugs['managequotes'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
+	$filter_str = '';
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		// Settings link
+		$setting_link = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=quotebuilder';
+		$filter_str   = '<a href="' . $setting_link . '" class="ui icon button right floated" title="' . esc_attr__( 'Quotes settings', 'zero-bs-crm' ) . '"><i class="cogs icon"></i></a>';
+	}
 
-    #} And allow peeps also to toggl side bar:
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-    #} Admins can change columns! (globally - should each person have own views?
-    if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-
-        // Settings link
-        $settingLink = zeroBSCRM_getAdminURL($zbs->slugs['settings']) . '&tab=quotebuilder';
-        $filterStr .= '<a href="' . $settingLink . '" class="ui icon button right floated" title="'.__( 'Quotes settings','zero-bs-crm').'"><i class="cogs icon"></i></a>';
-    }
-    
 	// output
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,$hideLearn,$title,$content,$links['learn'],$links['img'],$links['vid'],$hopscotchCustomJS);
+	$zbs->learn_menu->render_generic_learn_menu( $title, $addNew, $filter_str, $hideLearn, $title, $content, $links['learn'], $links['img'], $links['vid'], $hopscotchCustomJS ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 }
 
@@ -398,20 +360,14 @@ function jpcrm_translist_learn_menu(){
     $content    = $zbs->learn_menu->get_content_body( 'managetransactions' );
     $links      = $zbs->learn_menu->get_content_urls( 'managetransactions' );
 
-    $filterStr = '<a href="' . jpcrm_esc_link( $zbs->slugs['managetransactions'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
+	$filter_str = '';
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		// Settings link
+		$setting_link = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=transactions';
+		$filter_str   = '<a href="' . $setting_link . '" class="ui icon button right floated" title="' . esc_attr__( 'Transaction settings', 'zero-bs-crm' ) . '"><i class="cogs icon"></i></a>';
+	}
 
-    if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-
-    	// Column manager
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-
-        // Settings link
-        $settingLink = zeroBSCRM_getAdminURL($zbs->slugs['settings']) . '&tab=transactions';
-        $filterStr .= '<a href="' . $settingLink . '" class="ui icon button right floated" title="'.__( 'Transaction settings','zero-bs-crm').'"><i class="cogs icon"></i></a>';
-    }
-	
-    $zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
+	$zbs->learn_menu->render_generic_learn_menu( $title, $addNew, $filter_str, true, $title, $content, $links['learn'], $links['img'], $links['vid'], '' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 }
 
 
@@ -469,23 +425,14 @@ function jpcrm_invoicelist_learn_menu(){
     $content    = $zbs->learn_menu->get_content_body( 'manageinvoices' );
     $links      = $zbs->learn_menu->get_content_urls( 'manageinvoices' );
 
-    #} Filters
-	$filterStr = '<a href="' .admin_url('admin.php?page='.$zbs->slugs['manageinvoices'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
+	$filter_str = '';
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		// Settings link
+		$setting_link = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=invbuilder';
+		$filter_str   = '<a href="' . $setting_link . '" class="ui icon button right floated" title="' . esc_attr__( 'Invoice settings', 'zero-bs-crm' ) . '"><i class="cogs icon"></i></a>';
+	}
 
-    
-    #} And allow peeps also to toggl side bar:
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-    #} Admins can change columns! (globally - should each person have own views?
-    if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-
-        // Settings link
-        $settingLink = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=invbuilder';
-        $filterStr .= '<a href="' . $settingLink . '" class="ui icon button right floated" title="'.__( 'Invoice settings','zero-bs-crm').'"><i class="cogs icon"></i></a>';
-    } 
-
-	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
+	$zbs->learn_menu->render_generic_learn_menu( $title, $addNew, $filter_str, true, $title, $content, $links['learn'], $links['img'], $links['vid'], '' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 }
 
@@ -548,27 +495,17 @@ function jpcrm_companylist_learn_menu(){
     if ( zeroBSCRM_permsInvoices() ) {
         $addNew =  '<a href="' .jpcrm_esc_link('create',-1,'zerobs_company',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
     }
-    $filterStr = '';
     $content    = $zbs->learn_menu->get_content_body( 'managecompanies' );
     $links      = $zbs->learn_menu->get_content_urls( 'managecompanies' );	
 
-    // filter strings
-    $filterStr = '<a href="' . jpcrm_esc_link( $zbs->slugs['managecompanies'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden zbs-hide"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
+	$filter_str = '';
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		// Settings link
+		$setting_link = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=companies';
+		$filter_str   = '<a href="' . $setting_link . '" class="ui icon button right floated" title="' . esc_attr__( 'Settings', 'zero-bs-crm' ) . '"><i class="cogs icon"></i></a>';
+	}
 
-    #} And allow peeps also to toggl side bar:
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
-
-    #} Admins can change columns! (globally - should each person have own views?
-    if (zeroBSCRM_isZBSAdminOrAdmin()){ 
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-
-        // Settings link
-        $settingLink = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=companies';
-        $filterStr .= '<a href="' . $settingLink . '" class="ui icon button right floated" title="'.__( 'Settings','zero-bs-crm').'"><i class="cogs icon"></i></a>';
-    } 
-
-    $zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
-    
+	$zbs->learn_menu->render_generic_learn_menu( $title, $addNew, $filter_str, true, $title, $content, $links['learn'], $links['img'], $links['vid'], '' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 }
 
 /**
@@ -668,47 +605,38 @@ function jpcrm_tasklist_learn_menu(){
 
 }
 
-
-					
 function jpcrm_segmentlist_learn_menu(){    
 
-    global $zbs;
-    
-    $title      = __( 'Segment List','zero-bs-crm' );
-    $content    = $zbs->learn_menu->get_content_body( 'segments' );
-    $links      = $zbs->learn_menu->get_content_urls( 'segments' );	
-   
-    $addNew = ''; if ( zeroBSCRM_permsCustomers() ) {
-        $addNew = ' <a href="' . jpcrm_esc_link( 'create', -1, 'segment', false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
-    }
+	global $zbs;
 
-    // filter strings
-    $filterStr = '<a href="' .zeroBSCRM_getAdminURL($zbs->slugs['managecontacts'] ) . '" id="zbs-listview-clearfilters" class="ui button red tiny hidden"><i class="undo icon"></i>'.__(" Clear Filters","zero-bs-crm").'</a><div id="zbs-listview-biline" class="hidden"></div>';
+	$title   = __( 'Segment List', 'zero-bs-crm' );
+	$content = $zbs->learn_menu->get_content_body( 'segments' );
+	$links   = $zbs->learn_menu->get_content_urls( 'segments' );
 
-    // And allow peeps also to toggl side bar:
-    $filterStr .= '<button class="ui icon button basic right floated" type="button" id="zbs-toggle-sidebar"><i class="toggle off icon"></i></button>';
+	$add_new = '';
+	if ( zeroBSCRM_permsCustomers() ) {
+		$add_new = ' <a href="' . jpcrm_esc_link( 'create', -1, 'segment', false ) . '" class="button ui blue tiny zbs-add-new">' . esc_html__( 'Add New', 'zero-bs-crm' ) . '</a>';
+	}
 
-    // Admins can change columns! (globally - should each person have own views?
-    if (current_user_can('administrator')){ 
-        $filterStr .= '<button class="ui icon button blue right floated" type="button" id="zbs-open-column-manager"><i class="options icon"></i></button>';
-    }   
+	// filter strings
+	$filter_str = '';
 
 	// output
-	$zbs->learn_menu->render_generic_learn_menu( 
-        $title,
-        $addNew,
-        $filterStr,
-        true,
-        $title,
-        $content,
-        $links['learn'],
-        $links['img'],
-        $links['vid'],
-        '',
-        'z-index: 9999999;',
-        __( "Introduction to Tags and Segments", 'zero-bs-crm' ),
-        'pie chart' 
-    );
+	$zbs->learn_menu->render_generic_learn_menu(
+		$title,
+		$add_new,
+		$filter_str,
+		true,
+		$title,
+		$content,
+		$links['learn'],
+		$links['img'],
+		$links['vid'],
+		'',
+		'z-index: 9999999;',
+		__( 'Introduction to Tags and Segments', 'zero-bs-crm' ),
+		'pie chart'
+	);
 
 }
 
