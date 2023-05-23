@@ -32,7 +32,7 @@ const Amount = ( {
 			if ( parsedAmount && parsedAmount >= minimumTransactionAmountForCurrency( currency ) ) {
 				onChange( parsedAmount );
 				setIsInvalid( false );
-			} else if ( amount ) {
+			} else {
 				setIsInvalid( true );
 			}
 		},
@@ -54,17 +54,21 @@ const Amount = ( {
 			return;
 		}
 
-		richTextRef.current.addEventListener( 'blur', () => setIsFocused( false ) );
-	}, [ richTextRef ] );
+		const _ref = richTextRef.current;
 
-	// Sets a default value if empty when user clicks out the input.
-	useEffect( () => {
-		if ( isFocused || editedValue ) {
-			return;
-		}
+		const onBlur = () => {
+			setIsFocused( false );
+			if ( ! editedValue ) {
+				setAmount( formatCurrency( defaultValue, currency, { symbol: '' } ) );
+			}
+		};
 
-		setAmount( formatCurrency( defaultValue, currency, { symbol: '' } ) );
-	}, [ currency, defaultValue, editedValue, isFocused, setAmount ] );
+		_ref.addEventListener( 'blur', onBlur );
+
+		return () => {
+			_ref.removeEventListener( 'blur', onBlur );
+		};
+	}, [ currency, defaultValue, editedValue, richTextRef, setAmount ] );
 
 	// Syncs the edited value with the actual value whenever the latter changes (e.g. new default amount after a currency change).
 	useEffect( () => {
