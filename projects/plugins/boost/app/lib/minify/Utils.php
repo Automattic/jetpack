@@ -32,6 +32,7 @@ class Utils {
 			return wp_json_encode( $value );
 		}
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 		return json_encode( $value );
 	}
 
@@ -64,6 +65,7 @@ class Utils {
 			return wp_parse_url( $url, $component );
 		}
 
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url
 		return parse_url( $url, $component );
 	}
 }
