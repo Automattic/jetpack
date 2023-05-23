@@ -2992,6 +2992,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 
 					$customers = $zbs->DAL->contacts->getContacts( $args );
 
+					$customers = jpcrm_inject_contacts( $customers, $args );
+
 					// } If using pagination, also return total count
 					if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {
 
