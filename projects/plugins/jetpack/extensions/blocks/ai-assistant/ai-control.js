@@ -29,6 +29,7 @@ const AIControl = ( {
 	handleAcceptTitle,
 	handleTryAgain,
 	handleGetSuggestion,
+	handleStopSuggestion,
 	handleImageRequest,
 	isWaitingState,
 	loadingImages,
@@ -129,7 +130,7 @@ const AIControl = ( {
 					) : (
 						<Button
 							className="jetpack-ai-assistant__prompt_button"
-							onClick={ () => handleGetSuggestion( 'userPrompt' ) }
+							onClick={ handleStopSuggestion }
 							isSmall={ true }
 							label={ __( 'Stop request', 'jetpack' ) }
 						>
