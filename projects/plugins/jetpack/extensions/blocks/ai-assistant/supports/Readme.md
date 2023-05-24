@@ -5,9 +5,9 @@ It allows a block to declare support for certain Jetpack AI features.
 ## assistant
 
 ```json
-supports: {
-	'jetpack/ai': {
-		assistance: true
+"supports": {
+	"jetpack/ai": {
+		"assistance": true
 	}
 }
 ```
