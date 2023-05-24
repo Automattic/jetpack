@@ -41,6 +41,7 @@ export async function refreshConnectionTestResults() {
 			const { done, enabled, toggleable } = prevConnection ?? defaults;
 			const connection = {
 				display_name: freshConnection.display_name,
+				user_name: freshConnection.user_name,
 				service_name: freshConnection.service_name,
 				id: freshConnection.id,
 				profile_picture: freshConnection.profile_picture,

@@ -6,6 +6,7 @@ import FacebookPreview from './facebook';
 import GoogleSearch from './google-search';
 import { Instagram } from './instagram';
 import { LinkedIn } from './linkedin';
+import MastodonPreview from './mastodon';
 import TumblrPreview from './tumblr';
 import Twitter from './twitter';
 
@@ -60,12 +61,12 @@ export function useAvailableSerivces() {
 					name: 'tumblr',
 					preview: TumblrPreview,
 				},
-				/* {
+				{
 					title: __( 'Mastodon', 'jetpack' ),
 					icon: props => <SocialServiceIcon serviceName="mastodon" { ...props } />,
-					name: 'mastadon',
-					preview: () => null,
-				}, */
+					name: 'mastodon',
+					preview: MastodonPreview,
+				},
 			].filter( Boolean ),
 		[ isInstagramSupported ]
 	);
