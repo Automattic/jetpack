@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { store as blockEditorStore } from '@wordpress/block-editor';
+import { store as blockEditorStore, BlockIcon } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
 import {
 	PanelBody,
@@ -21,6 +21,7 @@ import React from 'react';
 import { buildPromptTemplate } from '../../create-prompt';
 import { askQuestion } from '../../get-suggestion-with-stream';
 import { LANGUAGE_MAP } from '../../i18n-dropdown-control';
+import Icon from '../../icons/ai-assistant';
 import { PROMPT_TONES_MAP } from '../../tone-dropdown-control';
 
 // Create a Tone Array of objects with `key` and `name` keys
@@ -169,8 +170,9 @@ export default function GenerateContentPanel( { blocksIds } ) {
 
 	return (
 		<PanelBody
-			title={ __( 'Ask Assistant to edit', 'jetpack' ) }
+			title={ __( 'AI Assistant', 'jetpack' ) }
 			className="jetpack-ai-assistant__multiple-blocks-edition-panel"
+			icon={ <BlockIcon icon={ Icon } /> }
 		>
 			<PanelRow>
 				<CustomSelectControl

@@ -124,6 +124,13 @@ abstract class Publicize_Base {
 	public $POST_SERVICE_DONE = '_publicize_done_external';
 
 	/**
+	 * Option key for dismissing Jetpack Social notices.
+	 *
+	 * @var string
+	 */
+	const OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES = 'jetpack_social_dismissed_notices';
+
+	/**
 	 * Default pieces of the message used in constructing the
 	 * content pushed out to other social networks.
 	 */
@@ -1714,17 +1721,21 @@ abstract class Publicize_Base {
 	/**
 	 * Check if enhanced publishing is enabled.
 	 *
+	 * @deprecated $$next-version use Automattic\Jetpack\Publicize\Publicize_Base\has_enhanced_publishing_feature instead.
 	 * @param int $blog_id The blog ID for the current blog.
 	 * @return bool
 	 */
-	public function is_enhanced_publishing_enabled( $blog_id ) {
-		$data = $this->get_api_data( $blog_id );
+	public function is_enhanced_publishing_enabled( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return $this->has_enhanced_publishing_feature();
+	}
 
-		if ( empty( $data ) ) {
-			return false;
-		}
-
-		return ! empty( $data['is_enhanced_publishing_enabled'] );
+	/**
+	 * Check if the enhanced publishing feature is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_enhanced_publishing_feature() {
+		return Current_Plan::supports( 'social-enhanced-publishing' );
 	}
 
 	/**
@@ -1745,6 +1756,15 @@ abstract class Publicize_Base {
 	 */
 	public function has_social_image_generator_feature() {
 		return Current_Plan::supports( 'social-image-generator' );
+	}
+
+	/**
+	 * Check if Instagram connection is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_instagram_connection_feature() {
+		return Current_Plan::supports( 'social-instagram-connection' );
 	}
 
 	/**
@@ -1776,10 +1796,25 @@ abstract class Publicize_Base {
 	 */
 	public function has_paid_plan( $refresh_from_wpcom = false ) {
 		static $has_paid_plan = null;
-		if ( ! $has_paid_plan ) {
+		if ( $has_paid_plan === null ) {
 			$has_paid_plan = Current_Plan::supports( 'social-shares-1000', $refresh_from_wpcom );
 		}
 		return $has_paid_plan;
+	}
+
+	/**
+	 * Get an array with all dismissed notices.
+	 *
+	 * @return array
+	 */
+	public function get_dismissed_notices() {
+		$dismissed_notices = get_option( self::OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES );
+
+		if ( ! is_array( $dismissed_notices ) ) {
+			return array();
+		}
+
+		return $dismissed_notices;
 	}
 }
 

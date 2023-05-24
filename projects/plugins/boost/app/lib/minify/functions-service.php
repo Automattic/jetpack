@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
+use Automattic\Jetpack_Boost\Lib\Minify\Utils;
 use tubalmartin\CssMin;
 
 function jetpack_boost_page_optimize_types() {
@@ -15,15 +16,15 @@ function jetpack_boost_page_optimize_types() {
  * Handle serving a minified / concatenated file from the virtual _static dir.
  */
 function jetpack_boost_page_optimize_service_request() {
-	global $wp_filesystem;
-
-	jetpack_boost_init_filesystem();
+	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
+	$utils  = new Utils( $use_wp );
 
 	$cache_dir = Config::get_cache_dir_path();
 	$use_cache = ! empty( $cache_dir );
 
 	// Ensure the cache directory exists.
-	if ( $use_cache && ! is_dir( $cache_dir ) && ! $wp_filesystem->mkdir( $cache_dir, 0775, true ) ) {
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+	if ( $use_cache && ! is_dir( $cache_dir ) && ! mkdir( $cache_dir, 0775, true ) ) {
 		$use_cache = false;
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -38,7 +39,8 @@ function jetpack_boost_page_optimize_service_request() {
 	}
 
 	// Ensure the cache directory is writable.
-	if ( $use_cache && ( ! is_dir( $cache_dir ) || ! $wp_filesystem->is_writable( $cache_dir ) || ! is_executable( $cache_dir ) ) ) {
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+	if ( $use_cache && ( ! is_dir( $cache_dir ) || ! is_writable( $cache_dir ) || ! is_executable( $cache_dir ) ) ) {
 		$use_cache = false;
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -53,8 +55,8 @@ function jetpack_boost_page_optimize_service_request() {
 	}
 
 	if ( $use_cache ) {
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$request_uri      = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$request_uri      = isset( $_SERVER['REQUEST_URI'] ) ? $utils->unslash( $_SERVER['REQUEST_URI'] ) : '';
 		$request_uri_hash = md5( $request_uri );
 		$cache_file       = $cache_dir . "/page-optimize-cache-$request_uri_hash";
 		$cache_file_meta  = $cache_dir . "/page-optimize-cache-meta-$request_uri_hash";
@@ -62,15 +64,16 @@ function jetpack_boost_page_optimize_service_request() {
 		// Serve an existing file.
 		if ( file_exists( $cache_file ) ) {
 			if ( isset( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
-				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				if ( strtotime( wp_unslash( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) < filemtime( $cache_file ) ) {
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+				if ( strtotime( $utils->unslash( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) < filemtime( $cache_file ) ) {
 					header( 'HTTP/1.1 304 Not Modified' );
 					exit;
 				}
 			}
 
 			if ( file_exists( $cache_file_meta ) ) {
-				$meta = json_decode( $wp_filesystem->get_contents( $cache_file_meta ) );
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+				$meta = json_decode( file_get_contents( $cache_file_meta ) );
 				if ( null !== $meta && isset( $meta->headers ) ) {
 					foreach ( $meta->headers as $header ) {
 						header( $header );
@@ -78,13 +81,14 @@ function jetpack_boost_page_optimize_service_request() {
 				}
 			}
 
-			$etag = '"' . md5( $wp_filesystem->get_contents( $cache_file ) ) . '"';
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$etag = '"' . md5( file_get_contents( $cache_file ) ) . '"';
 
 			header( 'X-Page-Optimize: cached' );
 			header( 'Cache-Control: max-age=' . 31536000 );
 			header( 'ETag: ' . $etag );
 
-			echo $wp_filesystem->get_contents( $cache_file ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We need to trust this unfortunately.
+			echo file_get_contents( $cache_file ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- We need to trust this unfortunately.
 			die();
 		}
 	}
@@ -105,8 +109,10 @@ function jetpack_boost_page_optimize_service_request() {
 
 	// Cache the generated data, if available.
 	if ( $use_cache ) {
-		$wp_filesystem->put_contents( $cache_file, $content );
-		$wp_filesystem->put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ) ) );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $cache_file, $content );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ) ) );
 	}
 
 	die();
@@ -116,7 +122,8 @@ function jetpack_boost_page_optimize_service_request() {
  * Generate a combined and minified output for the current request.
  */
 function jetpack_boost_page_optimize_build_output() {
-	global $wp_filesystem;
+	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
+	$utils  = new Utils( $use_wp );
 
 	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
 
@@ -125,8 +132,8 @@ function jetpack_boost_page_optimize_build_output() {
 	$concat_unique    = true;
 
 	// Main
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	$method = isset( $_SERVER['REQUEST_METHOD'] ) ? wp_unslash( $_SERVER['REQUEST_METHOD'] ) : 'GET';
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+	$method = isset( $_SERVER['REQUEST_METHOD'] ) ? $utils->unslash( $_SERVER['REQUEST_METHOD'] ) : 'GET';
 	if ( ! in_array( $method, array( 'GET', 'HEAD' ), true ) ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
@@ -135,9 +142,9 @@ function jetpack_boost_page_optimize_build_output() {
 	// /_static/??/foo/bar.css,/foo1/bar/baz.css?m=293847g
 	// -- or --
 	// /_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
-	$args        = wp_parse_url( $request_uri, PHP_URL_QUERY );
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $utils->unslash( $_SERVER['REQUEST_URI'] ) : '';
+	$args        = $utils->parse_url( $request_uri, PHP_URL_QUERY );
 	if ( ! $args || false === strpos( $args, '?' ) ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
@@ -177,7 +184,7 @@ function jetpack_boost_page_optimize_build_output() {
 	// If we're in a subdirectory context, use that as the root.
 	// We can't assume that the root serves the same content as the subdir.
 	$subdir_path_prefix = '';
-	$request_path       = wp_parse_url( $request_uri, PHP_URL_PATH );
+	$request_path       = $utils->parse_url( $request_uri, PHP_URL_PATH );
 	$_static_index      = strpos( $request_path, '/_static/' );
 	if ( $_static_index > 0 ) {
 		$subdir_path_prefix = substr( $request_path, 0, $_static_index );
@@ -225,7 +232,8 @@ function jetpack_boost_page_optimize_build_output() {
 			$last_modified = $stat['mtime'];
 		}
 
-		$buf = $wp_filesystem->get_contents( $fullpath );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$buf = file_get_contents( $fullpath );
 		if ( false === $buf ) {
 			jetpack_boost_page_optimize_status_exit( 500 );
 		}

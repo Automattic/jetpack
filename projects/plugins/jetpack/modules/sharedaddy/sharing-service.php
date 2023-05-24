@@ -964,6 +964,14 @@ function sharing_display( $text = '', $echo = false ) {
 		return $text;
 	}
 
+	// Do not output sharing buttons for ActivityPub requests.
+	if (
+		function_exists( '\Activitypub\is_activitypub_request' )
+		&& \Activitypub\is_activitypub_request()
+	) {
+		return $text;
+	}
+
 	// Don't output flair on excerpts.
 	if ( in_array( 'get_the_excerpt', (array) $wp_current_filter, true ) ) {
 		return $text;
