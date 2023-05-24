@@ -38,44 +38,47 @@ function zeroBS_dashboard_crm_list_growth(){
 			'count'     => true,
 		)
 	);
-
-	if ( $contacts_added_in_last_year === 0 ) {
-		?>
-
-		<div class='one column row'>
-			<div class="column"  id="settings_dashboard_growth_display">
-				<div class='panel' style="padding:20px;">
-					<div class='ui message blue' style="text-align:center;margin-bottom:80px;margin-top:50px;">
+	?>
+	<div class="jpcrm-dashcard" style="margin:10px;">
+		<div class="jpcrm-dashcard-header">
+			<h4><?php esc_html_e( 'CRM contacts', 'zero-bs-crm' ); ?></h4>
+			<?php
+			if ( $contacts_added_in_last_year !== 0 ) {
+				?>
+				<div class="day-or-month">
+					<div class="button" data-range="daily"><?php esc_html_e( 'Day', 'zero-bs-crm' ); ?></div>
+					<div class="button" data-range="weekly"><?php esc_html_e( 'Week', 'zero-bs-crm' ); ?></div>
+					<div class="button selected" data-range="monthly"><?php esc_html_e( 'Month', 'zero-bs-crm' ); ?></div>
+					<div class="button" data-range="yearly"><?php esc_html_e( 'Year', 'zero-bs-crm' ); ?></div>
+				</div>
+				<?php
+			}
+			?>
+		</div>
+		<div class="jpcrm-listview-table-container">
+			<?php
+			if ( $contacts_added_in_last_year !== 0 ) {
+				// Chart requires an empty div or else the height grows indefinitely
+				?>
+				<div>
+					<canvas id="growth-chart" height="400"></canvas>
+				</div>
+				<?php
+			} else {
+				?>
+				<div class="div-message-box">
+					<div class="div-message">
 						<?php esc_html_e( 'No contacts were added during the last 12 months. You need contacts for your growth chart to show.', 'zero-bs-crm' ); ?>
-						<br />
-						<a href="<?php echo jpcrm_esc_link( 'create', -1, 'zerobs_customer', false, false ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" class="ui tiny green button" style="margin-top:1em"><?php esc_html_e( 'Add a Contact', 'zero-bs-crm' ); ?></a>
+					</div>
+					<div class="div-message">
+						<a href="<?php echo esc_url( $zbs->urls['kbfirstcontact'] ); ?>" class="jpcrm-button white-bg"><?php echo esc_html__( 'Read guide', 'zero-bs-crm' ); ?></a>
+						<a href="<?php echo jpcrm_esc_link( 'create', -1, 'zerobs_customer', false, false ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" class="jpcrm-button"><?php esc_html_e( 'Add a contact', 'zero-bs-crm' ); ?></a>
 					</div>
 				</div>
-			</div>
+				<?php
+			}
+			?>
 		</div>
-		<?php
-	} else {
-		?>
-		<div class='one column row'>
-			<div class="column"  id="settings_dashboard_growth_display">
-				<div class='panel' style="padding:20px;height:400px;padding-bottom:50px;">
-					<div class="panel-heading" style="text-align:center">
-						<div class="contact-display-chooser">
-
-							<h4 class="panel-title text-muted font-light"><?php esc_html_e( 'CRM contacts', 'zero-bs-crm' ); ?></h4>
-
-							<div class="ui buttons day-or-month">
-								<div class="ui button" data-range="daily"><?php esc_html_e( 'Day', 'zero-bs-crm' ); ?></div>
-								<div class="ui button" data-range="weekly"><?php esc_html_e( 'Week', 'zero-bs-crm' ); ?></div>
-								<div class="ui button selected" data-range="monthly"><?php esc_html_e( 'Month', 'zero-bs-crm' ); ?></div>
-								<div class="ui button" data-range="yearly"><?php esc_html_e( 'Year', 'zero-bs-crm' ); ?></div>
-							</div>
-						</div>
-					</div>
-					<canvas id="growth-chart" width="500" height="400"></canvas>
-				</div>
-			</div>
-		</div>
-		<?php
-	}
+	</div>
+	<?php
 }

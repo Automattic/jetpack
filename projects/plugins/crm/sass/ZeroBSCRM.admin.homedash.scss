@@ -368,11 +368,6 @@ background:white;
   top: -3px;
 }
 
-#settings_dashboard_growth_display {
-	padding-bottom: 14px;
-	padding-top: 10px;
-}
-
 #settings_dashboard_revenue_chart_display{
 	padding-bottom: 0px;
 	.panel{
@@ -398,25 +393,8 @@ background:white;
   }
 }
 
-.contact-display-chooser{
-  .add-or-total{
-    position: absolute;
-    left: 60px;
-    top: 13px;
-    .selected{
-      background-color: #01a0d2 !important;
-      color: white !important;
-      font-weight: 900 !important;
-    }
-  }
-  .day-or-month{
-    position: absolute;
-    right: 60px;
-    top: 13px;
-    .selected{
-      background-color: #01a0d2 !important;
-      color: white !important;
-      font-weight: 900 !important;
-    }
-  }
+.day-or-month div.button {
+	color: var(--jp-black);
+  border-color: var(--jp-black);
+  background: var(--jp-white);
 }

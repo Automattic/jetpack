@@ -240,12 +240,9 @@ function jpcrm_render_dashboard_page() {
 
 </div>
 
-<jpcrm-dashcount></jpcrm-dashcount>
+	<jpcrm-dashcount></jpcrm-dashcount>
 
-<!--- the contacts over time comes in next - PHP below is for the funnel -->
-<div class="ui grid narrow">
 	<?php do_action( 'zbs_dashboard_pre_dashbox_post_totals' ); ?>
-</div>
 
 <div class="ui grid narrow">
 	<div class="six wide column" id="settings_dashboard_sales_funnel_display" 
@@ -516,6 +513,9 @@ function jpcrm_render_dashboard_page() {
 	?>
 
 	<script>
+
+	// set default color for charts
+	Chart.defaults.global.defaultColor = zbs_root['jp_green']['40'];
 	// build sales funnel
 	let funnel_element = document.getElementById('jpcrm_sales_funnel');
 	let funnel_data = <?php echo wp_json_encode( $funnel_data ); ?>;
@@ -534,7 +534,7 @@ function jpcrm_render_dashboard_page() {
 					datasets: [
 						{
 							label: "",
-							backgroundColor: "#222",
+							backgroundColor: Chart.defaults.global.defaultColor,
 							data: <?php echo wp_json_encode( $chartdata ); ?>
 						}
 					]

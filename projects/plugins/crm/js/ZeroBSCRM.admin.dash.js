@@ -23,7 +23,7 @@ jQuery( function ( $ ) {
 				datasets: [
 					{
 						label: '',
-						backgroundColor: '#00a0d2',
+						backgroundColor: Chart.defaults.global.defaultColor,
 						data: '',
 					},
 				],
@@ -49,8 +49,8 @@ jQuery( function ( $ ) {
 			},
 		} );
 
-		jQuery( '.contact-display-chooser .day-or-month .button' ).on( 'click', function ( e ) {
-			jQuery( '.contact-display-chooser .day-or-month .button' ).removeClass( 'selected' );
+		jQuery( '.day-or-month .button' ).on( 'click', function ( e ) {
+			jQuery( '.day-or-month .button' ).removeClass( 'selected' );
 			jQuery( this ).addClass( 'selected' );
 
 			range = jQuery( this ).attr( 'data-range' );
