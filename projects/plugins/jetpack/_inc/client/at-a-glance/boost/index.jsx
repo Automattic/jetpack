@@ -3,7 +3,7 @@ import {
 	// requestSpeedScores,
 	// didScoresChange,
 } from '@automattic/jetpack-boost-score-api';
-import { BoostScoreBar } from '@automattic/jetpack-components';
+import { BoostScoreBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -360,16 +360,47 @@ const ConversionLossPopover = () => {
 };
 
 const CriticalCssInfoPopover = () => {
+	const criticalCssUrl = getRedirectUrl( 'jetpack-boost-critical-css' );
+
+	const trackInfoClick = useCallback( () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'boost-critical-css-info-button',
+			feature: 'boost',
+		} );
+	}, [] );
+
+	const trackCriticalCSSLinkClick = useCallback( () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'boost-critical-css-info-link',
+			feature: 'boost',
+		} );
+	}, [] );
+
 	return (
 		<div className="boost-critical-css-info">
-			<InfoPopover screenReaderText={ __( 'Learn more about how critical CSS works', 'jetpack' ) }>
+			<InfoPopover
+				onClick={ trackInfoClick }
+				screenReaderText={ __( 'Learn more about how critical CSS works', 'jetpack' ) }
+			>
 				<h3 className="boost-critical-css-info__title">
 					{ __( 'Regenerate Critical CSS', 'jetpack' ) }
 				</h3>
 				<p>
-					{ __(
-						'You should regenerate Critical CSS to optimize speed whenever your site’s HTML or CSS structure changes after:',
-						'jetpack'
+					{ createInterpolateElement(
+						__(
+							'You should regenerate <ExternalLink>Critical CSS</ExternalLink> to optimize speed whenever your site’s HTML or CSS structure changes after:',
+							'jetpack'
+						),
+						{
+							ExternalLink: (
+								<ExternalLink
+									onClick={ trackCriticalCSSLinkClick }
+									href={ criticalCssUrl }
+									target="_blank"
+									rel="noopener noreferrer"
+								/>
+							),
+						}
 					) }
 				</p>
 				<ul className="boost-critical-css-info__list">
