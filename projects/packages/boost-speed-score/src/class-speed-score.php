@@ -14,7 +14,7 @@ use Automattic\Jetpack\Boost_Speed_Score\Lib\Utils;
  */
 class Speed_Score {
 
-	const PACKAGE_VERSION = '1.0.0-alpha';
+	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
 	 * An instance of Automatic\Jetpack_Boost\Modules\Modules_Setup passed to the constructor
