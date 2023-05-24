@@ -2209,8 +2209,9 @@ function zbscrmJS_sendInvoiceModal() {
 				'</div>',
 			type: 'question',
 			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
+			confirmButtonColor: '#000',
+			cancelButtonColor: '#fff',
+			cancelButtonText: '<span style="color: #000">Cancel</span>',
 			confirmButtonText: zbscrm_JS_invoice_lang( 'sendthemail' ),
 			//allowOutsideClick: false
 		} ).then( function ( result ) {

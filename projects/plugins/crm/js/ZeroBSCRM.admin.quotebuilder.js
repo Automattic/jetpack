@@ -319,8 +319,9 @@ function jpcrm_quotes_send_email_modal() {
 			html: '<div class="ui segment">' + jpcrm_quotes_lang( 'sendthisemail' ) + optsHTML + '</div>',
 			type: 'question',
 			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
+			confirmButtonColor: '#000',
+			cancelButtonColor: '#fff',
+			cancelButtonText: '<span style="color: #000">Cancel</span>',
 			confirmButtonText: jpcrm_quotes_lang( 'sendthemail' ),
 			//allowOutsideClick: false
 		} ).then( function ( result ) {

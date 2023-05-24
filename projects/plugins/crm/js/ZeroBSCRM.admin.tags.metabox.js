@@ -322,8 +322,9 @@ function zeroBSCRMJS_tagManager_bindTagEditButtons() {
 					text: window.zbsTagListLang.deleteswaltext,
 					type: 'warning',
 					showCancelButton: true,
-					confirmButtonColor: '#3085d6',
-					cancelButtonColor: '#d33',
+					confirmButtonColor: '#000',
+					cancelButtonColor: '#fff',
+					cancelButtonText: '<span style="color: #000">Cancel</span>',
 					confirmButtonText: window.zbsTagListLang.deleteswalconfirm,
 					allowOutsideClick: false,
 				} ).then( function ( result ) {
