@@ -788,8 +788,14 @@ class Jetpack_Gutenberg {
 	 * We will look for such modules in the extensions/ directory.
 	 *
 	 * @since 7.1.0
+	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {
+		if ( is_admin() && ! wp_should_load_block_editor_scripts_and_styles() ) {
+			// Skip loading if not needed as per `wp_common_block_scripts_and_styles()` conditions.
+			return;
+		}
+
 		if ( self::should_load() ) {
 			/**
 			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
