@@ -234,9 +234,12 @@ class Jetpack_Social {
 				$state,
 				array(
 					'jetpackSettings'              => array(
-						'publicize_active'  => self::is_publicize_active(),
-						'show_pricing_page' => self::should_show_pricing_page(),
-						'showNudge'         => ! $publicize->has_paid_plan( true ),
+						'publicize_active'               => self::is_publicize_active(),
+						'show_pricing_page'              => self::should_show_pricing_page(),
+						'showNudge'                      => ! $publicize->has_paid_plan( true ),
+						'isEnhancedPublishingEnabled'    => $publicize->has_enhanced_publishing_feature(),
+						'dismissedNotices'               => $publicize->get_dismissed_notices(),
+						'isInstagramConnectionSupported' => $publicize->has_instagram_connection_feature(),
 					),
 					'connectionData'               => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
@@ -330,6 +333,8 @@ class Jetpack_Social {
 					'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 					'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
 					'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
+					'dismissedNotices'                => $publicize->get_dismissed_notices(),
+					'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
 				),
 			)
 		);
