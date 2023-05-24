@@ -243,6 +243,25 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 }
 
 /**
+ * Detects requests within the `/_static/` directory, and serves minified content.
+ *
+ * @return void
+ */
+function jetpack_boost_minify_serve_concatenated() {
+	// Potential improvement: Make concat URL dir configurable
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+	if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];
+		if ( '/_static/' === substr( $request_path, -9, 9 ) ) {
+			require_once __DIR__ . '/functions-service.php';
+			jetpack_boost_page_optimize_service_request();
+			exit;
+		}
+	}
+}
+
+/**
  * Handles cache service initialization, scheduling of cache cleanup, and disabling of
  * Jetpack photon-cdn for static JS/CSS. Automatically ensures that we don't setup
  * the cache service more than once per request.

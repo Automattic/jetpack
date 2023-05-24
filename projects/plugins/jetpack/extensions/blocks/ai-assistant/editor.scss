@@ -1,3 +1,5 @@
+@import '@automattic/jetpack-base-styles/style';
+
 /**
  * Editor styles for Jetpack AI Assistant
  */
@@ -30,14 +32,26 @@
 	color: var( --wp--preset--color--black );
 }
 
-.jetpack-ai-assistant__loading-spinner {
-	margin: auto 0;
-	padding-left: 4px;
+.jetpack-ai-assistant__input-icon-wrapper {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 4px 0 8px;
+	
+	.jetpack-ai-assistant__input-icon {
+		// Brand green regardless of theme
+		color: var( --jp-green-40 );
+	}
+	
+	.jetpack-ai-assistant__input-loader-icon {
+		color: var( --wp--preset--color--foreground );
+	}
 }
 
 .jetpack-ai-assistant__input-wrapper {
 	display: flex;
-	padding: 4px 4px;
+	padding: 6px 9px;
 	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 8px;
 
 	textarea {

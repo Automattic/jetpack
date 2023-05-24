@@ -34,7 +34,6 @@ jQuery( document ).ready( function () {
  */
 function zeroBSCRMJS_initEditView() {
 	//console.log('settings init');
-
 	// actions button
 	jQuery( '.ui.dropdown' ).dropdown();
 
@@ -121,9 +120,6 @@ function zeroBSCRMJS_drawEditView() {
 	if ( ! window.zbsDrawEditViewBlocker ) {
 		// put blocker up
 		window.zbsDrawEditViewBlocker = true;
-
-		// empty table, show loading
-		jQuery( '#zbs-list-table-wrap' ).html( window.zbsDrawListLoadingBoxHTML );
 
 		// Draw tags
 		zeroBSCRMJS_buildTags();
