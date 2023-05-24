@@ -219,7 +219,7 @@ const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks,
 			setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
 		} );
 		source?.current.addEventListener( 'error_network', () => {
-			source.close();
+			source?.current.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( true );
