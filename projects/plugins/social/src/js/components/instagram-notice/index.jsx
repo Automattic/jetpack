@@ -37,11 +37,7 @@ const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
 		setShowNotice( false );
 	}, [ dismissNotice, setShowNotice ] );
 
-	if ( dismissedNotices.includes( 'instagram' ) ) {
-		return null;
-	}
-
-	if ( ! showNotice ) {
+	if ( ! showNotice || dismissedNotices.includes( 'instagram' ) ) {
 		return null;
 	}
 

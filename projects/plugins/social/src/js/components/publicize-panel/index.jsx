@@ -70,7 +70,6 @@ const PublicizePanel = ( { prePublish } ) => {
 						/>
 					</PanelRow>
 				) }
-
 				<PublicizeConnectionVerify />
 				<PublicizeForm
 					isPublicizeEnabled={ isPublicizeEnabled }

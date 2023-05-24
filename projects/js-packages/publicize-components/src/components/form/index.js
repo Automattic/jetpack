@@ -8,11 +8,12 @@
 
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
-import { PanelRow, Disabled, ExternalLink } from '@wordpress/components';
+import { Button, PanelRow, Disabled, ExternalLink } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { Fragment, createInterpolateElement, useCallback } from '@wordpress/element';
+import { useState, Fragment, createInterpolateElement, useCallback } from '@wordpress/element';
 import { _n, sprintf, __ } from '@wordpress/i18n';
 import useAttachedMedia from '../../hooks/use-attached-media';
+import useDismissNotice from '../../hooks/use-dismiss-notice';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import useSocialMediaConnections from '../../hooks/use-social-media-connections';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
@@ -56,7 +57,17 @@ export default function PublicizeForm( {
 		useSocialMediaConnections();
 	const { message, updateMessage, maxLength } = useSocialMediaMessage();
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
+	const { dismissedNotices, dismissNotice } = useDismissNotice();
 
+	const hasInstagramConnection =
+		connections.filter( connection => connection.service_name === 'instagram' ).length > 0;
+	const [ shouldShowInstagramNotice, setShouldShowInstagramNotice ] = useState(
+		! hasInstagramConnection
+	);
+	const onDismissInstagramNotice = useCallback( () => {
+		dismissNotice( 'instagram' );
+		setShouldShowInstagramNotice( false );
+	}, [ dismissNotice, setShouldShowInstagramNotice ] );
 	const shouldDisableMediaPicker =
 		isSocialImageGeneratorEnabled && isSocialImageGeneratorEnabledForPost;
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
@@ -236,9 +247,24 @@ export default function PublicizeForm( {
 						) }
 				</>
 			) }
-
 			{ ! isPublicizeDisabledBySitePlan && (
 				<Fragment>
+					{ ! dismissedNotices.includes( 'instagram' ) && shouldShowInstagramNotice && (
+						<Notice
+							onDismiss={ onDismissInstagramNotice }
+							type={ 'highlight' }
+							actions={ [
+								<Button href={ connectionsAdminUrl } variant="primary">
+									{ __( 'Connect now', 'jetpack' ) }
+								</Button>,
+								<Button href={ getRedirectUrl( 'jetpack-social-connecting-to-social-networks' ) }>
+									{ __( 'Learn more', 'jetpack' ) }
+								</Button>,
+							] }
+						>
+							{ __( 'You can now share directly to your Instagram account!', 'jetpack' ) }
+						</Notice>
+					) }
 					<PublicizeSettingsButton />
 
 					{ isPublicizeEnabled && connections.some( connection => connection.enabled ) && (

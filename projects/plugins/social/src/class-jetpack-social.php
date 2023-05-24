@@ -332,6 +332,7 @@ class Jetpack_Social {
 					'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 					'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
 					'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
+					'dismissedNotices'                => $publicize->get_dismissed_notices(),
 				),
 			)
 		);
