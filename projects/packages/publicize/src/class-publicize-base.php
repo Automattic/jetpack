@@ -1794,7 +1794,7 @@ abstract class Publicize_Base {
 	 */
 	public function has_paid_plan( $refresh_from_wpcom = false ) {
 		static $has_paid_plan = null;
-		if ( ! $has_paid_plan ) {
+		if ( $has_paid_plan === null ) {
 			$has_paid_plan = Current_Plan::supports( 'social-shares-1000', $refresh_from_wpcom );
 		}
 		return $has_paid_plan;
@@ -1809,8 +1809,8 @@ abstract class Publicize_Base {
 	 */
 	public function has_advanced_plan( $refresh_from_wpcom = false ) {
 		static $has_advanced_plan = null;
-		if ( ! $has_advanced_plan ) {
-			$has_advanced_plan = Current_Plan::supports( 'social-image-generator', $refresh_from_wpcom );
+		if ( $has_advanced_plan === null ) {
+			$has_advanced_plan = Current_Plan::supports( 'social-enhanced-publishing', $refresh_from_wpcom );
 		}
 		return $has_advanced_plan;
 	}
