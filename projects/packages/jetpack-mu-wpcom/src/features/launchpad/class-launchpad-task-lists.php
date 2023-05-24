@@ -213,9 +213,15 @@ class Launchpad_Task_Lists {
 	 */
 	private function build_task( $task ) {
 		$built_task                 = array(
-			'id'    => $task['id'],
-			'title' => $task['title'],
+			'id' => $task['id'],
 		);
+
+		$default_title = '';
+		if ( isset( $task['title'] ) ) {
+			$default_title = $task['title'];
+		}
+
+		$built_task['title']        = $this->load_value_from_callback( $task, 'get_title', $default_title );
 		$built_task['completed']    = $this->is_task_complete( $task );
 		$built_task['disabled']     = $this->is_task_disabled( $task );
 		$built_task['subtitle']     = $this->load_subtitle( $task );
