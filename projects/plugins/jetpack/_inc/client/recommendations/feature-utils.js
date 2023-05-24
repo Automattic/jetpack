@@ -20,6 +20,7 @@ import { isFeatureActive } from '../state/recommendations';
 import {
 	getSiteProduct,
 	getSiteProductMonthlyCost,
+	getSiteProductDiscount,
 	isFetchingSiteProducts,
 } from '../state/site-products';
 
@@ -585,16 +586,21 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'vaultpress-backup': {
 			const siteRawUrl = getSiteRawUrl( state );
-			const monthlyPrice = getSiteProductMonthlyCost( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
-			const product = getSiteProduct( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
-			const price = formatCurrency( monthlyPrice, product?.currency_code );
-			const ctaText = isFetchingSiteProducts( state )
-				? __( 'Try for 30 days', 'jetpack' )
-				: sprintf(
-						/* translators: %s: is a formatted currency. e.g. $1 */
-						__( 'Try for %s for 30 days', 'jetpack' ),
-						price
-				  );
+			const discount = getSiteProductDiscount( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
+
+			const getCtaText = () => {
+				if ( isFetchingSiteProducts( state ) ) {
+					return __( 'Get a discount for your first year', 'jetpack' );
+				}
+
+				return discount > 0
+					? sprintf(
+							/* translators: %(discount): is a discount percentage. e.g. 50 */
+							__( 'Get %(discount)%% off your first year', 'jetpack' ),
+							{ discount }
+					  )
+					: __( 'Get VaultPress Backup', 'jetpack' );
+			};
 
 			return {
 				progressValue: 100,
@@ -618,7 +624,7 @@ export const getStepContent = ( state, stepSlug ) => {
 					),
 					__( 'VaultPress Backup is so easy to use; no developer required.', 'jetpack' ),
 				],
-				ctaText: ctaText,
+				ctaText: getCtaText(),
 				ctaLink: getRedirectUrl( 'jetpack-recommendations-product-checkout', {
 					site: siteRawUrl,
 					path: PLAN_JETPACK_BACKUP_T1_YEARLY,
