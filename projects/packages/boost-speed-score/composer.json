@@ -3,11 +3,16 @@
 	"description": "A package that handles the API to generate the speed score.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
-	"require": {},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
-		"automattic/wordbless": "dev-master"
+		"automattic/wordbless": "dev-master",
+		"brain/monkey": "^2.6"
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Automattic\\Jetpack\\Boost_Speed_Score\\Tests\\": "./tests/php"
+		}
 	},
 	"autoload": {
 		"classmap": [
