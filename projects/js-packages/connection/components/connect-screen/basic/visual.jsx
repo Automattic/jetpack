@@ -26,6 +26,7 @@ const ConnectScreenVisual = props => {
 		buttonIsLoading,
 		footer,
 		isOfflineMode,
+		logo,
 	} = props;
 
 	const errorMessage = isOfflineMode
@@ -49,6 +50,7 @@ const ConnectScreenVisual = props => {
 				'jp-connection__connect-screen' +
 				( isLoading ? ' jp-connection__connect-screen__loading' : '' )
 			}
+			logo={ logo }
 		>
 			<div className="jp-connection__connect-screen__content">
 				{ children }
@@ -98,6 +100,8 @@ ConnectScreenVisual.propTypes = {
 	footer: PropTypes.node,
 	/** Whether the site is in offline mode. */
 	isOfflineMode: PropTypes.bool,
+	/** The logo to display at the top of the component. */
+	logo: PropTypes.element,
 };
 
 ConnectScreenVisual.defaultProps = {

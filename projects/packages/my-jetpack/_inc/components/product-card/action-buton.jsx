@@ -22,6 +22,7 @@ const ActionButton = ( {
 	isFetching,
 	isInstallingStandalone,
 	isDeactivatingStandalone,
+	isManageDisabled,
 	className,
 	onAdd,
 } ) => {
@@ -79,6 +80,7 @@ const ActionButton = ( {
 			return (
 				<Button
 					{ ...buttonState }
+					disabled={ isManageDisabled || buttonState?.disabled }
 					size="small"
 					weight="regular"
 					variant="secondary"

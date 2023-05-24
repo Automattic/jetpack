@@ -2464,6 +2464,9 @@ importers:
         specifier: 3.20.2
         version: 3.20.2
     devDependencies:
+      '@automattic/jetpack-boost-score-api':
+        specifier: workspace:*
+        version: link:../../js-packages/boost-score-api
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components

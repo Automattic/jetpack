@@ -320,6 +320,7 @@ ProductCard.propTypes = {
 	isFetching: PropTypes.bool,
 	isInstallingStandalone: PropTypes.bool,
 	isDeactivatingStandalone: PropTypes.bool,
+	isManageDisabled: PropTypes.bool,
 	onManage: PropTypes.func,
 	onFixConnection: PropTypes.func,
 	onActivate: PropTypes.func,
