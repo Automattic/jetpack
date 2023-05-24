@@ -791,20 +791,21 @@ class Jetpack_Gutenberg {
 	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {
-		if ( is_admin() && ! wp_should_load_block_editor_scripts_and_styles() ) {
-			// Skip loading if not needed as per `wp_common_block_scripts_and_styles()` conditions.
-			return;
-		}
-
 		if ( self::should_load() ) {
 			/**
 			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
 			 * If available, load them.
 			 */
+			$directories = array( 'blocks', 'plugins', 'extended-blocks', 'shared', 'store' );
+
 			foreach ( static::get_extensions() as $extension ) {
-				$extension_file_glob = glob( JETPACK__PLUGIN_DIR . 'extensions/*/' . $extension . '/' . $extension . '.php' );
-				if ( ! empty( $extension_file_glob ) ) {
-					include_once $extension_file_glob[0];
+				foreach ( $directories as $dirname ) {
+					$path = JETPACK__PLUGIN_DIR . "extensions/{$dirname}/{$extension}/{$extension}.php";
+
+					if ( file_exists( $path ) ) {
+						include_once $path;
+						continue 2;
+					}
 				}
 			}
 		}
