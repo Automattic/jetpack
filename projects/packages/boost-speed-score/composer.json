@@ -6,7 +6,17 @@
 	"require-dev": {
 		"yoast/phpunit-polyfills": "1.0.4",
 		"automattic/jetpack-changelogger": "@dev",
+<<<<<<< HEAD
 		"brain/monkey": "^2.6"
+=======
+		"automattic/wordbless": "dev-master",
+		"brain/monkey": "^2.6"
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Automattic\\Jetpack\\Boost_Speed_Score\\Tests\\": "./tests/php"
+		}
+>>>>>>> 107230131a ([not verified] Add unit tests)
 	},
 	"autoload-dev": {
 		"psr-4": {
