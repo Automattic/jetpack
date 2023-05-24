@@ -1,5 +1,6 @@
 import { Container, Col } from '@automattic/jetpack-components';
 import React from 'react';
+import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
 import BoostCard from './boost-card';
@@ -16,6 +17,8 @@ import VideopressCard from './videopress-card';
  * @returns {object} ProductCardsSection React component.
  */
 const ProductCardsSection = () => {
+	const { myJetpackFlags } = window?.myJetpackInitialState || {};
+
 	return (
 		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
@@ -43,7 +46,7 @@ const ProductCardsSection = () => {
 				<SocialCard admin={ true } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<ExtrasCard admin={ true } />
+				{ myJetpackFlags?.jetpackAi ? <AiCard admin={ true } /> : <ExtrasCard admin={ true } /> }
 			</Col>
 		</Container>
 	);
