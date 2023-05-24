@@ -9,6 +9,15 @@ namespace Automattic\Jetpack\Boost_Speed_Score;
 
 use Automattic\Jetpack\Boost_Speed_Score\Lib\Utils;
 
+if ( ! defined( 'JETPACK_BOOST_REST_NAMESPACE' ) ) {
+	define( 'JETPACK_BOOST_REST_NAMESPACE', 'jetpack-boost/v1' );
+}
+
+// For use in situations where you want additional namespacing.
+if ( ! defined( 'JETPACK_BOOST_REST_PREFIX' ) ) {
+	define( 'JETPACK_BOOST_REST_PREFIX', '' );
+}
+
 /**
  * Class Speed_Score
  */
