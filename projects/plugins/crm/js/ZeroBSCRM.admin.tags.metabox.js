@@ -57,7 +57,7 @@ function zeroBSCRMJS_buildTagsInput() {
  */
 function zbsJS_drawTag( tagStr, tagID ) {
 	var html =
-		'<div class="ui small basic label teal" data-id="' +
+		'<div class="ui small basic label black" data-id="' +
 		tagID +
 		'"><i class="window close icon zbs-remove-tag"></i> <span>' +
 		tagStr +
@@ -206,11 +206,11 @@ function zbsJS_bindTagManagerInit() {
 
 						// add to table
 						var tagTR =
-							'<tr><td><span class="ui large blue label">' +
+							'<tr><td><span class="ui large label">' +
 							ltag +
 							'</span></td><td>' +
 							newTagSlug +
-							'</td><td class="center aligned">0</td><td class="center aligned"><button type="button" class="ui mini button orange zbs-delete-tag" data-tagid="' +
+							'</td><td class="center aligned">0</td><td class="center aligned"><button type="button" class="ui mini button black zbs-delete-tag" data-tagid="' +
 							newTagID +
 							'"><i class="trash alternate icon"></i> ' +
 							window.zbsTagListLang.delete +

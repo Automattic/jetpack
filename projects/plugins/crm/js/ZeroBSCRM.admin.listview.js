@@ -1628,9 +1628,10 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: 'Yes, delete!',
+		cancelButtonText: '<span style="color: #000">Cancel</span>'
 		//allowOutsideClick: false
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+
@@ -1645,11 +1646,12 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 				extraParams,
 				function ( r ) {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'contactsdeleted' ),
-						'success'
-					);
+					swal({
+						title: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'contactsdeleted' ),
+						confirmButtonColor: '#000',
+						type: 'success'
+					});
 				},
 				function ( r ) {
 					// fail ? SWAL?

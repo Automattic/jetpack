@@ -188,6 +188,7 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
 							text: 'Quote Template Populated',
 							type: 'success',
 							confirmButtonText: 'OK',
+							confirmButtonColor: '#000',
 						} );
 						setTimeout( function () {
 							zbscrm_appendTextToEditor( e.html );
@@ -236,6 +237,7 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
 				text: 'Please Choose a Contact',
 				type: 'error',
 				confirmButtonText: 'OK',
+				confirmButtonColor: '#000',
 			} );
 			window.quoteTemplateBlocker = false;
 			return false;
