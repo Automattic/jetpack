@@ -33,22 +33,22 @@ const isConnectionNeedMedia = connectionName => CONNECTIONS_NEED_MEDIA.includes(
 /**
  * The Publicize form component. It contains the connection list, and the message box.
  *
- * @param {object} props                                - The component props.
- * @param {boolean} props.isPublicizeEnabled            - Whether Publicize is enabled for this post.
- * @param {boolean} props.isPublicizeDisabledBySitePlan - A combination of the republicize feature being enabled and/or the post not being published.
- * @param {number} props.numberOfSharesRemaining        - The number of shares remaining for the current period. Optional.
- * @param {boolean} props.isEnhancedPublishingEnabled   - Whether enhanced publishing options are available. Optional.
- * @param {boolean} props.isSocialImageGeneratorEnabled - Whether the Social Image Generator feature is available. Optional.
- * @param {string} props.connectionsAdminUrl            - URL to the Admin connections page
- * @param {string} props.adminUrl                       - URL af the plugin's admin page to redirect to after a plan upgrade
- * @returns {object}                                    - Publicize form component.
+ * @param {object} props                                  - The component props.
+ * @param {boolean} props.isPublicizeEnabled              - Whether Publicize is enabled for this post.
+ * @param {boolean} props.isPublicizeDisabledBySitePlan   - A combination of the republicize feature being enabled and/or the post not being published.
+ * @param {number} props.numberOfSharesRemaining          - The number of shares remaining for the current period. Optional.
+ * @param {boolean} props.isEnhancedPublishingEnabled     - Whether enhanced publishing options are available. Optional.
+ * @param {boolean} props.isSocialImageGeneratorAvailable - Whether the Social Image Generator feature is available. Optional.
+ * @param {string} props.connectionsAdminUrl              - URL to the Admin connections page
+ * @param {string} props.adminUrl                         - URL af the plugin's admin page to redirect to after a plan upgrade
+ * @returns {object}                                      - Publicize form component.
  */
 export default function PublicizeForm( {
 	isPublicizeEnabled,
 	isPublicizeDisabledBySitePlan,
 	numberOfSharesRemaining = null,
 	isEnhancedPublishingEnabled = false,
-	isSocialImageGeneratorEnabled = false,
+	isSocialImageGeneratorAvailable = false,
 	connectionsAdminUrl,
 	adminUrl,
 } ) {
@@ -58,7 +58,7 @@ export default function PublicizeForm( {
 	const { isEnabled: isSocialImageGeneratorEnabledForPost } = useImageGeneratorConfig();
 
 	const shouldDisableMediaPicker =
-		isSocialImageGeneratorEnabled && isSocialImageGeneratorEnabledForPost;
+		isSocialImageGeneratorAvailable && isSocialImageGeneratorEnabledForPost;
 	const Wrapper = isPublicizeDisabledBySitePlan ? Disabled : Fragment;
 
 	const brokenConnections = connections.filter( connection =>
