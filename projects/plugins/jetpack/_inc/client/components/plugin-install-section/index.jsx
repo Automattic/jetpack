@@ -22,6 +22,7 @@ const PluginInstallSection = ( {
 	pluginSlug,
 	pluginLink,
 	installOrActivatePrompt,
+	installedPrompt,
 } ) => {
 	const [ isActivating, setIsActivating ] = useState( false );
 	const [ isInstalling, setIsInstalling ] = useState( false );
@@ -121,7 +122,7 @@ const PluginInstallSection = ( {
 				__( 'Manage %s', 'jetpack' ),
 				pluginName
 			) }
-			title={ __( 'Plugin is installed & active.', 'jetpack' ) }
+			title={ installedPrompt ?? __( 'Plugin is installed & active.', 'jetpack' ) }
 			href={ pluginLink }
 			noIcon
 		/>

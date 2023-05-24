@@ -4,16 +4,20 @@ import {
 	// didScoresChange,
 } from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import classnames from 'classnames';
+import InfoPopover from 'components/info-popover';
 import PluginInstallSection from 'components/plugin-install-section';
 import SectionHeader from 'components/section-header';
+import analytics from 'lib/analytics';
 import PropTypes from 'prop-types';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { getSiteConnectionStatus } from 'state/connection';
 import { getApiRootUrl, getApiNonce, getSiteRawUrl } from 'state/initial-state';
+import { hasActiveBoostPurchase as getActiveBoostPurchase } from 'state/site';
 import { isFetchingPluginsData, isPluginInstalled, isPluginActive } from 'state/site/plugins';
 import './style.scss';
 
@@ -33,6 +37,7 @@ const DashBoost = ( {
 	fetchingPluginsData,
 	isBoostInstalled,
 	isBoostActive,
+	hasActiveBoostPurchase,
 } ) => {
 	const isSiteOffline = siteConnectionStatus === 'offline';
 
@@ -127,17 +132,32 @@ const DashBoost = ( {
 		}
 	};
 
-	// Don't show score bars until we know if they already have boost install, the site is online, and we have the scores.
-	const shouldShowScoreBars =
-		( ! isBoostActive || ! isBoostInstalled ) &&
-		! isSiteOffline &&
-		! isLoading &&
-		! fetchingPluginsData;
+	const hasBoost = isBoostInstalled && isBoostActive;
+
+	// Don't show score bars until we know if they already have boost installed and activated, the site is online, and we have the scores.
+	const shouldShowScoreBars = ! hasBoost && ! isSiteOffline && ! isLoading && ! fetchingPluginsData;
 	const pluginName = _x(
 		'Boost',
 		'The Jetpack Boost product name, without the Jetpack prefix',
 		'jetpack'
 	);
+
+	const getPluginInstallSectionText = () => {
+		if ( hasActiveBoostPurchase ) {
+			return __( 'We’re automatically re-generating your site’s Critical CSS.', 'jetpack' );
+		}
+
+		return createInterpolateElement(
+			__(
+				'<a>Re-generate your Critical CSS after you make changes on your site</a><Info/>',
+				'jetpack'
+			),
+			{
+				a: <a href={ siteAdminUrl + BOOST_PLUGIN_DASH } />,
+				Info: <CriticalCssInfoPopover />,
+			}
+		);
+	};
 
 	return (
 		<div className="dash-boost-speed-score">
@@ -151,12 +171,13 @@ const DashBoost = ( {
 									__( 'Your site’s speed performance score: %s', 'jetpack' ),
 									speedLetterGrade
 								) }
+								<GradeInfoPopover />
 							</span>
 
 							<p
 								className={ classnames(
 									'dash-boost-speed-score__score-text',
-									[ 'C', 'D', 'F' ].includes( speedLetterGrade ) ? 'warning' : ''
+									[ 'C', 'D', 'E', 'F' ].includes( speedLetterGrade ) ? 'warning' : ''
 								) }
 							>
 								{ getSpeedScoreText() }
@@ -198,15 +219,17 @@ const DashBoost = ( {
 					pluginLink={ siteAdminUrl + BOOST_PLUGIN_DASH }
 					installOrActivatePrompt={ createInterpolateElement(
 						sprintf(
-							'<b>%1$s</b><br />%2$s',
+							'<b>%1$s<Info/><br/></b>%2$s',
 							getSlowSiteInfoText().top,
 							getSlowSiteInfoText().bottom
 						),
 						{
 							br: <br />,
 							b: <b />,
+							Info: <ConversionLossPopover />,
 						}
 					) }
+					installedPrompt={ getPluginInstallSectionText() }
 				/>
 			</div>
 		</div>
@@ -217,13 +240,14 @@ DashBoost.propTypes = {
 	// Passed props
 	siteAdminUrl: PropTypes.string.isRequired,
 	// State connected props
-	siteConnectionStatus: PropTypes.string.isRequired,
+	siteConnectionStatus: PropTypes.oneOfType( [ PropTypes.bool, PropTypes.string ] ).isRequired,
 	siteUrl: PropTypes.string.isRequired,
 	apiRoot: PropTypes.string.isRequired,
 	apiNonce: PropTypes.string.isRequired,
 	fetchingPluginsData: PropTypes.bool.isRequired,
 	isBoostInstalled: PropTypes.bool.isRequired,
 	isBoostActive: PropTypes.bool.isRequired,
+	hasActiveBoostPurchase: PropTypes.bool.isRequired,
 };
 
 export default connect( state => ( {
@@ -234,4 +258,144 @@ export default connect( state => ( {
 	fetchingPluginsData: isFetchingPluginsData( state ),
 	isBoostInstalled: BOOST_PLUGIN_FILES.some( pluginFile => isPluginInstalled( state, pluginFile ) ),
 	isBoostActive: BOOST_PLUGIN_FILES.some( pluginFile => isPluginActive( state, pluginFile ) ),
+	hasActiveBoostPurchase: getActiveBoostPurchase( state ),
 } ) )( DashBoost );
+
+// Popover components
+
+const GradeInfoPopover = () => {
+	const trackInfoClick = useCallback( () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'boost-grade-info-button',
+			feature: 'boost',
+		} );
+	}, [] );
+
+	return (
+		<div className="boost-grade-info">
+			<InfoPopover
+				onClick={ trackInfoClick }
+				screenReaderText={ __( 'Learn more about how this grade is calculated', 'jetpack' ) }
+			>
+				<p className="boost-grade-info__grades-description">
+					{ __(
+						'Your Overall Score is a summary of your website performance across both mobile and desktop devices. It gives a general idea of your sites’ overall performance.',
+						'jetpack'
+					) }
+				</p>
+				<div className="boost-grade-info__grades-table">
+					<table>
+						<tbody>
+							<tr>
+								<th>A</th>
+								<td>90+</td>
+							</tr>
+							<tr>
+								<th>B</th>
+								<td>75-90</td>
+							</tr>
+							<tr>
+								<th>C</th>
+								<td>50-75</td>
+							</tr>
+						</tbody>
+					</table>
+					<table>
+						<tbody>
+							<tr>
+								<th>D</th>
+								<td>35-50</td>
+							</tr>
+							<tr>
+								<th>E</th>
+								<td>25-35</td>
+							</tr>
+							<tr>
+								<th>F</th>
+								<td>0-25</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</InfoPopover>
+		</div>
+	);
+};
+
+const ConversionLossPopover = () => {
+	const trackInfoClick = useCallback( () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'boost-conversion-loss-info-button',
+			feature: 'boost',
+		} );
+	}, [] );
+
+	const trackSourceClick = useCallback( () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'boost-conversion-loss-info-source',
+			feature: 'boost',
+		} );
+	}, [] );
+
+	return (
+		<div className="boost-conversion-loss-info">
+			<InfoPopover
+				onClick={ trackInfoClick }
+				screenReaderText={ __( 'Learn more about how slow sites lose visitors', 'jetpack' ) }
+			>
+				<p className="boost-conversion-loss-info__source">
+					{ __( 'Source: ', 'jetpack' ) }
+					<ExternalLink
+						href="https://web.dev/why-speed-matters/"
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={ trackSourceClick }
+					>
+						web.dev
+					</ExternalLink>
+				</p>
+			</InfoPopover>
+		</div>
+	);
+};
+
+const CriticalCssInfoPopover = () => {
+	return (
+		<div className="boost-critical-css-info">
+			<InfoPopover screenReaderText={ __( 'Learn more about how critical CSS works', 'jetpack' ) }>
+				<h3 className="boost-critical-css-info__title">
+					{ __( 'Regenerate Critical CSS', 'jetpack' ) }
+				</h3>
+				<p>
+					{ __(
+						'You should regenerate Critical CSS to optimize speed whenever your site’s HTML or CSS structure changes after:',
+						'jetpack'
+					) }
+				</p>
+				<ul className="boost-critical-css-info__list">
+					<li>{ __( 'Making theme changes.', 'jetpack' ) }</li>
+					<li>{ __( 'Writing a new post/page', 'jetpack' ) }</li>
+					<li>{ __( 'Editing a post/page', 'jetpack' ) }</li>
+					<li>
+						{ __(
+							'Activating, Deactivating, or updating plugins that impact your site layout.',
+							'jetpack'
+						) }
+					</li>
+					<li>
+						{ __(
+							'Upgrading your WordPress version if the new release includes core CSS changes',
+							'jetpack'
+						) }
+					</li>
+				</ul>
+				<p className="boost-critical-css-info__bottom-text">
+					{ __(
+						'Being on top of this can be tedious and time-consuming. Boost’s cloud service can automatically detect when your site needs a new Critical CSS and generate it, improving site performance and SEO without requiring manual monitoring.',
+						'jetpack'
+					) }
+				</p>
+			</InfoPopover>
+		</div>
+	);
+};
