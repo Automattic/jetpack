@@ -220,6 +220,15 @@ const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks,
 			setWasCompletionJustRequested( false );
 			setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
 		} );
+		source.addEventListener( 'error_network', () => {
+			source.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( true );
+			setErrorMessage(
+				__( 'It was not possible to process your request. Mind trying again?', 'jetpack' )
+			);
+		} );
 		source.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
 			debug( 'fullMessage', e.detail );
