@@ -132,7 +132,7 @@ const AIControl = ( {
 export default AIControl;
 
 // Consider to enable when we have image support
-const isImageEnabled = false;
+const isImageGenerationEnabled = false;
 
 const ToolbarControls = ( {
 	contentIsLoaded,
@@ -289,7 +289,7 @@ const ToolbarControls = ( {
 						</ToolbarButton>
 					) }
 				</ToolbarGroup>
-				{ isImageEnabled && ! showRetry && ! contentIsLoaded && (
+				{ isImageGenerationEnabled && ! showRetry && ! contentIsLoaded && (
 					// Image/text toggle
 					<ToolbarGroup>
 						<ToolbarButton icon={ image } onClick={ handleImageRequest }>
