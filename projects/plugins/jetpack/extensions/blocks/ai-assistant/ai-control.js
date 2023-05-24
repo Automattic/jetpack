@@ -131,6 +131,9 @@ const AIControl = ( {
 
 export default AIControl;
 
+// Consider to enable when we have image support
+const isImageEnabled = false;
+
 const ToolbarControls = ( {
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
@@ -286,7 +289,7 @@ const ToolbarControls = ( {
 						</ToolbarButton>
 					) }
 				</ToolbarGroup>
-				{ ! showRetry && ! contentIsLoaded && (
+				{ isImageEnabled && ! showRetry && ! contentIsLoaded && (
 					// Image/text toggle
 					<ToolbarGroup>
 						<ToolbarButton icon={ image } onClick={ handleImageRequest }>
