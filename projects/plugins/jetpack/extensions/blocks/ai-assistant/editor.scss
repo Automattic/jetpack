@@ -106,13 +106,20 @@
 		color: var( --wp--preset--color--foreground );
 		text-transform: uppercase;
 		font-weight: 400;
+		user-select: none;
 
 		> SVG {
 			margin-right: 4px;
 		}
 
-		&:hover {
+		&:hover,
+		&:active {
 			color: var( --wp-components-color-accent, var( --wp-admin-theme-color ) );
+		}
+
+		&:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
 		}
 	}
 }
