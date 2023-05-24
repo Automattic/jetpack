@@ -227,7 +227,7 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function reset() {
-		self::$extensions          = array();
+		self::$extensions          = null;
 		self::$availability        = array();
 		self::$cached_availability = null;
 	}
