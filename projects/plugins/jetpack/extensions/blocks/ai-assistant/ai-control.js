@@ -189,11 +189,6 @@ const ToolbarControls = ( {
 								onClick: () =>
 									getSuggestionFromOpenAI( 'correctSpelling', { contentType: 'generated' } ),
 							},
-							{
-								title: __( 'Generate a post title', 'jetpack' ),
-								onClick: () =>
-									getSuggestionFromOpenAI( 'generateTitle', { contentType: 'generated' } ),
-							},
 						] }
 					/>
 				</BlockControls>
