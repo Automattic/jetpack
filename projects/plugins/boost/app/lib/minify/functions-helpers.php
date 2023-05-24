@@ -198,6 +198,12 @@ function jetpack_boost_page_optimize_bail() {
 function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 	static $dependency_path_mapping;
 
+	// Absolute paths should dump the path component of siteurl.
+	if ( substr( $path, 0, 1 ) === '/' ) {
+		$parts   = wp_parse_url( $siteurl );
+		$siteurl = $parts['scheme'] . '://' . $parts['host'];
+	}
+
 	$url = $siteurl . $path;
 
 	if ( strpos( $url, '?m=' ) ) {
@@ -244,10 +250,14 @@ function jetpack_boost_page_optimize_cache_bust_mtime( $path, $siteurl ) {
 function jetpack_boost_minify_serve_concatenated() {
 	// Potential improvement: Make concat URL dir configurable
 	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	if ( isset( $_SERVER['REQUEST_URI'] ) && '/_static/' === substr( wp_unslash( $_SERVER['REQUEST_URI'] ), 0, 9 ) ) {
-		require_once __DIR__ . '/functions-service.php';
-		jetpack_boost_page_optimize_service_request();
-		exit;
+	if ( isset( $_SERVER['REQUEST_URI'] ) ) {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$request_path = explode( '?', wp_unslash( $_SERVER['REQUEST_URI'] ) )[0];
+		if ( '/_static/' === substr( $request_path, -9, 9 ) ) {
+			require_once __DIR__ . '/functions-service.php';
+			jetpack_boost_page_optimize_service_request();
+			exit;
+		}
 	}
 }
 
