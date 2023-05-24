@@ -97,7 +97,7 @@ class Waf_Runner {
 		}
 
 		// Do not run in the WPCOM context
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
 			return false;
 		}
 

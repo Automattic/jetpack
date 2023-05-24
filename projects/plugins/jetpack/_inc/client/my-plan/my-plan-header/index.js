@@ -13,6 +13,7 @@ import analytics from 'lib/analytics';
 import {
 	containsGiftedPlanOrProduct,
 	getPlanClass,
+	PLAN_JETPACK_FREE,
 	JETPACK_BACKUP_PRODUCTS,
 	JETPACK_SCAN_PRODUCTS,
 } from 'lib/plans/constants';
@@ -67,10 +68,17 @@ class MyPlanHeader extends React.Component {
 				/>
 			);
 			if ( purchase.active === '1' ) {
-				if ( ! isInTheFuture( purchase.expiry_date ) ) {
+				// Purchases might not have an expiration date, so we need to check
+				// for their existence (e.g.: lifetime plan like Golden Token).
+				if ( ! isInTheFuture( purchase.expiry_date ) && purchase.expiry_date !== null ) {
 					activation = <ProductActivated key="product-expired" type="product-expired" />;
 				} else {
-					activation = <ProductActivated key="product-activated" />;
+					activation = (
+						<ProductActivated
+							key="product-activated"
+							type={ purchase.expiry_date === null ? 'never-expires' : '' }
+						/>
+					);
 				}
 			} else {
 				activation = null;
@@ -412,6 +420,7 @@ class MyPlanHeader extends React.Component {
 						'jetpack'
 					),
 					title: __( 'Jetpack Golden Token', 'jetpack' ),
+					cardClassNames: [ 'plan-golden-token' ],
 				};
 
 			case 'is-jetpack-starter-plan':
@@ -434,17 +443,19 @@ class MyPlanHeader extends React.Component {
 	}
 
 	renderPlan() {
+		// Hide "My Plan" card if there are active products and no paid plan.
+		if ( ! isEmpty( this.props.activeProducts ) && this.props.plan === PLAN_JETPACK_FREE ) {
+			return null;
+		}
+
 		return (
-			<>
-				{ this.renderLicensingActions() }
-				<Card compact>
-					{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
-					<MyPlanCard
-						{ ...this.getProductProps( this.props.plan, this.props.activeProducts ) }
-						isPlan
-					/>
-				</Card>
-			</>
+			<Card compact>
+				{ this.renderHeader( __( 'My Plan', 'jetpack' ) ) }
+				<MyPlanCard
+					{ ...this.getProductProps( this.props.plan, this.props.activeProducts ) }
+					isPlan
+				/>
+			</Card>
 		);
 	}
 
@@ -570,6 +581,7 @@ class MyPlanHeader extends React.Component {
 	render() {
 		return (
 			<div className="jp-landing__plans">
+				{ this.renderLicensingActions() }
 				{ this.renderPlan() }
 				{ this.renderProducts() }
 				{ this.renderFooter() }

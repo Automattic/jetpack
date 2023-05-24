@@ -21,7 +21,7 @@ const UNLIMITED_SHARES = __( 'Unlimited shares', 'jetpack-social' );
 const UP_TO_30 = __( 'Up to 30', 'jetpack-social' );
 const UP_TO_30_SHARES = __( 'Up to 30 shares in 30 days', 'jetpack-social' );
 
-const PricingPage = () => {
+const PricingPage = ( { onDismiss = () => {} } = {} ) => {
 	const [ productInfo ] = useProductInfo();
 
 	const siteSuffix = useSelect( select => select( STORE_ID ).getSiteSuffix() );
@@ -34,7 +34,8 @@ const PricingPage = () => {
 			show_pricing_page: false,
 		};
 		updateOptions( newOption );
-	}, [ updateOptions ] );
+		onDismiss();
+	}, [ updateOptions, onDismiss ] );
 
 	const UNLIMITED_SHARES_TABLE_ITEM = (
 		<PricingTableItem

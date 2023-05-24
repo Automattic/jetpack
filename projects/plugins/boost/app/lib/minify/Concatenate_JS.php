@@ -7,6 +7,9 @@ use WP_Scripts;
 // Disable complaints about enqueuing scripts, as this class alters the way enqueuing them works.
 // phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
 
+/**
+ * Replacement for, and subclass of WP_Scripts - used to control the way that scripts are enqueued and output.
+ */
 class Concatenate_JS extends WP_Scripts {
 	private $dependency_path_mapping;
 	private $old_scripts;
@@ -55,9 +58,10 @@ class Concatenate_JS extends WP_Scripts {
 		return false;
 	}
 
+	/**
+	 * Override for WP_Scripts::do_item() - this is the method that actually outputs the scripts.
+	 */
 	public function do_items( $handles = false, $group = false ) {
-		global $wp_filesystem;
-
 		$handles     = false === $handles ? $this->queue : (array) $handles;
 		$javascripts = array();
 		$siteurl     = apply_filters( 'page_optimize_site_url', $this->base_url );
@@ -91,6 +95,12 @@ class Concatenate_JS extends WP_Scripts {
 			$obj           = $this->registered[ $handle ];
 			$js_url        = $obj->src;
 			$js_url_parsed = wp_parse_url( $js_url );
+
+			// If no hostname is specified and path starts with /, it is relative to homeurl.
+			if ( empty( $js_url_parsed['host'] ) && substr( $js_url, 0, 1 ) === '/' ) {
+				$js_url        = home_url( $obj->src );
+				$js_url_parsed = wp_parse_url( $js_url );
+			}
 
 			// Don't concat by default
 			$do_concat = false;
@@ -139,7 +149,8 @@ class Concatenate_JS extends WP_Scripts {
 				}
 				$do_concat        = false;
 				$script_is_strict = true;
-			} elseif ( $do_concat && preg_match_all( '/^[\',"]use strict[\',"];/Uims', $wp_filesystem->get_contents( $js_realpath ), $matches ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			} elseif ( $do_concat && preg_match_all( '/^[\',"]use strict[\',"];/Uims', file_get_contents( $js_realpath ), $matches ) ) {
 				// Skip third-party scripts that use Strict Mode
 				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 					echo sprintf( "\n<!-- No Concat JS %s => Has Strict Mode (Third-Party) -->\n", esc_html( $handle ) );

@@ -11,6 +11,7 @@ import ProductDetailTable from '../product-detail-table';
 import boostImage from './boost.png';
 import crmImage from './crm.png';
 import extrasImage from './extras.png';
+import jetpackAiImage from './jetpack-ai.png';
 import searchImage from './search.png';
 import styles from './style.module.scss';
 import videoPressImage from './videopress.png';
@@ -249,6 +250,19 @@ export function ExtrasInterstitial() {
 	return (
 		<ProductInterstitial slug="extras" installsPlugin={ true }>
 			<img src={ extrasImage } alt="Extras" />
+		</ProductInterstitial>
+	);
+}
+
+/**
+ * JetpackAIInterstitial component
+ *
+ * @returns {object} JetpackAIInterstitial react component.
+ */
+export function JetpackAIInterstitial() {
+	return (
+		<ProductInterstitial slug="jetpack-ai" installsPlugin={ true }>
+			<img src={ jetpackAiImage } alt="Jetpack AI" />
 		</ProductInterstitial>
 	);
 }

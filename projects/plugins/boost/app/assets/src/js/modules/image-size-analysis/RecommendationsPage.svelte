@@ -4,12 +4,16 @@
 	import Hero from './recommendations/Hero.svelte';
 	import Pagination from './recommendations/Pagination.svelte';
 	import Table from './recommendations/Table.svelte';
+	import Tabs from './recommendations/Tabs.svelte';
+	import { initializeIsaData } from './store/isa-data';
+	initializeIsaData();
 </script>
 
 <div id="jb-dashboard" class="jb-dashboard">
 	<Header />
 	<div class="recommendations-page jb-container jb-section--alt">
 		<Hero />
+		<Tabs />
 		<Table />
 		<Pagination />
 		<Footer />

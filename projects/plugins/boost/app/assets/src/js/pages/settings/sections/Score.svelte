@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { BoostScoreBar } from '@automattic/jetpack-components';
 	import { __ } from '@wordpress/i18n';
 	import {
 		getScoreLetter,
@@ -8,16 +9,14 @@
 		ScoreChangeMessage,
 	} from '../../../api/speed-scores';
 	import ErrorNotice from '../../../elements/ErrorNotice.svelte';
+	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import { criticalCssState, isGenerating } from '../../../stores/critical-css-state';
 	import { modulesState } from '../../../stores/modules';
-	import ComputerIcon from '../../../svg/computer.svg';
-	import MobileIcon from '../../../svg/mobile.svg';
 	import RefreshIcon from '../../../svg/refresh.svg';
 	import { recordBoostEvent } from '../../../utils/analytics';
 	import { castToString } from '../../../utils/cast-to-string';
 	import debounce from '../../../utils/debounce';
 	import PopOut from '../elements/PopOut.svelte';
-	import ScoreBar from '../elements/ScoreBar.svelte';
 	import ScoreContext from '../elements/ScoreContext.svelte';
 
 	const siteIsOnline = Jetpack_Boost.site.online;
@@ -106,7 +105,7 @@
 					{:else if loadError}
 						{__( 'Whoops, something went wrong', 'jetpack-boost' )}
 					{:else}
-						{__( 'Overall score', 'jetpack-boost' )}: {scoreLetter}
+						{__( 'Overall Score', 'jetpack-boost' )}: {scoreLetter}
 					{/if}
 				</h2>
 				{#if ! isLoading && ! loadError}
@@ -145,35 +144,27 @@
 			/>
 		{/if}
 
-		<div class="jb-score-bar jb-score-bar--mobile">
-			<div class="jb-score-bar__label">
-				<MobileIcon />
-				<div>{__( 'Mobile score', 'jetpack-boost' )}</div>
-			</div>
-			<ScoreBar
-				prevScore={scores.noBoost?.mobile}
-				score={scores.current.mobile}
-				active={siteIsOnline}
-				{isLoading}
-				{showPrevScores}
-				noBoostScoreTooltip={__( 'Your mobile score without Boost', 'jetpack-boost' )}
-			/>
-		</div>
+		<ReactComponent
+			this={BoostScoreBar}
+			prevScore={scores.noBoost?.mobile}
+			score={scores.current.mobile}
+			active={siteIsOnline}
+			{isLoading}
+			{showPrevScores}
+			scoreBarType="mobile"
+			noBoostScoreTooltip={__( 'Your mobile score without Boost', 'jetpack-boost' )}
+		/>
 
-		<div class="jb-score-bar jb-score-bar--desktop">
-			<div class="jb-score-bar__label">
-				<ComputerIcon />
-				<div>{__( 'Desktop score', 'jetpack-boost' )}</div>
-			</div>
-			<ScoreBar
-				prevScore={scores.noBoost?.desktop}
-				score={scores.current.desktop}
-				active={siteIsOnline}
-				{isLoading}
-				{showPrevScores}
-				noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
-			/>
-		</div>
+		<ReactComponent
+			this={BoostScoreBar}
+			prevScore={scores.noBoost?.desktop}
+			score={scores.current.desktop}
+			active={siteIsOnline}
+			{isLoading}
+			{showPrevScores}
+			scoreBarType="desktop"
+			noBoostScoreTooltip={__( 'Your desktop score without Boost', 'jetpack-boost' )}
+		/>
 	</div>
 </div>
 

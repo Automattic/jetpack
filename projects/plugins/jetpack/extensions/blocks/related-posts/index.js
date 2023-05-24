@@ -16,6 +16,7 @@ export const icon = (
 
 export const settings = {
 	title: __( 'Related Posts', 'jetpack' ),
+	description: __( 'Display a list of related posts.', 'jetpack' ),
 
 	icon: {
 		src: icon,
@@ -34,6 +35,10 @@ export const settings = {
 		postLayout: {
 			type: 'string',
 			default: 'grid',
+		},
+		displayAuthor: {
+			type: 'boolean',
+			default: false,
 		},
 		displayDate: {
 			type: 'boolean',
@@ -89,6 +94,7 @@ export const settings = {
 	example: {
 		attributes: {
 			postLayout: 'grid',
+			displayAuthor: false,
 			displayDate: true,
 			displayThumbnails: true,
 			displayContext: false,

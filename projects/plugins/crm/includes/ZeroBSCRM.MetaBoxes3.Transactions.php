@@ -216,14 +216,18 @@
 						<td colspan="2"><hr /></td>
 					</tr>
 
-					<?php
+				<?php
 
-					// Transaction Status
-					$potential_statuses = zeroBSCRM_getTransactionsStatuses( true );
-					$current_status     = '';
-				if ( is_array( $transaction ) && isset( $transaction['status'] ) ) {
-						$current_status = $transaction['status'];
+				// get transaction statuses
+				$available_statuses = zeroBSCRM_getTransactionsStatuses( true );
+
+				// if current status is not a valid one, add it to statuses array
+				if ( empty( $transaction['status'] ) ) {
+					$transaction['status'] = $available_statuses[0];
+				} elseif ( ! $zbs->DAL->is_valid_obj_status( ZBS_TYPE_TRANSACTION, $transaction['status'] ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+					$available_statuses[] = $transaction['status'];
 				}
+
 				?>
 					<tr class="wh-large">
 						<th><label for="zbst_status"><?php echo esc_html( __( 'Transaction Status:', 'zero-bs-crm' ) ); ?></label>
@@ -231,8 +235,8 @@
 						<td>
 						<select id="zbst_status" name="zbst_status">
 							<?php
-						foreach ( $potential_statuses as $status ) {
-							$sel = $status === $current_status ? ' selected' : '';
+						foreach ( $available_statuses as $status ) {
+							$sel = $status === $transaction['status'] ? ' selected' : '';
 							echo '<option value="' .
 							esc_attr( $status ) .
 							'"' .

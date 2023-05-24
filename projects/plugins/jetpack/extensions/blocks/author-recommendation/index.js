@@ -10,10 +10,15 @@ import icon from './icon';
 import './editor.scss';
 
 export const name = 'author-recommendation';
-export const title = __( 'Author-recommendation', 'jetpack' );
+export const title = __( 'Author Recommendation', 'jetpack' );
+export const description = __(
+	'Select the sites you follow and share them with your users.',
+	'jetpack'
+);
+
 export const settings = {
 	title,
-	description: __( 'Author-recommendation', 'jetpack' ),
+	description,
 	icon: {
 		src: icon,
 		foreground: getIconColor(),
@@ -41,9 +46,20 @@ export const settings = {
 		multiple: true,
 		// When false, the block won't be available to be converted into a reusable block.
 		reusable: true,
+		color: {
+			link: true,
+			gradients: true,
+		},
+		spacing: {
+			padding: true,
+			margin: true,
+		},
+		typography: {
+			fontSize: true,
+			lineHeight: true,
+		},
 	},
 	edit,
-	/* @TODO Write the block editor output */
 	save: () => null,
 	attributes,
 	example: {

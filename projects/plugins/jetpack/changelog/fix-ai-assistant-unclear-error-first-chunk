@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: Ignore first chunk on unclear prompt check

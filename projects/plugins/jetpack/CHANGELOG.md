@@ -2,6 +2,135 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.2-a.13 - 2023-05-22
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Internal updates.
+
+## 12.2-a.11 - 2023-05-22
+### Enhancements
+- Add Jetpack Starter post-purchase flow to recommendations [#30680]
+- AI-Assistant: introduce multiple blocks content edition [#30735]
+- AI: Add translate option [#30730]
+- AI Assistant: Add treatment for error when prompt is not understood [#30778]
+- AI Assistant: implement JWT token storing layer [#30782]
+- AI Assistant: request for basic formatted content [#30757]
+- AI Assistant: Send the post ID on every text completion so it can be logger and tracked on the backend. [#30765]
+- Change "Premium Content" block to "Paid Content" block [#30775]
+- Changed icon for AI Assistant block [#30801]
+- Contact Form: improved spam filtering [#30755]
+- Hides the "My Plan" on My Plan page if user has a paid project and a free plan. This way, users won't have much or conflicting information on that page. [#30804]
+- Jetpack Forms: improved styling of response emails [#30088]
+- Updates tracks event name for AI Assistant block [#30816]
+- Upgrade upgrade prompt for AI Assistant block [#30821]
+
+### Improved compatibility
+- PHP8 compatibility updates. [#30729]
+- PHP Compatibility: fix dynamic property deprecation notices. [#30786]
+
+### Bug fixes
+- Add loading indicator when fetching rewind state on Jetpack settings page [#30702]
+- AI Assistant: Fix prompt content based on action context [#30734]
+- AI Assistant: Use site-independent completion endpoint to prevent request failures for private WPCOM sites. [#30799]
+- Attempt to fix Forms hash generation. This has been ported from package on #30764 [#30764]
+- Dashboard: use the correct file path for all images in the "My Plan" screen. [#30685]
+- Fix IP allow list updates on Atomic sites. [#30487]
+- Fix race condition bug in the Plugin update endpoint. [#30770]
+- Previous implementation would remove buklk-edition checkbox from the posts list. This is now fixed. [#30747]
+- Return early when possible to prevent spamming DB [#30355]
+- VideoPress: Add tracks to attributes definition [#30743]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Add Offline Mode flag into Site Health debugging info. [#30570]
+- Publicize: avoid PHP warning [#30795]
+
+## 12.2-a.9 - 2023-05-17
+### Bug fixes
+- Correctly enable AI Assistant block on WordPress.com.
+
+## 12.2-a.7 - 2023-05-15
+### Enhancements
+- Add misconfiguration warning functionality. Also added various design fixes. [#30446]
+- Adds a new AI Assistant block as a proposed replacement for the AI Paragraph and AI Image blocks. [#30444]
+- AI Assistance: add some predef options when generating content [#30658]
+- AI Assistance: edit generated content before to accept it [#30615]
+- AI Assistance: swtich default option depending on previous-block content [#30545]
+- AI Assistant: allow changing the `tone` when generating content [#30645]
+- AI Assistant: Disable request button when not user prompt provided [#30565]
+- AI Assistant: disable `Summarize` when no content [#30561]
+- AI Assistant: introduce internationalization dropdown when generating content [#30677]
+- AI Assistant: Re-organize the prompt generation. [#30689]
+- AI Assistant: move and improve prompt types [#30665]
+- AI Assistant: reduce tones list [#30691]
+- AI Assistant: remove icons from toolbar buttons [#30585]
+- AI Assistant: update input placeholder text depending on the type of request [#30623]
+- Changed the way we skip a post from being publicized. [#30479]
+- Get Jetpack to use connection_id as the uninque identifier of the editor elements on the sidebar [#30492]
+- Golden token styling in My Plan. [#30519]
+- Jetpack AI: Add try again option [#30552]
+- Jetpack AI: iterate over createPrompt() function [#30531]
+- Jetpack AI: Update UX from ai assistant block [#30498]
+- Refactor and update Paid Newsletter user experience [#30446]
+- Related Posts: Updated labels for consistency with core [#30425]
+
+### Improved compatibility
+- ActivityPub: allow disabling Jetpack's Image CDN in requests made for the ActivityPub plugin. [#30298]
+- PHP8 compatibility updates, mostly focusing on Jetpack. [#30650]
+- PHP8 compatibility updates. [#30607]
+
+### Bug fixes
+- AI Assistant: store last prompt to be able to retry the request [#30559]
+- Change the "Add payments" to "Set up a paid plan" [#30671]
+- Fix compatibility issue in simple sites due to image CDN package [#30582]
+- Fixes issue with missing "Super Admin" in edit user form [#30496]
+- Fixes the Plugins_Modify endpoint to correct declare $args [#30608]
+- Fix zoom being reset when changing map marker color [#30482]
+- Load wpcom block editor styles [#30574]
+- Remove the map style control [#30478]
+- Show labels on Mapkit markers [#30459]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI Assistant: Add option to correct previous content [#30609]
+- AI Assistant: Add option to simplify preceding content. [#30611]
+- AI Assistant: Disable content expansion when there is no previous content [#30586]
+- AI Assistant: Fix generated title [#30657]
+- AI Assistant: make the block content persistent [#30604]
+- AI Assistant: Remove createPrompt temporary function [#30683]
+- AI Assistant: Remove title summary option when there is no title on the post [#30560]
+- Blocks: remove unused files [#30462]
+- Delete implementation of is_wpcom_staging_site() as we are moving it to trait [#30418]
+- Make chat AI block visible on editor [#30537]
+- Make Earn products free for all Jetpack plans [#30432]
+- QR Code panel: remove Jetpack logo. [#30139]
+- Story Block: remove custom spinner styles. [#30494]
+
+## 12.2-a.5 - 2023-05-08
+
+- Extends release `12.2-a.3` with a fix for the Payments block. [#30524]
+
+## 12.2-a.3 - 2023-05-08
+### Enhancements
+- Add newsletter access level to the post edit page [#30172]
+- Forms: Introduce Multiple Choice and Single Choice style variations [#30319]
+- Make Donation block free for all and charge a 10% commission for free plans [#30275]
+- Remove upgrade nudge for premium block [#30398]
+- Replace photon implementation with the image-cdn package [#30050]
+- theme-tools: Removed jQuery dependency from responsive-videos script. [#30420]
+- Update Forms pattern modal default view to Grid [#28906]
+
+### Improved compatibility
+- Added support for flagging unsupported connections in the editor UI [#30280]
+- Bit.ly: avoid errors when using non-official Bit.ly  plugins alongside Jetpack. [#30415]
+- Internationalization: add necessary context to the word "Trash" in the Contact Form interface. [#30507]
+- Security: ensure blocks are always fully displayed on your site, even when using a caching plugin. [#30413]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Fixes a bug on WP.com Simple, which is not fully updated to 6.2 yet. [#30485]
+- Fixes to integration with image-cdn [#30445]
+- Hotfix for a typo in the map provider code [#30451]
+- Updated package dependencies.
+- Use contact form implementation from automattic/jetpack-forms by default [#28791]
+- wpcom/v3/blogging-prompts endpoint: add param to force prompt dates to be a specific year [#30255]
+
 ## 12.2-a.1 - 2023-05-02
 ### Enhancements
 - Add Mapkit maps [#29098]

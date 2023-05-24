@@ -156,17 +156,30 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			array_diff_key( $filter_args, array( 'post_parent' => '' ) )
 		);
 
-		$responses = array_map(
-			function ( $response ) {
-				$data = \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::parse_fields_from_content( $response->ID );
+		$base_fields = array(
+			'email_marketing_consent' => '',
+			'entry_title'             => '',
+			'entry_permalink'         => '',
+			'feedback_id'             => '',
+		);
 
-				$base_fields = array(
-					'email_marketing_consent' => '',
-					'entry_title'             => '',
-					'entry_permalink'         => '',
-					'feedback_id'             => '',
+		$data_defaults = array(
+			'_feedback_author'       => '',
+			'_feedback_author_email' => '',
+			'_feedback_author_url'   => '',
+			'_feedback_all_fields'   => array(),
+			'_feedback_ip'           => '',
+			'_feedback_subject'      => '',
+		);
+
+		$responses = array_map(
+			function ( $response ) use ( $base_fields, $data_defaults ) {
+				$data = array_merge(
+					$data_defaults,
+					\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::parse_fields_from_content( $response->ID )
 				);
-				$all_fields  = array_merge( $base_fields, empty( $data['_feedback_all_fields'] ) ? array() : $data['_feedback_all_fields'] );
+
+				$all_fields = array_merge( $base_fields, $data['_feedback_all_fields'] );
 				return array(
 					'id'                      => $response->ID,
 					'uid'                     => $all_fields['feedback_id'],
@@ -181,7 +194,7 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 					'entry_permalink'         => $all_fields['entry_permalink'],
 					'subject'                 => $data['_feedback_subject'],
 					'fields'                  => array_diff_key(
-						empty( $data['_feedback_all_fields'] ) ? array() : $data['_feedback_all_fields'],
+						$all_fields,
 						$base_fields
 					),
 				);

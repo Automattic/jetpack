@@ -583,6 +583,7 @@ class Main extends React.Component {
 			case '/recommendations/welcome-backup':
 			case '/recommendations/welcome-complete':
 			case '/recommendations/welcome-security':
+			case '/recommendations/welcome-starter':
 			case '/recommendations/welcome-antispam':
 			case '/recommendations/welcome-videopress':
 			case '/recommendations/welcome-search':

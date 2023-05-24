@@ -526,7 +526,6 @@
 // our top admin bar UI
 #zbs-admin-top-bar{
     position: relative;
-    margin-left: -30px;
     padding-left: 25px;
     padding-right:25px;
     margin-top:0px;
@@ -553,18 +552,7 @@
     	margin-right: -5px;
     }
 
-	#zbs-toggle-sidebar{
-		background:white !important;
-	}
-
-
-
-
  }
-
-#zbs-main-logo-wrap, .zbs-admin-bg-menu {
-    //z-index:1000 !important; // WH - essential to stop bleedover from screenoptions!
-}
 
  .zbs-white{
     font-size: 18px;
@@ -592,43 +580,6 @@ div.ui.learn.button {
 	}
 	margin-left:-25px;
 	padding-left:25px;
-}
-
-
-
-
-.zbs-admin-main-menu{
-	border-radius: 0px !important;
-    margin-left: -20px !important;
-    margin-top: 0px !important;
-    margin-bottom: 0px !important;
-    background: #2e3133 !important;
-    //z-index:1000 !important; // WH - essential to stop bleedover from screenoptions!
-    .dropdown{
-	    img{
-	        border-radius: 50%;
-	    }
-	    .item{
-	    	color: #bdbdbd !important;
-	    }
-    }
-}
-
-.zbs-admin-bg-menu{
-    background: #2e3133;
-}
-
-.ui.menu .ui.dropdown .menu > .item:hover {
-    background: rgb(63, 67, 71) !important;
-    color: #bdbdbd !important;
-    font-size:14px !important;
-}
-.ui.menu{
-    font-size:14px !important;
-}
-
-.zbs-dropdown .item{
-	color: #bdbdbd !important;
 }
 
 .item:focus{
@@ -879,6 +830,13 @@ table#zbsFilesTable td {
 }
 .swal-wider{
     width:850px !important;
+}
+.jpcrm-external-link-icon {
+	width: 1em;
+	height: 1em;
+	vertical-align: middle;
+	margin: 0px;
+	margin-left: 4px;
 }
 
 @media only screen and (min-width: 768px) and (max-width: 960px) {

@@ -15,13 +15,18 @@ import { STORE_ID } from '../../state/store';
  * @returns {object}         - Site product data.
  */
 export function useProduct( productId ) {
-	const { activateProduct, deactivateProduct, installStandalonePluginForProduct } =
-		useDispatch( STORE_ID );
+	const {
+		activateProduct,
+		deactivateProduct,
+		installStandalonePluginForProduct,
+		deactivateStandalonePluginForProduct,
+	} = useDispatch( STORE_ID );
 	const detail = useSelect( select => select( STORE_ID ).getProduct( productId ) );
 
 	return {
 		activate: () => activateProduct( productId ),
 		deactivate: () => deactivateProduct( productId ),
+		deactivateStandalonePlugin: () => deactivateStandalonePluginForProduct( productId ),
 		installStandalonePlugin: () => installStandalonePluginForProduct( productId ),
 		productsList: useSelect( select => select( STORE_ID ).getProducts() ),
 		detail,

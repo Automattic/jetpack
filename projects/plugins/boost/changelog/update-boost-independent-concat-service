@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update Minify concat service to not rely on WordPress, so nginx can call it directly without the WordPress overhead.

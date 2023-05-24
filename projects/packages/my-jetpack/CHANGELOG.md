@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.14.0] - 2023-05-22
+### Added
+- Added ability to purchase Jetpack AI monthly product [#30793]
+- Added tier data to the Boost product to support a pricing table interstitial page. [#29931]
+
+## [2.13.0] - 2023-05-15
+### Added
+- Added My Jetpack interstitial for Jetpack AI [#30543]
+
+## [2.12.2] - 2023-05-11
+### Changed
+- PHP 8.1 compatibility updates [#30517]
+
+## [2.12.1] - 2023-05-08
+### Added
+- My Jetpack: Add deactivate plugin menu action on product card [#30489]
+
+### Changed
+- My Jetpack: Remove icon from plugin activation action in product card [#30458]
+- My Jetpack: Remove manage option from menu [#30440]
+- My Jetpack: Remove product card icon [#30441]
+- My Jetpack: Set a post-checkout redirect destination on the "Purchase a plan" link. [#27693]
+
+### Fixed
+- My Jetpack: Add check for product status before requesting stats [#30430]
+- My Jetpack: Reload page after successful license activation [#30364]
+- My Jetpack: Use a single column for the page title section [#30406]
+
 ## [2.12.0] - 2023-05-02
 ### Added
 - Add API to query Zendesk chat availability and use it to conditionally display zendesk chat. [#29942]
@@ -855,6 +883,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[2.14.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.13.0...2.14.0
+[2.13.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.12.2...2.13.0
+[2.12.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.12.1...2.12.2
+[2.12.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.12.0...2.12.1
 [2.12.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.11.0...2.12.0
 [2.11.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.3...2.11.0
 [2.10.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/2.10.2...2.10.3

@@ -37,10 +37,14 @@ export const getProduct = ( state, productId ) => {
 	product.supportedProducts = product.supportedProducts || [];
 
 	product.pricingForUi.fullPricePerMonth =
-		Math.ceil( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100;
+		product.pricingForUi.productTerm === 'year'
+			? Math.ceil( ( product.pricingForUi.fullPrice / 12 ) * 100 ) / 100
+			: product.pricingForUi.fullPrice;
 
 	product.pricingForUi.discountPricePerMonth =
-		Math.ceil( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100;
+		product.pricingForUi.productTerm === 'year'
+			? Math.ceil( ( product.pricingForUi.discountPrice / 12 ) * 100 ) / 100
+			: product.pricingForUi.discountPrice;
 
 	return product;
 };

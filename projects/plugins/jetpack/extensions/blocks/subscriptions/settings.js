@@ -3,96 +3,231 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __experimentalInspectorPopoverHeader as InspectorPopoverHeader } from '@wordpress/block-editor';
 import {
 	Flex,
+	Notice,
 	FlexBlock,
 	Button,
 	PanelRow,
 	Dropdown,
 	VisuallyHidden,
-	ToolbarButton,
-	ExternalLink,
 	Spinner,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { PostVisibilityCheck } from '@wordpress/editor';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import InspectorNotice from '../../shared/components/inspector-notice';
-import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from './constants';
-import { getPaidPlanLink } from './utils';
+import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
+import { getPaidPlanLink, MisconfigurationWarning } from './utils';
 
 import './settings.scss';
 
-export const accessOptions = {
-	everybody: {
-		string: 'everybody',
-		label: __( 'Everybody', 'jetpack' ),
-		info: __( 'Visible to everyone.', 'jetpack' ),
-	},
-	subscribers: {
-		string: 'subscribers',
-		label: __( 'All subscribers', 'jetpack' ),
-		info: __( 'Visible to everyone that subscribes to your site.', 'jetpack' ),
-	},
-	paid_subscribers: {
-		string: 'paid_subscribers',
-		label: __( 'Paid subscribers', 'jetpack' ),
-		info: __( 'Visible to everyone that purchases a paid plan on your site.', 'jetpack' ),
-	},
-};
-
-function getReachForAccessLevel( key, emailSubscribers, paidSubscribers, socialFollowers ) {
-	if ( emailSubscribers === null || paidSubscribers === null || socialFollowers === null ) {
-		return '';
-	}
-
-	switch ( accessOptions[ key ] ) {
-		case accessOptions.everybody:
-			return '(' + ( emailSubscribers + socialFollowers ) + '+)';
-		case accessOptions.subscribers:
-			return '(' + emailSubscribers + ')';
-		case accessOptions.paid_subscribers:
-			return '(' + paidSubscribers + ')';
-		default:
-	}
-}
-
-export function MisconfigurationWarning( { accessLevel } ) {
+function Link( { href, children } ) {
 	return (
-		<div className="jetpack-subscribe-notice-misconfiguration warning">
-			{ sprintf(
-				/* translators: %1$s: visibility label for the newsletter, %2$s: label for setting "everybody". this is a warning in the newsletter when posts have a private or password-protected visibility */
-				__(
-					'Private or password-protected posts cannot be assigned a newsletter setting of "%1$s". Please update the setting to "%2$s", or update the post visibility setting.',
-					'jetpack'
-				),
-				accessOptions[ accessLevel ].label,
-				accessOptions.everybody.label
-			) }
-		</div>
+		<a target="_blank" rel="noopener noreferrer" href={ href } className="jetpack-newsletter-link">
+			{ children }
+		</a>
 	);
 }
 
-function NewsletterAccessChoices( {
+function getReachForAccessLevelKey(
+	accessLevelKey,
+	emailSubscribers,
+	paidSubscribers,
+	socialFollowers
+) {
+	if ( emailSubscribers === null || paidSubscribers === null || socialFollowers === null ) {
+		return 0;
+	}
+
+	switch ( accessOptions[ accessLevelKey ].key ) {
+		case accessOptions.everybody.key:
+			return emailSubscribers;
+		case accessOptions.subscribers.key:
+			return emailSubscribers;
+		case accessOptions.paid_subscribers.key:
+			return paidSubscribers;
+		default:
+			return 0;
+	}
+}
+
+function NewsletterLearnMore() {
+	return (
+		<small className="jetpack-newsletter-learn-more">
+			{ createInterpolateElement(
+				__(
+					'Restrict your post to subscribers. <learnMoreLink>Learn more.</learnMoreLink>',
+					'jetpack'
+				),
+				{
+					learnMoreLink: (
+						<Link
+							href={ getRedirectUrl( 'paid-newsletter-info', {
+								anchor: 'memberships-and-subscriptions',
+							} ) }
+						/>
+					),
+				}
+			) }
+		</small>
+	);
+}
+
+export function NewsletterNotice( {
 	accessLevel,
-	onChange,
 	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
+	showMisconfigurationWarning,
+	isPostPublishPanel = false,
 } ) {
-	const instanceId = useInstanceId( NewsletterAccessChoices );
+	// Get the reach count for the access level
+	let reachCount = getReachForAccessLevelKey(
+		accessLevel,
+		emailSubscribers,
+		paidSubscribers,
+		socialFollowers
+	);
+
+	// If there is a misconfiguration, we do not show the NewsletterNotice
+	if ( showMisconfigurationWarning ) {
+		return;
+	}
+
+	if ( 0 === reachCount ) {
+		return (
+			<FlexBlock>
+				<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
+					{ createInterpolateElement(
+						__(
+							'You don’t have any subscribers yet. How about <importingLink>importing</importingLink> some? Or check out <thisGuideLink>this guide</thisGuideLink> on how to grow your audience.',
+							'jetpack'
+						),
+						{
+							importingLink: (
+								<Link href={ getRedirectUrl( 'paid-newsletter-import-subscribers' ) } />
+							),
+							thisGuideLink: (
+								<Link href={ getRedirectUrl( 'paid-newsletter-guide-grow-audience' ) } />
+							),
+						}
+					) }
+				</Notice>
+			</FlexBlock>
+		);
+	}
+
+	if ( accessOptions.everybody.key === accessLevel ) {
+		reachCount = reachCount + '+'; // Concat "+"
+	}
+
+	let numberOfSubscribersText = sprintf(
+		/* translators: %s is the number of subscribers in numerical format */
+		__( 'This will be sent to <br/><strong>%s subscribers</strong>.', 'jetpack' ),
+		reachCount
+	);
+
+	if ( isPostPublishPanel ) {
+		numberOfSubscribersText = sprintf(
+			/* translators: %s is the number of subscribers in numerical format */
+			__( 'This was sent to <strong>%s subscribers</strong>.', 'jetpack' ),
+			reachCount
+		);
+	}
+
+	return (
+		<FlexBlock>
+			<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
+				{ createInterpolateElement( numberOfSubscribersText, {
+					br: <br />,
+					strong: <strong />,
+				} ) }
+			</Notice>
+		</FlexBlock>
+	);
+}
+
+function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasNewsletterPlans } ) {
+	const paidLink = getPaidPlanLink( true );
+
+	if ( ! hasNewsletterPlans && ! isStripeConnected ) {
+		return (
+			<div className="editor-post-visibility__info">
+				{ createInterpolateElement(
+					__(
+						"You'll need to connect <stripeAccountLink>Stripe</stripeAccountLink> and add a <paidPlanLink>paid plan</paidPlanLink> to collect payments.",
+						'jetpack'
+					),
+					{
+						stripeAccountLink: <Link href={ stripeConnectUrl } />,
+						paidPlanLink: <Link href={ paidLink } />,
+					}
+				) }
+			</div>
+		);
+	}
+
+	if ( ! hasNewsletterPlans ) {
+		return (
+			<div className="editor-post-visibility__info">
+				{ createInterpolateElement(
+					__( '<paidPlanLink>Set up a paid plan</paidPlanLink> to enable this option', 'jetpack' ),
+					{
+						paidPlanLink: <Link href={ paidLink } />,
+					}
+				) }
+			</div>
+		);
+	}
+
+	if ( ! isStripeConnected ) {
+		return (
+			<div className="editor-post-visibility__info">
+				{ createInterpolateElement(
+					__(
+						'<stripeAccountLink>Connect to Stripe</stripeAccountLink> to enable payments',
+						'jetpack'
+					),
+					{
+						stripeAccountLink: <Link href={ stripeConnectUrl } />,
+					}
+				) }
+			</div>
+		);
+	}
+}
+
+function NewsletterAccessRadioButtons( {
+	onChange,
+	accessLevel,
+	socialFollowers,
+	emailSubscribers,
+	paidSubscribers,
+	hasNewsletterPlans,
+	stripeConnectUrl,
+	isPrePublishPanel = false,
+	showMisconfigurationWarning,
+} ) {
+	const isStripeConnected = stripeConnectUrl === null;
+	const instanceId = useInstanceId( NewsletterAccessRadioButtons );
+
 	return (
 		<fieldset className="editor-post-visibility__fieldset">
 			<VisuallyHidden as="legend">{ __( 'Audience', 'jetpack' ) } </VisuallyHidden>
 			{ Object.keys( accessOptions ).map( key => (
 				<div className="editor-post-visibility__choice" key={ key }>
 					<input
+						value={ key }
 						type="radio"
 						checked={ key === accessLevel }
-						name={ `editor-post-visibility__setting-${ instanceId }` }
-						value={ key }
-						id={ `editor-post-${ key }-${ instanceId }` }
-						aria-describedby={ `editor-post-${ key }-${ instanceId }-description` }
 						className="editor-post-visibility__radio"
+						id={ `editor-post-${ key }-${ instanceId }` }
+						name={ `editor-newsletter-access__setting-${ instanceId }` }
+						aria-describedby={ `editor-post-${ key }-${ instanceId }-description` }
+						disabled={
+							key === accessOptions.paid_subscribers.key &&
+							( ! isStripeConnected || ! hasNewsletterPlans )
+						}
 						onChange={ event => {
 							const obj = {};
 							obj[ META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS ] = event?.target?.value;
@@ -103,8 +238,19 @@ function NewsletterAccessChoices( {
 						htmlFor={ `editor-post-${ key }-${ instanceId }` }
 						className="editor-post-visibility__label"
 					>
-						{ accessOptions[ key ].label }{ ' ' }
-						{ getReachForAccessLevel( key, emailSubscribers, paidSubscribers, socialFollowers ) }
+						{ accessOptions[ key ].label }
+
+						{ /* Do not show subscriber numbers in the PrePublish panel */ }
+						{ ! isPrePublishPanel &&
+							' (' +
+								getReachForAccessLevelKey(
+									key,
+									emailSubscribers,
+									paidSubscribers,
+									socialFollowers
+								) +
+								( key === accessOptions.everybody.key ? '+' : '' ) +
+								')' }
 					</label>
 					<p
 						id={ `editor-post-${ key }-${ instanceId }-description` }
@@ -112,42 +258,50 @@ function NewsletterAccessChoices( {
 					>
 						{ accessOptions[ key ].info }
 					</p>
+
+					{ /* Only show the notice below each access radio buttons in the PrePublish panel  */ }
+					{ isPrePublishPanel && key === accessLevel && (
+						<p className="pre-public-panel-notice-reach">
+							<NewsletterNotice
+								accessLevel={ accessLevel }
+								socialFollowers={ socialFollowers }
+								emailSubscribers={ emailSubscribers }
+								paidSubscribers={ paidSubscribers }
+								showMisconfigurationWarning={ showMisconfigurationWarning }
+							/>
+						</p>
+					) }
 				</div>
 			) ) }
+			<NewsletterAccessSetupNudge
+				stripeConnectUrl={ stripeConnectUrl }
+				hasNewsletterPlans={ hasNewsletterPlans }
+				isStripeConnected={ isStripeConnected }
+			/>
 		</fieldset>
 	);
 }
 
-export function NewsletterAccess( {
+export function NewsletterAccessDocumentSettings( {
 	accessLevel,
 	setPostMeta,
 	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
-	withModal = true,
+	showMisconfigurationWarning,
 } ) {
-	if ( ! accessLevel || ! Object.keys( accessOptions ).includes( accessLevel ) ) {
-		accessLevel = Object.keys( accessOptions )[ 0 ];
-	}
-	const accessLabel = accessOptions[ accessLevel ]?.label;
-
-	const { newsletterPlans, isLoading } = useSelect( select => {
-		const { getProducts, isApiStateLoading } = select( 'jetpack/membership-products' );
+	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
+		const { getProducts, getConnectUrl, isApiStateLoading } = select(
+			'jetpack/membership-products'
+		);
 
 		return {
 			isLoading: isApiStateLoading(),
-			newsletterPlans: getProducts()?.filter( product => product.subscribe_as_site_subscriber ),
+			stripeConnectUrl: getConnectUrl(),
+			hasNewsletterPlans:
+				getProducts()?.filter( product => product.subscribe_as_site_subscriber )?.length !== 0,
 		};
 	} );
-
-	// Can be “private”, “password”, or “public”.
-	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
-	const postVisibilityIsPublic = postVisibility === 'public';
-
-	const showVisibilityRestrictedMessage =
-		! postVisibilityIsPublic && accessLevel === accessOptions.everybody.string;
-	const showMisconfigurationMessage =
-		! postVisibilityIsPublic && accessLevel !== accessOptions.everybody.string;
 
 	if ( isLoading ) {
 		return (
@@ -157,133 +311,146 @@ export function NewsletterAccess( {
 		);
 	}
 
-	if ( ! newsletterPlans || newsletterPlans.length === 0 ) {
-		return (
-			<>
-				<PanelRow>
-					{ __( 'Set up a paid plan for readers to access your content.', 'jetpack' ) }
-				</PanelRow>
-				<PanelRow>
-					<ToolbarButton variant="primary" href={ getPaidPlanLink( false ) } target="_blank">
-						{ __( 'Add Payments', 'jetpack' ) }
-					</ToolbarButton>
-				</PanelRow>
-				<PanelRow>
-					<small spanClass={ 'jetpack-subscribe-info' }>
-						{ /* translators: basic information about the newsletter visibility */ }
-						{ __( 'Restrict your post to subscribers.', 'jetpack' ) }
-						<ExternalLink
-							href={ getRedirectUrl( 'paid-newsletter-info', {
-								anchor: 'memberships-and-subscriptions',
-							} ) }
-						>
-							{ __( 'Learn More', 'jetpack' ) }
-						</ExternalLink>
-					</small>
-				</PanelRow>
-			</>
-		);
-	}
+	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
+	const accessLabel = accessOptions[ _accessLevel ]?.label;
+
+	// Immediately close the dropdown dialog after setting the post meta.
+	const setPostMetaAndClose = onClose => {
+		return meta => {
+			setPostMeta( meta );
+			onClose();
+		};
+	};
 
 	return (
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => (
 				<PanelRow className="edit-post-post-visibility">
-					<Flex direction={ 'column' }>
-						{ canEdit && withModal && showVisibilityRestrictedMessage && (
-							<FlexBlock>
-								<InspectorNotice spanClass={ 'jetpack-subscribe-notice-visibility' }>
-									{
-										/* translators: this is a warning in the newsletter when posts have a private or password-protected visibility */
-										__(
-											'Private or password-protected posts cannot be assigned as Subscribers-only.',
-											'jetpack'
-										)
-									}
-								</InspectorNotice>
-							</FlexBlock>
-						) }
-
-						{ canEdit &&
-							withModal /* to prevent displaying in pre-publish panel */ &&
-							showMisconfigurationMessage && (
-								<FlexBlock>
-									<MisconfigurationWarning accessLevel={ accessLevel } />
-								</FlexBlock>
+					<Flex direction="column">
+						{ showMisconfigurationWarning && <MisconfigurationWarning /> }
+						<Flex direction="row" justify="flex-start">
+							<span>{ __( 'Access', 'jetpack' ) }</span>
+							{ canEdit && (
+								<Dropdown
+									focusOnMount
+									placement="bottom-end"
+									contentClassName="edit-post-post-visibility__dialog"
+									renderToggle={ ( { isOpen, onToggle } ) => (
+										<Button
+											variant="tertiary"
+											onClick={ onToggle }
+											aria-expanded={ isOpen }
+											aria-label={ sprintf(
+												// translators: %s: Current newsletter post access.
+												__( 'Select audience: %s', 'jetpack' ),
+												accessLabel
+											) }
+										>
+											{ accessLabel }
+										</Button>
+									) }
+									renderContent={ ( { onClose } ) => (
+										<div className="editor-post-visibility">
+											<InspectorPopoverHeader
+												onClose={ onClose }
+												title={ __( 'Access settings', 'jetpack' ) }
+												help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
+											/>
+											<NewsletterAccessRadioButtons
+												onChange={ setPostMetaAndClose( onClose ) }
+												accessLevel={ _accessLevel }
+												socialFollowers={ socialFollowers }
+												emailSubscribers={ emailSubscribers }
+												paidSubscribers={ paidSubscribers }
+												stripeConnectUrl={ stripeConnectUrl }
+												hasNewsletterPlans={ hasNewsletterPlans }
+												showMisconfigurationWarning={ showMisconfigurationWarning }
+											/>
+										</div>
+									) }
+								/>
 							) }
 
-						<Flex direction={ withModal ? 'row' : 'column' }>
-							<FlexBlock>
-								<span>{ __( 'Access', 'jetpack' ) }</span>
-							</FlexBlock>
-							{ ( ! canEdit || showVisibilityRestrictedMessage ) && <span>{ accessLabel }</span> }
-							{ ! showVisibilityRestrictedMessage && withModal && canEdit && (
-								<FlexBlock>
-									<Dropdown
-										placement="bottom-end"
-										contentClassName="edit-post-post-visibility__dialog"
-										focusOnMount
-										renderToggle={ ( { isOpen, onToggle } ) => (
-											<Button
-												variant="tertiary"
-												onClick={ onToggle }
-												aria-expanded={ isOpen }
-												aria-label={ sprintf(
-													// translators: %s: Current newsletter post access.
-													__( 'Select audience: %s', 'jetpack' ),
-													accessLabel
-												) }
-											>
-												{ accessLabel }
-											</Button>
-										) }
-										renderContent={ ( { onClose } ) => (
-											<div className="editor-post-visibility">
-												<InspectorPopoverHeader
-													title={ __( 'Audience', 'jetpack' ) }
-													help={ __( 'Control how this newsletter is viewed.', 'jetpack' ) }
-													onClose={ onClose }
-												/>
-												<NewsletterAccessChoices
-													accessLevel={ accessLevel }
-													socialFollowers={ socialFollowers }
-													emailSubscribers={ emailSubscribers }
-													paidSubscribers={ paidSubscribers }
-													onChange={ setPostMeta }
-												/>
-											</div>
-										) }
-									/>
-								</FlexBlock>
-							) }
+							{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
+							{ ! canEdit && <span>{ accessLabel }</span> }
+						</Flex>
 
-							{ ! showVisibilityRestrictedMessage && ! withModal && canEdit && (
+						<NewsletterNotice
+							accessLevel={ _accessLevel }
+							socialFollowers={ socialFollowers }
+							emailSubscribers={ emailSubscribers }
+							paidSubscribers={ paidSubscribers }
+							showMisconfigurationWarning={ showMisconfigurationWarning }
+						/>
+
+						<FlexBlock>
+							<NewsletterLearnMore />
+						</FlexBlock>
+					</Flex>
+				</PanelRow>
+			) }
+		/>
+	);
+}
+
+export function NewsletterAccessPrePublishSettings( {
+	accessLevel,
+	setPostMeta,
+	socialFollowers,
+	emailSubscribers,
+	paidSubscribers,
+	showMisconfigurationWarning,
+} ) {
+	const { hasNewsletterPlans, stripeConnectUrl, isLoading } = useSelect( select => {
+		const { getProducts, getConnectUrl, isApiStateLoading } = select(
+			'jetpack/membership-products'
+		);
+
+		return {
+			isLoading: isApiStateLoading(),
+			stripeConnectUrl: getConnectUrl(),
+			hasNewsletterPlans:
+				getProducts()?.filter( product => product.subscribe_as_site_subscriber )?.length !== 0,
+		};
+	} );
+
+	if ( isLoading ) {
+		return (
+			<Flex direction="column" align="center">
+				<Spinner />
+			</Flex>
+		);
+	}
+
+	const _accessLevel = accessLevel ?? accessOptions.everybody.key;
+	const accessLabel = accessOptions[ _accessLevel ]?.label;
+
+	return (
+		<PostVisibilityCheck
+			render={ ( { canEdit } ) => (
+				<PanelRow className="edit-post-post-visibility">
+					<Flex direction="column">
+						{ showMisconfigurationWarning && MisconfigurationWarning() }
+						{ canEdit && (
+							<>
 								<FlexBlock>
-									<NewsletterAccessChoices
-										accessLevel={ accessLevel }
+									<NewsletterAccessRadioButtons
+										onChange={ setPostMeta }
+										accessLevel={ _accessLevel }
 										socialFollowers={ socialFollowers }
 										emailSubscribers={ emailSubscribers }
 										paidSubscribers={ paidSubscribers }
-										onChange={ setPostMeta }
+										stripeConnectUrl={ stripeConnectUrl }
+										hasNewsletterPlans={ hasNewsletterPlans }
+										isPrePublishPanel={ true }
+										showMisconfigurationWarning={ showMisconfigurationWarning }
 									/>
 								</FlexBlock>
-							) }
-						</Flex>
-						{ withModal && (
-							<FlexBlock>
-								<small spanClass={ 'jetpack-subscribe-info' }>
-									{ /* translators: basic information about the newsletter visibility */ }
-									{ __( 'Restrict your post to subscribers. ', 'jetpack' ) }
-									<ExternalLink
-										href={ getRedirectUrl( 'paid-newsletter-info', {
-											anchor: 'memberships-and-subscriptions',
-										} ) }
-									>
-										{ __( 'Learn More', 'jetpack' ) }
-									</ExternalLink>
-								</small>
-							</FlexBlock>
+							</>
 						) }
+
+						{ /* Display the uneditable access level when the user doesn't have edit privileges*/ }
+						{ ! canEdit && <span>{ accessLabel }</span> }
 					</Flex>
 				</PanelRow>
 			) }

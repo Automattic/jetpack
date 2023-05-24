@@ -164,6 +164,17 @@ const activateProduct = productId => async store => {
 
 /**
  * Side effect action that will trigger
+ * the standalone plugin activation state on the server.
+ *
+ * @param {string} productId - My Jetpack product ID.
+ * @returns {Promise}        - Promise which resolves when the product plugin is deactivated.
+ */
+const deactivateStandalonePluginForProduct = productId => async store => {
+	return await requestProductStatus( productId, { activate: false }, store );
+};
+
+/**
+ * Side effect action that will trigger
  * the standalone plugin installation on the server.
  *
  * @param {string} productId - My Jetpack product ID.
@@ -230,6 +241,7 @@ const setIsFetchingProductStats = ( productId, isFetching ) => {
 const productActions = {
 	setProduct,
 	activateProduct,
+	deactivateStandalonePluginForProduct,
 	installStandalonePluginForProduct,
 	setIsFetchingProduct,
 	setRequestProductError,

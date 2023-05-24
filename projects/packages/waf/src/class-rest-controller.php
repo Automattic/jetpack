@@ -22,6 +22,12 @@ class REST_Controller {
 	 * @return void
 	 */
 	public static function register_rest_routes() {
+		// Ensure routes are only initialized once.
+		static $routes_registered = false;
+		if ( $routes_registered ) {
+			return;
+		}
+
 		register_rest_route(
 			'jetpack/v4',
 			'/waf',
@@ -51,6 +57,8 @@ class REST_Controller {
 				'permission_callback' => __CLASS__ . '::waf_permissions_callback',
 			)
 		);
+
+		$routes_registered = true;
 	}
 
 	/**
