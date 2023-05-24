@@ -4,6 +4,10 @@
  * Editor styles for Jetpack AI Assistant
  */
 
+.block-editor-block-toolbar__slot {
+	flex-shrink: 0;
+}
+
 .wp-block-ai-generate-suggestion {
 	padding: 0;
 }
