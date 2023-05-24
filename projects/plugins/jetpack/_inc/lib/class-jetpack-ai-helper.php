@@ -9,6 +9,7 @@
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Visitor;
 
 /**
  * Class Jetpack_AI_Helper
@@ -274,5 +275,62 @@ class Jetpack_AI_Helper {
 		self::mark_post_as_ai_assisted( $post_id );
 
 		return $data;
+	}
+
+	/**
+	 * Get an object with useful data about the requests made to the AI.
+	 *
+	 * @return mixed
+	 */
+	public static function get_requests_stats() {
+		$has_ai_assistant_feature = Current_Plan::supports( 'ai-assistant' );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( ! class_exists( 'OpenAI' ) ) {
+				\require_lib( 'openai' );
+			}
+
+			if ( ! class_exists( 'OpenAI_Limit_Usage' ) ) {
+				if ( is_readable( WP_PLUGIN_DIR . '/openai/openai-limit-usage.php' ) ) {
+					require_once WP_PLUGIN_DIR . '/openai/openai-limit-usage.php';
+				} else {
+					return new WP_Error(
+						'openai_limit_usage_not_found',
+						__( 'OpenAI Limit Usage class not found.', 'jetpack' )
+					);
+				}
+			}
+
+			$blog_id       = get_current_blog_id();
+			$is_over_limit = \OpenAI_Limit_Usage::is_blog_over_request_limit( $blog_id );
+
+			return array(
+				'has-ai-assistant-feature' => $has_ai_assistant_feature,
+				'is-over-limit'            => $is_over_limit,
+			);
+		}
+
+		$request_path  = sprintf( '/sites/%s/ai-jetpack/requests', $blog_id );
+		$wpcom_request = Client::wpcom_json_api_request_as_user(
+			$request_path,
+			'2',
+			array(
+				'method'  => 'GET',
+				'headers' => array(
+					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
+				),
+			)
+		);
+
+		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
+		if ( 200 === $response_code ) {
+			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
+		} else {
+			return new WP_Error(
+				'failed_to_fetch_data',
+				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
+				array( 'status' => $response_code )
+			);
+		}
 	}
 }
