@@ -1702,9 +1702,9 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
 
                         echo '<div id="zbs-customerportal-access-actions" class="zbs-customerportal-activeuser">';
 
-                        echo '<button type="button" id="zbs-customerportal-resetpw" class="ui mini button orange">' . esc_html( __( 'Reset Password', 'zero-bs-crm' ) ) . '</button>';
+								echo '<button type="button" id="zbs-customerportal-resetpw" class="ui mini button white">' . esc_html( __( 'Reset Password', 'zero-bs-crm' ) ) . '</button>';
 
-                        echo '<button type="button" id="zbs-customerportal-toggle" data-zbsportalaction="disable" class="ui mini button negative">' . esc_html( __( 'Disable Access', 'zero-bs-crm' ) ) . '</button>';
+								echo '<button type="button" id="zbs-customerportal-toggle" data-zbsportalaction="disable" class="ui mini button white negative">' . esc_html( __( 'Disable Access', 'zero-bs-crm' ) ) . '</button>';
 
                         echo '</div>';
 
@@ -1716,7 +1716,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
                     }
 
                     echo '<hr /><div class="zbs-customerportal-activeuser-actions">';
-                    echo sprintf( '<a target="_blank" href="%s" class="ui mini button green">%s</a>', esc_url( zeroBS_portal_link() ), esc_html( __( 'Preview Portal', 'zero-bs-crm' ) ) );
+							echo sprintf( '<a target="_blank" href="%s" class="ui mini button white">%s</a>', esc_url( zeroBS_portal_link() ), esc_html( __( 'Preview Portal', 'zero-bs-crm' ) ) );
                     echo '</div>';
                 } else {
 
