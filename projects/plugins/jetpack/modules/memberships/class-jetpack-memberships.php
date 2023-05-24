@@ -434,7 +434,7 @@ class Jetpack_Memberships {
 	/**
 	 * Get the post access level
 	 *
-	 * @return string the actual post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/settings.js for the values).
+	 * @return string the actual post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/constants.js for the values).
 	 */
 	public static function get_post_access_level() {
 		if ( ! is_singular() ) {
