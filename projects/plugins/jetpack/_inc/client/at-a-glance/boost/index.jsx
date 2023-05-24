@@ -169,23 +169,25 @@ const DashBoost = ( {
 	};
 
 	const getInstallLinkText = () => {
+		let linkText;
+
 		if ( hasBoost ) {
 			return;
 		}
 
 		if ( isInstalling ) {
-			return __( 'Installing…', 'jetpack' );
+			linkText = __( 'Installing…', 'jetpack' );
 		}
 
 		if ( isActivating ) {
-			return __( 'Activating…', 'jetpack' );
+			linkText = __( 'Activating…', 'jetpack' );
 		}
 
 		if ( isBoostInstalled ) {
-			return __( 'Activate Boost to run instant tests', 'jetpack' );
+			linkText = __( 'Activate Boost to run instant tests', 'jetpack' );
 		}
 
-		return __( 'Install Boost to run instant tests', 'jetpack' );
+		return linkText ?? __( 'Install Boost to run instant tests', 'jetpack' );
 	};
 
 	const activateOrInstallBoost = useCallback( () => {
