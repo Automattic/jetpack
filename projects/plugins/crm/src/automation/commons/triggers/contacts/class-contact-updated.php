@@ -21,21 +21,22 @@ class Contact_Updated extends Base_Trigger {
 	private $contact_before_update = array();
 
 	/**
+	 * @var Automation_Workflow The Automation workflow object.
+	 */
+	private $workflow;
+
+	/**
 	 * Contructs the Contact_Updated instance.
 	 */
 	public function __construct() {
-		$trigger_data = array(
-			'name'        => 'contact_updated',
-			'title'       => 'Contact Updated',
-			'description' => 'Triggered when a CRM contact is updated',
-			'category'    => 'contact',
-		);
-
-		parent::__construct( $trigger_data );
+		self::$name        = 'contact_updated';
+		self::$title       = __( 'Contact Updated', 'zero-bs-crm' );
+		self::$description = __( 'Triggered when a contact is updated', 'zero-bs-crm' );
+		self::$category    = 'contact';
 	}
 
 	/**
-	 * Init the trigger. Listen to the desired event
+	 * Init the trigger.
 	 *
 	 * @param Automation_Workflow $workflow The workflow to which the trigger belongs.
 	 * @throws Automation_Exception Throws a 'class not found' or general error.
@@ -43,11 +44,19 @@ class Contact_Updated extends Base_Trigger {
 	public function init( Automation_Workflow $workflow ) {
 		add_action(
 			'jpcrm_automation_contact_update',
-			function ( $contact_data ) use ( $workflow ) {
-				$workflow->execute( $this, $contact_data );
-			},
-			10,
-			2
+			array( $this, 'execute_workflow' )
 		);
+	}
+
+	/**
+	 * Execute the workflow. Listen to the desired event
+	 *
+	 * @param array $contact_data The contact data to be included in the workflow.
+	 * @throws Automation_Exception Throws a 'class not found' or general error.
+	 */
+	public function execute_workflow( $contact_data ) {
+		if ( $this->workflow ) {
+			$this->workflow->execute( $this, $contact_data );
+		}
 	}
 }

@@ -17,21 +17,22 @@ use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 class Contact_Email_Updated extends Base_Trigger {
 
 	/**
+	 * @var Automation_Workflow The Automation workflow object.
+	 */
+	private $workflow;
+
+	/**
 	 * Contructs the Contact_Email_Updated instance.
 	 */
 	public function __construct() {
-		$trigger_data = array(
-			'name'        => 'contact_email_updated',
-			'title'       => 'Contact Email Updated',
-			'description' => 'Triggered when a CRM contact email is updated',
-			'category'    => 'contact',
-		);
-
-		parent::__construct( $trigger_data );
+		self::$name        = 'contact_email_updated';
+		self::$title       = __( 'Contact Email Updated', 'zero-bs-crm' );
+		self::$description = __( 'Triggered when a CRM contact email is updated', 'zero-bs-crm' );
+		self::$category    = 'contact';
 	}
 
 	/**
-	 * Init the trigger. Listen to the desired event
+	 * Init the trigger.
 	 *
 	 * @param Automation_Workflow $workflow The workflow to which the trigger belongs.
 	 * @throws Automation_Exception Throws a 'class not found' or general error.
@@ -39,11 +40,19 @@ class Contact_Email_Updated extends Base_Trigger {
 	public function init( Automation_Workflow $workflow ) {
 		add_action(
 			'jpcrm_automation_contact_email_update',
-			function ( $contact_data ) use ( $workflow ) {
-				$workflow->execute( $this, $contact_data );
-			},
-			10,
-			2
+			array( $this, 'execute_workflow' )
 		);
+	}
+
+	/**
+	 * Execute the workflow. Listen to the desired event
+	 *
+	 * @param array $contact_data The contact data to be included in the workflow.
+	 * @throws Automation_Exception Throws a 'class not found' or general error.
+	 */
+	public function execute_workflow( $contact_data ) {
+		if ( $this->workflow ) {
+			$this->workflow->execute( $this, $contact_data );
+		}
 	}
 }
