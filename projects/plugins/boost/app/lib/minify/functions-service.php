@@ -15,15 +15,12 @@ function jetpack_boost_page_optimize_types() {
  * Handle serving a minified / concatenated file from the virtual _static dir.
  */
 function jetpack_boost_page_optimize_service_request() {
-	global $wp_filesystem;
-
-	jetpack_boost_init_filesystem();
-
 	$cache_dir = Config::get_cache_dir_path();
 	$use_cache = ! empty( $cache_dir );
 
 	// Ensure the cache directory exists.
-	if ( $use_cache && ! is_dir( $cache_dir ) && ! $wp_filesystem->mkdir( $cache_dir, 0775, true ) ) {
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+	if ( $use_cache && ! is_dir( $cache_dir ) && ! mkdir( $cache_dir, 0775, true ) ) {
 		$use_cache = false;
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -38,7 +35,8 @@ function jetpack_boost_page_optimize_service_request() {
 	}
 
 	// Ensure the cache directory is writable.
-	if ( $use_cache && ( ! is_dir( $cache_dir ) || ! $wp_filesystem->is_writable( $cache_dir ) || ! is_executable( $cache_dir ) ) ) {
+	// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_is_writable
+	if ( $use_cache && ( ! is_dir( $cache_dir ) || ! is_writable( $cache_dir ) || ! is_executable( $cache_dir ) ) ) {
 		$use_cache = false;
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
@@ -70,7 +68,8 @@ function jetpack_boost_page_optimize_service_request() {
 			}
 
 			if ( file_exists( $cache_file_meta ) ) {
-				$meta = json_decode( $wp_filesystem->get_contents( $cache_file_meta ) );
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+				$meta = json_decode( file_get_contents( $cache_file_meta ) );
 				if ( null !== $meta && isset( $meta->headers ) ) {
 					foreach ( $meta->headers as $header ) {
 						header( $header );
@@ -78,13 +77,14 @@ function jetpack_boost_page_optimize_service_request() {
 				}
 			}
 
-			$etag = '"' . md5( $wp_filesystem->get_contents( $cache_file ) ) . '"';
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$etag = '"' . md5( file_get_contents( $cache_file ) ) . '"';
 
 			header( 'X-Page-Optimize: cached' );
 			header( 'Cache-Control: max-age=' . 31536000 );
 			header( 'ETag: ' . $etag );
 
-			echo $wp_filesystem->get_contents( $cache_file ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We need to trust this unfortunately.
+			echo file_get_contents( $cache_file ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- We need to trust this unfortunately.
 			die();
 		}
 	}
@@ -105,8 +105,10 @@ function jetpack_boost_page_optimize_service_request() {
 
 	// Cache the generated data, if available.
 	if ( $use_cache ) {
-		$wp_filesystem->put_contents( $cache_file, $content );
-		$wp_filesystem->put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ) ) );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $cache_file, $content );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+		file_put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ) ) );
 	}
 
 	die();
@@ -116,8 +118,6 @@ function jetpack_boost_page_optimize_service_request() {
  * Generate a combined and minified output for the current request.
  */
 function jetpack_boost_page_optimize_build_output() {
-	global $wp_filesystem;
-
 	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
 
 	// Config
@@ -225,7 +225,8 @@ function jetpack_boost_page_optimize_build_output() {
 			$last_modified = $stat['mtime'];
 		}
 
-		$buf = $wp_filesystem->get_contents( $fullpath );
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		$buf = file_get_contents( $fullpath );
 		if ( false === $buf ) {
 			jetpack_boost_page_optimize_status_exit( 500 );
 		}
