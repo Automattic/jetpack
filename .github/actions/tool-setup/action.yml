@@ -108,7 +108,7 @@ runs:
         openssl req -new -newkey rsa:2048 -sha256 -days 1 -nodes -x509 -subj "/CN=localhost" -keyout "$HOME/cert.key" -out "$HOME/cert.crt"
 
         # Start the proxy
-        nohup "$GITHUB_ACTION_PATH"/packagist-proxy.mjs "$HOME/cert.key" "$HOME/cert.crt" &> /dev/null &
+        nohup "$GITHUB_ACTION_PATH"/packagist-proxy.mjs "$HOME/cert.key" "$HOME/cert.crt" &> "$HOME/proxy.log" &
         disown $!
 
         # Configure the plugin via env
