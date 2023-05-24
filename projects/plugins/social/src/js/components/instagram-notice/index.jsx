@@ -16,13 +16,13 @@ const freePlanNoticeText = __(
 	'jetpack-social'
 );
 const paidPlanNoticeText = __(
-	'Enjoy automatically sharing unlimited photos and video reels to Instagram Business with your Jetpack Social Advanced plan!',
+	'Enjoy automatically sharing unlimited photos to Instagram Business with your Jetpack Social Advanced plan!',
 	'jetpack-social'
 );
 
 const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
-	const [ showNotice, setShowNotice ] = useState( true );
 	const { dismissedNotices, dismissNotice } = useDismissNotice();
+	const [ showNotice, setShowNotice ] = useState( ! dismissedNotices.includes( 'instagram' ) );
 
 	const { connectionsAdminUrl, hasAdvancedPlan, isInstagramConnectionSupported } = useSelect(
 		select => {
@@ -40,11 +40,7 @@ const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
 		setShowNotice( false );
 	}, [ dismissNotice, setShowNotice ] );
 
-	if (
-		! showNotice ||
-		! isInstagramConnectionSupported ||
-		dismissedNotices.includes( 'instagram' )
-	) {
+	if ( ! showNotice || ! isInstagramConnectionSupported ) {
 		return null;
 	}
 
