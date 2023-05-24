@@ -17,21 +17,22 @@ use Automattic\Jetpack\CRM\Automation\Base_Trigger;
 class Company_Deleted extends Base_Trigger {
 
 	/**
+	 * @var Automation_Workflow The Automation workflow object.
+	 */
+	private $workflow;
+
+	/**
 	 * Contructs the Company_Delete instance.
 	 */
 	public function __construct() {
-		$trigger_data = array(
-			'name'        => 'company_delete',
-			'title'       => 'Company Deleted',
-			'description' => 'Triggered when a CRM company is deleted',
-			'category'    => 'company',
-		);
-
-		parent::__construct( $trigger_data );
+		self::$name        = 'company_delete';
+		self::$title       = __( 'Company Deleted', 'zero-bs-crm' );
+		self::$description = __( 'Triggered when a CRM company is deleted', 'zero-bs-crm' );
+		self::$category    = 'company';
 	}
 
 	/**
-	 * Init the trigger. Listen to the desired event
+	 * Init the trigger.
 	 *
 	 * @param Automation_Workflow $workflow The workflow to which the trigger belongs.
 	 * @throws Automation_Exception Throws a 'class not found' or general error.
@@ -39,11 +40,19 @@ class Company_Deleted extends Base_Trigger {
 	public function init( Automation_Workflow $workflow ) {
 		add_action(
 			'jpcrm_automation_company_delete',
-			function ( $contact_data ) use ( $workflow ) {
-				$workflow->execute( $this, $contact_data );
-			},
-			10,
-			2
+			array( $this, 'execute_workflow' )
 		);
+	}
+
+	/**
+	 * Execute the workflow. Listen to the desired event
+	 *
+	 * @param array $company_data The company data to be included in the workflow.
+	 * @throws Automation_Exception Throws a 'class not found' or general error.
+	 */
+	public function execute_workflow( $company_data ) {
+		if ( $this->workflow ) {
+			$this->workflow->execute( $this, $company_data );
+		}
 	}
 }
