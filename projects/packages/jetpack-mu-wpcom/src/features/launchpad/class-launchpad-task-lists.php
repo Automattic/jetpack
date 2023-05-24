@@ -212,16 +212,11 @@ class Launchpad_Task_Lists {
 	 * @return Task Task with current state.
 	 */
 	private function build_task( $task ) {
-		$built_task                 = array(
+		$built_task = array(
 			'id' => $task['id'],
 		);
 
-		$default_title = '';
-		if ( isset( $task['title'] ) ) {
-			$default_title = $task['title'];
-		}
-
-		$built_task['title']        = $this->load_value_from_callback( $task, 'get_title', $default_title );
+		$built_task['title']        = $this->load_title( $task );
 		$built_task['completed']    = $this->is_task_complete( $task );
 		$built_task['disabled']     = $this->is_task_disabled( $task );
 		$built_task['subtitle']     = $this->load_subtitle( $task );
@@ -244,6 +239,26 @@ class Launchpad_Task_Lists {
 			return call_user_func_array( $task[ $callback ], array( $task, $default ) );
 		}
 		return $default;
+	}
+
+	/**
+	 * Loads a title for a task, calling the 'get_title' callback if it exists,
+	 * or falling back on the value for the 'title' key if it is set.
+	 *
+	 * @param Task $task A task definition.
+	 * @return string The title for the task.
+	 */
+	private function load_title( $task ) {
+		$title = $this->load_value_from_callback( $task, 'get_title' );
+		if ( ! empty( $title ) ) {
+			return $title;
+		}
+
+		if ( isset( $task['title'] ) ) {
+			return $task['title'];
+		}
+
+		return '';
 	}
 
 	/**
