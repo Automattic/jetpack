@@ -37,6 +37,31 @@ export function getMustReauthConnections() {
 }
 
 /**
+ * Returns a template for linkedIn data, based on the first linkedin account found.
+ *
+ * @param {object} args - Arguments.
+ * @param {boolean} args.forceDefaults - Whether to use default values.
+ * @returns {object} The linkedin account data.
+ */
+export function getLinkedInDetails( { forceDefaults = false } = {} ) {
+	if ( ! forceDefaults ) {
+		const connection = getConnections().find( ( { service_name } ) => 'linkedin' === service_name );
+
+		if ( connection ) {
+			return {
+				name: connection.display_name,
+				profileImage: connection.profile_picture,
+			};
+		}
+	}
+
+	return {
+		name: __( 'Account Name', 'jetpack' ),
+		profileImage: 'https://static.licdn.com/sc/h/1c5u578iilxfi4m4dvc4q810q',
+	};
+}
+
+/**
  * Returns a template for tweet data, based on the first Twitter account found.
  *
  * @param {object} state - State object.
@@ -61,7 +86,7 @@ export function getTweetTemplate( state ) {
 		profileImage:
 			twitterAccount?.profile_picture ||
 			'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
-		screenName: twitterAccount?.display_name || '',
+		screenName: twitterAccount?.display_name || '@account',
 	};
 }
 
@@ -82,7 +107,7 @@ export function getTweetStorm( state ) {
 			media: tweet.media,
 			tweet: tweet.tweet,
 			urls: tweet.urls,
-			card: getTwitterCardForURLs( state, tweet.urls ),
+			...getTwitterCardForURLs( state, tweet.urls ),
 		} ) ),
 	];
 
@@ -121,17 +146,15 @@ export function getFirstTweet( state ) {
 		...tweetTemplate,
 		text: getShareMessage() + ` ${ url }`,
 		urls: [ url ],
-		card: {
-			title: getEditedPostAttribute( 'title' ),
-			description:
-				getEditedPostAttribute( 'meta' )?.advanced_seo_description ||
-				getEditedPostAttribute( 'excerpt' ) ||
-				getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
-				__( 'Visit the post for more.', 'jetpack' ),
-			url,
-			image,
-			type: image ? 'summary_large_image' : 'summary',
-		},
+		title: getEditedPostAttribute( 'title' ),
+		description:
+			getEditedPostAttribute( 'meta' )?.advanced_seo_description ||
+			getEditedPostAttribute( 'excerpt' ) ||
+			getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
+			__( 'Visit the post for more.', 'jetpack' ),
+		url,
+		image,
+		cardType: image ? 'summary_large_image' : 'summary',
 	};
 }
 
@@ -565,7 +588,7 @@ export function getJetpackSocialPostAlreadyShared() {
 /**
  * Get a list of all attached media.
  *
- * @returns {Array} An array of media IDs.
+ * @returns {Array<{id: string; url: string}>} An array of media IDs.
  */
 export function getAttachedMedia() {
 	return get( getJetpackSocialOptions(), [ 'attached_media' ], [] );
@@ -581,10 +604,10 @@ export function shouldUploadAttachedMedia() {
 }
 
 /**
- * Get a list of all image generator settings for a post.
+ * Get the image generator settings for a post.
  *
- * @returns {Array} An array of image generator settings.
+ * @returns {object} An object of image generator settings.
  */
 export function getImageGeneratorPostSettings() {
-	return getJetpackSocialOptions()?.image_generator_settings ?? [];
+	return getJetpackSocialOptions()?.image_generator_settings ?? {};
 }
