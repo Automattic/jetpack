@@ -55,7 +55,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
         top: 0; bottom: 0; left: 0;
         width: 15px;
         &:before {
-            background: $primary-color;
+            background: black;
             border: 3px solid transparent;
             border-radius: 100%;
             content: "";
