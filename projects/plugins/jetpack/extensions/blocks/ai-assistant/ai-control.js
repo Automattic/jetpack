@@ -8,6 +8,7 @@ import {
 	ToolbarButton,
 	ToolbarDropdownMenu,
 	ToolbarGroup,
+	Spinner,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, image, pencil, update, title } from '@wordpress/icons';
@@ -16,7 +17,6 @@ import { chevronDown, image, pencil, update, title } from '@wordpress/icons';
  */
 import I18nDropdownControl from './i18n-dropdown-control';
 import AIAssistantIcon from './icons/ai-assistant';
-import LoadingIcon from './icons/loading';
 import origamiPlane from './icons/origami-plane';
 import ToneDropdownControl from './tone-dropdown-control';
 import UpgradePrompt from './upgrade-prompt';
@@ -89,11 +89,7 @@ const AIControl = ( {
 			<div className="jetpack-ai-assistant__input-wrapper">
 				<div className="jetpack-ai-assistant__input-icon-wrapper">
 					{ isWaitingState || loadingImages ? (
-						<Icon
-							icon={ LoadingIcon }
-							size={ 24 }
-							className="jetpack-ai-assistant__input-loader-icon"
-						/>
+						<Spinner className="jetpack-ai-assistant__input-spinner" />
 					) : (
 						<Icon
 							icon={ AIAssistantIcon }
