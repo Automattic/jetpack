@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Replace Boost ScoreBar Svelte component with React package component and remove unused code

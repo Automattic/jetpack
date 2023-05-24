@@ -1,10 +1,12 @@
 /**
  * External dependencies
  */
-import { useSelect, select as selectData } from '@wordpress/data';
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import { useSelect, select as selectData, useDispatch } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
+import TurndownService from 'turndown';
 /**
  * Internal dependencies
  */
@@ -12,7 +14,9 @@ import { buildPrompt } from './create-prompt';
 import { askJetpack, askQuestion } from './get-suggestion-with-stream';
 import { DEFAULT_PROMPT_TONE } from './tone-dropdown-control';
 
-const debug = debugFactory( 'jetpack:ai-assistant' );
+const debug = debugFactory( 'jetpack-ai-assistant' );
+
+const turndownService = new TurndownService();
 
 /**
  * Returns partial content from the beginning of the post
@@ -33,14 +37,16 @@ export function getPartialContentToBlock( clientId ) {
 		return '';
 	}
 
-	return blocks
-		.filter( function ( block ) {
-			return block && block.attributes && block.attributes.content;
-		} )
-		.map( function ( block ) {
-			return block.attributes.content.replaceAll( '<br/>', '\n' );
-		} )
-		.join( '\n' );
+	return turndownService.turndown(
+		blocks
+			.filter( function ( block ) {
+				return block && block.attributes && block.attributes.content;
+			} )
+			.map( function ( block ) {
+				return block.attributes.content.replaceAll( '<br/>', '\n' );
+			} )
+			.join( '\n' )
+	);
 }
 
 /**
@@ -57,28 +63,25 @@ export function getContentFromBlocks() {
 		return '';
 	}
 
-	return blocks
-		.filter( function ( block ) {
-			return block && block.attributes && block.attributes.content;
-		} )
-		.map( function ( block ) {
-			return block.attributes.content.replaceAll( '<br/>', '\n' );
-		} )
-		.join( '\n' );
+	return turndownService.turndown(
+		blocks
+			.filter( function ( block ) {
+				return block && block.attributes && block.attributes.content;
+			} )
+			.map( function ( block ) {
+				return block.attributes.content.replaceAll( '<br/>', '\n' );
+			} )
+			.join( '\n' )
+	);
 }
 
-const useSuggestionsFromOpenAI = ( {
-	clientId,
-	content,
-	setAttributes,
-	setErrorMessage,
-	tracks,
-	userPrompt,
-} ) => {
+const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks, userPrompt } ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
+	const [ wasCompletionJustRequested, setWasCompletionJustRequested ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
+	const { updateBlockAttributes } = useDispatch( blockEditorStore );
 
 	// Let's grab post data so that we can do something smart.
 
@@ -175,19 +178,19 @@ const useSuggestionsFromOpenAI = ( {
 			} );
 		}
 
-		tracks.recordEvent( 'jetpack_ai_gpt3_completion', {
+		tracks.recordEvent( 'jetpack_ai_chat_completion', {
 			post_id: postId,
 		} );
 
 		if ( ! options.retryRequest ) {
 			setLastPrompt( prompt );
-			setAttributes( { promptType: type } );
+			updateBlockAttributes( clientId, { promptType: type } );
 		}
 
 		let source;
-		let fullMessage = '';
 		try {
 			setIsLoadingCompletion( true );
+			setWasCompletionJustRequested( true );
 			source = await askQuestion( prompt, postId );
 		} catch ( err ) {
 			if ( err.message ) {
@@ -202,35 +205,33 @@ const useSuggestionsFromOpenAI = ( {
 			}
 			setShowRetry( true );
 			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
 		}
 
-		source.addEventListener( 'message', e => {
-			if ( e.data === '[DONE]' ) {
-				source.close();
-				setIsLoadingCompletion( false );
-				setAttributes( {
-					content: fullMessage,
-				} );
-				debug( 'Done. Full message: ' + fullMessage );
-				return;
-			}
-
-			const data = JSON.parse( e.data );
-			const chunk = data.choices[ 0 ].delta.content;
-			if ( chunk ) {
-				fullMessage += chunk;
-				setAttributes( {
-					content: fullMessage,
-				} );
-				debug( fullMessage );
-				// debug( chunk );
-			}
+		source.addEventListener( 'done', e => {
+			source.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			updateBlockAttributes( clientId, { content: e.detail } );
 		} );
+		source.addEventListener( 'error_unclear_prompt', () => {
+			source.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
+		} );
+		source.addEventListener( 'suggestion', e => {
+			setWasCompletionJustRequested( false );
+			debug( 'fullMessage', e.detail );
+			updateBlockAttributes( clientId, { content: e.detail } );
+		} );
+		return source;
 	};
 
 	return {
 		isLoadingCategories,
 		isLoadingCompletion,
+		wasCompletionJustRequested,
 		setIsLoadingCategories,
 		setShowRetry,
 		showRetry,

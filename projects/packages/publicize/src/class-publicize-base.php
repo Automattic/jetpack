@@ -695,9 +695,11 @@ abstract class Publicize_Base {
 					$error_data              = $connection_test_result->get_error_data();
 					$error_code              = $connection_test_result->get_error_code();
 
-					$user_can_refresh           = $error_data['user_can_refresh'];
-					$refresh_text               = $error_data['refresh_text'];
-					$refresh_url                = $error_data['refresh_url'];
+					if ( ! empty( $error_data ) ) {
+						$user_can_refresh = $error_data['user_can_refresh'];
+						$refresh_text     = $error_data['refresh_text'];
+						$refresh_url      = $error_data['refresh_url'];
+					}
 					$connection_test_error_code = $connection_test_passed ? '' : $this->parse_connection_error_code( $error_code );
 				}
 				// Mark Facebook profiles as deprecated.
@@ -1710,17 +1712,21 @@ abstract class Publicize_Base {
 	/**
 	 * Check if enhanced publishing is enabled.
 	 *
+	 * @deprecated $$next-version use Automattic\Jetpack\Publicize\Publicize_Base\has_enhanced_publishing_feature instead.
 	 * @param int $blog_id The blog ID for the current blog.
 	 * @return bool
 	 */
-	public function is_enhanced_publishing_enabled( $blog_id ) {
-		$data = $this->get_api_data( $blog_id );
+	public function is_enhanced_publishing_enabled( $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return $this->has_enhanced_publishing_feature();
+	}
 
-		if ( empty( $data ) ) {
-			return false;
-		}
-
-		return ! empty( $data['is_enhanced_publishing_enabled'] );
+	/**
+	 * Check if the enhanced publishing feature is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_enhanced_publishing_feature() {
+		return Current_Plan::supports( 'social-enhanced-publishing' );
 	}
 
 	/**

@@ -601,7 +601,9 @@ class Publicize extends Publicize_Base {
 
 		$xml_response            = $xml->getResponse();
 		$connection_test_message = $xml_response['faultString'];
-		$connection_error_code   = $xml_response['faultCode'];
+		$connection_error_code   = ( empty( $xml_response['faultCode'] ) || ! is_int( $xml_response['faultCode'] ) )
+			? -1
+			: $xml_response['faultCode'];
 
 		// Set up refresh if the user can.
 		$user_can_refresh = current_user_can( $this->GLOBAL_CAP ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase

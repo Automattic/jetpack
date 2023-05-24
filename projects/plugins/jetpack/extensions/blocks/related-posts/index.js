@@ -36,6 +36,10 @@ export const settings = {
 			type: 'string',
 			default: 'grid',
 		},
+		displayAuthor: {
+			type: 'boolean',
+			default: false,
+		},
 		displayDate: {
 			type: 'boolean',
 			default: true,
@@ -90,6 +94,7 @@ export const settings = {
 	example: {
 		attributes: {
 			postLayout: 'grid',
+			displayAuthor: false,
 			displayDate: true,
 			displayThumbnails: true,
 			displayContext: false,

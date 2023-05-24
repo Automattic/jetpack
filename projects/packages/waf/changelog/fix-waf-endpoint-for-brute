@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix unavailable endpoint when WAF module is disabled

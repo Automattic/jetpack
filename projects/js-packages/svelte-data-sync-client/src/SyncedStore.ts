@@ -120,7 +120,10 @@ export class SyncedStore< T > {
 		// aims to have full parity with Svelte's writable store.
 		type SvelteUpdater = typeof store.update;
 		const update: SvelteUpdater = updateCallback => {
-			set( updateCallback( prevValue ) );
+			// structuredClone is necessary here,
+			// because the updateCallback can mutate the value,
+			// and that's going to fail the comparison in `abortableSynchronize`.
+			set( updateCallback( structuredClone( prevValue ) ) );
 		};
 
 		return {
