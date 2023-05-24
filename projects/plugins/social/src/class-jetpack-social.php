@@ -237,6 +237,8 @@ class Jetpack_Social {
 						'publicize_active'  => self::is_publicize_active(),
 						'show_pricing_page' => self::should_show_pricing_page(),
 						'showNudge'         => ! $publicize->has_paid_plan( true ),
+						'hasAdvancedPlan'   => $publicize->has_advanced_plan(),
+						'dismissedNotices'  => $publicize->get_dismissed_notices(),
 					),
 					'connectionData'               => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array

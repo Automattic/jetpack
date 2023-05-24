@@ -124,6 +124,13 @@ abstract class Publicize_Base {
 	public $POST_SERVICE_DONE = '_publicize_done_external';
 
 	/**
+	 * Option key for dismissing Jetpack Social notices.
+	 *
+	 * @var string
+	 */
+	const OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES = 'jetpack_social_dismissed_notices';
+
+	/**
 	 * Default pieces of the message used in constructing the
 	 * content pushed out to other social networks.
 	 */
@@ -1782,6 +1789,36 @@ abstract class Publicize_Base {
 			$has_paid_plan = Current_Plan::supports( 'social-shares-1000', $refresh_from_wpcom );
 		}
 		return $has_paid_plan;
+	}
+
+	/**
+	 * Check if we have a Jetpack Social Advanced plan.
+	 *
+	 * @param bool $refresh_from_wpcom Whether to force refresh the plan check.
+	 *
+	 * @return bool True if we have an Advanced plan, false otherwise.
+	 */
+	public function has_advanced_plan( $refresh_from_wpcom = false ) {
+		static $has_advanced_plan = null;
+		if ( ! $has_advanced_plan ) {
+			$has_advanced_plan = Current_Plan::supports( 'social-image-generator', $refresh_from_wpcom );
+		}
+		return $has_advanced_plan;
+	}
+
+	/**
+	 * Get an array with all dismissed notices.
+	 *
+	 * @return array
+	 */
+	public function get_dismissed_notices() {
+		$dismissed_notices = get_option( self::OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES );
+
+		if ( ! is_array( $dismissed_notices ) ) {
+			return array();
+		}
+
+		return $dismissed_notices;
 	}
 }
 

@@ -16,6 +16,7 @@ import SupportSection from '../support-section';
 import ConnectionScreen from './../connection-screen';
 import Header from './../header';
 import InfoSection from './../info-section';
+import InstagramNotice from './../instagram-notice';
 import AdminPageHeader from './header';
 import './styles.module.scss';
 
@@ -30,6 +31,7 @@ const Admin = () => {
 		isShareLimitEnabled,
 		pluginVersion,
 		isSocialImageGeneratorAvailable,
+		dismissedNotices,
 	} = useSelect( select => {
 		const store = select( STORE_ID );
 		return {
@@ -39,6 +41,7 @@ const Admin = () => {
 			isShareLimitEnabled: store.isShareLimitEnabled(),
 			pluginVersion: store.getPluginVersion(),
 			isSocialImageGeneratorAvailable: store.isSocialImageGeneratorAvailable(),
+			dismissedNotices: store.getDismissedNotices(),
 		};
 	} );
 
@@ -72,6 +75,9 @@ const Admin = () => {
 						<Header />
 					</AdminSectionHero>
 					<AdminSection>
+						{ dismissedNotices && ! dismissedNotices.includes( 'instagram' ) && (
+							<InstagramNotice />
+						) }
 						<SocialModuleToggle />
 						{ isModuleEnabled && isSocialImageGeneratorAvailable && <SocialImageGeneratorToggle /> }
 					</AdminSection>
