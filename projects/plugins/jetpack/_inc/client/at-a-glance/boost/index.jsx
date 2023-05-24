@@ -1,3 +1,4 @@
+import restApi from '@automattic/jetpack-api';
 import {
 	getScoreLetter,
 	// requestSpeedScores,
@@ -18,7 +19,12 @@ import { connect } from 'react-redux';
 import { getSiteConnectionStatus } from 'state/connection';
 import { getApiRootUrl, getApiNonce, getSiteRawUrl } from 'state/initial-state';
 import { hasActiveBoostPurchase as getActiveBoostPurchase } from 'state/site';
-import { isFetchingPluginsData, isPluginInstalled, isPluginActive } from 'state/site/plugins';
+import {
+	isFetchingPluginsData,
+	isPluginInstalled,
+	isPluginActive,
+	fetchPluginsData as dispatchFetchPluginsData,
+} from 'state/site/plugins';
 import './style.scss';
 
 const BOOST_PLUGIN_DASH = 'admin.php?page=jetpack-boost';
@@ -34,6 +40,7 @@ const DashBoost = ( {
 	//	siteUrl,
 	//	apiRoot,
 	//	apiNonce,
+	fetchPluginsData,
 	fetchingPluginsData,
 	isBoostInstalled,
 	isBoostActive,
@@ -42,6 +49,8 @@ const DashBoost = ( {
 	const isSiteOffline = siteConnectionStatus === 'offline';
 
 	const [ isLoading, setIsLoading ] = useState( true );
+	const [ isInstalling, setIsInstalling ] = useState( false );
+	const [ isActivating, setIsActivating ] = useState( false );
 	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( 'C' );
 	const [ daysSinceTested, setDaysSinceTested ] = useState( 1 );
 	const [ mobileSpeedScore, setMobileSpeedScore ] = useState( 0 );
@@ -159,6 +168,58 @@ const DashBoost = ( {
 		);
 	};
 
+	const getInstallLinkText = () => {
+		if ( hasBoost ) {
+			return;
+		}
+
+		if ( isInstalling ) {
+			return __( 'Installing…', 'jetpack' );
+		}
+
+		if ( isActivating ) {
+			return __( 'Activating…', 'jetpack' );
+		}
+
+		if ( isBoostInstalled ) {
+			return __( 'Activate Boost to run instant tests', 'jetpack' );
+		}
+
+		return __( 'Install Boost to run instant tests', 'jetpack' );
+	};
+
+	const activateOrInstallBoost = useCallback( () => {
+		if ( hasBoost ) {
+			return;
+		}
+
+		if ( isBoostInstalled ) {
+			setIsActivating( true );
+		} else {
+			setIsInstalling( true );
+		}
+
+		analytics.tracks.recordJetpackClick( {
+			target: 'boost_instant_tests_install',
+			type: isBoostInstalled ? 'activate' : 'install',
+			feature: BOOST_PLUGIN_SLUG,
+		} );
+
+		return (
+			restApi
+				.installPlugin( BOOST_PLUGIN_SLUG, 'active' )
+				// take a little break to avoid any race conditions with plugin data being updated
+				.then( () => new Promise( resolve => setTimeout( resolve, 2500 ) ) )
+				.then( () => {
+					return fetchPluginsData();
+				} )
+				.finally( () => {
+					setIsInstalling( false );
+					setIsActivating( false );
+				} )
+		);
+	}, [ fetchPluginsData, isBoostInstalled, hasBoost ] );
+
 	return (
 		<div className="dash-boost-speed-score">
 			{ shouldShowScoreBars ? (
@@ -186,6 +247,13 @@ const DashBoost = ( {
 
 						<div>
 							<p className="dash-boost-speed-score__last-tested">{ getSinceTestedText() }</p>
+							<button
+								className="dash-boost-speed-score__install-button-link"
+								onClick={ activateOrInstallBoost }
+								disabled={ isInstalling || isActivating }
+							>
+								{ getInstallLinkText() }
+							</button>
 						</div>
 					</div>
 
@@ -250,16 +318,23 @@ DashBoost.propTypes = {
 	hasActiveBoostPurchase: PropTypes.bool.isRequired,
 };
 
-export default connect( state => ( {
-	siteConnectionStatus: getSiteConnectionStatus( state ),
-	siteUrl: getSiteRawUrl( state ),
-	apiRoot: getApiRootUrl( state ),
-	apiNonce: getApiNonce( state ),
-	fetchingPluginsData: isFetchingPluginsData( state ),
-	isBoostInstalled: BOOST_PLUGIN_FILES.some( pluginFile => isPluginInstalled( state, pluginFile ) ),
-	isBoostActive: BOOST_PLUGIN_FILES.some( pluginFile => isPluginActive( state, pluginFile ) ),
-	hasActiveBoostPurchase: getActiveBoostPurchase( state ),
-} ) )( DashBoost );
+export default connect(
+	state => ( {
+		siteConnectionStatus: getSiteConnectionStatus( state ),
+		siteUrl: getSiteRawUrl( state ),
+		apiRoot: getApiRootUrl( state ),
+		apiNonce: getApiNonce( state ),
+		fetchingPluginsData: isFetchingPluginsData( state ),
+		isBoostInstalled: BOOST_PLUGIN_FILES.some( pluginFile =>
+			isPluginInstalled( state, pluginFile )
+		),
+		isBoostActive: BOOST_PLUGIN_FILES.some( pluginFile => isPluginActive( state, pluginFile ) ),
+		hasActiveBoostPurchase: getActiveBoostPurchase( state ),
+	} ),
+	dispatch => ( {
+		fetchPluginsData: () => dispatch( dispatchFetchPluginsData() ),
+	} )
+)( DashBoost );
 
 // Popover components
 
@@ -267,7 +342,7 @@ const GradeInfoPopover = () => {
 	const trackInfoClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'boost-grade-info-button',
-			feature: 'boost',
+			feature: BOOST_PLUGIN_SLUG,
 		} );
 	}, [] );
 
@@ -326,14 +401,14 @@ const ConversionLossPopover = () => {
 	const trackInfoClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'boost-conversion-loss-info-button',
-			feature: 'boost',
+			feature: BOOST_PLUGIN_SLUG,
 		} );
 	}, [] );
 
 	const trackSourceClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'boost-conversion-loss-info-source',
-			feature: 'boost',
+			feature: BOOST_PLUGIN_SLUG,
 		} );
 	}, [] );
 
@@ -365,14 +440,14 @@ const CriticalCssInfoPopover = () => {
 	const trackInfoClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'boost-critical-css-info-button',
-			feature: 'boost',
+			feature: BOOST_PLUGIN_SLUG,
 		} );
 	}, [] );
 
 	const trackCriticalCSSLinkClick = useCallback( () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'boost-critical-css-info-link',
-			feature: 'boost',
+			feature: BOOST_PLUGIN_SLUG,
 		} );
 	}, [] );
 

@@ -105,7 +105,32 @@ $border: 1px solid $gray-5;
     }
 
     &__last-tested {
+        margin: 0 0 0.25rem 0;
+        
         color: $gray-30;
+        text-align: right;
+    }
+
+    &__install-button-link {
+        background: none;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+
+        cursor: pointer;
+
+        color: $black;
+        text-decoration: underline;
+        text-align: right;
+
+        &:hover {
+            text-decoration-thickness: 3px;
+        }
+
+        &:disabled {
+            text-decoration: none;
+            cursor: default;
+        }
     }
 
     &__summary-grade {
