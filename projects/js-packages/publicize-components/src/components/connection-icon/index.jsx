@@ -17,6 +17,7 @@ const ConnectionIcon = props => {
 				<SocialServiceIcon
 					serviceName={ serviceName }
 					className="jetpack-publicize-gutenberg-social-icon"
+					invert={ 'tumblr' === serviceName }
 				/>
 			</div>
 			<span className="jetpack-publicize-connection-label-copy">{ label }</span>
