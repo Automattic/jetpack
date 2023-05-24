@@ -20,7 +20,7 @@ import { isFeatureActive } from '../state/recommendations';
 import {
 	getSiteProduct,
 	getSiteProductMonthlyCost,
-	getSiteProductDiscount,
+	getSiteProductYearlyDiscount,
 	isFetchingSiteProducts,
 } from '../state/site-products';
 
@@ -586,7 +586,7 @@ export const getStepContent = ( state, stepSlug ) => {
 			};
 		case 'vaultpress-backup': {
 			const siteRawUrl = getSiteRawUrl( state );
-			const discount = getSiteProductDiscount( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
+			const discount = getSiteProductYearlyDiscount( state, PLAN_JETPACK_BACKUP_T1_YEARLY );
 
 			const getCtaText = () => {
 				if ( isFetchingSiteProducts( state ) ) {
@@ -595,8 +595,8 @@ export const getStepContent = ( state, stepSlug ) => {
 
 				return discount > 0
 					? sprintf(
-							/* translators: %(discount): is a discount percentage. e.g. 50 */
-							__( 'Get %(discount)%% off your first year', 'jetpack' ),
+							/* translators: %(discount)s: is a discount percentage. e.g. 50 */
+							__( 'Get %(discount)s%% off your first year', 'jetpack' ),
 							{ discount }
 					  )
 					: __( 'Get VaultPress Backup', 'jetpack' );
