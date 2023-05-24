@@ -283,9 +283,8 @@ class Jetpack_AI_Helper {
 	 * @return mixed
 	 */
 	public static function get_requests_stats() {
-		$has_ai_assistant_feature = Current_Plan::supports( 'ai-assistant' );
-
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$has_ai_assistant_feature = \wpcom_site_has_feature( 'ai-assistant' );
 			if ( ! class_exists( 'OpenAI' ) ) {
 				\require_lib( 'openai' );
 			}
@@ -296,30 +295,47 @@ class Jetpack_AI_Helper {
 				} else {
 					return new WP_Error(
 						'openai_limit_usage_not_found',
-						__( 'OpenAI Limit Usage class not found.', 'jetpack' )
+						__( 'OpenAI_Limit_Usage class not found.', 'jetpack' )
+					);
+				}
+			}
+
+			if ( ! class_exists( 'OpenAI_Request_Count' ) ) {
+				if ( is_readable( WP_PLUGIN_DIR . '/openai/openai-request-count.php' ) ) {
+					require_once WP_PLUGIN_DIR . '/openai/openai-request-count.php';
+				} else {
+					return new WP_Error(
+						'openai_request_count_not_found',
+						__( 'OpenAI_Request_Count class not found.', 'jetpack' )
 					);
 				}
 			}
 
 			$blog_id       = get_current_blog_id();
 			$is_over_limit = \OpenAI_Limit_Usage::is_blog_over_request_limit( $blog_id );
+			$count         = \OpenAI_Request_Count::get_count( $blog_id );
 
 			return array(
-				'has-ai-assistant-feature' => $has_ai_assistant_feature,
-				'is-over-limit'            => $is_over_limit,
+				'has-feature'   => $has_ai_assistant_feature,
+				'is-over-limit' => $is_over_limit,
+				'count'         => $count,
 			);
 		}
 
-		$request_path  = sprintf( '/sites/%s/ai-jetpack/requests', $blog_id );
+		$blog_id      = Jetpack_Options::get_option( 'id' );
+		$request_path = sprintf( '/sites/%d/jetpack-ai/requests', $blog_id );
+
 		$wpcom_request = Client::wpcom_json_api_request_as_user(
 			$request_path,
-			'2',
+			'v2',
 			array(
 				'method'  => 'GET',
 				'headers' => array(
 					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
 				),
-			)
+			),
+			null,
+			'wpcom'
 		);
 
 		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
