@@ -348,6 +348,10 @@ function zbscrm_JS_initMenuPopups() {
 			position: 'bottom center',
 			hoverable: true,
 			on: 'hover',
+			delay: {
+				show: 300,
+				hide: 800,
+			},
 		} );
 	}
 }
