@@ -104,6 +104,46 @@ function jpcrm_render_dashboard_page() {
 
 	$funnel_data = array_reverse( $funnel_data );
 
+	/* Transactions - Revenue Chart data gen */
+	$labels = array();
+
+	$labels[0] = gmdate( 'F Y' );
+
+	for ( $i = 0; $i < 12; $i++ ) {
+		$labels[ $i ] = gmdate( 'M y', mktime( 0, 0, 0, gmdate( 'm' ) - $i, 1, gmdate( 'Y' ) ) );
+	}
+
+	$labels = array_reverse( $labels );
+
+	$transaction_totals_by_month = array();
+	$transaction_totals_array    = array();
+
+	// fill with zeros if months aren't present
+	for ( $i = 11; $i > 0; $i-- ) {
+		$key                                 = gmdate( 'nY', mktime( 0, 0, 0, gmdate( 'm' ) - $i, 1, gmdate( 'Y' ) ) );
+		$transaction_totals_by_month[ $key ] = 0;
+	}
+
+	$args = array(
+		'paidAfter'  => strtotime( 'first day of ' . gmdate( 'F Y', strtotime( '11 month ago' ) ) ),
+		'paidBefore' => time(),
+	);
+
+	$recent_transactions = $zbs->DAL->transactions->getTransactionTotalByMonth( $args ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+	foreach ( $recent_transactions as $k => $v ) {
+		$transaction_totals_array[ $k ]       = $v['total'];
+		$dkey                                 = $v['month'] . $v['year'];
+		$transaction_totals_by_month[ $dkey ] = $v['total'];
+	}
+
+	$i = 0;
+	foreach ( $transaction_totals_by_month as $k => $v ) {
+		$transaction_totals_array[ $i ] = $v;
+		++$i;
+	}
+
+	$chartdata = array_values( $transaction_totals_by_month );
+
 	?>
 
 
@@ -204,111 +244,7 @@ function jpcrm_render_dashboard_page() {
 
 <!--- the contacts over time comes in next - PHP below is for the funnel -->
 <div class="ui grid narrow">
-
-	<?php
-
-	/* Transactions - Revenue Chart data gen */
-
-	// } Default
-	$labels = array();
-
-	$labels[0]  = "'" . date( 'F Y' ) . "'";
-	$labelsa[0] = date( 'F Y' );
-
-	for ( $i = 0; $i < 12; $i++ ) {
-		$date          = date( 'M y', mktime( 0, 0, 0, date( 'm' ) - $i, 1, date( 'Y' ) ) );
-		$labels[ $i ]  = "'" . $date . "'";
-		$labelsa[ $i ] = $date;
-	}
-
-	$labels = implode( ',', array_reverse( $labels ) );
-
-	$utsFrom = strtotime( 'first day of ' . date( 'F Y', strtotime( '11 month ago' ) ) );
-	$utsNow  = time();
-
-	$args = array(
-		'paidAfter'  => $utsFrom,
-		'paidBefore' => $utsNow,
-	);
-
-	// fill with zeros if months aren't present
-	for ( $i = 11; $i > 0; $i-- ) {
-		$key       = date( 'nY', mktime( 0, 0, 0, date( 'm' ) - $i, 1, date( 'Y' ) ) );
-		$t[ $key ] = 0;
-	}
-
-	$recentTransactions = $zbs->DAL->transactions->getTransactionTotalByMonth( $args );
-	foreach ( $recentTransactions as $k => $v ) {
-		$trans[ $k ] = $v['total'];
-		$dkey        = $v['month'] . $v['year'];
-		$t[ $dkey ]  = $v['total'];
-	}
-
-	$i = 0;
-	foreach ( $t as $k => $v ) {
-		$trans[ $i ] = $v;
-		++$i;
-	}
-
-	if ( is_array( $trans ) ) {
-		$chartdataStr = implode( ',', $t );
-	}
-
-	?>
-
-
-<script type="text/javascript">
-jQuery(function(){
-
-
-
-
-// WH added: don't draw if not there :)
-if (jQuery('#bar-chart').length){
-
-	new Chart(document.getElementById("bar-chart"), {
-		type: 'bar',
-		data: {
-		labels: [<?php echo $labels; ?>],
-		datasets: [
-			{
-			label: "",
-			backgroundColor: "#222",
-			data: [<?php echo $chartdataStr; ?>]
-			}
-		]
-		},
-		options: {
-		legend: { display: false },
-		title: {
-			display: false,
-			text: ''
-		},
-
-		scales: {
-			yAxes: [{
-				display: true,
-				ticks: {
-					beginAtZero: true   // minimum value will be 0.
-				}
-			}]
-		}
-
-
-		}
-	});
-
-}
-
-
-});
-</script>
-
-
-	<?php
-	do_action( 'zbs_dashboard_pre_dashbox_post_totals' );
-	?>
-
+	<?php do_action( 'zbs_dashboard_pre_dashbox_post_totals' ); ?>
 </div>
 
 <div class="ui grid narrow">
@@ -354,7 +290,7 @@ if (jQuery('#bar-chart').length){
 
 
 		<?php
-		if ( ! is_array( $trans ) || array_sum( $trans ) == 0 ) {
+		if ( ! is_array( $transaction_totals_array ) || array_sum( $transaction_totals_array ) === 0 ) {
 			?>
 		<div class='ui message blue' style="text-align:center;margin-bottom:80px;margin-top:50px;">
 				<?php esc_html_e( 'You do not have any transactions that match your chosen settings. You need transactions for your revenue chart to show. If you have transactions check your settings and then transaction statuses to include.', 'zero-bs-crm' ); ?> 
@@ -555,12 +491,6 @@ if (jQuery('#bar-chart').length){
 		</div>
 	</div>
 </div>
-<script>
-// build sales funnel
-let funnel_element = document.getElementById('jpcrm_sales_funnel');
-let funnel_data = <?php echo wp_json_encode( $funnel_data ); ?>;
-jpcrm_build_funnel(funnel_data,funnel_element);
-</script>
 	<?php
 
 	// First use dashboard
@@ -583,6 +513,54 @@ jpcrm_build_funnel(funnel_data,funnel_element);
 			$tracking->track_specific_pageview( 'first-use-dashboard' );
 		}
 	}
+	?>
+
+	<script>
+	// build sales funnel
+	let funnel_element = document.getElementById('jpcrm_sales_funnel');
+	let funnel_data = <?php echo wp_json_encode( $funnel_data ); ?>;
+	jpcrm_build_funnel(funnel_data,funnel_element);
+
+
+	// draw revenue chart
+	if (document.getElementById('bar-chart')) {
+
+		new Chart(
+			document.getElementById("bar-chart"),
+			{
+				type: 'bar',
+				data: {
+					labels: <?php echo wp_json_encode( $labels ); ?>,
+					datasets: [
+						{
+							label: "",
+							backgroundColor: "#222",
+							data: <?php echo wp_json_encode( $chartdata ); ?>
+						}
+					]
+				},
+				options: {
+					legend: { display: false },
+					title: {
+						display: false,
+						text: ''
+					},
+					scales: {
+						yAxes: [
+							{
+								display: true,
+								ticks: {
+									beginAtZero: true // minimum value will be 0.
+								}
+							}
+						]
+					}
+				}
+			}
+		);
+	}
+	</script>
+	<?php
 }
 
 /**
