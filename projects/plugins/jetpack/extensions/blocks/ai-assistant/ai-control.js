@@ -122,6 +122,7 @@ const AIControl = ( {
 						label={ __( 'Do some magic!', 'jetpack' ) }
 					>
 						<Icon icon={ arrowRight } />
+						{ __( 'Send', 'jetpack' ) }
 					</Button>
 				</div>
 			</div>
