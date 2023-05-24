@@ -85,6 +85,7 @@ function jetpackcrm_dash_refresh() {
 	$end_date   = date_create( $end_date )->setTime( 23, 59, 59 )->getTimestamp();
 
 	$summary = array();
+	$chart   = array();
 
 	$range_params = array(
 		'count'     => true,
@@ -190,8 +191,6 @@ function jetpackcrm_dash_refresh() {
 	// the final output
 	$r = array(
 		'summary' => $summary,
-		// semantic needs the words not the numeral for the class. stored this in the FormatHelpers.php from SO.
-		'boxes'   => jetpackcrm_convertNumberToWord( count( $summary ) ),
 		'chart'   => $chart,
 	);
 
