@@ -12,7 +12,7 @@ import { STORE_ID } from '../../store';
 import styles from './styles.module.scss';
 
 const freePlanNoticeText = __(
-	'Share featured images directly to your Instagram Business account for free, or share unlimited photos and video reels with Jetpack Social Advanced.',
+	'Share featured images directly to your Instagram Business account for free, or share unlimited photos with Jetpack Social Advanced.',
 	'jetpack-social'
 );
 const paidPlanNoticeText = __(
