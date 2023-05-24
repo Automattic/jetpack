@@ -13,7 +13,7 @@ import {
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
-import { PostVisibilityCheck } from '@wordpress/editor';
+import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
@@ -82,7 +82,7 @@ export function NewsletterNotice( {
 	isPostPublishPanel = false,
 } ) {
 	const hasPostBeenPublished = useSelect( select =>
-		select( 'core/editor' ).isCurrentPostPublished()
+		select( editorStore ).isCurrentPostPublished()
 	);
 
 	// Get the reach count for the access level
