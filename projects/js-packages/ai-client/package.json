@@ -15,10 +15,12 @@
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"scripts": {
-		"test": "jest tests"
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest"
 	},
+	"type": "module",
 	"devDependencies": {
-		"jest": "*"
+		"jest": "*",
+		"jest-environment-jsdom": "29.5.0"
 	},
 	"engines": {
 		"node": "^18.13.0",

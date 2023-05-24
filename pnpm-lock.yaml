@@ -108,6 +108,9 @@ importers:
       jest:
         specifier: '*'
         version: 29.5.0
+      jest-environment-jsdom:
+        specifier: 29.5.0
+        version: 29.5.0
 
   projects/js-packages/analytics:
     devDependencies:
@@ -17096,6 +17099,29 @@ packages:
 
   /jest-environment-jsdom@29.4.3:
     resolution: {integrity: sha512-rFjf8JXrw3OjUzzmSE5l0XjMj0/MSVEUMCSXBGPDkfwb1T03HZI7iJSL0cGctZApPSyJxbjyKDVxkZuyhHkuTw==}
+    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+    peerDependencies:
+      canvas: ^2.5.0
+    peerDependenciesMeta:
+      canvas:
+        optional: true
+    dependencies:
+      '@jest/environment': 29.5.0
+      '@jest/fake-timers': 29.5.0
+      '@jest/types': 29.5.0
+      '@types/jsdom': 20.0.1
+      '@types/node': 20.1.0
+      jest-mock: 29.5.0
+      jest-util: 29.5.0
+      jsdom: 20.0.3
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - utf-8-validate
+    dev: true
+
+  /jest-environment-jsdom@29.5.0:
+    resolution: {integrity: sha512-/KG8yEK4aN8ak56yFVdqFDzKNHgF4BAymCx2LbPNPsUshUlfAl0eX402Xm1pt+eoG9SLZEUVifqXtX8SK74KCw==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     peerDependencies:
       canvas: ^2.5.0
