@@ -3,7 +3,7 @@
  */
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect, select as selectData, useDispatch } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import TurndownService from 'turndown';
@@ -82,6 +82,7 @@ const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks,
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
 	const { updateBlockAttributes } = useDispatch( blockEditorStore );
+	const source = useRef();
 
 	// Let's grab post data so that we can do something smart.
 
@@ -187,11 +188,10 @@ const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks,
 			updateBlockAttributes( clientId, { promptType: type } );
 		}
 
-		let source;
 		try {
 			setIsLoadingCompletion( true );
 			setWasCompletionJustRequested( true );
-			source = await askQuestion( prompt, postId );
+			source.current = await askQuestion( prompt, postId );
 		} catch ( err ) {
 			if ( err.message ) {
 				setErrorMessage( err.message ); // Message was already translated by the backend
@@ -208,19 +208,17 @@ const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks,
 			setWasCompletionJustRequested( false );
 		}
 
-		source.addEventListener( 'done', e => {
-			source.close();
-			setIsLoadingCompletion( false );
-			setWasCompletionJustRequested( false );
+		source?.current.addEventListener( 'done', e => {
+			stopSuggestion();
 			updateBlockAttributes( clientId, { content: e.detail } );
 		} );
-		source.addEventListener( 'error_unclear_prompt', () => {
-			source.close();
+		source?.current.addEventListener( 'error_unclear_prompt', () => {
+			source?.current.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
 		} );
-		source.addEventListener( 'error_network', () => {
+		source?.current.addEventListener( 'error_network', () => {
 			source.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
@@ -229,13 +227,23 @@ const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks,
 				__( 'It was not possible to process your request. Mind trying again?', 'jetpack' )
 			);
 		} );
-		source.addEventListener( 'suggestion', e => {
+		source?.current.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
 			debug( 'fullMessage', e.detail );
 			updateBlockAttributes( clientId, { content: e.detail } );
 		} );
-		return source;
+		return source?.current;
 	};
+
+	function stopSuggestion() {
+		if ( ! source?.current ) {
+			return;
+		}
+
+		source?.current.close();
+		setIsLoadingCompletion( false );
+		setWasCompletionJustRequested( false );
+	}
 
 	return {
 		isLoadingCategories,
@@ -249,6 +257,7 @@ const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks,
 		wholeContent: getContentFromBlocks( clientId ),
 
 		getSuggestionFromOpenAI: getStreamedSuggestionFromOpenAI,
+		stopSuggestion,
 		retryRequest: () => getStreamedSuggestionFromOpenAI( '', { retryRequest: true } ),
 	};
 };

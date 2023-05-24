@@ -47,6 +47,16 @@
 	.jetpack-ai-assistant__input-loader-icon {
 		color: var( --wp--preset--color--foreground );
 	}
+	
+	.jetpack-ai-assistant__input-spinner {
+		margin: 0;
+		width: 24px;
+		height: 24px;
+
+		path {
+			color: var( --jp-green-40 );
+		}
+	}
 }
 
 .jetpack-ai-assistant__input-wrapper {

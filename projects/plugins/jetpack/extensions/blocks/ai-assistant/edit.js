@@ -49,6 +49,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		isLoadingCompletion,
 		wasCompletionJustRequested,
 		getSuggestionFromOpenAI,
+		stopSuggestion,
 		showRetry,
 		contentBefore,
 		postTitle,
@@ -136,6 +137,10 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		return;
 	};
 
+	const handleStopSuggestion = () => {
+		stopSuggestion();
+	};
+
 	const handleImageRequest = () => {
 		setResultImages( [] );
 		setErrorMessage( null );
@@ -180,6 +185,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				handleAcceptContent={ handleAcceptContent }
 				handleAcceptTitle={ handleAcceptTitle }
 				handleGetSuggestion={ handleGetSuggestion }
+				handleStopSuggestion={ handleStopSuggestion }
 				handleImageRequest={ handleImageRequest }
 				handleTryAgain={ handleTryAgain }
 				isWaitingState={ isWaitingState }
