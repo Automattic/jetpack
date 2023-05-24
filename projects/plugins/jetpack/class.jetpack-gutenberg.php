@@ -723,7 +723,6 @@ class Jetpack_Gutenberg {
 			$initial_state['social'] = array(
 				'sharesData'                      => $publicize->get_publicize_shares_info( $blog_id ),
 				'hasPaidPlan'                     => $publicize->has_paid_plan(),
-				'hasAdvancedPlan'                 => $publicize->has_advanced_plan(),
 				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 				'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
 				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),

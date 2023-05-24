@@ -24,16 +24,15 @@ const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
 	const { dismissedNotices, dismissNotice } = useDismissNotice();
 	const [ showNotice, setShowNotice ] = useState( ! dismissedNotices.includes( 'instagram' ) );
 
-	const { connectionsAdminUrl, hasAdvancedPlan, isInstagramConnectionSupported } = useSelect(
-		select => {
+	const { connectionsAdminUrl, isInstagramConnectionSupported, isEnhancedPublishingEnabled } =
+		useSelect( select => {
 			const store = select( STORE_ID );
 			return {
 				connectionsAdminUrl: store.getConnectionsAdminUrl(),
-				hasAdvancedPlan: store.hasAdvancedPlan(),
 				isInstagramConnectionSupported: store.isInstagramConnectionSupported(),
+				isEnhancedPublishingEnabled: store.isEnhancedPublishingEnabled(),
 			};
-		}
-	);
+		} );
 
 	const handleDismiss = useCallback( () => {
 		dismissNotice( 'instagram' );
@@ -45,7 +44,7 @@ const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
 	}
 
 	const Button = () =>
-		hasAdvancedPlan ? (
+		isEnhancedPublishingEnabled ? (
 			<JetpackButton key="connect" variant="primary" href={ connectionsAdminUrl } isExternalLink>
 				{ __( 'Connect Instagram', 'jetpack-social' ) }
 			</JetpackButton>
@@ -73,7 +72,7 @@ const InstagramNotice = ( { onUpgrade = () => {} } = {} ) => {
 					onClose={ handleDismiss }
 					title={ __( 'Instagram is now available in Jetpack Social', 'jetpack-social' ) }
 				>
-					{ hasAdvancedPlan ? paidPlanNoticeText : freePlanNoticeText }
+					{ isEnhancedPublishingEnabled ? paidPlanNoticeText : freePlanNoticeText }
 				</Notice>
 			</div>
 		</Container>

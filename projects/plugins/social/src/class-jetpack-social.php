@@ -237,7 +237,7 @@ class Jetpack_Social {
 						'publicize_active'               => self::is_publicize_active(),
 						'show_pricing_page'              => self::should_show_pricing_page(),
 						'showNudge'                      => ! $publicize->has_paid_plan( true ),
-						'hasAdvancedPlan'                => $publicize->has_advanced_plan(),
+						'isEnhancedPublishingEnabled'    => $publicize->has_enhanced_publishing_feature(),
 						'dismissedNotices'               => $publicize->get_dismissed_notices(),
 						'isInstagramConnectionSupported' => $publicize->has_instagram_connection_feature(),
 					),
