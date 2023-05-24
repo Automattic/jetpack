@@ -10,13 +10,14 @@ import {
 	ToolbarGroup,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { arrowRight, chevronDown, image, pencil, update, title } from '@wordpress/icons';
+import { chevronDown, image, pencil, update, title } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
 import I18nDropdownControl from './i18n-dropdown-control';
 import AIAssistantIcon from './icons/ai-assistant';
 import LoadingIcon from './icons/loading';
+import origamiPlane from './icons/origami-plane';
 import ToneDropdownControl from './tone-dropdown-control';
 import UpgradePrompt from './upgrade-prompt';
 
@@ -121,7 +122,8 @@ const AIControl = ( {
 						disabled={ isWaitingState || ! userPrompt?.length }
 						label={ __( 'Do some magic!', 'jetpack' ) }
 					>
-						<Icon icon={ arrowRight } />
+						<Icon icon={ origamiPlane } />
+						{ __( 'Send', 'jetpack' ) }
 					</Button>
 				</div>
 			</div>
