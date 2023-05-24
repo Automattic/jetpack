@@ -262,14 +262,23 @@ export const LinkedinIcon: React.FC< SocialIconWrapperProps > = ( { fill, size, 
 	);
 };
 
-export const TumblrIcon: React.FC< SocialIconWrapperProps > = ( { fill, size, className } ) => {
+export const TumblrIcon: React.FC< SocialIconWrapperProps > = ( {
+	fill,
+	size,
+	className,
+	invert,
+} ) => {
 	return (
 		<SocialIconWrapper
 			fill={ fill }
 			size={ size }
 			className={ classNames( styles.tumblr, className ) }
 		>
-			<Path d="M19 3H5c-1.105 0-2 .895-2 2v14c0 1.105.895 2 2 2h14c1.105 0 2-.895 2-2V5c0-1.105-.895-2-2-2zm-5.57 14.265c-2.445.042-3.37-1.742-3.37-2.998V10.6H8.922V9.15c1.703-.615 2.113-2.15 2.21-3.026.006-.06.053-.084.08-.084h1.645V8.9h2.246v1.7H12.85v3.495c.008.476.182 1.13 1.08 1.107.3-.008.698-.094.907-.194l.54 1.6c-.205.297-1.12.642-1.946.657z" />
+			{ invert ? (
+				<Path d="M19 3H5c-1.105 0-2 .895-2 2v14c0 1.105.895 2 2 2h14c1.105 0 2-.895 2-2V5c0-1.105-.895-2-2-2zm-5.57 14.265c-2.445.042-3.37-1.742-3.37-2.998V10.6H8.922V9.15c1.703-.615 2.113-2.15 2.21-3.026.006-.06.053-.084.08-.084h1.645V8.9h2.246v1.7H12.85v3.495c.008.476.182 1.13 1.08 1.107.3-.008.698-.094.907-.194l.54 1.6c-.205.297-1.12.642-1.946.657z" />
+			) : (
+				<Path d="M17.04 21.28h-3.28c-2.84 0-4.94-1.37-4.94-5.02v-5.67H6.08V7.5c2.93-.73 4.11-3.3 4.3-5.48h3.01v4.93h3.47v3.65H13.4v4.93c0 1.47.73 2.01 1.92 2.01h1.73v3.75z" />
+			) }
 		</SocialIconWrapper>
 	);
 };
@@ -353,7 +362,8 @@ export function getIconBySlug< Slug extends IconSlug >( slug: Slug ): IconsMap[ 
 export const SocialServiceIcon: React.FC< {
 	serviceName: keyof typeof socialIcons;
 	className?: string;
-} > = ( { serviceName, className } ) => {
+	invert?: boolean;
+} > = ( { serviceName, className, invert } ) => {
 	const Icon = getIconBySlug( serviceName );
-	return Icon ? <Icon className={ className } /> : null;
+	return Icon ? <Icon className={ className } invert={ invert } /> : null;
 };
