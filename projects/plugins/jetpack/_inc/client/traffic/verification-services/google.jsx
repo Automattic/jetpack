@@ -194,6 +194,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 							<div className="jp-form-site-verification-buttons">
 								<Button
 									primary
+									rna
 									type="button"
 									className="jp-form-site-verification-edit-button"
 									disabled={ this.props.disabled }
@@ -202,6 +203,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 									{ __( 'Save', 'jetpack' ) }
 								</Button>
 								<Button
+									rna
 									type="button"
 									className="jp-form-site-verification-edit-button"
 									disabled={ this.props.disabled }
@@ -226,6 +228,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 							<span>{ __( 'Your site is verified with Google', 'jetpack' ) }</span>
 						</div>
 						<Button
+							rna
 							type="button"
 							className="jp-form-site-verification-edit-button"
 							onClick={ this.handleClickEdit }
@@ -294,17 +297,18 @@ class GoogleVerificationServiceComponent extends React.Component {
 				className="jp-form-input-with-prefix jp-form-google-label-unverified"
 				key="verification_service_google"
 			>
-				<span>{ __( 'Google', 'jetpack' ) }</span>
+				<span>{ __( 'Google:', 'jetpack' ) }</span>
 				<div className="jp-form-google-label-unverified-actions">
 					{ createInterpolateElement(
 						__(
-							'<button1>Verify with Google</button1><span>or</span><button2>Manually Verify</button2>',
+							'<button1>Auto verify with Google</button1><span>or</span><button2>Manually verify with Google</button2>',
 							'jetpack'
 						),
 						{
 							button1: (
 								<Button
 									primary
+									rna
 									type="button"
 									disabled={ disabled }
 									onClick={ this.handleClickAutoVerify }
@@ -313,6 +317,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 							span: <span className="jp-form-google-separator" />,
 							button2: (
 								<Button
+									rna
 									type="button"
 									disabled={ disabled }
 									onClick={ this.handleClickSetManually }

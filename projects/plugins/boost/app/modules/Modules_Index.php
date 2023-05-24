@@ -9,7 +9,8 @@ use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Image_CDN\Image_CDN;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Lazy_Images\Lazy_Images;
-use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Minify\Minify_JS;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Render_Blocking_JS\Render_Blocking_JS;
 
 class Modules_Index {
@@ -28,7 +29,8 @@ class Modules_Index {
 		Cloud_CSS::class,
 		Image_Size_Analysis::class,
 		Lazy_Images::class,
-		Minify::class,
+		Minify_JS::class,
+		Minify_CSS::class,
 		Render_Blocking_JS::class,
 		Image_Guide::class,
 		Image_CDN::class,

@@ -267,6 +267,11 @@
 	padding: 1px 10px;
 }
 
+.site__info > .site__badge.site__badge-staging {
+	background-color: #f0c930;
+	color: #4f3500;
+}
+
 /**
  * Inline text in a menu title
  */

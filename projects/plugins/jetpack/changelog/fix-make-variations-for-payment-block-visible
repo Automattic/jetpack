@@ -1,4 +1,0 @@
-Significance: minor
-Type: bugfix
-
-Update the visibility setting of the Payment block inner blocks on click to ensure that the inner block renders

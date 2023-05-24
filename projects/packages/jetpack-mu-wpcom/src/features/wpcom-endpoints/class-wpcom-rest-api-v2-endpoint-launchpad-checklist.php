@@ -51,6 +51,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Checklist extends WP_REST_Controller 
 								'newsletter',
 								'videopress',
 								'write',
+								'start-writing',
 							),
 						),
 					),
@@ -77,8 +78,17 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad_Checklist extends WP_REST_Controller 
 	 */
 	public function get_data( $request ) {
 		$checklist_slug = $request['checklist_slug'];
+
+		if ( function_exists( 'get_launchpad_checklist_by_checklist_slug' ) ) {
+			$checklist = get_launchpad_checklist_by_checklist_slug( $checklist_slug );
+		} elseif ( function_exists( 'wpcom_get_launchpad_checklist_by_checklist_slug' ) ) {
+			$checklist = wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug );
+		} else {
+			$checklist = array();
+		}
+
 		return array(
-			'checklist' => get_launchpad_checklist_by_checklist_slug( $checklist_slug ),
+			'checklist' => $checklist,
 		);
 	}
 

@@ -74,23 +74,21 @@ class DashStatsBottom extends Component {
 							{ '-' === s.bestDay.day ? '-' : dateI18n( this.props.dateFormat, s.bestDay.day ) }
 						</p>
 					</div>
-					<div className="jp-at-a-glance__stats-summary-alltime">
-						<div className="jp-at-a-glance__stats-alltime-views">
-							<p className="jp-at-a-glance__stat-details">
-								{ _x( 'All-time views', 'Referring to a number of page views', 'jetpack' ) }
-							</p>
-							<h3 className="jp-at-a-glance__stat-number">
-								{ '-' === s.allTime.views ? '-' : numberFormat( s.allTime.views ) }
-							</h3>
-						</div>
-						<div className="jp-at-a-glance__stats-alltime-comments">
-							<p className="jp-at-a-glance__stat-details">
-								{ _x( 'All-time comments', 'Referring to a number of comments', 'jetpack' ) }
-							</p>
-							<h3 className="jp-at-a-glance__stat-number">
-								{ '-' === s.allTime.comments ? '-' : numberFormat( s.allTime.comments ) }
-							</h3>
-						</div>
+					<div className="jp-at-a-glance__stats-summary-alltime-views">
+						<p className="jp-at-a-glance__stat-details">
+							{ _x( 'All-time views', 'Referring to a number of page views', 'jetpack' ) }
+						</p>
+						<h3 className="jp-at-a-glance__stat-number">
+							{ '-' === s.allTime.views ? '-' : numberFormat( s.allTime.views ) }
+						</h3>
+					</div>
+					<div className="jp-at-a-glance__stats-summary-alltime-comments">
+						<p className="jp-at-a-glance__stat-details">
+							{ _x( 'All-time comments', 'Referring to a number of comments', 'jetpack' ) }
+						</p>
+						<h3 className="jp-at-a-glance__stat-number">
+							{ '-' === s.allTime.comments ? '-' : numberFormat( s.allTime.comments ) }
+						</h3>
 					</div>
 				</div>
 				<div className="jp-at-a-glance__stats-cta">

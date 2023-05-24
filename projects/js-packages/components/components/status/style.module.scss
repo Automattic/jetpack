@@ -1,0 +1,72 @@
+.status {
+	--spacing-base: 8px;
+	--wp-admin-border-width-focus: 1.5px;
+
+    align-items: center;
+    display: flex;
+    white-space: nowrap;
+
+    &__indicator {
+        background-color: var( --jp-gray-50 );
+        border-radius: 50%;
+        flex-shrink: 0;
+        height: 0.666em;
+        width: 0.666em;
+    }
+
+    &__label {
+        font-weight: 600;
+        line-height: 1.666;
+        margin-left: calc( var( --spacing-base ) / 2 ); // 4px
+    }
+
+    &.is-active {
+		span, a {
+			color: var(--jp-green-50);
+		}
+
+        .status__indicator {
+            background-color: var( --jp-green-50 );
+        }
+    }
+
+    &.is-inactive {
+		span, a {
+			color: var(--jp-gray-50);
+		}
+
+        .status__indicator {
+            background-color: var( --jp-gray-50 );
+        }
+    }
+
+    &.is-error {
+		span, a {
+			color: var(--jp-red-50);
+		}
+
+        .status__indicator {
+            background-color: var( --jp-red-50 );
+        }
+    }
+
+    &.is-action {
+		span, a {
+			color: var(--jp-yellow-30);
+		}
+
+        .status__indicator {
+            background-color: var( --jp-yellow-30 );
+        }
+    }
+
+    &.is-initializing {
+		span, a {
+			color: var(--jp-blue-40);
+		}
+
+        .status__indicator {
+            background-color: var( --jp-blue-40 );
+        }
+    }
+}

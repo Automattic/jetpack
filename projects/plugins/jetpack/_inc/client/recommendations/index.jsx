@@ -127,6 +127,9 @@ const RecommendationsComponent = props => {
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__SECURITY:
 			redirectPath = '/welcome-security';
 			break;
+		case RECOMMENDATION_WIZARD_STEP.WELCOME__STARTER:
+			redirectPath = '/welcome-starter';
+			break;
 		case RECOMMENDATION_WIZARD_STEP.WELCOME__ANTISPAM:
 			redirectPath = '/welcome-antispam';
 			break;
@@ -250,6 +253,9 @@ const RecommendationsComponent = props => {
 					<Route path="/recommendations/welcome-complete">
 						<ResourcePrompt stepSlug="welcome__complete" />
 					</Route>
+					<Route path="/recommendations/welcome-starter">
+						<ResourcePrompt stepSlug="welcome__starter" />
+					</Route>
 					<Route path="/recommendations/welcome-security">
 						<ResourcePrompt stepSlug="welcome__security" />
 					</Route>
@@ -291,27 +297,13 @@ const RecommendationsComponent = props => {
 					</Route>
 				</Switch>
 			) }
-			<div className="jp-footer">
-				<li className="jp-footer__link-item">
-					<a
-						role="button"
-						tabIndex="0"
-						className="jp-footer__link__recommended"
-						href={ getRedirectUrl( 'jetpack-support-getting-started' ) }
-					>
-						{ __( 'Learn how to get started with Jetpack', 'jetpack' ) }
-					</a>
-				</li>
-				<li className="jp-footer__link-item">
-					<a
-						role="button"
-						tabIndex="0"
-						className="jp-footer__link__recommended"
-						href={ getRedirectUrl( 'jetpack-support' ) }
-					>
-						{ __( 'Search our support site', 'jetpack' ) }
-					</a>
-				</li>
+			<div className="jp-recommendations__links">
+				<a role="button" tabIndex="0" href={ getRedirectUrl( 'jetpack-support-getting-started' ) }>
+					{ __( 'Learn how to get started with Jetpack', 'jetpack' ) }
+				</a>
+				<a role="button" tabIndex="0" href={ getRedirectUrl( 'jetpack-support' ) }>
+					{ __( 'Search our support site', 'jetpack' ) }
+				</a>
 			</div>
 		</>
 	);

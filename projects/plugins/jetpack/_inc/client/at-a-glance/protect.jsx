@@ -41,7 +41,15 @@ class DashProtect extends Component {
 		) {
 			const protectCount = this.props.protectCount;
 
-			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
+			if ( 'N/A' === protectCount ) {
+				return (
+					<DashItem label={ labelName } module="protect" support={ support }>
+						<p className="jp-dash-item__description">{ __( 'Loading…', 'jetpack' ) }</p>
+					</DashItem>
+				);
+			}
+
+			if ( 0 === protectCount ) {
 				return (
 					<DashItem
 						label={ labelName }
@@ -62,6 +70,7 @@ class DashProtect extends Component {
 					</DashItem>
 				);
 			}
+
 			return (
 				<DashItem label={ labelName } module="protect" support={ support } status="is-working">
 					<h2 className="jp-dash-item__count">{ numberFormat( protectCount ) }</h2>

@@ -20,6 +20,8 @@ const ActionButton = ( {
 	onManage,
 	onFixConnection,
 	isFetching,
+	isInstallingStandalone,
+	isDeactivatingStandalone,
 	className,
 	onAdd,
 } ) => {
@@ -34,9 +36,11 @@ const ActionButton = ( {
 		);
 	}
 
+	const isBusy = isFetching || isInstallingStandalone || isDeactivatingStandalone;
+
 	const buttonState = {
-		variant: ! isFetching ? 'primary' : undefined,
-		disabled: isFetching,
+		variant: ! isBusy ? 'primary' : undefined,
+		disabled: isBusy,
 		className,
 	};
 

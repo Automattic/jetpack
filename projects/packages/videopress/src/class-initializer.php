@@ -136,6 +136,8 @@ class Initializer {
 		if ( self::should_initialize_admin_ui() ) {
 			Admin_UI::init();
 		}
+
+		Divi::init();
 	}
 
 	/**
@@ -165,10 +167,10 @@ class Initializer {
 	 * @return string|false
 	 */
 	public static function video_enqueue_bridge_when_oembed_present( $cache, $url, $attr, $post_ID ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( preg_match( '/^https?:\/\/(video\.wordpress\.com|videopress\.com)\/(v|embed)\//', $url ) // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
-			|| preg_match( '|^https?://v\.wordpress\.com/([a-zA-Z\d]{8})(.+)?$|i', $url ) ) { // phpcs:ignore WordPress.WP.CapitalPDangit.Misspelled
+		if ( Utils::is_videopress_url( $url ) ) {
 			Jwt_Token_Bridge::enqueue_jwt_token_bridge();
 		}
+
 		return $cache;
 	}
 
@@ -251,7 +253,6 @@ class Initializer {
 		$poster   = isset( $block_attributes['posterData']['url'] ) ? $block_attributes['posterData']['url'] : null;
 
 		$preview_on_hover = '';
-		$play_button      = '';
 
 		if ( $is_poh_enabled ) {
 			$preview_on_hover = array(
@@ -269,14 +270,6 @@ class Initializer {
 				background-position: center center;"',
 					$poster
 				);
-			}
-
-			/*
-			 * Add a child element to show the play button
-			 * when the controls is enabled
-			 */
-			if ( $controls ) {
-				$play_button = '<div class="jetpack-videopress-player__play-button"></div>';
 			}
 
 			// Expose the preview on hover data to the client.
@@ -304,17 +297,13 @@ class Initializer {
 
 		$video_wrapper         = '';
 		$video_wrapper_classes = 'jetpack-videopress-player__wrapper';
-		if ( $controls ) {
-			$video_wrapper_classes .= ' has-controls';
-		}
 
 		if ( $videopress_url ) {
 			$videopress_url = wp_kses_post( $videopress_url );
 			$oembed_html    = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
 			$video_wrapper  = sprintf(
-				'<div class="%s">%s %s %s</div>',
+				'<div class="%s">%s %s</div>',
 				$video_wrapper_classes,
-				$play_button,
 				$preview_on_hover,
 				$oembed_html
 			);

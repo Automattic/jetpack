@@ -252,9 +252,16 @@ function VideoFramePicker( {
 	const { preview = { html: null }, isRequestingEmbedPreview } = usePreview( url );
 	const { html } = preview;
 
-	const { playerIsReady } = useVideoPlayer( playerWrapperRef, isRequestingEmbedPreview, {
+	const { playerIsReady, pause } = useVideoPlayer( playerWrapperRef, isRequestingEmbedPreview, {
 		initialTimePosition: atTime,
 	} );
+
+	useEffect( () => {
+		if ( ! playerIsReady ) {
+			return;
+		}
+		pause();
+	}, [ playerIsReady, pause ] );
 
 	const onTimestampDebounceChange = useCallback(
 		iframeTimePosition => {
@@ -297,8 +304,7 @@ function VideoFramePicker( {
 				max={ duration }
 				value={ timestamp }
 				wait={ 250 }
-				fineAdjustment={ 1 }
-				decimalPlaces={ 2 }
+				fineAdjustment={ 50 }
 				onChange={ setTimestamp }
 				onDebounceChange={ onTimestampDebounceChange }
 			/>
@@ -432,6 +438,7 @@ export default function PosterPanel( {
 	attributes,
 	setAttributes,
 	isGeneratingPoster,
+	videoBelongToSite,
 }: PosterPanelProps ): React.ReactElement {
 	const { poster, posterData } = attributes;
 
@@ -533,21 +540,6 @@ export default function PosterPanel( {
 		} );
 	};
 
-	if ( ! isVideoFramePosterEnabled() ) {
-		return (
-			<PanelBody title={ __( 'Poster', 'jetpack-videopress-pkg' ) } className="poster-panel">
-				<PosterDropdown attributes={ attributes } setAttributes={ setAttributes } />
-				<VideoPosterCard poster={ poster } className="poster-panel-card" />
-
-				{ poster && (
-					<MenuItem onClick={ onRemovePoster } icon={ linkOff } isDestructive variant="tertiary">
-						{ __( 'Remove and use default', 'jetpack-videopress-pkg' ) }
-					</MenuItem>
-				) }
-			</PanelBody>
-		);
-	}
-
 	const panelTitle = isVideoFramePosterEnabled()
 		? __( 'Poster and preview', 'jetpack-videopress-pkg' )
 		: __( 'Poster', 'jetpack-videopress-pkg' );
@@ -556,8 +548,9 @@ export default function PosterPanel( {
 		<PanelBody title={ panelTitle } className="poster-panel" initialOpen={ false }>
 			<ToggleControl
 				label={ __( 'Pick from video frame', 'jetpack-videopress-pkg' ) }
-				checked={ pickPosterFromFrame }
+				checked={ pickPosterFromFrame && videoBelongToSite }
 				onChange={ switchPosterSource }
+				disabled={ ! videoBelongToSite }
 			/>
 
 			<div
@@ -590,15 +583,17 @@ export default function PosterPanel( {
 				) }
 			</div>
 
-			<VideoHoverPreviewControl
-				previewOnHover={ previewOnHover }
-				previewAtTime={ previewAtTime }
-				loopDuration={ previewLoopDuration }
-				videoDuration={ videoDuration }
-				onPreviewOnHoverChange={ onPreviewOnHoverChange }
-				onPreviewAtTimeChange={ onPreviewAtTimeChange }
-				onLoopDurationChange={ onLoopDurationChange }
-			/>
+			{ isVideoFramePosterEnabled() && (
+				<VideoHoverPreviewControl
+					previewOnHover={ previewOnHover }
+					previewAtTime={ previewAtTime }
+					loopDuration={ previewLoopDuration }
+					videoDuration={ videoDuration }
+					onPreviewOnHoverChange={ onPreviewOnHoverChange }
+					onPreviewAtTimeChange={ onPreviewAtTimeChange }
+					onLoopDurationChange={ onLoopDurationChange }
+				/>
+			) }
 		</PanelBody>
 	);
 }

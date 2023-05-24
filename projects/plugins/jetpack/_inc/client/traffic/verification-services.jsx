@@ -154,7 +154,7 @@ class VerificationServicesComponent extends React.Component {
 							disabled={ this.props.isUpdating( 'google' ) || ! isVerificationActive }
 						/>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_bing">
-							<span>{ __( 'Bing', 'jetpack' ) }</span>
+							<span>{ __( 'Bing:', 'jetpack' ) }</span>
 							<TextInput
 								name="bing"
 								value={ this.getSiteVerificationValue( 'bing' ) }
@@ -165,7 +165,7 @@ class VerificationServicesComponent extends React.Component {
 							/>
 						</FormLabel>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_pinterest">
-							<span>{ __( 'Pinterest', 'jetpack' ) }</span>
+							<span>{ __( 'Pinterest:', 'jetpack' ) }</span>
 							<TextInput
 								name="pinterest"
 								value={ this.getSiteVerificationValue( 'pinterest' ) }
@@ -176,7 +176,7 @@ class VerificationServicesComponent extends React.Component {
 							/>
 						</FormLabel>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_yandex">
-							<span>{ __( 'Yandex', 'jetpack' ) }</span>
+							<span>{ __( 'Yandex:', 'jetpack' ) }</span>
 							<TextInput
 								name="yandex"
 								value={ this.getSiteVerificationValue( 'yandex' ) }
@@ -187,7 +187,7 @@ class VerificationServicesComponent extends React.Component {
 							/>
 						</FormLabel>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_facebook">
-							<span>{ __( 'Facebook', 'jetpack' ) }</span>
+							<span>{ __( 'Facebook:', 'jetpack' ) }</span>
 							<TextInput
 								name="facebook"
 								value={ this.getSiteVerificationValue( 'facebook' ) }

@@ -20,6 +20,8 @@ import ConnectScreenVisual from './visual';
  * @param {string?} props.assetBaseUrl -- The assets base URL.
  * @param {object?} props.footer -- Additional page elements to show after the call to action.
  * @param {boolean?} props.skipUserConnection -- Whether to not require a user connection and just redirect after site connection.
+ * @param {boolean?} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
+ * @param {object?} props.logo -- The logo to display at the top of the component.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const ConnectScreen = ( {
@@ -33,8 +35,10 @@ const ConnectScreen = ( {
 	images,
 	children,
 	assetBaseUrl,
+	autoTrigger,
 	footer,
 	skipUserConnection,
+	logo,
 } ) => {
 	const {
 		handleRegisterSite,
@@ -43,11 +47,13 @@ const ConnectScreen = ( {
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
+		isOfflineMode,
 	} = useConnection( {
 		registrationNonce,
 		redirectUri,
 		apiRoot,
 		apiNonce,
+		autoTrigger,
 		from,
 		skipUserConnection,
 	} );
@@ -67,6 +73,8 @@ const ConnectScreen = ( {
 			displayButtonError={ displayButtonError }
 			buttonIsLoading={ buttonIsLoading }
 			footer={ footer }
+			isOfflineMode={ isOfflineMode }
+			logo={ logo }
 		>
 			{ children }
 		</ConnectScreenVisual>
@@ -81,9 +89,11 @@ ConnectScreen.propTypes = {
 	registrationNonce: PropTypes.string.isRequired,
 	from: PropTypes.string,
 	redirectUri: PropTypes.string.isRequired,
+	autoTrigger: PropTypes.bool,
 	images: PropTypes.arrayOf( PropTypes.string ),
 	assetBaseUrl: PropTypes.string,
 	skipUserConnection: PropTypes.bool,
+	logo: PropTypes.element,
 };
 
 ConnectScreen.defaultProps = {
@@ -91,6 +101,7 @@ ConnectScreen.defaultProps = {
 	buttonLabel: __( 'Set up Jetpack', 'jetpack' ),
 	images: [],
 	redirectUri: null,
+	autoTrigger: false,
 	skipUserConnection: false,
 };
 

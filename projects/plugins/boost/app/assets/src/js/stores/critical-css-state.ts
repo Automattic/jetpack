@@ -5,11 +5,14 @@ import api from '../api/api';
 import { startPollingCloudStatus } from '../utils/cloud-css';
 import generateCriticalCss from '../utils/generate-critical-css';
 import { CriticalCssStateSchema } from './critical-css-state-types';
-import { client, JSONObject, suggestRegenerateDS } from './data-sync-client';
+import { jetpack_boost_ds, JSONObject, suggestRegenerateDS } from './data-sync-client';
 import { modulesState } from './modules';
 import type { CriticalCssState, Provider } from './critical-css-state-types';
 
-const stateClient = client.createAsyncStore( 'critical_css_state', CriticalCssStateSchema );
+const stateClient = jetpack_boost_ds.createAsyncStore(
+	'critical_css_state',
+	CriticalCssStateSchema
+);
 const cssStateStore = stateClient.store;
 
 export const criticalCssState = {

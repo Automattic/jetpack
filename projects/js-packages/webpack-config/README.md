@@ -119,7 +119,8 @@ This provides an instance of [css-minimizer-webpack-plugin](https://www.npmjs.co
 
 This is an object suitable for spreading some defaults into Webpack's `resolve` setting.
 
-Currently we only set `extensions` to add `.jsx`, `.ts`, and `.tsx` to Webpack's defaults.
+* For `extensions`, we add `.jsx`, `.ts`, and `.tsx` to Webpack's defaults.
+* If `npm_config_jetpack_webpack_config_resolve_conditions` is set in the environment (e.g. by setting `jetpack-webpack-config-resolve-conditions` in `.npmrc`), [`conditionNames`](https://webpack.js.org/configuration/resolve/#resolveconditionnames) will be set to add the values (comma-separated) to Webpack's defaults.
 
 #### Plugins
 

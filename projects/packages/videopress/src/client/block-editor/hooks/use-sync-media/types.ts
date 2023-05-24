@@ -9,6 +9,7 @@ export type UseSyncMedia = {
 	error: object | null;
 	isOverwriteChapterAllowed: boolean;
 	isGeneratingPoster: boolean;
+	videoBelongToSite: boolean;
 };
 
 export type ArrangeTracksAttributesProps = [ Array< TrackProps >, boolean ];

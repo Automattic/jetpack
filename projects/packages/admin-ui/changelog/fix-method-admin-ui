@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid errors when used in combination with an older version of the Logo package.

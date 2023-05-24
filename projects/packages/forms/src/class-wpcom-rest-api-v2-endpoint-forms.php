@@ -9,7 +9,6 @@
 namespace Automattic\Jetpack\Forms;
 
 use Automattic\Jetpack\Connection\Manager;
-use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use WP_Error;
 use WP_REST_Controller;
@@ -118,61 +117,85 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 			array( 'post_status' => array( 'draft', 'publish', 'spam', 'trash' ) )
 		);
 
-		$query = array(
-			'inbox' => new \WP_Query(
-				array_merge(
-					$args,
-					array( 'post_status' => array( 'draft', 'publish' ) )
-				)
-			),
-			'spam'  => new \WP_Query(
-				array_merge(
-					$args,
-					array( 'post_status' => array( 'spam' ) )
-				)
-			),
-			'trash' => new \WP_Query(
-				array_merge(
-					$args,
-					array( 'post_status' => array( 'trash' ) )
-				)
-			),
-		);
-
 		$current_query = 'inbox';
 		if ( isset( $request['status'] ) && in_array( $request['status'], array( 'spam', 'trash' ), true ) ) {
 			$current_query = $request['status'];
 		}
 
+		$query = array(
+			'inbox' => new \WP_Query(
+				array_merge(
+					$args,
+					array(
+						'post_status'    => array( 'draft', 'publish' ),
+						'posts_per_page' => $current_query === 'inbox' ? $args['posts_per_page'] : -1,
+					)
+				)
+			),
+			'spam'  => new \WP_Query(
+				array_merge(
+					$args,
+					array(
+						'post_status'    => array( 'spam' ),
+						'posts_per_page' => $current_query === 'spam' ? $args['posts_per_page'] : -1,
+					)
+				)
+			),
+			'trash' => new \WP_Query(
+				array_merge(
+					$args,
+					array(
+						'post_status'    => array( 'trash' ),
+						'posts_per_page' => $current_query === 'trash' ? $args['posts_per_page'] : -1,
+					)
+				)
+			),
+		);
+
 		$source_ids = Contact_Form_Plugin::get_all_parent_post_ids(
 			array_diff_key( $filter_args, array( 'post_parent' => '' ) )
 		);
 
-		$responses = array_map(
-			function ( $response ) {
-				$data = \Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::parse_fields_from_content( $response->ID );
+		$base_fields = array(
+			'email_marketing_consent' => '',
+			'entry_title'             => '',
+			'entry_permalink'         => '',
+			'feedback_id'             => '',
+		);
 
+		$data_defaults = array(
+			'_feedback_author'       => '',
+			'_feedback_author_email' => '',
+			'_feedback_author_url'   => '',
+			'_feedback_all_fields'   => array(),
+			'_feedback_ip'           => '',
+			'_feedback_subject'      => '',
+		);
+
+		$responses = array_map(
+			function ( $response ) use ( $base_fields, $data_defaults ) {
+				$data = array_merge(
+					$data_defaults,
+					\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::parse_fields_from_content( $response->ID )
+				);
+
+				$all_fields = array_merge( $base_fields, $data['_feedback_all_fields'] );
 				return array(
 					'id'                      => $response->ID,
-					'uid'                     => $data['all_fields']['feedback_id'],
+					'uid'                     => $all_fields['feedback_id'],
 					'date'                    => get_the_date( 'c', $response ),
 					'author_name'             => $data['_feedback_author'],
 					'author_email'            => $data['_feedback_author_email'],
 					'author_url'              => $data['_feedback_author_url'],
 					'author_avatar'           => empty( $data['_feedback_author_email'] ) ? '' : get_avatar_url( $data['_feedback_author_email'] ),
-					'email_marketing_consent' => $data['all_fields']['email_marketing_consent'],
+					'email_marketing_consent' => $all_fields['email_marketing_consent'],
 					'ip'                      => $data['_feedback_ip'],
-					'entry_title'             => $data['all_fields']['entry_title'],
-					'entry_permalink'         => $data['all_fields']['entry_permalink'],
+					'entry_title'             => $all_fields['entry_title'],
+					'entry_permalink'         => $all_fields['entry_permalink'],
 					'subject'                 => $data['_feedback_subject'],
 					'fields'                  => array_diff_key(
-						$data['all_fields'],
-						array(
-							'email_marketing_consent' => '',
-							'entry_title'             => '',
-							'entry_permalink'         => '',
-							'feedback_id'             => '',
-						)
+						$all_fields,
+						$base_fields
 					),
 				);
 			},
@@ -310,9 +333,18 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	 */
 	private function bulk_action_mark_as_spam( $post_ids ) {
 		foreach ( $post_ids as $post_id ) {
-			$post              = get_post( $post_id );
-			$post->post_status = 'spam';
-			$status            = wp_insert_post( $post );
+			$post = get_post( $post_id );
+			if ( $post->post_type !== 'feedback' ) {
+				continue;
+			}
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'spam',
+				),
+				false,
+				false
+			);
 
 			if ( ! $status || is_wp_error( $status ) ) {
 				return $this->error_response(
@@ -344,9 +376,18 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 	 */
 	private function bulk_action_mark_as_not_spam( $post_ids ) {
 		foreach ( $post_ids as $post_id ) {
-			$post              = get_post( $post_id );
-			$post->post_status = 'publish';
-			$status            = wp_insert_post( $post );
+			$post = get_post( $post_id );
+			if ( $post->post_type !== 'feedback' ) {
+				continue;
+			}
+			$status = wp_update_post(
+				array(
+					'ID'          => $post_id,
+					'post_status' => 'publish',
+				),
+				false,
+				false
+			);
 
 			if ( ! $status || is_wp_error( $status ) ) {
 				return $this->error_response(
@@ -365,51 +406,6 @@ class WPCOM_REST_API_V2_Endpoint_Forms extends WP_REST_Controller {
 				'ham',
 				get_post_meta( $post_id, '_feedback_akismet_values', true )
 			);
-
-			// Maybe resend the original email
-			$email          = get_post_meta( $post_id, '_feedback_email', true );
-			$content_fields = Contact_Form_Plugin::parse_fields_from_content( $post_id );
-
-			if ( empty( $email ) || empty( $content_fields ) ) {
-				continue;
-			}
-
-			$blog_url             = wp_parse_url( site_url() );
-			$headers              = isset( $email['headers'] ) ? $email['headers'] : false;
-			$to                   = isset( $email['to'] ) ? $email['to'] : false;
-			$comment_author_email = isset( $content_fields['_feedback_author_email'] ) ? $content_fields['_feedback_author_email'] : false;
-			$message              = isset( $email['message'] ) ? $email['message'] : false;
-			$reply_to_addr        = false;
-
-			if ( ! $headers ) {
-				$headers = 'From: "' . $content_fields['_feedback_author'] . '" <wordpress@' . $blog_url['host'] . ">\r\n";
-
-				if ( ! empty( $comment_author_email ) ) {
-					$reply_to_addr = $comment_author_email;
-				} elseif ( is_array( $to ) ) {
-					$reply_to_addr = $to[0];
-				}
-
-				if ( $reply_to_addr ) {
-					$headers .= 'Reply-To: "' . $content_fields['_feedback_author'] . '" <' . $reply_to_addr . ">\r\n";
-				}
-
-				$headers .= 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . '"';
-			}
-
-			/**
-			 * Filters the subject of the email sent after a contact form submission.
-			 *
-			 * @module contact-form
-			 *
-			 * @since 3.0.0
-			 *
-			 * @param string $content_fields['_feedback_subject'] Feedback's subject line.
-			 * @param array $content_fields['_feedback_all_fields'] Feedback's data from old fields.
-			 */
-			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'], $content_fields['_feedback_all_fields'] );
-
-			Contact_Form::wp_mail( $to, $subject, $message, $headers );
 		}
 
 		return new \WP_REST_Response( array(), 200 );

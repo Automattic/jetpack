@@ -107,7 +107,7 @@ class Jetpack_Twitter_Cards {
 			if ( ! empty( $post_image ) && is_array( $post_image ) ) {
 				// 4096 is the maximum size for an image per https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/summary .
 				if (
-					isset( $post_image['src_width'], $post_image['src_height'] )
+					isset( $post_image['src_width'] ) && isset( $post_image['src_height'] )
 					&& (int) $post_image['src_width'] <= 4096
 					&& (int) $post_image['src_height'] <= 4096
 				) {

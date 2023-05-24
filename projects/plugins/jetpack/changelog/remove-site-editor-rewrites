@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Remove rewriting the Site Editor to Calypso's iframed `/site-editor/SITE_SLUG` route

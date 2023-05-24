@@ -234,9 +234,12 @@ class Jetpack_Social {
 				$state,
 				array(
 					'jetpackSettings'              => array(
-						'publicize_active'  => self::is_publicize_active(),
-						'show_pricing_page' => self::should_show_pricing_page(),
-						'showNudge'         => ! $publicize->has_paid_plan( true ),
+						'publicize_active'               => self::is_publicize_active(),
+						'show_pricing_page'              => self::should_show_pricing_page(),
+						'showNudge'                      => ! $publicize->has_paid_plan( true ),
+						'isEnhancedPublishingEnabled'    => $publicize->has_enhanced_publishing_feature(),
+						'dismissedNotices'               => $publicize->get_dismissed_notices(),
+						'isInstagramConnectionSupported' => $publicize->has_instagram_connection_feature(),
 					),
 					'connectionData'               => array(
 						'connections' => $publicize->get_all_connections_for_user(), // TODO: Sanitize the array
@@ -308,24 +311,30 @@ class Jetpack_Social {
 		);
 
 		Assets::enqueue_script( 'jetpack-social-editor' );
+
+		$sig_settings = ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() );
+
 		wp_localize_script(
 			'jetpack-social-editor',
 			'Jetpack_Editor_Initial_State',
 			array(
 				'siteFragment' => ( new Status() )->get_site_suffix(),
 				'social'       => array(
-					'adminUrl'                      => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
-					'sharesData'                    => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
-					'reviewRequestDismissed'        => self::is_review_request_dismissed(),
-					'dismissReviewRequestPath'      => '/jetpack/v4/social/review-dismiss',
-					'connectionRefreshPath'         => '/jetpack/v4/publicize/connection-test-results',
-					'resharePath'                   => '/jetpack/v4/publicize/{postId}',
-					'publicizeConnectionsUrl'       => esc_url_raw(
+					'adminUrl'                        => esc_url_raw( admin_url( 'admin.php?page=jetpack-social' ) ),
+					'sharesData'                      => $publicize->get_publicize_shares_info( Jetpack_Options::get_option( 'id' ) ),
+					'reviewRequestDismissed'          => self::is_review_request_dismissed(),
+					'dismissReviewRequestPath'        => '/jetpack/v4/social/review-dismiss',
+					'connectionRefreshPath'           => '/jetpack/v4/publicize/connection-test-results',
+					'resharePath'                     => '/jetpack/v4/publicize/{postId}',
+					'publicizeConnectionsUrl'         => esc_url_raw(
 						'https://jetpack.com/redirect/?source=jetpack-social-connections-block-editor&site='
 					),
-					'hasPaidPlan'                   => $publicize->has_paid_plan(),
-					'isEnhancedPublishingEnabled'   => $publicize->is_enhanced_publishing_enabled( Jetpack_Options::get_option( 'id' ) ),
-					'isSocialImageGeneratorEnabled' => ( new Automattic\Jetpack\Publicize\Social_Image_Generator\Settings() )->is_enabled(),
+					'hasPaidPlan'                     => $publicize->has_paid_plan(),
+					'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
+					'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
+					'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
+					'dismissedNotices'                => $publicize->get_dismissed_notices(),
+					'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
 				),
 			)
 		);

@@ -61,6 +61,10 @@ $arrow-color: var( --jp-gray );
 		outline: none;
 		border: 1px solid $arrow-color;
 	}
+
+	&.is-wide .components-popover__content {
+		width: 440px;
+	}
 }
 
 .icon-tooltip-wrapper {
@@ -103,4 +107,15 @@ $arrow-color: var( --jp-gray );
 	font-weight: 400;
 	font-size: 14px;
 	line-height: 24px;
+
+	// Allow bulleted lists in tooltips.
+	ul {
+		margin: 0 0 0 1rem;
+		list-style-type: disc;
+	}
+
+	// Remove bottom margin from last list item.
+	ul li:last-child {
+		margin-bottom: 0;
+	}
 }

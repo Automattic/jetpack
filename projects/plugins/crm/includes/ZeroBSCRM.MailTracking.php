@@ -208,7 +208,8 @@ function zeroBSCRM_mailTracking_logEmail($emailTypeID=-1, $targetObjID=-1, $send
 		'zbsmail_assoc_objid' => $associatedObjID, // prev zbsmail_assoc_objid
 		'zbsmail_sender_email' => $senderEmailAddress, // prev zbsmail_sender_email
 		'zbsmail_subject' => $emailSubject,
-		'zbsmail_content' => $emailContent, // THIS IS FREE of formatting e.g. not put through a specific format (zeroBSCRM_io_WPEditor_WPEditorToDB) - do that a level up/when passing content
+		// phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+		'zbsmail_content'                 => $emailContent, // THIS IS FREE of formatting e.g. not put through a specific format (wp_kses) - do that a level up/when passing content
 		'zbsmail_sender_wpid' => $senderWPID,   // prev zbsmail_sender_wpid
 		'zbsmail_target_objid' => $targetObjID,  // prev zbsmail_target_objid
 		'zbsmail_hash' => $hash,

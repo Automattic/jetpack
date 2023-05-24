@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-VideoPress: enqueue IFrame API file based on the embed_oembed_html filter

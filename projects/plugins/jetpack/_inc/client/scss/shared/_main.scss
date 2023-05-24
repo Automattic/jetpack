@@ -29,6 +29,10 @@
 
 	.jetpack-pagestyles a {
 		text-decoration: none;
+
+		&.components-external-link .components-external-link__icon {
+			margin-left: 5px;
+		}
 	}
 
 	// Hello Dolly positioning overwrite
@@ -75,14 +79,17 @@
 		.jitm-banner.jitm-card {
 			margin: 0 0 24px;
 		}
+
+		.dops-section-nav {
+			margin-bottom: 0;
+		}
 	}
 }
 
 .jp-lower {
-	margin: 0 auto;
+	margin: 32px auto 0;
 	text-align: left;
 	max-width: rem( 1040px );
-	padding: rem( 24px );
 
 	&.jp-licensing-screen {
 		 max-width: rem( 1128px );

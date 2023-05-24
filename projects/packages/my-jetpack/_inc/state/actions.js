@@ -17,6 +17,8 @@ const SET_PRODUCT = 'SET_PRODUCT';
 const SET_PRODUCT_REQUEST_ERROR = 'SET_PRODUCT_REQUEST_ERROR';
 const ACTIVATE_PRODUCT = 'ACTIVATE_PRODUCT';
 const SET_PRODUCT_STATUS = 'SET_PRODUCT_STATUS';
+const SET_CHAT_AVAILABILITY_IS_FETCHING = 'SET_CHAT_AVAILABILITY_IS_FETCHING';
+const SET_CHAT_AVAILABILITY = 'SET_CHAT_AVAILABILITY';
 
 const SET_GLOBAL_NOTICE = 'SET_GLOBAL_NOTICE';
 const CLEAN_GLOBAL_NOTICE = 'CLEAN_GLOBAL_NOTICE';
@@ -28,12 +30,20 @@ const setPurchasesIsFetching = isFetching => {
 	return { type: SET_PURCHASES_IS_FETCHING, isFetching };
 };
 
+const setChatAvailabilityIsFetching = isFetching => {
+	return { type: SET_CHAT_AVAILABILITY_IS_FETCHING, isFetching };
+};
+
 const fetchPurchases = () => {
 	return { type: FETCH_PURCHASES };
 };
 
 const setPurchases = purchases => {
 	return { type: SET_PURCHASES, purchases };
+};
+
+const setChatAvailability = chatAvailability => {
+	return { type: SET_CHAT_AVAILABILITY, chatAvailability };
 };
 
 const setAvailableLicensesIsFetching = isFetching => {
@@ -154,6 +164,17 @@ const activateProduct = productId => async store => {
 
 /**
  * Side effect action that will trigger
+ * the standalone plugin activation state on the server.
+ *
+ * @param {string} productId - My Jetpack product ID.
+ * @returns {Promise}        - Promise which resolves when the product plugin is deactivated.
+ */
+const deactivateStandalonePluginForProduct = productId => async store => {
+	return await requestProductStatus( productId, { activate: false }, store );
+};
+
+/**
+ * Side effect action that will trigger
  * the standalone plugin installation on the server.
  *
  * @param {string} productId - My Jetpack product ID.
@@ -220,6 +241,7 @@ const setIsFetchingProductStats = ( productId, isFetching ) => {
 const productActions = {
 	setProduct,
 	activateProduct,
+	deactivateStandalonePluginForProduct,
 	installStandalonePluginForProduct,
 	setIsFetchingProduct,
 	setRequestProductError,
@@ -233,8 +255,10 @@ const noticeActions = {
 
 const actions = {
 	setPurchasesIsFetching,
+	setChatAvailabilityIsFetching,
 	fetchPurchases,
 	setPurchases,
+	setChatAvailability,
 	setAvailableLicensesIsFetching,
 	fetchAvailableLicenses,
 	setAvailableLicenses,
@@ -260,5 +284,7 @@ export {
 	CLEAN_GLOBAL_NOTICE,
 	SET_PRODUCT_STATS,
 	SET_IS_FETCHING_PRODUCT_STATS,
+	SET_CHAT_AVAILABILITY,
+	SET_CHAT_AVAILABILITY_IS_FETCHING,
 	actions as default,
 };

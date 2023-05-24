@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { client } from './data-sync-client';
+import { jetpack_boost_ds } from './data-sync-client';
 import type { SyncedStoreCallback } from '@automattic/jetpack-svelte-data-sync-client';
 
 export type Optimizations = {
@@ -15,7 +15,7 @@ const modulesStateSchema = z.record(
 );
 
 type ModulesState = z.infer< typeof modulesStateSchema >;
-const modulesStateClient = client.createAsyncStore( 'modules_state', modulesStateSchema );
+const modulesStateClient = jetpack_boost_ds.createAsyncStore( 'modules_state', modulesStateSchema );
 
 /**
  * This function creates an SyncedStoreCallback.

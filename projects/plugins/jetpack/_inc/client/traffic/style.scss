@@ -29,6 +29,13 @@
 	.dops-clipboard-button-input {
 		flex-grow: 1;
 	}
+
+	.components-external-link__icon {
+		width: 1.125rem;
+		height: 1.125rem;
+		margin-left: 6px;
+		margin-top: -3px;
+	}
 }
 
 // we want to place.jp-form-input-with-prefix's margin after this element
@@ -92,10 +99,16 @@
 	align-content: center;
 
 	.dops-button {
-		margin-left: 10px;
-		margin-right: 10px;
-		padding-left: 7px;
-		padding-right: 7px;
+		margin-left: rem( 8px );
+		margin-right: rem( 8px );
+
+		&:first-child {
+			margin-left: 0;
+		}
+
+		&:last-child {
+			margin-right: 0;
+		}
 	}
 }
 
@@ -131,7 +144,8 @@
 	}
 
 	&-save-button {
-		float: right;
+		display: flex;
+		justify-content: end;
 		margin-top: 0.75rem;
 	}
 }
@@ -198,7 +212,8 @@
 	}
 
 	&-save-button {
-		float: right;
+		display: flex;
+		justify-content: end;
 		margin-top: 0.75rem;
 	}
 }
@@ -238,12 +253,18 @@
 	margin-bottom: 20px;
 }
 
+.jp-stats-odyssey-toggle > .components-base-control {
+	margin-bottom: 0;
+}
+
 .jp-stats-odyssey-badge {
-	color: $white;
-	background-color: $blue-medium;
+	color: #008710;
+	background-color: #D0E6B8;
 	border-radius: 3px;
-	font-size: 11px;
-	line-height: 12px;
-	margin-left: 9px;
-	padding: 4px 8px;
+	font-size: 10px;
+	line-height: 18px;
+	margin-left: 8px;
+	padding: 0px 6px;
+	text-transform: uppercase;
+	display: inline-block;
 }

@@ -9,7 +9,7 @@ const apiEndpointsRegex = {
 export default class JetpackBoostPage extends WpPage {
 	constructor( page ) {
 		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack-boost';
-		super( page, { expectedSelectors: [ '#jb-settings' ], url } );
+		super( page, { expectedSelectors: [ '#jb-dashboard' ], url } );
 	}
 
 	/**
@@ -164,7 +164,7 @@ export default class JetpackBoostPage extends WpPage {
 		return (
 			( await this.getSpeedScore( 'mobile' ) ) > 0 &&
 			( await this.getSpeedScore( 'desktop' ) ) > 0 &&
-			( await this.currentPageTitleIs( /Overall score: [A-Z]/ ) )
+			( await this.currentPageTitleIs( /Overall Score: [A-Z]/i ) )
 		);
 	}
 }

@@ -1,3 +1,4 @@
+import { Icon } from '@wordpress/icons';
 import classNames from 'classnames';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -16,7 +17,6 @@ import React, { Component } from 'react';
 import { connect as reduxConnect } from 'react-redux';
 import { isCurrentUserLinked, isConnectionOwner } from 'state/connection';
 import { getCurrentVersion } from 'state/initial-state';
-
 import './style.scss';
 
 export class Banner extends Component {
@@ -33,6 +33,7 @@ export class Banner extends Component {
 		iconAlt: PropTypes.string,
 		iconSrc: PropTypes.string,
 		iconRaw: PropTypes.string,
+		iconWp: PropTypes.any,
 		list: PropTypes.arrayOf( PropTypes.string ),
 		onClick: PropTypes.func,
 		path: PropTypes.string,
@@ -41,11 +42,15 @@ export class Banner extends Component {
 		title: PropTypes.node.isRequired,
 		isCurrentUserLinked: PropTypes.bool,
 		isConnectionOwner: PropTypes.bool,
+		noIcon: PropTypes.bool,
+		rna: PropTypes.bool,
 	};
 
 	static defaultProps = {
 		onClick: noop,
 		eventProps: {},
+		rna: false,
+		noIcon: false,
 	};
 
 	getHref() {
@@ -84,7 +89,7 @@ export class Banner extends Component {
 	};
 
 	getIcon() {
-		const { icon, iconAlt, iconSrc, iconRaw, plan } = this.props;
+		const { icon, iconAlt, iconSrc, iconRaw, iconWp, plan } = this.props;
 
 		if ( iconRaw ) {
 			return (
@@ -98,6 +103,14 @@ export class Banner extends Component {
 			return (
 				<div className="dops-banner__icon-plan">
 					<PlanIcon plan={ plan } />
+				</div>
+			);
+		}
+
+		if ( iconWp ) {
+			return (
+				<div className="dops-banner__icon-wp">
+					<Icon icon={ iconWp } />
 				</div>
 			);
 		}
@@ -121,7 +134,7 @@ export class Banner extends Component {
 	}
 
 	getContent() {
-		const { callToAction, description, list, title } = this.props;
+		const { callToAction, description, list, title, rna } = this.props;
 
 		return (
 			<div className="dops-banner__content">
@@ -142,7 +155,13 @@ export class Banner extends Component {
 				{ callToAction && (
 					<div className="dops-banner__action">
 						{ callToAction && (
-							<Button compact href={ this.getHref() } onClick={ this.handleClick } primary>
+							<Button
+								rna={ rna }
+								compact
+								href={ this.getHref() }
+								onClick={ this.handleClick }
+								primary
+							>
 								{ callToAction }
 							</Button>
 						) }
@@ -153,7 +172,7 @@ export class Banner extends Component {
 	}
 
 	render() {
-		const { callToAction, className, plan } = this.props;
+		const { callToAction, className, plan, noIcon } = this.props;
 		const planClass = getPlanClass( plan );
 		const isLegacy = isJetpackLegacyPlan( plan );
 		const isProduct = isJetpackProduct( plan );
@@ -174,9 +193,10 @@ export class Banner extends Component {
 			<Card
 				className={ classes }
 				href={ callToAction ? null : this.getHref() }
+				target={ callToAction || ! this.getHref() ? null : '_blank' }
 				onClick={ callToAction ? noop : this.handleClick }
 			>
-				{ this.getIcon() }
+				{ ! noIcon && this.getIcon() }
 				{ this.getContent() }
 			</Card>
 		);

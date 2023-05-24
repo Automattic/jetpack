@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import Card from 'components/card';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import QuerySite from 'components/data/query-site';
 import { get } from 'lodash';
@@ -91,18 +90,15 @@ export class Security extends Component {
 			<div>
 				<QuerySite />
 				<h1 className="screen-reader-text">{ __( 'Jetpack Security Settings', 'jetpack' ) }</h1>
-				<Card
-					title={
-						isSearchTerm
-							? __( 'Security', 'jetpack' )
-							: __(
-									'Your site is protected by Jetpack. You’ll be notified if anything needs attention.',
-									'jetpack',
-									/* dummy arg to avoid bad minification */ 0
-							  )
-					}
-					className="jp-settings-description"
-				/>
+				<h2 className="jp-settings__section-title">
+					{ isSearchTerm
+						? __( 'Security', 'jetpack' )
+						: __(
+								'Your site is protected by Jetpack. You’ll be notified if anything needs attention.',
+								'jetpack',
+								/* dummy arg to avoid bad minification */ 0
+						  ) }
+				</h2>
 				{ foundBackups && backupsContent }
 				{ foundMonitor && <Monitor { ...commonProps } /> }
 				{ foundAkismet && (

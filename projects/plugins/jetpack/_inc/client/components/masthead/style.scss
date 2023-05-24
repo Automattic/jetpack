@@ -24,7 +24,7 @@
 	margin: 0 auto;
 	max-width: rem( 1040px );
 
-	@media (max-width: 1250px) {
+	@media (max-width: 1360px) {
 		max-width: 95%;
 	}
 }
@@ -83,7 +83,8 @@
 		background: $white;
 		color: $black;
 		font-weight: 600;
-		border: 1.5px solid $gray-5;
+		border: 1.5px solid $black;
+		box-shadow: none;
 
 		&:first-child {
 			border-right: 0;

@@ -1,4 +1,4 @@
-<script type="ts">
+<script lang="ts">
 	export let id: string;
 	export let checked = false;
 	export let disabled = false;

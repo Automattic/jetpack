@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.5 - 2023-05-22
+### Changed
+- Internal updates.
+
+## 1.2.4 - 2023-05-15
+### Changed
+- Internal updates.
+
+## 1.2.3 - 2023-05-12
+
+## 1.2.2 - 2023-05-11
+
+## 1.2.1 - 2023-05-08
+### Changed
+- Updated package dependencies. [#30493]
+
+## 1.2.0 - 2023-05-02
+### Added
+- Remove conditional rendering from zendesk chat widget component due to it being handled by an api endpoint now [#29942]
+
+## 1.1.3 - 2023-04-25
+
+- Minor internal updates.
+
 ## 1.1.2 - 2023-04-17
 ### Changed
 - Internal updates.

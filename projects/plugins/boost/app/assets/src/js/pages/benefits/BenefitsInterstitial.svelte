@@ -30,10 +30,10 @@
 	}
 </script>
 
-<div id="jb-settings" class="jb-settings">
-	<div class="jb-settings-header jb-benefits-header">
+<div id="jb-dashboard" class="jb-dashboard">
+	<div class="jb-dashboard-header jb-benefits-header">
 		<div class="jb-container jb-container--fixed">
-			<div class="jb-settings-header__logo">
+			<div class="jb-dashboard-header__logo">
 				<JetpackBoostLogo />
 			</div>
 
@@ -101,7 +101,7 @@
 		background-color: var( --jp-white );
 		height: unset;
 
-		.jb-settings-header__logo {
+		.jb-dashboard-header__logo {
 			max-width: 240px;
 			height: unset;
 		}
