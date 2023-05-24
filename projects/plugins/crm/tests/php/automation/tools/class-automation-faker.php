@@ -52,12 +52,31 @@ class Automation_Faker {
 	 */
 	public function workflow_without_initial_step(): array {
 		return array(
-			'name'         => 'Workflow Test',
-			'description'  => 'Test: the description of the workflow',
-			'category'     => 'Test',
-			'is_active'    => true,
-			'triggers'     => array(
+			'name'        => 'Workflow Test',
+			'description' => 'Test: the description of the workflow',
+			'category'    => 'Test',
+			'is_active'   => true,
+			'triggers'    => array(
 				'contact_created',
+			),
+		);
+	}
+
+	/**
+	 * Return a basic workflow with a customizable trigger and without initial step
+	 *
+	 * @param string $trigger_name The name of the trigger to be included in the workflow.
+	 *
+	 * @return array
+	 */
+	public function workflow_without_initial_step_customize_trigger( $trigger_name ): array {
+		return array(
+			'name'        => 'Workflow Test',
+			'description' => 'Test: the description of the workflow',
+			'category'    => 'Test',
+			'is_active'   => true,
+			'triggers'    => array(
+				$trigger_name,
 			),
 		);
 	}
@@ -100,14 +119,14 @@ class Automation_Faker {
 				'contact_created',
 			),
 			'initial_step' => array(
-				'name'        => 'contact_status_condition',
-				'class_name'  => Contact_Condition::class,
-				'attributes'  => array(
-					'field'     => 'status',
-					'operator'  => 'is',
-					'value'     => 'lead',
+				'name'            => 'contact_status_condition',
+				'class_name'      => Contact_Condition::class,
+				'attributes'      => array(
+					'field'    => 'status',
+					'operator' => 'is',
+					'value'    => 'lead',
 				),
-				'next_step_true' => array(
+				'next_step_true'  => array(
 					'name' => 'dummy_action',
 				),
 				'next_step_false' => null,
