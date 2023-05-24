@@ -7,7 +7,7 @@
 	import { __ } from '@wordpress/i18n';
 	import ReactComponent from '../../../elements/ReactComponent.svelte';
 	import TemplatedString from '../../../elements/TemplatedString.svelte';
-	import RecommendationsPreview from '../../../modules/image-size-analysis/RecommendationsPreview.svelte';
+	import RecommendationsMeta from '../../../modules/image-size-analysis/RecommendationsMeta.svelte';
 	import { RegenerateCriticalCssSuggestion } from '../../../react-components/RegenerateCriticalCssSuggestion';
 	import {
 		criticalCssState,
@@ -235,8 +235,9 @@
 				'jetpack-boost'
 			)}
 		</p>
+
 		<svelte:fragment slot="meta">
-			<RecommendationsPreview />
+			<RecommendationsMeta />
 		</svelte:fragment>
 	</Module>
 

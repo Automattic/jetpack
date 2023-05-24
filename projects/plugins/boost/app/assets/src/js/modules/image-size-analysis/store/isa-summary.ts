@@ -10,21 +10,20 @@ const Group = z.object( {
 	done: z.boolean(),
 } );
 
-const image_size_analysis_groups = jetpack_boost_ds.createAsyncStore(
-	'image_size_analysis_groups',
+const image_size_analysis_summary = jetpack_boost_ds.createAsyncStore(
+	'image_size_analysis_summary',
 	z
 		.object( {
-			home: Group,
-			pages: Group,
-			posts: Group,
-			other: Group,
-			ignored: Group,
+			status: z.string(),
 		} )
 		// Data unavailable when the the flag is disabled.
 		.optional()
 );
 
-export const isaGroups = image_size_analysis_groups.store;
+export const isaSummary = image_size_analysis_summary.store;
+export const isaGroups = derived( isaSummary, () => ( {
+	front_page: { name: 'Front Page', progress: 10, issues: 0, done: false },
+} ) );
 
 export const imageDataGroupTabs = derived(
 	[ isaGroups, isaIgnoredImages ],
@@ -40,10 +39,6 @@ export const imageDataGroupTabs = derived(
 		const groups = {
 			all,
 			...$isaGroups,
-			ignored: {
-				...$isaGroups.ignored,
-				issues: $isaGroups.ignored.issues + $isaIgnoredImages.length,
-			},
 		};
 
 		return groups;
