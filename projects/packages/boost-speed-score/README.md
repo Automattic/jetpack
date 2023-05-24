@@ -1,14 +1,27 @@
 # boost-speed-score
 
-A package that handles the API to generate the speed score.
+A package that handles the API to generate the speed score. The `Speed_Score` class registers the API routes that are going to be used in the frontend.
 
-## How to install boost-speed-score
+## Get Started
+Build and install the package:
 
-### Installation From Git Repo
+```sh
+jetpack build packages/boost-speed-score && jetpack install packages/boost-speed-score
+```
 
-## Contribute
+From the plugin folder, require the package using composer:
 
-## Get Help
+```sh
+composer require automattic/jetpack-boost-speed-score
+```
+
+Then use it:
+
+```php
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
+
+$this->speed_scores = new Speed_Score( $modules );
+```
 
 ## Using this package in your WordPress plugin
 
