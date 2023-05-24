@@ -10,7 +10,7 @@ import {
 	ToolbarGroup,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, image, pencil, update, title } from '@wordpress/icons';
+import { chevronDown, image, pencil, update, title, closeSmall } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
@@ -115,16 +115,28 @@ const AIControl = ( {
 				/>
 
 				<div className="jetpack-ai-assistant__controls">
-					<Button
-						className="jetpack-ai-assistant__prompt_button"
-						onClick={ () => handleGetSuggestion( 'userPrompt' ) }
-						isSmall={ true }
-						disabled={ isWaitingState || ! userPrompt?.length }
-						label={ __( 'Do some magic!', 'jetpack' ) }
-					>
-						<Icon icon={ origamiPlane } />
-						{ __( 'Send', 'jetpack' ) }
-					</Button>
+					{ ! isWaitingState ? (
+						<Button
+							className="jetpack-ai-assistant__prompt_button"
+							onClick={ () => handleGetSuggestion( 'userPrompt' ) }
+							isSmall={ true }
+							disabled={ ! userPrompt?.length }
+							label={ __( 'Send request', 'jetpack' ) }
+						>
+							<Icon icon={ origamiPlane } />
+							{ __( 'Send', 'jetpack' ) }
+						</Button>
+					) : (
+						<Button
+							className="jetpack-ai-assistant__prompt_button"
+							onClick={ () => handleGetSuggestion( 'userPrompt' ) }
+							isSmall={ true }
+							label={ __( 'Stop request', 'jetpack' ) }
+						>
+							<Icon icon={ closeSmall } />
+							{ __( 'Stop', 'jetpack' ) }
+						</Button>
+					) }
 				</div>
 			</div>
 		</>
