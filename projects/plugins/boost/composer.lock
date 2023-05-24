@@ -237,6 +237,70 @@
             }
         },
         {
+            "name": "automattic/jetpack-boost-speed-score",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/boost-speed-score",
+                "reference": "6c0515976275db6509e9c0a47589cfd851d4ae20"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "automattic/wordbless": "dev-master",
+                "brain/monkey": "^2.6",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-boost-speed-score",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-boost-speed-score/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-boost-speed-score",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-speed-score.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Boost_Speed_Score\\Tests\\": "./tests/php"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A package that handles the API to generate the speed score",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
             "name": "automattic/jetpack-composer-plugin",
             "version": "dev-trunk",
             "dist": {
@@ -4507,11 +4571,12 @@
         "automattic/jetpack-admin-ui": 20,
         "automattic/jetpack-assets": 20,
         "automattic/jetpack-autoloader": 20,
-        "automattic/jetpack-image-cdn": 20,
+        "automattic/jetpack-boost-speed-score": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
         "automattic/jetpack-device-detection": 20,
+        "automattic/jetpack-image-cdn": 20,
         "automattic/jetpack-lazy-images": 20,
         "automattic/jetpack-my-jetpack": 20,
         "automattic/jetpack-plugin-deactivation": 20,

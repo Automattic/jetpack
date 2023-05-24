@@ -9,7 +9,7 @@
 namespace Automattic\Jetpack_Boost\Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack_Boost\Features\Speed_Score\Speed_Score;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack_Boost\Jetpack_Boost;
 use Automattic\Jetpack_Boost\Lib\Analytics;
 use Automattic\Jetpack_Boost\Lib\Environment_Change_Detector;
