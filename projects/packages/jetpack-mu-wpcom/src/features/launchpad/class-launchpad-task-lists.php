@@ -490,8 +490,11 @@ class Launchpad_Task_Lists {
 			return false;
 		}
 
-		if ( ! isset( $task['title'] ) ) {
-			_doing_it_wrong( 'validate_task', 'The Launchpad task being registered requires a "title" attribute', '6.1' );
+		// For now, allow the 'title' attribute.
+		$has_valid_title = isset( $task['title'] ) || ( isset( $task['get_title'] ) && is_callable( $task['get_title'] ) );
+
+		if ( ! $has_valid_title ) {
+			_doing_it_wrong( 'validate_task', 'The Launchpad task being registered requires a "title" attribute or a "get_title" callback', '6.2' );
 			return false;
 		}
 
