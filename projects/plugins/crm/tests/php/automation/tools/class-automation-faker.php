@@ -60,25 +60,6 @@ class Automation_Faker {
 	}
 
 	/**
-	 * Return a basic workflow with a customizable trigger and without initial step
-	 *
-	 * @param string $trigger_name The name of the trigger to be included in the workflow.
-	 *
-	 * @return array
-	 */
-	public function workflow_without_initial_step_customize_trigger( $trigger_name ): array {
-		return array(
-			'name'        => 'Workflow Test',
-			'description' => 'Test: the description of the workflow',
-			'category'    => 'Test',
-			'is_active'   => true,
-			'triggers'    => array(
-				$trigger_name,
-			),
-		);
-	}
-
-	/**
 	 * Return dummy contact triggers name list
 	 * @return array
 	 */

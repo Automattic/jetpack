@@ -145,7 +145,7 @@ class Contact_Trigger_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @testdox Test the contact email updated trigger executes the workflow with an action
+	 * @testdox Test the contact deleted trigger executes the workflow with an action
 	 */
 	public function test_contact_deleted_trigger() {
 
@@ -174,13 +174,13 @@ class Contact_Trigger_Test extends BaseTestCase {
 	}
 
 	/**
-	 * @testdox Test the contact email updated trigger executes the workflow with an action
+	 * @testdox Test the contact before deleted trigger executes the workflow with an action
 	 */
 	public function test_contact_before_deleted_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_before_deleted' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_before_delete' );
 
-		// Build a PHPUnit mock Contact_Deleted trigger.
+		// Build a PHPUnit mock Contact_Before_Deleted trigger.
 		$trigger = $this->getMockBuilder( Contact_Before_Deleted::class )
 		->onlyMethods( array( 'execute_workflow' ) )
 		->getMock();
