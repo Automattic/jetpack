@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Move the cookie consent block to its own part to remove it from page content and prevent confusion.
