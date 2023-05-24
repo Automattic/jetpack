@@ -334,6 +334,7 @@ class Jetpack_Social {
 					'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
 					'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 					'dismissedNotices'                => $publicize->get_dismissed_notices(),
+					'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
 				),
 			)
 		);
