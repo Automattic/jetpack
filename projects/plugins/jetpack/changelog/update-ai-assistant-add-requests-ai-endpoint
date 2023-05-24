@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-AI Assistant: Add /wpcom/v2/jetpack-ai-requests endpoint
+AI Assistant: Add /wpcom/v2/jetpack-ai/requests endpoint
