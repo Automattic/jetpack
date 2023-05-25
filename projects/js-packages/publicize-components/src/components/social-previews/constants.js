@@ -2,6 +2,7 @@ import { SocialServiceIcon } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import FacebookPreview from './facebook';
 import GoogleSearch from './google-search';
+import { Instagram } from './instagram';
 import { LinkedIn } from './linkedin';
 import TumblrPreview from './tumblr';
 import Twitter from './twitter';
@@ -25,12 +26,12 @@ export const AVAILABLE_SERVICES = [
 		name: 'facebook',
 		preview: FacebookPreview,
 	},
-	/* {
+	{
 		title: __( 'Instagram', 'jetpack' ),
 		icon: props => <SocialServiceIcon serviceName="instagram" { ...props } />,
 		name: 'instagram',
-		preview: () => null,
-	}, */
+		preview: Instagram,
+	},
 	{
 		title: __( 'LinkedIn', 'jetpack' ),
 		icon: props => <SocialServiceIcon serviceName="linkedin" { ...props } />,
