@@ -83,7 +83,7 @@ export function getSiteProductMonthlyCost( state, slug ) {
  *
  * @param   {object} state - Global state tree
  * @param   {string} slug  - Product slug
- * @returns {number}  Discount of a product price or 0 if there is no discount
+ * @returns {number} Discount of a product price or 0 if there is no discount
  */
 export function getSiteProductYearlyDiscount( state, slug ) {
 	const product = getSiteProduct( state, slug );
