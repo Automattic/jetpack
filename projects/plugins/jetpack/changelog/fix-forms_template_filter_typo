@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Jetpack Forms: Fix typo in <?php
+Jetpack Forms: Fix typo in jetpack_forms_respone_email_template filter
