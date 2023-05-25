@@ -69,13 +69,16 @@ export default function PromptTemplatesControl( {
 				variant: 'toolbar',
 			} }
 		>
-			{ () => {
+			{ ( { onClose } ) => {
 				return (
 					<MenuGroup label={ __( 'Write about…', 'jetpack' ) }>
 						{ promptTemplates.map( ( prompt: PromptTemplateProps, i: number ) => (
 							<MenuItem
 								key={ `key-${ i }` }
-								onClick={ () => onPromptSelected( prompt.description ) }
+								onClick={ () => {
+									onClose();
+									onPromptSelected( prompt.description );
+								} }
 							>
 								{ prompt.description }
 							</MenuItem>
