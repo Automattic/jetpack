@@ -161,7 +161,9 @@ export class RelatedPostsEdit extends Component {
 			displayAuthor,
 			displayContext,
 			displayDate,
+			displayHeadline,
 			displayThumbnails,
+			headline,
 			postLayout,
 			postsToShow,
 		} = attributes;
@@ -218,6 +220,7 @@ export class RelatedPostsEdit extends Component {
 				</BlockControls>
 
 				<div className={ className } id={ `related-posts-${ instanceId }` }>
+					{ displayHeadline && <h3>{ headline }</h3> }
 					<div className={ previewClassName } data-layout={ postLayout }>
 						<RelatedPostsPreviewRows posts={ displayPosts } />
 					</div>

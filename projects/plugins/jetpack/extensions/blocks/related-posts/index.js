@@ -44,6 +44,10 @@ export const settings = {
 			type: 'boolean',
 			default: true,
 		},
+		displayHeadline: {
+			type: 'boolean',
+			default: false,
+		},
 		displayThumbnails: {
 			type: 'boolean',
 			default: false,
@@ -51,6 +55,10 @@ export const settings = {
 		displayContext: {
 			type: 'boolean',
 			default: false,
+		},
+		headline: {
+			type: 'string',
+			default: '',
 		},
 		postsToShow: {
 			type: 'number',
@@ -96,8 +104,10 @@ export const settings = {
 			postLayout: 'grid',
 			displayAuthor: false,
 			displayDate: true,
+			displayHeadline: false,
 			displayThumbnails: true,
 			displayContext: false,
+			headline: '',
 			postsToShow: 2,
 		},
 	},

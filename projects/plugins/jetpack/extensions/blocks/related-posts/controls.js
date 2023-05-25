@@ -1,10 +1,24 @@
-import { PanelBody, RangeControl, ToggleControl, ToolbarGroup } from '@wordpress/components';
+import {
+	PanelBody,
+	RangeControl,
+	TextControl,
+	ToggleControl,
+	ToolbarGroup,
+} from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 export const MAX_POSTS_TO_SHOW = 6;
 
 export function RelatedPostsInspectorControls( { attributes, setAttributes } ) {
-	const { displayAuthor, displayContext, displayDate, displayThumbnails, postsToShow } = attributes;
+	const {
+		displayAuthor,
+		displayContext,
+		displayDate,
+		displayHeadline,
+		displayThumbnails,
+		headline,
+		postsToShow,
+	} = attributes;
 
 	return (
 		<PanelBody title={ __( 'General settings', 'jetpack' ) }>
@@ -35,6 +49,18 @@ export function RelatedPostsInspectorControls( { attributes, setAttributes } ) {
 				min={ 1 }
 				max={ MAX_POSTS_TO_SHOW }
 			/>
+			<ToggleControl
+				label={ __( 'Display headline', 'jetpack' ) }
+				checked={ displayHeadline }
+				onChange={ value => setAttributes( { displayHeadline: value } ) }
+			/>
+			{ displayHeadline && (
+				<TextControl
+					value={ headline }
+					onChange={ value => setAttributes( { headline: value } ) }
+					label={ __( 'Headline', 'jetpack' ) }
+				/>
+			) }
 		</PanelBody>
 	);
 }

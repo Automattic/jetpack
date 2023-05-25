@@ -135,6 +135,7 @@ export async function requestToken() {
  * @fires chunk - A chunk of data has been received
  * @fires done - The stream has been closed. No more data will be received
  * @fires error - An error has occurred
+ * @fires error_network - The EventSource connection to the server returned some error
  */
 export class SuggestionsEventSource extends EventSource {
 	constructor( url, options ) {
@@ -142,6 +143,7 @@ export class SuggestionsEventSource extends EventSource {
 		this.fullMessage = '';
 		this.isPromptClear = false;
 		this.addEventListener( 'message', this.processEvent );
+		this.addEventListener( 'error', this.processErrorEvent );
 	}
 
 	checkForUnclearPrompt() {
@@ -181,5 +183,12 @@ export class SuggestionsEventSource extends EventSource {
 				this.dispatchEvent( new CustomEvent( 'suggestion', { detail: this.fullMessage } ) );
 			}
 		}
+	}
+
+	processErrorEvent( e ) {
+		debug( e );
+
+		// Dispatch a generic network error event
+		this.dispatchEvent( new CustomEvent( 'error_network' ) );
 	}
 }

@@ -8,14 +8,16 @@ import {
 	ToolbarButton,
 	ToolbarDropdownMenu,
 	ToolbarGroup,
+	Spinner,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { arrowRight, chevronDown, image, pencil, update, title } from '@wordpress/icons';
+import { chevronDown, image, pencil, update, title, closeSmall } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
 import I18nDropdownControl from './i18n-dropdown-control';
-import Loading from './loading';
+import AIAssistantIcon from './icons/ai-assistant';
+import origamiPlane from './icons/origami-plane';
 import ToneDropdownControl from './tone-dropdown-control';
 import UpgradePrompt from './upgrade-prompt';
 
@@ -27,6 +29,7 @@ const AIControl = ( {
 	handleAcceptTitle,
 	handleTryAgain,
 	handleGetSuggestion,
+	handleStopSuggestion,
 	handleImageRequest,
 	isWaitingState,
 	loadingImages,
@@ -85,7 +88,17 @@ const AIControl = ( {
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
-				{ ( isWaitingState || loadingImages ) && <Loading /> }
+				<div className="jetpack-ai-assistant__input-icon-wrapper">
+					{ isWaitingState || loadingImages ? (
+						<Spinner className="jetpack-ai-assistant__input-spinner" />
+					) : (
+						<Icon
+							icon={ AIAssistantIcon }
+							size={ 24 }
+							className="jetpack-ai-assistant__input-icon"
+						/>
+					) }
+				</div>
 				<PlainText
 					value={ isWaitingState ? '' : userPrompt }
 					onChange={ value => {
@@ -99,15 +112,28 @@ const AIControl = ( {
 				/>
 
 				<div className="jetpack-ai-assistant__controls">
-					<Button
-						className="jetpack-ai-assistant__prompt_button"
-						onClick={ () => handleGetSuggestion( 'userPrompt' ) }
-						isSmall={ true }
-						disabled={ isWaitingState || ! userPrompt?.length }
-						label={ __( 'Do some magic!', 'jetpack' ) }
-					>
-						<Icon icon={ arrowRight } />
-					</Button>
+					{ ! isWaitingState ? (
+						<Button
+							className="jetpack-ai-assistant__prompt_button"
+							onClick={ () => handleGetSuggestion( 'userPrompt' ) }
+							isSmall={ true }
+							disabled={ ! userPrompt?.length }
+							label={ __( 'Send request', 'jetpack' ) }
+						>
+							<Icon icon={ origamiPlane } />
+							{ __( 'Send', 'jetpack' ) }
+						</Button>
+					) : (
+						<Button
+							className="jetpack-ai-assistant__prompt_button"
+							onClick={ handleStopSuggestion }
+							isSmall={ true }
+							label={ __( 'Stop request', 'jetpack' ) }
+						>
+							<Icon icon={ closeSmall } />
+							{ __( 'Stop', 'jetpack' ) }
+						</Button>
+					) }
 				</div>
 			</div>
 		</>
@@ -115,6 +141,9 @@ const AIControl = ( {
 };
 
 export default AIControl;
+
+// Consider to enable when we have image support
+const isImageGenerationEnabled = false;
 
 const ToolbarControls = ( {
 	contentIsLoaded,
@@ -152,7 +181,7 @@ const ToolbarControls = ( {
 
 					<ToolbarDropdownMenu
 						icon={ pencil }
-						label="More"
+						label={ __( 'Improve', 'jetpack' ) }
 						controls={ [
 							// Interactive controls
 							{
@@ -173,11 +202,6 @@ const ToolbarControls = ( {
 								title: __( 'Correct spelling and grammar', 'jetpack' ),
 								onClick: () =>
 									getSuggestionFromOpenAI( 'correctSpelling', { contentType: 'generated' } ),
-							},
-							{
-								title: __( 'Generate a post title', 'jetpack' ),
-								onClick: () =>
-									getSuggestionFromOpenAI( 'generateTitle', { contentType: 'generated' } ),
 							},
 						] }
 					/>
@@ -230,7 +254,7 @@ const ToolbarControls = ( {
 					{ ! showRetry && ! contentIsLoaded && (
 						<ToolbarDropdownMenu
 							icon={ chevronDown }
-							label="More"
+							label={ __( 'Generate and improve', 'jetpack' ) }
 							controls={ [
 								{
 									title: __( 'Summarize', 'jetpack' ),
@@ -271,7 +295,7 @@ const ToolbarControls = ( {
 						</ToolbarButton>
 					) }
 				</ToolbarGroup>
-				{ ! showRetry && ! contentIsLoaded && (
+				{ isImageGenerationEnabled && ! showRetry && ! contentIsLoaded && (
 					// Image/text toggle
 					<ToolbarGroup>
 						<ToolbarButton icon={ image } onClick={ handleImageRequest }>

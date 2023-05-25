@@ -509,11 +509,12 @@ class Publicize extends Publicize_Base {
 	 */
 	public function get_services( $filter = 'all', $_blog_id = false, $_user_id = false ) {
 		$services = array(
-			'facebook' => array(),
-			'twitter'  => array(),
-			'linkedin' => array(),
-			'tumblr'   => array(),
-			'mastodon' => array(),
+			'facebook'           => array(),
+			'twitter'            => array(),
+			'linkedin'           => array(),
+			'tumblr'             => array(),
+			'mastodon'           => array(),
+			'instagram-business' => array(),
 		);
 
 		if ( 'all' === $filter ) {

@@ -128,7 +128,7 @@ export default function ToneDropdownControl( {
 	return (
 		<ToolbarDropdownMenu
 			icon={ megaphone }
-			label={ __( 'Tone', 'jetpack' ) }
+			label={ __( 'Change tone', 'jetpack' ) }
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
