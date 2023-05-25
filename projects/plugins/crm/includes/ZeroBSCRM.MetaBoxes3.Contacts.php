@@ -875,7 +875,7 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
         </script>
         <div class="action-wrap">
 			<div class="ui dropdown jpcrm-button white-bg jpcrm-dropdown"><?php esc_html_e( 'Contact Actions', 'zero-bs-crm' ); ?><i class="fa fa-angle-down"></i>
-             <div class="menu">
+				<div class="menu" style="margin: 4px;">
               <?php foreach ($this->actions as $actKey => $action){ 
 
                 // filter out 'edit' as on that page :)

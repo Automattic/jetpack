@@ -227,7 +227,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 							?>
 						<div class="action-wrap">
 						<div class="ui dropdown jpcrm-button white-bg jpcrm-dropdown"><?php esc_html_e( 'Contact Actions', 'zero-bs-crm' ); ?><i class="fa fa-angle-down"></i>
-							<div class="menu">
+							<div class="menu" style="margin: 4px;">
 								<?php foreach ( $contact_actions as $actKey => $action ) { ?>
 								<div class="item zbs-contact-action" id="zbs-contact-action-<?php echo esc_attr( $actKey ); ?>"
 																										<?php
