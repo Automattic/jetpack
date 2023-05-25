@@ -145,6 +145,30 @@ export default AIControl;
 // Consider to enable when we have image support
 const isImageGenerationEnabled = false;
 
+function GenerateContentButton( {
+	showRetry,
+	contentIsLoaded,
+	contentBefore,
+	hasPostTitle,
+	onAction,
+} ) {
+	if ( ! showRetry && ! contentIsLoaded && contentBefore?.length ) {
+		return (
+			<ToolbarButton icon={ pencil } onClick={ () => onAction( 'continue' ) }>
+				{ __( 'Continue writing', 'jetpack' ) }
+			</ToolbarButton>
+		);
+	}
+
+	if ( ! showRetry && ! contentIsLoaded && ! contentBefore?.length && hasPostTitle ) {
+		return (
+			<ToolbarButton icon={ title } onClick={ () => onAction( 'titleSummary' ) }>
+				{ __( 'Write a summary based on title', 'jetpack' ) }
+			</ToolbarButton>
+		);
+	}
+}
+
 const ToolbarControls = ( {
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
@@ -228,20 +252,13 @@ const ToolbarControls = ( {
 						</>
 					) }
 
-					{ !! ( ! showRetry && ! contentIsLoaded && contentBefore?.length ) && (
-						<ToolbarButton icon={ pencil } onClick={ () => getSuggestionFromOpenAI( 'continue' ) }>
-							{ __( 'Continue writing', 'jetpack' ) }
-						</ToolbarButton>
-					) }
-
-					{ ! showRetry && ! contentIsLoaded && ! contentBefore?.length && hasPostTitle && (
-						<ToolbarButton
-							icon={ title }
-							onClick={ () => getSuggestionFromOpenAI( 'titleSummary' ) }
-						>
-							{ __( 'Write a summary based on title', 'jetpack' ) }
-						</ToolbarButton>
-					) }
+					<GenerateContentButton
+						showRetry={ showRetry }
+						contentIsLoaded={ contentIsLoaded }
+						contentBefore={ contentBefore }
+						hasPostTitle={ hasPostTitle }
+						onAction={ getSuggestionFromOpenAI }
+					/>
 
 					{ ! showRetry && ! contentIsLoaded && !! wholeContent?.length && (
 						<I18nDropdownControl
