@@ -1,7 +1,7 @@
 // lovingly adapted from
 // https://codepen.io/brady_wright/pen/NNOvrW
 
-$primary-color: #4183C4;
+$primary-color: #000000;
 $primary-color-hover: scale-color($primary-color, $lightness: 32%);
 
 /*==================================
@@ -55,7 +55,7 @@ $primary-color-hover: scale-color($primary-color, $lightness: 32%);
         top: 0; bottom: 0; left: 0;
         width: 15px;
         &:before {
-            background: black;
+            background: $primary-color;
             border: 3px solid transparent;
             border-radius: 100%;
             content: "";
