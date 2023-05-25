@@ -939,7 +939,6 @@ abstract class Publicize_Base {
 				);
 			}
 		}
-		error_log( json_encode( $connection_list ) );
 
 		return $connection_list;
 	}
