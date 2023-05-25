@@ -1688,7 +1688,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 12.2
+		 * @since 0.18.0
 		 *
 		 * @param string the filename of the HTML template used for response emails to the form owner.
 		 */
