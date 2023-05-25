@@ -801,7 +801,7 @@ class zeroBS__Metabox_InvoiceTags extends zeroBS__Metabox_Tags{
 
 
                     <div class="zbs-invoice-actions-bottom zbs-objedit-actions-bottom">
-                        <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Update","zero-bs-crm"); ?> <?php esc_html_e("Invoice","zero-bs-crm"); ?></button>
+								<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Invoice', 'zero-bs-crm' ); ?></button>
                         <?php
 
                             #} Quick ver of this: http://themeflection.com/replace-wordpress-submit-meta-box/
@@ -839,7 +839,7 @@ class zeroBS__Metabox_InvoiceTags extends zeroBS__Metabox_Tags{
 
                     <?php do_action('zbs_invpro_itemlink'); ?>
 
-                    <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Save","zero-bs-crm"); ?> <?php esc_html_e("Invoice","zero-bs-crm"); ?></button>
+							<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Invoice', 'zero-bs-crm' ); ?></button>
 
                  <?php
 

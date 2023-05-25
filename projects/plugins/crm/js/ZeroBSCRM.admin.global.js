@@ -348,6 +348,10 @@ function zbscrm_JS_initMenuPopups() {
 			position: 'bottom center',
 			hoverable: true,
 			on: 'hover',
+			delay: {
+				show: 50,
+				hide: 500,
+			},
 		} );
 	}
 }
@@ -2325,10 +2329,10 @@ function zeroBSCRMJS_bindGlobalContactFuncs() {
 				//text: "Are you sure you want to delete these?",
 				type: '',
 				showCancelButton: true,
-				confirmButtonColor: '#3085d6',
-				cancelButtonColor: '#d33',
+				confirmButtonColor: '#000',
+				cancelButtonColor: '#fff',
+				cancelButtonText: '<span style="color: #000">' + zeroBSCRMJS_globViewLang( 'cancel' ) + '</span>',
 				confirmButtonText: zeroBSCRMJS_globViewLang( 'send' ),
-				cancelButtonText: zeroBSCRMJS_globViewLang( 'cancel' ),
 			} ).then( function ( result ) {
 				// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
 				if ( result.value ) {

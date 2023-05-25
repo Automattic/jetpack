@@ -1,0 +1,4 @@
+Significance: major
+Type: other
+
+Optimize Jetpack_Gutenberg initialization, remove deprecated filters: `jetpack_set_available_blocks`, `jetpack_set_available_plugins`.
