@@ -33,21 +33,25 @@ class Company_Trigger_Test extends BaseTestCase {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'company_updated' );
 
-		// Build a PHPUnit mock Company_Updated trigger.
-		$trigger = $this->getMockBuilder( Company_Updated::class )
-		->onlyMethods( array( 'execute_workflow' ) )
-		->getMock();
+		$trigger = new Company_Updated();
 
-		// Init the mocked trigger.
-		$trigger->init( new Automation_Workflow( $workflow_data, new Automation_Engine() ) );
+		// Build a PHPUnit mock Automation_Workflow
+		$workflow = $this->getMockBuilder( Automation_Workflow::class )
+			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->onlyMethods( array( 'execute' ) )
+			->getMock();
+
+		// Init the Company_Updated trigger.
+		$trigger->init( $workflow );
 
 		// Fake event data.
 		$company_data = $this->automation_faker->company_data();
 
-		// We expect the trigger to be executed on execute_workflow event with the company data.
-		$trigger->expects( $this->once() )
-		->method( 'execute_workflow' )
+		// We expect the workflow to be executed on company_update event with the company data
+		$workflow->expects( $this->once() )
+		->method( 'execute' )
 		->with(
+			$this->equalTo( $trigger ),
 			$this->equalTo( $company_data )
 		);
 
@@ -62,21 +66,25 @@ class Company_Trigger_Test extends BaseTestCase {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'company_status_updated' );
 
-		// Build a PHPUnit mock Company_Status_Updated trigger.
-		$trigger = $this->getMockBuilder( Company_Status_Updated::class )
-		->onlyMethods( array( 'execute_workflow' ) )
-		->getMock();
+		$trigger = new Company_Status_Updated();
 
-		// Init the mocked trigger.
-		$trigger->init( new Automation_Workflow( $workflow_data, new Automation_Engine() ) );
+		// Build a PHPUnit mock Automation_Workflow
+		$workflow = $this->getMockBuilder( Automation_Workflow::class )
+			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->onlyMethods( array( 'execute' ) )
+			->getMock();
+
+		// Init the Company_Status_Updated trigger.
+		$trigger->init( $workflow );
 
 		// Fake event data.
 		$company_data = $this->automation_faker->company_data();
 
-		// We expect the trigger to be executed on execute_workflow event with the company data.
-		$trigger->expects( $this->once() )
-		->method( 'execute_workflow' )
+		// We expect the workflow to be executed on company_status_update event with the company data
+		$workflow->expects( $this->once() )
+		->method( 'execute' )
 		->with(
+			$this->equalTo( $trigger ),
 			$this->equalTo( $company_data )
 		);
 
@@ -91,21 +99,25 @@ class Company_Trigger_Test extends BaseTestCase {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'company_new' );
 
-		// Build a PHPUnit mock Company_New trigger.
-		$trigger = $this->getMockBuilder( Company_New::class )
-		->onlyMethods( array( 'execute_workflow' ) )
-		->getMock();
+		$trigger = new Company_New();
 
-		// Init the mocked trigger.
-		$trigger->init( new Automation_Workflow( $workflow_data, new Automation_Engine() ) );
+		// Build a PHPUnit mock Automation_Workflow
+		$workflow = $this->getMockBuilder( Automation_Workflow::class )
+			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->onlyMethods( array( 'execute' ) )
+			->getMock();
+
+		// Init the Company_New trigger.
+		$trigger->init( $workflow );
 
 		// Fake event data.
 		$company_data = $this->automation_faker->company_data();
 
-		// We expect the trigger to be executed on execute_workflow event with the company data.
-		$trigger->expects( $this->once() )
-		->method( 'execute_workflow' )
+		// We expect the workflow to be executed on company_new event with the company data
+		$workflow->expects( $this->once() )
+		->method( 'execute' )
 		->with(
+			$this->equalTo( $trigger ),
 			$this->equalTo( $company_data )
 		);
 
@@ -118,27 +130,31 @@ class Company_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_company_deleted_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'company_delete' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'company_deleted' );
 
-		// Build a PHPUnit mock Company_Deleted trigger.
-		$trigger = $this->getMockBuilder( Company_Deleted::class )
-		->onlyMethods( array( 'execute_workflow' ) )
-		->getMock();
+		$trigger = new Company_Deleted();
 
-		// Init the mocked trigger.
-		$trigger->init( new Automation_Workflow( $workflow_data, new Automation_Engine() ) );
+		// Build a PHPUnit mock Automation_Workflow
+		$workflow = $this->getMockBuilder( Automation_Workflow::class )
+			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->onlyMethods( array( 'execute' ) )
+			->getMock();
+
+		// Init the Company_Deleted trigger.
+		$trigger->init( $workflow );
 
 		// Fake event data.
 		$company_data = $this->automation_faker->company_data();
 
-		// We expect the trigger to be executed on execute_workflow event with the company data.
-		$trigger->expects( $this->once() )
-		->method( 'execute_workflow' )
+		// We expect the workflow to be executed on company_deleted event with the company data
+		$workflow->expects( $this->once() )
+		->method( 'execute' )
 		->with(
+			$this->equalTo( $trigger ),
 			$this->equalTo( $company_data )
 		);
 
-		// Run the company_delete action.
+		// Run the company_deleted action.
 		do_action( 'jpcrm_automation_company_delete', $company_data );
 	}
 
