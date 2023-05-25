@@ -64,16 +64,19 @@ const promptTemplates = [
 export default function PromptTemplatesControl( {
 	onPromptSelected,
 }: PromptTemplatesControlProps ) {
+	const label = __( 'Write about…', 'jetpack' );
+
 	return (
 		<ToolbarDropdownMenu
 			icon={ tip }
+			label={ label }
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
 		>
 			{ ( { onClose } ) => {
 				return (
-					<MenuGroup label={ __( 'Write about…', 'jetpack' ) }>
+					<MenuGroup label={ label }>
 						{ promptTemplates.map( ( prompt: PromptTemplateProps, i: number ) => (
 							<MenuItem
 								key={ `key-${ i }` }
