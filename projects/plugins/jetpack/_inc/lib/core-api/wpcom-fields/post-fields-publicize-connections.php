@@ -120,6 +120,12 @@ class WPCOM_REST_API_V2_Post_Publicize_Connections_Field extends WPCOM_REST_API_
 					'readonly'    => true,
 				),
 				'display_name'    => array(
+					'description' => __( 'Usually username of the connected account', 'jetpack' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'account_name'    => array(
 					'description' => __( 'Username of the connected account', 'jetpack' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
