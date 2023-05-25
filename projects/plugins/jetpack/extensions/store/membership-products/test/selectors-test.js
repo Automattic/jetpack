@@ -12,7 +12,7 @@ describe( 'Membership Products Selectors', () => {
 			},
 		];
 		const newsletter_product = {
-			id: 2,
+			id: 3,
 			subscribe_as_site_subscriber: true,
 		};
 
@@ -20,7 +20,7 @@ describe( 'Membership Products Selectors', () => {
 			products: [ ...products, newsletter_product ],
 		};
 
-		expect( getProducts( state ) ).toStrictEqual( products );
-		expect( getNewsletterProducts( state ) ).toStrictEqual( newsletter_product );
+		expect( getProducts( state ) ).toStrictEqual( state.products );
+		expect( getNewsletterProducts( state ) ).toStrictEqual( [ newsletter_product ] );
 	} );
 } );
