@@ -10,6 +10,22 @@ class JPCRM_Activation_Cest {
 		$I->loginAsAdmin();
 	}
 
+	// Sometimes WP has update pages to handle
+	public function catch_wp_update_pages( AcceptanceTester $I ) {
+		try {
+			$I->see( 'Administration email verification' );
+			$I->click( '#correct-admin-email' );
+		} catch ( Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// continue tests
+		}
+		try {
+			$I->see( 'Database Update Required' );
+			$I->amOnPage( 'upgrade.php?step=1&amp;backto=%2Fwp-admin%2F' );
+		} catch ( Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// continue tests
+		}
+	}
+
 	public function jpcrm_activation( AcceptanceTester $I ) {
 		// If it's installed, activate the plugin
 		$I->amOnPluginsPage();
