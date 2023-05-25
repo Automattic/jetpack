@@ -5,6 +5,7 @@ import {
 	Container,
 	Col,
 	getRedirectUrl,
+	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
@@ -40,7 +41,7 @@ const Admin = () => {
 	// If the site is fully connected and the current user is not connected it means the user
 	// is a secondary admin. We should ask them to log in to Jetpack.
 	const secondaryAdminNotConnected = useIsSecondaryAdminNotConnected();
-	const { siteHasBackupProduct } = useSiteHasBackupProduct();
+	const { siteHasBackupProduct, isLoadingBackupProduct } = useSiteHasBackupProduct();
 
 	useEffect( () => {
 		tracks.recordEvent( 'jetpack_backup_admin_page_view' );
@@ -54,20 +55,22 @@ const Admin = () => {
 	// @TODO: Review the use case where the site is fully connected but the backup product expires and
 	// a secondary admin is not connected. Currently it will display the default `Site backups are
 	// managed by the owner of this site's Jetpack connection.` message.
-	if ( secondaryAdminNotConnected && siteHasBackupProduct ) {
-		return (
-			<AdminPage
-				showHeader={ false }
-				showFooter
-				moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }
-			>
-				<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
-					<Col>
-						<BackupSecondaryAdminConnectionScreen />
-					</Col>
-				</Container>
-			</AdminPage>
-		);
+	if ( secondaryAdminNotConnected ) {
+		if ( isLoadingBackupProduct ) {
+			return (
+				<SecondaryAdminConnectionLayout>
+					<LoadingPlaceholder width="100%" height={ 500 } />
+				</SecondaryAdminConnectionLayout>
+			);
+		}
+
+		if ( ! isLoadingBackupProduct && siteHasBackupProduct ) {
+			return (
+				<SecondaryAdminConnectionLayout>
+					<BackupSecondaryAdminConnectionScreen />
+				</SecondaryAdminConnectionLayout>
+			);
+		}
 	}
 
 	return (
@@ -415,5 +418,13 @@ const LoadedState = ( {
 
 	return null;
 };
+
+const SecondaryAdminConnectionLayout = ( { children } ) => (
+	<AdminPage showHeader={ false } moduleName={ __( 'VaultPress Backup', 'jetpack-backup-pkg' ) }>
+		<Container horizontalSpacing={ 8 } horizontalGap={ 0 }>
+			<Col>{ children }</Col>
+		</Container>
+	</AdminPage>
+);
 
 export default Admin;
