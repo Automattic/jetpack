@@ -1,4 +1,4 @@
-import { getNewsletterProducts, getProducts } from '../resolvers';
+import { getNewsletterProducts, getProducts } from '../selectors';
 
 describe( 'Membership Products Selectors', () => {
 	test( 'GetProducts and getNewsletterProducts works as expected', () => {
