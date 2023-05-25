@@ -8,16 +8,15 @@ body.jpcrm-admin {
 		display:none !important;
 	}
 
-	#wpbody {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		max-width: 1551px;
-		margin: 0 auto;
-	}
-
 	#wpcontent {
 		padding-left: 0;
+
+		#wpbody {
+			display: flex;
+			align-items: center;
+			max-width: 1551px;
+			margin: 0 auto;
+		}
 	}
 
 	.alternating-colors tr:nth-child(even) {
