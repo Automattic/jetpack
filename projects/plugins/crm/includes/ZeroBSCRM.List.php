@@ -865,7 +865,7 @@ class zeroBSCRM_list{
 		);
 
 		$current_quickfilter       = ( ! empty( $listview_filters['quickfilters'][0] ) ? $listview_filters['quickfilters'][0] : '' );
-		$current_quickfilter_label = ( ! empty( $current_quickfilter ) ? $all_quickfilters[ $current_quickfilter ][0] : '' );
+		$current_quickfilter_label = ( ! empty( $all_quickfilters[ $current_quickfilter ][0] ) ? $all_quickfilters[ $current_quickfilter ][0] : '' );
 		$current_tag               = ( ! empty( $listview_filters['tags'][0] ) ? $listview_filters['tags'][0]['name'] : '' );
 		$current_search            = ( ! empty( $listview_filters['s'] ) ? $listview_filters['s'] : '' );
 		?>
@@ -881,13 +881,13 @@ class zeroBSCRM_list{
 				<?php
 				// add quickfilters filter if current object has quickfilters
 				if ( count( $all_quickfilters ) > 0 ) {
-					echo '<select class="filter-dropdown' . ( ! empty( $current_quickfilter ) ? ' hidden' : '' ) . '" data-filtertype="quickfilters">';
+					echo '<select class="filter-dropdown' . ( ! empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '" data-filtertype="quickfilters">';
 					echo '<option disabled selected>' . esc_html__( 'Select filter', 'zero-bs-crm' ) . '</option>';
 					foreach ( $all_quickfilters as $filter_slug => $filter_data ) {
 						echo '<option value="' . esc_attr( $filter_slug ) . '">' . esc_html( $filter_data[0] ) . '</option>';
 					}
 					echo '</select>';
-					echo '<div class="jpcrm-current-filter' . ( empty( $current_quickfilter ) ? ' hidden' : '' ) . '">';
+					echo '<div class="jpcrm-current-filter' . ( empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '">';
 					echo '<button class="dashicons dashicons-remove" title="' . esc_attr__( 'Remove filter', 'zero-bs-crm' ) . '"></button>';
 					echo esc_html__( 'Filter', 'zero-bs-crm' ) . ': ';
 					echo '<span>' . esc_html( $current_quickfilter_label ) . '</span>';
