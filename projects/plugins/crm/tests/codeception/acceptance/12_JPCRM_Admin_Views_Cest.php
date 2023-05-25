@@ -44,7 +44,7 @@ class JPCRM_Admin_Views_Cest {
 		);
 
 		foreach ( $expectedBlocks as $block_title ) {
-			$I->see( $block_title, 'h4.panel-title' );
+			$I->see( $block_title, '.jpcrm-dashcard-header h4' );
 		}
 	}
 

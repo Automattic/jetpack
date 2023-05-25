@@ -11,4 +11,8 @@ body.jpcrm-admin {
 	#wpcontent {
 		padding-left: 0;
 	}
+
+	.alternating-colors tr:nth-child(even) {
+		background-color: var(--jp-gray-0);
+	}
 }
