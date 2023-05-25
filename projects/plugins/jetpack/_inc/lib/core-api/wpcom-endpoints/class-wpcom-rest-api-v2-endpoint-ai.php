@@ -126,10 +126,8 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	/**
 	 * Collect and provide relevat data about the AI feature,
 	 * such as the number of requests made.
-	 *
-	 * @param  WP_REST_Request $request The request.
 	 */
-	public function request_get_ai_assistance_feature( $request ) {
+	public function request_get_ai_assistance_feature() {
 		return Jetpack_AI_Helper::get_ai_assistance_feature();
 	}
 }
