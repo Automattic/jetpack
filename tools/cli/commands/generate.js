@@ -299,7 +299,7 @@ export async function generateProject(
 			await searchReplaceInFolder(
 				projDir,
 				'Package_Name',
-				transformToReadableName( answers.name )
+				transformToPhpClassName( answers.name, false )
 			);
 			break;
 		case 'js-package':
