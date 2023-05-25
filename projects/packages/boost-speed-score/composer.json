@@ -58,11 +58,7 @@
 		},
 		"textdomain": "jetpack-boost-speed-score",
 		"version-constants": {
-<<<<<<< add/jetpack-boost-speed-score-package
-			"::PACKAGE_VERSION": "src/class-speed-score.php"
-=======
 			"::PACKAGE_VERSION": "src/class-boost-speed-score.php"
->>>>>>> trunk
 		}
 	},
 	"suggest": {
