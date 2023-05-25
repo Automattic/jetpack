@@ -429,9 +429,7 @@ function wpcom_register_default_launchpad_checklists() {
 				'design_edited',
 				// @todo Add more tasks here!
 			),
-			'is_enabled_callback' => function () {
-				return false;
-			},
+			'is_enabled_callback' => '__return_false',
 		)
 	);
 
