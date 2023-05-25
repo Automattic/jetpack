@@ -262,9 +262,9 @@ function wpcom_register_default_launchpad_checklists() {
 			'id'       => 'free',
 			'title'    => 'Free',
 			'task_ids' => array(
+				'plan_selected',
 				'setup_free',
 				'design_selected',
-				'plan_selected',
 				'domain_upsell',
 				'first_post_published',
 				'design_edited',
