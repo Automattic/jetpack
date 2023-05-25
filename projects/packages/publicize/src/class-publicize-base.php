@@ -528,6 +528,23 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Returns the account name for the Connection. For services like Instagram, we need both the username and the account's name.
+	 *
+	 * @param string       $service_name 'facebook', 'linkedin', etc.
+	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
+	 * @return string
+	 */
+	public function get_account_display_name( $service_name, $connection ) {
+		$cmeta = $this->get_connection_meta( $connection );
+
+		if ( 'instagram-business' === $service_name && isset( $cmeta['connection_data']['meta']['username'] ) ) {
+			return $cmeta['connection_data']['meta']['username'];
+		}
+
+		return $this->get_display_name( $service_name, $connection );
+	}
+
+	/**
 	 * Returns a profile picture for the Connection
 	 *
 	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
@@ -913,6 +930,7 @@ abstract class Publicize_Base {
 					'service_name'    => $service_name,
 					'service_label'   => static::get_service_label( $service_name ),
 					'display_name'    => $this->get_display_name( $service_name, $connection ),
+					'account_name'    => $this->get_account_display_name( $service_name, $connection ),
 					'profile_picture' => $this->get_profile_picture( $connection ),
 					'enabled'         => $enabled,
 					'done'            => $done,
@@ -921,6 +939,7 @@ abstract class Publicize_Base {
 				);
 			}
 		}
+		error_log( json_encode( $connection_list ) );
 
 		return $connection_list;
 	}
