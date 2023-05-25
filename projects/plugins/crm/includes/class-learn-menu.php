@@ -15,7 +15,6 @@ defined( 'ZEROBSCRM_PATH' ) || exit;
  */
 class Learn_Menu {
 
-
 	/**
 	 * Current slug (which learn menu to render)
 	 *
@@ -31,18 +30,15 @@ class Learn_Menu {
 	 */
 	protected $override_slug;
 
-
 	/**
-	 * Setup learn menu.     
+	 * Setup learn menu.
 	 */
-	public function __construct( ) {
-
+	public function __construct() {
 		// set slugs
 		$this->set_slugs();
 
 		// require legacy functions
-		require_once ZEROBSCRM_INCLUDE_PATH  . 'jpcrm-learn-menu-legacy-functions.php';
-
+		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-learn-menu-legacy-functions.php';
 	}
 
 	/**
@@ -50,53 +46,44 @@ class Learn_Menu {
 	 */
 	public function render_learn_menu() {
 
-		global $zbs;
-		
 		// retrieve
 		$learn_menu_settings = $this->get_content( $this->slug );
-		if ( is_array( $learn_menu_settings ) ){
+		if ( is_array( $learn_menu_settings ) ) {
 
 			// render
 
-				// adapted from `zeroBSCRM_admin_subtop_menu()`
-				// ... so there are functions to call for some learn menus, (if specified in 'output_function' attr)
-				// ... else the intention is to use `render_generic_learn_menu()` (previously `zeroBS_genericLearnMenu()`)
+			// adapted from `zeroBSCRM_admin_subtop_menu()`
+			// ... so there are functions to call for some learn menus, (if specified in 'output_function' attr)
+			// ... else the intention is to use `render_generic_learn_menu()` (previously `zeroBS_genericLearnMenu()`)
 
-				// if we have an `output_function` use it, else render generically
-				if ( isset( $learn_menu_settings['output_function'] ) && function_exists( $learn_menu_settings['output_function'] ) ){
-					
-					// call learn menu function
-					call_user_func( $learn_menu_settings['output_function'] );
+			// if we have an `output_function` use it, else render generically
+			if ( isset( $learn_menu_settings['output_function'] ) && function_exists( $learn_menu_settings['output_function'] ) ) {
 
-				} else {
+				// call learn menu function
+				call_user_func( $learn_menu_settings['output_function'] );
 
-					// render generic learn menu with content
-					$this->render_generic_learn_menu(
+			} else {
 
-						$learn_menu_settings['title'],
-						$learn_menu_settings['add_new'],
-						'',
-						( !isset( $learn_menu_settings['hide'] ) ? true : false ),
-						$learn_menu_settings['title'],
-						$learn_menu_settings['content'],
-						$learn_menu_settings['url'],
-						$this->get_image_url( $learn_menu_settings['img'] ),
-						$learn_menu_settings['video'],
-						( !empty( $learn_menu_settings['extra_js'] ) ? $learn_menu_settings['extra_js'] : ''),
-						'',
-						( !empty( $learn_menu_settings['video_title'] ) ? $learn_menu_settings['video_title'] : '')
-
-					);					
-
-				}
-
-
+				// render generic learn menu with content
+				$this->render_generic_learn_menu(
+					$learn_menu_settings['title'],
+					$learn_menu_settings['add_new'],
+					'',
+					( ! isset( $learn_menu_settings['hide'] ) ? true : false ),
+					$learn_menu_settings['title'],
+					$learn_menu_settings['content'],
+					$learn_menu_settings['url'],
+					$this->get_image_url( $learn_menu_settings['img'] ),
+					$learn_menu_settings['video'],
+					( ! empty( $learn_menu_settings['extra_js'] ) ? $learn_menu_settings['extra_js'] : '' ),
+					'',
+					( ! empty( $learn_menu_settings['video_title'] ) ? $learn_menu_settings['video_title'] : '' )
+				);
+			}
 		}
 
-
-		// for any exts to hook into :)
-		do_action('zerobscrm-subtop-menu');
-
+		// for any exts to hook into (currently PayPal Sync) :)
+		do_action( 'zerobscrm-subtop-menu' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
 	}
 
 	/**
@@ -110,12 +97,12 @@ class Learn_Menu {
 		$slug = $this->get_slug();
 
 		// set if legitimate
-		if ( $this->slug_has_learn_content( $slug ) ){
+		if ( $this->slug_has_learn_content( $slug ) ) {
 
 			// store the slug
 			$this->slug = $slug;
 
-		} else {
+		} else { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElse
 
 			// error here? :thinking-face:
 
@@ -125,7 +112,7 @@ class Learn_Menu {
 		$this->override_slug = $this->get_override_slug();
 
 		// Catch override slug situations
-		switch ( $this->override_slug ){
+		switch ( $this->override_slug ) {
 
 			case $zbs->slugs['zbs-new-user']:
 				$this->slug = 'teamadd';
@@ -136,53 +123,55 @@ class Learn_Menu {
 				break;
 
 		}
-		
 	}
 
 	/**
 	 * Retrieve slug
 	 */
 	private function get_slug() {
-			
+
 		global $zbs;
 
 		#} GET the page slug..
-		$slug = ''; if (isset($_GET['page'])) $slug = sanitize_text_field($_GET['page']);
+		$slug = '';
+		if ( isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$slug = sanitize_text_field( $_GET['page'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		}
 
 		// HERE we set pageKey to be slug (lazy global)
 		// this is used for screenoptions, so will require you to set it wherever you want to use them (see userScreenOptions in core.php)
 		// must be exposed via zeroBS_outputScreenOptions :)
 		// note: for some 'sub pages' e.g. add-edit TYPE - this'll be appended to by functions below/above this level.
 		// ... so if this is just 'root' we can override it, otherwise, don't (default)
-		if ($zbs->pageKey == 'root') {
-			$zbs->pageKey = $slug;
+		if ( $zbs->pageKey === 'root' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			$zbs->pageKey = $slug; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 		}
 
 		// Specific page checks
-		// There are instances where page checks override passed slug 
+		// There are instances where page checks override passed slug
 		// because they're a bit more complex logic than a slug-check
 		// (as adapted from previous setup)
 
 		// if slug is a $zbs->slug value, use the key
 		// e.g. translates `zerobscrm-dash` into `dash`
-		$core_slug_key = array_search( $slug, $zbs->slugs );
-		if ( !empty( $core_slug_key ) ){
+		$core_slug_key = array_search( $slug, $zbs->slugs, true );
+		if ( ! empty( $core_slug_key ) ) {
 			$slug = $core_slug_key;
 		}
 
 		// Add edit generic
-		if ( $slug == $zbs->slugs['addedit'] || $slug == 'addedit' ){
+		if ( $slug === $zbs->slugs['addedit'] || $slug === 'addedit' ) {
 
 			// if we have action, switch :)
-			if ( isset( $_GET['action'] ) ){
+			if ( isset( $_GET['action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-				if ( $_GET['action'] != 'edit' && $_GET['action'] != 'delete' ){
+				if ( $_GET['action'] !== 'edit' && $_GET['action'] !== 'delete' ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-					if ( isset( $_GET['zbstype'] ) ){
+					if ( isset( $_GET['zbstype'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-						$action = sanitize_text_field( $_GET['zbstype'] );
+						$action = sanitize_text_field( $_GET['zbstype'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 
-						switch ($action){
+						switch ( $action ) {
 
 							case 'contact':
 								$slug = 'viewcontact';
@@ -196,97 +185,88 @@ class Learn_Menu {
 								$slug = 'viewsegment';
 								break;
 
-
 							default:
 								// no type
 								// can default to contact. if no 'type' it'll be contact :)
 								$slug = 'viewcontact';
 								break;
 						}
-
 					} else {
-						
 						// can default to contact. if no 'type' it'll be contact :)
 						$slug = 'viewcontact';
-
 					}
-
 				}
-
 			} else {
-
 				$slug = 'viewcontact';
-
-			} 
-
+			}
 		}
 
 		// Contacts
-		if ( zeroBSCRM_is_customer_new_page() ){
+		if ( zeroBSCRM_is_customer_new_page() ) {
 			$slug = 'newedit';
-		} elseif ( zeroBSCRM_is_customer_edit_page() ){
+		} elseif ( zeroBSCRM_is_customer_edit_page() ) {
 			$slug = 'contactedit';
-		} 
-		if ( zeroBSCRM_is_customertags_page() ){
+		}
+		if ( zeroBSCRM_is_customertags_page() ) {
 			$slug = 'contacttags';
 		}
 
 		// Segments
-		if ( zeroBSCRM_is_segment_new_page() || zeroBSCRM_is_segment_new_page() ){
+		if ( zeroBSCRM_is_segment_new_page() || zeroBSCRM_is_segment_new_page() ) {
 			$slug = 'segmentedit';
-		} 
+		}
 
 		// Companies
-		if ( zeroBSCRM_is_company_new_page() ){
+		if ( zeroBSCRM_is_company_new_page() ) {
 			$slug = 'companynew';
-		} elseif ( zeroBSCRM_is_company_edit_page() ){
+		} elseif ( zeroBSCRM_is_company_edit_page() ) {
 			$slug = 'companyedit';
 		}
-		if ( zeroBSCRM_is_companytags_page() ){
+		if ( zeroBSCRM_is_companytags_page() ) {
 			$slug = 'companytags';
 		}
 
 		// Quotes
-		if ( zeroBSCRM_is_quo_new_page() ){
+		if ( zeroBSCRM_is_quo_new_page() ) {
 			$slug = 'quotenew';
-		} elseif ( zeroBSCRM_is_quo_edit_page() ){
+		} elseif ( zeroBSCRM_is_quo_edit_page() ) {
 			$slug = 'quoteedit';
 		}
-		if ( zeroBSCRM_is_quotetags_page() ){
+		if ( zeroBSCRM_is_quotetags_page() ) {
 			$slug = 'quotetags';
 		}
 
 		// Quote Templates
-		if ( zeroBSCRM_is_quotetemplate_new_page() ){
+		if ( zeroBSCRM_is_quotetemplate_new_page() ) {
 			$slug = 'quotetemplatenew';
-		} elseif ( zeroBSCRM_is_quotetemplate_edit_page() ){
+		} elseif ( zeroBSCRM_is_quotetemplate_edit_page() ) {
 			$slug = 'quotetemplateedit';
 		}
 
 		// Invoices
-		if ( zeroBSCRM_is_invoice_new_page() ){
+		if ( zeroBSCRM_is_invoice_new_page() ) {
 			$slug = 'invoicenew';
-		} elseif ( zeroBSCRM_is_invoice_edit_page() ){
+		} elseif ( zeroBSCRM_is_invoice_edit_page() ) {
 			$slug = 'invoiceedit';
 		}
-		if ( zeroBSCRM_is_invoicetags_page() ){
+		if ( zeroBSCRM_is_invoicetags_page() ) {
 			$slug = 'invoicetags';
 		}
 
 		// Transactions
-		if ( zeroBSCRM_is_transaction_new_page() ){
+		if ( zeroBSCRM_is_transaction_new_page() ) {
 			$slug = 'transnew';
-		} elseif ( zeroBSCRM_is_transaction_edit_page() ){
+		} elseif ( zeroBSCRM_is_transaction_edit_page() ) {
 			$slug = 'transedit';
 		}
-		if ( zeroBSCRM_is_transactiontags_page() ){
+		if ( zeroBSCRM_is_transactiontags_page() ) {
 			$slug = 'transactiontags';
 		}
 
 		// Events
-		if ( zeroBSCRM_is_task_new_page() ){
+		if ( zeroBSCRM_is_task_new_page() ) {
 			$slug = 'tasknew';
-		} elseif ( zeroBSCRM_is_task_edit_page() ){
+		} elseif ( zeroBSCRM_is_task_edit_page() ) {
 			$slug = 'taskedit';
 		}
 
@@ -298,17 +278,16 @@ class Learn_Menu {
 		}
 
 		// profile page
-		if (zeroBSCRM_is_profile_page()){
+		if ( zeroBSCRM_is_profile_page() ) {
 			$slug = 'profile';
 		}
 
 		// generic delete page
-		if (zeroBSCRM_is_delete_page()){
+		if ( zeroBSCRM_is_delete_page() ) {
 			$slug = 'delete';
 		}
-			
-		return $slug;
 
+		return $slug;
 	}
 
 	/**
@@ -316,55 +295,52 @@ class Learn_Menu {
 	 */
 	private function get_override_slug() {
 
-
-		#} CUSTOM slugs to affect behavior of standard WP pages
-		$override_slug = ''; 
-		if (isset($_GET['zbsslug'])) {
-			$override_slug = sanitize_text_field($_GET['zbsslug']);
+		// CUSTOM slugs to affect behavior of standard WP pages
+		$override_slug = '';
+		if ( isset( $_GET['zbsslug'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			$override_slug = sanitize_text_field( $_GET['zbsslug'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		}
 
 		return $override_slug;
-
 	}
 
 	/**
 	 * Verification of a slug
 	 *
-	 * @param string $slug                     Learn menu slug
+	 * @param string $slug Learn menu slug.
 	 */
 	public function slug_has_learn_content( $slug ) {
-		
-		if ( !empty( $slug ) && $this->get_content( $slug ) ){
+
+		if ( ! empty( $slug ) && $this->get_content( $slug ) ) {
 
 			return true;
 
 		}
 
 		return false;
-
 	}
-
 
 	/**
 	 * Render generic learn menu by parameters
-	 * 	Noting here that this is a drop-in replacement for `zeroBS_genericLearnMenu()`, 
-	 *	so some of the params are somewhat unnecessary, but have been kept in for parity
 	 *
-	 * @param string - $page_title: the current page title
-	 * @param string - $add_new: a string to append in the 'add new x' area of learn menu (e.g. "Add new contact" button)
-	 * @param string - $filter_str: a string to append in the 'filter' area of learn menu (e.g. "Filtered by tag x" on a list view)
-	 * @param bool   - $show_learn: whether to show the learn button or not
-	 * @param string - $learn_title: the learn box title
-	 * @param string - $learn_content: the learn content html
-	 * @param string - $learn_more_url: the learn more link url
-	 * @param string - $learn_image_url: the learn image url
-	 * @param string - $learn_video_url: the learn video url
-	 * @param string - $extra_js: any extra JS to output
-	 * @param string - $popup_extra_css: any extra css styles to add to the popup element
-	 * @param string - $learn_video_title: if {$learn_video_url} specify a video title here [Newly added since original `zeroBS_genericLearnMenu()`]
+	 * Noting here that this is a drop-in replacement for `zeroBS_genericLearnMenu()`,
+	 * so some of the params are somewhat unnecessary, but have been kept in for parity
+	 *
+	 * @param string $page_title The current page title.
+	 * @param string $add_new A string to append in the 'add new x' area of learn menu (e.g. "Add new contact" button).
+	 * @param string $filter_str A string to append in the 'filter' area of learn menu (e.g. "Filtered by tag x" on a list view).
+	 * @param bool   $show_learn Whether to show the learn button or not.
+	 * @param string $learn_title The learn box title.
+	 * @param string $learn_content The learn content html.
+	 * @param string $learn_more_url The learn more link url.
+	 * @param string $learn_image_url The learn image url.
+	 * @param string $learn_video_url The learn video url.
+	 * @param string $extra_js Any extra JS to output.
+	 * @param string $popup_extra_css Any extra css styles to add to the popup element.
+	 * @param string $learn_video_title If {$learn_video_url} specify a video title here.
+	 * @param string $icon_class An icon to show before the page title.
 	 */
 	public function render_generic_learn_menu(
-
 		$page_title = '',
 		$add_new = '',
 		$filter_str = '',
@@ -378,8 +354,22 @@ class Learn_Menu {
 		$popup_extra_css = '',
 		$learn_video_title = '',
 		$icon_class = ''
-	
 	) {
+
+		// assign params as object properties so we don't have to pass them all over the place
+		$this->page_title        = $page_title;
+		$this->add_new           = $add_new;
+		$this->filter_str        = $filter_str;
+		$this->show_learn        = $show_learn;
+		$this->learn_title       = $learn_title;
+		$this->learn_content     = $learn_content;
+		$this->learn_more_url    = $learn_more_url;
+		$this->learn_image_url   = $learn_image_url;
+		$this->learn_video_url   = $learn_video_url;
+		$this->extra_js          = $extra_js;
+		$this->popup_extra_css   = $popup_extra_css;
+		$this->learn_video_title = $learn_video_title;
+		$this->icon_class        = $icon_class;
 
 		global $zbs;
 
