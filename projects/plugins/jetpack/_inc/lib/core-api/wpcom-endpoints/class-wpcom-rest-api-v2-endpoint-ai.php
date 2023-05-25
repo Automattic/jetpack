@@ -56,14 +56,19 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
-					'content' => array(
+					'content'    => array(
 						'type'              => 'string',
 						'required'          => true,
 						'sanitize_callback' => 'sanitize_textarea_field',
 					),
-					'post_id' => array(
+					'post_id'    => array(
 						'required' => false,
 						'type'     => 'integer',
+					),
+					'skip_cache' => array(
+						'required'    => false,
+						'type'        => 'boolean',
+						'description' => 'Whether to skip the cache and make a new request',
 					),
 				),
 			)
@@ -111,7 +116,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	 * @param  WP_REST_Request $request The request.
 	 */
 	public function request_gpt_completion( $request ) {
-		return Jetpack_AI_Helper::get_gpt_completion( $request['content'], $request['post_id'] );
+		return Jetpack_AI_Helper::get_gpt_completion( $request['content'], $request['post_id'], $request['skip_cache'] );
 	}
 
 	/**
