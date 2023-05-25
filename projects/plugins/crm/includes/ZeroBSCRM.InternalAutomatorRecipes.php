@@ -65,6 +65,8 @@
 	zeroBSCRM_AddInternalAutomatorRecipe('quote.accepted','zeroBSCRM_IA_AcceptedQuoteWPHook',array());
 	zeroBSCRM_AddInternalAutomatorRecipe('quote.delete','zeroBSCRM_IA_DeleteQuoteWPHook',array());
 	zeroBSCRM_AddInternalAutomatorRecipe('invoice.new','zeroBSCRM_IA_NewInvoiceWPHook',array());
+	zeroBSCRM_AddInternalAutomatorRecipe( 'invoice.update', 'zeroBSCRM_IA_EditInvoiceWPHook', array() );
+	zeroBSCRM_AddInternalAutomatorRecipe( 'invoice.status.update', 'zeroBSCRM_IA_EditInvoiceWPHook', array() );
 	zeroBSCRM_AddInternalAutomatorRecipe('invoice.delete','zeroBSCRM_IA_DeleteInvoiceWPHook',array());
 	zeroBSCRM_AddInternalAutomatorRecipe('transaction.new','zeroBSCRM_IA_NewTransactionWPHook',array());
 	zeroBSCRM_AddInternalAutomatorRecipe('transaction.delete','zeroBSCRM_IA_DeleteTransactionWPHook',array());
@@ -1407,18 +1409,49 @@ function zeroBSCRM_IA_DeleteCustomerWPHook( $obj = array() ) {
 		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_delete_quote', $obj['id']);
 
 	}
-   	#} Fires on 'invoice.new' IA 
-	function zeroBSCRM_IA_NewInvoiceWPHook($obj=array()){
 
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_new_invoice', $obj['id']);
+/**
+ * Fires on 'invoice.new' IA.
+ *
+ * @param array $obj An array holding invoice object data.
+ */
+function zeroBSCRM_IA_NewInvoiceWPHook( $obj = array() ) {
 
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+		do_action( 'jpcrm_automation_invoice_new', $obj );
+		do_action( 'zbs_new_invoice', $obj['id'] );
 	}
-   	#} Fires on 'invoice.delete' IA 
-	function zeroBSCRM_IA_DeleteInvoiceWPHook($obj=array()){
+}
 
-		if (is_array($obj) && isset($obj['id']) && !empty($obj['id'])) do_action('zbs_delete_invoice', $obj['id']);
-
+/**
+ * Fires on 'invoice.update' and 'invoice.status.update' IA.
+ *
+ * @param array $obj An array holding invoice object data.
+ */
+function zeroBSCRM_IA_EditInvoiceWPHook( $obj = array() ) {
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+		do_action( 'jpcrm_automation_invoice_update', $obj );
+		do_action( 'zbs_new_invoice', $obj['id'] );
+		// If the invoice status has been updated.
+		if ( isset( $obj['from'] ) && ! empty( $obj['from'] ) ) {
+			do_action( 'jpcrm_automation_invoice_status_update', $obj );
+		}
 	}
+}
+
+/**
+ * Fires on 'invoice.delete' IA.
+ *
+ * @param array $obj An array holding invoice object data.
+ */
+function zeroBSCRM_IA_DeleteInvoiceWPHook( $obj = array() ) {
+
+	if ( is_array( $obj ) && isset( $obj['id'] ) && ! empty( $obj['id'] ) ) {
+		do_action( 'jpcrm_automation_invoice_delete', $obj );
+		do_action( 'zbs_delete_invoice', $obj['id'] );
+	}
+}
+
    	#} Fires on 'transaction.new' IA 
 	function zeroBSCRM_IA_NewTransactionWPHook($obj=array()){
 
