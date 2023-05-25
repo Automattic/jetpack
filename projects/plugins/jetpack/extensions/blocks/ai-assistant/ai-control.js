@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { BlockControls, PlainText } from '@wordpress/block-editor';
 import {
 	Button,
@@ -41,11 +42,12 @@ const AIControl = ( {
 	contentBefore,
 	postTitle,
 	wholeContent,
-	content,
 	promptType,
 	onChange,
 } ) => {
 	const promptUserInputRef = useRef( null );
+	const [ isSm ] = useBreakpointMatch( 'sm' );
+
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
 			event.preventDefault();
@@ -53,9 +55,7 @@ const AIControl = ( {
 		}
 	};
 
-	const textPlaceholder = ! content?.length
-		? __( 'Ask Jetpack AI for anything…', 'jetpack' )
-		: __( 'Tell AI what to do next…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+	const textPlaceholder = __( 'Ask Jetpack AI', 'jetpack' );
 
 	let placeholder = '';
 
@@ -142,7 +142,7 @@ const AIControl = ( {
 							label={ __( 'Send request', 'jetpack' ) }
 						>
 							<Icon icon={ origamiPlane } />
-							{ __( 'Send', 'jetpack' ) }
+							{ ! isSm && __( 'Send', 'jetpack' ) }
 						</Button>
 					) : (
 						<Button
