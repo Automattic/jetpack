@@ -68,17 +68,22 @@ class Jetpack_AI_Helper {
 	 * Currently, it's limited to WPCOM Simple and Atomic.
 	 */
 	public static function is_enabled() {
-		$enabled = false;
+		$default = false;
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$enabled = true;
+			$default = true;
 		} elseif ( ( new Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
-			$enabled = true;
-		} elseif ( Jetpack_Plan::supports( 'ai-assistant' ) ) {
-			$enabled = true;
+			$default = true;
 		}
 
-		return $enabled;
+		/**
+		 * Filter whether the AI features are enabled in the Jetpack plugin.
+		 *
+		 * @since 11.8
+		 *
+		 * @param bool $default Are AI features enabled? Defaults to false.
+		 */
+		return apply_filters( 'jetpack_ai_enabled', $default );
 	}
 
 	/**
