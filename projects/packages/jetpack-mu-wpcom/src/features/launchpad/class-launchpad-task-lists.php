@@ -244,6 +244,8 @@ class Launchpad_Task_Lists {
 	/**
 	 * Loads a title for a task, calling the 'get_title' callback if it exists,
 	 * or falling back on the value for the 'title' key if it is set.
+	 * We prefer the callback so we can defer the translation until after the
+	 * user's locale has been set up.
 	 *
 	 * @param Task $task A task definition.
 	 * @return string The title for the task.
