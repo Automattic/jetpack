@@ -1,9 +1,8 @@
 import restApi from '@automattic/jetpack-api';
-import {
-	getScoreLetter,
-	// requestSpeedScores,
-	// didScoresChange,
-} from '@automattic/jetpack-boost-score-api';
+// import {
+// 	// getScoreLetter,
+// 	// requestSpeedScores,
+// } from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -37,9 +36,9 @@ const BOOST_PLUGIN_SLUG = 'jetpack-boost';
 const DashBoost = ( {
 	siteAdminUrl,
 	siteConnectionStatus,
-	//	siteUrl,
-	//	apiRoot,
-	//	apiNonce,
+	//siteUrl,
+	//apiRoot,
+	//apiNonce,
 	fetchPluginsData,
 	fetchingPluginsData,
 	isBoostInstalled,
@@ -56,20 +55,28 @@ const DashBoost = ( {
 	const [ mobileSpeedScore, setMobileSpeedScore ] = useState( 0 );
 	const [ desktopSpeedScore, setDesktopSpeedScore ] = useState( 0 );
 
-	const getSpeedScores = () => {
+	const getSpeedScores = async () => {
 		if ( isSiteOffline ) {
 			return;
 		}
 
 		setIsLoading( true );
+		// placeholders
+		setSpeedLetterGrade( 'C' );
+		setDaysSinceTested( 1 );
+		setMobileSpeedScore( 70 );
+		setDesktopSpeedScore( 80 );
 
-		setTimeout( () => {
-			setMobileSpeedScore( 60 );
-			setDesktopSpeedScore( 75 );
-			setSpeedLetterGrade( getScoreLetter( 60, 75 ) );
-			setDaysSinceTested( 0 );
-			setIsLoading( false );
-		}, 1500 );
+		// try {
+		// 	const scores = await requestSpeedScores( false, apiRoot, siteUrl, apiNonce );
+		// 	const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
+		// 	setSpeedLetterGrade( scoreLetter );
+		// 	setMobileSpeedScore( scores.current.mobile );
+		// 	setDesktopSpeedScore( scores.current.desktop );
+		// 	setDaysSinceTested( 0 );
+		// } catch ( err ) {
+		// 	console.log( err );
+		// }
 	};
 
 	useEffect( () => {
