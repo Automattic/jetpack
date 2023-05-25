@@ -10,6 +10,7 @@ import {
 	ToolbarGroup,
 	Spinner,
 } from '@wordpress/components';
+import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { chevronDown, image, pencil, update, title, closeSmall } from '@wordpress/icons';
 /*
@@ -44,6 +45,7 @@ const AIControl = ( {
 	promptType,
 	onChange,
 } ) => {
+	const promptUserInputRef = useRef( null );
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
 			event.preventDefault();
@@ -86,7 +88,21 @@ const AIControl = ( {
 					hasPostTitle={ !! postTitle?.length }
 					wholeContent={ wholeContent }
 					promptType={ promptType }
-					setUserPrompt={ setUserPrompt }
+					setUserPrompt={ prompt => {
+						setUserPrompt( prompt );
+						if ( ! promptUserInputRef?.current ) {
+							return;
+						}
+
+						// Focus the text area
+						promptUserInputRef.current.focus();
+
+						// Set caret position at the end of the text area
+						promptUserInputRef.current.setSelectionRange(
+							promptUserInputRef.current.value.length,
+							promptUserInputRef.current.value.length
+						);
+					} }
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
@@ -111,6 +127,7 @@ const AIControl = ( {
 					placeholder={ placeholder }
 					className="jetpack-ai-assistant__input"
 					disabled={ isWaitingState || loadingImages }
+					ref={ promptUserInputRef }
 				/>
 
 				<div className="jetpack-ai-assistant__controls">
