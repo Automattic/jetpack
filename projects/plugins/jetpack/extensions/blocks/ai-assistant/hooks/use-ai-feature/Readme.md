@@ -11,7 +11,7 @@ function UpgradePlan() {
 
 	return (
 		<div>
-			{ `You has made ${ count } requests so far.` }
+			{ `You have made ${ count } requests so far.` }
 			<Button>Upgrade</Button>
 		</div>
 	);
