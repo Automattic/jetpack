@@ -152,11 +152,21 @@ export class SuggestionsEventSource extends EventTarget {
 			onclose() {
 				debug( 'Stream closed unexpectedly' );
 			},
+			onerror( err ) {
+				self.processErrorEvent( err );
+				throw err; // rethrow to stop the operation otherwise it will retry forever
+			},
 			onmessage( ev ) {
 				self.processEvent( ev );
 			},
-			onerror( err ) {
-				self.processErrorEvent( err );
+			async onopen( response ) {
+				if ( response.ok ) {
+					return;
+				}
+				if ( response.status >= 400 && response.status <= 500 && response.status !== 429 ) {
+					this.processConnectionError( response );
+				}
+				throw new Error();
 			},
 			signal: this.controller.signal,
 		} );
@@ -203,6 +213,12 @@ export class SuggestionsEventSource extends EventTarget {
 				this.dispatchEvent( new CustomEvent( 'suggestion', { detail: this.fullMessage } ) );
 			}
 		}
+	}
+
+	processConnectionError( response ) {
+		debug( 'Connection error' );
+		debug( response );
+		this.dispatchEvent( new CustomEvent( 'error_network', { detail: response } ) );
 	}
 
 	processErrorEvent( e ) {
