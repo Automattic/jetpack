@@ -29,14 +29,6 @@
 
 	tinymce.PluginManager.add( 'zbsQuoteTemplates', function ( editor, url ) {
 		// This is simple button
-		/*editor.addButton( 'zbsQuoteTemplates', {
-            title: 'Scratch Card Engine',
-            image: window.wpsceURL + "i/WYSIWYG_icon.png",
-            onclick: function () {
-                 tinymce.activeEditor.execCommand("mceInsertContent", false, '[zbsQuoteTemplates]')
-            }
-        });*/
-
 		editor.addButton( 'zbsQuoteTemplates', {
 			title: 'Quote Template Placeholders',
 			image: window.zbs_root.root + 'i/WYSIWYG_icon.png',

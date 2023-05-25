@@ -62,7 +62,7 @@ function jpcrm_contactlist_learn_menu(){
 
     // Add new
     $addNew = ''; if ( zeroBSCRM_permsCustomers() ) {
-        $addNew = ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_customer',false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add new Contact',"zero-bs-crm") . '</a>';
+		$addNew = ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_customer', false ) . '" class="button ui black tiny zbs-add-new">' . __( 'Add new Contact', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
     }
 
     $content      = $zbs->learn_menu->get_content_body( 'managecontacts' );
@@ -78,7 +78,7 @@ function jpcrm_viewcontact_learn_menu($name=''){
 
     $title        = __( 'Viewing Contact','zero-bs-crm' );
     $addNew = ''; if ( zeroBSCRM_permsCustomers() ) {
-        $addNew = ' <a href="' . jpcrm_esc_link( 'create' ,-1, 'zerobs_customer', false ) . '" id="zbs-contact-add-new" class="button ui blue tiny zbs-add-new">' . __( 'Add new Contact',"zero-bs-crm") . '</a>';
+		$addNew = ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_customer', false ) . '" id="zbs-contact-add-new" class="button ui black tiny zbs-add-new">' . __( 'Add new Contact', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
     }
     $content      = $zbs->learn_menu->get_content_body( 'viewcontact' );
     $links        = $zbs->learn_menu->get_content_urls( 'viewcontact' );	
@@ -202,7 +202,7 @@ function jpcrm_formlist_learn_menu(){
     $title      = __("Forms","zero-bs-crm");
 	$addNew = '';
 	if ( zeroBSCRM_permsQuotes() ) {
-            $addNew = ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_form',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
+		$addNew = ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_form', false ) . '" class="button ui black tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	} 
     $content    = $zbs->learn_menu->get_content_body( 'manageformscrm' );
     $links      = $zbs->learn_menu->get_content_urls( 'manageformscrm' );
@@ -233,9 +233,9 @@ function jpcrm_taskedit_learn_menu(){
 
     $title      = __( 'Edit Task','zero-bs-crm' );
     $addNew 	= '<div id="zbs-event-learn-nav"></div>';
-    $addNew     .= ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_event',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
-	$addNew 	.= ' <a href="' . jpcrm_esc_link($zbs->slugs['manage-events']) . '" class="button ui orange tiny zbs-add-new zbs-add-new-task"><i class="calendar alternate outline icon"></i> ' . __( 'View Calendar',"zero-bs-crm") . '</a>';
-    $addNew 	.= ' <a href="' . jpcrm_esc_link($zbs->slugs['manage-events-list']) . '" class="button ui orange tiny zbs-add-new zbs-add-new-task"><i class="list alternate outline icon"></i> ' . __( 'View List',"zero-bs-crm") . '</a>';
+	$addNew .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="button ui black tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$addNew .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events'] ) . '" class="button ui black tiny zbs-add-new zbs-add-new-task"><i class="calendar alternate outline icon"></i> ' . __( 'View Calendar', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$addNew .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events-list'] ) . '" class="button ui black tiny zbs-add-new zbs-add-new-task"><i class="list alternate outline icon"></i> ' . __( 'View List', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$content    = $zbs->learn_menu->get_content_body( 'taskedit' );
     $links      = $zbs->learn_menu->get_content_urls( 'taskedit' );	
 	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,'',true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
@@ -250,8 +250,8 @@ function jpcrm_tasklistview_learn_menu(){
 
     $title      = __( 'Task List','zero-bs-crm' );
     $addNew 	= '<div id="zbs-event-learn-nav"></div>';
-    $addNew     .= ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_event',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
-	$addNew 	.= ' <a href="' . jpcrm_esc_link($zbs->slugs['manage-events']) . '" class="button ui orange tiny zbs-add-new zbs-add-new-task"><i class="calendar alternate outline icon"></i> ' . __( 'View Calendar',"zero-bs-crm") . '</a>';
+	$addNew .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="button ui black tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$addNew .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events'] ) . '" class="button ui black tiny zbs-add-new zbs-add-new-task"><i class="calendar alternate outline icon"></i> ' . __( 'View Calendar', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$content    = $zbs->learn_menu->get_content_body( 'manage-events-list' );
     $links      = $zbs->learn_menu->get_content_urls( 'manage-events-list' );
 
@@ -266,8 +266,8 @@ function jpcrm_tasknew_learn_menu(){
 	global $zbs;
 
     $title      = __( 'New Task','zero-bs-crm' );
-	$addNew 	= ' <a href="' . jpcrm_esc_link($zbs->slugs['manage-events']) . '" class="button ui orange tiny zbs-add-new zbs-add-new-task"><i class="calendar alternate outline icon"></i> ' . __( 'View Calendar',"zero-bs-crm") . '</a>';
-    $addNew 	.= ' <a href="' . jpcrm_esc_link($zbs->slugs['manage-events-list']) . '" class="button ui orange tiny zbs-add-new zbs-add-new-task"><i class="list alternate outline icon"></i> ' . __( 'View List',"zero-bs-crm") . '</a>';
+	$addNew  = ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events'] ) . '" class="button ui black tiny zbs-add-new zbs-add-new-task"><i class="calendar alternate outline icon"></i> ' . __( 'View Calendar', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$addNew .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events-list'] ) . '" class="button ui black tiny zbs-add-new zbs-add-new-task"><i class="list alternate outline icon"></i> ' . __( 'View List', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
     $content    = $zbs->learn_menu->get_content_body( 'tasknew' );
     $links      = $zbs->learn_menu->get_content_urls( 'tasknew' );	
 	$zbs->learn_menu->render_generic_learn_menu( $title, $addNew,'',true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
@@ -288,7 +288,7 @@ function jpcrm_quotelist_learn_menu(){
 	$addNew = '';
     #} Add new?
     if ( zeroBSCRM_permsCustomers() ) {
-        $addNew = ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_quote',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
+		$addNew = ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_quote', false ) . '" class="button ui black tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
     }  
 
 	$hideLearn = true;
@@ -327,7 +327,7 @@ function jpcrm_quoteedit_list_menu() {
 		$zbsid   = (int) sanitize_text_field( wp_unslash( $_GET['zbsid'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$content = $zbs->learn_menu->get_content_body( 'quoteedit' );
 		$links   = $zbs->learn_menu->get_content_urls( 'quoteedit' );
-		$add_new = '<div id="zbs-quote-learn-nav"></div>  <a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_QUOTE, false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
+		$add_new = '<div id="zbs-quote-learn-nav"></div>  <a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_QUOTE, false ) . '" class="button ui black tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
 
 	}
 
@@ -355,7 +355,7 @@ function jpcrm_translist_learn_menu(){
     $title      = __( 'Transaction List','zero-bs-crm' );
     #} Add new?
     $addNew = ''; if ( zeroBSCRM_permsCustomers() ) {
-        $addNew = ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_transaction', false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
+		$addNew = ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_transaction', false ) . '" class="button ui black tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
     }
     $content    = $zbs->learn_menu->get_content_body( 'managetransactions' );
     $links      = $zbs->learn_menu->get_content_urls( 'managetransactions' );
@@ -392,7 +392,7 @@ function jpcrm_transedit_learn_menu(){
 		$links   = $zbs->learn_menu->get_content_urls( 'transedit' );
 
 		if ( zeroBSCRM_permsInvoices() ) {
-			$add_new = ' <a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION, false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
+			$add_new = ' <a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION, false ) . '" class="button ui black tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
 		}
 	}
 
@@ -420,7 +420,7 @@ function jpcrm_invoicelist_learn_menu(){
     $title      = __( 'Manage Invoices','zero-bs-crm' );
     $addNew = '';
     if ( zeroBSCRM_permsInvoices() ) {
-        $addNew =  '<a href="' . jpcrm_esc_link('create',-1,'zerobs_invoice',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
+		$addNew = '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_invoice', false ) . '" class="button ui black tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
     }
     $content    = $zbs->learn_menu->get_content_body( 'manageinvoices' );
     $links      = $zbs->learn_menu->get_content_urls( 'manageinvoices' );
@@ -466,7 +466,7 @@ function jpcrm_invoiceedit_learn_menu(){
 		$add_new = '<div id="zbs-invoice-learn-nav">' . $also_in_add_new . '</div>'; // js adds/edits
 
 		if ( zeroBSCRM_permsInvoices() ) {
-			$add_new .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_invoice', false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
+			$add_new .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_invoice', false ) . '" class="button ui black tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
 		}
 	}
 
@@ -493,7 +493,7 @@ function jpcrm_companylist_learn_menu(){
     $title      = __( 'Manage '.jpcrm_label_company(true),'zero-bs-crm' );
     $addNew = '';
     if ( zeroBSCRM_permsInvoices() ) {
-        $addNew =  '<a href="' .jpcrm_esc_link('create',-1,'zerobs_company',false) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>';
+		$addNew = '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_company', false ) . '" class="button ui black tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
     }
     $content    = $zbs->learn_menu->get_content_body( 'managecompanies' );
     $links      = $zbs->learn_menu->get_content_urls( 'managecompanies' );	
@@ -550,8 +550,8 @@ function jpcrm_tasklist_learn_menu(){
 	global $zbs;
 
     $title      = __( 'Task Calendar','zero-bs-crm' );
-    $addNew 	= ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_event',false) . '" class="button ui blue tiny zbs-add-new zbs-add-new-task">' . __( 'Add New',"zero-bs-crm") . '</a>';
-    $addNew 	.= ' <a href="' . jpcrm_esc_link($zbs->slugs['manage-events-list']) . '" class="button ui orange tiny zbs-add-new zbs-add-new-task"><i class="list alternate outline icon"></i> ' . __( 'List View',"zero-bs-crm") . '</a>'; 
+	$addNew  = ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="button ui black tiny zbs-add-new zbs-add-new-task">' . __( 'Add New', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+	$addNew .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events-list'] ) . '" class="button ui black tiny zbs-add-new zbs-add-new-task"><i class="list alternate outline icon"></i> ' . __( 'List View', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 	$content    = $zbs->learn_menu->get_content_body( 'manage-events' );
     $links      = $zbs->learn_menu->get_content_urls( 'manage-events' );	
 
@@ -615,7 +615,7 @@ function jpcrm_segmentlist_learn_menu(){
 
 	$add_new = '';
 	if ( zeroBSCRM_permsCustomers() ) {
-		$add_new = ' <a href="' . jpcrm_esc_link( 'create', -1, 'segment', false ) . '" class="button ui blue tiny zbs-add-new">' . esc_html__( 'Add New', 'zero-bs-crm' ) . '</a>';
+		$add_new = ' <a href="' . jpcrm_esc_link( 'create', -1, 'segment', false ) . '" class="button ui black tiny zbs-add-new">' . esc_html__( 'Add New', 'zero-bs-crm' ) . '</a>';
 	}
 
 	// filter strings
@@ -659,7 +659,7 @@ function jpcrm_segmentedit_learn_menu(){
     	$newSegment = false; 
     }
 
-    $filterStr = '<button class="ui icon small button positive right floated';
+	$filterStr = '<button class="ui icon small button black positive right floated'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Generic.Formatting.MultipleStatementAlignment.NotSameWarning
     	if ($newSegment) $filterStr .= ' hidden';
     $filterStr .= '" type="button" id="zbs-segment-edit-act-save">'.__( 'Save Segment',"zero-bs-crm").'  <i class="save icon"></i></button>';
     $filterStr .= '<button class="ui button small right floated was-inverted basic" type="button" id="zbs-segment-edit-act-back">'.__( 'Back to List',"zero-bs-crm").'</button>';
@@ -737,7 +737,7 @@ function jpcrm_emails_learn_menu(){
 
     $title      = __( 'Emails','zero-bs-crm' );
 	$addNew     = '';
-	$filterStr = '<a href="'.admin_url('admin.php?page=zerobscrm-send-email').'" class="ui button blue tiny zbs-inbox-compose-email"><i class="ui icon pencil"></i> ' . __("Compose Mail", "zero-bs-crm") . '</a>';
+	$filterStr = '<a href="' . admin_url( 'admin.php?page=zerobscrm-send-email' ) . '" class="ui button black tiny zbs-inbox-compose-email"><i class="ui icon pencil"></i> ' . __( 'Compose Mail', 'zero-bs-crm' ) . '</a>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
     $content    = $zbs->learn_menu->get_content_body( 'emails' );
     $links      = $zbs->learn_menu->get_content_urls( 'emails' );	
 	$zbs->learn_menu->render_generic_learn_menu( $title,$addNew,$filterStr,true,$title,$content,$links['learn'],$links['img'],$links['vid'],'' );
