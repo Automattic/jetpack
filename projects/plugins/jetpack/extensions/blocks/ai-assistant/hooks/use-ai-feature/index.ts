@@ -7,14 +7,18 @@ import { useEffect, useState } from 'react';
 type SiteAIAssistantFeatureEndpointResponseProps = {
 	'has-feature': boolean;
 	'is-over-limit': boolean;
-	count: number;
+	'requests-count': number;
+	'requests-limit': number;
 };
+
+const NUM_FREE_REQUESTS_LIMIT = 20;
 
 export default function useAIFeature() {
 	const [ data, setData ] = useState( {
 		hasFeature: true,
 		isOverLimit: false,
-		count: 0,
+		requestsCount: 0,
+		requestsLimit: NUM_FREE_REQUESTS_LIMIT,
 	} );
 
 	useEffect( () => {
@@ -27,7 +31,8 @@ export default function useAIFeature() {
 				setData( {
 					hasFeature: !! response[ 'has-feature' ],
 					isOverLimit: !! response[ 'is-over-limit' ],
-					count: response.count,
+					requestsCount: response[ 'requests-count' ],
+					requestsLimit: response[ 'requests-limit' ],
 				} );
 			} catch ( error ) {
 				console.error( error ); // eslint-disable-line no-console
