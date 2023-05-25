@@ -18,6 +18,7 @@ import { chevronDown, image, pencil, update, title, closeSmall } from '@wordpres
 import I18nDropdownControl from './i18n-dropdown-control';
 import AIAssistantIcon from './icons/ai-assistant';
 import origamiPlane from './icons/origami-plane';
+import PromptTemplatesControl from './prompt-templates-control';
 import ToneDropdownControl from './tone-dropdown-control';
 import UpgradePrompt from './upgrade-prompt';
 
@@ -85,6 +86,7 @@ const AIControl = ( {
 					hasPostTitle={ !! postTitle?.length }
 					wholeContent={ wholeContent }
 					promptType={ promptType }
+					setUserPrompt={ setUserPrompt }
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
@@ -182,6 +184,7 @@ const ToolbarControls = ( {
 	hasPostTitle,
 	wholeContent,
 	promptType,
+	setUserPrompt,
 } ) => {
 	return (
 		<>
@@ -234,6 +237,11 @@ const ToolbarControls = ( {
 
 			<BlockControls>
 				{ /* Text controls */ }
+
+				<BlockControls group="block">
+					<PromptTemplatesControl onPromptSelected={ setUserPrompt } />
+				</BlockControls>
+
 				<ToolbarGroup>
 					{ ! showRetry && contentIsLoaded && (
 						<>
