@@ -2851,7 +2851,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'stats',
+				'jp_group'          => 'settings',
 			),
 
 			// Akismet - Not a module, but a plugin. The options can be passed and handled differently.
