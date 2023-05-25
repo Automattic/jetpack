@@ -123,7 +123,7 @@ runs:
     - name: Dump proxy log post-run
       if: steps.versions.outputs.php-version != 'false' && steps.versions.outputs.node-version != 'false'
       # Alas we have to use a JS sub-action to have a "post" step. Composite actions can't do it.
-      uses: ./post-run-action
+      uses: ./.github/actions/tool-setup/post-run-action
 
     - name: Tool versions
       shell: bash
