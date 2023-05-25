@@ -175,7 +175,7 @@
 
                     if ($zbsShowID == "1" && $companyID > 0) { ?>
                     <tr class="wh-large"><th><label><?php echo esc_html( $this->coOrgLabel ) . ' '; esc_html_e("ID","zero-bs-crm");?>:</label></th>
-                    <td style="font-size: 20px;color: green;vertical-align: top;">
+							<td style="font-size: 20px;color: black;vertical-align: top;">
                         #<?php echo esc_html( $companyID ); ?>
                     </td></tr>
                     <?php } ?>
@@ -1148,7 +1148,7 @@ class zeroBS__Metabox_CompanyTags extends zeroBS__Metabox_Tags{
 
                     <div class="zbs-company-actions-bottom zbs-objedit-actions-bottom">
 
-                        <button  class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Update","zero-bs-crm"); ?> <?php echo esc_html( $this->coOrgLabel ); ?></button>
+								<button  class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php echo esc_html( $this->coOrgLabel ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase ?></button>
 
                         <?php
 
@@ -1173,7 +1173,7 @@ class zeroBS__Metabox_CompanyTags extends zeroBS__Metabox_Tags{
 
                     <div class="zbs-company-actions-bottom zbs-objedit-actions-bottom">
                         
-                        <button  class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Save","zero-bs-crm"); ?> <?php echo esc_html( $this->coOrgLabel ); ?></button>
+							<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php echo esc_html( $this->coOrgLabel ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase ?></button>
 
                     </div>
 

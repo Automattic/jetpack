@@ -169,7 +169,7 @@ function zeroBSCRM_CSVImporterLitepages_header( $subpage = '' ) {
 			</div>
 
 			<?php if ( ! empty( $zbs->urls['extcsvimporterpro'] ) ) { ?>
-				<a href="<?php echo esc_url( $zbs->urls['extcsvimporterpro'] ); ?>" target="_blank" class="ui button blue tiny" id="gopro"><?php esc_html_e( 'Get CSV Importer Pro', 'zero-bs-crm' ); ?></a>
+				<a href="<?php echo esc_url( $zbs->urls['extcsvimporterpro'] ); ?>" target="_blank" class="ui button black tiny" id="gopro"><?php esc_html_e( 'Get CSV Importer Pro', 'zero-bs-crm' ); ?></a>
 			<?php } ?>
 
 			</div>
@@ -829,7 +829,7 @@ function zeroBSCRM_CSVImporterLitehtml_app() {
 						<label class="screen-reader-text" for="zbscrmcsvfile"><?php esc_html_e( '.CSV file', 'zero-bs-crm' ); ?></label>
 						<input type="file" id="zbscrmcsvfile" name="zbscrmcsvfile">
 						<div class="csv-import__start-btn">
-							<input type="submit" name="csv-file-submit" id="csv-file-submit" class="ui button green" value="<?php esc_attr_e( 'Upload CSV file', 'zero-bs-crm' ); ?>">
+							<input type="submit" name="csv-file-submit" id="csv-file-submit" class="ui button black" value="<?php esc_attr_e( 'Upload CSV file', 'zero-bs-crm' ); ?>">
 						</div>
 					</form>
 				</div>
