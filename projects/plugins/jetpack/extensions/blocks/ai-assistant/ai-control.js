@@ -89,19 +89,21 @@ const AIControl = ( {
 					wholeContent={ wholeContent }
 					promptType={ promptType }
 					setUserPrompt={ prompt => {
-						setUserPrompt( prompt );
 						if ( ! promptUserInputRef?.current ) {
 							return;
 						}
 
-						// Focus the text area
-						promptUserInputRef.current.focus();
+						const userPromptInput = promptUserInputRef.current;
 
-						// Set caret position at the end of the text area
-						promptUserInputRef.current.setSelectionRange(
-							promptUserInputRef.current.value.length,
-							promptUserInputRef.current.value.length
-						);
+						// Focus the text area
+						userPromptInput.focus();
+
+						// Add a typing effect in the text area
+						for ( let i = 0; i < prompt.length; i++ ) {
+							setTimeout( () => {
+								setUserPrompt( prompt.slice( 0, i + 1 ) );
+							}, 25 * i );
+						}
 					} }
 				/>
 			) }
