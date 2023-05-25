@@ -868,28 +868,14 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
         # https://codepen.io/kyleshockey/pen/bdeLrE 
 		if ( ! $is_new_contact ) {
 			?>
-
-        <?php #} Show avatar if avail
-        if (!empty($avatarStr)){
-
-            // if gravatar mode, don't circle
-            $segmentClass = 'ui circular segment';
-            $avatarMode = zeroBSCRM_getSetting('avatarmode');
-            if ( $avatarMode == 1 ) {
-                $segmentClass = 'ui segment';
-            }
-
-            echo '<div id="zbs-contact-edit-avatar"><div class="'. esc_attr( $segmentClass ) .'"><h2 class="ui header">'. $avatarStr .'</h2>';            
-            echo '</div></div>'; 
-        } ?>
         <script type="text/javascript">
             var zbsContactAvatarLang = {
                 'upload': '<?php esc_html_e("Upload Image","zero-bs-crm");?>',
             };
         </script>
         <div class="action-wrap">
-          <div class="ui green basic dropdown action-button"><?php esc_html_e('Contact Actions',"zero-bs-crm"); ?><i class="dropdown icon"></i>
-             <div class="menu">
+			<div class="ui dropdown jpcrm-button white-bg jpcrm-dropdown"><?php esc_html_e( 'Contact Actions', 'zero-bs-crm' ); ?><i class="fa fa-angle-down"></i>
+				<div class="menu" style="margin: 4px;">
               <?php foreach ($this->actions as $actKey => $action){ 
 
                 // filter out 'edit' as on that page :)
@@ -956,7 +942,7 @@ class zeroBS__Metabox_ContactActions extends zeroBS__Metabox{
        <?php }
 		?>
 			<div class="zbs-contact-actions-bottom zbs-objedit-actions-bottom">
-				<button class="ui button green" type="button" id="zbs-edit-save"><?php $is_new_contact ? esc_html_e( 'Save', 'zero-bs-crm' ) : esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Contact', 'zero-bs-crm' ); ?></button>
+				<button class="jpcrm-button" type="button" id="zbs-edit-save"><?php $is_new_contact ? esc_html_e( 'Save', 'zero-bs-crm' ) : esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Contact', 'zero-bs-crm' ); ?></button>
 				<div class='clear'></div>
 			</div>
 			<?php
@@ -1716,9 +1702,9 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
 
                         echo '<div id="zbs-customerportal-access-actions" class="zbs-customerportal-activeuser">';
 
-                        echo '<button type="button" id="zbs-customerportal-resetpw" class="ui mini button orange">' . esc_html( __( 'Reset Password', 'zero-bs-crm' ) ) . '</button>';
+								echo '<button type="button" id="zbs-customerportal-resetpw" class="ui mini button white">' . esc_html( __( 'Reset Password', 'zero-bs-crm' ) ) . '</button>';
 
-                        echo '<button type="button" id="zbs-customerportal-toggle" data-zbsportalaction="disable" class="ui mini button negative">' . esc_html( __( 'Disable Access', 'zero-bs-crm' ) ) . '</button>';
+								echo '<button type="button" id="zbs-customerportal-toggle" data-zbsportalaction="disable" class="ui mini button white negative">' . esc_html( __( 'Disable Access', 'zero-bs-crm' ) ) . '</button>';
 
                         echo '</div>';
 
@@ -1730,7 +1716,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
                     }
 
                     echo '<hr /><div class="zbs-customerportal-activeuser-actions">';
-                    echo sprintf( '<a target="_blank" href="%s" class="ui mini button green">%s</a>', esc_url( zeroBS_portal_link() ), esc_html( __( 'Preview Portal', 'zero-bs-crm' ) ) );
+							echo sprintf( '<a target="_blank" href="%s" class="ui mini button white">%s</a>', esc_url( zeroBS_portal_link() ), esc_html( __( 'Preview Portal', 'zero-bs-crm' ) ) );
                     echo '</div>';
                 } else {
 
@@ -1757,7 +1743,7 @@ class zeroBS__Metabox_ContactPortal extends zeroBS__Metabox{
             echo '<div class="no-gen" style="text-align:center">';
             echo esc_html( __( 'No WordPress User exists with this email', 'zero-bs-crm' ) );
             echo '<br/><br/>';
-            echo '<div class="ui primary button button-primary wp-user-generate">';
+				echo '<div class="ui primary black button button-primary wp-user-generate">';
             echo esc_html( __( 'Generate WordPress User', 'zero-bs-crm' ) );
             echo '</div>';
             echo '<input type="hidden" name="newwp-ajax-nonce" id="newwp-ajax-nonce" value="' . esc_attr( wp_create_nonce( 'newwp-ajax-nonce' ) ) . '" />';
@@ -2097,7 +2083,7 @@ class zeroBS__Metabox_ContactAKA extends zeroBS__Metabox{
             ?><div id="zbs-aka-alias-input-wrap">
                 <input type="text" class="zbs-aka-alias-input" placeholder="<?php esc_attr_e('Add Alias.. e.g.', 'zero-bs-crm'); ?> mike2@domain.com" />
                 <div class="ui pointing label" style="display:none;margin-bottom: 1em;margin-top: 0;" id="zbs-aka-alias-input-msg"><?php esc_html_e('Must be a valid email','zero-bs-crm'); ?></div>
-                <button type="button" class="ui small button primary" id="zbs-aka-alias-add"><?php esc_html_e('Add Alias',"zero-bs-crm"); ?></button>
+						<button type="button" class="ui small black button primary" id="zbs-aka-alias-add"><?php esc_html_e( 'Add Alias', 'zero-bs-crm' ); ?></button>
             </div>
 
             <script type="text/javascript">

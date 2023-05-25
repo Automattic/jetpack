@@ -50,10 +50,10 @@ function jpcrm_woosync_bind_add_connection() {
 			html: swal_HTML,
 			type: '',
 			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
+			confirmButtonColor: '#000',
+			cancelButtonColor: '#fff',
+			cancelButtonText: '<span style="color: #000">' + zeroBSCRMJS_globViewLang( 'cancel' ) + '</span>',
 			confirmButtonText: zeroBSCRMJS_globViewLang( 'connect-woo-go' ),
-			cancelButtonText: zeroBSCRMJS_globViewLang( 'cancel' ),
 			customClass: 'swal-wide',
 			preConfirm: function () {
 				// get value

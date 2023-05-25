@@ -1712,7 +1712,7 @@ function zeroBSCRM_html_datatools() {
 			<p class="sbhomep">
 			<strong><?php esc_html_e( 'Free Data Tools', 'zero-bs-crm' ); ?>:</strong><br />
 			<?php if ( ! zeroBSCRM_isExtensionInstalled( 'csvpro' ) ) { ?>
-			<a class="ui button green primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['csvlite'] ) ); ?>"><?php esc_html_e( 'Import from CSV', 'zero-bs-crm' ); ?></a>
+			<a class="ui button black primary" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['csvlite'] ) ); ?>"><?php esc_html_e( 'Import from CSV', 'zero-bs-crm' ); ?></a>
 		<?php } ?>
 		</p>
 			<p class="sbhomep">
@@ -1750,12 +1750,12 @@ function zeroBSCRM_html_datatools() {
 			</p><p class="sbhomep">
 				<!-- #datatoolsales -->
 			<strong><?php esc_html_e( 'Import Tools', 'zero-bs-crm' ); ?>:</strong><br /><br />
-				<a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank" class="ui button primary"><?php esc_html_e( 'View Available Import Tools', 'zero-bs-crm' ); ?></a>              
+				<a href="<?php echo esc_url( $zbs->urls['productsdatatools'] ); ?>" target="_blank" class="ui button black primary"><?php esc_html_e( 'View Available Import Tools', 'zero-bs-crm' ); ?></a>              
 			</p>
 			<div class="sbhomep">
 				<strong><?php esc_html_e( 'Export Tools', 'zero-bs-crm' ); ?>:</strong><br/>
 				<p><?php esc_html_e( 'Want to use the refined object exporter? ', 'zero-bs-crm' ); ?></p>
-				<p><a class="ui button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] . '&zbswhat=contacts' ) ); ?>">Export Tools</a></p>
+				<p><a class="ui black button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] . '&zbswhat=contacts' ) ); ?>">Export Tools</a></p>
 			</div>
 	</div>
 	<div class="ui grid">
