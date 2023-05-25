@@ -6,6 +6,9 @@
 
 /* components */
 @use 'emerald/_jpcrm_top_menu.scss';
+@use 'emerald/_buttons.scss';
+@use 'emerald/_dashcard.scss';
+@use 'emerald/_dashcount.scss';
 @use 'emerald/_listview.scss';
 @use 'emerald/_listview-header.scss';
 @use 'emerald/_listview-table.scss';

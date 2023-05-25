@@ -110,6 +110,7 @@ const ConnectedProductCard = ( { admin, slug, children, showMenu = false, menuIt
 			isFetching={ isFetching }
 			isInstallingStandalone={ installingStandalone }
 			isDeactivatingStandalone={ deactivatingStandalone }
+			isManageDisabled={ ! manageUrl }
 			onDeactivate={ deactivate }
 			slug={ slug }
 			onActivate={ handleActivate }

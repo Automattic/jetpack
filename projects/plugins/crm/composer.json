@@ -59,7 +59,6 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-forms": "@dev",
 		"automattic/woocommerce": "^3.0",
 		"dompdf/dompdf": "2.0.3"
 	},

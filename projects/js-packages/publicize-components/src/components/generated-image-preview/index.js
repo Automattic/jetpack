@@ -1,4 +1,4 @@
-import { getRedirectUrl, ThemeProvider } from '@automattic/jetpack-components';
+import { ThemeProvider } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { Spinner, BaseControl } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import useImageGeneratorConfig from '../../hooks/use-image-generator-config';
 import styles from './styles.module.scss';
+import { getSigImageUrl } from './utils';
 
 export const FEATURED_IMAGE_STILL_LOADING = 'featured-image-still-loading';
 const getMediaSourceUrl = media => {
@@ -38,7 +39,7 @@ export default function GeneratedImagePreview() {
 	const [ generatedImageUrl, setGeneratedImageUrl ] = useState( null );
 	const [ isLoading, setIsLoading ] = useState( true );
 
-	const { customText, imageType, imageId, template } = useImageGeneratorConfig();
+	const { customText, imageType, imageId, template, setToken } = useImageGeneratorConfig();
 	const { title, imageUrl } = useSelect( select => {
 		const featuredImage = select( editorStore ).getEditedPostAttribute( 'featured_media' );
 		return {
@@ -74,7 +75,8 @@ export default function GeneratedImagePreview() {
 						template,
 					},
 				} );
-				const url = getRedirectUrl( 'sigenerate', { query: `t=${ sig_token }` } );
+				setToken?.( sig_token );
+				const url = getSigImageUrl( sig_token );
 				// If the URL turns out to be the same, we set the loading state to false,
 				// as the <img> onLoad event will not fire if the src is the same.
 				if ( url === generatedImageUrlRef.current ) {
@@ -91,6 +93,8 @@ export default function GeneratedImagePreview() {
 			clearTimeout( handler );
 			imageTitleRef.current = imageTitle;
 		};
+		// setToken is not a dependency here
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ imageTitle, template, imageUrl ] );
 
 	const onImageLoad = useCallback( () => {

@@ -470,6 +470,7 @@ EOT;
 			'headline'        => isset( $attributes['headline'] ) ? $attributes['headline'] : null,
 			'show_thumbnails' => isset( $attributes['displayThumbnails'] ) && $attributes['displayThumbnails'],
 			'show_author'     => isset( $attributes['displayAuthor'] ) ? (bool) $attributes['displayAuthor'] : false,
+			'show_headline'   => isset( $attributes['displayHeadline'] ) ? (bool) $attributes['displayHeadline'] : false,
 			'show_date'       => isset( $attributes['displayDate'] ) ? (bool) $attributes['displayDate'] : true,
 			'show_context'    => isset( $attributes['displayContext'] ) && $attributes['displayContext'],
 			'layout'          => isset( $attributes['postLayout'] ) && 'list' === $attributes['postLayout'] ? $attributes['postLayout'] : 'grid',
@@ -518,12 +519,22 @@ EOT;
 			$wrapper_attributes = \WP_Block_Supports::get_instance()->apply_block_supports();
 		}
 
+		$headline_markup = '';
+		if ( $block_attributes['show_headline'] === true ) {
+			$headline = $block_attributes['headline'];
+			if ( strlen( trim( $headline ) ) !== 0 ) {
+				$headline_markup = sprintf(
+					'<h3 class="jp-relatedposts-headline">%1$s</h3>',
+					esc_html( $headline )
+				);
+			}
+		}
 		$display_markup = sprintf(
 			'<nav class="jp-relatedposts-i2%1$s"%2$s data-layout="%3$s">%4$s%5$s</nav>',
 			! empty( $wrapper_attributes['class'] ) ? ' ' . esc_attr( $wrapper_attributes['class'] ) : '',
 			! empty( $wrapper_attributes['style'] ) ? ' style="' . esc_attr( $wrapper_attributes['style'] ) . '"' : '',
 			esc_attr( $block_attributes['layout'] ),
-			$block_attributes['headline'],
+			$headline_markup,
 			$rows_markup
 		);
 
