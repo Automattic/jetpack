@@ -134,6 +134,14 @@ background:white;
 
 		.feed-item {
 			padding-left: 10px;
+			display: flex;
+			align-items: center;
+			margin-bottom:10px;
+			margin-top:10px;
+
+			.ui.avatar.img.img-rounded {
+					margin-right: 10px;
+			}
 		}
 	}
 }
