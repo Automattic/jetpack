@@ -386,6 +386,10 @@ add_filter( 'jetpack_docker_avoided_plugins', 'jetpack_docker_disable_gutenberg_
 
 ## Debugging
 
+### Debug helper functions
+
+Helpful function `l()` for logging, some timer functions, etc are available in your Docker setup. [See the file more more](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/mu-plugins/debug.php).
+
 ### Accessing logs
 
 Logs are stored in your file system under `./tools/docker/logs` directory.

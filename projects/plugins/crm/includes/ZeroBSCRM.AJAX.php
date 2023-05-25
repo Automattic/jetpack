@@ -85,6 +85,7 @@ function jetpackcrm_dash_refresh() {
 	$end_date   = date_create( $end_date )->setTime( 23, 59, 59 )->getTimestamp();
 
 	$summary = array();
+	$chart   = array();
 
 	$range_params = array(
 		'count'     => true,
@@ -190,8 +191,6 @@ function jetpackcrm_dash_refresh() {
 	// the final output
 	$r = array(
 		'summary' => $summary,
-		// semantic needs the words not the numeral for the class. stored this in the FormatHelpers.php from SO.
-		'boxes'   => jetpackcrm_convertNumberToWord( count( $summary ) ),
 		'chart'   => $chart,
 	);
 
@@ -209,33 +208,22 @@ function zbs_dash_setting() {
 	// perms?
 	if ( zeroBSCRM_permsCustomers() ) {
 
-			// acceptable opts - from /includes/ZeroBSCRM.AdminPages.php
-			$acceptableSettingKeys = array( 'settings_dashboard_total_contacts', 'settings_dashboard_total_leads', 'settings_dashboard_total_customers', 'settings_dashboard_total_transactions', 'settings_dashboard_sales_funnel', 'settings_dashboard_revenue_chart', 'settings_dashboard_recent_activity', 'settings_dashboard_latest_contacts' );
+		$setting_key             = ( isset( $_POST['the_setting'] ) ? sanitize_text_field( wp_unslash( $_POST['the_setting'] ) ) : '' );
+		$acceptable_setting_keys = array( 'settings_dashboard_sales_funnel', 'settings_dashboard_revenue_chart', 'settings_dashboard_recent_activity', 'settings_dashboard_latest_contacts' );
+
+		if ( in_array( $setting_key, $acceptable_setting_keys, true ) ) {
+
+			// default to checked
+			$is_checked = ( isset( $_POST['is_checked'] ) ? (int) sanitize_text_field( $_POST['is_checked'] ) : 1 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 
 			// retrieve
-			$cid        = get_current_user_id();
-			$settingKey = sanitize_text_field( $_POST['the_setting'] );
-
-		if ( in_array( $settingKey, $acceptableSettingKeys ) ) {
-
-			$is_checked = (int) sanitize_text_field( $_POST['is_checked'] );
-			if ( $is_checked < 0 ) {
-				$is_checked = -1;
-			}
-
-			// was/is storing these as str's of bools? weird. not sure why. For now, ducktape:
-			if ( $is_checked > 0 ) {
-				$is_checked = 'true';
-			} else {
-				$is_checked = 'false';
-			}
+			$current_user_id = get_current_user_id();
 
 			// update user meta, if legit.
-			update_user_meta( $cid, $settingKey, $is_checked );
+			update_user_meta( $current_user_id, $setting_key, $is_checked );
 
 			// No rights or failed key match
 			zeroBSCRM_sendJSONSuccess( array( 'fini' => 1 ) );
-
 		}
 	}
 
@@ -2991,6 +2979,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					);
 
 					$customers = $zbs->DAL->contacts->getContacts( $args );
+
+					$customers = jpcrm_inject_contacts( $customers, $args );
 
 					// } If using pagination, also return total count
 					if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {

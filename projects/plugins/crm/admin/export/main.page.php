@@ -171,7 +171,7 @@ function jpcrm_render_export_page() {
 
 	// select all
 	?>
-	<button type="button" class="ui blue mini button right floated all" id="zbs-export-select-all" ><span class="all"><i class="object ungroup icon"></i> <?php esc_html_e( 'Deselect All', 'zero-bs-crm' ); ?></span><span class="none" style="display:none"><i class="object group icon"></i> <?php esc_html_e( 'Select All', 'zero-bs-crm' ); ?></span></button>
+	<button type="button" class="ui black mini button right floated all" id="zbs-export-select-all" ><span class="all"><i class="object ungroup icon"></i> <?php esc_html_e( 'Deselect All', 'zero-bs-crm' ); ?></span><span class="none" style="display:none"><i class="object group icon"></i> <?php esc_html_e( 'Select All', 'zero-bs-crm' ); ?></span></button>
 
 	</div>
 	<div class="ui segment" id="zbs-export-fields">
@@ -240,7 +240,7 @@ function jpcrm_render_export_page() {
 
 	<div class="ui divider"></div>
 
-	<button class="ui green button" type="submit"><i class="download icon"></i> <?php esc_html_e( 'Export', 'zero-bs-crm' ); ?></button>
+	<button class="ui black button" type="submit"><i class="download icon"></i> <?php esc_html_e( 'Export', 'zero-bs-crm' ); ?></button>
 
 	<script type="text/javascript">
 
