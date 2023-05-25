@@ -65,7 +65,7 @@ function register_block() {
 	 */
 	if (
 		/** This filter is documented in class.jetpack-gutenberg.php */
-		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', true )
 		|| ! class_exists( '\Jetpack_Memberships' )
 	) {
 		return;
@@ -418,7 +418,7 @@ function render_block( $attributes ) {
 
 	if (
 		/** This filter is documented in class.jetpack-gutenberg.php */
-		apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+		apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', true )
 		&& class_exists( '\Jetpack_Memberships' )
 	) {
 		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
