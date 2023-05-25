@@ -326,7 +326,7 @@ class Jetpack_Plugin_Search {
 		 * Bail if something else hooks into the Plugins' API response
 		 * and does not return results.
 		 */
-		if ( empty( $result->plugins ) ) {
+		if ( empty( $result->plugins ) || is_wp_error( $result ) ) {
 			return $result;
 		}
 
