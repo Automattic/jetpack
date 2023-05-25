@@ -1,3 +1,4 @@
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 import apiFetch from '@wordpress/api-fetch';
 import debugFactory from 'debug';
 
@@ -121,14 +122,11 @@ export async function requestToken() {
 }
 
 /**
- * SuggestionsEventSource is a wrapper around EventSource that emits
+ * SuggestionsEventSource is a wrapper around EvenTarget that emits
  * a 'chunk' event for each chunk of data received, and a 'done' event
  * when the stream is closed.
  * It also emits a 'suggestion' event with the full suggestion received so far
  *
- * @see https://developer.mozilla.org/en-US/docs/Web/API/EventSource
- * @param {string} url - The URL to connect to
- * @param {object} options - Options to pass to EventSource
  * @returns {EventSource} The event source
  * @fires suggestion - The full suggestion has been received so far
  * @fires message - A message has been received
@@ -137,13 +135,31 @@ export async function requestToken() {
  * @fires error - An error has occurred
  * @fires error_network - The EventSource connection to the server returned some error
  */
-export class SuggestionsEventSource extends EventSource {
-	constructor( url, options ) {
-		super( url, options );
+export class SuggestionsEventSource extends EventTarget {
+	constructor( url ) {
+		super();
 		this.fullMessage = '';
 		this.isPromptClear = false;
-		this.addEventListener( 'message', this.processEvent );
-		this.addEventListener( 'error', this.processErrorEvent );
+		// The AbortController is used to close the fetchEventSource connection
+		this.controller = new AbortController();
+		this.initEventSource( url );
+	}
+
+	async initEventSource( url ) {
+		const self = this;
+
+		this.source = await fetchEventSource( url.toString(), {
+			onclose() {
+				debug( 'Stream closed unexpectedly' );
+			},
+			onmessage( ev ) {
+				self.processEvent( ev );
+			},
+			onerror( err ) {
+				self.processErrorEvent( err );
+			},
+			signal: this.controller.signal,
+		} );
 	}
 
 	checkForUnclearPrompt() {
@@ -160,6 +176,10 @@ export class SuggestionsEventSource extends EventSource {
 				this.isPromptClear = true;
 			}
 		}
+	}
+
+	close() {
+		this.controller.abort();
 	}
 
 	processEvent( e ) {
