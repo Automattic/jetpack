@@ -53,7 +53,12 @@ const mapAPIResponseToMembershipProductsStoreData = ( response, registry, dispat
 	);
 };
 
-const createDefaultProduct = async ( productType, setSelectedProductId, dispatch ) => {
+const createDefaultProduct = async (
+	productType,
+	setSelectedProductId,
+	dispatch,
+	silentProductCreation
+) => {
 	await dispatch(
 		saveProduct(
 			{
@@ -63,7 +68,8 @@ const createDefaultProduct = async ( productType, setSelectedProductId, dispatch
 				interval: '1 month',
 			},
 			productType,
-			setSelectedProductId
+			setSelectedProductId,
+			silentProductCreation
 		)
 	);
 };
@@ -81,11 +87,20 @@ const setDefaultProductIfNeeded = ( selectedProductId, setSelectedProductId, sel
 	}
 };
 
+export const getNewsletterProducts = (
+	productType = PRODUCT_TYPE_PAYMENT_PLAN,
+	selectedProductId = 0,
+	setSelectedProductId = () => {}
+) =>
+	// Returns the products, but silences the snack bar if a default product is created
+	getProducts( productType, selectedProductId, setSelectedProductId, true );
+
 export const getProducts =
 	(
 		productType = PRODUCT_TYPE_PAYMENT_PLAN,
 		selectedProductId = 0,
-		setSelectedProductId = () => {}
+		setSelectedProductId = () => {},
+		silentProductCreation = false
 	) =>
 	async ( { dispatch, registry, select } ) => {
 		await executionLock.blockExecution( EXECUTION_KEY );
@@ -101,7 +116,12 @@ export const getProducts =
 
 			if ( shouldCreateDefaultProduct( response ) ) {
 				// Is ready to use and has no product set up yet. Let's create one!
-				await createDefaultProduct( productType, setSelectedProductId, dispatch );
+				await createDefaultProduct(
+					productType,
+					setSelectedProductId,
+					dispatch,
+					silentProductCreation
+				);
 			}
 
 			setDefaultProductIfNeeded( selectedProductId, setSelectedProductId, select );
