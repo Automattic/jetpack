@@ -699,7 +699,7 @@ function createReadMeMd( answers ) {
 		'\n' +
 		'## Using this package in your WordPress plugin\n' +
 		'\n' +
-		'If you plan on using this package in your WordPress plugin, we would recommend that you use[Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.\n' +
+		'If you plan on using this package in your WordPress plugin, we would recommend that you use [Jetpack Autoloader](https://packagist.org/packages/automattic/jetpack-autoloader) as your autoloader. This will allow for maximum interoperability with other plugins that use this package as well.\n' +
 		'\n' +
 		'## Security\n' +
 		'\n' +
