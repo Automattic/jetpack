@@ -35,21 +35,25 @@ class Contact_Trigger_Test extends BaseTestCase {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_updated' );
 
-		// Build a PHPUnit mock Contact_Updated trigger.
-		$trigger = $this->getMockBuilder( Contact_Updated::class )
-		->onlyMethods( array( 'execute_workflow' ) )
-		->getMock();
+		$trigger = new Contact_Updated();
 
-		// Init the mocked trigger.
-		$trigger->init( new Automation_Workflow( $workflow_data, new Automation_Engine() ) );
+		// Build a PHPUnit mock Automation_Workflow
+		$workflow = $this->getMockBuilder( Automation_Workflow::class )
+			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->onlyMethods( array( 'execute' ) )
+			->getMock();
+
+		// Init the Contact_Updated trigger.
+		$trigger->init( $workflow );
 
 		// Fake event data.
 		$contact_data = $this->automation_faker->contact_data();
 
-		// We expect the trigger to be executed on execute_workflow event with the contact data.
-		$trigger->expects( $this->once() )
-		->method( 'execute_workflow' )
+		// We expect the workflow to be executed on contact_update event with the contact data
+		$workflow->expects( $this->once() )
+		->method( 'execute' )
 		->with(
+			$this->equalTo( $trigger ),
 			$this->equalTo( $contact_data )
 		);
 
@@ -64,21 +68,25 @@ class Contact_Trigger_Test extends BaseTestCase {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_status_updated' );
 
-		// Build a PHPUnit mock Contact_Status_Updated trigger.
-		$trigger = $this->getMockBuilder( Contact_Status_Updated::class )
-		->onlyMethods( array( 'execute_workflow' ) )
-		->getMock();
+		$trigger = new Contact_Status_Updated();
 
-		// Init the mocked trigger.
-		$trigger->init( new Automation_Workflow( $workflow_data, new Automation_Engine() ) );
+		// Build a PHPUnit mock Automation_Workflow
+		$workflow = $this->getMockBuilder( Automation_Workflow::class )
+			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->onlyMethods( array( 'execute' ) )
+			->getMock();
+
+		// Init the Contact_Status_Updated trigger.
+		$trigger->init( $workflow );
 
 		// Fake event data.
 		$contact_data = $this->automation_faker->contact_data();
 
-		// We expect the trigger to be executed on execute_workflow event with the contact data.
-		$trigger->expects( $this->once() )
-		->method( 'execute_workflow' )
+		// We expect the workflow to be executed on contact_status_update event with the contact data
+		$workflow->expects( $this->once() )
+		->method( 'execute' )
 		->with(
+			$this->equalTo( $trigger ),
 			$this->equalTo( $contact_data )
 		);
 
@@ -93,21 +101,25 @@ class Contact_Trigger_Test extends BaseTestCase {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_new' );
 
-		// Build a PHPUnit mock Contact_New trigger.
-		$trigger = $this->getMockBuilder( Contact_New::class )
-		->onlyMethods( array( 'execute_workflow' ) )
-		->getMock();
+		$trigger = new Contact_New();
 
-		// Init the mocked trigger.
-		$trigger->init( new Automation_Workflow( $workflow_data, new Automation_Engine() ) );
+		// Build a PHPUnit mock Automation_Workflow
+		$workflow = $this->getMockBuilder( Automation_Workflow::class )
+			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->onlyMethods( array( 'execute' ) )
+			->getMock();
+
+		// Init the Contact_New trigger.
+		$trigger->init( $workflow );
 
 		// Fake event data.
 		$contact_data = $this->automation_faker->contact_data();
 
-		// We expect the trigger to be executed on execute_workflow event with the contact data.
-		$trigger->expects( $this->once() )
-		->method( 'execute_workflow' )
+		// We expect the workflow to be executed on contact_new event with the contact data
+		$workflow->expects( $this->once() )
+		->method( 'execute' )
 		->with(
+			$this->equalTo( $trigger ),
 			$this->equalTo( $contact_data )
 		);
 
@@ -122,25 +134,29 @@ class Contact_Trigger_Test extends BaseTestCase {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_email_updated' );
 
-		// Build a PHPUnit mock Contact_New trigger.
-		$trigger = $this->getMockBuilder( Contact_Email_Updated::class )
-		->onlyMethods( array( 'execute_workflow' ) )
-		->getMock();
+		$trigger = new Contact_Email_Updated();
 
-		// Init the mocked trigger.
-		$trigger->init( new Automation_Workflow( $workflow_data, new Automation_Engine() ) );
+		// Build a PHPUnit mock Automation_Workflow
+		$workflow = $this->getMockBuilder( Automation_Workflow::class )
+			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->onlyMethods( array( 'execute' ) )
+			->getMock();
+
+		// Init the Contact_Email_Updated trigger.
+		$trigger->init( $workflow );
 
 		// Fake event data.
 		$contact_data = $this->automation_faker->contact_data();
 
-		// We expect the trigger to be executed on execute_workflow event with the contact data.
-		$trigger->expects( $this->once() )
-		->method( 'execute_workflow' )
+		// We expect the workflow to be executed on contact_email_update event with the contact data
+		$workflow->expects( $this->once() )
+		->method( 'execute' )
 		->with(
+			$this->equalTo( $trigger ),
 			$this->equalTo( $contact_data )
 		);
 
-		// Run the contact_email_updated action.
+		// Run the contact_email_update action.
 		do_action( 'jpcrm_automation_contact_email_update', $contact_data );
 	}
 
@@ -151,21 +167,25 @@ class Contact_Trigger_Test extends BaseTestCase {
 
 		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_deleted' );
 
-		// Build a PHPUnit mock Contact_Deleted trigger.
-		$trigger = $this->getMockBuilder( Contact_Deleted::class )
-		->onlyMethods( array( 'execute_workflow' ) )
-		->getMock();
+		$trigger = new Contact_Deleted();
 
-		// Init the mocked trigger.
-		$trigger->init( new Automation_Workflow( $workflow_data, new Automation_Engine() ) );
+		// Build a PHPUnit mock Automation_Workflow
+		$workflow = $this->getMockBuilder( Automation_Workflow::class )
+			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->onlyMethods( array( 'execute' ) )
+			->getMock();
+
+		// Init the Contact_Deleted trigger.
+		$trigger->init( $workflow );
 
 		// Fake event data.
 		$contact_data = $this->automation_faker->contact_data();
 
-		// We expect the trigger to be executed on execute_workflow event with the contact data.
-		$trigger->expects( $this->once() )
-		->method( 'execute_workflow' )
+		// We expect the workflow to be executed on contact_deleted event with the contact data
+		$workflow->expects( $this->once() )
+		->method( 'execute' )
 		->with(
+			$this->equalTo( $trigger ),
 			$this->equalTo( $contact_data )
 		);
 
@@ -178,23 +198,27 @@ class Contact_Trigger_Test extends BaseTestCase {
 	 */
 	public function test_contact_before_deleted_trigger() {
 
-		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_before_delete' );
+		$workflow_data = $this->automation_faker->workflow_without_initial_step_customize_trigger( 'contact_before_deleted' );
 
-		// Build a PHPUnit mock Contact_Before_Deleted trigger.
-		$trigger = $this->getMockBuilder( Contact_Before_Deleted::class )
-		->onlyMethods( array( 'execute_workflow' ) )
-		->getMock();
+		$trigger = new Contact_Before_Deleted();
 
-		// Init the mocked trigger.
-		$trigger->init( new Automation_Workflow( $workflow_data, new Automation_Engine() ) );
+		// Build a PHPUnit mock Automation_Workflow
+		$workflow = $this->getMockBuilder( Automation_Workflow::class )
+			->setConstructorArgs( array( $workflow_data, new Automation_Engine() ) )
+			->onlyMethods( array( 'execute' ) )
+			->getMock();
+
+		// Init the Contact_Before_Deleted trigger.
+		$trigger->init( $workflow );
 
 		// Fake event data.
 		$contact_data = $this->automation_faker->contact_data();
 
-		// We expect the trigger to be executed on execute_workflow event with the contact data.
-		$trigger->expects( $this->once() )
-		->method( 'execute_workflow' )
+		// We expect the workflow to be executed on contact_before_deleted event with the contact data
+		$workflow->expects( $this->once() )
+		->method( 'execute' )
 		->with(
+			$this->equalTo( $trigger ),
 			$this->equalTo( $contact_data )
 		);
 
