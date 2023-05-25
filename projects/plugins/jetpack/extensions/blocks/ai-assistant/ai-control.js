@@ -51,7 +51,7 @@ const AIControl = ( {
 		}
 	};
 
-	const { hasFeature } = useAIFeature();
+	const { requireUpgrade } = useAIFeature();
 
 	const textPlaceholder = ! content?.length
 		? __( 'Ask Jetpack AI for anything…', 'jetpack' )
@@ -71,7 +71,7 @@ const AIControl = ( {
 
 	return (
 		<>
-			{ ! hasFeature && <UpgradePrompt /> }
+			{ requireUpgrade && <UpgradePrompt /> }
 			{ ! isWaitingState && (
 				<ToolbarControls
 					isWaitingState={ isWaitingState }

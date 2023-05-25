@@ -28,12 +28,14 @@ export default function useAIFeature() {
 				path: '/wpcom/v2/jetpack-ai/ai-assistant-feature',
 			} );
 
-			const requireUpgrade = ! response[ 'has-feature' ] && response[ 'is-over-limit' ];
-
 			try {
+				const hasFeature = !! response[ 'has-feature' ];
+				const isOverLimit = !! response[ 'is-over-limit' ];
+				const requireUpgrade = ! hasFeature && isOverLimit;
+
 				setData( {
-					hasFeature: !! response[ 'has-feature' ],
-					isOverLimit: !! response[ 'is-over-limit' ],
+					hasFeature,
+					isOverLimit,
 					requestsCount: response[ 'requests-count' ],
 					requestsLimit: response[ 'requests-limit' ],
 					requireUpgrade,
