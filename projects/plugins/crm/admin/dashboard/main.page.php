@@ -33,39 +33,11 @@ function jpcrm_render_dashboard_page() {
 	global  $zbs;
 
 	// retrieve settings
-	$cid                                   = get_current_user_id();
-	$settings_dashboard_total_contacts     = get_user_meta( $cid, 'settings_dashboard_total_contacts', true );
-	$settings_dashboard_total_leads        = get_user_meta( $cid, 'settings_dashboard_total_leads', true );
-	$settings_dashboard_total_customers    = get_user_meta( $cid, 'settings_dashboard_total_customers', true );
-	$settings_dashboard_total_transactions = get_user_meta( $cid, 'settings_dashboard_total_transactions', true );
-	$settings_dashboard_sales_funnel       = get_user_meta( $cid, 'settings_dashboard_sales_funnel', true );
-	$settings_dashboard_revenue_chart      = get_user_meta( $cid, 'settings_dashboard_revenue_chart', true );
-	$settings_dashboard_recent_activity    = get_user_meta( $cid, 'settings_dashboard_recent_activity', true );
-	$settings_dashboard_latest_contacts    = get_user_meta( $cid, 'settings_dashboard_latest_contacts', true );
-	if ( $settings_dashboard_total_contacts == '' ) {
-		$settings_dashboard_total_contacts = 'true';
-	}
-	if ( $settings_dashboard_total_leads == '' ) {
-		$settings_dashboard_total_leads = 'true';
-	}
-	if ( $settings_dashboard_total_customers == '' ) {
-		$settings_dashboard_total_customers = 'true';
-	}
-	if ( $settings_dashboard_total_transactions == '' ) {
-		$settings_dashboard_total_transactions = 'true';
-	}
-	if ( $settings_dashboard_sales_funnel == '' ) {
-		$settings_dashboard_sales_funnel = 'true';
-	}
-	if ( $settings_dashboard_revenue_chart == '' ) {
-		$settings_dashboard_revenue_chart = 'true';
-	}
-	if ( $settings_dashboard_recent_activity == '' ) {
-		$settings_dashboard_recent_activity = 'true';
-	}
-	if ( $settings_dashboard_latest_contacts == '' ) {
-		$settings_dashboard_latest_contacts = 'true';
-	}
+	$current_user_id                    = get_current_user_id();
+	$settings_dashboard_sales_funnel    = (int) get_user_meta( $current_user_id, 'settings_dashboard_sales_funnel', true ) !== 0;
+	$settings_dashboard_revenue_chart   = (int) get_user_meta( $current_user_id, 'settings_dashboard_revenue_chart', true ) !== 0;
+	$settings_dashboard_recent_activity = (int) get_user_meta( $current_user_id, 'settings_dashboard_recent_activity', true ) !== 0;
+	$settings_dashboard_latest_contacts = (int) get_user_meta( $current_user_id, 'settings_dashboard_latest_contacts', true ) !== 0;
 
 	// process data for use in sales funnel
 	$funnel_data = array();
@@ -176,7 +148,7 @@ function jpcrm_render_dashboard_page() {
 		<label>
 		<input type="checkbox" name="settings_dashboard_sales_funnel" id="settings_dashboard_sales_funnel" 
 		<?php
-		if ( $settings_dashboard_sales_funnel == 'true' ) {
+		if ( $settings_dashboard_sales_funnel ) {
 			echo 'checked'; }
 		?>
 		>
@@ -186,7 +158,7 @@ function jpcrm_render_dashboard_page() {
 	<li class="item"><label>
 		<input type="checkbox" name="settings_dashboard_revenue_chart" id="settings_dashboard_revenue_chart" 
 		<?php
-		if ( $settings_dashboard_revenue_chart == 'true' ) {
+		if ( $settings_dashboard_revenue_chart ) {
 			echo 'checked'; }
 		?>
 		>
@@ -197,7 +169,7 @@ function jpcrm_render_dashboard_page() {
 	<li class="item"><label>
 		<input type="checkbox" name="settings_dashboard_recent_activity" id="settings_dashboard_recent_activity" 
 		<?php
-		if ( $settings_dashboard_recent_activity == 'true' ) {
+		if ( $settings_dashboard_recent_activity ) {
 			echo 'checked'; }
 		?>
 		>
@@ -207,7 +179,7 @@ function jpcrm_render_dashboard_page() {
 	<li class="item"><label>
 		<input type="checkbox" name="settings_dashboard_latest_contacts" id="settings_dashboard_latest_contacts" 
 		<?php
-		if ( $settings_dashboard_latest_contacts == 'true' ) {
+		if ( $settings_dashboard_latest_contacts ) {
 			echo 'checked'; }
 		?>
 		>
@@ -228,8 +200,8 @@ function jpcrm_render_dashboard_page() {
 
 	<div style="display:flex; max-width: 100%">
 
-		<div id="settings_dashboard_sales_funnel_display"<?php echo $settings_dashboard_sales_funnel === 'true' ? '' : ' style="display:none;"'; ?>>
-			<div class="jpcrm-dashcard" style="margin: 10px; padding: 10px;">
+		<div id="settings_dashboard_sales_funnel_display"<?php echo $settings_dashboard_sales_funnel ? '' : ' style="display:none;"'; ?>>
+			<div class="jpcrm-dashcard">
 				<div class="jpcrm-dashcard-header">
 					<h4><?php esc_html_e( 'Sales Funnel', 'zero-bs-crm' ); ?></h4>
 				</div>
@@ -239,8 +211,8 @@ function jpcrm_render_dashboard_page() {
 			</div>
 		</div>
 
-		<div id="settings_dashboard_revenue_chart_display"<?php echo $settings_dashboard_revenue_chart === 'true' ? '' : ' style="display:none;"'; ?>>
-			<div class="jpcrm-dashcard" style="margin: 10px; padding: 10px;">
+		<div id="settings_dashboard_revenue_chart_display"<?php echo $settings_dashboard_revenue_chart ? '' : ' style="display:none;"'; ?>>
+			<div class="jpcrm-dashcard">
 				<div class="jpcrm-dashcard-header">
 					<?php $currency_char = zeroBSCRM_getCurrencyChr(); ?>
 					<h4><?php esc_html_e( 'Revenue Chart', 'zero-bs-crm' ); ?> (<?php echo esc_html( $currency_char ); ?>)</h4>
@@ -298,8 +270,8 @@ function jpcrm_render_dashboard_page() {
 
 
 	<div style="display:flex; max-width: 100%">
-		<div id="settings_dashboard_recent_activity_display"<?php echo $settings_dashboard_recent_activity === 'true' ? '' : ' style="display:none;"'; ?>>
-			<div class="jpcrm-dashcard" style="margin: 10px; padding: 10px;">
+		<div id="settings_dashboard_recent_activity_display"<?php echo $settings_dashboard_recent_activity ? '' : ' style="display:none;"'; ?>>
+			<div class="jpcrm-dashcard">
 				<div class="jpcrm-dashcard-header">
 					<h4><?php esc_html_e( 'Recent Activity', 'zero-bs-crm' ); ?></h4>
 				</div>
@@ -367,8 +339,8 @@ function jpcrm_render_dashboard_page() {
 				</div>
 			</div>
 		</div>
-		<div id="settings_dashboard_latest_contacts_display"<?php echo $settings_dashboard_latest_contacts === 'true' ? '' : ' style="display:none;"'; ?>>
-			<div class="jpcrm-dashcard" style="margin: 10px; padding: 10px;">
+		<div id="settings_dashboard_latest_contacts_display"<?php echo $settings_dashboard_latest_contacts ? '' : ' style="display:none;"'; ?>>
+			<div class="jpcrm-dashcard">
 				<div class="jpcrm-dashcard-header">
 					<h4><?php esc_html_e( 'Latest Contacts', 'zero-bs-crm' ); ?></h4>
 					<span><a href="<?php echo jpcrm_esc_link( $zbs->slugs['managecontacts'] ); ?>"><?php esc_html_e( 'View All', 'zero-bs-crm' ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?></a></span>
@@ -440,7 +412,7 @@ function jpcrm_render_dashboard_page() {
 	<?php
 
 	// First use dashboard
-	if ( zeroBSCRM_permsCustomers() && $zbs->DAL->contacts->getFullCount() == 0 ) {
+	if ( zeroBSCRM_permsCustomers() && (int) $zbs->DAL->contacts->getFullCount() === 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 		// if WooCommerce installed, show that variant
 		if ( $zbs->woocommerce_is_active() ) {

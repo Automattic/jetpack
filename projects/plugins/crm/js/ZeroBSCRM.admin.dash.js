@@ -78,7 +78,7 @@ jQuery( function ( $ ) {
 		var zbs_dash_setting_id = jQuery( this ).attr( 'id' );
 		jQuery( '#' + zbs_dash_setting_id + '_display' ).toggle();
 
-		var is_checked = -1;
+		var is_checked = 0;
 		if ( jQuery( '#' + zbs_dash_setting_id ).is( ':checked' ) ) {
 			is_checked = 1;
 		}
