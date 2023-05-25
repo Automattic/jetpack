@@ -42,6 +42,7 @@ class Contact_Updated extends Base_Trigger {
 	 * @throws Automation_Exception Throws a 'class not found' or general error.
 	 */
 	public function init( Automation_Workflow $workflow ) {
+		$this->workflow = $workflow;
 		add_action(
 			'jpcrm_automation_contact_update',
 			array( $this, 'execute_workflow' )
