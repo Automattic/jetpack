@@ -275,9 +275,6 @@ function jetpack_boost_minify_setup() {
 	}
 	$setup_done = true;
 
-	// Handle requests for minified / concatenated content.
-	jetpack_boost_minify_serve_concatenated();
-
 	// Hook up deactivation and uninstall cleanup paths.
 	register_deactivation_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_deactivate' );
 	register_uninstall_hook( JETPACK_BOOST_PATH, 'jetpack_boost_page_optimize_uninstall' );

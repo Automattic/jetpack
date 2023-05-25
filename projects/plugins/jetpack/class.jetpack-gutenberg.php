@@ -726,6 +726,8 @@ class Jetpack_Gutenberg {
 				'isEnhancedPublishingEnabled'     => $publicize->has_enhanced_publishing_feature(),
 				'isSocialImageGeneratorAvailable' => $sig_settings->is_available(),
 				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
+				'dismissedNotices'                => $publicize->get_dismissed_notices(),
+				'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
 			);
 		}
 
