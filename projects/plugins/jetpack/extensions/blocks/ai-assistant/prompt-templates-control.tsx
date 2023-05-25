@@ -15,13 +15,13 @@ type PromptTemplateProps = {
 	label: string;
 };
 
-export const defaultPrompt = {
+export const defaultPromptTemplate = {
 	label: __( 'Post about…', 'jetpack' ),
 	description: __( 'Write a post about ', 'jetpack' ),
 };
 
 const promptTemplates = [
-	defaultPrompt,
+	defaultPromptTemplate,
 
 	{
 		label: __( 'Detailed guide on…', 'jetpack' ),
