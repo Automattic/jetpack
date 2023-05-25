@@ -689,7 +689,7 @@ class Jetpack_Gutenberg {
 					 *
 					 * @param bool false Enable the Paid Newsletters feature in the block editor context.
 					 */
-					apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+					apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', true )
 					&& class_exists( '\Jetpack_Memberships' )
 				),
 				/**
