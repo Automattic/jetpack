@@ -148,7 +148,7 @@ export function NewsletterNotice( {
 }
 
 function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasNewsletterPlans } ) {
-	const paidLink = getPaidPlanLink( true );
+	const paidLink = getPaidPlanLink( hasNewsletterPlans );
 
 	if ( ! hasNewsletterPlans && ! isStripeConnected ) {
 		return (
