@@ -56,6 +56,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		retryRequest,
 		wholeContent,
 	} = useSuggestionsFromOpenAI( {
+		attributes,
 		clientId,
 		content: attributes.content,
 		setErrorMessage,
