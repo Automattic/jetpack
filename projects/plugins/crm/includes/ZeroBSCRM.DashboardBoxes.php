@@ -39,7 +39,7 @@ function zeroBS_dashboard_crm_list_growth(){
 		)
 	);
 	?>
-	<div class="jpcrm-dashcard" style="margin:10px;">
+	<div class="jpcrm-dashcard" style="margin: 10px; padding: 10px;">
 		<div class="jpcrm-dashcard-header">
 			<h4><?php esc_html_e( 'CRM contacts', 'zero-bs-crm' ); ?></h4>
 			<?php
@@ -71,7 +71,7 @@ function zeroBS_dashboard_crm_list_growth(){
 						<?php esc_html_e( 'No contacts were added during the last 12 months. You need contacts for your growth chart to show.', 'zero-bs-crm' ); ?>
 					</div>
 					<div class="div-message">
-						<a href="<?php echo esc_url( $zbs->urls['kbfirstcontact'] ); ?>" class="jpcrm-button white-bg"><?php echo esc_html__( 'Read guide', 'zero-bs-crm' ); ?></a>
+						<a href="<?php echo esc_url( $zbs->urls['kbfirstcontact'] ); ?>" target="_blank" class="jpcrm-button white-bg"><?php echo esc_html__( 'Read guide', 'zero-bs-crm' ); ?></a>
 						<a href="<?php echo jpcrm_esc_link( 'create', -1, 'zerobs_customer', false, false ); /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ ?>" class="jpcrm-button"><?php esc_html_e( 'Add a contact', 'zero-bs-crm' ); ?></a>
 					</div>
 				</div>
