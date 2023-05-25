@@ -1,12 +1,20 @@
-( () => {
-	const modal = document.getElementById( 'myModal' );
-	const span = document.getElementsByClassName( 'close' )[ 0 ];
+window.onload = function () {
+	const modal = document.getElementById( 'wpcom-subscribe-modal' );
+	const close = document.getElementById( 'close' );
+	let hasLoaded = false;
 
 	window.onscroll = function () {
+		if ( ! hasLoaded ) {
+			modal.style.display = 'block';
+			hasLoaded = true;
+		}
+	};
+
+	open.onclick = function () {
 		modal.style.display = 'block';
 	};
 
-	span.onclick = function () {
+	close.onclick = function () {
 		modal.style.display = 'none';
 	};
 
@@ -15,4 +23,4 @@
 			modal.style.display = 'none';
 		}
 	};
-} )();
+};

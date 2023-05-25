@@ -6,6 +6,8 @@
  * @since 2.2.1
  */
 
+namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Newsletter;
+
 /**
  * Load newsletter features.
  */
