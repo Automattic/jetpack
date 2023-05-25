@@ -25,7 +25,7 @@ import Notice from '../notice';
 import PublicizeSettingsButton from '../settings-button';
 import styles from './styles.module.scss';
 
-const CONNECTIONS_NEED_MEDIA = [ 'instagram' ];
+const CONNECTIONS_NEED_MEDIA = [ 'instagram-business' ];
 const PUBLICIZE_STORE_ID = 'jetpack/publicize';
 
 const checkConnectionCode = ( connection, code ) =>

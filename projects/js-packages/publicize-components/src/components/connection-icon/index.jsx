@@ -15,7 +15,7 @@ const ConnectionIcon = props => {
 			<div className={ hasDisplayPicture ? 'components-connection-icon__picture' : '' }>
 				{ hasDisplayPicture && <img src={ profilePicture } alt={ label } onError={ onError } /> }
 				<SocialServiceIcon
-					serviceName={ serviceName }
+					serviceName={ 'instagram-business' === serviceName ? 'instagram' : serviceName }
 					className="jetpack-publicize-gutenberg-social-icon"
 					invert={ 'tumblr' === serviceName }
 				/>
