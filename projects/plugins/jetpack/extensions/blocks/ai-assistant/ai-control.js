@@ -254,11 +254,6 @@ const ToolbarControls = ( {
 								onClick: () =>
 									getSuggestionFromOpenAI( 'makeShorter', { contentType: 'generated' } ),
 							},
-							{
-								title: __( 'Correct spelling and grammar', 'jetpack' ),
-								onClick: () =>
-									getSuggestionFromOpenAI( 'correctSpelling', { contentType: 'generated' } ),
-							},
 						] }
 					/>
 				</BlockControls>
