@@ -349,8 +349,8 @@ function zbscrm_JS_initMenuPopups() {
 			hoverable: true,
 			on: 'hover',
 			delay: {
-				show: 300,
-				hide: 800,
+				show: 50,
+				hide: 500,
 			},
 		} );
 	}
