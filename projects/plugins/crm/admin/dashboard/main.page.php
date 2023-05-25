@@ -125,7 +125,7 @@ function jpcrm_render_dashboard_page() {
 
 	<div id="zbs-date-picker-background">
 	<div class='month-selector'>
-		<div id="reportrange" class="pull-right jpcrm-date-range" style="cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%;margin-top:-3px;width:220px;">
+		<div id="reportrange" class="pull-right jpcrm-date-range" style="cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%;margin-top:-3px;width:240px;">
 		<i class="fa fa-calendar"></i>&nbsp;
 		<span></span> <b class="caret"></b>
 		</div>
