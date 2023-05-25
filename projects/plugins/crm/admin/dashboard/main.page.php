@@ -319,7 +319,7 @@ function jpcrm_render_dashboard_page() {
 							?>
 								<div class="feed-item">
 									<img class="ui avatar img img-rounded" alt="<?php esc_attr_e( 'Contact Image', 'zero-bs-crm' ); ?>" src="<?php echo esc_url( $avatar ); ?>"/>
-									<div class="content text">
+									<div>
 										<?php echo esc_html( $logmetatype ); ?>
 										<div><?php echo wp_kses( $logmetashot, array( 'i' => array( 'class' => true ) ) ); ?></div>
 									</div>
