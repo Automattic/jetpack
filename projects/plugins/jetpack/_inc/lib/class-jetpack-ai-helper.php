@@ -311,14 +311,16 @@ class Jetpack_AI_Helper {
 				}
 			}
 
-			$blog_id       = get_current_blog_id();
-			$is_over_limit = \OpenAI_Limit_Usage::is_blog_over_request_limit( $blog_id );
-			$count         = \OpenAI_Request_Count::get_count( $blog_id );
+			$blog_id        = get_current_blog_id();
+			$is_over_limit  = \OpenAI_Limit_Usage::is_blog_over_request_limit( $blog_id );
+			$requests_limit = \OpenAI_Limit_Usage::NUM_FREE_REQUESTS_LIMIT;
+			$requests_count = \OpenAI_Request_Count::get_count( $blog_id );
 
 			return array(
-				'has-feature'   => $has_ai_assistant_feature,
-				'is-over-limit' => $is_over_limit,
-				'count'         => $count,
+				'has-feature'    => $has_ai_assistant_feature,
+				'is-over-limit'  => $is_over_limit,
+				'requests-count' => $requests_count,
+				'requests-limit' => $requests_limit,
 			);
 		}
 
