@@ -47,6 +47,16 @@ class WP_Test_Jetpack_Base_Json_Api_Endpoints extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Reset the environment to its original state after the test.
+	 */
+	public function tear_down() {
+		set_error_handler( null );
+		delete_user_meta( self::$super_admin_user_id, 'user_id' );
+
+		parent::tear_down();
+	}
+
+	/**
 	 * @author zaerl
 	 * @covers Jetpack_JSON_API_Endpoint::get_author
 	 * @group json-api
@@ -100,12 +110,10 @@ class WP_Test_Jetpack_Base_Json_Api_Endpoints extends WP_UnitTestCase {
 		// The user should be the same as the one passed as object to the method.
 		$this->assertIsObject( $author );
 		$this->assertSame( self::$super_admin_user_id, $author->ID );
-
-		delete_user_meta( self::$super_admin_user_id, 'user_id' );
 	}
 
 	/**
-	 * Generate a dummy endpoint
+	 * Generate a dummy endpoint.
 	 */
 	private function get_dummy_endpoint() {
 		$endpoint = new Jetpack_JSON_API_Dummy_Base_Endpoint(
