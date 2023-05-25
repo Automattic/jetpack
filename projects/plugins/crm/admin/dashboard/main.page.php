@@ -32,12 +32,13 @@ function jpcrm_render_dashboard_page() {
 
 	global  $zbs;
 
-	// retrieve settings
-	$current_user_id                    = get_current_user_id();
-	$settings_dashboard_sales_funnel    = (int) get_user_meta( $current_user_id, 'settings_dashboard_sales_funnel', true ) !== 0;
-	$settings_dashboard_revenue_chart   = (int) get_user_meta( $current_user_id, 'settings_dashboard_revenue_chart', true ) !== 0;
-	$settings_dashboard_recent_activity = (int) get_user_meta( $current_user_id, 'settings_dashboard_recent_activity', true ) !== 0;
-	$settings_dashboard_latest_contacts = (int) get_user_meta( $current_user_id, 'settings_dashboard_latest_contacts', true ) !== 0;
+	$current_user_id = get_current_user_id();
+
+	// Get dashcard visibility. Note that get_user_meta() returns an empty string if the meta doesn't exist. Default to visible (`true`).
+	$settings_dashboard_sales_funnel    = get_user_meta( $current_user_id, 'settings_dashboard_sales_funnel', true ) !== '0';
+	$settings_dashboard_revenue_chart   = get_user_meta( $current_user_id, 'settings_dashboard_revenue_chart', true ) !== '0';
+	$settings_dashboard_recent_activity = get_user_meta( $current_user_id, 'settings_dashboard_recent_activity', true ) !== '0';
+	$settings_dashboard_latest_contacts = get_user_meta( $current_user_id, 'settings_dashboard_latest_contacts', true ) !== '0';
 
 	// process data for use in sales funnel
 	$funnel_data = array();
