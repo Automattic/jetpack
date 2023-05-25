@@ -12,6 +12,7 @@
 		"psr-4": {
 			"Automattic\\Jetpack\\Boost_Speed_Score\\Tests\\": "./tests/php"
 		}
+	"require": {},
 	},
 	"autoload": {
 		"classmap": [
@@ -24,7 +25,11 @@
 		],
 		"test-php": [
 			"@composer phpunit"
-		]
+		],
+		"build-production": "echo 'Add your build step to composer.json, please!'",
+		"build-development": "echo 'Add your build step to composer.json, please!'",
+		"post-install-cmd": "WorDBless\\Composer\\InstallDropin::copy",
+		"post-update-cmd": "WorDBless\\Composer\\InstallDropin::copy"
 	},
 	"repositories": [
 		{
@@ -53,7 +58,11 @@
 		},
 		"textdomain": "jetpack-boost-speed-score",
 		"version-constants": {
+<<<<<<< add/jetpack-boost-speed-score-package
 			"::PACKAGE_VERSION": "src/class-speed-score.php"
+=======
+			"::PACKAGE_VERSION": "src/class-boost-speed-score.php"
+>>>>>>> trunk
 		}
 	},
 	"suggest": {

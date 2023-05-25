@@ -347,7 +347,7 @@ class zeroBSCRM_list{
 
                         <div class="column" style="max-width:364px;">
                             <div class="ui labeled input">
-                                <div class="ui teal label"><i class="table icon"></i>  <?php esc_html_e('Records per page:','zero-bs-crm'); ?></div>
+										<div class="ui label"><i class="table icon"></i>  <?php esc_html_e( 'Records per page:', 'zero-bs-crm' ); ?></div>
                                 <input type="text" style="width:70px;" class="intOnly" id="zbs-screenoptions-records-per-page" value="<?php echo esc_attr( $perPage ); ?>" />
                             </div>
                         </div>
@@ -387,7 +387,7 @@ class zeroBSCRM_list{
                     <div class="two column clearing centered row">
 
                         <div class="column" style="max-width:364px;">
-                            <button id="zbs-columnmanager-bottomsave" type="button" class="ui button positive"><i class="check square icon"></i> <?php esc_html_e('Save Options and Close','zero-bs-crm'); ?></button>
+									<button id="zbs-columnmanager-bottomsave" type="button" class="ui button black positive"><i class="check square icon"></i> <?php esc_html_e( 'Save Options and Close', 'zero-bs-crm' ); ?></button>
                         </div>
 
                     </div>
