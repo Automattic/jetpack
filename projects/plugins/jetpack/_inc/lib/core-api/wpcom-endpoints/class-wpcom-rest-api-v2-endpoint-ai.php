@@ -94,11 +94,11 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/requests',
+			$this->rest_base . '/ai-assistant-feature',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'request_get_requests' ),
+					'callback'            => array( $this, 'request_get_ai_assistance_feature' ),
 					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
 				),
 			)
@@ -124,12 +124,13 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	}
 
 	/**
-	 * Get requests stats
+	 * Collect and provide relevat data about the AI feature,
+	 * such as the number of requests made.
 	 *
 	 * @param  WP_REST_Request $request The request.
 	 */
-	public function request_get_requests( $request ) {
-		return Jetpack_AI_Helper::get_requests_stats();
+	public function request_get_ai_assistance_feature( $request ) {
+		return Jetpack_AI_Helper::get_ai_assistance_feature();
 	}
 }
 

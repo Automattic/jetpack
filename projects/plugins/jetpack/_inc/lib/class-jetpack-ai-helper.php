@@ -282,7 +282,7 @@ class Jetpack_AI_Helper {
 	 *
 	 * @return mixed
 	 */
-	public static function get_requests_stats() {
+	public static function get_ai_assistance_feature() {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$has_ai_assistant_feature = \wpcom_site_has_feature( 'ai-assistant' );
 			if ( ! class_exists( 'OpenAI' ) ) {
@@ -323,7 +323,7 @@ class Jetpack_AI_Helper {
 		}
 
 		$blog_id      = Jetpack_Options::get_option( 'id' );
-		$request_path = sprintf( '/sites/%d/jetpack-ai/requests', $blog_id );
+		$request_path = sprintf( '/sites/%d/jetpack-ai/ai-assistant-feature', $blog_id );
 
 		$wpcom_request = Client::wpcom_json_api_request_as_user(
 			$request_path,
