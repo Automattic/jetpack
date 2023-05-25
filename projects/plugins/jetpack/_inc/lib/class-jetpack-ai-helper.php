@@ -201,7 +201,11 @@ class Jetpack_AI_Helper {
 		if ( wp_remote_retrieve_response_code( $response ) >= 400 ) {
 			return new WP_Error( $data->code, $data->message, $data->data );
 		}
-		set_transient( self::transient_name_for_completion(), $data, self::$text_completion_cooldown_seconds );
+
+		// Do not cache if it should be skipped.
+		if ( ! $skip_cache ) {
+			set_transient( self::transient_name_for_completion(), $data, self::$text_completion_cooldown_seconds );
+		}
 		self::mark_post_as_ai_assisted( $post_id );
 
 		return $data;
