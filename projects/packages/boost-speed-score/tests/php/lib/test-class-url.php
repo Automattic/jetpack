@@ -2,10 +2,10 @@
 //phpcs:ignoreFile
 namespace Automattic\Jetpack\Boost_Speed_Score\Tests\Lib;
 
-use Brain\Monkey\Filters;
-use Brain\Monkey\Functions;
 use Automattic\Jetpack\Boost_Speed_Score\Lib\Url;
 use Automattic\Jetpack\Boost_Speed_Score\Tests\Base_Test_Case;
+use Brain\Monkey\Filters;
+use Brain\Monkey\Functions;
 
 /**
  * Class WP_Test_Url
