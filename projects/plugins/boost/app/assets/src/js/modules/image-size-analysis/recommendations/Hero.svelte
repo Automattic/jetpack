@@ -2,7 +2,7 @@
 	import { quadOut } from 'svelte/easing';
 	import { fade } from 'svelte/transition';
 	import { isaData } from '../store/isa-data';
-	import { imageDataActiveGroup } from '../store/isa-groups';
+	import { imageDataActiveGroup } from '../store/isa-summary';
 	const formatter = new Intl.DateTimeFormat( 'en-US', {
 		month: 'long',
 		day: 'numeric',

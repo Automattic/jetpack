@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Link } from '../../../utils/router';
 	import { isaData } from '../store/isa-data';
-	import { imageDataGroupTabs } from '../store/isa-groups';
+	import { imageDataGroupTabs } from '../store/isa-summary';
 </script>
 
 <div class="jb-tabs">
