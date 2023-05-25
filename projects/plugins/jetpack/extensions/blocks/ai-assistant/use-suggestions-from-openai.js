@@ -75,7 +75,14 @@ export function getContentFromBlocks() {
 	);
 }
 
-const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks, userPrompt } ) => {
+const useSuggestionsFromOpenAI = ( {
+	attributes,
+	clientId,
+	content,
+	setErrorMessage,
+	tracks,
+	userPrompt,
+} ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ wasCompletionJustRequested, setWasCompletionJustRequested ] = useState( false );
@@ -85,7 +92,6 @@ const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks,
 	const source = useRef();
 
 	// Let's grab post data so that we can do something smart.
-
 	const currentPostTitle = useSelect( select =>
 		select( 'core/editor' ).getEditedPostAttribute( 'title' )
 	);
@@ -185,7 +191,11 @@ const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks,
 
 		if ( ! options.retryRequest ) {
 			setLastPrompt( prompt );
-			updateBlockAttributes( clientId, { promptType: type } );
+
+			// If it is a title generation, keep the prompt type in subsequent changes.
+			if ( attributes.promptType !== 'generateTitle' ) {
+				updateBlockAttributes( clientId, { promptType: type } );
+			}
 		}
 
 		try {
