@@ -26,6 +26,7 @@ import UpgradePrompt from './upgrade-prompt';
 
 const AIControl = ( {
 	contentIsLoaded,
+	errorMessage,
 	getSuggestionFromOpenAI,
 	retryRequest,
 	handleAcceptContent,
@@ -69,6 +70,13 @@ const AIControl = ( {
 		placeholder = textPlaceholder;
 	}
 
+	let message;
+	if ( errorMessage ) {
+		message = errorMessage;
+	} else if ( contentIsLoaded && ! isWaitingState ) {
+		message = __( 'AI responses can be inaccurate.', 'jetpack' );
+	}
+
 	return (
 		<>
 			{ false && <UpgradePrompt /> }
@@ -108,60 +116,67 @@ const AIControl = ( {
 				/>
 			) }
 			<div className="jetpack-ai-assistant__input-wrapper">
-				<div className="jetpack-ai-assistant__input-icon-wrapper">
-					{ isWaitingState || loadingImages ? (
-						<Spinner className="jetpack-ai-assistant__input-spinner" />
-					) : (
-						<Icon
-							icon={ AIAssistantIcon }
-							size={ 24 }
-							className="jetpack-ai-assistant__input-icon"
-						/>
-					) }
-				</div>
-				<PlainText
-					value={ isWaitingState ? '' : userPrompt }
-					onChange={ value => {
-						setUserPrompt( value );
-						onChange?.();
-					} }
-					onKeyPress={ handleInputEnter }
-					placeholder={ placeholder }
-					className="jetpack-ai-assistant__input"
-					disabled={ isWaitingState || loadingImages }
-					ref={ promptUserInputRef }
-				/>
+				<div className="container">
+					<div className="jetpack-ai-assistant__input-icon-wrapper">
+						{ isWaitingState || loadingImages ? (
+							<Spinner className="jetpack-ai-assistant__input-spinner" />
+						) : (
+							<Icon
+								icon={ AIAssistantIcon }
+								size={ 24 }
+								className="jetpack-ai-assistant__input-icon"
+							/>
+						) }
+					</div>
+					<PlainText
+						value={ isWaitingState ? '' : userPrompt }
+						onChange={ value => {
+							setUserPrompt( value );
+							onChange?.();
+						} }
+						onKeyPress={ handleInputEnter }
+						placeholder={ placeholder }
+						className="jetpack-ai-assistant__input"
+						disabled={ isWaitingState || loadingImages }
+						ref={ promptUserInputRef }
+					/>
 
-				<div className="jetpack-ai-assistant__controls">
-					{ ! isWaitingState ? (
-						<Button
-							className="jetpack-ai-assistant__prompt_button"
-							onClick={ () => handleGetSuggestion( 'userPrompt' ) }
-							isSmall={ true }
-							disabled={ ! userPrompt?.length }
-							label={ __( 'Send request', 'jetpack' ) }
-						>
-							<Icon icon={ origamiPlane } />
-							{ ! isSm && __( 'Send', 'jetpack' ) }
-						</Button>
-					) : (
-						<Button
-							className="jetpack-ai-assistant__prompt_button"
-							onClick={ handleStopSuggestion }
-							isSmall={ true }
-							label={ __( 'Stop request', 'jetpack' ) }
-						>
-							<Icon icon={ closeSmall } />
-							{ __( 'Stop', 'jetpack' ) }
-						</Button>
-					) }
+					<div className="jetpack-ai-assistant__controls">
+						{ ! isWaitingState ? (
+							<Button
+								className="jetpack-ai-assistant__prompt_button"
+								onClick={ () => handleGetSuggestion( 'userPrompt' ) }
+								isSmall={ true }
+								disabled={ ! userPrompt?.length }
+								label={ __( 'Send request', 'jetpack' ) }
+							>
+								<Icon icon={ origamiPlane } />
+								{ ! isSm && __( 'Send', 'jetpack' ) }
+							</Button>
+						) : (
+							<Button
+								className="jetpack-ai-assistant__prompt_button"
+								onClick={ handleStopSuggestion }
+								isSmall={ true }
+								label={ __( 'Stop request', 'jetpack' ) }
+							>
+								<Icon icon={ closeSmall } />
+								{ __( 'Stop', 'jetpack' ) }
+							</Button>
+						) }
+					</div>
 				</div>
+				{ message && <Disclaimer message={ message } /> }
 			</div>
 		</>
 	);
 };
 
 export default AIControl;
+
+const Disclaimer = ( { message } ) => {
+	return <div className="disclaimer">{ message }</div>;
+};
 
 // Consider to enable when we have image support
 const isImageGenerationEnabled = false;

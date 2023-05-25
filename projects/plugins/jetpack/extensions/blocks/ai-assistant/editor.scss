@@ -42,16 +42,16 @@
 	align-items: center;
 	justify-content: center;
 	padding: 0 4px 0 8px;
-	
+
 	.jetpack-ai-assistant__input-icon {
 		// Brand green regardless of theme
 		color: var( --jp-green-40 );
 	}
-	
+
 	.jetpack-ai-assistant__input-loader-icon {
 		color: var( --wp--preset--color--foreground );
 	}
-	
+
 	.jetpack-ai-assistant__input-spinner {
 		margin: 0;
 		width: 24px;
@@ -64,41 +64,54 @@
 }
 
 .jetpack-ai-assistant__input-wrapper {
-	display: flex;
-	padding: 6px 9px;
+	padding: 0px;
+	border-radius: 2px;
 	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 8px;
 
-	textarea {
-		width: 100%;
-		padding: 6px 8px;
-		font-size: 16px;
-		line-height: normal;
-		transition: box-shadow 0.1s linear 0s;
-		border-radius: 2px;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	.container {
+		display: flex;
+		margin: 6px 8px;
 
-		@media (min-width: 600px) {
-			font-size: 13px;
+		textarea.jetpack-ai-assistant__input {
+			flex-grow: 1;
+			width: 100%;
+			margin: 1px 0px 1px 0px;
+			padding: 6px 8px;
+			border-radius: 2px;
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+			font-size: inherit;
+			line-height: unset;
+			transition: box-shadow 0.1s linear 0s;
+			resize: none !important;
+			border: none;
+			box-shadow: none;
+
+			&:focus {
+				box-shadow: none;
+			}
+
+			&::placeholder {
+				text-overflow:ellipsis;
+				white-space: nowrap;
+				color: var( --wp--preset--color--foreground );
+				opacity: 0.75;
+			}
+
+
 		}
 
-		&::placeholder {
-			text-overflow:ellipsis;
-			white-space: nowrap;
-			color: var( --wp--preset--color--foreground );
-			opacity: 0.75;
+		textarea.jetpack-ai-assistant__input {
+
 		}
 	}
 
-	textarea.jetpack-ai-assistant__input {
-		flex-grow: 1;
-		margin: 1px 0px 1px 0px;
-		resize: none !important;
-		border: none;
-		box-shadow: none;
-
-		&:focus {
-			box-shadow: none;
-		}
+	.disclaimer {
+		border-radius: inherit;
+		border-top: 1px solid rgba(55, 53, 47, 0.2);
+		padding: 8px 8px 8px 50px;
+		background: rgb(249, 249, 248);
+		color: rgba(55, 53, 47, 0.5);
+		font-size: 14px;
 	}
 }
 
