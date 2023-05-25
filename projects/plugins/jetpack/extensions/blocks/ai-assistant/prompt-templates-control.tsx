@@ -15,46 +15,48 @@ type PromptTemplateProps = {
 	label: string;
 };
 
+export const defaultPrompt = {
+	label: __( 'Post about…', 'jetpack' ),
+	description: __( 'Write a post about ', 'jetpack' ),
+};
+
 const promptTemplates = [
+	defaultPrompt,
+
 	{
-		label: __( 'Write a post about…', 'jetpack' ),
-		description: __( 'Write a post about ', 'jetpack' ),
-	},
-	{
-		label: __( 'Craft a detailed guide on how to…', 'jetpack' ),
+		label: __( 'Detailed guide on…', 'jetpack' ),
 		description: __( 'Craft a detailed guide ', 'jetpack' ),
 	},
 	{
-		label: __( 'Write an opinion piece on the current trends in…', 'jetpack' ),
+		label: __( 'Opinion on trends in…', 'jetpack' ),
 		description: __( 'Write an opinion piece on the current trends in ', 'jetpack' ),
 	},
 	{
-		label: __( 'Write a review about…', 'jetpack' ),
+		label: __( 'Review about…', 'jetpack' ),
 		description: __( 'Write a review about ', 'jetpack' ),
 	},
 	{
-		label: __( 'Write a short story set in…', 'jetpack' ),
-		description: __( 'Write a short ', 'jetpack' ),
-	},
-
-	{
-		label: __( 'Craft an informative article explaining…', 'jetpack' ),
-		description: __( 'Craft an informative article ', 'jetpack' ),
+		label: __( 'Short story in…', 'jetpack' ),
+		description: __( 'Write a short story set in ', 'jetpack' ),
 	},
 	{
-		label: __( 'Write a tribute piece about…', 'jetpack' ),
+		label: __( 'Informative article on…', 'jetpack' ),
+		description: __( 'Craft an informative article explaining ', 'jetpack' ),
+	},
+	{
+		label: __( 'Tribute to…', 'jetpack' ),
 		description: __( 'Write a tribute piece about ', 'jetpack' ),
 	},
 	{
-		label: __( 'Create a motivational post on…', 'jetpack' ),
+		label: __( 'Motivational post on…', 'jetpack' ),
 		description: __( 'Create a motivational post on ', 'jetpack' ),
 	},
 	{
-		label: __( 'Write a step-by-step tutorial on…', 'jetpack' ),
+		label: __( 'Step-by-step tutorial on…', 'jetpack' ),
 		description: __( 'Write a step-by-step tutorial on ', 'jetpack' ),
 	},
 	{
-		label: __( 'Write a critical analysis of…', 'jetpack' ),
+		label: __( 'Critical analysis of…', 'jetpack' ),
 		description: __( 'Write a critical analysis of ', 'jetpack' ),
 	},
 ];
@@ -80,7 +82,7 @@ export default function PromptTemplatesControl( {
 									onPromptSelected( prompt.description );
 								} }
 							>
-								{ prompt.description }
+								{ prompt.label }
 							</MenuItem>
 						) ) }
 					</MenuGroup>
