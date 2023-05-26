@@ -73,7 +73,7 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Soar to New Heights in Content Creation with Your AI-Powered WordPress Assistant.', 'jetpack-my-jetpack' );
+		return __( 'Jetpack AI Assistant brings the power of AI right into your WordPress editor, letting your content creation soar to new heights.', 'jetpack-my-jetpack' );
 	}
 
 	/**
