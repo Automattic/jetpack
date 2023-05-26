@@ -71,7 +71,7 @@ export default function GenerateContentPanel( {
 		prompt: '',
 	} );
 
-	const [ combineBlocks, setCombineBlocks ] = useState( false );
+	const [ createNewBlock, setCreateNewBlock ] = useState( false );
 	const [ errorMessage, setErrorMessage ] = useState( '' );
 	const { replaceBlocks, updateBlockAttributes, insertBlock } = useDispatch( blockEditorStore );
 
@@ -98,6 +98,8 @@ export default function GenerateContentPanel( {
 			} )
 			.join( '\n' );
 	}, [ blocks ] );
+
+	const isMultipleBlocksSelection = blocksIds?.length > 1;
 
 	const generateContent = useCallback( async () => {
 		const content = getContentFromSelectedBlocks();
@@ -147,32 +149,35 @@ export default function GenerateContentPanel( {
 
 		source.addEventListener( 'suggestion', e => {
 			if ( ! newBlockJustCreated ) {
-				if ( combineBlocks ) {
-					replaceBlocks( blocksIds, [ generatedBlock ] );
+				if ( ! createNewBlock ) {
+					// Replace blocks only when multiple blocks are selected
+					if ( isMultipleBlocksSelection ) {
+						replaceBlocks( blocksIds, [ generatedBlock ] );
+					}
 				} else {
 					insertBlock( generatedBlock, lastBlockIndex + 1 );
 				}
 				newBlockJustCreated = true;
 			}
 
-			updateBlockAttributes( generatedBlock.clientId, {
+			const clientId = isMultipleBlocksSelection ? generatedBlock.clientId : blocksIds[ 0 ];
+			updateBlockAttributes( clientId, {
 				content: e.detail as string,
 			} );
 		} );
 	}, [
+		isMultipleBlocksSelection,
 		getContentFromSelectedBlocks,
 		tone?.key,
 		lang?.key,
 		action,
-		combineBlocks,
+		createNewBlock,
 		replaceBlocks,
 		blocksIds,
 		insertBlock,
 		lastBlockIndex,
 		updateBlockAttributes,
 	] );
-
-	const isMultipleBlocksSelection = blocksIds?.length > 1;
 
 	return (
 		<PanelBody
@@ -234,8 +239,8 @@ export default function GenerateContentPanel( {
 							? __( 'Combine all blocks into one', 'jetpack' )
 							: __( 'Create a new block', 'jetpack' )
 					}
-					checked={ combineBlocks }
-					onChange={ setCombineBlocks }
+					checked={ createNewBlock }
+					onChange={ setCreateNewBlock }
 				/>
 			</PanelRow>
 
