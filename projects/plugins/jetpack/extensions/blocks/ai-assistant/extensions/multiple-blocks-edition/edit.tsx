@@ -24,11 +24,6 @@ export const withMultipleBlocksEdition = BlockEdit => props => {
 		};
 	}, [] );
 
-	const selectedBlocksCount = selectedBlocks.length;
-	if ( selectedBlocksCount < 2 ) {
-		return <BlockEdit { ...props } />;
-	}
-
 	return (
 		<>
 			<BlockEdit { ...props } />

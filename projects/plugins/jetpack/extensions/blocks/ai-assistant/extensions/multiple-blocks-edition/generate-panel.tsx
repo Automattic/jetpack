@@ -47,7 +47,11 @@ export const langOptions = Object.keys( LANGUAGE_MAP ).map( key => {
  * @param {string[]} props.blocksIds - Blocks to generate content from
  * @returns {React.ReactElement}       The component's elements.
  */
-export default function GenerateContentPanel( { blocksIds } ) {
+export default function GenerateContentPanel( {
+	blocksIds,
+}: {
+	blocksIds: string[];
+} ): React.ReactElement {
 	const [ tone, setTone ] = useState( {
 		key: '',
 		name: '',
