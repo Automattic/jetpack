@@ -74,7 +74,7 @@ export function getInstagramDetails() {
 
 	if ( connection ) {
 		return {
-			name: connection.display_name,
+			name: connection.username,
 			profileImage: connection.profile_picture,
 		};
 	}
