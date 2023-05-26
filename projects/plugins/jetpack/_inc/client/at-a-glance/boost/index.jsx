@@ -224,13 +224,9 @@ const DashBoost = ( {
 
 		if ( isInstalling ) {
 			linkText = __( 'Installing…', 'jetpack' );
-		}
-
-		if ( isActivating ) {
+		} else if ( isActivating ) {
 			linkText = __( 'Activating…', 'jetpack' );
-		}
-
-		if ( isBoostInstalled ) {
+		} else if ( isBoostInstalled ) {
 			linkText = __( 'Activate Boost to run instant tests', 'jetpack' );
 		}
 
@@ -273,38 +269,46 @@ const DashBoost = ( {
 		<div className="dash-boost-speed-score">
 			{ shouldShowScoreBars ? (
 				<>
-					<div className="dash-boost-speed-score__summary">
-						<div>
-							<span className="dash-boost-speed-score__summary-grade">
-								{ sprintf(
-									// translators: %s is the letter grade of the site's speed performance.
-									__( 'Your site’s speed performance score: %s', 'jetpack' ),
-									speedLetterGrade
-								) }
-								<GradeInfoPopover />
-							</span>
+					{ /* If only loading scores, show score bars but hide score grade and message */ }
+					{ isLoading ? (
+						<SectionHeader
+							className="dash-boost-speed-score__section-header"
+							label={ pluginName }
+						/>
+					) : (
+						<div className="dash-boost-speed-score__summary">
+							<div>
+								<span className="dash-boost-speed-score__summary-grade">
+									{ sprintf(
+										// translators: %s is the letter grade of the site's speed performance.
+										__( 'Your site’s speed performance score: %s', 'jetpack' ),
+										speedLetterGrade
+									) }
+									<GradeInfoPopover />
+								</span>
 
-							<p
-								className={ classnames(
-									'dash-boost-speed-score__score-text',
-									[ 'C', 'D', 'E', 'F' ].includes( speedLetterGrade ) ? 'warning' : ''
-								) }
-							>
-								{ getSpeedScoreText() }
-							</p>
-						</div>
+								<p
+									className={ classnames(
+										'dash-boost-speed-score__score-text',
+										[ 'C', 'D', 'E', 'F' ].includes( speedLetterGrade ) ? 'warning' : ''
+									) }
+								>
+									{ getSpeedScoreText() }
+								</p>
+							</div>
 
-						<div>
-							<p className="dash-boost-speed-score__last-tested">{ getSinceTestedText() }</p>
-							<button
-								className="dash-boost-speed-score__install-button-link"
-								onClick={ activateOrInstallBoost }
-								disabled={ isInstalling || isActivating }
-							>
-								{ getInstallLinkText() }
-							</button>
+							<div>
+								<p className="dash-boost-speed-score__last-tested">{ getSinceTestedText() }</p>
+								<button
+									className="dash-boost-speed-score__install-button-link"
+									onClick={ activateOrInstallBoost }
+									disabled={ isInstalling || isActivating }
+								>
+									{ getInstallLinkText() }
+								</button>
+							</div>
 						</div>
-					</div>
+					) }
 
 					<div className="dash-boost-speed-score__score-bars">
 						<BoostScoreBar
