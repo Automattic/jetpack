@@ -59,6 +59,17 @@ const DashBoost = ( {
 	const [ desktopSpeedScore, setDesktopSpeedScore ] = useState( 0 );
 	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
 
+	const hasBoost = isBoostInstalled && isBoostActive;
+
+	// Don't show score bars until we know if they already have boost installed and activated, the site is online, and we have the scores.
+	const shouldShowScoreBars =
+		! hasBoost && ! isSiteOffline && ! fetchingPluginsData && ! isSpeedScoreError;
+	const pluginName = _x(
+		'Boost',
+		'The Jetpack Boost product name, without the Jetpack prefix',
+		'jetpack'
+	);
+
 	const setScoresFromCache = () => {
 		setMobileSpeedScore( latestSpeedScores.scores.mobile );
 		setDesktopSpeedScore( latestSpeedScores.scores.desktop );
@@ -69,7 +80,8 @@ const DashBoost = ( {
 	};
 
 	const getSpeedScores = async () => {
-		if ( isSiteOffline ) {
+		// Don't get speed scores if site is offline or the user already has boost
+		if ( isSiteOffline || hasBoost ) {
 			return;
 		}
 
@@ -112,7 +124,7 @@ const DashBoost = ( {
 	};
 
 	useEffect( () => {
-		// Only update speedscore if the previous one is more than 3 weeks ago
+		// Use cache scores if they are less than 21 days old.
 		if ( latestSpeedScores && calculateDaysSince( latestSpeedScores.timestamp * 1000 ) < 21 ) {
 			setScoresFromCache();
 		} else {
@@ -185,17 +197,6 @@ const DashBoost = ( {
 				};
 		}
 	};
-
-	const hasBoost = isBoostInstalled && isBoostActive;
-
-	// Don't show score bars until we know if they already have boost installed and activated, the site is online, and we have the scores.
-	const shouldShowScoreBars =
-		! hasBoost && ! isSiteOffline && ! fetchingPluginsData && ! isSpeedScoreError;
-	const pluginName = _x(
-		'Boost',
-		'The Jetpack Boost product name, without the Jetpack prefix',
-		'jetpack'
-	);
 
 	const getPluginInstallSectionText = () => {
 		if ( hasActiveBoostPurchase ) {
