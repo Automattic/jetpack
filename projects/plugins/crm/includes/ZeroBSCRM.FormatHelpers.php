@@ -993,37 +993,14 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 			break;
 
 		case ZBS_TYPE_QUOTE:
-			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managequotes'] );
-
-			break;
-
 		case ZBS_TYPE_INVOICE:
-			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['manageinvoices'] );
-
-			break;
-
 		case ZBS_TYPE_TRANSACTION:
-			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managetransactions'] );
-
 			break;
 	}
 
 	$html .= '</span>';
 	return $html;
 
-}
-
-/**
- * Helper function to print the 'back to list' navigation button.
- *
- * @param string $slug - The slug for the page.
- * @return string $html - The HTML string.
- */
-function zeroBSCRM_print_backtolist_html( $slug ) {
-
-	$html = '<a style="margin-right:6px;" href="' . jpcrm_esc_link( $slug ) . '" class="ui button mini was-inverted basic" id="back-to-list">' . esc_html( __( 'Back to List', 'zero-bs-crm' ) ) . '</a>';
-
-	return $html;
 }
 
 /* ======================================================
