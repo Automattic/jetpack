@@ -24,7 +24,7 @@ const MastodonPreview = props => {
 	if ( connection ) {
 		user = {
 			displayName: connection.display_name,
-			userName: connection.user_name?.replace( '@mastodon.social', '' ),
+			userName: connection.username?.replace( '@mastodon.social', '' ),
 			avatarUrl: connection.profile_picture,
 		};
 	}
