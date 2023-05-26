@@ -35,20 +35,17 @@ function getReachForAccessLevelKey(
 	paidSubscribers,
 	socialFollowers
 ) {
-	const isFalsy = value => {
-		return value === null || value === undefined || value === '';
-	};
-	if ( [ emailSubscribers, paidSubscribers, socialFollowers ].filter( isFalsy ).length > 0 ) {
+	if ( ! socialFollowers ) {
 		return 0;
 	}
 
 	switch ( accessOptions[ accessLevelKey ].key ) {
 		case accessOptions.everybody.key:
-			return emailSubscribers;
+			return emailSubscribers || 0;
 		case accessOptions.subscribers.key:
-			return emailSubscribers;
+			return emailSubscribers || 0;
 		case accessOptions.paid_subscribers.key:
-			return paidSubscribers;
+			return paidSubscribers || 0;
 		default:
 			return 0;
 	}
