@@ -2735,6 +2735,9 @@ importers:
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
+      '@microsoft/fetch-event-source':
+        specifier: 2.0.1
+        version: 2.0.1
       '@wordpress/base-styles':
         specifier: 4.23.0
         version: 4.23.0
@@ -6173,6 +6176,10 @@ packages:
       '@types/react': 18.0.27
       react: 18.2.0
     dev: true
+
+  /@microsoft/fetch-event-source@2.0.1:
+    resolution: {integrity: sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==}
+    dev: false
 
   /@motionone/animation@10.15.1:
     resolution: {integrity: sha512-mZcJxLjHor+bhcPuIFErMDNyrdb2vJur8lSfMCsuCB4UyV8ILZLvK+t+pg56erv8ud9xQGK/1OGPt10agPrCyQ==}
