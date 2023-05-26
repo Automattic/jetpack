@@ -2006,20 +2006,15 @@ function zeroBSCRMJS_bindScreenOptions() {
 	} );
 
 	// show hide screen opts
-	jQuery( '#zbs-screen-options-handle' )
+	jQuery( '#jpcrm_page_options' )
 		.off( 'click' )
 		.on( 'click', function () {
-			if ( jQuery( '#zbs-screen-options' ).hasClass( 'zbs-closed' ) ) {
+			if ( jQuery( '#zbs-screen-options' ).hasClass( 'hidden' ) ) {
 				// open
-				jQuery( '#zbs-screen-options' ).removeClass( 'zbs-closed' );
+				jQuery( '#zbs-screen-options' ).removeClass( 'hidden' );
 			} else {
 				// close
-				jQuery( '#zbs-screen-options' ).addClass( 'zbs-closed' );
-
-				// if 'arrange' mode still on, turn off
-				if ( typeof zeroBSCRMJS_metaboxManagerSwitchMode === 'function' ) {
-					zeroBSCRMJS_metaboxManagerSwitchMode( 'off' );
-				}
+				jQuery( '#zbs-screen-options' ).addClass( 'hidden' );
 
 				// save
 				zeroBSCRMJS_saveScreenOptions();

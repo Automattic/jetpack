@@ -106,6 +106,7 @@ function jpcrm_viewcompany_learn_menu( $learn_menu ) {
 function jpcrm_contactedit_learn_menu( $learn_menu ) {
 	$contact_id = ( empty( $_GET['zbsid'] ) ? -1 : (int) $_GET['zbsid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
+	$learn_menu['left_buttons']  = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_page_options">' . esc_html__( 'Page options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
 	$learn_menu['right_buttons'] = zeroBSCRM_getObjNav( $contact_id, 'edit', ZBS_TYPE_CONTACT );
 
 	return $learn_menu;

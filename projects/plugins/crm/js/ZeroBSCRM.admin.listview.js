@@ -61,12 +61,12 @@ function zeroBSCRMJS_initListView() {
 		} );
 
 	// save + close button at bottom of colmanager/screenopts
-	document.getElementById('zbs-columnmanager-bottomsave').addEventListener('click', function() {
+	jQuery('#zbs-columnmanager-bottomsave').on('click', function() {
 		document.getElementById('zbs-list-col-editor').classList.add('hidden');
 	});
 
 	// open/shut column manager
-	document.getElementById('jpcrm_table_options').addEventListener('click', function() {
+	jQuery('#jpcrm_table_options').on('click', function() {
 		document.getElementById('zbs-list-col-editor').classList.toggle('hidden');
 	});
 
