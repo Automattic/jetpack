@@ -35,9 +35,6 @@ jQuery( function () {
 	// menu stuff
 	zbscrm_JS_adminMenuDropdown();
 
-	// compat classes
-	zbscrm_JS_compatClasses();
-
 	// screenopts
 	zeroBSCRMJS_bindScreenOptions();
 
@@ -132,21 +129,6 @@ function jpcrm_dismiss_feature_alert() {
 		};
 		jQuery.post( ajaxurl, data, function ( response ) {} );
 	} );
-}
-
-// Detects if there are any compatability classes to add against body
-// allows us to apply specific styles etc. e.g. Material Admin compat
-/**
- *
- */
-function zbscrm_JS_compatClasses() {
-	/* Now done in php with zeroBSCRM_bodyClassMods
-	... but Material admin for some reason ignores that, so leaving in */
-	// Material Admin check - adds class if using
-	var customAdmin = window.zbscrmjs_custom_admin;
-	if ( customAdmin == 'material' ) {
-		jQuery( 'body' ).addClass( 'zbs-compat-material-admin' );
-	}
 }
 
 // this is for any moment init stuff (pre date picker etc.)
@@ -2782,7 +2764,7 @@ if ( typeof module !== 'undefined' ) {
 		zeroBSCRMJS_obj_viewLink, zeroBSCRMJS_obj_editLink, jpcrm_set_jpcrm_transient, jpcrm_js_bind_daterangepicker, zeroBSCRMJS_globViewLang, 
 		jpcrm_strip_scripts, zbscrm_JS_DAL, zbscrmjs_adminMenuBlocker, zbscrmjsDirtyLog, zbscrmjsPageData, zbscrmjsPageChanges, zbscrm_custcache_invoices,
 		zbsAJAXRestRetrieve, zbscrmjs_closeLogBlocker, zbsjsScreenOptsBlock, zbscrmjs_screenoptblock, zbscrm_JS_addDirty, jpcrm_dismiss_woo_notice,
-		jpcrm_dismiss_tracking_notice, jpcrm_dismiss_feature_alert, zbscrm_JS_compatClasses, zbscrm_JS_momentInit, zbscrm_JS_adminMenuDropdown, zbscrm_JS_fullscreenModeOn,
+		jpcrm_dismiss_tracking_notice, jpcrm_dismiss_feature_alert, zbscrm_JS_momentInit, zbscrm_JS_adminMenuDropdown, zbscrm_JS_fullscreenModeOn,
 		zbscrm_JS_fullscreenModeOff, zbscrm_JS_initMenuPopups, zbscrm_JS_watchInputsAndDirty, zbscrm_JS_dirtyCatch, zbscrm_JS_delDirty, zbscrm_JS_bindDateRangePicker, jpcrm_js_bind_datepicker,
 		jpcrm_js_bind_datetimerangepicker,  jpcrm_js_bind_datetimepicker, jpcrm_js_bind_datetimepicker_future, zbscrm_JS_infoBoxInit, zbscrm_JS_infoBoxInit,
 		zbscrm_JS_Bind_Typeaheads, zbscrm_JS_Bind_Typeaheads_Customers, zbscrm_JS_Bind_Typeaheads_Companies, jpcrm_bind_typeaheads_placeholders, zbscrm_JS_clone,
