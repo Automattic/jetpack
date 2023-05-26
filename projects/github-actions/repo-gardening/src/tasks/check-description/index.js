@@ -516,8 +516,8 @@ The e2e test report can be found [here](https://automattic.github.io/jetpack-e2e
 		comment += `
 
 Once your PR is ready for review, check one last time that all required checks (other than "Required review") appearing at the bottom of this PR are passing or skipped.
-Then, add the "[Status] Needs Team review" label and ask someone from your team review the code.
-Once you’ve done so, switch to the "[Status] Needs Review" label; someone from Jetpack Crew will then review this PR and merge it to be included in the next Jetpack release.`;
+Then, add the "[Status] Needs Team Review" label and ask someone from your team review the code.
+If you need an extra review from someone familiar with the codebase, you can update the labels from "[Status] Needs Team Review" to "[Status] Needs Review", and in that case Jetpack Approvers will do a final review of your PR.`;
 	}
 
 	// Gather info about the next release for that plugin.
