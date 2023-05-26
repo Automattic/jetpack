@@ -34,6 +34,7 @@ function wpcom_register_default_launchpad_checklists() {
 			'title'                => __( 'Choose a plan', 'jetpack-mu-wpcom' ),
 			'subtitle'             => 'wpcom_get_plan_selected_subtitle',
 			'is_complete_callback' => '__return_true',
+			'badge_text_callback'  => 'wpcom_get_plan_selected_badge_text',
 		)
 	);
 
@@ -248,6 +249,7 @@ function wpcom_register_default_launchpad_checklists() {
 			'task_ids' => array(
 				'setup_general',
 				'design_selected',
+				'plan_selected',
 				'first_post_published',
 				'design_edited',
 				'site_launched',
@@ -260,6 +262,7 @@ function wpcom_register_default_launchpad_checklists() {
 			'id'       => 'free',
 			'title'    => 'Free',
 			'task_ids' => array(
+				'plan_selected',
 				'setup_free',
 				'design_selected',
 				'domain_upsell',
@@ -334,6 +337,7 @@ function wpcom_register_default_launchpad_checklists() {
 			'task_ids' => array(
 				'setup_write',
 				'design_selected',
+				'plan_selected',
 				'first_post_published',
 				'site_launched',
 			),
@@ -489,13 +493,26 @@ function wpcom_get_plan_selected_subtitle() {
 
 	return wpcom_global_styles_in_use() && wpcom_should_limit_global_styles()
 		? __(
-			'Your site contains custom colors that will only be visible once you upgrade to a Premium plan.',
+			'Your site contains custom styles. Upgrade now to publish them and unlock tons of other features.',
 			'jetpack-mu-wpcom'
 		) : '';
 }
 
 /**
  * Returns the badge text for the plan selected task
+ *
+ * @return string Badge text
+ */
+function wpcom_get_plan_selected_badge_text() {
+	if ( ! function_exists( 'wpcom_global_styles_in_use' ) || ! function_exists( 'wpcom_should_limit_global_styles' ) ) {
+		return '';
+	}
+
+	return wpcom_global_styles_in_use() && wpcom_should_limit_global_styles() ? __( 'Upgrade plan', 'jetpack-mu-wpcom' ) : '';
+}
+
+/**
+ * Returns the badge text for the domain upsell task
  *
  * @return string Badge text
  */

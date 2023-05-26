@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useBreakpointMatch } from '@automattic/jetpack-components';
 import { BlockControls, PlainText } from '@wordpress/block-editor';
 import {
 	Button,
@@ -16,6 +17,7 @@ import { chevronDown, image, pencil, update, title, closeSmall } from '@wordpres
 /*
  * Internal dependencies
  */
+import useAIFeature from './hooks/use-ai-feature';
 import I18nDropdownControl from './i18n-dropdown-control';
 import AIAssistantIcon from './icons/ai-assistant';
 import origamiPlane from './icons/origami-plane';
@@ -41,11 +43,12 @@ const AIControl = ( {
 	contentBefore,
 	postTitle,
 	wholeContent,
-	content,
 	promptType,
 	onChange,
 } ) => {
 	const promptUserInputRef = useRef( null );
+	const [ isSm ] = useBreakpointMatch( 'sm' );
+
 	const handleInputEnter = event => {
 		if ( event.key === 'Enter' && ! event.shiftKey ) {
 			event.preventDefault();
@@ -53,9 +56,9 @@ const AIControl = ( {
 		}
 	};
 
-	const textPlaceholder = ! content?.length
-		? __( 'Ask Jetpack AI for anything…', 'jetpack' )
-		: __( 'Tell AI what to do next…', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
+	const { requireUpgrade } = useAIFeature();
+
+	const textPlaceholder = __( 'Ask Jetpack AI', 'jetpack' );
 
 	let placeholder = '';
 
@@ -71,7 +74,7 @@ const AIControl = ( {
 
 	return (
 		<>
-			{ false && <UpgradePrompt /> }
+			{ requireUpgrade && <UpgradePrompt /> }
 			{ ! isWaitingState && (
 				<ToolbarControls
 					isWaitingState={ isWaitingState }
@@ -142,7 +145,7 @@ const AIControl = ( {
 							label={ __( 'Send request', 'jetpack' ) }
 						>
 							<Icon icon={ origamiPlane } />
-							{ __( 'Send', 'jetpack' ) }
+							{ ! isSm && __( 'Send', 'jetpack' ) }
 						</Button>
 					) : (
 						<Button
@@ -253,11 +256,6 @@ const ToolbarControls = ( {
 								title: __( 'Make shorter', 'jetpack' ),
 								onClick: () =>
 									getSuggestionFromOpenAI( 'makeShorter', { contentType: 'generated' } ),
-							},
-							{
-								title: __( 'Correct spelling and grammar', 'jetpack' ),
-								onClick: () =>
-									getSuggestionFromOpenAI( 'correctSpelling', { contentType: 'generated' } ),
 							},
 						] }
 					/>

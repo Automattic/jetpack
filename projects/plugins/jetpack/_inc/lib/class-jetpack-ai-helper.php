@@ -127,14 +127,15 @@ class Jetpack_AI_Helper {
 	/**
 	 * Get text back from WordPress.com based off a starting text.
 	 *
-	 * @param  string $content The content that's already been typed in the block.
-	 * @param  int    $post_id Post ID for which the content is being generated.
+	 * @param  string $content    The content provided to send to the AI.
+	 * @param  int    $post_id    Post ID for which the content is being generated.
+	 * @param  bool   $skip_cache Skip cache and force a new request.
 	 * @return mixed
 	 */
-	public static function get_gpt_completion( $content, $post_id ) {
+	public static function get_gpt_completion( $content, $post_id, $skip_cache = false ) {
 		$content = wp_strip_all_tags( $content );
 		$cache   = get_transient( self::transient_name_for_completion() );
-		if ( $cache ) {
+		if ( $cache && ! $skip_cache ) {
 			return $cache;
 		}
 
@@ -201,7 +202,11 @@ class Jetpack_AI_Helper {
 		if ( wp_remote_retrieve_response_code( $response ) >= 400 ) {
 			return new WP_Error( $data->code, $data->message, $data->data );
 		}
-		set_transient( self::transient_name_for_completion(), $data, self::$text_completion_cooldown_seconds );
+
+		// Do not cache if it should be skipped.
+		if ( ! $skip_cache ) {
+			set_transient( self::transient_name_for_completion(), $data, self::$text_completion_cooldown_seconds );
+		}
 		self::mark_post_as_ai_assisted( $post_id );
 
 		return $data;
