@@ -1256,6 +1256,8 @@ class Learn_Menu {
 			);
 		}
 
+		$learn_menu_array = apply_filters( 'jpcrm_learn_menus', $learn_menu_array );
+
 		return $learn_menu_array;
 	}
 
