@@ -1980,7 +1980,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "77faf21d49887cda1819f5f38b01d492239bd2fa"
+                "reference": "1ae0c5ef9dbf511c3f1575f49d476a43d76c98c2"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2033,6 +2033,10 @@
                 ],
                 "build-development": [
                     "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ],
                 "build-production": [
                     "pnpm run build-production-concurrently"
