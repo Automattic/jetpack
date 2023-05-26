@@ -84,6 +84,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'permission_callback' => function () {
 					return ( new Connection_Manager( 'jetpack' ) )->is_user_connected() && current_user_can( 'edit_posts' );
 				},
+				'args'                => array(
+					'check-feature-available' => array(
+						'default'     => 'false',
+						'type'        => 'boolean',
+						'required'    => false,
+						'description' => 'Whether to check if the feature is available for the site.',
+					),
+				),
 			)
 		);
 
@@ -771,22 +779,27 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Ask WPCOM for a JWT token to use for OpenAI conversations.
 	 * TODO: Clean me up. This is ugly hack code.
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 */
-	public static function get_openai_jwt() {
-		$blog_id              = \Jetpack_Options::get_option( 'id' );
-		$ai_assistant_feature = (array) \Jetpack_AI_Helper::get_ai_assistance_feature();
+	public static function get_openai_jwt( $request ) {
+		$blog_id                 = \Jetpack_Options::get_option( 'id' );
+		$check_feature_available = $request->get_param( 'check-feature-available' );
+		if ( $check_feature_available ) {
+			$ai_assistant_feature = (array) \Jetpack_AI_Helper::get_ai_assistance_feature();
 
-		if (
-			isset( $ai_assistant_feature['require-upgrade'] ) &&
-			(bool) $ai_assistant_feature['require-upgrade']
-		) {
-			return new \WP_Error(
-				'requests_limit_achieved',
-				__( 'Site achieved the requests limit', 'jetpack' ),
-				array(
-					'status' => 429,
-				)
-			);
+			if (
+				isset( $ai_assistant_feature['require-upgrade'] ) &&
+				(bool) $ai_assistant_feature['require-upgrade']
+			) {
+				return new \WP_Error(
+					'requests_limit_achieved',
+					__( 'Site achieved the requests limit', 'jetpack' ),
+					array(
+						'status' => 429,
+					)
+				);
+			}
 		}
 
 		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
