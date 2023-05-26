@@ -90,7 +90,6 @@
 	"projects/plugins/crm/includes/ZeroBSCRM.AdminStyling.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.CRON.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.CSVImporter.php",
-	"projects/plugins/crm/includes/ZeroBSCRM.Compatibility.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.Config.Init.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.Core.DateTime.php",
 	"projects/plugins/crm/includes/ZeroBSCRM.Core.Extensions.php",
