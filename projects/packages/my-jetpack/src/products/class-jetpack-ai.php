@@ -83,10 +83,10 @@ class Jetpack_Ai extends Product {
 	 */
 	public static function get_features() {
 		return array(
-			__( 'Smart Text Generation', 'jetpack-my-jetpack' ),
-			__( 'Dynamic Image Creation', 'jetpack-my-jetpack' ),
-			__( 'Personalized Recommendations', 'jetpack-my-jetpack' ),
-			__( 'Seamless WordPress Integration', 'jetpack-my-jetpack' ),
+			__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
+			__( 'Generate text, tables, and lists', 'jetpack-my-jetpack' ),
+			__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
+			__( 'Seamless WordPress editor Integration', 'jetpack-my-jetpack' ),
 		);
 	}
 
