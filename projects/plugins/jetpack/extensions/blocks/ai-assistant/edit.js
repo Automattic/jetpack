@@ -26,7 +26,7 @@ const markdownConverter = new MarkdownIt( {
 
 export default function AIAssistantEdit( { attributes, setAttributes, clientId } ) {
 	const [ userPrompt, setUserPrompt ] = useState();
-	const [ errorMessage, setErrorMessage ] = useState( false );
+	const [ errorData, setError ] = useState( {} );
 	const [ loadingImages, setLoadingImages ] = useState( false );
 	const [ resultImages, setResultImages ] = useState( [] );
 	const [ imageModal, setImageModal ] = useState( null );
@@ -59,23 +59,23 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 		attributes,
 		clientId,
 		content: attributes.content,
-		setErrorMessage,
+		setError,
 		tracks,
 		userPrompt,
 	} );
 
 	useEffect( () => {
-		if ( errorMessage ) {
+		if ( errorData ) {
 			setErrorDismissed( false );
 		}
-	}, [ errorMessage ] );
+	}, [ errorData ] );
 
 	const saveImage = async image => {
 		if ( loadingImages ) {
 			return;
 		}
 		setLoadingImages( true );
-		setErrorMessage( null );
+		setError( {} );
 
 		// First convert image to a proper blob file
 		const resp = await fetch( image );
@@ -144,14 +144,14 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 
 	const handleImageRequest = () => {
 		setResultImages( [] );
-		setErrorMessage( null );
+		setError( {} );
 
 		getImagesFromOpenAI(
 			userPrompt.trim() === '' ? __( 'What would you like to see?', 'jetpack' ) : userPrompt,
 			setAttributes,
 			setLoadingImages,
 			setResultImages,
-			setErrorMessage,
+			setError,
 			postId
 		);
 
@@ -166,9 +166,13 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
 			} ) }
 		>
-			{ errorMessage && ! errorDismissed && (
-				<Notice status="info" isDismissible={ false } className="jetpack-ai-assistant__error">
-					{ errorMessage }
+			{ errorData?.message && ! errorDismissed && (
+				<Notice
+					status={ errorData.status }
+					isDismissible={ false }
+					className="jetpack-ai-assistant__error"
+				>
+					{ errorData.message }
 				</Notice>
 			) }
 			{ contentIsLoaded && (
@@ -199,6 +203,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				wholeContent={ wholeContent }
 				promptType={ attributes.promptType }
 				onChange={ () => setErrorDismissed( true ) }
+				requireUpgrade={ errorData?.code === 'error_quota_exceeded' }
 			/>
 			{ ! loadingImages && resultImages.length > 0 && (
 				<Flex direction="column" style={ { width: '100%' } }>
