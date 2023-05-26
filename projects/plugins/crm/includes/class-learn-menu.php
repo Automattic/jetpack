@@ -715,11 +715,12 @@ class Learn_Menu {
 		$learn_menu_array = array(
 
 			'dash'               => array(
-				'title'   => __( 'Dashboard', 'zero-bs-crm' ),
-				'url'     => 'https://jetpackcrm.com/feature/dashboard/',
-				'img'     => 'learn-dashboard.png',
-				'video'   => false,
-				'content' => '<p>' . __( 'This your CRM dashboard. It shows you at a glance some key data from your CRM activity.', 'zero-bs-crm' ) . '</p><p>' . __( '<b>Sales Funnel</b> shows how effective you are at converting leads to customers.', 'zero-bs-crm' ) . '</p><p>' . __( '<b>Revenue Chart</b> shows you the overview of your transactions for the past few months.', 'zero-bs-crm' ) . '</p>',
+				'title'         => __( 'Dashboard', 'zero-bs-crm' ),
+				'url'           => 'https://jetpackcrm.com/feature/dashboard/',
+				'img'           => 'learn-dashboard.png',
+				'video'         => false,
+				'content'       => '<p>' . __( 'This your CRM dashboard. It shows you at a glance some key data from your CRM activity.', 'zero-bs-crm' ) . '</p><p>' . __( '<b>Sales Funnel</b> shows how effective you are at converting leads to customers.', 'zero-bs-crm' ) . '</p><p>' . __( '<b>Revenue Chart</b> shows you the overview of your transactions for the past few months.', 'zero-bs-crm' ) . '</p>',
+				'right_buttons' => '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_dash_page_options">' . esc_html__( 'Page options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>',
 			),
 			'managecontacts'     => array(
 				'title'           => __( 'Contacts', 'zero-bs-crm' ),
