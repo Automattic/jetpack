@@ -1,8 +1,5 @@
 import restApi from '@automattic/jetpack-api';
-// import {
-// 	// getScoreLetter,
-// 	// requestSpeedScores,
-// } from '@automattic/jetpack-boost-score-api';
+import { getScoreLetter, requestSpeedScores } from '@automattic/jetpack-boost-score-api';
 import { BoostScoreBar, getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
@@ -36,9 +33,9 @@ const BOOST_PLUGIN_SLUG = 'jetpack-boost';
 const DashBoost = ( {
 	siteAdminUrl,
 	siteConnectionStatus,
-	//siteUrl,
-	//apiRoot,
-	//apiNonce,
+	siteUrl,
+	apiRoot,
+	apiNonce,
 	fetchPluginsData,
 	fetchingPluginsData,
 	isBoostInstalled,
@@ -61,22 +58,18 @@ const DashBoost = ( {
 		}
 
 		setIsLoading( true );
-		// placeholders
-		setSpeedLetterGrade( 'C' );
-		setDaysSinceTested( 1 );
-		setMobileSpeedScore( 70 );
-		setDesktopSpeedScore( 80 );
 
-		// try {
-		// 	const scores = await requestSpeedScores( false, apiRoot, siteUrl, apiNonce );
-		// 	const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
-		// 	setSpeedLetterGrade( scoreLetter );
-		// 	setMobileSpeedScore( scores.current.mobile );
-		// 	setDesktopSpeedScore( scores.current.desktop );
-		// 	setDaysSinceTested( 0 );
-		// } catch ( err ) {
-		// 	console.log( err );
-		// }
+		try {
+			const scores = await requestSpeedScores( false, apiRoot, siteUrl, apiNonce );
+			const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
+			setSpeedLetterGrade( scoreLetter );
+			setMobileSpeedScore( scores.current.mobile );
+			setDesktopSpeedScore( scores.current.desktop );
+			setDaysSinceTested( 0 );
+			setIsLoading( false );
+		} catch ( err ) {
+			return err;
+		}
 	};
 
 	useEffect( () => {
@@ -151,7 +144,7 @@ const DashBoost = ( {
 	const hasBoost = isBoostInstalled && isBoostActive;
 
 	// Don't show score bars until we know if they already have boost installed and activated, the site is online, and we have the scores.
-	const shouldShowScoreBars = ! hasBoost && ! isSiteOffline && ! isLoading && ! fetchingPluginsData;
+	const shouldShowScoreBars = ! hasBoost && ! isSiteOffline && ! fetchingPluginsData;
 	const pluginName = _x(
 		'Boost',
 		'The Jetpack Boost product name, without the Jetpack prefix',

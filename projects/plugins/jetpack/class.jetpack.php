@@ -9,6 +9,7 @@
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Assets\Logo as Jetpack_Logo;
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Config;
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
@@ -947,6 +948,10 @@ class Jetpack {
 
 		Partner::init();
 		My_Jetpack_Initializer::init();
+
+		// Initialize Boost Speed Score
+		$modules = Jetpack_Boost_Modules::init();
+		new Speed_Score( $modules );
 
 		/**
 		 * Fires when Jetpack is fully loaded and ready. This is the point where it's safe
