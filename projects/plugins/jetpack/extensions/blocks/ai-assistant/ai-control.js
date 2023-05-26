@@ -21,7 +21,7 @@ import useAIFeature from './hooks/use-ai-feature';
 import I18nDropdownControl from './i18n-dropdown-control';
 import AIAssistantIcon from './icons/ai-assistant';
 import origamiPlane from './icons/origami-plane';
-import PromptTemplatesControl, { defaultPromptTemplate } from './prompt-templates-control';
+import PromptTemplatesControl from './prompt-templates-control';
 import ToneDropdownControl from './tone-dropdown-control';
 import UpgradePrompt from './upgrade-prompt';
 
@@ -176,7 +176,6 @@ function GenerateContentButton( {
 	contentBefore,
 	hasPostTitle,
 	onAction,
-	onPromptClicked,
 } ) {
 	if ( ! showRetry && ! contentIsLoaded && contentBefore?.length ) {
 		return (
@@ -194,14 +193,7 @@ function GenerateContentButton( {
 		);
 	}
 
-	return (
-		<ToolbarButton
-			icon={ pencil }
-			onClick={ () => onPromptClicked( defaultPromptTemplate.description ) }
-		>
-			{ defaultPromptTemplate.label }
-		</ToolbarButton>
-	);
+	return null;
 }
 
 const ToolbarControls = ( {
@@ -294,7 +286,6 @@ const ToolbarControls = ( {
 						contentBefore={ contentBefore }
 						hasPostTitle={ hasPostTitle }
 						onAction={ getSuggestionFromOpenAI }
-						onPromptClicked={ setUserPrompt }
 					/>
 
 					{ ! showRetry && ! contentIsLoaded && !! wholeContent?.length && (
