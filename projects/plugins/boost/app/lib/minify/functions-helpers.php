@@ -78,7 +78,7 @@ function jetpack_boost_page_optimize_uninstall() {
  * Note: this method uses home_url, so should only be used plugin-side when
  * generating concatenated URLs.
  */
-function enqueued_to_absolute_url( $url ) {
+function jetpack_boost_enqueued_to_absolute_url( $url ) {
 	if ( substr( $url, 0, 1 ) === '/' ) {
 		return home_url( $url );
 	}

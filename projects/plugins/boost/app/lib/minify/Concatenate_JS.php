@@ -93,7 +93,7 @@ class Concatenate_JS extends WP_Scripts {
 			}
 
 			$obj           = $this->registered[ $handle ];
-			$js_url        = enqueued_to_absolute_url( $obj->src );
+			$js_url        = jetpack_boost_enqueued_to_absolute_url( $obj->src );
 			$js_url_parsed = wp_parse_url( $js_url );
 
 			// Don't concat by default
