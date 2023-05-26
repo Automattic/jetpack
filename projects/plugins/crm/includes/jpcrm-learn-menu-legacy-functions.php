@@ -57,7 +57,7 @@ function zeroBS_genericLearnMenu(
  */
 function jpcrm_contactlist_learn_menu( $learn_menu ) {
 
-	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
 
 	if ( zeroBSCRM_permsCustomers() ) {
 		$learn_menu['right_buttons'] .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_customer', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new contact', 'zero-bs-crm' ) . '</a>';
@@ -120,7 +120,7 @@ function jpcrm_contactedit_learn_menu( $learn_menu ) {
  */
 function jpcrm_formlist_learn_menu( $learn_menu ) {
 
-	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
 
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		// Settings link
@@ -166,8 +166,9 @@ function jpcrm_taskedit_learn_menu( $learn_menu ) {
  */
 function jpcrm_tasklistview_learn_menu( $learn_menu ) {
 	global $zbs;
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
 
-	$learn_menu['right_buttons']  = ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'View Calendar', 'zero-bs-crm' ) . '</a>';
+	$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'View Calendar', 'zero-bs-crm' ) . '</a>';
 	$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new task', 'zero-bs-crm' ) . '</a>';
 
 	return $learn_menu;
@@ -200,7 +201,7 @@ function jpcrm_tasknew_learn_menu( $learn_menu ) {
  */
 function jpcrm_quotelist_learn_menu( $learn_menu ) {
 
-	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
 
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		// Settings link
@@ -228,7 +229,7 @@ function jpcrm_quotelist_learn_menu( $learn_menu ) {
  */
 function jpcrm_transactionlist_learn_menu( $learn_menu ) {
 
-	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
 
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		// Settings link
@@ -253,7 +254,7 @@ function jpcrm_transactionlist_learn_menu( $learn_menu ) {
  */
 function jpcrm_invoicelist_learn_menu( $learn_menu ) {
 
-	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
 
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		// Settings link
@@ -312,7 +313,7 @@ function jpcrm_invoiceedit_learn_menu( $learn_menu ) {
  */
 function jpcrm_companylist_learn_menu( $learn_menu ) {
 
-	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
 
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		// Settings link
@@ -400,7 +401,7 @@ EOF;
  */
 function jpcrm_segmentlist_learn_menu( $learn_menu ) {
 
-	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+	$learn_menu['right_buttons'] = get_jpcrm_table_options_button();
 
 	if ( zeroBSCRM_permsCustomers() ) {
 		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'segment', false ) . '" class="jpcrm-button font-14px">' . esc_html__( 'Add new segment', 'zero-bs-crm' ) . '</a>';

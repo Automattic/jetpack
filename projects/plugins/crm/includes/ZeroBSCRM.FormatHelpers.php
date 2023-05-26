@@ -1030,7 +1030,12 @@ function zeroBSCRM_print_backtolist_html( $slug ) {
   /	Object Nav
    ====================================================== */
 
-
+/**
+ * Return table options button
+ */
+function get_jpcrm_table_options_button() {
+	return '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+}
 
 /* ======================================================
   Tasks
