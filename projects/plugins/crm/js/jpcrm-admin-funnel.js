@@ -6,7 +6,18 @@
  * @returns an array of colors
  **/
 function jpcrm_get_segment_colors(num_segments) {
-	const COLORS = [ '#68b3e8', '#399ce3', '#1689db', '#0675c4', '#055d9c', '#044b7a', '#02395c', '#01283d', '#001621', '#000000' ];
+	const COLORS = [
+		zbs_root['jp_green']['20'],
+		zbs_root['jp_green']['30'],
+		zbs_root['jp_green']['40'],
+		zbs_root['jp_green']['50'],
+		zbs_root['jp_green']['60'],
+		zbs_root['jp_green']['70'],
+		zbs_root['jp_green']['80'],
+		zbs_root['jp_green']['90'],
+		zbs_root['jp_green']['100'],
+		'#000000' // add black for good measure
+	];
 
 	if (num_segments === COLORS.length) {
 		// use full set of colors

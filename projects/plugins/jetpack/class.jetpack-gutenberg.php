@@ -43,9 +43,10 @@ class Jetpack_Gutenberg {
 	/**
 	 * Only these extensions can be registered. Used to control availability of beta blocks.
 	 *
-	 * @var array Extensions allowed list.
+	 * @var array|null Extensions allowed list or `null` if not initialized yet.
+	 * @see static::get_extensions()
 	 */
-	private static $extensions = array();
+	private static $extensions = null;
 
 	/**
 	 * Keeps track of the reasons why a given extension is unavailable.
@@ -209,45 +210,13 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Set up a list of allowed block editor extensions
+	 * Used to initialize the class, no longer in use.
 	 *
 	 * @return void
+	 * @deprecated $$next-version$$ No longer needed.
 	 */
 	public static function init() {
-		if ( ! self::should_load() ) {
-			return;
-		}
-
-		/**
-		 * Filter the list of block editor extensions that are available through Jetpack.
-		 *
-		 * @since 7.0.0
-		 *
-		 * @param array
-		 */
-		self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_available_extensions() );
-
-		/**
-		 * Filter the list of block editor plugins that are available through Jetpack.
-		 *
-		 * @deprecated 7.0.0 Use jetpack_set_available_extensions instead
-		 *
-		 * @since 6.8.0
-		 *
-		 * @param array
-		 */
-		self::$extensions = apply_filters( 'jetpack_set_available_blocks', self::$extensions );
-
-		/**
-		 * Filter the list of block editor plugins that are available through Jetpack.
-		 *
-		 * @deprecated 7.0.0 Use jetpack_set_available_extensions instead
-		 *
-		 * @since 6.9.0
-		 *
-		 * @param array
-		 */
-		self::$extensions = apply_filters( 'jetpack_set_available_plugins', self::$extensions );
+		_deprecated_function( __METHOD__, '$$next-version$$' );
 	}
 
 	/**
@@ -258,7 +227,7 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function reset() {
-		self::$extensions          = array();
+		self::$extensions          = null;
 		self::$availability        = array();
 		self::$cached_availability = null;
 	}
@@ -388,7 +357,7 @@ class Jetpack_Gutenberg {
 
 		$available_extensions = array();
 
-		foreach ( self::$extensions as $extension ) {
+		foreach ( static::get_extensions() as $extension ) {
 			$is_available                       = self::is_registered_and_no_entry_in_availability( $extension ) || self::is_available( $extension );
 			$available_extensions[ $extension ] = array(
 				'available' => $is_available,
@@ -413,6 +382,21 @@ class Jetpack_Gutenberg {
 	 * @return array A list of block and plugins and their availability status.
 	 */
 	public static function get_extensions() {
+		if ( ! static::should_load() ) {
+			return array();
+		}
+
+		if ( null === self::$extensions ) {
+			/**
+			 * Filter the list of block editor extensions that are available through Jetpack.
+			 *
+			 * @since 7.0.0
+			 *
+			 * @param array
+			 */
+			self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_available_extensions() );
+		}
+
 		return self::$extensions;
 	}
 
@@ -689,7 +673,7 @@ class Jetpack_Gutenberg {
 					 *
 					 * @param bool false Enable the Paid Newsletters feature in the block editor context.
 					 */
-					apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', false )
+					apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', true )
 					&& class_exists( '\Jetpack_Memberships' )
 				),
 				/**
@@ -806,6 +790,7 @@ class Jetpack_Gutenberg {
 	 * We will look for such modules in the extensions/ directory.
 	 *
 	 * @since 7.1.0
+	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {
 		if ( self::should_load() ) {
@@ -813,10 +798,16 @@ class Jetpack_Gutenberg {
 			 * Look for files that match our list of available Jetpack Gutenberg extensions (blocks and plugins).
 			 * If available, load them.
 			 */
-			foreach ( self::$extensions as $extension ) {
-				$extension_file_glob = glob( JETPACK__PLUGIN_DIR . 'extensions/*/' . $extension . '/' . $extension . '.php' );
-				if ( ! empty( $extension_file_glob ) ) {
-					include_once $extension_file_glob[0];
+			$directories = array( 'blocks', 'plugins', 'extended-blocks', 'shared', 'store' );
+
+			foreach ( static::get_extensions() as $extension ) {
+				foreach ( $directories as $dirname ) {
+					$path = JETPACK__PLUGIN_DIR . "extensions/{$dirname}/{$extension}/{$extension}.php";
+
+					if ( file_exists( $path ) ) {
+						include_once $path;
+						continue 2;
+					}
 				}
 			}
 		}

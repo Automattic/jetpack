@@ -804,7 +804,7 @@ class Learn_Menu {
 				'content'     => '<p></p>',
 				'video'       => 'https://www.youtube.com/watch?v=mBPjV1KUb-w',
 				'video_title' => __( "All about Forms", 'zero-bs-crm' ),
-				'add_new'     => ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_form', false ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Add New',"zero-bs-crm") . '</a>'
+				'add_new'     => ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_form', false ) . '" class="button ui black tiny zbs-add-new">' . __( 'Add New', 'zero-bs-crm' ) . '</a>',
 			),
 			'formnew' => array(
 				'title'       => __( "New Form", "zero-bs-crm" ),
@@ -916,7 +916,7 @@ class Learn_Menu {
 				'img'     => 'learn-quote-template.png',
 				'video'   => false,
 				'content' => '<p>' . __( 'Quote Templates save you time. You can enter placeholders so that when you generate a new Quote using the template the contact fields are automatically populated.', 'zero-bs-crm' ) . '</p>',
-				'add_new' => ' <a href="' . jpcrm_esc_link('create',-1,'zerobs_quo_template',false)  . '#free-extensions-tour" class="button ui blue tiny zbs-add-new" id="add-template">' . __('Add Template',"zero-bs-crm") . '</a>'
+				'add_new' => ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_quo_template', false ) . '#free-extensions-tour" class="button ui black tiny zbs-add-new" id="add-template">' . __( 'Add Template', 'zero-bs-crm' ) . '</a>',
 			),
 			'quotetemplatenew' => array(
 				'title'   => __( "New Quote Template", 'zero-bs-crm' ),
@@ -1095,7 +1095,7 @@ class Learn_Menu {
 				'img'     => 'learn-export-contacts.png',
 				'video'   => false,
 				'content' => "<p>" . __( "You can export your contact information here to do additional analysis outside of Jetpack CRM", 'zero-bs-crm' ) . "</p><p>" . __( "Export and use in an Excel File, or export to import into other tools you use for your business needs", 'zero-bs-crm' ) . "</p>",
-				'add_new' => '<a href="' . admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] . '&zbswhat=contacts' ) . '" class="button ui blue tiny zbs-add-new">' . __( 'Export Other Types',"zero-bs-crm") . '</a>'
+				'add_new' => '<a href="' . admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] . '&zbswhat=contacts' ) . '" class="button ui black tiny zbs-add-new">' . __( 'Export Other Types', 'zero-bs-crm' ) . '</a>',
 			),
 			'export-tools' => array(
 				'title'   => __( "Export Tools", 'zero-bs-crm' ),

@@ -94,6 +94,12 @@ class Connections_Post_Field {
 					'readonly'    => true,
 				),
 				'display_name'    => array(
+					'description' => __( 'Display name of the connected account', 'jetpack-publicize-pkg' ),
+					'type'        => 'string',
+					'context'     => array( 'view', 'edit' ),
+					'readonly'    => true,
+				),
+				'username'        => array(
 					'description' => __( 'Username of the connected account', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
