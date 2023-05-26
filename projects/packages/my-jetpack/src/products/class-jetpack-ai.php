@@ -64,7 +64,7 @@ class Jetpack_Ai extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Unleash Creativity, Skyrocket Efficiency', 'jetpack-my-jetpack' );
+		return __( 'Experimental tool to add AI to your editor', 'jetpack-my-jetpack' );
 	}
 
 	/**
