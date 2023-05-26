@@ -2,7 +2,7 @@ import { _n, __ } from '@wordpress/i18n';
 import jQuery from 'jquery';
 
 const { ajaxUrl, connectionsUrl } = window.jetpackSocialClassicEditorConnections;
-const CONNECTIONS_NEED_MEDIA = [ 'instagram' ];
+const CONNECTIONS_NEED_MEDIA = [ 'instagram-business' ];
 
 const validateFeaturedMedia = ( $, connectionsNeedValidation ) => {
 	const featuredImage = window.wp.media.featuredImage.get();
@@ -17,9 +17,16 @@ const validateFeaturedMedia = ( $, connectionsNeedValidation ) => {
 	}
 
 	connectionsNeedValidation.forEach( connectionName => {
-		$( '.wpas-submit-' + connectionName )
-			.prop( 'checked', isFeaturedImageValid )
-			.prop( 'disabled', ! isFeaturedImageValid );
+		$( '.wpas-submit-' + connectionName ).each( ( _, element ) => {
+			const el = $( element );
+			const disabled = el.prop( 'disabled' );
+
+			if ( ! disabled && ! isFeaturedImageValid ) {
+				el.data( 'checkedVal', el.prop( 'checked' ) );
+			}
+			el.prop( 'checked', isFeaturedImageValid && el.data( 'checkedVal' ) );
+			el.prop( 'disabled', ! isFeaturedImageValid );
+		} );
 	} );
 
 	if ( isFeaturedImageValid ) {

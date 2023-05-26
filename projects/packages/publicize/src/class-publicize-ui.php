@@ -634,7 +634,7 @@ jQuery( function($) {
 			<input type="hidden" name="wpas[0]" value="1" />
 		</div>
 
-		<div id="pub-connection-needs-media" class="publicize__notice-media-warning"></div>
+		<div id="pub-connection-needs-media"></div>
 
 		<?php if ( ! $all_done ) : ?>
 			<?php if ( $broken_connections ) : ?>
