@@ -546,7 +546,7 @@ const CriticalCssInfoPopover = () => {
 					<li>{ __( 'Editing a post/page', 'jetpack' ) }</li>
 					<li>
 						{ __(
-							'Activating, Deactivating, or updating plugins that impact your site layout.',
+							'Activating, deactivating, or updating plugins that impact your site layout',
 							'jetpack'
 						) }
 					</li>
