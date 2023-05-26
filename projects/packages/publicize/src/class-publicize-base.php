@@ -534,7 +534,7 @@ abstract class Publicize_Base {
 	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
 	 * @return string
 	 */
-	public function get_account_display_name( $service_name, $connection ) {
+	public function get_username( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( 'instagram-business' === $service_name && isset( $cmeta['connection_data']['meta']['username'] ) ) {
@@ -930,7 +930,7 @@ abstract class Publicize_Base {
 					'service_name'    => $service_name,
 					'service_label'   => static::get_service_label( $service_name ),
 					'display_name'    => $this->get_display_name( $service_name, $connection ),
-					'account_name'    => $this->get_account_display_name( $service_name, $connection ),
+					'username'        => $this->get_username( $service_name, $connection ),
 					'profile_picture' => $this->get_profile_picture( $connection ),
 					'enabled'         => $enabled,
 					'done'            => $done,

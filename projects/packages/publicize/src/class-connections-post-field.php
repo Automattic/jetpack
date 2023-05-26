@@ -99,7 +99,7 @@ class Connections_Post_Field {
 					'context'     => array( 'view', 'edit' ),
 					'readonly'    => true,
 				),
-				'account_name'    => array(
+				'username'        => array(
 					'description' => __( 'Username of the connected account', 'jetpack-publicize-pkg' ),
 					'type'        => 'string',
 					'context'     => array( 'view', 'edit' ),
