@@ -23,7 +23,7 @@ import './extensions/multiple-blocks-edition';
 import './editor.scss';
 
 export const name = 'ai-assistant';
-export const title = __( 'AI Assistant (Experimental)', 'jetpack' );
+export const title = __( 'AI Assistant', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,
