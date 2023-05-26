@@ -30,7 +30,7 @@ const validateFeaturedMedia = ( $, connectionsNeedValidation ) => {
 	} );
 
 	if ( isFeaturedImageValid ) {
-		warningDiv.removeClass( 'publicize__notice-media-warning' ).html( '' );
+		warningDiv.removeClass().html( '' );
 		return;
 	}
 
@@ -41,7 +41,7 @@ const validateFeaturedMedia = ( $, connectionsNeedValidation ) => {
 	);
 
 	warningDiv
-		.addClass( 'publicize__notice-media-warning' )
+		.addClass( 'notice-warning publicize__notice-media-warning publicize__notice-warning' )
 		.append(
 			connectionNeedsMediaString.replace(
 				'%s',

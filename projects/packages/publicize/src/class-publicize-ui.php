@@ -342,14 +342,9 @@ jQuery( function($) {
 	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 .publicize__notice-media-warning {
-	display: block;
-	padding: 1px 12px;
-	margin: 5px 0;
-	border: 1px solid #c3c4c7;
-	border-left-width: 4px;
-	border-left-color: #dba617;
-	border-left-style: solid;
-	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+	border-right: 1px solid #c3c4c7;
+	border-bottom: 1px solid #c3c4c7;
+	border-top: 1px solid #c3c4c7;
 }
 .publicize-external-link {
 	display: block;
