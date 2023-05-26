@@ -22,7 +22,6 @@ import { buildPromptTemplate } from '../../create-prompt';
 import { askQuestion } from '../../get-suggestion-with-stream';
 import { LANGUAGE_MAP } from '../../i18n-dropdown-control';
 import Icon from '../../icons/ai-assistant';
-import { isUserConnected } from '../../lib/connection';
 import { PROMPT_TONES_MAP } from '../../tone-dropdown-control';
 
 // Create a Tone Array of objects with `key` and `name` keys
@@ -49,7 +48,6 @@ export const langOptions = Object.keys( LANGUAGE_MAP ).map( key => {
  * @returns {React.ReactElement}       The component's elements.
  */
 export default function GenerateContentPanel( { blocksIds } ) {
-	const connected = isUserConnected();
 	const [ tone, setTone ] = useState( {
 		key: '',
 		name: '',
@@ -169,10 +167,6 @@ export default function GenerateContentPanel( { blocksIds } ) {
 		lastBlockIndex,
 		updateBlockAttributes,
 	] );
-
-	if ( ! connected ) {
-		return null;
-	}
 
 	return (
 		<PanelBody
