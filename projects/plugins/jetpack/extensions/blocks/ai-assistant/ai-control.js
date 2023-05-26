@@ -119,7 +119,7 @@ const AIControl = ( {
 			) }
 			<div
 				className={ classNames( 'jetpack-ai-assistant__input-wrapper', {
-					disconnected: ! connected,
+					'is-disconnected': ! connected,
 				} ) }
 			>
 				<div className="jetpack-ai-assistant__input-icon-wrapper">
