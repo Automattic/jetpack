@@ -2273,12 +2273,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "fe940fbf782b7dd437db2e96a7590bff0b999b6f"
+                "reference": "685f488dd73e7d2c089027e15ae3c60ec568f01c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/fe940fbf782b7dd437db2e96a7590bff0b999b6f",
-                "reference": "fe940fbf782b7dd437db2e96a7590bff0b999b6f",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/685f488dd73e7d2c089027e15ae3c60ec568f01c",
+                "reference": "685f488dd73e7d2c089027e15ae3c60ec568f01c",
                 "shasum": ""
             },
             "require": {
@@ -2363,7 +2363,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-05-25T06:21:43+00:00"
+            "time": "2023-05-26T13:01:53+00:00"
         },
         {
             "name": "psr/http-message",
