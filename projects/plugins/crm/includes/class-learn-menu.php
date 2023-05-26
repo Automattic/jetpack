@@ -912,7 +912,7 @@ class Learn_Menu {
 				'back_slug'    => $zbs->slugs['managetransactions'],
 			),
 			'managetransactions' => array(
-				'title'           => __( 'Transaction List', 'zero-bs-crm' ),
+				'title'           => __( 'Transactions', 'zero-bs-crm' ),
 				'url'             => 'https://jetpackcrm.com/feature/transactions/',
 				'img'             => 'learn-transactions-list.png',
 				'video'           => false,

@@ -950,7 +950,7 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 	// The first addition of a contact is actually 'edit' but gives the option to view.
 	$id = ( empty( $_GET['zbsid'] ) ? -1 : (int) $_GET['zbsid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 
-	$html = '<span class="navigation-quick-links">';
+	$html = '';
 
 	switch ($type) {
 
@@ -961,14 +961,14 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 
 			// PREV
 			if ( $navigation_mode === 1 && ! empty( $navigation['prev'] ) ) {
-				$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['prev'], 'zerobs_customer', false ) . '" class="jpcrm-button transparent-bg font-14px"><i class="left chevron icon"></i>' . esc_html( __( 'Prev', 'zero-bs-crm' ) ) . '</a>';
+				$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['prev'], 'zerobs_customer', false ) . '" class="jpcrm-button transparent-bg font-14px"><i class="fa fa-chevron-left"></i>&nbsp;&nbsp;' . esc_html( __( 'Prev', 'zero-bs-crm' ) ) . '</a>';
 			}
 			// If in edit mode, show view link
 			if ( $key === 'edit' && $id > 0 ) {
-				$html .= '<a style="margin: 0 5px;" class="jpcrm-button transparent-bg font-14px" href="' . jpcrm_esc_link( 'view', $id, 'zerobs_customer' ) . '"><i class="eye left icon"></i> ' . esc_html( __( 'View', 'zero-bs-crm' ) ) . '</a>';
+				$html .= '<a class="jpcrm-button transparent-bg font-14px" href="' . jpcrm_esc_link( 'view', $id, 'zerobs_customer' ) . '">' . esc_html( __( 'View contact', 'zero-bs-crm' ) ) . '</a>';
 			}
 			if ( $navigation_mode === 1 && ! empty( $navigation['next'] ) ) {
-				$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['next'], 'zerobs_customer', false ) . '" class="jpcrm-button transparent-bg font-14px">' . esc_html( __( 'Next', 'zero-bs-crm' ) ) . '<i class="right chevron icon"></i></a>';
+				$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['next'], 'zerobs_customer', false ) . '" class="jpcrm-button transparent-bg font-14px">' . esc_html( __( 'Next', 'zero-bs-crm' ) ) . '&nbsp;&nbsp;<i class="fa fa-chevron-right"></i></a>';
 			}
 
 			break;
@@ -980,14 +980,14 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 
 			// PREV
 			if ( $navigation_mode === 1 && ! empty( $navigation['prev'] ) ) {
-				$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['prev'], 'zerobs_company', false ) . '" class="jpcrm-button transparent-bg font-14px"><i class="left chevron icon"></i>' . esc_html( __( 'Prev', 'zero-bs-crm' ) ) . '</a>';
+				$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['prev'], 'zerobs_company', false ) . '" class="jpcrm-button transparent-bg font-14px"><i class="fa fa-chevron-left"></i>&nbsp;&nbsp;' . esc_html( __( 'Prev', 'zero-bs-crm' ) ) . '</a>';
 			}
 			// If in edit mode, show view link
 			if ( $key === 'edit' && $id > 0 ) {
-				$html .= '<a style="margin: 0 5px;" class="jpcrm-button transparent-bg font-14px" href="' . jpcrm_esc_link( 'view', $id, ZBS_TYPE_COMPANY ) . '"><i class="eye left icon"></i> ' . esc_html( __( 'View', 'zero-bs-crm' ) ) . '</a>';
+				$html .= '<a style="margin: 0 5px;" class="jpcrm-button transparent-bg font-14px" href="' . jpcrm_esc_link( 'view', $id, ZBS_TYPE_COMPANY ) . '">' . esc_html( __( 'View company', 'zero-bs-crm' ) ) . '</a>';
 			}
 			if ( $navigation_mode === 1 && ! empty( $navigation['next'] ) ) {
-				$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['next'], 'zerobs_company', false ) . '" class="jpcrm-button transparent-bg font-14px">' . esc_html( __( 'Next', 'zero-bs-crm' ) ) . '<i class="right chevron icon"></i></a>';
+				$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['next'], 'zerobs_company', false ) . '" class="jpcrm-button transparent-bg font-14px">' . esc_html( __( 'Next', 'zero-bs-crm' ) ) . '&nbsp;&nbsp;<i class="fa fa-chevron-right"></i></a>';
 			}
 
 			break;
@@ -998,7 +998,6 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 			break;
 	}
 
-	$html .= '</span>';
 	return $html;
 
 }

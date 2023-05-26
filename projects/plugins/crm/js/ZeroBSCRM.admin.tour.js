@@ -125,10 +125,11 @@ var zbsTour = {
 			},
 		},
 
+		/* things break from here on down */
 		{
 			title: window.zbs_tour.lang.step9.title,
 			content: window.zbs_tour.lang.step9.content,
-			target: 'zbs-admin-top-bar',
+			target: 'learn',
 			placement: 'right',
 			showPrevButton: true,
 			onNext: function () {

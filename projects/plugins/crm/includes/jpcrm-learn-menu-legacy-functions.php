@@ -282,7 +282,9 @@ function jpcrm_invoicenew_learn_menu( $learn_menu ) {
 	global $zbs;
 
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-		$learn_menu['right_buttons'] = '<a class="jpcrm-button transparent-bg font-14px" target="_blank" href="' . admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=invbuilder" title="' . __( 'Invoice Settings', 'zero-bs-crm' ) . '"><i class="options icon"></i></a> <a class="jpcrm-button transparent-bg font-14px" target="_blank" href="' . admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=bizinfo" title="' . __( 'Business Settings', 'zero-bs-crm' ) . '"><i class="building icon"></i></a>';
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=invbuilder' ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Invoice settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Invoice settings', 'zero-bs-crm' ) . '</a>';
+
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=bizinfo' ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Business settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Business settings', 'zero-bs-crm' ) . '</a>';
 	}
 
 	return $learn_menu;
@@ -299,7 +301,9 @@ function jpcrm_invoiceedit_learn_menu( $learn_menu ) {
 	global $zbs;
 
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-		$learn_menu['right_buttons'] = '<a class="jpcrm-button transparent-bg font-14px" target="_blank" href="' . admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=invbuilder" title="' . __( 'Invoice Settings', 'zero-bs-crm' ) . '"><i class="options icon"></i></a> <a class="jpcrm-button transparent-bg font-14px" target="_blank" href="' . admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=bizinfo" title="' . __( 'Business Settings', 'zero-bs-crm' ) . '"><i class="building icon"></i></a>';
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=invbuilder' ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Invoice settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Invoice settings', 'zero-bs-crm' ) . '</a>';
+
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=bizinfo' ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Business settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Business settings', 'zero-bs-crm' ) . '</a>';
 	}
 
 	return $learn_menu;
