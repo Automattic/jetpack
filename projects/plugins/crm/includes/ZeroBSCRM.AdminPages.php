@@ -1755,7 +1755,7 @@ function zeroBSCRM_html_datatools() {
 			<div class="sbhomep">
 				<strong><?php esc_html_e( 'Export Tools', 'zero-bs-crm' ); ?>:</strong><br/>
 				<p><?php esc_html_e( 'Want to use the refined object exporter? ', 'zero-bs-crm' ); ?></p>
-				<p><a class="ui black button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] . '&zbswhat=contacts' ) ); ?>">Export Tools</a></p>
+				<p><a class="ui black button" href="<?php echo esc_url( admin_url( 'admin.php?page=' . $zbs->slugs['export-tools'] ) ); ?>">Export Tools</a></p>
 			</div>
 	</div>
 	<div class="ui grid">

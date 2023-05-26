@@ -554,6 +554,16 @@
 
  }
 
+.jpcrm-learn-menu-container {
+	padding: 10px 20px;
+
+	.jpcrm-learn-menu {
+		.ui.popup {
+			max-width: 800px !important;
+		}
+	}
+}
+
  .zbs-white{
     font-size: 18px;
     line-height: 35px;
