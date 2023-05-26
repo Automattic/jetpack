@@ -19,10 +19,7 @@ const UpgradePrompt = () => {
 			buttonText={ 'Upgrade' }
 			checkoutUrl={ `${ window?.Jetpack_Editor_Initial_State?.adminUrl }admin.php?page=my-jetpack#/add-jetpack-ai` }
 			className={ 'jetpack-ai-upgrade-banner' }
-			description={ __(
-				'You have reached the limit of 20 free requests. Upgrade now to keep using Jetpack AI.',
-				'jetpack'
-			) }
+			description={ __( 'Upgrade now to keep using Jetpack AI.', 'jetpack' ) }
 			goToCheckoutPage={ () => {} }
 			isRedirecting={ false }
 			visible={ true }
