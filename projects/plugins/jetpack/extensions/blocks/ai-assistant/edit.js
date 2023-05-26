@@ -166,7 +166,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
 			} ) }
 		>
-			{ errorData?.message && ! errorDismissed && (
+			{ errorData?.message && ! errorDismissed && errorData?.code !== 'error_quota_exceeded' && (
 				<Notice
 					status={ errorData.status }
 					isDismissible={ false }
