@@ -3,7 +3,6 @@
  */
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { alignLeft } from '@wordpress/icons';
 import React from 'react';
 
 type PromptTemplatesControlProps = {
@@ -69,7 +68,7 @@ export default function PromptTemplatesControl( {
 	return (
 		<ToolbarDropdownMenu
 			className="jetpack-ai-assistant__templates-control"
-			icon={ alignLeft }
+			icon={ null }
 			label={ label }
 			text={ label }
 		>
