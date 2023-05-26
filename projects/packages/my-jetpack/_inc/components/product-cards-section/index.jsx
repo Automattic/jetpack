@@ -5,7 +5,6 @@ import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
 import BoostCard from './boost-card';
 import CrmCard from './crm-card';
-import ExtrasCard from './extras-card';
 import ScanAndProtectCard from './scan-protect-card';
 import SearchCard from './search-card';
 import SocialCard from './social-card';
@@ -17,8 +16,6 @@ import VideopressCard from './videopress-card';
  * @returns {object} ProductCardsSection React component.
  */
 const ProductCardsSection = () => {
-	const { myJetpackFlags } = window?.myJetpackInitialState || {};
-
 	return (
 		<Container fluid horizontalSpacing={ 0 } horizontalGap={ 3 }>
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
@@ -46,7 +43,7 @@ const ProductCardsSection = () => {
 				<SocialCard admin={ true } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				{ myJetpackFlags?.jetpackAi ? <AiCard admin={ true } /> : <ExtrasCard admin={ true } /> }
+				<AiCard admin={ true } />
 			</Col>
 		</Container>
 	);
