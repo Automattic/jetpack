@@ -164,7 +164,7 @@ export class SuggestionsEventSource extends EventTarget {
 					return;
 				}
 				if ( response.status >= 400 && response.status <= 500 && response.status !== 429 ) {
-					this.processConnectionError( response );
+					self.processConnectionError( response );
 				}
 
 				/*
