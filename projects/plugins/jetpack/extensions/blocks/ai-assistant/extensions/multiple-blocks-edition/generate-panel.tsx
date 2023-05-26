@@ -172,6 +172,8 @@ export default function GenerateContentPanel( {
 		updateBlockAttributes,
 	] );
 
+	const isMultipleBlocksSelection = blocksIds?.length > 1;
+
 	return (
 		<PanelBody
 			title={ __( 'AI Assistant', 'jetpack' ) }
@@ -227,7 +229,11 @@ export default function GenerateContentPanel( {
 			</PanelRow>
 			<PanelRow>
 				<ToggleControl
-					label={ __( 'Combine all blocks into one', 'jetpack' ) }
+					label={
+						isMultipleBlocksSelection
+							? __( 'Combine all blocks into one', 'jetpack' )
+							: __( 'Create a new block', 'jetpack' )
+					}
 					checked={ combineBlocks }
 					onChange={ setCombineBlocks }
 				/>
