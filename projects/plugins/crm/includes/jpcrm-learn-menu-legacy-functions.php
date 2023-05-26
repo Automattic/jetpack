@@ -508,3 +508,37 @@ function jpcrm_notifications_learn_menu( $learn_menu ) {
 	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && hopscotch.getState() === "zbs-welcome-tour:4") { hopscotch.startTour(window.zbsTour);}';
 	return $learn_menu;
 }
+
+/**
+ * Extend CSV Lite learn menu.
+ *
+ * @param array $learn_menu Learn menu array.
+ *
+ * @return array
+ */
+function jpcrm_csvlite_learn_menu( $learn_menu ) {
+	global $zbs;
+
+	$html  = '<p>';
+	$html .= esc_html__( 'If you have contacts you need to import to Jetpack CRM, doing so via a CSV is common way to get your data in.', 'zero-bs-crm' );
+	$html .= '</p>';
+
+	##WLREMOVE
+	$html .= '<p>';
+	$html .= '<strong>' . esc_html__( 'Note', 'zero-bs-crm' ) . ':</strong> ' . sprintf( __( 'It is important that you format your CSV file correctly for the upload. We have written a detailed guide on how to do this <a href="%s" target="_blank">here</a>.', 'zero-bs-crm' ), esc_url( $zbs->urls['kbcsvformat'] ) ); // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+	$html .= '</p>';
+
+	if ( ! empty( $zbs->urls['extcsvimporterpro'] ) ) {
+		$html .= '<p>';
+		$html .= esc_html__( 'Want to import companies as well as keep a record of your imports?', 'zero-bs-crm' );
+		$html .= ' <a href="' . esc_url( $zbs->urls['extcsvimporterpro'] ) . '" target="_blank">' . esc_html__( 'CSV importer PRO is the perfect tool.', 'zero-bs-crm' ) . '</a>';
+		$html .= '</p>';
+
+		$learn_menu['right_buttons'] = '<a href="' . esc_url( $zbs->urls['extcsvimporterpro'] ) . '" target="_blank" class="jpcrm-button font-14px">' . esc_html__( 'Get CSV Importer Pro', 'zero-bs-crm' ) . '</a>';
+	}
+	##/WLREMOVE
+
+	$learn_menu['content'] = $html;
+
+	return $learn_menu;
+}

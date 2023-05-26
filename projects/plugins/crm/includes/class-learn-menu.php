@@ -76,7 +76,7 @@ class Learn_Menu {
 					$learn_menu_settings['left_buttons'],
 					$learn_menu_settings['right_buttons'],
 					( ! isset( $learn_menu_settings['hide'] ) ? true : false ),
-					$learn_menu_settings['title'],
+					$learn_menu_settings['learn_title'],
 					$learn_menu_settings['content'],
 					$learn_menu_settings['url'],
 					$this->get_image_url( $learn_menu_settings['img'] ),
@@ -611,6 +611,9 @@ class Learn_Menu {
 			}
 			if ( empty( $learn_menu_content[ $slug ]['img'] ) ) {
 				$learn_menu_content[ $slug ]['img'] = 'learn-extensions-list.png';
+			}
+			if ( empty( $learn_menu_content[ $slug ]['learn_title'] ) ) {
+				$learn_menu_content[ $slug ]['learn_title'] = $learn_menu_content[ $slug ]['title'];
 			}
 			if ( empty( $learn_menu_content[ $slug ]['left_buttons'] ) ) {
 				$learn_menu_content[ $slug ]['left_buttons'] = '';
@@ -1210,7 +1213,14 @@ class Learn_Menu {
 				'content'         => '<p></p>',
 				'output_function' => 'jpcrm_delete_learn_menu',
 			),
-
+			'csvlite'            => array(
+				'title'           => __( 'CSV Importer Lite', 'zero-bs-crm' ),
+				'img'             => '',
+				'video'           => false,
+				'learn_title'     => esc_html__( 'Import contacts from CSV', 'zero-bs-crm' ),
+				'content'         => '<p></p>',
+				'filter_function' => 'jpcrm_csvlite_learn_menu',
+			),
 		);
 
 		/**
