@@ -17,6 +17,7 @@ import { chevronDown, image, pencil, update, title, closeSmall } from '@wordpres
 /*
  * Internal dependencies
  */
+import useAIFeature from './hooks/use-ai-feature';
 import I18nDropdownControl from './i18n-dropdown-control';
 import AIAssistantIcon from './icons/ai-assistant';
 import origamiPlane from './icons/origami-plane';
@@ -55,6 +56,8 @@ const AIControl = ( {
 		}
 	};
 
+	const { requireUpgrade } = useAIFeature();
+
 	const textPlaceholder = __( 'Ask Jetpack AI', 'jetpack' );
 
 	let placeholder = '';
@@ -71,7 +74,7 @@ const AIControl = ( {
 
 	return (
 		<>
-			{ false && <UpgradePrompt /> }
+			{ requireUpgrade && <UpgradePrompt /> }
 			{ ! isWaitingState && (
 				<ToolbarControls
 					isWaitingState={ isWaitingState }
