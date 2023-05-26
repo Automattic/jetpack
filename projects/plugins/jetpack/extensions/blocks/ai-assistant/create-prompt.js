@@ -160,7 +160,7 @@ export function buildPrompt( {
 		case 'changeTone':
 			prompt = buildPromptTemplate( {
 				request: `Please, rewrite with a ${ options.tone } tone.`,
-				content: generatedContent,
+				content: options.contentType === 'generated' ? generatedContent : allPostContent,
 			} );
 			break;
 
