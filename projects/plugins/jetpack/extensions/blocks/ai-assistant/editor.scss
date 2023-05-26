@@ -68,6 +68,10 @@
 	padding: 6px 9px;
 	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 8px;
 
+	&.disconnected {
+		opacity: 0.4;
+	}
+
 	textarea {
 		width: 100%;
 		padding: 6px 8px;
