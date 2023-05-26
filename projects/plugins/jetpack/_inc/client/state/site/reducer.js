@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import {
 	getPlanClass,
 	isJetpackBackup,
+	isJetpackBoost,
 	isJetpackProduct,
 	isJetpackSearch,
 	isJetpackSecurityBundle,
@@ -424,6 +425,28 @@ export function getActiveAntiSpamPurchase( state ) {
  */
 export function hasActiveAntiSpamPurchase( state ) {
 	return !! getActiveAntiSpamPurchase( state );
+}
+
+/**
+ * Searches active products for an active Boost product.
+ *
+ * @param {*} state - Global state tree
+ * @returns {object} An active Boost product if one was found, undefined otherwise.
+ */
+export function getActiveBoostPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackBoost( product.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active Boost product purchase
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active Boost product purchase, false otherwise.
+ */
+export function hasActiveBoostPurchase( state ) {
+	return !! getActiveBoostPurchase( state );
 }
 
 /**
