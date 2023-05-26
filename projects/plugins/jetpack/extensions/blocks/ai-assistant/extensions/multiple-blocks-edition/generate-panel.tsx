@@ -71,7 +71,7 @@ export default function GenerateContentPanel( {
 		prompt: '',
 	} );
 
-	const [ createNewBlock, setCreateNewBlock ] = useState( false );
+	const [ createNewBlock, setCreateNewBlock ] = useState( true );
 	const [ errorMessage, setErrorMessage ] = useState( '' );
 	const { replaceBlocks, updateBlockAttributes, insertBlock } = useDispatch( blockEditorStore );
 
@@ -160,10 +160,12 @@ export default function GenerateContentPanel( {
 				newBlockJustCreated = true;
 			}
 
-			const clientId = isMultipleBlocksSelection ? generatedBlock.clientId : blocksIds[ 0 ];
-			updateBlockAttributes( clientId, {
-				content: e.detail as string,
-			} );
+			let clientId = generatedBlock.clientId;
+			if ( ! isMultipleBlocksSelection && ! createNewBlock ) {
+				clientId = blocksIds[ 0 ];
+			}
+
+			updateBlockAttributes( clientId, { content: e.detail as string } );
 		} );
 	}, [
 		isMultipleBlocksSelection,
@@ -234,13 +236,13 @@ export default function GenerateContentPanel( {
 			</PanelRow>
 			<PanelRow>
 				<ToggleControl
-					label={
-						isMultipleBlocksSelection
-							? __( 'Combine all blocks into one', 'jetpack' )
-							: __( 'Create a new block', 'jetpack' )
-					}
+					label={ __( 'Create a new block', 'jetpack' ) }
 					checked={ createNewBlock }
 					onChange={ setCreateNewBlock }
+					help={ __(
+						'If enable, it will create a new block with the generated content.',
+						'jetpack'
+					) }
 				/>
 			</PanelRow>
 
