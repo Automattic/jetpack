@@ -35,7 +35,10 @@ function getReachForAccessLevelKey(
 	paidSubscribers,
 	socialFollowers
 ) {
-	if ( emailSubscribers === null || paidSubscribers === null || socialFollowers === null ) {
+	const isFalsy = value => {
+		return value === null || value === undefined || value === '';
+	};
+	if ( [ emailSubscribers, paidSubscribers, socialFollowers ].filter( isFalsy ).length > 0 ) {
 		return 0;
 	}
 
