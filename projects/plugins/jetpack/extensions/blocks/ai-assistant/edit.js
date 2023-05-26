@@ -166,8 +166,12 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 				className: classNames( { 'is-waiting-response': wasCompletionJustRequested } ),
 			} ) }
 		>
-			{ errorData && ! errorDismissed && (
-				<Notice status="info" isDismissible={ false } className="jetpack-ai-assistant__error">
+			{ errorData?.message && ! errorDismissed && (
+				<Notice
+					status={ errorData.status }
+					isDismissible={ false }
+					className="jetpack-ai-assistant__error"
+				>
 					{ errorData.message }
 				</Notice>
 			) }

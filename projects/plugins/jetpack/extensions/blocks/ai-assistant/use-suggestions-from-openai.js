@@ -204,7 +204,7 @@ const useSuggestionsFromOpenAI = ( {
 			source.current = await askQuestion( prompt, postId );
 		} catch ( err ) {
 			if ( err.message ) {
-				setError( { message: err.message, code: err?.code || 'unknown' } );
+				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );
 			} else {
 				setError( {
 					message: __(
@@ -212,6 +212,7 @@ const useSuggestionsFromOpenAI = ( {
 						'jetpack'
 					),
 					code: 'unknown',
+					status: 'error',
 				} );
 			}
 			setShowRetry( true );
@@ -230,6 +231,7 @@ const useSuggestionsFromOpenAI = ( {
 			setError( {
 				code: 'error_unclear_prompt',
 				message: __( 'Your request was unclear. Mind trying again?', 'jetpack' ),
+				status: 'info',
 			} );
 		} );
 		source?.current.addEventListener( 'error_network', () => {
@@ -240,6 +242,7 @@ const useSuggestionsFromOpenAI = ( {
 			setError( {
 				code: 'error_network',
 				message: __( 'It was not possible to process your request. Mind trying again?', 'jetpack' ),
+				status: 'warning',
 			} );
 		} );
 		source?.current.addEventListener( 'error_quota_exceeded', () => {
@@ -250,6 +253,7 @@ const useSuggestionsFromOpenAI = ( {
 			setError( {
 				code: 'error_quota_exceeded',
 				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
+				status: 'info',
 			} );
 		} );
 
