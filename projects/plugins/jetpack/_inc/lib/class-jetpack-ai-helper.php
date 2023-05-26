@@ -321,11 +321,20 @@ class Jetpack_AI_Helper {
 			$requests_limit = \OpenAI_Limit_Usage::NUM_FREE_REQUESTS_LIMIT;
 			$requests_count = \OpenAI_Request_Count::get_count( $blog_id );
 
+			/*
+			 * Check if the site requires an upgrade,
+			 * based on the number of requests made,
+			 * the limit of free requests,
+			 * and if the site has the feature.
+			 */
+			$require_upgrade = ! $has_ai_assistant_feature && $is_over_limit;
+
 			return array(
-				'has-feature'    => $has_ai_assistant_feature,
-				'is-over-limit'  => $is_over_limit,
-				'requests-count' => $requests_count,
-				'requests-limit' => $requests_limit,
+				'has-feature'     => $has_ai_assistant_feature,
+				'is-over-limit'   => $is_over_limit,
+				'requests-count'  => $requests_count,
+				'requests-limit'  => $requests_limit,
+				'require-upgrade' => $require_upgrade,
 			);
 		}
 
