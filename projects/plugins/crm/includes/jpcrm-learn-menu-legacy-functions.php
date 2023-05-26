@@ -57,9 +57,12 @@ function zeroBS_genericLearnMenu(
  */
 function jpcrm_contactlist_learn_menu( $learn_menu ) {
 
+	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+
 	if ( zeroBSCRM_permsCustomers() ) {
-		$learn_menu['right_buttons'] = '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_customer', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new contact', 'zero-bs-crm' ) . '</a>';
+		$learn_menu['right_buttons'] .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_customer', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new contact', 'zero-bs-crm' ) . '</a>';
 	}
+
 	return $learn_menu;
 }
 
@@ -117,21 +120,21 @@ function jpcrm_contactedit_learn_menu( $learn_menu ) {
  */
 function jpcrm_formlist_learn_menu( $learn_menu ) {
 
-	global $zbs;
+	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
 
-	$learn_menu['right_buttons'] = '';
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		// Settings link
+		global $zbs;
+		$setting_link                 = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=forms';
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Forms settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Forms settings', 'zero-bs-crm' ) . '</a>';
+	}
+
 	if ( zeroBSCRM_permsForms() ) {
 		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_form', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new form', 'zero-bs-crm' ) . '</a>';
 	}
 
 	// ? Yup ?
 	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:11")) {hopscotch.startTour(window.zbsTour);}';
-
-	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-		// Settings link
-		$setting_link                 = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=forms';
-		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button transparent-bg font-14px" title="' . esc_attr__( 'Forms settings', 'zero-bs-crm' ) . '"><i class="cogs icon"></i></a>';
-	}
 
 	return $learn_menu;
 }
@@ -197,7 +200,14 @@ function jpcrm_tasknew_learn_menu( $learn_menu ) {
  */
 function jpcrm_quotelist_learn_menu( $learn_menu ) {
 
-	$learn_menu['right_buttons'] = '';
+	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+
+	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
+		// Settings link
+		global $zbs;
+		$setting_link                 = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=quotebuilder';
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Quotes settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Quotes settings', 'zero-bs-crm' ) . '</a>';
+	}
 
 	if ( zeroBSCRM_permsCustomers() ) {
 		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_quote', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new quote', 'zero-bs-crm' ) . '</a>';
@@ -205,13 +215,6 @@ function jpcrm_quotelist_learn_menu( $learn_menu ) {
 
 	// ? Yup ?
 	$learn_menu['extra_js'] = 'if (typeof hopscotch != "undefined" && (hopscotch.getState() === "zbs-welcome-tour:9" || hopscotch.getState() === "zbs-welcome-tour:10" || hopscotch.getState() === "zbs-welcome-tour:11")) {hopscotch.startTour(window.zbsTour);}';
-
-	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
-		// Settings link
-		global $zbs;
-		$setting_link                 = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=quotebuilder';
-		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button transparent-bg font-14px" title="' . esc_attr__( 'Quotes settings', 'zero-bs-crm' ) . '"><i class="cogs icon"></i></a>';
-	}
 
 	return $learn_menu;
 }
@@ -225,17 +228,17 @@ function jpcrm_quotelist_learn_menu( $learn_menu ) {
  */
 function jpcrm_transactionlist_learn_menu( $learn_menu ) {
 
-	global $zbs;
-	$learn_menu['right_buttons'] = '';
-
-	if ( zeroBSCRM_permsTransactions() ) {
-		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_transaction', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new transaction', 'zero-bs-crm' ) . '</a>';
-	}
+	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
 
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		// Settings link
+		global $zbs;
 		$setting_link                 = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=transactions';
-		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button transparent-bg font-14px" title="' . esc_attr__( 'Transaction settings', 'zero-bs-crm' ) . '"><i class="cogs icon"></i></a>';
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Transaction settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Transaction settings', 'zero-bs-crm' ) . '</a>';
+	}
+
+	if ( zeroBSCRM_permsTransactions() ) {
+		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_transaction', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new transaction', 'zero-bs-crm' ) . '</a>';
 	}
 
 	return $learn_menu;
@@ -250,17 +253,17 @@ function jpcrm_transactionlist_learn_menu( $learn_menu ) {
  */
 function jpcrm_invoicelist_learn_menu( $learn_menu ) {
 
-	global $zbs;
-
-	$learn_menu['right_buttons'] = '';
-	if ( zeroBSCRM_permsInvoices() ) {
-		$learn_menu['right_buttons'] .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_invoice', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new invoice', 'zero-bs-crm' ) . '</a>';
-	}
+	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
 
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		// Settings link
+		global $zbs;
 		$setting_link                 = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=invbuilder';
-		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button transparent-bg font-14px" title="' . esc_attr__( 'Invoice settings', 'zero-bs-crm' ) . '"><i class="cogs icon"></i></a>';
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Invoice settings', 'zero-bs-crm' ) . '">' . esc_html__( 'Invoice settings', 'zero-bs-crm' ) . '</a>';
+	}
+
+	if ( zeroBSCRM_permsInvoices() ) {
+		$learn_menu['right_buttons'] .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_invoice', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new invoice', 'zero-bs-crm' ) . '</a>';
 	}
 
 	return $learn_menu;
@@ -309,16 +312,17 @@ function jpcrm_invoiceedit_learn_menu( $learn_menu ) {
  */
 function jpcrm_companylist_learn_menu( $learn_menu ) {
 
-	global $zbs;
+	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
 
-	$learn_menu['right_buttons'] = '';
-	if ( zeroBSCRM_permsCustomers() ) {
-		$learn_menu['right_buttons'] .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_company', false ) . '" class="jpcrm-button font-14px">' . sprintf( __( 'Add new %s', 'zero-bs-crm' ), jpcrm_label_company() ) . '</a>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
-	}
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		// Settings link
+		global $zbs;
 		$setting_link                 = zeroBSCRM_getAdminURL( $zbs->slugs['settings'] ) . '&tab=companies';
-		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button transparent-bg font-14px" title="' . esc_attr__( 'Settings', 'zero-bs-crm' ) . '"><i class="cogs icon"></i></a>';
+		$learn_menu['right_buttons'] .= '<a href="' . esc_url( $setting_link ) . '" class="jpcrm-button white-bg font-14px" title="' . esc_attr__( 'Settings', 'zero-bs-crm' ) . '">' . esc_html( sprintf( __( '%s settings', 'zero-bs-crm' ), jpcrm_label_company() ) ) . '</a>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
+	}
+
+	if ( zeroBSCRM_permsCustomers() ) {
+		$learn_menu['right_buttons'] .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_company', false ) . '" class="jpcrm-button font-14px">' . sprintf( __( 'Add new %s', 'zero-bs-crm' ), jpcrm_label_company() ) . '</a>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
 	}
 
 	return $learn_menu;
@@ -396,8 +400,10 @@ EOF;
  */
 function jpcrm_segmentlist_learn_menu( $learn_menu ) {
 
+	$learn_menu['right_buttons'] = '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+
 	if ( zeroBSCRM_permsCustomers() ) {
-		$learn_menu['right_buttons'] = ' <a href="' . jpcrm_esc_link( 'create', -1, 'segment', false ) . '" class="jpcrm-button font-14px">' . esc_html__( 'Add new segment', 'zero-bs-crm' ) . '</a>';
+		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'segment', false ) . '" class="jpcrm-button font-14px">' . esc_html__( 'Add new segment', 'zero-bs-crm' ) . '</a>';
 	}
 
 	return $learn_menu;
