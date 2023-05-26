@@ -544,7 +544,7 @@ abstract class Publicize_Base {
 		if ( 'mastodon' === $service_name && isset( $cmeta['external_display'] ) ) {
 			return $cmeta['external_display'];
 		}
-		
+
 		if ( isset( $cmeta['connection_data']['meta']['username'] ) ) {
 			return $cmeta['connection_data']['meta']['username'];
 		}
