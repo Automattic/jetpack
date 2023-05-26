@@ -178,11 +178,11 @@ class AtAGlance extends Component {
 				</div>
 			) : null;
 
-			const boostSpeedScore = (
+			const boostSpeedScore = this.props.userCanManagePlugins ? (
 				<div className="jp-at-a-glance__pinned-bundle">
 					<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />
 				</div>
-			);
+			) : undefined;
 
 			return (
 				<ThemeProvider>
