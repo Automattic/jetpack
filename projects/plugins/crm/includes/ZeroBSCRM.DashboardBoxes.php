@@ -54,7 +54,6 @@ function zeroBS_dashboard_crm_list_growth(){
 					</div>
 				</div>
 				<div class="day-or-month">
-				<span><?php esc_html_e( 'Grouping', 'zero-bs-crm' ); ?>:</span>
 					<div class="button" data-range="daily"><?php esc_html_e( 'Day', 'zero-bs-crm' ); ?></div>
 					<div class="button" data-range="weekly"><?php esc_html_e( 'Week', 'zero-bs-crm' ); ?></div>
 					<div class="button selected" data-range="monthly"><?php esc_html_e( 'Month', 'zero-bs-crm' ); ?></div>
