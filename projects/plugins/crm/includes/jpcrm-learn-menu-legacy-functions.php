@@ -72,10 +72,6 @@ function jpcrm_contactlist_learn_menu( $learn_menu ) {
  */
 function jpcrm_viewcontact_learn_menu( $learn_menu ) {
 
-	if ( zeroBSCRM_permsCustomers() ) {
-		$learn_menu['left_buttons'] = '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_customer', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new contact', 'zero-bs-crm' ) . '</a>';
-	}
-
 	$contact_id                  = ( empty( $_GET['zbsid'] ) ? -1 : (int) $_GET['zbsid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$learn_menu['right_buttons'] = zeroBSCRM_getObjNav( $contact_id, 'view', ZBS_TYPE_CONTACT );
 
@@ -124,7 +120,7 @@ function jpcrm_formlist_learn_menu( $learn_menu ) {
 	global $zbs;
 
 	$learn_menu['right_buttons'] = '';
-	if ( zeroBSCRM_permsQuotes() ) {
+	if ( zeroBSCRM_permsForms() ) {
 		$learn_menu['right_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_form', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new form', 'zero-bs-crm' ) . '</a>';
 	}
 
@@ -154,7 +150,6 @@ function jpcrm_taskedit_learn_menu( $learn_menu ) {
 	$learn_menu['left_buttons']  = '<div id="zbs-event-learn-nav"></div>';
 	$learn_menu['left_buttons'] .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'View calendar', 'zero-bs-crm' ) . '</a>';
 	$learn_menu['left_buttons'] .= ' <a href="' . jpcrm_esc_link( $zbs->slugs['manage-events-list'] ) . '" class="jpcrm-button white-bg font-14px">' . __( 'View list', 'zero-bs-crm' ) . '</a>';
-	$learn_menu['left_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_event', false ) . '" class="jpcrm-button font-14px">' . __( 'Add new task', 'zero-bs-crm' ) . '</a>';
 
 	return $learn_menu;
 }
@@ -222,33 +217,6 @@ function jpcrm_quotelist_learn_menu( $learn_menu ) {
 }
 
 /**
- * Extend new quote learn menu.
- *
- * @param array $learn_menu Learn menu array.
- *
- * @return array
- */
-function jpcrm_quotenew_learn_menu( $learn_menu ) {
-	$learn_menu['left_buttons'] = '<div id="zbs-quote-learn-nav"></div>';
-	return $learn_menu;
-}
-
-/**
- * Extend quote edit learn menu.
- *
- * @param array $learn_menu Learn menu array.
- *
- * @return array
- */
-function jpcrm_quoteedit_learn_menu( $learn_menu ) {
-
-	$learn_menu['left_buttons']  = '<div id="zbs-quote-learn-nav"></div>';
-	$learn_menu['left_buttons'] .= '<a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_QUOTE, false ) . '" class="jpcrm-button font-14px">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
-
-	return $learn_menu;
-}
-
-/**
  * Extend transaction listview learn menu.
  *
  * @param array $learn_menu Learn menu array.
@@ -273,34 +241,6 @@ function jpcrm_transactionlist_learn_menu( $learn_menu ) {
 	return $learn_menu;
 }
 
-/**
- * Extend new transaction learn menu.
- *
- * @param array $learn_menu Learn menu array.
- *
- * @return array
- */
-function jpcrm_transactionnew_learn_menu( $learn_menu ) {
-	$learn_menu['left_buttons'] = '<div id="zbs-transaction-learn-nav"></div>';
-	return $learn_menu;
-}
-
-/**
- * Extend transaction edit learn menu.
- *
- * @param array $learn_menu Learn menu array.
- *
- * @return array
- */
-function jpcrm_transactionedit_learn_menu( $learn_menu ) {
-	$learn_menu['left_buttons'] = '<div id="zbs-transaction-learn-nav"></div>';
-
-	if ( zeroBSCRM_permsTransactions() ) {
-		$learn_menu['left_buttons'] .= ' <a href="' . jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION, false ) . '" class="jpcrm-button font-14px">' . __( 'Add new transaction', 'zero-bs-crm' ) . '</a>';
-	}
-
-	return $learn_menu;
-}
 /**
  * Extend invoice listview learn menu.
  *
@@ -336,8 +276,6 @@ function jpcrm_invoicelist_learn_menu( $learn_menu ) {
 function jpcrm_invoicenew_learn_menu( $learn_menu ) {
 	global $zbs;
 
-	$learn_menu['left_buttons'] = '<div id="zbs-invoice-learn-nav"></div>';
-
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		$learn_menu['right_buttons'] = '<a class="jpcrm-button transparent-bg font-14px" target="_blank" href="' . admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=invbuilder" title="' . __( 'Invoice Settings', 'zero-bs-crm' ) . '"><i class="options icon"></i></a> <a class="jpcrm-button transparent-bg font-14px" target="_blank" href="' . admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=bizinfo" title="' . __( 'Business Settings', 'zero-bs-crm' ) . '"><i class="building icon"></i></a>';
 	}
@@ -354,12 +292,6 @@ function jpcrm_invoicenew_learn_menu( $learn_menu ) {
 function jpcrm_invoiceedit_learn_menu( $learn_menu ) {
 
 	global $zbs;
-
-	$learn_menu['left_buttons'] = '<div id="zbs-invoice-learn-nav"></div>';
-
-	if ( zeroBSCRM_permsInvoices() ) {
-		$learn_menu['left_buttons'] .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_invoice', false ) . '" class="jpcrm-button font-14px">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
-	}
 
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		$learn_menu['right_buttons'] = '<a class="jpcrm-button transparent-bg font-14px" target="_blank" href="' . admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=invbuilder" title="' . __( 'Invoice Settings', 'zero-bs-crm' ) . '"><i class="options icon"></i></a> <a class="jpcrm-button transparent-bg font-14px" target="_blank" href="' . admin_url( 'admin.php?page=' . $zbs->slugs['settings'] ) . '&tab=bizinfo" title="' . __( 'Business Settings', 'zero-bs-crm' ) . '"><i class="building icon"></i></a>';
@@ -381,7 +313,7 @@ function jpcrm_companylist_learn_menu( $learn_menu ) {
 
 	$learn_menu['right_buttons'] = '';
 	if ( zeroBSCRM_permsCustomers() ) {
-		$learn_menu['right_buttons'] .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_company', false ) . '" class="jpcrm-button font-14px">' . __( 'Add New', 'zero-bs-crm' ) . '</a>';
+		$learn_menu['right_buttons'] .= '<a href="' . jpcrm_esc_link( 'create', -1, 'zerobs_company', false ) . '" class="jpcrm-button font-14px">' . sprintf( __( 'Add new %s', 'zero-bs-crm' ), jpcrm_label_company() ) . '</a>'; // phpcs:ignore WordPress.WP.I18n.MissingTranslatorsComment
 	}
 	if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 		// Settings link
