@@ -45,5 +45,8 @@ declare global {
 			siteSuffix: string;
 			connectionErrors: Array;
 		};
+		Jetpack_Editor_Initial_State: {
+			adminUrl: string;
+		};
 	}
 }

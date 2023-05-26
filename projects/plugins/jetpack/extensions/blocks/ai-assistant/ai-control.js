@@ -17,6 +17,7 @@ import { chevronDown, image, pencil, update, title, closeSmall } from '@wordpres
 /*
  * Internal dependencies
  */
+import ConnectPrompt from './components/connect-prompt';
 import useAIFeature from './hooks/use-ai-feature';
 import I18nDropdownControl from './i18n-dropdown-control';
 import AIAssistantIcon from './icons/ai-assistant';
@@ -75,6 +76,7 @@ const AIControl = ( {
 	return (
 		<>
 			{ requireUpgrade && <UpgradePrompt /> }
+			{ <ConnectPrompt /> }
 			{ ! isWaitingState && (
 				<ToolbarControls
 					isWaitingState={ isWaitingState }
