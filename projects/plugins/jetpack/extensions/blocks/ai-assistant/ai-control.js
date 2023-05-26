@@ -45,6 +45,7 @@ const AIControl = ( {
 	wholeContent,
 	promptType,
 	onChange,
+	requireUpgrade,
 } ) => {
 	const promptUserInputRef = useRef( null );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -56,7 +57,7 @@ const AIControl = ( {
 		}
 	};
 
-	const { requireUpgrade } = useAIFeature();
+	const { requireUpgrade: showUpgradeBanner } = useAIFeature();
 
 	const textPlaceholder = __( 'Ask Jetpack AI', 'jetpack' );
 
@@ -74,7 +75,7 @@ const AIControl = ( {
 
 	return (
 		<>
-			{ requireUpgrade && <UpgradePrompt /> }
+			{ ( showUpgradeBanner || requireUpgrade ) && <UpgradePrompt /> }
 			{ ! isWaitingState && (
 				<ToolbarControls
 					isWaitingState={ isWaitingState }
