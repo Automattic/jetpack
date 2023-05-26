@@ -17,7 +17,7 @@ import useAnalytics from '../../hooks/useAnalytics';
 import useCapabilities from '../../hooks/useCapabilities';
 import useConnection from '../../hooks/useConnection';
 import { STORE_ID } from '../../store';
-import Backups from '../Backups';
+import { Backups, Loading as BackupsLoadingPlaceholder } from '../Backups';
 import BackupStorageSpace from '../backup-storage-space';
 import ReviewRequest from '../review-request';
 import Header from './header';
@@ -374,7 +374,15 @@ const LoadedState = ( {
 	}
 
 	if ( ! capabilitiesLoaded ) {
-		return null;
+		return (
+			<Container horizontalSpacing={ 5 } fluid>
+				<Col>
+					<div className="jp-wrap jp-content backup-panel">
+						<BackupsLoadingPlaceholder />
+					</div>
+				</Col>
+			</Container>
+		);
 	}
 
 	if ( hasBackupPlan ) {
