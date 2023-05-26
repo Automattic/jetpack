@@ -242,11 +242,10 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-speed-score",
-                "reference": "6c0515976275db6509e9c0a47589cfd851d4ae20"
+                "reference": "9a2190a5dc074cc04b2204a4874777498f4996ab"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
-                "automattic/wordbless": "dev-master",
                 "brain/monkey": "^2.6",
                 "yoast/phpunit-polyfills": "1.0.4"
             },
@@ -265,7 +264,7 @@
                 },
                 "textdomain": "jetpack-boost-speed-score",
                 "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-speed-score.php"
+                    "::PACKAGE_VERSION": "src/class-boost-speed-score.php"
                 }
             },
             "autoload": {
@@ -285,6 +284,12 @@
                 "test-php": [
                     "@composer phpunit"
                 ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
                 "post-install-cmd": [
                     "WorDBless\\Composer\\InstallDropin::copy"
                 ],
@@ -295,7 +300,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "description": "A package that handles the API to generate the speed score",
+            "description": "A package that handles the API to generate the speed score.",
             "transport-options": {
                 "relative": true
             }
