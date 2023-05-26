@@ -537,7 +537,7 @@ abstract class Publicize_Base {
 	public function get_username( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
-		if ( 'instagram-business' === $service_name && isset( $cmeta['connection_data']['meta']['username'] ) ) {
+		if ( isset( $cmeta['connection_data']['meta']['username'] ) ) {
 			return $cmeta['connection_data']['meta']['username'];
 		}
 
