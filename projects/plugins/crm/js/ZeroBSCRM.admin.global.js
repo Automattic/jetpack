@@ -202,7 +202,7 @@ function zbscrm_JS_adminMenuDropdown() {
 		if (
 			window.zbscrmjs_hopscotch_virgin === 1 &&
 			typeof hopscotch !== 'undefined' &&
-			jQuery( '#zbs-admin-top-bar' ).length
+			jQuery( '.jpcrm-learn-menu-container' ).length
 		) {
 			// UNSET tour (unless somethign went wrong)
 			//console.log('state:',hopscotch.getState());
