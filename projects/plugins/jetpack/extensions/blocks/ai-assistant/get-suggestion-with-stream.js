@@ -86,7 +86,8 @@ export async function requestToken() {
 
 	if ( isJetpackSite ) {
 		data = await apiFetch( {
-			path: '/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(),
+			path:
+				'/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now() + '&check-feature-available=true',
 			credentials: 'same-origin',
 			headers: {
 				'X-WP-Nonce': apiNonce,
