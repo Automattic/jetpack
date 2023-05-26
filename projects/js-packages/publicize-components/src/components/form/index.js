@@ -65,7 +65,7 @@ export default function PublicizeForm( {
 	} ) );
 
 	const hasInstagramConnection = connections.some(
-		connection => connection.service_name === 'instagram'
+		connection => connection.service_name === 'instagram-business'
 	);
 	const [ shouldShowInstagramNotice, setShouldShowInstagramNotice ] = useState(
 		! hasInstagramConnection && isInstagramConnectionSupported
