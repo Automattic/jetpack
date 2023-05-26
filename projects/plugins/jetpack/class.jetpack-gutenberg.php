@@ -713,6 +713,7 @@ class Jetpack_Gutenberg {
 				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 				'dismissedNotices'                => $publicize->get_dismissed_notices(),
 				'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
+				'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
 			);
 		}
 
