@@ -13,7 +13,12 @@ import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { getSiteConnectionStatus } from 'state/connection';
-import { getApiRootUrl, getApiNonce, getSiteRawUrl } from 'state/initial-state';
+import {
+	getApiRootUrl,
+	getApiNonce,
+	getSiteRawUrl,
+	getLatestBoostSpeedScores,
+} from 'state/initial-state';
 import { hasActiveBoostPurchase as getActiveBoostPurchase } from 'state/site';
 import {
 	isFetchingPluginsData,
@@ -41,16 +46,27 @@ const DashBoost = ( {
 	isBoostInstalled,
 	isBoostActive,
 	hasActiveBoostPurchase,
+	latestSpeedScores = {},
 } ) => {
 	const isSiteOffline = siteConnectionStatus === 'offline';
 
-	const [ isLoading, setIsLoading ] = useState( true );
+	const [ isLoading, setIsLoading ] = useState( false );
 	const [ isInstalling, setIsInstalling ] = useState( false );
 	const [ isActivating, setIsActivating ] = useState( false );
 	const [ speedLetterGrade, setSpeedLetterGrade ] = useState( 'C' );
 	const [ daysSinceTested, setDaysSinceTested ] = useState( 1 );
 	const [ mobileSpeedScore, setMobileSpeedScore ] = useState( 0 );
 	const [ desktopSpeedScore, setDesktopSpeedScore ] = useState( 0 );
+	const [ isSpeedScoreError, setIsSpeedScoreError ] = useState( false );
+
+	const setScoresFromCache = () => {
+		setMobileSpeedScore( latestSpeedScores.scores.mobile );
+		setDesktopSpeedScore( latestSpeedScores.scores.desktop );
+		setSpeedLetterGrade(
+			getScoreLetter( latestSpeedScores.scores.mobile, latestSpeedScores.scores.desktop )
+		);
+		setDaysSinceTested( calculateDaysSince( latestSpeedScores.timestamp * 1000 ) );
+	};
 
 	const getSpeedScores = async () => {
 		if ( isSiteOffline ) {
@@ -68,12 +84,41 @@ const DashBoost = ( {
 			setDaysSinceTested( 0 );
 			setIsLoading( false );
 		} catch ( err ) {
-			return err;
+			// If error, use cached speed scores if they exist
+			if ( latestSpeedScores && latestSpeedScores.scores ) {
+				setScoresFromCache();
+			} else {
+				// Hide score bars if error and no cached scores
+				setIsSpeedScoreError( true );
+			}
+
+			setIsLoading( false );
 		}
 	};
 
+	const calculateDaysSince = timestamp => {
+		// Create Date objects for the provided timestamp and the current date
+		const providedDate = new Date( timestamp );
+		const currentDate = new Date();
+
+		// Calculate the difference in milliseconds between the two dates
+		const differenceInMilliseconds = currentDate - providedDate;
+
+		// Convert milliseconds to days
+		const millisecondsInADay = 24 * 60 * 60 * 1000;
+		const differenceInDays = Math.floor( differenceInMilliseconds / millisecondsInADay );
+
+		return differenceInDays;
+	};
+
 	useEffect( () => {
-		getSpeedScores();
+		// Only update speedscore if the previous one is more than 3 weeks ago
+		if ( latestSpeedScores && calculateDaysSince( latestSpeedScores.timestamp * 1000 ) < 21 ) {
+			setScoresFromCache();
+		} else {
+			getSpeedScores();
+		}
+
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
@@ -91,7 +136,7 @@ const DashBoost = ( {
 	const getSinceTestedText = () => {
 		switch ( daysSinceTested ) {
 			case 0:
-				return __( 'Your site was tested today', 'jetpack' );
+				return __( 'Your site was tested in the last 24 hours', 'jetpack' );
 			case 1:
 				return __( 'Your site was tested yesterday', 'jetpack' );
 			default:
@@ -144,7 +189,8 @@ const DashBoost = ( {
 	const hasBoost = isBoostInstalled && isBoostActive;
 
 	// Don't show score bars until we know if they already have boost installed and activated, the site is online, and we have the scores.
-	const shouldShowScoreBars = ! hasBoost && ! isSiteOffline && ! fetchingPluginsData;
+	const shouldShowScoreBars =
+		! hasBoost && ! isSiteOffline && ! fetchingPluginsData && ! isSpeedScoreError;
 	const pluginName = _x(
 		'Boost',
 		'The Jetpack Boost product name, without the Jetpack prefix',
@@ -318,6 +364,14 @@ DashBoost.propTypes = {
 	isBoostInstalled: PropTypes.bool.isRequired,
 	isBoostActive: PropTypes.bool.isRequired,
 	hasActiveBoostPurchase: PropTypes.bool.isRequired,
+	latestSpeedScores: PropTypes.shape( {
+		timestamp: PropTypes.number,
+		scores: PropTypes.shape( {
+			mobile: PropTypes.number,
+			desktop: PropTypes.number,
+		} ),
+		theme: PropTypes.string,
+	} ),
 };
 
 export default connect(
@@ -332,6 +386,7 @@ export default connect(
 		),
 		isBoostActive: BOOST_PLUGIN_FILES.some( pluginFile => isPluginActive( state, pluginFile ) ),
 		hasActiveBoostPurchase: getActiveBoostPurchase( state ),
+		latestSpeedScores: getLatestBoostSpeedScores( state ),
 	} ),
 	dispatch => ( {
 		fetchPluginsData: () => dispatch( dispatchFetchPluginsData() ),
