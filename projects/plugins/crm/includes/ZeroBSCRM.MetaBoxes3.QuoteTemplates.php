@@ -152,7 +152,7 @@
 
                         ##WLREMOVE
                         // template placeholder helper
-                        echo '<p style="text-align:right"><span class="ui basic blue label">'.esc_html__('Did you know: You can now use Quote Placeholders?','zero-bs-crm').' <a href="' . esc_url( $zbs->urls['kbquoteplaceholders'] ) . '" target="_blank">' . esc_html__('Read More','zero-bs-crm') . '</a></span></p>';
+								echo '<p style="text-align:right"><span class="ui basic black label">' . esc_html__( 'Did you know: You can now use Quote Placeholders?', 'zero-bs-crm' ) . ' <a href="' . esc_url( $zbs->urls['kbquoteplaceholders'] ) . '" target="_blank">' . esc_html__( 'Read More', 'zero-bs-crm' ) . '</a></span></p>';
                         ##/WLREMOVE
 
 						$content = wp_kses( $quoteTemplateContent, $zbs->acceptable_html ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
@@ -355,7 +355,7 @@
 
                     <div class="zbs-quotetemplate-actions-bottom zbs-objedit-actions-bottom">
 
-                        <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Update","zero-bs-crm"); ?> <?php esc_html_e("Template","zero-bs-crm"); ?></button>
+							<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Template', 'zero-bs-crm' ); ?></button>
 
                         <?php
 
@@ -380,7 +380,7 @@
 
                     <div class="zbs-quotetemplate-actions-bottom zbs-objedit-actions-bottom">
                         
-                        <button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e("Save","zero-bs-crm"); ?> <?php esc_html_e("Template","zero-bs-crm"); ?></button>
+							<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Template', 'zero-bs-crm' ); ?></button>
 
                     </div>
 

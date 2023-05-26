@@ -7,13 +7,13 @@
 
 namespace Automattic\Jetpack\My_Jetpack\Products;
 
-use Automattic\Jetpack\My_Jetpack\Module_Product;
+use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
 /**
  * Class responsible for handling the Jetpack AI product
  */
-class Jetpack_Ai extends Module_Product {
+class Jetpack_Ai extends Product {
 
 	/**
 	 * The product slug
@@ -23,11 +23,22 @@ class Jetpack_Ai extends Module_Product {
 	public static $slug = 'jetpack-ai';
 
 	/**
-	 * The Jetpack module name
+	 * Get the plugin slug - ovewrite it and return Jetpack's
 	 *
-	 * @var string
+	 * @return ?string
 	 */
-	public static $module_name = 'jetpack-ai';
+	public static function get_plugin_slug() {
+		return self::JETPACK_PLUGIN_SLUG;
+	}
+
+	/**
+	 * Get the plugin filename - ovewrite it and return Jetpack's
+	 *
+	 * @return ?string
+	 */
+	public static function get_plugin_filename() {
+		return self::JETPACK_PLUGIN_FILENAME;
+	}
 
 	/**
 	 * Get the internationalized product name
@@ -35,7 +46,7 @@ class Jetpack_Ai extends Module_Product {
 	 * @return string
 	 */
 	public static function get_name() {
-		return __( 'AI', 'jetpack-my-jetpack' );
+		return __( 'Jetpack AI', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -62,7 +73,7 @@ class Jetpack_Ai extends Module_Product {
 	 * @return string
 	 */
 	public static function get_long_description() {
-		return __( 'Soar to New Heights in Content Creation with Your AI-Powered WordPress Assistant.', 'jetpack-my-jetpack' );
+		return __( 'Jetpack AI Assistant brings the power of AI right into your WordPress editor, letting your content creation soar to new heights.', 'jetpack-my-jetpack' );
 	}
 
 	/**
@@ -72,10 +83,10 @@ class Jetpack_Ai extends Module_Product {
 	 */
 	public static function get_features() {
 		return array(
-			__( 'Smart Text Generation', 'jetpack-my-jetpack' ),
-			__( 'Dynamic Image Creation', 'jetpack-my-jetpack' ),
-			__( 'Personalized Recommendations', 'jetpack-my-jetpack' ),
-			__( 'Seamless WordPress Integration', 'jetpack-my-jetpack' ),
+			__( 'Artificial intelligence chatbot', 'jetpack-my-jetpack' ),
+			__( 'Generate text, tables, and lists', 'jetpack-my-jetpack' ),
+			__( 'Refine the tone and content to your liking', 'jetpack-my-jetpack' ),
+			__( 'Seamless WordPress editor Integration', 'jetpack-my-jetpack' ),
 		);
 	}
 
@@ -104,13 +115,24 @@ class Jetpack_Ai extends Module_Product {
 	}
 
 	/**
-	 * Checks whether the Jetpack module is active
+	 * Checks whether the current plan (or purchases) of the site already supports the product
 	 *
-	 * This is a bundle and not a product. We should not use this information for anything
-	 *
-	 * @return bool
+	 * @return boolean
 	 */
-	public static function is_module_active() {
+	public static function has_required_plan() {
+		$purchases_data = Wpcom_Products::get_site_current_purchases();
+		if ( is_wp_error( $purchases_data ) ) {
+			return false;
+		}
+		if ( is_array( $purchases_data ) && ! empty( $purchases_data ) ) {
+			foreach ( $purchases_data as $purchase ) {
+				if (
+					0 === strpos( $purchase->product_slug, static::get_wpcom_product_slug() )
+				) {
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 

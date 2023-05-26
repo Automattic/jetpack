@@ -1,6 +1,12 @@
+@import '@automattic/jetpack-base-styles/style';
+
 /**
  * Editor styles for Jetpack AI Assistant
  */
+
+.block-editor-block-toolbar__slot {
+	flex-shrink: 0;
+}
 
 .wp-block-ai-generate-suggestion {
 	padding: 0;
@@ -15,15 +21,52 @@
 	margin: 10px;
 }
 
-.jetpack-ai-assistant__loading-spinner {
-	margin: auto 0;
-	padding-left: 4px;
+.wp-block-jetpack-ai-assistant {
+	.jetpack-ai-assistant__content {
+		opacity: 1;
+		transition: opacity 0.2s ease-in-out;
+	}
+	&.is-waiting-response .jetpack-ai-assistant__content {
+		opacity: 0.5;
+	}
+}
+
+.jetpack-ai-assistant__error {
+	margin: 0 0 8px 0;
+	color: var( --wp--preset--color--black );
+}
+
+.jetpack-ai-assistant__input-icon-wrapper {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 4px 0 8px;
+	
+	.jetpack-ai-assistant__input-icon {
+		// Brand green regardless of theme
+		color: var( --jp-green-40 );
+	}
+	
+	.jetpack-ai-assistant__input-loader-icon {
+		color: var( --wp--preset--color--foreground );
+	}
+	
+	.jetpack-ai-assistant__input-spinner {
+		margin: 0;
+		width: 24px;
+		height: 24px;
+
+		path {
+			color: var( --jp-green-40 );
+		}
+	}
 }
 
 .jetpack-ai-assistant__input-wrapper {
 	display: flex;
-	padding: 4px 4px;
-	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 3px 6px, var( --wp--preset--color--cyan-bluish-gray ) 0px 9px 24px;
+	padding: 6px 9px;
+	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 8px;
 
 	textarea {
 		width: 100%;
@@ -41,12 +84,14 @@
 		&::placeholder {
 			text-overflow:ellipsis;
 			white-space: nowrap;
+			color: var( --wp--preset--color--foreground );
+			opacity: 0.75;
 		}
 	}
 
 	textarea.jetpack-ai-assistant__input {
 		flex-grow: 1;
-		margin: 1px 12px 1px 0px;
+		margin: 1px 0px 1px 0px;
 		resize: none !important;
 		border: none;
 		box-shadow: none;
@@ -60,6 +105,27 @@
 .jetpack-ai-assistant__controls {
 	display: flex;
 	align-items: center;
+
+	.jetpack-ai-assistant__prompt_button {
+		color: var( --wp--preset--color--foreground );
+		text-transform: uppercase;
+		font-weight: 400;
+		user-select: none;
+
+		> SVG {
+			margin-right: 4px;
+		}
+
+		&:hover,
+		&:active {
+			color: var( --wp-components-color-accent, var( --wp-admin-theme-color ) );
+		}
+
+		&:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+	}
 }
 
 .jetpack-ai-assistant__accept {

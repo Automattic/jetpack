@@ -30,7 +30,7 @@ $learn_from_mike_videos = array(
 			'youtube-preview-2' => array(
 				'url' => $zbs->urls['youtube_intro_to_forms'],
 			'img' => 'youtube-preview-2-all-about-forms.png',
-			'title' => __( "All about using forms  in Jetpack CRM", 'zero-bs-crm' )
+			'title' => __( "All about using forms in Jetpack CRM", 'zero-bs-crm' )
 			),
 		 */
 
@@ -38,7 +38,7 @@ $learn_from_mike_videos = array(
 
 			'url'   => $zbs->urls['youtube_intro_to_tags'],
 			'img'   => 'youtube-preview-3-intro-to-tags.png',
-			'title' => __( 'Introduction to  tags and segments', 'zero-bs-crm' ),
+			'title' => __( 'Introduction to tags and segments', 'zero-bs-crm' ),
 
 		),
 

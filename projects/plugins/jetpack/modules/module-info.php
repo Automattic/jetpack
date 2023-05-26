@@ -129,7 +129,7 @@ add_filter( 'jetpack_learn_more_button_publicize', 'publicize_load_more_link' );
  */
 function publicize_more_info() {
 	esc_html_e(
-		'Automatically share and promote newly published posts to Facebook, Twitter, Tumblr,
+		'Automatically share and promote newly published posts to Facebook, Tumblr,
 		and LinkedIn. You can add connections for yourself or for all users on your site.',
 		'jetpack'
 	);

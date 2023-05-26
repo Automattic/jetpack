@@ -26,12 +26,14 @@ export default ( {
 		isRegistered,
 		isUserConnected,
 		hasConnectedOwner,
+		isOfflineMode,
 	} = useSelect( select => ( {
 		siteIsRegistering: select( STORE_ID ).getSiteIsRegistering(),
 		userIsConnecting: select( STORE_ID ).getUserIsConnecting(),
 		userConnectionData: select( STORE_ID ).getUserConnectionData(),
 		connectedPlugins: select( STORE_ID ).getConnectedPlugins(),
 		connectionErrors: select( STORE_ID ).getConnectionErrors(),
+		isOfflineMode: select( STORE_ID ).getIsOfflineMode(),
 		...select( STORE_ID ).getConnectionStatus(),
 	} ) );
 
@@ -105,5 +107,6 @@ export default ( {
 		hasConnectedOwner,
 		connectedPlugins,
 		connectionErrors,
+		isOfflineMode,
 	};
 };

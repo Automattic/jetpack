@@ -163,7 +163,7 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 						// } When no avatar, show edit button top right
 							// no avatars yet for co - if ($avatarMode == 3 || empty($avatar)){
 						?>
-							<a class="ui button blue mini right floated" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link( 'edit', $id, 'zerobs_company', false ); ?>">
+							<a class="ui button black mini right floated" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link( 'edit', $id, 'zerobs_company', false ); ?>">
 									<?php esc_html_e( 'Edit ' . jpcrm_label_company(), 'zero-bs-crm' ); ?>
 								</a>
 								<?php
@@ -592,7 +592,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								<tbody>
 								<?php
 								// prep link to create a new invoice
-								$new_invoice_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_INVOICE ) . '&prefillco=' . $company['id'];
+								$new_invoice_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_INVOICE ) . '&zbsprefillco=' . $company['id'];
 
 								if ( $company_invoice_count_inc_deleted > 0 ) {
 
@@ -634,7 +634,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									?>
 									<tr>
 										<td colspan="4">
-											<div class="ui info icon message" id="zbsNoInvoiceResults">
+											<div class="ui icon message" id="zbsNoInvoiceResults">
 											<div class="content">
 												<div class="header"><?php esc_html_e( 'No Invoices', 'zero-bs-crm' ); ?></div>
 												<p>
@@ -708,7 +708,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									<?php
 
 									// prep link to create a new transaction
-									$new_transaction_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION ) . '&prefillco=' . $company['id'];
+									$new_transaction_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_TRANSACTION ) . '&zbsprefillco=' . $company['id'];
 
 									if ( count( $company['transactions'] ) > 0 ) {
 
@@ -741,7 +741,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 										?>
 									<tr>
 										<td colspan="<?php echo count( $activeTransactionColumns ); ?>">
-											<div class="ui info icon message" id="zbsNoTransactionResults">
+											<div class="ui icon message" id="zbsNoTransactionResults">
 											<div class="content">
 												<div class="header"><?php esc_html_e( 'No Transactions', 'zero-bs-crm' ); ?></div>
 												<p>
@@ -845,7 +845,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								?>
 								">
 									<td colspan="4">
-										<div class="ui info icon message" id="zbsNoFileResults">
+										<div class="ui icon message" id="zbsNoFileResults">
 										<div class="content">
 											<div class="header"><?php esc_html_e( 'No Files', 'zero-bs-crm' ); ?></div>
 											<p>
@@ -880,7 +880,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								<tbody>
 									<?php
 									// prep link to create a new task
-									$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&prefillco=' . $company['id'];
+									$new_task_url = jpcrm_esc_link( 'create', -1, ZBS_TYPE_EVENT ) . '&zbsprefillco=' . $company['id'];
 
 									if ( isset( $company['tasks'] ) && is_array( $company['tasks'] ) && count( $company['tasks'] ) > 0 ) {
 
@@ -934,7 +934,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 										?>
 									<tr>
 										<td colspan="4">
-											<div class="ui info icon message" id="zbsNoTaskResults">
+											<div class="ui icon message" id="zbsNoTaskResults">
 												<div class="content">
 												<div class="header"><?php esc_html_e( 'No Tasks', 'zero-bs-crm' ); ?></div>
 												<p>

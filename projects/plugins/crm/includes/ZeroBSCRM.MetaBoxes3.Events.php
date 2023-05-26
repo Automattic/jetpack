@@ -367,7 +367,7 @@
 
                     <div class="zbs-event-actions-bottom zbs-objedit-actions-bottom">
 
-							<button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Task', 'zero-bs-crm' ); ?></button>
+							<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Update', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Task', 'zero-bs-crm' ); ?></button>
 
                         <?php
 
@@ -390,7 +390,7 @@
 
                     // NEW Event ?>
 
-						<button class="ui button green" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Task', 'zero-bs-crm' ); ?></button>
+						<button class="ui button black" type="button" id="zbs-edit-save"><?php esc_html_e( 'Save', 'zero-bs-crm' ); ?> <?php esc_html_e( 'Task', 'zero-bs-crm' ); ?></button>
 
                  <?php
 
@@ -605,11 +605,11 @@ function zeroBSCRM_task_ui_mark_complete($taskObject = array(), $taskID = -1){
     
         if ($taskObject['complete'] == 1){
 
-            $html .= "<div id='task-mark-incomplete' class='task-comp incomplete'><button class='ui button green' data-taskid='".$taskID."'><i class='ui icon check white'></i>".__('Completed','zero-bs-crm')."</button></div>";
+				$html .= "<div id='task-mark-incomplete' class='task-comp incomplete'><button class='ui button black' data-taskid='" . $taskID . "'><i class='ui icon check white'></i>" . __( 'Completed', 'zero-bs-crm' ) . '</button></div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
             $complete = "<input type='hidden' id='zbs-task-complete' value = '1' name = 'zbs-task-complete'/>";
         } else {
 				$html .= sprintf(
-					'<div id="task-mark-complete" class="task-comp complete"><button class="button button-primary button-large" data-taskid="%s"><i class="ui icon check"></i>%s</button></div>',
+					'<div id="task-mark-complete" class="task-comp complete"><button class="ui button black button-primary button-large" data-taskid="%s"><i class="ui icon check"></i>%s</button></div>',
 					$taskID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					__( 'Mark Complete', 'zero-bs-crm' )
 				);
@@ -645,7 +645,7 @@ function zeroBSCRM_task_ui_for($taskObject = array()){
         if (isset($taskContact['id'])) $custID = $taskContact['id'];
         $custName = $zbs->DAL->contacts->getContactNameWithFallback( $custID );
     }else{
-        if(isset($_GET['zbsprefillcust']) && !empty($_GET['zbsprefillcust'])){
+		if ( isset( $_GET['zbsprefillcust'] ) && ! empty( $_GET['zbsprefillcust'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
             $custID = (int)$_GET['zbsprefillcust'];
             $custName = $zbs->DAL->contacts->getContactNameWithFallback( $custID );
         }
@@ -653,7 +653,7 @@ function zeroBSCRM_task_ui_for($taskObject = array()){
     
     #} Output
     $html .= '<div class="zbs-task-for">' . zeroBSCRM_CustomerTypeList('zbscrmjs_events_setContact',$custName,true,'zbscrmjs_events_changeContact') . "</div>";
-    $html .= '<input type="hidden" name="zbse_customer" id="zbse_customer" value="' . $custID .'" />';
+	$html .= '<input type="hidden" name="zbse_customer" id="zbse_customer" value="' . ( $custName ? $custID : '' ) . '" />'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
     $html .= "<div class='clear'></div></div>";
 
     return $html;
@@ -661,7 +661,7 @@ function zeroBSCRM_task_ui_for($taskObject = array()){
 }
 
 function zeroBSCRM_task_ui_for_co($taskObject = array()){
-
+	global $zbs;
     $html = "";
 
     if(zeroBSCRM_getSetting('companylevelcustomers') == "1"){
@@ -669,26 +669,33 @@ function zeroBSCRM_task_ui_for_co($taskObject = array()){
         $html .= "<div class='no-contact zbs-task-for-who'><div class='zbs-task-for-help'><i class='ui icon building outline'></i> " . jpcrm_label_company() . "</div>";
 
         //need UI for selecting who the task is for (company, then contact)
-        $coName = ''; $coID = '';
+		$co_name = '';
+		$co_id   = '';
 
         if (isset($taskObject['company']) && is_array($taskObject['company'])){
 
-            $taskCompany = $taskObject['company'];
+			$task_company = $taskObject['company']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
             // for now this needs a 0 offset as has potential for multi-contact
-            if (isset($taskCompany[0]) && is_array($taskCompany[0])){
-
-                $taskCompany = $taskCompany[0];
+			if ( isset( $task_company[0] ) && is_array( $task_company[0] ) ) {
+				$task_company = $task_company[0];
             }
 
-            if (isset($taskCompany['id'])) $coID = $taskCompany['id'];
-            if (isset($taskCompany['name'])) $coName = $taskCompany['name'];
-        }
-        
+			if ( isset( $task_company['id'] ) ) {
+				$co_id = $task_company['id'];
+			}
+			if ( isset( $task_company['name'] ) ) {
+				$co_name = $task_company['name'];
+			}
+		} elseif ( isset( $_GET['zbsprefillco'] ) && ! empty( $_GET['zbsprefillco'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$co_id   = (int) $_GET['zbsprefillco']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+				$co_name = $zbs->DAL->companies->getCompanyNameEtc( $co_id ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		}
+
         #} Output
-        $html .= '<div class="zbs-task-for-company">' . zeroBSCRM_CompanyTypeList('zbscrmjs_events_setCompany',$coName,true,'zbscrmjs_events_changeCompany') . "</div>";
-        $html .= '<input type="hidden" name="zbse_company" id="zbse_company" value="' .$coID .'" />';    
-        $html .= "<div class='clear'></div></div>";
+		$html .= '<div class="zbs-task-for-company">' . zeroBSCRM_CompanyTypeList( 'zbscrmjs_events_setCompany', $co_name, true, 'zbscrmjs_events_changeCompany' ) . '</div>';
+		$html .= '<input type="hidden" name="zbse_company" id="zbse_company" value="' . ( $co_name ? $co_id : '' ) . '" />';
+		$html .= '<div class="clear"></div></div>';
 
     }
 
@@ -783,7 +790,7 @@ function zeroBSCRM_task_ui_reminders($taskObject = array(), $taskID = -1){
             // add admin cog (settings) for event notification template
             if ( zeroBSCRM_isZBSAdminOrAdmin() ) {
 					$html .= sprintf(
-						'<a href="%s" class="button button-primary button-large" title="%s" target="_blank"><i class="cogs icon"></i></a>',
+						'<a href="%s" class="button button-primary button-large" style="background-color:black;border-color:black;" title="%s" target="_blank"><i class="cogs icon"></i></a>',
 						esc_url_raw( jpcrm_esc_link( 'zbs-email-templates' ) . '&zbs_template_id=' . ZBSEMAIL_EVENTNOTIFICATION ),
 						__( 'Admin: Notification Settings', 'zero-bs-crm' )
 					);

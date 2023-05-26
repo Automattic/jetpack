@@ -426,7 +426,7 @@ class Jetpack_SSO {
 		} elseif ( Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
 
 			// Save cookies so we can handle redirects after SSO.
-			$this->save_cookies();
+			static::save_cookies();
 
 			/**
 			 * Check to see if the site admin wants to automagically forward the user

@@ -145,6 +145,12 @@ class Gridicon extends Component< GridiconProps > {
 						<path d="M3 6v9c0 1.105.895 2 2 2h9v5l5.325-3.804c1.05-.75 1.675-1.963 1.675-3.254V6c0-1.105-.895-2-2-2H5c-1.105 0-2 .895-2 2z" />
 					</g>
 				);
+			case 'gridicons-computer':
+				return (
+					<g>
+						<path d="M20 2H4c-1.104 0-2 .896-2 2v12c0 1.104.896 2 2 2h6v2H7v2h10v-2h-3v-2h6c1.104 0 2-.896 2-2V4c0-1.104-.896-2-2-2zm0 14H4V4h16v12z"></path>
+					</g>
+				);
 			case 'gridicons-cross':
 				return (
 					<g>
@@ -191,6 +197,12 @@ class Gridicon extends Component< GridiconProps > {
 				return (
 					<g>
 						<path d="M0 9.257C0 4.15 4.151 0 9.257 0c5.105 0 9.256 4.151 9.256 9.257a9.218 9.218 0 01-2.251 6.045l.034.033h1.053L24 22.01l-1.986 1.989-6.664-6.662v-1.055l-.033-.033a9.218 9.218 0 01-6.06 2.264C4.15 18.513 0 14.362 0 9.257zm4.169 1.537h4.61V1.82l-4.61 8.973zm5.547-3.092v8.974l4.61-8.974h-4.61z" />
+					</g>
+				);
+			case 'gridicons-phone':
+				return (
+					<g>
+						<path d="M16 2H8c-1.104 0-2 .896-2 2v16c0 1.104.896 2 2 2h8c1.104 0 2-.896 2-2V4c0-1.104-.896-2-2-2zm-3 19h-2v-1h2v1zm3-2H8V5h8v14z"></path>
 					</g>
 				);
 			case 'gridicons-pages':
