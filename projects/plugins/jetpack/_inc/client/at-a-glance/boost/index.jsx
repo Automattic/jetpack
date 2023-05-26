@@ -541,7 +541,7 @@ const CriticalCssInfoPopover = () => {
 					) }
 				</p>
 				<ul className="boost-critical-css-info__list">
-					<li>{ __( 'Making theme changes.', 'jetpack' ) }</li>
+					<li>{ __( 'Making theme changes', 'jetpack' ) }</li>
 					<li>{ __( 'Writing a new post/page', 'jetpack' ) }</li>
 					<li>{ __( 'Editing a post/page', 'jetpack' ) }</li>
 					<li>
