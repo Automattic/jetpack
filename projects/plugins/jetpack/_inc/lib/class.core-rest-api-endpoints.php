@@ -773,7 +773,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * TODO: Clean me up. This is ugly hack code.
 	 */
 	public static function get_openai_jwt() {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
+		$blog_id              = \Jetpack_Options::get_option( 'id' );
+		$ai_assistant_feature = (array) \Jetpack_AI_Helper::get_ai_assistance_feature();
+
+		if (
+			isset( $ai_assistant_feature['require-upgrade'] ) &&
+			(bool) $ai_assistant_feature['require-upgrade']
+		) {
+			return new \WP_Error(
+				'requests_limit_achieved',
+				__( 'Site achieved the requests limit', 'jetpack' ),
+				array(
+					'status' => 429,
+				)
+			);
+		}
 
 		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog(
 			"/sites/$blog_id/jetpack-openai-query/jwt",
