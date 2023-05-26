@@ -29,6 +29,7 @@ import {
 } from './settings';
 import { isNewsletterFeatureEnabled } from './utils';
 import { name } from './';
+import EmailPreview from './email-preview';
 
 import './panel.scss';
 
@@ -77,6 +78,7 @@ function NewsletterEditorSettingsPanel( {
 				paidSubscribers={ paidSubscribers }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
 			/>
+			<EmailPreview />
 		</PluginDocumentSettingPanel>
 	);
 }
