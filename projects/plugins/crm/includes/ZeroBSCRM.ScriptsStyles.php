@@ -756,27 +756,6 @@ add_action( 'wp_enqueue_scripts', 'zeroBSCRM_add_public_scripts', 10, 1 ); */
 	}
 	add_action('admin_enqueue_scripts', 'zeroBSCRM_enqueue_media_manager');
 
-// material admin 3.5 compat
-function zeroBSCRM_admin_styles_compat_materialAdmin(){
-
-	global $zbs;
-	wp_register_style('zbs-compat-matadm', ZEROBSCRM_URL .'/css/integrations/ZeroBSCRM.MaterialAdmin'.wp_scripts_get_suffix().'.css', array(), $zbs->version );
-	wp_enqueue_style( 'zbs-compat-matadm' );
-	
-}
-
-// compat css :)
-function zeroBSCRM_add_admin_compat_scripts($hook) {
-
-	// check
-	$zbs_custom_admin = zeroBSCM_custom_admin_detect();
-	if ($zbs_custom_admin == 'material') zeroBSCRM_admin_styles_compat_materialAdmin();
-    
-}
-add_action( 'admin_enqueue_scripts', 'zeroBSCRM_add_admin_compat_scripts');
-
-
-
 function zeroBSCRM_add_admin_segmenteditor_scripts($hook) {
 
 	global $zbs;

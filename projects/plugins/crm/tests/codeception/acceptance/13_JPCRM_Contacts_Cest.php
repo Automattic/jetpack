@@ -54,12 +54,12 @@ class JPCRM_Contacts_Cest {
 
 	public function see_contacts_page( AcceptanceTester $I ) {
 		$I->gotoAdminPage( 'contacts' );
-		$I->see( 'Contacts', '#zbs-admin-top-bar' );
+		$I->see( 'Contacts', '.jpcrm-learn-page-title' );
 	}
 
 	public function see_new_contact_page( AcceptanceTester $I ) {
 		$I->gotoAdminPage( 'add-edit', '&action=edit&zbstype=contact' );
-		$I->see( 'New Contact', '#zbs-list-top-bar' );
+		$I->see( 'New Contact', '.jpcrm-learn-page-title' );
 	}
 
 	public function create_new_contact( AcceptanceTester $I ) {
