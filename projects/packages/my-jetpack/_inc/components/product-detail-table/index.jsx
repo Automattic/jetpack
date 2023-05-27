@@ -11,10 +11,10 @@ import {
 	ProductPrice,
 	Text,
 } from '@automattic/jetpack-components';
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { useConnection, useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { sprintf, __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useProduct } from '../../hooks/use-product';
 
 /**
@@ -57,19 +57,51 @@ const ProductDetailTableColumn = ( {
 		wpcomProductSlug,
 	} = tiersPricingForUi[ tier ];
 
+	const { handleRegisterSite, registrationError } = useConnection( {
+		skipUserConnection: true,
+	} );
+
+	// Flag to indicate when the product button has been clicked and is working.
+	const [ buttonIsWorking, setButtonIsWorking ] = useState( false );
+
 	// Set up the checkout workflow hook.
-	const { run: runCheckout, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+	const { run: checkout } = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
 		productSlug: wpcomProductSlug,
 		redirectUrl: postActivationUrl || myJetpackUrl,
 		siteSuffix,
 	} );
 
-	// Register the click handler for the product button.
+	// Checkout handler for the product button.
+	const onProductButtonCheckout = useCallback( async () => {
+		await checkout();
+		setButtonIsWorking( false );
+	}, [ checkout ] );
+
+	// Click handler for the product button.
 	const onClick = useCallback( () => {
+		setButtonIsWorking( true );
 		trackProductButtonClick();
-		onProductButtonClick?.( runCheckout, detail, tier );
-	}, [ trackProductButtonClick, onProductButtonClick, runCheckout, detail, tier ] );
+
+		// Ensure the site is registered before proceeding.
+		handleRegisterSite()
+			.then( () => {
+				// Handle the button click, and redirect to the checkout page if necessary.
+				onProductButtonClick?.( onProductButtonCheckout, detail, tier );
+			} )
+			.catch( () => {
+				// Re-enable the button on error.
+				// Error details will be derived from the connection hook.
+				setButtonIsWorking( false );
+			} );
+	}, [
+		handleRegisterSite,
+		trackProductButtonClick,
+		onProductButtonClick,
+		onProductButtonCheckout,
+		detail,
+		tier,
+	] );
 
 	// Compute the price per month.
 	const price = fullPrice ? Math.ceil( ( fullPrice / 12 ) * 100 ) / 100 : null;
@@ -122,11 +154,12 @@ const ProductDetailTableColumn = ( {
 					fullWidth
 					variant={ isFree ? 'secondary' : 'primary' }
 					onClick={ onClick }
-					isLoading={ hasCheckoutStarted }
-					disabled={ hasCheckoutStarted || cantInstallPlugin }
+					isLoading={ buttonIsWorking }
+					disabled={ buttonIsWorking || cantInstallPlugin }
 				>
 					{ callToAction }
 				</Button>
+				{ registrationError }
 			</PricingTableHeader>
 			{ featuresByTier.map( ( feature, mapIndex ) => {
 				const {
