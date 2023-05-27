@@ -478,6 +478,20 @@ function render_block( $attributes ) {
 }
 
 /**
+ *  Get the post access level for the current post. Defaults to 'everybody' if the query is not for a single post
+ *
+ * @return string the actual post access level (see projects/plugins/jetpack/extensions/blocks/subscriptions/constants.js for the values).
+ */
+function get_post_access_level_for_current_post() {
+	if ( ! is_singular() ) {
+		// There is no "actual" current post.
+		return Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
+	}
+
+	return Jetpack_Memberships::get_post_access_level();
+}
+
+/**
  * Renders the WP.com version of the subscriptions block.
  *
  * @param array $data    Array containing block view data.
@@ -500,7 +514,7 @@ function render_wpcom_subscribe_form( $data, $classes, $styles ) {
 		)
 	);
 
-	$post_access_level = Jetpack_Memberships::get_post_access_level();
+	$post_access_level = get_post_access_level_for_current_post();
 
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
@@ -620,7 +634,7 @@ function render_jetpack_subscribe_form( $data, $classes, $styles ) {
 	);
 
 	$blog_id           = \Jetpack_Options::get_option( 'id' );
-	$post_access_level = Jetpack_Memberships::get_post_access_level();
+	$post_access_level = get_post_access_level_for_current_post();
 
 	?>
 	<div <?php echo wp_kses_data( $data['wrapper_attributes'] ); ?>>
@@ -755,8 +769,9 @@ function maybe_close_comments( $default_comments_open, $post_id ) {
 		return $default_comments_open;
 	}
 
+	$is_post = false;
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
-	return Jetpack_Memberships::user_can_view_post();
+	return Jetpack_Memberships::user_can_view_post( $is_post );
 }
 
 /**
@@ -771,8 +786,9 @@ function maybe_gate_existing_comments( $comment ) {
 		return $comment;
 	}
 
+	$is_post = false;
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
-	if ( Jetpack_Memberships::user_can_view_post() ) {
+	if ( Jetpack_Memberships::user_can_view_post( $is_post ) ) {
 		return $comment;
 	}
 	return '';
