@@ -172,7 +172,9 @@ const PricingTable: React.FC< PricingTableProps > = ( {
 										offset={ 4 }
 										wide={ Boolean( item.tooltipTitle && item.tooltipInfo ) }
 									>
-										<Text variant="body-small">{ item.tooltipInfo }</Text>
+										<Text variant="body-small" component="div">
+											{ item.tooltipInfo }
+										</Text>
 									</IconTooltip>
 								) }
 							</div>
