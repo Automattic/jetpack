@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Change wrapper element of PricingTable tooltip content to allow more complex content.
