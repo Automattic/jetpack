@@ -98,6 +98,9 @@ importers:
 
   projects/js-packages/ai-client:
     dependencies:
+      '@microsoft/fetch-event-source':
+        specifier: 2.0.1
+        version: 2.0.1
       '@wordpress/api-fetch':
         specifier: 6.29.0
         version: 6.29.0

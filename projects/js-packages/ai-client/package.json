@@ -30,6 +30,7 @@
 		".": "./index.js"
 	},
 	"dependencies": {
+		"@microsoft/fetch-event-source": "2.0.1",
 		"@wordpress/api-fetch": "6.29.0",
 		"debug": "4.3.4"
 	}

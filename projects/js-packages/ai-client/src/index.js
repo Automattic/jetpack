@@ -1,3 +1,4 @@
+import { fetchEventSource } from '@microsoft/fetch-event-source';
 import apiFetch from '@wordpress/api-fetch';
 import debugFactory from 'debug';
 
@@ -29,26 +30,83 @@ export function requestImages( prompt, postId ) {
 }
 
 /**
- * SuggestionsEventSource is a wrapper around EventSource that emits
+ * SuggestionsEventSource is a wrapper around EvenTarget that emits
  * a 'chunk' event for each chunk of data received, and a 'done' event
  * when the stream is closed.
  * It also emits a 'suggestion' event with the full suggestion received so far
  *
- * @see https://developer.mozilla.org/en-US/docs/Web/API/EventSource
- * @param {string} url - The URL to connect to
- * @param {object} options - Options to pass to EventSource
  * @returns {EventSource} The event source
  * @fires suggestion - The full suggestion has been received so far
  * @fires message - A message has been received
  * @fires chunk - A chunk of data has been received
  * @fires done - The stream has been closed. No more data will be received
  * @fires error - An error has occurred
+ * @fires error_network - The EventSource connection to the server returned some error
  */
-export class SuggestionsEventSource extends EventSource {
-	constructor( url, options ) {
-		super( url, options );
+export class SuggestionsEventSource extends EventTarget {
+	constructor( url ) {
+		super();
 		this.fullMessage = '';
-		this.addEventListener( 'message', this.processEvent );
+		this.isPromptClear = false;
+		// The AbortController is used to close the fetchEventSource connection
+		this.controller = new AbortController();
+		this.initEventSource( url );
+	}
+
+	async initEventSource( url ) {
+		const self = this;
+
+		this.source = await fetchEventSource( url.toString(), {
+			onclose() {
+				debug( 'Stream closed unexpectedly' );
+			},
+			onerror( err ) {
+				self.processErrorEvent( err );
+				throw err; // rethrow to stop the operation otherwise it will retry forever
+			},
+			onmessage( ev ) {
+				self.processEvent( ev );
+			},
+			async onopen( response ) {
+				if ( response.ok ) {
+					return;
+				}
+				if ( response.status >= 400 && response.status <= 500 && response.status !== 429 ) {
+					self.processConnectionError( response );
+				}
+
+				/*
+				 * error code 429
+				 * you exceeded your current quota please check your plan and billing details
+				 */
+				if ( response.status === 429 ) {
+					self.dispatchEvent( new CustomEvent( 'error_quota_exceeded' ) );
+				}
+
+				throw new Error();
+			},
+			signal: this.controller.signal,
+		} );
+	}
+
+	checkForUnclearPrompt() {
+		if ( ! this.isPromptClear ) {
+			// Sometimes the first token of the message is not received, so we check only for JETPACK_AI_ERROR, ignoring the first underscores
+			if ( this.fullMessage.replace( '__', '' ).startsWith( 'JETPACK_AI_ERROR' ) ) {
+				// The unclear prompt marker was found, so we dispatch an error event
+				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
+			} else if ( 'JETPACK_AI_ERROR'.startsWith( this.fullMessage.replace( '__', '' ) ) ) {
+				// Partial unclear prompt marker was found, so we wait for more data and print a debug message without dispatching an event
+				debug( this.fullMessage );
+			} else {
+				// Mark the prompt as clear
+				this.isPromptClear = true;
+			}
+		}
+	}
+
+	close() {
+		this.controller.abort();
 	}
 
 	processEvent( e ) {
@@ -63,18 +121,28 @@ export class SuggestionsEventSource extends EventSource {
 		const chunk = data.choices[ 0 ].delta.content;
 		if ( chunk ) {
 			this.fullMessage += chunk;
+			this.checkForUnclearPrompt();
 
-			if ( this.fullMessage.startsWith( '__JETPACK_AI_ERROR__' ) ) {
-				// The error is confirmed
-				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
-			} else if ( ! '__JETPACK_AI_ERROR__'.startsWith( this.fullMessage ) ) {
-				// Confirmed to be a valid response
+			if ( this.isPromptClear ) {
 				// Dispatch an event with the chunk
 				this.dispatchEvent( new CustomEvent( 'chunk', { detail: chunk } ) );
 				// Dispatch an event with the full message
 				this.dispatchEvent( new CustomEvent( 'suggestion', { detail: this.fullMessage } ) );
 			}
 		}
+	}
+
+	processConnectionError( response ) {
+		debug( 'Connection error' );
+		debug( response );
+		this.dispatchEvent( new CustomEvent( 'error_network', { detail: response } ) );
+	}
+
+	processErrorEvent( e ) {
+		debug( e );
+
+		// Dispatch a generic network error event
+		this.dispatchEvent( new CustomEvent( 'error_network' ) );
 	}
 }
 
@@ -86,13 +154,18 @@ const JWT_TOKEN_EXPIRATION_TIME = 2 * 60 * 1000;
  *
  * @param {string} prompt - The query to send to the API
  * @param {number} postId - The post where this completion is being requested, if available
+ * @param {boolean} fromCache - Get a cached response. False by default.
  */
-export async function requestCompletion( prompt, postId = null ) {
+export async function requestCompletion( prompt, postId = null, fromCache = false ) {
 	const { token } = await requestCompletionAuthToken();
 
 	const url = new URL( 'https://public-api.wordpress.com/wpcom/v2/jetpack-ai-query' );
 	url.searchParams.append( 'question', prompt );
 	url.searchParams.append( 'token', token );
+
+	if ( fromCache ) {
+		url.searchParams.append( 'stream_cache', 'true' );
+	}
 
 	if ( postId ) {
 		url.searchParams.append( 'post_id', postId );
