@@ -945,10 +945,12 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 	global $zbs;
 
 	$html = '';
-	$navigationMode = $zbs->settings->get( 'objnav' );
+	$navigation_mode = $zbs->settings->get( 'objnav' );
 
 	// The first addition of a contact is actually 'edit' but gives the option to view.
-	$id = !empty( $_GET['zbsid'] ) ? zeroBSCRM_io_sanitizeInt( $_GET['zbsid'] ) : -1;
+	$id = ( empty( $_GET['zbsid'] ) ? -1 : (int) $_GET['zbsid'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+	$html = '';
 
 	switch ($type) {
 
@@ -957,25 +959,17 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 			// contact nav
 			$navigation = $zbs->DAL->contacts->getContactPrevNext( $id );
 
-			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managecontacts'] );
-
 			// PREV
-			if ( $navigation && $navigationMode === 1 ) {
-				if( $navigation['prev'] !== null ) {
-					$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['prev'], 'zerobs_customer', false ) . '" class="ui labeled icon button mini" id="zbs-nav-prev"><i class="left chevron icon"></i>' . esc_html( __( 'Prev', 'zero-bs-crm' ) ) . '</a>';
-				}
-				if( $navigation['next'] !== null ) {
-					$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['next'], 'zerobs_customer', false ) . '" class="ui right labeled icon button mini" id="zbs-nav-next">' . esc_html( __( 'Next', 'zero-bs-crm' ) ) . '<i class="right chevron icon"></i></a>';
-				}
+			if ( $navigation_mode === 1 && ! empty( $navigation['prev'] ) ) {
+				$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['prev'], 'zerobs_customer', false ) . '" class="jpcrm-button transparent-bg font-14px"><i class="fa fa-chevron-left"></i>&nbsp;&nbsp;' . esc_html( __( 'Prev', 'zero-bs-crm' ) ) . '</a>';
 			}
-			#} If in edit mode, add in save + view
-			if ( $key === 'edit' ) {
-				if ( $id > 0 ) {
-					$html .= '<a style="margin-right:5px;margin-left:5px;" class="ui icon button black mini labeled" href="' . jpcrm_esc_link( 'view', $id, 'zerobs_customer' ) . '" id="zbs-nav-view"><i class="eye left icon"></i> ' . esc_html( __( 'View', 'zero-bs-crm' ) ) . '</a>';
-				}
+			// If in edit mode, show view link
+			if ( $key === 'edit' && $id > 0 ) {
+				$html .= '<a class="jpcrm-button transparent-bg font-14px" href="' . jpcrm_esc_link( 'view', $id, 'zerobs_customer' ) . '">' . esc_html( __( 'View contact', 'zero-bs-crm' ) ) . '</a>';
 			}
-
-			$html .= '</span>';
+			if ( $navigation_mode === 1 && ! empty( $navigation['next'] ) ) {
+				$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['next'], 'zerobs_customer', false ) . '" class="jpcrm-button transparent-bg font-14px">' . esc_html( __( 'Next', 'zero-bs-crm' ) ) . '&nbsp;&nbsp;<i class="fa fa-chevron-right"></i></a>';
+			}
 
 			break;
 
@@ -984,46 +978,23 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 			// company nav
 			$navigation = $zbs->DAL->companies->getCompanyPrevNext( $id );
 
-			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managecompanies'] );
-
 			// PREV
-			if ( $navigation && $navigationMode === 1 ) {
-				if ( $navigation['prev'] !== null ) {
-					$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['prev'], 'zerobs_company', false ) . '" class="ui labeled icon button mini"><i class="left chevron icon"></i>' . esc_html( __( 'Prev', 'zero-bs-crm' ) ) . '</a>';
-				}
-				if ( $navigation['next'] !== null ) {
-					$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['next'], 'zerobs_company', false ) . '" class="ui right labeled icon button mini">' . esc_html( __( 'Next', 'zero-bs-crm' ) ) . '<i class="right chevron icon"></i></a>';
-				}
+			if ( $navigation_mode === 1 && ! empty( $navigation['prev'] ) ) {
+				$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['prev'], 'zerobs_company', false ) . '" class="jpcrm-button transparent-bg font-14px"><i class="fa fa-chevron-left"></i>&nbsp;&nbsp;' . esc_html( __( 'Prev', 'zero-bs-crm' ) ) . '</a>';
 			}
-
-			// If in edit mode, add in view.
-			if ( $key === 'edit' ) {
-				$html .= '<a style="margin-left:6px;" class="ui icon button black mini labeled" href="' . jpcrm_esc_link( 'view', $id, ZBS_TYPE_COMPANY ) . '"><i class="eye left icon"></i> ' . esc_html( __( 'View', 'zero-bs-crm' ) ) . '</a>';
+			// If in edit mode, show view link
+			if ( $key === 'edit' && $id > 0 ) {
+				$html .= '<a style="margin: 0 5px;" class="jpcrm-button transparent-bg font-14px" href="' . jpcrm_esc_link( 'view', $id, ZBS_TYPE_COMPANY ) . '">' . esc_html( __( 'View company', 'zero-bs-crm' ) ) . '</a>';
 			}
-
-			$html .= '</span>';
+			if ( $navigation_mode === 1 && ! empty( $navigation['next'] ) ) {
+				$html .= '<a href="' . jpcrm_esc_link( $key, $navigation['next'], 'zerobs_company', false ) . '" class="jpcrm-button transparent-bg font-14px">' . esc_html( __( 'Next', 'zero-bs-crm' ) ) . '&nbsp;&nbsp;<i class="fa fa-chevron-right"></i></a>';
+			}
 
 			break;
 
 		case ZBS_TYPE_QUOTE:
-			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managequotes'] );
-
-			$html .= '</span>';
-
-			break;
-
 		case ZBS_TYPE_INVOICE:
-			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['manageinvoices'] );
-
-			$html .= '</span>';
-
-			break;
-
 		case ZBS_TYPE_TRANSACTION:
-			$html = zeroBSCRM_print_backtolist_html( $zbs->slugs['managetransactions'] );
-
-			$html .= '</span>';
-
 			break;
 	}
 
@@ -1031,25 +1002,16 @@ function zeroBSCRM_getObjNav( $id = -1, $key = '', $type = ZBS_TYPE_CONTACT ) {
 
 }
 
-/**
- * Helper function to print the 'back to list' navigation button.
- *
- * @param string $slug - The slug for the page.
- * @return string $html - The HTML string.
- */
-function zeroBSCRM_print_backtolist_html( $slug ) {
-	$html = '<span class="ui navigation-quick-links">';
-
-	$html .= '<a style="margin-right:6px;" href="' . jpcrm_esc_link( $slug ) . '" class="ui button mini was-inverted basic" id="back-to-list">' . esc_html( __( 'Back to List', 'zero-bs-crm' ) ) . '</a>';
-
-	return $html;
-}
-
 /* ======================================================
   /	Object Nav
    ====================================================== */
 
-
+/**
+ * Return table options button
+ */
+function get_jpcrm_table_options_button() {
+	return '<button class="jpcrm-button transparent-bg font-14px" type="button" id="jpcrm_table_options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '&nbsp;<i class="fa fa-cog"></i></button>';
+}
 
 /* ======================================================
   Tasks

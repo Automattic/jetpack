@@ -65,12 +65,12 @@ class JPCRM_Invoices_Cest {
 
 	public function see_invoices_page( AcceptanceTester $I ) {
 		$I->gotoAdminPage( 'invoices' );
-		$I->see( 'Manage Invoices', '#zbs-admin-top-bar' );
+		$I->see( 'Invoices', '.jpcrm-learn-page-title' );
 	}
 
 	public function see_new_invoice_page( AcceptanceTester $I ) {
 		$I->gotoAdminPage( 'add-edit', '&action=edit&zbstype=invoice' );
-		$I->see( 'New Invoice', '#zbs-list-top-bar' );
+		$I->see( 'New Invoice', '.jpcrm-learn-page-title' );
 	}
 
 	public function create_new_invoice( AcceptanceTester $I ) {
@@ -84,7 +84,7 @@ class JPCRM_Invoices_Cest {
 		$I->gotoAdminPage( 'add-edit', '&action=edit&zbstype=invoice&zbsid=1' );
 
 		// We can check only that we reach the page. The data is load via AJAX.
-		$I->see( 'Edit Invoice', '#zbs-list-top-bar' );
+		$I->see( 'Edit Invoice', '.jpcrm-learn-page-title' );
 	}
 
 	public function create_second_invoice( AcceptanceTester $I ) {
