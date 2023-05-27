@@ -12,6 +12,39 @@ npm install @automattic/jetpack-ai-client
 
 ## Usage
 
+### Example
+
+```
+import { requestCompletion } from '@automattic/jetpack-ai-client';
+
+const MyComp = ( props ) => {
+  const [ completion, setCompletion ] = useState( '' );
+
+  const newHaiku = async () => {
+    const eventSource = await requestCompletion( 'Write a haiku about WordPress' );
+      eventSource.addEventListener( 'suggestion',  answer => setCompletion( answer.detail ) );
+      eventSource.addEventListener( 'done', event => {
+        console.log( "Full completion", event.detail );
+      } );
+
+      eventSource.addEventListener( 'suggestion', event => {
+        console.log( "Received so far", event.detail );
+      } );
+
+      eventSource.addEventListener( 'error_quota_exceeded', event => {
+        console.log( "You reached the AI query quota for your current plan.", event.detail );
+      } );
+  };
+
+  return (
+    <div>
+      <div> { completion } </div>
+      <button onClick={ newHaiku }>Get new Haiku</button>
+    </div>
+  )
+};
+```
+
 ### Requesting a Completion from the Jetpack AI API
 
 You can request a completion from the Jetpack AI API using the `requestCompletion` function. This function takes a prompt and optionally a post ID as parameters and returns an instance of `SuggestionsEventSource`.
