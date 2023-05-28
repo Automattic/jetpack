@@ -2,10 +2,8 @@
  * Modal styles for Social Previews
  */
 
+@import '@automattic/jetpack-base-styles/root-variables';
 @import '@automattic/jetpack-base-styles/gutenberg-base-styles';
-
-$jp-gray: #dcdcde;
-$highlight-color: #3858e9;
 
 // Styles shared between modals
 .jetpack-social-previews__modal {
@@ -43,7 +41,7 @@ $highlight-color: #3858e9;
 		justify-content: center;
 		height: 3rem;
 		max-width: none;
-		border-bottom: 1px solid $jp-gray;
+		border-bottom: 1px solid var( --jp-gray );
 
 		.components-button {
 			outline: 0;
@@ -59,12 +57,12 @@ $highlight-color: #3858e9;
 
 			&.is-active::after {
 				height: 0px;
-				border-bottom: 1px solid $highlight-color;
+				border-bottom: 1px solid var( --jp-highlight );
 				margin-bottom: -1px;
 			}
 
 			&:not( :disabled ):not( [aria-disabled='true'] ):not( .is-secondary ):not( .is-primary ):not( .is-tertiary ):not( .is-link ):hover::after {
-				border-bottom: 1px solid $highlight-color;
+				border-bottom: 1px solid var( --jp-highlight );
 				margin-bottom: -1px;
 			}
 		}
