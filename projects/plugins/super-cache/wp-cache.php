@@ -1017,7 +1017,8 @@ table.wpsc-settings-table {
 				$currently_preloading = true;
 				if ( @file_exists( $cache_path . 'preload_permalink.txt' ) ) {
 					$url  = file_get_contents( $cache_path . 'preload_permalink.txt' );
-					$msg .= '<p>' . sprintf( __( '<strong>Page last cached:</strong> %s', 'wp-super-cache' ), '<span id="preload_status">' . $url . '</span>' ) . '</p>';
+					// translators: %s is a list of updating URLs below this text.
+					$msg .= '<p>' . sprintf( __( '<strong>Page last cached:</strong> %s', 'wp-super-cache' ), '<div><ul id="preload_status"><li>' . esc_html( $url ) . '</ul></div>' ) . '</p>';
 				}
 				if ( $msg != '' ) {
 					echo '<div class="notice notice-warning"><h4>' . esc_html__( 'Preload Active', 'wp-super-cache' ) . '</h4>' . $msg;
