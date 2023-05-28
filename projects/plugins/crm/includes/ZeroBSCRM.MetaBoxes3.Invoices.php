@@ -156,7 +156,7 @@ class zeroBS__Metabox_Invoice extends zeroBS__Metabox {
 				// 1) copy the fields into the UI
 				foreach ( $customFields as $cfK => $cF ) {
 
-					zeroBSCRM_html_editField( $invoice, $cfK, $cF, 'zbsi_' );
+					zeroBSCRM_html_editField_for_invoices( $invoice, $cfK, $cF, 'zbsi_' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 				}
 				?>
