@@ -191,10 +191,10 @@
 		}
 
 		$fields_to_hide       = $zbs->settings->get( 'fieldhides' );
-		$show_id              = $zbs->settings->get( 'showid' );
+		$show_id              = (int) $zbs->settings->get( 'showid' );
 		$fields               = $zbsCustomerFields; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		$show_addresses       = zeroBSCRM_getSetting( 'showaddress' );
-		$show_second_address  = zeroBSCRM_getSetting( 'secondaddress' );
+		$show_second_address  = (int) zeroBSCRM_getSetting( 'secondaddress' );
 		$show_country_fields  = zeroBSCRM_getSetting( 'countries' );
 		$second_address_label = zeroBSCRM_getSetting( 'secondaddresslabel' );
 		if ( empty( $second_address_label ) ) {
@@ -212,8 +212,8 @@
 			<div>
 				<div class="jpcrm-form-grid" id="wptbpMetaBoxMainItem">
 		<?php
-		$avatar_mode = zeroBSCRM_getSetting( 'avatarmode' );
-		if ( $avatar_mode === '2' ) :
+		$avatar_mode = (int) zeroBSCRM_getSetting( 'avatarmode' );
+		if ( $avatar_mode === 2 ) :
 			?>
 					<div class="jpcrm-form-group jpcrm-form-group-span-2">
 						<label class="jpcrm-form-label"><?php esc_html_e( 'Profile Picture', 'zero-bs-crm' ); ?>:</label>
@@ -241,7 +241,7 @@
 			<?php
 		endif;
 
-		if ( $show_id === '1' && isset( $contact['id'] ) && ! empty( $contact['id'] ) ) :
+		if ( $show_id === 1 && isset( $contact['id'] ) && ! empty( $contact['id'] ) ) :
 			?>
 							<div class="jpcrm-form-group">
 								<label class="jpcrm-form-label" for="maintel"><?php esc_html_e( 'Contact ID', 'zero-bs-crm' ); ?>:</label>
@@ -253,7 +253,7 @@
 		endif;
 
 		global $zbsFieldsEnabled; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-		if ( $show_second_address === '1' ) {
+		if ( $show_second_address === 1 ) {
 			$zbsFieldsEnabled['secondaddress'] = true; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 		}
 		$field_group = '';
