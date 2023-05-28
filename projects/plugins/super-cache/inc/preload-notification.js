@@ -4,11 +4,12 @@ const MAX_PRELOAD_ENTRIES = 5;
 const preloadLog = jQuery( "#preload_status" );
 let previousPreloadEntry = null;
 let numRepeatedPreloadEntries = 0;
+let preloadIntervalId = 0;
 
 jQuery( document ).ready( function () {
-	const intervalId = setInterval( function () {
+	preloadIntervalId = setInterval( function () {
 		load_preload_status();
-	}, 1000 );
+	}, 3000 );
 } );
 
 /**
@@ -39,9 +40,9 @@ function load_preload_status() {
 			numRepeatedPreloadEntries++;
 		}
 
-		// Stop fetching new entries if the same entry has been repeated 10 times
-		if ( numRepeatedPreloadEntries >= 10 ) {
-			clearInterval( intervalId );
+		// Stop fetching new entries if the same entry has been repeated 30 times
+		if ( numRepeatedPreloadEntries >= 30 ) {
+			clearInterval( preloadIntervalId );
 		}
 	});
 }
