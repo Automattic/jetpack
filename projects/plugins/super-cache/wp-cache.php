@@ -1011,13 +1011,12 @@ table.wpsc-settings-table {
 			}
 			$currently_preloading = false;
 
-			$preload_counter = get_option( 'preload_cache_counter' );
-
-			if ( ( is_array( $preload_counter ) && $preload_counter['c'] > 0 ) || get_transient( 'taxonomy_preload' ) ) {
+			if ( wpsc_is_preload_active() ) {
 				$currently_preloading = true;
 				if ( @file_exists( $cache_path . 'preload_permalink.txt' ) ) {
 					$url  = file_get_contents( $cache_path . 'preload_permalink.txt' );
-					$msg .= '<p>' . sprintf( __( '<strong>Page last cached:</strong> %s', 'wp-super-cache' ), '<span id="preload_status">' . $url . '</span>' ) . '</p>';
+					// translators: %s is a URL.
+					$msg .= '<p>' . sprintf( __( '<strong>Page last cached:</strong> %s', 'wp-super-cache' ), '<div><ul id="preload_status"></ul></div>' ) . '</p>';
 				}
 				if ( $msg != '' ) {
 					echo '<div class="notice notice-warning"><h4>' . esc_html__( 'Preload Active', 'wp-super-cache' ) . '</h4>' . $msg;
@@ -3172,6 +3171,7 @@ function wp_cron_preload_cache() {
 	if ( get_option( 'preload_cache_stop' ) ) {
 		delete_option( 'preload_cache_stop' );
 		wp_cache_debug( 'wp_cron_preload_cache: preload cancelled', 1 );
+		wpsc_reset_preload_settings();
 		return true;
 	}
 
@@ -3207,113 +3207,131 @@ function wp_cron_preload_cache() {
 		$wp_cache_preload_email_me = 0;
 		wp_cache_setting( 'wp_cache_preload_email_me', 0 );
 	}
-	if (
-		$wp_cache_preload_email_me &&
-		$c === 0 &&
-		! get_transient( 'taxonomy_preload' )
-	) {
-		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), home_url(), '' ), ' ' );
-	}
+
+	$just_started_preloading = false;
 
 	/*
 	 * Preload taxonomies first.
 	 *
-	 * The transient variable "taxonomy_preload" is used as a flag to indicate
-	 * that preloading of taxonomies is ongoing. It is deleted when the preload
-	 * is complete or the site owner cancels the preload.
-	 * If this flag is not set, and if a file containing a list of taxonomies
-	 * exists from a previous preload exists, it will be deleted and a new list
-	 * generated for a brand new preload.
 	 */
-	if ( $wp_cache_preload_posts == 'all' || $c < $wp_cache_preload_posts ) {
+	if ( isset( $wp_cache_preload_taxonomies ) && $wp_cache_preload_taxonomies ) {
 		wp_cache_debug( 'wp_cron_preload_cache: doing taxonomy preload.', 5 );
 		$permalink_counter_msg = $cache_path . "preload_permalink.txt";
-		if ( isset( $wp_cache_preload_taxonomies ) && $wp_cache_preload_taxonomies ) {
-			$taxonomies = apply_filters( 'wp_cache_preload_taxonomies', array( 'post_tag' => 'tag', 'category' => 'category' ) );
+		$taxonomies            = apply_filters(
+			'wp_cache_preload_taxonomies',
+			array(
+				'post_tag' => 'tag',
+				'category' => 'category',
+			)
+		);
 
-			$preload_more_taxonomies = false;
+		$preload_more_taxonomies = false;
 
-			foreach( $taxonomies as $taxonomy => $path ) {
-				$taxonomy_filename = $cache_path . "taxonomy_" . $taxonomy . ".txt";
+		foreach ( $taxonomies as $taxonomy => $path ) {
+			$taxonomy_filename = $cache_path . 'taxonomy_' . $taxonomy . '.txt';
 
-				if ( ! get_transient( 'taxonomy_preload' ) ) {
-					@unlink( $taxonomy_filename );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			if ( false === @file_exists( $taxonomy_filename ) ) {
+
+				if ( ! $just_started_preloading && $wp_cache_preload_email_me ) {
+					// translators: 1: site url, 2: blank space
+					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), home_url(), '' ), ' ' );
 				}
-				set_transient( 'taxonomy_preload', 1, 600 );
 
-				if ( false == @file_exists( $taxonomy_filename ) ) {
-					$out = '';
-					$records = get_terms( $taxonomy );
-					foreach( $records as $term ) {
-						$out .= get_term_link( $term ). "\n";
+				$just_started_preloading = true;
+				$out                     = '';
+				$records                 = get_terms( $taxonomy );
+				foreach ( $records as $term ) {
+					$out .= get_term_link( $term ) . "\n";
+				}
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+				$fp = fopen( $taxonomy_filename, 'w' );
+				if ( $fp ) {
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+					fwrite( $fp, $out );
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+					fclose( $fp );
+				}
+				$details = explode( "\n", $out );
+			} else {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+				$details = explode( "\n", file_get_contents( $taxonomy_filename ) );
+			}
+			if ( count( $details ) > 0 && $details[0] !== '' ) {
+				$rows = array_splice( $details, 0, WPSC_PRELOAD_POST_COUNT );
+				if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume === 'many' ) {
+					// translators: 1: Site URL, 2: Taxonomy name, 3: Number of posts done, 4: Number of posts to preload
+					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), home_url(), $taxonomy, $c, ( $c + WPSC_PRELOAD_POST_COUNT ) ), 'Refreshing: ' . print_r( $rows, 1 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
+				}
+
+				foreach ( (array) $rows as $url ) {
+					set_time_limit( 60 );
+					if ( $url === '' ) {
+						continue;
 					}
-					$fp = fopen( $taxonomy_filename, 'w' );
+
+					$url_info = wp_parse_url( $url );
+					$dir      = get_supercache_dir() . $url_info['path'];
+					wp_cache_debug( "wp_cron_preload_cache: delete $dir", 5 );
+					wpsc_delete_files( $dir );
+					prune_super_cache( trailingslashit( $dir ) . 'feed/', true );
+					prune_super_cache( trailingslashit( $dir ) . 'page/', true );
+					// phpcs:ignore -- WordPress.PHP.NoSilencedErrors.Discouraged WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+					$fp = @fopen( $permalink_counter_msg, 'w' );
 					if ( $fp ) {
-						fwrite( $fp, $out );
-						fclose( $fp );
+						// phpcs:ignore -- WordPress.PHP.NoSilencedErrors.Discouraged WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+						@fwrite( $fp, "$taxonomy: $url" );
+						// phpcs:ignore -- WordPress.WP.AlternativeFunctions.file_system_operations_fclose WordPress.PHP.NoSilencedErrors.Discouraged
+						@fclose( $fp );
 					}
-					$details = explode( "\n", $out );
-				} else {
-					$details = explode( "\n", file_get_contents( $taxonomy_filename ) );
-				}
-				if ( count( $details ) > 0 && $details[0] !== '' ) {
-					$rows = array_splice( $details, 0, WPSC_PRELOAD_POST_COUNT );
-					if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume === 'many' ) {
-						// translators: 1: Site URL, 2: Taxonomy name, 3: Number of posts done, 4: Number of posts to preload
-						wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), home_url(), $taxonomy, $c, ( $c + WPSC_PRELOAD_POST_COUNT ) ), 'Refreshing: ' . print_r( $rows, 1 ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_print_r
-					}
+					wp_remote_get(
+						$url,
+						array(
+							'timeout'  => 60,
+							'blocking' => true,
+						)
+					);
+					wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
+					sleep( 1 );
 
-					foreach( (array)$rows as $url ) {
-						set_time_limit( 60 );
-						if ( $url == '' )
-							continue;
-						$url_info = parse_url( $url );
-						$dir = get_supercache_dir() . $url_info[ 'path' ];
-						wp_cache_debug( "wp_cron_preload_cache: delete $dir", 5 );
-						wpsc_delete_files( $dir );
-						prune_super_cache( trailingslashit( $dir ) . 'feed/', true );
-						prune_super_cache( trailingslashit( $dir ) . 'page/', true );
-						$fp = @fopen( $permalink_counter_msg, 'w' );
-						if ( $fp ) {
-							@fwrite( $fp, "$taxonomy: $url" );
-							@fclose( $fp );
+					// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+					if ( @file_exists( $cache_path . 'stop_preload.txt' ) ) {
+						wp_cache_debug( 'wp_cron_preload_cache: cancelling preload. stop_preload.txt found.', 5 );
+						wpsc_reset_preload_settings();
+
+						if ( $wp_cache_preload_email_me ) {
+							// translators: Home URL of website
+							wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
 						}
-						wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
-						wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
-						sleep( 1 );
-
-						if ( @file_exists( $cache_path . "stop_preload.txt" ) ) {
-							wp_cache_debug( 'wp_cron_preload_cache: cancelling preload. stop_preload.txt found.', 5 );
-							wpsc_reset_preload_settings();
-
-							if ( $wp_cache_preload_email_me ) {
-								// translators: Home URL of website
-								wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
-							}
-							return true;
-						}
-					}
-					$fp = fopen( $taxonomy_filename, 'w' );
-					if ( $fp ) {
-						fwrite( $fp, implode( "\n", $details ) );
-						fclose( $fp );
+						return true;
 					}
 				}
-
-				if (
-					$preload_more_taxonomies === false &&
-					count( $details ) > 0 &&
-					$details[0] !== ''
-				) {
-					$preload_more_taxonomies = true;
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+				$fp = fopen( $taxonomy_filename, 'w' );
+				if ( $fp ) {
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fwrite
+					fwrite( $fp, implode( "\n", $details ) );
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose
+					fclose( $fp );
 				}
 			}
 
-			if ( $preload_more_taxonomies === true ) {
-				wpsc_schedule_next_preload();
-				return true;
+			if (
+				$preload_more_taxonomies === false &&
+				count( $details ) > 0 &&
+				$details[0] !== ''
+			) {
+				$preload_more_taxonomies = true;
 			}
 		}
+
+		if ( $preload_more_taxonomies === true ) {
+			wpsc_schedule_next_preload();
+			return true;
+		}
+	} elseif ( $c === 0 && $wp_cache_preload_email_me ) {
+		// translators: Home URL of website, blank space
+		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), home_url(), '' ), ' ' );
 	}
 
 	/*
@@ -3328,6 +3346,7 @@ function wp_cron_preload_cache() {
 	 * before it is incremented by WPSC_PRELOAD_POST_COUNT here.
 	 * The time is used to check if preloading has stalled in check_up_on_preloading().
 	 */
+
 	update_option(
 		'preload_cache_counter',
 		array(
@@ -3598,6 +3617,34 @@ function supercache_admin_bar_render() {
 }
 
 /*
+ * returns true if preload is active
+ */
+function wpsc_is_preload_active() {
+	global $cache_path;
+
+	$mutex = $cache_path . 'preload_mutex.tmp';
+	if ( file_exists( $mutex ) ) {
+		return true;
+	}
+	$taxonomies = apply_filters(
+		'wp_cache_preload_taxonomies',
+		array(
+			'post_tag' => 'tag',
+			'category' => 'category',
+		)
+	);
+
+	foreach ( $taxonomies as $taxonomy => $path ) {
+		$taxonomy_filename = $cache_path . 'taxonomy_' . $taxonomy . '.txt';
+		if ( file_exists( $taxonomy_filename ) ) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+/*
  * This function will reset the preload cache counter
  */
 function wpsc_reset_preload_counter() {
@@ -3619,7 +3666,6 @@ function wpsc_reset_preload_settings() {
 	$mutex = $cache_path . 'preload_mutex.tmp';
 	wp_delete_file( $mutex );
 	wp_delete_file( $cache_path . 'stop_preload.txt' );
-	delete_transient( 'taxonomy_preload' );
 	wpsc_reset_preload_counter();
 
 	$taxonomies = apply_filters(
@@ -3638,32 +3684,38 @@ function wpsc_reset_preload_settings() {
 
 function wpsc_cancel_preload() {
 	global $cache_path;
-	$next_preload = wp_next_scheduled( 'wp_cache_preload_hook' );
+	$next_preload      = wp_next_scheduled( 'wp_cache_preload_hook' );
+	$next_full_preload = wp_next_scheduled( 'wp_cache_full_preload_hook' );
+
+	if ( $next_preload || $next_full_preload ) {
+		wp_cache_debug( 'wpsc_cancel_preload: reset preload settings' );
+		wpsc_reset_preload_settings();
+	}
+
 	if ( $next_preload ) {
-		delete_transient( 'taxonomy_preload' );
 		wp_cache_debug( 'wpsc_cancel_preload: unscheduling wp_cache_preload_hook' );
-		wpsc_reset_preload_counter();
 		wp_unschedule_event( $next_preload, 'wp_cache_preload_hook' );
 	}
-	$next_preload = wp_next_scheduled( 'wp_cache_full_preload_hook' );
-	if ( $next_preload ) {
-		delete_transient( 'taxonomy_preload' );
-		wpsc_reset_preload_counter();
+	if ( $next_full_preload ) {
 		wp_cache_debug( 'wpsc_cancel_preload: unscheduling wp_cache_full_preload_hook' );
 		wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
 	}
 	wp_cache_debug( 'wpsc_cancel_preload: creating stop_preload.txt' );
-	$fp = @fopen( $cache_path . "stop_preload.txt", 'w' );
-	@fclose( $fp );
+	$stop_preload_flag = $cache_path . 'stop_preload.txt';
+	if ( file_exists( $stop_preload_flag ) && time() - filemtime( $stop_preload_flag ) > 2 ) {
+		wp_cache_debug( 'wpsc_cancel_preload: force cancelled preload' );
+		wpsc_reset_preload_settings(); // reset the preload if we already tried more than 2 seconds ago.
+	} else {
+		// phpcs:ignore -- WordPress.WP.AlternativeFunctions.file_system_read_fopen WordPress.PHP.NoSilencedErrors.Discouraged
+		$fp = @fopen( $stop_preload_flag, 'w' );
+		// phpcs:ignore -- WordPress.WP.AlternativeFunctions.file_system_operations_fclose WordPress.PHP.NoSilencedErrors.Discouraged
+		@fclose( $fp );
+	}
 }
 
 function wpsc_enable_preload() {
-	global $cache_path;
 
-	delete_transient( 'taxonomy_preload' );
-	@unlink( $cache_path . "preload_mutex.tmp" );
-	wp_delete_file( $cache_path . 'stop_preload.txt' );
-	wpsc_reset_preload_counter();
+	wpsc_reset_preload_settings();
 	wp_schedule_single_event( time() + 10, 'wp_cache_full_preload_hook' );
 }
 
