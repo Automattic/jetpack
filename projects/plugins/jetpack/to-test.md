@@ -32,7 +32,7 @@ Enable the feature (Jetpack > Settings > Performance > Speed up image load times
 * Create a new post.
 * Click on the Jetpack menu in the top bar.
 * In the _Share this post_ section, click _Connect an account_.
-* You should be redirected to wordpress.com. Enable the mastodon feature flag by adding the query parameter `flags=mastodon` and reloading the page.
+* You should be redirected to wordpress.com.
 * You should now have the option to connect your Mastodon account. Connect it.
 * Go back to edit your post.
 * You should now see Mastodon in the list of available services. Reload the page if you don't.
