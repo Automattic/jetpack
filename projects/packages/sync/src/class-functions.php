@@ -583,7 +583,7 @@ class Functions {
 	/**
 	 * Returns if the current theme is a Full Site Editing theme.
 	 *
-	 * @since $$next-version$$ Uses wp_is_block_theme() instead of deprecated gutenberg_is_fse_theme().
+	 * @since 1.49.0 Uses wp_is_block_theme() instead of deprecated gutenberg_is_fse_theme().
 	 *
 	 * @return bool Theme is a Full Site Editing theme.
 	 */

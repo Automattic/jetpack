@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-The link to setup a paid plan (in the newsletter post settings) was getting set incorrectly.
