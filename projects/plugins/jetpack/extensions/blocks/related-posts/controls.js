@@ -22,29 +22,7 @@ export function RelatedPostsInspectorControls( { attributes, setAttributes } ) {
 
 	return (
 		<>
-			<PanelBody title={ __( 'General settings', 'jetpack' ) }>
-				<ToggleControl
-					label={ __( 'Display date', 'jetpack' ) }
-					checked={ displayDate }
-					onChange={ value => setAttributes( { displayDate: value } ) }
-				/>
-				<ToggleControl
-					label={ __( 'Display author', 'jetpack' ) }
-					checked={ displayAuthor }
-					onChange={ value => setAttributes( { displayAuthor: value } ) }
-				/>
-				<ToggleControl
-					label={ __( 'Display context (category or tag)', 'jetpack' ) }
-					checked={ displayContext }
-					onChange={ value => setAttributes( { displayContext: value } ) }
-				/>
-				<ToggleControl
-					label={ __( 'Display thumbnail', 'jetpack' ) }
-					checked={ displayThumbnails }
-					onChange={ value => setAttributes( { displayThumbnails: value } ) }
-				/>
-			</PanelBody>
-			<PanelBody title={ __( 'Section settings', 'jetpack' ) }>
+			<PanelBody title={ __( 'Layout settings', 'jetpack' ) }>
 				<ToggleControl
 					label={ __( 'Display headline', 'jetpack' ) }
 					checked={ displayHeadline }
@@ -65,6 +43,28 @@ export function RelatedPostsInspectorControls( { attributes, setAttributes } ) {
 					}
 					min={ 1 }
 					max={ MAX_POSTS_TO_SHOW }
+				/>
+			</PanelBody>
+			<PanelBody title={ __( 'Metadata settings', 'jetpack' ) }>
+				<ToggleControl
+					label={ __( 'Display date', 'jetpack' ) }
+					checked={ displayDate }
+					onChange={ value => setAttributes( { displayDate: value } ) }
+				/>
+				<ToggleControl
+					label={ __( 'Display author', 'jetpack' ) }
+					checked={ displayAuthor }
+					onChange={ value => setAttributes( { displayAuthor: value } ) }
+				/>
+				<ToggleControl
+					label={ __( 'Display context (category or tag)', 'jetpack' ) }
+					checked={ displayContext }
+					onChange={ value => setAttributes( { displayContext: value } ) }
+				/>
+				<ToggleControl
+					label={ __( 'Display thumbnail', 'jetpack' ) }
+					checked={ displayThumbnails }
+					onChange={ value => setAttributes( { displayThumbnails: value } ) }
 				/>
 			</PanelBody>
 		</>
