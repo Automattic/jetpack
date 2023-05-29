@@ -645,3 +645,12 @@ export function getImageGeneratorPostSettings() {
 export function isInstagramConnectionSupported() {
 	return !! getJetpackData()?.social?.isInstagramConnectionSupported;
 }
+
+/**
+ * Checks if the Mastodon connection is supported.
+ *
+ * @returns {boolean} Whether the Mastodon connection is supported
+ */
+export function isMastodonConnectionSupported() {
+	return !! getJetpackData()?.social?.isMastodonConnectionSupported;
+}

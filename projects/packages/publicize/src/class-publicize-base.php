@@ -1794,6 +1794,15 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Check if Mastodon connection is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_mastodon_connection_feature() {
+		return Current_Plan::supports( 'social-mastodon-connection' );
+	}
+
+	/**
 	 * Call the WPCOM REST API to calculate the scheduled shares.
 	 *
 	 * @param string $blog_id The blog_id.

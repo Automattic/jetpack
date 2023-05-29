@@ -16,9 +16,14 @@ import Twitter from './twitter';
  * @returns {Array<{title: string, icon: React.Component, name: string, preview: React.Component}>} The list of available services.
  */
 export function useAvailableSerivces() {
-	const isInstagramSupported = useSelect( select =>
-		select( 'jetpack/publicize' ).isInstagramConnectionSupported()
-	);
+	const { isInstagramSupported, isMastodonSupported } = useSelect( select => {
+		const store = select( 'jetpack/publicize' );
+
+		return {
+			isInstagramSupported: store.isInstagramConnectionSupported(),
+			isMastodonSupported: store.isMastodonConnectionSupported(),
+		};
+	} );
 
 	return useMemo(
 		() =>
@@ -61,13 +66,15 @@ export function useAvailableSerivces() {
 					name: 'tumblr',
 					preview: TumblrPreview,
 				},
-				{
-					title: __( 'Mastodon', 'jetpack' ),
-					icon: props => <SocialServiceIcon serviceName="mastodon" { ...props } />,
-					name: 'mastodon',
-					preview: MastodonPreview,
-				},
+				isMastodonSupported
+					? {
+							title: __( 'Mastodon', 'jetpack' ),
+							icon: props => <SocialServiceIcon serviceName="mastodon" { ...props } />,
+							name: 'mastodon',
+							preview: MastodonPreview,
+					  }
+					: null,
 			].filter( Boolean ),
-		[ isInstagramSupported ]
+		[ isInstagramSupported, isMastodonSupported ]
 	);
 }
