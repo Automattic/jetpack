@@ -182,9 +182,6 @@
 								<div class="jpcrm-form-group jpcrm-form-group-span-2">
 									<label class="jpcrm-form-label"><?php esc_html_e( 'Quote (ID)', 'zero-bs-crm' ); ?>:</label>
 								<?php
-							if ( empty( $quoteID ) ) { //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-								$quoteID = zeroBSCRM_getNextQuoteID(); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-							}
 									echo '<b>' . esc_html( $quoteID ) . '</b>'; //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 							?>
 									<input type="hidden" name="zbsquoteid" value="<?php echo esc_attr( $quoteID ); //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>" />
