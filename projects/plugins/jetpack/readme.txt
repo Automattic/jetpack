@@ -299,12 +299,12 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Maps: Add Mapkit maps.
 - Modules list: Update to current styles. Visual refresh, if you will.
 - My Plan: Display the correct plan for Jetpack Security and Backup 2-year plans.
-- My Plan: Hide the "My Plan" on My Plan page if user has a paid project and a free plan. This way, users won't have much or conflicting information on that page.
+- My Plan: Hide the "My Plan" on My Plan page if user has a paid product and a free plan.
 - My Plan: Properly display plans with no expiration date.
 - Newsletters: Add misconfiguration warning functionality and improve design.
 - Newsletters: Add newsletter access level to the post edit page.
 - Newsletters: Add Post Publish Panel.
-- Newsletters: Enable on self-hosred environments.
+- Newsletters: Enable on self-hosted environments.
 - Newsletters: Refactor and update Paid Newsletter user experience.
 - Publicize: Changed the way we skip a post from being publicized.
 - Reading Settings: Add a toggle for showing post views in the WordPress.com Reader.
