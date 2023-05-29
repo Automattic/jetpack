@@ -453,10 +453,8 @@ function zeroBSCRMJS_drawListView() {
 					} else {
 						// no lines, move this ui msg into a blank row col
 						if ( jQuery( '#zbsNoResults' ).length ) {
-							listViewHTML +=
-								'<tr><td colspan="' +
-								window.zbsListViewParams.columns.length +
-								'" id="zbs-no-results-wrap">';
+							// extra column due to checkbox
+							listViewHTML +='<tr><td colspan="' + (window.zbsListViewParams.columns.length + 1) + '" id="zbs-no-results-wrap">';
 
 							// to be fired after setTimeout jQuery('#zbsNoResults').appendTo('#zbs-no-results-wrap');
 							postHTML.nores = true;
