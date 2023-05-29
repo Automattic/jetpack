@@ -1,4 +1,0 @@
-Significance: minor
-Type: other
-
-Call Speed_Score identifying where the request was made from, using the new $client argument in the Speed_Score class

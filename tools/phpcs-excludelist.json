@@ -75,7 +75,6 @@
 	"projects/plugins/crm/api/customer_search.php",
 	"projects/plugins/crm/api/customers.php",
 	"projects/plugins/crm/api/events.php",
-	"projects/plugins/crm/api/incoming_email.php",
 	"projects/plugins/crm/api/invoices.php",
 	"projects/plugins/crm/api/quotes.php",
 	"projects/plugins/crm/api/status.php",

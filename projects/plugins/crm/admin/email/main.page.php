@@ -59,21 +59,9 @@ function jpcrm_render_emailbox() {
 
 
 
-	<div class="ui inbox-wrap" style="margin-left: -20px;margin-right: 0px;">
+	<div class="inbox-wrap">
 
 		<div class="ui vertical menu inverted inbox-nav">
-
-			<a class="item zbs-inbox-link">
-				<div class="nav-men">
-					<i class="ui icon inbox"></i> <?php esc_html_e( 'Inbox', 'zero-bs-crm' ); ?>
-					<?php
-					$count = jetpackcrm_get_unread_inbox_count();
-					if ( $count > 0 ) {
-						?>
-					<div class="ui blue label"><?php echo esc_html( $count ); ?></div>
-					<?php } ?>
-				</div>
-			</a>
 
 			<a class="item zbs-starred-link">
 				<div class="nav-men">
@@ -126,56 +114,6 @@ function jpcrm_render_emailbox() {
 			<div id='zbs-send-single-email-ui' style='display:none;'>
 		<?php } ?>
 			<?php zeroBSCRM_pages_admin_sendmail(); ?>
-		</div>
-
-
-		<div class='zbs-email-list inbox-email-list app-content'>      
-			<?php
-			$email_hist = zeroBSCRM_get_email_history( 0, 50, -1, 'inbox', -1, true );
-			// zbs_prettyprint($email_hist);
-			echo '<div class="ui celled list" style="background:white;">';
-
-			if ( count( $email_hist ) == 0 ) {
-				echo "<div class='no-emails'><i class='ui icon exclamation'></i><br/>" . esc_html__( 'No emails of this type', 'zero-bs-crm' );
-				##WLREMOVE
-				echo "<br><a href='https://jetpackcrm.com/feature/emails/#inbox' target='_blank'>" . esc_html__( 'Learn More', 'zero-bs-crm' ) . '</a>';
-				##/WLREMOVE
-				echo '</div>';
-			}
-
-			$i = 0;
-			foreach ( $email_hist as $email ) {
-					$contact_meta = zeroBS_getCustomerMeta( $email->zbsmail_target_objid );
-					// skip if contact doesn't exist (e.g. was deleted)
-				if ( ! $contact_meta ) {
-					continue;
-				}
-					echo '<div class="item zbs-email-list-item zbs-email-list-' . esc_attr( $email->zbsmail_sender_thread ) . ' zbs-unread-' . esc_attr( $email->zbsmail_opened ) . '" data-cid="' . esc_attr( $email->zbsmail_target_objid ) . '" data-emid="' . esc_attr( $email->zbsmail_sender_thread ) . '" data-fav="' . esc_attr( $email->zbsmail_starred ) . '">';
-						echo "<div class='zbs-contact'>";
-						// echo "<input type='checkbox' />";
-							echo zeroBS_customerAvatarHTML( $email->zbsmail_target_objid );
-							echo "<div class='zbs-who'>" . esc_html( $contact_meta['fname'] ) . ' ' . esc_html( $contact_meta['lname'] ) . '</div>';
-						echo '</div>';
-				// echo '<img class="ui avatar image" src="/images/avatar/small/helen.jpg">';
-					echo '<div class="content">';
-					echo '<div class="header">' . esc_html( $email->zbsmail_subject ) . '</div>';
-						echo '<div class="the_content">' . esc_html( wp_html_excerpt( $email->zbsmail_content, 200 ) ) . '</div>';
-
-				if ( $email->zbsmail_starred == 1 ) {
-					echo "<i class='ui icon star yellow zbs-list-fav zbs-list-fav-" . esc_attr( $email->zbsmail_sender_thread ) . "'></i>";
-				} else {
-					echo "<i class='ui icon star yellow zbs-list-fav zbs-list-fav-" . esc_attr( $email->zbsmail_sender_thread ) . "' style='display:none;'></i>";
-				}
-
-					echo '</div>';
-				echo '</div>';
-				++$i;
-			}
-
-			echo '</div>';
-
-			?>
-	  
 		</div>
 
 		<div class='zbs-email-list starred-email-list app-content'>
@@ -608,21 +546,4 @@ function zeroBSCRM_pages_admin_sendmail() {
 		esc_html_e( 'You do not have permissions to access this page', 'zero-bs-crm' );
 
 	}
-}
-
-/*
-* Directly queries database for number of unread emails in 'email box'
-*/
-function jetpackcrm_get_unread_inbox_count() {
-
-	global $wpdb, $ZBSCRM_t;
-	$sql           = 'SELECT count(ID) FROM  ' . $ZBSCRM_t['system_mail_hist'] . " WHERE zbsmail_opened = 0 AND zbsmail_status = 'inbox'";
-	$number_unread = $wpdb->get_var( $sql );
-	return $number_unread;
-}
-
-// backward compat (protection)
-function zeroBSCRm_get_unread_inbox_count() {
-
-	return jetpackcrm_get_unread_inbox_count();
 }
