@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.8-beta] - 2023-05-29
+### Changed
+- General: update link references to releases in changelog. [#30634]
+- Updated package dependencies. [#30493]
+
 ## 1.7 - 2023-05-02
 ### Changed
 - Updated package dependencies. [#29565]
@@ -159,3 +164,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
+
+[1.8-beta]: https://github.com/Automattic/jetpack-backup-plugin/compare/1.7...1.8-beta

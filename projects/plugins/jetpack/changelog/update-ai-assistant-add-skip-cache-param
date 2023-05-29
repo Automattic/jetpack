@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-AI Assistant: add skip_cache param to get_gpt_completion()
