@@ -555,6 +555,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						<tr class="zbs-view-vital-flags">
 							<td class="zbs-view-vital-label"><?php esc_html_e( 'Flags', 'zero-bs-crm' ); ?></td>
 							<td>
+
 								<?php
 
 								foreach ( $contact_flags as $flag ) {
@@ -1384,7 +1385,8 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 			var zbsViewSettings = {
 
 				objid: <?php echo esc_html( $id ); ?>,
-				objdbname: 'contact' <?php // echo $this->objType; ?>
+				objdbname: 'contact',
+				update_meta_nonce: '<?php echo esc_html( wp_create_nonce( 'jpcrm-update-meta-ajax' ) ); ?>'
 
 			};
 

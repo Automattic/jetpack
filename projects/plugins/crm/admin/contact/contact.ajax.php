@@ -1,6 +1,54 @@
 <?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 
 /**
+ * Update user meta via AJAX
+ */
+function jpcrm_update_meta_ajax() {
+	// check nonce
+	check_ajax_referer( 'jpcrm-update-meta-ajax' );
+
+	// check perms
+	if ( ! zeroBSCRM_permsCustomers() ) {
+		wp_send_json_error();
+	}
+
+	// check for params; note that we may want an empty value
+	if ( empty( $_POST['contact_id'] ) || empty( $_POST['meta_key'] ) ) {
+		wp_send_json_error();
+	}
+
+	$valid_meta_keys = array( 'do-not-email' );
+
+	$meta_key = sanitize_text_field( wp_unslash( $_POST['meta_key'] ) );
+
+	// check for valid meta key
+	if ( ! in_array( $meta_key, $valid_meta_keys, true ) ) {
+		wp_send_json_error();
+	}
+
+	global $zbs;
+	$meta_val   = ( empty( $_POST['meta_val'] ) ? '' : sanitize_text_field( wp_unslash( $_POST['meta_val'] ) ) );
+	$contact_id = (int) $_POST['contact_id'];
+
+	switch ( $meta_key ) {
+		case 'do-not-email':
+			$success = $zbs->DAL->contacts->setContactDoNotMail( $contact_id, $meta_val ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			break;
+
+		default:
+			$success = $zbs->DAL->updateMeta( ZBS_TYPE_CONTACT, $contact_id, $meta_key, $meta_val ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+			break;
+
+	}
+	if ( $success ) {
+		wp_send_json_success();
+	} else {
+		wp_send_json_error();
+	}
+}
+add_action( 'wp_ajax_jpcrm_update_meta', 'jpcrm_update_meta_ajax' );
+
+/**
  * Generate new WordPress (Client Portal) user
  */
 function zeroBSCRM_generateClientPortalUser() { // phpcs:ignore WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
@@ -139,3 +187,19 @@ function zeroBSCRM_AJAX_zbsPortalAction() { // phpcs:ignore WordPress.NamingConv
 	zeroBSCRM_sendJSONError( array( 'no-action-or-rights' => 1 ) );
 }
 add_action( 'wp_ajax_zbsPortalAction', 'zeroBSCRM_AJAX_zbsPortalAction' );
+
+/**
+ * Add language labels for JS
+ *
+ * This is in the AJAX file so the filter is added early enough in load order.
+ *
+ * @param array $language_array Array of labels.
+ */
+function jpcrm_contact_view_page_language_labels( $language_array ) {
+	$language_array['remove_unsubscribe_title']   = __( 'Are you sure?', 'zero-bs-crm' );
+	$language_array['remove_unsubscribe_message'] = __( 'Are you sure you want to remove the unsubscribe flag from this contact? This cannot be undone.', 'zero-bs-crm' );
+	$language_array['remove_unsubscribe_yes']     = __( 'Yes, remove the flag.', 'zero-bs-crm' );
+
+	return $language_array;
+}
+add_filter( 'zbs_globaljs_lang', 'jpcrm_contact_view_page_language_labels' );
