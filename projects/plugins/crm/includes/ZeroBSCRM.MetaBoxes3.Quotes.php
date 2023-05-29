@@ -212,13 +212,7 @@
 				} // end if
 
 				?>
-						<style>
-							.zbstypeaheadwrap {
-								padding-top: 0px;
-								padding-bottom: 0px;
-							}
-						</style>
-						<div class="jpcrm-form-group  jpcrm-form-group-span-2">
+						<div class="jpcrm-form-group jpcrm-form-group-span-2 jpcrm-override-typeahead-padding">
 						<label class="jpcrm-form-label"><?php esc_html_e( 'Contact', 'zero-bs-crm' ); ?>:</label>
 						<?php
 
