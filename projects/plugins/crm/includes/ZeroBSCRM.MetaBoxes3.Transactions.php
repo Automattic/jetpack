@@ -160,17 +160,6 @@
 
 				?>
                 <script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
-               
-                <style>
-						.zbs-infobox {
-							margin: 0px !important;
-							padding: 0px !important;
-						}
-
-						.zbs-infobox.zbs-live i.zbs-help-ico {
-							font-size: unset;
-						}
-                </style>
 	    		<?php
 
                     // New transaction?
@@ -242,7 +231,7 @@
 
 					<div class="jpcrm-form-group jpcrm-form-group-span-2">
 						<label class="jpcrm-form-label" for="title"><?php echo esc_html( __( 'Transaction Name:', 'zero-bs-crm' ) ); ?>
-							<span class="zbs-infobox"><?php echo esc_html( __( 'If possible, keep these the same if you routinely use common products here (they are used in the transaction index)', 'zero-bs-crm' ) ); ?></span>
+							<span class="zbs-infobox zbs-infobox-transaction"><?php echo esc_html( __( 'If possible, keep these the same if you routinely use common products here (they are used in the transaction index)', 'zero-bs-crm' ) ); ?></span>
 						</label>
 						<td><input id="title" type="text" name="zbst_title" value="<?php if(isset($transaction['title'])){ echo esc_attr( $transaction['title'] ); }?>" class="form-control widetext" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); // phpcs:ignore ?>" /></td>
 					</div>
@@ -255,7 +244,7 @@
 					<div class="jpcrm-form-group">
 						<label class="jpcrm-form-label">
 							<?php echo esc_html( __( 'Transaction Date', 'zero-bs-crm' ) ); ?>:
-							<span class="zbs-infobox"><?php echo esc_html( __( 'The transaction date will default to the initial save date if left blank.', 'zero-bs-crm' ) ); ?></span>
+							<span class="zbs-infobox zbs-infobox-transaction"><?php echo esc_html( __( 'The transaction date will default to the initial save date if left blank.', 'zero-bs-crm' ) ); ?></span>
 						</label>
 						<input class="form-control" type="date" name="zbst_date_datepart" id="transactionDate" value="<?php echo isset( $transaction['date'] ) ? esc_attr( jpcrm_uts_to_date_str( $transaction['date'], 'Y-m-d' ) ) : ''; ?>" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( wp_rand( 0, 100 ) ); ?>" >
 					</div>
@@ -307,7 +296,7 @@
 						<tr class="wh-large">
 							<th>
 								<label><?php echo esc_html( __( 'Date Paid', 'zero-bs-crm' ) );?>:</label>
-								<span class="zbs-infobox" style="margin-top:3px"><?php echo esc_html( __( 'This will default to the transaction date if left blank.', 'zero-bs-crm' ) );?></span>
+								<span class="zbs-infobox zbs-infobox-transaction"><?php echo esc_html( __( 'This will default to the transaction date if left blank.', 'zero-bs-crm' ) ); ?></span>
 							</th>
 							<td>
 								<input type="date" name="zbst_date_paid_datepart" value="<?php echo isset( $transaction['date_paid'] ) ? esc_attr( jpcrm_uts_to_date_str( $transaction['date_paid'], 'Y-m-d' ) ) : ''; ?>" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); ?>" >
@@ -319,7 +308,7 @@
 						<tr class="wh-large">
 							<th>
 								<label><?php echo esc_html( __( 'Date Completed', 'zero-bs-crm' ) );?>:</label>
-								<span class="zbs-infobox" style="margin-top:3px"><?php echo esc_html( __( 'This will default to the transaction date if left blank.', 'zero-bs-crm' ) );?></span>
+								<span class="zbs-infobox zbs-infobox-transaction"><?php echo esc_html( __( 'This will default to the transaction date if left blank.', 'zero-bs-crm' ) ); ?></span>
 							</th>
 							<td>
 								<input type="date" name="zbst_date_completed_datepart" value="<?php echo isset( $transaction['date_completed'] ) ? esc_attr( jpcrm_uts_to_date_str( $transaction['date_completed'], 'Y-m-d' ) ) : ''; ?>" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); ?>" >
@@ -405,7 +394,7 @@
 
 		                    		// mikes inv selector
 								?>
-									<div class="assignInvToCust" style="display:none;max-width:658px;" id="invoiceSelectionTitle"><label><?php echo esc_html( __( 'Contact invoice:', 'zero-bs-crm' ) ); ?></label><span class="zbs-infobox" style="margin-top:3px"><?php echo esc_html( __( 'Is this transaction a payment for an invoice? If so, enter the Invoice ID. Otherwise leave blank.', 'zero-bs-crm' ) ); ?></span></div>
+									<div class="assignInvToCust" style="display:none;max-width:658px;" id="invoiceSelectionTitle"><label><?php echo esc_html( __( 'Contact invoice:', 'zero-bs-crm' ) ); ?></label><span class="zbs-infobox zbs-infobox-transaction" style="margin-top:3px"><?php echo esc_html( __( 'Is this transaction a payment for an invoice? If so, enter the Invoice ID. Otherwise leave blank.', 'zero-bs-crm' ) ); ?></span></div>
 		                    		<div id="invoiceFieldWrap" style="position:relative;display:none;max-width:658px" class="assignInvToCust"><input style="max-width:200px" id="invoice_id" name="invoice_id" value="<?php if(isset($transaction['invoice_id'])){ echo esc_attr( $transaction['invoice_id'] ); } ?>" class="form-control" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); ?>" /></div><?php
 
 		                    	} else {
