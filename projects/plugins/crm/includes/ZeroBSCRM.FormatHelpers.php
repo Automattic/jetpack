@@ -1364,18 +1364,17 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 			case 'date':
 				$datevalue = '';
 				if ( $value !== -99 ) {
-					$datevalue = $value;
-					$datevalue = zeroBSCRM_date_i18n( -1, $datevalue, false, true );
+					$datevalue = jpcrm_uts_to_date_str( $value, 'Y-m-d', true );
 				}
+
+				// if this is a custom field, and is unset, we let it get passed as empty (gh-56)
 				if ( isset( $fieldVal['custom-field'] ) && ( $value === -99 || $value === '' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					$datevalue = '';
-				} elseif ( $value === -99 ) {
-					$inputClasses = ' zbs-empty-start'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				}
 				?>
 						<div class="jpcrm-form-group">
 						<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
-							<input type="text" name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>" id="<?php echo esc_attr( $fieldKey ); ?>" class="form-control jpcrm-date zbs-dc<?php echo esc_attr( $inputClasses ); ?>" placeholder="<?php if ( isset( $fieldVal[2] ) ) echo esc_attr__( $fieldVal[2], 'zero-bs-crm' ); ?>" value="<?php echo esc_attr( $datevalue ); ?>" autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText, Generic.ControlStructures.InlineControlStructure.NotAllowed ?>" />
+							<input type="date" name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>" id="<?php echo esc_attr( $fieldKey ); ?>" placeholder="yyyy-mm-dd" value="<?php echo esc_attr( $datevalue ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"/>
 						</div>
 						<?php
 
