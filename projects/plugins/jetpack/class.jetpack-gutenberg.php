@@ -658,7 +658,10 @@ class Jetpack_Gutenberg {
 		// AI Assistant
 		$ai_assistant_state = Jetpack_AI_Helper::get_ai_assistance_feature();
 		if ( is_wp_error( $ai_assistant_state ) ) {
-			$ai_assistant_state = array();
+			$ai_assistant_state = array(
+				'error-message' => $ai_assistant_state->get_error_message(),
+				'error-code'    => $ai_assistant_state->get_error_code(),
+			);
 		}
 
 		$initial_state = array(
