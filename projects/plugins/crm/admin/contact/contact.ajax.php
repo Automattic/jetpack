@@ -199,6 +199,8 @@ function jpcrm_contact_view_page_language_labels( $language_array ) {
 	$language_array['remove_unsubscribe_title']   = __( 'Are you sure?', 'zero-bs-crm' );
 	$language_array['remove_unsubscribe_message'] = __( 'Are you sure you want to remove the unsubscribe flag from this contact? This cannot be undone.', 'zero-bs-crm' );
 	$language_array['remove_unsubscribe_yes']     = __( 'Yes, remove the flag.', 'zero-bs-crm' );
+	$language_array['error']                      = __( 'Error', 'zero-bs-crm' );
+	$language_array['unabletodelete']             = __( 'Unable to delete this file.', 'zero-bs-crm' );
 
 	return $language_array;
 }

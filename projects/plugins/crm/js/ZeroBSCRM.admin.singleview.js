@@ -114,9 +114,9 @@ function zeroBSCRMJS_bindViewFiles() {
 					error: function ( response ) {
 						jQuery( '#zbsFilesTable' ).append(
 							'<div class="ui warning message" style="margin-top:10px;"><strong>' +
-								window.zbsViewLang.error +
+								zeroBSCRMJS_globViewLang('error') +
 								':</strong> ' +
-								window.zbsViewLang.unabletodelete +
+								zeroBSCRMJS_globViewLang('unabletodelete') +
 								'</div>'
 						);
 					},
