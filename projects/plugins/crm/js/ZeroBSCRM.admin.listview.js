@@ -432,6 +432,11 @@ function zeroBSCRMJS_drawListView() {
 
 					listViewHTML += jpcrm_listview_header();
 
+					// show pagination at top if per page is high
+					if (zbsListViewParams.count >= 50) {
+						listViewHTML += '<div class="jpcrm-pagination-container"></div>';
+					}
+
 					// build table
 					listViewHTML += '<table class="jpcrm-listview-table">';
 
