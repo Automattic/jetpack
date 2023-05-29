@@ -204,7 +204,7 @@ class MailPoet_Contact_Tabs {
 
         } else {
 
-            $html .=  '<div class="ui message info blue"><i class="ui icon info circle"></i>' . __( "This contact does not have a MailPoet subscriber.", 'zero-bs-crm' ) . '</div>';
+			$html .= '<div class="ui message"><i class="ui icon info circle"></i>' . __( 'This contact does not have a MailPoet subscriber.', 'zero-bs-crm' ) . '</div>';
         
         }
 

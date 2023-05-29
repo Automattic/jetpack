@@ -55,6 +55,9 @@ export const buildPromptTemplate = ( {
 		job += 'respond to the request below, under "Request"';
 	} else if ( ! request && !! content ) {
 		job += 'modify the content below, under "Content"';
+	} else if ( !! request && !! content ) {
+		job +=
+			'respond to the request below, under "Request". The content of the current post is under "Content"';
 	} else {
 		job +=
 			'modify the content shared below, under "Content", based on the request below, under "Request"';
@@ -82,6 +85,8 @@ Rules:
 - If you do not understand this request, regardless of language or any other rule, always answer exactly and without any preceding content with the following term and nothing else: __JETPACK_AI_ERROR__.
 - Do not use the term __JETPACK_AI_ERROR__ in any other context.
 ${ extraRulePromptPart }- Do not include a top level heading by default.
+- Output the generated content in markdown format.
+- Do not include a top level heading by default.
 - Only output generated content ready for publishing.
 - Segment the content into paragraphs as deemed suitable.
 ` +
@@ -158,7 +163,7 @@ export function buildPrompt( {
 		case 'changeTone':
 			prompt = buildPromptTemplate( {
 				request: `Please, rewrite with a ${ options.tone } tone.`,
-				content: generatedContent,
+				content: options.contentType === 'generated' ? generatedContent : allPostContent,
 			} );
 			break;
 
@@ -224,6 +229,16 @@ export function buildPrompt( {
 			prompt = buildPromptTemplate( {
 				request: `Please, rewrite the content below in the following language: ${ options.language }.`,
 				content: options.contentType === 'generated' ? generatedContent : allPostContent,
+			} );
+			break;
+
+		/**
+		 * Open ended prompt from user
+		 */
+		case 'userPrompt':
+			prompt = buildPromptTemplate( {
+				request: userPrompt,
+				content: allPostContent || generatedContent,
 			} );
 			break;
 

@@ -3,7 +3,7 @@
  */
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect, select as selectData, useDispatch } from '@wordpress/data';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useState, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import debugFactory from 'debug';
 import TurndownService from 'turndown';
@@ -75,16 +75,23 @@ export function getContentFromBlocks() {
 	);
 }
 
-const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks, userPrompt } ) => {
+const useSuggestionsFromOpenAI = ( {
+	attributes,
+	clientId,
+	content,
+	setError,
+	tracks,
+	userPrompt,
+} ) => {
 	const [ isLoadingCategories, setIsLoadingCategories ] = useState( false );
 	const [ isLoadingCompletion, setIsLoadingCompletion ] = useState( false );
 	const [ wasCompletionJustRequested, setWasCompletionJustRequested ] = useState( false );
 	const [ showRetry, setShowRetry ] = useState( false );
 	const [ lastPrompt, setLastPrompt ] = useState( '' );
 	const { updateBlockAttributes } = useDispatch( blockEditorStore );
+	const source = useRef();
 
 	// Let's grab post data so that we can do something smart.
-
 	const currentPostTitle = useSelect( select =>
 		select( 'core/editor' ).getEditedPostAttribute( 'title' )
 	);
@@ -160,7 +167,7 @@ const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks,
 		}
 
 		setShowRetry( false );
-		setErrorMessage( false );
+		setError( {} );
 
 		let prompt = lastPrompt;
 
@@ -184,49 +191,89 @@ const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks,
 
 		if ( ! options.retryRequest ) {
 			setLastPrompt( prompt );
-			updateBlockAttributes( clientId, { promptType: type } );
+
+			// If it is a title generation, keep the prompt type in subsequent changes.
+			if ( attributes.promptType !== 'generateTitle' ) {
+				updateBlockAttributes( clientId, { promptType: type } );
+			}
 		}
 
-		let source;
 		try {
 			setIsLoadingCompletion( true );
 			setWasCompletionJustRequested( true );
-			source = await askQuestion( prompt, postId );
+			source.current = await askQuestion( prompt, postId );
 		} catch ( err ) {
 			if ( err.message ) {
-				setErrorMessage( err.message ); // Message was already translated by the backend
+				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );
 			} else {
-				setErrorMessage(
-					__(
+				setError( {
+					message: __(
 						'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
 						'jetpack'
-					)
-				);
+					),
+					code: 'unknown',
+					status: 'error',
+				} );
 			}
 			setShowRetry( true );
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 		}
 
-		source.addEventListener( 'done', e => {
-			source.close();
-			setIsLoadingCompletion( false );
-			setWasCompletionJustRequested( false );
+		source?.current.addEventListener( 'done', e => {
+			stopSuggestion();
 			updateBlockAttributes( clientId, { content: e.detail } );
 		} );
-		source.addEventListener( 'error_unclear_prompt', () => {
-			source.close();
+		source?.current.addEventListener( 'error_unclear_prompt', () => {
+			source?.current.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
-			setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
+			setError( {
+				code: 'error_unclear_prompt',
+				message: __( 'Your request was unclear. Mind trying again?', 'jetpack' ),
+				status: 'info',
+			} );
 		} );
-		source.addEventListener( 'suggestion', e => {
+		source?.current.addEventListener( 'error_network', () => {
+			source?.current.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( true );
+			setError( {
+				code: 'error_network',
+				message: __( 'It was not possible to process your request. Mind trying again?', 'jetpack' ),
+				status: 'warning',
+			} );
+		} );
+		source?.current.addEventListener( 'error_quota_exceeded', () => {
+			source?.current.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( false );
+			setError( {
+				code: 'error_quota_exceeded',
+				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
+				status: 'info',
+			} );
+		} );
+
+		source?.current.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
 			debug( 'fullMessage', e.detail );
 			updateBlockAttributes( clientId, { content: e.detail } );
 		} );
-		return source;
+		return source?.current;
 	};
+
+	function stopSuggestion() {
+		if ( ! source?.current ) {
+			return;
+		}
+
+		source?.current.close();
+		setIsLoadingCompletion( false );
+		setWasCompletionJustRequested( false );
+	}
 
 	return {
 		isLoadingCategories,
@@ -240,6 +287,7 @@ const useSuggestionsFromOpenAI = ( { clientId, content, setErrorMessage, tracks,
 		wholeContent: getContentFromBlocks( clientId ),
 
 		getSuggestionFromOpenAI: getStreamedSuggestionFromOpenAI,
+		stopSuggestion,
 		retryRequest: () => getStreamedSuggestionFromOpenAI( '', { retryRequest: true } ),
 	};
 };

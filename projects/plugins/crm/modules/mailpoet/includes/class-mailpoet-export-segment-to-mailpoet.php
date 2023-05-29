@@ -58,7 +58,7 @@ class Mailpoet_Export_Segment_To_MailPoet {
 		add_action( 'jpcrm_segment_edit_export_mailpoet_button', function() {
 			// AJAX call to action 'jpcrm_segment_export_to_mailpoet'
 			?>
-			<button class="ui submit teal large icon button zbs-segment-export-mailpoet">
+			<button class="ui submit black large icon button zbs-segment-export-mailpoet">
 				<?php esc_html_e( 'Export to MailPoet', 'zero-bs-crm' ); ?> <i class="mail forward icon"></i>
 			</button>
 			<?php

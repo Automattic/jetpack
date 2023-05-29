@@ -238,6 +238,16 @@ export function isSiteVisibleToSearchEngines( state ) {
 	return get( state.jetpack.initialState.siteData, [ 'siteVisibleToSearchEngines' ], true );
 }
 
+/**
+ * Returns the site's boost speed scores from the last time it was checked
+ *
+ * @param {object} state - Global state tree
+ * @returns {object}        the boost speed scores and timestamp
+ */
+export function getLatestBoostSpeedScores( state ) {
+	return get( state.jetpack.initialState.siteData, [ 'latestBoostSpeedScores' ] );
+}
+
 export function getApiNonce( state ) {
 	return get( state.jetpack.initialState, 'WP_API_nonce' );
 }

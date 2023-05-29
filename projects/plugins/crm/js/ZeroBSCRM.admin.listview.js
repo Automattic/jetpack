@@ -61,31 +61,14 @@ function zeroBSCRMJS_initListView() {
 		} );
 
 	// save + close button at bottom of colmanager/screenopts
-	jQuery( '#zbs-columnmanager-bottomsave' )
-		.off( 'click' )
-		.on( 'click', function () {
-			// just clcking basically means opts saVED (AS SAVED ON CHANGE)
-
-			// close this
-			// (lazy sim click ;) )
-			jQuery( 'jpcrm-listview-header #open-table-options' ).trigger( 'click' );
-		} );
+	jQuery('#zbs-columnmanager-bottomsave').on('click', function() {
+		document.getElementById('zbs-list-col-editor').classList.add('hidden');
+	});
 
 	// open/shut column manager
-	jQuery( 'jpcrm-listview-header #open-table-options' )
-		.off( 'click' )
-		.on( 'click', function () {
-			//jQuery('#zbs-list-col-editor').toggle();
-			if ( jQuery( '#zbs-list-col-editor' ).is( ':visible' ) ) {
-				// hide
-				jQuery( this ).addClass( 'blue' ).removeClass( 'teal' );
-				jQuery( '#zbs-list-col-editor' ).hide();
-			} else {
-				// show
-				jQuery( this ).removeClass( 'blue' ).addClass( 'teal' );
-				jQuery( '#zbs-list-col-editor' ).show();
-			}
-		} );
+	jQuery('#jpcrm_table_options').on('click', function() {
+		document.getElementById('zbs-list-col-editor').classList.toggle('hidden');
+	});
 
 	// drag drop columns
 	jQuery(
@@ -1287,8 +1270,9 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_addtag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -1394,9 +1378,10 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_removetag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -1577,8 +1562,9 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_changestatus() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesupdate' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -1628,9 +1614,10 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: 'Yes, delete!',
+		cancelButtonText: '<span style="color: #000">Cancel</span>'
 		//allowOutsideClick: false
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+
@@ -1645,11 +1632,12 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 				extraParams,
 				function ( r ) {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'contactsdeleted' ),
-						'success'
-					);
+					swal({
+						title: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'contactsdeleted' ),
+						confirmButtonColor: '#000',
+						type: 'success'
+					});
 				},
 				function ( r ) {
 					// fail ? SWAL?
@@ -1694,8 +1682,9 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_merge() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesmerge' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -2772,9 +2761,10 @@ function zeroBSCRMJS_listView_segment_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: 'Yes, delete!',
+		cancelButtonText: '<span style="color: #000">Cancel</span>'
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -3288,9 +3278,10 @@ function zeroBSCRMJS_listView_company_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -3371,8 +3362,9 @@ function zeroBSCRMJS_listView_company_bulkActionFire_addtag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -3486,9 +3478,10 @@ function zeroBSCRMJS_listView_company_bulkActionFire_removetag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -3720,8 +3713,9 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markaccepted() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -3769,8 +3763,9 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markunaccepted() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesproceed' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -3818,9 +3813,10 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -3881,9 +3877,10 @@ function zeroBSCRMJS_listView_quotetemplate_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -4130,8 +4127,9 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_changestatus() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesupdate' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -4179,9 +4177,10 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -4445,9 +4444,10 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -4525,8 +4525,9 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_addtag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -4640,9 +4641,10 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_removetag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -4817,9 +4819,10 @@ function zeroBSCRMJS_listView_form_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -5076,9 +5079,10 @@ function zeroBSCRMJS_listView_event_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -5122,8 +5126,9 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markcomplete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -5171,8 +5176,9 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markincomplete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {

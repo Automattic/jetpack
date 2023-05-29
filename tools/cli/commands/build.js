@@ -536,7 +536,32 @@ async function buildProject( t ) {
 		await fs.readFile( `${ t.cwd }/composer.json`, { encoding: 'utf8' } )
 	);
 
-	if ( t.argv.forMirrors ) {
+	// Determine the composer script to run.
+	const scripts = t.argv.production
+		? [ 'build-production', 'build-development' ]
+		: [ 'build-development', 'build-production' ];
+	let script = null;
+	for ( const s of scripts ) {
+		if ( composerJson.scripts?.[ s ] ) {
+			script = s;
+			if (
+				t.argv.forMirrors &&
+				composerJson.scripts[ script ] === "echo 'Add your build step to composer.json, please!'"
+			) {
+				script = null;
+			}
+			break;
+		}
+	}
+
+	// We don't need to `composer install` if it's a CI build of a non-plugin with no build script. Except for changelogger.
+	const skipInstall =
+		t.argv.forMirrors &&
+		script === null &&
+		! t.project.startsWith( 'plugins/' ) &&
+		t.project !== 'packages/changelogger';
+
+	if ( t.argv.forMirrors && ! skipInstall ) {
 		// Mirroring needs to munge the project's composer.json to point to the built files..
 		const idx = composerJson.repositories?.findIndex( r => r.options?.monorepo );
 		if ( typeof idx === 'number' && idx >= 0 ) {
@@ -579,29 +604,20 @@ async function buildProject( t ) {
 				}
 			}
 		}
-		t.output( `\n=== Building ===\n\n` );
 	}
 
-	// Install.
-	await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
-		cwd: t.cwd,
-		buffer: false,
-	} );
-
-	await t.setStatus( 'building' );
-	// Determine the composer script to run.
-	const scripts = t.argv.production
-		? [ 'build-production', 'build-development' ]
-		: [ 'build-development', 'build-production' ];
-	let script = null;
-	for ( const s of scripts ) {
-		if ( composerJson.scripts?.[ s ] ) {
-			script = s;
-			break;
-		}
+	// Install. Unless we skip it.
+	if ( skipInstall ) {
+		await t.output( `Skipping composer install for CI build of non-plugin with no build script\n` );
+	} else {
+		await t.execa( 'composer', await getInstallArgs( t.project, 'composer', t.argv ), {
+			cwd: t.cwd,
+			buffer: false,
+		} );
 	}
 
 	// Build.
+	await t.setStatus( 'building' );
 	if ( script === null ) {
 		await t.output( `No build scripts are defined for ${ t.project }\n` );
 	} else {

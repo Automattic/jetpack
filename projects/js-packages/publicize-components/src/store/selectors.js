@@ -63,6 +63,29 @@ export function getLinkedInDetails( { forceDefaults = false } = {} ) {
 }
 
 /**
+ * Returns a template for Instagram data, based on the first Instagram account found.
+ *
+ * @returns {{name: string; profileImage: string}} The Instagram account data.
+ */
+export function getInstagramDetails() {
+	const connection = getConnections().find(
+		( { service_name } ) => 'instagram-business' === service_name
+	);
+
+	if ( connection ) {
+		return {
+			name: connection.username,
+			profileImage: connection.profile_picture,
+		};
+	}
+
+	return {
+		name: 'username',
+		profileImage: '',
+	};
+}
+
+/**
  * Returns a template for tweet data, based on the first Twitter account found.
  *
  * @param {object} state - State object.

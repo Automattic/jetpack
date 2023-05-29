@@ -341,6 +341,11 @@ jQuery( function($) {
 	font-size: 12px;
 	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
+.publicize__notice-media-warning {
+	border-right: 1px solid #c3c4c7;
+	border-bottom: 1px solid #c3c4c7;
+	border-top: 1px solid #c3c4c7;
+}
 .publicize-external-link {
 	display: block;
 	text-decoration: none;
@@ -623,6 +628,8 @@ jQuery( function($) {
 			<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack-publicize-pkg' ); ?></a>
 			<input type="hidden" name="wpas[0]" value="1" />
 		</div>
+
+		<div id="pub-connection-needs-media"></div>
 
 		<?php if ( ! $all_done ) : ?>
 			<?php if ( $broken_connections ) : ?>

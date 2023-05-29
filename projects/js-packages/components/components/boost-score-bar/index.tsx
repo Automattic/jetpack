@@ -20,8 +20,8 @@ export const BoostScoreBar: FunctionComponent< BoostScoreBarProps > = ( {
 	}
 
 	const prevScoreOffset = ( prevScore / score ) * 100;
-	const iconLabel =
-		scoreBarType === 'desktop' ? __( 'Desktop score', 'jetpack' ) : __( 'Mobile score', 'jetpack' );
+	const desktopIconLabel = __( 'Desktop score', 'jetpack' );
+	const mobileIconLabel = __( 'Mobile score', 'jetpack' );
 
 	const getIcon = () => {
 		if ( scoreBarType === 'desktop' ) {
@@ -53,7 +53,7 @@ export const BoostScoreBar: FunctionComponent< BoostScoreBarProps > = ( {
 		<div className={ classNames( 'jb-score-bar', `jb-score-bar--${ scoreBarType }` ) }>
 			<div className="jb-score-bar__label">
 				{ getIcon() }
-				<div>{ iconLabel }</div>
+				<div>{ scoreBarType === 'desktop' ? desktopIconLabel : mobileIconLabel }</div>
 			</div>
 
 			<div className="jb-score-bar__bounds">
