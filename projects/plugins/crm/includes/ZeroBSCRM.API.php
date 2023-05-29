@@ -351,7 +351,6 @@ function zeroBSCRM_API_api_endpoint( $template ) {
 		'create_transaction',
 		'create_event',
 		'create_company',
-		'incoming_email',
 		'customer_search',
 		'customers',
 		'invoices',
