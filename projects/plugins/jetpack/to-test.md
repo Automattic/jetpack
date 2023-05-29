@@ -6,7 +6,7 @@
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
 ### AI Assistant:
-Jetpack 12.2 brings a new AI Assistant block. Given Automattic's current focus on AI, this should be tested.
+Jetpack 12.2 brings a new AI Assistant block. Given Automattic's current focus on AI, this should be tested. See p1HpG7-mHr-p2 for details.
 
 ### My Plan:
 - Check all images are loading.
