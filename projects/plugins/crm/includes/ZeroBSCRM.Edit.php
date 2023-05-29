@@ -383,7 +383,6 @@ class zeroBSCRM_Edit{
             };
             var zbsDrawEditViewBlocker = false;
             var zbsDrawEditAJAXBlocker = false;
-            var zbsDrawEditLoadingBoxHTML = '<?php echo zeroBSCRM_UI2_loadingSegmentIncTextHTML(); ?>';
 
             <?php // these are all legacy, move over to zeroBSCRMJS_obj_editLink in global js: ?>
             var zbsObjectViewLinkPrefixCustomer = '<?php echo jpcrm_esc_link( 'view', -1, 'zerobs_customer', true ); ?>';

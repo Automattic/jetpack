@@ -104,16 +104,6 @@ function zeroBSCRM_UI2_loadingSegmentHTML($height='300px',$extraClasses=''){
 	return '<div class="ui loading segment '.$extraClasses.'" style="min-height:'.$height.'"><p>&nbsp;</p></div>';
 
 }
-function zeroBSCRM_UI2_loadingSegmentIncTextHTML($height='300px',$extraClasses='',$hidden=true,$id=''){
-
-	// hidden?
-	$hiddenExtraHTML = false; if ($hidden) $hiddenExtraHTML = ' style="display:none"';
-	$idStr = ''; if (!empty($id)) $idStr = ' id="'.$id.'"';
-
-	return '<div class="ui active inverted dimmer '.$extraClasses.'" style="min-height:'.$height.'"'.$hiddenExtraHTML.$idStr.'><div class="ui text loader">'.__('Loading',"zero-bs-crm").'</div></div>';
-
-}
-
 
 function zeroBSCRM_UI2_squareFeedbackUpsell($title='',$desc='',$linkStr='',$linkTarget='',$extraClasses=''){
 
