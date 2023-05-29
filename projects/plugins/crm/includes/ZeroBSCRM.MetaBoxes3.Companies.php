@@ -126,10 +126,10 @@
 					$fields               = $zbsCompanyFields; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					$show_id              = (int) $zbs->settings->get( 'showid' );
 					$fields_to_hide       = $zbs->settings->get( 'fieldhides' );
-					$show_addresses       = (int) zeroBSCRM_getSetting( 'showaddress' );
-					$show_second_address  = (int) zeroBSCRM_getSetting( 'secondaddress' );
-					$show_country_fields  = zeroBSCRM_getSetting( 'countries' );
-					$second_address_label = zeroBSCRM_getSetting( 'secondaddresslabel' );
+					$show_addresses       = (int) $zbs->settings->get( 'showaddress' );
+					$show_second_address  = (int) $zbs->settings->get( 'secondaddress' );
+					$show_country_fields  = $zbs->settings->get( 'countries' );
+					$second_address_label = $zbs->settings->get( 'secondaddresslabel' );
                 if ( empty( $second_address_label ) ) {
                   $second_address_label = __( 'Second Address', 'zero-bs-crm' );
                 }
