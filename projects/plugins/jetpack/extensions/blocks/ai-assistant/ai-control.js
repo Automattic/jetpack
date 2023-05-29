@@ -242,12 +242,9 @@ const ToolbarControls = ( {
 				</BlockControls>
 			) }
 
-			<BlockControls group="block">
-				<PromptTemplatesControl onPromptSelected={ setUserPrompt } />
-			</BlockControls>
-
 			<BlockControls>
-				{ /* Text controls */ }
+				<PromptTemplatesControl onPromptSelected={ setUserPrompt } />
+
 				<ToolbarGroup>
 					{ ! showRetry && contentIsLoaded && (
 						<>
