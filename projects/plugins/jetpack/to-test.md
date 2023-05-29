@@ -14,7 +14,8 @@ Jetpack 12.2 brings a new AI Assistant block. Given Automattic's current focus o
 
 ### Various block changes:
 - New Cookie Consent block, as described in https://github.com/Automattic/jetpack/pull/29197.
-- Donations block is now available with free plans. Check that it works. Information at PCYsg-8Ns-p2#testing-payments may be helpful.
+- Donations, Paid Content and Payment Buttons blocks are now available with free plans. Check that it works. Information at PCYsg-8Ns-p2#testing-payments may be helpful.
+  - Subscriptions block also has a payment option, see pbNhbs-6Ju-p2#comment-15715
 - Related Posts block can now have a header configured, and there's an author toggle.
 - Subscriptions block is now available with the module disabled, prompting to enable the feature. See https://github.com/Automattic/jetpack/pull/29044 for details.
 - Writing prompts: Visit a page like `/wp-admin/post-new.php?answer_prompt=1810`.
