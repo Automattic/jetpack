@@ -288,21 +288,25 @@
 	}
 }
 
-.jetpack-ai-upgrade-banner .jetpack-upgrade-plan-banner__wrapper {
-	flex-wrap: nowrap;
+.jetpack-ai-upgrade-banner,
+.jetpack-ai-connect-banner {
+	.jetpack-upgrade-plan-banner__wrapper {
+		flex-wrap: nowrap;
 
-	.jetpack-ai-upgrade-banner__description {
-		line-height: 24px;
-	}
+		.jetpack-ai-upgrade-banner__description,
+		.jetpack-ai-connect-banner__description {
+			line-height: 24px;
+		}
 
-	.components-button.is-primary {
-		background-color: var( --jp-white );
-		color: var( --jp-black );
-		margin-top: 8px;
-		margin-bottom: 8px;
+		.components-button.is-primary {
+			background-color: var( --jp-white );
+			color: var( --jp-black );
+			margin-top: 8px;
+			margin-bottom: 8px;
 
-		&:hover{
-			background-color: var( --jp-gray-0 );
+			&:hover{
+				background-color: var( --jp-gray-0 );
+			}
 		}
 	}
 }
