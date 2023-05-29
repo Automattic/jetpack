@@ -5,6 +5,7 @@ import { addFilter } from '@wordpress/hooks';
 /*
  * Internal dependencies
  */
+import { AI_Assistant_Initial_State } from '../../hooks/use-ai-feature';
 import { isUserConnected } from '../../lib/connection';
 import withMultipleBlocksEdition from './edit';
 
@@ -12,6 +13,10 @@ const EXTENDED_BLOCKS = [ 'core/paragraph', 'core/heading' ];
 
 function multipleBlocksEdition( settings, name ) {
 	const connected = isUserConnected();
+
+	if ( AI_Assistant_Initial_State.requireUpgrade ) {
+		return settings;
+	}
 
 	if ( ! connected ) {
 		return settings;
