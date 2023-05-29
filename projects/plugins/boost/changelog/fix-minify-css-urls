@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fixed resource URLs generated on sites in a subdir
