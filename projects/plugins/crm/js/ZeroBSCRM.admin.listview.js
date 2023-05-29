@@ -410,7 +410,7 @@ function zeroBSCRMJS_drawListView() {
 		window.zbsDrawListViewBlocker = true;
 
 		// empty table, show loading
-		jQuery( '.jpcrm-listview-table-container' ).html( window.zbsDrawListLoadingBoxHTML );
+		jQuery( '.jpcrm-listview-table-container' ).html( '<div class="empty-container-with-spinner"><div class="ui active centered inline loader"></div></div>' );
 
 		// check data + retrieve if empty
 		if ( ! window.zbsListViewParams.retrieved ) {

@@ -573,7 +573,6 @@ class zeroBSCRM_list{
             var zbsDrawListViewAJAXBlocker = false;
             var zbsDrawListViewColUpdateBlocker = false;
             var zbsDrawListViewColUpdateAJAXBlocker = false;
-            var zbsDrawListLoadingBoxHTML = '<?php echo zeroBSCRM_UI2_loadingSegmentIncTextHTML(); ?>';
 
             var zbsObjectEmailLinkPrefix = '<?php 
 
