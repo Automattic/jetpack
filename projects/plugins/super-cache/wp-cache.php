@@ -1031,7 +1031,6 @@ table.wpsc-settings-table {
 					echo '</div>';
 				}
 			}
-			next_preload_message( 'wp_cache_preload_hook', __( 'Refresh of cache in %d hours %d minutes and %d seconds.', 'wp-super-cache' ), 60 );
 			next_preload_message( 'wp_cache_full_preload_hook', __( 'Full refresh of cache in %d hours %d minutes and %d seconds.', 'wp-super-cache' ) );
 
 		}
@@ -3450,7 +3449,7 @@ function wpsc_schedule_next_preload() {
 	wp_delete_file( $mutex );
 }
 function next_preload_message( $hook, $text, $limit = 0 ) {
-	global $currently_preloading, $wp_cache_preload_interval;
+	global $currently_preloading;
 	if ( $next_preload = wp_next_scheduled( $hook ) ) {
 		$next_time = $next_preload - time();
 		if ( $limit != 0 && $next_time > $limit )
@@ -3461,8 +3460,9 @@ function next_preload_message( $hook, $text, $limit = 0 ) {
 			$s = $next_time % 60;
 			$h = (int)($m / 60); $m = $m % 60;
 		}
-		if ( $next_time > 0 && $next_time < ( 60 * $wp_cache_preload_interval ) )
+		if ( $next_time > 0 ) {
 			echo '<div class="notice notice-warning"><p>' . sprintf( $text, $h, $m, $s ) . '</p></div>';
+		}
 		if ( ( $next_preload - time() ) <= 60 )
 			$currently_preloading = true;
 	}
