@@ -13,7 +13,7 @@ import {
 } from '@wordpress/components';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, image, pencil, update, title, closeSmall } from '@wordpress/icons';
+import { chevronDown, image, pencil, update, closeSmall } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
@@ -183,32 +183,6 @@ export default AIControl;
 // Consider to enable when we have image support
 const isImageGenerationEnabled = false;
 
-function GenerateContentButton( {
-	showRetry,
-	contentIsLoaded,
-	contentBefore,
-	hasPostTitle,
-	onAction,
-} ) {
-	if ( ! showRetry && ! contentIsLoaded && contentBefore?.length ) {
-		return (
-			<ToolbarButton icon={ pencil } onClick={ () => onAction( 'continue' ) }>
-				{ __( 'Continue writing', 'jetpack' ) }
-			</ToolbarButton>
-		);
-	}
-
-	if ( ! showRetry && ! contentIsLoaded && ! contentBefore?.length && hasPostTitle ) {
-		return (
-			<ToolbarButton icon={ title } onClick={ () => onAction( 'titleSummary' ) }>
-				{ __( 'Write a summary based on title', 'jetpack' ) }
-			</ToolbarButton>
-		);
-	}
-
-	return null;
-}
-
 const ToolbarControls = ( {
 	contentIsLoaded,
 	getSuggestionFromOpenAI,
@@ -268,12 +242,9 @@ const ToolbarControls = ( {
 				</BlockControls>
 			) }
 
-			<BlockControls group="block">
-				<PromptTemplatesControl onPromptSelected={ setUserPrompt } />
-			</BlockControls>
-
 			<BlockControls>
-				{ /* Text controls */ }
+				<PromptTemplatesControl onPromptSelected={ setUserPrompt } />
+
 				<ToolbarGroup>
 					{ ! showRetry && contentIsLoaded && (
 						<>
@@ -291,14 +262,6 @@ const ToolbarControls = ( {
 							</ToolbarButton>
 						</>
 					) }
-
-					<GenerateContentButton
-						showRetry={ showRetry }
-						contentIsLoaded={ contentIsLoaded }
-						contentBefore={ contentBefore }
-						hasPostTitle={ hasPostTitle }
-						onAction={ getSuggestionFromOpenAI }
-					/>
 
 					{ ! showRetry && ! contentIsLoaded && !! wholeContent?.length && (
 						<BlockControls group="block">
