@@ -1216,7 +1216,7 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
    // puts out edit field for an object (e.g. quotes)
    // centralisd/genericified 20/7/18 wh 2.91+
    function zeroBSCRM_html_editField($dataArr=array(), $fieldKey = false, $fieldVal = false, $postPrefix = 'zbs_'){
-
+		// phpcs:disable
    	/* debug
    	if ($fieldKey == 'house-type') {
    		echo '<tr><td colspan="2">'.$fieldKey.'<pre>'.print_r(array($fieldVal,$dataArr),1).'</pre></td></tr>';
@@ -1281,6 +1281,523 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 
    			global $zbs;
 
+		switch ( $fieldVal[0] ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			case 'text':
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+						<div class="zbs-text-input <?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>">
+								<input
+									type="text"
+									name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+									id="<?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+									class="form-control widetext zbs-dc<?php echo esc_attr( $inputClasses ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+									placeholder="<?php if ( isset( $fieldVal[2] ) ) echo esc_attr__( $fieldVal[2], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText, Generic.ControlStructures.InlineControlStructure.NotAllowed ?>"
+									value="<?php if ( $value !== -99 ) echo esc_attr( $value ); else echo esc_attr( $default ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, Generic.ControlStructures.InlineControlStructure.NotAllowed, Generic.Formatting.DisallowMultipleStatements.SameLine, Squiz.PHP.EmbeddedPhp.MultipleStatements ?>"
+									autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+								/>
+	                    </div>
+						</div>
+				<?php
+
+	                break;
+
+	            case 'price':
+
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+						<div class="jpcrm-form-input-group">
+								<?php echo esc_html( zeroBSCRM_getCurrencyChr() ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>
+								<input
+									type="text"
+									name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+									id="<?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+									class="form-control numbersOnly zbs-dc<?php echo esc_attr( $inputClasses ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+									placeholder="<?php if ( isset( $fieldVal[2] ) ) echo esc_attr__( $fieldVal[2], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText, Generic.ControlStructures.InlineControlStructure.NotAllowed ?>"
+									value="<?php if ( $value !== -99 ) echo esc_attr( $value ); else echo esc_attr( $default ); // phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed, Generic.Formatting.DisallowMultipleStatements.SameLine, Squiz.PHP.EmbeddedPhp.MultipleStatements ?>"
+									autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+								/>
+						</div>
+					</div>
+				<?php
+
+	                break;
+
+                case 'numberfloat':
+
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+						<input
+							type="text"
+							name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+							id="<?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+							class="form-control numbersOnly zbs-dc<?php echo esc_attr( $inputClasses ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+							placeholder="<?php if ( isset( $fieldVal[2] ) ) echo esc_attr__( $fieldVal[2], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText, Generic.ControlStructures.InlineControlStructure.NotAllowed ?>"
+							value="<?php if ( $value !== -99 ) echo esc_attr( $value ); else echo esc_attr( $default ); // phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed, Generic.Formatting.DisallowMultipleStatements.SameLine, Squiz.PHP.EmbeddedPhp.MultipleStatements ?>"
+							autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+						/>
+						</div>
+						<?php
+
+	                break;
+
+                case 'numberint':
+
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+								<input
+									type="text"
+									name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+									id="<?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+									class="form-control intOnly zbs-dc<?php echo esc_attr( $inputClasses ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+									placeholder="<?php if ( isset( $fieldVal[2] ) ) echo esc_attr__( $fieldVal[2], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText, Generic.ControlStructures.InlineControlStructure.NotAllowed ?>"
+									value="<?php if ($value !== -99) echo esc_attr( $value ); else echo esc_attr( $default ); // phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed, Generic.Formatting.DisallowMultipleStatements.SameLine, Squiz.PHP.EmbeddedPhp.MultipleStatements ?>"
+									autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldKey ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"
+								/>
+						</div>
+				<?php
+					break;
+
+			case 'date':
+				$datevalue = '';
+				if ( $value !== -99 ) {
+					$datevalue = jpcrm_uts_to_date_str( $value, 'Y-m-d', true );
+				}
+
+				// if this is a custom field, and is unset, we let it get passed as empty (gh-56)
+				if ( isset( $fieldVal['custom-field'] ) && ( $value === -99 || $value === '' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+					$datevalue = '';
+				}
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+							<input type="date" name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>" id="<?php echo esc_attr( $fieldKey ); ?>" placeholder="yyyy-mm-dd" value="<?php echo esc_attr( $datevalue ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?>"/>
+						</div>
+						<?php
+
+				break;
+
+
+	            case 'datetime':
+
+	            	$datevalue = ''; if ($value !== -99) $datevalue = $value; 
+
+	            	// if DAL3 we need to use translated dates here :)
+	            	if ($zbs->isDAL3()) $datevalue = zeroBSCRM_date_i18n_plusTime(-1,$datevalue,true);
+
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+	                    <input type="text" name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>" id="<?php echo esc_attr( $fieldKey ); ?>" class="form-control jpcrm-date-time zbs-dc<?php echo esc_attr( $inputClasses ); ?>" placeholder="<?php if (isset($fieldVal[2])) echo esc_attr__($fieldVal[2],'zero-bs-crm'); ?>" value="<?php echo esc_attr( $datevalue ); ?>" autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldKey ); ?>" />
+						</div>
+						<?php
+
+	                break;
+
+	            case 'select':
+									//don't load prefix select if prefix is hidden in settings
+									if ($zbs->settings->get('showprefix') == 0 && $fieldKey == 'prefix') {
+										break;
+									}
+
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+	                    <select name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>" id="<?php echo esc_attr( $fieldKey ); ?>" class="form-control zbs-watch-input zbs-dc<?php echo esc_attr( $inputClasses ); ?>" autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldKey ); ?>">
+	                        <?php
+                                // pre DAL 2 = $fieldV[3], DAL2 = $fieldV[2]
+                                $options = false; 
+                                if (isset($fieldVal[3]) && is_array($fieldVal[3])) {
+                                    $options = $fieldVal[3];
+                                } else {
+                                    // DAL2 these don't seem to be auto-decompiled?
+                                    // doing here for quick fix, maybe fix up the chain later.
+                                    if (isset($fieldVal[2])) $options = explode(',', $fieldVal[2]);
+                                }
+
+	                            //if (isset($fieldVal[3]) && count($fieldVal[3]) > 0){
+                                if (isset($options) && is_array($options) && count($options) > 0 && $options[0] != ''){
+
+                                	// if $default, use that
+                                	$selectVal = '';
+	                                if ($value !== -99 && !empty($value)){
+	                                	$selectVal = $value;
+	                                } elseif (!empty($default))
+                                		$selectVal = $default;
+
+	                                //catcher
+																	echo '<option value=""' . ($fieldKey == 'prefix' ? '' :' disabled="disabled"');
+	                                if (empty($default) && ($value == -99 || ($value !== -99 && empty($value)))) echo ' selected="selected"';
+	                                echo '>'. esc_html__('Select','zero-bs-crm').'</option>';
+
+	                                foreach ($options as $opt){
+
+	                                    echo '<option value="' . esc_attr( $opt ) . '"';
+
+	                                    if ($selectVal == $opt) echo ' selected="selected"'; 
+	                                    echo '>' . esc_html( $opt ) . '</option>';
+
+	                                }
+
+	                            } else echo '<option value="">'. esc_html__('No Options','zero-bs-crm').'!</option>';
+
+	                        ?>
+	                    </select>
+                        <input type="hidden" name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>_dirtyflag" id="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>_dirtyflag" value="0" />
+						</div>
+						<?php
+
+	                break;
+
+	            case 'tel':
+
+			        // Click 2 call?
+			        $click2call = $zbs->settings->get('clicktocall');
+
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+						<span class="zbs-tel-wrap">
+
+	                    <input type="text" name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>" id="<?php echo esc_attr( $fieldKey ); ?>" class="form-control zbs-tel zbs-dc<?php echo esc_attr( $inputClasses ); ?>" placeholder="<?php if (isset($fieldVal[2])) echo esc_attr__($fieldVal[2],'zero-bs-crm'); ?>" value="<?php if ($value !== -99) echo esc_attr( $value ); else echo esc_attr( $default ); ?>" autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldKey ); ?>" />
+	                     <?php if ($click2call == "1" && $value !== -99 && !empty($value)) echo '<a href="' . esc_attr( zeroBSCRM_clickToCallPrefix() . $value ) . '" class="button"><i class="fa fa-phone"></i> ' . esc_html( $value ) . '</a>'; ?>
+
+                                        <?php 
+
+                                            if ($fieldKey == 'mobtel'){
+
+                                                $sms_class = 'send-sms-none';
+                                                $sms_class = apply_filters('zbs_twilio_sms', $sms_class); 
+                                                do_action('zbs_twilio_nonce');
+
+                                                $customerMob = ''; 
+                                                // wh genericified 
+                                                //if (is_array($dataArr) && isset($dataArr[$fieldKey]) && isset($dataArr['id'])) $customerMob = zeroBS_customerMobile($dataArr['id'],$dataArr);
+                                                if ($value !== -99) $customerMob = $value;
+                                                
+                                                if (!empty($customerMob)) echo '<a class="' . esc_attr( $sms_class ) . ' button" data-smsnum="' . esc_attr( $customerMob ) .'"><i class="mobile alternate icon"></i> '. esc_html__('SMS','zero-bs-crm').': ' . esc_html( $customerMob ) . '</a>';
+
+                                            }
+
+                                            ?>
+						</span>
+						</div>
+						<?php
+
+	                break;
+
+	            case 'email':
+
+                    // added zbs-text-input class 5/1/18 - this allows "linkify" automatic linking
+                    // ... via js <div class="zbs-text-input">
+                    // removed from email for now zbs-text-input
+
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+	                	<div class="<?php echo esc_attr( $fieldKey ); ?>">
+
+	                    	<input type="text" name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>" id="<?php echo esc_attr( $fieldKey ); ?>" class="form-control zbs-email zbs-dc<?php echo esc_attr( $inputClasses ); ?>" placeholder="<?php if (isset($fieldVal[2])) echo esc_attr__($fieldVal[2],'zero-bs-crm'); ?>" value="<?php if ($value !== -99) echo esc_attr( $value ); else echo esc_attr( $default ); ?>" autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldKey ); ?>" />
+
+	                    </div>
+						</div>
+						<?php
+
+	                break;
+
+	            case 'textarea':
+
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2 jpcrm-form-group jpcrm-form-group-span-2-span-2">
+						<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+	                    <textarea name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>" id="<?php echo esc_attr( $fieldKey ); ?>" class="form-control zbs-dc<?php echo esc_attr( $inputClasses ); ?>" placeholder="<?php if (isset($fieldVal[2])) echo esc_attr__($fieldVal[2],'zero-bs-crm'); ?>" autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldKey ); ?>"><?php if ($value !== -99) echo esc_textarea( $value ); else echo esc_textarea( $default ); ?></textarea>
+						</div>
+						<?php
+
+	                break;
+
+	            #} Added 1.1.19 
+	            case 'selectcountry':
+
+	                $countries = zeroBSCRM_loadCountryList();
+
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+	                    <select name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>" id="<?php echo esc_attr( $fieldKey ); ?>" class="form-control zbs-dc<?php echo esc_attr( $inputClasses ); ?>" autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldKey ); ?>">
+	                        <?php
+
+	                            #if (isset($fieldVal[3]) && count($fieldVal[3]) > 0){
+	                            if (isset($countries) && count($countries) > 0){
+
+	                                //catcher
+	                                echo '<option value=""';
+	                                if (empty($default) && ($value == -99 || ($value !== -99 && empty($value)))) echo ' selected="selected"';
+	                                echo '>'. esc_html__('Select','zero-bs-crm').'</option>';
+
+	                                foreach ($countries as $countryKey => $country){
+
+	                                        // temporary fix for people storing "United States" but also "US"
+	                                        // needs a migration to iso country code, for now, catch the latter (only 1 user via api)
+
+
+	                                    echo '<option value="' . esc_attr( $country ) . '"';
+	                                    if ($value !== -99 && (
+	                                                strtolower($value) == strtolower($country)
+	                                                ||
+	                                                strtolower($value) == strtolower($countryKey)
+	                                            )) echo ' selected="selected"'; 
+	                                    echo '>' . esc_html( $country ) . '</option>';
+
+	                                }
+	                                
+
+	                            } else echo '<option value="">'. esc_html__('No Countries Loaded','zero-bs-crm').'</option>';
+
+	                        ?>
+	                    </select>
+						</div>
+						<?php
+
+	                break;
+
+
+	                // 2.98.5 added autonumber, checkbox, radio
+
+	                // auto number - can't actually edit autonumbers, so its just outputting :)
+		            case 'autonumber':
+
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+								<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+								<span class="zbs-field-id">
+		                	<?php
+
+		                		// output any saved autonumber for this obj
+		                		$str = ''; if ($value !== -99) $str = $value;
+
+		                		// we strip the hashes saved in db for easy separation later
+		                		$str = str_replace('#','',$str);
+
+		                		// then output...
+		                		if (empty($str)) 
+		                			echo '~';
+		                		else
+		                			echo esc_html( $str );
+
+		                		// we also output as input, which stops any overwriting + makes new ones for new records
+		                		echo '<input type="hidden" value="' . esc_attr( $str ) . '" name="'. esc_attr( $postPrefix.$fieldKey ) .'" />';
+
+		                	?>
+							</span>							
+							</div>
+						<?php
+
+		                break;
+
+		            // radio
+		            case 'radio':
+
+				?>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+								<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+		                    <div class="zbs-field-radio-wrap">
+		                        <?php
+
+	                                // pre DAL 2 = $fieldV[3], DAL2 = $fieldV[2]
+	                                $options = false; 
+	                                if (isset($fieldVal[3]) && is_array($fieldVal[3])) {
+	                                    $options = $fieldVal[3];
+	                                } else {
+	                                    // DAL2 these don't seem to be auto-decompiled?
+	                                    // doing here for quick fix, maybe fix up the chain later.
+	                                    if (isset($fieldVal[2])) $options = explode(',', $fieldVal[2]);
+	                                }
+
+		                            //if (isset($fieldVal[3]) && count($fieldVal[3]) > 0){
+	                                if (isset($options) && is_array($options) && count($options) > 0 && $options[0] != ''){
+
+	                                	$optIndex = 0;
+
+		                                foreach ($options as $opt){
+
+		                                	echo '<div class="zbs-radio"><input type="radio" name="'. esc_attr( $postPrefix.$fieldKey ) .'" id="'. esc_attr( $fieldKey.'-'.$optIndex ) .'" value="' . esc_attr( $opt ) . '"';
+
+		                                    if ($value !== -99 && $value == $opt) echo ' checked="checked"'; 
+														echo ' /> <label class="jpcrm-form-label" for="' . esc_attr( $fieldKey . '-' . $optIndex ) . '">' . esc_html( $opt ) . '</label></div>'; //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		                                    $optIndex++;
+
+		                                }
+
+						} else {
+												echo '<label class="jpcrm-form-label" for="' . esc_attr( $fieldKey ) . '-0">' . esc_attr__( 'No Options', 'zero-bs-crm' ) . '!</label>'; //phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
+		                        ?>
+		                    </div>
+	                        <input type="hidden" name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>_dirtyflag" id="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>_dirtyflag" value="0" />
+								</div>
+								<?php
+
+		                break;
+
+		            // checkbox
+		            case 'checkbox':
+				?>
+								<div class="jpcrm-form-group jpcrm-form-group-span-2">
+								<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+		                    <div class="zbs-field-checkbox-wrap">
+		                        <?php
+
+	                                // pre DAL 2 = $fieldV[3], DAL2 = $fieldV[2]
+	                                $options = false; 
+	                                if (isset($fieldVal[3]) && is_array($fieldVal[3])) {
+	                                    $options = $fieldVal[3];
+	                                } else {
+	                                    // DAL2 these don't seem to be auto-decompiled?
+	                                    // doing here for quick fix, maybe fix up the chain later.
+	                                    if (isset($fieldVal[2])) $options = explode(',', $fieldVal[2]);
+	                                }	
+	                                
+	                                // split fields (multi select)
+	                                $dataOpts = array();
+	                                if ($value !== -99 && !empty($value)){
+	                                	$dataOpts = explode(',', $value);
+	                                }
+
+		                            //if (isset($fieldVal[3]) && count($fieldVal[3]) > 0){
+	                                if (isset($options) && is_array($options) && count($options) > 0 && $options[0] != ''){
+
+	                                	$optIndex = 0;
+
+		                                foreach ($options as $opt){
+
+		                                	echo '<div class="ui checkbox"><input type="checkbox" name="'. esc_attr( $postPrefix.$fieldKey.'-'.$optIndex ).'" id="'. esc_attr( $fieldKey.'-'.$optIndex ) .'" value="' . esc_attr( $opt ) . '"';
+		                                    if (in_array($opt, $dataOpts)) echo ' checked="checked"'; 
+														echo ' /><label class="jpcrm-form-label" for="' . esc_attr( $fieldKey . '-' . $optIndex ) . '">' . esc_html( $opt ) . '</label></div>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+
+		                                    $optIndex++;
+
+		                                }
+
+						} else {
+												echo '<label class="jpcrm-form-label" for="' . esc_attr( $fieldKey ) . '-0">' . esc_html__( 'No Options', 'zero-bs-crm' ) . '!</label>'; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						}
+
+		                        ?>
+		                    </div>
+	                        <input type="hidden" name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>_dirtyflag" id="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>_dirtyflag" value="0" />
+								</div>
+								<?php
+
+		                break;
+
+		            // tax
+		            case 'tax':
+				?>
+							<div class="jpcrm-form-group jpcrm-form-group-span-2">
+							<label class="jpcrm-form-label" for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase, WordPress.WP.I18n.NonSingularStringLiteralText ?>:</label>
+	                    <select name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>" id="<?php echo esc_attr( $fieldKey ); ?>" class="form-control zbs-watch-input zbs-dc<?php echo esc_attr( $inputClasses ); ?>" autocomplete="zbs-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( $fieldKey ); ?>">
+	                        <?php
+
+	                        	// retrieve tax rates + cache
+	                        	global $zbsTaxRateTable; if (!isset($zbsTaxRateTable)) $zbsTaxRateTable = zeroBSCRM_taxRates_getTaxTableArr();
+
+	                            // if got em
+                                if (isset($zbsTaxRateTable) && is_array($zbsTaxRateTable) && count($zbsTaxRateTable) > 0){
+
+                                	// if $default, use that
+                                	$selectVal = '';
+	                                if ($value !== -99 && !empty($value)){
+	                                	$selectVal = $value;
+	                                } elseif (!empty($default))
+                                		$selectVal = $default;
+
+	                                //catcher
+	                                echo '<option value=""';
+	                                if (empty($default) && ($value == -99 || ($value !== -99 && empty($value)))) echo ' selected="selected"';
+	                                echo '>' . esc_html( __( 'None', 'zero-bs-crm' ) ) . '</option>';
+
+	                                foreach ($zbsTaxRateTable as $taxRate){
+
+	                                    echo '<option value="'. esc_attr( $taxRate['id'] ) .'"';
+	                                    if ($selectVal == $taxRate['id']) echo ' selected="selected"'; 
+	                                    echo '>' . esc_html( $taxRate['name'] . ' (' . $taxRate['rate'] . '%)' ) . '</option>';
+
+	                                }
+
+	                            } else echo '<option value="">'. esc_html__('No Tax Rates Defined','zero-bs-crm').'!</option>';
+
+	                        ?>
+	                    </select>
+                        <input type="hidden" name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>_dirtyflag" id="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>_dirtyflag" value="0" />
+						</div>
+						<?php
+
+	                break;
+
+	        } // switch
+
+    	} // if is legit params
+		// phpcs:enable
+}
+
+	// TODO: Refactor invoice edit fields.
+	// phpcs:disable
+   function zeroBSCRM_html_editField_for_invoices($dataArr=array(), $fieldKey = false, $fieldVal = false, $postPrefix = 'zbs_') {
+
+   	/* debug
+   	if ($fieldKey == 'house-type') {
+   		echo '<tr><td colspan="2">'.$fieldKey.'<pre>'.print_r(array($fieldVal,$dataArr),1).'</pre></td></tr>';
+   	} */
+
+   		if (!empty($fieldKey) && is_array($fieldVal)){
+
+	   		// infer a default (Added post objmodels v3.0 as a potential.)
+	   		$default = ''; if (is_array($fieldVal) && isset($fieldVal['default'])) $default = $fieldVal['default'];
+
+	   		// get a value (this allows field-irrelevant global tweaks, like the addr catch below...)
+	   		// -99 = notset
+	   		$value = -99; if (isset($dataArr[$fieldKey])) $value = $dataArr[$fieldKey];
+
+	   		// custom classes for inputs
+	   		$inputClasses = isset($fieldVal['custom-field']) ? ' zbs-custom-field' : '';
+
+	   			// contacts got stuck in limbo as we upgraded db in 2 phases. 
+	   			// following catches old str and modernises to v3.0
+	   			// make addresses their own objs 3.0+ and do away with this.
+	   			// ... hard typed to avoid custom field collisions, hacky at best.
+	   			switch ($fieldKey){
+
+	   				case 'secaddr1':
+	   					 if (isset($dataArr['secaddr_addr1'])) $value = $dataArr['secaddr_addr1'];
+	   					 break;
+
+	   				case 'secaddr2':
+	   					 if (isset($dataArr['secaddr_addr2'])) $value = $dataArr['secaddr_addr2'];
+	   					 break;
+
+	   				case 'seccity':
+	   					 if (isset($dataArr['secaddr_city'])) $value = $dataArr['secaddr_city'];
+	   					 break;
+
+	   				case 'seccounty':
+	   					 if (isset($dataArr['secaddr_county'])) $value = $dataArr['secaddr_county'];
+	   					 break;
+
+	   				case 'seccountry':
+	   					 if (isset($dataArr['secaddr_country'])) $value = $dataArr['secaddr_country'];
+	   					 break;
+
+	   				case 'secpostcode':
+	   					 if (isset($dataArr['secaddr_postcode'])) $value = $dataArr['secaddr_postcode'];
+	   					 break;
+	   			}
+   			global $zbs;
+
 	        switch ($fieldVal[0]){
 
 	            case 'text':
@@ -1341,14 +1858,12 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 				if ( isset( $fieldVal['custom-field'] ) && ( $value === -99 || $value === '' ) ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					$datevalue = '';
 				}
-				// phpcs:disable WordPress.WP.I18n.NonSingularStringLiteralText,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				?>
 				<tr class="wh-large"><th><label for="<?php echo esc_attr( $fieldKey ); ?>"><?php esc_html_e( $fieldVal[1], 'zero-bs-crm' ); ?>:</label></th>
 				<td>
 				<input type="date" name="<?php echo esc_attr( $postPrefix ); ?><?php echo esc_attr( $fieldKey ); ?>" id="<?php echo esc_attr( $fieldKey ); ?>" placeholder="yyyy-mm-dd" value="<?php echo esc_attr( $datevalue ); ?>"/>
 				</td></tr>
 				<?php
-				// phpcs:enable WordPress.WP.I18n.NonSingularStringLiteralText,WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 				break;
 
 
@@ -1692,6 +2207,7 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
     	} // if is legit params
 
    }
+	// phpcs:enable
 
 /* ======================================================
   /	Edit Pages Field outputter
