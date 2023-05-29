@@ -244,7 +244,7 @@
 		if ( $show_id === 1 && isset( $contact['id'] ) && ! empty( $contact['id'] ) ) :
 			?>
 							<div class="jpcrm-form-group">
-								<label class="jpcrm-form-label" for="maintel"><?php esc_html_e( 'Contact ID', 'zero-bs-crm' ); ?>:</label>
+								<label class="jpcrm-form-label"><?php esc_html_e( 'Contact ID', 'zero-bs-crm' ); ?>:</label>
 								<b>#<?php echo isset( $contact['id'] ) ? esc_html( $contact['id'] ) : ''; ?></b>
 							</div>
 							<div class="jpcrm-form-group">
