@@ -169,16 +169,16 @@
 					 * when we have a group (e.g. addresses), they should start in
 					 * the first column. We are using only two columns.
 					 */
-					$is_first_collumn = false;
+					$is_first_column = false;
 					foreach ( $fields as $field_key => $field_value ) {
-						$is_first_collumn = ! $is_first_collumn;
-						$show_field       = ! isset( $field_value['opt'] ) || isset( $zbsFieldsEnabled[ $field_value['opt'] ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-						$show_field       = isset( $fields_to_hide['company'] )
+						$is_first_column = ! $is_first_column;
+						$show_field      = ! isset( $field_value['opt'] ) || isset( $zbsFieldsEnabled[ $field_value['opt'] ] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+						$show_field      = isset( $fields_to_hide['company'] )
 							&& is_array( $fields_to_hide['company'] )
 							&& in_array( $field_key, $fields_to_hide['company'] ) // phpcs:ignore WordPress.PHP.StrictInArray.MissingTrueStrict
 							? false
 							: $show_field;
-						$show_field       = isset( $field_value[0] )
+						$show_field      = isset( $field_value[0] )
 							&& 'selectcountry' === $field_value[0]
 							&& 0 === $show_country_fields
 							? false
@@ -188,7 +188,7 @@
 							if ( $show_addresses !== 1 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 								continue;
 							} elseif ( $field_group === '' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
-								if ( ! $is_first_collumn ) {
+								if ( ! $is_first_column ) {
 									echo '<div class="jpcrm-empty-form-group">&nbsp;</div>';
 								}
 								echo '<div class="jpcrm-form-grid" style="padding:0px;grid-template-columns: 1fr;">';
