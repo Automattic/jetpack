@@ -655,8 +655,7 @@ div.ui.learn.button {
 #zbs-invoice-learn-nav,
 #zbs-transaction-learn-nav,
 #zbs-event-learn-nav {
-    display: inline-block;
-    float: right;
+    display: flex;
 }
 
 //UI tweak for contact fiew
