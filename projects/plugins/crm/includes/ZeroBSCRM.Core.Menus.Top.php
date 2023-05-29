@@ -56,15 +56,6 @@ function zeroBSCRM_admin_menu_settings() {
 	$hiding_wp = get_user_meta( $cid, 'zbs-hide-wp-menus', true );
 	if ( zeroBSCRM_isAdminPage() ) {
 
-		// detect any compat (e.g. material admin)
-		$zbs_custom_admin = zeroBSCM_custom_admin_detect();
-
-		// globalise js (global js adds a class to body depending on this)
-		// Not needed, now dealt with by zeroBSCRM_bodyClassMods below
-		// ... gonna leave here because Material Admin doesn't allow admin_body_class
-		?><script>var zbscrmjs_custom_admin = '<?php echo esc_html( $zbs_custom_admin ); ?>';</script>
-		<?php
-
 		// if hiding, append class to body :)- this should be a single js call really, fudged for now :)
 		// jQuery('body').addClass('zbs-fullscreen'); - NOW NOT NEEDED (see zeroBSCRM_bodyClassMods - added via php for less visual lag)
 		// left in for cases like material admin not using proper admin_body_class
@@ -90,11 +81,6 @@ function zeroBSCRM_bodyClassMods( $classes = '' ) {
 		if ( $hiding_wp ) {
 			$classes .= ' zbs-fullscreen ';
 		}
-	}
-
-	// compat - MAterial admin
-	if ( zeroBSCM_custom_admin_detect() == 'material' ) {
-		$classes .= ' zbs-compat-material-admin ';
 	}
 
 	return $classes;

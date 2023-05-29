@@ -66,13 +66,6 @@ function zerobscrmJS_bindMetaboxManager() {
 		}, 0 );
 	} );
 
-	/* // enable/disable metabox manager - now done by drag/drop
-    jQuery('#zbs-metabox-manager').off('click').on( 'click', function(){
-
-       zeroBSCRMJS_metaboxManagerSwitchMode('toggle');
-
-    }); */
-
 	if ( ! jQuery( '.zbs-metabox-sortables' ).hasClass( 'ui-sortable' ) ) {
 		jQuery( '.zbs-metabox-sortables' ).sortable( {
 			placeholder: 'zbs-metabox-landing-pad',
@@ -110,109 +103,9 @@ function zerobscrmJS_bindMetaboxManager() {
 					zeroBSCRMJS_saveScreenOptionsMetaboxes();
 				}, 0 );
 			},
-			/* couldn't get this to work, leaving out for now... tho the .zbs-static class gets properly added
-                        // MAKE SOME STATIC VIA: https://stackoverflow.com/questions/4299241/jquery-sortable-lists-and-fixed-locked-items
-                        // static:
-                        ,
-                        items: ':not(.zbs-static)',
-                        start: function(){
-                            jQuery('.zbs-static', this).each(function(){
-                                var thisO = jQuery(this);
-                                thisO.data('pos', thisO.index());
-                            });
-                        },
-                        change: function(){
-                            sortable = jQuery(this);
-                            statics = jQuery('.zbs-static', this).detach();
-                            helper = jQuery('<div class="zbs-metabox-landing-pad"></div>').prependTo(this);
-                            statics.each(function(){
-                                var thisO = jQuery(this);
-                                var target = thisO.data('pos');
-
-                                thisO.insertAfter(jQuery('.zbs-metabox', sortable).eq(target));
-                            });
-                            helper.remove();
-                        } */
 		} );
 	}
 }
-/* now done by dragdrop :)
-function zeroBSCRMJS_metaboxManagerSwitchMode(onOffToggle){
-
-            / *
-        //jQuery('#zbs-list-col-editor').toggle();
-        if (jQuery('.zbs-metabox-sortables').hasClass('zbs-dragready')){
-
-            // identify
-            jQuery('#zbs-metabox-manager').addClass('blue').removeClass('teal');
-
-            // act
-            jQuery('.zbs-metabox-sortables').removeClass('zbs-dragready');
-            jQuery('.zbs-metabox-sortables .zbs-metabox').removeClass('zbs-shake');
-            // this resets jQuery('.zbs-metabox-sortables').sortable( 'cancel' );
-            jQuery('.zbs-metabox-sortables').sortable( "disable" );
-            jQuery( ".zbs-metabox-sortables" ).enableSelection();
-
-        } else {
-
-            // identify
-            jQuery('#zbs-metabox-manager').removeClass('blue').addClass('teal');
-
-            // act
-            jQuery('.zbs-metabox-sortables').addClass('zbs-dragready');
-            jQuery('.zbs-metabox-sortables .zbs-metabox').addClass('zbs-shake');
-
-            jQuery('.zbs-metabox-sortables').sortable( "enable" );
-            jQuery( ".zbs-metabox-sortables" ).disableSelection();
-
-        } * /
-
-        if (onOffToggle == 'toggle') {
-
-            // get state
-            onOffToggle = 'off';
-            if (!jQuery('.zbs-metabox-sortables').hasClass('zbs-dragready')) onOffToggle = 'on';
-        }
-
-        switch (onOffToggle){
-
-            case 'on':
-
-            /* now done internally in sortable
-                // identify
-                jQuery('#zbs-metabox-manager').removeClass('blue').addClass('teal');
-
-                // act
-                jQuery('.zbs-metabox-sortables').addClass('zbs-dragready');
-                jQuery('.zbs-metabox-sortables .zbs-metabox').addClass('zbs-shake');
-
-            * /
-                jQuery('.zbs-metabox-sortables').sortable( "enable" );
-                jQuery( ".zbs-metabox-sortables" ).disableSelection();
-
-                break;
-
-            case 'off':
-
-            /* now done internally in sortable
-                // identify
-                jQuery('#zbs-metabox-manager').addClass('blue').removeClass('teal');
-
-                // act
-                jQuery('.zbs-metabox-sortables').removeClass('zbs-dragready');
-                jQuery('.zbs-metabox-sortables .zbs-metabox').removeClass('zbs-shake');
-
-            * /
-                // this resets jQuery('.zbs-metabox-sortables').sortable( 'cancel' );
-                jQuery('.zbs-metabox-sortables').sortable( "disable" );
-                jQuery( ".zbs-metabox-sortables" ).enableSelection();
-
-                // save screen options
-                setTimeout(function(){  zeroBSCRMJS_saveScreenOptionsMetaboxes(); },0);
-
-                break
-        }
-} */
 
 /**
  *

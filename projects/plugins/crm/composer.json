@@ -11,8 +11,7 @@
 		"codeception/module-filesystem": "^1.0",
 		"codeception/util-universalframework": "^1.0",
 		"automattic/wordbless": "0.4.2",
-		"yoast/phpunit-polyfills": "1.0.4",
-		"phpunit/phpunit": "^8"
+		"yoast/phpunit-polyfills": "1.0.4"
 	},
 	"scripts": {
 		"build-development": [
@@ -77,6 +76,7 @@
 		]
 	},
 	"minimum-stability": "dev",
+	"prefer-stable": true,
 	"extra": {
 		"autotagger": {
 			"v": false

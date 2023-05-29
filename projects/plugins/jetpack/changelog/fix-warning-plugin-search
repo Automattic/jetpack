@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Feature Hints: avoid PHP warnings when used in combination with other plugins.

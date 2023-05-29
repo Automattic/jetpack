@@ -1395,10 +1395,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$$field = str_replace( '&amp;', '&', $$field );
 			}
 		} else {
-			if ( isset( $author->user_id ) && $author->user_id ) {
-				$author = $author->user_id;
-			} elseif ( isset( $author->user_email ) ) {
+			if ( $author instanceof WP_User || isset( $author->user_email ) ) {
 				$author = $author->ID;
+			} elseif ( isset( $author->user_id ) && $author->user_id ) {
+				$author = $author->user_id;
 			} elseif ( isset( $author->post_author ) ) {
 				// then $author is a Post Object.
 				if ( ! $author->post_author ) {

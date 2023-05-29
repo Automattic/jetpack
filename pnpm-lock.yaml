@@ -686,8 +686,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-extension-utils
       '@automattic/social-previews':
-        specifier: 2.0.0
-        version: 2.0.0(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.0.1-beta.2
+        version: 2.0.1-beta.2(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/annotations':
         specifier: 2.32.0
         version: 2.32.0(react@18.2.0)
@@ -2705,6 +2705,9 @@ importers:
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../../js-packages/api
+      '@automattic/jetpack-boost-score-api':
+        specifier: workspace:*
+        version: link:../../js-packages/boost-score-api
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
@@ -2730,11 +2733,14 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       '@automattic/social-previews':
-        specifier: 2.0.0
-        version: 2.0.0(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.0.1-beta.2
+        version: 2.0.1-beta.2(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
+      '@microsoft/fetch-event-source':
+        specifier: 2.0.1
+        version: 2.0.1
       '@wordpress/base-styles':
         specifier: 4.23.0
         version: 4.23.0
@@ -3951,8 +3957,8 @@ packages:
       '@automattic/popup-monitor': 1.0.2
     dev: false
 
-  /@automattic/social-previews@2.0.0(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-Cc3X5L8Gnu4mrMEazdB1RKzVr5T5hwkXJO3W8UxQKFutBHjAVajdt0TSHPIkzzbJ+gvrBSzQP1L/L0yRSvIZew==}
+  /@automattic/social-previews@2.0.1-beta.2(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-zniVC70amWCPmpoSEE8p4RKoofEem1pe2+ifE4MmUyRzSmbJ4H1V9Lmw5kU8WhuiagKBjLR45IWjbjrqWNbxhw==}
     peerDependencies:
       '@babel/runtime': ^7
       react: ^17.0.2 || ^18
@@ -3964,6 +3970,7 @@ packages:
       '@babel/runtime': 7.21.5
       '@emotion/react': 11.4.1(@babel/core@7.21.5)(@types/react@18.0.27)(react@18.2.0)
       '@wordpress/components': 22.1.0(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+      '@wordpress/element': 5.11.0
       '@wordpress/i18n': 4.32.0
       classnames: 2.3.2
       prop-types: 15.8.1
@@ -6173,6 +6180,10 @@ packages:
       '@types/react': 18.0.27
       react: 18.2.0
     dev: true
+
+  /@microsoft/fetch-event-source@2.0.1:
+    resolution: {integrity: sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==}
+    dev: false
 
   /@motionone/animation@10.15.1:
     resolution: {integrity: sha512-mZcJxLjHor+bhcPuIFErMDNyrdb2vJur8lSfMCsuCB4UyV8ILZLvK+t+pg56erv8ud9xQGK/1OGPt10agPrCyQ==}
@@ -9787,6 +9798,20 @@ packages:
       react-dom: 17.0.2(react@17.0.2)
     dev: false
 
+  /@wordpress/element@5.11.0:
+    resolution: {integrity: sha512-PRmh2LLNsBKVwYGlff3Mq4P87icBin0AgP52wU0BpJw/Eiy4VnCm+PDw9LCEOMCTVIpLeJXN1VUt+yGZ+VzW6w==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.21.5
+      '@types/react': 18.0.27
+      '@types/react-dom': 18.0.10
+      '@wordpress/escape-html': 2.34.0
+      change-case: 4.1.2
+      is-plain-object: 5.0.0
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
   /@wordpress/element@5.9.0:
     resolution: {integrity: sha512-ZZB82h08Il9d45o4HrcbF3G6Q8yJU6NNyLnO/CMdfpCxD45bbwFT5drzmGx4jZniCrm+s/LoxArXLS+O8/Lx1Q==}
     engines: {node: '>=12'}
@@ -9805,6 +9830,13 @@ packages:
     engines: {node: '>=12'}
     dependencies:
       '@babel/runtime': 7.21.5
+
+  /@wordpress/escape-html@2.34.0:
+    resolution: {integrity: sha512-xVBtkAfQmOeXb76CQESJeChDq1EA73PCUCJNRxRyDhCIyHBYWp+DmtvhXfwwuHnf0haJhQY2iQNqt5eKZPjBdQ==}
+    engines: {node: '>=12'}
+    dependencies:
+      '@babel/runtime': 7.21.5
+    dev: false
 
   /@wordpress/eslint-plugin@14.5.0(@babel/core@7.21.5)(@typescript-eslint/eslint-plugin@5.59.0)(eslint-plugin-import@2.27.5)(eslint-plugin-jest@27.2.1)(eslint-plugin-jsdoc@39.9.1)(eslint-plugin-jsx-a11y@6.7.1)(eslint-plugin-prettier@4.2.1)(eslint-plugin-react-hooks@4.5.0)(eslint-plugin-react@7.32.2)(eslint@8.39.0)(typescript@5.0.4)(wp-prettier@2.8.5):
     resolution: {integrity: sha512-V7ltIx7jpYGeKkeOn6HimY9pAAJco5pCz1s/dH3sNnK3sL5Yx7CuBhM9ARg+4Q+4Py131AvN3gCxR5xTTASnrw==}
@@ -10919,7 +10951,7 @@ packages:
   /axios@0.27.2:
     resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
     dependencies:
-      follow-redirects: 1.15.2
+      follow-redirects: 1.15.2(debug@4.3.4)
       form-data: 4.0.0
     transitivePeerDependencies:
       - debug
@@ -13856,15 +13888,6 @@ packages:
       tabbable: 5.3.3
     dev: false
 
-  /follow-redirects@1.15.2:
-    resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-
   /follow-redirects@1.15.2(debug@4.3.4):
     resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
     engines: {node: '>=4.0'}
@@ -13875,7 +13898,6 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.4
-    dev: true
 
   /for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}

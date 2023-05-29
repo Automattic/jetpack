@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Add a WP_User check in get_author method.

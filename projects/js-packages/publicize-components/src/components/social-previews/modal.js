@@ -14,7 +14,7 @@ import {
 	shouldUploadAttachedMedia,
 } from '../../store/selectors';
 import { getSigImageUrl } from '../generated-image-preview/utils';
-import { AVAILABLE_SERVICES } from './constants';
+import { useAvailableSerivces } from './useAvailableServices';
 import { getMediaSourceUrl } from './utils';
 import './modal.scss';
 
@@ -27,6 +27,8 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 	url,
 	initialTabName,
 } ) {
+	const availableServices = useAvailableSerivces();
+
 	return (
 		<Modal
 			onRequestClose={ onClose }
@@ -41,7 +43,7 @@ const SocialPreviewsModal = function SocialPreviewsModal( {
 			/>
 			<TabPanel
 				className="jetpack-social-previews__modal-previews"
-				tabs={ AVAILABLE_SERVICES }
+				tabs={ availableServices }
 				initialTabName={ initialTabName }
 			>
 				{ tab => (

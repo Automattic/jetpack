@@ -82,11 +82,13 @@ server.on( 'request', ( req, res ) => {
 		headers,
 	} );
 
+	let sentResponse = false;
 	upstreamReq.on( 'response', upstreamRes => {
 		console.log(
 			`>>[${ reqid }] HTTP/${ upstreamRes.httpVersion } ${ upstreamRes.statusCode } ${ upstreamRes.statusMessage }`
 		);
 
+		sentResponse = true;
 		const resHeaders = { ...upstreamRes.headersDistinct };
 		delete resHeaders.connection;
 		for ( const [ k, vv ] of Object.entries( resHeaders ) ) {
@@ -109,6 +111,30 @@ server.on( 'request', ( req, res ) => {
 		upstreamRes.pipe( res );
 
 		res.on( 'finish', cleanup );
+	} );
+
+	upstreamReq.on( 'error', e => {
+		console.log( `!![${ reqid }] Network error: ${ e }` );
+
+		if ( sentResponse ) {
+			console.log( `!![${ reqid }] Already got a (partial) response, just closing.` );
+			res.end();
+			return;
+		}
+		sentResponse = true;
+
+		const now = new Date().toUTCString();
+		console.log( `>>[${ reqid }] HTTP/${ res.httpVersion ?? '1.1' } 502 Bad Gateway` );
+		/*
+		console.log( `>>[${ reqid }] date: ${ now }` );
+		console.log( `>>[${ reqid }] content-type: text/plain` );
+		*/
+		res.writeHead( 502, 'Bad Gateway', {
+			date: now,
+			'content-type': 'text/plain',
+		} );
+		res.end( 'A network error was encountered when fetching the upstream resource.\r\n' );
+		cleanup();
 	} );
 
 	const onclose = () => {

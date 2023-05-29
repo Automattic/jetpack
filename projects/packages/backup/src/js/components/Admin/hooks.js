@@ -23,16 +23,19 @@ export const useIsSecondaryAdminNotConnected = () => {
 export const useSiteHasBackupProduct = () => {
 	const isFullyConnected = useIsFullyConnected();
 	const [ siteHasBackupProduct, setSiteHasBackupProduct ] = useState( false );
+	const [ isLoading, setIsLoading ] = useState( true );
 
 	useEffect( () => {
 		if ( ! isFullyConnected ) {
+			setIsLoading( false );
 			return;
 		}
 
 		apiFetch( { path: '/jetpack/v4/has-backup-plan' } ).then( res => {
 			setSiteHasBackupProduct( res );
+			setIsLoading( false );
 		} );
 	}, [ isFullyConnected ] );
 
-	return { siteHasBackupProduct };
+	return { siteHasBackupProduct, isLoadingBackupProduct: isLoading };
 };
