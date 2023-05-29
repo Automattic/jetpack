@@ -13,7 +13,7 @@ Jetpack 12.2 brings a new AI Assistant block. Given Automattic's current focus o
 - "My Plan" card should no longer show on sites with a free plan but paid add-on features.
 
 ### Donation block:
-Block is now available with free plans. Check that it works.
+Block is now available with free plans. Check that it works. Information at PCYsg-8Ns-p2#testing-payments may be helpful.
 
 ### Related Posts block:
 Block can now have a header configured, and there's an author toggle.
