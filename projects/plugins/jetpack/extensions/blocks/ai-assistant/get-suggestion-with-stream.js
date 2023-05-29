@@ -163,8 +163,21 @@ export class SuggestionsEventSource extends EventTarget {
 				if ( response.ok ) {
 					return;
 				}
-				if ( response.status >= 400 && response.status <= 500 && response.status !== 429 ) {
+				if (
+					response.status >= 400 &&
+					response.status <= 500 &&
+					response.status !== 503 &&
+					response.status !== 429
+				) {
 					self.processConnectionError( response );
+				}
+
+				/*
+				 * error code 503
+				 * service unavailable
+				 */
+				if ( response.status === 503 ) {
+					self.dispatchEvent( new CustomEvent( 'error_service_unavailable' ) );
 				}
 
 				/*

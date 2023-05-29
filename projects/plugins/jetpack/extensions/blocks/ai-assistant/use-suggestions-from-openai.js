@@ -224,6 +224,7 @@ const useSuggestionsFromOpenAI = ( {
 			stopSuggestion();
 			updateBlockAttributes( clientId, { content: e.detail } );
 		} );
+
 		source?.current.addEventListener( 'error_unclear_prompt', () => {
 			source?.current.close();
 			setIsLoadingCompletion( false );
@@ -234,6 +235,7 @@ const useSuggestionsFromOpenAI = ( {
 				status: 'info',
 			} );
 		} );
+
 		source?.current.addEventListener( 'error_network', () => {
 			source?.current.close();
 			setIsLoadingCompletion( false );
@@ -242,9 +244,25 @@ const useSuggestionsFromOpenAI = ( {
 			setError( {
 				code: 'error_network',
 				message: __( 'It was not possible to process your request. Mind trying again?', 'jetpack' ),
-				status: 'warning',
+				status: 'info',
 			} );
 		} );
+
+		source?.current.addEventListener( 'error_service_unavailable', () => {
+			source?.current.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( true );
+			setError( {
+				code: 'error_service_unavailable',
+				message: __(
+					'Jetpack AI services are currently unavailable. Sorry for the inconvenience.',
+					'jetpack'
+				),
+				status: 'info',
+			} );
+		} );
+
 		source?.current.addEventListener( 'error_quota_exceeded', () => {
 			source?.current.close();
 			setIsLoadingCompletion( false );
