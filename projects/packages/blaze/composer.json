@@ -4,7 +4,6 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"automattic/jetpack-admin-ui": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-sync": "@dev"

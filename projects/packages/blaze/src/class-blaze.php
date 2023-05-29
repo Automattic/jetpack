@@ -7,7 +7,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Blaze\Dashboard as Blaze_Dashboard;
 use Automattic\Jetpack\Blaze\Dashboard_REST_Controller as Blaze_Dashboard_REST_Controller;
 use Automattic\Jetpack\Connection\Client;
@@ -70,16 +69,15 @@ class Blaze {
 	public static function enable_blaze_menu() {
 		if ( self::should_initialize() ) {
 			$blaze_dashboard = new Blaze_Dashboard();
-			$page_suffix     = Admin_Menu::add_menu(
-				_x( 'Blaze', 'product name', 'jetpack-blaze' ),
-				_x( 'Blaze', 'product name', 'jetpack-blaze' ),
+			add_submenu_page(
+				'tools.php',
+				esc_attr__( 'Advertising', 'jetpack-blaze' ),
+				__( 'Advertising', 'jetpack-blaze' ),
 				'manage_options',
-				'jetpack-blaze',
+				'advertising',
 				array( $blaze_dashboard, 'render' ),
 				100
 			);
-
-			add_action( 'load-' . $page_suffix, array( $blaze_dashboard, 'admin_init' ) );
 		}
 	}
 
