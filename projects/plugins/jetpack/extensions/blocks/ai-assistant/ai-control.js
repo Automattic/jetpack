@@ -61,8 +61,7 @@ const AIControl = ( {
 	};
 
 	const connected = isUserConnected();
-
-	const { requireUpgrade: showUpgradeBanner } = useAIFeature();
+	const { requireUpgrade: siteRequireUpgrade } = useAIFeature();
 
 	const textPlaceholder = __( 'Ask Jetpack AI', 'jetpack' );
 
@@ -80,7 +79,7 @@ const AIControl = ( {
 
 	return (
 		<>
-			{ ( showUpgradeBanner || requireUpgrade ) && <UpgradePrompt /> }
+			{ ( siteRequireUpgrade || requireUpgrade ) && <UpgradePrompt /> }
 			{ ! connected && <ConnectPrompt /> }
 			{ ! isWaitingState && connected && (
 				<ToolbarControls
@@ -142,7 +141,9 @@ const AIControl = ( {
 					onKeyPress={ handleInputEnter }
 					placeholder={ placeholder }
 					className="jetpack-ai-assistant__input"
-					disabled={ isWaitingState || loadingImages || ! connected }
+					disabled={
+						isWaitingState || loadingImages || ! connected || siteRequireUpgrade || requireUpgrade
+					}
 					ref={ promptUserInputRef }
 				/>
 
@@ -152,7 +153,9 @@ const AIControl = ( {
 							className="jetpack-ai-assistant__prompt_button"
 							onClick={ () => handleGetSuggestion( 'userPrompt' ) }
 							isSmall={ true }
-							disabled={ ! userPrompt?.length || ! connected }
+							disabled={
+								! userPrompt?.length || ! connected || siteRequireUpgrade || requireUpgrade
+							}
 							label={ __( 'Send request', 'jetpack' ) }
 						>
 							<Icon icon={ origamiPlane } />
