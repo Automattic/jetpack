@@ -276,7 +276,7 @@ function zeroBSCRMJS_bindActivityStream() {
 		} );
 }
 
-// click on flag, use sweetalert to confirm removal, refresh if success, add proper messaging
+// confirm removal of flag
 function jpcrm_remove_unsubscribe_flag() {
 	var payload = {
 		action: 'jpcrm_update_meta',
@@ -291,8 +291,8 @@ function jpcrm_remove_unsubscribe_flag() {
 		dataType: "json"
 	});
 	request.done(function(e) {
-		// refresh to remove flag
-		location.reload();
+		// remove element from page
+		document.getElementById('do-not-email').remove();
 	});
 	request.fail(function(e) {
 		// error
