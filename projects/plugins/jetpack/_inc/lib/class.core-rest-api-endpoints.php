@@ -2845,6 +2845,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'stats',
 			),
 
+			// Whether to share stats views with WordPress.com Reader.
+			'wpcom_reader_views_enabled'           => array(
+				'description'       => esc_html__( 'Show post views in the WordPress.com Reader.', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
+			),
+
 			// Akismet - Not a module, but a plugin. The options can be passed and handled differently.
 			'akismet_show_user_comments_approved'  => array(
 				'description'       => '',
