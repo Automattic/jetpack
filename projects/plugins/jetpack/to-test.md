@@ -27,7 +27,15 @@ Jetpack Forms continues to improve with changes in this release. In particular,
 Enable the feature (Jetpack > Settings > Performance > Speed up image load times) and check that image-based features (e.g. Tiled Gallery, Flickr widget, gallery widget, image widget) still work.
 
 ### Sharing to Mastodon:
-Enable Jetpack > Settings > Sharing > Jetpack Social connections. Then follow the testing instructions at https://github.com/Automattic/jetpack/pull/30661.
+* Make sure you have a Mastodon account.
+* Make sure your test site has a Social Advanced or Complete subscription, and activate Social (from the My Jetpack section, for instance).
+* Create a new post.
+* Click on the Jetpack menu in the top bar.
+* In the _Share this post_ section, click _Connect an account_.
+* You should be redirected to wordpress.com. Enable the mastodon feature flag by adding the query parameter `flags=mastodon` and reloading the page.
+* You should now have the option to connect your Mastodon account. Connect it.
+* Go back to edit your post.
+* You should now see Mastodon in the list of available services. Reload the page if you don't.
 
 ### And More!
 
