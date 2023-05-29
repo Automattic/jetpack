@@ -47,3 +47,14 @@
 	flex-direction: row;
 	cursor: pointer;
 }
+
+@media (max-width: 768px) {
+	.jpcrm-learn-menu {
+		flex-wrap: wrap;
+	}
+
+	.jpcrm-learn-menu-subdiv-75,
+	.jpcrm-learn-menu-subdiv-25 {
+		width: 100%;
+	}
+}
