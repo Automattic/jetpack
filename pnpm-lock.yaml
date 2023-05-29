@@ -686,8 +686,8 @@ importers:
         specifier: workspace:*
         version: link:../shared-extension-utils
       '@automattic/social-previews':
-        specifier: 2.0.1-beta.2
-        version: 2.0.1-beta.2(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.0.1-beta.3
+        version: 2.0.1-beta.3(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/annotations':
         specifier: 2.32.0
         version: 2.32.0(react@18.2.0)
@@ -2733,8 +2733,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       '@automattic/social-previews':
-        specifier: 2.0.1-beta.2
-        version: 2.0.1-beta.2(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.0.1-beta.3
+        version: 2.0.1-beta.3(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
       '@automattic/viewport':
         specifier: 1.0.0
         version: 1.0.0
@@ -3957,8 +3957,8 @@ packages:
       '@automattic/popup-monitor': 1.0.2
     dev: false
 
-  /@automattic/social-previews@2.0.1-beta.2(@babel/core@7.21.5)(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-zniVC70amWCPmpoSEE8p4RKoofEem1pe2+ifE4MmUyRzSmbJ4H1V9Lmw5kU8WhuiagKBjLR45IWjbjrqWNbxhw==}
+  /@automattic/social-previews@2.0.1-beta.3(@babel/runtime@7.21.5)(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-sPwREfWShd4gbiGLd5CK9ZGw4kGFnW595LnniXH9shTapy1VnATJZdXS9XfXYY6B9zR3lzpa09N7huEyVMUS6Q==}
     peerDependencies:
       '@babel/runtime': ^7
       react: ^17.0.2 || ^18
@@ -3968,17 +3968,16 @@ packages:
         optional: true
     dependencies:
       '@babel/runtime': 7.21.5
-      '@emotion/react': 11.4.1(@babel/core@7.21.5)(@types/react@18.0.27)(react@18.2.0)
+      '@emotion/react': 11.11.0(@types/react@18.0.27)(react@18.2.0)
       '@wordpress/components': 22.1.0(@types/react@18.0.27)(react-dom@18.2.0)(react@18.2.0)
       '@wordpress/element': 5.11.0
       '@wordpress/i18n': 4.32.0
       classnames: 2.3.2
-      prop-types: 15.8.1
+      prop-types: 15.7.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       tslib: 2.5.0
     transitivePeerDependencies:
-      - '@babel/core'
       - '@babel/helper-module-imports'
       - '@babel/types'
       - '@types/react'
@@ -5417,30 +5416,6 @@ packages:
       hoist-non-react-statics: 3.3.2
       react: 18.2.0
 
-  /@emotion/react@11.4.1(@babel/core@7.21.5)(@types/react@18.0.27)(react@18.2.0):
-    resolution: {integrity: sha512-pRegcsuGYj4FCdZN6j5vqCALkNytdrKw3TZMekTzNXixRg4wkLsU5QEaBG5LC6l01Vppxlp7FE3aTHpIG5phLg==}
-    peerDependencies:
-      '@babel/core': ^7.0.0
-      '@types/react': '*'
-      react: '>=16.8.0'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      '@types/react':
-        optional: true
-    dependencies:
-      '@babel/core': 7.21.5
-      '@babel/runtime': 7.21.5
-      '@emotion/cache': 11.11.0
-      '@emotion/serialize': 1.1.2
-      '@emotion/sheet': 1.2.2
-      '@emotion/utils': 1.2.1
-      '@emotion/weak-memoize': 0.2.5
-      '@types/react': 18.0.27
-      hoist-non-react-statics: 3.3.2
-      react: 18.2.0
-    dev: false
-
   /@emotion/react@11.4.1(@babel/core@7.21.5)(react@18.2.0):
     resolution: {integrity: sha512-pRegcsuGYj4FCdZN6j5vqCALkNytdrKw3TZMekTzNXixRg4wkLsU5QEaBG5LC6l01Vppxlp7FE3aTHpIG5phLg==}
     peerDependencies:
@@ -5553,6 +5528,7 @@ packages:
 
   /@emotion/weak-memoize@0.2.5:
     resolution: {integrity: sha512-6U71C2Wp7r5XtFtQzYrW5iKFT67OixrSxjI4MptCHzdSVlgabczzqLe0ZSgnub/5Kp4hSbpDB1tMytZY9pwxxA==}
+    dev: true
 
   /@emotion/weak-memoize@0.3.1:
     resolution: {integrity: sha512-EsBwpc7hBUJWAsNPBmJy4hxWx12v6bshQsldrVmjxJoc3isbxhOrF2IcCpaXxfvq03NwkI7sbsOLXbYuqF/8Ww==}
@@ -10296,7 +10272,7 @@ packages:
       '@wordpress/keycodes': 3.32.0
       memize: 1.1.0
       react: 18.2.0
-      rememo: 4.0.1
+      rememo: 4.0.2
     dev: false
 
   /@wordpress/rich-text@6.9.0(react@18.2.0):
@@ -12674,7 +12650,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.21.5
       compute-scroll-into-view: 1.0.20
-      prop-types: 15.8.1
+      prop-types: 15.7.2
       react: 18.2.0
       react-is: 17.0.2
       tslib: 2.5.0
@@ -18377,7 +18353,6 @@ packages:
       loose-envify: 1.4.0
       object-assign: 4.1.1
       react-is: 16.13.1
-    dev: false
 
   /prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
@@ -18611,7 +18586,7 @@ packages:
     dependencies:
       autosize: 4.0.4
       line-height: 0.3.1
-      prop-types: 15.8.1
+      prop-types: 15.7.2
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
 
@@ -18846,7 +18821,7 @@ packages:
       hoist-non-react-statics: 3.3.2
       loose-envify: 1.4.0
       path-to-regexp: 1.8.0
-      prop-types: 15.8.1
+      prop-types: 15.7.2
       react: 18.2.0
       react-is: 16.13.1
       tiny-invariant: 1.3.1
