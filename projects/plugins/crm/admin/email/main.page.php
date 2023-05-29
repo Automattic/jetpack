@@ -59,7 +59,7 @@ function jpcrm_render_emailbox() {
 
 
 
-	<div class="ui inbox-wrap" style="margin-left: -20px;margin-right: 0px;">
+	<div class="inbox-wrap">
 
 		<div class="ui vertical menu inverted inbox-nav">
 
