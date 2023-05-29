@@ -1216,7 +1216,7 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
    // puts out edit field for an object (e.g. quotes)
    // centralisd/genericified 20/7/18 wh 2.91+
    function zeroBSCRM_html_editField($dataArr=array(), $fieldKey = false, $fieldVal = false, $postPrefix = 'zbs_'){
-
+		// phpcs:disable
    	/* debug
    	if ($fieldKey == 'house-type') {
    		echo '<tr><td colspan="2">'.$fieldKey.'<pre>'.print_r(array($fieldVal,$dataArr),1).'</pre></td></tr>';
@@ -1742,7 +1742,7 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 	        } // switch
 
     	} // if is legit params
-
+		// phpcs:enable
    }
 
 	// TODO: Refactor invoice edit fields.
