@@ -769,9 +769,8 @@ function maybe_close_comments( $default_comments_open, $post_id ) {
 		return $default_comments_open;
 	}
 
-	$is_post = false;
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
-	return Jetpack_Memberships::user_can_view_post( $is_post );
+	return Jetpack_Memberships::user_can_view_post();
 }
 
 /**
@@ -786,9 +785,8 @@ function maybe_gate_existing_comments( $comment ) {
 		return $comment;
 	}
 
-	$is_post = false;
 	require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
-	if ( Jetpack_Memberships::user_can_view_post( $is_post ) ) {
+	if ( Jetpack_Memberships::user_can_view_post() ) {
 		return $comment;
 	}
 	return '';
