@@ -10,6 +10,8 @@ export type SiteAIAssistantFeatureEndpointResponseProps = {
 	'requests-count': number;
 	'requests-limit': number;
 	'site-require-upgrade': boolean;
+	'error-message': string;
+	'error-code': string;
 };
 
 type AIFeatureProps = {
@@ -33,6 +35,8 @@ export const AI_Assistant_Initial_State = {
 		NUM_FREE_REQUESTS_LIMIT,
 	requireUpgrade:
 		window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'site-require-upgrade' ] || false,
+	errorMessage: window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'error-message' ] || '',
+	errorCode: window?.Jetpack_Editor_Initial_State?.[ 'ai-assistant' ]?.[ 'error-code' ],
 };
 
 export async function getAIFeatures(): Promise< AIFeatureProps > {
