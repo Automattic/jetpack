@@ -22,6 +22,8 @@
 		line-height: 24px;
 	}
 
+	&:active,
+	&:focus,
 	&:hover {
 		background: var(--jp-gray-80);
 		color: var(--jp-white);
