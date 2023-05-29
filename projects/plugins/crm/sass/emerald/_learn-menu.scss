@@ -55,6 +55,8 @@
 
 	.jpcrm-learn-menu-subdiv-75,
 	.jpcrm-learn-menu-subdiv-25 {
+		flex-wrap: wrap;
+		flex-direction: column;
 		width: 100%;
 	}
 }
