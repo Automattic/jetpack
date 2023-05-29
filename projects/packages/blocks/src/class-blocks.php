@@ -252,7 +252,7 @@ class Blocks {
 	 * Is the current theme an FSE/Site Editor theme.
 	 *
 	 * @since 1.4.0
-	 * @since $$next-version$$ Remove support for deprecated `gutenberg_is_fse_theme` function.
+	 * @since 1.4.22 Remove support for deprecated `gutenberg_is_fse_theme` function.
 	 *
 	 * @return bool True if the current theme is an FSE/Site Editor theme.
 	 */
