@@ -20,6 +20,8 @@ type AIFeatureProps = {
 	requestsCount: number;
 	requestsLimit: number;
 	requireUpgrade: boolean;
+	errorMessage: string;
+	errorCode: string;
 };
 
 const NUM_FREE_REQUESTS_LIMIT = 20;
@@ -51,6 +53,8 @@ export async function getAIFeatures(): Promise< AIFeatureProps > {
 			requestsCount: response[ 'requests-count' ],
 			requestsLimit: response[ 'requests-limit' ],
 			requireUpgrade: !! response[ 'site-require-upgrade' ],
+			errorMessage: response[ 'error-message' ],
+			errorCode: response[ 'error-code' ],
 		};
 	} catch ( error ) {
 		console.error( error ); // eslint-disable-line no-console
