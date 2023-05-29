@@ -48,7 +48,7 @@ class Admin {
 
 	public function __construct( Modules_Setup $modules ) {
 		$this->modules     = $modules;
-		$this->speed_score = new Speed_Score( $modules );
+		$this->speed_score = new Speed_Score( $modules, 'boost-plugin' );
 		Environment_Change_Detector::init();
 		Premium_Pricing::init();
 

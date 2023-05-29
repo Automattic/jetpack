@@ -38,12 +38,12 @@ class JPCRM_Transactions_Cest {
 
 	public function see_transactions_page( AcceptanceTester $I ) {
 		$I->gotoAdminPage( 'transactions' );
-		$I->see( 'Transaction List', '#zbs-admin-top-bar' );
+		$I->see( 'Transactions', '.jpcrm-learn-page-title' );
 	}
 
 	public function see_new_transaction_page( AcceptanceTester $I ) {
 		$I->gotoAdminPage( 'add-edit', '&action=edit&zbstype=transaction' );
-		$I->see( 'New Transaction', '#zbs-list-top-bar' );
+		$I->see( 'New Transaction', '.jpcrm-learn-page-title' );
 	}
 
 	public function create_new_transaction( AcceptanceTester $I ) {
@@ -78,7 +78,7 @@ class JPCRM_Transactions_Cest {
 			'invoice_id'         => $this->transaction_data['invoice_id'],
 		);
 
-		$I->see( 'Edit Transaction', '#zbs-list-top-bar' );
+		$I->see( 'Edit Transaction', '.jpcrm-learn-page-title' );
 
 		foreach ( $transaction_view_data as $field => $value ) {
 			$I->seeInField( $field, $value );

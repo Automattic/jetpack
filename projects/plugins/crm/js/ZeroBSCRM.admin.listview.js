@@ -61,31 +61,14 @@ function zeroBSCRMJS_initListView() {
 		} );
 
 	// save + close button at bottom of colmanager/screenopts
-	jQuery( '#zbs-columnmanager-bottomsave' )
-		.off( 'click' )
-		.on( 'click', function () {
-			// just clcking basically means opts saVED (AS SAVED ON CHANGE)
-
-			// close this
-			// (lazy sim click ;) )
-			jQuery( 'jpcrm-listview-header #open-table-options' ).trigger( 'click' );
-		} );
+	jQuery('#zbs-columnmanager-bottomsave').on('click', function() {
+		document.getElementById('zbs-list-col-editor').classList.add('hidden');
+	});
 
 	// open/shut column manager
-	jQuery( 'jpcrm-listview-header #open-table-options' )
-		.off( 'click' )
-		.on( 'click', function () {
-			//jQuery('#zbs-list-col-editor').toggle();
-			if ( jQuery( '#zbs-list-col-editor' ).is( ':visible' ) ) {
-				// hide
-				jQuery( this ).addClass( 'blue' ).removeClass( 'teal' );
-				jQuery( '#zbs-list-col-editor' ).hide();
-			} else {
-				// show
-				jQuery( this ).removeClass( 'blue' ).addClass( 'teal' );
-				jQuery( '#zbs-list-col-editor' ).show();
-			}
-		} );
+	jQuery('#jpcrm_table_options').on('click', function() {
+		document.getElementById('zbs-list-col-editor').classList.toggle('hidden');
+	});
 
 	// drag drop columns
 	jQuery(

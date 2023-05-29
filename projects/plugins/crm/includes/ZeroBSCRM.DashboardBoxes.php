@@ -45,6 +45,14 @@ function zeroBS_dashboard_crm_list_growth(){
 			<?php
 			if ( $contacts_added_in_last_year !== 0 ) {
 				?>
+				<div id="zbs-date-picker-background">
+					<div class='month-selector'>
+						<div id="reportrange" class="pull-right jpcrm-date-range" style="cursor: pointer; width:240px;">
+							<i class="fa fa-calendar"></i>&nbsp;
+							<span></span> <b class="caret"></b>
+						</div>
+					</div>
+				</div>
 				<div class="day-or-month">
 					<div class="button" data-range="daily"><?php esc_html_e( 'Day', 'zero-bs-crm' ); ?></div>
 					<div class="button" data-range="weekly"><?php esc_html_e( 'Week', 'zero-bs-crm' ); ?></div>

@@ -1692,7 +1692,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 		 *
 		 * @param string the filename of the HTML template used for response emails to the form owner.
 		 */
-		require apply_filters( 'jetpack_forms_respone_email_template', __DIR__ . '/templates/email-response.php' );
+		require apply_filters( 'jetpack_forms_response_email_template', __DIR__ . '/templates/email-response.php' );
 		$html_message = sprintf(
 			// The tabs are just here so that the raw code is correctly formatted for developers
 			// They're removed so that they don't affect the final message sent to users

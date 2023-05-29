@@ -33,12 +33,21 @@ class Speed_Score {
 	protected $modules;
 
 	/**
+	 * A string representing the client making the request (e.g. 'boost-plugin', 'jetpack-dashboard', etc).
+	 *
+	 * @var string
+	 */
+	protected $client;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param Modules_Setup $modules - An instance of Automatic\Jetpack_Boost\Modules\Modules_Setup.
+	 * @param string        $client  - A string representing the client making the request.
 	 */
-	public function __construct( $modules ) {
+	public function __construct( $modules, $client ) {
 		$this->modules = $modules;
+		$this->client  = $client;
 
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'jetpack_boost_deactivate', array( $this, 'clear_speed_score_request_cache' ) );
@@ -111,7 +120,7 @@ class Speed_Score {
 
 		// Create and store the Speed Score request.
 		$active_modules = array_keys( array_filter( $this->modules->get_status(), 'strlen' ) );
-		$score_request  = new Speed_Score_Request( $url, $active_modules );
+		$score_request  = new Speed_Score_Request( $url, $active_modules, null, 'pending', null, $this->client );
 		$score_request->store( 1800 ); // Keep the request for 30 minutes even if no one access the results.
 
 		// Send the request.
@@ -202,7 +211,7 @@ class Speed_Score {
 			&& $this->modules->have_enabled_modules()
 			&& $history->is_stale()
 		) {
-			$score_request = new Speed_Score_Request( $url_no_boost ); // Dispatch a new speed score request to measure score without boost.
+			$score_request = new Speed_Score_Request( $url_no_boost, array(), null, 'pending', null, $this->client ); // Dispatch a new speed score request to measure score without boost.
 			$score_request->store( 3600 ); // Keep the request for 1 hour even if no one access the results. The value is persisted for 1 hour in wp.com from initial request.
 
 			// Send the request.

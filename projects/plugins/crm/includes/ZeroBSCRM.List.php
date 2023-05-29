@@ -210,7 +210,7 @@ class zeroBSCRM_list{
             <!-- title + edit ico -->
 
             <!-- col editor -->
-            <div id="zbs-list-col-editor" class="ui segment secondary hidden">
+						<div id="zbs-list-col-editor" class="hidden">
 
                 <h4 class="ui horizontal divider header">
                   <i class="list layout icon"></i>
@@ -353,33 +353,6 @@ class zeroBSCRM_list{
                         </div>
 
                     </div>
-
-
-                    <?php /* don't show for now
-                    if ($usingOwnership){ ?>
-                    <div class="two column clearing centered row">
-
-                        <div class="column" style="max-width:364px;">
-                                <div class="ui form zbs-list-toolbar-radio">
-                                  <div class="inline fields">
-                                    <label><?php _e('Show (Assigned to)',"zero-bs-crm");?>:</label>
-                                    <div class="field">
-                                      <div class="ui radio checkbox">
-                                        <input type="radio" checked="checked" name="zbs-show-customers-via-ownership" value="all" id="zbs-list-toolbar-show-all" tabindex="0" class="hidden">
-                                        <label><?php _e('All',"zero-bs-crm");?></label>
-                                      </div>
-                                    </div>
-                                    <div class="field">
-                                      <div class="ui radio checkbox">
-                                        <input type="radio" name="zbs-show-customers-via-ownership" value="mine" id="zbs-list-toolbar-show-mine" tabindex="0" class="hidden">
-                                        <label><?php _e('Mine',"zero-bs-crm");?></label>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                        </div>                    
-
-                    </div> */ ?>
 
 
                 <div class="ui divider" style="margin-bottom:0;margin-top:0;"></div>
@@ -908,8 +881,6 @@ class zeroBSCRM_list{
 					echo '<span>' . esc_html( $current_tag ) . '</span>';
 					echo '</div>';
 				}
-
-				echo '<button class="table-options" id="open-table-options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '</button>';
 				?>
 			</header-item>
 		</jpcrm-listview-header>

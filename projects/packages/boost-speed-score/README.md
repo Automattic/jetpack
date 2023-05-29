@@ -20,7 +20,7 @@ Then use it:
 ```php
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 
-$this->speed_scores = new Speed_Score( $modules );
+new Speed_Score( $modules, 'jetpack-dashboard' );
 ```
 
 ## Using this package in your WordPress plugin

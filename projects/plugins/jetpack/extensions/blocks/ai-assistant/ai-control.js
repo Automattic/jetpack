@@ -265,13 +265,12 @@ const ToolbarControls = ( {
 				</BlockControls>
 			) }
 
+			<BlockControls group="block">
+				<PromptTemplatesControl onPromptSelected={ setUserPrompt } />
+			</BlockControls>
+
 			<BlockControls>
 				{ /* Text controls */ }
-
-				<BlockControls group="block">
-					<PromptTemplatesControl onPromptSelected={ setUserPrompt } />
-				</BlockControls>
-
 				<ToolbarGroup>
 					{ ! showRetry && contentIsLoaded && (
 						<>
@@ -299,11 +298,17 @@ const ToolbarControls = ( {
 					/>
 
 					{ ! showRetry && ! contentIsLoaded && !! wholeContent?.length && (
-						<I18nDropdownControl
-							value="en"
-							label={ __( 'Translate', 'jetpack' ) }
-							onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
-						/>
+						<BlockControls group="block">
+							<ToneDropdownControl
+								value="neutral"
+								onChange={ tone => getSuggestionFromOpenAI( 'changeTone', { tone } ) }
+							/>
+							<I18nDropdownControl
+								value="en"
+								label={ __( 'Translate', 'jetpack' ) }
+								onChange={ language => getSuggestionFromOpenAI( 'changeLanguage', { language } ) }
+							/>
+						</BlockControls>
 					) }
 
 					{ ! showRetry && ! contentIsLoaded && (
