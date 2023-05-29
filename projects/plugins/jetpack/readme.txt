@@ -283,162 +283,78 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 == Changelog ==
 ### 12.2-beta - 2023-05-29
-
-- Extends release `12.2-a.3` with a fix for the Payments block.
+#### Major Enhancements
+- Add an AI Assistant block, replacing the previous experimental AI Paragraph and AI Image blocks.
+- Donations, Paid Content and Payment Buttons blocks are now available with all Jetpack plans. A commission is charged for free plans.
 
 #### Enhancements
-- Added account_name field to the connections post field
-- Added Instagram preview to Social Previews
-- Add Jetpack Starter post-purchase flow to recommendations
-- Add Mapkit maps
-- Add misconfiguration warning functionality. Also added various design fixes.
-- Add newsletter access level to the post edit page
-- Add Post Publish Panel for Newsletters
-- Adds a 'Staging' badge to the wp-admin nav menu when the site is a WordPress.com staging site.
-- Adds a new AI Assistant block as a proposed replacement for the AI Paragraph and AI Image blocks.
-- AI-Assistant: introduce multiple blocks content edition
-- AI: Add label in prompt templates
-- AI: Add translate option
-- AI: Update prompt preset toolbar option
-- AI Assistance: add some predef options when generating content
-- AI Assistance: edit generated content before to accept it
-- AI Assistance: swtich default option depending on previous-block content
-- AI Assistant: Add /wpcom/v2/jetpack-ai/requests endpoint
-- AI Assistant: Add connection prompt when user is not connected to Jetpack
-- AI Assistant: Add icon to input and fix loader colors
-- AI Assistant: add Jetpack logo to multiple blocks edition panel
-- AI Assistant: add skip_cache param to get_gpt_completion()
-- AI Assistant: Add stop button
-- AI Assistant: Add treatment for error when prompt is not understood
-- AI Assistant: allow changing the `tone` when generating content
-- AI Assistant: Change loading icon with Spinner component
-- AI Assistant: check whether the site requires upgrade in the ai-assistant-feature endpoint
-- AI Assistant: convert HTML to markdown in the request content
-- AI Assistant: Disable request button when not user prompt provided
-- AI Assistant: disable `Summarize` when no content
-- AI Assistant: Enhance color of disabled button
-- AI Assistant: Enhance input for mobile
-- AI Assistant: fix nesting block controls component issue
-- AI Assistant: Fix notice and action button colors
-- AI Assistant: Fix toolbar action menu position on mobile
-- AI Assistant: Handle network errors to show a message and the retry option.
-- AI Assistant: handle stream_cache query endpoint param
-- AI Assistant: hide image generation part
-- AI Assistant: implement JWT token storing layer
-- AI Assistant: Import base Jetpack styles
-- AI Assistant: introduce first approach of default prompt templates
-- AI Assistant: introduce internationalization dropdown when generating content
-- AI Assistant: Keep the option to accept title after asking for changes
-- AI Assistant: move and improve prompt types
-- AI Assistant: Re-organize the prompt generation.
-- AI Assistant: reduce tones list
-- AI Assistant: rely on ai-assistant-feature to show upgrade banner
-- AI Assistant: Remove correct spelling option in interactive mode
-- AI Assistant: remove icons from toolbar buttons
-- AI Assistant: rename controls tooltips text
-- AI Assistant: request for basic formatted content
-- AI Assistant: restore prompt rules removed by mistake
-- AI Assistant: restore the multiple blocks edition feature
-- AI Assistant: Send the post ID on every text completion so it can be logger and tracked on the backend.
-- AI Assistant: set fade effect when just requested completion
-- AI Assistant: show the upgrade banner when the feature requires it
-- AI Assistant: show upgrade banner when ai query endpoint responses with quota exceeded error
-- AI Assistant: tweak assistant send button
-- AI Assistant: tweak the upgrade banner
-- AI Assistant: update input placeholder text depending on the type of request
-- AI Assistant: use AI icon in the block panels
-- Change "Premium Content" block to "Paid Content" block
-- Change agency discount value on WPA
-- Change CTA on backup recommendation card to inform about first year discount
-- Changed icon for AI Assistant block
-- Changed the way we skip a post from being publicized.
-- Connected block with backend and added remove_user_blogs option
-- Contact Form: improved spam filtering
-- Editor support for Mapkit in the Map block
-- Enable Newsletters on self-hosred environments
-- Forms: Introduce Multiple Choice and Single Choice style variations
-- Get Jetpack to use connection_id as the uninque identifier of the editor elements on the sidebar
-- Golden token styling in My Plan.
-- Handle panel changes when subscription module is inactive
-- Hide Mapbox specific options when using Mapkit
-- Hides the "My Plan" on My Plan page if user has a paid project and a free plan. This way, users won't have much or conflicting information on that page.
-- Jetpack AI: Add try again option
-- Jetpack AI: iterate over createPrompt() function
-- Jetpack AI: Remove check at AI Assistant block registration
-- Jetpack AI: Update UX from ai assistant block
-- Jetpack Forms: improved styling of response emails
-- Jetpack Social: Add a notice to let users know Instagram is available
-- Make Donation block free for all and charge a 10% commission for free plans
-- Make the AI Assistant image generation button generate the image right awways instead of being a toggle
-- Mastodon post preview
-- Modules list: Update to current styles. Visual refresh, if you will..
-- Reading Settings: added a toggle for showing post views in the WordPress.com Reader
-- Refactor and update Paid Newsletter user experience
+- Author Recommendations: Connected block with backend and added `remove_user_blogs` option.
+- Blocks: Rename "Premium Content" block to "Paid Content" block.
+- Contact Form: Improve spam filtering.
+- Dashboard: Add Jetpack Boost module.
+- Forms: Improve styling of response emails.
+- Forms: Introduce Multiple Choice and Single Choice style variations.
+- Forms: Update pattern modal default view to Grid.
+- Image CDN: Replace Photon implementation with the image-cdn package.
+- Maps: Add Mapkit maps.
+- Modules list: Update to current styles. Visual refresh, if you will.
+- My Plan: Display the correct plan for Jetpack Security and Backup 2-year plans.
+- My Plan: Hide the "My Plan" on My Plan page if user has a paid product and a free plan.
+- My Plan: Properly display plans with no expiration date.
+- Newsletters: Add misconfiguration warning functionality and improve design.
+- Newsletters: Add newsletter access level to the post edit page.
+- Newsletters: Add Post Publish Panel.
+- Newsletters: Enable on self-hosted environments.
+- Newsletters: Refactor and update Paid Newsletter user experience.
+- Publicize: Changed the way we skip a post from being publicized.
+- Reading Settings: Add a toggle for showing post views in the WordPress.com Reader.
+- Recommendations: Change CTA on backup recommendation card to inform about first year discount.
 - Related Posts: Add "Display author" toggle to block.
 - Related Posts: Add per-block header support.
-- Related Posts: Reorganized sidebar into layout and metadata.
-- Related Posts: Updated labels for consistency with core
-- Remove the Mapbox API key box, when the mapping provider isn't Mapbox
-- Remove upgrade nudge for premium block
-- Replace photon implementation with the image-cdn package
-- theme-tools: Removed jQuery dependency from responsive-videos script.
-- Update boost dash item to include scorebars
-- Update Forms pattern modal default view to Grid
-- Update My Plan component to display the correct plan for Jetpack Security and Backup 2-year plans
-- Updates tracks event name for AI Assistant block
-- Upgrade upgrade prompt for AI Assistant block
-- Whitelist the '_jetpack_newsletter_access' post meta
+- Related Posts: Reorganize sidebar into layout and metadata.
+- Related Posts: Update labels for consistency with core.
+- Social: Add a notice to let users know Instagram is available.
+- Social: Use `connection_id` as the uninque identifier of the editor elements on the sidebar.
+- Social Previews: Add Instagram preview.
+- Social Previews: Add Mastodon post preview.
+- Starter: Add post-purchase flow to recommendations.
+- Theme Tools: Remove jQuery dependency from responsive-videos script.
+- WordPress.com: Adds a 'Staging' badge to the wp-admin nav menu when the site is a WordPress.com staging site.
 
 #### Improved compatibility
-- ActivityPub: allow disabling Jetpack's Image CDN in requests made for the ActivityPub plugin.
-- Added Page-Optimize-compatible PHP endpoint for loading concatenated files without loading wp
-- Added support for flagging unsupported connections in the editor UI
-- Allow Premium content block to production and prevent potential issue on self-hosted installations
-- Bit.ly: avoid errors when using non-official Bit.ly  plugins alongside Jetpack.
-- FSE: use modern wp_is_block_theme instead of gutenberg_is_fse_theme
-- Internationalization: add necessary context to the word "Trash" in the Contact Form interface.
-- PHP8 compatibility updates, mostly focusing on Jetpack.
-- PHP8 compatibility updates.
-- PHP8 compatibility updates.
-- PHP Compatibility: fix dynamic property deprecation notices.
-- Security: ensure blocks are always fully displayed on your site, even when using a caching plugin.
-- Sharing / Likes / Related Posts: do not display them in JSON requests available when using the ActivityPub plugin.
-- WooCommerce: avoid Fatal errors when other plugins make changes to WooCommerce Products or Orders.
+- ActivityPub: Allow disabling Jetpack's Image CDN in requests made for the ActivityPub plugin.
+- Bit.ly: Avoid errors when using non-official Bit.ly plugins alongside Jetpack.
+- Filters: `jetpack_set_available_blocks` and `jetpack_set_available_plugins`, deprecated since Jetpack 7.0, have been removed.
+- Full-Site Editing: Use modern `wp_is_block_theme` instead of `gutenberg_is_fse_theme`.
+- General: PHP 8 compatibility updates.
+- Internationalization: Add necessary context to the word "Trash" in the Contact Form interface.
+- Security: Ensure blocks are always fully displayed on your site, even when using a caching plugin.
+- Sharing / Likes / Related Posts: Do not display them in JSON requests available when using the ActivityPub plugin.
+- Social: Flag unsupported connections in the editor UI.
+- WooCommerce: Avoid fatal errors when other plugins make changes to WooCommerce Products or Orders.
 
 #### Bug fixes
-- Add a WP_User check in get_author method.
-- Add loading indicator when fetching rewind state on Jetpack settings page
-- Add username to publicize connection test results.
-- AI Assistant: fix bug when competion and multiple blocks selected
-- AI Assistant: Fix prompt content based on action context
-- AI Assistant: Ignore first chunk on unclear prompt check
-- AI Assistant: store last prompt to be able to retry the request
-- AI Assistant: Use site-independent completion endpoint to prevent request failures for private WPCOM sites.
-- Attempt to fix Forms hash generation. This has been ported from package on #30764
-- Change the "Add payments" to "Set up a paid plan"
-- Correctly enable AI Assistant block on WordPress.com.
-- Dashboard: use the correct file path for all images in the "My Plan" screen.
-- Donations Block: ensure the tab colors are correct in all themes.
-- Feature Hints: avoid PHP warnings when used in combination with other plugins.
-- Fix compatibility issue in simple sites due to image CDN package
-- Fix donations block crash on currency change.
-- Fixed the site preview in SEO settings.
-- Fixes issue with missing "Super Admin" in edit user form
-- Fixes the Plugins_Modify endpoint to correct declare $args
-- Fix IP allow list updates on Atomic sites.
-- Fix race condition bug in the Plugin update endpoint.
-- Fix zoom being reset when changing map marker color
-- Load wpcom block editor styles
-- Make the Donation block "Connect" link the primary color
-- Minor styling fixes for the At-a-Glance page on WooExpress.
-- Previous implementation would remove buklk-edition checkbox from the posts list. This is now fixed.
+- API: Add a `WP_User` check in `get_author` method.
+- API: Fix race condition bug in the Plugin update endpoint.
+- At-a-Glance: Fix styling for Stats banner.
+- Carousel: Stop auto-scrolling to top when advancing slides.
+- Dashboard: Use the correct file path for all images in the "My Plan" screen.
+- Donations Block: Ensure the tab colors are correct in all themes.
+- Donations Block: Fix crash on currency change.
+- Donations Block: Make the "Connect" link the primary color
+- Forms: Fix Forms hash generation.
+- Maps: Fix zoom being reset when changing map marker color.
+- Newsletters: Return early when possible to prevent spamming the database.
 - Related Posts: Fix context for use in block editor.
-- Remove the map style control
-- Return early when possible to prevent spamming DB
-- SEO Tools: suggest a specific SEO description maximum length.
-- Show labels on Mapkit markers
-- The link to setup a paid plan (in the newsletter post settings) was getting set incorrectly.
-- VideoPress: Add tracks to attributes definition
+- SEO Tools: Suggest a specific SEO description maximum length.
+- Settings: Add loading indicator when fetching rewind state.
+- Settings: Fixed the site preview in SEO settings.
+- Social: Add username to publicize connection test results.
+- Subscriptions: Change the "Add payments" text to "Set up a paid plan".
+- Subscriptions: Do not remove bulk-editing checkboxes from the posts list.
+- Users: Display "Super Admin" badge in edit user form.
+- VideoPress: Add tracks to attributes definition.
+- WAF: Fix IP allow list updates.
 
 --------
 
