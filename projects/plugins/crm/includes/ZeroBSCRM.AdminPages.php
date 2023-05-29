@@ -310,7 +310,7 @@ function zeroBSCRM_pages_admin_team() {
 	</form>
 
 
-		<a style="margin-left:10px;" class="ui button right" href="<?php echo esc_url( admin_url( 'user-new.php?zbsslug=zbs-add-user' ) ); ?>">
+		<a style="margin-left:10px;" class="ui button black right" href="<?php echo esc_url( admin_url( 'user-new.php?zbsslug=zbs-add-user' ) ); ?>">
 		<i class="add icon"></i> 
 			<?php esc_html_e( 'Add New Team Member', 'zero-bs-crm' ); ?>
 		</a>
@@ -345,7 +345,7 @@ function zeroBSCRM_pages_admin_team() {
 
 			echo '<td>' . esc_html( zeroBSCRM_wpb_lastlogin( $ID ) . ' ' . __( 'ago', 'zero-bs-crm' ) ) . '</td>';
 
-			echo "<td><a href='" . esc_url( $edit_url ) . "'' data-uid='" . esc_attr( $ID ) . "' class='zbs-perm-edit ui button mini blue'>";
+			echo "<td><a href='" . esc_url( $edit_url ) . "'' data-uid='" . esc_attr( $ID ) . "' class='zbs-perm-edit ui button mini black'>"; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			esc_html_e( 'Manage permissions', 'zero-bs-crm' );
 
