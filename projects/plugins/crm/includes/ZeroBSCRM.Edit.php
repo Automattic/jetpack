@@ -348,7 +348,6 @@ class zeroBSCRM_Edit{
 
                         ?>
 
-                        <div class="ui divider"></div>
                         <?php ##WLREMOVE ?>
                         <?php echo $this->extraBoxes; ?>
                         <?php ##/WLREMOVE ?>

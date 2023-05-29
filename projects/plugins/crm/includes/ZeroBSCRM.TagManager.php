@@ -228,7 +228,6 @@ class zeroBSCRM_TagManager{
 
                         ?>
 
-                        <div class="ui divider"></div>
                         <?php ##WLREMOVE ?>
                         <?php echo $this->extraBoxes; ?>
                         <?php ##/WLREMOVE ?>
