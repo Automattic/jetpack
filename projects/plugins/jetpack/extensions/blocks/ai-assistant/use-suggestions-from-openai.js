@@ -242,7 +242,7 @@ const useSuggestionsFromOpenAI = ( {
 			setError( {
 				code: 'error_network',
 				message: __( 'It was not possible to process your request. Mind trying again?', 'jetpack' ),
-				status: 'warning',
+				status: 'info',
 			} );
 		} );
 		source?.current.addEventListener( 'error_quota_exceeded', () => {
