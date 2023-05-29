@@ -196,7 +196,7 @@
 				if ( $quoteID > 0 ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 					?>
 				
-					<div class="jpcrm-form-group">
+					<div class="jpcrm-form-group jpcrm-form-group-span-2">
 						<label class="jpcrm-form-label" for="quote_status"><?php esc_html_e( 'Status', 'zero-bs-crm' ); ?>:</label>
 						<select class="form-control" id="quote_status" name="quote_status">
 							<?php
@@ -211,7 +211,6 @@
 							?>
 						</select>
 					</div>
-					<div class="jpcrm-form-group"></div>
 						<?php
 				} // end if
 

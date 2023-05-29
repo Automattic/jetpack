@@ -180,7 +180,7 @@
 					<div>
 						<div class="jpcrm-form-grid" id="wptbpMetaBoxMainItem">
 					
-						<div class="jpcrm-form-group">
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
 							<label class="jpcrm-form-label" for="ref"><?php echo esc_html( __( 'Transaction unique ID', 'zero-bs-crm' ) ); ?>:</label>
 							<input type="text" id="ref" name="zbst_ref" class="form-control" value="<?php echo esc_attr( isset( $transaction['ref'] ) ? $transaction['ref'] : zeroBSCRM_uniqueID() ); ?>" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( wp_rand( 0, 100 ) ); ?>" /></td>
 						</div>
@@ -222,7 +222,7 @@
 				}
 
 				?>
-					<div class="jpcrm-form-group">
+					<div class="jpcrm-form-group jpcrm-form-group-span-2">
 						<label class="jpcrm-form-label" for="zbst_status"><?php echo esc_html( __( 'Transaction Status:', 'zero-bs-crm' ) ); ?></label>
 						<select class="form-control" id="zbst_status" name="zbst_status">
 							<?php
@@ -240,14 +240,14 @@
 						</select>
 					</div>
 
-					<div class="jpcrm-form-group">
+					<div class="jpcrm-form-group jpcrm-form-group-span-2">
 						<label class="jpcrm-form-label" for="title"><?php echo esc_html( __( 'Transaction Name:', 'zero-bs-crm' ) ); ?>
 							<span class="zbs-infobox"><?php echo esc_html( __( 'If possible, keep these the same if you routinely use common products here (they are used in the transaction index)', 'zero-bs-crm' ) ); ?></span>
 						</label>
 						<td><input id="title" type="text" name="zbst_title" value="<?php if(isset($transaction['title'])){ echo esc_attr( $transaction['title'] ); }?>" class="form-control widetext" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); // phpcs:ignore ?>" /></td>
 					</div>
 
-					<div class="jpcrm-form-group">
+					<div class="jpcrm-form-group jpcrm-form-group-span-2">
 						<label class="jpcrm-form-label" for="total"><?php echo esc_html( __( 'Transaction Value', 'zero-bs-crm' ) ); ?><?php echo ' (' . esc_html( zeroBSCRM_getCurrencyChr() ) . "):"; // phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired ?></label></th>
 						<input class="form-control" type="text" id="total" name="zbst_total" value="<?php if ( isset( $transaction['total'] ) ) { echo esc_attr( $transaction['total'] ); } else echo '0.00'; ?>" class="form-control numbersOnly" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( wp_rand( 0, 100 ) ); // phpcs:ignore Squiz.PHP.EmbeddedPhp.MultipleStatements, Generic.Formatting.DisallowMultipleStatements.SameLine, Generic.ControlStructures.InlineControlStructure.NotAllowed, Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace ?>" />
 					</div>
