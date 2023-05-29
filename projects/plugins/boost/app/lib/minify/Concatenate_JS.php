@@ -93,14 +93,8 @@ class Concatenate_JS extends WP_Scripts {
 			}
 
 			$obj           = $this->registered[ $handle ];
-			$js_url        = $obj->src;
+			$js_url        = jetpack_boost_enqueued_to_absolute_url( $obj->src );
 			$js_url_parsed = wp_parse_url( $js_url );
-
-			// If no hostname is specified and path starts with /, it is relative to homeurl.
-			if ( empty( $js_url_parsed['host'] ) && substr( $js_url, 0, 1 ) === '/' ) {
-				$js_url        = home_url( $obj->src );
-				$js_url_parsed = wp_parse_url( $js_url );
-			}
 
 			// Don't concat by default
 			$do_concat = false;
