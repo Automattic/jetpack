@@ -2167,8 +2167,7 @@ function zeroBSCRM_html_extensions() {
 
 			// We want to prioritize the top 5 Woo modules in the list if 'woosync' is active, but otherwise alphabetize everything.
 			foreach ( $extensions->paid as $extension ) {
-
-				if ( $has_woosync && in_array( $extension->slug, $top_woo_extension_slugs, true ) ) {
+				if ( $has_woosync && ! empty( $extension->slug ) && in_array( $extension->slug, $top_woo_extension_slugs, true ) ) {
 					$top_woo_extensions[] = $extension;
 					continue;
 				}
