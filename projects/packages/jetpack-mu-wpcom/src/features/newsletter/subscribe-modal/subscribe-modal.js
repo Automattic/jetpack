@@ -2,20 +2,21 @@ window.onload = function () {
 	const modal = document.getElementById( 'wpcom-subscribe-modal' );
 	const close = document.getElementById( 'close' );
 	let hasLoaded = false;
+	let isScrolling;
 
 	window.onscroll = function () {
-		if ( ! hasLoaded ) {
-			modal.style.display = 'block';
-			hasLoaded = true;
-		}
-	};
+		window.clearTimeout( isScrolling );
 
-	open.onclick = function () {
-		modal.style.display = 'block';
+		isScrolling = setTimeout( function () {
+			if ( ! hasLoaded ) {
+				modal.classList.toggle( 'open' );
+				hasLoaded = true;
+			}
+		}, 300 );
 	};
 
 	close.onclick = function () {
-		modal.style.display = 'none';
+		modal.classList.toggle( 'open' );
 	};
 
 	window.onclick = function ( event ) {

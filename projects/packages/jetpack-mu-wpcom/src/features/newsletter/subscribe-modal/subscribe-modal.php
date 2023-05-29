@@ -53,18 +53,77 @@ function wpcom_add_subscribe_modal_to_frontend() {
 			)
 		);
 
-		$subscribe_template = array_filter(
-			$posts,
-			function ( $post ) {
-				return $post->post_name === get_subscribe_template_slug();
-			}
-		)[0];
+		$subscribe_template = reset(
+			array_filter(
+				$posts,
+				function ( $post ) {
+					return $post->post_name === get_subscribe_template_slug();
+				}
+			)
+		);
+
+		$blocks = parse_blocks( $subscribe_template->post_content );
+
+		/*
+		 * Jetpack requires escaping html for the render_block() call below.
+		 * I'm using wp_kses() and specifying the allowed tags.
+		 * But this is fragile: users can edit the Subscribe Modal
+		 * template and add tags that are not allowed here.
+		 */
+		$allowed_html = array(
+			'div'    => array(
+				'class' => array(),
+				'style' => array(),
+			),
+			'h2'     => array(
+				'class' => array(),
+				'style' => array(),
+			),
+			'p'      => array(
+				'type'  => array(),
+				'class' => array(),
+				'style' => array(),
+				'id'    => array(),
+			),
+			'form'   => array(
+				'action'                 => array(),
+				'method'                 => array(),
+				'accept-charset'         => array(),
+				'data-blog'              => array(),
+				'data-post_access_level' => array(),
+				'id'                     => array(),
+			),
+			'label'  => array(
+				'id'    => array(),
+				'for'   => array(),
+				'class' => array(),
+			),
+			'input'  => array(
+				'id'          => array(),
+				'type'        => array(),
+				'name'        => array(),
+				'value'       => array(),
+				'class'       => array(),
+				'style'       => array(),
+				'placeholder' => array(),
+				'required'    => array(),
+			),
+			'button' => array(
+				'type'  => array(),
+				'class' => array(),
+				'style' => array(),
+			),
+		);
 
 		?>
-			<div id="wpcom-subscribe-modal" class="modal">
+			<div id="wpcom-subscribe-modal">
 				<div class="modal-content">
-					<?php echo wp_kses_post( $subscribe_template->post_content ); ?>
-					<span id="close">Close</span>
+					<?php
+					foreach ( $blocks as $block ) {
+						echo wp_kses( render_block( $block ), $allowed_html );
+					}
+					?>
+					<div id="close"><a href="#">Close</a></div>
 				</div>
 			</div>
 		<?php
@@ -126,8 +185,8 @@ function get_subscribe_template_title() {
  * @return string
  */
 function get_subscribe_template_content() {
-	return '<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|80","right":"var:preset|spacing|80","bottom":"var:preset|spacing|80","left":"var:preset|spacing|80"}}},"layout":{"type":"constrained"}} -->
-	<div class="wp-block-group" style="padding-top:var(--wp--preset--spacing--80);padding-right:var(--wp--preset--spacing--80);padding-bottom:var(--wp--preset--spacing--80);padding-left:var(--wp--preset--spacing--80)"><!-- wp:heading {"textAlign":"center"} -->
+	return '<!-- wp:group {"style":{"spacing":{"padding":{"top":"var:preset|spacing|40","right":"var:preset|spacing|40","bottom":"var:preset|spacing|40","left":"var:preset|spacing|40"}}},"layout":{"type":"constrained"}} -->
+	<div class="wp-block-group" style="padding-top:var(--wp--preset--spacing--40);padding-right:var(--wp--preset--spacing--40);padding-bottom:var(--wp--preset--spacing--40);padding-left:var(--wp--preset--spacing--40)"><!-- wp:heading {"textAlign":"center"} -->
 	<h2 class="wp-block-heading has-text-align-center">This post is for subscribers</h2>
 	<!-- /wp:heading -->
 	
@@ -135,6 +194,6 @@ function get_subscribe_template_content() {
 	<p class="has-text-align-center" style="margin-bottom:var(--wp--preset--spacing--60)">Subscribe to to keep reading and get access to the full archive.</p>
 	<!-- /wp:paragraph -->
 	
-	<!-- wp:jetpack/subscriptions /--></div>
+	<!-- wp:jetpack/subscriptions {"buttonBackgroundColor":"primary","textColor":"secondary","borderRadius":50,"borderColor":"primary","className":"is-style-compact"} /--></div>
 	<!-- /wp:group -->';
 }
