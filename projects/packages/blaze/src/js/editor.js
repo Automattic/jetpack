@@ -1,5 +1,8 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import {
+	getSiteFragment,
+	useAnalytics,
+	getJetpackData,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Button, PanelRow } from '@wordpress/components';
 import { usePrevious } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
@@ -7,9 +10,9 @@ import { PluginPostPublishPanel } from '@wordpress/edit-post';
 import { store as editorStore } from '@wordpress/editor';
 import { useCallback, useEffect } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { external, Icon } from '@wordpress/icons';
 import { getPlugin, registerPlugin } from '@wordpress/plugins';
 import './editor.scss';
+import { get } from 'lodash';
 import BlazeIcon from './icon';
 
 const BlazePostPublishPanel = () => {
@@ -40,10 +43,8 @@ const BlazePostPublishPanel = () => {
 		initialOpen: true,
 	};
 
-	const blazeUrl = getRedirectUrl( 'jetpack-blaze', {
-		site: getSiteFragment(),
-		query: `blazepress-widget=post-${ postId }`,
-	} );
+	const adminUrl = get( getJetpackData(), 'adminUrl', false );
+	const blazeUrl = `${ adminUrl }tools.php?page=advertising#!/advertising/${ getSiteFragment() }/posts/promote/post-${ postId }`;
 
 	// Decide when the panel should appear, and be tracked.
 	const shouldDisplayPanel = () => {
@@ -103,8 +104,7 @@ const BlazePostPublishPanel = () => {
 						/* translators: %s is the post type (e.g. Post, Page, Product). */
 						__( 'Blaze this %s', 'jetpack-blaze' ),
 						postType
-					) }{ ' ' }
-					<Icon icon={ external } className="blaze-panel-outbound-link__external_icon" />
+					) }
 				</Button>
 			</div>
 		</PluginPostPublishPanel>

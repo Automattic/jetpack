@@ -35,6 +35,17 @@ class Dashboard_REST_Controller {
 	 * @static
 	 */
 	public function register_rest_routes() {
+		// WPCOM API routes
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/blaze/posts', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_blaze_posts' ),
+				'permission_callback' => array( $this, 'can_user_view_blaze_posts_callback' ),
+			)
+		);
+
 		// WordAds DSP API routes
 		register_rest_route(
 			static::$namespace,
@@ -54,6 +65,33 @@ class Dashboard_REST_Controller {
 				'callback'            => array( $this, 'edit_wordads_dsp_generic' ),
 				'permission_callback' => array( $this, 'can_user_view_wordads_dsp_callback' ),
 			)
+		);
+	}
+
+	/**
+	 * Only administrators can access the API.
+	 *
+	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
+	 */
+	public function can_user_view_blaze_posts_callback() {
+		if ( current_user_can( 'manage_options' ) ) {
+			return true;
+		}
+
+		return $this->get_forbidden_error();
+	}
+
+	/**
+	 * Redirect GET requests to WordAds DSP for the site.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array
+	 */
+	public function get_blaze_posts( $req ) {
+		return $this->request_as_user(
+			sprintf( '/sites/%d/blaze/posts', Jetpack_Options::get_option( 'id' ) ),
+			'v2',
+			array( 'method' => 'GET' )
 		);
 	}
 
