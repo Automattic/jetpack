@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { SVG, Path } from '@wordpress/components';
-import React from 'react';
 
 const origamiPlane = (
 	<SVG
