@@ -99,10 +99,11 @@ function zeroBSCRM_UI2_messageHTML($msgClass='',$msgHeader='',$msg='',$iconClass
 
 }
 
-function zeroBSCRM_UI2_loadingSegmentHTML($height='300px',$extraClasses=''){
-
-	return '<div class="ui loading segment '.$extraClasses.'" style="min-height:'.$height.'"><p>&nbsp;</p></div>';
-
+/**
+ * Return HTML for a spinner centered in a container
+ */
+function jpcrm_loading_container() {
+	return '<div class="empty-container-with-spinner"><div class="ui active centered inline loader"></div></div>';
 }
 
 function zeroBSCRM_UI2_squareFeedbackUpsell($title='',$desc='',$linkStr='',$linkTarget='',$extraClasses=''){
