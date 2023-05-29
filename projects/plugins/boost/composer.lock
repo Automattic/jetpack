@@ -242,7 +242,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/boost-speed-score",
-                "reference": "9a2190a5dc074cc04b2204a4874777498f4996ab"
+                "reference": "a8fb6391ea66536025236a2d84a3eb775c5367b7"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -264,7 +264,7 @@
                 },
                 "textdomain": "jetpack-boost-speed-score",
                 "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-boost-speed-score.php"
+                    "::PACKAGE_VERSION": "src/class-speed-score.php"
                 }
             },
             "autoload": {
