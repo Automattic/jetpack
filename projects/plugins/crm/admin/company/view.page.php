@@ -139,46 +139,15 @@ function jpcrm_render_company_view_page( $id = -1 ) {
 					// 1 column, no avatar card
 				?>
 					<div class="sixteen wide column zbs-view-card">
-					<?php
-					/*
-					} else {
-
-					// normal, 2 column 'contact card'
-					?><div class="three wide column" style="text-align:center">
-						<?php echo $avatar; ?>
-						<a class="ui button blue mini" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link('edit',$id,'zerobs_customer',false);?>">
-							<?php _e("Edit Contact", "zero-bs-crm"); ?>
-						</a>
-
-					</div>
-					<div class="thirteen wide column zbs-view-card"><?php
-
-
-					}*/
-					?>
-
 						<h3>
 						<?php echo esc_html( zeroBS_companyName( '', $company, false, false ) ); ?>
-						<?php
-						// } When no avatar, show edit button top right
-							// no avatars yet for co - if ($avatarMode == 3 || empty($avatar)){
-						?>
-							<a class="ui button black mini right floated" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link( 'edit', $id, 'zerobs_company', false ); ?>">
-									<?php esc_html_e( 'Edit ' . jpcrm_label_company(), 'zero-bs-crm' ); ?>
-								</a>
-								<?php
-								// no avatars yet for co - }
-								?>
 						</h3>
-						<?php
-						/*
-						<p class="zbs-email">
-						<?php zeroBSCRM_html_sendemailto($id,$contactEmail,false); ?>
-						</p> */
-						?>
 						<p class="zbs-sentence">
 							<?php echo zeroBSCRM_html_companyIntroSentence( $company ); ?>
 						</p>
+						<a class="ui button black" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link( 'edit', $id, 'zerobs_company', false ); ?>">
+								<?php esc_html_e( 'Edit ' . jpcrm_label_company(), 'zero-bs-crm' ); // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText ?>
+						</a>
 
 
 						<?php
