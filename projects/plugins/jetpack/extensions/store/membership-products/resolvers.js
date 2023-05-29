@@ -57,7 +57,7 @@ const createDefaultProduct = async (
 	productType,
 	setSelectedProductId,
 	dispatch,
-	silentProductCreation
+	shouldDisplayProductCreationNotice
 ) => {
 	await dispatch(
 		saveProduct(
@@ -69,7 +69,7 @@ const createDefaultProduct = async (
 			},
 			productType,
 			setSelectedProductId,
-			silentProductCreation
+			shouldDisplayProductCreationNotice
 		)
 	);
 };
@@ -93,14 +93,14 @@ export const getNewsletterProducts = (
 	setSelectedProductId = () => {}
 ) =>
 	// Returns the products, but silences the snack bar if a default product is created
-	getProducts( productType, selectedProductId, setSelectedProductId, true );
+	getProducts( productType, selectedProductId, setSelectedProductId, false );
 
 export const getProducts =
 	(
 		productType = PRODUCT_TYPE_PAYMENT_PLAN,
 		selectedProductId = 0,
 		setSelectedProductId = () => {},
-		silentProductCreation = false
+		shouldDisplayProductCreationNotice = true
 	) =>
 	async ( { dispatch, registry, select } ) => {
 		await executionLock.blockExecution( EXECUTION_KEY );
@@ -120,7 +120,7 @@ export const getProducts =
 					productType,
 					setSelectedProductId,
 					dispatch,
-					silentProductCreation
+					shouldDisplayProductCreationNotice
 				);
 			}
 

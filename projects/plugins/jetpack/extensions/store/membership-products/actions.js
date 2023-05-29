@@ -33,7 +33,7 @@ export const saveProduct =
 		productType = PRODUCT_TYPE_PAYMENT_PLAN,
 		setSelectedProductId = () => {},
 		callback = () => {},
-		silentProductCreation = false
+		shouldDisplayProductCreationNotice = true
 	) =>
 	async ( { dispatch, registry } ) => {
 		const { title, price, currency } = product;
@@ -83,7 +83,7 @@ export const saveProduct =
 
 			dispatch( setProducts( products.concat( [ newProduct ] ) ) );
 			setSelectedProductId( newProduct.id );
-			if ( ! silentProductCreation ) {
+			if ( shouldDisplayProductCreationNotice ) {
 				onSuccess(
 					getMessageByProductType( 'successfully created product', productType ),
 					registry
