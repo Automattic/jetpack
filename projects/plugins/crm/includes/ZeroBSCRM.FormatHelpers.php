@@ -1743,7 +1743,7 @@ function zeroBSCRM_outputEmailHistory( $user_id = -1 ) { // phpcs:ignore WordPre
 
     	} // if is legit params
 		// phpcs:enable
-   }
+}
 
 	// TODO: Refactor invoice edit fields.
 	// phpcs:disable
