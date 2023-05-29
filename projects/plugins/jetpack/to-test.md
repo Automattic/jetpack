@@ -1,91 +1,41 @@
-## Jetpack 12.1
+## Jetpack 12.2
 
 ### Before you start:
 
 - **At any point during your testing, remember to [check your browser's JavaScript console](https://wordpress.org/support/article/using-your-browser-to-diagnose-javascript-errors/#step-3-diagnosis) and see if there are any errors reported by Jetpack there.**
 - Use the "Debug Bar" or "Query Monitor" WordPress plugins to help make PHP notices and warnings more noticeable and report anything of note you see.
 
-### Visual refresh
-Jetpack 12.1 brings a visual refresh to multiple pages of the admin area. Please visit them in your testing and make sure nothing looks off.
+### AI Assistant:
+Jetpack 12.2 brings a new AI Assistant block. Given Automattic's current focus on AI, this should be tested. See p1HpG7-mHr-p2 for details.
 
-#### Jetpack Debugger:
-- Connect Jetpack, scroll down to the bottom menu and click "Debug" (/wp-admin/admin.php?page=jetpack-debugger, not to be confused with the "Jetpack Debug" plugin).
-- Confirm the Debug page looks good in different resolutions and different browsers.
+### My Plan:
+- Check all images are loading.
+- "My Plan" card should no longer show on sites with a free plan but paid add-on features.
 
-#### About page:
-- Go to About us and see if it looks good in different resolutions and different browsers.
+### Various block changes:
+- Donations, Paid Content and Payment Buttons blocks are now available with free plans. Check that it works. Information at PCYsg-8Ns-p2#testing-payments may be helpful.
+  - Subscriptions block also has a payment option, see pbNhbs-6Ju-p2#comment-15715
+- Related Posts block can now have a header configured, and there's an author toggle.
 
-#### Section Headers:
-- Review the Jetpack dashboard and settings screens, validating the new styles are present.
+### Jetpack Forms:
+Jetpack Forms continues to improve with changes in this release. In particular,
 
-#### My Plan:
-- Go to My Plan
-- Try adding/removing products and plans.
-- Try deactivating Akismet, Backup, Social
+- Make sure things continue to work as expected.
+- Check that the emails sent on a form response look good.
 
-#### Jetpack Settings:
-- Go to Jetpack Settings
-- Switch between different tabs
-- Click toggles
-- Expand/collapse sections
-- Make sure nothing looks broken.
+### Image CDN:
+Enable the feature (Jetpack > Settings > Performance > Speed up image load times) and check that image-based features (e.g. Tiled Gallery, Flickr widget, gallery widget, image widget) still work.
 
-#### At A Glance Dashboard:
-- Visit the At A Glance page
-- Make sure nothing looks broken.
-
-### The Markdown block
-Jetpack ships with two flavors of Markdown. 12.1 makes no changes to the classic Markdown feature available in the classic editor. This classic Markdown feature already supports footnotes. In this release, we're adding support for footnotes to the Markdown Block:
-
-- Start with a Jetpack site that's connected to WordPress.com or in Offline mode.
-- Go to Posts > Add New
-- Add a Markdown block
-- Add some content to that block. Possibly something quite long.
-- In there, add 2 types of footnotes as highlighted in the docs here.
-  - If you'd like, you can use the test content provided by Jeremy below.
-- Ensure those work well when saving your draft and viewing your changes on the frontend.
-
-````{verbatim}
-Once upon a time, there was a man named Jack who loved nothing more than cooking up a delicious meal for his loved ones. One day, he decided to prepare [his famous burgers and fries](https://shakeshack.com/) for his family. He spent hours in the kitchen, carefully selecting the freshest ingredients and crafting each burger with love and care.[^1]
-
-As the scent of sizzling beef filled the air, Jack's family gathered around the kitchen, eagerly awaiting the meal. Finally, the burgers were ready and Jack proudly presented them to his loved ones. They took a bite and immediately their faces lit up with delight. "**This is amazing!**" they exclaimed.
-
-But as they continued to eat, something strange began to happen. Jack's family members started to sprout feathers and wings.[^longnote] Before he could react, they had transformed into a flock of birds and flew out of the open window. Jack stood there, stunned, watching as his loved ones disappeared into the distance.
-
-For days, Jack searched for his family, but they were nowhere to be found. Finally, he gave up and resigned himself to the fact that his cooking had somehow turned his family into birds. But despite his grief, he couldn't help but feel a sense of pride. After all, his cooking had been so delicious that it had caused his loved ones to take flight - *quite literally*.
-
-From that day forward, Jack became known as the "bird chef," renowned throughout the land for his incredible burgers and fries that had the power to transform even the most ordinary person into a magnificent bird. And although he never did find his lost family, he took solace in knowing that they were out there somewhere, soaring through the skies, thanks to the power of his cooking.
-
-[^1]: Check [the recipe here](https://www.myrecipes.com/recipe/classic-burger).
-
-[^longnote]: This gets weird from here.
-
-    I've been using ChatGPT at times to help me come up with random content, and this is what happens. I think this quote from ["Cheating is All You Need"](https://about.sourcegraph.com/blog/cheating-is-all-you-need) is appropriate here:
-
-    > A raw LLM is like a Harvard CS grad who knows a lot about coding and took a magic mushroom about 4 hours ago, so it’s mostly worn off, but not totally.
-````
-
-### Jetpack Forms
-Jetpack Forms continues to improve with changes in this release. One change is an update for Forms child blocks to allow any transformation between the blocks:
-
-- Create a post, add a Form block, and select a template
-- Select a child block and use the "Transform To" option to transform the current block into other blocks
-- You should be able to transform a child block into any other Form child block
-
-Additionally, when themes do not reset the browser styles, the Jetpack button block will display borders on the frontend. To avoid that, we add our own reset, except when the button uses the "outline" styles, where we do want to show a border:
-
-- Start with a site using the Twenty Twenty Two theme.
-- In a new post, add two blocks that use the Jetpack button block: the Form block as well as the Revue block are good examples.
-- In one of those blocks, use the default "fill" block style, and in the other use the "outline" style.
-- On the frontend, the button should not have a border when using the "fill" block style.
-
-A fix has been added to avoid the following issue: the "Single Choice" and "Multiple Choice" blocks in Jetpack Form blocks, when added to a form inside a Cover block, previously did not obey the background setting set in the editor and would display with a white background. This release fixes the problem, to test:
-
-- Add a cover block to a page, and a form inside it.
-- Add a "Single Choice" or "Multiple Choice" block to the form.
-- Make sure that form blocks always respect the background setting set in the block's settings, regardless of where they are placed.
-- Save changes.
-- Observe no issues on front-end as well.
+### Sharing to Mastodon:
+* Make sure you have a Mastodon account.
+* Make sure your test site has a Social Advanced or Complete subscription, and activate Social (from the My Jetpack section, for instance).
+* Create a new post.
+* Click on the Jetpack menu in the top bar.
+* In the _Share this post_ section, click _Connect an account_.
+* You should be redirected to wordpress.com.
+* You should now have the option to connect your Mastodon account. Connect it.
+* Go back to edit your post.
+* You should now see Mastodon in the list of available services. Reload the page if you don't.
 
 ### And More!
 
