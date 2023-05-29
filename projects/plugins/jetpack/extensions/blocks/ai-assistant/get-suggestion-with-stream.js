@@ -173,8 +173,8 @@ export class SuggestionsEventSource extends EventTarget {
 				}
 
 				/*
-				 * error code 429
-				 * you exceeded your current quota please check your plan and billing details
+				 * error code 503
+				 * service unavailable
 				 */
 				if ( response.status === 503 ) {
 					self.dispatchEvent( new CustomEvent( 'error_service_unavailable' ) );
