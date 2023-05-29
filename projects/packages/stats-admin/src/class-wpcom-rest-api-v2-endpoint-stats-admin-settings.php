@@ -8,79 +8,107 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
-use WP_REST_Controller;
+use Automattic\Jetpack\Stats\Options;
 use WP_REST_Server;
 
 /**
  * VideoPress wpcom api v2 endpoint
  */
-class WPCOM_REST_API_V2_Endpoint_Stats_Admin_Settings extends WP_REST_Controller {
-	/**
-	 * Constructor.
-	 */
-	public function __construct() {
-		$this->namespace = 'wpcom/v2';
-		$this->rest_base = 'stats-admin';
+class WPCOM_REST_API_V2_Endpoint_Stats_Admin_Settings extends Base_Stats_Rest_Controller {
+	const DASHBOARD_SETTINGS = 'module_settings';
+	const DASHBOARD_MODULES  = 'modules';
 
-		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
-	}
+	const ALLOWED_MODULES = array(
+		'traffic'     => array( 'highlights', 'chart', 'posts-pages', 'referrers', 'countries', 'authors', 'search-terms', 'clicks', 'videos', 'app-promo' ),
+		'insights'    => array( 'year-in-review', 'all-time-highlights', 'latest-post', 'most-popular-post', 'posting-activities', 'all-time-insights', 'tags-categories', 'comments', 'subscribers', 'number-of-subscribers' ),
+		'subscribers' => array( 'all-time-stats', 'chart', 'subscribers-overview', 'subscribers', 'number-of-subscribers' ),
+		'wordads'     => array( 'totals', 'chart', 'earning-history', 'app-promo' ),
+		'store'       => array( 'chart', 'store-stats-table-1', 'store-stats-table-2', 'most-popular-products', 'top-categories', 'most-used-coupons' ),
+	);
+
+	/**
+	 * The namespace of this controller's route.
+	 *
+	 * @var string
+	 */
+	public $namespace = 'wpcom/v2';
+	/**
+	 * The base of this controller's route.
+	 *
+	 * @var string
+	 */
+	public $rest_base = 'stats-admin';
 
 	/**
 	 * Register the route.
 	 */
-	public function register_routes() {
-		// Update settings Route.
+	public function register_rest_routes() {
+		// Set modules Route.
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/settings',
+			$this->rest_base . '/modules',
 			array(
-				'args'                => array(
-					'modules'    => array(
-						'type' => 'object',
-					),
-					'highlights' => array(
-						'type'       => 'object',
-						'properties' => array(
-							'highlights_window_days' => array(
-								'type' => 'enum',
-								'enum' => array( 7, 30 ),
-							),
-						),
-					),
-				),
 				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => array( $this, 'update_options' ),
+				'callback'            => array( $this, 'update_modules_status' ),
 				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 
-		// Get settings Route.
+		// Set modules Route.
 		register_rest_route(
 			$this->namespace,
-			$this->rest_base . '/settings',
+			$this->rest_base . '/modules',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_options' ),
+				'callback'            => array( $this, 'get_modules_status' ),
 				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
 			)
 		);
 	}
 
 	/**
-	 * Update settings.
+	 * Update modules.
 	 *
 	 * @param WP_REST_Request $req Request.
 	 * @return mixed
 	 */
-	public function update_options( $req ) {
+	public function update_modules_status( $req ) {
+		$current_modules = Options::get_option( self::DASHBOARD_MODULES );
+		$changed         = false;
+		foreach ( $req->get_params() as $page ) {
+			// Only allow existing pages.
+			if ( ! isset( self::ALLOWED_MODULES[ $page ] ) ) {
+				continue;
+			}
+
+			// Filter only the allowed moudules.
+			$page_modules = array_filter(
+				$req->get_param( 'modules' ),
+				function ( $module ) use ( $page ) {
+					return in_array( $module, self::ALLOWED_MODULES[ $page ], true );
+				}
+			);
+
+			// Module values should be boolean.
+			$page_modules = array_map(
+				function ( $val ) {
+					return (bool) $val;},
+				$page_modules
+			);
+
+			$current_modules[ $page ] = array_merge( array_key_exists( $page, $current_modules ) ? $current_modules[ $page ] : array(), $page_modules );
+			$changed                  = true;
+		}
+
+		return array( 'updated' => $changed && Options::set_option( self::DASHBOARD_MODULES, $current_modules ) );
 	}
 
 	/**
-	 * Update settings.
+	 * Get dashboard settings.
 	 *
-	 * @param WP_REST_Request $req Request.
 	 * @return mixed
 	 */
-	private function get_options( $req ) {
+	public function get_modules_status() {
+		return Options::get_option( self::DASHBOARD_MODULES );
 	}
 }

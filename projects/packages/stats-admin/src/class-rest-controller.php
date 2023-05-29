@@ -19,7 +19,7 @@ use WP_REST_Server;
  * Registers the REST routes for Stats.
  * It bascially forwards the requests to the WordPress.com REST API.
  */
-class REST_Controller extends Base_Stats_REST_Controller {
+class REST_Controller extends Stats_Base_REST_Controller {
 	/**
 	 * Namespace for the REST API.
 	 *

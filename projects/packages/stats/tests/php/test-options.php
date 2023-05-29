@@ -46,6 +46,7 @@ class Test_Options extends StatsBaseTestCase {
 			'odyssey_stats_changed_at' => 0,
 			'notices'                  => array(),
 			'views'                    => 0,
+			'modules'                  => array(),
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -76,6 +77,7 @@ class Test_Options extends StatsBaseTestCase {
 			'odyssey_stats_changed_at' => 0,
 			'notices'                  => array(),
 			'views'                    => 0,
+			'modules'                  => array(),
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -157,6 +159,7 @@ class Test_Options extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'modules'                  => array(),
 				),
 			),
 			'set version'          => array(
@@ -178,6 +181,7 @@ class Test_Options extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'modules'                  => array(),
 				),
 			),
 			'set blog blog_id'     => array(
@@ -199,6 +203,7 @@ class Test_Options extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'modules'                  => array(),
 				),
 			),
 			'multiple options'     => array(
@@ -231,6 +236,7 @@ class Test_Options extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'modules'                  => array(),
 				),
 			),
 		);
@@ -290,6 +296,7 @@ class Test_Options extends StatsBaseTestCase {
 			'odyssey_stats_changed_at' => 0,
 			'notices'                  => array(),
 			'views'                    => 0,
+			'modules'                  => array(),
 		);
 		$this->assertTrue( Options::set_options( $set_options ) );
 		$this->assertSame( $stored_options, get_option( 'stats_options' ) );
@@ -320,6 +327,7 @@ class Test_Options extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'modules'                  => array(),
 				),
 			),
 			'Roles'        => array(
@@ -340,6 +348,7 @@ class Test_Options extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'modules'                  => array(),
 				),
 			),
 			'Count Roles'  => array(
@@ -359,6 +368,7 @@ class Test_Options extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'modules'                  => array(),
 				),
 			),
 			'Version'      => array(
@@ -378,6 +388,7 @@ class Test_Options extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'modules'                  => array(),
 				),
 			),
 			'Honor DNT'    => array(
@@ -397,6 +408,7 @@ class Test_Options extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'modules'                  => array(),
 				),
 			),
 			'Dummy option' => array(
@@ -416,6 +428,7 @@ class Test_Options extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'modules'                  => array(),
 				),
 			),
 		);

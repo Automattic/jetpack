@@ -14,7 +14,7 @@ use WP_Error;
  *
  * @package Automattic\Jetpack\Stats_Admin
  */
-class Base_Stats_Rest_Controller {
+class Stats_Base_REST_Controller {
 
 	/**
 	 * Only administrators or users with capability `view_stats` can access the API.
