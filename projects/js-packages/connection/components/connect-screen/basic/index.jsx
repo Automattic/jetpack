@@ -21,6 +21,7 @@ import ConnectScreenVisual from './visual';
  * @param {object?} props.footer -- Additional page elements to show after the call to action.
  * @param {boolean?} props.skipUserConnection -- Whether to not require a user connection and just redirect after site connection.
  * @param {boolean?} props.autoTrigger -- Whether to initiate the connection process automatically upon rendering the component.
+ * @param {object?} props.logo -- The logo to display at the top of the component.
  * @returns {React.Component} The `ConnectScreen` component.
  */
 const ConnectScreen = ( {
@@ -37,6 +38,7 @@ const ConnectScreen = ( {
 	autoTrigger,
 	footer,
 	skipUserConnection,
+	logo,
 } ) => {
 	const {
 		handleRegisterSite,
@@ -45,6 +47,7 @@ const ConnectScreen = ( {
 		siteIsRegistering,
 		userIsConnecting,
 		registrationError,
+		isOfflineMode,
 	} = useConnection( {
 		registrationNonce,
 		redirectUri,
@@ -70,6 +73,8 @@ const ConnectScreen = ( {
 			displayButtonError={ displayButtonError }
 			buttonIsLoading={ buttonIsLoading }
 			footer={ footer }
+			isOfflineMode={ isOfflineMode }
+			logo={ logo }
 		>
 			{ children }
 		</ConnectScreenVisual>
@@ -88,6 +93,7 @@ ConnectScreen.propTypes = {
 	images: PropTypes.arrayOf( PropTypes.string ),
 	assetBaseUrl: PropTypes.string,
 	skipUserConnection: PropTypes.bool,
+	logo: PropTypes.element,
 };
 
 ConnectScreen.defaultProps = {

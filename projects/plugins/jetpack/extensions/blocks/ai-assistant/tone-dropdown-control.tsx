@@ -29,9 +29,9 @@ const PROMPT_TONES_LIST = [
 	// 'mysterious',
 ] as const;
 
-export const DEFAULT_PROMPT_TONE = 'neutral';
+export const DEFAULT_PROMPT_TONE = 'formal';
 
-const PROMPT_TONES_MAP = {
+export const PROMPT_TONES_MAP = {
 	formal: {
 		label: __( 'Formal', 'jetpack' ),
 		emoji: '🎩',
@@ -128,7 +128,7 @@ export default function ToneDropdownControl( {
 	return (
 		<ToolbarDropdownMenu
 			icon={ megaphone }
-			label={ __( 'Tone', 'jetpack' ) }
+			label={ __( 'Change tone', 'jetpack' ) }
 			popoverProps={ {
 				variant: 'toolbar',
 			} }

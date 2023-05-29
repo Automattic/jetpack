@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Assistant: show upgrade banner when ai query endpoint responses with quota exceeded error

@@ -24,7 +24,7 @@ final class ZeroBSCRM {
 	 *
 	 * @var string
 	 */
-	public $version = '5.7.0';
+	public $version = '5.8.0';
 
 	/**
 	 * WordPress version tested with.
@@ -1246,7 +1246,6 @@ final class ZeroBSCRM {
 
 		// } The kitchen sink
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Migrations.php';
-		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Compatibility.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Localisation.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'jpcrm-localisation.php';
 		require_once ZEROBSCRM_INCLUDE_PATH . 'ZeroBSCRM.Core.Extensions.php';

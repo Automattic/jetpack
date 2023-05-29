@@ -188,6 +188,7 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
 							text: 'Quote Template Populated',
 							type: 'success',
 							confirmButtonText: 'OK',
+							confirmButtonColor: '#000',
 						} );
 						setTimeout( function () {
 							zbscrm_appendTextToEditor( e.html );
@@ -236,6 +237,7 @@ function zbscrm_getTemplatedQuote( cb, errcb ) {
 				text: 'Please Choose a Contact',
 				type: 'error',
 				confirmButtonText: 'OK',
+				confirmButtonColor: '#000',
 			} );
 			window.quoteTemplateBlocker = false;
 			return false;
@@ -317,8 +319,9 @@ function jpcrm_quotes_send_email_modal() {
 			html: '<div class="ui segment">' + jpcrm_quotes_lang( 'sendthisemail' ) + optsHTML + '</div>',
 			type: 'question',
 			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
+			confirmButtonColor: '#000',
+			cancelButtonColor: '#fff',
+			cancelButtonText: '<span style="color: #000">Cancel</span>',
 			confirmButtonText: jpcrm_quotes_lang( 'sendthemail' ),
 			//allowOutsideClick: false
 		} ).then( function ( result ) {

@@ -1,10 +1,10 @@
 import { Container, Col } from '@automattic/jetpack-components';
 import React from 'react';
+import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
 import BackupCard from './backup-card';
 import BoostCard from './boost-card';
 import CrmCard from './crm-card';
-import ExtrasCard from './extras-card';
 import ScanAndProtectCard from './scan-protect-card';
 import SearchCard from './search-card';
 import SocialCard from './social-card';
@@ -43,7 +43,7 @@ const ProductCardsSection = () => {
 				<SocialCard admin={ true } />
 			</Col>
 			<Col sm={ 4 } md={ 4 } lg={ 4 }>
-				<ExtrasCard admin={ true } />
+				<AiCard admin={ true } />
 			</Col>
 		</Container>
 	);

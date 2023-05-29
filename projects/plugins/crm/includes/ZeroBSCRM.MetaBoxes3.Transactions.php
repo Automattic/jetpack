@@ -713,7 +713,7 @@ class zeroBS__Metabox_TransactionTags extends zeroBS__Metabox_Tags{
 
                     <div class="zbs-transaction-actions-bottom zbs-objedit-actions-bottom">
 
-                        <button class="ui button green" type="button" id="zbs-edit-save"><?php echo esc_html( __( 'Update Transaction', 'zero-bs-crm' ) ); ?></button>
+							<button class="ui button black" type="button" id="zbs-edit-save"><?php echo esc_html( __( 'Update Transaction', 'zero-bs-crm' ) ); ?></button>
 
                         <?php
 
@@ -738,7 +738,7 @@ class zeroBS__Metabox_TransactionTags extends zeroBS__Metabox_Tags{
 
                     <div class="zbs-transaction-actions-bottom zbs-objedit-actions-bottom">
                     	
-                    	<button class="ui button green" type="button" id="zbs-edit-save"><?php echo esc_html( __( 'Save Transaction','zero-bs-crm' ) ); ?></button>
+						<button class="ui button black" type="button" id="zbs-edit-save"><?php echo esc_html( __( 'Save Transaction', 'zero-bs-crm' ) ); ?></button>
 
                     </div>
 

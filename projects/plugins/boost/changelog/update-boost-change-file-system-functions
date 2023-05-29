@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update Minify to use original Page Optimize file_get/put_contents instead of WP File System.

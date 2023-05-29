@@ -21,14 +21,6 @@ const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
  * registration if we need to.
  */
 function register_block() {
-	if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-helper.php';
-	}
-
-	if ( ! \Jetpack_AI_Helper::is_enabled() ) {
-		return;
-	}
-
 	Blocks::jetpack_register_block(
 		BLOCK_NAME,
 		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )

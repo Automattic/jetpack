@@ -16,3 +16,7 @@
 * {
 	box-sizing: border-box;
 }
+
+.notice {
+	grid-column: 1 / -1;
+}

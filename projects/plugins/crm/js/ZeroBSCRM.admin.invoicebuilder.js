@@ -225,7 +225,7 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 			html +=
 				'<a href="' +
 				res.invoiceObj.preview_link +
-				'" target="_blank" class="ui button blue" id="zbs_invoice_preview">' +
+				'" target="_blank" class="ui button black" id="zbs_invoice_preview">' +
 				zbscrm_JS_invoice_lang( 'preview' ) +
 				'</a>';
 		}
@@ -233,7 +233,7 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 		//pdf download only displayed in PDF set.
 		if ( res.invoiceObj.pdf_installed ) {
 			html +=
-				'<button id="zbs_invoicing_download_pdf" type="button" class="ui button olive">' +
+				'<button id="zbs_invoicing_download_pdf" type="button" class="ui button black">' +
 				zbscrm_JS_invoice_lang( 'dl_pdf' ) +
 				'</button>';
 			Formhtml =
@@ -254,7 +254,7 @@ function zbscrm_JS_draw_invoice_actions_html( res ) {
 				zbscrm_JS_validateEmail( potentialEmail )
 			) {
 				html +=
-					'<button type="button" id="zbs_invoicing_send_email" class="ui button yellow">' +
+					'<button type="button" id="zbs_invoicing_send_email" class="ui button black">' +
 					zbscrm_JS_invoice_lang( 'send_email' ) +
 					'</button>';
 			}
@@ -685,7 +685,7 @@ function zbscrm_JS_draw_invoice_biz_info( res ) {
 	html += '<div id="zbs-business-info-wrapper">';
 	html += '<div class="business-info-toggle">';
 	html +=
-		'<i class="fa fa-chevron-circle-right" aria-hidden="true"></i> <span class="your-info-biz">' +
+		'<i class="fa fa-chevron-circle-right" aria-hidden="true" style="color:black;"></i> <span class="your-info-biz">' +
 		zbscrm_JS_invoice_lang( 'biz_info' ) +
 		'</span>';
 	html += '</div>';
@@ -2209,8 +2209,9 @@ function zbscrmJS_sendInvoiceModal() {
 				'</div>',
 			type: 'question',
 			showCancelButton: true,
-			confirmButtonColor: '#3085d6',
-			cancelButtonColor: '#d33',
+			confirmButtonColor: '#000',
+			cancelButtonColor: '#fff',
+			cancelButtonText: '<span style="color: #000">Cancel</span>',
 			confirmButtonText: zbscrm_JS_invoice_lang( 'sendthemail' ),
 			//allowOutsideClick: false
 		} ).then( function ( result ) {

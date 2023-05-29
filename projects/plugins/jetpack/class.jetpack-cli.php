@@ -1690,13 +1690,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *     $ wp jetpack publicize list
 	 *
 	 *     # List publicize connections for a given service.
-	 *     $ wp jetpack publicize list twitter
+	 *     $ wp jetpack publicize list linkedin
 	 *
 	 *     # List all publicize connections for a given user.
 	 *     $ wp --user=1 jetpack publicize list
 	 *
 	 *     # List all publicize connections for a given user and service.
-	 *     $ wp --user=1 jetpack publicize list twitter
+	 *     $ wp --user=1 jetpack publicize list linkedin
 	 *
 	 *     # Display details for a given connection.
 	 *     $ wp jetpack publicize list 123456
@@ -1708,7 +1708,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *     $ wp jetpack publicize disconnect all
 	 *
 	 *     # Disconnect all connections for a given service.
-	 *     $ wp jetpack publicize disconnect twitter
+	 *     $ wp jetpack publicize disconnect linkedin
 	 *
 	 * @param array $args Positional args.
 	 * @param array $named_args Named args.
