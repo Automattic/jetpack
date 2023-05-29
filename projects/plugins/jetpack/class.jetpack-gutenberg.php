@@ -700,6 +700,7 @@ class Jetpack_Gutenberg {
 			'wpcomBlogId'      => $blog_id,
 			'allowedMimeTypes' => wp_get_mime_types(),
 			'siteLocale'       => str_replace( '_', '-', get_locale() ),
+			'ai-assistant'     => Jetpack_AI_Helper::get_ai_assistance_feature(),
 		);
 
 		if ( Jetpack::is_module_active( 'publicize' ) && function_exists( 'publicize_init' ) ) {
