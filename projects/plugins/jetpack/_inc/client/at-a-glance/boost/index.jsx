@@ -88,7 +88,7 @@ const DashBoost = ( {
 		setIsLoading( true );
 
 		try {
-			const scores = await requestSpeedScores( false, apiRoot, siteUrl, apiNonce );
+			const scores = await requestSpeedScores( true, apiRoot, siteUrl, apiNonce );
 			const scoreLetter = getScoreLetter( scores.current.mobile, scores.current.desktop );
 			setSpeedLetterGrade( scoreLetter );
 			setMobileSpeedScore( scores.current.mobile );
