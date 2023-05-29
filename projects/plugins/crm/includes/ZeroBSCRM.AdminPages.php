@@ -1988,7 +1988,7 @@ function zeroBSCRM_html_extensions() {
 		$bundle = true;
 	}
 
-	echo "<div class='zbs-extensions-manager' style='margin-top:1em'>";
+	echo '<div class="zbs-extensions-manager">';
 
 	// get the products, from our sites JSON custom REST endpoint - that way only need to manage there and not remember to update all the time
 	// each product has our extkey so can do the same as the built in array here ;) #progress #woop-da-woop
@@ -2401,7 +2401,7 @@ function jpcrm_html_modules() {
 
 	}
 
-	echo "<div class='zbs-extensions-manager' style='margin-top:1em'>";
+	echo '<div class="zbs-extensions-manager">';
 
 			// this block should be in here for rebranded people who want to turn on or off features.
 			echo '<div class="zbs-page-wrap free-block-wrap">';
