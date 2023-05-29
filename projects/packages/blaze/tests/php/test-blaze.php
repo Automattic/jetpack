@@ -8,7 +8,6 @@
 
 namespace Automattic\Jetpack;
 
-use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use WorDBless\BaseTestCase;
 
 /**
@@ -134,15 +133,15 @@ class Test_Blaze extends BaseTestCase {
 	public function test_admin_menu_added() {
 		$this->confirm_add_filters_and_actions_for_screen_starts_clean();
 
-		$test_suffix = Admin_Menu::add_menu( 'Blaze', 'Blaze', 'manage_options', 'jetpack-blaze', '__return_null' );
-		$this->assertFalse( has_action( 'load-' . $test_suffix ) );
+		// Ensure that no menu is added by default.
+		$this->assertEmpty( menu_page_url( 'advertising' ) );
 
 		wp_set_current_user( $this->admin_id );
 
 		add_filter( 'jetpack_blaze_enabled', '__return_true' );
 
 		Blaze::enable_blaze_menu();
-		$this->assertNotFalse( has_action( 'load-' . $test_suffix ) );
+		$this->assertNotEmpty( menu_page_url( 'advertising' ) );
 
 		add_filter( 'jetpack_blaze_enabled', '__return_false' );
 	}
