@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Add a loading placeholder while fetching backup plan when a secondary admin (not connected) is accessing the backup page.

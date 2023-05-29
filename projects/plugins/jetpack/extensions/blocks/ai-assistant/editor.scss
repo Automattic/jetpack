@@ -4,6 +4,10 @@
  * Editor styles for Jetpack AI Assistant
  */
 
+.block-editor-block-toolbar__slot {
+	flex-shrink: 0;
+}
+
 .wp-block-ai-generate-suggestion {
 	padding: 0;
 }
@@ -63,6 +67,10 @@
 	display: flex;
 	padding: 6px 9px;
 	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 8px;
+
+	&.is-disconnected {
+		opacity: 0.4;
+	}
 
 	textarea {
 		width: 100%;
@@ -272,4 +280,33 @@
 	cursor: pointer;
 	width: 128px;
 	height: 128px;
+}
+
+.jetpack-ai-assistant__templates-control {
+	svg {
+		padding-right: 4px;
+	}
+}
+
+.jetpack-ai-upgrade-banner,
+.jetpack-ai-connect-banner {
+	.jetpack-upgrade-plan-banner__wrapper {
+		flex-wrap: nowrap;
+
+		.jetpack-ai-upgrade-banner__description,
+		.jetpack-ai-connect-banner__description {
+			line-height: 24px;
+		}
+
+		.components-button.is-primary {
+			background-color: var( --jp-white );
+			color: var( --jp-black );
+			margin-top: 8px;
+			margin-bottom: 8px;
+
+			&:hover{
+				background-color: var( --jp-gray-0 );
+			}
+		}
+	}
 }

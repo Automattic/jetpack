@@ -33,7 +33,6 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 		// Clean up
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
-		remove_all_filters( 'jetpack_subscriptions_newsletter_feature_enabled' );
 
 		parent::tear_down();
 	}
@@ -422,9 +421,6 @@ class WP_Test_Jetpack_Subscriptions extends WP_UnitTestCase {
 
 		// Connect the site to Stripe
 		update_option( Jetpack_Memberships::$connected_account_id_option_name, 123 );
-
-		// Enable the newsletter feature
-		add_filter( 'jetpack_subscriptions_newsletter_feature_enabled', '__return_true' );
 
 		// Create a post
 		return $this->factory->post->create();

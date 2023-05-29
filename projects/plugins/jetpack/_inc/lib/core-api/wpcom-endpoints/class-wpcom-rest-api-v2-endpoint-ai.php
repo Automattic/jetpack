@@ -56,18 +56,24 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
 				),
 				'args' => array(
-					'content' => array(
+					'content'    => array(
 						'type'              => 'string',
 						'required'          => true,
 						'sanitize_callback' => 'sanitize_textarea_field',
 					),
-					'post_id' => array(
+					'post_id'    => array(
 						'required' => false,
 						'type'     => 'integer',
+					),
+					'skip_cache' => array(
+						'required'    => false,
+						'type'        => 'boolean',
+						'description' => 'Whether to skip the cache and make a new request',
 					),
 				),
 			)
 		);
+
 		register_rest_route(
 			$this->namespace,
 			$this->rest_base . '/images/generations',
@@ -90,6 +96,18 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			$this->rest_base . '/ai-assistant-feature',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( $this, 'request_get_ai_assistance_feature' ),
+					'permission_callback' => array( 'Jetpack_AI_Helper', 'get_status_permission_check' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -98,7 +116,7 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	 * @param  WP_REST_Request $request The request.
 	 */
 	public function request_gpt_completion( $request ) {
-		return Jetpack_AI_Helper::get_gpt_completion( $request['content'], $request['post_id'] );
+		return Jetpack_AI_Helper::get_gpt_completion( $request['content'], $request['post_id'], $request['skip_cache'] );
 	}
 
 	/**
@@ -108,6 +126,14 @@ class WPCOM_REST_API_V2_Endpoint_AI extends WP_REST_Controller {
 	 */
 	public function request_dalle_generation( $request ) {
 		return Jetpack_AI_Helper::get_dalle_generation( $request['prompt'], $request['post_id'] );
+	}
+
+	/**
+	 * Collect and provide relevat data about the AI feature,
+	 * such as the number of requests made.
+	 */
+	public function request_get_ai_assistance_feature() {
+		return Jetpack_AI_Helper::get_ai_assistance_feature();
 	}
 }
 

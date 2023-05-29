@@ -36,30 +36,11 @@
 
 }
 
-#settings_dashboard_revenue_chart_display .panel {
-	box-shadow: none !important;
-}
 .ui.attached.tabular.menu {
 
     border: 0;
     box-shadow: none !important;
 }
-
- #zbs-admin-top-bar{
-	background: #f6f7f7 !important;
- }
- #zbs-list-top-bar {
-    border-bottom: 1px solid #CCC;
-	background: #f6f7f7 !important;
- }
-
- #zbs-list-top-bar{
-	.zbs-white{
-		color: $page_title;
-	}
- }
-
-// buttons
 
 .ui.blue.button {
 	background-color: $blue-medium;
@@ -97,19 +78,6 @@
 	background: #007cba;
 	border-color: #007cba;
 	color: white;
-}
-
-// adjust position of customiser ico
-.zbs-dash-header {
-
-	background: $body_bg !important;
-	padding-top: 0px !important;
-
-}
-.dashboard-customiser {
-
-    top: -49px !important;
-
 }
 
 // hide logo

@@ -176,6 +176,7 @@ class Defaults {
 		'wpcom_is_fse_activated',
 		'wpcom_publish_comments_with_markdown',
 		'wpcom_publish_posts_with_markdown',
+		'wpcom_reader_views_enabled',
 		'wpcom_subscription_emails_use_excerpt',
 		'videopress_private_enabled_for_site',
 		'wpcom_gifting_subscription',

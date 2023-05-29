@@ -96,7 +96,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sync_callable_whitelist() {
 		add_filter( 'jetpack_set_available_extensions', array( $this, 'add_test_block' ) );
-		Jetpack_Gutenberg::init();
 		Blocks::jetpack_register_block( 'jetpack/test' );
 
 		$callables = array(

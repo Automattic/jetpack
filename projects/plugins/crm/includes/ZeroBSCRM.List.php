@@ -210,7 +210,7 @@ class zeroBSCRM_list{
             <!-- title + edit ico -->
 
             <!-- col editor -->
-            <div id="zbs-list-col-editor" class="ui segment secondary hidden">
+						<div id="zbs-list-col-editor" class="hidden">
 
                 <h4 class="ui horizontal divider header">
                   <i class="list layout icon"></i>
@@ -347,7 +347,7 @@ class zeroBSCRM_list{
 
                         <div class="column" style="max-width:364px;">
                             <div class="ui labeled input">
-                                <div class="ui teal label"><i class="table icon"></i>  <?php esc_html_e('Records per page:','zero-bs-crm'); ?></div>
+										<div class="ui label"><i class="table icon"></i>  <?php esc_html_e( 'Records per page:', 'zero-bs-crm' ); ?></div>
                                 <input type="text" style="width:70px;" class="intOnly" id="zbs-screenoptions-records-per-page" value="<?php echo esc_attr( $perPage ); ?>" />
                             </div>
                         </div>
@@ -355,39 +355,12 @@ class zeroBSCRM_list{
                     </div>
 
 
-                    <?php /* don't show for now
-                    if ($usingOwnership){ ?>
-                    <div class="two column clearing centered row">
-
-                        <div class="column" style="max-width:364px;">
-                                <div class="ui form zbs-list-toolbar-radio">
-                                  <div class="inline fields">
-                                    <label><?php _e('Show (Assigned to)',"zero-bs-crm");?>:</label>
-                                    <div class="field">
-                                      <div class="ui radio checkbox">
-                                        <input type="radio" checked="checked" name="zbs-show-customers-via-ownership" value="all" id="zbs-list-toolbar-show-all" tabindex="0" class="hidden">
-                                        <label><?php _e('All',"zero-bs-crm");?></label>
-                                      </div>
-                                    </div>
-                                    <div class="field">
-                                      <div class="ui radio checkbox">
-                                        <input type="radio" name="zbs-show-customers-via-ownership" value="mine" id="zbs-list-toolbar-show-mine" tabindex="0" class="hidden">
-                                        <label><?php _e('Mine',"zero-bs-crm");?></label>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                        </div>                    
-
-                    </div> */ ?>
-
-
                 <div class="ui divider" style="margin-bottom:0;margin-top:0;"></div>
 
                     <div class="two column clearing centered row">
 
                         <div class="column" style="max-width:364px;">
-                            <button id="zbs-columnmanager-bottomsave" type="button" class="ui button positive"><i class="check square icon"></i> <?php esc_html_e('Save Options and Close','zero-bs-crm'); ?></button>
+									<button id="zbs-columnmanager-bottomsave" type="button" class="ui button black positive"><i class="check square icon"></i> <?php esc_html_e( 'Save Options and Close', 'zero-bs-crm' ); ?></button>
                         </div>
 
                     </div>
@@ -865,7 +838,7 @@ class zeroBSCRM_list{
 		);
 
 		$current_quickfilter       = ( ! empty( $listview_filters['quickfilters'][0] ) ? $listview_filters['quickfilters'][0] : '' );
-		$current_quickfilter_label = ( ! empty( $current_quickfilter ) ? $all_quickfilters[ $current_quickfilter ][0] : '' );
+		$current_quickfilter_label = ( ! empty( $all_quickfilters[ $current_quickfilter ][0] ) ? $all_quickfilters[ $current_quickfilter ][0] : '' );
 		$current_tag               = ( ! empty( $listview_filters['tags'][0] ) ? $listview_filters['tags'][0]['name'] : '' );
 		$current_search            = ( ! empty( $listview_filters['s'] ) ? $listview_filters['s'] : '' );
 		?>
@@ -881,13 +854,13 @@ class zeroBSCRM_list{
 				<?php
 				// add quickfilters filter if current object has quickfilters
 				if ( count( $all_quickfilters ) > 0 ) {
-					echo '<select class="filter-dropdown' . ( ! empty( $current_quickfilter ) ? ' hidden' : '' ) . '" data-filtertype="quickfilters">';
+					echo '<select class="filter-dropdown' . ( ! empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '" data-filtertype="quickfilters">';
 					echo '<option disabled selected>' . esc_html__( 'Select filter', 'zero-bs-crm' ) . '</option>';
 					foreach ( $all_quickfilters as $filter_slug => $filter_data ) {
 						echo '<option value="' . esc_attr( $filter_slug ) . '">' . esc_html( $filter_data[0] ) . '</option>';
 					}
 					echo '</select>';
-					echo '<div class="jpcrm-current-filter' . ( empty( $current_quickfilter ) ? ' hidden' : '' ) . '">';
+					echo '<div class="jpcrm-current-filter' . ( empty( $current_quickfilter_label ) ? ' hidden' : '' ) . '">';
 					echo '<button class="dashicons dashicons-remove" title="' . esc_attr__( 'Remove filter', 'zero-bs-crm' ) . '"></button>';
 					echo esc_html__( 'Filter', 'zero-bs-crm' ) . ': ';
 					echo '<span>' . esc_html( $current_quickfilter_label ) . '</span>';
@@ -908,8 +881,6 @@ class zeroBSCRM_list{
 					echo '<span>' . esc_html( $current_tag ) . '</span>';
 					echo '</div>';
 				}
-
-				echo '<button class="table-options" id="open-table-options">' . esc_html__( 'Table options', 'zero-bs-crm' ) . '</button>';
 				?>
 			</header-item>
 		</jpcrm-listview-header>
