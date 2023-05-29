@@ -3,7 +3,6 @@
  */
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { tip } from '@wordpress/icons';
 import React from 'react';
 
 type PromptTemplatesControlProps = {
@@ -64,15 +63,14 @@ const promptTemplates = [
 export default function PromptTemplatesControl( {
 	onPromptSelected,
 }: PromptTemplatesControlProps ) {
-	const label = __( 'Write about…', 'jetpack' );
+	const label = __( 'Write with AI…', 'jetpack' );
 
 	return (
 		<ToolbarDropdownMenu
-			icon={ tip }
+			className="jetpack-ai-assistant__templates-control"
+			icon={ null }
 			label={ label }
-			popoverProps={ {
-				variant: 'toolbar',
-			} }
+			text={ label }
 		>
 			{ ( { onClose } ) => {
 				return (

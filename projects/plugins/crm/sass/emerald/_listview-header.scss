@@ -44,21 +44,6 @@ jpcrm-listview-header#jpcrm-listview-header {
 			width: 200px;
 		}
 
-		.table-options {
-			margin: 0 1px;
-			padding: 4px 10px;
-			box-sizing: border-box;
-			font-weight: 600;
-			vertical-align: middle;
-			border: 1px solid var(--jp-gray-10);
-			border-radius: 2px;
-			height: 100%;
-
-			&:hover {
-				background-color: var(--jp-gray-0);
-			}
-		}
-
 	}
 
 	input, select {

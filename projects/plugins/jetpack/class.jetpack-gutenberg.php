@@ -643,6 +643,7 @@ class Jetpack_Gutenberg {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$user                      = wp_get_current_user();
 			$user_data                 = array(
+				'email'    => $user->user_email,
 				'userid'   => $user->ID,
 				'username' => $user->user_login,
 			);

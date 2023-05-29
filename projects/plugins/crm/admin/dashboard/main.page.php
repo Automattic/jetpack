@@ -121,79 +121,47 @@ function jpcrm_render_dashboard_page() {
 	<?php wp_nonce_field( 'zbs_dash_setting', 'zbs_dash_setting_security' ); ?>
 	<?php wp_nonce_field( 'zbs_dash_count', 'zbs_dash_count_security' ); ?>
 
-<div class='controls-wrapper'>
+	<div class="dashboard-custom-choices hidden">
+		<ul>
 
-	<div id="zbs-date-picker-background">
-	<div class='month-selector'>
-		<div id="reportrange" class="pull-right jpcrm-date-range" style="cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%;margin-top:-3px;width:240px;">
-		<i class="fa fa-calendar"></i>&nbsp;
-		<span></span> <b class="caret"></b>
-		</div>
-	</div>
-	</div>
+			<?php
+				// this is to put a control AFTER row 1. i.e. the TOTALS
+				do_action( 'zbs_dashboard_customiser_after_row_1' );
+			?>
 
-	<div class='dashboard-customiser'>
-		<i class="icon sliders horizontal"></i>
-	</div>
+			<li class="item">
+				<label>
+					<input type="checkbox" id="settings_dashboard_sales_funnel"<?php echo ( $settings_dashboard_sales_funnel ? ' checked' : '' ); ?>>
+					<?php esc_html_e( 'Sales Funnel', 'zero-bs-crm' ); ?>
+				</label>
+			</li>
 
-	<div class='dashboard-custom-choices'>
-	<ul class="ui form">
+			<li class="item">
+				<label>
+					<input type="checkbox" id="settings_dashboard_revenue_chart"<?php echo ( $settings_dashboard_revenue_chart ? ' checked' : '' ); ?>>
+					<?php esc_html_e( 'Revenue Chart', 'zero-bs-crm' ); ?>
+				</label>
+			</li>
 
-	<?php
-		// this is to put a control AFTER row 1. i.e. the TOTALS
-		do_action( 'zbs_dashboard_customiser_after_row_1' );
-	?>
+			<li class="item">
+				<label>
+					<input type="checkbox" id="settings_dashboard_recent_activity"<?php echo ( $settings_dashboard_recent_activity ? ' checked' : '' ); ?>>
+					<?php esc_html_e( 'Recent Activity', 'zero-bs-crm' ); ?>
+				</label>
+			</li>
 
+			<li class="item">
+				<label>
+					<input type="checkbox" id="settings_dashboard_latest_contacts"<?php echo ( $settings_dashboard_latest_contacts ? ' checked' : '' ); ?>>
+					<?php esc_html_e( 'Latest Contacts', 'zero-bs-crm' ); ?>
+				</label>
+			</li>
 
-	<li class="item" id="settings_dashboard_sales_funnel_list">
-		<label>
-		<input type="checkbox" name="settings_dashboard_sales_funnel" id="settings_dashboard_sales_funnel" 
-		<?php
-		if ( $settings_dashboard_sales_funnel ) {
-			echo 'checked'; }
-		?>
-		>
-			<?php esc_html_e( 'Sales Funnel', 'zero-bs-crm' ); ?>
-	</label></li>
+			<?php do_action( 'zerobscrm_dashboard_setting' ); ?>
 
-	<li class="item"><label>
-		<input type="checkbox" name="settings_dashboard_revenue_chart" id="settings_dashboard_revenue_chart" 
-		<?php
-		if ( $settings_dashboard_revenue_chart ) {
-			echo 'checked'; }
-		?>
-		>
-			<?php esc_html_e( 'Revenue Chart', 'zero-bs-crm' ); ?>
-	</label></li>
-
-
-	<li class="item"><label>
-		<input type="checkbox" name="settings_dashboard_recent_activity" id="settings_dashboard_recent_activity" 
-		<?php
-		if ( $settings_dashboard_recent_activity ) {
-			echo 'checked'; }
-		?>
-		>
-			<?php esc_html_e( 'Recent Activity', 'zero-bs-crm' ); ?>
-	</label></li>
-
-	<li class="item"><label>
-		<input type="checkbox" name="settings_dashboard_latest_contacts" id="settings_dashboard_latest_contacts" 
-		<?php
-		if ( $settings_dashboard_latest_contacts ) {
-			echo 'checked'; }
-		?>
-		>
-			<?php esc_html_e( 'Latest Contacts', 'zero-bs-crm' ); ?>
-	</label></li>
-
-	<?php do_action( 'zerobscrm_dashboard_setting' ); ?>
-
-	</ul>
+		</ul>
 
 	</div>
-
-</div>
 
 	<jpcrm-dashcount></jpcrm-dashcount>
 

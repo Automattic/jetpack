@@ -164,8 +164,17 @@ export class SuggestionsEventSource extends EventTarget {
 					return;
 				}
 				if ( response.status >= 400 && response.status <= 500 && response.status !== 429 ) {
-					this.processConnectionError( response );
+					self.processConnectionError( response );
 				}
+
+				/*
+				 * error code 429
+				 * you exceeded your current quota please check your plan and billing details
+				 */
+				if ( response.status === 429 ) {
+					self.dispatchEvent( new CustomEvent( 'error_quota_exceeded' ) );
+				}
+
 				throw new Error();
 			},
 			signal: this.controller.signal,
