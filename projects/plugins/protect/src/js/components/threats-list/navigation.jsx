@@ -1,5 +1,6 @@
-import { useBreakpointMatch } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
+import { Text, useBreakpointMatch } from '@automattic/jetpack-components';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	wordpress as coreIcon,
 	plugins as pluginsIcon,
@@ -12,12 +13,15 @@ import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useProtectData from '../../hooks/use-protect-data';
 import Navigation, { NavigationItem, NavigationGroup } from '../navigation';
+import styles from './styles.module.scss';
 
 const ThreatsNavigation = ( { selected, onSelect } ) => {
 	const {
 		plugins,
 		themes,
 		numThreats,
+		numPluginsThreats,
+		numThemesThreats,
 		numCoreThreats,
 		numFilesThreats,
 		numDatabaseThreats,
@@ -75,32 +79,54 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 				onClick={ trackNavigationClickCore }
 				checked={ true }
 			/>
-			<NavigationGroup label={ __( 'Plugins', 'jetpack-protect' ) } icon={ pluginsIcon }>
-				{ plugins.map( ( { name, threats, checked } ) => (
-					<NavigationItem
-						key={ name }
-						id={ name }
-						label={ name }
-						checked={ checked }
-						badge={ threats?.length }
-						disabled={ threats?.length <= 0 }
-						onClick={ trackNavigationClickPlugin }
-					/>
-				) ) }
-			</NavigationGroup>
-			<NavigationGroup label={ __( 'Themes', 'jetpack-protect' ) } icon={ themesIcon }>
-				{ themes.map( ( { name, threats, checked } ) => (
-					<NavigationItem
-						key={ name }
-						id={ name }
-						label={ name }
-						checked={ checked }
-						badge={ threats?.length }
-						disabled={ threats?.length <= 0 }
-						onClick={ trackNavigationClickTheme }
-					/>
-				) ) }
-			</NavigationGroup>
+			<NavigationGroup
+				id="plugins"
+				label={ createInterpolateElement(
+					sprintf(
+						// translators: %s is the number of plugins installed on the site.
+						__( 'Plugins <small>(%s)</small>', 'jetpack-protect' ),
+						plugins.length
+					),
+					{
+						small: (
+							<Text
+								variant="body-extra-small"
+								component="span"
+								className={ styles[ 'navigation-group-count' ] }
+							/>
+						),
+					}
+				) }
+				icon={ pluginsIcon }
+				badge={ numPluginsThreats }
+				checked={ plugins.filter( plugin => plugin.checked ).length === plugins.length }
+				items={ plugins.map( plugin => ( { ...plugin, onClick: trackNavigationClickPlugin } ) ) }
+				onClick={ trackNavigationClickPlugin }
+			/>
+			<NavigationGroup
+				id="themes"
+				label={ createInterpolateElement(
+					sprintf(
+						// translators: %s is the number of themes installed on the site.
+						__( 'Themes <small>(%s)</small>', 'jetpack-protect' ),
+						themes.length
+					),
+					{
+						small: (
+							<Text
+								variant="body-extra-small"
+								component="span"
+								className={ styles[ 'navigation-group-count' ] }
+							/>
+						),
+					}
+				) }
+				icon={ themesIcon }
+				badge={ numThemesThreats }
+				checked={ themes.filter( theme => theme.checked ).length === themes.length }
+				items={ themes.map( theme => ( { ...theme, onClick: trackNavigationClickTheme } ) ) }
+				onClick={ trackNavigationClickTheme }
+			/>
 			{ hasRequiredPlan && (
 				<>
 					<NavigationItem

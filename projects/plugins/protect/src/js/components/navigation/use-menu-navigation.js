@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 export const NavigationContext = React.createContext();
 
-const useMenuNavigation = ( { selected, onSelect } ) => {
+const useMenuNavigation = ( { selectedItemId, onSelect } ) => {
 	const [ items, setItems ] = useState( [] );
 	const [ refs, setRef ] = useState( [] );
 	const [ focusedItem, setFocusedItem ] = useState();
+
+	const selectedItem = useMemo(
+		() => items.find( item => item?.id === selectedItemId ),
+		[ items, selectedItemId ]
+	);
 
 	const handleClickItem = id => {
 		onSelect( id );
@@ -31,7 +36,7 @@ const useMenuNavigation = ( { selected, onSelect } ) => {
 
 	const handleKeyDownItem = input => {
 		const code = input?.code;
-		const current = items.findIndex( item => item?.id === selected );
+		const current = items.findIndex( item => item?.id === selectedItemId );
 		const lastIndex = items.length - 1;
 
 		let nextId;
@@ -79,7 +84,8 @@ const useMenuNavigation = ( { selected, onSelect } ) => {
 	};
 
 	return {
-		selectedItem: selected,
+		selectedItemId,
+		selectedItem,
 		handleClickItem,
 		handleKeyDownItem,
 		handleFocusItem,

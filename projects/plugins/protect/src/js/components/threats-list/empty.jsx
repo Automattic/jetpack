@@ -82,34 +82,57 @@ const timeSince = date => {
 	return __( 'a few seconds ago', 'jetpack-protect' );
 };
 
-const EmptyList = () => {
+const EmptyList = ( { selected } ) => {
 	const { lastChecked } = useProtectData();
 
 	const timeSinceLastScan = useMemo( () => {
 		return lastChecked ? timeSince( Date.parse( lastChecked ) ) : null;
 	}, [ lastChecked ] );
 
+	const title = useMemo( () => {
+		if ( selected === 'plugins' ) {
+			return __( 'No plugin threats found', 'jetpack-protect' );
+		}
+
+		if ( selected === 'themes' ) {
+			return __( "Don't worry about a theme", 'jetpack-protect' );
+		}
+
+		return __( "Don't worry about a thing", 'jetpack-protect' );
+	}, [ selected ] );
+
+	const description = useMemo( () => {
+		// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
+		let translatedDescription = __(
+			'The last Protect scan ran <strong>%s</strong> and everything looked great.',
+			'jetpack-protect'
+		);
+		if ( selected === 'plugins' ) {
+			// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
+			translatedDescription = __(
+				'The last Protect scan ran <strong>%s</strong> and no threats were found in your plugins.',
+				'jetpack-protect'
+			);
+		} else if ( selected === 'themes' ) {
+			// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
+			translatedDescription = __(
+				'The last Protect scan ran <strong>%s</strong> and no threats were found in your themes.',
+				'jetpack-protect'
+			);
+		}
+
+		return createInterpolateElement( sprintf( translatedDescription, timeSinceLastScan ), {
+			strong: <strong />,
+		} );
+	}, [ selected, timeSinceLastScan ] );
+
 	return (
 		<div className={ styles.empty }>
 			<ProtectCheck />
 			<H3 weight="bold" mt={ 8 }>
-				{ __( "Don't worry about a thing", 'jetpack-protect' ) }
+				{ title }
 			</H3>
-			<Text>
-				{ createInterpolateElement(
-					sprintf(
-						// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
-						__(
-							'The last Protect scan ran <strong>%s</strong> and everything looked great.',
-							'jetpack-protect'
-						),
-						timeSinceLastScan
-					),
-					{
-						strong: <strong />,
-					}
-				) }
-			</Text>
+			<Text>{ description }</Text>
 		</div>
 	);
 };

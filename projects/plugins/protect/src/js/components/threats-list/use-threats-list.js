@@ -44,6 +44,14 @@ const useThreatsList = () => {
 			list = flatData( core, coreIcon );
 			item = core;
 			break;
+		case 'plugins':
+			list = flatData( plugins, pluginsIcon );
+			item = plugins;
+			break;
+		case 'themes':
+			list = flatData( themes, themesIcon );
+			item = themes;
+			break;
 		case 'files':
 			list = flatData( files, filesIcon );
 			item = files;

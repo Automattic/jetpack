@@ -60,7 +60,7 @@ const getNavigationComponent = mode => {
 };
 
 const Navigation = ( { children, selected, onSelect, mode = 'list' } ) => {
-	const data = useMenuNavigation( { selected, onSelect } );
+	const data = useMenuNavigation( { selectedItemId: selected, onSelect } );
 	const Component = getNavigationComponent( mode );
 
 	return (

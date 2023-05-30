@@ -7,6 +7,7 @@ import { NavigationContext } from './use-menu-navigation';
 
 const NavigationItem = ( {
 	id,
+	parentId,
 	label,
 	icon,
 	badge,
@@ -18,7 +19,7 @@ const NavigationItem = ( {
 } ) => {
 	const context = useContext( NavigationContext );
 
-	const selected = context?.selectedItem === id;
+	const selected = context?.selectedItemId === id;
 	const registerItem = context?.registerItem;
 	const registerRef = context?.registerRef;
 	const handleClickItem = context?.handleClickItem;
@@ -62,7 +63,7 @@ const NavigationItem = ( {
 	);
 
 	useEffect( () => {
-		registerItem( { id, disabled, label, icon } );
+		registerItem( { id, parentId, disabled, label, icon } );
 		// eslint-disable-next-line
 	}, [] );
 

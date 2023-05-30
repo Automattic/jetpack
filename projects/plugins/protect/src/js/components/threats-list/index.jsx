@@ -49,6 +49,20 @@ const ThreatsList = () => {
 					__( 'All %s threats', 'jetpack-protect' ),
 					list.length
 				);
+			case 'plugins':
+				return sprintf(
+					/* translators: placeholder is the amount of plugin threats found on the site. */
+					__( '%1$s plugin %2$s', 'jetpack-protect' ),
+					list.length,
+					list.length === 1 ? 'threat' : 'threats'
+				);
+			case 'themes':
+				return sprintf(
+					/* translators: placeholder is the amount of theme threats found on the site. */
+					__( '%1$s theme %2$s', 'jetpack-protect' ),
+					list.length,
+					list.length === 1 ? 'threat' : 'threats'
+				);
 			case 'files':
 				return sprintf(
 					/* translators: placeholder is the amount of file threats found on the site. */
@@ -113,7 +127,7 @@ const ThreatsList = () => {
 						{ hasRequiredPlan ? <PaidList list={ list } /> : <FreeList list={ list } /> }
 					</>
 				) : (
-					<EmptyList />
+					<EmptyList selected={ selected } />
 				) }
 			</Col>
 		</Container>
