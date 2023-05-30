@@ -120,7 +120,7 @@ function zeroBSCRMJS_initListView() {
 								jQuery( '#zbs-col-manager-loading' ).hide();
 
 								// could not save cols
-								jQuery( '#zbsCantSaveCols' ).show();
+								jQuery( '#zbsCantSaveCols' ).css('display', 'flex');
 							}
 						);
 					},
@@ -400,116 +400,130 @@ function zeroBSCRMJS_listViewIco( key, fallback ) {
 /**
  *
  */
-function zeroBSCRMJS_drawListView() {
-	// if no blocker
-	if ( ! window.zbsDrawListViewBlocker ) {
-		// move this, if it's present (if was 0 results it'll be in the table, otherwise, wont be anyhow :)
-		jQuery( '#zbsNoResults' ).addClass( 'hidden' ).appendTo( '#zbs-list-warnings-wrap' );
+function zeroBSCRMJS_drawListView(reset_pagination, update_url) {
+	// if blocker, stop
+	if ( window.zbsDrawListViewBlocker ) {
+		return;
+	}
 
-		// put blocker up
-		window.zbsDrawListViewBlocker = true;
+	// reset pagination
+	if (reset_pagination) {
+		zbsListViewParams.paged = 1;
+	}
+	// update URL
+	if (update_url) {
+		history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
+	}
 
-		// empty table, show loading
-		jQuery( '.jpcrm-listview-table-container' ).html( window.zbsDrawListLoadingBoxHTML );
+	// move this, if it's present (if was 0 results it'll be in the table, otherwise, wont be anyhow :)
+	jQuery( '#zbsNoResults' ).addClass( 'hidden' ).appendTo( '#zbs-list-warnings-wrap' );
 
-		// check data + retrieve if empty
-		if ( ! window.zbsListViewParams.retrieved ) {
+	// put blocker up
+	window.zbsDrawListViewBlocker = true;
 
-			// hide extras until listview is loaded
-			document.querySelector('.bulk-actions-dropdown').classList.add('hidden');
-			jQuery( 'jpcrm-listview-footer' ).hide();
-			jQuery( 'jpcrm-dashcount' ).hide();
+	// empty table, show loading
+	jQuery( '.jpcrm-listview-table-container' ).html( '<div class="empty-container-with-spinner"><div class="ui active centered inline loader"></div></div>' );
 
-			// retrieve data
-			zeroBSCRMJS_retrieveListViewData(
-				function ( d ) {
+	// check data + retrieve if empty
+	if ( ! window.zbsListViewParams.retrieved ) {
 
-					// holds event flags to fire post-draw
-					var postHTML = {};
+		// hide extras until listview is loaded
+		document.querySelector('.bulk-actions-dropdown').classList.add('hidden');
+		jQuery( 'jpcrm-listview-footer' ).hide();
+		jQuery( 'jpcrm-dashcount' ).hide();
 
-					// success callback
-					var listViewHTML = '';
+		// retrieve data
+		zeroBSCRMJS_retrieveListViewData(
+			function ( d ) {
 
-					listViewHTML += jpcrm_listview_header();
+				// holds event flags to fire post-draw
+				var postHTML = {};
 
-					// build table
-					listViewHTML += '<table class="jpcrm-listview-table">';
+				// success callback
+				var listViewHTML = '';
 
-					// header
-					listViewHTML += jpcrm_listview_table_header();
-					listViewHTML += '<tbody>';
+				listViewHTML += jpcrm_listview_header();
 
-					// per line
-					if ( window.zbsListViewData.length > 0 ) {
-						jQuery.each( window.zbsListViewData, function ( ind, ele ) {
-							// add to html
-							listViewHTML += zeroBSCRMJS_listViewLine( ele );
-						} );
-					} else {
-						// no lines, move this ui msg into a blank row col
-						if ( jQuery( '#zbsNoResults' ).length ) {
-							listViewHTML +=
-								'<tr><td colspan="' +
-								window.zbsListViewParams.columns.length +
-								'" id="zbs-no-results-wrap">';
-
-							// to be fired after setTimeout jQuery('#zbsNoResults').appendTo('#zbs-no-results-wrap');
-							postHTML.nores = true;
-
-							listViewHTML += '</td></tr>';
-						}
-					}
-
-					listViewHTML += '</tbody>';
-
-					listViewHTML += '</table>';
-
-					// draw
-					jQuery( '.jpcrm-listview-table-container' ).html( listViewHTML );
-
-					//update counts in footer
-					jpcrm_update_listview_counts();
-
-					// update pagination
-					jpcrm_update_listview_pagination();
-
-					// catch any post-html events
-					var lPostHTML = postHTML;
-
-					// empty result set.
-					if ( typeof lPostHTML.nores ) {
-						jQuery( '#zbsNoResults' ).appendTo( '#zbs-no-results-wrap' ).removeClass( 'hidden' );
-					}
-
-					// bind any post-render (e.g. bulk action)
-					zeroBSCRMJS_listViewBinds();
-
-					// draw totals tables, if data
-					zeroBSCRMJS_listView_draw_totals_tables();
-					// fini, remove blocker
-					window.zbsDrawListViewBlocker = false;
-
-					jQuery( '#zbsCantLoadData' ).hide();
-					jQuery( '.jpcrm-listview-table-container' ).show();
-					jQuery( 'jpcrm-listview-footer' ).show();
-					jQuery( 'jpcrm-dashcount' ).show();
-				},
-				function ( errd ) {
-					// err callback? show msg (prefilled by php)
-					jQuery( '#zbsCantLoadData' ).show();
-					jQuery( '.jpcrm-listview-table-container' ).hide();
-
-					//update counts in footer
-					jpcrm_update_listview_counts();
-
-					// update pagination
-					jpcrm_update_listview_pagination();
-
-					// fini, remove blocker
-					window.zbsDrawListViewBlocker = false;
+				// show pagination at top if per page is high
+				if (zbsListViewParams.count >= 50) {
+					listViewHTML += '<div class="jpcrm-pagination-container"></div>';
 				}
-			);
-		}
+
+				// build table
+				listViewHTML += '<table class="jpcrm-listview-table">';
+
+				// header
+				listViewHTML += jpcrm_listview_table_header();
+				listViewHTML += '<tbody>';
+
+				// per line
+				if ( window.zbsListViewData.length > 0 ) {
+					jQuery.each( window.zbsListViewData, function ( ind, ele ) {
+						// add to html
+						listViewHTML += zeroBSCRMJS_listViewLine( ele );
+					} );
+				} else {
+					// no lines, move this ui msg into a blank row col
+					if ( jQuery( '#zbsNoResults' ).length ) {
+						// extra column due to checkbox
+						listViewHTML +='<tr><td colspan="' + (window.zbsListViewParams.columns.length + 1) + '" id="zbs-no-results-wrap">';
+
+						// to be fired after setTimeout jQuery('#zbsNoResults').appendTo('#zbs-no-results-wrap');
+						postHTML.nores = true;
+
+						listViewHTML += '</td></tr>';
+					}
+				}
+
+				listViewHTML += '</tbody>';
+
+				listViewHTML += '</table>';
+
+				// draw
+				jQuery( '.jpcrm-listview-table-container' ).html( listViewHTML );
+
+				//update counts in footer
+				jpcrm_update_listview_counts();
+
+				// update pagination
+				jpcrm_update_listview_pagination();
+
+				// catch any post-html events
+				var lPostHTML = postHTML;
+
+				// empty result set.
+				if ( typeof lPostHTML.nores ) {
+					jQuery( '#zbsNoResults' ).appendTo( '#zbs-no-results-wrap' ).removeClass( 'hidden' );
+				}
+
+				// bind any post-render (e.g. bulk action)
+				zeroBSCRMJS_listViewBinds();
+
+				// draw totals tables, if data
+				zeroBSCRMJS_listView_draw_totals_tables();
+				// fini, remove blocker
+				window.zbsDrawListViewBlocker = false;
+
+				jQuery( '#zbsCantLoadData' ).hide();
+				jQuery( '.jpcrm-listview-table-container' ).show();
+				jQuery( 'jpcrm-listview-footer' ).show();
+				jQuery( 'jpcrm-dashcount' ).show();
+			},
+			function ( errd ) {
+				// err callback? show msg (prefilled by php)
+				jQuery( '#zbsCantLoadData' ).css('display', 'flex');
+				jQuery( '.jpcrm-listview-table-container' ).hide();
+
+				//update counts in footer
+				jpcrm_update_listview_counts();
+
+				// update pagination
+				jpcrm_update_listview_pagination();
+
+				// fini, remove blocker
+				window.zbsDrawListViewBlocker = false;
+			}
+		);
 	}
 }
 
@@ -636,56 +650,24 @@ function jpcrm_listview_table_header() {
 		}
 
 		jQuery.each( window.zbsListViewParams.columns, function ( lvhInd, lvhEle ) {
-			var tdStr = lvhEle.namestr;
-
-			// sortable?
-			// This says "are not in unsortable"
-			//if (typeof window.zbsListViewParams.sort != "undefined" && window.zbsUnsortables.indexOf(lvhEle.fieldstr) < 0){
-			// but for v2.2 we'll do "in zbsSortables"(because need new db  format to properly do sort)
-			if (
-				typeof window.zbsSortables !== 'undefined' &&
-				window.zbsSortables.indexOf( lvhEle.fieldstr ) > -1
-			) {
-				if (
-					typeof window.zbsListViewParams.sort !== 'undefined' &&
-					window.zbsListViewParams.sort == lvhEle.fieldstr
-				) {
-					var sortDirection = 'down';
-					var sortDirectionUrlParam = 'asc';
-					if (
-						typeof window.zbsListViewParams.sortorder !== 'undefined' &&
-						window.zbsListViewParams.sortorder == 'asc'
-					) {
-						sortDirection = 'up';
-						sortDirectionUrlParam = 'desc';
-					}
-
-					tdStr +=
-						' <a href="' +
-						jpcrm_listview_generate_current_filter_url( true ) +
-						'&sort=' +
-						lvhEle.fieldstr +
-						'&sortdirection=' +
-						sortDirectionUrlParam +
-						'" title="Click to Sort"><i class="angle ' +
-						sortDirection +
-						' icon"></i></a>';
-				} else {
-					// use name as sort link, always defaults to desc
-					tdStr =
-						' <a href="' +
-						jpcrm_listview_generate_current_filter_url( true ) +
-						'&sort=' +
-						lvhEle.fieldstr +
-						'" title="Click to Sort">' +
-						tdStr +
-						'</a>';
+			if (zbsSortables && zbsSortables.indexOf( lvhEle.fieldstr ) > -1) {
+				sortDirectionUrlParam = 'asc';
+				var sortDirection = 'down';
+				if (zbsListViewParams.sortorder && window.zbsListViewParams.sortorder === 'asc' && zbsListViewParams.sort && zbsListViewParams.sort === lvhEle.fieldstr) {
+					sortDirection = 'up';
+					sortDirectionUrlParam = 'desc';
 				}
-			} // / is sortable
-
-			listViewHeaderHTML += '        <th>' + tdStr + '</th>';
+				listViewHeaderHTML += `<th class="jpcrm_sort_column" data-sort="${lvhEle.fieldstr}" data-sortdir="${sortDirectionUrlParam}" title="${zeroBSCRMJS_listViewLang('click_to_sort')}">`;
+				listViewHeaderHTML += `${lvhEle.namestr}`;
+				if ( zbsListViewParams.sort && zbsListViewParams.sort === lvhEle.fieldstr) {
+					listViewHeaderHTML += `<i class="angle ${sortDirection} icon"></i>`;
+				}
+				listViewHeaderHTML += `</th>`;
+			} else {
+				listViewHeaderHTML += `<th>${lvhEle.namestr}</th>`;
+			}
 		} );
-		listViewHeaderHTML += '      </tr></thead>';
+		listViewHeaderHTML += '</tr></thead>';
 	}
 
 	return listViewHeaderHTML;
@@ -775,6 +757,10 @@ function zeroBSCRMJS_listViewLine( data ) {
  *
  */
 function zeroBSCRMJS_listViewBinds() {
+
+	// bind sort column clicks
+	let sort_columns = document.querySelectorAll('.jpcrm_sort_column');
+	sort_columns.forEach( el => el.addEventListener('click',jpcrm_change_sort));
 
 	let row_checkboxes = document.querySelectorAll('.jpcrm-listview-table td input[type="checkbox"]');
 
@@ -1831,17 +1817,14 @@ function zeroBSCRMJS_listView_generic_nameavatar( dataLine ) {
 		nameStr = dataLine.email;
 	}
 
-	var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-	td += imgStr;
-	td +=
-		'<div class="content"><a href="' +
-		editURL +
-		'">' +
-		nameStr +
-		'</a><div class="sub header">' +
-		emailStr +
-		'</div>';
-	td += '</div></h4></td>';
+	var td = `
+		<td class="jpcrm_name_and_avatar">
+			${imgStr}
+			<div class="content">
+				<a href="${editURL}">${nameStr}</a>
+				${emailStr}
+			</div>
+		</td>`;
 
 	return td;
 }
@@ -1883,10 +1866,10 @@ function zeroBSCRMJS_listView_generic_customer( dataLine ) {
 		var editURL = zeroBSCRMJS_listView_viewURL_customer( dataLine.customer.id );
 		var emailURL = zeroBSCRMJS_listView_emailURL_contact( dataLine.customer.id );
 
-		var emailStr = ''; //if (typeof custLine['email'] != "undefined" && custLine['email'] != '') emailStr = '<a href="mailto:' + custLine['email'] + '" target="_blank">' + custLine['email'] + '</a>';
+		var emailStr = '';
 		var imgStr = '';
 		if ( typeof custLine.avatar !== 'undefined' && custLine.avatar != '' ) {
-			imgStr = '<img src="' + custLine.avatar + '" class="ui mini rounded image">';
+			imgStr = '<img src="' + custLine.avatar + '">';
 		} //imgStr = '<a href="' + editURL + '"><img src="' + dataLine['avatar'] + '" class="ui mini rounded image"></a>';
 		var nameStr = '';
 		if ( typeof custLine.fullname !== 'undefined' && custLine.fullname != '' ) {
@@ -1896,17 +1879,14 @@ function zeroBSCRMJS_listView_generic_customer( dataLine ) {
 			nameStr = custLine.email;
 		}
 
-		var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-		td += imgStr;
-		td +=
-			'<div class="content"><a href="' +
-			editURL +
-			'">' +
-			nameStr +
-			'</a><div class="sub header">' +
-			emailStr +
-			'</div>';
-		td += '</div></h4></td>';
+		var td = `
+			<td class="jpcrm_name_and_avatar">
+				${imgStr}
+				<div class="content">
+					<a href="${editURL}">${nameStr}</a>
+					${emailStr}
+				</div>
+			</td>`;
 	} else if (
 		typeof dataLine.company !== 'undefined' &&
 		dataLine.company != null &&
@@ -1921,9 +1901,13 @@ function zeroBSCRMJS_listView_generic_customer( dataLine ) {
 			nameStr = coLine.fullname;
 		}
 
-		var td = '<td class="name-and-avatar-list"><h4 class="ui header">';
-		td += '<i class="building icon"></i>';
-		td += '<div class="content"><a href="' + editURL + '">' + nameStr + '</a></div></h4></td>';
+		var td = `
+			<td class="jpcrm_name_and_avatar">
+			<i class="building icon"></i>
+				<div class="content">
+					<a href="${editURL}">${nameStr}</a>
+				</div>
+			</td>`;
 	} else {
 		td = '<td>' + zeroBSCRMJS_listViewLang( 'nocustomer' ) + '</td>';
 	}
@@ -2540,17 +2524,14 @@ function zeroBSCRMJS_listView_customer_nameavatar( dataLine ) {
 		nameStr = dataLine.email;
 	}
 
-	var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-	td += imgStr;
-	td +=
-		'<div class="content"><a href="' +
-		editURL +
-		'">' +
-		nameStr +
-		'</a><div class="sub header">' +
-		emailStr +
-		'</div>';
-	td += '</div></h4></td>';
+	var td = `
+		<td class="jpcrm_name_and_avatar">
+			${imgStr}
+			<div class="content">
+				<a href="${editURL}">${nameStr}</a>
+				${emailStr}
+			</div>
+		</td>`;
 
 	return td;
 }
@@ -3017,17 +2998,14 @@ function zeroBSCRMJS_listView_company_nameavatar( dataLine ) {
 		nameStr = dataLine.email;
 	}
 
-	var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-	td += imgStr;
-	td +=
-		'<div class="content"><a href="' +
-		editURL +
-		'">' +
-		nameStr +
-		'</a><div class="sub header">' +
-		emailStr +
-		'</div>';
-	td += '</div></h4></td>';
+	var td = `
+		<td class="jpcrm_name_and_avatar">
+			${imgStr}
+			<div class="content">
+				<a href="${editURL}">${nameStr}</a>
+				${emailStr}
+			</div>
+		</td>`;
 
 	return td;
 }
@@ -3531,38 +3509,6 @@ function zeroBSCRMJS_listView_company_bulkActionFire_removetag() {
 =============== Field Drawing JS - Quote List View ==================================
 ==================================================================================== */
 
-/* Now covered by generic_customer
-
-        function zeroBSCRMJS_listView_quote_customer(dataLine){
-
-            console.log('line',dataLine);
-
-            if (typeof dataLine['customer'] != "undefined" && typeof dataLine['customer']['meta'] != "undefined"){
-
-                var custLine = dataLine['customer']['meta'];
-
-                var editURL = zeroBSCRMJS_listView_viewURL_customer(dataLine['customer']['id']);
-
-                var emailStr = ''; //if (typeof custLine['email'] != "undefined" && custLine['email'] != '') emailStr = '<a href="mailto:' + custLine['email'] + '" target="_blank">' + custLine['email'] + '</a>';
-                var imgStr = ''; if (typeof custLine['avatar'] != "undefined" && custLine['avatar'] != '') imgStr = '<img src="' + custLine['avatar'] + '" class="ui mini rounded image">';//imgStr = '<a href="' + editURL + '"><img src="' + dataLine['avatar'] + '" class="ui mini rounded image"></a>';
-                var nameStr = ''; if (typeof custLine['fullname'] != "undefined" && custLine['fullname'] != '') nameStr = custLine['fullname'];
-                if (nameStr == '' && typeof custLine['email'] != "undefined" && custLine['email'] != '') nameStr = custLine['email'];
-
-                var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-                td += imgStr;
-                td += '<div class="content"><a href="' + editURL + '">' + nameStr + '</a><div class="sub header">' + emailStr + '</div>';
-                td += '</div></h4></td>';
-
-            } else {
-
-                td = '';
-            }
-
-            return td;
-        }
-
-    */
-// Draw <td> for quote title
 /**
  * @param dataLine
  */
@@ -5545,14 +5491,8 @@ function jpcrm_add_listview_filter() {
 		zbsListViewParams.filters.tags = [{id:this.value}];
 	}
 
-	// reset pagination
-	zbsListViewParams.paged = 1;
-
-	// update address bar
-	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
-
 	// draw new listview
-	zeroBSCRMJS_drawListView();
+	zeroBSCRMJS_drawListView(true, true);
 }
 
 function jpcrm_remove_listview_filter() {
@@ -5572,14 +5512,8 @@ function jpcrm_remove_listview_filter() {
 		zbsListViewParams.filters.tags = [];
 	}
 
-	// reset pagination
-	zbsListViewParams.paged = 1;
-
-	// update address bar
-	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
-
 	// draw new listview
-	zeroBSCRMJS_drawListView();
+	zeroBSCRMJS_drawListView(true, true);
 }
 
 function jpcrm_do_search_filter( event ) {
@@ -5591,14 +5525,16 @@ function jpcrm_do_search_filter( event ) {
 	// update listview filter settings
 	zbsListViewParams.filters.s = this.value;
 
-	// reset pagination
-	zbsListViewParams.paged = 1;
-
-	// update address bar
-	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
-
 	// draw new listview
-	zeroBSCRMJS_drawListView();
+	zeroBSCRMJS_drawListView(true, true);
+}
+
+function jpcrm_change_sort() {
+	// update sort params
+	zbsListViewParams.sort = this.dataset.sort;
+	zbsListViewParams.sortorder = this.dataset.sortdir;
+	// draw new listview
+	zeroBSCRMJS_drawListView(true, true);
 }
 
 if ( typeof module !== 'undefined' ) {
@@ -5741,6 +5677,6 @@ if ( typeof module !== 'undefined' ) {
 		zeroBSCRMJS_listView_saveInlineEdit,
 		zeroBSCRMJS_listView_customer_edit_status,
 		zeroBSCRMJS_listView_generic_edit_assigned, jpcrm_get_contact_meta,
-		jpcrm_add_listview_filter, jpcrm_remove_listview_filter, jpcrm_do_search_filter
+		jpcrm_add_listview_filter, jpcrm_remove_listview_filter, jpcrm_do_search_filter, jpcrm_change_sort
 	};
 }

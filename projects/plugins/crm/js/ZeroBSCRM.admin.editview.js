@@ -391,7 +391,7 @@ function zeroBSCRMJS_events_showContactLinkIf( contactID ) {
 
 			// ALSO show in header bar, if so
 			var navButton =
-				'<a target="_blank" style="margin-left:6px;" class="zbs-quicknav-contact ui icon button blue mini labeled" href="' +
+				'<a target="_blank" style="margin-left:6px;" class="zbs-quicknav-contact ui icon button black mini labeled" href="' +
 				window.zbsObjectViewLinkPrefixCustomer +
 				contactID +
 				'"><i class="user icon"></i> ' +
@@ -451,7 +451,7 @@ function zeroBSCRMJS_events_showCompanyLinkIf( companyID ) {
 
 			// ALSO show in header bar, if so
 			var navButton =
-				'<a target="_blank" style="margin-left:6px;" class="zbs-quicknav-contact ui icon button blue mini labeled" href="' +
+				'<a target="_blank" style="margin-left:6px;" class="zbs-quicknav-contact ui icon button black mini labeled" href="' +
 				window.zbsObjectViewLinkPrefixCompany +
 				companyID +
 				'"><i class="user icon"></i> ' +
