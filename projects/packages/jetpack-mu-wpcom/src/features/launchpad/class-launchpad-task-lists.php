@@ -129,6 +129,18 @@ class Launchpad_Task_Lists {
 	}
 
 	/**
+	 * Check if a task list is enabled by checking its is_enabled_callback callback.
+	 *
+	 * @param string $id Task List id.
+	 * @return bool|null True if enabled, false if not, null if not found.
+	 */
+	public function is_task_list_enabled( $id ) {
+		$task_list = $this->get_task_list( $id );
+
+		return $this->load_value_from_callback( $task_list, 'is_enabled_callback', null );
+	}
+
+	/**
 	 * Get all registered Launchpad Task Lists.
 	 *
 	 * @return array All registered Launchpad Task Lists.

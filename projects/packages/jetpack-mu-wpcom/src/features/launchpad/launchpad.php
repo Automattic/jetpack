@@ -889,6 +889,29 @@ function wpcom_log_launchpad_being_enabled_for_test_sites( $option, $value ) {
 	);
 }
 
+/**
+ * Checks if a specific launchpad task list is enabled or if the overall launchpad is enabled.
+ *
+ * @param string|false $checklist_slug The slug of the launchpad task list to check.
+ * @return bool True if the task list is enabled, false otherwise.
+ */
+function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug = false ) {
+	// If the checklist slug is provided, check the status of the task list.
+	if ( false !== $checklist_slug ) {
+		$is_enabled = wpcom_launchpad_checklists()->is_task_list_enabled( $checklist_slug );
+
+		// If the status of the task list is known, return its value.
+		if ( null !== $is_enabled ) {
+			return $is_enabled;
+		}
+	}
+
+	// If the status of the task list is not known, check the status of the overall launchpad.
+	// @todo: Remove this fallback once all task lists have been migrated to the new system.
+	// https://github.com/Automattic/wp-calypso/issues/77407
+	return wpcom_launchpad_checklists()->is_launchpad_enabled();
+}
+
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
 if ( class_exists( 'WPCOM_Launchpad' ) ) {
 	remove_action( 'plugins_loaded', array( WPCOM_Launchpad::get_instance(), 'init' ) );
