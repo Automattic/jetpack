@@ -146,7 +146,7 @@ class Automation_Workflow_Test extends BaseTestCase {
 	public function test_workflow_execution_on_contact_created() {
 
 		$logger = Automation_Logger::instance( true );
-		
+
 		$automation = new Automation_Engine();
 		$automation->set_automation_logger( $logger );
 		$automation->register_trigger( 'contact_created', Contact_Created_Trigger::class );
@@ -291,8 +291,8 @@ class Automation_Workflow_Test extends BaseTestCase {
 		$automation->init_workflows();
 
 		// Fake event data. Set status to customer to make the condition false
-		$contact_data = $this->automation_faker->contact_data();
-		$contact_data['status'] = 'customer';   
+		$contact_data                   = $this->automation_faker->contact_data();
+		$contact_data['data']['status'] = 'customer';
 
 		// Emit the contact_created event with the fake contact data
 		$event_emitter = Event_Emitter::instance();

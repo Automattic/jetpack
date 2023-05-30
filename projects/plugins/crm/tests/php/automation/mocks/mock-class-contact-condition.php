@@ -17,6 +17,7 @@ class Contact_Condition extends Base_Condition {
 		'name',
 		'email',
 		'status',
+		'data',
 	);
 
 	/** @var string[] Valid operators */
@@ -118,15 +119,15 @@ class Contact_Condition extends Base_Condition {
 		$operator = $this->get_attributes()['operator'];
 		$value    = $this->get_attributes()['value'];
 
-		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data[ $field ] );
+		$this->logger->log( 'Condition: ' . $field . ' ' . $operator . ' ' . $value . ' => ' . $data['data'][ $field ] );
 
 		switch ( $operator ) {
 			case 'is':
-				$this->condition_met = ( $data[ $field ] === $value );
+				$this->condition_met = ( $data['data'][ $field ] === $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				return;
 			case 'is_not':
-				$this->condition_met = ( $data[ $field ] !== $value );
+				$this->condition_met = ( $data['data'][ $field ] !== $value );
 				$this->logger->log( 'Condition met?: ' . ( $this->condition_met ? 'true' : 'false' ) );
 				return;
 		}
