@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "34f4f6e5c2dbd916d24b290cb46d878dac94604a"
+                "reference": "de856cd8874c1685dc35b66d80abe1052c3e77a0"
             },
             "require-dev": {
                 "automattic/jetpack-changelogger": "@dev",
@@ -30,7 +30,7 @@
                 },
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "2.3.x-dev"
+                    "dev-trunk": "2.4.x-dev"
                 },
                 "textdomain": "jetpack-mu-wpcom",
                 "version-constants": {
@@ -78,7 +78,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/changelogger",
-                "reference": "6e45a8dd0df385b87369efa5d74afe338e505dc9"
+                "reference": "30070e39a17fa33ac68d7cacee619edf51bc2469"
             },
             "require": {
                 "php": ">=5.6",
