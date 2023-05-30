@@ -259,7 +259,13 @@ const ToolbarControls = ( {
 
 							setUserPrompt( prompt );
 						} }
-						onSuggestionSelect={ getSuggestionFromOpenAI }
+						onSuggestionSelect={ suggestion => {
+							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+								type: 'suggestion',
+								suggestion,
+							} );
+							getSuggestionFromOpenAI( suggestion );
+						} }
 					/>
 				) }
 
