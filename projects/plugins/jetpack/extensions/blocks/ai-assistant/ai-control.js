@@ -49,6 +49,7 @@ const AIControl = ( {
 	promptType,
 	onChange,
 	requireUpgrade,
+	recordEvent,
 } ) => {
 	const promptUserInputRef = useRef( null );
 	const [ isSm ] = useBreakpointMatch( 'sm' );
@@ -114,6 +115,7 @@ const AIControl = ( {
 							}, 25 * i );
 						}
 					} }
+					recordEvent={ recordEvent }
 				/>
 			) }
 			<div
@@ -197,6 +199,7 @@ const ToolbarControls = ( {
 	wholeContent,
 	promptType,
 	setUserPrompt,
+	recordEvent,
 } ) => {
 	return (
 		<>
@@ -248,7 +251,14 @@ const ToolbarControls = ( {
 						hasContentBefore={ !! contentBefore?.length }
 						hasContent={ !! wholeContent?.length }
 						hasPostTitle={ hasPostTitle }
-						onPromptSelected={ setUserPrompt }
+						onPromptSelected={ prompt => {
+							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
+								type: 'prompt-template',
+								prompt,
+							} );
+
+							setUserPrompt( prompt );
+						} }
 						getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
 					/>
 				) }
