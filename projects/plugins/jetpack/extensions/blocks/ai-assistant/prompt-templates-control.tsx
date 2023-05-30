@@ -3,10 +3,15 @@
  */
 import { MenuItem, MenuGroup, ToolbarDropdownMenu } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { title, postContent, postExcerpt, termDescription, post, pencil } from '@wordpress/icons';
 import React from 'react';
 
 type PromptTemplatesControlProps = {
+	hasContentBefore: boolean;
+	hasContent: boolean;
+	hasPostTitle: boolean;
 	onPromptSelected: ( prompt: string ) => void;
+	getSuggestionFromOpenAI: ( type: string, options?: object ) => void;
 };
 
 type PromptTemplateProps = {
@@ -62,6 +67,10 @@ const promptTemplates = [
 
 export default function PromptTemplatesControl( {
 	onPromptSelected,
+	hasContentBefore,
+	hasContent,
+	hasPostTitle,
+	getSuggestionFromOpenAI,
 }: PromptTemplatesControlProps ) {
 	const label = __( 'Write with AI…', 'jetpack' );
 
@@ -74,19 +83,79 @@ export default function PromptTemplatesControl( {
 		>
 			{ ( { onClose } ) => {
 				return (
-					<MenuGroup label={ label }>
-						{ promptTemplates.map( ( prompt: PromptTemplateProps, i: number ) => (
-							<MenuItem
-								key={ `key-${ i }` }
-								onClick={ () => {
-									onClose();
-									onPromptSelected( prompt.description );
-								} }
-							>
-								{ prompt.label }
-							</MenuItem>
-						) ) }
-					</MenuGroup>
+					<>
+						{ hasContentBefore && (
+							<MenuGroup label={ __( 'Based on preceding content…', 'jetpack' ) }>
+								<MenuItem
+									icon={ postContent }
+									iconPosition="left"
+									onClick={ () => getSuggestionFromOpenAI( 'continue' ) }
+								>
+									{ __( 'Expand on preceding content', 'jetpack' ) }
+								</MenuItem>
+								<MenuItem
+									icon={ termDescription }
+									iconPosition="left"
+									onClick={ () => getSuggestionFromOpenAI( 'correctSpelling' ) }
+								>
+									{ __( 'Correct spelling and grammar of preceding content', 'jetpack' ) }
+								</MenuItem>
+								<MenuItem
+									icon={ post }
+									iconPosition="left"
+									onClick={ () => getSuggestionFromOpenAI( 'simplify' ) }
+								>
+									{ __( 'Simplify preceding content', 'jetpack' ) }
+								</MenuItem>
+							</MenuGroup>
+						) }
+						{ hasContent && (
+							<MenuGroup label={ __( 'Based on entire content…', 'jetpack' ) }>
+								{ hasContent && (
+									<MenuItem
+										icon={ postExcerpt }
+										iconPosition="left"
+										onClick={ () => getSuggestionFromOpenAI( 'summarize' ) }
+									>
+										{ __( 'Summarize', 'jetpack' ) }
+									</MenuItem>
+								) }
+								{ hasContent && (
+									<MenuItem
+										icon={ title }
+										iconPosition="left"
+										onClick={ () => getSuggestionFromOpenAI( 'generateTitle' ) }
+									>
+										{ __( 'Generate a post title', 'jetpack' ) }
+									</MenuItem>
+								) }
+							</MenuGroup>
+						) }
+						<MenuGroup label={ __( 'Write…', 'jetpack' ) }>
+							{ hasPostTitle && (
+								<MenuItem
+									icon={ pencil }
+									iconPosition="left"
+									onClick={ () => getSuggestionFromOpenAI( 'titleSummary' ) }
+								>
+									{ __( 'Summary based on title', 'jetpack' ) }
+								</MenuItem>
+							) }
+							{ promptTemplates.map( ( prompt: PromptTemplateProps, i: number ) => (
+								<MenuItem
+									icon={ pencil }
+									iconPosition="left"
+									key={ `key-${ i }` }
+									onClick={ () => {
+										onClose();
+										onPromptSelected( prompt.description );
+									} }
+								>
+									{ prompt.label }
+								</MenuItem>
+							) ) }
+						</MenuGroup>
+					</>
 				);
 			} }
 		</ToolbarDropdownMenu>
