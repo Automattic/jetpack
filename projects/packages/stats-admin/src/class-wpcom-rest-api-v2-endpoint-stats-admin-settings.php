@@ -75,7 +75,7 @@ class WPCOM_REST_API_V2_Endpoint_Stats_Admin_Settings extends Base_Stats_Rest_Co
 	public function update_modules_status( $req ) {
 		$current_modules = Options::get_option( self::DASHBOARD_MODULES );
 		$changed         = false;
-		foreach ( $req->get_params() as $page ) {
+		foreach ( $req->get_params() as $page => $page_modules ) {
 			// Only allow existing pages.
 			if ( ! isset( self::ALLOWED_MODULES[ $page ] ) ) {
 				continue;
@@ -83,21 +83,22 @@ class WPCOM_REST_API_V2_Endpoint_Stats_Admin_Settings extends Base_Stats_Rest_Co
 
 			// Filter only the allowed moudules.
 			$page_modules = array_filter(
-				$req->get_param( 'modules' ),
+				$page_modules,
 				function ( $module ) use ( $page ) {
 					return in_array( $module, self::ALLOWED_MODULES[ $page ], true );
 				}
 			);
 
 			// Module values should be boolean.
-			$page_modules = array_map(
-				function ( $val ) {
-					return (bool) $val;},
-				$page_modules
-			);
+			$page_modules = array_map( 'boolval', $page_modules );
 
-			$current_modules[ $page ] = array_merge( array_key_exists( $page, $current_modules ) ? $current_modules[ $page ] : array(), $page_modules );
-			$changed                  = true;
+			if ( isset( $current_modules[ $page ] ) ) {
+				$current_modules[ $page ] = array_merge( $current_modules[ $page ], $page_modules );
+			} else {
+				$current_modules[ $page ] = $page_modules;
+			}
+
+			$changed = true;
 		}
 
 		return array( 'updated' => $changed && Options::set_option( self::DASHBOARD_MODULES, $current_modules ) );
