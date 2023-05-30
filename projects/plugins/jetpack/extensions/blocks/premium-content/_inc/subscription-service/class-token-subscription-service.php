@@ -52,6 +52,8 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 *
 	 * @param array $valid_plan_ids List of valid plan IDs.
 	 * @param array $access_level Access level for content.
+	 *
+	 * @return bool Whether the user can view the content
 	 */
 	public function visitor_can_view_content( $valid_plan_ids, $access_level ) {
 
@@ -106,7 +108,7 @@ abstract class Token_Subscription_Service implements Subscription_Service {
 	 * @param bool   $is_paid_subscriber Is user a paid subscriber of the blog.
 	 * @param int    $post_id Post ID.
 	 *
-	 * @return bool does the user have access to the post/blog.
+	 * @return bool Whether the user has access to the content.
 	 */
 	protected function user_has_access( $access_level, $is_blog_subscriber, $is_paid_subscriber, $post_id ) {
 
