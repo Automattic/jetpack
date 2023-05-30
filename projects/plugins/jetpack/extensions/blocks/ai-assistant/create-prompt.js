@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
+import { select } from '@wordpress/data';
 import debugFactory from 'debug';
+/**
+ * Internal dependencies
+ */
 import { LANGUAGE_MAP } from './i18n-dropdown-control';
 
 // Maximum number of characters we send from the content
@@ -29,10 +33,20 @@ export const buildPromptTemplate = ( {
 	content = null,
 	language = null,
 	locale = null,
+	addBlogPostData = true,
 } ) => {
 	if ( ! request && ! content ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
+
+	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' );
+	const blogPostData = addBlogPostData
+		? `
+Blog post relevant data:
+- Title: ${ postTitle }
+----------
+`
+		: '';
 
 	// Language and Locale
 	let langLocatePromptPart = language
@@ -91,8 +105,8 @@ ${ extraRulePromptPart }- Do not include a top level heading by default.
 - Segment the content into paragraphs as deemed suitable.
 ` +
 		langLocatePromptPart +
-		`-----------
-		` +
+		`-----------` +
+		blogPostData +
 		requestPromptBlock +
 		contextPromptPart +
 		`
