@@ -243,7 +243,7 @@ function jpcrm_render_emailbox() {
 			<?php
 				do_action( 'zbs_email_schedule_send_time' );
 			?>
-			<div class='zbs-send-email-thread-button ui button blue'><?php esc_html_e( 'Send', 'zero-bs-crm' ); ?></div>
+			<div class='zbs-send-email-thread-button ui button black'><?php esc_html_e( 'Send', 'zero-bs-crm' ); ?></div>
 			</div>
 
 
