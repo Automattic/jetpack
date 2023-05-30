@@ -119,6 +119,20 @@ function jetpack_boost_page_optimize_service_request() {
 }
 
 /**
+ * Strip matching parent paths off a string. Returns $path without $parent_path.
+ */
+function jetpack_boost_strip_parent_path( $parent_path, $path ) {
+	$trimmed_parent = ltrim( $parent_path, '/' );
+	$trimmed_path   = ltrim( $path, '/' );
+
+	if ( substr( $trimmed_path, 0, strlen( $trimmed_parent ) === $trimmed_parent ) ) {
+		$trimmed_path = substr( $trimmed_path, strlen( $trimmed_parent ) );
+	}
+
+	return substr( $trimmed_path, 0, 1 ) === '/' ? $trimmed_path : '/' . $trimmed_path;
+}
+
+/**
  * Generate a combined and minified output for the current request.
  */
 function jetpack_boost_page_optimize_build_output() {
@@ -239,7 +253,7 @@ function jetpack_boost_page_optimize_build_output() {
 		}
 
 		if ( 'text/css' === $mime_type ) {
-			$dirpath = '/' . ltrim( $subdir_path_prefix . dirname( $uri ), '/' );
+			$dirpath = jetpack_boost_strip_parent_path( $subdir_path_prefix, dirname( $uri ) );
 
 			// url(relative/path/to/file) -> url(/absolute/and/not/relative/path/to/file)
 			$buf = jetpack_boost_page_optimize_relative_path_replace( $buf, $dirpath );
