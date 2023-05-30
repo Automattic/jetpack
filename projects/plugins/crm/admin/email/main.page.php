@@ -252,19 +252,18 @@ function jpcrm_render_emailbox() {
 
 		<div class='zbs-email-contact-info app-content'>
 				<?php
-				// the customer information pane - get using AJAX
-
-				// $customer_panel = zeroBSCRM_emails_customer_panel();
-
-				// defaults
-				$customer_panel                       = array();
-				$customer_panel['avatar']             = '';
-				$customer_panel['customer']['fname']  = 'John';
-				$customer_panel['customer']['lname']  = 'Doe';
-				$customer_panel['customer']['status'] = __( 'Lead', 'zero-bs-crm' );
-				$customer_panel['tasks']              = array();
-				$customer_panel['trans_value']        = 0;
-				$customer_panel['quote_value']        = 0;
+				// Placeholders
+				$customer_panel = array(
+					'avatar'      => '',
+					'customer'    => array(
+						'fname'  => 'John',
+						'lname'  => 'Doe',
+						'status' => __( 'Lead', 'zero-bs-crm' ),
+					),
+					'tasks'       => array(),
+					'trans_value' => 0,
+					'quote_value' => 0,
+				);
 
 				echo "<div class='customer-panel-header'>";
 					echo "<div class='panel-edit-contact'>";
