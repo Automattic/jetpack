@@ -1799,7 +1799,7 @@ abstract class Publicize_Base {
 	 * @return bool
 	 */
 	public function has_mastodon_connection_feature() {
-		return Current_Plan::supports( 'social-mastodon-connection' );
+		return Current_Plan::supports( 'social-mastodon-connection', true );
 	}
 
 	/**
