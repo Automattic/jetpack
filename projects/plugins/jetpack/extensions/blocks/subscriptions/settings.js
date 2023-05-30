@@ -183,7 +183,6 @@ function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasN
 function NewsletterAccessRadioButtons( {
 	onChange,
 	accessLevel,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	hasNewsletterPlans,
@@ -262,7 +261,6 @@ function NewsletterAccessRadioButtons( {
 export function NewsletterAccessDocumentSettings( {
 	accessLevel,
 	setPostMeta,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	showMisconfigurationWarning,
@@ -336,7 +334,6 @@ export function NewsletterAccessDocumentSettings( {
 											<NewsletterAccessRadioButtons
 												onChange={ setPostMetaAndClose( onClose ) }
 												accessLevel={ _accessLevel }
-												socialFollowers={ socialFollowers }
 												emailSubscribers={ emailSubscribers }
 												paidSubscribers={ paidSubscribers }
 												stripeConnectUrl={ stripeConnectUrl }
@@ -372,7 +369,6 @@ export function NewsletterAccessDocumentSettings( {
 export function NewsletterAccessPrePublishSettings( {
 	accessLevel,
 	setPostMeta,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	showMisconfigurationWarning,
@@ -413,7 +409,6 @@ export function NewsletterAccessPrePublishSettings( {
 									<NewsletterAccessRadioButtons
 										onChange={ setPostMeta }
 										accessLevel={ _accessLevel }
-										socialFollowers={ socialFollowers }
 										emailSubscribers={ emailSubscribers }
 										paidSubscribers={ paidSubscribers }
 										stripeConnectUrl={ stripeConnectUrl }
