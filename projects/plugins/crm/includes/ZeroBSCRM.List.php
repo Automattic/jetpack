@@ -782,8 +782,8 @@ class zeroBSCRM_list{
 	public function draw_listview_header( $listview_filters ) {
 		global $zbs;
 
-		$filter_var       = 'zeroBSCRM_filterbuttons_' . $this->objType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-		$all_quickfilters = $GLOBALS[ $filter_var ]['all'];
+		$filter_var       = 'zeroBSCRM_filterbuttons_a' . $this->objType; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+		$all_quickfilters = ( empty( $GLOBALS[ $filter_var ]['all'] ) ? array() : $GLOBALS[ $filter_var ]['all'] );
 		$all_tags         = $zbs->DAL->getTagsForObjType( // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 			array(
 				'objtypeid'    => $this->objTypeID, // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
@@ -822,7 +822,7 @@ class zeroBSCRM_list{
 				}
 
 				// add tags filter if current object has tags
-				if ( count( $all_tags ) > 0 ) {
+				if ( is_array( $all_tags ) && count( $all_tags ) > 0 ) {
 					echo '<select class="filter-dropdown' . ( ! empty( $current_tag ) ? ' hidden' : '' ) . '" data-filtertype="tags">';
 					echo '<option disabled selected>' . esc_html__( 'Select tag', 'zero-bs-crm' ) . '</option>';
 					foreach ( $all_tags as $tag ) {
