@@ -59,8 +59,6 @@ Currently, the plugin has 6 performance modules available:
 
    Read more about minifying files at [web.dev](https://web.dev/minify-css/)
 
-Google PageSpeed API is used to measure the performance score of a site. It's important to look at the Page Speed score because Core Web Vitals are going to be used as a ranking factor in search engines which means improving your SERP listing and increase your website visitors.
-
 Don’t want to have to manually generate your critical CSS each time you update your site? Let us do the heavy lifting for you with automated critical CSS – each time you update your site we will automatically regenerate your critical CSS and update your performance scores. Upgrading also gives you dedicated email support access.
 
 ### With 💚 by Jetpack
