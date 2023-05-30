@@ -86,7 +86,8 @@ class WPCOM_REST_API_V2_Endpoint_Stats_Admin_Settings extends Stats_Base_REST_Co
 				$page_modules,
 				function ( $module ) use ( $page ) {
 					return in_array( $module, self::ALLOWED_MODULES[ $page ], true );
-				}
+				},
+				ARRAY_FILTER_USE_KEY
 			);
 
 			// Module values should be boolean.
