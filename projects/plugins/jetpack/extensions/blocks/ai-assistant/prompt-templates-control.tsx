@@ -22,10 +22,10 @@ export const defaultPromptTemplate = {
 const promptTemplates = [
 	defaultPromptTemplate,
 
-	{
-		label: __( 'Detailed guide on…', 'jetpack' ),
-		description: __( 'Craft a detailed guide ', 'jetpack' ),
-	},
+	// {
+	// 	label: __( 'Detailed guide on…', 'jetpack' ),
+	// 	description: __( 'Craft a detailed guide ', 'jetpack' ),
+	// },
 	// {
 	// 	label: __( 'Opinion on trends in…', 'jetpack' ),
 	// 	description: __( 'Write an opinion piece on the current trends in ', 'jetpack' ),
@@ -34,10 +34,10 @@ const promptTemplates = [
 	// 	label: __( 'Review about…', 'jetpack' ),
 	// 	description: __( 'Write a review about ', 'jetpack' ),
 	// },
-	{
-		label: __( 'Short story in…', 'jetpack' ),
-		description: __( 'Write a short story set in ', 'jetpack' ),
-	},
+	// {
+	// 	label: __( 'Short story in…', 'jetpack' ),
+	// 	description: __( 'Write a short story set in ', 'jetpack' ),
+	// },
 	{
 		label: __( 'Informative article on…', 'jetpack' ),
 		description: __( 'Craft an informative article explaining ', 'jetpack' ),
