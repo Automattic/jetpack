@@ -47,12 +47,12 @@ const promptTemplates = [
 	// 	description: __( 'Write a tribute piece about ', 'jetpack' ),
 	// },
 	{
-		label: __( 'Motivational post on…', 'jetpack' ),
-		description: __( 'Create a motivational post on ', 'jetpack' ),
-	},
-	{
 		label: __( 'Step-by-step tutorial on…', 'jetpack' ),
 		description: __( 'Write a step-by-step tutorial on ', 'jetpack' ),
+	},
+	{
+		label: __( 'Motivational post on…', 'jetpack' ),
+		description: __( 'Create a motivational post on ', 'jetpack' ),
 	},
 	// {
 	// 	label: __( 'Critical analysis of…', 'jetpack' ),
