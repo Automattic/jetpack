@@ -77,7 +77,7 @@ class WPCOM_REST_API_V2_Endpoint_Stats_Admin_Settings extends Stats_Base_REST_Co
 		$changed         = false;
 		foreach ( $req->get_params() as $page => $page_modules ) {
 			// Only allow existing pages.
-			if ( ! isset( self::ALLOWED_MODULES[ $page ] ) ) {
+			if ( array_key_exists( $page, self::ALLOWED_MODULES ) ) {
 				continue;
 			}
 
