@@ -92,14 +92,6 @@
         }
     }
 
-    #zbs-screen-options{
-        margin-top: -5.3em !important;
-        margin-bottom: 25px;
-        .header{
-            padding-top: 5px;
-        }
-    }
-
     #wpcontent {
         margin-left:0px !important;
 
@@ -141,13 +133,6 @@
             }
         }
 
-        #zbs-admin-top-bar{
-            margin-right: 0px;
-        }
-        #zbs-admin-top-bar{
-            padding-left:30px;
-        }
-
         .ui.grid>.row>[class*="eight wide"].column, .ui.grid>.column.row>[class*="eight wide"].column, .ui.grid>[class*="eight wide"].column, .ui.column.grid>[class*="eight wide"].column{
             width: 100% !important;
             overflow:hidden;
@@ -178,14 +163,6 @@
             padding-right:0px;
         }
 
-        #zbs-list-table-wrap{
-            position:relative;
-        }
-        #zbs-list-table-wrap, #zbs-list-sidebar-wrap{
-            padding-right: 0;
-        }
-
-
         #zbs-customer-panel .three.wide.column img {
             max-width: 100%;
             width: 95% !important;
@@ -205,29 +182,10 @@
 
     }
 
-    //target the dashboard page 
-    .toplevel_page_zerobscrm-dash{
-        .col-6{
-            //width:95% !important;
-            width:100% !important;
-        }
-        .col-md-4-db{
-            width:100% !important;
-        }
-        #settings_dashboard_latest_contacts_display{
-            width:100%;
-        }
-    }
-
-
     //sort the padding out - semantic really should do this out the box!!
-    #zbs-list-table-wrap, #zbs-list-sidebar-wrap, #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
+    #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
         width:100% !important;
         overflow:hidden;
-    }
-
-    #zbs-list-sidebar-wrap{
-        margin-top:10px;
     }
 
     #zbs-edit-master-wrap{
@@ -246,21 +204,10 @@
     #learn{
         display:none;
     }
-    
-    .zbs-dash-header{
-        margin-top:-2px !important;
-        margin-left:-80px !important;
-    }
-
 
     .auto-fold #adminmenu a.menu-top {
         height: inherit !important;
     }
-
-    .zbs-listview-bulk-hd .ui.fitted.checkbox, .zbs-listview-bulk .ui.fitted.checkbox {
-        padding-left: 13px !important;
-    }
-
 
     //invoice 
     .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper input, .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper select{
@@ -315,9 +262,6 @@
             padding-left: 15px !important;
         }
 
-        #zbs-list-top-bar h2.zbs-white {
-            margin-left: 30px;
-        }
     }
 
     #wpbody {
@@ -335,9 +279,6 @@
             padding-left: 10px !important;
         }
 
-        #zbs-list-top-bar h2.zbs-white {
-            margin-left: 0;
-        }
     }
 
     #wpbody {
@@ -386,13 +327,6 @@
             }
         }
 
-        #zbs-admin-top-bar{
-            margin-right: 0px;
-        }
-        #zbs-admin-top-bar{
-            padding-left:30px;
-        }
-
         .ui.grid>.row>[class*="eight wide"].column, .ui.grid>.column.row>[class*="eight wide"].column, .ui.grid>[class*="eight wide"].column, .ui.column.grid>[class*="eight wide"].column{
             width: 100% !important;
             overflow:hidden;
@@ -418,14 +352,6 @@
             padding-right:0px;
         }
 
-        #zbs-list-table-wrap{
-            position:relative;
-        }
-
-        #zbs-list-table-wrap, #zbs-list-sidebar-wrap{
-            padding-right: 0;
-        }
-
         #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap, #zbs-side-sortables{
             padding-right:0px !important;
         }
@@ -440,29 +366,10 @@
 
     }
 
-    //target the dashboard page 
-    .toplevel_page_zerobscrm-dash{
-        .col-6{
-            //width:95% !important;
-            width:100% !important;
-        }
-        .col-md-4-db{
-            width:100% !important;
-        }
-        #settings_dashboard_latest_contacts_display{
-            width:100%;
-        }
-    }
-
-
     //sort the padding out - semantic really should do this out the box!!
-    #zbs-list-table-wrap, #zbs-list-sidebar-wrap, #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
+    #zbs-customer-panel,  #zbs-custom-quicklinks, #zbs-edit-table-wrap, #zbs-edit-sidebar-wrap{
         width:100% !important;
         overflow:hidden;
-    }
-
-    #zbs-list-sidebar-wrap{
-        margin-top:10px;
     }
 
     #zbs-edit-master-wrap{
@@ -481,21 +388,10 @@
     #learn{
         display:none;
     }
-    
-    .zbs-dash-header{
-        margin-top:-2px !important;
-        margin-left:-80px !important;
-    }
-
 
     .auto-fold #adminmenu a.menu-top {
         height: inherit !important;
     }
-
-    .zbs-listview-bulk-hd .ui.fitted.checkbox, .zbs-listview-bulk .ui.fitted.checkbox {
-        padding-left: 13px !important;
-    }
-
 
     //invoice 
     .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper input, .post-type-zerobs_invoice #zbs_top_wrapper .zbs-invoice-topper select{

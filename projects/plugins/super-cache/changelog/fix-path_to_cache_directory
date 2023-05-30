@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WP Super Cache: fix links to cache directory on sites that are in a sub directory

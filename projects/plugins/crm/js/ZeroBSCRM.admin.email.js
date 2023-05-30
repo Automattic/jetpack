@@ -310,14 +310,6 @@ jQuery( function ( $ ) {
 		} );
 	} );
 
-	$( '.zbs-inbox-link' ).on( 'click', function ( e ) {
-		$( '.app-content' ).hide();
-		$( '.click-email-to-load' ).show();
-		$( '.spinner-gif' ).hide();
-
-		$( '.inbox-email-list, .zbs-email-content' ).fadeIn( 1000 );
-	} );
-
 	$( '.zbs-sent-link' ).on( 'click', function ( e ) {
 		$( '.app-content' ).hide();
 		$( '.click-email-to-load' ).show();

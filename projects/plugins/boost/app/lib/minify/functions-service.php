@@ -2,6 +2,7 @@
 
 use Automattic\Jetpack_Boost\Lib\Minify\Config;
 use Automattic\Jetpack_Boost\Lib\Minify\Dependency_Path_Mapping;
+use Automattic\Jetpack_Boost\Lib\Minify\Utils;
 use tubalmartin\CssMin;
 
 function jetpack_boost_page_optimize_types() {
@@ -15,6 +16,9 @@ function jetpack_boost_page_optimize_types() {
  * Handle serving a minified / concatenated file from the virtual _static dir.
  */
 function jetpack_boost_page_optimize_service_request() {
+	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
+	$utils  = new Utils( $use_wp );
+
 	$cache_dir = Config::get_cache_dir_path();
 	$use_cache = ! empty( $cache_dir );
 
@@ -51,8 +55,8 @@ function jetpack_boost_page_optimize_service_request() {
 	}
 
 	if ( $use_cache ) {
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$request_uri      = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+		$request_uri      = isset( $_SERVER['REQUEST_URI'] ) ? $utils->unslash( $_SERVER['REQUEST_URI'] ) : '';
 		$request_uri_hash = md5( $request_uri );
 		$cache_file       = $cache_dir . "/page-optimize-cache-$request_uri_hash";
 		$cache_file_meta  = $cache_dir . "/page-optimize-cache-meta-$request_uri_hash";
@@ -60,8 +64,8 @@ function jetpack_boost_page_optimize_service_request() {
 		// Serve an existing file.
 		if ( file_exists( $cache_file ) ) {
 			if ( isset( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) {
-				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				if ( strtotime( wp_unslash( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) < filemtime( $cache_file ) ) {
+				// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+				if ( strtotime( $utils->unslash( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) ) < filemtime( $cache_file ) ) {
 					header( 'HTTP/1.1 304 Not Modified' );
 					exit;
 				}
@@ -118,6 +122,9 @@ function jetpack_boost_page_optimize_service_request() {
  * Generate a combined and minified output for the current request.
  */
 function jetpack_boost_page_optimize_build_output() {
+	$use_wp = defined( 'JETPACK_BOOST_CONCAT_USE_WP' ) && JETPACK_BOOST_CONCAT_USE_WP;
+	$utils  = new Utils( $use_wp );
+
 	$jetpack_boost_page_optimize_types = jetpack_boost_page_optimize_types();
 
 	// Config
@@ -125,8 +132,8 @@ function jetpack_boost_page_optimize_build_output() {
 	$concat_unique    = true;
 
 	// Main
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	$method = isset( $_SERVER['REQUEST_METHOD'] ) ? wp_unslash( $_SERVER['REQUEST_METHOD'] ) : 'GET';
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+	$method = isset( $_SERVER['REQUEST_METHOD'] ) ? $utils->unslash( $_SERVER['REQUEST_METHOD'] ) : 'GET';
 	if ( ! in_array( $method, array( 'GET', 'HEAD' ), true ) ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
@@ -135,9 +142,9 @@ function jetpack_boost_page_optimize_build_output() {
 	// /_static/??/foo/bar.css,/foo1/bar/baz.css?m=293847g
 	// -- or --
 	// /_static/??-eJzTT8vP109KLNJLLi7W0QdyDEE8IK4CiVjn2hpZGluYmKcDABRMDPM=
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '';
-	$args        = wp_parse_url( $request_uri, PHP_URL_QUERY );
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? $utils->unslash( $_SERVER['REQUEST_URI'] ) : '';
+	$args        = $utils->parse_url( $request_uri, PHP_URL_QUERY );
 	if ( ! $args || false === strpos( $args, '?' ) ) {
 		jetpack_boost_page_optimize_status_exit( 400 );
 	}
@@ -177,7 +184,7 @@ function jetpack_boost_page_optimize_build_output() {
 	// If we're in a subdirectory context, use that as the root.
 	// We can't assume that the root serves the same content as the subdir.
 	$subdir_path_prefix = '';
-	$request_path       = wp_parse_url( $request_uri, PHP_URL_PATH );
+	$request_path       = $utils->parse_url( $request_uri, PHP_URL_PATH );
 	$_static_index      = strpos( $request_path, '/_static/' );
 	if ( $_static_index > 0 ) {
 		$subdir_path_prefix = substr( $request_path, 0, $_static_index );

@@ -1,6 +1,12 @@
+@import '@automattic/jetpack-base-styles/style';
+
 /**
  * Editor styles for Jetpack AI Assistant
  */
+
+.block-editor-block-toolbar__slot {
+	flex-shrink: 0;
+}
 
 .wp-block-ai-generate-suggestion {
 	padding: 0;
@@ -30,15 +36,41 @@
 	color: var( --wp--preset--color--black );
 }
 
-.jetpack-ai-assistant__loading-spinner {
-	margin: auto 0;
-	padding-left: 4px;
+.jetpack-ai-assistant__input-icon-wrapper {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 4px 0 8px;
+	
+	.jetpack-ai-assistant__input-icon {
+		// Brand green regardless of theme
+		color: var( --jp-green-40 );
+	}
+	
+	.jetpack-ai-assistant__input-loader-icon {
+		color: var( --wp--preset--color--foreground );
+	}
+	
+	.jetpack-ai-assistant__input-spinner {
+		margin: 0;
+		width: 24px;
+		height: 24px;
+
+		path {
+			color: var( --jp-green-40 );
+		}
+	}
 }
 
 .jetpack-ai-assistant__input-wrapper {
 	display: flex;
-	padding: 4px 4px;
+	padding: 6px 9px;
 	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 8px;
+
+	&.is-disconnected {
+		opacity: 0.4;
+	}
 
 	textarea {
 		width: 100%;
@@ -63,7 +95,7 @@
 
 	textarea.jetpack-ai-assistant__input {
 		flex-grow: 1;
-		margin: 1px 12px 1px 0px;
+		margin: 1px 0px 1px 0px;
 		resize: none !important;
 		border: none;
 		box-shadow: none;
@@ -80,9 +112,22 @@
 
 	.jetpack-ai-assistant__prompt_button {
 		color: var( --wp--preset--color--foreground );
+		text-transform: uppercase;
+		font-weight: 400;
+		user-select: none;
 
-		&:hover {
+		> SVG {
+			margin-right: 4px;
+		}
+
+		&:hover,
+		&:active {
 			color: var( --wp-components-color-accent, var( --wp-admin-theme-color ) );
+		}
+
+		&:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
 		}
 	}
 }
@@ -235,4 +280,33 @@
 	cursor: pointer;
 	width: 128px;
 	height: 128px;
+}
+
+.jetpack-ai-assistant__templates-control {
+	svg {
+		padding-right: 4px;
+	}
+}
+
+.jetpack-ai-upgrade-banner,
+.jetpack-ai-connect-banner {
+	.jetpack-upgrade-plan-banner__wrapper {
+		flex-wrap: nowrap;
+
+		.jetpack-ai-upgrade-banner__description,
+		.jetpack-ai-connect-banner__description {
+			line-height: 24px;
+		}
+
+		.components-button.is-primary {
+			background-color: var( --jp-white );
+			color: var( --jp-black );
+			margin-top: 8px;
+			margin-bottom: 8px;
+
+			&:hover{
+				background-color: var( --jp-gray-0 );
+			}
+		}
+	}
 }

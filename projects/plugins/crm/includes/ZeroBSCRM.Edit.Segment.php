@@ -110,7 +110,7 @@ function zeroBSCRM_html_addEditSegment($potentialID = -1)
 
                 <div class="field" style="padding-top:0;padding-bottom: 0">
 
-                    <button class="ui icon small button primary right floated" type="button" id="zbs-segment-edit-act-add-condition">
+							<button class="ui icon small button primary black right floated" type="button" id="zbs-segment-edit-act-add-condition">
                         <?php esc_html_e('Add Condition', 'zero-bs-crm' ); ?>  <i class="plus icon"></i>
                     </button>
 
@@ -138,7 +138,7 @@ function zeroBSCRM_html_addEditSegment($potentialID = -1)
                 <h4 class="ui horizontal header divider"><?php esc_html_e('Continue', 'zero-bs-crm' ); ?></h4>
 
                 <div class="jog-on">
-                    <button class="ui submit blue large icon button" id="zbs-segment-edit-act-p2preview"><?php esc_html_e( 'Preview Segment', 'zero-bs-crm' ); ?> <i class="unhide icon"></i></button>
+							<button class="ui submit black large icon button" id="zbs-segment-edit-act-p2preview"><?php esc_html_e( 'Preview Segment', 'zero-bs-crm' ); ?> <i class="unhide icon"></i></button>
                     <?php 
 
                         // where saved, show export button, and mailpoet:
@@ -146,7 +146,7 @@ function zeroBSCRM_html_addEditSegment($potentialID = -1)
 
                             // export
                             if ( zeroBSCRM_permsExport() ){ ?>
-                                <a class="ui submit teal large icon button" href="<?php echo jpcrm_esc_link( $zbs->slugs['export-tools'] . '&segment-id=' . $segment['id'] ); ?>"><?php esc_html_e( 'Export Segment (.CSV)', 'zero-bs-crm' ); ?> <i class="icon cloud download"></i></a>
+										<a class="ui submit black large icon button" href="<?php echo jpcrm_esc_link( $zbs->slugs['export-tools'] . '&segment-id=' . $segment['id'] ); ?>"><?php esc_html_e( 'Export Segment (.CSV)', 'zero-bs-crm' ); ?> <i class="icon cloud download"></i></a>
                             <?php }
 
                             // mailpoet support

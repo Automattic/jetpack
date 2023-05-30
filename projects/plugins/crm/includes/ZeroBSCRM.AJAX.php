@@ -85,6 +85,7 @@ function jetpackcrm_dash_refresh() {
 	$end_date   = date_create( $end_date )->setTime( 23, 59, 59 )->getTimestamp();
 
 	$summary = array();
+	$chart   = array();
 
 	$range_params = array(
 		'count'     => true,
@@ -190,8 +191,6 @@ function jetpackcrm_dash_refresh() {
 	// the final output
 	$r = array(
 		'summary' => $summary,
-		// semantic needs the words not the numeral for the class. stored this in the FormatHelpers.php from SO.
-		'boxes'   => jetpackcrm_convertNumberToWord( count( $summary ) ),
 		'chart'   => $chart,
 	);
 
@@ -209,33 +208,22 @@ function zbs_dash_setting() {
 	// perms?
 	if ( zeroBSCRM_permsCustomers() ) {
 
-			// acceptable opts - from /includes/ZeroBSCRM.AdminPages.php
-			$acceptableSettingKeys = array( 'settings_dashboard_total_contacts', 'settings_dashboard_total_leads', 'settings_dashboard_total_customers', 'settings_dashboard_total_transactions', 'settings_dashboard_sales_funnel', 'settings_dashboard_revenue_chart', 'settings_dashboard_recent_activity', 'settings_dashboard_latest_contacts' );
+		$setting_key             = ( isset( $_POST['the_setting'] ) ? sanitize_text_field( wp_unslash( $_POST['the_setting'] ) ) : '' );
+		$acceptable_setting_keys = array( 'settings_dashboard_sales_funnel', 'settings_dashboard_revenue_chart', 'settings_dashboard_recent_activity', 'settings_dashboard_latest_contacts' );
+
+		if ( in_array( $setting_key, $acceptable_setting_keys, true ) ) {
+
+			// default to checked
+			$is_checked = ( isset( $_POST['is_checked'] ) ? (int) sanitize_text_field( $_POST['is_checked'] ) : 1 ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 
 			// retrieve
-			$cid        = get_current_user_id();
-			$settingKey = sanitize_text_field( $_POST['the_setting'] );
-
-		if ( in_array( $settingKey, $acceptableSettingKeys ) ) {
-
-			$is_checked = (int) sanitize_text_field( $_POST['is_checked'] );
-			if ( $is_checked < 0 ) {
-				$is_checked = -1;
-			}
-
-			// was/is storing these as str's of bools? weird. not sure why. For now, ducktape:
-			if ( $is_checked > 0 ) {
-				$is_checked = 'true';
-			} else {
-				$is_checked = 'false';
-			}
+			$current_user_id = get_current_user_id();
 
 			// update user meta, if legit.
-			update_user_meta( $cid, $settingKey, $is_checked );
+			update_user_meta( $current_user_id, $setting_key, $is_checked );
 
 			// No rights or failed key match
 			zeroBSCRM_sendJSONSuccess( array( 'fini' => 1 ) );
-
 		}
 	}
 
@@ -2276,7 +2264,6 @@ function zeroBSCRM_AJAX_removeAlias() {
 	Admin AJAX: List View (API STYLE)
 ====================================================== */
 
-	// may want to rewrite similar to zeroBSCRM_AJAX_updateListViewFilterButtons(), or even merge the two functions
 	// } Update Columns - list view column update
 	add_action( 'wp_ajax_updateListViewColumns', 'zeroBSCRM_AJAX_updateListViewColumns' );
 function zeroBSCRM_AJAX_updateListViewColumns() {
@@ -2552,77 +2539,6 @@ function zeroBSCRM_AJAX_updateListViewColumns() {
 	}
 
 		exit();
-}
-
-	// } Update filter buttons
-	add_action( 'wp_ajax_updateListViewFilterButtons', 'zeroBSCRM_AJAX_updateListViewFilterButtons' );
-function zeroBSCRM_AJAX_updateListViewFilterButtons() {
-
-	// } Check nonce
-	check_ajax_referer( 'zbscrmjs-ajax-nonce', 'sec' );
-
-	// } Check perms
-	if ( ! current_user_can( 'administrator' ) ) {
-		header( 'Content-Type: application/json' );
-		exit( '{err:1}' );
-	}
-
-	// } Retrieve type + columns arr
-	$listtype                = sanitize_text_field( $_POST['listtype'] );
-	$acceptableListViewTypes = array( 'customer', 'company', 'quote', 'invoice', 'transaction', 'form' );
-
-	// if filter list param doesn't exist, exit
-	// if filter list isn't an array, exit
-	// if list view type is bad, exit
-	if (
-	! isset( $_POST['new_filter_buttons'] ) ||
-	! is_array( $_POST['new_filter_buttons'] ) ||
-	! in_array( $listtype, $acceptableListViewTypes, true )
-	) {
-		header( 'Content-Type: application/json' );
-			exit( '[]' );
-	}
-	$new_filter_buttons = $_POST['new_filter_buttons'];
-
-	// get list of valid filters
-	$filter_str = 'zeroBSCRM_filterbuttons_' . $listtype;
-	$all_filters = $GLOBALS[ $filter_str ]['all'];
-
-	// build list of filters buttons
-	$new_filter_settings = array();
-	$passback            = array();
-	foreach ( $new_filter_buttons as $buttonKey => $buttonVal ) {
-		// skip any malformed field names
-		if ( ! isset( $buttonVal['fieldstr'] ) ) {
-			continue;
-		}
-		// skip any filters that don't match those already in the system
-		if ( ! isset( $all_filters[ $buttonVal['fieldstr'] ] ) ) {
-			continue;
-		}
-
-		$label_field_name = $buttonVal['fieldstr'];
-		// Rather than relying on a string passed arbitrarily, use the info from the stored filter
-		$label_pretty_name = $all_filters[ $buttonVal['fieldstr'] ][0];
-
-		// will need to remove translation bits once filter labels are customizable
-		$new_filter_settings[ $label_field_name ] = array( __( $label_pretty_name, 'zero-bs-crm' ) );
-		$passback[]                               = array(
-			'fieldstr' => $label_field_name,
-			'namestr'  => __( $label_pretty_name, 'zero-bs-crm' ),
-		);
-	}
-
-	// get and update custom views setting
-	global $zbs;
-	$custom_views                           = $zbs->settings->get( 'customviews2' );
-	$custom_views[ $listtype . '_filters' ] = $new_filter_settings;
-	$zbs->settings->update( 'customviews2', $custom_views );
-
-	// return buttons JSON
-	header( 'Content-Type: application/json' );
-	echo json_encode( $passback );
-	exit();
 }
 
 	// } Retrieves data sets for list views, with passed params :)
@@ -3063,6 +2979,8 @@ function zeroBSCRM_AJAX_listViewRetrieveData() {
 					);
 
 					$customers = $zbs->DAL->contacts->getContacts( $args );
+
+					$customers = jpcrm_inject_contacts( $customers, $args );
 
 					// } If using pagination, also return total count
 					if ( isset( $listViewParams['pagination'] ) && $listViewParams['pagination'] ) {

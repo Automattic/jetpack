@@ -1,5 +1,9 @@
 import { JetpackVaultPressBackupLogo } from '@automattic/jetpack-components';
-import { ConnectScreenRequiredPlan, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import {
+	ConnectScreenRequiredPlan,
+	ConnectScreen,
+	CONNECTION_STORE_ID,
+} from '@automattic/jetpack-connection';
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
@@ -7,6 +11,7 @@ import { __ } from '@wordpress/i18n';
 import React, { useCallback } from 'react';
 import BackupPromotionBlock from '../components/backup-promotion';
 import { STORE_ID } from '../store';
+import connectImage from './assets/connect-backup.png';
 
 /**
  * Expose the `connectionStatus` state object and `BackupConnectionScreen` to show a component used for connection.
@@ -63,5 +68,26 @@ export default function useConnection() {
 		);
 	};
 
-	return [ connectionStatus, BackupConnectionScreen ];
+	const BackupSecondaryAdminConnectionScreen = () => {
+		return (
+			<ConnectScreen
+				title={ __( 'Save every change and get back online quickly', 'jetpack-backup-pkg' ) }
+				buttonLabel={ __( 'Log in to continue', 'jetpack-backup-pkg' ) }
+				apiRoot={ APIRoot }
+				apiNonce={ APINonce }
+				registrationNonce={ registrationNonce }
+				images={ [ connectImage ] }
+				from="jetpack-backup"
+				redirectUri="admin.php?page=jetpack-backup"
+				logo={ <JetpackVaultPressBackupLogo /> }
+			>
+				<p>
+					It looks like your site already has a backup plan activated. All you need to do is log in
+					with your WordPress account.
+				</p>
+			</ConnectScreen>
+		);
+	};
+
+	return [ connectionStatus, BackupConnectionScreen, BackupSecondaryAdminConnectionScreen ];
 }

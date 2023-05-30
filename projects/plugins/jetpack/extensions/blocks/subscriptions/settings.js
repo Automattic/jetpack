@@ -73,12 +73,13 @@ function NewsletterLearnMore() {
 	);
 }
 
-function NewsletterNotice( {
+export function NewsletterNotice( {
 	accessLevel,
 	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	showMisconfigurationWarning,
+	isPostPublishPanel = false,
 } ) {
 	// Get the reach count for the access level
 	let reachCount = getReachForAccessLevelKey(
@@ -120,24 +121,34 @@ function NewsletterNotice( {
 		reachCount = reachCount + '+'; // Concat "+"
 	}
 
+	let numberOfSubscribersText = sprintf(
+		/* translators: %s is the number of subscribers in numerical format */
+		__( 'This will be sent to <br/><strong>%s subscribers</strong>.', 'jetpack' ),
+		reachCount
+	);
+
+	if ( isPostPublishPanel ) {
+		numberOfSubscribersText = sprintf(
+			/* translators: %s is the number of subscribers in numerical format */
+			__( 'This was sent to <strong>%s subscribers</strong>.', 'jetpack' ),
+			reachCount
+		);
+	}
+
 	return (
 		<FlexBlock>
 			<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
-				{ createInterpolateElement(
-					sprintf(
-						/* translators: %s is the number of subscribers in numerical format */
-						__( 'This will be sent to <strong>%s subscribers</strong>.', 'jetpack' ),
-						reachCount
-					),
-					{ strong: <strong /> }
-				) }
+				{ createInterpolateElement( numberOfSubscribersText, {
+					br: <br />,
+					strong: <strong />,
+				} ) }
 			</Notice>
 		</FlexBlock>
 	);
 }
 
 function NewsletterAccessSetupNudge( { stripeConnectUrl, isStripeConnected, hasNewsletterPlans } ) {
-	const paidLink = getPaidPlanLink( true );
+	const paidLink = getPaidPlanLink( hasNewsletterPlans );
 
 	if ( ! hasNewsletterPlans && ! isStripeConnected ) {
 		return (

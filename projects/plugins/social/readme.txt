@@ -17,7 +17,7 @@ Write once, publish everywhere. Reach your target audience by sharing your conte
 
 **Grow your following by sharing your content with Jetpack Social!**
 
-It’s important to publish on both your website & social media in order to reach your whole audience. If you only publish on social media, you’re missing up to 60% of adults on a daily basis. Jetpack Social makes it easy to automatically share your site’s posts on popular social media channels such as Facebook and Twitter. Increase your audience by engaging your site's viewers & your social followers.
+It’s important to publish on both your website & social media in order to reach your whole audience. If you only publish on social media, you’re missing up to 60% of adults on a daily basis. Jetpack Social makes it easy to automatically share your site’s posts on popular social media channels such as Facebook and Tumblr. Increase your audience by engaging your site's viewers & your social followers.
 
 **Manage all channels from a single hub to save time**
 
@@ -61,7 +61,6 @@ From your site’s WP Admin:
 You can connect to any of the following networks:
 
 * Facebook Pages
-* Twitter
 * Tumblr
 * LinkedIn
 
@@ -71,7 +70,7 @@ To make the connection available to all users, check the box labeled "Connection
 
 = To which social media platforms can I post using Jetpack Social? =
 
-You can post to Facebook, Twitter, Tumblr, and Linkedin. We are working hard to increase our social share integrations.
+You can post to Facebook, Tumblr, and Linkedin. We are working hard to increase our social share integrations.
 
 = How do I share a post on social media using Jetpack Social? =
 

@@ -126,6 +126,7 @@ class AtAGlance extends Component {
 			const canDisplaybundleCard =
 				! this.props.multisite && ! this.props.isOfflineMode && this.props.hasConnectedOwner;
 			const performanceCards = [];
+
 			if ( 'inactive' !== this.props.getModuleOverride( 'photon' ) ) {
 				performanceCards.push( <DashPhoton { ...settingsProps } /> );
 			}
@@ -147,10 +148,7 @@ class AtAGlance extends Component {
 			}
 
 			if ( this.props.userCanManagePlugins ) {
-				performanceCards.push(
-					<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />,
-					<DashCRM siteAdminUrl={ this.props.siteAdminUrl } />
-				);
+				performanceCards.push( <DashCRM siteAdminUrl={ this.props.siteAdminUrl } /> );
 			}
 
 			const redeemPartnerCoupon = ! this.props.isOfflineMode && this.props.partnerCoupon && (
@@ -180,6 +178,12 @@ class AtAGlance extends Component {
 				</div>
 			) : null;
 
+			const boostSpeedScore = this.props.userCanManagePlugins ? (
+				<div className="jp-at-a-glance__pinned-bundle">
+					<DashBoost siteAdminUrl={ this.props.siteAdminUrl } />
+				</div>
+			) : undefined;
+
 			return (
 				<ThemeProvider>
 					<div className="jp-at-a-glance">
@@ -200,6 +204,7 @@ class AtAGlance extends Component {
 						<Section
 							header={ <DashSectionHeader label={ __( 'Performance and Growth', 'jetpack' ) } /> }
 							cards={ performanceCards }
+							pinnedBundle={ boostSpeedScore }
 						/>
 						{ connections }
 					</div>
