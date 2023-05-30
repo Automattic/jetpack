@@ -1817,17 +1817,14 @@ function zeroBSCRMJS_listView_generic_nameavatar( dataLine ) {
 		nameStr = dataLine.email;
 	}
 
-	var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-	td += imgStr;
-	td +=
-		'<div class="content"><a href="' +
-		editURL +
-		'">' +
-		nameStr +
-		'</a><div class="sub header">' +
-		emailStr +
-		'</div>';
-	td += '</div></h4></td>';
+	var td = `
+		<td class="jpcrm_name_and_avatar">
+			${imgStr}
+			<div class="content">
+				<a href="${editURL}">${nameStr}</a>
+				${emailStr}
+			</div>
+		</td>`;
 
 	return td;
 }
@@ -1869,10 +1866,10 @@ function zeroBSCRMJS_listView_generic_customer( dataLine ) {
 		var editURL = zeroBSCRMJS_listView_viewURL_customer( dataLine.customer.id );
 		var emailURL = zeroBSCRMJS_listView_emailURL_contact( dataLine.customer.id );
 
-		var emailStr = ''; //if (typeof custLine['email'] != "undefined" && custLine['email'] != '') emailStr = '<a href="mailto:' + custLine['email'] + '" target="_blank">' + custLine['email'] + '</a>';
+		var emailStr = '';
 		var imgStr = '';
 		if ( typeof custLine.avatar !== 'undefined' && custLine.avatar != '' ) {
-			imgStr = '<img src="' + custLine.avatar + '" class="ui mini rounded image">';
+			imgStr = '<img src="' + custLine.avatar + '">';
 		} //imgStr = '<a href="' + editURL + '"><img src="' + dataLine['avatar'] + '" class="ui mini rounded image"></a>';
 		var nameStr = '';
 		if ( typeof custLine.fullname !== 'undefined' && custLine.fullname != '' ) {
@@ -1882,17 +1879,14 @@ function zeroBSCRMJS_listView_generic_customer( dataLine ) {
 			nameStr = custLine.email;
 		}
 
-		var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-		td += imgStr;
-		td +=
-			'<div class="content"><a href="' +
-			editURL +
-			'">' +
-			nameStr +
-			'</a><div class="sub header">' +
-			emailStr +
-			'</div>';
-		td += '</div></h4></td>';
+		var td = `
+			<td class="jpcrm_name_and_avatar">
+				${imgStr}
+				<div class="content">
+					<a href="${editURL}">${nameStr}</a>
+					${emailStr}
+				</div>
+			</td>`;
 	} else if (
 		typeof dataLine.company !== 'undefined' &&
 		dataLine.company != null &&
@@ -1907,9 +1901,13 @@ function zeroBSCRMJS_listView_generic_customer( dataLine ) {
 			nameStr = coLine.fullname;
 		}
 
-		var td = '<td class="name-and-avatar-list"><h4 class="ui header">';
-		td += '<i class="building icon"></i>';
-		td += '<div class="content"><a href="' + editURL + '">' + nameStr + '</a></div></h4></td>';
+		var td = `
+			<td class="jpcrm_name_and_avatar">
+			<i class="building icon"></i>
+				<div class="content">
+					<a href="${editURL}">${nameStr}</a>
+				</div>
+			</td>`;
 	} else {
 		td = '<td>' + zeroBSCRMJS_listViewLang( 'nocustomer' ) + '</td>';
 	}
@@ -2526,17 +2524,14 @@ function zeroBSCRMJS_listView_customer_nameavatar( dataLine ) {
 		nameStr = dataLine.email;
 	}
 
-	var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-	td += imgStr;
-	td +=
-		'<div class="content"><a href="' +
-		editURL +
-		'">' +
-		nameStr +
-		'</a><div class="sub header">' +
-		emailStr +
-		'</div>';
-	td += '</div></h4></td>';
+	var td = `
+		<td class="jpcrm_name_and_avatar">
+			${imgStr}
+			<div class="content">
+				<a href="${editURL}">${nameStr}</a>
+				${emailStr}
+			</div>
+		</td>`;
 
 	return td;
 }
@@ -3003,17 +2998,14 @@ function zeroBSCRMJS_listView_company_nameavatar( dataLine ) {
 		nameStr = dataLine.email;
 	}
 
-	var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-	td += imgStr;
-	td +=
-		'<div class="content"><a href="' +
-		editURL +
-		'">' +
-		nameStr +
-		'</a><div class="sub header">' +
-		emailStr +
-		'</div>';
-	td += '</div></h4></td>';
+	var td = `
+		<td class="jpcrm_name_and_avatar">
+			${imgStr}
+			<div class="content">
+				<a href="${editURL}">${nameStr}</a>
+				${emailStr}
+			</div>
+		</td>`;
 
 	return td;
 }
@@ -3517,38 +3509,6 @@ function zeroBSCRMJS_listView_company_bulkActionFire_removetag() {
 =============== Field Drawing JS - Quote List View ==================================
 ==================================================================================== */
 
-/* Now covered by generic_customer
-
-        function zeroBSCRMJS_listView_quote_customer(dataLine){
-
-            console.log('line',dataLine);
-
-            if (typeof dataLine['customer'] != "undefined" && typeof dataLine['customer']['meta'] != "undefined"){
-
-                var custLine = dataLine['customer']['meta'];
-
-                var editURL = zeroBSCRMJS_listView_viewURL_customer(dataLine['customer']['id']);
-
-                var emailStr = ''; //if (typeof custLine['email'] != "undefined" && custLine['email'] != '') emailStr = '<a href="mailto:' + custLine['email'] + '" target="_blank">' + custLine['email'] + '</a>';
-                var imgStr = ''; if (typeof custLine['avatar'] != "undefined" && custLine['avatar'] != '') imgStr = '<img src="' + custLine['avatar'] + '" class="ui mini rounded image">';//imgStr = '<a href="' + editURL + '"><img src="' + dataLine['avatar'] + '" class="ui mini rounded image"></a>';
-                var nameStr = ''; if (typeof custLine['fullname'] != "undefined" && custLine['fullname'] != '') nameStr = custLine['fullname'];
-                if (nameStr == '' && typeof custLine['email'] != "undefined" && custLine['email'] != '') nameStr = custLine['email'];
-
-                var td = '<td class="name-and-avatar-list"><h4 class="ui image header">';
-                td += imgStr;
-                td += '<div class="content"><a href="' + editURL + '">' + nameStr + '</a><div class="sub header">' + emailStr + '</div>';
-                td += '</div></h4></td>';
-
-            } else {
-
-                td = '';
-            }
-
-            return td;
-        }
-
-    */
-// Draw <td> for quote title
 /**
  * @param dataLine
  */

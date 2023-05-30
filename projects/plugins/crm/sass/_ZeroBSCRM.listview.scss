@@ -73,23 +73,6 @@
 
 //ui header stuff
 
-.ui.header>.image:not(.icon), .ui.header>img {
-    display: inline-block;
-    margin-top: 0.14285714em;
-    // WH says Nope. - breaks company avatar imgs width: 12%;
-    height: auto;
-    vertical-align: middle;
-}
-
-.ui.header > img + .content, .ui.header > .image + .content {
-    padding-left: 0.75rem;
-    vertical-align: middle;
-    max-width: 88%;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
 .ui.menu .ui.dropdown .menu > .item:hover {
     background: rgb(63, 67, 71) !important;
     color: rgb(255, 255, 255) !important;
@@ -117,17 +100,25 @@
 // avatar's fixed size 
 .jpcrm-listview-table {
 
-	.zbs-co-img img, 
-	.name-and-avatar-list h4.ui.image.header img {
+	.jpcrm_name_and_avatar {
+		display: flex;
+		align-items: center;
 
-		max-width:40px !important;
+		img {
+			max-width: 40px;
+			border-radius: 50%;
+			margin-right: 5px;
+		}
 
-	}
+		div {
+			overflow-x: hidden;
+			text-overflow: ellipsis;
+		}
 
-	// stop the over-strong display of these
-	.name-and-avatar-list h4.ui.image.header,
-	.name-and-avatar-list h4.ui.header {
-		   font-weight: normal;
+		.icon {
+			font-size: 2em;
+			padding-top: .14285714em;
+		}
 	}
 }
 
