@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Always request wpcom for Mastodon feature check
