@@ -1931,15 +1931,11 @@ function jpcrm_strip_scripts( s ) {
 	return div.innerHTML;
 }
 
-/* super simple switch
-HIDES: .zbs-generic-loading
-SHOWS: .zbs-generic-loaded
-*/
 /**
  *
  */
 function zeroBSCRMJS_genericLoaded() {
-	jQuery( '.zbs-generic-loading' ).hide();
+	jQuery( '.empty-container-with-spinner' ).hide();
 	jQuery( '.zbs-generic-loaded' ).show();
 }
 

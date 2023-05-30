@@ -282,7 +282,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 12.2-beta - 2023-05-29
+### 12.2-beta - 2023-05-30
 #### Major Enhancements
 - Add an AI Assistant block, replacing the previous experimental AI Paragraph and AI Image blocks.
 - Donations, Paid Content and Payment Buttons blocks are now available with all Jetpack plans. A commission is charged for free plans.
@@ -346,6 +346,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Maps: Fix zoom being reset when changing map marker color.
 - Newsletters: Return early when possible to prevent spamming the database.
 - Related Posts: Fix context for use in block editor.
+- Security: WordPress.com REST API: Ensure that files uploaded via the API are properly validated.
 - SEO Tools: Suggest a specific SEO description maximum length.
 - Settings: Add loading indicator when fetching rewind state.
 - Settings: Fixed the site preview in SEO settings.
