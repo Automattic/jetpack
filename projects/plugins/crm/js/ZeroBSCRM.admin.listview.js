@@ -400,45 +400,51 @@ function zeroBSCRMJS_listViewIco( key, fallback ) {
 /**
  *
  */
-function zeroBSCRMJS_drawListView() {
-	// if no blocker
-	if ( ! window.zbsDrawListViewBlocker ) {
-		// move this, if it's present (if was 0 results it'll be in the table, otherwise, wont be anyhow :)
-		jQuery( '#zbsNoResults' ).addClass( 'hidden' ).appendTo( '#zbs-list-warnings-wrap' );
+function zeroBSCRMJS_drawListView(reset_pagination, update_url) {
+	// if blocker, stop
+	if ( window.zbsDrawListViewBlocker ) {
+		return;
+	}
 
-		// put blocker up
-		window.zbsDrawListViewBlocker = true;
+	// reset pagination
+	if (reset_pagination) {
+		zbsListViewParams.paged = 1;
+	}
 
-		// empty table, show loading
-		jQuery( '.jpcrm-listview-table-container' ).html( '<div class="empty-container-with-spinner"><div class="ui active centered inline loader"></div></div>' );
+	// update URL
+	if (update_url) {
+		history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
+	}
+	// move this, if it's present (if was 0 results it'll be in the table, otherwise, wont be anyhow :)
+	jQuery( '#zbsNoResults' ).addClass( 'hidden' ).appendTo( '#zbs-list-warnings-wrap' );
 
-		// check data + retrieve if empty
-		if ( ! window.zbsListViewParams.retrieved ) {
+	// put blocker up
+	window.zbsDrawListViewBlocker = true;
 
 			// hide extras until listview is loaded
 			document.querySelector('.bulk-actions-dropdown').classList.add('hidden');
 			jQuery( 'jpcrm-listview-footer' ).hide();
 			jQuery( 'jpcrm-dashcount' ).hide();
 
-			// retrieve data
-			zeroBSCRMJS_retrieveListViewData(
-				function ( d ) {
+	// check data + retrieve if empty
+	if ( ! window.zbsListViewParams.retrieved ) {
 
-					// holds event flags to fire post-draw
-					var postHTML = {};
+		// hide extras until listview is loaded
+		document.querySelector('.bulk-actions-dropdown').classList.add('hidden');
+		jQuery( 'jpcrm-listview-footer' ).hide();
+		jQuery( '#jpcrm-listview-totals-box' ).hide();
 
-					// success callback
-					var listViewHTML = '';
+		// retrieve data
+		zeroBSCRMJS_retrieveListViewData(
+			function ( d ) {
 
-					listViewHTML += jpcrm_listview_header();
+				// holds event flags to fire post-draw
+				var postHTML = {};
 
-					// show pagination at top if per page is high
-					if (zbsListViewParams.count >= 50) {
-						listViewHTML += '<div class="jpcrm-pagination-container"></div>';
-					}
+				// success callback
+				var listViewHTML = '';
 
-					// build table
-					listViewHTML += '<table class="jpcrm-listview-table">';
+				listViewHTML += jpcrm_listview_header();
 
 					// header
 					listViewHTML += jpcrm_listview_table_header();
@@ -511,8 +517,82 @@ function zeroBSCRMJS_drawListView() {
 					// fini, remove blocker
 					window.zbsDrawListViewBlocker = false;
 				}
-			);
-		}
+
+				// build table
+				listViewHTML += '<table class="jpcrm-listview-table">';
+
+				// header
+				listViewHTML += jpcrm_listview_table_header();
+				listViewHTML += '<tbody>';
+
+				// per line
+				if ( window.zbsListViewData.length > 0 ) {
+					jQuery.each( window.zbsListViewData, function ( ind, ele ) {
+						// add to html
+						listViewHTML += zeroBSCRMJS_listViewLine( ele );
+					} );
+				} else {
+					// no lines, move this ui msg into a blank row col
+					if ( jQuery( '#zbsNoResults' ).length ) {
+						// extra column due to checkbox
+						listViewHTML +='<tr><td colspan="' + (window.zbsListViewParams.columns.length + 1) + '" id="zbs-no-results-wrap">';
+
+						// to be fired after setTimeout jQuery('#zbsNoResults').appendTo('#zbs-no-results-wrap');
+						postHTML.nores = true;
+
+						listViewHTML += '</td></tr>';
+					}
+				}
+
+				listViewHTML += '</tbody>';
+
+				listViewHTML += '</table>';
+
+				// draw
+				jQuery( '.jpcrm-listview-table-container' ).html( listViewHTML );
+
+				//update counts in footer
+				jpcrm_update_listview_counts();
+
+				// update pagination
+				jpcrm_update_listview_pagination();
+
+				// catch any post-html events
+				var lPostHTML = postHTML;
+
+				// empty result set.
+				if ( typeof lPostHTML.nores ) {
+					jQuery( '#zbsNoResults' ).appendTo( '#zbs-no-results-wrap' ).removeClass( 'hidden' );
+				}
+
+				// bind any post-render (e.g. bulk action)
+				zeroBSCRMJS_listViewBinds();
+
+				// draw totals tables, if data
+				zeroBSCRMJS_listView_draw_totals_tables();
+				// fini, remove blocker
+				window.zbsDrawListViewBlocker = false;
+
+				jQuery( '#zbsCantLoadData' ).hide();
+				jQuery( '.jpcrm-listview-table-container' ).show();
+				jQuery( 'jpcrm-listview-footer' ).show();
+				jQuery( '#jpcrm-listview-totals-box' ).show();
+			},
+			function ( errd ) {
+				// err callback? show msg (prefilled by php)
+				jQuery( '#zbsCantLoadData' ).show();
+				jQuery( '.jpcrm-listview-table-container' ).hide();
+
+				//update counts in footer
+				jpcrm_update_listview_counts();
+
+				// update pagination
+				jpcrm_update_listview_pagination();
+
+				// fini, remove blocker
+				window.zbsDrawListViewBlocker = false;
+			}
+		);
 	}
 }
 
@@ -639,56 +719,24 @@ function jpcrm_listview_table_header() {
 		}
 
 		jQuery.each( window.zbsListViewParams.columns, function ( lvhInd, lvhEle ) {
-			var tdStr = lvhEle.namestr;
-
-			// sortable?
-			// This says "are not in unsortable"
-			//if (typeof window.zbsListViewParams.sort != "undefined" && window.zbsUnsortables.indexOf(lvhEle.fieldstr) < 0){
-			// but for v2.2 we'll do "in zbsSortables"(because need new db  format to properly do sort)
-			if (
-				typeof window.zbsSortables !== 'undefined' &&
-				window.zbsSortables.indexOf( lvhEle.fieldstr ) > -1
-			) {
-				if (
-					typeof window.zbsListViewParams.sort !== 'undefined' &&
-					window.zbsListViewParams.sort == lvhEle.fieldstr
-				) {
-					var sortDirection = 'down';
-					var sortDirectionUrlParam = 'asc';
-					if (
-						typeof window.zbsListViewParams.sortorder !== 'undefined' &&
-						window.zbsListViewParams.sortorder == 'asc'
-					) {
-						sortDirection = 'up';
-						sortDirectionUrlParam = 'desc';
-					}
-
-					tdStr +=
-						' <a href="' +
-						jpcrm_listview_generate_current_filter_url( true ) +
-						'&sort=' +
-						lvhEle.fieldstr +
-						'&sortdirection=' +
-						sortDirectionUrlParam +
-						'" title="Click to Sort"><i class="angle ' +
-						sortDirection +
-						' icon"></i></a>';
-				} else {
-					// use name as sort link, always defaults to desc
-					tdStr =
-						' <a href="' +
-						jpcrm_listview_generate_current_filter_url( true ) +
-						'&sort=' +
-						lvhEle.fieldstr +
-						'" title="Click to Sort">' +
-						tdStr +
-						'</a>';
+			if (zbsSortables && zbsSortables.indexOf( lvhEle.fieldstr ) > -1) {
+				sortDirectionUrlParam = 'asc';
+				var sortDirection = 'down';
+				if (zbsListViewParams.sortorder && window.zbsListViewParams.sortorder === 'asc' && zbsListViewParams.sort && zbsListViewParams.sort === lvhEle.fieldstr) {
+					sortDirection = 'up';
+					sortDirectionUrlParam = 'desc';
 				}
-			} // / is sortable
-
-			listViewHeaderHTML += '        <th>' + tdStr + '</th>';
+				listViewHeaderHTML += `<th class="jpcrm_sort_column" data-sort="${lvhEle.fieldstr}" data-sortdir="${sortDirectionUrlParam}" title="${zeroBSCRMJS_listViewLang('click_to_sort')}">`;
+				listViewHeaderHTML += `${lvhEle.namestr}`;
+				if ( zbsListViewParams.sort && zbsListViewParams.sort === lvhEle.fieldstr) {
+					listViewHeaderHTML += `<i class="angle ${sortDirection} icon"></i>`;
+				}
+				listViewHeaderHTML += `</th>`;
+			} else {
+				listViewHeaderHTML += `<th>${lvhEle.namestr}</th>`;
+			}
 		} );
-		listViewHeaderHTML += '      </tr></thead>';
+		listViewHeaderHTML += '</tr></thead>';
 	}
 
 	return listViewHeaderHTML;
@@ -778,6 +826,10 @@ function zeroBSCRMJS_listViewLine( data ) {
  *
  */
 function zeroBSCRMJS_listViewBinds() {
+
+	let sort_columns = document.querySelectorAll('.jpcrm_sort_column');
+	sort_columns.forEach( el => el.addEventListener('click',jpcrm_change_sort));
+
 
 	let row_checkboxes = document.querySelectorAll('.jpcrm-listview-table td input[type="checkbox"]');
 
@@ -5575,14 +5627,8 @@ function jpcrm_remove_listview_filter() {
 		zbsListViewParams.filters.tags = [];
 	}
 
-	// reset pagination
-	zbsListViewParams.paged = 1;
-
-	// update address bar
-	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
-
 	// draw new listview
-	zeroBSCRMJS_drawListView();
+	zeroBSCRMJS_drawListView(true, true);
 }
 
 function jpcrm_do_search_filter( event ) {
@@ -5594,14 +5640,19 @@ function jpcrm_do_search_filter( event ) {
 	// update listview filter settings
 	zbsListViewParams.filters.s = this.value;
 
-	// reset pagination
-	zbsListViewParams.paged = 1;
+	// draw new listview
+	zeroBSCRMJS_drawListView(true, true);
+}
 
-	// update address bar
-	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
+function jpcrm_change_sort() {
+
+	// update sort params
+	zbsListViewParams.sort = this.dataset.sort;
+	zbsListViewParams.sortorder = this.dataset.sortdir;
 
 	// draw new listview
-	zeroBSCRMJS_drawListView();
+	zeroBSCRMJS_drawListView(true, true);
+
 }
 
 if ( typeof module !== 'undefined' ) {
@@ -5744,6 +5795,6 @@ if ( typeof module !== 'undefined' ) {
 		zeroBSCRMJS_listView_saveInlineEdit,
 		zeroBSCRMJS_listView_customer_edit_status,
 		zeroBSCRMJS_listView_generic_edit_assigned, jpcrm_get_contact_meta,
-		jpcrm_add_listview_filter, jpcrm_remove_listview_filter, jpcrm_do_search_filter
+		jpcrm_add_listview_filter, jpcrm_remove_listview_filter, jpcrm_do_search_filter, jpcrm_change_sort
 	};
 }
