@@ -29,16 +29,7 @@ function Link( { href, children } ) {
 	);
 }
 
-function getReachForAccessLevelKey(
-	accessLevelKey,
-	emailSubscribers,
-	paidSubscribers,
-	socialFollowers
-) {
-	if ( ! socialFollowers ) {
-		return 0;
-	}
-
+function getReachForAccessLevelKey( accessLevelKey, emailSubscribers, paidSubscribers ) {
 	switch ( accessOptions[ accessLevelKey ].key ) {
 		case accessOptions.everybody.key:
 			return emailSubscribers || 0;
@@ -75,7 +66,6 @@ function NewsletterLearnMore() {
 
 export function NewsletterNotice( {
 	accessLevel,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	showMisconfigurationWarning,
@@ -86,12 +76,7 @@ export function NewsletterNotice( {
 	);
 
 	// Get the reach count for the access level
-	let reachCount = getReachForAccessLevelKey(
-		accessLevel,
-		emailSubscribers,
-		paidSubscribers,
-		socialFollowers
-	);
+	let reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
 
 	// If there is a misconfiguration, we do not show the NewsletterNotice
 	if ( showMisconfigurationWarning ) {
@@ -247,12 +232,7 @@ function NewsletterAccessRadioButtons( {
 						{ /* Do not show subscriber numbers in the PrePublish panel */ }
 						{ ! isPrePublishPanel &&
 							' (' +
-								getReachForAccessLevelKey(
-									key,
-									emailSubscribers,
-									paidSubscribers,
-									socialFollowers
-								) +
+								getReachForAccessLevelKey( key, emailSubscribers, paidSubscribers ) +
 								( key === accessOptions.everybody.key ? '+' : '' ) +
 								')' }
 					</label>
@@ -268,7 +248,6 @@ function NewsletterAccessRadioButtons( {
 						<p className="pre-public-panel-notice-reach">
 							<NewsletterNotice
 								accessLevel={ accessLevel }
-								socialFollowers={ socialFollowers }
 								emailSubscribers={ emailSubscribers }
 								paidSubscribers={ paidSubscribers }
 								showMisconfigurationWarning={ showMisconfigurationWarning }
@@ -381,7 +360,6 @@ export function NewsletterAccessDocumentSettings( {
 
 						<NewsletterNotice
 							accessLevel={ _accessLevel }
-							socialFollowers={ socialFollowers }
 							emailSubscribers={ emailSubscribers }
 							paidSubscribers={ paidSubscribers }
 							showMisconfigurationWarning={ showMisconfigurationWarning }

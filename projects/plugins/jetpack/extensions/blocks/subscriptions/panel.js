@@ -208,7 +208,6 @@ function NewsletterPostPublishSettingsPanel( {
 			<NewsletterNotice
 				isPostPublishPanel={ true }
 				accessLevel={ accessLevel }
-				socialFollowers={ socialFollowers }
 				emailSubscribers={ emailSubscribers }
 				paidSubscribers={ paidSubscribers }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
