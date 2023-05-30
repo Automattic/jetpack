@@ -2150,7 +2150,7 @@ function zeroBSCRM_html_extensions() {
 			echo '</div>';
 			echo '<div class="clear"></div>';
 		}
-			echo '<div class="ui top attached header premium-box"><h3 class="box-title">' . esc_html__( 'Premium Extensions', 'zero-bs-crm' ) . '</h3>   <a class="guides ui button blue mini" href="' . esc_url( $zbs->urls['docs'] ) . '" target="_blank"><i class="book icon"></i> ' . esc_html__( 'Knowledge-base', 'zero-bs-crm' ) . '</a> <a class="guides ui button blue basic mini" href="' . esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) ) . '"><i class="puzzle piece icon"></i> ' . esc_html__( 'Core Modules', 'zero-bs-crm' ) . '</a>   </div>';
+			echo '<div class="ui top attached header premium-box"><h3 class="box-title">' . esc_html__( 'Premium Extensions', 'zero-bs-crm' ) . '</h3>   <a class="guides ui button black mini" href="' . esc_url( $zbs->urls['docs'] ) . '" target="_blank"><i class="book icon"></i> ' . esc_html__( 'Knowledge-base', 'zero-bs-crm' ) . '</a> <a style="color: black !important;box-shadow: 0px 0px 0px 1px black inset !important;" class="guides ui button blue basic mini" href="' . esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) ) . '"><i class="puzzle piece icon"></i> ' . esc_html__( 'Core Modules', 'zero-bs-crm' ) . '</a>   </div>';
 			echo '<div class="clear"></div>';
 			echo '<div class="ui segment attached">';
 				echo '<div class="ui internally celled grid">';
