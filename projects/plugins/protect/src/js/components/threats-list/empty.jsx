@@ -91,11 +91,19 @@ const EmptyList = ( { selected } ) => {
 
 	const title = useMemo( () => {
 		if ( selected === 'plugins' ) {
-			return __( 'No plugin threats found', 'jetpack-protect' );
+			return __(
+				'No plugin threats found',
+				'jetpack-protect',
+				/* dummy arg to avoid bad minification */ 0
+			);
 		}
 
 		if ( selected === 'themes' ) {
-			return __( "Don't worry about a theme", 'jetpack-protect' );
+			return __(
+				"Don't worry about a theme",
+				'jetpack-protect',
+				/* dummy arg to avoid bad minification */ 0
+			);
 		}
 
 		return __( "Don't worry about a thing", 'jetpack-protect' );
