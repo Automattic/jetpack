@@ -56,6 +56,7 @@ class Test_WPCOM_REST_API_V2_Endpoint_Stats_Admin_Settings extends Stats_Test_Ca
 	 */
 	public function tear_down() {
 		remove_action( 'rest_api_init', array( $this->rest_controller, 'register_rest_routes' ) );
+		Options::set_option( WPCOM_REST_API_V2_Endpoint_Stats_Admin_Settings::DASHBOARD_MODULES, array() );
 		parent::tear_down();
 	}
 

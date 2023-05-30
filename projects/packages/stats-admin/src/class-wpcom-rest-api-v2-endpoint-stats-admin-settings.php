@@ -75,9 +75,10 @@ class WPCOM_REST_API_V2_Endpoint_Stats_Admin_Settings extends Stats_Base_REST_Co
 	public function update_modules_status( $req ) {
 		$current_modules = Options::get_option( self::DASHBOARD_MODULES );
 		$changed         = false;
+
 		foreach ( $req->get_params() as $page => $page_modules ) {
 			// Only allow existing pages.
-			if ( array_key_exists( $page, self::ALLOWED_MODULES ) ) {
+			if ( ! array_key_exists( $page, self::ALLOWED_MODULES ) ) {
 				continue;
 			}
 
