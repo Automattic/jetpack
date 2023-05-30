@@ -421,6 +421,18 @@ function wpcom_register_default_launchpad_checklists() {
 		)
 	);
 
+	wpcom_register_launchpad_task_list(
+		array(
+			'id'                  => 'keep-building',
+			'title'               => 'Keep Building',
+			'task_ids'            => array(
+				'design_edited',
+				// @todo Add more tasks here!
+			),
+			'is_enabled_callback' => '__return_false',
+		)
+	);
+
 	// This is the hook that allows other plugins to register their own checklists.
 	do_action( 'wpcom_register_launchpad_tasks' );
 
