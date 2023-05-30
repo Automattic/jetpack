@@ -26,14 +26,14 @@ const promptTemplates = [
 		label: __( 'Detailed guide on…', 'jetpack' ),
 		description: __( 'Craft a detailed guide ', 'jetpack' ),
 	},
-	{
-		label: __( 'Opinion on trends in…', 'jetpack' ),
-		description: __( 'Write an opinion piece on the current trends in ', 'jetpack' ),
-	},
-	{
-		label: __( 'Review about…', 'jetpack' ),
-		description: __( 'Write a review about ', 'jetpack' ),
-	},
+	// {
+	// 	label: __( 'Opinion on trends in…', 'jetpack' ),
+	// 	description: __( 'Write an opinion piece on the current trends in ', 'jetpack' ),
+	// },
+	// {
+	// 	label: __( 'Review about…', 'jetpack' ),
+	// 	description: __( 'Write a review about ', 'jetpack' ),
+	// },
 	{
 		label: __( 'Short story in…', 'jetpack' ),
 		description: __( 'Write a short story set in ', 'jetpack' ),
@@ -42,10 +42,10 @@ const promptTemplates = [
 		label: __( 'Informative article on…', 'jetpack' ),
 		description: __( 'Craft an informative article explaining ', 'jetpack' ),
 	},
-	{
-		label: __( 'Tribute to…', 'jetpack' ),
-		description: __( 'Write a tribute piece about ', 'jetpack' ),
-	},
+	// {
+	// 	label: __( 'Tribute to…', 'jetpack' ),
+	// 	description: __( 'Write a tribute piece about ', 'jetpack' ),
+	// },
 	{
 		label: __( 'Motivational post on…', 'jetpack' ),
 		description: __( 'Create a motivational post on ', 'jetpack' ),
@@ -54,10 +54,10 @@ const promptTemplates = [
 		label: __( 'Step-by-step tutorial on…', 'jetpack' ),
 		description: __( 'Write a step-by-step tutorial on ', 'jetpack' ),
 	},
-	{
-		label: __( 'Critical analysis of…', 'jetpack' ),
-		description: __( 'Write a critical analysis of ', 'jetpack' ),
-	},
+	// {
+	// 	label: __( 'Critical analysis of…', 'jetpack' ),
+	// 	description: __( 'Write a critical analysis of ', 'jetpack' ),
+	// },
 ];
 
 export default function PromptTemplatesControl( {
