@@ -14,7 +14,7 @@ use WP_REST_Server;
 /**
  * VideoPress wpcom api v2 endpoint
  */
-class WPCOM_REST_API_V2_Endpoint_Stats_Admin_Settings extends Base_Stats_Rest_Controller {
+class WPCOM_REST_API_V2_Endpoint_Stats_Admin_Settings extends Stats_Base_REST_Controller {
 	const DASHBOARD_SETTINGS = 'module_settings';
 	const DASHBOARD_MODULES  = 'modules';
 
