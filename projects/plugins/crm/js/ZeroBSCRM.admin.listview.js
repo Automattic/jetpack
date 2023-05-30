@@ -5522,8 +5522,8 @@ function jpcrm_do_search_filter( event ) {
 		return;
 	}
 
-	// update address bar
-	history.replaceState( null, null, jpcrm_listview_generate_current_filter_url() );
+	// update listview filter settings
+	zbsListViewParams.filters.s = this.value;
 
 	// draw new listview
 	zeroBSCRMJS_drawListView(true, true);
