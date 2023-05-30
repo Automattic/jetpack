@@ -99,7 +99,7 @@ new Jetpack_JSON_API_Themes_New_Endpoint(
 			'$site' => '(int|string) The site ID, The site domain',
 		),
 		'request_format'          => array(
-			'zip' => '(zip) Theme package zip file. multipart/form-data encoded. ',
+			'zip' => '(array) Reference to an uploaded theme package zip file.',
 		),
 		'response_format'         => Jetpack_JSON_API_Themes_Endpoint::$_response_format,
 		'allow_jetpack_site_auth' => true,
