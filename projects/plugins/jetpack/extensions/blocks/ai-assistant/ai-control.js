@@ -282,37 +282,31 @@ const ToolbarControls = ( {
 							icon={ chevronDown }
 							label={ __( 'Generate and improve', 'jetpack' ) }
 							controls={ [
-								{
+								wholeContent?.length && {
 									title: __( 'Summarize', 'jetpack' ),
 									onClick: () => getSuggestionFromOpenAI( 'summarize' ),
-									isDisabled: ! wholeContent?.length,
 								},
-								{
+								hasPostTitle && {
 									title: __( 'Write a summary based on title', 'jetpack' ),
 									onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
-									isDisabled: ! hasPostTitle,
 								},
-								{
+								contentBefore?.length && {
 									title: __( 'Expand on preceding content', 'jetpack' ),
 									onClick: () => getSuggestionFromOpenAI( 'continue' ),
-									isDisabled: ! contentBefore?.length,
 								},
-								{
+								contentBefore?.length && {
 									title: __( 'Correct spelling and grammar of preceding content', 'jetpack' ),
 									onClick: () => getSuggestionFromOpenAI( 'correctSpelling' ),
-									isDisabled: ! contentBefore?.length,
 								},
-								{
+								contentBefore?.length && {
 									title: __( 'Simplify preceding content', 'jetpack' ),
 									onClick: () => getSuggestionFromOpenAI( 'simplify' ),
-									isDisabled: ! contentBefore?.length,
 								},
-								{
+								wholeContent?.length && {
 									title: __( 'Generate a post title', 'jetpack' ),
 									onClick: () => getSuggestionFromOpenAI( 'generateTitle' ),
-									isDisabled: ! wholeContent?.length,
 								},
-							] }
+							].filter( Boolean ) }
 						/>
 					) }
 					{ showRetry && (
