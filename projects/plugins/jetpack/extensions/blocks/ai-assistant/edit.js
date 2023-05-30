@@ -130,7 +130,7 @@ export default function AIAssistantEdit( { attributes, setAttributes, clientId }
 	};
 
 	const handleTryAgain = () => {
-		setAttributes( { content: undefined } );
+		setAttributes( { content: undefined, promptType: undefined } );
 	};
 
 	const handleGetSuggestion = type => {
