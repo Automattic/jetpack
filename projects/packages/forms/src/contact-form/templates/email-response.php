@@ -23,10 +23,10 @@ $template = '
 <p>%2$s</p>
 
 <!-- link to responses page -->
-<p><a href="%3$s">View Responses</a></p>
+<p><a href="%3$s"> ' . esc_html__( 'View Responses', 'jetpack-forms' ) . '</a></p>
 
 <!-- link to edit form -->
-<p><a href="%4$s">Edit</a></p>
+<p><a href="%4$s">' . esc_html__( 'Edit', 'jetpack-forms' ) . '</a></p>
 
 <!-- footer -->
 <p>%5$s</p>
