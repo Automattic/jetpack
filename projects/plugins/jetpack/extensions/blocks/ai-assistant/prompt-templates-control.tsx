@@ -84,28 +84,6 @@ export default function PromptTemplatesControl( {
 			{ ( { onClose } ) => {
 				return (
 					<>
-						{ hasContent && (
-							<MenuGroup label={ __( 'Based on entire content…', 'jetpack' ) }>
-								{ hasContent && (
-									<MenuItem
-										icon={ postExcerpt }
-										iconPosition="left"
-										onClick={ () => getSuggestionFromOpenAI( 'summarize' ) }
-									>
-										{ __( 'Summarize', 'jetpack' ) }
-									</MenuItem>
-								) }
-								{ hasContent && (
-									<MenuItem
-										icon={ title }
-										iconPosition="left"
-										onClick={ () => getSuggestionFromOpenAI( 'generateTitle' ) }
-									>
-										{ __( 'Generate a post title', 'jetpack' ) }
-									</MenuItem>
-								) }
-							</MenuGroup>
-						) }
 						{ hasContentBefore && (
 							<MenuGroup label={ __( 'Based on preceding content…', 'jetpack' ) }>
 								<MenuItem
@@ -129,6 +107,28 @@ export default function PromptTemplatesControl( {
 								>
 									{ __( 'Simplify preceding content', 'jetpack' ) }
 								</MenuItem>
+							</MenuGroup>
+						) }
+						{ hasContent && (
+							<MenuGroup label={ __( 'Based on entire content…', 'jetpack' ) }>
+								{ hasContent && (
+									<MenuItem
+										icon={ postExcerpt }
+										iconPosition="left"
+										onClick={ () => getSuggestionFromOpenAI( 'summarize' ) }
+									>
+										{ __( 'Summarize', 'jetpack' ) }
+									</MenuItem>
+								) }
+								{ hasContent && (
+									<MenuItem
+										icon={ title }
+										iconPosition="left"
+										onClick={ () => getSuggestionFromOpenAI( 'generateTitle' ) }
+									>
+										{ __( 'Generate a post title', 'jetpack' ) }
+									</MenuItem>
+								) }
 							</MenuGroup>
 						) }
 						<MenuGroup label={ __( 'Write…', 'jetpack' ) }>
