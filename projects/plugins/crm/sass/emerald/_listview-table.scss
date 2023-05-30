@@ -26,7 +26,7 @@
 
 		/* min-width except for checkbox column */
 		th:not(:first-child), td:not(:first-child) {
-			min-width: 50px;
+			min-width: 120px;
 		}
 
 		input[type="checkbox"] {
