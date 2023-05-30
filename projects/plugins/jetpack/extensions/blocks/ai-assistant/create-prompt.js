@@ -55,6 +55,9 @@ export const buildPromptTemplate = ( {
 		job += 'respond to the request below, under "Request"';
 	} else if ( ! request && !! content ) {
 		job += 'modify the content below, under "Content"';
+	} else if ( !! request && !! content ) {
+		job +=
+			'respond to the request below, under "Request". The content of the current post is under "Content"';
 	} else {
 		job +=
 			'modify the content shared below, under "Content", based on the request below, under "Request"';
@@ -226,6 +229,16 @@ export function buildPrompt( {
 			prompt = buildPromptTemplate( {
 				request: `Please, rewrite the content below in the following language: ${ options.language }.`,
 				content: options.contentType === 'generated' ? generatedContent : allPostContent,
+			} );
+			break;
+
+		/**
+		 * Open ended prompt from user
+		 */
+		case 'userPrompt':
+			prompt = buildPromptTemplate( {
+				request: userPrompt,
+				content: allPostContent || generatedContent,
 			} );
 			break;
 

@@ -401,10 +401,10 @@ class zeroBSCRM_list{
 			</div>
 			<?php
 
-			// if totals, show the wrapper
-			if ( $zbs->settings->get( 'show_totals_table' ) === 1 ) {
+			// If totals, show the wrapper. Currently only implemented in contacts
+			if ( $zbs->settings->get( 'show_totals_table' ) === 1 && $this->objType === 'customer' ) { // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 				?>
-				<div id="jpcrm-listview-totals-box"></div>
+				<jpcrm-dashcount></jpcrm-dashcount>
 				<?php
 			}
 			##WLREMOVE

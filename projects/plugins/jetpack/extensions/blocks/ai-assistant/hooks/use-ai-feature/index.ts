@@ -9,6 +9,7 @@ type SiteAIAssistantFeatureEndpointResponseProps = {
 	'is-over-limit': boolean;
 	'requests-count': number;
 	'requests-limit': number;
+	'site-require-upgrade': boolean;
 };
 
 const NUM_FREE_REQUESTS_LIMIT = 20;
@@ -29,16 +30,12 @@ export default function useAIFeature() {
 			} );
 
 			try {
-				const hasFeature = !! response[ 'has-feature' ];
-				const isOverLimit = !! response[ 'is-over-limit' ];
-				const requireUpgrade = ! hasFeature && isOverLimit;
-
 				setData( {
-					hasFeature,
-					isOverLimit,
+					hasFeature: !! response[ 'has-feature' ],
+					isOverLimit: !! response[ 'is-over-limit' ],
 					requestsCount: response[ 'requests-count' ],
 					requestsLimit: response[ 'requests-limit' ],
-					requireUpgrade,
+					requireUpgrade: !! response[ 'site-require-upgrade' ],
 				} );
 			} catch ( error ) {
 				console.error( error ); // eslint-disable-line no-console

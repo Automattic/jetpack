@@ -1636,7 +1636,7 @@ function jetpack_stats_load_admin_css() {
 }
 
 /**
- * Set header for column that allows to go to WordPress.com to see an entry's stats.
+ * Set header for column that allows to view an entry's stats.
  *
  * @param array $columns An array of column names.
  *
@@ -1645,8 +1645,22 @@ function jetpack_stats_load_admin_css() {
  * @return mixed
  */
 function jetpack_stats_post_table( $columns ) {
-	// Adds a stats link on the edit posts page.
-	if ( ! current_user_can( 'view_stats' ) || ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected() ) {
+	/*
+	 * Stats can be accessed in wp-admin or in Calypso,
+	 * depending on what version of the stats screen is enabled on your site.
+	 *
+	 * In both cases, the user must be allowed to access stats.
+	 *
+	 * If the Odyssey Stats experience isn't enabled, the user will need to go to Calypso,
+	 * so they need to be connected to WordPress.com to be able to access that page.
+	 */
+	if (
+		! current_user_can( 'view_stats' )
+		|| (
+			! Stats_Options::get_option( 'enable_odyssey_stats' )
+			&& ! ( new Connection_Manager( 'jetpack' ) )->is_user_connected()
+		)
+	) {
 		return $columns;
 	}
 
