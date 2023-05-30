@@ -346,7 +346,15 @@ class Jetpack_Protect {
 
 		$license_found = false;
 
-		foreach ( $licenses as $license ) {
+		// Filter for unnattached and unrevoked licenses.
+		$valid_licenses = array_filter(
+			$licenses,
+			function ( $license ) {
+				return $license->attached_at === null && $license->revoked_at === null;
+			}
+		);
+
+		foreach ( $valid_licenses as $license ) {
 			if ( in_array( $license->product_id, self::JETPACK_SCAN_PRODUCT_IDS, true ) ) {
 				$license_found = true;
 				break;
