@@ -122,7 +122,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			'launchpad_screen'   => get_option( 'launchpad_screen' ),
 			'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
 			'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug ),
-			'is_enabled'         => wpcom_launchpad_checklists()->is_launchpad_enabled(),
+			'is_enabled'         => wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ),
 		);
 	}
 

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-FSE: remove usage of gutenberg_is_fse_theme for modern wp_is_block_theme

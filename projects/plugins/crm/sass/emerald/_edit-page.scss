@@ -1,0 +1,66 @@
+.jpcrm-form-grid {
+	display: grid;
+	gap: 1rem;
+	padding: 1rem;
+	overflow: auto;
+
+	select,
+	input {
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 100%;
+		margin:0px;
+	}
+
+	&.one-column {
+		grid-template-columns: 1fr;
+		padding: 0px;
+	}
+}
+
+.jpcrm-form-label {
+	display: block;
+	font-weight: normal;
+	line-height: 1.4;
+	margin-bottom: calc(8px);
+	padding: 0px;
+}
+
+.jpcrm-form-input, .jpcrm-form-select {
+	width: 100%;
+	max-width: unset !important;
+}
+
+.jpcrm-form-input-group {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.jpcrm-input-text {
+	font-size: 13px;
+}
+
+.jpcrm-input-select {
+	max-width: unset !important;
+}
+
+@media (min-width: 768px) {
+	.jpcrm-form-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.jpcrm-form-group-span-2 {
+		grid-column: span 2;
+	}
+}
+
+@media (max-width: 767px) {
+	.jpcrm-form-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.jpcrm-empty-form-group {
+		display: none;
+	}
+}

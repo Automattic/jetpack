@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+AI Assistant: introduce a new error_service_unavailable custom error

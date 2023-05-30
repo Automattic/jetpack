@@ -150,14 +150,28 @@
 	}
 }
 
+$previews-max-width: 550px;
+$twitter-pofile-image-padding: 17px;
+
 .jp-seo-social-previews {
 	margin-bottom: 0;
 
 	.search-preview,
-	.facebook-preview,
-	.twitter-preview {
+	.facebook-preview__post,
+	.twitter-preview__wrapper {
 		margin-top: 1rem;
 		margin-bottom: 1rem;
+		// Avoid center alignment of the preview.
+		margin-inline: 0;
+		max-width: $previews-max-width;
+	}
+	.twitter-preview__wrapper {
+		// Remove padding for twitter preview
+		padding: 0;
+		// Compensate for the padding for profile image
+		margin-inline-start: -$twitter-pofile-image-padding;
+		// Add the extra width lost for the profile image
+		max-width: $previews-max-width + $twitter-pofile-image-padding;
 	}
 
 	&-container {

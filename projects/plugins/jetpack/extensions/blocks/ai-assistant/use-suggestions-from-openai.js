@@ -79,7 +79,7 @@ const useSuggestionsFromOpenAI = ( {
 	attributes,
 	clientId,
 	content,
-	setErrorMessage,
+	setError,
 	tracks,
 	userPrompt,
 } ) => {
@@ -167,7 +167,7 @@ const useSuggestionsFromOpenAI = ( {
 		}
 
 		setShowRetry( false );
-		setErrorMessage( false );
+		setError( {} );
 
 		let prompt = lastPrompt;
 
@@ -204,14 +204,16 @@ const useSuggestionsFromOpenAI = ( {
 			source.current = await askQuestion( prompt, postId );
 		} catch ( err ) {
 			if ( err.message ) {
-				setErrorMessage( err.message ); // Message was already translated by the backend
+				setError( { message: err.message, code: err?.code || 'unknown', status: 'error' } );
 			} else {
-				setErrorMessage(
-					__(
+				setError( {
+					message: __(
 						'Whoops, we have encountered an error. AI is like really, really hard and this is an experimental feature. Please try again later.',
 						'jetpack'
-					)
-				);
+					),
+					code: 'unknown',
+					status: 'error',
+				} );
 			}
 			setShowRetry( true );
 			setIsLoadingCompletion( false );
@@ -222,21 +224,57 @@ const useSuggestionsFromOpenAI = ( {
 			stopSuggestion();
 			updateBlockAttributes( clientId, { content: e.detail } );
 		} );
+
 		source?.current.addEventListener( 'error_unclear_prompt', () => {
 			source?.current.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
-			setErrorMessage( __( 'Your request was unclear. Mind trying again?', 'jetpack' ) );
+			setError( {
+				code: 'error_unclear_prompt',
+				message: __( 'Your request was unclear. Mind trying again?', 'jetpack' ),
+				status: 'info',
+			} );
 		} );
+
 		source?.current.addEventListener( 'error_network', () => {
 			source?.current.close();
 			setIsLoadingCompletion( false );
 			setWasCompletionJustRequested( false );
 			setShowRetry( true );
-			setErrorMessage(
-				__( 'It was not possible to process your request. Mind trying again?', 'jetpack' )
-			);
+			setError( {
+				code: 'error_network',
+				message: __( 'It was not possible to process your request. Mind trying again?', 'jetpack' ),
+				status: 'info',
+			} );
 		} );
+
+		source?.current.addEventListener( 'error_service_unavailable', () => {
+			source?.current.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( true );
+			setError( {
+				code: 'error_service_unavailable',
+				message: __(
+					'Jetpack AI services are currently unavailable. Sorry for the inconvenience.',
+					'jetpack'
+				),
+				status: 'info',
+			} );
+		} );
+
+		source?.current.addEventListener( 'error_quota_exceeded', () => {
+			source?.current.close();
+			setIsLoadingCompletion( false );
+			setWasCompletionJustRequested( false );
+			setShowRetry( false );
+			setError( {
+				code: 'error_quota_exceeded',
+				message: __( 'You have reached the limit of requests for this site.', 'jetpack' ),
+				status: 'info',
+			} );
+		} );
+
 		source?.current.addEventListener( 'suggestion', e => {
 			setWasCompletionJustRequested( false );
 			debug( 'fullMessage', e.detail );

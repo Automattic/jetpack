@@ -635,11 +635,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 							}
 						}
 
-						$return[ $key ] = $files;
-						break;
+						foreach ( $files as $k => $file ) {
+							if ( ! isset( $file['tmp_name'] ) || ! is_string( $file['tmp_name'] ) || ! is_uploaded_file( $file['tmp_name'] ) ) {
+								unset( $files[ $k ] );
+							}
+						}
+						if ( $files ) {
+							$return[ $key ] = $files;
+						}
+					} elseif ( isset( $value['tmp_name'] ) && is_string( $value['tmp_name'] ) && is_uploaded_file( $value['tmp_name'] ) ) {
+						$return[ $key ] = $value;
 					}
 				}
-				// no break - treat as 'array'.
+				break;
 			case 'array':
 				// Fallback array -> string.
 				if ( is_string( $value ) ) {
@@ -1395,10 +1403,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$$field = str_replace( '&amp;', '&', $$field );
 			}
 		} else {
-			if ( isset( $author->user_id ) && $author->user_id ) {
-				$author = $author->user_id;
-			} elseif ( isset( $author->user_email ) ) {
+			if ( $author instanceof WP_User || isset( $author->user_email ) ) {
 				$author = $author->ID;
+			} elseif ( isset( $author->user_id ) && $author->user_id ) {
+				$author = $author->user_id;
 			} elseif ( isset( $author->post_author ) ) {
 				// then $author is a Post Object.
 				if ( ! $author->post_author ) {
