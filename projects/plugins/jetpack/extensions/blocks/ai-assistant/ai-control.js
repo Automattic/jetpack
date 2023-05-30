@@ -13,7 +13,7 @@ import {
 } from '@wordpress/components';
 import { useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { chevronDown, image, pencil, update, closeSmall } from '@wordpress/icons';
+import { image, pencil, update, closeSmall } from '@wordpress/icons';
 /*
  * Internal dependencies
  */
@@ -243,7 +243,15 @@ const ToolbarControls = ( {
 			) }
 
 			<BlockControls>
-				<PromptTemplatesControl onPromptSelected={ setUserPrompt } />
+				{ ! showRetry && ! contentIsLoaded && (
+					<PromptTemplatesControl
+						hasContentBefore={ !! contentBefore?.length }
+						hasContent={ !! wholeContent?.length }
+						hasPostTitle={ hasPostTitle }
+						onPromptSelected={ setUserPrompt }
+						getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+					/>
+				) }
 
 				<ToolbarGroup>
 					{ ! showRetry && contentIsLoaded && (
@@ -277,38 +285,6 @@ const ToolbarControls = ( {
 						</BlockControls>
 					) }
 
-					{ ! showRetry && ! contentIsLoaded && (
-						<ToolbarDropdownMenu
-							icon={ chevronDown }
-							label={ __( 'Generate and improve', 'jetpack' ) }
-							controls={ [
-								wholeContent?.length && {
-									title: __( 'Summarize', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'summarize' ),
-								},
-								hasPostTitle && {
-									title: __( 'Write a summary based on title', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'titleSummary' ),
-								},
-								contentBefore?.length && {
-									title: __( 'Expand on preceding content', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'continue' ),
-								},
-								contentBefore?.length && {
-									title: __( 'Correct spelling and grammar of preceding content', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'correctSpelling' ),
-								},
-								contentBefore?.length && {
-									title: __( 'Simplify preceding content', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'simplify' ),
-								},
-								wholeContent?.length && {
-									title: __( 'Generate a post title', 'jetpack' ),
-									onClick: () => getSuggestionFromOpenAI( 'generateTitle' ),
-								},
-							].filter( Boolean ) }
-						/>
-					) }
 					{ showRetry && (
 						<ToolbarButton icon={ update } onClick={ retryRequest }>
 							{ __( 'Retry', 'jetpack' ) }
