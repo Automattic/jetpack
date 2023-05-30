@@ -41,7 +41,7 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	padding: 0 4px 0 8px;
+	margin-left: 8px;
 	
 	.jetpack-ai-assistant__input-icon {
 		// Brand green regardless of theme
@@ -65,7 +65,8 @@
 
 .jetpack-ai-assistant__input-wrapper {
 	display: flex;
-	padding: 6px 9px;
+	padding: 6px;
+	gap: 8px;
 	box-shadow: var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 0px 1px, var( --wp--preset--color--cyan-bluish-gray ) 0px 0px 8px;
 
 	&.is-disconnected {
