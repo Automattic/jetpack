@@ -59,8 +59,13 @@ const SelectableLicenseKeyInput = props => {
 			];
 		}
 
+		// Filter for unnattached and unrevoked licenses.
+		const validLicenses = availableLicenses.filter(
+			item => item.attached_at === null && item.revoked_at === null
+		);
+
 		return [
-			...availableLicenses.map( ( { product, license_key } ) => {
+			...validLicenses.map( ( { product, license_key } ) => {
 				return {
 					label: sprintf(
 						/* translators: placeholder is the product name and license key */
