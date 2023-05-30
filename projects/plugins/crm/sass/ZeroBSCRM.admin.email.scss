@@ -90,21 +90,22 @@ html,body{
     padding-bottom: 10px;
     position:relative;
 }
-.zbs-email-list-item:hover{
-    background: #f7f7f7;
-    border-left: 7px solid #2085d0 !important;
-}
-.zbs-email-list .active:hover{
-    border-left: 7px solid #2085d0 !important;
-    background: #f7f7f7;
-}
-.zbs-email-list .item{
+
+.zbs-email-list .item {
     border-left:7px solid white;
 }
-.zbs-email-list .active{
-    border-left: 7px solid #2085d0;
+
+.zbs-email-list .active:hover,
+.zbs-email-list .active {
     background: #f7f7f7;
+    border-left: 7px solid var(--jp-green);
 }
+
+.zbs-email-list-item:hover {
+    background: #f7f7f7;
+    border-left: 7px solid var(--jp-green-5);
+}
+
 .zbs-email-list input[type=checkbox], input[type=radio] {
     margin: 4px 0 0;
     line-height: normal;

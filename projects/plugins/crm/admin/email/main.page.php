@@ -243,7 +243,7 @@ function jpcrm_render_emailbox() {
 			<?php
 				do_action( 'zbs_email_schedule_send_time' );
 			?>
-			<div class='zbs-send-email-thread-button ui button blue'><?php esc_html_e( 'Send', 'zero-bs-crm' ); ?></div>
+			<div class='zbs-send-email-thread-button ui button black'><?php esc_html_e( 'Send', 'zero-bs-crm' ); ?></div>
 			</div>
 
 
@@ -252,18 +252,18 @@ function jpcrm_render_emailbox() {
 
 		<div class='zbs-email-contact-info app-content'>
 				<?php
-				// the customer information pane - get using AJAX
-
-				// $customer_panel = zeroBSCRM_emails_customer_panel();
-
-				// defaults
-				$customer_panel['avatar']             = '';
-				$customer_panel['customer']['fname']  = 'John';
-				$customer_panel['customer']['lname']  = 'Doe';
-				$customer_panel['customer']['status'] = __( 'Lead', 'zero-bs-crm' );
-				$customer_panel['tasks']              = array();
-				$customer_panel['trans_value']        = 0;
-				$customer_panel['quote_value']        = 0;
+				// Placeholders
+				$customer_panel = array(
+					'avatar'      => '',
+					'customer'    => array(
+						'fname'  => 'John',
+						'lname'  => 'Doe',
+						'status' => __( 'Lead', 'zero-bs-crm' ),
+					),
+					'tasks'       => array(),
+					'trans_value' => 0,
+					'quote_value' => 0,
+				);
 
 				echo "<div class='customer-panel-header'>";
 					echo "<div class='panel-edit-contact'>";
@@ -272,7 +272,7 @@ function jpcrm_render_emailbox() {
 					echo "<div id='panel-customer-avatar'>" . esc_html( $customer_panel['avatar'] ) . '</div>';
 					echo "<div id='panel-name'>" . esc_html( $customer_panel['customer']['fname'] . ' ' . $customer_panel['customer']['lname'] ) . '</div>';
 
-					echo "<div id='panel-status' class='ui label " . esc_attr( $customer_panel['customer']['status'] ) . "'>" . esc_html( $customer_panel['customer']['status'] ) . '</div>';
+					echo '<div id="panel-status">' . esc_html( $customer_panel['customer']['status'] ) . '</div>';
 
 					echo "<div class='simple-actions zbs-hide'>";
 						echo "<a class='ui label circular'><i class='ui icon phone'></i></a>";
@@ -495,7 +495,7 @@ function zeroBSCRM_pages_admin_sendmail() {
 
 				?>
 			<br/>
-			<input type="submit" class="ui button blue large right zbs-single-send-email-button" value="<?php esc_attr_e( 'Send Email', 'zero-bs-crm' ); ?>" />
+			<input type="submit" class="jpcrm-button" value="<?php esc_attr_e( 'Send Email', 'zero-bs-crm' ); ?>" />
 
 			<?php
 			do_action( 'zbs_single_email_schedule', $customerID );

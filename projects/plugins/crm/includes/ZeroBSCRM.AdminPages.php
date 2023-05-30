@@ -310,7 +310,7 @@ function zeroBSCRM_pages_admin_team() {
 	</form>
 
 
-		<a style="margin-left:10px;" class="ui button right" href="<?php echo esc_url( admin_url( 'user-new.php?zbsslug=zbs-add-user' ) ); ?>">
+		<a style="margin-left:10px;" class="ui button black right" href="<?php echo esc_url( admin_url( 'user-new.php?zbsslug=zbs-add-user' ) ); ?>">
 		<i class="add icon"></i> 
 			<?php esc_html_e( 'Add New Team Member', 'zero-bs-crm' ); ?>
 		</a>
@@ -345,7 +345,7 @@ function zeroBSCRM_pages_admin_team() {
 
 			echo '<td>' . esc_html( zeroBSCRM_wpb_lastlogin( $ID ) . ' ' . __( 'ago', 'zero-bs-crm' ) ) . '</td>';
 
-			echo "<td><a href='" . esc_url( $edit_url ) . "'' data-uid='" . esc_attr( $ID ) . "' class='zbs-perm-edit ui button mini blue'>";
+			echo "<td><a href='" . esc_url( $edit_url ) . "'' data-uid='" . esc_attr( $ID ) . "' class='zbs-perm-edit ui button mini black'>"; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			esc_html_e( 'Manage permissions', 'zero-bs-crm' );
 
@@ -1988,7 +1988,7 @@ function zeroBSCRM_html_extensions() {
 		$bundle = true;
 	}
 
-	echo "<div class='zbs-extensions-manager' style='margin-top:1em'>";
+	echo '<div class="zbs-extensions-manager">';
 
 	// get the products, from our sites JSON custom REST endpoint - that way only need to manage there and not remember to update all the time
 	// each product has our extkey so can do the same as the built in array here ;) #progress #woop-da-woop
@@ -2150,7 +2150,7 @@ function zeroBSCRM_html_extensions() {
 			echo '</div>';
 			echo '<div class="clear"></div>';
 		}
-			echo '<div class="ui top attached header premium-box"><h3 class="box-title">' . esc_html__( 'Premium Extensions', 'zero-bs-crm' ) . '</h3>   <a class="guides ui button blue mini" href="' . esc_url( $zbs->urls['docs'] ) . '" target="_blank"><i class="book icon"></i> ' . esc_html__( 'Knowledge-base', 'zero-bs-crm' ) . '</a> <a class="guides ui button blue basic mini" href="' . esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) ) . '"><i class="puzzle piece icon"></i> ' . esc_html__( 'Core Modules', 'zero-bs-crm' ) . '</a>   </div>';
+			echo '<div class="ui top attached header premium-box"><h3 class="box-title">' . esc_html__( 'Premium Extensions', 'zero-bs-crm' ) . '</h3>   <a class="guides ui button black mini" href="' . esc_url( $zbs->urls['docs'] ) . '" target="_blank"><i class="book icon"></i> ' . esc_html__( 'Knowledge-base', 'zero-bs-crm' ) . '</a> <a style="color: black !important;box-shadow: 0px 0px 0px 1px black inset !important;" class="guides ui button blue basic mini" href="' . esc_url( zeroBSCRM_getAdminURL( $zbs->slugs['modules'] ) ) . '"><i class="puzzle piece icon"></i> ' . esc_html__( 'Core Modules', 'zero-bs-crm' ) . '</a>   </div>';
 			echo '<div class="clear"></div>';
 			echo '<div class="ui segment attached">';
 				echo '<div class="ui internally celled grid">';
@@ -2401,7 +2401,7 @@ function jpcrm_html_modules() {
 
 	}
 
-	echo "<div class='zbs-extensions-manager' style='margin-top:1em'>";
+	echo '<div class="zbs-extensions-manager">';
 
 			// this block should be in here for rebranded people who want to turn on or off features.
 			echo '<div class="zbs-page-wrap free-block-wrap">';

@@ -76,44 +76,46 @@ function zeroBSCRM_getSocialIcon($key = ''){
 		 return false;
 	}
 
-#} Outputs html message, remake of zeroBSCRM_html_msg
-/*
-	$iconClass = message
-	$msgClass = warning etc.
+/**
+ * Generates HTML markup for a message box.
+ *
+ * @param string $msg_class CSS class for the message box.
+ * @param string $msg_header Optional. Header text for the message box.
+ * @param string $msg Main content of the message box.
+ * @param string $icon_class Optional. CSS class for an icon to be displayed in the message box.
+ * @param string $id Optional. ID attribute for the message box element.
+ *
+ * @return string HTML markup for the message box.
+ * @link https://semantic-ui.com/collections/message.html Semantic UI Message Documentation.
+ */
+function zeroBSCRM_UI2_messageHTML( $msg_class = '', $msg_header = '', $msg = '', $icon_class = '', $id = '' ) {
+	if ( ! empty( $icon_class ) ) {
+		$msg_class .= ' icon';
+	}
 
-	https://semantic-ui.com/collections/message.html
-*/
-function zeroBSCRM_UI2_messageHTML($msgClass='',$msgHeader='',$msg='',$iconClass='',$id=''){
-
-	if (!empty($iconClass)) $msgClass .= ' icon';
-
-	$ret = '<div class="ui '.$msgClass.' message"';
-	if (!empty($id)) $ret .= ' id="'.$id.'"';
+	$ret = '<div style="box-shadow:unset; color:black;" class="ui ' . $msg_class . ' icon message jpcrm-div-message-box"';
+	if ( ! empty( $id ) ) {
+		$ret .= ' id="' . $id . '"';
+	}
 	$ret .= '>';
-	if (!empty($iconClass)) $ret .= '<i class="'.$iconClass.' icon"></i>';
+	if ( ! empty( $icon_class ) ) {
+		$ret .= '<i class="' . $icon_class . ' icon"></i>';
+	}
 	$ret .= '<div class="content">';
-  	if (!empty($msgHeader)) $ret .= '<div class="header">'.$msgHeader.'</div>';
-  	$ret .= '<p>'.$msg.'</p></div></div>';
+	if ( ! empty( $msg_header ) ) {
+		$ret .= '<div style="color:black;" class="header">' . $msg_header . '</div>';
+	}
+	$ret .= '<p>' . $msg . '</p></div></div>';
 
-  	return $ret;
-
+	return $ret;
 }
 
-function zeroBSCRM_UI2_loadingSegmentHTML($height='300px',$extraClasses=''){
-
-	return '<div class="ui loading segment '.$extraClasses.'" style="min-height:'.$height.'"><p>&nbsp;</p></div>';
-
+/**
+ * Return HTML for a spinner centered in a container
+ */
+function jpcrm_loading_container() {
+	return '<div class="empty-container-with-spinner"><div class="ui active centered inline loader"></div></div>';
 }
-function zeroBSCRM_UI2_loadingSegmentIncTextHTML($height='300px',$extraClasses='',$hidden=true,$id=''){
-
-	// hidden?
-	$hiddenExtraHTML = false; if ($hidden) $hiddenExtraHTML = ' style="display:none"';
-	$idStr = ''; if (!empty($id)) $idStr = ' id="'.$id.'"';
-
-	return '<div class="ui active inverted dimmer '.$extraClasses.'" style="min-height:'.$height.'"'.$hiddenExtraHTML.$idStr.'><div class="ui text loader">'.__('Loading',"zero-bs-crm").'</div></div>';
-
-}
-
 
 function zeroBSCRM_UI2_squareFeedbackUpsell($title='',$desc='',$linkStr='',$linkTarget='',$extraClasses=''){
 

@@ -528,7 +528,8 @@ class zeroBS__Metabox_Invoice extends zeroBS__Metabox {
                 var zbsMetaboxFilesLang = {
                     'err': '<?php echo esc_html( zeroBSCRM_slashOut(__('Error',"zero-bs-crm")) ); ?>',
                     'unabletodel' : '<?php echo esc_html( zeroBSCRM_slashOut(__('Unable to delete this file',"zero-bs-crm")) ); ?>',
-
+							'viewcontact' : '<?php echo esc_html__( 'View contact', 'zero-bs-crm' ); ?>',
+							'viewcompany' : '<?php echo esc_html( __( 'View', 'zero-bs-crm' ) . ' ' . jpcrm_label_company() ); ?>',
                 }
 
                 jQuery(function(){
@@ -857,48 +858,3 @@ class zeroBS__Metabox_InvoiceTags extends zeroBS__Metabox_Tags{
         // saved via main metabox
 
     }
-
-
-/* ======================================================
-  / Invoice Actions Metabox
-   ====================================================== */
-
-
-
-/*#} Currently not used. Started to get confusing. To chat through as part of v3.1+ (and Recurring Invoices work?)
- function zerBSCRM_invoice_admin_submenu(){
-     ?>
-    <div class="ui menu" id="invoice_menu_ui">
-    <div class="ui simple dropdown link item">
-        <span class="text"><?php _e("Manage Invoices","zero-bs-crm");?></span>
-        <i class="dropdown icon"></i>
-        <div class="menu">
-            <div class="item"><?php _e("Manage Invoices","zero-bs-crm");?></div>
-            <div class="item"><?php _e("Manage Recurring Invoices","zero-bs-crm");?></div>
-        </div>
-    </div>
-    <a class="item">
-        <?php _e("Create Invoice", "zero-bs-crm"); ?>
-    </a>
-    <a class="item">
-        <?php _e("Invoice Items", "zero-bs-crm"); ?>
-    </a>
-
-    <div class="ui simple dropdown item">
-        <span class="text"><?php _e("Settings","zero-bs-crm");?></span>
-        <i class="dropdown icon"></i>
-        <div class="menu">
-            <div class="item"><?php _e("Invoice Settings","zero-bs-crm");?></div>
-            <div class="item"><?php _e("Business Information","zero-bs-crm");?></div>
-            <div class="item"><?php _e("Tax Information","zero-bs-crm");?></div>
-            <div class="item"><?php _e("Templates","zero-bs-crm");?></div>
-        </div>
-    </div>
-
-    <a class="item right">
-        <i class='ui icon info circle'></i><?php _e("Help", "zero-bs-crm"); ?>
-    </a>
-
-    </div>
-     <?php
- }  */
