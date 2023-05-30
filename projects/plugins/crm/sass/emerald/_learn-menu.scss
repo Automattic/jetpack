@@ -17,7 +17,7 @@
 	align-items: center;
 	flex-direction: row;
 	justify-content: flex-end;
-	padding: 10px;
+	padding: 10px 0px;
 	gap: 10px;
 }
 
@@ -46,4 +46,17 @@
 	align-items: center;
 	flex-direction: row;
 	cursor: pointer;
+}
+
+@media (max-width: 768px) {
+	.jpcrm-learn-menu {
+		flex-wrap: wrap;
+	}
+
+	.jpcrm-learn-menu-subdiv-75,
+	.jpcrm-learn-menu-subdiv-25 {
+		flex-wrap: wrap;
+		flex-direction: column;
+		width: 100%;
+	}
 }
