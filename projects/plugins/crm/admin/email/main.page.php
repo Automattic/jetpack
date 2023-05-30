@@ -495,7 +495,7 @@ function zeroBSCRM_pages_admin_sendmail() {
 
 				?>
 			<br/>
-			<input type="submit" class="ui button blue large right zbs-single-send-email-button" value="<?php esc_attr_e( 'Send Email', 'zero-bs-crm' ); ?>" />
+			<input type="submit" class="jpcrm-button" value="<?php esc_attr_e( 'Send Email', 'zero-bs-crm' ); ?>" />
 
 			<?php
 			do_action( 'zbs_single_email_schedule', $customerID );
