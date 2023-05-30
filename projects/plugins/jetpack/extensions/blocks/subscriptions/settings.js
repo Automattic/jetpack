@@ -13,7 +13,7 @@ import {
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
-import { PostVisibilityCheck } from '@wordpress/editor';
+import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, accessOptions } from './constants';
@@ -71,6 +71,10 @@ export function NewsletterNotice( {
 	showMisconfigurationWarning,
 	isPostPublishPanel = false,
 } ) {
+	const hasPostBeenPublished = useSelect( select =>
+		select( editorStore ).isCurrentPostPublished()
+	);
+
 	// Get the reach count for the access level
 	let reachCount = getReachForAccessLevelKey( accessLevel, emailSubscribers, paidSubscribers );
 
@@ -112,7 +116,7 @@ export function NewsletterNotice( {
 		reachCount
 	);
 
-	if ( isPostPublishPanel ) {
+	if ( isPostPublishPanel || hasPostBeenPublished ) {
 		numberOfSubscribersText = sprintf(
 			/* translators: %s is the number of subscribers in numerical format */
 			__( 'This was sent to <strong>%s subscribers</strong>.', 'jetpack' ),

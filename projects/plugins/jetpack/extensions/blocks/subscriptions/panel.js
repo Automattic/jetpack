@@ -243,7 +243,7 @@ export default function SubscribePanels() {
 	}, [ isModuleActive ] );
 
 	// Can be “private”, “password”, or “public”.
-	const postVisibility = useSelect( select => select( 'core/editor' ).getEditedPostVisibility() );
+	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
 
 	// Subscriptions are only available for posts. Additionally, we will allow access level selector for pages.
 	// TODO: Make it available for pages later.
