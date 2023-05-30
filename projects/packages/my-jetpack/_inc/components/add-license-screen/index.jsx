@@ -30,6 +30,11 @@ export default function AddLicenseScreen() {
 	const { userConnectionData } = useConnection();
 	const [ hasActivatedLicense, setHasActivatedLicense ] = useState( false );
 
+	// Filter for unnattached and unrevoked licenses.
+	const validLicenses = availableLicenses.filter(
+		item => item.attached_at === null && item.revoked_at === null
+	);
+
 	// They might not have a display name set in wpcom, so fall back to wpcom login or local username.
 	const displayName =
 		userConnectionData?.currentUser?.wpcomUser?.display_name ||
@@ -53,7 +58,7 @@ export default function AddLicenseScreen() {
 				<Col>
 					<ActivationScreen
 						currentRecommendationsStep={ null }
-						availableLicenses={ availableLicenses }
+						availableLicenses={ validLicenses }
 						fetchingAvailableLicenses={ fetchingAvailableLicenses }
 						onActivationSuccess={ handleActivationSuccess }
 						siteAdminUrl={ window?.myJetpackInitialState?.adminUrl }
