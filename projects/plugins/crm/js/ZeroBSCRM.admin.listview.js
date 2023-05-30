@@ -61,31 +61,14 @@ function zeroBSCRMJS_initListView() {
 		} );
 
 	// save + close button at bottom of colmanager/screenopts
-	jQuery( '#zbs-columnmanager-bottomsave' )
-		.off( 'click' )
-		.on( 'click', function () {
-			// just clcking basically means opts saVED (AS SAVED ON CHANGE)
-
-			// close this
-			// (lazy sim click ;) )
-			jQuery( 'jpcrm-listview-header #open-table-options' ).trigger( 'click' );
-		} );
+	jQuery('#zbs-columnmanager-bottomsave').on('click', function() {
+		document.getElementById('zbs-list-col-editor').classList.add('hidden');
+	});
 
 	// open/shut column manager
-	jQuery( 'jpcrm-listview-header #open-table-options' )
-		.off( 'click' )
-		.on( 'click', function () {
-			//jQuery('#zbs-list-col-editor').toggle();
-			if ( jQuery( '#zbs-list-col-editor' ).is( ':visible' ) ) {
-				// hide
-				jQuery( this ).addClass( 'blue' ).removeClass( 'teal' );
-				jQuery( '#zbs-list-col-editor' ).hide();
-			} else {
-				// show
-				jQuery( this ).removeClass( 'blue' ).addClass( 'teal' );
-				jQuery( '#zbs-list-col-editor' ).show();
-			}
-		} );
+	jQuery('#jpcrm_table_options').on('click', function() {
+		document.getElementById('zbs-list-col-editor').classList.toggle('hidden');
+	});
 
 	// drag drop columns
 	jQuery(
@@ -435,7 +418,7 @@ function zeroBSCRMJS_drawListView() {
 			// hide extras until listview is loaded
 			document.querySelector('.bulk-actions-dropdown').classList.add('hidden');
 			jQuery( 'jpcrm-listview-footer' ).hide();
-			jQuery( '#jpcrm-listview-totals-box' ).hide();
+			jQuery( 'jpcrm-dashcount' ).hide();
 
 			// retrieve data
 			zeroBSCRMJS_retrieveListViewData(
@@ -509,7 +492,7 @@ function zeroBSCRMJS_drawListView() {
 					jQuery( '#zbsCantLoadData' ).hide();
 					jQuery( '.jpcrm-listview-table-container' ).show();
 					jQuery( 'jpcrm-listview-footer' ).show();
-					jQuery( '#jpcrm-listview-totals-box' ).show();
+					jQuery( 'jpcrm-dashcount' ).show();
 				},
 				function ( errd ) {
 					// err callback? show msg (prefilled by php)
@@ -1175,72 +1158,49 @@ function zeroBSCRMJS_listView_url_export_segment( id ) {
  *
  */
 function zeroBSCRMJS_listView_draw_totals_tables() {
-	// clear any previous
-	jQuery( '#jpcrm-listview-totals-box' ).html( '' );
 
-	if ( typeof window.jpcrm_totals_table !== 'undefined' && window.jpcrm_totals_table !== null ) {
-		var table_body_html = '';
-		var table_footer_html = '';
-
-		if (
-			typeof window.jpcrm_totals_table.quotes_total_formatted !== 'undefined' &&
-			window.jpcrm_totals_table.quotes_total_formatted !== null
-		) {
-			table_body_html +=
-				'<tr><td>' +
-				zeroBSCRMJS_listViewLang( 'quotes' ) +
-				'</td><td>' +
-				window.jpcrm_totals_table.quotes_total_formatted +
-				'</td></tr>';
-		}
-
-		if (
-			typeof window.jpcrm_totals_table.invoices_total_formatted !== 'undefined' &&
-			window.jpcrm_totals_table.invoices_total_formatted !== null
-		) {
-			table_body_html +=
-				'<tr><td>' +
-				zeroBSCRMJS_listViewLang( 'invoices' ) +
-				'</td><td>' +
-				window.jpcrm_totals_table.invoices_total_formatted +
-				'</td></tr>';
-		}
-
-		if (
-			typeof window.jpcrm_totals_table.transactions_total_formatted !== 'undefined' &&
-			window.jpcrm_totals_table.transactions_total_formatted !== null
-		) {
-			table_body_html +=
-				'<tr><td>' +
-				zeroBSCRMJS_listViewLang( 'transactions' ) +
-				'</td><td>' +
-				window.jpcrm_totals_table.transactions_total_formatted +
-				'</td></tr>';
-		}
-		if (
-			typeof window.jpcrm_totals_table.total_sum_formatted !== 'undefined' &&
-			window.jpcrm_totals_table.total_sum_formatted !== null
-		) {
-			table_footer_html =
-				'<tfoot><tr><td>' +
-				zeroBSCRMJS_listViewLang( 'total' ) +
-				'</td><td>' +
-				window.jpcrm_totals_table.total_sum_formatted +
-				'</td></tr></tfoot>';
-		}
-
-		if ( table_body_html !== '' ) {
-			jQuery( '#jpcrm-listview-totals-box' ).html(
-				'<h4>' +
-					zeroBSCRMJS_listViewLang( 'totals' ) +
-					'</h4><table class="ui compact definition table"><tbody>' +
-					table_body_html +
-					'</tbody>' +
-					table_footer_html +
-					'</table>'
-			);
-		}
+	if (!jpcrm_totals_table) {
+		return;
 	}
+
+	let html = '';
+
+	if (jpcrm_totals_table.quotes_total_formatted) {
+			html += `<jpcrm-dashcount-card>
+				<h3>${zeroBSCRMJS_listViewLang( 'quotes' )}</h3>
+				<div>
+					<span class="range_total">${jpcrm_totals_table.quotes_total_formatted}</span>
+				</div>
+			</jpcrm-dashcount-card>`;
+	}
+
+	if (jpcrm_totals_table.invoices_total_formatted) {
+			html += `<jpcrm-dashcount-card>
+				<h3>${zeroBSCRMJS_listViewLang( 'invoices' )}</h3>
+				<div>
+					<span class="range_total">${jpcrm_totals_table.invoices_total_formatted}</span>
+				</div>
+			</jpcrm-dashcount-card>`;
+	}
+
+	if (jpcrm_totals_table.transactions_total_formatted) {
+			html += `<jpcrm-dashcount-card>
+				<h3>${zeroBSCRMJS_listViewLang( 'transactions' )}</h3>
+				<div>
+					<span class="range_total">${jpcrm_totals_table.transactions_total_formatted}</span>
+				</div>
+			</jpcrm-dashcount-card>`;
+	}
+	if (jpcrm_totals_table.total_sum_formatted) {
+			html += `<jpcrm-dashcount-card>
+				<h3>${zeroBSCRMJS_listViewLang( 'total' )}</h3>
+				<div>
+					<span class="range_total">${jpcrm_totals_table.total_sum_formatted}</span>
+				</div>
+			</jpcrm-dashcount-card>`;
+	}
+
+	jQuery( 'jpcrm-dashcount' ).html( html );
 }
 
 /* ====================================================================================

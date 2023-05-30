@@ -213,10 +213,10 @@ class Jetpack_Gutenberg {
 	 * Used to initialize the class, no longer in use.
 	 *
 	 * @return void
-	 * @deprecated $$next-version$$ No longer needed.
+	 * @deprecated 12.2 No longer needed.
 	 */
 	public static function init() {
-		_deprecated_function( __METHOD__, '$$next-version$$' );
+		_deprecated_function( __METHOD__, '12.2' );
 	}
 
 	/**
@@ -643,6 +643,7 @@ class Jetpack_Gutenberg {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$user                      = wp_get_current_user();
 			$user_data                 = array(
+				'email'    => $user->user_email,
 				'userid'   => $user->ID,
 				'username' => $user->user_login,
 			);
@@ -712,6 +713,7 @@ class Jetpack_Gutenberg {
 				'isSocialImageGeneratorEnabled'   => $sig_settings->is_enabled(),
 				'dismissedNotices'                => $publicize->get_dismissed_notices(),
 				'isInstagramConnectionSupported'  => $publicize->has_instagram_connection_feature(),
+				'isMastodonConnectionSupported'   => $publicize->has_mastodon_connection_feature(),
 			);
 		}
 

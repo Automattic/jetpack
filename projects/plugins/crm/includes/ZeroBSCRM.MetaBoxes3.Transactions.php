@@ -160,26 +160,19 @@
 
 				?>
                 <script type="text/javascript">var zbscrmjs_secToken = '<?php echo esc_js( wp_create_nonce( 'zbscrmjs-ajax-nonce' ) ); ?>';</script>
-               
-                <style>
-                        @media all and (max-width:699px){
-                        table.wh-metatab{
-                            min-width:100% !important;
-                        }
-                    }  
-                </style>
 	    		<?php
 
                     // New transaction?
                     if (gettype($transaction) != "array") echo '<input type="hidden" name="zbscrm_newtransaction" value="1" />';
 
                 ?>
-				<table class="form-table wh-metatab wptbp" id="wptbpMetaBoxMainItem">
-
-					<tr class="wh-large">
-						<th style="min-width:240px"><label for="ref"><?php echo esc_html( __( 'Transaction unique ID', 'zero-bs-crm' ) );?>:</label></th>
-						<td><input type="text" id="ref" name="zbst_ref" class="form-control" value="<?php echo esc_attr( isset( $transaction['ref'] ) ? $transaction['ref'] : zeroBSCRM_uniqueID() ); ?>" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); ?>" /></td>
-					</tr>
+					<div>
+						<div class="jpcrm-form-grid" id="wptbpMetaBoxMainItem">
+					
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
+							<label class="jpcrm-form-label" for="ref"><?php echo esc_html( __( 'Transaction unique ID', 'zero-bs-crm' ) ); ?>:</label>
+							<input type="text" id="ref" name="zbst_ref" class="form-control" value="<?php echo esc_attr( isset( $transaction['ref'] ) ? $transaction['ref'] : zeroBSCRM_uniqueID() ); ?>" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( wp_rand( 0, 100 ) ); ?>" /></td>
+						</div>
 
 					<?php
 
@@ -197,26 +190,15 @@
 						$parent_ref = $zbs->DAL->transactions->get_transaction_ref( $transaction['parent'] );
 
 						?>
-						<tr class="wh-large">
-							<th></th>
-							<td>
+						<div class="jpcrm-form-group jpcrm-form-group-span-2">
 								<p style="text-align: center;">
 									<?php echo esc_html( sprintf( __( 'This transaction is a refund against transaction #%s', 'zero-bs-crm' ), $parent_ref ) ); ?>
 									<a href="<?php echo jpcrm_esc_link( 'edit', $transaction['parent'], ZBS_TYPE_TRANSACTION ); ?>" class="ui compact teal button" style="margin-left:10px"><?php echo esc_html( __( 'View Original Transaction', 'zero-bs-crm' ) ); ?></a>
 								</p>
-							</td>
-						</tr>
+						</div>
 						<?php
 
 					}
-
-					?>
-
-					<tr>
-						<td colspan="2"><hr /></td>
-					</tr>
-
-				<?php
 
 				// get transaction statuses
 				$available_statuses = zeroBSCRM_getTransactionsStatuses( true );
@@ -229,11 +211,9 @@
 				}
 
 				?>
-					<tr class="wh-large">
-						<th><label for="zbst_status"><?php echo esc_html( __( 'Transaction Status:', 'zero-bs-crm' ) ); ?></label>
-						</th>
-						<td>
-						<select id="zbst_status" name="zbst_status">
+					<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="zbst_status"><?php echo esc_html( __( 'Transaction Status:', 'zero-bs-crm' ) ); ?></label>
+						<select class="form-control" id="zbst_status" name="zbst_status">
 							<?php
 						foreach ( $available_statuses as $status ) {
 							$sel = $status === $transaction['status'] ? ' selected' : '';
@@ -247,31 +227,31 @@
 						}
 						?>
 						</select>
-					</tr>
+					</div>
 
-					<tr class="wh-large">
-						<th><label for="title"><?php echo esc_html( __( 'Transaction Name:', 'zero-bs-crm' ) ); ?></label>
-							<span class="zbs-infobox" style="margin-top:3px"><?php echo esc_html( __( 'If possible, keep these the same if you routinely use common products here (they are used in the transaction index)', 'zero-bs-crm' ) );?></span>
-						</th>
-						<td><input id="title" name="zbst_title" value="<?php if(isset($transaction['title'])){ echo esc_attr( $transaction['title'] ); }?>" class="form-control widetext" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); ?>" /></td>
-					</tr>
+					<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="title"><?php echo esc_html( __( 'Transaction Name:', 'zero-bs-crm' ) ); ?>
+							<span class="zbs-infobox zbs-infobox-transaction"><?php echo esc_html( __( 'If possible, keep these the same if you routinely use common products here (they are used in the transaction index)', 'zero-bs-crm' ) ); ?></span>
+						</label>
+						<td><input id="title" type="text" name="zbst_title" value="<?php if(isset($transaction['title'])){ echo esc_attr( $transaction['title'] ); }?>" class="form-control widetext" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); // phpcs:ignore ?>" /></td>
+					</div>
 
-					<tr class="wh-large">
-						<th><label for="total"><?php echo esc_html( __( 'Transaction Value', 'zero-bs-crm' ) ); ?><?php echo ' ('. esc_html( zeroBSCRM_getCurrencyChr() ) . "):"; ?></label></th>
-						<td><input id="total" name="zbst_total" value="<?php if(isset($transaction['total'])){ echo esc_attr( $transaction['total'] ); } else echo '0.00'; ?>" class="form-control numbersOnly" style="width: 130px;display: inline-block;" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); ?>" /></td>
-					</tr>
+					<div class="jpcrm-form-group jpcrm-form-group-span-2">
+						<label class="jpcrm-form-label" for="total"><?php echo esc_html( __( 'Transaction Value', 'zero-bs-crm' ) ); ?><?php echo ' (' . esc_html( zeroBSCRM_getCurrencyChr() ) . "):"; // phpcs:ignore Squiz.Strings.DoubleQuoteUsage.NotRequired ?></label></th>
+						<input class="form-control" type="text" id="total" name="zbst_total" value="<?php if ( isset( $transaction['total'] ) ) { echo esc_attr( $transaction['total'] ); } else echo '0.00'; ?>" class="form-control numbersOnly" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( wp_rand( 0, 100 ) ); // phpcs:ignore Squiz.PHP.EmbeddedPhp.MultipleStatements, Generic.Formatting.DisallowMultipleStatements.SameLine, Generic.ControlStructures.InlineControlStructure.NotAllowed, Squiz.ControlStructures.ControlSignature.NewlineAfterOpenBrace ?>" />
+					</div>
 
-					<tr class="wh-large">
-						<th>
-							<label><?php echo esc_html( __( 'Transaction Date', 'zero-bs-crm' ) );?>:</label>
-							<span class="zbs-infobox" style="margin-top:3px"><?php echo esc_html( __( 'The transaction date will default to the initial save date if left blank.', 'zero-bs-crm' ) );?></span>
-						</th>
-						<td>
-							<input type="date" name="zbst_date_datepart" id="transactionDate" value="<?php echo isset( $transaction['date'] ) ? esc_attr( jpcrm_uts_to_date_str( $transaction['date'], 'Y-m-d' ) ) : ''; ?>" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); ?>" >
-							@
-							<input type="time" name="zbst_date_timepart" value="<?php echo isset( $transaction['date'] ) ? esc_attr( jpcrm_uts_to_time_str( $transaction['date'], 'H:i' ) ) : ''; ?>" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); ?>" >
-						</td>
-					</tr>
+					<div class="jpcrm-form-group">
+						<label class="jpcrm-form-label">
+							<?php echo esc_html( __( 'Transaction Date', 'zero-bs-crm' ) ); ?>:
+							<span class="zbs-infobox zbs-infobox-transaction"><?php echo esc_html( __( 'The transaction date will default to the initial save date if left blank.', 'zero-bs-crm' ) ); ?></span>
+						</label>
+						<input class="form-control" type="date" name="zbst_date_datepart" id="transactionDate" value="<?php echo isset( $transaction['date'] ) ? esc_attr( jpcrm_uts_to_date_str( $transaction['date'], 'Y-m-d' ) ) : ''; ?>" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( wp_rand( 0, 100 ) ); ?>" >
+					</div>
+					<div class="jpcrm-form-group">
+						<label class="jpcrm-form-label">&nbsp;</label>
+						<input class="form-control" type="time" name="zbst_date_timepart" value="<?php echo isset( $transaction['date'] ) ? esc_attr( jpcrm_uts_to_time_str( $transaction['date'], 'H:i' ) ) : ''; ?>" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( wp_rand( 0, 100 ) ); ?>" >
+					</div>
 
 					<?php
 					// Custom Fields
@@ -316,7 +296,7 @@
 						<tr class="wh-large">
 							<th>
 								<label><?php echo esc_html( __( 'Date Paid', 'zero-bs-crm' ) );?>:</label>
-								<span class="zbs-infobox" style="margin-top:3px"><?php echo esc_html( __( 'This will default to the transaction date if left blank.', 'zero-bs-crm' ) );?></span>
+								<span class="zbs-infobox zbs-infobox-transaction"><?php echo esc_html( __( 'This will default to the transaction date if left blank.', 'zero-bs-crm' ) ); ?></span>
 							</th>
 							<td>
 								<input type="date" name="zbst_date_paid_datepart" value="<?php echo isset( $transaction['date_paid'] ) ? esc_attr( jpcrm_uts_to_date_str( $transaction['date_paid'], 'Y-m-d' ) ) : ''; ?>" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); ?>" >
@@ -328,7 +308,7 @@
 						<tr class="wh-large">
 							<th>
 								<label><?php echo esc_html( __( 'Date Completed', 'zero-bs-crm' ) );?>:</label>
-								<span class="zbs-infobox" style="margin-top:3px"><?php echo esc_html( __( 'This will default to the transaction date if left blank.', 'zero-bs-crm' ) );?></span>
+								<span class="zbs-infobox zbs-infobox-transaction"><?php echo esc_html( __( 'This will default to the transaction date if left blank.', 'zero-bs-crm' ) ); ?></span>
 							</th>
 							<td>
 								<input type="date" name="zbst_date_completed_datepart" value="<?php echo isset( $transaction['date_completed'] ) ? esc_attr( jpcrm_uts_to_date_str( $transaction['date_completed'], 'Y-m-d' ) ) : ''; ?>" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); ?>" >
@@ -341,7 +321,8 @@
 
 					?>
 
-				</table>
+					</div>
+				</div>
 
 			    <?php // ========== Line Items 
 			    if (isset($transactions['lineitems']) && is_array($transaction['lineitems'])){ ?>
@@ -413,7 +394,7 @@
 
 		                    		// mikes inv selector
 								?>
-									<div class="assignInvToCust" style="display:none;max-width:658px" id="invoiceSelectionTitle"><label><?php echo esc_html( __( 'Contact invoice:', 'zero-bs-crm' ) ); ?></label><span class="zbs-infobox" style="margin-top:3px"><?php echo esc_html( __( 'Is this transaction a payment for an invoice? If so, enter the Invoice ID. Otherwise leave blank.', 'zero-bs-crm' ) ); ?></span></div>
+									<div class="assignInvToCust" style="display:none;max-width:658px;" id="invoiceSelectionTitle"><label><?php echo esc_html( __( 'Contact invoice:', 'zero-bs-crm' ) ); ?></label><span class="zbs-infobox zbs-infobox-transaction" style="margin-top:3px"><?php echo esc_html( __( 'Is this transaction a payment for an invoice? If so, enter the Invoice ID. Otherwise leave blank.', 'zero-bs-crm' ) ); ?></span></div>
 		                    		<div id="invoiceFieldWrap" style="position:relative;display:none;max-width:658px" class="assignInvToCust"><input style="max-width:200px" id="invoice_id" name="invoice_id" value="<?php if(isset($transaction['invoice_id'])){ echo esc_attr( $transaction['invoice_id'] ); } ?>" class="form-control" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); ?>" /></div><?php
 
 		                    	} else {
@@ -433,10 +414,12 @@
 			                    		
 			                    		// mikes inv selector
 										?>
-										<div class="assignInvToCust" style="display:none;max-width:658px" id="invoiceSelectionTitle"><label><?php echo esc_html( __( 'Contact invoice:', 'zero-bs-crm' ) ); ?></label><span class="zbs-infobox" style="margin-top:3px"><?php echo esc_html( __( 'Is this transaction a payment for an invoice? If so, enter the Invoice ID. Otherwise leave blank.', 'zero-bs-crm' ) ); ?></span></div>
+										<div class="assignInvToCust" style="display:none;max-width:658px;margin-top:21px;margin-bottom:10px;" id="invoiceSelectionTitle"><label><?php echo esc_html( __( 'Contact invoice:', 'zero-bs-crm' ) ); ?>&nbsp;</label><span class="zbs-infobox" style="margin-top:3px"><?php echo esc_html( __( 'Is this transaction a payment for an invoice? If so, enter the Invoice ID. Otherwise leave blank.', 'zero-bs-crm' ) ); ?></span></div>
 			                    		<div id="invoiceFieldWrap" style="position:relative;display:none;max-width:658px" class="assignInvToCust"><input style="max-width:200px" id="invoice_id" name="invoice_id" value="<?php if(isset($transaction['invoice_id'])){ echo esc_attr( $transaction['invoice_id'] ); } ?>" class="form-control" autocomplete="zbstra-<?php echo esc_attr( time() ); ?>-<?php echo esc_attr( rand(0,100) ); ?>" /></div><?php
 
-			                    		 ?></div><div class="two wide column centered"><?php echo esc_html( __( 'Or', 'zero-bs-crm' ) ); ?></div><div class="seven wide column"><div id="zbs-company-title"><label><?php echo esc_html( jpcrm_label_company() ); ?></label></div><?php
+										?>
+												</div><div class="two wide column centered" style="text-align:center;"><?php echo esc_html( __( 'Or', 'zero-bs-crm' ) ); ?></div><div class="seven wide column"><div id="zbs-company-title"><label><?php echo esc_html( jpcrm_label_company() ); ?></label></div>
+											<?php
 
 			                    		// company
 				                       	echo zeroBSCRM_CompanyTypeList('zbscrmjs_transaction_setCompany',$companyName,true,'zbscrmjs_transaction_unsetCompany'); 

@@ -16,14 +16,14 @@ import Icon from './icons/ai-assistant';
  * Extend:
  * - blocks (Multiple-blocks edition)
  */
-import './extensions/multiple-blocks-edition';
+// import './extensions/multiple-blocks-edition'; @todo: cosider to enable it in the future
 /**
  * Style dependencies
  */
 import './editor.scss';
 
 export const name = 'ai-assistant';
-export const title = __( 'AI Assistant (Experimental)', 'jetpack' );
+export const title = __( 'AI Assistant', 'jetpack' );
 export const settings = {
 	apiVersion: 2,
 	title,

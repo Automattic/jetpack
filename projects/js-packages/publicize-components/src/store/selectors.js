@@ -58,7 +58,31 @@ export function getLinkedInDetails( { forceDefaults = false } = {} ) {
 
 	return {
 		name: __( 'Account Name', 'jetpack' ),
-		profileImage: 'https://static.licdn.com/sc/h/1c5u578iilxfi4m4dvc4q810q',
+		profileImage:
+			"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128' id='person-accent-4'%3E%3Cpath fill='%23e7e2dc' d='M0 0h128v128H0z'/%3E%3Cpath d='M88.41 84.67a32 32 0 10-48.82 0 66.13 66.13 0 0148.82 0z' fill='%23788fa5'/%3E%3Cpath d='M88.41 84.67a32 32 0 01-48.82 0A66.79 66.79 0 000 128h128a66.79 66.79 0 00-39.59-43.33z' fill='%239db3c8'/%3E%3Cpath d='M64 96a31.93 31.93 0 0024.41-11.33 66.13 66.13 0 00-48.82 0A31.93 31.93 0 0064 96z' fill='%2356687a'/%3E%3C/svg%3E",
+	};
+}
+
+/**
+ * Returns a template for Instagram data, based on the first Instagram account found.
+ *
+ * @returns {{name: string; profileImage: string}} The Instagram account data.
+ */
+export function getInstagramDetails() {
+	const connection = getConnections().find(
+		( { service_name } ) => 'instagram-business' === service_name
+	);
+
+	if ( connection ) {
+		return {
+			name: connection.username,
+			profileImage: connection.profile_picture,
+		};
+	}
+
+	return {
+		name: 'username',
+		profileImage: '',
 	};
 }
 
@@ -620,4 +644,13 @@ export function getImageGeneratorPostSettings() {
  */
 export function isInstagramConnectionSupported() {
 	return !! getJetpackData()?.social?.isInstagramConnectionSupported;
+}
+
+/**
+ * Checks if the Mastodon connection is supported.
+ *
+ * @returns {boolean} Whether the Mastodon connection is supported
+ */
+export function isMastodonConnectionSupported() {
+	return !! getJetpackData()?.social?.isMastodonConnectionSupported;
 }
