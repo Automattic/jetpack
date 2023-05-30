@@ -898,8 +898,8 @@ function wpcom_log_launchpad_being_enabled_for_test_sites( $option, $value ) {
 }
 
 /**
- * Checks if the overall launchpad is enabled. Used with `is_enabled_callback` 
- * for backwards compatibility with established task lists 
+ * Checks if the overall launchpad is enabled. Used with `is_enabled_callback`
+ * for backwards compatibility with established task lists
  * that relied on the old `launchpad_screen` option.
  *
  * @return bool True if the launchpad is enabled, false otherwise.
