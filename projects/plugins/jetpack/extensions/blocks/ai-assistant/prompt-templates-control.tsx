@@ -10,7 +10,7 @@ type PromptTemplatesControlProps = {
 	hasContentBefore: boolean;
 	hasContent: boolean;
 	hasPostTitle: boolean;
-	onPromptSelected: ( prompt: string ) => void;
+	onPromptSelect: ( prompt: string ) => void;
 	getSuggestionFromOpenAI: ( type: string, options?: object ) => void;
 };
 
@@ -66,7 +66,7 @@ const promptTemplates = [
 ];
 
 export default function PromptTemplatesControl( {
-	onPromptSelected,
+	onPromptSelect,
 	hasContentBefore,
 	hasContent,
 	hasPostTitle,
@@ -148,7 +148,7 @@ export default function PromptTemplatesControl( {
 									key={ `key-${ i }` }
 									onClick={ () => {
 										onClose();
-										onPromptSelected( prompt.description );
+										onPromptSelect( prompt.description );
 									} }
 								>
 									{ prompt.label }

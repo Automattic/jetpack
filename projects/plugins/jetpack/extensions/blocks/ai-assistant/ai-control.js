@@ -251,7 +251,7 @@ const ToolbarControls = ( {
 						hasContentBefore={ !! contentBefore?.length }
 						hasContent={ !! wholeContent?.length }
 						hasPostTitle={ hasPostTitle }
-						onPromptSelected={ prompt => {
+						onPromptSelect={ prompt => {
 							recordEvent( 'jetpack_editor_ai_assistant_block_toolbar_button_click', {
 								type: 'prompt-template',
 								prompt,
