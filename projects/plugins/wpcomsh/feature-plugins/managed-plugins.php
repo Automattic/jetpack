@@ -59,7 +59,13 @@ function wpcomsh_is_marketplace_plugin( $plugin_file ) {
 
 	if ( ! empty( $persistent_data->WPCOM_MARKETPLACE ) ) { // phpcs:ignore WordPress.NamingConventions
 		$marketplace_software = json_decode( $persistent_data->WPCOM_MARKETPLACE, true ); // phpcs:ignore WordPress.NamingConventions
-		$marketplace_plugins  = $marketplace_software['plugins'];
+
+		// If we don't have an array of marketplace plugins, this plugin can't be a marketplace plugin.
+		if ( ! isset( $marketplace_software['plugins'] ) || ! is_array( $marketplace_software['plugins'] ) || array() === $marketplace_software['plugins'] ) {
+			return false;
+		}
+
+		$marketplace_plugins = $marketplace_software['plugins'];
 	} else {
 		/*
 		 * Some sites might have an empty `WPCOM_MARKETPLACE` field despite having software installed from
