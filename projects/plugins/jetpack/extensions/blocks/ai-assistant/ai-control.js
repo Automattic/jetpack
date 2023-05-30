@@ -259,7 +259,7 @@ const ToolbarControls = ( {
 
 							setUserPrompt( prompt );
 						} }
-						getSuggestionFromOpenAI={ getSuggestionFromOpenAI }
+						onSuggestionSelect={ getSuggestionFromOpenAI }
 					/>
 				) }
 
