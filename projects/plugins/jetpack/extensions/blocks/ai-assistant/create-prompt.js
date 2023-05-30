@@ -40,13 +40,14 @@ export const buildPromptTemplate = ( {
 	}
 
 	const postTitle = select( 'core/editor' ).getEditedPostAttribute( 'title' );
-	const blogPostData = addBlogPostData
-		? `
+	const blogPostData =
+		addBlogPostData && postTitle?.length
+			? `
 Blog post relevant data:
 - Title: ${ postTitle }
 ----------
 `
-		: '';
+			: '';
 
 	// Language and Locale
 	let langLocatePromptPart = language
