@@ -257,6 +257,7 @@ function jpcrm_render_emailbox() {
 				// $customer_panel = zeroBSCRM_emails_customer_panel();
 
 				// defaults
+				$customer_panel                       = array();
 				$customer_panel['avatar']             = '';
 				$customer_panel['customer']['fname']  = 'John';
 				$customer_panel['customer']['lname']  = 'Doe';
@@ -272,7 +273,7 @@ function jpcrm_render_emailbox() {
 					echo "<div id='panel-customer-avatar'>" . esc_html( $customer_panel['avatar'] ) . '</div>';
 					echo "<div id='panel-name'>" . esc_html( $customer_panel['customer']['fname'] . ' ' . $customer_panel['customer']['lname'] ) . '</div>';
 
-					echo "<div id='panel-status' class='ui label " . esc_attr( $customer_panel['customer']['status'] ) . "'>" . esc_html( $customer_panel['customer']['status'] ) . '</div>';
+					echo '<div id="panel-status">' . esc_html( $customer_panel['customer']['status'] ) . '</div>';
 
 					echo "<div class='simple-actions zbs-hide'>";
 						echo "<a class='ui label circular'><i class='ui icon phone'></i></a>";
