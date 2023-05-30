@@ -179,7 +179,6 @@ function NewsletterPrePublishSettingsPanel( {
 
 function NewsletterPostPublishSettingsPanel( {
 	accessLevel,
-	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
 	isModuleActive,
@@ -289,7 +288,6 @@ export default function SubscribePanels() {
 			<NewsletterPostPublishSettingsPanel
 				accessLevel={ accessLevel }
 				setPostMeta={ setPostMeta }
-				socialFollowers={ socialFollowers }
 				emailSubscribers={ emailSubscribers }
 				paidSubscribers={ paidSubscribers }
 				isModuleActive={ isModuleActive }
