@@ -915,7 +915,11 @@ function wpcom_get_launchpad_is_enabled() {
  * @return bool True if the task list is enabled, false otherwise.
  */
 function wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ) {
-	return wpcom_launchpad_checklists()->is_task_list_enabled( $checklist_slug );
+	if ( false !== $checklist_slug ) {
+		return wpcom_launchpad_checklists()->is_task_list_enabled( $checklist_slug );
+	}
+
+	return false;
 }
 
 // Unhook our old mu-plugin - this current file is being loaded on 0 priority for `plugins_loaded`.
