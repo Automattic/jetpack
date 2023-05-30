@@ -135,6 +135,35 @@ class Automation_Faker {
 	}
 
 	/**
+	 * Return a workflow with a condition and an action
+	 * @return array
+	 */
+	public function workflow_with_condition_customizable_trigger_action( $trigger_name, $action_data ): array {
+		return array(
+			'name'         => 'Workflow Test',
+			'description'  => 'Test: the description of the workflow',
+			'category'     => 'Test',
+			'is_active'    => true,
+			'triggers'     => array(
+				$trigger_name,
+			),
+			'initial_step' => array(
+				'name'            => 'contact_status_condition',
+				'class_name'      => Contact_Condition::class,
+				'attributes'      => array(
+					'field'    => 'status',
+					'operator' => 'is',
+					'value'    => 'lead',
+				),
+				'next_step_true'  => array(
+					$action_data,
+				),
+				'next_step_false' => null,
+			),
+		);
+	}
+
+	/**
 	 * Load all mock classes present in the mocks folder
 	 *
 	 * @return void
@@ -153,10 +182,12 @@ class Automation_Faker {
 
 	public function contact_data() {
 		return array(
-			'id'     => 1,
-			'name'   => 'John Doe',
-			'email'  => 'johndoe@example.com',
-			'status' => 'lead',
+			'id'   => 1,
+			'data' => array(
+				'status' => 'lead',
+				'name'   => 'John Doe',
+				'email'  => 'johndoe@example.com',
+			),
 		);
 	}
 
