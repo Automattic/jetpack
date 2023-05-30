@@ -124,6 +124,13 @@ abstract class Publicize_Base {
 	public $POST_SERVICE_DONE = '_publicize_done_external';
 
 	/**
+	 * Option key for dismissing Jetpack Social notices.
+	 *
+	 * @var string
+	 */
+	const OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES = 'jetpack_social_dismissed_notices';
+
+	/**
 	 * Default pieces of the message used in constructing the
 	 * content pushed out to other social networks.
 	 */
@@ -331,6 +338,8 @@ abstract class Publicize_Base {
 			case 'google_drive': // google-drive used to be called google_drive.
 			case 'google-drive':
 				return 'Google Drive';
+			case 'instagram-business':
+				return 'Instagram';
 			case 'twitter':
 			case 'facebook':
 			case 'tumblr':
@@ -497,6 +506,10 @@ abstract class Publicize_Base {
 	public function get_display_name( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
+		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {
+			return $cmeta['external_name'];
+		}
+
 		if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
 			return $cmeta['connection_data']['meta']['display_name'];
 		}
@@ -516,6 +529,27 @@ abstract class Publicize_Base {
 		}
 
 		return $connection_display;
+	}
+
+	/**
+	 * Returns the account name for the Connection. For services like Instagram, we need both the username and the account's name.
+	 *
+	 * @param string       $service_name 'facebook', 'linkedin', etc.
+	 * @param object|array $connection The Connection object (WordPress.com) or array (Jetpack).
+	 * @return string
+	 */
+	public function get_username( $service_name, $connection ) {
+		$cmeta = $this->get_connection_meta( $connection );
+
+		if ( 'mastodon' === $service_name && isset( $cmeta['external_display'] ) ) {
+			return $cmeta['external_display'];
+		}
+
+		if ( isset( $cmeta['connection_data']['meta']['username'] ) ) {
+			return $cmeta['connection_data']['meta']['username'];
+		}
+
+		return $this->get_display_name( $service_name, $connection );
 	}
 
 	/**
@@ -904,6 +938,7 @@ abstract class Publicize_Base {
 					'service_name'    => $service_name,
 					'service_label'   => static::get_service_label( $service_name ),
 					'display_name'    => $this->get_display_name( $service_name, $connection ),
+					'username'        => $this->get_username( $service_name, $connection ),
 					'profile_picture' => $this->get_profile_picture( $connection ),
 					'enabled'         => $enabled,
 					'done'            => $done,
@@ -1750,6 +1785,24 @@ abstract class Publicize_Base {
 	}
 
 	/**
+	 * Check if Instagram connection is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_instagram_connection_feature() {
+		return Current_Plan::supports( 'social-instagram-connection' );
+	}
+
+	/**
+	 * Check if Mastodon connection is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_mastodon_connection_feature() {
+		return Current_Plan::supports( 'social-mastodon-connection' );
+	}
+
+	/**
 	 * Call the WPCOM REST API to calculate the scheduled shares.
 	 *
 	 * @param string $blog_id The blog_id.
@@ -1778,10 +1831,25 @@ abstract class Publicize_Base {
 	 */
 	public function has_paid_plan( $refresh_from_wpcom = false ) {
 		static $has_paid_plan = null;
-		if ( ! $has_paid_plan ) {
+		if ( $has_paid_plan === null ) {
 			$has_paid_plan = Current_Plan::supports( 'social-shares-1000', $refresh_from_wpcom );
 		}
 		return $has_paid_plan;
+	}
+
+	/**
+	 * Get an array with all dismissed notices.
+	 *
+	 * @return array
+	 */
+	public function get_dismissed_notices() {
+		$dismissed_notices = get_option( self::OPTION_JETPACK_SOCIAL_DISMISSED_NOTICES );
+
+		if ( ! is_array( $dismissed_notices ) ) {
+			return array();
+		}
+
+		return $dismissed_notices;
 	}
 }
 

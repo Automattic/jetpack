@@ -11,8 +11,7 @@
 		"codeception/module-filesystem": "^1.0",
 		"codeception/util-universalframework": "^1.0",
 		"automattic/wordbless": "0.4.2",
-		"yoast/phpunit-polyfills": "1.0.4",
-		"phpunit/phpunit": "^8"
+		"yoast/phpunit-polyfills": "1.0.4"
 	},
 	"scripts": {
 		"build-development": [
@@ -59,7 +58,6 @@
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
-		"automattic/jetpack-forms": "@dev",
 		"automattic/woocommerce": "^3.0",
 		"dompdf/dompdf": "2.0.3"
 	},
@@ -78,6 +76,7 @@
 		]
 	},
 	"minimum-stability": "dev",
+	"prefer-stable": true,
 	"extra": {
 		"autotagger": {
 			"v": false

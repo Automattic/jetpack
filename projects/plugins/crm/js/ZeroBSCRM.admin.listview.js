@@ -61,31 +61,14 @@ function zeroBSCRMJS_initListView() {
 		} );
 
 	// save + close button at bottom of colmanager/screenopts
-	jQuery( '#zbs-columnmanager-bottomsave' )
-		.off( 'click' )
-		.on( 'click', function () {
-			// just clcking basically means opts saVED (AS SAVED ON CHANGE)
-
-			// close this
-			// (lazy sim click ;) )
-			jQuery( 'jpcrm-listview-header #open-table-options' ).trigger( 'click' );
-		} );
+	jQuery('#zbs-columnmanager-bottomsave').on('click', function() {
+		document.getElementById('zbs-list-col-editor').classList.add('hidden');
+	});
 
 	// open/shut column manager
-	jQuery( 'jpcrm-listview-header #open-table-options' )
-		.off( 'click' )
-		.on( 'click', function () {
-			//jQuery('#zbs-list-col-editor').toggle();
-			if ( jQuery( '#zbs-list-col-editor' ).is( ':visible' ) ) {
-				// hide
-				jQuery( this ).addClass( 'blue' ).removeClass( 'teal' );
-				jQuery( '#zbs-list-col-editor' ).hide();
-			} else {
-				// show
-				jQuery( this ).removeClass( 'blue' ).addClass( 'teal' );
-				jQuery( '#zbs-list-col-editor' ).show();
-			}
-		} );
+	jQuery('#jpcrm_table_options').on('click', function() {
+		document.getElementById('zbs-list-col-editor').classList.toggle('hidden');
+	});
 
 	// drag drop columns
 	jQuery(
@@ -435,7 +418,7 @@ function zeroBSCRMJS_drawListView() {
 			// hide extras until listview is loaded
 			document.querySelector('.bulk-actions-dropdown').classList.add('hidden');
 			jQuery( 'jpcrm-listview-footer' ).hide();
-			jQuery( '#jpcrm-listview-totals-box' ).hide();
+			jQuery( 'jpcrm-dashcount' ).hide();
 
 			// retrieve data
 			zeroBSCRMJS_retrieveListViewData(
@@ -509,7 +492,7 @@ function zeroBSCRMJS_drawListView() {
 					jQuery( '#zbsCantLoadData' ).hide();
 					jQuery( '.jpcrm-listview-table-container' ).show();
 					jQuery( 'jpcrm-listview-footer' ).show();
-					jQuery( '#jpcrm-listview-totals-box' ).show();
+					jQuery( 'jpcrm-dashcount' ).show();
 				},
 				function ( errd ) {
 					// err callback? show msg (prefilled by php)
@@ -1175,72 +1158,49 @@ function zeroBSCRMJS_listView_url_export_segment( id ) {
  *
  */
 function zeroBSCRMJS_listView_draw_totals_tables() {
-	// clear any previous
-	jQuery( '#jpcrm-listview-totals-box' ).html( '' );
 
-	if ( typeof window.jpcrm_totals_table !== 'undefined' && window.jpcrm_totals_table !== null ) {
-		var table_body_html = '';
-		var table_footer_html = '';
-
-		if (
-			typeof window.jpcrm_totals_table.quotes_total_formatted !== 'undefined' &&
-			window.jpcrm_totals_table.quotes_total_formatted !== null
-		) {
-			table_body_html +=
-				'<tr><td>' +
-				zeroBSCRMJS_listViewLang( 'quotes' ) +
-				'</td><td>' +
-				window.jpcrm_totals_table.quotes_total_formatted +
-				'</td></tr>';
-		}
-
-		if (
-			typeof window.jpcrm_totals_table.invoices_total_formatted !== 'undefined' &&
-			window.jpcrm_totals_table.invoices_total_formatted !== null
-		) {
-			table_body_html +=
-				'<tr><td>' +
-				zeroBSCRMJS_listViewLang( 'invoices' ) +
-				'</td><td>' +
-				window.jpcrm_totals_table.invoices_total_formatted +
-				'</td></tr>';
-		}
-
-		if (
-			typeof window.jpcrm_totals_table.transactions_total_formatted !== 'undefined' &&
-			window.jpcrm_totals_table.transactions_total_formatted !== null
-		) {
-			table_body_html +=
-				'<tr><td>' +
-				zeroBSCRMJS_listViewLang( 'transactions' ) +
-				'</td><td>' +
-				window.jpcrm_totals_table.transactions_total_formatted +
-				'</td></tr>';
-		}
-		if (
-			typeof window.jpcrm_totals_table.total_sum_formatted !== 'undefined' &&
-			window.jpcrm_totals_table.total_sum_formatted !== null
-		) {
-			table_footer_html =
-				'<tfoot><tr><td>' +
-				zeroBSCRMJS_listViewLang( 'total' ) +
-				'</td><td>' +
-				window.jpcrm_totals_table.total_sum_formatted +
-				'</td></tr></tfoot>';
-		}
-
-		if ( table_body_html !== '' ) {
-			jQuery( '#jpcrm-listview-totals-box' ).html(
-				'<h4>' +
-					zeroBSCRMJS_listViewLang( 'totals' ) +
-					'</h4><table class="ui compact definition table"><tbody>' +
-					table_body_html +
-					'</tbody>' +
-					table_footer_html +
-					'</table>'
-			);
-		}
+	if (!jpcrm_totals_table) {
+		return;
 	}
+
+	let html = '';
+
+	if (jpcrm_totals_table.quotes_total_formatted) {
+			html += `<jpcrm-dashcount-card>
+				<h3>${zeroBSCRMJS_listViewLang( 'quotes' )}</h3>
+				<div>
+					<span class="range_total">${jpcrm_totals_table.quotes_total_formatted}</span>
+				</div>
+			</jpcrm-dashcount-card>`;
+	}
+
+	if (jpcrm_totals_table.invoices_total_formatted) {
+			html += `<jpcrm-dashcount-card>
+				<h3>${zeroBSCRMJS_listViewLang( 'invoices' )}</h3>
+				<div>
+					<span class="range_total">${jpcrm_totals_table.invoices_total_formatted}</span>
+				</div>
+			</jpcrm-dashcount-card>`;
+	}
+
+	if (jpcrm_totals_table.transactions_total_formatted) {
+			html += `<jpcrm-dashcount-card>
+				<h3>${zeroBSCRMJS_listViewLang( 'transactions' )}</h3>
+				<div>
+					<span class="range_total">${jpcrm_totals_table.transactions_total_formatted}</span>
+				</div>
+			</jpcrm-dashcount-card>`;
+	}
+	if (jpcrm_totals_table.total_sum_formatted) {
+			html += `<jpcrm-dashcount-card>
+				<h3>${zeroBSCRMJS_listViewLang( 'total' )}</h3>
+				<div>
+					<span class="range_total">${jpcrm_totals_table.total_sum_formatted}</span>
+				</div>
+			</jpcrm-dashcount-card>`;
+	}
+
+	jQuery( 'jpcrm-dashcount' ).html( html );
 }
 
 /* ====================================================================================
@@ -1287,8 +1247,9 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_addtag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -1394,9 +1355,10 @@ function zeroBSCRMJS_listView_generic_bulkActionFire_removetag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -1577,8 +1539,9 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_changestatus() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesupdate' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -1628,9 +1591,10 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: 'Yes, delete!',
+		cancelButtonText: '<span style="color: #000">Cancel</span>'
 		//allowOutsideClick: false
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+
@@ -1645,11 +1609,12 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_delete() {
 				extraParams,
 				function ( r ) {
 					// success ? SWAL?
-					swal(
-						zeroBSCRMJS_listViewLang( 'deleted' ),
-						zeroBSCRMJS_listViewLang( 'contactsdeleted' ),
-						'success'
-					);
+					swal({
+						title: zeroBSCRMJS_listViewLang( 'deleted' ),
+						text: zeroBSCRMJS_listViewLang( 'contactsdeleted' ),
+						confirmButtonColor: '#000',
+						type: 'success'
+					});
 				},
 				function ( r ) {
 					// fail ? SWAL?
@@ -1694,8 +1659,9 @@ function zeroBSCRMJS_listView_customer_bulkActionFire_merge() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesmerge' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -2772,9 +2738,10 @@ function zeroBSCRMJS_listView_segment_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: 'Yes, delete!',
+		cancelButtonText: '<span style="color: #000">Cancel</span>'
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -3288,9 +3255,10 @@ function zeroBSCRMJS_listView_company_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -3371,8 +3339,9 @@ function zeroBSCRMJS_listView_company_bulkActionFire_addtag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -3486,9 +3455,10 @@ function zeroBSCRMJS_listView_company_bulkActionFire_removetag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -3720,8 +3690,9 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markaccepted() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -3769,8 +3740,9 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_markunaccepted() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesproceed' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -3818,9 +3790,10 @@ function zeroBSCRMJS_listView_quote_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -3881,9 +3854,10 @@ function zeroBSCRMJS_listView_quotetemplate_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -4130,8 +4104,9 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_changestatus() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesupdate' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -4179,9 +4154,10 @@ function zeroBSCRMJS_listView_invoice_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -4445,9 +4421,10 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -4525,8 +4502,9 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_addtag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'addthesetags' ),
 		//allowOutsideClick: false,
 		onOpen: function () {
@@ -4640,9 +4618,10 @@ function zeroBSCRMJS_listView_transaction_bulkActionFire_removetag() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'removethesetags' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 		onOpen: function () {
 			// bind checkboxes (this just adds nice colour effect, not that important)
@@ -4817,9 +4796,10 @@ function zeroBSCRMJS_listView_form_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -5076,9 +5056,10 @@ function zeroBSCRMJS_listView_event_bulkActionFire_delete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'yesdelete' ),
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
 		// this check required from swal2 6.0+ https://github.com/sweetalert2/sweetalert2/issues/724
@@ -5122,8 +5103,9 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markcomplete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {
@@ -5171,8 +5153,9 @@ function zeroBSCRMJS_listView_event_bulkActionFire_markincomplete() {
 		//text: "Are you sure you want to delete these?",
 		type: 'warning',
 		showCancelButton: true,
-		confirmButtonColor: '#3085d6',
-		cancelButtonColor: '#d33',
+		confirmButtonColor: '#000',
+		cancelButtonColor: '#fff',
+		cancelButtonText: '<span style="color: #000">Cancel</span>',
 		confirmButtonText: zeroBSCRMJS_listViewLang( 'acceptyesdoit' ),
 		//allowOutsideClick: false,
 	} ).then( function ( result ) {

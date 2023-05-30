@@ -11,7 +11,7 @@ class JPCRM_Settings_Cest {
 
 	public function see_settings_page( AcceptanceTester $I ) {
 		$I->goToPageViaSlug( 'settings' );
-		$I->see( 'Settings', '#zbs-admin-top-bar' );
+		$I->see( 'Settings', '.jpcrm-learn-page-title' );
 
 		$I->see( '', '.item' );
 	}

@@ -1,4 +1,4 @@
 Significance: patch
 Type: enhancement
 
-AI Assistant: add Jetpack logo to multiple blocks edition panel
+AI Assistant: ignore double asterisks when checking unclear prompt message

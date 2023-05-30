@@ -52,8 +52,13 @@ function NewsletterEditorSettingsPanel( {
 	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
+	isModuleActive,
 	showMisconfigurationWarning,
 } ) {
+	if ( ! isModuleActive ) {
+		return;
+	}
+
 	return (
 		<PluginDocumentSettingPanel
 			title={ __( 'Newsletter access', 'jetpack' ) }
@@ -139,14 +144,16 @@ function NewsletterPrePublishSettingsPanel( {
 			className="jetpack-subscribe-pre-publish-panel"
 			icon={ <JetpackLogo showText={ false } height={ 16 } logoColor="#1E1E1E" /> }
 		>
-			<NewsletterAccessPrePublishSettings
-				accessLevel={ accessLevel }
-				setPostMeta={ setPostMeta }
-				socialFollowers={ socialFollowers }
-				emailSubscribers={ emailSubscribers }
-				paidSubscribers={ paidSubscribers }
-				showMisconfigurationWarning={ showMisconfigurationWarning }
-			/>
+			{ isModuleActive && (
+				<NewsletterAccessPrePublishSettings
+					accessLevel={ accessLevel }
+					setPostMeta={ setPostMeta }
+					socialFollowers={ socialFollowers }
+					emailSubscribers={ emailSubscribers }
+					paidSubscribers={ paidSubscribers }
+					showMisconfigurationWarning={ showMisconfigurationWarning }
+				/>
+			) }
 
 			{ shouldLoadSubscriptionPlaceholder && (
 				<SubscriptionsPanelPlaceholder>
@@ -175,8 +182,13 @@ function NewsletterPostPublishSettingsPanel( {
 	socialFollowers,
 	emailSubscribers,
 	paidSubscribers,
+	isModuleActive,
 	showMisconfigurationWarning,
 } ) {
+	if ( ! isModuleActive ) {
+		return;
+	}
+
 	return (
 		<PluginPostPublishPanel
 			initialOpen
@@ -264,6 +276,7 @@ export default function SubscribePanels() {
 				emailSubscribers={ emailSubscribers }
 				paidSubscribers={ paidSubscribers }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
+				isModuleActive={ isModuleActive }
 			/>
 			<NewsletterPrePublishSettingsPanel
 				accessLevel={ accessLevel }
@@ -280,6 +293,7 @@ export default function SubscribePanels() {
 				socialFollowers={ socialFollowers }
 				emailSubscribers={ emailSubscribers }
 				paidSubscribers={ paidSubscribers }
+				isModuleActive={ isModuleActive }
 				showMisconfigurationWarning={ showMisconfigurationWarning }
 			/>
 		</>

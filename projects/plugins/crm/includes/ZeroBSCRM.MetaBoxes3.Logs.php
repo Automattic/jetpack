@@ -214,7 +214,7 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
                     
                     <tr>
 								<td><h4><span id="zbsActiveLogCount"><?php echo esc_html( zeroBSCRM_prettifyLongInts( count( $zbsLogs ) ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase ?></span> <?php esc_html_e( 'Logs', 'zero-bs-crm' ); ?></h4></td>
-                        <td><button type="button" class="ui primary button button-primary button-large" id="zbscrmAddLog"><?php esc_html_e("Add Log","zero-bs-crm");?></button></td>
+								<td><button type="button" class="ui button black jpcrm-button" id="zbscrmAddLog"><?php esc_html_e( 'Add Log', 'zero-bs-crm' ); ?></button></td>
                     </tr>
 
                     <!-- this line will pop/close with "add log" button -->
@@ -257,8 +257,8 @@ class zeroBS__Metabox_LogsV2 extends zeroBS__Metabox {
 
                             <div id="zbsAddLogActions">
                                 <div id="zbsAddLogUpdateMsg"></div>
-                                <button type="button" class="ui red button button-info button-large" id="zbscrmAddLogCancel"><?php esc_html_e("Cancel","zero-bs-crm");?></button>
-                                <button type="button" class="ui green button button-primary button-large" id="zbscrmAddLogSave"><?php esc_html_e("Save Log","zero-bs-crm");?></button>
+											<button type="button" class="jpcrm-button white-bg" id="zbscrmAddLogCancel"><?php esc_html_e( 'Cancel', 'zero-bs-crm' ); ?></button>
+											<button type="button" class="jpcrm-button" id="zbscrmAddLogSave"><?php esc_html_e( 'Save Log', 'zero-bs-crm' ); ?></button>
                             </div>
 
                         </div>

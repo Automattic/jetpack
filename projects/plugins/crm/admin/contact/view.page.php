@@ -153,7 +153,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 					?>
 					<div class="three wide column" style="text-align:center; min-width:125px;">
 						<?php echo $avatar; ?>
-						<a class="ui button green" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link( 'edit', $id, 'zerobs_customer', false ); ?>">
+						<a class="ui button black" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link( 'edit', $id, 'zerobs_customer', false ); ?>">
 							<?php esc_html_e( 'Edit Contact', 'zero-bs-crm' ); ?>
 						</a>
 
@@ -170,7 +170,7 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						// } When no avatar, show edit button top right
 						if ( $avatar_mode == '3' || empty( $avatar ) ) {
 							?>
-							<a class="ui button green right floated" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link( 'edit', $id, 'zerobs_customer', false ); ?>">
+							<a class="ui button black right floated" style="margin-top:0.8em" href="<?php echo jpcrm_esc_link( 'edit', $id, 'zerobs_customer', false ); ?>">
 								<?php esc_html_e( 'Edit Contact', 'zero-bs-crm' ); ?>
 								</a>
 								<?php
@@ -226,8 +226,8 @@ function jpcrm_render_contact_view_page( $id = -1 ) {
 						if ( count( $contact_actions ) > 0 ) {
 							?>
 						<div class="action-wrap">
-						<div class="ui green basic dropdown action-button"><?php esc_html_e( 'Contact Actions', 'zero-bs-crm' ); ?><i class="dropdown icon"></i>
-							<div class="menu">
+						<div class="ui dropdown jpcrm-button white-bg jpcrm-dropdown"><?php esc_html_e( 'Contact Actions', 'zero-bs-crm' ); ?><i class="fa fa-angle-down"></i>
+							<div class="menu" style="margin: 4px;">
 								<?php foreach ( $contact_actions as $actKey => $action ) { ?>
 								<div class="item zbs-contact-action" id="zbs-contact-action-<?php echo esc_attr( $actKey ); ?>"
 																										<?php
@@ -803,7 +803,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								?>
 							<tr>
 							<td colspan="4">
-								<div class="ui info icon message" id="zbsNoQuoteResults">
+								<div class="ui icon message" id="zbsNoQuoteResults">
 									<div class="content">
 									<div class="header"><?php esc_html_e( 'No Quotes', 'zero-bs-crm' ); ?></div>
 									<p><?php echo wp_kses( sprintf( __( 'This contact does not have any quotes yet. Do you want to <a href="%s">create one</a>?', 'zero-bs-crm' ), esc_url( $new_quote_url ) ), $zbs->acceptable_restricted_html ); ?></p>
@@ -907,7 +907,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								?>
 							<tr>
 							<td colspan="4">
-								<div class="ui info icon message" id="zbsNoInvoiceResults">
+								<div class="ui icon message" id="zbsNoInvoiceResults">
 									<div class="content">
 									<div class="header"><?php esc_html_e( 'No Invoices', 'zero-bs-crm' ); ?></div>
 									<p><?php echo wp_kses( sprintf( __( 'This contact does not have any invoices yet. Do you want to <a href="%s">create one</a>?', 'zero-bs-crm' ), esc_url( $new_invoice_url ) ), $zbs->acceptable_restricted_html ); ?></p>
@@ -1031,7 +1031,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								?>
 							<tr>
 							<td colspan="<?php echo count( $activeTransactionColumns ); ?>">
-								<div class="ui info icon message" id="zbsNoTransactionResults">
+								<div class="ui icon message" id="zbsNoTransactionResults">
 									<div class="content">
 									<div class="header"><?php esc_html_e( 'No Transactions', 'zero-bs-crm' ); ?></div>
 									<p><?php echo wp_kses( sprintf( __( 'This contact does not have any transactions yet. Do you want to <a href="%s">create one</a>?', 'zero-bs-crm' ), esc_url( $new_transaction_url ) ), $zbs->acceptable_restricted_html ); ?></p>
@@ -1164,7 +1164,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									?>
 									<tr id="zbs-no-files-msg" style="display:<?php echo $hasFiles ? 'none' : 'table-row'; ?>">
 										<td colspan="4">
-											<div class="ui info icon message" id="zbsNoFileResults">
+											<div class="ui icon message" id="zbsNoFileResults">
 												<div class="content">
 												<div class="header"><?php esc_html_e( 'No Files', 'zero-bs-crm' ); ?></div>
 												<p><?php echo wp_kses( sprintf( __( 'This contact does not have any files yet.', 'zero-bs-crm' ), esc_url( $new_file_url ) ), $zbs->acceptable_restricted_html ); ?></p>
@@ -1179,7 +1179,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 									<?php
 										$jpcrm_add_file_url = admin_url( 'admin.php?page=' . $zbs->slugs['addnewfile'] ) . '&customer=' . $id;
 									?>
-									<a href="<?php echo esc_url( $jpcrm_add_file_url ); ?>" class="ui basic green button" target="_blank">
+									<a href="<?php echo esc_url( $jpcrm_add_file_url ); ?>" class="ui basic button" target="_blank" style="color: black !important; box-shadow: 0px 0px 0px 1px black inset !important;">
 									<i class="plus square outline icon"></i>
 									<?php esc_html_e( 'Add File', 'zero-bs-crm' ); ?>
 									</a>
@@ -1306,7 +1306,7 @@ item"><?php esc_html_e( 'Tasks', 'zero-bs-crm' ); ?></div><?php } ?>
 								?>
 							<tr>
 							<td colspan="4">
-								<div class="ui info icon message" id="zbsNoTaskResults">
+								<div class="ui icon message" id="zbsNoTaskResults">
 								<div class="content">
 									<div class="header"><?php esc_html_e( 'No Tasks', 'zero-bs-crm' ); ?></div>
 									<p><?php echo wp_kses( sprintf( __( 'This contact does not have any tasks yet. Do you want to <a href="%s">create one</a>?', 'zero-bs-crm' ), esc_url( $new_task_url ) ), $zbs->acceptable_restricted_html ); ?></p>

@@ -38,12 +38,12 @@ class JPCRM_Quotes_Cest {
 
 	public function see_quotes_page( AcceptanceTester $I ) {
 		$I->gotoAdminPage( 'quotes' );
-		$I->see( 'Manage Quotes', '#zbs-admin-top-bar' );
+		$I->see( 'Quotes', '.jpcrm-learn-page-title' );
 	}
 
 	public function see_new_quote_page( AcceptanceTester $I ) {
 		$I->gotoAdminPage( 'add-edit', '&action=edit&zbstype=quote' );
-		$I->see( 'New Quote', '#zbs-admin-top-bar' );
+		$I->see( 'New Quote', '.jpcrm-learn-page-title' );
 	}
 
 	public function create_new_quote( AcceptanceTester $I ) {

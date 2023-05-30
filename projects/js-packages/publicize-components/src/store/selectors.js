@@ -1,3 +1,4 @@
+import { getJetpackData } from '@automattic/jetpack-shared-extension-utils';
 import { select } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
@@ -37,6 +38,55 @@ export function getMustReauthConnections() {
 }
 
 /**
+ * Returns a template for linkedIn data, based on the first linkedin account found.
+ *
+ * @param {object} args - Arguments.
+ * @param {boolean} args.forceDefaults - Whether to use default values.
+ * @returns {object} The linkedin account data.
+ */
+export function getLinkedInDetails( { forceDefaults = false } = {} ) {
+	if ( ! forceDefaults ) {
+		const connection = getConnections().find( ( { service_name } ) => 'linkedin' === service_name );
+
+		if ( connection ) {
+			return {
+				name: connection.display_name,
+				profileImage: connection.profile_picture,
+			};
+		}
+	}
+
+	return {
+		name: __( 'Account Name', 'jetpack' ),
+		profileImage:
+			"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128' id='person-accent-4'%3E%3Cpath fill='%23e7e2dc' d='M0 0h128v128H0z'/%3E%3Cpath d='M88.41 84.67a32 32 0 10-48.82 0 66.13 66.13 0 0148.82 0z' fill='%23788fa5'/%3E%3Cpath d='M88.41 84.67a32 32 0 01-48.82 0A66.79 66.79 0 000 128h128a66.79 66.79 0 00-39.59-43.33z' fill='%239db3c8'/%3E%3Cpath d='M64 96a31.93 31.93 0 0024.41-11.33 66.13 66.13 0 00-48.82 0A31.93 31.93 0 0064 96z' fill='%2356687a'/%3E%3C/svg%3E",
+	};
+}
+
+/**
+ * Returns a template for Instagram data, based on the first Instagram account found.
+ *
+ * @returns {{name: string; profileImage: string}} The Instagram account data.
+ */
+export function getInstagramDetails() {
+	const connection = getConnections().find(
+		( { service_name } ) => 'instagram-business' === service_name
+	);
+
+	if ( connection ) {
+		return {
+			name: connection.username,
+			profileImage: connection.profile_picture,
+		};
+	}
+
+	return {
+		name: 'username',
+		profileImage: '',
+	};
+}
+
+/**
  * Returns a template for tweet data, based on the first Twitter account found.
  *
  * @param {object} state - State object.
@@ -61,7 +111,7 @@ export function getTweetTemplate( state ) {
 		profileImage:
 			twitterAccount?.profile_picture ||
 			'https://abs.twimg.com/sticky/default_profile_images/default_profile_bigger.png',
-		screenName: twitterAccount?.display_name || '',
+		screenName: twitterAccount?.display_name || '@account',
 	};
 }
 
@@ -82,7 +132,7 @@ export function getTweetStorm( state ) {
 			media: tweet.media,
 			tweet: tweet.tweet,
 			urls: tweet.urls,
-			card: getTwitterCardForURLs( state, tweet.urls ),
+			...getTwitterCardForURLs( state, tweet.urls ),
 		} ) ),
 	];
 
@@ -121,17 +171,15 @@ export function getFirstTweet( state ) {
 		...tweetTemplate,
 		text: getShareMessage() + ` ${ url }`,
 		urls: [ url ],
-		card: {
-			title: getEditedPostAttribute( 'title' ),
-			description:
-				getEditedPostAttribute( 'meta' )?.advanced_seo_description ||
-				getEditedPostAttribute( 'excerpt' ) ||
-				getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
-				__( 'Visit the post for more.', 'jetpack' ),
-			url,
-			image,
-			type: image ? 'summary_large_image' : 'summary',
-		},
+		title: getEditedPostAttribute( 'title' ),
+		description:
+			getEditedPostAttribute( 'meta' )?.advanced_seo_description ||
+			getEditedPostAttribute( 'excerpt' ) ||
+			getEditedPostAttribute( 'content' ).split( '<!--more' )[ 0 ] ||
+			__( 'Visit the post for more.', 'jetpack' ),
+		url,
+		image,
+		cardType: image ? 'summary_large_image' : 'summary',
 	};
 }
 
@@ -565,7 +613,7 @@ export function getJetpackSocialPostAlreadyShared() {
 /**
  * Get a list of all attached media.
  *
- * @returns {Array} An array of media IDs.
+ * @returns {Array<{id: string; url: string}>} An array of media IDs.
  */
 export function getAttachedMedia() {
 	return get( getJetpackSocialOptions(), [ 'attached_media' ], [] );
@@ -581,10 +629,28 @@ export function shouldUploadAttachedMedia() {
 }
 
 /**
- * Get a list of all image generator settings for a post.
+ * Get the image generator settings for a post.
  *
- * @returns {Array} An array of image generator settings.
+ * @returns {object} An object of image generator settings.
  */
 export function getImageGeneratorPostSettings() {
-	return getJetpackSocialOptions()?.image_generator_settings ?? [];
+	return getJetpackSocialOptions()?.image_generator_settings ?? {};
+}
+
+/**
+ * Checks if the Instagram connection is supported.
+ *
+ * @returns {boolean} Whether the Instagram connection is supported
+ */
+export function isInstagramConnectionSupported() {
+	return !! getJetpackData()?.social?.isInstagramConnectionSupported;
+}
+
+/**
+ * Checks if the Mastodon connection is supported.
+ *
+ * @returns {boolean} Whether the Mastodon connection is supported
+ */
+export function isMastodonConnectionSupported() {
+	return !! getJetpackData()?.social?.isMastodonConnectionSupported;
 }

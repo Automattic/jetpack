@@ -442,6 +442,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
 						'wpcom_featured_image_in_email'    => (bool) get_option( 'wpcom_featured_image_in_email' ),
 						'wpcom_gifting_subscription'       => (bool) get_option( 'wpcom_gifting_subscription', $this->get_wpcom_gifting_subscription_default() ),
+						'wpcom_reader_views_enabled'       => (bool) get_option( 'wpcom_reader_views_enabled', true ),
 						'wpcom_subscription_emails_use_excerpt' => $this->get_wpcom_subscription_emails_use_excerpt_option(),
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
@@ -725,6 +726,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'jetpack_testimonial':
 				case 'jetpack_portfolio':
 				case 'jetpack_comment_likes_enabled':
+				case 'wpcom_reader_views_enabled':
 					// settings are stored as 1|0.
 					$coerce_value = (int) $value;
 					if ( update_option( $key, $coerce_value ) ) {

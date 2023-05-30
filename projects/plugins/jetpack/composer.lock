@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ba6324747aebe0a369723e8d352f0754",
+    "content-hash": "aa3d96fdf2e7d12fc26b8cc80d9e3790",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -568,6 +568,75 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Register and manage blocks within a plugin. Used to manage block registration, enqueues, and more.",
+            "transport-options": {
+                "relative": true
+            }
+        },
+        {
+            "name": "automattic/jetpack-boost-speed-score",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/boost-speed-score",
+                "reference": "a8fb6391ea66536025236a2d84a3eb775c5367b7"
+            },
+            "require-dev": {
+                "automattic/jetpack-changelogger": "@dev",
+                "brain/monkey": "^2.6",
+                "yoast/phpunit-polyfills": "1.0.4"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "mirror-repo": "Automattic/jetpack-boost-speed-score",
+                "changelogger": {
+                    "link-template": "https://github.com/Automattic/jetpack-boost-speed-score/compare/v${old}...v${new}"
+                },
+                "autotagger": true,
+                "branch-alias": {
+                    "dev-trunk": "0.1.x-dev"
+                },
+                "textdomain": "jetpack-boost-speed-score",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-speed-score.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Automattic\\Jetpack\\Boost_Speed_Score\\Tests\\": "./tests/php"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/phpunit/phpunit/phpunit --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "build-production": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "build-development": [
+                    "echo 'Add your build step to composer.json, please!'"
+                ],
+                "post-install-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ],
+                "post-update-cmd": [
+                    "WorDBless\\Composer\\InstallDropin::copy"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "A package that handles the API to generate the speed score.",
             "transport-options": {
                 "relative": true
             }
@@ -1980,7 +2049,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "77faf21d49887cda1819f5f38b01d492239bd2fa"
+                "reference": "1ae0c5ef9dbf511c3f1575f49d476a43d76c98c2"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2033,6 +2102,10 @@
                 ],
                 "build-development": [
                     "pnpm run build"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ],
                 "build-production": [
                     "pnpm run build-production-concurrently"
@@ -2415,7 +2488,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "a42c6a95760781a8f0d6c25a360ce745f618b834"
+                "reference": "82fae1ac3076aa675fa884a03b8cb593dcfd9a28"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2446,7 +2519,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "1.48.x-dev"
+                    "dev-trunk": "1.49.x-dev"
                 }
             },
             "autoload": {
@@ -5562,6 +5635,7 @@
         "automattic/jetpack-backup": 20,
         "automattic/jetpack-blaze": 20,
         "automattic/jetpack-blocks": 20,
+        "automattic/jetpack-boost-speed-score": 20,
         "automattic/jetpack-compat": 20,
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
