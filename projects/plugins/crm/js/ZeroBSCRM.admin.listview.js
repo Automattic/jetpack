@@ -120,7 +120,7 @@ function zeroBSCRMJS_initListView() {
 								jQuery( '#zbs-col-manager-loading' ).hide();
 
 								// could not save cols
-								jQuery( '#zbsCantSaveCols' ).show();
+								jQuery( '#zbsCantSaveCols' ).css('display', 'flex');
 							}
 						);
 					},
@@ -511,7 +511,7 @@ function zeroBSCRMJS_drawListView(reset_pagination, update_url) {
 			},
 			function ( errd ) {
 				// err callback? show msg (prefilled by php)
-				jQuery( '#zbsCantLoadData' ).show();
+				jQuery( '#zbsCantLoadData' ).css('display', 'flex');
 				jQuery( '.jpcrm-listview-table-container' ).hide();
 
 				//update counts in footer
