@@ -2,6 +2,10 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 12.1.1 - 2023-05-30
+### Bug fixes
+- Security: WordPress.com REST API: Ensure that files uploaded via the API are properly validated. [#31072]
+
 ## 12.1-a.5 - 2023-04-10
 ### Enhancements
 - Implemented a "tabbed" variation for static filters. This adds tabs on top of the results for each filter group. [#29811]

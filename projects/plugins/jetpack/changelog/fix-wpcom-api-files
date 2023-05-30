@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Security: WordPress.com REST API: Ensure that files uploaded via the API are properly validated.
