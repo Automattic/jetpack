@@ -155,9 +155,7 @@ class Automation_Faker {
 					'operator' => 'is',
 					'value'    => 'lead',
 				),
-				'next_step_true'  => array(
-					$action_data,
-				),
+				'next_step_true'  => $action_data,
 				'next_step_false' => null,
 			),
 		);
