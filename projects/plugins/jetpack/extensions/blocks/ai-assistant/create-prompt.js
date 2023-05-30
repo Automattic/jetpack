@@ -34,7 +34,15 @@ export const buildPromptTemplate = ( {
 	language = null,
 	locale = null,
 	addBlogPostData = true,
+	returnArray = false,
 } ) => {
+	const messages = [
+		{
+			role: 'system',
+			content:
+				'You are an AI assistant block, a part of a product called Jetpack made by the company called Automattic',
+		},
+	];
 	if ( ! request && ! content ) {
 		throw new Error( 'You must provide either a request or content' );
 	}
@@ -91,8 +99,37 @@ ${ content }`;
 	// Context content
 	const contextPromptPart = requestPromptBlock && contentText ? `\n${ contentText }` : contentText;
 
-	const prompt =
-		`${ context }.
+	let prompt;
+	if ( returnArray ) {
+		messages[ 0 ].content =
+			`${ context }.
+			Your job is to respond to the request from the user messages. Do this by following rules set in "Rules".
+
+-------------
+Rules:
+- If you do not understand this request, regardless of language or any other rule, always answer exactly and without any preceding content with the following term and nothing else: __JETPACK_AI_ERROR__.
+- Do not use the term __JETPACK_AI_ERROR__ in any other context.
+${ extraRulePromptPart }- Do not include a top level heading by default.
+- Output the generated content in markdown format.
+- Do not include a top level heading by default.
+- Only output generated content ready for publishing.
+- Segment the content into paragraphs as deemed suitable.
+` +
+			langLocatePromptPart +
+			`-----------` +
+			blogPostData +
+			contextPromptPart +
+			`
+-----------`;
+		messages.push( {
+			role: 'user',
+			content: request,
+		} );
+		debug( prompt );
+		return messages;
+	} else {
+		prompt =
+			`${ context }.
 ${ job }. Do this by following rules set in "Rules".
 
 -------------
@@ -104,16 +141,16 @@ ${ extraRulePromptPart }- Output the generated content in markdown format.
 - Only output generated content ready for publishing.
 - Segment the content into paragraphs as deemed suitable.
 ` +
-		langLocatePromptPart +
-		`-----------` +
-		blogPostData +
-		requestPromptBlock +
-		contextPromptPart +
-		`
+			langLocatePromptPart +
+			`-----------` +
+			blogPostData +
+			requestPromptBlock +
+			contextPromptPart +
+			`
 -----------`;
-
-	debug( prompt );
-	return prompt;
+		debug( prompt );
+		return prompt;
+	}
 };
 
 export function buildPrompt( {
@@ -123,6 +160,7 @@ export function buildPrompt( {
 	currentPostTitle,
 	options,
 	prompt,
+	returnArray,
 	type,
 	userPrompt,
 } ) {
@@ -136,6 +174,7 @@ export function buildPrompt( {
 		 */
 		case 'titleSummary':
 			prompt = buildPromptTemplate( {
+				returnArray,
 				request: 'Please help me write a short piece for a blog post based on the content below',
 				content: currentPostTitle,
 			} );
@@ -146,6 +185,7 @@ export function buildPrompt( {
 		 */
 		case 'continue':
 			prompt = buildPromptTemplate( {
+				returnArray,
 				request: 'Please continue writing from the content below.',
 				rules: [ 'Only output the continuation of the content, without repeating it' ],
 				content: postContentAbove,
@@ -157,6 +197,7 @@ export function buildPrompt( {
 		 */
 		case 'simplify':
 			prompt = buildPromptTemplate( {
+				returnArray,
 				request: 'Simplify the content below.',
 				rules: [
 					'Use words and phrases that are easier to understand for non-technical people',
@@ -176,6 +217,7 @@ export function buildPrompt( {
 		 */
 		case 'changeTone':
 			prompt = buildPromptTemplate( {
+				returnArray,
 				request: `Please, rewrite with a ${ options.tone } tone.`,
 				content: options.contentType === 'generated' ? generatedContent : allPostContent,
 			} );
@@ -186,6 +228,7 @@ export function buildPrompt( {
 		 */
 		case 'makeLonger':
 			prompt = buildPromptTemplate( {
+				returnArray,
 				request: 'Make the content below longer.',
 				content: generatedContent,
 			} );
@@ -196,6 +239,7 @@ export function buildPrompt( {
 		 */
 		case 'makeShorter':
 			prompt = buildPromptTemplate( {
+				returnArray,
 				request: 'Make the content below shorter.',
 				content: generatedContent,
 			} );
@@ -210,6 +254,7 @@ export function buildPrompt( {
 		 */
 		case 'summarize':
 			prompt = buildPromptTemplate( {
+				returnArray,
 				request: 'Summarize the content below.',
 				content: options.contentType === 'generated' ? generatedContent : allPostContent,
 			} );
@@ -220,6 +265,7 @@ export function buildPrompt( {
 		 */
 		case 'correctSpelling':
 			prompt = buildPromptTemplate( {
+				returnArray,
 				request: 'Correct any spelling and grammar mistakes from the content below.',
 				content: options.contentType === 'generated' ? generatedContent : postContentAbove,
 			} );
@@ -230,6 +276,7 @@ export function buildPrompt( {
 		 */
 		case 'generateTitle':
 			prompt = buildPromptTemplate( {
+				returnArray,
 				request: 'Generate a title for this blog post',
 				rules: [ 'Only output the raw title, without any prefix or quotes' ],
 				content: options.contentType === 'generated' ? generatedContent : allPostContent,
@@ -241,6 +288,7 @@ export function buildPrompt( {
 		 */
 		case 'changeLanguage':
 			prompt = buildPromptTemplate( {
+				returnArray,
 				request: `Please, rewrite the content below in the following language: ${ options.language }.`,
 				content: options.contentType === 'generated' ? generatedContent : allPostContent,
 			} );
@@ -251,6 +299,7 @@ export function buildPrompt( {
 		 */
 		case 'userPrompt':
 			prompt = buildPromptTemplate( {
+				returnArray,
 				request: userPrompt,
 				content: allPostContent || generatedContent,
 			} );
@@ -258,6 +307,7 @@ export function buildPrompt( {
 
 		default:
 			prompt = buildPromptTemplate( {
+				returnArray,
 				request: userPrompt,
 				content: generatedContent,
 			} );

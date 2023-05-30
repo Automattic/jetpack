@@ -180,6 +180,7 @@ const useSuggestionsFromOpenAI = ( {
 				currentPostTitle,
 				options,
 				prompt,
+				returnArray: true,
 				userPrompt,
 				type,
 			} );
