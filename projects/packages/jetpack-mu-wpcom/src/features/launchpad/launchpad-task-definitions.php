@@ -249,7 +249,7 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
 /**
  * Initialize the Launchpad task listener callbacks.
  *
- * @param array $task_definitions
+ * @param array $task_definitions The tasks to initialize.
  */
 function wpcom_launchpad_init_listeners( $task_definitions ) {
 	require_once WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
