@@ -9,7 +9,7 @@
 namespace Automattic\Jetpack\Blaze;
 
 use Automattic\Jetpack\Connection\Client;
-use Jetpack_Options;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use WP_Error;
 use WP_REST_Server;
 
@@ -35,10 +35,15 @@ class Dashboard_REST_Controller {
 	 * @static
 	 */
 	public function register_rest_routes() {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return;
+		}
+
 		// WPCOM API routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/blaze/posts', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/blaze/posts', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_blaze_posts' ),
@@ -49,7 +54,7 @@ class Dashboard_REST_Controller {
 		// WordAds DSP API routes
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/(?P<sub_path>.+)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/wordads/dsp/api/(?P<sub_path>.+)', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_wordads_dsp_generic' ),
@@ -59,7 +64,7 @@ class Dashboard_REST_Controller {
 
 		register_rest_route(
 			static::$namespace,
-			sprintf( '/sites/%d/wordads/dsp/api/(?P<sub_path>.+)', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/wordads/dsp/api/(?P<sub_path>.+)', $site_id ),
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'edit_wordads_dsp_generic' ),
@@ -74,7 +79,10 @@ class Dashboard_REST_Controller {
 	 * @return bool|WP_Error True if a blog token was used to sign the request, WP_Error otherwise.
 	 */
 	public function can_user_view_blaze_posts_callback() {
-		if ( current_user_can( 'manage_options' ) ) {
+		if (
+			$this->is_user_connected()
+			&& current_user_can( 'manage_options' )
+		) {
 			return true;
 		}
 
@@ -85,11 +93,16 @@ class Dashboard_REST_Controller {
 	 * Redirect GET requests to WordAds DSP for the site.
 	 *
 	 * @param WP_REST_Request $req The request object.
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public function get_blaze_posts( $req ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
 		return $this->request_as_user(
-			sprintf( '/sites/%d/blaze/posts', Jetpack_Options::get_option( 'id' ) ),
+			sprintf( '/sites/%d/blaze/posts', $site_id ),
 			'v2',
 			array( 'method' => 'GET' )
 		);
@@ -111,11 +124,16 @@ class Dashboard_REST_Controller {
 	 * Redirect GET requests to WordAds DSP for the site.
 	 *
 	 * @param WP_REST_Request $req The request object.
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public function get_wordads_dsp_generic( $req ) {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
 		return $this->request_as_user(
-			sprintf( '/sites/%d/wordads/dsp/api/%s', Jetpack_Options::get_option( 'id' ), $req->get_param( 'sub_path' ) ),
+			sprintf( '/sites/%d/wordads/dsp/api/%s', $site_id, $req->get_param( 'sub_path' ) ),
 			'v2',
 			array( 'method' => 'GET' )
 		);
@@ -125,11 +143,16 @@ class Dashboard_REST_Controller {
 	 * Redirect POST/PUT/PATCH requests to WordAds DSP for the site.
 	 *
 	 * @param WP_REST_Request $req The request object.
-	 * @return array
+	 * @return array|WP_Error
 	 */
 	public function edit_wordads_dsp_generic( $req ) {
+		$site_id = $this->get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return array();
+		}
+
 		return $this->request_as_user(
-			sprintf( '/sites/%d/wordads/dsp/api/%s', Jetpack_Options::get_option( 'id' ), $req->get_param( 'sub_path' ) ),
+			sprintf( '/sites/%d/wordads/dsp/api/%s', $site_id, $req->get_param( 'sub_path' ) ),
 			'v2',
 			array( 'method' => $req->get_method() ),
 			$req->get_body()
@@ -218,5 +241,29 @@ class Dashboard_REST_Controller {
 			$error_message,
 			array( 'status' => $response_code )
 		);
+	}
+
+	/**
+	 * Check if the current user is connected.
+	 * On WordPress.com Simple, it is always connected.
+	 *
+	 * @return true
+	 */
+	private function is_user_connected() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return true;
+		}
+
+		$connection = new Connection_Manager();
+		return $connection->is_connected() && $connection->is_user_connected();
+	}
+
+	/**
+	 * Get the site ID.
+	 *
+	 * @return int|WP_Error
+	 */
+	private function get_site_id() {
+		return Connection_Manager::get_site_id();
 	}
 }
