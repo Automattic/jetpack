@@ -52,7 +52,9 @@ export default function BlockNudge( {
 							{ subtitle }
 							{ subtitle && readMoreUrl && <br /> }
 							{ readMoreUrl && (
-								<ExternalLink href={ readMoreUrl }>{ __( 'Read more', 'jetpack' ) }</ExternalLink>
+								<ExternalLink href={ readMoreUrl }>
+									{ __( 'Learn more about the block and fees', 'jetpack' ) }
+								</ExternalLink>
 							) }
 						</span>
 					) }
