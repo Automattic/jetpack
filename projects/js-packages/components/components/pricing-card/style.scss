@@ -98,10 +98,15 @@
 		align-items: center;
 	}
 
-	&__info {
+	&__info,
+	&__tos {
 		font-size: var( --font-label );
 		line-height: 20px;
 		letter-spacing: -0.02em;
 		color: var( --jp-gray-60 );
+	}
+
+	&__tos {
+		margin-top: 24px;
 	}
 }

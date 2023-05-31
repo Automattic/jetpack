@@ -19,8 +19,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 const PLUGIN_SLUG = 'jetpack-boost';
 const PLUGIN_FILE = 'jetpack-boost/jetpack-boost.php';
 
-add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
-add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
+if ( isset( $_GET['jetpack-boost-install-error'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	add_action( 'admin_notices', __NAMESPACE__ . '\error_notice' );
+}
+
+if ( isset( $_GET['jetpack-boost-action'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	add_action( 'admin_init', __NAMESPACE__ . '\try_install' );
+}
 
 /**
  * Verify the intent to install Jetpack Boost, and kick off installation.

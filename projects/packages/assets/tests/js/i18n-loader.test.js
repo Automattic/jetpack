@@ -1,3 +1,4 @@
+// eslint-disable-next-line jest/prefer-spy-on -- Nothing to spy on.
 global.fetch = jest.fn();
 fetch.mockFetchResponse = function ( body, init = {} ) {
 	const status = parseInt( init.status || 200 );
@@ -46,8 +47,8 @@ const translations = JSON.stringify( {
 const loader = require( '../../src/js/i18n-loader.js' );
 
 beforeEach( () => {
-	global.fetch.mockReset();
-	mockSetLocaleData.mockReset();
+	global.fetch.mockReset().mockReturnValue();
+	mockSetLocaleData.mockReset().mockReturnValue();
 
 	loader.state = {
 		baseUrl: 'http://example.com/wp-content/languages/',

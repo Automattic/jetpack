@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
+import { render, screen } from '@testing-library/react';
 import * as React from 'react';
-import { expect } from 'chai';
-import { render } from '@testing-library/react';
-
-/**
- * Internal dependencies
- */
 import PartnerCouponRedeem from '../';
 
 const partnerCoupon = {
@@ -37,10 +29,13 @@ const requiredProps = {
 
 describe( 'PartnerCouponRedeem', () => {
 	it( 'uses pre connection component for registered sites', () => {
-		const { container } = render( <PartnerCouponRedeem { ...requiredProps } /> );
-		expect( container.querySelector( '.jetpack-redeem-partner-coupon-pre-connection' ) );
-		expect( container.querySelector( '.jetpack-redeem-partner-coupon-post-connection' ) ).to.be
-			.null;
+		render( <PartnerCouponRedeem { ...requiredProps } /> );
+		expect(
+			screen.getByRole( 'button', { name: 'Set up & redeem Awesome Product' } )
+		).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'Redeem Awesome Product' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'uses post connection component for user connected site', () => {
@@ -49,8 +44,10 @@ describe( 'PartnerCouponRedeem', () => {
 			connectionStatus: { hasConnectedOwner: true },
 		};
 
-		const { container } = render( <PartnerCouponRedeem { ...props } /> );
-		expect( container.querySelector( '.jetpack-redeem-partner-coupon-pre-connection' ) ).to.be.null;
-		expect( container.querySelector( '.jetpack-redeem-partner-coupon-post-connection' ) );
+		render( <PartnerCouponRedeem { ...props } /> );
+		expect(
+			screen.queryByRole( 'button', { name: 'Set up & redeem Awesome Product' } )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Redeem Awesome Product' } ) ).toBeInTheDocument();
 	} );
 } );

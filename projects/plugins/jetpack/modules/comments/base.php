@@ -4,6 +4,9 @@
  *
  * @package automattic/jetpack
  */
+
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+
 /**
  * All the code shared between WP.com Highlander and Jetpack Highlander
  */
@@ -204,7 +207,7 @@ class Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 */
 	public function allow_logged_out_user_to_comment_as_external() {
-		if ( ! $this->is_highlander_comment_post( 'facebook', 'twitter', 'googleplus' ) ) {
+		if ( ! $this->is_highlander_comment_post( 'facebook', 'twitter' ) ) {
 			return;
 		}
 
@@ -233,7 +236,7 @@ class Highlander_Comments_Base {
 		}
 
 		// Bail if this is not a guest or external service credentialed request.
-		if ( ! $this->is_highlander_comment_post( 'guest', 'facebook', 'twitter', 'googleplus' ) ) {
+		if ( ! $this->is_highlander_comment_post( 'guest', 'facebook', 'twitter' ) ) {
 			return $comment_data;
 		}
 
@@ -321,6 +324,6 @@ class Highlander_Comments_Base {
 	protected function photon_avatar( $url, $size ) {
 		$size = (int) $size;
 
-		return jetpack_photon_url( $url, array( 'resize' => "$size,$size" ) );
+		return Image_CDN_Core::cdn_url( $url, array( 'resize' => "$size,$size" ) );
 	}
 }

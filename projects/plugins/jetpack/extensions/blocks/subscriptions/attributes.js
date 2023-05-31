@@ -1,6 +1,3 @@
-/**
- * External dependencies
- */
 import { __ } from '@wordpress/i18n';
 
 export default {
@@ -11,6 +8,10 @@ export default {
 	showSubscribersTotal: {
 		type: 'boolean',
 		default: false,
+	},
+	includeSocialFollowers: {
+		type: 'boolean',
+		default: true,
 	},
 	buttonOnNewLine: {
 		type: 'boolean',

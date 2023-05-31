@@ -21,8 +21,6 @@
 			<directory prefix="test" suffix=".php">php/media</directory>
 		</testsuite>
 		<testsuite name="photon">
-			<file>php/test_class.jetpack_photon.php</file>
-			<file>php/test_functions.photon.php</file>
 			<directory prefix="test_" suffix=".php">php/modules/photon</directory>
 			<file>php/test_class.functions.opengraph.php</file>
 		</testsuite>
@@ -51,6 +49,9 @@
 		<testsuite name="subscriptions">
 			<directory prefix="test_" suffix=".php">php/modules/subscriptions</directory>
 		</testsuite>
+		<testsuite name="premium-content">
+			<directory prefix="test_" suffix=".php">php/extensions/blocks/premium-content</directory>
+		</testsuite>
 		<testsuite name="contact-form">
 			<directory prefix="test" suffix=".php">php/modules/contact-form</directory>
 		</testsuite>
@@ -69,6 +70,9 @@
 		</testsuite>
 		<testsuite name="masterbar">
 			<directory prefix="test" suffix=".php">php/modules/masterbar</directory>
+		</testsuite>
+		<testsuite name="autoloaded">
+			<directory prefix="test" suffix=".php">php/src</directory>
 		</testsuite>
 	</testsuites>
 	<groups>

@@ -1,10 +1,3 @@
-/**
- * External dependencies
- */
-
-/**
- * Internal dependencies
- */
 import { GIPHY_API_KEY } from './constants';
 
 export const getSearchUrl = searchText => {
@@ -32,7 +25,8 @@ export const getUrl = ( searchText = '' ) => {
 	// https://giphy.com/gifs/schittscreek-funny-3og0IIIZVBYV2ZVXFu
 	// http://i.giphy.com/4ZFekt94LMhNK.gif
 	// https://media.giphy.com/media/gt0hYzKlMpfOg/giphy.gif
-	const embedRegex = /^https?:\/\/(media\.|i\.)?giphy\.com\/(embed|gifs|media)?\/?([-\w]*)(\/giphy)?(\.gif)?$/;
+	const embedRegex =
+		/^https?:\/\/(media\.|i\.)?giphy\.com\/(embed|gifs|media)?\/?([-\w]*)(\/giphy)?(\.gif)?$/;
 	const embedMatch = searchText.match( embedRegex );
 
 	if ( embedMatch && embedMatch[ 3 ] ) {

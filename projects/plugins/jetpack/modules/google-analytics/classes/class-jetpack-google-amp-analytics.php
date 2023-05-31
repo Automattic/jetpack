@@ -25,7 +25,7 @@ class Jetpack_Google_AMP_Analytics {
 
 	/**
 	 * Maybe load the hooks.
-	 * Checks if its AMP request, if WooCommerce is available, if there's tracking code and in tracking is enabled.
+	 * Checks if its AMP request, if WooCommerce is available, if DNT is disabled, if there's tracking code and if tracking is enabled.
 	 */
 	public function maybe_load_hooks() {
 		if ( ! class_exists( 'Jetpack_AMP_Support' ) || ! Jetpack_AMP_Support::is_amp_request() ) {
@@ -37,6 +37,10 @@ class Jetpack_Google_AMP_Analytics {
 		}
 
 		if ( ! Jetpack_Google_Analytics_Options::has_tracking_code() ) {
+			return;
+		}
+
+		if ( Jetpack_Google_Analytics_Utils::is_dnt_enabled() ) {
 			return;
 		}
 
@@ -106,7 +110,7 @@ class Jetpack_Google_AMP_Analytics {
 				$event['ga_params'][ 'pr' . $i . 'id' ] = sanitize_text_field( Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product ) );
 				$event['ga_params'][ 'pr' . $i . 'nm' ] = sanitize_text_field( $item->get_name() );
 				$event['ga_params'][ 'pr' . $i . 'qt' ] = absint( $item->get_quantity() );
-				$i++;
+				++$i;
 			}
 		}
 

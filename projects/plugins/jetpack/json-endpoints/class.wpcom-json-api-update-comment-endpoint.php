@@ -9,6 +9,8 @@
  * Delete a comment:                               /sites/%s/comments/%d/delete
  */
 
+use Automattic\Jetpack\Status;
+
 new WPCOM_JSON_API_Update_Comment_Endpoint(
 	array(
 		'description'                          => 'Create a comment on a post.',
@@ -211,6 +213,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 	 * @return bool|WP_Error|array
 	 */
 	public function new_comment( $path, $blog_id, $post_id, $comment_parent_id ) {
+		$comment_parent = null;
 		if ( ! $post_id ) {
 			$comment_parent = get_comment( $comment_parent_id );
 			if ( ! $comment_parent_id || ! $comment_parent || is_wp_error( $comment_parent ) ) {
@@ -226,7 +229,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		}
 
 		if (
-			-1 == get_option( 'blog_public' ) && // phpcs:ignore Universal.Operators.StrictComparisons.LooseEqual
+			( new Status() )->is_private_site() &&
 			/**
 			 * Filter allowing non-registered users on the site to comment.
 			 *

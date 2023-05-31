@@ -21,5 +21,6 @@ module.exports = {
 	},
 	rules: {
 		'no-console': 0,
+		'playwright/no-skipped-test': 0,
 	},
 };

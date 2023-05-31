@@ -16,7 +16,7 @@
 	}
 
 	&__left {
-		padding: 25px;
+		padding: calc(var(--spacing-base) * 3);
 
 		@include break-small {
 			padding: 64px 96px;

@@ -20,7 +20,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 		$this->rest_base = 'tweetstorm';
 
 		if ( ! class_exists( 'Jetpack_Tweetstorm_Helper' ) ) {
-			\jetpack_require_lib( 'class-jetpack-tweetstorm-helper' );
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-tweetstorm-helper.php';
 		}
 
 		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
@@ -44,7 +44,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 				'methods'                               => WP_REST_Server::EDITABLE,
 				'callback'                              => array( $this, 'parse_tweetstorm' ),
 				'allow_blog_token_when_site_is_private' => true,
-				'permission_callback'                   => '__return_true',
+				'permission_callback'                   => array( 'Jetpack_Tweetstorm_Helper', 'permissions_check' ),
 			)
 		);
 
@@ -62,7 +62,7 @@ class WPCOM_REST_API_V2_Endpoint_Tweetstorm_Parse extends WP_REST_Controller {
 				'methods'                               => WP_REST_Server::EDITABLE,
 				'callback'                              => array( $this, 'generate_cards' ),
 				'allow_blog_token_when_site_is_private' => true,
-				'permission_callback'                   => '__return_true',
+				'permission_callback'                   => array( 'Jetpack_Tweetstorm_Helper', 'permissions_check' ),
 			)
 		);
 	}

@@ -1,28 +1,20 @@
-/**
- * External dependencies
- */
+import { __ } from '@wordpress/i18n';
+import QuerySite from 'components/data/query-site';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import Card from 'components/card';
-import { getModule } from 'state/modules';
-import { getSettings } from 'state/settings';
 import {
 	isOfflineMode,
 	isUnavailableInOfflineMode,
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
-import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
-import QuerySite from 'components/data/query-site';
+import { getModule } from 'state/modules';
+import { isModuleFound as _isModuleFound } from 'state/search';
+import { getSettings } from 'state/settings';
+import { Likes } from './likes';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
-import { Likes } from './likes';
 
 class Sharing extends Component {
 	render() {
@@ -53,17 +45,15 @@ class Sharing extends Component {
 		return (
 			<div>
 				<QuerySite />
-				<Card
-					title={
-						this.props.searchTerm
-							? __( 'Sharing', 'jetpack' )
-							: __(
-									'Share your content to social media, reaching new audiences and increasing engagement.',
-									'jetpack'
-							  )
-					}
-					className="jp-settings-description"
-				/>
+				<h1 className="screen-reader-text">{ __( 'Jetpack Sharing Settings', 'jetpack' ) }</h1>
+				<h2 className="jp-settings__section-title">
+					{ this.props.searchTerm
+						? __( 'Sharing', 'jetpack' )
+						: __(
+								'Share your content to social media, reaching new audiences and increasing engagement.',
+								'jetpack'
+						  ) }
+				</h2>
 				{ foundPublicize && <Publicize { ...commonProps } /> }
 				{ foundSharing && <ShareButtons { ...commonProps } /> }
 				{ foundLikes && <Likes { ...commonProps } /> }

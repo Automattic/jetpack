@@ -1,36 +1,19 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * WordPress dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
+import { __, _x } from '@wordpress/i18n';
 import Button from 'components/button';
 import Card from 'components/card';
-import bundleImageUrl from './shield-with-check.svg';
-import cloudImageUrl from './cloud.svg';
-import shieldImageUrl from './shield.svg';
-import removeBugImageUrl from './remove-bug.svg';
+import analytics from 'lib/analytics';
 import { getProductDescriptionUrl } from 'product-descriptions/utils';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import {
 	isFetchingSitePurchases as getIsFetchingSitePurchases,
 	hasActiveSecurityPurchase as getHasActiveSecurityPurchase,
 } from 'state/site';
+import Gridicon from '../../components/gridicon';
+import bundleImageUrl from './shield-with-check.svg';
 
-/**
- * Style dependencies
- */
 import './style.scss';
 
 class DashSecurityBundle extends Component {
@@ -41,48 +24,6 @@ class DashSecurityBundle extends Component {
 			feature: 'security',
 		} );
 	};
-
-	renderFeatures() {
-		const features = [
-			{
-				id: 'backup',
-				imageUrl: cloudImageUrl,
-				text: _x(
-					'Backup',
-					'The Jetpack Backup product name, without the Jetpack prefix',
-					'jetpack'
-				),
-				imgAlt: __( 'A cloud representing Jetpack Backup', 'jetpack' ),
-			},
-			{
-				id: 'scan',
-				imageUrl: shieldImageUrl,
-				text: _x( 'Scan', 'The Jetpack Scan product name, without the Jetpack prefix', 'jetpack' ),
-				imgAlt: __( 'A shield representing Jetpack Scan', 'jetpack' ),
-			},
-			{
-				id: 'antispam',
-				imageUrl: removeBugImageUrl,
-				text: __( 'Anti-spam', 'jetpack' ),
-				imgAlt: __( 'A crossed-out bug representing Jetpack Anti-spam', 'jetpack' ),
-			},
-		];
-
-		return (
-			<div className="dash-security-bundle--content-info-features">
-				{ features.map( ( { id, imageUrl, text, imgAlt } ) => (
-					<div
-						key={ id }
-						id={ id }
-						className="dash-security-bundle--content-info-features-single-feature"
-					>
-						<img src={ imageUrl } alt={ imgAlt } />
-						<p>{ text }</p>
-					</div>
-				) ) }
-			</div>
-		);
-	}
 
 	render() {
 		const { hasActiveSecurityPurchase, isFetchingSitePurchases } = this.props;
@@ -109,31 +50,33 @@ class DashSecurityBundle extends Component {
 						<p>
 							{ createInterpolateElement(
 								__(
-									'Total protection for your site, including Backup, Scan, and Anti-spam. <ExternalLink>Learn More</ExternalLink>',
+									'Total protection for your site, including<br /> VaultPress Backup, Scan, and Akismet Anti-spam.',
 									'jetpack'
 								),
 								{
-									ExternalLink: (
-										<ExternalLink
-											href={ getRedirectUrl( 'jetpack-features-security' ) }
-											rel="noopener noreferrer"
-											target="_blank"
-										></ExternalLink>
-									),
+									br: <br />,
 								}
 							) }
 						</p>
-						{ this.renderFeatures() }
 					</div>
 					<div className="dash-security-bundle--content-cta">
 						<Button
 							className="dash-security-bundle--content-cta-button"
 							href={ this.props.productDescriptionUrl }
 							onClick={ this.trackUpgradeClick }
-							compact
 							primary
 						>
-							{ __( 'Upgrade', 'jetpack' ) }
+							{ _x( 'Upgrade', 'Call to action to buy a new plan', 'jetpack' ) }
+						</Button>
+
+						<Button
+							className="dash-security-bundle--content-cta-button"
+							href={ getRedirectUrl( 'jetpack-features-security' ) }
+							rel="noopener noreferrer"
+							target="_blank"
+						>
+							{ _x( 'Learn more', 'Learn more about the new plan', 'jetpack' ) }
+							<Gridicon className="dops-card__link-indicator" icon="external" />
 						</Button>
 					</div>
 				</div>

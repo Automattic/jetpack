@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Backup;
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-
 /**
  * The Upgrades class.
  */
@@ -32,15 +30,13 @@ class Jetpack_Backup_Upgrades {
 			call_user_func( array( __CLASS__, $upgrade ) );
 
 		}
-
 	}
 
 	/**
 	 * The plugin is not checking if it was disabled and reactivating it when we reconnect, therefore we need to clear this information from DB so other plugins know we are still using the connection
+	 *
+	 * @deprecated since 1.7.0 No longer required after removing soft disconnect functionality.
 	 */
-	public static function clear_disabled_plugin() {
-		$manager = new Connection_Manager( 'jetpack-backup' );
-		$manager->enable_plugin();
-	}
+	public static function clear_disabled_plugin() {}
 
 }

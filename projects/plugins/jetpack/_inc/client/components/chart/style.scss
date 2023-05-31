@@ -13,7 +13,7 @@
 	position: relative;
 	box-sizing: border-box;
 	background-color: $white;
-	padding: 8px 0 8px 20px;
+	padding: 8px 0 0 20px;
 }
 
 // Y-axis
@@ -69,7 +69,7 @@
 	height: 200px;
 	padding: 0 20px 0 10px;
 	font-size: 11px;
-	color: darken( $gray, 10% );
+	color: $gray-80;
 	margin-bottom: 30px;
 }
 
@@ -91,9 +91,9 @@
 .dops-chart__x-axis {
 	position: relative;
 	font-size: 0; // 1
-	padding: 5px 0;
+	padding: 5px 0 0;
 	min-height: 18px;
-	color: darken( $gray, 30% );
+	color: $black;
 }
 
 .dops-chart__x-axis-label {
@@ -157,7 +157,7 @@
 
 	&:hover {
 		cursor: pointer;
-		background-color: rgba( lighten( $gray, 30% ), .3 );
+		background-color: rgba( lighten( $gray, 30% ), .25 );
 	}
 
 	&.is-selected {
@@ -174,7 +174,7 @@
 
 .dops-chart__bar-section {
 	display: inline-block;
-	background-color: $blue-wordpress;
+	background-color: $black;
 	position: absolute;
 		top: 0; // 2
 		right: 16%; // 1
@@ -183,7 +183,7 @@
 	z-index: z-index( 'root', '.dops-chart__bar-section' );
 
 	.dops-chart__bar:hover &.is-bar {
-		background-color: $blue-medium;
+		background-color: var( --jp-green-40 );
 	}
 
 	.dops-chart__bar.is-selected &.is-bar {
@@ -365,9 +365,12 @@
 
 // Chart tooltip
 
-.dops-chart__tooltip {
+.dops-chart__tooltip.dops-chart__tooltip {
 
 	.dops-popover__inner {
+		color: var(--color-text-inverted);
+		background: var(--color-neutral-100);
+
 		width: 230px;
 		text-align: left;
 
@@ -380,7 +383,7 @@
 			li {
 				font-size: 11px;
 				text-transform: uppercase;
-				font-weight: 100;
+				font-weight: 500;
 				height: 24px;
 				letter-spacing: 0.1em;
 				border: 0;
@@ -397,7 +400,7 @@
 					text-align: right;
 					float: right;
 					min-width: 22px;
-					color: lighten( $gray, 20% );
+					color: inherit;
 				}
 
 				.label {

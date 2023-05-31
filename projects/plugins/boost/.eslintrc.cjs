@@ -6,7 +6,6 @@ module.exports = {
 	extends: [
 		require.resolve( 'jetpack-js-tools/eslintrc/base' ),
 		require.resolve( 'jetpack-js-tools/eslintrc/wp-eslint-plugin/recommended' ),
-		require.resolve( 'jetpack-js-tools/eslintrc/typescript' ),
 		require.resolve( 'jetpack-js-tools/eslintrc/svelte' ),
 	],
 	ignorePatterns: loadIgnorePatterns( __dirname ),
@@ -46,6 +45,11 @@ module.exports = {
 			},
 		],
 
+		// This is not a react project.
+		'react-hooks/rules-of-hooks': 0,
+
+		'no-nested-ternary': 0,
 		'prettier/prettier': 0,
+		camelcase: 0,
 	},
 };

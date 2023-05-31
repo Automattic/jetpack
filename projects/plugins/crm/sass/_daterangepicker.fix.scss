@@ -1,0 +1,15 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V1.1.18
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 11/10/16
+ */
+
+// fix for daterange picker
+
+div.calendar-table .table-condensed > tbody > tr > td, div.calendar-table .table-condensed > tbody > tr > th, div.calendar-table .table-condensed > tfoot > tr > td, div.calendar-table .table-condensed > tfoot > tr > th, div.calendar-table .table-condensed > thead > tr > td, div.calendar-table .table-condensed > thead > tr > th {
+	padding:0;
+}

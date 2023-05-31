@@ -1,18 +1,11 @@
-/**
- * External dependencies
- */
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import { connect } from 'react-redux';
-
-/**
- * Internal dependencies
- */
+import { isOfflineMode } from 'state/connection';
 import {
 	fetchRecommendationsProductSuggestions,
 	isFetchingRecommendationsProductSuggestions,
 } from 'state/recommendations';
-import { isOfflineMode } from 'state/connection';
 
 class QueryRecommendationsProductSuggestions extends Component {
 	static propTypes = {
@@ -39,9 +32,8 @@ class QueryRecommendationsProductSuggestions extends Component {
 export default connect(
 	state => {
 		return {
-			isFetchingRecommendationsProductSuggestions: isFetchingRecommendationsProductSuggestions(
-				state
-			),
+			isFetchingRecommendationsProductSuggestions:
+				isFetchingRecommendationsProductSuggestions( state ),
 			isOfflineMode: isOfflineMode( state ),
 		};
 	},

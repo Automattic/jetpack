@@ -14,6 +14,8 @@ require_once __DIR__ . '/trait.http-request-cache.php';
 class WP_Test_Jetpack_Shortcodes_Mixcloud extends WP_UnitTestCase {
 	use Automattic\Jetpack\Tests\HttpRequestCacheTrait;
 
+	private $invalid_markup;
+
 	/**
 	 * Runs before every test
 	 *
@@ -22,7 +24,6 @@ class WP_Test_Jetpack_Shortcodes_Mixcloud extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		$this->invalid_markup = '<!-- mixcloud error: invalid mixcloud resource -->';
-
 	}
 
 	/**
@@ -31,7 +32,7 @@ class WP_Test_Jetpack_Shortcodes_Mixcloud extends WP_UnitTestCase {
 	 * @return void
 	 */
 	public function test_shortcodes_mixcloud_exists() {
-		$this->assertEquals( shortcode_exists( 'mixcloud' ), true );
+		$this->assertTrue( shortcode_exists( 'mixcloud' ) );
 	}
 
 	/**

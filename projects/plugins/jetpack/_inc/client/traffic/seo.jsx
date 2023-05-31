@@ -1,27 +1,24 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { __, _x, _n, sprintf } from '@wordpress/i18n';
-import { FacebookPreview, TwitterPreview, SearchPreview } from '@automattic/social-previews';
-import SocialLogo from 'social-logos';
-import classNames from 'classnames';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import {
+	FacebookLinkPreview,
+	TwitterLinkPreview,
+	GoogleSearchPreview,
+} from '@automattic/social-previews';
+import { __, _x, _n, sprintf } from '@wordpress/i18n';
+import classNames from 'classnames';
+import Button from 'components/button';
+import FoldableCard from 'components/foldable-card';
+import { FormLabel, FormTextarea } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
+import SimpleNotice from 'components/notice';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { ModuleToggle } from 'components/module-toggle';
-import { FormLabel, FormTextarea, FormFieldset } from 'components/forms';
-import FoldableCard from 'components/foldable-card';
-import CustomSeoTitles from './seo/custom-seo-titles.jsx';
-import SimpleNotice from 'components/notice';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import SocialLogo from 'social-logos';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
-import Button from 'components/button';
+import CustomSeoTitles from './seo/custom-seo-titles.jsx';
 
 export const conflictingSeoPluginsList = [
 	{
@@ -40,6 +37,26 @@ export const conflictingSeoPluginsList = [
 		name: 'All in One SEO Pack Pro',
 		slug: 'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
 	},
+	{
+		name: 'SEOPress',
+		slug: 'wp-seopress/seopress.php',
+	},
+	{
+		name: 'SEOPress Pro',
+		slug: 'wp-seopress-pro/seopress-pro.php',
+	},
+	{
+		name: 'SEOKEY',
+		slug: 'seo-key/seo-key.php',
+	},
+	{
+		name: 'SEOKEY Pro',
+		slug: 'seo-key-pro/seo-key.php',
+	},
+	{
+		name: 'The SEO Framework',
+		slug: 'autodescription/autodescription.php',
+	},
 ];
 
 export const SEO = withModuleSettingsFormHelpers(
@@ -52,7 +69,8 @@ export const SEO = withModuleSettingsFormHelpers(
 		};
 
 		SocialPreviewGoogle = siteData => (
-			<SearchPreview
+			<GoogleSearchPreview
+				siteTitle={ siteData.title }
 				title={ siteData.title }
 				url={ siteData.url }
 				description={ siteData.frontPageMetaDescription }
@@ -60,20 +78,20 @@ export const SEO = withModuleSettingsFormHelpers(
 		);
 
 		SocialPreviewFacebook = siteData => (
-			<FacebookPreview
+			<FacebookLinkPreview
 				title={ siteData.title }
 				url={ siteData.url }
 				type="website"
+				imageMode="landscape"
 				description={ siteData.frontPageMetaDescription }
 				image={ siteData.image }
 			/>
 		);
 
 		SocialPreviewTwitter = siteData => (
-			<TwitterPreview
+			<TwitterLinkPreview
 				title={ siteData.title }
 				url={ siteData.url }
-				type="summary"
 				description={ siteData.frontPageMetaDescription }
 				image={ siteData.image }
 			/>
@@ -86,7 +104,7 @@ export const SEO = withModuleSettingsFormHelpers(
 		saveButton = props => {
 			const isSaving = this.props.isSavingAnyOption( this.constants.moduleOptionsArray );
 			return (
-				<Button primary compact type="submit" disabled={ isSaving || ! props.isDirty() }>
+				<Button primary rna compact type="submit" disabled={ isSaving || ! props.isDirty() }>
 					{ isSaving
 						? _x( 'Saving…', 'Button caption', 'jetpack' )
 						: _x(
@@ -189,7 +207,7 @@ export const SEO = withModuleSettingsFormHelpers(
 						! isOfflineMode &&
 						! isFetchingPluginsData( this.props.state ) &&
 						! hasConflictingSeoPlugin && (
-							<div>
+							<>
 								<FoldableCard
 									header={ __(
 										'Expand to customize the page title structures of your site.',
@@ -205,13 +223,11 @@ export const SEO = withModuleSettingsFormHelpers(
 												'jetpack'
 											) }
 										</p>
-										<FormFieldset>
-											<CustomSeoTitles
-												customSeoTitles={ customSeoTitles }
-												updateCustomSeoTitleInputState={ this.updateCustomSeoTitleInputState }
-												siteData={ siteData }
-											/>
-										</FormFieldset>
+										<CustomSeoTitles
+											customSeoTitles={ customSeoTitles }
+											updateCustomSeoTitleInputState={ this.updateCustomSeoTitleInputState }
+											siteData={ siteData }
+										/>
 										{
 											<div className={ 'jp-seo-custom-titles-save-button' }>
 												{ this.saveButton( this.props ) }
@@ -302,7 +318,7 @@ export const SEO = withModuleSettingsFormHelpers(
 									</div>
 									{ this.SocialPreviewTwitter( siteData ) }
 								</FoldableCard>
-							</div>
+							</>
 						) }
 				</SettingsCard>
 			);

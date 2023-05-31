@@ -10,11 +10,14 @@ if ( ! function_exists( 'jetpack_social_menu_include_svg_icons' ) ) :
 	 * Add SVG definitions to the footer.
 	 */
 	function jetpack_social_menu_include_svg_icons() {
+		// Return early if Social Menu doesn't exist.
+		if ( ! has_nav_menu( 'jetpack-social-menu' ) ) {
+			return;
+		}
 		// Define SVG sprite file.
 		$svg_icons = __DIR__ . '/social-menu.svg';
-
-		// If it exists, include it.
-		if ( file_exists( $svg_icons ) ) {
+		// If it exists and we use the SVG menu type, include it.
+		if ( file_exists( $svg_icons ) && 'svg' === jetpack_social_menu_get_type() ) {
 			require_once $svg_icons;
 		}
 	}
@@ -95,8 +98,24 @@ if ( ! function_exists( 'jetpack_social_menu_nav_menu_social_icons' ) ) :
 		// Change SVG icon inside social links menu if there is supported URL.
 		if ( 'jetpack-social-menu' === $args->theme_location ) {
 			foreach ( $social_icons as $attr => $value ) {
-				if ( false !== strpos( $item_output, $attr ) ) {
-					$item_output = str_replace( $args->link_after, '</span>' . jetpack_social_menu_get_svg( array( 'icon' => esc_attr( $value ) ) ), $item_output );
+				/*
+				 * attr can be a URL host, or a regex, starting with #.
+				 * Let's check for both scenarios.
+				 */
+				if (
+					// First Regex.
+					(
+						'#' === substr( $attr, 0, 1 ) && '#' === substr( $attr, -1 )
+						&& preg_match( $attr, $item_output )
+					)
+					// Then, regular host name.
+					|| false !== strpos( $item_output, $attr )
+				) {
+					$item_output = str_replace(
+						$args->link_after,
+						'</span>' . jetpack_social_menu_get_svg( array( 'icon' => esc_attr( $value ) ) ),
+						$item_output
+					);
 				}
 			}
 		}
@@ -108,24 +127,16 @@ endif;
 
 if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 	/**
-	 * Returns an array of supported social links (URL and icon name).
+	 * Returns an array of supported social links (URL / regex and icon name).
+	 * For regex, use the # delimiter.
 	 *
 	 * @return array $social_links_icons
 	 */
 	function jetpack_social_menu_social_links_icons() {
 		// Supported social links icons.
 		$social_links_icons = array(
+			'#https?:\/\/(www\.)?amazon\.(com|cn|in|fr|de|it|nl|es|co|ca)\/#' => 'amazon',
 			'500px.com'         => '500px',
-			'amazon.cn'         => 'amazon',
-			'amazon.in'         => 'amazon',
-			'amazon.fr'         => 'amazon',
-			'amazon.de'         => 'amazon',
-			'amazon.it'         => 'amazon',
-			'amazon.nl'         => 'amazon',
-			'amazon.es'         => 'amazon',
-			'amazon.co'         => 'amazon',
-			'amazon.ca'         => 'amazon',
-			'amazon.com'        => 'amazon',
 			'apple.com'         => 'apple',
 			'itunes.com'        => 'apple',
 			'bandcamp.com'      => 'bandcamp',
@@ -183,6 +194,14 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 			'xanga.com'         => 'xanga',
 			'youtube.com'       => 'youtube',
 		);
+
+		/*
+		 * Add Mastodon instances to this array.
+		 */
+		$mastodon_instance_list = jetpack_mastodon_get_instance_list();
+		foreach ( $mastodon_instance_list as $instance ) {
+			$social_links_icons[ $instance ] = 'mastodon';
+		}
 
 		return $social_links_icons;
 	}

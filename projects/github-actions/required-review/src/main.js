@@ -1,7 +1,6 @@
-const core = require( '@actions/core' );
 const fs = require( 'fs' );
+const core = require( '@actions/core' );
 const yaml = require( 'js-yaml' );
-
 const reporter = require( './reporter.js' );
 const Requirement = require( './requirement.js' );
 
@@ -64,17 +63,19 @@ async function main() {
 		reviewers.forEach( r => core.info( r ) );
 		core.endGroup();
 
-		const paths = await require( './paths.js' )();
+		let paths = await require( './paths.js' )();
 		core.startGroup( `PR affects ${ paths.length } file(s)` );
 		paths.forEach( p => core.info( p ) );
 		core.endGroup();
 
-		const matchedPaths = [];
+		let matchedPaths = [];
 		let ok = true;
 		for ( let i = 0; i < requirements.length; i++ ) {
 			const r = requirements[ i ];
 			core.startGroup( `Checking requirement "${ r.name }"...` );
-			if ( ! r.appliesToPaths( paths, matchedPaths ) ) {
+			let applies;
+			( { applies, matchedPaths, paths } = r.appliesToPaths( paths, matchedPaths ) );
+			if ( ! applies ) {
 				core.endGroup();
 				core.info( `Requirement "${ r.name }" does not apply to any files in this PR.` );
 			} else if ( await r.isSatisfied( reviewers ) ) {
@@ -90,7 +91,7 @@ async function main() {
 			await reporter.status( reporter.STATE_SUCCESS, 'All required reviews have been provided!' );
 		} else {
 			await reporter.status(
-				reporter.STATE_PENDING,
+				core.getBooleanInput( 'fail' ) ? reporter.STATE_FAILURE : reporter.STATE_PENDING,
 				reviewers.length ? 'Awaiting more reviews...' : 'Awaiting reviews...'
 			);
 		}

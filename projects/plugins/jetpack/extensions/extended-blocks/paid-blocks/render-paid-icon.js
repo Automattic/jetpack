@@ -1,16 +1,5 @@
-/**
- * WordPress dependencies
- */
-import { cloneElement } from '@wordpress/element';
-
-/**
- * External dependencies
- */
 import { isUpgradable } from '@automattic/jetpack-shared-extension-utils';
-
-/**
- * Internal dependencies
- */
+import { cloneElement } from '@wordpress/element';
 import PaidSymbol from './paid-symbol';
 
 /**

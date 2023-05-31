@@ -1,7 +1,4 @@
-<script>
-	/**
-	 * WordPress dependencies
-	 */
+<script lang="ts">
 	import { __ } from '@wordpress/i18n';
 </script>
 

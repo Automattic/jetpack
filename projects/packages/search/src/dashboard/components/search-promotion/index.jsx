@@ -1,12 +1,6 @@
-/**
- * External dependencies
- */
-import React from 'react';
 import { __ } from '@wordpress/i18n';
+import React from 'react';
 
-/**
- * Internal dependencies
- */
 import './style.scss';
 
 /**
@@ -25,7 +19,7 @@ export default function SearchPromotion() {
 			</h3>
 			<ul className="jp-product-promote">
 				<li>{ __( 'Customizable filtering', 'jetpack-search-pkg' ) }</li>
-				<li>{ __( 'Support for 29 languages', 'jetpack-search-pkg' ) }</li>
+				<li>{ __( 'Support for 38 languages', 'jetpack-search-pkg' ) }</li>
 				<li>
 					{ __( 'Content displayed within results is updated in real-time', 'jetpack-search-pkg' ) }
 				</li>

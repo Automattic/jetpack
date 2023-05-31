@@ -1,13 +1,7 @@
-/**
- * WordPress dependencies
- */
 import { __, sprintf } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
+import { JSONObject } from '../stores/data-sync-client';
 import { castToString } from '../utils/cast-to-string';
-import { isJsonObject, JSONObject } from '../utils/json-types';
+import { isJsonObject } from '../utils/json-types';
 
 /**
  * Special error subclass returned by API Calls with extra

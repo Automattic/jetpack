@@ -1,21 +1,12 @@
-/**
- * External dependencies
- */
-import React from 'react';
+import { render } from '@testing-library/react';
 import { range } from 'lodash';
-import { shallow } from 'enzyme';
-
-/**
- * Internal dependencies
- */
+import React from 'react';
 import Mosaic from '..';
 import * as imageSets from '../../test/fixtures/image-sets';
 
-test( 'renders as expected', () => {
-	Object.keys( imageSets ).forEach( k => {
-		const images = imageSets[ k ];
-		expect(
-			shallow( <Mosaic images={ images } renderedImages={ range( images.length ) } /> )
-		).toMatchSnapshot();
-	} );
+test.each( Object.entries( imageSets ) )( 'renders as expected (set %s)', ( k, images ) => {
+	const { container } = render(
+		<Mosaic images={ images } renderedImages={ range( images.length ) } />
+	);
+	expect( container ).toMatchSnapshot( 'images' );
 } );

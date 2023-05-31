@@ -20,17 +20,27 @@ const composerLibraryFiles = [];
 	composerLibraryFiles.sort();
 }
 
+const versions = Object.fromEntries(
+	Array.from(
+		fs
+			.readFileSync( monorepoBase + '.github/versions.sh', 'utf8' )
+			.matchAll( /^\s*([a-zA-Z_][a-zA-Z0-9_]*)=(.*?)\s*$/gm ),
+		v => [ v[ 1 ], v[ 2 ] ]
+	)
+);
+
 module.exports = {
 	branchPrefix: 'renovate/',
 	allowPlugins: true,
 	allowScripts: true,
+	ignoreScripts: false,
 	gitAuthor: 'Renovate Bot (self-hosted) <bot@renovateapp.com>',
 	platform: 'github',
 	repositories: [ 'Automattic/jetpack' ],
 
 	// We're including configuration in this file.
 	onboarding: false,
-	requireConfig: false,
+	requireConfig: 'optional',
 
 	// Extra code to run before creating a commit.
 	allowPostUpgradeCommandTemplating: true,
@@ -41,15 +51,20 @@ module.exports = {
 		fileFilters: [ '**' ],
 		executionMode: 'branch',
 	},
+	postUpdateOptions: [ 'pnpmDedupe' ],
 
 	// This is the renovate configuration.
-	extends: [ 'config:base' ],
+	extends: [ 'config:base', 'group:definitelyTyped' ],
 	labels: [ '[Type] Janitorial', '[Status] Needs Review' ],
 	prHourlyLimit: 1,
 	timezone: 'UTC',
 	schedule: [ 'before 3am on the first day of the month' ],
 	updateNotScheduled: false,
 	semanticCommits: 'disabled',
+	osvVulnerabilityAlerts: true,
+	constraints: {
+		php: `~${ versions.PHP_VERSION }.0`,
+	},
 	packageRules: [
 		// Monorepo packages shouldn't be processed by renovate.
 		{
@@ -79,19 +94,6 @@ module.exports = {
 				return monorepoPackages.sort();
 			} )(),
 			enabled: false,
-		},
-
-		// Renovate doesn't detect some of our PHP packages as libraries, so we need to override `rangeStrategy`.
-		{
-			matchPaths: composerLibraryFiles,
-			matchDepTypes: [ 'require' ],
-			rangeStrategy: 'replace',
-		},
-		{
-			matchPaths: composerLibraryFiles,
-			matchDepTypes: [ 'require' ],
-			matchCurrentVersion: '/ \\|\\| /',
-			rangeStrategy: 'widen',
 		},
 
 		// We need to keep a wide version range to support PHP 5.6.
@@ -148,7 +150,7 @@ module.exports = {
 				'@testing-library/preact',
 			],
 			reviewers: [ 'team:jetpack-search' ],
-			labels: [ 'Search', 'Instant Search' ],
+			addLabels: [ 'Search', 'Instant Search' ],
 		},
 	],
 	lockFileMaintenance: {

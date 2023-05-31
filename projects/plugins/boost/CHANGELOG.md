@@ -5,6 +5,120 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0-beta] - 2023-05-11
+### Added
+- New Feature: Added JS and CSS file minification [#30005]
+
+### Changed
+- Image CDN: Improved Image CDN description [#29962]
+- User Experience: Removed back button from purchase success page [#30180]
+- General: Improved the way modules are toggled internally [#29451]
+- General: Updated package dependencies
+
+### Fixed
+- Deferred JS: Fixed some extremely short pages (such as WooCommerce Box Office tickets being printed) from resulting in a blank page [#30025]
+- Cloud CSS: Don't run local regenerate automagically when using cloud css [#29968]
+- Cloud CSS: Fixed a mismatch in cloud-css key [#29972]
+- Critical CSS: Fixed Critical CSS from making redundant requests on page load [#30053]
+- User Experience: Fixed some language choices around Boost popups [#30048]
+- General: Fixed some PHP 8.2 Warnings [#30150]
+
+## [1.8.0] - 2023-04-06
+### Added
+- Critical CSS: Added a notice to regenerate Critical CSS to the Boost dashboard. [#28858]
+- General: Added a link to activate a license key. [#29443]
+- Image CDN: Added image CDN to Boost. [#29561]
+- Image Guide: Added information about the Image Guide to the readme. [#29799]
+
+### Changed
+- Critical CSS: Added clearer explanations of the feature, and when to regenerate CSS. [#29250]
+- General: Faster "Getting Started" flow, bypassing the first connection screen. [#28938]
+- General: Revised Jetpack connection agreement text to comply with our User Agreement. [#28403]
+- General: Switch to a more stable internal data sync package. [#29899]
+- General: Updated contributors list. [#28891]
+- General: Updated to React 18. [#28710]
+
+### Fixed
+- Critical CSS: Added Internal schema validation for improved stability. [#29564]
+- Critical CSS: Expanded the set of site changes which can trigger a regeneration. [#29109]
+- Critical CSS: Fixed a minor UI glitch caused by a missing close tag. [#28548]
+- Critical CSS: Fixed PHP warning when deleting stored Critical CSS [#28372]
+- Critical CSS: Unified the internal structure of Cloud and Critical CSS, ensuring a smoother experience when switching between the two. [#29554]
+- Lazy Loading: Fixed images sometimes failing to Lazy-load in Safari. [#29266]
+- General: Fixed incorrect font sizes and weights in various screens. [#29411]
+- General: Fixed incorrect GET parameters used during purchase flow, which leading to inconsistent behaviour. [#28825]
+- Deferred JS: Fixed some compatibility issues with page-builders by turning off Deferred JS in the customizer preview. [#29143]
+- General: Fixed triggers for optimization initialization sometimes firing on the wrong hook. [#28888]
+- General: Fixed "Undefined array key: post" warning. [#29096]
+- General: Fixed stats tracking by using the correct casing for Tracks event properties. [#29111]
+
+## [1.7.0] - 2023-01-17
+### Added
+- New Feature: Jetpack Boost Image Guide.
+- General: Add a notification bubble next to Boost in the WP-admin sidebar.
+- General: Added new tracks events.
+- User Experience: Add redirect to Boost dashboard after activating Boost plugin.
+
+### Fixed
+- Admin notices: only display regeneration notice to admins.
+- Compatibility: Improve critical CSS compatibility with older Safari browsers.
+- General: Don't let analytics failures prevent features from functioning.
+- Critical CSS: Fixed an issue where notices to regenerate critical CSS were showing unnecessarily.
+- General: Fix woocommerce deprecation warning.
+
+## [1.6.0] - 2022-12-05
+### Added
+- General: New deactivation survey.
+- General: New tracks events for upgrade CTA impressions.
+- Super Cache: Added a tool for measuring the impact of Super Cache on your site performance.
+- Usability: Prompt new users to setup Boost after plugin activation.
+
+### Fixed
+- Fixed an error on navigating to the getting-started page
+- Fixed issues in Super Cache measurement tool on some URLs
+- General: Fix showing discount markers on pricing options without a discount.
+- General: Remove invalid link to priority support for free users.
+- Speed Score: Fix un-clickable link to dismiss speed score popups.
+
+## [1.5.4] - 2022-11-09
+### Fixed
+- Fixed an issue that caused boost to break on offline sites [#27312]
+
+## [1.5.3] - 2022-10-25
+### Added
+- Compatibility: Added a compatibility module for WP Super Cache.
+- Compatibility: Tested with v6.1 of WordPress.
+- General: Added tracking to purchase flows.
+- User Experience: Added a flow for first-time users.
+
+### Fixed
+- Critical CSS: Keep Critical CSS and Cloud CSS status in sync.
+- Deferred JS: Fix detection of application/json scripts to auto-exclude them from deferral.
+- Lazy Loading: Fix desynchronization of Lazy Loading features between Boost and Jetpack.
+- Speed Scores: Fixed issues dismissing notifications on speed score improvements.
+
+## [1.5.1] - 2022-06-29
+### Fixed
+- General: Fix caching of purchased plan features to reduce calls to wpcom api
+
+## [1.5.0] - 2022-06-27
+### Added
+- Cloud CSS: Added support for generating Critical CSS in the cloud.
+- Critical CSS: Added an explanation for Console output during Critical CSS Generation.
+- General: Added an option to purchase a premium Jetpack Boost plan.
+- General: Added option to contact premium support for paid users.
+- Speed Scores: Added prompt for reaching out to support when the speed score decreases.
+
+### Changed
+- General: Remove soft disconnect.
+- General: Remove use of `pnpx` in preparation for pnpm 7.0.
+- General: Renamed hook `handle_theme_change` to `handle_environment_change`
+- General: Updated external links to use Jetpack Redirects.
+
+### Fixed
+- General: Clean up use of FILTER_SANITIZE_STRING as it is deprecated in PHP 8.1
+- Stability: Fix broken SQL query on uninstall.
+
 ## [1.4.2] - 2022-04-11
 ### Fixed
 - Fixed critical CSS generation failure while using a CDN to serve CSS
@@ -135,8 +249,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[1.3.1-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.3.0-beta...v1.3.1-beta
-[1.3.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/v1.2.0...v1.3.0-beta
-[1.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/v1.1.0...v1.2.0-beta
-[1.4.2]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.1...v1.4.2
-[1.4.1]: https://github.com/Automattic/jetpack-boost-production/compare/v1.4.0...v1.4.1
+[1.9.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.8.0...boost/branch-1.9.0-beta
+[1.8.0]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.7.0...boost/branch-1.8.0
+[1.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.6.0...boost/branch-1.7.0
+[1.6.0]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.5.4...boost/branch-1.6.0
+[1.5.4]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.5.3...boost/branch-1.5.4
+[1.5.3]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.5.1...boost/branch-1.5.3
+[1.5.1]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.5.0...boost/branch-1.5.0
+[1.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.4.2...boost/branch-1.5.0
+[1.4.2]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.4.1...boost/branch-1.4.2
+[1.4.1]: https://github.com/Automattic/jetpack-boost-production/compare/boost/branch-1.3.1...boost/branch-1.4.1

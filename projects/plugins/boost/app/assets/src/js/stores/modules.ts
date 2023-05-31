@@ -1,74 +1,69 @@
-/**
- * External dependencies
- */
-import { writable } from 'svelte/store';
-
-/**
- * Internal dependencies
- */
-import config from './config';
-import { setModuleState } from '../api/modules';
+import { z } from 'zod';
+import { jetpack_boost_ds } from './data-sync-client';
+import type { SyncedStoreCallback } from '@automattic/jetpack-svelte-data-sync-client';
 
 export type Optimizations = {
 	[ slug: string ]: boolean;
 };
 
-export type ModulesState = {
-	[ slug: string ]: {
-		enabled: boolean;
-		synced?: boolean;
+const modulesStateSchema = z.record(
+	z.string().min( 1 ),
+	z.object( {
+		active: z.boolean(),
+		available: z.boolean(),
+	} )
+);
+
+type ModulesState = z.infer< typeof modulesStateSchema >;
+const modulesStateClient = jetpack_boost_ds.createAsyncStore( 'modules_state', modulesStateSchema );
+
+/**
+ * This function creates an SyncedStoreCallback.
+ * It's wrapped in a function so that pendingValues can be scoped to this function.
+ */
+function createModulesSyncAction() {
+	// Keep track of the pending values
+	const pendingValues = new Map< string, ModulesState[ string ] >();
+
+	const action: SyncedStoreCallback< ModulesState > = async (
+		prevValue,
+		newValue,
+		abortSignal
+	) => {
+		// Extract the keys that have changed
+		const changedKeys = Object.keys( newValue ).filter(
+			key => prevValue[ key ].active !== newValue[ key ].active
+		);
+
+		// Update the pending values that have changed
+		for ( const key of changedKeys ) {
+			pendingValues.set( key, newValue[ key ] );
+		}
+
+		// Reconstruct an object with only the changed keys
+		const updatedValue = Object.fromEntries( pendingValues.entries() );
+
+		// Attempt to merge the pending values
+		const result = await modulesStateClient.endpoint.MERGE( updatedValue, abortSignal );
+
+		// If the request is aborted,
+		// MERGE is going to throw an error that is caught by SyncedStore
+		// Which means that if we get this far, the request was successful
+		// so we can clear the pending values
+		pendingValues.clear();
+		return result;
 	};
+
+	return action;
+}
+
+modulesStateClient.setSyncAction( createModulesSyncAction() );
+
+export const reloadModulesState = async () => {
+	const result = await modulesStateClient.endpoint.GET();
+	modulesStateClient.store.override( result );
+	return result;
 };
 
-const initialState = {};
-for ( const [ name, value ] of Object.entries( config.optimizations ) ) {
-	initialState[ name ] = {
-		enabled: value,
-	};
-}
-
-const { subscribe, update } = writable< ModulesState >( initialState );
-
-// Keep a subscribed copy for quick reading.
-let currentState: ModulesState;
-subscribe( value => ( currentState = value ) );
-
-export function isEnabled( slug: string ): boolean {
-	return currentState[ slug ] && currentState[ slug ].enabled;
-}
-
-export async function updateModuleState( slug: string, state: boolean ): Promise< boolean > {
-	const originalState = isEnabled( slug );
-	let finalState = state;
-
-	// Tentatively set requested state, undo if the API fails or denies it.
-	setEnabled( slug, state );
-
-	// Run it by the API properly.
-	try {
-		finalState = await setModuleState( slug, state );
-		setEnabled( slug, finalState, true );
-	} catch ( err ) {
-		// On error, bounce back to original state and rethrow error.
-		setEnabled( slug, originalState, true );
-		throw err;
-	}
-
-	return finalState;
-}
-
-function setEnabled( slug: string, enabled: boolean, synced = false ) {
-	update( state => ( {
-		...state,
-		[ slug ]: {
-			...state[ slug ],
-			enabled,
-			synced,
-		},
-	} ) );
-}
-
-export const modules = {
-	subscribe,
-	updateModuleState,
-};
+export const modulesState = modulesStateClient.store;
+export const modulesStatePending = modulesStateClient.pending;

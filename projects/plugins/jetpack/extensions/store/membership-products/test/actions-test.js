@@ -1,18 +1,9 @@
-import {
-	saveProduct,
-	setApiState,
-	setConnectUrl,
-	setProducts,
-	setShouldUpgrade,
-	setSiteSlug,
-	setUpgradeUrl,
-} from '../actions';
-import * as utils from '../utils';
-import * as message from '../../../shared/components/product-management-controls/utils';
-import * as currencies from '../../../shared/currencies';
 import apiFetch from '@wordpress/api-fetch';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from '../../../shared/components/product-management-controls/constants';
-import { minimumTransactionAmountForCurrency } from '../../../shared/currencies';
+import * as message from '../../../shared/components/product-management-controls/utils';
+import * as currencies from '../../../shared/currencies';
+import { saveProduct, setApiState, setConnectUrl, setProducts, setSiteSlug } from '../actions';
+import * as utils from '../utils';
 
 const ANY_VALID_DATA = {
 	anyProductProperty: 'anyValue',
@@ -73,20 +64,6 @@ describe( 'Membership Products Actions', () => {
 		expect( result ).toStrictEqual( anyValidApiStateWithType );
 	} );
 
-	test( 'Set shouldUpgrade works as expected', () => {
-		// Given
-		const anyValidShouldUpgradeWithType = {
-			type: 'SET_SHOULD_UPGRADE',
-			shouldUpgrade: ANY_VALID_DATA,
-		};
-
-		// When
-		const result = setShouldUpgrade( ANY_VALID_DATA );
-
-		// Then
-		expect( result ).toStrictEqual( anyValidShouldUpgradeWithType );
-	} );
-
 	test( 'setSiteSlug works as expected', () => {
 		// Given
 		const anyValidSiteSlugWithType = {
@@ -96,20 +73,6 @@ describe( 'Membership Products Actions', () => {
 
 		// When
 		const result = setSiteSlug( ANY_VALID_DATA );
-
-		// Then
-		expect( result ).toStrictEqual( anyValidSiteSlugWithType );
-	} );
-
-	test( 'setUpgradeUrl works as expected', () => {
-		// Given
-		const anyValidSiteSlugWithType = {
-			type: 'SET_UPGRADE_URL',
-			upgradeUrl: ANY_VALID_DATA,
-		};
-
-		// When
-		const result = setUpgradeUrl( ANY_VALID_DATA );
 
 		// Then
 		expect( result ).toStrictEqual( anyValidSiteSlugWithType );
@@ -126,27 +89,28 @@ describe( 'Membership Products Actions', () => {
 		},
 	];
 
-	productsForTitleTesting.forEach( testCase => {
-		test( testCase.name, async () => {
-			// Given
-			const selectedProductIdCallback = anyFunction;
-			const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
-			const noticeMock = jest.spyOn( utils, 'onError' ).mockImplementation( anyFunction );
-			const getMessageMock = jest
-				.spyOn( message, 'getMessageByProductType' )
-				.mockImplementation( anyFunction );
+	test.each( productsForTitleTesting )( '$name', async testCase => {
+		// Given
+		const selectedProductIdCallback = anyFunction;
+		const paymentPlanProductType = PRODUCT_TYPE_PAYMENT_PLAN;
+		const noticeMock = jest.spyOn( utils, 'onError' ).mockImplementation( anyFunction );
+		const getMessageMock = jest
+			.spyOn( message, 'getMessageByProductType' )
+			.mockImplementation( anyFunction );
 
-			// When
-			await saveProduct(
-				testCase.product,
-				paymentPlanProductType,
-				selectedProductIdCallback
-			)( anyFunction, anyFunction );
+		// When
+		await saveProduct(
+			testCase.product,
+			paymentPlanProductType,
+			selectedProductIdCallback
+		)( anyFunction, anyFunction );
 
-			// Then
-			expect( noticeMock ).toBeCalled();
-			expect( getMessageMock ).toBeCalledWith( 'product requires a name', paymentPlanProductType );
-		} );
+		// Then
+		expect( noticeMock ).toHaveBeenCalled();
+		expect( getMessageMock ).toHaveBeenCalledWith(
+			'product requires a name',
+			paymentPlanProductType
+		);
 	} );
 
 	test( 'having a price below the minimum price triggers an error notice.', async () => {
@@ -168,7 +132,7 @@ describe( 'Membership Products Actions', () => {
 		)( anyFunction, anyFunction );
 
 		// Then
-		expect( noticeMock ).toBeCalled();
+		expect( noticeMock ).toHaveBeenCalled();
 	} );
 
 	test( 'an invalid product price triggers an error notice.', async () => {
@@ -189,8 +153,8 @@ describe( 'Membership Products Actions', () => {
 		)( anyFunction, anyFunction );
 
 		// Then
-		expect( noticeMock ).toBeCalled();
-		expect( getMessageMock ).toBeCalledWith(
+		expect( noticeMock ).toHaveBeenCalled();
+		expect( getMessageMock ).toHaveBeenCalledWith(
 			'product requires a valid price',
 			paymentPlanProductType
 		);
@@ -227,18 +191,18 @@ describe( 'Membership Products Actions', () => {
 		)( { dispatch, registry } );
 
 		// Then
-		expect( apiFetch ).toBeCalledWith( {
+		expect( apiFetch ).toHaveBeenCalledWith( {
 			path: '/wpcom/v2/memberships/product',
 			method: 'POST',
 			data: anyValidProduct,
 		} );
-		expect( dispatch ).toBeCalledWith( {
+		expect( dispatch ).toHaveBeenCalledWith( {
 			products: registryProductList.concat( [ apiResponseProduct ] ),
 			type: 'SET_PRODUCTS',
 		} );
-		expect( selectedProductCallback ).toBeCalledWith( apiResponseProduct.id );
-		expect( noticeMock ).toBeCalled();
-		expect( getMessageMock ).toBeCalledWith(
+		expect( selectedProductCallback ).toHaveBeenCalledWith( apiResponseProduct.id );
+		expect( noticeMock ).toHaveBeenCalled();
+		expect( getMessageMock ).toHaveBeenCalledWith(
 			'successfully created product',
 			PRODUCT_TYPE_PAYMENT_PLAN
 		);
@@ -262,8 +226,8 @@ describe( 'Membership Products Actions', () => {
 		)( anyFunction, anyFunction );
 
 		// Then
-		expect( noticeMock ).toBeCalled();
-		expect( getMessageMock ).toBeCalledWith(
+		expect( noticeMock ).toHaveBeenCalled();
+		expect( getMessageMock ).toHaveBeenCalledWith(
 			'there was an error when adding the product',
 			PRODUCT_TYPE_PAYMENT_PLAN
 		);

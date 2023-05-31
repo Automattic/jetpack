@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Jetpack Live Branches
 // @namespace    https://wordpress.com/
-// @version      1.20
+// @version      1.27
 // @description  Adds links to PRs pointing to Jurassic Ninja sites for live-testing a changeset
 // @grant        GM_xmlhttpRequest
 // @connect      jurassic.ninja
@@ -15,21 +15,70 @@
 
 ( function () {
 	const $ = jQuery.noConflict();
+	const markdownBodySelector = '.pull-discussion-timeline .markdown-body';
+	let pluginsList = null;
+
+	// Watch for relevant DOM changes that indicate we need to re-run `doit()`:
+	// - Adding a new `.markdown-body`.
+	// - Removing `#jetpack-live-branches`.
+	const observer = new MutationObserver( list => {
+		for ( const m of list ) {
+			for ( const n of m.addedNodes ) {
+				if (
+					( n.matches && n.matches( markdownBodySelector ) ) ||
+					( n.querySelector && n.querySelector( markdownBodySelector ) )
+				) {
+					doit();
+					return;
+				}
+			}
+			for ( const n of m.removedNodes ) {
+				if (
+					n.id === 'jetpack-live-branches' ||
+					( n.querySelector && n.querySelector( '#jetpack-live-branches' ) )
+				) {
+					doit();
+					return;
+				}
+			}
+		}
+	} );
+	observer.observe( document, { subtree: true, childList: true } );
+
+	// Run it on load too.
 	doit();
+
+	/**
+	 * Determine the current repo.
+	 *
+	 * Currently looks at the URL, expecting it to match a `@match` pattern from the script header.
+	 *
+	 * @returns {string|null} Repo name.
+	 */
+	function determineRepo() {
+		const m = location.pathname.match( /^\/([^/]+\/[^/]+)\/pull\// );
+		return m && m[ 1 ] ? decodeURIComponent( m[ 1 ] ) : null;
+	}
 
 	/** Function. */
 	function doit() {
+		const markdownBody = document.querySelectorAll( markdownBodySelector )[ 0 ];
+		if ( ! markdownBody || markdownBody.querySelector( '#jetpack-live-branches' ) ) {
+			// No body or Live Branches is already there, no need to do it again.
+			return;
+		}
+
 		const host = 'https://jurassic.ninja';
-		const markdownBody = document.querySelectorAll( '.markdown-body' )[ 0 ];
 		const currentBranch = jQuery( '.head-ref:first' ).text();
 		const branchIsForked = currentBranch.includes( ':' );
 		const branchStatus = $( '.gh-header-meta .State' ).text().trim();
+		const repo = determineRepo();
 
 		if ( branchStatus === 'Merged' ) {
 			const contents = `
 				<p><strong>This branch is already merged.</strong></p>
 				<p><a target="_blank" rel="nofollow noopener" href="${ getLink() }">
-					Test with <code>master</code> branch instead.
+					Test with <code>trunk</code> branch instead.
 				</a></p>
 			`;
 			appendHtml( markdownBody, contents );
@@ -43,8 +92,16 @@
 				markdownBody,
 				"<p><strong>This branch can't be tested live because it comes from a forked version of this repo.</strong></p>"
 			);
+		} else if ( ! repo ) {
+			appendHtml(
+				markdownBody,
+				'<p><strong>Cannot determine the repository for this PR.</strong></p>'
+			);
 		} else {
-			dofetch( `${ host }/wp-json/jurassic.ninja/jetpack-beta/plugins` )
+			if ( ! pluginsList ) {
+				pluginsList = dofetch( `${ host }/wp-json/jurassic.ninja/jetpack-beta/plugins` );
+			}
+			pluginsList
 				.then( body => {
 					const plugins = [];
 
@@ -54,13 +111,18 @@
 						);
 						Object.keys( body.data ).forEach( k => {
 							const data = body.data[ k ];
-							plugins.push( {
-								name: `branches.${ k }`,
-								value: currentBranch,
-								label: encodeHtmlEntities( data.name ),
-								checked: data.labels && data.labels.some( l => labels.has( l ) ),
-							} );
+							if ( data.repo === repo ) {
+								plugins.push( {
+									name: `branches.${ k }`,
+									value: currentBranch,
+									label: encodeHtmlEntities( data.name ),
+									checked: data.labels && data.labels.some( l => labels.has( l ) ),
+								} );
+							}
 						} );
+						if ( ! plugins.length ) {
+							throw new Error( `No plugins are configured for ${ repo }` );
+						}
 						plugins.sort( ( a, b ) => a.label.localeCompare( b.label ) );
 					} else if ( body.code === 'rest_no_route' ) {
 						plugins.push( {
@@ -104,6 +166,14 @@
 									name: 'content',
 								},
 								{
+									label: 'Pre-generate CRM data',
+									name: 'jpcrm-populate-crm-data',
+								},
+								{
+									label: 'Pre-generate CRM Woo data',
+									name: 'jpcrm-populate-woo-data',
+								},
+								{
 									label: '<code>xmlrpc.php</code> unavailable',
 									name: 'blockxmlrpc',
 								},
@@ -113,6 +183,12 @@
 						<h4>Plugins</h4>
 						${ getOptionsList(
 							[
+								{
+									label: 'Jetpack',
+									name: 'nojetpack',
+									checked: true,
+									invert: true,
+								},
 								{
 									label: 'WordPress Beta Tester',
 									name: 'wordpress-beta-tester',
@@ -158,16 +234,8 @@
 									name: 'wp-super-cache',
 								},
 								{
-									label: 'WP Log Viewer',
-									name: 'wp-log-viewer',
-								},
-								{
 									label: 'WP Job Manager',
 									name: 'wp-job-manager',
-								},
-								{
-									label: 'Jetpack CRM',
-									name: 'zero-bs-crm',
 								},
 								{
 									label: 'Jetpack Debug Helper',
@@ -196,6 +264,7 @@
 					updateLink();
 				} )
 				.catch( e => {
+					pluginsList = null;
 					appendHtml(
 						markdownBody,
 						// prettier-ignore
@@ -254,15 +323,23 @@
 		 */
 		function getLink() {
 			const query = [ 'jetpack-beta' ];
-			$( '#jetpack-live-branches input[type=checkbox]:checked' ).each( ( i, input ) => {
+			$(
+				'#jetpack-live-branches input[type=checkbox]:checked:not([data-invert]), #jetpack-live-branches input[type=checkbox][data-invert]:not(:checked)'
+			).each( ( i, input ) => {
 				if ( input.value ) {
 					query.push( encodeURIComponent( input.name ) + '=' + encodeURIComponent( input.value ) );
 				} else {
+					if (
+						input.name === 'jpcrm-populate-crm-data' ||
+						input.value === 'jpcrm-populate-woo-data'
+					) {
+						query.push( encodeURIComponent( 'jpcrm' ) );
+					}
 					query.push( encodeURIComponent( input.name ) );
 				}
 			} );
 			// prettier-ignore
-			return `${ host }/create?${ query.join( '&' ).replace( /%(2F|5[BD])/g, m => decodeURIComponent( m ) ) }`;
+			return [ `${ host }/create?${ query.join( '&' ).replace( /%(2F|5[BD])/g, m => decodeURIComponent( m ) ) }`, query ];
 		}
 
 		/**
@@ -274,18 +351,19 @@
 		 * @param {string} [opts.value] - Checkbox value, if any.
 		 * @param {boolean} [opts.checked] - Whether the checkbox is default checked.
 		 * @param {boolean} [opts.disabled] - Whether the checkbox is disabled.
+		 * @param {boolean} [opts.invert] - Whether the sense of the checkbox is inverted.
 		 * @param {number} columnWidth - Column width.
 		 * @returns {string} HTML.
 		 */
 		function getOption(
-			{ disabled = false, checked = false, value = '', label, name },
+			{ disabled = false, checked = false, invert = false, value = '', label, name },
 			columnWidth
 		) {
 			// prettier-ignore
 			return `
 			<li style="min-width: ${ columnWidth }%">
 				<label style="font-weight: inherit; ">
-					<input type="checkbox" name="${ encodeHtmlEntities( name ) }" value="${ encodeHtmlEntities( value ) }"${ checked ? ' checked' : '' }${ disabled ? ' disabled' : '' }>
+					<input type="checkbox" name="${ encodeHtmlEntities( name ) }" value="${ encodeHtmlEntities( value ) }"${ checked ? ' checked' : '' }${ disabled ? ' disabled' : '' }${ invert ? ' data-invert' : '' }>
 					${ label }
 				</label>
 			</li>
@@ -324,8 +402,11 @@
 			const liveBranches = $( '<div id="jetpack-live-branches" />' ).append(
 				`<h2>Jetpack Live Branches</h2> ${ contents }`
 			);
+			$( '#jetpack-live-branches' ).remove();
 			$el.append( liveBranches );
-			$( 'body' ).on( 'change', $el.find( 'input[type=checkbox]' ), onInputChanged );
+			liveBranches
+				.find( 'input[type=checkbox]' )
+				.each( () => this.addEventListener( 'change', onInputChanged ) );
 		}
 
 		/**
@@ -349,10 +430,27 @@
 		 */
 		function updateLink() {
 			const $link = $( '#jetpack-beta-branch-link' );
-			const url = getLink();
+			const [ url, query ] = getLink();
 
 			if ( url.match( /[?&]branch(es\.[^&=]*)?=/ ) ) {
-				$link.attr( 'href', url ).text( url );
+				if (
+					query.includes( 'jpcrm-populate-crm-data' ) &&
+					! url.match( /[?&]branches\.zero-bs-crm/ )
+				) {
+					// /jpcrm-populate-crm-data/
+					$link
+						.attr( 'href', null )
+						.text( 'Select the Jetpack CRM plugin in order to populate with CRM data' );
+				} else if (
+					query.includes( 'jpcrm-populate-woo-data' ) &&
+					! query.includes( 'woocommerce' )
+				) {
+					$link
+						.attr( 'href', null )
+						.text( 'Select the WooCommerce plugin in order to populate with CRM Woo data' );
+				} else {
+					$link.attr( 'href', url ).text( url );
+				}
 			} else {
 				$link.attr( 'href', null ).text( 'Select at least one plugin to test' );
 			}

@@ -1,0 +1,132 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 2,
+	"name": "videopress/video",
+	"version": "0.1.0",
+	"title": "VideoPress",
+	"category": "media",
+	"icon": "smiley",
+	"description": "Embed a video from your media library or upload a new one with VideoPress.",
+	"supports": {
+		"align": true,
+		"anchor": true,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"attributes": {
+		"autoplay": {
+			"type": "boolean"
+		},
+		"anchor": {
+			"type": "string"
+		},
+		"title": {
+			"type": "string"
+		},
+		"description": {
+			"type": "string"
+		},
+		"caption": {
+			"type": "string"
+		},
+		"controls": {
+			"type": "boolean",
+			"default": true
+		},
+		"loop": {
+			"type": "boolean"
+		},
+		"maxWidth": {
+			"type": "string",
+			"default": "100%"
+		},
+		"muted": {
+			"type": "boolean"
+		},
+		"playsinline": {
+			"type": "boolean"
+		},
+		"preload": {
+			"type": "string",
+			"default": "metadata"
+		},
+		"seekbarPlayedColor": {
+			"type": "string",
+			"default": ""
+		},
+		"seekbarLoadingColor": {
+			"type": "string",
+			"default": ""
+		},
+		"seekbarColor": {
+			"type": "string",
+			"default": ""
+		},
+		"useAverageColor": {
+			"type": "boolean",
+			"default": true
+		},
+		"id": {
+			"type": "number"
+		},
+		"guid": {
+			"type": "string"
+		},
+		"src": {
+			"type": "string"
+		},
+		"cacheHtml": {
+			"type": "string",
+			"default": ""
+		},
+		"poster": {
+			"type": "string"
+		},
+		"posterData": {
+			"type": "object",
+			"default": {}
+		},
+		"videoRatio": {
+			"type": "number"
+		},
+		"tracks": {
+			"type": "array",
+			"items": {
+				"type": "object"
+			},
+			"default": []
+		},
+		"privacySetting": {
+			"type": "number",
+			"default": 1
+		},
+		"allowDownload": {
+			"type": "boolean",
+			"default": true
+		},
+		"displayEmbed": {
+			"type": "boolean",
+			"default": true
+		},
+		"rating": {
+			"type": "string"
+		},
+		"isPrivate": {
+			"type": "boolean"
+		},
+		"isExample": {
+			"type": "boolean",
+			"default": false
+		},
+		"duration": {
+			"type": "number"
+		}
+	},
+	"textdomain": "jetpack-videopress",
+	"editorScript": "jetpack-videopress-video-block",
+	"editorStyle": "jetpack-videopress-video-block",
+	"style": "jetpack-videopress-video-block-view",
+	"viewScript": "jetpack-videopress-video-block-view"
+}

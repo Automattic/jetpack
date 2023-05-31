@@ -1,15 +1,19 @@
 #!/usr/bin/env node
 
-/**
- * External dependencies
- */
 import process from 'process';
 import { fileURLToPath } from 'url';
+import { checkCliLocation, compareComposerVersion } from '../helpers/checkEnvironment.js';
 
 /**
- * Internal dependencies
+ * Checks for executing the CLI within a different monorepo checkout.
  */
-import { compareComposerVersion } from '../helpers/checkEnvironment.js';
+try {
+	await checkCliLocation();
+} catch ( error ) {
+	console.error( error );
+	console.error( 'Something unexpected happened. See error above.' );
+	process.exit( 1 );
+}
 
 /**
  * Checks to make sure we're on the right version of composer.

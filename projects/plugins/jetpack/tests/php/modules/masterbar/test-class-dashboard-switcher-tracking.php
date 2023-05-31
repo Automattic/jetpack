@@ -8,7 +8,7 @@
 use Automattic\Jetpack\Dashboard_Customizations\Dashboard_Switcher_Tracking;
 use Automattic\Jetpack\Tracking;
 
-require_jetpack_file( 'modules/masterbar/admin-menu/class-dashboard-switcher-tracking.php' );
+require_once JETPACK__PLUGIN_DIR . 'modules/masterbar/admin-menu/class-dashboard-switcher-tracking.php';
 
 /**
  * Class Test_Dashboard_Switcher_Tracking

@@ -1,20 +1,13 @@
-/**
- * External dependencies
- */
-import ReactDOM from 'react-dom';
+import * as WPElement from '@wordpress/element';
+import { _x } from '@wordpress/i18n';
+import accessibleFocus from 'lib/accessible-focus';
+import { assign } from 'lodash';
+import Main from 'main';
 import React from 'react';
 import { Provider } from 'react-redux';
 import { HashRouter, Route, Switch } from 'react-router-dom';
-import { assign } from 'lodash';
-import { _x } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
-import accessibleFocus from 'lib/accessible-focus';
-import store from 'state/redux-store';
-import Main from 'main';
 import * as actionTypes from 'state/action-types';
+import store from 'state/redux-store';
 
 // Initialize the accessibile focus to allow styling specifically for keyboard navigation
 accessibleFocus();
@@ -39,7 +32,8 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render(
+	// @todo: Remove fallback when we drop support for WP 6.1
+	const component = (
 		<div>
 			<Provider store={ store }>
 				<HashRouter>
@@ -98,9 +92,13 @@ function render() {
 					</Switch>
 				</HashRouter>
 			</Provider>
-		</div>,
-		container
+		</div>
 	);
+	if ( WPElement.createRoot ) {
+		WPElement.createRoot( container ).render( component );
+	} else {
+		WPElement.render( component, container );
+	}
 }
 
 /**

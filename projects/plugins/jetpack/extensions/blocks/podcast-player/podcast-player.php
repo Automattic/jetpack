@@ -17,7 +17,7 @@ const FEATURE_NAME = 'podcast-player';
 const BLOCK_NAME   = 'jetpack/' . FEATURE_NAME;
 
 if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
-	\jetpack_require_lib( 'class-jetpack-podcast-helper' );
+	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
 }
 
 /**
@@ -164,7 +164,7 @@ function render_player( $player_data, $attributes ) {
 	$background_colors = get_colors( 'background', $attributes, 'background-color' );
 
 	$player_classes_name  = trim( "{$secondary_colors['class']} {$background_colors['class']}" );
-	$player_inline_style  = trim( "{$secondary_colors['style']} ${background_colors['style']}" );
+	$player_inline_style  = trim( "{$secondary_colors['style']} {$background_colors['style']}" );
 	$player_inline_style .= get_css_vars( $attributes );
 	$wrapper_attributes   = \WP_Block_Supports::get_instance()->apply_block_supports();
 	$block_classname      = Blocks::classes( FEATURE_NAME, $attributes, array( 'is-default' ) );

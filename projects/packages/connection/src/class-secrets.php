@@ -40,7 +40,7 @@ class Secrets {
 		$attempts      = 1;
 		$secret_length = strlen( $secret );
 		while ( $secret_length < 32 && $attempts < 32 ) {
-			$attempts++;
+			++$attempts;
 			$secret       .= wp_generate_password( 32, false );
 			$secret_length = strlen( $secret );
 		}
@@ -59,7 +59,7 @@ class Secrets {
 			$user_id = get_current_user_id();
 		}
 
-		$callable = apply_filters( 'jetpack_connection_secret_generator', array( get_called_class(), 'secret_callable_method' ) );
+		$callable = apply_filters( 'jetpack_connection_secret_generator', array( static::class, 'secret_callable_method' ) );
 
 		$secrets = Jetpack_Options::get_raw_option(
 			self::LEGACY_SECRETS_OPTION_NAME,

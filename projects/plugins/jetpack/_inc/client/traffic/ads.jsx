@@ -1,30 +1,18 @@
-/**
- * External dependencies
- */
-import React from 'react';
-
-/**
- * WordPress dependencies
- */
+import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import analytics from 'lib/analytics';
 import Card from 'components/card';
-import CompactFormToggle from 'components/form/form-toggle/compact';
-import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
 import { FormFieldset, FormLegend } from 'components/forms';
-import Textarea from 'components/textarea';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import TextInput from '../components/text-input';
+import TextInput from 'components/text-input';
+import Textarea from 'components/textarea';
+import analytics from 'lib/analytics';
+import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
+import React from 'react';
 
 export const Ads = withModuleSettingsFormHelpers(
 	class extends React.Component {
@@ -70,19 +58,17 @@ export const Ads = withModuleSettingsFormHelpers(
 						link: 'https://jetpack.com/support/ads/',
 					} }
 				>
-					<CompactFormToggle
+					<ToggleControl
 						checked={ wordads_custom_adstxt_enabled }
 						disabled={
 							! isAdsActive ||
 							unavailableInOfflineMode ||
-							this.props.isSavingAnyOption( [ 'wordads', 'wordads_custom_adstxt_enabled' ] )
+							this.props.isSavingAnyOption( [ 'wordads' ] )
 						}
+						toggling={ this.props.isSavingAnyOption( [ 'wordads_custom_adstxt_enabled' ] ) }
 						onChange={ this.handleChange( 'wordads_custom_adstxt_enabled' ) }
-					>
-						<span className="jp-form-toggle-explanation">
-							{ __( 'Customize your ads.txt file', 'jetpack' ) }
-						</span>
-					</CompactFormToggle>
+						label={ __( 'Customize your ads.txt file', 'jetpack' ) }
+					/>
 					{ wordads_custom_adstxt_enabled && (
 						<FormFieldset>
 							<br />
@@ -187,7 +173,7 @@ export const Ads = withModuleSettingsFormHelpers(
 									),
 									{
 										link: (
-											<a
+											<ExternalLink
 												href={ getRedirectUrl( 'wpcom-automattic-ads-tos' ) }
 												target="_blank"
 												rel="noopener noreferrer"
@@ -212,133 +198,110 @@ export const Ads = withModuleSettingsFormHelpers(
 						</ModuleToggle>
 						<FormFieldset>
 							<FormLegend>{ __( 'Display ads below posts on', 'jetpack' ) }</FormLegend>
-							<CompactFormToggle
+							<ToggleControl
 								checked={ wordads_display_front_page }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_front_page' ] )
+									this.props.isSavingAnyOption( [ 'wordads' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_front_page' ] ) }
 								onChange={ this.handleChange( 'wordads_display_front_page' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Front page', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+								label={ __( 'Front page', 'jetpack' ) }
+							/>
+							<ToggleControl
 								checked={ wordads_display_post }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_post' ] )
+									this.props.isSavingAnyOption( [ 'wordads' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_post' ] ) }
 								onChange={ this.handleChange( 'wordads_display_post' ) }
-							>
-								<span className="jp-form-toggle-explanation">{ __( 'Posts', 'jetpack' ) }</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+								label={ __( 'Posts', 'jetpack' ) }
+							/>
+							<ToggleControl
 								checked={ wordads_display_page }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_page' ] )
+									this.props.isSavingAnyOption( [ 'wordads' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_page' ] ) }
 								onChange={ this.handleChange( 'wordads_display_page' ) }
-							>
-								<span className="jp-form-toggle-explanation">{ __( 'Pages', 'jetpack' ) }</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+								label={ __( 'Pages', 'jetpack' ) }
+							/>
+							<ToggleControl
 								checked={ wordads_display_archive }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_archive' ] )
+									this.props.isSavingAnyOption( [ 'wordads' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'wordads_display_archive' ] ) }
 								onChange={ this.handleChange( 'wordads_display_archive' ) }
-							>
-								<span className="jp-form-toggle-explanation">{ __( 'Archives', 'jetpack' ) }</span>
-							</CompactFormToggle>
+								label={ __( 'Archives', 'jetpack' ) }
+							/>
 						</FormFieldset>
 						<FormFieldset>
 							<FormLegend>{ __( 'Additional ad placements', 'jetpack' ) }</FormLegend>
-							<CompactFormToggle
+							<ToggleControl
 								checked={ enable_header_ad }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'enable_header_ad' ] )
+									this.props.isSavingAnyOption( [ 'wordads' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'enable_header_ad' ] ) }
 								onChange={ this.handleChange( 'enable_header_ad' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Top of each page', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
-							<CompactFormToggle
+								label={ __( 'Top of each page', 'jetpack' ) }
+							/>
+							<ToggleControl
 								checked={ wordads_second_belowpost }
 								disabled={
 									! isAdsActive ||
 									unavailableInOfflineMode ||
-									this.props.isSavingAnyOption( [ 'wordads', 'wordads_second_belowpost' ] )
+									this.props.isSavingAnyOption( [ 'wordads' ] )
 								}
+								toggling={ this.props.isSavingAnyOption( [ 'wordads_second_belowpost' ] ) }
 								onChange={ this.handleChange( 'wordads_second_belowpost' ) }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Second ad below post', 'jetpack' ) }
-								</span>
-							</CompactFormToggle>
+								label={ __( 'Second ad below post', 'jetpack' ) }
+							/>
 						</FormFieldset>
 					</SettingsGroup>
 					<SettingsGroup
 						hasChild
 						support={ {
 							text: __(
-								'Enables a targeted advertising opt-out link for California consumers, as required by the California Consumer Privacy Act (CCPA).',
+								'Enables a targeted advertising opt-out link in US states where this is legally required.',
 								'jetpack'
 							),
 							link: this.props.isAtomicSite
-								? getRedirectUrl( 'wpcom-support-ccpa' )
+								? getRedirectUrl( 'wpcom-support-us-privacy' )
 								: getRedirectUrl( 'jetpack-support-ads' ),
 						} }
 					>
-						<CompactFormToggle
+						<ToggleControl
 							checked={ wordads_ccpa_enabled }
 							disabled={
 								! isAdsActive ||
 								unavailableInOfflineMode ||
-								this.props.isSavingAnyOption( [ 'wordads', 'wordads_ccpa_enabled' ] )
+								this.props.isSavingAnyOption( [ 'wordads' ] )
 							}
+							toggling={ this.props.isSavingAnyOption( [ 'wordads_ccpa_enabled' ] ) }
 							onChange={ this.handleChange( 'wordads_ccpa_enabled' ) }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ __(
-									'Enable targeted advertising to California site visitors (CCPA)',
-									'jetpack'
-								) }
-							</span>
-						</CompactFormToggle>
+							label={ __(
+								'Enable targeted advertising to site visitors in all US states.',
+								'jetpack'
+							) }
+						/>
 						{ wordads_ccpa_enabled && (
 							<FormFieldset>
 								<p>
 									<small className="jp-form-setting-explanation">
-										{ createInterpolateElement(
-											__(
-												'For more information about the California Consumer Privacy Act (CCPA) <br/>and how it pertains to your site, please consult our <link>CCPA guide for site owners</link>.',
-												'jetpack'
-											),
-											{
-												br: <br />,
-												link: (
-													<ExternalLink
-														href={
-															this.props.isAtomicSite
-																? getRedirectUrl( 'wpcom-support-ccpa' )
-																: getRedirectUrl( 'jetpack-support-ads' )
-														}
-														rel="noopener noreferrer"
-													/>
-												),
-											}
+										{ __(
+											'Some US states have laws that require offering site visitors an opt-out from having their data used to personalize ads. Targeted advertising is off in certain states unless you enable it.',
+											'jetpack'
 										) }
 									</small>
 								</p>
@@ -346,11 +309,10 @@ export const Ads = withModuleSettingsFormHelpers(
 									<FormLegend>{ __( 'Do Not Sell Link', 'jetpack' ) }</FormLegend>
 									{ createInterpolateElement(
 										__(
-											'CCPA requires that you place a "Do Not Sell My Personal Information" link on every page of your site where targeted advertising will appear. <br/>You can use the <widgetLink>Do Not Sell Link (CCPA) Widget</widgetLink>, or the <code>[ccpa-do-not-sell-link]</code> shortcode to automatically place this link on your site. Note: the link will always display to logged in administrators regardless of geolocation.',
+											'If you enable targeted advertising in all US states, you are required to place a "Do Not Sell or Share My Personal Information" link on every page of your site where targeted advertising will appear. You can use the <widgetLink>Do Not Sell Link Widget</widgetLink>, or the <code>[privacy-do-not-sell-link]</code> shortcode to automatically place this link on your site. Note: the link will always display to logged in administrators regardless of geolocation.',
 											'jetpack'
 										),
 										{
-											br: <br />,
 											code: <code />,
 											widgetLink: (
 												<a
@@ -362,7 +324,7 @@ export const Ads = withModuleSettingsFormHelpers(
 									) }
 									<span className="jp-form-setting-explanation">
 										{ __(
-											'Failure to add this link will result in non-compliance with CCPA.',
+											'Failure to add this link will result in non-compliance with privacy laws in some US states.',
 											'jetpack'
 										) }
 									</span>
@@ -386,7 +348,7 @@ export const Ads = withModuleSettingsFormHelpers(
 								/>
 								<span className="jp-form-setting-explanation">
 									{ __(
-										'Adds a link to your privacy policy to the bottom of the CCPA notice popup (optional).',
+										'Adds a link to your privacy policy to the notice popup triggered by the do not sell link (optional).',
 										'jetpack'
 									) }
 								</span>

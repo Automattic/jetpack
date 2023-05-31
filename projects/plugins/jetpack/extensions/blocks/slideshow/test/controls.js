@@ -1,13 +1,5 @@
-/**
- * External dependencies
- */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import '@testing-library/jest-dom/extend-expect';
-
-/**
- * Internal dependencies
- */
 import { PanelControls } from '../controls';
 
 const images = [
@@ -27,19 +19,12 @@ const images = [
 
 const setAttributes = jest.fn();
 const onChangeImageSize = jest.fn();
-const onSelectImages = jest.fn();
 
 const panelProps = {
 	attributes: { autoplay: false, delay: 1, effect: 'slide', images, sizeSlug: 'large' },
 	imageSizeOptions: [ { label: 'Thumbnail', value: 'thumbnail' } ],
 	onChangeImageSize,
 	setAttributes,
-};
-
-const toolbarProps = {
-	allowedMediaTypes: [ 'image' ],
-	attributes: { autoplay: false, delay: 1, effect: 'slide', images, sizeSlug: 'large' },
-	onSelectImages,
 };
 
 beforeEach( () => {
@@ -51,8 +36,8 @@ describe( 'Panel controls', () => {
 		render( <PanelControls { ...panelProps } /> );
 
 		expect( screen.getByLabelText( 'Autoplay' ) ).toBeInTheDocument();
-		expect( screen.getByLabelText( 'Transition effect' ) ).toBeInTheDocument();
-		expect( screen.getByLabelText( 'Image Size' ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'Transition' ) ).toBeInTheDocument();
+		expect( screen.getByLabelText( 'Size' ) ).toBeInTheDocument();
 	} );
 
 	test( 'toggles autoplay attribute', async () => {
@@ -66,7 +51,7 @@ describe( 'Panel controls', () => {
 	test( 'sets transition attribute', async () => {
 		const user = userEvent.setup();
 		render( <PanelControls { ...panelProps } /> );
-		await user.selectOptions( screen.getByLabelText( 'Transition effect' ), [ 'fade' ] );
+		await user.selectOptions( screen.getByLabelText( 'Transition' ), [ 'fade' ] );
 
 		expect( setAttributes ).toHaveBeenCalledWith( { effect: 'fade' } );
 	} );
@@ -74,7 +59,7 @@ describe( 'Panel controls', () => {
 	test( 'calls onChangeImageSize callback when new image size selected', async () => {
 		const user = userEvent.setup();
 		render( <PanelControls { ...panelProps } /> );
-		await user.selectOptions( screen.getByLabelText( 'Image Size' ), [ 'thumbnail' ] );
+		await user.selectOptions( screen.getByLabelText( 'Size' ), [ 'thumbnail' ] );
 
 		expect( onChangeImageSize ).toHaveBeenCalledWith( 'thumbnail' );
 	} );

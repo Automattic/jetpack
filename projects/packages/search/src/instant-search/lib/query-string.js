@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { encode } from 'qss';
-
-/**
- * Internal dependencies
- */
+import { decode } from '../external/query-string-decode';
 import { SERVER_OBJECT_NAME, VALID_RESULT_FORMAT_KEYS } from './constants';
 import { getFilterKeys, getStaticFilterKeys } from './filters';
-import { decode } from '../external/query-string-decode';
 
 /**
  * Parses the address bar's query string into an object.
@@ -26,6 +19,9 @@ export function getQuery( search = window.location.search ) {
  * @param {object|null} queryObject - a query object.
  */
 export function setQuery( queryObject ) {
+	if ( window.instantSearchSkipPushState ) {
+		return;
+	}
 	pushQueryString( encode( queryObject ) );
 }
 

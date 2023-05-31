@@ -300,7 +300,7 @@
 		// We don't have a usprivacy cookie, so check to see if we have a CCPA applies cookie.
 		var ccpaCookie = cookieLib.getItem( 'ccpa_applies' );
 
-		// No CCPA applies cookie found, so we'll need to geolocate if this visitor is from California.
+		// No CCPA applies cookie found, so we'll need to geolocate if this visitor is from applicable US state.
 		// This needs to happen client side because we do not have region geo data in our $SERVER headers,
 		// only country data -- therefore we can't vary cache on the region.
 		if ( null === ccpaCookie ) {
@@ -312,7 +312,10 @@
 					if ( 200 === this.status ) {
 						// Got a geo response. Parse out the region data.
 						var data = JSON.parse( this.response );
-						var ccpaApplies = data.region && 'california' === data.region.toLowerCase();
+						var region = data.region ? data.region.toLowerCase() : '';
+						var ccpaApplies =
+							[ 'california', 'colorado', 'connecticut', 'utah', 'virginia' ].indexOf( region ) >
+							-1;
 
 						// Set CCPA applies cookie. This keeps us from having to make a geo request too frequently.
 						setCcpaAppliesCookie( ccpaApplies );

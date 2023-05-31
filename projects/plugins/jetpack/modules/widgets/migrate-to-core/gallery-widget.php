@@ -37,7 +37,11 @@ function jetpack_migrate_gallery_widget() {
 		 * It may be the case that the user has already created a core Gallery Widget
 		 * before the migration begins. (Maybe Jetpack was deactivated during core's upgrade).
 		 */
-		for ( $i = 0; $i < 10 && array_key_exists( $new_id, array( $media_gallery ) ); $i++, $new_id++ ); // phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
+		for ( // phpcs:ignore Generic.CodeAnalysis.ForLoopWithTestFunctionCall.NotAllowed
+			$i = 0;
+			$i < 10 && array_key_exists( $new_id, array( $media_gallery ) );
+			$i++, $new_id++
+		);
 
 		$widget_copy = jetpack_migrate_gallery_widget_upgrade_widget( $widget );
 
@@ -57,7 +61,7 @@ function jetpack_migrate_gallery_widget() {
 
 		// Now un-register old widgets and register new.
 		foreach ( $widgets_to_unregister as $id => $new_id ) {
-			wp_unregister_sidebar_widget( "gallery-${id}" );
+			wp_unregister_sidebar_widget( "gallery-{$id}" );
 
 			// register new widget.
 			$media_gallery_widget = new WP_Widget_Media_Gallery();
@@ -138,7 +142,7 @@ function jetpack_migrate_gallery_widget_upgrade_widget( $widget ) {
 	// Not all widgets have conditions, so lets add it in.
 	$widget_copy      = array_merge( array( 'conditions' => null ), $widget );
 	$non_allowed_keys = array_diff_key( $widget_copy, $allowed_keys );
-	if ( count( $non_allowed_keys ) > 0 ) {
+	if ( $non_allowed_keys !== array() ) {
 		jetpack_migrate_gallery_widget_bump_stats( 'extra-key' );
 
 		// Log the names of the keys not in our allowed list.
@@ -216,6 +220,5 @@ function jetpack_migrate_gallery_widget_bump_stats( $bin, $group = 'widget-migra
 		$jetpack = Jetpack::init();
 		$jetpack->stat( $group, $bin );
 	}
-
 }
 add_action( 'widgets_init', 'jetpack_migrate_gallery_widget' );

@@ -19,16 +19,16 @@ import { expect } from '@playwright/test';
 
 const cardCredentials = config.get( 'testCardCredentials' );
 
-export async function doClassicConnection( page, freePlan = true ) {
+export async function doClassicConnection( page, plan = 'free' ) {
 	const jetpackPage = await JetpackPage.init( page );
 	await jetpackPage.connect();
 	await ( await AuthorizePage.init( page ) ).approve();
 
-	if ( freePlan ) {
+	if ( plan === 'free' ) {
 		await ( await PickAPlanPage.init( page ) ).select( 'free' );
 		await RecommendationsPage.init( page );
 	} else {
-		await ( await PickAPlanPage.init( page ) ).select( 'complete' );
+		await ( await PickAPlanPage.init( page ) ).select( plan );
 		await ( await CheckoutPage.init( page ) ).processPurchase( cardCredentials );
 		await ( await ThankYouPage.init( page ) ).waitForSetupAndProceed();
 	}

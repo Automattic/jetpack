@@ -1,34 +1,10 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
-import { getRedirectUrl, ActionButton } from '@automattic/jetpack-components';
+import { ActionButton, getRedirectUrl, TermsOfService } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React from 'react';
 import ConnectScreenLayout from '../layout';
 import './style.scss';
-
-export const ToS = createInterpolateElement(
-	__(
-		'By clicking the button above, you agree to our <tosLink>Terms of Service</tosLink> and to <shareDetailsLink>share details</shareDetailsLink> with WordPress.com.',
-		'jetpack'
-	),
-	{
-		tosLink: <a href={ getRedirectUrl( 'wpcom-tos' ) } rel="noopener noreferrer" target="_blank" />,
-		shareDetailsLink: (
-			<a
-				href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
-				rel="noopener noreferrer"
-				target="_blank"
-			/>
-		),
-	}
-);
 
 /**
  * The Connection Screen Visual component..
@@ -49,7 +25,21 @@ const ConnectScreenVisual = props => {
 		displayButtonError,
 		buttonIsLoading,
 		footer,
+		isOfflineMode,
+		logo,
 	} = props;
+
+	const errorMessage = isOfflineMode
+		? createInterpolateElement( __( 'Unavailable in <a>Offline Mode</a>', 'jetpack' ), {
+				a: (
+					<a
+						href={ getRedirectUrl( 'jetpack-support-development-mode' ) }
+						target="_blank"
+						rel="noopener noreferrer"
+					/>
+				),
+		  } )
+		: undefined;
 
 	return (
 		<ConnectScreenLayout
@@ -60,20 +50,24 @@ const ConnectScreenVisual = props => {
 				'jp-connection__connect-screen' +
 				( isLoading ? ' jp-connection__connect-screen__loading' : '' )
 			}
+			logo={ logo }
 		>
 			<div className="jp-connection__connect-screen__content">
 				{ children }
 
 				{ showConnectButton && (
 					<>
+						<div className="jp-connection__connect-screen__tos">
+							<TermsOfService agreeButtonLabel={ buttonLabel } />
+						</div>
 						<ActionButton
 							label={ buttonLabel }
 							onClick={ handleButtonClick }
-							displayError={ displayButtonError }
+							displayError={ displayButtonError || isOfflineMode }
+							errorMessage={ errorMessage }
 							isLoading={ buttonIsLoading }
+							isDisabled={ isOfflineMode }
 						/>
-
-						<div className="jp-connection__connect-screen__tos">{ ToS }</div>
 					</>
 				) }
 
@@ -104,6 +98,10 @@ ConnectScreenVisual.propTypes = {
 	buttonIsLoading: PropTypes.bool,
 	/** Node that will be rendered after ToS */
 	footer: PropTypes.node,
+	/** Whether the site is in offline mode. */
+	isOfflineMode: PropTypes.bool,
+	/** The logo to display at the top of the component. */
+	logo: PropTypes.element,
 };
 
 ConnectScreenVisual.defaultProps = {
@@ -113,6 +111,7 @@ ConnectScreenVisual.defaultProps = {
 	displayButtonError: false,
 	handleButtonClick: () => {},
 	footer: null,
+	isOfflineMode: false,
 };
 
 export default ConnectScreenVisual;

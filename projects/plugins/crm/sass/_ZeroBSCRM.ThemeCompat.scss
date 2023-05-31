@@ -1,0 +1,240 @@
+/*!
+ * Jetpack CRM
+ * http://zerobscrm.com
+ * V3.0+
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 15/10/2019
+ */
+
+// Theme-specific compatibility for front-end ops
+
+
+// ==============================================
+// =========== TwentySeventeen ==================
+
+.zbs-theme-support-2017 {
+
+  .entry-header {
+    display:none;
+  }
+  .entry-content {
+    float: none !important;
+    width: 100% !important;
+  }
+
+  .zbs-client-portal-wrap {
+    .form-control {
+      margin-bottom:0.4em;
+    }
+  }
+
+  #zbs-nav-tabs {
+    li a i.fa {
+      margin-right: 0.6em;
+    }
+  }
+
+  .zbs-field-group, .zbs-field-group table {
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;         /* Opera/IE 8+ */
+
+    td div.zbs-text-input, td select {
+      width:214px;
+    }
+  }
+  .zbs-fieldgroup-main_address table {
+    td div.zbs-text-input {
+      width:204px;
+    }
+  }
+}
+
+// =========== / TwentySeventeen ===============
+// =============================================
+
+
+// =============================================
+// =========== TwentyNineteen ==================
+
+ .zbs-theme-support-2019 {
+
+ 	.zbs-site-main {
+
+	    margin: 0 !important;
+	    max-width: 100% !important;
+
+ 	}
+
+ 	.zbs-portal-wrapper-sin {
+
+ 		padding:0;
+    	width: 68% !important;
+
+ 	}
+
+
+ }
+
+// =========== / TwentyNineteen ================
+// =============================================
+
+
+
+// ==============================================
+// =========== TwentyTwenty =====================
+
+.zbs-theme-support-2020 {
+
+  .zbs-site-main {
+
+    // full width
+    max-width: 100% !important;
+
+  }
+
+  #zbs-nav-tabs {
+
+      // more fitting square edged
+      border-radius: 0 !important;
+      border: 0 !important;
+      box-shadow: none !important;
+
+  }
+  .zbs-portal-wrapper {
+
+      // looks better against default page colour.s
+      background: #FFF;
+
+      // more fitting square edged
+      border-radius: 0 !important;
+      border: 0 !important;
+      box-shadow: none !important;
+
+      h1 {
+
+        font-size: 2em !important;
+
+      }
+      h2 {
+
+          margin-top: 0 !important;
+          
+      }
+
+  }
+
+  .zbs-portal-wrapper-sin {
+      padding: 20px !important;
+      padding-left: 40px !important;
+      border-radius: 0 !important;
+      min-height: 650px !important;
+      position: relative !important;
+      flex: 1 !important;
+      flex-grow: 3 !important;
+      float: right !important;
+      width: 70% !important;
+      box-sizing: border-box !important;
+  }
+
+
+  // hide this as it adds unnecessary padding to portal
+  .entry-header {
+
+      display:none;
+
+  }
+
+  .post-inner {
+      padding-top: 0.5em !important;
+  }
+
+
+  // login centralise
+  .container.zbs-portal-login {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+
+}
+
+// =========== / TwentyTwenty ===================
+// ==============================================
+
+
+// =============================================
+// =========== Twenty Twenty-One ==================
+
+.zbs-theme-support-2021 {
+
+  //make portal full-width
+  .zbs-site-main {
+    margin: 0 2em 2em 2em !important;
+    max-width: 100% !important;
+  }
+  
+  //hide this so it doesn't push portal down
+  .entry-header {
+    display:none;
+  }
+
+  //reduce space above portal
+  .entry-content {
+    margin-top: 0;
+  }
+  .site-main {
+    padding-top: 0;
+  }
+  .zbs-portal-wrapper {
+    margin-top: 0;
+  }
+
+  //center login
+  .container.zbs-portal-login {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  #zbs-main .zerobs-proposal > .zerobs-proposal-body {
+    max-width: 800px;
+  }
+
+}
+
+// =========== / Twenty Twenty-One ================
+// =============================================
+
+
+
+// =============================================
+// =========== Twenty Twenty-Two ==================
+
+.zbs-theme-support-2022 {
+
+  /* hide page title and subsequent hr */
+  .wp-block-post-title, .wp-block-post-title + hr {
+    display: none;
+  }
+
+  .zbs-portal-grid {
+    /* give padding to main portal area */
+    padding: 0 30px 0 30px;
+
+    /* style table elements better */
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid;
+      padding: 10px;
+    }
+  }
+
+}
+
+// =========== / Twenty Twenty-One ================
+// =============================================

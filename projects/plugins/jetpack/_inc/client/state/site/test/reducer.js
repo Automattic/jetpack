@@ -1,7 +1,5 @@
-import { expect } from 'chai';
-
 import {
-	hasActiveSiteFeature,
+	siteHasFeature,
 	isDoneFetchingConnectedPlugins,
 	getConnectedPlugins,
 	getConnectedPluginsMap,
@@ -12,11 +10,7 @@ describe( 'site selectors', () => {
 		{ slug: 'slug1', name: 'name1' },
 		{ slug: 'slug2', name: 'name2' },
 	];
-	const active = [
-		'feature_active_01',
-		'feature_active_02',
-		'feature_active_03',
-	]
+	const active = [ 'feature_active_01', 'feature_active_02', 'feature_active_03' ];
 	const baseInState = {
 		jetpack: {
 			siteData: {
@@ -27,7 +21,7 @@ describe( 'site selectors', () => {
 					site: {
 						connectedPlugins,
 						features: {
-							active
+							active,
 						},
 					},
 				},
@@ -41,55 +35,55 @@ describe( 'site selectors', () => {
 	} );
 
 	describe( '#isDoneFetchingConnectedPlugins', () => {
-		it( 'should return true when set true', () => {
+		test( 'should return true when set true', () => {
 			const result = isDoneFetchingConnectedPlugins( inState );
 
-			expect( result ).to.be.true;
+			expect( result ).toBe( true );
 		} );
 
-		it( 'should return false when set to false', () => {
+		test( 'should return false when set to false', () => {
 			inState.jetpack.siteData.requests.isDoneFetchingConnectedPlugins = false;
 
 			const result = isDoneFetchingConnectedPlugins( inState );
 
-			expect( result ).to.be.false;
+			expect( result ).toBe( false );
 		} );
 
-		it( 'should return false when not set', () => {
+		test( 'should return false when not set', () => {
 			delete inState.jetpack.siteData.requests.isDoneFetchingConnectedPlugins;
 
 			const result = isDoneFetchingConnectedPlugins( inState );
 
-			expect( result ).to.be.false;
+			expect( result ).toBe( false );
 		} );
 	} );
 
 	describe( '#getConnectedPlugins', () => {
-		it( 'should return null if still fetching connected plugins', () => {
+		test( 'should return null if still fetching connected plugins', () => {
 			inState.jetpack.siteData.requests.isDoneFetchingConnectedPlugins = false;
 
 			const result = getConnectedPlugins( inState );
 
-			expect( result ).to.be.null;
+			expect( result ).toBeNull();
 		} );
 
-		it( 'should return connected plugins if finished fetching', () => {
+		test( 'should return connected plugins if finished fetching', () => {
 			const result = getConnectedPlugins( inState );
 
-			expect( result ).to.eql( connectedPlugins );
+			expect( result ).toEqual( connectedPlugins );
 		} );
 	} );
 
 	describe( '#getConnectedPluginsMap', () => {
-		it( 'should return null if still fetching connected plugins', () => {
+		test( 'should return null if still fetching connected plugins', () => {
 			inState.jetpack.siteData.requests.isDoneFetchingConnectedPlugins = false;
 
 			const result = getConnectedPluginsMap( inState );
 
-			expect( result ).to.be.null;
+			expect( result ).toBeNull();
 		} );
 
-		it( 'should return slug keyed object map of connected plugins when available', () => {
+		test( 'should return slug keyed object map of connected plugins when available', () => {
 			const expectedMap = {
 				slug1: { name: 'name1' },
 				slug2: { name: 'name2' },
@@ -97,24 +91,24 @@ describe( 'site selectors', () => {
 
 			const result = getConnectedPluginsMap( inState );
 
-			expect( result ).to.eql( expectedMap );
+			expect( result ).toEqual( expectedMap );
 		} );
 	} );
 
-	describe( '#hasActiveSiteFeature()', () => {
-		it( 'should return False when feature param is not defined', () => {
-			const activeFeature = hasActiveSiteFeature( inState );
-			expect( activeFeature ).to.eql( false );
+	describe( '#siteHasFeature()', () => {
+		test( 'should return False when feature param is not defined', () => {
+			const activeFeature = siteHasFeature( inState );
+			expect( activeFeature ).toBe( false );
 		} );
 
-		it( 'should return False when feature is not defined in the active array', () => {
-			const activeFeature = hasActiveSiteFeature( inState, 'unknown-feature' );
-			expect( activeFeature ).to.eql( false );
+		test( 'should return False when feature is not defined in the active array', () => {
+			const activeFeature = siteHasFeature( inState, 'unknown-feature' );
+			expect( activeFeature ).toBe( false );
 		} );
 
-		it( 'should return True when feature is defined in the active array', () => {
-			const activeFeature = hasActiveSiteFeature( inState, 'feature_active_01' );
-			expect( activeFeature ).to.eql( true );
+		test( 'should return True when feature is defined in the active array', () => {
+			const activeFeature = siteHasFeature( inState, 'feature_active_01' );
+			expect( activeFeature ).toBe( true );
 		} );
 	} );
 } );

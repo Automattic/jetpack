@@ -182,6 +182,12 @@ class Template_Tags {
 			case 'post_type':
 				$data_base = 'data-filter-type="post_types" ';
 				break;
+			case 'author':
+				$data_base = 'data-filter-type="authors" ';
+				break;
+			case 'blog_id':
+				$data_base = 'data-filter-type="blog_ids" ';
+				break;
 			case 'date_histogram':
 				if ( $filter['buckets'][0]['query_vars']['monthnum'] ) {
 					$data_base = 'data-filter-type="month_post_date" ';
@@ -205,6 +211,12 @@ class Template_Tags {
 						break;
 					case 'post_type':
 						$data_str .= 'data-val="' . esc_attr( $item['query_vars']['post_type'] ) . '"';
+						break;
+					case 'author':
+						$data_str .= 'data-val="' . esc_attr( $item['query_vars']['author'] ) . '"';
+						break;
+					case 'blog_id':
+						$data_str .= 'data-val="' . esc_attr( $item['query_vars']['blog_id'] ) . '"';
 						break;
 					case 'date_histogram':
 						if ( $item['query_vars']['monthnum'] ) {

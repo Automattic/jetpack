@@ -2,26 +2,23 @@ import WpPage from 'jetpack-e2e-commons/pages/wp-page.js';
 import { resolveSiteUrl } from 'jetpack-e2e-commons/helpers/utils-helper.cjs';
 
 const apiEndpointsRegex = {
-	'critical-css-status': /jetpack-boost\/v1\/module\/critical-css\/status/,
-	'lazy-images-status': /jetpack-boost\/v1\/module\/lazy-images\/status/,
-	'render-blocking-js-status': /jetpack-boost\/v1\/module\/render-blocking-js\/status/,
-	'speed-scores-update': /jetpack-boost\/v1\/speed-scores\/\w*\/update/,
+	'modules-state': /jetpack-boost-ds\/modules-state\/merge/,
 	connection: /jetpack-boost\/v1\/connection/,
 };
 
 export default class JetpackBoostPage extends WpPage {
 	constructor( page ) {
 		const url = resolveSiteUrl() + '/wp-admin/admin.php?page=jetpack-boost';
-		super( page, { expectedSelectors: [ '#jb-settings' ], url } );
+		super( page, { expectedSelectors: [ '#jb-dashboard' ], url } );
 	}
 
 	/**
-	 * Tries to connect Jetpack Boost to WordPress.com, and waits for the connection API call to complete.
+	 * Select the free plan from getting started page.
 	 */
-	async connect() {
-		const button = await this.page.$( '.jb-connection button' );
+	async chooseFreePlan() {
+		const button = await this.page.locator( 'text=Start for free' );
 		await button.click();
-		await this.waitForApiResponse( 'connection' );
+		await this.waitForElementToBeVisible( '.jb-section--scores' );
 	}
 
 	/**
@@ -69,7 +66,7 @@ export default class JetpackBoostPage extends WpPage {
 
 	async toggleModule( moduleName ) {
 		this.page.click( `#jb-feature-toggle-${ moduleName }` );
-		await this.waitForApiResponse( `${ moduleName }-status` );
+		await this.waitForApiResponse( 'modules-state' );
 	}
 
 	async isModuleEnabled( moduleName ) {
@@ -167,7 +164,7 @@ export default class JetpackBoostPage extends WpPage {
 		return (
 			( await this.getSpeedScore( 'mobile' ) ) > 0 &&
 			( await this.getSpeedScore( 'desktop' ) ) > 0 &&
-			( await this.currentPageTitleIs( /Overall score: [A-Z]/ ) )
+			( await this.currentPageTitleIs( /Overall Score: [A-Z]/i ) )
 		);
 	}
 }

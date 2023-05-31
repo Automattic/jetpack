@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import PropTypes from 'prop-types';
-import { __ } from '@wordpress/i18n';
 import { ActionButton } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
+import { __ } from '@wordpress/i18n';
+import PropTypes from 'prop-types';
+import React from 'react';
 import useConnection from '../use-connection';
 
 /**
@@ -18,15 +11,8 @@ import useConnection from '../use-connection';
  * @returns {React.Component} The RNA connection component.
  */
 const ConnectButton = props => {
-	const {
-		apiRoot,
-		apiNonce,
-		connectLabel,
-		registrationNonce,
-		redirectUri,
-		from,
-		autoTrigger,
-	} = props;
+	const { apiRoot, apiNonce, connectLabel, registrationNonce, redirectUri, from, autoTrigger } =
+		props;
 
 	const {
 		handleRegisterSite,

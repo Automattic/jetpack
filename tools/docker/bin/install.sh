@@ -26,10 +26,6 @@ if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	# https://wordpress.org/plugins/query-monitor/
 	wp --allow-root plugin install query-monitor --activate
 
-	# Install Core Control plugin
-	# https://wordpress.org/plugins/core-control/
-	wp --allow-root plugin install core-control --activate
-
 	# Install WP-Control
 	# https://wordpress.org/plugins/wp-crontrol/
 	wp --allow-root plugin install wp-crontrol --activate
@@ -37,6 +33,9 @@ if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	# Install Gutenberg
 	# https://wordpress.org/plugins/gutenberg/
 	wp --allow-root plugin install gutenberg --activate
+
+	# Intentionally not auto-updating Akismet since we may be wanting to test that with a specific version.
+	wp --allow-root plugin auto-updates enable query-monitor wp-crontrol gutenberg
 fi
 
 # Activate Jetpack

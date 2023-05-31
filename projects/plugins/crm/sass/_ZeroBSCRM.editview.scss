@@ -1,0 +1,224 @@
+/*!
+ * Jetpack CRM
+ * http://www.zerobscrm.com
+ * V2.52+
+ *
+ * Copyright 2020 Automattic
+ *
+ * Date: 27/02/18
+ */
+
+
+// actions metabox
+#zerobs-customer-actions-box {
+
+	#zbs-contact-edit-avatar {
+
+		text-align:center !important;
+    	margin-bottom: 1em;   
+
+    	// round avatars
+    	.ui.circular.segment h2 img {
+    		border-radius: 50% !important;
+    	}
+    	// removed for gravatars, 2.97.7 on ms request ZBS-619 
+    	.ui.segment h2 img.zbs-gravatar {
+    		border-radius: none !important;
+    	}
+
+		.ui.segment {
+
+			margin-left:auto;
+			margin-right:auto;
+			display:inline-block;
+
+			i.icon, img {
+				margin-top:0 !important;
+				margin-right:0 !important;
+				width: auto;
+    			max-width: 100px;
+			}
+
+			h2.header {
+				margin-bottom:0 !important;
+			}
+
+			button.ui.circular {
+
+				position: absolute;
+			    top: 0;
+			    right: -0.5em;
+			    display: inline-block;
+    			background: #FFF !important;
+
+			}
+
+		}
+	}
+
+	// NOTE this is also in contact single! copy any changes if made:
+	.action-wrap {
+		
+	    display: block;
+	    position: relative;
+	    text-align: center;
+	    
+	}
+
+	// using actual .button breaks the css.. for now, hackily putting htis in here to simulate basic button
+	// NOTE this is also in contact single! copy any changes if made:
+	.action-button {
+	    cursor: pointer;
+	    display: inline-block;
+	    min-height: 1em;
+	    outline: none;
+	    border: none;
+	    vertical-align: baseline;
+	    //background: #E0E1E2 none;
+	    color: rgba(0,0,0,0.6);
+	    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen-Sans', 'Ubuntu', 'Cantarell', 'Helvetica Neue', sans-serif;
+	    margin: 0em 0.25em 0em 0em;
+	    padding: 0.78571429em 1.5em 0.78571429em;
+	    text-transform: none;
+	    text-shadow: none;
+	    font-weight: bold;
+	    line-height: 1em;
+	    font-style: normal;
+	    text-align: center;
+	    text-decoration: none;
+	    border-radius: 0.28571429rem;
+	    box-shadow: 0px 0px 0px 1px transparent inset, 0px 0em 0px 0px rgba(34,36,38,0.15) inset;
+	    -webkit-user-select: none;
+	    -moz-user-select: none;
+	    -ms-user-select: none;
+	    user-select: none;
+	    -webkit-transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+	    transition: opacity 0.1s ease, background-color 0.1s ease, color 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+	    will-change: '';
+	    -webkit-tap-highlight-color: transparent;
+
+	    font-size: 1rem;
+
+	    //background: transparent none !important;
+	    color: rgba(0,0,0,0.6) !important;
+	    font-weight: normal;
+	    border-radius: 0.28571429rem;
+	    text-transform: none;
+	    text-shadow: none !important;
+	    box-shadow: 0px 0px 0px 1px rgba(34,36,38,0.15) inset;
+
+	    box-shadow: 0px 0px 0px 1px #21BA45 inset !important;
+	    color: #21BA45 !important;
+
+	    background: #FFF !important;
+	}
+
+}
+
+// prev: #zerobs-customer-tags-box
+.zbs-edit-tags-box-wrap {
+
+	#zbs-tags-wrap {
+
+		margin-top:1em;
+
+
+		.ui.label {
+
+    		margin-bottom: 0.4em;
+		}
+	}
+
+	// TAG SUGGESTION ENGINE
+	#zbs-tags-suggestions-wrap {
+
+		h4,.zbs-tags-suggestions-title {
+			margin-top: 1em;
+			margin-bottom: 0.4em;
+		}
+		.ui.label {
+
+    		margin-bottom: 0.4em;
+		}
+		.zbsTagSuggestion {
+
+		}
+		.zbsTagSuggestion:hover
+		 {
+			cursor: pointer;
+			color: #000 !important;
+		}
+		#zbs-tag-suggestions-show-more:hover,
+		#zbs-tag-suggestions-show-less:hover {
+			cursor: pointer;
+			color: #2284d1 !important;
+
+		}
+		#zbs-tag-suggestions-more-wrap {
+
+			display:none; // init
+
+		}
+	}
+}
+
+#zbs-edit-notification-wrap {
+
+    margin: 2em;
+    margin-top: 1em;
+    margin-bottom: 0;
+	
+}
+
+
+// err msg fix
+#zbs-edit-warnings-wrap .ui.message {
+	
+    max-width: 80%;
+    margin-bottom: 5em;
+    margin-top: 4em;
+    margin-left: auto;
+    margin-right: Auto;
+    
+}
+
+//.zbs-generic-save-wrap (save, update etc. boxes for our objs)
+.zbs-generic-save-wrap {
+
+	text-align: center; 
+
+	.ui.header {
+		margin-top: 0 !important;
+	}
+}
+
+.zbs-objedit-actions-bottom {
+	margin-top:1em;
+
+	.zbs-objedit-actions-delete {
+    	margin-top: 0.6em;
+	}
+}
+
+
+// e.g. can't load cos of perms
+#zbs-obj-edit-precheck-fail {
+
+    padding-top: 5em;
+
+}
+
+// fix for zbs-hide not working at high res's
+// JIRA-ZBS-960
+@media (min-width: 1500px){
+	.zbs-hide,
+	tr.zbs-field-group-tr .zbs-field-group.zbs-hide {
+		display:none !important;
+	}
+}
+
+//allow text wrapping in tag manager
+table#zbs-tag-manager td, table#zbs-tag-manager td .label, #zbs-tags-wrap span, .zbsTagSuggestion, .zbs-view-tags a.button {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}

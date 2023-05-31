@@ -6,17 +6,22 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\REST_Connector;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Identity_Crisis;
+use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
+use Automattic\Jetpack\Image_CDN\Image_CDN_Image;
+use Automattic\Jetpack\IP\Utils as IP_Utils;
 use Automattic\Jetpack\Licensing;
 use Automattic\Jetpack\Licensing\Endpoints as Licensing_Endpoints;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Partner;
 use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
@@ -31,8 +36,12 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_minimal_state() {
 		return array(
-			'WP_API_root'  => esc_url_raw( rest_url() ),
-			'WP_API_nonce' => wp_create_nonce( 'wp_rest' ),
+			'pluginBaseUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			/* This filter is documented in class.jetpack-connection-banner.php */
+			'preConnectionHelpers' => apply_filters( 'jetpack_pre_connection_prompt_helpers', false ),
+			'registrationNonce'    => wp_create_nonce( 'jetpack-registration-nonce' ),
+			'WP_API_root'          => esc_url_raw( rest_url() ),
+			'WP_API_nonce'         => wp_create_nonce( 'wp_rest' ),
 		);
 	}
 
@@ -53,10 +62,10 @@ class Jetpack_Redux_State_Helper {
 		// Preparing translated fields for JSON encoding by transforming all HTML entities to
 		// respective characters.
 		foreach ( $modules as $slug => $data ) {
-			$modules[ $slug ]['name']              = html_entity_decode( $data['name'] );
-			$modules[ $slug ]['description']       = html_entity_decode( $data['description'] );
-			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'] );
-			$modules[ $slug ]['long_description']  = html_entity_decode( $data['long_description'] );
+			$modules[ $slug ]['name']              = html_entity_decode( $data['name'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+			$modules[ $slug ]['description']       = html_entity_decode( $data['description'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+			$modules[ $slug ]['short_description'] = html_entity_decode( $data['short_description'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
+			$modules[ $slug ]['long_description']  = html_entity_decode( $data['long_description'], ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 		}
 
 		// "mock" a block module in order to get it searchable in the settings.
@@ -65,7 +74,7 @@ class Jetpack_Redux_State_Helper {
 
 		// Collecting roles that can view site stats.
 		$stats_roles   = array();
-		$enabled_roles = function_exists( 'stats_get_option' ) ? stats_get_option( 'roles' ) : array( 'administrator' );
+		$enabled_roles = Stats_Options::get_option( 'roles' );
 
 		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/user.php';
@@ -117,6 +126,8 @@ class Jetpack_Redux_State_Helper {
 		$connection_status = array_merge( REST_Connector::connection_status( false ), $connection_status );
 
 		$host = new Host();
+
+		$speed_score_history = new Speed_Score_History( wp_parse_url( get_site_url(), PHP_URL_HOST ) );
 
 		return array(
 			'WP_API_root'                 => esc_url_raw( rest_url() ),
@@ -178,6 +189,7 @@ class Jetpack_Redux_State_Helper {
 				'showMyJetpack'              => My_Jetpack_Initializer::should_initialize(),
 				'isMultisite'                => is_multisite(),
 				'dateFormat'                 => get_option( 'date_format' ),
+				'latestBoostSpeedScores'     => $speed_score_history->latest(),
 			),
 			'themeData'                   => array(
 				'name'      => $current_theme->get( 'Name' ),
@@ -185,7 +197,10 @@ class Jetpack_Redux_State_Helper {
 				'support'   => array(
 					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes, true ),
 					'widgets'         => current_theme_supports( 'widgets' ),
-					'webfonts'        => WP_Theme_JSON_Resolver::theme_has_support() && function_exists( 'wp_register_webfont_provider' ) && function_exists( 'wp_register_webfonts' ),
+					'webfonts'        => (
+						// @todo Remove conditional once we drop support for WordPress 6.1
+						function_exists( 'wp_theme_has_theme_json' ) ? wp_theme_has_theme_json() : WP_Theme_JSON_Resolver::theme_has_support()
+					) && function_exists( 'wp_register_webfont_provider' ) && function_exists( 'wp_register_webfonts' ),
 				),
 			),
 			'jetpackStateNotices'         => array(
@@ -195,7 +210,7 @@ class Jetpack_Redux_State_Helper {
 				'messageContent'   => Jetpack::state( 'display_update_modal' ) ? self::get_update_modal_data() : null,
 			),
 			'tracksUserData'              => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
-			'currentIp'                   => function_exists( 'jetpack_protect_get_ip' ) ? jetpack_protect_get_ip() : false,
+			'currentIp'                   => IP_Utils::get_ip(),
 			'lastPostUrl'                 => esc_url( $last_post ),
 			'externalServicesConnectUrls' => self::get_external_services_connect_urls(),
 			'calypsoEnv'                  => Jetpack::get_calypso_env(),
@@ -214,6 +229,7 @@ class Jetpack_Redux_State_Helper {
 			// Check if WooCommerce plugin is active (based on https://docs.woocommerce.com/document/create-a-plugin/).
 			'isWooCommerceActive'         => in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', Jetpack::get_active_plugins() ), true ),
 			'useMyJetpackLicensingUI'     => My_Jetpack_Initializer::is_licensing_ui_enabled(),
+			'isOdysseyStatsEnabled'       => Stats_Options::get_option( 'enable_odyssey_stats' ),
 		);
 	}
 
@@ -271,10 +287,9 @@ class Jetpack_Redux_State_Helper {
 
 		$post_thumbnail = isset( $post['post_thumbnail'] ) ? $post['post_thumbnail'] : null;
 		if ( ! empty( $post_thumbnail ) ) {
-			jetpack_require_lib( 'class.jetpack-photon-image' );
-			$photon_image = new Jetpack_Photon_Image(
+			$photon_image = new Image_CDN_Image(
 				array(
-					'file'   => jetpack_photon_url( $post_thumbnail['URL'] ),
+					'file'   => Image_CDN_Core::cdn_url( $post_thumbnail['URL'] ),
 					'width'  => $post_thumbnail['width'],
 					'height' => $post_thumbnail['height'],
 				),
@@ -359,7 +374,7 @@ class Jetpack_Redux_State_Helper {
 	 */
 	public static function get_external_services_connect_urls() {
 		$connect_urls = array();
-		jetpack_require_lib( 'class.jetpack-keyring-service-helper' );
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-keyring-service-helper.php';
 		// phpcs:disable
 		foreach ( Jetpack_Keyring_Service_Helper::SERVICES as $service_name => $service_info ) {
 			// phpcs:enable
@@ -400,6 +415,8 @@ class Jetpack_Redux_State_Helper {
 		return wp_generate_password( 12, false );
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move these functions to some other file.
 
 /**
  * Gather data about the current user.

@@ -39,7 +39,7 @@ class Jetpack_Starter_Plugin {
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 
-		// Init Jetpack packages and ConnectionUI.
+		// Init Jetpack packages
 		add_action(
 			'plugins_loaded',
 			function () {
@@ -90,7 +90,6 @@ class Jetpack_Starter_Plugin {
 		// Initial JS state including JP Connection data.
 		wp_add_inline_script( 'jetpack-starter-plugin', Connection_Initial_State::render(), 'before' );
 		wp_add_inline_script( 'jetpack-starter-plugin', $this->render_initial_state(), 'before' );
-
 	}
 
 	/**

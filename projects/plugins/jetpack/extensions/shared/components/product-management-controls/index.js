@@ -1,19 +1,12 @@
-/**
- * WordPress dependencies
- */
 import { BlockControls } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import { store as membershipProductsStore } from '../../../store/membership-products';
+import StripeConnectToolbarButton from '../stripe-connect-toolbar-button';
 import { PRODUCT_TYPE_PAYMENT_PLAN } from './constants';
 import { ProductManagementContext } from './context';
 import ProductManagementInspectorControl from './inspector-control';
-import ProductManagementToolbarControl from './toolbar-control';
 import InvalidProductWarning from './invalid-product-warning';
-import StripeConnectToolbarButton from '../stripe-connect-toolbar-button';
-import { store as membershipProductsStore } from '../../../store/membership-products';
+import ProductManagementToolbarControl from './toolbar-control';
 
 import './style.scss';
 
@@ -33,22 +26,18 @@ export default function ProductManagementControls( {
 			),
 		[]
 	);
-	const { connectUrl, isApiConnected, isSelectedProductInvalid, shouldUpgrade } = useSelect(
-		select => {
-			const { getConnectUrl, getShouldUpgrade, isApiStateConnected, isInvalidProduct } = select(
-				membershipProductsStore
-			);
-			return {
-				connectUrl: getConnectUrl(),
-				isApiConnected: isApiStateConnected(),
-				isSelectedProductInvalid: isInvalidProduct( selectedProductId ),
-				shouldUpgrade: getShouldUpgrade(),
-			};
-		}
-	);
+	const { connectUrl, isApiConnected, isSelectedProductInvalid } = useSelect( select => {
+		const { getConnectUrl, isApiStateConnected, isInvalidProduct } =
+			select( membershipProductsStore );
+		return {
+			connectUrl: getConnectUrl(),
+			isApiConnected: isApiStateConnected(),
+			isSelectedProductInvalid: isInvalidProduct( selectedProductId ),
+		};
+	} );
 
 	// Don't display this on free sites with Stripe disconnected.
-	if ( shouldUpgrade && ! isApiConnected ) {
+	if ( ! isApiConnected ) {
 		return null;
 	}
 

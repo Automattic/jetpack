@@ -1,0 +1,55 @@
+jpcrm-pagination {
+	display: inline-flex;
+	font-size: 16px;
+	gap: 0rem;
+	align-items: center;
+	background: #FFFFFF;
+	border: 1px solid var(--jp-gray-5);
+	border-radius: 3px;
+
+	* {
+		line-height: 2;
+	}
+
+	.active {
+		background-color: var(--jp-black);
+		color: var(--jp-white);
+	}
+
+	.disabled {
+		color: var(--jp-gray-20);
+	}
+
+	a {
+		color: var(--jp-gray-80);
+		text-decoration: none;
+		display: flex;
+	}
+
+	a:not(:first-child):not(:last-child) {
+		padding: 0 8px;
+	}
+
+	& > :first-child, & > :last-child {
+		padding: 0 5px;
+	}
+
+	& > :first-child.disabled, & > :last-child.disabled {
+		padding: 0;
+		margin: 0 5px;
+	}
+
+	a:hover {
+		background-color: var(--jp-gray-0);
+		color: var(--jp-gray-80);
+	}
+
+	a.active:hover {
+		background-color: var(--jp-gray-80);
+		color: var(--jp-white);
+	}
+
+	.ellipsis {
+		padding: 0 3px;
+	}
+}

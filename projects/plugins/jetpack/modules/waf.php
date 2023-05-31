@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Module Name: Firewall
  * Module Description: Protect your site with Jetpack's Web Application Firewall

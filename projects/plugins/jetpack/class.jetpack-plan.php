@@ -47,6 +47,8 @@ class Jetpack_Plan {
 				'whatsapp-button',
 				'social-previews',
 				'videopress',
+				'videopress/video',
+				'v6-video-frame-poster',
 
 				'core/video',
 				'core/cover',
@@ -60,12 +62,12 @@ class Jetpack_Plan {
 				'personal-bundle',
 				'personal-bundle-monthly',
 				'personal-bundle-2y',
+				'personal-bundle-3y',
+				'starter-plan',
 			),
 			'supports' => array(
 				'akismet',
 				'payments',
-				'recurring-payments',
-				'premium-content/container',
 				'videopress',
 			),
 		),
@@ -76,10 +78,9 @@ class Jetpack_Plan {
 				'value_bundle',
 				'value_bundle-monthly',
 				'value_bundle-2y',
+				'value_bundle-3y',
 			),
 			'supports' => array(
-				'donations',
-				'simple-payments',
 				'vaultpress',
 				'videopress',
 				'republicize',
@@ -105,9 +106,11 @@ class Jetpack_Plan {
 				'business-bundle',
 				'business-bundle-monthly',
 				'business-bundle-2y',
+				'business-bundle-3y',
 				'ecommerce-bundle',
 				'ecommerce-bundle-monthly',
 				'ecommerce-bundle-2y',
+				'ecommerce-bundle-3y',
 				'pro-plan',
 			),
 			'supports' => array(),
@@ -341,6 +344,11 @@ class Jetpack_Plan {
 
 		// As of Q3 2021 - a videopress free tier is available to all plans.
 		if ( 'videopress' === $feature ) {
+			return true;
+		}
+
+		// As of 05 2023 - all plans support Earn features
+		if ( in_array( $feature, array( 'donations', 'recurring-payments', 'premium-content/container', 'simple-payments' ), true ) ) {
 			return true;
 		}
 

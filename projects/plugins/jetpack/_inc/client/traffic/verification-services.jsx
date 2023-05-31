@@ -1,27 +1,16 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import { get, includes } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { createInterpolateElement } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ExternalLink } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
-import TextInput from 'components/text-input';
+import { createInterpolateElement } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
 import { FormFieldset, FormLabel } from 'components/forms';
-import { ModuleToggle } from 'components/module-toggle';
+import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import JetpackBanner from 'components/jetpack-banner';
+import TextInput from 'components/text-input';
+import { get, includes } from 'lodash';
+import React from 'react';
 import GoogleVerificationService from './verification-services/google';
 
 class VerificationServicesComponent extends React.Component {
@@ -165,7 +154,7 @@ class VerificationServicesComponent extends React.Component {
 							disabled={ this.props.isUpdating( 'google' ) || ! isVerificationActive }
 						/>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_bing">
-							<span>{ __( 'Bing', 'jetpack' ) }</span>
+							<span>{ __( 'Bing:', 'jetpack' ) }</span>
 							<TextInput
 								name="bing"
 								value={ this.getSiteVerificationValue( 'bing' ) }
@@ -176,7 +165,7 @@ class VerificationServicesComponent extends React.Component {
 							/>
 						</FormLabel>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_pinterest">
-							<span>{ __( 'Pinterest', 'jetpack' ) }</span>
+							<span>{ __( 'Pinterest:', 'jetpack' ) }</span>
 							<TextInput
 								name="pinterest"
 								value={ this.getSiteVerificationValue( 'pinterest' ) }
@@ -187,7 +176,7 @@ class VerificationServicesComponent extends React.Component {
 							/>
 						</FormLabel>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_yandex">
-							<span>{ __( 'Yandex', 'jetpack' ) }</span>
+							<span>{ __( 'Yandex:', 'jetpack' ) }</span>
 							<TextInput
 								name="yandex"
 								value={ this.getSiteVerificationValue( 'yandex' ) }
@@ -198,7 +187,7 @@ class VerificationServicesComponent extends React.Component {
 							/>
 						</FormLabel>
 						<FormLabel className="jp-form-input-with-prefix" key="verification_service_facebook">
-							<span>{ __( 'Facebook', 'jetpack' ) }</span>
+							<span>{ __( 'Facebook:', 'jetpack' ) }</span>
 							<TextInput
 								name="facebook"
 								value={ this.getSiteVerificationValue( 'facebook' ) }

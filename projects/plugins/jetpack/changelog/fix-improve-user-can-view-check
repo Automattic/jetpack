@@ -1,0 +1,4 @@
+Significance: minor
+Type: bugfix
+
+Verify the access level should be gated before checking subscriptions

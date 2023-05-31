@@ -1,5 +1,7 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
+
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 
@@ -369,7 +371,7 @@ class The_Neverending_Home_Page {
 		 * @param object    self::wp_query()     WP_Query object for current request
 		 * @param object    self::get_settings() Infinite Scroll settings
 		 */
-		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() );
+		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() ); // phpcs:ignore WordPress.WP.ClassNameCase.Incorrect -- False positive.
 		if ( is_bool( $override ) ) {
 			return $override;
 		}
@@ -379,7 +381,7 @@ class The_Neverending_Home_Page {
 
 		// This is to cope with an issue in certain themes or setups where posts are returned but found_posts is 0.
 		if ( 0 === $entries ) {
-			return (bool) ( count( self::wp_query()->posts ) < $posts_per_page );
+			return (bool) ( ! is_countable( self::wp_query()->posts ) || ( count( self::wp_query()->posts ) < $posts_per_page ) );
 		}
 		$paged = max( 1, self::wp_query()->get( 'paged' ) );
 
@@ -546,7 +548,7 @@ class The_Neverending_Home_Page {
 				'_inc/build/infinite-scroll/infinity-customizer.min.js',
 				'modules/infinite-scroll/infinity-customizer.js'
 			),
-			array( 'customize-base' ),
+			array( 'jquery', 'customize-base' ),
 			JETPACK__VERSION . '-is5.0.0', // Added for ability to cachebust on WP.com.
 			true
 		);
@@ -650,7 +652,7 @@ class The_Neverending_Home_Page {
 		if ( preg_match_all( '/".*?("|$)|((?<=[\t ",+])|^)[^\t ",+]+/', self::wp_query()->get( 's' ), $matches ) ) {
 			$search_terms = self::wp_query()->query_vars['search_terms'];
 			// if the search string has only short terms or stopwords, or is 10+ terms long, match it as sentence
-			if ( empty( $search_terms ) || count( $search_terms ) > 9 ) {
+			if ( empty( $search_terms ) || ! is_countable( $search_terms ) || count( $search_terms ) > 9 ) {
 				$search_terms = array( self::wp_query()->get( 's' ) );
 			}
 		} else {
@@ -1857,7 +1859,7 @@ class The_Neverending_Home_Page {
 			add_action( 'template_redirect', array( $this, 'amp_start_output_buffering' ), 0 );
 			add_action( 'shutdown', array( $this, 'amp_output_buffer' ), 1 );
 
-			if ( is_callable( "amp_{$template}_hooks" ) ) {
+			if ( is_string( $template ) && strpos( $template, '::' ) === false && is_callable( "amp_{$template}_hooks" ) ) {
 				call_user_func( "amp_{$template}_hooks" );
 			}
 
@@ -1969,7 +1971,7 @@ class The_Neverending_Home_Page {
 	protected function amp_footer_template() {
 		ob_start();
 		?>
-<amp-next-page max-pages="<?php echo esc_attr( $this->amp_get_max_pages() ); ?>">
+<amp-next-page max-pages="<?php echo esc_attr( static::amp_get_max_pages() ); ?>">
 	<script type="application/json">
 		[
 			<?php echo wp_json_encode( $this->amp_next_page() ); ?>

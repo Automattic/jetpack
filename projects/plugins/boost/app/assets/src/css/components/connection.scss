@@ -50,7 +50,7 @@
 }
 
 .jb-connection .checklist {
-	border: 1px solid #DCDCDE;
+	border: 1px solid #dcdcde;
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	grid-gap: 24px;
@@ -65,6 +65,7 @@
 
 	svg {
 		fill: $jetpack-green;
+		flex-shrink: 0;
 	}
 
 	span {
@@ -73,7 +74,6 @@
 		color: $primary-grey;
 	}
 }
-
 
 .jb-connection__iframe {
 	width: 100%;
@@ -89,11 +89,11 @@
 		padding: 0;
 
 		span {
-		  	display: flex;
+			display: flex;
 			min-width: 300px;
-		  	flex-direction: column;
+			flex-direction: column;
 			justify-content: center;
-		  	align-items: center;
+			align-items: center;
 		}
 	}
 }
@@ -107,7 +107,8 @@
 
 .jb-connection__title {
 	margin: 0 0 24px 0;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+	font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+		'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
 	font-style: normal;
 	font-weight: 700;
 
@@ -121,8 +122,27 @@
 	text-align: center;
 	margin-left: auto;
 	margin-right: auto;
+	margin-bottom: 0.5rem;
 
 	@include breakpoint(md) {
 		width: 445px;
 	}
+}
+
+/* Emulate .jp-components__pricing-card__button */
+.jb-connection .components-button.is-jb-primary {
+	align-self: center;
+
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+
+	width: 100%;
+	max-width: 200px;
+	margin: 24px 0 32px;
+	border-radius: var(--jp-border-radius);
+
+	background: var(--jp-black);
+	color: var(--jp-white);
+	font-weight: 500;
 }

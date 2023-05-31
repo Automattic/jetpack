@@ -1,16 +1,9 @@
-/**
- * Internal dependencies
- */
-import classNames from 'classnames';
-
-/**
- * External dependencies
- */
-import { Button } from '@wordpress/components';
 import { Warning } from '@wordpress/block-editor';
+import { Button } from '@wordpress/components';
+import classNames from 'classnames';
+import useAutosaveAndRedirect from '../../../shared/use-autosave-and-redirect/index';
 
 import './style.scss';
-import useAutosaveAndRedirect from '../../../shared/use-autosave-and-redirect/index';
 
 export default function BlockNudge( {
 	blockName,
@@ -40,6 +33,7 @@ export default function BlockNudge( {
 						onClick={ handleClick }
 						target="_top"
 						variant="secondary"
+						className="jetpack-stripe-nudge__link"
 					>
 						{ buttonLabel }
 					</Button>,

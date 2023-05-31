@@ -1,0 +1,48 @@
+[
+	{
+		"filePath": "/tmp/x/t/1.js",
+		"messages": [
+			{
+				"ruleId": "no-unused-vars",
+				"severity": 2,
+				"message": "'x' is defined but never used.",
+				"line": 1,
+				"column": 5,
+				"nodeType": "Identifier",
+				"messageId": "unusedVar",
+				"endLine": 1,
+				"endColumn": 6
+			}
+		],
+		"errorCount": 1,
+		"fatalErrorCount": 0,
+		"warningCount": 0,
+		"fixableErrorCount": 0,
+		"fixableWarningCount": 0,
+		"source": "var x;\n",
+		"usedDeprecatedRules": []
+	},
+	{
+		"filePath": "/tmp/x/t/3.js",
+		"messages": [
+			{
+				"ruleId": "no-unused-vars",
+				"severity": 2,
+				"message": "'x' is defined but never used.",
+				"line": 1,
+				"column": 5,
+				"nodeType": "Identifier",
+				"messageId": "unusedVar",
+				"endLine": 1,
+				"endColumn": 6
+			}
+		],
+		"errorCount": 1,
+		"fatalErrorCount": 0,
+		"warningCount": 0,
+		"fixableErrorCount": 0,
+		"fixableWarningCount": 0,
+		"source": "var x;\n",
+		"usedDeprecatedRules": []
+	}
+]

@@ -1,15 +1,8 @@
-/**
- * External dependencies
- */
-import { __, _x } from '@wordpress/i18n';
 import { G, Path, SVG } from '@wordpress/components';
-
-/**
- * Internal dependencies
- */
+import { __, _x } from '@wordpress/i18n';
+import { getIconColor } from '../../shared/block-icons';
 import edit from './edit';
 import './style.scss';
-import { getIconColor } from '../../shared/block-icons';
 
 export const name = 'related-posts';
 
@@ -23,6 +16,7 @@ export const icon = (
 
 export const settings = {
 	title: __( 'Related Posts', 'jetpack' ),
+	description: __( 'Display a list of related posts.', 'jetpack' ),
 
 	icon: {
 		src: icon,
@@ -42,9 +36,17 @@ export const settings = {
 			type: 'string',
 			default: 'grid',
 		},
+		displayAuthor: {
+			type: 'boolean',
+			default: false,
+		},
 		displayDate: {
 			type: 'boolean',
 			default: true,
+		},
+		displayHeadline: {
+			type: 'boolean',
+			default: false,
 		},
 		displayThumbnails: {
 			type: 'boolean',
@@ -53,6 +55,10 @@ export const settings = {
 		displayContext: {
 			type: 'boolean',
 			default: false,
+		},
+		headline: {
+			type: 'string',
+			default: '',
 		},
 		postsToShow: {
 			type: 'number',
@@ -73,6 +79,7 @@ export const settings = {
 			padding: true,
 		},
 		typography: {
+			__experimentalFontFamily: true,
 			fontSize: true,
 			lineHeight: true,
 		},
@@ -95,9 +102,12 @@ export const settings = {
 	example: {
 		attributes: {
 			postLayout: 'grid',
+			displayAuthor: false,
 			displayDate: true,
+			displayHeadline: false,
 			displayThumbnails: true,
 			displayContext: false,
+			headline: '',
 			postsToShow: 2,
 		},
 	},

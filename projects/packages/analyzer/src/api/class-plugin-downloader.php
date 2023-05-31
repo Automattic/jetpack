@@ -17,7 +17,7 @@ class PluginDownloader {
 
 		$target_path = $this->get_target_path($version);
 		if (file_exists($target_path)) {
-			if( $version !== 'master' ) {
+			if( $version !== 'trunk' ) {
 				return $target_path;
 			}
 
@@ -76,9 +76,9 @@ class PluginDownloader {
 	private function build_url($version) {
 		if ($this->type === 'jetpack') {
 		// https://api.github.com/repos/Automattic/jetpack-production/tags
-		// https://betadownload.jetpack.me/data/jetpack/master/jetpack-dev.zip
-			if ($version === 'master') {
-				return 'https://betadownload.jetpack.me/data/jetpack/master/jetpack-dev.zip';
+		// https://betadownload.jetpack.me/data/jetpack/trunk/jetpack-dev.zip
+			if ($version === 'trunk') {
+				return 'https://betadownload.jetpack.me/data/jetpack/trunk/jetpack-dev.zip';
 			}
 
 			$context = stream_context_create(array('http' => array( 'header' => 'User-Agent: jp-analyzer')));

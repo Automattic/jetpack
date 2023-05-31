@@ -16,7 +16,7 @@ Blocks, usually core blocks, extended by Jetpack plugin.
 Located in the `./extended-blocks` folder.
 
 ### Plugins
-Core Editor [plugins](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-plugins/), 
+Core Editor [plugins](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-plugins/),
 registered by Jetpack to extend the application UI via [Slot&Fill](https://developer.wordpress.org/block-editor/reference-guides/slotfills/) components.
 
 ## Extension Structure
@@ -61,7 +61,7 @@ If your block depends on another block, place them all in extensions folder:
 
 ### High-level overview of the development flow
 
-1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/tree/master/docker#readme).
+1. Use the [Jetpack Docker environment](https://github.com/Automattic/jetpack/blob/trunk/tools/docker/README.md#readme).
 1. Start a new branch.
 1. Add your new extension's source files to the extensions directory.
 And add your extensions' slug to the beta array in `extensions/index.json`. You can use Jetpack-CLI command to scaffold the block (see below).
@@ -79,16 +79,17 @@ By keeping your extension in the beta array, it's safe to do small PRs and merge
 Generally, all new extensions should start out as a beta.
 
 - Before you develop, remember to add your extension's slug to the beta array in `extensions/index.json`.
-- In the `wp-config.php` for your Docker environment (`docker/wordpress/wp-config.php`) or in your custom mu-plugins file (`docker/mu-plugins/yourfile.php`), enable beta extensions with the following snippet: `define( 'JETPACK_BETA_BLOCKS', true );`
+- In the `wp-config.php` for your Docker environment (`docker/wordpress/wp-config.php`) or in your custom mu-plugins file (`docker/mu-plugins/yourfile.php`), enable beta extensions with the following snippet: `define( 'JETPACK_BLOCKS_VARIATION', 'beta' );`
 - When you use this constant, you'll get all blocks: Beta blocks, Experimental blocks, and Production blocks.
+- You can also filter to specific extensions: `add_filter( 'jetpack_blocks_variation', function () { return 'beta'; } );`.
 - In the WordPress.com environment, Automatticians will be able to see beta extensions with no further configuration
-- In a Jurassic Ninja site, you must go to Settings > Jetpack Constants, and enable the `JETPACK_BETA_BLOCKS` option there.
+- In a Jurassic Ninja site, you must go to Settings > Jetpack Constants, and enable the Beta blocks option there.
 - Once you've successfully beta tested your new extension, you can open new PR to make your extension live!
 - Simply move the extension's slug out of the beta array and into the production array in `extensions/index.json`.
 
 ### Experimental Extensions
 
-We also offer an "experimental" state for extensions. Those extensions will be made available to anyone having the `JETPACK_EXPERIMENTAL_BLOCKS` constant defined in `wp-config.php`. When you use this constant, you'll get Experimental blocks as well as Production blocks.
+We also offer an "experimental" state for extensions. Those extensions will be made available to anyone having the `JETPACK_BLOCKS_VARIATION` constant set to `experimental` in `wp-config.php`. When you use this constant, you'll get Experimental blocks as well as Production blocks.
 
 Experimental extensions are usually considered ready for production, but are served only to sites requesting them.
 
@@ -142,7 +143,7 @@ Note that adding [Jest snapshot tests](https://jestjs.io/docs/en/snapshot-testin
 
 Yes! Just like any other changes in Jetpack, also blocks work in Jurassic Ninja.
 
-Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branch=master or use other ninjastic features.
+Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branches.jetpack=trunk or use other ninjastic features.
 
 ## Deploying extensions
 
@@ -155,7 +156,7 @@ Simply add branch name to the URL: jurassic.ninja/create/?jetpack-beta&branch=ma
 
 ### How do I merge extensions to WordPress.com?
 
-- Merge to Jetpack master first.
+- Merge to Jetpack trunk first.
 - Then, merge the auto-generated diff on WordPress.com.
 - Note: before merging your WordPress.com diff, it is worth considering the release schedule if you are shipping a new feature. This is to avoid a situation where a new feature ends up on WordPress.com before anywhere else, and any subsequent site migrations mean that functionality is lost. Reach out to a Jetpack crew member if in doubt.
 
@@ -277,6 +278,12 @@ Blocks can be registered but not available:
 - Registered: The block appears in the block inserter
 - Available: The block is included in the user's current plan and renders in the front end of the site
 
+## Block upgrade and deprecation paths
+
+When updating block markup or attributes, you will want to avoid block validation errors showing to all current users of the previous version of the block.
+
+In Jetpack the scenario that has been used historically is to create a deprecation. [This developer.wordpress.org guide](https://developer.wordpress.org/block-editor/reference-guides/block-api/block-deprecation/) explains block deprecation in more detail. An example of block deprecation within Jetpack can be seen from [this `deprecated` directory within the Tiled Gallery block](https://github.com/Automattic/jetpack/tree/7d97ced29dbbf6bd5c7a5d85bb5d752d9245f1c7/projects/plugins/jetpack/extensions/blocks/tiled-gallery) (see`index.js` in both the `deprecated` folder and the root `tiled-gallery` folder to see the `default` import and export in use).
+
 ## Good to know when developing Gutenberg extensions
 
 ### The Build
@@ -304,15 +311,15 @@ You could modify `SCRIPT_DEBUG` from `docker/wordpress/wp-config.php` in your Do
 
 ### Don't worry about dependencies
 
-The build takes care of core dependencies for both editor and view scripts. React, Lodash and `@wordpress/*` [dependencies](https://github.com/WordPress/gutenberg/blob/master/docs/contributors/scripts.md) are externalized and automatically enqueued in PHP for your extension.
+The build takes care of core dependencies for both editor and view scripts. React, Lodash and `@wordpress/*` [dependencies](https://github.com/WordPress/gutenberg/blob/trunk/docs/contributors/code/scripts.md) are externalized and automatically enqueued in PHP for your extension.
 
-Extensions _always_ get [Gutenberg's polyfill scripts](https://github.com/WordPress/gutenberg/blob/master/docs/contributors/scripts.md#polyfill-scripts) enqueued so you can safely use methods not supported by older browsers such as IE11.
+Extensions _always_ get [Gutenberg's polyfill scripts](https://github.com/WordPress/gutenberg/blob/trunk/docs/contributors/code/scripts.md#polyfill-scripts) enqueued so you can safely use methods not supported by older browsers such as IE11.
 
 ### Jetpack plugin sidebar
 
 Jetpack adds its own [plugin sidebar](https://wordpress.org/gutenberg/handbook/designers-developers/developers/tutorials/plugin-sidebar-0/plugin-sidebar-1-up-and-running/) to the block editor. You can find it by choosing "Jetpack" from block the editor's ellipsis menu or by pressing the Jetpack icon in the "pinned plugins" toolbar.
 
-The sidebar itself is always registered in the editor and populated using the [Slot Fill](https://github.com/WordPress/gutenberg/tree/master/packages/components/src/slot-fill#readme) mechanism.
+The sidebar itself is always registered in the editor and populated using the [Slot Fill](https://github.com/WordPress/gutenberg/tree/trunk/packages/components/src/slot-fill#readme) mechanism.
 
 Use the `JetpackPluginSidebar` component to render from anywhere in your plugin's code:
 
@@ -334,7 +341,7 @@ See [Publicize](blocks/publicize/index.js) and [Shortlinks](blocks/shortlinks/in
 
 ### i18n
 
-`@wordpress/i18n` doesn't support React elements in strings, but you can use `createInterpolateElement` from `@wordpress/element`. 
+`@wordpress/i18n` doesn't support React elements in strings, but you can use `createInterpolateElement` from `@wordpress/element`.
 
 ### Colors
 
@@ -347,6 +354,25 @@ The build pipeline also supports [Color studio](https://github.com/Automattic/co
 ### Icons
 
 Please use outline versions of [Material icons](https://material.io/tools/icons/?style=outline) to stay in line with Gutenberg. Don't rely on icons used in WordPress core to avoid visual mixing up with core blocks.
+
+### SVG files
+
+When an svg (or other asset) file is imported into js, by default webpack transforms the import into a url for the file. If you would like to import an svg file as a React component (using the [svgr library](https://react-svgr.com/)), append `?component` to the import source. This is particularly useful for [block icons](https://developer.wordpress.org/block-editor/reference-guides/block-api/block-registration/#icon-optional), which need to be either svg markup or a React component.
+
+```js
+// index.js for a block
+import { getIconColor } from '../../shared/block-icons';
+import Icon from './icon.svg?component';
+
+export const settings = {
+	...
+	icon: {
+		src: Icon,
+		foreground: getIconColor(),
+	},
+	...
+};
+```
 
 ## Native support
 

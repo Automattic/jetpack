@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Implemented a "tabbed" variation for static filters. This adds tabs on top of the results for each filter group.

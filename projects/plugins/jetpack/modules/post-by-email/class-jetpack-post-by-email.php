@@ -63,7 +63,12 @@ class Jetpack_Post_By_Email {
 			)
 		);
 		wp_enqueue_style( 'post-by-email', plugins_url( 'post-by-email.css', __FILE__ ), array(), JETPACK__VERSION );
-		wp_style_add_data( 'post-by-email', 'jetpack-inline', true );
+		// Inline styles. @see wp_maybe_inline_styles()
+		if ( is_rtl() ) {
+			wp_style_add_data( 'post-by-email', 'path', plugin_dir_path( __FILE__ ) . 'post-by-email-rtl.min.css' );
+		} else {
+			wp_style_add_data( 'post-by-email', 'path', plugin_dir_path( __FILE__ ) . 'post-by-email.min.css' );
+		}
 	}
 
 	/**

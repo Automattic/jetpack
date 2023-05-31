@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Sync;
 
 use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Modules as Jetpack_Modules;
 
 /**
  * Utility functions to generate data synced to wpcom
@@ -582,10 +583,12 @@ class Functions {
 	/**
 	 * Returns if the current theme is a Full Site Editing theme.
 	 *
+	 * @since 1.49.0 Uses wp_is_block_theme() instead of deprecated gutenberg_is_fse_theme().
+	 *
 	 * @return bool Theme is a Full Site Editing theme.
 	 */
 	public static function get_is_fse_theme() {
-		return function_exists( 'gutenberg_is_fse_theme' ) && gutenberg_is_fse_theme();
+		return wp_is_block_theme();
 	}
 
 	/**
@@ -626,7 +629,6 @@ class Functions {
 		}
 
 		return $any;
-
 	}
 
 	/**
@@ -659,5 +661,16 @@ class Functions {
 		 * @param array $themes The list of installed themes formatted in an array with a collection of information extracted from the Theme's headers
 		 */
 		return apply_filters( 'jetpack_sync_get_themes_callable', $themes );
+	}
+
+	/**
+	 * Return the list of active Jetpack modules.
+	 *
+	 * @since $$next_version$$
+	 *
+	 * @return array
+	 */
+	public static function get_active_modules() {
+		return ( new Jetpack_Modules() )->get_active();
 	}
 }

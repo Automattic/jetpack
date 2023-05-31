@@ -134,7 +134,7 @@ export const searchProductData = {
 	features: [
 		'Instant search and indexing',
 		'Powerful filtering',
-		'Supports 29 languages',
+		'Supports 38 languages',
 		'Spelling correction',
 	],
 	pricingForUi: {
@@ -177,7 +177,7 @@ export const videoPressProductData = {
 	features: [
 		'1TB of storage',
 		'Built into WordPress editor',
-		'Ad-free and brandable player',
+		'Ad-free and customizable player',
 		'Unlimited users',
 	],
 	pricingForUi: {

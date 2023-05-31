@@ -41,10 +41,10 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 	public function set_up() {
 		parent::set_up();
 
-		static::$user_id_editor     = $this->factory->user->create( array( 'role' => 'editor' ) );
-		static::$user_id_subscriber = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+		static::$user_id_editor     = self::factory()->user->create( array( 'role' => 'editor' ) );
+		static::$user_id_subscriber = self::factory()->user->create( array( 'role' => 'subscriber' ) );
 
-		$post_id = $this->factory->post->create(
+		$post_id = self::factory()->post->create(
 			array(
 				'post_status' => 'published',
 				'post_author' => (string) static::$user_id_editor,
@@ -89,7 +89,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 	public function test_publicize_share_post_permissions_check_wrong_user() {
 		wp_set_current_user( 0 );
 
-		$request = wp_rest_request( Requests::POST, static::$path );
+		$request = new WP_REST_Request( Requests::POST, static::$path );
 		$request->set_body_params(
 			array(
 				'message'             => 'string',
@@ -109,7 +109,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 	public function test_publicize_share_post_permissions_check_wrong_role() {
 		wp_set_current_user( static::$user_id_subscriber );
 
-		$request = wp_rest_request( Requests::POST, static::$path );
+		$request = new WP_REST_Request( Requests::POST, static::$path );
 		$request->set_body_params(
 			array(
 				'message'             => 'string',
@@ -131,7 +131,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 	public function test_publicize_share_post_rest_invalid_param( $input ) {
 		wp_set_current_user( static::$user_id_subscriber );
 
-		$request = wp_rest_request( Requests::POST, static::$path );
+		$request = new WP_REST_Request( Requests::POST, static::$path );
 		$request->set_body_params( $input );
 		$response = $this->server->dispatch( $request );
 
@@ -148,7 +148,7 @@ class WP_Test_WPCOM_REST_API_V2_Endpoint_Publicize_Share_Post extends WP_Test_Je
 	public function test_publicize_share_post_rest_missing_callback_param( $input ) {
 		wp_set_current_user( static::$user_id_subscriber );
 
-		$request = wp_rest_request( Requests::POST, static::$path );
+		$request = new WP_REST_Request( Requests::POST, static::$path );
 		$request->set_body_params( $input );
 		$response = $this->server->dispatch( $request );
 

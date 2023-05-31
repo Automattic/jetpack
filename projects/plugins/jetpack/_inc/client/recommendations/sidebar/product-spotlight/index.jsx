@@ -1,21 +1,11 @@
-/**
- * External dependencies
- */
+import { imagePath } from 'constants/urls';
+import { ExternalLink } from '@wordpress/components';
+import analytics from 'lib/analytics';
+import PropTypes from 'prop-types';
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
-
-/**
- * Internal dependencies
- */
-import { ExternalLink } from '@wordpress/components';
-import { imagePath } from 'constants/urls';
-import analytics from 'lib/analytics';
 import { getProductCardData, getProductCardDataStepOverrides } from 'recommendations/feature-utils';
 
-/**
- * Style dependencies
- */
 // Styles for this component are the same as the discount card
 import '../discount-card/style.scss';
 
@@ -26,6 +16,7 @@ const ProductSpotlightComponent = props => {
 		productCardCtaText,
 		productCardList,
 		productCardIcon,
+		productCardDisclaimer,
 		stepSlug,
 	} = props;
 
@@ -50,10 +41,18 @@ const ProductSpotlightComponent = props => {
 						<h3 className="jp-recommendations-discount-card__heading">{ productCardTitle }</h3>
 						{ productCardList && (
 							<ul className="jp-recommendations-discount-card__feature-list">
-								{ productCardList.map( listItem => {
-									return <li>{ listItem }</li>;
+								{ productCardList.map( ( listItem, index ) => {
+									return <li key={ `feature-${ index }` }>{ listItem }</li>;
 								} ) }
 							</ul>
+						) }
+						{ productCardDisclaimer && (
+							<p className="jp-recommendations-discount-card__disclaimer">
+								{ productCardDisclaimer.text }{ ' ' }
+								<ExternalLink href={ productCardDisclaimer.url }>
+									{ productCardDisclaimer.link_text }
+								</ExternalLink>
+							</p>
 						) }
 						<ExternalLink
 							type="button"
@@ -70,7 +69,7 @@ const ProductSpotlightComponent = props => {
 	);
 };
 
-ProductSpotlightComponent.PropTypes = {
+ProductSpotlightComponent.propTypes = {
 	productSlug: PropTypes.string.isRequired,
 };
 

@@ -113,10 +113,12 @@ class WPCOM_REST_API_V2_Endpoint_Resolve_Redirect extends WP_REST_Controller {
 	/**
 	 * Finds the destination url from an http response.
 	 *
-	 * @param Requests_Response $response Response object.
-	 * @return string                     Final url of the response.
+	 * @todo Add WpOrg\Requests\Response type hint to method when the minimum required WP version is WP 6.2.
+	 *
+	 * @param \WpOrg\Requests\Response|Requests_Response $response Response object.
+	 * @return string                                    Final url of the response.
 	 */
-	protected function get_response_url( Requests_Response $response ) {
+	protected function get_response_url( $response ) {
 		$history = $response->history;
 		if ( ! $history ) {
 			return $response->url;

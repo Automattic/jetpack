@@ -227,7 +227,7 @@ class Status {
 
 		$known_staging = array(
 			'urls'      => array(
-				'#\.staging\.wpengine\.com$#i', // WP Engine.
+				'#\.staging\.wpengine\.com$#i', // WP Engine. This is their legacy staging URL structure. Their new platform does not have a common URL. https://github.com/Automattic/jetpack/issues/21504
 				'#\.staging\.kinsta\.com$#i',   // Kinsta.com.
 				'#\.kinsta\.cloud$#i',          // Kinsta.com.
 				'#\.stage\.site$#i',            // DreamPress.
@@ -241,7 +241,7 @@ class Status {
 				'#\-liquidwebsites\.com$#i',    // Liquidweb.
 			),
 			'constants' => array(
-				'IS_WPE_SNAPSHOT',      // WP Engine.
+				'IS_WPE_SNAPSHOT',      // WP Engine. This is used on their legacy staging environment. Their new platform does not have a constant. https://github.com/Automattic/jetpack/issues/21504
 				'KINSTA_DEV_ENV',       // Kinsta.com.
 				'WPSTAGECOACH_STAGING', // WP Stagecoach.
 				'JETPACK_STAGING_MODE', // Generic.
@@ -312,6 +312,63 @@ class Status {
 	 */
 	public function is_onboarding() {
 		return \Jetpack_Options::get_option( 'onboarding' ) !== false;
+	}
+
+	/**
+	 * Whether the site is currently private or not.
+	 * On WordPress.com and WoA, sites can be marked as private
+	 *
+	 * @since 1.16.0
+	 *
+	 * @return bool True if the site is private.
+	 */
+	public function is_private_site() {
+		$ret = Cache::get( 'is_private_site' );
+		if ( null === $ret ) {
+			$is_private_site = '-1' === get_option( 'blog_public' );
+
+			/**
+			 * Filters the is_private_site check.
+			 *
+			 * @since 1.16.1
+			 *
+			 * @param bool $is_private_site True if the site is private.
+			 */
+			$is_private_site = apply_filters( 'jetpack_is_private_site', $is_private_site );
+
+			Cache::set( 'is_private_site', $is_private_site );
+			return $is_private_site;
+		}
+		return $ret;
+	}
+
+	/**
+	 * Whether the site is currently unlaunched or not.
+	 * On WordPress.com and WoA, sites can be marked as "coming soon", aka unlaunched
+	 *
+	 * @since 1.16.0
+	 *
+	 * @return bool True if the site is not launched.
+	 */
+	public function is_coming_soon() {
+		$ret = Cache::get( 'is_coming_soon' );
+		if ( null === $ret ) {
+			$is_coming_soon = (bool) ( function_exists( 'site_is_coming_soon' ) && \site_is_coming_soon() )
+				|| get_option( 'wpcom_public_coming_soon' );
+
+			/**
+			 * Filters the is_coming_soon check.
+			 *
+			 * @since 1.16.1
+			 *
+			 * @param bool $is_coming_soon True if the site is coming soon (i.e. unlaunched).
+			 */
+			$is_coming_soon = apply_filters( 'jetpack_is_coming_soon', $is_coming_soon );
+
+			Cache::set( 'is_coming_soon', $is_coming_soon );
+			return $is_coming_soon;
+		}
+		return $ret;
 	}
 
 	/**

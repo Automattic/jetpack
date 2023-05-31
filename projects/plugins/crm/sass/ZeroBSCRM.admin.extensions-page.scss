@@ -1,0 +1,264 @@
+/*!
+ * Jetpack CRM: Extension Manager Styles
+ * https://jetpackcrm.com
+ *
+ * Copyright 2015-2019+, ZeroBSCRM.com
+ *
+ * Date: 1 Mar 2019
+ * 
+ */
+
+ //wrap all in our page bodyclass so to not clash anywhere else. Is also only enqueue on that one page
+.zbs-extensions-manager{
+
+    .title{
+      font-size: 17px;
+      font-weight: 900;
+    }
+    .content{
+      color: #adadad;
+      font-size: 14px;
+      font-weight: 200;
+      margin-top: 5px;
+    }
+    .zbs-page-wrap{
+      padding:20px;
+    }
+    .zbs-page-wrap .segment{
+      padding:0px;
+    }
+    .bullie{
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 5px;
+      height:60px;
+    }
+    .bullie-wrap{
+      margin-top:-5px;
+    }
+    .bullie img {
+        height: 50px;
+        margin-left: 7px;
+        width: auto;
+        float:left;
+        margin-right: 10px;
+    }
+    .upgrade{
+      font-weight:900;
+      line-height:50px;
+      float:left;
+    }
+    .clear{
+      clear:both;
+    }
+    .premium-box{
+      margin-top:10px !important;
+      border-bottom: 0px !important;
+    }
+    .upgrade-bullie-box{
+      float: right;
+      line-height: 20px !important;
+      margin-top: 5px !important;
+      color: white;
+      opacity: 1;
+    }
+    .free-box{
+      margin-top:10px !important;
+    }
+    .free-ext-area .free-ext-img{
+      text-align:center;
+    }
+    .free-ext-area .free-ext-img img{
+      height: 50px;
+      width:auto;
+    }
+    .free-block-wrap{
+      margin-top: -30px !important;
+    }
+    .hover{
+          position: absolute;
+          top: 0px;
+          left: 0px;
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          line-height: 90px;
+          background: #efefef;
+          color: #b9b9b9;
+          opacity: 0.7;
+          display:none;
+    }
+    .hover-link{
+          position: absolute;
+          top: 0px;
+          left: 0px;
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          line-height: 90px;
+          color: #b9b9b9;
+          display:none;
+    }
+    .ext-desc:hover .hover,
+    .ext-desc:hover .hover-link{
+      display:block;
+    }
+    .thinner{
+      padding-left:25% !important; /* WH added for v3rc2, for some reason necessary */
+      padding-right:25% !important; /* WH added for v3rc2, for some reason necessary */
+    }
+    .single-info-start{
+      margin-top:-35px !important;
+    }
+    .full-size-image{
+      width:60%;
+      margin-left:20%;
+    }
+    .full-size-image img{
+    width: 60%;
+    margin-left: 20%;
+    margin-top:5%;
+    margin-bottom:5%;
+    }
+    .below-main-image{
+      margin-bottom:10px;
+      border-top: 1px solid #dededf;
+    }
+    .back{
+        color: black;
+        width: 100%;
+        padding: 10px;
+        border-bottom: 1px solid #dededf;
+        position:relative;
+    }
+    .back a{
+        color: #5f5f5f;
+    }
+    .about-img img{
+      width: 56px;
+      margin-top: 20px;
+      margin-left: 20px;
+      float: left;
+      margin-bottom: 10px;
+    }
+    .extension-description{
+      padding:20px;
+    }
+    .top-info-block{
+        float: left;
+        margin-left: 10px;
+        margin-top: 27px;
+    }
+    .top-info-block h4{
+      font-weight: 900;
+      margin-bottom: 4px;
+    }
+    .top-info-block .who{
+      color: #ccc;
+    }
+    .main-talk{
+        margin-top: -30px !important;
+    }
+    .main-talk img{
+      max-width:100% !important;
+      height:auto;
+      text-align:center;
+      padding:20px;
+    }
+    .extension-main-proposition{
+      font-size:20px;
+      font-weight:900;
+    }
+    .extension-section{
+        font-size: 14px;
+        line-height: 21px;
+
+        // stuff to modify our sales page html pulled into the zbs ext subpage
+        // (improve how this html renders on pages like /admin.php?page=zerobscrm-extensions&extension_id=20570)
+        .wul {          
+            padding: 1em;
+            margin: 0.5em;
+        }
+
+
+    }
+    .extension-section h3{
+      color:black;
+      font-size:20px;
+      font-weight: 900;
+      padding-top:20px;
+      padding-bottom:10px;
+    }
+    .extension-section .fa{
+      margin-right: 10px;
+      color: #8c8c8c;
+    }
+    .main-header-img .full-size-image{
+      width: 100%;
+      margin-left: 0;
+      margin-bottom: -4px;     
+    }
+    .box-title{
+      float:left;
+    }
+    .guides{
+      float:right;
+    }
+    .premium-box{
+      height:52px;
+    }
+    .actions-block{
+      float: right;
+      padding: 10px;
+      margin-top: 12px;
+      text-align:center;
+    }
+    .install-ext {
+      width: 180px;
+    }
+    .install-ext .button{
+      width:100%;
+      margin-bottom:5px;
+    }
+    .install-ext .label{
+      width:100%;
+      margin-bottom:5px;
+    }
+    .docs-url{
+      margin-top:10px;
+    }
+    .back a:focus, .docs-url:focus, .by-url:focus{
+      outline:none;
+      box-shadow:none;
+    }
+    .module-img{
+      padding:20px;
+      text-align:center;
+    }
+    .module-start{
+      margin-top:5px !important;
+      position:relative;
+    }
+    .module-desc{
+      text-align:center;
+      font-size:16px !important;
+      font-weight:100 !important;
+      padding:15px;
+    }
+    .module-active{
+      position: absolute !important;
+      top: 5px !important;
+      right: 18px !important;
+      margin-left: -15px !important;
+    }
+    .install-message-list{
+      margin-top: -10px !important;
+      margin-bottom: -25px !important;
+    }
+
+    .single-bundle-wrap{
+        margin-top: -20px;
+    }
+
+}

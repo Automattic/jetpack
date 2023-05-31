@@ -1,22 +1,77 @@
-.jp-settings-card__configure-link {
-	display: flex;
-	margin-bottom: 0;
-}
-
 .jp-form-settings-card {
 	margin-bottom: rem(24px);
 	font-size: rem( 14px );
+	box-shadow: 0px 0px 40px rgba(0, 0, 0, 0.08);
+	border-radius: rem( 4px );
 
 	& + .jp-at-a-glance__stats-card {
 		margin-bottom: rem(24px);
 	}
 
-	.dops-foldable-card {
-		.dops-foldable-card__header {
-			color: #444;
-			@include  breakpoint( ">480px" ) {
-				padding-left: rem( 24px );
+	& > :first-child {
+		border-top-left-radius: rem( 4px );
+		border-top-right-radius: rem( 4px );
+	}
+
+	& > :last-child {
+		border-bottom-left-radius: rem( 4px );
+		border-bottom-right-radius: rem( 4px );
+	}
+
+	.jp-settings-card__configure-link {
+		display: flex;
+		margin-bottom: 0;
+	
+		&:last-child {
+			border-top: 1px solid var( --jp-gray );
+		}
+	}
+
+	.dops-card {
+		box-shadow: none;
+		padding: rem( 16px ) rem( 24px );
+
+		&::after {
+			display: none;
+		}
+
+		p:last-child {
+			margin-bottom: 0;
+		}
+	}
+
+	.jp-form-settings-group + .dops-card.is-card-link {
+		border-top: 1px solid var( --jp-gray );
+	}
+
+	.dops-card.is-card-link + .jp-form-settings-group {
+		border-top: 1px solid var( --jp-gray );
+	}
+
+	.dops-banner.dops-card.is-card-link {
+		padding: rem(24px);
+		align-items: center;
+
+		&:hover {
+			box-shadow: none;
+			
+			.dops-banner__title {
+				text-decoration: underline;
 			}
+
+			.dops-card__link-indicator {
+				color: #000000;
+			}
+		}
+	}
+
+	.dops-foldable-card {
+		padding: 0;
+		border-top: 1px solid var( --jp-gray );
+
+		.dops-foldable-card__header {
+			padding: rem( 24px );
+			min-height: unset;
 		}
 
 		.form-toggle__switch {
@@ -29,19 +84,17 @@
 		}
 
 		&.jp-foldable-settings-disable .dops-foldable-card__header {
-			color: #dadada;
+			color: var( --jp-gray );
+		}
+
+		.dops-foldable-card__content {
+			padding: rem( 16px ) rem( 24px );
+			border-top: 1px solid var( --jp-gray );
 		}
 
 		.dops-foldable-card__main {
 			@include breakpoint( ">480px" ) {
 				max-width: 85%;
-			}
-		}
-
-		.dops-foldable-card__action {
-			right: rem( 10px );
-			@include breakpoint( "<480px" ) {
-				right: rem( 1px );
 			}
 		}
 
@@ -57,14 +110,39 @@
 		.jp-form-label-wide:first-child {
 			padding-top: rem( 7px );
 		}
-	}
 
-	.dops-foldable-card__header {
-		@include breakpoint ( '>480px' ) {
-			padding-top: rem( 28px );
-			padding-bottom: rem( 28px );
+		.dops-foldable-card__expand {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			width: 72px;
+
+			.gridicon {
+				fill: var( --jp-black );
+				width: rem( 16px );
+				height: rem( 16px );
+			}
 		}
 	}
+
+	// flush with section header's bottom border
+	.dops-foldable-card:first-child,
+	.dops-section-header + .dops-foldable-card,
+	.dops-section-header + .dops-card.dops-banner {
+		border-top: none;
+	}
+
+	a.dops-card .dops-card__link-indicator {
+		color:  #1E1E1E;
+		width: rem( 18px );
+		flex-shrink: 0;
+		margin-left: auto;
+
+		&:hover {
+			color: var( --jp-black );
+		}
+	}
+
 }
 
 .jp-foldable-settings-standalone {
@@ -74,12 +152,6 @@
 	}
 
 	@include breakpoint( ">480px" ) {
-		.dops-foldable-card__header,
-		&.dops-card.is-expanded .dops-foldable-card__content {
-			padding-left: rem( 24px );
-			padding-right: rem( 24px );
-		}
-
 		.dops-foldable-card__action {
 			right: rem( 10px );
 		}
@@ -102,30 +174,41 @@
 
 	.dops-banner__icon-circle {
 		background: none !important;
-		padding: 0 0 0 3px;
+		padding: 0;
+		display: flex;
+		align-items: center;
+		justify-content: center;
 
 		svg.gridicon {
-			width: 28px;
-			height: 28px;
+			width: 20px;
+			height: 20px;
 
 			&.gridicons-info {
-				color: $blue-wordpress;
+				color: var( --jp-black );
 			}
 
 			&.gridicons-notice {
-				color: $alert-yellow;
+				color: var( --jp-yellow-30 );
 			}
 
 			&.gridicons-checkmark-circle {
-				color: $alert-green;
+				color: var( --jp-green-40 );
 			}
 		}
 	}
 
+	.dops-banner__title
 	.dops-banner__description {
-		font-size: .875rem;
-		line-height: 1.65;
-		color: #537994;
+		font-size: rem( 14px );
+		line-height: rem( 24px );
+		color: var( --jp-black-80 );
+	}
+
+	.dops-banner__title {
+		font-weight: 700;
+	}
+
+	.dops-banner__description {
 		margin-top: 0;
 	}
 }

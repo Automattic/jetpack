@@ -336,7 +336,7 @@ class ConfigTest extends TestCase {
 
 		// Get by loading file, valid file.
 		$ns        = __NAMESPACE__;
-		$classBody = 'implements \\' . DummyPlugin::class . " {\n\tuse \\" . PluginTrait::class . ";\n\tpublic function __construct( \$c ) { \$this->c = \$c; }\n}";
+		$classBody = 'implements \\' . DummyPlugin::class . " {\n\tuse \\" . PluginTrait::class . ";\n\tpublic \$c;\n\tpublic function __construct( \$c ) { \$this->c = \$c; }\n}";
 		file_put_contents(
 			'dummy.php',
 			"<?php\nnamespace $ns;\nclass TestFromFile $classBody\n"

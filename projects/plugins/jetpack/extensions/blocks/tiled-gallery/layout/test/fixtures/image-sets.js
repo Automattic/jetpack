@@ -30,8 +30,7 @@ export const imageSet1 = [
 	{
 		alt: '',
 		id: 159,
-		url:
-			'https://example.files.wordpress.com/2018/12/black-and-white-construction-ladder-54335.jpg',
+		url: 'https://example.files.wordpress.com/2018/12/black-and-white-construction-ladder-54335.jpg',
 		height: 3193,
 		width: 2377,
 	},
@@ -45,8 +44,7 @@ export const imageSet1 = [
 	{
 		alt: '',
 		id: 157,
-		url:
-			'https://example.files.wordpress.com/2018/12/architectural-design-architecture-black-and-white-1672122-1.jpg',
+		url: 'https://example.files.wordpress.com/2018/12/architectural-design-architecture-black-and-white-1672122-1.jpg',
 		height: 3401,
 		width: 2721,
 	},
@@ -81,8 +79,7 @@ export const imageSet1 = [
 	{
 		alt: '',
 		id: 89,
-		url:
-			'https://example.files.wordpress.com/2018/12/31962299833_1e106f7f7a_z-1-e1545262352979.jpg',
+		url: 'https://example.files.wordpress.com/2018/12/31962299833_1e106f7f7a_z-1-e1545262352979.jpg',
 		height: 427,
 		width: 564,
 	},

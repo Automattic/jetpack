@@ -1,22 +1,16 @@
-/**
- * External dependencies
- */
-import { combineReducers } from 'redux';
-import { assign, find, get, merge } from 'lodash';
 import { __ } from '@wordpress/i18n';
-
-/**
- * Internal dependencies
- */
 import {
 	getPlanClass,
+	isJetpackBackup,
+	isJetpackBoost,
 	isJetpackProduct,
 	isJetpackSearch,
 	isJetpackSecurityBundle,
-	isJetpackVideoPress,
 	isJetpackAntiSpam,
 	isSecurityComparableJetpackLegacyPlan,
 } from 'lib/plans/constants';
+import { assign, find, get, merge } from 'lodash';
+import { combineReducers } from 'redux';
 import {
 	JETPACK_SITE_DATA_FETCH,
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
@@ -272,7 +266,7 @@ export function isFetchingSitePurchases( state ) {
  * @returns {Array} Site products
  */
 export function getSiteProducts( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'products' ], {} );
+	return get( state.jetpack.siteData, [ 'data', 'products' ], [] );
 }
 
 /**
@@ -338,7 +332,7 @@ export function getActiveFeatures( state ) {
  * @param  {string}  featureId - The feature to check.
  * @returns {boolean} True if the feature is active. Otherwise, False.
  */
-export function hasActiveSiteFeature( state, featureId ) {
+export function siteHasFeature( state, featureId ) {
 	const siteFeatures = getActiveFeatures( state );
 
 	return siteFeatures && siteFeatures.indexOf( featureId ) >= 0;
@@ -412,28 +406,6 @@ export function hasActiveSearchPurchase( state ) {
 }
 
 /**
- * Searches active products for an active VideoPress product.
- *
- * @param {*} state - Global state tree
- * @returns {boolean} True if the an active VideoPress plan was found, false otherwise.
- */
-export function getActiveVideoPressPurchase( state ) {
-	return find( getActiveProductPurchases( state ), product =>
-		isJetpackVideoPress( product.product_slug )
-	);
-}
-
-/**
- * Determines if the site has an active VideoPress product purchase
- *
- * @param {*} state - Global state tree
- * @returns {boolean} True if the site has an active VideoPress product purchase, false otherwise.
- */
-export function hasActiveVideoPressPurchase( state ) {
-	return !! getActiveVideoPressPurchase( state );
-}
-
-/**
  * Searches active products for an active Anti-Spam product.
  *
  * @param {*} state - Global state tree
@@ -453,6 +425,50 @@ export function getActiveAntiSpamPurchase( state ) {
  */
 export function hasActiveAntiSpamPurchase( state ) {
 	return !! getActiveAntiSpamPurchase( state );
+}
+
+/**
+ * Searches active products for an active Boost product.
+ *
+ * @param {*} state - Global state tree
+ * @returns {object} An active Boost product if one was found, undefined otherwise.
+ */
+export function getActiveBoostPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackBoost( product.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active Boost product purchase
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active Boost product purchase, false otherwise.
+ */
+export function hasActiveBoostPurchase( state ) {
+	return !! getActiveBoostPurchase( state );
+}
+
+/**
+ * Searches active products for an active Backup product.
+ *
+ * @param {*} state - Global state tree
+ * @returns {object} An active backup product if one was found, undefined otherwise.
+ */
+export function getActiveBackupPurchase( state ) {
+	return find( getActiveProductPurchases( state ), product =>
+		isJetpackBackup( product.product_slug )
+	);
+}
+
+/**
+ * Determines if the site has an active backup product purchase
+ *
+ * @param {*} state - Global state tree
+ * @returns {boolean} True if the site has an active backup product purchase, false otherwise.
+ */
+export function hasActiveBackupPurchase( state ) {
+	return !! getActiveBackupPurchase( state );
 }
 
 /**

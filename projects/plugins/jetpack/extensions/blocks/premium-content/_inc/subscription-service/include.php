@@ -12,13 +12,14 @@ require_once __DIR__ . '/class-subscription-service.php';
 require_once __DIR__ . '/class-token-subscription.php';
 require_once __DIR__ . '/class-token-subscription-service.php';
 require_once __DIR__ . '/class-wpcom-token-subscription-service.php';
+require_once __DIR__ . '/class-wpcom-online-subscription-service.php';
 require_once __DIR__ . '/class-wpcom-offline-subscription-service.php';
 require_once __DIR__ . '/class-jetpack-token-subscription-service.php';
 require_once __DIR__ . '/class-unconfigured-subscription-service.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Jetpack_Token_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Unconfigured_Subscription_Service;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Offline_Subscription_Service;
+use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Online_Subscription_Service;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\WPCOM_Token_Subscription_Service;
 
 const PAYWALL_FILTER = 'earn_premium_content_subscription_service';
@@ -65,8 +66,8 @@ function default_service( $service ) {
 		return $service;
 	}
 
-	if ( WPCOM_Offline_Subscription_Service::available() ) {
-		return new WPCOM_Offline_Subscription_Service();
+	if ( WPCOM_Online_Subscription_Service::available() ) {
+		return new WPCOM_Online_Subscription_Service();
 	}
 
 	if ( WPCOM_Token_Subscription_Service::available() ) {

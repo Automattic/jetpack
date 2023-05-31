@@ -1,22 +1,10 @@
-/**
- * External dependencies
- */
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-
-/**
- * WordPress dependencies
- */
+import { getRedirectUrl, ToggleControl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { getRedirectUrl } from '@automattic/jetpack-components';
-
-/**
- * Internal dependencies
- */
 import analytics from 'lib/analytics';
-import CompactFormToggle from 'components/form/form-toggle/compact';
+import PropTypes from 'prop-types';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { getModuleOverride } from 'state/modules';
 
 class ModuleToggleComponent extends Component {
@@ -107,18 +95,15 @@ class ModuleToggleComponent extends Component {
 
 	render() {
 		return (
-			<CompactFormToggle
+			<ToggleControl
 				checked={ this.props.activated || this.props.isModuleActivated }
 				toggling={ this.props.toggling }
 				className={ this.props.className }
 				disabled={ this.props.disabled || this.isDisabledByOverride() }
-				id={ this.props.id }
 				onChange={ this.toggleModule }
-				disabledReason={ this.getDisabledReason() }
-				aria-label={ this.props[ 'aria-label' ] }
-			>
-				{ this.props.children }
-			</CompactFormToggle>
+				help={ this.getDisabledReason() }
+				label={ this.props.children }
+			/>
 		);
 	}
 }

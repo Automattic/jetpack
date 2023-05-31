@@ -1,12 +1,3 @@
-/**
- * External dependencies
- */
-import { range } from 'lodash';
-
-/**
- * WordPress dependencies
- */
-import { __ } from '@wordpress/i18n';
 import {
 	AlignmentToolbar,
 	BlockControls,
@@ -14,11 +5,15 @@ import {
 	PanelColorSettings,
 } from '@wordpress/block-editor';
 import { PanelBody, RangeControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { range } from 'lodash';
 
 export const Rating = ( { id, setRating, children } ) => {
 	const setNewRating = newRating => () => setRating( newRating );
-	const maybeSetNewRating = newRating => ( { code } ) =>
-		code === 'Enter' ? setRating( newRating ) : null;
+	const maybeSetNewRating =
+		newRating =>
+		( { code } ) =>
+			code === 'Enter' ? setRating( newRating ) : null;
 
 	return (
 		<span

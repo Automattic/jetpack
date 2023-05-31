@@ -1,19 +1,9 @@
-/**
- * External dependencies
- */
-import { __ } from '@wordpress/i18n';
 import { createInterpolateElement } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
 import React from 'react';
+import { getProductGroup } from '../../activation-screen/utils.js';
 
-/**
- * Internal dependencies
- */
-import { getProductGroup } from '../../activation-screen/utils';
-
-/**
- * Style dependencies
- */
 import './style.scss';
 
 /**
@@ -96,6 +86,18 @@ const JetpackProductDetails = props => {
 			text: __(
 				'Experience high-quality, ad-free video built specifically for WordPress.',
 				'jetpack'
+			),
+		},
+		jetpack_starter: {
+			title: __( 'Jetpack Starter is active!', 'jetpack' ),
+			text: createInterpolateElement(
+				__(
+					'You can see your backups and restore your site on <a>cloud.jetpack.com</a>. If you ever lose access to your site, you can restore it there.',
+					'jetpack'
+				),
+				{
+					a: <a href={ cloudDashboardBaseUrl } />,
+				}
 			),
 		},
 		default: {

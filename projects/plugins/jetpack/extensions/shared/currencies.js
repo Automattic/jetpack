@@ -1,8 +1,9 @@
-/**
- * External dependencies
- */
 import { CURRENCIES, getCurrencyDefaults } from '@automattic/format-currency';
-import { trimEnd } from 'lodash';
+
+// Removes all dots (`.`) from the end of a string.
+function removeTrailingDots( string ) {
+	return String( string || '' ).replace( /\.+$/, '' );
+}
 
 /**
  * Currencies we support and Stripe's minimum amount for a transaction in that currency.
@@ -44,7 +45,7 @@ export const SUPPORTED_CURRENCIES = {
  */
 export const CURRENCY_OPTIONS = Object.keys( SUPPORTED_CURRENCIES ).map( value => {
 	const { symbol } = getCurrencyDefaults( value );
-	const label = symbol === value ? value : `${ value } ${ trimEnd( symbol, '.' ) }`;
+	const label = symbol === value ? value : `${ value } ${ removeTrailingDots( symbol ) }`;
 	return { value, label };
 } );
 
@@ -57,6 +58,21 @@ export const CURRENCY_OPTIONS = Object.keys( SUPPORTED_CURRENCIES ).map( value =
  */
 export function minimumTransactionAmountForCurrency( currency_code ) {
 	return SUPPORTED_CURRENCIES[ currency_code ];
+}
+
+/**
+ * Returns the default amounts for the given currency.
+ *
+ * @param {string} currency_code - three character currency code to get default amounts for
+ * @returns {number[]} Default amounts for the given currency_code
+ */
+export function getDefaultDonationAmountsForCurrency( currency_code ) {
+	const minAmount = minimumTransactionAmountForCurrency( currency_code );
+	return [
+		minAmount * 10, // 1st tier (USD 5)
+		minAmount * 30, // 2nd tier (USD 15)
+		minAmount * 200, // 3rd tier (USD 100)
+	];
 }
 
 /**

@@ -66,6 +66,7 @@ if [[ ${#ARGS[@]} -ne 2 ]]; then
 fi
 
 TAG="${ARGS[1]}"
+SVNTAG="${TAG#v}"
 
 # Check plugin.
 process_plugin_arg "${ARGS[0]}"
@@ -82,6 +83,12 @@ if [[ -z "$WPSLUG" ]]; then
 	error "Plugin $PLUGIN_NAME has no WordPress.org plugin slug. Cannot deploy." >&2
 fi
 $FAIL && exit 1
+
+if jq -e '.extra["wp-svn-autopublish"] // false' "$PLUGIN_DIR/composer.json" &>/dev/null; then
+	yellow "$PLUGIN_NAME is set up to automatically publish to WordPress.org via GitHub Actions."
+	yellow $'\e[1mIf you run this script in addition to the auto-publish, you\'ll likely wind up with a broken tag (see https://github.com/Automattic/jetpack/issues/28400).'
+	proceed_p '' 'Really publish to SVN manually?'
+fi
 
 # Check build dir.
 if [[ -z "$BUILD_DIR" ]]; then
@@ -123,8 +130,12 @@ printf "\r\e[K"
 success "Done!"
 
 info "Checking out SVN tags shallowly to $DIR/tags"
-svn -q up tags --depth=empty
+svn -q up tags --depth=immediates
 success "Done!"
+
+if [[ -e "tags/$SVNTAG" ]]; then
+	die "Tag $SVNTAG already exists in SVN. Aborting."
+fi
 
 info "Deleting everything in trunk except for .svn directories"
 find trunk ! \( -path '*/.svn/*' -o -path "*/.svn" \) \( ! -type d -o -empty \) -delete
@@ -163,29 +174,31 @@ fi
 cd "$DIR"
 
 STABLE_TAG="$(sed -n -E -e 's/^Stable tag: +([^ ]+) *$/\1/p' trunk/readme.txt)"
-if [[ "$TAG" == "$STABLE_TAG" ]]; then
+if [[ "$SVNTAG" == "$STABLE_TAG" ]]; then
 	warn "The stable tag in trunk/readme.txt is already $STABLE_TAG!"
 	echo "Usually we wait until a final, manual step to update the stable tag."
 	proceed_p ""
 else
-	debug "Stable tag in trunk/readme.txt is $STABLE_TAG. Good, that's !== $TAG."
+	debug "Stable tag in trunk/readme.txt is $STABLE_TAG. Good, that's !== $SVNTAG."
 fi
 
-proceed_p "We're ready to update trunk and tag $TAG!" "Do it?"
+proceed_p "We're ready to update trunk and tag $SVNTAG!" "Do it?"
 info "Updating trunk"
-svn commit -m "Updating trunk to version $TAG"
+svn commit -m "Updating trunk to version $SVNTAG"
 success "Done!"
-info "Tagging $TAG"
-svn cp ^/$WPSLUG/trunk ^/$WPSLUG/tags/$TAG -m "Creating the $TAG tag"
+info "Tagging $SVNTAG"
+svn cp ^/$WPSLUG/trunk ^/$WPSLUG/tags/$SVNTAG -m "Creating the $SVNTAG tag"
 success "Done!"
-if [[ "$TAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
-	info "Updating stable tag in readme.txt in SVN tags/$TAG"
-	svn up tags/$TAG | while IFS= read -r LINE; do printf "\r\e[K%s" $LINE; done
+if [[ "$SVNTAG" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
+	info "Updating stable tag in readme.txt in SVN tags/$SVNTAG (this does not make $SVNTAG the live version, the stable tag in trunk/readme.txt is what is changed when ready, later)"
+	svn up tags/$SVNTAG | while IFS= read -r LINE; do printf "\r\e[K%s" $LINE; done
 	printf "\r\e[K"
-	sed -i.bak -e "s/Stable tag: .*/Stable tag: $TAG/" "tags/$TAG/readme.txt"
-	rm "tags/$TAG/readme.txt.bak"
-	svn commit -m "Updating stable tag in version $TAG"
+	sed -i.bak -e "s/Stable tag: .*/Stable tag: $SVNTAG/" "tags/$SVNTAG/readme.txt"
+	rm "tags/$SVNTAG/readme.txt.bak"
+	svn commit -m "Updating stable tag in version $SVNTAG"
 	success "Done!"
 else
-	debug "As $TAG appears to be a prerelease version, skipping update of stable tag in readme.txt in SVN tags/$TAG"
+	debug "As $TAG appears to be a prerelease version, skipping update of stable tag in readme.txt in SVN tags/$SVNTAG"
 fi
+
+info "Reminder that SVN trunk is at $DIR/trunk"

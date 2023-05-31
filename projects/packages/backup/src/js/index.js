@@ -1,13 +1,7 @@
-/**
- * External dependencies
- */
-import React from 'react';
-import ReactDOM from 'react-dom';
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { createReduxStore, register } from '@wordpress/data';
-
-/**
- * Internal dependencies
- */
+import * as WPElement from '@wordpress/element';
+import React from 'react';
 import Admin from './components/Admin';
 import { STORE_ID, storeConfig } from './store';
 
@@ -24,7 +18,17 @@ function render() {
 		return;
 	}
 
-	ReactDOM.render( <Admin />, container );
+	// @todo: Remove fallback when we drop support for WP 6.1
+	const component = (
+		<ThemeProvider>
+			<Admin />
+		</ThemeProvider>
+	);
+	if ( WPElement.createRoot ) {
+		WPElement.createRoot( container ).render( component );
+	} else {
+		WPElement.render( component, container );
+	}
 }
 
 render();
