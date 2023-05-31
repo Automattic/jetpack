@@ -66,7 +66,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 				label={ __( 'All threats', 'jetpack-protect' ) }
 				icon={ warningIcon }
 				badge={ numThreats }
-				disabled={ numThreats <= 0 }
+				// disabled={ numThreats <= 0 }
 				onClick={ trackNavigationClickAll }
 				checked={ true }
 			/>
@@ -75,7 +75,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 				label={ __( 'WordPress', 'jetpack-protect' ) }
 				icon={ coreIcon }
 				badge={ numCoreThreats }
-				disabled={ numCoreThreats <= 0 }
+				// disabled={ numCoreThreats <= 0 }
 				onClick={ trackNavigationClickCore }
 				checked={ true }
 			/>
@@ -134,7 +134,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 						label={ __( 'Files', 'jetpack-protect' ) }
 						icon={ filesIcon }
 						badge={ numFilesThreats }
-						disabled={ numFilesThreats <= 0 }
+						// disabled={ numFilesThreats <= 0 }
 						onClick={ trackNavigationClickFiles }
 						checked={ true }
 					/>
@@ -143,7 +143,7 @@ const ThreatsNavigation = ( { selected, onSelect } ) => {
 						label={ __( 'Database', 'jetpack-protect' ) }
 						icon={ databaseIcon }
 						badge={ numDatabaseThreats }
-						disabled={ numDatabaseThreats <= 0 }
+						// disabled={ numDatabaseThreats <= 0 }
 						onClick={ trackNavigationClickDatabase }
 						checked={ true }
 					/>

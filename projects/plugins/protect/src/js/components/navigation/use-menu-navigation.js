@@ -1,9 +1,20 @@
 import React, { useMemo, useState } from 'react';
 
+/**
+ * @typedef MenuItem
+ * @property {string}            id       - The menu item's ID.
+ * @property {?string}           parentId - The ID of the menu item's parent, when the item is nested.
+ * @property {React.Node|string} label    - The menu item's label content.
+ * @property {React.Node|string} icon     - The menu item's icon content.
+ * @property {boolean}           disabled - Whether the menu item is disabled.
+ */
+
 export const NavigationContext = React.createContext();
 
 const useMenuNavigation = ( { selectedItemId, onSelect } ) => {
+	/** @type {[MenuItem[], Function]} */
 	const [ items, setItems ] = useState( [] );
+
 	const [ refs, setRef ] = useState( [] );
 	const [ focusedItem, setFocusedItem ] = useState();
 

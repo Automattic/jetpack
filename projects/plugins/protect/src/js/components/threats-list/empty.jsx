@@ -106,6 +106,30 @@ const EmptyList = ( { selected } ) => {
 			);
 		}
 
+		if ( selected === 'wordpress' ) {
+			return __(
+				'No WordPress threats found',
+				'jetpack-protect',
+				/* dummy arg to avoid bad minification */ 0
+			);
+		}
+
+		if ( selected === 'files' ) {
+			return __(
+				'No file threats found',
+				'jetpack-protect',
+				/* dummy arg to avoid bad minification */ 0
+			);
+		}
+
+		if ( selected === 'database' ) {
+			return __(
+				'No database threats found',
+				'jetpack-protect',
+				/* dummy arg to avoid bad minification */ 0
+			);
+		}
+
 		return __( "Don't worry about a thing", 'jetpack-protect' );
 	}, [ selected ] );
 
@@ -125,6 +149,24 @@ const EmptyList = ( { selected } ) => {
 			// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
 			translatedDescription = __(
 				'The last Protect scan ran <strong>%s</strong> and no threats were found in your themes.',
+				'jetpack-protect'
+			);
+		} else if ( selected === 'wordpress' ) {
+			// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
+			translatedDescription = __(
+				'The last Protect scan ran <strong>%s</strong> and no threats were found in your version of WordPress.',
+				'jetpack-protect'
+			);
+		} else if ( selected === 'files' ) {
+			// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
+			translatedDescription = __(
+				'The last Protect scan ran <strong>%s</strong> and no threats were found in your files.',
+				'jetpack-protect'
+			);
+		} else if ( selected === 'database' ) {
+			// translators: placeholder is the amount of time since the last scan, i.e. "5 minutes ago".
+			translatedDescription = __(
+				'The last Protect scan ran <strong>%s</strong> and no threats were found in your database.',
 				'jetpack-protect'
 			);
 		}
