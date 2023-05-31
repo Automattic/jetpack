@@ -175,17 +175,29 @@ const AIControl = ( {
 						</Button>
 					) }
 
-					{ contentIsLoaded && ! isWaitingState && (
-						<Button
-							className="jetpack-ai-assistant__prompt_button"
-							onClick={ handleAcceptContent }
-							isSmall={ true }
-							label={ __( 'Done', 'jetpack' ) }
-						>
-							<Icon icon={ check } />
-							{ __( 'Done', 'jetpack' ) }
-						</Button>
-					) }
+					{ contentIsLoaded &&
+						! isWaitingState &&
+						( promptType === 'generateTitle' ? (
+							<Button
+								className="jetpack-ai-assistant__prompt_button"
+								onClick={ handleAcceptTitle }
+								isSmall={ true }
+								label={ __( 'Accept title', 'jetpack' ) }
+							>
+								<Icon icon={ check } />
+								{ __( 'Accept title', 'jetpack' ) }
+							</Button>
+						) : (
+							<Button
+								className="jetpack-ai-assistant__prompt_button"
+								onClick={ handleAcceptContent }
+								isSmall={ true }
+								label={ __( 'Done', 'jetpack' ) }
+							>
+								<Icon icon={ check } />
+								{ __( 'Done', 'jetpack' ) }
+							</Button>
+						) ) }
 				</div>
 			</div>
 		</>
