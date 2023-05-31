@@ -14,8 +14,8 @@ namespace Automattic\Jetpack\CRM\Automation;
  */
 abstract class Base_Trigger implements Trigger {
 
-	/** @var mixed|string The trigger name */
-	protected $name = '';
+	/** @var mixed|string The trigger slug name */
+	protected $slug = '';
 	/** @var string The trigger title */
 	protected $title = '';
 	/** @var string The trigger description */
@@ -40,8 +40,8 @@ abstract class Base_Trigger implements Trigger {
 	 *
 	 * @return string
 	 */
-	public function get_name(): string {
-		return $this->name;
+	public function get_slug(): string {
+		return $this->slug;
 	}
 
 	/**
