@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Add "Read me" links to Stripe connection banners in blocks.
