@@ -86,6 +86,7 @@
 		resize: none !important;
 		border: none;
 		box-shadow: none;
+		color: var( --jp-gray-80 );
 
 		font-size: 13px;
 		font-weight: 400;
@@ -114,7 +115,7 @@
 	align-items: center;
 
 	.jetpack-ai-assistant__prompt_button {
-		color: var( --wp--preset--color--foreground );
+		color: var( --jp-gray-80 );
 		text-transform: uppercase;
 		font-size: 11px;
 		font-weight: 600;
