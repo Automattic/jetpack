@@ -1,3 +1,5 @@
+import { SiteAIAssistantFeatureEndpointResponseProps } from './hooks/use-ai-feature';
+
 export {};
 
 declare global {
@@ -47,6 +49,7 @@ declare global {
 		};
 		Jetpack_Editor_Initial_State: {
 			adminUrl: string;
+			'ai-assistant': SiteAIAssistantFeatureEndpointResponseProps;
 		};
 	}
 }
