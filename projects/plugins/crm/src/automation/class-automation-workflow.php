@@ -78,10 +78,10 @@ class Automation_Workflow {
 		
 		foreach ( $this->get_triggers() as $trigger_name ) {
 			try {
-				$class_name = $this->automation_engine->get_trigger_class( $trigger_name );
+				$trigger_class = $this->automation_engine->get_trigger_class( $trigger_name );
 				
-				/** @var Trigger $trigger */
-				$trigger = new $class_name();
+				/** @var Base_Trigger $trigger */
+				$trigger = new $trigger_class();
 				$trigger->init( $this );
 				
 			} catch ( Automation_Exception $e ) {
@@ -137,7 +137,7 @@ class Automation_Workflow {
 	 * @throws Automation_Exception
 	 */
 	public function execute( Trigger $trigger, array $data ): bool {
-		$this->logger->log( 'Trigger activated: ' . $trigger->get_name() );
+		$this->logger->log( 'Trigger activated: ' . $trigger->get_slug() );
 		$this->logger->log( 'Executing workflow: ' . $this->name );
 		
 		$step_data = $this->initial_step;
@@ -155,12 +155,12 @@ class Automation_Workflow {
 					/** @var Step $step */
 					$step = new $step_class( $step_data );
 	
-					$this->logger->log( '[' . $step->get_name() . '] Executing step. Type: ' . $step->get_type() );
+					$this->logger->log( '[' . $step->get_slug() . '] Executing step. Type: ' . $step->get_type() );
 					
 					$step->execute( $data );
 					$step_data = $step->get_next_step();
 
-					$this->logger->log( '[' . $step->get_name() . '] Step executed!' );
+					$this->logger->log( '[' . $step->get_slug() . '] Step executed!' );
 					
 				if ( ! $step_data ) {
 					$this->logger->log( 'Workflow execution finished: No more steps found.' );
