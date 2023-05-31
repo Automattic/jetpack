@@ -11,9 +11,6 @@
  //wrap all in our page bodyclass so to not clash anywhere else. Is also only enqueue on that one page
 .zbs-extensions-manager{
 
-    // wh fix for bad wp margins
-    margin-left: -1em;
-
     .title{
       font-size: 17px;
       font-weight: 900;

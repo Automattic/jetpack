@@ -327,43 +327,8 @@
             // localise ID & content
             $eventID = -1; if (is_array($event) && isset($event['id'])) $eventID = (int)$event['id'];
 
-            #} if a saved event...
             if ($eventID > 0){
-
-                 // existing
-            
-                /* Event's dont use statuses for now.. 
-
-                        // hard typed for now.
-                        $acceptableQuoteStatuses = array(
-                            "draft" => __('Draft','zero-bs-crm'),
-                            "published" => __('Published, Unaccepted','zero-bs-crm'),
-                            "accepted" => __('Accepted','zero-bs-crm')
-                        );
-
-                        // status
-                        $status = __('Draft','zero-bs-crm');
-                        if (is_array($quote) && isset($quote['status'])){
-                            if ($quote['status'] == -2) $status = __('Published, Unaccepted','zero-bs-crm');
-                            if ($quote['status'] == 1) $status = __('Accepted','zero-bs-crm');
-                        }
-                        ?>
-                        <div>
-                            <label for="quote_status"><?php _e('Status',"zero-bs-crm"); ?>: </label>
-                            <select id="quote_status" name="quote_status">
-                                <?php foreach($acceptableQuoteStatuses as $statusOpt => $statusStr){
-
-                                    $sel = '';
-                                    if ($statusStr == $status) $sel = ' selected="selected"';
-                                    echo '<option value="'.$statusOpt.'"'. $sel .'>'.__($statusStr,"zero-bs-crm").'</option>';
-
-                                } ?>
-                            </select>
-                        </div>
-
-                        <div class="clear"></div>
-                    
-                    */ ?>
+				?>
 
                     <div class="zbs-event-actions-bottom zbs-objedit-actions-bottom">
 

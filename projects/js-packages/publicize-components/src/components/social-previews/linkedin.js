@@ -1,4 +1,5 @@
 import { LinkedInPreviews } from '@automattic/social-previews';
+import { __ } from '@wordpress/i18n';
 import React from 'react';
 import useSocialMediaMessage from '../../hooks/use-social-media-message';
 import { getLinkedInDetails } from '../../store/selectors';
@@ -21,7 +22,7 @@ export function LinkedIn( props ) {
 
 	return (
 		<LinkedInPreviews
-			jobTitle="Job Title (Company Name)"
+			jobTitle={ __( 'Job Title (Company Name)', 'jetpack' ) }
 			image={ image }
 			name={ name }
 			profileImage={ profileImage }

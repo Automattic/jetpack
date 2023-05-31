@@ -1340,7 +1340,7 @@ function ZeroBSCRM_get_quote_template() {
 			}
 
 			// HTML is escaped just prior to the complete HTML in this function being returned
-			$workingHTML = $quoteTemplate['content']; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
+			$workingHTML = wpautop( $quoteTemplate['content'] ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 
 			// replacements
 			$replacements = $placeholder_templating->get_generic_replacements();

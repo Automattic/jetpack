@@ -589,7 +589,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 	 * Check if site should be considered as eligible for use of the core Site Editor.
 	 * The Site Editor requires a block based theme to be active.
 	 *
-	 * @since $$next-version$$ Uses wp_is_block_theme() to determine if site is eligible instead of gutenberg_is_fse_theme().
+	 * @since 12.2 Uses wp_is_block_theme() to determine if site is eligible instead of gutenberg_is_fse_theme().
 	 * @return bool true if site is eligible for the Site Editor
 	 */
 	public function is_core_site_editor_enabled() {

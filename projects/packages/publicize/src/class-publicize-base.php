@@ -506,6 +506,10 @@ abstract class Publicize_Base {
 	public function get_display_name( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
 
+		if ( 'mastodon' === $service_name && isset( $cmeta['external_name'] ) ) {
+			return $cmeta['external_name'];
+		}
+
 		if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
 			return $cmeta['connection_data']['meta']['display_name'];
 		}
@@ -536,6 +540,10 @@ abstract class Publicize_Base {
 	 */
 	public function get_username( $service_name, $connection ) {
 		$cmeta = $this->get_connection_meta( $connection );
+
+		if ( 'mastodon' === $service_name && isset( $cmeta['external_display'] ) ) {
+			return $cmeta['external_display'];
+		}
 
 		if ( isset( $cmeta['connection_data']['meta']['username'] ) ) {
 			return $cmeta['connection_data']['meta']['username'];
@@ -1783,6 +1791,15 @@ abstract class Publicize_Base {
 	 */
 	public function has_instagram_connection_feature() {
 		return Current_Plan::supports( 'social-instagram-connection' );
+	}
+
+	/**
+	 * Check if Mastodon connection is enabled.
+	 *
+	 * @return bool
+	 */
+	public function has_mastodon_connection_feature() {
+		return Current_Plan::supports( 'social-mastodon-connection' );
 	}
 
 	/**

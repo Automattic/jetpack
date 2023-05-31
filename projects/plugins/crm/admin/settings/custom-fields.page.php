@@ -436,7 +436,7 @@ if ( isset( $sbupdated ) && $sbupdated ) {
 		<?php
 
 		// loading here is shown until custom fields drawn, then this loader hidden and all .zbs-generic-loaded shown
-		echo zeroBSCRM_UI2_loadingSegmentHTML( '300px', 'zbs-generic-loading' );
+		echo jpcrm_loading_container(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 
 		// add nonce
 		wp_nonce_field( 'zbs-update-settings-customfields' );

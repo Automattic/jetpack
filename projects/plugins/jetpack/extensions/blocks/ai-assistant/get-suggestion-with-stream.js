@@ -163,8 +163,21 @@ export class SuggestionsEventSource extends EventTarget {
 				if ( response.ok ) {
 					return;
 				}
-				if ( response.status >= 400 && response.status <= 500 && response.status !== 429 ) {
+				if (
+					response.status >= 400 &&
+					response.status <= 500 &&
+					response.status !== 503 &&
+					response.status !== 429
+				) {
 					self.processConnectionError( response );
+				}
+
+				/*
+				 * error code 503
+				 * service unavailable
+				 */
+				if ( response.status === 503 ) {
+					self.dispatchEvent( new CustomEvent( 'error_service_unavailable' ) );
 				}
 
 				/*
@@ -183,8 +196,13 @@ export class SuggestionsEventSource extends EventTarget {
 
 	checkForUnclearPrompt() {
 		if ( ! this.isPromptClear ) {
-			// Sometimes the first token of the message is not received, so we check only for JETPACK_AI_ERROR, ignoring the first underscores
-			if ( this.fullMessage.replace( '__', '' ).startsWith( 'JETPACK_AI_ERROR' ) ) {
+			/*
+			 * Sometimes the first token of the message is not received,
+			 * so we check only for JETPACK_AI_ERROR, ignoring:
+			 * - the double underscores (italic markdown)
+			 * - the doouble asterisks (bold markdown)
+			 */
+			if ( this.fullMessage.replace( /__|(\*\*)/g, '' ) === 'JETPACK_AI_ERROR' ) {
 				// The unclear prompt marker was found, so we dispatch an error event
 				this.dispatchEvent( new CustomEvent( 'error_unclear_prompt' ) );
 			} else if ( 'JETPACK_AI_ERROR'.startsWith( this.fullMessage.replace( '__', '' ) ) ) {
