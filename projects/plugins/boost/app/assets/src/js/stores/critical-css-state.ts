@@ -153,7 +153,7 @@ export const refreshCriticalCssState = async () => {
 
 export const regenerateCriticalCss = async () => {
 	// Clear regeneration suggestions
-	suggestRegenerateDS.store.set( false );
+	suggestRegenerateDS.store.set( '' );
 
 	// This will clear the CSS from the database
 	// And return fresh nonce, provider and viewport data.
