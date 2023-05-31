@@ -19,7 +19,7 @@ require_once __DIR__ . '/launchpad-task-definitions.php';
 
 /**
  * Registers all default launchpad checklists
- * 
+ *
  * @return array
  */
 function wpcom_launchpad_get_task_list_definitions() {
@@ -128,23 +128,23 @@ function wpcom_launchpad_get_task_list_definitions() {
 			'is_enabled_callback' => '__return_false',
 		),
 	);
- 
+
 	$extended_task_list_definitions = apply_filters( 'wpcom_launchpad_extended_task_list_definitions', array() );
- 
+
 	// As for tasks, we can decide what overrides we allow later.
 	return array_merge( $extended_task_list_definitions, $core_task_list_definitions );
 }
 
 /**
  * Get a task list, falling back to site_intent option if no checklist slug is provided.
- * 
+ *
  * @param string $checklist_slug
- * 
+ *
  * @return array
  */
 function wpcom_launchpad_get_task_list( $checklist_slug = null ) {
 	$task_list_definitions = wpcom_launchpad_get_task_list_definitions();
-	
+
 	// If we don't have a checklist slug, fall back to the site intent.
 	$checklist_slug = $checklist_slug ? $checklist_slug : get_option( 'site_intent' );
 	if ( ! $checklist_slug ) {
@@ -161,9 +161,9 @@ function wpcom_launchpad_get_task_list( $checklist_slug = null ) {
 
 /**
  * Register all tasks and task lists from definitions
- * 
+ *
  * @param bool $rebuild Whether to rebuild the task lists or not
- * 
+ *
  * @return array
  */
 function wpcom_launchpad_get_task_lists( $rebuild = false ) {
@@ -171,23 +171,23 @@ function wpcom_launchpad_get_task_lists( $rebuild = false ) {
 	if ( ! $rebuild && wpcom_launchpad_checklists()->has_task_lists() ) {
 		return wpcom_launchpad_checklists()->get_all_task_lists();
 	}
- 
+
 	$task_definitions = wpcom_launchpad_get_task_definitions();
- 
+
 	// Register all tasks
 	foreach ( $task_definitions as $task_id => $task_definition ) {
 		$task_data = array_merge( $task_definition, array( 'id' => $task_id ) );
 		wpcom_register_launchpad_task( $task_data );
 	}
- 
+
 	$task_list_definitions = wpcom_launchpad_get_task_list_definitions();
- 
+
 	// Register all task lists
 	foreach ( $task_list_definitions as $task_list_id => $task_list_definition ) {
 		$task_list_data = array_merge( $task_list_definition, array( 'id' => $task_list_id ) );
 		wpcom_register_launchpad_task_list( $task_list_data );
 	}
- 
+
 	// Assuming the reference is good, just return all checklists
 	return wpcom_launchpad_checklists()->get_all_task_lists();
 }
