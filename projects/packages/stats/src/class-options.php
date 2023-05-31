@@ -161,13 +161,11 @@ class Options {
 			'do_not_track'             => true, // @todo
 			'blog_id'                  => Jetpack_Options::get_option( 'id' ),
 			'version'                  => Main::STATS_VERSION,
-			// Dashboard options.
 			'collapse_nudges'          => false,
 			'enable_odyssey_stats'     => true,
 			'odyssey_stats_changed_at' => 0,
 			'notices'                  => array(),
 			'views'                    => 0,
-			'modules'                  => array(),
 		);
 	}
 }
