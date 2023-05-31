@@ -174,6 +174,30 @@ const AIControl = ( {
 							{ __( 'Stop', 'jetpack' ) }
 						</Button>
 					) }
+
+					{ contentIsLoaded &&
+						! isWaitingState &&
+						( promptType === 'generateTitle' ? (
+							<Button
+								className="jetpack-ai-assistant__prompt_button"
+								onClick={ handleAcceptTitle }
+								isSmall={ true }
+								label={ __( 'Accept title', 'jetpack' ) }
+							>
+								<Icon icon={ check } />
+								{ __( 'Accept title', 'jetpack' ) }
+							</Button>
+						) : (
+							<Button
+								className="jetpack-ai-assistant__prompt_button"
+								onClick={ handleAcceptContent }
+								isSmall={ true }
+								label={ __( 'Accept', 'jetpack' ) }
+							>
+								<Icon icon={ check } />
+								{ __( 'Accept', 'jetpack' ) }
+							</Button>
+						) ) }
 				</div>
 			</div>
 		</>
@@ -190,14 +214,12 @@ const ToolbarControls = ( {
 	getSuggestionFromOpenAI,
 	retryRequest,
 	handleAcceptContent,
-	handleAcceptTitle,
 	handleImageRequest,
 	handleTryAgain,
 	showRetry,
 	contentBefore,
 	hasPostTitle,
 	wholeContent,
-	promptType,
 	setUserPrompt,
 	recordEvent,
 } ) => {
@@ -271,20 +293,9 @@ const ToolbarControls = ( {
 
 				<ToolbarGroup>
 					{ ! showRetry && contentIsLoaded && (
-						<>
-							{ promptType === 'generateTitle' ? (
-								<ToolbarButton onClick={ handleAcceptTitle }>
-									{ __( 'Accept title', 'jetpack' ) }
-								</ToolbarButton>
-							) : (
-								<ToolbarButton onClick={ handleAcceptContent }>
-									{ __( 'Done', 'jetpack' ) }
-								</ToolbarButton>
-							) }
-							<ToolbarButton onClick={ handleTryAgain }>
-								{ __( 'Try Again', 'jetpack' ) }
-							</ToolbarButton>
-						</>
+						<ToolbarButton onClick={ handleTryAgain }>
+							{ __( 'Try Again', 'jetpack' ) }
+						</ToolbarButton>
 					) }
 
 					{ ! showRetry && ! contentIsLoaded && !! wholeContent?.length && (

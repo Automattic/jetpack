@@ -99,8 +99,7 @@ ${ job }. Do this by following rules set in "Rules".
 Rules:
 - If you do not understand this request, regardless of language or any other rule, always answer exactly and without any preceding content with the following term and nothing else: __JETPACK_AI_ERROR__.
 - Do not use the term __JETPACK_AI_ERROR__ in any other context.
-${ extraRulePromptPart }- Do not include a top level heading by default.
-- Output the generated content in markdown format.
+${ extraRulePromptPart }- Output the generated content in markdown format.
 - Do not include a top level heading by default.
 - Only output generated content ready for publishing.
 - Segment the content into paragraphs as deemed suitable.
