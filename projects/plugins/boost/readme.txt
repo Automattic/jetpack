@@ -187,7 +187,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 2. Jetpack Boost Speed Improvement
 
 == Changelog ==
-### 1.9.0 - 2023-05-31
+### 1.9.1 - 2023-05-31
 #### Added
 - New Feature: Added JS and CSS file minification
 
