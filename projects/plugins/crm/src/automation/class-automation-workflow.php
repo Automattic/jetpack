@@ -85,7 +85,10 @@ class Automation_Workflow {
 				$trigger->init( $this );
 				
 			} catch ( Automation_Exception $e ) {
-				throw new Workflow_Exception( sprintf( __( 'An error happened initializing the trigger. %s', 'zero-bs-crm' ),  $e->getMessage() ) );
+				throw new Workflow_Exception( 
+					sprintf( __( 'An error happened initializing the trigger. %s', 'zero-bs-crm' ), $e->getMessage() ),
+					Workflow_Exception::ERROR_INITIALIZING_TRIGGER
+				);
 			}
 		}
 	}
