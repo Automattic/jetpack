@@ -65,7 +65,7 @@ This action is intended to be triggered by the `pull_request_review` event.
     # this to instead fail the status checks instead of leaving them pending.
     fail: true
 
-    # By default required reviewers are not requested. Set this to true to 
+    # By default required reviewers are not requested. Set this to true to
     # request reviews.
     request-reviews: true
 

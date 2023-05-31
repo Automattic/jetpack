@@ -2,32 +2,27 @@ const assert = require( 'assert' );
 const core = require( '@actions/core' );
 const { SError } = require( 'error' );
 const picomatch = require( 'picomatch' );
-const requestReview = require( './request-review.js' );
 const fetchTeamMembers = require( './team-members.js' );
 
 class RequirementError extends SError {}
-
-const outstandingTeams = new Set();
-
-let tempAnyOf = [];
 
 /**
  * Prints a result set, then returns it.
  *
  * @param {string} label - Label for the set.
- * @param {string[]} items - Items to print. If an empty array, will print `<empty set>` instead.
- * @returns {string[]} `items`.
+ * @param {string[]} teamReviewers - Team members that have reviewed the file. If an empty array, will print `<empty set>` instead.
+ * @param {string[]} neededTeams - Teams that have no reviews from it's members.
+ * @returns {{teamReviewers, neededTeams}} `{teamReviewers, neededTeams}`.
  */
-function printSet( label, items ) {
-	core.info( label + ' ' + ( items.length ? items.join( ', ' ) : '<empty set>' ) );
-	return items;
+function printSet( label, teamReviewers, neededTeams ) {
+	core.info( label + ' ' + ( teamReviewers.length ? teamReviewers.join( ', ' ) : '<empty set>' ) );
+	return {teamReviewers, neededTeams};
 }
 
 /**
  * Build a reviewer team membership filter.
  *
  * @param {object} config - Requirements configuration object being processed.
- * @param {string} op - whether in an all or any of block
  * @param {Array|string|object} teamConfig - Team name, or single-key object with a list of teams/objects, or array of such.
  * @param {string} indent - String for indentation.
  * @returns {Function} Function to filter an array of reviewers by membership in the team(s).
@@ -37,15 +32,13 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 		const team = teamConfig;
 		return async function ( reviewers ) {
 			const members = await fetchTeamMembers( team );
-			const reviewSatisfied = reviewers.filter( reviewer => members.includes( reviewer ) );
-			if ( reviewSatisfied.length === 0 ) {
-				if ( op == 'all-of' ) {
-					outstandingTeams.add(team)
-				} else {
-					tempAnyOf.push( team );
-				};
-			};
-			return printSet( `${ indent }Members of ${ team }:`, reviewSatisfied );
+			teamReviewers = reviewers.filter( reviewer => members.includes( reviewer ) );
+			const neededTeams = teamReviewers.length ? [] : [team];
+			printSet(
+				`${ indent }Members of ${ team }:`,
+				teamReviewers
+			);
+			return {teamReviewers, neededTeams};
 		};
 	}
 
@@ -79,7 +72,7 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 					value: teamConfig,
 				} );
 			}
-			arg = arg.map( t => buildReviewerFilter( config, op, t, `${ indent }  ` ) );
+			arg = arg.map( t => buildReviewerFilter( config, t, `${ indent }  ` ) );
 			break;
 
 		default:
@@ -92,26 +85,42 @@ function buildReviewerFilter( config, teamConfig, indent ) {
 	if ( op === 'any-of' ) {
 		return async function ( reviewers ) {
 			core.info( `${ indent }Union of these:` );
-			anyOfReviews = new Set(
-				( await Promise.all( arg.map( f => f( reviewers, `${ indent }  ` ) ) ) ).flat( 1 )
-			);
-			if ( [ ...anyOfReviews ] == '' ) {
-				for ( var i = 0; i < tempAnyOf.length; i++ ) {
-					outstandingTeams.add( tempAnyOf[ i ] );
-				}
-			} else { tempAnyOf = [] }
-			return printSet( `${ indent }=>`, [ ...anyOfReviews, ] );
+			const reviewersAny = await Promise.all( arg.map( f => f( reviewers, `${ indent }  ` ) ) );
+			const requirementsMet = [];
+			const neededTeams = [];
+			for ( const requirementResult of reviewersAny ) {
+				if ( requirementResult.teamReviewers.length != 0 ) {
+					requirementsMet.push( requirementResult.teamReviewers );
+				};
+				if ( requirementResult.neededTeams.length != 0 ) {
+					neededTeams.push( requirementResult.neededTeams );
+				};
+			};
+			if( requirementsMet.some( a => a.length > 0 ) ){ // If there are requirements met, zero out the needed teams
+				neededTeams.length = 0;
+			};
+			return printSet( `${ indent }=>`, [ ...new Set( requirementsMet.flat( 1 ) )],  [ ...new Set( neededTeams.flat( 1 ) ) ]);
 		};
 	}
 
 	if ( op === 'all-of' ) {
 		return async function ( reviewers ) {
 			core.info( `${ indent }Union of these, if none are empty:` );
-			const filtered = await Promise.all( arg.map( f => f( reviewers, `${ indent }  ` ) ) );
-			if ( filtered.some( a => a.length === 0 ) ) {
-				return printSet( `${ indent }=>`, [] );
-			}
-			return printSet( `${ indent }=>`, [ ...new Set( filtered.flat( 1 ) ) ] );
+			const reviewersAll = await Promise.all( arg.map( f => f( reviewers, `${ indent }  ` ) ) );
+			const requirementsMet = [];
+			const neededTeams = [];
+			for ( const requirementResult of reviewersAll ) {
+				if ( requirementResult.teamReviewers.length != 0 ) {
+					requirementsMet.push( requirementResult.teamReviewers );
+				};
+				if ( requirementResult.neededTeams.length != 0 ) {
+					neededTeams.push( requirementResult.neededTeams );
+				};
+			};
+			if ( neededTeams.length !== 0 ) { // If there are needed teams, zero out requirements met
+				return printSet( `${ indent }=>`, [], [ ...new Set( neededTeams.flat( 1 ) ) ] );
+			};
+			return printSet( `${ indent }=>`, [ ...new Set( requirementsMet.flat( 1 ) ) ], [ ...new Set( neededTeams.flat( 1 ) ) ] );
 		};
 	}
 
@@ -178,7 +187,7 @@ class Requirement {
 			);
 		}
 
-		this.reviewerFilter = buildReviewerFilter( config, 'any-of', { 'any-of': config.teams }, '  ' );
+		this.reviewerFilter = buildReviewerFilter( config, { 'any-of': config.teams }, '  ' );
 		this.consume = !! config.consume;
 	}
 
@@ -230,19 +239,12 @@ class Requirement {
 	 * @param {string[]} reviewers - Reviewers to test against.
 	 * @returns {boolean} Whether the requirement is satisfied.
 	 */
-	async isSatisfied( reviewers ) {
+	async needsReviewsFrom( reviewers ) {
 		core.info( 'Checking reviewers...' );
-		return ( await this.reviewerFilter( reviewers ) ).length > 0;
-	}
-
-	/**
-	 * returns the outstanding required teams
-	 *
-	 * @returns {Set} Set of required teams still outstanding
-	 */
-	async fetchOutstandingTeams() {
-		return [ ...outstandingTeams ].sort()
+		const checkNeededTeams = await this.reviewerFilter( reviewers )
+		return checkNeededTeams.neededTeams;
 	}
 }
 
 module.exports = Requirement;
+

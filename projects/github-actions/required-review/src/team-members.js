@@ -1,7 +1,6 @@
 const core = require( '@actions/core' );
 const github = require( '@actions/github' );
 const { WError } = require( 'error' );
-const getUsername = require( './get-username.js' );
 
 const cache = {};
 
@@ -24,8 +23,17 @@ async function fetchTeamMembers( team ) {
 	if ( team.startsWith( '@' ) ) {
 		// Handle @singleuser virtual teams. Fetch the correct username case from GitHub
 		// to avoid having to worry about edge cases and Unicode versions and such.
-		const login = await getUsername( team );
-		members.push( login );
+		try {
+			const res = await octokit.rest.users.getByUsername( { username: team.slice( 1 ) } );
+			members.push( res.data.login );
+		} catch ( error ) {
+			throw new WError(
+				// prettier-ignore
+				`Failed to query user ${ team } from GitHub: ${ error.response?.data?.message || error.message }`,
+				error,
+				{}
+			);
+		}
 	} else {
 		try {
 			for await ( const res of octokit.paginate.iterator( octokit.rest.teams.listMembersInOrg, {
