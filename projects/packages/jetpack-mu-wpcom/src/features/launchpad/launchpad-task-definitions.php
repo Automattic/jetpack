@@ -232,14 +232,16 @@ function wpcom_mark_launchpad_task_complete( $task_id ) {
 	$statuses[ $key ] = true;
 	$result           = update_option( 'launchpad_checklist_tasks_statuses', $statuses );
  
-	// Record the completion event in Tracks.
-	require_lib( 'tracks/client' );
-	
-	tracks_record_event( 
-		wp_get_current_user(), 
-		'launchpad_mark_task_completed', 
-		array( 'task_id' => $key ) 
-	);
+	// Record the completion event in Tracks if we're running on WP.com.
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		require_lib( 'tracks/client' );
+		
+		tracks_record_event( 
+			wp_get_current_user(), 
+			'launchpad_mark_task_completed', 
+			array( 'task_id' => $key ) 
+		);
+	}
 
 	return $result;
 }
