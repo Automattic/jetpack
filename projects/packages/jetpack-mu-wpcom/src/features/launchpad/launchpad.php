@@ -167,7 +167,7 @@ function wpcom_launchpad_get_task_list( $checklist_slug = null ) {
  */
 function wpcom_launchpad_get_task_lists( $rebuild = false ) {
 	// If we already have task lists registered and we don't want to rebuild, return all task lists.
-	if ( ! $rebuild && $launchpad_instance->has_task_lists() ) {
+	if ( ! $rebuild && wpcom_launchpad_checklists()->has_task_lists() ) {
 		return wpcom_launchpad_checklists()->get_all_task_lists();
 	}
 
