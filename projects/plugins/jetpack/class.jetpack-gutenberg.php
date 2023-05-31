@@ -655,6 +655,10 @@ class Jetpack_Gutenberg {
 			$is_current_user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected();
 		}
 
+		$is_jetpack_self_hosted = ! (
+			( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Host() )->is_woa_site()
+		);
+
 		$initial_state = array(
 			'available_blocks' => self::get_availability(),
 			'jetpack'          => array(
@@ -674,7 +678,7 @@ class Jetpack_Gutenberg {
 					 *
 					 * @param bool false Enable the Paid Newsletters feature in the block editor context.
 					 */
-					apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', true )
+					apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', ! $is_jetpack_self_hosted )
 					&& class_exists( '\Jetpack_Memberships' )
 				),
 				/**

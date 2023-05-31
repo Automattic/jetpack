@@ -59,13 +59,17 @@ function register_block() {
 		return;
 	}
 
+	$is_jetpack_self_hosted = ! (
+		( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Host() )->is_woa_site()
+	);
+
 	/**
 	 * Do not proceed if the newsletter feature is not enabled
 	 * or if the 'Jetpack_Memberships' class does not exists.
 	 */
 	if (
 		/** This filter is documented in class.jetpack-gutenberg.php */
-		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', true )
+		! apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', ! $is_jetpack_self_hosted )
 		|| ! class_exists( '\Jetpack_Memberships' )
 	) {
 		return;
@@ -416,9 +420,13 @@ function render_block( $attributes ) {
 		return '';
 	}
 
+	$is_jetpack_self_hosted = ! (
+		( defined( 'IS_WPCOM' ) && IS_WPCOM ) || ( new Host() )->is_woa_site()
+	);
+
 	if (
 		/** This filter is documented in class.jetpack-gutenberg.php */
-		apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', true )
+		apply_filters( 'jetpack_subscriptions_newsletter_feature_enabled', ! $is_jetpack_self_hosted )
 		&& class_exists( '\Jetpack_Memberships' )
 	) {
 		// We only want the sites that have newsletter feature enabled to be graced by this JavaScript and thickbox.
