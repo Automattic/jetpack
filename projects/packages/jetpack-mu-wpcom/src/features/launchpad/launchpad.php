@@ -15,6 +15,7 @@
  */
 
 require_once __DIR__ . '/class-launchpad-task-lists.php';
+require_once __DIR__ . '/launchpad-task-definitions.php';
 
 /**
  * Registers all default launchpad checklists
@@ -170,8 +171,6 @@ function wpcom_launchpad_get_task_lists( $rebuild = false ) {
 	if ( ! $rebuild && wpcom_launchpad_checklists()->has_task_lists() ) {
 		return wpcom_launchpad_checklists()->get_all_task_lists();
 	}
-
-	require_once( dirname( __FILE__ ) . '/launchpad-task-definitions.php' );
  
 	$task_definitions = wpcom_launchpad_get_task_definitions();
  
