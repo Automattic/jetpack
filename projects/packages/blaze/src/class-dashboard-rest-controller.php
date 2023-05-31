@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Blaze;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_REST_Server;
 
@@ -250,7 +251,7 @@ class Dashboard_REST_Controller {
 	 * @return true
 	 */
 	private function is_user_connected() {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
 			return true;
 		}
 
