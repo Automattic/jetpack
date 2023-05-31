@@ -506,7 +506,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				default:
-					$response[ $setting ] = Jetpack_Core_Json_Api_Endpoints::cast_value( get_option( $setting ), $settings[ $setting ] );
+					$default              = isset( $settings[ $setting ]['default'] ) ? $settings[ $setting ]['default'] : false;
+					$response[ $setting ] = Jetpack_Core_Json_Api_Endpoints::cast_value( get_option( $setting, $default ), $settings[ $setting ] );
 					break;
 			}
 		}
@@ -989,8 +990,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				default:
-					// If option value was the same, consider it done.
-					$updated = get_option( $option ) != $value // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- ensure we support scalars or strings saved by update_option.
+					// Boolean values are stored as 1 or 0.
+					if ( isset( $options[ $option ]['type'] ) && 'boolean' === $options[ $option ]['type'] ) {
+						$value = (int) $value;
+					}
+
+					// If option value was the same as it's current value, or it's default, consider it done.
+					$default = isset( $options[ $option ]['default'] ) ? $options[ $option ]['default'] : false;
+					$updated = get_option( $option, $default ) != $value // phpcs:ignore Universal.Operators.StrictComparisons.LooseNotEqual -- ensure we support scalars or strings saved by update_option.
 						? update_option( $option, $value )
 						: true;
 					break;
